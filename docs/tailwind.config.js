@@ -56,7 +56,7 @@ module.exports = {
     },
   },
   corePlugins: {
-    // Remove the Tailwind CSS preflight styles so it can use Material UI's preflight instead (CssBaseline).
+    // Remove the Tailwind CSS preflight styles so it can use Stoked UI's preflight instead (CssBaseline).
     preflight: false,
   },
   plugins: [

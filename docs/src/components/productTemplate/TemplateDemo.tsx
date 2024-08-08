@@ -67,7 +67,7 @@ export default function TemplateDemo() {
                 The right template for your <GradientText>specific use case</GradientText>
               </Typography>
             }
-            description="A collection of 4.5 average rating templates, for multiple use cases, all powered by Material UI components and carefully curated by MUI's team.
+            description="A collection of 4.5 average rating templates, for multiple use cases, all powered by Stoked UI components and carefully curated by SUI's team.
               "
           />
           <Group desktopColumns={2} sx={{ m: -2, p: 2 }}>
@@ -88,7 +88,7 @@ export default function TemplateDemo() {
             ))}
             <More
               component={Link}
-              href="https://mui.com/store/?utm_source=marketing&utm_medium=referral&utm_campaign=templates-cta2#populars"
+              href="https://stokedui.com/store/?utm_source=marketing&utm_medium=referral&utm_campaign=templates-cta2#populars"
               noLinkStyle
             />
           </Group>

@@ -1,0 +1,5 @@
+<FileExplorer
+  items={NestedFiles}
+  experimentalFeatures={{ indentationAtItemLevel: true }}
+  defaultExpandedItems={['1']}
+/>

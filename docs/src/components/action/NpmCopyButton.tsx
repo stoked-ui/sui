@@ -35,11 +35,11 @@ const Button = styled('button')(({ theme }) => ({
   }),
   WebkitTapHighlightColor: 'transparent',
   WebkitFontSmoothing: 'subpixel-antialiased',
-  color: (theme.vars || theme).palette.grey[600],
+  color: theme.palette.grey[600],
   '&:hover, &:focus-visible': {
-    color: (theme.vars || theme).palette.primary.main,
+    color: theme.palette.primary.main,
     '@media (hover: none)': {
-      color: (theme.vars || theme).palette.grey[600],
+      color: theme.palette.grey[600],
     },
   },
   '& svg': {

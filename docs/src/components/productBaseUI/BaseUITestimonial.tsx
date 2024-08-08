@@ -62,7 +62,7 @@ export default function BaseUITestimonial() {
         <Grid xs={12} sm={6} sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
           <Typography>
             “After considering various options, we decided to migrate our custom components to
-            Material UI, and that&apos;s when we discovered Base UI. As a set of headless
+            Stoked UI, and that&apos;s when we discovered Base UI. As a set of headless
             components, it offered exactly what we needed to implement our design system while
             maintaining full customizability. The focus on accessibility was also a big plus, as it
             ensured that our dashboard was usable by everyone. Low-level component hooks were just

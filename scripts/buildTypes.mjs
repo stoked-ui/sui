@@ -13,21 +13,12 @@ const $$ = $({ stdio: 'inherit' });
  * @param {string} importPath - POSIX path
  */
 function rewriteImportPath(importPath) {
-  const coreSrcPath = path.posix.join('..', 'mui-material', 'src');
-  if (importPath.startsWith(coreSrcPath)) {
-    return importPath.replace(coreSrcPath, '@mui/material');
-  }
+  
 
-  const stylesSrcPath = path.posix.join('..', 'mui-styles', 'src');
+  const stylesSrcPath = path.posix.join('..', 'sui-file-explorer', 'src');
   if (importPath.startsWith(stylesSrcPath)) {
-    return importPath.replace(stylesSrcPath, '@mui/styles');
+    return importPath.replace(stylesSrcPath, '@stoked-ui/file-explorer');
   }
-
-  const systemSrcPath = path.posix.join('..', 'mui-system', 'src');
-  if (importPath.startsWith(systemSrcPath)) {
-    return importPath.replace(systemSrcPath, '@mui/system');
-  }
-
   throw new Error(`Don't know where to rewrite '${importPath}' to`);
 }
 

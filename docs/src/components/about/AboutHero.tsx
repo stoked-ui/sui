@@ -11,19 +11,19 @@ const teamPhotos = [
   {
     img: '/static/branding/about/group-photo/teide-group.jpg',
     title:
-      'A group photo of the MUI crew posing near the base of Mount Teide at the start of the hike.',
+      'A group photo of the SUI crew posing near the base of Mount Teide at the start of the hike.',
   },
   {
     img: '/static/branding/about/group-photo/skiers.jpg',
-    title: 'MUI team members standing lined-up in the snow with their skigear.',
+    title: 'SUI team members standing lined-up in the snow with their skigear.',
   },
   {
     img: '/static/branding/about/group-photo/group-photo.jpg',
-    title: 'Photo of the MUI team in front of the pool at our accommodations in Tenerife',
+    title: 'Photo of the SUI team in front of the pool at our accommodations in Tenerife',
   },
   {
     img: '/static/branding/about/group-photo/team-dinner.png',
-    title: 'Members of the MUI team sitting around a large wooden dining table.',
+    title: 'Members of the SUI team sitting around a large wooden dining table.',
   },
   {
     img: '/static/branding/about/group-photo/working-table-tenerife.png',
@@ -32,7 +32,7 @@ const teamPhotos = [
   {
     img: '/static/branding/about/group-photo/scuba-gear.png',
     title:
-      'MUI team members and their diving instructors pose in scuba gear before a scuba diving lesson.',
+      'SUI team members and their diving instructors pose in scuba gear before a scuba diving lesson.',
   },
   {
     img: '/static/branding/about/group-photo/outdoor-focus-group.png',
@@ -41,7 +41,7 @@ const teamPhotos = [
   },
   {
     img: '/static/branding/about/group-photo/working-table-portugal.png',
-    title: 'MUI team members working together on a heads-down moment in Portugal.',
+    title: 'SUI team members working together on a heads-down moment in Portugal.',
   },
   {
     img: '/static/branding/about/group-photo/snow-tea.png',
@@ -49,7 +49,7 @@ const teamPhotos = [
   },
   {
     img: '/static/branding/about/group-photo/portugal-sight-seeing.png',
-    title: 'MUI team selfie while sightseeing in Lisbon, Portugal.',
+    title: 'SUI team selfie while sightseeing in Lisbon, Portugal.',
   },
 ];
 
@@ -66,12 +66,12 @@ const Image = styled('img')(({ theme }) => ({
   objectFit: 'cover',
   borderRadius: theme.shape.borderRadius,
   border: '1px solid',
-  borderColor: (theme.vars || theme).palette.divider,
-  boxShadow: `0px 2px 8px ${(theme.vars || theme).palette.grey[200]}`,
+  borderColor: theme.palette.divider,
+  boxShadow: `0px 2px 8px ${theme.palette.grey[200]}`,
   transition: 'all 100ms ease',
   ...theme.applyDarkStyles({
-    borderColor: (theme.vars || theme).palette.primaryDark[600],
-    boxShadow: `0px 2px 8px ${(theme.vars || theme).palette.common.black}`,
+    borderColor: theme.palette.primaryDark[600],
+    boxShadow: `0px 2px 8px ${theme.palette.common.black}`,
   }),
 }));
 
@@ -119,7 +119,7 @@ function PhotoGallery() {
         ...theme.applyDarkStyles({
           '&::before, &::after': {
             background: `linear-gradient(to right, ${
-              (theme.vars || theme).palette.primaryDark[900]
+              theme.palette.primaryDark[900]
             } 0%, rgba(0, 0, 0, 0) 100%)`,
           },
         }),

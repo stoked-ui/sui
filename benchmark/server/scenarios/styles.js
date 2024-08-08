@@ -99,7 +99,7 @@ suite
     ReactDOMServer.renderToString(
       <StylesProvider sheetsManager={new Map()} sheetsRegistry={sheetsRegistry}>
         {Array.from(new Array(5)).map((_, index) => (
-          <StyledMuiButton key={String(index)}>MUI</StyledMuiButton>
+          <StyledMuiButton key={String(index)}>SUI</StyledMuiButton>
         ))}
       </StylesProvider>,
     );
@@ -111,7 +111,7 @@ suite
       <StylesProvider sheetsManager={new Map()} sheetsRegistry={sheetsRegistry}>
         {Array.from(new Array(5)).map((_, index) => (
           <Box key={String(index)} p={2}>
-            MUI
+            SUI
           </Box>
         ))}
       </StylesProvider>,
@@ -143,7 +143,7 @@ suite
       <JssProvider registry={sheetsRegistry}>
         {Array.from(new Array(5)).map((_, index) => (
           <button key={String(index)} type="submit">
-            MUI
+            SUI
           </button>
         ))}
       </JssProvider>,
@@ -156,7 +156,7 @@ suite
       <JssProvider registry={sheetsRegistry}>
         <React.Fragment>
           {Array.from(new Array(5)).map((_, index) => (
-            <JSSButton key={String(index)}>MUI</JSSButton>
+            <JSSButton key={String(index)}>SUI</JSSButton>
           ))}
         </React.Fragment>
       </JssProvider>,
@@ -168,7 +168,7 @@ suite
     ReactDOMServer.renderToString(
       <StylesProvider sheetsManager={new Map()} sheetsRegistry={sheetsRegistry}>
         {Array.from(new Array(5)).map((_, index) => (
-          <WithStylesButton key={String(index)}>MUI</WithStylesButton>
+          <WithStylesButton key={String(index)}>SUI</WithStylesButton>
         ))}
       </StylesProvider>,
     );
@@ -179,7 +179,7 @@ suite
     ReactDOMServer.renderToString(
       <StylesProvider sheetsManager={new Map()} sheetsRegistry={sheetsRegistry}>
         {Array.from(new Array(5)).map((_, index) => (
-          <HookButton key={String(index)}>MUI</HookButton>
+          <HookButton key={String(index)}>SUI</HookButton>
         ))}
       </StylesProvider>,
     );
@@ -191,7 +191,7 @@ suite
       sheet.collectStyles(
         <React.Fragment>
           {Array.from(new Array(5)).map((_, index) => (
-            <StyledComponentsButton key={String(index)}>MUI</StyledComponentsButton>
+            <StyledComponentsButton key={String(index)}>SUI</StyledComponentsButton>
           ))}
         </React.Fragment>,
       ),
@@ -202,7 +202,7 @@ suite
     ReactDOMServer.renderToString(
       <StylesProvider>
         {Array.from(new Array(5)).map((_, index) => (
-          <EmotionButton key={String(index)}>MUI</EmotionButton>
+          <EmotionButton key={String(index)}>SUI</EmotionButton>
         ))}
       </StylesProvider>,
     );
@@ -211,7 +211,7 @@ suite
     ReactDOMServer.renderToString(
       <StylesProvider>
         {Array.from(new Array(5)).map((_, index) => (
-          <EmotionCssButton key={String(index)}>MUI</EmotionCssButton>
+          <EmotionCssButton key={String(index)}>SUI</EmotionCssButton>
         ))}
       </StylesProvider>,
     );
@@ -221,7 +221,7 @@ suite
       ReactDOMServer.renderToString(
         <StylesProvider>
           {Array.from(new Array(5)).map((_, index) => (
-            <EmotionCssButton key={String(index)}>MUI</EmotionCssButton>
+            <EmotionCssButton key={String(index)}>SUI</EmotionCssButton>
           ))}
         </StylesProvider>,
       ),
@@ -231,7 +231,7 @@ suite
     ReactDOMServer.renderToString(
       <StylesProvider>
         {Array.from(new Array(5)).map((_, index) => (
-          <NakedButton key={String(index)}>MUI</NakedButton>
+          <NakedButton key={String(index)}>SUI</NakedButton>
         ))}
       </StylesProvider>,
     );

@@ -1,0 +1,17 @@
+const cards = [
+  createCardData('default id()', 'idGen.id()', idGen.id(), 'usage of the default id() function'),
+  createCardData('named id()', `idGen.id('named')`, idGen.id('named'), 'id() with the named argument'),
+  createCardData('long id()', `idGen.id('long', 20)`, idGen.id('long', 20), 'id() with using the name and length arguments'),
+];
+
+export default function IdGeneratorUsage() {
+  return (
+    <Stack spacing={2}>
+      {cards.map(card => {
+        return (
+          <Card variant="outlined">{card}</Card>
+        );
+      })}
+    </Stack>
+  );
+}

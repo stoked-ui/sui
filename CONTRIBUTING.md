@@ -1,4 +1,4 @@
-# Contributing to Material UI, MUI System, Joy UI
+# Contributing to Material UI, SUI System, Joy UI
 
 If you're reading this, you're awesome!
 Thank you for being a part of the community and helping us make these projects great.
@@ -26,21 +26,21 @@ Here are a few guidelines that will help you along the way.
 ## Code of conduct
 
 We has adopted the [Contributor Covenant](https://www.contributor-covenant.org/) as our code of conduct, and we expect project participants to adhere to it.
-Please read [the full text](https://github.com/mui/.github/blob/master/CODE_OF_CONDUCT.md) to understand what actions will and will not be tolerated.
+Please read [the full text](https://github.com/stoked-ui/.github/blob/master/CODE_OF_CONDUCT.md) to understand what actions will and will not be tolerated.
 
 ## A large spectrum of contributions
 
-There are [many ways](https://mui.com/material-ui/getting-started/faq/#mui-is-awesome-how-can-i-support-the-project) to contribute to the library, and writing code is only one part of the story—[documentation improvements](#contributing-to-the-documentation) can be just as important as code changes.
+There are [many ways](https://stokedui.com/stoked-ui/getting-started/faq/#mui-is-awesome-how-can-i-support-the-project) to contribute to the library, and writing code is only one part of the story—[documentation improvements](#contributing-to-the-documentation) can be just as important as code changes.
 If you have an idea for an improvement to the code or the docs, we encourage you to open an issue as a first step, to discuss your proposed changes with the maintainers before proceeding.
 
 ## Your first pull request
 
 Working on your first pull request? You can learn how in this free video series: [How to Contribute to an Open Source Project on GitHub](https://egghead.io/courses/how-to-contribute-to-an-open-source-project-on-github).
 
-Get started with [good first issues](https://github.com/mui/material-ui/issues?q=is:open+is:issue+label:"good+first+issue"), which have a limited scope and a working solution that's already been discussed.
+Get started with [good first issues](https://github.com/stoked-ui/stoked-ui/issues?q=is:open+is:issue+label:"good+first+issue"), which have a limited scope and a working solution that's already been discussed.
 This makes them ideal for newer developers, or those who are new to these libraries and want to see how the contribution process works.
 
-We also have a list of [ready to take issues](https://github.com/mui/material-ui/issues?q=is:open+is:issue+label:"ready+to+take"), which are issues that have already been at least partially resolved in discussion, to the point that it's clear what to do next.
+We also have a list of [ready to take issues](https://github.com/stoked-ui/stoked-ui/issues?q=is:open+is:issue+label:"ready+to+take"), which are issues that have already been at least partially resolved in discussion, to the point that it's clear what to do next.
 These issues are great for developers who want to reduce their chances of falling down a rabbit hole in search of a solution.
 
 Of course, you can work on any other issue you like—the "good first" and "ready to take" issues are simply those where the scope and timeline may be better defined.
@@ -54,7 +54,7 @@ If there has been no activity on the issue for 7 to 14 days, then it's safe to a
 
 ## Sending a pull request
 
-MUI Core projects are community-driven, so pull requests are always welcome, but before working on a large change, it's best to open an issue first to discuss it with the maintainers.
+SUI Core projects are community-driven, so pull requests are always welcome, but before working on a large change, it's best to open an issue first to discuss it with the maintainers.
 
 When in doubt, keep your pull requests small.
 For the best chances of being accepted, don't bundle more than one feature or bug fix per PR.
@@ -65,9 +65,9 @@ It's often best to create two smaller PRs rather than one big one.
 2. Clone the fork to your local machine and add the upstream remote:
 
 ```bash
-git clone https://github.com/<your username>/material-ui.git
-cd material-ui
-git remote add upstream https://github.com/mui/material-ui.git
+git clone https://github.com/<your username>/stoked-ui.git
+cd stoked-ui
+git remote add upstream https://github.com/stoked-ui/stoked-ui.git
 ```
 
 <!-- #default-branch-switch -->
@@ -97,7 +97,7 @@ git checkout -b my-topic-branch
 git push -u origin HEAD
 ```
 
-7. Go to [the repository](https://github.com/mui/material-ui) and open a pull request.
+7. Go to [the repository](https://github.com/stoked-ui/stoked-ui) and open a pull request.
 
 The core team actively monitors for new pull requests.
 We will review your PR and either merge it, request changes to it, or close it with an explanation.
@@ -150,9 +150,9 @@ Make sure the following is true:
 - If a feature is being added:
   - If the result was already achievable with the core library, you've explained why this feature needs to be added to the core.
   - If this is a common use case, you've added an example to the documentation.
-- If adding new features or modifying existing ones, you've included tests to confirm the new behavior. You can read more about our test setup in our test [README](https://github.com/mui/material-ui/blob/HEAD/test/README.md).
+- If adding new features or modifying existing ones, you've included tests to confirm the new behavior. You can read more about our test setup in our test [README](https://github.com/stoked-ui/stoked-ui/blob/HEAD/test/README.md).
 - If props were added or prop types were changed, you've updated the TypeScript declarations.
-- If submitting a new component, you've added it to the [lab](https://github.com/mui/material-ui/tree/HEAD/packages/mui-lab).
+- If submitting a new component, you've added it to the [lab](https://github.com/stoked-ui/stoked-ui/tree/HEAD/packages/mui-lab).
 - The branch is not [behind its target branch](https://github.community/t/branch-10-commits-behind/2403).
 
 We will only merge a PR when all tests pass.
@@ -263,7 +263,7 @@ $ pnpm docs:api
 ### Coding style
 
 Please follow the coding style of the project.
-MUI Core projects use prettier and ESLint, so if possible, enable linting in your editor to get real-time feedback.
+SUI Core projects use prettier and ESLint, so if possible, enable linting in your editor to get real-time feedback.
 
 - `pnpm prettier` reformats the code.
 - `pnpm eslint` runs the linting rules.
@@ -273,7 +273,7 @@ When you submit a PR, these checks are run again by our continuous integration t
 ## Contributing to the documentation
 
 Contributing to open-source docs involves a lot more than just fixing typos—developers frequently request more in-depth explanations of component features, and this requires both coding and technical writing to accomplish.
-Every documentation PR will be reviewed by an editor following [MUI's writing style guide](https://mui-org.notion.site/Writing-style-guide-2a957a4168a54d47b14bae026d06a24b), and if you plan to contribute regularly, you should familiarize yourself with this guide to speed up the editing process.
+Every documentation PR will be reviewed by an editor following [SUI's writing style guide](https://mui-org.notion.site/Writing-style-guide-2a957a4168a54d47b14bae026d06a24b), and if you plan to contribute regularly, you should familiarize yourself with this guide to speed up the editing process.
 
 ### How to find docs issues to work on
 
@@ -281,7 +281,7 @@ If you're interested in contributing to the docs but aren't sure where to start,
 
 `is:issue is:open label:docs label:"ready to take"`
 
-Or [follow this link directly to the results of that search](https://github.com/mui/material-ui/issues?q=is%3Aissue+is%3Aopen+label%3Adocs+label%3A%22ready+to+take%22).
+Or [follow this link directly to the results of that search](https://github.com/stoked-ui/stoked-ui/issues?q=is%3Aissue+is%3Aopen+label%3Adocs+label%3A%22ready+to+take%22).
 
 ### How to add a new demo to the docs
 
@@ -325,7 +325,7 @@ Add a header and a brief description of the demo and its use case, along with th
 
 Now you're ready to [open a PR](#sending-a-pull-request) to add your new demo to the docs.
 
-Check out [this Toggle Button demo PR](https://github.com/mui/material-ui/pull/19582/files) for an example of what your new and edited files should look like when opening your own demo PR.
+Check out [this Toggle Button demo PR](https://github.com/stoked-ui/stoked-ui/pull/19582/files) for an example of what your new and edited files should look like when opening your own demo PR.
 
 ## How can I use a change that hasn't been released yet?
 
@@ -343,7 +343,7 @@ index 791a7da1f4..a5db13b414 100644
      "@babel/runtime": "^7.4.4",
      "@mui/styled-engine": "^5.0.0-alpha.16",
 -    "@mui/material": "^5.0.0-alpha.15",
-+    "@mui/material": "https://pkg.csb.dev/mui/material-ui/commit/371c952b/@mui/material",
++    "@mui/material": "https://pkg.csb.dev/mui/stoked-ui/commit/371c952b/@mui/material",
      "@mui/system": "^5.0.0-alpha.16",
 ```
 
@@ -376,8 +376,8 @@ $test-project> npm i ./path-to-file/mui-material-x.x.x.tar.gz
 
 Learn more about the future by visiting our different projects' roadmaps:
 
-- [Material UI roadmap](https://mui.com/material-ui/discover-more/roadmap/).
+- [Material UI roadmap](https://stokedui.com/stoked-ui/discover-more/roadmap/).
 
 ## License
 
-By contributing your code to the [mui/material-ui](https://github.com/mui/material-ui) GitHub repository, you agree to license your contribution under the [MIT license](/LICENSE).
+By contributing your code to the [mui/stoked-ui](https://github.com/stoked-ui/stoked-ui) GitHub repository, you agree to license your contribution under the [MIT license](/LICENSE).

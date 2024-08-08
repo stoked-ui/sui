@@ -6,7 +6,7 @@ import { loadComparison } from './scripts/sizeSnapshot';
 import replaceUrl from './packages/api-docs-builder/utils/replaceUrl';
 
 const circleCIBuildNumber = process.env.CIRCLE_BUILD_NUM;
-const circleCIBuildUrl = `https://app.circleci.com/pipelines/github/mui/material-ui/jobs/${circleCIBuildNumber}`;
+const circleCIBuildUrl = `https://app.circleci.com/pipelines/github/mui/stoked-ui/jobs/${circleCIBuildNumber}`;
 const dangerCommand = process.env.DANGER_COMMAND;
 
 const parsedSizeChangeThreshold = 300;
@@ -200,7 +200,7 @@ function addDeployPreviewUrls() {
 
     if (url.startsWith('/material')) {
       // needs to convert to correct material legacy folder structure to the existing url.
-      url = replaceUrl(url.replace('/material', ''), '/material-ui').replace(/^\//, '');
+      url = replaceUrl(url.replace('/material', ''), '/stoked-ui').replace(/^\//, '');
     } else {
       url = url
         .replace(/^\//, '') // remove initial `/`
@@ -211,7 +211,7 @@ function addDeployPreviewUrls() {
     return url;
   }
 
-  const netlifyPreview = `https://deploy-preview-${danger.github.pr.number}--material-ui.netlify.app/`;
+  const netlifyPreview = `https://deploy-preview-${danger.github.pr.number}--stoked-ui.netlify.app/`;
 
   const files = [...danger.git.created_files, ...danger.git.modified_files];
 

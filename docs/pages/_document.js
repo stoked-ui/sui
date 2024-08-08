@@ -176,6 +176,7 @@ export default class MyDocument extends Document {
           {getMuiInitColorSchemeScript({ defaultMode: 'system' })}
           {getJoyInitColorSchemeScript({ defaultMode: 'system' })}
           <Main />
+          {/*
           <script
             // eslint-disable-next-line react/no-danger
             dangerouslySetInnerHTML={{
@@ -190,14 +191,15 @@ gtag('config', '${GOOGLE_ANALYTICS_ID_V4}', {
 `,
             }}
           />
-          {/**
+          *
            * A better alternative to <script async>, to delay its execution
            * https://developer.chrome.com/blog/script-component/
-           */}
+
           <Script
             strategy="afterInteractive"
             src={`https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ANALYTICS_ID_V4}`}
           />
+          */}
           <NextScript />
         </body>
       </Html>

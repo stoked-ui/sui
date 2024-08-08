@@ -89,11 +89,11 @@ export default function PropertiesSection(props) {
       const signature = propData.signature?.type;
       const signatureArgs = propData.signature?.describedArgs?.map((argName) => ({
         argName,
-        argDescription: propertiesDescriptions[propName].typeDescriptions[argName],
+        argDescription: propertiesDescriptions[propName]?.typeDescriptions[argName],
       }));
       const signatureReturnDescription =
         propData.signature?.returned &&
-        propertiesDescriptions[propName].typeDescriptions[propData.signature.returned];
+        propertiesDescriptions[propName]?.typeDescriptions[propData.signature.returned];
 
       return {
         componentName,

@@ -26,8 +26,8 @@ async function getRollupSize(snapshotPath) {
     // path in the snapshot is relative the snapshot itself
     path
       .relative(workspaceRoot, path.join(path.dirname(snapshotPath), bundlePath))
-      // Ensure original ID when the package was located in `packages/material-ui/`
-      .replace('mui-material', 'material-ui'),
+      // Ensure original ID when the package was located in `packages/stoked-ui/`
+      .replace('sui-file-explorer', 'file-explorer'),
     normalizeRollupSnapshot(snapshot),
   ]);
 }
@@ -56,7 +56,7 @@ async function getWebpackSizes(webpackEnvironment) {
 async function run(argv) {
   const { analyze, accurateBundles } = argv;
 
-  const rollupBundles = [path.join(workspaceRoot, 'packages/mui-material/size-snapshot.json')];
+  const rollupBundles = [path.join(workspaceRoot, 'packages/sui-file-explorer/size-snapshot.json')];
   const bundleSizes = lodash.fromPairs([
     ...(await getWebpackSizes({ analyze, accurateBundles })),
     ...lodash.flatten(await Promise.all(rollupBundles.map(getRollupSize))),

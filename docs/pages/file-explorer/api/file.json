@@ -1,0 +1,105 @@
+{
+  "props": {
+    "children": { "type": { "name": "node" } },
+    "classes": { "type": { "name": "object" }, "additionalInfo": { "cssApi": true } },
+    "disabled": { "type": { "name": "bool" }, "default": "false" },
+    "id": { "type": { "name": "string" } },
+    "itemId": { "type": { "name": "string" } },
+    "label": { "type": { "name": "node" } },
+    "onBlur": { "type": { "name": "func" } },
+    "onFocus": { "type": { "name": "custom", "description": "unsupportedProp" } },
+    "onKeyDown": { "type": { "name": "func" } },
+    "slotProps": { "type": { "name": "object" }, "default": "{}" },
+    "slots": {
+      "type": { "name": "object" },
+      "default": "{}",
+      "additionalInfo": { "slotsApi": true }
+    }
+  },
+  "name": "File",
+  "imports": [
+    "import { File } from '@stoked-ui/sui-file-explorer/File';",
+    "import { File } from '@stoked-ui/sui-file-explorer';"
+  ],
+  "slots": [
+    {
+      "name": "root",
+      "description": "The component that renders the root.",
+      "default": "FileRoot",
+      "class": "MuiFile-root"
+    },
+    {
+      "name": "content",
+      "description": "The component that renders the content of the item.\n(e.g.: everything related to this item, not to its children).",
+      "default": "FileContent",
+      "class": "MuiFile-content"
+    },
+    {
+      "name": "groupTransition",
+      "description": "The component that renders the children of the item.",
+      "default": "FileGroupTransition",
+      "class": "MuiFile-groupTransition"
+    },
+    {
+      "name": "iconContainer",
+      "description": "The component that renders the icon.",
+      "default": "FileIconContainer",
+      "class": "MuiFile-iconContainer"
+    },
+    {
+      "name": "checkbox",
+      "description": "The component that renders the item checkbox for selection.",
+      "default": "FileCheckbox",
+      "class": "MuiFile-checkbox"
+    },
+    {
+      "name": "label",
+      "description": "The component that renders the item label.",
+      "default": "FileLabel",
+      "class": "MuiFile-label"
+    },
+    { "name": "collapseIcon", "description": "The icon used to collapse the item.", "class": null },
+    { "name": "expandIcon", "description": "The icon used to expand the item.", "class": null },
+    { "name": "endIcon", "description": "The icon displayed next to an end item.", "class": null },
+    {
+      "name": "icon",
+      "description": "The icon to display next to the fileExplorer item's label.",
+      "class": null
+    }
+  ],
+  "classes": [
+    {
+      "key": "disabled",
+      "className": "Mui-disabled",
+      "description": "State class applied to the element when disabled.",
+      "isGlobal": true
+    },
+    {
+      "key": "expanded",
+      "className": "Mui-expanded",
+      "description": "State class applied to the content element when expanded.",
+      "isGlobal": true
+    },
+    {
+      "key": "focused",
+      "className": "Mui-focused",
+      "description": "State class applied to the content element when focused.",
+      "isGlobal": true
+    },
+    { "key": "grid", "className": "MuiFile-grid", "description": "", "isGlobal": false },
+    {
+      "key": "selected",
+      "className": "Mui-selected",
+      "description": "State class applied to the content element when selected.",
+      "isGlobal": true
+    }
+  ],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "MuiFile",
+  "forwardsRefTo": "HTMLLIElement",
+  "filename": "/packages/sui-file-explorer/src/File/File.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/file-explorer/docs/file-customizaton/\">File Customization</a></li>\n<li><a href=\"/file-explorer/docs/file-explorer/customization/\">File Explorer - Customization</a></li>\n<li><a href=\"/file-explorer/docs/file-explorer-basic/customization/\">File Explorer Basic - Customization</a></li></ul>",
+  "cssComponent": false
+}

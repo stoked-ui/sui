@@ -1,0 +1,151 @@
+{
+  "props": {
+    "apiRef": {
+      "type": {
+        "name": "shape",
+        "description": "{ current?: { focusItem: func, getItem: func, getItemDOMElement: func, gridEnabled: func, selectItem: func, setColumns: func, setItemExpansion: func, setVisibleOrder: func } }"
+      }
+    },
+    "checkboxSelection": { "type": { "name": "bool" }, "default": "false" },
+    "classes": { "type": { "name": "object" }, "additionalInfo": { "cssApi": true } },
+    "defaultExpandedItems": {
+      "type": { "name": "arrayOf", "description": "Array&lt;string&gt;" },
+      "default": "[]"
+    },
+    "defaultSelectedItems": { "type": { "name": "any" }, "default": "[]" },
+    "disabledItemsFocusable": { "type": { "name": "bool" }, "default": "false" },
+    "disableSelection": { "type": { "name": "bool" }, "default": "false" },
+    "expandedItems": { "type": { "name": "arrayOf", "description": "Array&lt;string&gt;" } },
+    "expansionTrigger": {
+      "type": { "name": "enum", "description": "'content'<br>&#124;&nbsp;'iconContainer'" },
+      "default": "'content'"
+    },
+    "experimentalFeatures": {
+      "type": { "name": "shape", "description": "{ indentationAtItemLevel?: bool }" }
+    },
+    "getItemId": {
+      "type": { "name": "func" },
+      "default": "(item) => item.id",
+      "signature": {
+        "type": "function(item: R) => string",
+        "describedArgs": ["item"],
+        "returned": "string"
+      }
+    },
+    "getItemLabel": {
+      "type": { "name": "func" },
+      "default": "(item) => item.label",
+      "signature": {
+        "type": "function(item: R) => string",
+        "describedArgs": ["item"],
+        "returned": "string"
+      }
+    },
+    "id": { "type": { "name": "string" } },
+    "isItemDisabled": {
+      "type": { "name": "func" },
+      "signature": {
+        "type": "function(item: R) => boolean",
+        "describedArgs": ["item"],
+        "returned": "boolean"
+      }
+    },
+    "itemChildrenIndentation": {
+      "type": { "name": "union", "description": "number<br>&#124;&nbsp;string" },
+      "default": "12px"
+    },
+    "multiSelect": { "type": { "name": "bool" }, "default": "false" },
+    "onExpandedItemsChange": {
+      "type": { "name": "func" },
+      "signature": {
+        "type": "function(event: React.SyntheticEvent, itemIds: array) => void",
+        "describedArgs": ["event", "itemIds"]
+      }
+    },
+    "onItemExpansionToggle": {
+      "type": { "name": "func" },
+      "signature": {
+        "type": "function(event: React.SyntheticEvent, itemId: array, isExpanded: array) => void",
+        "describedArgs": ["event", "itemId", "isExpanded"]
+      }
+    },
+    "onItemFocus": {
+      "type": { "name": "func" },
+      "signature": {
+        "type": "function(event: React.SyntheticEvent, itemId: string, value: string) => void",
+        "describedArgs": ["event", "itemId", "value"]
+      }
+    },
+    "onItemSelectionToggle": {
+      "type": { "name": "func" },
+      "signature": {
+        "type": "function(event: React.SyntheticEvent, itemId: array, isSelected: array) => void",
+        "describedArgs": ["event", "itemId", "isSelected"]
+      }
+    },
+    "onSelectedItemsChange": {
+      "type": { "name": "func" },
+      "signature": {
+        "type": "function(event: React.SyntheticEvent, itemIds: Array<string> | string) => void",
+        "describedArgs": ["event", "itemIds"]
+      }
+    },
+    "selectedItems": { "type": { "name": "any" } },
+    "slotProps": { "type": { "name": "object" }, "default": "{}" },
+    "slots": {
+      "type": { "name": "object" },
+      "default": "{}",
+      "additionalInfo": { "slotsApi": true }
+    },
+    "sx": {
+      "type": {
+        "name": "union",
+        "description": "Array&lt;func<br>&#124;&nbsp;object<br>&#124;&nbsp;bool&gt;<br>&#124;&nbsp;func<br>&#124;&nbsp;object"
+      },
+      "additionalInfo": { "sx": true }
+    }
+  },
+  "name": "FileExplorer",
+  "imports": [
+    "import { FileExplorer } from '@stoked-ui/sui-file-explorer/FileExplorer';",
+    "import { FileExplorer } from '@stoked-ui/sui-file-explorer';"
+  ],
+  "slots": [
+    {
+      "name": "root",
+      "description": "Element rendered at the root.",
+      "default": "FileExplorerRoot",
+      "class": "MuiFileExplorer-root"
+    },
+    {
+      "name": "item",
+      "description": "Custom component for the item.",
+      "default": "CCV F ileExplorerItem.",
+      "class": null
+    },
+    {
+      "name": "collapseIcon",
+      "description": "The default icon used to collapse the item.",
+      "class": null
+    },
+    {
+      "name": "expandIcon",
+      "description": "The default icon used to expand the item.",
+      "class": null
+    },
+    {
+      "name": "endIcon",
+      "description": "The default icon displayed next to an end item.\nThis is applied to all fileExplorer items and can be overridden by the File `icon` slot prop.",
+      "class": null
+    }
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "MuiFileExplorer",
+  "forwardsRefTo": "HTMLUListElement",
+  "filename": "/packages/sui-file-explorer/src/FileExplorer/FileExplorer.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/file-explorer/docs/file-customizaton/\">File Customization</a></li>\n<li><a href=\"/file-explorer/docs/file-explorer/customization/\">File Explorer - Customization</a></li>\n<li><a href=\"/file-explorer/docs/file-explorer/expansion/\">File Explorer - Expansion</a></li>\n<li><a href=\"/file-explorer/docs/file-explorer/focus/\">File Explorer - Focus</a></li>\n<li><a href=\"/file-explorer/docs/file-explorer/items/\">File Explorer - Items</a></li>\n<li><a href=\"/file-explorer/docs/file-explorer/selection/\">File Explorer - Selection</a></li>\n<li><a href=\"/file-explorer/docs/getting-started/\">Getting Started</a></li></ul>",
+  "cssComponent": false
+}

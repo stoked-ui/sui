@@ -5,7 +5,7 @@ import Benchmark from 'benchmark';
 import * as React from 'react';
 import * as ReactDOMServer from 'react-dom/server';
 import MarkdownElement from 'docs/src/modules/components/MarkdownElement';
-import Markdown from 'docs/data/material/getting-started/templates/blog/Markdown';
+import Markdown from 'docs/data/stoked-ui/getting-started/templates/blog/Markdown';
 import { createStore } from 'redux';
 import { Provider } from 'react-redux';
 
@@ -17,7 +17,7 @@ const suite = new Benchmark.Suite('core', {
 Benchmark.options.minSamples = 100;
 
 const markdown = fs.readFileSync(
-  path.join(__dirname, '../../../docs/data/material/getting-started/templates/blog/blog-post.1.md'),
+  path.join(__dirname, '../../../docs/data/stoked-ui/getting-started/templates/blog/blog-post.1.md'),
   'UTF-8',
 );
 

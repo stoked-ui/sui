@@ -3,7 +3,7 @@ const { rules: baseStyleRules } = require('eslint-config-airbnb-base/rules/style
 
 const forbidTopLevelMessage = [
   'Prefer one level nested imports to avoid bundling everything in dev mode',
-  'See https://github.com/mui/material-ui/pull/24147 for the kind of win it can unlock.',
+  'See https://github.com/stoked-ui/stoked-ui/pull/24147 for the kind of win it can unlock.',
 ].join('\n');
 // This only applies to packages published from this monorepo.
 // If you build a library around `@mui/material` you can safely use `createStyles` without running into the same issue as we are.
@@ -31,7 +31,7 @@ module.exports = {
     ecmaVersion: 7,
   },
   plugins: [
-    'eslint-plugin-material-ui',
+    'eslint-plugin-stoked-ui',
     'eslint-plugin-react-hooks',
     '@typescript-eslint/eslint-plugin',
     'eslint-plugin-filenames',
@@ -78,6 +78,7 @@ module.exports = {
     // Destructuring harm grep potential.
     'prefer-destructuring': 'off',
 
+    'no-constructor-return': 'off',
     '@typescript-eslint/no-use-before-define': [
       'error',
       {
@@ -103,7 +104,7 @@ module.exports = {
 
     // Not sure why it doesn't work
     'import/named': 'off',
-    'import/no-cycle': 'off',
+    'import/no-cycle': 'error',
     // Missing yarn workspace support
     'import/no-extraneous-dependencies': 'off',
     // The code is already coupled to webpack. Prefer explicit coupling.
@@ -121,11 +122,11 @@ module.exports = {
     // We are a library, we need to support it too
     'jsx-a11y/no-autofocus': 'off',
 
-    'material-ui/docgen-ignore-before-comment': 'error',
-    'material-ui/rules-of-use-theme-variants': 'error',
-    'material-ui/no-empty-box': 'error',
-    'material-ui/no-styled-box': 'error',
-    'material-ui/straight-quotes': 'error',
+    'stoked-ui/docgen-ignore-before-comment': 'error',
+    'stoked-ui/rules-of-use-theme-variants': 'error',
+    'stoked-ui/no-empty-box': 'error',
+    'stoked-ui/no-styled-box': 'error',
+    'stoked-ui/straight-quotes': 'error',
 
     'react-hooks/exhaustive-deps': ['error', { additionalHooks: 'useEnhancedEffect' }],
     'react-hooks/rules-of-hooks': 'error',
@@ -204,7 +205,7 @@ module.exports = {
     // Avoid accidental auto-"fixes" https://github.com/jsx-eslint/eslint-plugin-react/issues/3458
     'react/no-invalid-html-attribute': 'off',
 
-    'react/jsx-no-useless-fragment': ['error', { allowExpressions: true }],
+    'react/jsx-no-useless-fragment': ['warn', { allowExpressions: true }],
     'lines-around-directive': 'off',
   },
   overrides: [
@@ -220,7 +221,7 @@ module.exports = {
       rules: {
         // does not work with wildcard imports. Mistakes will throw at runtime anyway
         'import/named': 'off',
-        'material-ui/disallow-active-element-as-key-event-target': 'error',
+        'stoked-ui/disallow-active-element-as-key-event-target': 'error',
 
         // upgraded level from recommended
         'mocha/no-exclusive-tests': 'error',
@@ -264,9 +265,9 @@ module.exports = {
     {
       files: ['docs/src/modules/components/**/*.js'],
       rules: {
-        'material-ui/no-hardcoded-labels': [
+        'stoked-ui/no-hardcoded-labels': [
           'error',
-          { allow: ['MUI', 'X', 'GitHub', 'Stack Overflow'] },
+          { allow: ['SUI', 'X', 'GitHub', 'Stack Overflow'] },
         ],
       },
     },
@@ -445,7 +446,7 @@ module.exports = {
       files: ['packages/*/src/**/*{.ts,.tsx,.js}'],
       excludedFiles: ['*.d.ts', '*.spec.ts', '*.spec.tsx', 'packages/mui-joy/**/*{.ts,.tsx,.js}'],
       rules: {
-        'material-ui/mui-name-matches-component-name': [
+        'stoked-ui/mui-name-matches-component-name': [
           'error',
           {
             customHooks: [

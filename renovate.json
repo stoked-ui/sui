@@ -63,8 +63,8 @@
       ]
     },
     {
-      "groupName": "MUI X",
-      "matchPackagePatterns": ["@mui/x-*"]
+      "groupName": "SUI X",
+      "matchPackagePatterns": ["@stoked-ui/x-*"]
     },
     {
       "groupName": "React",
@@ -113,7 +113,7 @@
     {
       "groupName": "envinfo tests",
       "matchPaths": ["packages/mui-envinfo/test/package.json"],
-      "matchPackagePatterns": ["@mui/*"],
+      "matchPackagePatterns": ["@stoked-ui/*"],
       "enabled": false
     }
   ],

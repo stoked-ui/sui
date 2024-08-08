@@ -17,8 +17,8 @@ export default function DesignKits() {
   return (
     <BrandingCssVarsProvider>
       <Head
-        title="Material UI in your favorite design tool"
-        description="Pick your favorite design tool to enjoy and use Material UI components. Boost consistency and facilitate communication when working with developers."
+        title="Stoked UI in your favorite design tool"
+        description="Pick your favorite design tool to enjoy and use Stoked UI components. Boost consistency and facilitate communication when working with developers."
         card="/static/social-previews/designkits-preview.jpg"
       />
       <AppHeaderBanner />

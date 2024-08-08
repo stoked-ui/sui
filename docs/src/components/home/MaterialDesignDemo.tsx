@@ -7,29 +7,21 @@ import MuiTypography from '@mui/material/Typography';
 import MuiStack from '@mui/material/Stack';
 import MuiRating from '@mui/material/Rating';
 import { withPointer } from 'docs/src/components/home/ElementPointer';
+import { FileExplorer, FileElement, FileExplorerViewBaseItem } from "@stoked-ui/file-explorer";
+import FileExplorerFiles from '../fileExplorer/data';
 
 export const componentCode = `
-<Card>
-  <CardMedia
-    component="img"
-    alt="Yosemite National Park"
-    image="/static/images/cards/yosemite.jpeg"
-  />
-  <Stack direction="row" alignItems="center" spacing={3} p={2} useFlexGap>
-    <Stack direction="column" spacing={0.5} useFlexGap>
-      <Typography>Yosemite National Park, California, USA</Typography>
-      <Stack direction="row" spacing={1} useFlexGap>
-        <Chip
-          size="small"
-          label={active ? 'Active' : 'Inactive'}
-          color={active ? 'success' : 'default'}
-        />
-        <Rating defaultValue={1} size="small" />
-      </Stack>
-    </Stack>
-    <Switch checked={active} />
-  </Stack>
-</Card>
+const [active, setActive] = React.useState(true);
+  return (
+    <FileExplorer
+      items={FileExplorerFiles as readonly FileExplorerViewBaseItem[]}
+      defaultExpandedItems={['1', '1.1']}
+      defaultSelectedItems="1.1"
+      slots={{ item: FileElement }}
+      {...props}
+      id={props.id}
+    />
+  );
 `;
 
 const Card = withPointer(MuiCard, { id: 'card', name: 'Card' });
@@ -41,44 +33,11 @@ const Typography = withPointer(MuiTypography, { id: 'typography', name: 'Typogra
 const Chip = withPointer(MuiChip, { id: 'chip', name: 'Chip' });
 const Rating = withPointer(MuiRating, { id: 'rating', name: 'Rating' });
 const Switch = withPointer(MuiSwitch, { id: 'switch', name: 'Switch' });
-
 export default function MaterialDesignDemo(props: CardProps) {
   const [active, setActive] = React.useState(true);
   return (
-    <Card {...props} sx={{ p: 2 }}>
-      <CardMedia
-        component="img"
-        alt="Yosemite National Park"
-        height="100"
-        image="/static/images/cards/yosemite.jpeg"
-        sx={{ borderRadius: 0.5 }}
-      />
-      <Stack alignItems="center" direction="row" spacing={3} mt={2} useFlexGap>
-        <Stack2 direction="column" spacing={0.5} useFlexGap>
-          <Typography fontWeight="semiBold">Yosemite National Park, California, USA</Typography>
-          <Stack3 direction="row" spacing={1} useFlexGap>
-            <Chip
-              label={active ? 'Active' : 'Inactive'}
-              color={active ? 'success' : 'default'}
-              size="small"
-              sx={{
-                width: 'fit-content',
-                fontSize: 12,
-                height: 20,
-                px: 0,
-                zIndex: 2,
-              }}
-            />
-            <Rating name="Rating component" defaultValue={1} size="small" />
-          </Stack3>
-        </Stack2>
-        <Switch
-          inputProps={{ 'aria-label': active ? 'Active' : 'Inactive' }}
-          checked={active}
-          onChange={(event) => setActive(event.target.checked)}
-          sx={{ ml: 'auto' }}
-        />
-      </Stack>
-    </Card>
+    <div>
+
+    </div>
   );
 }

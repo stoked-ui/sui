@@ -52,43 +52,15 @@ const StyledAppContainer = styled(AppContainer, {
     // https://stackoverflow.com/questions/43311943/prevent-content-from-expanding-grid-items
     minWidth: 0,
     ...(disableToc
-      ? {
-          // 105ch ≈ 930px
-          maxWidth: `calc(105ch + ${TOC_WIDTH / 2}px)`,
-        }
-      : {
-          // We're mostly hosting text content so max-width by px does not make sense considering font-size is system-adjustable.
-          fontFamily: 'Arial',
-          // 105ch ≈ 930px
-          maxWidth: '105ch',
-        }),
-    ...(!disableAd && {
-      ...(hasTabs
-        ? {
-            '&& .component-tabs .MuiTabs-root': {
-              // 40px matches MarkdownElement h2 margin-top.
-              marginBottom: `calc(${theme.spacing(AD_MARGIN_TOP)} + ${AD_HEIGHT_MOBILE}px + 40px)`,
-              [theme.breakpoints.up('sm')]: {
-                marginBottom: `calc(${theme.spacing(AD_MARGIN_TOP)} + ${AD_HEIGHT}px + 40px)`,
-              },
-            },
-            '&& .component-tabs.ad .MuiTabs-root': {
-              marginBottom: 0,
-            },
-          }
-        : {
-            '&& .description': {
-              marginBottom: theme.spacing(AD_MARGIN_BOTTOM),
-              paddingBottom: `calc(${theme.spacing(AD_MARGIN_TOP)} + ${AD_HEIGHT_MOBILE}px)`,
-              [theme.breakpoints.up('sm')]: {
-                paddingBottom: `calc(${theme.spacing(AD_MARGIN_TOP)} + ${AD_HEIGHT}px)`,
-              },
-            },
-            '&& .description.ad': {
-              paddingBottom: 0,
-              marginBottom: 0,
-            },
-          }),
+    ? {
+        // 105ch ≈ 930px
+        maxWidth: `calc(105ch + ${TOC_WIDTH / 2}px)`,
+      }
+    : {
+        // We're mostly hosting text content so max-width by px does not make sense considering font-size is system-adjustable.
+        fontFamily: 'Arial',
+        // 105ch ≈ 930px
+        maxWidth: '105ch',
     }),
     [theme.breakpoints.up('lg')]: {
       paddingLeft: '60px',
@@ -120,17 +92,17 @@ export default function AppLayoutDocs(props) {
   }
 
   const { canonicalAs } = pathnameToLanguage(router.asPath);
-  let productName = 'MUI';
+  let productName = 'Stoked UI';
   if (canonicalAs.startsWith('/material-ui/')) {
     productName = 'Material UI';
   } else if (canonicalAs.startsWith('/base-ui/')) {
     productName = 'Base UI';
   } else if (canonicalAs.startsWith('/x/')) {
-    productName = 'MUI X';
+    productName = 'SUI X';
   } else if (canonicalAs.startsWith('/system/')) {
-    productName = 'MUI System';
+    productName = 'SUI System';
   } else if (canonicalAs.startsWith('/toolpad/')) {
-    productName = 'MUI Toolpad';
+    productName = 'SUI Toolpad';
   } else if (canonicalAs.startsWith('/joy-ui/')) {
     productName = 'Joy UI';
   }
@@ -148,8 +120,6 @@ export default function AppLayoutDocs(props) {
           },
         }}
       />
-      <AdManager {...(hasTabs && { classSelector: '.component-tabs' })}>
-        <Head title={`${title} - ${productName}`} description={description} card={card} />
         <Main disableToc={disableToc}>
           {/*
             Render the TOCs first to avoid layout shift when the HTML is streamed.
@@ -161,7 +131,6 @@ export default function AppLayoutDocs(props) {
           </StyledAppContainer>
           {disableToc ? null : <AppTableOfContents toc={toc} />}
         </Main>
-      </AdManager>
       <BackToTop />
     </Layout>
   );

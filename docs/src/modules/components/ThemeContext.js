@@ -234,7 +234,7 @@ export function ThemeProvider(props) {
         components: {
           MuiCssBaseline: {
             defaultProps: {
-              // TODO: Material UI v6, makes this the default
+              // TODO: Stoked UI v6, makes this the default
               enableColorScheme: true,
             },
           },

@@ -6,17 +6,18 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import Chip from '@mui/material/Chip';
-import XIcon from '@mui/icons-material/X';
 import GitHubIcon from '@mui/icons-material/GitHub';
+import Slack from '../icons/Slack';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import YouTubeIcon from '@mui/icons-material/YouTube';
 import RssFeedIcon from '@mui/icons-material/RssFeed';
-import SvgMuiLogotype from 'docs/src/icons/SvgMuiLogotype';
+import SvgSuiLogotype from 'docs/src/icons/SvgSuiLogotype';
 import EmailSubscribe from 'docs/src/components/footer/EmailSubscribe';
 import ROUTES from 'docs/src/route';
 import DiscordIcon from 'docs/src/icons/DiscordIcon';
 import { Link } from '@mui/docs/Link';
 import SvgStackOverflow from 'docs/src/icons/SvgStackOverflow';
+import { PRODUCTS } from "../products";
 
 interface AppFooterProps {
   stackOverflowUrl?: string;
@@ -51,7 +52,7 @@ export default function AppFooter(props: AppFooterProps) {
       >
         <div>
           <Link prefetch={false} href="/" aria-label="Go to homepage" sx={{ mb: 2 }}>
-            <SvgMuiLogotype height={28} width={91} />
+            <SvgSuiLogotype height={28} width={91} />
           </Link>
           <Typography variant="body2" fontWeight="semiBold" gutterBottom>
             Keep up to date
@@ -73,37 +74,17 @@ export default function AppFooter(props: AppFooterProps) {
             <Typography fontWeight="semiBold" variant="body2" sx={{ mb: 0.5 }}>
               Products
             </Typography>
-            <Link prefetch={false} href={ROUTES.productMaterial}>
-              Material UI
+            <Link prefetch={false} href={PRODUCTS.index['stoked-ui'].url('product')}>
+              Stoked UI
             </Link>
-            <Link prefetch={false} href={ROUTES.productBase}>
-              Base UI
+            <Link prefetch={false} href={PRODUCTS.getFeatureUrl('stoked-ui', 'file-explorer', 'doc')}>
+              File Explorer
             </Link>
-            <Link prefetch={false} href={ROUTES.productAdvanced}>
-              MUI X
+            <Link prefetch={false} href={PRODUCTS.getFeatureUrl('stoked-ui', 'media-selector', 'doc')}>
+              Media Selector
             </Link>
-            <Link prefetch={false} href={ROUTES.productToolpad}>
-              Toolpad
-            </Link>
-          </Box>
-          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-            <Typography fontWeight="semiBold" variant="body2" sx={{ mb: 0.5 }}>
-              Resources
-            </Typography>
-            <Link prefetch={false} href={ROUTES.materialIcons}>
-              Material Icons
-            </Link>
-            <Link prefetch={false} href={ROUTES.freeTemplates}>
-              Templates
-            </Link>
-            <Link prefetch={false} href={ROUTES.components}>
-              Components
-            </Link>
-            <Link prefetch={false} href={ROUTES.customization}>
-              Customization
-            </Link>
-            <Link prefetch={false} href={ROUTES.productDesignKits}>
-              Design Kits
+            <Link prefetch={false} href={PRODUCTS.index['stoked-consulting'].url('product')}>
+              Consulting
             </Link>
           </Box>
           <Box sx={{ display: 'flex', flexDirection: 'column' }}>
@@ -112,9 +93,6 @@ export default function AppFooter(props: AppFooterProps) {
             </Typography>
             <Link prefetch={false} href={ROUTES.documentation}>
               Documentation
-            </Link>
-            <Link prefetch={false} href={ROUTES.store}>
-              Store
             </Link>
             <Link prefetch={false} href={ROUTES.blog}>
               Blog
@@ -136,27 +114,6 @@ export default function AppFooter(props: AppFooterProps) {
             <Link prefetch={false} href={ROUTES.vision}>
               Vision
             </Link>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Link prefetch={false} href={ROUTES.careers}>
-                Careers{' '}
-              </Link>
-              <Chip
-                size="small"
-                variant="outlined"
-                color="success"
-                label="Hiring"
-                sx={(theme) => ({
-                  height: 18,
-                  '& .MuiChip-label': {
-                    px: '4px',
-                    fontSize: theme.typography.pxToRem(10),
-                    fontWeight: 'bold',
-                    textTransform: 'uppercase',
-                    letterSpacing: '.04rem',
-                  },
-                })}
-              />
-            </Box>
             <Link prefetch={false} href={ROUTES.support}>
               Support
             </Link>
@@ -178,7 +135,7 @@ export default function AppFooter(props: AppFooterProps) {
         sx={{ my: 4 }}
       >
         <Typography color="text.tertiary" variant="caption" fontWeight={400}>
-          Copyright © {new Date().getFullYear()} Material UI SAS, trading as MUI.
+          Copyright © {new Date().getFullYear()} Stoked UI
         </Typography>
         <Stack spacing={1} direction="row" flexWrap="wrap" useFlexGap>
           <IconButton
@@ -204,12 +161,12 @@ export default function AppFooter(props: AppFooterProps) {
           <IconButton
             target="_blank"
             rel="noopener"
-            href="https://x.com/MUI_hq"
-            aria-label="X/twitter"
-            title="X"
+            href="https://stokedconsulting.slack.com"
+            aria-label="slack"
+            title="Slack"
             size="small"
           >
-            <XIcon fontSize="small" />
+            <Slack sx={{ color: 'white' }} variant={'monochrome'} fontSize="small" />
           </IconButton>
           <IconButton
             target="_blank"
@@ -234,7 +191,7 @@ export default function AppFooter(props: AppFooterProps) {
           <IconButton
             target="_blank"
             rel="noopener"
-            href="https://mui.com/r/discord/"
+            href="https://stokedui.com/r/discord/"
             aria-label="Discord"
             title="Discord"
             size="small"

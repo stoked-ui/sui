@@ -126,7 +126,7 @@ export default function MaterialComponents() {
                 <GradientText>40+</GradientText> building block components
               </Typography>
             }
-            description="A meticulous implementation of Material Design; every Material UI component meets the highest standards of form and function."
+            description="A meticulous implementation of Material Design; every Stoked UI component meets the highest standards of form and function."
           />
           <Group desktopColumns={2} sx={{ m: -2, p: 2 }}>
             {DEMOS.map((name) => (
@@ -324,7 +324,7 @@ export default function MaterialComponents() {
                   right: 0,
                   zIndex: 10,
                   background: `linear-gradient(to bottom, ${
-                    (theme.vars || theme).palette.common.black
+                    theme.palette.common.black
                   } 30%, transparent)`,
                   [`& .${buttonClasses.root}`]: {
                     borderRadius: 40,

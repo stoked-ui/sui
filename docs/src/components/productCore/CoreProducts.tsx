@@ -8,7 +8,7 @@ import { InfoCard } from '@mui/docs/InfoCard';
 const content = [
   {
     // icon:
-    title: 'Material UI',
+    title: 'Stoked UI',
     description: "An open-source React component library that implements Google's Material Design.",
     link: '/material-ui/',
   },
@@ -16,7 +16,7 @@ const content = [
     // icon:
     title: 'Joy UI',
     description:
-      "An open-source React component library that implements MUI's own in-house design principles.",
+      "An open-source React component library that implements SUI's own in-house design principles.",
     link: '/joy-ui/getting-started/',
   },
   {
@@ -28,7 +28,7 @@ const content = [
   },
   {
     // icon:
-    title: 'MUI System',
+    title: 'SUI System',
     description:
       'A set of CSS utilities to help you build custom designs more efficiently. It makes it possible to rapidly lay out custom designs.',
     link: '/system/getting-started/',

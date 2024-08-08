@@ -421,15 +421,15 @@ const rowHeaders: Record<string, React.ReactNode> = {
       tooltip="A library of headless ('unstyled') React UI components and low-level hooks, available in @mui/base."
     />
   ),
-  'MUI System': (
+  'SUI System': (
     <ColumnHead
-      label="MUI System"
+      label="SUI System"
       tooltip="CSS utilities for rapidly laying out custom designs, available in @mui/system."
     />
   ),
-  'Material UI': (
+  'Stoked UI': (
     <ColumnHead
-      label="Material UI"
+      label="Stoked UI"
       tooltip="A library of React UI components that implements Google's Material Design, available in @mui/material."
     />
   ),
@@ -546,7 +546,7 @@ const rowHeaders: Record<string, React.ReactNode> = {
     <ColumnHead label="Master detail" href="/x/react-data-grid/master-detail/" />
   ),
   'data-grid/grouping': (
-    <ColumnHead label="Row grouping" href="https://mui.com/x/react-data-grid/row-grouping/" />
+    <ColumnHead label="Row grouping" href="https://stokedui.com/x/react-data-grid/row-grouping/" />
   ),
   'data-grid/aggregation': (
     <ColumnHead label="Aggregation" href="/x/react-data-grid/aggregation/" />
@@ -603,10 +603,10 @@ const rowHeaders: Record<string, React.ReactNode> = {
   'charts/selection-interaction': <ColumnHead label="Range selection" />,
 
   'tree-view/simple-tree-view': (
-    <ColumnHead label="Simple Tree View" href="/x/react-tree-view/#simple-tree-view" />
+    <ColumnHead label="File Explorer Basic" href="/x/react-tree-view/#simple-tree-view" />
   ),
   'tree-view/rich-tree-view': (
-    <ColumnHead label="Rich Tree View" href="/x/react-tree-view/#rich-tree-view" />
+    <ColumnHead label="File Explorer" href="/x/react-tree-view/#rich-tree-view" />
   ),
 
   'mui-x-production': <ColumnHead label="Perpetual use in production" />,
@@ -619,16 +619,16 @@ const rowHeaders: Record<string, React.ReactNode> = {
   'core-support': (
     <ColumnHead
       {...{
-        label: 'Technical support for MUI Core',
+        label: 'Technical support for SUI Core',
         tooltip:
-          'Support for MUI Core (for example Material UI) is provided by the community. MUI Core maintainers focus on solving root issues to support the community at large.',
+          'Support for SUI Core (for example Stoked UI) is provided by the community. SUI Core maintainers focus on solving root issues to support the community at large.',
       }}
     />
   ),
   'x-support': (
     <ColumnHead
       {...{
-        label: 'Technical support for MUI X',
+        label: 'Technical support for SUI X',
         tooltip:
           'You can ask for technical support, report bugs and submit unlimited feature requests to the advanced components. We take your subscription plan as one of the prioritization criteria.',
       }}
@@ -706,12 +706,12 @@ const toBeDefined = (
 );
 
 const communityData: Record<string, React.ReactNode> = {
-  // MUI Core
+  // SUI Core
   'Base UI': yes,
-  'MUI System': yes,
-  'Material UI': yes,
+  'SUI System': yes,
+  'Stoked UI': yes,
   'Joy UI': yes,
-  // MUI X
+  // SUI X
   // -- data grid - columns --
   'data-grid/column-groups': yes,
   'data-grid/column-spanning': yes,
@@ -807,12 +807,12 @@ const communityData: Record<string, React.ReactNode> = {
 };
 
 const proData: Record<string, React.ReactNode> = {
-  // MUI Core
+  // SUI Core
   'Base UI': yes,
-  'MUI System': yes,
-  'Material UI': yes,
+  'SUI System': yes,
+  'Stoked UI': yes,
   'Joy UI': yes,
-  // MUI X
+  // SUI X
   // -- data grid - columns --
   'data-grid/column-groups': yes,
   'data-grid/column-spanning': yes,
@@ -911,12 +911,12 @@ const proData: Record<string, React.ReactNode> = {
 };
 
 const premiumData: Record<string, React.ReactNode> = {
-  // MUI Core
+  // SUI Core
   'Base UI': yes,
-  'MUI System': yes,
-  'Material UI': yes,
+  'SUI System': yes,
+  'Stoked UI': yes,
   'Joy UI': yes,
-  // MUI X
+  // SUI X
   // -- data grid - columns --
   'data-grid/column-groups': yes,
   'data-grid/column-spanning': yes,
@@ -1034,13 +1034,13 @@ function RowCategory(props: BoxProps) {
           letterSpacing: '.1rem',
           fontWeight: theme.typography.fontWeightBold,
           fontSize: theme.typography.pxToRem(11),
-          color: (theme.vars || theme).palette.text.tertiary,
+          color: theme.palette.text.tertiary,
           borderBottom: '1px solid',
-          bgcolor: (theme.vars || theme).palette.grey[50],
-          borderColor: (theme.vars || theme).palette.grey[200],
+          bgcolor: theme.palette.grey[50],
+          borderColor: theme.palette.grey[200],
           ...theme.applyDarkStyles({
-            bgcolor: (theme.vars || theme).palette.primaryDark[900],
-            borderColor: (theme.vars || theme).palette.primaryDark[600],
+            bgcolor: theme.palette.primaryDark[900],
+            borderColor: theme.palette.primaryDark[600],
           }),
         }),
         ...(Array.isArray(props.sx) ? props.sx : [props.sx]),
@@ -1099,12 +1099,12 @@ function StickyHead({
           py: 1,
           display: { xs: 'none', md: 'block' },
           backdropFilter: 'blur(20px)',
-          boxShadow: `inset 0px -1px 1px ${(theme.vars || theme).palette.grey[100]}`,
+          boxShadow: `inset 0px -1px 1px ${theme.palette.grey[100]}`,
           backgroundColor: 'rgba(255,255,255,0.72)',
         }),
         (theme) =>
           theme.applyDarkStyles({
-            boxShadow: `inset 0px -1px 1px ${(theme.vars || theme).palette.primaryDark[700]}`,
+            boxShadow: `inset 0px -1px 1px ${theme.palette.primaryDark[700]}`,
             backgroundColor: alpha(theme.palette.primaryDark[900], 0.7),
           }),
       ]}
@@ -1177,8 +1177,8 @@ function PricingTableBuyPro() {
       noLinkStyle
       href={
         licensingModel === 'annual'
-          ? 'https://mui.com/store/items/mui-x-pro/'
-          : 'https://mui.com/store/items/mui-x-pro-perpetual/'
+          ? 'https://stokedui.com/store/items/mui-x-pro/'
+          : 'https://stokedui.com/store/items/mui-x-pro-perpetual/'
       }
       variant="contained"
       endIcon={<KeyboardArrowRightRounded />}
@@ -1198,8 +1198,8 @@ function PricingTableBuyPremium() {
       noLinkStyle
       href={
         licensingModel === 'annual'
-          ? 'https://mui.com/store/items/mui-x-premium/'
-          : 'https://mui.com/store/items/mui-x-premium-perpetual/'
+          ? 'https://stokedui.com/store/items/mui-x-premium/'
+          : 'https://stokedui.com/store/items/mui-x-premium-perpetual/'
       }
       variant="contained"
       fullWidth
@@ -1318,17 +1318,17 @@ export default function PricingTable({
         </Box>
       )}
       <RowHead startIcon={<IconImage name="product-core" width={28} height={28} />}>
-        MUI Core (open-source)
+        SUI Core (open-source)
       </RowHead>
-      {renderRow('Material UI')}
+      {renderRow('Stoked UI')}
       {divider}
       {renderRow('Joy UI')}
       {divider}
       {renderRow('Base UI')}
       {divider}
-      {renderRow('MUI System')}
+      {renderRow('SUI System')}
       <RowHead startIcon={<IconImage name="product-advanced" width={28} height={28} />}>
-        MUI X (open-core)
+        SUI X (open-core)
       </RowHead>
       <Box
         sx={{

@@ -104,7 +104,7 @@ export default function BasicTimeline() {
                 <TimelineDot />
                 <TimelineConnector />
               </TimelineSeparator>
-              <TimelineContent>Material UI</TimelineContent>
+              <TimelineContent>Stoked UI</TimelineContent>
             </TimelineItem>
             <TimelineItem>
               <TimelineSeparator>

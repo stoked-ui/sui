@@ -58,27 +58,27 @@ export default function BackToTop() {
             data-ga-event-category="docs"
             data-ga-event-action="click-back-to-top"
             sx={(theme) => ({
-              backgroundColor: (theme.vars || theme).palette.primary[50],
-              border: `1px solid ${(theme.vars || theme).palette.primary[200]}`,
+              backgroundColor: theme.palette.primary[50],
+              border: `1px solid ${theme.palette.primary[200]}`,
               boxShadow: `0px 4px 12px rgba(0, 0, 0, 0.1)`,
               '&:hover': {
-                backgroundColor: (theme.vars || theme).palette.primary[200],
+                backgroundColor: theme.palette.primary[200],
               },
               ...theme.applyDarkStyles({
-                backgroundColor: (theme.vars || theme).palette.primary[900],
-                borderColor: (theme.vars || theme).palette.primary[700],
+                backgroundColor: theme.palette.primary[900],
+                borderColor: theme.palette.primary[700],
                 boxShadow: `0px 4px 12px rgba(0, 0, 0, 0.8)`,
                 '&:hover': {
-                  backgroundColor: (theme.vars || theme).palette.primary[800],
+                  backgroundColor: theme.palette.primary[800],
                 },
               }),
             })}
           >
             <KeyboardArrowUpRoundedIcon
               sx={(theme: Theme) => ({
-                color: (theme.vars || theme).palette.primary[800],
+                color: theme.palette.primary[800],
                 ...theme.applyDarkStyles({
-                  color: (theme.vars || theme).palette.primary[200],
+                  color: theme.palette.primary[200],
                 }),
               })}
             />

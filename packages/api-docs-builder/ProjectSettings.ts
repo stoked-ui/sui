@@ -1,10 +1,8 @@
-import { ComponentClassDefinition } from '@mui/internal-docs-utils';
-import { ComponentInfo, HookInfo } from './buildApiUtils';
+import { ComponentClassDefinition } from '@stoked-ui/internal-docs-utils';
 import { CreateTypeScriptProjectOptions } from './utils/createTypeScriptProject';
 import { CreateDescribeablePropSettings } from './utils/createDescribeableProp';
-import { ReactApi as ComponentReactApi } from './ApiBuilders/ComponentApiBuilder';
-import { ReactApi as HookReactApi } from './ApiBuilders/HookApiBuilder';
-import { Slot } from './utils/parseSlotsAndClasses';
+import { ComponentReactApi, HookReactApi } from './types/ApiBuilder.types';
+import { Slot, ComponentInfo, HookInfo } from './types/utils.types';
 
 export type SortingStrategiesType = {
   /**
@@ -74,9 +72,13 @@ export interface ProjectSettings {
    */
   importTranslationPagesDirectory?: string;
   /**
-   * Returns an array of import commands used for the API page header.
+   * Returns an array of import commands used for the component API page header.
    */
   getComponentImports?: (name: string, filename: string) => string[];
+  /**
+   * Returns an array of import commands used for the hook API page header.
+   */
+  getHookImports?: (name: string, filename: string) => string[];
   /**
    * Settings to configure props definition tests.
    */
@@ -95,4 +97,8 @@ export interface ProjectSettings {
    * Determines if a given slot or state is a global state
    */
   isGlobalClassName: (slotOrState: string) => boolean;
+  /**
+   * Determines the base API URL for generated JSDocs
+   */
+  baseApiUrl?: string;
 }

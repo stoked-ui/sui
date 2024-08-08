@@ -238,12 +238,12 @@ export default function MaterialHero() {
             })}
           >
             <IconImage loading="eager" width={28} height={28} name="product-core" />{' '}
-            <Link href={ROUTES.productCore}>MUI Core</Link>{' '}
+            <Link href={ROUTES.productCore}>SUI Core</Link>{' '}
             <Typography component="span" variant="inherit" sx={{ color: 'divider' }}>
               /
             </Typography>
             <Typography component="span" variant="inherit" sx={{ color: 'text.primary' }}>
-              Material UI
+              Stoked UI
             </Typography>
           </Typography>
           <Typography variant="h1" sx={{ my: 2, maxWidth: 500 }}>
@@ -253,7 +253,7 @@ export default function MaterialHero() {
             components
           </Typography>
           <Typography color="text.secondary" sx={{ mb: 3, maxWidth: 500 }}>
-            Material UI is an open-source React component library that implements Google&apos;s
+            Stoked UI is an open-source React component library that implements Google&apos;s
             Material Design. It&apos;s comprehensive and can be used in production out of the box.
           </Typography>
           <GetStartedButtons
@@ -278,10 +278,10 @@ export default function MaterialHero() {
                 <StepLabel>Search for React UI libraries</StepLabel>
               </Step>
               <Step>
-                <StepLabel>Spot Material UI</StepLabel>
+                <StepLabel>Spot Stoked UI</StepLabel>
               </Step>
               <Step>
-                <StepLabel>Choose Material UI</StepLabel>
+                <StepLabel>Choose Stoked UI</StepLabel>
               </Step>
             </Stepper>
           </Paper>
@@ -312,7 +312,7 @@ export default function MaterialHero() {
                   </AccordionSummary>
                   <AccordionDetails>
                     <Typography variant="body2">
-                      Material UI components work in isolation. They are self-contained, and will
+                      Stoked UI components work in isolation. They are self-contained, and will
                       only inject the styles they need to display.
                     </Typography>
                   </AccordionDetails>
@@ -327,7 +327,7 @@ export default function MaterialHero() {
                   </AccordionSummary>
                   <AccordionDetails>
                     <Typography variant="body2">
-                      Material UI understands a handful of important globals that you&apos;ll need
+                      Stoked UI understands a handful of important globals that you&apos;ll need
                       to be aware of.
                     </Typography>
                   </AccordionDetails>
@@ -343,7 +343,7 @@ export default function MaterialHero() {
                 </Accordion>
               </div>
               <Alert variant="filled" color="info" icon={<CheckCircleRounded fontSize="small" />}>
-                Check Material UI out now!
+                Check Stoked UI out now!
               </Alert>
               <SwitchToggleDemo />
               <TabsDemo />
@@ -421,7 +421,7 @@ export default function MaterialHero() {
               </Paper>
               <TextField
                 id="core-hero-input"
-                defaultValue="Material UI"
+                defaultValue="Stoked UI"
                 label="Component library"
               />
               <Box

@@ -4,11 +4,11 @@
 /coverage
 /docs/export
 /docs/pages/playground/
-/examples/material-ui-cra*/src/serviceWorker.js
-/examples/material-ui-gatsby/public/
-/examples/material-ui-preact/config
-/examples/material-ui-preact/scripts
-/examples/material-ui-nextjs/src
+/examples/stoked-ui-cra*/src/serviceWorker.js
+/examples/stoked-ui-gatsby/public/
+/examples/stoked-ui-preact/config
+/examples/stoked-ui-preact/scripts
+/examples/stoked-ui-nextjs/src
 /packages/mui-codemod/lib
 /packages/mui-codemod/src/*/*.test/*
 /packages/mui-codemod/src/**/test-cases/*

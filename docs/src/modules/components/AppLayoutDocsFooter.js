@@ -1,5 +1,4 @@
 /* eslint-disable no-restricted-globals */
-/* eslint-disable material-ui/no-hardcoded-labels */
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { styled, useTheme } from '@mui/material/styles';
@@ -21,18 +20,18 @@ import ThumbDownAltRoundedIcon from '@mui/icons-material/ThumbDownAltRounded';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import PanToolRoundedIcon from '@mui/icons-material/PanToolRounded';
-import XIcon from '@mui/icons-material/X';
-import YouTubeIcon from '@mui/icons-material/YouTube';
-import RssFeedIcon from '@mui/icons-material/RssFeed';
 import ArrowOutwardRoundedIcon from '@mui/icons-material/ArrowOutwardRounded';
 import DiscordIcon from 'docs/src/icons/DiscordIcon';
+import Slack from "docs/src/icons/Slack";
 // Other imports
 import { Link } from '@mui/docs/Link';
 import PageContext from 'docs/src/modules/components/PageContext';
 import EditPage from 'docs/src/modules/components/EditPage';
-import SvgMuiLogotype from 'docs/src/icons/SvgMuiLogotype';
+import SvgSuiLogotype from 'docs/src/icons/SvgSuiLogotype';
 import { useUserLanguage, useTranslate } from '@mui/docs/i18n';
 import { getCookie, pageToTitleI18n } from 'docs/src/modules/utils/helpers';
+import GitHubIcon from "@mui/icons-material/GitHub";
+import LinkedInIcon from "@mui/icons-material/LinkedIn";
 
 const FooterLink = styled(Typography)(({ theme }) => {
   return {
@@ -40,12 +39,12 @@ const FooterLink = styled(Typography)(({ theme }) => {
     display: 'flex',
     alignItems: 'center',
     gap: 4,
-    fontWeight: (theme.vars || theme).typography.fontWeightSemiBold,
-    color: (theme.vars || theme).palette.primary[600],
+    fontWeight: theme.typography.fontWeightSemiBold,
+    color: theme.palette.primary[600],
     '& > svg': { transition: '0.2s' },
     '&:hover > svg': { transform: 'translateX(2px)' },
     ...theme.applyDarkStyles({
-      color: (theme.vars || theme).palette.primary[300],
+      color: theme.palette.primary[300],
     }),
   };
 });
@@ -546,13 +545,13 @@ export default function AppLayoutDocsFooter(props) {
           spacing={{ xs: 3, sm: 1 }}
         >
           <Stack direction="row" alignItems="center" spacing={1.2} useFlexGap sx={{ flexGrow: 1 }}>
-            <Link href="https://mui.com/" aria-label="Go to homepage">
-              <SvgMuiLogotype height={24} width={72} />
+            <Link href="https://stokedui.com/" aria-label="Go to homepage">
+              <SvgSuiLogotype height={24} width={104} />
             </Link>
             <Typography color="grey.500" fontSize={13} sx={{ opacity: '70%' }}>
               &bull;
             </Typography>
-            <Link href="https://mui.com/blog/" target="_blank" rel="noopener">
+            <Link href="https://stokedui.com/blog/" target="_blank" rel="noopener">
               <FooterLink>
                 Blog <ArrowOutwardRoundedIcon sx={{ fontSize: 14 }} />
               </FooterLink>
@@ -560,52 +559,36 @@ export default function AppLayoutDocsFooter(props) {
             <Typography color="grey.500" fontSize={13} sx={{ opacity: '70%' }}>
               &bull;
             </Typography>
-            <Link href="https://mui.com/store/" target="_blank" rel="noopener">
-              <FooterLink>
-                Store <ArrowOutwardRoundedIcon sx={{ fontSize: 14 }} />
-              </FooterLink>
-            </Link>
           </Stack>
           <Stack spacing={1} direction="row" useFlexGap>
             <IconButton
+              href="https://stokedconsulting.slack.com/"
               target="_blank"
               rel="noopener"
-              href="https://mui.com/feed/blog/rss.xml"
-              aria-label="RSS Feed"
-              title="RSS Feed"
-              size="small"
-            >
-              <RssFeedIcon fontSize="small" sx={{ color: 'grey.500' }} />
+              aria-label="Discord"
+              title="Discord"
+              size="small">
+              <Slack fontSize="small" variant={"monochrome"} sx={{ color: 'grey.500' }}  />
             </IconButton>
             <IconButton
               target="_blank"
               rel="noopener"
-              href="https://x.com/MUI_hq"
-              aria-label="X/twitter"
-              title="X"
-              size="small"
-            >
-              <XIcon fontSize="small" sx={{ color: 'grey.500' }} />
-            </IconButton>
-            <IconButton
-              target="_blank"
-              rel="noopener"
-              href="https://www.youtube.com/@MUI_hq"
-              aria-label="YouTube"
-              title="YouTube"
-              size="small"
-            >
-              <YouTubeIcon fontSize="small" sx={{ color: 'grey.500' }} />
-            </IconButton>
-            <IconButton
-              target="_blank"
-              rel="noopener"
-              href="https://mui.com/r/discord/"
+              href="https://discord.gg/YHpSwttm"
               aria-label="Discord"
               title="Discord"
               size="small"
             >
               <DiscordIcon fontSize="small" sx={{ color: 'grey.500' }} />
+            </IconButton>
+            <IconButton
+              target="_blank"
+              rel="noopener"
+              href="https://www.linkedin.com/in/brian-stoker/"
+              aria-label="LinkedIn"
+              title="LinkedIn"
+              size="small"
+            >
+              <LinkedInIcon fontSize="small" sx={{ color: 'grey.500' }} />
             </IconButton>
           </Stack>
         </Stack>

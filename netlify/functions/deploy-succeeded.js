@@ -21,7 +21,7 @@ exports.handler = async (event) => {
     method: 'POST',
     headers: {
       'Content-type': 'application/json',
-      // token from https://app.netlify.com/sites/material-ui/settings/deploys#environment-variables
+      // token from https://app.netlify.com/sites/stoked-ui/settings/deploys#environment-variables
       'Circle-Token': process.env.CIRCLE_CI_TOKEN,
     },
     body: JSON.stringify({

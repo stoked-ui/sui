@@ -1,0 +1,10 @@
+<FileExplorer
+  defaultExpandedItems={['grid']}
+  slots={{
+    expandIcon: AddBoxIcon,
+    collapseIcon: IndeterminateCheckBoxIcon,
+    endIcon: CloseSquare,
+    item: CustomTreeItem,
+  }}
+  items={NestedFiles}
+/>

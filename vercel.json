@@ -1,6 +1,6 @@
 {
   "github": {
-    "autoJobCancelation": false,
+    "autoJobCancellation": false,
     "silent": true
   },
   "public": true,

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { styled } from '@mui/material/styles';
+import { alpha, styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Collapse from '@mui/material/Collapse';
 import Chip from '@mui/material/Chip';
@@ -10,6 +10,7 @@ import KeyboardArrowDownRounded from '@mui/icons-material/KeyboardArrowDownRound
 import SvgHamburgerMenu from 'docs/src/icons/SvgHamburgerMenu';
 import { Link } from '@mui/docs/Link';
 import ROUTES from 'docs/src/route';
+import IconImage from "../icon/IconImage";
 
 const Anchor = styled('a')<{ component?: React.ElementType; noLinkStyle?: boolean }>(
   ({ theme }) => [
@@ -20,7 +21,7 @@ const Anchor = styled('a')<{ component?: React.ElementType; noLinkStyle?: boolea
       border: 'none',
       width: '100%',
       backgroundColor: 'transparent',
-      color: (theme.vars || theme).palette.text.secondary,
+      color: theme.palette.text.secondary,
       cursor: 'pointer',
       display: 'flex',
       alignItems: 'center',
@@ -28,7 +29,7 @@ const Anchor = styled('a')<{ component?: React.ElementType; noLinkStyle?: boolea
       borderRadius: theme.spacing(1),
       transition: theme.transitions.create('background'),
       '&:hover, &:focus-visible': {
-        backgroundColor: (theme.vars || theme).palette.grey[100],
+        backgroundColor: theme.palette.grey[100],
         // Reset on touch devices, it doesn't add specificity
         '@media (hover: none)': {
           backgroundColor: 'transparent',
@@ -38,7 +39,7 @@ const Anchor = styled('a')<{ component?: React.ElementType; noLinkStyle?: boolea
     theme.applyDarkStyles({
       color: '#fff',
       '&:hover, &:focus-visible': {
-        backgroundColor: (theme.vars || theme).palette.primaryDark[700],
+        backgroundColor: theme.palette.primaryDark[700],
         // Reset on touch devices, it doesn't add specificity
         '@media (hover: none)': {
           backgroundColor: 'transparent',
@@ -56,31 +57,20 @@ const UList = styled('ul')({
 
 const PRODUCTS = [
   {
-    name: 'MUI Core',
+    name: 'Stoked UI Core',
     description: 'Ready-to-use foundational React components, free forever.',
     href: ROUTES.productCore,
   },
   {
-    name: 'MUI X',
+    name: 'Stoked UI X',
     description: 'Advanced and powerful components for complex use cases.',
     href: ROUTES.productAdvanced,
   },
   {
-    name: 'Templates',
-    description: 'Fully built, out-of-the-box, templates for your application.',
+    name: 'Stoked Consulting Services',
+    description: 'Full stack consulting services.',
     href: ROUTES.productTemplates,
-  },
-  {
-    name: 'Design Kits',
-    description: 'Material UI components in your favorite design tool.',
-    href: ROUTES.productDesignKits,
-  },
-  {
-    name: 'Toolpad',
-    description: 'Low-code admin builder.',
-    href: ROUTES.productToolpad,
-    chip: 'Beta',
-  },
+  }
 ];
 
 const DOCS = [
@@ -91,7 +81,7 @@ const DOCS = [
   },
   {
     name: 'Joy UI',
-    description: "Component library that implements MUI's own in-house design principles.",
+    description: "Component library that implements SUI's own in-house design principles.",
     href: ROUTES.joyDocs,
   },
   {
@@ -100,12 +90,12 @@ const DOCS = [
     href: ROUTES.baseDocs,
   },
   {
-    name: 'MUI System',
+    name: 'SUI System',
     description: 'CSS utilities for rapidly laying out custom designs.',
     href: ROUTES.systemDocs,
   },
   {
-    name: 'MUI X',
+    name: 'SUI X',
     description: 'Advanced components for complex use cases.',
     href: ROUTES.xIntro,
   },
@@ -146,7 +136,7 @@ export default function HeaderNavDropdown() {
           }),
         }}
       >
-        <SvgHamburgerMenu />
+        <SvgHamburgerMenu/>
       </IconButton>
       <ClickAwayListener
         onClickAway={(event) => {

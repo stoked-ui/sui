@@ -1,0 +1,5 @@
+<FileExplorer
+  items={NestedFiles}
+  itemChildrenIndentation={24}
+  defaultExpandedItems={['1']}
+/>

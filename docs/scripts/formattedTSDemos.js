@@ -18,12 +18,12 @@ const prettier = require('prettier');
 const {
   getPropTypesFromFile,
   injectPropTypesInFile,
-} = require('@mui/internal-scripts/typescript-to-proptypes');
+} = require('@stoked-ui/internal-scripts/typescript-to-proptypes');
 const {
   createTypeScriptProjectBuilder,
-} = require('@mui-internal/api-docs-builder/utils/createTypeScriptProject');
+} = require('@stoked-ui/internal-api-docs-builder/utils/createTypeScriptProject');
 const yargs = require('yargs');
-const { fixBabelGeneratorIssues, fixLineEndings } = require('@mui/internal-docs-utils');
+const { fixBabelGeneratorIssues, fixLineEndings } = require('@stoked-ui/internal-docs-utils');
 const { default: CORE_TYPESCRIPT_PROJECTS } = require('../../scripts/coreTypeScriptProjects');
 
 const babelConfig = {

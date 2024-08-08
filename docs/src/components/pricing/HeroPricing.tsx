@@ -12,7 +12,7 @@ export default function HeroPricing() {
         overline="Pricing"
         title={
           <Typography variant="h2" component="h1">
-            Start using MUI&apos;s products <GradientText>for free!</GradientText>
+            Start using SUI&apos;s products <GradientText>for free!</GradientText>
           </Typography>
         }
         description="Switch to a commercial plan to access advanced features & technical support."

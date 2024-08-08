@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import getProductInfoFromUrl from './getProductInfoFromUrl';
 
 describe('getProductInfoFromUrl', () => {
-  it('should handle Material UI', () => {
+  it('should handle Stoked UI', () => {
     expect(getProductInfoFromUrl('/material-ui/react-button/')).to.deep.equal({
       productCategoryId: 'core',
       productId: 'material-ui',
@@ -36,28 +36,28 @@ describe('getProductInfoFromUrl', () => {
     });
   });
 
-  it('should handle MUI System', () => {
+  it('should handle SUI System', () => {
     expect(getProductInfoFromUrl('/system/')).to.deep.equal({
       productCategoryId: 'core',
       productId: 'system',
     });
   });
 
-  it('should handle MUI X Data Drid', () => {
+  it('should handle SUI X Data Drid', () => {
     expect(getProductInfoFromUrl('/x/react-data-grid/components')).to.deep.equal({
       productCategoryId: 'x',
       productId: 'x-data-grid',
     });
   });
 
-  it('should handle MUI X Date Pickers', () => {
+  it('should handle SUI X Date Pickers', () => {
     expect(getProductInfoFromUrl('/x/react-date-pickers/components')).to.deep.equal({
       productCategoryId: 'x',
       productId: 'x-date-pickers',
     });
   });
 
-  it('should handle MUI X', () => {
+  it('should handle SUI X', () => {
     expect(getProductInfoFromUrl('/x/migration/migration-data-grid-v5/')).to.deep.equal({
       productCategoryId: 'x',
       // Not smart enough to know it's about the data grid.

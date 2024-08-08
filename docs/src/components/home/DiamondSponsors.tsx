@@ -10,24 +10,11 @@ import SponsorCard from 'docs/src/components/home/SponsorCard';
 
 const DIAMONDs = [
   {
-    src: '/static/sponsors/octopus-square.svg',
-    name: 'Octopus Deploy',
-    description: 'A unified DevOps automation platform for your team.',
-    href: 'https://octopus.com/?utm_source=MUI&utm_medium=referral&utm_content=homepage',
-  },
-  {
-    src: '/static/sponsors/doit-square.svg',
-    name: 'Doit International',
-    description:
-      'Delivers technology and cloud expertise to buy, optimize and manage public cloud.',
-    href: 'https://www.doit.com/?utm_source=MUI&utm_medium=referral&utm_content=homepage',
-  },
-  {
-    src: '/static/sponsors/marblism-square.svg',
-    name: 'Marblism',
-    description: 'Generate fully functional web apps using AI.',
-    href: 'https://www.marblism.com/?utm_source=mui',
-  },
+    src: '/static/images/bs.logo.svg',
+    name: 'Stoked',
+    description: 'Nothing to see here.',
+    href: 'https://brianstoker.com/',
+  }
 ];
 
 export default function DiamondSponsors() {
@@ -47,8 +34,8 @@ export default function DiamondSponsors() {
         sx={(theme) => ({
           mt: 4,
           mb: 1.5,
-          background: `linear-gradient(45deg, ${(theme.vars || theme).palette.primary[400]} 50%, ${
-            (theme.vars || theme).palette.primary[800]
+          background: `linear-gradient(45deg, ${theme.palette.primary[400]} 50%, ${
+            theme.palette.primary[800]
           } 100%)`,
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
@@ -75,7 +62,7 @@ export default function DiamondSponsors() {
               }}
             >
               <IconButton
-                aria-label="Become MUI sponsor"
+                aria-label="Become SUI sponsor"
                 component="a"
                 href="mailto:sales@mui.com"
                 target="_blank"
@@ -98,8 +85,8 @@ export default function DiamondSponsors() {
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
                   To join us, contact us at{' '}
-                  <Link href="mailto:sales@mui.com" target="_blank" rel="noopener">
-                    sales@mui.com
+                  <Link href="mailto:sales@stokedconsulting.com" target="_blank" rel="noopener">
+                    sales@stokedconsulting.com
                   </Link>{' '}
                   for pre-approval.
                 </Typography>

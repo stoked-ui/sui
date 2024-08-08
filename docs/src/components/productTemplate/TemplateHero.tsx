@@ -10,7 +10,7 @@ import { Link } from '@mui/docs/Link';
 import {
   StoreTemplatesSet1,
   StoreTemplatesSet2,
-} from 'docs/src/components/home/StoreTemplatesBanner';
+} from '../home/CustomerShowcase';
 
 export default function TemplateHero() {
   return (
@@ -38,13 +38,13 @@ export default function TemplateHero() {
             <GradientText>Fully built</GradientText> Material&nbsp;UI templates
           </Typography>
           <Typography color="text.secondary" sx={{ mb: 3, maxWidth: 500 }}>
-            A collection of 4.5 average rating templates, selected and curated by MUI&apos;s team of
+            A collection of 4.5 average rating templates, selected and curated by SUI&apos;s team of
             maintainers to get your projects up and running today.
           </Typography>
           <Button
             component={Link}
             noLinkStyle
-            href="https://mui.com/store/?utm_source=marketing&utm_medium=referral&utm_campaign=templates-cta#populars"
+            href="https://stokedui.com/store/?utm_source=marketing&utm_medium=referral&utm_campaign=templates-cta#populars"
             variant="contained"
             endIcon={<KeyboardArrowRightRounded />}
             sx={{ width: { xs: '100%', sm: 'auto' } }}

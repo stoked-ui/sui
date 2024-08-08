@@ -109,7 +109,7 @@ function createJoyTemplate(templateData: {
       content: CRA.getHtml({
         title: templateData.title,
         language: 'en',
-        codeStyling: templateData.codeStyling ?? 'MUI System',
+        codeStyling: templateData.codeStyling ?? 'SUI System',
       }),
     },
     [`index.${ext}`]: {

@@ -12,7 +12,7 @@ export default function AppFrameBanner() {
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const pageContext = React.useContext(PageContext);
-  const productName = convertProductIdToName(pageContext) || 'MUI';
+  const productName = convertProductIdToName(pageContext) || 'SUI';
   const message = `Influence ${productName}'s 2024 roadmap! Participate in the latest Developer Survey`;
 
   if (process.env.NODE_ENV !== 'production') {
@@ -37,12 +37,12 @@ export default function AppFrameBanner() {
           maxHeight: '34px',
           backgroundColor: alpha(theme.palette.primary[50], 0.8),
           border: '1px solid',
-          borderColor: (theme.vars || theme).palette.divider,
+          borderColor: theme.palette.divider,
           borderRadius: 1,
           transition: 'all 150ms ease',
           '&:hover, &:focus-visible': {
             backgroundColor: alpha(theme.palette.primary[100], 0.4),
-            borderColor: (theme.vars || theme).palette.primary[200],
+            borderColor: theme.palette.primary[200],
           },
         }),
         (theme) =>
@@ -50,7 +50,7 @@ export default function AppFrameBanner() {
             backgroundColor: alpha(theme.palette.primary[900], 0.15),
             '&:hover, &:focus-visible': {
               backgroundColor: alpha(theme.palette.primary[900], 0.4),
-              borderColor: (theme.vars || theme).palette.primary[900],
+              borderColor: theme.palette.primary[900],
             },
           }),
       ]}

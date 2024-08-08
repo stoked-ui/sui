@@ -1,0 +1,1 @@
+<FileExplorer items={MUI_X_PRODUCTS} getItemId={getItemId} />

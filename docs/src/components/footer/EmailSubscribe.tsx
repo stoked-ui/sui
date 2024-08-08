@@ -113,14 +113,14 @@ export default function EmailSubscribe({ sx }: { sx?: SxProps<Theme> }) {
               borderColor: 'grey.200',
               bgcolor: '#FFF',
               boxShadow: `inset 0 1px 2px ${
-                (theme.vars || theme).palette.grey[50]
+                theme.palette.grey[50]
               }, 0 2px .5px ${alpha(theme.palette.grey[100], 0.5)}`,
               '&:hover': {
                 borderColor: 'grey.300',
-                boxShadow: `inset 0 1px 2px ${(theme.vars || theme).palette.grey[100]}`,
+                boxShadow: `inset 0 1px 2px ${theme.palette.grey[100]}`,
               },
               [`&.${inputBaseClasses.focused}`]: {
-                boxShadow: `0 0 0 3px ${(theme.vars || theme).palette.primary[200]}`,
+                boxShadow: `0 0 0 3px ${theme.palette.primary[200]}`,
                 borderColor: 'primary.500',
               },
               [`& .${inputBaseClasses.input}`]: {
@@ -134,14 +134,14 @@ export default function EmailSubscribe({ sx }: { sx?: SxProps<Theme> }) {
                 bgcolor: 'primaryDark.800',
                 borderColor: alpha(theme.palette.primaryDark[600], 0.8),
                 boxShadow: `inset 0 1px 1px ${
-                  (theme.vars || theme).palette.primaryDark[900]
-                }, 0 2px .5px ${(theme.vars || theme).palette.common.black}`,
+                  theme.palette.primaryDark[900]
+                }, 0 2px .5px ${theme.palette.common.black}`,
                 '&:hover': {
                   borderColor: 'primaryDark.500',
-                  boxShadow: `inset 0 1px 2px ${(theme.vars || theme).palette.common.black}`,
+                  boxShadow: `inset 0 1px 2px ${theme.palette.common.black}`,
                 },
                 [`&.${inputBaseClasses.focused}`]: {
-                  boxShadow: `0 0 0 3px ${(theme.vars || theme).palette.primary[800]}`,
+                  boxShadow: `0 0 0 3px ${theme.palette.primary[800]}`,
                   borderColor: 'primary.400',
                 },
               }),

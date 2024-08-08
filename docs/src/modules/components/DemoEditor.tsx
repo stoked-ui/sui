@@ -3,7 +3,7 @@ import SimpleCodeEditor from 'react-simple-code-editor';
 import Box from '@mui/material/Box';
 import { NoSsr } from '@mui/base/NoSsr';
 import { styled, alpha, useTheme } from '@mui/material/styles';
-import prism from '@mui/internal-markdown/prism';
+import prism from '@stoked-ui/internal-markdown/prism';
 import MarkdownElement from 'docs/src/modules/components/MarkdownElement';
 import CodeCopyButton from 'docs/src/modules/components/CodeCopyButton';
 import { useTranslate } from '@mui/docs/i18n';
@@ -16,14 +16,14 @@ const StyledMarkdownElement = styled(MarkdownElement)(({ theme }) => [
       maxHeight: 'min(68vh, 1000px)',
       overflow: 'auto',
       marginTop: -1,
-      backgroundColor: 'hsl(210, 35%, 9%)', // a special, one-off, color tailored for the code blocks using MUI's branding theme blue palette as the starting point. It has a less saturaded color but still maintaining a bit of the blue tint.
-      border: `1px solid ${(theme.vars || theme).palette.divider}`,
+      backgroundColor: 'hsl(210, 35%, 9%)', // a special, one-off, color tailored for the code blocks using SUI's branding theme blue palette as the starting point. It has a less saturaded color but still maintaining a bit of the blue tint.
+      border: `1px solid ${theme.palette.divider}`,
       colorScheme: 'dark',
       '&:hover': {
-        boxShadow: `0 0 0 3px ${alpha((theme.vars || theme).palette.primary[500], 0.5)}`,
+        boxShadow: `0 0 0 3px ${alpha(theme.palette.primary[500], 0.5)}`,
       },
       '&:focus-within': {
-        boxShadow: `0 0 0 2px ${alpha((theme.vars || theme).palette.primary[500], 0.5)}`,
+        boxShadow: `0 0 0 2px ${alpha(theme.palette.primary[500], 0.5)}`,
       },
       [theme.breakpoints.up('sm')]: {
         borderRadius: '0 0 12px 12px',
@@ -41,7 +41,7 @@ const StyledMarkdownElement = styled(MarkdownElement)(({ theme }) => [
   },
   theme.applyDarkStyles({
     '& .scrollContainer': {
-      borderColor: (theme.vars || theme).palette.divider,
+      borderColor: theme.palette.divider,
     },
   }),
 ]) as any;

@@ -9,14 +9,14 @@ ignorecase: true
 # swap maps tokens in form of bad: good
 # for more information: https://vale.sh/docs/topics/styles/#substitution
 swap:
-  Material UI: Material UI
-  MUI X: MUI X
+  Stoked UI: Material UI
+  SUI X: SUI X
   Base UI: Base UI
-  MUI System: MUI System
-  MUI Store: MUI Store
-  MUI Core: MUI Core
-  MUI Toolpad: Toolpad
-  MUI Toolpad: Toolpad
-  MUI Connect: MUI Connect
+  SUI System: SUI System
+  SUI Store: SUI Store
+  SUI Core: SUI Core
+  SUI Toolpad: Toolpad
+  SUI Toolpad: Toolpad
+  SUI Connect: SUI Connect
   Stack Overflow: Stack Overflow
   Pigment CSS: Pigment CSS

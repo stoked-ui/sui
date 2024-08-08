@@ -6,11 +6,11 @@ import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import { TreeView } from '@mui/x-tree-view/TreeView';
 import {
-  TreeItem,
+  FileElement,
   useTreeItem,
   TreeItemProps,
   TreeItemContentProps,
-} from '@mui/x-tree-view/TreeItem';
+} from '@mui/x-tree-view/FileElement';
 import Typography from '@mui/material/Typography';
 import KeyboardArrowDownRounded from '@mui/icons-material/KeyboardArrowDownRounded';
 import KeyboardArrowUpRounded from '@mui/icons-material/KeyboardArrowUpRounded';
@@ -108,7 +108,7 @@ const CustomContent = React.forwardRef(function CustomContent(
   );
 });
 
-const StyledTreeItem = styled(TreeItem)(({ theme }) => [
+const StyledTreeItem = styled(FileElement)(({ theme }) => [
   {
     '& .MuiTreeItem-content': {
       border: 'none',
@@ -131,7 +131,7 @@ const StyledTreeItem = styled(TreeItem)(({ theme }) => [
         left: -14,
         height: '100%',
         width: 1.5,
-        backgroundColor: (theme.vars || theme).palette.grey[200],
+        backgroundColor: theme.palette.grey[200],
       },
     },
     '& .MuiTreeItem-group': {
@@ -142,13 +142,13 @@ const StyledTreeItem = styled(TreeItem)(({ theme }) => [
   theme.applyDarkStyles({
     '& .MuiTreeItem-root': {
       '&::before': {
-        backgroundColor: (theme.vars || theme).palette.primaryDark[600],
+        backgroundColor: theme.palette.primaryDark[600],
       },
     },
     '& .MuiTreeItem-group': {
       '& .MuiTreeItem-content': {
         '&::before': {
-          backgroundColor: (theme.vars || theme).palette.primaryDark[600],
+          backgroundColor: theme.palette.primaryDark[600],
         },
       },
     },

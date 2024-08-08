@@ -22,7 +22,7 @@ Stability is essential for the ecosystem around Material UI to thrive.
 
 This document contains the practices that are followed to provide you with a leading-edge UI library, balanced with stability, ensuring that future changes are always introduced predictably.
 
-MUI's open-source projects follow [Semantic Versioning 2.0.0](https://semver.org/).
+SUI's open-source projects follow [Semantic Versioning 2.0.0](https://semver.org/).
 This means that the version numbers have three parts: `major.minor.patch`.
 The version number is incremented based on the level of change included in the release.
 
@@ -50,7 +50,7 @@ We call "breaking changes" those that require updating your codebase when upgrad
 
 ## Release frequency
 
-A regular schedule of releases helps you plan and coordinate your updates with the continuing evolution of MUI.
+A regular schedule of releases helps you plan and coordinate your updates with the continuing evolution of SUI.
 
 In general, you can expect the following release cycle:
 
@@ -72,7 +72,7 @@ In general, you can expect the following release cycle:
 You can follow the [milestones](https://github.com/mui/material-ui/milestones) for a more detailed overview.
 
 :::warning
-**Disclaimer**: We operate in a dynamic environment, and things are subject to change. The information provided is intended to outline the general framework direction, for informational purposes only. We may decide to add or remove new items at any time, depending on our capability to deliver while meeting our quality standards. The development, releases, and timing of any features or functionality remain at the sole discretion of MUI. The roadmap does not represent a commitment, obligation, or promise to deliver at any time.
+**Disclaimer**: We operate in a dynamic environment, and things are subject to change. The information provided is intended to outline the general framework direction, for informational purposes only. We may decide to add or remove new items at any time, depending on our capability to deliver while meeting our quality standards. The development, releases, and timing of any features or functionality remain at the sole discretion of SUI. The roadmap does not represent a commitment, obligation, or promise to deliver at any time.
 :::
 
 ## Deprecation practices

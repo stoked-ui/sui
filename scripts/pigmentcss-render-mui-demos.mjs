@@ -20,7 +20,7 @@ const args = process.argv.slice(2);
 async function run() {
   if (!args[0]) {
     throw new Error(
-      'Please provide a string of `react-<component>` from the `docs/pages/material-ui/*` directory.',
+      'Please provide a string of `react-<component>` from the `docs/pages/stoked-ui/*` directory.',
     );
   }
   const prettierConfig = await prettier.resolveConfig(process.cwd(), {
@@ -29,14 +29,14 @@ async function run() {
 
   // Find the demos of the component
   const docSource = await fse.readFile(
-    path.join(process.cwd(), `docs/pages/material-ui/${args[0]}.js`),
+    path.join(process.cwd(), `docs/pages/stoked-ui/${args[0]}.js`),
     'utf8',
   );
   const matches = docSource.match(/\/([a-z-]+)\.md\?/);
   const dataFolderName = matches[1];
 
   const filenames = await fse.readdir(
-    path.join(process.cwd(), `docs/data/material/components/${dataFolderName}`),
+    path.join(process.cwd(), `docs/data/stoked-ui/components/${dataFolderName}`),
   );
   const tsFiles = filenames.filter((filename) => filename.endsWith('.tsx'));
 
@@ -55,7 +55,7 @@ async function run() {
   // Create import and render statements
   const nextImports = tsFiles.map((filename) => {
     const componentName = filename.replace('.tsx', '');
-    return `import ${componentName} from '../../../../../../docs/data/material/components/${dataFolderName}/${componentName}';`;
+    return `import ${componentName} from '../../../../../../docs/data/stoked-ui/components/${dataFolderName}/${componentName}';`;
   });
   const nextFileContent = `'use client';
 import * as React from 'react';
@@ -73,13 +73,13 @@ ${renders.join('\n')}
   // Create the page in pigment apps
   const nextFilepath = path.join(
     process.cwd(),
-    `apps/pigment-css-next-app/src/app/material-ui/${args[0]}/page.tsx`,
+    `apps/pigment-css-next-app/src/app/stoked-ui/${args[0]}/page.tsx`,
   );
   const prettiedNextFileContent = await prettier.format(nextFileContent, {
     ...prettierConfig,
     filepath: nextFilepath,
   });
-  await fse.mkdirp(`apps/pigment-css-next-app/src/app/material-ui/${args[0]}`);
+  await fse.mkdirp(`apps/pigment-css-next-app/src/app/stoked-ui/${args[0]}`);
   await fse.writeFile(nextFilepath, prettiedNextFileContent);
 
   /**
@@ -87,7 +87,7 @@ ${renders.join('\n')}
    */
   const viteImports = tsFiles.map((filename) => {
     const componentName = filename.replace('.tsx', '');
-    return `import ${componentName} from '../../../../../docs/data/material/components/${dataFolderName}/${componentName}.tsx';`;
+    return `import ${componentName} from '../../../../../docs/data/stoked-ui/components/${dataFolderName}/${componentName}.tsx';`;
   });
   const viteFileContent = `import * as React from 'react';
 import MaterialUILayout from '../../Layout';
@@ -105,13 +105,13 @@ ${renders.join('\n')}
   // Create the page in pigment apps
   const viteFilepath = path.join(
     process.cwd(),
-    `apps/pigment-css-vite-app/src/pages/material-ui/${args[0]}.tsx`,
+    `apps/pigment-css-vite-app/src/pages/stoked-ui/${args[0]}.tsx`,
   );
   const prettiedViteFileContent = await prettier.format(viteFileContent, {
     ...prettierConfig,
     filepath: viteFilepath,
   });
-  await fse.mkdirp(`apps/pigment-css-vite-app/src/pages/material-ui`);
+  await fse.mkdirp(`apps/pigment-css-vite-app/src/pages/stoked-ui`);
   await fse.writeFile(viteFilepath, prettiedViteFileContent);
 }
 

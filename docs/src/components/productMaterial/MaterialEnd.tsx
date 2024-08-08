@@ -27,9 +27,9 @@ export default function MaterialEnd({ noFaq }: MaterialEndProps) {
       sx={{
         color: 'text.secondary',
         background: (theme) =>
-          `linear-gradient(180deg, ${(theme.vars || theme).palette.primaryDark[900]} 50%, 
+          `linear-gradient(180deg, ${theme.palette.primaryDark[900]} 50%, 
           ${alpha(theme.palette.primary[800], 0.2)} 100%), ${
-            (theme.vars || theme).palette.primaryDark[900]
+            theme.palette.primaryDark[900]
           }`,
       }}
     >
@@ -45,7 +45,7 @@ export default function MaterialEnd({ noFaq }: MaterialEndProps) {
             }
             description={
               <React.Fragment>
-                Material UI wouldn&apos;t be possible without our global community of contributors.
+                Stoked UI wouldn&apos;t be possible without our global community of contributors.
                 Join us today to get help when you need it, and lend a hand when you can.
               </React.Fragment>
             }
@@ -69,7 +69,7 @@ export default function MaterialEnd({ noFaq }: MaterialEndProps) {
               }
               description={
                 <React.Fragment>
-                  Material UI wouldn&apos;t be possible without our global community of
+                  Stoked UI wouldn&apos;t be possible without our global community of
                   contributors. Join us today to get help when you need it, and lend a hand when you
                   can.
                 </React.Fragment>
@@ -88,10 +88,10 @@ export default function MaterialEnd({ noFaq }: MaterialEndProps) {
                 <GlowingIconContainer icon={<CompareIcon color="primary" />} />
                 <div>
                   <Typography color="text.primary" fontWeight="semiBold" gutterBottom>
-                    Material UI vs. Base UI
+                    Stoked UI vs. Base UI
                   </Typography>
                   <Typography>
-                    Material UI implements Google&apos;s Material Design whereas Base UI features
+                    Stoked UI implements Google&apos;s Material Design whereas Base UI features
                     many of the same components, but without the Material Design implementation.
                   </Typography>
                 </div>
@@ -103,9 +103,9 @@ export default function MaterialEnd({ noFaq }: MaterialEndProps) {
                     Does it support Material Design 3?
                   </Typography>
                   <Typography>
-                    The adoption of Material Design 3 is tentatively planned for Material UI v7. See
+                    The adoption of Material Design 3 is tentatively planned for Stoked UI v7. See
                     the{' '}
-                    <Link href="https://mui.com/versions/#release-schedule">
+                    <Link href="https://stokedui.com/versions/#release-schedule">
                       the release schedule
                     </Link>{' '}
                     and follow{' '}

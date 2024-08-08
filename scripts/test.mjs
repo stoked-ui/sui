@@ -8,7 +8,7 @@ when using pnpm as when using Yarn.
 It enables to run `pnpm test` (or `pnpm t`) without any arguments, to run all tests,
 or `pnpm test <test-name>` (or `pnpm t <test-name>`) to run a subset of tests in watch mode.
 
-See https://github.com/mui/material-ui/pull/40430 for more context.
+See https://github.com/stoked-ui/stoked-ui/pull/40430 for more context.
 */
 
 if (process.argv.length < 3) {

@@ -12,7 +12,7 @@ import Pagination from '@mui/material/Pagination';
 import Button from '@mui/material/Button';
 import KeyboardArrowRightRoundedIcon from '@mui/icons-material/KeyboardArrowRightRounded';
 import Chip from '@mui/material/Chip';
-import XIcon from '@mui/icons-material/X';
+import Slack from 'docs/src/icons/Slack';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import YouTubeIcon from '@mui/icons-material/YouTube';
@@ -29,6 +29,7 @@ import generateRssFeed from 'docs/scripts/generateRSSFeed';
 import Section from 'docs/src/layouts/Section';
 import SectionHeadline from 'docs/src/components/typography/SectionHeadline';
 import { getAllBlogPosts, BlogPost } from 'docs/lib/sourcing';
+import SlackIcon from '../src/icons/Slack';
 
 export const getStaticProps = () => {
   const data = getAllBlogPosts();
@@ -57,7 +58,7 @@ function PostPreview(props: BlogPost) {
                 px: '6px',
               },
               ...theme.applyDarkStyles({
-                color: (theme.vars || theme).palette.grey[200],
+                color: theme.palette.grey[200],
               }),
             })}
           />
@@ -90,17 +91,17 @@ function PostPreview(props: BlogPost) {
               '& .MuiAvatar-circular': {
                 width: 28,
                 height: 28,
-                border: `1px solid ${(theme.vars || theme).palette.divider}`,
+                border: `1px solid ${theme.palette.divider}`,
                 outline: '3px solid',
                 outlineColor: '#FFF',
-                backgroundColor: (theme.vars || theme).palette.grey[100],
+                backgroundColor: theme.palette.grey[100],
               },
             }),
             (theme) =>
               theme.applyDarkStyles({
                 '& .MuiAvatar-circular': {
-                  outlineColor: (theme.vars || theme).palette.primaryDark[900],
-                  backgroundColor: (theme.vars || theme).palette.primaryDark[700],
+                  outlineColor: theme.palette.primaryDark[900],
+                  backgroundColor: theme.palette.primaryDark[700],
                 },
               }),
           ]}
@@ -233,8 +234,8 @@ export default function Blog(props: InferGetStaticPropsType<typeof getStaticProp
   return (
     <BrandingCssVarsProvider>
       <Head
-        title="Blog - MUI"
-        description="Follow the MUI blog to learn about new product features, latest advancements in UI development, and business initiatives."
+        title="Blog - SUI"
+        description="Follow the SUI blog to learn about new product features, latest advancements in UI development, and business initiatives."
         card="/static/social-previews/blog-preview.jpg"
         disableAlternateLocale
       />
@@ -247,7 +248,7 @@ export default function Blog(props: InferGetStaticPropsType<typeof getStaticProp
             title={
               <Typography variant="h2" component="h1">
                 Stay <GradientText>in the loop</GradientText> with
-                <br /> the latest about MUI&apos;s products
+                <br /> the latest about SUI&apos;s products
               </Typography>
             }
           />
@@ -273,11 +274,11 @@ export default function Blog(props: InferGetStaticPropsType<typeof getStaticProp
                   p: 2,
                   display: 'flex',
                   flexDirection: 'column',
-                  backgroundImage: (theme.vars || theme).palette.gradients.radioSubtle,
+                  backgroundImage: theme.palette.gradients.radioSubtle,
                   boxShadow: '0 4px 12px rgba(170, 180, 190, 0.2)',
                   ...theme.applyDarkStyles({
-                    background: (theme.vars || theme).palette.primaryDark[900],
-                    backgroundImage: (theme.vars || theme).palette.gradients.radioSubtle,
+                    background: theme.palette.primaryDark[900],
+                    backgroundImage: theme.palette.gradients.radioSubtle,
                     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.4)',
                   }),
                 })}
@@ -405,27 +406,24 @@ export default function Blog(props: InferGetStaticPropsType<typeof getStaticProp
                   Want to hear more from us?
                 </Typography>
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                  Get up to date with everything MUI-related through our social media:
+                  Get up to date with everything SUI-related through our social media:
                 </Typography>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, '* > svg': { mr: 1 } }}>
-                  <Link href="https://github.com/mui" target="_blank" fontSize={14}>
+                  <Link href="https://github.com/stoked-ui/sui" target="_blank" fontSize={14}>
                     <GitHubIcon fontSize="small" />
                     GitHub
                   </Link>
-                  <Link href="https://x.com/MUI_hq" target="_blank" fontSize={14}>
-                    <XIcon fontSize="small" />X
+                  <Link href="https://stokedconsulting.slack.com/" target="_blank" fontSize={14}>
+                    <Slack fontSize="small" variant={"monochrome"} />
+                    Slack
                   </Link>
-                  <Link href="https://mui.com/r/discord/" target="_blank" fontSize={14}>
+                  <Link href="https://discord.gg/YHpSwttm" target="_blank" fontSize={14}>
                     <DiscordIcon fontSize="small" />
                     Discord
                   </Link>
-                  <Link href="https://www.linkedin.com/company/mui/" target="_blank" fontSize={14}>
+                  <Link href="https://www.linkedin.com/in/brian-stoker/" target="_blank" fontSize={14}>
                     <LinkedInIcon fontSize="small" />
                     LinkedIn
-                  </Link>
-                  <Link href="https://www.youtube.com/@MUI_hq" target="_blank" fontSize={14}>
-                    <YouTubeIcon fontSize="small" />
-                    Youtube
                   </Link>
                 </Box>
               </Paper>

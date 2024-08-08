@@ -126,12 +126,12 @@ export default function Notifications() {
           /* {
             id: 0,
             title: "Let's translate!",
-            text: '<a style="color: inherit;" target="_blank" rel="noopener" data-ga-event-category="l10n" data-ga-event-action="notification" data-ga-event-label="zh" href="https://crowdin.com/project/material-ui-docs">帮助 MUI 将文档翻译成中文</a>. 🇨🇳',
+            text: '<a style="color: inherit;" target="_blank" rel="noopener" data-ga-event-category="l10n" data-ga-event-action="notification" data-ga-event-label="zh" href="https://crowdin.com/project/material-ui-docs">帮助 SUI 将文档翻译成中文</a>. 🇨🇳',
             userLanguage: 'zh',
           }, */
           {
             id: 1,
-            text: 'You can <a style="color: inherit;" target="_blank" rel="noopener" href="https://x.com/MUI_hq">follow us on X</a> or subscribe on <a style="color: inherit;" target="_blank" rel="noopener" href="/blog/">our blog</a> to receive exclusive tips and updates about MUI and the React ecosystem.',
+            text: 'You can <a style="color: inherit;" target="_blank" rel="noopener" href="https://x.com/MUI_hq">follow us on X</a> or subscribe on <a style="color: inherit;" target="_blank" rel="noopener" href="/blog/">our blog</a> to receive exclusive tips and updates about SUI and the React ecosystem.',
           },
           // Only 3
           ...notifications.splice(-3),

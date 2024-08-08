@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { styled, alpha } from '@mui/material/styles';
+import { styled, alpha, Theme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Unstable_Grid2';
@@ -20,7 +20,7 @@ import { Link } from '@mui/docs/Link';
 
 const DEMOS = ['Components', 'Branding', 'Iconography'];
 
-const Image = styled('img')(({ theme }) => ({
+const Image = styled('img')(({ theme }: { theme: Theme}) => ({
   transition: '0.4s',
   display: 'block',
   height: 'auto',
@@ -93,7 +93,7 @@ export function MaterialFigmaComponents({ fadeIn }: MaterialFigmaComponentsProps
       >
         <Image
           src="/static/branding/design-kits/Button-light.jpeg"
-          alt="Material UI Button component variations in the Figma Design Kit."
+          alt="Stoked UI Button component variations in the Figma Design Kit."
           loading="lazy"
           sx={(theme) =>
             theme.applyDarkStyles({
@@ -103,7 +103,7 @@ export function MaterialFigmaComponents({ fadeIn }: MaterialFigmaComponentsProps
         />
         <Image
           src="/static/branding/design-kits/Alert-light.jpeg"
-          alt="Material UI Alert component variations in the Figma Design Kit."
+          alt="Stoked UI Alert component variations in the Figma Design Kit."
           loading="lazy"
           sx={(theme) =>
             theme.applyDarkStyles({
@@ -113,7 +113,7 @@ export function MaterialFigmaComponents({ fadeIn }: MaterialFigmaComponentsProps
         />
         <Image
           src="/static/branding/design-kits/Slider-light.jpeg"
-          alt="Material UI Slider component variations in the Figma Design Kit."
+          alt="Stoked UI Slider component variations in the Figma Design Kit."
           loading="lazy"
           sx={(theme) =>
             theme.applyDarkStyles({
@@ -163,7 +163,7 @@ export function MaterialDesignKitInfo() {
           variant="contained"
           size="small"
           noLinkStyle
-          href="https://mui.com/store/?utm_source=marketing&utm_medium=referral&utm_campaign=design-cta2#design"
+          href="https://stokedui.com/store/?utm_source=marketing&utm_medium=referral&utm_campaign=design-cta2#design"
           endIcon={<ChevronRightRoundedIcon />}
         >
           Buy it now
@@ -208,7 +208,7 @@ export default function DesignKitsDemo() {
                 Enhance your <GradientText>design workflow</GradientText>
               </Typography>
             }
-            description="The Design Kits contain many of the Material UI components with states, variations, colors, typography, and icons."
+            description="The Design Kits contain many of the Stoked UI components with states, variations, colors, typography, and icons."
           />
           <Group desktopColumns={2} sx={{ m: -2, p: 2 }}>
             {DEMOS.map((name) => (
@@ -221,7 +221,7 @@ export default function DesignKitsDemo() {
             ))}
             <More
               component={Link}
-              href="https://mui.com/store/?utm_source=marketing&utm_medium=referral&utm_campaign=design-cta3#design"
+              href="https://stokedui.com/store/?utm_source=marketing&utm_medium=referral&utm_campaign=design-cta3#design"
               noLinkStyle
             />
           </Group>
@@ -238,7 +238,7 @@ export default function DesignKitsDemo() {
               <Fade in={demo === 'Branding'} timeout={500}>
                 <Image
                   src="/static/branding/design-kits/Colors-light.jpeg"
-                  alt="Available colors on the Material UI Kit."
+                  alt="Available colors on the Stoked UI Kit."
                   loading="lazy"
                   width="300"
                   sx={(theme) => ({
@@ -256,7 +256,7 @@ export default function DesignKitsDemo() {
               <Fade in={demo === 'Iconography'} timeout={500}>
                 <Image
                   src="/static/branding/design-kits/Icons-light.jpeg"
-                  alt="A bunch of icons available with the Material UI Design Kits."
+                  alt="A bunch of icons available with the Stoked UI Design Kits."
                   loading="lazy"
                   width="300"
                   sx={(theme) => ({

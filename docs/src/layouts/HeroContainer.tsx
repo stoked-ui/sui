@@ -67,8 +67,8 @@ export default function HeroContainer(props: HeroContainerProps) {
           borderColor: 'divider',
           ...(linearGradient && {
             background: `radial-gradient(farthest-corner circle at 0% 0%, ${
-              (theme.vars || theme).palette.grey[50]
-            } 0%, ${(theme.vars || theme).palette.primary[50]} 100%)`,
+              theme.palette.grey[50]
+            } 0%, ${theme.palette.primary[50]} 100%)`,
           }),
         }),
         (theme) =>
@@ -79,7 +79,7 @@ export default function HeroContainer(props: HeroContainerProps) {
               background: `radial-gradient(farthest-corner circle at 0% 0%, ${alpha(
                 theme.palette.primary[900],
                 0.2,
-              )} 0%, ${(theme.vars || theme).palette.primaryDark[900]} 100%)`,
+              )} 0%, ${theme.palette.primaryDark[900]} 100%)`,
             }),
           }),
         ...(Array.isArray(sx) ? sx : [sx]),

@@ -85,11 +85,11 @@ FramedDemo.propTypes = {
 };
 
 const Iframe = styled('iframe')(({ theme }) => ({
-  backgroundColor: (theme.vars || theme).palette.background.default,
+  backgroundColor: theme.palette.background.default,
   flexGrow: 1,
   height: 400,
   border: 0,
-  boxShadow: (theme.vars || theme)?.shadows?.[1],
+  boxShadow: theme?.shadows?.[1],
 }));
 
 function DemoIframe(props) {
@@ -139,7 +139,7 @@ DemoIframe.propTypes = {
   productId: PropTypes.string,
 };
 
-// Use the default Material UI theme for the demos
+// Use the default Stoked UI theme for the demos
 function getTheme(outerTheme) {
   const brandingDesignTokens = getDesignTokens(outerTheme.palette.mode);
   const isCustomized =

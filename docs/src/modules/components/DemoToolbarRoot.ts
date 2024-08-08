@@ -15,7 +15,7 @@ const DemoToolbarRoot = styled('div', {
       display: 'block',
       marginTop: demoOptions.bg === 'inline' ? theme.spacing(1) : -1,
       padding: theme.spacing(0.5, 1),
-      border: `1px solid ${(theme.vars || theme).palette.divider}`,
+      border: `1px solid ${theme.palette.divider}`,
       borderTopWidth: demoOptions.bg === 'inline' ? 1 : 0,
       backgroundColor: alpha(theme.palette.grey[50], 0.2),
       borderRadius: openDemoSource ? 0 : '0 0 12px 12px',

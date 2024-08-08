@@ -1,0 +1,11 @@
+<Typography>
+  {lastSelectedItem == null
+    ? 'No item selection recorded'
+    : `Last selected item: ${lastSelectedItem}`}
+</Typography>
+<Box sx={{ minHeight: 352, minWidth: 300 }}>
+  <FileExplorer
+    items={NestedFiles}
+    onItemSelectionToggle={handleItemSelectionToggle}
+  />
+</Box>

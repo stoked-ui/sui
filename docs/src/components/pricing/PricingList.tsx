@@ -55,12 +55,12 @@ const Plan = React.forwardRef<
               community: '/material-ui/getting-started/usage/',
               pro:
                 licensingModel === 'annual'
-                  ? 'https://mui.com/store/items/mui-x-pro/'
-                  : 'https://mui.com/store/items/mui-x-pro-perpetual/',
+                  ? 'https://stokedui.com/store/items/mui-x-pro/'
+                  : 'https://stokedui.com/store/items/mui-x-pro-perpetual/',
               premium:
                 licensingModel === 'annual'
-                  ? 'https://mui.com/store/items/mui-x-premium/'
-                  : 'https://mui.com/store/items/mui-x-premium-perpetual/',
+                  ? 'https://stokedui.com/store/items/mui-x-premium/'
+                  : 'https://stokedui.com/store/items/mui-x-premium-perpetual/',
             }[plan]
           }
           endIcon={<KeyboardArrowRightRounded />}

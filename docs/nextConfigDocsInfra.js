@@ -47,6 +47,7 @@ process.env.DEPLOY_ENV = DEPLOY_ENV;
  * @returns {NextConfig}
  */
 function withDocsInfra(nextConfig) {
+  console.warn('docs DEPLOY_ENV:', DEPLOY_ENV)
   return {
     trailingSlash: true,
     // Can be turned on when https://github.com/vercel/next.js/issues/24640 is fixed
@@ -55,8 +56,7 @@ function withDocsInfra(nextConfig) {
     ...nextConfig,
     env: {
       BUILD_ONLY_ENGLISH_LOCALE: 'true', // disable translations by default
-      // production | staging | pull-request | development
-      DEPLOY_ENV,
+      // production | staging | pull-request | development,
       FEEDBACK_URL: process.env.FEEDBACK_URL,
       ...nextConfig.env,
       // https://docs.netlify.com/configure-builds/environment-variables/#git-metadata

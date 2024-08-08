@@ -35,7 +35,7 @@ const NavLabel = styled(Typography)(({ theme }) => ({
   fontWeight: theme.typography.fontWeightBold,
   textTransform: 'uppercase',
   letterSpacing: '.1rem',
-  color: (theme.vars || theme).palette.text.tertiary,
+  color: theme.palette.text.tertiary,
 }));
 
 const NavList = styled(Typography)({
@@ -49,19 +49,19 @@ const NavItem = styled(Link, {
     prop !== 'active' && prop !== 'secondary' && prop !== 'secondarySubItem',
 })(({ active, secondary, secondarySubItem, theme }) => {
   const activeStyles = {
-    borderLeftColor: (theme.vars || theme).palette.primary[200],
-    color: (theme.vars || theme).palette.primary[600],
+    borderLeftColor: theme.palette.primary[200],
+    color: theme.palette.primary[600],
     '&:hover': {
-      borderLeftColor: (theme.vars || theme).palette.primary[600],
-      color: (theme.vars || theme).palette.primary[600],
+      borderLeftColor: theme.palette.primary[600],
+      color: theme.palette.primary[600],
     },
   };
   const activeDarkStyles = {
-    borderLeftColor: (theme.vars || theme).palette.primary[600],
-    color: (theme.vars || theme).palette.primary[300],
+    borderLeftColor: theme.palette.primary[600],
+    color: theme.palette.primary[300],
     '&:hover': {
-      borderLeftColor: (theme.vars || theme).palette.primary[400],
-      color: (theme.vars || theme).palette.primary[400],
+      borderLeftColor: theme.palette.primary[400],
+      color: theme.palette.primary[400],
     },
   };
   let paddingLeft = '12px';
@@ -83,11 +83,11 @@ const NavItem = styled(Link, {
       textOverflow: 'ellipsis',
       overflow: 'hidden',
       '&:hover': {
-        borderLeftColor: (theme.vars || theme).palette.grey[400],
-        color: (theme.vars || theme).palette.grey[600],
+        borderLeftColor: theme.palette.grey[400],
+        color: theme.palette.grey[600],
       },
       ...(!active && {
-        color: (theme.vars || theme).palette.text.primary,
+        color: theme.palette.text.primary,
       }),
       // TODO: We probably want `aria-current="location"` instead.
       ...(active && activeStyles),
@@ -95,11 +95,11 @@ const NavItem = styled(Link, {
     },
     theme.applyDarkStyles({
       '&:hover': {
-        borderLeftColor: (theme.vars || theme).palette.grey[500],
-        color: (theme.vars || theme).palette.grey[200],
+        borderLeftColor: theme.palette.grey[500],
+        color: theme.palette.grey[200],
       },
       ...(!active && {
-        color: (theme.vars || theme).palette.grey[500],
+        color: theme.palette.grey[500],
       }),
       ...(active && activeDarkStyles),
       '&:active': activeDarkStyles,
@@ -248,7 +248,7 @@ export default function AppTableOfContents(props) {
       <NoSsr>
         {showJobAd && (
           <Link
-            href="https://jobs.ashbyhq.com/MUI?utm_source=2vOWXNv1PE"
+            href="https://jobs.ashbyhq.com/SUI?utm_source=2vOWXNv1PE"
             target="_blank"
             sx={[
               (theme) => ({
@@ -259,27 +259,27 @@ export default function AppTableOfContents(props) {
                 alignItems: 'flex-start',
                 backgroundColor: alpha(theme.palette.grey[50], 0.4),
                 border: '1px solid',
-                borderColor: (theme.vars || theme).palette.grey[200],
+                borderColor: theme.palette.grey[200],
                 borderRadius: 1,
                 transitionProperty: 'all',
                 transitionTiming: 'cubic-bezier(0.4, 0, 0.2, 1)',
                 transitionDuration: '150ms',
                 '&:hover, &:focus-visible': {
-                  borderColor: (theme.vars || theme).palette.primary[200],
+                  borderColor: theme.palette.primary[200],
                 },
               }),
               (theme) =>
                 theme.applyDarkStyles({
                   backgroundColor: alpha(theme.palette.primary[900], 0.2),
-                  borderColor: (theme.vars || theme).palette.primaryDark[700],
+                  borderColor: theme.palette.primaryDark[700],
                   '&:hover, &:focus-visible': {
-                    borderColor: (theme.vars || theme).palette.primaryDark[500],
+                    borderColor: theme.palette.primaryDark[500],
                   },
                 }),
             ]}
           >
             <Typography component="span" variant="button" fontWeight="500" color="text.primary">
-              {'🚀 Join the MUI team!'}
+              {'🚀 Join the SUI team!'}
             </Typography>
             <Typography
               component="span"

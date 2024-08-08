@@ -27,8 +27,8 @@ async function addLicense(packageData) {
       './legacy/index.js',
       './modern/index.js',
       './node/index.js',
-      './umd/material-ui.development.js',
-      './umd/material-ui.production.min.js',
+      './umd/stoked-ui.development.js',
+      './umd/stoked-ui.production.min.js',
     ].map(async (file) => {
       try {
         await prepend(path.resolve(buildPath, file), license);

@@ -24,7 +24,7 @@ import MarkdownLinks from 'docs/src/modules/components/MarkdownLinks';
 import SkipLink from 'docs/src/modules/components/SkipLink';
 import PageContext from 'docs/src/modules/components/PageContext';
 import { useTranslate } from '@mui/docs/i18n';
-import SvgMuiLogomark from 'docs/src/icons/SvgMuiLogomark';
+import SvgSuiLogomark from 'docs/src/icons/SvgSuiLogomark';
 import AppFrameBanner from 'docs/src/components/banner/AppFrameBanner';
 
 const nProgressStart = debounce(() => {
@@ -92,7 +92,7 @@ const RootDiv = styled('div')(({ theme }) => {
   return {
     display: 'flex',
     ...theme.applyDarkStyles({
-      background: (theme.vars || theme).palette.primaryDark[900],
+      background: theme.palette.primaryDark[900],
     }),
     // TODO: Should be handled by the main component
   };
@@ -115,14 +115,14 @@ const StyledAppBar = styled(AppBar, {
     boxShadow: 'none',
     backdropFilter: 'blur(8px)',
     borderStyle: 'solid',
-    borderColor: (theme.vars || theme).palette.divider,
+    borderColor: theme.palette.divider,
     borderWidth: 0,
     borderBottomWidth: 'thin',
     backgroundColor: 'rgba(255,255,255,0.8)',
-    color: (theme.vars || theme).palette.grey[800],
+    color: theme.palette.grey[800],
     ...theme.applyDarkStyles({
       backgroundColor: alpha(theme.palette.primaryDark[900], 0.8),
-      color: (theme.vars || theme).palette.grey[500],
+      color: theme.palette.grey[500],
     }),
   };
 });
@@ -187,25 +187,8 @@ export default function AppFrame(props) {
           }}
         />
         <Toolbar variant="dense" disableGutters>
-          <NavIconButton
-            edge="start"
-            color="primary"
-            aria-label={t('appFrame.openDrawer')}
-            disablePermanent={disablePermanent}
-            onClick={() => setMobileOpen(true)}
-            sx={{ ml: '1px' }}
-          >
-            <SvgHamburgerMenu />
-          </NavIconButton>
-          <NextLink href="/" passHref /* onClick={onClose} */ legacyBehavior>
-            <Box
-              component="a"
-              aria-label={t('goToHome')}
-              sx={{ display: { md: 'flex', lg: 'none' }, ml: 2 }}
-            >
-              <SvgMuiLogomark width={30} />
-            </Box>
-          </NextLink>
+
+
           <GrowingDiv />
           <Stack direction="row" spacing={1} useFlexGap>
             <BannerComponent />

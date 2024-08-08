@@ -192,13 +192,6 @@ export default function ApiPage(props) {
         <h1>{pageContent.name} API</h1>
         <Typography variant="h5" component="p" className="description" gutterBottom>
           {description}
-          {disableAd ? null : (
-            <BrandingProvider>
-              <AdGuest>
-                <Ad />
-              </AdGuest>
-            </BrandingProvider>
-          )}
         </Typography>
         <Heading hash="demos" />
         <Alert
@@ -212,19 +205,19 @@ export default function ApiPage(props) {
               px: 2,
               pb: 0,
               fontSize: theme.typography.pxToRem(16),
-              backgroundColor: (theme.vars || theme).palette.success[50],
-              borderColor: (theme.vars || theme).palette.success[100],
+              backgroundColor: theme.palette.success[50],
+              borderColor: theme.palette.success[100],
               '& * p': {
                 mb: 1,
               },
               '& * a': {
                 fontWeight: theme.typography.fontWeightMedium,
-                color: (theme.vars || theme).palette.success[900],
+                color: theme.palette.success[900],
                 textDecorationColor: alpha(theme.palette.success[600], 0.3),
               },
               ...theme.applyDarkStyles({
                 '& * a': {
-                  color: (theme.vars || theme).palette.success[100],
+                  color: theme.palette.success[100],
                   textDecorationColor: alpha(theme.palette.success[100], 0.3),
                 },
                 backgroundColor: alpha(theme.palette.success[700], 0.15),

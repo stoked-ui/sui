@@ -107,7 +107,7 @@ export default function MaterialUIExampleCollection() {
               display: 'flex',
               alignItems: 'center',
               gap: 2,
-              background: `${(theme.vars || theme).palette.gradients.radioSubtle}`,
+              background: `${theme.palette.gradients.radioSubtle}`,
             })}
           >
             <Avatar

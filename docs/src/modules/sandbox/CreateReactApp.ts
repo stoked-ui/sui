@@ -8,7 +8,7 @@ export const getHtml = ({
 }: {
   title: string;
   language: string;
-  codeStyling?: 'Tailwind' | 'MUI System';
+  codeStyling?: 'Tailwind' | 'SUI System';
   raw?: string;
 }) => {
   return `<!DOCTYPE html>

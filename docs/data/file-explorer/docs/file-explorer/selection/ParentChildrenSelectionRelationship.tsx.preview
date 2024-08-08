@@ -1,0 +1,9 @@
+<FileExplorer
+  multiSelect
+  checkboxSelection
+  apiRef={apiRef}
+  items={NestedFiles}
+  selectedItems={selectedItems}
+  onSelectedItemsChange={handleSelectedItemsChange}
+  onItemSelectionToggle={handleItemSelectionToggle}
+/>

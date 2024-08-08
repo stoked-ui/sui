@@ -1,5 +1,14 @@
-const ROUTES = {
-  // Marketing pages
+
+type Routes = {
+  [key: string]: string;
+};
+
+const ROUTES: Routes = {
+  stokedUi: '/stoked-ui/',
+  fileExplorer: '/stoked-ui/file-explorer/',
+  mediaSelector: '/stoked-ui/media-selector/',
+  suiFileExplorerOverviewDoc: '/material-ui/overview',
+  // Marketing pagesHeaderNavBar
   productCore: '/core/',
   productMaterial: '/material-ui/',
   productBase: '/base-ui/',
@@ -11,8 +20,30 @@ const ROUTES = {
   pricing: '/pricing/',
   about: '/about/',
   blog: '/blog/',
-  // Material UI doc pages
-  materialDocs: '/material-ui/getting-started/',
+  // Stoked Consulting
+  home: '/file-explorer/',
+  servicesUI: '/services/ui/',
+  servicesBackend: '/services/backend/',
+  servicesFullstack: '/services/fullstack/',
+  // SUI doc pages
+  suiCoreDocs: '/sui/',
+  suiXDocs: '/sui-x/',
+  // SUI core
+  suiCoreFileList: '/sui/file-list/',
+  suiCoreFileListDoc: '/sui/docs/file-list/',
+  suiCoreTimeline: '/sui/timeline/',
+  suiCoreTimelineDoc: '/sui/docs/timeline/',
+  suiCoreVideoEditor: '/sui/video-editor/',
+  suiCoreVideoEditorDoc: '/sui/video-editor/',
+  suiCoreMediaProvider: '/sui/media-provider/',
+  suiCoreMediaProviderDoc: '/sui/docs/media-provider/',
+  // SUI core components
+  suiXFileList: '/sui-x/file-list/',
+  suiXTimeline: '/sui-x/timeline/',
+  suiXVideoEditor: '/sui-x/video-editor/',
+  suiXMediaProvider: '/sui-x/media-provider/',
+  // Stoked UI doc pages
+  materialDocs: 'https://stokedui.com/material-ui/getting-started/',
   materialIcons: '/material-ui/material-icons/',
   freeTemplates: '/material-ui/getting-started/templates/',
   components: '/material-ui/getting-started/supported-components/',
@@ -26,15 +57,15 @@ const ROUTES = {
   support: '/material-ui/getting-started/support/#professional-support-premium',
   goldSponsor: '/material-ui/discover-more/backers/#gold-sponsors',
   // Base UI doc pages
-  baseDocs: '/base-ui/getting-started/',
+  baseDocs: 'https://stokedui.com/base-ui/getting-started/',
   baseComponents: '/base-ui/all-components/',
   baseQuickstart: '/base-ui/getting-started/quickstart/',
   // Joy UI doc pages
   joyDocs: '/joy-ui/getting-started/',
   // System pages
-  systemDocs: '/system/getting-started/',
+  systemDocs: 'https://stokedui.com/system/getting-started/',
   // X general pages
-  xIntro: '/x/introduction/',
+  xIntro: 'https://stokedui.com/x/introduction/',
   xRoadmap: 'https://github.com/mui/mui-x/projects/1',
   xLicensing: '/x/introduction/licensing/',
   // Data Grid doc pages
@@ -46,7 +77,7 @@ const ROUTES = {
   datePickersOverview: '/x/react-date-pickers/',
   // Charts doc pages
   chartsOverview: '/x/react-charts/',
-  // Tree View doc pages
+  // File Explorer doc pages
   treeViewOverview: '/x/react-tree-view/',
   // Toolpad pages
   toolpadDocs: '/toolpad/studio/getting-started/',
@@ -54,8 +85,8 @@ const ROUTES = {
   // External pages
   rssFeed: '/feed/blog/rss.xml',
   handbook: 'https://mui-org.notion.site/Handbook-f086d47e10794d5e839aef9dc67f324b',
-  privacyPolicy: 'https://mui.com/legal/privacy/',
-  store: 'https://mui.com/store/',
+  privacyPolicy: 'https://stokedui.com/legal/privacy/',
+  store: 'https://stokedui.com/store/',
 };
 
 export default ROUTES;

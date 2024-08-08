@@ -15,7 +15,7 @@ import { pageToTitleI18n } from 'docs/src/modules/utils/helpers';
 import { useTranslate } from '@mui/docs/i18n';
 import { Link } from '@mui/docs/Link';
 import type { MuiPage } from 'docs/src/MuiPage';
-import materialPages from 'docs/data/material/pages';
+import materialPages from '../data/pages';
 
 export default function Components() {
   const t = useTranslate();
@@ -52,8 +52,8 @@ export default function Components() {
   return (
     <BrandingCssVarsProvider>
       <Head
-        title="Components - MUI"
-        description="MUI provides a simple, customizable, and accessible library of React components. Follow your own design system, or start with Material Design. You will develop React applications faster."
+        title="Components - SUI"
+        description="SUI provides a simple, customizable, and accessible library of React components. Follow your own design system, or start with Material Design. You will develop React applications faster."
       />
       <AppHeader />
       <main id="main-content">

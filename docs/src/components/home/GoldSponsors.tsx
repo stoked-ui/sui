@@ -21,14 +21,14 @@ const GOLDs = [
     srcSet: 'https://avatars.githubusercontent.com/u/251374?s=120 3x',
     name: 'Spotify',
     description: 'Music service for accessing millions of songs.',
-    href: 'https://open.spotify.com?utm_source=MUI&utm_medium=referral&utm_content=homepage',
+    href: 'https://open.spotify.com?utm_source=SUI&utm_medium=referral&utm_content=homepage',
   },
   {
     src: 'https://images.opencollective.com/icons8/7fa1641/logo/40.png',
     srcSet: 'https://images.opencollective.com/icons8/7fa1641/logo/120.png 3x',
     name: 'Icons8',
     description: 'API for icons, photos, illustrations, and music.',
-    href: 'https://icons8.com?utm_source=MUI&utm_medium=referral&utm_content=homepage',
+    href: 'https://icons8.com?utm_source=SUI&utm_medium=referral&utm_content=homepage',
   },
   {
     src: 'https://rxdb.info/files/logo/logo_text.svg',
@@ -41,27 +41,27 @@ const GOLDs = [
     srcSet: 'https://avatars.githubusercontent.com/u/1262264?s=120 3x',
     name: 'Text-em-all',
     description: 'Mass text messaging and automated calling.',
-    href: 'https://www.text-em-all.com/?utm_source=MUI&utm_medium=referral&utm_content=homepage',
+    href: 'https://www.text-em-all.com/?utm_source=SUI&utm_medium=referral&utm_content=homepage',
   },
   {
     src: '/static/sponsors/megafamous.png',
     name: 'MegaFamous',
     description: 'Buy Instagram followers and likes.',
-    href: 'https://megafamous.com/?utm_source=MUI&utm_medium=referral&utm_content=homepage',
+    href: 'https://megafamous.com/?utm_source=SUI&utm_medium=referral&utm_content=homepage',
   },
   {
     src: 'https://images.opencollective.com/dialmycalls/f5ae9ab/avatar/40.png',
     srcSet: 'https://images.opencollective.com/dialmycalls/f5ae9ab/avatar/120.png 3x',
     name: 'DialMyCalls',
     description: 'Send text messages, calls, and emails.',
-    href: 'https://www.dialmycalls.com/?utm_source=MUI&utm_medium=referral&utm_content=homepage',
+    href: 'https://www.dialmycalls.com/?utm_source=SUI&utm_medium=referral&utm_content=homepage',
   },
   {
     src: 'https://images.opencollective.com/goread_io/eb6337d/logo/40.png',
     srcSet: 'https://images.opencollective.com/goread_io/eb6337d/logo/120.png 3x',
     name: 'Goread.io',
     description: 'Instagram followers, likes, views, and comments.',
-    href: 'https://goread.io/?utm_source=MUI&utm_medium=referral&utm_content=homepage',
+    href: 'https://goread.io/?utm_source=SUI&utm_medium=referral&utm_content=homepage',
   },
 ];
 
@@ -80,15 +80,15 @@ export default function GoldSponsors() {
         sx={(theme) => ({
           mt: 4,
           mb: 1.5,
-          background: `linear-gradient(90deg, ${(theme.vars || theme).palette.warning[500]} 50%, ${
-            (theme.vars || theme).palette.warning[700]
+          background: `linear-gradient(90deg, ${theme.palette.warning[500]} 50%, ${
+            theme.palette.warning[700]
           } 100%)`,
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
           ...theme.applyDarkStyles({
             background: `linear-gradient(90deg, ${
-              (theme.vars || theme).palette.warning[400]
-            } 50%, ${(theme.vars || theme).palette.warning[700]} 100%)`,
+              theme.palette.warning[400]
+            } 50%, ${theme.palette.warning[700]} 100%)`,
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
           }),
@@ -115,7 +115,7 @@ export default function GoldSponsors() {
             }}
           >
             <IconButton
-              aria-label="Sponsor MUI"
+              aria-label="Sponsor SUI"
               component="a"
               href={ROUTES.goldSponsor}
               target="_blank"
@@ -131,7 +131,7 @@ export default function GoldSponsors() {
               <Typography variant="body2" color="text.secondary">
                 Find out how{' '}
                 <Link href={ROUTES.goldSponsor} target="_blank" rel="noopener">
-                  you can support MUI.
+                  you can support SUI.
                 </Link>
               </Typography>
             </div>

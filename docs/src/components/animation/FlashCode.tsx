@@ -19,7 +19,7 @@ const FlashCode = styled('div', {
       ? `rgba(${theme.vars.palette.primary.mainChannel} / 0.15)`
       : alpha(theme.palette.primary.main, 0.1),
     border: '1px solid',
-    borderColor: (theme.vars || theme).palette.primary.dark,
+    borderColor: theme.palette.primary.dark,
     zIndex: 2,
   }),
 );

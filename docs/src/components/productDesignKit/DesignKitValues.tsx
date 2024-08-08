@@ -14,7 +14,7 @@ const content = [
     icon: <Palette fontSize="small" color="primary" />,
     title: 'For designers',
     description:
-      'Save time getting the Material UI components all setup, leveraging the latest features from your favorite design tool.',
+      'Save time getting the Stoked UI components all setup, leveraging the latest features from your favorite design tool.',
   },
   {
     icon: <LibraryBooks fontSize="small" color="primary" />,
@@ -26,7 +26,7 @@ const content = [
     icon: <CodeRounded fontSize="small" color="primary" />,
     title: 'For developers',
     description:
-      'Effortlessly communicate with designers using the same language around the Material UI components props and variants.',
+      'Effortlessly communicate with designers using the same language around the Stoked UI components props and variants.',
   },
 ];
 

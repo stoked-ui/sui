@@ -29,7 +29,7 @@ React primitives:
   54 ±1%
 React components:
   58 ±1%
-Styled MUI:
+Styled SUI:
   94 ±1%
 Styled emotion:
   96 ±1%
@@ -39,7 +39,7 @@ makeStyles:
   83 ±0%
 Box Baseline:
   106 ±1%
-Box MUI:
+Box SUI:
   180 ±1%
 Box Theme-UI:
   201 ±1%

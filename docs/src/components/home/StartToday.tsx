@@ -22,7 +22,7 @@ export default function StartToday() {
             Ship your next project <GradientText>faster</GradientText>
           </Typography>
         }
-        description="Find out why MUI's tools are trusted by thousands of open-source developers and teams around the world."
+        description="Find out why SUI's tools are trusted by thousands of open-source developers and teams around the world."
       />
       <GetStartedButtons primaryLabel="Discover the Core libraries" primaryUrl="/core/" />
     </Box>

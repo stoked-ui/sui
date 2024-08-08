@@ -38,12 +38,12 @@ const Root = styled('div')(({ theme }) => [
     },
     '& .MuiSvgIcon-root': {
       fontSize: 16,
-      color: (theme.vars || theme).palette.grey[800],
+      color: theme.palette.grey[800],
     },
   },
   theme.applyDarkStyles({
     '& .MuiSvgIcon-root': {
-      color: (theme.vars || theme).palette.grey[400],
+      color: theme.palette.grey[400],
     },
   }),
 ]);
@@ -197,7 +197,7 @@ function useToolbar(controlRefs, options = {}) {
       // eslint-disable-next-line no-lonely-if
       if (process.env.NODE_ENV !== 'production') {
         console.error(
-          'MUI: The toolbar contains a focusable element that is not controlled by the toolbar. ' +
+          'SUI: The toolbar contains a focusable element that is not controlled by the toolbar. ' +
             'Make sure you have attached `getControlProps(index)` to every focusable element within this toolbar.',
         );
       }
@@ -209,7 +209,7 @@ function useToolbar(controlRefs, options = {}) {
     handleToolbarFocus = (event) => {
       if (findControlIndex(event.target) === -1) {
         console.error(
-          'MUI: The toolbar contains a focusable element that is not controlled by the toolbar. ' +
+          'SUI: The toolbar contains a focusable element that is not controlled by the toolbar. ' +
             'Make sure you have attached `getControlProps(index)` to every focusable element within this toolbar.',
         );
       }

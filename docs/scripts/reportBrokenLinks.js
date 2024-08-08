@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 const path = require('path');
 const fse = require('fs-extra');
-const { createRender } = require('@mui/internal-markdown');
+const { createRender } = require('@stoked-ui/internal-markdown');
 const { marked } = require('marked');
 const { LANGUAGES_IGNORE_PAGES } = require('../config');
 
@@ -95,7 +95,7 @@ const getMdFilesImported = (jsPageFile) => {
   const fileContent = fse.readFileSync(jsPageFile, 'utf8');
   /**
    * Content files can be represented by either:
-   * - 'docsx/data/advanced-components/overview.md?muiMarkdown'; (for mui-x)
+   * - 'docs/data/advanced-components/overview.md?muiMarkdown'; (for mui-x)
    * - 'docs/data/advanced-components/overview.md?muiMarkdown';
    * - './index.md?muiMarkdown';
    */
@@ -113,10 +113,10 @@ const getMdFilesImported = (jsPageFile) => {
         jsPageFile.slice(0, jsPageFile.indexOf('docs/')),
         cleanImportPath,
       );
-    } else if (cleanImportPath.startsWith('docsx/')) {
+    } else if (cleanImportPath.startsWith('docs/')) {
       cleanImportPath = path.join(
         jsPageFile.slice(0, jsPageFile.indexOf('docs/')),
-        cleanImportPath.replace('docsx', 'docs'),
+        cleanImportPath.replace('docs', 'docs'),
       );
     } else {
       console.error(`unable to deal with import path: ${cleanImportPath}`);

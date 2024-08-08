@@ -46,14 +46,14 @@ const inHouseAds = [
   },
   {
     name: 'templates',
-    link: 'https://mui.com/store/?utm_source=docs&utm_medium=referral&utm_campaign=in-house-templates',
+    link: 'https://stokedui.com/store/?utm_source=docs&utm_medium=referral&utm_campaign=in-house-templates',
     img: '/static/ads-in-house/themes-2.jpg',
     description:
       '<b>Premium Templates</b>. Start your project with the best templates for admins, dashboards, and more.',
   },
   {
     name: 'themes',
-    link: 'https://mui.com/store/?utm_source=docs&utm_medium=referral&utm_campaign=in-house-themes',
+    link: 'https://stokedui.com/store/?utm_source=docs&utm_medium=referral&utm_campaign=in-house-themes',
     img: '/static/ads-in-house/themes.png',
     description:
       '<b>Premium Themes</b>. Kickstart your application development with a ready-made theme.',
@@ -63,14 +63,14 @@ const inHouseAds = [
     link: 'https://tidelift.com/subscription/pkg/npm-material-ui?utm_source=npm-material-ui&utm_medium=referral&utm_campaign=enterprise&utm_content=ad',
     img: '/static/ads-in-house/tidelift.png',
     description:
-      '<b>MUI for enterprise</b>. Save time and reduce risk. Managed open source — backed by maintainers.',
+      '<b>SUI for enterprise</b>. Save time and reduce risk. Managed open source — backed by maintainers.',
   },
   {
     name: 'figma',
-    link: 'https://mui.com/store/items/figma-react/?utm_source=docs&utm_medium=referral&utm_campaign=in-house-figma',
+    link: 'https://stokedui.com/store/items/figma-react/?utm_source=docs&utm_medium=referral&utm_campaign=in-house-figma',
     img: '/static/ads-in-house/figma.png',
     description:
-      '<b>For Figma</b>. A large UI kit with over 600 handcrafted Material UI, MUI X, Joy UI components 🎨.',
+      '<b>For Figma</b>. A large UI kit with over 600 handcrafted Material UI, SUI X, Joy UI components 🎨.',
   },
 ];
 
@@ -133,17 +133,17 @@ export default function Ad() {
     children = <span />;
   } else if (adblock) {
     if (randomAdblock < 0.2) {
-      children = <PleaseDisableAdblock />;
+      children = <React.Fragment/>;
       label = 'in-house-adblock';
     } else {
-      children = <AdInHouse ad={inHouseAds[Math.floor(inHouseAds.length * randomInHouse)]} />;
+      children = <React.Fragment/>;
       label = 'in-house';
     }
   } else if (carbonOut) {
-    children = <AdInHouse ad={inHouseAds[Math.floor(inHouseAds.length * randomInHouse)]} />;
+    children = <React.Fragment/>;
     label = 'in-house-carbon';
   } else {
-    children = <AdCarbon />;
+    children = <React.Fragment/>;
     label = 'carbon';
   }
 

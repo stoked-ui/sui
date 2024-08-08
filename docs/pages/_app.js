@@ -5,17 +5,8 @@ import { loadCSS } from 'fg-loadcss/src/loadCSS';
 import NextHead from 'next/head';
 import PropTypes from 'prop-types';
 import { useRouter } from 'next/router';
-import { LicenseInfo } from '@mui/x-data-grid-pro';
-import materialPkgJson from 'packages/mui-material/package.json';
-import joyPkgJson from 'packages/mui-joy/package.json';
-import systemPkgJson from 'packages/mui-system/package.json';
-import basePkgJson from 'packages/mui-base/package.json';
-import generalDocsPages from 'docs/data/docs/pages';
-import basePages from 'docs/data/base/pages';
-import docsInfraPages from 'docs/data/docs-infra/pages';
-import materialPages from 'docs/data/material/pages';
-import joyPages from 'docs/data/joy/pages';
-import systemPages from 'docs/data/system/pages';
+import fileExplorerPkgJson from 'packages/sui-file-explorer/package.json';
+import fileExplorerPages from '../data/pages';
 import PageContext from 'docs/src/modules/components/PageContext';
 import GoogleAnalytics from 'docs/src/modules/components/GoogleAnalytics';
 import { CodeCopyProvider } from 'docs/src/modules/utils/CodeCopy';
@@ -28,13 +19,11 @@ import findActivePage from 'docs/src/modules/utils/findActivePage';
 import { pathnameToLanguage } from 'docs/src/modules/utils/helpers';
 import getProductInfoFromUrl from 'docs/src/modules/utils/getProductInfoFromUrl';
 import { DocsProvider } from '@mui/docs/DocsProvider';
+import { DocsProvider as DocsProviderStoked } from '@stoked-ui/docs/DocsProvider';
 import { mapTranslations } from '@mui/docs/i18n';
 import './global.css';
 import '../public/static/components-gallery/base-theme.css';
 import config from '../config';
-
-// Remove the license warning from demonstration purposes
-LicenseInfo.setLicenseKey(process.env.NEXT_PUBLIC_MUI_LICENSE);
 
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
@@ -97,7 +86,7 @@ async function registerServiceWorker() {
   if (
     'serviceWorker' in navigator &&
     process.env.NODE_ENV === 'production' &&
-    window.location.host.indexOf('mui.com') !== -1
+    window.location.host.indexOf('github.io') !== -1
   ) {
     // register() automatically attempts to refresh the sw.js.
     const registration = await navigator.serviceWorker.register('/sw.js');
@@ -149,7 +138,7 @@ function AppWrapper(props) {
 
   React.useEffect(() => {
     loadDependencies();
-    registerServiceWorker();
+    registerServiceWorker().catch(console.error);
 
     // Remove the server-side injected CSS.
     const jssStyles = document.querySelector('#jss-server-side');
@@ -161,120 +150,39 @@ function AppWrapper(props) {
   const productIdentifier = React.useMemo(() => {
     const languagePrefix = pageProps.userLanguage === 'en' ? '' : `/${pageProps.userLanguage}`;
 
-    if (productId === 'material-ui') {
-      return {
-        metadata: 'MUI Core',
-        name: 'Material UI',
-        versions: [
-          {
-            text: 'v6 (next)',
-            href: `https://next.mui.com${languagePrefix}/material-ui/getting-started/`,
-          },
-          { text: `v${materialPkgJson.version}`, current: true },
-          {
-            text: 'v4',
-            href: `https://v4.mui.com${languagePrefix}/getting-started/installation/`,
-          },
-          {
-            text: 'View all versions',
-            href: `https://mui.com${languagePrefix}/versions/`,
-          },
-        ],
-      };
-    }
+    const productMap = {
+      'file-explorer': {
+        metadata: 'Stoked UI',
+        name: 'File Explorer',
+      },
+      'media-selector': {
+        metadata: 'Stoked UI',
+        name: 'Media Selector',
+      },
+      'stoked-ui': {
+        name: 'Stoked UI',
+      },
+    };
 
-    if (productId === 'joy-ui') {
-      return {
-        metadata: 'MUI Core',
-        name: 'Joy UI',
-        versions: [{ text: `v${joyPkgJson.version}`, current: true }],
-      };
+    return {
+      ...productMap[productId],
+      versions: [
+        {
+          text: 'v1 (next)',
+          href: `https://stoked-ui.github.io/${languagePrefix}/v1/${productId}/`,
+        },
+        {text: `v${fileExplorerPkgJson.version}`, current: true},
+        {
+          text: 'View all versions',
+          href: `https://stoked-ui.github.io/${languagePrefix}/versions/${productId}`,
+        },
+      ],
     }
-
-    if (productId === 'system') {
-      return {
-        metadata: 'MUI Core',
-        name: 'MUI System',
-        versions: [
-          {
-            text: 'v6 (next)',
-            href: `https://next.mui.com${languagePrefix}/system/getting-started/`,
-          },
-          { text: `v${systemPkgJson.version}`, current: true },
-          { text: 'v4', href: `https://v4.mui.com${languagePrefix}/system/basics/` },
-          {
-            text: 'View all versions',
-            href: `https://mui.com${languagePrefix}/versions/`,
-          },
-        ],
-      };
-    }
-
-    if (productId === 'base-ui') {
-      return {
-        metadata: 'MUI Core',
-        name: 'Base UI',
-        versions: [{ text: `v${basePkgJson.version}`, current: true }],
-      };
-    }
-
-    if (productId === 'core') {
-      return {
-        metadata: '',
-        name: 'MUI Core',
-        versions: [
-          { text: `v${materialPkgJson.version}`, current: true },
-          {
-            text: 'View all versions',
-            href: `https://mui.com${languagePrefix}/versions/`,
-          },
-        ],
-      };
-    }
-
-    if (productId === 'docs-infra') {
-      return {
-        metadata: '',
-        name: 'Docs-infra',
-        versions: [
-          {
-            text: 'v0.0.0',
-            href: `https://mui.com${languagePrefix}/versions/`,
-          },
-        ],
-      };
-    }
-
-    if (productId === 'docs') {
-      return {
-        metadata: '',
-        name: 'Home docs',
-        versions: [
-          {
-            text: 'v0.0.0',
-            href: `https://mui.com${languagePrefix}/versions/`,
-          },
-        ],
-      };
-    }
-
-    return null;
   }, [pageProps.userLanguage, productId]);
 
-  const pageContextValue = React.useMemo(() => {
-    let pages = generalDocsPages;
-    if (productId === 'base-ui') {
-      pages = basePages;
-    } else if (productId === 'material-ui') {
-      pages = materialPages;
-    } else if (productId === 'joy-ui') {
-      pages = joyPages;
-    } else if (productId === 'system') {
-      pages = systemPages;
-    } else if (productId === 'docs-infra') {
-      pages = docsInfraPages;
-    }
 
+  const pageContextValue = React.useMemo(() => {
+    const pages = fileExplorerPages;
     const { activePage, activePageParents } = findActivePage(pages, router.pathname);
 
     return {
@@ -304,26 +212,34 @@ function AppWrapper(props) {
         <meta name="mui:productId" content={productId} />
         <meta name="mui:productCategoryId" content={productCategoryId} />
       </NextHead>
-      <DocsProvider
+      <DocsProviderStoked
         config={config}
         defaultUserLanguage={pageProps.userLanguage}
         translations={pageProps.translations}
       >
-        <CodeCopyProvider>
-          <CodeStylingProvider>
-            <CodeVariantProvider>
-              <PageContext.Provider value={pageContextValue}>
-                <ThemeProvider>
-                  <DocsStyledEngineProvider cacheLtr={emotionCache}>
-                    {children}
-                    <GoogleAnalytics />
-                  </DocsStyledEngineProvider>
-                </ThemeProvider>
-              </PageContext.Provider>
-            </CodeVariantProvider>
-          </CodeStylingProvider>
-        </CodeCopyProvider>
-      </DocsProvider>
+        <DocsProvider
+          config={config}
+          defaultUserLanguage={pageProps.userLanguage}
+          translations={pageProps.translations}
+        >
+          <CodeCopyProvider>
+            <CodeStylingProvider>
+              <CodeVariantProvider>
+                <PageContext.Provider value={pageContextValue}>
+                  <ThemeProvider>
+                    <DocsStyledEngineProvider cacheLtr={emotionCache}>
+                      {children}
+                      {/*
+                      <GoogleAnalytics />
+                      */}
+                    </DocsStyledEngineProvider>
+                  </ThemeProvider>
+                </PageContext.Provider>
+              </CodeVariantProvider>
+            </CodeStylingProvider>
+          </CodeCopyProvider>
+        </DocsProvider>
+      </DocsProviderStoked>
     </React.Fragment>
   );
 }

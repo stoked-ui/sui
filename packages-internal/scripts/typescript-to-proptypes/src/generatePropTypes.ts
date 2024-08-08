@@ -169,7 +169,7 @@ export function generatePropTypes(
 
     if (propType.type === 'any') {
       // key isn't a prop like the others, see
-      // https://github.com/mui/material-ui/issues/25304
+      // https://github.com/stoked-ui/stoked-ui/issues/25304
       if (context.propTypeDefinition.name === 'key') {
         return '() => null';
       }

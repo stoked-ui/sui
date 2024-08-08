@@ -279,10 +279,10 @@ export default function BaseUICustomization() {
                 justifyContent: 'center',
                 alignItems: 'center',
                 backgroundSize: '100%, 72px',
-                background: `${(theme.vars || theme).palette.gradients.linearSubtle}`,
+                background: `${theme.palette.gradients.linearSubtle}`,
                 ...theme.applyDarkStyles({
                   backgroundSize: '72px, 100%',
-                  background: `${(theme.vars || theme).palette.gradients.linearSubtle}`,
+                  background: `${theme.palette.gradients.linearSubtle}`,
                 }),
               })}
             >
