@@ -70,18 +70,18 @@ type FileExplorerComponent = (<
 const childrenWarning = buildWarning([
   'SUI X: The `FileExplorer` component does not support JSX children.',
   'If you want to add items, you need to use the `items` prop',
-  'Check the documentation for more details: https://stokedui.com/x/react-fileExplorer-view/rich-fileExplorer-view/items/',
+  'Check the documentation for more details: https://stoked-ui.github.io/x/react-fileExplorer-view/rich-fileExplorer-view/items/',
 ]);
 
 /**
  *
  * Demos:
  *
- * - [FileExplorer View](https://stokedui.com/x/react-fileExplorer-view/)
+ * - [FileExplorer View](https://stoked-ui.github.io/x/react-fileExplorer-view/)
  *
  * API:
  *
- * - [FileExplorer API](https://stokedui.com/x/api/fileExplorer-view/rich-fileExplorer-view/)
+ * - [FileExplorer API](https://stoked-ui.github.io/x/api/fileExplorer-view/rich-fileExplorer-view/)
  */
 const FileExplorer = React.forwardRef(function FileExplorer<
   R extends FileBase = FileBase,

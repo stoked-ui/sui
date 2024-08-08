@@ -58,7 +58,10 @@ export default function ControlledSelection() {
             <FileElement itemId="charts-community" label="@mui/x-charts" />
           </FileElement>
           <FileElement itemId="file-explorer" label="File Explorer">
-            <FileElement itemId="file-explorer-community" label="@stoked-ui/file-explorer" />
+            <FileElement
+              itemId="file-explorer-community"
+              label="@stoked-ui/file-explorer"
+            />
           </FileElement>
         </FileExplorerBasic>
       </Box>

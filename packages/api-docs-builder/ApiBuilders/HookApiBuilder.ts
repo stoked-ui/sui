@@ -40,18 +40,18 @@ const parseProperty = async (
  * /**
  * * Demos:
  * *
- * * - [Button](https://stokedui.com/base-ui/react-button/)
+ * * - [Button](https://stoked-ui.github.io/base-ui/react-button/)
  * *
  * * API:
  * *
- * * - [useButton API](https://stokedui.com/base-ui/api/use-button/)
+ * * - [useButton API](https://stoked-ui.github.io/base-ui/api/use-button/)
  */
 async function annotateHookDefinition(
   api: HookReactApi,
   hookJsdoc: Annotation,
   projectSettings: ProjectSettings,
 ) {
-  const HOST = projectSettings.baseApiUrl ?? 'https://stokedui.com';
+  const HOST = projectSettings.baseApiUrl ?? 'https://stoked-ui.github.io';
 
   const typesFilename = api.filename.replace(/\.js$/, '.d.ts');
   const fileName = path.parse(api.filename).name;

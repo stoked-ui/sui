@@ -2,7 +2,10 @@ import * as React from 'react';
 import Box from '@mui/material/Box';
 import { styled, alpha } from '@mui/material/styles';
 import { FileExplorerBasic } from '@stoked-ui/file-explorer/FileExplorerBasic';
-import { FileElement, fileElementClasses } from '@stoked-ui/file-explorer/FileElement';
+import {
+  FileElement,
+  fileElementClasses,
+} from '@stoked-ui/file-explorer/FileElement';
 
 const CustomTreeItem = styled(FileElement)(({ theme }) => ({
   color:
@@ -37,20 +40,20 @@ const CustomTreeItem = styled(FileElement)(({ theme }) => ({
 export default function CustomStyling() {
   return (
     <Box sx={{ minHeight: 352, minWidth: 250 }}>
-      <FileExplorerBasic defaultExpandedItems={['Notes']}>
-        <CustomTreeItem name={"Notes"}>
+      <FileExplorerBasic defaultExpandedItems={['grid']}>
+        <CustomTreeItem name={'Notes'}>
           <CustomTreeItem name="doc.pdf" />
           <CustomTreeItem name="notes.txt" />
         </CustomTreeItem>
-        <CustomTreeItem name={"Images"}>
-          <CustomTreeItem name={"logo.png"} />
-          <CustomTreeItem name={"favicon.ico"} />
+        <CustomTreeItem name={'Images'}>
+          <CustomTreeItem name={'logo.png'} />
+          <CustomTreeItem name={'favicon.ico'} />
         </CustomTreeItem>
-        <CustomTreeItem name={"Movies"}>
-          <CustomTreeItem name={"feature.mp4"} />
+        <CustomTreeItem name={'Movies'}>
+          <CustomTreeItem name={'feature.mp4'} />
         </CustomTreeItem>
-        <CustomTreeItem name={"Data"}>
-          <CustomTreeItem name={"client-data.xls"} />
+        <CustomTreeItem name={'Data'}>
+          <CustomTreeItem name={'client-data.xls'} />
         </CustomTreeItem>
       </FileExplorerBasic>
     </Box>

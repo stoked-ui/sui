@@ -30,7 +30,7 @@ Please read [the full text](https://github.com/stoked-ui/.github/blob/master/COD
 
 ## A large spectrum of contributions
 
-There are [many ways](https://stokedui.com/stoked-ui/getting-started/faq/#mui-is-awesome-how-can-i-support-the-project) to contribute to the library, and writing code is only one part of the story—[documentation improvements](#contributing-to-the-documentation) can be just as important as code changes.
+There are [many ways](https://stoked-ui.github.io/stoked-ui/getting-started/faq/#mui-is-awesome-how-can-i-support-the-project) to contribute to the library, and writing code is only one part of the story—[documentation improvements](#contributing-to-the-documentation) can be just as important as code changes.
 If you have an idea for an improvement to the code or the docs, we encourage you to open an issue as a first step, to discuss your proposed changes with the maintainers before proceeding.
 
 ## Your first pull request
@@ -376,7 +376,7 @@ $test-project> npm i ./path-to-file/mui-material-x.x.x.tar.gz
 
 Learn more about the future by visiting our different projects' roadmaps:
 
-- [Material UI roadmap](https://stokedui.com/stoked-ui/discover-more/roadmap/).
+- [Material UI roadmap](https://stoked-ui.github.io/stoked-ui/discover-more/roadmap/).
 
 ## License
 

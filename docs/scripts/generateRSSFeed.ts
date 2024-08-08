@@ -7,7 +7,7 @@ export default function generateRssFeed(allBlogPosts: Array<BlogPost>) {
   if (process.env.NODE_ENV !== 'production') {
     return;
   }
-  const siteUrl = 'https://stokedui.com';
+  const siteUrl = 'https://stoked-ui.github.io';
 
   const feed = new Feed({
     title: 'SUI - Blog',

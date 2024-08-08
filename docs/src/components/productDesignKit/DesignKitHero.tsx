@@ -46,7 +46,7 @@ export default function TemplateHero() {
           </Typography>
           <GetStartedButtons
             primaryLabel="Buy now"
-            primaryUrl="https://stokedui.com/store/?utm_source=marketing&utm_medium=referral&utm_campaign=design-cta#design"
+            primaryUrl="https://stoked-ui.github.io/store/?utm_source=marketing&utm_medium=referral&utm_campaign=design-cta#design"
             secondaryLabel="Figma Preview"
             secondaryUrl="https://www.figma.com/community/file/912837788133317724/material-ui-for-figma-and-mui-x"
           />

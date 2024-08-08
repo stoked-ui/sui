@@ -19,7 +19,7 @@ body:
     attributes:
       label: Related page
       description: Which page of the documentation is this about?
-      placeholder: https://stokedui.com/stoked-ui/
+      placeholder: https://stoked-ui.github.io/stoked-ui/
     validations:
       required: true
   - type: dropdown

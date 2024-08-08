@@ -1,3 +1,1 @@
-export default function FileExplorerUsage() {
-  return <FileExplorer items={NestedFiles} grid alternatingRows />;
-}
+<FileExplorer sx={{ width: '100%' }} items={NestedFiles} grid alternatingRows />

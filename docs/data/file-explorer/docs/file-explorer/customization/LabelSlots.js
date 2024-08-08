@@ -1,9 +1,11 @@
 import * as React from 'react';
+import PropTypes from 'prop-types';
 import Box from '@mui/material/Box';
 import { File, FileLabel } from '@stoked-ui/file-explorer/File';
 import { FileExplorer } from '@stoked-ui/file-explorer/FileExplorer';
-import { NestedFiles } from 'docs/src/components/fileExplorer/data';
+
 import { useFileUtils } from '@stoked-ui/file-explorer/hooks';
+import { NestedFiles } from 'docs/src/components/fileExplorer/data';
 
 function CustomLabel(props) {
   const { children, onChange, ...other } = props;
@@ -56,6 +58,11 @@ function CustomLabel(props) {
   );
 }
 
+CustomLabel.propTypes = {
+  children: PropTypes.string.isRequired,
+  onChange: PropTypes.func.isRequired,
+};
+
 const TreeItemContext = React.createContext({ onLabelValueChange: () => {} });
 
 const CustomTreeItem = React.forwardRef((props, ref) => {
@@ -97,7 +104,19 @@ const CustomTreeItem = React.forwardRef((props, ref) => {
   );
 });
 
-const DEFAULT_EXPANDED_ITEMS = ['Movies'];
+CustomTreeItem.propTypes = {
+  /**
+   * The content of the component.
+   */
+  children: PropTypes.node,
+  /**
+   * The id of the item.
+   * Must be unique.
+   */
+  itemId: PropTypes.string,
+};
+
+const DEFAULT_EXPANDED_ITEMS = ['Docs'];
 
 export default function LabelSlots() {
   const [products, setProducts] = React.useState(NestedFiles);

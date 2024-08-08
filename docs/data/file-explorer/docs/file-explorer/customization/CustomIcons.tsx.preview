@@ -1,5 +1,5 @@
 <FileExplorer
-  defaultExpandedItems={['grid']}
+  defaultExpandedItems={['Notes']}
   slots={{
     expandIcon: AddBoxIcon,
     collapseIcon: IndeterminateCheckBoxIcon,

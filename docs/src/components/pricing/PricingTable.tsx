@@ -546,7 +546,7 @@ const rowHeaders: Record<string, React.ReactNode> = {
     <ColumnHead label="Master detail" href="/x/react-data-grid/master-detail/" />
   ),
   'data-grid/grouping': (
-    <ColumnHead label="Row grouping" href="https://stokedui.com/x/react-data-grid/row-grouping/" />
+    <ColumnHead label="Row grouping" href="https://stoked-ui.github.io/x/react-data-grid/row-grouping/" />
   ),
   'data-grid/aggregation': (
     <ColumnHead label="Aggregation" href="/x/react-data-grid/aggregation/" />
@@ -1177,8 +1177,8 @@ function PricingTableBuyPro() {
       noLinkStyle
       href={
         licensingModel === 'annual'
-          ? 'https://stokedui.com/store/items/mui-x-pro/'
-          : 'https://stokedui.com/store/items/mui-x-pro-perpetual/'
+          ? 'https://stoked-ui.github.io/store/items/mui-x-pro/'
+          : 'https://stoked-ui.github.io/store/items/mui-x-pro-perpetual/'
       }
       variant="contained"
       endIcon={<KeyboardArrowRightRounded />}
@@ -1198,8 +1198,8 @@ function PricingTableBuyPremium() {
       noLinkStyle
       href={
         licensingModel === 'annual'
-          ? 'https://stokedui.com/store/items/mui-x-premium/'
-          : 'https://stokedui.com/store/items/mui-x-premium-perpetual/'
+          ? 'https://stoked-ui.github.io/store/items/mui-x-premium/'
+          : 'https://stoked-ui.github.io/store/items/mui-x-premium-perpetual/'
       }
       variant="contained"
       fullWidth

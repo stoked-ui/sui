@@ -63,19 +63,19 @@ export async function computeApiDescription(
  * /**
  *  * Demos:
  *  *
- *  * - [Icons](https://stokedui.com/components/icons/)
- *  * - [Material Icons](https://stokedui.com/components/material-icons/)
+ *  * - [Icons](https://stoked-ui.github.io/components/icons/)
+ *  * - [Material Icons](https://stoked-ui.github.io/components/material-icons/)
  *  *
  *  * API:
  *  *
- *  * - [Icon API](https://stokedui.com/api/icon/)
+ *  * - [Icon API](https://stoked-ui.github.io/api/icon/)
  */
 async function annotateComponentDefinition(
   api: ComponentReactApi,
   componentJsdoc: Annotation,
   projectSettings: ProjectSettings,
 ) {
-  const HOST = projectSettings.baseApiUrl ?? 'https://stokedui.com';
+  const HOST = projectSettings.baseApiUrl ?? 'https://stoked-ui.github.io';
 
   const typesFilename = api.filename.replace(/\.js$/, '.d.ts');
   const fileName = path.parse(api.filename).name;

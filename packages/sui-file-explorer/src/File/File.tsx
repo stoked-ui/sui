@@ -35,11 +35,11 @@ const useThemeProps = createUseThemeProps('MuiFile');
  *
  * Demos:
  *
- * - [File List View](https://stokedui.com/x/react-file-list-view/)
+ * - [File List View](https://stoked-ui.github.io/x/react-file-list-view/)
  *
  * API:
  *
- * - [File API](https://stokedui.com/x/api/file-list-view/file-element-2/)
+ * - [File API](https://stoked-ui.github.io/x/api/file-list-view/file-element-2/)
  */
 export const File = React.forwardRef(function File(
   inProps: FileProps & any,

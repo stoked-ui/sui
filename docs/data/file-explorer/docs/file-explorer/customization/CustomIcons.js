@@ -5,7 +5,10 @@ import IndeterminateCheckBoxIcon from '@mui/icons-material/IndeterminateCheckBox
 import SvgIcon from '@mui/material/SvgIcon';
 import { styled } from '@mui/material/styles';
 import { FileExplorer } from '@stoked-ui/file-explorer/FileExplorer';
-import { FileElement, fileElementClasses } from '@stoked-ui/file-explorer/FileElement';
+import {
+  FileElement,
+  fileElementClasses,
+} from '@stoked-ui/file-explorer/FileElement';
 import { NestedFiles } from 'docs/src/components/fileExplorer/data';
 
 const CustomTreeItem = styled(FileElement)({

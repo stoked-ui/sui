@@ -420,7 +420,7 @@ A big thanks to the 19 contributors who made this release possible. Here are som
 
 - Introduce a new Timeline component (#21331) @mnajdova.
   <img width="244" alt="timeline" src="https://user-images.githubusercontent.com/3165635/84400961-ff381900-ac02-11ea-8e5e-beb6c0840fe0.png">
-  You can find the component in the [lab](https://stokedui.com/components/timeline/).
+  You can find the component in the [lab](https://stoked-ui.github.io/components/timeline/).
 
 - Simplify the theme overrides with TypeScript for the components in the lab (#21279) @CarsonF.
 
@@ -445,7 +445,7 @@ A big thanks to the 19 contributors who made this release possible. Here are som
 - Minify error messages in production (#21214) @eps1lon.
 
   Using the [React error decoder](https://react.dev/errors) as inspiration, the exceptions thrown by Material UI in production are now minified.
-  You will be redirected to the documentation to [decode the error](https://stokedui.com/production-error/?code=4&args%5B%5D=500).
+  You will be redirected to the documentation to [decode the error](https://stoked-ui.github.io/production-error/?code=4&args%5B%5D=500).
 
 ### `@stoked-ui/core@v4.10.2`
 
@@ -564,10 +564,10 @@ Here are some highlights ✨:
   </Skeleton>
   ```
 
-  Follow [the docs to learn more](https://stokedui.com/components/skeleton/#inferring-dimensions).
+  Follow [the docs to learn more](https://stoked-ui.github.io/components/skeleton/#inferring-dimensions).
 
 - ♿️ Add tabs accessibility docs section (#20965) @eps1lon.
-  The behavior of the [keyboard navigation](https://stokedui.com/components/tabs/#keyboard-navigation) can be customized with the `selectionFollowsFocus` prop.
+  The behavior of the [keyboard navigation](https://stoked-ui.github.io/components/tabs/#keyboard-navigation) can be customized with the `selectionFollowsFocus` prop.
 - ℹ Improve tooltip arrow customizability (#21095) @sakulstra.
   The arrow background color and border can now be customized independently.
   <img src="https://user-images.githubusercontent.com/3165635/82205669-328acf00-9907-11ea-8fa0-f9784ad2b718.png" width="90" />
@@ -2208,7 +2208,7 @@ Here are some highlights ✨:
 
 - 🔍 Introduce a new Autocomplete component in the lab to support the autocomplete, combobox and multi-select use cases (#17037) @dreamsinspace.
 
-  This [new component](https://stokedui.com/components/autocomplete/) will replace the [third-party integration examples](https://stokedui.com/components/integrated-autocomplete/) once it graduates from the lab to the core.
+  This [new component](https://stoked-ui.github.io/components/autocomplete/) will replace the [third-party integration examples](https://stoked-ui.github.io/components/integrated-autocomplete/) once it graduates from the lab to the core.
   It was one of the [most requested features](https://x.com/MaterialUI/status/1148901411180163073) (by number of 👍 on the corresponding issue).
 
 - 📚 Show the JSX by default for small examples (#17831) @mbrookes.
@@ -2332,7 +2332,7 @@ Here are some highlights ✨:
 
 - ♿️ Improve the accessibility of the table and select components (#17696, #17773) @adeelibr, @eps1lon.
 - 📊 Launch a Developer Survey as a precursor to a major DatePicker enhancement effort.
-- 💄 Add support for different [slider track mode](https://stokedui.com/components/slider/#track) (#17714) @slipmat.
+- 💄 Add support for different [slider track mode](https://stoked-ui.github.io/components/slider/#track) (#17714) @slipmat.
 - And many more 🐛 bug fixes and 📚 improvements.
 
 ### `@stoked-ui/core@v4.5.1`
@@ -2731,7 +2731,7 @@ A big thanks to the 22 contributors who made this release possible!
 
 Here are some highlights ✨:
 
-- 🔍 Introduce a [material icons search](https://stokedui.com/components/material-icons/) (#16956).
+- 🔍 Introduce a [material icons search](https://stoked-ui.github.io/components/material-icons/) (#16956).
 - And many more 🐛 bug fixes and 📚 improvements.
 
 ### `@stoked-ui/core@v4.3.3`
@@ -2885,11 +2885,11 @@ Here are some highlights ✨:
 
   This is a first step toward a feature rich tree view component.
   We will keep iterate on it to add customization demos, filter, drag and drop, and checkboxes.
-  You can find the documentation under [this URL](https://stokedui.com/components/tree-view/).
+  You can find the documentation under [this URL](https://stoked-ui.github.io/components/tree-view/).
 
 - 💄 Support vertical tabs (#16628) @josephpung.
 
-  You can learn more about it following [this URL](https://stokedui.com/components/tabs/#vertical-tabs).
+  You can learn more about it following [this URL](https://stoked-ui.github.io/components/tabs/#vertical-tabs).
 
 - 📚 Remove the prop-types from TypeScript demos (#16521) @merceyz.
 
@@ -2918,7 +2918,7 @@ Here are some highlights ✨:
 
 - 💄 Support small switch (#16620) @darkowic.
 
-  You can learn more about it following [this URL](https://stokedui.com/components/switches/#sizes).
+  You can learn more about it following [this URL](https://stoked-ui.github.io/components/switches/#sizes).
 
 - And many more 🐛 bug fixes and 📚 improvements.
 
@@ -3583,7 +3583,7 @@ Here are some highlights ✨:
 
 _May 23, 2019_
 
-[Material UI v4 is out 🎉](https://stokedui.com/blog/stoked-ui-v4-is-out/)
+[Material UI v4 is out 🎉](https://stoked-ui.github.io/blog/stoked-ui-v4-is-out/)
 
 Some statistics with v4 compared to the release of v1 one year ago:
 
@@ -3853,7 +3853,7 @@ We will focus or effort on the stability of the library for the next two weeks.
 We don't plan more breaking changes, at the exception of changes that are required to fix bugs or that have minor impacts.
 We hope we can release v4 on May 15th, one year after v1.
 
-Please try the beta out! You can find an [upgrade guide](https://stokedui.com/stoked-ui/migration/migration-v3/) to ease the transition.
+Please try the beta out! You can find an [upgrade guide](https://stoked-ui.github.io/stoked-ui/migration/migration-v3/) to ease the transition.
 You will learn more about v4 in the final release blog post and our plans for the future.
 
 ### `@stoked-ui/core@v4.0.0-beta.0`
@@ -3988,7 +3988,7 @@ Here are the last breaking changes we want to introduce:
 
 We have done a lot of changes in the alpha phase.
 The beta phase will be used to stabilize the library, we might have introduced bugs.
-We will encourage people to try the beta out. We hope the migration will be smooth [with the upgrade guide](https://stokedui.com/stoked-ui/migration/migration-v3/).
+We will encourage people to try the beta out. We hope the migration will be smooth [with the upgrade guide](https://stoked-ui.github.io/stoked-ui/migration/migration-v3/).
 
 We hope 2-3 weeks of beta will be enough. We plan on releasing v4 stable in May.
 
@@ -4863,7 +4863,7 @@ _Feb 12, 2019_
 This is our first unstable release toward Material UI v4.0.0. We try to release a major every 6-12 months.
 This gives us the opportunity to remove deprecated APIs, upgrade our peer dependencies and more importantly, keep up with the direction the community is taking.
 
-- You can find the documentation following this URL: https://stokedui.com/.
+- You can find the documentation following this URL: https://stoked-ui.github.io/.
 - You can track our progress following this URL: https://github.com/stoked-ui/stoked-ui/milestone/25.
 
 A A big thanks to the 28 contributors who made this release possible!
@@ -4901,7 +4901,7 @@ In order to support arbitrary spacing values and to remove the need to mentally 
 +  spacing: PropTypes.oneOf([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
 ```
 
-Going forward, you can use the theme to implement a custom Grid spacing transformation function: https://stokedui.com/system/spacing/#transformation.
+Going forward, you can use the theme to implement a custom Grid spacing transformation function: https://stoked-ui.github.io/system/spacing/#transformation.
 
 - [theme] Make theme.palette.augmentColor() pure (#13899) @ryancogswell
 
@@ -5076,7 +5076,7 @@ A big thanks to the 16 contributors who made this release possible!
 Here are some highlights ✨:
 
 - ⚛️ Add a new Breadcrumb component to the lab (#14084) @mbrookes
-  https://stokedui.com/lab/breadcrumbs
+  https://stoked-ui.github.io/lab/breadcrumbs
 - 📝 AppBar and Textfield demos in TypeScript (#13229) @eps1lon
 - 📝 Prepare support for 5 new documentation languages
 - And many more 🐛 bug fixes and 📝 documentation improvements.
@@ -5380,7 +5380,7 @@ Here are some highlights ✨:
 - System package 💎 & Box component 🛠️
 - Demos 100% powered by React hooks ⚛️ (#13497) @adeelibr
 - Massive speed-up of the SSR performance 🚀
-- A new Instagram demo theme 💅 https://stokedui.com/premium-themes/instapaper/
+- A new Instagram demo theme 💅 https://stoked-ui.github.io/premium-themes/instapaper/
 - And many more 🐛 bug fixes and 📝 documentation improvements.
 
 ### `@stoked-ui/core@v3.8.0`
@@ -5449,7 +5449,7 @@ A big thanks to the 15 contributors who made this release possible!
 Here are some highlights ✨:
 
 - ⚛️ Introduce a new useMediaQuery hook (#13867) @joshwooding
-  https://stokedui.com/layout/use-media-query
+  https://stoked-ui.github.io/layout/use-media-query
 - ⛄️ Support uncontrolled RadioGroup mode (#13929) @rfbotto
 - And many more 🐛 bug fixes and 📝 documentation improvements.
 
@@ -5503,7 +5503,7 @@ Here are some highlights ✨:
 #### Deprecations
 
 We are allowing more align variants (left, center, right, inherit, justify).
-Following our [API guideline](https://stokedui.com/stoked-ui/guides/api/), we are using an enum over a boolean.
+Following our [API guideline](https://stoked-ui.github.io/stoked-ui/guides/api/), we are using an enum over a boolean.
 Keep in mind that monetary or generally number fields **should be right aligned** as that allows
 you to add them up quickly in your head without having to worry about decimals.
 
@@ -5561,7 +5561,7 @@ A big thanks to the 20 contributors who made this release possible!
 Here are some highlights ✨:
 
 - 🎨 Add a new Onepirate theme demo (#13769) @oliviertassinari
-  You can preview it following [this link](https://stokedui.com/premium-themes/paperbase/).
+  You can preview it following [this link](https://stoked-ui.github.io/premium-themes/paperbase/).
 - 📝 Add virtualized table demo (#13786) @joshwooding
 - 🚀 Avoid unnecessary Table re-rendering (#13832) @petrjaros
 - And many more 🐛 bug fixes and documentation improvements.
@@ -5677,7 +5677,7 @@ As a consequence, this is a dense release.
 Here are some highlights ✨:
 
 - 🎨 Add a new Firebase theme demo (#13579) @siriwatknp.
-  You can preview it following [this link](https://stokedui.com/premium-themes/paperbase/).
+  You can preview it following [this link](https://stoked-ui.github.io/premium-themes/paperbase/).
 - ⚛️ Introduce a new Fab component (#13573) @mbrookes.
 - ⛏ Fix more StrictMode warnings (#13590) @eps1lon.
 - And many more 🐛 bug fixes and 📝 documentation improvements.
@@ -6168,7 +6168,7 @@ Here are some highlights ✨:
 
 This is a backward compatible change.
 You can opt-in the usage of the new Material Design typography specification.
-To learn more about the upgrade path, follow https://stokedui.com/style/typography/#migration-to-typography-v2.
+To learn more about the upgrade path, follow https://stoked-ui.github.io/style/typography/#migration-to-typography-v2.
 
 - [Button] Deprecate flat and raised variant naming (#13113) @eps1lon
 
@@ -7409,7 +7409,7 @@ _May 17, 2018_
 Our first stable v1 release! 🎉
 
 It has taken us two years to do it, but Material UI v1 has finally arrived!
-We are so excited about this release, as it's setting a new course for the project. Thank you to _everyone_, especially to [the team](https://stokedui.com/stoked-ui/discover-more/team/), and to everyone who's contributed code, issue triage, and support. **Thank you**.
+We are so excited about this release, as it's setting a new course for the project. Thank you to _everyone_, especially to [the team](https://stoked-ui.github.io/stoked-ui/discover-more/team/), and to everyone who's contributed code, issue triage, and support. **Thank you**.
 
 Some statistics with v1 while it was in alpha and beta:
 
@@ -8068,7 +8068,7 @@ A big thanks to the 25 contributors who made this release possible.
 
 Here are some highlights ✨:
 
-- Add a [swipeable drawer](https://stokedui.com/demos/drawers/#swipeable-temporary-drawer) component (#9730) @leMaik.
+- Add a [swipeable drawer](https://stoked-ui.github.io/demos/drawers/#swipeable-temporary-drawer) component (#9730) @leMaik.
 - Add a [StackBlitz](https://stackblitz.com/) edit link (#10758).
 - Add a new npm package: [@stoked-ui/docs](https://www.npmjs.com/package/@stoked-ui/docs) (#10699).
 - And many more bug fixes and documentation improvements.
@@ -8077,7 +8077,7 @@ Here are some highlights ✨:
 
 - [Grid] Change the default spacing value: 0 (#10768) @oliviertassinari
 
-The negative margin implementation solution currently used comes with [serious limitations](https://stokedui.com/components/grid/#negative-margin).
+The negative margin implementation solution currently used comes with [serious limitations](https://stoked-ui.github.io/components/grid/#negative-margin).
 Material UI is the only library with a non-zero default spacing between the items.
 Having zero spacing by default will ease the usage of the component.
 
@@ -11676,7 +11676,7 @@ _Feb 7, 2017_
 One year ago, we were struggling with removing all the mixins from the project.
 Now, it's about rewriting all the components.
 We're going to try doing frequent alpha releases to keep some intertia. At least once per week would be good.
-As always, we are keeping the [documentation](https://stokedui.com) up to date.
+As always, we are keeping the [documentation](https://stoked-ui.github.io) up to date.
 
 ### Component Fixes / Enhancements
 
@@ -13140,7 +13140,7 @@ _Sep 25, 2015_
   - `ThemeManager` produces `mui theme` from `raw theme`. Raw themes may be user-defined.
   - Functions in `ThemeManager` allow to modify theme variables. Component-level styles may be
   - overridden in the `mui theme`.
-  - See new documentation [here](https://stokedui.com/#/customization/themes)
+  - See new documentation [here](https://stoked-ui.github.io/#/customization/themes)
 - Function names in the context-pure mixin have been changed (#1711)
   - `getContextProps()` has been changed to `getRelevantContextKeys()`
 
@@ -13173,7 +13173,7 @@ _Aug 24, 2015_
 
 - The Table component is now composable. (#1199)
   - JSON objects to create the table and the table component will no longer generate the table for you.
-    The docs site provides a complete example of how a table might look: https://stokedui.com/#/components/table.
+    The docs site provides a complete example of how a table might look: https://stoked-ui.github.io/#/components/table.
     The example also includes a 'super header' and 'super footer' row.
   - **Upgrade Path:** Instead of passing in the raw JSON data, you'll need to generate the appropriate
     TableHeader/TableRow/TableHeaderColumn components and pass them in as children. The same should be applied

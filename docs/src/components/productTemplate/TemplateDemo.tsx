@@ -88,7 +88,7 @@ export default function TemplateDemo() {
             ))}
             <More
               component={Link}
-              href="https://stokedui.com/store/?utm_source=marketing&utm_medium=referral&utm_campaign=templates-cta2#populars"
+              href="https://stoked-ui.github.io/store/?utm_source=marketing&utm_medium=referral&utm_campaign=templates-cta2#populars"
               noLinkStyle
             />
           </Group>

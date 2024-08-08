@@ -1,4 +1,5 @@
 import * as React from 'react';
+import PropTypes from 'prop-types';
 import Box from '@mui/material/Box';
 import Tooltip from '@mui/material/Tooltip';
 import { FileExplorerBasic } from '@stoked-ui/file-explorer/FileExplorerBasic';
@@ -14,6 +15,10 @@ function CustomLabel(props) {
   );
 }
 
+CustomLabel.propTypes = {
+  tooltip: PropTypes.string,
+};
+
 const CustomTreeItem = React.forwardRef((props, ref) => {
   const { labelTooltip, ...other } = props;
 
@@ -26,6 +31,10 @@ const CustomTreeItem = React.forwardRef((props, ref) => {
     />
   );
 });
+
+CustomTreeItem.propTypes = {
+  labelTooltip: PropTypes.string,
+};
 
 export default function LabelSlots() {
   return (

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import PropTypes from 'prop-types';
 import Box from '@mui/material/Box';
 import { FileExplorerBasic } from '@stoked-ui/file-explorer/FileExplorerBasic';
 import { File } from '@stoked-ui/file-explorer/File';
@@ -14,6 +15,14 @@ const CustomTreeItem = React.forwardRef((props, ref) => (
     }}
   />
 ));
+
+CustomTreeItem.propTypes = {
+  /**
+   * The id of the item.
+   * Must be unique.
+   */
+  itemId: PropTypes.string,
+};
 
 export default function LabelSlotProps() {
   return (
@@ -32,7 +41,10 @@ export default function LabelSlotProps() {
           <CustomTreeItem itemId="charts-community" label="@mui/x-charts" />
         </CustomTreeItem>
         <CustomTreeItem itemId="file-explorer" label="File Explorer">
-          <CustomTreeItem itemId="file-explorer-community" label="@stoked-ui/file-explorer" />
+          <CustomTreeItem
+            itemId="file-explorer-community"
+            label="@stoked-ui/file-explorer"
+          />
         </CustomTreeItem>
       </FileExplorerBasic>
     </Box>

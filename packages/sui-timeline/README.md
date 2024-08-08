@@ -1,7 +1,7 @@
 # SUI X FileExplorer View
 
 This package is the Community plan edition of the FileExplorer View components.
-It's part of [SUI X](https://stokedui.com/x/), an open-core extension of SUI Core, with advanced components.
+It's part of [SUI X](https://stoked-ui.github.io/x/), an open-core extension of SUI Core, with advanced components.
 
 ## Installation
 
@@ -23,4 +23,4 @@ This component has the following peer dependencies that you will need to install
 
 ## Documentation
 
-Visit [https://stokedui.com/x/react-fileExplorer-view/](https://stokedui.com/x/react-fileExplorer-view/) to view the full documentation.
+Visit [https://stoked-ui.github.io/x/react-fileExplorer-view/](https://stoked-ui.github.io/x/react-fileExplorer-view/) to view the full documentation.

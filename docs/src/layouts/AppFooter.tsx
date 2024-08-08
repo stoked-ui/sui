@@ -191,7 +191,7 @@ export default function AppFooter(props: AppFooterProps) {
           <IconButton
             target="_blank"
             rel="noopener"
-            href="https://stokedui.com/r/discord/"
+            href="https://stoked-ui.github.io/r/discord/"
             aria-label="Discord"
             title="Discord"
             size="small"
