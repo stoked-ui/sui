@@ -1,6 +1,6 @@
 {
   "name": "@stoked-ui/timeline",
-  "version": "0.1.0-alpha.0",
+  "version": "0.1.0",
   "description": "Timeline component designed to be used with the SUI Video Editor.",
   "author": "Brian Stoker",
   "main": "src/index.ts",
