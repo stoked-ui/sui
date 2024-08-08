@@ -1,4 +1,5 @@
 import * as React from 'react';
+import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import { styled, useTheme, alpha } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -50,14 +51,12 @@ const CustomTreeItemIconContainer = styled(FileIconContainer)(({ theme }) => ({
   marginRight: theme.spacing(1),
 }));
 
-const CustomTreeItemGroupTransition = styled(FileGroupTransition)(
-  ({ theme }) => ({
-    marginLeft: 0,
-    [`& .content`]: {
-      paddingLeft: theme.spacing(2),
-    },
-  }),
-);
+const CustomTreeItemGroupTransition = styled(FileGroupTransition)(({ theme }) => ({
+  marginLeft: 0,
+  [`& .content`]: {
+    paddingLeft: theme.spacing(2),
+  },
+}));
 
 const CustomTreeItem = React.forwardRef(function CustomTreeItem(props, ref) {
   const theme = useTheme();
@@ -86,7 +85,8 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(props, ref) {
   } = useTreeItem({ id, itemId, children, label, disabled, rootRef: ref });
 
   const style = {
-    '--file-explorer-color': theme.palette.mode !== 'dark' ? color : colorForDarkMode,
+    '--file-explorer-color':
+      theme.palette.mode !== 'dark' ? color : colorForDarkMode,
     '--file-explorer-bg-color':
       theme.palette.mode !== 'dark' ? bgColor : bgColorForDarkMode,
   };
@@ -134,6 +134,37 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(props, ref) {
     </FileProvider>
   );
 });
+
+CustomTreeItem.propTypes = {
+  bgColor: PropTypes.string,
+  bgColorForDarkMode: PropTypes.string,
+  /**
+   * The content of the component.
+   */
+  children: PropTypes.node,
+  color: PropTypes.string,
+  colorForDarkMode: PropTypes.string,
+  /**
+   * If `true`, the item is disabled.
+   * @default false
+   */
+  disabled: PropTypes.bool,
+  /**
+   * The id attribute of the item. If not provided, it will be generated.
+   */
+  id: PropTypes.string,
+  /**
+   * The id of the item.
+   * Must be unique.
+   */
+  itemId: PropTypes.string,
+  /**
+   * The label of the item.
+   */
+  label: PropTypes.node,
+  labelIcon: PropTypes.elementType.isRequired,
+  labelInfo: PropTypes.string,
+};
 
 function EndIcon() {
   return <div style={{ width: 24 }} />;

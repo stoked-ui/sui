@@ -3,7 +3,7 @@ import * as fse from 'fs-extra';
 import * as colors from '@mui/material/colors';
 
 // use netlify deploy preview if you want to test changes
-const HOST = 'https://stokedui.com/';
+const HOST = 'https://stoked-ui.github.io/';
 
 function getColorHref(name, variant) {
   return `static/colors-preview/${name}-${variant}-24x24.svg`;
@@ -61,7 +61,7 @@ function buildColorPreviews(name, variants) {
  * The goal is to have a preview of the actual color and the color string in IntelliSense
  * We create for each color an svg that is filled with that color and reference
  * that svg in the corresponding JSDoc.
- * Since we use https://stokedui.com as a reference changes are only visible
+ * Since we use https://stoked-ui.github.io as a reference changes are only visible
  * after release
  */
 async function main() {

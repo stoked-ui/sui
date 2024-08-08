@@ -1,19 +1,19 @@
 <!-- markdownlint-disable-next-line -->
 <p align="center">
-  <a href="https://stokedui.com/core/" rel="noopener" target="_blank"><img width="150" height="133" src="https://stokedui.com/static/logo.svg" alt="SUI Core logo"></a>
+  <a href="https://stoked-ui.github.io/core/" rel="noopener" target="_blank"><img width="150" height="133" src="https://stoked-ui.github.io/static/logo.svg" alt="SUI Core logo"></a>
 </p>
 
 <h1 align="center">SUI Core</h1>
 
 **SUI Core** contains foundational React UI component libraries for shipping new features faster:
 
-- [Material UI](https://stokedui.com/stoked-ui/) is a comprehensive library of components that features our implementation of Google's [Material Design](https://m2.material.io/design/introduction/) system.
+- [Material UI](https://stoked-ui.github.io/stoked-ui/) is a comprehensive library of components that features our implementation of Google's [Material Design](https://m2.material.io/design/introduction/) system.
 
-- [Joy UI](https://stokedui.com/joy-ui/getting-started/) is a library of beautifully designed React UI components built to spark joy.
+- [Joy UI](https://stoked-ui.github.io/joy-ui/getting-started/) is a library of beautifully designed React UI components built to spark joy.
 
-- [Base UI](https://stokedui.com/base-ui/) is a library of unstyled React UI components and hooks. With Base UI, you gain complete control over your app's CSS and accessibility features.
+- [Base UI](https://stoked-ui.github.io/base-ui/) is a library of unstyled React UI components and hooks. With Base UI, you gain complete control over your app's CSS and accessibility features.
 
-- [SUI System](https://stokedui.com/system/getting-started/) is a collection of CSS utilities to help you rapidly lay out custom designs.
+- [SUI System](https://stoked-ui.github.io/system/getting-started/) is a collection of CSS utilities to help you rapidly lay out custom designs.
 
 <div align="center">
 
@@ -35,14 +35,14 @@
 
 ### Material UI
 
-Visit [https://stokedui.com/stoked-ui/](https://stokedui.com/stoked-ui/) to view the full documentation.
+Visit [https://stoked-ui.github.io/stoked-ui/](https://stoked-ui.github.io/stoked-ui/) to view the full documentation.
 
 <details>
   <summary>Older versions</summary>
 
-- **[v4.x](https://v4.mui.com/)** ([Migration from v4 to v5](https://stokedui.com/stoked-ui/migration/migration-v4/))
-- **[v3.x](https://v3.mui.com/)** ([Migration from v3 to v4](https://stokedui.com/stoked-ui/migration/migration-v3/))
-- **[v0.x](https://v0.mui.com/)** ([Migration to v1](https://stokedui.com/stoked-ui/migration/migration-v0x/))
+- **[v4.x](https://v4.mui.com/)** ([Migration from v4 to v5](https://stoked-ui.github.io/stoked-ui/migration/migration-v4/))
+- **[v3.x](https://v3.mui.com/)** ([Migration from v3 to v4](https://stoked-ui.github.io/stoked-ui/migration/migration-v3/))
+- **[v0.x](https://v0.mui.com/)** ([Migration to v1](https://stoked-ui.github.io/stoked-ui/migration/migration-v0x/))
 
 </details>
 
@@ -51,30 +51,30 @@ Use `@latest` for the latest stable release.
 
 ### Joy UI
 
-Visit [https://stokedui.com/joy-ui/getting-started/](https://stokedui.com/joy-ui/getting-started/) to view the full documentation.
+Visit [https://stoked-ui.github.io/joy-ui/getting-started/](https://stoked-ui.github.io/joy-ui/getting-started/) to view the full documentation.
 
 **Note**: Joy UI is still in beta.
 We are adding new components regularly and you're welcome to contribute!
 
 ### Base UI
 
-Visit [https://stokedui.com/base-ui/](https://stokedui.com/base-ui/) to view the full documentation.
+Visit [https://stoked-ui.github.io/base-ui/](https://stoked-ui.github.io/base-ui/) to view the full documentation.
 
 **Note**: Base UI is still in beta.
 We are adding new components regularly and you're welcome to contribute!
 
 ### SUI System
 
-Visit [https://stokedui.com/system/getting-started/](https://stokedui.com/system/getting-started/) to view the full documentation.
+Visit [https://stoked-ui.github.io/system/getting-started/](https://stoked-ui.github.io/system/getting-started/) to view the full documentation.
 
 ## Sponsors
 
 ### Diamond 💎
 
 <p>
-  <a href="https://octopus.com/?utm_source=SUI&utm_medium=referral&utm_content=readme" rel="noopener sponsored" target="_blank"><img height="128" width="128" src="https://stokedui.com/static/sponsors/octopus-square.svg" alt="octopus" title="Repeatable, reliable deployments" loading="lazy" /></a>
-  <a href="https://www.doit.com/?utm_source=SUI&utm_medium=referral&utm_content=readme" rel="noopener sponsored" target="_blank"><img height="128" width="128" src="https://stokedui.com/static/sponsors/doit-square.svg" alt="doit" title="Management Platform for Google Cloud and AWS" loading="lazy" /></a>
-<a href="https://www.marblism.com/?utm_source=mui" rel="noopener sponsored" target="_blank"><img height="128" width="128" src="https://stokedui.com/static/sponsors/marblism-square.svg" alt="marblism" title="AI web app generation" loading="lazy" /></a>
+  <a href="https://octopus.com/?utm_source=SUI&utm_medium=referral&utm_content=readme" rel="noopener sponsored" target="_blank"><img height="128" width="128" src="https://stoked-ui.github.io/static/sponsors/octopus-square.svg" alt="octopus" title="Repeatable, reliable deployments" loading="lazy" /></a>
+  <a href="https://www.doit.com/?utm_source=SUI&utm_medium=referral&utm_content=readme" rel="noopener sponsored" target="_blank"><img height="128" width="128" src="https://stoked-ui.github.io/static/sponsors/doit-square.svg" alt="doit" title="Management Platform for Google Cloud and AWS" loading="lazy" /></a>
+<a href="https://www.marblism.com/?utm_source=mui" rel="noopener sponsored" target="_blank"><img height="128" width="128" src="https://stoked-ui.github.io/static/sponsors/marblism-square.svg" alt="marblism" title="AI web app generation" loading="lazy" /></a>
 </p>
 
 Diamond sponsors are those who have pledged \$1,500/month or more to SUI.
@@ -89,7 +89,7 @@ via [Open Collective](https://opencollective.com/mui-org) or via [Patreon](http
   <a href="https://icons8.com?utm_source=SUI&utm_medium=referral&utm_content=readme" rel="noopener sponsored" target="_blank"><img height="96" width="96" src="https://images.opencollective.com/icons8/7fa1641/logo/288.png" alt="Icons8" title="Icons8: API for icons, photos, illustrations, and music." loading="lazy"></a>
   <a href="https://rxdb.info/?utm_source=sponsor&utm_medium=opencollective&utm_campaign=opencollective-mui" rel="noopener sponsored" target="_blank"><img height="96" width="96" src="https://rxdb.info/files/logo/logo_text.svg" alt="RxDB" title="RxDB: Local-first JavaScript database." loading="lazy" /></a>
   <a href="https://www.text-em-all.com/?utm_source=SUI&utm_medium=referral&utm_content=readme" rel="noopener sponsored" target="_blank"><img src="https://avatars.githubusercontent.com/u/1262264?s=288" alt="text-em-all.com" title="Text-em-all: Mass text messaging and automated calling." height="96" width="96" loading="lazy"></a>
-  <a href="https://megafamous.com/?utm_source=SUI&utm_medium=referral&utm_content=readme" rel="noopener sponsored" target="_blank"><img height="96" width="96" src="https://stokedui.com/static/sponsors/megafamous.png" alt="megafamous.com" title="MegaFamous: Buy Instagram followers and likes." loading="lazy" /></a>
+  <a href="https://megafamous.com/?utm_source=SUI&utm_medium=referral&utm_content=readme" rel="noopener sponsored" target="_blank"><img height="96" width="96" src="https://stoked-ui.github.io/static/sponsors/megafamous.png" alt="megafamous.com" title="MegaFamous: Buy Instagram followers and likes." loading="lazy" /></a>
   <a href="https://www.dialmycalls.com/?utm_source=SUI&utm_medium=referral&utm_content=readme" rel="noopener sponsored" target="_blank"><img height="96" width="96" src="https://images.opencollective.com/dialmycalls/f5ae9ab/avatar/288.png" alt="dialmycalls.com" title="DialMyCalls: Send text messages, calls, and emails." loading="lazy" /></a>
   <a href="https://goread.io/?utm_source=SUI&utm_medium=referral&utm_content=readme" rel="noopener sponsored" target="_blank"><img height="96" width="96" src="https://images.opencollective.com/goread_io/eb6337d/logo/288.png" alt="goread.io" title="Goread.io: Instagram followers, likes, views, and comments." loading="lazy" /></a>
 </p>
@@ -98,7 +98,7 @@ Gold sponsors are those who have pledged \$500/month or more to SUI.
 
 ### More backers
 
-See the full list of [our backers](https://stokedui.com/stoked-ui/discover-more/backers/).
+See the full list of [our backers](https://stoked-ui.github.io/stoked-ui/discover-more/backers/).
 
 ## Questions
 
@@ -110,14 +110,14 @@ Our documentation features [a collection of example projects](https://github.com
 
 ## Premium templates
 
-You can find complete templates and themes in the [SUI Store](https://stokedui.com/store/?utm_source=docs&utm_medium=referral&utm_campaign=readme-store).
+You can find complete templates and themes in the [SUI Store](https://stoked-ui.github.io/store/?utm_source=docs&utm_medium=referral&utm_campaign=readme-store).
 
 ## Contributing
 
 Read the [contributing guide](/CONTRIBUTING.md) to learn about our development process, how to propose bug fixes and improvements, and how to build and test your changes.
 
 Contributing is about more than just issues and pull requests!
-There are many other ways to [support Material UI](https://stokedui.com/stoked-ui/getting-started/faq/#mui-is-awesome-how-can-i-support-the-project) beyond contributing to the code base.
+There are many other ways to [support Material UI](https://stoked-ui.github.io/stoked-ui/getting-started/faq/#mui-is-awesome-how-can-i-support-the-project) beyond contributing to the code base.
 
 ## Changelog
 
@@ -125,7 +125,7 @@ The [changelog](https://github.com/stoked-ui/stoked-ui/releases) is regularly up
 
 ## Roadmap
 
-Future plans and high-priority features and enhancements can be found in the [roadmap](https://stokedui.com/stoked-ui/discover-more/roadmap/).
+Future plans and high-priority features and enhancements can be found in the [roadmap](https://stoked-ui.github.io/stoked-ui/discover-more/roadmap/).
 
 ## License
 
@@ -142,9 +142,9 @@ These great services sponsor SUI's core infrastructure:
 
 <div>
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://stokedui.com/static/readme/github-darkmode.svg">
-  <source media="(prefers-color-scheme: light)" srcset="https://stokedui.com/static/readme/github-lightmode.svg">
-  <img alt="GitHub logo" src="https://stokedui.com/static/readme/github-lightmode.svg" width="80" height="43">
+  <source media="(prefers-color-scheme: dark)" srcset="https://stoked-ui.github.io/static/readme/github-darkmode.svg">
+  <source media="(prefers-color-scheme: light)" srcset="https://stoked-ui.github.io/static/readme/github-lightmode.svg">
+  <img alt="GitHub logo" src="https://stoked-ui.github.io/static/readme/github-lightmode.svg" width="80" height="43">
 </picture>
 
 [GitHub](https://github.com/) lets us host the Git repository and coordinate contributions.
@@ -153,9 +153,9 @@ These great services sponsor SUI's core infrastructure:
 
 <div>
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://stokedui.com/static/readme/netlify-darkmode.svg">
-  <source media="(prefers-color-scheme: light)" srcset="https://stokedui.com/static/readme/netlify-lightmode.svg">
-  <img alt="Netlify logo" src="https://stokedui.com/static/readme/netlify-lightmode.svg" width="100" height="27">
+  <source media="(prefers-color-scheme: dark)" srcset="https://stoked-ui.github.io/static/readme/netlify-darkmode.svg">
+  <source media="(prefers-color-scheme: light)" srcset="https://stoked-ui.github.io/static/readme/netlify-lightmode.svg">
+  <img alt="Netlify logo" src="https://stoked-ui.github.io/static/readme/netlify-lightmode.svg" width="100" height="27">
 </picture>
 
 [Netlify](https://www.netlify.com/) lets us distribute the documentation.
@@ -164,9 +164,9 @@ These great services sponsor SUI's core infrastructure:
 
 <div>
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://stokedui.com/static/readme/browserstack-darkmode.svg">
-  <source media="(prefers-color-scheme: light)" srcset="https://stokedui.com/static/readme/browserstack-lightmode.svg">
-  <img alt="BrowserStack logo" src="https://stokedui.com/static/readme/browserstack-lightmode.svg" width="140" height="25">
+  <source media="(prefers-color-scheme: dark)" srcset="https://stoked-ui.github.io/static/readme/browserstack-darkmode.svg">
+  <source media="(prefers-color-scheme: light)" srcset="https://stoked-ui.github.io/static/readme/browserstack-lightmode.svg">
+  <img alt="BrowserStack logo" src="https://stoked-ui.github.io/static/readme/browserstack-lightmode.svg" width="140" height="25">
 </picture>
 
 [BrowserStack](https://www.browserstack.com/) lets us test in real browsers.

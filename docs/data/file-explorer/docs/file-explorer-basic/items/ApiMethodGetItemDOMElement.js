@@ -25,21 +25,21 @@ export default function ApiMethodGetItemDOMElement() {
       <Box sx={{ height: 200, minWidth: 250, overflowY: 'scroll' }}>
         <FileExplorerBasic
           apiRef={apiRef}
-          defaultExpandedItems={['grid', 'pickers', 'charts', 'file-explorer']}
+          defaultExpandedItems={['Notes', 'Images', 'Movies', 'Data']}
         >
-          <FileElement name="Notes">
+          <FileElement name={'Notes'}>
             <FileElement name="doc.pdf" />
-            <FileElement name="notes.txt"  />
+            <FileElement name="notes.txt" />
           </FileElement>
-          <FileElement name="Images" >
-            <FileElement name="logo.png" />
-            <FileElement name="favicon.ico" />
+          <FileElement name={'Images'}>
+            <FileElement name={'logo.png'} />
+            <FileElement name={'favicon.ico'} />
           </FileElement>
-          <FileElement name="Movies" >
-            <FileElement name="Donnie Darko.mp4"  />
+          <FileElement name={'Movies'}>
+            <FileElement name={'feature.mp4'} />
           </FileElement>
-          <FileElement name="Data">
-            <FileElement name="client-data.xls" />
+          <FileElement name={'Data'}>
+            <FileElement name={'client-data.xls'} />
           </FileElement>
         </FileExplorerBasic>
       </Box>

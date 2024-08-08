@@ -2,13 +2,15 @@ import * as React from 'react';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-
 import {
   FileExplorerRoot,
   FILE_EXPLORER_PLUGINS,
 } from '@stoked-ui/file-explorer/FileExplorer';
 import { FileElement } from '@stoked-ui/file-explorer/FileElement';
-import { useFileExplorer, FileExplorerProvider } from '@stoked-ui/file-explorer/internals';
+import {
+  useFileExplorer,
+  FileExplorerProvider,
+} from '@stoked-ui/file-explorer/internals';
 import { NestedFiles } from 'docs/src/components/fileExplorer/data';
 
 const useFileExplorerLogExpanded = ({ params, models }) => {
@@ -61,6 +63,7 @@ function FileExplorer(props) {
   );
 }
 
+useFileExplorerLogExpanded.code = 'log';
 export default function LogExpandedItems() {
   const [logs, setLogs] = React.useState([]);
 

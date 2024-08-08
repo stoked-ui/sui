@@ -105,7 +105,7 @@ export default function MaterialEnd({ noFaq }: MaterialEndProps) {
                   <Typography>
                     The adoption of Material Design 3 is tentatively planned for Stoked UI v7. See
                     the{' '}
-                    <Link href="https://stokedui.com/versions/#release-schedule">
+                    <Link href="https://stoked-ui.github.io/versions/#release-schedule">
                       the release schedule
                     </Link>{' '}
                     and follow{' '}

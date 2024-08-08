@@ -48,18 +48,18 @@ const EMPTY_ITEMS: any[] = [];
 const itemsPropWarning = buildWarning([
   'SUI X: The `FileExplorerBasic` component does not support the `items` prop.',
   'If you want to add items, you need to pass them as JSX children.',
-  'Check the documentation for more details: https://stokedui.com/x/react-fileExplorer-view/simple-fileExplorer-view/items/',
+  'Check the documentation for more details: https://stoked-ui.github.io/x/react-fileExplorer-view/simple-fileExplorer-view/items/',
 ]);
 
 /**
  *
  * Demos:
  *
- * - [FileExplorer View](https://stokedui.com/x/react-fileExplorer-view/)
+ * - [FileExplorer View](https://stoked-ui.github.io/x/react-fileExplorer-view/)
  *
  * API:
  *
- * - [FileExplorerBasic API](https://stokedui.com/x/api/fileExplorer-view/simple-fileExplorer-view/)
+ * - [FileExplorerBasic API](https://stoked-ui.github.io/x/api/fileExplorer-view/simple-fileExplorer-view/)
  */
 const FileExplorerBasic = React.forwardRef(function FileExplorerBasic<
   Multiple extends boolean | undefined = undefined,

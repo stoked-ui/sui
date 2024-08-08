@@ -2,7 +2,11 @@ import * as React from 'react';
 import Box from '@mui/material/Box';
 import { styled, alpha } from '@mui/material/styles';
 import { FileExplorer } from '@stoked-ui/file-explorer/FileExplorer';
-import { FileElement, fileElementClasses } from '@stoked-ui/file-explorer/FileElement';
+import {
+  FileElement,
+  fileElementClasses,
+} from '@stoked-ui/file-explorer/FileElement';
+
 import { NestedFiles } from 'docs/src/components/fileExplorer/data';
 
 const CustomTreeItem = styled(FileElement)(({ theme }) => ({

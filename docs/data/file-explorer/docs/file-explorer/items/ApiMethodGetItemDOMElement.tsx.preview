@@ -5,8 +5,8 @@
 </div>
 <Box sx={{ height: 200, minWidth: 250, overflowY: 'scroll' }}>
   <FileExplorer
-    items={MUI_X_PRODUCTS}
+    items={NestedFiles}
     apiRef={apiRef}
-    defaultExpandedItems={['grid', 'pickers', 'charts', 'file-explorer']}
+    defaultExpandedItems={['Documents', 'Company', 'Bookmarked']}
   />
 </Box>

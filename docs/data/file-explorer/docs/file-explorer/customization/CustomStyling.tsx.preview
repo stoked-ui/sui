@@ -1,5 +1,5 @@
 <FileExplorer
-  defaultExpandedItems={['grid']}
+  defaultExpandedItems={['Notes']}
   slots={{ item: CustomTreeItem }}
   items={NestedFiles}
 />

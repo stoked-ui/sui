@@ -58,7 +58,7 @@ export default function EarlyBird() {
         <Button
           component={Link}
           noLinkStyle
-          href="https://stokedui.com/store/items/mui-x-premium/"
+          href="https://stoked-ui.github.io/store/items/mui-x-premium/"
           variant="contained"
           fullWidth
           endIcon={<KeyboardArrowRightRounded />}

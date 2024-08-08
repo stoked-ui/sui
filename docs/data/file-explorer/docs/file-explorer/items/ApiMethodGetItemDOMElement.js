@@ -3,38 +3,8 @@ import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import { FileExplorer } from '@stoked-ui/file-explorer/FileExplorer';
-
 import { useFileExplorerApiRef } from '@stoked-ui/file-explorer/hooks/useFileExplorerApiRef';
-
-const MUI_X_PRODUCTS = [
-  {
-    id: 'grid',
-    label: 'Data Grid',
-    children: [
-      { id: 'grid-community', label: '@mui/x-data-grid' },
-      { id: 'grid-pro', label: '@mui/x-data-grid-pro' },
-      { id: 'grid-premium', label: '@mui/x-data-grid-premium' },
-    ],
-  },
-  {
-    id: 'pickers',
-    label: 'Date and Time Pickers',
-    children: [
-      { id: 'pickers-community', label: '@mui/x-date-pickers' },
-      { id: 'pickers-pro', label: '@mui/x-date-pickers-pro' },
-    ],
-  },
-  {
-    id: 'charts',
-    label: 'Charts',
-    children: [{ id: 'charts-community', label: '@mui/x-charts' }],
-  },
-  {
-    id: 'file-explorer',
-    label: 'File Explorer',
-    children: [{ id: 'file-explorer-community', label: '@stoked-ui/file-explorer' }],
-  },
-];
+import { NestedFiles } from 'docs/src/components/fileExplorer/data';
 
 export default function ApiMethodGetItemDOMElement() {
   const apiRef = useFileExplorerApiRef();
@@ -54,9 +24,9 @@ export default function ApiMethodGetItemDOMElement() {
       </div>
       <Box sx={{ height: 200, minWidth: 250, overflowY: 'scroll' }}>
         <FileExplorer
-          items={MUI_X_PRODUCTS}
+          items={NestedFiles}
           apiRef={apiRef}
-          defaultExpandedItems={['grid', 'pickers', 'charts', 'file-explorer']}
+          defaultExpandedItems={['Documents', 'Company', 'Bookmarked']}
         />
       </Box>
     </Stack>

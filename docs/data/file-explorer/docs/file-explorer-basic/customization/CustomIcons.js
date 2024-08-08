@@ -5,7 +5,10 @@ import IndeterminateCheckBoxIcon from '@mui/icons-material/IndeterminateCheckBox
 import SvgIcon from '@mui/material/SvgIcon';
 import { styled } from '@mui/material/styles';
 import { FileExplorerBasic } from '@stoked-ui/file-explorer/FileExplorerBasic';
-import { FileElement, fileElementClasses } from '@stoked-ui/file-explorer/FileElement';
+import {
+  FileElement,
+  fileElementClasses,
+} from '@stoked-ui/file-explorer/FileElement';
 
 const CustomTreeItem = styled(FileElement)({
   [`& .${fileElementClasses.iconContainer}`]: {
@@ -20,7 +23,7 @@ function CloseSquare(props) {
     <SvgIcon
       className="close"
       fontSize="inherit"
-      style={{ width: 14, height: 14 }}
+      style={{ width: 30, height: 14 }}
       {...props}
     >
       {/* tslint:disable-next-line: max-line-length */}
@@ -40,19 +43,19 @@ export default function CustomIcons() {
           endIcon: CloseSquare,
         }}
       >
-        <CustomTreeItem name={"Notes"}>
+        <CustomTreeItem name={'Notes'}>
           <CustomTreeItem name="doc.pdf" />
           <CustomTreeItem name="notes.txt" />
         </CustomTreeItem>
-        <CustomTreeItem name={"Images"}>
-          <CustomTreeItem name={"logo.png"} />
-          <CustomTreeItem name={"favicon.ico"} />
+        <CustomTreeItem name={'Images'}>
+          <CustomTreeItem name={'logo.png'} />
+          <CustomTreeItem name={'favicon.ico'} />
         </CustomTreeItem>
-        <CustomTreeItem name={"Movies"}>
-          <CustomTreeItem name={"feature.mp4"} />
+        <CustomTreeItem name={'Movies'}>
+          <CustomTreeItem name={'feature.mp4'} />
         </CustomTreeItem>
-        <CustomTreeItem name={"Data"}>
-          <CustomTreeItem name={"client-data.xls"} />
+        <CustomTreeItem name={'Data'}>
+          <CustomTreeItem name={'client-data.xls'} />
         </CustomTreeItem>
       </FileExplorerBasic>
     </Box>

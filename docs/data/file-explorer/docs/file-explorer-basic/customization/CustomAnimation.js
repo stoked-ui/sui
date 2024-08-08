@@ -1,4 +1,5 @@
 import * as React from 'react';
+import PropTypes from 'prop-types';
 import Box from '@mui/material/Box';
 import Collapse from '@mui/material/Collapse';
 
@@ -21,6 +22,13 @@ function TransitionComponent(props) {
   );
 }
 
+TransitionComponent.propTypes = {
+  /**
+   * Show the component; triggers the enter or exit states
+   */
+  in: PropTypes.bool,
+};
+
 const CustomTreeItem = React.forwardRef((props, ref) => (
   <FileElement
     {...props}
@@ -29,23 +37,37 @@ const CustomTreeItem = React.forwardRef((props, ref) => (
   />
 ));
 
+CustomTreeItem.propTypes = {
+  /**
+   * Overridable component slots.
+   * @default {}
+   */
+  slots: PropTypes.shape({
+    collapseIcon: PropTypes.elementType,
+    endIcon: PropTypes.elementType,
+    expandIcon: PropTypes.elementType,
+    groupTransition: PropTypes.elementType,
+    icon: PropTypes.elementType,
+  }),
+};
+
 export default function CustomAnimation() {
   return (
     <Box sx={{ minHeight: 352, minWidth: 250 }}>
       <FileExplorerBasic defaultExpandedItems={['Notes']}>
-        <CustomTreeItem name={"Notes"}>
+        <CustomTreeItem name={'Notes'}>
           <CustomTreeItem name="doc.pdf" />
           <CustomTreeItem name="notes.txt" />
         </CustomTreeItem>
-        <CustomTreeItem name={"Images"}>
-          <CustomTreeItem name={"logo.png"} />
-          <CustomTreeItem name={"favicon.ico"} />
+        <CustomTreeItem name={'Images'}>
+          <CustomTreeItem name={'logo.png'} />
+          <CustomTreeItem name={'favicon.ico'} />
         </CustomTreeItem>
-        <CustomTreeItem name={"Movies"}>
-          <CustomTreeItem name={"feature.mp4"} />
+        <CustomTreeItem name={'Movies'}>
+          <CustomTreeItem name={'feature.mp4'} />
         </CustomTreeItem>
-        <CustomTreeItem name={"Data"}>
-          <CustomTreeItem name={"client-data.xls"} />
+        <CustomTreeItem name={'Data'}>
+          <CustomTreeItem name={'client-data.xls'} />
         </CustomTreeItem>
       </FileExplorerBasic>
     </Box>

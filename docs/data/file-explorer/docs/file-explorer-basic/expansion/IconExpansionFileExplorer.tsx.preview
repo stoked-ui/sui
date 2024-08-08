@@ -1,0 +1,16 @@
+<FileExplorerBasic aria-label="icon expansion" expansionTrigger="iconContainer">
+  <FileElement name={"Notes"}>
+    <FileElement name="doc.pdf" />
+    <FileElement name="notes.txt" />
+  </FileElement>
+  <FileElement name={"Images"}>
+    <FileElement name={"logo.png"} />
+    <FileElement name={"favicon.ico"} />
+  </FileElement>
+  <FileElement name={"Movies"}>
+    <FileElement name={"feature.mp4"} />
+  </FileElement>
+  <FileElement name={"Data"}>
+    <FileElement name={"client-data.xls"} />
+  </FileElement>
+</FileExplorerBasic>

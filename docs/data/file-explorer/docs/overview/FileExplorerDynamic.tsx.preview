@@ -1,23 +1,10 @@
-export default function FileExplorerDynamic() {
-  const [loaded, ] = React.useState(false);
-  const [files, setFiles] = React.useState([]);
-
-  React.useEffect(() => {
-    setFiles(getDynamicFiles())
-  }, [])
-
-  return (
-    <Box sx={{ minHeight: 352, minWidth: 250, width: '100%' }}>
-      <FileExplorer
-        items={files}
-        grid
-        multiSelect
-        dndInternal
-        dndExternal
-        dndTrash
-        defaultExpandedItems={["Document"]}
-        alternatingRows
-      />
-    </Box>
-  );
-}
+<FileExplorer
+  items={files}
+  grid
+  multiSelect
+  dndInternal
+  dndExternal
+  dndTrash
+  defaultExpandedItems={["Document"]}
+  alternatingRows
+/>

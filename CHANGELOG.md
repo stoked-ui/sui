@@ -1,4 +1,4 @@
-# [Versions](https://stokedui.com/versions/)
+# [Versions](https://stoked-ui.github.io/versions/)
 
 ## v5.15.21
 
@@ -693,7 +693,7 @@ _Feb 6, 2024_
 
 A big thanks to the 17 contributors who made this release possible. Here are some highlights ✨:
 
-- 💫 Added a redesigned [landing page template](https://stokedui.com/stoked-ui/getting-started/templates/landing-page/) (#37557) @zanivan
+- 💫 Added a redesigned [landing page template](https://stoked-ui.github.io/stoked-ui/getting-started/templates/landing-page/) (#37557) @zanivan
 - ✨ Added support for Arrow Down/Up + Shift and Page Up/Down keys for faster stepping in the Slider component (#40676) @mnajdova
 - many 🐛 bug fixes and 📚 documentation improvements
 
@@ -1026,7 +1026,7 @@ _Jan 10, 2024_
 
 A big thanks to the 22 contributors who made this release possible. Here are some highlights:
 
-- ✨ Material UI's [ToggleButtonGroup](https://stokedui.com/stoked-ui/react-toggle-button/) now supports non-button element as a child (e.g., showing a Tooltip on a disabled ToggleButton) (#40220) @Methuselah96
+- ✨ Material UI's [ToggleButtonGroup](https://stoked-ui.github.io/stoked-ui/react-toggle-button/) now supports non-button element as a child (e.g., showing a Tooltip on a disabled ToggleButton) (#40220) @Methuselah96
 
 ### `@mui/material@5.15.4`
 
@@ -1181,8 +1181,8 @@ _Dec 25, 2023_
 
 A big thanks to the 13 contributors who made this release possible. Here are some highlights ✨:
 
-- 🚀 Added support for callbacks in the [variant's props definition](https://stokedui.com/stoked-ui/customization/theme-components/#creating-new-component-variants) (#40094) @mnajdova
-- 💫 Published a [blogpost](https://stokedui.com/blog/2023-stoked-ui-v6-and-beyond/) for the 2024's plan about Material UI
+- 🚀 Added support for callbacks in the [variant's props definition](https://stoked-ui.github.io/stoked-ui/customization/theme-components/#creating-new-component-variants) (#40094) @mnajdova
+- 💫 Published a [blogpost](https://stoked-ui.github.io/blog/2023-stoked-ui-v6-and-beyond/) for the 2024's plan about Material UI
 
 ### `@mui/material@5.15.2`
 
@@ -1285,7 +1285,7 @@ _Dec 11, 2023_
 
 A big thanks to the 15 contributors who made this release possible. Here are some highlights ✨:
 
-- 🚀 Added [a new package for a better Material UI integration with Next.js](https://stokedui.com/stoked-ui/guides/nextjs) (#39947) @siriwatknp
+- 🚀 Added [a new package for a better Material UI integration with Next.js](https://stoked-ui.github.io/stoked-ui/guides/nextjs) (#39947) @siriwatknp
 
 ### `@mui/material@5.15.0`
 
@@ -1468,7 +1468,7 @@ _Nov 14, 2023_
 
 A big thanks to the 14 contributors who made this release possible. Here are some highlights ✨:
 
-- 💫 Introduced new [Stepper](https://stokedui.com/joy-ui/react-stepper/) component in Joy UI (#39688) @siriwatknp
+- 💫 Introduced new [Stepper](https://stoked-ui.github.io/joy-ui/react-stepper/) component in Joy UI (#39688) @siriwatknp
 - other 🐛 bug fixes and 📚 documentation improvements
 
 ### `@mui/material@5.14.18`
@@ -1590,7 +1590,7 @@ _Oct 31, 2023_
 
 A big thanks to the 19 contributors who made this release possible. Here are some highlights ✨:
 
-- ✨ New highly requested Joy UI component: [Snackbar](https://stokedui.com/joy-ui/react-snackbar) (#38801) @ZeeshanTamboli
+- ✨ New highly requested Joy UI component: [Snackbar](https://stoked-ui.github.io/joy-ui/react-snackbar) (#38801) @ZeeshanTamboli
 
 ### `@mui/material@5.14.16`
 
@@ -2077,8 +2077,8 @@ _Sep 13, 2023_
 
 A big thanks to the 18 contributors who made this release possible. Here are some highlights ✨:
 
-- 🎉 Added the [`Drawer` component](https://stokedui.com/joy-ui/react-drawer/) to Joy UI (#38169) @mnajdova
-- ✨ Material UI's [`ButtonGroup` component](https://stokedui.com/stoked-ui/react-button-group/) now styles button elements within it correctly (#38520) @ZeeshanTamboli
+- 🎉 Added the [`Drawer` component](https://stoked-ui.github.io/joy-ui/react-drawer/) to Joy UI (#38169) @mnajdova
+- ✨ Material UI's [`ButtonGroup` component](https://stoked-ui.github.io/stoked-ui/react-button-group/) now styles button elements within it correctly (#38520) @ZeeshanTamboli
 
 ### `@mui/material@5.14.9`
 
@@ -2316,9 +2316,9 @@ _Aug 23, 2023_
 
 A big thanks to the 21 contributors who made this release possible. Here are some highlights ✨:
 
-- 🚀 Added the [Popup](https://stokedui.com/base-ui/react-popup/) component to Base UI (#37960) @michaldudak
+- 🚀 Added the [Popup](https://stoked-ui.github.io/base-ui/react-popup/) component to Base UI (#37960) @michaldudak
   It's intended to replace the Popper component, which uses the deprecated Popper JS library. The Popup is built on top of Floating UI and has a similar API to the Popper.
-- 🚀 Added the [Accordion](https://stokedui.com/joy-ui/react-accordion/) component to Joy UI (#38164) @siriwatknp
+- 🚀 Added the [Accordion](https://stoked-ui.github.io/joy-ui/react-accordion/) component to Joy UI (#38164) @siriwatknp
 - 🚀 Added InputBase and ButtonBase components to `material-next` (#38319) @DiegoAndai @mj12albert
 - 🔋 First iteration on the zero-runtime styling engine compatible with Server Components (#38378) @brijeshb42
 
@@ -2434,7 +2434,7 @@ _Aug 14, 2023_
 
 A big thanks to the 17 contributors who made this release possible. Here are some highlights ✨:
 
-- @mnajdova [made it easier to use third-party components in Base UI slots](https://stokedui.com/base-ui/getting-started/customization/#overriding-subcomponent-slots) with the introduction of the `prepareForSlot` utility (#38138)
+- @mnajdova [made it easier to use third-party components in Base UI slots](https://stoked-ui.github.io/base-ui/getting-started/customization/#overriding-subcomponent-slots) with the introduction of the `prepareForSlot` utility (#38138)
 
 ### `@mui/material@5.14.5`
 
@@ -2504,7 +2504,7 @@ _Aug 8, 2023_
 
 A big thanks to the 18 contributors who made this release possible. Here are some highlights ✨:
 
-- 🎉 Added [Number Input](https://stokedui.com/base-ui/react-number-input/) component & [useNumberInput](https://stokedui.com/base-ui/react-number-input/#hook) hook in [Base UI](https://stokedui.com/base-ui/getting-started/) @mj12albert
+- 🎉 Added [Number Input](https://stoked-ui.github.io/base-ui/react-number-input/) component & [useNumberInput](https://stoked-ui.github.io/base-ui/react-number-input/#hook) hook in [Base UI](https://stoked-ui.github.io/base-ui/getting-started/) @mj12albert
 
 ### `@mui/material@5.14.4`
 
@@ -2602,10 +2602,10 @@ _Jul 31, 2023_
 
 A big thanks to the 17 contributors who made this release possible. Here are some highlights ✨:
 
-- 🚀 [Joy UI](https://stokedui.com/joy-ui/getting-started/) is now in Beta
-- ✨ Refine [Joy UI](https://stokedui.com/joy-ui/getting-started/)'s default theme @siriwatknp @zanivan
-- 🎉 Added Dropdown higher-level menu component [Base UI](https://stokedui.com/base-ui/getting-started/) @michaldudak
-- 💫 Added Material You [Badge](https://stokedui.com/stoked-ui/react-badge/#material-you-version) to `material-next` (#37850) @DiegoAndai
+- 🚀 [Joy UI](https://stoked-ui.github.io/joy-ui/getting-started/) is now in Beta
+- ✨ Refine [Joy UI](https://stoked-ui.github.io/joy-ui/getting-started/)'s default theme @siriwatknp @zanivan
+- 🎉 Added Dropdown higher-level menu component [Base UI](https://stoked-ui.github.io/base-ui/getting-started/) @michaldudak
+- 💫 Added Material You [Badge](https://stoked-ui.github.io/stoked-ui/react-badge/#material-you-version) to `material-next` (#37850) @DiegoAndai
 
 ### `@mui/material@5.14.3`
 
@@ -2754,8 +2754,8 @@ _Jul 19, 2023_
 A big thanks to the 24 contributors who made this release possible. Here are some highlights ✨:
 
 - 💫 Introducing some new components for Joy UI:
-  - [Skeleton](https://stokedui.com/joy-ui/react-skeleton/) component (#37893) @siriwatknp
-  - [ToggleButton](https://stokedui.com/joy-ui/react-toggle-button-group/) (#37716) @siriwatknp
+  - [Skeleton](https://stoked-ui.github.io/joy-ui/react-skeleton/) component (#37893) @siriwatknp
+  - [ToggleButton](https://stoked-ui.github.io/joy-ui/react-toggle-button-group/) (#37716) @siriwatknp
 - 🎉 Base UI has its own [landing page](https://www.mui.com/base-ui)!
 - 🐛 bug fixes, 📚 documentation, and ⚙️ infrastructure improvements.
 
@@ -2846,9 +2846,9 @@ A big thanks to the 15 contributors who made this release possible. Here are som
 
 - 💫 Material UI, Joy UI, and Base UI are compatible with [Next.js App Router](https://nextjs.org/docs/app) (#37656) @mj12albert
 - 📚 Added new guides for integrating with Next.js 13 App Router (#37656) @mj12albert
-  - Ⓜ️ [Material UI guide](https://stokedui.com/stoked-ui/guides/next-js-app-router/)
-  - 🅙 [Joy UI guide](https://stokedui.com/joy-ui/integrations/next-js-app-router/)
-  - 🅱️ [Base UI guide](https://stokedui.com/base-ui/guides/next-js-app-router/)
+  - Ⓜ️ [Material UI guide](https://stoked-ui.github.io/stoked-ui/guides/next-js-app-router/)
+  - 🅙 [Joy UI guide](https://stoked-ui.github.io/joy-ui/integrations/next-js-app-router/)
+  - 🅱️ [Base UI guide](https://stoked-ui.github.io/base-ui/guides/next-js-app-router/)
 - 🐛 bug fixes, 📚 documentation, and ⚙️ infrastructure improvements.
 
 ### `@mui/material@5.14.0`
@@ -2994,7 +2994,7 @@ _Jun 21, 2023_
 
 A big thanks to the 25 contributors who made this release possible. Here are some highlights ✨:
 
-- 💫 Added [Slider](https://stokedui.com/stoked-ui/react-slider/#material-you-version) component using the new Material You design language (#37520) @DiegoAndai.
+- 💫 Added [Slider](https://stoked-ui.github.io/stoked-ui/react-slider/#material-you-version) component using the new Material You design language (#37520) @DiegoAndai.
 - 📚 Added [examples](https://github.com/stoked-ui/stoked-ui/tree/master/examples/stoked-ui-nextjs-ts) showcasing how you can use Material UI with next.js's app directory (#37315) @smo043
 
 ### `@mui/material@5.13.6`
@@ -3645,7 +3645,7 @@ _Apr 11, 2023_
 
 A big thanks to the 9 contributors who made this release possible. Here are some highlights ✨:
 
-- 💫 Added [theme scope](https://stokedui.com/stoked-ui/guides/theme-scoping/) for using multiple design systems (#36664) @siriwatknp
+- 💫 Added [theme scope](https://stoked-ui.github.io/stoked-ui/guides/theme-scoping/) for using multiple design systems (#36664) @siriwatknp
 - 🐛 bug fixes and 📚 documentation improvements.
 
 ### `@mui/system@5.12.0`
@@ -3758,7 +3758,7 @@ _Mar 28, 2023_
 
 A big thanks to the 10 contributors who made this release possible. We have one big highlight this week ✨:
 
-- @siriwatknp made a [Theme Builder](https://stokedui.com/joy-ui/customization/theme-builder) for Joy UI 🎨 (#35741)
+- @siriwatknp made a [Theme Builder](https://stoked-ui.github.io/joy-ui/customization/theme-builder) for Joy UI 🎨 (#35741)
 
 ### `@mui/material@5.11.15`
 
@@ -3877,7 +3877,7 @@ _Mar 14, 2023_
 
 A big thanks to the 13 contributors who made this release possible. Here are some highlights ✨:
 
-- @michaldudak added an option for [disabling the generation](https://stokedui.com/base-ui/getting-started/customization/#disabling-default-css-classes) of the default classes in Base UI (#35963)
+- @michaldudak added an option for [disabling the generation](https://stoked-ui.github.io/base-ui/getting-started/customization/#disabling-default-css-classes) of the default classes in Base UI (#35963)
 - other 🐛 bug fixes and 📚 documentation improvements.
 
 ### `@mui/material@5.11.13`
@@ -4062,7 +4062,7 @@ _Feb 27, 2023_
 
 A big thanks to the 15 contributors who made this release possible. Here are some highlights ✨:
 
-- 📚 added API documentation for the slots in Base UI and Joy UI by @hbjORbj, for e.g. [SliderUnstyled API](https://stokedui.com/base-ui/api/slider-unstyled/#slots)
+- 📚 added API documentation for the slots in Base UI and Joy UI by @hbjORbj, for e.g. [SliderUnstyled API](https://stoked-ui.github.io/base-ui/api/slider-unstyled/#slots)
 - other 🐛 bug fixes and 📚 documentation improvements.
 
 ### `@mui/material@5.11.11`
@@ -4269,7 +4269,7 @@ _Feb 7, 2023_
 
 A big thanks to the 14 contributors who made this release possible. Here are some highlights ✨:
 
-- @siriwatknp added a new [`Sign In` template](https://stokedui.com/joy-ui/getting-started/templates/sign-in-side/) to Joy UI (#36019)
+- @siriwatknp added a new [`Sign In` template](https://stoked-ui.github.io/joy-ui/getting-started/templates/sign-in-side/) to Joy UI (#36019)
 - 📚 Documentation improvements and 🐛 bug fixes as usual
 
 ### `@mui/material@5.11.8`
@@ -4431,7 +4431,7 @@ A big thanks to the 13 contributors who made this release possible. Here are som
   + <SliderUnstyled slots={{ valueLabel: SliderValueLabel }} />
   ```
 
-  The following demo shows how to show a value label when it is hovered over with the thumb: https://stokedui.com/base-ui/react-slider/#value-label
+  The following demo shows how to show a value label when it is hovered over with the thumb: https://stoked-ui.github.io/base-ui/react-slider/#value-label
 
   - The following classes are removed from `sliderUnstyledClasses` since they are not needed for the value label:
 
@@ -4827,7 +4827,7 @@ _Dec 6, 2022_
 
 A big thanks to the 15 contributors who made this release possible. Here are some highlights ✨:
 
-- ✨ @mnajdova added a [Material You Button playground](https://stokedui.com/stoked-ui/react-button/#material-you-version) (#35222)
+- ✨ @mnajdova added a [Material You Button playground](https://stoked-ui.github.io/stoked-ui/react-button/#material-you-version) (#35222)
 - 🔧 @hbjORbj renamed `components` / `componentProps` to `slots` / `slotProps` prop in Joy UI to create consistency across products (#34997)
 - Many other 🐛 bug fixes, 📚 documentation, and ⚙️ infrastructure improvements
 
@@ -5382,7 +5382,7 @@ A big thanks to the 7 contributors who made this release possible. Here are some
   Migration:
 
   - **Material UI**: you can enable the CSS color scheme via `<CssBaseline enableColorScheme />`.
-  - **Joy UI**: it is enabled automatically if you use `<CssBaseline />`, [see the docs](https://stokedui.com/joy-ui/react-css-baseline/).
+  - **Joy UI**: it is enabled automatically if you use `<CssBaseline />`, [see the docs](https://stoked-ui.github.io/joy-ui/react-css-baseline/).
 
 #### Changes
 
@@ -5424,8 +5424,8 @@ _Oct 3, 2022_
 
 A big thanks to the 18 contributors who made this release possible. Here are some highlights ✨:
 
-- 🚀 [SnackbarUnstyled](https://stokedui.com/base-ui/react-snackbar/) component & headless hook are added to Base UI (#33227) @ZeeshanTamboli
-- 📚 [CSS variables documentation](https://stokedui.com/stoked-ui/experimental-api/css-theme-variables/overview/) for Material UI has been added by @siriwatknp (#33958)
+- 🚀 [SnackbarUnstyled](https://stoked-ui.github.io/base-ui/react-snackbar/) component & headless hook are added to Base UI (#33227) @ZeeshanTamboli
+- 📚 [CSS variables documentation](https://stoked-ui.github.io/stoked-ui/experimental-api/css-theme-variables/overview/) for Material UI has been added by @siriwatknp (#33958)
 - And more 🐛 bug fixes and 📚 documentation improvements.
 
 ### `@mui/material@5.10.8`
@@ -5480,7 +5480,7 @@ _Sep 26, 2022_
 
 A big thanks to the 21 contributors who made this release possible. Here are some highlights ✨:
 
-- 🚀 [Divider](https://stokedui.com/joy-ui/react-divider/) component is added to Joy UI (#34403) @siriwatknp
+- 🚀 [Divider](https://stoked-ui.github.io/joy-ui/react-divider/) component is added to Joy UI (#34403) @siriwatknp
 
 ### `@mui/material@5.10.7`
 
@@ -5633,8 +5633,8 @@ _Sep 12, 2022_
 
 A big thanks to the 12 contributors who made this release possible. Here are some highlights ✨:
 
-- 🚀 [Blog post](https://stokedui.com/blog/introducing-base-ui/) for announcing the release of the Base UI package is out thanks to @michaldudak.
-- 🚀 Added [`Alert`](https://stokedui.com/joy-ui/react-alert/), [`Modal`](https://stokedui.com/joy-ui/react-modal/), [`ListSubheader`](https://stokedui.com/joy-ui/react-list-subheader/), [`FormControl`](https://stokedui.com/joy-ui/react-form-control/), [`CircularProgress`](https://stokedui.com/joy-ui/react-circular-progress/) components to Joy UI (#33859) @hbjORbj @siriwatknp
+- 🚀 [Blog post](https://stoked-ui.github.io/blog/introducing-base-ui/) for announcing the release of the Base UI package is out thanks to @michaldudak.
+- 🚀 Added [`Alert`](https://stoked-ui.github.io/joy-ui/react-alert/), [`Modal`](https://stoked-ui.github.io/joy-ui/react-modal/), [`ListSubheader`](https://stoked-ui.github.io/joy-ui/react-list-subheader/), [`FormControl`](https://stoked-ui.github.io/joy-ui/react-form-control/), [`CircularProgress`](https://stoked-ui.github.io/joy-ui/react-circular-progress/) components to Joy UI (#33859) @hbjORbj @siriwatknp
 - And more 🐛 bug fixes and 📚 documentation improvements.
 
 ### `@mui/material@5.10.5`
@@ -5679,7 +5679,7 @@ _Sep 5, 2022_
 
 A big thanks to the 11 contributors who made this release possible. Here are some highlights ✨:
 
-- 🚀 Added [`Alert`](https://stokedui.com/joy-ui/react-alert/) component to Joy UI (#33859) @hbjORbj
+- 🚀 Added [`Alert`](https://stoked-ui.github.io/joy-ui/react-alert/) component to Joy UI (#33859) @hbjORbj
 - Many other 🐛 bug fixes, 📚 documentation, and ⚙️ infrastructure improvements
 
 ### `@mui/material@5.10.4`
@@ -5906,8 +5906,8 @@ _Aug 8, 2022_
 
 A big thanks to the 16 contributors who made this release possible. Here are some highlights ✨:
 
-- ✨ [Stack](https://stokedui.com/system/react-stack/) component is added to SUI System and Joy UI #33760 #33800 @mnajdova
-- ✨ [Breadcrumbs](https://stokedui.com/joy-ui/react-breadcrumbs/) component is added to Joy UI (#32697) @hbjORbj
+- ✨ [Stack](https://stoked-ui.github.io/system/react-stack/) component is added to SUI System and Joy UI #33760 #33800 @mnajdova
+- ✨ [Breadcrumbs](https://stoked-ui.github.io/joy-ui/react-breadcrumbs/) component is added to Joy UI (#32697) @hbjORbj
 - Many other 🐛 bug fixes, 📚 documentation, and ⚙️ infrastructure improvements
 
 ### `@mui/material@5.10.0`
@@ -6152,7 +6152,7 @@ A big thanks to the 19 contributors who made this release possible. Here are som
 - 🧪 Exported Grid v2 as `Unstable_Grid2` (#33479) @siriwatknp
 - 📖 Added a guide for using Joy UI and Material UI together (#33396) @siriwatknp
 - 🐛 Fixed a few bugs in Material UI components. Thanks to @ZeeshanTamboli, @ivan-ngchakming, and @joebingham-wk.
-- ⚠️ **[BREAKING CHANGE]** Date pickers were removed from the lab. Learn how to migrate by visiting the [migration guide](https://stokedui.com/x/migration/migration-pickers-lab/). (#33386) @flaviendelangle
+- ⚠️ **[BREAKING CHANGE]** Date pickers were removed from the lab. Learn how to migrate by visiting the [migration guide](https://stoked-ui.github.io/x/migration/migration-pickers-lab/). (#33386) @flaviendelangle
 - many other 🐛 bug fixes and 📚 documentation improvements
 - our documentation site is now running with React 18! (#33196) @mnajdova
 
@@ -6178,7 +6178,7 @@ A big thanks to the 19 contributors who made this release possible. Here are som
 
 - [lab] Remove the pickers (#33386) @flaviendelangle
 
-  The pickers are moved to SUI X, check out the [migration guide](https://stokedui.com/x/migration/migration-pickers-lab/).
+  The pickers are moved to SUI X, check out the [migration guide](https://stoked-ui.github.io/x/migration/migration-pickers-lab/).
 
 **Changes**
 
@@ -6689,7 +6689,7 @@ _May 17, 2022_
 
 A big thanks to the 14 contributors who made this release possible. Here are some highlights ✨:
 
-- 🚀 [Blog post](https://stokedui.com/blog/premium-plan-release/) for announcing the release of the Premium plan of SUI X is out thanks to @joserodolfofreitas.
+- 🚀 [Blog post](https://stoked-ui.github.io/blog/premium-plan-release/) for announcing the release of the Premium plan of SUI X is out thanks to @joserodolfofreitas.
 - Codemod for `jss` to `tss-react` migration is out thanks to @ryancogswell
 - And more 🐛 bug fixes and 📚 documentation improvements.
 
@@ -8178,7 +8178,7 @@ A big thanks to the 25 contributors who made this release possible. Here are som
 
 - ✨ We have introduced a new unstyled component in `@mui/base`: `TablePagination` (#29759) @mnajdova
 
-  <a href="https://stokedui.com/components/tables/#unstyled-table"><img width="800" alt="unstyled table" src="https://user-images.githubusercontent.com/4512430/144862194-584356ef-7d9d-462c-a631-186a7e716193.png"></a>
+  <a href="https://stoked-ui.github.io/components/tables/#unstyled-table"><img width="800" alt="unstyled table" src="https://user-images.githubusercontent.com/4512430/144862194-584356ef-7d9d-462c-a631-186a7e716193.png"></a>
 
   You can follow our progress with unstyled components at https://github.com/stoked-ui/base-ui/issues/10.
 
@@ -8347,7 +8347,7 @@ _Nov 23, 2021_
 
 A big thanks to the 18 contributors who made this release possible. Here are some highlights ✨:
 
-- 🧪 Created another unstyled component: [TabsUnstyled](https://stokedui.com/components/tabs/#unstyled) (#29597) @mnajdova.
+- 🧪 Created another unstyled component: [TabsUnstyled](https://stoked-ui.github.io/components/tabs/#unstyled) (#29597) @mnajdova.
 - 🎉 Updated the Material Icons set with the latest changes from Google (#29328) @michaldudak / (#29818) @chao813.
   This update adds 200 new icons and tweaks the appearance of many more.
   With it, we're getting close to having 2000 icons in our set.
@@ -8993,7 +8993,7 @@ All contributors of this release in alphabetical order: @breitembach, @chetrit, 
 
 _Sep 16, 2021_
 
-After over 400 days of development and over 40 canary releases, we are excited to introduce [SUI Core v5.0.0](https://stokedui.com/blog/mui-core-v5/)!
+After over 400 days of development and over 40 canary releases, we are excited to introduce [SUI Core v5.0.0](https://stoked-ui.github.io/blog/mui-core-v5/)!
 
 Some statistics with the released of v5.0.0 compared to the one of v4.0.0:
 
@@ -9155,8 +9155,8 @@ _Sep 1, 2021_
 A big thanks to the 18 contributors who made this release possible. Here are some highlights ✨:
 
 - 🎉 Renamed packages to `@mui/*` as part of rebranding the company, following the strategy of expanding the library scope beyond Material Design. For more details about it, check the [GitHub discussion](https://github.com/stoked-ui/stoked-ui/discussions/27803).
-- 🛠 Added `mui-replace` codemod for migrating `@stoked-ui/*` to new packages `@mui/*`. Check out this [codemod detail](https://github.com/stoked-ui/stoked-ui/blob/v5.0.0/packages/mui-codemod/README.md#mui-replace) or head to [migration guide](https://stokedui.com/stoked-ui/migration/migration-v4/#preset-safe)
-- 🧪 Added new `<Mansory>` component to the lab, [check it out](https://stokedui.com/components/masonry/). It has been crafted by our first intern, @hbjORbj 👏!
+- 🛠 Added `mui-replace` codemod for migrating `@stoked-ui/*` to new packages `@mui/*`. Check out this [codemod detail](https://github.com/stoked-ui/stoked-ui/blob/v5.0.0/packages/mui-codemod/README.md#mui-replace) or head to [migration guide](https://stoked-ui.github.io/stoked-ui/migration/migration-v4/#preset-safe)
+- 🧪 Added new `<Mansory>` component to the lab, [check it out](https://stoked-ui.github.io/components/masonry/). It has been crafted by our first intern, @hbjORbj 👏!
 
 ### `@mui/material@5.0.0-rc.0`
 
@@ -9646,16 +9646,16 @@ _Jul 14, 2021_
 A big thanks to the 17 contributors who made this release possible. Here are some highlights ✨:
 
 - ✨ We have introduced a new unstyled component: the Switch (#26688) @michaldudak
-  You can find two new versions of the Switch. A component without any styles: [`SwitchUnstyled`](https://stokedui.com/components/switches/#unstyled), and a hook: [`useSwitch`](https://stokedui.com/components/switches/#useswitch-hook).
+  You can find two new versions of the Switch. A component without any styles: [`SwitchUnstyled`](https://stoked-ui.github.io/components/switches/#unstyled), and a hook: [`useSwitch`](https://stoked-ui.github.io/components/switches/#useswitch-hook).
 
-  <a href="https://stokedui.com/components/switches/#unstyled"><img width="832" alt="switch" src="https://user-images.githubusercontent.com/3165635/125192249-236f8a80-e247-11eb-9df9-17d476379a32.png"></a>
+  <a href="https://stoked-ui.github.io/components/switches/#unstyled"><img width="832" alt="switch" src="https://user-images.githubusercontent.com/3165635/125192249-236f8a80-e247-11eb-9df9-17d476379a32.png"></a>
 
   You can follow our progress at https://github.com/stoked-ui/base-ui/issues/10.
 
 - 💄 We have updated the default `info` `success` `warning` color to be more accessible (#26817) @siriwatknp.
-  You can find the new [default values](https://stokedui.com/stoked-ui/customization/palette/#default-values) in the documentation.
+  You can find the new [default values](https://stoked-ui.github.io/stoked-ui/customization/palette/#default-values) in the documentation.
 
-  <a href="https://stokedui.com/customization/palette/#default-values"><img width="780" alt="colors" src="https://user-images.githubusercontent.com/3165635/125192657-4864fd00-e249-11eb-9dc1-44857b25b3b8.png"></a>
+  <a href="https://stoked-ui.github.io/customization/palette/#default-values"><img width="780" alt="colors" src="https://user-images.githubusercontent.com/3165635/125192657-4864fd00-e249-11eb-9dc1-44857b25b3b8.png"></a>
 
 ### `@stoked-ui/core@5.0.0-beta.1`
 
@@ -9895,12 +9895,12 @@ A big thanks to the 18 contributors who made this release possible. Here are som
 - 🚀 We have only 2 left in the [breaking changes](https://github.com/stoked-ui/stoked-ui/issues/20012). The plan to release 5.0.0-beta.0 is on July 1st and will start to promote its usage over v4.
 - 🎨 We have updated `Slider` to match current [Material Design guidelines](https://m2.material.io/components/sliders).
 
-  <a href="https://stokedui.com/components/slider/#continuous-sliders"><img width="247" alt="" src="https://user-images.githubusercontent.com/3165635/121884800-a8808600-cd13-11eb-8cdf-e25de8f1ba73.png" style="margin: auto"></a>
+  <a href="https://stoked-ui.github.io/components/slider/#continuous-sliders"><img width="247" alt="" src="https://user-images.githubusercontent.com/3165635/121884800-a8808600-cd13-11eb-8cdf-e25de8f1ba73.png" style="margin: auto"></a>
 
-- 💡 `IconButton` now supports 3 sizes (`small, medium, large`). [See demo](https://stokedui.com/components/buttons/#sizes-2).
+- 💡 `IconButton` now supports 3 sizes (`small, medium, large`). [See demo](https://stoked-ui.github.io/components/buttons/#sizes-2).
 - ♿️ We have improved the default style of the `Link` to be more accessible (#26145) @ahmed-28
 
-  <a href="https://stokedui.com/components/links/"><img width="543" alt="" src="https://user-images.githubusercontent.com/3165635/123097983-ef1b6200-d430-11eb-97da-b491fba5df49.png"></a>
+  <a href="https://stoked-ui.github.io/components/links/"><img width="543" alt="" src="https://user-images.githubusercontent.com/3165635/123097983-ef1b6200-d430-11eb-97da-b491fba5df49.png"></a>
 
 ### `@stoked-ui/core@5.0.0-alpha.38`
 
@@ -9978,13 +9978,13 @@ A big thanks to the 18 contributors who made this release possible. Here are som
 
 - &#8203;<!-- 08 -->[Slider] Adjust css to match the specification (#26632) @siriwatknp
 
-  Rework the CSS to match the latest [Material Design guidelines](https://m2.material.io/components/sliders) and make custom styles more intuitive. [See documentation](https://stokedui.com/components/slider/).
+  Rework the CSS to match the latest [Material Design guidelines](https://m2.material.io/components/sliders) and make custom styles more intuitive. [See documentation](https://stoked-ui.github.io/components/slider/).
 
-  <a href="https://stokedui.com/components/slider/#continuous-sliders"><img width="247" alt="" src="https://user-images.githubusercontent.com/3165635/121884800-a8808600-cd13-11eb-8cdf-e25de8f1ba73.png" style="margin: auto"></a>
+  <a href="https://stoked-ui.github.io/components/slider/#continuous-sliders"><img width="247" alt="" src="https://user-images.githubusercontent.com/3165635/121884800-a8808600-cd13-11eb-8cdf-e25de8f1ba73.png" style="margin: auto"></a>
 
-  You can reduce the density of the slider, closer to v4 with the [`size="small"` prop](https://stokedui.com/components/slider/#sizes).
+  You can reduce the density of the slider, closer to v4 with the [`size="small"` prop](https://stoked-ui.github.io/components/slider/#sizes).
 
-  <a href="https://stokedui.com/components/slider/#sizes"><img width="330" alt="" src="https://user-images.githubusercontent.com/3165635/123076549-8aa0d880-d419-11eb-8835-06cd2b21b2d3.png" style="margin: auto"></a>
+  <a href="https://stoked-ui.github.io/components/slider/#sizes"><img width="330" alt="" src="https://user-images.githubusercontent.com/3165635/123076549-8aa0d880-d419-11eb-8835-06cd2b21b2d3.png" style="margin: auto"></a>
 
 - &#8203;<!-- 14 -->[IconButton] Remove label span (#26801) @siriwatknp
 
@@ -10105,7 +10105,7 @@ A big thanks to the 11 contributors who made this release possible. Here are som
   </Grid>
   ```
 
-  Head to the [documentation](https://stokedui.com/components/grid/#responsive-values) for more details.
+  Head to the [documentation](https://stoked-ui.github.io/components/grid/#responsive-values) for more details.
 
 - ⚒️ We've introduced a new `useTheme` and `useThemeProps` hooks in the `@stoked-ui/system` package.
   We believe that this package can be used as a standalone styling solution for building custom design systems (#26649) @mnajdova.
@@ -10215,10 +10215,10 @@ A big thanks to the 14 contributors who made this release possible. Here are som
   We're confident that its API shouldn't receive any major changes until the stable release of v5 (#26558) @mnajdova.
 - 📦 `@stoked-ui/icons` only ships ES modules and no longer CommonJS modules.
   This reduces the download size of the package from 1.7 MB to 1.2 MB and install size from 15.6 MB to 6.7 MB (#26310) @eps1lon.
-- 💄 Add support for [row and column spacing](https://stokedui.com/components/grid/#row-amp-column-spacing) in the Grid component (#26559) @likitarai1.
+- 💄 Add support for [row and column spacing](https://stoked-ui.github.io/components/grid/#row-amp-column-spacing) in the Grid component (#26559) @likitarai1.
   <img width="549" alt="grid spacing demo" src="https://user-images.githubusercontent.com/3165635/121089288-383fa500-c7e7-11eb-8c43-53457b7430f1.png">
 
-  Note that this feature was already available for [CSS grid users](https://stokedui.com/components/grid/#css-grid-layout) with the `rowGap` and `columnGap` props.
+  Note that this feature was already available for [CSS grid users](https://stoked-ui.github.io/components/grid/#css-grid-layout) with the `rowGap` and `columnGap` props.
 
 ### `@stoked-ui/core@5.0.0-alpha.36`
 
@@ -10561,7 +10561,7 @@ A big thanks to the 16 contributors who made this release possible. Here are som
    />
   ```
 
-> Follow [this link](https://stokedui.com/stoked-ui/migration/migration-v4/) for full migration from v4 => v5
+> Follow [this link](https://stoked-ui.github.io/stoked-ui/migration/migration-v4/) for full migration from v4 => v5
 
 #### Changes
 
@@ -10816,7 +10816,7 @@ A big thanks to the 17 contributors who made this release possible. Here are som
 
 - &#8203;<!-- 64 -->[withWidth] Remove API (#26136) @m4theushw
 
-  Removed in favor of the `useMediaQuery` hook. You can reproduce the same functionality creating a custom hook as described [here](https://stokedui.com/components/use-media-query/#migrating-from-withwidth).
+  Removed in favor of the `useMediaQuery` hook. You can reproduce the same functionality creating a custom hook as described [here](https://stoked-ui.github.io/components/use-media-query/#migrating-from-withwidth).
 
 - &#8203;<!-- 75 -->[Autocomplete] Rename values of the reason argument (#26172) @m4theushw
 
@@ -11455,7 +11455,7 @@ A big thanks to the 34 contributors who made this release possible. Here are som
 
   <img width="830" alt="stack" src="https://user-images.githubusercontent.com/3165635/112068427-29434200-8b6a-11eb-94e8-057535423b0f.png">
 
-  See the documentation for [more details](https://stokedui.com/components/stack/).
+  See the documentation for [more details](https://stoked-ui.github.io/components/stack/).
 
 - And many more 🐛 bug fixes and 📚 improvements.
 
@@ -11856,7 +11856,7 @@ A big thanks to the 30 contributors who made this release possible. Here are som
   ```
 
 - 📅 Focus on the date pickers, 5 fixes and 3 docs improvements.
-- 💅 Provide a new [`darkScrollbar()`](https://stokedui.com/components/css-baseline/#scrollbars) CSS utility to improve the native scrollbar in dark mode. The documentation uses it.
+- 💅 Provide a new [`darkScrollbar()`](https://stoked-ui.github.io/components/css-baseline/#scrollbars) CSS utility to improve the native scrollbar in dark mode. The documentation uses it.
 
 ### `@stoked-ui/core@5.0.0-alpha.25`
 
@@ -12705,7 +12705,7 @@ A big thanks to the 18 contributors who made this release possible. Here are som
   );
   ```
 
-  This enforces emotion being injected first. [More details](https://stokedui.com/stoked-ui/integrations/interoperability/#css-injection-order) in the documentation.
+  This enforces emotion being injected first. [More details](https://stoked-ui.github.io/stoked-ui/integrations/interoperability/#css-injection-order) in the documentation.
 
 - [Autocomplete] Rename `closeIcon` prop with `clearIcon` to avoid confusion (#23617) @akhilmhdh.
 
@@ -12841,11 +12841,11 @@ _Nov 14, 2020_
 A big thanks to the 34 contributors who made this release possible. Here are some highlights ✨:
 
 - 📅 Migrate the date picker to the lab (#22692) @dmtrKovalenko.
-  We have integrated the components with the code infrastructure. Next we will migrate all the GitHub issues from [stoked-ui-pickers](https://github.com/stoked-ui/stoked-ui-pickers) and archive the repository. This migration will help provide first-class support for the date picker components. The component will stay in the lab as long as necessary to reach the high-quality bar we have for core components. You can find the [new documentation here](https://stokedui.com/components/pickers/).
+  We have integrated the components with the code infrastructure. Next we will migrate all the GitHub issues from [stoked-ui-pickers](https://github.com/stoked-ui/stoked-ui-pickers) and archive the repository. This migration will help provide first-class support for the date picker components. The component will stay in the lab as long as necessary to reach the high-quality bar we have for core components. You can find the [new documentation here](https://stoked-ui.github.io/components/pickers/).
 
   While the source code is currently hosted in the [main repository](https://github.com/stoked-ui/stoked-ui), we might move it to the [x repository](https://github.com/stoked-ui/mui-x) in the future, depending on what is easier for the commercial date range picker. The date picker will stay open source no matter what.
 
-- 📚 Revamp the documentation for [SUI System](https://stokedui.com/system/getting-started/). The System contains CSS utilities. The documentation now promotes the use of the `sx` prop. It's ideal for adding one-off styles, for example padding, but when pushed to its limits, it can be used to implement quickly a complete page.
+- 📚 Revamp the documentation for [SUI System](https://stoked-ui.github.io/system/getting-started/). The System contains CSS utilities. The documentation now promotes the use of the `sx` prop. It's ideal for adding one-off styles, for example padding, but when pushed to its limits, it can be used to implement quickly a complete page.
 - 👩‍🎨 Upgrade emotion to v11 (#23007) @mnajdova.
 - And many more 🐛 bug fixes and 📚 improvements.
 
@@ -12947,7 +12947,7 @@ A big thanks to the 20 contributors who made this release possible. Here are som
 - ⚛️ Add support for React 17 (#23311) @eps1lon.
   React 17 release is unusual because it doesn't add any new developer-facing features. It was released a couple of days ago. You can learn more about it in the [introduction post](https://legacy.reactjs.org/blog/2020/10/20/react-v17.html). Material UI now supports `^16.8.0 || ^17.0.0`.
 - 🛠 Introduce a new `@stoked-ui/unstyled` package (#23270) @mnajdova.
-  This package will host the unstyled version of the components. In this first iteration, only the Slider is available. You can find it documented under the [same page](https://stokedui.com/components/slider-styled/#unstyled-slider) as the styled version.
+  This package will host the unstyled version of the components. In this first iteration, only the Slider is available. You can find it documented under the [same page](https://stoked-ui.github.io/components/slider-styled/#unstyled-slider) as the styled version.
 
   **Why an unstyled package?**
 
@@ -12957,7 +12957,7 @@ A big thanks to the 20 contributors who made this release possible. Here are som
 
   Another reason for introducing this package is to prepare the groundwork for a [second theme](https://github.com/stoked-ui/stoked-ui/issues/22485) (not Material Design based).
 
-  A note on the terminology: "unstyled" means that the components have the same API as the "styled" components but come without CSS. Material UI also contains "headless" components that exposes a hook API, for example [useAutocomplete](https://stokedui.com/components/autocomplete/#useautocomplete) or [usePagination](https://stokedui.com/components/pagination/#usepagination).
+  A note on the terminology: "unstyled" means that the components have the same API as the "styled" components but come without CSS. Material UI also contains "headless" components that exposes a hook API, for example [useAutocomplete](https://stoked-ui.github.io/components/autocomplete/#useautocomplete) or [usePagination](https://stoked-ui.github.io/components/pagination/#usepagination).
 
   This change is part of our strategy to iterate on the v5 architecture with the `Slider` first. In the next alpha release, we plan to replace the v4 slider with the v5 slider. Once the new approach is stress-tested and validated, we will roll it out to all the components.
 
@@ -13231,7 +13231,7 @@ A big thanks to the 25 contributors who made this release possible.
 Here are some highlights ✨:
 
 - 📦 Ship modern bundle (#22814) @eps1lon.
-  This is a significant update to the [browsers supported](https://stokedui.com/stoked-ui/getting-started/supported-platforms/) by Material UI.
+  This is a significant update to the [browsers supported](https://stoked-ui.github.io/stoked-ui/getting-started/supported-platforms/) by Material UI.
   The previous policy was defined 2 years ago, and the landscape has evolved since then. The package now includes 4 bundles:
 
   1. `stable` (default, formerly `esm`) which targets a snapshot (on release) of `> 0.5%, last 2 versions, Firefox ESR, not dead, not IE 11"`
@@ -13242,13 +13242,13 @@ Here are some highlights ✨:
   The change yields a 6% reduction in bundle size 📦 (Babel only).
   In the coming weeks, we will refactor the internals to take advantage of the new browser capabilities that dropping these older platforms allows. For instance, we might be able to remove the span we render inside the `<Button>` to work around [Flexbug #9](https://github.com/philipwalton/flexbugs/blob/master/README.md#flexbug-9).
 
-  Check the updated [Supported platforms documentation](https://stokedui.com/stoked-ui/getting-started/supported-platforms/) and [new "minimizing bundle size" guide](https://stokedui.com/stoked-ui/guides/minimizing-bundle-size/).
+  Check the updated [Supported platforms documentation](https://stoked-ui.github.io/stoked-ui/getting-started/supported-platforms/) and [new "minimizing bundle size" guide](https://stoked-ui.github.io/stoked-ui/guides/minimizing-bundle-size/).
 
   If you target IE11, you need to use the new bundle (`legacy`). We are treating IE11 as a second class-citizen, which is a continuation of the direction taken in #22873.
 
 - 🚀 Improve the internal benchmark suite (#22923, #23058) @mnajdova.
-  This was a prerequisite step to improve the [system](https://stokedui.com/system/getting-started/). We needed to be able to measure performance. After #22945, we have measured that the `Box` component is x3 faster in v5-alpha compared to v4.
-- ✏️ A new blog post: [Q3 2020 Update](https://stokedui.com/blog/2020-q3-update/) (#23055) @oliviertassinari.
+  This was a prerequisite step to improve the [system](https://stoked-ui.github.io/system/getting-started/). We needed to be able to measure performance. After #22945, we have measured that the `Box` component is x3 faster in v5-alpha compared to v4.
+- ✏️ A new blog post: [Q3 2020 Update](https://stoked-ui.github.io/blog/2020-q3-update/) (#23055) @oliviertassinari.
 - 🐙 Migrate more tests to react-testing-library @deiga, @Morteza-Jenabzadeh, @nicholas-l.
 - And many more 🐛 bug fixes and 📚 improvements.
 
@@ -13361,7 +13361,7 @@ Here are some highlights ✨:
   The early benchmark we have run shows that performance has improved. We will share more detailed results in #21657.
 - 🐙 Migrate a large portion of the tests from enzyme to react-testing-library @eladmotola, @baterson, @bewong89, @devrasec, @guillermaster, @itamar244, @jeferson-sb, @The24thDS.
   Last month, react-testing-library had [more downloads](https://npm-stat.com/charts.html?package=enzyme&package=%40testing-library%2Freact&from=2019-10-10&to=2020-10-10) than enzyme in the ecosystem!
-- 🏷 Add support for tooltips [following the cursor](https://stokedui.com/components/tooltips/#follow-cursor) (#22876) @xtrixia.
+- 🏷 Add support for tooltips [following the cursor](https://stoked-ui.github.io/components/tooltips/#follow-cursor) (#22876) @xtrixia.
 - And many more 🐛 bug fixes and 📚 improvements.
 
 ### `@stoked-ui/core@v5.0.0-alpha.12`
@@ -13582,23 +13582,23 @@ Here are some highlights ✨:
 
 - 👩‍🎨 A first iteration on the new styling solution.
 
-  You can find a [new version](https://stokedui.com/components/slider-styled/) of the slider in the lab powered by [Emotion](https://emotion.sh/).
+  You can find a [new version](https://stoked-ui.github.io/components/slider-styled/) of the slider in the lab powered by [Emotion](https://emotion.sh/).
 
   In the event that you are already using styled-components in your application, you can swap emotion for styled-components 💅. Check [this CodeSandbox](https://codesandbox.io/p/sandbox/sliderstyled-with-styled-components-forked-olc27?file=/package.json) for a demo. It relies on aliases to prevent any bundle size overhead.
 
   The new styling solution saves 2kB gzipped in the bundle compared to JSS, and about 14 kB gzipped if you were already using emotion or styled-components.
 
-  Last but not least, the change allows us to take advantage dynamic style props. We will use them for dynamic color props, variant props, and new style props (an improved [system](https://stokedui.com/system/getting-started/)).
+  Last but not least, the change allows us to take advantage dynamic style props. We will use them for dynamic color props, variant props, and new style props (an improved [system](https://stoked-ui.github.io/system/getting-started/)).
 
   This change has been in our roadmap for more than a year.
-  We announced it in the [v4 release blog post](https://stokedui.com/blog/stoked-ui-v4-is-out/) as a direction v5 would take.
+  We announced it in the [v4 release blog post](https://stoked-ui.github.io/blog/stoked-ui-v4-is-out/) as a direction v5 would take.
 
 - 🛠 A first iteration on the unstyled components.
 
-  You can find a [new version](https://stokedui.com/components/slider-styled/#UnstyledSlider.tsx) of the slider in the lab without any styles.
+  You can find a [new version](https://stoked-ui.github.io/components/slider-styled/#UnstyledSlider.tsx) of the slider in the lab without any styles.
   The unstyled component weighs 6.5 kB gzipped, compared with 26 kB for the styled version when used standalone. The component is best suited for use when you want to fully customize the look of the component without reimplementing the JavaScript and accessibility logic.
 
-- ⚡️ A first alpha of the [DataGrid](https://stokedui.com/x/react-data-grid/) component.
+- ⚡️ A first alpha of the [DataGrid](https://stoked-ui.github.io/x/react-data-grid/) component.
 
   It has taken 6 months of development since the initial commit (March 15th, 2020) to make the first alpha release of the grid. The component comes in two versions:
   @stoked-ui/data-grid is licensed under MIT, while @stoked-ui/x-grid is licensed under a commercial license.
@@ -14018,7 +14018,7 @@ const theme = createMuiTheme({
 });
 ```
 
-- ✨ Add [text in divider](https://stokedui.com/components/dividers/#dividers-with-text) support (#22285) @ShehryarShoukat96
+- ✨ Add [text in divider](https://stoked-ui.github.io/components/dividers/#dividers-with-text) support (#22285) @ShehryarShoukat96
 
   ```jsx
   <Divider>{'CENTER'}</Divider>
@@ -14333,9 +14333,9 @@ Here are some highlights ✨:
   <Button variant="dashed" />;
   ```
 
-  More details in [the documentation](https://stokedui.com/stoked-ui/customization/components/#adding-new-component-variants) and [RFC](#21749).
+  More details in [the documentation](https://stoked-ui.github.io/stoked-ui/customization/components/#adding-new-component-variants) and [RFC](#21749).
 
-- 👮 Add documentation for the [FocusTrap](https://stokedui.com/base-ui/react-focus-trap/) component (#22062) @oliviertassinari.
+- 👮 Add documentation for the [FocusTrap](https://stoked-ui.github.io/base-ui/react-focus-trap/) component (#22062) @oliviertassinari.
 - ⚛️ Prepare support for React v17 (#22093, #22105, #22143, #22111) @eps1lon.
 - 🚧 We have undertaken breaking changes.
 
@@ -14841,7 +14841,7 @@ A big thanks to the 33 contributors who made this release possible. Here are som
    />
   ```
 
-- [Typography] Replace the `srOnly` prop so as to not duplicate the capabilities of [System](https://stokedui.com/system/getting-started/) (#21413) @mnajdova.
+- [Typography] Replace the `srOnly` prop so as to not duplicate the capabilities of [System](https://stoked-ui.github.io/system/getting-started/) (#21413) @mnajdova.
 
   ```diff
   -import Typography from '@stoked-ui/core/Typography';

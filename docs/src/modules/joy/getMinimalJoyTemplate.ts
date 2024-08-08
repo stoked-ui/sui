@@ -72,7 +72,7 @@ export default function App() {
           <ListItem>
             <ListItemButton
               component="a"
-              href="https://stokedui.com/joy-ui/main-features/global-variants/"
+              href="https://stoked-ui.github.io/joy-ui/main-features/global-variants/"
               target="_blank"
               rel="noopener"
             >
@@ -82,7 +82,7 @@ export default function App() {
           <ListItem>
             <ListItemButton
               component="a"
-              href="https://stokedui.com/joy-ui/react-autocomplete/"
+              href="https://stoked-ui.github.io/joy-ui/react-autocomplete/"
               target="_blank"
               rel="noopener"
             >
@@ -92,7 +92,7 @@ export default function App() {
           <ListItem>
             <ListItemButton
               component="a"
-              href="https://stokedui.com/joy-ui/customization/approaches/"
+              href="https://stoked-ui.github.io/joy-ui/customization/approaches/"
               target="_blank"
               rel="noopener"
             >
@@ -106,7 +106,7 @@ export default function App() {
         Developed by{" "}
         <Link
           underline="always"
-          href="https://stokedui.com/about"
+          href="https://stoked-ui.github.io/about"
           target="_blank"
           rel="noopener"
         >

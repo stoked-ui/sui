@@ -1,10 +1,11 @@
 import * as React from 'react';
+import PropTypes from 'prop-types';
 import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Avatar from '@mui/material/Avatar';
 import { FileExplorer } from '@stoked-ui/file-explorer/FileExplorer';
 
-import { useFile as useFile } from '@stoked-ui/file-explorer/useFile';
+import { useFile } from '@stoked-ui/file-explorer/useFile';
 import {
   FileContent,
   FileIconContainer,
@@ -80,6 +81,31 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(props, ref) {
     </FileProvider>
   );
 });
+
+CustomTreeItem.propTypes = {
+  /**
+   * The content of the component.
+   */
+  children: PropTypes.node,
+  /**
+   * If `true`, the item is disabled.
+   * @default false
+   */
+  disabled: PropTypes.bool,
+  /**
+   * The id attribute of the item. If not provided, it will be generated.
+   */
+  id: PropTypes.string,
+  /**
+   * The id of the item.
+   * Must be unique.
+   */
+  itemId: PropTypes.string,
+  /**
+   * The label of the item.
+   */
+  label: PropTypes.node,
+};
 
 export default function HeadlessAPI() {
   return (

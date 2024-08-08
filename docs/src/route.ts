@@ -43,7 +43,7 @@ const ROUTES: Routes = {
   suiXVideoEditor: '/sui-x/video-editor/',
   suiXMediaProvider: '/sui-x/media-provider/',
   // Stoked UI doc pages
-  materialDocs: 'https://stokedui.com/material-ui/getting-started/',
+  materialDocs: 'https://stoked-ui.github.io/material-ui/getting-started/',
   materialIcons: '/material-ui/material-icons/',
   freeTemplates: '/material-ui/getting-started/templates/',
   components: '/material-ui/getting-started/supported-components/',
@@ -57,15 +57,15 @@ const ROUTES: Routes = {
   support: '/material-ui/getting-started/support/#professional-support-premium',
   goldSponsor: '/material-ui/discover-more/backers/#gold-sponsors',
   // Base UI doc pages
-  baseDocs: 'https://stokedui.com/base-ui/getting-started/',
+  baseDocs: 'https://stoked-ui.github.io/base-ui/getting-started/',
   baseComponents: '/base-ui/all-components/',
   baseQuickstart: '/base-ui/getting-started/quickstart/',
   // Joy UI doc pages
   joyDocs: '/joy-ui/getting-started/',
   // System pages
-  systemDocs: 'https://stokedui.com/system/getting-started/',
+  systemDocs: 'https://stoked-ui.github.io/system/getting-started/',
   // X general pages
-  xIntro: 'https://stokedui.com/x/introduction/',
+  xIntro: 'https://stoked-ui.github.io/x/introduction/',
   xRoadmap: 'https://github.com/mui/mui-x/projects/1',
   xLicensing: '/x/introduction/licensing/',
   // Data Grid doc pages
@@ -85,8 +85,8 @@ const ROUTES: Routes = {
   // External pages
   rssFeed: '/feed/blog/rss.xml',
   handbook: 'https://mui-org.notion.site/Handbook-f086d47e10794d5e839aef9dc67f324b',
-  privacyPolicy: 'https://stokedui.com/legal/privacy/',
-  store: 'https://stokedui.com/store/',
+  privacyPolicy: 'https://stoked-ui.github.io/legal/privacy/',
+  store: 'https://stoked-ui.github.io/store/',
 };
 
 export default ROUTES;

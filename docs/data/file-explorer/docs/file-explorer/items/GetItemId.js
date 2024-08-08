@@ -29,7 +29,9 @@ const MUI_X_PRODUCTS = [
   {
     internalId: 'file-explorer',
     label: 'File Explorer',
-    children: [{ internalId: 'file-explorer-community', label: '@stoked-ui/file-explorer' }],
+    children: [
+      { internalId: 'file-explorer-community', label: '@stoked-ui/file-explorer' },
+    ],
   },
 ];
 

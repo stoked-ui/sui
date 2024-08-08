@@ -40,7 +40,7 @@ export default function Home({ HomeMain }: { HomeMain: React.ComponentType }) {
             '@type': 'Organization',
             name: 'SUI',
             url: 'https://stoked-ui..com/',
-            logo: 'https://stokedui.com/static/logo.png',
+            logo: 'https://stoked-ui.github.io/static/logo.png',
             sameAs: [
               'https://x.com/MUI_hq',
               'https://github.com/mui/',

@@ -53,7 +53,7 @@ function escape(html, encode) {
 }
 
 function checkUrlHealth(href, linkText, context) {
-  const url = new URL(href, 'https://stokedui.com/');
+  const url = new URL(href, 'https://stoked-ui.github.io/');
 
   if (/\/{2,}$/.test(url.pathname)) {
     throw new Error(

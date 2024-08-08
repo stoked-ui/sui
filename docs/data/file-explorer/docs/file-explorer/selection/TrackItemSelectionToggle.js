@@ -6,7 +6,6 @@ import { FileExplorer } from '@stoked-ui/file-explorer/FileExplorer';
 import Typography from '@mui/material/Typography';
 import { NestedFiles } from 'docs/src/components/fileExplorer/data';
 
-
 export default function TrackItemSelectionToggle() {
   const [lastSelectedItem, setLastSelectedItem] = React.useState(null);
 

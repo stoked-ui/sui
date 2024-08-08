@@ -4,7 +4,10 @@ import DisabledByDefaultRoundedIcon from '@mui/icons-material/DisabledByDefaultR
 import AddBoxRoundedIcon from '@mui/icons-material/AddBoxRounded';
 import { styled, alpha } from '@mui/material/styles';
 import { FileExplorerBasic } from '@stoked-ui/file-explorer/FileExplorerBasic';
-import { FileElement, fileElementClasses } from '@stoked-ui/file-explorer/FileElement';
+import {
+  FileElement,
+  fileElementClasses,
+} from '@stoked-ui/file-explorer/FileElement';
 
 const CustomTreeItem = styled(FileElement)(({ theme }) => ({
   [`& .${fileElementClasses.content}`]: {

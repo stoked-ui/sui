@@ -1,11 +1,11 @@
 import * as React from 'react';
+import PropTypes from 'prop-types';
 import Box from '@mui/material/Box';
 import Collapse from '@mui/material/Collapse';
 
 import { FileExplorer } from '@stoked-ui/file-explorer/FileExplorer';
-
-import { useSpring, animated } from '@react-spring/web';
 import { NestedFiles } from 'docs/src/components/fileExplorer/data';
+import { useSpring, animated } from '@react-spring/web';
 
 function TransitionComponent(props) {
   const style = useSpring({
@@ -22,11 +22,18 @@ function TransitionComponent(props) {
   );
 }
 
+TransitionComponent.propTypes = {
+  /**
+   * Show the component; triggers the enter or exit states
+   */
+  in: PropTypes.bool,
+};
+
 export default function CustomAnimation() {
   return (
     <Box sx={{ minHeight: 352, minWidth: 250 }}>
       <FileExplorer
-        defaultExpandedItems={['grid']}
+        defaultExpandedItems={['Notes']}
         slotProps={{ item: { slots: { groupTransition: TransitionComponent } } }}
         items={NestedFiles}
       />
