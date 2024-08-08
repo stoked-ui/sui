@@ -36,17 +36,17 @@ export default function TemplateHero() {
             Kits
           </Typography>
           <Typography variant="h1" sx={{ my: 2, maxWidth: 500 }}>
-            Material UI
+            Stoked UI
             <br /> in your favorite
             <br /> <GradientText>design tool</GradientText>
           </Typography>
           <Typography color="text.secondary" sx={{ mb: 3, maxWidth: 450 }}>
-            Pick your favorite design tool to enjoy and use Material UI components. Boost
+            Pick your favorite design tool to enjoy and use Stoked UI components. Boost
             consistency and facilitate communication when working with developers.
           </Typography>
           <GetStartedButtons
             primaryLabel="Buy now"
-            primaryUrl="https://mui.com/store/?utm_source=marketing&utm_medium=referral&utm_campaign=design-cta#design"
+            primaryUrl="https://stokedui.com/store/?utm_source=marketing&utm_medium=referral&utm_campaign=design-cta#design"
             secondaryLabel="Figma Preview"
             secondaryUrl="https://www.figma.com/community/file/912837788133317724/material-ui-for-figma-and-mui-x"
           />

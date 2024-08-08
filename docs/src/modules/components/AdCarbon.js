@@ -116,25 +116,12 @@ export function AdCarbonInline(props) {
               alt=""
             />
           ))}
-      <AdDisplay
-        {...props}
-        className="carbonads"
-        shape="inline"
-        ad={{
-          link: ad.statlink,
-          img: ad.image,
-          name: ad.company,
-          description: `<strong>${ad.company}</strong> - ${ad.description}`,
-          poweredby: 'Carbon',
-          label: 'carbon-demo-inline',
-        }}
-      />
+
     </React.Fragment>
   ) : (
     <div {...props} style={{ minHeight: 52 }} />
   );
 }
-
 export default function AdCarbon() {
-  return <AdCarbonImage />;
+  return <React.Fragment/>;
 }

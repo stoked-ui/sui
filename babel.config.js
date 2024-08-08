@@ -16,27 +16,13 @@ module.exports = function getBabelConfig(api) {
   const useESModules = api.env(['regressions', 'legacy', 'modern', 'stable', 'rollup']);
 
   const defaultAlias = {
-    '@mui/material': resolveAliasPath('./packages/mui-material/src'),
-    '@mui/docs': resolveAliasPath('./packages/mui-docs/src'),
-    '@mui/icons-material': resolveAliasPath(
-      `./packages/mui-icons-material/lib${useESModules ? '/esm' : ''}`,
-    ),
-    '@mui/lab': resolveAliasPath('./packages/mui-lab/src'),
-    '@mui/internal-markdown': resolveAliasPath('./packages/markdown'),
-    '@mui/styled-engine': resolveAliasPath('./packages/mui-styled-engine/src'),
-    '@mui/styled-engine-sc': resolveAliasPath('./packages/mui-styled-engine-sc/src'),
-    '@mui/styles': resolveAliasPath('./packages/mui-styles/src'),
-    '@mui/system': resolveAliasPath('./packages/mui-system/src'),
-    '@mui/private-theming': resolveAliasPath('./packages/mui-private-theming/src'),
-    '@mui/base': resolveAliasPath('./packages/mui-base/src'),
-    '@mui/utils': resolveAliasPath('./packages/mui-utils/src'),
-    '@mui/joy': resolveAliasPath('./packages/mui-joy/src'),
-    '@pigment-css/react': resolveAliasPath('./packages/pigment-css-react/src'),
-    '@mui/internal-docs-utils': resolveAliasPath('./packages-internal/docs-utils/src'),
+    '@stoked-ui/file-explorer': resolveAliasPath('./packages/sui-file-explorer'),
+    '@stoked-ui/internal-markdown': resolveAliasPath('./packages/markdown'),
+    '@stoked-ui/docs': resolveAliasPath('./packages/sui-docs/src'),
+    '@stoked-ui/internal-docs-utils': resolveAliasPath('./packages-internal/docs-utils/src'),
     docs: resolveAliasPath('./docs'),
     test: resolveAliasPath('./test'),
   };
-
   const presets = [
     [
       '@babel/preset-env',

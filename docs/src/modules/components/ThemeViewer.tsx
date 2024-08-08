@@ -5,7 +5,7 @@ import Box from '@mui/material/Box';
 import ExpandIcon from '@mui/icons-material/ExpandMore';
 import CollapseIcon from '@mui/icons-material/ChevronRight';
 import { TreeView } from '@mui/x-tree-view/TreeView';
-import { TreeItem as MuiTreeItem, treeItemClasses } from '@mui/x-tree-view/TreeItem';
+import { FileElement as MuiTreeItem, fileElementClasses } from '@mui/x-tree-view/FileElement';
 import { blue, blueDark } from '@mui/docs/branding';
 
 function getType(value: any) {
@@ -96,20 +96,20 @@ function ObjectEntryLabel(props: { objectKey: string; objectValue: any }) {
   );
 }
 
-const TreeItem = styled(MuiTreeItem)(({ theme }) => ({
-  [`& .${treeItemClasses.content}`]: {
+const FileElement = styled(MuiTreeItem)(({ theme }) => ({
+  [`& .${fileElementClasses.content}`]: {
     padding: 4,
     borderRadius: 8,
     '&:hover': {
       backgroundColor: alpha(blueDark[600], 0.2),
     },
     '&:focus': {
-      [`& .${treeItemClasses.content}`]: {
+      [`& .${fileElementClasses.content}`]: {
         backgroundColor: lighten(blue[900], 0.05),
         outline: `2px dashed ${lighten(blue[900], 0.3)}`,
       },
     },
-    [`& .${treeItemClasses.label}`]: {
+    [`& .${fileElementClasses.label}`]: {
       fontFamily: 'Menlo, Consolas, Droid Sans Mono, monospace',
       fontSize: theme.typography.pxToRem(13),
     },
@@ -141,12 +141,12 @@ function ObjectEntry(props: { nodeId: string; objectKey: string; objectValue: an
   }
 
   return (
-    <TreeItem
+    <FileElement
       nodeId={nodeId}
       label={<ObjectEntryLabel objectKey={objectKey} objectValue={objectValue} />}
     >
       {children}
-    </TreeItem>
+    </FileElement>
   );
 }
 

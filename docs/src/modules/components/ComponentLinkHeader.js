@@ -138,7 +138,7 @@ export default function ComponentLinkHeader(props) {
               size="small"
               variant="outlined"
               rel="nofollow"
-              href="https://mui.com/store/items/figma-react/?utm_source=docs&utm_medium=referral&utm_campaign=component-link-header"
+              href="https://stokedui.com/store/items/figma-react/?utm_source=docs&utm_medium=referral&utm_campaign=component-link-header"
               icon={<FigmaIcon />}
               data-ga-event-category="ComponentLinkHeader"
               data-ga-event-action="click"
@@ -156,7 +156,7 @@ export default function ComponentLinkHeader(props) {
                 size="small"
                 variant="outlined"
                 rel="nofollow"
-                href="https://mui.com/store/items/adobe-xd-react/?utm_source=docs&utm_medium=referral&utm_campaign=component-link-header"
+                href="https://stokedui.com/store/items/adobe-xd-react/?utm_source=docs&utm_medium=referral&utm_campaign=component-link-header"
                 icon={<AdobeXDIcon />}
                 data-ga-event-category="ComponentLinkHeader"
                 data-ga-event-action="click"
@@ -175,7 +175,7 @@ export default function ComponentLinkHeader(props) {
                 size="small"
                 variant="outlined"
                 rel="nofollow"
-                href="https://mui.com/store/items/sketch-react/?utm_source=docs&utm_medium=referral&utm_campaign=component-link-header"
+                href="https://stokedui.com/store/items/sketch-react/?utm_source=docs&utm_medium=referral&utm_campaign=component-link-header"
                 icon={<SketchIcon />}
                 data-ga-event-category="ComponentLinkHeader"
                 data-ga-event-action="click"

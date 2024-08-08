@@ -24,14 +24,14 @@ const Image = styled('img')(({ theme }) => ({
     height: 450 / ratio,
   },
   border: '6px solid',
-  borderColor: (theme.vars || theme).palette.grey[400],
+  borderColor: theme.palette.grey[400],
   borderRadius: theme.shape.borderRadius,
   objectFit: 'cover',
   transitionProperty: 'all',
   transitionDuration: '150ms',
   boxShadow: '0 4px 20px rgba(61, 71, 82, 0.2)',
   ...theme.applyDarkStyles({
-    borderColor: (theme.vars || theme).palette.grey[800],
+    borderColor: theme.palette.grey[800],
     boxShadow: '0 4px 20px rgba(0, 0, 0, 0.6)',
   }),
 }));
@@ -43,22 +43,22 @@ const Anchor = styled('a')(({ theme }) => [
     transition: 'all 120ms ease',
     borderRadius: '50%',
     border: '1px solid',
-    borderColor: (theme.vars || theme).palette.grey[200],
+    borderColor: theme.palette.grey[200],
     boxShadow: `0 2px 12px ${alpha(theme.palette.primary[200], 0.3)}`,
     backgroundColor: '#FFF',
     '&:hover, &:focus': {
-      borderColor: (theme.vars || theme).palette.primary[300],
+      borderColor: theme.palette.primary[300],
       boxShadow: `0 4px 20px ${alpha(theme.palette.primary[400], 0.3)}`,
-      backgroundColor: (theme.vars || theme).palette.primary[50],
+      backgroundColor: theme.palette.primary[50],
     },
   } as const,
   theme.applyDarkStyles({
     backgroundColor: alpha(theme.palette.primaryDark[900], 0.8),
-    borderColor: (theme.vars || theme).palette.primaryDark[600],
+    borderColor: theme.palette.primaryDark[600],
     boxShadow: `0 2px 12px ${alpha(theme.palette.primaryDark[800], 0.5)}`,
     '&:hover, &:focus': {
       backgroundColor: alpha(theme.palette.primary[900], 0.8),
-      borderColor: (theme.vars || theme).palette.primary[700],
+      borderColor: theme.palette.primary[700],
       boxShadow: `0 2px 16px 0 ${alpha(theme.palette.primary[800], 0.5)}`,
     },
   }),
@@ -72,15 +72,15 @@ const DesignToolLink = React.forwardRef<
   return (
     <Anchor
       ref={ref}
-      aria-label="Go to MUI Store"
+      aria-label="Go to SUI Store"
       href={
         {
           figma:
-            'https://mui.com/store/items/figma-react/?utm_source=marketing&utm_medium=referral&utm_campaign=home-products',
+            'https://stokedui.com/store/items/figma-react/?utm_source=marketing&utm_medium=referral&utm_campaign=home-products',
           sketch:
-            'https://mui.com/store/items/sketch-react/?utm_source=marketing&utm_medium=referral&utm_campaign=home-products',
+            'https://stokedui.com/store/items/sketch-react/?utm_source=marketing&utm_medium=referral&utm_campaign=home-products',
           adobexd:
-            'https://mui.com/store/items/adobe-xd-react/?utm_source=marketing&utm_medium=referral&utm_campaign=home-products',
+            'https://stokedui.com/store/items/adobe-xd-react/?utm_source=marketing&utm_medium=referral&utm_campaign=home-products',
         }[brand]
       }
       target="_blank"
@@ -268,18 +268,18 @@ export default function DesignKits() {
           width: '100%',
           height: '100%',
           background: `linear-gradient(to bottom, ${
-            (theme.vars || theme).palette.primary[50]
+            theme.palette.primary[50]
           } 0%, ${transparent} 30%, ${transparent} 70%, ${
-            (theme.vars || theme).palette.primary[50]
+            theme.palette.primary[50]
           } 100%)`,
           zIndex: 2,
           ...theme.applyDarkStyles({
             background: `linear-gradient(to bottom, ${
-              (theme.vars || theme).palette.primaryDark[900]
+              theme.palette.primaryDark[900]
             } 0%, ${alpha(theme.palette.primaryDark[900], 0)} 30%, ${alpha(
               theme.palette.primaryDark[900],
               0,
-            )} 70%, ${(theme.vars || theme).palette.primaryDark[900]} 100%)`,
+            )} 70%, ${theme.palette.primaryDark[900]} 100%)`,
           }),
         })}
       />
@@ -292,12 +292,12 @@ export default function DesignKits() {
           width: 400,
           height: '100%',
           background: `linear-gradient(to right, ${
-            (theme.vars || theme).palette.primary[50]
+            theme.palette.primary[50]
           }, ${transparent})`,
           zIndex: 2,
           ...theme.applyDarkStyles({
             background: `linear-gradient(to right, ${
-              (theme.vars || theme).palette.primaryDark[900]
+              theme.palette.primaryDark[900]
             }, ${alpha(theme.palette.primaryDark[900], 0)})`,
           }),
         })}

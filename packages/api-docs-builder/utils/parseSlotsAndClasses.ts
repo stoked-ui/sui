@@ -1,23 +1,17 @@
 import * as ts from 'typescript';
-import { ComponentClassDefinition } from '@mui/internal-docs-utils';
-import { renderMarkdown } from '@mui/internal-markdown';
+import { ComponentClassDefinition } from '@stoked-ui/internal-docs-utils';
+import { renderMarkdown } from '@stoked-ui/internal-markdown';
 import { getSymbolDescription, getSymbolJSDocTags } from '../buildApiUtils';
 import { TypeScriptProject } from './createTypeScriptProject';
 import { getPropsFromComponentNode } from './getPropsFromComponentNode';
 import resolveExportSpecifier from './resolveExportSpecifier';
 import { ProjectSettings } from '../ProjectSettings';
+import { Slot } from '../types/utils.types';
 
 interface ClassInfo {
   description: string;
   isDeprecated?: true;
   deprecationInfo?: string;
-}
-
-export interface Slot {
-  class: string | null;
-  name: string;
-  description: string;
-  default?: string;
 }
 
 /**

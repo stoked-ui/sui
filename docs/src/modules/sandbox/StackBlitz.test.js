@@ -21,7 +21,7 @@ describe('StackBlitz', () => {
     const { openSandbox, ...result } = StackBlitz.createReactApp({
       title: 'BasicButtons Material Demo',
       githubLocation:
-        'https://github.com/mui/material-ui/blob/v5.7.0/docs/data/material/components/buttons/BasicButtons.js',
+        'https://github.com/mui/material-ui/blob/v5.7.0/docs/data/stoked-ui/components/buttons/BasicButtons.js',
       codeVariant: 'JS',
       language: 'en',
       raw: testCase,
@@ -29,7 +29,7 @@ describe('StackBlitz', () => {
     expect(result).to.deep.equal({
       title: 'BasicButtons Material Demo',
       description:
-        'https://github.com/mui/material-ui/blob/v5.7.0/docs/data/material/components/buttons/BasicButtons.js',
+        'https://github.com/mui/material-ui/blob/v5.7.0/docs/data/stoked-ui/components/buttons/BasicButtons.js',
       files: {
         'index.html': `<!DOCTYPE html>
 <html lang="en">
@@ -98,7 +98,7 @@ ReactDOM.createRoot(document.querySelector("#root")).render(
     const { openSandbox, ...result } = StackBlitz.createReactApp({
       title: 'BasicButtons Material Demo',
       githubLocation:
-        'https://github.com/mui/material-ui/blob/v5.7.0/docs/data/material/components/buttons/BasicButtons.tsx',
+        'https://github.com/mui/material-ui/blob/v5.7.0/docs/data/stoked-ui/components/buttons/BasicButtons.tsx',
       codeVariant: 'TS',
       language: 'en',
       raw: testCase,
@@ -106,7 +106,7 @@ ReactDOM.createRoot(document.querySelector("#root")).render(
     expect(result).to.deep.equal({
       title: 'BasicButtons Material Demo',
       description:
-        'https://github.com/mui/material-ui/blob/v5.7.0/docs/data/material/components/buttons/BasicButtons.tsx',
+        'https://github.com/mui/material-ui/blob/v5.7.0/docs/data/stoked-ui/components/buttons/BasicButtons.tsx',
       files: {
         'index.html': `<!DOCTYPE html>
 <html lang="en">
@@ -204,7 +204,7 @@ ReactDOM.createRoot(document.querySelector("#root")!).render(
     const { openSandbox, ...result } = StackBlitz.createReactApp({
       title: 'BasicButtons Material Demo',
       githubLocation:
-        'https://github.com/mui/material-ui/blob/v5.7.0/docs/data/material/components/buttons/BasicButtons.js',
+        'https://github.com/mui/material-ui/blob/v5.7.0/docs/data/stoked-ui/components/buttons/BasicButtons.js',
       codeVariant: 'JS',
       language: 'en',
       raw: testCase,

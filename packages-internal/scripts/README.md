@@ -1,6 +1,6 @@
-# @mui/internal-scripts
+# @stoked-ui/internal-scripts
 
-This is that code infra scripts for the MUI organization repositories.
+This is that code infra scripts for the SUI organization repositories.
 It is not meant for general use.
 
 ## Scripts

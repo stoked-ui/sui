@@ -65,13 +65,6 @@ export default function MarkdownDocs(props) {
       title={localizedDoc.title}
       toc={localizedDoc.toc}
     >
-      {disableAd ? null : (
-        <BrandingProvider>
-          <AdGuest>
-            <Ad />
-          </AdGuest>
-        </BrandingProvider>
-      )}
       <CssVarsProvider>
         {isJoy && <JoyModeObserver mode={theme.palette.mode} />}
         {localizedDoc.rendered.map((renderedMarkdownOrDemo, index) => (

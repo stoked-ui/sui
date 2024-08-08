@@ -53,7 +53,7 @@ export default function OurValues() {
         overline="Our values"
         title={
           <Typography variant="h2">
-            The MUI <GradientText>team pact</GradientText>
+            The SUI <GradientText>team pact</GradientText>
           </Typography>
         }
         description="They explain the behaviors and mindsets we actively encourage, discourage, and why. They serve as a guide toward better decision-making, results, and experiences at work."
@@ -80,10 +80,10 @@ export default function OurValues() {
                 flexDirection: 'column',
                 alignItems: 'space-between',
                 gap: 1.5,
-                background: `${(theme.vars || theme).palette.gradients.linearSubtle}`,
+                background: `${theme.palette.gradients.linearSubtle}`,
                 ...theme.applyDarkStyles({
                   bgcolor: 'primaryDark.900',
-                  background: `${(theme.vars || theme).palette.gradients.linearSubtle}`,
+                  background: `${theme.palette.gradients.linearSubtle}`,
                   borderColor: 'primaryDark.700',
                 }),
               })}
@@ -107,15 +107,15 @@ export default function OurValues() {
                   variant="body2"
                   sx={(theme) => ({
                     mb: 0.5,
-                    color: (theme.vars || theme).palette.text.primary,
+                    color: theme.palette.text.primary,
                     '&::first-letter': {
                       mr: 0.1,
                       fontSize: theme.typography.pxToRem(16),
-                      color: (theme.vars || theme).palette.primary.main,
+                      color: theme.palette.primary.main,
                     },
                     ...theme.applyDarkStyles({
                       '&::first-letter': {
-                        color: (theme.vars || theme).palette.primary[400],
+                        color: theme.palette.primary[400],
                       },
                     }),
                   })}

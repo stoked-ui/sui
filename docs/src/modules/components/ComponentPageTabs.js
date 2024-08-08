@@ -19,17 +19,17 @@ const StyledTab = styled(Tab)(({ theme }) => ({
   minWidth: 0,
   borderRadius: '8px',
   '&:hover': {
-    background: (theme.vars || theme).palette.grey[50],
-    borderColor: (theme.vars || theme).palette.divider,
-    color: (theme.vars || theme).palette.text.primary,
+    background: theme.palette.grey[50],
+    borderColor: theme.palette.divider,
+    color: theme.palette.text.primary,
   },
   ...theme.applyDarkStyles({
     '&:hover': {
-      borderColor: (theme.vars || theme).palette.divider,
-      background: (theme.vars || theme).palette.primaryDark[700],
+      borderColor: theme.palette.divider,
+      background: theme.palette.primaryDark[700],
     },
     '&.Mui-selected': {
-      color: (theme.vars || theme).palette.primary[300],
+      color: theme.palette.primary[300],
     },
   }),
 }));

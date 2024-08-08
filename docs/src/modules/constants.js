@@ -4,7 +4,7 @@ const CODE_VARIANTS = {
 };
 
 const CODE_STYLING = {
-  SYSTEM: 'MUI System',
+  SYSTEM: 'SUI System',
   TAILWIND: 'Tailwind',
   CSS: 'CSS',
 };

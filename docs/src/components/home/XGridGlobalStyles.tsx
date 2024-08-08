@@ -18,7 +18,7 @@ export default function XGridGlobalStyles({
               border: 'none',
               fontSize: '0.75rem',
               borderRadius: '0px',
-              '--DataGrid-rowBorderColor': (theme.vars || theme).palette.grey[200],
+              '--DataGrid-rowBorderColor': theme.palette.grey[200],
               // toolbar
               // style GridToolbar
               '& .MuiDataGrid-toolbarContainer': {
@@ -28,7 +28,7 @@ export default function XGridGlobalStyles({
                   flexShrink: 0,
                   border: '1px solid',
                   padding: theme.spacing(0, 1),
-                  borderColor: (theme.vars || theme).palette.divider,
+                  borderColor: theme.palette.divider,
                   '& svg': {
                     fontSize: '1.125rem',
                   },
@@ -38,14 +38,14 @@ export default function XGridGlobalStyles({
                 },
               },
               '& .MuiCheckbox-root': {
-                color: (theme.vars || theme).palette.grey[600],
+                color: theme.palette.grey[600],
                 padding: theme.spacing(0.5),
                 '& > svg': {
                   fontSize: '1.2rem',
                 },
               },
               '& .MuiIconButton-root:not(.Mui-disabled)': {
-                color: (theme.vars || theme).palette.primary.main,
+                color: theme.palette.primary.main,
                 opacity: 1,
               },
               // table head elements
@@ -53,16 +53,16 @@ export default function XGridGlobalStyles({
                 fontSize: '1rem',
               },
               '& .MuiDataGrid-columnSeparator': {
-                color: (theme.vars || theme).palette.grey[200],
+                color: theme.palette.grey[200],
                 '&:hover': {
-                  color: (theme.vars || theme).palette.grey[800],
+                  color: theme.palette.grey[800],
                 },
                 ...(!pro && { display: 'none' }),
               },
               // -------------------------------
               // table body elements
               '& .MuiDataGrid-virtualScroller': {
-                backgroundColor: (theme.vars || theme).palette.grey[50],
+                backgroundColor: theme.palette.grey[50],
               },
               '& .MuiDataGrid-editInputCell': {
                 fontSize: '0.75rem',
@@ -84,13 +84,13 @@ export default function XGridGlobalStyles({
                 marginRight: theme.spacing(1),
                 '& .MuiIconButton-root': {
                   '&:not([disabled])': {
-                    color: (theme.vars || theme).palette.primary.main,
-                    borderColor: (theme.vars || theme).palette.grey[400],
+                    color: theme.palette.primary.main,
+                    borderColor: theme.palette.grey[400],
                   },
-                  borderRadius: (theme.vars || theme).shape.borderRadius,
+                  borderRadius: theme.shape.borderRadius,
                   padding: theme.spacing(0.5),
                   border: '1px solid',
-                  borderColor: (theme.vars || theme).palette.grey[200],
+                  borderColor: theme.palette.grey[200],
                   '&:last-of-type': {
                     marginLeft: theme.spacing(1),
                   },
@@ -115,33 +115,33 @@ export default function XGridGlobalStyles({
               '--DataGrid-rowBorderColor': alpha(theme.palette.primaryDark[500], 0.5),
               '& .MuiDataGrid-toolbarContainer': {
                 '& > button': {
-                  borderColor: (theme.vars || theme).palette.divider,
+                  borderColor: theme.palette.divider,
                 },
               },
               '& .MuiCheckbox-root': {
-                color: (theme.vars || theme).palette.primary[300],
+                color: theme.palette.primary[300],
               },
               '& .MuiIconButton-root:not(.Mui-disabled)': {
-                color: (theme.vars || theme).palette.primary[300],
+                color: theme.palette.primary[300],
               },
               '& .MuiDataGrid-columnSeparator': {
-                color: (theme.vars || theme).palette.primaryDark[400],
+                color: theme.palette.primaryDark[400],
                 '&:hover': {
-                  color: (theme.vars || theme).palette.primaryDark[100],
+                  color: theme.palette.primaryDark[100],
                 },
               },
               // -------------------------------
               // table body elements
               '& .MuiDataGrid-virtualScroller': {
-                backgroundColor: (theme.vars || theme).palette.primaryDark[900],
+                backgroundColor: theme.palette.primaryDark[900],
               },
               '& .MuiTablePagination-root': {
                 '& .MuiIconButton-root': {
                   '&:not([disabled])': {
-                    color: (theme.vars || theme).palette.primaryDark[100],
-                    borderColor: (theme.vars || theme).palette.primaryDark[400],
+                    color: theme.palette.primaryDark[100],
+                    borderColor: theme.palette.primaryDark[400],
                   },
-                  borderColor: (theme.vars || theme).palette.primaryDark[600],
+                  borderColor: theme.palette.primaryDark[600],
                 },
               },
             },

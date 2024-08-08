@@ -53,7 +53,7 @@ function escape(html, encode) {
 }
 
 function checkUrlHealth(href, linkText, context) {
-  const url = new URL(href, 'https://mui.com/');
+  const url = new URL(href, 'https://stokedui.com/');
 
   if (/\/{2,}$/.test(url.pathname)) {
     throw new Error(
@@ -67,17 +67,17 @@ function checkUrlHealth(href, linkText, context) {
     );
   }
 
-  // External links to MUI, ignore
+  // External links to SUI, ignore
   if (url.host !== 'mui.com') {
     return;
   }
 
   /**
    * Break for links like:
-   * /material-ui/customization/theming
+   * /stoked-ui/customization/theming
    *
    * It needs to be:
-   * /material-ui/customization/theming/
+   * /stoked-ui/customization/theming/
    */
   if (url.pathname[url.pathname.length - 1] !== '/') {
     throw new Error(
@@ -95,10 +95,10 @@ function checkUrlHealth(href, linkText, context) {
   if (href[0] !== '#' && !(href.startsWith('https://') || href.startsWith('http://'))) {
     /**
      * Break for links like:
-     * material-ui/customization/theming/
+     * stoked-ui/customization/theming/
      *
      * It needs to be:
-     * /material-ui/customization/theming/
+     * /stoked-ui/customization/theming/
      */
     if (href[0] !== '/') {
       throw new Error(
@@ -395,9 +395,9 @@ function createRender(context) {
       }
 
       // This logic turns link like:
-      // https://github.com/mui/material-ui/blob/-/packages/mui-joy/src/styles/components.d.ts
+      // https://github.com/stoked-ui/stoked-ui/blob/-/packages/mui-joy/src/styles/components.d.ts
       // into a permalink:
-      // https://github.com/mui/material-ui/blob/v5.11.15/packages/mui-joy/src/styles/components.d.ts
+      // https://github.com/stoked-ui/stoked-ui/blob/v5.11.15/packages/mui-joy/src/styles/components.d.ts
       if (finalHref.startsWith(`${options.env.SOURCE_CODE_REPO}/blob/-/`)) {
         finalHref = finalHref.replace(
           `${options.env.SOURCE_CODE_REPO}/blob/-/`,

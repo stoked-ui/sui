@@ -41,7 +41,7 @@ export default function ThemeToggleButton() {
         ]}
       >
         <ToggleButton value="joy">Joy UI</ToggleButton>
-        <ToggleButton value="material">Material UI</ToggleButton>
+        <ToggleButton value="material">Stoked UI</ToggleButton>
         <ToggleButton value="base">Base UI</ToggleButton>
       </ToggleButtonGroup>
     </Fade>

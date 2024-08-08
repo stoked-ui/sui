@@ -133,7 +133,7 @@ module.exports = [
   { pathname: '/api-docs/toggle-button-group' },
   { pathname: '/api-docs/toolbar' },
   { pathname: '/api-docs/tooltip' },
-  { pathname: '/api-docs/tree-item' },
+  { pathname: '/api-docs/file-element' },
   { pathname: '/api-docs/tree-view' },
   { pathname: '/api-docs/typography' },
   { pathname: '/api-docs/zoom' },

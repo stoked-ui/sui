@@ -39,14 +39,14 @@ const faqData = [
     detail: (
       <React.Fragment>
         We&apos;ll send you an email when a new release is available. You can access the item on the{' '}
-        <InternalLink href="https://mui.com/store/account/downloads/">download</InternalLink> page
+        <InternalLink href="https://stokedui.com/store/account/downloads/">download</InternalLink> page
         of your store account and find a detailed description of the changes under
         the&quot;Changelog&quot; tab on this page.
       </React.Fragment>
     ),
   },
   {
-    summary: 'Is the Material UI Sync plugin paid?',
+    summary: 'Is the Stoked UI Sync plugin paid?',
     detail: (
       <React.Fragment>
         No. We&apos;re still in alpha mode and rolling out more features progressively, as per your

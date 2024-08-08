@@ -32,6 +32,7 @@ export interface CreateTypeScriptProjectOptions {
   files?: string[];
 }
 
+
 export const createTypeScriptProject = (
   options: CreateTypeScriptProjectOptions,
 ): TypeScriptProject => {
@@ -78,15 +79,12 @@ export const createTypeScriptProject = (
   const checker = program.getTypeChecker();
 
   let exports: TypeScriptProject['exports'];
-  if (inputEntryPointPath) {
-    const entryPointPath = path.join(rootPath, inputEntryPointPath);
-    const sourceFile = program.getSourceFile(entryPointPath);
 
-    exports = Object.fromEntries(
-      checker.getExportsOfModule(checker.getSymbolAtLocation(sourceFile!)!).map((symbol) => {
-        return [symbol.name, symbol];
-      }),
-    );
+  const entryPointPath = inputEntryPointPath ? path.join(rootPath, inputEntryPointPath) : null;
+  if (entryPointPath) {
+    const sourceFile = program.getSourceFile(entryPointPath);
+    const locationSymbols = checker.getSymbolAtLocation(sourceFile!);
+    exports = locationSymbols ? Object.fromEntries(checker.getExportsOfModule(locationSymbols!).map((symbol) =>  [symbol.name, symbol])) : {};
   } else {
     exports = {};
   }

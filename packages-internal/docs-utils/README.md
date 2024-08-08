@@ -1,6 +1,6 @@
-# @mui/internal-docs-utils
+# @stoked-ui/internal-docs-utils
 
-This package contains utilities shared between MUI docs generation scripts.
+This package contains utilities shared between SUI docs generation scripts.
 This is an internal package not meant for general use.
 
 ## Release

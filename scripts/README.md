@@ -12,9 +12,9 @@ A typical release goes like this:
    ```text
    //registry.npmjs.org/:_authToken=npm_000000000000000000000000000000000000
    ```
-3. Make sure you have added the `material-ui-docs` remote to deploy the documentation:
+3. Make sure you have added the `stoked-ui-docs` remote to deploy the documentation:
    ```bash
-   git remote add material-ui-docs https://github.com/mui/material-ui-docs.git
+   git remote add stoked-ui-docs https://github.com/stoked-ui/stoked-ui-docs.git
    ```
 4. Generate a GitHub Token at https://github.com/settings/personal-access-tokens/new and add it to your shell rc script (either `.bashrc` or `.zshrc`) as `GITHUB_TOKEN`.
 
@@ -27,7 +27,7 @@ The following steps must be proposed as a pull request.
    `pnpm release:changelog --help` for more information. If your GitHub token is not in your env, pass it as `--githubToken <my-token>` to the above command.
 
 2. Clean the generated changelog:
-   1. Match the format of https://github.com/mui/material-ui/releases.
+   1. Match the format of https://github.com/stoked-ui/stoked-ui/releases.
    2. Change the packages names casing to be lowercase if applicable
 3. Update the root `/package.json`'s version
 4. Run `pnpm release:version`. Keep the package versions of stable public packages the same as the root `package.json` version.
@@ -43,7 +43,7 @@ The following steps must be proposed as a pull request.
 
 ### Documentation
 
-`pnpm docs:deploy` to deploy the documentation (it lives at https://material-ui.netlify.app/) with the latest changes.
+`pnpm docs:deploy` to deploy the documentation (it lives at https://stoked-ui.netlify.app/) with the latest changes.
 Force push if necessary.
 
 ### Announce
@@ -59,16 +59,16 @@ urgent docs updates).
 
 To do so, follow these steps:
 
-1. Add the `material-ui-docs` remote if you haven't done this already:
+1. Add the `stoked-ui-docs` remote if you haven't done this already:
 
    ```bash
-   git remote add material-ui-docs https://github.com/mui/material-ui-docs.git
+   git remote add stoked-ui-docs https://github.com/stoked-ui/stoked-ui-docs.git
    ```
 
-2. Switch to the `latest` branch from `material-ui-docs` remote:
+2. Switch to the `latest` branch from `stoked-ui-docs` remote:
 
    ```bash
-   git switch --detach material-ui-docs/latest
+   git switch --detach stoked-ui-docs/latest
    ```
 
 3. Cherry-pick the commit(s) that you want to include in the new deployment:
@@ -81,10 +81,10 @@ To do so, follow these steps:
 
    In case of conflicts you will need to resolve them and commit the changes manually.
 
-4. Push the changes to the `material-ui-docs` remote:
+4. Push the changes to the `stoked-ui-docs` remote:
 
    ```bash
-   git push material-ui-docs HEAD:latest
+   git push stoked-ui-docs HEAD:latest
    ```
 
 5. Switch from detached `HEAD` back to your last checked out branch:

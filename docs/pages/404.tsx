@@ -10,7 +10,7 @@ import NotFoundHero from 'docs/src/components/NotFoundHero';
 export default function Custom404() {
   return (
     <BrandingCssVarsProvider>
-      <Head title="404: This page could not be found - MUI" description="" />
+      <Head title="404: This page could not be found - SUI" description="" />
       <AppHeaderBanner />
       <AppHeader />
       <main id="main-content">

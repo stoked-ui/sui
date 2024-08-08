@@ -34,11 +34,11 @@ function Widget({
         borderRadius: '12px',
         border: '1px solid',
         borderColor: 'grey.100',
-        background: `${(theme.vars || theme).palette.gradients.linearSubtle}`,
+        background: `${theme.palette.gradients.linearSubtle}`,
         ...theme.applyDarkStyles({
           bgcolor: 'primaryDark.900',
           borderColor: 'primaryDark.700',
-          background: `${(theme.vars || theme).palette.gradients.linearSubtle}`,
+          background: `${theme.palette.gradients.linearSubtle}`,
         }),
       })}
     >
@@ -66,7 +66,7 @@ export default function HowToSupport() {
         title={
           <Typography variant="h2" sx={{ mb: 4 }}>
             Learn how to support
-            <br /> <GradientText>MUI&apos;s growth</GradientText>
+            <br /> <GradientText>SUI&apos;s growth</GradientText>
           </Typography>
         }
         description=""
@@ -102,7 +102,7 @@ export default function HowToSupport() {
             title="Join the community"
           >
             <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-              Become a member of a huge community of developers supporting MUI. You can:
+              Become a member of a huge community of developers supporting SUI. You can:
             </Typography>
             <Box
               component="ul"
@@ -163,13 +163,13 @@ export default function HowToSupport() {
             title="Support us financially"
           >
             <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-              If you use MUI in a commercial project and would like to support its continued
+              If you use SUI in a commercial project and would like to support its continued
               development by becoming a Sponsor, or in a side or hobby project and would like to
               become a Backer, you can do so through {'Open Collective'}.
               <br />
               <br />
               All funds donated are managed transparently, and Sponsors receive recognition in the
-              README and on the MUI home page.
+              README and on the SUI home page.
             </Typography>
             <Button
               component="a"

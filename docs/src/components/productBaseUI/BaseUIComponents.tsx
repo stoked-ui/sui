@@ -83,7 +83,7 @@ export default function BaseUIComponents() {
                 <br /> <GradientText>CSS adventure</GradientText>
               </Typography>
             }
-            description="Base UI's skeletal components give you a sturdy foundation to apply custom styles with ease. With no defaults to override, you're free to start from scratch using vanilla CSS, Tailwind CSS, MUI System, or any other framework you prefer."
+            description="Base UI's skeletal components give you a sturdy foundation to apply custom styles with ease. With no defaults to override, you're free to start from scratch using vanilla CSS, Tailwind CSS, SUI System, or any other framework you prefer."
           />
           <Group desktopColumns={2} sx={{ m: -2, p: 2 }}>
             {DEMOS.map((name) => (
@@ -205,7 +205,7 @@ export default function BaseUIComponents() {
                   right: 0,
                   zIndex: 10,
                   background: `linear-gradient(to bottom, ${
-                    (theme.vars || theme).palette.common.black
+                    theme.palette.common.black
                   } 30%, transparent)`,
                 })}
               >
@@ -216,7 +216,7 @@ export default function BaseUIComponents() {
                     setStyling('system');
                   }}
                 >
-                  MUI System
+                  SUI System
                 </StyledButton>
                 <StyledButton
                   size="small"

@@ -1,4 +1,4 @@
-// eslint-disable-next-line material-ui/straight-quotes
+// eslint-disable-next-line stoked-ui/straight-quotes
 const nonStraightQuotes = /[‘’“”]/;
 
 module.exports = {

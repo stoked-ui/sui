@@ -34,34 +34,9 @@ export default function getProductInfoFromUrl(asPath: string): MuiProductInfo {
   let productCategoryId = 'null';
   let productId = 'null';
 
-  if (
-    firstFolder === 'material-ui' ||
-    firstFolder === 'joy-ui' ||
-    firstFolder === 'base-ui' ||
-    firstFolder === 'system'
-  ) {
+  if (['stoked-ui', 'file-explorer', 'media-selector'].indexOf(firstFolder) !== -1) {
     productCategoryId = 'core';
     productId = firstFolder;
-  }
-
-  if (firstFolder === 'x') {
-    productCategoryId = 'x';
-    productId = `x-${asPathWithoutLang.replace('/x/react-', '').replace(/\/.*/, '')}`;
-
-    // No match, give up on it.
-    if (productId === 'x-') {
-      productId = 'null';
-    }
-  }
-
-  if (firstFolder === 'toolpad') {
-    productCategoryId = 'toolpad';
-    const secondFolder = asPathWithoutLang.replace(/^\/+[^/]+\/([^/]+)\/.*/, '$1');
-    if (secondFolder === 'studio') {
-      productId = 'toolpad-studio';
-    } else {
-      productId = 'toolpad-core';
-    }
   }
 
   if (firstFolder === 'docs') {

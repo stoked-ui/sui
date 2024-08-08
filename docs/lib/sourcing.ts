@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { getHeaders } from '@mui/internal-markdown';
+import { getHeaders } from '@stoked-ui/internal-markdown';
 
 const blogDir = path.join(process.cwd(), 'pages/blog');
 
@@ -38,12 +38,14 @@ const ALLOWED_TAGS = [
   'Guide',
   'Product',
   // Product tags
+  'Stoked UI',
+  'MUI X',
   'Material UI',
   'Base UI',
   'Pigment CSS',
   'Joy UI',
-  'MUI X',
-  'MUI System',
+  'SUI X',
+  'SUI System',
   'Toolpad',
 ];
 

@@ -51,21 +51,21 @@ export default function MaterialDesignKits({ gradient }: MaterialDesignKitsProps
                 Enhance your <GradientText>design workflow</GradientText>
               </Typography>
             }
-            description="Reach out for the Figma Design Kit and the Sync plugin to bridge the gap between development and design when using Material UI."
+            description="Reach out for the Figma Design Kit and the Sync plugin to bridge the gap between development and design when using Stoked UI."
           />
           <Group sx={{ m: -2, p: 2 }}>
             <Highlighter disableBorder selected={customized} onClick={() => setCustomized(true)}>
               <Item
                 icon={<DrawRoundedIcon color="primary" />}
                 title="Design Kit"
-                description="Get many Material UI components with states, variations, colors, typography, and icons on your preferred design tool."
+                description="Get many Stoked UI components with states, variations, colors, typography, and icons on your preferred design tool."
               />
             </Highlighter>
             <Highlighter disableBorder selected={!customized} onClick={() => setCustomized(false)}>
               <Item
                 icon={<ExtensionRoundedIcon color="primary" />}
                 title="Sync plugin"
-                description="Quickly generate a Material UI theme file with token and component customizations done on Figma."
+                description="Quickly generate a Stoked UI theme file with token and component customizations done on Figma."
               />
             </Highlighter>
           </Group>
@@ -145,7 +145,7 @@ export default function MaterialDesignKits({ gradient }: MaterialDesignKitsProps
                 >
                   <Image
                     src="/static/branding/design-kits/sync-base2-light.png"
-                    alt="A bunch of customized Material UI buttons in the Figma Design Kit."
+                    alt="A bunch of customized Stoked UI buttons in the Figma Design Kit."
                     loading="lazy"
                     sx={(theme) =>
                       theme.applyDarkStyles({
@@ -155,7 +155,7 @@ export default function MaterialDesignKits({ gradient }: MaterialDesignKitsProps
                   />
                   <Image
                     src="/static/branding/design-kits/material-sync-light.png"
-                    alt="The Material UI Sync plugin running and showing code for customized buttons."
+                    alt="The Stoked UI Sync plugin running and showing code for customized buttons."
                     loading="lazy"
                     sx={(theme) =>
                       theme.applyDarkStyles({
@@ -171,7 +171,7 @@ export default function MaterialDesignKits({ gradient }: MaterialDesignKitsProps
             ) : (
               <Frame.Info data-mui-color-scheme="dark">
                 <Typography variant="body2" fontWeight="bold" gutterBottom>
-                  Get the beta version of Material UI Sync now!
+                  Get the beta version of Stoked UI Sync now!
                 </Typography>
                 <Typography variant="body2" color="text.secondary" mb={2}>
                   There&apos;s still a lot to do, and we&apos;re looking forward to hearing from all

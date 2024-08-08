@@ -1,0 +1,81 @@
+{
+  "name": "@stoked-ui/media-selector",
+  "author": "Brian Stoker",
+  "private": false,
+  "version": "0.0.1-alpha.0",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "files": [
+    "build"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stoked-ui/media-selector"
+  },
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "pnpm ffmpeg && pnpm build:all",
+    "typescript": "pnpm build",
+    "copyToDocs": "cp -r ./dist/assets ../../docs/",
+    "ffmpeg": "mkdir -p ./public/lib/ffmpeg/core/dist && cp ./node_modules/@ffmpeg/core-mt/dist/esm/* ./public/lib/ffmpeg/core/dist && mkdir -p ./build/public/lib/ffmpeg/core/dist && cp ./public/lib/ffmpeg/core/dist/* ./build/public/lib/ffmpeg/core/dist",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview",
+    "build:all": "pnpm build:modern && pnpm build:node && pnpm build:stable && pnpm build:types && pnpm build:copy-files",
+    "build:modern": "node ../../scripts/build.mjs modern",
+    "build:node": "node ../../scripts/build.mjs node",
+    "build:stable": "node ../../scripts/build.mjs stable",
+    "build:copy-files": "node ../../scripts/copyFiles.mjs",
+    "build:types": "node ../../scripts/buildTypes.mjs",
+    "prebuild": "rimraf build tsconfig.build.tsbuildinfo"
+  },
+  "peerDependencies": {
+    "@ffmpeg/ffmpeg": "^0.12.10",
+    "@ffmpeg/util": "^0.12.1",
+    "@ffmpeg/core-mt": "^0.12.6",
+    "@mui/material": "^5.15.21",
+    "react": "18.3.1",
+    "react-dom": "^18.2.0"
+  },
+  "peerDependenciesMeta": {
+    "@ffmpeg/core-mt": {
+      "optional": true
+    },
+    "@ffmpeg/ffmpeg": {
+      "optionl": true
+    },
+    "@ffmpeg/util": {
+      "optionl": true
+    }
+  },
+  "devDependencies": {
+    "@babel/runtime": "^7.24.7",
+    "@types/node": "^18.19.39",
+    "@types/prop-types": "^15.7.3",
+    "@types/randombytes": "^2.0.3",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.2.19",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "eslint": "^8.57.0",
+    "eslint-plugin-react-hooks": "^4.6.2",
+    "eslint-plugin-react-refresh": "^0.4.7",
+    "react": "18.3.1",
+    "react-dom": "^18.2.0",
+    "typescript": "5.4.5",
+    "vite": "5.3.1",
+    "vite-plugin-dts": "^3.9.1",
+    "vite-plugin-lib-inject-css": "^2.1.1"
+  },
+  "dependencies": {
+    "file-selector": "^0.6.0",
+    "glob": "^10.4.2",
+    "mime": "^4.0.3",
+    "mui-file-input": "^4.0.4",
+    "prop-types": "^15.8.1",
+    "randombytes": "^2.1.0"
+  }
+}

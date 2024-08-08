@@ -22,7 +22,7 @@ function formatVersion(version) {
 }
 
 async function getBranches() {
-  const result = await fetch('https://api.github.com/repos/mui/material-ui-docs/branches', {
+  const result = await fetch('https://api.github.com/repos/stokedconsulting/stokedui-mono/branches', {
     headers: {
       Authorization: process.env.GITHUB_AUTH,
     },
@@ -37,44 +37,52 @@ async function getBranches() {
 }
 
 Page.getInitialProps = async () => {
-  const FILTERED_BRANCHES = ['latest', 'l10n', 'next', 'migration', 'material-ui.com'];
+  try {
+    const FILTERED_BRANCHES = ['latest', 'l10n', 'next', 'migration', 'material-ui.com'];
 
-  const branches = await getBranches();
-  /**
-   * @type {import('docs/src/pages/versions/VersionsContext').VersionsContextValue}
-   */
-  const versions = [];
-  branches.forEach((branch) => {
-    if (FILTERED_BRANCHES.indexOf(branch.name) === -1) {
-      const version = branch.name;
-      versions.push({
-        version,
-        // Replace dot with dashes for Netlify branch subdomains
-        url: `https://${version.replace(/\./g, '-')}.mui.com`,
+    const branches = await getBranches();
+    /**
+     * @type {import('docs/src/pages/versions/VersionsContext').VersionsContextValue}
+     */
+    const versions = [];
+    if (branches.length) {
+      branches.forEach((branch) => {
+        if (FILTERED_BRANCHES.indexOf(branch?.name) === -1) {
+          const version = branch?.name;
+          versions.push({
+            version,
+            // Replace dot with dashes for Netlify branch subdomains
+            url: `https://${version.replace(/\./g, '-')}.mui.com`,
+          });
+        }
       });
     }
-  });
-  // Current version.
-  versions.push({
-    version: `v${process.env.LIB_VERSION}`,
-    url: 'https://mui.com',
-  });
-  // Legacy documentation.
-  versions.push({
-    version: 'v0',
-    url: 'https://v0.mui.com',
-  });
-  versions.sort((a, b) => formatVersion(b.version).localeCompare(formatVersion(a.version)));
+    // Current version.
 
-  if (
-    branches.find((branch) => branch.name === 'next') &&
-    !versions.find((version) => /beta|alpha/.test(version.version))
-  ) {
-    versions.unshift({
-      version: `v${Number(versions[0].version[1]) + 1} pre-release`,
-      url: 'https://next.mui.com',
+    versions.push(
+      {
+        version: `v${process.env.LIB_VERSION}`,
+        url: 'https://stokedui.com',
+      });
+    // Legacy documentation.
+    versions.push({
+      version: 'v0',
+      url: 'https://v0.mui.com',
     });
-  }
+    versions.sort((a, b) => formatVersion(b.version).localeCompare(formatVersion(a.version)));
+    if (
+      branches.length > 0 && branches.find((branch) => branch?.name === 'next') &&
+      !versions.find((version) => /beta|alpha/.test(version.version))
+    ) {
+      versions.unshift({
+        version: `v${Number(versions[0].version[1]) + 1} pre-release`,
+        url: 'https://next.mui.com',
+      });
+    }
 
-  return { versions: sortedUniqBy(versions, 'version') };
+    return {versions: sortedUniqBy(versions, 'version')};
+  } catch (ex) {
+    console.error(`VERSIONS Error: ${ex.message}`);
+  }
+  return {versions: []};
 };

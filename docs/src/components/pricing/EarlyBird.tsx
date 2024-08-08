@@ -23,7 +23,7 @@ export default function EarlyBird() {
           px: 2,
           py: 3,
           background: `linear-gradient(180deg, ${alpha(theme.palette.primary[50], 0.2)}  50%, 
-          ${(theme.vars || theme).palette.primary[50]} 100%)
+          ${theme.palette.primary[50]} 100%)
           `,
           border: '1px solid',
           borderColor: 'grey.100',
@@ -50,7 +50,7 @@ export default function EarlyBird() {
             🐦&nbsp;&nbsp;Early bird special!
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 700 }}>
-            Buy now at a reduced price (~25% off), and get early access to MUI X Premium, with the
+            Buy now at a reduced price (~25% off), and get early access to SUI X Premium, with the
             added opportunity to influence its development. The early bird special is available for
             a limited time, so don&apos;t miss this opportunity!
           </Typography>
@@ -58,7 +58,7 @@ export default function EarlyBird() {
         <Button
           component={Link}
           noLinkStyle
-          href="https://mui.com/store/items/mui-x-premium/"
+          href="https://stokedui.com/store/items/mui-x-premium/"
           variant="contained"
           fullWidth
           endIcon={<KeyboardArrowRightRounded />}

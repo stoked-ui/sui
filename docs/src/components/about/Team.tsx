@@ -312,7 +312,7 @@ const emeriti = [
     name: 'Dmitriy Kovalenko',
     github: 'dmtrKovalenko',
     twitter: 'goose_plus_plus',
-    title: 'MUI X Date Pickers',
+    title: 'SUI X Date Pickers',
     location: 'Kharkiv, Ukraine',
     locationCountry: 'ua',
     src: 'https://avatars.githubusercontent.com/u/16926049',
@@ -346,7 +346,7 @@ export default function Team() {
                 Meet the <GradientText>MUIers</GradientText>
               </Typography>
             }
-            description="Contributing from all corners of the world, MUI is a global, fully-remote team & community."
+            description="Contributing from all corners of the world, SUI is a global, fully-remote team & community."
           />
           <Button
             component={Link}
@@ -385,7 +385,7 @@ export default function Team() {
           </Typography>
           <Typography color="text.secondary" sx={{ maxWidth: { md: 500 } }}>
             Special members of the community deserve a shout-out for their ever-lasting impact on
-            MUI&apos;s products.
+            SUI&apos;s products.
           </Typography>
           <Grid container spacing={2} mt={2}>
             {contributors.map((profile) => (

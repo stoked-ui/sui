@@ -8,7 +8,7 @@
 
 _Jul 27, 2021_
 
-### `@material-ui/core@4.12.3`
+### `@stoked-ui/core@4.12.3`
 
 - <!-- 2 --> [AccordionSummary] Fix false-positive propType warning with `disableGeneration` (#27385) @eps1lon
 - <!-- 7 --> [ImageList] Fix deprecation warnings (#27502) @mnajdova
@@ -32,7 +32,7 @@ All contributors of this release in alphabetical order: @eps1lon, @mnajdova, @Hu
 
 _Jul 19, 2021_
 
-### `@material-ui/core@4.12.2`
+### `@stoked-ui/core@4.12.2`
 
 - <!-- 09 --> [Accordion, Collapse] Fix failed proptype error (#27307) @serenalin121
 - <!-- 12 --> [AccordionSummary] Ensure backwards compatible deprecation of classes.focused (#27351) @eps1lon
@@ -68,7 +68,7 @@ _July 6, 2021_
 
 A big thanks to the 12 contributors who made this release possible. It includes deprecations that should help developers to have an easier adoption of v5.
 
-### @material-ui/core@4.12.0
+### @stoked-ui/core@4.12.0
 
 - [Accordion] Deprecate classes.focused (#24083) @oliviertassinari
 - [Avatar] Change default variant and adjust deprecation message (#25549) @michal-perlakowski
@@ -99,7 +99,7 @@ A big thanks to the 12 contributors who made this release possible. It includes 
 - [theme] Add warning for theme.typography.round deprecation (#25916) @m4theushw
 - [theme] Add warning for theme.breakpoints.width deprecation (#25993) @m4theushw
 
-### @material-ui/system@4.12.0
+### @stoked-ui/system@4.12.0
 
 - [Box] Deprecate `css` prop in favor of `sx` prop (#23480) @mnajdova
 
@@ -127,10 +127,10 @@ _Apr 27, 2021_
 
 A big thanks to the 6 contributors who made this release possible. Here are some highlights ✨:
 
-We fixed an issue related to some packages using incompatible versions of `@material-ui/types`. This affected `@material-ui/core`, `@material-ui/lab`, and `@material-ui/styles`
-`@material-ui/types@5.1.7 accidentally included a breaking change.
+We fixed an issue related to some packages using incompatible versions of `@stoked-ui/types`. This affected `@stoked-ui/core`, `@stoked-ui/lab`, and `@stoked-ui/styles`
+`@stoked-ui/types@5.1.7 accidentally included a breaking change.
 
-### @material-ui/core@4.11.4
+### @stoked-ui/core@4.11.4
 
 - <!-- 13 --> [Avatar] Remove circular variant deprecation (#25543) @michal-perlakowski
 - <!-- 22 --> [types] Ensure Omit type exists (#25978) @eps1lon
@@ -168,11 +168,11 @@ All contributors of this release in alphabetical order: @DanailH, @dtassone, @ep
 This release is intended to help prepare the migration to Material UI v5 ⏫:
 
 - 📚 Start to add deprecations in anticipation of v5. We plan to add a deprecation for any breaking change in v5 that allows it. Each warning comes with a simple message that explains how to handle the deprecation. If no warnings are reported in the console, you are set for this first batch.
-  Please report issues with the deprecations on [#22074](https://github.com/mui/material-ui/issues/22074) (wrong instructions, false-positives, floods in the console, etc.).
+  Please report issues with the deprecations on [#22074](https://github.com/stoked-ui/stoked-ui/issues/22074) (wrong instructions, false-positives, floods in the console, etc.).
 
 You can expect similar releases like this one in the coming months.
 
-### `@material-ui/core@v4.12.0`
+### `@stoked-ui/core@v4.12.0`
 
 #### Deprecations
 
@@ -194,15 +194,15 @@ _Jan 24, 2021_
 
 This release fixes an important issue with Chrome 88. The usage of NaN as a CSS property with JSS throws an exception.
 
-### `@material-ui/core@v4.11.3`
+### `@stoked-ui/core@v4.11.3`
 
 - [styles] Upgrade jss to 10.5.1 (#24570) @oliviertassinari
 
-### `@material-ui/styles@v4.11.3`
+### `@stoked-ui/styles@v4.11.3`
 
 - [styles] Upgrade jss to 10.5.1 (#24570) @oliviertassinari
 
-### `@material-ui/system@v4.11.3`
+### `@stoked-ui/system@v4.11.3`
 
 - [system] Fix handling of null-ish values (#24527) @oliviertassinari"
 
@@ -236,31 +236,31 @@ The change makes it easier for developers to upgrade React independently from Ma
 
 This is a reminder that all ongoing work has moved to v5. This means a feature freeze on v4. The development of v4 is limited to important bug fixes, security patches and easing the upgrade path to v5.
 
-### `@material-ui/core@v4.11.2`
+### `@stoked-ui/core@v4.11.2`
 
 - [core] Allow React 17 in peer dependencies (#23697) @oliviertassinari
 
-### `@material-ui/icons@v4.11.2`
+### `@stoked-ui/icons@v4.11.2`
 
 - [core] Allow React 17 in peer dependencies (#23697) @oliviertassinari
 
-### `@material-ui/lab@v4.11.2`
+### `@stoked-ui/lab@v4.11.2`
 
 - [core] Allow React 17 in peer dependencies (#23697) @oliviertassinari
 
-### `@material-ui/styles@v4.11.2`
+### `@stoked-ui/styles@v4.11.2`
 
 - [core] Allow React 17 in peer dependencies (#23697) @oliviertassinari
 
-### `@material-ui/system@v4.11.2`
+### `@stoked-ui/system@v4.11.2`
 
 - [core] Allow React 17 in peer dependencies (#23697) @oliviertassinari
 
-### `@material-ui/utils@v4.11.2`
+### `@stoked-ui/utils@v4.11.2`
 
 - [core] Allow React 17 in peer dependencies (#23697) @oliviertassinari
 
-### `@material-ui/lab@v4.0.0-alpha.57`
+### `@stoked-ui/lab@v4.0.0-alpha.57`
 
 - [core] Allow React 17 in peer dependencies (#23697) @oliviertassinari
 
@@ -275,14 +275,14 @@ A big thanks to the 12 contributors who made this release possible.
   v4 doesn't have official support for React 17 like v5 has. Use it at your own risk.
 - 🐛 Fix right-to-left support of Tabs since Chrome 85 (#22830) @ankit
 
-### `@material-ui/core@v4.11.1`
+### `@stoked-ui/core@v4.11.1`
 
 - [styles] Add support for TypeScript 4.1 (#23692) @ldrick
 - [ClickAwayListener] Fix mounting behavior in Portals in React 17 (#23367) @eps1lon
 - [FocusTrap] Prevent possible crash in React 17 (#22263) @eps1lon
 - [Tabs] Fix RTL scrollbar with Chrome 85 (#22830) @ankit
 
-### `@material-ui/styles@v4.11.1`
+### `@stoked-ui/styles@v4.11.1`
 
 - [styles] Add support for TypeScript 4.1 (#23692) @ldrick
 
@@ -332,7 +332,7 @@ A big thanks to the 12 contributors who made this release possible.
 - [docs] Sync translation (#21638, #21751, #21925, #22751, #22850, #22887, #23357) @oliviertassinari
 - [docs] Update homepage quotes (#23326) @mbrookes
 - [docs] Use codesandbox deploy for demos created from deploy previews (#22616) @eps1lon
-- [docs] configuring redirects for MUI X (#22632) @dtassone
+- [docs] configuring redirects for SUI X (#22632) @dtassone
 
 ### Core
 
@@ -350,20 +350,20 @@ _July 1, 2020_
 
 A big thanks to the 8 contributors who made this release possible.
 
-### `@material-ui/core@v4.11.0`
+### `@stoked-ui/core@v4.11.0`
 
 - [ExpansionPanel] Prepare renaming to Accordion, add warnings (#21560) @mnajdova
   It uses a more common naming convention:
 
   ```diff
-  -import ExpansionPanel from '@material-ui/core/ExpansionPanel';
-  -import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
-  -import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
-  -import ExpansionPanelActions from '@material-ui/core/ExpansionPanelActions';
-  +import Accordion from '@material-ui/core/Accordion';
-  +import AccordionSummary from '@material-ui/core/AccordionSummary';
-  +import AccordionDetails from '@material-ui/core/AccordionDetails';
-  +import AccordionActions from '@material-ui/core/AccordionActions';
+  -import ExpansionPanel from '@stoked-ui/core/ExpansionPanel';
+  -import ExpansionPanelSummary from '@stoked-ui/core/ExpansionPanelSummary';
+  -import ExpansionPanelDetails from '@stoked-ui/core/ExpansionPanelDetails';
+  -import ExpansionPanelActions from '@stoked-ui/core/ExpansionPanelActions';
+  +import Accordion from '@stoked-ui/core/Accordion';
+  +import AccordionSummary from '@stoked-ui/core/AccordionSummary';
+  +import AccordionDetails from '@stoked-ui/core/AccordionDetails';
+  +import AccordionActions from '@stoked-ui/core/AccordionActions';
 
   -<ExpansionPanel>
   +<Accordion>
@@ -414,13 +414,13 @@ _June 11, 2020_
 We are moving all ongoing efforts to v5 (`next` branch) ✨.
 This means a feature freeze on v4. The development of this version will be limited to important bug fixes, security patches, and easing the upgrade path to v5.
 
-You can follow our progress on the [v5 milestone](https://github.com/mui/material-ui/milestone/35). We will make the documentation of the v5 alpha releases available under https://next.mui.com/, starting next week (weekly releases, as usual).
+You can follow our progress on the [v5 milestone](https://github.com/stoked-ui/stoked-ui/milestone/35). We will make the documentation of the v5 alpha releases available under https://next.mui.com/, starting next week (weekly releases, as usual).
 
 A big thanks to the 19 contributors who made this release possible. Here are some highlights ✨:
 
 - Introduce a new Timeline component (#21331) @mnajdova.
   <img width="244" alt="timeline" src="https://user-images.githubusercontent.com/3165635/84400961-ff381900-ac02-11ea-8e5e-beb6c0840fe0.png">
-  You can find the component in the [lab](https://mui.com/components/timeline/).
+  You can find the component in the [lab](https://stokedui.com/components/timeline/).
 
 - Simplify the theme overrides with TypeScript for the components in the lab (#21279) @CarsonF.
 
@@ -428,7 +428,7 @@ A big thanks to the 19 contributors who made this release possible. Here are som
 
   ```tsx
   // 1. augment the theme
-  import type '@material-ui/lab/themeAugmentation';
+  import type '@stoked-ui/lab/themeAugmentation';
 
   // 2. override
   const theme = createMuiTheme({
@@ -445,9 +445,9 @@ A big thanks to the 19 contributors who made this release possible. Here are som
 - Minify error messages in production (#21214) @eps1lon.
 
   Using the [React error decoder](https://react.dev/errors) as inspiration, the exceptions thrown by Material UI in production are now minified.
-  You will be redirected to the documentation to [decode the error](https://mui.com/production-error/?code=4&args%5B%5D=500).
+  You will be redirected to the documentation to [decode the error](https://stokedui.com/production-error/?code=4&args%5B%5D=500).
 
-### `@material-ui/core@v4.10.2`
+### `@stoked-ui/core@v4.10.2`
 
 - [Checkbox] Fix custom icon fontSize prop support (#21362) @kn1ves
 - [Dialog] Fix dialog children being announced as clickable (#21285) @eps1lon
@@ -455,7 +455,7 @@ A big thanks to the 19 contributors who made this release possible. Here are som
 - [Stepper] Always pass state props to connector (#21370) @baterson
 - [Stepper] Only render label container if a label exists (#21322) @Floriferous
 
-### `@material-ui/lab@v4.0.0-alpha.56`
+### `@stoked-ui/lab@v4.0.0-alpha.56`
 
 - [Autocomplete] Fix scroll reset after unselect the only option (#21280) @svikhristyuk
 - [Autocomplete] Prevent default event for disabled options (#21390) @GregoryAndrievskiy
@@ -463,7 +463,7 @@ A big thanks to the 19 contributors who made this release possible. Here are som
 - [Timeline] Introduce new component (#21331) @mnajdova
 - [TypeScript] Allow lab components to have overrides in theme (#21279) @CarsonF
 
-### `@material-ui/utils@v4.10.2`
+### `@stoked-ui/utils@v4.10.2`
 
 - [core] Minify error messages in production (#21214) @eps1lon
 
@@ -501,7 +501,7 @@ _June 1, 2020_
 
 A big thanks to the 21 contributors who made this release possible.
 
-### `@material-ui/core@v4.10.1`
+### `@stoked-ui/core@v4.10.1`
 
 - [CircularProgress] Fix IE11 wobbling (#21248) @AmirAhrari
 - [l10n] Improve Ukrainian translation (#21239) @goodwin64
@@ -515,7 +515,7 @@ A big thanks to the 21 contributors who made this release possible.
 - [Tooltip] Improve arrow customization (#21203) @mnajdova
 - [Transition] Prevent passing undefined argument to callbacks (#21158) @iamhosseindhv
 
-### `@material-ui/lab@v4.0.0-alpha.55`
+### `@stoked-ui/lab@v4.0.0-alpha.55`
 
 - [Autocomplete] Document how to use a 3rd party input (#21257) @maksimgm
 - [Autocomplete] Fix dynamic changes of multiple={boolean} (#21194) @weizhi9958
@@ -543,7 +543,7 @@ A big thanks to the 21 contributors who made this release possible.
 ### Core
 
 - [FocusTrap] Make an unstable version public (#21201) @dmtrKovalenko
-- [test] Track size of `@material-ui/utils` (#21240) @eps1lon
+- [test] Track size of `@stoked-ui/utils` (#21240) @eps1lon
 - [core] Batch small changes (#21156) @oliviertassinari
 - [core] Batch small changes (#21249) @oliviertassinari
 
@@ -564,17 +564,17 @@ Here are some highlights ✨:
   </Skeleton>
   ```
 
-  Follow [the docs to learn more](https://mui.com/components/skeleton/#inferring-dimensions).
+  Follow [the docs to learn more](https://stokedui.com/components/skeleton/#inferring-dimensions).
 
 - ♿️ Add tabs accessibility docs section (#20965) @eps1lon.
-  The behavior of the [keyboard navigation](https://mui.com/components/tabs/#keyboard-navigation) can be customized with the `selectionFollowsFocus` prop.
+  The behavior of the [keyboard navigation](https://stokedui.com/components/tabs/#keyboard-navigation) can be customized with the `selectionFollowsFocus` prop.
 - ℹ Improve tooltip arrow customizability (#21095) @sakulstra.
   The arrow background color and border can now be customized independently.
   <img src="https://user-images.githubusercontent.com/3165635/82205669-328acf00-9907-11ea-8fa0-f9784ad2b718.png" width="90" />
 - 🔘 Add vertical support to the ToggleButton component (#21051) @xiaomaini
 - And many more 🐛 bug fixes and 📚 improvements.
 
-### `@material-ui/core@v4.10.0`
+### `@stoked-ui/core@v4.10.0`
 
 - [AppBar] Fix z-index issue on Firefox (#21063) @pedrooa
 - [Avatar] Fix group positioning (#21141) @CarsonF
@@ -592,11 +592,11 @@ Here are some highlights ✨:
 - [Tooltip] Add PopperComponent prop (#21039) @joshwooding
 - [Tooltip] Improve arrow customizability (#21095) @sakulstra
 
-### `@material-ui/styles@v4.10.0`
+### `@stoked-ui/styles@v4.10.0`
 
 - [styles] Increase counter only for non global styles (#21003) @jantimon
 
-### `@material-ui/lab@v4.0.0-alpha.54`
+### `@stoked-ui/lab@v4.0.0-alpha.54`
 
 - [Autocomplete] Improve value type inference (#20949) @kanoshin
 - [Autocomplete] Fix autoHighlight for dynamic options (#21090) @mstykow
@@ -622,7 +622,7 @@ Here are some highlights ✨:
 - [docs] Recommend no-restricted-imports to catch treeshake issues (#21035) @eps1lon
 - [docs] Reduce confusion around higher order component (#21056) @ravshansbox
 - [docs] Show font smoothing override (#21057) @mattstobbs
-- [docs] Sort ways to support MUI; clarify clsx (#21150) @dandv
+- [docs] Sort ways to support SUI; clarify clsx (#21150) @dandv
 - [docs] Sync translations (#21155) @oliviertassinari
 
 ### Core
@@ -650,7 +650,7 @@ Here are some highlights ✨:
 - ⚛️ An improved version of unstable strict mode support (#20952, #20985) @eps1lon @DrewVartanian.
 - And many more 🐛 bug fixes and 📚 improvements.
 
-### `@material-ui/core@v4.9.14`
+### `@stoked-ui/core@v4.9.14`
 
 - [l10n] Add Hindi (hi-IN) locale (#20916) @chandan-singh
 - [Popper] Fix keepMounted visibility (#20937) @weslenng
@@ -664,15 +664,15 @@ Here are some highlights ✨:
 - [theme] Fix override breakpoints (#20901) @JasonHK
 - [Tooltip] Fix arrow placement overlap (#20900) @esseswann
 
-### `@material-ui/styles@v4.9.14`
+### `@stoked-ui/styles@v4.9.14`
 
 - [styles] Return simpler type from ComponentCreator (#20854) @vlazh
 
-### `@material-ui/system@v4.9.14`
+### `@stoked-ui/system@v4.9.14`
 
-- [system] Add csstype as dependency to material-ui-system (#20922) @govizlora
+- [system] Add csstype as dependency to stoked-ui-system (#20922) @govizlora
 
-### `@material-ui/lab@v4.0.0-alpha.53`
+### `@stoked-ui/lab@v4.0.0-alpha.53`
 
 - [Autocomplete] Add new handleHomeEndKeys prop (#20910) @p00000001
 - [Autocomplete] Fix Google Map demo warnings (#20983) @oliviertassinari
@@ -680,7 +680,7 @@ Here are some highlights ✨:
 - [Tabs] Add new experimental Tabs API (#20806) @eps1lon
 - [ToggleButton] Reduce gap with ButtonGroup (#20967) @rehanmohiuddin
 
-### `@material-ui/types@v5.1.0`
+### `@stoked-ui/types@v5.1.0`
 
 - [types] Add OverridableStringUnion helper (#20901) @JasonHK
 
@@ -716,7 +716,7 @@ Here are some highlights ✨:
 - ⚛️ More tests migrated from enzyme to testing-library @marcosvega91.
 - And many more 🐛 bug fixes and 📚 improvements.
 
-### `@material-ui/core@v4.9.13`
+### `@stoked-ui/core@v4.9.13`
 
 - [AvatarGroup] Improve limit display (#20793) @let-aurn
 - [ClickAwayListener] Remove misleading code comment (#20743) @eps1lon
@@ -731,16 +731,16 @@ Here are some highlights ✨:
 - [Tooltip] Fix disableTouchListener behavior (#20807) @weslenng
 - [FocusTrap] Guard against dropped memo cache (#20848) @eps1lon
 
-### `@material-ui/styles@v4.9.13`
+### `@stoked-ui/styles@v4.9.13`
 
 - [styles] Fix wording in indexCounter comment (#20874) @iamclaytonray
 - [styles] Improve component props inference of styled (#20830) @vlazh
 
-### `@material-ui/system@v4.9.13`
+### `@stoked-ui/system@v4.9.13`
 
 - [system] Improve breakpoints types (#20753) @nodeTempest
 
-### `@material-ui/lab@v4.0.0-alpha.52`
+### `@stoked-ui/lab@v4.0.0-alpha.52`
 
 - [Autocomplete] Display loading feedback with freeSolo (#20869) @weslenng
 - [Autocomplete] Fix support for limitTags={0} (#20850) @tykdn
@@ -785,7 +785,7 @@ Here are some highlights ✨:
 - 🇧🇷 A documentation fully translated in Brazilian (@jaironalves).
 - And many more 🐛 bug fixes and 📚 improvements.
 
-### `@material-ui/core@v4.9.12`
+### `@stoked-ui/core@v4.9.12`
 
 - [ButtonBase] Fix ripple size when clientX or clientY is 0 (#20654) @jin60641
 - [ButtonGroup] Add disableElevation prop (#20747) @Andrew5569
@@ -817,7 +817,7 @@ Here are some highlights ✨:
 - [Tooltip] Fix flip invalid CSS property error (#20745) @j-mendez
 - [useScrollTrigger] Fix out of sync trigger (#20678, #20680) @ohlr @marcosvega91.
 
-### `@material-ui/lab@v4.0.0-alpha.51`
+### `@stoked-ui/lab@v4.0.0-alpha.51`
 
 #### Breaking changes
 
@@ -831,7 +831,7 @@ Here are some highlights ✨:
 - [Autocomplete] Remove dead code (#20663) @oliviertassinari
 - [TreeView] Update firstCharMap when a TreeItem is removed (#20085) @tonyhallett
 
-### `@material-ui/utils@v4.9.12`
+### `@stoked-ui/utils@v4.9.12`
 
 - [core] Avoid test with instanceof HTMLElement (#20646) @oliviertassinari
 
@@ -851,7 +851,7 @@ Here are some highlights ✨:
 - [docs] Parse markdown on mount (#20601) @eps1lon
 - [docs] Replace react-frame-component with concurrent safe impl (#20677) @eps1lon
 - [docs] Sync translations (#20779) @oliviertassinari
-- [material-ui-docs] Fix missing/extraneous dependencies (#20771) @eps1lon
+- [stoked-ui-docs] Fix missing/extraneous dependencies (#20771) @eps1lon
 
 ### Core
 
@@ -861,7 +861,7 @@ Here are some highlights ✨:
 - [BottomNavigation] Migrate to testing-library (#20728) @marcosvega91
 - [Box] Migrate to testing-library (#20736) @marcosvega91
 - [Card] Migrate to testing-library (#20773) @marcosvega91
-- [core] Bump `@material-ui/react-transition-group` (#20699) @eps1lon
+- [core] Bump `@stoked-ui/react-transition-group` (#20699) @eps1lon
 - [core] Force visibility on a few components in ink save print mode (#20749) @coktopus
 - [test] Improve textToHash test (#20770) @eps1lon
 - [test] Relax lint rules in test (#20702) @eps1lon
@@ -872,7 +872,7 @@ _Apr 18, 2020_
 
 A big thanks to the 25 contributors who made this release possible.
 
-### `@material-ui/core@v4.9.11`
+### `@stoked-ui/core@v4.9.11`
 
 - [Backdrop] Document Fade inherited component (#20500) @Josh-Weston
 - [Checkbox] Add test showcase for checked checkbox (#20571) @eps1lon
@@ -887,7 +887,7 @@ A big thanks to the 25 contributors who made this release possible.
 - [TextField] Fix long label scrollbar (#20535) @Uzwername
 - [theme] Allow palette tonalOffset light and dark values (#20567) @TidyIQ
 
-### `@material-ui/lab@v4.0.0-alpha.50`
+### `@stoked-ui/lab@v4.0.0-alpha.50`
 
 - [Autocomplete] Add fullWidth prop (#20538) @Uzwername
 - [Autocomplete] Add test cases for createFilterOptions (#20499) @netochaves
@@ -936,15 +936,15 @@ Here are some highlights ✨:
 
 Over the last 3 months, we have focused exclusively on making patch releases.
 We have done 11 so far. We have optimized for stability.
-In the coming weeks, we will initiate our work on the [next major: v5](https://github.com/mui/material-ui/issues/20012).
+In the coming weeks, we will initiate our work on the [next major: v5](https://github.com/stoked-ui/stoked-ui/issues/20012).
 You can expect the following:
 
 - A feature freeze on v4.
 - The introduction of deprecation messages in the next v4 minors. These messages will help developers upgrade to v5.
 - A progressive bug fixes freeze on v4, to the exception of security issues and important bugs.
-- At least 6 months of work on v5 to get to a stable release (probably more). You can follow our [milestone](https://github.com/mui/material-ui/milestone/35). We will look for hiring a new full-time member on the core team to move faster.
+- At least 6 months of work on v5 to get to a stable release (probably more). You can follow our [milestone](https://github.com/stoked-ui/stoked-ui/milestone/35). We will look for hiring a new full-time member on the core team to move faster.
 
-### `@material-ui/core@v4.9.10`
+### `@stoked-ui/core@v4.9.10`
 
 - [Breadcrumbs] Keep focus in the component after expanding (#20489) @ShehryarShoukat96
 - [ButtonBase] Warn with wrong component prop (#20401) @oliviertassinari
@@ -968,19 +968,19 @@ You can expect the following:
 - [TypeScript] Fix support for TypeScript 3.2 (#20443) @NMinhNguyen
 - [TypeScript] Fix TypeScript type for optional `children` (#20458) @NMinhNguyen
 
-### `@material-ui/styles@4.9.10`
+### `@stoked-ui/styles@4.9.10`
 
 - [TypeScript] Fix support for TypeScript 3.2 (#20443) @NMinhNguyen
 
-### `@material-ui/system@4.9.10`
+### `@stoked-ui/system@4.9.10`
 
 - [TypeScript] Fix support for TypeScript 3.2 (#20443) @NMinhNguyen
 
-### `@material-ui/types@5.0.1`
+### `@stoked-ui/types@5.0.1`
 
 - [TypeScript] Fix support for TypeScript 3.2 (#20443) @NMinhNguyen
 
-### `@material-ui/lab@v4.0.0-alpha.49`
+### `@stoked-ui/lab@v4.0.0-alpha.49`
 
 - [Alert] Fix support for nested elements (#20490) @developerKumar
 - [Autocomplete] Improve virtualization example (#20496) @galkadaw
@@ -1009,7 +1009,7 @@ _Apr 4, 2020_
 
 A big thanks to the 20 contributors who made this release possible.
 
-### `@material-ui/core@v4.9.9`
+### `@stoked-ui/core@v4.9.9`
 
 - [Card] Fix TypeScript not recognizing "component" prop (#20179) @rart
 - [Chip] Fix input integration (#20368) @chaudharykiran
@@ -1022,7 +1022,7 @@ A big thanks to the 20 contributors who made this release possible.
 - [styles] Fix missing export of ThemeProviderProps (#20390) @TomekStaszkiewicz
 - [TextField] Fix line-height and height that cut text (#20363) @fyodorovandrei
 
-### `@material-ui/lab@v4.0.0-alpha.48`
+### `@stoked-ui/lab@v4.0.0-alpha.48`
 
 - [Autocomplete] Fix blurOnSelect consistency for keyboard (#20314) @alexbarkin
 - [Autocomplete] Fix multiselect regression (#20315) @oliviertassinari
@@ -1076,7 +1076,7 @@ Here are some highlights ✨:
 
 - And many more 🐛 bug fixes and 📚 improvements.
 
-### `@material-ui/core@v4.9.8`
+### `@stoked-ui/core@v4.9.8`
 
 - [DX] Add debug values to various hooks (#19515) @eps1lon
 - [ListItem] Add component prop to primaryTypographyProps and… (#19155) @fyodore82
@@ -1097,7 +1097,7 @@ Here are some highlights ✨:
 - [TypeScript] Move more prop docs into IntelliSense (#20298) @eps1lon
 - [TypeScript] Add more props documentation to IntelliSense (#20264) @eps1lon
 
-### `@material-ui/lab@v4.0.0-alpha.47`
+### `@stoked-ui/lab@v4.0.0-alpha.47`
 
 - [Autocomplete] Add limitTags prop (#20209) @netochaves
 - [Autocomplete] Add startAfter option (#20305) @netochaves
@@ -1141,7 +1141,7 @@ Here are some highlights ✨:
 
 _Mar 19, 2020_
 
-### `@material-ui/core@v4.9.7`
+### `@stoked-ui/core@v4.9.7`
 
 - [core] Patch correct dependencies (10bc98f)
 
@@ -1159,12 +1159,12 @@ Here are some highlights ✨:
     ![colors.amber](https://user-images.githubusercontent.com/12292047/76473890-2ad81700-63fa-11ea-9bb3-005f79a195e7.png)
   - Preview the purpose of each theme.spacing arguments right in the editor
     ![spacing](https://user-images.githubusercontent.com/12292047/75786858-31192400-5d66-11ea-9382-94dd74c42985.png)
-  - Leverage code snippets to save time with [this extension](https://marketplace.visualstudio.com/items?itemName=vscodeshift.material-ui-snippets).
+  - Leverage code snippets to save time with [this extension](https://marketplace.visualstudio.com/items?itemName=vscodeshift.stoked-ui-snippets).
 - 🔍 12 patches on the Autocomplete component.
 - 💄 Polish on the Pagination component (#19933, #19964, #19966, #19987) @pvdstel @eps1lon @mbrookes.
 - And many more 🐛 bug fixes and 📚 improvements.
 
-### `@material-ui/core@v4.9.6`
+### `@stoked-ui/core@v4.9.6`
 
 - [Chip] Prevent event default when onDelete is triggered (#20051) @eps1lon
 - [Container] Reset display block (#19971) @oliviertassinari
@@ -1183,20 +1183,20 @@ Here are some highlights ✨:
 - [Tooltip] Fix useMemo dependency (#19899) @NMinhNguyen
 - [Tooltip] Reduce enterDelay to 100ms (#19898) @oliviertassinari
 
-### `@material-ui/styles@v4.9.6`
+### `@stoked-ui/styles@v4.9.6`
 
 - [styles] Fix theme default props overridden by Component default (#20091) @adridavid
 - [styles] Name anonymous function type (#19996) @eps1lon
 
-### `@material-ui/system@v4.9.6`
+### `@stoked-ui/system@v4.9.6`
 
 - [theme] Array reject on spacing transformation fixed (#19900) Weslen do Nascimento
 
-### `@material-ui/utils@v4.9.6`
+### `@stoked-ui/utils@v4.9.6`
 
 - [core] Fix deepmerge of DOM elements (#20100) @ValentinH
 
-### `@material-ui/lab@v4.0.0-alpha.46`
+### `@stoked-ui/lab@v4.0.0-alpha.46`
 
 #### Breaking Changes
 
@@ -1230,7 +1230,7 @@ Here are some highlights ✨:
 - [docs] Bump next to latest (#19995) @eps1lon
 - [docs] Display color preview in IntelliSense (#20079) @eps1lon
 - [docs] Document typescript:transpile script (#19951) @eps1lon
-- [docs] Fix @material-ui/styles release version number (#19939) @jkjustjoshing
+- [docs] Fix @stoked-ui/styles release version number (#19939) @jkjustjoshing
 - [docs] Fix OutlinedLabel typo (#20006) @ljcooke
 - [docs] Fix SEO issues (#20108) @oliviertassinari
 - [docs] Fix Sketch link (#19944) @mbrookes
@@ -1279,7 +1279,7 @@ Here are some highlights ✨:
 - 💄 Add selection (and multi-selection) support to tree view (#18357) @joshwooding
 - And many more 🐛 bug fixes and 📚 improvements.
 
-### `@material-ui/core@v4.9.5`
+### `@stoked-ui/core@v4.9.5`
 
 - [ButtonBase] Fix when changing enableRipple prop from false to true (#19667) @dmtrKovalenko
 - [l10n] Add Armenian (hy-AM) locale (#19844) @vgevorgyan
@@ -1289,7 +1289,7 @@ Here are some highlights ✨:
 - [Slider] Add explicit types for slider callbacks (#19867) @deymundson
 - [Step] Add missing expanded prop to step TypeScript (#19873) @countableSet
 
-### `@material-ui/lab@v4.0.0-alpha.45`
+### `@stoked-ui/lab@v4.0.0-alpha.45`
 
 - [Autocomplete] Fix list of countries (#19862) @FottyM
 - [TreeView] Fix conditional nodes support (#19849) @joshwooding
@@ -1323,7 +1323,7 @@ Here are some highlights ✨:
 - 💅 Introduce a small delay in the appearance of the tooltip (#19766) @Ritorna.
 - And many more 🐛 bug fixes and 📚 improvements.
 
-### `@material-ui/core@v4.9.4`
+### `@stoked-ui/core@v4.9.4`
 
 - [Breadcrumbs] Fix expand/collapsed Breadcrumbs via keyboard (#19724) @captain-yossarian
 - [ButtonBase] Fix space handling for non native button elements (#19784) @captain-yossarian
@@ -1336,7 +1336,7 @@ Here are some highlights ✨:
 - [theme] Built-in convertLength method (#19720) @oliviertassinari
 - [Tooltip] Add enterNextDelay prop (#19766) @Ritorna
 
-### `@material-ui/lab@v4.0.0-alpha.44`
+### `@stoked-ui/lab@v4.0.0-alpha.44`
 
 - [Autocomplete] Built-in fullWidth (#19805) @oliviertassinari
 - [Autocomplete] Fix stuck with open popup (#19794) @hasanozacar
@@ -1364,16 +1364,16 @@ _Feb 16, 2020_
 
 A big thanks to the 18 contributors who made this release possible.
 
-### `@material-ui/core@v4.9.3`
+### `@stoked-ui/core@v4.9.3`
 
 - [l10n] Add Estonian (et-EE) locale (#19707) @villuv
 - [ScopedCssBaseline] Allow CSS to be only applied on children (#19669) @TomPradat
 
-### `@material-ui/system@v4.9.3`
+### `@stoked-ui/system@v4.9.3`
 
 - [system] Add boxSizing to sizing styled system (#19684) @mesteche
 
-### `@material-ui/lab@v4.0.0-alpha.43`
+### `@stoked-ui/lab@v4.0.0-alpha.43`
 
 - [Autocomplete] Improve freeSolo UX (#19663) @itelofilho
 - [Autocomplete] Make options required (#19648) @alexandesigner
@@ -1406,7 +1406,7 @@ _Feb 9, 2020_
 
 A big thanks to the 24 contributors who made this release possible.
 
-### `@material-ui/core@v4.9.2`
+### `@stoked-ui/core@v4.9.2`
 
 - [AppBar] Add color transparent support (#19393) @lexskir
 - [Divider] Fix height for vertical divider in a flexbox (#19614) @captain-yossarian
@@ -1419,7 +1419,7 @@ A big thanks to the 24 contributors who made this release possible.
 - [l10n] Add Hungarian (hu-HU) locale (#19566) @vgaborabs
 - [l10n] Add Icelandic (is-IS) locale (#19538) @axelbjornsson
 
-### `@material-ui/lab@v4.0.0-alpha.42`
+### `@stoked-ui/lab@v4.0.0-alpha.42`
 
 - [Autocomplete] Fix unexpected clearing (#19511) @captain-yossarian
 - [Autocomplete] Support limiting the amount of options (#19539) @govizlora
@@ -1460,7 +1460,7 @@ Here are some highlights ✨:
 - 📚 Improve the Style library interoperability docs section (#19457) @oliviertassinari.
 - And many more 🐛 bug fixes and 📚 improvements.
 
-### `@material-ui/core@v4.9.1`
+### `@stoked-ui/core@v4.9.1`
 
 - [Container] Fix mismatch between Container and Toolbar gutters (#19505) @koistya
 - [FormControl] Add `fullWidth` prop to `FormControl` context (#19369) @EsoterikStare
@@ -1478,16 +1478,16 @@ Here are some highlights ✨:
 - [TextField] Prevent overriding legend display styles (#19389) @Alexeyun1k
 - [TextField] Reduce helper text height to match spec (#19390) @suliskh
 
-### `@material-ui/icons@v4.9.1`
+### `@stoked-ui/icons@v4.9.1`
 
 - [icons] Remove extraneous path (#19483) @timmydoza
 - [icons] Synchronize components with Google (#19485) @oliviertassinari
 
-### `@material-ui/system@v4.9.1`
+### `@stoked-ui/system@v4.9.1`
 
 - [system] Add grid support (#17326) @Lavoaster
 
-### `@material-ui/lab@v4.0.0-alpha.41`
+### `@stoked-ui/lab@v4.0.0-alpha.41`
 
 - [Alert] Improve dark theme coloring (#19105) @ahtcx
 - [Autocomplete] Fix autoSelect logic (#19384) @SerhiiBilyk
@@ -1547,7 +1547,7 @@ Here are some highlights ✨:
 - 💅 Slight updates to better match the Material Design spec (#19277, #19342) @elmeerr.
 - And many more 🐛 bug fixes and 📚 improvements.
 
-### `@material-ui/core@v4.9.0`
+### `@stoked-ui/core@v4.9.0`
 
 - [Breadcrumbs] Remove private separator component (#19234) @hiteshkundal
 - [ButtonBase] Fix potential memory leak for multi-touch devices (#19333) @eps1lon
@@ -1566,11 +1566,11 @@ Here are some highlights ✨:
 - [TextField] Support padding for helperText (#19198) @hiteshkundal
 - [Tooltip] Fix popper.js re-instantiation (#19304) @netochaves
 
-### `@material-ui/styles@v4.9.0`
+### `@stoked-ui/styles@v4.9.0`
 
 - [styles] Overload function signature instead of conditional (#19320) @eps1lon
 
-### `@material-ui/types@v5.0.0`
+### `@stoked-ui/types@v5.0.0`
 
 #### Breaking Changes
 
@@ -1578,7 +1578,7 @@ Here are some highlights ✨:
   Or, And, IsAny and IsEmptyInterface have been removed.
 - [types] Remove CoerceEmptyInterface (#19259) @eps1lon
 
-### `@material-ui/lab@v4.0.0-alpha.40`
+### `@stoked-ui/lab@v4.0.0-alpha.40`
 
 - [Alert] Improve Transition demo (#19283) @theswerd
 - [Alert] Use alert severity in demos (#19123) @sviande
@@ -1599,7 +1599,7 @@ Here are some highlights ✨:
 ### Docs
 
 - [blog] December 2019 Update (#19119) @oliviertassinari
-- [docs] Add "material-ui-confirm" to the related projects (#19237) @jonatanklosko
+- [docs] Add "stoked-ui-confirm" to the related projects (#19237) @jonatanklosko
 - [docs] Add a new site to showcase (hifivework) (#19129) @lau-sam
 - [docs] Add a new site to showcase (tradenba) (#19307) @zachrdz
 - [docs] Add links to mui-treasury (#19334) @siriwatknp
@@ -1650,7 +1650,7 @@ Here are some highlights since 4.8.0 ✨:
 - 🌎 Add 6 new locales (ko-KR, az-AZ, cs-CZ, sk-SK, uk-UA, pt-PT).
 - And many more 🐛 bug fixes and 📚 improvements.
 
-### `@material-ui/core@v4.8.3`
+### `@stoked-ui/core@v4.8.3`
 
 - [Badge] Improve demos (#18981) @ypresto
 - [Collapse] Add `hidden` class key to Collapse typings (#19044) @pvdstel
@@ -1659,7 +1659,7 @@ Here are some highlights since 4.8.0 ✨:
 - [Snackbar] Improve accessibility (#19043) @oliviertassinari
 - [theme] Support breakpoints.between(a, b) with number (#19003) @ulises-lara
 
-### `@material-ui/lab@v4.0.0-alpha.39`
+### `@stoked-ui/lab@v4.0.0-alpha.39`
 
 - [Alert] Introduce new component (#18702) @dimitropoulos
 - [Autocomplete] Fix disabled + multiple combination support (#19041) @cvanem
@@ -1687,7 +1687,7 @@ _Dec 30, 2019_
 
 A big thanks to the 22 contributors who made this release possible.
 
-### `@material-ui/core@v4.8.2`
+### `@stoked-ui/core@v4.8.2`
 
 - [Badge] Fix doc about anchorOrigin (#18982) @ypresto
 - [DialogContent] Add missing `dividers` class types (#18984) @NickCis
@@ -1699,11 +1699,11 @@ A big thanks to the 22 contributors who made this release possible.
 - [TableSortLabel] Sort asc by default (#19013) @oliviertassinari
 - [l10n] Add Portuguese (pt-PT) locale (#18987) @hrafaelveloso
 
-### `@material-ui/styles@v4.8.2`
+### `@stoked-ui/styles@v4.8.2`
 
 - [styles] Fix jss StyleSheet attach() call (#19042) @mceIdo
 
-### `@material-ui/lab@v4.0.0-alpha.38`
+### `@stoked-ui/lab@v4.0.0-alpha.38`
 
 #### Breaking Changes
 
@@ -1744,7 +1744,7 @@ _Dec 24, 2019_
 
 A big thanks to the 24 contributors who made this release possible.
 
-### `@material-ui/core@v4.8.1`
+### `@stoked-ui/core@v4.8.1`
 
 - [Drawer] Fix PaperProps className merge (#18866) @kristenmills
 - [InputBase] Add rowsMin to typings (#18922) @lcswillems
@@ -1759,7 +1759,7 @@ A big thanks to the 24 contributors who made this release possible.
 - [l10n] Add Czech (cs-CZ) and Slovak (sk-SK) locales (#18876) @char0n
 - [l10n] Add Ukrainian (uk-UA) locale (#18832) @EvgenBabenko
 
-### `@material-ui/lab@v4.0.0-alpha.37`
+### `@stoked-ui/lab@v4.0.0-alpha.37`
 
 - [Skeleton] Delay the animation by 500ms (#18913) @bowann
 - [TreeView] Improve RTL support (#18855) @eladex
@@ -1797,7 +1797,7 @@ Here are some highlights ✨:
 - 🌎 Add 3 new locales (id-Id, ro-RO, nl-NL) @fuadinaqi, @raduchiriac, @JimKoene.
 - And many more 🐛 bug fixes and 📚 improvements.
 
-### `@material-ui/core@v4.8.0`
+### `@stoked-ui/core@v4.8.0`
 
 - [Avatar] Add missing 'fallback' AvatarClassKey (#18717) @kLabz
 - [ButtonGroup] Add orientation prop (#18762) @SandraMarcelaHerreraArriaga
@@ -1821,7 +1821,7 @@ Here are some highlights ✨:
 - [l10n] Add dutch translations (#18758) @JimKoene
 - [useMediaQuery] Support custom window (#18741) @siriwatknp
 
-### `@material-ui/lab@v4.0.0-alpha.36`
+### `@stoked-ui/lab@v4.0.0-alpha.36`
 
 - [AvatarGroup] Introduce new component (#18707) @oliviertassinari
 - [Autocomplete] Fix double change event issue (#18786) @tplai
@@ -1842,7 +1842,7 @@ Here are some highlights ✨:
 
 ### Core
 
-- [core] Fix @material-ui/lab homepage url (#18823) @francisrod01
+- [core] Fix @stoked-ui/lab homepage url (#18823) @francisrod01
 - [core] Batch small changes (#18780) @oliviertassinari
 
 ## 4.7.2
@@ -1851,7 +1851,7 @@ _Dec 7, 2019_
 
 A big thanks to the 18 contributors who made this release possible.
 
-### `@material-ui/core@v4.7.2`
+### `@stoked-ui/core@v4.7.2`
 
 - [Tooltip] Add missing classes type definitions (#18645) @dufia
 - [Tooltip] Fix arrow placement in RTL languages (#18706) @mosijava
@@ -1868,7 +1868,7 @@ A big thanks to the 18 contributors who made this release possible.
 - [theme] Fix wrong ResponsiveFontSizesOptions type (#18661) @pstadler
 - [useMediaQuery] Fix hydrationCompleted true before hydrated (#18683) @toddmazierski
 
-### `@material-ui/lab@v4.0.0-alpha.35`
+### `@stoked-ui/lab@v4.0.0-alpha.35`
 
 - [Autocomplete] Add getOptionSelected prop (#18695) @DarkKnight1992
 - [Autocomplete] Add size prop (#18624) @oliviertassinari
@@ -1897,7 +1897,7 @@ Here are some highlights ✨:
 - 🔍 8 patches on the Autocomplete component.
 - And many more 🐛 bug fixes and 📚 improvements.
 
-### `@material-ui/core@v4.7.1`
+### `@stoked-ui/core@v4.7.1`
 
 - [Backdrop] Comment on z-index use case (#18589) @meebix
 - [Select] Improve response, react to mouse down (#17978) @SarthakC
@@ -1908,7 +1908,7 @@ Here are some highlights ✨:
 - [styles] Fix ThemeProvider requiring full theme (#18500) @eps1lon
 - [useMediaQuery] Fix ssrMatchMedia requiring listener mixin (#18501) @eps1lon
 
-### `@material-ui/lab@v4.0.0-alpha.34`
+### `@stoked-ui/lab@v4.0.0-alpha.34`
 
 - [Skeleton] Fix non-breakable space (#18548) @gmltA
 - [Rating] Improve mobile support (#18603) @aleccaputo
@@ -1948,7 +1948,7 @@ Here are some highlights ✨:
 
 _Nov 28, 2019_
 
-### `@material-ui/core@v3.9.4`
+### `@stoked-ui/core@v3.9.4`
 
 - [Portal] Fix circular PortalProps Types (#18602)
 
@@ -1968,7 +1968,7 @@ Here are some highlights ✨:
 - 📚 Display the demos on a white background (#18396) @oliviertassinari.
 - And many more 🐛 bug fixes and 📚 improvements.
 
-### `@material-ui/core@v4.7.0`
+### `@stoked-ui/core@v4.7.0`
 
 - [l10n] Add localization (#18219) @soltanloo
 - [l10n] Improve Russian translation (#18422) @gmltA
@@ -1987,7 +1987,7 @@ Here are some highlights ✨:
 - [Tooltip] Use hysteresis with the enterDelay (#18458) @oliviertassinari
 - [getContrastText] Throw descriptive exception when passing falsy argument (#18383) @eps1lon
 
-### `@material-ui/lab@v4.0.0-alpha.33`
+### `@stoked-ui/lab@v4.0.0-alpha.33`
 
 - [Skeleton] Keep the size 1:1 to replaced text content (#18451) @macfire10
 - [SpeedDialIcon] Fix test for react 16.12 (#18379) @eps1lon
@@ -2000,7 +2000,7 @@ Here are some highlights ✨:
 - [Autocomplete] Fix usage of Home/End keys (#18338) @weslenng
 - [Autocomplete] Fix virtualization demo (#18455) @mandrin17299
 - [Autocomplete] Ignore object keys in default filter (#18480) @eggbread
-- [lab] Bump material-ui/core version (#18354) @renatoagds
+- [lab] Bump stoked-ui/core version (#18354) @renatoagds
 
 ### Docs
 
@@ -2038,7 +2038,7 @@ Here are some highlights ✨:
 - 👨‍🎤 Add Framer X support (#17797) @mbrookes.
 - And many more 🐛 bug fixes and 📚 improvements.
 
-### `@material-ui/core@v4.6.1`
+### `@stoked-ui/core@v4.6.1`
 
 - Add Framer X wrapper components (#17797) @mbrookes
 - [ButtonBase] Fix space calling onClick on keyDown instead of keyUp (#18319) @eps1lon
@@ -2049,7 +2049,7 @@ Here are some highlights ✨:
 - [core] Fix createMuiTheme side-effect (#18247) @FabianSellmann
 - [core] Increase specificity to get correct style (#18238) @oliviertassinari
 
-### `@material-ui/lab@v4.0.0-alpha.32`
+### `@stoked-ui/lab@v4.0.0-alpha.32`
 
 #### Breaking Changes
 
@@ -2140,7 +2140,7 @@ By chance, it's the third year in a row we release on november 5th.
 The number of contributors involved, for a similar one-week period, has grown from 12 contributors (2017) to 16 contributors (2018) to 26 contributors (2019).
 We are proud of the community. Let's keep this trend going 🚀.
 
-### `@material-ui/core@v4.6.0`
+### `@stoked-ui/core@v4.6.0`
 
 - [Avatar] Add square variant and documentation (#18116) @mattdotam
 - [Button] Fix horizontal padding on small button with icon (#18118) @vkasraj
@@ -2159,11 +2159,11 @@ We are proud of the community. Let's keep this trend going 🚀.
 - [types] Fix IsEmptyInterface with optional members (#18148) @amcasey
 - [types] Simplify some of the conditional types (#18128) @amcasey
 
-### `@material-ui/styles@v4.6.0`
+### `@stoked-ui/styles@v4.6.0`
 
 - [styles] Fix props based styles callback not including defaultProps (#18125) @salmanm
 
-### `@material-ui/lab@v4.0.0-alpha.31`
+### `@stoked-ui/lab@v4.0.0-alpha.31`
 
 - [Autocomplete] Add disabled prop (#18195) @m4theushw
 - [Autocomplete] Fix aria-controls and aria-activedescendant (#18142) @eps1lon
@@ -2192,7 +2192,7 @@ We are proud of the community. Let's keep this trend going 🚀.
 
 ### Core
 
-- [test] Build all `@material-ui/*` packages for CodeSandbox CI (#18100) @eps1lon
+- [test] Build all `@stoked-ui/*` packages for CodeSandbox CI (#18100) @eps1lon
 - [test] Fix tests failing on subsequent runs in watchmode (#18076) @eps1lon
 - [test] Fix tests polluting DOM (#18163) @eps1lon
 - [core] Batch small changes (#18041) @oliviertassinari
@@ -2208,7 +2208,7 @@ Here are some highlights ✨:
 
 - 🔍 Introduce a new Autocomplete component in the lab to support the autocomplete, combobox and multi-select use cases (#17037) @dreamsinspace.
 
-  This [new component](https://mui.com/components/autocomplete/) will replace the [third-party integration examples](https://mui.com/components/integrated-autocomplete/) once it graduates from the lab to the core.
+  This [new component](https://stokedui.com/components/autocomplete/) will replace the [third-party integration examples](https://stokedui.com/components/integrated-autocomplete/) once it graduates from the lab to the core.
   It was one of the [most requested features](https://x.com/MaterialUI/status/1148901411180163073) (by number of 👍 on the corresponding issue).
 
 - 📚 Show the JSX by default for small examples (#17831) @mbrookes.
@@ -2217,7 +2217,7 @@ Here are some highlights ✨:
 - 💅 Improve Chrome autofill dark theme support (#17863) @MAkerboom.
 - 📚 Add new context menu demo (#17839) @SarthakC.
 
-### `@material-ui/core@v4.5.2`
+### `@stoked-ui/core@v4.5.2`
 
 - [Avatar] Revert #17694, correct the API docs, add tests (#18026) @mbrookes
 - [Checkbox] Add TypeScript demo for FormControlLabelPosition (#17964) @burtyish
@@ -2248,15 +2248,15 @@ Here are some highlights ✨:
 - [TextField] Improve Chrome autofill dark theme support (#17863) @MAkerboom
 - [TextareaAutoSize] Add ref prop (#17835) @Tarun047
 
-### `@material-ui/styles@v4.5.2`
+### `@stoked-ui/styles@v4.5.2`
 
 - [styles] Allow ref on withTheme components in TypeScript (#17695) @ianschmitz
 
-### `@material-ui/system@v4.5.2`
+### `@stoked-ui/system@v4.5.2`
 
 - [system] Support style.transform return React.CSSProperties (#18030) @yoyooyooo
 
-### `@material-ui/lab@v4.0.0-alpha.30`
+### `@stoked-ui/lab@v4.0.0-alpha.30`
 
 - [Autocomplete] Introduce new component (#17037) @dreamsinspace
 
@@ -2316,26 +2316,26 @@ A big thanks to the 28 contributors who made this release possible!
 
 Here are some highlights ✨:
 
-- 📚 Change imports from @material-ui/styles to @material-ui/core/styles (#17447) @mnemanja
+- 📚 Change imports from @stoked-ui/styles to @stoked-ui/core/styles (#17447) @mnemanja
 
-  The presence of two almost identical import paths has been a source of confusion: `@material-ui/styles` and `@material-ui/core/styles`.
-  Starting with v4.5.1, the documentation mentions `@material-ui/core/styles` as much as possible.
+  The presence of two almost identical import paths has been a source of confusion: `@stoked-ui/styles` and `@stoked-ui/core/styles`.
+  Starting with v4.5.1, the documentation mentions `@stoked-ui/core/styles` as much as possible.
 
   ```diff
-  -import { makeStyles } from '@material-ui/styles';
-  +import { makeStyles } from '@material-ui/core/styles';
+  -import { makeStyles } from '@stoked-ui/styles';
+  +import { makeStyles } from '@stoked-ui/core/styles';
   ```
 
-  This change removes the need to install the `@material-ui/styles` package directly.
-  It prevents the duplication of `@material-ui/styles` in bundles and avoids confusion.
-  You can [learn more about the difference](https://v4.mui.com/styles/basics/#material-ui-core-styles-vs-material-ui-styles) in the documentation.
+  This change removes the need to install the `@stoked-ui/styles` package directly.
+  It prevents the duplication of `@stoked-ui/styles` in bundles and avoids confusion.
+  You can [learn more about the difference](https://v4.mui.com/styles/basics/#stoked-ui-core-styles-vs-stoked-ui-styles) in the documentation.
 
 - ♿️ Improve the accessibility of the table and select components (#17696, #17773) @adeelibr, @eps1lon.
 - 📊 Launch a Developer Survey as a precursor to a major DatePicker enhancement effort.
-- 💄 Add support for different [slider track mode](https://mui.com/components/slider/#track) (#17714) @slipmat.
+- 💄 Add support for different [slider track mode](https://stokedui.com/components/slider/#track) (#17714) @slipmat.
 - And many more 🐛 bug fixes and 📚 improvements.
 
-### `@material-ui/core@v4.5.1`
+### `@stoked-ui/core@v4.5.1`
 
 - [AppBar] Fix display of elevation with position static (#17819) @sreetej1998
 - [Avatar] Allow to set src and children (#17694) @lcswillems
@@ -2356,15 +2356,15 @@ Here are some highlights ✨:
 - [Slider] Fix drag interruption when leaving browser (#17765) @hoop71
 - [Table] Add aria-label & caption in table demos (#17696) @adeelibr
 
-### `@material-ui/icons@v4.5.1`
+### `@stoked-ui/icons@v4.5.1`
 
 - [icons] Introduce a new GitHub brand icon
 
-### `@material-ui/lab@v4.0.0-alpha.29`
+### `@stoked-ui/lab@v4.0.0-alpha.29`
 
 - [SpeedDial] Pass event and reason to onOpen, onClose (#17783) @lsnch
 
-### `@material-ui/system@v4.5.1`
+### `@stoked-ui/system@v4.5.1`
 
 - [system] Fallback to value if theme's value is an array and index missing (#17661) @stasiukanya
 
@@ -2379,7 +2379,7 @@ Here are some highlights ✨:
 - [docs] Add useWidth TypeScript demo (#17770) @lksilva
 - [docs] Added TypeScript Demos for component/toggle-button (#17822) @limatgans
 - [docs] Better strict mode switch (#17684) @eps1lon
-- [docs] Change imports from @material-ui/styles to @material-ui/core/styles (#17447) @mnemanja
+- [docs] Change imports from @stoked-ui/styles to @stoked-ui/core/styles (#17447) @mnemanja
 - [docs] Extend size-snapshot (#17633) @eps1lon
 - [docs] Fix react-number-format example for FormattedInputs (#17675) @s-yadav
 - [docs] Fix typo (#17698) @Ceejaymar
@@ -2414,7 +2414,7 @@ Here are some highlights ✨:
 - 💄 Add startIcon and endIcon props for the button (#17600) @mbrookes
 
   ```jsx
-  import DeleteIcon from '@material-ui/icons/Delete';
+  import DeleteIcon from '@stoked-ui/icons/Delete';
 
   <Button startIcon={<DeleteIcon />}>Delete</Button>;
   ```
@@ -2425,7 +2425,7 @@ Here are some highlights ✨:
 - 💅 Adjust chip styles to match spec (#17584) @oliviertassinari
 - And many more 🐛 bug fixes and 📚 improvements.
 
-### `@material-ui/core@v4.5.0`
+### `@stoked-ui/core@v4.5.0`
 
 - [theme] Allow an arbitrary number of elevations (#17659) @millnitzluan
 - [ButtonGroup] Fix missing divider if background color is set (#17648) @neon98
@@ -2444,24 +2444,24 @@ Here are some highlights ✨:
 - [Tabs] Add new updateScrollButtonState() action (#17649) @neon98
 - [TextareaAutosize] Improve line computation and avoid infinite loop (#17652) @neon98
 
-### `@material-ui/lab@v4.0.0-alpha.28`
+### `@stoked-ui/lab@v4.0.0-alpha.28`
 
 - [Slider] Remove from the lab (#17528) @oliviertassinari
 
   ```diff
-  -import { Slider } from '@material-ui/lab';
-  +import { Slider } from '@material-ui/core';
+  -import { Slider } from '@stoked-ui/lab';
+  +import { Slider } from '@stoked-ui/core';
   ```
 
-### `@material-ui/system@v4.5.0`
+### `@stoked-ui/system@v4.5.0`
 
 - [system] Fix props being required from `style` function (#17534) @abukurov
 
-### `@material-ui/styles@v4.5.0`
+### `@stoked-ui/styles@v4.5.0`
 
 - [styles] Bump jss dependencies to v10.0.0 stable (#17536) @eps1lon
 
-### `@material-ui/codemod@v4.5.0`
+### `@stoked-ui/codemod@v4.5.0`
 
 - [codemod] Fix build importing esm version of babel/runtime (#17561) @merceyz
 
@@ -2499,7 +2499,7 @@ _Sep 22, 2019_
 A big thanks to the 23 contributors who made this release possible!
 This is a stability release.
 
-### `@material-ui/core@v4.4.3`
+### `@stoked-ui/core@v4.4.3`
 
 - [TextField] Handle Chrome autofill (#17436) @croraf
 - [ButtonBase] Fix blurry text issue (#17453) @chibis0v
@@ -2511,22 +2511,22 @@ This is a stability release.
 - [Menu] Isolate more integration tests (#17490) @eps1lon
 - [SelectInput] Use `@testing-library` for test (#17390) @eps1lon
 
-### `@material-ui/styles@v4.4.3`
+### `@stoked-ui/styles@v4.4.3`
 
 - [styles] Bump jss dependencies to 10.0.0-alpha.25 (#17520) @eps1lon
 - [core] Replace warning with manual console.error (#17404) @eps1lon
 
-### `@material-ui/lab@v4.0.0-alpha.27`
+### `@stoked-ui/lab@v4.0.0-alpha.27`
 
 - [TreeItem] Use the 'endIcon' prop where appropriate (#17488) @Chocolatl
 - [Skeleton] Make default CSS display mode to block (#17406) @ahtcx
 - [SpeedDial] Rework part of the logic (#17301) @hashwin
 
-### `@material-ui/icons@v4.4.3`
+### `@stoked-ui/icons@v4.4.3`
 
 - [docs] Update README.md
 
-### `@material-ui/system@v4.4.3`
+### `@stoked-ui/system@v4.4.3`
 
 - [core] Replace warning with manual console.error (#17404) @eps1lon
 
@@ -2569,7 +2569,7 @@ _Sep 11, 2019_
 A big thanks to the 7 contributors who made this release possible!
 This is a quick release after v4.4.1 to solve 3 regressions.
 
-### `@material-ui/core@v4.4.2`
+### `@stoked-ui/core@v4.4.2`
 
 - [Grid] Remove lab import @oliviertassinari
 - [Radio] Add zIndex to SwitchBase (#17389) @andokai
@@ -2578,7 +2578,7 @@ This is a quick release after v4.4.1 to solve 3 regressions.
 
 ### Docs
 
-- [docs] Add material-ui-flat-pagination to related projects (#17372) @szmslab
+- [docs] Add stoked-ui-flat-pagination to related projects (#17372) @szmslab
 - [docs] Add tubular-react in related project (#17371) @geoperez
 - [docs] Add tubular-react to tables related projects (#17382) @geoperez
 - [docs] Fix color tool crash (#17380) @jsjain
@@ -2600,7 +2600,7 @@ Here are some highlights ✨:
   This change allows the IDEs to display the props' descriptions in place, without having to go to the documentation.
 - And many more 🐛 bug fixes and 📚 improvements.
 
-### `@material-ui/core@v4.4.1`
+### `@stoked-ui/core@v4.4.1`
 
 - [Badge] Improve shape of 2 digit badge (#17247) @mbrookes
 - [Cars] Fix export issue for consistency (#17354) @yikkok-yong
@@ -2614,18 +2614,18 @@ Here are some highlights ✨:
 - [TextareaAutosize] Show scrollbar when rowsMax is exceeded (#17310) @Shubhamchinda
 - [useMediaQuery] Workaround Safari wrong implementation of matchMedia (#17315) @momentpaul
 
-### `@material-ui/icons@v4.4.1`
+### `@stoked-ui/icons@v4.4.1`
 
 - [icons] Add social icons (#17274) @mbrookes
 - [icons] Refresh material icons (#17259) @colemars
 - [icons] Update script to use latest json file (#17257) @colemars
 
-### `@material-ui/styles@v4.4.1`
+### `@stoked-ui/styles@v4.4.1`
 
 - [styles] Fix global classnames being disabled in deserialized themes (#17345) @eps1lon
 - [styles] Support augmenting a default theme type (#16777) @merceyz
 
-### `@material-ui/lab@v4.0.0-alpha.26`
+### `@stoked-ui/lab@v4.0.0-alpha.26`
 
 - [lab] Generate proptypes from type definitions (#17300) @merceyz
 - [ToggleButton] Improve accessibility (#17290) @mbrookes
@@ -2673,7 +2673,7 @@ Here are some highlights ✨:
 - 🏝 Add standalone ToggleButton mode (#17187) @simshaun.
 - And many more 🐛 bug fixes and 📚 improvements.
 
-### `@material-ui/core@v4.4.0`
+### `@stoked-ui/core@v4.4.0`
 
 - [Backdrop] Render children inside div (#17115) @dominictwlee
 - [Button] Fix typo in demo text (#17230) @jasonkylefrank
@@ -2697,7 +2697,7 @@ Here are some highlights ✨:
 - [Badge] Add alignment options to badges (#17204) @ahtcx
 - [LinearProgress] Make color adapt to theme type (#17219) @ahtcx
 
-### `@material-ui/lab@v4.0.0-alpha.25`
+### `@stoked-ui/lab@v4.0.0-alpha.25`
 
 - [ToggleButton] Improve customizability (#17187) @simshaun
 - [TreeView] Support node label (#17080) @oliviertassinari
@@ -2731,10 +2731,10 @@ A big thanks to the 22 contributors who made this release possible!
 
 Here are some highlights ✨:
 
-- 🔍 Introduce a [material icons search](https://mui.com/components/material-icons/) (#16956).
+- 🔍 Introduce a [material icons search](https://stokedui.com/components/material-icons/) (#16956).
 - And many more 🐛 bug fixes and 📚 improvements.
 
-### `@material-ui/core@v4.3.3`
+### `@stoked-ui/core@v4.3.3`
 
 - [AppBar] Add back to top demo (#17062) @oliviertassinari
 - [CardHeader] Remove mention of children from API docs (#17045) @cmeeren
@@ -2751,13 +2751,13 @@ Here are some highlights ✨:
 - [Tooltip] Fix word wrapping (#17020) @pranshuchittora
 - [Tooltip] Improve arrow demo (#17058) @Patil2099
 
-### `@material-ui/lab@v4.0.0-alpha.24`
+### `@stoked-ui/lab@v4.0.0-alpha.24`
 
 - [Rating] Improve rendering of arbitrary precision (#17013) @Patil2099
 - [TreeView] Lazy render the tree items (#17046) @Shubhamchinda
 - [Skeleton] Add missing exports from the barrel (#16960) @mejackreed
 
-### `@material-ui/styles@v4.3.3`
+### `@stoked-ui/styles@v4.3.3`
 
 - [styles] Better support right-to-left (#17019) @AminZibayi
 
@@ -2791,7 +2791,7 @@ Here are some highlights ✨:
 - 📦 Reduce bundle size by -10%,-20% of the small helpers like useMediaQuery, Portal, and TextareaAutosize (#16842) @NMinhNguyen.
 - And many more 🐛 bug fixes and 📚 improvements.
 
-### `@material-ui/core@v4.3.2`
+### `@stoked-ui/core@v4.3.2`
 
 - [Box] Forward props into cloned element (#16882) @RostyslavKravchenko
 - [ButtonGroup] Allow override of the variant prop (#16946) @nvwebd
@@ -2807,12 +2807,12 @@ Here are some highlights ✨:
 - [ToggleButton] Fix horizontal shift (#16861) @wereHamster
 - [Transition] Forward isAppearing to onEnter, onEntering, onEntered (#16917) @millerrafi
 
-### `@material-ui/lab@v4.0.0-alpha.23`
+### `@stoked-ui/lab@v4.0.0-alpha.23`
 
 - [TreeView] Fix the height of the customization demo (#16874) @mbrookes
 - [Skeleton] New component (#16786) @oliviertassinari
 
-### `@material-ui/system@v4.3.3`
+### `@stoked-ui/system@v4.3.3`
 
 - [system] Avoid `!important` in `borderColor` prop (#16875) @rogerclotet
 
@@ -2844,7 +2844,7 @@ _Aug 03, 2019_
 
 A big thanks to the 18 contributors who made this release possible!
 
-### `@material-ui/core@v4.3.1`
+### `@stoked-ui/core@v4.3.1`
 
 - [Container] Add missing class key to overrides interface (#16783) @Und3Rdo9
 - [Dialog] Test with testing-library (#16780) @eps1lon
@@ -2858,7 +2858,7 @@ A big thanks to the 18 contributors who made this release possible!
 - [Tooltip] Remove the title attribute when open (#16804) @jamesgeorge007
 - [Transition] Change the default behavior, 0ms duration if prop missing (#16839) @jamesgeorge007
 
-### `@material-ui/lab@v4.0.0-alpha.22`
+### `@stoked-ui/lab@v4.0.0-alpha.22`
 
 - [TreeView] Iterate on the component (#16814) @mbrookes
 - [TreeView] Add customization demo (#16785) @oliviertassinari
@@ -2871,7 +2871,7 @@ A big thanks to the 18 contributors who made this release possible!
 - [docs] Link react-most-wanted (#16856) @TarikHuber
 - [docs] Migrate all public class component to function components (#16693) @bpas247
 - [docs] Small fix for box.md and migration.md (#16806) @DDDDDanica
-- [docs] Update `@material-ui/pickers` (#16823) @eps1lon
+- [docs] Update `@stoked-ui/pickers` (#16823) @eps1lon
 
 ## 4.3.0
 
@@ -2885,11 +2885,11 @@ Here are some highlights ✨:
 
   This is a first step toward a feature rich tree view component.
   We will keep iterate on it to add customization demos, filter, drag and drop, and checkboxes.
-  You can find the documentation under [this URL](https://mui.com/components/tree-view/).
+  You can find the documentation under [this URL](https://stokedui.com/components/tree-view/).
 
 - 💄 Support vertical tabs (#16628) @josephpung.
 
-  You can learn more about it following [this URL](https://mui.com/components/tabs/#vertical-tabs).
+  You can learn more about it following [this URL](https://stokedui.com/components/tabs/#vertical-tabs).
 
 - 📚 Remove the prop-types from TypeScript demos (#16521) @merceyz.
 
@@ -2905,24 +2905,24 @@ Here are some highlights ✨:
     You shouldn't import any module at a higher level depth.
 
   ```diff
-  -import createMuiTheme from '@material-ui/core/styles/createMuiTheme';
-  +import { createMuiTheme } from '@material-ui/core/styles';
+  -import createMuiTheme from '@stoked-ui/core/styles/createMuiTheme';
+  +import { createMuiTheme } from '@stoked-ui/core/styles';
   ```
 
-  - `top-level-imports`: Converts all @material-ui/core submodule imports to the root module.
+  - `top-level-imports`: Converts all @stoked-ui/core submodule imports to the root module.
 
   ```diff
-  -import createMuiTheme from '@material-ui/core/styles/createMuiTheme';
-  +import { createMuiTheme } from '@material-ui/core';
+  -import createMuiTheme from '@stoked-ui/core/styles/createMuiTheme';
+  +import { createMuiTheme } from '@stoked-ui/core';
   ```
 
 - 💄 Support small switch (#16620) @darkowic.
 
-  You can learn more about it following [this URL](https://mui.com/components/switches/#sizes).
+  You can learn more about it following [this URL](https://stokedui.com/components/switches/#sizes).
 
 - And many more 🐛 bug fixes and 📚 improvements.
 
-### `@material-ui/core@v4.3.0`
+### `@stoked-ui/core@v4.3.0`
 
 - [FilledInput] Add hiddenLabel prop (#16671) @oliviertassinari
 - [Menu] Use strict mode compatible testing API (#16582) @eps1lon
@@ -2942,19 +2942,19 @@ Here are some highlights ✨:
 - [TextareaAutosize] Fix infinite render loop (#16635) @oliviertassinari
 - [TextareaAutosize] Fix infinite render loop (#16708) @mcdougal
 
-### `@material-ui/lab@v4.0.0-alpha.21`
+### `@stoked-ui/lab@v4.0.0-alpha.21`
 
 - [TreeView] Add new component (#14827) @joshwooding
 
-### `@material-ui/styles@@4.3.0`
+### `@stoked-ui/styles@@4.3.0`
 
 - [styles] Add typings for font-face (#16639) @merceyz
 
-### `@material-ui/codemod@v4.3.0`
+### `@stoked-ui/codemod@v4.3.0`
 
 - [codemod] Add codemods for optimal tree-shakeable imports (#16192) @jedwards1211
 
-### `@material-ui/system@v4.3.2`
+### `@stoked-ui/system@v4.3.2`
 
 - [core] Import esm babel helpers (#16701) @TrySound
 
@@ -3022,7 +3022,7 @@ Here are some highlights ✨:
 - ⭐️ Introduce a new Rating component in the lab.
 - And many more 🐛 bug fixes and 📚 improvements.
 
-### `@material-ui/core@v4.2.1`
+### `@stoked-ui/core@v4.2.1`
 
 - [Autocomplete] Use placeholder prop (#16568) @himanshupathakpwd
 - [DialogTitle] Update default element from h6 to h2 (#16576) @dayander
@@ -3039,16 +3039,16 @@ Here are some highlights ✨:
 - [Transition] The ref forwarding works (#16531) @oliviertassinari
 - [useMediaQuery] Accept function as argument & more (#16343) @merceyz
 
-### `@material-ui/styles@v4.2.1`
+### `@stoked-ui/styles@v4.2.1`
 
 - [styles] Make theme optional for `styled` components (#16379) (#16478) @akomm
 - [core] Upgrade deepmerge (#16520) @TrySound
 
-### `@material-ui/system@v4.3.1`
+### `@stoked-ui/system@v4.3.1`
 
 - [core] Upgrade deepmerge (#16520) @TrySound
 
-### `@material-ui/lab@v4.0.0-alpha.20`
+### `@stoked-ui/lab@v4.0.0-alpha.20`
 
 - [Rating] Add a new component (#16455) @oliviertassinari
 - [SpeedDialAction] Convert to hook (#16386) @adeelibr
@@ -3100,7 +3100,7 @@ Here are some highlights ✨:
 - 🚀 Remove two dependencies (react-event-listener and debounce).
 - And many more 🐛 bug fixes and 📚 improvements.
 
-### `@material-ui/core@v4.2.0`
+### `@stoked-ui/core@v4.2.0`
 
 - [Tabs] Use the correct window reference (#16497) @NMinhNguyen
 - [Breadcrumbs] Add li to BreadcrumbsClassKey type (#16425) @le0nik
@@ -3124,13 +3124,13 @@ Here are some highlights ✨:
 - [TextareaAutosize] New public component (#16362) @oliviertassinari
 - [Tooltip] Fix arrow demos (#16412) @Favna
 
-### `@material-ui/styles@v4.2.0`
+### `@stoked-ui/styles@v4.2.0`
 
 - [styles] Add test for removing styles via `overrides` (#16420) @eps1lon
 - [styles] Handle props of type any in styled (#16356) @merceyz
 - [styles] Support augmenting CSS properties (#16333) @merceyz
 
-### `@material-ui/lab@v4.0.0-alpha.19`
+### `@stoked-ui/lab@v4.0.0-alpha.19`
 
 - [Slider] Move to core (#16416) @oliviertassinari
 
@@ -3169,12 +3169,12 @@ _June 25, 2019_
 A big thanks to the 4 contributors who made this release possible!
 This is a quick release after a regression that occurred in 4.1.2.
 
-### `@material-ui/core@v4.1.3`
+### `@stoked-ui/core@v4.1.3`
 
 - [core] Revert strict mode compatible transition components (#16348) @eps1lon
 - [theme] Validate fontSize in createTypography (#16321) @merceyz
 
-### `@material-ui/lab@v4.0.0-alpha.18`
+### `@stoked-ui/lab@v4.0.0-alpha.18`
 
 - [Slider] Fix label contrast color (#16350) @oliviertassinari
 
@@ -3199,7 +3199,7 @@ Here are some highlights ✨:
 - ⚛️ Extend StrictMode compatibility to 25 more components (#16283).
 - And many more 🐛 bug fixes and 📚 improvements.
 
-### `@material-ui/core@v4.1.2`
+### `@stoked-ui/core@v4.1.2`
 
 - [ButtonBase] Fix dragging issue (#16250) @LukasMirbt
 - [Dialog] Prepare deprecation of withMobileDialog (#14992) @oliviertassinari
@@ -3221,22 +3221,22 @@ Here are some highlights ✨:
 - [Textarea] Update height when maxRows prop changes (#16298) @tasinet
 - [TouchRipple] Fix ripple staying on fast updates (#16291) @eps1lon
 
-### `@material-ui/icons@v4.2.1`
+### `@stoked-ui/icons@v4.2.1`
 
 - [icons] Remove noise from Google source (#16258) @oliviertassinari
 
-### `@material-ui/system@v4.3.0`
+### `@stoked-ui/system@v4.3.0`
 
 - [system] Add support for marginX, marginY, paddingX, and paddingY (#16169) @dimitropoulos
 - [system] Add visibility property to display (#16231) @aditya1906
 
-### `@material-ui/lab@v4.0.0-alpha.17`
+### `@stoked-ui/lab@v4.0.0-alpha.17`
 
 - [Slider] Fix onChangeCommitted firing on mouseenter (#16329) @cdcasey
 - [Slider] Fix various tick mark issues (#16275) @eps1lon
 - [Slider] Mitigate floating point errors (#16252) @joaosilvalopes
 
-### `@material-ui/styles@v4.1.2`
+### `@stoked-ui/styles@v4.1.2`
 
 - [styles] Make StyleRules backwards compatible (#16200) @merceyz
 - [styles] Only run the check on the client-side (#16284) @oliviertassinari
@@ -3291,26 +3291,26 @@ Here are some highlights ✨:
 - 💄 Add Slider range support (#15703).
 - And many more 📚 improvements.
 
-### `@material-ui/core@v4.1.1`
+### `@stoked-ui/core@v4.1.1`
 
 - [ButtonBase] Fix riple not stopping on mouse up (#16142) @joaosilvalopes
 - [useMediaQuery] Defensive logic against matchMedia not available (#16196) @oliviertassinari
 - [Typography] Fix variantMapping rejecting partial type (#16187) @eps1lon
 
-### `@material-ui/styles@v4.1.1`
+### `@stoked-ui/styles@v4.1.1`
 
 - [styles] Fix react-hot-loader regression (#16195) @oliviertassinari
 
-### `@material-ui/icons@v4.2.0`
+### `@stoked-ui/icons@v4.2.0`
 
 - [icons] Fix generated index.d.ts (#16139) @MayhemYDG
 - [icons] Update and clean the icons (#16166) @oliviertassinari
 
-### `@material-ui/lab@v4.0.0-alpha.16`
+### `@stoked-ui/lab@v4.0.0-alpha.16`
 
 - [Slider] Support range (#15703) @oliviertassinari
 
-### `@material-ui/system@v4.2.0`
+### `@stoked-ui/system@v4.2.0`
 
 - [system] Add overflow, textOverflow, whiteSpace properties (#16129) @aditya1906
 - [system] Add remaining flexbox properties (#16164) @aditya1906
@@ -3325,7 +3325,7 @@ Here are some highlights ✨:
 - [docs] Lowercase text to demo text-transform (#16160) @blmoore
 - [docs] Pseudo-class: the style rules that require an increase of specificity (#16120) @oliviertassinari
 - [docs] Remove `CSS to Material UI webpack Loader` (#16175) @sabrinaluo
-- [docs] import Omit Type from @material-ui/types (#16157) @aditya1906
+- [docs] import Omit Type from @stoked-ui/types (#16157) @aditya1906
 
 ### Core
 
@@ -3349,7 +3349,7 @@ Here are some highlights ✨:
 - 🚀 Reduce TypeScript compile time when using the icons (#16083) @phryneas.
 - And many more 🐛 bug fixes and 📚 improvements.
 
-### `@material-ui/core@v4.1.0`
+### `@stoked-ui/core@v4.1.0`
 
 - [ButtonGroup] New component (#15744) @mbrookes
 - [TextField] Improve dense height to better match the specification (#16087) @Ritorna
@@ -3363,19 +3363,19 @@ Here are some highlights ✨:
 - [Tab] Improve the textColor description (#16085) @sPaCeMoNk3yIam
 - [withWidth] Migrate to hooks (#15678) @jacobbogers
 
-### `@material-ui/system@v4.1.0`
+### `@stoked-ui/system@v4.1.0`
 
 - [system] Add flex to FlexboxProps type definitions (#16045) @ljvanschie
 - [system] Add fontStyle, letterSpacing, lineHeight props (#16109) @aditya1906
 - [system] Fix breakpoints TypeScript types (#15720) @Kujawadl
 
-### `@material-ui/styles@v4.1.0`
+### `@stoked-ui/styles@v4.1.0`
 
 - [styles] Allow CSS properties to be functions (#15546) @merceyz
 - [styles] Fix styled type definition not including properties (#15548) @merceyz
 - [styles] Upgrade jss (#16121) @eps1lon
 
-### `@material-ui/icons@v4.1.0`
+### `@stoked-ui/icons@v4.1.0`
 
 - [icons] Simplify generated index.d.ts to reduce TypeScript compile time (#16083) @phryneas
 
@@ -3388,7 +3388,7 @@ Here are some highlights ✨:
 - [docs] Add redirect for typography migration (#16077) @eps1lon
 - [docs] Add system example for prop + theme key (#16099) @peteruithoven
 - [docs] Batch of small fixes (#16061) @oliviertassinari
-- [docs] Bump material-table and @material-ui/pickers versions (#16039) @eps1lon
+- [docs] Bump material-table and @stoked-ui/pickers versions (#16039) @eps1lon
 - [docs] Change http to https (#16056) @aditya1906
 - [docs] Fix bundle doc typos (#16054) @DDDDDanica
 - [docs] Fix chip array removal (#16086) @joaosilvalopes
@@ -3431,7 +3431,7 @@ Here are some highlights ✨:
 - 🐛 Fix three IE11 issues (#15921, #15952, #15967) @eps1lon, @rupert-ong, @ryancogswell
 - And many more 📚 improvements.
 
-### `@material-ui/core@v4.0.2`
+### `@stoked-ui/core@v4.0.2`
 
 - [Box] Fix prop-types and TypeScript warnings (#15884) @eps1lon
 - [Breadcrumbs] Add theme props and override TypeScript definitions (#15950) @chrislambe
@@ -3447,20 +3447,20 @@ Here are some highlights ✨:
 - [core] Export useMediaQuery & useScrollTrigger in index.js (#15958) @adeelibr
 - [core] Migrate extend ButtonBaseProps typings (#15869) @joshwooding
 
-### `@material-ui/styles@v4.0.2`
+### `@stoked-ui/styles@v4.0.2`
 
 - [styles] Remove warning when component with no displayName is provided (#15913) @eps1lon
 - [styles] Fix createStyles for TypeScript v3.5 (#15990) @merceyz
 
-### `@material-ui/system@v4.0.2`
+### `@stoked-ui/system@v4.0.2`
 
 - [system] Fix typing for flexDirection prop (#15987) @rhmoller
 
-### `@material-ui/lab@v4.0.0-alpha.15`
+### `@stoked-ui/lab@v4.0.0-alpha.15`
 
 - [lab] Consume correct core utils in lab (#15995) @TrySound
 
-### `@material-ui/codemod@v4.0.2`
+### `@stoked-ui/codemod@v4.0.2`
 
 - [codemod] Improve theme codemod to handle destructured theme.spacing (#15916) @sviande
 
@@ -3513,7 +3513,7 @@ Here are some highlights ✨:
 - 🐛 Fix IE11 crash (#15856) @aditya1906.
 - 📚 Clean up the documentation after the next -> master migration.
 
-### `@material-ui/core@v4.0.1`
+### `@stoked-ui/core@v4.0.1`
 
 - [Buttons] Consolidate ripple props type declarations (#15843) @lychyi
 - [IconButton] Add disable ripple props (#15864) @lychyi
@@ -3522,19 +3522,19 @@ Here are some highlights ✨:
 - [Tooltip] Fix alignment issues (#15811) @pkmnct
 - [styles] Add MuiLink to ComponentsPropsList (#15814) @stuartgrigg
 
-### `@material-ui/icons@v4.0.1`
+### `@stoked-ui/icons@v4.0.1`
 
 - [icons] Fix the TypeScript definition of createSvgIcon (#15861) @alexkirsz
 
-### `@material-ui/codemod@v4.0.1`
+### `@stoked-ui/codemod@v4.0.1`
 
 - [codemod] Create spacing API codemod (#15782) @joshwooding
 
-### `@material-ui/styles@v4.0.1`
+### `@stoked-ui/styles@v4.0.1`
 
 - [styles] Fix Symbol() usage in IE11 (#15856) @aditya1906
 
-### `@material-ui/lab@v4.0.0-alpha.14`
+### `@stoked-ui/lab@v4.0.0-alpha.14`
 
 - [lab] Add missing clsx calls (#15809) @merceyz
 
@@ -3566,7 +3566,7 @@ Here are some highlights ✨:
 - [docs] Update translations (#15841) @mbrookes
 - [docs] Use makeStyles from core in layout examples (#15845) @divyanshutomar
 - [docs] Fix typo in README (#15817) @ammaristotle
-- [example] Update gatsby-plugin-material-ui dependency (#15810) @hupe1980
+- [example] Update gatsby-plugin-stoked-ui dependency (#15810) @hupe1980
 
 ### Core
 
@@ -3583,18 +3583,18 @@ Here are some highlights ✨:
 
 _May 23, 2019_
 
-[Material UI v4 is out 🎉](https://mui.com/blog/material-ui-v4-is-out/)
+[Material UI v4 is out 🎉](https://stokedui.com/blog/stoked-ui-v4-is-out/)
 
 Some statistics with v4 compared to the release of v1 one year ago:
 
 - From 300k downloads/month to 2M downloads/month on npm
 - From 90k users/month to 350k users/month on the documentation
 
-### `@material-ui/lab@v4.0.0-alpha.13`
+### `@stoked-ui/lab@v4.0.0-alpha.13`
 
 - [ToggleButtonGroup] Added missing size prop to type declarations (#15785) @CoolCyberBrain
 
-### `@material-ui/system@v4.0.0`
+### `@stoked-ui/system@v4.0.0`
 
 - [system] Add missing TypeScript types for flexbox and shadows (#15781) @willbamford
 
@@ -3622,7 +3622,7 @@ A A big thanks to the 17 contributors who made this release possible!
 We have done the very last breaking changes (nothing significant).
 The release of v4 is imminent, stay tuned!
 
-### `@material-ui/core@v4.0.0-rc.0`
+### `@stoked-ui/core@v4.0.0-rc.0`
 
 ### Breaking changes
 
@@ -3663,11 +3663,11 @@ The release of v4 is imminent, stay tuned!
 - [Tabs] Update onChange docs to match types (#15672) @jharrilim
 - [ToggleButtonGroup] Add size prop (#15644) @isaacblinder
 
-### `@material-ui/icons@v4.0.0-rc.0`
+### `@stoked-ui/icons@v4.0.0-rc.0`
 
 - [icons] Forward ref (#15683) @eps1lon
 
-### `@material-ui/lab@v4.0.0-alpha.12`
+### `@stoked-ui/lab@v4.0.0-alpha.12`
 
 - [SpeedDial] Convert to function component (#15737) @jeongsd
 
@@ -3683,7 +3683,7 @@ The release of v4 is imminent, stay tuned!
 - [docs] Persist the side nav scroll (#15704) @oliviertassinari
 - [docs] Port blog to next (#15711) @mbrookes
 - [docs] Simplify /related-projects (#15702) @pinturic
-- [docs] Use pickers from material-ui namespace (#15691) @eps1lon
+- [docs] Use pickers from stoked-ui namespace (#15691) @eps1lon
 - [docs] Warn about ButtonBase#disableRipple and a11y (#15740) @eps1lon
 - [docs] Add ClickAwayListener breaking change (#15753) @eps1lon
 - [docs] Core a11y improvements (#15748) @eps1lon
@@ -3703,7 +3703,7 @@ A A big thanks to the 13 contributors who made this release possible!
 
 This is a stability release preparing v4.
 
-### `@material-ui/core@v4.0.0-beta.2`
+### `@stoked-ui/core@v4.0.0-beta.2`
 
 - [Box] Add export to barrel (index.js) (#15602) @ljvanschie
 - [ButtonBase] Extend error message for invalid `component` prop (#15627) @eps1lon
@@ -3712,16 +3712,16 @@ This is a stability release preparing v4.
 - [Tabs] scrollButtons have an empty button error in compliance tools (#15646) @elnikolinho
 - [useScrollTrigger] Enhance trigger, improve tests (#15634) @cvanem
 
-### `@material-ui/styles@v4.0.0-beta.2`
+### `@stoked-ui/styles@v4.0.0-beta.2`
 
 - [styles] Fix warning false positive (#15595) @oliviertassinari
 - [styles] Keep MuiThemeProvider for backward compatibility (#15650) @oliviertassinari
 
-### `@material-ui/system@v4.0.0-beta.2`
+### `@stoked-ui/system@v4.0.0-beta.2`
 
 - [system] Fix CSS function rejecting certain prop types (#15611) @eps1lon
 
-### `@material-ui/lab@v4.0.0-alpha.11`
+### `@stoked-ui/lab@v4.0.0-alpha.11`
 
 - [SpeedDial] Fix classname override logic (#15652) @janhesters
 
@@ -3763,7 +3763,7 @@ Here are some highlights ✨:
 - ♿️ Better Button and Tooltip keyboard behavior (#15398, #15484) @eps1lon.
 - And many more 🔍 TypeScript fixes and 📚 documentation improvements.
 
-### `@material-ui/core@v4.0.0-beta.1`
+### `@stoked-ui/core@v4.0.0-beta.1`
 
 ### Bug fixes / Breaking changes
 
@@ -3788,21 +3788,21 @@ Here are some highlights ✨:
 - [Transition] Fix false-positive ref warning (#15526) @eps1lon
 - [Badge] Handle undefined badgeContent rendering empty bubble (#15581) @Naismith
 
-### `@material-ui/styles@v4.0.0-beta.1`
+### `@stoked-ui/styles@v4.0.0-beta.1`
 
 - [styles] Create a new JSS instance with injectFirst (#15560) @oliviertassinari
 - [core] Set default theme type for makeStyles (#15549) @merceyz
 - [core] Set default theme type for useTheme (#15538) @merceyz
 
-### `@material-ui/types@v4.0.0-beta.2`
+### `@stoked-ui/types@v4.0.0-beta.2`
 
-- [types] Add @material-ui/types package (#15577) @eps1lon
+- [types] Add @stoked-ui/types package (#15577) @eps1lon
 
-### `@material-ui/system@v4.0.0-beta.1`
+### `@stoked-ui/system@v4.0.0-beta.1`
 
 - [system] Test types (#15575) @eps1lon
 
-### `@material-ui/lab@v4.0.0-alpha.10`
+### `@stoked-ui/lab@v4.0.0-alpha.10`
 
 - [Slider] Save focus after click (#15439) @jztang
 
@@ -3853,10 +3853,10 @@ We will focus or effort on the stability of the library for the next two weeks.
 We don't plan more breaking changes, at the exception of changes that are required to fix bugs or that have minor impacts.
 We hope we can release v4 on May 15th, one year after v1.
 
-Please try the beta out! You can find an [upgrade guide](https://mui.com/material-ui/migration/migration-v3/) to ease the transition.
+Please try the beta out! You can find an [upgrade guide](https://stokedui.com/stoked-ui/migration/migration-v3/) to ease the transition.
 You will learn more about v4 in the final release blog post and our plans for the future.
 
-### `@material-ui/core@v4.0.0-beta.0`
+### `@stoked-ui/core@v4.0.0-beta.0`
 
 #### Breaking Changes
 
@@ -3917,10 +3917,10 @@ You will learn more about v4 in the final release blog post and our plans for th
 - [Textarea] Fix cursor jump (#15436) @oliviertassinari
 - [Textarea] Remove rowsMin prop (#15430) @pachuka
 
-### `@material-ui/styles@v4.0.0-beta.0`
+### `@stoked-ui/styles@v4.0.0-beta.0`
 
 - [styles] Add type test for withStyles + ref (#15383) @eps1lon
-- [styles] Warn if @material-ui/styles is duplicated (#15422) @oliviertassinari
+- [styles] Warn if @stoked-ui/styles is duplicated (#15422) @oliviertassinari
 - [styles] Generate global class names (#15140) @oliviertassinari
 
 ### Docs
@@ -3988,11 +3988,11 @@ Here are the last breaking changes we want to introduce:
 
 We have done a lot of changes in the alpha phase.
 The beta phase will be used to stabilize the library, we might have introduced bugs.
-We will encourage people to try the beta out. We hope the migration will be smooth [with the upgrade guide](https://mui.com/material-ui/migration/migration-v3/).
+We will encourage people to try the beta out. We hope the migration will be smooth [with the upgrade guide](https://stokedui.com/stoked-ui/migration/migration-v3/).
 
 We hope 2-3 weeks of beta will be enough. We plan on releasing v4 stable in May.
 
-### `@material-ui/core@v4.0.0-alpha.8`
+### `@stoked-ui/core@v4.0.0-alpha.8`
 
 #### Breaking Changes
 
@@ -4059,16 +4059,16 @@ We hope 2-3 weeks of beta will be enough. We plan on releasing v4 stable in May.
 - [Container] Add component prop for TypeScript (#15369) @Amere
 - [Popper] Fix popperOptions prop (#15359) @jaipe
 
-### `@material-ui/styles@v4.0.0-alpha.8`
+### `@stoked-ui/styles@v4.0.0-alpha.8`
 
 - Fix dependency duplication issue @oliviertassinari
 - [styles] Improve typings for makeStyles (#15366) @geirsagberg
 
-### `@material-ui/system@v4.0.0-alpha.8`
+### `@stoked-ui/system@v4.0.0-alpha.8`
 
 - [system] Add types (#15357) @eps1lon
 
-### `@material-ui/docs@v4.0.0-alpha.8`
+### `@stoked-ui/docs@v4.0.0-alpha.8`
 
 - [NProgressBar] Add types (#15380) @eps1lon
 
@@ -4082,7 +4082,7 @@ We hope 2-3 weeks of beta will be enough. We plan on releasing v4 stable in May.
 - [docs] Add most Drawer TypeScript demos (#15119) @cahilfoley
 - [docs] Slight grammar changes to color.md (#15257) @raybooysen
 - [docs] Document sharing makeStyles between components (#15234) @johnraz
-- [docs] Improve the @material-ui/styles documentation (#15236) @oliviertassinari
+- [docs] Improve the @stoked-ui/styles documentation (#15236) @oliviertassinari
 - [docs] Add CheckboxesGroup TypeScript demo (#15228) @donigianrp
 - [docs] Delete legacy lab/layout (#15285) @mbrookes
 - [docs] Proof the Styles section (#15268) @mbrookes
@@ -4143,7 +4143,7 @@ Here are some highlights ✨:
 - 📐 Update the selection controls and Snackbar to better match the Material Design specification.
 - And many more 🐛 bug fixes and 💄 improvements.
 
-### `@material-ui/core@v4.0.0-alpha.7`
+### `@stoked-ui/core@v4.0.0-alpha.7`
 
 #### Breaking Changes
 
@@ -4192,7 +4192,7 @@ Here are some highlights ✨:
 - [FormControl] Convert to function component (#15208) @joshwooding
 - [SwitchBase] Convert to function component (#15188) @joshwooding
 
-### `@material-ui/styles@v4.0.0-alpha.7`
+### `@stoked-ui/styles@v4.0.0-alpha.7`
 
 - [styles] Fix types of ServerStyleSheets.collect (#15156) @evenchange4
 - [styles] Add injectFirst to StylesOptions interface (#15192) @stefanorie
@@ -4247,7 +4247,7 @@ Here are some highlights ✨:
 - 💅 Better typography defaults (#15100) @oliviertassinari
 - And many more 🐛 bug fixes and 💄 improvements.
 
-### `@material-ui/core@v4.0.0-alpha.6`
+### `@stoked-ui/core@v4.0.0-alpha.6`
 
 #### Breaking Changes
 
@@ -4277,7 +4277,7 @@ Here are some highlights ✨:
 - [MobileStepper] Support variant "text" (#15108) @AcidRaZor
 - [Tabs] Update so that tabs keep equal widths (#15114) @sosaucily
 
-### `@material-ui/styles@v4.0.0-alpha.6`
+### `@stoked-ui/styles@v4.0.0-alpha.6`
 
 - [styles] Fix IE11 issue (#15034) @oliviertassinari
 - [styles] Use the hook directly in styled() (#15029) @oliviertassinari
@@ -4286,7 +4286,7 @@ Here are some highlights ✨:
 - [styles] Server-side rendering API (#15030) @oliviertassinari
 - [styled] Correct doc and typings for styled with theme (#15004) @sveyret
 
-### `@material-ui/lab@v4.0.0-alpha.6`
+### `@stoked-ui/lab@v4.0.0-alpha.6`
 
 - [Slider] Fix onChange not being fired on single touch (#14998) @ahockersten
 
@@ -4325,9 +4325,9 @@ _Mar 28, 2019_
 
 A big thanks to the 11 contributors who made this release possible!
 
-This release fixes an important regression with TypeScript: https://github.com/mui/material-ui/issues/15076.
+This release fixes an important regression with TypeScript: https://github.com/stoked-ui/stoked-ui/issues/15076.
 
-### `@material-ui/core@v3.9.3`
+### `@stoked-ui/core@v3.9.3`
 
 - [Select] Open select when focused with enter (#14452) @oknechirik
 - [Tooltip] Fix children focus detection (#14496) @codeheroics
@@ -4361,7 +4361,7 @@ Here are some highlights ✨:
 - 📝 Many new TypeScript demos @vitkon, @cojennin, @Dudrie, @rahmatrhd, @jasondashwang.
 - And many more 🐛 bug fixes and 💄 improvements.
 
-### `@material-ui/core@v4.0.0-alpha.5`
+### `@stoked-ui/core@v4.0.0-alpha.5`
 
 #### Breaking Changes
 
@@ -4399,7 +4399,7 @@ Here are some highlights ✨:
 - [Chip] Support pressing delete to delete a chip (#14978) @keeslinp
 - [Box] Improve TypeScript definitions (#15024) @pheuter
 
-### `@material-ui/styles@v4.0.0-alpha.5`
+### `@stoked-ui/styles@v4.0.0-alpha.5`
 
 - [test] Remove test-only class wrappers for higher-order components (#15017) @eps1lon
 
@@ -4438,12 +4438,12 @@ A A big thanks to the 17 contributors who made this release possible!
 
 Here are some highlights ✨:
 
-- Improve the TypeScript definitions of @material-ui/styles @VincentLanglet.
+- Improve the TypeScript definitions of @stoked-ui/styles @VincentLanglet.
 - Prepare the migration of more TypeScript demos (#14896) @eps1lon.
 - Complete the i18n support for the documentation (#14838) @oliviertassinari.
 - And many more 🐛 bug fixes and 📝 documentation improvements.
 
-### `@material-ui/core@v4.0.0-alpha.4`
+### `@stoked-ui/core@v4.0.0-alpha.4`
 
 #### Breaking Changes
 
@@ -4467,8 +4467,8 @@ Here are some highlights ✨:
 - [Box] Remove the unstable prefix & import the right version (#14845) @pheuter
 
   ```diff
-  -import { unstable_Box as Box } from '@material-ui/core/Box';
-  +import Box from '@material-ui/core/Box';
+  -import { unstable_Box as Box } from '@stoked-ui/core/Box';
+  +import Box from '@stoked-ui/core/Box';
   ```
 
 #### Changes
@@ -4490,14 +4490,14 @@ Here are some highlights ✨:
 - [TextField] Convert to function component (#14833) @eps1lon
 - [Table] Fix demo parse rowsPerPage value as an integer (#14848) @SimplyAhmazing
 
-### `@material-ui/styles@v4.0.0-alpha.4`
+### `@stoked-ui/styles@v4.0.0-alpha.4`
 
-- [styles] Change material-ui/styles folder structure (#14868) @VincentLanglet
+- [styles] Change stoked-ui/styles folder structure (#14868) @VincentLanglet
 - [styles] Add WithThemeCreator typing (#14856) @VincentLanglet
 - [styles] Add types for defaultTheme option in makeStyles (#14862) @vitkon
 - [styles] Make CSSProperties public (#14802) @VincentLanglet
 
-### `@material-ui/lab@v4.0.0-alpha.4`
+### `@stoked-ui/lab@v4.0.0-alpha.4`
 
 - [Slider] Fix possible touchstart leak (#14837) @eps1lon
 
@@ -4520,7 +4520,7 @@ Here are some highlights ✨:
 - [test] Leaner eslint config (#14901) @eps1lon
 - [core] Upgrade the dev dependencies (#14911) @oliviertassinari
 - [core] Stop using @types/jss (#14852) @VincentLanglet
-- [core] Babel plugin unwrap createStyles now handle material-ui/styles package (#14850) @VincentLanglet
+- [core] Babel plugin unwrap createStyles now handle stoked-ui/styles package (#14850) @VincentLanglet
 - [test] Fix unwrapCreateStyles tests for windows (#14832) @ryancogswell
 
 ## 4.0.0-alpha.3
@@ -4536,15 +4536,15 @@ Here are some highlights ✨:
 - 📝 Migrate many demos to use the hooks API (#14805) @adeelibr.
 - And many more 🐛 bug fixes and 📝 documentation improvements.
 
-### `@material-ui/core@v4.0.0-alpha.3`
+### `@stoked-ui/core@v4.0.0-alpha.3`
 
 #### Breaking Changes
 
 - [useMediaQuery] Remove unstable prefix (#14593)
 
   ```diff
-  -import { unstable_useMediaQuery as useMediaQuery } from '@material-ui/core/useMediaQuery';
-  +import useMediaQuery from '@material-ui/core/useMediaQuery';
+  -import { unstable_useMediaQuery as useMediaQuery } from '@stoked-ui/core/useMediaQuery';
+  +import useMediaQuery from '@stoked-ui/core/useMediaQuery';
   ```
 
 - [DialogActions] `action` CSS class is applied to root element if `disableActionSpacing={false}` instead of children (#14795)
@@ -4570,7 +4570,7 @@ Here are some highlights ✨:
 - [IconButton] Implement a new edge prop (#14758) @jedwards1211
 - [Dialog] Add a dividers boolean prop (#14795) @oliviertassinari
 
-### `@material-ui/styles@v4.0.0-alpha.3`
+### `@stoked-ui/styles@v4.0.0-alpha.3`
 
 #### Breaking Changes
 
@@ -4580,14 +4580,14 @@ Here are some highlights ✨:
   - Remove the `MuiThemeProvider` component:
 
     ```diff
-    -import { MuiThemeProvider } from '@material-ui/core/styles';
-    +import { ThemeProvider } from '@material-ui/styles';
+    -import { MuiThemeProvider } from '@stoked-ui/core/styles';
+    +import { ThemeProvider } from '@stoked-ui/styles';
     ```
 
-  - Remove the `@material-ui/styles/install` module.
+  - Remove the `@stoked-ui/styles/install` module.
 
     ```diff
-    -import { install } from '@material-ui/styles';
+    -import { install } from '@stoked-ui/styles';
     -install();
     ```
 
@@ -4596,7 +4596,7 @@ Here are some highlights ✨:
 - [styles] Improve ref forwarding (#13676) @eps1lon
 - [styles] Use hoist-non-react-statics (#14722) @oliviertassinari
 
-### `@material-ui/lab@v4.0.0-alpha.3`
+### `@stoked-ui/lab@v4.0.0-alpha.3`
 
 - [SpeedDial] Change actions background color (#14640) @hburrows
 - [SpeedDialAction] Pass onTouchEnd event onto called onClick handler (#14641) @hburrows
@@ -4638,7 +4638,7 @@ Here are some highlights ✨:
 - Start removing the need for findDOMNode() (#14536) @eps1lon.
 - And many more 🐛 bug fixes and 📝 documentation improvements.
 
-### `@material-ui/core@v4.0.0-alpha.2`
+### `@stoked-ui/core@v4.0.0-alpha.2`
 
 #### Breaking Changes
 
@@ -4694,18 +4694,18 @@ Here are some highlights ✨:
 - [ListItem] Fix listItem focus (#14680) @xs9627
 - [ExpansionPanel] Improve a11y (#14682) @eps1lon
 
-### `@material-ui/styles@v4.0.0-alpha.2`
+### `@stoked-ui/styles@v4.0.0-alpha.2`
 
 - [styles] Fix the theme update support (#14697) @oliviertassinari
 
-### `@material-ui/lab@v4.0.0-alpha.2`
+### `@stoked-ui/lab@v4.0.0-alpha.2`
 
 - [Slider] Pass current value to onDragStart/onDragEnd callback (#14475) @rejas
 - [Slider] Fix thumb creating scroll overflow (#14689) @xaviergonz
 - [Layout] New Container component (#14499) @oliviertassinari
 - [Container] Fix two exceptions (#14715) @oliviertassinari
 
-### `@material-ui/utils@v4.0.0-alpha.2`
+### `@stoked-ui/utils@v4.0.0-alpha.2`
 
 - [utils] Drop componentPropType in favor of PropTypes.elementType (#14602) @eps1lon
 
@@ -4757,7 +4757,7 @@ Here are some highlights ✨:
 - Remove the deprecated Typography variants (#14562) @joshwooding
 - And many more 🐛 bug fixes and 📝 documentation improvements.
 
-### `@material-ui/core@v4.0.0-alpha.1`
+### `@stoked-ui/core@v4.0.0-alpha.1`
 
 #### Breaking Changes
 
@@ -4806,7 +4806,7 @@ The `TablePagination` component does no longer try to fix invalid (`page`, `coun
 - [TablePagination] Fix style issue with rpp select (#14547) @antokara
 - [Modal] Improve the focus logic (#14545) @oliviertassinari
 
-### `@material-ui/styles@v4.0.0-alpha.1`
+### `@stoked-ui/styles@v4.0.0-alpha.1`
 
 #### Breaking Changes
 
@@ -4827,13 +4827,13 @@ Remove the first option argument of `withTheme()`. The first argument was a plac
 - [styles] Add react-hot-loader support (#14583) @oliviertassinari
 - [styles] Warn if missing ThemeProvider (#14581) @oliviertassinari
 
-### `@material-ui/icons@v4.0.0-alpha.1`
+### `@stoked-ui/icons@v4.0.0-alpha.1`
 
 - [icons] Remove es folder (#14518) @mgansler
 
 ### Docs
 
-- [docs] yarn command to add @material-ui/icons (#14502) @Inambe
+- [docs] yarn command to add @stoked-ui/icons (#14502) @Inambe
 - [docs] Update CHANGELOG.md (#14516) @saculbr
 - [examples] Add lib to tsconfig (#14507) @eps1lon
 - [docs] Enable es, fr, pt & ru (#14537) @oliviertassinari
@@ -4863,8 +4863,8 @@ _Feb 12, 2019_
 This is our first unstable release toward Material UI v4.0.0. We try to release a major every 6-12 months.
 This gives us the opportunity to remove deprecated APIs, upgrade our peer dependencies and more importantly, keep up with the direction the community is taking.
 
-- You can find the documentation following this URL: https://mui.com/.
-- You can track our progress following this URL: https://github.com/mui/material-ui/milestone/25.
+- You can find the documentation following this URL: https://stokedui.com/.
+- You can track our progress following this URL: https://github.com/stoked-ui/stoked-ui/milestone/25.
 
 A A big thanks to the 28 contributors who made this release possible!
 
@@ -4876,7 +4876,7 @@ Here are some highlights ✨:
 - Remove recompose dependency (#14479)
 - And many more 🐛 bug fixes and 📝 documentation improvements.
 
-### `@material-ui/core@v4.0.0-alpha.0`
+### `@stoked-ui/core@v4.0.0-alpha.0`
 
 #### Breaking Changes
 
@@ -4901,7 +4901,7 @@ In order to support arbitrary spacing values and to remove the need to mentally 
 +  spacing: PropTypes.oneOf([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
 ```
 
-Going forward, you can use the theme to implement a custom Grid spacing transformation function: https://mui.com/system/spacing/#transformation.
+Going forward, you can use the theme to implement a custom Grid spacing transformation function: https://stokedui.com/system/spacing/#transformation.
 
 - [theme] Make theme.palette.augmentColor() pure (#13899) @ryancogswell
 
@@ -4924,13 +4924,13 @@ console.log({ background });
   const {
     Button,
     TextField,
-  -} = window['material-ui'];
+  -} = window['stoked-ui'];
   +} = MaterialUI;
   ```
 
   It's consistent with the other projects:
 
-  - material-ui => MaterialUI
+  - stoked-ui => MaterialUI
   - react-dom => ReactDOM
   - prop-types => PropTypes
 
@@ -4949,9 +4949,9 @@ Remove the deprecated button flat, raised and fab variants:
 ```
 
 ```diff
--import Button from '@material-ui/core/Button';
+-import Button from '@stoked-ui/core/Button';
 -<Button variant="fab" />
-+import Fab from '@material-ui/core/Fab';
++import Fab from '@stoked-ui/core/Fab';
 +<Fab />
 ```
 
@@ -4989,31 +4989,31 @@ _Tip: you can provide more than one argument: `theme.spacing(1, 2) // = '8px 16p
 - [theme] Improve the state warning (#14412) @oliviertassinari
 - [InputBase] Provide input adornments with FormControlContext (#14364) @mtidei
 
-### `@material-ui/styles@v4.0.0-alpha.0`
+### `@stoked-ui/styles@v4.0.0-alpha.0`
 
 - [core] Increase React peer dependency to v16.8.0 (#14432) @oliviertassinari
 
-### `@material-ui/system@v4.0.0-alpha.0`
+### `@stoked-ui/system@v4.0.0-alpha.0`
 
 - [core] Increase React peer dependency to v16.8.0 (#14432) @oliviertassinari
 
-### `@material-ui/icons@v4.0.0-alpha.0`
+### `@stoked-ui/icons@v4.0.0-alpha.0`
 
 - [core] Increase React peer dependency to v16.8.0 (#14432) @oliviertassinari
 
-### `@material-ui/docs@v4.0.0-alpha.0`
+### `@stoked-ui/docs@v4.0.0-alpha.0`
 
 - [core] Increase React peer dependency to v16.8.0 (#14432) @oliviertassinari
 
-### `@material-ui/lab@v4.0.0-alpha.0`
+### `@stoked-ui/lab@v4.0.0-alpha.0`
 
 #### Breaking Changes
 
 - [Breadcrumbs] Move to the core (#14436) @oliviertassinari
 
 ```diff
--import Breadcrumbs from '@material-ui/lab/Breadcrumbs';
-+import Breadcrumbs from '@material-ui/core/Breadcrumbs';
+-import Breadcrumbs from '@stoked-ui/lab/Breadcrumbs';
++import Breadcrumbs from '@stoked-ui/core/Breadcrumbs';
 ```
 
 - [ToggleButton] Update styles for Material v2 (#14278) @mbrookes
@@ -5076,12 +5076,12 @@ A big thanks to the 16 contributors who made this release possible!
 Here are some highlights ✨:
 
 - ⚛️ Add a new Breadcrumb component to the lab (#14084) @mbrookes
-  https://mui.com/lab/breadcrumbs
+  https://stokedui.com/lab/breadcrumbs
 - 📝 AppBar and Textfield demos in TypeScript (#13229) @eps1lon
 - 📝 Prepare support for 5 new documentation languages
 - And many more 🐛 bug fixes and 📝 documentation improvements.
 
-### `@material-ui/core@v3.9.2`
+### `@stoked-ui/core@v3.9.2`
 
 - [Portal] Fix onRendered being called before child componentDidUpdate (#14305) @joshwooding
 - [Select] Id should not be set from name if missing (#14322) @aericson
@@ -5092,11 +5092,11 @@ Here are some highlights ✨:
 - [ListItem] Improve ListItemSecondaryAction DX (#14350) @eps1lon
 - [ExpansionPanel] Fix userAgent check (#14361) @Floriferous
 
-### `@material-ui/styles@v3.0.0-alpha.10`
+### `@stoked-ui/styles@v3.0.0-alpha.10`
 
 - [styles] Export StyleRules as public type #14362 @VincentLanglet
 
-### `@material-ui/lab@v3.0.0-alpha.30`
+### `@stoked-ui/lab@v3.0.0-alpha.30`
 
 - [Slider] Added valueReducer prop (#12665) @aseem191
 - [lab] Add a Breadcrumb component (#14084) @mbrookes
@@ -5135,11 +5135,11 @@ A big thanks to the 30 contributors who made this release possible!
 Here are some highlights ✨:
 
 - 🐛 Fix many Dialog issues (#13789, #14240, #14288) @joshwooding, @zharris6
-- 📝 Promote material-ui-pickers (#14277)
+- 📝 Promote stoked-ui-pickers (#14277)
 - 🚀 Remove the keycode dependency (#14248)
 - And many more 🐛 bug fixes and 📝 documentation improvements.
 
-### `@material-ui/core@v3.9.1`
+### `@stoked-ui/core@v3.9.1`
 
 - [Tooltip] Add example using node (#14182) @Varad25
 - [Badge] Make badgeContent optional in ts too (#14186) @kLabz
@@ -5154,7 +5154,7 @@ Here are some highlights ✨:
 - [TextField] Fix to expose helperText for accessibility (#14266) @mlenser
 - [Modal] Hide the manager property (#14273) @oliviertassinari
 - [GridListTileBar] Add missing titleWrap key (#14275) @nroot86vml
-- [Pickers] Promote material-ui-pickers (#14277) @oliviertassinari
+- [Pickers] Promote stoked-ui-pickers (#14277) @oliviertassinari
 - [Select] Add customization demo (#14281) @bemineni
 - [ExpansionPanel] Fix square support (#14282) @brandonvilla21
 - [Dialog] Fix scrollbar (#14288) @joshwooding
@@ -5163,16 +5163,16 @@ Here are some highlights ✨:
 - [MobileStepper] Fix typo CSS API (#14300) @DenrizSusam
 - [Link] Add TypeScript test and distinguish from react-router link test (#14304) @rosskevin
 
-### `@material-ui/styles@v3.0.0-alpha.9`
+### `@stoked-ui/styles@v3.0.0-alpha.9`
 
 - [styles] Better warning message (#14290) @oliviertassinari
 - [styles] Document the right react-jss version for legacy style modules (#14237) @mrmedicine
 
-### `@material-ui/lab@v3.0.0-alpha.29`
+### `@stoked-ui/lab@v3.0.0-alpha.29`
 
 - [Slider] Support multitouch for dragging multiple sliders (#13320) @Pajn
 
-### `@material-ui/system@v3.0.0-alpha.2`
+### `@stoked-ui/system@v3.0.0-alpha.2`
 
 - [system] Add fractions support (#14209) @oliviertassinari
 - [system] Better zindex documentation (#14229) @oliviertassinari
@@ -5215,7 +5215,7 @@ Here are some highlights ✨:
 - 💄 Important update of the Badge component (#14121) @joshwooding
 - And many more 🐛 bug fixes and 📝 documentation improvements.
 
-### `@material-ui/core@v3.9.0`
+### `@stoked-ui/core@v3.9.0`
 
 - [ButtonBase] Reduce keyup timeout interval to 500ms (#14120) @rfbotto
 - [InputAdornment] Add disablePointerEvents prop (#14123) @rfbotto
@@ -5225,7 +5225,7 @@ Here are some highlights ✨:
 - [Modal] Change keydown handling to use synthetic event (#14134) @rfbotto
 - [Badge] Give Badge dynamic width and other improvements (#14121) @joshwooding
 
-### `@material-ui/styles@v3.0.0-alpha.8`
+### `@stoked-ui/styles@v3.0.0-alpha.8`
 
 - [styles] Add test case for class extension with classes prop (#14127) @eps1lon
 - [styles] Document the CSS prefixing strategy on the server (#14139) @eps1lon
@@ -5263,7 +5263,7 @@ A big thanks to the 5 contributors who made this release possible!
 
 We are making a quick release to fix an important TypeScript regression.
 
-### `@material-ui/core@v3.8.3`
+### `@stoked-ui/core@v3.8.3`
 
 - [InputBase] Fix the `InputBaseComponentProps` type (#14082) @franklixuefei
 - [Link] Add a Link component (#14093) @joshwooding
@@ -5285,7 +5285,7 @@ Here are some highlights ✨:
 - 📝 Add 36 new sites in the showcase (#14083) @mbrookes.
 - And many more 🐛 bug fixes and 📝 documentation improvements.
 
-### `@material-ui/core@v3.8.2`
+### `@stoked-ui/core@v3.8.2`
 
 - [TableCell] Add align to the TypeScript definition (#14046) @rfbotto
 - [withWidth] Add TypeScript definitions for options (#14054) @anthotsang
@@ -5296,30 +5296,30 @@ Here are some highlights ✨:
 - [core] Relax @babel/runtime version to ^7.2.0 (#14096) @NMinhNguyen
 - [MenuList] Wrap focus by default, add disableListWrap (#14100) @dallin-christensen
 
-### `@material-ui/icons@v3.0.2`
+### `@stoked-ui/icons@v3.0.2`
 
 - [core] Relax @babel/runtime version to ^7.2.0 (#14096) @NMinhNguyen
 
-### `@material-ui/lab@v3.0.0-alpha.28`
+### `@stoked-ui/lab@v3.0.0-alpha.28`
 
 - [core] Relax @babel/runtime version to ^7.2.0 (#14096) @NMinhNguyen
 
-### `@material-ui/styles@v3.0.0-alpha.7`
+### `@stoked-ui/styles@v3.0.0-alpha.7`
 
 - [styles] Add a note about the backward compatibility (#14047) @oliviertassinari
 - [styles] Change dangerouslyUseGlobalCSS to only affect static style sheets (#14089) @joshwooding
 - [styles] Upgrade JSS to 10.0.0-alpha.7 (#14090) @oliviertassinari
 - [core] Relax @babel/runtime version to ^7.2.0 (#14096) @NMinhNguyen
 
-### `@material-ui/system@v3.0.0-alpha.1`
+### `@stoked-ui/system@v3.0.0-alpha.1`
 
 - [core] Relax @babel/runtime version to ^7.2.0 (#14096) @NMinhNguyen
 
-### `@material-ui/utils@v3.0.0-alpha.3`
+### `@stoked-ui/utils@v3.0.0-alpha.3`
 
 - [core] Relax @babel/runtime version to ^7.2.0 (#14096) @NMinhNguyen
 
-### `@material-ui/docs@v3.0.0-alpha.9`
+### `@stoked-ui/docs@v3.0.0-alpha.9`
 
 - [core] Relax @babel/runtime version to ^7.2.0 (#14096) @NMinhNguyen
 
@@ -5329,12 +5329,12 @@ Here are some highlights ✨:
 - [docs] CSS to Material UI loader documentation updated (#14060) @Kaliyani
 - [docs] Fix spelling mistake in Premium themes footer (#14071) @nikhilem
 - [docs] Update showcase with 36 new sites (#14083) @mbrookes
-- [docs] Update URL for @material-ui/system (#14043) @NMinhNguyen
+- [docs] Update URL for @stoked-ui/system (#14043) @NMinhNguyen
 - [docs] Add complementary form building project (#14081) @skirunman
 - [docs] Update broken link to cssinjs.org in css-in-js (#14080) @valerieernst
 - [docs] Tweeper theme (#14034) @siriwatknp
 - [docs] Add Code Typing Tutor to Showcase (#14061) @kulakowka
-- [docs] Improve MUI System variant demo (#14091) @oliviertassinari
+- [docs] Improve SUI System variant demo (#14091) @oliviertassinari
 - [docs] Add PhotoUtils to Showcase (#14098) @Maxim-Gurin
 - [docs] Add GovX to Showcase, move Onepixel (#14094) @mbrookes
 - [docs] Simplify the color documentation page (#14103) @oliviertassinari
@@ -5353,19 +5353,19 @@ Here are some highlights ✨:
 
 _Dec 30, 2018_
 
-### `@material-ui/core@v3.8.1`
+### `@stoked-ui/core@v3.8.1`
 
 - Fix utils.chainPropTypes issue
 
-### `@material-ui/styles@v3.0.0-alpha.6`
+### `@stoked-ui/styles@v3.0.0-alpha.6`
 
 - Fix utils.chainPropTypes issue
 
-### `@material-ui/lab@v3.0.0-alpha.27`
+### `@stoked-ui/lab@v3.0.0-alpha.27`
 
 - Fix utils.chainPropTypes issue
 
-### `@material-ui/utils@v3.0.0-alpha.2`
+### `@stoked-ui/utils@v3.0.0-alpha.2`
 
 - Fix utils.chainPropTypes issue
 
@@ -5380,10 +5380,10 @@ Here are some highlights ✨:
 - System package 💎 & Box component 🛠️
 - Demos 100% powered by React hooks ⚛️ (#13497) @adeelibr
 - Massive speed-up of the SSR performance 🚀
-- A new Instagram demo theme 💅 https://mui.com/premium-themes/instapaper/
+- A new Instagram demo theme 💅 https://stokedui.com/premium-themes/instapaper/
 - And many more 🐛 bug fixes and 📝 documentation improvements.
 
-### `@material-ui/core@v3.8.0`
+### `@stoked-ui/core@v3.8.0`
 
 #### Deprecations
 
@@ -5409,13 +5409,13 @@ The Tabs `fullWidth` and `scrollable` properties can't be used at the same time.
 - [Tabs] Fix infinite loop in the scroll button logic (#14033) @joshwooding
 - [styles] Fix component animations (#14035) @joshwooding
 
-### `@material-ui/system@v3.0.0-alpha.0`
+### `@stoked-ui/system@v3.0.0-alpha.0`
 
-- @material-ui/system (#13632) @oliviertassinari
+- @stoked-ui/system (#13632) @oliviertassinari
 - [system] Fix responsivePropType typo (#14011) @eps1lon
 - [styles] Add defaultTheme option for makeStyles (#14032) @joshwooding
 
-### `@material-ui/styles@v3.0.0-alpha.5`
+### `@stoked-ui/styles@v3.0.0-alpha.5`
 
 - [styles] Upgrade JSS to v10-alpha (#14006) @oliviertassinari
 - [styles] Hash the classnames (#14013) @oliviertassinari
@@ -5449,11 +5449,11 @@ A big thanks to the 15 contributors who made this release possible!
 Here are some highlights ✨:
 
 - ⚛️ Introduce a new useMediaQuery hook (#13867) @joshwooding
-  https://mui.com/layout/use-media-query
+  https://stokedui.com/layout/use-media-query
 - ⛄️ Support uncontrolled RadioGroup mode (#13929) @rfbotto
 - And many more 🐛 bug fixes and 📝 documentation improvements.
 
-### `@material-ui/core@v3.7.1`
+### `@stoked-ui/core@v3.7.1`
 
 - [Slide] Remove direction from being passed on to children (#13930) @rfbotto
 - [Dialog] Allow use of custom className under PaperProps (#13935) @eladhayun
@@ -5474,7 +5474,7 @@ Here are some highlights ✨:
 - [docs] Fix select multiple prop description (91a95d38218459282b381a23653b722493392190) @AkselsLedins
 - [docs] Add AospExtended Download center to showcase (#13956) @ishubhamsingh
 - [docs] Fix i18n page transition (#13947) @unordered
-- [docs] Fix material-ui-pickers codesandbox demo (#13976) @rfbotto
+- [docs] Fix stoked-ui-pickers codesandbox demo (#13976) @rfbotto
 - [docs] Fix a typo, the word "the" was repeated in Layout Grid (#13983) @sgoldens
 - [docs] Improve demos loading (#13959) @adeelibr
 - [docs] Improve the service-worker logic (#13987) @oliviertassinari
@@ -5494,16 +5494,16 @@ A big thanks to the 11 contributors who made this release possible!
 Here are some highlights ✨:
 
 - 💅 Update some components to better match the Material specification (#13788, #13827) @bdeloeste @joshwooding.
-- 📅 Add a material-ui-pickers live demo (#13697) @dmtrKovalenko.
+- 📅 Add a stoked-ui-pickers live demo (#13697) @dmtrKovalenko.
 - ⚛️ A first step toward converting all the demos to React Hooks (#13873) @adeelibr.
 - And many more 🐛 bug fixes and 📝 documentation improvements.
 
-### `@material-ui/core@v3.7.0`
+### `@stoked-ui/core@v3.7.0`
 
 #### Deprecations
 
 We are allowing more align variants (left, center, right, inherit, justify).
-Following our [API guideline](https://mui.com/material-ui/guides/api/), we are using an enum over a boolean.
+Following our [API guideline](https://stokedui.com/stoked-ui/guides/api/), we are using an enum over a boolean.
 Keep in mind that monetary or generally number fields **should be right aligned** as that allows
 you to add them up quickly in your head without having to worry about decimals.
 
@@ -5524,15 +5524,15 @@ you to add them up quickly in your head without having to worry about decimals.
 - [Tabs] Correct typo in error message (#13902) @timmydoza
 - [Tooltip] Fix hover display issue (#13911) @oliviertassinari
 
-### `@material-ui/lab@v3.0.0-alpha.26`
+### `@stoked-ui/lab@v3.0.0-alpha.26`
 
 - [ToggleButton] Change the classes structure to match the core components convention (#13723) @DonBrody
 
-### `@material-ui/styles@v3.0.0-alpha.4`
+### `@stoked-ui/styles@v3.0.0-alpha.4`
 
 - [styles] Remove hoisting of static properties in HOCs (#13698) @eps1lon
 
-### `@material-ui/utils@v3.0.0-alpha.1`
+### `@stoked-ui/utils@v3.0.0-alpha.1`
 
 - [utils] Add component propType (#13816) @eps1lon
 
@@ -5542,7 +5542,7 @@ you to add them up quickly in your head without having to worry about decimals.
 - [docs] Add accessibility section to selection-controls with demo (#13896) @wyseguyonline
 - [docs] Add support for multiple demo variants - for example JS or Hooks (#13873) @adeelibr
 - [docs] Remove the withRoot HOC (#13909) @oliviertassinari
-- [docs] Add material-ui-pickers in pickers page (#13697) @dmtrKovalenko
+- [docs] Add stoked-ui-pickers in pickers page (#13697) @dmtrKovalenko
 - [docs] Continue #13806 and port back some fix from @system (#13917) @oliviertassinari
 - [docs] Notify that we will do core/MuiThemeProvider -> styles/ThemeProvider (#13910) @Skn0tt
 - [docs] Improve the state override story (#13919) @oliviertassinari
@@ -5561,12 +5561,12 @@ A big thanks to the 20 contributors who made this release possible!
 Here are some highlights ✨:
 
 - 🎨 Add a new Onepirate theme demo (#13769) @oliviertassinari
-  You can preview it following [this link](https://mui.com/premium-themes/paperbase/).
+  You can preview it following [this link](https://stokedui.com/premium-themes/paperbase/).
 - 📝 Add virtualized table demo (#13786) @joshwooding
 - 🚀 Avoid unnecessary Table re-rendering (#13832) @petrjaros
 - And many more 🐛 bug fixes and documentation improvements.
 
-### `@material-ui/core@v3.6.2`
+### `@stoked-ui/core@v3.6.2`
 
 - [Tooltip] Suppress warning if button is disabled and title is empty (#13785) @rfbotto
 - [Dialog] Warn if className in PaperProps is set (#13797) @eps1lon
@@ -5584,14 +5584,14 @@ Here are some highlights ✨:
 - [Dialog] Add missing TypeScript style rule (#13856) @garredow
 - [Table] Avoid unnecessary re-rendering (#13832) @petrjaros
 
-### `@material-ui/lab@v3.0.0-alpha.25`
+### `@stoked-ui/lab@v3.0.0-alpha.25`
 
 - [ToggleButtonGroup] Consider nullish instead of falsy value as no selected value (#13494) @ItamarShDev
 - [Slider] Update SliderClassKey types (#13826) @guiihlopes
 - [SpeedDialAction] Add TooltipClasses prop (#13848) @mbrookes
 - [ToggleButton] Change ToggleButtonGroup non-exclusive default value to an empty array (#13857) @joshwooding
 
-### `@material-ui/styles@v3.0.0-alpha.3`
+### `@stoked-ui/styles@v3.0.0-alpha.3`
 
 - [styles] Infer optional props argument for makeStyles in TypeScript (#13815) @oliviertassinari
 
@@ -5607,7 +5607,7 @@ Here are some highlights ✨:
 - [docs] Fix KeyboardIcon import name (#13822) @bryantabaird
 - [docs] Force common hoist-non-react-statics version (#13818) @eps1lon
 - [docs] Improve the theme nesting documentation (#13843) @oliviertassinari
-- [docs] Add more details regarding installation of material-ui/styles (#13813) @wilcoschoneveld
+- [docs] Add more details regarding installation of stoked-ui/styles (#13813) @wilcoschoneveld
 - [docs] Fix broken link anchor (#13862) @mvasin
 
 ### Core
@@ -5626,7 +5626,7 @@ A big thanks to the 15 contributors who made this release possible!
 There are no fundamental changes in this version.
 It's a stability release after v3.6.0. It contains tons of bug fixes 🐛.
 
-### `@material-ui/core@v3.6.1`
+### `@stoked-ui/core@v3.6.1`
 
 - [Dialog] Add xl maxWidth and demo component (#13694) @dispix
 - [Dialog] Add missing TypeScript style rule (ddfa8e0215bfe895efcb8da69f1ea3cc3b1370ff) @oliviertassinari
@@ -5645,7 +5645,7 @@ It's a stability release after v3.6.0. It contains tons of bug fixes 🐛.
 - [Popover] Handle resize close concurrency issue (#13758) @oliviertassinari
 - [Avatar] Remove truthiness check on childrenProp (#13759) @camilleryr
 
-### `@material-ui/styles@v3.0.0-alpha.2`
+### `@stoked-ui/styles@v3.0.0-alpha.2`
 
 - [styles] Add options definitions for makeStyles (#13721) @eps1lon
 - [styles] Loosen props consistency check in styled (#13755) @eps1lon
@@ -5677,12 +5677,12 @@ As a consequence, this is a dense release.
 Here are some highlights ✨:
 
 - 🎨 Add a new Firebase theme demo (#13579) @siriwatknp.
-  You can preview it following [this link](https://mui.com/premium-themes/paperbase/).
+  You can preview it following [this link](https://stokedui.com/premium-themes/paperbase/).
 - ⚛️ Introduce a new Fab component (#13573) @mbrookes.
 - ⛏ Fix more StrictMode warnings (#13590) @eps1lon.
 - And many more 🐛 bug fixes and 📝 documentation improvements.
 
-### `@material-ui/core@v3.6.0`
+### `@stoked-ui/core@v3.6.0`
 
 #### Deprecations
 
@@ -5694,8 +5694,8 @@ This way, we better isolate the concerns.
 We will remove the FAB styles from the button in v4, making the `Button` component more lightweight, a win for people overriding our styles.
 
 ```diff
--import Button from '@material-ui/core/Button';
-+import Fab from '@material-ui/core/Fab';
+-import Button from '@stoked-ui/core/Button';
++import Fab from '@stoked-ui/core/Fab';
 
 -<Button variant="fab" color="primary">
 +<Fab color="primary">
@@ -5709,7 +5709,7 @@ We will remove the FAB styles from the button in v4, making the `Button` compone
 We are introducing a new variant to the divider component: middle. Following our API guideline, we can no longer use a boolean property, it needs to be an enum, hence the introduction of the variant property.
 
 ```diff
-import Divider from '@material-ui/core/Divider';
+import Divider from '@stoked-ui/core/Divider';
 
 -<Divider inset />
 +<Divider variant="inset" />
@@ -5733,19 +5733,19 @@ import Divider from '@material-ui/core/Divider';
 - [Select] Support object value (#13661) @yezhi780625
 - [Menu] Fix wrong condition (#13675) @dolezel
 
-### `@material-ui/lab@v3.0.0-alpha.24`
+### `@stoked-ui/lab@v3.0.0-alpha.24`
 
 - [Slider] Fix sticky slider when mousing off the window then back in (#13479) @gkjohnson
 - [Slider] Fix visual hover state on disabled slider (#13638) @eps1lon
 - [Slider] Add missing thumb TypeScript definition (#13650) @dhiroll
 
-### `@material-ui/styles@v3.0.0-alpha.1`
+### `@stoked-ui/styles@v3.0.0-alpha.1`
 
 - [styles] Add TypeScript declarations (#13612) @eps1lon
 
-### `@material-ui/docs@v3.0.0-alpha.8`
+### `@stoked-ui/docs@v3.0.0-alpha.8`
 
-- Fix the @material-ui/utils require error.
+- Fix the @stoked-ui/utils require error.
 
 ### Docs
 
@@ -5779,7 +5779,7 @@ A big thanks to the 13 contributors who made this release possible!
 
 Here are some highlights ✨:
 
-- Introduce a new `@material-ui/styles` package 💅 (#13503).
+- Introduce a new `@stoked-ui/styles` package 💅 (#13503).
 
 The Material UI's styling solution has pretty much stayed the same [for the last 12 months](https://github.com/oliviertassinari/a-journey-toward-better-style).
 Some interesting CSS-in-JS libraries like styled-components, Emotion or linaria have emerged.
@@ -5793,9 +5793,9 @@ This new package is a significant step forward. Some of the key features:
 Here is an example: https://codesandbox.io/p/sandbox/vjzn5z4k77.
 
 ```jsx
-import Button from '@material-ui/core/Button';
+import Button from '@stoked-ui/core/Button';
 import * as React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@stoked-ui/core/styles';
 
 // Like https://github.com/brunobertolini/styled-by
 const styledBy = (property, mapping) => (props) => mapping[props[property]];
@@ -5844,7 +5844,7 @@ _Powered by [JSS](https://github.com/cssinjs/jss)._
 - Add a language menu in the documentation and persist states between repeated visits (#13544, #13567) @mbrookes
 - And many more 🐛 bug fixes and 📝 documentation improvements.
 
-### `@material-ui/core@v3.5.1`
+### `@stoked-ui/core@v3.5.1`
 
 - [OutlinedInput] Remove Firefox workaround (#13519) @Studio384
 - [TextField] Fix style focus issue on mobile (#13511) @ekoeditaa
@@ -5856,9 +5856,9 @@ _Powered by [JSS](https://github.com/cssinjs/jss)._
 - [LinearProgress] Fix TypeScript definition (#13562) @AdamMcquiff
 - Add missing brcast dependency @oliviertassinari
 
-### `@material-ui/styles@v3.0.0-alpha.0`
+### `@stoked-ui/styles@v3.0.0-alpha.0`
 
-- @material-ui/styles (#13503) @oliviertassinari
+- @stoked-ui/styles (#13503) @oliviertassinari
 
 ### Docs
 
@@ -5895,7 +5895,7 @@ Here are some highlights ✨:
 - 💅 Improve the customization of the outlined input (#13428) @oliviertassinari.
 - And many more bug fixes and documentation improvements.
 
-### `@material-ui/core@v3.4.0`
+### `@stoked-ui/core@v3.4.0`
 
 - [Autocomplete] Fix react-select input overflow (#13413) @sayfulloev
 - [Drawer] Add a root style rule for consistency (#13418) @KirankumarAmbati
@@ -5914,7 +5914,7 @@ Here are some highlights ✨:
 - [List] Use stable context API (#13498) @eps1lon
 - [SvgIcon] Add shapeRendering property description (#13509) @joshwooding
 
-### `@material-ui/lab@v3.0.0-alpha.23`
+### `@stoked-ui/lab@v3.0.0-alpha.23`
 
 - [Slider] Fix hover state not being registered (#13437) @eps1lon
 - [SpeedDial] Add default value to tooltipOpen property (#13458) @joshwooding
@@ -5950,7 +5950,7 @@ Here are some highlights ✨:
 - 📝 Full IE11 support (#13375, #13324) @eps1lon.
 - And many more bug fixes and documentation improvements.
 
-### `@material-ui/core@v3.3.2`
+### `@stoked-ui/core@v3.3.2`
 
 - [Stepper] Fix visual issue on IE11 (#13375) @oliviertassinari
 - [Modal] Reuse the same reference (#13378) @oliviertassinari
@@ -5963,7 +5963,7 @@ Here are some highlights ✨:
 - [Tooltip] Allow to interact with the tooltip (#13305) @jantimon
 - [Dialog] Fix unable to drag scrollbar when scroll="body" (#13409) @Ang-YC
 
-### `@material-ui/lab@v3.0.0-alpha.22`
+### `@stoked-ui/lab@v3.0.0-alpha.22`
 
 - [Slider] Improve performance of slider (#13325) @Pajn
 
@@ -5992,7 +5992,7 @@ A big thanks to the 8 contributors who made this release possible!
 
 This is a quick patch after an important regression with the Modal component.
 
-### `@material-ui/core@v3.3.1`
+### `@stoked-ui/core@v3.3.1`
 
 - [Modal] Fix modalRef is null (#13351) @TomiCake
 - [Modal] Add a failling test case (#13350) @universalmind303
@@ -6018,7 +6018,7 @@ Here are some highlights ✨:
 - 📦 Make the Drawer demos usable outside of the box (#13314).
 - And many more bug fixes and documentation improvements.
 
-### `@material-ui/core@v3.3.0`
+### `@stoked-ui/core@v3.3.0`
 
 - [FormHelperText] Error styles should override disabled styles (#13217) @matthewdordal
 - [InputBase] Add 'renderPrefix' and 'onFilled' signatures (#13282) @zheeeng
@@ -6032,11 +6032,11 @@ Here are some highlights ✨:
 - [FormControl] Added zIndex of 0 to root style (#13327) @drkohlipk
 - [withStyle] Improve the dangerouslyUseGlobalCSS option (#13330) @oliviertassinari
 
-### `@material-ui/lab@v3.0.0-alpha.21`
+### `@stoked-ui/lab@v3.0.0-alpha.21`
 
 - [Slider] Fix Jest unmount issue (#13295) @mdartic
 
-### `@material-ui/docs@v3.0.0-alpha.7`
+### `@stoked-ui/docs@v3.0.0-alpha.7`
 
 - [withStyle] Improve the dangerouslyUseGlobalCSS option (#13330) @oliviertassinari
 
@@ -6076,7 +6076,7 @@ _Oct 16, 2018_
 A big thanks to the 3 contributors who made this release possible!
 This is a quick patch after important regressions.
 
-### `@material-ui/core@v3.2.2`
+### `@stoked-ui/core@v3.2.2`
 
 - [ButtonBase] Fix process is not defined (#13252) @eps1lon
 
@@ -6098,7 +6098,7 @@ Here are some highlights ✨:
 - 🚀 Work on the performance server-side (x10) (#13233, #13236)
 - And many more bug fixes and 📝 documentation improvements.
 
-### `@material-ui/core@v3.2.1`
+### `@stoked-ui/core@v3.2.1`
 
 - [DialogContentText] Fix typography deprecation warning with useNextVariants (#13148) @eps1lon
 - [SnackbarContent] Fix invalid dom (#13151) @eps1lon
@@ -6118,7 +6118,7 @@ Here are some highlights ✨:
 - [Snackbar] Remove non supported property `anchorOrigin.vertical=enter` (#13238) @iamhosseindhv
 - [Tabs] Fix IE11 styling (#13230) @pography
 
-### `@material-ui/lab@v3.0.0-alpha.20`
+### `@stoked-ui/lab@v3.0.0-alpha.20`
 
 - [SpeedDialAction] Fix className prop being ignored (#13161) @eps1lon
 - [SpeedDial] Add missing class keys (#13228) @msenevir
@@ -6126,7 +6126,7 @@ Here are some highlights ✨:
 ### Docs
 
 - [docs] Use typography v2 in examples (#13112) @eps1lon
-- [docs] Add formik-material-ui (#13149) @cliedeman
+- [docs] Add formik-stoked-ui (#13149) @cliedeman
 - [examples] Fix codesandbox throwing Invalid comparator (#13153) @eps1lon
 - [docs] Keep working on the SEO issues (#13158) @oliviertassinari
 - [docs] Fix select outlined example (#13168) @RichardLindhout
@@ -6156,11 +6156,11 @@ A big thanks to the 18 contributors who made this release possible!
 Here are some highlights ✨:
 
 - 💅 Update the Typography implementation to better follow the specification (#12916) @eps1lon.
-- 📝 Enable [translating the documentation into Chinese](https://crowdin.com/project/material-ui-docs) @mbrookes.
+- 📝 Enable [translating the documentation into Chinese](https://crowdin.com/project/stoked-ui-docs) @mbrookes.
 - 📝 Fix many SEO issues of the docs.
 - And many more bug fixes 🐛 and documentation improvements.
 
-### `@material-ui/core@v3.2.0`
+### `@stoked-ui/core@v3.2.0`
 
 #### Deprecations
 
@@ -6168,7 +6168,7 @@ Here are some highlights ✨:
 
 This is a backward compatible change.
 You can opt-in the usage of the new Material Design typography specification.
-To learn more about the upgrade path, follow https://mui.com/style/typography/#migration-to-typography-v2.
+To learn more about the upgrade path, follow https://stokedui.com/style/typography/#migration-to-typography-v2.
 
 - [Button] Deprecate flat and raised variant naming (#13113) @eps1lon
 
@@ -6201,7 +6201,7 @@ This change updates the variant wording to match the one used in the Material De
 - [Tooltip] Forward the properties to the child element (#13138) @parulgupta26
 - [Tooltip] Prevent onOpen, onClose to pass through (#13139) @eps1lon
 
-### `@material-ui/lab@v3.0.0-alpha.19`
+### `@stoked-ui/lab@v3.0.0-alpha.19`
 
 - [SpeedDial] Improve hover intent between Dial and Actions (#13018) @eps1lon
 - [Slider] Fix thumb outline not matching spec (#12967) @eps1lon
@@ -6242,7 +6242,7 @@ _Sep 30, 2018_
 A big thanks to the 16 contributors who made this release possible!
 It contains many bug fixes 🐛 and documentation improvements 📝.
 
-### `@material-ui/core@v3.1.2`
+### `@stoked-ui/core@v3.1.2`
 
 - [FormControlLabel] Reverse margins values when labelPlacement="start" (#13007) @IvanoffDan
 - [InputBase] Fix cursor on disabled state (#13008) @itskibo
@@ -6254,13 +6254,13 @@ It contains many bug fixes 🐛 and documentation improvements 📝.
 - [TextField] Fix the recent regressions (#13017) @slipo
 - [Portal] container should allow being 'null' type (#13043) @zheeeng
 
-### `@material-ui/lab@v3.0.0-alpha.18`
+### `@stoked-ui/lab@v3.0.0-alpha.18`
 
 #### Breaking Changes
 
 - [Slider] Replace reversed with rtl support on horizontal sliders (#12972)
 
-### `@material-ui/docs@v3.0.0-alpha.6`
+### `@stoked-ui/docs@v3.0.0-alpha.6`
 
 - [docs] Defer NProgressBar rendering to the client (e5d757dc8fec9dd6a0951b865dec531528b7f1d0) @oliviertassinari
 
@@ -6289,7 +6289,7 @@ _Sep 24, 2018_
 A big thanks to the 21 contributors who made this release possible!
 It contains many bug fixes 🐛 and documentation improvements 📝.
 
-### `@material-ui/core@v3.1.1`
+### `@stoked-ui/core@v3.1.1`
 
 - [TextField] Fix alignment bug in Safari (#12906) @shcherbyakdev
 - [InputLabel] Fix Chrome's autofill (#12926) @PutziSan
@@ -6304,7 +6304,7 @@ It contains many bug fixes 🐛 and documentation improvements 📝.
 - [FilledInput] Update the background color to match the spec (#12977) @adeelibr
 - [ListItem] Fix background color bug on mobile (#12976) @ryusaka
 
-### `@material-ui/lab@v3.0.0-alpha.17`
+### `@stoked-ui/lab@v3.0.0-alpha.17`
 
 - [Slider] Remove touchend event listener (#12923) @brian-growratio
 - [SpeedDialAction] Add missing TypeScript property (#12959) @KarimFereidooni
@@ -6313,7 +6313,7 @@ It contains many bug fixes 🐛 and documentation improvements 📝.
 
 - [docs] Make JSS insertion point reference the same as HTML comment (#12896) @emattias
 - [docs] Small fixes (#12904) @oliviertassinari
-- [docs] Add reference to material-ui-theme-editor (#12888) @jdrouet
+- [docs] Add reference to stoked-ui-theme-editor (#12888) @jdrouet
 - [docs] Add another case to check when SSR fails (#12908) @oliviertassinari
 - [docs] Correct misspelling (dasboard => dashboard) (#12910) @seishan
 - [docs] Use core package for (peer-)dependency badges (#12911) @eps1lon
@@ -6350,7 +6350,7 @@ Here are some highlights ✨:
 - 🐛 Fix a class name generation regression (#12844).
 - And many more bug fixes 🐛 and documentation improvements 📝.
 
-### `@material-ui/core@v3.1.0`
+### `@stoked-ui/core@v3.1.0`
 
 - [Checkbox] Add indeterminateIcon type definition (#12815) @cvanem
 - [Popover] Change to offsetWidth and offsetHeight (#12816) @akaxiaok
@@ -6369,7 +6369,7 @@ Here are some highlights ✨:
 - [Chip] Add an icon property (#12881) @aretheregods
 - [TextField] Add outlined and filled variants (#12076) @enagy27
 
-### `@material-ui/lab@v3.0.0-alpha.16`
+### `@stoked-ui/lab@v3.0.0-alpha.16`
 
 - [Slider] Don't pass component props down to root div (#12842) @mbrookes
 - [Slider] Faster transitions (#12843) @mbrookes
@@ -6407,7 +6407,7 @@ _Sep 9, 2018_
 
 A big thanks to the 13 contributors who made this release possible!
 
-### `@material-ui/core@v3.0.3`
+### `@stoked-ui/core@v3.0.3`
 
 - [typescript] Fix ModalClasses prop type on popover (#12761) @YuriiOstapchuk
 - [AppBar] Add position="relative" (#12790) @jgoux
@@ -6417,7 +6417,7 @@ A big thanks to the 13 contributors who made this release possible!
 - [autocomplete] Fix delete chip not working on mobile (#12813) @aretheregods
 - [styles] Support multiple withStyles instances (#12814) @oliviertassinari
 
-### `@material-ui/lab@v3.0.0-alpha.15`
+### `@stoked-ui/lab@v3.0.0-alpha.15`
 
 - [SpeedDialAction] Update tooltipPlacement propTypes (#12758) @Primajin
 - [ToggleButtons] normalize onChange api (#12549) @eps1lon
@@ -6448,7 +6448,7 @@ Here are some highlights ✨:
 - A documented release strategy (#12752).
 - And many more bug fixes 🐛 and documentation improvements 📝.
 
-### `@material-ui/core@v3.0.2`
+### `@stoked-ui/core@v3.0.2`
 
 - [Tab] Ability change font size of tab (#12706) @adeelibr
 - [typescript] Set default for withStyles' Options generic (#12698) @nmchaves
@@ -6461,15 +6461,15 @@ Here are some highlights ✨:
 - [withStyles] Better theme.props support (#12750) @oliviertassinari
 - [SwipeableDrawer] Add hysteresis and velocity property (#12722) @jniclas
 
-### `@material-ui/lab@v3.0.0-alpha.14`
+### `@stoked-ui/lab@v3.0.0-alpha.14`
 
 #### Breaking Changes
 
 - [ToggleButton] Fix ToggleButtonGroup exports (#12733) @mbrookes
 
 ```diff
--import { ToggleButtonGroup } from '@material-ui/lab/ToggleButton';
-+import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
+-import { ToggleButtonGroup } from '@stoked-ui/lab/ToggleButton';
++import ToggleButtonGroup from '@stoked-ui/lab/ToggleButtonGroup';
 ```
 
 ### Component Fixes / Enhancements
@@ -6504,7 +6504,7 @@ A big thanks to the 10 contributors who made this release possible!
 We are making a quick release after v3.0.0 to patch an incorrect peer dependency.
 It's also a good opportunity to upgrade to the stable release of Babel 7.
 
-### `@material-ui/core@v3.0.1`
+### `@stoked-ui/core@v3.0.1`
 
 - [Checkbox] Improve indeterminate status (#12671) @hareaca
 - [StepLabel] Fix custom icon spacing (#12694) @JiayuanDeng
@@ -6512,12 +6512,12 @@ It's also a good opportunity to upgrade to the stable release of Babel 7.
 - [Stepper] Add a new test case (#12684) @Anugraha123
 - [core] Upgrade the dependencies (#12693) @oliviertassinari
 
-### `@material-ui/icons@v3.0.1`
+### `@stoked-ui/icons@v3.0.1`
 
 - [core] Fix for incorrect peer dependency version warning (#12677) @xaviergonz
 - [core] Upgrade the dependencies (#12693) @oliviertassinari
 
-### `@material-ui/lab@v3.0.0-alpha.13`
+### `@stoked-ui/lab@v3.0.0-alpha.13`
 
 - [core] Fix for incorrect peer dependency version warning (#12677) @xaviergonz
 - [core] Upgrade the dependencies (#12693) @oliviertassinari
@@ -6539,8 +6539,8 @@ _Aug 27, 2018_
 
 A big thanks to the 27 contributors who made this release possible!
 
-We are upgrading the major version of `@material-ui/core` to match the version of `@material-ui/icons`.
-The next major release is planned for [Q1, 2019](https://github.com/mui/material-ui/milestone/25).
+We are upgrading the major version of `@stoked-ui/core` to match the version of `@stoked-ui/icons`.
+The next major release is planned for [Q1, 2019](https://github.com/stoked-ui/stoked-ui/milestone/25).
 
 ### Breaking change
 
@@ -6552,8 +6552,8 @@ It's not OK to have some installation timeout.
 We have removed the `/es` folder.
 
 ```diff
--import AccessAlarm from '@material-ui/icons/es/AccessAlarm';
-+import AccessAlarm from '@material-ui/icons/AccessAlarm';
+-import AccessAlarm from '@stoked-ui/icons/es/AccessAlarm';
++import AccessAlarm from '@stoked-ui/icons/AccessAlarm';
 ```
 
 - [core] Drop Firefox 45 support (#12669)
@@ -6656,7 +6656,7 @@ N/A
 - [docs] "codestyle" comment typo fix (#12511) @nasiscoe
 - [docs] Document the meta viewport (#12541) @oliviertassinari
 - [docs] Throttle the active toc instead of debouncing (#12543) @oliviertassinari
-- [docs] Add material-ui-next-pickers (#12547) @chingyawhao
+- [docs] Add stoked-ui-next-pickers (#12547) @chingyawhao
 - [docs] Fix the broken Table sorting logic (#12569) @oliviertassinari
 - [docs] Link a new Menu demo (#12574) @pierrelstan
 - [docs] Improve TypeScript issue assistance (#12560) @eps1lon
@@ -6872,7 +6872,7 @@ Here are some highlights ✨:
 | <span class="prop-name">label</span> | Styles applied to the span element that wraps the children. |
 | …                                    | …                                                           |
 
-- After many iterations, we are happy to announce `@material-ui/icons` v2.0.0 💃.
+- After many iterations, we are happy to announce `@stoked-ui/icons` v2.0.0 💃.
   With this version, you can take advantage of all the icons recently released by Google:
   https://m2.material.io/tools/icons/. There are more than 5,000 icons.
   (#12016, #12036, #12170, #12111, #12225)
@@ -6887,7 +6887,7 @@ Here are some highlights ✨:
 
 ### Breaking change
 
-@material-ui/icons@2.0.0 allows React users to take advantage of the icons revamp the Material Design Team has been recently released. Some icons have been removed, ~150 new icons have been added, and some icons have been renamed. There are also currently some issues with the size of certain icons. Please refer to #12016 for further details.
+@stoked-ui/icons@2.0.0 allows React users to take advantage of the icons revamp the Material Design Team has been recently released. Some icons have been removed, ~150 new icons have been added, and some icons have been renamed. There are also currently some issues with the size of certain icons. Please refer to #12016 for further details.
 
 ### Component Fixes / Enhancements
 
@@ -6982,7 +6982,7 @@ N/A
 - [docs] Fix Typo (#12064) @johnjacobkenny
 - [docs] Add known issues/limitations for progress animations (#12062) @HRK44
 - [docs] Correct the normalize-function (#12066) @fauskanger
-- [docs] Add react-media-material-ui in the related projects (#12068) @jedwards1211
+- [docs] Add react-media-stoked-ui in the related projects (#12068) @jedwards1211
 - [docs] Fix SSR example to support production mode (#12080)
 - [docs] Fix Theme nesting demo in codesandbox (#12097) @oliviertassinari
 - [docs] Use the de-structured "children" variable (#12104) @jzhang729
@@ -7190,9 +7190,9 @@ N/A
 - [docs] Document the dynamic override alternatives (#11782) @adeelibr
 - [docs] Add a Select required example (#11838) @oliviertassinari
 - [docs] Better class names conflict FAQ (#11846) @oliviertassinari
-- [docs] Add a link toward dx-react-chart-material-ui (#11859) @Krijovnick
+- [docs] Add a link toward dx-react-chart-stoked-ui (#11859) @Krijovnick
 - [docs] Fix the Gatsby example (d7fe8c79dc097105fd1c6035b76a4d30666e9080) @oliviertassinari
-- [docs] Update npm downloads badge to point to @material-ui/core (#11590) @davidcalhoun
+- [docs] Update npm downloads badge to point to @stoked-ui/core (#11590) @davidcalhoun
 - [examples] Add Server Rendering implementation (#11880) @oliviertassinari
 - [docs] Update react-swipeable-views to fix a warning (#11890) @oliviertassinari
 
@@ -7358,7 +7358,7 @@ N/A
 - [GridListTileBar] Add missing title and subtitle keys (#11570) @ljani
 - [TableCell] Fix padding for last TableCell if checkbox (#11568) @gfpacheco
 - [Button][buttonbase] Take advantage of defaultProps for component prop (#11574) @cherniavskii
-- [StepConnector] Add to default export from @material-ui/core (#11583) @OsipovIgor
+- [StepConnector] Add to default export from @stoked-ui/core (#11583) @OsipovIgor
 - [ButtonBase] Improve enter & space handling (#11585) @TheBear44
 
 ### Docs
@@ -7409,7 +7409,7 @@ _May 17, 2018_
 Our first stable v1 release! 🎉
 
 It has taken us two years to do it, but Material UI v1 has finally arrived!
-We are so excited about this release, as it's setting a new course for the project. Thank you to _everyone_, especially to [the team](https://mui.com/material-ui/discover-more/team/), and to everyone who's contributed code, issue triage, and support. **Thank you**.
+We are so excited about this release, as it's setting a new course for the project. Thank you to _everyone_, especially to [the team](https://stokedui.com/stoked-ui/discover-more/team/), and to everyone who's contributed code, issue triage, and support. **Thank you**.
 
 Some statistics with v1 while it was in alpha and beta:
 
@@ -7495,11 +7495,11 @@ Here are some highlights ✨:
 
 ### Breaking change
 
-- [core] Move material-ui to @material-ui/core (#11310) @oliviertassinari
+- [core] Move stoked-ui to @stoked-ui/core (#11310) @oliviertassinari
 
 ```diff
--import { withStyles } from 'material-ui/styles';
-+import { withStyles } from '@material-ui/core/styles';
+-import { withStyles } from 'stoked-ui/styles';
++import { withStyles } from '@stoked-ui/core/styles';
 ```
 
 - [core] Flatten the import path (#11330) @oliviertassinari
@@ -7511,24 +7511,24 @@ Here are some highlights ✨:
 3. In an ideal world, we would import everything from the root module and tree sharking would be taken care of for us. This change doesn't matter in this world ☮️.
 
 ```jsx
-import { Table, TableBody, TableCell, TableFooter, TablePagination, TableRow } from 'material-ui';
+import { Table, TableBody, TableCell, TableFooter, TablePagination, TableRow } from 'stoked-ui';
 ```
 
 #### The diff
 
 ```diff
--import CircularProgress from '@material-ui/core/Progress/CircularProgress';
-+import CircularProgress from '@material-ui/core/CircularProgress';
+-import CircularProgress from '@stoked-ui/core/Progress/CircularProgress';
++import CircularProgress from '@stoked-ui/core/CircularProgress';
 ```
 
 ```diff
--import { ListItem } from '@material-ui/core/List';
-+import ListItem from '@material-ui/core/ListItem';
+-import { ListItem } from '@stoked-ui/core/List';
++import ListItem from '@stoked-ui/core/ListItem';
 ```
 
 #### Upgrade path
 
-We provide a codemod to automate the migration: https://github.com/mui/material-ui/tree/master/packages/material-ui-codemod#import-path. I have used it to upgrade all the demos in the documentation :).
+We provide a codemod to automate the migration: https://github.com/stoked-ui/stoked-ui/tree/master/packages/stoked-ui-codemod#import-path. I have used it to upgrade all the demos in the documentation :).
 
 - [core] Require React 16.3.0 or greater (#11347, #11361) @oliviertassinari
 - [Grid] Remove the hidden property (#11348) @oliviertassinari
@@ -7936,7 +7936,7 @@ const styles = {
 - [Tooltip] Remove title from chldrenProps (#10977) @mbrookes
 - [theme] Expose augmentColor for colors outside the palette (#10985) @AiusDa
 - [Select] Update onChange props definition to match with SelectInput (#11012) @t49tran
-- [lab] Bump version for @material-ui/icons dependency (#10992) @mbrookes
+- [lab] Bump version for @stoked-ui/icons dependency (#10992) @mbrookes
 - [Drawer] Improve the "Mini variant drawer" demo (#11010) @andriyor
 - [Step] Remove private modules from the export (#11020) @oliviertassinari
 - [Grid] Update propTypes to accept false (#11022) @oliviertassinari
@@ -7978,11 +7978,11 @@ Here are some highlights ✨:
 
 ### Breaking change
 
-- Move the icon package from `material-ui-icons` to `@material-ui/icons` (#10957) @oliviertassinari
+- Move the icon package from `stoked-ui-icons` to `@stoked-ui/icons` (#10957) @oliviertassinari
 
 ```diff
--import FormatTextdirectionRToL from 'material-ui-icons/FormatTextdirectionRToL';
-+import FormatTextdirectionRToL from '@material-ui/icons/FormatTextdirectionRToL';
+-import FormatTextdirectionRToL from 'stoked-ui-icons/FormatTextdirectionRToL';
++import FormatTextdirectionRToL from '@stoked-ui/icons/FormatTextdirectionRToL';
 ```
 
 ### Component Fixes / Enhancements
@@ -8068,16 +8068,16 @@ A big thanks to the 25 contributors who made this release possible.
 
 Here are some highlights ✨:
 
-- Add a [swipeable drawer](https://mui.com/demos/drawers/#swipeable-temporary-drawer) component (#9730) @leMaik.
+- Add a [swipeable drawer](https://stokedui.com/demos/drawers/#swipeable-temporary-drawer) component (#9730) @leMaik.
 - Add a [StackBlitz](https://stackblitz.com/) edit link (#10758).
-- Add a new npm package: [@material-ui/docs](https://www.npmjs.com/package/@material-ui/docs) (#10699).
+- Add a new npm package: [@stoked-ui/docs](https://www.npmjs.com/package/@stoked-ui/docs) (#10699).
 - And many more bug fixes and documentation improvements.
 
 ### Breaking change
 
 - [Grid] Change the default spacing value: 0 (#10768) @oliviertassinari
 
-The negative margin implementation solution currently used comes with [serious limitations](https://mui.com/components/grid/#negative-margin).
+The negative margin implementation solution currently used comes with [serious limitations](https://stokedui.com/components/grid/#negative-margin).
 Material UI is the only library with a non-zero default spacing between the items.
 Having zero spacing by default will ease the usage of the component.
 
@@ -8103,7 +8103,7 @@ For consistency with the [removeEventListener Web API](https://developer.mozilla
 
 - [InputLabel] Rename FormControlClasses property (#10796) @oliviertassinari
 
-I have made a mistake in [#8108](https://github.com/mui/material-ui/pull/8108). The property isn't applied on a `FormControl` but on a `FormLabel` component.
+I have made a mistake in [#8108](https://github.com/stoked-ui/stoked-ui/pull/8108). The property isn't applied on a `FormControl` but on a `FormLabel` component.
 
 ```diff
 -<InputLabel FormControlClasses={classes} />
@@ -8136,7 +8136,7 @@ I have made a mistake in [#8108](https://github.com/mui/material-ui/pull/8108). 
 
 ### Docs
 
-- [docs] Add new npm package: @material-ui/docs (#10699) @oliviertassinari
+- [docs] Add new npm package: @stoked-ui/docs (#10699) @oliviertassinari
 - [docs] Use buttonRef instead of ref in anchor playground example (#10708) @pelotom
 - [docs] Fix "Edit this page" button (#10722) @SebastianSchmidt
 - [docs] Add search shortcut (#10725) @oliviertassinari
@@ -8287,7 +8287,7 @@ For instance, it's not about adding JavaScript polyfills.
 - [docs] Add PersonalBlog Gatsby starter to Showcase (#10566) @greglobinski
 - [docs] Add parcel example (#10575) @oliviertassinari
 - [docs] Fix typo in contributing readme (#10586) @chiragmongia
-- [docs] Fix next.js example to enable styled-jsx with material-ui (#10580) @shibukawa
+- [docs] Fix next.js example to enable styled-jsx with stoked-ui (#10580) @shibukawa
 - [docs] Add the latest backers (#10602) @oliviertassinari
 - [docs] Add Planalyze to Showcase (#10603) @dancastellon
 - [docs] Improve the htmlFontSize documentation (#10604) @oliviertassinari
@@ -8336,12 +8336,12 @@ The best way to recover from this breaking change is to check the warnings in th
 - [ButtonBase] Add a TouchRippleProps property (#10470) @christophediprima
 - [Select] Ensure label is shrunk when using startAdornment (#10474) @carab
 - [Card][list] Implement responsive gutters (#10477) @lukePeavey
-- [icon] Add "side-effects": false to material-ui-icons (#10482) @b1f6c1c4
+- [icon] Add "side-effects": false to stoked-ui-icons (#10482) @b1f6c1c4
 - [IconButton] Fix theme.spacing.unit size dependency (#10486) @oliviertassinari
 - [ListItem] Avoid li > li issue (#10484) @oliviertassinari
 - [ListItem] Fix ContainerProps.className propagation (#10488) @oliviertassinari
 - [Textarea] Prepare React 16.3.0 (#10489) @oliviertassinari
-- [icon] Add build:es for material-ui-icons (#10497) @b1f6c1c4
+- [icon] Add build:es for stoked-ui-icons (#10497) @b1f6c1c4
 - [ButtonBase] Fix the ripple on Edge (#10512) @oliviertassinari
 - [Autocomplete] Update the demos so people can stack the components (#10524) @oliviertassinari
 - [Button] Add override support for sizeLarge and sizeSmall (#10526) @wenduzer
@@ -8416,7 +8416,7 @@ N/A
 - [docs] Add AudioNodes to the showcase (#10407) @JohnWeisz
 - [docs] Breaking changes feedback notification (#10413) @mbrookes
 - [docs] Improve readability (#10412) @oliviertassinari
-- [docs] Add material-ui-autosuggest to related projects (#10415) @tgrowden
+- [docs] Add stoked-ui-autosuggest to related projects (#10415) @tgrowden
 - [docs] Update transitions.md (#10417) @caub
 - [docs] Fix minor typo in breaking-changes notification (#10418) @phazor
 - [docs] Description of how component will render (#10432) @oliviertassinari
@@ -8714,7 +8714,7 @@ We have removed the "magic" `<Icon>` wrapping logic. It should be done explicitl
 It's making our components less biased around the svg icon vs font icon choice.
 
 ```diff
-+import Icon from 'material-ui/Icon';
++import Icon from 'stoked-ui/Icon';
 
 -      <IconButton>comment</IconButton>
 +      <IconButton>
@@ -9007,9 +9007,9 @@ It's an important simplification of the palette system. You can now directly use
 - Providing the full-color object used to be required. Now, we will provide a nice default to the different values using the `main` value.
 
 ```diff
-import { createMuiTheme } from 'material-ui/styles';
-import blue from 'material-ui/colors/blue';
-import pink from 'material-ui/colors/pink';
+import { createMuiTheme } from 'stoked-ui/styles';
+import blue from 'stoked-ui/colors/blue';
+import pink from 'stoked-ui/colors/pink';
 
 const theme = createMuiTheme({
   palette: {
@@ -9138,8 +9138,8 @@ Remove the `transitionClasses` property of the Popover component. Instead, you c
 - [BottomNavigation] Rename BottomNavigationButton to BottomNavigationAction (#9692) @mbrookes
 
 ```diff
--import BottomNavigation, { BottomNavigationButton } from 'material-ui/BottomNavigation';
-+import BottomNavigation, { BottomNavigationAction } from 'material-ui/BottomNavigation';
+-import BottomNavigation, { BottomNavigationButton } from 'stoked-ui/BottomNavigation';
++import BottomNavigation, { BottomNavigationAction } from 'stoked-ui/BottomNavigation';
 ```
 
 - [core] Update jss plugins dependencies (#9732) @cherniavskii
@@ -9150,7 +9150,7 @@ Alternatively, you can use our preset to save bundle size.
 
 ```diff
 -import preset from 'jss-preset-default';
-+import { jssPreset } from 'material-ui/styles';
++import { jssPreset } from 'stoked-ui/styles';
 ```
 
 ### Component Fixes / Enhancements
@@ -9349,7 +9349,7 @@ None, merry christmas 🎄.
 - [docs] Second iteration on the ad placement (#9524) @oliviertassinari
 - [docs] Remove unused styes object from ChipsArray demo (#9540) @mbrookes
 - [docs] Hide sandbox button on drawer and grid-list demos (#9537) @lukePeavey
-- [docs] Fix typo `masterial-ui` to `material-ui` (#9544) @Ginkoid
+- [docs] Fix typo `masterial-ui` to `stoked-ui` (#9544) @Ginkoid
 - [docs] Add two new members (#9543) @oliviertassinari
 - [docs] Fix dark theme toggle of website home page content (#9560) @Tuaniwan
 - [docs] Improve migration guide (#9566) @fonzy2013
@@ -9756,8 +9756,8 @@ Here are some highlights ✨:
 - [Dialog] Rename withResponsiveFullScreen (#8951) @oliviertassinari
 
 ```diff
--import { withResponsiveFullScreen } from 'material-ui/Dialog';
-+import { withMobileDialog } from 'material-ui/Dialog';
+-import { withResponsiveFullScreen } from 'stoked-ui/Dialog';
++import { withMobileDialog } from 'stoked-ui/Dialog';
 ```
 
 ### Component Fixes / Enhancements
@@ -9897,7 +9897,7 @@ A big thanks to the 14 contributors who made this release possible.
 Here are some highlights ✨:
 
 - New InputAdornment component (#8504).
-- New [Frequently asked questions](https://github.com/mui/material-ui/blob/4df547d56448cedf70977d6e2463b38eaf64d1c7/docs/src/pages/getting-started/frequently-asked-questions.md) documentation section
+- New [Frequently asked questions](https://github.com/stoked-ui/stoked-ui/blob/4df547d56448cedf70977d6e2463b38eaf64d1c7/docs/src/pages/getting-started/frequently-asked-questions.md) documentation section
 - We have saved 1 kB gzip by removing our internal react-transition-group fork (#8785).
 - We have made one step further in order to upgrade all our development dependencies to react@16 (#8804).
 
@@ -10110,7 +10110,7 @@ Here are some highlights ✨:
 
 _Oct 4, 2017_
 
-## material-ui-icons
+## stoked-ui-icons
 
 ### Component Fixes / Enhancements
 
@@ -10192,7 +10192,7 @@ A big thanks to the 18 contributors who made this release possible.
 - [core] Update issue template with language about providing a reproduction case (#8466) @rosskevin
 - [flow] add examples/create-react-app-with-flow (#8449) @rosskevin
 - [docs] Add a Responsive Drawer example (#8494) @oliviertassinari
-- [docs] Move docs to https://material-ui-next.com (#8495) @oliviertassinari
+- [docs] Move docs to https://stoked-ui-next.com (#8495) @oliviertassinari
 - [docs] Take insertionPoint option into account (#8497) @oliviertassinari
 
 ### Core
@@ -10236,7 +10236,7 @@ Here are some highlights ✨:
 - The TypeScript definitions made an important step forward with more than 10 PRs merged. @pelotom @sebald @xaviergonz and more
 - Wondering how Material UI compares to the other solutions out there?
   We have created a documentation page to stress the tradeoffs taken. (#8319)
-- `material-ui@next` has just [crossed **react-toolbox**](https://npm-stat.com/charts.html?package=react-scrollbar-size&package=react-toolbox&from=2017-01-24&to=2017-09-24) in terms of downloads on npm.
+- `stoked-ui@next` has just [crossed **react-toolbox**](https://npm-stat.com/charts.html?package=react-scrollbar-size&package=react-toolbox&from=2017-01-24&to=2017-09-24) in terms of downloads on npm.
 
 ### Breaking change
 
@@ -10415,8 +10415,8 @@ A big thanks to the 13 contributors who made this release possible.
 - [MobileStepper] Add nextButton and backButton property (#8001) @wieseljonas
 
 ```diff
-+import KeyboardArrowLeft from 'material-ui-icons/KeyboardArrowLeft';
-+import KeyboardArrowRight from 'material-ui-icons/KeyboardArrowRight';
++import KeyboardArrowLeft from 'stoked-ui-icons/KeyboardArrowLeft';
++import KeyboardArrowRight from 'stoked-ui-icons/KeyboardArrowRight';
 
      <MobileStepper
 -        onBack={this.handleBack}
@@ -10602,11 +10602,11 @@ A big thanks to the 12 contributors who made this release possible.
 
 - [theme] Simplification of the API (#7934) @oliviertassinari
 
-  - If you are using a direct import of `material-ui/styles/theme`, the path changed:
+  - If you are using a direct import of `stoked-ui/styles/theme`, the path changed:
 
   ```diff
-  -import createMuiTheme from 'material-ui/styles/theme';
-  +import createMuiTheme from 'material-ui/styles/createMuiTheme';
+  -import createMuiTheme from 'stoked-ui/styles/theme';
+  +import createMuiTheme from 'stoked-ui/styles/createMuiTheme';
   ```
 
   - We have removed the intermediary functions, now you can provide a nested structure to override the generated theme structure inside the first argument of `createMuiTheme()`. Notice that you can still change the output object before providing it to the `<MuiThemeProvider />`.
@@ -10696,7 +10696,7 @@ Push #7741 initiative forward (use `value` and `onChange` as controlling propert
 - [Input] remove extraneous props when using custom component (#7784) @rosskevin
 - [Input] should accommodate number and string values (#7791) @rosskevin
 - [Slide] Remove Slide offset property from src and docs (#7808) @gfpacheco
-- [typescript] Create typings for material-ui-icons (#7820) @sebald
+- [typescript] Create typings for stoked-ui-icons (#7820) @sebald
 - [typescript] Add tests for typings + fixes (#7686) @sebald
 - [typescript] Update typings for beta.4 and beta.5 (#7793) @sebald
 - [typescript] Update <Slide> typings (#7817) @sebald
@@ -10746,8 +10746,8 @@ The primary motivation for this change is simplicity, it's also making our inter
 `react-jss`.
 
 ```diff
--import { withStyles, createStyleSheet } from 'material-ui/styles';
-+import { withStyles } from 'material-ui/styles';
+-import { withStyles, createStyleSheet } from 'stoked-ui/styles';
++import { withStyles } from 'stoked-ui/styles';
 
 -const styleSheet = createStyleSheet('Button', {
 +const styles = {
@@ -10995,9 +10995,9 @@ _Jul 4, 2017_
   Change the colors location as you most likely only need 20% of them in your bundle
 
 ```diff
--import { blue, fullWhite } from 'material-ui/styles/colors'
-+import blue from 'material-ui/colors/blue'
-+import common from 'material-ui/colors/common'
+-import { blue, fullWhite } from 'stoked-ui/styles/colors'
++import blue from 'stoked-ui/colors/blue'
++import common from 'stoked-ui/colors/common'
 +const { fullWhite } = common
 ```
 
@@ -11037,7 +11037,7 @@ We do, we have extended the support of React to the 16.0.0-alpha.13 release (aka
 
 ### Component Fixes / Enhancements
 
-- [material-ui-icons] v1.0.0-alpha.19 (21b67cec3b200517c9dfdf4d28c0bfc2d1dceeaa) @oliviertassinari
+- [stoked-ui-icons] v1.0.0-alpha.19 (21b67cec3b200517c9dfdf4d28c0bfc2d1dceeaa) @oliviertassinari
 - [Input] Fix incorrect type of autoFocus prop (#7189) @gnapse
 - [Icons] Modernize icons package (#7203) @kvet
 - [Input] Fix various styling issue #7209 @oliviertassinari
@@ -11281,7 +11281,7 @@ _May 14, 2017_
 
 ### Docs
 
-- [docs] Fix link to material-ui-icons (#6825) @NiloCK
+- [docs] Fix link to stoked-ui-icons (#6825) @NiloCK
 - [docs] Add a direct link to GitHub (#6861) @oliviertassinari
 
 ### Core
@@ -11301,15 +11301,15 @@ _May 8, 2017_
   Change some import:
 
 ```diff
--import { List, ListItem, ListItemText } from 'material-ui/List';
-+import List, { ListItem, ListItemText } from 'material-ui/List';
+-import { List, ListItem, ListItemText } from 'stoked-ui/List';
++import List, { ListItem, ListItemText } from 'stoked-ui/List';
 ```
 
 - [Grid] Rename Layout to Grid (#6789) @rosskevin
 
 ```diff
--import Layout from 'material-ui/Layout';
-+import Grid from 'material-ui/Grid';
+-import Layout from 'stoked-ui/Layout';
++import Grid from 'stoked-ui/Grid';
 ```
 
 ### Component Fixes / Enhancements
@@ -11363,7 +11363,7 @@ A big thanks to the 11 contributors who are pushing the `next` branch forward.
 - [Tabs] Label text wrapping / font scaling (#6677) @shawnmcknight
 - [Tabs] Cancel throttled event callbacks (#6715) @shawnmcknight
 - [Tabs] Improve component lifecycle (#6730) @shawnmcknight
-- [material-ui-icons] add making index.js (#6676) @taichi
+- [stoked-ui-icons] add making index.js (#6676) @taichi
 - [breakpoints] up('xs') should have a min-width of 0px (#6735) @rosskevin
 
 ### Docs
@@ -11376,7 +11376,7 @@ A big thanks to the 11 contributors who are pushing the `next` branch forward.
 
 ### Core
 
-- [material-ui-icons] Modernize the package (#6688) @oliviertassinari
+- [stoked-ui-icons] Modernize the package (#6688) @oliviertassinari
 - [core] Also take the demo into account for the regressions tests (#6669) @oliviertassinari
 
 ## 1.0.0-alpha.11
@@ -11417,7 +11417,7 @@ _Apr 6, 2017_
 
 We are continuing investing in the documentation and the test suite.
 
-Visual regression tests are now sent to [argos-ci](https://app.argos-ci.com/mui/material-ui/builds).
+Visual regression tests are now sent to [argos-ci](https://app.argos-ci.com/mui/stoked-ui/builds).
 Thanks @agamrafaeli for increasing the test coverage of 1% since the last release (95.23%).
 Thanks @mbrookes for fixing the inconsistency of the API and improving the API.
 
@@ -11515,7 +11515,7 @@ _Apr 1, 2017_
 
 - [Tab] Add labelClassName property (#6436) @rogeliog
 - [test] Fix absolute path in createShallow (444c60392550fe73bb3492ba0ebb63473c73162a) @oliviertassinari
-- [material-ui-icons] Reinstate README and update scripts, update installation.md (#6448) @mbrookes
+- [stoked-ui-icons] Reinstate README and update scripts, update installation.md (#6448) @mbrookes
 - [Input] Add test for focus() (#6461) @agamrafaeli
 - [Input] Add test for componentDidMount() (#6462) @agamrafaeli
 - [RadioGroup] Add tests for edge cases (#6409) @agamrafaeli
@@ -11563,7 +11563,7 @@ We are now at 93.53%. That's pretty great.
 
 ### Docs
 
-- [docs] Use material-ui-icons package (#6390) @mbrookes
+- [docs] Use stoked-ui-icons package (#6390) @mbrookes
 
 ### Core
 
@@ -11676,7 +11676,7 @@ _Feb 7, 2017_
 One year ago, we were struggling with removing all the mixins from the project.
 Now, it's about rewriting all the components.
 We're going to try doing frequent alpha releases to keep some intertia. At least once per week would be good.
-As always, we are keeping the [documentation](https://mui.com) up to date.
+As always, we are keeping the [documentation](https://stokedui.com) up to date.
 
 ### Component Fixes / Enhancements
 
@@ -11750,14 +11750,14 @@ We are releasing sooner than we use to for this **special day** :christmas_tree:
 
 2016 has been an exceptional year for Material UI.
 
-- We went from 40k to 180k [downloads](https://npm-stat.com/charts.html?package=material-ui&from=2014-12-24&to=2016-12-25) a month. :package:
-- We went from 12k to 22k [stars](http://www.timqian.com/star-history/#mui/material-ui). :star:
+- We went from 40k to 180k [downloads](https://npm-stat.com/charts.html?package=stoked-ui&from=2014-12-24&to=2016-12-25) a month. :package:
+- We went from 12k to 22k [stars](http://www.timqian.com/star-history/#mui/stoked-ui). :star:
 
 That wouldn't have been possible without this awesome community.
 **Thank you!**
 
-But this's just the beginning, some [exciting stuff](https://github.com/mui/material-ui/blob/v0.16.6/ROADMAP.md) is coming in 2017 :sparkles:.
-You can preview a **very early** version of the `next` branch following [this link](https://material-ui-next.com).
+But this's just the beginning, some [exciting stuff](https://github.com/stoked-ui/stoked-ui/blob/v0.16.6/ROADMAP.md) is coming in 2017 :sparkles:.
+You can preview a **very early** version of the `next` branch following [this link](https://stoked-ui-next.com).
 
 ### Component Fixes / Enhancements
 
@@ -11777,7 +11777,7 @@ You can preview a **very early** version of the `next` branch following [this li
 - [Autocomplete] Add a controlled example (#5795)
 - [Slider] Add onChange callback signatures to docs (#5760)
 - [TextField] Add callback signatures to docs (#5804)
-- [docs] Add link to babel-plugin-material-ui (#5754)
+- [docs] Add link to babel-plugin-stoked-ui (#5754)
 - [docs] Node is written mostly in C++, not in C (#5776)
 - [docs] Remove redundant words (#5778)
 - [docs] Add showcase item - Realty Advisors Elite (#5806)
@@ -11838,7 +11838,7 @@ _Nov 17, 2016_
 
 _Nov 17, 2016_
 
-This release is intended to solve an [issue](https://github.com/mui/material-ui/issues/5573) with `react-tap-event-plugin` following the release of React `v15.4.0`.
+This release is intended to solve an [issue](https://github.com/stoked-ui/stoked-ui/issues/5573) with `react-tap-event-plugin` following the release of React `v15.4.0`.
 
 ### Component Fixes / Enhancements
 
@@ -11948,7 +11948,7 @@ We are switching in goal so we can release changes more **often**.
 Regarding going forward, this is likely to be the last `minor` release using the **inline-style** approach.
 We are migrating all the components to a **CSS-in-JS** approach on the `next` branch.
 
-For more details, you can have a look a the [next milestone](https://github.com/mui/material-ui/milestone/14) as well as the [next project](https://github.com/mui/material-ui/projects/1)
+For more details, you can have a look a the [next milestone](https://github.com/stoked-ui/stoked-ui/milestone/14) as well as the [next project](https://github.com/stoked-ui/stoked-ui/projects/1)
 
 :warning: New features based on the `master` branch (inline-style) have low priority and will most likely not be reviewed nor merged.
 
@@ -11995,7 +11995,7 @@ _Sep 24, 2016_
 
 - [AppBar] Add a composition example (#5248)
 - [RaisedButton] Update file upload example (#5159)
-- [docs] Add material-ui-chip-input to related projects (#5172)
+- [docs] Add stoked-ui-chip-input to related projects (#5172)
 - [docs] Add material-auto-rotating-carousel to related projects (#5244)
 - [docs] Explicit the prerequisites section to required knowledge (#5203)
 - [docs] Update the server-rendering section (#5206)
@@ -12351,16 +12351,16 @@ This release changes how components are imported. You will need to update every
 import statement, Like:
 
 ```js
-import RaisedButton from 'material-ui/lib/raised-button';
-import Tabs from 'material-ui/tabs/tabs';
-import Tab from 'material-ui/tabs/tab';
+import RaisedButton from 'stoked-ui/lib/raised-button';
+import Tabs from 'stoked-ui/tabs/tabs';
+import Tab from 'stoked-ui/tabs/tab';
 ```
 
 to:
 
 ```js
-import RaisedButton from 'material-ui/RaisedButton';
-import { Tabs, Tab } from 'material-ui/Tabs';
+import RaisedButton from 'stoked-ui/RaisedButton';
+import { Tabs, Tab } from 'stoked-ui/Tabs';
 ```
 
 The exact import statements for each component can be found in their respective
@@ -12368,7 +12368,7 @@ documentation page.
 
 Have a ton of imports? almost had a heart attack? worry not, we also made a tool
 to ease your pain. checkout the
-[readme](https://github.com/mui/material-ui/tree/master/packages/material-ui-codemod/README.md).
+[readme](https://github.com/stoked-ui/stoked-ui/tree/master/packages/stoked-ui-codemod/README.md).
 
 ### Breaking Changes
 
@@ -12384,13 +12384,13 @@ https://v0.mui.com/#/customization/themes
 You will probably need to turn
 
 ```js
-import Mui from 'material-ui';
+import Mui from 'stoked-ui';
 ```
 
 into
 
 ```js
-import * as Mui from 'material-ui';
+import * as Mui from 'stoked-ui';
 ```
 
 Although we discourage you to use this library like that.
@@ -12409,7 +12409,7 @@ Although we discourage you to use this library like that.
 - [Core] Update to React v15 (#3941) 🎉 🎉
 - [Core] Remove dependency on lodash.flowright (#3955)
 - [Core] update components to es6 classes (#3843) 🎉 🎉
-- [Core] Add a `material-ui-codemod` package (#3782)
+- [Core] Add a `stoked-ui-codemod` package (#3782)
 - [Core] Update export syntax, move unit tests, update test dependencies (#3785)
 - [Core] Use .js extension instead of .jsx (#3765)
 - [Themes] colorManipulator cleanup (#3966)
@@ -12469,14 +12469,14 @@ _Mar 18, 2016_
   you need to add `.default` to your requires (#3648):
 
 ```diff
-- const MaterialUI = require('material-ui');
-+ const MaterialUI = require('material-ui').default;
+- const MaterialUI = require('stoked-ui');
++ const MaterialUI = require('stoked-ui').default;
 ```
 
 If you used ES modules, you're already all good:
 
 ```js
-import MaterialUI from 'material-ui'; // no changes here :D
+import MaterialUI from 'stoked-ui'; // no changes here :D
 ```
 
 - [Core] Remove uniqueId utils (#3538)
@@ -12571,7 +12571,7 @@ _Feb 27, 2016_
 This release includes huge improvements to the implementation
 of components and utility modules. The most important improvement
 is the removal of mixins from the library, thanks to the
-[great efforts](https://github.com/mui/material-ui/pulls?utf8=%E2%9C%93&q=is%3Apr+is%3Aclosed+author%3Anewoga+style-propable)
+[great efforts](https://github.com/stoked-ui/stoked-ui/pulls?utf8=%E2%9C%93&q=is%3Apr+is%3Aclosed+author%3Anewoga+style-propable)
 of @newoga :+1:
 
 There are also improvements to the unit testing infrastructure. We own this
@@ -12593,8 +12593,8 @@ from the code with the 0.16.0 release.
 - [LeftNav] `className` and `style` are now set on the root element (#3322)
 - [Colors] Removed default export in favor of singular exports (#2825) <br>
   **Note** This can be temporarily worked around by changing <br>
-  `import Colors from 'material-ui/lib/styles/colors';` <br> to <br>
-  `import * as Colors from 'material-ui/lib/styles/colors';`.
+  `import Colors from 'stoked-ui/lib/styles/colors';` <br> to <br>
+  `import * as Colors from 'stoked-ui/lib/styles/colors';`.
 - [DatePicker] Standardize for ISO8601. (#3417)
 
 ### New Component
@@ -12917,7 +12917,7 @@ _Dec 15, 2015_
 
 ### Deprecations
 
-- The old menu components under the `material-ui/lib/menu` folder (#2443)
+- The old menu components under the `stoked-ui/lib/menu` folder (#2443)
 - The `actions` property of `Dialog` accepting a JSON is deprecated (#2483)
 - The `menuItems` of `LeftNav` and all the related properties are now deprecated in favor of composibility (#2507)
 
@@ -13134,13 +13134,13 @@ _Sep 25, 2015_
 
 ### Breaking Changes
 
-- Theming has been re-done so that material-ui components can be used without having to worry about passing a theme (all components implement a default theme) (#1662)
+- Theming has been re-done so that stoked-ui components can be used without having to worry about passing a theme (all components implement a default theme) (#1662)
   - There's now a concept of `mui theme` and `raw theme`, `mui theme` is produced from `raw theme`
   - `ThemeManager` has been changed, no longer needs `new` in call
   - `ThemeManager` produces `mui theme` from `raw theme`. Raw themes may be user-defined.
   - Functions in `ThemeManager` allow to modify theme variables. Component-level styles may be
   - overridden in the `mui theme`.
-  - See new documentation [here](https://mui.com/#/customization/themes)
+  - See new documentation [here](https://stokedui.com/#/customization/themes)
 - Function names in the context-pure mixin have been changed (#1711)
   - `getContextProps()` has been changed to `getRelevantContextKeys()`
 
@@ -13173,7 +13173,7 @@ _Aug 24, 2015_
 
 - The Table component is now composable. (#1199)
   - JSON objects to create the table and the table component will no longer generate the table for you.
-    The docs site provides a complete example of how a table might look: https://mui.com/#/components/table.
+    The docs site provides a complete example of how a table might look: https://stokedui.com/#/components/table.
     The example also includes a 'super header' and 'super footer' row.
   - **Upgrade Path:** Instead of passing in the raw JSON data, you'll need to generate the appropriate
     TableHeader/TableRow/TableHeaderColumn components and pass them in as children. The same should be applied
@@ -13271,8 +13271,8 @@ _Jul 29, 2015_
 ### Breaking Changes
 
 - Changed `date-picker/index.js` to expose DatePicker and DatePickerDialog.
-  Hence `require('material-ui/lib/date-picker')` no longer works. Use
-  `require('material-ui/lib/date-picker/date-picker')` instead.
+  Hence `require('stoked-ui/lib/date-picker')` no longer works. Use
+  `require('stoked-ui/lib/date-picker/date-picker')` instead.
 
 ### General
 
@@ -13357,7 +13357,7 @@ _Jul 9, 2015_
   - We've created SvgIcon versions of all the
     [material-design-icons](https://github.com/google/material-design-icons). These SvgIcon
     components can be found in the `/lib/svg-icons` directory and were not added to the main `index.js`
-    file. To use these icons, require them directly: `require('material-ui/lib/svg-icons/action/face')`.
+    file. To use these icons, require them directly: `require('stoked-ui/lib/svg-icons/action/face')`.
     These icons were created using a script that crawls the icon repo and generates the
     appropriate `js` and `jsx` files and can be found in the `/icon-builder` directory.
 - Menu, MenuItem, MenuDivider
@@ -13369,7 +13369,7 @@ _Jul 9, 2015_
     - selectable with value and valueLink
   - We're working on migrating some of our other components to use this new implementation. Until that's
     thats done, require these components directly if you'd like to use them:
-    `require('material-ui/lib/menus/menu')`.
+    `require('stoked-ui/lib/menus/menu')`.
 - IconMenu
   - This component replaces `DropDownIcon` and has all of the new menu features mentioned above.
 
@@ -13564,20 +13564,20 @@ _May 24, 2015_
     component specific. In addition to the benefits mentioned in the
     presentation, inline styles allow Material UI to become CSS preprocessor
     agnostic and make Themeing much more dynamic and simple.
-    [Read our CSS in JS discussion](https://github.com/mui/material-ui/issues/30)
+    [Read our CSS in JS discussion](https://github.com/stoked-ui/stoked-ui/issues/30)
   - Upgrade path:
     - _If you are overriding component CSS classes:_ Redefine your overrides as
       an object following [React's inline styles format](https://facebook.github.io/react/tips/inline-styles.html),
-      then pass it into the material-ui component via the `style` prop. These
+      then pass it into the stoked-ui component via the `style` prop. These
       changes are applied to the root element of the component. If you are
       overriding a nested element of the component, check the component's
       documentation and see if there is a style prop available for that nested
       element. If a style prop does not exist for the component's nested element
-      that you are trying to override, [submit an issue](https://github.com/mui/material-ui/issues/new)
+      that you are trying to override, [submit an issue](https://github.com/stoked-ui/stoked-ui/issues/new)
       requesting to have it added.
     - _If you are using any of Material UI's Less files:_ These files have been
-      refactored into their [own JavaScript files](https://github.com/mui/material-ui/tree/css-in-js/src/styles)
-      and can be accessed like so `var FILENAME = require('material-ui').Styles.FILENAME;`.
+      refactored into their [own JavaScript files](https://github.com/stoked-ui/stoked-ui/tree/css-in-js/src/styles)
+      and can be accessed like so `var FILENAME = require('stoked-ui').Styles.FILENAME;`.
       Material UI has moved away from being a CSS Framework to being simply a
       set of React components.
 - Paper component no longer generates nested divs (#601)
@@ -13587,7 +13587,7 @@ _May 24, 2015_
 
 - Themes have been added (#202)
 - Requiring individual components is now supported (#363)
-  - An example would be: `var SvgIcon = require('material-ui/lib/svg-icon);`
+  - An example would be: `var SvgIcon = require('stoked-ui/lib/svg-icon);`
   - The `/lib` folder in Material UI contains the file structure needed when referencing individual components.
 
 ### Components
@@ -13744,7 +13744,7 @@ _Feb. 13, 2015_
 
 - Removed Icon component - Replaced with FontIcon and SvgIcon (#318, #125, #148)
   - The main motivation here is to give developers more control over which font icons to include
-    in their project. Instead of automatically including all material design icons in material-ui,
+    in their project. Instead of automatically including all material design icons in stoked-ui,
     developers can now create their own custom icon font file and just pass the icon className into
     the FontIcon component.
   - Upgrade path:
@@ -13752,7 +13752,7 @@ _Feb. 13, 2015_
       For FontIcon, create a custom font file and include it in your project and just pass the Icon
       className into the FontIcon component. For SvgIcon, create a new React component that represents
       that particular icon. This will allow you to package your icons inside your js files. Examples
-      can be found [here](https://github.com/mui/material-ui/tree/master/src/js/svg-icons).
+      can be found [here](https://github.com/stoked-ui/stoked-ui/tree/master/src/js/svg-icons).
     - Additionally, all components that had an icon prop now take an iconClassName prop instead. These
       include FloatingActionButton, IconButton, Menu, MenuItem, and DropDownIcon.
 

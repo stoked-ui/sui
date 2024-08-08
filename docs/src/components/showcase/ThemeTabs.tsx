@@ -49,7 +49,7 @@ export default function ThemeTabs() {
           },
         ]}
       >
-        <Tab label="Material UI" />
+        <Tab label="Stoked UI" />
         <Tab label="Base UI" />
         <Tab label="Joy UI" />
       </Tabs>

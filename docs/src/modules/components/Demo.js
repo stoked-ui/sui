@@ -43,10 +43,10 @@ function DemoToolbarFallback() {
 }
 
 function getDemoName(location) {
-  return location.endsWith('.js') || location.endsWith('.tsx')
-    ? location.replace(/(.+?)(\w+)\.\w+$$/, '$2')
+  return location?.endsWith('.js') || location?.endsWith('.tsx')
+    ? location?.replace(/(.+?)(\w+)\.\w+$$/, '$2')
     : // the demos with multiple styling solution point to directory
-      location.split('/').pop();
+      location?.split('/').pop();
 }
 
 function useDemoData(codeVariant, demo, githubLocation, codeStyling) {
@@ -64,7 +64,7 @@ function useDemoData(codeVariant, demo, githubLocation, codeStyling) {
       productId = 'base-ui';
       name = 'Base UI';
     } else if (canonicalAs.startsWith('/x/')) {
-      name = 'MUI X';
+      name = 'SUI X';
     }
 
     let codeOptions = {};
@@ -219,8 +219,8 @@ const DemoRootMaterial = styled('div', {
   /* Isolate the demo with an outline. */
   ...(bg === 'outlined' && {
     padding: theme.spacing(3),
-    backgroundColor: (theme.vars || theme).palette.background.paper,
-    border: `1px solid ${(theme.vars || theme).palette.divider}`,
+    backgroundColor: theme.palette.background.paper,
+    border: `1px solid ${theme.palette.divider}`,
     borderLeftWidth: 0,
     borderRightWidth: 0,
     ...theme.applyDarkStyles({
@@ -229,32 +229,32 @@ const DemoRootMaterial = styled('div', {
   }),
   /* Similar to the outlined one but without padding. Ideal for playground demos. */
   ...(bg === 'playground' && {
-    backgroundColor: (theme.vars || theme).palette.background.paper,
-    border: `1px solid ${(theme.vars || theme).palette.divider}`,
+    backgroundColor: theme.palette.background.paper,
+    border: `1px solid ${theme.palette.divider}`,
     overflow: 'auto',
   }),
   /* Prepare the background to display an inner elevation. */
   ...(bg === true && {
     padding: theme.spacing(3),
-    backgroundColor: alpha((theme.vars || theme).palette.grey[50], 0.5),
-    border: `1px solid ${(theme.vars || theme).palette.divider}`,
+    backgroundColor: alpha(theme.palette.grey[50], 0.5),
+    border: `1px solid ${theme.palette.divider}`,
     ...theme.applyDarkStyles({
-      backgroundColor: alpha((theme.vars || theme).palette.primaryDark[700], 0.4),
+      backgroundColor: alpha(theme.palette.primaryDark[700], 0.4),
     }),
   }),
   /* Mostly meant for introduction demos. */
   ...(bg === 'gradient' && {
     overflow: 'auto',
     padding: theme.spacing(4, 2),
-    border: `1px solid ${(theme.vars || theme).palette.divider}`,
+    border: `1px solid ${theme.palette.divider}`,
     borderLeftWidth: 0,
     borderRightWidth: 0,
     backgroundClip: 'padding-box',
     backgroundColor: alpha(theme.palette.primary[50], 0.2),
-    backgroundImage: `radial-gradient(120% 140% at 50% 10%, transparent 40%, ${alpha((theme.vars || theme).palette.primary[100], 0.2)} 70%)`,
+    backgroundImage: `radial-gradient(120% 140% at 50% 10%, transparent 40%, ${alpha(theme.palette.primary[100], 0.2)} 70%)`,
     ...theme.applyDarkStyles({
-      backgroundColor: (theme.vars || theme).palette.primaryDark[900],
-      backgroundImage: `radial-gradient(120% 140% at 50% 10%, transparent 30%, ${alpha((theme.vars || theme).palette.primary[900], 0.3)} 80%)`,
+      backgroundColor: theme.palette.primaryDark[900],
+      backgroundImage: `radial-gradient(120% 140% at 50% 10%, transparent 30%, ${alpha(theme.palette.primary[900], 0.3)} 80%)`,
     }),
   }),
 }));
@@ -598,7 +598,7 @@ export default function Demo(props) {
               </DemoEditor>
             )}
           </Collapse>
-          {adVisibility ? <AdCarbonInline /> : null}
+          {adVisibility ? <React.Fragment /> : null}
         </Wrapper>
       )}
     </Root>

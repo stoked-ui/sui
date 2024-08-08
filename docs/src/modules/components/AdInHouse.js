@@ -5,7 +5,7 @@ import AdDisplay from 'docs/src/modules/components/AdDisplay';
 export default function AdInHouse(props) {
   const { ad } = props;
 
-  return <AdDisplay ad={{ poweredby: 'MUI', label: `in-house-${ad.name}`, ...ad }} />;
+  return <React.Fragment />;
 }
 
 AdInHouse.propTypes = {

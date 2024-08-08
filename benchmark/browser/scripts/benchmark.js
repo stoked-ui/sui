@@ -164,7 +164,7 @@ async function run() {
       },
       {
         name: 'Grid Material UI',
-        path: './grid-material-ui/index.js',
+        path: './grid-stoked-ui/index.js',
       },
       {
         name: 'Table',
@@ -182,8 +182,8 @@ async function run() {
       },
       // Test that @mui/styled-engine doesn't add an signifiant overhead
       {
-        name: 'Styled MUI',
-        path: './styled-material-ui/index.js',
+        name: 'Styled SUI',
+        path: './styled-stoked-ui/index.js',
       },
       {
         name: 'Styled emotion',
@@ -204,8 +204,8 @@ async function run() {
         path: './box-baseline/index.js',
       },
       {
-        name: 'Box MUI',
-        path: './box-material-ui/index.js',
+        name: 'Box SUI',
+        path: './box-stoked-ui/index.js',
       },
       {
         name: 'Box Theme-UI',
@@ -215,10 +215,10 @@ async function run() {
         name: 'Box Chakra-UI',
         path: './box-chakra-ui/index.js',
       },
-      // Test MUI System perf difference with alternatives
+      // Test SUI System perf difference with alternatives
       {
         name: 'styled-components Box + @mui/system',
-        path: './styled-components-box-material-ui-system/index.js',
+        path: './styled-components-box-stoked-ui-system/index.js',
       },
       {
         name: 'styled-components Box + styled-system',

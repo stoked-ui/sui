@@ -263,13 +263,6 @@ export default function MarkdownDocsV2(props) {
             : `${AppFrameHeight}px`,
         }}
       >
-        {disableAd ? null : (
-          <BrandingProvider>
-            <AdGuest classSelector={hasTabs ? '.component-tabs' : undefined}>
-              <Ad />
-            </AdGuest>
-          </BrandingProvider>
-        )}
         <CssVarsProvider>
           {isJoy && <JoyModeObserver mode={theme.palette.mode} />}
           {commonElements}

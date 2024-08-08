@@ -14,8 +14,8 @@ const StyledTabs = styled(Tabs)(({ theme }) => ({
   overflow: 'visible',
   borderRadius: 20,
   border: '1px solid',
-  borderColor: (theme.vars || theme).palette.grey[100],
-  backgroundColor: (theme.vars || theme).palette.grey[50],
+  borderColor: theme.palette.grey[100],
+  backgroundColor: theme.palette.grey[50],
   '&:has(.Mui-focusVisible)': {
     outline: `3px solid ${alpha(theme.palette.primary[500], 0.5)}`,
     outlineOffset: '2px',
@@ -33,14 +33,14 @@ const StyledTabs = styled(Tabs)(({ theme }) => ({
     fontWeight: theme.typography.fontWeightSemiBold,
     minWidth: 0,
     minHeight: 0,
-    color: (theme.vars || theme).palette.text.tertiary,
+    color: theme.palette.text.tertiary,
     borderRadius: 20,
     zIndex: 2,
     '&:hover': {
-      color: (theme.vars || theme).palette.text.primary,
+      color: theme.palette.text.primary,
     },
     '&.Mui-selected': {
-      color: (theme.vars || theme).palette.primary[600],
+      color: theme.palette.primary[600],
       fontWeight: theme.typography.fontWeightSemiBold,
     },
     '&.Mui-focusVisible': {
@@ -50,25 +50,25 @@ const StyledTabs = styled(Tabs)(({ theme }) => ({
   '& .MuiTabs-indicator': {
     backgroundColor: '#FFF',
     border: '1px solid',
-    borderColor: (theme.vars || theme).palette.grey[200],
+    borderColor: theme.palette.grey[200],
     height: '100%',
     borderRadius: 20,
     zIndex: 0,
-    boxShadow: `0px 1px 2px ${(theme.vars || theme).palette.grey[200]}`,
+    boxShadow: `0px 1px 2px ${theme.palette.grey[200]}`,
   },
   ...theme.applyDarkStyles({
-    borderColor: (theme.vars || theme).palette.primaryDark[700],
-    backgroundColor: (theme.vars || theme).palette.primaryDark[900],
+    borderColor: theme.palette.primaryDark[700],
+    backgroundColor: theme.palette.primaryDark[900],
     '& .MuiTabs-indicator': {
       height: '100%',
       borderRadius: 20,
       backgroundColor: alpha(theme.palette.primaryDark[600], 0.5),
-      borderColor: (theme.vars || theme).palette.primaryDark[600],
-      boxShadow: `0px 1px 4px ${(theme.vars || theme).palette.common.black}`,
+      borderColor: theme.palette.primaryDark[600],
+      boxShadow: `0px 1px 4px ${theme.palette.common.black}`,
     },
     '& .MuiTab-root': {
       '&.Mui-selected': {
-        color: (theme.vars || theme).palette.primary[200],
+        color: theme.palette.primary[200],
       },
     },
   }),

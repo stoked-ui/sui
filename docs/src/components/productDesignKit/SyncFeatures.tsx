@@ -161,7 +161,7 @@ export default function ConnectFeatures() {
                     >
                       <Image
                         src="/static/branding/design-kits/sync-base1-light.png"
-                        alt="The Material UI Design Kit for Figma."
+                        alt="The Stoked UI Design Kit for Figma."
                         loading="lazy"
                         sx={(theme) =>
                           theme.applyDarkStyles({
@@ -171,7 +171,7 @@ export default function ConnectFeatures() {
                       />
                       <Image
                         src="/static/branding/design-kits/sync-shot1-light.png"
-                        alt="The Material UI Sync plugin displaying theme code."
+                        alt="The Stoked UI Sync plugin displaying theme code."
                         loading="lazy"
                         sx={(theme) =>
                           theme.applyDarkStyles({
@@ -248,7 +248,7 @@ export default function ConnectFeatures() {
                     >
                       <Image
                         src="/static/branding/design-kits/sync-base2-light.png"
-                        alt="The Material UI Design Kit for Figma."
+                        alt="The Stoked UI Design Kit for Figma."
                         loading="lazy"
                         sx={(theme) =>
                           theme.applyDarkStyles({
@@ -258,7 +258,7 @@ export default function ConnectFeatures() {
                       />
                       <Image
                         src="/static/branding/design-kits/material-sync-light.png"
-                        alt="The Material UI Sync plugin displaying theme code."
+                        alt="The Stoked UI Sync plugin displaying theme code."
                         loading="lazy"
                         sx={(theme) =>
                           theme.applyDarkStyles({
@@ -335,7 +335,7 @@ export default function ConnectFeatures() {
                     >
                       <Image
                         src="/static/branding/design-kits/sync-base2-light.png"
-                        alt="The Material UI Design Kit for Figma."
+                        alt="The Stoked UI Design Kit for Figma."
                         loading="lazy"
                         sx={(theme) =>
                           theme.applyDarkStyles({
@@ -345,7 +345,7 @@ export default function ConnectFeatures() {
                       />
                       <Image
                         src="/static/branding/design-kits/sync-shot3-light.png"
-                        alt="The Material UI Sync plugin displaying theme code."
+                        alt="The Stoked UI Sync plugin displaying theme code."
                         loading="lazy"
                         sx={(theme) =>
                           theme.applyDarkStyles({
@@ -360,7 +360,7 @@ export default function ConnectFeatures() {
             </Frame.Demo>
             <Frame.Info data-mui-color-scheme="dark">
               <Typography variant="body2" fontWeight="bold" gutterBottom>
-                Get the beta version of Material UI Sync now!
+                Get the beta version of Stoked UI Sync now!
               </Typography>
               <Typography variant="body2" color="text.secondary" mb={2}>
                 There&apos;s still a lot to do, and we&apos;re looking forward to hearing from all

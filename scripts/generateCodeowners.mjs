@@ -162,19 +162,21 @@ const componentAreas = {
 };
 
 const areaMaintainers = {
-  inputs: ['michaldudak', 'mnajdova'],
-  dataDisplay: ['siriwatknp', 'michaldudak'],
-  feedback: ['siriwatknp', 'hbjORbj'],
-  surfaces: ['siriwatknp', 'hbjORbj'],
-  navigation: ['mnajdova', 'michaldudak'],
-  layout: ['siriwatknp', 'hbjORbj'],
-  utils: ['mnajdova', 'michaldudak'],
+  inputs: ['brian-stoker'],
+  dataDisplay: ['brian-stoker'],
+  feedback: ['brian-stoker'],
+  surfaces: ['brian-stoker'],
+  navigation: ['brian-stoker'],
+  layout: ['brian-stoker'],
+  utils: ['brian-stoker'],
 };
 
 const packageOwners = {
   base: ['michaldudak'],
   joy: ['siriwatknp'],
   material: ['mnajdova'],
+  ['sui-core']: ['brian-stoker'],
+  ['sui-x']: ['brian-stoker'],
 };
 
 const packageMaintainers = {
@@ -264,7 +266,7 @@ function getAreaMaintainers(area, packageName) {
 }
 
 function processComponents(packageName) {
-  const componentsDirectory = path.join(thisDirectory, `../packages/mui-${packageName}/src`);
+  const componentsDirectory = path.join(thisDirectory, `../packages/sui-${packageName}/src`);
   const componentDirectories = fs.readdirSync(componentsDirectory);
   const result = [];
 
@@ -278,7 +280,7 @@ function processComponents(packageName) {
 
     if (componentArea) {
       const maintainers = getAreaMaintainers(componentArea, packageName);
-      const codeowners = `/packages/mui-${packageName}/src/${componentDirectory}/ ${maintainers}`;
+      const codeowners = `/packages/sui-${packageName}/src/${componentDirectory}/ ${maintainers}`;
 
       result.push(codeowners);
     } else {
@@ -318,7 +320,7 @@ function processDocs(packageName) {
 
 function processPackages() {
   return Object.entries(packageMaintainers)
-    .map(([packageName, maintainers]) => `/packages/mui-${packageName}/ @${maintainers.join(' @')}`)
+    .map(([packageName, maintainers]) => `/packages/sui-${packageName}/ @${maintainers.join(' @')}`)
     .join('\n');
 }
 

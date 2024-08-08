@@ -19,12 +19,12 @@ const Item = styled(
   },
 )(({ theme, hasIcon, depth, subheader, expandable }) => {
   const color = {
-    color: (theme.vars || theme).palette.text.secondary,
+    color: theme.palette.text.secondary,
     ...(depth === 0 && {
-      color: (theme.vars || theme).palette.text.primary,
+      color: theme.palette.text.primary,
     }),
     ...(subheader && {
-      color: (theme.vars || theme).palette.text.tertiary,
+      color: theme.palette.text.tertiary,
     }),
   };
 
@@ -56,7 +56,7 @@ const Item = styled(
         height: '100%',
         width: 1,
         opacity: depth === 0 ? 0 : 1,
-        background: (theme.vars || theme).palette.grey[100],
+        background: theme.palette.grey[100],
       },
       ...color,
       ...(subheader && {
@@ -75,7 +75,7 @@ const Item = styled(
           top: 16,
           width: 1,
           opacity: depth === 0 ? 0 : 1,
-          background: (theme.vars || theme).palette.grey[100],
+          background: theme.palette.grey[100],
         },
         '&::after': {
           content: '""',
@@ -89,7 +89,7 @@ const Item = styled(
           opacity: depth === 0 ? 0 : 1,
           background: alpha(theme.palette.grey[50], 0.5),
           border: '1px solid',
-          borderColor: (theme.vars || theme).palette.grey[200],
+          borderColor: theme.palette.grey[200],
         },
       }),
       ...(hasIcon && {
@@ -98,11 +98,11 @@ const Item = styled(
       '&.app-drawer-active': {
         // To match browserUrlPreviewMarge
         scrollMarginBottom: 120,
-        color: (theme.vars || theme).palette.primary[600],
-        backgroundColor: (theme.vars || theme).palette.primary[50],
+        color: theme.palette.primary[600],
+        backgroundColor: theme.palette.primary[50],
         '&:hover': {
           backgroundColor: alpha(theme.palette.primary[100], 0.8),
-          color: (theme.vars || theme).palette.primary[700],
+          color: theme.palette.primary[700],
           '@media (hover: none)': {
             backgroundColor: theme.vars
               ? `rgba(${theme.vars.palette.primary.mainChannel} / ${theme.vars.palette.action.selectedOpacity})`
@@ -110,7 +110,7 @@ const Item = styled(
           },
         },
         '&::before': {
-          background: (theme.vars || theme).palette.primary[400],
+          background: theme.palette.primary[400],
         },
       },
       '& .MuiChip-root': {
@@ -118,8 +118,8 @@ const Item = styled(
       },
       ...(!subheader && {
         '&:hover': {
-          color: (theme.vars || theme).palette.common.black,
-          backgroundColor: (theme.vars || theme).palette.grey[50],
+          color: theme.palette.common.black,
+          backgroundColor: theme.palette.grey[50],
           '@media (hover: none)': {
             color: color.color,
             backgroundColor: 'transparent',
@@ -132,12 +132,12 @@ const Item = styled(
       },
       '& .ItemButtonIcon': {
         marginRight: '6px',
-        color: (theme.vars || theme).palette.primary.main,
+        color: theme.palette.primary.main,
       },
       '&:hover .ItemButtonIcon': {
-        color: (theme.vars || theme).palette.primary.light,
+        color: theme.palette.primary.light,
         '@media (hover: none)': {
-          color: (theme.vars || theme).palette.primary.main,
+          color: theme.palette.primary.main,
         },
       },
     },
@@ -147,14 +147,14 @@ const Item = styled(
         background: alpha(theme.palette.primaryDark[500], 0.3),
       },
       '&.app-drawer-active': {
-        color: (theme.vars || theme).palette.primary[300],
-        backgroundColor: (theme.vars || theme).palette.primaryDark[700],
+        color: theme.palette.primary[300],
+        backgroundColor: theme.palette.primaryDark[700],
         '&:hover': {
-          backgroundColor: (theme.vars || theme).palette.primaryDark[600],
-          color: (theme.vars || theme).palette.primary[200],
+          backgroundColor: theme.palette.primaryDark[600],
+          color: theme.palette.primary[200],
         },
         '&::before': {
-          background: (theme.vars || theme).palette.primary[400],
+          background: theme.palette.primary[400],
         },
       },
       ...(subheader && {
@@ -207,9 +207,9 @@ export const sxChip = (color) => [
     letterSpacing: '.04rem',
     height: '16px',
     border: 1,
-    borderColor: (theme.vars || theme).palette[color][300],
+    borderColor: theme.palette[color][300],
     bgcolor: alpha(theme.palette[color][100], 0.5),
-    color: (theme.vars || theme).palette[color][900],
+    color: theme.palette[color][900],
     '&:hover': {
       bgcolor: alpha(theme.palette[color][100], 0.5),
     },
@@ -221,7 +221,7 @@ export const sxChip = (color) => [
     theme.applyDarkStyles({
       borderColor: alpha(theme.palette[color][800], 0.5),
       bgcolor: alpha(theme.palette[color][900], 0.5),
-      color: (theme.vars || theme).palette[color][300],
+      color: theme.palette[color][300],
       '&:hover': {
         bgcolor: alpha(theme.palette[color][900], 0.5),
       },

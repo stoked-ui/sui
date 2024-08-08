@@ -30,19 +30,19 @@ const faqData = [
     detail: (
       <React.Fragment>
         The number of licenses purchased must correspond to the number of concurrent developers
-        contributing changes to the front-end code of projects that use MUI X Pro or Premium.
+        contributing changes to the front-end code of projects that use SUI X Pro or Premium.
         <br />
         <br />
         <b>Example 1.</b> Company 'A' is developing an application named 'AppA'. The app needs to
         render 10k rows of data in a table and allow users to group, filter, and sort. The dev team
-        adds MUI X Pro to the project to satisfy this requirement. 5 front-end and 10 back-end
+        adds SUI X Pro to the project to satisfy this requirement. 5 front-end and 10 back-end
         developers are working on 'AppA'. Only 1 developer is tasked with configuring and modifying
         the data grid. Only the front-end developers are contributing code to the front-end so
         Company 'A' purchases 5 licenses.
         <br />
         <br />
         <b>Example 2.</b> A UI development team at Company 'A' creates its own UI library for
-        internal development and includes MUI X Pro as a component. The team working on 'AppA' uses
+        internal development and includes SUI X Pro as a component. The team working on 'AppA' uses
         the new library and so does the team working on 'AppB'. 'AppA' has 5 front-end developers
         and 'AppB' has 3. There are 2 front-end developers on the UI development team. Company 'B'
         purchases 10 licenses.
@@ -51,7 +51,7 @@ const faqData = [
         <Link
           target="_blank"
           rel="noopener"
-          href="https://mui.com/legal/mui-x-eula/#required-quantity-of-licenses"
+          href="https://stokedui.com/legal/mui-x-eula/#required-quantity-of-licenses"
         >
           The clause in the EULA.
         </Link>
@@ -115,7 +115,7 @@ const faqData = [
           <li>Commercial solutions deployed for end-users</li>
         </ul>
         Based on the{' '}
-        <Link target="_blank" rel="noopener" href="https://mui.com/legal/mui-x-eula/#deployment">
+        <Link target="_blank" rel="noopener" href="https://stokedui.com/legal/mui-x-eula/#deployment">
           'Deployment' section of the EULA
         </Link>
         , you can sublicense the software if it's made part of a larger work. The new licenses must
@@ -170,12 +170,12 @@ const faqData = [
     summary: 'Why must we license developers not using the software directly?',
     detail: (
       <React.Fragment>
-        Our pricing model requires all developers working on a project using MUI X Pro or Premium to
+        Our pricing model requires all developers working on a project using SUI X Pro or Premium to
         be licensed. This is intended to make it easier for you and your team to know if the right
         number of developers are licensed.
         <br />
         <br />
-        Our licensing model also requires developers indirectly using MUI X Pro or Premium (e.g.
+        Our licensing model also requires developers indirectly using SUI X Pro or Premium (e.g.
         through a wrapper library) to be licensed.
         <br />
         <br />
@@ -184,7 +184,7 @@ const faqData = [
         <Link
           target="_blank"
           rel="noopener"
-          href="https://mui.com/legal/mui-x-eula/#required-quantity-of-licenses"
+          href="https://stokedui.com/legal/mui-x-eula/#required-quantity-of-licenses"
         >
           The relevant EULA clause.
         </Link>

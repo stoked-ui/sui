@@ -38,7 +38,7 @@ import { getDesignTokens, getThemedComponents } from '@mui/docs/branding';
 
 const Grid = styled('div')(({ theme }) => [
   {
-    borderRadius: (theme.vars || theme).shape.borderRadius,
+    borderRadius: theme.shape.borderRadius,
     backgroundColor: alpha(theme.palette.grey[50], 0.4),
     display: 'grid',
     gridTemplateColumns: '1fr',
@@ -56,15 +56,15 @@ const Grid = styled('div')(({ theme }) => [
       padding: theme.spacing(2),
       alignSelf: 'stretch',
       border: '1px solid',
-      borderColor: (theme.vars || theme).palette.grey[200],
+      borderColor: theme.palette.grey[200],
       [theme.breakpoints.only('xs')]: {
         '&:first-of-type': {
-          borderTopLeftRadius: (theme.vars || theme).shape.borderRadius,
-          borderTopRightRadius: (theme.vars || theme).shape.borderRadius,
+          borderTopLeftRadius: theme.shape.borderRadius,
+          borderTopRightRadius: theme.shape.borderRadius,
         },
         '&:last-of-type': {
-          borderBottomLeftRadius: (theme.vars || theme).shape.borderRadius,
-          borderBottomRightRadius: (theme.vars || theme).shape.borderRadius,
+          borderBottomLeftRadius: theme.shape.borderRadius,
+          borderBottomRightRadius: theme.shape.borderRadius,
         },
         '&:not(:first-of-type)': {
           marginTop: -1,
@@ -73,20 +73,20 @@ const Grid = styled('div')(({ theme }) => [
       [theme.breakpoints.only('sm')]: {
         marginTop: -1,
         '&:first-of-type': {
-          borderTopLeftRadius: (theme.vars || theme).shape.borderRadius,
+          borderTopLeftRadius: theme.shape.borderRadius,
         },
         '&:last-of-type': {
-          borderBottomRightRadius: (theme.vars || theme).shape.borderRadius,
+          borderBottomRightRadius: theme.shape.borderRadius,
           borderStyle: 'dashed',
         },
         '&:nth-of-type(even)': {
           marginLeft: -1,
         },
         '&:nth-last-of-type(2)': {
-          borderBottomLeftRadius: (theme.vars || theme).shape.borderRadius,
+          borderBottomLeftRadius: theme.shape.borderRadius,
         },
         '&:nth-of-type(2)': {
-          borderTopRightRadius: (theme.vars || theme).shape.borderRadius,
+          borderTopRightRadius: theme.shape.borderRadius,
         },
       },
       [theme.breakpoints.up('md')]: {
@@ -95,22 +95,22 @@ const Grid = styled('div')(({ theme }) => [
           marginLeft: -1,
         },
         '&:first-of-type': {
-          borderTopLeftRadius: (theme.vars || theme).shape.borderRadius,
+          borderTopLeftRadius: theme.shape.borderRadius,
         },
         '&:last-of-type': {
-          borderBottomRightRadius: (theme.vars || theme).shape.borderRadius,
+          borderBottomRightRadius: theme.shape.borderRadius,
         },
         '&:nth-last-of-type(3)': {
-          borderBottomLeftRadius: (theme.vars || theme).shape.borderRadius,
+          borderBottomLeftRadius: theme.shape.borderRadius,
         },
         '&:nth-of-type(3)': {
-          borderTopRightRadius: (theme.vars || theme).shape.borderRadius,
+          borderTopRightRadius: theme.shape.borderRadius,
         },
       },
     },
   },
   theme.applyDarkStyles({
-    backgroundColor: (theme.vars || theme).palette.background.paper,
+    backgroundColor: theme.palette.background.paper,
     '& > div': {
       borderColor: alpha(theme.palette.primaryDark[600], 0.3),
     },
@@ -191,19 +191,19 @@ const StyledChip = styled(Chip)(({ theme }) => [
   {
     fontWeight: 700,
     '&.MuiChip-outlined': {
-      color: (theme.vars || theme).palette.text.secondary,
+      color: theme.palette.text.secondary,
     },
     '&.MuiChip-filled': {
-      borderColor: (theme.vars || theme).palette.primary[300],
+      borderColor: theme.palette.primary[300],
       backgroundColor: alpha(theme.palette.primary[100], 0.5),
-      color: (theme.vars || theme).palette.primary[600],
+      color: theme.palette.primary[600],
     },
   },
   theme.applyDarkStyles({
     '&.MuiChip-filled': {
-      borderColor: (theme.vars || theme).palette.primary[500],
-      backgroundColor: (theme.vars || theme).palette.primary[800],
-      color: (theme.vars || theme).palette.primary[100],
+      borderColor: theme.palette.primary[500],
+      backgroundColor: theme.palette.primary[800],
+      color: theme.palette.primary[100],
     },
   }),
 ]);
@@ -240,26 +240,26 @@ export function buildTheme(): ThemeOptions {
             fontSize: '1rem',
           }),
           text: ({ theme }) => ({
-            color: (theme.vars || theme).palette.primary[600],
+            color: theme.palette.primary[600],
             ...theme.applyDarkStyles({
-              color: (theme.vars || theme).palette.primary[300],
+              color: theme.palette.primary[300],
             }),
           }),
           contained: ({ theme }) => ({
-            color: (theme.vars || theme).palette.primaryDark[50],
-            backgroundColor: (theme.vars || theme).palette.primary[600],
+            color: theme.palette.primaryDark[50],
+            backgroundColor: theme.palette.primary[600],
             boxShadow: '0 2px 0 rgba(255,255,255,0.1) inset, 0 -1px 0 rgba(0,0,0,0.1) inset',
             border: '1px solid',
-            borderColor: (theme.vars || theme).palette.primary[600],
+            borderColor: theme.palette.primary[600],
             ...theme.applyDarkStyles({
-              backgroundColor: (theme.vars || theme).palette.primary[600],
-              borderColor: (theme.vars || theme).palette.primary[800],
+              backgroundColor: theme.palette.primary[600],
+              borderColor: theme.palette.primary[800],
             }),
           }),
           outlined: ({ theme }) => ({
-            borderColor: (theme.vars || theme).palette.primary[300],
+            borderColor: theme.palette.primary[300],
             ...theme.applyDarkStyles({
-              color: (theme.vars || theme).palette.primary[300],
+              color: theme.palette.primary[300],
               backgroundColor: alpha(theme.palette.primary[900], 0.1),
               borderColor: alpha(theme.palette.primary[300], 0.5),
             }),
@@ -290,40 +290,40 @@ export function buildTheme(): ThemeOptions {
             {
               padding: theme.spacing(1.5),
               '& .MuiAlert-icon': {
-                color: (theme.vars || theme).palette.primaryDark[800],
+                color: theme.palette.primaryDark[800],
               },
             },
             theme.applyDarkStyles({
               '& .MuiAlert-icon': {
-                color: (theme.vars || theme).palette.primaryDark[100],
+                color: theme.palette.primaryDark[100],
               },
             }),
           ],
           filled: ({ theme }) => ({
-            color: (theme.vars || theme).palette.primary[50],
-            backgroundColor: (theme.vars || theme).palette.primary[600],
+            color: theme.palette.primary[50],
+            backgroundColor: theme.palette.primary[600],
             '& .MuiAlert-icon': {
               color: '#fff',
             },
             ...theme.applyDarkStyles({
-              backgroundColor: (theme.vars || theme).palette.primary[600],
+              backgroundColor: theme.palette.primary[600],
             }),
           }),
           outlined: ({ theme }) => [
             {
-              color: (theme.vars || theme).palette.primaryDark[700],
+              color: theme.palette.primaryDark[700],
               backgroundColor: '#fff',
-              borderColor: (theme.vars || theme).palette.primary[100],
+              borderColor: theme.palette.primary[100],
               '& .MuiAlert-icon': {
-                color: (theme.vars || theme).palette.primary[500],
+                color: theme.palette.primary[500],
               },
             },
             theme.applyDarkStyles({
-              color: (theme.vars || theme).palette.primaryDark[50],
+              color: theme.palette.primaryDark[50],
               backgroundColor: 'transparent',
-              borderColor: (theme.vars || theme).palette.primaryDark[600],
+              borderColor: theme.palette.primaryDark[600],
               '& .MuiAlert-icon': {
-                color: (theme.vars || theme).palette.primaryDark[100],
+                color: theme.palette.primaryDark[100],
               },
             }),
           ],
@@ -333,20 +333,20 @@ export function buildTheme(): ThemeOptions {
           },
           standardInfo: ({ theme }) => [
             {
-              backgroundColor: (theme.vars || theme).palette.primary[50],
-              color: (theme.vars || theme).palette.primary[600],
+              backgroundColor: theme.palette.primary[50],
+              color: theme.palette.primary[600],
               border: '1px solid',
               borderColor: alpha(theme.palette.primaryDark[100], 0.5),
               '& .MuiAlert-icon': {
-                color: (theme.vars || theme).palette.primary[500],
+                color: theme.palette.primary[500],
               },
             },
             theme.applyDarkStyles({
               backgroundColor: alpha(theme.palette.primaryDark[700], 0.5),
-              color: (theme.vars || theme).palette.primaryDark[50],
+              color: theme.palette.primaryDark[50],
               borderColor: alpha(theme.palette.primaryDark[500], 0.2),
               '& .MuiAlert-icon': {
-                color: (theme.vars || theme).palette.primaryDark[50],
+                color: theme.palette.primaryDark[50],
               },
             }),
           ],
@@ -364,85 +364,85 @@ export function buildTheme(): ThemeOptions {
           root: ({ theme }) => [
             {
               '& .MuiInputLabel-outlined.Mui-focused': {
-                color: (theme.vars || theme).palette.grey[800],
+                color: theme.palette.grey[800],
               },
               '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
                 background: 'transparent',
-                borderColor: (theme.vars || theme).palette.primary[400],
+                borderColor: theme.palette.primary[400],
               },
               '& .MuiOutlinedInput-root': {
                 backgroundColor: 'transparent',
-                borderColor: (theme.vars || theme).palette.grey[50],
+                borderColor: theme.palette.grey[50],
               },
               '& .MuiInputBase-root': {
                 fontWeight: 700,
                 '&::before': {
-                  borderColor: (theme.vars || theme).palette.grey[300],
+                  borderColor: theme.palette.grey[300],
                 },
               },
               '& .MuiFilledInput-root': {
                 backgroundColor: '#fff',
                 border: '1px solid',
-                borderColor: (theme.vars || theme).palette.grey[100],
+                borderColor: theme.palette.grey[100],
                 '&::before': {
-                  borderColor: (theme.vars || theme).palette.grey[300],
+                  borderColor: theme.palette.grey[300],
                 },
                 '&::after': {
-                  borderColor: (theme.vars || theme).palette.primary[400],
+                  borderColor: theme.palette.primary[400],
                 },
                 '&:hover': {
-                  borderColor: (theme.vars || theme).palette.grey[200],
+                  borderColor: theme.palette.grey[200],
                 },
               },
               '& .MuiInputLabel-filled.Mui-focused': {
-                color: (theme.vars || theme).palette.grey[800],
+                color: theme.palette.grey[800],
               },
               '& .MuiInput-root.Mui-focused': {
                 '&::after': {
-                  borderColor: (theme.vars || theme).palette.primary[400],
+                  borderColor: theme.palette.primary[400],
                 },
               },
               '& .MuiInputLabel-root.Mui-focused': {
-                color: (theme.vars || theme).palette.grey[800],
+                color: theme.palette.grey[800],
               },
             },
             theme.applyDarkStyles({
               '& .MuiInputBase-root': {
                 '&::before': {
-                  borderColor: (theme.vars || theme).palette.primaryDark[500],
+                  borderColor: theme.palette.primaryDark[500],
                 },
               },
               '& .MuiInputLabel-outlined.Mui-focused': {
-                color: (theme.vars || theme).palette.primary[300],
+                color: theme.palette.primary[300],
               },
               '& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                borderColor: (theme.vars || theme).palette.primary[300],
+                borderColor: theme.palette.primary[300],
               },
               '& .MuiOutlinedInput-input': {
                 borderRadius: 'inherit',
-                backgroundColor: (theme.vars || theme).palette.primaryDark[800],
+                backgroundColor: theme.palette.primaryDark[800],
               },
               '& .MuiFilledInput-root': {
-                borderColor: (theme.vars || theme).palette.primaryDark[700],
+                borderColor: theme.palette.primaryDark[700],
                 backgroundColor: alpha(theme.palette.primaryDark[900], 0.5),
                 '&::after': {
-                  borderColor: (theme.vars || theme).palette.primary[300],
+                  borderColor: theme.palette.primary[300],
                 },
                 '&:hover': {
                   backgroundColor: alpha(theme.palette.primaryDark[700], 0.8),
-                  borderColor: (theme.vars || theme).palette.primaryDark[600],
+                  borderColor: theme.palette.primaryDark[600],
                 },
               },
               '& .MuiInputLabel-filled.Mui-focused': {
-                color: (theme.vars || theme).palette.grey[500],
+                color: theme.palette.grey[500],
               },
               '& .MuiInput-root.Mui-focused': {
                 '&::after': {
-                  borderColor: (theme.vars || theme).palette.primaryDark[400],
+                  borderColor: theme.palette.primaryDark[400],
                 },
               },
               '& .MuiInputLabel-root.Mui-focused': {
-                color: (theme.vars || theme).palette.grey[500],
+                color: theme.palette.grey[500],
               },
             }),
           ],
@@ -455,7 +455,7 @@ export function buildTheme(): ThemeOptions {
           root: ({ theme }) => ({
             padding: 8,
             backgroundColor: alpha(theme.palette.grey[50], 0.5),
-            borderColor: (theme.vars || theme).palette.divider,
+            borderColor: theme.palette.divider,
             ...theme.applyDarkStyles({
               backgroundColor: alpha(theme.palette.primaryDark[700], 0.5),
             }),
@@ -466,7 +466,7 @@ export function buildTheme(): ThemeOptions {
         styleOverrides: {
           root: ({ theme }) => ({
             padding: 8,
-            borderColor: (theme.vars || theme).palette.divider,
+            borderColor: theme.palette.divider,
           }),
         },
       },
@@ -499,12 +499,12 @@ export function buildTheme(): ThemeOptions {
               },
               '& svg': {
                 fontSize: '1rem',
-                color: (theme.vars || theme).palette.grey[500],
+                color: theme.palette.grey[500],
               },
             },
             theme.applyDarkStyles({
               '& svg': {
-                color: (theme.vars || theme).palette.grey[400],
+                color: theme.palette.grey[400],
               },
             }),
           ],

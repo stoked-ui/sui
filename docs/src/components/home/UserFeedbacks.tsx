@@ -9,7 +9,7 @@ import MuiStatistics from 'docs/src/components/home/MuiStatistics';
 const TESTIMONIALS = [
   {
     quote:
-      '"We\'ve relied on Material UI really heavily. I override a lot of default styles to try and make things our own, but the time we save with complex components like the Autocomplete and the Data Grid are so worth it. Every other library I try has 80% of what I\'m looking for when it comes to complex use cases, Material UI has it all under one roof which is a huge help for our small team."',
+      '"We\'ve relied on Stoked UI really heavily. I override a lot of default styles to try and make things our own, but the time we save with complex components like the Autocomplete and the Data Grid are so worth it. Every other library I try has 80% of what I\'m looking for when it comes to complex use cases, Stoked UI has it all under one roof which is a huge help for our small team."',
     profile: {
       avatarSrc: 'https://avatars.githubusercontent.com/u/21114044?s=58',
       avatarSrcSet: 'https://avatars.githubusercontent.com/u/21114044?s=116 2x',
@@ -28,7 +28,7 @@ const TESTIMONIALS = [
   },
   {
     quote:
-      '"Material UI looks great and lets us deliver fast, thanks to their solid API design and documentation - it\'s refreshing to use a component library where you get everything you need from their site rather than Stack Overflow. We think the upcoming version, with extra themes and customizability, will make Material UI even more of a game changer. We\'re extremely grateful to the team for the time and effort spent maintaining the project."',
+      '"Stoked UI looks great and lets us deliver fast, thanks to their solid API design and documentation - it\'s refreshing to use a component library where you get everything you need from their site rather than Stack Overflow. We think the upcoming version, with extra themes and customizability, will make Stoked UI even more of a game changer. We\'re extremely grateful to the team for the time and effort spent maintaining the project."',
     profile: {
       avatarSrc: 'https://avatars.githubusercontent.com/u/197016?s=58',
       avatarSrcSet: 'https://avatars.githubusercontent.com/u/197016?s=116 2x',
@@ -47,7 +47,7 @@ const TESTIMONIALS = [
   },
   {
     quote:
-      '"Material UI offers a wide variety of high quality components that have allowed us to ship features faster. It has been used by more than a hundred engineers in our organization. What\'s more, Material UI\'s well architected customization system has allowed us to differentiate ourselves in the marketplace."',
+      '"Stoked UI offers a wide variety of high quality components that have allowed us to ship features faster. It has been used by more than a hundred engineers in our organization. What\'s more, Stoked UI\'s well architected customization system has allowed us to differentiate ourselves in the marketplace."',
     profile: {
       avatarSrc: 'https://avatars.githubusercontent.com/u/28296253?s=58',
       avatarSrcSet: 'https://avatars.githubusercontent.com/u/28296253?s=116 2x',
@@ -66,7 +66,7 @@ const TESTIMONIALS = [
   },
   {
     quote:
-      '"After much research on React component libraries, we decided to ditch our in-house library for Material UI, using its powerful customization system to implement our Design System. This simple move did a rare thing in engineering: it lowered our maintenance costs while enhancing both developer and customer experience. All of this was done without sacrificing the organization\'s branding and visual identity."',
+      '"After much research on React component libraries, we decided to ditch our in-house library for Stoked UI, using its powerful customization system to implement our Design System. This simple move did a rare thing in engineering: it lowered our maintenance costs while enhancing both developer and customer experience. All of this was done without sacrificing the organization\'s branding and visual identity."',
     profile: {
       avatarSrc: 'https://avatars.githubusercontent.com/u/732422?s=58',
       avatarSrcSet: 'https://avatars.githubusercontent.com/u/732422?s=116 2x',

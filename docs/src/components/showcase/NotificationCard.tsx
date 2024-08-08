@@ -67,7 +67,7 @@ export default function NotificationCard() {
                 Incredible discoveries
               </Typography>
               <Typography fontSize={14} color="text.secondary">
-                It&apos;s about Material UI & Base UI...
+                It&apos;s about Stoked UI & Base UI...
               </Typography>
             </div>
             <Chip

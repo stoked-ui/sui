@@ -4,8 +4,8 @@ import { InfoCard } from '@mui/docs/InfoCard';
 
 const content = [
   {
-    title: 'Material UI for Figma',
-    link: 'https://mui.com/store/items/figma-react/?utm_source=docs&utm_medium=referral&utm_campaign=installation-figma',
+    title: 'Stoked UI for Figma',
+    link: 'https://stokedui.com/store/items/figma-react/?utm_source=docs&utm_medium=referral&utm_campaign=installation-figma',
     svg: (
       <img
         src={`/static/branding/design-kits/figma-logo.svg`}
@@ -17,8 +17,8 @@ const content = [
     ),
   },
   {
-    title: 'Material UI for Sketch',
-    link: 'https://mui.com/store/items/sketch-react/?utm_source=docs&utm_medium=referral&utm_campaign=installation-sketch',
+    title: 'Stoked UI for Sketch',
+    link: 'https://stokedui.com/store/items/sketch-react/?utm_source=docs&utm_medium=referral&utm_campaign=installation-sketch',
     svg: (
       <img
         src={`/static/branding/design-kits/sketch-logo.svg`}
@@ -30,8 +30,8 @@ const content = [
     ),
   },
   {
-    title: 'Material UI for Adobe XD',
-    link: 'https://mui.com/store/items/adobe-xd-react/?utm_source=docs&utm_medium=referral&utm_campaign=installation-adobe-xd',
+    title: 'Stoked UI for Adobe XD',
+    link: 'https://stokedui.com/store/items/adobe-xd-react/?utm_source=docs&utm_medium=referral&utm_campaign=installation-adobe-xd',
     svg: (
       <img
         src={`/static/branding/design-kits/adobexd-logo.svg`}

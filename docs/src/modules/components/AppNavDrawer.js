@@ -15,7 +15,7 @@ import Box from '@mui/material/Box';
 import { unstable_useEnhancedEffect as useEnhancedEffect } from '@mui/utils';
 import ArrowDropDownRoundedIcon from '@mui/icons-material/ArrowDropDownRounded';
 import DoneRounded from '@mui/icons-material/DoneRounded';
-import SvgMuiLogomark from 'docs/src/icons/SvgMuiLogomark';
+import SvgSuiLogomark from 'docs/src/icons/SvgSuiLogomark';
 import AppNavDrawerItem from 'docs/src/modules/components/AppNavDrawerItem';
 import { pageToTitleI18n } from 'docs/src/modules/utils/helpers';
 import PageContext from 'docs/src/modules/components/PageContext';
@@ -78,13 +78,13 @@ function ProductDrawerButton(props) {
           p: '1px 8px',
           fontSize: theme.typography.pxToRem(13),
           fontWeight: theme.typography.fontWeightMedium,
-          color: (theme.vars || theme).palette.primary[600],
+          color: theme.palette.primary[600],
           '& svg': {
             width: 18,
             height: 18,
           },
           ...theme.applyDarkStyles({
-            color: (theme.vars || theme).palette.primary[300],
+            color: theme.palette.primary[300],
           }),
         })}
       >
@@ -126,12 +126,12 @@ function ProductIdentifier(props) {
           fontWeight: theme.typography.fontWeightBold,
           textTransform: 'uppercase',
           letterSpacing: '.1rem',
-          color: (theme.vars || theme).palette.text.tertiary,
+          color: theme.palette.text.tertiary,
         })}
       >
         {metadata}
       </Typography>
-      <Box sx={{ display: 'flex' }}>
+      <Box sx={{ display: 'flex', textWrap: 'nowrap' }}>
         <ProductDrawerButton productName={name} />
         {versionSelector}
       </Box>
@@ -347,14 +347,14 @@ export default function AppNavDrawer(props) {
                 minWidth: 0,
                 fontSize: theme.typography.pxToRem(13),
                 fontWeight: 500,
-                color: (theme.vars || theme).palette.primary[600],
+                color: theme.palette.primary[600],
                 '& svg': {
                   ml: -0.6,
                   width: 18,
                   height: 18,
                 },
                 ...theme.applyDarkStyles({
-                  color: (theme.vars || theme).palette.primary[300],
+                  color: theme.palette.primary[300],
                 }),
               }),
               ...(Array.isArray(sx) ? sx : [sx]),
@@ -416,7 +416,7 @@ export default function AppNavDrawer(props) {
                 borderColor: 'divider',
               }}
             >
-              <SvgMuiLogomark width={30} />
+              <SvgSuiLogomark width={30} />
             </Box>
           </NextLink>
           <ProductIdentifier

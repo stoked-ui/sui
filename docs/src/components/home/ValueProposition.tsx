@@ -41,7 +41,7 @@ export default function ValueProposition() {
   return (
     <Section>
       <SectionHeadline
-        overline="Why build with MUI?"
+        overline="Why build with SUI?"
         title={
           <Typography variant="h2" sx={{ mt: 1, mb: { xs: 2, sm: 4 } }}>
             A <GradientText>delightful experience</GradientText> <br />

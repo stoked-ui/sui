@@ -1,8 +1,8 @@
 {
-  "name": "@mui/internal-docs-utils",
+  "name": "@stoked-ui/internal-docs-utils",
   "version": "1.0.4",
-  "author": "MUI Team",
-  "description": "Utilities for MUI docs. This is an internal package not meant for general use.",
+  "author": "SUI Team",
+  "description": "Utilities for SUI docs. This is an internal package not meant for general use.",
   "main": "./build/index.js",
   "exports": {
     ".": "./build/index.js"
@@ -10,7 +10,7 @@
   "types": "./build/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mui/material-ui.git",
+    "url": "https://github.com/stoked-ui/stoked-ui.git",
     "directory": "packages-internal/docs-utils"
   },
   "scripts": {

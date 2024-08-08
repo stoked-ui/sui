@@ -19,7 +19,7 @@ export default function Pricing() {
   return (
     <BrandingCssVarsProvider>
       <Head
-        title="Pricing - MUI"
+        title="Pricing - SUI"
         description="The community edition lets you get going right away. Switch to a commercial plan for more components & technical support."
         card="/static/social-previews/pricing-preview.jpg"
       />

@@ -162,12 +162,12 @@ export default function BaseUIComponents() {
               image={component.srcLight}
               sx={(theme) => ({
                 aspectRatio: '16 / 9',
-                background: `${(theme.vars || theme).palette.gradients.linearSubtle}`,
+                background: `${theme.palette.gradients.linearSubtle}`,
                 borderBottom: '1px solid',
                 borderColor: 'divider',
                 ...theme.applyDarkStyles({
                   content: `url(${component.srcDark})`,
-                  background: `${(theme.vars || theme).palette.gradients.linearSubtle}`,
+                  background: `${theme.palette.gradients.linearSubtle}`,
                   borderColor: 'divider',
                 }),
               })}

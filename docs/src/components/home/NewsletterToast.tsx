@@ -64,7 +64,7 @@ export default function NewsletterToast() {
               fontWeight={500}
               sx={{ ml: 1, mr: 2 }}
             >
-              You have subscribed to MUI newsletter.
+              You have subscribed to SUI newsletter.
             </Typography>
           </div>
           <IconButton aria-hidden size="small" onClick={() => setHidden(true)} aria-label="close">

@@ -1,0 +1,12 @@
+<div>
+  <Button onClick={handleExpandClick}>
+    {expandedItems.length === 0 ? 'Expand all' : 'Collapse all'}
+  </Button>
+</div>
+<Box sx={{ minHeight: 352, minWidth: 250 }}>
+  <FileExplorer
+    items={NestedFiles}
+    expandedItems={expandedItems}
+    onExpandedItemsChange={handleExpandedItemsChange}
+  />
+</Box>

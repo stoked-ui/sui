@@ -20,9 +20,9 @@ export default function BaseUIEnd() {
       sx={{
         color: 'text.secondary',
         background: (theme) =>
-          `linear-gradient(180deg, ${(theme.vars || theme).palette.primaryDark[900]} 50%, 
+          `linear-gradient(180deg, ${theme.palette.primaryDark[900]} 50%, 
           ${alpha(theme.palette.primary[800], 0.2)} 100%), ${
-            (theme.vars || theme).palette.primaryDark[900]
+            theme.palette.primaryDark[900]
           }`,
       }}
     >
@@ -55,10 +55,10 @@ export default function BaseUIEnd() {
               <GlowingIconContainer icon={<CompareIcon color="primary" />} />
               <div>
                 <Typography color="text.primary" fontWeight="semiBold" gutterBottom>
-                  Base UI vs. Material UI
+                  Base UI vs. Stoked UI
                 </Typography>
                 <Typography>
-                  Base UI features many of the same components as Material UI, but without the
+                  Base UI features many of the same components as Stoked UI, but without the
                   Material Design implementation.
                 </Typography>
               </div>

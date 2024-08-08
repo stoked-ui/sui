@@ -15,24 +15,24 @@ const NativeLink = styled('a')(({ theme }) => ({
   justifyContent: 'center',
   borderRadius: 12,
   border: '1px solid',
-  borderColor: (theme.vars || theme).palette.divider,
+  borderColor: theme.palette.divider,
   transition: theme.transitions.create(['color', 'border-color']),
   boxShadow: `${alpha(theme.palette.grey[100], 0.3)} 0 -2px 0 inset`,
   '&:hover': {
-    backgroundColor: (theme.vars || theme).palette.grey[50],
+    backgroundColor: theme.palette.grey[50],
   },
   '&:focus-visible': {
-    outline: `3px solid ${alpha((theme.vars || theme).palette.primary[500], 0.5)}`,
+    outline: `3px solid ${alpha(theme.palette.primary[500], 0.5)}`,
     outlineOffset: '2px',
   },
   '& img': {
     display: 'inline-block',
   },
   ...theme.applyDarkStyles({
-    boxShadow: `${alpha(theme.palette.primaryDark[600], 0.1)} 0 2px 0 inset, ${(theme.vars || theme).palette.common.black} 0 -2px 0 inset`,
+    boxShadow: `${alpha(theme.palette.primaryDark[600], 0.1)} 0 2px 0 inset, ${theme.palette.common.black} 0 -2px 0 inset`,
     '&:hover': {
-      backgroundColor: (theme.vars || theme).palette.primaryDark[800],
-      borderColor: (theme.vars || theme).palette.primary[900],
+      backgroundColor: theme.palette.primaryDark[800],
+      borderColor: theme.palette.primary[900],
     },
   }),
 }));
@@ -45,54 +45,44 @@ export default function DiamondSponsors() {
       <NativeLink
         data-ga-event-category="sponsor"
         data-ga-event-action="docs-premium"
-        data-ga-event-label="octopus.com"
-        href="https://octopus.com/?utm_source=materialui&utm_medium=referral"
+        data-ga-event-label="consulting"
+        href="/consulting"
         rel="noopener sponsored"
         target="_blank"
+        sx={{ textDecoration: 'none', fontDirection: '700'}}
       >
         <Box
           component="img"
-          height="25px"
-          width="116px"
-          src="/static/sponsors/octopus-light.svg"
-          alt="octopus"
-          title="Repeatable, reliable deployments"
+          height="36px"
+          width="36px"
+          src="/static/icons/48x48.png"
+          alt="brian stoker"
+          title="B STOKED"
           loading="lazy"
-          sx={(theme) =>
-            theme.applyDarkStyles({
-              content: `url(/static/sponsors/octopus-dark.svg)`,
-            })
-          }
         />
+        <Typography
+          component="h6"
+          color="text.primary"
+          variant="body2" sx={{
+            flexDirection: 'column',
+            display: 'flex',
+            fontSize: '12px',
+            fontWeight: 500,
+            textDecoration: 'none',
+            textTransform: 'uppercase',
+            marginLeft: '10px',
+          }}>
+          {/* eslint-disable-next-line stoked-ui/no-hardcoded-labels */}
+          <div>consulting</div>
+          {/* eslint-disable-next-line stoked-ui/no-hardcoded-labels */}
+          <div>$70 / hr</div>
+        </Typography>
       </NativeLink>
       <NativeLink
         data-ga-event-category="sponsor"
         data-ga-event-action="docs-premium"
-        data-ga-event-label="doit.com"
-        href="https://www.doit.com/?utm_source=materialui&utm_medium=referral"
-        rel="noopener sponsored"
-        target="_blank"
-      >
-        <Box
-          component="img"
-          height="29px"
-          width="70px"
-          src="/static/sponsors/doit-light.svg"
-          alt="doit"
-          title="Management Platform for Google Cloud and AWS"
-          loading="lazy"
-          sx={(theme) =>
-            theme.applyDarkStyles({
-              content: `url(/static/sponsors/doit-dark.svg)`,
-            })
-          }
-        />
-      </NativeLink>
-      <NativeLink
-        data-ga-event-category="sponsor"
-        data-ga-event-action="docs-premium"
-        data-ga-event-label="marblism.com"
-        href="https://www.marblism.com/?utm_source=mui"
+        data-ga-event-label="brianstoker.com"
+        href="https://www.brianstoker.com/drums"
         rel="noopener sponsored"
         target="_blank"
       >
@@ -100,13 +90,13 @@ export default function DiamondSponsors() {
           component="img"
           height="27px"
           width="90px"
-          src="/static/sponsors/marblism-light.svg"
-          alt="marblism"
-          title="AI web app generation"
+          src="/static/images/bs.logo.svg"
+          alt="brian stoker"
+          title="b stoked"
           loading="lazy"
           sx={(theme) =>
             theme.applyDarkStyles({
-              content: `url(/static/sponsors/marblism-dark.svg)`,
+              content: `url(/static/images/bs.logo.dark.svg)`,
             })
           }
         />
@@ -123,17 +113,17 @@ export default function DiamondSponsors() {
           border: '1px dashed',
           transition: theme.transitions.create(['color', 'border-color', 'background-color']),
           backgroundColor: alpha(theme.palette.grey[50], 0.5),
-          borderColor: (theme.vars || theme).palette.grey[300],
+          borderColor: theme.palette.grey[300],
           '&:hover': {
             backgroundColor: alpha(theme.palette.primary[100], 0.5),
-            borderColor: (theme.vars || theme).palette.primary[300],
+            borderColor: theme.palette.primary[300],
           },
           ...theme.applyDarkStyles({
             backgroundColor: alpha(theme.palette.primaryDark[700], 0.2),
-            borderColor: (theme.vars || theme).palette.primaryDark[700],
+            borderColor: theme.palette.primaryDark[700],
             '&:hover': {
               backgroundColor: alpha(theme.palette.primary[700], 0.2),
-              borderColor: (theme.vars || theme).palette.primary[800],
+              borderColor: theme.palette.primary[800],
             },
           }),
         })}

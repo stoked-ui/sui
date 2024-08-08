@@ -15,38 +15,12 @@ type Project = {
 
 const PROJECTS: Project[] = [
   {
-    name: 'base',
-    rootPath: path.join(process.cwd(), 'packages/mui-base'),
+    name: 'media-selector',
+    rootPath: path.join(process.cwd(), 'packages/sui-media-selector'),
   },
   {
-    name: 'material',
-    rootPath: path.join(process.cwd(), 'packages/mui-material'),
-  },
-  {
-    name: 'joy',
-    rootPath: path.join(process.cwd(), 'packages/mui-joy'),
-  },
-  {
-    name: 'system',
-    rootPath: path.join(process.cwd(), 'packages/mui-system'),
-  },
-  {
-    name: 'styled-engine',
-    rootPath: path.join(process.cwd(), 'packages/mui-styled-engine'),
-  },
-  {
-    name: 'utils',
-    rootPath: path.join(process.cwd(), 'packages/mui-utils'),
-  },
-  {
-    name: 'icons-material',
-    rootPath: path.join(process.cwd(), 'packages/mui-icons-material'),
-    additionalPaths: ['custom'],
-    additionalFiles: ['src/utils/createSvgIcon.js'],
-  },
-  {
-    name: 'lab',
-    rootPath: path.join(process.cwd(), 'packages/mui-lab'),
+    name: 'file-explorer',
+    rootPath: path.join(process.cwd(), 'packages/sui-file-explorer'),
   },
 ];
 

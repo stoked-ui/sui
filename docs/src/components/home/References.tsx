@@ -39,8 +39,7 @@ export default function References({
           minHeight: 42, // hard-coded to reduce CLS (layout shift)
         }}
       >
-        The world&apos;s best product teams trust MUI to deliver an unrivaled experience for both
-        developers and users.
+        Industry leaders trust Stoked Consulting to deliver an unrivaled experience for both developers and users.
       </Typography>
     </Section>
   );

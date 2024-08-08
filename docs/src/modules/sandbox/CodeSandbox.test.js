@@ -21,7 +21,7 @@ describe('CodeSandbox', () => {
     const result = CodeSandbox.createReactApp({
       title: 'BasicButtons Material Demo',
       githubLocation:
-        'https://github.com/mui/material-ui/blob/v5.7.0/docs/data/material/components/buttons/BasicButtons.js',
+        'https://github.com/mui/material-ui/blob/v5.7.0/docs/data/stoked-ui/components/buttons/BasicButtons.js',
       codeVariant: 'JS',
       language: 'en',
       raw: testCase,
@@ -30,7 +30,7 @@ describe('CodeSandbox', () => {
       'package.json': {
         content: {
           description:
-            'https://github.com/mui/material-ui/blob/v5.7.0/docs/data/material/components/buttons/BasicButtons.js',
+            'https://github.com/mui/material-ui/blob/v5.7.0/docs/data/stoked-ui/components/buttons/BasicButtons.js',
           dependencies: {
             react: 'latest',
             '@mui/material': 'latest',
@@ -111,7 +111,7 @@ ReactDOM.createRoot(document.querySelector("#root")).render(
     const result = CodeSandbox.createReactApp({
       title: 'BasicButtons Material Demo',
       githubLocation:
-        'https://github.com/mui/material-ui/blob/v5.7.0/docs/data/material/components/buttons/BasicButtons.tsx',
+        'https://github.com/mui/material-ui/blob/v5.7.0/docs/data/stoked-ui/components/buttons/BasicButtons.tsx',
       codeVariant: 'TS',
       language: 'en',
       raw: testCase,
@@ -120,7 +120,7 @@ ReactDOM.createRoot(document.querySelector("#root")).render(
       'package.json': {
         content: {
           description:
-            'https://github.com/mui/material-ui/blob/v5.7.0/docs/data/material/components/buttons/BasicButtons.tsx',
+            'https://github.com/mui/material-ui/blob/v5.7.0/docs/data/stoked-ui/components/buttons/BasicButtons.tsx',
           dependencies: {
             react: 'latest',
             '@mui/material': 'latest',
@@ -246,7 +246,7 @@ ReactDOM.createRoot(document.querySelector("#root")!).render(
     const result = CodeSandbox.createReactApp({
       title: 'BasicButtons Material Demo',
       githubLocation:
-        'https://github.com/mui/material-ui/blob/v5.7.0/docs/data/material/components/buttons/BasicButtons.js',
+        'https://github.com/mui/material-ui/blob/v5.7.0/docs/data/stoked-ui/components/buttons/BasicButtons.js',
       codeVariant: 'JS',
       language: 'en',
       raw: testCase,

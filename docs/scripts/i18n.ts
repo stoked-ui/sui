@@ -2,10 +2,7 @@
 import path from 'path';
 import fse from 'fs-extra';
 import { pageToTitle } from 'docs/src/modules/utils/helpers';
-import materialPages from 'docs/data/material/pages';
-import systemPages from 'docs/data/system/pages';
-import basePages from 'docs/data/base/pages';
-import joyPages from 'docs/data/joy/pages';
+import stokedUiPages from 'docs/data/pages';
 import { MuiPage } from 'docs/src/MuiPage';
 
 const EXCLUDES = ['/api', '/blog', '/x/react-'];
@@ -42,7 +39,7 @@ async function run() {
     });
   };
 
-  traverse([...systemPages, ...basePages, ...materialPages, ...joyPages]);
+  traverse([...stokedUiPages, ]);
 
   await fse.writeFile(translationsFilename, `${JSON.stringify(output, null, 2)}\n`);
 }

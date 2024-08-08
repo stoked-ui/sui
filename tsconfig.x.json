@@ -1,0 +1,20 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "moduleResolution": "bundler",
+    // Already tested with eslint
+    "noUnusedLocals": false,
+    "strict": true,
+    "baseUrl": "./",
+    "allowJs": true,
+    "paths": {
+      "@stoked-ui/file-explorer": ["./packages/file-explorer/src"],
+      "@stoked-ui/file-explorer/*": ["./packages/file-explorer/src/*"],
+      "@stoked-ui/media-selector": ["./packages/media-selector/src"],
+      "@stoked-ui/media-selector/*": ["./packages/media-selector/src/*"],
+      "test/*": ["./test/*"],
+    }
+  },
+  "exclude": ["**/node_modules/!(@stoked-ui)/**", "**/build/**/*", "docs/export/**/*"]
+}

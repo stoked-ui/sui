@@ -156,7 +156,7 @@ const Root = styled('div')(
   ({ theme }) => ({
     flexGrow: 1,
     background: `linear-gradient(180deg, ${
-      (theme.vars || theme).palette.grey[50]
+      theme.palette.grey[50]
     } 0%, #FFFFFF 100%)`,
     backgroundSize: '100% 500px',
     backgroundRepeat: 'no-repeat',
@@ -184,7 +184,7 @@ const Root = styled('div')(
       lineHeight: 1.7,
       '& img, & video': {
         border: '1px solid',
-        borderColor: (theme.vars || theme).palette.grey[200],
+        borderColor: theme.palette.grey[200],
         borderRadius: 12,
         display: 'block',
         margin: 'auto',
@@ -199,18 +199,18 @@ const Root = styled('div')(
         },
       },
       '& figcaption': {
-        color: (theme.vars || theme).palette.text.tertiary,
+        color: theme.palette.text.tertiary,
         fontSize: theme.typography.pxToRem(14),
         textAlign: 'center',
       },
       '& strong': {
-        color: (theme.vars || theme).palette.grey[900],
+        color: theme.palette.grey[900],
       },
       '& summary': {
         padding: 8,
         fontSize: theme.typography.pxToRem(14),
         fontWeight: theme.typography.fontWeightMedium,
-        color: (theme.vars || theme).palette.grey[900],
+        color: theme.palette.grey[900],
       },
       '& details': {
         paddingLeft: 16,
@@ -218,13 +218,13 @@ const Root = styled('div')(
         background: alpha(theme.palette.grey[50], 0.5),
         border: '1px solid',
         borderRadius: 10,
-        borderColor: (theme.vars || theme).palette.grey[200],
+        borderColor: theme.palette.grey[200],
         transitionProperty: 'all',
         transitionTiming: 'cubic-bezier(0.4, 0, 0.2, 1)',
         transitionDuration: '200ms',
         '&:hover, &:focus-visible': {
-          background: (theme.vars || theme).palette.grey[50],
-          borderColor: (theme.vars || theme).palette.grey[300],
+          background: theme.palette.grey[50],
+          borderColor: theme.palette.grey[300],
         },
       },
       '& th': {
@@ -236,7 +236,7 @@ const Root = styled('div')(
         fontSize: theme.typography.pxToRem(13),
         marginTop: 8,
         textAlign: 'center',
-        color: (theme.vars || theme).palette.grey[700],
+        color: theme.palette.grey[700],
         '& a': {
           color: 'inherit',
           textDecoration: 'underline',
@@ -247,7 +247,7 @@ const Root = styled('div')(
       },
     },
     [`& .${classes.time}`]: {
-      color: (theme.vars || theme).palette.text.secondary,
+      color: theme.palette.text.secondary,
       ...theme.typography.caption,
       fontWeight: 500,
     },
@@ -255,30 +255,30 @@ const Root = styled('div')(
   ({ theme }) =>
     theme.applyDarkStyles({
       background: `linear-gradient(180deg, ${alpha(theme.palette.primary[900], 0.2)} 0%, ${
-        (theme.vars || theme).palette.primaryDark[900]
+        theme.palette.primaryDark[900]
       } 100%)`,
       backgroundSize: '100% 1000px',
       backgroundRepeat: 'no-repeat',
       '& .markdown-body': {
         '& strong': {
-          color: (theme.vars || theme).palette.grey[100],
+          color: theme.palette.grey[100],
         },
         '& summary': {
-          color: (theme.vars || theme).palette.grey[300],
+          color: theme.palette.grey[300],
         },
         '& img, & video': {
           borderColor: alpha(theme.palette.primaryDark[600], 0.5),
         },
         '& details': {
           background: alpha(theme.palette.primary[900], 0.3),
-          borderColor: (theme.vars || theme).palette.primaryDark[700],
+          borderColor: theme.palette.primaryDark[700],
           '&:hover, &:focus-visible': {
             background: alpha(theme.palette.primary[900], 0.4),
-            borderColor: (theme.vars || theme).palette.primaryDark[500],
+            borderColor: theme.palette.primaryDark[500],
           },
         },
         '& .blog-description': {
-          color: (theme.vars || theme).palette.grey[500],
+          color: theme.palette.grey[500],
         },
       },
     }),
@@ -306,7 +306,7 @@ export default function TopLayoutBlog(props) {
     if (headers.manualCard === undefined) {
       throw new Error(
         [
-          `MUI: the "manualCard" markdown header for the blog post "${slug}" is missing.`,
+          `SUI: the "manualCard" markdown header for the blog post "${slug}" is missing.`,
           `Set manualCard: true or manualCard: false header in docs/pages/blog/${slug}.md.`,
         ].join('\n'),
       );
@@ -317,7 +317,7 @@ export default function TopLayoutBlog(props) {
     <BrandingCssVarsProvider>
       <AppHeader />
       <Head
-        title={`${finalTitle} - MUI`}
+        title={`${finalTitle} - SUI`}
         description={description}
         largeCard
         disableAlternateLocale
@@ -335,11 +335,11 @@ export default function TopLayoutBlog(props) {
               '@type': 'Article',
               publisher: {
                 '@type': 'Organization',
-                name: 'MUI blog',
-                url: 'https://mui.com/blog/',
+                name: 'SUI blog',
+                url: 'https://stokedui.com/blog/',
                 logo: {
                   '@type': 'ImageObject',
-                  url: 'https://mui.com/static/icons/512x512.png',
+                  url: 'https://stokedui.com/static/icons/512x512.png',
                 },
               },
               author: {
@@ -367,7 +367,7 @@ export default function TopLayoutBlog(props) {
               description,
               mainEntityOfPage: {
                 '@type': 'WebPage',
-                '@id': 'https://mui.com/blog/',
+                '@id': 'https://stokedui.com/blog/',
               },
             }),
           }}

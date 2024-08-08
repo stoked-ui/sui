@@ -3,8 +3,8 @@ import path from 'path';
 import fetch from 'cross-fetch';
 import fse from 'fs-extra';
 import * as mui from '@mui/icons-material';
-import synonyms from 'docs/data/material/components/material-icons/synonyms';
-import myDestRewriter from '../../packages/mui-icons-material/renameFilters/material-design-icons';
+import myDestRewriter from 'docs/scripts/material-design-icons';
+import synonyms from '../node_modules/@mui/icons-material/esm';
 
 function not(a, b) {
   return a.filter((value) => b.indexOf(value) === -1);
@@ -81,7 +81,7 @@ async function run() {
     newSynonyms += '};\n\nexport default synonyms;\n';
 
     fse.writeFile(
-      path.join(__dirname, `../../docs/data/material/components/material-icons/synonyms.js`),
+      path.join(__dirname, `../../docs/data/stoked-ui/components/material-icons/synonyms.js`),
       newSynonyms,
     );
 

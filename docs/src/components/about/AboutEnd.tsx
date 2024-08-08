@@ -45,7 +45,7 @@ export default function AboutEnd() {
       <Box
         component="img"
         src="/static/branding/about/illustrations/team-globe-distribution-light.png"
-        alt="A map illustration with pins loosely positioned where team members from MUI are located."
+        alt="A map illustration with pins loosely positioned where team members from SUI are located."
         loading="lazy"
         sx={(theme) => ({
           mt: -20,

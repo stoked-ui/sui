@@ -1,0 +1,116 @@
+{
+  "props": {
+    "apiRef": {
+      "type": {
+        "name": "shape",
+        "description": "{ current?: { focusItem: func, getItem: func, getItemDOMElement: func, gridEnabled: func, selectItem: func, setColumns: func, setItemExpansion: func, setVisibleOrder: func } }"
+      }
+    },
+    "checkboxSelection": { "type": { "name": "bool" }, "default": "false" },
+    "children": { "type": { "name": "node" } },
+    "classes": { "type": { "name": "object" }, "additionalInfo": { "cssApi": true } },
+    "defaultExpandedItems": {
+      "type": { "name": "arrayOf", "description": "Array&lt;string&gt;" },
+      "default": "[]"
+    },
+    "defaultSelectedItems": { "type": { "name": "any" }, "default": "[]" },
+    "disabledItemsFocusable": { "type": { "name": "bool" }, "default": "false" },
+    "disableSelection": { "type": { "name": "bool" }, "default": "false" },
+    "expandedItems": { "type": { "name": "arrayOf", "description": "Array&lt;string&gt;" } },
+    "expansionTrigger": {
+      "type": { "name": "enum", "description": "'content'<br>&#124;&nbsp;'iconContainer'" },
+      "default": "'content'"
+    },
+    "experimentalFeatures": {
+      "type": { "name": "shape", "description": "{ indentationAtItemLevel?: bool }" }
+    },
+    "id": { "type": { "name": "string" } },
+    "itemChildrenIndentation": {
+      "type": { "name": "union", "description": "number<br>&#124;&nbsp;string" },
+      "default": "12px"
+    },
+    "multiSelect": { "type": { "name": "bool" }, "default": "false" },
+    "onExpandedItemsChange": {
+      "type": { "name": "func" },
+      "signature": {
+        "type": "function(event: React.SyntheticEvent, itemIds: array) => void",
+        "describedArgs": ["event", "itemIds"]
+      }
+    },
+    "onItemExpansionToggle": {
+      "type": { "name": "func" },
+      "signature": {
+        "type": "function(event: React.SyntheticEvent, itemId: array, isExpanded: array) => void",
+        "describedArgs": ["event", "itemId", "isExpanded"]
+      }
+    },
+    "onItemFocus": {
+      "type": { "name": "func" },
+      "signature": {
+        "type": "function(event: React.SyntheticEvent, itemId: string, value: string) => void",
+        "describedArgs": ["event", "itemId", "value"]
+      }
+    },
+    "onItemSelectionToggle": {
+      "type": { "name": "func" },
+      "signature": {
+        "type": "function(event: React.SyntheticEvent, itemId: array, isSelected: array) => void",
+        "describedArgs": ["event", "itemId", "isSelected"]
+      }
+    },
+    "onSelectedItemsChange": {
+      "type": { "name": "func" },
+      "signature": {
+        "type": "function(event: React.SyntheticEvent, itemIds: Array<string> | string) => void",
+        "describedArgs": ["event", "itemIds"]
+      }
+    },
+    "selectedItems": { "type": { "name": "any" } },
+    "slotProps": { "type": { "name": "object" } },
+    "slots": { "type": { "name": "object" }, "additionalInfo": { "slotsApi": true } },
+    "sx": {
+      "type": {
+        "name": "union",
+        "description": "Array&lt;func<br>&#124;&nbsp;object<br>&#124;&nbsp;bool&gt;<br>&#124;&nbsp;func<br>&#124;&nbsp;object"
+      },
+      "additionalInfo": { "sx": true }
+    }
+  },
+  "name": "FileExplorerBasic",
+  "imports": [
+    "import { FileExplorerBasic } from '@stoked-ui/sui-file-explorer/FileExplorerBasic';",
+    "import { FileExplorerBasic } from '@stoked-ui/sui-file-explorer';"
+  ],
+  "slots": [
+    {
+      "name": "root",
+      "description": "Element rendered at the root.",
+      "default": "FileExplorerBasicRoot",
+      "class": "MuiFileExplorerBasic-root"
+    },
+    {
+      "name": "collapseIcon",
+      "description": "The default icon used to collapse the item.",
+      "class": null
+    },
+    {
+      "name": "expandIcon",
+      "description": "The default icon used to expand the item.",
+      "class": null
+    },
+    {
+      "name": "endIcon",
+      "description": "The default icon displayed next to an end item.\nThis is applied to all fileExplorer items and can be overridden by the File `icon` slot prop.",
+      "class": null
+    }
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": true,
+  "muiName": "MuiFileExplorerBasic",
+  "forwardsRefTo": "HTMLUListElement",
+  "filename": "/packages/sui-file-explorer/src/FileExplorerBasic/FileExplorerBasic.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/file-explorer/docs/file-customizaton/\">File Customization</a></li>\n<li><a href=\"/file-explorer/docs/file-explorer-basic/customization/\">File Explorer Basic - Customization</a></li>\n<li><a href=\"/file-explorer/docs/file-explorer-basic/expansion/\">File Explorer Basic - Expansion</a></li>\n<li><a href=\"/file-explorer/docs/file-explorer-basic/focus/\">File Explorer Basic - Focus</a></li>\n<li><a href=\"/file-explorer/docs/file-explorer-basic/items/\">File Explorer Basic - Items</a></li>\n<li><a href=\"/file-explorer/docs/file-explorer-basic/selection/\">File Explorer Basic - Selection</a></li>\n<li><a href=\"/file-explorer/docs/getting-started/\">Getting Started</a></li></ul>",
+  "cssComponent": false
+}

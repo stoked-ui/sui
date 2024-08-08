@@ -34,25 +34,42 @@ function findComponents(packages) {
   const mapping = {};
 
   packages.forEach((pkg) => {
-    pkg.paths.forEach((pkgPath) => {
-      const match = pkgPath.match(/packages(?:\\|\/)([^/\\]+)(?:\\|\/)src/);
-      const packageName = match ? match[1] : null;
-      if (!packageName) {
-        throw new Error(`cannot find package name from path: ${pkgPath}`);
-      }
-      const filePaths = readdirSync(pkgPath);
-      filePaths.forEach((folder) => {
-        if (folder.match(/^[A-Z]/)) {
-          if (!mapping[pkg.productId]) {
-            mapping[pkg.productId] = {};
-          }
-          // filename starts with Uppercase = component
-          mapping[pkg.productId][folder] = packageName;
+    if (pkg.paths) {
+      pkg.paths.forEach((pkgPath) => {
+        const match = pkgPath.match(/packages(?:\\|\/)([^/\\]+)(?:\\|\/)(src|lib)/);
+        const packageName = match ? match[1] : null;
+        if (!packageName) {
+          throw new Error(`cannot find package name from path: ${pkgPath}`);
         }
+        const filePaths = readdirSync(pkgPath);
+        filePaths.forEach((folder) => {
+          if (folder.match(/^[A-Z]/)) {
+            if (!mapping[pkg.productId]) {
+              mapping[pkg.productId] = {};
+            }
+            // filename starts with Uppercase = component
+            mapping[pkg.productId][folder] = packageName;
+          }
+        });
       });
-    });
-  });
+    }
+    if (pkg.subPackagePaths) {
+      pkg.subPackagePaths.forEach((subPackagePath) => {
+        const packageName = import(`${subPackagePath}/package.json`, { assert: { type: 'json' } }).name;
 
+        const filePaths = readdirSync(subPackagePath);
+        filePaths.forEach((folder) => {
+          if (folder.match(/^[A-Z]/)) {
+            if (!mapping[pkg.productId]) {
+              mapping[pkg.productId] = {};
+            }
+            // filename starts with Uppercase = component
+            mapping[pkg.productId][folder] = packageName;
+          }
+        });
+      });
+    }
+  });
   return mapping;
 }
 

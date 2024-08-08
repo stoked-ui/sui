@@ -29,7 +29,7 @@ export default function TopLayoutCareers(props) {
   return (
     <BrandingCssVarsProvider>
       <AppHeader />
-      <Head title={`${title} - MUI`} description={description}>
+      <Head title={`${title} - SUI`} description={description}>
         <meta name="robots" content="noindex,nofollow" />
       </Head>
       <StyledDiv>

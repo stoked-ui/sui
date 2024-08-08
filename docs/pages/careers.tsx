@@ -131,12 +131,12 @@ const faqData = [
     detail: 'No. You can still apply if a position is visible on our careers page.',
   },
   {
-    summary: 'Does MUI do whiteboarding during interviews?',
+    summary: 'Does SUI do whiteboarding during interviews?',
     detail:
       'No. We ask applicants to complete challenges that are close to their future day-to-day contributions.',
   },
   {
-    summary: 'Does MUI offer contract job opportunities?',
+    summary: 'Does SUI offer contract job opportunities?',
     detail:
       'Yes. People outside of France can be hired as full-time contractors. (Benefits may vary.)',
   },
@@ -149,7 +149,7 @@ const openRolesData = [
       {
         title: 'React Engineer — Docs-infra',
         description:
-          'You will drive the development and maintenance of the documentation platform that powers all MUI products.',
+          'You will drive the development and maintenance of the documentation platform that powers all SUI products.',
         url: '/careers/react-engineer-docs-infra/',
       },
       {
@@ -177,13 +177,13 @@ const nextRolesData = [
       {
         title: 'React Tech Lead — Core',
         description:
-          'You will lead the development of MUI Core, positioning the library as the industry standard for design teams while doubling its adoption.',
+          'You will lead the development of SUI Core, positioning the library as the industry standard for design teams while doubling its adoption.',
         url: '/careers/react-tech-lead-core/',
       },
       {
         title: 'React Engineer — X',
         description:
-          'You will strengthen the MUI X product, build ambitious and complex new features, work on strategic problems, and help grow adoption.',
+          'You will strengthen the SUI X product, build ambitious and complex new features, work on strategic problems, and help grow adoption.',
         url: '/careers/react-engineer-x/',
       },
       {
@@ -207,7 +207,7 @@ const nextRolesData = [
       {
         title: 'Full-stack Engineer — Toolpad',
         description:
-          'You will join the MUI Toolpad team, to explore the role of MUI in the low code space and help bring the early prototype to a usable product.',
+          'You will join the SUI Toolpad team, to explore the role of SUI in the low code space and help bring the early prototype to a usable product.',
         url: '/careers/fullstack-engineer/',
       },
     ],
@@ -246,7 +246,7 @@ const companyInfo = [
   },
   {
     title: 'Handbook',
-    description: 'Learn everything about how MUI as a company is run.',
+    description: 'Learn everything about how SUI as a company is run.',
     routeUrl: ROUTES.handbook,
   },
   {
@@ -304,7 +304,7 @@ function RemoteAwardCard() {
         <Box
           component="img"
           src="/static/branding/careers/remote-award-light.png"
-          alt="MUI is the winner of the Remote Excellence Awards in the Small and Mighty for SMEs category."
+          alt="SUI is the winner of the Remote Excellence Awards in the Small and Mighty for SMEs category."
           height="1200px"
           width="1200px"
           sx={(theme) => ({
@@ -335,8 +335,8 @@ export default function Careers() {
   return (
     <BrandingCssVarsProvider>
       <Head
-        title="Careers - MUI"
-        description="Interested in joining MUI? Learn about the roles we're hiring for."
+        title="Careers - SUI"
+        description="Interested in joining SUI? Learn about the roles we're hiring for."
         card="/static/social-previews/careers-preview.jpg"
       />
       <AppHeaderBanner />
@@ -363,7 +363,7 @@ export default function Careers() {
           <Grid container spacing={5} alignItems="center">
             <Grid md={6}>
               <SectionHeadline
-                overline="Working at MUI"
+                overline="Working at SUI"
                 title={
                   <Typography variant="h2" id="perks-and-benefits">
                     Perks & benefits
@@ -507,7 +507,7 @@ export default function Careers() {
                 description={
                   <React.Fragment>
                     If none of the roles below fit with what you are looking for, apply to{' '}
-                    <Link href="https://jobs.ashbyhq.com/MUI/4715d81f-d00f-42d4-a0d0-221f40f73e19/application?utm_source=ZNRrPGBkqO">
+                    <Link href="https://jobs.ashbyhq.com/SUI/4715d81f-d00f-42d4-a0d0-221f40f73e19/application?utm_source=ZNRrPGBkqO">
                       the Dream job role
                     </Link>
                     !

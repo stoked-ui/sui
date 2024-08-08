@@ -7,18 +7,18 @@ export default function generateRssFeed(allBlogPosts: Array<BlogPost>) {
   if (process.env.NODE_ENV !== 'production') {
     return;
   }
-  const siteUrl = 'https://mui.com';
+  const siteUrl = 'https://stokedui.com';
 
   const feed = new Feed({
-    title: 'MUI - Blog',
+    title: 'SUI - Blog',
     description:
-      'Follow the MUI blog to learn about new product features, latest advancements in UI development, and business initiatives.',
+      'Follow the SUI blog to learn about new product features, latest advancements in UI development, and business initiatives.',
     id: `${siteUrl}/blog`,
     link: `${siteUrl}/blog`,
     language: 'en',
     image: `${siteUrl}/static/logo.svg`,
     favicon: `${siteUrl}/favicon.ico`,
-    copyright: `Copyright © ${new Date().getFullYear()} Material UI SAS, trading as MUI.`,
+    copyright: `Copyright © ${new Date().getFullYear()} Stoked UI`,
     feedLinks: {
       rss2: `${siteUrl}/public${ROUTES.rssFeed}`,
     },

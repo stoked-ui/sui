@@ -1,13 +1,15 @@
 {
-  "name": "@mui/monorepo",
+  "name": "@stoked-ui/monorepo",
   "version": "5.15.21",
   "private": true,
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "proptypes": "tsx ./scripts/generateProptypes.ts",
+    "proptypes": "cross-env BABEL_ENV=development babel-node -i \"/node_modules/(?!@stoked-ui)/\" -x .ts,.tsx,.js ./docs/scripts/generateProptypes.ts",
     "deduplicate": "pnpm dedupe",
     "benchmark:browser": "pnpm --filter benchmark browser",
-    "build": "lerna run build --ignore docs",
+    "build": "lerna run build --ignore stokedui-com",
+    "build:full": "pnpm build && pnpm proptypes && pnpm docs:api && pnpm docs:build",
+    "build:docs": "pnpm --filter stokedui-com build",
     "build:public": "lerna run --no-private build",
     "build:ci": "lerna run build --ignore docs --concurrency 8 --skip-nx-cache",
     "build:zero": "lerna run --scope \"@pigmentcss/*\" build",
@@ -19,21 +21,24 @@
     "release:publish": "pnpm publish --recursive --tag latest",
     "release:publish:dry-run": "pnpm publish --recursive --tag latest --registry=\"http://localhost:4873/\"",
     "release:tag": "node scripts/releaseTag.mjs",
-    "docs:api": "rimraf --glob ./docs/pages/**/api-docs ./docs/pages/**/api && pnpm docs:api:build",
-    "docs:api:build": "tsx ./scripts/buidApiDocs/index.ts",
-    "docs:build": "pnpm --filter docs build",
-    "docs:build-sw": "pnpm --filter docs build-sw",
+    "clean": "rimraf --glob **/pnpm-lock.yaml **/package-lock.json **/yarn.lock **/node_modules/ **/dist **/build **/.nx docs/export",
+    "docs:api": "NODE_OPTIONS=--max-old-space-size=4096 pnpm docs:api:build && pnpm docs:api:buildX",
+    "docs:api:build": "cross-env BABEL_ENV=development babel-node -i \"/node_modules/(?!@mui)/\" -x .ts,.tsx,.js ./scripts/buildApiDocs/index.ts",
+    "docs:api:buildX": "cross-env BABEL_ENV=development babel-node -i \"/node_modules/(?!@stoked-ui)/\" -x .ts,.tsx,.js ./docs/scripts/api/buildApi.ts",
+
+    "docs:build": "pnpm --filter stokedui-com build",
+    "docs:build-sw": "pnpm --filter stokedui-com build-sw",
     "docs:build-color-preview": "babel-node scripts/buildColorTypes",
-    "docs:deploy": "pnpm --filter docs run deploy",
-    "docs:dev": "pnpm --filter docs dev",
-    "docs:icons": "pnpm --filter docs icons",
+    "docs:deploy": "pnpm --filter stokedui-com run deploy",
+    "docs:dev": "pnpm --filter stokedui-com dev",
+    "docs:icons": "pnpm --filter stokedui-com icons",
     "docs:size-why": "cross-env DOCS_STATS_ENABLED=true pnpm docs:build",
-    "docs:start": "pnpm --filter docs start",
-    "docs:create-playground": "pnpm --filter docs create-playground",
+    "docs:start": "pnpm --filter stokedui-com start",
+    "docs:create-playground": "pnpm --filter stokedui-com create-playground",
     "docs:i18n": "cross-env BABEL_ENV=development babel-node --extensions \".tsx,.ts,.js\" ./docs/scripts/i18n.ts",
-    "docs:link-check": "pnpm --filter docs link-check",
+    "docs:link-check": "pnpm --filter stokedui-com link-check",
     "docs:typescript": "pnpm docs:typescript:formatted --watch",
-    "docs:typescript:check": "pnpm --filter docs typescript",
+    "docs:typescript:check": "pnpm --filter stokedui-com typescript",
     "docs:typescript:formatted": "tsx ./docs/scripts/formattedTSDemos",
     "docs:mdicons:synonyms": "cross-env BABEL_ENV=development babel-node --extensions \".tsx,.ts,.js,.mjs\" ./docs/scripts/updateIconSynonyms && pnpm prettier",
     "docs:zipRules": "cd docs && rm mui-vale.zip && zip -r mui-vale.zip mui-vale && cd ../ && vale sync",
@@ -73,7 +78,7 @@
     "test:regressions:dev": "concurrently \"pnpm test:regressions:build --watch\" \"pnpm test:regressions:server\"",
     "test:regressions:run": "mocha --config test/regressions/.mocharc.js --delay 'test/regressions/**/*.test.js'",
     "test:regressions:server": "serve test/regressions -p 5001",
-    "test:umd": "node packages/mui-material/test/umd/run.js",
+    "test:umd": "node packages/sui-material/test/umd/run.js",
     "test:unit": "cross-env NODE_ENV=test mocha 'packages/**/*.test.{js,ts,tsx}' 'docs/**/*.test.{js,ts,tsx}'",
     "test:argos": "node ./scripts/pushArgos.mjs",
     "typescript": "lerna run --no-bail --parallel typescript",
@@ -106,18 +111,24 @@
     "@babel/preset-typescript": "^7.23.3",
     "@babel/register": "^7.23.7",
     "@mnajdova/enzyme-adapter-react-18": "^0.2.0",
-    "@mui/internal-docs-utils": "workspace:^",
-    "@mui/internal-scripts": "workspace:^",
-    "@mui-internal/api-docs-builder": "workspace:^",
-    "@mui-internal/api-docs-builder-core": "workspace:^",
-    "@mui-internal/test-utils": "workspace:^",
-    "@mui/joy": "workspace:*",
-    "@mui/material": "workspace:^",
-    "@mui/utils": "workspace:^",
-    "@pigment-css/react": "workspace:^",
+    "@mui/base": "^5.0.0-beta.40",
+    "@mui/lab": "^5.0.0-alpha.170",
+    "@stoked-ui/internal-api-docs-builder": "workspace:^",
+    "@stoked-ui/internal-api-docs-builder-core": "workspace:^",
+    "@stoked-ui/internal-docs-utils": "workspace:^",
+    "@stoked-ui/internal-scripts": "workspace:^",
+    "@mui/internal-test-utils": "^1.0.0",
+    "@mui/joy": "^5.0.0-beta.32",
+    "@mui/material": "^5.15.21",
+    "@mui/utils": "^5.15.20",
     "@next/eslint-plugin-next": "^14.1.3",
     "@octokit/rest": "^20.0.2",
+    "@pigment-css/react": "^0.0.3",
     "@playwright/test": "1.42.1",
+    "@stoked-ui/file-explorer": "workspace:^",
+    "@stoked-ui/internal-markdown": "workspace:^",
+    "@stoked-ui/media-selector": "workspace:^",
+    "@mui/icons-material": "^5.15.21",
     "@types/enzyme": "^3.10.18",
     "@types/fs-extra": "^11.0.4",
     "@types/lodash": "^4.17.0",
@@ -152,10 +163,10 @@
     "eslint-plugin-filenames": "^1.3.2",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-jsx-a11y": "^6.7.1",
-    "eslint-plugin-material-ui": "workspace:^",
     "eslint-plugin-mocha": "^10.4.1",
     "eslint-plugin-react": "^7.34.1",
     "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-stoked-ui": "workspace:^",
     "fast-glob": "^3.3.2",
     "fs-extra": "^11.2.0",
     "globby": "^14.0.1",
@@ -193,9 +204,9 @@
     "webpack-cli": "^5.1.4",
     "yargs": "^17.7.2"
   },
-  "packageManager": "pnpm@9.4.0",
+  "packageManager": "pnpm@9.6.0",
   "engines": {
-    "pnpm": "9.4.0"
+    "pnpm": "9.6.0"
   },
   "resolutions": {
     "@babel/core": "^7.23.9",
@@ -222,7 +233,7 @@
   },
   "nyc": {
     "include": [
-      "packages/mui*/src/**/*.{js,ts,tsx}"
+      "packages/sui*/src/**/*.{js,ts,tsx}"
     ],
     "exclude": [
       "**/*.test.{js,ts,tsx}",
@@ -230,5 +241,10 @@
     ],
     "sourceMap": false,
     "instrument": false
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "@ffmpeg/ffmpeg@0.12.10": "patches/@ffmpeg__ffmpeg@0.12.10.patch"
+    }
   }
 }

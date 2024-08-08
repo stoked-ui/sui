@@ -33,6 +33,7 @@ export default withDocsInfra({
   experimental: {
     workerThreads: true,
     cpus: 3,
+    esmExternals: 'loose'
   },
   webpack: (config, options) => {
     const plugins = config.plugins.slice();
@@ -68,14 +69,8 @@ export default withDocsInfra({
           const { request } = ctx;
           const hasDependencyOnRepoPackages = [
             'notistack',
-            '@mui/x-data-grid',
-            '@mui/x-data-grid-pro',
-            '@mui/x-date-pickers',
-            '@mui/x-date-pickers-pro',
-            '@mui/x-data-grid-generator',
-            '@mui/x-charts',
-            '@mui/x-tree-view',
-            '@mui/x-license-pro',
+            '@mui/docs',
+            '@mui/material',
           ].some((dep) => request.startsWith(dep));
 
           if (hasDependencyOnRepoPackages) {
@@ -100,21 +95,9 @@ export default withDocsInfra({
         // resolve .tsx first
         alias: {
           ...config.resolve.alias,
-
           // for 3rd party packages with dependencies in this repository
-          '@mui/material': path.resolve(workspaceRoot, 'packages/mui-material/src'),
-          '@mui/docs': path.resolve(workspaceRoot, 'packages/mui-docs/src'),
-          '@mui/icons-material': path.resolve(workspaceRoot, 'packages/mui-icons-material/lib'),
-          '@mui/lab': path.resolve(workspaceRoot, 'packages/mui-lab/src'),
-          '@mui/styled-engine': path.resolve(workspaceRoot, 'packages/mui-styled-engine/src'),
-          '@mui/styles': path.resolve(workspaceRoot, 'packages/mui-styles/src'),
-          '@mui/system': path.resolve(workspaceRoot, 'packages/mui-system/src'),
-          '@mui/private-theming': path.resolve(workspaceRoot, 'packages/mui-private-theming/src'),
-          '@mui/utils': path.resolve(workspaceRoot, 'packages/mui-utils/src'),
-          '@mui/base': path.resolve(workspaceRoot, 'packages/mui-base/src'),
-          '@mui/material-nextjs': path.resolve(workspaceRoot, 'packages/mui-material-nextjs/src'),
-          '@mui/joy': path.resolve(workspaceRoot, 'packages/mui-joy/src'),
-        },
+          '@stoked-ui/docs': path.resolve(workspaceRoot, 'packages/sui-docs/src'),
+         },
         extensions: [
           '.tsx',
           // @ts-ignore
@@ -132,27 +115,46 @@ export default withDocsInfra({
                 use: [
                   options.defaultLoaders.babel,
                   {
-                    loader: require.resolve('@mui/internal-markdown/loader'),
+                    loader: require.resolve('@stoked-ui/internal-markdown/loader'),
                     options: {
                       workspaceRoot,
                       ignoreLanguagePages: LANGUAGES_IGNORE_PAGES,
                       languagesInProgress: LANGUAGES_IN_PROGRESS,
                       packages: [
                         {
-                          productId: 'material-ui',
+                          productId: 'stoked-ui',
                           paths: [
-                            path.join(workspaceRoot, 'packages/mui-base/src'),
-                            path.join(workspaceRoot, 'packages/mui-lab/src'),
-                            path.join(workspaceRoot, 'packages/mui-material/src'),
+                            path.join(workspaceRoot, 'packages/sui-media-selector/src'),
+                          ],
+                          subPackagePaths: [
+                            path.join(workspaceRoot, 'node_modules/@mui/base'),
+                            path.join(workspaceRoot, 'node_modules/@mui/lab'),
+                            path.join(workspaceRoot, 'node_modules/@stoked-ui/media-selector'),
                           ],
                         },
                         {
-                          productId: 'base-ui',
-                          paths: [path.join(workspaceRoot, 'packages/mui-base/src')],
+                          productId: 'docs',
+                          paths: [
+                            path.join(workspaceRoot, 'packages/sui-file-explorer/src'),
+                            path.join(workspaceRoot, 'packages/sui-media-selector/src'),
+                          ],
+                          subPackagePaths: [
+                            path.join(workspaceRoot, 'node_modules/@mui/base'),
+                            path.join(workspaceRoot, 'node_modules/@mui/lab'),
+                            path.join(workspaceRoot, 'packages/sui-media-selector'),
+                          ],
                         },
                         {
-                          productId: 'joy-ui',
-                          paths: [path.join(workspaceRoot, 'packages/mui-joy/src')],
+                          productId: 'docs-infra',
+                          paths: [
+                            path.join(workspaceRoot, 'packages/sui-file-explorer/src'),
+                            path.join(workspaceRoot, 'packages/sui-media-selector/src'),
+                          ],
+                          subPackagePaths: [
+                            path.join(workspaceRoot, 'node_modules/@mui/base'),
+                            path.join(workspaceRoot, 'node_modules/@mui/lab'),
+                            path.join(workspaceRoot, 'packages/sui-media-selector'),
+                          ],
                         },
                       ],
                       env: {
@@ -174,7 +176,7 @@ export default withDocsInfra({
             test: /\.(js|mjs|tsx|ts)$/,
             resourceQuery: { not: [/raw/] },
             include: [workspaceRoot],
-            exclude: /(node_modules|mui-icons-material)/,
+            exclude: /(node_modules|sui-icons-material)/,
             use: options.defaultLoaders.babel,
           },
           {
@@ -188,11 +190,11 @@ export default withDocsInfra({
   env: {
     // docs-infra
     LIB_VERSION: pkg.version,
-    SOURCE_CODE_REPO: 'https://github.com/mui/material-ui',
-    SOURCE_GITHUB_BRANCH: 'master', // #default-branch-switch
+    SOURCE_CODE_REPO: 'https://github.com/stokedconsulting/stokedui-mono',
+    SOURCE_GITHUB_BRANCH: 'main', // #default-branch-switch
     GITHUB_TEMPLATE_DOCS_FEEDBACK: '4.docs-feedback.yml',
     BUILD_ONLY_ENGLISH_LOCALE: String(buildOnlyEnglishLocale),
-    // MUI Core related
+    // SUI Core related
     GITHUB_AUTH: process.env.GITHUB_AUTH
       ? `Basic ${Buffer.from(process.env.GITHUB_AUTH).toString('base64')}`
       : '',
