@@ -9,47 +9,24 @@ import SectionHeadline from 'docs/src/components/typography/SectionHeadline';
 
 const teamPhotos = [
   {
-    img: '/static/branding/about/group-photo/teide-group.jpg',
-    title:
-      'A group photo of the SUI crew posing near the base of Mount Teide at the start of the hike.',
+    img: '/static/branding/about/group-photo/aristocrat.png',
+    title: '',
   },
   {
-    img: '/static/branding/about/group-photo/skiers.jpg',
-    title: 'SUI team members standing lined-up in the snow with their skigear.',
+    img: 'https://cenv-public.s3.amazonaws.com/phaser-lock.gif',
+    title: '',
   },
   {
-    img: '/static/branding/about/group-photo/group-photo.jpg',
-    title: 'Photo of the SUI team in front of the pool at our accommodations in Tenerife',
+    img: 'https://stokedconsulting.com/img/texas-auto.png',
+    title: '',
   },
   {
-    img: '/static/branding/about/group-photo/team-dinner.png',
-    title: 'Members of the SUI team sitting around a large wooden dining table.',
+    img: 'https://stokedconsulting.com/img/argos-health.png',
+    title: '',
   },
   {
-    img: '/static/branding/about/group-photo/working-table-tenerife.png',
-    title: 'The Toolpad team working together on a heads-down moment in Tenerife.',
-  },
-  {
-    img: '/static/branding/about/group-photo/scuba-gear.png',
-    title:
-      'SUI team members and their diving instructors pose in scuba gear before a scuba diving lesson.',
-  },
-  {
-    img: '/static/branding/about/group-photo/outdoor-focus-group.png',
-    title:
-      'An impromptu focus group gathered next to the pool to discuss cross-team marketing strategies.',
-  },
-  {
-    img: '/static/branding/about/group-photo/working-table-portugal.png',
-    title: 'SUI team members working together on a heads-down moment in Portugal.',
-  },
-  {
-    img: '/static/branding/about/group-photo/snow-tea.png',
-    title: 'The team shares a cup of tea up in the mountains of Chamonix, France.',
-  },
-  {
-    img: '/static/branding/about/group-photo/portugal-sight-seeing.png',
-    title: 'SUI team selfie while sightseeing in Lisbon, Portugal.',
+    img: 'https://stokedconsulting.com/img/map_health.jpg',
+    title: '',
   },
 ];
 
@@ -154,11 +131,11 @@ export default function AboutHero() {
         overline="About us"
         title={
           <Typography variant="h2" component="h1">
-            We&apos;re on a mission to make <br />{' '}
-            <GradientText>building better UIs effortless</GradientText>
+            It was high time we contribute to the <br />{' '}
+            <GradientText>open source community</GradientText>
           </Typography>
         }
-        description="Together, we are enabling developers & designers to bring stunning UIs to life with unrivalled speed and ease."
+        description="Our goal is to provide open source components that will enable the community to build sophisticated media tools easily."
       />
       <PhotoGallery />
       <TeamStatistics />

@@ -2,10 +2,14 @@ import fs from 'fs';
 import path from 'path';
 import { getHeaders } from '@stoked-ui/internal-markdown';
 
-const blogDir = path.join(process.cwd(), 'pages/blog');
+const blogMuiDir = path.join(process.cwd(), 'pages/blog/mui');
+const blogDir = path.join(process.cwd(), 'pages/blog/mui');
+
 
 export const getBlogFilePaths = (ext = '.md') => {
-  return fs.readdirSync(blogDir).filter((file) => file.endsWith(ext));
+  const muiBlogPaths = fs.readdirSync(blogMuiDir).filter((file) => file.endsWith(ext));
+  const suiBlogPaths = fs.readdirSync(blogDir).filter((file) => file.endsWith(ext));
+  return muiBlogPaths.concat(suiBlogPaths);
 };
 
 export interface BlogPost {
@@ -16,6 +20,7 @@ export interface BlogPost {
   tags: Array<string>;
   authors?: Array<string>;
   date?: string;
+  sui?: boolean;
 }
 
 export function getBlogPost(filePath: string): BlogPost {
@@ -49,6 +54,17 @@ const ALLOWED_TAGS = [
   'Toolpad',
 ];
 
+const SUI_TAGS = [
+  'Stoked UI',
+  'SUI',
+  'File Explorer',
+  'Media Selector',
+  'Video Editor',
+  'Timeline'
+];
+
+const ALL_TAGS = SUI_TAGS.concat(ALLOWED_TAGS);
+
 export const getAllBlogPosts = () => {
   const filePaths = getBlogFilePaths();
   const rawBlogPosts = filePaths
@@ -67,11 +83,12 @@ export const getAllBlogPosts = () => {
   const tagInfo: Record<string, number | undefined> = {};
   allBlogPosts.forEach((post) => {
     post.tags.forEach((tag) => {
-      if (!ALLOWED_TAGS.includes(tag)) {
+      if (!ALL_TAGS.includes(tag)) {
         throw new Error(
           `The tag "${tag}" in "${post.title}" was not whitelisted. Are you sure it's not a typo?`,
         );
       }
+
 
       tagInfo[tag] = (tagInfo[tag] || 0) + 1;
     });

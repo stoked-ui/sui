@@ -3,9 +3,9 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 
 const data = [
-  { number: '2014', metadata: 'The starting year' },
+  { number: '2011', metadata: 'The starting year' },
   { number: '100%', metadata: 'Remote global team' },
-  { number: '20+', metadata: 'Countries represented' },
+  { number: '3+', metadata: 'Countries represented' },
 ];
 
 export default function TeamStatistics() {
