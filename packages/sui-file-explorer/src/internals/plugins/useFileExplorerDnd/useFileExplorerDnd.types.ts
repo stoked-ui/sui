@@ -11,7 +11,7 @@ import type {
 export type DndItemState = {
   dndState: DndState,
   dndContainer: HTMLElement | null,
-  dndInstruction: Instruction | null
+  dndInstruction: any | null
 }
 
 export type ElementDragPayload = {
