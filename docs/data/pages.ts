@@ -53,6 +53,7 @@ const pages: MuiPage[] = [
           { pathname: '/file-explorer/docs/file-explorer/expansion' },
           { pathname: '/file-explorer/docs/file-explorer/customization' },
           { pathname: '/file-explorer/docs/file-explorer/focus' },
+          { pathname: '/file-explorer/docs/file-explorer/drag-and-drop' },
         ],
       },
       {

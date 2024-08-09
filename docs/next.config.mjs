@@ -29,12 +29,18 @@ const buildOnlyEnglishLocale = isDeployPreview && !l10nPRInNetlify && !vercelDep
 const pkgContent = fs.readFileSync(path.resolve(workspaceRoot, 'package.json'), 'utf8');
 const pkg = JSON.parse(pkgContent);
 
+const repo = process.env.REPO_NAME;
+const assetPrefix = repo ? `/${repo}/`: '';
+const basePath = repo ? `/${repo}`: '';
+
 export default withDocsInfra({
   experimental: {
     workerThreads: true,
     cpus: 3,
     esmExternals: 'loose'
   },
+  assetPrefix,
+  basePath,
   webpack: (config, options) => {
     const plugins = config.plugins.slice();
 
@@ -89,7 +95,7 @@ export default withDocsInfra({
 
     return {
       ...config,
-      plugins,
+     
       resolve: {
         ...config.resolve,
         // resolve .tsx first

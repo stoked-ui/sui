@@ -39,5 +39,7 @@ export interface FileIconProps {
    * The props used for each component slot.
    * @default {}
    */
-  slotProps?: FileIconSlotProps;
+  slotProps?: FileIconSlotProps
+
+  iconName?: 'collapseIcon' | 'expandIcon' | 'endIcon' | 'icon';
 }

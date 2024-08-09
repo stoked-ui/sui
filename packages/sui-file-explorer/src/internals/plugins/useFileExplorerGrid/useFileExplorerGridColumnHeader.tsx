@@ -206,6 +206,8 @@ export const useFileExplorerGridColumnHeader =  <
       ...externalEventHandlers,
       ...externalProps,
       ref: iconContainerRef,
+      iconName: status.ascending ? 'collapseIcon' : 'expandIcon',
+      sx: { color: 'black' }
     };
     return response;
   };

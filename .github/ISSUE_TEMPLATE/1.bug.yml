@@ -49,13 +49,13 @@ body:
   - type: textarea
     attributes:
       label: Your environment
-      description: Run `npx @mui/envinfo` and post the results. If you encounter issues with TypeScript please include the used tsconfig.
+      description: Run `npx @stoked-ui/envinfo` and post the results. If you encounter issues with TypeScript please include the used tsconfig.
       value: |
         <details>
-          <summary><code>npx @mui/envinfo</code></summary>
+          <summary><code>npx @stoked-ui/envinfo</code></summary>
 
         ```
           Don't forget to mention which browser you used.
-          Output from `npx @mui/envinfo` goes here.
+          Output from `npx @stoked-ui/envinfo` goes here.
         ```
         </details>

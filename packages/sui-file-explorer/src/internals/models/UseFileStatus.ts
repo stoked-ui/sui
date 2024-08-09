@@ -1,4 +1,3 @@
-import { Instruction } from "@atlaskit/pragmatic-drag-and-drop-hitbox/tree-item";
 import { DndState } from "./fileExplorerView";
 
 export interface UseFileStatus {
@@ -11,5 +10,5 @@ export interface UseFileStatus {
   grid: boolean;
   dndState: DndState;
   dndContainer: any;
-  dndInstruction: Instruction | null;
+  dndInstruction: any;
 }

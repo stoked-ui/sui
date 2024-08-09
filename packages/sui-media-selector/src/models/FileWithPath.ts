@@ -1233,12 +1233,12 @@ export class FileWithPath implements IFileWithPath {
     this.text = file.text.bind(file);
   }
 
-  static async from(input: FromEventInput): Promise<FileWithPath[]> {
+  static async from(input: FromEventInput | any): Promise<FileWithPath[]> {
     if (isObject<DragEvent>(input) && isDataTransfer(input.dataTransfer)) {
       return getDataTransferFiles(input.dataTransfer, input.type);
     } else if (isChangeEvt(input)) {
       return getInputFiles(input);
-    } else if ((input as PragmaticDndEvent) !== null)  {
+    } else if (input?.source?.items !== null) {
       return getDropFiles(input as PragmaticDndEvent);
     } else if ((Array.isArray(input) && input.every(item => 'getFile' in item && typeof item.getFile === 'function')) || (input as FileSystemFileHandle[] !== undefined)) {
       return getFsHandleFiles(input as FileSystemFileHandle[])

@@ -1,0 +1,8 @@
+<FileExplorer
+  defaultExpandedItems={['Notes']}
+  items={NestedFiles}
+  dndInternal
+  dndExternal
+  dndTrash
+  dndFileTypes={['image/png']}
+/>

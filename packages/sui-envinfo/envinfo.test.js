@@ -2,7 +2,7 @@ const { execFileSync } = require('child_process');
 const path = require('path');
 const { expect } = require('chai');
 
-describe('@mui/envinfo', () => {
+describe('@stoked-ui/envinfo', () => {
   const packagePath = __dirname;
   const testProjectPath = path.resolve(packagePath, 'test');
 

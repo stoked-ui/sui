@@ -10,10 +10,13 @@ import type {
 import type { GridColumns, UseFileExplorerGridSignature } from "./useFileExplorerGrid.types";
 import { UseFileExplorerDndSignature } from '../useFileExplorerDnd/useFileExplorerDnd.types';
 import { FileLabel } from "../../../File/FileLabel";
-import { FileIconContainer } from "../../../File/FileIconContainer";
-import { FileIcon } from "../../FileIcon";
 
-function FileExplorerGridCell({ sx, last, id, columnName, content, grow, header, getHeaderSortProps, status, selected }: { last?: boolean, sx: SystemStyleObject<Theme>, id: string, columnName: string, content: any, grow?: boolean, header?: true, getHeaderSortProps?: () => any, status?: any, selected?: boolean }) {
+function FileExplorerGridCell({
+                                sx, last, id, columnName, content, grow, selected, itemId
+}: {
+  last?: boolean, sx: SystemStyleObject<Theme>, id: string, columnName: string, content: any,
+  grow?: boolean, selected?: boolean, itemId?: string
+}) {
   const theme = useTheme();
   return (
     <FileLabel
@@ -24,16 +27,10 @@ function FileExplorerGridCell({ sx, last, id, columnName, content, grow, header,
       id={id}
       grow={grow}
       selected={selected}
-      header
       cell
       columnName={columnName}
     >
-      {content}
-      {(header && getHeaderSortProps) &&
-        (<FileIconContainer {...getHeaderSortProps()}>
-          <FileIcon status={status}/>
-        </FileIconContainer>)
-      }
+      {itemId !== 'trash' ? content : null}
     </FileLabel>
   )
 }
@@ -48,7 +45,7 @@ export function FileExplorerGridColumns({ item }: { item: any}) {
     return <React.Fragment/>
   }
 
-  const columnsEntries = Object.entries(gridColumns).filter(([columnName, columnData]) => columnName !== 'label');
+  const columnsEntries = Object.entries(gridColumns).filter(([columnName]) => columnName !== 'label');
   const columns =  columnsEntries.map(([columnName, columnData], index) => {
     const columnWidthAndHasBeenSet = columnData.rowData[`grid-${item.id}-row`] !== null && columnData.width !== -1;
     const customSx: any = {width: columnWidthAndHasBeenSet  ? `${columnData.width}px` : undefined};
@@ -65,7 +62,7 @@ export function FileExplorerGridColumns({ item }: { item: any}) {
       columnName={columnName}
       content={columnData.renderContent(content)}
       selected={item.selected}
-      header
+      itemId={item.itemId}
     />;
     columnData.cells.push(cell)
     return cell;

@@ -80,18 +80,7 @@ export default function Hero() {
         <React.Fragment>
           {isMdUp && (
             <Stack spacing={3} useFlexGap sx={{ '& > .MuiPaper-root': { maxWidth: 'none' } }}>
-              <FileExplorerGrid
-                id={'file-explorer-grid'}
-                grid
-                sx={{ width: '100%' }}
-                multiSelect
-                dndInternal
-                dndExternal
-                dndTrash
-                defaultExpandedItems={['1', '1.1']}
-                defaultSelectedItems="1.1"
-                alternatingRows
-              />
+              <FileExplorerGrid id={'file-explorer-grid'} grid sx={{ width: '100%' }} />
               <FileExplorerDnd id={'file-explorer-dnd'} sx={{width: 360}}/>
             </Stack>
           )}

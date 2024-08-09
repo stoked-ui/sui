@@ -1,10 +1,9 @@
 {
   "name": "@stoked-ui/file-explorer",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
   "description": "File Explorer Component built from the @mui/x-tree-view component with @atlaskit/pragmatic-drag-and-drop built in.",
   "author": "Brian Stoker",
-  "main": "build/index.js",
-  "lib": "build/index.js",
+  "main": "src/index.ts",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/stoked-ui/file-explorer/issues"

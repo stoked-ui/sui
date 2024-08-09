@@ -4,7 +4,10 @@
   "private": true,
   "scripts": {
     "preinstall": "npx only-allow pnpm",
-    "release:web": "./scripts/updateSite.sh",
+    "build:site": "./scripts/buildSite.sh",
+    "release:site": "./scripts/pushSite.sh",
+    "deploy:site": "pnpm build:site && pnpm release:site",
+    "release": "pnpm build:site && pnpm release:version && pnpm release:site",
     "proptypes": "cross-env BABEL_ENV=development babel-node -i \"/node_modules/(?!@stoked-ui)/\" -x .ts,.tsx,.js ./docs/scripts/generateProptypes.ts",
     "deduplicate": "pnpm dedupe",
     "benchmark:browser": "pnpm --filter benchmark browser",
@@ -23,10 +26,10 @@
     "release:publish:dry-run": "pnpm publish --recursive --tag latest --registry=\"http://localhost:4873/\"",
     "release:tag": "node scripts/releaseTag.mjs",
     "clean": "rimraf --glob **/pnpm-lock.yaml **/package-lock.json **/yarn.lock **/node_modules/ **/dist **/build **/.nx **/.next docs/export",
+    "clean:build": "rimraf --glob **/dist **/build **/.nx **/.next **/docs/export",
     "docs:api": "NODE_OPTIONS=--max-old-space-size=4096 pnpm docs:api:build && pnpm docs:api:buildX",
     "docs:api:build": "cross-env BABEL_ENV=development babel-node -i \"/node_modules/(?!@mui)/\" -x .ts,.tsx,.js ./scripts/buildApiDocs/index.ts",
     "docs:api:buildX": "cross-env BABEL_ENV=development babel-node -i \"/node_modules/(?!@stoked-ui)/\" -x .ts,.tsx,.js ./docs/scripts/api/buildApi.ts",
-
     "docs:build": "pnpm --filter stokedui-com build",
     "docs:build-sw": "pnpm --filter stokedui-com build-sw",
     "docs:build-color-preview": "babel-node scripts/buildColorTypes",
