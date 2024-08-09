@@ -343,21 +343,11 @@ export default function Team() {
             overline="Team"
             title={
               <Typography variant="h2" id="muiers">
-                Meet the <GradientText>MUIers</GradientText>
+                Meet the <GradientText>SUIers</GradientText>
               </Typography>
             }
             description="Contributing from all corners of the world, SUI is a global, fully-remote team & community."
           />
-          <Button
-            component={Link}
-            noLinkStyle
-            href={ROUTES.careers}
-            endIcon={<KeyboardArrowRightRounded fontSize="small" />}
-            variant="contained"
-            sx={{ width: { xs: '100%', sm: 'fit-content' } }}
-          >
-            View careers
-          </Button>
         </Box>
         <Grid container spacing={2}>
           {(teamMembers as Array<Profile>).map((profileJson) => {
@@ -375,42 +365,27 @@ export default function Team() {
             );
           })}
         </Grid>
+        <Box
+          sx={{
+            my: 4,
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+        <SectionHeadline
+          overline="Team"
+          title={
+            <Typography variant="h2" id="muiers">
+              <GradientText>MUI</GradientText> & Community
+            </Typography>
+          }
+          description=""
+        />
+          <Typography variant="body1" id="muiers">
+            Stoked UI is built on top of MUI which is a massive open source project with a huge team. <Link href={'https://mui.com/about/'}>View the MUI Team here</Link>
+          </Typography>
+        </Box>
       </Section>
-      <Divider />
-      {/* Community contributors */}
-      <Box data-mui-color-scheme="dark" sx={{ bgcolor: 'common.black' }}>
-        <Container sx={{ py: { xs: 4, sm: 8 } }}>
-          <Typography component="h3" variant="h4" color="primary.200" fontWeight="semiBold">
-            Community contributors
-          </Typography>
-          <Typography color="text.secondary" sx={{ maxWidth: { md: 500 } }}>
-            Special members of the community deserve a shout-out for their ever-lasting impact on
-            SUI&apos;s products.
-          </Typography>
-          <Grid container spacing={2} mt={2}>
-            {contributors.map((profile) => (
-              <Grid key={profile.name} xs={12} sm={6} md={3}>
-                <Person {...profile} sx={{ bgcolor: 'primaryDark.600' }} />
-              </Grid>
-            ))}
-          </Grid>
-          <Divider sx={{ my: { xs: 2, sm: 6 } }} />
-          <Typography component="h3" variant="h4" color="warning.300" fontWeight="semiBold">
-            Community emeriti
-          </Typography>
-          <Typography color="text.secondary" sx={{ maxWidth: { md: 500 } }}>
-            We honor some no-longer-active core team members who have made valuable contributions in
-            the past. They advise us from time to time.
-          </Typography>
-          <Grid container spacing={2} mt={2}>
-            {emeriti.map((profile) => (
-              <Grid key={profile.name} xs={12} sm={6} md={3}>
-                <Person {...profile} sx={{ bgcolor: 'primaryDark.600' }} />
-              </Grid>
-            ))}
-          </Grid>
-        </Container>
-      </Box>
     </React.Fragment>
   );
 }

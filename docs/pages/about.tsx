@@ -29,10 +29,6 @@ export default function About() {
         <Divider />
         <Team />
         <Divider />
-        <HowToSupport />
-        <Divider />
-        <AboutEnd />
-        <Divider />
       </main>
       <AppFooter />
     </BrandingCssVarsProvider>
