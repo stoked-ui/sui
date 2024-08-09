@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { FileExplorerInstance, UseFileMinimalPlugins, } from '../../models';
 import { UseFileExplorerGridColumnHeaderStatus } from './useFileExplorerGrid.types';
+import { SxProps } from "@mui/system";
 
 export interface UseFileExplorerGridHeadersParameters {
   /**
@@ -22,6 +23,8 @@ export interface UseFileExplorerGridHeadersParameters {
 
 export interface UseFileExplorerGridHeadersIconContainerSlotOwnProps {
   ref:  React.RefObject<HTMLDivElement>;
+  iconName?: 'collapseIcon' | 'expandIcon' | 'endIcon' | 'icon';
+  sx?: SxProps;
 }
 
 export type UseFileExplorerGridHeadersIconContainerSlotProps<ExternalProps = {}> = ExternalProps &

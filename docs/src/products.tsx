@@ -120,7 +120,7 @@ export class Product {
         component="li"
         role="none"
         sx={(theme) => ({
-          p: 2, pr: 3, borderBottom: '1px solid', borderColor: 'divider',
+          p: 2, pr: 3,
           '&:hover': {
             backgroundColor: 'grey.50',
           },
@@ -222,7 +222,7 @@ export class Product {
       <Box
         component="li"
         role="none"
-        sx={{ p: 2, pr: 3, borderBottom: '1px solid', borderColor: 'divider' }}
+        sx={{ p: 2, pr: 3}}
       >
         {this.subMenuItem()}
         <Stack
@@ -535,7 +535,7 @@ function ProductMenu(props: ProductMenuProps) {
                 },
                 '& li:not(:last-of-type)': {
                   borderBottom: '1px solid',
-                  borderColor: 'grey.100',
+                  borderColor: theme.palette.divider,
                 },
                 '& a': { textDecoration: 'none' },
                 ...theme.applyDarkStyles({

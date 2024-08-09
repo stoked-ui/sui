@@ -100,6 +100,6 @@
   "forwardsRefTo": "HTMLLIElement",
   "filename": "/packages/sui-file-explorer/src/File/File.tsx",
   "inheritance": null,
-  "demos": "<ul><li><a href=\"/file-explorer/docs/file-customizaton/\">File Customization</a></li>\n<li><a href=\"/file-explorer/docs/file-explorer/customization/\">File Explorer - Customization</a></li>\n<li><a href=\"/file-explorer/docs/file-explorer-basic/customization/\">File Explorer Basic - Customization</a></li></ul>",
+  "demos": "<ul><li><a href=\"/file-explorer/docs/file-customizaton/\">File Customization</a></li>\n<li><a href=\"/file-explorer/docs/file-explorer/customization/\">File Explorer - Customization</a></li>\n<li><a href=\"/file-explorer/docs/file-explorer/drag-and-drop/\">File Explorer - Drag and Drop</a></li>\n<li><a href=\"/file-explorer/docs/file-explorer-basic/customization/\">File Explorer Basic - Customization</a></li></ul>",
   "cssComponent": false
 }

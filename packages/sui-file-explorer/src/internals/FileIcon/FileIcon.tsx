@@ -8,6 +8,7 @@ import { FileExplorerCollapseIcon, FileExplorerExpandIcon } from '../../icons';
 
 function FileIcon(props: FileIconProps): React.JSX.Element | null {
   const { slots, slotProps, status } = props;
+  let { iconName } = props;
 
   const context = useFileExplorerContext<[UseFileExplorerIconsSignature]>();
 
@@ -18,18 +19,21 @@ function FileIcon(props: FileIconProps): React.JSX.Element | null {
   };
 
   const contextIconProps = context.icons.slotProps;
-
-  let iconName: 'collapseIcon' | 'expandIcon' | 'endIcon' | 'icon';
-  if (slots?.icon) {
-    iconName = 'icon';
-  } else if (status.expandable) {
-    if (status.expanded) {
-      iconName = 'collapseIcon';
+  if (iconName) {
+    console.log('test');
+  }
+  if (!iconName) {
+    if (slots?.icon) {
+      iconName = 'icon';
+    } else if (status.expandable) {
+      if (status.expanded) {
+        iconName = 'collapseIcon';
+      } else {
+        iconName = 'expandIcon';
+      }
     } else {
-      iconName = 'expandIcon';
+      iconName = 'endIcon';
     }
-  } else {
-    iconName = 'endIcon';
   }
 
   const Icon = slots?.[iconName] ?? contextIcons[iconName as keyof typeof contextIcons];
@@ -45,6 +49,7 @@ function FileIcon(props: FileIconProps): React.JSX.Element | null {
     // TODO: Add proper ownerState
     ownerState: {},
   });
+
   if (!Icon) {
     return null;
   }
@@ -57,6 +62,7 @@ FileIcon.propTypes = {
   // | These PropTypes are generated from the TypeScript type definitions |
   // | To update them edit the TypeScript types and run "pnpm proptypes"  |
   // ----------------------------------------------------------------------
+  iconName: PropTypes.oneOf(['collapseIcon', 'endIcon', 'expandIcon', 'icon']),
   /**
    * The props used for each component slot.
    * @default {}
@@ -70,55 +76,7 @@ FileIcon.propTypes = {
   status: PropTypes.shape({
     disabled: PropTypes.bool.isRequired,
     dndContainer: PropTypes.any.isRequired,
-    dndInstruction: PropTypes.oneOfType([
-      PropTypes.shape({
-        currentLevel: PropTypes.number.isRequired,
-        indentPerLevel: PropTypes.number.isRequired,
-        type: PropTypes.oneOf(['reorder-above']).isRequired,
-      }),
-      PropTypes.shape({
-        currentLevel: PropTypes.number.isRequired,
-        indentPerLevel: PropTypes.number.isRequired,
-        type: PropTypes.oneOf(['reorder-below']).isRequired,
-      }),
-      PropTypes.shape({
-        currentLevel: PropTypes.number.isRequired,
-        indentPerLevel: PropTypes.number.isRequired,
-        type: PropTypes.oneOf(['make-child']).isRequired,
-      }),
-      PropTypes.shape({
-        currentLevel: PropTypes.number.isRequired,
-        desiredLevel: PropTypes.number.isRequired,
-        indentPerLevel: PropTypes.number.isRequired,
-        type: PropTypes.oneOf(['reparent']).isRequired,
-      }),
-      PropTypes.shape({
-        desired: PropTypes.oneOfType([
-          PropTypes.shape({
-            currentLevel: PropTypes.number.isRequired,
-            indentPerLevel: PropTypes.number.isRequired,
-            type: PropTypes.oneOf(['reorder-above']).isRequired,
-          }),
-          PropTypes.shape({
-            currentLevel: PropTypes.number.isRequired,
-            indentPerLevel: PropTypes.number.isRequired,
-            type: PropTypes.oneOf(['reorder-below']).isRequired,
-          }),
-          PropTypes.shape({
-            currentLevel: PropTypes.number.isRequired,
-            indentPerLevel: PropTypes.number.isRequired,
-            type: PropTypes.oneOf(['make-child']).isRequired,
-          }),
-          PropTypes.shape({
-            currentLevel: PropTypes.number.isRequired,
-            desiredLevel: PropTypes.number.isRequired,
-            indentPerLevel: PropTypes.number.isRequired,
-            type: PropTypes.oneOf(['reparent']).isRequired,
-          }),
-        ]).isRequired,
-        type: PropTypes.oneOf(['instruction-blocked']).isRequired,
-      }),
-    ]),
+    dndInstruction: PropTypes.any.isRequired,
     dndState: PropTypes.oneOf(['dragging', 'idle', 'parent-of-instruction', 'preview']).isRequired,
     expandable: PropTypes.bool.isRequired,
     expanded: PropTypes.bool.isRequired,

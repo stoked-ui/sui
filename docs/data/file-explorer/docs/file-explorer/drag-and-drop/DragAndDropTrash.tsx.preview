@@ -1,0 +1,7 @@
+<FileExplorer
+  defaultExpandedItems={['Notes']}
+  items={NestedFiles}
+  dndInternal
+  dndExternal
+  dndTrash
+/>

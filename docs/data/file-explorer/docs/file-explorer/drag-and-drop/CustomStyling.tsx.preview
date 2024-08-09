@@ -1,0 +1,5 @@
+<FileExplorer
+  defaultExpandedItems={['Notes']}
+  slots={{ item: CustomTreeItem }}
+  items={NestedFiles}
+/>

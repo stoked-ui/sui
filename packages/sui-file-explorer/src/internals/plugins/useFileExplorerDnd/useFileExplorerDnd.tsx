@@ -545,7 +545,8 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
 
     const handleExternalDropTargets = dropTargetForExternal({
         element: pluginContentRef?.current,
-        canDrop: () => {
+        canDrop: ({ input, source, element}) => {
+          const files = FileWithPath.from(source.items);
           return  canDrop;
         },
         getData: ({ input, element }) => {
@@ -569,7 +570,8 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
           setState({...state, dndState: 'idle', dndInstruction: null });
           cancelExpand();
         },
-        onDrag: ({ self }) => {
+        onDrag: (data) => {
+          const { self } = data;
           const dragInstruction = extractInstruction(self.data);
           // console.log('drag dndExternal source:', source)
           // expand after 500ms if still merging

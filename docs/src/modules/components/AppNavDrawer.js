@@ -103,6 +103,12 @@ function ProductDrawerButton(props) {
             width: { xs: 340, sm: 'auto' },
           },
         }}
+        sx={(theme) => ({
+          '& li:not(:last-of-type)': {
+            borderBottom: '1px solid',
+            borderColor: theme.palette.divider,
+          },
+        })}
         onClick={handleEventDelegation}
       >
         <MuiProductSelector />

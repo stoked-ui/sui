@@ -177,7 +177,7 @@ export const File = React.forwardRef(function File(
         {...getLabelProps({ icon, expandable: status.expandable && status.expanded })}
         grid={status.grid}
         status={status}
-        showIcon={item.type === 'folder'}
+        showIcon={!status.grid && status.expandable}
         id={`${item.itemId}-preview`}
       />
     </React.Fragment>

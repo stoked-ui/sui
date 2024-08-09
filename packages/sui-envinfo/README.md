@@ -1,4 +1,4 @@
-# @mui/envinfo
+# @stoked-ui/envinfo
 
 Prints information about the current environment relevant to SUI packages to the console.
 Please use this package if you report [issues to SUI](https://github.com/stoked-ui/stoked-ui/issues).
@@ -6,7 +6,7 @@ Please use this package if you report [issues to SUI](https://github.com/stoked-
 ## Usage
 
 ```bash
-$ npx @mui/envinfo
+$ npx @stoked-ui/envinfo
 
   System:
     OS: Linux 5.4 Ubuntu 20.04.1 LTS (Focal Fossa)
@@ -23,7 +23,7 @@ $ npx @mui/envinfo
     @mui/codemod:  5.0.0-alpha.17
     @mui/material:  5.0.0-alpha.18
     @mui/docs:  5.0.0-alpha.1
-    @mui/envinfo:  2.0.0
+    @stoked-ui/envinfo:  2.0.0
     @mui/icons-material:  5.0.0-alpha.15
     @mui/lab:  5.0.0-alpha.18
     @mui/styled-engine:  5.0.0-alpha.18
