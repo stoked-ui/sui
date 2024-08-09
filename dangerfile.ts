@@ -6,7 +6,7 @@ import { loadComparison } from './scripts/sizeSnapshot';
 import replaceUrl from './packages/api-docs-builder/utils/replaceUrl';
 
 const circleCIBuildNumber = process.env.CIRCLE_BUILD_NUM;
-const circleCIBuildUrl = `https://app.circleci.com/pipelines/github/mui/stoked-ui/jobs/${circleCIBuildNumber}`;
+const circleCIBuildUrl = `https://app.circleci.com/pipelines/github/mui/material-ui/jobs/${circleCIBuildNumber}`;
 const dangerCommand = process.env.DANGER_COMMAND;
 
 const parsedSizeChangeThreshold = 300;
