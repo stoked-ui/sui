@@ -1,6 +1,6 @@
 {
   "name": "@stoked-ui/docs",
-  "version": "5.15.22",
+  "version": "0.1.0-alpha.0",
   "private": false,
   "author": "SUI Team",
   "description": "SUI Docs - Documentation building blocks.",
