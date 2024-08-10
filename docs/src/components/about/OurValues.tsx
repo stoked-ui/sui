@@ -58,16 +58,6 @@ export default function OurValues() {
         }
         description="They explain the behaviors and mindsets we actively encourage, discourage, and why. They serve as a guide toward better decision-making, results, and experiences at work."
       />
-      <Button
-        component={Link}
-        noLinkStyle
-        href={ROUTES.handbook}
-        endIcon={<KeyboardArrowRightRounded fontSize="small" />}
-        variant="contained"
-        sx={{ width: { xs: '100%', sm: 'fit-content' } }}
-      >
-        View our handbook
-      </Button>
       <Grid container spacing={3} sx={{ mt: { xs: 1, sm: 2 } }}>
         {values.map(({ title, description, darkIcon, lightIcon, height, width }) => (
           <Grid key={title} xs={12} md={3}>
