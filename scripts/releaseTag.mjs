@@ -40,7 +40,7 @@ async function findMuiOrgRemote() {
       // - git@github.com:mui/stoked-ui.git
       // but not:
       // - git@github.com:mui/stoked-ui-docs.git
-      return /mui\/stoked-ui(\.git)?$/.test(remote.url) && remote.method === '(push)';
+      return /stoked-ui\/mono(\.git)?$/.test(remote.url) && remote.method === '(push)';
     });
 }
 
@@ -62,8 +62,8 @@ async function main(argv) {
   const muiOrgRemote = await findMuiOrgRemote();
   if (muiOrgRemote === undefined) {
     throw new TypeError(
-      'Unable to find the upstream remote. It should be a remote pointing to "mui/stoked-ui". ' +
-        'Did you forget to add it via `git remote add upstream git@github.com:mui/stoked-ui.git`? ' +
+      'Unable to find the upstream remote. It should be a remote pointing to "stoked-ui/mono". ' +
+        'Did you forget to add it via `git remote add upstream git@github.com:stoked-ui/mono.git`? ' +
         'If you think this is a bug please include `git remote -v` in your report.',
     );
   }

@@ -82,7 +82,7 @@ async function main(argv) {
    */
   const timeline = octokit.paginate.iterator(
     octokit.repos.compareCommits.endpoint.merge({
-      owner: 'mui',
+      owner: 'stoked-ui',
       repo,
       base: lastRelease,
       head: release,
@@ -206,12 +206,12 @@ yargs(process.argv.slice(2))
         })
         .option('release', {
           // #default-branch-switch
-          default: 'master',
+          default: 'main',
           describe: 'Ref which we want to release',
           type: 'string',
         })
         .option('repo', {
-          default: 'stoked-ui',
+          default: 'mono',
           describe: 'Repository to generate a changelog for',
           type: 'string',
         });

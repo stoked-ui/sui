@@ -29,7 +29,6 @@ import generateRssFeed from 'docs/scripts/generateRSSFeed';
 import Section from 'docs/src/layouts/Section';
 import SectionHeadline from 'docs/src/components/typography/SectionHeadline';
 import { getAllBlogPosts, BlogPost } from 'docs/lib/sourcing';
-import SlackIcon from '../src/icons/Slack';
 
 export const getStaticProps = () => {
   const data = getAllBlogPosts();
@@ -154,7 +153,7 @@ function PostPreview(props: BlogPost) {
         <Button
           component={Link}
           aria-describedby={`describe-${props.slug}`}
-          href={`/blog/${props.slug}`}
+          href={props.sui ? `/blog/${props.slug}` : `https://mui.com/blog/${props.slug}`}
           id={`describe-${props.slug}`}
           endIcon={<KeyboardArrowRightRoundedIcon />}
           size="small"
@@ -248,7 +247,7 @@ export default function Blog(props: InferGetStaticPropsType<typeof getStaticProp
             title={
               <Typography variant="h2" component="h1">
                 Stay <GradientText>in the loop</GradientText> with
-                <br /> the latest about SUI&apos;s products
+                <br /> the latest about SUI&apos;s and MUI&apos;s products
               </Typography>
             }
           />

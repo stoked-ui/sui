@@ -1,6 +1,6 @@
 {
   "name": "@stoked-ui/monorepo",
-  "version": "5.15.21",
+  "version": "0.1.0-alpha.0",
   "private": true,
   "scripts": {
     "preinstall": "npx only-allow pnpm",
@@ -15,7 +15,7 @@
     "build:full": "pnpm build && pnpm proptypes && pnpm docs:api && pnpm docs:build",
     "build:docs": "pnpm --filter stokedui-com build",
     "build:public": "lerna run --no-private build",
-    "build:ci": "lerna run build --ignore docs --concurrency 8 --skip-nx-cache",
+    "build:ci": "lerna run build --ignore stokedui-com --concurrency 8 --skip-nx-cache",
     "build:zero": "lerna run --scope \"@pigmentcss/*\" build",
     "clean:zero": "pnpm --filter \"@pigmentcss/*\" clean",
     "build:codesandbox": "NODE_OPTIONS=\"--max_old_space_size=4096\" lerna run --concurrency 8 --scope \"@mui/*\" --scope \"@mui-internal/*\" --no-private build",
@@ -117,6 +117,7 @@
     "@mnajdova/enzyme-adapter-react-18": "^0.2.0",
     "@mui/base": "^5.0.0-beta.40",
     "@mui/lab": "^5.0.0-alpha.170",
+    "@mui/docs": "^5.0.0-beta.40",
     "@stoked-ui/internal-api-docs-builder": "workspace:^",
     "@stoked-ui/internal-api-docs-builder-core": "workspace:^",
     "@stoked-ui/internal-docs-utils": "workspace:^",
