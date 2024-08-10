@@ -38,7 +38,7 @@ interface AppHeaderProps {
 }
 
 export default function AppHeader(props: AppHeaderProps) {
-  const { gitHubRepository = 'https://github.com/stoked-ui/sui' } = props;
+  const { gitHubRepository = 'https://github.com/stoked-ui/mono' } = props;
   const t = useTranslate();
 
   return (
