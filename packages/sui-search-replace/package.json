@@ -1,6 +1,6 @@
 {
   "name": "@stoked-ui/search-replace-cli",
-  "version": "0.1.0",
+  "version": "0.1.0-alpha.0",
   "description": "CLI tool to search and replace in files and directories.",
   "main": "index.js",
   "bin": {

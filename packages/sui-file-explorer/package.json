@@ -1,6 +1,6 @@
 {
   "name": "@stoked-ui/file-explorer",
-  "version": "0.1.0-alpha.2",
+  "version": "0.1.0-alpha.0",
   "description": "File Explorer Component built from the @mui/x-tree-view component with @atlaskit/pragmatic-drag-and-drop built in.",
   "author": "Brian Stoker",
   "main": "src/index.ts",
@@ -38,7 +38,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/stoked-ui/sui.git",
+    "url": "https://github.com/stoked-ui/mono.git",
     "directory": "packages/sui-file-explorer"
   },
   "dependencies": {

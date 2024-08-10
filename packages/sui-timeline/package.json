@@ -1,6 +1,6 @@
 {
   "name": "@stoked-ui/timeline",
-  "version": "0.1.0",
+  "version": "0.1.0-alpha.0",
   "description": "Timeline component designed to be used with the SUI Video Editor.",
   "author": "Brian Stoker",
   "main": "src/index.ts",
@@ -37,7 +37,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/stoked-ui/sui.git",
+    "url": "https://github.com/stoked-ui/mono.git",
     "directory": "packages/sui-file-explorer"
   },
   "dependencies": {
