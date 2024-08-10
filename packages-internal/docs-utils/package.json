@@ -1,6 +1,6 @@
 {
   "name": "@stoked-ui/internal-docs-utils",
-  "version": "1.0.5",
+  "version": "0.1.0-alpha.0",
   "author": "SUI Team",
   "description": "Utilities for SUI docs. This is an internal package not meant for general use.",
   "main": "./build/index.js",

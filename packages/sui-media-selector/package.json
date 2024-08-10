@@ -2,7 +2,7 @@
   "name": "@stoked-ui/media-selector",
   "author": "Brian Stoker",
   "private": false,
-  "version": "0.1.0-alpha.2",
+  "version": "0.1.0-alpha.0",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "files": [

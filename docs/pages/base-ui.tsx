@@ -27,7 +27,7 @@ export default function BaseUI() {
         />
       </Head>
       <AppHeaderBanner />
-      <AppHeader gitHubRepository="https://github.com/stoked-ui/sui" />
+      <AppHeader gitHubRepository="https://github.com/stoked-ui/mono" />
       <main id="main-content">
         <BaseUIHero />
         <BaseUISummary />
