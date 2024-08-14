@@ -69,11 +69,15 @@
     "@mui/material": "^5.15.21",
     "@stoked-ui/file-explorer": "workspace:^",
     "@stoked-ui/media-selector": "workspace:^",
+    "@stoked-ui/timeline": "workspace:^",
     "react": "^17.0.0 || ^18.0.0",
     "react-dom": "^17.0.0 || ^18.0.0"
   },
   "devDependencies": {
     "@stoked-ui/internal-test-utils": "workspace:^",
+    "@stoked-ui/media-selector": "workspace:^",
+    "@stoked-ui/file-explorer": "workspace:^",
+    "@stoked-ui/timeline": "workspace:^",
     "@types/prop-types": "^15.7.12",
     "chai": "^4.4.1",
     "jest": "^29.7.0",

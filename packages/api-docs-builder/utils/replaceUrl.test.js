@@ -8,201 +8,201 @@ import replaceUrl, {
 describe('replaceUrl', () => {
   it('replace material related pathname', () => {
     expect(replaceMaterialLinks(`/guides/minimizing-bundle-size/`)).to.equal(
-      `/stoked-ui/guides/minimizing-bundle-size/`,
+      `/material-ui/guides/minimizing-bundle-size/`,
     );
     expect(replaceMaterialLinks(`/customization/theme-components/#default-props`)).to.equal(
-      `/stoked-ui/customization/theme-components/#default-props`,
+      `/material-ui/customization/theme-components/#default-props`,
     );
     expect(replaceMaterialLinks(`/getting-started/usage/`)).to.equal(
-      `/stoked-ui/getting-started/usage/`,
+      `/material-ui/getting-started/usage/`,
     );
     expect(replaceMaterialLinks(`/discover-more/related-projects/`)).to.equal(
-      `/stoked-ui/discover-more/related-projects/`,
+      `/material-ui/discover-more/related-projects/`,
     );
     expect(replaceMaterialLinks(`/experimental-api/css-theme-variables/overview/`)).to.equal(
-      `/stoked-ui/experimental-api/css-theme-variables/overview/`,
+      `/material-ui/experimental-api/css-theme-variables/overview/`,
     );
     expect(replaceMaterialLinks(`/migration/migration-grid-v2/`)).to.equal(
-      `/stoked-ui/migration/migration-grid-v2/`,
+      `/material-ui/migration/migration-grid-v2/`,
     );
   });
 
   it('should not change if links have been updated', () => {
-    expect(replaceMaterialLinks(`/stoked-ui/guides/minimizing-bundle-size/`)).to.equal(
-      `/stoked-ui/guides/minimizing-bundle-size/`,
+    expect(replaceMaterialLinks(`/material-ui/guides/minimizing-bundle-size/`)).to.equal(
+      `/material-ui/guides/minimizing-bundle-size/`,
     );
     expect(
-      replaceMaterialLinks(`/stoked-ui/customization/theme-components/#default-props`),
-    ).to.equal(`/stoked-ui/customization/theme-components/#default-props`);
-    expect(replaceMaterialLinks(`/stoked-ui/getting-started/usage/`)).to.equal(
-      `/stoked-ui/getting-started/usage/`,
+      replaceMaterialLinks(`/material-ui/customization/theme-components/#default-props`),
+    ).to.equal(`/material-ui/customization/theme-components/#default-props`);
+    expect(replaceMaterialLinks(`/material-ui/getting-started/usage/`)).to.equal(
+      `/material-ui/getting-started/usage/`,
     );
-    expect(replaceMaterialLinks(`/stoked-ui/discover-more/related-projects/`)).to.equal(
-      `/stoked-ui/discover-more/related-projects/`,
+    expect(replaceMaterialLinks(`/material-ui/discover-more/related-projects/`)).to.equal(
+      `/material-ui/discover-more/related-projects/`,
     );
   });
 
   it('replace correct component links', () => {
     expect(replaceComponentLinks(`/components/button-group/`)).to.equal(
-      `/stoked-ui/react-button-group/`,
+      `/material-ui/react-button-group/`,
     );
     expect(replaceComponentLinks(`/components/button-group/#main-content`)).to.equal(
-      `/stoked-ui/react-button-group/#main-content`,
+      `/material-ui/react-button-group/#main-content`,
     );
-    expect(replaceComponentLinks(`/components/buttons/`)).to.equal(`/stoked-ui/react-button/`);
+    expect(replaceComponentLinks(`/components/buttons/`)).to.equal(`/material-ui/react-button/`);
     expect(replaceComponentLinks(`/components/buttons/#main-content`)).to.equal(
-      `/stoked-ui/react-button/#main-content`,
+      `/material-ui/react-button/#main-content`,
     );
 
     expect(replaceComponentLinks(`/components/checkboxes/`)).to.equal(
-      `/stoked-ui/react-checkbox/`,
+      `/material-ui/react-checkbox/`,
     );
     expect(replaceComponentLinks(`/components/checkboxes/#main-content`)).to.equal(
-      `/stoked-ui/react-checkbox/#main-content`,
+      `/material-ui/react-checkbox/#main-content`,
     );
 
     expect(replaceComponentLinks(`/components/radio-buttons/`)).to.equal(
-      `/stoked-ui/react-radio-button/`,
+      `/material-ui/react-radio-button/`,
     );
     expect(replaceComponentLinks(`/components/radio-buttons/#main-content`)).to.equal(
-      `/stoked-ui/react-radio-button/#main-content`,
+      `/material-ui/react-radio-button/#main-content`,
     );
 
-    expect(replaceComponentLinks(`/components/selects/`)).to.equal(`/stoked-ui/react-select/`);
+    expect(replaceComponentLinks(`/components/selects/`)).to.equal(`/material-ui/react-select/`);
     expect(replaceComponentLinks(`/components/selects/#main-content`)).to.equal(
-      `/stoked-ui/react-select/#main-content`,
+      `/material-ui/react-select/#main-content`,
     );
 
-    expect(replaceComponentLinks(`/components/switches/`)).to.equal(`/stoked-ui/react-switch/`);
+    expect(replaceComponentLinks(`/components/switches/`)).to.equal(`/material-ui/react-switch/`);
     expect(replaceComponentLinks(`/components/switches/#main-content`)).to.equal(
-      `/stoked-ui/react-switch/#main-content`,
+      `/material-ui/react-switch/#main-content`,
     );
 
     expect(replaceComponentLinks(`/components/text-fields/`)).to.equal(
-      `/stoked-ui/react-text-field/`,
+      `/material-ui/react-text-field/`,
     );
     expect(replaceComponentLinks(`/components/text-fields/#main-content`)).to.equal(
-      `/stoked-ui/react-text-field/#main-content`,
+      `/material-ui/react-text-field/#main-content`,
     );
 
-    expect(replaceComponentLinks(`/components/avatars/`)).to.equal(`/stoked-ui/react-avatar/`);
+    expect(replaceComponentLinks(`/components/avatars/`)).to.equal(`/material-ui/react-avatar/`);
     expect(replaceComponentLinks(`/components/avatars/#main-content`)).to.equal(
-      `/stoked-ui/react-avatar/#main-content`,
+      `/material-ui/react-avatar/#main-content`,
     );
 
-    expect(replaceComponentLinks(`/components/badges/`)).to.equal(`/stoked-ui/react-badge/`);
+    expect(replaceComponentLinks(`/components/badges/`)).to.equal(`/material-ui/react-badge/`);
     expect(replaceComponentLinks(`/components/badges/#main-content`)).to.equal(
-      `/stoked-ui/react-badge/#main-content`,
+      `/material-ui/react-badge/#main-content`,
     );
 
-    expect(replaceComponentLinks(`/components/chips/`)).to.equal(`/stoked-ui/react-chip/`);
+    expect(replaceComponentLinks(`/components/chips/`)).to.equal(`/material-ui/react-chip/`);
     expect(replaceComponentLinks(`/components/chips/#main-content`)).to.equal(
-      `/stoked-ui/react-chip/#main-content`,
+      `/material-ui/react-chip/#main-content`,
     );
 
-    expect(replaceComponentLinks(`/components/dividers/`)).to.equal(`/stoked-ui/react-divider/`);
+    expect(replaceComponentLinks(`/components/dividers/`)).to.equal(`/material-ui/react-divider/`);
     expect(replaceComponentLinks(`/components/dividers/#main-content`)).to.equal(
-      `/stoked-ui/react-divider/#main-content`,
+      `/material-ui/react-divider/#main-content`,
     );
 
-    expect(replaceComponentLinks(`/components/icons/`)).to.equal(`/stoked-ui/icons/`);
+    expect(replaceComponentLinks(`/components/icons/`)).to.equal(`/material-ui/icons/`);
 
     expect(replaceComponentLinks(`/components/material-icons/`)).to.equal(
-      `/stoked-ui/material-icons/`,
+      `/material-ui/material-icons/`,
     );
 
-    expect(replaceComponentLinks(`/components/lists/`)).to.equal(`/stoked-ui/react-list/`);
+    expect(replaceComponentLinks(`/components/lists/`)).to.equal(`/material-ui/react-list/`);
     expect(replaceComponentLinks(`/components/lists/#main-content`)).to.equal(
-      `/stoked-ui/react-list/#main-content`,
+      `/material-ui/react-list/#main-content`,
     );
 
     expect(replaceComponentLinks(`/components/image-list/`)).to.equal(
-      `/stoked-ui/react-image-list/`,
+      `/material-ui/react-image-list/`,
     );
     expect(replaceComponentLinks(`/components/image-list/#main-content`)).to.equal(
-      `/stoked-ui/react-image-list/#main-content`,
+      `/material-ui/react-image-list/#main-content`,
     );
 
-    expect(replaceComponentLinks(`/components/no-ssr/`)).to.equal(`/stoked-ui/react-no-ssr/`);
+    expect(replaceComponentLinks(`/components/no-ssr/`)).to.equal(`/material-ui/react-no-ssr/`);
     expect(replaceComponentLinks(`/components/no-ssr/#main-content`)).to.equal(
-      `/stoked-ui/react-no-ssr/#main-content`,
+      `/material-ui/react-no-ssr/#main-content`,
     );
 
     expect(replaceComponentLinks(`/components/trap-focus/`)).to.equal(
-      `/stoked-ui/react-trap-focus/`,
+      `/material-ui/react-trap-focus/`,
     );
     expect(replaceComponentLinks(`/components/trap-focus/#main-content`)).to.equal(
-      `/stoked-ui/react-trap-focus/#main-content`,
+      `/material-ui/react-trap-focus/#main-content`,
     );
 
-    expect(replaceComponentLinks(`/components/progress/`)).to.equal(`/stoked-ui/react-progress/`);
+    expect(replaceComponentLinks(`/components/progress/`)).to.equal(`/material-ui/react-progress/`);
     expect(replaceComponentLinks(`/components/progress/#main-content`)).to.equal(
-      `/stoked-ui/react-progress/#main-content`,
+      `/material-ui/react-progress/#main-content`,
     );
 
-    expect(replaceComponentLinks(`/components/tables/`)).to.equal(`/stoked-ui/react-table/`);
+    expect(replaceComponentLinks(`/components/tables/`)).to.equal(`/material-ui/react-table/`);
     expect(replaceComponentLinks(`/components/tables/#main-content`)).to.equal(
-      `/stoked-ui/react-table/#main-content`,
+      `/material-ui/react-table/#main-content`,
     );
 
-    expect(replaceComponentLinks(`/components/tooltips/`)).to.equal(`/stoked-ui/react-tooltip/`);
+    expect(replaceComponentLinks(`/components/tooltips/`)).to.equal(`/material-ui/react-tooltip/`);
     expect(replaceComponentLinks(`/components/tooltips/#main-content`)).to.equal(
-      `/stoked-ui/react-tooltip/#main-content`,
+      `/material-ui/react-tooltip/#main-content`,
     );
 
-    expect(replaceComponentLinks(`/components/dialogs/`)).to.equal(`/stoked-ui/react-dialog/`);
+    expect(replaceComponentLinks(`/components/dialogs/`)).to.equal(`/material-ui/react-dialog/`);
     expect(replaceComponentLinks(`/components/dialogs/#main-content`)).to.equal(
-      `/stoked-ui/react-dialog/#main-content`,
+      `/material-ui/react-dialog/#main-content`,
     );
 
     expect(replaceComponentLinks(`/components/snackbars/`)).to.equal(
-      `/stoked-ui/react-snackbar/`,
+      `/material-ui/react-snackbar/`,
     );
     expect(replaceComponentLinks(`/components/snackbars/#main-content`)).to.equal(
-      `/stoked-ui/react-snackbar/#main-content`,
+      `/material-ui/react-snackbar/#main-content`,
     );
 
-    expect(replaceComponentLinks(`/components/cards/`)).to.equal(`/stoked-ui/react-card/`);
+    expect(replaceComponentLinks(`/components/cards/`)).to.equal(`/material-ui/react-card/`);
     expect(replaceComponentLinks(`/components/cards/#main-content`)).to.equal(
-      `/stoked-ui/react-card/#main-content`,
+      `/material-ui/react-card/#main-content`,
     );
 
     expect(replaceComponentLinks(`/components/breadcrumbs/`)).to.equal(
-      `/stoked-ui/react-breadcrumbs/`,
+      `/material-ui/react-breadcrumbs/`,
     );
     expect(replaceComponentLinks(`/components/breadcrumbs/#main-content`)).to.equal(
-      `/stoked-ui/react-breadcrumbs/#main-content`,
+      `/material-ui/react-breadcrumbs/#main-content`,
     );
 
-    expect(replaceComponentLinks(`/components/drawers/`)).to.equal(`/stoked-ui/react-drawer/`);
+    expect(replaceComponentLinks(`/components/drawers/`)).to.equal(`/material-ui/react-drawer/`);
     expect(replaceComponentLinks(`/components/drawers/#main-content`)).to.equal(
-      `/stoked-ui/react-drawer/#main-content`,
+      `/material-ui/react-drawer/#main-content`,
     );
 
-    expect(replaceComponentLinks(`/components/links/`)).to.equal(`/stoked-ui/react-link/`);
+    expect(replaceComponentLinks(`/components/links/`)).to.equal(`/material-ui/react-link/`);
     expect(replaceComponentLinks(`/components/links/#main-content`)).to.equal(
-      `/stoked-ui/react-link/#main-content`,
+      `/material-ui/react-link/#main-content`,
     );
 
-    expect(replaceComponentLinks(`/components/menus/`)).to.equal(`/stoked-ui/react-menu/`);
+    expect(replaceComponentLinks(`/components/menus/`)).to.equal(`/material-ui/react-menu/`);
     expect(replaceComponentLinks(`/components/menus/#main-content`)).to.equal(
-      `/stoked-ui/react-menu/#main-content`,
+      `/material-ui/react-menu/#main-content`,
     );
 
-    expect(replaceComponentLinks(`/components/steppers/`)).to.equal(`/stoked-ui/react-stepper/`);
+    expect(replaceComponentLinks(`/components/steppers/`)).to.equal(`/material-ui/react-stepper/`);
     expect(replaceComponentLinks(`/components/steppers/#main-content`)).to.equal(
-      `/stoked-ui/react-stepper/#main-content`,
+      `/material-ui/react-stepper/#main-content`,
     );
 
-    expect(replaceComponentLinks(`/components/tabs/`)).to.equal(`/stoked-ui/react-tabs/`);
+    expect(replaceComponentLinks(`/components/tabs/`)).to.equal(`/material-ui/react-tabs/`);
     expect(replaceComponentLinks(`/components/tabs/#main-content`)).to.equal(
-      `/stoked-ui/react-tabs/#main-content`,
+      `/material-ui/react-tabs/#main-content`,
     );
 
-    expect(replaceComponentLinks(`/components/transitions/`)).to.equal(`/stoked-ui/transitions/`);
-    expect(replaceComponentLinks(`/components/pickers/`)).to.equal(`/stoked-ui/pickers/`);
+    expect(replaceComponentLinks(`/components/transitions/`)).to.equal(`/material-ui/transitions/`);
+    expect(replaceComponentLinks(`/components/pickers/`)).to.equal(`/material-ui/pickers/`);
     expect(replaceComponentLinks(`/components/about-the-lab/`)).to.equal(
-      `/stoked-ui/about-the-lab/`,
+      `/material-ui/about-the-lab/`,
     );
 
     expect(replaceComponentLinks(`/components/data-grid/demo/`)).to.equal(
@@ -211,14 +211,14 @@ describe('replaceUrl', () => {
   });
 
   it('replace correct API links', () => {
-    expect(replaceAPILinks(`/api/button/`)).to.equal(`/stoked-ui/api/button/`);
+    expect(replaceAPILinks(`/api/button/`)).to.equal(`/material-ui/api/button/`);
     expect(replaceAPILinks(`/api/no-ssr/`)).to.equal(`/base-ui/api/no-ssr/`);
     expect(replaceAPILinks(`/api/portal/`)).to.equal(`/base-ui/api/portal/`);
     expect(replaceAPILinks(`/api/textarea-autosize/`)).to.equal(`/base-ui/api/textarea-autosize/`);
     expect(replaceAPILinks(`/api/button-unstyled/`)).to.equal(`/base-ui/api/button-unstyled/`);
-    expect(replaceAPILinks(`/api/loading-button/`)).to.equal(`/stoked-ui/api/loading-button/`);
-    expect(replaceAPILinks(`/api/tab-list/`)).to.equal(`/stoked-ui/api/tab-list/`);
-    expect(replaceAPILinks(`/api/tab-panel/`)).to.equal(`/stoked-ui/api/tab-panel/`);
+    expect(replaceAPILinks(`/api/loading-button/`)).to.equal(`/material-ui/api/loading-button/`);
+    expect(replaceAPILinks(`/api/tab-list/`)).to.equal(`/material-ui/api/tab-list/`);
+    expect(replaceAPILinks(`/api/tab-panel/`)).to.equal(`/material-ui/api/tab-panel/`);
     expect(replaceAPILinks(`/api/tab-panel-unstyled/`)).to.equal(
       `/base-ui/api/tab-panel-unstyled/`,
     );
@@ -237,26 +237,26 @@ describe('replaceUrl', () => {
   });
 
   it('should do nothing if the components have updated', () => {
-    expect(replaceComponentLinks(`/stoked-ui/react-button-group/`)).to.equal(
-      `/stoked-ui/react-button-group/`,
+    expect(replaceComponentLinks(`/material-ui/react-button-group/`)).to.equal(
+      `/material-ui/react-button-group/`,
     );
     expect(replaceComponentLinks(`/x/react-data-grid/demo/`)).to.equal(`/x/react-data-grid/demo/`);
   });
 
   it('should do nothing if the APIs have updated', () => {
-    expect(replaceAPILinks(`/stoked-ui/api/button/`)).to.equal(`/stoked-ui/api/button/`);
+    expect(replaceAPILinks(`/material-ui/api/button/`)).to.equal(`/material-ui/api/button/`);
     expect(replaceAPILinks(`/base-ui/api/button-unstyled/`)).to.equal(
       `/base-ui/api/button-unstyled/`,
     );
-    expect(replaceAPILinks(`/stoked-ui/api/loading-button/`)).to.equal(
-      `/stoked-ui/api/loading-button/`,
+    expect(replaceAPILinks(`/material-ui/api/loading-button/`)).to.equal(
+      `/material-ui/api/loading-button/`,
     );
     expect(replaceAPILinks(`/x/api/data-grid/`)).to.equal(`/x/api/data-grid/`);
   });
 
-  it('only replace links for new routes (/stoked-ui/* & /x/*)', () => {
-    expect(replaceUrl(`/guides/minimizing-bundle-size/`, '/stoked-ui/react-buttons')).to.equal(
-      `/stoked-ui/guides/minimizing-bundle-size/`,
+  it('only replace links for new routes (/material-ui/* & /x/*)', () => {
+    expect(replaceUrl(`/guides/minimizing-bundle-size/`, '/material-ui/react-buttons')).to.equal(
+      `/material-ui/guides/minimizing-bundle-size/`,
     );
     expect(
       replaceUrl(`/components/data-grid/getting-started/#main-content`, '/x/react-data-grid'),
@@ -270,10 +270,10 @@ describe('replaceUrl', () => {
     expect(replaceUrl(`/styles/api/`, `/system/basics`)).to.equal(`/system/styles/api/`);
   });
 
-  it('[i18n] only replace links for new routes (/stoked-ui/* & /x/*)', () => {
+  it('[i18n] only replace links for new routes (/material-ui/* & /x/*)', () => {
     expect(
-      replaceUrl(`/zh/guides/minimizing-bundle-size/`, '/zh/stoked-ui/react-buttons'),
-    ).to.equal(`/zh/stoked-ui/guides/minimizing-bundle-size/`);
+      replaceUrl(`/zh/guides/minimizing-bundle-size/`, '/zh/material-ui/react-buttons'),
+    ).to.equal(`/zh/material-ui/guides/minimizing-bundle-size/`);
     expect(
       replaceUrl(`/zh/components/data-grid/getting-started/#main-content`, '/zh/x/react-data-grid'),
     ).to.equal(`/zh/x/react-data-grid/getting-started/#main-content`);

@@ -40,7 +40,7 @@ export default function VideoEditorDemo() {
   const [data, setData] = React.useState(defaultEditorData);
 
   return (
-    <VideoEditor />
+    <VideoEditor  sx={{ borderRadius: '12px 12px 0 0' }} />
   );
 };
 

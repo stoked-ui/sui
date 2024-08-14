@@ -11,16 +11,16 @@ describe('getStokedUiComponentInfo', () => {
     );
     sinon.assert.match(componentInfo, {
       name: 'Button',
-      apiPathname: '/stoked-ui/api/button/',
+      apiPathname: '/material-ui/api/button/',
       muiName: 'MuiButton',
       apiPagesDirectory: sinon.match((value) =>
-        value.endsWith(path.join('docs', 'pages', 'stoked-ui', 'api')),
+        value.endsWith(path.join('docs', 'pages', 'material-ui', 'api')),
       ),
     });
 
     expect(componentInfo.getInheritance('ButtonBase')).to.deep.equal({
       name: 'ButtonBase',
-      apiPathname: '/stoked-ui/api/button-base/',
+      apiPathname: '/material-ui/api/button-base/',
     });
 
     let existed = false;
@@ -33,11 +33,11 @@ describe('getStokedUiComponentInfo', () => {
       expect(componentInfo.getDemos()).to.deep.equal([
         {
           demoPageTitle: 'Button Group',
-          demoPathname: '/stoked-ui/react-button-group/',
+          demoPathname: '/material-ui/react-button-group/',
         },
         {
           demoPageTitle: 'Button',
-          demoPathname: '/stoked-ui/react-button/',
+          demoPathname: '/material-ui/react-button/',
         },
       ]);
     }

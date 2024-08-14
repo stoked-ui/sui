@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import kebabCase from 'lodash/kebabCase';
-import { getHeaders, getTitle } from '@stoked-ui/internal-markdown';
+import { getHeaders, getTitle } from '@mui/internal-markdown';
 import {
   ComponentInfo,
   extractPackageFile,
@@ -22,8 +22,8 @@ export function getStokedUiComponentInfo(filename: string): ComponentInfo {
     filename,
     name,
     muiName: getMuiName(name),
-    apiPathname: `/stoked-ui/api/${kebabCase(name)}/`,
-    apiPagesDirectory: path.join(process.cwd(), `docs/pages/stoked-ui/api`),
+    apiPathname: `/material-ui/api/${kebabCase(name)}/`,
+    apiPagesDirectory: path.join(process.cwd(), `docs/pages/material-ui/api`),
     isSystemComponent: getSystemComponents().includes(name),
     readFile: () => {
       srcInfo = parseFile(filename);
@@ -44,23 +44,23 @@ export function getStokedUiComponentInfo(filename: string): ComponentInfo {
           inheritedComponent === 'Transition'
             ? 'https://reactcommunity.org/react-transition-group/transition/#Transition-props'
             : `/${
-                inheritedComponent.match(/unstyled/i) ? 'base-ui' : 'stoked-ui'
+                inheritedComponent.match(/unstyled/i) ? 'base-ui' : 'material-ui'
               }/api/${kebabCase(inheritedComponent.replace(/unstyled/i, ''))}/`,
       };
     },
     getDemos: () => {
       const allMarkdowns = findPagesMarkdown().map((markdown) => {
         const markdownContent = fs.readFileSync(markdown.filename, 'utf8');
-        const markdownHeaders = getHeaders(markdownContent);
+        const markdownHeaders = getHeaders(markdownContent) as any;
 
         return {
           ...markdown,
           markdownContent,
-          components: markdownHeaders.components,
+          components: markdownHeaders.components as string[],
         };
       });
       return allMarkdowns
-        .filter((page) => page.pathname.startsWith('/stoked') && page.components.includes(name))
+        .filter((page) => page.pathname.startsWith('/material') && page.components.includes(name))
         .map((page) => ({
           demoPageTitle: getTitle(page.markdownContent),
           demoPathname: fixPathname(page.pathname),

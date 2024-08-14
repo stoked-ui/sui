@@ -1,14 +1,12 @@
 import * as React from "react";
-import { shouldForwardProp } from "@mui/system/createStyled";
 import composeClasses from "@mui/utils/composeClasses";
 import { animated, useSpring } from "@react-spring/web";
 import { TransitionProps } from "@mui/material/transitions";
-import { SxProps, Theme } from "@mui/system";
-import { alpha } from "@mui/material/styles";
 import Collapse from "@mui/material/Collapse";
 import MuiCheckbox, { CheckboxProps } from "@mui/material/Checkbox";
 import { fileClasses, getFileUtilityClass } from "./fileClasses";
-import { styled } from "../internals/zero-styled";
+import { shouldForwardProp } from '@mui/system/createStyled';
+import { alpha, styled, useThemeProps, SxProps, Theme } from '@mui/material/styles';
 import { UseFileStatus } from "../internals/models/UseFileStatus";
 import { FileOwnerState } from "./File.types";
 

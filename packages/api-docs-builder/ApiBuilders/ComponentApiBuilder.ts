@@ -8,11 +8,12 @@ import kebabCase from 'lodash/kebabCase';
 import remark from 'remark';
 import remarkVisit from 'unist-util-visit';
 import type { Link } from 'mdast';
-import { defaultHandlers, parse as docgenParse } from 'react-docgen';
-import { renderMarkdown } from '@stoked-ui/internal-markdown';
+import { defaultHandlers, parse as docgenParse, ReactDocgenApi } from 'react-docgen';
+import { renderMarkdown } from '@mui/internal-markdown';
+import { ComponentClassDefinition } from '@stoked-ui/internal-docs-utils';
 import { parse as parseDoctrine, Annotation } from 'doctrine';
 import { ProjectSettings, SortingStrategiesType } from '../ProjectSettings';
-import { toGitHubPath, writePrettifiedFile } from '../buildApiUtils';
+import { ComponentInfo, toGitHubPath, writePrettifiedFile } from '../buildApiUtils';
 import muiDefaultPropsHandler from '../utils/defaultPropsHandler';
 import parseTest from '../utils/parseTest';
 import generatePropTypeDescription, { getChained } from '../utils/generatePropTypeDescription';
@@ -22,11 +23,88 @@ import createDescribeableProp, {
 } from '../utils/createDescribeableProp';
 import generatePropDescription from '../utils/generatePropDescription';
 import { TypeScriptProject } from '../utils/createTypeScriptProject';
-import parseSlotsAndClasses from '../utils/parseSlotsAndClasses';
+import parseSlotsAndClasses, { Slot } from '../utils/parseSlotsAndClasses';
 import generateApiTranslations from '../utils/generateApiTranslation';
 import { sortAlphabetical } from '../utils/sortObjects';
-import { AdditionalPropsInfo, ComponentReactApi } from '../types/ApiBuilder.types';
-import { Slot, ComponentInfo } from '../types/utils.types';
+
+export type AdditionalPropsInfo = {
+  cssApi?: boolean;
+  sx?: boolean;
+  slotsApi?: boolean;
+  'joy-size'?: boolean;
+  'joy-color'?: boolean;
+  'joy-variant'?: boolean;
+};
+
+export type SeeMore = { description: string; link: { text: string; url: string } };
+
+export interface ReactApi extends ReactDocgenApi {
+  demos: ReturnType<ComponentInfo['getDemos']>;
+  EOL: string;
+  filename: string;
+  apiPathname: string;
+  forwardsRefTo: string | undefined;
+  inheritance: ReturnType<ComponentInfo['getInheritance']>;
+  /**
+   * react component name
+   * @example 'Accordion'
+   */
+  name: string;
+  muiName: string;
+  description: string;
+  spread: boolean | undefined;
+  /**
+   * If `true`, the component supports theme default props customization.
+   * If `null`, we couldn't infer this information.
+   * If `undefined`, it's not applicable in this context, for example Base UI components.
+   */
+  themeDefaultProps: boolean | undefined | null;
+  /**
+   * result of path.readFileSync from the `filename` in utf-8
+   */
+  src: string;
+  classes: ComponentClassDefinition[];
+  slots: Slot[];
+  propsTable: _.Dictionary<{
+    default: string | undefined;
+    required: boolean | undefined;
+    type: { name: string | undefined; description: string | undefined };
+    deprecated: true | undefined;
+    deprecationInfo: string | undefined;
+    signature: undefined | { type: string; describedArgs?: string[]; returned?: string };
+    additionalInfo?: AdditionalPropsInfo;
+    seeMoreLink?: SeeMore['link'];
+  }>;
+  /**
+   * Different ways to import components
+   */
+  imports: string[];
+  translations: {
+    componentDescription: string;
+    propDescriptions: {
+      [key: string]: {
+        description: string;
+        requiresRef?: boolean;
+        deprecated?: string;
+        typeDescriptions?: { [t: string]: string };
+        seeMoreText?: string;
+      };
+    };
+    classDescriptions: {
+      [key: string]: {
+        description: string;
+        conditions?: string;
+        nodeName?: string;
+        deprecationInfo?: string;
+      };
+    };
+    slotDescriptions?: { [key: string]: string };
+  };
+  /**
+   * The folder used to store the API translation.
+   */
+  apiDocsTranslationFolder?: string;
+}
 
 const cssComponents = ['Box', 'Grid', 'Typography', 'Stack'];
 
@@ -38,7 +116,7 @@ const cssComponents = ['Box', 'Grid', 'Typography', 'Stack'];
  * this method.
  */
 export async function computeApiDescription(
-  api: { description: ComponentReactApi['description'] },
+  api: { description: ReactApi['description'] },
   options: { host: string },
 ): Promise<string> {
   const { host } = options;
@@ -63,19 +141,15 @@ export async function computeApiDescription(
  * /**
  *  * Demos:
  *  *
- *  * - [Icons](https://stoked-ui.github.io/components/icons/)
- *  * - [Material Icons](https://stoked-ui.github.io/components/material-icons/)
+ *  * - [Icons](https://mui.com/components/icons/)
+ *  * - [Material Icons](https://mui.com/components/material-icons/)
  *  *
  *  * API:
  *  *
- *  * - [Icon API](https://stoked-ui.github.io/api/icon/)
+ *  * - [Icon API](https://mui.com/api/icon/)
  */
-async function annotateComponentDefinition(
-  api: ComponentReactApi,
-  componentJsdoc: Annotation,
-  projectSettings: ProjectSettings,
-) {
-  const HOST = projectSettings.baseApiUrl ?? 'https://stoked-ui.github.io';
+async function annotateComponentDefinition(api: ReactApi, componentJsdoc: Annotation) {
+  const HOST = 'https://mui.com';
 
   const typesFilename = api.filename.replace(/\.js$/, '.d.ts');
   const fileName = path.parse(api.filename).name;
@@ -210,7 +284,7 @@ async function annotateComponentDefinition(
   }
 
   let inheritanceAPILink = null;
-  if (api.inheritance) {
+  if (api.inheritance !== null) {
     inheritanceAPILink = `[${api.inheritance.name} API](${
       api.inheritance.apiPathname.startsWith('http')
         ? api.inheritance.apiPathname
@@ -241,7 +315,7 @@ async function annotateComponentDefinition(
       api.apiPathname.startsWith('http') ? api.apiPathname : `${HOST}${api.apiPathname}`
     })`,
   );
-  if (api.inheritance) {
+  if (api.inheritance !== null) {
     markdownLines.push(`- inherits ${inheritanceAPILink}`);
   }
 
@@ -292,7 +366,7 @@ function extractClassCondition(description: string) {
 const generateApiPage = async (
   apiPagesDirectory: string,
   importTranslationPagesDirectory: string,
-  reactApi: ComponentReactApi,
+  reactApi: ReactApi,
   sortingStrategies?: SortingStrategiesType,
   onlyJsonFile: boolean = false,
   layoutConfigPath: string = '',
@@ -335,7 +409,6 @@ const generateApiPage = async (
       .map((item) => `<li><a href="${item.demoPathname}">${item.demoPageTitle}</a></li>`)
       .join('\n')}</ul>`,
     cssComponent: cssComponents.indexOf(reactApi.name) >= 0,
-    deprecated: reactApi.deprecated,
   };
 
   const { classesSort = sortAlphabetical('key'), slotsSort = null } = {
@@ -390,14 +463,9 @@ const generateApiPage = async (
   }
 };
 
-const attachTranslations = (
-  reactApi: ComponentReactApi,
-  deprecationInfo: string | undefined,
-  settings?: CreateDescribeablePropSettings,
-) => {
-  const translations: ComponentReactApi['translations'] = {
+const attachTranslations = (reactApi: ReactApi, settings?: CreateDescribeablePropSettings) => {
+  const translations: ReactApi['translations'] = {
     componentDescription: reactApi.description,
-    deprecationInfo: deprecationInfo ? renderMarkdown(deprecationInfo) : undefined,
     propDescriptions: {},
     classDescriptions: {},
   };
@@ -459,13 +527,10 @@ const attachTranslations = (
   reactApi.translations = translations;
 };
 
-const attachPropsTable = (
-  reactApi: ComponentReactApi,
-  settings?: CreateDescribeablePropSettings,
-) => {
+const attachPropsTable = (reactApi: ReactApi, settings?: CreateDescribeablePropSettings) => {
   const propErrors: Array<[propName: string, error: Error]> = [];
-  type Pair = [string, ComponentReactApi['propsTable'][string]];
-  const componentProps: ComponentReactApi['propsTable'] = _.fromPairs(
+  type Pair = [string, ReactApi['propsTable'][string]];
+  const componentProps: ReactApi['propsTable'] = _.fromPairs(
     Object.entries(reactApi.props!).map(([propName, propDescriptor]): Pair => {
       let prop: DescribeablePropDescriptor | null;
       try {
@@ -505,7 +570,7 @@ const attachPropsTable = (
         additionalPropsInfo.cssApi = true;
       } else if (propName === 'sx') {
         additionalPropsInfo.sx = true;
-      } else if (propName === 'slots' && !normalizedApiPathname.startsWith('/stoked-ui')) {
+      } else if (propName === 'slots' && !normalizedApiPathname.startsWith('/material-ui')) {
         additionalPropsInfo.slotsApi = true;
       } else if (normalizedApiPathname.startsWith('/joy-ui')) {
         switch (propName) {
@@ -522,7 +587,7 @@ const attachPropsTable = (
         }
       }
 
-      let signature: ComponentReactApi['propsTable'][string]['signature'];
+      let signature: ReactApi['propsTable'][string]['signature'];
       if (signatureType !== undefined) {
         signature = {
           type: signatureType,
@@ -622,7 +687,7 @@ export default async function generateComponentApi(
   }
 
   const filename = componentInfo.filename;
-  let reactApi: ComponentReactApi;
+  let reactApi: ReactApi;
 
   if (componentInfo.isSystemComponent) {
     try {
@@ -704,12 +769,11 @@ export default async function generateComponentApi(
   reactApi.slots = [];
   reactApi.classes = [];
   reactApi.demos = componentInfo.getDemos();
-  reactApi.inheritance = null;
   if (reactApi.demos.length === 0) {
     throw new Error(
       'Unable to find demos. \n' +
         `Be sure to include \`components: ${reactApi.name}\` in the markdown pages where the \`${reactApi.name}\` component is relevant. ` +
-        'Every public component should have a demo.\nFor internal component, add the name of the component to the `skipComponent` method of the product.',
+        'Every public component should have a demo. ',
     );
   }
 
@@ -720,8 +784,7 @@ export default async function generateComponentApi(
     reactApi.spread = testInfo.spread ?? spread;
     reactApi.themeDefaultProps = testInfo.themeDefaultProps;
     reactApi.inheritance = componentInfo.getInheritance(testInfo.inheritComponent);
-  } catch (error: any) {
-    console.error(error.message);
+  } catch (e) {
     if (project.name.includes('grid')) {
       // TODO: Use `describeConformance` for the DataGrid components
       reactApi.forwardsRefTo = 'GridRoot';
@@ -741,13 +804,8 @@ export default async function generateComponentApi(
     reactApi.classes = classes;
   }
 
-  const deprecation = componentJsdoc.tags.find((tag) => tag.title === 'deprecated');
-  const deprecationInfo = deprecation?.description || undefined;
-
-  reactApi.deprecated = !!deprecation || undefined;
-
   attachPropsTable(reactApi, projectSettings.propsSettings);
-  attachTranslations(reactApi, deprecationInfo, projectSettings.propsSettings);
+  attachTranslations(reactApi, projectSettings.propsSettings);
 
   // eslint-disable-next-line no-console
   console.log('Built API docs for', reactApi.apiPathname);
@@ -782,7 +840,7 @@ export default async function generateComponentApi(
         : !skipAnnotatingComponentDefinition
     ) {
       // Add comment about demo & api links (including inherited component) to the component file
-      await annotateComponentDefinition(reactApi, componentJsdoc, projectSettings);
+      await annotateComponentDefinition(reactApi, componentJsdoc);
     }
   }
 

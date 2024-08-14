@@ -5,9 +5,7 @@ const getAllFiles = (dirPath: string, arrayOfFiles: string[] = []) => {
   const files = fse.readdirSync(dirPath);
 
   files.forEach((file) => {
-    const filePath = `${dirPath}/${file}`;
-    const stat = fse.statSync(filePath);
-    if (stat?.isDirectory()) {
+    if (fse.statSync(`${dirPath}/${file}`).isDirectory()) {
       arrayOfFiles = getAllFiles(`${dirPath}/${file}`, arrayOfFiles);
     } else {
       arrayOfFiles.push(path.join(__dirname, dirPath, '/', file));

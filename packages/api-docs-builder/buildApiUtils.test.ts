@@ -4,7 +4,7 @@ import { extractPackageFile } from './buildApiUtils';
 describe('buildApiUtils', () => {
   describe('extractPackageFilePath', () => {
     it('return info if path is a package (material)', () => {
-      const result = extractPackageFile('/stoked-ui/packages/mui-material/src/Button/Button.js');
+      const result = extractPackageFile('/material-ui/packages/mui-material/src/Button/Button.js');
       sinon.assert.match(result, {
         packagePath: 'mui-material',
         muiPackage: 'mui-material',
@@ -14,7 +14,7 @@ describe('buildApiUtils', () => {
 
     it('return info if path is a package (lab)', () => {
       const result = extractPackageFile(
-        '/stoked-ui/packages/mui-lab/src/LoadingButton/LoadingButton.js',
+        '/material-ui/packages/mui-lab/src/LoadingButton/LoadingButton.js',
       );
       sinon.assert.match(result, {
         packagePath: 'mui-lab',
@@ -24,7 +24,7 @@ describe('buildApiUtils', () => {
     });
 
     it('return info if path is a package (base)', () => {
-      const result = extractPackageFile('/stoked-ui/packages/mui-base/src/Tab/Tab.tsx');
+      const result = extractPackageFile('/material-ui/packages/mui-base/src/Tab/Tab.tsx');
       sinon.assert.match(result, {
         packagePath: 'mui-base',
         muiPackage: 'mui-base',
@@ -33,7 +33,7 @@ describe('buildApiUtils', () => {
     });
 
     it('return info if path is a package (data-grid)', () => {
-      const result = extractPackageFile('/stoked-ui/packages/grid/x-data-grid/src/DataGrid.tsx');
+      const result = extractPackageFile('/material-ui/packages/grid/x-data-grid/src/DataGrid.tsx');
       sinon.assert.match(result, {
         packagePath: 'x-data-grid',
         muiPackage: 'mui-data-grid',
@@ -43,7 +43,7 @@ describe('buildApiUtils', () => {
 
     it('return info if path is a package (data-grid-pro)', () => {
       const result = extractPackageFile(
-        '/stoked-ui/packages/grid/x-data-grid-pro/src/DataGridPro.tsx',
+        '/material-ui/packages/grid/x-data-grid-pro/src/DataGridPro.tsx',
       );
       sinon.assert.match(result, {
         packagePath: 'x-data-grid-pro',
@@ -54,7 +54,7 @@ describe('buildApiUtils', () => {
 
     it('return null if path is not a package', () => {
       const result = extractPackageFile(
-        '/stoked-ui/docs/pages/material/getting-started/getting-started.md',
+        '/material-ui/docs/pages/material/getting-started/getting-started.md',
       );
       sinon.assert.match(result, {
         packagePath: null,

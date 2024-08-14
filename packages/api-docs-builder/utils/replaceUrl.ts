@@ -6,7 +6,7 @@ export function isNewLocation(url: string) {
   }
   return (
     url.startsWith('/x') ||
-    url.startsWith('/stoked-ui') ||
+    url.startsWith('/material-ui') ||
     url.startsWith('/base') ||
     url.startsWith('/joy-ui') ||
     url.startsWith('/system')
@@ -19,7 +19,7 @@ export const replaceMaterialLinks = (url: string) => {
   }
   return url.replace(
     /(guides|customization|getting-started|discover-more|experimental-api|migration)/,
-    'stoked-ui/$1',
+    'material-ui/$1',
   );
 };
 
@@ -32,11 +32,11 @@ export const replaceComponentLinks = (url: string) => {
     return url;
   }
   if (url.startsWith('/customization')) {
-    url = url.replace('customization', 'stoked-ui/customization');
+    url = url.replace('customization', 'material-ui/customization');
   } else if (url.match(/components\/(icons|material-icons|transitions|pickers|about-the-lab)/)) {
-    url = url.replace(/\/components\/(.*)/, '/stoked-ui/$1');
+    url = url.replace(/\/components\/(.*)/, '/material-ui/$1');
   } else {
-    url = url.replace(/\/components\/(.*)/, '/stoked-ui/react-$1');
+    url = url.replace(/\/components\/(.*)/, '/material-ui/react-$1');
 
     // TODO remove, fix the markdown files to match the URLs
     if (!url.match(/\/react-(tabs|breadcrumbs)/)) {
@@ -71,15 +71,15 @@ export const replaceAPILinks = (url: string) => {
   }
 
   url = url.replace(
-    /\/api\/(loading-button|tab-list|tab-panel|date-picker|date-time-picker|time-picker|calendar-picker|calendar-picker-skeleton|desktop-picker|mobile-date-picker|month-picker|pickers-day|static-date-picker|year-picker|masonry|timeline|timeline-connector|timeline-content|timeline-dot|timeline-item|timeline-opposite-content|timeline-separator|unstable-trap-focus|file-element|tree-view)(.*)/,
-    '/stoked-ui/api/$1$2',
+    /\/api\/(loading-button|tab-list|tab-panel|date-picker|date-time-picker|time-picker|calendar-picker|calendar-picker-skeleton|desktop-picker|mobile-date-picker|month-picker|pickers-day|static-date-picker|year-picker|masonry|timeline|timeline-connector|timeline-content|timeline-dot|timeline-item|timeline-opposite-content|timeline-separator|unstable-trap-focus|tree-item|tree-view)(.*)/,
+    '/material-ui/api/$1$2',
   );
 
   if (isNewLocation(url)) {
     return url;
   }
 
-  return url.replace(/\/api\/(.*)/, '/stoked-ui/api/$1');
+  return url.replace(/\/api\/(.*)/, '/material-ui/api/$1');
 };
 
 export default function replaceUrl(url: string, asPath: string) {

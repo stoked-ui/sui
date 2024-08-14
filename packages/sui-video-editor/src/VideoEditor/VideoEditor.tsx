@@ -32,7 +32,7 @@ const useUtilityClasses = <R extends FileBase, Multiple extends boolean | undefi
   return composeClasses(slots, getVideoEditorUtilityClass, classes);
 };
 
-const VideoEditorRoot = styled('div')(({ theme }) => ({
+const VideoEditorRoot = styled('div')(({ theme, sx }) => ({
   display: 'flex',
   flexDirection: 'column',
   width: '100%',
@@ -66,6 +66,7 @@ export const VideoEditor = React.forwardRef(function VideoEditor<
   Multiple extends boolean | undefined = undefined,
 >(inProps: VideoEditorProps<R, Multiple>, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
   const props = useThemeProps({ props: inProps, name: 'MuiVideoEditor' });
+  console.log('inProps', inProps)
 
   const {
     getRootProps,
@@ -140,7 +141,7 @@ export const VideoEditor = React.forwardRef(function VideoEditor<
   });
 
   return (
-    <Root className="timeline-editor-engine">
+    <Root className="timeline-editor-engine" sx={{...inProps.sx}}>
       <ViewSpaceSlot {...viewSpaceProps} />
       <ControlsSlot {...videoControlsProps} />
       <TimelineSlot {...timelineProps} />
