@@ -1,6 +1,7 @@
 import { TimelineAction, TimelineEffect, TimelineRow } from '@stoked-ui/timeline';
 import audioControl from './audioControl';
 import lottieControl from './lottieControl';
+import videoControl from './videoControl';  // Import the new video control
 
 export const scaleWidth = 160;
 export const scale = 2;
@@ -59,6 +60,24 @@ export const mockEffect: Record<string, TimelineEffect> = {
       leave: ({ action, time }) => {
         const src = (action as CustomTimelineAction).data.src;
         lottieControl.leave({ id: src, startTime: action.start, endTime: action.end, time });
+      },
+    },
+  },
+  effect2: {  // New video effect
+    id: 'effect2',
+    name: 'Play video',
+    source: {
+      enter: ({ action, time }) => {
+        const src = (action as CustomTimelineAction).data.src;
+        videoControl.enter({ id: src, src, startTime: action.start, endTime: action.end, time });
+      },
+      update: ({ action, time }) => {
+        const src = (action as CustomTimelineAction).data.src;
+        videoControl.update({ id: src, src, startTime: action.start, endTime: action.end, time });
+      },
+      leave: ({ action, time }) => {
+        const src = (action as CustomTimelineAction).data.src;
+        videoControl.leave({ id: src, startTime: action.start, endTime: action.end, time });
       },
     },
   },
@@ -121,6 +140,21 @@ export const mockData: CusTomTimelineRow[] = [
         data: {
           src: '/static/timeline/docs/overview/bg.mp3',
           name: 'BACKGROUND MUSIC',
+        },
+      },
+    ],
+  },
+  {
+    id: '4',
+    actions: [
+      {
+        id: 'action4',
+        start: 0,
+        end: 10,
+        effectId: 'effect2',  // Use the new video effect
+        data: {
+          src: '/static/timeline/docs/overview/sample.mp4',
+          name: 'Sample Video',
         },
       },
     ],

@@ -1663,6 +1663,9 @@ importers:
       '@stoked-ui/media-selector':
         specifier: workspace:^
         version: link:../sui-media-selector
+      '@stoked-ui/timeline':
+        specifier: workspace:^
+        version: link:../sui-timeline/build
       '@types/prop-types':
         specifier: ^15.7.12
         version: 15.7.12
