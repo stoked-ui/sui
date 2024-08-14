@@ -1,1 +1,17 @@
-[]
+[
+  { "name": "FileBase", "kind": "TypeAlias" },
+  { "name": "FileBaseInput", "kind": "TypeAlias" },
+  { "name": "FileId", "kind": "TypeAlias" },
+  { "name": "FileType", "kind": "TypeAlias" },
+  { "name": "getVideoEditorUtilityClass", "kind": "Function" },
+  { "name": "useVideoEditorApiRef", "kind": "Variable" },
+  { "name": "VideoEditor", "kind": "Variable" },
+  { "name": "VideoEditorApiRef", "kind": "TypeAlias" },
+  { "name": "videoEditorClasses", "kind": "Variable" },
+  { "name": "VideoEditorClasses", "kind": "Interface" },
+  { "name": "VideoEditorClassKey", "kind": "TypeAlias" },
+  { "name": "VideoEditorProps", "kind": "Interface" },
+  { "name": "VideoEditorPropsBase", "kind": "Interface" },
+  { "name": "VideoEditorSlotProps", "kind": "Interface" },
+  { "name": "VideoEditorSlots", "kind": "Interface" }
+]

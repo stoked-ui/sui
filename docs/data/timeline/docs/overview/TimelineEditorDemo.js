@@ -3,18 +3,22 @@ import {shouldForwardProp} from "@mui/system";
 import { Timeline, TimelineAction, TimelineRow, TimelineState, TimelinePlayer } from '@stoked-ui/timeline';
 import { cloneDeep } from 'lodash';
 import * as React from 'react';
-import { CustomRender0, CustomRender1 } from './custom';
+import {CustomRender0, CustomRender1, CustomRender2} from './custom';
 // import './index.less';
-import { CustomTimelineAction, CusTomTimelineRow, mockData, mockEffect, scale, scaleWidth, startLeft } from './mock';
+import { mockData, mockEffect, scale, scaleWidth, startLeft } from './mock';
 
 const defaultEditorData = cloneDeep(mockData);
 
 const getActionRenderer = (action, row) => {
-  if (action.effectId === 'effect0') {
-    return <CustomRender0 action={action} row={row} />;
+  switch(action.effectId) {
+    case 'effect0':
+      return <CustomRender0 action={action} row={row}/>;
+    case 'effect1':
+      return <CustomRender1 action={action} row={row}/>;
+    case 'effect2':
+    default:
+      return <CustomRender2 action={action} row={row}/>;
   }
-  // else if (action.effectId === 'effect1') {
-  return <CustomRender1 action={action} row={row} />;
 }
 
 const Root = styled('div')(({ theme }) => ({
