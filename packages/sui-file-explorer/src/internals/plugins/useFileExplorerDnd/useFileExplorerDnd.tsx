@@ -29,6 +29,7 @@ import memoizeOne from "memoize-one";
 import {
   triggerPostMoveFlash
 } from "@atlaskit/pragmatic-drag-and-drop-flourish/trigger-post-move-flash";
+import { SyntheticEvent } from "react";
 import { FileExplorerPlugin, FilePlugin, FilePluginOptions } from '../../models/plugin';
 import {
   DndItemState,
@@ -49,7 +50,6 @@ import {
   getFileExplorerStateDefault
 } from "./FileExplorerDndContext";
 import { UseMinimalPlus } from "../../models/plugin.types";
-import { SyntheticEvent } from "react";
 
 type CleanupFn = () => void;
 
@@ -338,8 +338,6 @@ useFileExplorerDnd.params = {
   dndFileTypes: true,
   dndTrash: true,
 };
-
-useFileExplorerDnd.code = 'dnd';
 
 useFileExplorerDnd.getInitialState = () => ({
 

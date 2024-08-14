@@ -17,6 +17,9 @@ module.exports = function getBabelConfig(api) {
 
   const defaultAlias = {
     '@stoked-ui/file-explorer': resolveAliasPath('./packages/sui-file-explorer'),
+    '@stoked-ui/timeline': resolveAliasPath('./packages/sui-timeline'),
+    '@stoked-ui/media-selector': resolveAliasPath('./packages/sui-media-selector'),
+    '@stoked-ui/video-editor': resolveAliasPath('./packages/sui-video-editor'),
     '@stoked-ui/internal-markdown': resolveAliasPath('./packages/markdown'),
     '@stoked-ui/docs': resolveAliasPath('./packages/sui-docs/src'),
     '@stoked-ui/internal-docs-utils': resolveAliasPath('./packages-internal/docs-utils/src'),

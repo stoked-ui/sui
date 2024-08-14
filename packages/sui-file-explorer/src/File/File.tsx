@@ -98,7 +98,6 @@ export const File = React.forwardRef(function File(
 
   const classes = useUtilityClasses(ownerState);
 
-  // eslint-disable-next-line no-console -- debug information
   const Content: React.ElementType = slots.content ?? FileContent;
 
   const classNames: any = {

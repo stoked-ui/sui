@@ -18,7 +18,7 @@ export default class Resolution implements IResolution {
     this.width = props.width;
     this.height = props.height;
   }
-};
+}
 
 export class StandardDefinition extends Resolution {
   public StandardDefinition() {

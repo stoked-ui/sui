@@ -2,6 +2,7 @@ import * as React from 'react';
 import useEventCallback from '@mui/utils/useEventCallback';
 import useForkRef from '@mui/utils/useForkRef';
 import useEnhancedEffect from '@mui/utils/useEnhancedEffect';
+import { IdGenerator } from "@stoked-ui/media-selector";
 import { UseFileExplorerGridSignature } from "../useFileExplorerGrid/useFileExplorerGrid.types";
 import { FileExplorerPlugin, FileMeta, FilePlugin } from '../../models';
 import { UseFileExplorerJSXItemsSignature } from './useFileExplorerJSXItems.types';
@@ -16,7 +17,6 @@ import {
   FILE_EXPLORER_VIEW_ROOT_PARENT_ID,
 } from '../useFileExplorerFiles/useFileExplorerFiles.utils';
 import { FileDepthContext } from '../../FileDepthContext';
-import { IdGenerator } from "@stoked-ui/media-selector";
 
 export const useFileExplorerJSXItems: FileExplorerPlugin<UseFileExplorerJSXItemsSignature> = ({
   instance,
@@ -203,4 +203,3 @@ useFileExplorerJSXItems.wrapRoot = ({ children }) => (
 );
 
 useFileExplorerJSXItems.params = {};
-useFileExplorerJSXItems.code = 'jsx';

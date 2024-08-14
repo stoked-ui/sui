@@ -1,13 +1,13 @@
 import * as React from 'react';
 import BrandingCssVarsProvider from 'docs/src/BrandingCssVarsProvider';
 import { PRODUCTS } from 'docs/src/products';
+import NoSsr from "@mui/material/NoSsr";
+import dynamic from 'next/dynamic';
 import AppFooter from "../src/layouts/AppFooter";
 import Head from "../src/modules/components/Head";
-import NoSsr from "@mui/material/NoSsr";
 import NewsletterToast from "../src/components/home/NewsletterToast";
 import AppHeaderBanner from "../src/components/banner/AppHeaderBanner";
 import AppHeader from "../src/layouts/AppHeader";
-import dynamic from 'next/dynamic';
 
 function randomHome(homePages: string[]) {
   return homePages[Math.floor(Math.random()*homePages.length)];
@@ -27,8 +27,8 @@ export default function Home({ HomeMain }: { HomeMain: React.ComponentType }) {
 
   return <BrandingCssVarsProvider>
     <Head
-      title="SUI: React Media Components"
-      description="SUI provides a simple, customizable, and accessible library of React components. Follow your own design system, or start with Material Design."
+      title="Stoked UI: React Media Components"
+      description="Stoked UI provides a customizable, and accessible library of React media components."
       card="/static/social-previews/home-preview.jpg"
     >
       <script
@@ -38,8 +38,8 @@ export default function Home({ HomeMain }: { HomeMain: React.ComponentType }) {
           __html: JSON.stringify({
             '@context': 'https://schema.org',
             '@type': 'Organization',
-            name: 'SUI',
-            url: 'https://stoked-ui..com/',
+            name: 'Stoked UI',
+            url: 'https://stoked-ui.github.io.com/',
             logo: 'https://stoked-ui.github.io/static/logo.png',
             sameAs: [
               'https://x.com/MUI_hq',

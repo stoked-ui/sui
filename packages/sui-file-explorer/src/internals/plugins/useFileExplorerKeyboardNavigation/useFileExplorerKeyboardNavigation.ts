@@ -267,4 +267,3 @@ export const useFileExplorerKeyboardNavigation: FileExplorerPlugin<
 };
 
 useFileExplorerKeyboardNavigation.params = {};
-useFileExplorerKeyboardNavigation.code = 'keyboard';

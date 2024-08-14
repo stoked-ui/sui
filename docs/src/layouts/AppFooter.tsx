@@ -7,7 +7,6 @@ import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import Chip from '@mui/material/Chip';
 import GitHubIcon from '@mui/icons-material/GitHub';
-import Slack from '../icons/Slack';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import YouTubeIcon from '@mui/icons-material/YouTube';
 import RssFeedIcon from '@mui/icons-material/RssFeed';
@@ -17,6 +16,7 @@ import ROUTES from 'docs/src/route';
 import DiscordIcon from 'docs/src/icons/DiscordIcon';
 import { Link } from '@mui/docs/Link';
 import SvgStackOverflow from 'docs/src/icons/SvgStackOverflow';
+import Slack from '../icons/Slack';
 import { PRODUCTS } from "../products";
 
 interface AppFooterProps {

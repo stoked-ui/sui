@@ -220,9 +220,6 @@ export const FileLabel = React.forwardRef(function FileExplorer(
   if (header) {
     iconProps.color = 'black';
   }
-  if (showIcon && !header) {
-    console.log(iconProps);
-  }
   return (
     <FileLabelRoot
       {...other}

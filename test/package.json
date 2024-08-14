@@ -9,7 +9,7 @@
     "@babel/runtime": "^7.23.9",
     "@emotion/cache": "^11.11.0",
     "@emotion/react": "^11.11.4",
-    "@mui/internal-test-utils": "^1.0.3",
+    "@stoked-ui/internal-test-utils": "workspace:^",
 
 
 
@@ -19,7 +19,7 @@
     "@mui/icons-material": "5.15.21",
     "@mui/lab": "^5.0.0-alpha.170",
     "@mui/material": "^5.15.21",
-    "@mui/material-nextjs": "6.0.0-alpha.13",
+    "@mui/material-nextjs": "^5.16.6",
     "@mui/styled-engine": "^5.15.14",
     "@mui/styled-engine-sc": "^6.0.0-alpha.18",
     "@mui/styles": "^5.15.21",

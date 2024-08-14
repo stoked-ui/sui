@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import PropTypes from 'prop-types';
-import { createRenderer } from '@mui/internal-test-utils';
+import { createRenderer } from '@stoked-ui/internal-test-utils';
 import { FileElement, fileElementClasses as classes } from '@mui/x-tree-view/FileElement';
 import {
   FileExplorerContext

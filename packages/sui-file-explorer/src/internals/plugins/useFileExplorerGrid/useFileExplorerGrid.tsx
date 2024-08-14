@@ -48,7 +48,7 @@ export const useFileExplorerGrid: UseFileExplorerGridPlugin = <R extends FileBas
     state.grid.columns = value;
   };
 
-  const upsertColumn = (name: string, column: GridColumn<R>) => {
+  const upsertColumn = (name: string, column: GridColumn) => {
     state.grid.columns[name] = column;
   }
   const getColumns = (): GridColumns => {
@@ -159,9 +159,7 @@ export const useFileExplorerGrid: UseFileExplorerGridPlugin = <R extends FileBas
       items.push(trash);
     }
     instance.updateItems(items);
-    console.log('after sort update');
     instance.recalcVisibleIndices(items, true)
-    console.log('after sort recalculate');
     return !isAscending;
   }
 
@@ -376,5 +374,3 @@ useFileExplorerGrid.params = {
   defaultGridColumns: true,
   defaultGridHeaders: true,
 };
-
-useFileExplorerGrid.code = 'grid';

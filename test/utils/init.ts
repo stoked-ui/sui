@@ -1,4 +1,2 @@
-import '@mui/internal-test-utils/init';
-import './licenseRelease';
+import '@stoked-ui/internal-test-utils/init';
 import './addChaiAssertions';
-import './setupPickers';

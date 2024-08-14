@@ -139,6 +139,17 @@ export default withDocsInfra({
                           ],
                         },
                         {
+                          productId: 'timeline',
+                          paths: [
+                            path.join(workspaceRoot, 'packages/sui-timeline/src'),
+                          ],
+                          subPackagePaths: [
+                            path.join(workspaceRoot, 'node_modules/@mui/base'),
+                            path.join(workspaceRoot, 'node_modules/@mui/lab'),
+                            path.join(workspaceRoot, 'node_modules/@stoked-ui/media-selector'),
+                          ],
+                        },
+                        {
                           productId: 'docs',
                           paths: [
                             path.join(workspaceRoot, 'packages/sui-file-explorer/src'),

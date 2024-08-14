@@ -1,8 +1,10 @@
 {
   "name": "@stoked-ui/monorepo",
-  "version": "0.1.0-alpha.0",
+  "version": "0.1.0-alpha.1",
   "private": true,
   "scripts": {
+    "rebuild": "pnpm clean && pnpm clean && pnpm i && pnpm build && rm -rf docs/.next && pnpm docs:build",
+    "build:all": "lerna run build --skip-nx-cache",
     "preinstall": "npx only-allow pnpm",
     "build:site": "./scripts/buildSite.sh",
     "release:site": "./scripts/pushSite.sh",
@@ -52,6 +54,7 @@
     "install:codesandbox": "pnpm install --no-frozen-lockfile",
     "jsonlint": "node ./scripts/jsonlint.mjs",
     "eslint": "eslint . --cache --report-unused-disable-directives --ext .js,.ts,.tsx --max-warnings 0",
+    "eslint:fix": "eslint . --cache --report-unused-disable-directives --ext .js,.ts,.tsx --max-warnings 0 --fix",
     "eslint:ci": "eslint . --report-unused-disable-directives --ext .js,.ts,.tsx --max-warnings 0",
     "stylelint": "stylelint --reportInvalidScopeDisables --reportNeedlessDisables \"docs/**/*.{js,ts,tsx}\"",
     "markdownlint": "markdownlint-cli2 \"**/*.md\"",
@@ -82,7 +85,7 @@
     "test:regressions:dev": "concurrently \"pnpm test:regressions:build --watch\" \"pnpm test:regressions:server\"",
     "test:regressions:run": "mocha --config test/regressions/.mocharc.js --delay 'test/regressions/**/*.test.js'",
     "test:regressions:server": "serve test/regressions -p 5001",
-    "test:umd": "node packages/sui-material/test/umd/run.js",
+    "test:umd": "node packages/sui-file-explorer/test/umd/run.js",
     "test:unit": "cross-env NODE_ENV=test mocha 'packages/**/*.test.{js,ts,tsx}' 'docs/**/*.test.{js,ts,tsx}'",
     "test:argos": "node ./scripts/pushArgos.mjs",
     "typescript": "lerna run --no-bail --parallel typescript",
@@ -122,7 +125,7 @@
     "@stoked-ui/internal-api-docs-builder-core": "workspace:^",
     "@stoked-ui/internal-docs-utils": "workspace:^",
     "@stoked-ui/internal-scripts": "workspace:^",
-    "@mui/internal-test-utils": "^1.0.0",
+    "@stoked-ui/internal-test-utils": "workspace:^",
     "@mui/joy": "^5.0.0-beta.32",
     "@mui/material": "^5.15.21",
     "@mui/utils": "^5.15.20",
@@ -133,7 +136,9 @@
     "@stoked-ui/file-explorer": "workspace:^",
     "@stoked-ui/internal-markdown": "workspace:^",
     "@stoked-ui/media-selector": "workspace:^",
+    "@stoked-ui/timeline": "workspace:^",
     "@mui/icons-material": "^5.15.21",
+    "@types/autosuggest-highlight": "^3.2.3",
     "@types/enzyme": "^3.10.18",
     "@types/fs-extra": "^11.0.4",
     "@types/lodash": "^4.17.0",
@@ -234,7 +239,9 @@
     "@types/node": "^18.19.25",
     "@types/react": "^18.2.55",
     "@types/react-dom": "18.2.19",
-    "cross-fetch": "^4.0.0"
+    "cross-fetch": "^4.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "nyc": {
     "include": [

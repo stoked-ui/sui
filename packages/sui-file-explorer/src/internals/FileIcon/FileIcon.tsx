@@ -19,9 +19,6 @@ function FileIcon(props: FileIconProps): React.JSX.Element | null {
   };
 
   const contextIconProps = context.icons.slotProps;
-  if (iconName) {
-    console.log('test');
-  }
   if (!iconName) {
     if (slots?.icon) {
       iconName = 'icon';

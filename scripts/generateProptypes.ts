@@ -15,7 +15,7 @@ import {
   getPropTypesFromFile,
   injectPropTypesInFile,
   InjectPropTypesInFileOptions,
-} from '@mui/internal-scripts/typescript-to-proptypes';
+} from '@stoked-ui/internal-scripts/typescript-to-proptypes';
 import {
   createTypeScriptProjectBuilder,
   TypeScriptProject,
@@ -167,10 +167,13 @@ async function generateProptypes(
   sourceFile: string,
   tsFile: string,
 ): Promise<void> {
+  console.log('generate proptypes', tsFile)
+throw new Error('heerro');
   const components = getPropTypesFromFile({
     filePath: tsFile,
     project,
     shouldResolveObject: ({ name }) => {
+      console.log('generate proptypes', tsFile, name)
       if (
         name.toLowerCase().endsWith('classes') ||
         name === 'theme' ||

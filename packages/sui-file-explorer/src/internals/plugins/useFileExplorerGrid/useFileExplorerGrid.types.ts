@@ -1,7 +1,7 @@
 import * as React from "react";
 import { SystemStyleObject } from "@mui/system";
 import { DefaultizedProps, FileExplorerPlugin, FileExplorerPluginSignature } from '../../models';
-import { FileBase, FileId } from '../../../models';
+import { FileId } from '../../../models';
 import { UseFileStatus } from "../../models/UseFileStatus";
 import { ItemMode } from "../useFileExplorerFiles/useFileExplorerFiles.types";
 
@@ -30,7 +30,7 @@ export interface UseFileExplorerGridColumnHeaderStatus {
   sort: boolean;
 }
 
-export type GridColumn<R extends FileBase = FileBase> = {
+export type GridColumn = {
   sx: SystemStyleObject,
   renderContent: (content: any) => string,
   evaluator?: (item: any, columnName: string) => any,
@@ -41,8 +41,8 @@ export type GridColumn<R extends FileBase = FileBase> = {
   children: (cells: React.ReactElement[]) => React.ReactNode;
 }
 
-export type GridColumns<R extends FileBase = FileBase> = {
-  [itemId: string]: GridColumn<R>;
+export type GridColumns = {
+  [itemId: string]: GridColumn;
 };
 
 export interface UseFileExplorerGridPublicAPI {

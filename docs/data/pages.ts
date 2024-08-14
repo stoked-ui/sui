@@ -27,6 +27,14 @@ const pages: MuiPage[] = [
     ],
   },
   {
+    pathname: '/timeline/docs/group',
+    title: 'Timeline',
+    newFeature: true,
+    children: [
+      { pathname: '/timeline/docs/overview', title: 'Overview' },
+    ],
+  },
+  {
     pathname: '/file-explorer/docs/group',
     title: 'File Explorer',
     newFeature: true,
@@ -53,6 +61,7 @@ const pages: MuiPage[] = [
           { pathname: '/file-explorer/docs/file-explorer/expansion' },
           { pathname: '/file-explorer/docs/file-explorer/customization' },
           { pathname: '/file-explorer/docs/file-explorer/focus' },
+          { pathname: '/file-explorer/docs/file-explorer/dragzone' },
           { pathname: '/file-explorer/docs/file-explorer/drag-and-drop' },
         ],
       },
@@ -70,6 +79,14 @@ const pages: MuiPage[] = [
         title: 'API Reference',
         children: [...fileExplorerComponentApi],
       },
+    ],
+  },
+  {
+    pathname: '/video-editor/docs/group',
+    title: 'Video Editor',
+    newFeature: true,
+    children: [
+      { pathname: '/video-editor/docs/overview', title: 'Overview' },
     ],
   },
 ];

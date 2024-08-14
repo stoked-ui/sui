@@ -12,7 +12,7 @@ export default function FileExplorerDynamic() {
   }, []);
 
   if (!files) {
-    return <React.Fragment></React.Fragment>;
+    return <React.Fragment />;
   }
   return (
     <Box sx={{ minHeight: 352, minWidth: 250, width: '100%' }}>
