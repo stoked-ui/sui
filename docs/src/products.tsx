@@ -384,7 +384,7 @@ class IndexObject<T> {
       const id = (obj[key as keyof T] as string);
       this.index[id] = obj
     });
-    // eslint-disable-next-line no-constructor-return
+
     return new Proxy(this, {
       get: (target, property: string) => {
         if (property in target) {
@@ -817,6 +817,7 @@ const timelineData: TProduct = {
   icon: "product-designkits",
   url: "/timeline",
   hideProductFeatures: true,
+  live: true,
   showcaseType: MaterialShowcase,
   features: [{
     name: 'Getting Started',
@@ -845,6 +846,7 @@ const videoEditorData: TProduct = {
   icon: "product-designkits",
   url: "/video-editor",
   hideProductFeatures: true,
+  live: true,
   showcaseType: MaterialShowcase,
   features: [{
     name: 'Getting Started',

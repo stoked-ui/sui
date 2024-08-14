@@ -3,6 +3,7 @@ import { EOL } from 'os';
 import kebabCase from 'lodash/kebabCase';
 import path from 'path';
 import { renderMarkdown } from '@stoked-ui/internal-markdown';
+import { ensureDirSync } from "fs-extra";
 import {
   getSymbolDescription,
   getSymbolJSDocTags,
@@ -18,7 +19,6 @@ import {
   XTypeScriptProject,
   XProjectNames,
 } from '../createXTypeScriptProjects';
-import { ensureDirSync } from "fs-extra";
 
 interface ParsedObject {
   name: string;

@@ -1,0 +1,16 @@
+{
+  "props": {},
+  "name": "Timeline",
+  "imports": [
+    "import { Timeline } from '@stoked-ui/sui-timeline/Timeline';",
+    "import { Timeline } from '@stoked-ui/sui-timeline';"
+  ],
+  "classes": [],
+  "spread": true,
+  "themeDefaultProps": null,
+  "muiName": "MuiTimeline",
+  "filename": "/packages/sui-timeline/src/Timeline/Timeline.tsx",
+  "inheritance": null,
+  "demos": "<ul><li><a href=\"/timeline/docs/overview/\">Overview</a></li></ul>",
+  "cssComponent": false
+}

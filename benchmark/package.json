@@ -17,6 +17,7 @@
     "@emotion/styled": "^11.11.0",
     "@mui/material": "^5.15.21",
     "@mui/styles": "^5.15.21",
+    "@mui/system": "^5.15.21",
     "@styled-system/css": "^5.1.5",
     "benchmark": "^2.1.4",
     "@stoked-ui/docs": "workspace:^",

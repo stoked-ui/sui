@@ -1,6 +1,6 @@
+import { SxProps, Theme } from "@mui/system";
 import { DefaultizedProps, FileExplorerPluginSignature, FileMeta } from '../../models';
 import { FileBase, FileId } from '../../../models';
-import { SxProps, Theme } from "@mui/system";
 import {
   DndItemState,
   UseFileExplorerDndSignature
@@ -106,6 +106,7 @@ export interface UseFileExplorerFilesInstance<R extends FileBase[] = FileBase[]>
 }
 
 export interface UseFileExplorerFilesParameters<R extends FileBase = FileBase> {
+
   alternatingRows?: SxProps<Theme> | true;
 
   /**
@@ -150,7 +151,7 @@ export interface UseFileExplorerFilesParameters<R extends FileBase = FileBase> {
 export type UseFileExplorerFilesDefaultizedParameters<R extends FileBase> = DefaultizedProps<
   UseFileExplorerFilesParameters<R>,
   'disabledItemsFocusable' | 'itemChildrenIndentation'
->;
+>
 
 export interface UseFileExplorerFilesEventLookup {
   removeItem: {

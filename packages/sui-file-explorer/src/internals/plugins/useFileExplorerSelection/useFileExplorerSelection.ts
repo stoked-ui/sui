@@ -241,5 +241,3 @@ useFileExplorerSelection.params = {
   onSelectedItemsChange: true,
   onItemSelectionToggle: true,
 };
-
-useFileExplorerSelection.code = 'selection';

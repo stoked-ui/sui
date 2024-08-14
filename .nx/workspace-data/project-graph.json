@@ -1,0 +1,2081 @@
+{
+  "nodes": {
+    "netlify-plugin-cache-docs": {
+      "name": "netlify-plugin-cache-docs",
+      "type": "lib",
+      "data": {
+        "root": "packages/netlify-plugin-cache-docs",
+        "targets": {},
+        "sourceRoot": "packages/netlify-plugin-cache-docs",
+        "name": "netlify-plugin-cache-docs",
+        "tags": [
+          "npm:private"
+        ],
+        "metadata": {
+          "targetGroups": {},
+          "description": "Alternative to netlify-plugin-cache-nextjs"
+        },
+        "implicitDependencies": []
+      }
+    },
+    "eslint-plugin-stoked-ui": {
+      "name": "eslint-plugin-stoked-ui",
+      "type": "lib",
+      "data": {
+        "root": "packages/eslint-plugin-stoked-ui",
+        "targets": {
+          "test": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "test"
+            },
+            "metadata": {
+              "scriptContent": "cd ../../ && cross-env NODE_ENV=test mocha 'packages/eslint-plugin-stoked-ui/**/*.test.js'",
+              "runCommand": "npm run test"
+            },
+            "configurations": {}
+          }
+        },
+        "sourceRoot": "packages/eslint-plugin-stoked-ui",
+        "name": "eslint-plugin-stoked-ui",
+        "tags": [
+          "npm:private"
+        ],
+        "metadata": {
+          "targetGroups": {
+            "NPM Scripts": [
+              "test"
+            ]
+          },
+          "description": "Custom eslint rules for SUI."
+        },
+        "implicitDependencies": []
+      }
+    },
+    "@stoked-ui/internal-api-docs-builder-core": {
+      "name": "@stoked-ui/internal-api-docs-builder-core",
+      "type": "lib",
+      "data": {
+        "root": "packages/api-docs-builder-core",
+        "targets": {
+          "test": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "test"
+            },
+            "metadata": {
+              "scriptContent": "cd ../../ && cross-env NODE_ENV=test mocha 'packages/api-docs-builder/**/*.test.{js,ts,tsx}'",
+              "runCommand": "npm run test"
+            },
+            "configurations": {}
+          },
+          "typescript": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "typescript"
+            },
+            "metadata": {
+              "scriptContent": "tsc -p tsconfig.json",
+              "runCommand": "npm run typescript"
+            },
+            "configurations": {}
+          }
+        },
+        "sourceRoot": "packages/api-docs-builder-core",
+        "name": "@stoked-ui/internal-api-docs-builder-core",
+        "tags": [
+          "npm:private"
+        ],
+        "metadata": {
+          "targetGroups": {
+            "NPM Scripts": [
+              "test",
+              "typescript"
+            ]
+          },
+          "description": "SUI Core-specific settings for API docs generator"
+        },
+        "implicitDependencies": []
+      }
+    },
+    "@stoked-ui/internal-docs-utils": {
+      "name": "@stoked-ui/internal-docs-utils",
+      "type": "lib",
+      "data": {
+        "root": "packages-internal/docs-utils",
+        "targets": {
+          "build": {
+            "executor": "nx:run-script",
+            "metadata": {
+              "scriptContent": "tsc -b tsconfig.build.json",
+              "runCommand": "npm run build"
+            },
+            "cache": true,
+            "dependsOn": [
+              "copy-license",
+              "^build"
+            ],
+            "outputs": [
+              "{projectRoot}/build"
+            ],
+            "options": {
+              "script": "build"
+            },
+            "configurations": {}
+          },
+          "prebuild": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "prebuild"
+            },
+            "metadata": {
+              "scriptContent": "rimraf ./build",
+              "runCommand": "npm run prebuild"
+            },
+            "configurations": {}
+          },
+          "typescript": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "typescript"
+            },
+            "metadata": {
+              "scriptContent": "tsc -b tsconfig.json",
+              "runCommand": "npm run typescript"
+            },
+            "configurations": {}
+          },
+          "release:publish": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "release:publish"
+            },
+            "metadata": {
+              "scriptContent": "pnpm build && pnpm publish --tag latest",
+              "runCommand": "npm run release:publish"
+            },
+            "configurations": {}
+          },
+          "release:publish:dry-run": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "release:publish:dry-run"
+            },
+            "metadata": {
+              "scriptContent": "pnpm build && pnpm publish --tag latest --registry=\"http://localhost:4873/\"",
+              "runCommand": "npm run release:publish:dry-run"
+            },
+            "configurations": {}
+          },
+          "nx-release-publish": {
+            "dependsOn": [
+              "^nx-release-publish"
+            ],
+            "executor": "@nx/js:release-publish",
+            "options": {},
+            "configurations": {}
+          }
+        },
+        "sourceRoot": "packages-internal/docs-utils",
+        "name": "@stoked-ui/internal-docs-utils",
+        "tags": [
+          "npm:public"
+        ],
+        "metadata": {
+          "targetGroups": {
+            "NPM Scripts": [
+              "prebuild",
+              "build",
+              "typescript",
+              "release:publish",
+              "release:publish:dry-run"
+            ]
+          },
+          "description": "Utilities for SUI docs. This is an internal package not meant for general use."
+        },
+        "implicitDependencies": []
+      }
+    },
+    "@stoked-ui/media-selector": {
+      "name": "@stoked-ui/media-selector",
+      "type": "lib",
+      "data": {
+        "root": "packages/sui-media-selector",
+        "targets": {
+          "build": {
+            "executor": "nx:run-script",
+            "metadata": {
+              "scriptContent": "pnpm ffmpeg && pnpm build:all",
+              "runCommand": "npm run build"
+            },
+            "cache": true,
+            "dependsOn": [
+              "copy-license",
+              "^build"
+            ],
+            "outputs": [
+              "{projectRoot}/build"
+            ],
+            "options": {
+              "script": "build"
+            },
+            "configurations": {}
+          },
+          "dev": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "dev"
+            },
+            "metadata": {
+              "scriptContent": "vite",
+              "runCommand": "npm run dev"
+            },
+            "configurations": {}
+          },
+          "typescript": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "typescript"
+            },
+            "metadata": {
+              "scriptContent": "pnpm build",
+              "runCommand": "npm run typescript"
+            },
+            "configurations": {}
+          },
+          "copyToDocs": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "copyToDocs"
+            },
+            "metadata": {
+              "scriptContent": "cp -r ./dist/assets ../../docs/",
+              "runCommand": "npm run copyToDocs"
+            },
+            "configurations": {}
+          },
+          "ffmpeg": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "ffmpeg"
+            },
+            "metadata": {
+              "scriptContent": "node ./scripts/copyFfmpeg.mjs",
+              "runCommand": "npm run ffmpeg"
+            },
+            "configurations": {}
+          },
+          "lint": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "lint"
+            },
+            "metadata": {
+              "scriptContent": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+              "runCommand": "npm run lint"
+            },
+            "configurations": {}
+          },
+          "preview": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "preview"
+            },
+            "metadata": {
+              "scriptContent": "vite preview",
+              "runCommand": "npm run preview"
+            },
+            "configurations": {}
+          },
+          "build:all": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "build:all"
+            },
+            "metadata": {
+              "scriptContent": "pnpm build:modern && pnpm build:node && pnpm build:stable && pnpm build:types && pnpm build:copy-files",
+              "runCommand": "npm run build:all"
+            },
+            "configurations": {}
+          },
+          "build:modern": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "build:modern"
+            },
+            "metadata": {
+              "scriptContent": "node ../../scripts/build.mjs modern",
+              "runCommand": "npm run build:modern"
+            },
+            "configurations": {}
+          },
+          "build:node": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "build:node"
+            },
+            "metadata": {
+              "scriptContent": "node ../../scripts/build.mjs node",
+              "runCommand": "npm run build:node"
+            },
+            "configurations": {}
+          },
+          "build:stable": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "build:stable"
+            },
+            "metadata": {
+              "scriptContent": "node ../../scripts/build.mjs stable",
+              "runCommand": "npm run build:stable"
+            },
+            "configurations": {}
+          },
+          "build:copy-files": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "build:copy-files"
+            },
+            "metadata": {
+              "scriptContent": "node ../../scripts/copyFiles.mjs",
+              "runCommand": "npm run build:copy-files"
+            },
+            "configurations": {}
+          },
+          "build:types": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "build:types"
+            },
+            "metadata": {
+              "scriptContent": "node ../../scripts/buildTypes.mjs",
+              "runCommand": "npm run build:types"
+            },
+            "configurations": {}
+          },
+          "prebuild": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "prebuild"
+            },
+            "metadata": {
+              "scriptContent": "rimraf build tsconfig.build.tsbuildinfo",
+              "runCommand": "npm run prebuild"
+            },
+            "configurations": {}
+          },
+          "nx-release-publish": {
+            "dependsOn": [
+              "^nx-release-publish"
+            ],
+            "executor": "@nx/js:release-publish",
+            "options": {},
+            "configurations": {}
+          }
+        },
+        "sourceRoot": "packages/sui-media-selector",
+        "name": "@stoked-ui/media-selector",
+        "tags": [
+          "npm:public"
+        ],
+        "metadata": {
+          "targetGroups": {
+            "NPM Scripts": [
+              "dev",
+              "build",
+              "typescript",
+              "copyToDocs",
+              "ffmpeg",
+              "lint",
+              "preview",
+              "build:all",
+              "build:modern",
+              "build:node",
+              "build:stable",
+              "build:copy-files",
+              "build:types",
+              "prebuild"
+            ]
+          }
+        },
+        "implicitDependencies": []
+      }
+    },
+    "@stoked-ui/search-replace-cli": {
+      "name": "@stoked-ui/search-replace-cli",
+      "type": "lib",
+      "data": {
+        "root": "packages/sui-search-replace",
+        "targets": {
+          "test": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "test"
+            },
+            "metadata": {
+              "scriptContent": "echo \"Derp\" && exit 0",
+              "runCommand": "npm run test"
+            },
+            "configurations": {}
+          },
+          "nx-release-publish": {
+            "dependsOn": [
+              "^nx-release-publish"
+            ],
+            "executor": "@nx/js:release-publish",
+            "options": {},
+            "configurations": {}
+          }
+        },
+        "sourceRoot": "packages/sui-search-replace",
+        "name": "@stoked-ui/search-replace-cli",
+        "tags": [
+          "npm:public"
+        ],
+        "metadata": {
+          "targetGroups": {
+            "NPM Scripts": [
+              "test"
+            ]
+          },
+          "description": "CLI tool to search and replace in files and directories."
+        },
+        "implicitDependencies": []
+      }
+    },
+    "@types/react-docgen": {
+      "name": "@types/react-docgen",
+      "type": "lib",
+      "data": {
+        "root": "packages/react-docgen-types",
+        "targets": {},
+        "sourceRoot": "packages/react-docgen-types",
+        "name": "@types/react-docgen",
+        "tags": [
+          "npm:private"
+        ],
+        "metadata": {
+          "targetGroups": {}
+        },
+        "implicitDependencies": []
+      }
+    },
+    "@stoked-ui/file-explorer": {
+      "name": "@stoked-ui/file-explorer",
+      "type": "lib",
+      "data": {
+        "root": "packages/sui-file-explorer",
+        "targets": {
+          "build": {
+            "executor": "nx:run-script",
+            "metadata": {
+              "scriptContent": "pnpm build:modern && pnpm build:node && pnpm build:stable && pnpm build:types && pnpm build:copy-files ",
+              "runCommand": "npm run build"
+            },
+            "cache": true,
+            "dependsOn": [
+              "copy-license",
+              "^build"
+            ],
+            "outputs": [
+              "{projectRoot}/build"
+            ],
+            "options": {
+              "script": "build"
+            },
+            "configurations": {}
+          },
+          "typescript": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "typescript"
+            },
+            "metadata": {
+              "scriptContent": "tsc -p tsconfig.json",
+              "runCommand": "npm run typescript"
+            },
+            "configurations": {}
+          },
+          "build:modern": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "build:modern"
+            },
+            "metadata": {
+              "scriptContent": "node ../../scripts/build.mjs modern",
+              "runCommand": "npm run build:modern"
+            },
+            "configurations": {}
+          },
+          "build:node": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "build:node"
+            },
+            "metadata": {
+              "scriptContent": "node ../../scripts/build.mjs node",
+              "runCommand": "npm run build:node"
+            },
+            "configurations": {}
+          },
+          "build:stable": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "build:stable"
+            },
+            "metadata": {
+              "scriptContent": "node ../../scripts/build.mjs stable",
+              "runCommand": "npm run build:stable"
+            },
+            "configurations": {}
+          },
+          "build:copy-files": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "build:copy-files"
+            },
+            "metadata": {
+              "scriptContent": "node ../../scripts/copyFiles.mjs",
+              "runCommand": "npm run build:copy-files"
+            },
+            "configurations": {}
+          },
+          "build:types": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "build:types"
+            },
+            "metadata": {
+              "scriptContent": "node ../../scripts/buildTypes.mjs",
+              "runCommand": "npm run build:types"
+            },
+            "configurations": {}
+          },
+          "prebuild": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "prebuild"
+            },
+            "metadata": {
+              "scriptContent": "rimraf build tsconfig.build.tsbuildinfo",
+              "runCommand": "npm run prebuild"
+            },
+            "configurations": {}
+          },
+          "nx-release-publish": {
+            "dependsOn": [
+              "^nx-release-publish"
+            ],
+            "executor": "@nx/js:release-publish",
+            "options": {},
+            "configurations": {}
+          }
+        },
+        "sourceRoot": "packages/sui-file-explorer",
+        "name": "@stoked-ui/file-explorer",
+        "tags": [
+          "npm:public",
+          "npm:react",
+          "npm:react-component",
+          "npm:sui",
+          "npm:file explorer",
+          "npm:file-explorer",
+          "npm:mui",
+          "npm:stoked ui",
+          "npm:material ui",
+          "npm:material design",
+          "npm:fileExplorerview"
+        ],
+        "metadata": {
+          "targetGroups": {
+            "NPM Scripts": [
+              "typescript",
+              "build",
+              "build:modern",
+              "build:node",
+              "build:stable",
+              "build:copy-files",
+              "build:types",
+              "prebuild"
+            ]
+          },
+          "description": "File Explorer Component built from the @mui/x-tree-view component with @atlaskit/pragmatic-drag-and-drop built in."
+        },
+        "implicitDependencies": []
+      }
+    },
+    "@stoked-ui/internal-api-docs-builder": {
+      "name": "@stoked-ui/internal-api-docs-builder",
+      "type": "lib",
+      "data": {
+        "root": "packages/api-docs-builder",
+        "targets": {
+          "test": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "test"
+            },
+            "metadata": {
+              "scriptContent": "cd ../../ && cross-env NODE_ENV=test mocha 'packages/api-docs-builder/**/*.test.{js,ts,tsx}'",
+              "runCommand": "npm run test"
+            },
+            "configurations": {}
+          },
+          "typescript": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "typescript"
+            },
+            "metadata": {
+              "scriptContent": "tsc -p tsconfig.json",
+              "runCommand": "npm run typescript"
+            },
+            "configurations": {}
+          }
+        },
+        "sourceRoot": "packages/api-docs-builder",
+        "name": "@stoked-ui/internal-api-docs-builder",
+        "tags": [
+          "npm:private"
+        ],
+        "metadata": {
+          "targetGroups": {
+            "NPM Scripts": [
+              "test",
+              "typescript"
+            ]
+          }
+        },
+        "implicitDependencies": []
+      }
+    },
+    "@stoked-ui/internal-scripts": {
+      "name": "@stoked-ui/internal-scripts",
+      "type": "lib",
+      "data": {
+        "root": "packages-internal/scripts",
+        "targets": {
+          "build": {
+            "executor": "nx:run-script",
+            "metadata": {
+              "scriptContent": "tsc --build tsconfig.json",
+              "runCommand": "npm run build"
+            },
+            "cache": true,
+            "dependsOn": [
+              "copy-license",
+              "^build"
+            ],
+            "outputs": [
+              "{projectRoot}/build"
+            ],
+            "options": {
+              "script": "build"
+            },
+            "configurations": {}
+          },
+          "prebuild": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "prebuild"
+            },
+            "metadata": {
+              "scriptContent": "rimraf ./build",
+              "runCommand": "npm run prebuild"
+            },
+            "configurations": {}
+          },
+          "release:publish": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "release:publish"
+            },
+            "metadata": {
+              "scriptContent": "pnpm build && pnpm publish --tag latest",
+              "runCommand": "npm run release:publish"
+            },
+            "configurations": {}
+          },
+          "release:publish:dry-run": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "release:publish:dry-run"
+            },
+            "metadata": {
+              "scriptContent": "pnpm build && pnpm publish --tag latest --registry=\"http://localhost:4873/\"",
+              "runCommand": "npm run release:publish:dry-run"
+            },
+            "configurations": {}
+          },
+          "test": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "test"
+            },
+            "metadata": {
+              "scriptContent": "cd ../../ && cross-env NODE_ENV=test mocha --config packages-internal/scripts/typescript-to-proptypes/test/.mocharc.js 'packages-internal/scripts/typescript-to-proptypes/**/*.test.ts'",
+              "runCommand": "npm run test"
+            },
+            "configurations": {}
+          },
+          "typescript": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "typescript"
+            },
+            "metadata": {
+              "scriptContent": "tsc --build tsconfig.typecheck.json",
+              "runCommand": "npm run typescript"
+            },
+            "configurations": {}
+          },
+          "nx-release-publish": {
+            "dependsOn": [
+              "^nx-release-publish"
+            ],
+            "executor": "@nx/js:release-publish",
+            "options": {},
+            "configurations": {}
+          }
+        },
+        "sourceRoot": "packages-internal/scripts",
+        "name": "@stoked-ui/internal-scripts",
+        "tags": [
+          "npm:public"
+        ],
+        "metadata": {
+          "targetGroups": {
+            "NPM Scripts": [
+              "prebuild",
+              "build",
+              "release:publish",
+              "release:publish:dry-run",
+              "test",
+              "typescript"
+            ]
+          },
+          "description": "Utilities supporting SUI libraries build and docs generation. This is an internal package not meant for general use."
+        },
+        "implicitDependencies": []
+      }
+    },
+    "@stoked-ui/video-editor": {
+      "name": "@stoked-ui/video-editor",
+      "type": "lib",
+      "data": {
+        "root": "packages/sui-video-editor",
+        "targets": {
+          "build": {
+            "executor": "nx:run-script",
+            "metadata": {
+              "scriptContent": "pnpm build:modern && pnpm build:node && pnpm build:stable && pnpm build:types && pnpm build:copy-files ",
+              "runCommand": "npm run build"
+            },
+            "cache": true,
+            "dependsOn": [
+              "copy-license",
+              "^build"
+            ],
+            "outputs": [
+              "{projectRoot}/build"
+            ],
+            "options": {
+              "script": "build"
+            },
+            "configurations": {}
+          },
+          "typescript": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "typescript"
+            },
+            "metadata": {
+              "scriptContent": "tsc -p tsconfig.json",
+              "runCommand": "npm run typescript"
+            },
+            "configurations": {}
+          },
+          "build:modern": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "build:modern"
+            },
+            "metadata": {
+              "scriptContent": "node ../../scripts/build.mjs modern",
+              "runCommand": "npm run build:modern"
+            },
+            "configurations": {}
+          },
+          "build:node": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "build:node"
+            },
+            "metadata": {
+              "scriptContent": "node ../../scripts/build.mjs node",
+              "runCommand": "npm run build:node"
+            },
+            "configurations": {}
+          },
+          "build:stable": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "build:stable"
+            },
+            "metadata": {
+              "scriptContent": "node ../../scripts/build.mjs stable",
+              "runCommand": "npm run build:stable"
+            },
+            "configurations": {}
+          },
+          "build:copy-files": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "build:copy-files"
+            },
+            "metadata": {
+              "scriptContent": "node ../../scripts/copyFiles.mjs",
+              "runCommand": "npm run build:copy-files"
+            },
+            "configurations": {}
+          },
+          "build:types": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "build:types"
+            },
+            "metadata": {
+              "scriptContent": "node ../../scripts/buildTypes.mjs",
+              "runCommand": "npm run build:types"
+            },
+            "configurations": {}
+          },
+          "prebuild": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "prebuild"
+            },
+            "metadata": {
+              "scriptContent": "rimraf build tsconfig.build.tsbuildinfo",
+              "runCommand": "npm run prebuild"
+            },
+            "configurations": {}
+          },
+          "nx-release-publish": {
+            "dependsOn": [
+              "^nx-release-publish"
+            ],
+            "executor": "@nx/js:release-publish",
+            "options": {},
+            "configurations": {}
+          }
+        },
+        "sourceRoot": "packages/sui-video-editor",
+        "name": "@stoked-ui/video-editor",
+        "tags": [
+          "npm:public",
+          "npm:react",
+          "npm:react-component",
+          "npm:sui",
+          "npm:file explorer",
+          "npm:file-explorer",
+          "npm:mui",
+          "npm:stoked ui",
+          "npm:material ui",
+          "npm:material design",
+          "npm:file explorer view"
+        ],
+        "metadata": {
+          "targetGroups": {
+            "NPM Scripts": [
+              "typescript",
+              "build",
+              "build:modern",
+              "build:node",
+              "build:stable",
+              "build:copy-files",
+              "build:types",
+              "prebuild"
+            ]
+          },
+          "description": "Video Editor Component using File Explorer, Media Selector, and Timeline"
+        },
+        "implicitDependencies": []
+      }
+    },
+    "@stoked-ui/timeline": {
+      "name": "@stoked-ui/timeline",
+      "type": "lib",
+      "data": {
+        "root": "packages/sui-timeline",
+        "targets": {
+          "build": {
+            "executor": "nx:run-script",
+            "metadata": {
+              "scriptContent": "pnpm build:modern && pnpm build:node && pnpm build:stable && pnpm build:types && pnpm build:copy-files ",
+              "runCommand": "npm run build"
+            },
+            "cache": true,
+            "dependsOn": [
+              "copy-license",
+              "^build"
+            ],
+            "outputs": [
+              "{projectRoot}/build"
+            ],
+            "options": {
+              "script": "build"
+            },
+            "configurations": {}
+          },
+          "typescript": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "typescript"
+            },
+            "metadata": {
+              "scriptContent": "tsc -p tsconfig.json",
+              "runCommand": "npm run typescript"
+            },
+            "configurations": {}
+          },
+          "build:modern": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "build:modern"
+            },
+            "metadata": {
+              "scriptContent": "node ../../scripts/build.mjs modern",
+              "runCommand": "npm run build:modern"
+            },
+            "configurations": {}
+          },
+          "build:node": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "build:node"
+            },
+            "metadata": {
+              "scriptContent": "node ../../scripts/build.mjs node",
+              "runCommand": "npm run build:node"
+            },
+            "configurations": {}
+          },
+          "build:stable": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "build:stable"
+            },
+            "metadata": {
+              "scriptContent": "node ../../scripts/build.mjs stable",
+              "runCommand": "npm run build:stable"
+            },
+            "configurations": {}
+          },
+          "build:copy-files": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "build:copy-files"
+            },
+            "metadata": {
+              "scriptContent": "node ../../scripts/copyFiles.mjs",
+              "runCommand": "npm run build:copy-files"
+            },
+            "configurations": {}
+          },
+          "build:types": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "build:types"
+            },
+            "metadata": {
+              "scriptContent": "node ../../scripts/buildTypes.mjs",
+              "runCommand": "npm run build:types"
+            },
+            "configurations": {}
+          },
+          "prebuild": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "prebuild"
+            },
+            "metadata": {
+              "scriptContent": "rimraf build tsconfig.build.tsbuildinfo",
+              "runCommand": "npm run prebuild"
+            },
+            "configurations": {}
+          },
+          "start": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "start"
+            },
+            "metadata": {
+              "scriptContent": "NODE_OPTIONS=--openssl-legacy-provider dumi dev",
+              "runCommand": "npm run start"
+            },
+            "configurations": {}
+          },
+          "docs:build": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "docs:build"
+            },
+            "metadata": {
+              "scriptContent": "dumi build",
+              "runCommand": "npm run docs:build"
+            },
+            "configurations": {}
+          },
+          "docs:deploy": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "docs:deploy"
+            },
+            "metadata": {
+              "scriptContent": "",
+              "runCommand": "npm run docs:deploy"
+            },
+            "configurations": {}
+          },
+          "build-old": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "build-old"
+            },
+            "metadata": {
+              "scriptContent": "father-build",
+              "runCommand": "npm run build-old"
+            },
+            "configurations": {}
+          },
+          "deploy": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "deploy"
+            },
+            "metadata": {
+              "scriptContent": "npm run docs:build && npm run docs:deploy",
+              "runCommand": "npm run deploy"
+            },
+            "configurations": {}
+          },
+          "prepublishOnly": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "prepublishOnly"
+            },
+            "metadata": {
+              "scriptContent": "npm run build",
+              "runCommand": "npm run prepublishOnly"
+            },
+            "configurations": {}
+          },
+          "nx-release-publish": {
+            "dependsOn": [
+              "^nx-release-publish"
+            ],
+            "executor": "@nx/js:release-publish",
+            "options": {},
+            "configurations": {}
+          }
+        },
+        "sourceRoot": "packages/sui-timeline",
+        "name": "@stoked-ui/timeline",
+        "tags": [
+          "npm:public",
+          "npm:timeline",
+          "npm:animation",
+          "npm:editor",
+          "npm:react",
+          "npm:typescript"
+        ],
+        "metadata": {
+          "targetGroups": {
+            "NPM Scripts": [
+              "typescript",
+              "build",
+              "build:modern",
+              "build:node",
+              "build:stable",
+              "build:copy-files",
+              "build:types",
+              "prebuild",
+              "start",
+              "docs:build",
+              "docs:deploy",
+              "build-old",
+              "deploy",
+              "prepublishOnly"
+            ]
+          }
+        },
+        "implicitDependencies": []
+      }
+    },
+    "@stoked-ui/envinfo": {
+      "name": "@stoked-ui/envinfo",
+      "type": "lib",
+      "data": {
+        "root": "packages/sui-envinfo",
+        "targets": {
+          "build": {
+            "executor": "nx:run-script",
+            "metadata": {
+              "scriptContent": "node scripts/build",
+              "runCommand": "npm run build"
+            },
+            "cache": true,
+            "dependsOn": [
+              "copy-license",
+              "^build"
+            ],
+            "outputs": [
+              "{projectRoot}/build"
+            ],
+            "options": {
+              "script": "build"
+            },
+            "configurations": {}
+          },
+          "nx-release-publish": {
+            "dependsOn": [
+              "^nx-release-publish"
+            ],
+            "executor": "@nx/js:release-publish",
+            "options": {},
+            "configurations": {}
+          }
+        },
+        "sourceRoot": "packages/sui-envinfo",
+        "name": "@stoked-ui/envinfo",
+        "tags": [
+          "npm:public"
+        ],
+        "metadata": {
+          "targetGroups": {
+            "NPM Scripts": [
+              "build"
+            ]
+          },
+          "description": "Logs infos about the environment relevant to @mui/*"
+        },
+        "implicitDependencies": []
+      }
+    },
+    "rsc-builder": {
+      "name": "rsc-builder",
+      "type": "lib",
+      "data": {
+        "root": "packages/rsc-builder",
+        "targets": {},
+        "sourceRoot": "packages/rsc-builder",
+        "name": "rsc-builder",
+        "tags": [
+          "npm:private"
+        ],
+        "metadata": {
+          "targetGroups": {}
+        },
+        "implicitDependencies": []
+      }
+    },
+    "@stoked-ui/cli-it": {
+      "name": "@stoked-ui/cli-it",
+      "type": "lib",
+      "data": {
+        "root": "packages/sui-cli-it",
+        "targets": {
+          "build": {
+            "executor": "nx:run-script",
+            "metadata": {
+              "scriptContent": "tsc",
+              "runCommand": "npm run build"
+            },
+            "cache": true,
+            "dependsOn": [
+              "copy-license",
+              "^build"
+            ],
+            "outputs": [
+              "{projectRoot}/build"
+            ],
+            "options": {
+              "script": "build"
+            },
+            "configurations": {}
+          },
+          "start": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "start"
+            },
+            "metadata": {
+              "scriptContent": "ts-node src/cli.ts",
+              "runCommand": "npm run start"
+            },
+            "configurations": {}
+          },
+          "nx-release-publish": {
+            "dependsOn": [
+              "^nx-release-publish"
+            ],
+            "executor": "@nx/js:release-publish",
+            "options": {},
+            "configurations": {}
+          }
+        },
+        "sourceRoot": "packages/sui-cli-it",
+        "name": "@stoked-ui/cli-it",
+        "tags": [
+          "npm:public"
+        ],
+        "metadata": {
+          "targetGroups": {
+            "NPM Scripts": [
+              "build",
+              "start"
+            ]
+          },
+          "description": "A CLI tool to turn .sh files into CLI commands"
+        },
+        "implicitDependencies": []
+      }
+    },
+    "@stoked-ui/internal-test-utils": {
+      "name": "@stoked-ui/internal-test-utils",
+      "type": "lib",
+      "data": {
+        "root": "packages/test-utils",
+        "targets": {
+          "typescript": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "typescript"
+            },
+            "metadata": {
+              "scriptContent": "tsc -p tsconfig.json",
+              "runCommand": "npm run typescript"
+            },
+            "configurations": {}
+          }
+        },
+        "sourceRoot": "packages/test-utils",
+        "name": "@stoked-ui/internal-test-utils",
+        "tags": [
+          "npm:private"
+        ],
+        "metadata": {
+          "targetGroups": {
+            "NPM Scripts": [
+              "typescript"
+            ]
+          }
+        },
+        "implicitDependencies": []
+      }
+    },
+    "@mui/internal-waterfall": {
+      "name": "@mui/internal-waterfall",
+      "type": "lib",
+      "data": {
+        "root": "packages/waterfall",
+        "targets": {},
+        "sourceRoot": "packages/waterfall",
+        "name": "@mui/internal-waterfall",
+        "tags": [
+          "npm:private"
+        ],
+        "metadata": {
+          "targetGroups": {}
+        },
+        "implicitDependencies": []
+      }
+    },
+    "@stoked-ui/docs": {
+      "name": "@stoked-ui/docs",
+      "type": "lib",
+      "data": {
+        "root": "packages/sui-docs",
+        "targets": {
+          "build": {
+            "executor": "nx:run-script",
+            "metadata": {
+              "scriptContent": "pnpm build:legacy && pnpm build:modern && pnpm build:node && pnpm build:stable && pnpm build:types && pnpm build:copy-files",
+              "runCommand": "npm run build"
+            },
+            "cache": true,
+            "dependsOn": [
+              "copy-license",
+              "^build"
+            ],
+            "outputs": [
+              "{projectRoot}/build"
+            ],
+            "options": {
+              "script": "build"
+            },
+            "configurations": {}
+          },
+          "build:legacy": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "build:legacy"
+            },
+            "metadata": {
+              "scriptContent": "node ../../scripts/build.mjs legacy",
+              "runCommand": "npm run build:legacy"
+            },
+            "configurations": {}
+          },
+          "build:modern": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "build:modern"
+            },
+            "metadata": {
+              "scriptContent": "echo 'Skip modern build'",
+              "runCommand": "npm run build:modern"
+            },
+            "configurations": {}
+          },
+          "build:node": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "build:node"
+            },
+            "metadata": {
+              "scriptContent": "node ../../scripts/build.mjs node",
+              "runCommand": "npm run build:node"
+            },
+            "configurations": {}
+          },
+          "build:stable": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "build:stable"
+            },
+            "metadata": {
+              "scriptContent": "node ../../scripts/build.mjs stable",
+              "runCommand": "npm run build:stable"
+            },
+            "configurations": {}
+          },
+          "build:types": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "build:types"
+            },
+            "metadata": {
+              "scriptContent": "node ../../scripts/buildTypes.mjs",
+              "runCommand": "npm run build:types"
+            },
+            "configurations": {}
+          },
+          "build:copy-files": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "build:copy-files"
+            },
+            "metadata": {
+              "scriptContent": "node ../../scripts/copyFiles.mjs ./src/translations/translations.json:./translations/translations.json ./src/translations/translations.json:./node/translations/translations.json",
+              "runCommand": "npm run build:copy-files"
+            },
+            "configurations": {}
+          },
+          "prebuild": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "prebuild"
+            },
+            "metadata": {
+              "scriptContent": "rimraf build",
+              "runCommand": "npm run prebuild"
+            },
+            "configurations": {}
+          },
+          "release": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "release"
+            },
+            "metadata": {
+              "scriptContent": "pnpm build && pnpm publish",
+              "runCommand": "npm run release"
+            },
+            "configurations": {}
+          },
+          "test": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "test"
+            },
+            "metadata": {
+              "scriptContent": "exit 0",
+              "runCommand": "npm run test"
+            },
+            "configurations": {}
+          },
+          "nx-release-publish": {
+            "dependsOn": [
+              "^nx-release-publish"
+            ],
+            "executor": "@nx/js:release-publish",
+            "options": {},
+            "configurations": {}
+          }
+        },
+        "sourceRoot": "packages/sui-docs",
+        "name": "@stoked-ui/docs",
+        "tags": [
+          "npm:public",
+          "npm:react",
+          "npm:react-component",
+          "npm:stoked ui",
+          "npm:material ui",
+          "npm:material design",
+          "npm:docs"
+        ],
+        "metadata": {
+          "targetGroups": {
+            "NPM Scripts": [
+              "build",
+              "build:legacy",
+              "build:modern",
+              "build:node",
+              "build:stable",
+              "build:types",
+              "build:copy-files",
+              "prebuild",
+              "release",
+              "test"
+            ]
+          },
+          "description": "SUI Docs - Documentation building blocks."
+        },
+        "implicitDependencies": []
+      }
+    },
+    "@stoked-ui/internal-markdown": {
+      "name": "@stoked-ui/internal-markdown",
+      "type": "lib",
+      "data": {
+        "root": "packages/markdown",
+        "targets": {
+          "release:publish": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "release:publish"
+            },
+            "metadata": {
+              "scriptContent": "pnpm publish --tag latest",
+              "runCommand": "npm run release:publish"
+            },
+            "configurations": {}
+          },
+          "release:publish:dry-run": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "release:publish:dry-run"
+            },
+            "metadata": {
+              "scriptContent": "pnpm publish --tag latest --registry=\"http://localhost:4873/\"",
+              "runCommand": "npm run release:publish:dry-run"
+            },
+            "configurations": {}
+          },
+          "nx-release-publish": {
+            "dependsOn": [
+              "^nx-release-publish"
+            ],
+            "executor": "@nx/js:release-publish",
+            "options": {},
+            "configurations": {}
+          }
+        },
+        "sourceRoot": "packages/markdown",
+        "name": "@stoked-ui/internal-markdown",
+        "tags": [
+          "npm:public"
+        ],
+        "metadata": {
+          "targetGroups": {
+            "NPM Scripts": [
+              "release:publish",
+              "release:publish:dry-run"
+            ]
+          },
+          "description": "SUI markdown parser. This is an internal package not meant for general use."
+        },
+        "implicitDependencies": []
+      }
+    },
+    "feedback": {
+      "name": "feedback",
+      "type": "lib",
+      "data": {
+        "root": "packages/feedback",
+        "targets": {
+          "claudia": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "claudia"
+            },
+            "metadata": {
+              "scriptContent": "claudia --profile claudia",
+              "runCommand": "npm run claudia"
+            },
+            "configurations": {}
+          },
+          "curl": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "curl"
+            },
+            "metadata": {
+              "scriptContent": "curl -H \"Content-Type: application/json\" -X POST --data @example.json https://hgvi836wi8.execute-api.us-east-1.amazonaws.com/dev/rating",
+              "runCommand": "npm run curl"
+            },
+            "configurations": {}
+          },
+          "setup": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "setup"
+            },
+            "metadata": {
+              "scriptContent": "claudia create --profile claudia --version dev --region us-east-1 --api-module index --policies policies --configure-table-dev --configure-table-prod --no-optional-dependencies",
+              "runCommand": "npm run setup"
+            },
+            "configurations": {}
+          },
+          "update": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "update"
+            },
+            "metadata": {
+              "scriptContent": "claudia update --profile claudia --version dev --no-optional-dependencies",
+              "runCommand": "npm run update"
+            },
+            "configurations": {}
+          },
+          "deploy": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "deploy"
+            },
+            "metadata": {
+              "scriptContent": "claudia update --profile claudia --version dev --no-optional-dependencies && claudia --profile claudia set-version --version prod",
+              "runCommand": "npm run deploy"
+            },
+            "configurations": {}
+          },
+          "reconfigure": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "reconfigure"
+            },
+            "metadata": {
+              "scriptContent": "claudia update --profile claudia --configure-db",
+              "runCommand": "npm run reconfigure"
+            },
+            "configurations": {}
+          }
+        },
+        "sourceRoot": "packages/feedback",
+        "name": "feedback",
+        "tags": [
+          "npm:private"
+        ],
+        "metadata": {
+          "targetGroups": {
+            "NPM Scripts": [
+              "claudia",
+              "curl",
+              "setup",
+              "update",
+              "deploy",
+              "reconfigure"
+            ]
+          },
+          "description": "Store and retrieve page ratings and comments"
+        },
+        "implicitDependencies": []
+      }
+    },
+    "benchmark": {
+      "name": "benchmark",
+      "type": "lib",
+      "data": {
+        "root": "benchmark",
+        "targets": {
+          "browser": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "browser"
+            },
+            "metadata": {
+              "scriptContent": "pnpm webpack --config browser/webpack.config.js && node browser/scripts/benchmark.js",
+              "runCommand": "npm run browser"
+            },
+            "configurations": {}
+          },
+          "server:core": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "server:core"
+            },
+            "metadata": {
+              "scriptContent": "cd ../ && cross-env NODE_ENV=production BABEL_ENV=benchmark babel-node benchmark/server/scenarios/core.js --inspect=0.0.0.0:9229 --extensions \".tsx,.ts,.js\"",
+              "runCommand": "npm run server:core"
+            },
+            "configurations": {}
+          },
+          "server:docs": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "server:docs"
+            },
+            "metadata": {
+              "scriptContent": "cd ../ && cross-env NODE_ENV=production BABEL_ENV=benchmark babel-node benchmark/server/scenarios/docs.js --inspect=0.0.0.0:9229 --extensions \".tsx,.ts,.js\"",
+              "runCommand": "npm run server:docs"
+            },
+            "configurations": {}
+          },
+          "server:server": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "server:server"
+            },
+            "metadata": {
+              "scriptContent": "cd ../ && cross-env NODE_ENV=production BABEL_ENV=benchmark babel-node benchmark/server/scenarios/server.js --inspect=0.0.0.0:9229 --extensions \".tsx,.ts,.js\"",
+              "runCommand": "npm run server:server"
+            },
+            "configurations": {}
+          },
+          "server:styles": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "server:styles"
+            },
+            "metadata": {
+              "scriptContent": "cd ../ && cross-env NODE_ENV=production BABEL_ENV=benchmark babel-node benchmark/server/scenarios/styles.js --inspect=0.0.0.0:9229 --extensions \".tsx,.ts,.js\"",
+              "runCommand": "npm run server:styles"
+            },
+            "configurations": {}
+          },
+          "server:system": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "server:system"
+            },
+            "metadata": {
+              "scriptContent": "cd ../ && cross-env NODE_ENV=production BABEL_ENV=benchmark babel-node benchmark/server/scenarios/system.js --inspect=0.0.0.0:9229 --extensions \".tsx,.ts,.js\"",
+              "runCommand": "npm run server:system"
+            },
+            "configurations": {}
+          }
+        },
+        "sourceRoot": "benchmark",
+        "name": "benchmark",
+        "tags": [
+          "npm:private"
+        ],
+        "metadata": {
+          "targetGroups": {
+            "NPM Scripts": [
+              "browser",
+              "server:core",
+              "server:docs",
+              "server:server",
+              "server:styles",
+              "server:system"
+            ]
+          }
+        },
+        "implicitDependencies": []
+      }
+    },
+    "@stoked-ui/internal-tests": {
+      "name": "@stoked-ui/internal-tests",
+      "type": "lib",
+      "data": {
+        "root": "test",
+        "targets": {
+          "typescript": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "typescript"
+            },
+            "metadata": {
+              "scriptContent": "tsc -p tsconfig.json",
+              "runCommand": "npm run typescript"
+            },
+            "configurations": {}
+          }
+        },
+        "sourceRoot": "test",
+        "name": "@stoked-ui/internal-tests",
+        "tags": [
+          "npm:private"
+        ],
+        "metadata": {
+          "targetGroups": {
+            "NPM Scripts": [
+              "typescript"
+            ]
+          }
+        },
+        "implicitDependencies": []
+      }
+    },
+    "stokedui-com": {
+      "name": "stokedui-com",
+      "type": "lib",
+      "data": {
+        "root": "docs",
+        "targets": {
+          "build": {
+            "executor": "nx:run-script",
+            "metadata": {
+              "scriptContent": "rimraf docs/export && cross-env NODE_ENV=production NODE_OPTIONS=\"--max_old_space_size=8192 --trace-warnings\" next build --profile && pnpm build-sw",
+              "runCommand": "npm run build"
+            },
+            "cache": true,
+            "dependsOn": [
+              "copy-license",
+              "^build"
+            ],
+            "outputs": [
+              "{projectRoot}/build"
+            ],
+            "options": {
+              "script": "build"
+            },
+            "configurations": {}
+          },
+          "build:clean": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "build:clean"
+            },
+            "metadata": {
+              "scriptContent": "rimraf .next && pnpm build",
+              "runCommand": "npm run build:clean"
+            },
+            "configurations": {}
+          },
+          "build-sw": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "build-sw"
+            },
+            "metadata": {
+              "scriptContent": "node ./scripts/buildServiceWorker.js",
+              "runCommand": "npm run build-sw"
+            },
+            "configurations": {}
+          },
+          "dev": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "dev"
+            },
+            "metadata": {
+              "scriptContent": "next dev",
+              "runCommand": "npm run dev"
+            },
+            "configurations": {}
+          },
+          "deploy": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "deploy"
+            },
+            "metadata": {
+              "scriptContent": "git push -f material-ui-docs master:latest",
+              "runCommand": "npm run deploy"
+            },
+            "configurations": {}
+          },
+          "icons": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "icons"
+            },
+            "metadata": {
+              "scriptContent": "rimraf --glob public/static/icons/* && node ./scripts/buildIcons.js",
+              "runCommand": "npm run icons"
+            },
+            "configurations": {}
+          },
+          "start": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "start"
+            },
+            "metadata": {
+              "scriptContent": "next start",
+              "runCommand": "npm run start"
+            },
+            "configurations": {}
+          },
+          "serve": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "serve"
+            },
+            "metadata": {
+              "scriptContent": "serve ./export -l 3010",
+              "runCommand": "npm run serve"
+            },
+            "configurations": {}
+          },
+          "create-playground": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "create-playground"
+            },
+            "metadata": {
+              "scriptContent": "cpy --cwd=scripts playground.template.tsx ../../pages/playground --rename=index.tsx",
+              "runCommand": "npm run create-playground"
+            },
+            "configurations": {}
+          },
+          "typescript": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "typescript"
+            },
+            "metadata": {
+              "scriptContent": "tsc -p tsconfig.json && tsc -p scripts/tsconfig.json",
+              "runCommand": "npm run typescript"
+            },
+            "configurations": {}
+          },
+          "typescript:transpile": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "typescript:transpile"
+            },
+            "metadata": {
+              "scriptContent": "echo 'Use `pnpm docs:typescript:formatted'` instead && exit 1",
+              "runCommand": "npm run typescript:transpile"
+            },
+            "configurations": {}
+          },
+          "typescript:transpile:dev": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "typescript:transpile:dev"
+            },
+            "metadata": {
+              "scriptContent": "echo 'Use `pnpm docs:typescript'` instead && exit 1",
+              "runCommand": "npm run typescript:transpile:dev"
+            },
+            "configurations": {}
+          },
+          "link-check": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "link-check"
+            },
+            "metadata": {
+              "scriptContent": "node ./scripts/reportBrokenLinks.js",
+              "runCommand": "npm run link-check"
+            },
+            "configurations": {}
+          },
+          "clean": {
+            "executor": "nx:run-script",
+            "options": {
+              "script": "clean"
+            },
+            "metadata": {
+              "scriptContent": "rimraf --glob **/pnpm-lock.yaml  **/node_modules **/build **/.next **/export",
+              "runCommand": "npm run clean"
+            },
+            "configurations": {}
+          }
+        },
+        "sourceRoot": "docs",
+        "name": "stokedui-com",
+        "tags": [
+          "npm:private"
+        ],
+        "metadata": {
+          "targetGroups": {
+            "NPM Scripts": [
+              "build",
+              "build:clean",
+              "build-sw",
+              "dev",
+              "deploy",
+              "icons",
+              "start",
+              "serve",
+              "create-playground",
+              "typescript",
+              "typescript:transpile",
+              "typescript:transpile:dev",
+              "link-check",
+              "clean"
+            ]
+          }
+        },
+        "implicitDependencies": []
+      }
+    }
+  },
+  "externalNodes": {},
+  "dependencies": {
+    "netlify-plugin-cache-docs": [],
+    "eslint-plugin-stoked-ui": [],
+    "@stoked-ui/internal-api-docs-builder-core": [
+      {
+        "source": "@stoked-ui/internal-api-docs-builder-core",
+        "target": "@stoked-ui/internal-api-docs-builder",
+        "type": "static"
+      },
+      {
+        "source": "@stoked-ui/internal-api-docs-builder-core",
+        "target": "@stoked-ui/internal-markdown",
+        "type": "static"
+      },
+      {
+        "source": "@stoked-ui/internal-api-docs-builder-core",
+        "target": "@stoked-ui/docs",
+        "type": "static"
+      }
+    ],
+    "@stoked-ui/internal-docs-utils": [],
+    "@stoked-ui/media-selector": [],
+    "@stoked-ui/search-replace-cli": [],
+    "@types/react-docgen": [],
+    "@stoked-ui/file-explorer": [
+      {
+        "source": "@stoked-ui/file-explorer",
+        "target": "@stoked-ui/media-selector",
+        "type": "static"
+      },
+      {
+        "source": "@stoked-ui/file-explorer",
+        "target": "@stoked-ui/internal-test-utils",
+        "type": "static"
+      }
+    ],
+    "@stoked-ui/internal-api-docs-builder": [
+      {
+        "source": "@stoked-ui/internal-api-docs-builder",
+        "target": "@types/react-docgen",
+        "type": "static"
+      },
+      {
+        "source": "@stoked-ui/internal-api-docs-builder",
+        "target": "@stoked-ui/internal-docs-utils",
+        "type": "static"
+      },
+      {
+        "source": "@stoked-ui/internal-api-docs-builder",
+        "target": "@stoked-ui/internal-markdown",
+        "type": "static"
+      }
+    ],
+    "@stoked-ui/internal-scripts": [
+      {
+        "source": "@stoked-ui/internal-scripts",
+        "target": "@stoked-ui/internal-docs-utils",
+        "type": "static"
+      }
+    ],
+    "@stoked-ui/video-editor": [
+      {
+        "source": "@stoked-ui/video-editor",
+        "target": "@stoked-ui/file-explorer",
+        "type": "static"
+      },
+      {
+        "source": "@stoked-ui/video-editor",
+        "target": "@stoked-ui/media-selector",
+        "type": "static"
+      },
+      {
+        "source": "@stoked-ui/video-editor",
+        "target": "@stoked-ui/internal-test-utils",
+        "type": "static"
+      }
+    ],
+    "@stoked-ui/timeline": [],
+    "@stoked-ui/envinfo": [],
+    "rsc-builder": [],
+    "@stoked-ui/cli-it": [],
+    "@stoked-ui/internal-test-utils": [],
+    "@mui/internal-waterfall": [],
+    "@stoked-ui/docs": [],
+    "@stoked-ui/internal-markdown": [],
+    "feedback": [],
+    "benchmark": [
+      {
+        "source": "benchmark",
+        "target": "@stoked-ui/docs",
+        "type": "static"
+      }
+    ],
+    "@stoked-ui/internal-tests": [
+      {
+        "source": "@stoked-ui/internal-tests",
+        "target": "@stoked-ui/internal-test-utils",
+        "type": "static"
+      },
+      {
+        "source": "@stoked-ui/internal-tests",
+        "target": "stokedui-com",
+        "type": "static"
+      }
+    ],
+    "stokedui-com": [
+      {
+        "source": "stokedui-com",
+        "target": "@stoked-ui/internal-docs-utils",
+        "type": "static"
+      },
+      {
+        "source": "stokedui-com",
+        "target": "@stoked-ui/internal-scripts",
+        "type": "static"
+      },
+      {
+        "source": "stokedui-com",
+        "target": "@stoked-ui/internal-test-utils",
+        "type": "static"
+      },
+      {
+        "source": "stokedui-com",
+        "target": "@stoked-ui/file-explorer",
+        "type": "static"
+      },
+      {
+        "source": "stokedui-com",
+        "target": "@stoked-ui/internal-markdown",
+        "type": "static"
+      },
+      {
+        "source": "stokedui-com",
+        "target": "@stoked-ui/media-selector",
+        "type": "static"
+      },
+      {
+        "source": "stokedui-com",
+        "target": "@stoked-ui/timeline",
+        "type": "static"
+      },
+      {
+        "source": "stokedui-com",
+        "target": "@stoked-ui/video-editor",
+        "type": "static"
+      }
+    ]
+  },
+  "version": "6.0"
+}

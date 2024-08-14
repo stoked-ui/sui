@@ -4,8 +4,8 @@ import {
   CreateTypeScriptProjectOptions,
   TypeScriptProject,
 } from '@stoked-ui/internal-docs-utils';
-import { getComponentFilesInFolder } from './utils';
 import fs from 'fs';
+import { getComponentFilesInFolder } from './utils';
 
 const workspaceRoot = path.resolve(__dirname, '../../');
 

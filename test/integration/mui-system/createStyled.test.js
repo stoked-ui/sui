@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import createStyled from '@mui/system/createStyled';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { createRenderer } from '@mui/internal-test-utils';
+import { createRenderer } from '@stoked-ui/internal-test-utils';
 
 describe('createStyled', () => {
   const { render } = createRenderer();

@@ -6,7 +6,6 @@ import NextHead from 'next/head';
 import PropTypes from 'prop-types';
 import { useRouter } from 'next/router';
 import fileExplorerPkgJson from 'packages/sui-file-explorer/package.json';
-import fileExplorerPages from '../data/pages';
 import PageContext from 'docs/src/modules/components/PageContext';
 import GoogleAnalytics from 'docs/src/modules/components/GoogleAnalytics';
 import { CodeCopyProvider } from 'docs/src/modules/utils/CodeCopy';
@@ -21,6 +20,7 @@ import getProductInfoFromUrl from 'docs/src/modules/utils/getProductInfoFromUrl'
 import { DocsProvider } from '@mui/docs/DocsProvider';
 import { DocsProvider as DocsProviderStoked } from '@stoked-ui/docs/DocsProvider';
 import { mapTranslations } from '@mui/docs/i18n';
+import fileExplorerPages from '../data/pages';
 import './global.css';
 import '../public/static/components-gallery/base-theme.css';
 import config from '../config';
@@ -158,6 +158,10 @@ function AppWrapper(props) {
       'media-selector': {
         metadata: 'Stoked UI',
         name: 'Media Selector',
+      },
+      'timeline': {
+        metadata: 'Stoked UI',
+        name: 'Timeline',
       },
       'stoked-ui': {
         name: 'Stoked UI',

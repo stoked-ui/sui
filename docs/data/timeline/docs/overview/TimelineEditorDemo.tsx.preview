@@ -1,0 +1,17 @@
+<div className="timeline-editor-engine">
+  <div className="player-panel" id="player-ground-1" ref={playerPanel}/>
+  <TimelinePlayer timelineState={timelineState} autoScrollWhenPlay />
+  <Timeline
+    scale={scale}
+    scaleWidth={scaleWidth}
+    startLeft={startLeft}
+    autoScroll
+    ref={timelineState}
+    editorData={data}
+    effects={mockEffect}
+    onChange={(dataRow) => {
+      setData(dataRow as CusTomTimelineRow[]);
+    }}
+    getActionRender={getActionRenderer}
+  />
+</div>

@@ -183,10 +183,10 @@ function useDemoElement({ demoData, editorCode, setDebouncedError, liveDemoActiv
     : LiveComponent;
 }
 
-const Root = styled('div')(({ theme }) => ({
-  marginBottom: 24,
-  marginLeft: theme.spacing(-2),
-  marginRight: theme.spacing(-2),
+const Root = styled('div')(({ theme, noMargins }) => ({
+  marginBottom: 0,
+  marginLeft: theme.spacing(noMargins ? 0 : -2),
+  marginRight: theme.spacing(noMargins ? 0 : -2),
   [theme.breakpoints.up('sm')]: {
     marginLeft: 0,
     marginRight: 0,
@@ -241,6 +241,9 @@ const DemoRootMaterial = styled('div', {
     ...theme.applyDarkStyles({
       backgroundColor: alpha(theme.palette.primaryDark[700], 0.4),
     }),
+  }),
+  ...(bg === 'noMargin' && {
+    border: `1px solid ${theme.palette.divider}`,
   }),
   /* Mostly meant for introduction demos. */
   ...(bg === 'gradient' && {
@@ -501,7 +504,7 @@ export default function Demo(props) {
   });
 
   return (
-    <Root>
+    <Root noMargins={demoOptions.noMargins}>
       <AnchorLink id={demoName} />
       <DemoRoot hideToolbar={demoOptions.hideToolbar} bg={demoOptions.bg} id={demoId}>
         <Wrapper {...(demoData.productId === 'joy-ui' && { mode })}>

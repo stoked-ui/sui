@@ -2,7 +2,7 @@
   "name": "@stoked-ui/media-selector",
   "author": "Brian Stoker",
   "private": false,
-  "version": "0.1.0-alpha.0",
+  "version": "0.1.0-alpha.1",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "files": [
@@ -36,7 +36,7 @@
     "@ffmpeg/ffmpeg": "^0.12.10",
     "@ffmpeg/util": "^0.12.1",
     "@mui/material": "^5.15.21",
-    "react": "18.3.1",
+    "react": "^18.2.1",
     "react-dom": "^18.2.0"
   },
   "peerDependenciesMeta": {
@@ -55,7 +55,7 @@
     "@types/node": "^18.19.39",
     "@types/prop-types": "^15.7.3",
     "@types/randombytes": "^2.0.3",
-    "@types/react": "^18.3.3",
+    "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.19",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
@@ -63,7 +63,7 @@
     "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-refresh": "^0.4.7",
-    "react": "18.3.1",
+    "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "typescript": "5.4.5",
     "vite": "5.3.1",

@@ -10,6 +10,7 @@ import { TransitionProps } from '@mui/material/transitions';
 import unsupportedProp from '@mui/utils/unsupportedProp';
 import elementTypeAcceptingRef from '@mui/utils/elementTypeAcceptingRef';
 import { unstable_composeClasses as composeClasses } from '@mui/base';
+import { IdGenerator } from '@stoked-ui/media-selector';
 import { createUseThemeProps, styled } from '../internals/zero-styled';
 import { FileElementContent } from './FileElementContent';
 import { fileElementClasses, getFileElementUtilityClass } from './fileElementClasses';
@@ -24,7 +25,6 @@ import { FileExplorerCollapseIcon, FileExplorerExpandIcon } from '../icons';
 import { FileProvider } from '../internals/FileProvider';
 import { FileDepthContext } from '../internals/FileDepthContext';
 import { useFileElementState } from './useFileElementState';
-import { IdGenerator } from '@stoked-ui/media-selector';
 
 const useThemeProps = createUseThemeProps('MuiFileElement');
 

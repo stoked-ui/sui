@@ -77,11 +77,11 @@ const childrenWarning = buildWarning([
  *
  * Demos:
  *
- * - [FileExplorer View](https://stoked-ui.github.io/x/react-fileExplorer-view/)
+ * - [FileExplorer View](https://stoked-ui.github.io/file-explorer/docs/)
  *
  * API:
  *
- * - [FileExplorer API](https://stoked-ui.github.io/x/api/fileExplorer-view/rich-fileExplorer-view/)
+ * - [FileExplorer API](https://stoked-ui.github.io/file-explorer/api/)
  */
 const FileExplorer = React.forwardRef(function FileExplorer<
   R extends FileBase = FileBase,

@@ -34,7 +34,7 @@ export default function getProductInfoFromUrl(asPath: string): MuiProductInfo {
   let productCategoryId = 'null';
   let productId = 'null';
 
-  if (['stoked-ui', 'file-explorer', 'media-selector'].indexOf(firstFolder) !== -1) {
+  if (['stoked-ui', 'file-explorer', 'media-selector', 'timeline', 'video-editor'].indexOf(firstFolder) !== -1) {
     productCategoryId = 'core';
     productId = firstFolder;
   }

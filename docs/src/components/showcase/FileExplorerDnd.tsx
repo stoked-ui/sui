@@ -237,9 +237,7 @@ export default function FileExplorerGrid() {
               },
             }),
         ]}
-      >
-
-      </Box>
+       />
     </Fade>
   );
 }

@@ -2,6 +2,7 @@ import * as React from 'react';
 import useEventCallback from '@mui/utils/useEventCallback';
 import { EventHandlers } from '@mui/base/utils';
 import ownerDocument from '@mui/utils/ownerDocument';
+import { SyntheticEvent } from "react";
 import { FileExplorerPlugin, FileExplorerUsedInstance } from '../../models/plugin';
 import { UseFileExplorerFocusSignature } from './useFileExplorerFocus.types';
 import { useInstanceEventHandler } from '../../hooks/useInstanceEventHandler';
@@ -11,7 +12,6 @@ import { MuiCancellableEvent } from '../../models/MuiCancellableEvent';
 import {
   convertSelectedItemsToArray
 } from '../useFileExplorerSelection/useFileExplorerSelection.utils';
-import { SyntheticEvent } from "react";
 
 const useDefaultFocusableItemId = (
   instance: FileExplorerUsedInstance<UseFileExplorerFocusSignature>,
@@ -150,5 +150,3 @@ useFileExplorerFocus.getInitialState = () => ({ focusedItemId: null });
 useFileExplorerFocus.params = {
   onItemFocus: true,
 };
-
-useFileExplorerFocus.code = 'focus';

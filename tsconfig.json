@@ -23,7 +23,11 @@
       "@stoked-ui/file-explorer": ["./packages/sui-file-explorer/src"],
       "@stoked-ui/file-explorer/*": ["./packages/sui-file-explorer/src/*"],
       "@stoked-ui/media-selector": ["./packages/sui-media-selector"],
-      "@stoked-ui/media-selector/*": ["./packages/sui-media-selector/*"]
+      "@stoked-ui/media-selector/*": ["./packages/sui-media-selector/*"],
+      "@stoked-ui/timeline": ["./packages/sui-timeline"],
+      "@stoked-ui/timeline/*": ["./packages/sui-timeline/*"],
+      "@stoked-ui/video-editor": ["./packages/sui-video-editor"],
+      "@stoked-ui/video-editor/*": ["./packages/sui-video-editor/*"]
     },
     // Otherwise we get react-native typings which conflict with dom.lib.
     "types": ["node", "react"]

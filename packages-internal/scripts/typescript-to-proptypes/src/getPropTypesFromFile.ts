@@ -357,6 +357,8 @@ function checkSymbol({
   const symbolFilenames = getSymbolFileNames(symbol);
   const jsDoc = getSymbolDocumentation({ symbol, project });
 
+  console.log('prop', project, symbol, location);
+
   // TypeChecker keeps the name for
   // { a: React.ElementType, b: React.ReactElement | boolean }
   // but not

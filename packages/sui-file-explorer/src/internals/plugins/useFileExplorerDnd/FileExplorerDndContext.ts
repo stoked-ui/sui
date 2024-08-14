@@ -85,7 +85,7 @@ export const fileExplorer = {
     });
   },
   find<R extends FileBase>(items: R[], itemId: string): R | undefined {
-    // eslint-disable-next-line consistent-return
+     
     for (let i = 0; i < items.length; i += 1){
       const item = items[i];
       if (item.id === itemId) {

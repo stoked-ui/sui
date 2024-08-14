@@ -1,0 +1,5 @@
+<FileExplorer
+  defaultExpandedItems={['Notes']}
+  slotProps={{ item: { slots: { groupTransition: TransitionComponent } } }}
+  items={NestedFiles}
+/>

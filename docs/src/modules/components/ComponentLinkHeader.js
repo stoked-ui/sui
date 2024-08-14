@@ -90,25 +90,6 @@ export default function ComponentLinkHeader(props) {
           />
         </Tooltip>
       </li>
-      {headers.waiAria ? (
-        <li>
-          <Chip
-            clickable
-            role={undefined}
-            component="a"
-            size="small"
-            variant="outlined"
-            rel="nofollow"
-            href={headers.waiAria}
-            icon={<W3CIcon color="primary" />}
-            data-ga-event-category="ComponentLinkHeader"
-            data-ga-event-action="click"
-            data-ga-event-label="WAI-ARIA"
-            data-ga-event-split="0.1"
-            label="WAI-ARIA"
-          />
-        </li>
-      ) : null}
       {headers.materialDesign ? (
         <li>
           <Chip
@@ -127,65 +108,6 @@ export default function ComponentLinkHeader(props) {
             label="Material Design"
           />
         </li>
-      ) : null}
-      {design !== false ? (
-        <React.Fragment>
-          <li>
-            <Chip
-              clickable
-              role={undefined}
-              component="a"
-              size="small"
-              variant="outlined"
-              rel="nofollow"
-              href="https://stoked-ui.github.io/store/items/figma-react/?utm_source=docs&utm_medium=referral&utm_campaign=component-link-header"
-              icon={<FigmaIcon />}
-              data-ga-event-category="ComponentLinkHeader"
-              data-ga-event-action="click"
-              data-ga-event-label="Figma"
-              data-ga-event-split="0.1"
-              label="Figma"
-            />
-          </li>
-          {packageName !== '@mui/joy' ? (
-            <li>
-              <Chip
-                clickable
-                role={undefined}
-                component="a"
-                size="small"
-                variant="outlined"
-                rel="nofollow"
-                href="https://stoked-ui.github.io/store/items/adobe-xd-react/?utm_source=docs&utm_medium=referral&utm_campaign=component-link-header"
-                icon={<AdobeXDIcon />}
-                data-ga-event-category="ComponentLinkHeader"
-                data-ga-event-action="click"
-                data-ga-event-label="Adobe XD"
-                data-ga-event-split="0.1"
-                label="Adobe"
-              />
-            </li>
-          ) : null}
-          {packageName !== '@mui/joy' ? (
-            <li>
-              <Chip
-                clickable
-                role={undefined}
-                component="a"
-                size="small"
-                variant="outlined"
-                rel="nofollow"
-                href="https://stoked-ui.github.io/store/items/sketch-react/?utm_source=docs&utm_medium=referral&utm_campaign=component-link-header"
-                icon={<SketchIcon />}
-                data-ga-event-category="ComponentLinkHeader"
-                data-ga-event-action="click"
-                data-ga-event-label="Sketch"
-                data-ga-event-split="0.1"
-                label="Sketch"
-              />
-            </li>
-          ) : null}
-        </React.Fragment>
       ) : null}
     </Root>
   );

@@ -109,7 +109,6 @@ export const useFileExplorerExpansion: FileExplorerPlugin<UseFileExplorerExpansi
     },
   };
 };
-useFileExplorerExpansion.code = 'expansion';
 useFileExplorerExpansion.models = {
   expandedItems: {
     getDefaultValue: (params) => params.defaultExpandedItems,
