@@ -5,7 +5,7 @@ import { utils as docgenUtils, NodePath, Documentation, Importer, Handler } from
 const { getPropertyName, isReactForwardRefCall, printValue, resolveToValue } = docgenUtils;
 
 // based on https://github.com/reactjs/react-docgen/blob/735f39ef784312f4c0e740d4bfb812f0a7acd3d5/src/handlers/defaultPropsHandler.js#L1-L112
-// adjusted for stoked-ui getThemedProps
+// adjusted for material-ui getThemedProps
 
 function getDefaultValue(propertyPath: NodePath, importer: Importer) {
   if (!types.AssignmentPattern.check(propertyPath.get('value').node)) {

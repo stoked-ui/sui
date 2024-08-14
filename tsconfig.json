@@ -27,7 +27,9 @@
       "@stoked-ui/timeline": ["./packages/sui-timeline"],
       "@stoked-ui/timeline/*": ["./packages/sui-timeline/*"],
       "@stoked-ui/video-editor": ["./packages/sui-video-editor"],
-      "@stoked-ui/video-editor/*": ["./packages/sui-video-editor/*"]
+      "@stoked-ui/video-editor/*": ["./packages/sui-video-editor/*"],
+      "@stoked-ui/internal-test-utils": ["./packages/test-utils"],
+      "@stoked-ui/internal-test-utils/*": ["./packages/test-utils/*"]
     },
     // Otherwise we get react-native typings which conflict with dom.lib.
     "types": ["node", "react"]

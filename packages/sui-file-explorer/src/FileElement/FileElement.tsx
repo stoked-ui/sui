@@ -4,14 +4,13 @@ import clsx from 'clsx';
 import Collapse from '@mui/material/Collapse';
 import { resolveComponentProps, useSlotProps } from '@mui/base/utils';
 import useForkRef from '@mui/utils/useForkRef';
+import { alpha, styled, useThemeProps } from '@mui/material/styles';
 import { shouldForwardProp } from '@mui/system/createStyled';
-import { alpha } from '@mui/material/styles';
 import { TransitionProps } from '@mui/material/transitions';
 import unsupportedProp from '@mui/utils/unsupportedProp';
 import elementTypeAcceptingRef from '@mui/utils/elementTypeAcceptingRef';
 import { unstable_composeClasses as composeClasses } from '@mui/base';
 import { IdGenerator } from '@stoked-ui/media-selector';
-import { createUseThemeProps, styled } from '../internals/zero-styled';
 import { FileElementContent } from './FileElementContent';
 import { fileElementClasses, getFileElementUtilityClass } from './fileElementClasses';
 import {
@@ -25,8 +24,6 @@ import { FileExplorerCollapseIcon, FileExplorerExpandIcon } from '../icons';
 import { FileProvider } from '../internals/FileProvider';
 import { FileDepthContext } from '../internals/FileDepthContext';
 import { useFileElementState } from './useFileElementState';
-
-const useThemeProps = createUseThemeProps('MuiFileElement');
 
 const useUtilityClasses = (ownerState: FileElementOwnerState) => {
   const { classes } = ownerState;
@@ -99,11 +96,11 @@ const StyledFileElementContent = styled(FileElementContent, {
     backgroundColor: theme.palette.action.focus,
   },
   [`&.${fileElementClasses.selected}`]: {
-    backgroundColor: theme.vars
+    backgroundColor: theme?.vars
       ? `rgba(${theme.vars.palette.primary.mainChannel} / ${theme.vars.palette.action.selectedOpacity})`
       : alpha(theme.palette.primary.main, theme.palette.action.selectedOpacity),
     '&:hover': {
-      backgroundColor: theme.vars
+      backgroundColor: theme?.vars
         ? `rgba(${theme.vars.palette.primary.mainChannel} / calc(${theme.vars.palette.action.selectedOpacity} + ${theme.vars.palette.action.hoverOpacity}))`
         : alpha(
             theme.palette.primary.main,
@@ -111,13 +108,13 @@ const StyledFileElementContent = styled(FileElementContent, {
           ),
       // Reset on touch devices, it doesn't add specificity
       '@media (hover: none)': {
-        backgroundColor: theme.vars
+        backgroundColor: theme?.vars
           ? `rgba(${theme.vars.palette.primary.mainChannel} / ${theme.vars.palette.action.selectedOpacity})`
           : alpha(theme.palette.primary.main, theme.palette.action.selectedOpacity),
       },
     },
     [`&.${fileElementClasses.focused}`]: {
-      backgroundColor: theme.vars
+      backgroundColor: theme?.vars
         ? `rgba(${theme.vars.palette.primary.mainChannel} / calc(${theme.vars.palette.action.selectedOpacity} + ${theme.vars.palette.action.focusOpacity}))`
         : alpha(
             theme.palette.primary.main,

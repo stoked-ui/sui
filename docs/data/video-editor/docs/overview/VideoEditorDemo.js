@@ -1,6 +1,6 @@
 import { styled } from '@mui/material/styles';
 import {shouldForwardProp} from "@mui/system";
-import { Timeline, TimelineAction, TimelineRow, TimelineState, TimelinePlayer } from '@stoked-ui/timeline';
+import { VideoEditor } from '@stoked-ui/video-editor';
 import { cloneDeep } from 'lodash';
 import * as React from 'react';
 import { CustomRender0, CustomRender1 } from './custom';
@@ -38,12 +38,8 @@ const Root = styled('div')(({ theme }) => ({
 }));
 
 export default function VideoEditorDemo() {
-  const [data, setData] = React.useState(defaultEditorData);
-  const timelineState = React.useRef();
-  const playerPanel = React.useRef();
-
   return (
-    <VideoEditor />
+    <VideoEditor sx={{ borderRadius: '12px 12px 0 0' }}/>
   );
 };
 

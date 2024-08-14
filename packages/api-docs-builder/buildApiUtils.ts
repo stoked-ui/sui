@@ -7,8 +7,6 @@ import { getLineFeed } from '@stoked-ui/internal-docs-utils';
 import { replaceComponentLinks } from './utils/replaceUrl';
 import { TypeScriptProject } from './utils/createTypeScriptProject';
 
-export type { ComponentInfo, HookInfo } from './types/utils.types';
-
 /**
  * TODO: this should really be fixed in findPagesMarkdown().
  * Plus replaceComponentLinks() shouldn't exist in the first place,
@@ -21,7 +19,7 @@ export function fixPathname(pathname: string): string {
     fixedPathname = replaceComponentLinks(`${pathname.replace(/^\/material/, '')}/`);
   } else if (pathname.startsWith('/joy')) {
     fixedPathname = replaceComponentLinks(`${pathname.replace(/^\/joy/, '')}/`).replace(
-      'stoked-ui',
+      'material-ui',
       'joy-ui',
     );
   } else if (pathname.startsWith('/base')) {
@@ -238,8 +236,8 @@ export async function stringifySymbol(symbol: ts.Symbol, project: TypeScriptProj
 
 /**
  * @param filepath - absolute path
- * @example toGitHubPath('/home/user/stoked-ui/packages/Accordion') === '/packages/Accordion'
- * @example toGitHubPath('C:\\Development\\stoked-ui\\packages\\Accordion') === '/packages/Accordion'
+ * @example toGitHubPath('/home/user/material-ui/packages/Accordion') === '/packages/Accordion'
+ * @example toGitHubPath('C:\\Development\\material-ui\\packages\\Accordion') === '/packages/Accordion'
  */
 export function toGitHubPath(filepath: string): string {
   return `/${path.relative(process.cwd(), filepath).replace(/\\/g, '/')}`;

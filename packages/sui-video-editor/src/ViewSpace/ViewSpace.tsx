@@ -73,7 +73,18 @@ export const ViewSpace = React.forwardRef(function ViewSpace<
 
   return (
     <div style={{ border: '1px solid black' }}>
-
+      <ReactPlayer
+        className="rve-player"
+        width={'100%'}
+        height={'100%'}
+        style={{ border: '1px solid black', display: 'flex' }}
+        url={'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'}
+        /*
+        onDuration={(duration: number) => {
+          handleDuration(duration, video);
+        }}
+        */
+      />
     </div>
   )
 })

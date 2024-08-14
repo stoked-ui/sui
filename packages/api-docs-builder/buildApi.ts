@@ -4,7 +4,9 @@ import * as fse from 'fs-extra';
 import findComponents from './utils/findComponents';
 import findHooks from './utils/findHooks';
 import { writePrettifiedFile } from './buildApiUtils';
-import generateComponentApi from './ApiBuilders/ComponentApiBuilder';
+import generateComponentApi, {
+  ReactApi as ComponentReactApi,
+} from './ApiBuilders/ComponentApiBuilder';
 import generateHookApi from './ApiBuilders/HookApiBuilder';
 import {
   CreateTypeScriptProjectOptions,
@@ -12,7 +14,6 @@ import {
   createTypeScriptProjectBuilder,
 } from './utils/createTypeScriptProject';
 import { ProjectSettings } from './ProjectSettings';
-import { ComponentReactApi } from './types/ApiBuilder.types';
 
 async function removeOutdatedApiDocsTranslations(
   components: readonly ComponentReactApi[],
