@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from "react";
+import * as React from "react";
 import { styled } from "@mui/material/styles";
 import { prefix } from "../../utils/deal_class_prefix";
 
@@ -8,7 +8,7 @@ export interface DragLineData {
   assistPositions: number[];
 }
 
-export type DragLineProps = DragLineData & {scrollLeft: number};
+export type DragLineProps = DragLineData;
 
 const DragLinesRoot = styled('div')({
   position: 'absolute',
@@ -26,18 +26,17 @@ const DragLineRoot = styled('div')({
 });
 
 /** drag guide lines */
-export const DragLines: FC<DragLineProps> = ({
+export function DragLines ({
   isMoving,
   movePositions = [],
   assistPositions = [],
-  scrollLeft,
-}) => {
+}: DragLineProps) {
   return(
     <DragLinesRoot className={prefix('drag-line-container')}>
       {
         isMoving && movePositions.filter(item => assistPositions.includes(item)).map(((linePos, index) => {
           return (
-            <DragLineRoot key={index} className={prefix('drag-line')} style={{left: linePos - scrollLeft}} />
+            <DragLineRoot key={index} className={prefix('drag-line')} style={{left: linePos}} />
           )
         }))
       }

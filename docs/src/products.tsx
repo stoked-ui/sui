@@ -29,6 +29,7 @@ import CustomerShowcase, { PrefetchStoreTemplateImages } from "./components/home
 import { PrefetchDesignKitImages } from "./components/home/DesignKits";
 import MaterialShowcase from "./components/home/MaterialShowcase";
 import CoreShowcase from "./components/home/CoreShowcase";
+import OriginalShowcase from "./components/home/CoreShowcase";
 import AdvancedShowcase from "./components/home/AdvancedShowcase";
 
 type RouteType = 'product' | 'doc';
@@ -818,7 +819,7 @@ const timelineData: TProduct = {
   url: "/timeline",
   hideProductFeatures: true,
   live: true,
-  showcaseType: MaterialShowcase,
+  showcaseType: OriginalShowcase,
   features: [{
     name: 'Getting Started',
     description: 'Overview, installation, lions, tigers, and bears oh mai!',

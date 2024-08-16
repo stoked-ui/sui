@@ -1,31 +1,23 @@
 {
+  "extends": "../../tsconfig.x.json",
   "compilerOptions": {
-    "target": "esnext",
-    "module": "esnext",
-    "moduleResolution": "node",
+    "target": "ES2015",
+    "types": [
+      "@stoked-ui/internal-test-utils/initMatchers",
+      "@mui/material/themeCssVarsAugmentation",
+      "chai-dom",
+      "mocha",
+      "node"
+    ],
     "importHelpers": true,
     "jsx": "react",
     "esModuleInterop": true,
     "sourceMap": true,
     "baseUrl": "./",
     "strict": false,
-    "paths": {
-      "@/*": ["src/*"],
-      "@@/*": ["src/.umi/*"],
-      "react": [ "./node_modules/@types/react"]
-    },
+    "noImplicitAny": false,
     "allowSyntheticDefaultImports": true
   },
-  "exclude": [
-    "node_modules",
-    "lib",
-    "es",
-    "dist",
-    "docs",
-    "typings",
-    "**/__test__",
-    "test",
-    "tests",
-    "**/*.test.tsx"
-  ]
+  "include": ["src/**/*"],
+  "exclude": ["**/*.test.tsx"]
 }

@@ -1,15 +1,11 @@
-import React, { FC, useEffect, useRef } from 'react';
+import * as React from 'react';
 import { styled } from "@mui/material/styles";
-import { AutoSizer, Grid, GridCellRenderer, OnScrollParams } from 'react-virtualized';
+import { AutoSizer, Grid, GridCellRenderer } from 'react-virtualized';
 import { parserPixelToTime } from '../../utils/deal_data';
 import { CommonProp } from '../../interface/common_prop';
 import { prefix } from '../../utils/deal_class_prefix';
 /** Animation timeline component parameters */
 export type TimeAreaProps = CommonProp & {
-  /** Left scroll distance */
-  scrollLeft: number;
-  /** Scroll callback, used for synchronous scrolling */
-  onScroll: (params: OnScrollParams) => void;
   /** Set cursor position */
   setCursor: (param: { left?: number; time?: number }) => void;
 };
@@ -53,15 +49,17 @@ const TimeUnit = styled('div')(({ theme }) => ({
   }
 }));
 /** Animation timeline component */
-export const TimeArea: FC<TimeAreaProps> = ({ setCursor, maxScaleCount, hideCursor, scale, scaleWidth, scaleCount, scaleSplitCount, startLeft, scrollLeft, onClickTimeArea, getScaleRender }) => {
-  const gridRef = useRef<Grid>();
+export const TimeArea: React.FC<TimeAreaProps> = ({ setCursor, maxScaleCount, hideCursor, scale, scaleWidth, scaleCount, scaleSplitCount, startLeft, onClickTimeArea, getScaleRender }) => {
+  const gridRef = React.useRef<Grid>();
   /** Whether to display subdivision scales */
   const showUnit = scaleSplitCount > 0;
   /** Get the rendering content of each cell */
   const cellRenderer: GridCellRenderer = ({ columnIndex, key, style }) => {
     const isShowScale = showUnit ? columnIndex % scaleSplitCount === 0 : true;
     const classNames = ['time-unit'];
-    if (isShowScale) classNames.push('time-unit-big');
+    if (isShowScale) {
+      classNames.push('time-unit-big');
+    }
     const item = (showUnit ? columnIndex / scaleSplitCount : columnIndex) * scale;
     return (
       <TimeUnit key={key} style={style} className={prefix(...classNames)}>
@@ -70,7 +68,7 @@ export const TimeArea: FC<TimeAreaProps> = ({ setCursor, maxScaleCount, hideCurs
     );
   };
 
-  useEffect(() => {
+  React.useEffect(() => {
     gridRef.current?.recomputeGridSize();
   }, [scaleWidth, startLeft]);
 
@@ -102,7 +100,6 @@ export const TimeArea: FC<TimeAreaProps> = ({ setCursor, maxScaleCount, hideCurs
                 overscanRowCount={0}
                 overscanColumnCount={10}
                 cellRenderer={cellRenderer}
-                scrollLeft={scrollLeft}
               ></Grid>
               <TimeAreaInteract
                 style={{ width, height }}
@@ -112,8 +109,8 @@ export const TimeArea: FC<TimeAreaProps> = ({ setCursor, maxScaleCount, hideCurs
                   }
                   const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
                   const position = e.clientX - rect.x;
-                  const left = Math.max(position + scrollLeft, startLeft);
-                  if (left > maxScaleCount * scaleWidth + startLeft - scrollLeft) {
+                  const left = Math.max(position, startLeft);
+                  if (left > maxScaleCount * scaleWidth + startLeft) {
                     return;
                   }
 

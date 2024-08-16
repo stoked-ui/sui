@@ -1,24 +1,20 @@
-import React, { useEffect, useImperativeHandle, useRef } from 'react';
+import * as React from 'react';
 import { styled } from "@mui/material/styles";
 import { AutoSizer, Grid, GridCellRenderer, OnScrollParams } from 'react-virtualized';
-import { TimelineRow } from '../../interface/action';
+import { TimelineTrack } from '../../interface/action';
 import { CommonProp } from '../../interface/common_prop';
-import { EditData } from '../../Timeline/Timeline.type';
+import { EditData, TimelineControlProps } from '../../TimelineControl/TimelineControl.types';
 import { prefix } from '../../utils/deal_class_prefix';
 import { parserTimeToPixel } from '../../utils/deal_data';
 import { DragLines } from './drag_lines';
 import { EditRow } from './edit_row';
 import { useDragLine } from './hooks/use_drag_line';
 
-export type EditAreaProps = CommonProp & {
-  /** Scroll distance from the left */
-  scrollLeft: number;
+export type EditAreaProps = TimelineControlProps & CommonProp & {
   /** Scroll distance from top */
   scrollTop?: number;
-  /** Scroll callback, used for synchronous scrolling */
-  onScroll: (params: OnScrollParams) => void;
   /** Set editor data */
-  setEditorData: (params: TimelineRow[]) => void;
+  setEditorData: (tracks: TimelineTrack[]) => void;
   /** Set scroll left */
   deltaScrollLeft: (scrollLeft: number) => void;
 };
@@ -54,17 +50,15 @@ const EditAreaRoot = styled('div')(({ theme }) => ({
 
 export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>((props, ref) => {
   const {
-    editorData,
+    tracks,
     rowHeight,
     scaleWidth,
     scaleCount,
     startLeft,
-    scrollLeft,
     scrollTop,
     scale,
     hideCursor,
     cursorTime,
-    onScroll,
     dragLine,
     getAssistDragLineActionIds,
     onActionMoveEnd,
@@ -75,12 +69,12 @@ export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>((props, r
     onActionResizing,
   } = props;
   const { dragLineData, initDragLine, updateDragLine, disposeDragLine, defaultGetAssistPosition, defaultGetMovePosition } = useDragLine();
-  const editAreaRef = useRef<HTMLDivElement>();
-  const gridRef = useRef<Grid>();
-  const heightRef = useRef(-1);
+  const editAreaRef = React.useRef<HTMLDivElement>();
+  const gridRef = React.useRef<Grid>();
+  const heightRef = React.useRef(-1);
 
   // ref 数据
-  useImperativeHandle(ref, () => ({
+  React.useImperativeHandle(ref, () => ({
     get domRef() {
       return editAreaRef;
     },
@@ -92,15 +86,15 @@ export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>((props, r
         getAssistDragLineActionIds &&
         getAssistDragLineActionIds({
           action: data.action,
-          row: data.row,
-          editorData,
+          track: data.track,
+          tracks,
         });
       const cursorLeft = parserTimeToPixel(cursorTime, { scaleWidth, scale, startLeft });
       const assistPositions = defaultGetAssistPosition({
-        editorData,
+        tracks,
         assistActionIds,
         action: data.action,
-        row: data.row,
+        track: data.track,
         scale,
         scaleWidth,
         startLeft,
@@ -125,7 +119,7 @@ export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>((props, r
 
 /** Get the rendering content of each cell */
   const cellRenderer: GridCellRenderer = ({ rowIndex, key, style }) => {
-    const row = editorData[rowIndex]; // row data
+    const track = tracks[rowIndex]; // track data
     return (
       <EditRow
         {...props}
@@ -136,8 +130,8 @@ export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>((props, r
         }}
         areaRef={editAreaRef}
         key={key}
-        rowHeight={row?.rowHeight || rowHeight}
-        rowData={row}
+        rowHeight={track?.rowHeight || rowHeight}
+        rowData={track}
         dragLineData={dragLineData}
         onActionMoveStart={(data) => {
           handleInitDragLine(data);
@@ -168,23 +162,19 @@ export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>((props, r
     );
   };
 
-  useEffect(() => {
-    gridRef.current?.scrollToPosition({ scrollTop, scrollLeft });
-  }, [scrollTop, scrollLeft]);
-
-  useEffect(() => {
+  React.useEffect(() => {
     gridRef.current.recomputeGridSize();
-  }, [editorData]);
+  }, [tracks]);
 
   return (
     <EditAreaRoot ref={editAreaRef} className={prefix('edit-area')}>
       <AutoSizer>
         {({ width, height }) => {
-          // 获取全部高度
+          // Get full height
           let totalHeight = 0;
           // 高度列表
-          const heights = editorData.map((row) => {
-            const itemHeight = row.rowHeight || rowHeight;
+          const heights = tracks?.map((track) => {
+            const itemHeight = track.rowHeight || rowHeight;
             totalHeight += itemHeight;
             return itemHeight;
           });
@@ -212,14 +202,12 @@ export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>((props, r
               rowHeight={({ index }) => heights[index] || rowHeight}
               overscanRowCount={10}
               overscanColumnCount={0}
-              onScroll={(param) => {
-                onScroll(param);
-              }}
+
             />
           );
         }}
       </AutoSizer>
-      {dragLine && <DragLines scrollLeft={scrollLeft} {...dragLineData} />}
+      {dragLine && <DragLines {...dragLineData} />}
     </EditAreaRoot>
   );
 });

@@ -1,13 +1,11 @@
 import { DEFAULT_ROW_HEIGHT, DEFAULT_SCALE, DEFAULT_SCALE_SPLIT_COUNT, DEFAULT_SCALE_WIDTH, DEFAULT_START_LEFT, MIN_SCALE_COUNT } from "../interface/const";
-import { TimelineProps } from "../Timeline/Timeline.type";
+import { TimelineControlProps } from "../TimelineControl/TimelineControl.types";
 import ConsoleLogger from "./logger";
+
 const logger = new ConsoleLogger('timeline');
 
-export function checkProps(props: TimelineProps): TimelineProps {
+export function checkProps(props: TimelineControlProps): TimelineControlProps {
   let {
-    editorData = [],
-    effects = {},
-    scrollTop = 0,
     scale = DEFAULT_SCALE,
     scaleSplitCount = DEFAULT_SCALE_SPLIT_COUNT,
     scaleWidth = DEFAULT_SCALE_WIDTH,
@@ -20,11 +18,6 @@ export function checkProps(props: TimelineProps): TimelineProps {
   if(scale <= 0) {
     logger.error('Error: scale must be greater than 0!')
     scale = DEFAULT_SCALE;
-  }
-
-  if(scrollTop < 0) {
-    logger.warn('Warning: scrollTop cannot be less than 0!')
-    scrollTop = 0;
   }
 
   if(scaleSplitCount <= 0) {
@@ -46,13 +39,13 @@ export function checkProps(props: TimelineProps): TimelineProps {
     logger.warn('Warning: minScaleCount must be greater than 1!')
     minScaleCount = MIN_SCALE_COUNT
   }
-  minScaleCount = parseInt(minScaleCount + '');
+  minScaleCount = parseInt(`${minScaleCount}`, 10);
 
   if(maxScaleCount < minScaleCount) {
     logger.warn('Warning: maxScaleCount cannot be less than minScaleCount!')
     maxScaleCount = minScaleCount
   }
-  maxScaleCount = maxScaleCount === Infinity ? Infinity : parseInt(maxScaleCount + '');
+  maxScaleCount = maxScaleCount === Infinity ? Infinity : parseInt(`${maxScaleCount}`, 10);
 
   if(rowHeight <= 0) {
     logger.warn('Warning: rowHeight must be greater than 0!')
@@ -60,12 +53,11 @@ export function checkProps(props: TimelineProps): TimelineProps {
   }
 
   const temp = {...props};
-  delete temp['style'];
+  delete temp.style;
   return {
     ...temp,
-    editorData,
-    effects,
-    scrollTop,
+    tracks: props.tracks,
+    actionTypes: props.actionTypes,
     scale,
     scaleSplitCount: scaleSplitCount || 10,
     scaleWidth,

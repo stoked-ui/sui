@@ -1,69 +1,13 @@
-import { styled } from '@mui/material/styles';
-import { Timeline, TimelinePlayer } from '@stoked-ui/timeline';
-import { cloneDeep } from 'lodash';
 import * as React from 'react';
-import { CustomRender0, CustomRender1, CustomRender2 } from './custom';
-// import './index.less';
-import { mockData, mockEffect, scale, scaleWidth, startLeft } from './mock';
-
-const defaultEditorData = cloneDeep(mockData);
-
-const getActionRenderer = (action, row) => {
-  switch(action.effectId) {
-    case 'effect0':
-      return <CustomRender0 action={action} row={row}/>;
-    case 'effect1':
-      return <CustomRender1 action={action} row={row}/>;
-    case 'effect2':
-    default:
-      return <CustomRender2 action={action} row={row}/>;
-  }
-}
-
-const Root = styled('div')(({ theme }) => ({
-  display: 'flex',
-  flexDirection: 'column',
-  width: '100%',
-  '& .player-panel': {
-    width: '100%',
-    height: '500px',
-    position: 'relative',
-
-    '& .lottie-ani': {
-      position: 'absolute',
-      width: '100%',
-      height: '100%',
-      left: 0,
-      top: 0,
-    }
-  },
-  overflow: 'hidden',
-}));
+import Showcase from './Showcase';
+import BrandingCssVarsProvider from 'docs/src/BrandingCssVarsProvider';
 
 export default function TimelineEditorDemo() {
-  const [data, setData] = React.useState(defaultEditorData);
-  const timelineState = React.useRef(null);
-  const playerPanel = React.useRef(null);
 
   return (
-    <Root className="timeline-editor-engine">
-      <div className="player-panel" id="player-ground-1" ref={playerPanel}/>
-      <TimelinePlayer timelineState={timelineState} autoScrollWhenPlay scale={scale} scaleWidth={scaleWidth} startLeft={startLeft} />
-      <Timeline
-        scale={scale}
-        scaleWidth={scaleWidth}
-        startLeft={startLeft}
-        maxScaleCount={10}
-        autoScroll
-        ref={timelineState}
-        editorData={data}
-        effects={mockEffect}
-        onChange={(dataRows) => {
-          setData(dataRows as CustomTimelineRow[]);
-        }}
-        getActionRender={getActionRenderer}
-      />
-    </Root>
+    <BrandingCssVarsProvider>
+      <Showcase />
+    </BrandingCssVarsProvider>
   );
 };
 

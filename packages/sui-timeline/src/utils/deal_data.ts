@@ -1,4 +1,4 @@
-import { TimelineAction, TimelineRow } from "../interface/action";
+import { TimelineAction, TimelineTrack } from "../interface/action";
 import { ADD_SCALE_COUNT } from "../interface/const";
 
 /** time to pixel */
@@ -69,10 +69,10 @@ export function parserTimeToTransform(
   };
 }
 /** Get the number of scales based on data */
-export function getScaleCountByRows(data: TimelineRow[], param: { scale: number }) {
+export function getScaleCountByRows(tracks: TimelineTrack[], param: { scale: number }) {
   let max = 0;
-  data.forEach((row) => {
-    row.actions.forEach((action) => {
+  tracks.forEach((track) => {
+    track.actions.forEach((action) => {
       max = Math.max(max, action.end);
     });
   });

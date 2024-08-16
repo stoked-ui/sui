@@ -1,38 +1,42 @@
-import { useState } from "react";
-import { TimelineAction, TimelineRow } from "../../../interface/action";
+import * as React  from "react";
+import { TimelineAction, TimelineTrack } from "../../../interface/action";
 import { parserActionsToPositions, parserTimeToTransform } from "../../../utils/deal_data";
 import { DragLineData } from "../drag_lines";
 
 export function useDragLine() {
-  const [dragLineData, setDragLineData] = useState<DragLineData>({ isMoving: false, movePositions: [], assistPositions: [] });
+  const [dragLineData, setDragLineData] = React.useState<DragLineData>({ isMoving: false, movePositions: [], assistPositions: [] });
 
   /** get auxiliary lines */
   const defaultGetAssistPosition = (data: {
-    editorData: TimelineRow[];
+    tracks: TimelineTrack[];
     assistActionIds?: string[];
     action: TimelineAction;
-    row: TimelineRow;
+    track: TimelineTrack;
     startLeft?: number;
     scale?: number;
     scaleWidth?: number;
     hideCursor: boolean;
     cursorLeft: number;
   }) => {
-    const { editorData, assistActionIds, action, row, scale = 1, scaleWidth = 160, startLeft= 20, cursorLeft, hideCursor } = data;
+    const { tracks, assistActionIds, action, track, scale = 1, scaleWidth = 160, startLeft= 20, cursorLeft, hideCursor } = data;
     const otherActions: TimelineAction[] = [];
     if (assistActionIds) {
-      editorData.forEach((rowItem) => {
+      tracks.forEach((rowItem) => {
         rowItem.actions.forEach((actionItem) => {
-          if (assistActionIds.includes(actionItem.id)) otherActions.push(actionItem);
+          if (assistActionIds.includes(actionItem.id)) {
+            otherActions.push(actionItem);
+          }
         });
       });
     } else {
-      editorData.forEach((rowItem) => {
-        if (rowItem.id !== row.id) {
+      tracks.forEach((rowItem) => {
+        if (rowItem.id !== track.id) {
           otherActions.push(...rowItem.actions);
         } else {
           rowItem.actions.forEach((actionItem) => {
-            if (actionItem.id !== action.id) otherActions.push(actionItem);
+            if (actionItem.id !== action.id) {
+              otherActions.push(actionItem);
+            }
           });
         }
       });
@@ -43,7 +47,9 @@ export function useDragLine() {
       scale,
       scaleWidth,
     });
-    if (!hideCursor) positions.push(cursorLeft);
+    if (!hideCursor) {
+      positions.push(cursorLeft);
+    }
 
     return positions;
   };
@@ -52,7 +58,9 @@ export function useDragLine() {
   const defaultGetMovePosition = (data: { start: number; end: number; dir?: "right" | "left"; startLeft: number; scale: number; scaleWidth: number }) => {
     const { start, end, dir, scale, scaleWidth, startLeft } = data;
     const { left, width } = parserTimeToTransform({ start, end }, { startLeft, scaleWidth, scale });
-    if (!dir) return [left, left + width];
+    if (!dir) {
+      return [left, left + width];
+    }
     return dir === "right" ? [left + width] : [left];
   };
 

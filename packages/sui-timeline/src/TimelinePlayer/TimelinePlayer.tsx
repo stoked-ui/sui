@@ -11,7 +11,7 @@ import IconButton from '@mui/material/IconButton';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import { TimelineState } from '../Timeline/TimelineState';
-import { TimelineRow } from '../interface/action';
+import { TimelineTrack } from '../interface/action';
 
 export const Rates = [0.2, 0.5, 1.0, 1.5, 2.0];
 
@@ -25,14 +25,14 @@ const PlayerRoot = styled('div')(({ theme }) => ({
   backgroundColor: theme.palette.action.hover,
 }));
 
-const IconButtonControlRoot = styled(IconButton)(({ theme }) => ({
+const IconButtonControlRoot = styled(IconButton)({
   width: '24px',
   height: '24px',
   borderRadius: '4px',
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
-}));
+});
 
 const TimeRoot = styled('div')({
   fontSize: '12px',
@@ -45,24 +45,23 @@ const RateControlRoot = styled('div')({
   fontSize: '12px',
 });
 
-const TimelinePlayer: React.FC<{
-  timelineState?: React.RefObject<TimelineState>;
-  editorData?: TimelineRow[];
-  autoScrollWhenPlay: boolean;
-  scale?: number;
-  scaleWidth?: number;
-  startLeft?: number;
-}> = ({
+function TimelinePlayer({
   timelineState,
-  editorData,
+  tracks,
   autoScrollWhenPlay,
   scale = 1,
   scaleWidth = 160,
   startLeft = 20,
-}) => {
+}: {
+  timelineState?: React.RefObject<TimelineState>;
+  tracks?: TimelineTrack[];
+  autoScrollWhenPlay: boolean;
+  scale?: number;
+  scaleWidth?: number;
+  startLeft?: number;
+}) {
   const [isPlaying, setIsPlaying] = React.useState(false);
   const [time, setTime] = React.useState(0);
-  const test = React.useRef<TimelineState>(null);
 
   React.useEffect(() => {
     if (!timelineState || !timelineState.current) {
@@ -71,13 +70,13 @@ const TimelinePlayer: React.FC<{
     const engine = timelineState.current;
     engine.listener?.on('play', () => setIsPlaying(true));
     engine.listener?.on('paused', () => setIsPlaying(false));
-    engine.listener?.on('afterSetTime', ({ time }) => setTime(time));
-    engine.listener?.on('setTimeByTick', ({ time }) => {
-      setTime(time);
+    engine.listener?.on('afterSetTime', ({ time: afterSetTime }) => setTime(afterSetTime));
+    engine.listener?.on('setTimeByTick', ({ time: setTimeByTickTime }) => {
+      setTime(setTimeByTickTime);
 
       if (autoScrollWhenPlay) {
         const autoScrollFrom = 500;
-        const left = time * (scaleWidth / scale) + startLeft - autoScrollFrom;
+        const left = setTimeByTickTime * (scaleWidth / scale) + startLeft - autoScrollFrom;
         timelineState.current?.setScrollLeft(left);
       }
     });
@@ -91,9 +90,8 @@ const TimelinePlayer: React.FC<{
     };
   }, []);
 
-  // 开始或暂停
+  // Start or pause
   const handlePlayOrPause = () => {
-    console.log('play', timelineState?.current);
     if (!timelineState || !timelineState.current) {
       return;
     }
@@ -125,16 +123,15 @@ const TimelinePlayer: React.FC<{
   };
 
   const handleEnd = () => {
-    if (editorData) {
+    if (tracks) {
       let furthest = 0;
-      editorData.forEach((row) => {
-        row.actions.forEach((action) => {
+      tracks.forEach((track) => {
+        track.actions.forEach((action) => {
           if (action.end > furthest) {
             furthest = action.end;
           }
         });
       });
-      console.log('end', furthest);
       timelineState?.current?.setTime(furthest);
     }
   };
@@ -219,7 +216,7 @@ const PlayerRoot = styled('div')(({ theme }) => ({
   width: '100%',
   padding: '0 10px',
   display: 'flex',
-  flexDirection: 'row',
+  flexDirection: 'track',
   alignItems: 'center',
   backgroundColor: theme.palette.action.hover,
 }));
@@ -434,12 +431,14 @@ TimelinePlayer.propTypes = {
       setScrollLeft: PropTypes.func.isRequired,
       setScrollTop: PropTypes.func.isRequired,
       setTime: PropTypes.func.isRequired,
-      target: function (props, propName) {
+      target: (props, propName) => {
         if (props[propName] == null) {
-          return new Error("Prop '" + propName + "' is required but wasn't specified");
-        } else if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
-          return new Error("Expected prop '" + propName + "' to be of type Element");
+          return new Error(`Prop ${propName} is required but wasn't specified`);
         }
+        if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
+          return new Error(`Expected prop ${propName} to be of type Element`);
+        }
+        return undefined;
       },
     }).isRequired,
   }).isRequired,

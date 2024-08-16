@@ -26,4 +26,4 @@ import { Timeline } from '@stoked-ui/timeline/Timeline';
 The simple version of the File Explorer component receives its items as JSX children.
 This is the recommended version for hardcoded items.
 
-{{"demo": "TimelineEditorDemo.js", "defaultCodeOpen": false, "bg": "noMargin"}}
+{{"demo": "TimelineEditorDemo.js", "hideToolbar": true, "bg": "inline"}}
