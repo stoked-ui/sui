@@ -26,22 +26,27 @@ export interface TimelineAction {
   minStart?: number;
   /** Maximum end time limit of action */
   maxEnd?: number;
+
+  data?: {
+    src: string;
+    name: string;
+  } | any;
 }
 
 /**
  *Basic parameters of action lines
  * @export
- * @interface TimelineRow
+ * @interface TimelineTrack
  */
-export interface TimelineRow {
-  /** Action row id */
+export interface TimelineTrack {
+  /** Action track id */
   id: string;
   /** Row action list */
   actions: TimelineAction[];
-  /** Customize row height */
+  /** Customize track height */
   rowHeight?: number;
-  /** Whether the row is selected */
+  /** Whether the track is selected */
   selected?: boolean;
-  /** Extended class name of row */
+  /** Extended class name of track */
   classNames?: string[];
 }

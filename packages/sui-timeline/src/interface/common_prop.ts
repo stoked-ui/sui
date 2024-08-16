@@ -1,4 +1,4 @@
-import { EditData } from "../Timeline/Timeline.type";
+import { EditData } from "../TimelineControl/TimelineControl.types";
 
 /** Component public parameters */
 export interface CommonProp extends EditData {

@@ -15,7 +15,7 @@ export const DEFAULT_START_LEFT = 20;
 export const DEFAULT_MOVE_GRID = 1;
 /** Default adsorption pixel */
 export const DEFAULT_ADSORPTION_DISTANCE = 8;
-/** Default action row height */
+/** Default action track height */
 export const DEFAULT_ROW_HEIGHT = 32;
 
 /** Minimum number of scales */

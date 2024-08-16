@@ -32,6 +32,8 @@ const pages: MuiPage[] = [
     newFeature: true,
     children: [
       { pathname: '/timeline/docs/overview', title: 'Overview' },
+      { pathname: '/timeline/docs/editor', title: 'Editor' },
+
     ],
   },
   {

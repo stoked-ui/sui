@@ -1,6 +1,6 @@
-import React, { FC, useRef, useState } from 'react';
+import * as React from 'react';
 import { styled } from '@mui/material/styles';
-import { TimelineAction, TimelineRow } from '../../interface/action';
+import { TimelineAction, TimelineTrack } from '../../interface/action';
 import { CommonProp } from '../../interface/common_prop';
 import { DEFAULT_ADSORPTION_DISTANCE, DEFAULT_MOVE_GRID } from '../../interface/const';
 import { prefix } from '../../utils/deal_class_prefix';
@@ -8,12 +8,14 @@ import { getScaleCountByPixel, parserTimeToPixel, parserTimeToTransform, parserT
 import { RowDnd } from '../row_rnd/row_rnd';
 import { RndDragCallback, RndDragEndCallback, RndDragStartCallback, RndResizeCallback, RndResizeEndCallback, RndResizeStartCallback, RowRndApi } from '../row_rnd/row_rnd_interface';
 import { DragLineData } from './drag_lines';
+import { TimelineControlProps } from "../../TimelineControl/TimelineControl.types";
+import { ActionTypes } from '../../TimelineAction/TimelineActionTypes';
 
-export type EditActionProps = CommonProp & {
-  row: TimelineRow;
+export type EditActionProps = TimelineControlProps & CommonProp & {
+  track: TimelineTrack;
   action: TimelineAction;
   dragLineData: DragLineData;
-  setEditorData: (params: TimelineRow[]) => void;
+  setEditorData: (tracks: TimelineTrack[]) => void;
   handleTime: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => number;
   areaRef: React.MutableRefObject<HTMLDivElement>;
   /* setUp scroll left */
@@ -80,11 +82,11 @@ const RightStretch = styled('div')(({ theme }) => ({
 }));
 
 
-export const EditAction: FC<EditActionProps> = ({
-  editorData,
-  row,
+export function EditAction({
+  tracks,
+  track,
   action,
-  effects,
+  actionTypes = ActionTypes,
   rowHeight,
   scale,
   scaleWidth,
@@ -113,9 +115,9 @@ export const EditAction: FC<EditActionProps> = ({
   handleTime,
   areaRef,
   deltaScrollLeft,
-}) => {
-  const rowRnd = useRef<RowRndApi>();
-  const isDragWhenClick = useRef(false);
+}: EditActionProps) {
+  const rowRnd = React.useRef<RowRndApi>();
+  const isDragWhenClick = React.useRef(false);
   const { id, maxEnd, minStart, end, start, selected, flexible = true, movable = true, effectId } = action;
 
   // get the maximum minimum pixel range
@@ -134,7 +136,7 @@ export const EditAction: FC<EditActionProps> = ({
   );
 
   // initialize action coordinate data
-  const [transform, setTransform] = useState(() => {
+  const [transform, setTransform] = React.useState(() => {
     return parserTimeToTransform({ start, end }, { startLeft, scale, scaleWidth });
   });
 
@@ -147,10 +149,18 @@ export const EditAction: FC<EditActionProps> = ({
 
   // actionName
   const classNames = ['action'];
-  if (movable) classNames.push('action-movable');
-  if (selected) classNames.push('action-selected');
-  if (flexible) classNames.push('action-flexible');
-  if (effects[effectId]) classNames.push(`action-effect-${effectId}`);
+  if (movable) {
+    classNames.push('action-movable');
+  }
+  if (selected) {
+    classNames.push('action-selected');
+  }
+  if (flexible) {
+    classNames.push('action-flexible');
+  }
+  if (actionTypes[effectId]) {
+    classNames.push(`action-effect-${effectId}`);
+  }
 
   /** calculate scale count */
   const handleScaleCount = (left: number, width: number) => {
@@ -159,50 +169,61 @@ export const EditAction: FC<EditActionProps> = ({
       scaleCount,
       scaleWidth,
     });
-    if (curScaleCount !== scaleCount) setScaleCount(curScaleCount);
+    if (curScaleCount !== scaleCount) {
+      setScaleCount(curScaleCount);
+    }
   };
 
-  //#region [rgba(100,120,156,0.08)] callback
   const handleDragStart: RndDragStartCallback = () => {
-    onActionMoveStart && onActionMoveStart({ action, row });
+    if (onActionMoveStart) {
+      onActionMoveStart({ action, track });
+    }
   };
   const handleDrag: RndDragCallback = ({ left, width }) => {
     isDragWhenClick.current = true;
 
     if (onActionMoving) {
-      const { start, end } = parserTransformToTime({ left, width }, { scaleWidth, scale, startLeft });
-      const result = onActionMoving({ action, row, start, end });
-      if (result === false) return false;
+      const { start: dragStart, end: dragEnd } = parserTransformToTime({ left, width }, { scaleWidth, scale, startLeft });
+      const result = onActionMoving({ action, track, start: dragStart, end: dragEnd });
+      if (result === false) {
+        return;
+      }
     }
     setTransform({ left, width });
     handleScaleCount(left, width);
   };
 
   const handleDragEnd: RndDragEndCallback = ({ left, width }) => {
-    // 计算时间
-    const { start, end } = parserTransformToTime({ left, width }, { scaleWidth, scale, startLeft });
+    // Computation time
+    const { start: dragEndStart, end: dragEndEnd } = parserTransformToTime({ left, width }, { scaleWidth, scale, startLeft });
 
     // setData
-    const rowItem = editorData.find((item) => item.id === row.id);
-    const action = rowItem.actions.find((item) => item.id === id);
-    action.start = start;
-    action.end = end;
-    setEditorData(editorData);
+    const rowItem = tracks.find((item) => item.id === track.id);
+    const dragEndAction = rowItem.actions.find((item) => item.id === id);
+    dragEndAction.start = dragEndStart;
+    dragEndAction.end = dragEndEnd;
+    setEditorData(tracks);
 
     // executeCallback
-    if (onActionMoveEnd) onActionMoveEnd({ action, row, start, end });
+    if (onActionMoveEnd) {
+      onActionMoveEnd({ action: dragEndAction, track, start: dragEndStart, end: dragEndEnd });
+    }
   };
 
   const handleResizeStart: RndResizeStartCallback = (dir) => {
-    onActionResizeStart && onActionResizeStart({ action, row, dir });
+    if (onActionResizeStart) {
+      onActionResizeStart({ action, track, dir });
+    }
   };
 
   const handleResizing: RndResizeCallback = (dir, { left, width }) => {
     isDragWhenClick.current = true;
     if (onActionResizing) {
-      const { start, end } = parserTransformToTime({ left, width }, { scaleWidth, scale, startLeft });
-      const result = onActionResizing({ action, row, start, end, dir });
-      if (result === false) return false;
+      const { start: resizingStart, end: resizingEnd } = parserTransformToTime({ left, width }, { scaleWidth, scale, startLeft });
+      const result = onActionResizing({ action, track, start: resizingStart, end: resizingEnd, dir });
+      if (result === false) {
+        return;
+      }
     }
     setTransform({ left, width });
     handleScaleCount(left, width);
@@ -210,31 +231,32 @@ export const EditAction: FC<EditActionProps> = ({
 
   const handleResizeEnd: RndResizeEndCallback = (dir, { left, width }) => {
     // calculatingTime
-    const { start, end } = parserTransformToTime({ left, width }, { scaleWidth, scale, startLeft });
+    const { start: resizeEndStart, end: resizeEndEnd } = parserTransformToTime({ left, width }, { scaleWidth, scale, startLeft });
 
-    // 设置数据
-    const rowItem = editorData.find((item) => item.id === row.id);
-    const action = rowItem.actions.find((item) => item.id === id);
-    action.start = start;
-    action.end = end;
-    setEditorData(editorData);
+    // Set data
+    const rowItem = tracks.find((item) => item.id === track.id);
+    const resizeEndAction = rowItem.actions.find((item) => item.id === id);
+    resizeEndAction.start = resizeEndStart;
+    resizeEndAction.end = resizeEndEnd;
+    setEditorData(tracks);
 
     // triggerCallback
-    if (onActionResizeEnd) onActionResizeEnd({ action, row, start, end, dir });
+    if (onActionResizeEnd) {
+      onActionResizeEnd({ action: resizeEndAction, track, start: resizeEndStart, end: resizeEndEnd, dir });
+    }
   };
-  //#endregion
 
   const nowAction = {
     ...action,
     ...parserTransformToTime({ left: transform.left, width: transform.width }, { startLeft, scaleWidth, scale }),
   };
 
-  const nowRow: TimelineRow = {
-    ...row,
-    actions: [...row.actions],
+  const nowRow: TimelineTrack = {
+    ...track,
+    actions: [...track.actions],
   };
-  if (row.actions.includes(action)) {
-    nowRow.actions[row.actions.indexOf(action)] = nowAction;
+  if (track.actions.includes(action)) {
+    nowRow.actions[track.actions.indexOf(action)] = nowAction;
   }
 
   return (
@@ -273,23 +295,25 @@ export const EditAction: FC<EditActionProps> = ({
           let time: number;
           if (onClickAction) {
             time = handleTime(e);
-            onClickAction(e, { row, action, time: time });
+            onClickAction(e, { track, action, time });
           }
           if (!isDragWhenClick.current && onClickActionOnly) {
-            if (!time) time = handleTime(e);
-            onClickActionOnly(e, { row, action, time: time });
+            if (!time) {
+              time = handleTime(e);
+            }
+            onClickActionOnly(e, { track, action, time });
           }
         }}
         onDoubleClick={(e) => {
           if (onDoubleClickAction) {
             const time = handleTime(e);
-            onDoubleClickAction(e, { row, action, time: time });
+            onDoubleClickAction(e, { track, action, time });
           }
         }}
         onContextMenu={(e) => {
           if (onContextMenuAction) {
             const time = handleTime(e);
-            onContextMenuAction(e, { row, action, time: time });
+            onContextMenuAction(e, { track, action, time });
           }
         }}
         className={prefix((classNames || []).join(' '))}

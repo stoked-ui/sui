@@ -1,0 +1,127 @@
+import * as React from 'react';
+import composeClasses from "@mui/utils/composeClasses";
+import { useSlotProps } from '@mui/base/utils';
+import { styled, useThemeProps } from '@mui/material/styles';
+import { TimelineLabelsProps } from './TimelineLabels.types';
+import { getTimelineLabelsUtilityClass } from "./timelineLabelsClasses";
+
+const useUtilityClasses = (
+  ownerState: TimelineLabelsProps,
+) => {
+  const { classes } = ownerState;
+
+  const slots = {
+    root: ['root'],
+    label: ['label']
+  };
+
+  return composeClasses(slots, getTimelineLabelsUtilityClass, classes);
+};
+/*
+
+const useUtilityClasses = <R extends FileBase, Multiple extends boolean | undefined>(
+  ownerState: VideoEditorProps<R, Multiple>,
+) => {
+  const { classes } = ownerState;
+
+  const slots = {
+    root: ['root'],
+    viewSpace: ['viewSpace'],
+    videoControls: ['videoControls'],
+    timeline: ['timeline'],
+    bottomLeft: ['bottomLeft'],
+    bottomRight: ['bottomRight'],
+  };
+
+  return composeClasses(slots, getVideoEditorUtilityClass, classes);
+};
+
+ */
+const TimelineLabelsRoot = styled('div', {
+  name: 'MuiTimelineLabels',
+  slot: 'root',
+  overridesResolver: (props, styles) => styles.icon,
+})(({ theme }) => ({
+
+  width: '150px',
+  marginTop: '42px',
+  height: '258px',
+  flex: '0 1 auto',
+  overflow: 'overlay',
+
+  '& .MuiTimelineLabel': {
+    height: '32px',
+    padding: '2px',
+    width: '100%',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+
+    '& .text': {
+      color: theme.palette.text.primary,
+      height: '28px',
+      width: '100%',
+      paddingLeft: '10px',
+      borderRadius: '4px',
+      display: 'flex',
+      alignItems: 'center',
+      backgroundColor: theme.palette.grey.A100,
+    }
+  }
+}));
+
+
+const TimelineLabel = styled('div', {
+  name: 'MuiTimelineLabel',
+  slot: 'Label',
+  overridesResolver: (props, styles) => styles.icon,
+})(({ theme }) => ({
+
+}));
+
+/**
+ *
+ * Demos:
+ *
+ * - [TimelineLabels](https://stoked-ui.github.io/timeline/docs/)
+ *
+ * API:
+ *
+ * - [TimelineLabels](https://stoked-ui.github.io/timeline/api/)
+ */
+export const TimelineLabels = React.forwardRef(
+  function TimelineLabels(inProps: TimelineLabelsProps, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
+    const { tracks, slots, slotProps, sx, timelineState } = useThemeProps({ props: inProps, name: 'MuiTimelineLabels' });
+
+    const classes = useUtilityClasses(inProps);
+
+    const Root = slots?.root ?? TimelineLabelsRoot;
+    const rootProps = useSlotProps({
+      elementType: Root,
+      externalSlotProps: slotProps?.root,
+      className: classes.root,
+      ownerState: inProps,
+    });
+
+    console.log('hello', classes, rootProps);
+
+    return (
+      <Root
+        ref={ref}
+        style={{ overflow: 'overlay' }}
+        onScroll={(scrollEvent:  React.UIEvent<HTMLDivElement, UIEvent>) => {
+          timelineState.current?.setScrollTop((scrollEvent.target as HTMLDivElement).scrollTop);
+        }}
+        classes={classes}
+        className={classes.root}>
+        {tracks?.map((item) => {
+          return (
+            <TimelineLabel key={item.id} className={classes.label}>
+              <div > {`track ${item.id}`} </div>
+            </TimelineLabel>
+          );
+        })}
+      </Root>
+    )
+  })
+

@@ -1,7 +1,8 @@
-import { TimelineAction, TimelineRow } from '../interface/action';
-import { TimelineEffect } from '../interface/effect';
+import { TimelineAction, TimelineTrack } from '../interface/action';
+import { TimelineActionType } from '../interface/actionType';
 import { Emitter } from './emitter';
 import { Events, EventTypes } from './events';
+import { ActionTypes } from "../TimelineAction/TimelineActionTypes";
 
 const PLAYING = 'playing';
 const PAUSED = 'paused';
@@ -10,8 +11,8 @@ type PlayState = 'playing' | 'paused';
 export interface ITimelineEngine extends Emitter<EventTypes> {
   readonly isPlaying: boolean;
   readonly isPaused: boolean;
-  effects: Record<string, TimelineEffect>;
-  data: TimelineRow[];
+  actionTypes: Record<string, TimelineActionType>;
+  tracks: TimelineTrack[];
   /** Set playback rate */
   setPlayRate(rate: number): boolean;
   /** Get playback rate */
@@ -50,22 +51,28 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
 
   /** Playback rate */
   private _playRate = 1;
+
   /** current time */
   private _currentTime: number = 0;
+
   /** Playback status */
   private _playState: PlayState = 'paused';
+
   /** Time frame pre data */
   private _prev: number;
 
   /** Action effect map */
-  private _effectMap: Record<string, TimelineEffect> = {};
+  private _effectMap: Record<string, TimelineActionType> = {};
+
   /** Action map that needs to be run */
   private _actionMap: Record<string, TimelineAction> = {};
+
   /** Action ID array sorted in positive order by action start time */
   private _actionSortIds: string[] = [];
 
   /** The currently traversed action index */
   private _next: number = 0;
+
   /** The action time range contains the actionId list of the current time */
   private _activeActionIds: string[] = [];
 
@@ -73,17 +80,21 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
   get isPlaying() {
     return this._playState === 'playing';
   }
+
   /** Whether it is paused */
   get isPaused() {
     return this._playState === 'paused';
   }
 
-  set effects(effects: Record<string, TimelineEffect>) {
-    this._effectMap = effects;
+  set actionTypes(actionTypes: Record<string, TimelineActionType>) {
+    this._effectMap = actionTypes ?? ActionTypes;
   }
-  set data(data: TimelineRow[]) {
-    if (this.isPlaying) this.pause();
-    this._dealData(data);
+
+  set tracks(tracks: TimelineTrack[]) {
+    if (this.isPlaying) {
+      this.pause();
+    }
+    this._dealData(tracks);
     this._dealClear();
     this._dealEnter(this._currentTime);
   }
@@ -95,15 +106,18 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
   setPlayRate(rate: number): boolean {
     if (rate <= 0) {
       console.error('Error: rate cannot be less than 0!');
-      return;
+      return false;
     }
     const result = this.trigger('beforeSetPlayRate', { rate, engine: this });
-    if (!result) return false;
+    if (!result) {
+      return false;
+    }
     this._playRate = rate;
     this.trigger('afterSetPlayRate', { rate, engine: this });
 
     return true;
   }
+
   /**
    * Get playback rate
    * @memberof TimelineEngine
@@ -118,7 +132,9 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
    * @memberof TimelineEngine
    */
   reRender() {
-    if (this.isPlaying) return;
+    if (this.isPlaying) {
+      return;
+    }
     this._tickAction(this._currentTime);
   }
 
@@ -130,7 +146,9 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
    */
   setTime(time: number, isTick?: boolean): boolean {
     const result = isTick || this.trigger('beforeSetTime', { time, engine: this });
-    if (!result) return false;
+    if (!result) {
+      return false;
+    }
 
     this._currentTime = time;
 
@@ -138,10 +156,15 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
     this._dealLeave(time);
     this._dealEnter(time);
 
-    if (isTick) this.trigger('setTimeByTick', { time, engine: this });
-    else this.trigger('afterSetTime', { time, engine: this });
+    if (isTick) {
+      this.trigger('setTimeByTick', { time, engine: this });
+    }
+    else {
+      this.trigger('afterSetTime', { time, engine: this });
+    }
     return true;
   }
+
   /**
    * Get the current time
    * @return {*} {number}
@@ -166,9 +189,11 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
 
     const currentTime = this.getTime();
     /** The current state is being played or the running end time is less than the start time, return directly */
-    if (this.isPlaying || (toTime && toTime <= currentTime)) return false;
+    if (this.isPlaying || (toTime && toTime <= currentTime)) {
+      return false;
+    }
 
-    //Set running status
+    // Set running status
     this._playState = PLAYING;
 
     // activeIds run start
@@ -181,6 +206,7 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
       this._prev = time;
       this._tick({ now: time, autoEnd, to: toTime });
     });
+
     return true;
   }
 
@@ -206,33 +232,37 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
   }
 
   private _startOrStop(type?: 'start' | 'stop') {
-    for (let i = 0; i < this._activeActionIds.length; i++) {
+    for (let i = 0; i < this._activeActionIds.length; i += 1) {
       const actionId = this._activeActionIds[i];
       const action = this._actionMap[actionId];
       const effect = this._effectMap[action?.effectId];
 
-      if (type === 'start') {
-        effect?.source?.start && effect.source.start({ action, effect, engine: this, isPlaying: this.isPlaying, time: this.getTime() });
-      } else if (type === 'stop') {
-        effect?.source?.stop && effect.source.stop({ action, effect, engine: this, isPlaying: this.isPlaying, time: this.getTime() });
+      if (type === 'start' && effect?.source?.start) {
+        effect.source.start({ action, effect, engine: this, isPlaying: this.isPlaying, time: this.getTime() });
+      } else if (type === 'stop' && effect?.source?.stop) {
+        effect.source.stop({ action, effect, engine: this, isPlaying: this.isPlaying, time: this.getTime() });
       }
     }
   }
 
   /** Execute every frame */
   private _tick(data: { now: number; autoEnd?: boolean; to?: number }) {
-    if (this.isPaused) return;
+    if (this.isPaused) {
+      return;
+    }
     const { now, autoEnd, to } = data;
 
     // Calculate the current time
     let currentTime = this.getTime() + (Math.min(1000, now - this._prev) / 1000) * this._playRate;
     this._prev = now;
 
-    //Set the current time
-    if (to && to <= currentTime) currentTime = to;
+    // Set the current time
+    if (to && to <= currentTime) {
+      currentTime = to;
+    }
     this.setTime(currentTime, true);
 
-    //Execute action
+    // Execute action
     this._tickAction(currentTime);
     // In the case of automatic stop, determine whether all actions have been executed.
     if (!to && autoEnd && this._next >= this._actionSortIds.length && this._activeActionIds.length === 0) {
@@ -245,7 +275,9 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
       this._end();
     }
 
-    if (this.isPaused) return;
+    if (this.isPaused) {
+      return;
+    }
     this._timerId = requestAnimationFrame((time) => {
       this._tick({ now: time, autoEnd, to });
     });
@@ -258,7 +290,7 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
 
     // render
     const length = this._activeActionIds.length;
-    for (let i = 0; i < length; i++) {
+    for (let i = 0; i < length; i +=1) {
       const actionId = this._activeActionIds[i];
       const action = this._actionMap[actionId];
       const effect = this._effectMap[action.effectId];
@@ -292,8 +324,10 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
       if (!action.disable) {
         // Determine whether the action start time has arrived
 
-        if (action.start > time) break;
-        //The action can be executed and started
+        if (action.start > time) {
+          break;
+        }
+        // The action can be executed and started
         if (action.end > time && !this._activeActionIds.includes(actionId)) {
           const effect = this._effectMap[action.effectId];
           if (effect && effect.source?.enter) {
@@ -303,7 +337,7 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
           this._activeActionIds.push(actionId);
         }
       }
-      this._next++;
+      this._next += 1;
     }
   }
 
@@ -325,15 +359,15 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
         this._activeActionIds.splice(i, 1);
         continue;
       }
-      i++;
+      i += 1;
     }
   }
 
   /** Data processing */
-  private _dealData(data: TimelineRow[]) {
+  private _dealData(tracks: TimelineTrack[]) {
     const actions: TimelineAction[] = [];
-    data.map((row) => {
-      actions.push(...row.actions);
+    tracks.forEach((track) => {
+      actions.push(...track.actions);
     });
     const sortActions = actions.sort((a, b) => a.start - b.start);
     const actionMap: Record<string, TimelineAction> = {};
