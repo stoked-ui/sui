@@ -14,6 +14,8 @@ export type EditRowProps = CommonProp & EditData & {
   style?: React.CSSProperties;
   dragLineData: DragLineData;
   setEditorData: (tracks: TimelineTrack[]) => void;
+  /** scroll distance from left */
+  scrollLeft: number;
   /** setUp scroll left */
   deltaScrollLeft: (scrollLeft: number) => void;
 };
@@ -37,6 +39,7 @@ export function EditRow(props: EditRowProps) {
     onDoubleClickRow,
     onContextMenuRow,
     areaRef,
+    scrollLeft,
     startLeft,
     scale,
     scaleWidth,

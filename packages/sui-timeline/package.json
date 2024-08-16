@@ -32,8 +32,6 @@
     "build:copy-files": "node ../../scripts/copyFiles.mjs",
     "build:types": "node ../../scripts/buildTypes.mjs",
     "prebuild": "rimraf build tsconfig.build.tsbuildinfo",
-    "link:data": "ln -sf $(pwd)/data  $(pwd)/../../docs/data/timeline/docs",
-    "link:docs": "ln -sf $(pwd)/pages $(pwd)/../../docs/pages/timeline",
     "start": "NODE_OPTIONS=--openssl-legacy-provider dumi dev",
     "docs:build": "dumi build",
     "docs:deploy": "",
@@ -41,9 +39,6 @@
     "deploy": "npm run docs:build && npm run docs:deploy",
     "prepublishOnly": "npm run build"
   },
-  "files": [
-    "build"
-  ],
   "main": "src/index.ts",
   "peerDependencies": {
     "react": "^15.3.0 || ^16.0.0-alpha || ^17.0.0 || ^18.0.0",
@@ -55,11 +50,11 @@
     "@mui/icons-material": "^5",
     "@mui/material": "^5",
     "@mui/system": "^5",
+    "@types/react-virtualized": "^9.21.14",
     "framework-utils": "^1.1.0",
     "interactjs": "^1.10.11",
     "react-scroll-sync": "^0.11.2",
-    "react-virtualized": "^9.22.5",
-    "react-virtualized-auto-sizer": "^1.0.24"
+    "react-virtualized": "^9.22.3"
   },
   "devDependencies": {
     "@emotion/react": "^11.9.0",

@@ -1,7 +1,7 @@
-import React, { FC } from 'react';
-import { CustomTimelineAction, CusTomTimelineRow } from './mock';
+import * as React from 'react';
+import { TimelineAction, TimelineTrack } from "@stoked-ui/timeline";
 
-export const CustomRender0: FC<{ action: CustomTimelineAction; row: CusTomTimelineRow }> = ({ action, row }) => {
+export const CustomRender0: React.FC<{ action: TimelineAction; row: TimelineTrack }> = ({ action, row }) => {
   return (
     <div className={'effect0'}>
       <div className={`effect0-text`}>{`Play audio: ${action.data.name}`}</div>
@@ -9,7 +9,7 @@ export const CustomRender0: FC<{ action: CustomTimelineAction; row: CusTomTimeli
   );
 };
 
-export const CustomRender1: FC<{ action: CustomTimelineAction; row: CusTomTimelineRow }> = ({ action, row }) => {
+export const CustomRender1: React.FC<{ action: TimelineAction; row: TimelineTrack }> = ({ action, row }) => {
   return (
     <div className={'effect1'}>
       <div className={`effect1-text`}>{`Play animation: ${action.data.name}`}</div>

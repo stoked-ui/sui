@@ -71,7 +71,7 @@ export function parserTimeToTransform(
 /** Get the number of scales based on data */
 export function getScaleCountByRows(tracks: TimelineTrack[], param: { scale: number }) {
   let max = 0;
-  tracks.forEach((track) => {
+  tracks?.forEach((track) => {
     track.actions.forEach((action) => {
       max = Math.max(max, action.end);
     });

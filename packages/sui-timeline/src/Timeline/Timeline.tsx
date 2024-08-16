@@ -3,7 +3,6 @@ import composeClasses from "@mui/utils/composeClasses";
 import { useSlotProps } from '@mui/base/utils';
 import { styled, useThemeProps } from '@mui/material/styles';
 import useForkRef from "@mui/utils/useForkRef";
-import { ScrollSync, ScrollSyncPane } from 'react-scroll-sync';
 import { TimelineProps } from './Timeline.types';
 import { getTimelineUtilityClass } from "./timelineClasses";
 import { TimelineState } from "./TimelineState";
@@ -11,6 +10,7 @@ import { TimelineLabels } from "../TimelineLabels/TimelineLabels";
 import { TimelineAction } from "../interface/action";
 import { TimelineControl } from "../TimelineControl/TimelineControl";
 import { TimelineLabelsProps } from "../TimelineLabels/TimelineLabels.types";
+import { actionTypes } from '../TimelineAction/TimelineActionTypes'
 
 const useUtilityClasses = (
   ownerState: TimelineProps,
@@ -28,34 +28,12 @@ const useUtilityClasses = (
 
 const TimelineRoot = styled('div', {
   name: 'MuiTimeline',
-  slot: 'root',
+  slot: 'Root',
   overridesResolver: (props, styles) => styles.root,
 })(({ theme }) => ({
-  width: '100%  ',
-  marginTop: '42px',
-  height: '258px',
-  flex: '0 1 auto',
-  overflow: 'overlay',
   display: 'flex',
-
-  '& .MuiTimelineLabels-label': {
-    height: '32px',
-    padding: '2px',
-    width: '100%',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-
-    '& div': {
-      color: theme.palette.text.primary,
-      height: '28px',
-      width: '100%',
-      borderRadius: '4px',
-      display: 'flex',
-      alignItems: 'center',
-      backgroundColor: theme.palette.grey.A100,
-    }
-  }
+  width: '800px',
+  backgroundColor: theme.palette.background.default,
 }));
 
 
@@ -71,14 +49,17 @@ const TimelineRoot = styled('div', {
  */
 const Timeline = React.forwardRef(
   function Timeline(inProps: TimelineProps, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
-    const { slots, slotProps, controlSx, trackSx, } = useThemeProps({ props: inProps, name: 'MuiTimeline' });
+    const { slots, slotProps, controlSx, trackSx, } = useThemeProps({
+      props: inProps,
+      name: 'MuiTimeline'
+    });
     const classes = useUtilityClasses(inProps);
 
     const [tracks, setTracks] = React.useState(inProps.tracks);
     const timelineState = React.useRef<TimelineState>(null);
 
-    const labelsRef = React.useRef<HTMLDivElement>(null);
-
+    const forkedRootRef = React.useRef<HTMLDivElement>(null);
+    const combinedRootRef = useForkRef(ref, forkedRootRef);
     const Root = slots?.root ?? TimelineRoot;
     const rootProps = useSlotProps({
       elementType: Root,
@@ -88,6 +69,7 @@ const Timeline = React.forwardRef(
     });
 
     const Labels = slots?.labels ?? TimelineLabels;
+    const labelsRef: React.RefObject<HTMLDivElement> = React.useRef(null);
     const labelsProps = useSlotProps({
       elementType: Root,
       externalSlotProps: slotProps?.labels,
@@ -118,29 +100,45 @@ const Timeline = React.forwardRef(
     }
 
     return (
-      <Root ref={ref} {...rootProps} className={classes.root}>
-        <ScrollSync>
-          <div style={{display: 'flex', flexDirection:'row'}}>
-            <ScrollSyncPane>
-              <Labels
-                ref={labelsRef}
-                {...labelsProps.ownerState}
-              />
-            </ScrollSyncPane>
-            <ScrollSyncPane>
-              <Control
-                onDoubleClickRow={createAction}
-                ref={timelineState}
-                onChange={setTracks}
-                {...controlProps.ownerState}
-              />
-
-            </ScrollSyncPane>
-          </div>
-        </ScrollSync>
+      <Root ref={combinedRootRef} {...rootProps}>
+        <Labels
+          ref={labelsRef}
+          {...labelsProps.ownerState}
+          timelineState={timelineState}
+        />
+        <Control
+          sx={{
+            width: '100%',
+            flex: '1 1 auto',
+            '&-action': {
+              height: '28px !important',
+              top: '50%',
+              transform: 'translateY(-50%)',
+            }
+          }}
+          onDoubleClickRow={(e, { track, time }) => {
+            setTracks((previous) => {
+              const rowIndex = previous.findIndex(previousTrack => previousTrack.id === track.id);
+              const newAction: TimelineAction = {
+                id: `action ${previous.length}`,
+                start: time,
+                end: time + 0.5,
+                effectId: "effect0",
+              }
+              previous[rowIndex] = { ...track, actions: [...track.actions, newAction] };
+              return [...previous];
+            })
+          }}
+          onScroll={({ scrollTop }) => {
+            labelsRef.current.scrollTop = scrollTop;
+          }}
+          ref={timelineState}
+          onChange={setTracks}
+          tracks={tracks}
+          actionTypes={actionTypes}
+        />
       </Root>
     );
   })
-
 
 export default Timeline;

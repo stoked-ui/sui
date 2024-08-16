@@ -10,9 +10,13 @@ import { DragLines } from './drag_lines';
 import { EditRow } from './edit_row';
 import { useDragLine } from './hooks/use_drag_line';
 
-export type EditAreaProps = TimelineControlProps & CommonProp & {
+export type EditAreaProps =  CommonProp & {
+  /** Scroll distance from the left */
+  scrollLeft: number;
   /** Scroll distance from top */
   scrollTop?: number;
+  /** Scroll callback, used for synchronous scrolling */
+  onScroll: (params: OnScrollParams) => void;
   /** Set editor data */
   setEditorData: (tracks: TimelineTrack[]) => void;
   /** Set scroll left */
@@ -55,10 +59,12 @@ export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>((props, r
     scaleWidth,
     scaleCount,
     startLeft,
+    scrollLeft,
     scrollTop,
     scale,
     hideCursor,
     cursorTime,
+    onScroll,
     dragLine,
     getAssistDragLineActionIds,
     onActionMoveEnd,
@@ -163,6 +169,10 @@ export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>((props, r
   };
 
   React.useEffect(() => {
+    gridRef.current?.scrollToPosition({ scrollTop, scrollLeft });
+  }, [scrollTop, scrollLeft]);
+
+  React.useEffect(() => {
     gridRef.current.recomputeGridSize();
   }, [tracks]);
 
@@ -172,28 +182,29 @@ export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>((props, r
         {({ width, height }) => {
           // Get full height
           let totalHeight = 0;
-          // 高度列表
+          // HEIGHT LIST
           const heights = tracks?.map((track) => {
             const itemHeight = track.rowHeight || rowHeight;
             totalHeight += itemHeight;
             return itemHeight;
           });
-          if (totalHeight < height) {
+          if (totalHeight < height && heights) {
             heights.push(height - totalHeight);
             if (heightRef.current !== height && heightRef.current >= 0) {
               setTimeout(() =>
                 gridRef.current?.recomputeGridSize({
-                  rowIndex: heights.length - 1,
+                  rowIndex: heights?.length ?? 0 - 1,
                 }),
               );
             }
           }
           heightRef.current = height;
 
+          console.log('calculated height', totalHeight, heights, width, height);
           return (
             <Grid
               columnCount={1}
-              rowCount={heights.length}
+              rowCount={heights?.length ?? 0}
               ref={gridRef}
               cellRenderer={cellRenderer}
               columnWidth={Math.max(scaleCount * scaleWidth + startLeft, width)}
@@ -202,12 +213,14 @@ export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>((props, r
               rowHeight={({ index }) => heights[index] || rowHeight}
               overscanRowCount={10}
               overscanColumnCount={0}
-
+              onScroll={(param) => {
+                onScroll(param);
+              }}
             />
           );
         }}
       </AutoSizer>
-      {dragLine && <DragLines {...dragLineData} />}
+      {dragLine && <DragLines scrollLeft={scrollLeft} {...dragLineData} />}
     </EditAreaRoot>
   );
 });

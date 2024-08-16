@@ -1,11 +1,15 @@
 import * as React from 'react';
 import { styled } from "@mui/material/styles";
-import { AutoSizer, Grid, GridCellRenderer } from 'react-virtualized';
+import { AutoSizer, Grid, GridCellRenderer, OnScrollParams } from 'react-virtualized';
 import { parserPixelToTime } from '../../utils/deal_data';
 import { CommonProp } from '../../interface/common_prop';
 import { prefix } from '../../utils/deal_class_prefix';
 /** Animation timeline component parameters */
 export type TimeAreaProps = CommonProp & {
+  /** Left scroll distance */
+  scrollLeft: number;
+  /** Scroll callback, used for synchronous scrolling */
+  onScroll: (params: OnScrollParams) => void;
   /** Set cursor position */
   setCursor: (param: { left?: number; time?: number }) => void;
 };
@@ -49,7 +53,7 @@ const TimeUnit = styled('div')(({ theme }) => ({
   }
 }));
 /** Animation timeline component */
-export const TimeArea: React.FC<TimeAreaProps> = ({ setCursor, maxScaleCount, hideCursor, scale, scaleWidth, scaleCount, scaleSplitCount, startLeft, onClickTimeArea, getScaleRender }) => {
+export const TimeArea: React.FC<TimeAreaProps> = ({ setCursor, maxScaleCount, hideCursor, scale, scaleWidth, scaleCount, scaleSplitCount, startLeft, scrollLeft, onClickTimeArea, getScaleRender }) => {
   const gridRef = React.useRef<Grid>();
   /** Whether to display subdivision scales */
   const showUnit = scaleSplitCount > 0;
@@ -87,7 +91,7 @@ export const TimeArea: React.FC<TimeAreaProps> = ({ setCursor, maxScaleCount, hi
       <AutoSizer>
         {({ width, height }) => {
           return (
-            <>
+            <React.Fragment>
               <Grid
                 ref={gridRef}
                 columnCount={showUnit ? scaleCount * scaleSplitCount + 1 : scaleCount}
@@ -100,7 +104,8 @@ export const TimeArea: React.FC<TimeAreaProps> = ({ setCursor, maxScaleCount, hi
                 overscanRowCount={0}
                 overscanColumnCount={10}
                 cellRenderer={cellRenderer}
-              ></Grid>
+                scrollLeft={scrollLeft}
+              />
               <TimeAreaInteract
                 style={{ width, height }}
                 onClick={(e) => {
@@ -109,8 +114,8 @@ export const TimeArea: React.FC<TimeAreaProps> = ({ setCursor, maxScaleCount, hi
                   }
                   const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
                   const position = e.clientX - rect.x;
-                  const left = Math.max(position, startLeft);
-                  if (left > maxScaleCount * scaleWidth + startLeft) {
+                  const left = Math.max(position + scrollLeft, startLeft);
+                  if (left > maxScaleCount * scaleWidth + startLeft - scrollLeft) {
                     return;
                   }
 
@@ -124,8 +129,8 @@ export const TimeArea: React.FC<TimeAreaProps> = ({ setCursor, maxScaleCount, hi
                   setCursor({ time });
                 }}
                 className={prefix('time-area-interact')}
-              ></TimeAreaInteract>
-            </>
+              />
+            </React.Fragment>
           );
         }}
       </AutoSizer>

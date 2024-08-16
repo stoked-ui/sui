@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ScrollSync } from 'react-scroll-sync';
+import { ScrollSync } from 'react-virtualized';
 import { styled } from "@mui/material/styles";
 import { CommonProp } from '../../interface/common_prop';
 import { prefix } from '../../utils/deal_class_prefix';
@@ -10,11 +10,15 @@ import { RowRndApi } from '../row_rnd/row_rnd_interface';
 /** Animation timeline component parameters */
 export type CursorProps = CommonProp & {
   /** Scroll distance from the left */
+  scrollLeft: number;
   /** Set cursor position */
   setCursor: (param: { left?: number; time?: number }) => boolean;
   /** Timeline area dom ref */
   areaRef: React.MutableRefObject<HTMLDivElement>;
   /** Set scroll left */
+  deltaScrollLeft: (delta: number) => void;
+  /** Scroll synchronization ref (TODO: This data is used to temporarily solve the problem of out-of-synchronization when scrollLeft is dragged) */
+  scrollSync: React.MutableRefObject<ScrollSync>;
 };
 
 const CursorRoot = styled('div')({
@@ -30,7 +34,7 @@ const CursorRoot = styled('div')({
 
 const CursorTopRoot = styled('svg')({
   position: 'absolute',
-  top: '32px',
+  top: '-3px',
   left: '50%',
   transform: 'translate(-50%, 0) scaleX(2)',
   margin: 'auto',
@@ -54,9 +58,13 @@ export const Cursor: React.FC<CursorProps> = ({
   timelineWidth,
   scaleWidth,
   scale,
+  scrollLeft,
+  scrollSync,
   areaRef,
   maxScaleCount,
+  deltaScrollLeft,
   onCursorDragStart,
+  onCursorDrag,
   onCursorDragEnd,
 }) => {
   const rowRnd = React.useRef<RowRndApi>();
@@ -65,9 +73,9 @@ export const Cursor: React.FC<CursorProps> = ({
   React.useEffect(() => {
     if (typeof draggingLeft.current === 'undefined') {
       // When not dragging, update the cursor scale based on the dragging parameters.
-      rowRnd.current.updateLeft(parserTimeToPixel(cursorTime, { startLeft, scaleWidth, scale }));
+      rowRnd.current.updateLeft(parserTimeToPixel(cursorTime, { startLeft, scaleWidth, scale }) - scrollLeft);
     }
-  }, [cursorTime, startLeft, scaleWidth, scale]);
+  }, [cursorTime, startLeft, scaleWidth, scale, scrollLeft]);
 
   return (
     <RowDnd
@@ -76,27 +84,23 @@ export const Cursor: React.FC<CursorProps> = ({
       parentRef={areaRef}
       bounds={{
         left: 0,
-        right: Math.min(timelineWidth, maxScaleCount * scaleWidth + startLeft),
+        right: Math.min(timelineWidth, maxScaleCount * scaleWidth + startLeft - scrollLeft),
       }}
+      deltaScrollLeft={deltaScrollLeft}
       enableDragging={!disableDrag}
       enableResizing={false}
       onDragStart={() => {
-        if (onCursorDragStart) {
-          onCursorDragStart(cursorTime);
-        }
-        draggingLeft.current = parserTimeToPixel(cursorTime, { startLeft, scaleWidth, scale });
+        onCursorDragStart && onCursorDragStart(cursorTime);
+        draggingLeft.current = parserTimeToPixel(cursorTime, { startLeft, scaleWidth, scale }) - scrollLeft;
         rowRnd.current.updateLeft(draggingLeft.current);
       }}
       onDragEnd={() => {
-        const time = parserPixelToTime(draggingLeft.current, { startLeft, scale, scaleWidth });
+        const time = parserPixelToTime(draggingLeft.current + scrollLeft, { startLeft, scale, scaleWidth });
         setCursor({ time });
-        if (onCursorDragEnd) {
-          onCursorDragEnd(time);
-        }
+        onCursorDragEnd && onCursorDragEnd(time);
         draggingLeft.current = undefined;
       }}
       onDrag={({ left }, scroll = 0) => {
-       /*
         const scrollLeft = scrollSync.current.state.scrollLeft;
 
         if (!scroll || scrollLeft === 0) {
@@ -113,7 +117,6 @@ export const Cursor: React.FC<CursorProps> = ({
         const time = parserPixelToTime(draggingLeft.current + scrollLeft, { startLeft, scale, scaleWidth });
         setCursor({ time });
         onCursorDrag && onCursorDrag(time);
-        */
         return false;
       }}
     >

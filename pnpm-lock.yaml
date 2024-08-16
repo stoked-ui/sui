@@ -1519,6 +1519,9 @@ importers:
       '@mui/system':
         specifier: ^5
         version: 5.16.7(@emotion/react@11.13.0(@types/react@18.3.3)(react@18.3.1))(@emotion/styled@11.13.0(@emotion/react@11.13.0(@types/react@18.3.3)(react@18.3.1))(@types/react@18.3.3)(react@18.3.1))(@types/react@18.3.3)(react@18.3.1)
+      '@types/react-virtualized':
+        specifier: ^9.21.14
+        version: 9.21.30
       framework-utils:
         specifier: ^1.1.0
         version: 1.1.0
@@ -1535,11 +1538,8 @@ importers:
         specifier: ^0.11.2
         version: 0.11.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-virtualized:
-        specifier: ^9.22.5
+        specifier: ^9.22.3
         version: 9.22.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      react-virtualized-auto-sizer:
-        specifier: ^1.0.24
-        version: 1.0.24(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     devDependencies:
       '@emotion/react':
         specifier: ^11.9.0
@@ -4971,6 +4971,9 @@ packages:
 
   '@types/react-transition-group@4.4.11':
     resolution: {integrity: sha512-RM05tAniPZ5DZPzzNFP+DmrcOdD0efDUxMy3145oljWSl3x9ZV5vhme98gTxFrj2lhXvmGNnUiuDyJgY9IKkNA==}
+
+  '@types/react-virtualized@9.21.30':
+    resolution: {integrity: sha512-4l2TFLQ8BCjNDQlvH85tU6gctuZoEdgYzENQyZHpgTHU7hoLzYgPSOALMAeA58LOWua8AzC6wBivPj1lfl6JgQ==}
 
   '@types/react-window@1.8.8':
     resolution: {integrity: sha512-8Ls660bHR1AUA2kuRvVG9D/4XpRC6wjAaPT9dil7Ckc76eP9TKWZwwmgfq8Q1LANX3QNDnoU4Zp48A3w+zK69Q==}
@@ -10826,12 +10829,6 @@ packages:
 
   react-transition-group@4.4.5:
     resolution: {integrity: sha512-pZcd1MCJoiKiBR2NRxeCRg13uCXbydPnmB4EOeRrY7480qNWO8IIgQG6zlDkm6uRMsURXPuKq0GWtiM59a5Q6g==}
-    peerDependencies:
-      react: ^18.2.0
-      react-dom: ^18.2.0
-
-  react-virtualized-auto-sizer@1.0.24:
-    resolution: {integrity: sha512-3kCn7N9NEb3FlvJrSHWGQ4iVl+ydQObq2fHMn12i5wbtm74zHOPhz/i64OL3c1S1vi9i2GXtZqNqUJTQ+BnNfg==}
     peerDependencies:
       react: ^18.2.0
       react-dom: ^18.2.0
@@ -16778,6 +16775,11 @@ snapshots:
 
   '@types/react-transition-group@4.4.11':
     dependencies:
+      '@types/react': 18.3.3
+
+  '@types/react-virtualized@9.21.30':
+    dependencies:
+      '@types/prop-types': 15.7.12
       '@types/react': 18.3.3
 
   '@types/react-window@1.8.8':
@@ -24068,11 +24070,6 @@ snapshots:
       dom-helpers: 5.2.1
       loose-envify: 1.4.0
       prop-types: 15.8.1
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-
-  react-virtualized-auto-sizer@1.0.24(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
-    dependencies:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
