@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { OnScrollParams } from 'react-virtualized';
 import { SxProps, Theme } from "@mui/material/styles";
 import { ITimelineEngine } from '../TimelineEngine/TimelineEngine';
 import { TimelineAction, TimelineTrack } from '../interface/action';
@@ -206,7 +207,6 @@ export interface EditData {
   sx?: SxProps<Theme>;
 
   trackSx?: SxProps<Theme>;
-  timelineState?: React.MutableRefObject<TimelineState>;
 }
 
 /**
@@ -215,6 +215,15 @@ export interface EditData {
  * @interface TimelineControlProp
  */
 export interface TimelineControlProps extends EditData {
+  /**
+   * @description The scroll distance from the top of the editing area (please use ref.setScrollTop instead)
+   * @deprecated
+   */
+  scrollTop?: number;
+  /**
+   * @description Edit area scrolling callback (used to control synchronization with editing track scrolling)
+   */
+  onScroll?: (params: OnScrollParams) => void;
   /**
    * @description Whether to start automatic scrolling when dragging
    * @default false

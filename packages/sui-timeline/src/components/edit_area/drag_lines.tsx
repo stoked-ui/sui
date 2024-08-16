@@ -8,7 +8,7 @@ export interface DragLineData {
   assistPositions: number[];
 }
 
-export type DragLineProps = DragLineData;
+export type DragLineProps = DragLineData & {scrollLeft: number};
 
 const DragLinesRoot = styled('div')({
   position: 'absolute',
@@ -30,13 +30,14 @@ export function DragLines ({
   isMoving,
   movePositions = [],
   assistPositions = [],
+  scrollLeft,
 }: DragLineProps) {
   return(
     <DragLinesRoot className={prefix('drag-line-container')}>
       {
         isMoving && movePositions.filter(item => assistPositions.includes(item)).map(((linePos, index) => {
           return (
-            <DragLineRoot key={index} className={prefix('drag-line')} style={{left: linePos}} />
+            <DragLineRoot key={index} className={prefix('drag-line')} style={{left: linePos - scrollLeft}} />
           )
         }))
       }

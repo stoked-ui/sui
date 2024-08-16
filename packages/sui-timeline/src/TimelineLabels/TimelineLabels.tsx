@@ -4,6 +4,7 @@ import { useSlotProps } from '@mui/base/utils';
 import { styled, useThemeProps } from '@mui/material/styles';
 import { TimelineLabelsProps } from './TimelineLabels.types';
 import { getTimelineLabelsUtilityClass } from "./timelineLabelsClasses";
+import { OnScrollParams } from "react-virtualized";
 
 const useUtilityClasses = (
   ownerState: TimelineLabelsProps,
@@ -49,7 +50,7 @@ const TimelineLabelsRoot = styled('div', {
   flex: '0 1 auto',
   overflow: 'overlay',
 
-  '& .MuiTimelineLabel': {
+  '& .MuiTimelineLabels-label ': {
     height: '32px',
     padding: '2px',
     width: '100%',
@@ -57,11 +58,10 @@ const TimelineLabelsRoot = styled('div', {
     justifyContent: 'center',
     alignItems: 'center',
 
-    '& .text': {
+    '& div': {
       color: theme.palette.text.primary,
       height: '28px',
       width: '100%',
-      paddingLeft: '10px',
       borderRadius: '4px',
       display: 'flex',
       alignItems: 'center',
@@ -103,8 +103,6 @@ export const TimelineLabels = React.forwardRef(
       ownerState: inProps,
     });
 
-    console.log('hello', classes, rootProps);
-
     return (
       <Root
         ref={ref}
@@ -113,7 +111,7 @@ export const TimelineLabels = React.forwardRef(
           timelineState.current?.setScrollTop((scrollEvent.target as HTMLDivElement).scrollTop);
         }}
         classes={classes}
-        className={classes.root}>
+        className={`${classes.root} timeline-list`}>
         {tracks?.map((item) => {
           return (
             <TimelineLabel key={item.id} className={classes.label}>

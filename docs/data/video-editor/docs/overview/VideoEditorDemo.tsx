@@ -5,10 +5,7 @@ import { cloneDeep } from 'lodash';
 import * as React from 'react';
 import { CustomRender0, CustomRender1 } from './custom';
 import {
-  CustomTimelineAction,
-  CusTomTimelineRow,
   mockData,
-  mockEffect,
   scale,
   scaleWidth,
   startLeft

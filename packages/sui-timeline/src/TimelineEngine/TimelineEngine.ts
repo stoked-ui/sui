@@ -366,7 +366,7 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
   /** Data processing */
   private _dealData(tracks: TimelineTrack[]) {
     const actions: TimelineAction[] = [];
-    tracks.forEach((track) => {
+    tracks?.forEach((track) => {
       actions.push(...track.actions);
     });
     const sortActions = actions.sort((a, b) => a.start - b.start);

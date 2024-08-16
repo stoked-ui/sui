@@ -6,6 +6,7 @@ const logger = new ConsoleLogger('timeline');
 
 export function checkProps(props: TimelineControlProps): TimelineControlProps {
   let {
+    scrollTop = 0,
     scale = DEFAULT_SCALE,
     scaleSplitCount = DEFAULT_SCALE_SPLIT_COUNT,
     scaleWidth = DEFAULT_SCALE_WIDTH,
@@ -18,6 +19,11 @@ export function checkProps(props: TimelineControlProps): TimelineControlProps {
   if(scale <= 0) {
     logger.error('Error: scale must be greater than 0!')
     scale = DEFAULT_SCALE;
+  }
+
+  if(scrollTop < 0) {
+    logger.warn('Warning: scrollTop cannot be less than 0!')
+    scrollTop = 0;
   }
 
   if(scaleSplitCount <= 0) {
@@ -58,6 +64,7 @@ export function checkProps(props: TimelineControlProps): TimelineControlProps {
     ...temp,
     tracks: props.tracks,
     actionTypes: props.actionTypes,
+    scrollTop,
     scale,
     scaleSplitCount: scaleSplitCount || 10,
     scaleWidth,

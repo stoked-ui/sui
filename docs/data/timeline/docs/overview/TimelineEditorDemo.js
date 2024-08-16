@@ -1,13 +1,10 @@
 import * as React from 'react';
-import Showcase from './Showcase';
-import BrandingCssVarsProvider from 'docs/src/BrandingCssVarsProvider';
-
+import { Timeline} from '@stoked-ui/timeline';
+import { tracks } from './mock';
 export default function TimelineEditorDemo() {
 
   return (
-    <BrandingCssVarsProvider>
-      <Showcase />
-    </BrandingCssVarsProvider>
+    <Timeline tracks={tracks} />
   );
 };
 

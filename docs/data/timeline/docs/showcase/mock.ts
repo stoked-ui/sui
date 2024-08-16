@@ -1,10 +1,6 @@
 import { TimelineTrack } from '@stoked-ui/timeline';
 
-export const scaleWidth = 160;
-export const scale = 2;
-export const startLeft = 20;
-
-export const tracks: TimelineTrack[] = [
+export const mockData: TimelineTrack[] = [
   {
     id: '0',
     actions: [
