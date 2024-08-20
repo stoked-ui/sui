@@ -9,7 +9,7 @@ class AudioControl implements ITimelineActionType {
 
   name = 'Audio';
 
-  color = 'purple';
+  color = '#800080';
 
   cacheMap: Record<string, Howl> = {};
 

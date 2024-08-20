@@ -17,6 +17,7 @@ import composeClasses from "@mui/utils/composeClasses";
 import clsx from "clsx";
 import useSlotProps from '@mui/utils/useSlotProps';
 import { shouldForwardProp } from "@mui/system/createStyled";
+import {blend} from "@mui/system";
 
 export const useActionUtilityClasses = (
   ownerState: TimelineActionOwnerState
@@ -48,7 +49,11 @@ const Action = styled('div',{
   selected: boolean;
   color: string;
 }>(({ theme, selected , color = 'blue'}) => {
-  const background = selected ? color : theme.palette.grey.A100;
+  const base = theme.vars ? `rgba(color(from ${color}) / 1)` : alpha(color, 1);
+  const unselected = blend('#FFF', base, 0.3);
+  const selectedColor =  blend('#FFF', base, 0.45);
+  const hover = blend('#FFF', base, 0.55);
+  const background = selected ? selectedColor : unselected;
   return {
   position: 'absolute',
   left: 0,
@@ -61,11 +66,7 @@ const Action = styled('div',{
   borderTop: `1px solid ${theme.palette.action.hover}`,
   borderBottom: `1px solid ${theme.palette.action.hover}`,
     '&:hover': {
-      backgroundColor: theme.vars ?  `rgba(${color} / calc(${theme.vars.palette.action.selectedOpacity} + ${theme.vars.palette.action.hoverOpacity}))`
-        : alpha(
-          color,
-          theme.palette.action.selectedOpacity + theme.palette.action.hoverOpacity,
-        ),
+      backgroundColor: hover,
     }
 }})
 
@@ -138,7 +139,7 @@ export default function TimelineAction(props: TimelineActionProps) {
   const rowRnd = React.useRef<RowRndApi>();
   const isDragWhenClick = React.useRef(false);
   const { id, maxEnd, minStart, end, start,  effectId } = action;
-  const { scaleCount, setScaleCount, actionTypes, startLeft, scale, scaleWidth, maxScaleCount,scaleSplitCount } = props;
+  const { track, scaleCount, setScaleCount, actionTypes, startLeft, scale, scaleWidth, maxScaleCount,scaleSplitCount } = props;
   // get the maximum minimum pixel range
   const leftLimit = parserTimeToPixel(minStart || 0, {
     startLeft,
@@ -160,6 +161,9 @@ export default function TimelineAction(props: TimelineActionProps) {
   });
 
   React.useEffect(() => {
+    if (track.lock) {
+      return;
+    }
     setTransform(parserTimeToTransform({ start, end }, { startLeft, scale, scaleWidth }));
   }, [end, start, startLeft, scaleWidth, scale]);
 
@@ -168,7 +172,7 @@ export default function TimelineAction(props: TimelineActionProps) {
 
   // actionName
   const classNames = ['action'];
-  if (movable) {
+  if (movable && !track.lock) {
     classNames.push('action-movable');
   }
   if (selected) {
@@ -194,7 +198,7 @@ export default function TimelineAction(props: TimelineActionProps) {
     }
   };
 
-  const { onActionMoveStart,onActionMoving, track } = props;
+  const { onActionMoveStart,onActionMoving } = props;
   const handleDragStart: RndDragStartCallback = () => {
     if (track.lock) {
       return;
