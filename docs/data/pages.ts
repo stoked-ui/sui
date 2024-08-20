@@ -16,6 +16,17 @@ const pages: MuiPage[] = [
     ],
   },
   {
+    pathname: '/core/docs/group',
+    title: 'Core',
+    newFeature: true,
+    children: [
+      { pathname: '/core/docs/overview', title: 'Overview' },
+      { pathname: '/core/docs/buttons', title: 'Button' },
+      { pathname: '/core/docs/toggle-button', title: 'Toggle Button' },
+      { pathname: '/core/docs/plugin-component', title: 'Plugin Component' },
+    ],
+  },
+  {
     pathname: '/media-selector/docs/group',
     title: 'Media Selector',
     newFeature: true,
@@ -26,16 +37,7 @@ const pages: MuiPage[] = [
       { pathname: `/media-selector/docs/roadmap` },
     ],
   },
-  {
-    pathname: '/timeline/docs/group',
-    title: 'Timeline',
-    newFeature: true,
-    children: [
-      { pathname: '/timeline/docs/overview', title: 'Overview' },
-      { pathname: '/timeline/docs/editor', title: 'Editor' },
 
-    ],
-  },
   {
     pathname: '/file-explorer/docs/group',
     title: 'File Explorer',
@@ -84,11 +86,21 @@ const pages: MuiPage[] = [
     ],
   },
   {
-    pathname: '/video-editor/docs/group',
-    title: 'Video Editor',
+    pathname: '/timeline/docs/group',
+    title: 'Timeline',
     newFeature: true,
     children: [
-      { pathname: '/video-editor/docs/overview', title: 'Overview' },
+      { pathname: '/timeline/docs/overview', title: 'Overview' },
+      { pathname: '/timeline/docs/editor', title: 'Editor' },
+
+    ],
+  },
+  {
+    pathname: '/editor/docs/group',
+    title: 'Editor',
+    newFeature: true,
+    children: [
+      { pathname: '/editor/docs/overview', title: 'Overview' },
     ],
   },
 ];

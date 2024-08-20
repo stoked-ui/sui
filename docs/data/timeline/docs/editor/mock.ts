@@ -1,6 +1,6 @@
-import { TimelineActionType, TimelineTrack } from '@stoked-ui/timeline';
+import { IControl, TimelineTrack } from '@stoked-ui/timeline';
 
-export const mockEffect: Record<string, TimelineActionType> = {
+export const mockEffect: Record<string, IControl> = {
   effect0: {
     id: 'effect0',
     name: '效果0',

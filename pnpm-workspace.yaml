@@ -1,8 +1,7 @@
 packages:
   - 'benchmark'
-  - 'packages/*'
+  - 'packages/**'
   - 'packages/mui-envinfo/test'
   - 'packages-internal/*'
   - 'docs'
   - 'test'
-  - '!packages/x-tree-view-example'

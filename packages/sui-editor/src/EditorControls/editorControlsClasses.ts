@@ -1,17 +1,17 @@
 import generateUtilityClass from '@mui/utils/generateUtilityClass';
 import generateUtilityClasses from '@mui/utils/generateUtilityClasses';
 
-export interface VideoEditorControlsClasses {
+export interface EditorControlsClasses {
   /** Styles applied to the root element. */
   root: string;
 }
 
-export type VideoEditorControlsClassKey = keyof VideoEditorControlsClasses;
+export type EditorControlsClassKey = keyof EditorControlsClasses;
 
-export function getVideoEditorControlsUtilityClass(slot: string): string {
-  return generateUtilityClass('MuiVideoEditorControls', slot);
+export function getEditorControlsUtilityClass(slot: string): string {
+  return generateUtilityClass('MuiEditorControls', slot);
 }
 
-export const videoEditorControlsClasses: VideoEditorControlsClasses = generateUtilityClasses('MuiVideoEditorControls', [
+export const editorControlsClasses: EditorControlsClasses = generateUtilityClasses('MuiEditorControls', [
   'root',
 ]);

@@ -1,13 +1,13 @@
 import { ComponentsOverrides, ComponentsProps, ComponentsVariants } from '@mui/material/styles';
 
-export interface VideoEditorComponents<Theme = unknown> {
-  MuiVideoEditor?: {
-    defaultProps?: ComponentsProps['MuiVideoEditor'];
-    styleOverrides?: ComponentsOverrides<Theme>['MuiVideoEditor'];
-    variants?: ComponentsVariants<Theme>['MuiVideoEditor'];
+export interface EditorComponents<Theme = unknown> {
+  MuiEditor?: {
+    defaultProps?: ComponentsProps['MuiEditor'];
+    styleOverrides?: ComponentsOverrides<Theme>['MuiEditor'];
+    variants?: ComponentsVariants<Theme>['MuiEditor'];
   };
 }
 
 declare module '@mui/material/styles' {
-  interface Components<Theme = unknown> extends VideoEditorComponents<Theme> {}
+  interface Components<Theme = unknown> extends EditorComponents<Theme> {}
 }

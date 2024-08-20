@@ -1,6 +1,6 @@
-
 import * as React from 'react';
 import composeClasses from "@mui/utils/composeClasses";
+import FormControl from '@mui/material/FormControl';
 import PauseIcon from '@mui/icons-material/Pause';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import SkipNextIcon from '@mui/icons-material/SkipNext';
@@ -14,15 +14,18 @@ import { FileBase } from '@stoked-ui/file-explorer';
 import { TimelineState } from '@stoked-ui/timeline';
 import { styled, createUseThemeProps } from '../internals/zero-styled';
 
-import { VideoEditorControlsProps } from './VideoEditorControls.types';
-import { getVideoEditorControlsUtilityClass } from "./videoEditorControlsClasses";
+import { EditorControlsProps } from './EditorControls.types';
+import { getEditorControlsUtilityClass } from "./editorControlsClasses";
+import TextField from '@mui/material/TextField';
+import ToggleButton from "@stoked-ui/core/ToggleButton";
+import ToggleButtonGroup from "@stoked-ui/core/ToggleButtonGroup";
 
 export const Rates = [0.2, 0.5, 1.0, 1.5, 2.0];
 
-const useThemeProps = createUseThemeProps('MuiVideoEditorControls');
+const useThemeProps = createUseThemeProps('MuiEditorControls');
 
 const useUtilityClasses = <R extends FileBase, Multiple extends boolean | undefined>(
-  ownerState: VideoEditorControlsProps<R, Multiple>,
+  ownerState: EditorControlsProps<R, Multiple>,
 ) => {
   const { classes } = ownerState;
 
@@ -30,59 +33,68 @@ const useUtilityClasses = <R extends FileBase, Multiple extends boolean | undefi
     root: ['root'],
   };
 
-  return composeClasses(slots, getVideoEditorControlsUtilityClass, classes);
+  return composeClasses(slots, getEditorControlsUtilityClass, classes);
 };
 
+const Control = styled(ToggleButton)(({ theme }) => ({
+ height: '90%'
+}));
+
 const PlayerRoot = styled('div')(({ theme }) => ({
-  height: '32px',
+  height: '42px',
   width: '100%',
-  padding: '0 10px',
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
-  backgroundColor: theme.palette.action.hover,
+  backgroundColor: theme.palette.grey.A200,
 }));
 
-const IconButtonControlRoot = styled(IconButton)(({ theme }) => ({
-  width: '24px',
-  height: '24px',
-  borderRadius: '4px',
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
+
+const TimeRoot = styled(TextField)(({ theme }) => ({
+  fontSize: '1px',
+  fontFamily: "'Roboto Condensed', sans-serif",
+  margin: '0 8px',
+  py: '4px',
+  width: '120px',
+  alignSelf: 'center',
+  "& .MuiInputBase-input": {
+    fontSize: 16,
+    height: 40,
+    padding: '0 4px',
+    background: theme.palette.background.default
+  }
 }));
 
-const TimeRoot = styled('div')({
-  fontSize: '16px',
-  margin: '0 20px',
-  width: '70px',
-  alignContent: 'center'
-})
-
-const RateControlRoot = styled('div')({
+const RateControlRoot = styled(FormControl)({
   justifySelf: 'flex-end',
-  fontSize: '12px',
+  alignContent: 'center',
 });
 
 /**
  *
  * Demos:
  *
- * - [VideoEditorControls](https://stoked-ui.github.io/editor/docs/)
+ * - [EditorControls](https://stoked-ui.github.io/editor/docs/)
  *
  * API:
  *
- * - [VideoEditorControls API](https://stoked-ui.github.io/editor/api/)
+ * - [EditorControls API](https://stoked-ui.github.io/editor/api/)
  */
-export const VideoEditorControls = React.forwardRef(function VideoEditorControls<
+export const EditorControls = React.forwardRef(function EditorControls<
   R extends FileBase = FileBase,
   Multiple extends boolean | undefined = undefined,
->({ scale = 1, scaleWidth = 160, startLeft = 20, ...inProps }: VideoEditorControlsProps<R, Multiple>, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
-  const props = useThemeProps({ props: inProps, name: 'MuiVideoEditorControls' });
+>({ scale = 1, scaleWidth = 160, startLeft = 20, ...inProps }: EditorControlsProps<R, Multiple>, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
+  const props = useThemeProps({ props: inProps, name: 'MuiEditorControls' });
   const { timelineState, editorData, autoScrollWhenPlay } = inProps;
   const [isPlaying, setIsPlaying] = React.useState(false);
   const [time, setTime] = React.useState(0);
-  const test = React.useRef<TimelineState>(null);
+  const [showRate, setShowRate] = React.useState(false);
+
+  React.useEffect(() => {
+    if (timelineState.current) {
+      setShowRate(true);
+    }
+  }, [timelineState.current])
 
   React.useEffect(() => {
     if (!timelineState || !timelineState.current) {
@@ -91,13 +103,13 @@ export const VideoEditorControls = React.forwardRef(function VideoEditorControls
     const engine = timelineState.current;
     engine.listener?.on('play', () => setIsPlaying(true));
     engine.listener?.on('paused', () => setIsPlaying(false));
-    engine.listener?.on('afterSetTime', ({ time }) => setTime(time));
-    engine.listener?.on('setTimeByTick', ({ time }) => {
-      setTime(time);
+    engine.listener?.on('afterSetTime', (params) => setTime(params.time));
+    engine.listener?.on('setTimeByTick', (params) => {
+      setTime(params.time);
 
       if (autoScrollWhenPlay) {
         const autoScrollFrom = 500;
-        const left = time * (scaleWidth / scale) + startLeft - autoScrollFrom;
+        const left = params.time * (scaleWidth / scale) + startLeft - autoScrollFrom;
         timelineState.current?.setScrollLeft(left)
       }
     });
@@ -137,7 +149,7 @@ export const VideoEditorControls = React.forwardRef(function VideoEditorControls
     const float = (`${parseInt(`${(renderTime % 1) * 100}`, 10)}`).padStart(2, '0');
     const min = (`${parseInt(`${renderTime / 60}`, 10)}`).padStart(2, '0');
     const second = (`${parseInt(`${renderTime % 60}`, 10)}`).padStart(2, '0');
-    return <React.Fragment>{`${min}:${second}.${float.replace('0.', '')}`}</React.Fragment>;
+    return `${min}:${second}.${float.replace('0.', '')}`;
   };
 
   const handleStart = () => {
@@ -177,50 +189,43 @@ export const VideoEditorControls = React.forwardRef(function VideoEditorControls
 
   return (
     <PlayerRoot className="timeline-player">
-      <div style={{ justifyContent: 'space-between', display: 'flex', flexDirection: 'row', alignContent: 'center', width: '100%'}}>
-        <div style={{ display: 'flex', flexDirection: 'row', flexGrow: 1, alignSelf: 'center',  }}>
-          <IconButtonControlRoot size={'small'} className="play-control" onClick={handleStart}>
-            <SkipPreviousIcon />
-          </IconButtonControlRoot>
-          {/*
-          <IconButtonControlRoot size={'small'} className="play-control" onClick={handleSlowDown}>
-            <FastRewindIcon />
-          </IconButtonControlRoot>
-          */}
-          <IconButtonControlRoot size={'small'} className="play-control" onClick={handlePlayOrPause}>
-            {isPlaying ? <PauseIcon /> : <PlayArrowIcon />}
-          </IconButtonControlRoot>
-          {/*
-          <IconButtonControlRoot size={'small'} className="play-control" onClick={handleSpeedUp}>
-             <FastForwardIcon />
-          </IconButtonControlRoot>
-          */}
-          <IconButtonControlRoot size={'small'} className="play-control" onClick={handleEnd}>
-            <SkipNextIcon />
-          </IconButtonControlRoot>
 
-        </div>
+      <div style={{display: 'flex', flexDirection: 'row', alignContent: 'center', width: '100%'}}>
+        <ToggleButtonGroup size={'small'}>
+          <ToggleButton onClick={handleStart}><SkipPreviousIcon fontSize={'small'}/></ToggleButton>
+          <ToggleButton onClick={handlePlayOrPause}>{isPlaying ? <PauseIcon fontSize={'small'}/> : <PlayArrowIcon fontSize={'small'}/>}</ToggleButton>
+          <ToggleButton onClick={handleEnd}><SkipNextIcon /></ToggleButton>
+        </ToggleButtonGroup>
       </div>
-      <TimeRoot>{timeRender(time)}</TimeRoot>
-      <RateControlRoot className="rate-control">
-        <Select
-          size="small"
-          labelId="speed-label"
-          defaultValue={1}
-          label="Speed"
-          variant="standard"
-          onChange={handleRateChange}
-          sx={{ height: '28px', fontSize: '12px'}}
-          renderValue={(selected) => {
-
-            return selected;
-          }}
-        >
-          {Rates.map((rate) => (
-            <MenuItem sx={{ height: '28px', fontSize: '12px'}} key={rate} value={rate}>{`${rate.toFixed(1)}x`}</MenuItem>
-          ))}
-        </Select>
-      </RateControlRoot>
+      <div style={{display: 'flex', flexDirection: 'row'}}>
+        <TimeRoot variant={'outlined'} size={'small'} sx={{ minWidth: '120px' }} helperText={false} value={timeRender(time)}/>
+        {showRate && <RateControlRoot sx={{ minWidth: '80px' }} className="rate-control">
+          <Select
+            value={timelineState.current?.getPlayRate() ?? 1}
+            onChange={handleRateChange}
+            size={'small'}
+            displayEmpty
+            inputProps={{ 'aria-label': 'Play Rate' }}
+            sx={(theme) => ({
+              fontSize: '15px',
+              '& .MuiSelect-select': {
+                py: '4px',
+                background: theme.palette.background.default
+              }}
+            )}
+            defaultValue={1}
+          >
+            <MenuItem key={-1} value={-1}>
+              <em>Rate</em>
+            </MenuItem>
+            {Rates.map((rate, index) => (
+              <MenuItem key={index} value={rate}>
+                {`${rate.toFixed(1)}x`}
+              </MenuItem>
+            ))}
+          </Select>
+        </RateControlRoot>}
+      </div>
     </PlayerRoot>
   );
 });

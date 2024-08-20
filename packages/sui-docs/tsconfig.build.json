@@ -14,6 +14,10 @@
   "include": ["src/**/*.ts*", "src/**/*.json"],
   "exclude": ["src/**/*.spec.ts*", "src/**/*.test.ts*"],
   "references": [
-    { "path": "../sui-file-explorer/tsconfig.build.json" }
+    { "path": "../sui-file-explorer/tsconfig.build.json" },
+    { "path": "../sui-core/tsconfig.build.json" },
+    { "path": "../sui-editor/tsconfig.build.json" },
+    { "path": "../sui-timeline/tsconfig.build.json" },
+    { "path": "../sui-media-selector/tsconfig.build.json" }
   ]
 }

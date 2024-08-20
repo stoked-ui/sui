@@ -1,1 +1,1 @@
-export { useVideoEditorApiRef } from './useVideoEditorApiRef';
+export { useEditorApiRef } from './useEditorApiRef';

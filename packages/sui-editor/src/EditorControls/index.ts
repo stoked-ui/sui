@@ -1,3 +1,3 @@
-export * from './videoEditorControlsClasses';
-export * from './VideoEditorControls';
-export * from './VideoEditorControls.types';
+export * from './editorControlsClasses';
+export * from './EditorControls';
+export * from './EditorControls.types';

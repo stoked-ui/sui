@@ -2,11 +2,14 @@ import * as React from 'react';
 import { Theme } from '@mui/material/styles';
 import { SxProps } from '@mui/system';
 import { SlotComponentProps } from '@mui/base/utils';
+import { ITimelineActionType } from '../TimelineAction/TimelineAction.types';
 import { TimelineClasses } from './timelineClasses';
 import { TimelineControl } from "../TimelineControl/TimelineControl";
-import { TimelineControlProps, TimelineTrack } from "../TimelineControl/TimelineControl.types";
+import { TimelineControlProps } from "../TimelineControl/TimelineControl.types";
+import { TimelineTrack } from "../interface/TimelineAction";
 import { TimelineLabelsProps } from "../TimelineLabels/TimelineLabels.types";
-
+import { TimelineState } from "./TimelineState";
+import { ITimelineEngine } from '../TimelineEngine/TimelineEngine';
 
 export interface TimelineSlots {
   /**
@@ -40,6 +43,10 @@ export interface TimelinePropsBase extends React.HTMLAttributes<HTMLDivElement> 
   trackSx?: SxProps<Theme>;
 
   tracks?: TimelineTrack[];
+  actionTypes: Record<string, ITimelineActionType>;
+  timelineState?: React.RefObject<TimelineState>;
+  viewSelector?: string;
+  engine?: ITimelineEngine;
 }
 
 export interface TimelineProps

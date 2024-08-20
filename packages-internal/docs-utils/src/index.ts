@@ -41,7 +41,7 @@ export function getUnstyledFilename(filename: string, definitionFile: boolean = 
     if (separator === '/') {
       unstyledFile = unstyledFile.replace(
         /packages\/sui-material|packages\/mui-lab|packages\/mui-material/g,
-        'packages/mui-base',
+        'node_modules/mui-base',
       );
     } else {
       unstyledFile = unstyledFile.replace(

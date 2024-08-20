@@ -1,15 +1,15 @@
 import { createTheme } from '@mui/material/styles';
-import { videoEditorClasses } from '../VideoEditor';
+import { editorClasses } from '../Editor';
 
 createTheme({
   components: {
-    MuiVideoEditor: {
+    MuiEditor: {
       defaultProps: {
       },
       styleOverrides: {
         root: {
           backgroundColor: 'red',
-          [`.${videoEditorClasses.root}`]: {
+          [`.${editorClasses.root}`]: {
             backgroundColor: 'green',
           },
         },

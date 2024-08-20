@@ -1,5 +1,6 @@
 import * as React  from "react";
-import { TimelineAction, TimelineTrack } from "../../../interface/action";
+import { TimelineTrack } from "../../../interface/TimelineAction";
+import { ITimelineAction } from "../../../TimelineAction/TimelineAction.types"
 import { parserActionsToPositions, parserTimeToTransform } from "../../../utils/deal_data";
 import { DragLineData } from "../drag_lines";
 
@@ -10,7 +11,7 @@ export function useDragLine() {
   const defaultGetAssistPosition = (data: {
     tracks: TimelineTrack[];
     assistActionIds?: string[];
-    action: TimelineAction;
+    action: ITimelineAction;
     track: TimelineTrack;
     startLeft?: number;
     scale?: number;
@@ -19,7 +20,7 @@ export function useDragLine() {
     cursorLeft: number;
   }) => {
     const { tracks, assistActionIds, action, track, scale = 1, scaleWidth = 160, startLeft= 20, cursorLeft, hideCursor } = data;
-    const otherActions: TimelineAction[] = [];
+    const otherActions: ITimelineAction[] = [];
     if (assistActionIds) {
       tracks.forEach((rowItem) => {
         rowItem.actions.forEach((actionItem) => {

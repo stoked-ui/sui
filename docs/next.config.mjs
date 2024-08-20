@@ -139,6 +139,28 @@ export default withDocsInfra({
                           ],
                         },
                         {
+                          productId: 'core',
+                          paths: [
+                            path.join(workspaceRoot, 'packages/sui-core/src'),
+                          ],
+                          subPackagePaths: [
+                            path.join(workspaceRoot, 'node_modules/@mui/base'),
+                            path.join(workspaceRoot, 'node_modules/@mui/lab'),
+                            path.join(workspaceRoot, 'node_modules/@stoked-ui/media-selector'),
+                          ],
+                        },
+                        {
+                          productId: 'editor',
+                          paths: [
+                            path.join(workspaceRoot, 'packages/sui-editor/src'),
+                            path.join(workspaceRoot, 'packages/sui-core/src'),
+                          ],
+                          subPackagePaths: [
+                            path.join(workspaceRoot, 'node_modules/@mui/base'),
+                            path.join(workspaceRoot, 'node_modules/@stoked-ui/media-selector'),
+                          ],
+                        },
+                        {
                           productId: 'timeline',
                           paths: [
                             path.join(workspaceRoot, 'packages/sui-timeline/src'),

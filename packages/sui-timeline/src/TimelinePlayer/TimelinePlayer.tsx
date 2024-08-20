@@ -11,7 +11,7 @@ import IconButton from '@mui/material/IconButton';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import { TimelineState } from '../Timeline/TimelineState';
-import { TimelineTrack } from '../interface/action';
+import { TimelineTrack } from '../interface/TimelineAction';
 
 export const Rates = [0.2, 0.5, 1.0, 1.5, 2.0];
 
@@ -155,18 +155,18 @@ function TimelinePlayer({
         <SkipPreviousIcon />
       </IconButtonControlRoot>
       {/*
-                         <IconButtonControlRoot size={'small'} className="play-control" onClick={handleSlowDown}>
-                          <FastRewindIcon />
-                         </IconButtonControlRoot>
-                         */}
+                              <IconButtonControlRoot size={'small'} className="play-control" onClick={handleSlowDown}>
+                               <FastRewindIcon />
+                              </IconButtonControlRoot>
+                              */}
       <IconButtonControlRoot size={'small'} className="play-control" onClick={handlePlayOrPause}>
         {isPlaying ? <PauseIcon /> : <PlayArrowIcon />}
       </IconButtonControlRoot>
       {/*
-                         <IconButtonControlRoot size={'small'} className="play-control" onClick={handleSpeedUp}>
-                           <FastForwardIcon />
-                         </IconButtonControlRoot>
-                         */}
+                              <IconButtonControlRoot size={'small'} className="play-control" onClick={handleSpeedUp}>
+                                <FastForwardIcon />
+                              </IconButtonControlRoot>
+                              */}
       <IconButtonControlRoot size={'small'} className="play-control" onClick={handleEnd}>
         <SkipNextIcon />
       </IconButtonControlRoot>
@@ -193,7 +193,7 @@ function TimelinePlayer({
       </RateControlRoot>
     </PlayerRoot>
   );
-};
+}
 
 /*
 import * as React from 'react';
@@ -384,28 +384,6 @@ TimelinePlayer.propTypes = {
   // | To update them edit the TypeScript types and run "pnpm proptypes"  |
   // ----------------------------------------------------------------------
   autoScrollWhenPlay: PropTypes.bool.isRequired,
-  editorData: PropTypes.arrayOf(
-    PropTypes.shape({
-      actions: PropTypes.arrayOf(
-        PropTypes.shape({
-          disable: PropTypes.bool.isRequired,
-          effectId: PropTypes.string.isRequired,
-          end: PropTypes.number.isRequired,
-          flexible: PropTypes.bool.isRequired,
-          id: PropTypes.string.isRequired,
-          maxEnd: PropTypes.number.isRequired,
-          minStart: PropTypes.number.isRequired,
-          movable: PropTypes.bool.isRequired,
-          selected: PropTypes.bool.isRequired,
-          start: PropTypes.number.isRequired,
-        }),
-      ).isRequired,
-      classNames: PropTypes.arrayOf(PropTypes.string).isRequired,
-      id: PropTypes.string.isRequired,
-      rowHeight: PropTypes.number.isRequired,
-      selected: PropTypes.bool.isRequired,
-    }),
-  ).isRequired,
   scale: PropTypes.number.isRequired,
   scaleWidth: PropTypes.number.isRequired,
   startLeft: PropTypes.number.isRequired,
@@ -431,17 +409,38 @@ TimelinePlayer.propTypes = {
       setScrollLeft: PropTypes.func.isRequired,
       setScrollTop: PropTypes.func.isRequired,
       setTime: PropTypes.func.isRequired,
-      target: (props, propName) => {
+      target: function (props, propName) {
         if (props[propName] == null) {
-          return new Error(`Prop ${propName} is required but wasn't specified`);
+          return new Error("Prop '" + propName + "' is required but wasn't specified");
+        } else if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
+          return new Error("Expected prop '" + propName + "' to be of type Element");
         }
-        if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
-          return new Error(`Expected prop ${propName} to be of type Element`);
-        }
-        return undefined;
       },
     }).isRequired,
   }).isRequired,
+  tracks: PropTypes.arrayOf(
+    PropTypes.shape({
+      actions: PropTypes.arrayOf(
+        PropTypes.shape({
+          data: PropTypes.any,
+          disable: PropTypes.bool.isRequired,
+          effectId: PropTypes.string.isRequired,
+          end: PropTypes.number.isRequired,
+          flexible: PropTypes.bool.isRequired,
+          id: PropTypes.string.isRequired,
+          maxEnd: PropTypes.number.isRequired,
+          minStart: PropTypes.number.isRequired,
+          movable: PropTypes.bool.isRequired,
+          selected: PropTypes.bool.isRequired,
+          start: PropTypes.number.isRequired,
+        }),
+      ).isRequired,
+      classNames: PropTypes.arrayOf(PropTypes.string).isRequired,
+      id: PropTypes.string.isRequired,
+      rowHeight: PropTypes.number.isRequired,
+      selected: PropTypes.bool.isRequired,
+    }),
+  ).isRequired,
 } as any;
 
 export { TimelinePlayer };

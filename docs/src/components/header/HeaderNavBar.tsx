@@ -9,7 +9,7 @@ import { unstable_debounce as debounce } from '@mui/utils';
 import Fade from '@mui/material/Fade';
 import IconImage from 'docs/src/components/icon/IconImage';
 import ROUTES from 'docs/src/route';
-import { PRODUCTS, Product } from 'docs/src/products';
+import { PRODUCTS, Product, ALL_PRODUCTS } from 'docs/src/products';
 import { Link } from '@mui/docs/Link';
 import MuiProductSelector from 'docs/src/modules/components/MuiProductSelector';
 import Stack from "@mui/material/Stack";
@@ -161,8 +161,8 @@ export default function HeaderNavBar() {
   return (
     <Navigation>
       <ul ref={navRef} onKeyDown={handleKeyDown}>
-        {PRODUCTS.menu({ type: 'products', ...menuProps, menuRef: productsMenuRef})}
-        {PRODUCTS.menu({ type: 'docs', ...menuProps, menuRef: docsMenuRef})}
+        {ALL_PRODUCTS.menu({ type: 'products', ...menuProps, menuRef: productsMenuRef})}
+        {ALL_PRODUCTS.menu({ type: 'docs', ...menuProps, menuRef: docsMenuRef})}
         <li>
           <Link href={ROUTES.about}>About us</Link>
         </li>

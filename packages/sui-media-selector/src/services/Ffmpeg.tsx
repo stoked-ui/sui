@@ -63,7 +63,7 @@ export const FfmpegService = (): { ffmpegTools: FFmpegTools | null, loaded: bool
 
   const load = async (): Promise<void> => {
     const ffmpeg = ffmpegRef.current;
-    console.log('path', `${window.location}${import.meta.env.VITE_FFMPEG_WASM_PATH}`);
+    console.log('path', `${window.location}${process.env.VITE_FFMPEG_WASM_PATH}`);
     /*
      this.ffmpeg.on("progress", ({ progress }) => {
      this.progress.set(progress);
@@ -77,9 +77,9 @@ export const FfmpegService = (): { ffmpegTools: FFmpegTools | null, loaded: bool
     await ffmpeg.load({
       // coreURL: await toBlobURL(import.meta.env.VITE_FFMPEG_CORE_PATH, "application/javascript"),
       // wasmURL: await toBlobURL(import.meta.env.VITE_FFMPEG_WASM_PATH, "application/wasm"),
-      coreURL: `${window.location}${import.meta.env.VITE_FFMPEG_CORE_PATH}`,
-      wasmURL: `${window.location}${import.meta.env.VITE_FFMPEG_WASM_PATH}`,
-      workerURL: `${window.location}${import.meta.env.VITE_FFMPEG_WORKER_PATH}`,
+      coreURL: `${window.location}${process.env.VITE_FFMPEG_CORE_PATH}`,
+      wasmURL: `${window.location}${process.env.VITE_FFMPEG_WASM_PATH}`,
+      workerURL: `${window.location}${process.env.VITE_FFMPEG_WORKER_PATH}`,
     });
     setLoaded(true);
   };

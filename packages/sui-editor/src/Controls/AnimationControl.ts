@@ -1,10 +1,12 @@
 import lottie, { AnimationItem } from 'lottie-web';
-import { ITimelineActionType, TimelineAction } from "@stoked-ui/timeline";
+import { ITimelineActionType, TimelineAction, TimelineActionParams } from "@stoked-ui/timeline";
 
 class AnimationControl implements ITimelineActionType {
   id = 'animation';
 
   name = 'Animation';
+
+  color = 'green';
 
   cacheMap: Record<string, AnimationItem> = {};
 
@@ -21,27 +23,27 @@ class AnimationControl implements ITimelineActionType {
     item.goToAndStop(time);
   }
 
-  start(action: TimelineAction, time: number) {
+  enter(params: TimelineActionParams) {
+    const { action, engine, time } = params;
+    if (!engine.isPlaying) {
+      return;
+    }
     let item: AnimationItem;
     if (this.cacheMap[action.id]) {
       item = this.cacheMap[action.id];
       item.show();
       this._goToAndStop(item, time);
     } else {
-      const ground = document.getElementById('player-ground-1');
-      if (!ground) {
-        console.error('No player-ground-1');
-        return;
-      }
       item = lottie.loadAnimation({
         name: action.id,
-        container: ground,
-        renderer: 'svg',
+        container: engine.viewer,
+        renderer: 'canvas',
         loop: true,
         autoplay: false,
         path: action.data.src,
         rendererSettings: {
-          className: 'lottie-ani',
+          preserveAspectRatio: "xMidYMid slice",
+          className: 'MuiEditorView-content animation',
         },
       });
 
@@ -52,7 +54,8 @@ class AnimationControl implements ITimelineActionType {
     }
   }
 
-  update(action: TimelineAction, time: number) {
+  update(params: TimelineActionParams) {
+    const { action, time } = params;
     const item = this.cacheMap[action.id];
     if (!item) {
       return;
@@ -60,7 +63,8 @@ class AnimationControl implements ITimelineActionType {
     this._goToAndStop(item, time - action.start);
   }
 
-  stop(action: TimelineAction, time: number) {
+  leave(params: TimelineActionParams) {
+    const { action, time } = params;
     const item = this.cacheMap[action.id];
     if (!item) {
       return;
@@ -73,6 +77,14 @@ class AnimationControl implements ITimelineActionType {
       item.show();
       this._goToAndStop(item, cur);
     }
+  }
+
+  start(params: TimelineActionParams) {
+    this.enter(params);
+  }
+
+  stop(params: TimelineActionParams) {
+    this.leave(params);
   }
 
   destroy() {

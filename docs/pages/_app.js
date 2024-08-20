@@ -151,6 +151,14 @@ function AppWrapper(props) {
     const languagePrefix = pageProps.userLanguage === 'en' ? '' : `/${pageProps.userLanguage}`;
 
     const productMap = {
+      'core': {
+        metadata: 'Stoked UI',
+        name: 'Core',
+      },
+      'editor': {
+        metadata: 'Stoked UI',
+        name: 'Editor',
+      },
       'file-explorer': {
         metadata: 'Stoked UI',
         name: 'File Explorer',

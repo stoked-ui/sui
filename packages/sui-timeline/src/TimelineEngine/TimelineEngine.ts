@@ -1,8 +1,10 @@
-import { TimelineAction, TimelineTrack } from '../interface/action';
-import { TimelineActionType } from '../interface/actionType';
+import {
+  ITimelineAction,
+  ITimelineActionType
+} from '../TimelineAction/TimelineAction.types';
+import { TimelineTrack } from '../interface/TimelineAction';
 import { Emitter } from './emitter';
 import { Events, EventTypes } from './events';
-import { ActionTypes } from "../TimelineAction/TimelineActionTypes";
 
 const PLAYING = 'playing';
 const PAUSED = 'paused';
@@ -11,8 +13,12 @@ type PlayState = 'playing' | 'paused';
 export interface ITimelineEngine extends Emitter<EventTypes> {
   readonly isPlaying: boolean;
   readonly isPaused: boolean;
-  actionTypes: Record<string, TimelineActionType>;
+  actionTypes: Record<string, ITimelineActionType>;
   tracks: TimelineTrack[];
+  viewer: HTMLElement;
+  canvas: HTMLCanvasElement;
+
+
   /** Set playback rate */
   setPlayRate(rate: number): boolean;
   /** Get playback rate */
@@ -34,6 +40,9 @@ export interface ITimelineEngine extends Emitter<EventTypes> {
   pause(): void;
 }
 
+type EngineOptions = {
+  canvas?: HTMLCanvasElement
+}
 /**
  * Timeline player
  * Can be run independently of the editor
@@ -42,9 +51,24 @@ export interface ITimelineEngine extends Emitter<EventTypes> {
  * @extends {Emitter<EventTypes>}
  */
 export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngine {
-  constructor() {
+  constructor(params?: EngineOptions ) {
     super(new Events());
+    this._canvas = params?.canvas;
   }
+
+  private _canvas?: HTMLCanvasElement;
+
+  set canvas(canvas: HTMLCanvasElement) {
+    this._canvas = canvas;
+  }
+
+  get canvas() {
+    return this._canvas;
+  }
+
+  private _loading = true;
+
+  private _viewer: HTMLElement;
 
   /** requestAnimationFrame timerId */
   private _timerId: number;
@@ -61,11 +85,11 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
   /** Time frame pre data */
   private _prev: number;
 
-  /** Action effect map */
-  private _effectMap: Record<string, TimelineActionType> = {};
+  /** Action actionType map */
+  private _actionTypes: Record<string, ITimelineActionType> = {};
 
   /** Action map that needs to be run */
-  private _actionMap: Record<string, TimelineAction> = {};
+  private _actionMap: Record<string, ITimelineAction> = {};
 
   /** Action ID array sorted in positive order by action start time */
   private _actionSortIds: string[] = [];
@@ -76,6 +100,9 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
   /** The action time range contains the actionId list of the current time */
   private _activeActionIds: string[] = [];
 
+  get loading() {
+    return this._loading;
+  }
   /** Whether it is playing */
   get isPlaying() {
     return this._playState === 'playing';
@@ -86,8 +113,18 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
     return this._playState === 'paused';
   }
 
-  set actionTypes(actionTypes: Record<string, TimelineActionType>) {
-    this._effectMap = actionTypes ?? ActionTypes;
+  set viewer(viewer: HTMLElement) {
+    this._viewer = viewer;
+    this._viewerUpdate()
+    this._loading = false;
+  }
+
+  get viewer() {
+    return this._viewer;
+  }
+
+  set actionTypes(actionTypes: Record<string, ITimelineActionType>) {
+    this._actionTypes = actionTypes;
   }
 
   set tracks(tracks: TimelineTrack[]) {
@@ -231,22 +268,48 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
     this.trigger('ended', { engine: this });
   }
 
-  private _startOrStop(type?: 'start' | 'stop') {
+  private _viewerUpdate() {
     for (let i = 0; i < this._activeActionIds.length; i += 1) {
       const actionId = this._activeActionIds[i];
       const action = this._actionMap[actionId];
-      const effect = this._effectMap[action?.effectId];
+      const actionType = this._actionTypes[action?.effectId];
+      if (actionType?.viewerUpdate) {
+        actionType.viewerUpdate(this, action);
+      }
+    }
+  }
 
-      if (type === 'start' && effect?.source?.start) {
-        effect.source.start({ action, effect, engine: this, isPlaying: this.isPlaying, time: this.getTime() });
-      } else if (type === 'stop' && effect?.source?.stop) {
-        effect.source.stop({ action, effect, engine: this, isPlaying: this.isPlaying, time: this.getTime() });
+  private _verifyLoaded() {
+    if (this.loading) {
+      const notReadyYet = new Error('start or stop before finished loading')
+      console.log(notReadyYet, notReadyYet.stack);
+      return false
+    }
+    return true;
+  }
+  private _startOrStop(type?: 'start' | 'stop') {
+    if (!this._verifyLoaded()) {
+      return;
+    }
+    for (let i = 0; i < this._activeActionIds.length; i += 1) {
+      const actionId = this._activeActionIds[i];
+      const action = this._actionMap[actionId];
+      const actionType = this._actionTypes[action?.effectId];
+
+      if (type === 'start' && actionType?.start) {
+        actionType.start({action, time: this.getTime(), engine: this});
+      } else if (type === 'stop' && actionType?.stop) {
+        actionType.stop({action, time: this.getTime(), engine: this});
       }
     }
   }
 
   /** Execute every frame */
   private _tick(data: { now: number; autoEnd?: boolean; to?: number }) {
+    if (!this._verifyLoaded()) {
+      return;
+    }
+
     if (this.isPaused) {
       return;
     }
@@ -285,6 +348,9 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
 
   /** tick runs actions */
   private _tickAction(time: number) {
+    if (!this._verifyLoaded()) {
+      return;
+    }
     this._dealEnter(time);
     this._dealLeave(time);
 
@@ -293,9 +359,9 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
     for (let i = 0; i < length; i +=1) {
       const actionId = this._activeActionIds[i];
       const action = this._actionMap[actionId];
-      const effect = this._effectMap[action.effectId];
-      if (effect && effect.source?.update) {
-        effect.source.update({ time, action, isPlaying: this.isPlaying, effect, engine: this });
+      const actionType = this._actionTypes[action.effectId];
+      if (actionType && actionType?.update) {
+        actionType.update({action, time: this.getTime(), engine: this});
       }
     }
   }
@@ -306,9 +372,9 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
       const actionId = this._activeActionIds.shift();
       const action = this._actionMap[actionId];
 
-      const effect = this._effectMap[action?.effectId];
-      if (effect?.source?.leave) {
-        effect.source.leave({ action, effect, engine: this, isPlaying: this.isPlaying, time: this.getTime() });
+      const actionType = this._actionTypes[action?.effectId];
+      if (actionType?.leave) {
+        actionType.leave({action, time: this.getTime(), engine: this});
       }
     }
     this._next = 0;
@@ -329,9 +395,9 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
         }
         // The action can be executed and started
         if (action.end > time && !this._activeActionIds.includes(actionId)) {
-          const effect = this._effectMap[action.effectId];
-          if (effect && effect.source?.enter) {
-            effect.source.enter({ action, effect, isPlaying: this.isPlaying, time, engine: this });
+          const actionType = this._actionTypes[action.effectId];
+          if (actionType && actionType?.enter) {
+            actionType.enter({action, time: this.getTime(), engine: this});
           }
 
           this._activeActionIds.push(actionId);
@@ -350,10 +416,10 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
 
       // Not within the playback area
       if (action.start > time || action.end < time) {
-        const effect = this._effectMap[action.effectId];
+        const actionType = this._actionTypes[action.effectId];
 
-        if (effect && effect.source?.leave) {
-          effect.source.leave({ action, effect, isPlaying: this.isPlaying, time, engine: this });
+        if (actionType && actionType?.leave) {
+          actionType.leave({action, time: this.getTime(), engine: this});
         }
 
         this._activeActionIds.splice(i, 1);
@@ -365,12 +431,12 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
 
   /** Data processing */
   private _dealData(tracks: TimelineTrack[]) {
-    const actions: TimelineAction[] = [];
+    const actions: ITimelineAction[] = [];
     tracks?.forEach((track) => {
       actions.push(...track.actions);
     });
     const sortActions = actions.sort((a, b) => a.start - b.start);
-    const actionMap: Record<string, TimelineAction> = {};
+    const actionMap: Record<string, ITimelineAction> = {};
     const actionSortIds: string[] = [];
 
     sortActions.forEach((action) => {

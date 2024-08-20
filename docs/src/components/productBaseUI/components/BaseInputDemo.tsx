@@ -6,7 +6,7 @@ import { Input } from '@mui/base/Input';
 import { styled, GlobalStyles } from '@mui/system';
 
 const fieldStyles = `
-  --TextInput-height: 64px;
+  --TextInput-height: 200px;
   --TextInput-paddingTop: 2rem;
   --TextInput-labelLineHeight: 20px;
   --TextInput-labelScale: 0.75;
@@ -291,7 +291,7 @@ const FloatingLabelInput = React.forwardRef(
     border-[--muidocs-palette-grey-300] 
     bg-[--muidocs-palette-background-default] 
     p-[0px_0.75rem] [box-shadow:var(--shadow)] 
-    outline-transparent [--TextInput-height:64px] 
+    outline-transparent [--TextInput-height:100px] 
     [--TextInput-labelLineHeight:20px] [--TextInput-labelScale:0.75] 
     [--TextInput-paddingTop:2rem] 
     focus-within:!border-[--primary] 

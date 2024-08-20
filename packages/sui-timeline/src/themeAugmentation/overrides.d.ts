@@ -1,18 +1,14 @@
-import { FileExplorerClassKey } from '../FileExplorer';
-import { FileExplorerBasicClassKey } from '../FileExplorerBasic';
-import { FileElementClassKey } from '../FileElement';
-import { FileClassKey } from '../File';
+import { TimelineClassKey } from '../Timeline/timelineClasses';
+import { TimelineActionClassKey } from "../TimelineAction/timelineActionClasses";
 
 // prettier-ignore
-export interface FileExplorerComponentNameToClassKey {
-  MuiFileExplorerBasic: FileExplorerBasicClassKey;
-  MuiFileExplorer: FileExplorerClassKey;
-  MuiFileElement: FileElementClassKey;
-  MuiFile: FileClassKey;
+export interface TimelineComponentNameToClassKey {
+  MuiTimeline: TimelineClassKey;
+  MuiTimelineAction: TimelineActionClassKey;
 }
 
 declare module '@mui/material/styles' {
-  interface ComponentNameToClassKey extends FileExplorerComponentNameToClassKey {}
+  interface ComponentNameToClassKey extends TimelineComponentNameToClassKey {}
 }
 
 // disable automatic export

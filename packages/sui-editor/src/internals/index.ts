@@ -1,24 +1,24 @@
-export { useVideoEditor } from './useVideoEditor';
-export { VideoEditorProvider } from './VideoEditorProvider';
+export { useEditor } from './useEditor';
+export { EditorProvider } from './EditorProvider';
 
 
 export type {
-  VideoEditorPlugin,
-  VideoEditorPluginSignature,
+  EditorPlugin,
+  EditorPluginSignature,
   ConvertPluginsIntoSignatures,
   MergeSignaturesProperty,
-  VideoEditorPublicAPI,
-  VideoEditorExperimentalFeatures,
+  EditorPublicAPI,
+  EditorExperimentalFeatures,
 } from './models';
 
 // Core plugins
-export type { VideoEditorCorePluginParameters } from './corePlugins';
+export type { EditorCorePluginParameters } from './corePlugins';
 
 // Plugins
-export { useVideoEditorSelection } from './plugins/useVideoEditorSelection';
+export { useEditorMetadata } from './plugins/useEditorMetadata';
 export type {
-  UseVideoEditorSelectionSignature,
-  UseVideoEditorSelectionParameters,
-} from './plugins/useVideoEditorSelection';
+  UseEditorMetadataSignature,
+  UseEditorMetadataParameters,
+} from './plugins/useEditorMetadata';
 
 export { buildWarning } from './utils/warning';

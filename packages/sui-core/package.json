@@ -1,6 +1,6 @@
 {
   "name": "@stoked-ui/core",
-  "version": "0.1.0-alpha.3",
+  "version": "0.1.0-alpha.4",
   "description": "Material UI is an open-source React component library that implements Google's Material Design. It's comprehensive and can be used in production out of the box.",
   "author": "Brian Stoker",
   "main": "src/index.ts",
@@ -42,10 +42,6 @@
     "directory": "packages/sui-editor"
   },
   "dependencies": {
-    "@atlaskit/pragmatic-drag-and-drop": "^1.2.1",
-    "@atlaskit/pragmatic-drag-and-drop-flourish": "^1.1.0",
-    "@atlaskit/pragmatic-drag-and-drop-hitbox": "^1.0.3",
-    "@atlaskit/pragmatic-drag-and-drop-react-drop-indicator": "^1.1.1",
     "@babel/runtime": "^7.24.7",
     "@mui/base": "^5.0.0-beta.40",
     "@mui/system": "^5.15.20",
@@ -66,14 +62,11 @@
     "@emotion/styled": "^11.8.1",
     "@mui/icons-material": "^5.15.21",
     "@mui/material": "^5.15.21",
-    "@stoked-ui/file-explorer": "workspace:^",
-    "@stoked-ui/media-selector": "workspace:^",
     "react": "^17.0.0 || ^18.0.0",
     "react-dom": "^17.0.0 || ^18.0.0"
   },
   "devDependencies": {
     "@stoked-ui/internal-test-utils": "workspace:^",
-    "@stoked-ui/media-selector": "workspace:^",
     "@types/prop-types": "^15.7.12",
     "chai": "^4.4.1",
     "jest": "^29.7.0",

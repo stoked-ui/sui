@@ -10,6 +10,7 @@ import {
 
 const packagePath = process.cwd();
 const buildPath = path.join(packagePath, './build');
+console.log('buildPath', buildPath);
 const srcPath = path.join(packagePath, './src');
 
 async function addLicense(packageData) {

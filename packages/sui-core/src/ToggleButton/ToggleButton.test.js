@@ -13,7 +13,7 @@ describe('<ToggleButton />', () => {
     classes,
     inheritComponent: ButtonBase,
     render,
-    muiName: 'MuiToggleButton',
+    muiName: 'SuiToggleButton',
     testVariantProps: { variant: 'foo' },
     testStateOverrides: { prop: 'size', value: 'large', styleKey: 'sizeLarge' },
     refInstanceof: window.HTMLButtonElement,

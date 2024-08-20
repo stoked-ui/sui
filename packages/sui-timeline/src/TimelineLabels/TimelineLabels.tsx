@@ -49,25 +49,6 @@ const TimelineLabelsRoot = styled('div', {
   height: '258px',
   flex: '0 1 auto',
   overflow: 'overlay',
-
-  '& .MuiTimelineLabels-label ': {
-    height: '32px',
-    padding: '2px',
-    width: '100%',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-
-    '& div': {
-      color: theme.palette.text.primary,
-      height: '28px',
-      width: '100%',
-      borderRadius: '4px',
-      display: 'flex',
-      alignItems: 'center',
-      backgroundColor: theme.palette.grey.A100,
-    }
-  }
 }));
 
 
@@ -76,7 +57,27 @@ const TimelineLabel = styled('div', {
   slot: 'Label',
   overridesResolver: (props, styles) => styles.icon,
 })(({ theme }) => ({
+  height: '32px',
+  padding: '2px',
+  width: '100%',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
 
+  '& div': {
+    color: theme.palette.text.primary,
+    height: '28px',
+    width: '100%',
+    borderRadius: '4px',
+    display: 'flex',
+    alignItems: 'center',
+    paddingLeft: '6px',
+    backgroundColor: theme.palette.grey.A200,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    textWrap: 'nowrap'
+  }
 }));
 
 /**
@@ -115,7 +116,7 @@ export const TimelineLabels = React.forwardRef(
         {tracks?.map((item) => {
           return (
             <TimelineLabel key={item.id} className={classes.label}>
-              <div > {`track ${item.id}`} </div>
+              <div>{item.name}</div>
             </TimelineLabel>
           );
         })}
