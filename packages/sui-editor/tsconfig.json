@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.x.json",
+  "compilerOptions": {
+    "target": "ES2015",
+    "types": [
+      "@stoked-ui/internal-test-utils/initMatchers",
+      "@mui/material/themeCssVarsAugmentation",
+      "chai-dom",
+      "mocha",
+      "node"
+    ],
+    "noImplicitAny": false
+  },
+  "include": ["src/**/*"],
+  "exclude": ["**/*.test.tsx"]
+}
