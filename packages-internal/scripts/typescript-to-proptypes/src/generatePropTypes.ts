@@ -136,6 +136,7 @@ export function generatePropTypes(
           if (name !== 'children') {
             regex = /^(UnionNode|DOMElementNode|ElementNode)$/;
           }
+          console.log('name', context.component.name, name)
           return `"${name}": ${generatePropType(type, context)}${
             !type.type.match(regex) ? '.isRequired' : ''
           }`;

@@ -1,17 +1,13 @@
-import { FileExplorerProps } from '../FileExplorer';
-import { FileExplorerBasicProps } from '../FileExplorerBasic';
-import { FileElementProps } from '../FileElement';
-import { FileProps } from '../File';
+import { TimelineProps } from '../Timeline/Timeline.types';
+import { TimelineActionProps } from "../TimelineAction/TimelineAction.types";
 
-export interface FileExplorerComponentsPropsList {
-  MuiFileExplorerBasic: FileExplorerBasicProps<any>;
-  MuiFileExplorer: FileExplorerProps<any, any>;
-  MuiFile: FileProps;
-  MuiFileElement: FileElementProps;
+export interface TimelineComponentsPropsList {
+  MuiTimeline: TimelineProps;
+  MuiTimelineAction: TimelineActionProps;
 }
 
 declare module '@mui/material/styles' {
-  interface ComponentsPropsList extends FileExplorerComponentsPropsList {}
+  interface ComponentsPropsList extends TimelineComponentsPropsList {}
 }
 
 // disable automatic export

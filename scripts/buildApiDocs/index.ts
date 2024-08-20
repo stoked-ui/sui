@@ -21,7 +21,7 @@ const fileExplorerSettings = getProjectSettings('file-explorer', [
   '/sui-file-explorer/src/internals/plugins/useFileExplorerGrid/FileExplorerGridHeaders.tsx',
 ]);
 const timelineSettings = getProjectSettings('timeline', []);
-const videoEditorSettings = getProjectSettings('video-editor', []);
+const videoEditorSettings = getProjectSettings('editor', []);
 const mediaSelectorSettings = getProjectSettings('media-selector', []);
 
 const projectSettings: ProjectSettings[] = [

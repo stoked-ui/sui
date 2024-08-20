@@ -5,7 +5,7 @@ import { styled, useThemeProps } from '@mui/material/styles';
 import ToggleButton from "@stoked-ui/core/ToggleButton";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import ToggleButtonGroup from '@stoked-ui/core/ToggleButtonGroup';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import LockIcon from '@mui/icons-material/Lock';
 import { EditorLabelsProps } from './EditorLabels.types';
@@ -98,7 +98,7 @@ const LabelButtonContainer = styled(ToggleButtonGroup, {
   width: 'min-content',
   display: 'flex',
   alignItems: 'center',
-  paddingRight: '6px',
+  paddingRight: '0px',
   '& button': {
     padding: '3px',
   }

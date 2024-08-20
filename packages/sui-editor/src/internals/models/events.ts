@@ -1,10 +1,10 @@
 import * as React from 'react';
 
-export interface VideoEditorEventLookupElement {
+export interface EditorEventLookupElement {
   params: object;
 }
 
-export type VideoEditorEventListener<E extends VideoEditorEventLookupElement> = (
+export type EditorEventListener<E extends EditorEventLookupElement> = (
   params: E['params'],
   event: MuiEvent<{}>,
 ) => void;

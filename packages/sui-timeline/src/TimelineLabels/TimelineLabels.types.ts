@@ -4,7 +4,7 @@ import { SxProps } from '@mui/system';
 import { SlotComponentProps } from '@mui/base/utils';
 import { TimelineLabelsClasses } from './timelineLabelsClasses';
 import { TimelineState } from "../Timeline/TimelineState";
-import { TimelineTrack } from "../interface/action";
+import { TimelineTrack } from "../interface/TimelineAction";
 
 
 export interface TimelineLabelsSlots {
@@ -49,4 +49,7 @@ export interface TimelineLabelsProps
    * @default {}
    */
   slotProps?: TimelineLabelsSlotProps;
+
+  onToggle?: (id: string, property: string) => void;
+  getToggles?: (id: string) => string[];
 }

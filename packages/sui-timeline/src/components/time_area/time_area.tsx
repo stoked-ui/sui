@@ -2,10 +2,10 @@ import * as React from 'react';
 import { styled } from "@mui/material/styles";
 import { AutoSizer, Grid, GridCellRenderer, OnScrollParams } from 'react-virtualized';
 import { parserPixelToTime } from '../../utils/deal_data';
-import { CommonProp } from '../../interface/common_prop';
+import { CommonProps } from '../../interface/common_prop';
 import { prefix } from '../../utils/deal_class_prefix';
 /** Animation timeline component parameters */
-export type TimeAreaProps = CommonProp & {
+export type TimeAreaProps = CommonProps & {
   /** Left scroll distance */
   scrollLeft: number;
   /** Scroll callback, used for synchronous scrolling */

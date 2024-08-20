@@ -1,4 +1,4 @@
-import type { VideoEditorPlugin, VideoEditorAnyPluginSignature } from './plugin';
+import type { EditorPlugin, EditorAnyPluginSignature } from './plugin';
 
 export type DefaultizedProps<
   P extends {},
@@ -24,29 +24,29 @@ export type OptionalIfEmpty<A extends string, B> = keyof B extends never
 
 export type MergeSignaturesProperty<
   TSignatures extends readonly any[],
-  TProperty extends keyof VideoEditorAnyPluginSignature,
+  TProperty extends keyof EditorAnyPluginSignature,
 > = TSignatures extends readonly [plugin: infer P, ...otherPlugin: infer R]
-  ? P extends VideoEditorAnyPluginSignature
+  ? P extends EditorAnyPluginSignature
     ? P[TProperty] & MergeSignaturesProperty<R, TProperty>
     : {}
   : {};
 
 export type ConvertPluginsIntoSignatures<
-  TPlugins extends readonly VideoEditorPlugin<VideoEditorAnyPluginSignature>[],
+  TPlugins extends readonly EditorPlugin<EditorAnyPluginSignature>[],
 > = TPlugins extends readonly [plugin: infer TPlugin, ...otherPlugin: infer R]
-  ? R extends readonly VideoEditorPlugin<any>[]
-    ? TPlugin extends VideoEditorPlugin<infer TSignature>
+  ? R extends readonly EditorPlugin<any>[]
+    ? TPlugin extends EditorPlugin<infer TSignature>
       ? readonly [TSignature, ...ConvertPluginsIntoSignatures<R>]
       : never
     : never
   : [];
 
 export type ConvertSignaturesIntoPlugins<
-  TSignatures extends readonly VideoEditorAnyPluginSignature[],
+  TSignatures extends readonly EditorAnyPluginSignature[],
 > = TSignatures extends readonly [signature: infer TSignature, ...otherSignatures: infer R]
-  ? R extends readonly VideoEditorAnyPluginSignature[]
-    ? TSignature extends VideoEditorAnyPluginSignature
-      ? readonly [VideoEditorPlugin<TSignature>, ...ConvertSignaturesIntoPlugins<R>]
+  ? R extends readonly EditorAnyPluginSignature[]
+    ? TSignature extends EditorAnyPluginSignature
+      ? readonly [EditorPlugin<TSignature>, ...ConvertSignaturesIntoPlugins<R>]
       : never
     : never
   : [];

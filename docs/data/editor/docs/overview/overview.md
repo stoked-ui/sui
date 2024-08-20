@@ -1,28 +1,30 @@
 ---
-productId: video-explorer
-title: Video Explorer component
-githubLabel: 'component: editor'
-components: VideoEditor, FileExplorer, Timeline, MediaSelector
-packageName: '@stoked-ui/editor'
+productId: core
+title: Stoked UI Core
+githubLabel: 'component: core'
+components: Button, PluginComponent
+packageName: '@stoked-ui/core'
 ---
 
 # Overview
 
-<p class="description">The Video Editor component lets users navigate hierarchical lists of data with nested levels that can be expanded and collapsed.</p>
+<p class="description">The Core library contains all the reusable stuffs. It will likely mostly just contain hacked and slashed components yoink'd from @mui/material for this and that.</p>
 
 {{"component": "modules/components/ComponentLinkHeader"}}
 
 ## Available components
 
-The MUI X Video Editor package exposes two different versions of the component:
+The Stoked UI Core package exposes two components intialy.
 
-### Video Editor
+### Button
+
+### Plugin Component
+
 
 ```jsx
-import { VideoEditor } from '@stoked-ui/editor/VideoEditor';
+import Button from '@stoked-ui/core/Button';
 ```
 
-The simple version of the File Explorer component receives its items as JSX children.
-This is the recommended version for hardcoded items.
+The simple version of the Button component stolen from @mui/material is used primarily for testing and investigation. Specifically looking at the way @mui/material toolchain works vs @mui/mui-x. Definitely do not need this library or the full Button code from material in order to theme it up stoked style.
 
-{{"demo": "VideoEditorDemo.js", "defaultCodeOpen": false, "bg": "noMargin"}}
+{{"demo": "CoreDemo.js", "defaultCodeOpen": false, "bg": "noMargin"}}

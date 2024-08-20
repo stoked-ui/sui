@@ -1,12 +1,20 @@
-import { ITimelineActionType, TimelineAction } from "@stoked-ui/timeline";
+import {
+  ITimelineActionType,
+  ITimelineAction,
+  TimelineActionParams,
+  TimelineEngine
+} from "@stoked-ui/timeline";
 
 class VideoControl implements ITimelineActionType {
   id =  'video';
 
   name = 'Video';
 
+  color = 'blue';
+
   cacheMap: Record<string, HTMLVideoElement> = {};
 
+  _videoItem: HTMLVideoElement | null = null;
   // eslint-disable-next-line class-methods-use-this
   private _goToAndStop(item: HTMLVideoElement, time: number) {
     const duration = item.duration * 1000;
@@ -18,30 +26,59 @@ class VideoControl implements ITimelineActionType {
     item.pause();
   }
 
-  start(action: TimelineAction, time: number) {
+  enter(params: TimelineActionParams) {
+    const { action, time, engine} = params;
+
     let item: HTMLVideoElement;
     if (this.cacheMap[action.id]) {
       item = this.cacheMap[action.id];
-      item.style.display = 'block';
+      item.style.display = 'flex';
       this._goToAndStop(item, time);
     } else {
-      const ground = document.getElementById('player-ground-1');
       item = document.createElement('video');
       item.src = action.data.src;
+      item.style.position = 'absolute';
       item.style.display = 'flex';
-      item.style.width = '100%';
       item.loop = true;
       item.muted = true;  // Prevent autoplay restrictions
-      ground?.appendChild(item);
-
       item.addEventListener('loadedmetadata', () => {
         this._goToAndStop(item, time - action.start);
       });
       this.cacheMap[action.id] = item;
+
+      if (engine.viewer) {
+        this.viewerUpdate(engine.viewer, action)
+      }
     }
   }
 
-  update(action: TimelineAction, time: number) {
+  viewerUpdate(engine: TimelineEngine, action: ITimelineAction) {
+    const item = this.cacheMap[action.id]
+
+    if (engine.viewer.tagName === 'canvas') {
+      const canvas = engine.viewer as HTMLCanvasElement;
+      item.addEventListener('play', () => {
+        // eslint-disable-next-line consistent-this
+        let ctx = canvas.getContext('2d');
+        (function loop() {
+          if (!item.paused && !item.ended) {
+            if (!ctx) {
+              ctx = canvas.getContext('2d');
+            }
+            if (ctx) {
+              ctx.drawImage(item, 0, 0);
+            }
+            setTimeout(loop, 1000 / 30); // drawing at 30fps
+          }
+        })();
+      }, false);
+    } else {
+      engine.viewer.appendChild(item);
+    }
+  }
+
+  update(params: TimelineActionParams) {
+    const { action, time } = params;
     const item = this.cacheMap[action.id];
     if (!item) {
       return;
@@ -49,7 +86,8 @@ class VideoControl implements ITimelineActionType {
     this._goToAndStop(item, time - action.start);
   }
 
-  stop(action: TimelineAction, time: number) {
+  leave(params: TimelineActionParams) {
+    const { action, time } = params;
     const item = this.cacheMap[action.id];
     if (!item) {
       return;

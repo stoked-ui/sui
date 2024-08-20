@@ -1,7 +1,7 @@
 import { EditData } from "../TimelineControl/TimelineControl.types";
 
 /** Component public parameters */
-export interface CommonProp extends EditData {
+export interface CommonProps extends EditData {
   /** Number of scales */
   scaleCount: number;
   /** Set the number of scales */

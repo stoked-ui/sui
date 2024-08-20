@@ -1,4 +1,5 @@
-import { TimelineAction, TimelineTrack } from "../interface/action";
+import { TimelineTrack } from "../interface/TimelineAction";
+import { ITimelineAction } from "../TimelineAction/TimelineAction.types";
 import { ADD_SCALE_COUNT } from "../interface/const";
 
 /** time to pixel */
@@ -96,7 +97,7 @@ export function getScaleCountByPixel(
 
 /** Get the position collection of the entire time of the action */
 export function parserActionsToPositions(
-  actions: TimelineAction[],
+  actions: ITimelineAction[],
   param: {
     startLeft: number;
     scale: number;

@@ -9,12 +9,13 @@ module.exports = {
   resolve: {
     modules: [__dirname, 'node_modules'],
     alias: {
-      '@stoked-ui/internal-markdown': path.resolve(__dirname, './packages/markdown'),
+      '@stoked-ui/internal-markdown': path.resolve(__dirname, './packages-internal/markdown'),
       '@stoked-ui/media-selector': path.resolve(__dirname, './packages/sui-media-selector'),
       '@stoked-ui/docs': path.resolve(__dirname, './packages/sui-docs/src'),
       '@stoked-ui/timeline': path.resolve(__dirname, './packages/sui-timeline/src'),
       '@stoked-ui/file-explorer': path.resolve(__dirname, './packages/sui-file-explorer/src'),
-      '@stoked-ui/video-explorer': path.resolve(__dirname, './packages/sui-video-explorer/src'),
+      '@stoked-ui/editor': path.resolve(__dirname, './packages/sui-editor/src'),
+      '@stoked-ui/core': path.resolve(__dirname, './packages/sui-core/src'),
       '@stoked-ui/internal-docs-utils': path.resolve(__dirname, './packages-internal/docs-utils/src'),
       '@stoked-ui/internal-scripts/typescript-to-proptypes': path.resolve(__dirname, './packages-internal/scripts/typescript-to-proptypes/src'),
       docs: path.resolve(__dirname, './docs'),

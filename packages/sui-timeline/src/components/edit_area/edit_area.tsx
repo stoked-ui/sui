@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { styled } from "@mui/material/styles";
 import { AutoSizer, Grid, GridCellRenderer, OnScrollParams } from 'react-virtualized';
-import { TimelineTrack } from '../../interface/action';
-import { CommonProp } from '../../interface/common_prop';
+import { TimelineTrack } from '../../interface/TimelineAction';
+import { CommonProps } from '../../interface/common_prop';
 import { EditData, TimelineControlProps } from '../../TimelineControl/TimelineControl.types';
 import { prefix } from '../../utils/deal_class_prefix';
 import { parserTimeToPixel } from '../../utils/deal_data';
@@ -10,7 +10,7 @@ import { DragLines } from './drag_lines';
 import { EditRow } from './edit_row';
 import { useDragLine } from './hooks/use_drag_line';
 
-export type EditAreaProps =  CommonProp & {
+export type EditAreaProps =  CommonProps & {
   /** Scroll distance from the left */
   scrollLeft: number;
   /** Scroll distance from top */
@@ -200,7 +200,6 @@ export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>((props, r
           }
           heightRef.current = height;
 
-          console.log('calculated height', totalHeight, heights, width, height);
           return (
             <Grid
               columnCount={1}

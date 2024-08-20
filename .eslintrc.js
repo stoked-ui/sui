@@ -429,11 +429,7 @@ module.exports = {
           {
             paths: [
               {
-                name: '@mui/material',
-                message: forbidTopLevelMessage,
-              },
-              {
-                name: '@mui/lab',
+                name: '@stoked-ui/[^/]',
                 message: forbidTopLevelMessage,
               },
             ],
@@ -446,7 +442,7 @@ module.exports = {
       files: ['packages/*/src/**/*{.ts,.tsx,.js}'],
       excludedFiles: ['*.d.ts', '*.spec.ts', '*.spec.tsx', 'packages/mui-joy/**/*{.ts,.tsx,.js}'],
       rules: {
-        'stoked-ui/mui-name-matches-component-name': [
+        'stoked-ui/sui-name-matches-component-name': [
           'error',
           {
             customHooks: [
@@ -469,13 +465,6 @@ module.exports = {
       files: ['**/*.mjs'],
       rules: {
         'import/extensions': ['error', 'ignorePackages'],
-      },
-    },
-    {
-      files: ['packages/mui-base/src/**/**{.ts,.tsx}'],
-      rules: {
-        'import/no-default-export': 'error',
-        'import/prefer-default-export': 'off',
       },
     },
   ],

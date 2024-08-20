@@ -1,6 +1,6 @@
 {
   "name": "@stoked-ui/monorepo",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.4",
   "private": true,
   "scripts": {
     "rebuild": "pnpm clean && pnpm clean && pnpm i && pnpm build && rm -rf docs/.next && pnpm docs:build",
@@ -14,6 +14,7 @@
     "deduplicate": "pnpm dedupe",
     "benchmark:browser": "pnpm --filter benchmark browser",
     "build": "lerna run build --ignore stokedui-com",
+    "build:clean": "lerna run build --ignore stokedui-com --skip-nx-cache",
     "build:full": "pnpm build && pnpm proptypes && pnpm docs:api && pnpm docs:build",
     "build:docs": "pnpm --filter stokedui-com build",
     "build:public": "lerna run --no-private build",
@@ -27,7 +28,7 @@
     "release:publish": "pnpm publish --recursive --tag latest",
     "release:publish:dry-run": "pnpm publish --recursive --tag latest --registry=\"http://localhost:4873/\"",
     "release:tag": "node scripts/releaseTag.mjs",
-    "clean": "rimraf --glob **/pnpm-lock.yaml **/package-lock.json **/yarn.lock **/node_modules/ **/dist **/build **/.nx **/.next docs/export",
+    "clean": "rimraf --glob '**/.eslintcache' '**/pnpm-lock.yaml' '**/package-lock.json' '**/yarn.lock' '**/node_modules/' '**/dist' '**/build' '**/.nx' '**/.next' 'docs/export' '**/*.tsbuildinfo'",
     "clean:build": "rimraf --glob **/dist **/build **/.nx **/.next **/docs/export",
     "docs:api": "NODE_OPTIONS=--max-old-space-size=4096 pnpm docs:api:build && pnpm docs:api:buildX",
     "docs:api:build": "cross-env BABEL_ENV=development babel-node -i \"/node_modules/(?!@stoked-ui)/\" -x .ts,.tsx,.js ./scripts/buildApiDocs/index.ts",
@@ -63,7 +64,7 @@
     "prettier:all": "prettier --write . --ignore-path .eslintignore",
     "size:snapshot": "node --max-old-space-size=4096 ./scripts/sizeSnapshot/create",
     "size:why": "pnpm size:snapshot --analyze",
-    "start": "pnpm install && pnpm docs:dev",
+    "start": "pnpm docs:dev",
     "test": "node scripts/test.mjs",
     "tc": "node test/cli.js",
     "test:extended": "pnpm eslint && pnpm typescript && pnpm test:coverage",
@@ -122,7 +123,6 @@
     "@mui/lab": "^5.0.0-alpha.170",
     "@mui/docs": "^5.0.0-beta.40",
     "@stoked-ui/internal-api-docs-builder": "workspace:^",
-    "@stoked-ui/internal-api-docs-builder-core": "workspace:^",
     "@stoked-ui/internal-docs-utils": "workspace:^",
     "@stoked-ui/internal-scripts": "workspace:^",
     "@stoked-ui/internal-test-utils": "workspace:^",
@@ -133,6 +133,8 @@
     "@octokit/rest": "^20.0.2",
     "@pigment-css/react": "^0.0.3",
     "@playwright/test": "1.42.1",
+    "@stoked-ui/core": "workspace:^",
+    "@stoked-ui/editor": "workspace:^",
     "@stoked-ui/file-explorer": "workspace:^",
     "@stoked-ui/internal-markdown": "workspace:^",
     "@stoked-ui/media-selector": "workspace:^",
@@ -200,7 +202,7 @@
     "pretty-quick": "^4.0.0",
     "process": "^0.11.10",
     "raw-loader": "4.0.2",
-    "rimraf": "^5.0.5",
+    "rimraf": "5.0.7",
     "serve": "^14.2.1",
     "stylelint": "^15.11.0",
     "stylelint-config-standard": "^34.0.0",
@@ -253,10 +255,5 @@
     ],
     "sourceMap": false,
     "instrument": false
-  },
-  "pnpm": {
-    "patchedDependencies": {
-      "@ffmpeg/ffmpeg@0.12.10": "patches/@ffmpeg__ffmpeg@0.12.10.patch"
-    }
   }
 }

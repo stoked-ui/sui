@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-stoked-ui",
-  "version": "5.0.0",
+  "version": "0.1.0-alpha.4",
   "private": true,
   "description": "Custom eslint rules for SUI.",
   "main": "src/index.js",

@@ -136,7 +136,7 @@ const getComponentPaths =
   };
 
 
-const packageNames = ['file-explorer', 'media-selector', 'timeline', 'video-editor'];
+const packageNames = ['file-explorer', 'media-selector', 'timeline', 'editor'];
 const getEntryPoint = (root: string) => {
 
   if (fs.existsSync(path.join(root, `/src/index.ts`))) {

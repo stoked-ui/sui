@@ -4,26 +4,26 @@ import { SxProps } from '@mui/system';
 import { SlotComponentProps } from '@mui/base/utils';
 import { FileBase } from '@stoked-ui/file-explorer/models/items';
 import { TimelineState, TimelineTrack } from '@stoked-ui/timeline';
-import { VideoEditorControlsClasses } from './videoEditorControlsClasses';
+import { EditorControlsClasses } from './editorControlsClasses';
 
-export interface VideoEditorControlsSlots {
+export interface EditorControlsSlots {
   /**
    * Element rendered at the root.
-   * @default VideoEditorControlsRoot
+   * @default EditorControlsRoot
    */
   root?: React.ElementType;
 }
 
-export interface VideoEditorControlsSlotProps<R extends FileBase, Multiple extends boolean | undefined> {
-  root?: SlotComponentProps<'div', {}, VideoEditorControlsProps<R, Multiple>>;
+export interface EditorControlsSlotProps<R extends FileBase, Multiple extends boolean | undefined> {
+  root?: SlotComponentProps<'div', {}, EditorControlsProps<R, Multiple>>;
 }
 
-export interface VideoEditorControlsPropsBase extends React.HTMLAttributes<HTMLDivElement> {
+export interface EditorControlsPropsBase extends React.HTMLAttributes<HTMLDivElement> {
   className?: string;
   /**
    * Override or extend the styles applied to the component.
    */
-  classes?: Partial<VideoEditorControlsClasses>;
+  classes?: Partial<EditorControlsClasses>;
   /**
    * The system prop that allows defining system overrides as well as additional CSS styles.
    */
@@ -43,21 +43,21 @@ export interface VideoEditorControlsPropsBase extends React.HTMLAttributes<HTMLD
   * @default 20
   */
   startLeft?: number;
-  timelineState?: React.RefObject<TimelineState>;
+  timelineState: React.RefObject<TimelineState>;
   editorData?: TimelineTrack[];
   autoScrollWhenPlay: boolean;
 }
 
-export interface VideoEditorControlsProps<R extends FileBase, Multiple extends boolean | undefined>
-  extends VideoEditorControlsPropsBase {
+export interface EditorControlsProps<R extends FileBase, Multiple extends boolean | undefined>
+  extends EditorControlsPropsBase {
   /**
    * Overridable component slots.
    * @default {}
    */
-  slots?: VideoEditorControlsSlots;
+  slots?: EditorControlsSlots;
   /**
    * The props used for each component slot.
    * @default {}
    */
-  slotProps?: VideoEditorControlsSlotProps<R, Multiple>;
+  slotProps?: EditorControlsSlotProps<R, Multiple>;
 }

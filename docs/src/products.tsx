@@ -204,7 +204,7 @@ export class Product {
           },
           // ...(Array.isArray(sx) ? sx : [sx]),
         ]}
-      >
+      >www
         {this.icon}
         <Box sx={{ flexGrow: 1 }}>
           <Typography color="text.primary" sx={{ display: "flex", flexDirection: "row"}} variant="body2" fontWeight="700">
@@ -572,7 +572,7 @@ function ProductsSwitcher(props: ProductSwitcherProps) {
   const isBelowMd = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'));
 
   return (
-    <React.Fragment>
+    <React.Fragment>hi
       {products.swipeable({ show: isBelowMd && inView, productIndex, setProductIndex } as ProductSwipeableProps)}
       {products.stack(props)}
     </React.Fragment>
@@ -727,37 +727,37 @@ const stokedUiData: TProduct = {
   id: 'stoked-ui',
   name: "Stoked UI",
   fullName: "Stoked UI",
-  description: "Advanced media components",
+  description: "Advanced media components MIT",
   icon: "product-designkits",
   url: "/stoked-ui",
   showcaseType: MaterialShowcase,
   hideProductFeatures: true,
-  live: false,
+  live: true,
   features: [{
-    name: 'Getting Started',
+    name: 'Introduction',
     description: 'Overview, installation, lions, tigers, and bears oh mai!',
-    id: 'getting-started',
-  }, {
-    name: 'Media Selector',
-    description: 'Library used to select and automatically pull appropriate meta data from client side files',
-    id: 'media-selector',
+    id: 'overview',
   }, {
     name: 'File Explorer',
     description: 'Highly extensible file explorer component with drag and drop support.',
     id: 'file-explorer',
   }, {
-    name: 'Customization',
-    description: 'Customize the file explorer.',
-    id: 'file-explorer/file-explorer/customization',
+    name: 'Timeline',
+    description: 'Timeline component used to construct tools that manipulate things over time.',
+    id: 'timeline',
+  }, {
+    name: 'Editor',
+    description: 'Editor contains components intended for use as raw building blocks for tools that can edit.. THEM THANGS..',
+    id: 'editor',
   }],
 };
 const sui = new Product(stokedUiData);
 const fileExplorerData: TProduct = {
   id: 'file-explorer',
   name: "File Explorer",
-  fullName: "SUI File Explorer",
+  fullName: "Stoked UI: File Explorer",
   description: "Advanced media components",
-  icon: "product-designkits",
+  icon: "product-core",
   url: "/file-explorer",
   hideProductFeatures: true,
   live: true,
@@ -781,12 +781,43 @@ const fileExplorerData: TProduct = {
   }],
 };
 const fileExplorer = new Product(fileExplorerData);
+
+const coreData: TProduct = {
+  id: 'core',
+  name: "Core",
+  fullName: "Stoked UI: Core",
+  description: "Stoked UI is an open-source React component library that implements Google's Material Design. It's comprehensive and can be used in production out of the box.",
+  icon: "product-advanced",
+  url: "/media-selector",
+  hideProductFeatures: true,
+  live: true,
+  showcaseType: AdvancedShowcase,
+  features: [{
+    name: 'Overview',
+    description: 'Overview, installation, lions, tigers, and bears oh mai!',
+    id: 'overview',
+  }, {
+    name: 'FileWithPath',
+    description: 'Library used to select and automatically pull appropriate meta data from client side files',
+    id: 'file-with-path',
+  }, {
+    name: 'IdGenerator',
+    description: 'Highly extensible file explorer component with drag and drop support.',
+    id: 'id-generator',
+  }, {
+    name: 'Roadmap',
+    description: 'What&apos;s next',
+    id: 'roadmap',
+  }],
+};
+const core = new Product(coreData);
+
 const mediaSelectorData: TProduct = {
   id: 'media-selector',
   name: "Media Selector",
-  fullName: "SUI Media Selector",
+  fullName: "Stoked UI: Media Selector",
   description: "Library used to select and gather type specific meta data from client side files",
-  icon: "product-designkits",
+  icon: "product-advanced",
   url: "/media-selector",
   hideProductFeatures: true,
   live: true,
@@ -813,51 +844,51 @@ const mediaSelector = new Product(mediaSelectorData);
 const timelineData: TProduct = {
   id: 'timeline',
   name: "Timeline",
-  fullName: "SUI Timeline",
-  description: "Advanced media components",
-  icon: "product-designkits",
+  fullName: "Stoked UI: Timeline",
+  description: "Timeline component used to construct tools that manipulate things over time",
+  icon: "product-toolpad",
   url: "/timeline",
   hideProductFeatures: true,
   live: true,
   showcaseType: OriginalShowcase,
   features: [{
-    name: 'Getting Started',
+    name: 'Overview',
     description: 'Overview, installation, lions, tigers, and bears oh mai!',
-    id: 'getting-started',
+    id: 'overview',
   }, {
-    name: 'Media Selector',
-    description: 'Library used to select and automatically pull appropriate meta data from client side files',
-    id: 'media-selector',
+    name: 'Timeline',
+    description: 'Component useful in creating components capable of editing something over time or at key frames',
+    id: 'timeline',
+  },/* {
+    name: 'Timeline Engine',
+    description: 'Main game loop',
+    id: 'timeline-engine',
   }, {
-    name: 'File Explorer',
-    description: 'Highly extensible file explorer component with drag and drop support.',
-    id: 'file-explorer',
-  }, {
-    name: 'Customization',
-    description: 'Customize the file explorer.',
-    id: 'file-explorer/file-explorer/customization',
-  }],
+    name: 'Timeline Action',
+    description: 'I&apos;m Jack&apos;s complete lack of surprise.',
+    id: 'timeline-action',
+  }*/],
 };
 const timeline = new Product(timelineData);
 const videoEditorData: TProduct = {
-  id: 'video-editor',
-  name: "Video Editor",
-  fullName: "SUI Video Editor",
-  description: "Advanced media components",
-  icon: "product-designkits",
-  url: "/video-editor",
+  id: 'editor',
+  name: "Editor",
+  fullName: "Stoked UI: Editor",
+  description: "Editor contains components intended for use as raw building blocks for tools that can.. well.. EDIT things.",
+  icon: "product-templates",
+  url: "/editor",
   hideProductFeatures: true,
   live: true,
   showcaseType: MaterialShowcase,
   features: [{
-    name: 'Getting Started',
+    name: 'Overview',
     description: 'Overview, installation, lions, tigers, and bears oh mai!',
-    id: 'getting-started',
+    id: 'overview',
   }, {
-    name: 'Media Selector',
+    name: 'Editor',
     description: 'Library used to select and automatically pull appropriate meta data from client side files',
-    id: 'media-selector',
-  }, {
+    id: 'editor',
+  }, /*{
     name: 'File Explorer',
     description: 'Highly extensible file explorer component with drag and drop support.',
     id: 'file-explorer',
@@ -865,11 +896,11 @@ const videoEditorData: TProduct = {
     name: 'Customization',
     description: 'Customize the file explorer.',
     id: 'file-explorer/file-explorer/customization',
-  }],
+  }*/],
 };
 const videoEditor = new Product(videoEditorData);
 
-const PRODUCTS: Products = new Products([sui, fileExplorer, mediaSelector, timeline, videoEditor, stokedConsulting]);
+const PRODUCTS: Products = new Products([sui, core, fileExplorer, mediaSelector, timeline, videoEditor, stokedConsulting]);
 const ALL_PRODUCTS: Products = new Products([sui, stokedConsulting]);
 
 export type MenuProps = {
@@ -879,90 +910,3 @@ export type MenuProps = {
 
 export { PRODUCTS, ALL_PRODUCTS }
 
-
-/*
-*
-*
-*
-const suiMaterialData: TProduct = {
-  id: 'material',
-  name: "SUI Material",
-  fullName: "SUI Material (MUI)",
-  description: "Foundational components for shipping features faster. (MUI)",
-  icon: "product-core",
-  features: [{
-    name: 'Overview',
-    description: 'Stoked UI (MUI) is an open-source React component library that implements Google\'s Material Design',
-    id: 'getting-started',
-  }, {
-    name: 'Installation',
-    description: 'Installation instructions',
-    id: 'installation',
-  }, {
-    name: 'Components',
-    description: 'Building blocks for developers to create great user interfaces using the Material Design guidelines',
-    id: 'components',
-  }, {
-    name: 'Support',
-    description: 'Support for SUI',
-    id: 'support',
-  }],
-}
-const suiMaterial = new Product(suiMaterialData);
-const suiCoreData: TProduct = {
-  id: 'sui',
-  name: "SUI Core",
-  fullName: "SUI Core",
-  description: "Special case free components from Stoked UI (SUI) based on Stoked UI (SUI).",
-  icon: "product-designkits",
-  features: [{
-    name: 'FileList',
-    description: 'A list of files with drag and drop support.',
-    id: 'file-list',
-  }, {
-    name: 'Timeline',
-    description: 'A timeline component for displaying events.',
-    id: 'timeline',
-  }, {
-    name: 'VideoEditor',
-    description: 'A video editor component.',
-    id: 'video-editor',
-  }, {
-    name: 'MediaProvider',
-    description: 'A media provider service.',
-    id: 'media-provider',
-  }],
-};
-const suiCore = new Product(suiCoreData);
-
-const suiXData: TProduct = {
-  id: 'sui-x',
-  name: "SUI X",
-  fullName: "SUI X",
-  description: "Advanced components for complex use cases.",
-  icon: "product-advanced",
-  features: [
-    {
-      name: 'X-FileList',
-      description: 'Commercial version of the file list component.',
-      id: 'file-list',
-    },{
-      name: 'X-Timeline',
-      description: 'Commercial version of the timeline component.',
-      id: 'timeline',
-    },{
-      name: 'X-VideoEditor',
-      description: 'Commercial version of the video editor component.',
-      id: 'video-editor',
-    },{
-      name: 'X-MediaProvider',
-      description: 'Commercial version of the media provider service.',
-      id: 'media-provider',
-    }],
-};
-const suiX = new Product(suiXData);
-*
-*
-*
-*
-* */

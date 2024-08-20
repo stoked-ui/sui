@@ -10,7 +10,7 @@ import {
   fixBabelGeneratorIssues,
   fixLineEndings,
   getUnstyledFilename,
-} from '@mui/internal-docs-utils';
+} from '@stoked-ui/internal-docs-utils';
 import {
   getPropTypesFromFile,
   injectPropTypesInFile,
@@ -19,7 +19,7 @@ import {
 import {
   createTypeScriptProjectBuilder,
   TypeScriptProject,
-} from '@mui-internal/api-docs-builder/utils/createTypeScriptProject';
+} from '@stoked-ui/api-docs-builder/utils/createTypeScriptProject';
 
 import CORE_TYPESCRIPT_PROJECTS from './coreTypeScriptProjects';
 

@@ -29,14 +29,9 @@ function createLoading(sx: BoxProps['sx']) {
   };
 }
 
-const FileExplorerGrid = dynamic(() => import('../showcase/FileExplorerCard'), {
+const EditorHero = dynamic(() => import('../showcase/EditorHero'), {
   ssr: false,
   loading: createLoading({ width: '100%', height: 280 }),
-});
-
-const FileExplorerDnd = dynamic(() => import('../showcase/FileExplorerCard'), {
-  ssr: false,
-  loading: createLoading({ width: 360, height: 280 }),
 });
 
 export default function Hero() {
@@ -47,12 +42,49 @@ export default function Hero() {
       linearGradient
       left={
         <Box sx={{ textAlign: { xs: 'center', md: 'left' }, maxWidth: 500 }}>
-          <Typography variant="h1" mb={1}>
-            <GradientText>File Explorer</GradientText> <br />
-            with drag and drop and much more
+          <Typography variant="h2" mb={1}>
+            Making
           </Typography>
+          <Typography variant="h1" mb={1} sx={{
+            backgroundRepeat: 'repeat',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            WebkitFontSmoothing: "antialiased",
+            backgroundImage: 'url("/static/images/editor/them-thangs-1.png")',
+            backgroundAttachment: 'fixed',
+            backgroundPosition: 'center',
+            backgroundSize: 'cover',
+            lineHeight: '1.17'
+          }}>
+             them thangs
+          </Typography>
+          <Box sx={{
+            textWrap: 'nowrap',
+            whiteSpace: 'nowrap',
+            fontFamily: '"General Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
+            fontWeight: '600',
+            scrollSnapMarginTop: 'calc(var(--MuiDocs-header-height) + 32px)',
+            scrollMarginTop: 'calc(var(--MuiDocs-header-height) + 32px)',
+            letterSpacing: '-0.2px',
+            marginBottom: '8px',
+            display: 'flex',
+          }}>
+            <div style={{
+              fontSize: 'clamp(1.5rem, 0.9643rem + 1.4286vw, 2.25rem)',
+              lineHeight: '1.2222222222222223',
+              color: 'hsl(210, 14%, 13%)',
+              alignSelf: 'center'
+            }}>w/</div>
+            <div style={{
+              background: 'linear-gradient(90deg, hsl(210, 100%, 60%) 5%, hsl(210, 100%, 45%) 90%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              fontSize: 'clamp(2.5rem, 1.125rem + 3.5vw, 3.5em)',
+              lineHeight: '1.1142857142857143',
+            }}> Editor</div>
+          </Box>
           <Typography color="text.secondary" mb={3}>
-            SUI is building an open source web based Video Editor and just released the first component. The File Explorer will play a critical role managing files in the Video Editor. It&apos;s built with <a href={'https://mui.com/material-ui/getting-started/'}>MUI</a> through and through and leverages Atlassian&apos;s new <a href={'https://atlassian.design/components/pragmatic-drag-and-drop/'}>Pragmatic Drag and Drop Library</a>. PR&apos;s welcome.
+            Stoked UI: Editor. A library that <sup style={{ color: 'red' }}>^ will</sup> contain<span style={{color: 'red', textDecoration: 'line-through'}}>s</span> components used as building blocks for.. well.. Editors. PR&apos;s welcome!
           </Typography>
           <GetStartedButtons primaryLabel="Checkout the roadmap to see whats next" primaryUrl="https://github.com/orgs/stoked-ui/projects/1/views/1" />
         </Box>
@@ -80,8 +112,7 @@ export default function Hero() {
         <React.Fragment>
           {isMdUp && (
             <Stack spacing={3} useFlexGap sx={{ '& > .MuiPaper-root': { maxWidth: 'none' } }}>
-              <FileExplorerGrid id={'file-explorer-grid'} grid sx={{ width: '100%' }} />
-              <FileExplorerDnd id={'file-explorer-dnd'} sx={{width: 360}}/>
+              <EditorHero id={'file-explorer-grid'} grid sx={{ width: '100%' }} />
             </Stack>
           )}
         </React.Fragment>

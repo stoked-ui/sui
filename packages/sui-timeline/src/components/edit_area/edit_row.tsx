@@ -1,14 +1,15 @@
 import * as React from 'react';
 import { styled } from "@mui/material/styles";
-import { TimelineTrack } from '../../interface/action';
-import { CommonProp } from '../../interface/common_prop';
+import { TimelineTrack } from '../../interface/TimelineAction';
+import { CommonProps } from '../../interface/common_prop';
 import { prefix } from '../../utils/deal_class_prefix';
 import { parserPixelToTime } from '../../utils/deal_data';
 import { DragLineData } from './drag_lines';
-import { EditAction } from './edit_action';
+import { ITimelineAction } from '../../TimelineAction/TimelineAction.types';
 import { EditData } from "../../TimelineControl/TimelineControl.types";
+import TimelineAction from "../../TimelineAction/TimelineAction";
 
-export type EditRowProps = CommonProp & EditData & {
+export type EditRowProps = CommonProps & EditData & {
   areaRef: React.MutableRefObject<HTMLDivElement>;
   rowData?: TimelineTrack;
   style?: React.CSSProperties;
@@ -86,15 +87,15 @@ export function EditRow(props: EditRowProps) {
         }
       }}
     >
-      {(rowData?.actions || []).map((action) => (
-        <EditAction
+      {(rowData?.actions || []).map((action) => {
+        return <TimelineAction
           key={action.id}
           {...props}
           handleTime={handleTime}
           track={rowData}
           action={action}
         />
-      ))}
+      })}
     </EditRowRoot>
   );
 };

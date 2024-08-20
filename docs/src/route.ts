@@ -33,14 +33,14 @@ const ROUTES: Routes = {
   suiCoreFileListDoc: '/sui/docs/file-list/',
   suiCoreTimeline: '/sui/timeline/',
   suiCoreTimelineDoc: '/sui/docs/timeline/',
-  suiCoreVideoEditor: '/sui/video-editor/',
-  suiCoreVideoEditorDoc: '/sui/video-editor/',
+  suiCoreEditor: '/sui/editor/',
+  suiCoreEditorDoc: '/sui/editor/',
   suiCoreMediaProvider: '/sui/media-provider/',
   suiCoreMediaProviderDoc: '/sui/docs/media-provider/',
   // SUI core components
   suiXFileList: '/sui-x/file-list/',
   suiXTimeline: '/sui-x/timeline/',
-  suiXVideoEditor: '/sui-x/video-editor/',
+  suiXEditor: '/sui-x/editor/',
   suiXMediaProvider: '/sui-x/media-provider/',
   // Stoked UI doc pages
   materialDocs: 'https://stoked-ui.github.io/material-ui/getting-started/',

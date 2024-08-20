@@ -1,12 +1,12 @@
-import { VideoEditorClassKey } from '../VideoEditor';
+import { EditorClassKey } from '../Editor';
 
 // prettier-ignore
-export interface VideoEditorComponentNameToClassKey {
-  MuiVideoEditor: VideoEditorClassKey;
+export interface EditorComponentNameToClassKey {
+  MuiEditor: EditorClassKey;
 }
 
 declare module '@mui/material/styles' {
-  interface ComponentNameToClassKey extends VideoEditorComponentNameToClassKey {}
+  interface ComponentNameToClassKey extends EditorComponentNameToClassKey {}
 }
 
 // disable automatic export

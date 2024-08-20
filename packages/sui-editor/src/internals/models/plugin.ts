@@ -1,24 +1,24 @@
 import * as React from 'react';
 import { EventHandlers } from '@mui/base/utils';
-import { VideoEditorExperimentalFeatures, VideoEditorModel } from './videoEditor';
+import { EditorExperimentalFeatures, EditorModel } from './editor';
 import type { MergeSignaturesProperty, OptionalIfEmpty } from './helpers';
-import { VideoEditorEventLookupElement } from './events';
-import type { VideoEditorCorePluginSignatures } from '../corePlugins';
+import { EditorEventLookupElement } from './events';
+import type { EditorCorePluginSignatures } from '../corePlugins';
 
-export interface VideoEditorPluginOptions<TSignature extends VideoEditorAnyPluginSignature> {
-  instance: VideoEditorUsedInstance<TSignature>;
-  params: VideoEditorUsedDefaultizedParams<TSignature>;
-  state: VideoEditorUsedState<TSignature>;
+export interface EditorPluginOptions<TSignature extends EditorAnyPluginSignature> {
+  instance: EditorUsedInstance<TSignature>;
+  params: EditorUsedDefaultizedParams<TSignature>;
+  state: EditorUsedState<TSignature>;
   slots: TSignature['slots'];
   slotProps: TSignature['slotProps'];
-  experimentalFeatures: VideoEditorUsedExperimentalFeatures<TSignature>;
-  models: VideoEditorUsedModels<TSignature>;
-  setState: React.Dispatch<React.SetStateAction<VideoEditorUsedState<TSignature>>>;
+  experimentalFeatures: EditorUsedExperimentalFeatures<TSignature>;
+  models: EditorUsedModels<TSignature>;
+  setState: React.Dispatch<React.SetStateAction<EditorUsedState<TSignature>>>;
   rootRef: React.RefObject<HTMLDivElement>;
-  plugins: VideoEditorPlugin<VideoEditorAnyPluginSignature>[];
+  plugins: EditorPlugin<EditorAnyPluginSignature>[];
 }
 
-type VideoEditorModelsInitializer<TSignature extends VideoEditorAnyPluginSignature> = {
+type EditorModelsInitializer<TSignature extends EditorAnyPluginSignature> = {
   [TControlled in keyof TSignature['models']]: {
     getDefaultValue: (
       params: TSignature['defaultizedParams'],
@@ -26,7 +26,7 @@ type VideoEditorModelsInitializer<TSignature extends VideoEditorAnyPluginSignatu
   };
 };
 
-type VideoEditorResponse<TSignature extends VideoEditorAnyPluginSignature> = {
+type EditorResponse<TSignature extends EditorAnyPluginSignature> = {
   getRootProps?: <TOther extends EventHandlers = {}>(
     otherHandlers: TOther,
   ) => React.HTMLAttributes<HTMLDivElement>;
@@ -34,21 +34,21 @@ type VideoEditorResponse<TSignature extends VideoEditorAnyPluginSignature> = {
   OptionalIfEmpty<'instance', TSignature['instance']> &
   OptionalIfEmpty<'contextValue', TSignature['contextValue']>;
 
-export type VideoEditorPluginSignature<
+export type EditorPluginSignature<
   T extends {
     params?: {};
     defaultizedParams?: {};
     instance?: {};
     publicAPI?: {};
-    events?: { [key in keyof T['events']]: VideoEditorEventLookupElement };
+    events?: { [key in keyof T['events']]: EditorEventLookupElement };
     state?: {};
     contextValue?: {};
     slots?: { [key in keyof T['slots']]: React.ElementType };
     slotProps?: { [key in keyof T['slotProps']]: {} | (() => {}) };
     modelNames?: keyof T['defaultizedParams'];
     experimentalFeatures?: string;
-    dependencies?: readonly VideoEditorAnyPluginSignature[];
-    optionalDependencies?: readonly VideoEditorAnyPluginSignature[];
+    dependencies?: readonly EditorAnyPluginSignature[];
+    optionalDependencies?: readonly EditorAnyPluginSignature[];
   },
 > = {
   params: T extends { params: {} } ? T['params'] : {};
@@ -62,7 +62,7 @@ export type VideoEditorPluginSignature<
   slotProps: T extends { slotProps: {} } ? T['slotProps'] : {};
   models: T extends { defaultizedParams: {}; modelNames: keyof T['defaultizedParams'] }
     ? {
-      [TControlled in T['modelNames']]-?: VideoEditorModel<
+      [TControlled in T['modelNames']]-?: EditorModel<
         Exclude<T['defaultizedParams'][TControlled], undefined>
       >;
     }
@@ -76,7 +76,7 @@ export type VideoEditorPluginSignature<
     : [];
 };
 
-export type VideoEditorAnyPluginSignature = {
+export type EditorAnyPluginSignature = {
   state: any;
   instance: any;
   params: any;
@@ -92,25 +92,25 @@ export type VideoEditorAnyPluginSignature = {
   publicAPI: any;
 };
 
-type VideoEditorRequiredPlugins<TSignature extends VideoEditorAnyPluginSignature> = [
-  ...VideoEditorCorePluginSignatures,
+type EditorRequiredPlugins<TSignature extends EditorAnyPluginSignature> = [
+  ...EditorCorePluginSignatures,
   ...TSignature['dependencies'],
 ];
 
 type PluginPropertyWithDependencies<
-  TSignature extends VideoEditorAnyPluginSignature,
-  TProperty extends keyof VideoEditorAnyPluginSignature,
+  TSignature extends EditorAnyPluginSignature,
+  TProperty extends keyof EditorAnyPluginSignature,
 > = TSignature[TProperty] &
-  MergeSignaturesProperty<VideoEditorRequiredPlugins<TSignature>, TProperty> &
+  MergeSignaturesProperty<EditorRequiredPlugins<TSignature>, TProperty> &
   Partial<MergeSignaturesProperty<TSignature['optionalDependencies'], TProperty>>;
 
-export type VideoEditorUsedParams<TSignature extends VideoEditorAnyPluginSignature> =
+export type EditorUsedParams<TSignature extends EditorAnyPluginSignature> =
   PluginPropertyWithDependencies<TSignature, 'params'>;
 
-type VideoEditorUsedDefaultizedParams<TSignature extends VideoEditorAnyPluginSignature> =
+type EditorUsedDefaultizedParams<TSignature extends EditorAnyPluginSignature> =
   PluginPropertyWithDependencies<TSignature, 'defaultizedParams'>;
 
-export type VideoEditorUsedInstance<TSignature extends VideoEditorAnyPluginSignature> =
+export type EditorUsedInstance<TSignature extends EditorAnyPluginSignature> =
   PluginPropertyWithDependencies<TSignature, 'instance'> & {
   /**
    * Private property only defined in TypeScript to be able to access the plugin signature from the instance object.
@@ -118,22 +118,22 @@ export type VideoEditorUsedInstance<TSignature extends VideoEditorAnyPluginSigna
   $$signature: TSignature;
 };
 
-type VideoEditorUsedState<TSignature extends VideoEditorAnyPluginSignature> =
+type EditorUsedState<TSignature extends EditorAnyPluginSignature> =
   PluginPropertyWithDependencies<TSignature, 'state'>;
 
-type VideoEditorUsedExperimentalFeatures<TSignature extends VideoEditorAnyPluginSignature> =
-  VideoEditorExperimentalFeatures<[TSignature, ...TSignature['dependencies']]>;
+type EditorUsedExperimentalFeatures<TSignature extends EditorAnyPluginSignature> =
+  EditorExperimentalFeatures<[TSignature, ...TSignature['dependencies']]>;
 
-type RemoveSetValue<Models extends Record<string, VideoEditorModel<any>>> = {
+type RemoveSetValue<Models extends Record<string, EditorModel<any>>> = {
   [K in keyof Models]: Omit<Models[K], 'setValue'>;
 };
 
-export type VideoEditorUsedModels<TSignature extends VideoEditorAnyPluginSignature> =
+export type EditorUsedModels<TSignature extends EditorAnyPluginSignature> =
   TSignature['models'] &
-  RemoveSetValue<MergeSignaturesProperty<VideoEditorRequiredPlugins<TSignature>, 'models'>>;
+  RemoveSetValue<MergeSignaturesProperty<EditorRequiredPlugins<TSignature>, 'models'>>;
 
-export type VideoEditorUsedEvents<TSignature extends VideoEditorAnyPluginSignature> =
-  TSignature['events'] & MergeSignaturesProperty<VideoEditorRequiredPlugins<TSignature>, 'events'>;
+export type EditorUsedEvents<TSignature extends EditorAnyPluginSignature> =
+  TSignature['events'] & MergeSignaturesProperty<EditorRequiredPlugins<TSignature>, 'events'>;
 
 export interface VideoPluginOptions<TProps extends {}> extends VideoPluginResponse {
   props: TProps;
@@ -155,13 +155,13 @@ export type VideoPlugin<TProps extends {}> = (
 ) => VideoPluginResponse;
 
 
-export type VideoEditorPlugin<TSignature extends VideoEditorAnyPluginSignature> = {
-  (options: VideoEditorPluginOptions<TSignature>): VideoEditorResponse<TSignature>;
+export type EditorPlugin<TSignature extends EditorAnyPluginSignature> = {
+  (options: EditorPluginOptions<TSignature>): EditorResponse<TSignature>;
   getDefaultizedParams?: (
-    params: VideoEditorUsedParams<TSignature>,
+    params: EditorUsedParams<TSignature>,
   ) => TSignature['defaultizedParams'];
-  getInitialState?: (params: VideoEditorUsedDefaultizedParams<TSignature>) => TSignature['state'];
-  models?: VideoEditorModelsInitializer<TSignature>;
+  getInitialState?: (params: EditorUsedDefaultizedParams<TSignature>) => TSignature['state'];
+  models?: EditorModelsInitializer<TSignature>;
   params: Record<keyof TSignature['params'], true>;
   itemPlugin?: VideoPlugin<any>;
 };

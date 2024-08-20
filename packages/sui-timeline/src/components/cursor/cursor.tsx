@@ -1,14 +1,14 @@
 import * as React from 'react';
 import { ScrollSync } from 'react-virtualized';
 import { styled } from "@mui/material/styles";
-import { CommonProp } from '../../interface/common_prop';
+import { CommonProps } from '../../interface/common_prop';
 import { prefix } from '../../utils/deal_class_prefix';
 import { parserPixelToTime, parserTimeToPixel } from '../../utils/deal_data';
 import { RowDnd } from '../row_rnd/row_rnd';
 import { RowRndApi } from '../row_rnd/row_rnd_interface';
 
 /** Animation timeline component parameters */
-export type CursorProps = CommonProp & {
+export type CursorProps = CommonProps & {
   /** Scroll distance from the left */
   scrollLeft: number;
   /** Set cursor position */
@@ -24,7 +24,7 @@ export type CursorProps = CommonProp & {
 const CursorRoot = styled('div')({
   cursor: 'ew-resize',
   position: 'absolute',
-  top: '0px',
+  top: '34px',
   height: '100%',
   boxSizing: 'border-box',
   borderLeft: '1px solid #5297FF',
@@ -34,7 +34,7 @@ const CursorRoot = styled('div')({
 
 const CursorTopRoot = styled('svg')({
   position: 'absolute',
-  top: '-3px',
+  top: '0px',
   left: '50%',
   transform: 'translate(-50%, 0) scaleX(2)',
   margin: 'auto',
@@ -42,7 +42,7 @@ const CursorTopRoot = styled('svg')({
 
 const CursorAreaRoot = styled('div')({
   width: '16px',
-  height: '100%',
+  height: 'calc(100% - 34px)',
   cursor: 'ew-resize',
   position: 'absolute',
   top: 0,

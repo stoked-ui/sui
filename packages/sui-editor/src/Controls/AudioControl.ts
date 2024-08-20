@@ -1,10 +1,15 @@
 import { Howl } from 'howler';
-import { ITimelineActionType, TimelineAction, TimelineEngine } from '@stoked-ui/timeline';
+import {
+  ITimelineActionType,
+  TimelineActionParams,
+} from '@stoked-ui/timeline';
 
 class AudioControl implements ITimelineActionType {
   id =  'audio';
 
   name = 'Audio';
+
+  color = 'purple';
 
   cacheMap: Record<string, Howl> = {};
 
@@ -16,7 +21,8 @@ class AudioControl implements ITimelineActionType {
     }
   > = {};
 
-  start(action: TimelineAction, time: number, engine?: TimelineEngine) {
+  enter(params: TimelineActionParams) {
+    const { action, engine, time } = params;
     if (!engine) {
       throw new Error('engine is required to play audio');
     }
@@ -54,7 +60,8 @@ class AudioControl implements ITimelineActionType {
     this.listenerMap[action.id].rate = rateListener;
   }
 
-  stop(action: TimelineAction, time: number, engine?: any) {
+  leave(params: TimelineActionParams) {
+    const { action, engine } = params;
     if (this.cacheMap[action.id]) {
       const item = this.cacheMap[action.id];
       item.stop();

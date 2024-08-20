@@ -27,10 +27,10 @@ export interface ToggleButtonClasses {
 export type ToggleButtonClassKey = keyof ToggleButtonClasses;
 
 export function getToggleButtonUtilityClass(slot: string): string {
-  return generateUtilityClass('MuiToggleButton', slot);
+  return generateUtilityClass('SuiToggleButton', slot);
 }
 
-const toggleButtonClasses: ToggleButtonClasses = generateUtilityClasses('MuiToggleButton', [
+const toggleButtonClasses: ToggleButtonClasses = generateUtilityClasses('SuiToggleButton', [
   'root',
   'disabled',
   'selected',

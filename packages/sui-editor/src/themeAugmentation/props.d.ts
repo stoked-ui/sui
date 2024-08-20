@@ -1,11 +1,11 @@
-import { VideoEditorProps } from '../VideoEditor';
+import { EditorProps } from '../Editor';
 
-export interface VideoEditorComponentsPropsList {
-  MuiVideoEditor: VideoEditorProps<any, any>;
+export interface EditorComponentsPropsList {
+  MuiEditor: EditorProps<any, any>;
 }
 
 declare module '@mui/material/styles' {
-  interface ComponentsPropsList extends VideoEditorComponentsPropsList {}
+  interface ComponentsPropsList extends EditorComponentsPropsList {}
 }
 
 // disable automatic export
