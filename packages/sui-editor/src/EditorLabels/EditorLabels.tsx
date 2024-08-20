@@ -1,7 +1,7 @@
 import * as React from 'react';
 import composeClasses from "@mui/utils/composeClasses";
 import { useSlotProps } from '@mui/base/utils';
-import { styled, useThemeProps } from '@mui/material/styles';
+import {styled, Theme, useThemeProps} from '@mui/material/styles';
 import ToggleButton from "@stoked-ui/core/ToggleButton";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
@@ -94,7 +94,8 @@ const LabelButtonContainer = styled(ToggleButtonGroup, {
   name: 'MuiLabelButtonContainer',
   slot: 'LabelButtonContainer',
   overridesResolver: (props, styles) => styles.icon,
-})(({ theme }) => ({
+})(({ theme }: { theme: Theme}) => {
+  return {
   width: 'min-content',
   display: 'flex',
   alignItems: 'center',
@@ -102,7 +103,7 @@ const LabelButtonContainer = styled(ToggleButtonGroup, {
   '& button': {
     padding: '3px',
   }
-}));
+}});
 
 /**
  *

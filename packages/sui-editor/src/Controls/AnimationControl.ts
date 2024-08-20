@@ -6,7 +6,7 @@ class AnimationControl implements ITimelineActionType {
 
   name = 'Animation';
 
-  color = 'green';
+  color = '#4169E1';
 
   cacheMap: Record<string, AnimationItem> = {};
 

@@ -10,7 +10,7 @@ class VideoControl implements ITimelineActionType {
 
   name = 'Video';
 
-  color = 'blue';
+  color = '#0000FF';
 
   cacheMap: Record<string, HTMLVideoElement> = {};
 
