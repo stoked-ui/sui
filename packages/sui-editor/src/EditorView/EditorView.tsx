@@ -30,7 +30,8 @@ const EditorViewRoot = styled('div', {
   position: 'relative',
   overflow: 'hidden',
   minHeight: '400px',
-
+  maxHeight: '600px',
+  aspectRatio: 16 / 9,
 }));
 
 const EditorViewRenderer = styled('canvas', {

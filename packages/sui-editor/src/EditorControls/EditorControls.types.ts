@@ -33,6 +33,7 @@ export interface EditorControlsPropsBase extends React.HTMLAttributes<HTMLDivEle
   * @default 1
   */
   scale?: number;
+  setScaleWidth: (scaleWidth: number) => void;
   /*
   * The width of the scale
   * @default 160

@@ -149,11 +149,17 @@ export const Editor = React.forwardRef(function Editor<
   });
   const timelineState = React.useRef<TimelineState>(null);
   const engine = React.useRef<TimelineEngine>(new TimelineEngine());
+
+  const [scaleWidth, setScaleWidth] = React.useState(160);
+
+  const setScaleWidthProxy = (val: number) => {
+    setScaleWidth(val);
+  }
   return (
     <Root {...rootProps} >
       <EditorViewSlot {...editorViewProps} />
-      <ControlsSlot {...videoControlsProps} timelineState={timelineState} />
-      <TimelineSlot {...timelineProps} timelineState={timelineState} viewSelector={`.MuiEditorView-root`} slots={{ labels: EditorLabels }}/>
+      <ControlsSlot {...videoControlsProps} timelineState={timelineState} scaleWidth={scaleWidth} setScaleWidth={setScaleWidthProxy} />
+      <TimelineSlot {...timelineProps} timelineState={timelineState} scaleWidth={scaleWidth}  setScaleWidth={setScaleWidthProxy} viewSelector={`.MuiEditorView-root`} slots={{ labels: EditorLabels }}/>
       <Stack direction="row" spacing={2}>
         <BottomLeft {...bottomLeftProps} />
         <BottomRight {...bottomRightProps} />

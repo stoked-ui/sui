@@ -243,4 +243,5 @@ export interface TimelineControlProps extends EditData {
    */
   onChange?: (tracks: TimelineTrack[]) => void | boolean;
 
+  setScaleWidth?: (scaleWidth: number) => void;
 }

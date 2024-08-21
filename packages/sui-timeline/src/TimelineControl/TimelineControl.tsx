@@ -12,6 +12,7 @@ import { getScaleCountByRows, parserPixelToTime, parserTimeToPixel } from '../ut
 import { Cursor } from '../components/cursor/cursor';
 import { EditArea, EditAreaState } from '../components/edit_area/edit_area';
 import { TimeArea } from '../components/time_area/time_area';
+import ScrollResizer from "../TimelineScrollResizer/ScrollResizer";
 
 const TimelineControlRoot = styled('div')(({ theme }) => ({
   width: '100%',
@@ -23,15 +24,6 @@ const TimelineControlRoot = styled('div')(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
   overflow: 'hidden',
-  '&:hover': {
-    '& .timelineControl-editor-edit-area': {
-      '& .ReactVirtualized__Grid': {
-        '&::-webkit-scrollbar': {
-          height: '8px',
-        },
-      },
-    },
-  },
 }));
 
 
@@ -147,6 +139,13 @@ const TimelineControl = React.forwardRef<TimelineState, TimelineControlProps>(
       return result;
     };
 
+
+    const setHorizontalScroll = (left: number) => {
+      scrollSync.current.setState({
+        scrollLeft: Math.max(left, 0),
+      });
+    }
+
     /** setUp scrollLeft */
     const handleDeltaScrollLeft = (delta: number) => {
       // Disable automatic scrolling when the maximum distance is exceeded
@@ -156,11 +155,10 @@ const TimelineControl = React.forwardRef<TimelineState, TimelineControlProps>(
       }
 
       if (scrollSync.current) {
-        scrollSync.current.setState({
-          scrollLeft: Math.max(scrollSync.current.state.scrollLeft + delta, 0),
-        });
+        setHorizontalScroll(scrollSync.current.state.scrollLeft + delta)
       }
     };
+
 
     // process runner related data
     React.useEffect(() => {
@@ -250,7 +248,9 @@ const TimelineControl = React.forwardRef<TimelineState, TimelineControlProps>(
       React.useEffect(() => {
         if (mutationRef.current && viewer === null) {
           const parentCallback = (mutationList, observerRef) => {
-            callback(mutationRef.current.parentNode.parentNode, observerRef);
+            if (mutationRef.current?.parentNode?.parentNode) {
+              callback(mutationRef.current.parentNode.parentNode, observerRef);
+            }
           }
           const observer = new MutationObserver(parentCallback);
           observer.observe(mutationRef.current, options);
@@ -330,9 +330,11 @@ const TimelineControl = React.forwardRef<TimelineState, TimelineControlProps>(
                   deltaScrollLeft={autoScroll && handleDeltaScrollLeft}
                 />
               )}
+
             </React.Fragment>
           )}
         </ScrollSync>
+        <ScrollResizer parentRef={areaRef} selector={'[role=grid]'} initialScale={scaleWidth} maxScale={scaleWidth * 20} minScale={1} setScale={props.setScaleWidth} setHorizontalScroll={setHorizontalScroll} />
       </TimelineControlRoot>
     );
   },

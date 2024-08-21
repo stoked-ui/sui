@@ -186,6 +186,13 @@ export const EditorControls = React.forwardRef(function EditorControls<
       timelineState?.current?.setPlayRate(Rates[rateIndex + 1]);
     }
   }
+  const setScaleWidth = (event: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('setScaleWidth via text', event, event.currentTarget.value);
+    const scaleWidth = parseInt(event.currentTarget.value, 10);
+    if (scaleWidth && scaleWidth > 1) {
+      inProps.setScaleWidth(scaleWidth);
+    }
+  }
 
   return (
     <PlayerRoot className="timeline-player">
@@ -198,6 +205,7 @@ export const EditorControls = React.forwardRef(function EditorControls<
         </ToggleButtonGroup>
       </div>
       <div style={{display: 'flex', flexDirection: 'row'}}>
+        <TextField variant={'outlined'}  helperText={false} size={'small'}  defaultValue={scaleWidth} label={'scaleWidth'} sx={{ minWidth: '120px' }} onChange={setScaleWidth} type={'number'}/>
         <TimeRoot variant={'outlined'} size={'small'} sx={{ minWidth: '120px' }} helperText={false} value={timeRender(time)}/>
         {showRate && <RateControlRoot sx={{ minWidth: '80px' }} className="rate-control">
           <Select

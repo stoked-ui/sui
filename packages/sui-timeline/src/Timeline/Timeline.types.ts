@@ -47,6 +47,8 @@ export interface TimelinePropsBase extends React.HTMLAttributes<HTMLDivElement> 
   timelineState?: React.RefObject<TimelineState>;
   viewSelector?: string;
   engine?: ITimelineEngine;
+  scaleWidth?: number;
+  setScaleWidth?: (scaleWidth: number) => void;
 }
 
 export interface TimelineProps
