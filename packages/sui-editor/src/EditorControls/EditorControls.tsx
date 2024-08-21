@@ -19,6 +19,7 @@ import { getEditorControlsUtilityClass } from "./editorControlsClasses";
 import TextField from '@mui/material/TextField';
 import ToggleButton from "@stoked-ui/core/ToggleButton";
 import ToggleButtonGroup from "@stoked-ui/core/ToggleButtonGroup";
+import {blend} from "@mui/system";
 
 export const Rates = [0.2, 0.5, 1.0, 1.5, 2.0];
 
@@ -46,9 +47,8 @@ const PlayerRoot = styled('div')(({ theme }) => ({
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
-  backgroundColor: theme.palette.grey.A200,
+  backgroundColor: blend(theme.palette.background.default,theme.palette.action.hover, 0.12),
 }));
-
 
 const TimeRoot = styled(TextField)(({ theme }) => ({
   fontSize: '1px',
@@ -205,20 +205,24 @@ export const EditorControls = React.forwardRef(function EditorControls<
         </ToggleButtonGroup>
       </div>
       <div style={{display: 'flex', flexDirection: 'row'}}>
-        <TextField variant={'outlined'}  helperText={false} size={'small'}  defaultValue={scaleWidth} label={'scaleWidth'} sx={{ minWidth: '120px' }} onChange={setScaleWidth} type={'number'}/>
-        <TimeRoot variant={'outlined'} size={'small'} sx={{ minWidth: '120px' }} helperText={false} value={timeRender(time)}/>
+        <TimeRoot variant={'outlined'} size={'small'} sx={{
+          '& input': {
+            textAlign: 'end',
+          },
+          minWidth: '120px'
+        }} helperText={false} value={timeRender(time)}/>
         {showRate && <RateControlRoot sx={{ minWidth: '80px' }} className="rate-control">
           <Select
             value={timelineState.current?.getPlayRate() ?? 1}
             onChange={handleRateChange}
-            size={'small'}
             displayEmpty
             inputProps={{ 'aria-label': 'Play Rate' }}
             sx={(theme) => ({
-              fontSize: '15px',
+              height: 40,
               '& .MuiSelect-select': {
                 py: '4px',
-                background: theme.palette.background.default
+                background: theme.palette.background.default,
+                fontSize: 16,
               }}
             )}
             defaultValue={1}

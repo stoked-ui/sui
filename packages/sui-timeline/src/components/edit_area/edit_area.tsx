@@ -10,6 +10,7 @@ import { DragLines } from './drag_lines';
 import { EditRow } from './edit_row';
 import { useDragLine } from './hooks/use_drag_line';
 import ScrollResizer from "../../TimelineScrollResizer/ScrollResizer";
+import {blend} from "@mui/system";
 
 export type EditAreaProps =  CommonProps & {
   /** Scroll distance from the left */
@@ -43,7 +44,7 @@ const EditAreaRoot = styled('div')(({ theme }) => ({
       height: 0,
       display: 'none',
     },
-  }
+  },
 }));
 
 export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>((props, ref) => {
@@ -171,7 +172,7 @@ export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>((props, r
   }, [tracks]);
 
   return (
-    <EditAreaRoot ref={editAreaRef} className={prefix('edit-area')}>
+    <EditAreaRoot ref={editAreaRef} className={`SuiTimelineEditArea-root ${prefix('edit-area')}`}>
       <AutoSizer>
         {({ width, height }) => {
           // Get full height
@@ -200,6 +201,9 @@ export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>((props, r
               columnCount={1}
               rowCount={heights?.length ?? 0}
               ref={gridRef}
+              style={{
+                overscrollBehavior: 'none',
+              }}
               cellRenderer={cellRenderer}
               columnWidth={Math.max(scaleCount * scaleWidth + startLeft, width)}
               width={width}

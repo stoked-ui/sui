@@ -12,6 +12,7 @@ import { ITimelineAction } from '../TimelineAction/TimelineAction.types';
 import { TimelineControl } from '../TimelineControl/TimelineControl';
 import { TimelineLabelsProps } from '../TimelineLabels/TimelineLabels.types';
 import { TimelineTrack } from "../interface/TimelineAction";
+import {blend} from "@mui/system";
 
 const useUtilityClasses = (ownerState: TimelineProps) => {
   const { classes } = ownerState;
@@ -32,10 +33,11 @@ const TimelineRoot = styled('div', {
 })(({ theme }) => ({
   display: 'flex',
   width: '800px',
-  backgroundColor: theme.palette.background.default,
-  '&::-webkit-scrollbar': {
-    height: '0px',
-    width: '0px'
+  backgroundColor: blend(theme.palette.background.default,theme.palette.action.hover, 0.04),
+  '&:hover': {
+    '& .SuiScrollbar': {
+      height: '12px',
+    }
   }
 }));
 
@@ -159,6 +161,7 @@ const Timeline = React.forwardRef(function Timeline(
         onScroll={({ scrollTop }) => {
           labelsRef.current.scrollTop = scrollTop;
         }}
+        startLeft={10}
         ref={combinedTimelineRef}
         scaleWidth={inProps.scaleWidth}
         setScaleWidth={inProps.setScaleWidth}
@@ -166,6 +169,7 @@ const Timeline = React.forwardRef(function Timeline(
         onChange={setTracks}
         tracks={tracks}
         autoScroll
+        className={'SuiTimeline'}
         actionTypes={inProps.actionTypes}
         viewSelector={inProps.viewSelector ?? '.viewer'}
         onClickAction={(e, { track, action, time }) => {
