@@ -41,6 +41,7 @@ export interface TimelinePropsBase extends React.HTMLAttributes<HTMLDivElement> 
   labelSx?: SxProps<Theme>;
   controlSx?: SxProps<Theme>;
   trackSx?: SxProps<Theme>;
+  setTracks?:  React.Dispatch<React.SetStateAction<TimelineTrack[]>>;
 
   tracks?: TimelineTrack[];
   actionTypes: Record<string, ITimelineActionType>;

@@ -40,7 +40,7 @@ export interface UseEditorViewSlotProps
     React.HTMLAttributes<HTMLDivElement>,
     'onFocus' | 'onBlur' | 'onKeyDown' | 'id' | 'aria-multiselectable' | 'role' | 'tabIndex'
   > {
-  ref?: React.Ref<HTMLDivElement>;
+  ref?: React.RefObject<HTMLDivElement>;
 }
 
 export interface UseEditorControlsSlotProps

@@ -5,6 +5,7 @@ import { useSlotProps } from '@mui/base/utils';
 import { styled, createUseThemeProps } from '../internals/zero-styled';
 import { EditorViewProps } from './EditorView.types';
 import { getEditorViewUtilityClass } from "./editorViewClasses";
+import useForkRef from "@mui/utils/useForkRef";
 
 const useThemeProps = createUseThemeProps('MuiEditorView');
 
@@ -73,6 +74,15 @@ export const EditorView = React.forwardRef(function EditorView<
   Multiple extends boolean | undefined = undefined,
 >(inProps: EditorViewProps<R, Multiple>, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
   const props = useThemeProps({ props: inProps, name: 'MuiEditorView' });
+  const viewRef = React.useRef<HTMLDivElement>(null);
+  const combinedViewRef = useForkRef(ref , viewRef);
+
+  React.useEffect(() => {
+    console.log(inProps.engine.current)
+    if (inProps.engine.current && viewRef?.current) {
+      inProps.engine.current.viewer = viewRef.current;
+    }
+  }, [viewRef, inProps.engine])
 
   const { slots, slotProps } = props;
   const classes = useUtilityClasses(props);
@@ -82,11 +92,11 @@ export const EditorView = React.forwardRef(function EditorView<
     elementType: Root,
     externalSlotProps: slotProps?.root,
     className: classes.root,
-    ownerState: props,
+    ownerState: {...props, ref: viewRef },
   });
 
   return (
-    <Root {...rootProps}>
+    <Root {...rootProps} ref={combinedViewRef}>
       <EditorViewPreview />
       <EditorViewRenderer />
     </Root>

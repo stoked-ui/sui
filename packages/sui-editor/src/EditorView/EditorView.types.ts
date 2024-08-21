@@ -34,7 +34,7 @@ export interface EditorViewPropsBase extends React.HTMLAttributes<HTMLDivElement
    */
   sx?: SxProps<Theme>;
 
-  engine?: React.RefObject<TimelineEngine>;
+  engine: React.RefObject<TimelineEngine>;
 }
 
 export interface EditorViewProps<R extends FileBase, Multiple extends boolean | undefined>

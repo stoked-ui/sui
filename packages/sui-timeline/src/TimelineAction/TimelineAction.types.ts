@@ -19,7 +19,7 @@ export interface ITimelineActionType {
   enter: (params: TimelineActionParams) => void;
   leave: (params: TimelineActionParams) => void;
   update?: (params: TimelineActionParams) => void;
-  viewerUpdate?: (engine: any, action: ITimelineAction) => void;
+  viewerUpdate?: (engine: any) => void;
   destroy?: () => void;
   color?: string;
 }

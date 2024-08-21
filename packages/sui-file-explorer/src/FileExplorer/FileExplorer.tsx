@@ -327,7 +327,7 @@ FileExplorer.propTypes = {
       type: PropTypes.oneOf(['doc', 'file', 'folder', 'image', 'pdf', 'trash', 'video']),
       visibleIndex: PropTypes.number,
     }),
-  ).isRequired,
+  ),
   /**
    * If `true`, `ctrl` and `shift` will trigger multiselect.
    * @default false

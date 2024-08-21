@@ -171,6 +171,7 @@ export const useEditor = <
   const getEditorViewProps = <TOther extends EventHandlers = {}>(
     otherHandlers: TOther = {} as TOther,
   ) => {
+
     return {
       ...forwardedProps,
       ...otherHandlers,
