@@ -26,7 +26,7 @@ const EditRowRoot = styled('div', {
   slot: 'Root'
 })(({ theme }) => ({
   backgroundRepeat: 'no-repeat, repeat',
-  backgroundImage: `linear-gradient(${theme.palette.background.default}, ${theme.palette.background.default}), linear-gradient(90deg, ${theme.palette.action.selected} 1px, transparent 0)`,
+  backgroundImage: `linear-gradient(#0000, #0000), linear-gradient(90deg, ${theme.palette.action.selected} 1px, transparent 0)`,
   display: 'flex',
   flexDirection: 'row',
   boxSizing: 'border-box',

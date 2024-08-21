@@ -22,7 +22,6 @@ const PlayerRoot = styled('div')(({ theme }) => ({
   display: 'flex',
   flexDirection: 'row',
   alignItems: 'center',
-  backgroundColor: theme.palette.action.hover,
 }));
 
 const IconButtonControlRoot = styled(IconButton)({

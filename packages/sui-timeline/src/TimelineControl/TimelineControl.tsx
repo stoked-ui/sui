@@ -40,7 +40,7 @@ const TimelineControl = React.forwardRef<TimelineState, TimelineControlProps>(
       disableDrag,
       scale,
       scaleWidth,
-      startLeft,
+      startLeft = 2,
       minScaleCount,
       maxScaleCount,
       onChange,
@@ -141,6 +141,7 @@ const TimelineControl = React.forwardRef<TimelineState, TimelineControlProps>(
 
 
     const setHorizontalScroll = (left: number) => {
+
       scrollSync.current.setState({
         scrollLeft: Math.max(left, 0),
       });
@@ -269,6 +270,7 @@ const TimelineControl = React.forwardRef<TimelineState, TimelineControlProps>(
     }
     useMutationObserver(domRef, setViewerCapture);
 
+
     return (
       <TimelineControlRoot
         style={style}
@@ -334,7 +336,7 @@ const TimelineControl = React.forwardRef<TimelineState, TimelineControlProps>(
             </React.Fragment>
           )}
         </ScrollSync>
-        <ScrollResizer parentRef={areaRef} selector={'[role=grid]'} initialScale={scaleWidth} maxScale={scaleWidth * 20} minScale={1} setScale={props.setScaleWidth} setHorizontalScroll={setHorizontalScroll} />
+        <ScrollResizer parentRef={areaRef} selector={'[role=grid]'} scale={scaleWidth} scrollLeft={scrollSync.current?.state?.scrollLeft} maxScale={scaleWidth * 20} minScale={1} setScale={props.setScaleWidth} setHorizontalScroll={setHorizontalScroll} />
       </TimelineControlRoot>
     );
   },

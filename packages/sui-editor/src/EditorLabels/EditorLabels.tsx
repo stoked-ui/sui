@@ -76,7 +76,7 @@ const EditorLabelText = styled('div', {
   slot: 'Label',
   overridesResolver: (props, styles) => styles.icon,
 })(({ theme }) => ({
-  backgroundColor: theme.palette.grey.A200,
+  backgroundColor: theme.palette.mode === 'light' ? theme.palette.grey.A200 : theme.palette.grey['900'],
   color: theme.palette.text.primary,
   height: '28px',
   width: '150px',

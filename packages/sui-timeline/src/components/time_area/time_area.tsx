@@ -4,6 +4,7 @@ import { AutoSizer, Grid, GridCellRenderer, OnScrollParams } from 'react-virtual
 import { parserPixelToTime } from '../../utils/deal_data';
 import { CommonProps } from '../../interface/common_prop';
 import { prefix } from '../../utils/deal_class_prefix';
+import {blend} from "@mui/system";
 /** Animation timeline component parameters */
 export type TimeAreaProps = CommonProps & {
   /** Left scroll distance */
@@ -14,17 +15,18 @@ export type TimeAreaProps = CommonProps & {
   setCursor: (param: { left?: number; time?: number }) => void;
 };
 
-const TimeAreaRoot = styled('div')({
+const TimeAreaRoot = styled('div')(({theme}) => ({
   position: 'relative',
   height: '32px',
   flex: '0 0 auto',
+  backgroundColor: blend(theme.palette.background.default,theme.palette.action.hover, 0.04),
   '& .ReactVirtualized__Grid': {
     outline: 'none',
     '&::-webkit-scrollbar': {
       display: 'none',
     }
   }
-});
+}));
 
 const TimeUnitScale = styled('div')(({ theme }) => ({
   color: theme.palette.text.secondary,
