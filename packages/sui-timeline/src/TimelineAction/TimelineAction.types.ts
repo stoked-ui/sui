@@ -58,8 +58,11 @@ export interface ITimelineAction extends TimelineActionState {
   /** Maximum end time limit of action */
   maxEnd?: number;
 
+  onKeyDown?: (event: any, id: string) => void;
+
   data?: {
     src: string;
+    style?: any;
   } | any;
 }
 
@@ -122,4 +125,4 @@ export interface TimelineActionProps
   deltaScrollLeft?: (delta: number) => void;
 }
 
-export interface TimelineActionOwnerState extends Omit<TimelineActionProps, 'action'>, ITimelineAction  {}
+export interface TimelineActionOwnerState extends Omit<TimelineActionProps, 'action' | 'onKeyDown'>, ITimelineAction  {}

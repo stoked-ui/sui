@@ -50,6 +50,9 @@ export const actions = [
     effectId: 'video',  // Use the new video effect
     data: {
       src: '/static/video-editor/stock-loop.mp4',
+      style: {
+        width: '100%'
+      }
     },
   },
 ];
@@ -85,7 +88,7 @@ export default function CoreDemo() {
   const [data, setData] = React.useState(defaultEditorData);
 
   return (
-    <Editor id='video-editor' sx={{  }} actions={data}/>
+    <Editor id='video-editor' sx={{ borderRadius: '12px 12px 0 0' }} actions={data}/>
   );
 };
 

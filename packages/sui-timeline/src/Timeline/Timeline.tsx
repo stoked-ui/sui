@@ -158,6 +158,14 @@ const Timeline = React.forwardRef(function Timeline(
             return [...previous];
           });
         }}
+        onKeyDown={(event) => {
+          event.preventDefault();
+          const selectedActions = inProps.engine.getSelectedActions();
+          console.log('timeline keydown event', event)
+          selectedActions?.forEach((actionTrack) => {
+            actionTrack.action.onKeyDown(event, 'keyDown')
+          })
+        }}
         onScroll={({ scrollTop }) => {
           labelsRef.current.scrollTop = scrollTop;
         }}

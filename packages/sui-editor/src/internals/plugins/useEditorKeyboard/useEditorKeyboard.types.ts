@@ -16,11 +16,11 @@ export interface UseEditorKeyboardInstance {
    * Callback fired when a key is pressed on an item.
    * Handles all the keyboard navigation logic.
    * @param {React.KeyboardEvent<HTMLElement> & MuiCancellableEvent} event The keyboard event that triggered the callback.
-   * @param {FileId} itemId The id of the item that the event was triggered on.
    */
   handleItemKeyDown: (
-    event: React.KeyboardEvent<HTMLElement> & MuiCancellableEvent,
-    itemId: FileId,
+    event: KeyboardEvent,
+    type: string,
+    item: any
   ) => void;
 }
 

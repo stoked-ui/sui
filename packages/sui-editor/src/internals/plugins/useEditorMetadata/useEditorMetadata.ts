@@ -7,8 +7,18 @@ import {
 
 export const useEditorMetadata: EditorPlugin<UseEditorMetadataSignature> = ({
   params,
+  instance
 }) => {
 
+
+
+  params.tracks.forEach((track) => {
+    track.actions.forEach((action) => {
+      action.onKeyDown = (event: any, id: string) => {
+        instance.handleItemKeyDown(event, 'action', action)
+      }
+    })
+  })
   return {
     contextValue: {
       tracks: params.tracks,
@@ -24,9 +34,7 @@ useEditorMetadata.getDefaultizedParams = (params) => {
       action = {
         ...action,
         name: action.name ?? actionId,
-        data: {
-          src: action.data.src
-        },
+        data: action.data,
         id: action.id ?? actionId,
       }
 

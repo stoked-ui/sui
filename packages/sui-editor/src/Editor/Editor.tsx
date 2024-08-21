@@ -13,6 +13,8 @@ import { EditorControls } from '../EditorControls';
 import { EditorView } from '../EditorView';
 import { getEditorUtilityClass } from './editorClasses';
 import { EditorLabels } from "../EditorLabels";
+import { MuiCancellableEvent } from '../internals/models/MuiCancellableEvent';
+import useForkRef from '@mui/utils/useForkRef';
 
 const useThemeProps = createUseThemeProps('MuiEditor');
 
@@ -53,7 +55,6 @@ const EditorRoot = styled('div', {
     },
   },
   '& .MuiEditorView-root': {
-    width: 'fit-content',
     overflow: 'hidden',
   },
   overflow: 'hidden',
@@ -74,6 +75,8 @@ export const Editor = React.forwardRef(function Editor<
   Multiple extends boolean | undefined = undefined,
 >(inProps: EditorProps<R, Multiple>, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
   const props = useThemeProps({ props: inProps, name: 'MuiEditor' });
+  const editorRef = React.useRef<HTMLDivElement>(null);
+  const combinedEditorRef = useForkRef(ref , editorRef);
 
   const {
     getRootProps,
@@ -86,10 +89,9 @@ export const Editor = React.forwardRef(function Editor<
     instance,
   } = useEditor<EditorPluginSignatures, EditorProps<R, Multiple>>({
     plugins: VIDEO_EDITOR_PLUGINS,
-    rootRef: ref,
+    rootRef: combinedEditorRef,
     props: inProps,
   });
-
 
   const { slots, slotProps } = props;
   const classes = useUtilityClasses(props);
@@ -155,8 +157,64 @@ export const Editor = React.forwardRef(function Editor<
   const setScaleWidthProxy = (val: number) => {
     setScaleWidth(val);
   }
-  return (
-    <Root {...rootProps} >
+
+  React.useEffect(() => {
+    if (!editorRef?.current || !engine.current) {
+      return;
+    }
+    editorRef.current?.addEventListener('keydown', function (event: any) {
+      console.log('event', event)
+      if (event.target) {
+        const selectedActions = event.target.querySelectorAll('timeline-editor-edit-track-selected');
+
+        const actionTrack = engine.current.getAction(event.currentTarget.id);
+        instance.handleItemKeyDown(event, 'action', actionTrack);
+      }
+
+    });
+  }, [editorRef]);
+
+  const [listening, setListening] = React.useState(false);
+  const useMutationObserver = (
+    mutationRef,
+    callback,
+    options:  MutationObserverInit
+  ) => {
+    React.useEffect(() => {
+      if (mutationRef.current ) {
+        const parentCallback = (mutationList, observerRef) => {
+          //console.log('mutationList', mutationList, observerRef);
+          mutationList.forEach((mutation) => {
+            mutation.addedNodes.forEach((node) => {
+              console.log('added node', node )
+            })
+          })
+          /*if (mutationRef.current?.parentNode?.parentNode) {
+            callback(mutationRef.current.parentNode.parentNode, observerRef);
+          }*/
+        }
+        const observer = new MutationObserver(parentCallback);
+        observer.observe(mutationRef.current, options);
+        setListening(true);
+      }
+    }, [mutationRef.current]);
+  };
+
+  const setActionKeyDown = (root, observer) => {
+    const actionElements = root.querySelectorAll('[role=action]');
+    if (actionElements) {
+      actionElements.forEach((actionElement) => {
+        actionElement.onKeyDown = (event: any) => {
+          const actionTrack = engine.current.getAction(actionElement.id);
+          instance.handleItemKeyDown(event, 'action', actionTrack);
+        }
+      })
+    }
+  }
+
+  useMutationObserver(editorRef, setActionKeyDown, { childList: true, subtree: true });
+  const middleOut = () => (
+    <React.Fragment>
       <EditorViewSlot {...editorViewProps} />
       <ControlsSlot {...videoControlsProps} timelineState={timelineState} scaleWidth={scaleWidth} setScaleWidth={setScaleWidthProxy} />
       <TimelineSlot {...timelineProps} timelineState={timelineState} scaleWidth={scaleWidth}  setScaleWidth={setScaleWidthProxy} viewSelector={`.MuiEditorView-root`} slots={{ labels: EditorLabels }}/>
@@ -164,6 +222,11 @@ export const Editor = React.forwardRef(function Editor<
         <BottomLeft {...bottomLeftProps} />
         <BottomRight {...bottomRightProps} />
       </Stack>
+    </React.Fragment>
+  );
+  return (
+    <Root {...rootProps}>
+      {listening &&  middleOut()}
     </Root>
   );
 });

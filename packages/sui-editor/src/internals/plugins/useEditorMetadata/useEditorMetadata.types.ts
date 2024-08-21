@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { TimelineTrack, ITimelineAction } from '@stoked-ui/timeline';
 import type { DefaultizedProps, EditorPluginSignature } from '../../models';
+import { UseEditorKeyboardSignature } from '../useEditorKeyboard/useEditorKeyboard.types';
 
 
 export interface UseEditorMetadataParameters {
@@ -16,5 +17,5 @@ export type UseEditorMetadataSignature = EditorPluginSignature<{
   params: UseEditorMetadataParameters;
   defaultizedParams: UseEditorMetadataDefaultizedParameters;
   contextValue: UseEditorMetadataDefaultizedParameters;
-  dependencies: [];
+  dependencies: [UseEditorKeyboardSignature];
 }>;

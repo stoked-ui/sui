@@ -40,6 +40,7 @@ type PageContextType = typeof PageContext;
 type TFeature = {
   name: string;
   description: string;
+  productId?: string;
   id: string;
 }
 
@@ -104,7 +105,7 @@ export class Product {
   private getFeature(feature: TFeature): FEATURE {
     return {
       ...feature,
-      route: (type: RouteType) => this.url(type, feature.id),
+      route: (type: RouteType) => this.url(type, feature.id, feature.productId),
     };
   }
 
@@ -180,7 +181,7 @@ export class Product {
               color={currentProductId === this.id ? 'primary' : undefined}
               variant={currentProductId === this.id ? 'filled' : 'outlined'}
               component={Link}
-              href={this.url(type === 'docs' ? 'doc' : 'product', feature.id)}
+              href={this.url(type === 'docs' ? 'doc' : 'product', feature.id, feature.productId)}
               label={feature.name}
               clickable
               size="small"
@@ -204,7 +205,7 @@ export class Product {
           },
           // ...(Array.isArray(sx) ? sx : [sx]),
         ]}
-      >www
+      >
         {this.icon}
         <Box sx={{ flexGrow: 1 }}>
           <Typography color="text.primary" sx={{ display: "flex", flexDirection: "row"}} variant="body2" fontWeight="700">
@@ -333,8 +334,12 @@ export class Product {
     );
   }
 
-  url(type: LinkType, suffix: string = '') {
+  url(type: LinkType, suffix: string = '', productId?: string) {
+    if (productId) {
+      return `/${productId}${getTypeUrl(type)}${suffix}`
+    }
     const url =  `${this.data.url}${getTypeUrl(type)}${suffix}`;
+    console.log(url);
     return url;
   }
 
@@ -667,7 +672,7 @@ class Products extends IndexObject<Product> {
     if ( !feature) {
       return '';
     }
-    return product.url(type, feature.id);
+    return product.url(type, feature.productId ?? feature.id);
   }
 
   productSelector(context: PageContextType) {
@@ -740,15 +745,18 @@ const stokedUiData: TProduct = {
   }, {
     name: 'File Explorer',
     description: 'Highly extensible file explorer component with drag and drop support.',
-    id: 'file-explorer',
+    productId: 'file-explorer',
+    id: 'overview',
   }, {
     name: 'Timeline',
     description: 'Timeline component used to construct tools that manipulate things over time.',
-    id: 'timeline',
+    productId: 'timeline',
+    id: 'overview',
   }, {
     name: 'Editor',
     description: 'Editor contains components intended for use as raw building blocks for tools that can edit.. THEM THANGS..',
-    id: 'editor',
+    productId: 'editor',
+    id: 'overview',
   }],
 };
 const sui = new Product(stokedUiData);

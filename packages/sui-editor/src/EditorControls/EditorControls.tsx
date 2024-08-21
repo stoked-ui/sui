@@ -17,9 +17,10 @@ import { styled, createUseThemeProps } from '../internals/zero-styled';
 import { EditorControlsProps } from './EditorControls.types';
 import { getEditorControlsUtilityClass } from "./editorControlsClasses";
 import TextField from '@mui/material/TextField';
-import ToggleButton from "@stoked-ui/core/ToggleButton";
-import ToggleButtonGroup from "@stoked-ui/core/ToggleButtonGroup";
+import ToggleButton from "@mui/material/ToggleButton";
+import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import {blend} from "@mui/system";
+import StokedStyles from '@stoked-ui/core/StokedStyles';
 
 export const Rates = [0.2, 0.5, 1.0, 1.5, 2.0];
 
@@ -37,9 +38,6 @@ const useUtilityClasses = <R extends FileBase, Multiple extends boolean | undefi
   return composeClasses(slots, getEditorControlsUtilityClass, classes);
 };
 
-const Control = styled(ToggleButton)(({ theme }) => ({
- height: '90%'
-}));
 
 const PlayerRoot = styled('div')(({ theme }) => ({
   height: '42px',
@@ -53,7 +51,7 @@ const PlayerRoot = styled('div')(({ theme }) => ({
 const TimeRoot = styled(TextField)(({ theme }) => ({
   fontSize: '1px',
   fontFamily: "'Roboto Condensed', sans-serif",
-  margin: '0 8px',
+  margin: '0 2px',
   py: '4px',
   width: '120px',
   alignSelf: 'center',
@@ -68,6 +66,7 @@ const TimeRoot = styled(TextField)(({ theme }) => ({
 const RateControlRoot = styled(FormControl)({
   justifySelf: 'flex-end',
   alignContent: 'center',
+  marginRight: '2px'
 });
 
 /**
@@ -193,24 +192,45 @@ export const EditorControls = React.forwardRef(function EditorControls<
       inProps.setScaleWidth(scaleWidth);
     }
   }
-
+  const controlsInput: string[] = [];
+  const [controls, setControls] = React.useState(controlsInput);
+  const styles = StokedStyles();
   return (
     <PlayerRoot className="timeline-player">
 
       <div style={{display: 'flex', flexDirection: 'row', alignContent: 'center', width: '100%'}}>
-        <ToggleButtonGroup size={'small'}>
-          <ToggleButton onClick={handleStart}><SkipPreviousIcon fontSize={'small'}/></ToggleButton>
-          <ToggleButton onClick={handlePlayOrPause}>{isPlaying ? <PauseIcon fontSize={'small'}/> : <PlayArrowIcon fontSize={'small'}/>}</ToggleButton>
-          <ToggleButton onClick={handleEnd}><SkipNextIcon /></ToggleButton>
-        </ToggleButtonGroup>
+          <ToggleButtonGroup
+            value={controls}
+            exclusive
+            onChange={(event, value) => {
+
+            }}
+            sx={styles.toggleButtonGroup}
+            size={'small'}
+            aria-label="text alignment"
+          >
+            <ToggleButton onClick={handleStart}  value="previous" aria-label="hidden">
+              <SkipPreviousIcon fontSize={'small'}/>
+            </ToggleButton>
+            <ToggleButton value="playPause" onClick={handlePlayOrPause}>
+              {isPlaying ? <PauseIcon /> : <PlayArrowIcon/>}
+            </ToggleButton>
+            <ToggleButton onClick={handleEnd} value="next" aria-label="lock">
+              <SkipNextIcon />
+            </ToggleButton>
+          </ToggleButtonGroup>
+
       </div>
       <div style={{display: 'flex', flexDirection: 'row'}}>
         <TimeRoot variant={'outlined'} size={'small'} sx={{
-          '& input': {
-            textAlign: 'end',
-          },
-          minWidth: '120px'
-        }} helperText={false} value={timeRender(time)}/>
+            '& input': {
+              textAlign: 'end',
+            },
+            minWidth: '120px',
+          }}
+          helperText={false}
+          value={timeRender(time)}
+        />
         {showRate && <RateControlRoot sx={{ minWidth: '80px' }} className="rate-control">
           <Select
             value={timelineState.current?.getPlayRate() ?? 1}
@@ -219,6 +239,7 @@ export const EditorControls = React.forwardRef(function EditorControls<
             inputProps={{ 'aria-label': 'Play Rate' }}
             sx={(theme) => ({
               height: 40,
+              backgroundColor: '#fff',
               '& .MuiSelect-select': {
                 py: '4px',
                 background: theme.palette.background.default,

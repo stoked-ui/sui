@@ -39,6 +39,12 @@ class VideoControl implements ITimelineActionType {
       item.src = action.data.src;
       item.style.position = 'absolute';
       item.style.display = 'flex';
+      if (action.data?.style) {
+        for (const prop in action.data.style) {
+          console.log('item.style[prop]', item.style[prop])
+          item.style[prop] = action.data.style[prop];
+        }
+      }
       item.loop = true;
       item.muted = true;  // Prevent autoplay restrictions
       item.addEventListener('loadedmetadata', () => {
