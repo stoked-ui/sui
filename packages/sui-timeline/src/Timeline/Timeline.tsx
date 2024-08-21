@@ -33,6 +33,10 @@ const TimelineRoot = styled('div', {
   display: 'flex',
   width: '800px',
   backgroundColor: theme.palette.background.default,
+  '&::-webkit-scrollbar': {
+    height: '0px',
+    width: '0px'
+  }
 }));
 
 /**
@@ -120,10 +124,10 @@ const Timeline = React.forwardRef(function Timeline(
         getToggles={(id: string) => {
           const status = [];
           const rowIndex = tracks.findIndex((previousTrack) => previousTrack.id === id);
-          if (tracks[rowIndex].hidden) {
+          if (tracks[rowIndex]?.hidden) {
             status.push('hidden');
           }
-          if (tracks[rowIndex].lock) {
+          if (tracks[rowIndex]?.lock) {
             status.push('lock');
           }
           return status;
@@ -156,9 +160,12 @@ const Timeline = React.forwardRef(function Timeline(
           labelsRef.current.scrollTop = scrollTop;
         }}
         ref={combinedTimelineRef}
+        scaleWidth={inProps.scaleWidth}
+        setScaleWidth={inProps.setScaleWidth}
         engine={inProps.engine}
         onChange={setTracks}
         tracks={tracks}
+        autoScroll
         actionTypes={inProps.actionTypes}
         viewSelector={inProps.viewSelector ?? '.viewer'}
         onClickAction={(e, { track, action, time }) => {

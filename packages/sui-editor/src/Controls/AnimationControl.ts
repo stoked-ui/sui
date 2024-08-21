@@ -37,12 +37,11 @@ class AnimationControl implements ITimelineActionType {
       item = lottie.loadAnimation({
         name: action.id,
         container: engine.viewer,
-        renderer: 'canvas',
+        renderer: 'svg',
         loop: true,
         autoplay: false,
         path: action.data.src,
         rendererSettings: {
-          preserveAspectRatio: "xMidYMid slice",
           className: 'MuiEditorView-content animation',
         },
       });

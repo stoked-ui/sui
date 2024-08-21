@@ -9,6 +9,7 @@ import { parserTimeToPixel } from '../../utils/deal_data';
 import { DragLines } from './drag_lines';
 import { EditRow } from './edit_row';
 import { useDragLine } from './hooks/use_drag_line';
+import ScrollResizer from "../../TimelineScrollResizer/ScrollResizer";
 
 export type EditAreaProps =  CommonProps & {
   /** Scroll distance from the left */
@@ -36,19 +37,12 @@ const EditAreaRoot = styled('div')(({ theme }) => ({
   '& .ReactVirtualized__Grid': {
     outline: 'none !important',
     overflow: 'overlay !important',
+
     '&::-webkit-scrollbar': {
       width: 0,
       height: 0,
+      display: 'none',
     },
-
-    '&::-webkit-scrollbar-track': {
-      backgroundColor: 'transparent !important',
-    },
-
-    '&::-webkit-scrollbar-thumb': {
-      background: theme.palette.action.active,
-      borderRadius: '16px',
-    }
   }
 }));
 
@@ -202,6 +196,7 @@ export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>((props, r
 
           return (
             <Grid
+              id={'thisisedit'}
               columnCount={1}
               rowCount={heights?.length ?? 0}
               ref={gridRef}
