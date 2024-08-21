@@ -2,9 +2,11 @@ import {
   ITimelineAction,
   ITimelineActionType
 } from '../TimelineAction/TimelineAction.types';
+import * as React from 'react';
 import { TimelineTrack } from '../interface/TimelineAction';
 import { Emitter } from './emitter';
 import { Events, EventTypes } from './events';
+import {TimelineState} from "../Timeline/TimelineState";
 
 const PLAYING = 'playing';
 const PAUSED = 'paused';
@@ -47,6 +49,7 @@ export interface ITimelineEngine extends Emitter<EventTypes> {
 type EngineOptions = {
   canvas?: HTMLCanvasElement
 }
+
 /**
  * Timeline player
  * Can be run independently of the editor
@@ -299,12 +302,10 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
   }
 
   private _viewerUpdate() {
-    for (let i = 0; i < this._activeActionIds.length; i += 1) {
-      const actionId = this._activeActionIds[i];
-      const action = this._actionMap[actionId];
-      const actionType = this._actionTypes[action?.effectId];
+    const actionTypes: ITimelineActionType[] = Object.values(this._actionTypes);
+    for (const actionType of actionTypes) {
       if (actionType?.viewerUpdate) {
-        actionType.viewerUpdate(this, action);
+        actionType.viewerUpdate(this);
       }
     }
   }

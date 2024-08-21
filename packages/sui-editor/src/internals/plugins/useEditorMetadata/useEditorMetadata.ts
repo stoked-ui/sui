@@ -9,12 +9,10 @@ export const useEditorMetadata: EditorPlugin<UseEditorMetadataSignature> = ({
   params,
   instance
 }) => {
-
-
-
   params.tracks.forEach((track) => {
     track.actions.forEach((action) => {
       action.onKeyDown = (event: any, id: string) => {
+        console.log('on key down', action);
         instance.handleItemKeyDown(event, 'action', action)
       }
     })

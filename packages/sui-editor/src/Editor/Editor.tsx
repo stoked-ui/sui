@@ -150,9 +150,10 @@ export const Editor = React.forwardRef(function Editor<
     ownerState: props as any,
   });
   const timelineState = React.useRef<TimelineState>(null);
+  const [tracks, setTracks] = React.useState(timelineProps.tracks);
   const engine = React.useRef<TimelineEngine>(new TimelineEngine());
-
   const [scaleWidth, setScaleWidth] = React.useState(160);
+  const viewerRef = React.useRef<HTMLDivElement>(null);
 
   const setScaleWidthProxy = (val: number) => {
     setScaleWidth(val);
@@ -162,71 +163,48 @@ export const Editor = React.forwardRef(function Editor<
     if (!editorRef?.current || !engine.current) {
       return;
     }
+
     editorRef.current?.addEventListener('keydown', function (event: any) {
       console.log('event', event)
       if (event.target) {
-        const selectedActions = event.target.querySelectorAll('timeline-editor-edit-track-selected');
+        const selectedActions = event.target.querySelectorAll('.timeline-editor-edit-track-selected');
+        console.log('selectedActions', selectedActions)
+        const actionTracks = engine.current.getSelectedActions();
+        //instance.handleItemKeyDown(event, 'action', actionTrack);
+        if (actionTracks?.length && event.key === 'Backspace') {
+          setTracks((previous) => {
+            const deletedActionIds = actionTracks.map((at) => at.action.id);
+            console.log('deleted actions: ', deletedActionIds.join(', '))
+            previous.map((track) => {
+              track.actions = track.actions.filter((action) => deletedActionIds.indexOf(action.id) === -1);
+            })
+            return [...previous];
+          })
 
-        const actionTrack = engine.current.getAction(event.currentTarget.id);
-        instance.handleItemKeyDown(event, 'action', actionTrack);
+        }
       }
-
     });
   }, [editorRef]);
 
-  const [listening, setListening] = React.useState(false);
-  const useMutationObserver = (
-    mutationRef,
-    callback,
-    options:  MutationObserverInit
-  ) => {
-    React.useEffect(() => {
-      if (mutationRef.current ) {
-        const parentCallback = (mutationList, observerRef) => {
-          //console.log('mutationList', mutationList, observerRef);
-          mutationList.forEach((mutation) => {
-            mutation.addedNodes.forEach((node) => {
-              console.log('added node', node )
-            })
-          })
-          /*if (mutationRef.current?.parentNode?.parentNode) {
-            callback(mutationRef.current.parentNode.parentNode, observerRef);
-          }*/
-        }
-        const observer = new MutationObserver(parentCallback);
-        observer.observe(mutationRef.current, options);
-        setListening(true);
-      }
-    }, [mutationRef.current]);
-  };
-
-  const setActionKeyDown = (root, observer) => {
-    const actionElements = root.querySelectorAll('[role=action]');
-    if (actionElements) {
-      actionElements.forEach((actionElement) => {
-        actionElement.onKeyDown = (event: any) => {
-          const actionTrack = engine.current.getAction(actionElement.id);
-          instance.handleItemKeyDown(event, 'action', actionTrack);
-        }
-      })
+  const [startIt, setStartIt] = React.useState(false);
+  React.useEffect(() => {
+    if (!startIt && viewerRef.current && engine.current) {
+      console.log(viewerRef.current, engine.current);
+      engine.current.viewer = viewerRef.current;
+      setStartIt(true);
     }
-  }
+  }, [viewerRef.current])
 
-  useMutationObserver(editorRef, setActionKeyDown, { childList: true, subtree: true });
-  const middleOut = () => (
-    <React.Fragment>
-      <EditorViewSlot {...editorViewProps} />
+  return (
+    <Root {...rootProps}>
+      <EditorViewSlot {...editorViewProps} ref={viewerRef} engine={engine} />
       <ControlsSlot {...videoControlsProps} timelineState={timelineState} scaleWidth={scaleWidth} setScaleWidth={setScaleWidthProxy} />
-      <TimelineSlot {...timelineProps} timelineState={timelineState} scaleWidth={scaleWidth}  setScaleWidth={setScaleWidthProxy} viewSelector={`.MuiEditorView-root`} slots={{ labels: EditorLabels }}/>
+      {startIt && <TimelineSlot {...timelineProps} setTracks={setTracks} timelineState={timelineState} scaleWidth={scaleWidth}  setScaleWidth={setScaleWidthProxy} viewSelector={`.MuiEditorView-root`} slots={{ labels: EditorLabels }}/>}
+
       <Stack direction="row" spacing={2}>
         <BottomLeft {...bottomLeftProps} />
         <BottomRight {...bottomRightProps} />
       </Stack>
-    </React.Fragment>
-  );
-  return (
-    <Root {...rootProps}>
-      {listening &&  middleOut()}
     </Root>
   );
 });

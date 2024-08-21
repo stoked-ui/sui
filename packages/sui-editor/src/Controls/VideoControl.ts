@@ -41,7 +41,6 @@ class VideoControl implements ITimelineActionType {
       item.style.display = 'flex';
       if (action.data?.style) {
         for (const prop in action.data.style) {
-          console.log('item.style[prop]', item.style[prop])
           item.style[prop] = action.data.style[prop];
         }
       }
@@ -53,34 +52,15 @@ class VideoControl implements ITimelineActionType {
       this.cacheMap[action.id] = item;
 
       if (engine.viewer) {
-        this.viewerUpdate(engine.viewer, action)
+        engine.viewer.appendChild(item);
+      } else {
+        console.warn('no viewer specified when video control loaded meta data', item.src)
       }
     }
   }
 
-  viewerUpdate(engine: TimelineEngine, action: ITimelineAction) {
-    const item = this.cacheMap[action.id]
-
-    if (engine.viewer.tagName === 'canvas') {
-      const canvas = engine.viewer as HTMLCanvasElement;
-      item.addEventListener('play', () => {
-        // eslint-disable-next-line consistent-this
-        let ctx = canvas.getContext('2d');
-        (function loop() {
-          if (!item.paused && !item.ended) {
-            if (!ctx) {
-              ctx = canvas.getContext('2d');
-            }
-            if (ctx) {
-              ctx.drawImage(item, 0, 0);
-            }
-            setTimeout(loop, 1000 / 30); // drawing at 30fps
-          }
-        })();
-      }, false);
-    } else {
-      engine.viewer.appendChild(item);
-    }
+  viewerUpdate(engine: TimelineEngine) {
+    //engine.viewer.append(Object.values(this.cacheMap));
   }
 
   update(params: TimelineActionParams) {

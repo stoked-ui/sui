@@ -315,6 +315,7 @@ export default function TimelineAction(props: TimelineActionProps) {
       start={startLeft}
       left={transform.left}
       width={transform.width}
+
       grid={(gridSnap && gridSize) || DEFAULT_MOVE_GRID}
       adsorptionDistance={gridSnap ? Math.max((gridSize || DEFAULT_MOVE_GRID) / 2, DEFAULT_ADSORPTION_DISTANCE) : DEFAULT_ADSORPTION_DISTANCE}
       adsorptionPositions={dragLineData.assistPositions}
@@ -340,10 +341,10 @@ export default function TimelineAction(props: TimelineActionProps) {
         id={action.id}
         role={'action'}
         onKeyDown={(event: any) => {
-          event.preventDefault();
           event.currentTarget = action;
           console.log('action key press')
           action.onKeyDown(event, action.id);
+          event.preventDefault();
         }}
         onMouseDown={() => {
           if (track.lock) {

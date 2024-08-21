@@ -55,13 +55,13 @@ const Timeline = React.forwardRef(function Timeline(
   inProps: TimelineProps,
   ref: React.Ref<HTMLDivElement>,
 ): React.JSX.Element {
-  const { slots, slotProps, controlSx, trackSx } = useThemeProps({
+  const { slots, slotProps, controlSx, tracks, setTracks, trackSx } = useThemeProps({
     props: inProps,
     name: 'MuiTimeline',
   });
   const classes = useUtilityClasses(inProps);
 
-  const [tracks, setTracks] = React.useState(inProps.tracks);
+
   const timelineState = React.useRef<TimelineState>(null);
 
 
