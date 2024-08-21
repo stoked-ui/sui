@@ -38,6 +38,10 @@ export interface ITimelineEngine extends Emitter<EventTypes> {
   }): boolean;
   /** pause */
   pause(): void;
+
+  getAction(actionId: string): { action: ITimelineAction, track: TimelineTrack };
+  getActionTrack(actionId: string):  TimelineTrack;
+  getSelectedActions(): { action: ITimelineAction, track: TimelineTrack }[];
 }
 
 type EngineOptions = {
@@ -91,6 +95,8 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
   /** Action map that needs to be run */
   private _actionMap: Record<string, ITimelineAction> = {};
 
+  private _actionTrackMap: Record<string, TimelineTrack> = {};
+
   /** Action ID array sorted in positive order by action start time */
   private _actionSortIds: string[] = [];
 
@@ -99,6 +105,30 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
 
   /** The action time range contains the actionId list of the current time */
   private _activeActionIds: string[] = [];
+
+  getAction(actionId: string) {
+    return {
+      action: this._actionMap[actionId],
+      track: this._actionTrackMap[actionId]
+    };
+  }
+
+  getActionTrack(actionId: string) {
+    return this._actionTrackMap[actionId];
+  }
+
+  getSelectedActions() {
+    const actionTracks: {action: ITimelineAction, track: TimelineTrack}[] = [];
+    for (let i = 0; i < this._activeActionIds.length; i += 1) {
+      const actionId = this._activeActionIds[i];
+      const action = this._actionMap[actionId];
+      if (action.selected) {
+        actionTracks.push({ action, track: this._actionTrackMap[actionId] });
+      }
+    }
+    return actionTracks;
+  }
+
 
   get loading() {
     return this._loading;
@@ -434,6 +464,9 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
     const actions: ITimelineAction[] = [];
     tracks?.forEach((track) => {
       actions.push(...track.actions);
+      track.actions.forEach((action) => {
+        this._actionTrackMap[action.id] = track;
+      })
     });
     const sortActions = actions.sort((a, b) => a.start - b.start);
     const actionMap: Record<string, ITimelineAction> = {};

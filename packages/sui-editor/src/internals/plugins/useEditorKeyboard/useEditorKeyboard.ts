@@ -6,6 +6,7 @@ import {
   EditorFirstCharMap,
   UseEditorKeyboardSignature,
 } from './useEditorKeyboard.types';
+import { ITimelineAction } from '@stoked-ui/timeline';
 import { MuiCancellableEvent } from '../../models/MuiCancellableEvent';
 
 function isPrintableCharacter(string: string) {
@@ -14,7 +15,7 @@ function isPrintableCharacter(string: string) {
 
 export const useEditorKeyboard: EditorPlugin<
   UseEditorKeyboardSignature
-> = ({ instance, params, state }) => {
+> = () => {
   const isRtl = useRtl();
   const firstCharMap = React.useRef<EditorFirstCharMap>({});
 
@@ -24,21 +25,24 @@ export const useEditorKeyboard: EditorPlugin<
     },
   );
 
+  const handleAction = (event: KeyboardEvent, action: ITimelineAction) => {
+
+  }
 
   // ARIA specification: https://www.w3.org/WAI/ARIA/apg/patterns/editorview/#keyboardinteraction
   const handleItemKeyDown = (
-    event: React.KeyboardEvent<HTMLElement> & MuiCancellableEvent,
-    itemId: string,
+    event: KeyboardEvent,
+    type: string,
+    item: any
   ) => {
-    if (event.defaultMuiPrevented) {
-      return;
-    }
+    event.preventDefault();
 
-    if (
-      event.altKey ||
-      event.currentTarget !== (event.target as HTMLElement).closest('*[role="fileexploreritem"]')
-    ) {
-      return;
+    switch (type) {
+      case 'action':
+        handleAction(event, item);
+        return;
+      default:
+        console.log('key down not handled');
     }
 
     const ctrlPressed = event.ctrlKey || event.metaKey;
@@ -53,9 +57,8 @@ export const useEditorKeyboard: EditorPlugin<
 
       // If the focused item has children, we expand it.
       // If the focused item has no children, we select it.
-      case key === 'Delete': {
-        alert('delete');
-
+      case key === 'Backspace': {
+        console.log('target', event.currentTarget);
         break;
       }
 

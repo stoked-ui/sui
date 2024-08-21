@@ -2,14 +2,15 @@ import * as React from 'react';
 import composeClasses from "@mui/utils/composeClasses";
 import { useSlotProps } from '@mui/base/utils';
 import {styled, Theme, useThemeProps} from '@mui/material/styles';
-import ToggleButton from "@stoked-ui/core/ToggleButton";
+import ToggleButton from "@mui/material/ToggleButton";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
-import ToggleButtonGroup from '@stoked-ui/core/ToggleButtonGroup';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import LockIcon from '@mui/icons-material/Lock';
 import { EditorLabelsProps } from './EditorLabels.types';
 import { getEditorLabelsUtilityClass } from "./editorLabelsClasses";
+import StokedStyles from '@stoked-ui/core/StokedStyles';
 
 const useUtilityClasses = (
   ownerState: EditorLabelsProps,
@@ -129,7 +130,7 @@ const EditorLabels = React.forwardRef(
       ownerState: inProps,
     });
 
-
+    const styles = StokedStyles();
     return (
       <Root
         ref={ref}
@@ -154,6 +155,7 @@ const EditorLabels = React.forwardRef(
                 onChange={(event, value) => {
                   inProps.onToggle!(item.id, value)
                 }}
+                sx={styles.toggleButtonGroup}
                 aria-label="text alignment"
               >
                 <ToggleButton  value="hidden" aria-label="hidden">

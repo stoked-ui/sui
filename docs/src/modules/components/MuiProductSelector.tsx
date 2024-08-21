@@ -8,7 +8,7 @@ import IconImage from 'docs/src/components/icon/IconImage';
 import ROUTES from 'docs/src/route';
 import { Link } from '@mui/docs/Link';
 import PageContext from 'docs/src/modules/components/PageContext';
-import { PRODUCTS } from 'docs/src/products';
+import { ALL_PRODUCTS } from 'docs/src/products';
 
 interface ProductSubMenuProp extends BoxProps {
   icon: React.ReactNode;
@@ -97,5 +97,5 @@ const advancedProducts = [
 export default function MuiProductSelector() {
   const pageContext = React.useContext(PageContext);
 
-  return PRODUCTS.productSelector(pageContext);
+  return ALL_PRODUCTS.productSelector(pageContext);
 }

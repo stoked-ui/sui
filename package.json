@@ -255,5 +255,10 @@
     ],
     "sourceMap": false,
     "instrument": false
+  },
+ "nodemonConfig": {
+    "ignore": ["**/build/**", "**/.next/**", "**/.nx/**", "**/export/**"],
+    "ext": "js, json, ts, tsx, jsx",
+    "delay": 10000
   }
 }

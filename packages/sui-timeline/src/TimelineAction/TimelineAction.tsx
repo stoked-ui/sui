@@ -118,9 +118,11 @@ const RightStretch = styled('div')(({ theme }) => ({
 
 
 export default function TimelineAction(props: TimelineActionProps) {
-  const { slotProps = {}, action, selected, flexible = true , movable = true , disable, ...actionProps} = props;
-  const state = { selected, flexible, movable, disable};
-  const ownerState = { ...state, ...actionProps, ...action};
+  const { slotProps = {}, action, ...restProps} = props;
+  const { selected, flexible = true, movable = true, disable} = action;
+  const state = { selected, flexible, movable, disable}
+  const ownerStateProps = { ...state, ...restProps, ...action};
+  const { onKeyDown, ...ownerState } = ownerStateProps;
   const classes = useActionUtilityClasses(ownerState);
   const classNamesNew = Object.keys(classes).reduce((result, key, val) => {
       const classKey = classes[key];
@@ -335,6 +337,14 @@ export default function TimelineAction(props: TimelineActionProps) {
       deltaScrollLeft={deltaScrollLeft}
     >
       <Action
+        id={action.id}
+        role={'action'}
+        onKeyDown={(event: any) => {
+          event.preventDefault();
+          event.currentTarget = action;
+          console.log('action key press')
+          action.onKeyDown(event, action.id);
+        }}
         onMouseDown={() => {
           if (track.lock) {
             return;
@@ -345,6 +355,7 @@ export default function TimelineAction(props: TimelineActionProps) {
           if (track.lock) {
             return;
           }
+          action.selected = true;
           let time: number;
           if (onClickAction) {
             time = handleTime(e);
@@ -379,7 +390,7 @@ export default function TimelineAction(props: TimelineActionProps) {
         className={prefix((classNames || []).join(' '))}
         selected={action.selected}
         style={{ height: rowHeight }}
-        color={actionTypes[action.effectId].color}
+        color={actionTypes[action.effectId]?.color ?? '#ccc'}
       >
         {getActionRender && getActionRender(nowAction, nowRow)}
         {flexible && <LeftStretch className={classes.left} />}
