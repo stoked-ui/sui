@@ -20,11 +20,12 @@ import TextField from '@mui/material/TextField';
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import {blend} from "@mui/system";
-import StokedStyles from '@stoked-ui/core/StokedStyles';
+import { useTheme } from '@mui/material/styles';
+import { ToggleButtonGroupSx } from '@stoked-ui/core/styles';
 
 export const Rates = [0.2, 0.5, 1.0, 1.5, 2.0];
+const useThemeProps = createUseThemeProps('MuiEditor');
 
-const useThemeProps = createUseThemeProps('MuiEditorControls');
 
 const useUtilityClasses = <R extends FileBase, Multiple extends boolean | undefined>(
   ownerState: EditorControlsProps<R, Multiple>,
@@ -194,7 +195,8 @@ export const EditorControls = React.forwardRef(function EditorControls<
   }
   const controlsInput: string[] = [];
   const [controls, setControls] = React.useState(controlsInput);
-  const styles = StokedStyles();
+  const theme = useTheme();
+  const styles = ToggleButtonGroupSx(theme);
   return (
     <PlayerRoot className="timeline-player">
 
@@ -205,7 +207,7 @@ export const EditorControls = React.forwardRef(function EditorControls<
             onChange={(event, value) => {
 
             }}
-            sx={styles.toggleButtonGroup}
+            sx={styles}
             size={'small'}
             aria-label="text alignment"
           >

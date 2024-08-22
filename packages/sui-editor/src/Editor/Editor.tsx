@@ -1,6 +1,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { Timeline, TimelineEngine, TimelineState } from '@stoked-ui/timeline';
+import { Timeline, TimelineEngine, TimelineState, TimelineTrack } from '@stoked-ui/timeline';
 import { FileBase, FileExplorer } from '@stoked-ui/file-explorer';
 import { useSlotProps } from '@mui/base/utils';
 import composeClasses from '@mui/utils/composeClasses';
@@ -150,10 +150,15 @@ export const Editor = React.forwardRef(function Editor<
     ownerState: props as any,
   });
   const timelineState = React.useRef<TimelineState>(null);
-  const [tracks, setTracks] = React.useState(timelineProps.tracks);
+  const [tracks, setTracksNew] = React.useState(timelineProps.tracks);
   const engine = React.useRef<TimelineEngine>(new TimelineEngine());
   const [scaleWidth, setScaleWidth] = React.useState(160);
   const viewerRef = React.useRef<HTMLDivElement>(null);
+
+  const setTracks:  React.Dispatch<React.SetStateAction<TimelineTrack[]>> = (tracks: TimelineTrack[] | ((prevState: TimelineTrack[]) => TimelineTrack[])) => {
+    console.log('updated tracks', tracks);
+    setTracksNew(tracks);
+  }
 
   const setScaleWidthProxy = (val: number) => {
     setScaleWidth(val);

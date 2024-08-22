@@ -577,7 +577,7 @@ function ProductsSwitcher(props: ProductSwitcherProps) {
   const isBelowMd = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'));
 
   return (
-    <React.Fragment>hi
+    <React.Fragment>
       {products.swipeable({ show: isBelowMd && inView, productIndex, setProductIndex } as ProductSwipeableProps)}
       {products.stack(props)}
     </React.Fragment>

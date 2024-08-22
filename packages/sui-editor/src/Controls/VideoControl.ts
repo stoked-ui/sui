@@ -29,12 +29,18 @@ class VideoControl implements ITimelineActionType {
   enter(params: TimelineActionParams) {
     const { action, time, engine} = params;
 
+    const track = engine.getActionTrack(action.id);
+
     let item: HTMLVideoElement;
     if (this.cacheMap[action.id]) {
       item = this.cacheMap[action.id];
-      item.style.display = 'flex';
-      this._goToAndStop(item, time);
-    } else {
+      if (track.hidden) {
+        item.style.display = 'none';
+      } else {
+        item.style.display = 'flex';
+        this._goToAndStop(item, time);
+      }
+    } else if (!track.hidden){
       item = document.createElement('video');
       item.src = action.data.src;
       item.style.position = 'absolute';
@@ -64,12 +70,18 @@ class VideoControl implements ITimelineActionType {
   }
 
   update(params: TimelineActionParams) {
-    const { action, time } = params;
+    const { action, engine, time } = params;
+
     const item = this.cacheMap[action.id];
     if (!item) {
       return;
     }
-    this._goToAndStop(item, time - action.start);
+    const track = engine.getActionTrack(action.id);
+    if (track.hidden) {
+      item.style.display = 'none';
+    } else {
+      this._goToAndStop(item, time - action.start);
+    }
   }
 
   leave(params: TimelineActionParams) {

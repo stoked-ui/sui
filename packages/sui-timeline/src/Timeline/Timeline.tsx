@@ -116,24 +116,7 @@ const Timeline = React.forwardRef(function Timeline(
         ref={labelsRef}
         {...labelsProps.ownerState}
         timelineState={timelineState}
-        onToggle={(id: string, property: string) => {
-          setTracks((previous) => {
-            const rowIndex = previous.findIndex((previousTrack) => previousTrack.id === id);
-            previous[rowIndex][property] = !previous[rowIndex][property]
-            return [...previous];
-          });
-        }}
-        getToggles={(id: string) => {
-          const status = [];
-          const rowIndex = tracks.findIndex((previousTrack) => previousTrack.id === id);
-          if (tracks[rowIndex]?.hidden) {
-            status.push('hidden');
-          }
-          if (tracks[rowIndex]?.lock) {
-            status.push('lock');
-          }
-          return status;
-        }}
+        setTracks={setTracks}
       />
       <Control
         sx={{
@@ -167,7 +150,9 @@ const Timeline = React.forwardRef(function Timeline(
           })
         }}
         onScroll={({ scrollTop }) => {
-          labelsRef.current.scrollTop = scrollTop;
+          if (labelsRef.current) {
+            labelsRef.current.scrollTop = scrollTop;
+          }
         }}
         startLeft={10}
         ref={combinedTimelineRef}

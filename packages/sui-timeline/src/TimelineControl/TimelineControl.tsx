@@ -234,42 +234,6 @@ const TimelineControl = React.forwardRef<TimelineState, TimelineControlProps>(
         }
       };
     }, []);
-    const [viewer, setViewer] = React.useState<Element>(null);
-
-    const useMutationObserver = (
-      mutationRef,
-      callback,
-      options = {
-        attributes: true,
-        characterData: true,
-        childList: true,
-        subtree: true,
-      }
-    ) => {
-      React.useEffect(() => {
-        if (mutationRef.current && viewer === null) {
-          const parentCallback = (mutationList, observerRef) => {
-            if (mutationRef.current?.parentNode?.parentNode) {
-              callback(mutationRef.current.parentNode.parentNode, observerRef);
-            }
-          }
-          const observer = new MutationObserver(parentCallback);
-          observer.observe(mutationRef.current, options);
-        }
-      }, [mutationRef.current]);
-    };
-
-    const setViewerCapture = (root, observer) => {
-      const element = root.querySelector(props.viewSelector);
-      if (element) {
-
-        setViewer(element);
-        engineRef.current.viewer = element;
-        observer.disconnect();
-      }
-    }
-    useMutationObserver(domRef, setViewerCapture);
-
 
     return (
       <TimelineControlRoot
@@ -336,7 +300,6 @@ const TimelineControl = React.forwardRef<TimelineState, TimelineControlProps>(
             </React.Fragment>
           )}
         </ScrollSync>
-        <ScrollResizer parentRef={areaRef} selector={'[role=grid]'} scale={scaleWidth} scrollLeft={scrollSync.current?.state?.scrollLeft} maxScale={scaleWidth * 20} minScale={1} setScale={props.setScaleWidth} setHorizontalScroll={setHorizontalScroll} />
       </TimelineControlRoot>
     );
   },
