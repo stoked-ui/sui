@@ -9,7 +9,7 @@
     <package-manager value="$USER_HOME$/Library/pnpm/pnpm" />
     <envs />
     <EXTENSION ID="com.intellij.lang.javascript.buildTools.npm.rc.StartBrowserRunConfigurationExtension">
-      <browser start="true" with-js-debugger="true" url="http://localhost:3000/editor/docs/overview" />
+      <browser name="f9ea9f80-2192-41f5-b5b6-9d20d951a767" start="true" with-js-debugger="true" url="http://localhost:3000/editor/docs/overview" />
     </EXTENSION>
     <method v="2" />
   </configuration>

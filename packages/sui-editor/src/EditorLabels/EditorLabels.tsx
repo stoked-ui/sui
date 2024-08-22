@@ -1,7 +1,7 @@
 import * as React from 'react';
 import composeClasses from "@mui/utils/composeClasses";
 import { useSlotProps } from '@mui/base/utils';
-import {styled, Theme, useThemeProps} from '@mui/material/styles';
+import {Theme, useTheme } from '@mui/material/styles';
 import ToggleButton from "@mui/material/ToggleButton";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
@@ -10,7 +10,11 @@ import LockOpenIcon from '@mui/icons-material/LockOpen';
 import LockIcon from '@mui/icons-material/Lock';
 import { EditorLabelsProps } from './EditorLabels.types';
 import { getEditorLabelsUtilityClass } from "./editorLabelsClasses";
-import StokedStyles from '@stoked-ui/core/StokedStyles';
+import { ToggleButtonGroupSx } from '@stoked-ui/core/styles';
+import { TimelineTrack } from "@stoked-ui/timeline";
+import { styled, createUseThemeProps } from '../internals/zero-styled';
+
+const useThemeProps = createUseThemeProps('MuiEditorLabels');
 
 const useUtilityClasses = (
   ownerState: EditorLabelsProps,
@@ -24,26 +28,7 @@ const useUtilityClasses = (
 
   return composeClasses(slots, getEditorLabelsUtilityClass, classes);
 };
-/*
 
-const useUtilityClasses = <R extends FileBase, Multiple extends boolean | undefined>(
-  ownerState: EditorProps<R, Multiple>,
-) => {
-  const { classes } = ownerState;
-
-  const slots = {
-    root: ['root'],
-    viewSpace: ['viewSpace'],
-    videoControls: ['videoControls'],
-    timeline: ['timeline'],
-    bottomLeft: ['bottomLeft'],
-    bottomRight: ['bottomRight'],
-  };
-
-  return composeClasses(slots, getEditorUtilityClass, classes);
-};
-
- */
 const EditorLabelsRoot = styled('div', {
   name: 'MuiEditorLabels',
   slot: 'root',
@@ -106,6 +91,66 @@ const LabelButtonContainer = styled(ToggleButtonGroup, {
   }
 }});
 
+function EditorTrackLabels(props: any) {
+  const { track, setTracks, tracks, classes } = props;
+  const visibilityIcon = track.hidden ? <VisibilityOffIcon fontSize={'small'}/> : <VisibilityIcon fontSize={'small'}/>;
+
+  const lockIcon = track.lock ? <LockIcon fontSize={'small'}/> : <LockOpenIcon fontSize={'small'}/>;
+  const getFlags = (inputTrack: TimelineTrack) => {
+    const status: string[] = [];
+    if (inputTrack.hidden) {
+      status.push('hidden');
+    }
+    if (inputTrack.lock) {
+      status.push('lock');
+    }
+    console.log('track id', status);
+    return status;
+  }
+
+  const [trackFlags, setTrackFlags] = React.useState<string[]>(getFlags(track));
+  const setFlags = (inputTrack: TimelineTrack) => {
+
+    setTrackFlags(getFlags(inputTrack));
+  }
+
+  const onToggle = (property: string) => {
+    props.setTracks((previous) => {
+      const rowIndex = previous.findIndex((previousTrack) => previousTrack.id === track.id);
+      if (rowIndex !== -1) {
+        previous[rowIndex][property] = !previous[rowIndex][property]
+        setFlags(previous[rowIndex]);
+      }
+      const newTracks = [...previous];
+
+      return [...newTracks];
+    });
+  }
+  const theme = useTheme();
+  const labelsSx = ToggleButtonGroupSx(theme);
+  return (
+    <EditorLabel key={track.id} className={classes.label}>
+      <EditorLabelText>{track.name}</EditorLabelText>
+
+      <LabelButtonContainer
+        value={trackFlags}
+        exclusive
+        onChange={(event, value) => {
+          onToggle!(value)
+        }}
+        sx={labelsSx}
+        aria-label="text alignment"
+      >
+        <ToggleButton  value="hidden" aria-label="hidden">
+          {visibilityIcon}
+        </ToggleButton>
+        <ToggleButton value="lock" aria-label="lock">
+          {lockIcon}
+        </ToggleButton>
+      </LabelButtonContainer>
+    </EditorLabel>
+  );
+}
 /**
  *
  * Demos:
@@ -130,46 +175,8 @@ const EditorLabels = React.forwardRef(
       ownerState: inProps,
     });
 
-    const styles = StokedStyles();
     return (
-      <Root
-        ref={ref}
-        style={{ overflow: 'overlay' }}
-        onScroll={(scrollEvent:  React.UIEvent<HTMLDivElement, UIEvent>) => {
-          timelineState.current?.setScrollTop((scrollEvent.target as HTMLDivElement).scrollTop);
-        }}
-        classes={classes}
-        className={`${classes.root} timeline-list`}>
-        {tracks?.map((item) => {
-
-          const visibilityIcon = item.hidden ? <VisibilityOffIcon fontSize={'small'}/> : <VisibilityIcon fontSize={'small'}/>;
-
-          const lockIcon = item.lock ? <LockIcon fontSize={'small'}/> : <LockOpenIcon fontSize={'small'}/>;
-          return (
-            <EditorLabel key={item.id} className={classes.label}>
-              <EditorLabelText>{item.name}</EditorLabelText>
-
-              {(inProps.getToggles && inProps.onToggle) && <LabelButtonContainer
-                value={inProps.getToggles(item.id)}
-                exclusive
-                onChange={(event, value) => {
-                  inProps.onToggle!(item.id, value)
-                }}
-                sx={styles.toggleButtonGroup}
-                aria-label="text alignment"
-              >
-                <ToggleButton  value="hidden" aria-label="hidden">
-                  {visibilityIcon}
-                </ToggleButton>
-                <ToggleButton value="lock" aria-label="lock">
-                  {lockIcon}
-                </ToggleButton>
-                </LabelButtonContainer>
-              }
-            </EditorLabel>
-          );
-        })}
-      </Root>
+      <div></div>
     )
   })
 

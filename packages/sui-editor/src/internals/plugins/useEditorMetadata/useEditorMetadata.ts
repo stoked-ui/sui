@@ -28,7 +28,7 @@ export const useEditorMetadata: EditorPlugin<UseEditorMetadataSignature> = ({
 useEditorMetadata.getDefaultizedParams = (params) => {
   if (!params.tracks && params.actions) {
     params.tracks = params.actions.map((action) => {
-      const actionId = IdGenerator().id(`action${ action.name ? `-${action.name}` : ''}`, 5)
+      const actionId = IdGenerator().inc(`action${ action.name ? `-${action.name}` : ''}`, 5)
       action = {
         ...action,
         name: action.name ?? actionId,
@@ -36,14 +36,13 @@ useEditorMetadata.getDefaultizedParams = (params) => {
         id: action.id ?? actionId,
       }
 
-      const trackId = IdGenerator().id(`track`, 5)
+      const trackId = IdGenerator().inc(`track`, 5)
       return {
         id: trackId,
         name: action.name ?? trackId,
         actions: [action],
       };
     });
-
   }
   return {
     ...params,

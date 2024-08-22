@@ -1,7 +1,6 @@
 import * as React from 'react';
 import useForkRef from '@mui/utils/useForkRef';
 import { EventHandlers } from '@mui/base/utils';
-import { IdGenerator } from "@stoked-ui/media-selector";
 import {
   EditorAnyPluginSignature,
   EditorInstance,

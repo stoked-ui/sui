@@ -51,5 +51,6 @@ export interface TimelineLabelsProps
   slotProps?: TimelineLabelsSlotProps;
 
   onToggle?: (id: string, property: string) => void;
-  getToggles?: (id: string) => string[];
+  setFlags?: (id: string) => string[];
+  setTracks?: (tracks: TimelineTrack[]) => void;
 }

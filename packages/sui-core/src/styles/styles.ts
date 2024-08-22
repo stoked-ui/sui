@@ -1,10 +1,8 @@
 import { blend } from "@mui/system";
-import { useTheme } from "@mui/material/styles";
+import { SxProps, Theme } from "@mui/material/styles";
 
-export default function StokedStyles() {
-  const theme = useTheme();
-
-  const toggleButtonGroup = {
+export function ToggleButtonGroupSx(theme: Theme): SxProps {
+  return {
     background: blend(theme.palette.background.default, '#AAA', 0.04),
     '& .MuiButtonBase-root': {
       color: 'black',
@@ -14,7 +12,5 @@ export default function StokedStyles() {
         border: '1px solid black',
       },
     }
-  };
-
-  return { toggleButtonGroup }
+  }
 }
