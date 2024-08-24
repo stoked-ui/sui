@@ -1,9 +1,10 @@
-// import { IncGenerator } from '@stoked-ui/media-selector';
+import * as React from "react";
 import { EditorPlugin } from '../../models';
 import {
   UseEditorMetadataSignature,
 } from './useEditorMetadata.types';
-import {useId} from "react";
+import {buildTracks} from "../../utils/TrackBuilder";
+
 
 //const [actionId] = IncGenerator('action');
 //const [trackId] = IncGenerator('track')
@@ -29,25 +30,9 @@ export const useEditorMetadata: EditorPlugin<UseEditorMetadataSignature> = ({
 };
 
 useEditorMetadata.getDefaultizedParams = (params) => {
-  if (!params.tracks && params.actions) {
-    params.tracks = params.actions.map((action) => {
-      const actionGenId = useId();
-      action = {
-        ...action,
-        name: action.name ?? actionGenId,
-        data: action.data,
-        id: action.id ?? actionGenId,
-      }
-
-      const trackGenId = useId()
-      return {
-        id: trackGenId,
-        name: action.name ?? trackGenId,
-        actions: [action],
-        hidden: false,
-        lock: false
-      };
-    });
+  console.log('tracks', params.tracks, 'actions', params.actions);
+  if ((!params.tracks || params.tracks?.length === 0) && params.actions) {
+    params.tracks = buildTracks(params.actions);
   }
   return {
     ...params,

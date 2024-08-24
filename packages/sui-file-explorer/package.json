@@ -65,7 +65,7 @@
     "@mui/icons-material": "^5.15.21",
     "@mui/material": "^5.15.21",
     "@stoked-ui/media-selector": "workspace:^",
-    "react": "^17.0.0 || ^18.0.0",
+    "react": "18.3.1",
     "react-dom": "^17.0.0 || ^18.0.0"
   },
   "devDependencies": {

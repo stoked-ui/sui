@@ -6,7 +6,7 @@ export const scaleWidth = 160;
 export const scale = 2;
 export const startLeft = 20;
 
-export const actions = [
+export const actions: TimelineActionInput[] = [
   {
     name: 'write stuff',
     start: 9.5,
@@ -58,6 +58,7 @@ export const actions = [
 ];
 
 const defaultEditorData = cloneDeep(actions);
+console.log('defaultEditorData', defaultEditorData)
 /*
 export const CustomRender0: React.FC<{ action: TimelineAction; row: TimelineTrack }> = ({ action, row }) => {
   return (
@@ -85,10 +86,9 @@ const getActionRenderer = (action, row) => {
  */
 
 export default function CoreDemo() {
-  const [data, setData] = React.useState(defaultEditorData);
 
   return (
-    <Editor id='video-editor' sx={{ borderRadius: '12px 12px 0 0' }} actions={data}/>
+    <Editor id='video-editor' sx={{ borderRadius: '12px 12px 0 0' }} actionData={defaultEditorData} />
   );
 };
 

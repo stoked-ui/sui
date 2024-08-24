@@ -101,14 +101,16 @@ const updateItemsState = ({
     item.children?.forEach((child) => processItem(child, depth + 1, id));
   };
 
-  items.forEach((item) => processItem(item, 0, null));
+  items?.forEach((item) => processItem(item, 0, null));
 
   const itemChildrenIndexes: State['itemChildrenIndexes'] = {};
   Object.keys(itemOrderedChildrenIds).forEach((parentId) => {
     itemChildrenIndexes[parentId] = buildSiblingIndexes(itemOrderedChildrenIds[parentId]);
   });
 
-  recalcVisibleIndices([...items], true,0);
+  if (items?.length) {
+    recalcVisibleIndices([...items], true, 0);
+  }
 
   return {
     itemMetaMap,

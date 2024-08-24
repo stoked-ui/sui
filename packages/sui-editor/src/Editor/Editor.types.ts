@@ -14,7 +14,7 @@ import {
   EditorExperimentalFeatures,
   EditorPublicAPI,
 } from '../internals/models';
-import { ITimelineAction, TimelineTrack } from "@stoked-ui/timeline";
+import { ITimelineAction, TimelineTrack, ITimelineActionInput } from "@stoked-ui/timeline";
 
 
 export interface EditorSlots extends EditorPluginSlots {
@@ -78,6 +78,7 @@ export interface EditorPropsBase extends React.HTMLAttributes<HTMLDivElement> {
   sx?: SxProps<Theme>;
 
   // project?: VideoProject<R>;
+  actionData?: ITimelineActionInput[];
 
   actions?: ITimelineAction[];
 

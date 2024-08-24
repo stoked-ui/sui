@@ -51,7 +51,7 @@ export default function TableOfContentsBanner() {
         />
       </Box>
       <Typography component="span" variant="caption" fontWeight="medium" color="text.secondary">
-        SUI stands with Grumpy Cat.
+        Stoked UI stands with Grumpy Cat.
       </Typography>
     </Link>
   ) : null;

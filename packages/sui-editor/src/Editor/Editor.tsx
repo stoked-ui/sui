@@ -14,6 +14,7 @@ import { EditorControls } from '../EditorControls';
 import { EditorView } from '../EditorView';
 import { getEditorUtilityClass } from './editorClasses';
 import { EditorLabels } from '../EditorLabels';
+import {buildTracks} from "../internals/utils/TrackBuilder";
 
 const useThemeProps = createUseThemeProps('MuiEditor');
 
@@ -76,8 +77,13 @@ const Editor = React.forwardRef(function Editor<
   const { sx, ...props } = useThemeProps({ props: inProps, name: 'MuiEditor' });
   const editorRef = React.useRef<HTMLDivElement>(null);
   const combinedEditorRef = useForkRef(ref, editorRef);
-  const [tracks, setTracks] = React.useState(props.tracks || []);
-  inProps.tracks = tracks;
+  const processedTracks = buildTracks({
+    tracks: props.tracks,
+    actions: props.actions,
+    actionData: props.actionData
+  });
+  const [tracks, setTracks] = React.useState(processedTracks);
+
   const {
     getRootProps,
     getEditorViewProps,
@@ -87,8 +93,8 @@ const Editor = React.forwardRef(function Editor<
     getBottomRightProps,
   } = useEditor<EditorPluginSignatures, EditorProps<R, Multiple>>({
     plugins: VIDEO_EDITOR_PLUGINS,
-    rootRef: combinedEditorRef,
-    props: {...inProps, tracks},
+    rootRef: ref,
+    props: inProps,
   });
 
   const { slots, slotProps } = props;
@@ -122,7 +128,7 @@ const Editor = React.forwardRef(function Editor<
   });
 
   const TimelineSlot = slots?.timeline ?? Timeline;
-  const { ...timelineProps } = useSlotProps({
+  const timelineProps = useSlotProps({
     elementType: TimelineSlot,
     externalSlotProps: slotProps?.timeline,
     className: classes.timeline,
@@ -148,7 +154,6 @@ const Editor = React.forwardRef(function Editor<
     ownerState: props as any,
   });
   const timelineState = React.useRef<TimelineState>(null);
-
   const engine = React.useRef<TimelineEngine>(new TimelineEngine());
   const [scaleWidth, setScaleWidth] = React.useState(160);
   const viewerRef = React.useRef<HTMLDivElement>(null);
@@ -157,6 +162,7 @@ const Editor = React.forwardRef(function Editor<
     setScaleWidth(val);
   };
 
+  console.log('generatedTracks', timelineProps.tracks);
   React.useEffect(() => {
     if (!editorRef?.current || !engine.current) {
       return;
@@ -200,6 +206,7 @@ const Editor = React.forwardRef(function Editor<
       {startIt && (
         <TimelineSlot
           {...timelineProps}
+          tracks={tracks}
           setTracks={setTracks}
           timelineState={timelineState}
           scaleWidth={scaleWidth}

@@ -1,30 +1,25 @@
 ---
 productId: core
-title: Stoked UI Core
-githubLabel: 'component: core'
-components: Button, PluginComponent
-packageName: '@stoked-ui/core'
+title: Stoked UI Editor
+githubLabel: 'component: Editor'
+components: Editor, Timeline, FileExplorer
+packageName: '@stoked-ui/mono'
 ---
 
 # Overview
 
-<p class="description">The Core library contains all the reusable stuffs. It will likely mostly just contain hacked and slashed components yoink'd from @mui/material for this and that.</p>
+<p class="description">The Stoked UI Editor module contains components intended for use as raw building blocks for tools that can edit things.</p>
 
 {{"component": "modules/components/ComponentLinkHeader"}}
 
-## Available components
+## Getting Started
 
-The Stoked UI Core package exposes two components intialy.
-
-### Button
-
-### Plugin Component
-
+The Stoked UI Editor package exposes two components intialy.
 
 ```jsx
-import Button from '@stoked-ui/core/Button';
+import Editor from '@stoked-ui/editor/Editor';
 ```
 
-The simple version of the Button component stolen from @mui/material is used primarily for testing and investigation. Specifically looking at the way @mui/material toolchain works vs @mui/mui-x. Definitely do not need this library or the full Button code from material in order to theme it up stoked style.
+Out of the box the Editor component consists of a client side video editor capable of animating and exporting lottie animations, video, images, and audio files together.
 
 {{"demo": "CoreDemo.js", "defaultCodeOpen": false, "bg": "noMargin"}}

@@ -246,7 +246,7 @@ export interface TimelineControlProps extends EditData {
   /**
    * @description Data change callback, which will be triggered after the operation action end changes the data (returning false will prevent automatic engine synchronization to reduce performance overhead)
    */
-  onChange?: (tracks: TimelineTrack[]) => void | boolean;
+  setTracks: React.Dispatch<React.SetStateAction<TimelineTrack[]>>;
 
   setScaleWidth?: (scaleWidth: number) => void;
 }
