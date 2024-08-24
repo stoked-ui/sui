@@ -1580,14 +1580,17 @@ importers:
         specifier: ^5.15.21
         version: 5.16.7(@emotion/react@11.13.3(@types/react@18.3.4)(react@18.3.1))(@emotion/styled@11.13.0(@emotion/react@11.13.3(@types/react@18.3.4)(react@18.3.1))(@types/react@18.3.4)(react@18.3.1))(@types/react@18.3.4)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@mui/system':
-        specifier: ^5.16.0
+        specifier: ^5.15.20
         version: 5.16.7(@emotion/react@11.13.3(@types/react@18.3.4)(react@18.3.1))(@emotion/styled@11.13.0(@emotion/react@11.13.3(@types/react@18.3.4)(react@18.3.1))(@types/react@18.3.4)(react@18.3.1))(@types/react@18.3.4)(react@18.3.1)
       '@mui/utils':
-        specifier: ^5.16.0
+        specifier: ^5.15.20
         version: 5.16.6(@types/react@18.3.4)(react@18.3.1)
       '@react-spring/web':
         specifier: ^9.7.3
         version: 9.7.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@stoked-ui/media-selector':
+        specifier: workspace:^
+        version: link:../sui-media-selector
       '@types/chai':
         specifier: ^4.3.17
         version: 4.3.17
@@ -1619,9 +1622,6 @@ importers:
       '@stoked-ui/internal-test-utils':
         specifier: workspace:^
         version: link:../../packages-internal/test-utils
-      '@stoked-ui/media-selector':
-        specifier: workspace:^
-        version: link:../sui-media-selector
       '@types/prop-types':
         specifier: ^15.7.12
         version: 15.7.12

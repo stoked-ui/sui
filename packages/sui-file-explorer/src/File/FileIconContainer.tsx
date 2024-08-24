@@ -1,4 +1,4 @@
-import { styled } from '@mui/material/styles';
+import { styled } from "../internals/zero-styled";
 
 export const FileIconContainer = styled('div', {
   name: 'MuiFile',

@@ -38,9 +38,6 @@ const updateItemsState = ({
     [FILE_EXPLORER_VIEW_ROOT_PARENT_ID]: [],
   };
 
-  if (!items) {
-    items = [];
-  }
   const processItem = (item: FileBase, depth: number, parentId: string | null) => {
     const initialId: string = getItemId ? getItemId(item) : (item as any).id;
     const id = initialId ?? item?.itemId ?? item.id ?? item?.label ?? item?.name ?? IdGenerator().id('file', 4);
@@ -375,15 +372,13 @@ useFileExplorerFiles.getInitialState = (params) => ({
   }),
 });
 
-useFileExplorerFiles.getDefaultizedParams = (params) => {
-  return {
-    ...params,
-    items: [],
-    disabledItemsFocusable: params.disabledItemsFocusable ?? false,
-    itemChildrenIndentation: params.itemChildrenIndentation ?? '12px',
-    alternateRows: params.alternatingRows,
-  }
-}
+useFileExplorerFiles.getDefaultizedParams = (params) => ({
+  ...params,
+
+  disabledItemsFocusable: params.disabledItemsFocusable ?? false,
+  itemChildrenIndentation: params.itemChildrenIndentation ?? '12px',
+  alternateRows: params.alternatingRows,
+});
 
 useFileExplorerFiles.wrapRoot = ({ children, instance }) => {
   return (
