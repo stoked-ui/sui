@@ -43,7 +43,7 @@ const updateItemsState = ({
   }
   const processItem = (item: FileBase, depth: number, parentId: string | null) => {
     const initialId: string = getItemId ? getItemId(item) : (item as any).id;
-    const id = initialId ?? item?.itemId ?? item.id ?? item?.label ?? item?.name ?? IdGenerator().fileId();
+    const id = initialId ?? item?.itemId ?? item.id ?? item?.label ?? item?.name ?? IdGenerator().id('file', 4);
     item.id = id;
     item.itemId = item.itemId ?? id;
     item.label = item.label ?? id;

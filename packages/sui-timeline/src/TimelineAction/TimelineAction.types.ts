@@ -1,16 +1,17 @@
 import * as React from 'react';
 import { SxProps, Theme } from "@mui/material/styles";
 import { SlotComponentProps } from "@mui/material";
+import { CSSProperties } from "@mui/system/CSSProperties";
 import { TimelineActionClasses } from "./timelineActionClasses";
 import { TimelineTrack } from "../interface/TimelineAction";
 import { DragLineData } from "../components/edit_area/drag_lines";
-import { EditData } from "../TimelineControl/TimelineControl.types";
 import { CommonProps } from '../interface/common_prop';
+import {ITimelineEngine} from "../TimelineEngine/TimelineEngine";
 
 export type TimelineActionParams = {
   action: ITimelineAction;
   time: number;
-  engine?: any;
+  engine: ITimelineEngine;
 };
 
 export interface ITimelineActionType {
@@ -52,7 +53,6 @@ export interface ITimelineAction extends TimelineActionState {
   /** The effectId corresponding to the action */
   effectId: string;
 
-
   /** Minimum start time limit for actions */
   minStart?: number;
   /** Maximum end time limit of action */
@@ -62,8 +62,8 @@ export interface ITimelineAction extends TimelineActionState {
 
   data?: {
     src: string;
-    style?: any;
-  } | any;
+    style?: CSSProperties;
+  };
 }
 
 export interface ITimelineActionInput extends Omit<ITimelineAction, 'id'>  {

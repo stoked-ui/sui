@@ -69,7 +69,6 @@ export function EditRow(props: EditRowProps) {
       )}`}
       style={style}
       onKeyDown={(e) => {
-        alert('hi')
         console.log('row root', e);
       }}
       onClick={(e) => {

@@ -24,7 +24,7 @@ const updateGridState = ({ headers, columns, initializedIndexes, id }: { headers
       columns: columns ?? {},
       initializedIndexes
     },
-    id: id ?? IdGenerator().fileId()
+    id: id ?? IdGenerator().id('file', 4)
   };
 };
 

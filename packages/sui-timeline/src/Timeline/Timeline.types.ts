@@ -11,6 +11,10 @@ import { TimelineLabelsProps } from "../TimelineLabels/TimelineLabels.types";
 import { TimelineState } from "./TimelineState";
 import { ITimelineEngine } from '../TimelineEngine/TimelineEngine';
 
+export type TimelineComponent = ((
+  props: TimelineProps & React.RefAttributes<HTMLDivElement>,
+) => React.JSX.Element) & { propTypes?: any };
+
 export interface TimelineSlots {
   /**
    * Element rendered at the root.
@@ -27,7 +31,19 @@ export interface TimelineSlotProps {
   control?: SlotComponentProps<'div', {}, TimelineControlProps>;
 }
 
-export interface TimelinePropsBase extends React.HTMLAttributes<HTMLDivElement> {
+export interface TimelineProps
+  extends React.HTMLAttributes<HTMLDivElement> {
+  children?: React.ReactNode;
+  /**
+   * Overridable component slots.
+   * @default {}
+   */
+  slots?: TimelineSlots;
+  /**
+   * The props used for each component slot.
+   * @default {}
+   */
+  slotProps?: TimelineSlotProps;
   className?: string;
   /**
    * Override or extend the styles applied to the component.
@@ -47,21 +63,8 @@ export interface TimelinePropsBase extends React.HTMLAttributes<HTMLDivElement> 
   actionTypes: Record<string, ITimelineActionType>;
   timelineState?: React.RefObject<TimelineState>;
   viewSelector?: string;
-  engine?: ITimelineEngine;
+  engine?: React.RefObject<ITimelineEngine>;
+
   scaleWidth?: number;
   setScaleWidth?: (scaleWidth: number) => void;
-}
-
-export interface TimelineProps
-  extends TimelinePropsBase {
-  /**
-   * Overridable component slots.
-   * @default {}
-   */
-  slots?: TimelineSlots;
-  /**
-   * The props used for each component slot.
-   * @default {}
-   */
-  slotProps?: TimelineSlotProps;
 }

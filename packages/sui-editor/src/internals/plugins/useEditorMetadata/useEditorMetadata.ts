@@ -1,9 +1,12 @@
-import { IdGenerator } from '@stoked-ui/media-selector';
+// import { IncGenerator } from '@stoked-ui/media-selector';
 import { EditorPlugin } from '../../models';
-
 import {
   UseEditorMetadataSignature,
 } from './useEditorMetadata.types';
+import {useId} from "react";
+
+//const [actionId] = IncGenerator('action');
+//const [trackId] = IncGenerator('track')
 
 export const useEditorMetadata: EditorPlugin<UseEditorMetadataSignature> = ({
   params,
@@ -28,19 +31,21 @@ export const useEditorMetadata: EditorPlugin<UseEditorMetadataSignature> = ({
 useEditorMetadata.getDefaultizedParams = (params) => {
   if (!params.tracks && params.actions) {
     params.tracks = params.actions.map((action) => {
-      const actionId = IdGenerator().inc(`action${ action.name ? `-${action.name}` : ''}`, 5)
+      const actionGenId = useId();
       action = {
         ...action,
-        name: action.name ?? actionId,
+        name: action.name ?? actionGenId,
         data: action.data,
-        id: action.id ?? actionId,
+        id: action.id ?? actionGenId,
       }
 
-      const trackId = IdGenerator().inc(`track`, 5)
+      const trackGenId = useId()
       return {
-        id: trackId,
-        name: action.name ?? trackId,
+        id: trackGenId,
+        name: action.name ?? trackGenId,
         actions: [action],
+        hidden: false,
+        lock: false
       };
     });
   }

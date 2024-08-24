@@ -1,10 +1,11 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { Timeline, TimelineEngine, TimelineState, TimelineTrack } from '@stoked-ui/timeline';
+import useForkRef from '@mui/utils/useForkRef';
 import { FileBase, FileExplorer } from '@stoked-ui/file-explorer';
 import { useSlotProps } from '@mui/base/utils';
 import composeClasses from '@mui/utils/composeClasses';
 import Stack from '@mui/material/Stack';
+import { Timeline, TimelineEngine, TimelineState } from '@stoked-ui/timeline';
 import { styled, createUseThemeProps } from '../internals/zero-styled';
 import { useEditor } from '../internals/useEditor';
 import { EditorProps } from './Editor.types';
@@ -12,9 +13,7 @@ import { EditorPluginSignatures, VIDEO_EDITOR_PLUGINS } from './Editor.plugins';
 import { EditorControls } from '../EditorControls';
 import { EditorView } from '../EditorView';
 import { getEditorUtilityClass } from './editorClasses';
-import { EditorLabels } from "../EditorLabels";
-import { MuiCancellableEvent } from '../internals/models/MuiCancellableEvent';
-import useForkRef from '@mui/utils/useForkRef';
+import { EditorLabels } from '../EditorLabels';
 
 const useThemeProps = createUseThemeProps('MuiEditor');
 
@@ -36,9 +35,9 @@ const useUtilityClasses = <R extends FileBase, Multiple extends boolean | undefi
 };
 
 const EditorRoot = styled('div', {
-  name: "MuiEditor",
-  slot: "root"
-})(({ theme, sx }) => ({
+  name: 'MuiEditor',
+  slot: 'root',
+})(() => ({
   display: 'flex',
   flexDirection: 'column',
   width: '100%',
@@ -70,14 +69,15 @@ const EditorRoot = styled('div', {
  *
  * - [FileExplorer API](https://stoked-ui.github.io/editor/api/)
  */
-export const Editor = React.forwardRef(function Editor<
+const Editor = React.forwardRef(function Editor<
   R extends FileBase = FileBase,
   Multiple extends boolean | undefined = undefined,
 >(inProps: EditorProps<R, Multiple>, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
-  const props = useThemeProps({ props: inProps, name: 'MuiEditor' });
+  const { sx, ...props } = useThemeProps({ props: inProps, name: 'MuiEditor' });
   const editorRef = React.useRef<HTMLDivElement>(null);
-  const combinedEditorRef = useForkRef(ref , editorRef);
-
+  const combinedEditorRef = useForkRef(ref, editorRef);
+  const [tracks, setTracks] = React.useState(props.tracks || []);
+  inProps.tracks = tracks;
   const {
     getRootProps,
     getEditorViewProps,
@@ -85,12 +85,10 @@ export const Editor = React.forwardRef(function Editor<
     getTimelineProps,
     getBottomLeftProps,
     getBottomRightProps,
-    contextValue,
-    instance,
   } = useEditor<EditorPluginSignatures, EditorProps<R, Multiple>>({
     plugins: VIDEO_EDITOR_PLUGINS,
     rootRef: combinedEditorRef,
-    props: inProps,
+    props: {...inProps, tracks},
   });
 
   const { slots, slotProps } = props;
@@ -124,12 +122,12 @@ export const Editor = React.forwardRef(function Editor<
   });
 
   const TimelineSlot = slots?.timeline ?? Timeline;
-  const timelineProps = useSlotProps({
+  const { ...timelineProps } = useSlotProps({
     elementType: TimelineSlot,
     externalSlotProps: slotProps?.timeline,
     className: classes.timeline,
     getSlotProps: getTimelineProps,
-    ownerState: props,
+    ownerState: inProps,
   });
 
   const BottomLeft = slots?.bottomLeft ?? FileExplorer;
@@ -150,42 +148,33 @@ export const Editor = React.forwardRef(function Editor<
     ownerState: props as any,
   });
   const timelineState = React.useRef<TimelineState>(null);
-  const [tracks, setTracksNew] = React.useState(timelineProps.tracks);
+
   const engine = React.useRef<TimelineEngine>(new TimelineEngine());
   const [scaleWidth, setScaleWidth] = React.useState(160);
   const viewerRef = React.useRef<HTMLDivElement>(null);
 
-  const setTracks:  React.Dispatch<React.SetStateAction<TimelineTrack[]>> = (tracks: TimelineTrack[] | ((prevState: TimelineTrack[]) => TimelineTrack[])) => {
-    console.log('updated tracks', tracks);
-    setTracksNew(tracks);
-  }
-
   const setScaleWidthProxy = (val: number) => {
     setScaleWidth(val);
-  }
+  };
 
   React.useEffect(() => {
     if (!editorRef?.current || !engine.current) {
       return;
     }
 
-    editorRef.current?.addEventListener('keydown', function (event: any) {
-      console.log('event', event)
+    editorRef.current?.addEventListener('keydown', (event: any) => {
       if (event.target) {
-        const selectedActions = event.target.querySelectorAll('.timeline-editor-edit-track-selected');
-        console.log('selectedActions', selectedActions)
         const actionTracks = engine.current.getSelectedActions();
-        //instance.handleItemKeyDown(event, 'action', actionTrack);
         if (actionTracks?.length && event.key === 'Backspace') {
           setTracks((previous) => {
             const deletedActionIds = actionTracks.map((at) => at.action.id);
-            console.log('deleted actions: ', deletedActionIds.join(', '))
-            previous.map((track) => {
-              track.actions = track.actions.filter((action) => deletedActionIds.indexOf(action.id) === -1);
-            })
+            previous.forEach((track) => {
+              track.actions = track.actions.filter(
+                (action) => deletedActionIds.indexOf(action.id) === -1,
+              );
+            });
             return [...previous];
-          })
-
+          });
         }
       }
     });
@@ -194,17 +183,32 @@ export const Editor = React.forwardRef(function Editor<
   const [startIt, setStartIt] = React.useState(false);
   React.useEffect(() => {
     if (!startIt && viewerRef.current && engine.current) {
-      console.log(viewerRef.current, engine.current);
       engine.current.viewer = viewerRef.current;
       setStartIt(true);
     }
-  }, [viewerRef.current])
+  }, [viewerRef.current]);
 
   return (
     <Root {...rootProps}>
       <EditorViewSlot {...editorViewProps} ref={viewerRef} engine={engine} />
-      <ControlsSlot {...videoControlsProps} timelineState={timelineState} scaleWidth={scaleWidth} setScaleWidth={setScaleWidthProxy} />
-      {startIt && <TimelineSlot {...timelineProps} setTracks={setTracks} timelineState={timelineState} scaleWidth={scaleWidth}  setScaleWidth={setScaleWidthProxy} viewSelector={`.MuiEditorView-root`} slots={{ labels: EditorLabels }}/>}
+      <ControlsSlot
+        {...videoControlsProps}
+        timelineState={timelineState}
+        scaleWidth={scaleWidth}
+        setScaleWidth={setScaleWidthProxy}
+      />
+      {startIt && (
+        <TimelineSlot
+          {...timelineProps}
+          setTracks={setTracks}
+          timelineState={timelineState}
+          scaleWidth={scaleWidth}
+          setScaleWidth={setScaleWidthProxy}
+          viewSelector={`.MuiEditorView-root`}
+          slots={{ labels: EditorLabels }}
+          engine={engine}
+        />
+      )}
 
       <Stack direction="row" spacing={2}>
         <BottomLeft {...bottomLeftProps} />
@@ -219,65 +223,33 @@ Editor.propTypes = {
   // | These PropTypes are generated from the TypeScript type definitions |
   // | To update them edit the TypeScript types and run "pnpm proptypes"  |
   // ----------------------------------------------------------------------
+  actions: PropTypes.arrayOf(PropTypes.object),
   /**
-   * The ref object that allows Editor View manipulation. Can be instantiated with `useEditorApiRef()`.
+   * The ref object that allows Editor View manipulation. Can be instantiated with
+   * `useEditorApiRef()`.
    */
   apiRef: PropTypes.shape({
     current: PropTypes.shape({
+      focusItem: PropTypes.func.isRequired,
+      getItem: PropTypes.func.isRequired,
+      getItemDOMElement: PropTypes.func.isRequired,
+      getItemOrderedChildrenIds: PropTypes.func.isRequired,
+      getItemTree: PropTypes.func.isRequired,
       selectItem: PropTypes.func.isRequired,
+      setItemExpansion: PropTypes.func.isRequired,
     }),
   }),
-  /**
-   * If `true`, the fileExplorer view renders a checkbox at the left of its label that allows selecting it.
-   * @default false
-   */
-  checkboxSelection: PropTypes.bool,
   /**
    * Override or extend the styles applied to the component.
    */
   classes: PropTypes.object,
   className: PropTypes.string,
   /**
-   * Selected item ids. (Uncontrolled)
-   * When `multiSelect` is true this takes an array of strings; when false (default) a string.
-   * @default []
-   */
-  defaultSelectedItems: PropTypes.any,
-  /**
-   * If `true` selection is disabled.
-   * @default false
-   */
-  disableSelection: PropTypes.bool,
-  /**
    * Unstable features, breaking changes might be introduced.
    * For each feature, if the flag is not explicitly set to `true`,
    * the feature will be fully disabled and any property / method call will not have any effect.
    */
   experimentalFeatures: PropTypes.object,
-  /**
-   * If `true`, `ctrl` and `shift` will trigger multiselect.
-   * @default false
-   */
-  multiSelect: PropTypes.bool,
-  /**
-   * Callback fired when a fileExplorer item is selected or deselected.
-   * @param {React.SyntheticEvent} event The event source of the callback.
-   * @param {array} itemId The itemId of the modified item.
-   * @param {array} isSelected `true` if the item has just been selected, `false` if it has just been deselected.
-   */
-  onItemSelectionToggle: PropTypes.func,
-  /**
-   * Callback fired when fileExplorer items are selected/deselected.
-   * @param {React.SyntheticEvent} event The event source of the callback
-   * @param {string[] | string} itemIds The ids of the selected items.
-   * When `multiSelect` is `true`, this is an array of strings; when false (default) a string.
-   */
-  onSelectedItemsChange: PropTypes.func,
-  /**
-   * Selected item ids. (Controlled)
-   * When `multiSelect` is true this takes an array of strings; when false (default) a string.
-   */
-  selectedItems: PropTypes.any,
   /**
    * The props used for each component slot.
    * @default {}
@@ -296,4 +268,18 @@ Editor.propTypes = {
     PropTypes.func,
     PropTypes.object,
   ]),
+  tracks: PropTypes.arrayOf(
+    PropTypes.shape({
+      actions: PropTypes.arrayOf(PropTypes.object).isRequired,
+      classNames: PropTypes.arrayOf(PropTypes.string).isRequired,
+      hidden: PropTypes.bool.isRequired,
+      id: PropTypes.string.isRequired,
+      lock: PropTypes.bool.isRequired,
+      name: PropTypes.string.isRequired,
+      rowHeight: PropTypes.number.isRequired,
+      selected: PropTypes.bool.isRequired,
+    }),
+  ),
 } as any;
+
+export { Editor };

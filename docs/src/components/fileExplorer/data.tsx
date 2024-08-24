@@ -128,7 +128,7 @@ export const NestedFiles: FileBase[] = [
   }
 ];
 
-export function getDynamicFiles (): FileBase[] {
+export function getDynamicFiles (): readonly FileBase[] {
   return [
     {
       id: '1',

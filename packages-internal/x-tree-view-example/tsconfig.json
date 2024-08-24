@@ -1,5 +1,5 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../../tsconfig.x.json",
   "compilerOptions": {
     "types": [
       "@mui/internal-test-utils/initMatchers",

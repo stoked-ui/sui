@@ -440,18 +440,9 @@ module.exports = {
     },
     {
       files: ['packages/*/src/**/*{.ts,.tsx,.js}'],
-      excludedFiles: ['*.d.ts', '*.spec.ts', '*.spec.tsx', 'packages/mui-joy/**/*{.ts,.tsx,.js}'],
+      excludedFiles: ['*.d.ts', '*.spec.ts', '*.spec.tsx', '**/index{.ts,.tsx,.js}'],
       rules: {
-        'stoked-ui/sui-name-matches-component-name': [
-          'error',
-          {
-            customHooks: [
-              'useDatePickerDefaultizedProps',
-              'useDateTimePickerDefaultizedProps',
-              'useTimePickerDefaultizedProps',
-            ],
-          },
-        ],
+        'stoked-ui/sui-name-matches-component-name': 'error',
       },
     },
     {

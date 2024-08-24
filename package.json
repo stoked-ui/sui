@@ -1,9 +1,10 @@
 {
   "name": "@stoked-ui/monorepo",
-  "version": "0.1.0-alpha.4",
+  "version": "0.1.0-alpha.5",
   "private": true,
   "scripts": {
     "rebuild": "pnpm clean && pnpm clean && pnpm i && pnpm build && rm -rf docs/.next && pnpm docs:build",
+    "build:fresh": "sudo pkill -9 -f next && pnpm clean && pnpm i && pnpm build && pnpm docs:dev",
     "build:all": "lerna run build --skip-nx-cache",
     "preinstall": "npx only-allow pnpm",
     "build:site": "./scripts/buildSite.sh",

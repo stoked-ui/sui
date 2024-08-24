@@ -1,5 +1,7 @@
 import path from 'path';
-import { ProjectSettings, ComponentReactApi, HookReactApi } from '@stoked-ui/internal-api-docs-builder';
+import { ProjectSettings } from '@stoked-ui/internal-api-docs-builder';
+import { ReactApi as ComponentReactApi } from '@stoked-ui/internal-api-docs-builder/ApiBuilders/ComponentApiBuilder';
+import { ReactApi as HookReactApi } from '@stoked-ui/internal-api-docs-builder/ApiBuilders/HookApiBuilder';
 import findApiPages from '@stoked-ui/internal-api-docs-builder/utils/findApiPages';
 import generateUtilityClass, { isGlobalState } from '@mui/utils/generateUtilityClass';
 import { getHeaders, getTitle, renderMarkdown } from '@mui/internal-markdown';

@@ -241,10 +241,9 @@ export const EditorControls = React.forwardRef(function EditorControls<
             inputProps={{ 'aria-label': 'Play Rate' }}
             sx={(theme) => ({
               height: 40,
-              backgroundColor: '#fff',
+              backgroundColor: theme.palette.background.default,
               '& .MuiSelect-select': {
                 py: '4px',
-                background: theme.palette.background.default,
                 fontSize: 16,
               }}
             )}
