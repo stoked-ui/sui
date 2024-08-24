@@ -1,4 +1,4 @@
-import React, { useState, useContext, createContext, type ReactNode, ChangeEvent } from 'react';
+import * as React from 'react';
 import PropTypes from 'prop-types';
 import MediaData, { type IMediaData } from '../models/MediaData';
 import { type IVideoFile, VideoFile } from '../models/VideoFile';
@@ -6,11 +6,13 @@ import PosterFile, { type IPosterFile } from '../models/PosterFile';
 import MarkerFile, { type IMarkerFile } from '../models/MarkerFile';
 import MediaFile, { type IMediaFile } from '../models/MediaFile';
 import mime from 'mime';
-import { IdGenerator } from '../services/IdGenerator';
+// import IncGenerator from '../services/IncGenerator';
 import type { FileWithPath } from 'file-selector';
 import { fromEvent } from 'file-selector';
 import { FfmpegService } from '../services/Ffmpeg';
-const { fileId } = IdGenerator();
+import { useId } from 'react';
+
+// const [fileId] = IncGenerator('file');
 
 export type VisibleFile = {
   file?: IMediaFile | null;
@@ -34,11 +36,11 @@ class MediaContextType extends MediaData {
   }
 }
 
-const MediaContext = createContext<IMediaContextType | undefined>(undefined);
+const MediaContext = React.createContext<IMediaContextType | undefined>(undefined);
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const useMediaFileContext = (): IMediaContextType => {
-  const context = useContext(MediaContext);
+  const context = React.useContext(MediaContext);
   if (!context) {
     throw new Error('useEditorFiles must be used within an EditorFileProvider');
   }
@@ -46,7 +48,7 @@ export const useMediaFileContext = (): IMediaContextType => {
 };
 
 interface MediaProviderProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
 type AddPromiseFunc = {
@@ -67,7 +69,9 @@ type AddPromiseFunc = {
  */
 const MediaProvider: React.FC<MediaProviderProps> = (props: MediaProviderProps) => {
   const { ffmpegTools, loaded } = FfmpegService();
-  const [editorData, setEditorData] = useState<MediaContextType | null>(new MediaContextType());
+  const [editorData, setEditorData] = React.useState<MediaContextType | null>(
+    new MediaContextType(),
+  );
 
   if (!loaded) {
     return <p>loading ffmpeg</p>;
@@ -245,13 +249,13 @@ const MediaProvider: React.FC<MediaProviderProps> = (props: MediaProviderProps) 
         const poster = new PosterFile({
           src,
           ...file,
-          id: fileId(),
+          id: useId(),
           visible: false,
         });
         rveFiles.push(poster);
       } else {
         const newFile = new MediaFile({
-          id: fileId(),
+          id: useId(),
           file: file,
           src: URL.createObjectURL(file),
           name: file.name,
@@ -308,7 +312,7 @@ const MediaProvider: React.FC<MediaProviderProps> = (props: MediaProviderProps) 
    * @returns {Promise<void>}
    */
   const addFiles = async (
-    files: File[] | FileWithPath[] | FileList | ChangeEvent<HTMLInputElement>,
+    files: File[] | FileWithPath[] | FileList | React.ChangeEvent<HTMLInputElement>,
   ): Promise<void> => {
     if (!editorData) {
       return;
@@ -371,6 +375,6 @@ MediaProvider.propTypes = {
   // | To update them edit the TypeScript types and run "pnpm proptypes"  |
   // ----------------------------------------------------------------------
   children: PropTypes.node,
-} as any;
+};
 
 export { MediaProvider };

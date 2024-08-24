@@ -427,7 +427,7 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
         // The action can be executed and started
         if (action.end > time && !this._activeActionIds.includes(actionId)) {
           const actionType = this._actionTypes[action.effectId];
-          if (actionType && actionType?.enter) {
+          if (actionType && actionType?.enter && action?.data) {
             actionType.enter({action, time: this.getTime(), engine: this});
           }
 

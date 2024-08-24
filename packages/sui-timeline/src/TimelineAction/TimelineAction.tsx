@@ -1,27 +1,35 @@
 import * as React from 'react';
-import { alpha, styled, SxProps, Theme } from '@mui/material/styles';
+import PropTypes from 'prop-types';
+import { alpha, styled } from '@mui/material/styles';
+import composeClasses from '@mui/utils/composeClasses';
+import clsx from 'clsx';
+import useSlotProps from '@mui/utils/useSlotProps';
+import { shouldForwardProp } from '@mui/system/createStyled';
+import { blend } from '@mui/system';
 import { TimelineTrack } from '../interface/TimelineAction';
 import { DEFAULT_ADSORPTION_DISTANCE, DEFAULT_MOVE_GRID } from '../interface/const';
-import { getScaleCountByPixel, parserTimeToPixel, parserTimeToTransform, parserTransformToTime } from '../utils/deal_data';
-import { RowDnd } from '../components/row_rnd/row_rnd';
-import { RndDragCallback, RndDragEndCallback, RndDragStartCallback, RndResizeCallback, RndResizeEndCallback, RndResizeStartCallback, RowRndApi } from '../components/row_rnd/row_rnd_interface';
-import { getTimelineActionUtilityClass, TimelineActionClassKey} from "./timelineActionClasses";
-import { prefix } from '../utils/deal_class_prefix';
 import {
-  TimelineActionOwnerState,
-  TimelineActionProps,
-  TimelineActionState,
-  ITimelineActionType
-} from "./TimelineAction.types";
-import composeClasses from "@mui/utils/composeClasses";
-import clsx from "clsx";
-import useSlotProps from '@mui/utils/useSlotProps';
-import { shouldForwardProp } from "@mui/system/createStyled";
-import {blend} from "@mui/system";
+  getScaleCountByPixel,
+  parserTimeToPixel,
+  parserTimeToTransform,
+  parserTransformToTime,
+} from '../utils/deal_data';
+import { RowDnd } from '../components/row_rnd/row_rnd';
+import {
+  RndDragCallback,
+  RndDragEndCallback,
+  RndDragStartCallback,
+  RndResizeCallback,
+  RndResizeEndCallback,
+  RndResizeStartCallback,
+  RowRndApi,
+} from '../components/row_rnd/row_rnd_interface';
+import { getTimelineActionUtilityClass } from './timelineActionClasses';
+import { prefix } from '../utils/deal_class_prefix';
+import { TimelineActionOwnerState, TimelineActionProps } from './TimelineAction.types';
+import { TimelineEngine } from '../TimelineEngine/TimelineEngine';
 
-export const useActionUtilityClasses = (
-  ownerState: TimelineActionOwnerState
-) => {
+export const useActionUtilityClasses = (ownerState: TimelineActionOwnerState) => {
   const { classes } = ownerState;
 
   const slots = {
@@ -32,43 +40,41 @@ export const useActionUtilityClasses = (
     flexible: ['flexible'],
     movable: ['movable'],
     disable: ['disable'],
-
   };
 
   return composeClasses(slots, getTimelineActionUtilityClass, classes);
 };
 
-
-const Action = styled('div',{
+const Action = styled('div', {
   name: 'MuiTimelineAction',
   slot: 'root',
   overridesResolver: (props, styles) => styles.root,
-  shouldForwardProp: (prop) =>
-    shouldForwardProp(prop) && prop !== 'selected',
+  shouldForwardProp: (prop) => shouldForwardProp(prop) && prop !== 'selected',
 })<{
   selected: boolean;
   color: string;
-}>(({ theme, selected , color = 'blue'}) => {
+}>(({ theme, selected, color = 'blue' }) => {
   const base = theme.vars ? `rgba(color(from ${color}) / 1)` : alpha(color, 1);
   const unselected = blend('#FFF', base, 0.3);
-  const selectedColor =  blend('#FFF', base, 0.45);
-  const hover = blend('#FFF', base, 0.55);
+  const hover = blend('#FFF', base, 0.45);
+  const selectedColor = blend('#FFF', base, 0.75);
   const background = selected ? selectedColor : unselected;
   return {
-  position: 'absolute',
-  left: 0,
-  top: 0,
-  backgroundColor: background,
-  alignContent: 'center',
-  padding: '0 0 0 10px',
-  overflow: 'hidden',
-  textWrap: 'nowrap',
-  borderTop: `1px solid ${theme.palette.action.hover}`,
-  borderBottom: `1px solid ${theme.palette.action.hover}`,
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    backgroundColor: background,
+    alignContent: 'center',
+    padding: '0 0 0 10px',
+    overflow: 'hidden',
+    textWrap: 'nowrap',
+    borderTop: `1px solid ${theme.palette.action.hover}`,
+    borderBottom: `1px solid ${theme.palette.action.hover}`,
     '&:hover': {
       backgroundColor: hover,
-    }
-}})
+    },
+  };
+});
 
 const LeftStretch = styled('div')(({ theme }) => ({
   position: 'absolute',
@@ -116,19 +122,18 @@ const RightStretch = styled('div')(({ theme }) => ({
   },
 }));
 
-
-export default function TimelineAction(props: TimelineActionProps) {
-  const { slotProps = {}, action, ...restProps} = props;
-  const { selected, flexible = true, movable = true, disable} = action;
-  const state = { selected, flexible, movable, disable}
-  const ownerStateProps = { ...state, ...restProps, ...action};
+function TimelineAction(props: TimelineActionProps) {
+  const { slotProps = {}, action, ...restProps } = props;
+  const { selected, flexible = true, movable = true, disable } = action;
+  const state = { selected, flexible, movable, disable };
+  const ownerStateProps = { ...state, ...restProps, ...action };
   const { onKeyDown, ...ownerState } = ownerStateProps;
   const classes = useActionUtilityClasses(ownerState);
-  const classNamesNew = Object.keys(classes).reduce((result, key, val) => {
-      const classKey = classes[key];
-      result[classKey] = !!state[key]
-      return result;
-    }, {});
+  const classNamesNew = Object.keys(classes).reduce((result, key) => {
+    const classKey = classes[key];
+    result[classKey] = !!state[key];
+    return result;
+  }, {});
 
   const rootProps = useSlotProps({
     elementType: TimelineAction,
@@ -140,8 +145,18 @@ export default function TimelineAction(props: TimelineActionProps) {
 
   const rowRnd = React.useRef<RowRndApi>();
   const isDragWhenClick = React.useRef(false);
-  const { id, maxEnd, minStart, end, start,  effectId } = action;
-  const { track, scaleCount, setScaleCount, actionTypes, startLeft, scale, scaleWidth, maxScaleCount,scaleSplitCount } = props;
+  const { id, maxEnd, minStart, end, start, effectId } = action;
+  const {
+    track,
+    scaleCount,
+    setScaleCount,
+    actionTypes,
+    startLeft,
+    scale,
+    scaleWidth,
+    maxScaleCount,
+    scaleSplitCount,
+  } = props;
   // get the maximum minimum pixel range
   const leftLimit = parserTimeToPixel(minStart || 0, {
     startLeft,
@@ -200,7 +215,7 @@ export default function TimelineAction(props: TimelineActionProps) {
     }
   };
 
-  const { onActionMoveStart,onActionMoving } = props;
+  const { onActionMoveStart, onActionMoving } = props;
   const handleDragStart: RndDragStartCallback = () => {
     if (track.lock) {
       return;
@@ -216,7 +231,10 @@ export default function TimelineAction(props: TimelineActionProps) {
     isDragWhenClick.current = true;
 
     if (onActionMoving) {
-      const { start: dragStart, end: dragEnd } = parserTransformToTime({ left, width }, { scaleWidth, scale, startLeft });
+      const { start: dragStart, end: dragEnd } = parserTransformToTime(
+        { left, width },
+        { scaleWidth, scale, startLeft },
+      );
       const result = onActionMoving({ action, track, start: dragStart, end: dragEnd });
       if (result === false) {
         return;
@@ -232,7 +250,10 @@ export default function TimelineAction(props: TimelineActionProps) {
       return;
     }
     // Computation time
-    const { start: dragEndStart, end: dragEndEnd } = parserTransformToTime({ left, width }, { scaleWidth, scale, startLeft });
+    const { start: dragEndStart, end: dragEndEnd } = parserTransformToTime(
+      { left, width },
+      { scaleWidth, scale, startLeft },
+    );
 
     // setData
     const rowItem = tracks.find((item) => item.id === track.id);
@@ -264,8 +285,17 @@ export default function TimelineAction(props: TimelineActionProps) {
     }
     isDragWhenClick.current = true;
     if (onActionResizing) {
-      const { start: resizingStart, end: resizingEnd } = parserTransformToTime({ left, width }, { scaleWidth, scale, startLeft });
-      const result = onActionResizing({ action, track, start: resizingStart, end: resizingEnd, dir });
+      const { start: resizingStart, end: resizingEnd } = parserTransformToTime(
+        { left, width },
+        { scaleWidth, scale, startLeft },
+      );
+      const result = onActionResizing({
+        action,
+        track,
+        start: resizingStart,
+        end: resizingEnd,
+        dir,
+      });
       if (result === false) {
         return;
       }
@@ -279,7 +309,10 @@ export default function TimelineAction(props: TimelineActionProps) {
       return;
     }
     // calculatingTime
-    const { start: resizeEndStart, end: resizeEndEnd } = parserTransformToTime({ left, width }, { scaleWidth, scale, startLeft });
+    const { start: resizeEndStart, end: resizeEndEnd } = parserTransformToTime(
+      { left, width },
+      { scaleWidth, scale, startLeft },
+    );
 
     // Set data
     const rowItem = tracks.find((item) => item.id === track.id);
@@ -290,13 +323,22 @@ export default function TimelineAction(props: TimelineActionProps) {
 
     // triggerCallback
     if (onActionResizeEnd) {
-      onActionResizeEnd({ action: resizeEndAction, track, start: resizeEndStart, end: resizeEndEnd, dir });
+      onActionResizeEnd({
+        action: resizeEndAction,
+        track,
+        start: resizeEndStart,
+        end: resizeEndEnd,
+        dir,
+      });
     }
   };
 
   const nowAction = {
     ...action,
-    ...parserTransformToTime({ left: transform.left, width: transform.width }, { startLeft, scaleWidth, scale }),
+    ...parserTransformToTime(
+      { left: transform.left, width: transform.width },
+      { startLeft, scaleWidth, scale },
+    ),
   };
 
   const nowRow: TimelineTrack = {
@@ -307,7 +349,20 @@ export default function TimelineAction(props: TimelineActionProps) {
     nowRow.actions[track.actions.indexOf(action)] = nowAction;
   }
 
-  const { areaRef, gridSnap, dragLineData, disableDrag, deltaScrollLeft, onClickAction, handleTime, onClickActionOnly, onDoubleClickAction, onContextMenuAction, rowHeight, getActionRender } = props;
+  const {
+    areaRef,
+    gridSnap,
+    dragLineData,
+    disableDrag,
+    deltaScrollLeft,
+    onClickAction,
+    handleTime,
+    onClickActionOnly,
+    onDoubleClickAction,
+    onContextMenuAction,
+    rowHeight,
+    getActionRender,
+  } = props;
   return (
     <RowDnd
       ref={rowRnd}
@@ -315,9 +370,12 @@ export default function TimelineAction(props: TimelineActionProps) {
       start={startLeft}
       left={transform.left}
       width={transform.width}
-
       grid={(gridSnap && gridSize) || DEFAULT_MOVE_GRID}
-      adsorptionDistance={gridSnap ? Math.max((gridSize || DEFAULT_MOVE_GRID) / 2, DEFAULT_ADSORPTION_DISTANCE) : DEFAULT_ADSORPTION_DISTANCE}
+      adsorptionDistance={
+        gridSnap
+          ? Math.max((gridSize || DEFAULT_MOVE_GRID) / 2, DEFAULT_ADSORPTION_DISTANCE)
+          : DEFAULT_ADSORPTION_DISTANCE
+      }
       adsorptionPositions={dragLineData.assistPositions}
       bounds={{
         left: leftLimit,
@@ -339,10 +397,9 @@ export default function TimelineAction(props: TimelineActionProps) {
     >
       <Action
         id={action.id}
-        role={'action'}
+        {...rootProps}
         onKeyDown={(event: any) => {
           event.currentTarget = action;
-          console.log('action key press')
           action.onKeyDown(event, action.id);
           event.preventDefault();
         }}
@@ -363,7 +420,6 @@ export default function TimelineAction(props: TimelineActionProps) {
             onClickAction(e, { track, action, time });
           }
           if (!isDragWhenClick.current && onClickActionOnly) {
-
             if (!time) {
               time = handleTime(e);
             }
@@ -399,4 +455,355 @@ export default function TimelineAction(props: TimelineActionProps) {
       </Action>
     </RowDnd>
   );
-};
+}
+
+TimelineAction.propTypes = {
+  // ----------------------------- Warning --------------------------------
+  // | These PropTypes are generated from the TypeScript type definitions |
+  // | To update them edit the TypeScript types and run "pnpm proptypes"  |
+  // ----------------------------------------------------------------------
+  action: PropTypes.shape({
+    data: PropTypes.shape({
+      src: PropTypes.string.isRequired,
+      style: PropTypes.object.isRequired,
+    }).isRequired,
+    disable: PropTypes.bool.isRequired,
+    effectId: PropTypes.string.isRequired,
+    end: PropTypes.number.isRequired,
+    flexible: PropTypes.bool.isRequired,
+    id: PropTypes.string.isRequired,
+    maxEnd: PropTypes.number.isRequired,
+    minStart: PropTypes.number.isRequired,
+    movable: PropTypes.bool.isRequired,
+    name: PropTypes.string.isRequired,
+    onKeyDown: PropTypes.func.isRequired,
+    selected: PropTypes.bool.isRequired,
+    start: PropTypes.number.isRequired,
+  }).isRequired,
+  /**
+   * @description timelineControl action actionType map
+   */
+  actionTypes: PropTypes.object.isRequired,
+  areaRef: PropTypes.shape({
+    current: PropTypes.object.isRequired,
+  }).isRequired,
+  /**
+   * The content of the component.
+   */
+  children: PropTypes.node,
+  classes: PropTypes.object.isRequired,
+  className: PropTypes.string.isRequired,
+  /**
+   * Cursor time
+   */
+  cursorTime: PropTypes.number.isRequired,
+  deltaScrollLeft: PropTypes.func.isRequired,
+  /**
+   * Whether the action is prohibited from running
+   */
+  disable: PropTypes.bool.isRequired,
+  /**
+   * @description Disable dragging of all action areas
+   * @default false
+   */
+  disableDrag: PropTypes.bool.isRequired,
+  /**
+   * @description Start dragging auxiliary line adsorption
+   * @default false
+   */
+  dragLine: PropTypes.bool.isRequired,
+  dragLineData: PropTypes.shape({
+    assistPositions: PropTypes.arrayOf(PropTypes.number).isRequired,
+    isMoving: PropTypes.bool.isRequired,
+    movePositions: PropTypes.arrayOf(PropTypes.number).isRequired,
+  }).isRequired,
+  /**
+   * @description timelineControl runner, if not passed, the built-in runner will be used
+   */
+  engine: PropTypes.shape({
+    current: PropTypes.shape({
+      actionTypes: PropTypes.object.isRequired,
+      bind: PropTypes.func.isRequired,
+      canvas: PropTypes.object.isRequired,
+      events: PropTypes.object.isRequired,
+      exist: PropTypes.func.isRequired,
+      getAction: PropTypes.func.isRequired,
+      getActionTrack: PropTypes.func.isRequired,
+      getPlayRate: PropTypes.func.isRequired,
+      getSelectedActions: PropTypes.func.isRequired,
+      getTime: PropTypes.func.isRequired,
+      isPaused: PropTypes.bool.isRequired,
+      isPlaying: PropTypes.bool.isRequired,
+      off: PropTypes.func.isRequired,
+      offAll: PropTypes.func.isRequired,
+      on: PropTypes.func.isRequired,
+      pause: PropTypes.func.isRequired,
+      play: PropTypes.func.isRequired,
+      reRender: PropTypes.func.isRequired,
+      setPlayRate: PropTypes.func.isRequired,
+      setTime: PropTypes.func.isRequired,
+      tracks: PropTypes.arrayOf(
+        PropTypes.shape({
+          actions: PropTypes.arrayOf(PropTypes.object).isRequired,
+          classNames: PropTypes.arrayOf(PropTypes.string).isRequired,
+          hidden: PropTypes.bool.isRequired,
+          id: PropTypes.string.isRequired,
+          lock: PropTypes.bool.isRequired,
+          name: PropTypes.string.isRequired,
+          rowHeight: PropTypes.number.isRequired,
+          selected: PropTypes.bool.isRequired,
+        }),
+      ).isRequired,
+      trigger: PropTypes.func.isRequired,
+      viewer: function (props, propName) {
+        if (props[propName] == null) {
+          return new Error(`Prop ${propName} is required but wasn't specified`);
+        } else if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
+          return new Error("Expected prop '" + propName + "' to be of type Element");
+        }
+      },
+    }).isRequired,
+  }).isRequired,
+  /**
+   * Whether the action is scalable
+   */
+  flexible: PropTypes.bool.isRequired,
+  /**
+   * @description Custom action area rendering
+   */
+  getActionRender: PropTypes.func.isRequired,
+  /**
+   * @description Get the action id list to prompt the auxiliary line. Calculate it when move/resize start. By default, get all the action ids except the current move action.
+   */
+  getAssistDragLineActionIds: PropTypes.func.isRequired,
+  /**
+   * @description Custom scale rendering
+   */
+  getScaleRender: PropTypes.func.isRequired,
+  /**
+   * @description Whether to enable grid movement adsorption
+   * @default false
+   */
+  gridSnap: PropTypes.bool.isRequired,
+  handleTime: PropTypes.func.isRequired,
+  /**
+   * @description whether to hide the cursor
+   * @default false
+   */
+  hideCursor: PropTypes.bool.isRequired,
+  /**
+   * @description Maximum number of scales (>=minScaleCount)
+   * @default Infinity
+   */
+  maxScaleCount: PropTypes.number.isRequired,
+  /**
+   * @description Minimum number of ticks (>=1)
+   * @default 20
+   */
+  minScaleCount: PropTypes.number.isRequired,
+  /**
+   * Whether the action is movable
+   */
+  movable: PropTypes.bool.isRequired,
+  /**
+   * @description Move end callback (return false to prevent onChange from triggering)
+   */
+  onActionMoveEnd: PropTypes.func.isRequired,
+  /**
+   * @description Start moving callback
+   */
+  onActionMoveStart: PropTypes.func.isRequired,
+  /**
+   * @description Move callback (return false to prevent movement)
+   */
+  onActionMoving: PropTypes.func.isRequired,
+  /**
+   * @description size change end callback (return false to prevent onChange from triggering)
+   */
+  onActionResizeEnd: PropTypes.func.isRequired,
+  /**
+   * @description Start changing the size callback
+   */
+  onActionResizeStart: PropTypes.func.isRequired,
+  /**
+   * @description Start size callback (return false to prevent changes)
+   */
+  onActionResizing: PropTypes.func.isRequired,
+  /**
+   * @description click action callback
+   */
+  onClickAction: PropTypes.func.isRequired,
+  /**
+   * @description Click action callback (not executed when drag is triggered)
+   */
+  onClickActionOnly: PropTypes.func.isRequired,
+  /**
+   * @description Click track callback
+   */
+  onClickRow: PropTypes.func.isRequired,
+  /**
+   * @description Click time area event, prevent setting time when returning false
+   */
+  onClickTimeArea: PropTypes.func.isRequired,
+  /**
+   * @description Right-click action callback
+   */
+  onContextMenuAction: PropTypes.func.isRequired,
+  /**
+   * @description Right-click track callback
+   */
+  onContextMenuRow: PropTypes.func.isRequired,
+  /**
+   * @description cursor drag event
+   */
+  onCursorDrag: PropTypes.func.isRequired,
+  /**
+   * @description cursor ends drag event
+   */
+  onCursorDragEnd: PropTypes.func.isRequired,
+  /**
+   * @description cursor starts drag event
+   */
+  onCursorDragStart: PropTypes.func.isRequired,
+  /**
+   * @description Double-click action callback
+   */
+  onDoubleClickAction: PropTypes.func.isRequired,
+  /**
+   * @description Double-click track callback
+   */
+  onDoubleClickRow: PropTypes.func.isRequired,
+  /**
+   * @description Default height of each edit line (>0, unit: px)
+   * @default 32
+   */
+  rowHeight: PropTypes.number.isRequired,
+  /**
+   * @description Single tick mark category (>0)
+   * @default 1
+   */
+  scale: PropTypes.number.isRequired,
+  /**
+   * Number of scales
+   */
+  scaleCount: PropTypes.number.isRequired,
+  /**
+   * @description Number of single scale subdivision units (>0 integer)
+   * @default 10
+   */
+  scaleSplitCount: PropTypes.number.isRequired,
+  /**
+   * @description Display width of a single scale (>0, unit: px)
+   * @default 160
+   */
+  scaleWidth: PropTypes.number.isRequired,
+  /**
+   * Whether the action is selected
+   */
+  selected: PropTypes.bool.isRequired,
+  setEditorData: PropTypes.func.isRequired,
+  /**
+   * Set the number of scales
+   */
+  setScaleCount: PropTypes.func.isRequired,
+  /**
+   * The props used for each component slot.
+   */
+  slotProps: PropTypes.object.isRequired,
+  /**
+   * Overridable component slots.
+   */
+  slots: PropTypes.object.isRequired,
+  /**
+   * @description The distance from the start of the scale to the left (>=0, unit: px)
+   * @default 20
+   */
+  startLeft: PropTypes.number.isRequired,
+  /**
+   * The system prop that allows defining system overrides as well as additional CSS styles.
+   */
+  sx: PropTypes.oneOfType([
+    PropTypes.arrayOf(
+      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]).isRequired,
+    ),
+    PropTypes.func,
+    PropTypes.object,
+  ]).isRequired,
+  /**
+   * Current timeline width
+   */
+  timelineWidth: PropTypes.number.isRequired,
+  track: PropTypes.shape({
+    actions: PropTypes.arrayOf(
+      PropTypes.shape({
+        data: PropTypes.shape({
+          src: PropTypes.string.isRequired,
+          style: PropTypes.object.isRequired,
+        }).isRequired,
+        disable: PropTypes.bool.isRequired,
+        effectId: PropTypes.string.isRequired,
+        end: PropTypes.number.isRequired,
+        flexible: PropTypes.bool.isRequired,
+        id: PropTypes.string.isRequired,
+        maxEnd: PropTypes.number.isRequired,
+        minStart: PropTypes.number.isRequired,
+        movable: PropTypes.bool.isRequired,
+        name: PropTypes.string.isRequired,
+        onKeyDown: PropTypes.func.isRequired,
+        selected: PropTypes.bool.isRequired,
+        start: PropTypes.number.isRequired,
+      }),
+    ).isRequired,
+    classNames: PropTypes.arrayOf(PropTypes.string).isRequired,
+    hidden: PropTypes.bool.isRequired,
+    id: PropTypes.string.isRequired,
+    lock: PropTypes.bool.isRequired,
+    name: PropTypes.string.isRequired,
+    rowHeight: PropTypes.number.isRequired,
+    selected: PropTypes.bool.isRequired,
+  }).isRequired,
+  /**
+   * @description TimelineControl editing data
+   */
+  tracks: PropTypes.arrayOf(
+    PropTypes.shape({
+      actions: PropTypes.arrayOf(
+        PropTypes.shape({
+          data: PropTypes.shape({
+            src: PropTypes.string.isRequired,
+            style: PropTypes.object.isRequired,
+          }).isRequired,
+          disable: PropTypes.bool.isRequired,
+          effectId: PropTypes.string.isRequired,
+          end: PropTypes.number.isRequired,
+          flexible: PropTypes.bool.isRequired,
+          id: PropTypes.string.isRequired,
+          maxEnd: PropTypes.number.isRequired,
+          minStart: PropTypes.number.isRequired,
+          movable: PropTypes.bool.isRequired,
+          name: PropTypes.string.isRequired,
+          onKeyDown: PropTypes.func.isRequired,
+          selected: PropTypes.bool.isRequired,
+          start: PropTypes.number.isRequired,
+        }),
+      ).isRequired,
+      classNames: PropTypes.arrayOf(PropTypes.string).isRequired,
+      hidden: PropTypes.bool.isRequired,
+      id: PropTypes.string.isRequired,
+      lock: PropTypes.bool.isRequired,
+      name: PropTypes.string.isRequired,
+      rowHeight: PropTypes.number.isRequired,
+      selected: PropTypes.bool.isRequired,
+    }),
+  ).isRequired,
+  trackSx: PropTypes.oneOfType([
+    PropTypes.arrayOf(
+      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]).isRequired,
+    ),
+    PropTypes.func,
+    PropTypes.object,
+  ]).isRequired,
+  viewSelector: PropTypes.string.isRequired,
+} as any;
+
+export default TimelineAction;

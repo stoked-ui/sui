@@ -1,5 +1,7 @@
-import { IdGenerator } from "../services/IdGenerator";
-const { fileId } = IdGenerator();
+import {useId} from "react";
+
+// import IncGenerator from "../services/IncGenerator";
+// const [mediaId]  = IncGenerator('media');
 
 /**
  * @description Base interface for an editor file
@@ -43,7 +45,7 @@ export default class MediaFile implements IMediaFile {
 	visible = false;
 
 	constructor(params: IMediaFile) {
-		this.id = params.id || fileId();
+		this.id = params.id || useId();
 		this.file = params.file;
 		this.src = params.src;
 		this.name = params.name;

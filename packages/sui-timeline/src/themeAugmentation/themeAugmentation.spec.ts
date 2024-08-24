@@ -1,58 +1,28 @@
 import { createTheme } from '@mui/material/styles';
-import { fileClasses } from '../File';
-import { fileExplorerClasses } from '../FileExplorer';
-import { fileExplorerBasicClasses } from '../FileExplorerBasic';
-import { fileElementClasses } from '../FileElement';
+import { timelineClasses } from '../Timeline';
+import { timelineActionClasses } from '../TimelineAction';
 
 createTheme({
   components: {
-    MuiFileExplorerBasic: {
+    MuiTimeline: {
       defaultProps: {
-        defaultExpandedItems: ['root'],
       },
       styleOverrides: {
         root: {
           backgroundColor: 'red',
-          [`.${fileExplorerBasicClasses.root}`]: {
+          [`.${timelineClasses.root}`]: {
             backgroundColor: 'green',
           },
         },
       },
     },
-    MuiFileExplorer: {
+    MuiTimelineAction: {
       defaultProps: {
-        defaultExpandedItems: ['root'],
       },
       styleOverrides: {
         root: {
           backgroundColor: 'red',
-          [`.${fileExplorerClasses.root}`]: {
-            backgroundColor: 'green',
-          },
-        },
-      },
-    },
-    MuiFileElement: {
-      defaultProps: {
-        itemId: '1',
-      },
-      styleOverrides: {
-        root: {
-          backgroundColor: 'red',
-          [`.${fileElementClasses.content}`]: {
-            backgroundColor: 'green',
-          },
-        },
-      },
-    },
-    MuiFile: {
-      defaultProps: {
-        itemId: '1',
-      },
-      styleOverrides: {
-        root: {
-          backgroundColor: 'red',
-          [`.${fileClasses.content}`]: {
+          [`.${timelineActionClasses.root}`]: {
             backgroundColor: 'green',
           },
         },

@@ -29,6 +29,10 @@ class VideoControl implements ITimelineActionType {
   enter(params: TimelineActionParams) {
     const { action, time, engine} = params;
 
+    if (!action.data) {
+      return;
+    }
+
     const track = engine.getActionTrack(action.id);
 
     let item: HTMLVideoElement;

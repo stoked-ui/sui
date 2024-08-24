@@ -4,8 +4,13 @@ import { SxProps, Theme } from "@mui/material/styles";
 import { ITimelineEngine } from '../TimelineEngine/TimelineEngine';
 import { TimelineTrack } from '../interface/TimelineAction';
 import { ITimelineAction, ITimelineActionType } from '../TimelineAction/TimelineAction.types';
+import {TimelineState} from "../Timeline/TimelineState";
 export * from '../interface/TimelineAction';
 export * from '../TimelineAction/TimelineAction.types';
+
+export type TimelineControlComponent = ((
+  props: TimelineControlProps & TimelineState,
+) => React.JSX.Element) & { propTypes?: any };
 
 export interface EditData {
   /**
@@ -74,7 +79,7 @@ export interface EditData {
   /**
    * @description timelineControl runner, if not passed, the built-in runner will be used
    */
-  engine?: ITimelineEngine;
+  engine?: React.RefObject<ITimelineEngine>;
   /**
    * @description Custom action area rendering
    */
@@ -212,7 +217,7 @@ export interface EditData {
 /**
  * Animation editor parameters
  * @export
- * @interface TimelineControlProp
+ * @interface TimelineControlProps
  */
 export interface TimelineControlProps extends EditData {
   /**

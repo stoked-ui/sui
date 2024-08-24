@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { SlotComponentProps } from '@mui/base/utils';
+import { Theme, SxProps } from '@mui/material/styles'
 import { UseFileStatus } from '../models/UseFileStatus';
 
 export interface FileIconSlots {
@@ -42,4 +43,6 @@ export interface FileIconProps {
   slotProps?: FileIconSlotProps
 
   iconName?: 'collapseIcon' | 'expandIcon' | 'endIcon' | 'icon';
+
+  sx?: SxProps<Theme>;
 }

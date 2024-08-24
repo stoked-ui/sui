@@ -1,5 +1,5 @@
-import { TimelineClassKey } from '../Timeline/timelineClasses';
-import { TimelineActionClassKey } from "../TimelineAction/timelineActionClasses";
+import { TimelineClassKey } from '../Timeline';
+import { TimelineActionClassKey } from "../TimelineAction";
 
 // prettier-ignore
 export interface TimelineComponentNameToClassKey {

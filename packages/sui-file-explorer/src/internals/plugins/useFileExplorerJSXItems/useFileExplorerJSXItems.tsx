@@ -123,7 +123,7 @@ const useFileExplorerJSXItemsItemPlugin: FilePlugin = ({
 }) => {
   const { instance } = useFileExplorerContext<[UseFileExplorerGridSignature, UseFileExplorerJSXItemsSignature]>();
   const { children, disabled = false, label: initialLabel, itemId: initialItemId, id: initialId, name } = props;
-  const id = initialId ?? initialItemId ?? initialLabel ?? name ?? IdGenerator().fileId();
+  const id = initialId ?? initialItemId ?? initialLabel ?? name ?? IdGenerator().id('file', 4);
   const itemId = initialItemId ?? id;
   const label = initialLabel ?? id;
 

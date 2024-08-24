@@ -604,7 +604,7 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
           const { self } = dropEvent;
           const files = filesWithPaths.map((file): FileBase => {
             const idGenerator = IdGenerator();
-            const newId = idGenerator.fileId()
+            const newId = idGenerator.id('file',4)
             return ({
               type: 'image',
               id: newId,

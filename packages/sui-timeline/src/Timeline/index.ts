@@ -1,2 +1,4 @@
-export { default as Timeline } from './Timeline';
-export * from './Timeline.types'
+export * from './Timeline';
+export * from './Timeline.types';
+export * from './timelineClasses';
+

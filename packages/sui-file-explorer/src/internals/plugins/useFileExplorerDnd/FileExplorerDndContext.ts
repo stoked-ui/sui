@@ -85,7 +85,7 @@ export const fileExplorer = {
     });
   },
   find<R extends FileBase>(items: R[], itemId: string): R | undefined {
-     
+
     for (let i = 0; i < items.length; i += 1){
       const item = items[i];
       if (item.id === itemId) {
@@ -116,7 +116,7 @@ export const fileExplorer = {
             if (pathItem !== undefined) {
               target = pathItem as R;
             } else {
-              const newId = idGenerator.fileId();
+              const newId = idGenerator.id('file',5);
               const newPath = {
                 id: newId,
                 itemId: newId,

@@ -4,11 +4,11 @@ import clsx from 'clsx';
 import Collapse from '@mui/material/Collapse';
 import { resolveComponentProps, useSlotProps } from '@mui/base/utils';
 import useForkRef from '@mui/utils/useForkRef';
+import unsupportedProp from '@mui/utils/unsupportedProp';
+import elementTypeAcceptingRef from '@mui/utils/elementTypeAcceptingRef';
 import { alpha, styled, useThemeProps } from '@mui/material/styles';
 import { shouldForwardProp } from '@mui/system/createStyled';
 import { TransitionProps } from '@mui/material/transitions';
-import unsupportedProp from '@mui/utils/unsupportedProp';
-import elementTypeAcceptingRef from '@mui/utils/elementTypeAcceptingRef';
 import { unstable_composeClasses as composeClasses } from '@mui/base';
 import { IdGenerator } from '@stoked-ui/media-selector';
 import { FileElementContent } from './FileElementContent';
@@ -212,7 +212,7 @@ export const FileElement = React.forwardRef(function FileElement(
     ...other
   } = props;
 
-  const itemId: string = props.itemId ?? props.id ?? name ?? IdGenerator().fileId();
+  const itemId: string = props.itemId ?? props.id ?? name ?? IdGenerator().id('file-element', 6);
   const label: React.ReactNode = props.label ?? name ?? itemId ?? props.id;
   const id = itemId;
 
@@ -427,7 +427,7 @@ FileElement.propTypes = {
   className: PropTypes.string,
   /**
    * The component used to render the content of the item.
-   * @default FileElementContent
+   * @default TreeItemContent
    */
   ContentComponent: elementTypeAcceptingRef,
   /**

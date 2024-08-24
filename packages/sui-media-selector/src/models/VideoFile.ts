@@ -1,9 +1,10 @@
 import MediaFile, { IMediaFile } from './MediaFile';
 import { ReactElement } from 'react';
 import mime from 'mime';
-import { IdGenerator } from '../services/IdGenerator';
+import {useId} from "react";
+//import IncGenerator from '../services/IncGenerator';
 
-const { fileId } = IdGenerator();
+//const [videoId] = IncGenerator('video');
 export interface IVideoFile extends IMediaFile {
   duration: number;
   width?: number;
@@ -55,7 +56,7 @@ export class VideoFile extends MediaFile implements IVideoFile {
     const src: string = URL.createObjectURL(file);
     console.log('video src', src);
     return new VideoFile({
-      id: fileId(),
+      id: useId(),
       duration: -1,
       file: file,
       src: src,

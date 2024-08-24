@@ -12,7 +12,8 @@ export interface GeneratePropTypesOptions {
    */
   disablePropTypesTypeChecking?: boolean;
   /**
-   * Set to true if you want to make sure `babel-plugin-transform-react-remove-prop-types` recognizes the generated .propTypes.
+   * Set to true if you want to make sure `babel-plugin-transform-react-remove-prop-types`
+   * recognizes the generated .propTypes.
    */
   ensureBabelPluginTransformReactRemovePropTypesIntegration?: boolean;
   /**
@@ -114,6 +115,8 @@ export function generatePropTypes(
     getSortLiteralUnions = () => defaultSortLiteralUnions,
   } = options;
 
+  //console.log(component.name, component.types.map((type) => `\n - ${type.name}`).join(''));
+
   function jsDoc(documentedNode: PropTypeDefinition | LiteralType): string {
     if (!includeJSDoc || !documentedNode.jsDoc) {
       return '';
@@ -127,7 +130,9 @@ export function generatePropTypes(
     propType: PropType,
     context: { component: PropTypesComponent; propTypeDefinition: PropTypeDefinition },
   ): string {
+
     if (propType.type === 'InterfaceNode') {
+
       return `${importedName}.shape({\n${propType.types
         .slice()
         .sort((a, b) => a[0].localeCompare(b[0]))
@@ -136,13 +141,13 @@ export function generatePropTypes(
           if (name !== 'children') {
             regex = /^(UnionNode|DOMElementNode|ElementNode)$/;
           }
-          console.log('name', context.component.name, name)
           return `"${name}": ${generatePropType(type, context)}${
             !type.type.match(regex) ? '.isRequired' : ''
           }`;
         })
         .join(',\n')}\n})`;
     }
+
 
     if (propType.type === 'FunctionNode') {
       return `${importedName}.func`;
@@ -192,7 +197,7 @@ export function generatePropTypes(
 				return ${
           propType.optional
             ? 'null'
-            : `new Error("Prop '" + propName + "' is required but wasn't specified")`
+            : `new Error(\`Prop \${propName} is required but wasn't specified\`)`
         }
 			} else if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
 				return new Error("Expected prop '" + propName + "' to be of type Element")
@@ -214,6 +219,7 @@ export function generatePropTypes(
         (type) =>
           type.type === 'UndefinedNode' || (type.type === 'LiteralNode' && type.value === 'null'),
       );
+
       const nonNullishUniqueTypes = uniqueTypes.filter((type) => {
         return (
           type.type !== 'UndefinedNode' && !(type.type === 'LiteralNode' && type.value === 'null')
@@ -295,6 +301,10 @@ export function generatePropTypes(
       // union generator decides
       isRequired = undefined;
     }
+    if (['File', 'Timeline'].includes(component.name)) {
+      // console.log( '  -',  propTypeDefinition.name, propTypeDefinition.propType.type,
+      // isRequired);
+    }
 
     const validatorSource = reconcilePropTypes(
       propTypeDefinition,
@@ -305,6 +315,7 @@ export function generatePropTypes(
       })}${isRequired === true ? '.isRequired' : ''}`,
     );
 
+    // console.log('validator', validatorSource)
     return `${jsDoc(propTypeDefinition)}"${propTypeDefinition.name}": ${validatorSource},`;
   }
 
@@ -325,9 +336,29 @@ export function generatePropTypes(
     return '';
   }
 
+  if (['File', 'Timeline'].includes(component.name)) {
+    console.log(component.name);
+    filteredNodes.forEach((type) => {
+      let isRequired: any = true;
+      if (type.propType.type === 'DOMElementNode') {
+        // DOMElement generator decides
+        isRequired = undefined;
+      } else if (type.propType.type === 'UnionNode') {
+        // union generator decides
+        isRequired = undefined;
+      }
+      console.log('  -', `${type.name}${isRequired ? `.isRequired()` : ''}`)
+    })
+  }
+
   const generated = filteredNodes
     .map((prop) => generatePropTypeDefinition(prop, { component }))
     .reduce((prev, curr) => `${prev}\n${curr}`);
+
+  if (['File', 'Timeline'].includes(component.name)) {
+    console.log(' -------- ', component.name);
+  }
+
   if (generated.length === 0) {
     return '';
   }

@@ -3,21 +3,15 @@ import { Theme } from '@mui/material/styles';
 import { SlotComponentProps } from '@mui/base/utils';
 import { TransitionProps } from '@mui/material/transitions';
 import { SxProps } from '@mui/system';
-import { FileElementContentProps } from './FileElementContent';
 import { FileElementClasses } from './fileElementClasses';
 import { FileId } from '../models';
 import { SlotComponentPropsFromProps } from '../internals/models';
 import { MuiCancellableEventHandler } from '../internals/models/MuiCancellableEvent';
-import type { UseFileExplorerIconsSignature } from '../internals/plugins/useFileExplorerIcons/useFileExplorerIcons.types';
-import type { UseFileExplorerSelectionSignature } from '../internals/plugins/useFileExplorerSelection/useFileExplorerSelection.types';
-import type { UseFileExplorerFilesSignature } from '../internals/plugins/useFileExplorerFiles/useFileExplorerFiles.types';
-import type { UseFileExplorerFocusSignature } from '../internals/plugins/useFileExplorerFocus/useFileExplorerFocus.types';
-import type { UseFileExplorerExpansionSignature } from '../internals/plugins/useFileExplorerExpansion/useFileExplorerExpansion.types';
-import type {
-  UseFileExplorerKeyboardNavigationSignature
-} from '../internals/plugins/useFileExplorerKeyboardNavigation';
+import type { UseFileExplorerKeyboardNavigationSignature, UseFileExplorerFilesSignature, UseFileExplorerIconsSignature, UseFileExplorerSelectionSignature, UseFileExplorerFocusSignature, UseFileExplorerExpansionSignature } from '../internals';
+import {FileElementContentProps} from "./FileElementContent";
 
 export interface FileElementSlots {
+  root?: React.ElementType;
   /**
    * The icon used to collapse the item.
    */
@@ -42,6 +36,7 @@ export interface FileElementSlots {
 }
 
 export interface FileElementSlotProps {
+  root?: SlotComponentProps<'div', {}, {}>;
   collapseIcon?: SlotComponentProps<'svg', {}, {}>;
   expandIcon?: SlotComponentProps<'svg', {}, {}>;
   endIcon?: SlotComponentProps<'svg', {}, {}>;
@@ -49,7 +44,8 @@ export interface FileElementSlotProps {
   groupTransition?: SlotComponentPropsFromProps<TransitionProps, {}, {}>;
 }
 
-export interface FileElementProps extends Omit<React.HTMLAttributes<HTMLLIElement>, 'onFocus'> {
+export interface FileElementProps
+  extends Omit<React.HTMLAttributes<HTMLLIElement>, 'onFocus'> {
   /**
    * The content of the component.
    */
@@ -71,7 +67,7 @@ export interface FileElementProps extends Omit<React.HTMLAttributes<HTMLLIElemen
   slotProps?: FileElementSlotProps;
   /**
    * The component used to render the content of the item.
-   * @default FileElementContent
+   * @default TreeItemContent
    */
   ContentComponent?: React.JSXElementConstructor<FileElementContentProps>;
   /**
@@ -84,11 +80,6 @@ export interface FileElementProps extends Omit<React.HTMLAttributes<HTMLLIElemen
    */
   disabled?: boolean;
   /**
-   * This prop isn't supported.
-   * Use the `onItemFocus` callback on the tree if you need to monitor a item's focus.
-   */
-  onFocus?: null;
-  /**
    * The tree item label.
    */
   name?: string;
@@ -100,6 +91,8 @@ export interface FileElementProps extends Omit<React.HTMLAttributes<HTMLLIElemen
    * The id of the item.
    */
   itemId?: FileId;
+
+  onFocus?: null;
   /**
    * The system prop that allows defining system overrides as well as additional CSS styles.
    */

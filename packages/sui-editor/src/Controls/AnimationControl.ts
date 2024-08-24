@@ -25,7 +25,7 @@ class AnimationControl implements ITimelineActionType {
 
   enter(params: TimelineActionParams) {
     const { action, engine, time } = params;
-    if (!engine.isPlaying) {
+    if (!engine.isPlaying || !action.data) {
       return;
     }
     let item: AnimationItem;

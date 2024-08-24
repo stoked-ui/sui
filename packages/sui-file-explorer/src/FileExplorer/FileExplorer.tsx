@@ -88,7 +88,7 @@ const FileExplorer = React.forwardRef(function FileExplorer<
   Multiple extends boolean | undefined = undefined,
 >(inProps: FileExplorerProps<R, Multiple>, ref: React.Ref<HTMLUListElement>) {
   const props = useThemeProps({ props: inProps, name: 'MuiFileExplorer' });
-
+  console.log('props.items', props.items);
   if (process.env.NODE_ENV !== 'production') {
     if ((props as any).children != null) {
       childrenWarning();
@@ -327,7 +327,7 @@ FileExplorer.propTypes = {
       type: PropTypes.oneOf(['doc', 'file', 'folder', 'image', 'pdf', 'trash', 'video']),
       visibleIndex: PropTypes.number,
     }),
-  ),
+  ).isRequired,
   /**
    * If `true`, `ctrl` and `shift` will trigger multiselect.
    * @default false
@@ -390,6 +390,6 @@ FileExplorer.propTypes = {
     PropTypes.func,
     PropTypes.object,
   ]),
-} as any;
+};
 
 export { FileExplorer };

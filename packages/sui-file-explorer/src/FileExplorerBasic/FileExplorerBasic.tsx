@@ -263,6 +263,6 @@ FileExplorerBasic.propTypes = {
     PropTypes.func,
     PropTypes.object,
   ]),
-} as any;
+};
 
 export { FileExplorerBasic };

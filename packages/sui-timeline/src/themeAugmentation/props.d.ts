@@ -1,5 +1,5 @@
-import { TimelineProps } from '../Timeline/Timeline.types';
-import { TimelineActionProps } from "../TimelineAction/TimelineAction.types";
+import { TimelineProps } from '../Timeline';
+import { TimelineActionProps } from "../TimelineAction";
 
 export interface TimelineComponentsPropsList {
   MuiTimeline: TimelineProps;

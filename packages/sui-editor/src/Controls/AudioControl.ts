@@ -23,7 +23,7 @@ class AudioControl implements ITimelineActionType {
 
   enter(params: TimelineActionParams) {
     const { action, engine, time } = params;
-    if (!engine) {
+    if (!engine || !action.data) {
       throw new Error('engine is required to play audio');
     }
 

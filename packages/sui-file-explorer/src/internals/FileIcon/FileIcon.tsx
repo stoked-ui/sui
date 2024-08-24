@@ -6,7 +6,7 @@ import { useFileExplorerContext } from '../FileExplorerProvider/useFileExplorerC
 import { UseFileExplorerIconsSignature } from '../plugins/useFileExplorerIcons/useFileExplorerIcons.types';
 import { FileExplorerCollapseIcon, FileExplorerExpandIcon } from '../../icons';
 
-function FileIcon(props: FileIconProps): React.JSX.Element | null {
+function FileIcon(props: FileIconProps): React.JSX.Element | undefined {
   const { slots, slotProps, status } = props;
   let { iconName } = props;
 
@@ -48,40 +48,14 @@ function FileIcon(props: FileIconProps): React.JSX.Element | null {
   });
 
   if (!Icon) {
-    return null;
+    return undefined;
   }
 
   return <Icon {...iconProps} />;
 }
 
 FileIcon.propTypes = {
-  // ----------------------------- Warning --------------------------------
-  // | These PropTypes are generated from the TypeScript type definitions |
-  // | To update them edit the TypeScript types and run "pnpm proptypes"  |
-  // ----------------------------------------------------------------------
-  iconName: PropTypes.oneOf(['collapseIcon', 'endIcon', 'expandIcon', 'icon']),
-  /**
-   * The props used for each component slot.
-   * @default {}
-   */
-  slotProps: PropTypes.object,
-  /**
-   * Overridable component slots.
-   * @default {}
-   */
-  slots: PropTypes.object,
-  status: PropTypes.shape({
-    disabled: PropTypes.bool.isRequired,
-    dndContainer: PropTypes.any.isRequired,
-    dndInstruction: PropTypes.any.isRequired,
-    dndState: PropTypes.oneOf(['dragging', 'idle', 'parent-of-instruction', 'preview']).isRequired,
-    expandable: PropTypes.bool.isRequired,
-    expanded: PropTypes.bool.isRequired,
-    focused: PropTypes.bool.isRequired,
-    grid: PropTypes.bool.isRequired,
-    selected: PropTypes.bool.isRequired,
-    visibleIndex: PropTypes.number.isRequired,
-  }).isRequired,
-} as any;
+
+};
 
 export { FileIcon };
