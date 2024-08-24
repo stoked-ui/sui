@@ -18,26 +18,7 @@ const useUtilityClasses = (
 
   return composeClasses(slots, getTimelineLabelsUtilityClass, classes);
 };
-/*
 
-const useUtilityClasses = <R extends FileBase, Multiple extends boolean | undefined>(
-  ownerState: VideoEditorProps<R, Multiple>,
-) => {
-  const { classes } = ownerState;
-
-  const slots = {
-    root: ['root'],
-    viewSpace: ['viewSpace'],
-    videoControls: ['videoControls'],
-    timeline: ['timeline'],
-    bottomLeft: ['bottomLeft'],
-    bottomRight: ['bottomRight'],
-  };
-
-  return composeClasses(slots, getVideoEditorUtilityClass, classes);
-};
-
- */
 const TimelineLabelsRoot = styled('div', {
   name: 'MuiTimelineLabels',
   slot: 'root',
@@ -107,6 +88,7 @@ export const TimelineLabels = React.forwardRef(
     return (
       <Root
         ref={ref}
+        setTracks={inProps.setTracks}
         style={{ overflow: 'overlay' }}
         onScroll={(scrollEvent:  React.UIEvent<HTMLDivElement, UIEvent>) => {
           timelineState.current?.setScrollTop((scrollEvent.target as HTMLDivElement).scrollTop);

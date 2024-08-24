@@ -81,7 +81,7 @@ const ScrollResizer: React.FC<CustomScrollbarProps> = ({
   }, [parentRef]);
 
   useEffect(() => {
-    if (contentRef.current) {
+    if (setScale && contentRef.current) {
       setScale(scale);
     }
   }, [scale, contentRef]);

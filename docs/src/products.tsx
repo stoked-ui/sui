@@ -1,5 +1,4 @@
 import * as React from "react";
-
 import ButtonBase from "@mui/material/ButtonBase";
 import { Cancelable } from "@mui/utils/debounce";
 import { SxProps } from "@mui/system";
@@ -29,7 +28,6 @@ import CustomerShowcase, { PrefetchStoreTemplateImages } from "./components/home
 import { PrefetchDesignKitImages } from "./components/home/DesignKits";
 import MaterialShowcase from "./components/home/MaterialShowcase";
 import CoreShowcase from "./components/home/CoreShowcase";
-import OriginalShowcase from "./components/home/CoreShowcase";
 import AdvancedShowcase from "./components/home/AdvancedShowcase";
 
 type RouteType = 'product' | 'doc';
@@ -338,9 +336,7 @@ export class Product {
     if (productId) {
       return `/${productId}${getTypeUrl(type)}${suffix}`
     }
-    const url =  `${this.data.url}${getTypeUrl(type)}${suffix}`;
-    console.log(url);
-    return url;
+    return `${this.data.url}${getTypeUrl(type)}${suffix}`;
   }
 
   get id() {
@@ -526,6 +522,7 @@ function ProductMenu(props: ProductMenuProps) {
         {({ TransitionProps }) => (
           <Fade {...TransitionProps} timeout={250}>
             <Paper
+              key={'someKey'}
               variant="outlined"
               sx={(theme) => ({
                 mt: 1,
@@ -858,7 +855,7 @@ const timelineData: TProduct = {
   url: "/timeline",
   hideProductFeatures: true,
   live: true,
-  showcaseType: OriginalShowcase,
+  showcaseType: CoreShowcase,
   features: [{
     name: 'Overview',
     description: 'Overview, installation, lions, tigers, and bears oh mai!',
@@ -867,7 +864,9 @@ const timelineData: TProduct = {
     name: 'Timeline',
     description: 'Component useful in creating components capable of editing something over time or at key frames',
     id: 'timeline',
-  },/* {
+  },
+  /*
+     {
     name: 'Timeline Engine',
     description: 'Main game loop',
     id: 'timeline-engine',
@@ -875,7 +874,8 @@ const timelineData: TProduct = {
     name: 'Timeline Action',
     description: 'I&apos;m Jack&apos;s complete lack of surprise.',
     id: 'timeline-action',
-  }*/],
+  }
+  */],
 };
 const timeline = new Product(timelineData);
 const videoEditorData: TProduct = {
@@ -896,16 +896,21 @@ const videoEditorData: TProduct = {
     name: 'Editor',
     description: 'Library used to select and automatically pull appropriate meta data from client side files',
     id: 'editor',
-  }, /*{
-    name: 'File Explorer',
-    description: 'Highly extensible file explorer component with drag and drop support.',
-    id: 'file-explorer',
-  }, {
-    name: 'Customization',
-    description: 'Customize the file explorer.',
-    id: 'file-explorer/file-explorer/customization',
-  }*/],
+  }],
 };
+
+/*
+{
+ name: 'File Explorer',
+ description: 'Highly extensible file explorer component with drag and drop support.',
+ id: 'file-explorer',
+ }, {
+ name: 'Customization',
+ description: 'Customize the file explorer.',
+ id: 'file-explorer/file-explorer/customization',
+ }
+ */
+
 const videoEditor = new Product(videoEditorData);
 
 const PRODUCTS: Products = new Products([sui, core, fileExplorer, mediaSelector, timeline, videoEditor, stokedConsulting]);

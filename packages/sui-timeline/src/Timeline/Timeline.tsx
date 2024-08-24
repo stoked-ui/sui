@@ -55,10 +55,11 @@ const Timeline = React.forwardRef(function Timeline(
   inProps: TimelineProps & any,
   ref: React.Ref<HTMLDivElement>,
 ): React.JSX.Element {
-  const { slots, slotProps, controlSx, tracks, setTracks, trackSx } = useThemeProps({
+  const { slots, slotProps, controlSx, tracks, onChange, trackSx } = useThemeProps({
     props: inProps,
     name: 'MuiTimeline',
   });
+  console.log('tracks', tracks);
   const classes = useUtilityClasses(inProps);
 
   const timelineState = React.useRef<TimelineState>(null);
@@ -96,7 +97,7 @@ const Timeline = React.forwardRef(function Timeline(
   });
 
   const createAction = (e: React.MouseEvent<HTMLElement, MouseEvent>, { track, time }) => {
-    setTracks((previous) => {
+    onChange((previous) => {
       const rowIndex = previous.findIndex((previousTrack) => previousTrack.id === track.id);
       const newAction: ITimelineAction = {
         id: `action ${tracks.length}`,
@@ -114,7 +115,7 @@ const Timeline = React.forwardRef(function Timeline(
         ref={labelsRef}
         {...labelsProps.ownerState}
         timelineState={timelineState}
-        setTracks={setTracks}
+        onChange={onChange}
       />
       <Control
         sx={{
@@ -127,7 +128,7 @@ const Timeline = React.forwardRef(function Timeline(
           },
         }}
         onDoubleClickRow={(e, { track, time }) => {
-          setTracks((previous) => {
+          onChange((previous) => {
             const rowIndex = previous.findIndex((previousTrack) => previousTrack.id === track.id);
             const newAction: ITimelineAction = {
               id: `action ${previous.length}`,
@@ -156,14 +157,15 @@ const Timeline = React.forwardRef(function Timeline(
         scaleWidth={inProps.scaleWidth}
         setScaleWidth={inProps.setScaleWidth}
         engine={inProps.engine}
-        onChange={setTracks}
+        onChange={onChange}
         tracks={tracks}
         autoScroll
+        setTracks={inProps.setTracks}
         className={'SuiTimeline'}
         actionTypes={inProps.actionTypes}
         viewSelector={inProps.viewSelector ?? '.viewer'}
         onClickAction={(e, { track, action, time }) => {
-          setTracks((previous) => {
+          onChange((previous) => {
             const selectedRowIndex = previous.findIndex(
               (previousTrack) => previousTrack.id === track.id,
             );
@@ -208,166 +210,63 @@ Timeline.propTypes = {
   /**
    * Override or extend the styles applied to the component.
    */
-  classes: PropTypes.object.isRequired,
-  className: PropTypes.string.isRequired,
+  classes: PropTypes.object,
+  className: PropTypes.string,
   controlSx: PropTypes.oneOfType([
     PropTypes.arrayOf(
-      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]).isRequired,
+      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),
     ),
     PropTypes.func,
     PropTypes.object,
-  ]).isRequired,
-  engine: PropTypes.shape({
-    current: PropTypes.shape({
-      actionTypes: PropTypes.object.isRequired,
-      bind: PropTypes.func.isRequired,
-      canvas: PropTypes.object.isRequired,
-      events: PropTypes.object.isRequired,
-      exist: PropTypes.func.isRequired,
-      getAction: PropTypes.func.isRequired,
-      getActionTrack: PropTypes.func.isRequired,
-      getPlayRate: PropTypes.func.isRequired,
-      getSelectedActions: PropTypes.func.isRequired,
-      getTime: PropTypes.func.isRequired,
-      isPaused: PropTypes.bool.isRequired,
-      isPlaying: PropTypes.bool.isRequired,
-      off: PropTypes.func.isRequired,
-      offAll: PropTypes.func.isRequired,
-      on: PropTypes.func.isRequired,
-      pause: PropTypes.func.isRequired,
-      play: PropTypes.func.isRequired,
-      reRender: PropTypes.func.isRequired,
-      setPlayRate: PropTypes.func.isRequired,
-      setTime: PropTypes.func.isRequired,
-      tracks: PropTypes.arrayOf(
-        PropTypes.shape({
-          actions: PropTypes.arrayOf(PropTypes.object).isRequired,
-          classNames: PropTypes.arrayOf(PropTypes.string).isRequired,
-          hidden: PropTypes.bool.isRequired,
-          id: PropTypes.string.isRequired,
-          lock: PropTypes.bool.isRequired,
-          name: PropTypes.string.isRequired,
-          rowHeight: PropTypes.number.isRequired,
-          selected: PropTypes.bool.isRequired,
-        }),
-      ).isRequired,
-      trigger: PropTypes.func.isRequired,
-      viewer: function (props, propName) {
-        if (props[propName] == null) {
-          return new Error(`Prop ${propName} is required but wasn't specified`);
-        } else if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
-          return new Error("Expected prop '" + propName + "' to be of type Element");
-        }
-      },
-    }).isRequired,
-  }).isRequired,
+  ]),
+  engine: PropTypes.any.isRequired,
   labelsSx: PropTypes.oneOfType([
     PropTypes.arrayOf(
-      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]).isRequired,
+      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),
     ),
     PropTypes.func,
     PropTypes.object,
-  ]).isRequired,
+  ]),
   labelSx: PropTypes.oneOfType([
     PropTypes.arrayOf(
-      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]).isRequired,
+      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),
     ),
     PropTypes.func,
     PropTypes.object,
-  ]).isRequired,
-  scaleWidth: PropTypes.number.isRequired,
-  setScaleWidth: PropTypes.func.isRequired,
-  setTracks: PropTypes.func.isRequired,
+  ]),
+  scaleWidth: PropTypes.number,
+  setScaleWidth: PropTypes.func,
+  setTacks: PropTypes.func,
   /**
    * The props used for each component slot.
    * @default {}
    */
-  slotProps: PropTypes.object.isRequired,
+  slotProps: PropTypes.object,
   /**
    * Overridable component slots.
    * @default {}
    */
-  slots: PropTypes.object.isRequired,
+  slots: PropTypes.object,
   /**
    * The system prop that allows defining system overrides as well as additional CSS styles.
    */
   sx: PropTypes.oneOfType([
     PropTypes.arrayOf(
-      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]).isRequired,
+      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),
     ),
     PropTypes.func,
     PropTypes.object,
-  ]).isRequired,
-  timelineState: PropTypes.shape({
-    current: PropTypes.shape({
-      getPlayRate: PropTypes.func.isRequired,
-      getTime: PropTypes.func.isRequired,
-      isPaused: PropTypes.bool.isRequired,
-      isPlaying: PropTypes.bool.isRequired,
-      listener: PropTypes.shape({
-        bind: PropTypes.func.isRequired,
-        events: PropTypes.object.isRequired,
-        exist: PropTypes.func.isRequired,
-        off: PropTypes.func.isRequired,
-        offAll: PropTypes.func.isRequired,
-        on: PropTypes.func.isRequired,
-        trigger: PropTypes.func.isRequired,
-      }).isRequired,
-      pause: PropTypes.func.isRequired,
-      play: PropTypes.func.isRequired,
-      reRender: PropTypes.func.isRequired,
-      setPlayRate: PropTypes.func.isRequired,
-      setScrollLeft: PropTypes.func.isRequired,
-      setScrollTop: PropTypes.func.isRequired,
-      setTime: PropTypes.func.isRequired,
-      target: function (props, propName) {
-        if (props[propName] == null) {
-          return new Error(`Prop ${propName} is required but wasn't specified`);
-        } else if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
-          return new Error("Expected prop '" + propName + "' to be of type Element");
-        }
-      },
-    }).isRequired,
-  }).isRequired,
-  tracks: PropTypes.arrayOf(
-    PropTypes.shape({
-      actions: PropTypes.arrayOf(
-        PropTypes.shape({
-          data: PropTypes.shape({
-            src: PropTypes.string.isRequired,
-            style: PropTypes.object.isRequired,
-          }).isRequired,
-          disable: PropTypes.bool.isRequired,
-          effectId: PropTypes.string.isRequired,
-          end: PropTypes.number.isRequired,
-          flexible: PropTypes.bool.isRequired,
-          id: PropTypes.string.isRequired,
-          maxEnd: PropTypes.number.isRequired,
-          minStart: PropTypes.number.isRequired,
-          movable: PropTypes.bool.isRequired,
-          name: PropTypes.string.isRequired,
-          onKeyDown: PropTypes.func.isRequired,
-          selected: PropTypes.bool.isRequired,
-          start: PropTypes.number.isRequired,
-        }),
-      ).isRequired,
-      classNames: PropTypes.arrayOf(PropTypes.string).isRequired,
-      hidden: PropTypes.bool.isRequired,
-      id: PropTypes.string.isRequired,
-      lock: PropTypes.bool.isRequired,
-      name: PropTypes.string.isRequired,
-      rowHeight: PropTypes.number.isRequired,
-      selected: PropTypes.bool.isRequired,
-    }),
-  ).isRequired,
+  ]),
+  timelineState: PropTypes.any.isRequired,
+  tracks: PropTypes.any,
   trackSx: PropTypes.oneOfType([
     PropTypes.arrayOf(
-      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]).isRequired,
+      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),
     ),
     PropTypes.func,
     PropTypes.object,
-  ]).isRequired,
-  viewSelector: PropTypes.string.isRequired,
+  ]),
+  viewSelector: PropTypes.string,
 };
 
 export { Timeline };

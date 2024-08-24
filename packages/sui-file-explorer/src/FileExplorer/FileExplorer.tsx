@@ -88,7 +88,6 @@ const FileExplorer = React.forwardRef(function FileExplorer<
   Multiple extends boolean | undefined = undefined,
 >(inProps: FileExplorerProps<R, Multiple>, ref: React.Ref<HTMLUListElement>) {
   const props = useThemeProps({ props: inProps, name: 'MuiFileExplorer' });
-  console.log('props.items', props.items);
   if (process.env.NODE_ENV !== 'production') {
     if ((props as any).children != null) {
       childrenWarning();
@@ -275,59 +274,7 @@ FileExplorer.propTypes = {
    * @default 12px
    */
   itemChildrenIndentation: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-  items: PropTypes.arrayOf(
-    PropTypes.shape({
-      children: PropTypes.arrayOf(
-        PropTypes.shape({
-          children: PropTypes.arrayOf(PropTypes.object),
-          expanded: PropTypes.bool,
-          file: PropTypes.shape({
-            arrayBuffer: PropTypes.func.isRequired,
-            lastModified: PropTypes.number.isRequired,
-            name: PropTypes.string.isRequired,
-            path: PropTypes.string,
-            size: PropTypes.number.isRequired,
-            slice: PropTypes.func.isRequired,
-            stream: PropTypes.func.isRequired,
-            text: PropTypes.func.isRequired,
-            type: PropTypes.string.isRequired,
-            webkitRelativePath: PropTypes.string.isRequired,
-          }),
-          id: PropTypes.string,
-          itemId: PropTypes.string,
-          label: PropTypes.string,
-          modified: PropTypes.number,
-          name: PropTypes.string,
-          selected: PropTypes.bool,
-          size: PropTypes.number,
-          type: PropTypes.oneOf(['doc', 'file', 'folder', 'image', 'pdf', 'trash', 'video']),
-          visibleIndex: PropTypes.number,
-        }),
-      ),
-      expanded: PropTypes.bool,
-      file: PropTypes.shape({
-        arrayBuffer: PropTypes.func.isRequired,
-        lastModified: PropTypes.number.isRequired,
-        name: PropTypes.string.isRequired,
-        path: PropTypes.string,
-        size: PropTypes.number.isRequired,
-        slice: PropTypes.func.isRequired,
-        stream: PropTypes.func.isRequired,
-        text: PropTypes.func.isRequired,
-        type: PropTypes.string.isRequired,
-        webkitRelativePath: PropTypes.string.isRequired,
-      }),
-      id: PropTypes.string,
-      itemId: PropTypes.string,
-      label: PropTypes.string,
-      modified: PropTypes.number,
-      name: PropTypes.string,
-      selected: PropTypes.bool,
-      size: PropTypes.number,
-      type: PropTypes.oneOf(['doc', 'file', 'folder', 'image', 'pdf', 'trash', 'video']),
-      visibleIndex: PropTypes.number,
-    }),
-  ).isRequired,
+  items: PropTypes.any,
   /**
    * If `true`, `ctrl` and `shift` will trigger multiselect.
    * @default false

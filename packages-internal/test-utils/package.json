@@ -60,14 +60,14 @@
     "@types/enzyme": "^3.10.18",
     "@types/format-util": "^1.0.4",
     "@types/prop-types": "^15.7.12",
-    "@types/react": "^18.2.55",
+    "@types/react": "^18.3.1",
     "@types/react-dom": "^18.3.0",
     "@types/react-test-renderer": "^18.3.0",
     "@types/sinon": "^17.0.3",
     "typescript": "^5.4.5"
   },
   "peerDependencies": {
-    "react": "^18.2.0",
+    "react": "18.3.1",
     "react-dom": "^18.2.0"
   },
   "publishConfig": {

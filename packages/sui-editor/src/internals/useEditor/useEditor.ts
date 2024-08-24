@@ -44,21 +44,21 @@ export const useEditor = <
     rootRef,
     props,
   }: UseEditorParameters<TSignatures, TProps>): UseEditorReturnValue<TSignatures> => {
-  type TSignaturesWithCorePluginSignatures = readonly [
-    ...EditorCorePluginSignatures,
-    ...TSignatures,
-  ];
-  const plugins = [
-    ...VIDEO_EDITOR_CORE_PLUGINS,
-    ...inPlugins,
-  ] as unknown as ConvertSignaturesIntoPlugins<TSignaturesWithCorePluginSignatures>;
+  type TSignaturesWithCorePluginSignatures = readonly [...EditorCorePluginSignatures, ...TSignatures,];
+  const plugins = [...VIDEO_EDITOR_CORE_PLUGINS, ...inPlugins,] as unknown as ConvertSignaturesIntoPlugins<TSignaturesWithCorePluginSignatures>;
 
-  const { pluginParams, forwardedProps, apiRef, experimentalFeatures, slots, slotProps } =
-    extractPluginParamsFromProps<TSignatures, TProps>({
-      plugins,
-      props,
-    });
+  const {
+    pluginParams,
+    forwardedProps,
+    apiRef,
+    experimentalFeatures,
+    slots,
+    slotProps
+  } = extractPluginParamsFromProps<TSignatures, TProps>({
+    plugins, props,
+  });
 
+  console.log('plugins', plugins, 'pluginParams', pluginParams);
   const models = useEditorModels<TSignatures>(plugins, pluginParams);
   const instanceRef = React.useRef({} as EditorInstance<TSignatures>);
   const instance = instanceRef.current as EditorInstance<TSignatures>;
@@ -69,14 +69,19 @@ export const useEditor = <
   const handleRootRef = useForkRef(innerRootRef, rootRef);
 
   const [state, setState] = React.useState(() => {
-    const temp = {} as MergeSignaturesProperty<TSignaturesWithCorePluginSignatures, 'state'>;
-    plugins.forEach((plugin) => {
-      if (plugin.getInitialState) {
-        Object.assign(temp, plugin.getInitialState(pluginParams));
-      }
-    });
+    try {
+      const temp = {} as MergeSignaturesProperty<TSignaturesWithCorePluginSignatures, 'state'>;
+      plugins.forEach((plugin) => {
+        if (plugin.getInitialState) {
+          Object.assign(temp, plugin.getInitialState(pluginParams));
+        }
+      });
+      return temp;
+    } catch (ex) {
+      console.log('ex', ex)
+      throw ex;
+    }
 
-    return temp;
   });
 
   const runItemPlugins: VideoPluginsRunner = (itemPluginProps) => {

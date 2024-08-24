@@ -30,8 +30,6 @@ const EditorViewRoot = styled('div', {
   width: '100%',
   position: 'relative',
   overflow: 'hidden',
-  minHeight: '400px',
-  maxHeight: '600px',
   aspectRatio: 16 / 9,
 }));
 
@@ -44,7 +42,6 @@ const EditorViewRenderer = styled('canvas', {
   width: '100%',
   position: 'relative',
   overflow: 'hidden',
-  minHeight: '400px',
 }));
 
 const EditorViewPreview = styled('div', {
@@ -56,7 +53,6 @@ const EditorViewPreview = styled('div', {
   width: '100%',
   position: 'relative',
   overflow: 'hidden',
-  minHeight: '400px',
 }));
 
 /**
@@ -78,7 +74,6 @@ export const EditorView = React.forwardRef(function EditorView<
   const combinedViewRef = useForkRef(ref , viewRef);
 
   React.useEffect(() => {
-    console.log(inProps.engine.current)
     if (inProps.engine.current && viewRef?.current) {
       inProps.engine.current.viewer = viewRef.current;
     }

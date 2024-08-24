@@ -36,12 +36,27 @@ export interface TimelineActionState {
   disable?: boolean;
 }
 
+export interface ITimelineActionInput extends TimelineActionState {
+  /** action display name */
+  name: string;
+  /** Action start time */
+  start?: number;
+  /** Action end time */
+  end?: number;
+  /** The effectId corresponding to the action */
+  effectId: string;
+
+  data: {
+    src: string;
+  };
+}
+
 /**
  *Basic parameters of the action
  * @export
  * @interface ITimelineAction
  */
-export interface ITimelineAction extends TimelineActionState {
+export interface ITimelineAction extends Omit<ITimelineActionInput, 'name' | 'start' | 'end' | 'data'> {
   /** action id */
   id: string;
   /** action display name */
@@ -50,8 +65,6 @@ export interface ITimelineAction extends TimelineActionState {
   start: number;
   /** Action end time */
   end: number;
-  /** The effectId corresponding to the action */
-  effectId: string;
 
   /** Minimum start time limit for actions */
   minStart?: number;
@@ -60,14 +73,10 @@ export interface ITimelineAction extends TimelineActionState {
 
   onKeyDown?: (event: any, id: string) => void;
 
-  data?: {
+  data: {
     src: string;
     style?: CSSProperties;
   };
-}
-
-export interface ITimelineActionInput extends Omit<ITimelineAction, 'id'>  {
-  id?: string;
 }
 
 export interface TimelineActionSlots {
