@@ -41,7 +41,7 @@ const useThemeProps = createUseThemeProps('MuiFile');
  *
  * - [File API](https://stoked-ui.github.io/x/api/file-list-view/file-element-2/)
  */
-const File = React.forwardRef(function File(
+export const File = React.forwardRef(function File(
   inProps: FileProps & any,
   forwardedRef: React.Ref<HTMLLIElement>,
 ) {
@@ -236,16 +236,7 @@ File.propTypes = {
   /**
    * Override or extend the styles applied to the component.
    */
-  classes: PropTypes.shape({
-    checkbox: PropTypes.string.isRequired,
-    disabled: PropTypes.string.isRequired,
-    expanded: PropTypes.string.isRequired,
-    focused: PropTypes.string.isRequired,
-    iconContainer: PropTypes.string.isRequired,
-    label: PropTypes.string.isRequired,
-    root: PropTypes.string.isRequired,
-    selected: PropTypes.string.isRequired,
-  }).isRequired,
+  classes: PropTypes.object,
   className: PropTypes.string,
   /**
    * If `true`, the item is disabled.
@@ -298,5 +289,3 @@ File.propTypes = {
   ]),
   type: PropTypes.oneOf(['doc', 'file', 'folder', 'image', 'pdf', 'trash', 'video']),
 } as any;
-
-export { File };
