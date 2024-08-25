@@ -1,17 +1,16 @@
 import * as React from 'react';
 import composeClasses from "@mui/utils/composeClasses";
 import { useSlotProps } from '@mui/base/utils';
-import {styled, Theme, useTheme, useThemeProps} from '@mui/material/styles';
+import {styled, emphasize, useTheme, useThemeProps} from '@mui/material/styles';
 import ToggleButton from "@mui/material/ToggleButton";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import LockIcon from '@mui/icons-material/Lock';
+import {TimelineTrack} from "@stoked-ui/timeline";
 import { EditorLabelsProps } from './EditorLabels.types';
 import { getEditorLabelsUtilityClass } from "./editorLabelsClasses";
-import { ToggleButtonGroupSx, contrast } from '@stoked-ui/core/styles';
-import {TimelineTrack} from "@stoked-ui/timeline";
 
 const useUtilityClasses = (
   ownerState: EditorLabelsProps,
@@ -73,15 +72,52 @@ const EditorLabelRoot = styled('div', {
 
 }));
 
+const ToggleButtonGroupStyled = styled(ToggleButtonGroup)(({theme})=> {
+  return ({
+    background: theme.palette.background.default, '& .MuiButtonBase-root': {
+      color: theme.palette.text.primary, '&:hover': {
+        color: theme.palette.primary.main,
+        background: theme.palette.background.default,
+        border: `1px solid ${theme.palette.text.primary}`,
+      },
+    },
+    width: 'min-content',
+    display: 'flex',
+    alignItems: 'center',
+    paddingRight: '0px',
+    '& button': {
+      padding: '3px',
+    }
+  })
+})
+
+const EditorLabelContainer = styled('div', {
+  name: 'MuiEditorLabelContainer',
+  slot: 'Label',
+  overridesResolver: (props, styles) => styles.icon,
+})(({ theme }) => ({
+  backgroundColor: emphasize(theme.palette.background.default, 0.12),
+  color: theme.palette.text.primary,
+  borderRadius: '4px',
+  width: '250px',
+  display: 'flex',
+  alignItems: 'center',
+  paddingLeft: '6px',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+  textWrap: 'nowrap',
+  flexGrow: '1'
+}));
+
 const EditorLabelText = styled('div', {
   name: 'MuiEditorLabelText',
   slot: 'Label',
   overridesResolver: (props, styles) => styles.icon,
 })(({ theme }) => ({
-  backgroundColor: contrast(0.12),
+  backgroundColor: emphasize(theme.palette.background.default, 0.12),
   color: theme.palette.text.primary,
   height: '28px',
-  width: '150px',
   display: 'flex',
   alignItems: 'center',
   paddingLeft: '6px',
@@ -100,40 +136,30 @@ const EditorLabel = React.forwardRef(
     const lockIcon = track.lock ? <LockIcon fontSize={'small'}/> : <LockOpenIcon fontSize={'small'}/>;
     return (
       <EditorLabelRoot key={track.id} className={classes.label}>
-        <EditorLabelText>{track.name}</EditorLabelText>
-        <ToggleButtonGroup
-          exclusive
-
-          sx={{
-            ...ToggleButtonGroupSx(useTheme()),
-          ...{
-            width: 'min-content',
-            display: 'flex',
-            alignItems: 'center',
-            paddingRight: '0px',
-            '& button': {
-              padding: '3px',
-            }
-          }}}
-          aria-label="text alignment"
-        >
-          <ToggleButton  value={track.hidden}  onChange={(e, val) => {
-            track.hidden = val;
-            inProps.setTracks((previous) => {
-              const newTracks = [...previous];
-              const rowIndex = newTracks.findIndex((previousTrack) => previousTrack.id === track.id);
-              if (rowIndex !== -1) {
-                newTracks[rowIndex] = {...track};
-              }
-              return newTracks;
-            });
-          }} aria-label="hidden">
-            {visibilityIcon}
-          </ToggleButton>
-          <ToggleButton value="lock" aria-label="lock">
-            {lockIcon}
-          </ToggleButton>
-        </ToggleButtonGroup>
+        <EditorLabelContainer>
+          <EditorLabelText>{track.name}</EditorLabelText>
+          <ToggleButtonGroupStyled
+            exclusive
+            aria-label="text alignment"
+          >
+            <ToggleButton  value={track.hidden}  onChange={(e, val) => {
+              track.hidden = val;
+              inProps.setTracks((previous) => {
+                const newTracks = [...previous];
+                const rowIndex = newTracks.findIndex((previousTrack) => previousTrack.id === track.id);
+                if (rowIndex !== -1) {
+                  newTracks[rowIndex] = {...track};
+                }
+                return newTracks;
+              });
+            }} aria-label="hidden">
+              {visibilityIcon}
+            </ToggleButton>
+            <ToggleButton value="lock" aria-label="lock">
+              {lockIcon}
+            </ToggleButton>
+          </ToggleButtonGroupStyled>
+        </EditorLabelContainer>
       </EditorLabelRoot>
     );
   }
@@ -162,6 +188,7 @@ const EditorLabels = React.forwardRef(
       ownerState: inProps,
     });
 
+    console.log('tracks', tracks);
     return (
       <Root
         ref={ref}
@@ -183,12 +210,9 @@ const EditorLabels = React.forwardRef(
                 const newTracks = [...previous];
                 const rowIndex = newTracks.findIndex((previousTrack) => previousTrack.id === inputTrack.id);
                 if (rowIndex !== -1) {
-                  console.log('initial', JSON.stringify(newTracks[rowIndex], null, 2));
                   const newTrackInstance = {...newTracks[rowIndex]};
-                  console.log('newTrackInstance', JSON.stringify(newTrackInstance, null, 2));
                   newTrackInstance[property] = !newTrackInstance[property];
                   newTracks[rowIndex] = newTrackInstance;
-                  console.log('after setFlags', JSON.stringify(newTracks[rowIndex], null, 2));
                 }
 
                 return newTracks;

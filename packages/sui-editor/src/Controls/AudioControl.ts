@@ -21,7 +21,7 @@ class AudioControl implements ITimelineActionType {
     }
   > = {};
 
-  enter(params: TimelineActionParams) {
+  start(params: TimelineActionParams) {
     const { action, engine, time } = params;
     if (!engine || !action.data) {
       throw new Error('engine is required to play audio');
@@ -60,7 +60,7 @@ class AudioControl implements ITimelineActionType {
     this.listenerMap[action.id].rate = rateListener;
   }
 
-  leave(params: TimelineActionParams) {
+  stop(params: TimelineActionParams) {
     const { action, engine } = params;
     if (this.cacheMap[action.id]) {
       const item = this.cacheMap[action.id];
@@ -75,6 +75,10 @@ class AudioControl implements ITimelineActionType {
         delete this.listenerMap[action.id];
       }
     }
+  }
+
+  leave(params: TimelineActionParams) {
+    this.stop(params);
   }
 }
 

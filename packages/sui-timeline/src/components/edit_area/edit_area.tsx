@@ -35,6 +35,8 @@ const EditAreaRoot = styled('div')(({ theme }) => ({
   marginTop: '10px',
   overflow: 'hidden',
   position: 'relative',
+  height: '100%',
+  minHeight: 'fit-content',
   '& .ReactVirtualized__Grid': {
     outline: 'none !important',
     overflow: 'overlay !important',
@@ -174,7 +176,7 @@ export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>((props, r
 
   return (
     <EditAreaRoot ref={editAreaRef} className={`SuiTimelineEditArea-root ${prefix('edit-area')}`}>
-      <AutoSizer>
+      <AutoSizer className={'auto-sizer'} style={{height: 'fit-content'}}>
         {({ width, height }) => {
           // Get full height
           let totalHeight = 0;
@@ -195,7 +197,7 @@ export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>((props, r
             }
           }
           heightRef.current = height;
-
+          console.log('grid', width, height,totalHeight);
           return (
             <Grid
               id={'thisisedit'}
@@ -208,7 +210,7 @@ export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>((props, r
               cellRenderer={cellRenderer}
               columnWidth={Math.max(scaleCount * scaleWidth + startLeft, width)}
               width={width}
-              height={height}
+              height={totalHeight}
               rowHeight={({ index }) => heights[index] || rowHeight}
               overscanRowCount={10}
               overscanColumnCount={0}

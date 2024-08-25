@@ -1,10 +1,9 @@
 import * as React from 'react';
-import { styled } from "@mui/material/styles";
+import {emphasize, styled} from "@mui/material/styles";
 import { AutoSizer, Grid, GridCellRenderer, OnScrollParams } from 'react-virtualized';
 import { parserPixelToTime } from '../../utils/deal_data';
 import { CommonProps } from '../../interface/common_prop';
 import { prefix } from '../../utils/deal_class_prefix';
-import {blend} from "@mui/system";
 /** Animation timeline component parameters */
 export type TimeAreaProps = CommonProps & {
   /** Left scroll distance */
@@ -19,7 +18,7 @@ const TimeAreaRoot = styled('div')(({theme}) => ({
   position: 'relative',
   height: '32px',
   flex: '0 0 auto',
-  backgroundColor: blend(theme.palette.background.default,theme.palette.action.hover, 0.04),
+  backgroundColor: emphasize(theme.palette.background.default, 0.04),
   '& .ReactVirtualized__Grid': {
     outline: 'none',
     '&::-webkit-scrollbar': {

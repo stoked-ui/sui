@@ -45,8 +45,7 @@ export default function TableOfContentsBanner() {
         <img
           src="/static/images/avatar/grumpy-cat.svg"
           alt=""
-          width={40}
-          height={40}
+          width={80}
           style={{ verticalAlign: 'middle' }}
         />
       </Box>

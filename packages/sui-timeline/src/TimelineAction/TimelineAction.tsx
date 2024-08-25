@@ -1,6 +1,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { alpha, styled } from '@mui/material/styles';
+import {alpha, emphasize, styled} from '@mui/material/styles';
 import composeClasses from '@mui/utils/composeClasses';
 import clsx from 'clsx';
 import useSlotProps from '@mui/utils/useSlotProps';
@@ -55,9 +55,9 @@ const Action = styled('div', {
   color: string;
 }>(({ theme, selected, color = 'blue' }) => {
   const base = theme.vars ? `rgba(color(from ${color}) / 1)` : alpha(color, 1);
-  const unselected = blend('#FFF', base, 0.3);
-  const hover = blend('#FFF', base, 0.45);
-  const selectedColor = blend('#FFF', base, 0.75);
+  const unselected = emphasize(color, 0.7);
+  const hover = emphasize( color, 0.45);
+  const selectedColor = emphasize(color, 0.3);
   const background = selected ? selectedColor : unselected;
   return {
     position: 'absolute',
@@ -449,8 +449,8 @@ function TimelineAction(props: TimelineActionProps) {
         color={actionTypes?.[action.effectId]?.color ?? '#ccc'}
       >
         {getActionRender && getActionRender(nowAction, nowRow)}
-        {flexible && <LeftStretch className={classes.left} />}
-        {flexible && <RightStretch className={classes.right} />}
+        {flexible && <LeftStretch className={`${prefix('action-left-stretch')} ${classes.left}`} />}
+        {flexible && <RightStretch className={`${prefix('action-right-stretch')} ${classes.right}`} />}
       </Action>
     </RowDnd>
   );
@@ -506,7 +506,8 @@ TimelineAction.propTypes = {
    */
   getActionRender: PropTypes.func,
   /**
-   * @description Get the action id list to prompt the auxiliary line. Calculate it when move/resize start. By default, get all the action ids except the current move action.
+   * @description Get the action id list to prompt the auxiliary line. Calculate it when
+   *   move/resize start. By default, get all the action ids except the current move action.
    */
   getAssistDragLineActionIds: PropTypes.func,
   /**

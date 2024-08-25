@@ -3,8 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import composeClasses from '@mui/utils/composeClasses';
 import { useSlotProps } from '@mui/base/utils';
-import { blend } from '@mui/system';
-import { styled, useThemeProps } from '@mui/material/styles';
+import { styled, useThemeProps, emphasize } from '@mui/material/styles';
 import useForkRef from '@mui/utils/useForkRef';
 import { TimelineComponent, TimelineProps } from './Timeline.types';
 import { getTimelineUtilityClass } from './timelineClasses';
@@ -32,10 +31,10 @@ const TimelineRoot = styled('div', {
   overridesResolver: (props, styles) => styles.root,
 })(({ theme }) => ({
   display: 'flex',
-  backgroundColor: blend(theme.palette.background.default, theme.palette.action.hover, 0.04),
+  backgroundColor: emphasize(theme.palette.background.default, 0.04),
   '&:hover': {
     '& .SuiScrollbar': {
-      transform: 'scaleY(0.5)',
+      height: '12px',
     },
   },
 }));
@@ -96,7 +95,7 @@ const Timeline = React.forwardRef(function Timeline(
   });
 
   const createAction = (e: React.MouseEvent<HTMLElement, MouseEvent>, { track, time }) => {
-    setTracks((previous) => {
+    setTracks?.((previous) => {
       const rowIndex = previous.findIndex((previousTrack) => previousTrack.id === track.id);
       const newAction: ITimelineAction = {
         id: `action ${tracks.length}`,
@@ -104,18 +103,19 @@ const Timeline = React.forwardRef(function Timeline(
         end: time + 0.5,
         effectId: 'effect0',
       };
-      return { ...track, actions: [...track.actions, newAction] };
+      previous[rowIndex] = { ...track, actions: [...track.actions, newAction] };
+      return [...previous];
     });
   };
 
   return (
     <Root ref={combinedRootRef} {...rootProps} sx={inProps.sx}>
-      <Labels
+      {inProps.labels && <Labels
         ref={labelsRef}
         {...labelsProps.ownerState}
         timelineState={timelineState}
         onChange={onChange}
-      />
+      />}
       <Control
         sx={{
           width: '100%',
@@ -152,7 +152,7 @@ const Timeline = React.forwardRef(function Timeline(
         actionTypes={inProps.actionTypes}
         viewSelector={inProps.viewSelector ?? '.viewer'}
         onClickAction={(e, { track, action, time }) => {
-          setTracks((previous) => {
+          setTracks?.((previous) => {
             const selectedRowIndex = previous.findIndex(
               (previousTrack) => previousTrack.id === track.id,
             );

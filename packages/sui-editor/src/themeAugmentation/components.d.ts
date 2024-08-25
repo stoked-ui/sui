@@ -1,10 +1,10 @@
 import { ComponentsOverrides, ComponentsProps, ComponentsVariants } from '@mui/material/styles';
 
 export interface EditorComponents<Theme = unknown> {
-  MuiEditor?: {
-    defaultProps?: ComponentsProps['MuiEditor'];
-    styleOverrides?: ComponentsOverrides<Theme>['MuiEditor'];
-    variants?: ComponentsVariants<Theme>['MuiEditor'];
+  MuiEditorTest?: {
+    defaultProps?: ComponentsProps['MuiEditorTest'];
+    styleOverrides?: ComponentsOverrides<Theme>['MuiEditorTest'];
+    variants?: ComponentsVariants<Theme>['MuiEditorTest'];
   };
 }
 
