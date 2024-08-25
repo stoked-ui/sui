@@ -12,15 +12,14 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import { FileBase } from '@stoked-ui/file-explorer';
 import { TimelineState } from '@stoked-ui/timeline';
-import { styled, createUseThemeProps, Theme } from '../internals/zero-styled';
+import { styled, createUseThemeProps } from '../internals/zero-styled';
 
 import { EditorControlsProps } from './EditorControls.types';
 import { getEditorControlsUtilityClass } from "./editorControlsClasses";
 import TextField from '@mui/material/TextField';
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
-import {blend} from "@mui/system";
-import { ToggleButtonGroupSx } from '@stoked-ui/core/styles';
+import { alpha, emphasize } from '@mui/material/styles';
 
 export const Rates = [0.2, 0.5, 1.0, 1.5, 2.0];
 const useThemeProps = createUseThemeProps('MuiEditor');
@@ -38,18 +37,28 @@ const useUtilityClasses = <R extends FileBase, Multiple extends boolean | undefi
   return composeClasses(slots, getEditorControlsUtilityClass, classes);
 };
 
-
-const PlayerRoot = styled('div')(({ theme }) => {
-  console.log('theme.palette.background.default', theme.palette.background.default)
+const ToggleButtonGroupStyled = styled(ToggleButtonGroup)(({theme})=> {
   return ({
-    height: '42px',
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: blend(theme.palette.background.default,theme.palette.action.hover, 0.12),
+      background: theme.palette.background.default,
+      '& .MuiButtonBase-root': {
+        color: theme.palette.text.primary,
+        '&:hover': {
+          color: theme.palette.primary.main,
+          background: theme.palette.background.default,
+          border: `1px solid ${theme.palette.text.primary}`,
+      },
+    }
   })
 });
+
+const PlayerRoot = styled('div')(({ theme }) => ({
+  height: '42px',
+  width: '100%',
+  display: 'flex',
+  flexDirection: 'row',
+  alignItems: 'center',
+  backgroundColor: emphasize(theme.palette.background.default, 0.2),
+}));
 
 const TimeRoot = styled(TextField)(({ theme }) => ({
   fontSize: '1px',
@@ -62,15 +71,30 @@ const TimeRoot = styled(TextField)(({ theme }) => ({
     fontSize: 16,
     height: 40,
     padding: '0 4px',
-    background: theme.palette.background.default
-  }
+    background: theme.palette.background.default,
+    borderRadius: '4px',
+    textAlign: 'end',
+  },
+  minWidth: '120px',
 }));
 
 const RateControlRoot = styled(FormControl)({
   justifySelf: 'flex-end',
   alignContent: 'center',
-  marginRight: '2px'
+  marginRight: '2px',
 });
+
+const RateControlSelect = styled(Select)(({ theme }) => ({
+
+  height: 40,
+  background: theme.palette.background.default,
+  '& .MuiSelect-select': {
+    fontFamily: "'Roboto Condensed', sans-serif",
+    py: '4px',
+    fontSize: 16,
+  },
+
+}));
 
 /**
  *
@@ -139,7 +163,7 @@ export const EditorControls = React.forwardRef(function EditorControls<
   };
 
   // Set playback rate
-  const handleRateChange = (event: SelectChangeEvent<number>) => {
+  const handleRateChange = (event: SelectChangeEvent<unknown>) => {
     if (!timelineState || !timelineState.current) {
       return;
     }
@@ -197,17 +221,16 @@ export const EditorControls = React.forwardRef(function EditorControls<
   }
   const controlsInput: string[] = [];
   const [controls, setControls] = React.useState(controlsInput);
-  //const theme = useTheme();
-  //console.log('useTheme theme', JSON.stringify(theme, null, 2));
   return (
     <PlayerRoot className="timeline-player">
 
       <div style={{display: 'flex', flexDirection: 'row', alignContent: 'center', width: '100%'}}>
-          <ToggleButtonGroup
+          <ToggleButtonGroupStyled
             value={controls}
             exclusive
-            onChange={(event, value) => {}}
-            sx={(theme) => ToggleButtonGroupSx(theme)}
+            onChange={(event, value) => {
+
+            }}
             size={'small'}
             aria-label="text alignment"
           >
@@ -220,33 +243,22 @@ export const EditorControls = React.forwardRef(function EditorControls<
             <ToggleButton onClick={handleEnd} value="next" aria-label="lock">
               <SkipNextIcon />
             </ToggleButton>
-          </ToggleButtonGroup>
+          </ToggleButtonGroupStyled>
 
       </div>
       <div style={{display: 'flex', flexDirection: 'row'}}>
-        <TimeRoot variant={'outlined'} size={'small'} sx={{
-            '& input': {
-              textAlign: 'end',
-            },
-            minWidth: '120px',
-          }}
+        <TimeRoot
+          variant={'outlined'}
+          size={'small'}
           helperText={false}
           value={timeRender(time)}
         />
-        {showRate && <RateControlRoot sx={{ minWidth: '80px' }} className="rate-control">
-          <Select
+        <RateControlRoot sx={{ minWidth: '80px' }} className="rate-control">
+          <RateControlSelect
             value={timelineState.current?.getPlayRate() ?? 1}
             onChange={handleRateChange}
             displayEmpty
             inputProps={{ 'aria-label': 'Play Rate' }}
-            sx={(theme) => ({
-              height: 40,
-              backgroundColor: theme.palette.background.default,
-              '& .MuiSelect-select': {
-                py: '4px',
-                fontSize: 16,
-              }}
-            )}
             defaultValue={1}
           >
             <MenuItem key={-1} value={-1}>
@@ -257,8 +269,8 @@ export const EditorControls = React.forwardRef(function EditorControls<
                 {`${rate.toFixed(1)}x`}
               </MenuItem>
             ))}
-          </Select>
-        </RateControlRoot>}
+          </RateControlSelect>
+        </RateControlRoot>
       </div>
     </PlayerRoot>
   );

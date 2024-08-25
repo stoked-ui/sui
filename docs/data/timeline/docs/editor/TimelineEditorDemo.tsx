@@ -3,6 +3,7 @@ import { styled } from "@mui/material/styles";
 import { TimelineControl, TimelineState, TimelineAction, Timeline } from '@stoked-ui/timeline' ;
 import { cloneDeep } from 'lodash' ;
 import { mockData, mockEffect } from './mock' ;
+import {ITimelineActionType} from "@stoked-ui/timeline/build";
 
 const defaultEditorData = cloneDeep(mockData);
 

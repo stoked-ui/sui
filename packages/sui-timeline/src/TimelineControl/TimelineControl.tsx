@@ -235,6 +235,7 @@ const TimelineControl = React.forwardRef<TimelineState, TimelineControlProps & a
       };
     }, []);
 
+    const setScaleFallback = (value: number) => {};
     return (
       <TimelineControlRoot
         style={style}
@@ -306,7 +307,7 @@ const TimelineControl = React.forwardRef<TimelineState, TimelineControlProps & a
           scrollLeft={scrollSync.current?.state?.scrollLeft}
           maxScale={scaleWidth * 20}
           minScale={1}
-          setScale={props.setScaleWidth}
+          setScale={props.setScaleWidth ?? setScaleFallback}
           setHorizontalScroll={setHorizontalScroll}
         />
       </TimelineControlRoot>

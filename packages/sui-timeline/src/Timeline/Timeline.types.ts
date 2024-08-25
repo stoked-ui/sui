@@ -64,6 +64,7 @@ export interface TimelineProps
   timelineState?: React.RefObject<TimelineState>;
   viewSelector?: string;
   engine?: React.RefObject<ITimelineEngine>;
+  labels?: boolean;
 
   scaleWidth?: number;
   setScaleWidth?: (scaleWidth: number) => void;

@@ -2,7 +2,6 @@ import { blend } from "@mui/system";
 import {SxProps, Theme, useTheme} from "@mui/material/styles";
 
 export function ToggleButtonGroupSx(theme: Theme): SxProps {
-  console.log('theme.palette.background.default', theme.palette.background.default)
   return {
     background: blend(theme.palette.background.default, '#AAA', 0.04),
     '& .MuiButtonBase-root': {
@@ -28,5 +27,18 @@ export function modeContrast(mode: 'dark' | 'light', percent: number) {
 
 export function useContrast(percent: number) {
   const theme = useTheme();
-  return blend(theme.palette.background.default, theme.palette.text.primary, percent)
+  const out = blend(theme.palette.background.default, theme.palette.text.primary, percent);
+  console.log('useContrast', percent, out);
+  return out;
+}
+
+export function usePaletteVar(themeVar: string) {
+  const theme = useTheme();
+  console.log('theme.palette', theme.palette.action, theme.palette.background, theme.palette.text)
+  let ret: any = theme.palette;
+  const parts: string[] = themeVar.split('.');
+  parts.forEach((part)=> {
+    ret = ret[part];
+  })
+  return ret;
 }

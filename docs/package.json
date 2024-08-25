@@ -6,9 +6,9 @@
   "license": "MIT",
   "scripts": {
     "build": "rimraf docs/export && cross-env NODE_ENV=production NODE_OPTIONS=\"--max_old_space_size=8192 --trace-warnings\" next build --profile && pnpm build-sw",
-    "deploy:copy": "mkdir -p ../../stoked-ui.github.io && cp -r ./export ../../stoked-ui.github.io",
+    "deploy:copy": "mkdir -p ../../stoked-ui.github.io && rimraf --glob \"../../stoked-ui.github.io/!(.git)\" && cp -r ./export/* ../../stoked-ui.github.io",
     "deploy:site": "cd ../../stoked-ui.github.io && git add -A && git commit -m \"chore: update site\" && git push",
-    "deploy:release": "pnpm build && pnpm deploy:copy && deploy:site",
+    "deploy:release": "pnpm build:clean && pnpm deploy:copy && pnpm deploy:site",
     "build:clean": "rimraf .next && pnpm build",
     "build-sw": "node ./scripts/buildServiceWorker.js",
     "dev": "next dev",

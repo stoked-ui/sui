@@ -1,7 +1,7 @@
 import * as React from 'react';
 import composeClasses from "@mui/utils/composeClasses";
 import { useSlotProps } from '@mui/base/utils';
-import { styled, useThemeProps } from '@mui/material/styles';
+import {emphasize, styled, useThemeProps} from '@mui/material/styles';
 import { TimelineLabelsProps } from './TimelineLabels.types';
 import { getTimelineLabelsUtilityClass } from "./timelineLabelsClasses";
 import { OnScrollParams } from "react-virtualized";
@@ -53,7 +53,7 @@ const TimelineLabel = styled('div', {
     display: 'flex',
     alignItems: 'center',
     paddingLeft: '6px',
-    backgroundColor: theme.palette.grey.A200,
+    backgroundColor: emphasize(theme.palette.background.default, 0.2),
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
@@ -89,7 +89,7 @@ export const TimelineLabels = React.forwardRef(
       <Root
         ref={ref}
         setTracks={inProps.setTracks}
-        style={{ overflow: 'overlay' }}
+        style={{ overflow: 'overlay', height: 'fit-content' }}
         onScroll={(scrollEvent:  React.UIEvent<HTMLDivElement, UIEvent>) => {
           timelineState.current?.setScrollTop((scrollEvent.target as HTMLDivElement).scrollTop);
         }}

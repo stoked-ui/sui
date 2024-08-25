@@ -38,6 +38,7 @@
     "docs:build-sw": "pnpm --filter stokedui-com build-sw",
     "docs:build-color-preview": "babel-node scripts/buildColorTypes",
     "docs:deploy": "pnpm --filter stokedui-com run deploy",
+    "docs:release": "pnpm --filter stokedui-com run deploy:release",
     "docs:dev": "pnpm --filter stokedui-com dev",
     "docs:icons": "pnpm --filter stokedui-com icons",
     "docs:size-why": "cross-env DOCS_STATS_ENABLED=true pnpm docs:build",

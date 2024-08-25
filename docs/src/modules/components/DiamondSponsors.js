@@ -53,9 +53,9 @@ export default function DiamondSponsors() {
       >
         <Box
           component="img"
-          height="36px"
-          width="36px"
-          src="/static/icons/48x48.png"
+          height="32px"
+          width="32px"
+          src="/static/logo-no-padding.svg"
           alt="brian stoker"
           title="B STOKED"
           loading="lazy"
