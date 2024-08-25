@@ -32,7 +32,6 @@ const TimelineRoot = styled('div', {
   overridesResolver: (props, styles) => styles.root,
 })(({ theme }) => ({
   display: 'flex',
-  width: '800px',
   backgroundColor: blend(theme.palette.background.default, theme.palette.action.hover, 0.04),
   '&:hover': {
     '& .SuiScrollbar': {
@@ -52,14 +51,14 @@ const TimelineRoot = styled('div', {
  * - [Timeline](https://stoked-ui.github.io/timeline/api/)
  */
 const Timeline = React.forwardRef(function Timeline(
-  inProps: TimelineProps & any,
+  inProps: TimelineProps,
   ref: React.Ref<HTMLDivElement>,
 ): React.JSX.Element {
-  const { slots, slotProps, controlSx, tracks, onChange, trackSx } = useThemeProps({
+  const { slots, slotProps, setTracks, controlSx, tracks, onChange, trackSx } = useThemeProps({
     props: inProps,
     name: 'MuiTimeline',
   });
-  console.log('tracks', tracks);
+  const { sx, ...unstyledProps } = inProps;
   const classes = useUtilityClasses(inProps);
 
   const timelineState = React.useRef<TimelineState>(null);
@@ -93,11 +92,11 @@ const Timeline = React.forwardRef(function Timeline(
     elementType: Control,
     externalSlotProps: slotProps?.control,
     className: classes.root,
-    ownerState: { sx: controlSx, trackSx, tracks },
+    ownerState: { sx: controlSx, trackSx, tracks, setTracks },
   });
 
   const createAction = (e: React.MouseEvent<HTMLElement, MouseEvent>, { track, time }) => {
-    onChange((previous) => {
+    setTracks((previous) => {
       const rowIndex = previous.findIndex((previousTrack) => previousTrack.id === track.id);
       const newAction: ITimelineAction = {
         id: `action ${tracks.length}`,
@@ -127,19 +126,7 @@ const Timeline = React.forwardRef(function Timeline(
             transform: 'translateY(-50%)',
           },
         }}
-        onDoubleClickRow={(e, { track, time }) => {
-          onChange((previous) => {
-            const rowIndex = previous.findIndex((previousTrack) => previousTrack.id === track.id);
-            const newAction: ITimelineAction = {
-              id: `action ${previous.length}`,
-              start: time,
-              end: time + 0.5,
-              effectId: 'effect0',
-            };
-            previous[rowIndex] = { ...track, actions: [...track.actions, newAction] };
-            return [...previous];
-          });
-        }}
+        onDoubleClickRow={createAction}
         onKeyDown={(event) => {
           event.preventDefault();
           const selectedActions = inProps.engine.current.getSelectedActions();
@@ -160,12 +147,12 @@ const Timeline = React.forwardRef(function Timeline(
         onChange={onChange}
         tracks={tracks}
         autoScroll
-        setTracks={inProps.setTracks}
+        setTracks={setTracks}
         className={'SuiTimeline'}
         actionTypes={inProps.actionTypes}
         viewSelector={inProps.viewSelector ?? '.viewer'}
         onClickAction={(e, { track, action, time }) => {
-          onChange((previous) => {
+          setTracks((previous) => {
             const selectedRowIndex = previous.findIndex(
               (previousTrack) => previousTrack.id === track.id,
             );

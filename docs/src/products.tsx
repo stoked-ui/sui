@@ -117,6 +117,7 @@ export class Product {
     const showFeatures = !(product && this.data.hideProductFeatures);
     return (
       <Box
+        key={this.id}
         component="li"
         role="none"
         sx={(theme) => ({
@@ -510,6 +511,7 @@ function ProductMenu(props: ProductMenuProps) {
       </ButtonBase>
       <Popper
         id="products-popper"
+        key={type}
         open={props.subMenuOpen === type}
         anchorEl={props.menuRef?.current}
         transition
@@ -520,7 +522,7 @@ function ProductMenu(props: ProductMenuProps) {
         }}
       >
         {({ TransitionProps }) => (
-          <Fade {...TransitionProps} timeout={250}>
+          <Fade {...TransitionProps} timeout={250} key={'fade'}>
             <Paper
               key={'someKey'}
               variant="outlined"

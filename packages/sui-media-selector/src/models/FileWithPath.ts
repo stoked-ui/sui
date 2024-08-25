@@ -1323,7 +1323,11 @@ export type FromEventInput = DragEvent | ChangeEvent<HTMLInputElement> | Event |
 
 
 async function getDropFiles(input: PragmaticDndEvent) {
+  if (!input?.source?.items) {
+    return [] as FileWithPath[];
+  }
   console.log('input', JSON.stringify(input.source, null, 2));
+
   const files = input.source.items;
   const finalizedFiles = await Promise.all(files.map(async (item: DropFile) =>  {
     if (item as DataTransferItem) {

@@ -210,22 +210,23 @@ const dataReducer = <R extends FileBase>(items: R[], action: FileExplorerDndActi
     return action.items;
   }
 
+  if (action.type === 'create-children') {
+    fileExplorer.createChildren(items, action.items, action.targetId);
+    return items;
+  }
+
+  if (action.type === 'create-child') {
+    fileExplorer.createChild(items, action.item, action.targetId);
+    return items;
+  }
+
   const item = fileExplorer.find(items, action.itemId);
 
   if (!item) {
-    if (action.type === 'create-children') {
-      // return fileExplorer.insertChild(items, action.targetId, item);
-      fileExplorer.createChildren(items, action.items, action.targetId);
-    } else if (action.type === 'create-child') {
-      // return fileExplorer.insertChild(items, action.targetId, item);
-      fileExplorer.createChild(items, action.item, action.targetId);
-    } else {
-      console.warn('TODO: action not implemented', action);
-    }
-
-
+    console.warn(`Task [${action.type}] failed: itemId ${action.itemId} was not found`);
     return items;
   }
+
   if (action.type === 'remove') {
     const result = fileExplorer.remove(items, action.itemId);
     return result;
@@ -241,6 +242,7 @@ const dataReducer = <R extends FileBase>(items: R[], action: FileExplorerDndActi
       invariant(path);
       const desiredId = path[instruction.desiredLevel];
       let result = fileExplorer.remove(items, action.itemId);
+
       result = fileExplorer.insertAfter(result, desiredId, item);
       return result;
     }

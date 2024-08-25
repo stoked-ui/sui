@@ -94,7 +94,7 @@ const Editor = React.forwardRef(function Editor<
   } = useEditor<EditorPluginSignatures, EditorProps<R, Multiple>>({
     plugins: VIDEO_EDITOR_PLUGINS,
     rootRef: ref,
-    props: inProps,
+    props: props,
   });
 
   const { slots, slotProps } = props;
@@ -195,7 +195,7 @@ const Editor = React.forwardRef(function Editor<
   }, [viewerRef.current]);
 
   return (
-    <Root {...rootProps}>
+    <Root {...rootProps} sx={sx}>
       <EditorViewSlot {...editorViewProps} ref={viewerRef} engine={engine} />
       <ControlsSlot
         {...videoControlsProps}

@@ -63,7 +63,7 @@ export default function CoreDemo() {
   const [data, setData] = React.useState(defaultEditorData);
 
   return (
-    <Editor id='video-editor' sx={{ borderRadius: '12px 12px 0 0' }} actions={data}/>
+    <Editor id='video-editor' sx={{ borderRadius: '12px 12px 0 0' }} actionData={data} />
   );
 };
 
