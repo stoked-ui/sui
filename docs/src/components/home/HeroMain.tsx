@@ -29,14 +29,9 @@ function createLoading(sx: BoxProps['sx']) {
   };
 }
 
-const FileExplorerGrid = dynamic(() => import('../showcase/FileExplorerCard'), {
+const EditorHero = dynamic(() => import('../showcase/EditorHero'), {
   ssr: false,
   loading: createLoading({ width: '100%', height: 280 }),
-});
-
-const FileExplorerDrop = dynamic(() => import('../showcase/FileExplorerCard'), {
-  ssr: false,
-  loading: createLoading({ width: 360, height: 280 }),
 });
 
 export default function Hero() {
@@ -47,18 +42,17 @@ export default function Hero() {
       linearGradient
       left={
         <Box sx={{ textAlign: { xs: 'center', md: 'left' }, maxWidth: 500 }}>
-          <Typography variant="h1" mb={1}>
-            <GradientText>File Explorer</GradientText> <br />
-            with drag and drop and much more
+          <Typography variant="h1" mb={1} className={'stoked-font'}>
+            STOKED <GradientText>CONSULTING</GradientText>
           </Typography>
           <Typography color="text.secondary" mb={3}>
-            SUI is building an open source web based Video Editor and just released the first component. The File Explorer will play a critical role managing files in the Video Editor. It&apos;s built with <a href={'https://mui.com/material-ui/getting-started/'}>MUI</a> through and through and leverages Atlassian&apos;s new <a href={'https://atlassian.design/components/pragmatic-drag-and-drop/'}>Pragmatic Drag and Drop Library</a>. PR&apos;s welcome.
+            Full stack consulting services with over 25 years experience developing web applications.
           </Typography>
-          <GetStartedButtons primaryLabel="Checkout the roadmap to see whats next" primaryUrl="https://github.com/orgs/stoked-ui/projects/1/views/1" />
+          <GetStartedButtons primaryLabel="Make contact" primaryUrl="https://github.com/orgs/stoked-ui/projects/1/views/1" />
         </Box>
       }
       rightSx={{
-        p: 4,
+        p: 0,
         ml: 2,
         minWidth: 2000,
         overflow: 'hidden', // the components in the Hero section are mostly illustrative, even though they're interactive. That's why scrolling is disabled.
@@ -71,17 +65,14 @@ export default function Hero() {
           },
         },
         '&& *': {
-          fontFamily: ['"IBM Plex Sans"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'].join(
-            ',',
-          ),
+          fontFamily: ['"IBM Plex Sans"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'].join(',')
         },
       }}
       right={
         <React.Fragment>
           {isMdUp && (
             <Stack spacing={3} useFlexGap sx={{ '& > .MuiPaper-root': { maxWidth: 'none' } }}>
-              <FileExplorerGrid id={'file-explorer-grid'} defaultData grid sx={{ width: '100%' }} />
-              <FileExplorerDrop id={'file-explorer-drop'} defaultData sx={{width: '100%'}}/>
+              <EditorHero id={'file-explorer-grid'} grid sx={{ width: '100%' }} />
             </Stack>
           )}
         </React.Fragment>

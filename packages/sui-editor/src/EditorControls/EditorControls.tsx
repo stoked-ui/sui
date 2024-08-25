@@ -12,7 +12,7 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import { FileBase } from '@stoked-ui/file-explorer';
 import { TimelineState } from '@stoked-ui/timeline';
-import { styled, createUseThemeProps } from '../internals/zero-styled';
+import { styled, createUseThemeProps, Theme } from '../internals/zero-styled';
 
 import { EditorControlsProps } from './EditorControls.types';
 import { getEditorControlsUtilityClass } from "./editorControlsClasses";
@@ -20,7 +20,6 @@ import TextField from '@mui/material/TextField';
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import {blend} from "@mui/system";
-import { useTheme } from '@mui/material/styles';
 import { ToggleButtonGroupSx } from '@stoked-ui/core/styles';
 
 export const Rates = [0.2, 0.5, 1.0, 1.5, 2.0];
@@ -40,14 +39,17 @@ const useUtilityClasses = <R extends FileBase, Multiple extends boolean | undefi
 };
 
 
-const PlayerRoot = styled('div')(({ theme }) => ({
-  height: '42px',
-  width: '100%',
-  display: 'flex',
-  flexDirection: 'row',
-  alignItems: 'center',
-  backgroundColor: blend(theme.palette.background.default,theme.palette.action.hover, 0.12),
-}));
+const PlayerRoot = styled('div')(({ theme }) => {
+  console.log('theme.palette.background.default', theme.palette.background.default)
+  return ({
+    height: '42px',
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: blend(theme.palette.background.default,theme.palette.action.hover, 0.12),
+  })
+});
 
 const TimeRoot = styled(TextField)(({ theme }) => ({
   fontSize: '1px',
@@ -195,8 +197,8 @@ export const EditorControls = React.forwardRef(function EditorControls<
   }
   const controlsInput: string[] = [];
   const [controls, setControls] = React.useState(controlsInput);
-  const theme = useTheme();
-  const styles = ToggleButtonGroupSx(theme);
+  //const theme = useTheme();
+  //console.log('useTheme theme', JSON.stringify(theme, null, 2));
   return (
     <PlayerRoot className="timeline-player">
 
@@ -204,10 +206,8 @@ export const EditorControls = React.forwardRef(function EditorControls<
           <ToggleButtonGroup
             value={controls}
             exclusive
-            onChange={(event, value) => {
-
-            }}
-            sx={styles}
+            onChange={(event, value) => {}}
+            sx={(theme) => ToggleButtonGroupSx(theme)}
             size={'small'}
             aria-label="text alignment"
           >

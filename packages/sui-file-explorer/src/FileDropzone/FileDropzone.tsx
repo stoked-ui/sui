@@ -2,24 +2,17 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import composeClasses from '@mui/utils/composeClasses';
 import { useSlotProps } from '@mui/base/utils';
-import { shouldForwardProp } from '@mui/system/createStyled';
-import { getFileExplorerUtilityClass } from './fileExplorerClasses';
-import { FileExplorerProps } from './FileExplorer.types';
 import { createUseThemeProps, styled } from '../internals/zero-styled';
+import { getFileDropzoneUtilityClass } from './fileDropzoneClasses';
+import { FileDropzoneProps } from './FileDropzone.types';
 import { useFileExplorer } from '../internals/useFileExplorer/useFileExplorer';
 import { FileExplorerProvider } from '../internals/FileExplorerProvider';
-import { FILE_EXPLORER_PLUGINS, FileExplorerPluginSignatures } from './FileExplorer.plugins';
 import { buildWarning } from '../internals/utils/warning';
-import { FileExplorerGridHeaders } from '../internals/plugins/useFileExplorerGrid/FileExplorerGridHeaders';
-import { FileWrapped } from './FileWrapped';
-import { FileExplorerDndContext } from '../internals/plugins/useFileExplorerDnd/FileExplorerDndContext';
-import { FileBase } from '../models';
-import {FileDropzone} from "../FileDropzone";
 
-const useThemeProps = createUseThemeProps('MuiFileExplorer');
+const useThemeProps = createUseThemeProps('MuiFileDropzone');
 
-const useUtilityClasses = <R extends FileBase, Multiple extends boolean | undefined>(
-  ownerState: FileExplorerProps<R, Multiple>,
+const useUtilityClasses = (
+  ownerState: FileDropzoneProps
 ) => {
   const { classes } = ownerState;
 
@@ -27,137 +20,70 @@ const useUtilityClasses = <R extends FileBase, Multiple extends boolean | undefi
     root: ['root'],
   };
 
-  return composeClasses(slots, getFileExplorerUtilityClass, classes);
+  return composeClasses(slots, getFileDropzoneUtilityClass, classes);
 };
 
-export const FileExplorerRoot = styled('ul', {
-  name: 'MuiFileExplorer',
+export const FileDropzoneRoot = styled('div', {
+  name: 'MuiFileDropzone',
   slot: 'Root',
   overridesResolver: (props, styles) => styles.root,
-  shouldForwardProp: (prop) =>
-    shouldForwardProp(prop) &&
-    prop !== 'grow' &&
-    prop !== 'cell' &&
-    prop !== 'last' &&
-    prop !== 'header' &&
-    prop !== 'first',
-})<{ grow?: boolean; header?: boolean; cell?: boolean; last?: boolean }>(({ theme }) => ({
+})<{ ownerState: FileDropzoneProps }>({
   padding: 0,
   margin: 0,
   listStyle: 'none',
   outline: 0,
   position: 'relative',
-  '& .header:after': {
-    content: '""',
-    position: 'absolute',
-    width: '1px',
-    height: '80%',
-    backgroundColor: theme.palette.divider,
-    alignSelf: 'center',
-    right: 0,
-  },
-  '& .header:last-child:after': {
-    /* ADDED */ display: 'none',
-  },
-}));
+});
 
-type FileExplorerComponent = (<
-  R extends FileBase,
-  Multiple extends boolean | undefined = undefined,
->(
-  props: FileExplorerProps<R, Multiple> & React.RefAttributes<HTMLUListElement>,
+type FileDropzoneComponent = ((
+  props: FileDropzoneProps,
 ) => React.JSX.Element) & { propTypes?: any };
 
-const childrenWarning = buildWarning([
-  'SUI X: The `FileExplorer` component does not support JSX children.',
-  'If you want to add items, you need to use the `items` prop',
-  'Check the documentation for more details: https://stoked-ui.github.io/x/react-fileExplorer-view/rich-fileExplorer-view/items/',
+const EMPTY_ITEMS: any[] = [];
+
+const itemsPropWarning = buildWarning([
+  'SUI X: The `FileDropzone` component does not support the `items` prop.',
+  'If you want to add items, you need to pass them as JSX children.',
+  'Check the documentation for more details: https://stoked-ui.github.io/x/react-fileExplorer-view/simple-fileExplorer-view/items/',
 ]);
 
 /**
  *
  * Demos:
  *
- * - [FileExplorer View](https://stoked-ui.github.io/file-explorer/docs/)
+ * - [FileExplorer View](https://stoked-ui.github.io/x/react-fileExplorer-view/)
  *
  * API:
  *
- * - [FileExplorer API](https://stoked-ui.github.io/file-explorer/api/)
+ * - [FileDropzone API](https://stoked-ui.github.io/x/api/fileExplorer-view/simple-fileExplorer-view/)
  */
-const FileExplorer = React.forwardRef(function FileExplorer<
-  R extends FileBase = FileBase,
-  Multiple extends boolean | undefined = undefined,
->(inProps: FileExplorerProps<R, Multiple>, ref: React.Ref<HTMLUListElement>) {
-  const props = useThemeProps({ props: inProps, name: 'MuiFileExplorer' });
+const FileDropzone = React.forwardRef(function FileDropzone(inProps: FileDropzoneProps, ref: React.Ref<HTMLUListElement>) {
+  const props = useThemeProps({ props: inProps, name: 'MuiFileDropzone' });
+  const ownerState = props as FileDropzoneProps;
+
   if (process.env.NODE_ENV !== 'production') {
-    if ((props as any).children != null) {
-      childrenWarning();
+    if ((props as any).items != null) {
+      itemsPropWarning();
     }
   }
-
-  const richProps: FileExplorerProps<R, Multiple> & { id?: string } = { ...props, id: props.id };
-  const { getRootProps, contextValue, instance } = useFileExplorer<
-    FileExplorerPluginSignatures,
-    typeof richProps
-  >({
-    plugins: FILE_EXPLORER_PLUGINS,
-    rootRef: ref,
-    props: richProps,
-  });
 
   const { slots, slotProps } = props;
   const classes = useUtilityClasses(props);
 
-  const Root = slots?.root ?? FileExplorerRoot;
+  const Root = slots?.root ?? FileDropzoneRoot;
   const rootProps = useSlotProps({
     elementType: Root,
     externalSlotProps: slotProps?.root,
     className: classes.root,
-    getSlotProps: getRootProps,
-    ownerState: props as FileExplorerProps<any, any>,
+    ownerState,
   });
 
-  const itemsToRender = instance.getItemsToRender();
-
-  const renderItem = (item: ReturnType<typeof instance.getItemsToRender>[number]) => {
-    const currItem = instance.getItem(item.itemId);
-
-    return (
-      <FileWrapped {...currItem} {...item} slots={slots} key={item.itemId} sx={props.sx}>
-        {item.children?.map(renderItem)}
-      </FileWrapped>
-    );
-  };
-  const getContent = () => {
-    if (!props.items?.length) {
-      return (
-        <FileDropzone />
-      )
-    }
-    if (!props.grid) {
-      return (
-        <Root {...rootProps} sx={props.sx}>
-          {itemsToRender.map(renderItem)}
-        </Root>
-      );
-    }
-    return (
-      <Root {...rootProps} sx={props.sx}>
-        <FileExplorerGridHeaders id={'file-explorer-headers'} />
-        <div>{itemsToRender.map(renderItem)}</div>
-      </Root>
-    );
-  };
   return (
-    <FileExplorerProvider value={contextValue}>
-      <FileExplorerDndContext.Provider value={instance.getDndContext}>
-        {getContent()}
-      </FileExplorerDndContext.Provider>
-    </FileExplorerProvider>
+      <Root {...rootProps} />
   );
-}) as FileExplorerComponent;
+}) as FileDropzoneComponent;
 
-FileExplorer.propTypes = {
+FileDropzone.propTypes = {
   // ----------------------------- Warning --------------------------------
   // | These PropTypes are generated from the TypeScript type definitions |
   // | To update them edit the TypeScript types and run "pnpm proptypes"  |
@@ -188,6 +114,10 @@ FileExplorer.propTypes = {
    * @default false
    */
   checkboxSelection: PropTypes.bool,
+  /**
+   * The content of the component.
+   */
+  children: PropTypes.node,
   /**
    * Override or extend the styles applied to the component.
    */
@@ -240,24 +170,6 @@ FileExplorer.propTypes = {
   experimentalFeatures: PropTypes.shape({
     indentationAtItemLevel: PropTypes.bool,
   }),
-  /**
-   * Used to determine the id of a given item.
-   *
-   * @template R
-   * @param {R} item The item to check.
-   * @returns {string} The id of the item.
-   * @default (item) => item.id
-   */
-  getItemId: PropTypes.func,
-  /**
-   * Used to determine the string label for a given item.
-   *
-   * @template R
-   * @param {R} item The item to check.
-   * @returns {string} The label of the item.
-   * @default (item) => item.label
-   */
-  getItemLabel: PropTypes.func,
   grid: PropTypes.bool,
   gridHeader: PropTypes.bool,
   headers: PropTypes.object,
@@ -268,19 +180,11 @@ FileExplorer.propTypes = {
   id: PropTypes.string,
   initializedIndexes: PropTypes.bool,
   /**
-   * Used to determine if a given item should be disabled.
-   * @template R
-   * @param {R} item The item to check.
-   * @returns {boolean} `true` if the item should be disabled.
-   */
-  isItemDisabled: PropTypes.func,
-  /**
    * Horizontal indentation between an item and its children.
    * Examples: 24, "24px", "2rem", "2em".
    * @default 12px
    */
   itemChildrenIndentation: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-  items: PropTypes.any,
   /**
    * If `true`, `ctrl` and `shift` will trigger multiselect.
    * @default false
@@ -327,12 +231,10 @@ FileExplorer.propTypes = {
   selectedItems: PropTypes.any,
   /**
    * The props used for each component slot.
-   * @default {}
    */
   slotProps: PropTypes.object,
   /**
    * Overridable component slots.
-   * @default {}
    */
   slots: PropTypes.object,
   /**
@@ -345,4 +247,4 @@ FileExplorer.propTypes = {
   ]),
 };
 
-export { FileExplorer };
+export { FileDropzone };

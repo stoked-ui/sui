@@ -54,10 +54,10 @@ export default function HeroContainer(props: HeroContainerProps) {
       aria-hidden={disableTabExclusion ? undefined : 'true'}
       sx={[
         (theme) => ({
-          minWidth: '50vw',
+          minWidth: '70%',
           minHeight: { xs: 'auto', sm: 500 },
           height: 'calc(100vh - 120px)',
-          maxHeight: { md: 700, xl: 850 },
+          maxHeight: { md: 950, xl: 1150 },
           borderBottomLeftRadius: 12,
           transition: 'max-height 0.3s',
           position: 'relative',
@@ -107,6 +107,7 @@ export default function HeroContainer(props: HeroContainerProps) {
               md={7}
               lg={6}
               sx={{
+                minWidth: '40%',
                 display: { xs: 'flex', md: 'block' },
                 minHeight: { xs: 500, sm: 700, md: 'initial' },
                 m: 'auto',
@@ -145,15 +146,15 @@ export default function HeroContainer(props: HeroContainerProps) {
           transition: '0.3s',
         }}
       >
-        <Grid container alignItems="center" wrap="nowrap" sx={{ height: '100%', mx: 'auto' }}>
-          <Grid item md={7} lg={6} sx={{ m: 'auto' }}>
+        <Grid container alignItems="center" wrap="nowrap" sx={{ height: '100%', mx: 'auto'}}>
+          <Grid item md={7} lg={6} sx={{ m: 'auto', width: '30vw'  }}>
             {left}
           </Grid>
           <Grid
             item
             md={5}
             lg={6}
-            sx={{ maxHeight: '100%', display: { xs: 'none', md: 'initial' } }}
+            sx={{ maxHeight: '100%', display: { xs: 'none', md: 'initial' }, width: '100vw'}}
           >
             {renderRightWrapper()}
           </Grid>

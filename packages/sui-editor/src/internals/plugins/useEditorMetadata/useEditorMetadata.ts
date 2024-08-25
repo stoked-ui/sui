@@ -1,7 +1,7 @@
 import * as React from "react";
 import { EditorPlugin } from '../../models';
 import {
-  UseEditorMetadataSignature,
+  UseEditorMetadataDefaultizedParameters, UseEditorMetadataSignature,
 } from './useEditorMetadata.types';
 import {buildTracks} from "../../utils/TrackBuilder";
 
@@ -25,23 +25,22 @@ export const useEditorMetadata: EditorPlugin<UseEditorMetadataSignature> = ({
     contextValue: {
       tracks: params.tracks,
       actions: params.actions,
+      actionData: params.actionData
     },
   };
 };
 
 useEditorMetadata.getDefaultizedParams = (params) => {
-  console.log('tracks', params.tracks, 'actions', params.actions);
-  if ((!params.tracks || params.tracks?.length === 0) && params.actions) {
-    params.tracks = buildTracks(params.actions);
-  }
   return {
     ...params,
+    actionData: params.actionData ?? [],
     actions: params.actions ?? [],
-    tracks: params.tracks ?? [],
-  };
+    tracks: buildTracks(params),
+  } as UseEditorMetadataDefaultizedParameters;
 }
 
 useEditorMetadata.params = {
   tracks: true,
   actions: true,
+  actionData: true,
 };

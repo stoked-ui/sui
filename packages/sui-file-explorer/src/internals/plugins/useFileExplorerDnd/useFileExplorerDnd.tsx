@@ -29,7 +29,6 @@ import memoizeOne from "memoize-one";
 import {
   triggerPostMoveFlash
 } from "@atlaskit/pragmatic-drag-and-drop-flourish/trigger-post-move-flash";
-import { SyntheticEvent } from "react";
 import { FileExplorerPlugin, FilePlugin, FilePluginOptions } from '../../models/plugin';
 import {
   DndItemState,
@@ -356,13 +355,7 @@ function delay({ waitMs: timeMs, fn }: { waitMs: number; fn: () => void }): () =
   };
 }
 
-const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDndSignature>> = (inProps: FilePluginOptions<UseMinimalPlus<UseFileExplorerDndSignature>>) => {
-  const { props, rootRef, contentRef, instance, status } = inProps;
-  const pluginContentRef                                = React.useRef<HTMLDivElement>(null);
-  const handleContentRef = useForkRef(pluginContentRef, contentRef);
-  const pluginRootRef = React.useRef<HTMLLIElement>(null);
-  const handleRootRef = useForkRef(pluginRootRef, rootRef);
-
+function useDnd({ status, pluginContentRef, props, instance }) {
   const cancelExpandRef = React.useRef<(() => void) | null>(null);
   const { uniqueContextId, getPathToItem, registerFile } = React.useContext(FileExplorerDndContext);
   const { attachInstruction, extractInstruction } =  React.useContext(FileExplorerDndItemContext);
@@ -442,9 +435,7 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
     }, [clearParentOfInstructionState, setState, shouldHighlightParent]);
 
   const dndConfig = instance.dndConfig();
-
   React.useEffect(() => {
-
     if (!dndConfig) {
       return undefined;
     }
@@ -457,7 +448,7 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
     const handleDraggable = draggable({
       element: pluginContentRef.current,
       canDrag: () => props.type !== 'trash',
-      getInitialData: () =>  {
+      getInitialData: () => {
         const initialData = {
           itemId: props.itemId,
           type: 'file-element',
@@ -466,25 +457,29 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
         };
         return initialData
       },
-      onGenerateDragPreview: ({ nativeSetDragImage }) => {
+      onGenerateDragPreview: ({nativeSetDragImage}) => {
         setCustomNativeDragPreview({
-          getOffset: pointerOutsideOfPreview({ x: '16px', y: '8px' }),
-          render: ({ container: dndContainer }) => {
-            setState({dndState: 'preview', dndContainer, dndInstruction: state.dndInstruction });
+          getOffset: pointerOutsideOfPreview({x: '16px', y: '8px'}),
+          render: ({container: dndContainer}) => {
+            setState({dndState: 'preview', dndContainer, dndInstruction: state.dndInstruction});
             // In our cleanup function: cause a `react` re-render to create remove your portal
             // Note: you can also remove the portal in `onDragStart`,
             // which is when the cleanup function is called
-            return () =>setState({dndState: 'idle', dndContainer, dndInstruction: state.dndInstruction });
+            return () => setState({
+              dndState: 'idle',
+              dndContainer,
+              dndInstruction: state.dndInstruction
+            });
           },
           nativeSetDragImage,
         });
       },
-      onDragStart: ({ source }) => {
-        setState({ ...state, dndState: 'dragging' });
+      onDragStart: ({source}) => {
+        setState({...state, dndState: 'dragging'});
         // collapse open items during a drag
         if (source.data.isOpenOnDragStart) {
           if (instance.isItemExpanded(props.itemId!)) {
-            instance.toggleItemExpansion(null as unknown as SyntheticEvent, props.itemId!);
+            instance.toggleItemExpansion(null as unknown as React.SyntheticEvent, props.itemId!);
           }
         }
       },
@@ -492,12 +487,10 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
     });
 
     const handleInternalDropTargets = dropTargetForElements({
-      element: pluginContentRef?.current,
-      onDragEnter: () => {
-        setState({ ...state, dndState: 'parent-of-instruction'});
-      },
-      getData: ({ input, element }) => {
-        const data = { itemId: props.itemId, type: props.type };
+      element: pluginContentRef?.current, onDragEnter: () => {
+        setState({...state, dndState: 'parent-of-instruction'});
+      }, getData: ({input, element}) => {
+        const data = {itemId: props.itemId, type: props.type};
         const dataInstruction = attachInstruction(data, {
           input,
           element,
@@ -508,22 +501,18 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
         });
 
         return dataInstruction;
-      },
-      canDrop: (canDropArg) => {
-        const { source } = canDropArg;
+      }, canDrop: (canDropArg) => {
+        const {source} = canDropArg;
         return canDrop && source.data.type === 'file-element' && source.data.uniqueContextId === uniqueContextId;
-      },
-      getIsSticky: () => true,
+      }, getIsSticky: () => true,
 
       onDragLeave: () => {
         cancelExpand();
         setState({...state, dndInstruction: null});
-      },
-      onDrop: (event) => {
+      }, onDrop: (event) => {
 
         // const { sourceItemId } = source.data;
         // publishFileExplorerEvent(instance, 'removeItem', { targetId: item.id, sourceItemIds });
-
 
         instance.dropInternal(event);
         // console.log('combinedContentRef', pluginContentRef);
@@ -533,7 +522,7 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
       },
     })
     const handleInternalMonitor = monitorForElements({
-      canMonitor: ({ source }) => source.data.uniqueContextId === uniqueContextId,
+      canMonitor: ({source}) => source.data.uniqueContextId === uniqueContextId,
       onDragStart: updateIsParentOfInstruction,
       onDrag: updateIsParentOfInstruction,
       onDrop() {
@@ -542,87 +531,74 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
     });
 
     const handleExternalDropTargets = dropTargetForExternal({
-        element: pluginContentRef?.current,
-        canDrop: ({ input, source, element}) => {
-          const files = FileWithPath.from(source.items);
-          return  canDrop;
-        },
-        getData: ({ input, element }) => {
-          const data = { itemId: props.itemId, type: props.type };
+      element: pluginContentRef?.current, canDrop: ({input, source, element}) => {
+        const files = FileWithPath.from(source.items);
+        return canDrop;
+      }, getData: ({input, element}) => {
+        const data = {itemId: props.itemId, type: props.type};
 
-          const dataInstruction = attachInstruction(data, {
-            input,
-            element,
-            indentPerLevel,
-            currentLevel: props.depth ?? 0,
-            mode: instance.getItemMode(props),
-            block: !canDrop ? ['make-child'] : [],
+        const dataInstruction = attachInstruction(data, {
+          input,
+          element,
+          indentPerLevel,
+          currentLevel: props.depth ?? 0,
+          mode: instance.getItemMode(props),
+          block: !canDrop ? ['make-child'] : [],
+        });
+        // console.info('dropTargetForElements => dataInstruction', dataInstruction)
+        return dataInstruction;
+      }, onDragEnter: () => {
+        setState({...state, dndState: 'parent-of-instruction'});
+      }, onDragLeave: () => {
+        setState({...state, dndState: 'idle', dndInstruction: null});
+        cancelExpand();
+      }, onDrag: (data) => {
+        const {self} = data;
+        const dragInstruction = extractInstruction(self.data);
+        // console.log('drag dndExternal source:', source)
+        // expand after 500ms if still merging
+        // expand after 500ms if still merging
+        if (dragInstruction?.type === 'make-child' && props.type === 'folder' && status?.expandable && !status?.expanded && !cancelExpandRef.current) {
+          cancelExpandRef.current = delay({
+            waitMs: 500, fn: () => {
+              if (!instance.isItemExpanded(props.itemId!)) {
+                instance.toggleItemExpansion(null as unknown as React.SyntheticEvent, props.itemId!);
+              }
+            },
           });
-          // console.info('dropTargetForElements => dataInstruction', dataInstruction)
-          return dataInstruction;
-        },
-        onDragEnter: () => {
-          setState({...state, dndState: 'parent-of-instruction'});
-        },
-        onDragLeave: () => {
-          setState({...state, dndState: 'idle', dndInstruction: null });
+        }
+        if (dragInstruction?.type !== 'make-child' && cancelExpandRef.current) {
           cancelExpand();
-        },
-        onDrag: (data) => {
-          const { self } = data;
-          const dragInstruction = extractInstruction(self.data);
-          // console.log('drag dndExternal source:', source)
-          // expand after 500ms if still merging
-          // expand after 500ms if still merging
-          if (
-            dragInstruction?.type === 'make-child' &&
-            props.type === 'folder' &&
-            status?.expandable &&
-            !status?.expanded &&
-            !cancelExpandRef.current
-          ) {
-            cancelExpandRef.current = delay({
-              waitMs: 500,
-              fn: () => {
-                if (!instance.isItemExpanded(props.itemId!)) {
-                  instance.toggleItemExpansion(null as unknown as SyntheticEvent, props.itemId!);
-                }
-              },
-            });
-          }
-          if (dragInstruction?.type !== 'make-child' && cancelExpandRef.current) {
-            cancelExpand();
-          }
+        }
 
-          setState({...state, dndInstruction: dragInstruction });
-        },
-        onDrop: async (dropEvent) => {
-          if (!instance.isItemExpanded(props.itemId!)) {
-            instance.toggleItemExpansion(null as unknown as SyntheticEvent, props.itemId!);
-          }
-          const filesWithPaths = await  FileWithPath.from(dropEvent);
-          const { self } = dropEvent;
-          const files = filesWithPaths.map((file): FileBase => {
-            const idGenerator = IdGenerator();
-            const newId = idGenerator.id('file',4)
-            return ({
-              type: 'image',
-              id: newId,
-              itemId: newId,
-              file,
-              label: file.name,
-              expanded: false,
-              modified: file.lastModified,
-              size: file.size,
-              children: [] as FileBase[],
-              parent: null,
-            } as unknown as FileBase);
-          });
-          instance.createChildren(files, self.data.itemId as string);
-          cancelExpand();
-          setState({...state, dndInstruction: null });
-        },
-      });
+        setState({...state, dndInstruction: dragInstruction});
+      }, onDrop: async (dropEvent) => {
+        if (!instance.isItemExpanded(props.itemId!)) {
+          instance.toggleItemExpansion(null as unknown as React.SyntheticEvent, props.itemId!);
+        }
+        const filesWithPaths = await FileWithPath.from(dropEvent);
+        const {self} = dropEvent;
+        const files = filesWithPaths.map((file): FileBase => {
+          const idGenerator = IdGenerator();
+          const newId = idGenerator.id('file', 4)
+          return ({
+            type: 'image',
+            id: newId,
+            itemId: newId,
+            file,
+            label: file.name,
+            expanded: false,
+            modified: file.lastModified,
+            size: file.size,
+            children: [] as FileBase[],
+            parent: null,
+          } as unknown as FileBase);
+        });
+        instance.createChildren(files, self.data.itemId as string);
+        cancelExpand();
+        setState({...state, dndInstruction: null});
+      },
+    });
 
     const handleExternalMonitor = monitorForExternal({
       canMonitor: containsFiles,
@@ -635,22 +611,290 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
       },
     });
 
-    const dndInternalProcess =
-      dndConfig?.dndInternal ?
-        combine(
-          handleDraggable,
-          handleInternalDropTargets,
-          handleInternalMonitor,
-        )
-        : combine();
+    const dndInternalProcess: CleanupFn = dndConfig?.dndInternal ? combine(handleDraggable, handleInternalDropTargets, handleInternalMonitor,) : combine();
 
-    const dndExternalProcess =
-      dndConfig.dndExternal ?
-        combine(
-          handleExternalDropTargets,
-          handleExternalMonitor,
-        )
-        : combine()
+    const dndExternalProcess = dndConfig.dndExternal ? combine(handleExternalDropTargets, handleExternalMonitor,) : combine()
+
+    return combine(dndInternalProcess, dndExternalProcess)
+  }, [pluginContentRef]);
+
+  React.useEffect(
+    function mount() {
+      return function unmount() {
+        cancelExpand();
+      };
+    },
+    [cancelExpand],
+  );
+}
+
+const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDndSignature>> = (inProps: FilePluginOptions<UseMinimalPlus<UseFileExplorerDndSignature>>) => {
+  const { props, rootRef, contentRef, instance, status } = inProps;
+  const pluginContentRef                                = React.useRef<HTMLDivElement>(null);
+  const handleContentRef = useForkRef(pluginContentRef, contentRef);
+  const pluginRootRef = React.useRef<HTMLLIElement>(null);
+  const handleRootRef = useForkRef(pluginRootRef, rootRef);
+
+  //  useDnd({ status, pluginContentRef, props, instance });
+  const cancelExpandRef = React.useRef<(() => void) | null>(null);
+  const { uniqueContextId, getPathToItem, registerFile } = React.useContext(FileExplorerDndContext);
+  const { attachInstruction, extractInstruction } =  React.useContext(FileExplorerDndItemContext);
+
+  const state = (({dndState, dndInstruction, dndContainer}) => ({dndState, dndInstruction, dndContainer}))(props);
+
+  const setState = (newState: DndItemState) => {
+    instance.updateDndMeta(props.itemId!, newState);
+  }
+
+  React.useEffect(() => {
+    if (pluginContentRef.current) {
+      invariant(pluginContentRef.current);
+      return registerFile({
+        itemId: props.itemId!,
+        element: pluginContentRef.current,
+      });
+    }
+    return undefined;
+  }, [props.itemId, registerFile]);
+
+  function getParentLevelOfInstruction(currentInstruction: Instruction): number {
+    if (currentInstruction.type === 'instruction-blocked') {
+      return getParentLevelOfInstruction(currentInstruction.desired);
+    }
+    if (currentInstruction.type === 'reparent') {
+      return currentInstruction.desiredLevel - 1;
+    }
+    return currentInstruction.currentLevel - 1;
+  }
+
+  // When an item has an instruction applied
+  // we are highlighting it's parent item for improved clarity
+  const shouldHighlightParent = React.useCallback(
+    (location: DragLocationHistory): boolean => {
+      const target = location.current.dropTargets[0];
+
+      if (!target) {
+        return false;
+      }
+
+      const highlightInstruction = extractInstruction(target.data);
+
+      if (!highlightInstruction) {
+        return false;
+      }
+
+      const targetId = target.data.itemId;
+      invariant(typeof targetId === 'string');
+
+      const path = getPathToItem(targetId);
+      const parentLevel: number = getParentLevelOfInstruction(highlightInstruction);
+      const parentId = path[parentLevel];
+      return parentId === props.itemId;
+    },
+    [getPathToItem, extractInstruction, props],
+  );
+
+  const cancelExpand = React.useCallback(() => {
+    cancelExpandRef.current?.();
+    cancelExpandRef.current = null;
+  }, []);
+
+
+  const clearParentOfInstructionState = React.useCallback(() => {
+    const updatedState = state.dndState === 'parent-of-instruction' ?  'idle' : state.dndState;
+    setState({ ...state, dndState: updatedState})
+  }, []);
+
+  const updateIsParentOfInstruction = React.useCallback(
+    ({ location }: { location: DragLocationHistory })=> {
+      if (shouldHighlightParent(location)) {
+        setState({ ...state, dndState: 'parent-of-instruction'});
+        return;
+      }
+      clearParentOfInstructionState();
+    }, [clearParentOfInstructionState, setState, shouldHighlightParent]);
+
+  const dndConfig = instance.dndConfig();
+  React.useEffect(() => {
+    if (!dndConfig) {
+      return undefined;
+    }
+    if (!pluginContentRef.current) {
+      return undefined;
+    }
+    const canDrop = ['folder', 'trash'].includes(props.type!);
+    invariant(pluginContentRef.current);
+
+    const handleDraggable = draggable({
+      element: pluginContentRef.current,
+      canDrag: () => props.type !== 'trash',
+      getInitialData: () => {
+        const initialData = {
+          itemId: props.itemId,
+          type: 'file-element',
+          isOpenOnDragStart: props.children && props.type === 'folder',
+          uniqueContextId,
+        };
+        return initialData
+      },
+      onGenerateDragPreview: ({nativeSetDragImage}) => {
+        setCustomNativeDragPreview({
+          getOffset: pointerOutsideOfPreview({x: '16px', y: '8px'}),
+          render: ({container: dndContainer}) => {
+            setState({dndState: 'preview', dndContainer, dndInstruction: state.dndInstruction});
+            // In our cleanup function: cause a `react` re-render to create remove your portal
+            // Note: you can also remove the portal in `onDragStart`,
+            // which is when the cleanup function is called
+            return () => setState({
+              dndState: 'idle',
+              dndContainer,
+              dndInstruction: state.dndInstruction
+            });
+          },
+          nativeSetDragImage,
+        });
+      },
+      onDragStart: ({source}) => {
+        setState({...state, dndState: 'dragging'});
+        // collapse open items during a drag
+        if (source.data.isOpenOnDragStart) {
+          if (instance.isItemExpanded(props.itemId!)) {
+            instance.toggleItemExpansion(null as unknown as React.SyntheticEvent, props.itemId!);
+          }
+        }
+      },
+      onDrop: instance.dropInternal,
+    });
+
+    const handleInternalDropTargets = dropTargetForElements({
+      element: pluginContentRef?.current, onDragEnter: () => {
+        setState({...state, dndState: 'parent-of-instruction'});
+      }, getData: ({input, element}) => {
+        const data = {itemId: props.itemId, type: props.type};
+        const dataInstruction = attachInstruction(data, {
+          input,
+          element,
+          indentPerLevel: 0,
+          currentLevel: props.depth ?? 0,
+          mode: instance.getItemMode(props),
+          block: !canDrop ? ['make-child'] : [],
+        });
+
+        return dataInstruction;
+      }, canDrop: (canDropArg) => {
+        const {source} = canDropArg;
+        return canDrop && source.data.type === 'file-element' && source.data.uniqueContextId === uniqueContextId;
+      }, getIsSticky: () => true,
+
+      onDragLeave: () => {
+        cancelExpand();
+        setState({...state, dndInstruction: null});
+      }, onDrop: (event) => {
+
+        // const { sourceItemId } = source.data;
+        // publishFileExplorerEvent(instance, 'removeItem', { targetId: item.id, sourceItemIds });
+
+        instance.dropInternal(event);
+        // console.log('combinedContentRef', pluginContentRef);
+
+        cancelExpand();
+        setState({...state, dndInstruction: null});
+      },
+    })
+    const handleInternalMonitor = monitorForElements({
+      canMonitor: ({source}) => source.data.uniqueContextId === uniqueContextId,
+      onDragStart: updateIsParentOfInstruction,
+      onDrag: updateIsParentOfInstruction,
+      onDrop() {
+        clearParentOfInstructionState();
+      },
+    });
+
+    const handleExternalDropTargets = dropTargetForExternal({
+      element: pluginContentRef?.current,
+      canDrop: ({input, source, element}) => {
+        console.log('canDrop', canDrop)
+        return canDrop;
+      }, getData: ({input, element}) => {
+        const data = {itemId: props.itemId, type: props.type};
+
+        const dataInstruction = attachInstruction(data, {
+          input,
+          element,
+          indentPerLevel,
+          currentLevel: props.depth ?? 0,
+          mode: instance.getItemMode(props),
+          block: !canDrop ? ['make-child'] : [],
+        });
+        // console.info('dropTargetForElements => dataInstruction', dataInstruction)
+        return dataInstruction;
+      }, onDragEnter: () => {
+        setState({...state, dndState: 'parent-of-instruction'});
+      }, onDragLeave: () => {
+        setState({...state, dndState: 'idle', dndInstruction: null});
+        cancelExpand();
+      }, onDrag: (data) => {
+        const {self} = data;
+        const dragInstruction = extractInstruction(self.data);
+        // console.log('drag dndExternal source:', source)
+        // expand after 500ms if still merging
+        // expand after 500ms if still merging
+        if (dragInstruction?.type === 'make-child' && props.type === 'folder' && status?.expandable && !status?.expanded && !cancelExpandRef.current) {
+          cancelExpandRef.current = delay({
+            waitMs: 500, fn: () => {
+              if (!instance.isItemExpanded(props.itemId!)) {
+                instance.toggleItemExpansion(null as unknown as React.SyntheticEvent, props.itemId!);
+              }
+            },
+          });
+        }
+        if (dragInstruction?.type !== 'make-child' && cancelExpandRef.current) {
+          cancelExpand();
+        }
+
+        setState({...state, dndInstruction: dragInstruction});
+      }, onDrop: async (dropEvent) => {
+        if (!instance.isItemExpanded(props.itemId!)) {
+          instance.toggleItemExpansion(null as unknown as React.SyntheticEvent, props.itemId!);
+        }
+        const filesWithPaths = await FileWithPath.from(dropEvent);
+        const {self} = dropEvent;
+        const files = filesWithPaths.map((file): FileBase => {
+          const idGenerator = IdGenerator();
+          const newId = idGenerator.id('file', 4)
+          return ({
+            type: 'image',
+            id: newId,
+            itemId: newId,
+            file,
+            label: file.name,
+            expanded: false,
+            modified: file.lastModified,
+            size: file.size,
+            children: [] as FileBase[],
+            parent: null,
+          } as unknown as FileBase);
+        });
+        instance.createChildren(files, self.data.itemId as string);
+        cancelExpand();
+        setState({...state, dndInstruction: null});
+      },
+    });
+
+    const handleExternalMonitor = monitorForExternal({
+      canMonitor: containsFiles,
+      onDragStart: updateIsParentOfInstruction,
+      onDrag: updateIsParentOfInstruction,
+      onDrop: () => {
+        // setState({ value: 'idle', container: null});
+        preventUnhandled.stop()
+        clearParentOfInstructionState();
+      },
+    });
+
+    const dndInternalProcess: CleanupFn = dndConfig?.dndInternal ? combine(handleDraggable, handleInternalDropTargets, handleInternalMonitor,) : combine();
+
+    const dndExternalProcess = dndConfig.dndExternal ? combine(handleExternalDropTargets, handleExternalMonitor,) : combine()
 
     return combine(dndInternalProcess, dndExternalProcess)
   }, [pluginContentRef]);

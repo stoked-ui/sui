@@ -55,37 +55,12 @@ export const actions = [
 ];
 
 const defaultEditorData = cloneDeep(actions);
-/*
-export const CustomRender0: React.FC<{ action: TimelineAction; row: TimelineTrack }> = ({ action, row }) => {
-  return (
-    <div className={'effect0'}>
-      <div className={`effect0-text`}>{`Play audio: ${action.data.name}`}</div>
-    </div>
-  );
-};
-
-export const CustomRender1: React.FC<{ action: TimelineAction; row: TimelineTrack }> = ({ action, row }) => {
-  return (
-    <div className={'effect1'}>
-      <div className={`effect1-text`}>{`Play animation: ${action.data.name}`}</div>
-    </div>
-  );
-};
-
-const getActionRenderer = (action, row) => {
-  if (action.effectId === 'effect0') {
-    return <CustomRender0 action={action} row={row}/>;
-  }
-  // else if (action.effectId === 'effect1') {
-  return <CustomRender1 action={action} row={row}/>;
-}
- */
 
 export default function CoreDemo() {
   const [data, setData] = React.useState(defaultEditorData);
 
   return (
-    <Editor id='video-editor' sx={{  }} actions={data}/>
+    <Editor id='video-editor-test' sx={{ borderRadius: '12px 12px 0 0' }} actionData={data} />
   );
 };
 

@@ -8,13 +8,13 @@ export function buildTracks({ actions, tracks, actionData }: {
 ) {
 
   if (actionData) {
-    return actionData.map((action) => {
+    return actionData.map((actionInput) => {
       const actionGenId = React.useId();
-      action = {
-        ...action,
-        name: action.name ?? actionGenId,
-        data: action.data,
-        id: action.id ?? actionGenId,
+      const action = {
+        ...actionInput,
+        name: actionInput.name ?? actionGenId,
+        data: actionInput.data,
+        id: actionInput.id ?? actionGenId,
       }
 
       const trackGenId = React.useId()

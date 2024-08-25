@@ -37,16 +37,18 @@ export interface TimelineActionState {
 }
 
 export interface ITimelineActionInput extends TimelineActionState {
+  /** action id */
+  id?: string;
   /** action display name */
   name: string;
   /** Action start time */
-  start?: number;
+  start: number;
   /** Action end time */
-  end?: number;
+  end: number;
   /** The effectId corresponding to the action */
   effectId: string;
 
-  data: {
+  data?: {
     src: string;
   };
 }
@@ -56,7 +58,7 @@ export interface ITimelineActionInput extends TimelineActionState {
  * @export
  * @interface ITimelineAction
  */
-export interface ITimelineAction extends Omit<ITimelineActionInput, 'name' | 'start' | 'end' | 'data'> {
+export interface ITimelineAction extends Omit<ITimelineActionInput, 'id' | 'name' | 'start' | 'end' | 'data'> {
   /** action id */
   id: string;
   /** action display name */
@@ -73,7 +75,7 @@ export interface ITimelineAction extends Omit<ITimelineActionInput, 'name' | 'st
 
   onKeyDown?: (event: any, id: string) => void;
 
-  data: {
+  data?: {
     src: string;
     style?: CSSProperties;
   };
