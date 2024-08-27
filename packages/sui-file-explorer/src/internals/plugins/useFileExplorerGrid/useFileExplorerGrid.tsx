@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { IdGenerator } from "@stoked-ui/media-selector";
+import { namedId } from "@stoked-ui/media-selector";
 import {
   GridColumn,
   GridColumns,
@@ -24,7 +24,7 @@ const updateGridState = ({ headers, columns, initializedIndexes, id }: { headers
       columns: columns ?? {},
       initializedIndexes
     },
-    id: id ?? IdGenerator().id('file', 4)
+    id: id ?? namedId({id: 'file', length: 4})
   };
 };
 

@@ -24,7 +24,7 @@ import {
 import { containsFiles } from "@atlaskit/pragmatic-drag-and-drop/external/file";
 import { preventUnhandled } from "@atlaskit/pragmatic-drag-and-drop/prevent-unhandled";
 import type { Instruction } from "@atlaskit/pragmatic-drag-and-drop-hitbox/tree-item";
-import { FileWithPath, IdGenerator } from "@stoked-ui/media-selector";
+import { FileWithPath, namedId } from "@stoked-ui/media-selector";
 import memoizeOne from "memoize-one";
 import {
   triggerPostMoveFlash
@@ -579,8 +579,7 @@ function useDnd({ status, pluginContentRef, props, instance }) {
         const filesWithPaths = await FileWithPath.from(dropEvent);
         const {self} = dropEvent;
         const files = filesWithPaths.map((file): FileBase => {
-          const idGenerator = IdGenerator();
-          const newId = idGenerator.id('file', 4)
+          const newId = namedId({id: 'file'})
           return ({
             type: 'image',
             id: newId,
@@ -860,8 +859,8 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
         const filesWithPaths = await FileWithPath.from(dropEvent);
         const {self} = dropEvent;
         const files = filesWithPaths.map((file): FileBase => {
-          const idGenerator = IdGenerator();
-          const newId = idGenerator.id('file', 4)
+
+          const newId = namedId({id: 'file', length: 4});
           return ({
             type: 'image',
             id: newId,

@@ -17,7 +17,7 @@ export type TimelineActionParams = {
 export interface ITimelineActionType {
   start?: (params: TimelineActionParams) => void;
   stop?: (params: TimelineActionParams) => void;
-  enter: (params: TimelineActionParams) => void;
+  enter?: (params: TimelineActionParams) => void;
   leave: (params: TimelineActionParams) => void;
   update?: (params: TimelineActionParams) => void;
   viewerUpdate?: (engine: any) => void;

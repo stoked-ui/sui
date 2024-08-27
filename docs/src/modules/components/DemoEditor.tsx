@@ -3,7 +3,7 @@ import SimpleCodeEditor from 'react-simple-code-editor';
 import Box from '@mui/material/Box';
 import { NoSsr } from '@mui/base/NoSsr';
 import { styled, alpha, useTheme } from '@mui/material/styles';
-import prism from '@stoked-ui/internal-markdown/prism';
+import prism from '@stoked-ui/docs-markdown/prism';
 import MarkdownElement from 'docs/src/modules/components/MarkdownElement';
 import CodeCopyButton from 'docs/src/modules/components/CodeCopyButton';
 import { useTranslate } from '@mui/docs/i18n';

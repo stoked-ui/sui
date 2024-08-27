@@ -16,7 +16,7 @@ import {
   FILE_EXPLORER_VIEW_ROOT_PARENT_ID,
 } from '../useFileExplorerFiles/useFileExplorerFiles.utils';
 import { FileDepthContext } from '../../FileDepthContext';
-import { IdGenerator } from "@stoked-ui/media-selector";
+import { namedId } from "@stoked-ui/media-selector";
 
 export const useFileExplorerJSXItems: FileExplorerPlugin<UseFileExplorerJSXItemsSignature> = ({
   instance,
@@ -123,7 +123,7 @@ const useFileExplorerJSXItemsItemPlugin: FilePlugin = ({
 }) => {
   const { instance } = useFileExplorerContext<[UseFileExplorerGridSignature, UseFileExplorerJSXItemsSignature]>();
   const { children, disabled = false, label: initialLabel, itemId: initialItemId, id: initialId, name } = props;
-  const id = initialId ?? initialItemId ?? initialLabel ?? name ?? IdGenerator().id('file', 4);
+  const id = initialId ?? initialItemId ?? initialLabel ?? name ?? namedId({id: 'file', length: 4});
   const itemId = initialItemId ?? id;
   const label = initialLabel ?? id;
 

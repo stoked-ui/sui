@@ -1,4 +1,4 @@
-import { createRender } from '@stoked-ui/internal-markdown';
+import { createRender } from '@stoked-ui/docs-markdown';
 import { LANGUAGES_IGNORE_PAGES } from '../../../config';
 
 const notEnglishJsonRegExp = /-([a-z]{2})\.json$/;
