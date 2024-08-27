@@ -6,11 +6,11 @@ import { resolveComponentProps, useSlotProps } from '@mui/base/utils';
 import useForkRef from '@mui/utils/useForkRef';
 import unsupportedProp from '@mui/utils/unsupportedProp';
 import elementTypeAcceptingRef from '@mui/utils/elementTypeAcceptingRef';
-import { alpha, styled, useThemeProps } from '@mui/material/styles';
+import { alpha, useThemeProps } from '@mui/material/styles';
 import { shouldForwardProp } from '@mui/system/createStyled';
 import { TransitionProps } from '@mui/material/transitions';
 import { unstable_composeClasses as composeClasses } from '@mui/base';
-import { IdGenerator } from '@stoked-ui/media-selector';
+import { namedId } from '@stoked-ui/media-selector';
 import { FileElementContent } from './FileElementContent';
 import { fileElementClasses, getFileElementUtilityClass } from './fileElementClasses';
 import {
@@ -24,6 +24,7 @@ import { FileExplorerCollapseIcon, FileExplorerExpandIcon } from '../icons';
 import { FileProvider } from '../internals/FileProvider';
 import { FileDepthContext } from '../internals/FileDepthContext';
 import { useFileElementState } from './useFileElementState';
+import { styled } from '../internals/zero-styled';
 
 const useUtilityClasses = (ownerState: FileElementOwnerState) => {
   const { classes } = ownerState;
@@ -212,7 +213,7 @@ export const FileElement = React.forwardRef(function FileElement(
     ...other
   } = props;
 
-  const itemId: string = props.itemId ?? props.id ?? name ?? IdGenerator().id('file-element', 6);
+  const itemId: string = props.itemId ?? props.id ?? name ?? namedId({id: 'file-element', length: 6});
   const label: React.ReactNode = props.label ?? name ?? itemId ?? props.id;
   const id = itemId;
 

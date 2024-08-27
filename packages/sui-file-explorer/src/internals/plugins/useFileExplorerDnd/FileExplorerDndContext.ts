@@ -1,10 +1,9 @@
 import * as React from "react";
 import invariant from "tiny-invariant";
-import { IdGenerator } from "@stoked-ui/media-selector";
+import { namedId } from "@stoked-ui/media-selector";
 import { FileExplorerDndAction } from "./FileExplorerDndAction";
 import { FileBase } from "../../../models";
 
-const idGenerator = IdGenerator();
 export const fileExplorer = {
   remove<R extends FileBase>(items: R[], id: string): FileBase[] {
     return items
@@ -116,7 +115,7 @@ export const fileExplorer = {
             if (pathItem !== undefined) {
               target = pathItem as R;
             } else {
-              const newId = idGenerator.id('file',5);
+              const newId = namedId({id: 'file', length: 5});
               const newPath = {
                 id: newId,
                 itemId: newId,

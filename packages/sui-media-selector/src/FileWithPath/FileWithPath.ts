@@ -1205,7 +1205,7 @@ export interface IFileWithPath extends File {
   readonly path?: string;
 }
 
-export class FileWithPath implements IFileWithPath {
+export default class FileWithPath implements IFileWithPath {
   readonly path?: string;
   readonly lastModified: number;
   readonly name: string;

@@ -9,7 +9,7 @@ module.exports = {
   resolve: {
     modules: [__dirname, 'node_modules'],
     alias: {
-      '@stoked-ui/internal-markdown': path.resolve(__dirname, './packages-internal/markdown'),
+      '@stoked-ui/docs-markdown': path.resolve(__dirname, './packages-internal/markdown'),
       '@stoked-ui/media-selector': path.resolve(__dirname, './packages/sui-media-selector'),
       '@stoked-ui/docs': path.resolve(__dirname, './packages/sui-docs/src'),
       '@stoked-ui/timeline': path.resolve(__dirname, './packages/sui-timeline/src'),

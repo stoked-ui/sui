@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import kebabCase from 'lodash/kebabCase';
-import { getHeaders, getTitle, renderMarkdown } from '@stoked-ui/internal-markdown';
+import { getHeaders, getTitle, renderMarkdown } from '@stoked-ui/docs-markdown';
 import {
   ComponentInfo,
   extractPackageFile,

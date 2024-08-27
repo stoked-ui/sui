@@ -1,5 +1,4 @@
-/*
- import * as React from 'react';
+import * as React from 'react';
 
 interface IncrementByFunc {
   (amount: number): string;
@@ -10,17 +9,16 @@ interface IncrementFunc extends IncrementByFunc{
   by: IncrementByFunc;
 }
 
-
-/!**
- * Auto-incrementing state
- *!/
-export default function IncGenerator(prefix: string, id: string = '', length: number = 3, initialValue: number = 1, step: number = 1): [IncrementFunc] {
-  const incrementId = `${prefix}-${id}`;
+/**
+ * Auto-incrementing Ids used in cases where the outcomes need to be deterministic i.e. hydration
+ */
+export default function useIncId(id: string, length: number = 3, prefix?: string, initialValue: number = 1, step: number = 1): IncrementFunc {
+  const incrementId = prefix ? `${prefix}-${id}` : id;
   const createId = (val: number) => {
     return `${incrementId}-${String(val).padStart(length, "0")}`;
   }
   const [value, setValue] = React.useState(initialValue);
-  const inc = React.useMemo(() => {
+  return React.useMemo(() => {
 
     const incrementFunc = () => {
       setValue(v => v + step);
@@ -34,7 +32,4 @@ export default function IncGenerator(prefix: string, id: string = '', length: nu
 
     return incrementFunc;
   }, [step]);
-
-  return [inc];
 }
-*/

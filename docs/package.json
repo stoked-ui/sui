@@ -59,7 +59,7 @@
     "@react-spring/web": "^9.7.3",
     "@stoked-ui/core": "workspace:^",
     "@stoked-ui/file-explorer": "workspace:^",
-    "@stoked-ui/internal-markdown": "workspace:^",
+    "@stoked-ui/docs-markdown": "workspace:^",
     "@stoked-ui/media-selector": "workspace:^",
     "@stoked-ui/timeline": "workspace:^",
     "@stoked-ui/editor": "workspace:^",

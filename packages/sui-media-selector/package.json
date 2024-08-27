@@ -2,24 +2,25 @@
   "name": "@stoked-ui/media-selector",
   "author": "Brian Stoker",
   "private": false,
-  "version": "0.1.0-alpha.5",
-  "main": "build/index.js",
-  "types": "build/index.d.ts",
+  "version": "0.1.0",
+  "main": "src/index.ts",
   "files": [
     "build"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/stoked-ui/media-selector"
+    "url": "https://github.com/stoked-ui/mono",
+    "directory": "packages/sui-media-selector"
   },
-  "sideEffects": [
-    "**/*.css"
-  ],
+  "publishConfig": {
+    "access": "public",
+    "directory": "build"
+  },
+  "sideEffects": false,
   "scripts": {
-    "build": "pnpm ffmpeg && pnpm build:all",
+    "build": "pnpm build:all",
     "typescript": "pnpm build",
     "copyToDocs": "cp -r ./dist/assets ../../docs/",
-    "ffmpeg": "node ./scripts/copyFfmpeg.mjs",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "build:all": "pnpm build:modern && pnpm build:node && pnpm build:stable && pnpm build:types && pnpm build:copy-files",
     "build:modern": "node ../../scripts/build.mjs modern",
@@ -30,45 +31,16 @@
     "prebuild": "rimraf build tsconfig.build.tsbuildinfo"
   },
   "peerDependencies": {
-    "@ffmpeg/core-mt": "^0.12.6",
-    "@ffmpeg/ffmpeg": "^0.12.10",
-    "@ffmpeg/util": "^0.12.1",
-    "@mui/material": "^5.15.21",
-    "react": "18.3.1",
-    "react-dom": "^17.0.0 || ^18.0.0"
-  },
-  "peerDependenciesMeta": {
-    "@ffmpeg/core-mt": {
-      "optional": true
-    },
-    "@ffmpeg/ffmpeg": {
-      "optionl": true
-    },
-    "@ffmpeg/util": {
-      "optionl": true
-    }
+    "react": "^17.0.0 || ^18.0.0"
   },
   "devDependencies": {
     "@babel/runtime": "^7.24.7",
-    "@types/node": "^18.19.39",
-    "@types/prop-types": "^15.7.3",
-    "@types/randombytes": "^2.0.3",
     "@types/react": "^18.3.1",
-    "@types/react-dom": "^18.3.0",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
     "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-refresh": "^0.4.7",
-    "typescript": "5.4.5",
-    "dotenv": "^16.4.5"
-  },
-  "dependencies": {
-    "file-selector": "^0.6.0",
-    "glob": "^10.4.2",
-    "mime": "^4.0.3",
-    "mui-file-input": "^4.0.4",
-    "prop-types": "^15.8.1",
-    "randombytes": "^2.1.0"
+    "typescript": "5.4.5"
   }
 }

@@ -21,7 +21,7 @@ module.exports = function getBabelConfig(api) {
     '@stoked-ui/timeline': resolveAliasPath('./packages/sui-timeline'),
     '@stoked-ui/media-selector': resolveAliasPath('./packages/sui-media-selector'),
     '@stoked-ui/editor': resolveAliasPath('./packages/sui-editor'),
-    '@stoked-ui/internal-markdown': resolveAliasPath('./packages-internal/markdown'),
+    '@stoked-ui/docs-markdown': resolveAliasPath('./packages-internal/markdown'),
     '@stoked-ui/docs': resolveAliasPath('./packages/sui-docs/src'),
     '@stoked-ui/internal-docs-utils': resolveAliasPath('./packages-internal/docs-utils/src'),
     docs: resolveAliasPath('./docs'),

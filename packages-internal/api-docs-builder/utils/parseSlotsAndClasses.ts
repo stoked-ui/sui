@@ -1,6 +1,6 @@
 import * as ts from 'typescript';
 import { ComponentClassDefinition } from '@stoked-ui/internal-docs-utils';
-import { renderMarkdown } from '@stoked-ui/internal-markdown';
+import { renderMarkdown } from '@stoked-ui/docs-markdown';
 import { getSymbolDescription, getSymbolJSDocTags } from '../buildApiUtils';
 import { TypeScriptProject } from './createTypeScriptProject';
 import { getPropsFromComponentNode } from './getPropsFromComponentNode';

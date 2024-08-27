@@ -12,7 +12,7 @@
     "@babel/preset-typescript": "^7.23.3",
     "@babel/traverse": "^7.23.9",
     "@stoked-ui/internal-docs-utils": "workspace:^",
-    "@stoked-ui/internal-markdown": "workspace:^",
+    "@stoked-ui/docs-markdown": "workspace:^",
     "ast-types": "^0.14.2",
     "doctrine": "^3.0.0",
     "fast-glob": "^3.3.2",

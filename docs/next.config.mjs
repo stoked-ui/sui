@@ -121,7 +121,7 @@ export default withDocsInfra({
                 use: [
                   options.defaultLoaders.babel,
                   {
-                    loader: require.resolve('@stoked-ui/internal-markdown/loader'),
+                    loader: require.resolve('@stoked-ui/docs-markdown/loader'),
                     options: {
                       workspaceRoot,
                       ignoreLanguagePages: LANGUAGES_IGNORE_PAGES,
