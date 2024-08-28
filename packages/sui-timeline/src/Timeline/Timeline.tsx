@@ -12,7 +12,6 @@ import { TimelineLabels } from '../TimelineLabels/TimelineLabels';
 import { ITimelineAction } from '../TimelineAction/TimelineAction.types';
 import { TimelineControl } from '../TimelineControl/TimelineControl';
 import { TimelineLabelsProps } from '../TimelineLabels/TimelineLabels.types';
-import { TimelineTrack } from 'src/TimelineControl/TimelineControl.types';
 
 const useUtilityClasses = (ownerState: TimelineProps) => {
   const { classes } = ownerState;
@@ -105,6 +104,7 @@ const Timeline = React.forwardRef(function Timeline(
       effectId: 'effect0',
     };
     updatedTracks[rowIndex] = { ...track, actions: [...track.actions, newAction]};
+    console.log('create action ', newAction.id, newAction);
     setTracks(updatedTracks);
   };
 
@@ -176,6 +176,7 @@ const Timeline = React.forwardRef(function Timeline(
           });
           updateTracks[trackIndex].selected = true;
           updateTracks[trackIndex].actions[actionIndex].selected = true;
+          console.log('on action click',updateTracks[trackIndex].actions[actionIndex].name)
           setTracks(updateTracks);
         }}
       />

@@ -1,4 +1,3 @@
-import { DragEvent, ResizeEvent } from "@interactjs/types/index";
 
 type EventData = {
   lastLeft: number;
@@ -46,10 +45,10 @@ export interface RowRndProps {
   onDragStart?: RndDragStartCallback;
   onDrag?: RndDragCallback;
   onDragEnd?: RndDragEndCallback;
-  // 同时传入parentRef和deltaScrollLeft时会启动自动滚动
+  // Automatic scrolling will be started when parentRef and deltaScrollLeft are passed in at the same time.
   parentRef?: React.MutableRefObject<HTMLDivElement>;
   deltaScrollLeft?: (delta: number) => void;
-  
+
   children?: React.ReactNode;
 
   enableResizing?: boolean;

@@ -1,25 +1,10 @@
 import * as React from 'react';
-import { ScrollSync } from 'react-virtualized';
 import { styled } from "@mui/material/styles";
-import { CommonProps } from '../../interface/common_prop';
-import { prefix } from '../../utils/deal_class_prefix';
-import { parserPixelToTime, parserTimeToPixel } from '../../utils/deal_data';
-import { RowDnd } from '../row_rnd/row_rnd';
-import { RowRndApi } from '../row_rnd/row_rnd_interface';
-
-/** Animation timeline component parameters */
-export type CursorProps = CommonProps & {
-  /** Scroll distance from the left */
-  scrollLeft: number;
-  /** Set cursor position */
-  setCursor: (param: { left?: number; time?: number }) => boolean;
-  /** Timeline area dom ref */
-  areaRef: React.MutableRefObject<HTMLDivElement>;
-  /** Set scroll left */
-  deltaScrollLeft: (delta: number) => void;
-  /** Scroll synchronization ref (TODO: This data is used to temporarily solve the problem of out-of-synchronization when scrollLeft is dragged) */
-  scrollSync: React.MutableRefObject<ScrollSync>;
-};
+import { prefix } from '../utils/deal_class_prefix';
+import { parserPixelToTime, parserTimeToPixel } from '../utils/deal_data';
+import { TimelineRowDnd } from '../TimelineRowDnd/TimelineRowDnd';
+import { RowRndApi } from '../TimelineRowDnd/TimelineRowDnd.types';
+import { TimelineCursorProps } from './TimelineCursor.types';
 
 const CursorRoot = styled('div')({
   cursor: 'ew-resize',
@@ -50,7 +35,7 @@ const CursorAreaRoot = styled('div')({
   transform: 'translateX(-50%)',
 });
 
-export const Cursor: React.FC<CursorProps> = ({
+export function TimelineCursor({
   disableDrag,
   cursorTime,
   setCursor,
@@ -66,7 +51,7 @@ export const Cursor: React.FC<CursorProps> = ({
   onCursorDragStart,
   onCursorDrag,
   onCursorDragEnd,
-}) => {
+}: TimelineCursorProps) {
   const rowRnd = React.useRef<RowRndApi>();
   const draggingLeft = React.useRef<undefined | number>();
 
@@ -78,7 +63,7 @@ export const Cursor: React.FC<CursorProps> = ({
   }, [cursorTime, startLeft, scaleWidth, scale, scrollLeft]);
 
   return (
-    <RowDnd
+    <TimelineRowDnd
       start={startLeft}
       ref={rowRnd}
       parentRef={areaRef}
@@ -90,33 +75,35 @@ export const Cursor: React.FC<CursorProps> = ({
       enableDragging={!disableDrag}
       enableResizing={false}
       onDragStart={() => {
-        onCursorDragStart && onCursorDragStart(cursorTime);
+        onCursorDragStart?.(cursorTime);
         draggingLeft.current = parserTimeToPixel(cursorTime, { startLeft, scaleWidth, scale }) - scrollLeft;
         rowRnd.current.updateLeft(draggingLeft.current);
       }}
       onDragEnd={() => {
         const time = parserPixelToTime(draggingLeft.current + scrollLeft, { startLeft, scale, scaleWidth });
         setCursor({ time });
-        onCursorDragEnd && onCursorDragEnd(time);
+        onCursorDragEnd?.(time);
         draggingLeft.current = undefined;
       }}
       onDrag={({ left }, scroll = 0) => {
-        const scrollLeft = scrollSync.current.state.scrollLeft;
+        const onDragScrollLeft = scrollSync.current.state.scrollLeft;
 
-        if (!scroll || scrollLeft === 0) {
+        if (!scroll || onDragScrollLeft === 0) {
           // When dragging, if the current left < left min, set the value to left min
-          if (left < startLeft - scrollLeft) draggingLeft.current = startLeft - scrollLeft;
-          else draggingLeft.current = left;
-        } else {
-          // During automatic scrolling, if the current left < left min, set the value to left min
-          if (draggingLeft.current < startLeft - scrollLeft - scroll) {
-            draggingLeft.current = startLeft - scrollLeft - scroll;
+          if (left < startLeft - onDragScrollLeft) {
+            draggingLeft.current = startLeft - onDragScrollLeft;
           }
+          else {
+            draggingLeft.current = left;
+          }
+        } else if (draggingLeft.current < startLeft - onDragScrollLeft - scroll) {
+          // During automatic scrolling, if the current left < left min, set the value to left min
+          draggingLeft.current = startLeft - onDragScrollLeft - scroll;
         }
         rowRnd.current.updateLeft(draggingLeft.current);
         const time = parserPixelToTime(draggingLeft.current + scrollLeft, { startLeft, scale, scaleWidth });
         setCursor({ time });
-        onCursorDrag && onCursorDrag(time);
+        onCursorDrag?.(time);
         return false;
       }}
     >
@@ -129,6 +116,6 @@ export const Cursor: React.FC<CursorProps> = ({
         </CursorTopRoot>
         <CursorAreaRoot className={prefix('cursor-area')} />
       </CursorRoot>
-    </RowDnd>
+    </TimelineRowDnd>
   );
 };

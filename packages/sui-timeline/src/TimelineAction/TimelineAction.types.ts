@@ -4,7 +4,7 @@ import { SlotComponentProps } from "@mui/material";
 import { CSSProperties } from "@mui/system/CSSProperties";
 import { TimelineActionClasses } from "./timelineActionClasses";
 import { TimelineTrack } from "../interface/TimelineAction";
-import { DragLineData } from "../components/edit_area/drag_lines";
+import { DragLineData } from "../DragLines/DragLines.types";
 import { CommonProps } from '../interface/common_prop';
 import {ITimelineEngine} from "../TimelineEngine/TimelineEngine";
 

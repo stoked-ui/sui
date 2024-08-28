@@ -1,36 +1,16 @@
 import * as React from 'react';
 import { styled } from "@mui/material/styles";
-import { AutoSizer, Grid, GridCellRenderer, OnScrollParams } from 'react-virtualized';
-import { TimelineTrack } from '../../interface/TimelineAction';
-import { CommonProps } from '../../interface/common_prop';
-import { EditData, TimelineControlProps } from '../../TimelineControl/TimelineControl.types';
-import { prefix } from '../../utils/deal_class_prefix';
-import { parserTimeToPixel } from '../../utils/deal_data';
-import { DragLines } from './drag_lines';
-import { EditRow } from './edit_row';
-import { useDragLine } from './hooks/use_drag_line';
-import ScrollResizer from "../../TimelineScrollResizer/ScrollResizer";
-import {blend} from "@mui/system";
+import { AutoSizer, Grid, GridCellRenderer } from 'react-virtualized';
+import { EditData } from '../TimelineControl/TimelineControl.types';
+import { prefix } from '../utils/deal_class_prefix';
+import { parserTimeToPixel } from '../utils/deal_data';
+import { DragLines } from '../DragLines/DragLines';
+import { EditRow } from '../TimelineTrackRow/TimelineTrackRow';
+import { useDragLines } from '../DragLines/useDragLines';
+import {TimelineTrackAreaProps, TimelineTrackAreaState} from "./TimelineTrackArea.types";
 
-export type EditAreaProps =  CommonProps & {
-  /** Scroll distance from the left */
-  scrollLeft: number;
-  /** Scroll distance from top */
-  scrollTop?: number;
-  /** Scroll callback, used for synchronous scrolling */
-  onScroll: (params: OnScrollParams) => void;
-  /** Set editor data */
-  setEditorData: (tracks: TimelineTrack[]) => void;
-  /** Set scroll left */
-  deltaScrollLeft: (scrollLeft: number) => void;
-};
 
-/** edit area ref data */
-export interface EditAreaState {
-  domRef: React.MutableRefObject<HTMLDivElement>;
-}
-
-const EditAreaRoot = styled('div')(({ theme }) => ({
+const TimelineTrackAreaRoot = styled('div')(() => ({
   flex: '1 1 auto',
   marginTop: '10px',
   overflow: 'hidden',
@@ -49,7 +29,7 @@ const EditAreaRoot = styled('div')(({ theme }) => ({
   },
 }));
 
-export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>((props, ref) => {
+export const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrackAreaProps>((props, ref) => {
   const {
     tracks,
     rowHeight,
@@ -71,7 +51,7 @@ export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>((props, r
     onActionResizeStart,
     onActionResizing,
   } = props;
-  const { dragLineData, initDragLine, updateDragLine, disposeDragLine, defaultGetAssistPosition, defaultGetMovePosition } = useDragLine();
+  const { dragLineData, initDragLine, updateDragLine, disposeDragLine, defaultGetAssistPosition, defaultGetMovePosition } = useDragLines();
   const editAreaRef = React.useRef<HTMLDivElement>();
   const gridRef = React.useRef<Grid>();
   const heightRef = React.useRef(-1);
@@ -175,7 +155,7 @@ export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>((props, r
   }, [tracks]);
 
   return (
-    <EditAreaRoot ref={editAreaRef} className={`SuiTimelineEditArea-root ${prefix('edit-area')}`}>
+    <TimelineTrackAreaRoot ref={editAreaRef} className={`SuiTimelineEditArea-root ${prefix('edit-area')}`}>
       <AutoSizer className={'auto-sizer'} style={{height: 'fit-content'}}>
         {({ width, height }) => {
           // Get full height
@@ -197,7 +177,6 @@ export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>((props, r
             }
           }
           heightRef.current = height;
-          console.log('grid', width, height,totalHeight);
           return (
             <Grid
               id={'thisisedit'}
@@ -215,6 +194,8 @@ export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>((props, r
               overscanRowCount={10}
               overscanColumnCount={0}
               onScroll={(param) => {
+                console.log('grid onScroll', param);
+
                 onScroll(param);
               }}
             />
@@ -222,6 +203,6 @@ export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>((props, r
         }}
       </AutoSizer>
       {dragLine && <DragLines scrollLeft={scrollLeft} {...dragLineData} />}
-    </EditAreaRoot>
+    </TimelineTrackAreaRoot>
   );
 });

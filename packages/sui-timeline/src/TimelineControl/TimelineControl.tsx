@@ -8,9 +8,10 @@ import { TimelineControlProps, TimelineControlComponent } from './TimelineContro
 import { TimelineState } from '../Timeline/TimelineState';
 import { checkProps } from '../utils/check_props';
 import { getScaleCountByRows, parserPixelToTime, parserTimeToPixel } from '../utils/deal_data';
-import { Cursor } from '../components/cursor/cursor';
-import { EditArea, EditAreaState } from '../components/edit_area/edit_area';
-import { TimeArea } from '../components/time_area/time_area';
+import { TimelineCursor } from '../TimelineCursor/TimelineCursor';
+import { TimelineTrackArea } from '../TimelineTrackArea/TimelineTrackArea';
+import { TimelineTrackAreaState } from '../TimelineTrackArea/TimelineTrackArea.types';
+import { TimeArea } from '../TimelineTimeArea/TimelineTimeArea';
 import ScrollResizer from '../TimelineScrollResizer/ScrollResizer';
 
 const TimelineControlRoot = styled('div')(({ theme }) => ({
@@ -50,6 +51,7 @@ const TimelineControl = React.forwardRef<TimelineState, TimelineControlProps & a
     const domRef = React.useRef<HTMLDivElement>(null);
 
     const areaRef = React.useRef<HTMLDivElement>();
+    const scrollResizerRef = React.useRef<HTMLDivElement>();
     const scrollSync = React.useRef<ScrollSync>();
 
     // Editor data
@@ -71,7 +73,7 @@ const TimelineControl = React.forwardRef<TimelineState, TimelineControlProps & a
     React.useEffect(() => {
       handleSetScaleCount(getScaleCountByRows(tracks, { scale }));
       if (setTracks) {
-        setTracks(tracks);
+        // setTracks(tracks);
       }
     }, [tracks, minScaleCount, maxScaleCount, scale]);
 
@@ -103,6 +105,7 @@ const TimelineControl = React.forwardRef<TimelineState, TimelineControlProps & a
     /** handle proactive data changes */
     const handleEditorDataChange = (updatedTracks: TimelineTrack[]) => {
       if (engineRef?.current) {
+        console.log('handleEditorDataChange()', updatedTracks);
         setTracks(updatedTracks);
         engineRef.current.tracks = updatedTracks;
         if (autoReRender) {
@@ -198,8 +201,12 @@ const TimelineControl = React.forwardRef<TimelineState, TimelineControlProps & a
         setTime: (time: number) => handleSetCursor({ time }),
         getTime: engineRef?.current?.getTime.bind(engineRef.current),
         reRender: engineRef?.current?.reRender.bind(engineRef.current),
-        play: (param: Parameters<TimelineState['play']>[0]) =>
-          engineRef?.current?.play({ ...(param as any) }),
+        play: (param: Parameters<TimelineState['play']>[0]) => {
+
+          console.log('play() param', param);
+          const playing = engineRef?.current?.play({...(param as any)})
+          return playing;
+        },
         pause: engineRef?.current?.pause.bind(engineRef.current),
         setScrollLeft: (val: number) => {
           if (scrollSync?.current) {
@@ -258,10 +265,10 @@ const TimelineControl = React.forwardRef<TimelineState, TimelineControlProps & a
                 onScroll={onScroll}
                 scrollLeft={scrollLeft}
               />
-              <EditArea
+              <TimelineTrackArea
                 {...checkedProps}
                 timelineWidth={width}
-                ref={(editAreaRef: EditAreaState) => {
+                ref={(editAreaRef: TimelineTrackAreaState) => {
                   (areaRef.current as any) = editAreaRef?.domRef.current;
                 }}
                 disableDrag={disableDrag || isPlaying}
@@ -282,7 +289,7 @@ const TimelineControl = React.forwardRef<TimelineState, TimelineControlProps & a
                 }}
               />
               {!hideCursor && (
-                <Cursor
+                <TimelineCursor
                   {...checkedProps}
                   timelineWidth={width}
                   disableDrag={isPlaying}
@@ -306,9 +313,11 @@ const TimelineControl = React.forwardRef<TimelineState, TimelineControlProps & a
           scale={scaleWidth}
           scrollLeft={scrollSync.current?.state?.scrollLeft}
           maxScale={scaleWidth * 20}
+          scrollSync={scrollSync}
           minScale={1}
           setScale={props.setScaleWidth ?? setScaleFallback}
           setHorizontalScroll={setHorizontalScroll}
+          ref={scrollResizerRef}
         />
       </TimelineControlRoot>
     );

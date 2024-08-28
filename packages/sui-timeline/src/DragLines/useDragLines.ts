@@ -1,10 +1,10 @@
 import * as React  from "react";
-import { TimelineTrack } from "../../../interface/TimelineAction";
-import { ITimelineAction } from "../../../TimelineAction/TimelineAction.types"
-import { parserActionsToPositions, parserTimeToTransform } from "../../../utils/deal_data";
-import { DragLineData } from "../drag_lines";
+import { TimelineTrack } from "../interface/TimelineAction";
+import { ITimelineAction } from "../TimelineAction/TimelineAction.types"
+import { parserActionsToPositions, parserTimeToTransform } from "../utils/deal_data";
+import { DragLineData } from "./DragLines.types";
 
-export function useDragLine() {
+export function useDragLines() {
   const [dragLineData, setDragLineData] = React.useState<DragLineData>({ isMoving: false, movePositions: [], assistPositions: [] });
 
   /** get auxiliary lines */
