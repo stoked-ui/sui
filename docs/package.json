@@ -8,7 +8,7 @@
     "build": "rimraf docs/export && cross-env NODE_ENV=production NODE_OPTIONS=\"--max_old_space_size=8192 --trace-warnings\" next build --profile && pnpm build-sw",
     "deploy:copy": "mkdir -p ../../stokedconsulting.com && rimraf --glob \"../../stokedconsulting.com/!(.git)\" && cp -r ./export/* ../../stokedconsulting.com",
     "deploy:site": "cd ../../stokedconsulting.com && git add -A && git commit -m \"chore: update site\" && git push",
-    "deploy:release": "pnpm build:clean && pnpm deploy:copy && pnpm deploy:site && pnpm deploy:stoked",
+    "deploy:release": "pnpm build:clean && pnpm deploy:copy && pnpm deploy:site && pnpm deploy:sync && pnpm deploy:invalidate",
     "deploy:sync": "aws s3 sync ./export s3://prod-stokedconsulting-spa-9713095/v2",
     "deploy:invalidate": "aws cloudfront create-invalidation --distribution-id E1QPNETDSEXZ6C --paths '/*'",
     "build:clean": "rimraf .next && pnpm build",

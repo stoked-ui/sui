@@ -57,7 +57,7 @@ export interface TimelineProps
   labelSx?: SxProps<Theme>;
   controlSx?: SxProps<Theme>;
   trackSx?: SxProps<Theme>;
-  setTracks?:  React.Dispatch<React.SetStateAction<TimelineTrack[]>>;
+  setTracks?: (updatedTracks: TimelineTrack[]) => void;
 
   tracks?: TimelineTrack[];
   actionTypes: Record<string, ITimelineActionType>;

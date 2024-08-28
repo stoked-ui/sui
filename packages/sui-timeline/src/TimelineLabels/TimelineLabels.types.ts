@@ -52,5 +52,5 @@ export interface TimelineLabelsProps
 
   onToggle?: (id: string, property: string) => void;
   setFlags?: (id: string) => string[];
-  setTracks: React.Dispatch<React.SetStateAction<TimelineTrack[]>>;
+  setTracks: (updatedTracks: TimelineTrack[]) => void;
 }
