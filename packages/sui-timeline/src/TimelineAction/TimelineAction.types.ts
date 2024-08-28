@@ -50,6 +50,7 @@ export interface ITimelineActionInput extends TimelineActionState {
 
   data?: {
     src: string;
+    style?: CSSProperties;
   };
 }
 

@@ -1,4 +1,4 @@
-import { ComponentClassDefinition } from '@stoked-ui/internal-docs-utils';
+import { ComponentClassDefinition } from '@stoked-ui/docs-utils';
 import { ComponentInfo, HookInfo } from './buildApiUtils';
 import { CreateTypeScriptProjectOptions } from './utils/createTypeScriptProject';
 import { CreateDescribeablePropSettings } from './utils/createDescribeableProp';

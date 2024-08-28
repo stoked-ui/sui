@@ -181,12 +181,12 @@ function AppWrapper(props) {
       versions: [
         {
           text: 'v1 (next)',
-          href: `https://stoked-ui.github.io/${languagePrefix}/v1/${productId}/`,
+          href: `https://stokedconsulting.com/${languagePrefix}/v1/${productId}/`,
         },
         {text: `v${fileExplorerPkgJson.version}`, current: true},
         {
           text: 'View all versions',
-          href: `https://stoked-ui.github.io/${languagePrefix}/versions/${productId}`,
+          href: `https://stokedconsulting.com/${languagePrefix}/versions/${productId}`,
         },
       ],
     }

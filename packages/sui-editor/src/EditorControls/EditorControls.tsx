@@ -67,12 +67,14 @@ const TimeRoot = styled(TextField)(({ theme }) => ({
   py: '4px',
   width: '120px',
   alignSelf: 'center',
+
   "& .MuiInputBase-input": {
     fontSize: 16,
     height: 40,
     padding: '0 4px',
+    borderRadius: '12px',
     background: theme.palette.background.default,
-    borderRadius: '4px',
+
     textAlign: 'end',
   },
   minWidth: '120px',
@@ -157,8 +159,10 @@ export const EditorControls = React.forwardRef(function EditorControls<
     }
     if (timelineState.current.isPlaying) {
       timelineState.current.pause();
+      setIsPlaying(false)
     } else {
       timelineState.current.play({ autoEnd: true });
+      setIsPlaying(true)
     }
   };
 

@@ -10,12 +10,12 @@ import {
   fixBabelGeneratorIssues,
   fixLineEndings,
   getUnstyledFilename,
-} from '@stoked-ui/internal-docs-utils';
+} from '@stoked-ui/docs-utils';
 import {
   getPropTypesFromFile,
   injectPropTypesInFile,
   InjectPropTypesInFileOptions,
-} from '@stoked-ui/internal-scripts/typescript-to-proptypes';
+} from '@stoked-ui/proptypes/typescript-to-proptypes';
 import {
   createTypeScriptProjectBuilder,
   TypeScriptProject,

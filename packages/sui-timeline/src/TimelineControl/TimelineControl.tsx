@@ -323,69 +323,112 @@ TimelineControl.propTypes = {
   /**
    * @description timelineControl action actionType map
    */
-  actionTypes: PropTypes.object,
+  actionTypes: PropTypes.object.isRequired,
   /**
    * @description Whether to automatically re-render (update tick when data changes or cursor time changes)
    * @default true
    */
-  autoReRender: PropTypes.bool,
+  autoReRender: PropTypes.bool.isRequired,
   /**
    * @description Whether to start automatic scrolling when dragging
    * @default false
    */
-  autoScroll: PropTypes.bool,
+  autoScroll: PropTypes.bool.isRequired,
   /**
    * @description Disable dragging of all action areas
    * @default false
    */
-  disableDrag: PropTypes.bool,
+  disableDrag: PropTypes.bool.isRequired,
   /**
    * @description Start dragging auxiliary line adsorption
    * @default false
    */
-  dragLine: PropTypes.bool,
+  dragLine: PropTypes.bool.isRequired,
   /**
    * @description timelineControl runner, if not passed, the built-in runner will be used
    */
-  engine: PropTypes.any,
+  engine: PropTypes.shape({
+    current: PropTypes.shape({
+      actionTypes: PropTypes.object.isRequired,
+      bind: PropTypes.func.isRequired,
+      canvas: PropTypes.object.isRequired,
+      events: PropTypes.object.isRequired,
+      exist: PropTypes.func.isRequired,
+      getAction: PropTypes.func.isRequired,
+      getActionTrack: PropTypes.func.isRequired,
+      getPlayRate: PropTypes.func.isRequired,
+      getSelectedActions: PropTypes.func.isRequired,
+      getTime: PropTypes.func.isRequired,
+      isPaused: PropTypes.bool.isRequired,
+      isPlaying: PropTypes.bool.isRequired,
+      off: PropTypes.func.isRequired,
+      offAll: PropTypes.func.isRequired,
+      on: PropTypes.func.isRequired,
+      pause: PropTypes.func.isRequired,
+      play: PropTypes.func.isRequired,
+      reRender: PropTypes.func.isRequired,
+      setPlayRate: PropTypes.func.isRequired,
+      setTime: PropTypes.func.isRequired,
+      tracks: PropTypes.arrayOf(
+        PropTypes.shape({
+          actions: PropTypes.arrayOf(PropTypes.object).isRequired,
+          classNames: PropTypes.arrayOf(PropTypes.string).isRequired,
+          hidden: PropTypes.bool.isRequired,
+          id: PropTypes.string.isRequired,
+          lock: PropTypes.bool.isRequired,
+          name: PropTypes.string.isRequired,
+          rowHeight: PropTypes.number.isRequired,
+          selected: PropTypes.bool.isRequired,
+        }),
+      ).isRequired,
+      trigger: PropTypes.func.isRequired,
+      viewer: function (props, propName) {
+        if (props[propName] == null) {
+          return new Error(`Prop ${propName} is required but wasn't specified`);
+        } else if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
+          return new Error("Expected prop '" + propName + "' to be of type Element");
+        }
+      },
+    }).isRequired,
+  }).isRequired,
   /**
    * @description Custom action area rendering
    */
-  getActionRender: PropTypes.func,
+  getActionRender: PropTypes.func.isRequired,
   /**
    * @description Get the action id list to prompt the auxiliary line. Calculate it when move/resize start. By default, get all the action ids except the current move action.
    */
-  getAssistDragLineActionIds: PropTypes.func,
+  getAssistDragLineActionIds: PropTypes.func.isRequired,
   /**
    * Set playback rate
    */
-  getPlayRate: PropTypes.func,
+  getPlayRate: PropTypes.func.isRequired,
   /**
    * @description Custom scale rendering
    */
-  getScaleRender: PropTypes.func,
+  getScaleRender: PropTypes.func.isRequired,
   /**
    * Get the current playback time
    */
-  getTime: PropTypes.func,
+  getTime: PropTypes.func.isRequired,
   /**
    * @description Whether to enable grid movement adsorption
    * @default false
    */
-  gridSnap: PropTypes.bool,
+  gridSnap: PropTypes.bool.isRequired,
   /**
    * @description whether to hide the cursor
    * @default false
    */
-  hideCursor: PropTypes.bool,
+  hideCursor: PropTypes.bool.isRequired,
   /**
    * Whether it is paused
    */
-  isPaused: PropTypes.bool,
+  isPaused: PropTypes.bool.isRequired,
   /**
    * Whether it is playing
    */
-  isPlaying: PropTypes.bool,
+  isPlaying: PropTypes.bool.isRequired,
   /**
    * Run the listener
    */
@@ -397,179 +440,215 @@ TimelineControl.propTypes = {
     offAll: PropTypes.func.isRequired,
     on: PropTypes.func.isRequired,
     trigger: PropTypes.func.isRequired,
-  }),
+  }).isRequired,
   /**
    * @description Maximum number of scales (>=minScaleCount)
    * @default Infinity
    */
-  maxScaleCount: PropTypes.number,
+  maxScaleCount: PropTypes.number.isRequired,
   /**
    * @description Minimum number of ticks (>=1)
    * @default 20
    */
-  minScaleCount: PropTypes.number,
+  minScaleCount: PropTypes.number.isRequired,
   /**
    * @description Move end callback (return false to prevent onChange from triggering)
    */
-  onActionMoveEnd: PropTypes.func,
+  onActionMoveEnd: PropTypes.func.isRequired,
   /**
    * @description Start moving callback
    */
-  onActionMoveStart: PropTypes.func,
+  onActionMoveStart: PropTypes.func.isRequired,
   /**
    * @description Move callback (return false to prevent movement)
    */
-  onActionMoving: PropTypes.func,
+  onActionMoving: PropTypes.func.isRequired,
   /**
    * @description size change end callback (return false to prevent onChange from triggering)
    */
-  onActionResizeEnd: PropTypes.func,
+  onActionResizeEnd: PropTypes.func.isRequired,
   /**
    * @description Start changing the size callback
    */
-  onActionResizeStart: PropTypes.func,
+  onActionResizeStart: PropTypes.func.isRequired,
   /**
    * @description Start size callback (return false to prevent changes)
    */
-  onActionResizing: PropTypes.func,
-  /**
-   * @description Data change callback, which will be triggered after the operation action end changes the data (returning false will prevent automatic engine synchronization to reduce performance overhead)
-   */
-  onChange: PropTypes.func,
+  onActionResizing: PropTypes.func.isRequired,
   /**
    * @description click action callback
    */
-  onClickAction: PropTypes.func,
+  onClickAction: PropTypes.func.isRequired,
   /**
    * @description Click action callback (not executed when drag is triggered)
    */
-  onClickActionOnly: PropTypes.func,
+  onClickActionOnly: PropTypes.func.isRequired,
   /**
    * @description Click track callback
    */
-  onClickRow: PropTypes.func,
+  onClickRow: PropTypes.func.isRequired,
   /**
    * @description Click time area event, prevent setting time when returning false
    */
-  onClickTimeArea: PropTypes.func,
+  onClickTimeArea: PropTypes.func.isRequired,
   /**
    * @description Right-click action callback
    */
-  onContextMenuAction: PropTypes.func,
+  onContextMenuAction: PropTypes.func.isRequired,
   /**
    * @description Right-click track callback
    */
-  onContextMenuRow: PropTypes.func,
+  onContextMenuRow: PropTypes.func.isRequired,
   /**
    * @description cursor drag event
    */
-  onCursorDrag: PropTypes.func,
+  onCursorDrag: PropTypes.func.isRequired,
   /**
    * @description cursor ends drag event
    */
-  onCursorDragEnd: PropTypes.func,
+  onCursorDragEnd: PropTypes.func.isRequired,
   /**
    * @description cursor starts drag event
    */
-  onCursorDragStart: PropTypes.func,
+  onCursorDragStart: PropTypes.func.isRequired,
   /**
    * @description Double-click action callback
    */
-  onDoubleClickAction: PropTypes.func,
+  onDoubleClickAction: PropTypes.func.isRequired,
   /**
    * @description Double-click track callback
    */
-  onDoubleClickRow: PropTypes.func,
+  onDoubleClickRow: PropTypes.func.isRequired,
   /**
    * @description Edit area scrolling callback (used to control synchronization with editing track scrolling)
    */
-  onScroll: PropTypes.func,
+  onScroll: PropTypes.func.isRequired,
   /**
    * pause
    */
-  pause: PropTypes.func,
+  pause: PropTypes.func.isRequired,
   /**
    * Play
    */
-  play: PropTypes.func,
+  play: PropTypes.func.isRequired,
   /**
    * Re-render the current time
    */
-  reRender: PropTypes.func,
+  reRender: PropTypes.func.isRequired,
   /**
    * @description Default height of each edit line (>0, unit: px)
    * @default 32
    */
-  rowHeight: PropTypes.number,
+  rowHeight: PropTypes.number.isRequired,
   /**
    * @description Single tick mark category (>0)
    * @default 1
    */
-  scale: PropTypes.number,
+  scale: PropTypes.number.isRequired,
   /**
    * @description Number of single scale subdivision units (>0 integer)
    * @default 10
    */
-  scaleSplitCount: PropTypes.number,
+  scaleSplitCount: PropTypes.number.isRequired,
   /**
    * @description Display width of a single scale (>0, unit: px)
    * @default 160
    */
-  scaleWidth: PropTypes.number,
+  scaleWidth: PropTypes.number.isRequired,
   /**
    * @description The scroll distance from the top of the editing area (please use ref.setScrollTop instead)
    * @deprecated
    */
-  scrollTop: PropTypes.number,
+  scrollTop: PropTypes.number.isRequired,
   /**
    * Set playback rate
    */
-  setPlayRate: PropTypes.func,
-  setScaleWidth: PropTypes.func,
+  setPlayRate: PropTypes.func.isRequired,
+  setScaleWidth: PropTypes.func.isRequired,
   /**
    * Set scroll left
    */
-  setScrollLeft: PropTypes.func,
+  setScrollLeft: PropTypes.func.isRequired,
   /**
    * Set scroll top
    */
-  setScrollTop: PropTypes.func,
+  setScrollTop: PropTypes.func.isRequired,
   /**
    * Set the current playback time
    */
-  setTime: PropTypes.func,
+  setTime: PropTypes.func.isRequired,
+  /**
+   * @description Data change callback, which will be triggered after the operation action end changes the data (returning false will prevent automatic engine synchronization to reduce performance overhead)
+   */
+  setTracks: PropTypes.func.isRequired,
   /**
    * @description The distance from the start of the scale to the left (>=0, unit: px)
    * @default 20
    */
-  startLeft: PropTypes.number,
+  startLeft: PropTypes.number.isRequired,
   /**
    * @description Custom timelineControl style
    */
-  style: PropTypes.object,
+  style: PropTypes.object.isRequired,
   sx: PropTypes.oneOfType([
     PropTypes.arrayOf(
-      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),
+      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]).isRequired,
     ),
     PropTypes.func,
     PropTypes.object,
-  ]),
+  ]).isRequired,
   /**
    * dom node
    */
-  target: PropTypes.func,
+  target: function (props, propName) {
+    if (props[propName] == null) {
+      return new Error(`Prop ${propName} is required but wasn't specified`);
+    } else if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
+      return new Error("Expected prop '" + propName + "' to be of type Element");
+    }
+  },
   /**
    * @description TimelineControl editing data
    */
-  tracks: PropTypes.arrayOf(PropTypes.any),
+  tracks: PropTypes.arrayOf(
+    PropTypes.shape({
+      actions: PropTypes.arrayOf(
+        PropTypes.shape({
+          data: PropTypes.shape({
+            src: PropTypes.string.isRequired,
+            style: PropTypes.object.isRequired,
+          }).isRequired,
+          disable: PropTypes.bool.isRequired,
+          effectId: PropTypes.string.isRequired,
+          end: PropTypes.number.isRequired,
+          flexible: PropTypes.bool.isRequired,
+          id: PropTypes.string.isRequired,
+          maxEnd: PropTypes.number.isRequired,
+          minStart: PropTypes.number.isRequired,
+          movable: PropTypes.bool.isRequired,
+          name: PropTypes.string.isRequired,
+          onKeyDown: PropTypes.func.isRequired,
+          selected: PropTypes.bool.isRequired,
+          start: PropTypes.number.isRequired,
+        }),
+      ).isRequired,
+      classNames: PropTypes.arrayOf(PropTypes.string).isRequired,
+      hidden: PropTypes.bool.isRequired,
+      id: PropTypes.string.isRequired,
+      lock: PropTypes.bool.isRequired,
+      name: PropTypes.string.isRequired,
+      rowHeight: PropTypes.number.isRequired,
+      selected: PropTypes.bool.isRequired,
+    }),
+  ).isRequired,
   trackSx: PropTypes.oneOfType([
     PropTypes.arrayOf(
-      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),
+      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]).isRequired,
     ),
     PropTypes.func,
     PropTypes.object,
-  ]),
-  viewSelector: PropTypes.string,
+  ]).isRequired,
+  viewSelector: PropTypes.string.isRequired,
 };
 
 export { TimelineControl };

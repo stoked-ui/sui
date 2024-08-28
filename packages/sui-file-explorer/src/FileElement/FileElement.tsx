@@ -213,7 +213,8 @@ export const FileElement = React.forwardRef(function FileElement(
     ...other
   } = props;
 
-  const itemId: string = props.itemId ?? props.id ?? name ?? namedId({id: 'file-element', length: 6});
+  const itemId: string =
+    props.itemId ?? props.id ?? name ?? namedId({ id: 'file-element', length: 6 });
   const label: React.ReactNode = props.label ?? name ?? itemId ?? props.id;
   const id = itemId;
 
@@ -430,7 +431,7 @@ FileElement.propTypes = {
    * The component used to render the content of the item.
    * @default TreeItemContent
    */
-  ContentComponent: elementTypeAcceptingRef,
+  ContentComponent: PropTypes.any,
   /**
    * Props applied to ContentComponent.
    */
@@ -452,10 +453,6 @@ FileElement.propTypes = {
    * The tree item label.
    */
   name: PropTypes.string,
-  /**
-   * This prop isn't supported.
-   * Use the `onItemFocus` callback on the tree if you need to monitor a item's focus.
-   */
   onFocus: unsupportedProp,
   /**
    * Callback fired when a key of the keyboard is pressed on the item.
@@ -479,4 +476,4 @@ FileElement.propTypes = {
     PropTypes.func,
     PropTypes.object,
   ]),
-} as any;
+};

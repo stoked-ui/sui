@@ -46,8 +46,8 @@ const logoCss =
             '@context': 'https://schema.org',
             '@type': 'Organization',
             name: 'Stoked UI',
-            url: 'https://stoked-ui.github.io.com/',
-            logo: 'https://stoked-ui.github.io/static/logo.png',
+            url: 'https://stokedconsulting.com.com/',
+            logo: 'https://stokedconsulting.com/static/logo.png',
             sameAs: ['https://x.com/MUI_hq', 'https://github.com/mui/', 'https://opencollective.com/mui-org',],
           }),
         }}

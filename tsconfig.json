@@ -16,10 +16,10 @@
     "paths": {
       "@stoked-ui/docs": ["./packages/sui-docs/src"],
       "@stoked-ui/docs/*": ["./packages/sui-docs/src/*"],
-      "@stoked-ui/internal-docs-utils": ["./packages-internal/docs-utils/src"],
+      "@stoked-ui/docs-utils": ["./packages-internal/docs-utils/src"],
       "@stoked-ui/docs-markdown": ["./packages/sui-internal-markdown/src"],
       "@stoked-ui/docs-markdown/*": ["./packages/sui-internal-markdown/src/*"],
-      "@stoked-ui/internal-scripts/typescript-to-proptypes": ["./packages-internal/scripts/typescript-to-proptypes/src"],
+      "@stoked-ui/proptypes/typescript-to-proptypes": ["./packages-internal/scripts/typescript-to-proptypes/src"],
       "@stoked-ui/core": ["./packages/sui-core"],
       "@stoked-ui/core/*": ["./packages/sui-core/*"],
       "@stoked-ui/file-explorer": ["./packages/sui-file-explorer/src"],

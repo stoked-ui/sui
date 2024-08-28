@@ -14,7 +14,7 @@ import { EditorControls } from '../EditorControls';
 import { EditorView } from '../EditorView';
 import { getEditorUtilityClass } from './editorClasses';
 import { EditorLabels } from '../EditorLabels';
-import {buildTracks} from "../internals/utils/TrackBuilder";
+import { buildTracks } from '../internals/utils/TrackBuilder';
 
 const useThemeProps = createUseThemeProps('MuiEditor');
 
@@ -80,7 +80,7 @@ const Editor = React.forwardRef(function Editor<
   const processedTracks = buildTracks({
     tracks: props.tracks,
     actions: props.actions,
-    actionData: props.actionData
+    actionData: props.actionData,
   });
   const [tracks, setTracks] = React.useState(processedTracks);
 
@@ -213,6 +213,7 @@ const Editor = React.forwardRef(function Editor<
           setScaleWidth={setScaleWidthProxy}
           viewSelector={`.MuiEditorView-root`}
           slots={{ labels: EditorLabels }}
+          labels
           engine={engine}
         />
       )}
@@ -230,21 +231,47 @@ Editor.propTypes = {
   // | These PropTypes are generated from the TypeScript type definitions |
   // | To update them edit the TypeScript types and run "pnpm proptypes"  |
   // ----------------------------------------------------------------------
-  actions: PropTypes.arrayOf(PropTypes.object),
+  actionData: PropTypes.arrayOf(
+    PropTypes.shape({
+      data: PropTypes.shape({
+        src: PropTypes.string.isRequired,
+      }),
+      disable: PropTypes.bool,
+      effectId: PropTypes.string.isRequired,
+      end: PropTypes.number.isRequired,
+      flexible: PropTypes.bool,
+      id: PropTypes.string,
+      movable: PropTypes.bool,
+      name: PropTypes.string.isRequired,
+      selected: PropTypes.bool,
+      start: PropTypes.number.isRequired,
+    }),
+  ),
+  actions: PropTypes.arrayOf(
+    PropTypes.shape({
+      data: PropTypes.shape({
+        src: PropTypes.string.isRequired,
+        style: PropTypes.object,
+      }),
+      disable: PropTypes.bool,
+      effectId: PropTypes.string.isRequired,
+      end: PropTypes.number.isRequired,
+      flexible: PropTypes.bool,
+      id: PropTypes.string.isRequired,
+      maxEnd: PropTypes.number,
+      minStart: PropTypes.number,
+      movable: PropTypes.bool,
+      name: PropTypes.string,
+      onKeyDown: PropTypes.func,
+      selected: PropTypes.bool,
+      start: PropTypes.number.isRequired,
+    }),
+  ),
   /**
-   * The ref object that allows Editor View manipulation. Can be instantiated with
-   * `useEditorApiRef()`.
+   * The ref object that allows Editor View manipulation. Can be instantiated with `useEditorApiRef()`.
    */
   apiRef: PropTypes.shape({
-    current: PropTypes.shape({
-      focusItem: PropTypes.func.isRequired,
-      getItem: PropTypes.func.isRequired,
-      getItemDOMElement: PropTypes.func.isRequired,
-      getItemOrderedChildrenIds: PropTypes.func.isRequired,
-      getItemTree: PropTypes.func.isRequired,
-      selectItem: PropTypes.func.isRequired,
-      setItemExpansion: PropTypes.func.isRequired,
-    }),
+    current: PropTypes.object,
   }),
   /**
    * Override or extend the styles applied to the component.
@@ -277,14 +304,33 @@ Editor.propTypes = {
   ]),
   tracks: PropTypes.arrayOf(
     PropTypes.shape({
-      actions: PropTypes.arrayOf(PropTypes.object).isRequired,
-      classNames: PropTypes.arrayOf(PropTypes.string).isRequired,
-      hidden: PropTypes.bool.isRequired,
+      actions: PropTypes.arrayOf(
+        PropTypes.shape({
+          data: PropTypes.shape({
+            src: PropTypes.string.isRequired,
+            style: PropTypes.object,
+          }),
+          disable: PropTypes.bool,
+          effectId: PropTypes.string.isRequired,
+          end: PropTypes.number.isRequired,
+          flexible: PropTypes.bool,
+          id: PropTypes.string.isRequired,
+          maxEnd: PropTypes.number,
+          minStart: PropTypes.number,
+          movable: PropTypes.bool,
+          name: PropTypes.string,
+          onKeyDown: PropTypes.func,
+          selected: PropTypes.bool,
+          start: PropTypes.number.isRequired,
+        }),
+      ).isRequired,
+      classNames: PropTypes.arrayOf(PropTypes.string),
+      hidden: PropTypes.bool,
       id: PropTypes.string.isRequired,
-      lock: PropTypes.bool.isRequired,
+      lock: PropTypes.bool,
       name: PropTypes.string.isRequired,
-      rowHeight: PropTypes.number.isRequired,
-      selected: PropTypes.bool.isRequired,
+      rowHeight: PropTypes.number,
+      selected: PropTypes.bool,
     }),
   ),
 } as any;

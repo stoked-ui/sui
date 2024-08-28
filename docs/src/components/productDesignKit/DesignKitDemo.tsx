@@ -163,7 +163,7 @@ export function MaterialDesignKitInfo() {
           variant="contained"
           size="small"
           noLinkStyle
-          href="https://stoked-ui.github.io/store/?utm_source=marketing&utm_medium=referral&utm_campaign=design-cta2#design"
+          href="https://stokedconsulting.com/store/?utm_source=marketing&utm_medium=referral&utm_campaign=design-cta2#design"
           endIcon={<ChevronRightRoundedIcon />}
         >
           Buy it now
@@ -221,7 +221,7 @@ export default function DesignKitsDemo() {
             ))}
             <More
               component={Link}
-              href="https://stoked-ui.github.io/store/?utm_source=marketing&utm_medium=referral&utm_campaign=design-cta3#design"
+              href="https://stokedconsulting.com/store/?utm_source=marketing&utm_medium=referral&utm_campaign=design-cta3#design"
               noLinkStyle
             />
           </Group>

@@ -24,11 +24,12 @@ import Highlighter from "./components/action/Highlighter";
 import Section from "./layouts/Section";
 import SectionHeadline from "./components/typography/SectionHeadline";
 import GradientText from "./components/typography/GradientText";
-import CustomerShowcase, { PrefetchStoreTemplateImages } from "./components/home/CustomerShowcase";
+import StokedConsultingShowcase, { PrefetchStoreTemplateImages } from "./components/home/StokedConsultingShowcase";
 import { PrefetchDesignKitImages } from "./components/home/DesignKits";
-import MaterialShowcase from "./components/home/MaterialShowcase";
-import CoreShowcase from "./components/home/CoreShowcase";
 import AdvancedShowcase from "./components/home/AdvancedShowcase";
+import FileExplorerShowcase from './components/home/FileExplorerShowcase';
+import TimelineShowcase from "./components/home/TimelineShowcase";
+import EditorShowcase from './components/home/EditorShowcase';
 
 type RouteType = 'product' | 'doc';
 const routeTypes: RouteType[] = ['product', 'doc'];
@@ -57,6 +58,7 @@ type TProduct = {
   hideProductFeatures?: boolean;
   live?: boolean;
   showcaseType: React.ComponentType;
+  showcaseContent: any;
 }
 
 type LinkType = 'product' | 'doc';
@@ -449,7 +451,7 @@ function titleCase(str: string) {
 function SwipeableProducts(props: ProductSwipeableProps) {
   const swipeableProducts = React.useMemo(() => {
     const { show, products, productIndex, setProductIndex } = props;
-
+    const blocked = products.products[productIndex].id === 'media-selector';
     return (
       <Box sx={{
         display: { md: 'none' },
@@ -458,7 +460,7 @@ function SwipeableProducts(props: ProductSwipeableProps) {
         '& > div': { pr: '32%' },
       }}
       >
-        {show && (<SwipeableViews
+        {(show && !blocked) && (<SwipeableViews
           index={productIndex}
           resistance
           enableMouseEvents
@@ -592,6 +594,7 @@ function ProductsPreviews({ products }: { products: Products } ) {
   });
   const Showcase = products.live[productIndex].showcaseType;
 
+  const showcaseProps = { showcaseContent: products.products?.[productIndex]?.data?.showcaseContent};
   return (
     <Section bg="gradient" ref={ref}>
       <Grid container spacing={0}>
@@ -615,9 +618,7 @@ function ProductsPreviews({ products }: { products: Products } ) {
         >
           {inView ? (
             <React.Fragment>
-              <PrefetchStoreTemplateImages />
-              <PrefetchDesignKitImages />
-              <Showcase />
+              <Showcase  />
             </React.Fragment>
           ) : (
             <Box sx={{ height: { xs: 0, md: 803 } }} />
@@ -694,7 +695,9 @@ class Products extends IndexObject<Product> {
     const { productIndex, setProductIndex } = props;
     return (<Stack spacing={1} sx={{ display: { xs: 'none', md: 'flex' }, maxWidth: 500 }}>
       {this.live.map((product, index) => {
-        return product.highlightedItem(productIndex, setProductIndex, index);
+        if (product.id !== 'media-selector') {
+          return product.highlightedItem(productIndex, setProductIndex, index);
+        }
       })}
     </Stack>)
   }
@@ -708,7 +711,7 @@ const stokedConsultingData: TProduct = {
   icon: "product-templates",
   url: "/consulting",
   live: true,
-  showcaseType: CustomerShowcase,
+  showcaseType: StokedConsultingShowcase,
   features: [
     {
       name: 'Front End',
@@ -734,7 +737,7 @@ const stokedUiData: TProduct = {
   description: "Advanced media components MIT",
   icon: "product-designkits",
   url: "/stoked-ui",
-  showcaseType: MaterialShowcase,
+  showcaseType: StokedConsultingShowcase,
   hideProductFeatures: true,
   live: true,
   features: [{
@@ -768,7 +771,7 @@ const fileExplorerData: TProduct = {
   url: "/file-explorer",
   hideProductFeatures: true,
   live: true,
-  showcaseType: CoreShowcase,
+  showcaseType: FileExplorerShowcase,
   features: [{
     name: 'Overview',
     description: 'Overview, installation, lions, tigers, and bears oh mai!',
@@ -857,7 +860,7 @@ const timelineData: TProduct = {
   url: "/timeline",
   hideProductFeatures: true,
   live: true,
-  showcaseType: CoreShowcase,
+  showcaseType: TimelineShowcase,
   features: [{
     name: 'Overview',
     description: 'Overview, installation, lions, tigers, and bears oh mai!',
@@ -889,7 +892,7 @@ const videoEditorData: TProduct = {
   url: "/editor",
   hideProductFeatures: true,
   live: true,
-  showcaseType: MaterialShowcase,
+  showcaseType: EditorShowcase,
   features: [{
     name: 'Overview',
     description: 'Overview, installation, lions, tigers, and bears oh mai!',
@@ -915,7 +918,7 @@ const videoEditorData: TProduct = {
 
 const videoEditor = new Product(videoEditorData);
 
-const PRODUCTS: Products = new Products([sui, core, fileExplorer, mediaSelector, timeline, videoEditor, stokedConsulting]);
+const PRODUCTS: Products = new Products([fileExplorer, mediaSelector, timeline, videoEditor, stokedConsulting]);
 const ALL_PRODUCTS: Products = new Products([sui, stokedConsulting]);
 
 export type MenuProps = {

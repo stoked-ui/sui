@@ -57,7 +57,7 @@ export default function PricingWhatToExpect() {
             <Link
               target="_blank"
               rel="noopener"
-              href="https://stoked-ui.github.io/legal/mui-x-eula/#required-quantity-of-licenses"
+              href="https://stokedconsulting.com/legal/mui-x-eula/#required-quantity-of-licenses"
             >
               the EULA
             </Link>
@@ -144,7 +144,7 @@ export default function PricingWhatToExpect() {
             <Link
               target="_blank"
               rel="noopener"
-              href="https://stoked-ui.github.io/legal/mui-x-eula/#annual-license"
+              href="https://stokedconsulting.com/legal/mui-x-eula/#annual-license"
             >
               the EULA
             </Link>
@@ -167,7 +167,7 @@ export default function PricingWhatToExpect() {
           <Typography variant="body2" color="text.secondary">
             With your purchase, you receive support and access to new versions for the duration of
             your subscription. You can{' '}
-            <Link href="https://stoked-ui.github.io/x/introduction/support/#technical-support">
+            <Link href="https://stokedconsulting.com/x/introduction/support/#technical-support">
               learn more about support
             </Link>{' '}
             in the docs. Note that, except for critical issues, such as security flaws, we release

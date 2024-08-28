@@ -10,7 +10,6 @@ import { getDynamicFiles } from '../fileExplorer/data';
 export default function FileExplorerHero(props: { id: string, sx?: SxProps, grid?: boolean, alternatingRows?: boolean, trash?: boolean, defaultData?: boolean}) {
   const sx: SxProps = { height: 'fit-content', flexGrow: 1, width: '100%', overflowY: 'auto', ...props.sx };
   const files = props.defaultData ? getDynamicFiles() : [];
-  console.log('getDynamicFiles()', files);
   return (
     <FileExplorer
       items={files}

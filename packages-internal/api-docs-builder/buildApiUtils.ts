@@ -3,7 +3,7 @@ import path from 'path';
 import * as ts from 'typescript';
 import * as prettier from 'prettier';
 import kebabCase from 'lodash/kebabCase';
-import { getLineFeed } from '@stoked-ui/internal-docs-utils';
+import { getLineFeed } from '@stoked-ui/docs-utils';
 import { replaceComponentLinks } from './utils/replaceUrl';
 import { TypeScriptProject } from './utils/createTypeScriptProject';
 

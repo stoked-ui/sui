@@ -47,8 +47,7 @@ export const File = React.forwardRef(function File(
 ) {
   const props = useThemeProps({ props: inProps, name: 'MuiFile' });
   const newProps = () => {
-
-    const id = namedId({id:'file', length:6});
+    const id = namedId({ id: 'file', length: 6 });
     return { id, itemId: id, label: '', disabled: false, children: null };
   };
   const {
@@ -288,4 +287,4 @@ File.propTypes = {
     PropTypes.object,
   ]),
   type: PropTypes.oneOf(['doc', 'file', 'folder', 'image', 'pdf', 'trash', 'video']),
-} as any;
+};

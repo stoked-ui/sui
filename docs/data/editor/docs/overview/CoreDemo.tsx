@@ -1,12 +1,13 @@
 import * as React from 'react';
 import { Editor } from '@stoked-ui/editor';
 import { cloneDeep } from 'lodash';
+import { ITimelineActionInput }from '@stoked-ui/timeline'
 
 export const scaleWidth = 160;
 export const scale = 2;
 export const startLeft = 20;
 
-export const actions: TimelineActionInput[] = [
+export const actions: ITimelineActionInput[] = [
   {
     name: 'write stuff',
     start: 9.5,
@@ -60,10 +61,8 @@ export const actions: TimelineActionInput[] = [
 const defaultEditorData = cloneDeep(actions);
 
 export default function CoreDemo() {
-  const [data, setData] = React.useState(defaultEditorData);
-
   return (
-    <Editor id='video-editor' sx={{ borderRadius: '12px 12px 0 0' }} actionData={data} />
+    <Editor id='video-editor' sx={{ borderRadius: '12px 12px 0 0' }} actionData={defaultEditorData} />
   );
 };
 

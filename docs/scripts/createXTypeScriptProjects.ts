@@ -3,7 +3,7 @@ import {
   createTypeScriptProject,
   CreateTypeScriptProjectOptions,
   TypeScriptProject,
-} from '@stoked-ui/internal-docs-utils';
+} from '@stoked-ui/docs-utils';
 import fs from 'fs';
 import { getComponentFilesInFolder } from './utils';
 

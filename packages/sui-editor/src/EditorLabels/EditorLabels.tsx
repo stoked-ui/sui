@@ -74,20 +74,16 @@ const EditorLabelRoot = styled('div', {
 
 const ToggleButtonGroupStyled = styled(ToggleButtonGroup)(({theme})=> {
   return ({
-    background: theme.palette.background.default, '& .MuiButtonBase-root': {
-      color: theme.palette.text.primary, '&:hover': {
+    background: theme.palette.background.default,
+    '& .MuiButtonBase-root': {
+      color: theme.palette.text.primary,
+      padding: '4px!important',
+      '&:hover': {
         color: theme.palette.primary.main,
         background: theme.palette.background.default,
         border: `1px solid ${theme.palette.text.primary}`,
       },
     },
-    width: 'min-content',
-    display: 'flex',
-    alignItems: 'center',
-    paddingRight: '0px',
-    '& button': {
-      padding: '3px',
-    }
   })
 })
 
@@ -152,10 +148,11 @@ const EditorLabel = React.forwardRef(
                 }
                 return newTracks;
               });
-            }} aria-label="hidden">
+            }} aria-label="hidden"
+            size={'small'}>
               {visibilityIcon}
             </ToggleButton>
-            <ToggleButton value="lock" aria-label="lock">
+            <ToggleButton value="lock"  aria-label="lock" size={'small'}>
               {lockIcon}
             </ToggleButton>
           </ToggleButtonGroupStyled>
