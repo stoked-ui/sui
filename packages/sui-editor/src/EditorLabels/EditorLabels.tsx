@@ -150,6 +150,7 @@ const EditorLabel = React.forwardRef(
                 currentTrack.hidden = !currentTrack.hidden;
                 const updatedTracks = [...tracks];
                 updatedTracks[currentTrackIndex] = currentTrack;
+                console.log('toggle hidden', track.hidden, track.id, e.currentTarget.id);
                 inProps.setTracks(updatedTracks)
               }}
               aria-label="hidden"
@@ -174,6 +175,7 @@ const EditorLabel = React.forwardRef(
                 })
                 const updatedTracks = [...tracks];
                 updatedTracks[currentTrackIndex] = currentTrack;
+                console.log('toggle lock', track.hidden, track.id, e.currentTarget.id);
                 inProps.setTracks(updatedTracks)
               }}
             >

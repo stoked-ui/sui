@@ -185,6 +185,7 @@ const Editor = React.forwardRef(function Editor<
               (action) => deletedActionIds.indexOf(action.id) === -1,
             )];
           });
+          console.log('delete actions via backspace keydown()', updatedTracks);
           setTracks(updatedTracks);
         }
       }

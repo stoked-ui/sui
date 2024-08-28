@@ -1,5 +1,8 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { styled } from '@mui/system';
+import {ScrollSync} from "react-virtualized";
+import {TimelineState} from "../Timeline/TimelineState";
+import {TimelineControlProps} from "../TimelineControl/TimelineControl.types";
 
 interface CustomScrollbarProps {
   parentRef: React.RefObject<HTMLElement>;
@@ -10,6 +13,7 @@ interface CustomScrollbarProps {
   setScale?: (value: number) => void;
   setHorizontalScroll?: (value: number) => void;
   scrollLeft?: number;
+  scrollSync: React.MutableRefObject<ScrollSync>
 }
 
 const ScrollbarContainer = styled('div')(({ theme }) => ({
@@ -53,16 +57,22 @@ const ResizeHandle = styled('div')(({ theme }) => ({
     borderRadius: '0 5px 5px 0',
   },
 }));
+export interface ScrollResizerState {
+  scrollResizerRef: React.MutableRefObject<HTMLDivElement>
+}
 
-const ScrollResizer: React.FC<CustomScrollbarProps> = ({
-  parentRef,
-  selector,
-  minScale = 0.5,
-  maxScale = 2,
-  scale = 1,
-  setScale,
-  setHorizontalScroll,
-}) => {
+const ScrollResizer = React.forwardRef(
+  function ScrollResizer({
+    parentRef,
+    selector,
+    minScale = 0.5,
+    maxScale = 2,
+    scale = 1,
+    setScale,
+    scrollLeft,
+    setHorizontalScroll,
+  }: CustomScrollbarProps,  ref: React.Ref<HTMLDivElement>,) {
+
   const [isResizing, setIsResizing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
@@ -71,6 +81,9 @@ const ScrollResizer: React.FC<CustomScrollbarProps> = ({
   const [thumbWidth, setThumbWidth] = useState(50);
   const contentRef = React.useRef<HTMLElement>(null);
 
+  useEffect(()=> {
+    console.log('scrollLeft', scrollLeft);
+  }, [scrollLeft])
   useEffect(() => {
     if (parentRef.current) {
       const scrollElement = parentRef.current.querySelector(selector);
@@ -160,7 +173,7 @@ const ScrollResizer: React.FC<CustomScrollbarProps> = ({
   }, [isResizing, isDragging]);
 
   return (
-    <ScrollbarContainer className={'SuiScrollbar'}>
+    <ScrollbarContainer className={'SuiScrollbar'} ref={ref}>
       <ScrollbarTrack>
         <ScrollbarThumb
           width={thumbWidth}
@@ -173,6 +186,6 @@ const ScrollResizer: React.FC<CustomScrollbarProps> = ({
       </ScrollbarTrack>
     </ScrollbarContainer>
   );
-};
+});
 
 export default ScrollResizer;

@@ -1,11 +1,10 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { alpha, emphasize, styled } from '@mui/material/styles';
+import { emphasize, styled } from '@mui/material/styles';
 import composeClasses from '@mui/utils/composeClasses';
 import clsx from 'clsx';
 import useSlotProps from '@mui/utils/useSlotProps';
 import { shouldForwardProp } from '@mui/system/createStyled';
-import { blend } from '@mui/system';
 import { TimelineTrack } from '../interface/TimelineAction';
 import { DEFAULT_ADSORPTION_DISTANCE, DEFAULT_MOVE_GRID } from '../interface/const';
 import {
@@ -14,7 +13,7 @@ import {
   parserTimeToTransform,
   parserTransformToTime,
 } from '../utils/deal_data';
-import { RowDnd } from '../components/row_rnd/row_rnd';
+import { TimelineRowDnd } from '../TimelineRowDnd/TimelineRowDnd';
 import {
   RndDragCallback,
   RndDragEndCallback,
@@ -23,11 +22,10 @@ import {
   RndResizeEndCallback,
   RndResizeStartCallback,
   RowRndApi,
-} from '../components/row_rnd/row_rnd_interface';
+} from '../TimelineRowDnd/TimelineRowDnd.types';
 import { getTimelineActionUtilityClass } from './timelineActionClasses';
 import { prefix } from '../utils/deal_class_prefix';
 import { TimelineActionOwnerState, TimelineActionProps } from './TimelineAction.types';
-import { TimelineEngine } from '../TimelineEngine/TimelineEngine';
 
 export const useActionUtilityClasses = (ownerState: TimelineActionOwnerState) => {
   const { classes } = ownerState;
@@ -54,7 +52,7 @@ const Action = styled('div', {
   selected: boolean;
   color: string;
 }>(({ theme, selected, color = 'blue' }) => {
-  const base = theme.vars ? `rgba(color(from ${color}) / 1)` : alpha(color, 1);
+  // const base = theme.vars ? `rgba(color(from ${color}) / 1)` : alpha(color, 1);
   const unselected = emphasize(color, 0.7);
   const hover = emphasize(color, 0.45);
   const selectedColor = emphasize(color, 0.3);
@@ -364,9 +362,10 @@ function TimelineAction(props: TimelineActionProps) {
     getActionRender,
   } = props;
   return (
-    <RowDnd
+    <TimelineRowDnd
       ref={rowRnd}
       parentRef={areaRef}
+      {...rootProps}
       start={startLeft}
       left={transform.left}
       width={transform.width}
@@ -454,7 +453,7 @@ function TimelineAction(props: TimelineActionProps) {
           <RightStretch className={`${prefix('action-right-stretch')} ${classes.right}`} />
         )}
       </Action>
-    </RowDnd>
+    </TimelineRowDnd>
   );
 }
 
@@ -521,50 +520,7 @@ TimelineAction.propTypes = {
   /**
    * @description timelineControl runner, if not passed, the built-in runner will be used
    */
-  engine: PropTypes.shape({
-    current: PropTypes.shape({
-      actionTypes: PropTypes.object.isRequired,
-      bind: PropTypes.func.isRequired,
-      canvas: PropTypes.object.isRequired,
-      events: PropTypes.object.isRequired,
-      exist: PropTypes.func.isRequired,
-      getAction: PropTypes.func.isRequired,
-      getActionTrack: PropTypes.func.isRequired,
-      getPlayRate: PropTypes.func.isRequired,
-      getSelectedActions: PropTypes.func.isRequired,
-      getTime: PropTypes.func.isRequired,
-      isPaused: PropTypes.bool.isRequired,
-      isPlaying: PropTypes.bool.isRequired,
-      off: PropTypes.func.isRequired,
-      offAll: PropTypes.func.isRequired,
-      on: PropTypes.func.isRequired,
-      pause: PropTypes.func.isRequired,
-      play: PropTypes.func.isRequired,
-      reRender: PropTypes.func.isRequired,
-      setPlayRate: PropTypes.func.isRequired,
-      setTime: PropTypes.func.isRequired,
-      tracks: PropTypes.arrayOf(
-        PropTypes.shape({
-          actions: PropTypes.arrayOf(PropTypes.object).isRequired,
-          classNames: PropTypes.arrayOf(PropTypes.string).isRequired,
-          hidden: PropTypes.bool.isRequired,
-          id: PropTypes.string.isRequired,
-          lock: PropTypes.bool.isRequired,
-          name: PropTypes.string.isRequired,
-          rowHeight: PropTypes.number.isRequired,
-          selected: PropTypes.bool.isRequired,
-        }),
-      ).isRequired,
-      trigger: PropTypes.func.isRequired,
-      viewer: function (props, propName) {
-        if (props[propName] == null) {
-          return new Error(`Prop ${propName} is required but wasn't specified`);
-        } else if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
-          return new Error("Expected prop '" + propName + "' to be of type Element");
-        }
-      },
-    }).isRequired,
-  }).isRequired,
+  engine: PropTypes.any.isRequired,
   /**
    * Whether the action is scalable
    */

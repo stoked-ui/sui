@@ -1,14 +1,8 @@
 import * as React from "react";
 import { styled } from "@mui/material/styles";
-import { prefix } from "../../utils/deal_class_prefix";
+import { prefix } from "../utils/deal_class_prefix";
+import { DragLineProps } from "./DragLines.types";
 
-export interface DragLineData {
-  isMoving: boolean;
-  movePositions: number[];
-  assistPositions: number[];
-}
-
-export type DragLineProps = DragLineData & {scrollLeft: number};
 
 const DragLinesRoot = styled('div')({
   position: 'absolute',

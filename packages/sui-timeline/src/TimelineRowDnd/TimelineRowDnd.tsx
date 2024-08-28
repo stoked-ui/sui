@@ -1,12 +1,12 @@
 import { Interactable } from '@interactjs/core/Interactable';
 import { DragEvent, ResizeEvent } from "@interactjs/types";
-import React, { ReactElement, useEffect, useImperativeHandle, useRef } from 'react';
-import { DEFAULT_ADSORPTION_DISTANCE, DEFAULT_MOVE_GRID, DEFAULT_START_LEFT } from "../../interface/const";
-import { useAutoScroll } from './hooks/useAutoScroll';
-import { InteractComp } from './interactable';
-import { Direction, RowRndApi, RowRndProps } from './row_rnd_interface';
+import * as React from 'react';
+import { DEFAULT_ADSORPTION_DISTANCE, DEFAULT_MOVE_GRID, DEFAULT_START_LEFT } from "../interface/const";
+import { useAutoScroll } from './useAutoScroll';
+import { InteractComp } from '../Interactable/Interactable';
+import { Direction, RowRndApi, RowRndProps } from './TimelineRowDnd.types';
 
-export const RowDnd = React.forwardRef<RowRndApi, RowRndProps>(
+export const TimelineRowDnd = React.forwardRef<RowRndApi, RowRndProps>(
   (
     {
       children,
@@ -35,97 +35,116 @@ export const RowDnd = React.forwardRef<RowRndApi, RowRndProps>(
     },
     ref,
   ) => {
-    const interactable = useRef<Interactable>();
-    const deltaX = useRef(0);
-    const isAdsorption = useRef(false);
+    const interactable = React.useRef<Interactable>();
+    const deltaX = React.useRef(0);
+    const isAdsorption = React.useRef(false);
     const { initAutoScroll, dealDragAutoScroll, dealResizeAutoScroll, stopAutoScroll } = useAutoScroll(parentRef);
 
-    useEffect(() => {
+    React.useEffect(() => {
       return () => {
-        interactable.current && interactable.current.unset();
+        interactable.current?.unset();
       };
     }, []);
 
-    //#region [rgba(100,120,156,0.08)] 赋值相关api
-    useImperativeHandle(ref, () => ({
-      updateLeft: (left) => handleUpdateLeft(left || 0, false),
-      updateWidth: (width) => handleUpdateWidth(width, false),
-      getLeft: handleGetLeft,
-      getWidth: handleGetWidth,
-    }));
-    useEffect(() => {
-      const target = interactable.current.target as HTMLElement;
-      handleUpdateWidth(typeof width === 'undefined' ? target.offsetWidth : width, false);
-    }, [width]);
-    useEffect(() => {
-      handleUpdateLeft(left || 0, false);
-    }, [left]);
 
-    const handleUpdateLeft = (left: number, reset = true) => {
-      if (!interactable.current || !interactable.current.target) return;
-      reset && (deltaX.current = 0);
+    const handleUpdateLeft = (leftUpdate: number, reset = true) => {
+      if (!interactable.current || !interactable.current.target) {
+        return;
+      }
+      if (reset) {
+        (deltaX.current = 0);
+      }
       const target = interactable.current.target as HTMLElement;
-      target.style.left = `${left}px`;
-      Object.assign(target.dataset, { left });
+      target.style.left = `${leftUpdate}px`;
+      Object.assign(target.dataset, { left: leftUpdate });
     };
-    const handleUpdateWidth = (width: number, reset = true) => {
-      if (!interactable.current || !interactable.current.target) return;
-      reset && (deltaX.current = 0);
+
+    const handleUpdateWidth = (widthUpdate: number, reset = true) => {
+      if (!interactable.current || !interactable.current.target) {
+        return;
+      }
+      if (reset) {
+        (deltaX.current = 0);
+      }
       const target = interactable.current.target as HTMLElement;
-      target.style.width = `${width}px`;
-      Object.assign(target.dataset, { width });
+      target.style.width = `${widthUpdate}px`;
+      Object.assign(target.dataset, { width: widthUpdate });
     };
+
     const handleGetLeft = () => {
       const target = interactable.current.target as HTMLElement;
       return parseFloat(target?.dataset?.left || '0');
     };
+
     const handleGetWidth = () => {
       const target = interactable.current.target as HTMLElement;
       return parseFloat(target?.dataset?.width || '0');
     };
-    //#endregion
 
-    //#region [rgba(188,188,120,0.05)] 回调api
-    const handleMoveStart = (e: DragEvent) => {
+    // #region [rgba(100,120,156,0.08)] Assignment related APIs
+    React.useImperativeHandle(ref, () => ({
+      updateLeft: (leftUpdate) => handleUpdateLeft(leftUpdate || 0, false),
+      updateWidth: (widthUpdate) => handleUpdateWidth(widthUpdate, false),
+      getLeft: handleGetLeft,
+      getWidth: handleGetWidth,
+    }));
+    React.useEffect(() => {
+      const target = interactable.current.target as HTMLElement;
+      handleUpdateWidth(typeof width === 'undefined' ? target.offsetWidth : width, false);
+    }, [width]);
+    React.useEffect(() => {
+      handleUpdateLeft(left || 0, false);
+    }, [left]);
+
+    // callback api
+    const handleMoveStart = (/* e: DragEvent */) => {
       deltaX.current = 0;
       isAdsorption.current = false;
       initAutoScroll();
-      onDragStart && onDragStart();
+      onDragStart?.();
     };
 
     const move = (param: { preLeft: number; preWidth: number; scrollDelta?: number }) => {
       const { preLeft, preWidth, scrollDelta } = param;
       const distance = isAdsorption.current ? adsorptionDistance : grid;
       if (Math.abs(deltaX.current) >= distance) {
-        const count = parseInt(deltaX.current / distance + '');
+        const count = parseInt(`${deltaX.current / distance}`, 10);
         let curLeft = preLeft + count * distance;
 
-        // 控制吸附
+        // controlled adsorption
         let adsorption = curLeft;
-        let minDis = Number.MAX_SAFE_INTEGER;
+        const minDis = Number.MAX_SAFE_INTEGER;
         adsorptionPositions.forEach((item) => {
           const dis = Math.abs(item - curLeft);
-          if (dis < adsorptionDistance && dis < minDis) adsorption = item;
+          if (dis < adsorptionDistance && dis < minDis) {
+            adsorption = item;
+          }
           const dis2 = Math.abs(item - (curLeft + preWidth));
-          if (dis2 < adsorptionDistance && dis2 < minDis) adsorption = item - preWidth;
+          if (dis2 < adsorptionDistance && dis2 < minDis) {
+            adsorption = item - preWidth;
+          }
         });
 
         if (adsorption !== curLeft) {
-          // 采用吸附数据
+          // Using adsorption data
           isAdsorption.current = true;
           curLeft = adsorption;
         } else {
-          // 控制网格
+          // CONTROL GRID
           if ((curLeft - start) % grid !== 0) {
             curLeft = start + grid * Math.round((curLeft - start) / grid);
           }
           isAdsorption.current = false;
         }
-        deltaX.current = deltaX.current % distance;
+        deltaX.current %= distance;
 
-        // 控制bounds
-        if (curLeft < bounds.left) curLeft = bounds.left;
-        else if (curLeft + preWidth > bounds.right) curLeft = bounds.right - preWidth;
+        // Control bounds
+        if (curLeft < bounds.left) {
+          curLeft = bounds.left;
+        }
+        else if (curLeft + preWidth > bounds.right) {
+          curLeft = bounds.right - preWidth;
+        }
 
         if (onDrag) {
           const ret = onDrag(
@@ -137,7 +156,9 @@ export const RowDnd = React.forwardRef<RowRndApi, RowRndProps>(
             },
             scrollDelta,
           );
-          if (ret === false) return;
+          if (ret === false) {
+            return;
+          }
         }
 
         handleUpdateLeft(curLeft, false);
@@ -151,18 +172,21 @@ export const RowDnd = React.forwardRef<RowRndApi, RowRndProps>(
         const result = dealDragAutoScroll(e, (delta) => {
           deltaScrollLeft(delta);
 
-          let { left, width } = target.dataset;
-          const preLeft = parseFloat(left);
-          const preWidth = parseFloat(width);
+          const { leftMove, widthMove } = target.dataset;
+          const preLeft = parseFloat(leftMove);
+          const preWidth = parseFloat(widthMove);
           deltaX.current += delta;
           move({ preLeft, preWidth, scrollDelta: delta });
         });
-        if (!result) return;
+
+        if (!result) {
+          return;
+        }
       }
 
-      let { left, width } = target.dataset;
-      const preLeft = parseFloat(left);
-      const preWidth = parseFloat(width);
+      const { leftMove, widthMove } = target.dataset;
+      const preLeft = parseFloat(leftMove);
+      const preWidth = parseFloat(widthMove);
 
       deltaX.current += e.dx;
       move({ preLeft, preWidth });
@@ -174,8 +198,8 @@ export const RowDnd = React.forwardRef<RowRndApi, RowRndProps>(
       stopAutoScroll();
 
       const target = e.target;
-      let { left, width } = target.dataset;
-      onDragEnd && onDragEnd({ left: parseFloat(left), width: parseFloat(width) });
+      const { leftMoveStop, widthMoveStop } = target.dataset;
+      onDragEnd?.({ left: parseFloat(leftMoveStop), width: parseFloat(widthMoveStop) });
     };
 
     const handleResizeStart = (e: ResizeEvent) => {
@@ -183,8 +207,8 @@ export const RowDnd = React.forwardRef<RowRndApi, RowRndProps>(
       isAdsorption.current = false;
       initAutoScroll();
 
-      let dir: Direction = e.edges?.right ? 'right' : 'left';
-      onResizeStart && onResizeStart(dir);
+      const dir: Direction = e.edges?.right ? 'right' : 'left';
+      onResizeStart?.(dir);
     };
 
     const resize = (param: { preLeft: number; preWidth: number; dir: 'left' | 'right' }) => {
@@ -192,35 +216,39 @@ export const RowDnd = React.forwardRef<RowRndApi, RowRndProps>(
       const distance = isAdsorption.current ? adsorptionDistance : grid;
 
       if (dir === 'left') {
-        // 拖动左侧
+        // Drag left
         if (Math.abs(deltaX.current) >= distance) {
-          const count = parseInt(deltaX.current / distance + '');
+          const count = parseInt(`${deltaX.current / distance}`, 10);
           let curLeft = preLeft + count * distance;
 
-          // 控制吸附
+          // controlled adsorption
           let adsorption = curLeft;
-          let minDis = Number.MAX_SAFE_INTEGER;
+          const minDis = Number.MAX_SAFE_INTEGER;
           adsorptionPositions.forEach((item) => {
             const dis = Math.abs(item - curLeft);
-            if (dis < adsorptionDistance && dis < minDis) adsorption = item;
+            if (dis < adsorptionDistance && dis < minDis) {
+              adsorption = item;
+            }
           });
 
           if (adsorption !== curLeft) {
-            // 采用吸附数据
+            // using adsorption data
             isAdsorption.current = true;
             curLeft = adsorption;
           } else {
-            // 控制grid网格
+            // Control grid
             if ((curLeft - start) % grid !== 0) {
               curLeft = start + grid * Math.round((curLeft - start) / grid);
             }
             isAdsorption.current = false;
           }
-          deltaX.current = deltaX.current % distance;
+          deltaX.current %= distance;
 
-          // 控制bounds
+          // control bounds
           const tempRight = preLeft + preWidth;
-          if (curLeft < bounds.left) curLeft = bounds.left;
+          if (curLeft < bounds.left) {
+            curLeft = bounds.left;
+          }
           const curWidth = tempRight - curLeft;
 
           if (onResize) {
@@ -230,7 +258,9 @@ export const RowDnd = React.forwardRef<RowRndApi, RowRndProps>(
               left: curLeft,
               width: curWidth,
             });
-            if (ret === false) return;
+            if (ret === false) {
+              return;
+            }
           }
 
           handleUpdateLeft(curLeft, false);
@@ -239,23 +269,25 @@ export const RowDnd = React.forwardRef<RowRndApi, RowRndProps>(
       } else if (dir === 'right') {
         // 拖动右侧
         if (Math.abs(deltaX.current) >= distance) {
-          const count = parseInt(deltaX.current / grid + '');
+          const count = parseInt(`${deltaX.current / grid}`, 10);
           let curWidth = preWidth + count * grid;
 
-          // 控制吸附
+          // controlled adsorption
           let adsorption = preLeft + curWidth;
-          let minDis = Number.MAX_SAFE_INTEGER;
+          const minDis = Number.MAX_SAFE_INTEGER;
           adsorptionPositions.forEach((item) => {
             const dis = Math.abs(item - (preLeft + curWidth));
-            if (dis < adsorptionDistance && dis < minDis) adsorption = item;
+            if (dis < adsorptionDistance && dis < minDis) {
+              adsorption = item;
+            }
           });
 
           if (adsorption !== preLeft + curWidth) {
-            // 采用吸附数据
+            // Using adsorption data
             isAdsorption.current = true;
             curWidth = adsorption - preLeft;
           } else {
-            // 控制grid网格
+            // control grid grid
             let tempRight = preLeft + curWidth;
             if ((tempRight - start) % grid !== 0) {
               tempRight = start + grid * Math.round((tempRight - start) / grid);
@@ -263,10 +295,12 @@ export const RowDnd = React.forwardRef<RowRndApi, RowRndProps>(
             }
             isAdsorption.current = false;
           }
-          deltaX.current = deltaX.current % distance;
+          deltaX.current %= distance;
 
-          // 控制bounds
-          if (preLeft + curWidth > bounds.right) curWidth = bounds.right - preLeft;
+          // Control bounds
+          if (preLeft + curWidth > bounds.right) {
+            curWidth = bounds.right - preLeft;
+          }
 
           if (onResize) {
             const ret = onResize('right', {
@@ -275,7 +309,9 @@ export const RowDnd = React.forwardRef<RowRndApi, RowRndProps>(
               left: preLeft,
               width: curWidth,
             });
-            if (ret === false) return;
+            if (ret === false) {
+              return;
+            }
           }
 
           handleUpdateWidth(curWidth, false);
@@ -291,37 +327,38 @@ export const RowDnd = React.forwardRef<RowRndApi, RowRndProps>(
         const result = dealResizeAutoScroll(e, dir, (delta) => {
           deltaScrollLeft(delta);
 
-          let { left, width } = target.dataset;
-          const preLeft = parseFloat(left);
-          const preWidth = parseFloat(width);
+          const { leftResize, widthResize } = target.dataset;
+          const preLeft = parseFloat(leftResize);
+          const preWidth = parseFloat(widthResize);
           deltaX.current += delta;
           resize({ preLeft, preWidth, dir });
         });
-        if (!result) return;
+        if (!result) {
+          return;
+        }
       }
 
-      let { left, width } = target.dataset;
-      const preLeft = parseFloat(left);
-      const preWidth = parseFloat(width);
+      const { leftResize, widthResize } = target.dataset;
+      const preLeft = parseFloat(leftResize);
+      const preWidth = parseFloat(widthResize);
 
       deltaX.current += dir === 'left' ? e.deltaRect.left : e.deltaRect.right;
       resize({ preLeft, preWidth, dir });
     };
+
     const handleResizeStop = (e: ResizeEvent) => {
       deltaX.current = 0;
       isAdsorption.current = false;
       stopAutoScroll();
 
       const target = e.target;
-      let { left, width } = target.dataset;
-      let dir: Direction = e.edges?.right ? 'right' : 'left';
-      onResizeEnd &&
-        onResizeEnd(dir, {
-          left: parseFloat(left),
-          width: parseFloat(width),
+      const { leftResizeStop, widthResizeStop } = target.dataset;
+      const dir: Direction = e.edges?.right ? 'right' : 'left';
+        onResizeEnd?.(dir, {
+          left: parseFloat(leftResizeStop),
+          width: parseFloat(widthResizeStop),
         });
     };
-    //#endregion
 
     return (
       <InteractComp
@@ -352,9 +389,9 @@ export const RowDnd = React.forwardRef<RowRndApi, RowRndProps>(
           onend: handleResizeStop,
         }}
       >
-        {React.cloneElement(children as ReactElement, {
+        {React.cloneElement(children as React.ReactElement, {
           style: {
-            ...((children as ReactElement).props.style || {}),
+            ...((children as React.ReactElement).props.style || {}),
             left,
             width,
           },
