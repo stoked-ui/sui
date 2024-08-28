@@ -22,5 +22,5 @@ export const useFileExplorerIcons: FileExplorerPlugin<UseFileExplorerIconsSignat
     },
   };
 };
-useFileExplorerIcons.code = 'icons';
+
 useFileExplorerIcons.params = {};

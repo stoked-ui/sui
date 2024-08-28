@@ -1,8 +1,11 @@
 import path from 'path';
-import { ProjectSettings, ComponentReactApi, HookReactApi } from '@stoked-ui/internal-api-docs-builder';
+import { ProjectSettings } from '@stoked-ui/internal-api-docs-builder';
+import { ReactApi as ComponentReactApi } from '@stoked-ui/internal-api-docs-builder/ApiBuilders/ComponentApiBuilder';
+import { ReactApi as HookReactApi } from '@stoked-ui/internal-api-docs-builder/ApiBuilders/HookApiBuilder';
 import findApiPages from '@stoked-ui/internal-api-docs-builder/utils/findApiPages';
 import generateUtilityClass, { isGlobalState } from '@mui/utils/generateUtilityClass';
 import { getComponentImports, getComponentInfo } from './getComponentInfo';
+
 const LANGUAGES: string[] = [];
 
 type PageType = { pathname: string; title: string; plan?: 'community' | 'pro' | 'premium' };

@@ -24,4 +24,4 @@ export const useFileExplorerId: FileExplorerPlugin<UseFileExplorerIdSignature> =
 useFileExplorerId.params = {
   id: true,
 };
-useFileExplorerId.code = 'id';
+

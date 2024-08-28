@@ -79,7 +79,7 @@ async function main(argv) {
 yargs(process.argv.slice(2))
   .command({
     command: '$0',
-    description: 'Tags the current release and pushes these changes to mui/stoked-ui.',
+    description: 'Tags the current release and pushes these changes to stoked-ui/mono.',
     builder: (command) => {
       return command.option('dryRun', {
         default: false,

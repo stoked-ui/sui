@@ -11,7 +11,7 @@ import { useFileExplorerGridHeaders } from "./useFileExplorerGridHeaders";
 import { UseFileExplorerGridHeadersParameters } from "./useFileExplorerGridHeaders.types";
 import { UseFileMinimalPlugins } from "../../models";
 import { UseFileExplorerDndSignature } from '../useFileExplorerDnd/useFileExplorerDnd.types';
-import { styled } from '../../zero-styled';
+import { styled } from '@mui/material/styles';
 import { HeaderCell } from "../../../File/FileLabel";
 
 

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { createRenderer } from '@mui/internal-test-utils';
+import { createRenderer } from '@stoked-ui/internal-test-utils';
 import { File, fileClasses as classes } from '@mui/x-file-list/File';
 import { FileListContext } from '@mui/x-file-list/internals/FileListProvider/FileListContext';
 import { describeConformance } from 'test/utils/describeConformance';

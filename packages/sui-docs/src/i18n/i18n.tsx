@@ -102,7 +102,6 @@ export function useTranslate() {
         }
 
         const translation = getPath(wordings, key);
-        console.log('translation', translation, key);
         if (!translation) {
           const fullKey = `${userLanguage}:${key}`;
           // No warnings in CI env

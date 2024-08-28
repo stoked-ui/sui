@@ -13,19 +13,19 @@ const teamPhotos = [
     title: '',
   },
   {
-    img: 'https://cenv-public.s3.amazonaws.com/phaser-lock.gif',
+    img: '/static/branding/about/group-photo/phaser-lock.gif',
     title: '',
   },
   {
-    img: 'https://stokedconsulting.com/img/texas-auto.png',
+    img: '/static/branding/about/group-photo/texas-auto.png',
     title: '',
   },
   {
-    img: 'https://stokedconsulting.com/img/argos-health.png',
+    img: '/static/branding/about/group-photo/argos-health.png',
     title: '',
   },
   {
-    img: 'https://stokedconsulting.com/img/map_health.jpg',
+    img: '/static/branding/about/group-photo/map_health.png',
     title: '',
   },
 ];

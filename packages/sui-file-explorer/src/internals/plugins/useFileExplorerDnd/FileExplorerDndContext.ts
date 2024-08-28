@@ -1,10 +1,9 @@
 import * as React from "react";
 import invariant from "tiny-invariant";
-import { IdGenerator } from "@stoked-ui/media-selector";
+import { namedId } from "@stoked-ui/media-selector";
 import { FileExplorerDndAction } from "./FileExplorerDndAction";
 import { FileBase } from "../../../models";
 
-const idGenerator = IdGenerator();
 export const fileExplorer = {
   remove<R extends FileBase>(items: R[], id: string): FileBase[] {
     return items
@@ -85,7 +84,7 @@ export const fileExplorer = {
     });
   },
   find<R extends FileBase>(items: R[], itemId: string): R | undefined {
-    // eslint-disable-next-line consistent-return
+
     for (let i = 0; i < items.length; i += 1){
       const item = items[i];
       if (item.id === itemId) {
@@ -116,7 +115,7 @@ export const fileExplorer = {
             if (pathItem !== undefined) {
               target = pathItem as R;
             } else {
-              const newId = idGenerator.fileId();
+              const newId = namedId({id: 'file', length: 5});
               const newPath = {
                 id: newId,
                 itemId: newId,
@@ -210,22 +209,23 @@ const dataReducer = <R extends FileBase>(items: R[], action: FileExplorerDndActi
     return action.items;
   }
 
+  if (action.type === 'create-children') {
+    fileExplorer.createChildren(items, action.items, action.targetId);
+    return items;
+  }
+
+  if (action.type === 'create-child') {
+    fileExplorer.createChild(items, action.item, action.targetId);
+    return items;
+  }
+
   const item = fileExplorer.find(items, action.itemId);
 
   if (!item) {
-    if (action.type === 'create-children') {
-      // return fileExplorer.insertChild(items, action.targetId, item);
-      fileExplorer.createChildren(items, action.items, action.targetId);
-    } else if (action.type === 'create-child') {
-      // return fileExplorer.insertChild(items, action.targetId, item);
-      fileExplorer.createChild(items, action.item, action.targetId);
-    } else {
-      console.warn('TODO: action not implemented', action);
-    }
-
-
+    console.warn(`Task [${action.type}] failed: itemId ${action.itemId} was not found`);
     return items;
   }
+
   if (action.type === 'remove') {
     const result = fileExplorer.remove(items, action.itemId);
     return result;
@@ -241,6 +241,7 @@ const dataReducer = <R extends FileBase>(items: R[], action: FileExplorerDndActi
       invariant(path);
       const desiredId = path[instruction.desiredLevel];
       let result = fileExplorer.remove(items, action.itemId);
+
       result = fileExplorer.insertAfter(result, desiredId, item);
       return result;
     }

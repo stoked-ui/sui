@@ -4,13 +4,13 @@ import clsx from 'clsx';
 import Collapse from '@mui/material/Collapse';
 import { resolveComponentProps, useSlotProps } from '@mui/base/utils';
 import useForkRef from '@mui/utils/useForkRef';
-import { shouldForwardProp } from '@mui/system/createStyled';
-import { alpha } from '@mui/material/styles';
-import { TransitionProps } from '@mui/material/transitions';
 import unsupportedProp from '@mui/utils/unsupportedProp';
 import elementTypeAcceptingRef from '@mui/utils/elementTypeAcceptingRef';
+import { alpha, useThemeProps } from '@mui/material/styles';
+import { shouldForwardProp } from '@mui/system/createStyled';
+import { TransitionProps } from '@mui/material/transitions';
 import { unstable_composeClasses as composeClasses } from '@mui/base';
-import { createUseThemeProps, styled } from '../internals/zero-styled';
+import { namedId } from '@stoked-ui/media-selector';
 import { FileElementContent } from './FileElementContent';
 import { fileElementClasses, getFileElementUtilityClass } from './fileElementClasses';
 import {
@@ -24,9 +24,7 @@ import { FileExplorerCollapseIcon, FileExplorerExpandIcon } from '../icons';
 import { FileProvider } from '../internals/FileProvider';
 import { FileDepthContext } from '../internals/FileDepthContext';
 import { useFileElementState } from './useFileElementState';
-import { IdGenerator } from '@stoked-ui/media-selector';
-
-const useThemeProps = createUseThemeProps('MuiFileElement');
+import { styled } from '../internals/zero-styled';
 
 const useUtilityClasses = (ownerState: FileElementOwnerState) => {
   const { classes } = ownerState;
@@ -99,11 +97,11 @@ const StyledFileElementContent = styled(FileElementContent, {
     backgroundColor: theme.palette.action.focus,
   },
   [`&.${fileElementClasses.selected}`]: {
-    backgroundColor: theme.vars
+    backgroundColor: theme?.vars
       ? `rgba(${theme.vars.palette.primary.mainChannel} / ${theme.vars.palette.action.selectedOpacity})`
       : alpha(theme.palette.primary.main, theme.palette.action.selectedOpacity),
     '&:hover': {
-      backgroundColor: theme.vars
+      backgroundColor: theme?.vars
         ? `rgba(${theme.vars.palette.primary.mainChannel} / calc(${theme.vars.palette.action.selectedOpacity} + ${theme.vars.palette.action.hoverOpacity}))`
         : alpha(
             theme.palette.primary.main,
@@ -111,13 +109,13 @@ const StyledFileElementContent = styled(FileElementContent, {
           ),
       // Reset on touch devices, it doesn't add specificity
       '@media (hover: none)': {
-        backgroundColor: theme.vars
+        backgroundColor: theme?.vars
           ? `rgba(${theme.vars.palette.primary.mainChannel} / ${theme.vars.palette.action.selectedOpacity})`
           : alpha(theme.palette.primary.main, theme.palette.action.selectedOpacity),
       },
     },
     [`&.${fileElementClasses.focused}`]: {
-      backgroundColor: theme.vars
+      backgroundColor: theme?.vars
         ? `rgba(${theme.vars.palette.primary.mainChannel} / calc(${theme.vars.palette.action.selectedOpacity} + ${theme.vars.palette.action.focusOpacity}))`
         : alpha(
             theme.palette.primary.main,
@@ -215,7 +213,8 @@ export const FileElement = React.forwardRef(function FileElement(
     ...other
   } = props;
 
-  const itemId: string = props.itemId ?? props.id ?? name ?? IdGenerator().fileId();
+  const itemId: string =
+    props.itemId ?? props.id ?? name ?? namedId({ id: 'file-element', length: 6 });
   const label: React.ReactNode = props.label ?? name ?? itemId ?? props.id;
   const id = itemId;
 
@@ -430,9 +429,9 @@ FileElement.propTypes = {
   className: PropTypes.string,
   /**
    * The component used to render the content of the item.
-   * @default FileElementContent
+   * @default TreeItemContent
    */
-  ContentComponent: elementTypeAcceptingRef,
+  ContentComponent: PropTypes.any,
   /**
    * Props applied to ContentComponent.
    */
@@ -454,10 +453,6 @@ FileElement.propTypes = {
    * The tree item label.
    */
   name: PropTypes.string,
-  /**
-   * This prop isn't supported.
-   * Use the `onItemFocus` callback on the tree if you need to monitor a item's focus.
-   */
   onFocus: unsupportedProp,
   /**
    * Callback fired when a key of the keyboard is pressed on the item.
@@ -481,4 +476,4 @@ FileElement.propTypes = {
     PropTypes.func,
     PropTypes.object,
   ]),
-} as any;
+};

@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import 'chai-dom';
-import createDescribe from '@mui/internal-test-utils/createDescribe';
-import { MuiRenderResult } from '@mui/internal-test-utils/createRenderer';
+import createDescribe from '@stoked-ui/internal-test-utils/createDescribe';
+import { MuiRenderResult } from '@stoked-ui/internal-test-utils/createRenderer';
 
 interface DescribeSlotsConformanceParams {
   getElement: (params: { slotName: string; props: any }) => React.ReactElement<any>;

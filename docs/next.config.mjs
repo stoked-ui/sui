@@ -95,7 +95,7 @@ export default withDocsInfra({
 
     return {
       ...config,
-     
+
       resolve: {
         ...config.resolve,
         // resolve .tsx first
@@ -121,7 +121,7 @@ export default withDocsInfra({
                 use: [
                   options.defaultLoaders.babel,
                   {
-                    loader: require.resolve('@stoked-ui/internal-markdown/loader'),
+                    loader: require.resolve('@stoked-ui/docs-markdown/loader'),
                     options: {
                       workspaceRoot,
                       ignoreLanguagePages: LANGUAGES_IGNORE_PAGES,
@@ -131,6 +131,39 @@ export default withDocsInfra({
                           productId: 'stoked-ui',
                           paths: [
                             path.join(workspaceRoot, 'packages/sui-media-selector/src'),
+                          ],
+                          subPackagePaths: [
+                            path.join(workspaceRoot, 'node_modules/@mui/base'),
+                            path.join(workspaceRoot, 'node_modules/@mui/lab'),
+                            path.join(workspaceRoot, 'node_modules/@stoked-ui/media-selector'),
+                          ],
+                        },
+                        {
+                          productId: 'core',
+                          paths: [
+                            path.join(workspaceRoot, 'packages/sui-core/src'),
+                          ],
+                          subPackagePaths: [
+                            path.join(workspaceRoot, 'node_modules/@mui/base'),
+                            path.join(workspaceRoot, 'node_modules/@mui/lab'),
+                            path.join(workspaceRoot, 'node_modules/@stoked-ui/media-selector'),
+                          ],
+                        },
+                        {
+                          productId: 'editor',
+                          paths: [
+                            path.join(workspaceRoot, 'packages/sui-editor/src'),
+                            path.join(workspaceRoot, 'packages/sui-core/src'),
+                          ],
+                          subPackagePaths: [
+                            path.join(workspaceRoot, 'node_modules/@mui/base'),
+                            path.join(workspaceRoot, 'node_modules/@stoked-ui/media-selector'),
+                          ],
+                        },
+                        {
+                          productId: 'timeline',
+                          paths: [
+                            path.join(workspaceRoot, 'packages/sui-timeline/src'),
                           ],
                           subPackagePaths: [
                             path.join(workspaceRoot, 'node_modules/@mui/base'),
@@ -196,7 +229,7 @@ export default withDocsInfra({
   env: {
     // docs-infra
     LIB_VERSION: pkg.version,
-    SOURCE_CODE_REPO: 'https://github.com/stokedconsulting/stokedui-mono',
+    SOURCE_CODE_REPO: 'https://github.com/stoked-ui/mono',
     SOURCE_GITHUB_BRANCH: 'main', // #default-branch-switch
     GITHUB_TEMPLATE_DOCS_FEEDBACK: '4.docs-feedback.yml',
     BUILD_ONLY_ENGLISH_LOCALE: String(buildOnlyEnglishLocale),
@@ -266,7 +299,7 @@ export default withDocsInfra({
   },
   // Used to signal we run pnpm build
   ...(process.env.NODE_ENV === 'production'
-    ? {
+    ? { trailingSlash: true,
         output: 'export',
       }
     : {

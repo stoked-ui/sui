@@ -13,7 +13,7 @@ declare module 'docs/src/modules/components/HighlightedCode' {
     copyButtonProps?: JSX.IntrinsicElements['button'];
     /**
      * short identifier of the code language
-     * see @stoked-ui/internal-markdown/prism for possible languages
+     * see @stoked-ui/docs-markdown/prism for possible languages
      */
     language: string;
     /**

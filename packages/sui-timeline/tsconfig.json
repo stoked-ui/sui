@@ -3,13 +3,20 @@
   "compilerOptions": {
     "target": "ES2015",
     "types": [
-      "@mui/internal-test-utils/initMatchers",
+      "@stoked-ui/internal-test-utils/initMatchers",
       "@mui/material/themeCssVarsAugmentation",
+      "chai-dom",
       "mocha",
-      "chai",
-      "jest"
+      "node"
     ],
-    "noImplicitAny": false
+    "importHelpers": true,
+    "jsx": "react",
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "baseUrl": "./",
+    "strict": false,
+    "noImplicitAny": false,
+    "allowSyntheticDefaultImports": true
   },
   "include": ["src/**/*"],
   "exclude": ["**/*.test.tsx"]

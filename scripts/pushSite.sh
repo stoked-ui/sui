@@ -2,9 +2,9 @@
 
 set -e
 
-cp -r ./docs/export/* ../sui.github.io
-touch ../sui.github.io/.nojekyll
-cd ../sui.github.io
+cp -r ./docs/export/* ../stoked-ui.github.io
+touch ../stoked-ui.github.io/.nojekyll
+cd ../stoked-ui.github.io
 git add -A
 git commit -m "chore: update site"
 git push

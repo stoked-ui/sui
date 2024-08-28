@@ -2,10 +2,9 @@ import * as React from 'react';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
-import { IdGenerator } from '@stoked-ui/media-selector';
+import { namedId } from '@stoked-ui/media-selector';
 import Stack from '@mui/material/Stack';
 
-const idGen = IdGenerator();
 
 function createCardData(
   title: string,
@@ -29,9 +28,9 @@ function createCardData(
 }
 
 const cards = [
-  createCardData('default id()', 'idGen.id()', idGen.id(), 'usage of the default id() function'),
-  createCardData('named id()', `idGen.id('named')`, idGen.id('named'), 'id() with the named argument'),
-  createCardData('long id()', `idGen.id('long', 12)`, idGen.id('long', 12), 'id() with using the name and length arguments'),
+  createCardData('default namedId', 'namedId()', namedId(), 'usage of the default id() function'),
+  createCardData('custom name namedId', `namedId({id: 'named'})`, namedId({id: 'named'}), 'id() with the named argument'),
+  createCardData('custom length namedId', `namedId({id: 'long', length: 12})`, namedId({id: 'long', length: 12}), 'id() with using the name and length arguments'),
 ];
 
 export default function IdGeneratorUsage() {

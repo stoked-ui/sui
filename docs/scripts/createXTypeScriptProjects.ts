@@ -3,9 +3,9 @@ import {
   createTypeScriptProject,
   CreateTypeScriptProjectOptions,
   TypeScriptProject,
-} from '@stoked-ui/internal-docs-utils';
-import { getComponentFilesInFolder } from './utils';
+} from '@stoked-ui/docs-utils';
 import fs from 'fs';
+import { getComponentFilesInFolder } from './utils';
 
 const workspaceRoot = path.resolve(__dirname, '../../');
 
@@ -30,8 +30,12 @@ export interface XTypeScriptProject extends Omit<TypeScriptProject, 'name'> {
 }
 
 export type XProjectNames =
-  | 'x-license'
-  | 'file-explorer';
+  | 'file-explorer'
+  | 'media-selector'
+  | 'core'
+  | 'timeline'
+  | 'editor'
+  | 'x-tree-view';
 
 export type XTypeScriptProjects = Map<XProjectNames, XTypeScriptProject>;
 
@@ -50,25 +54,6 @@ type InterfacesToDocumentType = {
 };
 
 export const interfacesToDocument: InterfacesToDocumentType[] = [];
-
-export const datagridApiToDocument = [
-  'GridCellSelectionApi',
-  'GridColumnPinningApi',
-  'GridColumnResizeApi',
-  'GridCsvExportApi',
-  'GridDetailPanelApi',
-  'GridEditingApi',
-  'GridExcelExportApi',
-  'GridFilterApi',
-  'GridPaginationApi',
-  'GridPrintExportApi',
-  'GridRowGroupingApi',
-  'GridRowMultiSelectionApi',
-  'GridRowSelectionApi',
-  'GridScrollApi',
-  'GridSortApi',
-  'GridVirtualizationApi',
-];
 
 const createXTypeScriptProject = (options: CreateXTypeScriptProjectOptions): XTypeScriptProject => {
   const { name, rootPath, tsConfigPath, entryPointPath, files, ...other } = options;
@@ -136,7 +121,7 @@ const getComponentPaths =
   };
 
 
-const packageNames = ['file-explorer', 'media-selector', 'timeline', 'video-editor'];
+const packageNames = ['x-tree-view', 'file-explorer', 'media-selector', 'timeline', 'editor', 'core'];
 const getEntryPoint = (root: string) => {
 
   if (fs.existsSync(path.join(root, `/src/index.ts`))) {

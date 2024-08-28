@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { describeFileExplorer } from 'test/utils/fileExplorer-view/describeFileExplorer';
 import { UseFileExplorerExpansionSignature } from '@stoked-ui/file-explorer/internals';
-import { act, fireEvent } from '@mui/internal-test-utils';
+import { act, fireEvent } from '@stoked-ui/internal-test-utils';
 import { File, FileProps } from '@stoked-ui/file-explorer/File';
 import { UseFileContentSlotOwnProps } from '@stoked-ui/file-explorer/useFile';
 import { useFileUtils } from '@stoked-ui/file-explorer/hooks';

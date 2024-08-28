@@ -45,6 +45,14 @@ export interface MuiPage {
    */
   newFeature?: boolean;
   /**
+   * Indicates the item is in alpha release.
+   */
+  alpha?: boolean;
+  /**
+   * Indicates the item is still in development.
+   */
+  dev?: boolean;
+  /**
    * Indicates if the feature is planned for development.
    * @default false
    */

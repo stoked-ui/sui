@@ -6,7 +6,6 @@ import NextHead from 'next/head';
 import PropTypes from 'prop-types';
 import { useRouter } from 'next/router';
 import fileExplorerPkgJson from 'packages/sui-file-explorer/package.json';
-import fileExplorerPages from '../data/pages';
 import PageContext from 'docs/src/modules/components/PageContext';
 import GoogleAnalytics from 'docs/src/modules/components/GoogleAnalytics';
 import { CodeCopyProvider } from 'docs/src/modules/utils/CodeCopy';
@@ -21,6 +20,7 @@ import getProductInfoFromUrl from 'docs/src/modules/utils/getProductInfoFromUrl'
 import { DocsProvider } from '@mui/docs/DocsProvider';
 import { DocsProvider as DocsProviderStoked } from '@stoked-ui/docs/DocsProvider';
 import { mapTranslations } from '@mui/docs/i18n';
+import fileExplorerPages from '../data/pages';
 import './global.css';
 import '../public/static/components-gallery/base-theme.css';
 import config from '../config';
@@ -151,6 +151,14 @@ function AppWrapper(props) {
     const languagePrefix = pageProps.userLanguage === 'en' ? '' : `/${pageProps.userLanguage}`;
 
     const productMap = {
+      'core': {
+        metadata: 'Stoked UI',
+        name: 'Core',
+      },
+      'editor': {
+        metadata: 'Stoked UI',
+        name: 'Editor',
+      },
       'file-explorer': {
         metadata: 'Stoked UI',
         name: 'File Explorer',
@@ -158,6 +166,10 @@ function AppWrapper(props) {
       'media-selector': {
         metadata: 'Stoked UI',
         name: 'Media Selector',
+      },
+      'timeline': {
+        metadata: 'Stoked UI',
+        name: 'Timeline',
       },
       'stoked-ui': {
         name: 'Stoked UI',
@@ -169,12 +181,12 @@ function AppWrapper(props) {
       versions: [
         {
           text: 'v1 (next)',
-          href: `https://stoked-ui.github.io/${languagePrefix}/v1/${productId}/`,
+          href: `https://stokedconsulting.com/${languagePrefix}/v1/${productId}/`,
         },
         {text: `v${fileExplorerPkgJson.version}`, current: true},
         {
           text: 'View all versions',
-          href: `https://stoked-ui.github.io/${languagePrefix}/versions/${productId}`,
+          href: `https://stokedconsulting.com/${languagePrefix}/versions/${productId}`,
         },
       ],
     }

@@ -1,7 +1,6 @@
 // FileExplorer View
 export * from './FileExplorer';
 export * from './FileExplorerBasic';
-export * from './FileExplorer';
 
 // FileExplorer Item
 export * from './File';

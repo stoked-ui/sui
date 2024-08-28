@@ -12,7 +12,7 @@ import VideoCameraBackIcon from '@mui/icons-material/VideoCameraBack';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Box from '@mui/material/Box';
-import { IdGenerator } from '@stoked-ui/media-selector';
+import { namedId } from '@stoked-ui/media-selector';
 import { FileLabel } from './FileLabel';
 import { createUseThemeProps } from '../internals/zero-styled';
 import { FileProvider } from '../internals/FileProvider';
@@ -47,8 +47,7 @@ export const File = React.forwardRef(function File(
 ) {
   const props = useThemeProps({ props: inProps, name: 'MuiFile' });
   const newProps = () => {
-    const idGenerator = IdGenerator();
-    const id = idGenerator.fileId();
+    const id = namedId({ id: 'file', length: 6 });
     return { id, itemId: id, label: '', disabled: false, children: null };
   };
   const {
@@ -98,7 +97,6 @@ export const File = React.forwardRef(function File(
 
   const classes = useUtilityClasses(ownerState);
 
-  // eslint-disable-next-line no-console -- debug information
   const Content: React.ElementType = slots.content ?? FileContent;
 
   const classNames: any = {
@@ -289,4 +287,4 @@ File.propTypes = {
     PropTypes.object,
   ]),
   type: PropTypes.oneOf(['doc', 'file', 'folder', 'image', 'pdf', 'trash', 'video']),
-} as any;
+};

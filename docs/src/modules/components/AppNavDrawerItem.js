@@ -1,7 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import KeyboardArrowRightRoundedIcon from '@mui/icons-material/KeyboardArrowRightRounded';
-import { alpha, styled } from '@mui/material/styles';
+import {alpha, emphasize, styled, useTheme} from '@mui/material/styles';
 import Collapse from '@mui/material/Collapse';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
@@ -197,7 +197,22 @@ const StyledLi = styled('li', { shouldForwardProp: (prop) => prop !== 'depth' })
     padding: depth === 0 ? theme.spacing(1, '10px', 0, '10px') : 0,
   }),
 );
-
+const getChipColor = (theme, color) => {
+  if (!theme.palette[color]) {
+    return {
+      light: emphasize(color, .1),
+      standard: emphasize(color, .3),
+      full: emphasize(color, .8),
+      dark: emphasize(color, .9),
+    }
+  }
+  return {
+    light: theme.palette[color][100],
+    standard: theme.palette[color][300],
+    full: theme.palette[color][800],
+    dark: theme.palette[color][900],
+  }
+}
 export const sxChip = (color) => [
   (theme) => ({
     ml: 1,
@@ -207,11 +222,11 @@ export const sxChip = (color) => [
     letterSpacing: '.04rem',
     height: '16px',
     border: 1,
-    borderColor: theme.palette[color][300],
-    bgcolor: alpha(theme.palette[color][100], 0.5),
-    color: theme.palette[color][900],
+    borderColor: color.standard,
+    bgcolor: alpha(color.light, 0.5),
+    color: color.dark,
     '&:hover': {
-      bgcolor: alpha(theme.palette[color][100], 0.5),
+      bgcolor: alpha(color.light, 0.5),
     },
     '& .MuiChip-label': {
       px: '4px',
@@ -219,11 +234,11 @@ export const sxChip = (color) => [
   }),
   (theme) =>
     theme.applyDarkStyles({
-      borderColor: alpha(theme.palette[color][800], 0.5),
-      bgcolor: alpha(theme.palette[color][900], 0.5),
-      color: theme.palette[color][300],
+      borderColor: alpha(color.full, 0.5),
+      bgcolor: alpha(color.dark, 0.5),
+      color: color.standard,
       '&:hover': {
-        bgcolor: alpha(theme.palette[color][900], 0.5),
+        bgcolor: alpha(color.dark, 0.5),
       },
     }),
 ];
@@ -249,6 +264,8 @@ export default function AppNavDrawerItem(props) {
     icon,
     legacy,
     newFeature,
+    alpha,
+    dev,
     planned,
     unstable,
     linkProps,
@@ -294,7 +311,7 @@ export default function AppNavDrawerItem(props) {
       <IconComponent fontSize="small" color="primary" />
     </Box>
   ) : null;
-
+  const theme = useTheme();
   return (
     <StyledLi {...other} depth={depth}>
       {/* Fix overloading with prefetch={false}, only prefetch on hover */}
@@ -316,11 +333,13 @@ export default function AppNavDrawerItem(props) {
         {title}
         {plan === 'pro' && <span className="plan-pro" title="Pro plan" />}
         {plan === 'premium' && <span className="plan-premium" title="Premium plan" />}
-        {legacy && <Chip label="Legacy" sx={sxChip('warning')} />}
-        {newFeature && <Chip label="New" sx={sxChip('success')} />}
-        {planned && <Chip label="Planned" sx={sxChip('grey')} />}
-        {unstable && <Chip label="Preview" sx={sxChip('primary')} />}
-        {beta && <Chip label="Beta" sx={sxChip('primary')} />}
+        {legacy && <Chip label="Legacy" sx={sxChip(getChipColor(theme, 'warning'))} />}
+        {newFeature && <Chip label="New" sx={sxChip(getChipColor(theme,'success'))} />}
+        {alpha && <Chip label="Alpha" sx={sxChip(getChipColor(theme,'error'))} />}
+        {dev && <Chip label="Dev" sx={sxChip(getChipColor(theme,'error'))} />}
+        {planned && <Chip label="Planned" sx={sxChip(getChipColor(theme,'grey'))} />}
+        {unstable && <Chip label="Preview" sx={sxChip(getChipColor(theme,'primary'))} />}
+        {beta && <Chip label="Beta" sx={sxChip(getChipColor(theme,'warning'))} />}
       </Item>
       {expandable ? (
         <Collapse in={open} timeout="auto" unmountOnExit>
@@ -340,6 +359,7 @@ AppNavDrawerItem.propTypes = {
   expandable: PropTypes.bool,
   href: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
   icon: PropTypes.elementType,
+  inDev: PropTypes.bool,
   initiallyExpanded: PropTypes.bool,
   legacy: PropTypes.bool,
   linkProps: PropTypes.object,
@@ -347,6 +367,7 @@ AppNavDrawerItem.propTypes = {
   onClick: PropTypes.func,
   plan: PropTypes.oneOf(['community', 'pro', 'premium']),
   planned: PropTypes.bool,
+  prerelease: PropTypes.oneOf(['Alpha', 'Beta']),
   subheader: PropTypes.bool.isRequired,
   title: PropTypes.string.isRequired,
   topLevel: PropTypes.bool,

@@ -4,7 +4,7 @@ import Box from '@mui/material/Box';
 import Avatar from '@mui/material/Avatar';
 import { FileExplorerBasic } from '@stoked-ui/file-explorer/FileExplorerBasic';
 import {
-  useFile as useFile,
+  useFile,
   UseFileParameters,
 } from '@stoked-ui/file-explorer/useFile';
 import {

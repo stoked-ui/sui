@@ -1,5 +1,5 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
+import PropTypes, { instanceOf } from 'prop-types';
 import clsx from 'clsx';
 import Checkbox from '@mui/material/Checkbox';
 import { useFileElementState } from './useFileElementState';

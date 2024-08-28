@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { fireEvent } from '@mui/internal-test-utils';
+import { fireEvent } from '@stoked-ui/internal-test-utils';
 import { describeFileExplorer } from 'test/utils/fileExplorer-view/describeFileExplorer';
 import {
   UseFileExplorerExpansionSignature,

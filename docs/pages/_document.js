@@ -47,7 +47,7 @@ export default class MyDocument extends Document {
             manifest.json provides metadata used when your web app is added to the
             homescreen on Android. See https://developers.google.com/web/fundamentals/engage-and-retain/web-app-manifest/
           */}
-          <link rel="manifest" href="/static/manifest.json" />
+          <link rel="manifest" href="/static/manifest.json"/>
           {/* PWA primary color */}
           <meta
             name="theme-color"
@@ -59,9 +59,9 @@ export default class MyDocument extends Document {
             content={getMetaThemeColor('dark')}
             media="(prefers-color-scheme: dark)"
           />
-          <link rel="shortcut icon" href="/static/favicon.ico" />
+          <link rel="shortcut icon" href="/static/favicon.ico"/>
           {/* iOS Icon */}
-          <link rel="apple-touch-icon" sizes="180x180" href="/static/icons/180x180.png" />
+          <link rel="apple-touch-icon" sizes="180x180" href="/static/icons/180x180.png"/>
           {/* SEO */}
           <link
             rel="canonical"
@@ -69,14 +69,14 @@ export default class MyDocument extends Document {
               userLanguage === 'en' ? '' : `/${userLanguage}`
             }${canonicalAsServer}`}
           />
-          <link rel="alternate" href={`https://mui.com${canonicalAsServer}`} hrefLang="x-default" />
+          <link rel="alternate" href={`https://mui.com${canonicalAsServer}`} hrefLang="x-default"/>
           {/*
             Preconnect allows the browser to setup early connections before an HTTP request
             is actually sent to the server.
             This includes DNS lookups, TLS negotiations, TCP handshakes.
           */}
-          <link href="https://fonts.gstatic.com" rel="preconnect" crossOrigin="anonymous" />
-          <link rel="preconnect" href="https://fonts.googleapis.com" />
+          <link href="https://fonts.gstatic.com" rel="preconnect" crossOrigin="anonymous"/>
+          <link rel="preconnect" href="https://fonts.googleapis.com"/>
           <link
             href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap"
             rel="stylesheet"
@@ -100,6 +100,21 @@ export default class MyDocument extends Document {
           <link
             rel="preload"
             // optimized for english characters (40kb -> 6kb)
+            href="/static/fonts/ArchivoBlack-Regular.woff2"
+            as="font"
+            type="font/woff2"
+            crossOrigin="anonymous"
+          />
+          <style
+            // the above <link> does not work in mobile device, this inline <style> fixes it without blocking resources
+            // eslint-disable-next-line react/no-danger
+            dangerouslySetInnerHTML={{
+              __html: `@font-face{font-family:'Archivo Black';font-style:normal;font-weight:400;font-display:swap;src:url('/static/fonts/ArchivoBlack-Regular.woff2') format('woff2');}`,
+            }}
+          />
+          <link
+            rel="preload"
+            // optimized for english characters (40kb -> 6kb)
             href="/static/fonts/IBMPlexSans-Regular-subset.woff2"
             as="font"
             type="font/woff2"
@@ -113,6 +128,36 @@ export default class MyDocument extends Document {
             }}
           />
           {/* =========================================================== */}
+          <style
+            // Loads General Sans: Regular (400), Medium (500), SemiBold (600), Bold (700)
+            // Typeface documentation: https://www.fontshare.com/fonts/general-sans
+            // use https://cssminifier.com/ to minify
+            // eslint-disable-next-line react/no-danger
+            dangerouslySetInnerHTML={{
+              __html: `@font-face{font-family:'Archivo Black Medium';src:url(/static/fonts/ArchivoBlack-Regular.woff2) format('woff2'),url(/static/fonts/ArchivoBlack-Regular.ttf) format('truetype');font-weight:500;font-style:normal;font-display:swap;}@font-face{font-family:'Archivo Black SemiBold';src:url(/static/fonts/ArchivoBlack-Regular.woff2) format('woff2'),url(/static/fonts/ArchivoBlack-Regular.ttf) format('truetype');font-weight:600;font-style:normal;font-display:swap;}@font-face{font-family:'Archivo Black Bold';src:url(/static/fonts/ArchivoBlack-Regular.woff2) format('woff2'),url(/static/fonts/ArchivoBlack-Regular.ttf) format('truetype');font-weight:700;font-style:normal;font-display:swap;}`,
+            }}
+            dangerouslySetInnerHTML={{
+              __html: `
+              /* latin-ext */
+              @font-face {
+                font-family: 'Archivo Black';
+                font-style: normal;
+                font-weight: 400;
+                font-display: swap;
+                src: url(/static/fonts/ArchivoBlack-LatinExt.woff2) format('woff2');
+                unicode-range: U+0100-02AF, U+0304, U+0308, U+0329, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+              }
+              /* latin */
+              @font-face {
+                font-family: 'Archivo Black';
+                font-style: normal;
+                font-weight: 400;
+                font-display: swap;
+                src: url(/static/fonts/ArchivoBlack-Latin.woff2) format('woff2');
+                unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+              }`
+            }}
+          />
           <style
             // Loads General Sans: Regular (400), Medium (500), SemiBold (600), Bold (700)
             // Typeface documentation: https://www.fontshare.com/fonts/general-sans
@@ -173,10 +218,10 @@ export default class MyDocument extends Document {
           />
         </Head>
         <body>
-          {getMuiInitColorSchemeScript({ defaultMode: 'system' })}
-          {getJoyInitColorSchemeScript({ defaultMode: 'system' })}
-          <Main />
-          {/*
+        {getMuiInitColorSchemeScript({defaultMode: 'system'})}
+        {getJoyInitColorSchemeScript({defaultMode: 'system'})}
+        <Main/>
+        {/*
           <script
             // eslint-disable-next-line react/no-danger
             dangerouslySetInnerHTML={{
@@ -200,7 +245,7 @@ gtag('config', '${GOOGLE_ANALYTICS_ID_V4}', {
             src={`https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ANALYTICS_ID_V4}`}
           />
           */}
-          <NextScript />
+        <NextScript/>
         </body>
       </Html>
     );

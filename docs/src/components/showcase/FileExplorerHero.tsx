@@ -7,11 +7,12 @@ import { SxProps } from "@mui/system";
 
 import { getDynamicFiles } from '../fileExplorer/data';
 
-export default function FileExplorerHero(props: { id: string, sx?: SxProps, grid?: boolean, alternatingRows?: boolean, trash?: boolean}) {
+export default function FileExplorerHero(props: { id: string, sx?: SxProps, grid?: boolean, alternatingRows?: boolean, trash?: boolean, defaultData?: boolean}) {
   const sx: SxProps = { height: 'fit-content', flexGrow: 1, width: '100%', overflowY: 'auto', ...props.sx };
+  const files = props.defaultData ? getDynamicFiles() : [];
   return (
     <FileExplorer
-      items={getDynamicFiles()}
+      items={files}
       defaultExpandedItems={['1', '1.1']}
       defaultSelectedItems="1.1"
       sx={sx}

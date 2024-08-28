@@ -6,37 +6,12 @@ import * as prettier from 'prettier';
 import {
   getPropTypesFromFile,
   injectPropTypesInFile,
-} from '@stoked-ui/internal-scripts/typescript-to-proptypes';
-import { fixBabelGeneratorIssues, fixLineEndings } from '@stoked-ui/internal-docs-utils';
+} from '@stoked-ui/proptypes/typescript-to-proptypes';
+import { fixBabelGeneratorIssues, fixLineEndings } from '@stoked-ui/docs-utils';
 import { createXTypeScriptProjects, XTypeScriptProject } from './createXTypeScriptProjects';
 
-const COMPONENTS_WITHOUT_PROPTYPES = ['ChartsAxisTooltipContent', 'ChartsItemTooltipContent'];
 
 async function generateProptypes(project: XTypeScriptProject, sourceFile: string) {
-  const isTDate = (name: string) => {
-    if (['x-date-pickers', 'x-date-pickers-pro'].includes(project.name)) {
-      const T_DATE_PROPS = [
-        'value',
-        'defaultValue',
-        'minDate',
-        'maxDate',
-        'minDateTime',
-        'maxDateTime',
-        'minTime',
-        'maxTime',
-        'referenceDate',
-        'day',
-        'currentMonth',
-        'month',
-      ];
-
-      if (T_DATE_PROPS.includes(name)) {
-        return true;
-      }
-    }
-
-    return false;
-  };
 
   const components = getPropTypesFromFile({
     filePath: sourceFile,
@@ -80,13 +55,9 @@ async function generateProptypes(project: XTypeScriptProject, sourceFile: string
         return false;
       }
 
-      if (isTDate(name)) {
-        return false;
-      }
-
       return undefined;
     },
-    shouldUseObjectForDate: ({ name }) => isTDate(name),
+    shouldUseObjectForDate: ({ name }) => true,
   });
 
   if (components.length === 0) {
@@ -99,7 +70,6 @@ async function generateProptypes(project: XTypeScriptProject, sourceFile: string
     components,
     target: sourceContent,
     options: {
-      disablePropTypesTypeChecking: true,
       comment: [
         '----------------------------- Warning --------------------------------',
         '| These PropTypes are generated from the TypeScript type definitions |',
@@ -117,6 +87,7 @@ async function generateProptypes(project: XTypeScriptProject, sourceFile: string
         if (['children', 'state'].includes(prop.name) && component.name.startsWith('DataGrid')) {
           return false;
         }
+
         let shouldExclude = false;
 
         if (prop.propType.type === 'InterfaceNode') {
@@ -131,19 +102,14 @@ async function generateProptypes(project: XTypeScriptProject, sourceFile: string
           const definedInNodeModule = /node_modules/.test(filename);
 
           if (definedInNodeModule) {
-            // TODO: xGrid team should consider removing this to generate more correct proptypes as well
-            if (component.name.includes('Grid')) {
+            const definedInInternalModule = /node_modules\/@stoked-ui/.test(filename);
+            // we want to include props if they are from our internal components
+            // avoid including inherited `children` and `classes` as they (might) need custom implementation to work
+            if (
+              !definedInInternalModule ||
+              (definedInInternalModule && ['children', 'classes', 'theme'].includes(prop.name))
+            ) {
               shouldExclude = true;
-            } else {
-              const definedInInternalModule = /node_modules\/@stoked-ui/.test(filename);
-              // we want to include props if they are from our internal components
-              // avoid including inherited `children` and `classes` as they (might) need custom implementation to work
-              if (
-                !definedInInternalModule ||
-                (definedInInternalModule && ['children', 'classes', 'theme'].includes(prop.name))
-              ) {
-                shouldExclude = true;
-              }
             }
           }
         });
@@ -179,11 +145,7 @@ async function run() {
 
     const componentsWithPropTypes = project.getComponentsWithPropTypes(project);
     return componentsWithPropTypes
-      .filter((filename) =>
-        COMPONENTS_WITHOUT_PROPTYPES.every(
-          (ignoredComponent) => !filename.includes(ignoredComponent),
-        ),
-      )
+
       .map<Promise<void>>(async (filename) => {
         try {
           await generateProptypes(project, filename);

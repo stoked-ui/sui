@@ -45,13 +45,12 @@ export default function TableOfContentsBanner() {
         <img
           src="/static/images/avatar/grumpy-cat.svg"
           alt=""
-          width={40}
-          height={40}
+          width={45}
           style={{ verticalAlign: 'middle' }}
         />
       </Box>
       <Typography component="span" variant="caption" fontWeight="medium" color="text.secondary">
-        SUI stands with Grumpy Cat.
+        Stoked UI stands with Grumpy Cat.
       </Typography>
     </Link>
   ) : null;

@@ -34,7 +34,7 @@ const FileExplorerGrid = dynamic(() => import('../showcase/FileExplorerCard'), {
   loading: createLoading({ width: '100%', height: 280 }),
 });
 
-const FileExplorerDnd = dynamic(() => import('../showcase/FileExplorerCard'), {
+const FileExplorerDrop = dynamic(() => import('../showcase/FileExplorerCard'), {
   ssr: false,
   loading: createLoading({ width: 360, height: 280 }),
 });
@@ -80,8 +80,8 @@ export default function Hero() {
         <React.Fragment>
           {isMdUp && (
             <Stack spacing={3} useFlexGap sx={{ '& > .MuiPaper-root': { maxWidth: 'none' } }}>
-              <FileExplorerGrid id={'file-explorer-grid'} grid sx={{ width: '100%' }} />
-              <FileExplorerDnd id={'file-explorer-dnd'} sx={{width: 360}}/>
+              <FileExplorerGrid id={'file-explorer-grid'} defaultData grid sx={{ width: '100%' }} />
+              <FileExplorerDrop id={'file-explorer-drop'} defaultData sx={{width: '100%'}}/>
             </Stack>
           )}
         </React.Fragment>
