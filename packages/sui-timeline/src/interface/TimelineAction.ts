@@ -9,7 +9,7 @@ export interface TimelineTrack {
   /** Action track id */
   id: string;
 
-  name: string;
+  name?: string;
   /** Row action list */
   actions: ITimelineAction[];
   /** Customize track height */

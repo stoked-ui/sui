@@ -14,7 +14,10 @@ packageName: '@stoked-ui/file-explorer'
 
 ## Available components
 
-The MUI X File Explorer package exposes two different versions of the component:
+The Stoked UI File Explorer package exposes two different versions of the component:
+
+ - FileExplorerBasic
+ - FileExplorer
 
 ### File Explorer Basic
 

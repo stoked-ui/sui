@@ -23,7 +23,7 @@ const Navigation = styled('nav')(({ theme }) => [
       fontWeight: theme.typography.fontWeightSemiBold,
       '& > a, & > button': {
         display: 'inline-block',
-        color: 'rgb(182, 190, 201)',
+        color: 'hsl(215 15% 22% / 1)',
         font: 'inherit',
         textDecoration: 'none',
         padding: theme.spacing('6px', '8px'),
@@ -48,6 +48,7 @@ const Navigation = styled('nav')(({ theme }) => [
   theme.applyDarkStyles({
     '& li': {
       '& > a, & > button': {
+        color: 'rgb(182, 190, 201)',
         '&:hover': {
           color: theme.palette.primary[50],
           backgroundColor: alpha(theme.palette.primaryDark[700], 0.8),

@@ -14,7 +14,7 @@ import { FileExplorerGridHeaders } from '../internals/plugins/useFileExplorerGri
 import { FileWrapped } from './FileWrapped';
 import { FileExplorerDndContext } from '../internals/plugins/useFileExplorerDnd/FileExplorerDndContext';
 import { FileBase } from '../models';
-import {FileDropzone} from "../FileDropzone";
+import { FileDropzone } from '../FileDropzone';
 
 const useThemeProps = createUseThemeProps('MuiFileExplorer');
 
@@ -47,6 +47,9 @@ export const FileExplorerRoot = styled('ul', {
   listStyle: 'none',
   outline: 0,
   position: 'relative',
+  '& .header, .cell': {
+    minWidth: '100px',
+  },
   '& .header:after': {
     content: '""',
     position: 'absolute',
@@ -130,9 +133,7 @@ const FileExplorer = React.forwardRef(function FileExplorer<
   };
   const getContent = () => {
     if (!props.items?.length) {
-      return (
-        <FileDropzone />
-      )
+      return <FileDropzone />;
     }
     if (!props.grid) {
       return (
@@ -280,7 +281,59 @@ FileExplorer.propTypes = {
    * @default 12px
    */
   itemChildrenIndentation: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-  items: PropTypes.any,
+  items: PropTypes.arrayOf(
+    PropTypes.shape({
+      children: PropTypes.arrayOf(
+        PropTypes.shape({
+          children: PropTypes.arrayOf(PropTypes.object),
+          expanded: PropTypes.bool,
+          file: PropTypes.shape({
+            arrayBuffer: PropTypes.func.isRequired,
+            lastModified: PropTypes.number.isRequired,
+            name: PropTypes.string.isRequired,
+            path: PropTypes.string,
+            size: PropTypes.number.isRequired,
+            slice: PropTypes.func.isRequired,
+            stream: PropTypes.func.isRequired,
+            text: PropTypes.func.isRequired,
+            type: PropTypes.string.isRequired,
+            webkitRelativePath: PropTypes.string.isRequired,
+          }),
+          id: PropTypes.string,
+          itemId: PropTypes.string,
+          label: PropTypes.string,
+          modified: PropTypes.number,
+          name: PropTypes.string,
+          selected: PropTypes.bool,
+          size: PropTypes.number,
+          type: PropTypes.oneOf(['doc', 'file', 'folder', 'image', 'pdf', 'trash', 'video']),
+          visibleIndex: PropTypes.number,
+        }),
+      ),
+      expanded: PropTypes.bool,
+      file: PropTypes.shape({
+        arrayBuffer: PropTypes.func.isRequired,
+        lastModified: PropTypes.number.isRequired,
+        name: PropTypes.string.isRequired,
+        path: PropTypes.string,
+        size: PropTypes.number.isRequired,
+        slice: PropTypes.func.isRequired,
+        stream: PropTypes.func.isRequired,
+        text: PropTypes.func.isRequired,
+        type: PropTypes.string.isRequired,
+        webkitRelativePath: PropTypes.string.isRequired,
+      }),
+      id: PropTypes.string,
+      itemId: PropTypes.string,
+      label: PropTypes.string,
+      modified: PropTypes.number,
+      name: PropTypes.string,
+      selected: PropTypes.bool,
+      size: PropTypes.number,
+      type: PropTypes.oneOf(['doc', 'file', 'folder', 'image', 'pdf', 'trash', 'video']),
+      visibleIndex: PropTypes.number,
+    }),
+  ).isRequired,
   /**
    * If `true`, `ctrl` and `shift` will trigger multiselect.
    * @default false

@@ -1,6 +1,6 @@
 {
   "name": "@stoked-ui/docs",
-  "version": "0.1.0-alpha.5",
+  "version": "0.1.0-alpha.7",
   "private": false,
   "author": "SUI Team",
   "description": "SUI Docs - Documentation building blocks.",
@@ -15,14 +15,14 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/stoked-ui/stoked-ui.git",
+    "url": "https://github.com/stoked-ui/mono.git",
     "directory": "packages/sui-docs"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/stoked-ui/stoked-ui/issues"
+    "url": "https://github.com/stoked-ui/mono/issues"
   },
-  "homepage": "https://github.com/stoked-ui/stoked-ui/tree/master/packages/mui-docs",
+  "homepage": "https://github.com/stoked-ui/mono/tree/master/packages/sui-docs",
   "scripts": {
     "build": "pnpm build:legacy && pnpm build:modern && pnpm build:node && pnpm build:stable && pnpm build:types && pnpm build:copy-files",
     "build:legacy": "node ../../scripts/build.mjs legacy",

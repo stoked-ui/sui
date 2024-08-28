@@ -172,7 +172,7 @@ jobs:
             
             if [ $FOLDER_COMMIT = $LATEST_COMMIT ]; then
               echo "changes, let's run the tests"
-              pnpm --filter @stoked-ui/internal-scripts test
+              pnpm --filter @stoked-ui/proptypes test
             else
               echo "no changes"
             fi

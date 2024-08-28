@@ -43,29 +43,29 @@ const ROUTES: Routes = {
   suiXEditor: '/sui-x/editor/',
   suiXMediaProvider: '/sui-x/media-provider/',
   // Stoked UI doc pages
-  materialDocs: 'https://stoked-ui.github.io/material-ui/getting-started/',
+  materialDocs: 'https://stokedconsulting.com/material-ui/getting-started/',
   materialIcons: '/material-ui/material-icons/',
   freeTemplates: '/material-ui/getting-started/templates/',
   components: '/material-ui/getting-started/supported-components/',
   customization: '/material-ui/customization/how-to-customize/',
   theming: '/material-ui/customization/theming/',
-  documentation: '/material-ui/getting-started/',
+  documentation: '/stoked-ui/docs/overview/',
   communityHelp: '/material-ui/getting-started/support/#community-help-free',
   showcase: '/material-ui/discover-more/showcase/',
-  coreRoadmap: '/material-ui/discover-more/roadmap/',
+  coreRoadmap: 'https://github.com/orgs/stoked-ui/projects/1',
   vision: '/material-ui/discover-more/vision/',
-  support: '/material-ui/getting-started/support/#professional-support-premium',
+  support: '/stoked-ui/docs/support/#professional-support-premium',
   goldSponsor: '/material-ui/discover-more/backers/#gold-sponsors',
   // Base UI doc pages
-  baseDocs: 'https://stoked-ui.github.io/base-ui/getting-started/',
+  baseDocs: 'https://stokedconsulting.com/base-ui/getting-started/',
   baseComponents: '/base-ui/all-components/',
   baseQuickstart: '/base-ui/getting-started/quickstart/',
   // Joy UI doc pages
   joyDocs: '/joy-ui/getting-started/',
   // System pages
-  systemDocs: 'https://stoked-ui.github.io/system/getting-started/',
+  systemDocs: 'https://stokedconsulting.com/system/getting-started/',
   // X general pages
-  xIntro: 'https://stoked-ui.github.io/x/introduction/',
+  xIntro: 'https://stokedconsulting.com/x/introduction/',
   xRoadmap: 'https://github.com/mui/mui-x/projects/1',
   xLicensing: '/x/introduction/licensing/',
   // Data Grid doc pages
@@ -85,8 +85,8 @@ const ROUTES: Routes = {
   // External pages
   rssFeed: '/feed/blog/rss.xml',
   handbook: 'https://mui-org.notion.site/Handbook-f086d47e10794d5e839aef9dc67f324b',
-  privacyPolicy: 'https://stoked-ui.github.io/legal/privacy/',
-  store: 'https://stoked-ui.github.io/store/',
+  privacyPolicy: 'https://stokedconsulting.com/legal/privacy/',
+  store: 'https://stokedconsulting.com/store/',
 };
 
 export default ROUTES;

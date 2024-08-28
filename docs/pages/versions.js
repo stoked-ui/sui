@@ -62,7 +62,7 @@ Page.getInitialProps = async () => {
     versions.push(
       {
         version: `v${process.env.LIB_VERSION}`,
-        url: 'https://stoked-ui.github.io',
+        url: 'https://stokedconsulting.com',
       });
     // Legacy documentation.
     versions.push({

@@ -8,10 +8,11 @@
     "noEmit": false,
     "emitDeclarationOnly": true,
     "outDir": "build",
+    "allowJs": true,
     "rootDir": "./src",
     "tsBuildInfoFile": "build/tsconfig.build.tsbuildinfo"
   },
-  "include": ["src/**/*.ts*", "src/**/*.json"],
+  "include": ["src/**/*.ts*", "src/**/*.json", "src/**/*.js"],
   "exclude": ["src/**/*.spec.ts*", "src/**/*.test.ts*"],
   "references": [
     { "path": "../sui-file-explorer/tsconfig.build.json" },

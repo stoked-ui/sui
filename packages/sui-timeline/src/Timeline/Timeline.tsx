@@ -110,12 +110,15 @@ const Timeline = React.forwardRef(function Timeline(
 
   return (
     <Root ref={combinedRootRef} {...rootProps} sx={inProps.sx}>
-      {inProps.labels && <Labels
-        ref={labelsRef}
-        {...labelsProps.ownerState}
-        timelineState={timelineState}
-        onChange={onChange}
-      />}
+      {inProps.labels && (
+        <Labels
+          ref={labelsRef}
+          {...labelsProps.ownerState}
+          timelineState={timelineState}
+          onChange={onChange}
+        />
+      )}
+
       <Control
         sx={{
           width: '100%',
@@ -197,63 +200,167 @@ Timeline.propTypes = {
   /**
    * Override or extend the styles applied to the component.
    */
-  classes: PropTypes.object,
-  className: PropTypes.string,
+  classes: PropTypes.object.isRequired,
+  className: PropTypes.string.isRequired,
   controlSx: PropTypes.oneOfType([
     PropTypes.arrayOf(
-      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),
+      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]).isRequired,
     ),
     PropTypes.func,
     PropTypes.object,
-  ]),
-  engine: PropTypes.any.isRequired,
+  ]).isRequired,
+  engine: PropTypes.shape({
+    current: PropTypes.shape({
+      actionTypes: PropTypes.object.isRequired,
+      bind: PropTypes.func.isRequired,
+      canvas: PropTypes.object.isRequired,
+      events: PropTypes.object.isRequired,
+      exist: PropTypes.func.isRequired,
+      getAction: PropTypes.func.isRequired,
+      getActionTrack: PropTypes.func.isRequired,
+      getPlayRate: PropTypes.func.isRequired,
+      getSelectedActions: PropTypes.func.isRequired,
+      getTime: PropTypes.func.isRequired,
+      isPaused: PropTypes.bool.isRequired,
+      isPlaying: PropTypes.bool.isRequired,
+      off: PropTypes.func.isRequired,
+      offAll: PropTypes.func.isRequired,
+      on: PropTypes.func.isRequired,
+      pause: PropTypes.func.isRequired,
+      play: PropTypes.func.isRequired,
+      reRender: PropTypes.func.isRequired,
+      setPlayRate: PropTypes.func.isRequired,
+      setTime: PropTypes.func.isRequired,
+      tracks: PropTypes.arrayOf(
+        PropTypes.shape({
+          actions: PropTypes.arrayOf(PropTypes.object).isRequired,
+          classNames: PropTypes.arrayOf(PropTypes.string).isRequired,
+          hidden: PropTypes.bool.isRequired,
+          id: PropTypes.string.isRequired,
+          lock: PropTypes.bool.isRequired,
+          name: PropTypes.string.isRequired,
+          rowHeight: PropTypes.number.isRequired,
+          selected: PropTypes.bool.isRequired,
+        }),
+      ).isRequired,
+      trigger: PropTypes.func.isRequired,
+      viewer: function (props, propName) {
+        if (props[propName] == null) {
+          return new Error(`Prop ${propName} is required but wasn't specified`);
+        } else if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
+          return new Error("Expected prop '" + propName + "' to be of type Element");
+        }
+      },
+    }).isRequired,
+  }).isRequired,
+  labels: PropTypes.bool.isRequired,
   labelsSx: PropTypes.oneOfType([
     PropTypes.arrayOf(
-      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),
+      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]).isRequired,
     ),
     PropTypes.func,
     PropTypes.object,
-  ]),
+  ]).isRequired,
   labelSx: PropTypes.oneOfType([
     PropTypes.arrayOf(
-      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),
+      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]).isRequired,
     ),
     PropTypes.func,
     PropTypes.object,
-  ]),
-  scaleWidth: PropTypes.number,
-  setScaleWidth: PropTypes.func,
-  setTacks: PropTypes.func,
+  ]).isRequired,
+  scaleWidth: PropTypes.number.isRequired,
+  setScaleWidth: PropTypes.func.isRequired,
+  setTracks: PropTypes.func.isRequired,
   /**
    * The props used for each component slot.
    * @default {}
    */
-  slotProps: PropTypes.object,
+  slotProps: PropTypes.object.isRequired,
   /**
    * Overridable component slots.
    * @default {}
    */
-  slots: PropTypes.object,
+  slots: PropTypes.object.isRequired,
   /**
    * The system prop that allows defining system overrides as well as additional CSS styles.
    */
   sx: PropTypes.oneOfType([
     PropTypes.arrayOf(
-      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),
+      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]).isRequired,
     ),
     PropTypes.func,
     PropTypes.object,
-  ]),
-  timelineState: PropTypes.any.isRequired,
-  tracks: PropTypes.any,
+  ]).isRequired,
+  timelineState: PropTypes.shape({
+    current: PropTypes.shape({
+      getPlayRate: PropTypes.func.isRequired,
+      getTime: PropTypes.func.isRequired,
+      isPaused: PropTypes.bool.isRequired,
+      isPlaying: PropTypes.bool.isRequired,
+      listener: PropTypes.shape({
+        bind: PropTypes.func.isRequired,
+        events: PropTypes.object.isRequired,
+        exist: PropTypes.func.isRequired,
+        off: PropTypes.func.isRequired,
+        offAll: PropTypes.func.isRequired,
+        on: PropTypes.func.isRequired,
+        trigger: PropTypes.func.isRequired,
+      }).isRequired,
+      pause: PropTypes.func.isRequired,
+      play: PropTypes.func.isRequired,
+      reRender: PropTypes.func.isRequired,
+      setPlayRate: PropTypes.func.isRequired,
+      setScrollLeft: PropTypes.func.isRequired,
+      setScrollTop: PropTypes.func.isRequired,
+      setTime: PropTypes.func.isRequired,
+      target: function (props, propName) {
+        if (props[propName] == null) {
+          return new Error(`Prop ${propName} is required but wasn't specified`);
+        } else if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
+          return new Error("Expected prop '" + propName + "' to be of type Element");
+        }
+      },
+    }).isRequired,
+  }).isRequired,
+  tracks: PropTypes.arrayOf(
+    PropTypes.shape({
+      actions: PropTypes.arrayOf(
+        PropTypes.shape({
+          data: PropTypes.shape({
+            src: PropTypes.string.isRequired,
+            style: PropTypes.object.isRequired,
+          }).isRequired,
+          disable: PropTypes.bool.isRequired,
+          effectId: PropTypes.string.isRequired,
+          end: PropTypes.number.isRequired,
+          flexible: PropTypes.bool.isRequired,
+          id: PropTypes.string.isRequired,
+          maxEnd: PropTypes.number.isRequired,
+          minStart: PropTypes.number.isRequired,
+          movable: PropTypes.bool.isRequired,
+          name: PropTypes.string.isRequired,
+          onKeyDown: PropTypes.func.isRequired,
+          selected: PropTypes.bool.isRequired,
+          start: PropTypes.number.isRequired,
+        }),
+      ).isRequired,
+      classNames: PropTypes.arrayOf(PropTypes.string).isRequired,
+      hidden: PropTypes.bool.isRequired,
+      id: PropTypes.string.isRequired,
+      lock: PropTypes.bool.isRequired,
+      name: PropTypes.string.isRequired,
+      rowHeight: PropTypes.number.isRequired,
+      selected: PropTypes.bool.isRequired,
+    }),
+  ).isRequired,
   trackSx: PropTypes.oneOfType([
     PropTypes.arrayOf(
-      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),
+      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]).isRequired,
     ),
     PropTypes.func,
     PropTypes.object,
-  ]),
-  viewSelector: PropTypes.string,
+  ]).isRequired,
+  viewSelector: PropTypes.string.isRequired,
 };
 
 export { Timeline };

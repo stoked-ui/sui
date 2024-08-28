@@ -12,6 +12,7 @@ const pages: MuiPage[] = [
       { pathname: `/stoked-ui/docs/example-projects` },
       { pathname: `/stoked-ui/docs/faq` },
       { pathname: `/stoked-ui/docs/support` },
+      { pathname: `/stoked-ui/docs/vision` },
       { pathname: `/stoked-ui/docs/roadmap` },
     ],
   },
@@ -80,8 +81,6 @@ const pages: MuiPage[] = [
     alpha: true,
     children: [
       { pathname: '/timeline/docs/overview', title: 'Overview' },
-      { pathname: '/timeline/docs/editor', title: 'Editor' },
-
     ],
   },
   {

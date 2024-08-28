@@ -294,7 +294,7 @@ This release was mostly about 🐛 bug fixes and 📚 documentation improvements
 ### Core
 
 - &#8203;<!-- 23 -->[blog] Bringing consistency to Material UI customization APIs (#41040) @DiegoAndai
-- &#8203;<!-- 22 -->[code-infra] Rename @mui-internal/docs-utils to @stoked-ui/internal-docs-utils (#41498) @michaldudak
+- &#8203;<!-- 22 -->[code-infra] Rename @mui-internal/docs-utils to @stoked-ui/docs-utils (#41498) @michaldudak
 - &#8203;<!-- 21 -->[code-infra] Copy translations.json to @mui/docs build folder (#41472) @Janpot
 - &#8203;<!-- 20 -->[core] Use Circle CI context (#41532) @oliviertassinari
 - &#8203;<!-- 19 -->[core] Fix CHANGELOG format and update date (#41481) @DiegoAndai

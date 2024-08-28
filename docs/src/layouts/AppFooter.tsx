@@ -17,7 +17,7 @@ import DiscordIcon from 'docs/src/icons/DiscordIcon';
 import { Link } from '@mui/docs/Link';
 import SvgStackOverflow from 'docs/src/icons/SvgStackOverflow';
 import Slack from '../icons/Slack';
-import { PRODUCTS } from "../products";
+import {ALL_PRODUCTS, PRODUCTS} from "../products";
 
 interface AppFooterProps {
   stackOverflowUrl?: string;
@@ -74,13 +74,19 @@ export default function AppFooter(props: AppFooterProps) {
             <Typography fontWeight="semiBold" variant="body2" sx={{ mb: 0.5 }}>
               Products
             </Typography>
-            <Link prefetch={false} href={PRODUCTS.index['stoked-ui'].url('product')}>
+            <Link prefetch={false} href={ALL_PRODUCTS.index['stoked-ui'].url('product')}>
               Stoked UI
             </Link>
-            <Link prefetch={false} href={PRODUCTS.getFeatureUrl('stoked-ui', 'file-explorer', 'doc')}>
+            <Link prefetch={false} href={PRODUCTS.index['file-explorer'].url('product')}>
               File Explorer
             </Link>
-            <Link prefetch={false} href={PRODUCTS.getFeatureUrl('stoked-ui', 'media-selector', 'doc')}>
+            <Link prefetch={false} href={PRODUCTS.index['timeline'].url('product')}>
+              Timeline
+            </Link>
+            <Link prefetch={false} href={PRODUCTS.index['editor'].url('product')}>
+              Editor
+            </Link>
+            <Link prefetch={false} href={PRODUCTS.index['media-selector'].url('product')}>
               Media Selector
             </Link>
             <Link prefetch={false} href={PRODUCTS.index['stoked-consulting'].url('product')}>
@@ -97,9 +103,9 @@ export default function AppFooter(props: AppFooterProps) {
             <Link prefetch={false} href={ROUTES.blog}>
               Blog
             </Link>
-            <Link prefetch={false} href={ROUTES.showcase}>
+          {/*   <Link prefetch={false} href={ROUTES.showcase}>
               Showcase
-            </Link>
+            </Link> */}
             <Link prefetch={false} href={ROUTES.coreRoadmap}>
               Roadmap
             </Link>
@@ -120,7 +126,7 @@ export default function AppFooter(props: AppFooterProps) {
             <Link prefetch={false} href={ROUTES.privacyPolicy}>
               Privacy policy
             </Link>
-            <Link prefetch={false} target="_blank" rel="noopener" href="mailto:contact@mui.com">
+            <Link prefetch={false} target="_blank" rel="noopener" href="mailto:b@stokedconsulting.com">
               Contact us
             </Link>
           </Box>
@@ -135,13 +141,13 @@ export default function AppFooter(props: AppFooterProps) {
         sx={{ my: 4 }}
       >
         <Typography color="text.tertiary" variant="caption" fontWeight={400}>
-          Copyright © {new Date().getFullYear()} Stoked UI
+          Copyright © {new Date().getFullYear()} Stoked Consulting
         </Typography>
         <Stack spacing={1} direction="row" flexWrap="wrap" useFlexGap>
           <IconButton
             target="_blank"
             rel="noopener"
-            href="https://github.com/mui"
+            href="https://github.com/stoked-ui/mono"
             aria-label="github"
             title="GitHub"
             size="small"
@@ -166,12 +172,12 @@ export default function AppFooter(props: AppFooterProps) {
             title="Slack"
             size="small"
           >
-            <Slack sx={{ color: 'white' }} variant={'monochrome'} fontSize="small" />
+            <Slack sx={(theme) => ({ color: theme.palette.mode === 'light' ? 'grey' : '#FFF' ,...theme.applyDarkStyles({color: '#FFF'}) })} variant={'hover-color'} fontSize="small" />
           </IconButton>
           <IconButton
             target="_blank"
             rel="noopener"
-            href="https://www.linkedin.com/company/mui/"
+            href="https://www.linkedin.com/in/brian-stoker/"
             aria-label="linkedin"
             title="LinkedIn"
             size="small"
@@ -181,17 +187,7 @@ export default function AppFooter(props: AppFooterProps) {
           <IconButton
             target="_blank"
             rel="noopener"
-            href="https://www.youtube.com/@MUI_hq"
-            aria-label="YouTube"
-            title="YouTube"
-            size="small"
-          >
-            <YouTubeIcon fontSize="small" />
-          </IconButton>
-          <IconButton
-            target="_blank"
-            rel="noopener"
-            href="https://stoked-ui.github.io/r/discord/"
+            href="https://discord.gg/YHpSwttm"
             aria-label="Discord"
             title="Discord"
             size="small"

@@ -6,8 +6,8 @@ import * as prettier from 'prettier';
 import {
   getPropTypesFromFile,
   injectPropTypesInFile,
-} from '@stoked-ui/internal-scripts/typescript-to-proptypes';
-import { fixBabelGeneratorIssues, fixLineEndings } from '@stoked-ui/internal-docs-utils';
+} from '@stoked-ui/proptypes/typescript-to-proptypes';
+import { fixBabelGeneratorIssues, fixLineEndings } from '@stoked-ui/docs-utils';
 import { createXTypeScriptProjects, XTypeScriptProject } from './createXTypeScriptProjects';
 
 

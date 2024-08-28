@@ -2,7 +2,7 @@
 
 ## 1.0.3
 
-Renamed the package to @stoked-ui/internal-docs-utils
+Renamed the package to @stoked-ui/docs-utils
 
 ## 1.0.2
 
