@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="dev" type="js.build_tools.npm" nameIsGenerated="true">
+  <configuration default="false" name="docs &gt; dev" type="js.build_tools.npm" nameIsGenerated="true">
     <package-json value="$PROJECT_DIR$/docs/package.json" />
     <command value="run" />
     <scripts>
@@ -9,7 +9,7 @@
     <package-manager value="$USER_HOME$/Library/pnpm/pnpm" />
     <envs />
     <EXTENSION ID="com.intellij.lang.javascript.buildTools.npm.rc.StartBrowserRunConfigurationExtension">
-      <browser start="true" with-js-debugger="true" url="http://localhost:3000/file-explorer" />
+      <browser start="true" with-js-debugger="true" url="http://localhost:3000/editor/" />
     </EXTENSION>
     <method v="2" />
   </configuration>

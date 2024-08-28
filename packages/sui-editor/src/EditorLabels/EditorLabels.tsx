@@ -10,7 +10,7 @@ import LockOpenIcon from '@mui/icons-material/LockOpen';
 import LockIcon from '@mui/icons-material/Lock';
 import {TimelineTrack} from "@stoked-ui/timeline";
 import { EditorLabelsProps } from './EditorLabels.types';
-import { getEditorLabelsUtilityClass } from "./editorLabelsClasses";
+import {EditorLabelsClasses, getEditorLabelsUtilityClass} from "./editorLabelsClasses";
 
 const useUtilityClasses = (
   ownerState: EditorLabelsProps,
@@ -125,7 +125,7 @@ const EditorLabelText = styled('div', {
 }));
 
 const EditorLabel = React.forwardRef(
-  function EditorLabel(inProps:any, ref: React.Ref<HTMLElement>): React.JSX.Element {
+  function EditorLabel(inProps: {track: TimelineTrack, tracks: TimelineTrack[], classes: EditorLabelsClasses, setTracks: (updatedTracks: TimelineTrack[]) => void}, ref: React.Ref<HTMLElement>): React.JSX.Element {
     const { track, tracks, classes } = inProps;
     const visibilityIcon = track.hidden ? <VisibilityOffIcon fontSize={'small'}/> : <VisibilityIcon fontSize={'small'}/>;
 
@@ -138,21 +138,47 @@ const EditorLabel = React.forwardRef(
             exclusive
             aria-label="text alignment"
           >
-            <ToggleButton  value={track.hidden}  onChange={(e, val) => {
-              track.hidden = val;
-              inProps.setTracks((previous) => {
-                const newTracks = [...previous];
-                const rowIndex = newTracks.findIndex((previousTrack) => previousTrack.id === track.id);
-                if (rowIndex !== -1) {
-                  newTracks[rowIndex] = {...track};
+            <ToggleButton
+              id={`${track.id}-hidden`}
+              value={track.hidden ?? false}
+              onChange={(e, val) => {
+                const currentTrackIndex = tracks.findIndex((currTrack) => currTrack.id === e.currentTarget.id.replace('-hidden', ''))
+                if (currentTrackIndex === -1) {
+                  return
                 }
-                return newTracks;
-              });
-            }} aria-label="hidden"
-            size={'small'}>
+                const currentTrack = {...tracks[currentTrackIndex]};
+                currentTrack.hidden = !currentTrack.hidden;
+                const updatedTracks = [...tracks];
+                updatedTracks[currentTrackIndex] = currentTrack;
+                inProps.setTracks(updatedTracks)
+              }}
+              aria-label="hidden"
+              size={'small'}>
               {visibilityIcon}
             </ToggleButton>
-            <ToggleButton value="lock"  aria-label="lock" size={'small'}>
+            <ToggleButton
+              id={`${track.id}-lock`}
+              value={track.lock ?? false}
+              aria-label="lock"
+              size={'small'}
+              onChange={(e, val) => {
+                const currentTrackIndex = tracks.findIndex((currTrack) => currTrack.id === e.currentTarget.id.replace('-lock', ''))
+                if (currentTrackIndex === -1) {
+                  return
+                }
+                const currentTrack = {...tracks[currentTrackIndex]};
+                currentTrack.lock = !currentTrack.lock;
+                if (currentTrack.lock) {
+                  currentTrack.actions.forEach((updateAction) => {
+                    updateAction.movable = !currentTrack.lock;
+                    updateAction.flexible = !currentTrack.lock;
+                  })
+                }
+                const updatedTracks = [...tracks];
+                updatedTracks[currentTrackIndex] = currentTrack;
+                inProps.setTracks(updatedTracks)
+              }}
+            >
               {lockIcon}
             </ToggleButton>
           </ToggleButtonGroupStyled>
@@ -202,19 +228,6 @@ const EditorLabels = React.forwardRef(
             tracks={tracks}
             classes={classes}
             key={track.id}
-            onToggle={(inputTrack: TimelineTrack, property: string) => {
-              inProps.setTracks((previous) => {
-                const newTracks = [...previous];
-                const rowIndex = newTracks.findIndex((previousTrack) => previousTrack.id === inputTrack.id);
-                if (rowIndex !== -1) {
-                  const newTrackInstance = {...newTracks[rowIndex]};
-                  newTrackInstance[property] = !newTrackInstance[property];
-                  newTracks[rowIndex] = newTrackInstance;
-                }
-
-                return newTracks;
-              });
-            }}
             setTracks={inProps.setTracks}
           />
         })}

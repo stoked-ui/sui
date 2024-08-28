@@ -12,6 +12,7 @@ import { TimelineLabels } from '../TimelineLabels/TimelineLabels';
 import { ITimelineAction } from '../TimelineAction/TimelineAction.types';
 import { TimelineControl } from '../TimelineControl/TimelineControl';
 import { TimelineLabelsProps } from '../TimelineLabels/TimelineLabels.types';
+import { TimelineTrack } from 'src/TimelineControl/TimelineControl.types';
 
 const useUtilityClasses = (ownerState: TimelineProps) => {
   const { classes } = ownerState;
@@ -95,17 +96,16 @@ const Timeline = React.forwardRef(function Timeline(
   });
 
   const createAction = (e: React.MouseEvent<HTMLElement, MouseEvent>, { track, time }) => {
-    setTracks?.((previous) => {
-      const rowIndex = previous.findIndex((previousTrack) => previousTrack.id === track.id);
-      const newAction: ITimelineAction = {
-        id: `action ${tracks.length}`,
-        start: time,
-        end: time + 0.5,
-        effectId: 'effect0',
-      };
-      previous[rowIndex] = { ...track, actions: [...track.actions, newAction] };
-      return [...previous];
-    });
+    const updatedTracks = [...inProps.tracks];
+    const rowIndex = updatedTracks.findIndex((previousTrack) => previousTrack.id === track.id);
+    const newAction: ITimelineAction = {
+      id: `action ${tracks.length}`,
+      start: time,
+      end: time + 0.5,
+      effectId: 'effect0',
+    };
+    updatedTracks[rowIndex] = { ...track, actions: [...track.actions, newAction]};
+    setTracks(updatedTracks);
   };
 
   return (
@@ -155,35 +155,28 @@ const Timeline = React.forwardRef(function Timeline(
         actionTypes={inProps.actionTypes}
         viewSelector={inProps.viewSelector ?? '.viewer'}
         onClickAction={(e, { track, action, time }) => {
-          setTracks?.((previous) => {
-            const selectedRowIndex = previous.findIndex(
-              (previousTrack) => previousTrack.id === track.id,
-            );
-            const selectedActionIndex = track.actions.findIndex(
-              (previousAction: ITimelineAction) => previousAction.id === action.id,
-            );
-            // const updatedRows: TimelineTrack[] = [];
-            previous.forEach((currTrack, currRowIndex) => {
-              currTrack.selected = false;
-              currTrack.actions.forEach((currAction, currActionIndex) => {
-                if (selectedRowIndex === currRowIndex && currActionIndex === selectedActionIndex) {
-                  console.log(
-                    'selected',
-                    currAction.name,
-                    'index',
-                    currActionIndex,
-                    'on track',
-                    currRowIndex,
-                  );
-                  currAction.selected = true;
-                  currTrack.selected = true;
-                } else {
-                  currAction.selected = false;
-                }
+          const updateTracks = [...inProps.tracks];
+          const trackIndex = updateTracks.indexOf(track);
+          if (trackIndex === -1) {
+            return;
+          }
+          const actionIndex = updateTracks[trackIndex].actions.indexOf(action);
+          if (actionIndex === -1) {
+            return;
+          }
+          updateTracks.forEach((trackUnselect) => {
+            trackUnselect = {...trackUnselect};
+            if (trackUnselect.selected) {
+              trackUnselect.actions.forEach((actionUnselect) => {
+                actionUnselect = {...actionUnselect};
+                actionUnselect.selected = false
               });
-            });
-            return [...previous];
+              trackUnselect.selected = false
+            }
           });
+          updateTracks[trackIndex].selected = true;
+          updateTracks[trackIndex].actions[actionIndex].selected = true;
+          setTracks(updateTracks);
         }}
       />
     </Root>

@@ -299,7 +299,7 @@ export default withDocsInfra({
   },
   // Used to signal we run pnpm build
   ...(process.env.NODE_ENV === 'production'
-    ? {
+    ? { trailingSlash: true,
         output: 'export',
       }
     : {
