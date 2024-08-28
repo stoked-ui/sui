@@ -35,7 +35,7 @@ const FileLabelRoot = styled('div', {
   last?: boolean;
   grid?: boolean;
   selected?: boolean;
-}>(({ theme, grow, cell, selected }) => ({
+}>(({ theme, grow, cell }) => ({
   boxSizing: 'border-box', // prevent width + padding to overflow
   // fixes overflow - see https://github.com/stoked-ui/stoked-ui/issues/27372
   minWidth: 0,
@@ -220,9 +220,6 @@ export const FileLabel = React.forwardRef(function FileExplorer(
   if (header) {
     iconProps.color = 'black';
   }
-  if (showIcon && !header) {
-    console.log(iconProps);
-  }
   return (
     <FileLabelRoot
       {...other}
@@ -288,6 +285,6 @@ HeaderCell.propTypes = {
   // | To update them edit the TypeScript types and run "pnpm proptypes"  |
   // ----------------------------------------------------------------------
   columnName: PropTypes.string.isRequired,
-} as any;
+};
 
 export { HeaderCell };

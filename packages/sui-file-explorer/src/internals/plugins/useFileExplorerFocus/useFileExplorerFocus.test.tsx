@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect } from 'chai';
 import { spy } from 'sinon';
-import { act, fireEvent } from '@mui/internal-test-utils';
+import { act, fireEvent } from '@stoked-ui/internal-test-utils';
 import { describeFileExplorer } from 'test/utils/fileExplorer-view/describeFileExplorer';
 import {
   UseFileExplorerFilesSignature,

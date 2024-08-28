@@ -1,18 +1,10 @@
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 import * as React from 'react';
 import { styled, alpha } from '@mui/material/styles';
-import Chip from '@mui/material/Chip';
-import ButtonBase from '@mui/material/ButtonBase';
-import Popper from '@mui/material/Popper';
-import Paper from '@mui/material/Paper';
 import { unstable_debounce as debounce } from '@mui/utils';
-import Fade from '@mui/material/Fade';
-import IconImage from 'docs/src/components/icon/IconImage';
 import ROUTES from 'docs/src/route';
-import { PRODUCTS, Product } from 'docs/src/products';
+import { PRODUCTS, Product, ALL_PRODUCTS } from 'docs/src/products';
 import { Link } from '@mui/docs/Link';
-import MuiProductSelector from 'docs/src/modules/components/MuiProductSelector';
-import Stack from "@mui/material/Stack";
 
 const Navigation = styled('nav')(({ theme }) => [
   {
@@ -31,7 +23,7 @@ const Navigation = styled('nav')(({ theme }) => [
       fontWeight: theme.typography.fontWeightSemiBold,
       '& > a, & > button': {
         display: 'inline-block',
-        color: 'inherit',
+        color: 'hsl(215 15% 22% / 1)',
         font: 'inherit',
         textDecoration: 'none',
         padding: theme.spacing('6px', '8px'),
@@ -56,6 +48,7 @@ const Navigation = styled('nav')(({ theme }) => [
   theme.applyDarkStyles({
     '& li': {
       '& > a, & > button': {
+        color: 'rgb(182, 190, 201)',
         '&:hover': {
           color: theme.palette.primary[50],
           backgroundColor: alpha(theme.palette.primaryDark[700], 0.8),
@@ -161,8 +154,8 @@ export default function HeaderNavBar() {
   return (
     <Navigation>
       <ul ref={navRef} onKeyDown={handleKeyDown}>
-        {PRODUCTS.menu({ type: 'products', ...menuProps, menuRef: productsMenuRef})}
-        {PRODUCTS.menu({ type: 'docs', ...menuProps, menuRef: docsMenuRef})}
+        {ALL_PRODUCTS.menu({ type: 'products', ...menuProps, menuRef: productsMenuRef})}
+        {ALL_PRODUCTS.menu({ type: 'docs', ...menuProps, menuRef: docsMenuRef})}
         <li>
           <Link href={ROUTES.about}>About us</Link>
         </li>

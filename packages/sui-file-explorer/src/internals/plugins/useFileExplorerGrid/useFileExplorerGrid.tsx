@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { IdGenerator } from "@stoked-ui/media-selector";
+import { namedId } from "@stoked-ui/media-selector";
 import {
   GridColumn,
   GridColumns,
@@ -24,7 +24,7 @@ const updateGridState = ({ headers, columns, initializedIndexes, id }: { headers
       columns: columns ?? {},
       initializedIndexes
     },
-    id: id ?? IdGenerator().fileId()
+    id: id ?? namedId({id: 'file', length: 4})
   };
 };
 
@@ -48,7 +48,7 @@ export const useFileExplorerGrid: UseFileExplorerGridPlugin = <R extends FileBas
     state.grid.columns = value;
   };
 
-  const upsertColumn = (name: string, column: GridColumn<R>) => {
+  const upsertColumn = (name: string, column: GridColumn) => {
     state.grid.columns[name] = column;
   }
   const getColumns = (): GridColumns => {
@@ -159,9 +159,7 @@ export const useFileExplorerGrid: UseFileExplorerGridPlugin = <R extends FileBas
       items.push(trash);
     }
     instance.updateItems(items);
-    console.log('after sort update');
     instance.recalcVisibleIndices(items, true)
-    console.log('after sort recalculate');
     return !isAscending;
   }
 
@@ -376,5 +374,3 @@ useFileExplorerGrid.params = {
   defaultGridColumns: true,
   defaultGridHeaders: true,
 };
-
-useFileExplorerGrid.code = 'grid';

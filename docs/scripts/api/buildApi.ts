@@ -15,7 +15,6 @@ import buildGridEventsDocumentation from './buildGridEventsDocumentation';
 import {
   XTypeScriptProjects,
   createXTypeScriptProjects,
-  datagridApiToDocument,
   interfacesToDocument,
 } from '../createXTypeScriptProjects';
 import { DocumentedInterfaces } from './utils';

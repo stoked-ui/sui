@@ -6,7 +6,7 @@ import Hero from "../../src/components/home/HeroFileExplorer";
 export default function Main () {
   return (
     <React.Fragment>
-      <Hero/>
+      <Hero />
       <Box sx={{ height: '112px' }}/>
       <Divider/>
     </React.Fragment>

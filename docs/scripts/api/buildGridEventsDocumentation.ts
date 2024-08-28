@@ -1,6 +1,6 @@
 import * as ts from 'typescript';
 import path from 'path';
-import { renderMarkdown } from '@stoked-ui/internal-markdown';
+import { renderMarkdown } from '@stoked-ui/docs-markdown';
 import {
   DocumentedInterfaces,
   getSymbolDescription,

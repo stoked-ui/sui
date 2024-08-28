@@ -13,7 +13,7 @@ function Copyright() {
   return (
     <Typography variant="body2" color="text.secondary" align="center">
       {'Copyright © '}
-      <Link color="inherit" href="https://stoked-ui.github.io/">
+      <Link color="inherit" href="https://stokedconsulting.com/">
         Your Website
       </Link>{' '}
       {new Date().getFullYear()}.

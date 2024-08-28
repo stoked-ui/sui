@@ -7,7 +7,7 @@ export default function generateRssFeed(allBlogPosts: Array<BlogPost>) {
   if (process.env.NODE_ENV !== 'production') {
     return;
   }
-  const siteUrl = 'https://stoked-ui.github.io';
+  const siteUrl = 'https://mui.com/feed';
 
   const feed = new Feed({
     title: 'SUI - Blog',
@@ -18,7 +18,7 @@ export default function generateRssFeed(allBlogPosts: Array<BlogPost>) {
     language: 'en',
     image: `${siteUrl}/static/logo.svg`,
     favicon: `${siteUrl}/favicon.ico`,
-    copyright: `Copyright © ${new Date().getFullYear()} Stoked UI`,
+    copyright: `Copyright © ${new Date().getFullYear()} Stoked Consulting`,
     feedLinks: {
       rss2: `${siteUrl}/public${ROUTES.rssFeed}`,
     },

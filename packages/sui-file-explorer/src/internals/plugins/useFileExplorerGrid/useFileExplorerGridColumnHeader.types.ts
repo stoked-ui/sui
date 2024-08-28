@@ -1,7 +1,7 @@
 import * as React from 'react';
+import { SxProps } from "@mui/system";
 import { FileExplorerInstance, UseFileMinimalPlugins, } from '../../models';
 import { UseFileExplorerGridColumnHeaderStatus } from './useFileExplorerGrid.types';
-import { SxProps } from "@mui/system";
 
 export interface UseFileExplorerGridHeadersParameters {
   /**

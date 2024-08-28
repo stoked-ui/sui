@@ -139,5 +139,4 @@ export type FileExplorerPlugin<TSignature extends FileExplorerAnyPluginSignature
    * @returns {React.ReactNode} The wrapped root.
    */
   wrapRoot?: FileExplorerRootWrapper<[TSignature, ...TSignature['dependencies']]>;
-  code: string;
 };

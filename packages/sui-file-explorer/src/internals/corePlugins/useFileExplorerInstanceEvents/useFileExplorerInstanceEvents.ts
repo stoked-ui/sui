@@ -44,4 +44,4 @@ export const useFileExplorerInstanceEvents: FileExplorerPlugin<UseFileExplorerIn
 };
 
 useFileExplorerInstanceEvents.params = {};
-useFileExplorerInstanceEvents.code = 'events';
+

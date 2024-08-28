@@ -5,7 +5,7 @@ import Avatar from '@mui/material/Avatar';
 import { FileExplorer } from '@stoked-ui/file-explorer/FileExplorer';
 import { FileBase } from '@stoked-ui/file-explorer/models';
 import {
-  useFile as useFile,
+  useFile,
   UseFileParameters,
 } from '@stoked-ui/file-explorer/useFile';
 import {

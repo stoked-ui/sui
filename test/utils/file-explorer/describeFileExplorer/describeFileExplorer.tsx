@@ -1,11 +1,11 @@
 import * as React from 'react';
-import createDescribe from '@mui/internal-test-utils/createDescribe';
-import { createRenderer, ErrorBoundary } from '@mui/internal-test-utils';
+import createDescribe from '@stoked-ui/internal-test-utils/createDescribe';
+import { createRenderer, ErrorBoundary } from '@stoked-ui/internal-test-utils';
 import { FileExplorer } from '@mui/x-file-explorer/FileExplorer';
 import { FileExplorerBasic } from '@mui/x-file-explorer/FileExplorerBasic';
 import { FileExplorerItem, fileListItemClasses } from '@mui/x-file-explorer/FileExplorerItem';
 import { FileExplorerAnyPluginSignature, FileExplorerPublicAPI } from '@mui/x-file-explorer/internals/models';
-import { MuiRenderResult } from '@mui/internal-test-utils/createRenderer';
+import { MuiRenderResult } from '@stoked-ui/internal-test-utils/createRenderer';
 import {
   DescribeFileExplorerTestRunner,
   DescribeFileExplorerRenderer,

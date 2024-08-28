@@ -268,6 +268,8 @@ function reduceChildRoutes(context) {
         planned={page.planned}
         unstable={page.unstable}
         beta={page.beta}
+        alpha={page.alpha}
+        dev={page.dev}
         plan={page.plan}
         icon={page.icon}
         subheader={subheader}

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { SxProps, Theme, useTheme } from "@mui/system";
-import { IdGenerator } from "@stoked-ui/media-selector";
+import { namedId } from "@stoked-ui/media-selector";
 import { FileMeta } from '../../models/fileExplorerView';
 import { FileExplorerPlugin } from '../../models/plugin';
 import type {
@@ -40,7 +40,7 @@ const updateItemsState = ({
 
   const processItem = (item: FileBase, depth: number, parentId: string | null) => {
     const initialId: string = getItemId ? getItemId(item) : (item as any).id;
-    const id = initialId ?? item?.itemId ?? item.id ?? item?.label ?? item?.name ?? IdGenerator().fileId();
+    const id = initialId ?? item?.itemId ?? item.id ?? item?.label ?? item?.name ?? namedId({id:'file', length:4});
     item.id = id;
     item.itemId = item.itemId ?? id;
     item.label = item.label ?? id;
@@ -101,14 +101,16 @@ const updateItemsState = ({
     item.children?.forEach((child) => processItem(child, depth + 1, id));
   };
 
-  items.forEach((item) => processItem(item, 0, null));
+  items?.forEach((item) => processItem(item, 0, null));
 
   const itemChildrenIndexes: State['itemChildrenIndexes'] = {};
   Object.keys(itemOrderedChildrenIds).forEach((parentId) => {
     itemChildrenIndexes[parentId] = buildSiblingIndexes(itemOrderedChildrenIds[parentId]);
   });
 
-  recalcVisibleIndices([...items], true,0);
+  if (items?.length) {
+    recalcVisibleIndices([...items], true, 0);
+  }
 
   return {
     itemMetaMap,
@@ -168,12 +170,8 @@ export const useFileExplorerFiles: FileExplorerPlugin<UseFileExplorerFilesSignat
     }
     if(state.items.indiciesDirty || force) {
       state.items.indiciesDirty = false;
-      // const error = new Error();
-      // console.log(error.stack);
-      // console.log('---------------------------------------------');
       initializeVisibleIndices(items);
       recalVisibleIndicesBase(items);
-      // console.log('---------------------------------------------');
     }
   }
 
@@ -365,7 +363,6 @@ export const useFileExplorerFiles: FileExplorerPlugin<UseFileExplorerFilesSignat
     },
   };
 };
-useFileExplorerFiles.code = 'items';
 
 useFileExplorerFiles.getInitialState = (params) => ({
   items: updateItemsState({

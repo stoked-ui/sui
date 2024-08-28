@@ -17,9 +17,13 @@ module.exports = function getBabelConfig(api) {
 
   const defaultAlias = {
     '@stoked-ui/file-explorer': resolveAliasPath('./packages/sui-file-explorer'),
-    '@stoked-ui/internal-markdown': resolveAliasPath('./packages/markdown'),
+    '@stoked-ui/core': resolveAliasPath('./packages/sui-core'),
+    '@stoked-ui/timeline': resolveAliasPath('./packages/sui-timeline'),
+    '@stoked-ui/media-selector': resolveAliasPath('./packages/sui-media-selector'),
+    '@stoked-ui/editor': resolveAliasPath('./packages/sui-editor'),
+    '@stoked-ui/docs-markdown': resolveAliasPath('./packages-internal/markdown'),
     '@stoked-ui/docs': resolveAliasPath('./packages/sui-docs/src'),
-    '@stoked-ui/internal-docs-utils': resolveAliasPath('./packages-internal/docs-utils/src'),
+    '@stoked-ui/docs-utils': resolveAliasPath('./packages-internal/docs-utils/src'),
     docs: resolveAliasPath('./docs'),
     test: resolveAliasPath('./test'),
   };

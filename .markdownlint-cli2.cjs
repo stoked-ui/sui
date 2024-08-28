@@ -1,8 +1,8 @@
-const straightQuotes = require('./packages/markdownlint-rule-mui/straight-quotes');
-const gitDiff = require('./packages/markdownlint-rule-mui/git-diff');
-const tableAlignment = require('./packages/markdownlint-rule-mui/table-alignment');
-const terminalLanguage = require('./packages/markdownlint-rule-mui/terminal-language');
-const duplicateH1 = require('./packages/markdownlint-rule-mui/duplicate-h1');
+const straightQuotes = require('./packages-internal/markdownlint-rule-mui/straight-quotes');
+const gitDiff = require('./packages-internal/markdownlint-rule-mui/git-diff');
+const tableAlignment = require('./packages-internal/markdownlint-rule-mui/table-alignment');
+const terminalLanguage = require('./packages-internal/markdownlint-rule-mui/terminal-language');
+const duplicateH1 = require('./packages-internal/markdownlint-rule-mui/duplicate-h1');
 
 // https://github.com/DavidAnson/markdownlint#rules--aliases
 module.exports = {

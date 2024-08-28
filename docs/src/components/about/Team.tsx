@@ -330,8 +330,7 @@ const emeriti = [
 
 export default function Team() {
   return (
-    <React.Fragment>
-      <Section cozy>
+    <Section cozy>
         <Box
           sx={{
             my: 4,
@@ -386,6 +385,5 @@ export default function Team() {
           </Typography>
         </Box>
       </Section>
-    </React.Fragment>
   );
 }

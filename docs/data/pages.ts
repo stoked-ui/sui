@@ -12,6 +12,7 @@ const pages: MuiPage[] = [
       { pathname: `/stoked-ui/docs/example-projects` },
       { pathname: `/stoked-ui/docs/faq` },
       { pathname: `/stoked-ui/docs/support` },
+      { pathname: `/stoked-ui/docs/vision` },
       { pathname: `/stoked-ui/docs/roadmap` },
     ],
   },
@@ -26,10 +27,11 @@ const pages: MuiPage[] = [
       { pathname: `/media-selector/docs/roadmap` },
     ],
   },
+
   {
     pathname: '/file-explorer/docs/group',
     title: 'File Explorer',
-    newFeature: true,
+    beta: true,
     children: [
       { pathname: '/file-explorer/docs/overview', title: 'Overview' },
       { pathname: '/file-explorer/docs/getting-started' },
@@ -53,6 +55,7 @@ const pages: MuiPage[] = [
           { pathname: '/file-explorer/docs/file-explorer/expansion' },
           { pathname: '/file-explorer/docs/file-explorer/customization' },
           { pathname: '/file-explorer/docs/file-explorer/focus' },
+          { pathname: '/file-explorer/docs/file-explorer/dragzone' },
           { pathname: '/file-explorer/docs/file-explorer/drag-and-drop' },
         ],
       },
@@ -70,6 +73,22 @@ const pages: MuiPage[] = [
         title: 'API Reference',
         children: [...fileExplorerComponentApi],
       },
+    ],
+  },
+  {
+    pathname: '/timeline/docs/group',
+    title: 'Timeline',
+    alpha: true,
+    children: [
+      { pathname: '/timeline/docs/overview', title: 'Overview' },
+    ],
+  },
+  {
+    pathname: '/editor/docs/group',
+    title: 'Editor',
+    alpha: true,
+    children: [
+      { pathname: '/editor/docs/overview', title: 'Overview' },
     ],
   },
 ];

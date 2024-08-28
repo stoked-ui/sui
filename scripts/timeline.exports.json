@@ -1,1 +1,15 @@
-[]
+[
+  { "name": "EditData", "kind": "Interface" },
+  { "name": "EffectSourceParam", "kind": "Interface" },
+  { "name": "ITimelineEngine", "kind": "Interface" },
+  { "name": "Rates", "kind": "Variable" },
+  { "name": "Timeline", "kind": "ExportAssignment" },
+  { "name": "TimelineAction", "kind": "Interface" },
+  { "name": "TimelineEffect", "kind": "Interface" },
+  { "name": "TimeLineEffectSource", "kind": "Interface" },
+  { "name": "TimelineEngine", "kind": "Class" },
+  { "name": "TimelinePlayer", "kind": "Variable" },
+  { "name": "TimelineProps", "kind": "Interface" },
+  { "name": "TimelineRow", "kind": "Interface" },
+  { "name": "TimelineState", "kind": "Interface" }
+]

@@ -11,7 +11,6 @@
   { "name": "fromList", "kind": "Function" },
   { "name": "FullHighDefinition", "kind": "Class" },
   { "name": "HighDefinition", "kind": "Class" },
-  { "name": "IdGenerator", "kind": "Variable" },
   { "name": "IFileWithPath", "kind": "Interface" },
   { "name": "IImageFile", "kind": "Interface" },
   { "name": "ImageFile", "kind": "Class" },

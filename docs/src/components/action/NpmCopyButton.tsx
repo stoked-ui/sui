@@ -8,7 +8,7 @@ import CheckRounded from '@mui/icons-material/CheckRounded';
 
 const Button = styled('button')(({ theme }) => ({
   boxSizing: 'border-box',
-  minWidth: 64,
+  minWidth: 333,
   margin: 0,
   marginTop: 16,
   cursor: 'copy',

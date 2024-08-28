@@ -10,16 +10,16 @@ import {
   fixBabelGeneratorIssues,
   fixLineEndings,
   getUnstyledFilename,
-} from '@mui/internal-docs-utils';
+} from '@stoked-ui/docs-utils';
 import {
   getPropTypesFromFile,
   injectPropTypesInFile,
   InjectPropTypesInFileOptions,
-} from '@mui/internal-scripts/typescript-to-proptypes';
+} from '@stoked-ui/proptypes/typescript-to-proptypes';
 import {
   createTypeScriptProjectBuilder,
   TypeScriptProject,
-} from '@mui-internal/api-docs-builder/utils/createTypeScriptProject';
+} from '@stoked-ui/api-docs-builder/utils/createTypeScriptProject';
 
 import CORE_TYPESCRIPT_PROJECTS from './coreTypeScriptProjects';
 
@@ -167,10 +167,13 @@ async function generateProptypes(
   sourceFile: string,
   tsFile: string,
 ): Promise<void> {
+  console.log('generate proptypes', tsFile)
+throw new Error('heerro');
   const components = getPropTypesFromFile({
     filePath: tsFile,
     project,
     shouldResolveObject: ({ name }) => {
+      console.log('generate proptypes', tsFile, name)
       if (
         name.toLowerCase().endsWith('classes') ||
         name === 'theme' ||

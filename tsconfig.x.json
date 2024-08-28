@@ -13,6 +13,12 @@
       "@stoked-ui/file-explorer/*": ["./packages/file-explorer/src/*"],
       "@stoked-ui/media-selector": ["./packages/media-selector/src"],
       "@stoked-ui/media-selector/*": ["./packages/media-selector/src/*"],
+      "@stoked-ui/timeline": ["./packages/timeline/src"],
+      "@stoked-ui/timeline/*": ["./packages/timeline/src/*"],
+      "@stoked-ui/editor": ["./packages/editor/src"],
+      "@stoked-ui/editor/*": ["./packages/editor/src/*"],
+      "@stoked-ui/core": ["./packages/core/src"],
+      "@stoked-ui/core/*": ["./packages/core/src/*"],
       "test/*": ["./test/*"],
     }
   },

@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 const path = require('path');
 const fse = require('fs-extra');
-const { createRender } = require('@stoked-ui/internal-markdown');
+const { createRender } = require('@stoked-ui/docs-markdown');
 const { marked } = require('marked');
 const { LANGUAGES_IGNORE_PAGES } = require('../config');
 

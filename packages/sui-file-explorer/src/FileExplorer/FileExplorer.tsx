@@ -14,6 +14,7 @@ import { FileExplorerGridHeaders } from '../internals/plugins/useFileExplorerGri
 import { FileWrapped } from './FileWrapped';
 import { FileExplorerDndContext } from '../internals/plugins/useFileExplorerDnd/FileExplorerDndContext';
 import { FileBase } from '../models';
+import { FileDropzone } from '../FileDropzone';
 
 const useThemeProps = createUseThemeProps('MuiFileExplorer');
 
@@ -46,6 +47,9 @@ export const FileExplorerRoot = styled('ul', {
   listStyle: 'none',
   outline: 0,
   position: 'relative',
+  '& .header, .cell': {
+    minWidth: '100px',
+  },
   '& .header:after': {
     content: '""',
     position: 'absolute',
@@ -77,18 +81,17 @@ const childrenWarning = buildWarning([
  *
  * Demos:
  *
- * - [FileExplorer View](https://stoked-ui.github.io/x/react-fileExplorer-view/)
+ * - [FileExplorer View](https://stoked-ui.github.io/file-explorer/docs/)
  *
  * API:
  *
- * - [FileExplorer API](https://stoked-ui.github.io/x/api/fileExplorer-view/rich-fileExplorer-view/)
+ * - [FileExplorer API](https://stoked-ui.github.io/file-explorer/api/)
  */
 const FileExplorer = React.forwardRef(function FileExplorer<
   R extends FileBase = FileBase,
   Multiple extends boolean | undefined = undefined,
 >(inProps: FileExplorerProps<R, Multiple>, ref: React.Ref<HTMLUListElement>) {
   const props = useThemeProps({ props: inProps, name: 'MuiFileExplorer' });
-
   if (process.env.NODE_ENV !== 'production') {
     if ((props as any).children != null) {
       childrenWarning();
@@ -129,6 +132,9 @@ const FileExplorer = React.forwardRef(function FileExplorer<
     );
   };
   const getContent = () => {
+    if (!props.items?.length) {
+      return <FileDropzone />;
+    }
     if (!props.grid) {
       return (
         <Root {...rootProps} sx={props.sx}>
@@ -390,6 +396,6 @@ FileExplorer.propTypes = {
     PropTypes.func,
     PropTypes.object,
   ]),
-} as any;
+};
 
 export { FileExplorer };
