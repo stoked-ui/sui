@@ -168,12 +168,10 @@ const EditorLabel = React.forwardRef(
                 }
                 const currentTrack = {...tracks[currentTrackIndex]};
                 currentTrack.lock = !currentTrack.lock;
-                if (currentTrack.lock) {
-                  currentTrack.actions.forEach((updateAction) => {
-                    updateAction.movable = !currentTrack.lock;
-                    updateAction.flexible = !currentTrack.lock;
-                  })
-                }
+                currentTrack.actions.forEach((updateAction) => {
+                  updateAction.movable = !currentTrack.lock;
+                  updateAction.flexible = !currentTrack.lock;
+                })
                 const updatedTracks = [...tracks];
                 updatedTracks[currentTrackIndex] = currentTrack;
                 inProps.setTracks(updatedTracks)
