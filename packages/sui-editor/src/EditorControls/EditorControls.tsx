@@ -153,16 +153,15 @@ export const EditorControls = React.forwardRef(function EditorControls<
 
   // Start or pause
   const handlePlayOrPause = () => {
-    console.log('play', timelineState?.current)
     if (!timelineState || !timelineState.current) {
       return;
     }
     if (timelineState.current.isPlaying) {
       timelineState.current.pause();
-      setIsPlaying(false)
+      //setIsPlaying(false)
     } else {
       timelineState.current.play({ autoEnd: true });
-      setIsPlaying(true)
+      //setIsPlaying(true)
     }
   };
 

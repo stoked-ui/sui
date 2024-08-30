@@ -176,6 +176,7 @@ function AppWrapper(props) {
       },
     };
 
+
     return {
       ...productMap[productId],
       versions: [
@@ -197,6 +198,7 @@ function AppWrapper(props) {
     const pages = fileExplorerPages;
     const { activePage, activePageParents } = findActivePage(pages, router.pathname);
 
+    console.log('productIdentifier', productIdentifier);
     return {
       activePage,
       activePageParents,

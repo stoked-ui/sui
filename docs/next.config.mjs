@@ -77,6 +77,11 @@ export default withDocsInfra({
             'notistack',
             '@mui/docs',
             '@mui/material',
+            '@stoked-ui/editor',
+            '@stoked-ui/timeline',
+            '@stoked-ui/file-explorer',
+            '@stoked-ui/media-selector',
+
           ].some((dep) => request.startsWith(dep));
 
           if (hasDependencyOnRepoPackages) {
@@ -131,17 +136,7 @@ export default withDocsInfra({
                           productId: 'stoked-ui',
                           paths: [
                             path.join(workspaceRoot, 'packages/sui-media-selector/src'),
-                          ],
-                          subPackagePaths: [
-                            path.join(workspaceRoot, 'node_modules/@mui/base'),
-                            path.join(workspaceRoot, 'node_modules/@mui/lab'),
-                            path.join(workspaceRoot, 'node_modules/@stoked-ui/media-selector'),
-                          ],
-                        },
-                        {
-                          productId: 'core',
-                          paths: [
-                            path.join(workspaceRoot, 'packages/sui-core/src'),
+                            path.join(workspaceRoot, 'packages/sui-timeline/src'),
                           ],
                           subPackagePaths: [
                             path.join(workspaceRoot, 'node_modules/@mui/base'),
@@ -153,11 +148,12 @@ export default withDocsInfra({
                           productId: 'editor',
                           paths: [
                             path.join(workspaceRoot, 'packages/sui-editor/src'),
-                            path.join(workspaceRoot, 'packages/sui-core/src'),
+                            path.join(workspaceRoot, 'packages/sui-timeline/src'),
                           ],
                           subPackagePaths: [
                             path.join(workspaceRoot, 'node_modules/@mui/base'),
-                            path.join(workspaceRoot, 'node_modules/@stoked-ui/media-selector'),
+                            path.join(workspaceRoot, 'packages/sui-media-selector'),
+                            path.join(workspaceRoot, 'packages/sui-timeline'),
                           ],
                         },
                         {

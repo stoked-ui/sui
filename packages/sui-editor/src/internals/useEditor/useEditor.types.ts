@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { EventHandlers } from '@mui/base/utils';
+import { ITimelineTrack } from '@stoked-ui/timeline/TimelineTrack'
 import type { EditorContextValue } from '../EditorProvider';
 import {
   EditorAnyPluginSignature,
@@ -9,7 +10,6 @@ import {
   EditorPublicAPI,
   EditorExperimentalFeatures,
 } from '../models';
-import { TimelineTrack } from "@stoked-ui/timeline";
 
 export interface UseEditorParameters<
   TSignatures extends readonly EditorAnyPluginSignature[],
@@ -56,7 +56,7 @@ export interface UseTimelineSlotProps
     React.HTMLAttributes<HTMLDivElement>,
     'onFocus' | 'onBlur' | 'onKeyDown' | 'id' | 'aria-multiselectable' | 'role' | 'tabIndex'
   > {
-  tracks: TimelineTrack[];
+  tracks: ITimelineTrack[];
   ref?: React.Ref<HTMLDivElement>;
 }
 

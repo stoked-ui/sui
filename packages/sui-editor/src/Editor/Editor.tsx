@@ -5,8 +5,10 @@ import { FileBase, FileExplorer } from '@stoked-ui/file-explorer';
 import { useSlotProps } from '@mui/base/utils';
 import composeClasses from '@mui/utils/composeClasses';
 import Stack from '@mui/material/Stack';
-import {Timeline, TimelineEngine, TimelineState, TimelineTrack} from '@stoked-ui/timeline';
-import { styled, createUseThemeProps } from '../internals/zero-styled';
+import { ITimelineTrack } from '@stoked-ui/timeline/TimelineTrack'
+import Timeline, { TimelineEngine, TimelineState } from '@stoked-ui/timeline';
+import ScrollPinchDrag from '@stoked-ui/timeline/ScrollPinchDrag';
+import { styled } from '../internals/zero-styled';
 import { useEditor } from '../internals/useEditor';
 import { EditorProps } from './Editor.types';
 import { EditorPluginSignatures, VIDEO_EDITOR_PLUGINS } from './Editor.plugins';
@@ -16,7 +18,6 @@ import { getEditorUtilityClass } from './editorClasses';
 import { EditorLabels } from '../EditorLabels';
 import { buildTracks } from '../internals/utils/TrackBuilder';
 
-const useThemeProps = createUseThemeProps('MuiEditor');
 
 const useUtilityClasses = <R extends FileBase, Multiple extends boolean | undefined>(
   ownerState: EditorProps<R, Multiple>,
@@ -74,7 +75,8 @@ const Editor = React.forwardRef(function Editor<
   R extends FileBase = FileBase,
   Multiple extends boolean | undefined = undefined,
 >(inProps: EditorProps<R, Multiple>, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
-  const { sx, ...props } = useThemeProps({ props: inProps, name: 'MuiEditor' });
+  // const { sx, ...props } = useThemeProps({ props: inProps, name: 'MuiEditor' });
+  const { sx, ...props } = inProps;
   const editorRef = React.useRef<HTMLDivElement>(null);
   const combinedEditorRef = useForkRef(ref, editorRef);
   const processedTracks = buildTracks({
@@ -84,7 +86,7 @@ const Editor = React.forwardRef(function Editor<
   });
   const [tracks, setTracksRaw] = React.useState(processedTracks);
 
-  const setTracks = (updatedTracks: TimelineTrack[]) => {
+  const setTracks = (updatedTracks: ITimelineTrack[]) => {
 
     console.log('updatedTracks middle man', updatedTracks);
     setTracksRaw([...updatedTracks]);
@@ -185,6 +187,7 @@ const Editor = React.forwardRef(function Editor<
               (action) => deletedActionIds.indexOf(action.id) === -1,
             )];
           });
+          console.log('delete actions via backspace keydown()', updatedTracks);
           setTracks(updatedTracks);
         }
       }

@@ -26,12 +26,7 @@ export function HomeView({ HomeMain}: { HomeMain: React.ComponentType }){
     setIsClient(true)
   }, [])
 
-const logoCss =
-  `.stoked-font {
-    font-family: "Archivo Black", sans-serif;
-    font-weight: 400;
-    font-style: normal;
-  }`;
+
   return <BrandingCssVarsProvider>
     <Head
       title="Stoked UI: React Media Components"
@@ -52,10 +47,6 @@ const logoCss =
           }),
         }}
       />
-      <link rel="preconnect" href="https://fonts.googleapis.com"/>
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin />
-      <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet"/>
-      <style>{logoCss}</style>
     </Head>
     <NoSsr>
       <NewsletterToast/>

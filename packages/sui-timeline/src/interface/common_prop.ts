@@ -1,7 +1,8 @@
-import { EditData } from "../TimelineControl/TimelineControl.types";
+import * as React from 'react';
+import { TimelineBaseProps } from "../Timeline/Timeline.types";
 
 /** Component public parameters */
-export interface CommonProps extends EditData {
+export interface CommonProps extends TimelineBaseProps {
   /** Number of scales */
   scaleCount: number;
   /** Set the number of scales */
@@ -10,4 +11,5 @@ export interface CommonProps extends EditData {
   cursorTime: number;
   /** Current timeline width */
   timelineWidth: number;
+  /** root item to sync to */
 }

@@ -20,8 +20,6 @@
       "@stoked-ui/docs-markdown": ["./packages/sui-internal-markdown/src"],
       "@stoked-ui/docs-markdown/*": ["./packages/sui-internal-markdown/src/*"],
       "@stoked-ui/proptypes/typescript-to-proptypes": ["./packages-internal/scripts/typescript-to-proptypes/src"],
-      "@stoked-ui/core": ["./packages/sui-core"],
-      "@stoked-ui/core/*": ["./packages/sui-core/*"],
       "@stoked-ui/file-explorer": ["./packages/sui-file-explorer/src"],
       "@stoked-ui/file-explorer/*": ["./packages/sui-file-explorer/src/*"],
       "@stoked-ui/media-selector": ["./packages/sui-media-selector"],

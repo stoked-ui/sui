@@ -71,7 +71,7 @@ const TimelineLabel = styled('div', {
  *
  * - [TimelineLabels](https://stoked-ui.github.io/timeline/api/)
  */
-export const TimelineLabels = React.forwardRef(
+const TimelineLabels = React.forwardRef(
   function TimelineLabels(inProps: TimelineLabelsProps, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
     const { tracks, slots, slotProps, sx, timelineState } = useThemeProps({ props: inProps, name: 'MuiTimelineLabels' });
 
@@ -91,7 +91,7 @@ export const TimelineLabels = React.forwardRef(
         setTracks={inProps.setTracks}
         style={{ overflow: 'overlay', height: 'fit-content' }}
         onScroll={(scrollEvent:  React.UIEvent<HTMLDivElement, UIEvent>) => {
-          timelineState.current?.setScrollTop((scrollEvent.target as HTMLDivElement).scrollTop);
+          // timelineState.current?.setScrollTop((scrollEvent.target as HTMLDivElement).scrollTop);
         }}
         classes={classes}
         className={`${classes.root} timeline-list`}>
@@ -106,3 +106,4 @@ export const TimelineLabels = React.forwardRef(
     )
   })
 
+export default TimelineLabels;

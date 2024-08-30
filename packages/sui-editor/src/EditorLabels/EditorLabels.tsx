@@ -8,7 +8,7 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import LockIcon from '@mui/icons-material/Lock';
-import {TimelineTrack} from "@stoked-ui/timeline";
+import {ITimelineTrack} from "@stoked-ui/timeline/TimelineTrack";
 import { EditorLabelsProps } from './EditorLabels.types';
 import {EditorLabelsClasses, getEditorLabelsUtilityClass} from "./editorLabelsClasses";
 
@@ -125,7 +125,7 @@ const EditorLabelText = styled('div', {
 }));
 
 const EditorLabel = React.forwardRef(
-  function EditorLabel(inProps: {track: TimelineTrack, tracks: TimelineTrack[], classes: EditorLabelsClasses, setTracks: (updatedTracks: TimelineTrack[]) => void}, ref: React.Ref<HTMLElement>): React.JSX.Element {
+  function EditorLabel(inProps: {track: ITimelineTrack, tracks: ITimelineTrack[], classes: EditorLabelsClasses, setTracks: (updatedTracks: ITimelineTrack[]) => void}, ref: React.Ref<HTMLElement>): React.JSX.Element {
     const { track, tracks, classes } = inProps;
     const visibilityIcon = track.hidden ? <VisibilityOffIcon fontSize={'small'}/> : <VisibilityIcon fontSize={'small'}/>;
 
@@ -150,6 +150,7 @@ const EditorLabel = React.forwardRef(
                 currentTrack.hidden = !currentTrack.hidden;
                 const updatedTracks = [...tracks];
                 updatedTracks[currentTrackIndex] = currentTrack;
+                console.log('toggle hidden', track.hidden, track.id, e.currentTarget.id);
                 inProps.setTracks(updatedTracks)
               }}
               aria-label="hidden"
@@ -174,6 +175,7 @@ const EditorLabel = React.forwardRef(
                 })
                 const updatedTracks = [...tracks];
                 updatedTracks[currentTrackIndex] = currentTrack;
+                console.log('toggle lock', track.hidden, track.id, e.currentTarget.id);
                 inProps.setTracks(updatedTracks)
               }}
             >
@@ -251,7 +253,7 @@ import LockIcon from '@mui/icons-material/Lock';
 import { EditorLabelsProps } from './EditorLabels.types';
 import { getEditorLabelsUtilityClass } from "./editorLabelsClasses";
 import { ToggleButtonGroupSx } from '@stoked-ui/core/styles';
-import { TimelineTrack } from "@stoked-ui/timeline";
+import { ITimelineTrack } from "@stoked-ui/timeline";
 import { styled, createUseThemeProps } from '../internals/zero-styled';
 
 const useThemeProps = createUseThemeProps('MuiEditorLabels');
@@ -336,7 +338,7 @@ function EditorTrackLabels(props: any) {
   const visibilityIcon = track.hidden ? <VisibilityOffIcon fontSize={'small'}/> : <VisibilityIcon fontSize={'small'}/>;
 
   const lockIcon = track.lock ? <LockIcon fontSize={'small'}/> : <LockOpenIcon fontSize={'small'}/>;
-  const getFlags = (inputTrack: TimelineTrack) => {
+  const getFlags = (inputTrack: ITimelineTrack) => {
     const status: string[] = [];
     if (inputTrack.hidden) {
       status.push('hidden');
@@ -349,7 +351,7 @@ function EditorTrackLabels(props: any) {
   }
 
   const [trackFlags, setTrackFlags] = React.useState<string[]>(getFlags(track));
-  const setFlags = (inputTrack: TimelineTrack) => {
+  const setFlags = (inputTrack: ITimelineTrack) => {
 
     setTrackFlags(getFlags(inputTrack));
   }

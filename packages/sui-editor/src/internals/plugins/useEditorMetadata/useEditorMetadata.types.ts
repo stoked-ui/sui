@@ -1,11 +1,12 @@
 import * as React from 'react';
-import {TimelineTrack, ITimelineAction, ITimelineActionInput} from '@stoked-ui/timeline';
+import { ITimelineTrack } from '@stoked-ui/timeline/TimelineTrack'
+import { ITimelineAction, ITimelineActionInput} from '@stoked-ui/timeline';
 import type { DefaultizedProps, EditorPluginSignature } from '../../models';
 import { UseEditorKeyboardSignature } from '../useEditorKeyboard/useEditorKeyboard.types';
 
 
 export interface UseEditorMetadataParameters {
-  tracks?: TimelineTrack[];
+  tracks?: ITimelineTrack[];
   actions?: ITimelineAction[];
   actionData?: ITimelineActionInput[];
 }
