@@ -105,9 +105,10 @@ export const useFileExplorerDnd: FileExplorerPlugin<UseFileExplorerDndSignature>
 
   const createChildren = React.useCallback(
     (childItems: FileBase[], targetId: string | null) => {
+      console.log('create-children',childItems);
       updateState({
         type: 'create-children',
-        items,
+        items: childItems,
         targetId,
         itemId: childItems[0].id ?? childItems[0].itemId!,
       });
@@ -812,7 +813,7 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
     const handleExternalDropTargets = dropTargetForExternal({
       element: pluginContentRef?.current,
       canDrop: ({input, source, element}) => {
-        console.log('canDrop', canDrop)
+        console.log('canDrop', canDrop, props)
         return canDrop;
       }, getData: ({input, element}) => {
         const data = {itemId: props.itemId, type: props.type};
