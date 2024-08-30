@@ -82,13 +82,8 @@ const Editor = React.forwardRef(function Editor<
     actions: props.actions,
     actionData: props.actionData,
   });
-  const [tracks, setTracksRaw] = React.useState(processedTracks);
+  const [tracks, setTracks] = React.useState(processedTracks);
 
-  const setTracks = (updatedTracks: TimelineTrack[]) => {
-
-    console.log('updatedTracks middle man', updatedTracks);
-    setTracksRaw([...updatedTracks]);
-  }
   const {
     getRootProps,
     getEditorViewProps,
@@ -167,7 +162,6 @@ const Editor = React.forwardRef(function Editor<
     setScaleWidth(val);
   };
 
-  console.log('generatedTracks', timelineProps.tracks);
   React.useEffect(() => {
     if (!editorRef?.current || !engine.current) {
       return;
