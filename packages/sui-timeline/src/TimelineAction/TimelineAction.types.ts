@@ -3,7 +3,7 @@ import { SxProps, Theme } from "@mui/material/styles";
 import { SlotComponentProps } from "@mui/material";
 import { CSSProperties } from "@mui/system/CSSProperties";
 import { TimelineActionClasses } from "./timelineActionClasses";
-import { TimelineTrack } from "../interface/TimelineAction";
+import { ITimelineTrack } from "../TimelineTrack";
 import { DragLineData } from "../DragLines/DragLines.types";
 import { CommonProps } from '../interface/common_prop';
 import {ITimelineEngine} from "../TimelineEngine/TimelineEngine";
@@ -127,10 +127,10 @@ export interface TimelineActionProps
    */
   sx?: SxProps<Theme>;
 
-  track: TimelineTrack;
+  track: ITimelineTrack;
   action: ITimelineAction;
   dragLineData: DragLineData;
-  setEditorData: (tracks: TimelineTrack[]) => void;
+  setTracks: (tracks: ITimelineTrack[]) => void;
   handleTime: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => number;
   areaRef: React.MutableRefObject<HTMLDivElement>;
   /* setUp scroll left */

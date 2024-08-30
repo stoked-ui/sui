@@ -1,9 +1,10 @@
 import * as React from "react";
-import {ITimelineAction, TimelineTrack, ITimelineActionInput} from "@stoked-ui/timeline";
+import { ITimelineTrack } from '@stoked-ui/timeline/TimelineTrack'
+import {ITimelineAction, ITimelineActionInput} from "@stoked-ui/timeline";
 
 export function buildTracks({ actions, tracks, actionData }: {
   actions?: ITimelineAction[],
-  tracks?: TimelineTrack[],
+  tracks?: ITimelineTrack[],
   actionData?: ITimelineActionInput[]}
 ) {
 

@@ -2,6 +2,8 @@ import * as React from 'react';
 import { Theme } from '@mui/material/styles';
 import { SxProps } from '@mui/system';
 import { SlotComponentProps } from '@mui/base/utils';
+import { ITimelineTrack } from '@stoked-ui/timeline/TimelineTrack'
+import { ITimelineAction, ITimelineActionInput } from "@stoked-ui/timeline";
 import { FileBase } from '@stoked-ui/file-explorer/models/items';
 import {
   EditorPluginParameters,
@@ -14,7 +16,6 @@ import {
   EditorExperimentalFeatures,
   EditorPublicAPI,
 } from '../internals/models';
-import { ITimelineAction, TimelineTrack, ITimelineActionInput } from "@stoked-ui/timeline";
 
 
 export interface EditorSlots extends EditorPluginSlots {
@@ -82,7 +83,7 @@ export interface EditorPropsBase extends React.HTMLAttributes<HTMLDivElement> {
 
   actions?: ITimelineAction[];
 
-  tracks?: TimelineTrack[];
+  tracks?: ITimelineTrack[];
 }
 
 export interface EditorProps<R extends FileBase = FileBase, Multiple extends boolean | undefined = true>

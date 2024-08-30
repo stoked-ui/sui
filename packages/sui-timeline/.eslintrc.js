@@ -4,5 +4,6 @@ module.exports = {
     'react-hooks/exhaustive-deps': 'warn',
     'no-underscore-dangle': 'off',
     'import/no-cycle': 'off',
+    'stoked-ui/no-styled-box': 'off'
   },
 };

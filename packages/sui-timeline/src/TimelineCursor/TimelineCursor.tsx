@@ -2,7 +2,7 @@ import * as React from 'react';
 import { styled } from "@mui/material/styles";
 import { prefix } from '../utils/deal_class_prefix';
 import { parserPixelToTime, parserTimeToPixel } from '../utils/deal_data';
-import { TimelineRowDnd } from '../TimelineRowDnd/TimelineRowDnd';
+import TimelineRowDnd from '../TimelineRowDnd/TimelineRowDnd';
 import { RowRndApi } from '../TimelineRowDnd/TimelineRowDnd.types';
 import { TimelineCursorProps } from './TimelineCursor.types';
 
@@ -35,7 +35,7 @@ const CursorAreaRoot = styled('div')({
   transform: 'translateX(-50%)',
 });
 
-export function TimelineCursor({
+export default function TimelineCursor({
   disableDrag,
   cursorTime,
   setCursor,

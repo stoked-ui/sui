@@ -2,11 +2,9 @@ import {
   ITimelineAction,
   ITimelineActionType
 } from '../TimelineAction/TimelineAction.types';
-import * as React from 'react';
-import { TimelineTrack } from '../interface/TimelineAction';
+import { ITimelineTrack } from '../TimelineTrack';
 import { Emitter } from './emitter';
 import { Events, EventTypes } from './events';
-import {TimelineState} from "../Timeline/TimelineState";
 
 const PLAYING = 'playing';
 const PAUSED = 'paused';
@@ -16,7 +14,7 @@ export interface ITimelineEngine extends Emitter<EventTypes> {
   readonly isPlaying: boolean;
   readonly isPaused: boolean;
   actionTypes: Record<string, ITimelineActionType>;
-  tracks: TimelineTrack[];
+  tracks: ITimelineTrack[];
   viewer: HTMLElement;
   canvas: HTMLCanvasElement;
 
@@ -41,9 +39,9 @@ export interface ITimelineEngine extends Emitter<EventTypes> {
   /** pause */
   pause(): void;
 
-  getAction(actionId: string): { action: ITimelineAction, track: TimelineTrack };
-  getActionTrack(actionId: string):  TimelineTrack;
-  getSelectedActions(): { action: ITimelineAction, track: TimelineTrack }[];
+  getAction(actionId: string): { action: ITimelineAction, track: ITimelineTrack };
+  getActionTrack(actionId: string):  ITimelineTrack;
+  getSelectedActions(): { action: ITimelineAction, track: ITimelineTrack }[];
 }
 
 type EngineOptions = {
@@ -57,7 +55,7 @@ type EngineOptions = {
  * @class TimelineEngine
  * @extends {Emitter<EventTypes>}
  */
-export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngine {
+export default class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngine {
   constructor(params?: EngineOptions ) {
     super(new Events());
     this._canvas = params?.canvas;
@@ -98,7 +96,7 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
   /** Action map that needs to be run */
   private _actionMap: Record<string, ITimelineAction> = {};
 
-  private _actionTrackMap: Record<string, TimelineTrack> = {};
+  private _actionTrackMap: Record<string, ITimelineTrack> = {};
 
   /** Action ID array sorted in positive order by action start time */
   private _actionSortIds: string[] = [];
@@ -121,7 +119,7 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
   }
 
   getSelectedActions() {
-    const actionTracks: {action: ITimelineAction, track: TimelineTrack}[] = [];
+    const actionTracks: {action: ITimelineAction, track: ITimelineTrack}[] = [];
     for (let i = 0; i < this._activeActionIds.length; i += 1) {
       const actionId = this._activeActionIds[i];
       const action = this._actionMap[actionId];
@@ -136,6 +134,7 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
   get loading() {
     return this._loading;
   }
+
   /** Whether it is playing */
   get isPlaying() {
     return this._playState === 'playing';
@@ -160,7 +159,7 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
     this._actionTypes = actionTypes;
   }
 
-  set tracks(tracks: TimelineTrack[]) {
+  set tracks(tracks: ITimelineTrack[]) {
     if (this.isPlaying) {
       this.pause();
     }
@@ -318,6 +317,7 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
     }
     return true;
   }
+
   private _startOrStop(type?: 'start' | 'stop') {
     if (!this._verifyLoaded()) {
       return;
@@ -461,7 +461,7 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
   }
 
   /** Data processing */
-  private _dealData(tracks: TimelineTrack[]) {
+  private _dealData(tracks: ITimelineTrack[]) {
     const actions: ITimelineAction[] = [];
     tracks?.forEach((track) => {
       actions.push(...track.actions);

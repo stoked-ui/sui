@@ -1,16 +1,22 @@
 import * as React from 'react';
 import { styled } from "@mui/material/styles";
 import { AutoSizer, Grid, GridCellRenderer } from 'react-virtualized';
-import { EditData } from '../TimelineControl/TimelineControl.types';
+// import {animated, useSpring} from "@react-spring/web";
+// import {useGesture} from "@use-gesture/react";
+import Box from "@mui/material/Box";
+import { TimelineBaseProps } from "../Timeline/Timeline.types";
 import { prefix } from '../utils/deal_class_prefix';
 import { parserTimeToPixel } from '../utils/deal_data';
 import { DragLines } from '../DragLines/DragLines';
-import { EditRow } from '../TimelineTrackRow/TimelineTrackRow';
+import TimelineTrack from '../TimelineTrack/TimelineTrack';
 import { useDragLines } from '../DragLines/useDragLines';
 import {TimelineTrackAreaProps, TimelineTrackAreaState} from "./TimelineTrackArea.types";
+import ScrollPinchDrag from "../ScrollPinchDrag";
+import { ScrollSyncNode } from 'scroll-sync-react';
 
 
-const TimelineTrackAreaRoot = styled('div')(() => ({
+// const TimelineTrackAreaRoot = styled(animated(Box))(() => ({
+const TimelineTrackAreaRoot = styled(Box)(() => ({
   flex: '1 1 auto',
   marginTop: '10px',
   overflow: 'hidden',
@@ -21,27 +27,20 @@ const TimelineTrackAreaRoot = styled('div')(() => ({
     outline: 'none !important',
     overflow: 'overlay !important',
 
-    '&::-webkit-scrollbar': {
-      width: 0,
-      height: 0,
-      display: 'none',
-    },
   },
 }));
 
-export const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrackAreaProps>((props, ref) => {
+const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrackAreaProps>((props, ref) => {
   const {
     tracks,
     rowHeight,
     scaleWidth,
     scaleCount,
+    scrollSyncNode,
     startLeft,
-    scrollLeft,
-    scrollTop,
     scale,
     hideCursor,
     cursorTime,
-    onScroll,
     dragLine,
     getAssistDragLineActionIds,
     onActionMoveEnd,
@@ -55,15 +54,36 @@ export const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, Timeli
   const editAreaRef = React.useRef<HTMLDivElement>();
   const gridRef = React.useRef<Grid>();
   const heightRef = React.useRef(-1);
+/*
 
-  // ref 数据
+  const [springProps, api] = useSpring(() => ({
+    x: 0,
+      scale: 1,
+    rotateZ: 0,
+  }));
+
+  const bind = useGesture(
+    {
+      onDrag: ({ offset: [x, y] }) => api.start({ x, y }),
+      onPinch: ({ offset: [d, a] }) => api.start({ scale: d / 100, rotateZ: a }),
+      onWheel: ({ offset: [x, y] }) => api.start({ scale: 1 + y / 100 }),
+    },
+    {
+      drag: { from: () => [springProps.x.get(), springProps.y.get()] },
+      pinch: { scaleBounds: { min: 0.5, max: 4 }, from: () => [springProps.scale.get(), springProps.rotateZ.get()] },
+      wheel: { from: () => [springProps.scale.get(), 0] },
+    }
+  );
+*/
+
+  // ref data
   React.useImperativeHandle(ref, () => ({
     get domRef() {
       return editAreaRef;
     },
   }));
 
-  const handleInitDragLine: EditData['onActionMoveStart'] = (data) => {
+  const handleInitDragLine: TimelineBaseProps['onActionMoveStart'] = (data) => {
     if (dragLine) {
       const assistActionIds =
         getAssistDragLineActionIds &&
@@ -88,7 +108,7 @@ export const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, Timeli
     }
   };
 
-  const handleUpdateDragLine: EditData['onActionMoving'] = (data) => {
+  const handleUpdateDragLine: TimelineBaseProps['onActionMoving'] = (data) => {
     if (dragLine) {
       const movePositions = defaultGetMovePosition({
         ...data,
@@ -100,11 +120,11 @@ export const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, Timeli
     }
   };
 
-/** Get the rendering content of each cell */
-  const cellRenderer: GridCellRenderer = ({ rowIndex, key, style }) => {
+/** Get the /* rendering content of each cell *!/
+  const CellRenderer: GridCellRenderer = ({ rowIndex, key, style }) => {
     const track = tracks[rowIndex]; // track data
     return (
-      <EditRow
+      <TimelineTrack
         {...props}
         style={{
           ...style,
@@ -114,7 +134,7 @@ export const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, Timeli
         areaRef={editAreaRef}
         key={key}
         rowHeight={track?.rowHeight || rowHeight}
-        rowData={track}
+        track={track}
         dragLineData={dragLineData}
 
         onActionMoveStart={(data) => {
@@ -144,65 +164,62 @@ export const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, Timeli
         }}
       />
     );
-  };
-
-  React.useEffect(() => {
-    gridRef.current?.scrollToPosition({ scrollTop, scrollLeft });
-  }, [scrollTop, scrollLeft]);
-
-  React.useEffect(() => {
-    gridRef.current.recomputeGridSize();
-  }, [tracks]);
+  }; */
 
   return (
-    <TimelineTrackAreaRoot ref={editAreaRef} className={`SuiTimelineEditArea-root ${prefix('edit-area')}`}>
-      <AutoSizer className={'auto-sizer'} style={{height: 'fit-content'}}>
-        {({ width, height }) => {
-          // Get full height
-          let totalHeight = 0;
-          // HEIGHT LIST
-          const heights = tracks?.map((track) => {
-            const itemHeight = track.rowHeight || rowHeight;
-            totalHeight += itemHeight;
-            return itemHeight;
-          });
-          if (totalHeight < height && heights) {
-            heights.push(height - totalHeight);
-            if (heightRef.current !== height && heightRef.current >= 0) {
-              setTimeout(() =>
-                gridRef.current?.recomputeGridSize({
-                  rowIndex: heights?.length ?? 0 - 1,
-                }),
-              );
-            }
-          }
-          heightRef.current = height;
-          return (
-            <Grid
-              id={'thisisedit'}
-              columnCount={1}
-              rowCount={heights?.length ?? 0}
-              ref={gridRef}
-              style={{
-                overscrollBehavior: 'none',
-              }}
-              cellRenderer={cellRenderer}
-              columnWidth={Math.max(scaleCount * scaleWidth + startLeft, width)}
-              width={width}
-              height={totalHeight}
-              rowHeight={({ index }) => heights[index] || rowHeight}
-              overscanRowCount={10}
-              overscanColumnCount={0}
-              onScroll={(param) => {
-                console.log('grid onScroll', param);
+    /* <ScrollSyncNode group={'tracks'}> */
+      <React.Fragment>
+        {tracks.map((track, index) => {
+            return (
+              <ScrollSyncNode>
+                <TimelineTrack
+                  {...props}
+                  style={{
+                    backgroundPositionX: `0, ${startLeft}px`,
+                    backgroundSize: `${startLeft}px, ${scaleWidth}px`,
+                    overflow: 'auto',
+                    position: 'relative',
+                    height: '32px'
+                  }}
+                  areaRef={editAreaRef}
+                  key={index}
+                  rowHeight={track?.rowHeight || rowHeight}
+                  track={track}
+                  dragLineData={dragLineData}
+                  scrollLeft={props.scrollLeft}
+                  deltaScrollLeft={(scrollLeft: number) => {}}
+                  onActionMoveStart={(data) => {
+                    handleInitDragLine(data);
+                    return onActionMoveStart?.(data);
+                  }}
+                  onActionResizeStart={(data) => {
+                    handleInitDragLine(data);
 
-                onScroll(param);
-              }}
-            />
-          );
-        }}
-      </AutoSizer>
-      {dragLine && <DragLines scrollLeft={scrollLeft} {...dragLineData} />}
-    </TimelineTrackAreaRoot>
-  );
+                    return onActionResizeStart && onActionResizeStart(data);
+                  }}
+                  onActionMoving={(data) => {
+                    handleUpdateDragLine(data);
+                    return onActionMoving && onActionMoving(data);
+                  }}
+                  onActionResizing={(data) => {
+                    handleUpdateDragLine(data);
+                    return onActionResizing && onActionResizing(data);
+                  }}
+                  onActionResizeEnd={(data) => {
+                    disposeDragLine();
+                    return onActionResizeEnd && onActionResizeEnd(data);
+                  }}
+                  onActionMoveEnd={(data) => {
+                    disposeDragLine();
+                    return onActionMoveEnd && onActionMoveEnd(data);
+                  }}
+                />
+              </ScrollSyncNode>
+
+          )}) as React.ReactNode}
+      </React.Fragment>
+    /* </ScrollSyncNode> */
+  )
 });
+
+export default TimelineTrackArea;

@@ -3,7 +3,8 @@ import { Theme } from '@mui/material/styles';
 import { SxProps } from '@mui/system';
 import { SlotComponentProps } from '@mui/base/utils';
 import IconButton, { IconButtonProps } from '@mui/material/IconButton';
-import { TimelineAction, TimelineState, TimelineTrack } from "@stoked-ui/timeline";
+import { ITimelineTrack } from '@stoked-ui/timeline/TimelineTrack'
+import { TimelineAction, TimelineState } from "@stoked-ui/timeline";
 import { EditorLabelsClasses } from './editorLabelsClasses';
 import {
   TimelineLabelsProps,
