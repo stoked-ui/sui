@@ -5,7 +5,7 @@ import composeClasses from '@mui/utils/composeClasses';
 import clsx from 'clsx';
 import useSlotProps from '@mui/utils/useSlotProps';
 import { shouldForwardProp } from '@mui/system/createStyled';
-import { TimelineTrack } from '../interface/TimelineAction';
+import { ITimelineTrack } from '../TimelineTrack';
 import { DEFAULT_ADSORPTION_DISTANCE, DEFAULT_MOVE_GRID } from '../interface/const';
 import {
   getScaleCountByPixel,
@@ -13,7 +13,7 @@ import {
   parserTimeToTransform,
   parserTransformToTime,
 } from '../utils/deal_data';
-import { TimelineRowDnd } from '../TimelineRowDnd/TimelineRowDnd';
+import TimelineRowDnd from '../TimelineRowDnd/TimelineRowDnd';
 import {
   RndDragCallback,
   RndDragEndCallback,
@@ -58,7 +58,7 @@ const Action = styled('div', {
   const selectedColor = emphasize(color, 0.3);
   const background = selected ? selectedColor : unselected;
   return {
-    position: 'absolute',
+    position: 'relative',
     left: 0,
     top: 0,
     backgroundColor: background,
@@ -80,7 +80,7 @@ const LeftStretch = styled('div')(({ theme }) => ({
   width: '10px',
   borderRadius: '4px',
   height: '100%',
-  overflow: 'hidden',
+  overflow: 'auto',
   left: 0,
   '&::after': {
     position: 'absolute',
@@ -103,7 +103,7 @@ const RightStretch = styled('div')(({ theme }) => ({
   width: '10px',
   borderRadius: '4px',
   height: '100%',
-  overflow: 'hidden',
+  overflow: 'auto',
   right: 0,
   '&::after': {
     position: 'absolute',
@@ -242,7 +242,7 @@ function TimelineAction(props: TimelineActionProps) {
     handleScaleCount(left, width);
   };
 
-  const { tracks, setEditorData, onActionMoveEnd } = props;
+  const { tracks, setTracks, onActionMoveEnd } = props;
   const handleDragEnd: RndDragEndCallback = ({ left, width }) => {
     if (track.lock) {
       return;
@@ -258,7 +258,7 @@ function TimelineAction(props: TimelineActionProps) {
     const dragEndAction = rowItem.actions.find((item) => item.id === id);
     dragEndAction.start = dragEndStart;
     dragEndAction.end = dragEndEnd;
-    setEditorData(tracks);
+    setTracks(tracks);
 
     // executeCallback
     if (onActionMoveEnd) {
@@ -317,7 +317,7 @@ function TimelineAction(props: TimelineActionProps) {
     const resizeEndAction = rowItem.actions.find((item) => item.id === id);
     resizeEndAction.start = resizeEndStart;
     resizeEndAction.end = resizeEndEnd;
-    setEditorData(tracks);
+    setTracks(tracks);
 
     // triggerCallback
     if (onActionResizeEnd) {
@@ -339,7 +339,7 @@ function TimelineAction(props: TimelineActionProps) {
     ),
   };
 
-  const nowRow: TimelineTrack = {
+  const nowRow: ITimelineTrack = {
     ...track,
     actions: [...track.actions],
   };
@@ -658,7 +658,7 @@ TimelineAction.propTypes = {
    * Whether the action is selected
    */
   selected: PropTypes.bool.isRequired,
-  setEditorData: PropTypes.func.isRequired,
+  setTracks: PropTypes.func.isRequired,
   /**
    * Set the number of scales
    */

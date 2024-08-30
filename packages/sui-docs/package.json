@@ -47,7 +47,6 @@
     "@types/node": "^18.19.25",
     "@types/prop-types": "^15.7.11",
     "@types/react": "^18.3.1",
-    "@stoked-ui/core": "workspace:^",
     "@stoked-ui/media-selector": "workspace:^",
     "@stoked-ui/timeline": "workspace:^",
     "@stoked-ui/file-explorer": "workspace:^",

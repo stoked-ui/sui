@@ -1,5 +1,5 @@
 import * as React  from "react";
-import { TimelineTrack } from "../interface/TimelineAction";
+import { ITimelineTrack } from "../TimelineTrack";
 import { ITimelineAction } from "../TimelineAction/TimelineAction.types"
 import { parserActionsToPositions, parserTimeToTransform } from "../utils/deal_data";
 import { DragLineData } from "./DragLines.types";
@@ -9,10 +9,10 @@ export function useDragLines() {
 
   /** get auxiliary lines */
   const defaultGetAssistPosition = (data: {
-    tracks: TimelineTrack[];
+    tracks: ITimelineTrack[];
     assistActionIds?: string[];
     action: ITimelineAction;
-    track: TimelineTrack;
+    track: ITimelineTrack;
     startLeft?: number;
     scale?: number;
     scaleWidth?: number;

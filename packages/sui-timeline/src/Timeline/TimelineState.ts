@@ -1,9 +1,18 @@
-import { Emitter } from "../TimelineEngine/emitter";
-import { EventTypes } from "../TimelineEngine/events";
+import { Emitter, EventTypes } from "../TimelineEngine";
 
-export interface TimelineState {
+export default interface TimelineState {
   /** dom node */
   target: HTMLElement;
+  /** labels node */
+  labels: HTMLElement;
+  /** time area node */
+  time: HTMLElement;
+  /** tracks node */
+  tracks: HTMLElement;
+  /** player node */
+  // player: HTMLElement;
+  /** scroll node */
+  scroll: HTMLElement;
   /** Run the listener */
   listener: Emitter<EventTypes>;
   /** Whether it is playing */
@@ -31,8 +40,12 @@ export interface TimelineState {
   }) => boolean;
   /** pause */
   pause: () => void;
-  /** Set scroll left */
-  setScrollLeft: (val: number) => void;
-  /** Set scroll top */
-  setScrollTop: (val: number) => void;
+  /**
+   * Set scroll left
+   */
+  setScrollLeft: (scrollLeft: number) => void;
+  /**
+   * Set scroll top
+   */
+  setScrollTop: (scrollTop: number) => void;
 }

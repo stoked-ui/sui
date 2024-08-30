@@ -8,8 +8,8 @@ import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
 import IconButton from '@mui/material/IconButton';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
-import { TimelineState } from '../Timeline/TimelineState';
-import { TimelineTrack } from '../interface/TimelineAction';
+import TimelineState from '../Timeline/TimelineState';
+import { ITimelineTrack } from '../TimelineTrack';
 
 export const Rates = [0.2, 0.5, 1.0, 1.5, 2.0];
 
@@ -51,7 +51,7 @@ function TimelinePlayer({
   startLeft = 20,
 }: {
   timelineState?: React.RefObject<TimelineState>;
-  tracks?: TimelineTrack[];
+  tracks?: ITimelineTrack[];
   autoScrollWhenPlay: boolean;
   scale?: number;
   scaleWidth?: number;
@@ -74,7 +74,8 @@ function TimelinePlayer({
       if (autoScrollWhenPlay) {
         const autoScrollFrom = 500;
         const left = setTimeByTickTime * (scaleWidth / scale) + startLeft - autoScrollFrom;
-        timelineState.current?.setScrollLeft(left);
+        // TODO: get autoscroll to work again
+        // timelineState.current?.setScrollLeft(left);
       }
     });
 

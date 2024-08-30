@@ -6,7 +6,7 @@ import { useAutoScroll } from './useAutoScroll';
 import { InteractComp } from '../Interactable/Interactable';
 import { Direction, RowRndApi, RowRndProps } from './TimelineRowDnd.types';
 
-export const TimelineRowDnd = React.forwardRef<RowRndApi, RowRndProps>(
+const TimelineRowDnd = React.forwardRef<RowRndApi, RowRndProps>(
   (
     {
       children,
@@ -400,3 +400,4 @@ export const TimelineRowDnd = React.forwardRef<RowRndApi, RowRndProps>(
     );
   },
 );
+export default TimelineRowDnd;
