@@ -175,6 +175,6 @@ FileElementContent.propTypes = {
    * The tree item label.
    */
   label: PropTypes.node,
-} as any;
+};
 
 export { FileElementContent };

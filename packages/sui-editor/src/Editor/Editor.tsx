@@ -5,7 +5,7 @@ import { FileBase, FileExplorer } from '@stoked-ui/file-explorer';
 import { useSlotProps } from '@mui/base/utils';
 import composeClasses from '@mui/utils/composeClasses';
 import Stack from '@mui/material/Stack';
-import {Timeline, TimelineEngine, TimelineState, TimelineTrack} from '@stoked-ui/timeline';
+import { Timeline, TimelineEngine, TimelineState, TimelineTrack } from '@stoked-ui/timeline';
 import { styled, createUseThemeProps } from '../internals/zero-styled';
 import { useEditor } from '../internals/useEditor';
 import { EditorProps } from './Editor.types';
@@ -174,10 +174,10 @@ const Editor = React.forwardRef(function Editor<
           const updatedTracks = [...tracks];
           const deletedActionIds = actionTracks.map((at) => at.action.id);
           updatedTracks.forEach((updateTrack) => {
-            updateTrack = {...updateTrack};
-            updateTrack.actions = [...updateTrack.actions.filter(
-              (action) => deletedActionIds.indexOf(action.id) === -1,
-            )];
+            updateTrack = { ...updateTrack };
+            updateTrack.actions = [
+              ...updateTrack.actions.filter((action) => deletedActionIds.indexOf(action.id) === -1),
+            ];
           });
           setTracks(updatedTracks);
         }
@@ -234,6 +234,7 @@ Editor.propTypes = {
     PropTypes.shape({
       data: PropTypes.shape({
         src: PropTypes.string.isRequired,
+        style: PropTypes.object,
       }),
       disable: PropTypes.bool,
       effectId: PropTypes.string.isRequired,
@@ -327,11 +328,11 @@ Editor.propTypes = {
       hidden: PropTypes.bool,
       id: PropTypes.string.isRequired,
       lock: PropTypes.bool,
-      name: PropTypes.string.isRequired,
+      name: PropTypes.string,
       rowHeight: PropTypes.number,
       selected: PropTypes.bool,
     }),
   ),
-} as any;
+};
 
 export { Editor };
