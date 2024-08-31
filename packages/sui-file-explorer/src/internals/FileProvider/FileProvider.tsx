@@ -16,6 +16,6 @@ FileProvider.propTypes = {
   // ----------------------------------------------------------------------
   children: PropTypes.node,
   itemId: PropTypes.string.isRequired,
-} as any;
+};
 
 export { FileProvider };

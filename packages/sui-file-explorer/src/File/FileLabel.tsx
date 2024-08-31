@@ -174,7 +174,7 @@ export const FileLabel = React.forwardRef(function FileExplorer(
 
       {actualLabel}
       {showIcon && (
-        <FileIconContainer {...iconProps} sx={(theme) => ({ color: theme.palette.text.primary})}>
+        <FileIconContainer {...iconProps} sx={(theme) => ({ color: theme.palette.text.primary })}>
           <FileIcon status={status} sx={headerIcon} iconName={iconProps?.iconName} />
         </FileIconContainer>
       )}

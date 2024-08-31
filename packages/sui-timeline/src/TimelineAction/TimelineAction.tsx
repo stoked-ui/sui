@@ -708,6 +708,10 @@ TimelineAction.propTypes = {
    */
   setScaleCount: PropTypes.func.isRequired,
   /**
+   * @description Data change callback, which will be triggered after the operation action end changes the data (returning false will prevent automatic engine synchronization to reduce performance overhead)
+   */
+  setTracks: PropTypes.func.isRequired,
+  /**
    * The props used for each component slot.
    */
   slotProps: PropTypes.object.isRequired,
@@ -805,6 +809,6 @@ TimelineAction.propTypes = {
     PropTypes.object,
   ]).isRequired,
   viewSelector: PropTypes.string.isRequired,
-} as any;
+};
 
 export default TimelineAction;
