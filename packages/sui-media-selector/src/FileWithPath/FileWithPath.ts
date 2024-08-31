@@ -1200,6 +1200,19 @@ export const COMMON_MIME_TYPES = new Map([
   ['zsh', 'text/x-scriptzsh']
 ]);
 
+export const FILE_BASE_TYPES = new Map([
+  ['doc', 'application/msword'],
+  ['doc', 'application/vnd.ms-word.template.macroEnabled.12'],
+  ['doc', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+  ['doc', 'application/msword'],
+  ['doc', 'application/vnd.ms-word.template.macroEnabled.12'],
+  ['doc', 'application/vnd.openxmlformats-officedocument.wordprocessingml.template'],
+  ['pdf', 'application/pdf'],
+  ['video', 'video/*'],
+  ['image', 'image/*'],
+  // EVERYTHING ELSE
+  //['file', '*']
+]);
 
 export interface IFileWithPath extends File {
   readonly path?: string;
@@ -1233,17 +1246,21 @@ export default class FileWithPath implements IFileWithPath {
     this.text = file.text.bind(file);
   }
 
-  static async from(input: FromEventInput | any): Promise<FileWithPath[]> {
-    if (isObject<DragEvent>(input) && isDataTransfer(input.dataTransfer)) {
-      return getDataTransferFiles(input.dataTransfer, input.type);
-    } else if (isChangeEvt(input)) {
-      return getInputFiles(input);
-    } else if (input?.source?.items !== null) {
-      return getDropFiles(input as PragmaticDndEvent);
-    } else if ((Array.isArray(input) && input.every(item => 'getFile' in item && typeof item.getFile === 'function')) || (input as FileSystemFileHandle[] !== undefined)) {
-      return getFsHandleFiles(input as FileSystemFileHandle[])
+  static async from(input: FromEventInput | { source?: { items: unknown[] } }): Promise<FileWithPath[]> {
+    const fromWrapper = (input: FromEventInput | { source?: { items: unknown[] } }) => {
+      if (isObject<DragEvent>(input) && isDataTransfer(input.dataTransfer)) {
+        return getDataTransferFiles(input.dataTransfer, input.type);
+      } else if (isChangeEvt(input)) {
+        return getInputFiles(input);
+      } else if ('source' in input && input.source && 'items' in input.source && Array.isArray(input.source.items) && input.source.items.length > 0) {
+        return getDropFiles(input as PragmaticDndEvent);
+      } else if ((Array.isArray(input) && input.every(item => 'getFile' in item && typeof item.getFile === 'function')) || (input as FileSystemFileHandle[] !== undefined)) {
+        return getFsHandleFiles(input as FileSystemFileHandle[])
+      }
+      return [];
     }
-    return [];
+    const files = await fromWrapper(input) as FileWithPath[]
+    return noIgnoredFiles(files);
   }
 
 
@@ -1277,6 +1294,8 @@ export default class FileWithPath implements IFileWithPath {
       const ext = name.split('.')
         .pop()!.toLowerCase();
       const type = COMMON_MIME_TYPES.get(ext);
+
+
       if (type) {
         Object.defineProperty(file, 'type', {
           value: type,
@@ -1309,17 +1328,18 @@ export interface FileSystemFileHandle {
 /**
  * Convert a DragEvent's DataTrasfer object to a list of File objects
  * NOTE: If some of the items are folders,
- * everything will be flattened and placed in the same list but the paths will be kept as a {path} property.
+ * everything will be flattened and placed in the same list but the paths will be kept as a {path}
+ * property.
  *
- * EXPERIMENTAL: A list of https://developer.mozilla.org/en-US/docs/Web/API/FileSystemHandle objects can also be passed as an arg
- * and a list of File objects will be returned.
+ * EXPERIMENTAL: A list of https://developer.mozilla.org/en-US/docs/Web/API/FileSystemHandle
+ * objects can also be passed as an arg and a list of File objects will be returned.
  *
  * @param evt
  */
 export type DropFile = (DataTransferItem | File);
 export type DropFiles = [DropFile];
 export type PragmaticDndEvent = { source: { items: DataTransferItem[] } };
-export type FromEventInput = DragEvent | ChangeEvent<HTMLInputElement> | Event | FileSystemFileHandle[] | PragmaticDndEvent | DropFiles;
+export type FromEventInput = DragEvent | ChangeEvent<HTMLInputElement> | Event | FileSystemFileHandle[] | PragmaticDndEvent | DropFiles | DataTransferItem[];
 
 
 async function getDropFiles(input: PragmaticDndEvent) {
@@ -1327,7 +1347,6 @@ async function getDropFiles(input: PragmaticDndEvent) {
     return [] as FileWithPath[];
   }
   console.log('input', JSON.stringify(input.source, null, 2));
-
   const files = input.source.items;
   const finalizedFiles = await Promise.all(files.map(async (item: DropFile) =>  {
     if (item as DataTransferItem) {
@@ -1398,7 +1417,7 @@ export function fromList(items: DataTransferItemList | FileList | null): (FileWi
 
   // tslint:disable: prefer-for-of
   for (let i = 0; i < items.length; i++) {
-    const file = items[i];
+    const file = items[i] as FileWithPath | DataTransferItem
     files.push(file);
   }
   return files as (FileWithPath | DataTransferItem)[];

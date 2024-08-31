@@ -139,7 +139,6 @@ export const FileLabel = React.forwardRef(function FileExplorer(
       ? { visibility: 'visible', alignSelf: 'center', color: 'black' }
       : { alignSelf: 'center', color: 'black' };
   const sxProp: SxProps = {
-    minWidth: ['label', undefined].indexOf(other.columnName) !== -1 ? undefined : '120px',
     display: header ? 'flex' : undefined,
   };
   showIcon = showIcon || header;
@@ -148,9 +147,6 @@ export const FileLabel = React.forwardRef(function FileExplorer(
   }
   if (!iconProps) {
     iconProps = { sx: { right: 0, position: 'absolute' } };
-  }
-  if (header) {
-    iconProps.color = 'black';
   }
   return (
     <FileLabelRoot
@@ -178,7 +174,7 @@ export const FileLabel = React.forwardRef(function FileExplorer(
 
       {actualLabel}
       {showIcon && (
-        <FileIconContainer {...iconProps}>
+        <FileIconContainer {...iconProps} sx={(theme) => ({ color: theme.palette.text.primary})}>
           <FileIcon status={status} sx={headerIcon} iconName={iconProps?.iconName} />
         </FileIconContainer>
       )}

@@ -967,7 +967,7 @@ importers:
     optionalDependencies:
       aws-sdk:
         specifier: ^2.1579.0
-        version: 2.1686.0
+        version: 2.1687.0
     devDependencies:
       claudia:
         specifier: ^5.14.1
@@ -5344,16 +5344,16 @@ packages:
     resolution: {integrity: sha512-wvUjBtSGN7+7SjNpq/9M2Tg350UZD3q62IFZLbRAR1bSMlCo1ZaeW+BJ+D090e4hIIZLBcTDWe4Mh4jvUDajzQ==}
     engines: {node: '>= 0.4'}
 
-  aws-sdk@2.1686.0:
-    resolution: {integrity: sha512-N2VZPWKFtSPlHro+MJzxESNT8B8+3iX1TYg8m/lswGy9gHELY0PX3BGukMNbxhp5u0WKApzZR1fkNTajRGrFvw==}
+  aws-sdk@2.1687.0:
+    resolution: {integrity: sha512-Pk7RbIxJ8yDmFJRKzaapiUsAvz5cTPKCz7soomU+lASx1jvO29Z9KAPB6KJR22m7rDDMO/HNNN9OJRzfdvh7xQ==}
     engines: {node: '>= 10.0.0'}
 
   axe-core@4.10.0:
     resolution: {integrity: sha512-Mr2ZakwQ7XUAjp7pAwQWRhhK8mQQ6JAaNWSjmjxil0R8BPioMtQsTLOolGYkji1rcL++3dCqZA3zWqpT+9Ew6g==}
     engines: {node: '>=4'}
 
-  axios@1.7.5:
-    resolution: {integrity: sha512-fZu86yCo+svH3uqJ/yTdQ0QHpQu5oL+/QE+QPSv6BZSkDAoky9vytxp7u5qk83OJFS3kEBcesWni9WTZAv3tSw==}
+  axios@1.7.6:
+    resolution: {integrity: sha512-Ekur6XDwhnJ5RgOCaxFnXyqlPALI3rVeukZMwOdfghW7/wGz784BYKiQq+QD8NPcr91KRo30KfHOchyijwWw7g==}
 
   axobject-query@3.1.1:
     resolution: {integrity: sha512-goKlv8DZrK9hUh975fnHzhNIO4jUnFCfv/dszV5VwUGDFjI6vQ2VwoyjYjYNEbBE8AH87TduWP5uyDR1D+Iteg==}
@@ -11208,8 +11208,8 @@ packages:
     resolution: {integrity: sha512-Mcc5wHehp9aXz1ax6bZUyY5afg9u2rv5cqQI3mRrYkGC8rW2hM02jWuwjtL++LS5qinSyhj2QfLyNsuc+VsExg==}
     engines: {node: '>=10.0.0'}
 
-  streamx@2.19.0:
-    resolution: {integrity: sha512-5z6CNR4gtkPbwlxyEqoDGDmWIzoNJqCBt4Eac1ICP9YaIT08ct712cFj0u1rx4F8luAuL+3Qc+RFIdI4OX00kg==}
+  streamx@2.19.1:
+    resolution: {integrity: sha512-/j4gqcdI9KVJ1tBpG1/IOyf0bAYPJq7tbuIVXTEmy96RSpWzh/4vb1wMeXRyuuN2lMMCuZtGOOMC51W5hO2ozQ==}
 
   strict-uri-encode@2.0.0:
     resolution: {integrity: sha512-QwiXZgpRcKkhTj2Scnn++4PKtWsH0kpzZ62L2R6c/LUVYv7hVnZqcg2+sMuT6R7Jusu1vviK/MFsu6kNJfWlEQ==}
@@ -12501,7 +12501,7 @@ snapshots:
   '@argos-ci/core@1.5.5':
     dependencies:
       '@argos-ci/util': 1.2.1
-      axios: 1.7.5(debug@4.3.6)
+      axios: 1.7.6(debug@4.3.6)
       convict: 6.2.4
       debug: 4.3.6(supports-color@8.1.1)
       fast-glob: 3.3.2
@@ -15772,7 +15772,7 @@ snapshots:
       '@types/express': 4.17.21
       '@types/promise.allsettled': 1.0.6
       '@types/tsscmp': 1.0.2
-      axios: 1.7.5(debug@4.3.6)
+      axios: 1.7.6(debug@4.3.6)
       express: 4.19.2
       path-to-regexp: 6.2.2
       please-upgrade-node: 3.2.0
@@ -15826,7 +15826,7 @@ snapshots:
       '@slack/types': 2.13.0
       '@types/is-stream': 1.1.0
       '@types/node': 18.19.47
-      axios: 1.7.5(debug@4.3.6)
+      axios: 1.7.6(debug@4.3.6)
       eventemitter3: 3.1.2
       form-data: 2.5.1
       is-electron: 2.2.2
@@ -16958,7 +16958,7 @@ snapshots:
     dependencies:
       possible-typed-array-names: 1.0.0
 
-  aws-sdk@2.1686.0:
+  aws-sdk@2.1687.0:
     dependencies:
       buffer: 4.9.2
       events: 1.1.1
@@ -16973,7 +16973,7 @@ snapshots:
 
   axe-core@4.10.0: {}
 
-  axios@1.7.5(debug@4.3.6):
+  axios@1.7.6(debug@4.3.6):
     dependencies:
       follow-redirects: 1.15.6(debug@4.3.6)
       form-data: 4.0.0
@@ -17142,7 +17142,7 @@ snapshots:
 
   bare-stream@2.2.0:
     dependencies:
-      streamx: 2.19.0
+      streamx: 2.19.1
     optional: true
 
   base64-js@1.5.1: {}
@@ -17546,7 +17546,7 @@ snapshots:
   claudia@5.14.1:
     dependencies:
       archiver: 3.1.1
-      aws-sdk: 2.1686.0
+      aws-sdk: 2.1687.0
       fs-extra: 6.0.1
       glob: 7.2.3
       gunzip-maybe: 1.4.2
@@ -22247,7 +22247,7 @@ snapshots:
       '@yarnpkg/lockfile': 1.1.0
       '@yarnpkg/parsers': 3.0.0-rc.46
       '@zkochan/js-yaml': 0.0.6
-      axios: 1.7.5(debug@4.3.6)
+      axios: 1.7.6(debug@4.3.6)
       chalk: 4.1.2
       cli-cursor: 3.1.0
       cli-spinners: 2.6.1
@@ -24217,7 +24217,7 @@ snapshots:
 
   streamsearch@1.1.0: {}
 
-  streamx@2.19.0:
+  streamx@2.19.1:
     dependencies:
       fast-fifo: 1.3.2
       queue-tick: 1.0.1
@@ -24588,7 +24588,7 @@ snapshots:
     dependencies:
       b4a: 1.6.6
       fast-fifo: 1.3.2
-      streamx: 2.19.0
+      streamx: 2.19.1
 
   tar@6.2.1:
     dependencies:
