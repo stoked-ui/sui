@@ -62,6 +62,14 @@ export const FileExplorerRoot = styled('ul', {
   '& .header:last-child:after': {
     /* ADDED */ display: 'none',
   },
+  /* '& .can-drop': {
+    border: '1px solid green',
+    borderRadius: '6px',
+  },
+  '& .can-not-drop': {
+    border: '1px solid red',
+    borderRadius: '6px',
+  } */
 }));
 
 type FileExplorerComponent = (<

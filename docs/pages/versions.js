@@ -22,7 +22,7 @@ function formatVersion(version) {
 }
 
 async function getBranches() {
-  const result = await fetch('https://api.github.com/repos/stokedconsulting/stokedui-mono/branches', {
+  const result = await fetch('https://api.github.com/repos/stoked-ui/monorepo/branches', {
     headers: {
       Authorization: process.env.GITHUB_AUTH,
     },

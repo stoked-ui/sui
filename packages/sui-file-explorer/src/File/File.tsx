@@ -167,7 +167,7 @@ export const File = React.forwardRef(function File(
     // console.log('status', status.dndState);
   } // const iconProps = getIconContainerProps();
   const InnerContent: React.ReactNode = (
-    <React.Fragment>
+    <div className={'target-label'}>
       {status.dndInstruction ? <DropIndicator instruction={status.dndInstruction} /> : null}
 
       <FileCheckbox {...getCheckboxProps()} />
@@ -178,7 +178,7 @@ export const File = React.forwardRef(function File(
         showIcon={!status.grid && status.expandable}
         id={`${item.itemId}-preview`}
       />
-    </React.Fragment>
+    </div>
   );
 
   let itemContent = (

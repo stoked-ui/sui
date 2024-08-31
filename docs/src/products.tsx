@@ -708,7 +708,7 @@ const stokedConsultingData: TProduct = {
   name: "Stoked Consulting",
   fullName: "Stoked Consulting Services",
   description: "Full stack consulting services.",
-  icon: "product-templates",
+  icon: "product-designkits",
   url: "/consulting",
   live: true,
   showcaseType: StokedConsultingShowcase,
