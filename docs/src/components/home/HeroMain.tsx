@@ -42,8 +42,8 @@ export default function Hero() {
       linearGradient
       left={
         <Box sx={{ textAlign: { xs: 'center', md: 'left' }, maxWidth: 500 }}>
-          <Typography variant="h1" mb={1} className={'stoked-font'}>
-            STOKED <GradientText>CONSULTING</GradientText>
+          <Typography variant="h1" mb={1} className={'stoked-font'}sx={{paddingBottom: 1.5}}>
+            STOKED <GradientText className={'stoked-font-fat'} >CONSULTING</GradientText>
           </Typography>
           <Typography color="text.secondary" mb={3}>
             Full stack consulting services with over 25 years experience developing web applications.
