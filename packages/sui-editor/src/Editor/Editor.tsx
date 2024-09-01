@@ -230,49 +230,12 @@ Editor.propTypes = {
   // | These PropTypes are generated from the TypeScript type definitions |
   // | To update them edit the TypeScript types and run "pnpm proptypes"  |
   // ----------------------------------------------------------------------
-  actionData: PropTypes.arrayOf(
-    PropTypes.shape({
-      data: PropTypes.shape({
-        src: PropTypes.string.isRequired,
-        style: PropTypes.object,
-      }),
-      disable: PropTypes.bool,
-      effectId: PropTypes.string.isRequired,
-      end: PropTypes.number.isRequired,
-      flexible: PropTypes.bool,
-      id: PropTypes.string,
-      movable: PropTypes.bool,
-      name: PropTypes.string.isRequired,
-      selected: PropTypes.bool,
-      start: PropTypes.number.isRequired,
-    }),
-  ),
-  actions: PropTypes.arrayOf(
-    PropTypes.shape({
-      data: PropTypes.shape({
-        src: PropTypes.string.isRequired,
-        style: PropTypes.object,
-      }),
-      disable: PropTypes.bool,
-      effectId: PropTypes.string.isRequired,
-      end: PropTypes.number.isRequired,
-      flexible: PropTypes.bool,
-      id: PropTypes.string.isRequired,
-      maxEnd: PropTypes.number,
-      minStart: PropTypes.number,
-      movable: PropTypes.bool,
-      name: PropTypes.string,
-      onKeyDown: PropTypes.func,
-      selected: PropTypes.bool,
-      start: PropTypes.number.isRequired,
-    }),
-  ),
+  actionData: PropTypes.any,
+  actions: PropTypes.any,
   /**
    * The ref object that allows Editor View manipulation. Can be instantiated with `useEditorApiRef()`.
    */
-  apiRef: PropTypes.shape({
-    current: PropTypes.object,
-  }),
+  apiRef: PropTypes.any,
   /**
    * Override or extend the styles applied to the component.
    */
@@ -303,35 +266,7 @@ Editor.propTypes = {
     PropTypes.object,
   ]),
   tracks: PropTypes.arrayOf(
-    PropTypes.shape({
-      actions: PropTypes.arrayOf(
-        PropTypes.shape({
-          data: PropTypes.shape({
-            src: PropTypes.string.isRequired,
-            style: PropTypes.object,
-          }),
-          disable: PropTypes.bool,
-          effectId: PropTypes.string.isRequired,
-          end: PropTypes.number.isRequired,
-          flexible: PropTypes.bool,
-          id: PropTypes.string.isRequired,
-          maxEnd: PropTypes.number,
-          minStart: PropTypes.number,
-          movable: PropTypes.bool,
-          name: PropTypes.string,
-          onKeyDown: PropTypes.func,
-          selected: PropTypes.bool,
-          start: PropTypes.number.isRequired,
-        }),
-      ).isRequired,
-      classNames: PropTypes.arrayOf(PropTypes.string),
-      hidden: PropTypes.bool,
-      id: PropTypes.string.isRequired,
-      lock: PropTypes.bool,
-      name: PropTypes.string,
-      rowHeight: PropTypes.number,
-      selected: PropTypes.bool,
-    }),
+    PropTypes.any,
   ),
 };
 

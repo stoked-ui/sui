@@ -431,7 +431,7 @@ FileElement.propTypes = {
    * The component used to render the content of the item.
    * @default TreeItemContent
    */
-  ContentComponent: PropTypes.elementType,
+  ContentComponent: PropTypes.any,
   /**
    * Props applied to ContentComponent.
    */

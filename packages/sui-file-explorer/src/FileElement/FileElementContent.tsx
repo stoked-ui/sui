@@ -153,7 +153,7 @@ FileElementContent.propTypes = {
   /**
    * Override or extend the styles applied to the component.
    */
-  classes: PropTypes.object.isRequired,
+  classes: PropTypes.any.isRequired,
   className: PropTypes.string,
   /**
    * The icon to display next to the tree item's label. Either a parent or end icon.
