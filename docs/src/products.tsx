@@ -807,7 +807,7 @@ const coreData: TProduct = {
     description: 'Overview, installation, lions, tigers, and bears oh mai!',
     id: 'overview',
   }, {
-    name: 'FileWithPath',
+    name: 'MediaFile',
     description: 'Library used to select and automatically pull appropriate meta data from client side files',
     id: 'file-with-path',
   }, {
@@ -837,7 +837,7 @@ const mediaSelectorData: TProduct = {
     description: 'Overview, installation, lions, tigers, and bears oh mai!',
     id: 'overview',
   }, {
-    name: 'FileWithPath',
+    name: 'MediaFile',
     description: 'Library used to select and automatically pull appropriate meta data from client side files',
     id: 'file-with-path',
   }, {

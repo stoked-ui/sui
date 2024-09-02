@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { FileId, FileType } from '../models';
+import { FileId, MediaType } from '../models';
 import { MuiCancellableEventHandler } from '../internals/models/MuiCancellableEvent';
 import { FileExplorerPublicAPI } from '../internals/models';
 import { UseFileMinimalPlugins, UseFileOptionalPlugins } from '../internals/models/plugin.types';
@@ -29,7 +29,7 @@ export interface UseFileParameters {
    * The content of the component.
    */
   children?: React.ReactNode;
-  type?: FileType;
+  type?: MediaType;
   size?: number;
   modified?: number;
   name?: string;

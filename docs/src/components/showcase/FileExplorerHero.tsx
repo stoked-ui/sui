@@ -3,8 +3,8 @@ import { FileExplorer } from '@stoked-ui/file-explorer/FileExplorer';
 import {
   File,
 } from '@stoked-ui/file-explorer/File';
+import { namedId } from '@stoked-ui/media-selector';
 import { SxProps } from "@mui/system";
-
 import { getDynamicFiles } from '../fileExplorer/data';
 
 export default function FileExplorerHero(props: { id: string, sx?: SxProps, grid?: boolean, alternatingRows?: boolean, trash?: boolean, defaultData?: boolean}) {
@@ -22,6 +22,10 @@ export default function FileExplorerHero(props: { id: string, sx?: SxProps, grid
       alternatingRows
       dndInternal
       dndTrash
+      getItemId={() => {
+        console.log('wtf mate', new Error().stack);
+        return namedId({id: 'file', length: 24 });
+      }}
     />
   )
 }
