@@ -522,48 +522,7 @@ TimelineAction.propTypes = {
    * @description timelineControl runner, if not passed, the built-in runner will be used
    */
   engine: PropTypes.shape({
-    current: PropTypes.shape({
-      actionTypes: PropTypes.object.isRequired,
-      bind: PropTypes.func.isRequired,
-      canvas: PropTypes.object.isRequired,
-      events: PropTypes.object.isRequired,
-      exist: PropTypes.func.isRequired,
-      getAction: PropTypes.func.isRequired,
-      getActionTrack: PropTypes.func.isRequired,
-      getPlayRate: PropTypes.func.isRequired,
-      getSelectedActions: PropTypes.func.isRequired,
-      getTime: PropTypes.func.isRequired,
-      isPaused: PropTypes.bool.isRequired,
-      isPlaying: PropTypes.bool.isRequired,
-      off: PropTypes.func.isRequired,
-      offAll: PropTypes.func.isRequired,
-      on: PropTypes.func.isRequired,
-      pause: PropTypes.func.isRequired,
-      play: PropTypes.func.isRequired,
-      reRender: PropTypes.func.isRequired,
-      setPlayRate: PropTypes.func.isRequired,
-      setTime: PropTypes.func.isRequired,
-      tracks: PropTypes.arrayOf(
-        PropTypes.shape({
-          actions: PropTypes.arrayOf(PropTypes.object).isRequired,
-          classNames: PropTypes.arrayOf(PropTypes.string).isRequired,
-          hidden: PropTypes.bool.isRequired,
-          id: PropTypes.string.isRequired,
-          lock: PropTypes.bool.isRequired,
-          name: PropTypes.string.isRequired,
-          rowHeight: PropTypes.number.isRequired,
-          selected: PropTypes.bool.isRequired,
-        }),
-      ).isRequired,
-      trigger: PropTypes.func.isRequired,
-      viewer: function (props, propName) {
-        if (props[propName] == null) {
-          return new Error(`Prop ${propName} is required but wasn't specified`);
-        } else if (typeof props[propName] !== 'object' || props[propName].nodeType !== 1) {
-          return new Error("Expected prop '" + propName + "' to be of type Element");
-        }
-      },
-    }).isRequired,
+    current: PropTypes.any.isRequired,
   }).isRequired,
   /**
    * Whether the action is scalable
@@ -707,6 +666,10 @@ TimelineAction.propTypes = {
    * Set the number of scales
    */
   setScaleCount: PropTypes.func.isRequired,
+  /**
+   * @description Data change callback, which will be triggered after the operation action end changes the data (returning false will prevent automatic engine synchronization to reduce performance overhead)
+   */
+  setTracks: PropTypes.func.isRequired,
   /**
    * The props used for each component slot.
    */

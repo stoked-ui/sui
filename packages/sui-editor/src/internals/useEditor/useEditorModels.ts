@@ -25,7 +25,5 @@ export const useEditorModels = <TSignatures extends readonly EditorAnyPluginSign
     };
   }>({});
 
-  console.log('model props', props);
-
   return {};
 };

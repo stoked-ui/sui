@@ -124,6 +124,7 @@ export const fileExplorer = {
                 children: [] as R[],
                 parent: target ?? null
               } as unknown as R;
+              console.log('newItem create child')
               fileExplorer.createChild(items, newPath, target?.id ?? null)
               target = newPath as R;
             }
@@ -131,12 +132,14 @@ export const fileExplorer = {
         }
       }
       if (!target || targetId === null) {
+        console.log('newItem2', newItem)
         items.push(newItem);
         return;
       }
       if (!target.children) {
         target.children = new Array<R>();
       }
+      console.log('newItem3', newItem)
       target.children?.push(newItem);
     }
   },

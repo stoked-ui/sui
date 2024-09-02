@@ -25,7 +25,7 @@ const TimelineControlRoot = styled('div')(({ theme }) => ({
   overflow: 'hidden',
 }));
 
-const TimelineControl = React.forwardRef<TimelineState, TimelineControlProps & any>(
+const TimelineControl = React.forwardRef<TimelineState, TimelineControlProps>(
   function TimelineControl(props, ref) {
     const checkedProps = checkProps(props);
     const { style } = props;

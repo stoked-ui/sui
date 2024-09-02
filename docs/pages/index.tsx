@@ -26,12 +26,6 @@ export function HomeView({ HomeMain}: { HomeMain: React.ComponentType }){
     setIsClient(true)
   }, [])
 
-const logoCss =
-  `.stoked-font {
-    font-family: "Archivo Black", sans-serif;
-    font-weight: 400;
-    font-style: normal;
-  }`;
   return <BrandingCssVarsProvider>
     <Head
       title="Stoked UI: React Media Components"
@@ -46,16 +40,13 @@ const logoCss =
             '@context': 'https://schema.org',
             '@type': 'Organization',
             name: 'Stoked UI',
-            url: 'https://stokedconsulting.com.com/',
+            url: 'https://stokedconsulting.com/',
             logo: 'https://stokedconsulting.com/static/logo.png',
             sameAs: ['https://x.com/MUI_hq', 'https://github.com/mui/', 'https://opencollective.com/mui-org',],
           }),
         }}
       />
-      <link rel="preconnect" href="https://fonts.googleapis.com"/>
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin />
-      <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet"/>
-      <style>{logoCss}</style>
+
     </Head>
     <NoSsr>
       <NewsletterToast/>
@@ -69,7 +60,7 @@ const logoCss =
     <AppFooter/>
   </BrandingCssVarsProvider>;
 }
-function MainView() {
+let MainView:  React.ComponentType<{}> = function MainView() {
   return (
     <React.Fragment>
       <Hero/>
@@ -79,5 +70,15 @@ function MainView() {
   )
 }
 export default function Home({ HomeMain }: { HomeMain: React.ComponentType }) {
+
   return <HomeView HomeMain={ HomeMain || MainView } />;
+}
+Home.getInitialProps = async(context: { req: any; query: any; res: any; asPath: any; pathname: any; }) => {
+
+  const { req } = context;
+  if (req) {
+    if (req.headers?.host?.indexOf('stoked-ui.com')) {
+      MainView = RandomHome;
+    }
+  }
 }

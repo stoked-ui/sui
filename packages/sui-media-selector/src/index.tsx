@@ -1,8 +1,8 @@
-import FileWithPath from './FileWithPath';
 import namedId from './namedId';
 import useIncId from './useIncId';
+import MediaFile from './MediaFile';
 
-export { FileWithPath, namedId, useIncId };
+export { MediaFile, namedId, useIncId };
 export *  from './namedId';
 export *  from './useIncId';
-export *  from './FileWithPath';
+export * from './MediaFile';

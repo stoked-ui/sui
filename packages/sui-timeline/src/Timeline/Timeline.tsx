@@ -104,7 +104,7 @@ const Timeline = React.forwardRef(function Timeline(
       end: time + 0.5,
       effectId: 'effect0',
     };
-    updatedTracks[rowIndex] = { ...track, actions: [...track.actions, newAction]};
+    updatedTracks[rowIndex] = { ...track, actions: [...track.actions, newAction] };
     setTracks(updatedTracks);
   };
 
@@ -165,13 +165,13 @@ const Timeline = React.forwardRef(function Timeline(
             return;
           }
           updateTracks.forEach((trackUnselect) => {
-            trackUnselect = {...trackUnselect};
+            trackUnselect = { ...trackUnselect };
             if (trackUnselect.selected) {
               trackUnselect.actions.forEach((actionUnselect) => {
-                actionUnselect = {...actionUnselect};
-                actionUnselect.selected = false
+                actionUnselect = { ...actionUnselect };
+                actionUnselect.selected = false;
               });
-              trackUnselect.selected = false
+              trackUnselect.selected = false;
             }
           });
           updateTracks[trackIndex].selected = true;

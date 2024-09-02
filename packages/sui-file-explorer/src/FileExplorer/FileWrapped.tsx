@@ -2,10 +2,10 @@ import * as React from "react";
 import { useSlotProps } from "@mui/base/utils";
 import { FileExplorerProps } from "./FileExplorer.types";
 import { File, FileProps } from "../File";
-import { FileBase, FileType } from "../models";
+import { FileBase, MediaType } from "../models";
 
 export function FileWrapped<R extends FileBase, Multiple extends boolean | undefined>(props: Pick<FileExplorerProps<R, Multiple>, 'slots' | 'slotProps'> &
-  Pick<FileProps, 'children' | 'id' | 'itemId'> & { type: FileType, size: number, modified: number, label: string, last?: boolean }) {
+  Pick<FileProps, 'children' | 'id' | 'itemId'> & { type: MediaType, size: number, modified: number, label: string, last?: boolean }) {
   const {
     slots,
     slotProps,

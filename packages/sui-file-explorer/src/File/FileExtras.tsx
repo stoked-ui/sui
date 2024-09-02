@@ -81,6 +81,7 @@ export const FileContent = styled('div', {
     // padding: theme.spacing(0.5),
     // paddingRight: theme.spacing(1),
     fontWeight: 500,
+
     [`&.Mui-expanded `]: {
       '&:not(.Mui-focused, .Mui-selected, .Mui-selected.Mui-focused) .labelIcon': {
         color:
@@ -122,6 +123,34 @@ export const FileContent = styled('div', {
       '&.Mui-selected': {
         backgroundColor: `${alpha(theme.palette.primary.main, 0.8)}!important`,
       },
+    },
+    '&.can-not-drop': {
+      backgroundColor: `${theme.palette.error.main}!important`,
+      color: `${theme.palette.background.default}!important`,
+      '& .cell p':{
+        color: `${theme.palette.background.default}!important`,
+      }
+    },
+    '&.can-drop': {
+      backgroundColor: `${theme.palette.success.main}!important`,
+      color: `${theme.palette.background.default}!important`,
+      '& .cell p':{
+        color: `${theme.palette.background.default}!important`,
+      }
+    },
+    '&.can-not-drop-selected': {
+      backgroundColor: theme.palette.mode === 'light' ? `${theme.palette.error.dark}!important` : `${theme.palette.error.light}!important`,
+      color: `${theme.palette.background.default}!important`,
+      '& .cell p':{
+        color: `${theme.palette.background.default}!important`,
+      }
+    },
+    '&.can-drop-selected': {
+      backgroundColor: theme.palette.mode === 'light' ? `${theme.palette.success.dark}!important` : `${theme.palette.success.light}!important`,
+      color: `${theme.palette.background.default}!important`,
+      '& .cell p':{
+        color: `${theme.palette.background.default}!important`,
+      }
     },
     variants: [
       {

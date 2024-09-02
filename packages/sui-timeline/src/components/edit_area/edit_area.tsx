@@ -197,7 +197,6 @@ export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>((props, r
             }
           }
           heightRef.current = height;
-          console.log('grid', width, height,totalHeight);
           return (
             <Grid
               id={'thisisedit'}

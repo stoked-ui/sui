@@ -35,44 +35,42 @@ export default function Head(props: HeadProps) {
   const router = useRouter();
   const { canonicalAs } = pathnameToLanguage(router.asPath);
   const preview = card.startsWith('http') ? card : `${HOST}${card}`;
-
-  return (
-    <NextHead>
+  const logoCss = `
+  .stoked-font {
+    font-family: "ArchivoBlack-Regular", sans-serif;
+    font-weight: 400;
+    line-height: .8;
+  }`;
+  return (<NextHead>
       <title>{title}</title>
-      <meta name="description" content={description} />
+      <meta name="description" content={description}/>
       {/* X */}
-      <meta name="twitter:card" content={largeCard ? 'summary_large_image' : 'summary'} />
+      <meta name="twitter:card" content={largeCard ? 'summary_large_image' : 'summary'}/>
       {/* https://x.com/MUI_hq */}
-      <meta name="twitter:site" content="@MUI_hq" />
+      <meta name="twitter:site" content="@MUI_hq"/>
       {/* #major-version-switch */}
-      <meta name="twitter:title" content={title} />
-      <meta name="twitter:description" content={description} />
-      <meta name="twitter:image" content={preview} />
+      <meta name="twitter:title" content={title}/>
+      <meta name="twitter:description" content={description}/>
+      <meta name="twitter:image" content={preview}/>
       {/* Facebook */}
-      <meta property="og:type" content={type} />
-      <meta property="og:title" content={title} />
+      <meta property="og:type" content={type}/>
+      <meta property="og:title" content={title}/>
       {/* #major-version-switch */}
-      <meta property="og:url" content={`${HOST}${router.asPath}`} />
-      <meta property="og:description" content={description} />
-      <meta property="og:image" content={preview} />
-      <meta property="og:ttl" content="604800" />
+      <meta property="og:url" content={`${HOST}${router.asPath}`}/>
+      <meta property="og:description" content={description}/>
+      <meta property="og:image" content={preview}/>
+      <meta property="og:ttl" content="604800"/>
       {/* Algolia */}
-      <meta name="docsearch:language" content={userLanguage} />
+      <meta name="docsearch:language" content={userLanguage}/>
       {/* #major-version-switch */}
-      <meta name="docsearch:version" content="master" />
-      {disableAlternateLocale
-        ? null
-        : LANGUAGES_SSR.map((userLanguage2) => (
-            <link
-              key={userLanguage2}
-              rel="alternate"
-              href={`https://mui.com${
-                userLanguage2 === 'en' ? '' : `/${userLanguage2}`
-              }${canonicalAs}`}
-              hrefLang={userLanguage2}
-            />
-          ))}
+      <meta name="docsearch:version" content="master"/>
+      <style>{logoCss}</style>
+      {disableAlternateLocale ? null : LANGUAGES_SSR.map((userLanguage2) => (<link
+          key={userLanguage2}
+          rel="alternate"
+          href={`https://mui.com${userLanguage2 === 'en' ? '' : `/${userLanguage2}`}${canonicalAs}`}
+          hrefLang={userLanguage2}
+        />))}
       {children}
-    </NextHead>
-  );
+    </NextHead>);
 }
