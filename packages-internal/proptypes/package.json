@@ -1,6 +1,6 @@
 {
   "name": "@stoked-ui/proptypes",
-  "version": "0.1.0-alpha.5",
+  "version": "0.1.0-alpha.6",
   "author": "SUI Team",
   "description": "Utilities supporting SUI libraries build and docs generation. This is an internal package not meant for general use.",
   "main": "build/index.js",
