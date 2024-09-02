@@ -140,6 +140,7 @@ export const FileLabel = React.forwardRef(function FileExplorer(
       : { alignSelf: 'center', color: 'black' };
   const sxProp: SxProps = {
     display: header ? 'flex' : undefined,
+    overflow: 'hidden'
   };
   showIcon = showIcon || header;
   if (!status && showIcon) {

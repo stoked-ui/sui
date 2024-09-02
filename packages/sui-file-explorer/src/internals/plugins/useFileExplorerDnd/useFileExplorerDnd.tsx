@@ -24,7 +24,7 @@ import {
 import { containsFiles } from "@atlaskit/pragmatic-drag-and-drop/external/file";
 import { preventUnhandled } from "@atlaskit/pragmatic-drag-and-drop/prevent-unhandled";
 import type { Instruction } from "@atlaskit/pragmatic-drag-and-drop-hitbox/tree-item";
-import { MediaFile, namedId } from "@stoked-ui/media-selector";
+import { namedId, MediaFile } from "@stoked-ui/media-selector";
 import memoizeOne from "memoize-one";
 import {
   triggerPostMoveFlash
@@ -807,9 +807,7 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
           },
           nativeSetDragImage,
         });
-        setTimeout(() => {
-          dragPreviewProps.source.element.style.opacity = '0';
-        }, 50)
+
       },
       onDragStart: ({source}) => {
         setState({...state, dndState: 'dragging'});
@@ -858,9 +856,6 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
           removeDropTargetAffordance(event.location.current.dropTargets[0].element);
         }
         if (!canDrop) {
-          if ((event?.self.element as HTMLElement)?.style) {
-            (event?.self.element as HTMLElement).style.opacity = '1';
-          }
           return;
         }
         if (target) {
@@ -882,7 +877,6 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
       onDrag: updateIsParentOfInstruction,
       onDrop(dropData) {
         clearParentOfInstructionState();
-        dropData.source.element.style.opacity = '1';
       },
     });
 
@@ -943,14 +937,10 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
         if (!instance.isItemExpanded(props.itemId!)) {
           instance.toggleItemExpansion(null as unknown as React.SyntheticEvent, props.itemId!);
         }
-        const filesWithPaths = await MediaFile.from(dropEvent);
-        const {self} = dropEvent;
-
-
-        const files = filesWithPaths.map((file): FileBase => {
-          return FileBaseFromMediaFile(file);
-        });
-        instance.createChildren(files, self.data.itemId as string);
+        const files = await MediaFile.from(dropEvent);
+         const {self} = dropEvent;
+         const updated = files.flat(Infinity).map(file => FileBaseFromMediaFile(file));
+         instance.createChildren(updated, self.data.itemId as string);
         cancelExpand();
         setState({...state, dndInstruction: null});
       },

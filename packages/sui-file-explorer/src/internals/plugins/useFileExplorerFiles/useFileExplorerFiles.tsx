@@ -39,8 +39,12 @@ const updateItemsState = ({
   };
 
   const processItem = (item: FileBase, depth: number, parentId: string | null) => {
-    const initialId: string = getItemId ? getItemId(item) : (item as any).id;
-    const id = initialId ?? item?.itemId ?? item.id ?? item?.label ?? item?.name ?? namedId({id:'file', length:4});
+    const id = item?.itemId ?? item.id ?? namedId({id:'file', length:4});
+    if (itemMetaMap[id]){
+      // TODO: FIX THIS SERIOUSLY
+      console.warn(`DIRTY HACK: this item id already exists - item: ${JSON.stringify(item, null, 2)}, existing item: ${JSON.stringify(itemMetaMap[id], null, 2)}`)
+      return;
+    }
     item.id = id;
     item.itemId = item.itemId ?? id;
     item.label = item.label ?? id;
@@ -276,8 +280,8 @@ export const useFileExplorerFiles: FileExplorerPlugin<UseFileExplorerFilesSignat
   }
 
   React.useEffect(() => {
-    if (instance.areItemUpdatesPrevented()) {
-    }
+    // if (instance.areItemUpdatesPrevented()) {
+    // }
     // ensureTrash();
   }, [
     instance,
@@ -316,7 +320,11 @@ export const useFileExplorerFiles: FileExplorerPlugin<UseFileExplorerFilesSignat
   };
   const updateDndMeta = (itemId: string, dnd: DndItemState) => {
     setState((prevState) => {
+      // console.log('itemId', itemId, prevState.items?.itemMetaMap);
       const itemMeta = prevState.items.itemMetaMap[itemId];
+      if (!itemMeta) {
+        return {...prevState};
+      }
       itemMeta.dndState = dnd.dndState;
       itemMeta.dndContainer = dnd.dndContainer;
       itemMeta.dndInstruction = dnd.dndInstruction;
