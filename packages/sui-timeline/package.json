@@ -1,6 +1,6 @@
 {
   "name": "@stoked-ui/timeline",
-  "version": "0.1.0-alpha.6",
+  "version": "0.1.0-alpha.7",
   "author": "xzdarcy (updated dependencies by Brian Stoker)",
   "license": "MIT",
   "keywords": [
@@ -59,9 +59,9 @@
     "react-virtualized": "^9.22.3"
   },
   "devDependencies": {
-    "@mui/icons-material": "^5.15.21",
     "@emotion/react": "^11.9.0",
     "@emotion/styled": "^11.8.1",
+    "@mui/icons-material": "^5.15.21",
     "@types/howler": "^2.2.4",
     "@types/lodash": "^4.14.177",
     "@types/react": "^18.3.1",
