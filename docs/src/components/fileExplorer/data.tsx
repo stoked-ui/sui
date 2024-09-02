@@ -43,11 +43,13 @@ export const NestedFiles: FileBase[] = [
     label: 'Documents',
     expanded: true,
     selected: true,
+    type: 'folder',
     children: [
       {
         id: '1.1',
         label: 'Company',
         expanded: true,
+        type: 'folder',
         children: [
           {
             id: '1.1.1',
@@ -97,6 +99,7 @@ export const NestedFiles: FileBase[] = [
   {
     id: '2',
     label: 'Bookmarked',
+    type: 'folder',
     children: [
       {
         id: '2.1',
@@ -135,6 +138,7 @@ export function getDynamicFiles (): readonly FileBase[] {
       label: 'Documents',
       expanded: true,
       selected: true,
+      type: 'folder',
       modified: createRelativeDate(month),
       children: [
         {
@@ -142,12 +146,14 @@ export function getDynamicFiles (): readonly FileBase[] {
           label: 'Company',
           expanded: true,
           modified: createRelativeDate(3 * week),
+          type: 'folder',
           children: [
             {
               id: '1.1.1',
               label: 'Invoice',
               type: 'pdf',
               size: 234223424,
+
               modified: createRelativeDate(2 * week),
             },
             {
@@ -198,6 +204,7 @@ export function getDynamicFiles (): readonly FileBase[] {
     {
       id: '2',
       label: 'Bookmarked',
+      type: 'folder',
       modified: createRelativeDate(1 * day),
       children: [
         {

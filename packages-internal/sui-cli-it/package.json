@@ -1,6 +1,7 @@
 {
   "name": "@stoked-ui/cli-it",
-  "version": "1.0.1",
+  "version": "0.1.0-alpha.0",
+  "private": false,
   "description": "A CLI tool to turn .sh files into CLI commands",
   "main": "dist/cli.js",
   "bin": {
@@ -11,7 +12,7 @@
     "start": "ts-node src/cli.ts"
   },
   "devDependencies": {
-    "@types/node": "^20.1.0",
+    "@types/node": "^18.19.47",
     "ts-node": "^10.4.0",
     "typescript": "^5.4.5"
   },

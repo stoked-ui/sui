@@ -58,7 +58,6 @@ export const useEditor = <
     plugins, props,
   });
 
-  console.log('plugins', plugins, 'pluginParams', pluginParams);
   const models = useEditorModels<TSignatures>(plugins, pluginParams);
   const instanceRef = React.useRef({} as EditorInstance<TSignatures>);
   const instance = instanceRef.current as EditorInstance<TSignatures>;

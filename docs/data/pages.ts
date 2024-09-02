@@ -22,7 +22,7 @@ const pages: MuiPage[] = [
     newFeature: true,
     children: [
       { pathname: '/media-selector/docs/overview', title: 'Overview' },
-      { pathname: '/media-selector/docs/file-with-path', title: 'FileWithPath' },
+      { pathname: '/media-selector/docs/file-with-path', title: 'MediaFile' },
       { pathname: '/media-selector/docs/id-generator', title: 'IdGenerator' },
       { pathname: `/media-selector/docs/roadmap` },
     ],

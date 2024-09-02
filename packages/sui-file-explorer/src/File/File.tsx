@@ -20,7 +20,7 @@ import { FileComponent, FileOwnerState, FileProps } from './File.types';
 import { useFile } from '../useFile';
 import { FileExplorerGridColumns } from '../internals/plugins/useFileExplorerGrid/FileExplorerGridColumns';
 import { FileExplorerDndItemContext } from '../internals/plugins/useFileExplorerDnd/FileExplorerDndItemContext';
-import { FileType } from '../models';
+import { MediaType } from '../models';
 import {
   useUtilityClasses,
   FileContent,
@@ -131,7 +131,7 @@ export const File = React.forwardRef(function File(
     className: classes.root,
   });
 
-  const getIconFromFileType = (fileType: FileType | string) => {
+  const getIconFromFileType = (fileType: MediaType | string) => {
     switch (fileType) {
       case 'image':
         return ImageIcon;
@@ -167,7 +167,7 @@ export const File = React.forwardRef(function File(
     // console.log('status', status.dndState);
   } // const iconProps = getIconContainerProps();
   const InnerContent: React.ReactNode = (
-    <React.Fragment>
+    <div className={'target-label'} style={{overflow: 'hidden'}}>
       {status.dndInstruction ? <DropIndicator instruction={status.dndInstruction} /> : null}
 
       <FileCheckbox {...getCheckboxProps()} />
@@ -178,7 +178,7 @@ export const File = React.forwardRef(function File(
         showIcon={!status.grid && status.expandable}
         id={`${item.itemId}-preview`}
       />
-    </React.Fragment>
+    </div>
   );
 
   let itemContent = (

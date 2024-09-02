@@ -43,6 +43,33 @@ if (!fs.existsSync(filePath)) {
 // Create a symbolic link to the .sh file in a directory included in the PATH
 const linkDir = '/usr/local/bin'; // You might need sudo privileges to write here
 const linkPath = path.join(linkDir, commandName);
+if (!fs.existsSync(`~/.cli-it`)) {
+    (0, child_process_1.exec)(`mkdir -p ~/.cli-it`, (error, stdout, stderr) => {
+        if (error) {
+            console.error(`Error creating cli-it store at: ~/.cli-it \n\n  ${stderr}`);
+            process.exit(1);
+        }
+        console.log(`cli-it store created: ~/.cli-it each time you cli a command a new "version" will be stored in the store`);
+    });
+}
+if (!fs.existsSync(`~/.cli-it/${commandName}`)) {
+    (0, child_process_1.exec)(`mkdir -p ~/.cli-it/${commandName}`, (error, stdout, stderr) => {
+        if (error) {
+            console.error(`Error creating ${commandName} library in the cli store at: ~/.cli-it/${commandName} \n\n  ${stderr}`);
+            process.exit(1);
+        }
+        console.log(`${commandName} library created in the cli-it store here: ~/.cli-it/${commandName}`);
+    });
+}
+if (!fs.existsSync(`~/.cli-it/${commandName}/${commandName}`)) {
+    (0, child_process_1.exec)(`mkdir -p ~/.cli-it/${commandName}`, (error, stdout, stderr) => {
+        if (error) {
+            console.error(`Error creating ${commandName} library in the cli store at: ~/.cli-it/${commandName} \n\n  ${stderr}`);
+            process.exit(1);
+        }
+        console.log(`${commandName} library created in the cli-it store here: ~/.cli-it/${commandName}`);
+    });
+}
 (0, child_process_1.exec)(`ln -sf ${filePath} ${linkPath}`, (error, stdout, stderr) => {
     if (error) {
         console.error(`Error creating symlink: ${stderr}`);

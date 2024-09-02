@@ -80,74 +80,6 @@ const StyledFileLabelText = styled(Typography)({
   textWrap: 'nowrap',
 }) as unknown as typeof Typography;
 
-interface IconContainerProps {
-  status: UseFileExplorerGridColumnHeaderStatus;
-  slots?: FileIconSlots;
-  slotProps?: FileIconSlotProps;
-  sx: SxProps<Theme>;
-}
-
-function HeaderIcon(props: IconContainerProps) {
-  const { slots, slotProps, status, sx } = props;
-
-  const context = useFileExplorerContext<[UseFileExplorerIconsSignature]>();
-
-  const contextIcons = {
-    ...context.icons.slots,
-    expandIcon: context.icons.slots.expandIcon ?? FileExplorerExpandIcon,
-    collapseIcon: context.icons.slots.collapseIcon ?? FileExplorerCollapseIcon,
-  };
-
-  const contextIconProps = context.icons.slotProps;
-
-  let iconName: 'collapseIcon' | 'expandIcon' | 'endIcon' | 'icon';
-  if (status.ascending) {
-    iconName = 'collapseIcon';
-  } else {
-    iconName = 'expandIcon';
-  }
-
-  const Icon = slots?.[iconName] ?? contextIcons[iconName as keyof typeof contextIcons];
-  const iconProps = useSlotProps({
-    elementType: Icon,
-    externalSlotProps: (tempOwnerState: any) => ({
-      ...resolveComponentProps(
-        contextIconProps[iconName as keyof typeof contextIconProps],
-        tempOwnerState,
-      ),
-      ...resolveComponentProps(slotProps?.[iconName], tempOwnerState),
-    }),
-    // TODO: Add proper ownerState
-    ownerState: {},
-  });
-
-  if (!Icon) {
-    return null;
-  }
-
-  return <Icon {...iconProps} sx={sx} />;
-}
-
-HeaderIcon.propTypes = {
-  // ----------------------------- Warning --------------------------------
-  // | These PropTypes are generated from the TypeScript type definitions |
-  // | To update them edit the TypeScript types and run "pnpm proptypes"  |
-  // ----------------------------------------------------------------------
-  slotProps: PropTypes.object,
-  slots: PropTypes.object,
-  status: PropTypes.shape({
-    ascending: PropTypes.bool.isRequired,
-    focused: PropTypes.bool.isRequired,
-    sort: PropTypes.bool.isRequired,
-    visible: PropTypes.bool.isRequired,
-  }).isRequired,
-  sx: PropTypes.oneOfType([
-    PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool])),
-    PropTypes.func,
-    PropTypes.object,
-  ]),
-} as any;
-
 type FileLabelProps = {
   expandable?: boolean;
   grow?: boolean;
@@ -207,8 +139,8 @@ export const FileLabel = React.forwardRef(function FileExplorer(
       ? { visibility: 'visible', alignSelf: 'center', color: 'black' }
       : { alignSelf: 'center', color: 'black' };
   const sxProp: SxProps = {
-    minWidth: ['label', undefined].indexOf(other.columnName) !== -1 ? undefined : '120px',
     display: header ? 'flex' : undefined,
+    overflow: 'hidden'
   };
   showIcon = showIcon || header;
   if (!status && showIcon) {
@@ -216,9 +148,6 @@ export const FileLabel = React.forwardRef(function FileExplorer(
   }
   if (!iconProps) {
     iconProps = { sx: { right: 0, position: 'absolute' } };
-  }
-  if (header) {
-    iconProps.color = 'black';
   }
   return (
     <FileLabelRoot
@@ -246,7 +175,7 @@ export const FileLabel = React.forwardRef(function FileExplorer(
 
       {actualLabel}
       {showIcon && (
-        <FileIconContainer {...iconProps}>
+        <FileIconContainer {...iconProps} sx={(theme) => ({ color: theme.palette.text.primary })}>
           <FileIcon status={status} sx={headerIcon} iconName={iconProps?.iconName} />
         </FileIconContainer>
       )}

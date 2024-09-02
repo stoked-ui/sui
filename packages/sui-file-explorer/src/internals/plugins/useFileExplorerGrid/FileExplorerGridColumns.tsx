@@ -21,7 +21,7 @@ function FileExplorerGridCell({
   return (
     <FileLabel
       className={`cell column-${columnName}`}
-      sx={ [{ color: theme.palette.text.primary, justifyContent: 'end'}, sx]}
+      sx={ [{  justifyContent: 'end'}, sx]}
       last={last}
       meta
       id={id}

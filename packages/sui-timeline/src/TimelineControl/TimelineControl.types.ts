@@ -18,6 +18,10 @@ export interface EditData {
    */
   tracks: TimelineTrack[];
   /**
+   * @description Data change callback, which will be triggered after the operation action end changes the data (returning false will prevent automatic engine synchronization to reduce performance overhead)
+   */
+  setTracks: (updatedTracks: TimelineTrack[]) => void;
+  /**
    * @description timelineControl action actionType map
    */
   actionTypes?: Record<string, ITimelineActionType>;
@@ -243,10 +247,7 @@ export interface TimelineControlProps extends EditData {
    * @default true
    */
   autoReRender?: boolean;
-  /**
-   * @description Data change callback, which will be triggered after the operation action end changes the data (returning false will prevent automatic engine synchronization to reduce performance overhead)
-   */
-  setTracks: (updatedTracks: TimelineTrack[]) => void;
+
 
   setScaleWidth?: (scaleWidth: number) => void;
 }
