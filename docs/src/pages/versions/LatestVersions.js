@@ -14,13 +14,13 @@ function LatestVersions() {
         <TableBody>
           <TableRow>
             <TableCell>
-              <Typography variant="body2">master branch</Typography>
+              <Typography variant="body2">main branch</Typography>
             </TableCell>
             <TableCell>
               <Link
                 variant="body2"
                 rel="nofollow"
-                href="https://material-ui.netlify.app/"
+                href="https://stoked-ui.com/docs"
               >
                 Documentation
               </Link>
@@ -28,7 +28,7 @@ function LatestVersions() {
             <TableCell>
               <Link
                 variant="body2"
-                href="https://github.com/mui/material-ui/tree/master"
+                href="https://github.com/stoked-ui/mono/tree/main"
               >
                 Source code
               </Link>
@@ -42,7 +42,7 @@ function LatestVersions() {
               <Link
                 variant="body2"
                 rel="nofollow"
-                href="https://next--material-ui.netlify.app/"
+                href="https://next.stoked-ui.com/docs"
               >
                 Documentation
               </Link>
@@ -50,7 +50,7 @@ function LatestVersions() {
             <TableCell>
               <Link
                 variant="body2"
-                href="https://github.com/mui/material-ui/tree/next"
+                href="https://github.com/stoked-ui/mono/tree/next"
               >
                 Source code
               </Link>

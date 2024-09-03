@@ -151,10 +151,6 @@ function AppWrapper(props) {
     const languagePrefix = pageProps.userLanguage === 'en' ? '' : `/${pageProps.userLanguage}`;
 
     const productMap = {
-      'core': {
-        metadata: 'Stoked UI',
-        name: 'Core',
-      },
       'editor': {
         metadata: 'Stoked UI',
         name: 'Editor',
@@ -172,21 +168,26 @@ function AppWrapper(props) {
         name: 'Timeline',
       },
       'stoked-ui': {
+        metadata: 'Stoked UI',
+        name: 'Stoked UI',
+      },
+      'docs': {
+        metadata: 'Docs',
         name: 'Stoked UI',
       },
     };
 
     return {
-      ...productMap[productId],
+      ...productMap[productId ?? 'stoked-ui'],
       versions: [
         {
           text: 'v1 (next)',
-          href: `https://stokedconsulting.com/${languagePrefix}/v1/${productId}/`,
+          href: `${languagePrefix}/v1/${productId}/`,
         },
         {text: `v${fileExplorerPkgJson.version}`, current: true},
         {
           text: 'View all versions',
-          href: `https://stokedconsulting.com/${languagePrefix}/versions/${productId}`,
+          href: `${languagePrefix}/versions/${productId}`,
         },
       ],
     }
