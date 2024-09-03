@@ -18,9 +18,6 @@ const getPackageComponents = async (pkgPath) => {
 }
 
 async function getWebpackEntries() {
-  const corePackagePath = path.join(workspaceRoot, 'packages/sui-core/build');
-
-
   const corePackagePath = path.join(workspaceRoot, 'packages/mui-base/build');
   const coreComponents = (await glob(path.join(corePackagePath, '([A-Z])*/index.js'))).map(
     (componentPath) => {
