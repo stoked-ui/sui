@@ -171,6 +171,10 @@ function AppWrapper(props) {
         metadata: 'Stoked UI',
         name: 'Stoked UI',
       },
+      'docs': {
+        metadata: 'Docs',
+        name: 'Stoked UI',
+      },
     };
 
     return {
@@ -178,12 +182,12 @@ function AppWrapper(props) {
       versions: [
         {
           text: 'v1 (next)',
-          href: `https://stokedconsulting.com/${languagePrefix}/v1/${productId}/`,
+          href: `${languagePrefix}/v1/${productId}/`,
         },
         {text: `v${fileExplorerPkgJson.version}`, current: true},
         {
           text: 'View all versions',
-          href: `https://stokedconsulting.com/${languagePrefix}/versions/${productId}`,
+          href: `${languagePrefix}/versions/${productId}`,
         },
       ],
     }
