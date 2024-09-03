@@ -64,7 +64,6 @@
     "@emotion/styled": "^11.8.1",
     "@mui/icons-material": "^5.15.21",
     "@mui/material": "^5.15.21",
-    "@stoked-ui/core": "workspace:^",
     "@stoked-ui/file-explorer": "workspace:^",
     "@stoked-ui/media-selector": "workspace:^",
     "@stoked-ui/timeline": "workspace:^",
@@ -72,7 +71,6 @@
     "react-dom": "^17.0.0 || ^18.0.0"
   },
   "devDependencies": {
-    "@stoked-ui/core": "workspace:^",
     "@stoked-ui/file-explorer": "workspace:^",
     "@stoked-ui/internal-test-utils": "workspace:^",
     "@stoked-ui/media-selector": "workspace:^",
