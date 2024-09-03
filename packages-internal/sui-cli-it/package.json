@@ -5,7 +5,7 @@
   "description": "A CLI tool to turn .sh files into CLI commands",
   "main": "dist/cli.js",
   "bin": {
-    "cli-it": "./dist/cli.js"
+    "cli-it": "./build/cli.js"
   },
   "scripts": {
     "build": "tsc",
