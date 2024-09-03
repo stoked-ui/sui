@@ -46,3 +46,13 @@ jobs:
         run: |
           git remote -v
           pnpm release:tag --dryRun
+      - name: build site
+        run: pnpm -F stokedui-com build:clean
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+      - name: send export to s3 sync
+        uses: actions/upload-artifact@master
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        with:
+          name: main-build
+          path: /home/runner/work/mono/mono/docs/export
+
