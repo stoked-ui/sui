@@ -50,9 +50,28 @@ jobs:
         run: pnpm -F stokedui-com build:clean
         if: ${{ matrix.os == 'ubuntu-latest' && (github.head_ref || github.ref_name) == 'main' }}
       - name: send export to s3 sync
-        uses: actions/upload-artifact@master
+        uses: actions/upload-artifact@v4
         if: ${{ matrix.os == 'ubuntu-latest' && (github.head_ref || github.ref_name) == 'main' }}
         with:
           name: main-build
           path: /home/runner/work/mono/mono/docs/export
-
+  deploy:
+    if: ${{ always() && matrix.os == 'ubuntu-latest' && (github.head_ref || github.ref_name) == 'main' }}
+    needs: [ "CI" ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: main-build
+          path: /home/runner/work/mono/mono/docs/export
+      - run: ls -la /home/runner/work/mono/mono/docs/export
+#      - uses: actions/checkout@main
+#      - uses: jakejarvis/s3-sync-action@master
+#        with:
+#          args: --acl public-read --follow-symlinks --delete
+#        env:
+#          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+#          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#          AWS_REGION: 'us-west-1'   # optional: defaults to us-east-1
+#          SOURCE_DIR: 'public'      # optional: defaults to entire repository
