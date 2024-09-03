@@ -105,7 +105,6 @@ export const useFileExplorerDnd: FileExplorerPlugin<UseFileExplorerDndSignature>
 
   const createChildren = React.useCallback(
     (childItems: FileBase[], targetId: string | null) => {
-      console.log('create-children',childItems);
       updateState({
         type: 'create-children',
         items: childItems,
@@ -516,7 +515,6 @@ function useDnd({ status, pluginContentRef, props, instance }) {
         // publishFileExplorerEvent(instance, 'removeItem', { targetId: item.id, sourceItemIds });
 
         instance.dropInternal(event);
-        // console.log('combinedContentRef', pluginContentRef);
 
         cancelExpand();
         setState({...state, dndInstruction: null});
@@ -556,8 +554,6 @@ function useDnd({ status, pluginContentRef, props, instance }) {
       }, onDrag: (data) => {
         const {self} = data;
         const dragInstruction = extractInstruction(self.data);
-        // console.log('drag dndExternal source:', source)
-        // expand after 500ms if still merging
         // expand after 500ms if still merging
         if (dragInstruction?.type === 'make-child' && props.type === 'folder' && status?.expandable && !status?.expanded && !cancelExpandRef.current) {
           cancelExpandRef.current = delay({
@@ -717,16 +713,12 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
     const label = getTargetLabel(element);
     if (label) {
       if (label.classList.contains('can-drop')) {
-        console.log('remove can-drop', label.innerHTML);
         label.classList.remove('can-drop')
       } else if (label.classList.contains('can-not-drop')) {
-        console.log('remove can-not-drop', label.innerHTML);
         label.classList.remove('can-not-drop')
       } else if (label.classList.contains('can-not-drop-selected')) {
-        console.log('remove can-not-drop-selected', label.innerHTML);
         label.classList.remove('can-not-drop-selected')
       } else if (label.classList.contains('can-drop-selected')) {
-        console.log('remove can-not-drop-selected', label.innerHTML);
         label.classList.remove('can-drop-selected')
       }
     }
