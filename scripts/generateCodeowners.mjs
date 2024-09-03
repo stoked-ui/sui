@@ -172,23 +172,23 @@ const areaMaintainers = {
 };
 
 const packageOwners = {
-  base: ['michaldudak'],
-  joy: ['siriwatknp'],
-  material: ['mnajdova'],
-  ['sui-core']: ['brian-stoker'],
-  ['sui-x']: ['brian-stoker'],
+   docs: ['brian-stoker'],
+  'media-selector': ['brian-stoker'],
+  timeline: ['brian-stoker'],
+  editor: ['brian-stoker'],
+  ['file-explorer']: ['brian-stoker'],
 };
 
 const packageMaintainers = {
-  base: ['michaldudak', 'mnajdova'],
-  'icons-material': ['michaldudak', 'siriwatknp'],
-  joy: ['siriwatknp', 'danilo-leal'],
-  material: ['mnajdova', 'danilo-leal'],
-  system: ['mnajdova', 'siriwatknp'],
+  docs: ['brian-stoker'],
+  'media-selector': ['brian-stoker'],
+  timeline: ['brian-stoker'],
+  editor: ['brian-stoker'],
+  ['file-explorer']: ['brian-stoker'],
 };
 
 const additionalRules = {
-  '/scripts/': ['michaldudak', 'm4theushw'],
+  '/scripts/': ['brian-stoker'],
 };
 
 const thisDirectory = url.fileURLToPath(new URL('.', import.meta.url));

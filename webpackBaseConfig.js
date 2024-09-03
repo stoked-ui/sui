@@ -10,12 +10,11 @@ module.exports = {
     modules: [__dirname, 'node_modules'],
     alias: {
       '@stoked-ui/docs-markdown': path.resolve(__dirname, './packages-internal/markdown'),
-      '@stoked-ui/media-selector': path.resolve(__dirname, './packages/sui-media-selector'),
+      '@stoked-ui/media-selector': path.resolve(__dirname, './packages/sui-media-selector/src'),
       '@stoked-ui/docs': path.resolve(__dirname, './packages/sui-docs/src'),
       '@stoked-ui/timeline': path.resolve(__dirname, './packages/sui-timeline/src'),
       '@stoked-ui/file-explorer': path.resolve(__dirname, './packages/sui-file-explorer/src'),
       '@stoked-ui/editor': path.resolve(__dirname, './packages/sui-editor/src'),
-      '@stoked-ui/core': path.resolve(__dirname, './packages/sui-core/src'),
       '@stoked-ui/docs-utils': path.resolve(__dirname, './packages-internal/docs-utils/src'),
       '@stoked-ui/proptypes/typescript-to-proptypes': path.resolve(__dirname, './packages-internal/scripts/typescript-to-proptypes/src'),
       docs: path.resolve(__dirname, './docs'),
