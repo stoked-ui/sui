@@ -56,7 +56,7 @@ jobs:
           name: main-build
           path: /home/runner/work/mono/mono/docs/export
   deploy:
-    if: ${{ always() && matrix.os == 'ubuntu-latest' && (github.head_ref || github.ref_name) == 'main' }}
+    if: ${{ always() && (github.head_ref || github.ref_name) == 'main' }}
     needs: [ "CI" ]
     runs-on: ubuntu-latest
     steps:
