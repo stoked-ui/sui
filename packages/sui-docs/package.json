@@ -1,6 +1,6 @@
 {
   "name": "@stoked-ui/docs",
-  "version": "0.1.0-alpha.8",
+  "version": "0.1.0-alpha.9",
   "private": false,
   "author": "SUI Team",
   "description": "SUI Docs - Documentation building blocks.",
@@ -44,7 +44,6 @@
   "devDependencies": {
     "@mui/icons-material": "^5.15.21",
     "@mui/material": "^5.15.21",
-    "@stoked-ui/core": "workspace:^",
     "@stoked-ui/editor": "workspace:^",
     "@stoked-ui/file-explorer": "workspace:^",
     "@stoked-ui/media-selector": "workspace:^",
