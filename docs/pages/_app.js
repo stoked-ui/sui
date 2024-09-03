@@ -151,10 +151,6 @@ function AppWrapper(props) {
     const languagePrefix = pageProps.userLanguage === 'en' ? '' : `/${pageProps.userLanguage}`;
 
     const productMap = {
-      'core': {
-        metadata: 'Stoked UI',
-        name: 'Core',
-      },
       'editor': {
         metadata: 'Stoked UI',
         name: 'Editor',
@@ -172,12 +168,13 @@ function AppWrapper(props) {
         name: 'Timeline',
       },
       'stoked-ui': {
+        metadata: 'Stoked UI',
         name: 'Stoked UI',
       },
     };
 
     return {
-      ...productMap[productId],
+      ...productMap[productId ?? 'stoked-ui'],
       versions: [
         {
           text: 'v1 (next)',
