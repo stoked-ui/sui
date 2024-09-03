@@ -40,7 +40,7 @@ export function HomeView({ HomeMain}: { HomeMain: React.ComponentType }){
             '@context': 'https://schema.org',
             '@type': 'Organization',
             name: 'Stoked UI',
-            url: 'https://stokedconsulting.com/',
+            url: 'https://stokedconsulting.com',
             logo: 'https://stokedconsulting.com/static/logo.png',
             sameAs: ['https://x.com/MUI_hq', 'https://github.com/mui/', 'https://opencollective.com/mui-org',],
           }),
