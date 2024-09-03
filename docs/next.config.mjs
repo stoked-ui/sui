@@ -42,7 +42,6 @@ export default withDocsInfra({
   assetPrefix,
   basePath,
   webpack: (config, options) => {
-    console.log('options', options);
     const plugins = config.plugins.slice();
     if (process.env.DOCS_STATS_ENABLED) {
       plugins.push(
