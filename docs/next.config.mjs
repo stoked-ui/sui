@@ -44,7 +44,6 @@ export default withDocsInfra({
   webpack: (config, options) => {
     console.log('options', options);
     const plugins = config.plugins.slice();
-
     if (process.env.DOCS_STATS_ENABLED) {
       plugins.push(
         // For all options see https://github.com/th0r/webpack-bundle-analyzer#as-plugin
