@@ -164,7 +164,6 @@ export const File = React.forwardRef(function File(
   };
 
   if (status.dndState !== 'idle') {
-    // console.log('status', status.dndState);
   } // const iconProps = getIconContainerProps();
   const InnerContent: React.ReactNode = (
     <div className={'target-label'} style={{overflow: 'hidden'}}>
