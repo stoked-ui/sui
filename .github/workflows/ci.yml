@@ -48,10 +48,10 @@ jobs:
           pnpm release:tag --dryRun
       - name: build site
         run: pnpm -F stokedui-com build:clean
-        if: ${{ matrix.os == 'ubuntu-latest' }}
+        if: ${{ matrix.os == 'ubuntu-latest' && (github.head_ref || github.ref_name) == 'main' }}
       - name: send export to s3 sync
         uses: actions/upload-artifact@master
-        if: ${{ matrix.os == 'ubuntu-latest' }}
+        if: ${{ matrix.os == 'ubuntu-latest' && (github.head_ref || github.ref_name) == 'main' }}
         with:
           name: main-build
           path: /home/runner/work/mono/mono/docs/export
