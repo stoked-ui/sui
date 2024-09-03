@@ -38,7 +38,7 @@ async function getBranches() {
 
 Page.getInitialProps = async () => {
   try {
-    const FILTERED_BRANCHES = ['latest', 'l10n', 'next', 'migration', 'material-ui.com'];
+    const FILTERED_BRANCHES = ['main', 'l10n', 'next', 'migration', 'material-ui.com'];
 
     const branches = await getBranches();
     /**
@@ -47,7 +47,7 @@ Page.getInitialProps = async () => {
     const versions = [];
     if (branches.length) {
       branches.forEach((branch) => {
-        if (FILTERED_BRANCHES.indexOf(branch?.name) === -1) {
+        if (FILTERED_BRANCHES.indexOf(branch?.name) === -1 ) {
           const version = branch?.name;
           versions.push({
             version,
