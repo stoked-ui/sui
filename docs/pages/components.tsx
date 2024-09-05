@@ -6,22 +6,22 @@ import ListItemButton from '@mui/material/ListItemButton';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import KeyboardArrowRightRounded from '@mui/icons-material/KeyboardArrowRightRounded';
-import Head from 'docs/src/modules/components/Head';
-import AppHeader from 'docs/src/layouts/AppHeader';
+import Head from '@stoked-ui/docs/components/Head';
+import AppHeader from '@stoked-ui//AppHeader';
 import AppFooter from 'docs/src/layouts/AppFooter';
 import BrandingCssVarsProvider from 'docs/src/BrandingCssVarsProvider';
 import Section from 'docs/src/layouts/Section';
 import { pageToTitleI18n } from 'docs/src/modules/utils/helpers';
 import { useTranslate } from '@mui/docs/i18n';
 import { Link } from '@mui/docs/Link';
-import type { MuiPage } from 'docs/src/MuiPage';
+import type SuiPage from '@stoked-ui/docs/SuiPage/SuiPage';
 import materialPages from '../data/pages';
 
 export default function Components() {
   const t = useTranslate();
   const pages = materialPages;
   const componentPageData = pages.find(({ title }) => title === 'Components');
-  function renderItem(aPage: MuiPage) {
+  function renderItem(aPage: SuiPage) {
     return (
       <ListItem key={aPage.pathname} disablePadding>
         <ListItemButton

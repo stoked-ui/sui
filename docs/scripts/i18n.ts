@@ -3,7 +3,7 @@ import path from 'path';
 import fse from 'fs-extra';
 import { pageToTitle } from 'docs/src/modules/utils/helpers';
 import stokedUiPages from 'docs/data/pages';
-import { MuiPage } from 'docs/src/MuiPage';
+import SuiPage from '@stoked-ui/docs/SuiPage/SuiPage';
 
 const EXCLUDES = ['/api', '/blog', '/x/react-'];
 
@@ -17,9 +17,9 @@ async function run() {
   output.pages = {};
 
   /**
-   * @param {readonly import('docs/src/MuiPage').MuiPage[]} pages
+   * @param {readonly import('@stoked-ui/docs/SuiPage/SuiPage').SuiPage[]} pages
    */
-  const traverse = (pages: MuiPage[]) => {
+  const traverse = (pages: SuiPage[]) => {
     pages.forEach((page) => {
       if (
         (page.pathname !== '/' && page.pathname === '/api-docs') ||

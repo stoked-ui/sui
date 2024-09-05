@@ -1,18 +1,18 @@
-import type { MuiPage } from 'docs/src/MuiPage';
+import type SuiPage from '@stoked-ui/docs/SuiPage/SuiPage';
 
 export default function findActivePage(
-  currentPages: MuiPage[],
+  currentPages: SuiPage[],
   currentPathname: string,
-): { activePage: MuiPage | null; activePageParents: MuiPage[] } {
-  const map: Record<string, MuiPage> = {};
-  const mapParent: Record<string, MuiPage> = {};
+): { activePage: SuiPage | null; activePageParents: SuiPage[] } {
+  const map: Record<string, SuiPage> = {};
+  const mapParent: Record<string, SuiPage> = {};
 
   const pathname = currentPathname
     .replace('/[docsTab]', '')
     .replace('components-api', '')
     .replace('hooks-api', '');
 
-  const traverse = (parent: MuiPage) => {
+  const traverse = (parent: SuiPage) => {
     (parent.children || []).forEach((child) => {
       const childPathname = child.pathname
         .replace('/[docsTab]', '')

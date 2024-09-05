@@ -6,10 +6,10 @@ import {
   PaletteColorOptions,
 } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import { NextNProgressBar } from 'docs/src/modules/components/AppFrame';
+import { NextNProgressBar } from '@stoked-ui/docs/components/AppFrame';
 import { getDesignTokens, getThemedComponents } from '@mui/docs/branding';
-import SkipLink from 'docs/src/modules/components/SkipLink';
-import MarkdownLinks from 'docs/src/modules/components/MarkdownLinks';
+import SkipLink from '@stoked-ui/docs/components/SkipLink';
+import MarkdownLinks from '@stoked-ui/docs/Markdown/MarkdownLinks';
 
 declare module '@mui/material/styles' {
   interface PaletteOptions {

@@ -1,59 +1,68 @@
+import fs from 'fs';
 import { pathnameToLanguage } from 'docs/src/modules/utils/helpers';
+import { TProduct } from "@stoked-ui/docs";
 
-export type MuiProductId =
-  | 'null'
-  | 'base-ui'
-  | 'material-ui'
-  | 'joy-ui'
-  | 'system'
-  | 'docs-infra'
-  | 'docs'
-  | 'x-data-grid'
-  | 'x-date-pickers'
-  | 'x-charts'
-  | 'x-tree-view'
-  | 'toolpad-studio'
-  | 'toolpad-core';
+const SuiProductIds = [
+  'null',
+  'media-selector',
+  'file-selector',
+  'timeline',
+  'editor',
+  'docs',
+];
 
-type MuiProductCategoryId = 'toolpad' | 'null' | 'core' | 'x';
+export const pkgProducts = SuiProductIds.filter(id => id !== 'null').reduce((acc, productId) => {
+  const pkg = JSON.parse(fs.readFileSync(`packages/sui-${productId}/package.json`, 'utf8'));
+  acc[productId] = pkg?.product ?? {};
+  return acc;
+}, {} as Record<string, TProduct>);
 
-interface MuiProductInfo {
-  productId: MuiProductId;
-  productCategoryId: MuiProductCategoryId;
+export type SuiProductId = typeof SuiProductIds[number];
+
+type SuiProductCategoryId = 'null' | 'core' | 'utility';
+
+interface SuiProductInfo {
+  productId: SuiProductId;
+  productCategoryId: SuiProductCategoryId;
+  product?: TProduct
 }
 
 // This is a fallback logic to define the productId and productCategoryId of the page.
 // Markdown pages can override this value when the URL patterns they follow are a bit strange,
 // which should stay the rare exception.
-export default function getProductInfoFromUrl(asPath: string): MuiProductInfo {
+export default function getProductInfoFromUrl(asPath: string): SuiProductInfo {
   const asPathWithoutLang = pathnameToLanguage(asPath).canonicalAsServer;
   const firstFolder = asPathWithoutLang.replace(/^\/+([^/]+)\/.*/, '$1');
-  console.log('firstFolder', firstFolder);
+
+  // eslint-disable-next-line global-require
+  const product = pkgProducts[firstFolder];
+  product.metadata = 'Stoked UI';
+
   // When serialized undefined/null are the same, so we encode null as 'null' to be
   // able to differentiate when the value isn't set vs. set to the right null value.
   let productCategoryId = 'null';
   let productId = 'null';
 
-  if (['stoked-ui', 'file-explorer', 'media-selector', 'timeline', 'editor', 'core', 'versions'].indexOf(firstFolder) !== -1) {
+  if (['stoked-ui', 'file-explorer', 'media-selector', 'timeline', 'editor', ].indexOf(firstFolder) !== -1) {
     productCategoryId = 'core';
     productId = firstFolder;
   }
 
-  if (firstFolder === 'docs') {
+  if (['versions', 'production-error', 'docs', '/experiments/docs/' ].indexOf(firstFolder) !== -1) {
+    productCategoryId = 'utility';
     productId = firstFolder;
-  }
-
-  // TODO remove, legacy
-  if (firstFolder === 'versions' || firstFolder === 'production-error') {
-    productId = 'docs';
+    product.metadata = 'Docs';
   }
 
   if (asPathWithoutLang.startsWith('/experiments/docs/')) {
-    productId = 'docs-infra';
+    productCategoryId = 'utility';
+    productId = 'docs';
+    product.metadata = 'Docs';
   }
 
   return {
     productCategoryId,
     productId,
-  } as MuiProductInfo;
+    product,
+  } as SuiProductInfo;
 }

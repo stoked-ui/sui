@@ -22,7 +22,7 @@ import IconImage from 'docs/src/components/icon/IconImage';
 import BrandingCssVarsProvider from 'docs/src/BrandingCssVarsProvider';
 import Section from 'docs/src/layouts/Section';
 import SectionHeadline from 'docs/src/components/typography/SectionHeadline';
-import Head from 'docs/src/modules/components/Head';
+import Head from '@stoked-ui/docs/components/Head';
 import ROUTES from 'docs/src/route';
 import AppHeaderBanner from 'docs/src/components/banner/AppHeaderBanner';
 

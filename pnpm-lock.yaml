@@ -47,7 +47,7 @@ importers:
         version: 8.0.1
       google-auth-library:
         specifier: ^9.7.0
-        version: 9.14.0(encoding@0.1.13)
+        version: 9.14.1(encoding@0.1.13)
     devDependencies:
       '@argos-ci/core':
         specifier: ^1.5.5
@@ -138,10 +138,10 @@ importers:
         version: link:packages-internal/docs-utils
       '@stoked-ui/editor':
         specifier: workspace:^
-        version: link:packages/sui-editor/build
+        version: link:packages/sui-editor/build/build
       '@stoked-ui/file-explorer':
         specifier: workspace:^
-        version: link:packages/sui-file-explorer/build
+        version: link:packages/sui-file-explorer/build/build
       '@stoked-ui/internal-api-docs-builder':
         specifier: workspace:^
         version: link:packages-internal/api-docs-builder
@@ -150,13 +150,13 @@ importers:
         version: link:packages-internal/test-utils
       '@stoked-ui/media-selector':
         specifier: workspace:^
-        version: link:packages/sui-media-selector/build
+        version: link:packages/sui-media-selector/build/build
       '@stoked-ui/proptypes':
         specifier: workspace:^
         version: link:packages-internal/proptypes
       '@stoked-ui/timeline':
         specifier: workspace:^
-        version: link:packages/sui-timeline/build
+        version: link:packages/sui-timeline/build/build
       '@types/autosuggest-highlight':
         specifier: ^3.2.3
         version: 3.2.3
@@ -237,19 +237,19 @@ importers:
         version: 8.57.0
       eslint-config-airbnb:
         specifier: ^19.0.4
-        version: 19.0.4(eslint-plugin-import@2.29.1(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-webpack@0.13.8)(eslint@8.57.0))(eslint-plugin-jsx-a11y@6.9.0(eslint@8.57.0))(eslint-plugin-react-hooks@4.6.2(eslint@8.57.0))(eslint-plugin-react@7.35.1(eslint@8.57.0))(eslint@8.57.0)
+        version: 19.0.4(eslint-plugin-import@2.30.0(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-webpack@0.13.9)(eslint@8.57.0))(eslint-plugin-jsx-a11y@6.9.0(eslint@8.57.0))(eslint-plugin-react-hooks@4.6.2(eslint@8.57.0))(eslint-plugin-react@7.35.2(eslint@8.57.0))(eslint@8.57.0)
       eslint-config-airbnb-base:
         specifier: ^15.0.0
-        version: 15.0.0(eslint-plugin-import@2.29.1(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-webpack@0.13.8)(eslint@8.57.0))(eslint@8.57.0)
+        version: 15.0.0(eslint-plugin-import@2.30.0(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-webpack@0.13.9)(eslint@8.57.0))(eslint@8.57.0)
       eslint-config-airbnb-typescript:
         specifier: ^17.1.0
-        version: 17.1.0(@typescript-eslint/eslint-plugin@6.21.0(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))(eslint@8.57.0)(typescript@5.4.5))(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))(eslint-plugin-import@2.29.1(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-webpack@0.13.8)(eslint@8.57.0))(eslint@8.57.0)
+        version: 17.1.0(@typescript-eslint/eslint-plugin@6.21.0(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))(eslint@8.57.0)(typescript@5.4.5))(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))(eslint-plugin-import@2.30.0(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-webpack@0.13.9)(eslint@8.57.0))(eslint@8.57.0)
       eslint-config-prettier:
         specifier: ^9.1.0
         version: 9.1.0(eslint@8.57.0)
       eslint-import-resolver-webpack:
         specifier: ^0.13.8
-        version: 0.13.8(eslint-plugin-import@2.29.1)(webpack@5.94.0(esbuild@0.23.1)(webpack-cli@5.1.4))
+        version: 0.13.9(eslint-plugin-import@2.30.0)(webpack@5.94.0(esbuild@0.23.1)(webpack-cli@5.1.4))
       eslint-plugin-babel:
         specifier: ^5.3.1
         version: 5.3.1(eslint@8.57.0)
@@ -258,7 +258,7 @@ importers:
         version: 1.3.2(eslint@8.57.0)
       eslint-plugin-import:
         specifier: ^2.29.1
-        version: 2.29.1(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-webpack@0.13.8)(eslint@8.57.0)
+        version: 2.30.0(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-webpack@0.13.9)(eslint@8.57.0)
       eslint-plugin-jsx-a11y:
         specifier: ^6.7.1
         version: 6.9.0(eslint@8.57.0)
@@ -267,7 +267,7 @@ importers:
         version: 10.5.0(eslint@8.57.0)
       eslint-plugin-react:
         specifier: ^7.34.1
-        version: 7.35.1(eslint@8.57.0)
+        version: 7.35.2(eslint@8.57.0)
       eslint-plugin-react-hooks:
         specifier: ^4.6.0
         version: 4.6.2(eslint@8.57.0)
@@ -363,7 +363,7 @@ importers:
         version: 5.3.10(esbuild@0.23.1)(webpack@5.94.0(esbuild@0.23.1)(webpack-cli@5.1.4))
       tsup:
         specifier: ^8.0.2
-        version: 8.2.4(jiti@1.21.6)(postcss@8.4.44)(tsx@4.19.0)(typescript@5.4.5)(yaml@2.5.0)
+        version: 8.2.4(jiti@1.21.6)(postcss@8.4.44)(tsx@4.19.0)(typescript@5.4.5)(yaml@2.5.1)
       tsx:
         specifier: ^4.7.1
         version: 4.19.0
@@ -480,7 +480,7 @@ importers:
         version: 7.25.6
       '@docsearch/react':
         specifier: ^3.6.0
-        version: 3.6.1(@algolia/client-search@4.24.0)(@types/react@18.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.0)
+        version: 3.6.1(@algolia/client-search@4.24.0)(@types/react@18.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.1)
       '@emotion/cache':
         specifier: ^11.11.0
         version: 11.13.1
@@ -528,7 +528,7 @@ importers:
         version: 5.16.6(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@emotion/styled@11.13.0(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react@18.3.1))(react@18.3.1)
       '@mui/styled-engine-sc':
         specifier: ^6.0.0-alpha.18
-        version: 6.0.1(styled-components@6.1.13(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
+        version: 6.0.2(styled-components@6.1.13(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       '@mui/styles':
         specifier: ^5.15.21
         version: 5.16.7(@types/react@18.3.5)(react@18.3.1)
@@ -570,16 +570,16 @@ importers:
         version: link:../packages-internal/markdown
       '@stoked-ui/editor':
         specifier: workspace:^
-        version: link:../packages/sui-editor/build
+        version: link:../packages/sui-editor/build/build
       '@stoked-ui/file-explorer':
         specifier: workspace:^
-        version: link:../packages/sui-file-explorer/build
+        version: link:../packages/sui-file-explorer/build/build
       '@stoked-ui/media-selector':
         specifier: workspace:^
-        version: link:../packages/sui-media-selector/build
+        version: link:../packages/sui-media-selector/build/build
       '@stoked-ui/timeline':
         specifier: workspace:^
-        version: link:../packages/sui-timeline/build
+        version: link:../packages/sui-timeline/build/build
       autoprefixer:
         specifier: ^10.4.18
         version: 10.4.20(postcss@8.4.44)
@@ -961,7 +961,7 @@ importers:
     optionalDependencies:
       aws-sdk:
         specifier: ^2.1579.0
-        version: 2.1687.0
+        version: 2.1688.0
     devDependencies:
       claudia:
         specifier: ^5.14.1
@@ -1241,12 +1241,21 @@ importers:
       '@babel/runtime':
         specifier: ^7.23.9
         version: 7.25.6
-      '@mui/base':
-        specifier: '*'
-        version: 5.0.0-beta.40(@types/react@18.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@mui/system':
-        specifier: ^5.0.0
-        version: 5.16.7(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@emotion/styled@11.13.0(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react@18.3.1)
+      '@emotion/react':
+        specifier: ^11.9.0
+        version: 11.13.3(@types/react@18.3.5)(react@18.3.1)
+      '@emotion/styled':
+        specifier: ^11.8.1
+        version: 11.13.0(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react@18.3.1)
+      '@mui/icons-material':
+        specifier: ^5.15.21
+        version: 5.15.21(@mui/material@5.16.7(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@emotion/styled@11.13.0(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.5)(react@18.3.1)
+      '@mui/material':
+        specifier: ^5.15.21
+        version: 5.16.7(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@emotion/styled@11.13.0(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@stoked-ui/docs-utils':
+        specifier: workspace:^
+        version: link:../../packages-internal/docs-utils
       clsx:
         specifier: ^2.1.0
         version: 2.1.1
@@ -1257,24 +1266,30 @@ importers:
         specifier: ^15.8.1
         version: 15.8.1
     devDependencies:
-      '@mui/icons-material':
-        specifier: ^5.15.21
-        version: 5.15.21(@mui/material@5.16.7(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@emotion/styled@11.13.0(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.5)(react@18.3.1)
-      '@mui/material':
-        specifier: ^5.15.21
-        version: 5.16.7(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@emotion/styled@11.13.0(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@mui/base':
+        specifier: ^5.0.0-beta.40
+        version: 5.0.0-beta.40(@types/react@18.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@mui/styled-engine':
+        specifier: ^5.15.14
+        version: 5.16.6(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@emotion/styled@11.13.0(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react@18.3.1))(react@18.3.1)
+      '@mui/system':
+        specifier: ^5.16.0
+        version: 5.16.7(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@emotion/styled@11.13.0(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react@18.3.1)
+      '@mui/utils':
+        specifier: ^5.16.0
+        version: 5.16.6(@types/react@18.3.5)(react@18.3.1)
       '@stoked-ui/editor':
         specifier: workspace:^
-        version: link:../sui-editor/build
+        version: link:../sui-editor/build/build
       '@stoked-ui/file-explorer':
         specifier: workspace:^
-        version: link:../sui-file-explorer/build
+        version: link:../sui-file-explorer/build/build
       '@stoked-ui/media-selector':
         specifier: workspace:^
-        version: link:../sui-media-selector/build
+        version: link:../sui-media-selector/build/build
       '@stoked-ui/timeline':
         specifier: workspace:^
-        version: link:../sui-timeline/build
+        version: link:../sui-timeline/build/build
       '@types/node':
         specifier: ^18.19.25
         version: 18.19.48
@@ -1324,6 +1339,9 @@ importers:
       '@mui/material':
         specifier: ^5.15.21
         version: 5.16.7(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@emotion/styled@11.13.0(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@mui/styled-engine':
+        specifier: ^5.15.14
+        version: 5.16.6(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@emotion/styled@11.13.0(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react@18.3.1))(react@18.3.1)
       '@mui/system':
         specifier: ^5.16.0
         version: 5.16.7(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@emotion/styled@11.13.0(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react@18.3.1)
@@ -1363,16 +1381,16 @@ importers:
     devDependencies:
       '@stoked-ui/file-explorer':
         specifier: workspace:^
-        version: link:../sui-file-explorer/build
+        version: link:../sui-file-explorer/build/build
       '@stoked-ui/internal-test-utils':
         specifier: workspace:^
         version: link:../../packages-internal/test-utils
       '@stoked-ui/media-selector':
         specifier: workspace:^
-        version: link:../sui-media-selector/build
+        version: link:../sui-media-selector/build/build
       '@stoked-ui/timeline':
         specifier: workspace:^
-        version: link:../sui-timeline/build
+        version: link:../sui-timeline/build/build
       '@types/chai':
         specifier: ^4.3.17
         version: 4.3.19
@@ -1395,6 +1413,104 @@ importers:
         specifier: ^29.2.3
         version: 29.2.5(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(esbuild@0.23.1)(jest@29.7.0(@types/node@18.19.48)(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@types/node@18.19.48)(typescript@5.4.5)))(typescript@5.4.5)
     publishDirectory: build
+
+  packages/sui-editor/build:
+    dependencies:
+      '@atlaskit/pragmatic-drag-and-drop':
+        specifier: ^1.2.1
+        version: 1.3.0
+      '@atlaskit/pragmatic-drag-and-drop-flourish':
+        specifier: ^1.1.0
+        version: 1.1.1(@types/react@18.3.5)(react@18.3.1)
+      '@atlaskit/pragmatic-drag-and-drop-hitbox':
+        specifier: ^1.0.3
+        version: 1.0.3
+      '@atlaskit/pragmatic-drag-and-drop-react-drop-indicator':
+        specifier: ^1.1.1
+        version: 1.1.2(@types/react@18.3.5)(react@18.3.1)
+      '@babel/runtime':
+        specifier: ^7.23.9
+        version: 7.25.6
+      '@emotion/react':
+        specifier: ^11.9.0
+        version: 11.13.3(@types/react@18.3.5)(react@18.3.1)
+      '@emotion/styled':
+        specifier: ^11.8.1
+        version: 11.13.0(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react@18.3.1)
+      '@mui/base':
+        specifier: ^5.0.0-beta.40
+        version: 5.0.0-beta.40(@types/react@18.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@mui/icons-material':
+        specifier: ^5.15.21
+        version: 5.15.21(@mui/material@5.16.7(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@emotion/styled@11.13.0(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.5)(react@18.3.1)
+      '@mui/material':
+        specifier: ^5.15.21
+        version: 5.16.7(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@emotion/styled@11.13.0(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@mui/styled-engine':
+        specifier: ^5.15.14
+        version: 5.16.6(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@emotion/styled@11.13.0(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react@18.3.1))(react@18.3.1)
+      '@mui/system':
+        specifier: ^5.16.0
+        version: 5.16.7(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@emotion/styled@11.13.0(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react@18.3.1)
+      '@mui/utils':
+        specifier: ^5.16.0
+        version: 5.16.6(@types/react@18.3.5)(react@18.3.1)
+      '@react-spring/web':
+        specifier: ^9.7.3
+        version: 9.7.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@stoked-ui/file-explorer':
+        specifier: workspace:^
+        version: link:../../sui-file-explorer/build/build
+      '@stoked-ui/media-selector':
+        specifier: workspace:^
+        version: link:../../sui-media-selector/build/build
+      '@stoked-ui/timeline':
+        specifier: workspace:^
+        version: link:../../sui-timeline/build/build
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
+      dexie:
+        specifier: ^4.0.8
+        version: 4.0.8
+      dexie-react-hooks:
+        specifier: ^1.1.7
+        version: 1.1.7(@types/react@18.3.5)(dexie@4.0.8)(react@18.3.1)
+      memoize-one:
+        specifier: ^6.0.0
+        version: 6.0.0
+      prop-types:
+        specifier: ^15.8.1
+        version: 15.8.1
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
+      react-transition-group:
+        specifier: ^4.4.5
+        version: 4.4.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      tiny-invariant:
+        specifier: ^1.3.3
+        version: 1.3.3
+    publishDirectory: build
+
+  packages/sui-editor/build/Editor: {}
+
+  packages/sui-editor/build/EditorControls: {}
+
+  packages/sui-editor/build/EditorLabels: {}
+
+  packages/sui-editor/build/EditorView: {}
+
+  packages/sui-editor/build/hooks: {}
+
+  packages/sui-editor/build/internals: {}
+
+  packages/sui-editor/build/models: {}
+
+  packages/sui-editor/build/themeAugmentation: {}
 
   packages/sui-file-explorer:
     dependencies:
@@ -1439,7 +1555,7 @@ importers:
         version: 9.7.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@stoked-ui/media-selector':
         specifier: workspace:^
-        version: link:../sui-media-selector/build
+        version: link:../sui-media-selector/build/build
       '@types/chai':
         specifier: ^4.3.17
         version: 4.3.19
@@ -1488,6 +1604,101 @@ importers:
         version: 29.2.5(@babel/core@7.25.2)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.25.2))(esbuild@0.23.1)(jest@29.7.0(@types/node@18.19.48)(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@types/node@18.19.48)(typescript@5.4.5)))(typescript@5.4.5)
     publishDirectory: build
 
+  packages/sui-file-explorer/build:
+    dependencies:
+      '@atlaskit/pragmatic-drag-and-drop':
+        specifier: ^1.2.1
+        version: 1.3.0
+      '@atlaskit/pragmatic-drag-and-drop-flourish':
+        specifier: ^1.1.0
+        version: 1.1.1(@types/react@18.3.5)(react@18.3.1)
+      '@atlaskit/pragmatic-drag-and-drop-hitbox':
+        specifier: ^1.0.3
+        version: 1.0.3
+      '@atlaskit/pragmatic-drag-and-drop-react-drop-indicator':
+        specifier: ^1.1.1
+        version: 1.1.2(@types/react@18.3.5)(react@18.3.1)
+      '@babel/runtime':
+        specifier: ^7.23.9
+        version: 7.25.6
+      '@emotion/react':
+        specifier: ^11.9.0
+        version: 11.13.3(@types/react@18.3.5)(react@18.3.1)
+      '@emotion/styled':
+        specifier: ^11.8.1
+        version: 11.13.0(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react@18.3.1)
+      '@mui/base':
+        specifier: ^5.0.0-beta.40
+        version: 5.0.0-beta.40(@types/react@18.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@mui/icons-material':
+        specifier: ^5.15.21
+        version: 5.15.21(@mui/material@5.16.7(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@emotion/styled@11.13.0(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.5)(react@18.3.1)
+      '@mui/material':
+        specifier: ^5.15.21
+        version: 5.16.7(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@emotion/styled@11.13.0(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@mui/system':
+        specifier: ^5.15.20
+        version: 5.16.7(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@emotion/styled@11.13.0(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react@18.3.1)
+      '@mui/utils':
+        specifier: ^5.15.20
+        version: 5.16.6(@types/react@18.3.5)(react@18.3.1)
+      '@react-spring/web':
+        specifier: ^9.7.3
+        version: 9.7.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@stoked-ui/media-selector':
+        specifier: workspace:^
+        version: link:../../sui-media-selector/build/build
+      '@types/chai':
+        specifier: ^4.3.17
+        version: 4.3.19
+      '@types/react-transition-group':
+        specifier: ^4.4.10
+        version: 4.4.11
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
+      memoize-one:
+        specifier: ^6.0.0
+        version: 6.0.0
+      prop-types:
+        specifier: ^15.8.1
+        version: 15.8.1
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
+      react-transition-group:
+        specifier: ^4.4.5
+        version: 4.4.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      tiny-invariant:
+        specifier: ^1.3.3
+        version: 1.3.3
+    publishDirectory: build
+
+  packages/sui-file-explorer/build/File: {}
+
+  packages/sui-file-explorer/build/FileDropzone: {}
+
+  packages/sui-file-explorer/build/FileElement: {}
+
+  packages/sui-file-explorer/build/FileExplorer: {}
+
+  packages/sui-file-explorer/build/FileExplorerBasic: {}
+
+  packages/sui-file-explorer/build/hooks: {}
+
+  packages/sui-file-explorer/build/icons: {}
+
+  packages/sui-file-explorer/build/internals: {}
+
+  packages/sui-file-explorer/build/models: {}
+
+  packages/sui-file-explorer/build/themeAugmentation: {}
+
+  packages/sui-file-explorer/build/useFile: {}
+
   packages/sui-media-selector:
     dependencies:
       react:
@@ -1520,6 +1731,19 @@ importers:
         version: 5.4.5
     publishDirectory: build
 
+  packages/sui-media-selector/build:
+    dependencies:
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+    publishDirectory: build
+
+  packages/sui-media-selector/build/MediaFile: {}
+
+  packages/sui-media-selector/build/namedId: {}
+
+  packages/sui-media-selector/build/useIncId: {}
+
   packages/sui-timeline:
     dependencies:
       '@interactjs/types':
@@ -1533,7 +1757,7 @@ importers:
         version: 5.16.7(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@emotion/styled@11.13.0(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react@18.3.1)
       '@stoked-ui/media-selector':
         specifier: workspace:^
-        version: link:../sui-media-selector/build
+        version: link:../sui-media-selector/build/build
       '@types/react-virtualized':
         specifier: ^9.21.14
         version: 9.21.30
@@ -1600,6 +1824,60 @@ importers:
         version: 2.0.0
     publishDirectory: build
 
+  packages/sui-timeline/build:
+    dependencies:
+      '@emotion/react':
+        specifier: ^11.9.0
+        version: 11.13.3(@types/react@18.3.5)(react@18.3.1)
+      '@emotion/styled':
+        specifier: ^11.8.1
+        version: 11.13.0(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react@18.3.1)
+      '@interactjs/types':
+        specifier: ^1.10.11
+        version: 1.10.27
+      '@mui/icons-material':
+        specifier: ^5.15.21
+        version: 5.15.21(@mui/material@5.16.7(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@emotion/styled@11.13.0(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.5)(react@18.3.1)
+      '@mui/material':
+        specifier: ^5.15.21
+        version: 5.16.7(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@emotion/styled@11.13.0(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@mui/system':
+        specifier: ^5
+        version: 5.16.7(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@emotion/styled@11.13.0(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react@18.3.1)
+      '@stoked-ui/media-selector':
+        specifier: workspace:^
+        version: link:../../sui-media-selector/build/build
+      '@types/react-virtualized':
+        specifier: ^9.21.14
+        version: 9.21.30
+      framework-utils:
+        specifier: ^1.1.0
+        version: 1.1.0
+      interactjs:
+        specifier: ^1.10.11
+        version: 1.10.27
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
+      react-scroll-sync:
+        specifier: ^0.11.2
+        version: 0.11.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-virtualized:
+        specifier: ^9.22.3
+        version: 9.22.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+    publishDirectory: build
+
+  packages/sui-timeline/build/Timeline: {}
+
+  packages/sui-timeline/build/TimelineAction: {}
+
+  packages/sui-timeline/build/TimelinePlayer: {}
+
+  packages/sui-timeline/build/themeAugmentation: {}
+
   test:
     devDependencies:
       '@babel/runtime':
@@ -1640,7 +1918,7 @@ importers:
         version: 5.16.6(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@emotion/styled@11.13.0(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react@18.3.1))(react@18.3.1)
       '@mui/styled-engine-sc':
         specifier: ^6.0.0-alpha.18
-        version: 6.0.1(styled-components@6.1.13(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
+        version: 6.0.2(styled-components@6.1.13(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       '@mui/styles':
         specifier: ^5.15.21
         version: 5.16.7(@types/react@18.3.5)(react@18.3.1)
@@ -3259,8 +3537,8 @@ packages:
       '@types/react':
         optional: true
 
-  '@mui/internal-markdown@1.0.11':
-    resolution: {integrity: sha512-eKinbHo+/qlNkpuvnG0w7eBZApWM10DcNSK909aPv2AaWgAJ6ObCjcbpNCf8OfLb92xQrNcHFBVhEWcsddwflg==}
+  '@mui/internal-markdown@1.0.12':
+    resolution: {integrity: sha512-nr7j8PR+Gi0IL/ygf6/Qczb+/96drEVTOKPSRE7xTQaAWVefsCUDagN5UXaiW89iVAMLCGqup8Pzvxe5mE9Erw==}
 
   '@mui/joy@5.0.0-beta.48':
     resolution: {integrity: sha512-OhTvjuGl9I5IvpBr0BQyDehIW/xb2yteW6YglHJMdOb/279nItn76X1NBtPV9ImldNlBjReGwvpOXmBTTGER9w==}
@@ -3342,8 +3620,8 @@ packages:
       '@types/react':
         optional: true
 
-  '@mui/styled-engine-sc@6.0.1':
-    resolution: {integrity: sha512-cZJaDVQoIUB+glxZaroAceAyu2wpkD7hZCQEmNwfGERUt/eJCt4SnWcIenQyDpbhwJRlJTz3p8+LOyM4WzHcjQ==}
+  '@mui/styled-engine-sc@6.0.2':
+    resolution: {integrity: sha512-xlhx8GV8zM06FQARDKLs5iX40JTwx38Uj74wiQMwcz11NOhsMsUiMa+jMtHYiKDyR+rFG/ooQxT6j9wAc2sejA==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       styled-components: ^6.0.0
@@ -3662,15 +3940,15 @@ packages:
     resolution: {integrity: sha512-y7efHHwghQfk28G2z3tlZ67pLG0XdfYbcVG26r7YIXALRsrVQcTq4/tdenSmdOrEsNahIYA/eh8aEVROWGFUDg==}
     engines: {node: ^16.14.0 || >=18.0.0}
 
-  '@nrwl/devkit@19.6.4':
-    resolution: {integrity: sha512-jpr+T5/+21W/fwAMB6zDLZKO+ReYAfOOMIeM8CpeBi/r9nWmjGXaXN9YKwEOYS1fath62Y5ldGK4yZUttv1tkw==}
+  '@nrwl/devkit@19.6.5':
+    resolution: {integrity: sha512-KaQeVyYaWBQwQSITtumPvx+P7IpKFReETx4gLTcOpQ/a3QD/AZFGbNjiG+xDLbgo1FDh9dRt9k7eWhGk6oPWKQ==}
 
   '@nrwl/tao@17.3.2':
     resolution: {integrity: sha512-5uvpSmij0J9tteFV/0M/024K+H/o3XAlqtSdU8j03Auj1IleclSLF2yCTuIo7pYXhG3cgx1+nR+3nMs1QVAdUA==}
     hasBin: true
 
-  '@nx/devkit@19.6.4':
-    resolution: {integrity: sha512-mBitFwb/gcz8MR7STt7KQG0vf+QcsasDXiSYcf3OWpc6lGE5wn1q5jg6Iabp49Bd/mdHXVLQnP1aV5A+QqFIOQ==}
+  '@nx/devkit@19.6.5':
+    resolution: {integrity: sha512-AEaMSr55Ar48QHU8TBi/gzLtjeT100zdyfLmk0RoiLzjjC8pWmm3Xfvqxyt1WsUUf4oQhlHlolJuoM41qKsdZw==}
     peerDependencies:
       nx: '>= 17 <= 20'
 
@@ -4170,6 +4448,9 @@ packages:
     resolution: {integrity: sha512-6UUxd0+SKomjdzuAcp+HAmxw1FlGBnl1v2yEPSabtx4lBfdXHDVsW7+lQkgz9cNFJGY3AWR7+V8P5BqkD9L9nA==}
     cpu: [x64]
     os: [win32]
+
+  '@rtsao/scc@1.1.0':
+    resolution: {integrity: sha512-zt6OdqaDoOnJ1ZYsCYGt9YmWzDXl4vQdKTyJev62gFhRGKdx7mcT54V9KIjg+d2wi9EXsPvAPKe7i7WjfVWB8g==}
 
   '@sideway/address@4.1.5':
     resolution: {integrity: sha512-IqO/DUQHUkPeixNQ8n0JA6102hT9CmaljNTPmQ1u8MEhBo/R4Q8eKLN/vGZxuebwOroDB4cbpjheD4+/sKFK4Q==}
@@ -5175,8 +5456,8 @@ packages:
     resolution: {integrity: sha512-wvUjBtSGN7+7SjNpq/9M2Tg350UZD3q62IFZLbRAR1bSMlCo1ZaeW+BJ+D090e4hIIZLBcTDWe4Mh4jvUDajzQ==}
     engines: {node: '>= 0.4'}
 
-  aws-sdk@2.1687.0:
-    resolution: {integrity: sha512-Pk7RbIxJ8yDmFJRKzaapiUsAvz5cTPKCz7soomU+lASx1jvO29Z9KAPB6KJR22m7rDDMO/HNNN9OJRzfdvh7xQ==}
+  aws-sdk@2.1688.0:
+    resolution: {integrity: sha512-L7AWt2+09uDQQfNRUaxvKEM+qHJdwBOln7xiMZg1kE1iNSGSQlwDPGYSFXwdMJDKJkeitJvhFrDhxon3cQ3ppA==}
     engines: {node: '>= 10.0.0'}
 
   axe-core@4.10.0:
@@ -5290,8 +5571,8 @@ packages:
   bare-path@2.1.3:
     resolution: {integrity: sha512-lh/eITfU8hrj9Ru5quUp0Io1kJWIk1bTjzo7JH1P5dWmQ2EL4hFUlfI8FonAhSlgIfhn63p84CDY/x+PisgcXA==}
 
-  bare-stream@2.2.0:
-    resolution: {integrity: sha512-+o9MG5bPRRBlkVSpfFlMag3n7wMaIZb4YZasU2+/96f+3HTQ4F9DKQeu3K/Sjz1W0umu6xvVq1ON0ipWdMlr3A==}
+  bare-stream@2.2.1:
+    resolution: {integrity: sha512-YTB47kHwBW9zSG8LD77MIBAAQXjU2WjAkMHeeb7hUplVs6+IoM5I7uEVQNPMB7lj9r8I76UMdoMkGnCodHOLqg==}
 
   base64-js@1.5.1:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
@@ -6648,15 +6929,15 @@ packages:
   eslint-import-resolver-node@0.3.9:
     resolution: {integrity: sha512-WFj2isz22JahUv+B788TlO3N6zL3nNJGU8CcZbPZvVEkBPaJdCV4vy5wyghty5ROFbCRnm132v8BScu5/1BQ8g==}
 
-  eslint-import-resolver-webpack@0.13.8:
-    resolution: {integrity: sha512-Y7WIaXWV+Q21Rz/PJgUxiW/FTBOWmU8NTLdz+nz9mMoiz5vAev/fOaQxwD7qRzTfE3HSm1qsxZ5uRd7eX+VEtA==}
+  eslint-import-resolver-webpack@0.13.9:
+    resolution: {integrity: sha512-yGngeefNiHXau2yzKKs2BNON4HLpxBabY40BGL/vUSKZtqzjlVsTTZm57jhHULhm+mJEwKsEIIN3NXup5AiiBQ==}
     engines: {node: '>= 6'}
     peerDependencies:
       eslint-plugin-import: '>=1.4.0'
       webpack: '>=1.11.0'
 
-  eslint-module-utils@2.8.2:
-    resolution: {integrity: sha512-3XnC5fDyc8M4J2E8pt8pmSVRX2M+5yWMCfI/kDZwauQeFgzQOuhcRBFKjTeJagqgk4sFKxe1mvNVnaWwImx/Tg==}
+  eslint-module-utils@2.9.0:
+    resolution: {integrity: sha512-McVbYmwA3NEKwRQY5g4aWMdcZE5xZxV8i8l7CqJSrameuGSQJtSWaL/LxTEzSKKaCcOhlpDR8XEfYXWPrdo/ZQ==}
     engines: {node: '>=4'}
     peerDependencies:
       '@typescript-eslint/parser': '*'
@@ -6687,8 +6968,8 @@ packages:
     peerDependencies:
       eslint: '*'
 
-  eslint-plugin-import@2.29.1:
-    resolution: {integrity: sha512-BbPC0cuExzhiMo4Ff1BTVwHpjjv28C5R+btTOGaCRC7UEz801up0JadwkeSk5Ued6TG34uaczuVuH6qyy5YUxw==}
+  eslint-plugin-import@2.30.0:
+    resolution: {integrity: sha512-/mHNE9jINJfiD2EKkg1BKyPyUk4zdnT54YgbOgfjSakWT5oyX/qQLVNTkehyfpcMxZXMy1zyonZ2v7hZTX43Yw==}
     engines: {node: '>=4'}
     peerDependencies:
       '@typescript-eslint/parser': '*'
@@ -6720,8 +7001,8 @@ packages:
     peerDependencies:
       eslint: '>=7'
 
-  eslint-plugin-react@7.35.1:
-    resolution: {integrity: sha512-B5ok2JgbaaWn/zXbKCGgKDNL2tsID3Pd/c/yvjcpsd9HQDwyYc/TQv3AZMmOvrJgCs3AnYNUHRCQEMMQAYJ7Yg==}
+  eslint-plugin-react@7.35.2:
+    resolution: {integrity: sha512-Rbj2R9zwP2GYNcIak4xoAMV57hrBh3hTaR0k7hVjwCQgryE/pw5px4b13EYjduOI0hfXyZhwBxaGpOTbWSGzKQ==}
     engines: {node: '>=4'}
     peerDependencies:
       eslint: ^3 || ^4 || ^5 || ^6 || ^7 || ^8 || ^9.7
@@ -6905,8 +7186,8 @@ packages:
   fast-url-parser@1.1.3:
     resolution: {integrity: sha512-5jOCVXADYNuRkKFzNJ0dCCewsZiYo0dz8QNYljkOpFC6r2U4OBmKtvm/Tsuh4w1YYdDqDb31a8TVhBJ2OJKdqQ==}
 
-  fast-xml-parser@4.4.1:
-    resolution: {integrity: sha512-xkjOecfnKGkSsOwtZ5Pz7Us/T6mrbPQrq0nh+aCO5V9nk5NLWmasAHumTKjiPJPWANe+kAZ84Jc8ooJkzZ88Sw==}
+  fast-xml-parser@4.5.0:
+    resolution: {integrity: sha512-/PlTQCI96+fZMAOLMZK4CWG1ItCbfZ/0jx7UIJFChPNrx7tcEgerUgWbeieCM9MfHInUDyK8DWYZ+YrywDJuTg==}
     hasBin: true
 
   fastest-levenshtein@1.0.16:
@@ -7032,8 +7313,8 @@ packages:
     resolution: {integrity: sha512-xUBkkpIDfDZHAebnDEX65FCVitJUctab82KFmtP5SY4cGly1vbuYNe6Muyp0NLXrgmBChVdoC2T+3/RUHi4Mww==}
     engines: {node: '>=0.4.0'}
 
-  follow-redirects@1.15.6:
-    resolution: {integrity: sha512-wWN62YITEaOpSK584EZXJafH1AGpO8RVgElfkuXbTOrPX4fIfOyEpW/CsiNd8JdYrAoOvafRTOEnvsO++qCqFA==}
+  follow-redirects@1.15.8:
+    resolution: {integrity: sha512-xgrmBhBToVKay1q2Tao5LI26B83UhrB/vM1avwVSDzt8rx3rO6AizBAaF46EgksTVr+rFTQaqZZ9MVBfUe4nig==}
     engines: {node: '>=4.0'}
     peerDependencies:
       debug: '*'
@@ -7336,8 +7617,8 @@ packages:
     peerDependencies:
       csstype: ^3.0.10
 
-  google-auth-library@9.14.0:
-    resolution: {integrity: sha512-Y/eq+RWVs55Io/anIsm24sDS8X79Tq948zVLGaa7+KlJYYqaGwp1YI37w48nzrNi12RgnzMrQD4NzdmCowT90g==}
+  google-auth-library@9.14.1:
+    resolution: {integrity: sha512-Rj+PMjoNFGFTmtItH7gHfbHpGVSb3vmnGK3nwNBqxQF9NoBpttSZI/rc0WiM63ma2uGDQtYEkMHkK9U6937NiA==}
     engines: {node: '>=14'}
 
   googleapis-common@7.2.0:
@@ -10735,8 +11016,8 @@ packages:
     resolution: {integrity: sha512-L0jRsrPpjdckP3oPug3/VxNKt2trR8TcabrM6FOAAlvC/9Phcmm+cuAgTlxBqdBR1WJx7Naj9WHw+aOmheSVbw==}
     engines: {node: '>= 12.13.0'}
 
-  search-insights@2.17.0:
-    resolution: {integrity: sha512-AskayU3QNsXQzSL6v4LTYST7NNfs2HWyHHB+sdORP9chsytAhro5XRfToAMI/LAVYgNbzowVZTMfBRodgbUHKg==}
+  search-insights@2.17.1:
+    resolution: {integrity: sha512-HHFjYH/0AqXacETlIbe9EYc3UNlQYGNNTY0fZ/sWl6SweX+GDxq9NB5+RVoPLgEFuOtCz7M9dhYxqDnhbbF0eQ==}
 
   selfsigned@2.4.1:
     resolution: {integrity: sha512-th5B4L2U+eGLq1TVh7zNRGBapioSORUeymIydxgFpwww9d2qyKvtuPU2jJuHvYAwwqi2Y596QBL3eEqcPEYL8Q==}
@@ -12137,8 +12418,8 @@ packages:
     resolution: {integrity: sha512-8aAvwVUSHpfEqTQ4w/KMlf3HcRdt50E5ODIQJBw1fQ5RL34xabzxtUlzTXVqc4rkZsPbvrXKWnABCD7kWSmocA==}
     engines: {node: '>= 14'}
 
-  yaml@2.5.0:
-    resolution: {integrity: sha512-2wWLbGbYDiSqqIKoPjar3MPgB94ErzCtrNE1FdqGuaO0pi2JGjmE8aW8TDZwzU7vuxcGRdL/4gPQwQ7hD5AMSw==}
+  yaml@2.5.1:
+    resolution: {integrity: sha512-bLQOjaX/ADgQ20isPJRvF0iRUHIxVhYvr53Of7wGcWlO2jvtUlH5m87DsmulFVxRpNLOnI4tB6p/oh8D7kpn9Q==}
     engines: {node: '>= 14'}
     hasBin: true
 
@@ -12211,19 +12492,19 @@ packages:
 
 snapshots:
 
-  '@algolia/autocomplete-core@1.9.3(@algolia/client-search@4.24.0)(algoliasearch@4.24.0)(search-insights@2.17.0)':
+  '@algolia/autocomplete-core@1.9.3(@algolia/client-search@4.24.0)(algoliasearch@4.24.0)(search-insights@2.17.1)':
     dependencies:
-      '@algolia/autocomplete-plugin-algolia-insights': 1.9.3(@algolia/client-search@4.24.0)(algoliasearch@4.24.0)(search-insights@2.17.0)
+      '@algolia/autocomplete-plugin-algolia-insights': 1.9.3(@algolia/client-search@4.24.0)(algoliasearch@4.24.0)(search-insights@2.17.1)
       '@algolia/autocomplete-shared': 1.9.3(@algolia/client-search@4.24.0)(algoliasearch@4.24.0)
     transitivePeerDependencies:
       - '@algolia/client-search'
       - algoliasearch
       - search-insights
 
-  '@algolia/autocomplete-plugin-algolia-insights@1.9.3(@algolia/client-search@4.24.0)(algoliasearch@4.24.0)(search-insights@2.17.0)':
+  '@algolia/autocomplete-plugin-algolia-insights@1.9.3(@algolia/client-search@4.24.0)(algoliasearch@4.24.0)(search-insights@2.17.1)':
     dependencies:
       '@algolia/autocomplete-shared': 1.9.3(@algolia/client-search@4.24.0)(algoliasearch@4.24.0)
-      search-insights: 2.17.0
+      search-insights: 2.17.1
     transitivePeerDependencies:
       - '@algolia/client-search'
       - algoliasearch
@@ -13489,9 +13770,9 @@ snapshots:
 
   '@docsearch/css@3.6.1': {}
 
-  '@docsearch/react@3.6.1(@algolia/client-search@4.24.0)(@types/react@18.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.0)':
+  '@docsearch/react@3.6.1(@algolia/client-search@4.24.0)(@types/react@18.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.1)':
     dependencies:
-      '@algolia/autocomplete-core': 1.9.3(@algolia/client-search@4.24.0)(algoliasearch@4.24.0)(search-insights@2.17.0)
+      '@algolia/autocomplete-core': 1.9.3(@algolia/client-search@4.24.0)(algoliasearch@4.24.0)(search-insights@2.17.1)
       '@algolia/autocomplete-preset-algolia': 1.9.3(@algolia/client-search@4.24.0)(algoliasearch@4.24.0)
       '@docsearch/css': 3.6.1
       algoliasearch: 4.24.0
@@ -13499,7 +13780,7 @@ snapshots:
       '@types/react': 18.3.5
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
-      search-insights: 2.17.0
+      search-insights: 2.17.1
     transitivePeerDependencies:
       - '@algolia/client-search'
 
@@ -14055,7 +14336,7 @@ snapshots:
       '@npmcli/arborist': 7.5.4
       '@npmcli/package-json': 5.2.0
       '@npmcli/run-script': 8.1.0
-      '@nx/devkit': 19.6.4(nx@17.3.2)
+      '@nx/devkit': 19.6.5(nx@17.3.2)
       '@octokit/plugin-enterprise-rest': 6.0.1
       '@octokit/rest': 19.0.11(encoding@0.1.13)
       aproba: 2.0.0
@@ -14194,7 +14475,7 @@ snapshots:
       '@babel/runtime': 7.25.6
       '@mui/base': 5.0.0-beta.40(@types/react@18.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@mui/icons-material': 5.15.21(@mui/material@5.16.7(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@emotion/styled@11.13.0(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.5)(react@18.3.1)
-      '@mui/internal-markdown': 1.0.11
+      '@mui/internal-markdown': 1.0.12
       '@mui/material': 5.16.7(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@emotion/styled@11.13.0(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@mui/system': 5.16.7(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@emotion/styled@11.13.0(@emotion/react@11.13.3(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react@18.3.1))(@types/react@18.3.5)(react@18.3.1)
       chai: 4.5.0
@@ -14216,7 +14497,7 @@ snapshots:
     optionalDependencies:
       '@types/react': 18.3.5
 
-  '@mui/internal-markdown@1.0.11':
+  '@mui/internal-markdown@1.0.12':
     dependencies:
       '@babel/runtime': 7.25.6
       lodash: 4.17.21
@@ -14298,7 +14579,7 @@ snapshots:
     optionalDependencies:
       '@types/react': 18.3.5
 
-  '@mui/styled-engine-sc@6.0.1(styled-components@6.1.13(react-dom@18.3.1(react@18.3.1))(react@18.3.1))':
+  '@mui/styled-engine-sc@6.0.2(styled-components@6.1.13(react-dom@18.3.1(react@18.3.1))(react@18.3.1))':
     dependencies:
       '@babel/runtime': 7.25.6
       csstype: 3.1.3
@@ -14711,9 +14992,9 @@ snapshots:
       - bluebird
       - supports-color
 
-  '@nrwl/devkit@19.6.4(nx@17.3.2)':
+  '@nrwl/devkit@19.6.5(nx@17.3.2)':
     dependencies:
-      '@nx/devkit': 19.6.4(nx@17.3.2)
+      '@nx/devkit': 19.6.5(nx@17.3.2)
     transitivePeerDependencies:
       - nx
 
@@ -14726,9 +15007,9 @@ snapshots:
       - '@swc/core'
       - debug
 
-  '@nx/devkit@19.6.4(nx@17.3.2)':
+  '@nx/devkit@19.6.5(nx@17.3.2)':
     dependencies:
-      '@nrwl/devkit': 19.6.4(nx@17.3.2)
+      '@nrwl/devkit': 19.6.5(nx@17.3.2)
       ejs: 3.1.10
       enquirer: 2.3.6
       ignore: 5.3.2
@@ -15076,7 +15357,7 @@ snapshots:
       semver: 7.6.3
       strip-ansi: 5.2.0
       wcwidth: 1.0.1
-      yaml: 2.5.0
+      yaml: 2.5.1
     transitivePeerDependencies:
       - typescript
 
@@ -15086,7 +15367,7 @@ snapshots:
       chalk: 4.1.2
       execa: 5.1.1
       fast-glob: 3.3.2
-      fast-xml-parser: 4.4.1
+      fast-xml-parser: 4.5.0
       logkitty: 0.7.1
 
   '@react-native-community/cli-platform-apple@14.0.0':
@@ -15095,7 +15376,7 @@ snapshots:
       chalk: 4.1.2
       execa: 5.1.1
       fast-glob: 3.3.2
-      fast-xml-parser: 4.4.1
+      fast-xml-parser: 4.5.0
       ora: 5.4.1
 
   '@react-native-community/cli-platform-ios@14.0.0':
@@ -15472,6 +15753,8 @@ snapshots:
 
   '@rollup/rollup-win32-x64-msvc@4.21.2':
     optional: true
+
+  '@rtsao/scc@1.1.0': {}
 
   '@sideway/address@4.1.5':
     dependencies:
@@ -16737,7 +17020,7 @@ snapshots:
     dependencies:
       possible-typed-array-names: 1.0.0
 
-  aws-sdk@2.1687.0:
+  aws-sdk@2.1688.0:
     dependencies:
       buffer: 4.9.2
       events: 1.1.1
@@ -16754,7 +17037,7 @@ snapshots:
 
   axios@1.7.7(debug@4.3.6):
     dependencies:
-      follow-redirects: 1.15.6(debug@4.3.6)
+      follow-redirects: 1.15.8(debug@4.3.6)
       form-data: 4.0.0
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
@@ -16908,7 +17191,7 @@ snapshots:
     dependencies:
       bare-events: 2.4.2
       bare-path: 2.1.3
-      bare-stream: 2.2.0
+      bare-stream: 2.2.1
     optional: true
 
   bare-os@2.4.2:
@@ -16919,8 +17202,9 @@ snapshots:
       bare-os: 2.4.2
     optional: true
 
-  bare-stream@2.2.0:
+  bare-stream@2.2.1:
     dependencies:
+      b4a: 1.6.6
       streamx: 2.20.0
     optional: true
 
@@ -17325,7 +17609,7 @@ snapshots:
   claudia@5.14.1:
     dependencies:
       archiver: 3.1.1
-      aws-sdk: 2.1687.0
+      aws-sdk: 2.1688.0
       fs-extra: 6.0.1
       glob: 7.2.3
       gunzip-maybe: 1.4.2
@@ -18485,30 +18769,30 @@ snapshots:
 
   escape-string-regexp@5.0.0: {}
 
-  eslint-config-airbnb-base@15.0.0(eslint-plugin-import@2.29.1(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-webpack@0.13.8)(eslint@8.57.0))(eslint@8.57.0):
+  eslint-config-airbnb-base@15.0.0(eslint-plugin-import@2.30.0(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-webpack@0.13.9)(eslint@8.57.0))(eslint@8.57.0):
     dependencies:
       confusing-browser-globals: 1.0.11
       eslint: 8.57.0
-      eslint-plugin-import: 2.29.1(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-webpack@0.13.8)(eslint@8.57.0)
+      eslint-plugin-import: 2.30.0(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-webpack@0.13.9)(eslint@8.57.0)
       object.assign: 4.1.5
       object.entries: 1.1.8
       semver: 6.3.1
 
-  eslint-config-airbnb-typescript@17.1.0(@typescript-eslint/eslint-plugin@6.21.0(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))(eslint@8.57.0)(typescript@5.4.5))(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))(eslint-plugin-import@2.29.1(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-webpack@0.13.8)(eslint@8.57.0))(eslint@8.57.0):
+  eslint-config-airbnb-typescript@17.1.0(@typescript-eslint/eslint-plugin@6.21.0(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))(eslint@8.57.0)(typescript@5.4.5))(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))(eslint-plugin-import@2.30.0(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-webpack@0.13.9)(eslint@8.57.0))(eslint@8.57.0):
     dependencies:
       '@typescript-eslint/eslint-plugin': 6.21.0(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))(eslint@8.57.0)(typescript@5.4.5)
       '@typescript-eslint/parser': 6.21.0(eslint@8.57.0)(typescript@5.4.5)
       eslint: 8.57.0
-      eslint-config-airbnb-base: 15.0.0(eslint-plugin-import@2.29.1(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-webpack@0.13.8)(eslint@8.57.0))(eslint@8.57.0)
-      eslint-plugin-import: 2.29.1(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-webpack@0.13.8)(eslint@8.57.0)
+      eslint-config-airbnb-base: 15.0.0(eslint-plugin-import@2.30.0(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-webpack@0.13.9)(eslint@8.57.0))(eslint@8.57.0)
+      eslint-plugin-import: 2.30.0(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-webpack@0.13.9)(eslint@8.57.0)
 
-  eslint-config-airbnb@19.0.4(eslint-plugin-import@2.29.1(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-webpack@0.13.8)(eslint@8.57.0))(eslint-plugin-jsx-a11y@6.9.0(eslint@8.57.0))(eslint-plugin-react-hooks@4.6.2(eslint@8.57.0))(eslint-plugin-react@7.35.1(eslint@8.57.0))(eslint@8.57.0):
+  eslint-config-airbnb@19.0.4(eslint-plugin-import@2.30.0(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-webpack@0.13.9)(eslint@8.57.0))(eslint-plugin-jsx-a11y@6.9.0(eslint@8.57.0))(eslint-plugin-react-hooks@4.6.2(eslint@8.57.0))(eslint-plugin-react@7.35.2(eslint@8.57.0))(eslint@8.57.0):
     dependencies:
       eslint: 8.57.0
-      eslint-config-airbnb-base: 15.0.0(eslint-plugin-import@2.29.1(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-webpack@0.13.8)(eslint@8.57.0))(eslint@8.57.0)
-      eslint-plugin-import: 2.29.1(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-webpack@0.13.8)(eslint@8.57.0)
+      eslint-config-airbnb-base: 15.0.0(eslint-plugin-import@2.30.0(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-webpack@0.13.9)(eslint@8.57.0))(eslint@8.57.0)
+      eslint-plugin-import: 2.30.0(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-webpack@0.13.9)(eslint@8.57.0)
       eslint-plugin-jsx-a11y: 6.9.0(eslint@8.57.0)
-      eslint-plugin-react: 7.35.1(eslint@8.57.0)
+      eslint-plugin-react: 7.35.2(eslint@8.57.0)
       eslint-plugin-react-hooks: 4.6.2(eslint@8.57.0)
       object.assign: 4.1.5
       object.entries: 1.1.8
@@ -18525,12 +18809,11 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-import-resolver-webpack@0.13.8(eslint-plugin-import@2.29.1)(webpack@5.94.0(esbuild@0.23.1)(webpack-cli@5.1.4)):
+  eslint-import-resolver-webpack@0.13.9(eslint-plugin-import@2.30.0)(webpack@5.94.0(esbuild@0.23.1)(webpack-cli@5.1.4)):
     dependencies:
-      array.prototype.find: 2.2.3
       debug: 3.2.7
       enhanced-resolve: 0.9.1
-      eslint-plugin-import: 2.29.1(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-webpack@0.13.8)(eslint@8.57.0)
+      eslint-plugin-import: 2.30.0(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-webpack@0.13.9)(eslint@8.57.0)
       find-root: 1.1.0
       hasown: 2.0.2
       interpret: 1.4.0
@@ -18543,14 +18826,14 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-module-utils@2.8.2(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-webpack@0.13.8(eslint-plugin-import@2.29.1)(webpack@5.94.0(esbuild@0.23.1)(webpack-cli@5.1.4)))(eslint@8.57.0):
+  eslint-module-utils@2.9.0(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-webpack@0.13.9(eslint-plugin-import@2.30.0)(webpack@5.94.0(esbuild@0.23.1)(webpack-cli@5.1.4)))(eslint@8.57.0):
     dependencies:
       debug: 3.2.7
     optionalDependencies:
       '@typescript-eslint/parser': 6.21.0(eslint@8.57.0)(typescript@5.4.5)
       eslint: 8.57.0
       eslint-import-resolver-node: 0.3.9
-      eslint-import-resolver-webpack: 0.13.8(eslint-plugin-import@2.29.1)(webpack@5.94.0(esbuild@0.23.1)(webpack-cli@5.1.4))
+      eslint-import-resolver-webpack: 0.13.9(eslint-plugin-import@2.30.0)(webpack@5.94.0(esbuild@0.23.1)(webpack-cli@5.1.4))
     transitivePeerDependencies:
       - supports-color
 
@@ -18567,8 +18850,9 @@ snapshots:
       lodash.snakecase: 4.1.1
       lodash.upperfirst: 4.3.1
 
-  eslint-plugin-import@2.29.1(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-webpack@0.13.8)(eslint@8.57.0):
+  eslint-plugin-import@2.30.0(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-webpack@0.13.9)(eslint@8.57.0):
     dependencies:
+      '@rtsao/scc': 1.1.0
       array-includes: 3.1.8
       array.prototype.findlastindex: 1.2.5
       array.prototype.flat: 1.3.2
@@ -18577,7 +18861,7 @@ snapshots:
       doctrine: 2.1.0
       eslint: 8.57.0
       eslint-import-resolver-node: 0.3.9
-      eslint-module-utils: 2.8.2(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-webpack@0.13.8(eslint-plugin-import@2.29.1)(webpack@5.94.0(esbuild@0.23.1)(webpack-cli@5.1.4)))(eslint@8.57.0)
+      eslint-module-utils: 2.9.0(@typescript-eslint/parser@6.21.0(eslint@8.57.0)(typescript@5.4.5))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-webpack@0.13.9(eslint-plugin-import@2.30.0)(webpack@5.94.0(esbuild@0.23.1)(webpack-cli@5.1.4)))(eslint@8.57.0)
       hasown: 2.0.2
       is-core-module: 2.15.1
       is-glob: 4.0.3
@@ -18629,7 +18913,7 @@ snapshots:
     dependencies:
       eslint: 8.57.0
 
-  eslint-plugin-react@7.35.1(eslint@8.57.0):
+  eslint-plugin-react@7.35.2(eslint@8.57.0):
     dependencies:
       array-includes: 3.1.8
       array.prototype.findlast: 1.2.5
@@ -18934,7 +19218,7 @@ snapshots:
     dependencies:
       punycode: 1.4.1
 
-  fast-xml-parser@4.4.1:
+  fast-xml-parser@4.5.0:
     dependencies:
       strnum: 1.0.5
 
@@ -19076,7 +19360,7 @@ snapshots:
 
   flow-parser@0.245.0: {}
 
-  follow-redirects@1.15.6(debug@4.3.6):
+  follow-redirects@1.15.8(debug@4.3.6):
     optionalDependencies:
       debug: 4.3.6(supports-color@8.1.1)
 
@@ -19431,7 +19715,7 @@ snapshots:
     dependencies:
       csstype: 3.1.3
 
-  google-auth-library@9.14.0(encoding@0.1.13):
+  google-auth-library@9.14.1(encoding@0.1.13):
     dependencies:
       base64-js: 1.5.1
       ecdsa-sig-formatter: 1.0.11
@@ -19447,7 +19731,7 @@ snapshots:
     dependencies:
       extend: 3.0.2
       gaxios: 6.7.1(encoding@0.1.13)
-      google-auth-library: 9.14.0(encoding@0.1.13)
+      google-auth-library: 9.14.1(encoding@0.1.13)
       qs: 6.13.0
       url-template: 2.0.8
       uuid: 9.0.1
@@ -19668,7 +19952,7 @@ snapshots:
   http-proxy@1.18.1:
     dependencies:
       eventemitter3: 4.0.7
-      follow-redirects: 1.15.6(debug@4.3.6)
+      follow-redirects: 1.15.8(debug@4.3.6)
       requires-port: 1.0.0
     transitivePeerDependencies:
       - debug
@@ -20879,7 +21163,7 @@ snapshots:
       '@npmcli/arborist': 7.5.4
       '@npmcli/package-json': 5.2.0
       '@npmcli/run-script': 8.1.0
-      '@nx/devkit': 19.6.4(nx@17.3.2)
+      '@nx/devkit': 19.6.5(nx@17.3.2)
       '@octokit/plugin-enterprise-rest': 6.0.1
       '@octokit/rest': 19.0.11(encoding@0.1.13)
       aproba: 2.0.0
@@ -22592,19 +22876,19 @@ snapshots:
   postcss-load-config@4.0.2(postcss@8.4.44)(ts-node@10.9.2(@types/node@18.19.48)(typescript@5.4.5)):
     dependencies:
       lilconfig: 3.1.2
-      yaml: 2.5.0
+      yaml: 2.5.1
     optionalDependencies:
       postcss: 8.4.44
       ts-node: 10.9.2(@types/node@18.19.48)(typescript@5.4.5)
 
-  postcss-load-config@6.0.1(jiti@1.21.6)(postcss@8.4.44)(tsx@4.19.0)(yaml@2.5.0):
+  postcss-load-config@6.0.1(jiti@1.21.6)(postcss@8.4.44)(tsx@4.19.0)(yaml@2.5.1):
     dependencies:
       lilconfig: 3.1.2
     optionalDependencies:
       jiti: 1.21.6
       postcss: 8.4.44
       tsx: 4.19.0
-      yaml: 2.5.0
+      yaml: 2.5.1
 
   postcss-nested@6.2.0(postcss@8.4.44):
     dependencies:
@@ -23619,7 +23903,7 @@ snapshots:
       ajv-formats: 2.1.1(ajv@8.17.1)
       ajv-keywords: 5.1.0(ajv@8.17.1)
 
-  search-insights@2.17.0: {}
+  search-insights@2.17.1: {}
 
   selfsigned@2.4.1:
     dependencies:
@@ -24591,7 +24875,7 @@ snapshots:
 
   tsscmp@1.0.6: {}
 
-  tsup@8.2.4(jiti@1.21.6)(postcss@8.4.44)(tsx@4.19.0)(typescript@5.4.5)(yaml@2.5.0):
+  tsup@8.2.4(jiti@1.21.6)(postcss@8.4.44)(tsx@4.19.0)(typescript@5.4.5)(yaml@2.5.1):
     dependencies:
       bundle-require: 5.0.0(esbuild@0.23.1)
       cac: 6.7.14
@@ -24603,7 +24887,7 @@ snapshots:
       globby: 11.1.0
       joycon: 3.1.1
       picocolors: 1.1.0
-      postcss-load-config: 6.0.1(jiti@1.21.6)(postcss@8.4.44)(tsx@4.19.0)(yaml@2.5.0)
+      postcss-load-config: 6.0.1(jiti@1.21.6)(postcss@8.4.44)(tsx@4.19.0)(yaml@2.5.1)
       resolve-from: 5.0.0
       rollup: 4.21.2
       source-map: 0.8.0-beta.0
@@ -25260,7 +25544,7 @@ snapshots:
 
   yaml@2.3.4: {}
 
-  yaml@2.5.0: {}
+  yaml@2.5.1: {}
 
   yargs-parser@18.1.3:
     dependencies:

@@ -11,9 +11,9 @@ import HeaderNavBar from 'docs/src/components/header/HeaderNavBar';
 import HeaderNavDropdown from 'docs/src/components/header/HeaderNavDropdown';
 import ThemeModeToggle from 'docs/src/components/header/ThemeModeToggle';
 import { Link } from '@mui/docs/Link';
-import { DeferredAppSearch } from 'docs/src/modules/components/AppFrame';
+import { DeferredAppSearch } from '../App/AppFrame';
 import { useTranslate } from '@mui/docs/i18n';
-import SvgSuiLogomark from "../icons/SvgSuiLogomark";
+// import SvgSuiLogomark from "../icons/SvgSuiLogomark";
 
 const Header = styled('header')(({ theme }) => [
   {
