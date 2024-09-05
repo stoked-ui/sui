@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Divider from '@mui/material/Divider';
-import Head from 'docs/src/modules/components/Head';
+import Head from '@stoked-ui/docs/components/Head';
 import BrandingCssVarsProvider from 'docs/src/BrandingCssVarsProvider';
 import AppHeader from 'docs/src/layouts/AppHeader';
 import MaterialHero from 'docs/src/components/productMaterial/MaterialHero';

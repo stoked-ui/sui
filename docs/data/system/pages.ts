@@ -1,7 +1,7 @@
-import type { MuiPage } from 'docs/src/MuiPage';
+import type SuiPage from '@stoked-ui/docs/SuiPage/SuiPage';
 import pagesApi from 'docs/data/system/pagesApi';
 
-const pages: readonly MuiPage[] = [
+const pages: readonly SuiPage[] = [
   {
     pathname: '/system/getting-started-group',
     title: 'Getting started',

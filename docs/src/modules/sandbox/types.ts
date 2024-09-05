@@ -1,4 +1,4 @@
-import type { MuiProductId } from 'docs/src/modules/utils/getProductInfoFromUrl';
+import type { SuiProductId } from 'docs/src/modules/utils/getProductInfoFromUrl';
 
 export type CodeStyling = 'Tailwind' | 'SUI System';
 export type CodeVariant = 'TS' | 'JS';
@@ -8,6 +8,6 @@ export interface DemoData {
   raw: string;
   codeVariant: CodeVariant;
   githubLocation: string;
-  productId?: Exclude<MuiProductId, 'null'>;
+  productId?: Exclude<SuiProductId, 'null'>;
   codeStyling: CodeStyling;
 }

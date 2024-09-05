@@ -5,14 +5,14 @@ import { loadCSS } from 'fg-loadcss/src/loadCSS';
 import NextHead from 'next/head';
 import PropTypes from 'prop-types';
 import { useRouter } from 'next/router';
-import fileExplorerPkgJson from 'packages/sui-file-explorer/package.json';
+
 import PageContext from 'docs/src/modules/components/PageContext';
 import GoogleAnalytics from 'docs/src/modules/components/GoogleAnalytics';
 import { CodeCopyProvider } from 'docs/src/modules/utils/CodeCopy';
 import { ThemeProvider } from 'docs/src/modules/components/ThemeContext';
 import { CodeVariantProvider } from 'docs/src/modules/utils/codeVariant';
 import { CodeStylingProvider } from 'docs/src/modules/utils/codeStylingSolution';
-import DocsStyledEngineProvider from 'docs/src/modules/utils/StyledEngineProvider';
+import DocsStyledEngineProvider from '../src/modules/utils/StyledEngineProvider';
 import createEmotionCache from 'docs/src/createEmotionCache';
 import findActivePage from 'docs/src/modules/utils/findActivePage';
 import { pathnameToLanguage } from 'docs/src/modules/utils/helpers';
@@ -134,7 +134,8 @@ function AppWrapper(props) {
   // TODO move productId & productCategoryId resolution to page layout.
   // We should use the productId field from the markdown and fallback to getProductInfoFromUrl()
   // if not present
-  const { productId, productCategoryId } = getProductInfoFromUrl(router.asPath);
+
+  const { productId, productCategoryId, product } = getProductInfoFromUrl(router.asPath);
 
   React.useEffect(() => {
     loadDependencies();
@@ -154,26 +155,36 @@ function AppWrapper(props) {
       'editor': {
         metadata: 'Stoked UI',
         name: 'Editor',
+        id: 'editor',
+        package: true,
       },
       'file-explorer': {
         metadata: 'Stoked UI',
         name: 'File Explorer',
+        id: 'file-explorer',
+        package: true,
       },
       'media-selector': {
         metadata: 'Stoked UI',
         name: 'Media Selector',
+        id: 'media-selector',
+        package: true,
       },
       'timeline': {
         metadata: 'Stoked UI',
         name: 'Timeline',
+        id: 'timeline',
+        package: true,
       },
       'stoked-ui': {
         metadata: 'Stoked UI',
         name: 'Stoked UI',
+        id: 'stoked-ui',
       },
       'docs': {
         metadata: 'Docs',
         name: 'Stoked UI',
+        id: 'docs',
       },
     };
 

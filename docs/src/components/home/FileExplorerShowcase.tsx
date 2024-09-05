@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import ShowcaseContainer from 'docs/src/components/home/ShowcaseContainer';
-import HighlightedCode from 'docs/src/modules/components/HighlightedCode';
+import HighlightedCode from '@stoked-ui/docs/HighlightedCode';
 import MarkdownElement from 'docs/src/components/markdown/MarkdownElement';
 import {FileExplorer} from "@stoked-ui/file-explorer";
 import { getDynamicFiles } from '../fileExplorer/data';

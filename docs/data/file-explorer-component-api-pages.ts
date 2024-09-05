@@ -1,6 +1,6 @@
-import type { MuiPage } from 'docs/src/MuiPage';
+import type SuiPage from '@stoked-ui/docs/SuiPage/SuiPage';
 
-const apiPages: MuiPage[] = [
+const apiPages: SuiPage[] = [
   {
     pathname: '/file-explorer/api/file',
     title: 'File',

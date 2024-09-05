@@ -78,5 +78,32 @@
   },
   "engines": {
     "node": ">=14.0.0"
+  },
+  "product": {
+    "name": "File Explorer",
+    "fullName": "Stoked UI: File Explorer",
+    "description": "Advanced media components",
+    "icon": "product-core",
+    "url": "/file-explorer",
+    "hideProductFeatures": true,
+    "live": true,
+    "owners": ["brian-stoker"],
+    "features": [{
+      "name": "Overview",
+      "description": "Overview, installation, lions, tigers, and bears oh mai!",
+      "id": "overview"
+    }, {
+      "name": "File Explorer Basic",
+      "description": "Library used to select and automatically pull appropriate meta data from client side files",
+      "id": "file-explorer-basic/items"
+    }, {
+      "name": "File Explorer",
+      "description": "Highly extensible file explorer component with drag and drop support.",
+      "id": "file-explorer/items"
+    }, {
+      "name": "Roadmap",
+      "description": "See what\"s next",
+      "id": "roadmap"
+    }]
   }
 }

@@ -4,7 +4,7 @@ import Chip from '@mui/material/Chip';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import Divider from '@mui/material/Divider';
-import Head from 'docs/src/modules/components/Head';
+import Head from '@stoked-ui/docs/components/Head';
 import BrandingCssVarsProvider from 'docs/src/BrandingCssVarsProvider';
 import AppHeader from 'docs/src/layouts/AppHeader';
 import Section from 'docs/src/layouts/Section';
