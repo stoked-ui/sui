@@ -7,15 +7,15 @@ import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import SvgTwinkle from 'docs/src/icons/SvgTwinkle';
-import Section from 'docs/src/layouts/Section';
-import Highlighter from 'docs/src/components/action/Highlighter';
-import Item, { Group } from 'docs/src/components/action/Item';
-import GradientText from 'docs/src/components/typography/GradientText';
-import SectionHeadline from 'docs/src/components/typography/SectionHeadline';
-import FlashCode from 'docs/src/components/animation/FlashCode';
-import Frame from 'docs/src/components/action/Frame';
-import HighlightedCode from 'docs/src/modules/components/HighlightedCode';
-import MarkdownElement from 'docs/src/components/markdown/MarkdownElement';
+import Section from '@stoked-ui/docs/Layouts/Section';
+import Highlighter from '@stoked-ui/docs/action/Highlighter';
+import Item, { Group } from '@stoked-ui/docs/action/Item';
+import GradientText from '@stoked-ui/docs/typography/GradientText';
+import SectionHeadline from '@stoked-ui/docs/typography/SectionHeadline';
+import FlashCode from '@stoked-ui/docs/animation/FlashCode';
+import Frame from '@stoked-ui/docs/action/Frame';
+import HighlightedCode from '@stoked-ui/docs/HighlightedCode';
+import MarkdownElement from '@stoked-ui/docs/Markdown/MarkdownElement';
 
 const code = `
 import clsx from 'clsx';

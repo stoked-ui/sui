@@ -12,6 +12,7 @@ const packagePath = process.cwd();
 const buildPath = path.join(packagePath, './build');
 console.log('buildPath', buildPath);
 const srcPath = path.join(packagePath, './src');
+const args = (process.argv.slice(2) || []);
 
 async function addLicense(packageData) {
   const license = `/**
@@ -45,12 +46,17 @@ async function addLicense(packageData) {
 }
 
 async function run() {
-  const extraFiles = process.argv.slice(2);
+  const lastArg = args[args.length - 1];
+  let packageEntry = undefined;
+  if (['legacy', 'node', 'modern', 'stable'].indexOf(lastArg) !== -1) {
+    packageEntry = lastArg;
+  }
+  const extraFiles = packageEntry ? process.argv.slice(2, process.argv.length - 2) : process.argv.slice(2);
   try {
     // TypeScript
     await typescriptCopy({ from: srcPath, to: buildPath });
 
-    const packageData = await createPackageFile();
+    const packageData = await createPackageFile(packageEntry);
 
     await Promise.all(
       ['./README.md', '../../CHANGELOG.md', '../../LICENSE', ...extraFiles].map(async (file) => {
@@ -60,7 +66,6 @@ async function run() {
     );
 
     await addLicense(packageData);
-
     await createModulePackages({ from: srcPath, to: buildPath });
   } catch (err) {
     console.error(err);

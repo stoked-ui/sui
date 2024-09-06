@@ -173,9 +173,14 @@ export const FileContent = styled('div', {
         },
       },
       {
-        props: { grid: false },
+        props: { grid: true },
         style: {
           flexDirection: 'row-reverse',
+        },
+      },
+      {
+        props: { grid: false },
+        style: {
           padding: '4px 8px 4px 4px',
         },
       },

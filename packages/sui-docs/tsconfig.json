@@ -1,9 +1,16 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../../tsconfig.x.json",
   "compilerOptions": {
     "skipLibCheck": true,
-    "resolveJsonModule": true,
-    "types": ["react", "node"]
+    "target": "ES2019",
+    "types": [
+      "chai-dom",
+      "mocha",
+      "node",
+      "react"
+    ],
+    "noImplicitAny": false
   },
-  "include": ["src/**/*", "test/**/*"]
+  "include": ["src/**/*"],
+  "exclude": ["**/*.test.tsx"],
 }
