@@ -62,7 +62,6 @@ const Navigation = styled('nav')(({ theme }) => [
 
 export default function HeaderNavBar() {
   const PRODUCTS = getProducts();
-  console.log('PRODUCTS', PRODUCTS.live, PRODUCTS);
   const [subMenuOpen, setSubMenuOpen] = React.useState<null | 'products' | 'docs'>(null);
   const [subMenuIndex, setSubMenuIndex] = React.useState<number | null>(null);
   const navRef = React.useRef<HTMLUListElement | null>(null);

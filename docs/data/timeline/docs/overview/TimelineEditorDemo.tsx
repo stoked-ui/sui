@@ -12,7 +12,6 @@ export default function TimelineEditorDemo() {
     }
   };
   const theme = useTheme();
-  console.log('theme', theme);
   return (
     <Timeline tracks={tracks} sx={{width:'100%'}}  actionTypes={actionTypes}/>
   );

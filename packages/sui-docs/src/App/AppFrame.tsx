@@ -65,7 +65,7 @@ export function NextNProgressBar() {
 
 const sx = { minWidth: { sm: 160 } };
 
-export function DeferredAppSearch(props) {
+export function DeferredAppSearch() {
   const [mounted, setMounted] = React.useState(false);
   React.useEffect(() => {
     setMounted(true);

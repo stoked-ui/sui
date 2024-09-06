@@ -39,7 +39,7 @@ export const getStaticProps = () => {
 
 function PostPreview(props: BlogPost) {
   return (
-    <React.Fragment>
+    <BrandingCssVarsProvider>
       <Box sx={{ display: 'flex', gap: 0.5, mb: 1.5 }}>
         {props.tags.map((tag) => (
           <Chip
@@ -48,7 +48,7 @@ function PostPreview(props: BlogPost) {
             size="small"
             variant="outlined"
             color="primary"
-            sx={(theme) => ({
+            sx={(theme: any) => ({
               height: 22,
               fontWeight: 'medium',
               fontSize: theme.typography.pxToRem(13),
@@ -95,13 +95,7 @@ function PostPreview(props: BlogPost) {
                 backgroundColor: theme.palette.grey[100],
               },
             }),
-            (theme) =>
-              theme.applyDarkStyles({
-                '& .MuiAvatar-circular': {
-                  outlineColor: theme.palette.primaryDark[900],
-                  backgroundColor: theme.palette.primaryDark[700],
-                },
-              }),
+
           ]}
         >
           {(props.authors as Array<keyof typeof AUTHORS>).map((author) => (
@@ -161,7 +155,7 @@ function PostPreview(props: BlogPost) {
           Read more
         </Button>
       </Box>
-    </React.Fragment>
+    </BrandingCssVarsProvider>
   );
 }
 
@@ -268,17 +262,11 @@ export default function Blog(props: InferGetStaticPropsType<typeof getStaticProp
                 key={post.slug}
                 component="li"
                 variant="outlined"
-                sx={(theme) => ({
+                sx={() => ({
                   p: 2,
                   display: 'flex',
                   flexDirection: 'column',
-                  backgroundImage: theme.palette.gradients.radioSubtle,
-                  boxShadow: '0 4px 12px rgba(170, 180, 190, 0.2)',
-                  ...theme.applyDarkStyles({
-                    background: theme.palette.primaryDark[900],
-                    backgroundImage: theme.palette.gradients.radioSubtle,
-                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.4)',
-                  }),
+
                 })}
               >
                 {post.image && (

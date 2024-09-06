@@ -13,5 +13,5 @@ Stoked UI 's initial release consists of the File Explorer component. It was c
 
 Get started with Material UI today through some of these useful resources:
 
-{{"component": "modules/components/MaterialStartingLinksCollection.js"}}
+{{"component": "MaterialStartingLinksCollection"}}
 

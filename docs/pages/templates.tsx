@@ -7,7 +7,7 @@ import TemplateHero from 'docs/src/components/productTemplate/TemplateHero';
 import ValueProposition from 'docs/src/components/home/ValueProposition';
 import TemplateDemo from 'docs/src/components/productTemplate/TemplateDemo';
 import Testimonials from 'docs/src/components/home/Testimonials';
-import HeroEnd from 'docs/src/components/home/HeroEnd';
+import HeroEnd from '@stoked-ui/docs/components/HeroEnd';
 import BrandingCssVarsProvider from '@stoked-ui/docs/branding/BrandingCssVarsProvider';
 import References, { TEMPLATES_CUSTOMERS } from 'docs/src/components/home/References';
 import AppHeaderBanner from '@stoked-ui/docs/banner/AppHeaderBanner';

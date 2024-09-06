@@ -13,7 +13,7 @@ See [Start a New React Project](https://react.dev/learn/start-a-new-react-projec
 
 <!-- #default-branch-switch -->
 
-{{"component": "modules/components/MaterialUIExampleCollection"}}
+{{"component": "MaterialUIExampleCollection"}}
 
 <br />
 

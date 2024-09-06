@@ -10,9 +10,6 @@ import AppFooter from "@stoked-ui/docs/Layouts/AppFooter";
 import AppHeader from "@stoked-ui/docs/Layouts/AppHeader";
 import getProducts from '../src/products';
 import * as featureToggle from '../src/featureToggle';
-import { LANGUAGES_SSR } from '../config';
-import SuiLogomark from "../src/icons/SvgSuiLogomark";
-import ROUTES from '../src/route';
 import NewsletterToast from "../src/components/home/NewsletterToast";
 import Hero from "../src/components/home/HeroMain";
 
@@ -34,7 +31,6 @@ export function HomeView({ HomeMain}: { HomeMain: React.ComponentType }){
 
   return <BrandingCssVarsProvider>
     <Head
-      LANGUAGES_SSR={LANGUAGES_SSR}
       title="Stoked UI: React Media Components"
       description="Stoked UI provides a customizable, and accessible library of React media components."
       card="/static/social-previews/home-preview.jpg"
@@ -58,13 +54,13 @@ export function HomeView({ HomeMain}: { HomeMain: React.ComponentType }){
     <NoSsr>
       <NewsletterToast/>
     </NoSsr>
-    <AppHeaderBanner featureToggle={featureToggle} routes={ROUTES}/>
-    <AppHeader languages={LANGUAGES_SSR} Logomark={SuiLogomark} products={PRODUCTS} routes={ROUTES}/>
+    <AppHeaderBanner featureToggle={featureToggle}/>
+    <AppHeader/>
     <main id="main-content">
       {isClient ? <Main/> : ''}
       {PRODUCTS.previews()}
     </main>
-    <AppFooter Logomark={SuiLogomark} products={PRODUCTS} routes={ROUTES}/>
+    <AppFooter/>
   </BrandingCssVarsProvider>;
 }
 
@@ -78,19 +74,7 @@ let MainView:  React.ComponentType<{}> = function MainView() {
   )
 }
 
-export default function Home({ HomeMain
-
-
-
-
-
-
-
-
-
-
-
-}: { HomeMain: React.ComponentType }) {
+export default function Home({ HomeMain}: { HomeMain: React.ComponentType }) {
   return <HomeView HomeMain={ HomeMain || MainView } />;
 }
 

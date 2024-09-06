@@ -48,10 +48,10 @@ function DefaultHiringMessage() {
   );
 }
 
-export default function AppHeaderBanner({featureToggle }: {featureToggle: Record<string, boolean>}) {
+export default function AppHeaderBanner() {
   const showSurveyMessage = false;
   const bannerMessage = showSurveyMessage ? getSurveyMessage() : DefaultHiringMessage();
-
+  const { featureToggle } = React.useContext(PageContext);
   return featureToggle.enable_website_banner ? (
     <Typography
       fontWeight="medium"

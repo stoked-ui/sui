@@ -8,8 +8,9 @@ import ChevronLeftRoundedIcon from '@mui/icons-material/ChevronLeftRounded';
 import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
 import Avatar from '@mui/material/Avatar';
-// import Head from 'docs/src/modules/Layouts/Head';
+import Head from '../Layouts/Head';
 import BrandingCssVarsProvider from '../branding/BrandingCssVarsProvider';
+
 import AppHeader from '../Layouts/AppHeader';
 import AppContainer from '../App/AppContainer';
 import AppFooter from '../Layouts/AppFooter';
@@ -287,8 +288,8 @@ const Root = styled('div')(
 
 export default function TopLayoutBlog(props) {
   const theme = useTheme();
-  const { className, docs, demos, demoComponents, srcComponents, Head, StartToday} = props;
-  const { Logomark, routes, products } = React.useContext(PageContext);
+  const { className, docs, demos, demoComponents, srcComponents} = props;
+  const { routes } = React.useContext(PageContext);
   const { description, rendered, title, headers } = docs.en;
   const finalTitle = title || headers.title;
   const router = useRouter();
@@ -456,7 +457,7 @@ export default function TopLayoutBlog(props) {
           })}
         </AppContainer>
         <Divider />
-        <HeroEnd StartToday={StartToday} />
+        <HeroEnd />
         <Divider />
         <AppFooter />
       </Root>

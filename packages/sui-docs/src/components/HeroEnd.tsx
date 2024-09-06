@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useInView } from 'react-intersection-observer';
+import dynamic from "next/dynamic";
 import Box from '@mui/material/Box';
 import { alpha } from '@mui/material/styles';
 import Section from '../Layouts/Section';
@@ -7,9 +8,9 @@ import Section from '../Layouts/Section';
 function Placeholder() {
   return <Box sx={{ height: { xs: 616 - 48 * 2, sm: 438 - 80 * 2, md: 461 - 96 * 2 } }} />;
 }
-// const StartToday = dynamic(() => import('./StartToday'), { loading: Placeholder });
+const StartToday = dynamic(() => import('./StartToday'), { loading: Placeholder });
 
-export default function HeroEnd({ StartToday }: { StartToday: React.JSX.ElementType} ) {
+export default function HeroEnd() {
   const { ref, inView } = useInView({
     triggerOnce: true,
     threshold: 0,

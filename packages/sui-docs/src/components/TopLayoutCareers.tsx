@@ -8,8 +8,6 @@ import AppFooter from '../Layouts/AppFooter';
 import AppHeader from '../Layouts/AppHeader';
 import BrandingCssVarsProvider from '../branding/BrandingCssVarsProvider';
 import MarkdownElement from '../Markdown/MarkdownElement';
-import Products from '../Products';
-import PageContext from "./PageContext";
 
 const StyledDiv = styled('div')({
   flex: '1 0 100%',

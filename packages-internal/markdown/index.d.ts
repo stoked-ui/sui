@@ -8,10 +8,8 @@ interface TableOfContentsEntry {
 export function createRender(context: {
   headingHashes: Record<string, string>;
   toc: TableOfContentsEntry[];
-  location: string[];
   userLanguage: string;
-  ignoreLanguagePages?: (path: string) => boolean;
-  options: object;
+  ignoreLanguagePages: (path: string) => boolean;
 }): (markdown: string) => string;
 
 export function getHeaders(markdown: string): Record<string, string | string[]>;

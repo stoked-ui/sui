@@ -21,6 +21,7 @@ export * from './i18n';
 export * from './InfoCard';
 export * from './Link';
 export * from './svgIcons';
+export * from './Layouts';
 export * from './MaterialUIComponents';
 export * from './Markdown';
 export * from './SuiPage';

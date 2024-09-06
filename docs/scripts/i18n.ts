@@ -1,7 +1,7 @@
 // @ts-check
 import path from 'path';
 import fse from 'fs-extra';
-import { pageToTitle } from 'docs/src/modules/utils/helpers';
+import { pageToTitle } from '@stoked-ui/docs/utils/helpers';
 import stokedUiPages from 'docs/data/pages';
 import SuiPage from '@stoked-ui/docs/SuiPage/SuiPage';
 

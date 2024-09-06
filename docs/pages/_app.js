@@ -20,6 +20,7 @@ import createEmotionCache from 'docs/src/createEmotionCache';
 import findActivePage from '@stoked-ui/docs/utils/findActivePage';
 import { pathnameToLanguage } from '@stoked-ui/docs/utils/helpers';
 import ROUTES from 'docs/src/route';
+import featureToggle from 'docs/src/featureToggle';
 import fileExplorerPages from '../data/pages';
 import './global.css';
 import '../public/static/components-gallery/base-theme.css';
@@ -130,7 +131,6 @@ Tip: you can access the documentation \`theme\` object directly in the console.
 }
 
 const PRODUCTS = getProducts();
-console.log('PRODUCTS', PRODUCTS)
 function AppWrapper(props) {
   const { children, emotionCache, pageProps } = props;
 
@@ -145,8 +145,6 @@ function AppWrapper(props) {
     product = PRODUCTS.index[firstFolder]
   }
 
-  console.log('product', PRODUCTS, PRODUCTS.index, product);
-
   React.useEffect(() => {
     loadDependencies();
     registerServiceWorker().catch(console.error);
@@ -158,7 +156,6 @@ function AppWrapper(props) {
     }
   }, []);
 
-  console.log('app product', product);
 
   const productIdentifier = React.useMemo(() => {
     const languagePrefix = pageProps.userLanguage === 'en' ? '' : `/${pageProps.userLanguage}`;
@@ -183,6 +180,7 @@ function AppWrapper(props) {
     const { activePage, activePageParents } = findActivePage(pages, router.pathname);
 
     return {
+      featureToggle,
       routes: ROUTES,
       languages: LANGUAGES_SSR,
       Logomark: SvgSuiLogomark,

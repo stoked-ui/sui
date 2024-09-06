@@ -632,7 +632,6 @@ function ProductsSwitcher(props: ProductSwitcherProps) {
 
 function ProductsPreviews({ products }: { products: Products } ) {
   const swipeableProducts = getSwipeableProducts(products.products);
-  console.log('swipeableProducts', swipeableProducts)
   const [selectedIndex, setSelectedIndex] = React.useState<number>(0);
   const { ref, inView } = useInView({
     triggerOnce: true,

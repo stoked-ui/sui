@@ -431,7 +431,7 @@ const generateApiPage = async (
     await writePrettifiedFile(
       path.resolve(apiPagesDirectory, `${kebabCase(reactApi.name)}.js`),
       `import * as React from 'react';
-  import ApiPage from 'docs/src/modules/components/ApiPage';
+  import ApiPage from '@stoked-ui/docs/components/ApiPage';
   import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';${
     layoutConfigPath === ''
       ? ''

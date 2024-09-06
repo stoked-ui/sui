@@ -9,7 +9,7 @@ import PricingList from 'docs/src/components/pricing/PricingList';
 import Testimonials from 'docs/src/components/home/Testimonials';
 import PricingWhatToExpect from 'docs/src/components/pricing/PricingWhatToExpect';
 import PricingFAQ from 'docs/src/components/pricing/PricingFAQ';
-import HeroEnd from 'docs/src/components/home/HeroEnd';
+import HeroEnd from '@stoked-ui/docs/components/HeroEnd';
 import AppFooter from '@stoked-ui/docs/Layouts/AppFooter';
 import BrandingCssVarsProvider from '@stoked-ui/docs/branding/BrandingCssVarsProvider';
 import AppHeaderBanner from '@stoked-ui/docs/banner/AppHeaderBanner';

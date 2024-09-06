@@ -14,6 +14,7 @@ const PageContext = React.createContext<{
   products: Products;
   languages: string[];
   Logomark: React.JSX.ElementType;
+  featureToggle: Record<string, boolean>;
 }>(undefined!);
 
 if (process.env.NODE_ENV !== 'production') {

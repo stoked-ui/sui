@@ -376,7 +376,7 @@ export async function buildInterfacesDocumentationPage(
       `import * as React from 'react';
     import InterfaceApiPage from '@stoked-ui/docs/components/InterfaceApiPage';
     import layoutConfig from 'docs/src/modules/utils/dataGridLayoutConfig';
-    import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
+    import mapApiPageTranslations from '@stoked-ui/docs/utils/mapApiPageTranslations';
     import jsonPageContent from './${slug}.json';
   
     export default function Page(props) {
