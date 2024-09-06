@@ -3,7 +3,8 @@ import * as React from 'react';
 import { styled, alpha } from '@mui/material/styles';
 import { unstable_debounce as debounce } from '@mui/utils';
 import ROUTES from 'docs/src/route';
-import { PRODUCTS, Product, ALL_PRODUCTS } from 'docs/src/products';
+import { ProductIds } from '@stoked-ui/docs/Products'
+import getProducts from 'docs/src/products';
 import { Link } from '@mui/docs/Link';
 
 const Navigation = styled('nav')(({ theme }) => [
@@ -59,9 +60,9 @@ const Navigation = styled('nav')(({ theme }) => [
   }),
 ]);
 
-const PRODUCT_IDS = Object.keys(PRODUCTS);
-
 export default function HeaderNavBar() {
+  const PRODUCTS = getProducts();
+  console.log('PRODUCTS', PRODUCTS.live, PRODUCTS);
   const [subMenuOpen, setSubMenuOpen] = React.useState<null | 'products' | 'docs'>(null);
   const [subMenuIndex, setSubMenuIndex] = React.useState<number | null>(null);
   const navRef = React.useRef<HTMLUListElement | null>(null);
@@ -69,7 +70,7 @@ export default function HeaderNavBar() {
   const docsMenuRef = React.useRef<HTMLButtonElement>(null);
   React.useEffect(() => {
     if (typeof subMenuIndex === 'number') {
-      document.getElementById(PRODUCT_IDS[subMenuIndex])?.focus();
+      document.getElementById(ProductIds[subMenuIndex])?.focus();
     }
   }, [subMenuIndex]);
 
@@ -90,7 +91,7 @@ export default function HeaderNavBar() {
         if (prevValue === null) {
           return 0;
         }
-        if (prevValue === PRODUCT_IDS.length - 1) {
+        if (prevValue === ProductIds.length - 1) {
           return 0;
         }
         return prevValue + 1;
@@ -103,7 +104,7 @@ export default function HeaderNavBar() {
           return 0;
         }
         if (prevValue === 0) {
-          return PRODUCT_IDS.length - 1;
+          return ProductIds.length - 1;
         }
         return prevValue - 1;
       });
@@ -140,7 +141,7 @@ export default function HeaderNavBar() {
     if (subMenuIndex === null) {
       return undefined;
     }
-    return PRODUCT_IDS[subMenuIndex];
+    return ProductIds[subMenuIndex];
   }
 
   const menuProps = {
@@ -154,8 +155,8 @@ export default function HeaderNavBar() {
   return (
     <Navigation>
       <ul ref={navRef} onKeyDown={handleKeyDown}>
-        {ALL_PRODUCTS.menu({ type: 'products', ...menuProps, menuRef: productsMenuRef})}
-        {ALL_PRODUCTS.menu({ type: 'docs', ...menuProps, menuRef: docsMenuRef})}
+        {PRODUCTS.menu({ type: 'products', ...menuProps, menuRef: productsMenuRef})}
+        {PRODUCTS.menu({ type: 'docs', ...menuProps, menuRef: docsMenuRef})}
         <li>
           <Link href={ROUTES.about}>About us</Link>
         </li>

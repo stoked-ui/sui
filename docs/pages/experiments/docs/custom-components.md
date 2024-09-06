@@ -4,7 +4,7 @@
 
 ## Header chips
 
-{{"component": "modules/components/ComponentLinkHeader.js"}}
+{{"component": "docs/src/linkHeader"}}
 
 ## Feature list
 

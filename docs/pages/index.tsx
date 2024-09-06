@@ -2,19 +2,25 @@ import * as React from 'react';
 import NoSsr from "@mui/material/NoSsr";
 import Box from "@mui/material/Box";
 import Divider from "@mui/material/Divider";
-import { PRODUCTS } from 'docs/src/products';
-import BrandingCssVarsProvider from 'docs/src/BrandingCssVarsProvider';
+import Head from "@stoked-ui/docs/Layouts/Head";
+import AppHeaderBanner from "@stoked-ui/docs/banner/AppHeaderBanner";
+import BrandingCssVarsProvider from '@stoked-ui/docs/branding/BrandingCssVarsProvider';
 import dynamic from 'next/dynamic';
-import AppFooter from "../src/layouts/AppFooter";
-import Head from "../src/modules/components/Head";
+import AppFooter from "@stoked-ui/docs/Layouts/AppFooter";
+import AppHeader from "@stoked-ui/docs/Layouts/AppHeader";
+import getProducts from '../src/products';
+import * as featureToggle from '../src/featureToggle';
+import { LANGUAGES_SSR } from '../config';
+import SuiLogomark from "../src/icons/SvgSuiLogomark";
+import ROUTES from '../src/route';
 import NewsletterToast from "../src/components/home/NewsletterToast";
-import AppHeaderBanner from "../src/components/banner/AppHeaderBanner";
-import AppHeader from "../src/layouts/AppHeader";
 import Hero from "../src/components/home/HeroMain";
+
 
 function randomHome(homePages: string[]) {
   return homePages[Math.floor(Math.random()*homePages.length)];
 }
+const PRODUCTS = getProducts();
 const homeUrl = randomHome(PRODUCTS.pages);
 const RandomHome = dynamic(() => import((`.${homeUrl}main`)), { ssr: false });
 
@@ -28,6 +34,7 @@ export function HomeView({ HomeMain}: { HomeMain: React.ComponentType }){
 
   return <BrandingCssVarsProvider>
     <Head
+      LANGUAGES_SSR={LANGUAGES_SSR}
       title="Stoked UI: React Media Components"
       description="Stoked UI provides a customizable, and accessible library of React media components."
       card="/static/social-previews/home-preview.jpg"
@@ -51,15 +58,16 @@ export function HomeView({ HomeMain}: { HomeMain: React.ComponentType }){
     <NoSsr>
       <NewsletterToast/>
     </NoSsr>
-    <AppHeaderBanner/>
-    <AppHeader/>
+    <AppHeaderBanner featureToggle={featureToggle} routes={ROUTES}/>
+    <AppHeader languages={LANGUAGES_SSR} Logomark={SuiLogomark} products={PRODUCTS} routes={ROUTES}/>
     <main id="main-content">
       {isClient ? <Main/> : ''}
       {PRODUCTS.previews()}
     </main>
-    <AppFooter/>
+    <AppFooter Logomark={SuiLogomark} products={PRODUCTS} routes={ROUTES}/>
   </BrandingCssVarsProvider>;
 }
+
 let MainView:  React.ComponentType<{}> = function MainView() {
   return (
     <React.Fragment>
@@ -69,12 +77,24 @@ let MainView:  React.ComponentType<{}> = function MainView() {
     </React.Fragment>
   )
 }
-export default function Home({ HomeMain }: { HomeMain: React.ComponentType }) {
 
+export default function Home({ HomeMain
+
+
+
+
+
+
+
+
+
+
+
+}: { HomeMain: React.ComponentType }) {
   return <HomeView HomeMain={ HomeMain || MainView } />;
 }
-Home.getInitialProps = async(context: { req: any; query: any; res: any; asPath: any; pathname: any; }) => {
 
+Home.getInitialProps = async(context: { req: any; query: any; res: any; asPath: any; pathname: any; }) => {
   const { req } = context;
   if (req) {
     if (req.headers?.host?.indexOf('stoked-ui.com')) {

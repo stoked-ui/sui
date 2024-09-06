@@ -5,9 +5,9 @@ import Grid from '@mui/material/Unstable_Grid2';
 import StyleRoundedIcon from '@mui/icons-material/StyleRounded';
 import AccessibilityNewRounded from '@mui/icons-material/AccessibilityNewRounded';
 import PhishingRoundedIcon from '@mui/icons-material/PhishingRounded';
-import Section from 'docs/src/layouts/Section';
-import SectionHeadline from 'docs/src/components/typography/SectionHeadline';
-import GradientText from 'docs/src/components/typography/GradientText';
+import Section from '@stoked-ui/docs/Layouts/Section';
+import SectionHeadline from '@stoked-ui/docs/typography/SectionHeadline';
+import GradientText from '@stoked-ui/docs/typography/GradientText';
 import { InfoCard } from '@mui/docs/InfoCard';
 
 const content = [

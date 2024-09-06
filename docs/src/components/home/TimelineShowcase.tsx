@@ -1,8 +1,8 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import ShowcaseContainer from 'docs/src/components/home/ShowcaseContainer';
-import HighlightedCode from 'docs/src/modules/components/HighlightedCode';
-import MarkdownElement from 'docs/src/components/markdown/MarkdownElement';
+import HighlightedCode from '@stoked-ui/docs/HighlightedCode';
+import MarkdownElement from '@stoked-ui/docs/Markdown/MarkdownElement';
 import {FileExplorer} from "@stoked-ui/file-explorer";
 import {SxProps} from "@mui/system";
 import {ITimelineActionType, Timeline, TimelineTrack} from "@stoked-ui/timeline";

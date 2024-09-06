@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Grid from '@mui/material/Unstable_Grid2';
-import IconImage, { IconImageProps } from 'docs/src/components/icon/IconImage';
+import IconImage, { IconImageProps } from '@stoked-ui/docs/icon/IconImage';
 
 export const CORE_CUSTOMERS: Array<IconImageProps> = [
   {
