@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Grid from '@mui/material/Grid';
-import ComponentShowcaseCard from '../components/action/ComponentShowcaseCard';
+import ComponentShowcaseCard from '../action/ComponentShowcaseCard';
 
 interface SurfaceComponent {
   name: string;

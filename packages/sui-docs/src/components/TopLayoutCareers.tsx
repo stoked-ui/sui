@@ -2,13 +2,14 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { styled } from '@mui/material/styles';
 import Divider from '@mui/material/Divider';
-import { Link } from '@mui/docs/Link';
+import { Link } from '../Link';
 import AppContainer from '../App/AppContainer';
 import AppFooter from '../Layouts/AppFooter';
 import AppHeader from '../Layouts/AppHeader';
 import BrandingCssVarsProvider from '../branding/BrandingCssVarsProvider';
 import MarkdownElement from '../Markdown/MarkdownElement';
 import Products from '../Products';
+import PageContext from "./PageContext";
 
 const StyledDiv = styled('div')({
   flex: '1 0 100%',
@@ -25,18 +26,15 @@ const StyledAppContainer = styled(AppContainer)(({ theme }) => ({
 type TopLayoutCareersProps = {
   docs: any,
   Head: React.JSX.ElementType,
-  routes: Record<string, string>,
-  products: Products,
-  Logomark: React.JSX.ElementType
 }
 
-export default function TopLayoutCareers(props: any) {
-  const { docs, Head, Logomark, routes, products } = props;
+export default function TopLayoutCareers(props: TopLayoutCareersProps) {
+  const { docs, Head,  } = props;
   const { description, rendered, title } = docs.en;
 
   return (
     <BrandingCssVarsProvider>
-      <AppHeader Logomark={Logomark} products={products} routes={routes} />
+      <AppHeader />
       <Head title={`${title} - SUI`} description={description}>
         <meta name="robots" content="noindex,nofollow" />
       </Head>
@@ -48,7 +46,6 @@ export default function TopLayoutCareers(props: any) {
             variant="body2"
             sx={{ display: 'block', mb: 2 }}
           >
-            {/* eslint-disable-next-line material-ui/no-hardcoded-labels */}
             {'< Back to open roles'}
           </Link>
           {rendered.map((chunk: any, index: number) => {
@@ -56,7 +53,7 @@ export default function TopLayoutCareers(props: any) {
           })}
         </StyledAppContainer>
         <Divider />
-        <AppFooter Logomark={Logomark}  products={products} routes={routes} />
+        <AppFooter />
       </StyledDiv>
     </BrandingCssVarsProvider>
   );

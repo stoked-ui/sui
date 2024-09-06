@@ -54,7 +54,7 @@ function InitCodeCopy() {
     ) as HTMLCollectionOf<HTMLDivElement>;
 
     if (codeRoots !== null) {
-      const listeners: Array<() => void> = [];
+      const listeners: Array<() => void> = new Array();
       Array.from(codeRoots).forEach((elm) => {
         const handleMouseEnter = () => {
           rootNode.current = elm;

@@ -80,9 +80,15 @@
     "node": ">=14.0.0"
   },
   "product": {
+    "id": "file-explorer",
     "name": "File Explorer",
     "fullName": "Stoked UI: File Explorer",
     "description": "Advanced media components",
+    "metadata": "Stoked UI",
+    "swipeable": true,
+    "productMenu": false,
+    "docsMenu": true,
+    "category": "core",
     "icon": "product-core",
     "url": "/file-explorer",
     "hideProductFeatures": true,

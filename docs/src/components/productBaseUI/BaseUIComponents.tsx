@@ -9,19 +9,19 @@ import TabUnselectedRoundedIcon from '@mui/icons-material/TabUnselectedRounded';
 import InputRoundedIcon from '@mui/icons-material/InputRounded';
 import MenuOpenRoundedIcon from '@mui/icons-material/MenuOpenRounded';
 import LinearScaleRoundedIcon from '@mui/icons-material/LinearScaleRounded';
-import GradientText from 'docs/src/components/typography/GradientText';
-import Item, { Group } from 'docs/src/components/action/Item';
-import Highlighter from 'docs/src/components/action/Highlighter';
-import Section from 'docs/src/layouts/Section';
-import SectionHeadline from 'docs/src/components/typography/SectionHeadline';
-import More from 'docs/src/components/action/More';
-import Frame from 'docs/src/components/action/Frame';
+import GradientText from '@stoked-ui/docs/typography/GradientText';
+import Item, { Group } from '@stoked-ui/docs/action/Item';
+import Highlighter from '@stoked-ui/docs/action/Highlighter';
+import Section from '@stoked-ui/docs/Layouts/Section';
+import SectionHeadline from '@stoked-ui/docs/typography/SectionHeadline';
+import More from '@stoked-ui/docs/action/More';
+import Frame from '@stoked-ui/docs/action/Frame';
 import ROUTES from 'docs/src/route';
 
 // switcher icons
 
 import HighlightedCode from '@stoked-ui/docs/HighlightedCode';
-import MarkdownElement from 'docs/src/components/markdown/MarkdownElement';
+import MarkdownElement from '@stoked-ui/docs/Markdown/MarkdownElement';
 import BaseButtonDemo from './components/BaseButtonDemo';
 import BaseMenuDemo from './components/BaseMenuDemo';
 import BaseInputDemo from './components/BaseInputDemo';

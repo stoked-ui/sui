@@ -123,7 +123,7 @@ ReactDOM.createRoot(document.querySelector("#root")${type}).render(
 import * as ReactDOM from 'react-dom/client';
 import { StyledEngineProvider } from '@mui/material/styles';
 import Demo from './Demo';
-
+console.log('type', type);
 ReactDOM.createRoot(document.querySelector("#root")${type}).render(
   <React.StrictMode>
     <StyledEngineProvider injectFirst>

@@ -3,8 +3,9 @@ import * as React from 'react';
 import { styled, alpha } from '@mui/material/styles';
 import { unstable_debounce as debounce } from '@mui/utils';
 // import ROUTES from 'docs/src/route';
-import { Link } from '@mui/docs/Link';
+import { Link } from '../Link';
 import Products from '../Products';
+import PageContext from "../components/PageContext";
 
 const Navigation = styled('nav')(({ theme }) => [
   {
@@ -60,7 +61,8 @@ const Navigation = styled('nav')(({ theme }) => [
 ]);
 
 
-export default function HeaderNavBar({ products, routes }: { products: Products, routes: Record<string, string>}) {
+export default function HeaderNavBar() {
+  const { products, routes } = React.useContext(PageContext);
   const [subMenuOpen, setSubMenuOpen] = React.useState<null | 'products' | 'docs'>(null);
   const [subMenuIndex, setSubMenuIndex] = React.useState<number | null>(null);
   const navRef = React.useRef<HTMLUListElement | null>(null);

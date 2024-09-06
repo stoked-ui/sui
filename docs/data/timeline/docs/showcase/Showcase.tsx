@@ -3,7 +3,7 @@ import { alpha, ThemeProvider, createTheme, useTheme } from '@mui/material/style
 import Box from '@mui/material/Box';
 import Button, { buttonClasses } from '@mui/material/Button';
 import HighlightedCode from '@stoked-ui/docs/HighlightedCode';
-import MarkdownElement from 'docs/src/components/markdown/MarkdownElement';
+import MarkdownElement from '@stoked-ui/docs/Markdown/MarkdownElement';
 import ShowcaseContainer from 'docs/src/components/home/ShowcaseContainer';
 import PointerContainer, { Data } from 'docs/src/components/home/ElementPointer';
 import StylingInfo from '@stoked-ui/docs/action/StylingInfo';

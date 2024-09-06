@@ -1,7 +1,7 @@
 import { CODE_VARIANTS } from '../components/constants';
-import type { SuiProductId } from '../utils/getProductInfoFromUrl';
+import type { ProductId } from '../Products';
 
-const packagesWithBundledTypes = ['date-fns', '@emotion/react', '@emotion/styled', 'dayjs'];
+const packagesWithBundledTypes: Array<any> = ['date-fns', '@emotion/react', '@emotion/styled', 'dayjs'];
 
 /**
  * WARNING: Always uses `latest` typings.
@@ -17,7 +17,7 @@ function addTypeDeps(deps: Record<string, string>): void {
     // All the SUI packages come with bundled types
     .filter((name) => name.indexOf('@mui/') !== 0);
 
-  packagesWithDTPackage.forEach((name) => {
+  packagesWithDTPackage.forEach((name: any) => {
     let resolvedName = name;
     // scoped package?
     if (name.startsWith('@')) {
@@ -32,7 +32,7 @@ function addTypeDeps(deps: Record<string, string>): void {
 export default function SandboxDependencies(
   demo: {
     raw: string;
-    productId?: SuiProductId;
+    productId?: ProductId;
     codeVariant: keyof typeof CODE_VARIANTS;
   },
   options?: { commitRef?: string },

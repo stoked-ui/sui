@@ -8,26 +8,22 @@ import Stack from '@mui/material/Stack';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import RssFeedIcon from '@mui/icons-material/RssFeed';
-import { Link } from '@mui/docs/Link';
+import { Link } from '../Link';
 import SvgStackOverflow from '../icon/SvgStackOverflow';
 import DiscordIcon from '../icon/DiscordIcon';
 import Slack from '../icon/Slack';
 import EmailSubscribe from '../footer/EmailSubscribe';
-import Products from '../Products';
-
-// import {ALL_PRODUCTS, PRODUCTS} from "../products";
+import PageContext from "../components/PageContext";
 
 
 interface AppFooterProps {
   stackOverflowUrl?: string;
-  products: Products;
-  routes: Record<string, string>;
-  Logomark: React.JSX.ElementType
 }
 
 export default function AppFooter(props: AppFooterProps) {
-  const { stackOverflowUrl, products, Logomark, routes } = props;
-
+  const { stackOverflowUrl } = props;
+  const { Logomark, products, routes } = React.useContext(PageContext);
+  console.log('hi');
   return (
     <Container component="footer">
       <Box
@@ -76,22 +72,22 @@ export default function AppFooter(props: AppFooterProps) {
             <Typography fontWeight="semiBold" variant="body2" sx={{ mb: 0.5 }}>
               Products
             </Typography>
-            <Link prefetch={false} href={products.index['stoked-ui'].url('product')}>
+            <Link prefetch={false} href={products.index['stoked-ui']?.url('product') ?? 'hi'}>
               Stoked UI
             </Link>
-            <Link prefetch={false} href={products.index['file-explorer'].url('product')}>
+            <Link prefetch={false} href={products.index['file-explorer']?.url('product') ?? 'hi'}>
               File Explorer
             </Link>
-            <Link prefetch={false} href={products.index.timeline.url('product')}>
+            <Link prefetch={false} href={products.index.timeline?.url('product') ?? 'hi'}>
               Timeline
             </Link>
-            <Link prefetch={false} href={products.index.editor.url('product')}>
+            <Link prefetch={false} href={products.index.editor?.url('product') ?? 'hi'}>
               Editor
             </Link>
-            <Link prefetch={false} href={products.index['media-selector'].url('product')}>
+            <Link prefetch={false} href={products.index['media-selector']?.url('product') ?? 'hi'}>
               Media Selector
             </Link>
-            <Link prefetch={false} href={products.index['stoked-consulting'].url('product')}>
+            <Link prefetch={false} href={products.index['stoked-consulting']?.url('product') ?? 'hi'}>
               Consulting
             </Link>
           </Box>

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { alpha } from '@mui/material/styles';
-import { Link } from '@mui/docs/Link';
+import { Link } from '../Link';
 import PageContext from '../components/PageContext';
 import { convertProductIdToName } from '../App/AppSearch';
 

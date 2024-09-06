@@ -1,21 +1,23 @@
-import { Products, Product, TProduct } from "@stoked-ui/docs";
+import { Products, Product, TProduct, ProductsInfo } from "@stoked-ui/docs";
 import StokedConsultingShowcase from "./components/home/StokedConsultingShowcase";
 import AdvancedShowcase from "./components/home/AdvancedShowcase";
 import FileExplorerShowcase from './components/home/FileExplorerShowcase';
 import TimelineShowcase from "./components/home/TimelineShowcase";
 import EditorShowcase from './components/home/EditorShowcase';
 import ROUTES from "./route";
-import {pkgProducts} from "./modules/utils/getProductInfoFromUrl";
 
 const stokedConsultingData: TProduct = {
   id: 'stoked-consulting',
   name: "Stoked Consulting",
   fullName: "Stoked Consulting Services",
   description: "Full stack consulting services.",
+  metadata: "Consulting",
+  category: "services",
   icon: "product-designkits",
-  metadata: 'Consulting',
   url: "/consulting",
-  live: true,
+  productMenu: true,
+  docsMenu: false,
+  swipeable: true,
   showcaseType: StokedConsultingShowcase,
   owners: ['brian-stoker'],
   features: [
@@ -35,7 +37,6 @@ const stokedConsultingData: TProduct = {
   ],
 };
 
-const stokedConsulting = new Product(stokedConsultingData, ROUTES);
 const stokedUiData: TProduct = {
   id: 'stoked-ui',
   name: "Stoked UI",
@@ -43,57 +44,45 @@ const stokedUiData: TProduct = {
   description: "Advanced media components MIT",
   icon: "product-designkits",
   metadata: 'Stoked UI',
+  category: "docs",
   url: "/stoked-ui",
   owners: ['brian-stoker'],
   maintainers: ['brian-stoker'],
   miscMaintainers: {'/scripts/': ['brian-stoker']},
   showcaseType: StokedConsultingShowcase,
-  hideProductFeatures: true,
-  live: true,
+  productMenu: true,
+  docsMenu: false,
+  swipeable: false,
   features: [{
-    name: 'Introduction',
-    description: 'Overview, installation, lions, tigers, and bears oh mai!',
-    id: 'overview',
+    name: 'Media Selector',
+    description: 'Library used to select and gather type specific meta data from client side files',
+    productId: 'media-selector',
+    id: ''
   }, {
     name: 'File Explorer',
     description: 'Highly extensible file explorer component with drag and drop support.',
     productId: 'file-explorer',
-    id: 'overview',
+    id: ''
   }, {
     name: 'Timeline',
     description: 'Timeline component used to construct tools that manipulate things over time.',
     productId: 'timeline',
-    id: 'overview',
+    id: ''
   }, {
     name: 'Editor',
     description: 'Editor contains components intended for use as raw building blocks for tools that can edit.. THEM THANGS..',
     productId: 'editor',
-    id: 'overview',
+    id: ''
   }],
 };
-const sui = new Product(stokedUiData, ROUTES);
 
-const fileExplorerData: TProduct = pkgProducts['file-explorer'];
-fileExplorerData.showcaseType = FileExplorerShowcase;
-const fileExplorer = new Product(fileExplorerData, ROUTES);
-
-const mediaSelectorData: TProduct = pkgProducts['media-selector'];
-mediaSelectorData.showcaseType = AdvancedShowcase;
-const mediaSelector = new Product(mediaSelectorData, ROUTES);
-
-const timelineData: TProduct = pkgProducts.timeline;
-timelineData.showcaseType = TimelineShowcase;
-const timeline = new Product(timelineData, ROUTES);
-
-const editorData: TProduct = pkgProducts.editor;
-editorData.showcaseType = EditorShowcase;
-const editor = new Product(editorData, ROUTES);
-
-const PRODUCTS = new Products([fileExplorer, mediaSelector, timeline, editor, stokedConsulting], ROUTES);
-const ALL_PRODUCTS = new Products([sui, stokedConsulting], ROUTES);
-const ProductIds = Object.keys(ALL_PRODUCTS.index);
-
-export type ProductId = typeof ProductIds[number];
-
-export { PRODUCTS, ALL_PRODUCTS, ProductIds }
+export default function getProducts() {
+  const stokedConsulting = new Product(stokedConsultingData, ROUTES);
+  const sui = new Product(stokedUiData, ROUTES);
+  const fileExplorer = new Product({...ProductsInfo['file-explorer'], showcaseType: FileExplorerShowcase}, ROUTES);
+  const mediaSelector = new Product({...ProductsInfo['media-selector'], showcaseType: AdvancedShowcase,}, ROUTES);
+  const timeline = new Product({...ProductsInfo.timeline, showcaseType: TimelineShowcase,}, ROUTES);
+  const editor = new Product({...ProductsInfo.editor, showcaseType: EditorShowcase,}, ROUTES);
+  return new Products([sui, mediaSelector, fileExplorer, timeline, editor, stokedConsulting], ROUTES, 'brian-stoker')
+}
 

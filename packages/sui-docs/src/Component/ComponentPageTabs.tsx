@@ -1,17 +1,17 @@
 import * as React from 'react';
 import { useRouter } from 'next/router';
-import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Tabs, { tabsClasses } from '@mui/material/Tabs';
 import Tab, { tabClasses } from '@mui/material/Tab';
-import { useTranslate } from '../utils/i18n';
-import { Link } from '@mui/docs/Link';
+import { useTranslate } from '../i18n';
+import { Link } from '../Link';
 
 export const HEIGHT = 50;
-
+/*
 const StyledTab = styled(Tab)(({ theme }) => ({
   // ... (keep existing styles)
 }));
+*/
 
 interface ComponentPageTabsProps {
   activeTab: string;
@@ -54,9 +54,9 @@ function ComponentPageTabs(props: ComponentPageTabsProps): React.ReactElement {
           },
         })}
       >
-        <StyledTab component={Link} href={demosHref} label={t('api-docs.demos')} value="" />
-        {headers.components?.length > 0 && (
-          <StyledTab
+        <Tab component={Link} href={demosHref} label={t('api-docs.demos')} value="" />
+        {(headers.components?.length ?? 0) > 0 && (
+          <Tab
             className="skip-algolia-crawler"
             component={Link}
             href={componentsHref}
@@ -65,7 +65,7 @@ function ComponentPageTabs(props: ComponentPageTabsProps): React.ReactElement {
           />
         )}
         {headers.hooks && headers.hooks.length > 0 && (
-          <StyledTab
+          <Tab
             className="skip-algolia-crawler"
             component={Link}
             href={hooksHref}

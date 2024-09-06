@@ -88,13 +88,18 @@
     "node": ">=14.0.0"
   },
   "product": {
+    "id": "editor",
     "name": "Editor",
     "fullName": "Stoked UI: Editor",
     "description": "Editor contains components intended for use as raw building blocks for tools that can.. well.. EDIT things.",
+    "metadata": "Stoked UI",
+    "productMenu": false,
+    "docsMenu": true,
+    "swipeable": true,
+    "category": "core",
     "icon": "product-templates",
     "url": "/editor",
     "hideProductFeatures": true,
-    "live": true,
     "owners": ["brian-stoker"],
     "features": [{
       "name": "Overview",

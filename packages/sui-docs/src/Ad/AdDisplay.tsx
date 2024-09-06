@@ -2,7 +2,7 @@ import * as React from 'react';
 import { styled } from '@mui/material/styles';
 import { adShape } from './AdManager';
 import { GA_ADS_DISPLAY_RATIO } from '../components/constants';
-import { adStylesObject } from './ad.styles';
+import getAdStylesObject from './ad.styles';
 
 interface Ad {
   label?: string;
@@ -22,7 +22,7 @@ interface AdDisplayProps {
 const Root = styled('span', { shouldForwardProp: (prop) => prop !== 'shape' })<{
   shape: 'inline' | string;
 }>(({ theme, shape }) => {
-  const styles = shape === 'image' ? adStylesObject[`body-image`](theme) : adStylesObject[`body-inline`](theme);
+  const styles = getAdStylesObject(theme, shape);
 
   return {
     ...styles.root,
@@ -33,15 +33,6 @@ const Root = styled('span', { shouldForwardProp: (prop) => prop !== 'shape' })<{
     '& .AdDisplay-poweredby': styles.poweredby,
   };
 });
-
-// Forward declare the window adjustments
-declare global {
-  interface Window {
-    gtag: (command: string, event: string, params: any) => void;
-    theme: any;
-    createTheme: any;
-  }
-}
 
 function AdDisplay({ ad, className, shape = 'auto' }: AdDisplayProps) {
   React.useEffect(() => {

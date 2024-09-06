@@ -5,14 +5,16 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import KeyboardArrowUpRounded from '@mui/icons-material/KeyboardArrowUpRounded';
 import KeyboardArrowDownRounded from '@mui/icons-material/KeyboardArrowDownRounded';
-import { Link } from '@mui/docs/Link';
+import { Link } from '../Link';
+import PageContext from "../components/PageContext";
 
 export default function StylingInfo({
   appeared,
   stylingContent,
-  routes,
   ...props
-}: { appeared: boolean; stylingContent?: React.ReactElement, routes: Record<string, string> } & BoxProps) {
+}: { appeared: boolean; stylingContent?: React.ReactElement } & BoxProps) {
+
+  const { routes } = React.useContext(PageContext);
   const [hidden, setHidden] = React.useState(false);
   const defaultContent = (
     <React.Fragment>

@@ -8,7 +8,7 @@ import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
 import { Link } from '@mui/docs/Link';
-import Section from 'docs/src/layouts/Section';
+import Section from '@stoked-ui/docs/Layouts/Section';
 
 export default function BaseUITestimonial() {
   return (

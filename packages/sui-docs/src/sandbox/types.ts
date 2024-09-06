@@ -1,4 +1,4 @@
-import type { SuiProductId } from '../utils/getProductInfoFromUrl';
+import type { ProductId } from '../Products';
 
 export type CodeStyling = 'Tailwind' | 'SUI System';
 export type CodeVariant = 'TS' | 'JS';
@@ -8,6 +8,6 @@ export interface DemoData {
   raw: string;
   codeVariant: CodeVariant;
   githubLocation: string;
-  productId?: Exclude<SuiProductId, 'null'>;
+  productId?: Exclude<ProductId, 'null'>;
   codeStyling: CodeStyling;
 }

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useTranslate, useUserLanguage } from '@mui/docs/i18n';
+import { useTranslate, useUserLanguage } from '../i18n';
 import MarkdownElement from '../Markdown/MarkdownElement';
 import HighlightedCodeWithTabs from '../HighlightedCode/HighlightedCodeWithTabs';
 import Demo from '../Demo';

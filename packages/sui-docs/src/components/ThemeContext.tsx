@@ -6,12 +6,13 @@ import {PaletteMode} from "@mui/material";
 import { deepmerge } from '@mui/utils';
 import { enUS, zhCN, ptBR } from '@mui/material/locale';
 import { unstable_useEnhancedEffect as useEnhancedEffect } from '@mui/material/utils';
-import { getDesignTokens, getThemedComponents, getMetaThemeColor } from '@mui/docs/branding';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import useLocalStorageState from '@mui/utils/useLocalStorageState';
-import { useUserLanguage } from '@mui/docs/i18n';
+import { useUserLanguage } from '../i18n';
 import { getCookie } from '../utils/helpers';
 import useLazyCSS from '../utils/useLazyCSS';
+import { getDesignTokens, getThemedComponents, getMetaThemeColor } from '../branding';
+
 
 const languageMap = {
   en: enUS,
@@ -118,13 +119,6 @@ export const DispatchContext = React.createContext<React.Dispatch<Action>>(() =>
 
 if (process.env.NODE_ENV !== 'production') {
   DispatchContext.displayName = 'ThemeDispatchContext';
-}
-
-declare global {
-  interface Window {
-    theme: any;
-    createTheme: any;
-  }
 }
 
 export function ThemeProvider(props: { children: React.ReactNode }) {

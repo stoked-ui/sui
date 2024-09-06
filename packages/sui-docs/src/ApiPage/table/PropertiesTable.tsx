@@ -1,7 +1,7 @@
 /* eslint-disable react/no-danger */
 import * as React from 'react';
 import { styled, alpha } from '@mui/material/styles';
-import { useTranslate } from '@mui/docs/i18n';
+import { useTranslate } from '../../i18n';
 import {
   brandingDarkTheme as darkTheme,
   brandingLightTheme as lightTheme,
@@ -171,12 +171,12 @@ export default function PropertiesTable(props: PropertiesTableProps) {
                   {isRequired ? '*' : ''}
                   {isOptional ? '?' : ''}
                   {isProPlan && (
-                    <a href="/x/introduction/licensing/#pro-plan">
+                    <a aria-label="Plan Pro" href="/x/introduction/licensing/#pro-plan">
                       <span className="plan-pro" />
                     </a>
                   )}
                   {isPremiumPlan && (
-                    <a href="/x/introduction/licensing/#premium-plan">
+                    <a aria-label="Plan Premium" href="/x/introduction/licensing/#premium-plan">
                       <span className="plan-premium" />
                     </a>
                   )}

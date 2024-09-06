@@ -119,7 +119,7 @@ const FileElement = styled(MuiTreeItem)(({ theme }) => ({
 function ObjectEntry(props: { nodeId: string; objectKey: string; objectValue: any }) {
   const { nodeId, objectKey, objectValue } = props;
   const keyPrefix = nodeId;
-  let children = null;
+  let children: React.ReactNode = null;
 
   if (
     (objectValue !== null && typeof objectValue === 'object') ||
@@ -151,7 +151,7 @@ function ObjectEntry(props: { nodeId: string; objectKey: string; objectValue: an
 
 function computeNodeIds(object: Record<string, any>, prefix: string) {
   if ((object !== null && typeof object === 'object') || typeof object === 'function') {
-    const ids: Array<string> = [];
+    const ids: Array<string> = new Array();
     Object.keys(object).forEach((key) => {
       ids.push(`${prefix}${key}`, ...computeNodeIds(object[key], `${prefix}${key}.`));
     });
@@ -177,7 +177,7 @@ const keyPrefix = '$ROOT';
 
 export default function ThemeViewer({
   data,
-  expandPaths = [],
+  expandPaths = new Array(),
   ...other
 }: {
   data: Record<string, any>;

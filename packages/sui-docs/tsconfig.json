@@ -1,16 +1,16 @@
 {
   "extends": "../../tsconfig.x.json",
   "compilerOptions": {
-    "target": "ES2015",
+    "skipLibCheck": true,
+    "target": "ES2019",
     "types": [
-      "@stoked-ui/internal-test-utils/initMatchers",
-      "@mui/material/themeCssVarsAugmentation",
       "chai-dom",
       "mocha",
-      "node"
+      "node",
+      "react"
     ],
     "noImplicitAny": false
   },
   "include": ["src/**/*"],
-  "exclude": ["**/*.test.tsx"]
+  "exclude": ["**/*.test.tsx"],
 }

@@ -1,10 +1,10 @@
 import * as React from 'react';
 import Divider from '@mui/material/Divider';
-import Head from '@stoked-ui/docs/components/Head';
-import BrandingCssVarsProvider from 'docs/src/BrandingCssVarsProvider';
-import AppHeader from 'docs/src/layouts/AppHeader';
-import AppFooter from 'docs/src/layouts/AppFooter';
-import AppHeaderBanner from 'docs/src/components/banner/AppHeaderBanner';
+import Head from '@stoked-ui/docs/Layouts/Head';
+import BrandingCssVarsProvider from '@stoked-ui/docs/branding/BrandingCssVarsProvider';
+import AppHeader from '@stoked-ui/docs/Layouts/AppHeader';
+import AppFooter from '@stoked-ui/docs/Layouts/AppFooter';
+import AppHeaderBanner from '@stoked-ui/docs/banner/AppHeaderBanner';
 import BaseUIHero from 'docs/src/components/productBaseUI/BaseUIHero';
 import BaseUISummary from 'docs/src/components/productBaseUI/BaseUISummary';
 import BaseUIComponents from 'docs/src/components/productBaseUI/BaseUIComponents';

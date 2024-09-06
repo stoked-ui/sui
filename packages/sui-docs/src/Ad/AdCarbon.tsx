@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { styled } from '@mui/material/styles';
 import loadScript from '../utils/loadScript';
-import { adStylesObject } from './ad.styles';
+import getAdStylesObject from './ad.styles';
 
 const CarbonRoot = styled('span')(({ theme }) => {
-  const styles = adStylesObject['body-image'](theme);
+  const styles = getAdStylesObject('image', theme);
 
   return {
     width: '100%',
@@ -14,10 +14,9 @@ const CarbonRoot = styled('span')(({ theme }) => {
       // This leads to duplication of the ad.
       //
       // To solve the issue, we only display the #carbonads div
-      display: 'none',
+      'display': 'none',
     },
     '& #carbonads': {
-      display: 'block',
       ...styles.root,
       '& .carbon-img': styles.imgWrapper,
       '& img': styles.img,
@@ -28,7 +27,7 @@ const CarbonRoot = styled('span')(({ theme }) => {
   };
 });
 
-function AdCarbonImage() {
+export function AdCarbonImage() {
   const ref = React.useRef<HTMLSpanElement>(null);
 
   React.useEffect(() => {
@@ -37,17 +36,22 @@ function AdCarbonImage() {
     // This leads to duplication of the ad.
     //
     // To solve the issue, for example StrictModel double effect execution, we debounce the load action.
-    const load = setTimeout(() => {
-      const script = loadScript(
-        'https://cdn.carbonads.com/carbon.js?serve=CKYIL27L&placement=material-uicom',
-        ref.current,
-      );
-      script.id = '_carbonads_js';
-    });
-
+    let load: any = null;
+    if (ref.current !== null) {
+      load = setTimeout(() => {
+        const script = loadScript(
+          'https://cdn.carbonads.com/carbon.js?serve=CKYIL27L&placement=material-uicom',
+          ref.current!,
+        );
+        script.id = '_carbonads_js';
+      });
+    }
     return () => {
-      clearTimeout(load);
+      if (load !== null) {
+        clearTimeout(load);
+      }
     };
+
   }, []);
 
   return <CarbonRoot ref={ref} />;

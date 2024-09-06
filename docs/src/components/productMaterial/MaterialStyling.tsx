@@ -6,16 +6,16 @@ import DevicesOtherRoundedIcon from '@mui/icons-material/DevicesOtherRounded';
 import ContrastRoundedIcon from '@mui/icons-material/ContrastRounded';
 import SwitchAccessShortcutRoundedIcon from '@mui/icons-material/SwitchAccessShortcutRounded';
 import DragHandleRounded from '@mui/icons-material/DragHandleRounded';
-import Section from 'docs/src/layouts/Section';
-import SectionHeadline from 'docs/src/components/typography/SectionHeadline';
-import GradientText from 'docs/src/components/typography/GradientText';
-import Item, { Group } from 'docs/src/components/action/Item';
-import Highlighter from 'docs/src/components/action/Highlighter';
-import Frame from 'docs/src/components/action/Frame';
+import Section from '@stoked-ui/docs/Layouts/Section';
+import SectionHeadline from '@stoked-ui/docs/typography/SectionHeadline';
+import GradientText from '@stoked-ui/docs/typography/GradientText';
+import Item, { Group } from '@stoked-ui/docs/action/Item';
+import Highlighter from '@stoked-ui/docs/action/Highlighter';
+import Frame from '@stoked-ui/docs/action/Frame';
 import RealEstateCard from 'docs/src/components/showcase/RealEstateCard';
 import HighlightedCode from '@stoked-ui/docs/HighlightedCode';
-import MarkdownElement from 'docs/src/components/markdown/MarkdownElement';
-import FlashCode from 'docs/src/components/animation/FlashCode';
+import MarkdownElement from '@stoked-ui/docs/Markdown/MarkdownElement';
+import FlashCode from '@stoked-ui/docs/animation/FlashCode';
 
 const code = `
 <Card

@@ -2,7 +2,7 @@ import * as React from 'react';
 import dynamic from 'next/dynamic';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import Section from 'docs/src/layouts/Section';
+import Section from '@stoked-ui/docs/Layouts/Section';
 import {
   CORE_CUSTOMERS,
   ADVANCED_CUSTOMERS,

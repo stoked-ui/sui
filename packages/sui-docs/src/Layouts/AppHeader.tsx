@@ -7,13 +7,13 @@ import Container from '@mui/material/Container';
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import GitHubIcon from '@mui/icons-material/GitHub';
-import { Link } from '@mui/docs/Link';
-import { useTranslate } from '@mui/docs/i18n';
+import { Link } from '../Link';
+import { useTranslate } from '../i18n';
 import HeaderNavBar from '../header/HeaderNavBar';
 import HeaderNavDropdown from '../header/HeaderNavDropdown';
 import ThemeModeToggle from '../header/ThemeModeToggle';
 import { DeferredAppSearch } from '../App/AppFrame';
-import Products from '../Products';
+import PageContext from "../components/PageContext";
 // import SvgSuiLogomark from "../icon/SvgSuiLogomark";
 
 const Header = styled('header')(({ theme }) => [
@@ -36,13 +36,11 @@ const HEIGHT = 60;
 
 interface AppHeaderProps {
   gitHubRepository?: string;
-  Logomark: React.JSX.ElementType;
-  products: Products;
-  routes: Record<string, string>
 }
 
 export default function AppHeader(props: AppHeaderProps) {
-  const { Logomark, products, routes, gitHubRepository = 'https://github.com/stoked-ui/mono' } = props;
+  const { gitHubRepository = 'https://github.com/stoked-ui/mono' } = props;
+  const { Logomark } = React.useContext(PageContext);
   const t = useTranslate();
 
   return (
@@ -59,7 +57,7 @@ export default function AppHeader(props: AppHeaderProps) {
           <Logomark width={30} />
         </Box>
         <Box sx={{ display: { xs: 'none', md: 'initial' } }}>
-          <HeaderNavBar products={products} routes={routes}/>
+          <HeaderNavBar />
         </Box>
         <Box sx={{ ml: 'auto' }} />
         <Stack direction="row" spacing={1}>

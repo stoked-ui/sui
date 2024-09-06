@@ -1,33 +1,34 @@
-import 'docs/src/modules/components/bootstrap';
+import '@stoked-ui/docs/components/bootstrap';
 // --- Post bootstrap -----
 import * as React from 'react';
 import { loadCSS } from 'fg-loadcss/src/loadCSS';
+import { DocsProvider } from '@mui/docs/DocsProvider';
+import { DocsProvider as SUIDocsProvider } from '@stoked-ui/docs/DocsProvider/DocsProvider';
+import { mapTranslations } from '@mui/docs/i18n';
 import NextHead from 'next/head';
 import PropTypes from 'prop-types';
 import { useRouter } from 'next/router';
-
-import PageContext from 'docs/src/modules/components/PageContext';
-import GoogleAnalytics from 'docs/src/modules/components/GoogleAnalytics';
-import { CodeCopyProvider } from 'docs/src/modules/utils/CodeCopy';
-import { ThemeProvider } from 'docs/src/modules/components/ThemeContext';
-import { CodeVariantProvider } from 'docs/src/modules/utils/codeVariant';
-import { CodeStylingProvider } from 'docs/src/modules/utils/codeStylingSolution';
-import DocsStyledEngineProvider from '../src/modules/utils/StyledEngineProvider';
+import { ProductIds } from '@stoked-ui/docs/Products';
+import getProducts from 'docs/src/products';
+import PageContext from '@stoked-ui/docs/components/PageContext';
+import { CodeCopyProvider } from '@stoked-ui/docs/utils/CodeCopy';
+import { ThemeProvider } from '@stoked-ui/docs/components/ThemeContext';
+import { CodeVariantProvider } from '@stoked-ui/docs/utils/codeVariant';
+import { CodeStylingProvider } from '@stoked-ui/docs/utils/codeStylingSolution';
+import DocsStyledEngineProvider from '@stoked-ui/docs/utils/StyledEngineProvider';
 import createEmotionCache from 'docs/src/createEmotionCache';
-import findActivePage from 'docs/src/modules/utils/findActivePage';
-import { pathnameToLanguage } from 'docs/src/modules/utils/helpers';
-import getProductInfoFromUrl from 'docs/src/modules/utils/getProductInfoFromUrl';
-import { DocsProvider } from '@mui/docs/DocsProvider';
-import { DocsProvider as DocsProviderStoked } from '@stoked-ui/docs/DocsProvider';
-import { mapTranslations } from '@mui/docs/i18n';
+import findActivePage from '@stoked-ui/docs/utils/findActivePage';
+import { pathnameToLanguage } from '@stoked-ui/docs/utils/helpers';
+import ROUTES from 'docs/src/route';
 import fileExplorerPages from '../data/pages';
 import './global.css';
 import '../public/static/components-gallery/base-theme.css';
-import config from '../config';
+import config, {LANGUAGES_SSR} from '../config';
+import SvgSuiLogomark from "../src/icons/SvgSuiLogomark";
+
 
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
-
 let reloadInterval;
 
 // Avoid infinite loop when "Upload on reload" is set in the Chrome sw dev tools.
@@ -127,6 +128,9 @@ Tip: you can access the documentation \`theme\` object directly in the console.
     'font-family:monospace;color:#1976d2;font-size:12px;',
   );
 }
+
+const PRODUCTS = getProducts();
+console.log('PRODUCTS', PRODUCTS)
 function AppWrapper(props) {
   const { children, emotionCache, pageProps } = props;
 
@@ -134,8 +138,14 @@ function AppWrapper(props) {
   // TODO move productId & productCategoryId resolution to page layout.
   // We should use the productId field from the markdown and fallback to getProductInfoFromUrl()
   // if not present
+  const asPathWithoutLang = pathnameToLanguage(router.asPath).canonicalAsServer;
+  const firstFolder = asPathWithoutLang.replace(/^\/+([^/]+)\/.*/, '$1');
+  let product = PRODUCTS?.index['stoked-ui'];
+  if (ProductIds.indexOf(firstFolder) !== -1) {
+    product = PRODUCTS.index[firstFolder]
+  }
 
-  const { productId, productCategoryId, product } = getProductInfoFromUrl(router.asPath);
+  console.log('product', PRODUCTS, PRODUCTS.index, product);
 
   React.useEffect(() => {
     loadDependencies();
@@ -148,76 +158,43 @@ function AppWrapper(props) {
     }
   }, []);
 
+  console.log('app product', product);
+
   const productIdentifier = React.useMemo(() => {
     const languagePrefix = pageProps.userLanguage === 'en' ? '' : `/${pageProps.userLanguage}`;
-
-    const productMap = {
-      'editor': {
-        metadata: 'Stoked UI',
-        name: 'Editor',
-        id: 'editor',
-        package: true,
-      },
-      'file-explorer': {
-        metadata: 'Stoked UI',
-        name: 'File Explorer',
-        id: 'file-explorer',
-        package: true,
-      },
-      'media-selector': {
-        metadata: 'Stoked UI',
-        name: 'Media Selector',
-        id: 'media-selector',
-        package: true,
-      },
-      'timeline': {
-        metadata: 'Stoked UI',
-        name: 'Timeline',
-        id: 'timeline',
-        package: true,
-      },
-      'stoked-ui': {
-        metadata: 'Stoked UI',
-        name: 'Stoked UI',
-        id: 'stoked-ui',
-      },
-      'docs': {
-        metadata: 'Docs',
-        name: 'Stoked UI',
-        id: 'docs',
-      },
-    };
-
     return {
-      ...productMap[productId ?? 'stoked-ui'],
+      ...product,
       versions: [
         {
           text: 'v1 (next)',
-          href: `${languagePrefix}/v1/${productId}/`,
+          href: `${languagePrefix}/v1/${product?.id}/`,
         },
-        {text: `v${fileExplorerPkgJson.version}`, current: true},
+        {text: `v${product?.version}`, current: true},
         {
           text: 'View all versions',
-          href: `${languagePrefix}/versions/${productId}`,
+          href: `${languagePrefix}/versions/${product?.id}`,
         },
       ],
     }
-  }, [pageProps.userLanguage, productId]);
-
+  }, [product, pageProps.userLanguage]);
 
   const pageContextValue = React.useMemo(() => {
     const pages = fileExplorerPages;
     const { activePage, activePageParents } = findActivePage(pages, router.pathname);
 
     return {
+      routes: ROUTES,
+      languages: LANGUAGES_SSR,
+      Logomark: SvgSuiLogomark,
+      products: PRODUCTS,
       activePage,
       activePageParents,
       pages,
       productIdentifier,
-      productId,
-      productCategoryId,
+      productId: product?.id,
+      productCategoryId: product?.category,
     };
-  }, [productId, productCategoryId, productIdentifier, router.pathname]);
+  }, [product, router.pathname, productIdentifier]);
 
   let fonts = [];
   if (pathnameToLanguage(router.asPath).canonicalAs.match(/onepirate/)) {
@@ -233,19 +210,19 @@ function AppWrapper(props) {
         {fonts.map((font) => (
           <link rel="stylesheet" href={font} key={font} />
         ))}
-        <meta name="mui:productId" content={productId} />
-        <meta name="mui:productCategoryId" content={productCategoryId} />
+        <meta name="mui:productId" content={product?.id} />
+        <meta name="mui:productCategoryId" content={product?.category} />
       </NextHead>
-      <DocsProviderStoked
-        config={config}
-        defaultUserLanguage={pageProps.userLanguage}
-        translations={pageProps.translations}
-      >
-        <DocsProvider
+        <SUIDocsProvider
           config={config}
           defaultUserLanguage={pageProps.userLanguage}
           translations={pageProps.translations}
         >
+          <DocsProvider
+            config={config}
+            defaultUserLanguage={pageProps.userLanguage}
+            translations={pageProps.translations}
+          >
           <CodeCopyProvider>
             <CodeStylingProvider>
               <CodeVariantProvider>
@@ -263,7 +240,7 @@ function AppWrapper(props) {
             </CodeStylingProvider>
           </CodeCopyProvider>
         </DocsProvider>
-      </DocsProviderStoked>
+      </SUIDocsProvider>
     </React.Fragment>
   );
 }

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import Typography from '@mui/material/Typography';
-import { Link } from '@mui/docs/Link';
+import { Link } from '../Link';
+import PageContext from "../components/PageContext";
 
 function getSurveyMessage() {
   return (
@@ -24,7 +25,8 @@ function getSurveyMessage() {
   );
 }
 
-function getDefaultHiringMessage({ routes }: { routes: Record<string, string>}) {
+function DefaultHiringMessage() {
+  const { routes } = React.useContext(PageContext);
   return (
     <React.Fragment>
       🚀&#160;&#160;We&apos;re hiring a Designer, Full-stack Engineer, React Community Engineer, and
@@ -46,9 +48,9 @@ function getDefaultHiringMessage({ routes }: { routes: Record<string, string>}) 
   );
 }
 
-export default function AppHeaderBanner({featureToggle, routes }: {featureToggle: Record<string, boolean>, routes: Record<string, string>}) {
+export default function AppHeaderBanner({featureToggle }: {featureToggle: Record<string, boolean>}) {
   const showSurveyMessage = false;
-  const bannerMessage = showSurveyMessage ? getSurveyMessage() : getDefaultHiringMessage({routes});
+  const bannerMessage = showSurveyMessage ? getSurveyMessage() : DefaultHiringMessage();
 
   return featureToggle.enable_website_banner ? (
     <Typography

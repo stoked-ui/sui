@@ -1,6 +1,6 @@
 import * as React from 'react';
 import kebabCase from 'lodash/kebabCase';
-import { useTranslate, useUserLanguage } from '@mui/docs/i18n';
+import { useTranslate, useUserLanguage } from '../i18n';
 import PropertiesSection from '../ApiPage/sections/PropertiesSection';
 import HighlightedCode from '../HighlightedCode/HighlightedCode';
 import MarkdownElement from '../Markdown/MarkdownElement';
@@ -43,7 +43,7 @@ interface HooksApiContentProps {
   descriptions: any;
   pagesContents: any;
   defaultLayout?: 'collapsed' | 'expanded' | 'table';
-  layoutStorageKey?: string;
+  layoutStorageKey?: any;
 }
 
 function HooksApiContent({

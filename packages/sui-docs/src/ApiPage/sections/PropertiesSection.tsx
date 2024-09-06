@@ -2,7 +2,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import Box from '@mui/material/Box';
-import { useTranslate } from '@mui/docs/i18n';
+import { useTranslate } from '../../i18n';
 import ToggleDisplayOption, {
   useApiPageOption,
 } from './ToggleDisplayOption';
