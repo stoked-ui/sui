@@ -1,5 +1,5 @@
 import * as React from 'react';
-import TopLayoutCareers from '@stoked-ui/docs/components/TopLayoutCareers';
+import TopLayoutCareers from 'docs/src/modules/components/TopLayoutCareers';
 import * as pageProps from 'docs/pages/careers/accessibility-engineer.md?muiMarkdown';
 
 export default function Page() {

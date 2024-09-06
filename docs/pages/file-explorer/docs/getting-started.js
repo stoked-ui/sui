@@ -1,6 +1,6 @@
 import * as React from 'react';
-import MarkdownDocs from '@stoked-ui/docs/Markdown/MarkdownDocs';
-import * as pageProps from '../../../data/file-explorer/docs/getting-started/getting-started.md?muiMarkdown';
+import MarkdownDocs from 'docs/src/modules/components/MarkdownDocs';
+import * as pageProps from 'docs/data/file-explorer/docs/getting-started/getting-started.md?muiMarkdown';
 
 export default function Page() {
   return <MarkdownDocs {...pageProps} />;

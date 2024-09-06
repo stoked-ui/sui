@@ -109,7 +109,7 @@ export function useTranslate() {
             console.error(`Missing translation for ${fullKey}`);
             warnedOnce[fullKey] = true;
           }
-          return getPath(translations.en, key);
+          return getPath(translations, key);
         }
 
         return translation;

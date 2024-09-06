@@ -4,5 +4,4 @@ import * as pageProps from 'docs/data/editor/docs/overview/overview.md?muiMarkdo
 
 export default function Page() {
   return <MarkdownDocs {...pageProps} />;
-
 }

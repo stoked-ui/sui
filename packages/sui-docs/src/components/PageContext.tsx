@@ -1,12 +1,11 @@
 import * as React from 'react';
 import type SuiPage from '../SuiPage';
-import type { ProductId } from '../Products';
 import Products from '../Products';
 
 const PageContext = React.createContext<{
   activePage: SuiPage | null;
   pages: SuiPage[];
-  productId: ProductId;
+  productId: string;
   productIdentifier: any;
   activePageParents: any;
   productCategoryId?: any;

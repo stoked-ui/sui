@@ -16,11 +16,6 @@ import dynamic from "next/dynamic";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useInView } from "react-intersection-observer";
 import Grid from "@mui/material/Grid";
-import fileExplorerPkg from 'packages/sui-file-explorer/package.json';
-import mediaSelectorPkg from 'packages/sui-media-selector/package.json';
-import timelinePkg from 'packages/sui-timeline/package.json';
-import editorPkg from 'packages/sui-editor/package.json';
-import PageContext from "../components/PageContext";
 import IconImage from "../icon/IconImage";
 import Highlighter from "../action/Highlighter";
 import Section from "../Layouts/Section";
@@ -29,12 +24,8 @@ import GradientText from "../typography/GradientText";
 import { Link } from "../Link";
 
 
-
-
 type RouteType = 'product' | 'doc';
 const routeTypes: RouteType[] = ['product', 'doc'];
-
-type PageContextType = typeof PageContext;
 
 type TFeature = {
   name: string;
@@ -68,12 +59,12 @@ export type Owners = {
 export type ProductCategoryId = 'null' | 'core' | 'services' | 'utility' | 'docs';
 
 export interface Product {
-  productId: ProductId;
+  productId: string;
   product?: TProduct
 }
 
 export type TProduct = {
-  id: ProductId,
+  id: string,
   metadata: string,
   category: ProductCategoryId,
   name: string;
@@ -263,7 +254,7 @@ export class Product  {
     )
   }
 
-  selectorItem(context: any) {
+  selectorItem(selectedProductId: string) {
     return (
       <Box
         component="li"
@@ -293,8 +284,8 @@ export class Product  {
           {this.features.map((feature) => (
             <Chip
               key={feature.name}
-              color={context.productId === this.id ? 'primary' : undefined}
-              variant={context.productId === this.id ? 'filled' : 'outlined'}
+              color={selectedProductId === this.id ? 'primary' : undefined}
+              variant={selectedProductId === this.id ? 'filled' : 'outlined'}
               component={Link}
               href={feature.route?.('doc') ?? ''}
               label={feature.name}
@@ -385,7 +376,7 @@ export class Product  {
     return `${this.data.url}${getTypeUrl(type)}${suffix}`;
   }
 
-  get id(): ProductId {
+  get id(): string {
     return this.data.id;
   }
 
@@ -753,8 +744,7 @@ class Products extends IndexObject<Product> {
     return <SwipeableProducts {...props} />
   }
 
-
-  getFeatureUrl(productId: ProductId, featureId: string, type: LinkType = 'doc') {
+  getFeatureUrl(productId: string, featureId: string, type: LinkType = 'doc') {
     const product = this.index[productId];
     const feature = product.features.find((f: FEATURE) => f.id === featureId);
     if ( !feature) {
@@ -763,12 +753,12 @@ class Products extends IndexObject<Product> {
     return product.url(type, feature.productId ?? feature.id);
   }
 
-  productSelector(context: PageContextType) {
+  productSelector(selectedProductId: string) {
     return (
       <React.Fragment>
 
         {this.products.map((product: Product) => {
-          return  product.selectorItem(context);
+          return  product.selectorItem(selectedProductId);
         })}
       </React.Fragment>
     )
@@ -793,23 +783,6 @@ class Products extends IndexObject<Product> {
 export type MenuProps = {
   linkType: LinkType,
   sx?: SxProps<Theme>,
-};
-export const ProductIds: Array<string> = [
-  'null',
-  'media-selector',
-  'file-selector',
-  'timeline',
-  'editor',
-  'docs',
-];
-export type ProductId = typeof ProductIds[number];
-
-type ProductInfo = Omit<TProduct, 'showcaseType'>
-export const ProductsInfo: Record<ProductId, ProductInfo> = {
-  'file-explorer': fileExplorerPkg.product as ProductInfo,
-  'media-selector': mediaSelectorPkg.product as ProductInfo,
-  'timeline': timelinePkg.product as ProductInfo,
-  'editor': editorPkg.product as ProductInfo,
 };
 
 export default Products;

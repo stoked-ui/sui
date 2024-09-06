@@ -10,12 +10,8 @@ import Slide from '@mui/material/Slide';
 import TextFieldsRoundedIcon from '@mui/icons-material/TextFieldsRounded';
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 import { RootSvgProps } from '../icon/RootSvg';
-/*
-import SvgMuiLogomark, {
-  muiSvgLogoString,
-  muiSvgWordmarkString,
-} from 'docs/src/icons/SvgMuiLogomark';
-*/
+
+
 interface LogoWithCopyMenuProps {
   logo: React.ComponentType<RootSvgProps>;
   logoSvgString: string;

@@ -4,10 +4,10 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import KeyboardArrowRightRounded from '@mui/icons-material/KeyboardArrowRightRounded';
 import { Link } from '@mui/docs/Link';
-import GradientText from '@stoked-ui/docs/typography/GradientText';
+import GradientText from 'docs/src/components/typography/GradientText';
 import ROUTES from 'docs/src/route';
-import Section from '@stoked-ui/docs/Layouts/Section';
-import SectionHeadline from '@stoked-ui/docs/typography/SectionHeadline';
+import Section from 'docs/src/layouts/Section';
+import SectionHeadline from 'docs/src/components/typography/SectionHeadline';
 
 export default function AboutEnd() {
   return (

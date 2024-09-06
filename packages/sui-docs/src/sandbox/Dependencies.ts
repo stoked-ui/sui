@@ -1,5 +1,4 @@
 import { CODE_VARIANTS } from '../components/constants';
-import type { ProductId } from '../Products';
 
 const packagesWithBundledTypes: Array<any> = ['date-fns', '@emotion/react', '@emotion/styled', 'dayjs'];
 
@@ -32,7 +31,7 @@ function addTypeDeps(deps: Record<string, string>): void {
 export default function SandboxDependencies(
   demo: {
     raw: string;
-    productId?: ProductId;
+    productId?: string;
     codeVariant: keyof typeof CODE_VARIANTS;
   },
   options?: { commitRef?: string },

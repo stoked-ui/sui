@@ -295,7 +295,7 @@ export default function MaterialComponents() {
                 pt: 5,
               }}
             >
-              <StylingInfo appeared={customized} routes={ROUTES} />
+              <StylingInfo appeared={customized} />
               <Box
                 sx={{
                   overflow: 'auto',

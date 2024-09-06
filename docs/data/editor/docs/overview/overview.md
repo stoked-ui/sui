@@ -10,7 +10,7 @@ packageName: '@stoked-ui/mono'
 
 <p class="description">The Stoked UI Editor module contains components intended for use as raw building blocks for tools that can edit things.</p>
 
-{{"component": "./ComponentLinkHeader"}}
+{{"component": "modules/components/ComponentLinkHeader"}}
 
 ## Getting Started
 

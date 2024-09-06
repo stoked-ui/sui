@@ -1,35 +1,31 @@
-import '@stoked-ui/docs/components/bootstrap';
+import 'docs/src/modules/components/bootstrap';
 // --- Post bootstrap -----
 import * as React from 'react';
 import { loadCSS } from 'fg-loadcss/src/loadCSS';
-import { DocsProvider } from '@mui/docs/DocsProvider';
-import { DocsProvider as SUIDocsProvider } from '@stoked-ui/docs/DocsProvider/DocsProvider';
-import { mapTranslations } from '@mui/docs/i18n';
 import NextHead from 'next/head';
 import PropTypes from 'prop-types';
 import { useRouter } from 'next/router';
-import { ProductIds } from '@stoked-ui/docs/Products';
-import getProducts from 'docs/src/products';
-import PageContext from '@stoked-ui/docs/components/PageContext';
-import { CodeCopyProvider } from '@stoked-ui/docs/utils/CodeCopy';
-import { ThemeProvider } from '@stoked-ui/docs/components/ThemeContext';
-import { CodeVariantProvider } from '@stoked-ui/docs/utils/codeVariant';
-import { CodeStylingProvider } from '@stoked-ui/docs/utils/codeStylingSolution';
-import DocsStyledEngineProvider from '@stoked-ui/docs/utils/StyledEngineProvider';
-import createEmotionCache from 'docs/src/createEmotionCache';
-import findActivePage from '@stoked-ui/docs/utils/findActivePage';
-import { pathnameToLanguage } from '@stoked-ui/docs/utils/helpers';
+import getProducts, { ProductIds } from 'docs/src/products';
+// import createEmotionCache from 'docs/src/createEmotionCache';
+import findActivePage from 'docs/src/modules/utils/findActivePage';
+import { pathnameToLanguage } from 'docs/src/modules/utils/helpers';
+import PageContext from 'docs/src/modules/components/PageContext';
+import { CodeCopyProvider } from 'docs/src/modules/utils/CodeCopy';
+import { ThemeProvider } from 'docs/src/modules/components/ThemeContext';
+import { CodeVariantProvider } from 'docs/src/modules/utils/codeVariant';
+import { CodeStylingProvider } from 'docs/src/modules/utils/codeStylingSolution';
+import DocsStyledEngineProvider from 'docs/src/modules/utils/StyledEngineProvider';
 import ROUTES from 'docs/src/route';
-import featureToggle from 'docs/src/featureToggle';
+import {DocsProvider} from "docs/src/DocsProvider";
 import fileExplorerPages from '../data/pages';
 import './global.css';
 import '../public/static/components-gallery/base-theme.css';
 import config, {LANGUAGES_SSR} from '../config';
 import SvgSuiLogomark from "../src/icons/SvgSuiLogomark";
+import * as featureToggle from '../src/featureToggle';
 
 
 // Client-side cache, shared for the whole session of the user in the browser.
-const clientSideEmotionCache = createEmotionCache();
 let reloadInterval;
 
 // Avoid infinite loop when "Upload on reload" is set in the Chrome sw dev tools.
@@ -145,6 +141,8 @@ function AppWrapper(props) {
     product = PRODUCTS.index[firstFolder]
   }
 
+  console.log('product', PRODUCTS, PRODUCTS.index, product);
+
   React.useEffect(() => {
     loadDependencies();
     registerServiceWorker().catch(console.error);
@@ -155,7 +153,6 @@ function AppWrapper(props) {
       jssStyles.parentElement.removeChild(jssStyles);
     }
   }, []);
-
 
   const productIdentifier = React.useMemo(() => {
     const languagePrefix = pageProps.userLanguage === 'en' ? '' : `/${pageProps.userLanguage}`;
@@ -180,7 +177,6 @@ function AppWrapper(props) {
     const { activePage, activePageParents } = findActivePage(pages, router.pathname);
 
     return {
-      featureToggle,
       routes: ROUTES,
       languages: LANGUAGES_SSR,
       Logomark: SvgSuiLogomark,
@@ -191,6 +187,7 @@ function AppWrapper(props) {
       productIdentifier,
       productId: product?.id,
       productCategoryId: product?.category,
+      featureToggle
     };
   }, [product, router.pathname, productIdentifier]);
 
@@ -211,16 +208,11 @@ function AppWrapper(props) {
         <meta name="mui:productId" content={product?.id} />
         <meta name="mui:productCategoryId" content={product?.category} />
       </NextHead>
-        <SUIDocsProvider
+        <DocsProvider
           config={config}
           defaultUserLanguage={pageProps.userLanguage}
           translations={pageProps.translations}
         >
-          <DocsProvider
-            config={config}
-            defaultUserLanguage={pageProps.userLanguage}
-            translations={pageProps.translations}
-          >
           <CodeCopyProvider>
             <CodeStylingProvider>
               <CodeVariantProvider>
@@ -237,8 +229,7 @@ function AppWrapper(props) {
               </CodeVariantProvider>
             </CodeStylingProvider>
           </CodeCopyProvider>
-        </DocsProvider>
-      </SUIDocsProvider>
+      </DocsProvider>
     </React.Fragment>
   );
 }
@@ -247,41 +238,6 @@ AppWrapper.propTypes = {
   children: PropTypes.node.isRequired,
   emotionCache: PropTypes.object.isRequired,
   pageProps: PropTypes.object.isRequired,
-};
-
-export default function MyApp(props) {
-  const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
-  const getLayout = Component.getLayout ?? ((page) => page);
-
-  return (
-    <AppWrapper emotionCache={emotionCache} pageProps={pageProps}>
-      {getLayout(<Component {...pageProps} />)}
-    </AppWrapper>
-  );
-}
-MyApp.propTypes = {
-  Component: PropTypes.elementType.isRequired,
-  emotionCache: PropTypes.object,
-  pageProps: PropTypes.object.isRequired,
-};
-
-MyApp.getInitialProps = async ({ ctx, Component }) => {
-  let pageProps = {};
-
-  const req = require.context('docs/translations', false, /translations.*\.json$/);
-  const translations = mapTranslations(req);
-
-  if (Component.getInitialProps) {
-    pageProps = await Component.getInitialProps(ctx);
-  }
-
-  return {
-    pageProps: {
-      userLanguage: ctx.query.userLanguage || 'en',
-      translations,
-      ...pageProps,
-    },
-  };
 };
 
 // Track fraction of actual events to prevent exceeding event quota.

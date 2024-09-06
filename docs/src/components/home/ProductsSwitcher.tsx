@@ -1,4 +1,6 @@
-import * as React from 'react';
+/*
+
+ import * as React from 'react';
 import { Theme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import {
@@ -19,3 +21,4 @@ export default function ProductsSwitcher(props: ProductStackProps) {
     </React.Fragment>
   );
 }
+*/

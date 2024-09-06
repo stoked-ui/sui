@@ -4,7 +4,7 @@ import Chip from '@mui/material/Chip';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import Divider from '@mui/material/Divider';
-import Head from '@stoked-ui/docs/Layouts/Head';
+import Head from '@stoked-ui/docs/Layouts/Head.tsx.bak';
 import BrandingCssVarsProvider from '@stoked-ui/docs/branding/BrandingCssVarsProvider';
 import AppHeader from '@stoked-ui/docs/Layouts/AppHeader';
 import Section from '@stoked-ui/docs/Layouts/Section';

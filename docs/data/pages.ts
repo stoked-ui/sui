@@ -1,4 +1,4 @@
-import type SuiPage from '@stoked-ui/docs/SuiPage/SuiPage';
+import type SuiPage from 'docs/src/SuiPage';
 import fileExplorerComponentApi from './file-explorer-component-api-pages';
 
 const pages: SuiPage[] = [

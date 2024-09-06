@@ -1,10 +1,33 @@
-import { Products, Product, TProduct, ProductsInfo } from "@stoked-ui/docs";
+import { Products, Product, TProduct } from "@stoked-ui/docs";
+import fileExplorerPkg from 'packages/sui-file-explorer/package.json';
+import mediaSelectorPkg from 'packages/sui-media-selector/package.json';
+import timelinePkg from 'packages/sui-timeline/package.json';
+import editorPkg from 'packages/sui-editor/package.json';
 import StokedConsultingShowcase from "./components/home/StokedConsultingShowcase";
 import AdvancedShowcase from "./components/home/AdvancedShowcase";
 import FileExplorerShowcase from './components/home/FileExplorerShowcase';
 import TimelineShowcase from "./components/home/TimelineShowcase";
 import EditorShowcase from './components/home/EditorShowcase';
 import ROUTES from "./route";
+
+export  { Products, Product };
+export const ProductIds: Array<string> = [
+  'null',
+  'media-selector',
+  'file-selector',
+  'timeline',
+  'editor',
+  'docs',
+];
+export type ProductId = typeof ProductIds[number];
+
+type ProductInfo = Omit<TProduct, 'showcaseType'>
+export const ProductsInfo: Record<ProductId, ProductInfo> = {
+  'file-explorer': fileExplorerPkg.product as ProductInfo,
+  'media-selector': mediaSelectorPkg.product as ProductInfo,
+  'timeline': timelinePkg.product as ProductInfo,
+  'editor': editorPkg.product as ProductInfo,
+};
 
 const stokedConsultingData: TProduct = {
   id: 'stoked-consulting',

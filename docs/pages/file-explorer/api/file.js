@@ -1,6 +1,6 @@
 import * as React from 'react';
-import ApiPage from '@stoked-ui/docs/ApiPage/ApiPage';
-import mapApiPageTranslations from '@stoked-ui/docs/utils/mapApiPageTranslations';
+import ApiPage from 'docs/src/modules/components/ApiPage';
+import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
 import jsonPageContent from './file.json';
 
 export default function Page(props) {

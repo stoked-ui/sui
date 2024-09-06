@@ -1,15 +1,25 @@
 import * as React from 'react';
+import dynamic from 'next/dynamic';
 import NoSsr from "@mui/material/NoSsr";
 import Box from "@mui/material/Box";
 import Divider from "@mui/material/Divider";
+/*
+
 import Head from "@stoked-ui/docs/Layouts/Head";
 import AppHeaderBanner from "@stoked-ui/docs/banner/AppHeaderBanner";
 import BrandingCssVarsProvider from '@stoked-ui/docs/branding/BrandingCssVarsProvider';
-import dynamic from 'next/dynamic';
 import AppFooter from "@stoked-ui/docs/Layouts/AppFooter";
 import AppHeader from "@stoked-ui/docs/Layouts/AppHeader";
+
+*/
+
+import Head from 'docs/src/modules/components/Head';
+import AppHeaderBanner from "docs/src/components/banner/AppHeaderBanner";
+import BrandingCssVarsProvider from 'docs/src/BrandingCssVarsProvider';
+import AppFooter from "docs/src/layouts/AppFooter";
+import AppHeader from "docs/src/layouts/AppHeader";
+
 import getProducts from '../src/products';
-import * as featureToggle from '../src/featureToggle';
 import NewsletterToast from "../src/components/home/NewsletterToast";
 import Hero from "../src/components/home/HeroMain";
 
@@ -54,7 +64,7 @@ export function HomeView({ HomeMain}: { HomeMain: React.ComponentType }){
     <NoSsr>
       <NewsletterToast/>
     </NoSsr>
-    <AppHeaderBanner featureToggle={featureToggle}/>
+    <AppHeaderBanner/>
     <AppHeader/>
     <main id="main-content">
       {isClient ? <Main/> : ''}
@@ -74,7 +84,19 @@ let MainView:  React.ComponentType<{}> = function MainView() {
   )
 }
 
-export default function Home({ HomeMain}: { HomeMain: React.ComponentType }) {
+export default function Home({ HomeMain
+
+
+
+
+
+
+
+
+
+
+
+}: { HomeMain: React.ComponentType }) {
   return <HomeView HomeMain={ HomeMain || MainView } />;
 }
 

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import TopLayoutBlog from '@stoked-ui/docs/components/TopLayoutBlog';
+import TopLayoutBlog from 'docs/src/modules/components/TopLayoutBlog';
 import { docs } from './mui-core-v5.md?muiMarkdown';
 
 export default function Page() {

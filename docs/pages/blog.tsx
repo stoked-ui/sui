@@ -15,14 +15,14 @@ import Chip from '@mui/material/Chip';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import { Link } from '@mui/docs/Link';
-import Slack from '@stoked-ui/docs/icon/Slack';
-import DiscordIcon from '@stoked-ui/docs/icon/DiscordIcon';
-import Head from '@stoked-ui/docs/Layouts/Head';
-import AppHeader from '@stoked-ui/docs/Layouts/AppHeader';
-import AppFooter from '@stoked-ui/docs/Layouts/AppFooter';
+import Slack from 'docs/src/icons/Slack';
+import DiscordIcon from 'docs/src/icons/DiscordIcon';
+import Head from 'docs/src/modules/components/Head';
+import AppHeader from 'docs/src/layouts/AppHeader';
+import AppFooter from 'docs/src/layouts/AppFooter';
 import GradientText from '@stoked-ui/docs/typography/GradientText';
-import BrandingCssVarsProvider from '@stoked-ui/docs/branding/BrandingCssVarsProvider';
-import { authors as AUTHORS } from '@stoked-ui/docs/components/TopLayoutBlog';
+import BrandingCssVarsProvider from 'docs/src/BrandingCssVarsProvider';
+import { authors as AUTHORS } from 'docs/src/modules/components/TopLayoutBlog';
 import HeroEnd from '@stoked-ui/docs/components/HeroEnd';
 import Section from '@stoked-ui/docs/Layouts/Section';
 import SectionHeadline from '@stoked-ui/docs/typography/SectionHeadline';
@@ -39,7 +39,7 @@ export const getStaticProps = () => {
 
 function PostPreview(props: BlogPost) {
   return (
-    <BrandingCssVarsProvider>
+    <React.Fragment>
       <Box sx={{ display: 'flex', gap: 0.5, mb: 1.5 }}>
         {props.tags.map((tag) => (
           <Chip
@@ -48,7 +48,7 @@ function PostPreview(props: BlogPost) {
             size="small"
             variant="outlined"
             color="primary"
-            sx={(theme: any) => ({
+            sx={(theme) => ({
               height: 22,
               fontWeight: 'medium',
               fontSize: theme.typography.pxToRem(13),
@@ -95,7 +95,13 @@ function PostPreview(props: BlogPost) {
                 backgroundColor: theme.palette.grey[100],
               },
             }),
-
+            (theme) =>
+              theme.applyDarkStyles({
+                '& .MuiAvatar-circular': {
+                  outlineColor: theme.palette.primaryDark[900],
+                  backgroundColor: theme.palette.primaryDark[700],
+                },
+              }),
           ]}
         >
           {(props.authors as Array<keyof typeof AUTHORS>).map((author) => (
@@ -155,7 +161,7 @@ function PostPreview(props: BlogPost) {
           Read more
         </Button>
       </Box>
-    </BrandingCssVarsProvider>
+    </React.Fragment>
   );
 }
 
@@ -262,11 +268,17 @@ export default function Blog(props: InferGetStaticPropsType<typeof getStaticProp
                 key={post.slug}
                 component="li"
                 variant="outlined"
-                sx={() => ({
+                sx={(theme) => ({
                   p: 2,
                   display: 'flex',
                   flexDirection: 'column',
-
+                  backgroundImage: theme.palette.gradients.radioSubtle,
+                  boxShadow: '0 4px 12px rgba(170, 180, 190, 0.2)',
+                  ...theme.applyDarkStyles({
+                    background: theme.palette.primaryDark[900],
+                    backgroundImage: theme.palette.gradients.radioSubtle,
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.4)',
+                  }),
                 })}
               >
                 {post.image && (

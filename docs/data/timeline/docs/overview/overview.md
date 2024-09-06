@@ -11,7 +11,7 @@ packageName: '@stoked-ui/timeline'
 
 <p class="description">The File Explorer component lets users navigate hierarchical lists of data with nested levels that can be expanded and collapsed.</p>
 
-{{"component": "ComponentLinkHeader"}}
+{{"component": "modules/components/ComponentLinkHeader"}}
 
 ## Available components
 

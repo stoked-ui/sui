@@ -1,11 +1,10 @@
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 import * as React from 'react';
 import { styled, alpha } from '@mui/material/styles';
+import { Link } from '@mui/docs/Link';
 import { unstable_debounce as debounce } from '@mui/utils';
 import ROUTES from 'docs/src/route';
-import { ProductIds } from '@stoked-ui/docs/Products'
-import getProducts from 'docs/src/products';
-import { Link } from '@mui/docs/Link';
+import getProducts, { ProductIds } from 'docs/src/products';
 
 const Navigation = styled('nav')(({ theme }) => [
   {

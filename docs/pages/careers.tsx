@@ -17,12 +17,12 @@ import OurValues from 'docs/src/components/about/OurValues';
 import { Link } from '@mui/docs/Link';
 import AppHeader from '@stoked-ui/docs/Layouts/AppHeader';
 import AppFooter from '@stoked-ui/docs/Layouts/AppFooter';
-import GradientText from '@stoked-ui/docs/typography/GradientText';
+import GradientText from 'docs/src/components/typography/GradientText';
 import IconImage from 'docs/src/components/icon/IconImage';
 import BrandingCssVarsProvider from '@stoked-ui/docs/branding/BrandingCssVarsProvider';
 import Section from '@stoked-ui/docs/Layouts/Section';
-import SectionHeadline from '@stoked-ui/docs/typography/SectionHeadline';
-import Head from '@stoked-ui/docs/Layouts/Head';
+import SectionHeadline from 'docs/src/components/typography/SectionHeadline';
+import Head from 'docs/src/modules/components/Head';
 import ROUTES from 'docs/src/route';
 import AppHeaderBanner from '@stoked-ui/docs/banner/AppHeaderBanner';
 

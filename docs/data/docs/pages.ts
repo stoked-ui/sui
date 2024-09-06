@@ -1,5 +1,5 @@
-import type SuiPage from '@stoked-ui/docs/SuiPage/SuiPage';
-import standardNavIcons from '@stoked-ui/docs/components/AppNavIcons';
+import type SuiPage from 'docs/src/SuiPage';
+import standardNavIcons from 'docs/src/modules/components/AppNavIcons';
 
 const pages: readonly SuiPage[] = [
   { pathname: '/versions' },

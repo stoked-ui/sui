@@ -1,4 +1,3 @@
-import en from './translations';
 import NProgressBar  from './NProgressBar/NProgressBar';
 import Products from './Products';
 import Ad from './Ad';
@@ -8,8 +7,8 @@ import Demo from './Demo';
 import SuiPage from './SuiPage';
 import ReactRunner from './ReactRunner';
 
-
-export { Ad, Demo, HighlightedCode, en, ReactRunner, NProgressBar, Products, SuiPage, AdobeXDIcon};
+export { Ad, Demo, HighlightedCode, ReactRunner, NProgressBar, Products, SuiPage, AdobeXDIcon};
+export * from './icon';
 export * from './Products';
 export * from './Ad';
 export * from './App';

@@ -6,12 +6,12 @@ import ListItemButton from '@mui/material/ListItemButton';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import KeyboardArrowRightRounded from '@mui/icons-material/KeyboardArrowRightRounded';
-import Head from '@stoked-ui/docs/Layouts/Head';
-import AppHeader from '@stoked-ui/docs/Layouts/AppHeader';
-import AppFooter from '@stoked-ui/docs/Layouts/AppFooter';
+import Head from 'docs/src/modules/components/Head';
+import AppHeader from 'docs/src/layouts/AppHeader';
+import AppFooter from 'docs/src/layouts/AppFooter';
 import BrandingCssVarsProvider from '@stoked-ui/docs/branding/BrandingCssVarsProvider';
 import Section from '@stoked-ui/docs/Layouts/Section';
-import { pageToTitleI18n } from '@stoked-ui/docs/utils/helpers';
+import { pageToTitleI18n } from 'docs/src/modules/utils/helpers';
 import { useTranslate } from '@mui/docs/i18n';
 import { Link } from '@mui/docs/Link';
 import type SuiPage from '@stoked-ui/docs/SuiPage/SuiPage';
@@ -67,7 +67,7 @@ export default function Components() {
               gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
             }}
           >
-            {(componentPageData?.children || []).map((page) => (
+            {(componentPageData?.children || []).map((page: SuiPage) => (
               <Box key={page.pathname} sx={{ pb: 2 }}>
                 <Typography
                   component="h2"
@@ -81,7 +81,7 @@ export default function Components() {
                   {pageToTitleI18n(page, t)}
                 </Typography>
                 <List>
-                  {(page.children || []).map((nestedPage) => {
+                  {(page.children || []).map((nestedPage: SuiPage) => {
                     if (nestedPage.children) {
                       return (
                         <ListItem key={nestedPage.pathname} sx={{ py: 0, px: 1 }}>

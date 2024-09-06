@@ -1,5 +1,5 @@
 import * as React from 'react';
-import AppTheme from '@stoked-ui/docs/App/AppTheme';
+import AppTheme from 'docs/src/modules/components/AppTheme';
 import SignUp from 'docs/src/pages/premium-themes/onepirate/SignUp';
 
 export default function Page() {
