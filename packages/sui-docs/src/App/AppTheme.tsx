@@ -20,6 +20,6 @@ function AppTheme({ children, Head }: AppThemeProps) {
 AppTheme.propTypes = {
   children: PropTypes.node.isRequired,
   Head: PropTypes.elementType.isRequired,
-};
+} as any;
 
 export default AppTheme;

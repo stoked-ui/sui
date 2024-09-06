@@ -2,10 +2,10 @@ import * as React from 'react';
 import SimpleCodeEditor from 'react-simple-code-editor';
 import Box from '@mui/material/Box';
 import { NoSsr } from '@mui/base/NoSsr';
-import { useTranslate } from '@mui/docs/i18n';
 import { styled, alpha, useTheme } from '@mui/material/styles';
-import { blueDark } from '@mui/docs/branding';
 import prism from '@stoked-ui/docs-markdown/prism';
+import { useTranslate } from '../i18n';
+import { blueDark } from '../branding';
 import MarkdownElement from '../Markdown/MarkdownElement';
 import CodeCopyButton from '../components/CodeCopyButton';
 import { useCodeCopy } from '../utils/CodeCopy';
@@ -70,7 +70,7 @@ interface DemoEditorProps extends React.HTMLAttributes<HTMLDivElement> {
   copyButtonProps: {};
   id: string;
   language: string;
-  onChange: () => {};
+  onChange: (code?: any) => void;
   value: string;
 }
 

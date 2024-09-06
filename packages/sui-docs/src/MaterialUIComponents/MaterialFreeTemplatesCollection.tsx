@@ -8,7 +8,7 @@ import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import Visibility from '@mui/icons-material/Visibility';
 import CodeRoundedIcon from '@mui/icons-material/CodeRounded';
-import { useTranslate } from '@mui/docs/i18n';
+import { useTranslate } from '../i18n';
 
 interface Layout {
   title: string;

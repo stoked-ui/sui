@@ -4,7 +4,7 @@ import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import DarkModeOutlined from '@mui/icons-material/DarkModeOutlined';
 import LightModeOutlined from '@mui/icons-material/LightModeOutlined';
-import { useColorSchemeShim } from '@stoked-ui/docs/components/ThemeContext';
+import { useColorSchemeShim } from '../components/ThemeContext';
 
 function CssVarsModeToggle(props: { onChange: (newMode: string) => void }) {
   const { mode, systemMode, setMode } = useColorScheme();

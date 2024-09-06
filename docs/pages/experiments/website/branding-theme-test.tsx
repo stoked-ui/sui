@@ -4,11 +4,11 @@ import Chip from '@mui/material/Chip';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import Divider from '@mui/material/Divider';
-import Head from '@stoked-ui/docs/components/Head';
-import BrandingCssVarsProvider from 'docs/src/BrandingCssVarsProvider';
-import AppHeader from 'docs/src/layouts/AppHeader';
-import Section from 'docs/src/layouts/Section';
-import AppFooter from 'docs/src/layouts/AppFooter';
+import Head from '@stoked-ui/docs/Layouts/Head';
+import BrandingCssVarsProvider from '@stoked-ui/docs/branding/BrandingCssVarsProvider';
+import AppHeader from '@stoked-ui/docs/Layouts/AppHeader';
+import Section from '@stoked-ui/docs/Layouts/Section';
+import AppFooter from '@stoked-ui/docs/Layouts/AppFooter';
 import GitHubIcon from '@mui/icons-material/GitHub';
 
 export default function BrandingThemeTest() {

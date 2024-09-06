@@ -1,6 +1,5 @@
 /* eslint-disable react/no-danger */
 import * as React from 'react';
-import { useTranslate } from '@mui/docs/i18n';
 import { ComponentClassDefinition } from '@stoked-ui/docs-utils';
 import Box from '@mui/material/Box';
 import ToggleDisplayOption, {
@@ -9,6 +8,7 @@ import ToggleDisplayOption, {
 } from './ToggleDisplayOption';
 import ClassesList, { getHash } from '../list/ClassesList';
 import ClassesTable from '../table/ClassesTable';
+import { useTranslate } from '../../i18n';
 
 export type GetCssToCParams = {
   componentName: string;
@@ -46,13 +46,13 @@ export type ClassesSectionProps = {
   classDescriptions: ClassDescription;
   componentName: string;
   spreadHint?: string;
-  title: string;
-  titleHash: string;
+  title?: string;
+  titleHash?: string;
   level?: 'h2' | 'h3' | 'h4';
   defaultLayout: ApiDisplayOptions;
   layoutStorageKey: string;
-  displayClassKeys: boolean;
-  styleOverridesLink: string;
+  displayClassKeys?: boolean;
+  styleOverridesLink?: string;
 };
 
 export default function ClassesSection(props: ClassesSectionProps) {

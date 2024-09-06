@@ -75,13 +75,18 @@
     "yorkie": "^2.0.0"
   },
   "product": {
+    "id": "timeline",
     "name": "Timeline",
     "fullName": "Stoked UI: Timeline",
     "description": "Timeline component used to construct tools that manipulate things over time",
+    "metadata": "Stoked UI",
+    "productMenu": false,
+    "docsMenu": true,
+    "swipeable": true,
+    "category": "core",
     "icon": "product-toolpad",
     "url": "/timeline",
     "hideProductFeatures": true,
-    "live": true,
     "owners": ["brian-stoker"],
     "features": [{
       "name": "Overview",

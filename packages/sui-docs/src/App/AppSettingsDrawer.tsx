@@ -10,7 +10,7 @@ import ToggleButton from '@mui/material/ToggleButton';
 import CloseIcon from '@mui/icons-material/Close';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import { useColorSchemeShim, useChangeTheme } from '../components/ThemeContext';
-import { useTranslate } from '@mui/docs/i18n';
+import { useTranslate } from '../i18n';
 
 interface AppSettingsDrawerProps extends DrawerProps {
   onClose: () => void;

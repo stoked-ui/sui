@@ -295,6 +295,7 @@ const noSEOadvantage = [
  * @param {object} context
  * @param {Record<string, string>} context.headingHashes - WILL BE MUTATED
  * @param {TableOfContentsEntry[]} context.toc - WILL BE MUTATED
+ * @param {string[]} context.location
  * @param {string} context.userLanguage
  * @param {object} context.options
  */

@@ -1,8 +1,8 @@
 import * as React from 'react';
 import Container from '@mui/material/Container';
 import Divider from '@mui/material/Divider';
-import Head from '@stoked-ui/docs/components/Head';
-import AppHeader from 'docs/src/layouts/AppHeader';
+import Head from '@stoked-ui/docs/Layouts/Head';
+import AppHeader from '@stoked-ui/docs/Layouts/AppHeader';
 import HeroPricing from 'docs/src/components/pricing/HeroPricing';
 import PricingTable from 'docs/src/components/pricing/PricingTable';
 import PricingList from 'docs/src/components/pricing/PricingList';
@@ -10,9 +10,9 @@ import Testimonials from 'docs/src/components/home/Testimonials';
 import PricingWhatToExpect from 'docs/src/components/pricing/PricingWhatToExpect';
 import PricingFAQ from 'docs/src/components/pricing/PricingFAQ';
 import HeroEnd from 'docs/src/components/home/HeroEnd';
-import AppFooter from 'docs/src/layouts/AppFooter';
-import BrandingCssVarsProvider from 'docs/src/BrandingCssVarsProvider';
-import AppHeaderBanner from 'docs/src/components/banner/AppHeaderBanner';
+import AppFooter from '@stoked-ui/docs/Layouts/AppFooter';
+import BrandingCssVarsProvider from '@stoked-ui/docs/branding/BrandingCssVarsProvider';
+import AppHeaderBanner from '@stoked-ui/docs/banner/AppHeaderBanner';
 import { LicensingModelProvider } from 'docs/src/components/pricing/LicensingModelContext';
 
 export default function Pricing() {

@@ -2,11 +2,11 @@
 import * as React from 'react';
 import { styled } from '@mui/material/styles';
 import kebabCase from 'lodash/kebabCase';
-import { useTranslate } from '@mui/docs/i18n';
+import { useTranslate } from '../../i18n';
 import {
   brandingDarkTheme as darkTheme,
   brandingLightTheme as lightTheme,
-} from '@mui/docs/branding';
+} from '../../branding';
 import ExpandableApiItem, {
   ApiItemContaier,
 } from './ExpandableApiItem';
@@ -199,12 +199,12 @@ export default function PropertiesList(props: PropertiesListProps) {
               <React.Fragment>
                 {propName}
                 {isProPlan && (
-                  <a href="/x/introduction/licensing/#pro-plan">
+                  <a aria-label='plan-pro' href="/x/introduction/licensing/#pro-plan">
                     <span className="plan-pro" />
                   </a>
                 )}
                 {isPremiumPlan && (
-                  <a href="/x/introduction/licensing/#premium-plan">
+                  <a aria-label='plan-premium' href="/x/introduction/licensing/#premium-plan">
                     <span className="plan-premium" />
                   </a>
                 )}

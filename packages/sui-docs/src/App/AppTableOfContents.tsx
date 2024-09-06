@@ -4,9 +4,9 @@ import throttle from 'lodash/throttle';
 import { styled, alpha } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 import NoSsr from '@mui/material/NoSsr';
-import { Link } from '@mui/docs/Link';
-import { useTranslate } from '@mui/docs/i18n';
 import { DebouncedFunc } from 'lodash';
+import { Link } from '../Link';
+import { useTranslate } from '../i18n';
 import { samePageLinkNavigation } from '../Markdown/MarkdownLinks';
 import TableOfContentsBanner from '../banner/TableOfContentsBanner';
 import DiamondSponsors from '../components/DiamondSponsors';
@@ -139,7 +139,7 @@ interface AppTableOfContentsProps {
 }
 
 function flatten(headings: TocItem[]): TocItem[] {
-  const itemsWithNode: TocItem[] = [];
+  const itemsWithNode: TocItem[] = new Array();
 
   headings.forEach((item) => {
     itemsWithNode.push(item);
@@ -331,4 +331,4 @@ AppTableOfContents.propTypes = {
       text: PropTypes.string.isRequired,
     }).isRequired
   ).isRequired,
-};
+} as any;

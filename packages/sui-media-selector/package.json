@@ -44,13 +44,18 @@
     "typescript": "5.4.5"
   },
   "product": {
+    "id": "media-selector",
     "name": "Media Selector",
     "fullName": "Stoked UI: Media Selector",
     "description": "Library used to select and gather type specific meta data from client side files",
+    "metadata": "Stoked UI",
+    "productMenu": false,
+    "docsMenu": true,
+    "swipeable": false,
+    "category": "core",
     "icon": "product-advanced",
     "url": "/media-selector",
     "hideProductFeatures": true,
-    "live": true,
     "owners": ["brian-stoker"],
     "features": [{
       "name": "Overview",

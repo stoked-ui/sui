@@ -3,7 +3,7 @@ import * as React from 'react';
 import { styled } from '@mui/material/styles';
 import kebabCase from 'lodash/kebabCase';
 import { ComponentClassDefinition } from '@stoked-ui/docs-utils';
-import { useTranslate } from '@mui/docs/i18n';
+import { useTranslate } from '../../i18n';
 import ExpandableApiItem, {
   ApiItemContaier,
 } from './ExpandableApiItem';
@@ -79,7 +79,7 @@ export default function ClassesList(props: ClassesListProps) {
         let note = isGlobal ? t('api-docs.state') : '';
 
         if (isDeprecated) {
-          note = [note, t('api-docs.deprecated')].filter(Boolean).join(' - ');
+          note = new Array(note, t('api-docs.deprecated')).filter(Boolean).join(' - ');
         }
 
         return (

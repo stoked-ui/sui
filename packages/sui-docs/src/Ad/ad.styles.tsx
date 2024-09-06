@@ -90,9 +90,12 @@ const adBodyInlineStyles = (theme: Theme) => {
   };
 };
 
-export const adStylesObject = {
-  'body-image': adBodyImageStyles,
-  'body-inline': adBodyInlineStyles,
-};
+export default function getAdStylesObject(theme, shape) {
+  const adStyles = {
+    'body-image': adBodyImageStyles(theme),
+    'body-inline': adBodyInlineStyles(theme),
+  }
+  const stylesShape = shape ?? adShape;
+  return adStyles[`body-${stylesShape}`];
+}
 
-export default adStylesObject[`body-${adShape}`];

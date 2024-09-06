@@ -2,7 +2,7 @@ import * as React from 'react';
 import Box, { BoxProps } from '@mui/material/Box';
 import Fade from '@mui/material/Fade';
 import NoSsr from '@mui/material/NoSsr';
-import Frame from 'docs/src/components/action/Frame';
+import Frame from '@stoked-ui/docs/action/Frame';
 
 export default function ShowcaseContainer({
   preview,

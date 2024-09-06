@@ -4,10 +4,11 @@ import AdDisplay from './AdDisplay'
 import AdGuest from './AdGuest';
 import AdInHouse from './AdInHouse';
 import AdManager from './AdManager';
+import getAdStylesObject from './ad.styles';
 
 export default Ad;
-export { AdCarbon, AdDisplay, AdGuest, AdInHouse, AdManager };
+export { AdCarbon, AdDisplay, AdGuest, AdInHouse, AdManager, getAdStylesObject  };
 export * from './Ad';
-export * from './ad.styles'
+
 export * from './AdCarbon';
 export * from './AdManager';

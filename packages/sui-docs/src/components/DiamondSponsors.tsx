@@ -3,8 +3,8 @@ import { styled, alpha } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { Link } from '@mui/docs/Link';
-import { useTranslate } from '../utils/i18n';
+import { Link } from '../Link';
+import { useTranslate } from '../i18n';
 
 const NativeLink = styled('a')(({ theme }) => ({
   boxSizing: 'border-box',

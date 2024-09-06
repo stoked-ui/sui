@@ -10,19 +10,26 @@ import Fade from "@mui/material/Fade";
 import Paper from "@mui/material/Paper";
 import Popper from "@mui/material/Popper";
 import KeyboardArrowRightRounded from "@mui/material/SvgIcon/SvgIcon";
-import { Link } from "@mui/docs/Link";
 import { alpha, Theme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import dynamic from "next/dynamic";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useInView } from "react-intersection-observer";
 import Grid from "@mui/material/Grid";
+import fileExplorerPkg from 'packages/sui-file-explorer/package.json';
+import mediaSelectorPkg from 'packages/sui-media-selector/package.json';
+import timelinePkg from 'packages/sui-timeline/package.json';
+import editorPkg from 'packages/sui-editor/package.json';
 import PageContext from "../components/PageContext";
 import IconImage from "../icon/IconImage";
 import Highlighter from "../action/Highlighter";
 import Section from "../Layouts/Section";
 import SectionHeadline from "../typography/SectionHeadline";
 import GradientText from "../typography/GradientText";
+import { Link } from "../Link";
+
+
+
 
 type RouteType = 'product' | 'doc';
 const routeTypes: RouteType[] = ['product', 'doc'];
@@ -58,12 +65,23 @@ export type Owners = {
   packageMaintainers: Record<PackageId, UserId[]>;
 }
 
+export type ProductCategoryId = 'null' | 'core' | 'services' | 'utility' | 'docs';
+
+export interface Product {
+  productId: ProductId;
+  product?: TProduct
+}
+
 export type TProduct = {
-  id: string,
+  id: ProductId,
   metadata: string,
+  category: ProductCategoryId,
   name: string;
   fullName: string;
   description: string;
+  productMenu?: boolean;
+  docsMenu?: boolean;
+  swipeable?: boolean;
   owners: string[],
   maintainers?: string[];
   miscMaintainers?: Record<string, string[]>;
@@ -72,7 +90,6 @@ export type TProduct = {
   features: TFeature[];
   url: string;
   hideProductFeatures?: boolean;
-  live?: boolean;
   showcaseType: React.ComponentType;
   showcaseContent?: any;
 };
@@ -290,12 +307,12 @@ export class Product  {
     )
   }
 
-  highlightedItem(productIndex: number, setProductIndex: React.Dispatch<React.SetStateAction<number>>, index: number, linkType?: LinkType, sx?: SxProps<Theme>) {
+  highlightedItem(selectedIndex: number, setSelectedIndex: React.Dispatch<React.SetStateAction<number>>, index: number, linkType?: LinkType, sx?: SxProps<Theme>) {
     return (<Highlighter
       key={this.id}
       disableBorder
-      onClick={() => setProductIndex(index)}
-      selected={productIndex === index}
+      onClick={() => setSelectedIndex(index)}
+      selected={selectedIndex === index}
       sx={sx}
     >
       {this.item(this.link(linkType))}
@@ -368,7 +385,7 @@ export class Product  {
     return `${this.data.url}${getTypeUrl(type)}${suffix}`;
   }
 
-  get id() {
+  get id(): ProductId {
     return this.data.id;
   }
 
@@ -402,15 +419,10 @@ export class Product  {
 }
 
 
-export type ProductSwipeableProps = ProductsComponentProps & {
-  show: boolean;
-  products: Products;
-}
-
 class IndexObject<T> {
   index: { [key: string]: T } = {};
 
-  constructor(key: string, inputArray: T[] = [],) {
+  constructor(key: string, inputArray: T[] = []) {
     inputArray.forEach((obj: T) => {
       const id = (obj[key as keyof T] as string);
       this.index[id] = obj
@@ -450,8 +462,8 @@ class IndexObject<T> {
 const SwipeableViews = dynamic(() => import('react-swipeable-views'), { ssr: false });
 
 export type ProductsComponentProps = {
-  productIndex: number;
-  setProductIndex: React.Dispatch<React.SetStateAction<number>>;
+  selectedIndex: number;
+  setSelectedIndex: React.Dispatch<React.SetStateAction<number>>;
 }
 export type ProductStackProps = ProductsComponentProps & {
   inView?: boolean;
@@ -474,10 +486,9 @@ function titleCase(str: string) {
   return result.charAt(0).toUpperCase() + result.slice(1);
 }
 
-function SwipeableProducts(props: ProductSwipeableProps) {
+function SwipeableProducts(props: SwipeableProps) {
   const swipeableProducts = React.useMemo(() => {
-    const { show, products, productIndex, setProductIndex } = props;
-    const blocked = products.products[productIndex].id === 'media-selector';
+    const { show, selectedIndex, setSelectedIndex, products } = props;
     return (
       <Box sx={{
         display: { md: 'none' },
@@ -486,17 +497,17 @@ function SwipeableProducts(props: ProductSwipeableProps) {
         '& > div': { pr: '32%' },
       }}
       >
-        {(show && !blocked) && (<SwipeableViews
-          index={productIndex}
+        {(show) && (<SwipeableViews
+          index={selectedIndex}
           resistance
           enableMouseEvents
-          onChangeIndex={(index) => setProductIndex(index)}
+          onChangeIndex={(index) => setSelectedIndex(index)}
         >
-          {products.live.map((product: Product, index: number) => {
-            return  product.highlightedItem(productIndex, setProductIndex, index, 'product', {
+          {products.map((product: Product, index: number) => {
+            return  product.highlightedItem(selectedIndex, setSelectedIndex, index, 'product', {
               width: '100%',
               transition: '0.3s',
-              transform: productIndex !== index ? 'scale(0.9)' : 'scale(1)',
+              transform: selectedIndex !== index ? 'scale(0.9)' : 'scale(1)',
             });
           })}
         </SwipeableViews>)}
@@ -516,7 +527,6 @@ function ProductMenu(props: ProductMenuProps) {
       setSubMenuOpenUndebounce,
       setSubMenuOpenDebounced,
       handleClickMenu,
-      products
     } = props;
 
     if (!type) {
@@ -582,7 +592,7 @@ function ProductMenu(props: ProductMenuProps) {
               })}
             >
               <ul>
-                {products.map((product: Product) => {
+                {props.products.map((product: Product) => {
                   return product.menuItem(type, props);
                 })}
               </ul>
@@ -591,7 +601,7 @@ function ProductMenu(props: ProductMenuProps) {
         )}
       </Popper>
     </li>
-  }, [props]);
+  }, [props, props.products]);
   return menu;
 }
 
@@ -599,29 +609,40 @@ type ProductSwitcherProps = ProductStackProps & {
   products: Products;
 }
 
+export type SwipeableProps = ProductStackProps & {
+  show: boolean;
+  products: Product[];
+}
+
+function getSwipeableProducts(products: Product[]) {
+  return products.filter(p => p.data.swipeable);
+}
+
 function ProductsSwitcher(props: ProductSwitcherProps) {
-  const { inView = false, productIndex, setProductIndex, products } = props;
+  const { inView = false, selectedIndex, setSelectedIndex, products } = props;
   const isBelowMd = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'));
 
   return (
     <React.Fragment>
-      {products.swipeable({ show: isBelowMd && inView, productIndex, setProductIndex } as ProductSwipeableProps)}
+      {products.swipeable({ show: isBelowMd && inView, selectedIndex, setSelectedIndex, products: getSwipeableProducts(products.products) } as SwipeableProps)}
       {products.stack(props)}
     </React.Fragment>
   );
 }
 
 function ProductsPreviews({ products }: { products: Products } ) {
-  const [productIndex, setProductIndex] = React.useState(0);
+  const swipeableProducts = getSwipeableProducts(products.products);
+  console.log('swipeableProducts', swipeableProducts)
+  const [selectedIndex, setSelectedIndex] = React.useState<number>(0);
   const { ref, inView } = useInView({
     triggerOnce: true,
     threshold: 0,
     rootMargin: '0px 200px',
   });
-  const Showcase = products.live[productIndex].showcaseType;
+  const Showcase = swipeableProducts[selectedIndex]?.showcaseType;
 
   // const showcaseProps = { showcaseContent:
-  // products.products?.[productIndex]?.data?.showcaseContent};
+  // products.products?.[selectedIndex]?.data?.showcaseContent};
   return (
     <Section bg="gradient" ref={ref}>
       <Grid container spacing={0}>
@@ -635,13 +656,13 @@ function ProductsPreviews({ products }: { products: Products } ) {
             }
             description="Build at an accelerated pace without sacrificing flexibility or control."
           />
-          {products.switcher({ inView, productIndex, setProductIndex })}
+          {products.switcher({ inView, selectedIndex, setSelectedIndex })}
         </Grid>
         <Grid
           item
           xs={12}
           md={6}
-          sx={productIndex === 0 ? { minHeight: { xs: 777, sm: 757, md: 'unset' } } : {}}
+          sx={selectedIndex === 0 ? { minHeight: { xs: 777, sm: 757, md: 'unset' } } : {}}
         >
           {inView ? (
             <React.Fragment>
@@ -668,11 +689,11 @@ export type AreaMaintainers = {
 
 class Products extends IndexObject<Product> {
 
-  areaMaintainers: AreaMaintainers;
+  static areaMaintainers: AreaMaintainers;
 
-  defaultMaintainer?: string;
+  static defaultMaintainer?: string;
 
-  constructor(products: (TProduct | Product)[], routes: Record<string, string>, areaMaintainers?: AreaMaintainers | undefined, defaultMaintainer?: string | undefined) {
+  constructor(products: (TProduct | Product)[], routes: Record<string, string>, defaultMaintainer: string | undefined, areaMaintainers?: AreaMaintainers | undefined) {
     const baseInput = products.map((product) => {
       if (product instanceof Product) {
         return product;
@@ -680,7 +701,7 @@ class Products extends IndexObject<Product> {
       return new Product(product, routes);
     });
     super('id',baseInput);
-    this.defaultMaintainer = defaultMaintainer;
+    Products.defaultMaintainer = defaultMaintainer;
     const defaultAreaMaintainers = {
       inputs: defaultMaintainer ? [defaultMaintainer] : [],
       dataDisplay: defaultMaintainer ? [defaultMaintainer] : [],
@@ -690,24 +711,24 @@ class Products extends IndexObject<Product> {
       layout: defaultMaintainer ? [defaultMaintainer] : [],
       utils: defaultMaintainer ? [defaultMaintainer] : [],
     };
-    this.areaMaintainers = { ...defaultAreaMaintainers, ...areaMaintainers };
+    Products.areaMaintainers = { ...defaultAreaMaintainers, ...areaMaintainers };
   }
 
   get products() {
     return Object.values(this.index);
   }
 
-  get live() {
-    return Object.values(this.index).filter(product => product.data.live);
+  get publicPkg() {
+    return this.index.length ? Object.values(this.index).filter(product => product?.data?.docsMenu) : [];
   }
 
   get pages() {
-    return this.live.map(p => p.url('product'));
+    return this.publicPkg.map(p => p.url('product'));
   }
 
   get productOwners(): Owners {
 
-    return this.live.reduce((acc, product) => {
+    return this.publicPkg.reduce((acc, product) => {
       acc.packageOwners[product.id] = product.data.owners;
       acc.packageMaintainers[product.id] = product.data.maintainers ?? product.data.owners;
       if (product.data.miscMaintainers) {
@@ -718,7 +739,7 @@ class Products extends IndexObject<Product> {
         }
       }
       return acc;
-    }, {...OwnersDefault, areaMaintainers: this.areaMaintainers} as Owners);
+    }, {...OwnersDefault, areaMaintainers: Products.areaMaintainers} as Owners);
   }
 
   public previews() {
@@ -729,12 +750,12 @@ class Products extends IndexObject<Product> {
     return <ProductsSwitcher {...props} products={this} />;
   }
 
-  public swipeable(props: ProductSwipeableProps) {
-    return <SwipeableProducts {...props} products={this} />
+  public swipeable(props: SwipeableProps) {
+    return <SwipeableProducts {...props} />
   }
 
 
-  getFeatureUrl(productId: string, featureId: string, type: LinkType = 'doc') {
+  getFeatureUrl(productId: ProductId, featureId: string, type: LinkType = 'doc') {
     const product = this.index[productId];
     const feature = product.features.find((f: FEATURE) => f.id === featureId);
     if ( !feature) {
@@ -747,7 +768,7 @@ class Products extends IndexObject<Product> {
     return (
       <React.Fragment>
 
-        {this.live.map((product: Product) => {
+        {this.products.map((product: Product) => {
           return  product.selectorItem(context);
         })}
       </React.Fragment>
@@ -755,15 +776,16 @@ class Products extends IndexObject<Product> {
   }
 
   menu(props: Omit<ProductMenuProps, 'products'> ) {
-    const menuProps = { ...props, products: this.live };
+    const menuProps = { ...props, products: props.type === 'products' ? this.products.filter(p => p.data.productMenu) : this.products.filter(p => p.data.docsMenu) };
     return <ProductMenu { ...menuProps } />
   }
 
   stack(props: ProductStackProps) {
-    const { productIndex, setProductIndex } = props;
+    const { selectedIndex, setSelectedIndex } = props;
+    const swipableProducts = getSwipeableProducts(this.products);
     return (<Stack spacing={1} sx={{ display: { xs: 'none', md: 'flex' }, maxWidth: 500 }}>
-      {this.live.filter(p => p.id !== 'media-selector').map((product, index) => {
-        return product.highlightedItem(productIndex, setProductIndex, index);
+      {swipableProducts.map((product, index) => {
+        return product.highlightedItem(selectedIndex, setSelectedIndex, index);
       })}
     </Stack>)
   }
@@ -772,6 +794,23 @@ class Products extends IndexObject<Product> {
 export type MenuProps = {
   linkType: LinkType,
   sx?: SxProps<Theme>,
+};
+export const ProductIds: Array<string> = [
+  'null',
+  'media-selector',
+  'file-selector',
+  'timeline',
+  'editor',
+  'docs',
+];
+export type ProductId = typeof ProductIds[number];
+
+type ProductInfo = Omit<TProduct, 'showcaseType'>
+export const ProductsInfo: Record<ProductId, ProductInfo> = {
+  'file-explorer': fileExplorerPkg.product as ProductInfo,
+  'media-selector': mediaSelectorPkg.product as ProductInfo,
+  'timeline': timelinePkg.product as ProductInfo,
+  'editor': editorPkg.product as ProductInfo,
 };
 
 export default Products;

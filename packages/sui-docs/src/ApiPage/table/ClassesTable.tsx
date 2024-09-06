@@ -5,8 +5,8 @@ import { styled, alpha } from '@mui/material/styles';
 import {
   brandingDarkTheme as darkTheme,
   brandingLightTheme as lightTheme,
-} from '@mui/docs/branding';
-import { useTranslate } from '@mui/docs/i18n';
+} from '../../branding';
+import { useTranslate } from '../../i18n';
 import { getHash } from '../list/ClassesList';
 import StyledTableContainer from './StyledTableContainer';
 import ApiWarning from '../ApiWarning';

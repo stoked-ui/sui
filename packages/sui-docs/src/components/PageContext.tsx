@@ -1,11 +1,19 @@
 import * as React from 'react';
-import type SuiPage from '@stoked-ui/docs/SuiPage';
-import type { SuiProductId } from '../utils/getProductInfoFromUrl';
+import type SuiPage from '../SuiPage';
+import type { ProductId } from '../Products';
+import Products from '../Products';
 
 const PageContext = React.createContext<{
   activePage: SuiPage | null;
   pages: SuiPage[];
-  productId: SuiProductId;
+  productId: ProductId;
+  productIdentifier: any;
+  activePageParents: any;
+  productCategoryId?: any;
+  routes: Record<string, string>;
+  products: Products;
+  languages: string[];
+  Logomark: React.JSX.ElementType;
 }>(undefined!);
 
 if (process.env.NODE_ENV !== 'production') {

@@ -14,7 +14,7 @@ interface ProductSubMenuProp extends BoxProps {
 }
 
 function ProductSubMenu(props: ProductSubMenuProp & {  }) {
-  const { icon, name, description, chip, sx, acronym = [], ...other } = props;
+  const { icon, name, description, chip, sx, acronym = new Array(), ...other } = props;
   return (
     <Box
       {...other}

@@ -34,7 +34,7 @@ async function run(argv) {
   };
   const babelConfigPath = path.resolve(getWorkspaceRoot(), 'babel.config.js');
   const srcDir = path.resolve('./src');
-  const extensions = ['.js', '.ts', '.tsx'];
+  const extensions = ['.js', '.ts', '.tsx', '.mts'];
   const ignore = [
     '**/*.test.js',
     '**/*.test.ts',
