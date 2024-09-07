@@ -2,6 +2,9 @@ import type SuiPage from '@stoked-ui/docs/SuiPage/SuiPage';
 import fileExplorerComponentApi from './file-explorer-component-api-pages';
 
 const pages: SuiPage[] = [
+import timelineComponentApi from './timeline-component-api-pages';
+import editorComponentApi from './editor-component-api-pages';
+const pages: MuiPage[] = [
   {
     pathname: '/stoked-ui/introduction-group',
     title: 'Introduction',
@@ -81,6 +84,33 @@ const pages: SuiPage[] = [
     alpha: true,
     children: [
       { pathname: '/timeline/docs/overview', title: 'Overview' },
+      { pathname: '/timeline/docs/getting-started' },
+      {
+        pathname: '/timeline/docs/basics',
+        subheader: 'Basics',
+        children: [
+          { pathname: '/timeline/docs/labels' },
+          { pathname: '/timeline/docs/scale' },
+          { pathname: '/timeline/docs/actions' },
+          { pathname: '/timeline/docs/customize' },
+          { pathname: '/timeline/docs/grid' },
+        ],
+      },
+      {
+        pathname: '/timeline/docs/advanced',
+        subheader: 'In Depth',
+        children: [
+          {pathname: '/timeline/docs/events-callbacks'},
+          {pathname: '/timeline/docs/controls'},
+          {pathname: '/timeline/docs/drop-add'},
+        ]
+      },
+      { pathname: `/timeline/docs/roadmap` },
+      {
+        pathname: '/timeline/docs/api/timeline-group',
+        title: 'API Reference',
+        children: [...timelineComponentApi],
+      },
     ],
   },
   {
@@ -89,6 +119,33 @@ const pages: SuiPage[] = [
     alpha: true,
     children: [
       { pathname: '/editor/docs/overview', title: 'Overview' },
+      { pathname: '/editor/docs/getting-started' },
+      {
+        pathname: '/editor/docs/basics',
+        subheader: 'Basics',
+        children: [
+          { pathname: '/editor/docs/labels' },
+          { pathname: '/editor/docs/scale' },
+          { pathname: '/editor/docs/actions' },
+          { pathname: '/editor/docs/customize' },
+          { pathname: '/editor/docs/grid' },
+        ],
+      },
+      {
+        pathname: '/editor/docs/advanced',
+        subheader: 'In Depth',
+        children: [
+          {pathname: '/editor/docs/events-callbacks'},
+          {pathname: '/editor/docs/controls'},
+          {pathname: '/editor/docs/drop-add'},
+        ]
+      },
+      { pathname: `/editor/docs/roadmap` },
+      {
+        pathname: '/editor/docs/api/editor-group',
+        title: 'API Reference',
+        children: [...editorComponentApi],
+      },
     ],
   },
 ];

@@ -11,7 +11,7 @@ export interface TimelineState {
   /** Whether it is paused */
   isPaused: boolean;
   /** Set the current playback time */
-  setTime: (time: number) => void;
+  setTime: (time: number, move?: boolean) => void;
   /** Get the current playback time */
   getTime: () => number;
   /** Set playback rate */

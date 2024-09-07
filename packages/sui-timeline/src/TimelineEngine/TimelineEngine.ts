@@ -18,7 +18,9 @@ export interface ITimelineEngine extends Emitter<EventTypes> {
   actionTypes: Record<string, ITimelineActionType>;
   tracks: TimelineTrack[];
   viewer: HTMLElement;
-  canvas: HTMLCanvasElement;
+  readonly renderer: HTMLCanvasElement;
+  readonly renderCtx: CanvasRenderingContext2D;
+  readonly preview: HTMLElement;
 
 
   /** Set playback rate */
@@ -47,7 +49,7 @@ export interface ITimelineEngine extends Emitter<EventTypes> {
 }
 
 type EngineOptions = {
-  canvas?: HTMLCanvasElement
+  renderer?: HTMLCanvasElement
 }
 
 /**
@@ -58,24 +60,60 @@ type EngineOptions = {
  * @extends {Emitter<EventTypes>}
  */
 export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngine {
+
+  private _viewer: HTMLElement;
+
+  private _renderer?: HTMLCanvasElement;
+
+  private _renderCtx?: CanvasRenderingContext2D;
+
+  private _preview: HTMLElement;
+
   constructor(params?: EngineOptions ) {
     super(new Events());
-    this._canvas = params?.canvas;
+    this._renderer = params?.renderer;
   }
 
-  private _canvas?: HTMLCanvasElement;
+  set viewer(viewer: HTMLElement) {
+    this._viewer = viewer;
+    this._viewerUpdate();
+    if (this.renderer && this.viewer && this.preview && this.renderCtx) {
+      this._loading = false;
+    } else {
 
-  set canvas(canvas: HTMLCanvasElement) {
-    this._canvas = canvas;
+      throw new Error('Assigned a viewer but could not locate the renderer, renderCtx, or' +
+                      ' preview elements.\n' +
+                      'Please ensure that the viewer has the following children:\n' +
+                      `  - renderer (canvas with working 2d context): ${this.renderer}` +
+                      `  - preview: ${this.preview}`);
+
+    }
   }
 
-  get canvas() {
-    return this._canvas;
+  get viewer() {
+    return this._viewer;
+  }
+
+  get renderer() {
+    return this._renderer;
+  }
+
+  set renderer(canvas: HTMLCanvasElement) {
+    this._renderer = canvas;
+    if (canvas) {
+      this._renderCtx = canvas.getContext('2d');
+    }
+  }
+
+  get renderCtx() {
+    return this._renderCtx;
+  }
+
+  get preview() {
+    return this._preview;
   }
 
   private _loading = true;
-
-  private _viewer: HTMLElement;
 
   /** requestAnimationFrame timerId */
   private _timerId: number;
@@ -144,16 +182,6 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
   /** Whether it is paused */
   get isPaused() {
     return this._playState === 'paused';
-  }
-
-  set viewer(viewer: HTMLElement) {
-    this._viewer = viewer;
-    this._viewerUpdate()
-    this._loading = false;
-  }
-
-  get viewer() {
-    return this._viewer;
   }
 
   set actionTypes(actionTypes: Record<string, ITimelineActionType>) {
@@ -301,7 +329,23 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
     this.trigger('ended', { engine: this });
   }
 
+  private _assignElements() {
+    const getEditorRole = (role: string) => {
+      return document.querySelector(`#${this.viewer.parentElement.id} [role=${role}]`)
+    }
+    const renderer = getEditorRole('renderer');
+    if (renderer) {
+      this.renderer = renderer as HTMLCanvasElement;
+    }
+    const preview =  getEditorRole('preview');
+    if (preview) {
+      this._preview = preview as HTMLElement;
+    }
+  }
+
   private _viewerUpdate() {
+    this._assignElements()
+    console.log(this.viewer, 'renderer', this.renderer, 'preview', this.preview);
     const actionTypes: ITimelineActionType[] = Object.values(this._actionTypes);
     for (const actionType of actionTypes) {
       if (actionType?.viewerUpdate) {
@@ -413,6 +457,7 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
 
   /** Process action time enter */
   private _dealEnter(time: number) {
+
     // add to active
     while (this._actionSortIds[this._next]) {
       const actionId = this._actionSortIds[this._next];

@@ -193,17 +193,20 @@ const Editor = React.forwardRef(function Editor<
     }
   }, [viewerRef.current]);
 
-  return (
-    <Root {...rootProps} sx={sx}>
-      <EditorViewSlot {...editorViewProps} ref={viewerRef} engine={engine} />
+
+
+  return (<Root role={'editor'} {...rootProps} sx={sx}>
+      <EditorViewSlot {...editorViewProps} ref={viewerRef} engine={engine}/>
       <ControlsSlot
+        role={'controls'}
         {...videoControlsProps}
         timelineState={timelineState}
         scaleWidth={scaleWidth}
+        tracks={tracks}
         setScaleWidth={setScaleWidthProxy}
       />
-      {startIt && (
-        <TimelineSlot
+      {startIt && (<TimelineSlot
+        role={'timeline'}
           {...timelineProps}
           tracks={tracks}
           setTracks={setTracks}
@@ -211,18 +214,16 @@ const Editor = React.forwardRef(function Editor<
           scaleWidth={scaleWidth}
           setScaleWidth={setScaleWidthProxy}
           viewSelector={`.MuiEditorView-root`}
-          slots={{ labels: EditorLabels }}
+          slots={{labels: EditorLabels}}
           labels
           engine={engine}
-        />
-      )}
+        />)}
 
       <Stack direction="row" spacing={2}>
-        <BottomLeft {...bottomLeftProps} />
-        <BottomRight {...bottomRightProps} />
+        <BottomLeft role={'explorer-left'} {...bottomLeftProps} />
+        <BottomRight role={'explorer-right'} {...bottomRightProps} />
       </Stack>
-    </Root>
-  );
+    </Root>);
 });
 
 Editor.propTypes = {
@@ -230,13 +231,11 @@ Editor.propTypes = {
   // | These PropTypes are generated from the TypeScript type definitions |
   // | To update them edit the TypeScript types and run "pnpm proptypes"  |
   // ----------------------------------------------------------------------
-  actionData: PropTypes.any,
-  actions: PropTypes.any,
-  /**
-   * The ref object that allows Editor View manipulation. Can be instantiated with `useEditorApiRef()`.
+  actionData: PropTypes.any, actions: PropTypes.any, /**
+   * The ref object that allows Editor View manipulation. Can be instantiated with
+   * `useEditorApiRef()`.
    */
-  apiRef: PropTypes.any,
-  /**
+  apiRef: PropTypes.any, /**
    * Override or extend the styles applied to the component.
    */
   classes: PropTypes.object,

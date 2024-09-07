@@ -15,6 +15,8 @@ import SuiLogomark from "../src/icons/SvgSuiLogomark";
 import ROUTES from '../src/route';
 import NewsletterToast from "../src/components/home/NewsletterToast";
 import Hero from "../src/components/home/HeroMain";
+import EditorSandbox from "../src/components/home/EditorSandbox";
+
 
 
 function randomHome(homePages: string[]) {
@@ -53,7 +55,6 @@ export function HomeView({ HomeMain}: { HomeMain: React.ComponentType }){
           }),
         }}
       />
-
     </Head>
     <NoSsr>
       <NewsletterToast/>
@@ -71,9 +72,11 @@ export function HomeView({ HomeMain}: { HomeMain: React.ComponentType }){
 let MainView:  React.ComponentType<{}> = function MainView() {
   return (
     <React.Fragment>
-      <Hero/>
+      <EditorSandbox/>
+     {/*
+     <Hero/>
       <Box sx={{ height: '112px' }}/>
-      <Divider/>
+      <Divider/> */}
     </React.Fragment>
   )
 }

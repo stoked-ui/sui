@@ -1,7 +1,7 @@
 import * as React from 'react';
 import composeClasses from "@mui/utils/composeClasses";
 import FormControl from '@mui/material/FormControl';
-import PauseIcon from '@mui/icons-material/Pause';
+import StopIcon from '@mui/icons-material/Stop';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import SkipNextIcon from '@mui/icons-material/SkipNext';
 import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
@@ -67,6 +67,7 @@ const TimeRoot = styled(TextField)(({ theme }) => ({
   py: '4px',
   width: '120px',
   alignSelf: 'center',
+  borderRadius: '12px',
 
   "& .MuiInputBase-input": {
     fontSize: 16,
@@ -74,6 +75,7 @@ const TimeRoot = styled(TextField)(({ theme }) => ({
     padding: '0 4px',
     borderRadius: '12px',
     background: theme.palette.background.default,
+    color: `${theme.palette.text.primary}!important`,
 
     textAlign: 'end',
   },
@@ -111,7 +113,7 @@ const RateControlSelect = styled(Select)(({ theme }) => ({
 export const EditorControls = React.forwardRef(function EditorControls<
   R extends FileBase = FileBase,
   Multiple extends boolean | undefined = undefined,
->({ scale = 1, scaleWidth = 160, startLeft = 20, ...inProps }: EditorControlsProps<R, Multiple>, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
+>({ scale = 1, scaleWidth = 160, startLeft = 20, tracks, ...inProps }: EditorControlsProps<R, Multiple>, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
   const props = useThemeProps({ props: inProps, name: 'MuiEditorControls' });
   const { timelineState, editorData, autoScrollWhenPlay } = inProps;
   const [isPlaying, setIsPlaying] = React.useState(false);
@@ -183,21 +185,20 @@ export const EditorControls = React.forwardRef(function EditorControls<
   };
 
   const handleStart = () => {
-    timelineState?.current?.setTime(0);
+    timelineState?.current?.setTime(0, true);
   }
 
   const handleEnd = () => {
-    if (editorData) {
+    if (tracks) {
       let furthest = 0;
-      editorData.forEach((row) => {
+      tracks.forEach((row) => {
         row.actions.forEach((action) => {
           if (action.end > furthest) {
             furthest = action.end;
           }
         })
       });
-      console.log('end', furthest)
-      timelineState?.current?.setTime(furthest);
+      timelineState?.current?.setTime(furthest, true);
     }
   }
 
@@ -242,7 +243,7 @@ export const EditorControls = React.forwardRef(function EditorControls<
               <SkipPreviousIcon fontSize={'small'}/>
             </ToggleButton>
             <ToggleButton value="playPause" onClick={handlePlayOrPause}>
-              {isPlaying ? <PauseIcon /> : <PlayArrowIcon/>}
+              {isPlaying ? <StopIcon /> : <PlayArrowIcon/>}
             </ToggleButton>
             <ToggleButton onClick={handleEnd} value="next" aria-label="lock">
               <SkipNextIcon />
@@ -253,6 +254,7 @@ export const EditorControls = React.forwardRef(function EditorControls<
       <div style={{display: 'flex', flexDirection: 'row'}}>
         <TimeRoot
           variant={'outlined'}
+          disabled
           size={'small'}
           helperText={false}
           value={timeRender(time)}

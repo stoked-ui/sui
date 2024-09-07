@@ -25,6 +25,12 @@ const TimelineControlRoot = styled('div')(({ theme }) => ({
   overflow: 'hidden',
 }));
 
+declare global {
+  interface Window {
+    end: any
+  }
+}
+
 const TimelineControl = React.forwardRef<TimelineState, TimelineControlProps>(
   function TimelineControl(props, ref) {
     const checkedProps = checkProps(props);
@@ -75,6 +81,7 @@ const TimelineControl = React.forwardRef<TimelineState, TimelineControlProps>(
       }
     }, [tracks, minScaleCount, maxScaleCount, scale]);
 
+
     React.useEffect(() => {
       if (engineRef?.current) {
         engineRef.current.actionTypes = actionTypes;
@@ -111,8 +118,13 @@ const TimelineControl = React.forwardRef<TimelineState, TimelineControlProps>(
       }
     };
 
+    const setHorizontalScroll = (left: number) => {
+      scrollSync.current.setState({
+        scrollLeft: Math.max(left, 0),
+      });
+    };
     /** handleCursor */
-    const handleSetCursor = (param: { left?: number; time?: number; updateTime?: boolean }) => {
+    const handleSetCursor = (param: { left?: number; time?: number; updateTime?: boolean, move?: boolean }) => {
       let { left, time } = param;
       const { updateTime = true } = param;
 
@@ -126,6 +138,10 @@ const TimelineControl = React.forwardRef<TimelineState, TimelineControlProps>(
 
       if (typeof time === 'undefined') {
         time = parserPixelToTime(left, { startLeft, scale, scaleWidth });
+      }
+
+      if ((typeof time !== 'undefined' || typeof time === 'undefined') && param.move) {
+        setHorizontalScroll(left - (scrollSync.current.state.clientWidth * .5));
       }
 
       let result = true;
@@ -143,11 +159,6 @@ const TimelineControl = React.forwardRef<TimelineState, TimelineControlProps>(
       return result;
     };
 
-    const setHorizontalScroll = (left: number) => {
-      scrollSync.current.setState({
-        scrollLeft: Math.max(left, 0),
-      });
-    };
 
     /** setUp scrollLeft */
     const handleDeltaScrollLeft = (delta: number) => {
@@ -195,7 +206,7 @@ const TimelineControl = React.forwardRef<TimelineState, TimelineControlProps>(
         },
         setPlayRate: engineRef?.current?.setPlayRate.bind(engineRef.current),
         getPlayRate: engineRef?.current?.getPlayRate.bind(engineRef.current),
-        setTime: (time: number) => handleSetCursor({ time }),
+        setTime: (time: number, move?: boolean) => handleSetCursor({ time, move }),
         getTime: engineRef?.current?.getTime.bind(engineRef.current),
         reRender: engineRef?.current?.reRender.bind(engineRef.current),
         play: (param: Parameters<TimelineState['play']>[0]) =>
@@ -214,6 +225,11 @@ const TimelineControl = React.forwardRef<TimelineState, TimelineControlProps>(
       }),
       [engineRef],
     );
+
+    window.end = () => {
+      handleSetCursor({ left: width });
+      scrollSync?.current?.setState({ scrollLeft: Math.max(width, 0) });
+    }
 
     // monitor timelineControl area width changes
     React.useEffect(() => {

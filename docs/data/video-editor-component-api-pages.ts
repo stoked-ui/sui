@@ -1,6 +1,6 @@
-import type SuiPage from '@stoked-ui/docs/SuiPage/SuiPage';
+import type { MuiPage } from 'docs/src/MuiPage';
 
-const apiPages: SuiPage[] = [
+const apiPages: MuiPage[] = [
   {
     pathname: '/timeline/api/timeline',
     title: 'Timeline',
