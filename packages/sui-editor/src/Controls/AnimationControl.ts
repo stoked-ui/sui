@@ -1,5 +1,5 @@
 import lottie, { AnimationItem } from 'lottie-web';
-import { ITimelineActionType, TimelineAction, TimelineActionParams } from "@stoked-ui/timeline";
+import { ITimelineActionType, TimelineAction, TimelineActionParams, TimelineEngine } from "@stoked-ui/timeline";
 
 class AnimationControl implements ITimelineActionType {
   id = 'animation';
@@ -23,6 +23,34 @@ class AnimationControl implements ITimelineActionType {
     item.goToAndStop(time);
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  private _setRenderListener = (params: TimelineActionParams, item: AnimationItem) => {
+    const { action, engine, time } = params;
+    let animationHandle: any;
+    item.addEventListener('loadeddata', videoLoadCallback);
+
+
+
+    function step() { // update the canvas when a video proceeds to next frame
+      this._goToAndStop(item, time - action.start);
+    }
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  private _setRenderListener = (engine: TimelineEngine, item: HTMLVideoElement) => {
+    let animationHandle: any;
+    item.addEventListener('loadeddata', videoLoadCallback, false);
+
+    function videoLoadCallback() {
+      item.cancelVideoFrameCallback(animationHandle);
+      step()
+    }
+    function step() { // update the canvas when a video proceeds to next frame
+      engine.renderCtx.drawImage(item, 0, 0, engine.renderer.width, engine.renderer.height);
+      animationHandle = item.requestVideoFrameCallback(step);
+    }
+  }
+
   enter(params: TimelineActionParams) {
     const { action, engine, time } = params;
     if (!engine.isPlaying || !action.data) {
@@ -37,18 +65,21 @@ class AnimationControl implements ITimelineActionType {
       item = lottie.loadAnimation({
         name: action.id,
         container: engine.viewer,
-        renderer: 'svg',
+        renderer: "canvas",
         loop: true,
         autoplay: false,
         path: action.data.src,
         rendererSettings: {
-          className: 'MuiEditorView-content animation',
+          context: engine.renderCtx,
+          clearCanvas: false,
+          preserveAspectRatio: 'xMidYMid meet'
         },
       });
 
       item.addEventListener('loaded_images', () => {
         this._goToAndStop(item, time - action.start);
       });
+
       this.cacheMap[action.id] = item;
     }
   }

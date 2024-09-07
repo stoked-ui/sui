@@ -30,7 +30,7 @@ const TimelineRoot = styled('div', {
   name: 'MuiTimeline',
   slot: 'Root',
   overridesResolver: (props, styles) => styles.root,
-})(({ theme }) => ({
+})(({ theme  }) => ({
   display: 'flex',
   backgroundColor: emphasize(theme.palette.background.default, 0.04),
   '&:hover': {

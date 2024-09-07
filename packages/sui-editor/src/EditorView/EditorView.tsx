@@ -40,8 +40,18 @@ const EditorViewRenderer = styled('canvas', {
   display: 'flex',
   flexDirection: 'column',
   width: '100%',
-  position: 'relative',
+  position: 'absolute',
+  left: 0,
   overflow: 'hidden',
+  aspectRatio: 16 / 9,
+/*   background: `repeating-linear-gradient(
+    45deg,
+    rgba(0, 0, 0, 0.2),
+    rgba(0, 0, 0, 0.2) 10px,
+    rgba(0, 0, 0, 0.3) 10px,
+    rgba(0, 0, 0, 0.3) 20px
+  ),
+  url(http://s3-us-west-2.amazonaws.com/s.cdpn.io/3/old_map_@2X.png)` */
 }));
 
 const EditorViewPreview = styled('div', {
@@ -51,6 +61,7 @@ const EditorViewPreview = styled('div', {
   display: 'flex',
   flexDirection: 'column',
   width: '100%',
+  aspectRatio: 16 / 9,
   position: 'relative',
   overflow: 'hidden',
 }));
@@ -73,11 +84,39 @@ export const EditorView = React.forwardRef(function EditorView<
   const viewRef = React.useRef<HTMLDivElement>(null);
   const combinedViewRef = useForkRef(ref , viewRef);
 
+  const [viewerSize, setViewerSize] = React.useState<{w: number, h: number}>({w: 0, h: 0});
+  const viewerRef = React.useRef<HTMLDivElement>(null);
+  const rendererRef = React.useRef<HTMLCanvasElement>(null);
+
   React.useEffect(() => {
     if (inProps.engine.current && viewRef?.current) {
       inProps.engine.current.viewer = viewRef.current;
+      if (viewRef.current.parentElement && viewRef.current.parentElement.id) {
+        viewRef.current.id = `viewer-${viewRef.current.parentElement.id}`
+        viewRef.current.classList.add(viewRef.current.parentElement.id);
+      }
     }
   }, [viewRef, inProps.engine])
+
+  // tie the renderer to the editor
+  React.useEffect(() => {
+    if (rendererRef.current && viewRef.current) {
+      if (!rendererRef.current.id && viewRef.current.parentElement) {
+        rendererRef.current.id = `renderer-${viewRef.current.parentElement.id}`
+        rendererRef.current.classList.add(viewRef.current.parentElement.id);
+      }
+    }
+  })
+
+  // tie the viewer to the editor
+  React.useEffect(() => {
+    if (viewerRef.current && viewRef.current) {
+      if (!viewerRef.current.id && viewRef.current.parentElement) {
+        viewerRef.current.id = `preview-${viewRef.current.parentElement.id}`
+        viewerRef.current.classList.add(viewRef.current.parentElement.id);
+      }
+    }
+  })
 
   const { slots, slotProps } = props;
   const classes = useUtilityClasses(props);
@@ -90,10 +129,26 @@ export const EditorView = React.forwardRef(function EditorView<
     ownerState: {...props, ref: viewRef },
   });
 
+  // if the viewer resizes make the renderer match it
+  React.useEffect(() => {
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.target === viewerRef.current) {
+          setViewerSize({w: entry.contentRect.width, h: entry.contentRect.height});
+          if (rendererRef.current) {
+            rendererRef.current.width = entry.contentRect.width;
+            rendererRef.current.height = entry.contentRect.height;
+            rendererRef.current.style.top = `-${rendererRef.current.height}px`;
+          }
+        }
+      }
+    });
+  }, [viewerRef]);
+
   return (
-    <Root {...rootProps} ref={combinedViewRef}>
-      <EditorViewPreview />
-      <EditorViewRenderer />
+    <Root role={'viewer'} {...rootProps} ref={combinedViewRef} >
+      <EditorViewPreview role={'preview'} ref={viewerRef}/>
+      <EditorViewRenderer role={'renderer'}  ref={rendererRef}/>
     </Root>
   )
 })

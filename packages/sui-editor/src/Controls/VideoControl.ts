@@ -5,6 +5,8 @@ import {
   TimelineEngine
 } from "@stoked-ui/timeline";
 
+type renderFunc = () => void
+
 class VideoControl implements ITimelineActionType {
   id =  'video';
 
@@ -15,6 +17,7 @@ class VideoControl implements ITimelineActionType {
   cacheMap: Record<string, HTMLVideoElement> = {};
 
   _videoItem: HTMLVideoElement | null = null;
+
   // eslint-disable-next-line class-methods-use-this
   private _goToAndStop(item: HTMLVideoElement, time: number) {
     const duration = item.duration * 1000;
@@ -24,6 +27,21 @@ class VideoControl implements ITimelineActionType {
     }
     item.currentTime = time / 1000;
     item.pause();
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  private _setRenderListener = (engine: TimelineEngine, item: HTMLVideoElement) => {
+    let animationHandle: any;
+    item.addEventListener('loadeddata', videoLoadCallback, false);
+
+    function videoLoadCallback() {
+      item.cancelVideoFrameCallback(animationHandle);
+      step()
+    }
+    function step() { // update the canvas when a video proceeds to next frame
+      engine.renderCtx.drawImage(item, 0, 0, engine.renderer.width, engine.renderer.height);
+      animationHandle = item.requestVideoFrameCallback(step);
+    }
   }
 
   enter(params: TimelineActionParams) {
@@ -47,13 +65,14 @@ class VideoControl implements ITimelineActionType {
     } else if (!track.hidden){
       item = document.createElement('video');
       item.src = action.data.src;
-      item.style.position = 'absolute';
       item.style.display = 'flex';
+      item.style.opacity = '0.3';
       if (action.data?.style) {
         for (const prop in action.data.style) {
           item.style[prop] = action.data.style[prop];
         }
       }
+
       item.loop = true;
       item.muted = true;  // Prevent autoplay restrictions
       item.addEventListener('loadedmetadata', () => {
@@ -62,7 +81,9 @@ class VideoControl implements ITimelineActionType {
       this.cacheMap[action.id] = item;
 
       if (engine.viewer) {
-        engine.viewer.appendChild(item);
+        console.log('appent the child to the viewer', engine.viewer);
+        engine.preview.appendChild(item);
+        this._setRenderListener(engine, item);
       } else {
         console.warn('no viewer specified when video control loaded meta data', item.src)
       }
@@ -89,14 +110,17 @@ class VideoControl implements ITimelineActionType {
   }
 
   leave(params: TimelineActionParams) {
-    const { action, time } = params;
+    const { action, time, engine } = params;
+    engine.renderCtx.clearRect(0, 0, engine.renderer.width, engine.renderer.height);
     const item = this.cacheMap[action.id];
     if (!item) {
       return;
     }
     if (time > action.end || time < action.start) {
       item.style.display = 'none';
+      console.log('vid none')
     } else {
+      console.log('vid block')
       const cur = time - action.start;
       item.style.display = 'block';
       this._goToAndStop(item, cur);
