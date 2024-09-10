@@ -1,7 +1,7 @@
 import * as React from 'react';
-import type { DefaultizedProps, FileExplorerPluginSignature } from '../../models';
-import { UseFileExplorerFilesSignature } from '../useFileExplorerFiles';
-import { UseFileExplorerExpansionSignature } from '../useFileExplorerExpansion';
+import type {DefaultizedProps, FileExplorerPluginSignature} from '../../models';
+import {UseFileExplorerFilesSignature} from '../useFileExplorerFiles';
+import {UseFileExplorerExpansionSignature} from '../useFileExplorerExpansion';
 
 export interface UseFileExplorerSelectionPublicAPI {
   /**
@@ -9,7 +9,8 @@ export interface UseFileExplorerSelectionPublicAPI {
    * @param {React.SyntheticEvent} event The event source of the callback.
    * @param {string} itemId The id of the item to select or deselect.
    * @param {boolean} keepExistingSelection If `true`, don't remove the other selected items.
-   * @param {boolean | undefined} newValue The new selection status of the item. If not defined, the new state will be the opposite of the current state.
+   * @param {boolean | undefined} newValue The new selection status of the item. If not defined,
+   *   the new state will be the opposite of the current state.
    */
   selectItem: (
     event: React.SyntheticEvent,
@@ -31,7 +32,8 @@ export interface UseFileExplorerSelectionInstance {
    * @param {React.SyntheticEvent} event The event source of the callback.
    * @param {string} itemId The id of the item to select or deselect.
    * @param {boolean} keepExistingSelection If `true`, don't remove the other selected items.
-   * @param {boolean | undefined} newValue The new selection status of the item. If not defined, the new state will be the opposite of the current state.
+   * @param {boolean | undefined} newValue The new selection status of the item. If not defined,
+   *   the new state will be the opposite of the current state.
    */
   selectItem: (
     event: React.SyntheticEvent,
@@ -102,7 +104,8 @@ export interface UseFileExplorerSelectionParameters<Multiple extends boolean | u
    */
   multiSelect?: Multiple;
   /**
-   * If `true`, the fileExplorer view renders a checkbox at the left of its label that allows selecting it.
+   * If `true`, the fileExplorer view renders a checkbox at the left of its label that allows
+   * selecting it.
    * @default false
    */
   checkboxSelection?: boolean;
@@ -120,7 +123,8 @@ export interface UseFileExplorerSelectionParameters<Multiple extends boolean | u
    * Callback fired when a fileExplorer item is selected or deselected.
    * @param {React.SyntheticEvent} event The event source of the callback.
    * @param {array} itemId The itemId of the modified item.
-   * @param {array} isSelected `true` if the item has just been selected, `false` if it has just been deselected.
+   * @param {array} isSelected `true` if the item has just been selected, `false` if it has just
+   *   been deselected.
    */
   onItemSelectionToggle?: (
     event: React.SyntheticEvent,

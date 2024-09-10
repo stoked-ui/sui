@@ -1,6 +1,6 @@
-import type { EditorAnyPluginSignature } from './plugin';
-import type { MergeSignaturesProperty } from './helpers';
-import type { EditorCorePluginSignatures } from '../corePlugins';
+import type {EditorAnyPluginSignature} from './plugin';
+import type {MergeSignaturesProperty} from './helpers';
+import type {EditorCorePluginSignatures} from '../corePlugins';
 
 export type DndState = 'idle' | 'dragging' | 'preview' | 'parent-of-instruction';
 

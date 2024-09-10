@@ -1,8 +1,10 @@
 import * as React from 'react';
-import { FileExplorerPluginSignature } from '../../models/plugin.types';
-import { DefaultizedProps } from '../../models/helpers';
-import { FileId } from '../../../models';
-import type { UseFileExplorerFilesSignature } from "../useFileExplorerFiles/useFileExplorerFiles.types";
+import {FileExplorerPluginSignature} from '../../models/plugin.types';
+import {DefaultizedProps} from '../../models/helpers';
+import {FileId} from '../../../models';
+import type {
+  UseFileExplorerFilesSignature
+} from "../useFileExplorerFiles/useFileExplorerFiles.types";
 
 export interface UseFileExplorerExpansionPublicAPI {
   /**
@@ -24,7 +26,8 @@ export interface UseFileExplorerExpansionInstance extends UseFileExplorerExpansi
   /**
    * Check if an item is expandable.
    * Currently, an item is expandable if it has children.
-   * In the future, the user should be able to flag an item as expandable even if it has no loaded children to support children lazy loading.
+   * In the future, the user should be able to flag an item as expandable even if it has no loaded
+   * children to support children lazy loading.
    * @param {FileId} itemId The id of the item to check.
    * @returns {boolean} `true` if the item can be expanded, `false` otherwise.
    */
@@ -66,7 +69,8 @@ export interface UseFileExplorerExpansionParameters {
    * Callback fired when a fileExplorer item is expanded or collapsed.
    * @param {React.SyntheticEvent} event The event source of the callback.
    * @param {array} itemId The itemId of the modified item.
-   * @param {array} isExpanded `true` if the item has just been expanded, `false` if it has just been collapsed.
+   * @param {array} isExpanded `true` if the item has just been expanded, `false` if it has just
+   *   been collapsed.
    */
   onItemExpansionToggle?: (
     event: React.SyntheticEvent,

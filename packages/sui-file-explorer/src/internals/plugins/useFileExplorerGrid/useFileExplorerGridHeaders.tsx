@@ -1,13 +1,13 @@
 import * as React from 'react';
-import { extractEventHandlers } from '@mui/base/utils';
+import {extractEventHandlers} from '@mui/base/utils';
 import useForkRef from '@mui/utils/useForkRef';
 import {
   UseFileExplorerGridHeadersParameters,
   UseFileExplorerGridHeadersReturnValue,
   UseFileExplorerGridHeadersRootSlotProps,
 } from './useFileExplorerGridHeaders.types';
-import { useFileExplorerContext } from '../../FileExplorerProvider/useFileExplorerContext';
-import { FileExplorerAnyPluginSignature, UseFileMinimalPlugins, } from "../../models";
+import {useFileExplorerContext} from '../../FileExplorerProvider/useFileExplorerContext';
+import {FileExplorerAnyPluginSignature, UseFileMinimalPlugins,} from "../../models";
 
 export const useFileExplorerGridHeaders = <
   TSignatures extends UseFileMinimalPlugins,

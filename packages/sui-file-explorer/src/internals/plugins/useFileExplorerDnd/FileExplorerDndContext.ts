@@ -1,8 +1,8 @@
 import * as React from "react";
 import invariant from "tiny-invariant";
-import { namedId } from "@stoked-ui/media-selector";
-import { FileExplorerDndAction } from "./FileExplorerDndAction";
-import { FileBase } from "../../../models";
+import {namedId} from "@stoked-ui/media-selector";
+import {FileExplorerDndAction} from "./FileExplorerDndAction";
+import {FileBase} from "../../../models";
 
 export const fileExplorer = {
   remove<R extends FileBase>(items: R[], id: string): FileBase[] {

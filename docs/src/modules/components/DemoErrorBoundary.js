@@ -20,7 +20,7 @@ function newGitHubIssueUrl(options) {
 
   return `${url}?${query}`;
 }
-
+/*
 export default class DemoErrorBoundary extends React.Component {
   state = {
     error: null,
@@ -33,7 +33,9 @@ export default class DemoErrorBoundary extends React.Component {
   render() {
     const { children, name, onResetDemoClick, t } = this.props;
     const { error } = this.state;
-
+    if (typeof window === 'undefined') {
+      return;
+    }
     if (error) {
       const title = `[docs] Demo ${name} crashes`;
       const searchQuery = encodeURIComponent(`is:issue ${title}`);
@@ -64,7 +66,6 @@ export default class DemoErrorBoundary extends React.Component {
 `,
       });
 
-      /* eslint-disable material-ui/no-hardcoded-labels */
       return (
         <div>
           <Typography color="error" component="p" variant="h5" gutterBottom>
@@ -84,7 +85,6 @@ The "report this error" link prefills the issue description with valuable inform
           </Button>
         </div>
       );
-      /* eslint-enable material-ui/no-hardcoded-labels */
     }
 
     return children;
@@ -100,3 +100,5 @@ DemoErrorBoundary.propTypes = {
    */
   t: PropTypes.func.isRequired,
 };
+
+*/

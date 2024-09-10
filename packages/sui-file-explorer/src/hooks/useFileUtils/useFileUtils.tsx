@@ -1,19 +1,21 @@
 import * as React from 'react';
-import {
-  useFileExplorerContext
-} from '../../internals/FileExplorerProvider/useFileExplorerContext';
+import {useFileExplorerContext} from '../../internals/FileExplorerProvider/useFileExplorerContext';
 import type {
   UseFileExplorerSelectionSignature
 } from '../../internals/plugins/useFileExplorerSelection';
 import type {
   UseFileExplorerExpansionSignature
 } from '../../internals/plugins/useFileExplorerExpansion';
-import type { UseFileExplorerFilesSignature } from '../../internals/plugins/useFileExplorerFiles/useFileExplorerFiles.types';
+import type {
+  UseFileExplorerFilesSignature
+} from '../../internals/plugins/useFileExplorerFiles/useFileExplorerFiles.types';
 import type {
   UseFileExplorerGridSignature
 } from '../../internals/plugins/useFileExplorerGrid/useFileExplorerGrid.types';
-import type { UseFileExplorerFocusSignature } from '../../internals/plugins/useFileExplorerFocus/useFileExplorerFocus.types';
-import type { UseFileStatus } from '../../internals/models/UseFileStatus';
+import type {
+  UseFileExplorerFocusSignature
+} from '../../internals/plugins/useFileExplorerFocus/useFileExplorerFocus.types';
+import type {UseFileStatus} from '../../internals/models/UseFileStatus';
 import type {
   UseFileExplorerDndSignature
 } from '../../internals/plugins/useFileExplorerDnd/useFileExplorerDnd.types';
@@ -30,7 +32,8 @@ interface UseFileUtilsReturnValue {
 }
 
 /**
- * Plugins that need to be present in the FileExplorer View in order for `useFileUtils` to work correctly.
+ * Plugins that need to be present in the FileExplorer View in order for `useFileUtils` to work
+ * correctly.
  */
 type UseFileUtilsMinimalPlugins = readonly [
   UseFileExplorerSelectionSignature,

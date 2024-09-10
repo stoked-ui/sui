@@ -1,11 +1,11 @@
 import * as React from 'react';
 import clsx from 'clsx';
-import { useRouter } from 'next/router';
-import NextLink, { LinkProps as NextLinkProps } from 'next/link';
-import MuiLink, { LinkProps as MuiLinkProps } from '@mui/material/Link';
-import { styled } from '@mui/material/styles';
-import { useUserLanguage } from '../i18n';
-import { useDocsConfig } from '../DocsProvider';
+import {useRouter} from 'next/router';
+import NextLink, {LinkProps as NextLinkProps} from 'next/link';
+import MuiLink, {LinkProps as MuiLinkProps} from '@mui/material/Link';
+import {styled} from '@mui/material/styles';
+import {useUserLanguage} from '../i18n';
+import {useDocsConfig} from '../DocsProvider';
 
 /**
  * File to keep in sync with:

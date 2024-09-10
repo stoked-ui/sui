@@ -28,7 +28,6 @@ interface MuiProductInfo {
 export default function getProductInfoFromUrl(asPath: string): MuiProductInfo {
   const asPathWithoutLang = pathnameToLanguage(asPath).canonicalAsServer;
   const firstFolder = asPathWithoutLang.replace(/^\/+([^/]+)\/.*/, '$1');
-  console.log('firstFolder', firstFolder);
   // When serialized undefined/null are the same, so we encode null as 'null' to be
   // able to differentiate when the value isn't set vs. set to the right null value.
   let productCategoryId = 'null';

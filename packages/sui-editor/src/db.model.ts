@@ -1,6 +1,6 @@
-import Dexie, { Table } from 'dexie';
-import { TimelineTrack } from '@stoked-ui/timeline';
-import { FileBase } from '@stoked-ui/file-explorer';
+import Dexie, {Table} from 'dexie';
+import {ITimelineTrack} from '@stoked-ui/timeline';
+import {FileBase} from '@stoked-ui/file-explorer';
 
 const DB_VERSION = 0;
 
@@ -27,7 +27,7 @@ export interface FileStoreRef extends DbObject  {
 
 export interface VideoProject extends DbObject  {
   name: string;
-  tracks: TimelineTrack[];
+  tracks: ITimelineTrack[];
   fileStore: FileStoreRef;
 }
 

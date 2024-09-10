@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { SxProps } from "@mui/system";
-import { FileExplorerInstance, UseFileMinimalPlugins, } from '../../models';
-import { UseFileExplorerGridColumnHeaderStatus } from './useFileExplorerGrid.types';
+import {SxProps} from "@mui/system";
+import {FileExplorerInstance, UseFileMinimalPlugins,} from '../../models';
+import {UseFileExplorerGridColumnHeaderStatus} from './useFileExplorerGrid.types';
 
 export interface UseFileExplorerGridHeadersParameters {
   /**
@@ -71,7 +71,8 @@ export interface UseFileExplorerGridColumnHeaderReturnValue<
   /**
    * Resolver for the label slot's props.
    * @param {ExternalProps} externalProps Additional props for the label slot
-   * @returns {UseFileExplorerGridHeadersLabelSlotProps<ExternalProps>} Props that should be spread on the label slot
+   * @returns {UseFileExplorerGridHeadersLabelSlotProps<ExternalProps>} Props that should be spread
+   *   on the label slot
    */
   getLabelProps: <ExternalProps extends Record<string, any> = {}>(
     externalProps?: ExternalProps,
@@ -80,7 +81,8 @@ export interface UseFileExplorerGridColumnHeaderReturnValue<
   /**
    * Resolver for the iconContainer slot's props.
    * @param {ExternalProps} externalProps Additional props for the iconContainer slot
-   * @returns {UseFileExplorerGridHeadersIconContainerSlotProps<ExternalProps>} Props that should be spread on the iconContainer slot
+   * @returns {UseFileExplorerGridHeadersIconContainerSlotProps<ExternalProps>} Props that should
+   *   be spread on the iconContainer slot
    */
   getIconContainerProps: <ExternalProps extends Record<string, any> = {}>(
     externalProps?: ExternalProps,
@@ -88,7 +90,8 @@ export interface UseFileExplorerGridColumnHeaderReturnValue<
   /**
    * Resolver for the GroupTransition slot's props.
    * @param {ExternalProps} externalProps Additional props for the GroupTransition slot
-   * @returns {UseFileExplorerGridHeadersGroupTransitionSlotProps<ExternalProps>} Props that should be spread on the GroupTransition slot
+   * @returns {UseFileExplorerGridHeadersGroupTransitionSlotProps<ExternalProps>} Props that should
+   *   be spread on the GroupTransition slot
    */
   getGroupTransitionProps: <ExternalProps extends Record<string, any> = {}>(
     externalProps?: ExternalProps,

@@ -5,8 +5,8 @@ import {
   EditorPluginSignature,
   MergeSignaturesProperty,
 } from '../models';
-import { UseEditorBaseProps } from './useEditor.types';
-import { EditorCorePluginSignatures } from '../corePlugins';
+import {UseEditorBaseProps} from './useEditor.types';
+import {EditorCorePluginSignatures} from '../corePlugins';
 
 interface ExtractPluginParamsFromPropsParameters<
   TSignatures extends readonly EditorAnyPluginSignature[],

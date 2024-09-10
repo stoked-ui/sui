@@ -1,25 +1,22 @@
 import * as React from 'react';
 import useForkRef from '@mui/utils/useForkRef';
-import { EventHandlers } from '@mui/base/utils';
+import {EventHandlers} from '@mui/base/utils';
 import {
+  ConvertSignaturesIntoPlugins,
   EditorAnyPluginSignature,
   EditorInstance,
   EditorPlugin,
-  MergeSignaturesProperty,
   EditorPublicAPI,
-  ConvertSignaturesIntoPlugins,
+  MergeSignaturesProperty,
 } from '../models';
 import {
-  UseEditorBaseProps,
-  UseEditorParameters,
-  UseEditorReturnValue,
-  UseEditorRootSlotProps,
+  UseEditorBaseProps, UseEditorParameters, UseEditorReturnValue, UseEditorRootSlotProps,
 } from './useEditor.types';
-import { useEditorModels } from './useEditorModels';
-import { EditorContextValue, VideoPluginsRunner } from '../EditorProvider';
-import { VIDEO_EDITOR_CORE_PLUGINS, EditorCorePluginSignatures } from '../corePlugins';
-import { extractPluginParamsFromProps } from './extractPluginParamsFromProps';
-import { MediaTypes } from "../../Controls/MediaTypes";
+import {useEditorModels} from './useEditorModels';
+import {EditorContextValue, VideoPluginsRunner} from '../EditorProvider';
+import {EditorCorePluginSignatures, VIDEO_EDITOR_CORE_PLUGINS} from '../corePlugins';
+import {extractPluginParamsFromProps} from './extractPluginParamsFromProps';
+import {MediaControllers} from "@stoked-ui/media-selector";
 
 export function useEditorApiInitialization<T>(
   inputApiRef: React.MutableRefObject<T | undefined> | undefined,
@@ -197,7 +194,7 @@ export const useEditor = <
       ...forwardedProps,
       ...otherHandlers,
       tracks: contextValue.tracks ?? [],
-      actionTypes: MediaTypes,
+      actionTypes: MediaControllers,
     };
   };
 

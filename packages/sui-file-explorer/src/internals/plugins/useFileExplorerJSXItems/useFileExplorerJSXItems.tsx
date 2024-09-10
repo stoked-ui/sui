@@ -2,21 +2,19 @@ import * as React from 'react';
 import useEventCallback from '@mui/utils/useEventCallback';
 import useForkRef from '@mui/utils/useForkRef';
 import useEnhancedEffect from '@mui/utils/useEnhancedEffect';
-import { UseFileExplorerGridSignature } from "../useFileExplorerGrid/useFileExplorerGrid.types";
-import { FileExplorerPlugin, FileMeta, FilePlugin } from '../../models';
-import { UseFileExplorerJSXItemsSignature } from './useFileExplorerJSXItems.types';
-import { publishFileExplorerEvent } from '../../utils/publishFileExplorerEvent';
-import { useFileExplorerContext } from '../../FileExplorerProvider/useFileExplorerContext';
+import {UseFileExplorerGridSignature} from "../useFileExplorerGrid/useFileExplorerGrid.types";
+import {FileExplorerPlugin, FileMeta, FilePlugin} from '../../models';
+import {UseFileExplorerJSXItemsSignature} from './useFileExplorerJSXItems.types';
+import {publishFileExplorerEvent} from '../../utils/publishFileExplorerEvent';
+import {useFileExplorerContext} from '../../FileExplorerProvider/useFileExplorerContext';
 import {
-  FileExplorerChildrenItemContext,
-  FileExplorerChildrenItemProvider,
+  FileExplorerChildrenItemContext, FileExplorerChildrenItemProvider,
 } from '../../FileExplorerProvider/FileExplorerChildrenItemProvider';
 import {
-  buildSiblingIndexes,
-  FILE_EXPLORER_VIEW_ROOT_PARENT_ID,
+  buildSiblingIndexes, FILE_EXPLORER_VIEW_ROOT_PARENT_ID,
 } from '../useFileExplorerFiles/useFileExplorerFiles.utils';
-import { FileDepthContext } from '../../FileDepthContext';
-import { namedId } from "@stoked-ui/media-selector";
+import {FileDepthContext} from '../../FileDepthContext';
+import {namedId} from "@stoked-ui/media-selector";
 
 export const useFileExplorerJSXItems: FileExplorerPlugin<UseFileExplorerJSXItemsSignature> = ({
   instance,

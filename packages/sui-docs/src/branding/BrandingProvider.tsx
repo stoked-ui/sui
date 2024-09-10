@@ -1,11 +1,12 @@
 import * as React from 'react';
-import { ThemeProvider, useTheme } from '@mui/material/styles';
-import { brandingDarkTheme, brandingLightTheme } from './brandingTheme';
+import {ThemeProvider, useTheme} from '@mui/material/styles';
+import {brandingDarkTheme, brandingLightTheme} from './brandingTheme';
 
 export interface BrandingProviderProps {
   children: React.ReactNode;
   /**
-   * If not `undefined`, the provider is considered nesting and does not render NextNProgressBar & CssBaseline
+   * If not `undefined`, the provider is considered nesting and does not render NextNProgressBar &
+   * CssBaseline
    */
   mode: 'light' | 'dark';
 }

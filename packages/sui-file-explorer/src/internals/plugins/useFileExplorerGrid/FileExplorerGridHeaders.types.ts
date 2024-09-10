@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { SlotComponentProps } from '@mui/base/utils';
-import { SxProps, Theme } from "@mui/system";
-import { UseFileExplorerGridHeadersParameters } from './useFileExplorerGridHeaders.types';
-import { FileExplorerGridHeadersClasses } from './fileExplorerViewGridHeadersClasses';
-import { MuiCancellableEventHandler } from '../../models/MuiCancellableEvent';
+import {SlotComponentProps} from '@mui/base/utils';
+import {SxProps, Theme} from "@mui/system";
+import {UseFileExplorerGridHeadersParameters} from './useFileExplorerGridHeaders.types';
+import {FileExplorerGridHeadersClasses} from './fileExplorerViewGridHeadersClasses';
+import {MuiCancellableEventHandler} from '../../models/MuiCancellableEvent';
 
 export interface FileExplorerGridHeadersSlots {
   /**

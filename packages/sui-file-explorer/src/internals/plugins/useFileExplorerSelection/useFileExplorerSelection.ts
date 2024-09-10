@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { FileExplorerPlugin } from '../../models';
-import { FileId } from '../../../models';
+import {FileExplorerPlugin} from '../../models';
+import {FileId} from '../../../models';
 import {
   findOrderInTremauxFileExplorer,
   getAllNavigableItems,
@@ -9,10 +9,9 @@ import {
   getNonDisabledItemsInRange,
 } from '../../utils/fileExplorer';
 import {
-  UseFileExplorerSelectionInstance,
-  UseFileExplorerSelectionSignature,
+  UseFileExplorerSelectionInstance, UseFileExplorerSelectionSignature,
 } from './useFileExplorerSelection.types';
-import { convertSelectedItemsToArray, getLookupFromArray } from './useFileExplorerSelection.utils';
+import {convertSelectedItemsToArray, getLookupFromArray} from './useFileExplorerSelection.utils';
 
 export const useFileExplorerSelection: FileExplorerPlugin<UseFileExplorerSelectionSignature> = ({
   instance,

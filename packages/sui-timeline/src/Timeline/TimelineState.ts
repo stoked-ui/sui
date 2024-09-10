@@ -1,5 +1,6 @@
-import { Emitter } from "../TimelineEngine/emitter";
-import { EventTypes } from "../TimelineEngine/events";
+import {ITimelineTrack} from "../TimelineTrack";
+import { type Emitter } from "../TimelineEngine/emitter";
+import { type EventTypes } from "../TimelineEngine/events";
 
 export interface TimelineState {
   /** dom node */
@@ -35,4 +36,6 @@ export interface TimelineState {
   setScrollLeft: (val: number) => void;
   /** Set scroll top */
   setScrollTop: (val: number) => void;
+  tracks: ITimelineTrack[]
+  setTracks: (tracks: ITimelineTrack[]) => void;
 }

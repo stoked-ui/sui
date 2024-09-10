@@ -1,5 +1,5 @@
-import { createTheme } from '@mui/material/styles';
-import { editorClasses } from '../Editor';
+import {createTheme} from '@mui/material/styles';
+import {editorClasses} from '../Editor';
 
 createTheme({
   components: {

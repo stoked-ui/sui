@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { EventHandlers, extractEventHandlers, } from "@mui/base/utils";
-import { SxProps, useTheme } from "@mui/system";
-import { MuiCancellableEvent } from "@mui/base/utils/MuiCancellableEvent";
-import { useFileExplorerContext } from '../../FileExplorerProvider/useFileExplorerContext';
-import { FileExplorerAnyPluginSignature, UseFileMinimalPlugins, } from "../../models";
+import {EventHandlers, extractEventHandlers,} from "@mui/base/utils";
+import {SxProps, useTheme} from "@mui/system";
+import {MuiCancellableEvent} from "@mui/base/utils/MuiCancellableEvent";
+import {useFileExplorerContext} from '../../FileExplorerProvider/useFileExplorerContext';
+import {FileExplorerAnyPluginSignature, UseFileMinimalPlugins,} from "../../models";
 
 import {
   UseFileExplorerGridColumnHeaderReturnValue,
@@ -12,7 +12,7 @@ import {
   UseFileExplorerGridHeadersIconContainerSlotProps,
   UseFileExplorerGridHeadersLabelSlotProps
 } from "./useFileExplorerGridColumnHeader.types";
-import { UseFileExplorerGridColumnHeaderStatus } from './useFileExplorerGrid.types'
+import {UseFileExplorerGridColumnHeaderStatus} from './useFileExplorerGrid.types'
 
 interface UseFileExplorerGridColumnHeaderInteractions {
   handleFocus: (event: React.FocusEvent | React.MouseEvent) => void;

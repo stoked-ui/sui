@@ -1,15 +1,15 @@
 import * as React from 'react';
-import { Theme } from '@mui/material/styles';
-import { SxProps } from '@mui/system';
-import { SlotComponentProps } from '@mui/base/utils';
-import { ITimelineActionType } from '../TimelineAction/TimelineAction.types';
-import { TimelineClasses } from './timelineClasses';
-import { TimelineControl } from "../TimelineControl/TimelineControl";
-import { TimelineControlProps } from "../TimelineControl/TimelineControl.types";
-import { TimelineTrack } from "../interface/TimelineAction";
-import { TimelineLabelsProps } from "../TimelineLabels/TimelineLabels.types";
-import { TimelineState } from "./TimelineState";
-import { ITimelineEngine } from '../TimelineEngine/TimelineEngine';
+import {Theme} from '@mui/material/styles';
+import {SxProps} from '@mui/system';
+import {SlotComponentProps} from '@mui/base/utils';
+import {ITimelineActionType} from '../TimelineAction/TimelineAction.types';
+import {TimelineClasses} from './timelineClasses';
+import TimelineControl from "../TimelineControl/TimelineControl";
+import {TimelineControlProps} from "../TimelineControl/TimelineControlProps";
+import { ITimelineTrack } from "../TimelineTrack/TimelineTrack.types";
+import {TimelineLabelsProps} from "../TimelineLabels/TimelineLabels.types";
+import {TimelineState} from "./TimelineState";
+import { type ITimelineEngine } from '../TimelineEngine/TimelineEngine.types';
 
 export type TimelineComponent = ((
   props: TimelineProps & React.RefAttributes<HTMLDivElement>,
@@ -57,9 +57,9 @@ export interface TimelineProps
   labelSx?: SxProps<Theme>;
   controlSx?: SxProps<Theme>;
   trackSx?: SxProps<Theme>;
-  setTracks?: (updatedTracks: TimelineTrack[]) => void;
+  setTracks?: (updatedTracks: ITimelineTrack[]) => void;
 
-  tracks?: TimelineTrack[];
+  tracks?: ITimelineTrack[];
   actionTypes: Record<string, ITimelineActionType>;
   timelineState?: React.RefObject<TimelineState>;
   viewSelector?: string;

@@ -1,9 +1,10 @@
+import { IEmitter } from '@stoked-ui/media-selector';
 import { Events } from './events';
 
 /**
  * eventDispatcher
  */
-export class Emitter<EventTypes> {
+export class Emitter<EventTypes> implements IEmitter<EventTypes> {
   events: { [key: string]: CallableFunction[] } = {};
 
   constructor(events: Events) {
@@ -49,7 +50,9 @@ export class Emitter<EventTypes> {
       if (!handler) this.events[name as string] = [];
       else {
         const index = listener.indexOf(handler);
-        if (index !== -1) listener.splice(index, 1);
+        if (index !== -1) {
+          listener.splice(index, 1);
+        }
       }
     }
   }

@@ -1,13 +1,13 @@
 import * as React from 'react';
-import { SlotComponentProps } from '@mui/base/utils';
-import type { FileExplorerPluginSignature } from '../../models';
+import {SlotComponentProps} from '@mui/base/utils';
+import type {FileExplorerPluginSignature} from '../../models';
 import type {
   UseFileExplorerFilesSignature
 } from '../useFileExplorerFiles/useFileExplorerFiles.types';
 import type {
   UseFileExplorerSelectionSignature
 } from '../useFileExplorerSelection/useFileExplorerSelection.types';
-import type { UseFileExplorerDndSignature } from '../useFileExplorerDnd/useFileExplorerDnd.types';
+import type {UseFileExplorerDndSignature} from '../useFileExplorerDnd/useFileExplorerDnd.types';
 
 export interface UseFileExplorerIconsParameters {}
 

@@ -1,14 +1,14 @@
 import * as React from "react";
 import composeClasses from "@mui/utils/composeClasses";
-import { animated, useSpring } from "@react-spring/web";
-import { TransitionProps } from "@mui/material/transitions";
+import {animated, useSpring} from "@react-spring/web";
+import {TransitionProps} from "@mui/material/transitions";
 import Collapse from "@mui/material/Collapse";
-import MuiCheckbox, { CheckboxProps } from "@mui/material/Checkbox";
-import { fileClasses, getFileUtilityClass } from "./fileClasses";
-import { shouldForwardProp } from '@mui/system/createStyled';
-import { alpha, styled, useThemeProps, SxProps, Theme } from '@mui/material/styles';
-import { UseFileStatus } from "../internals/models/UseFileStatus";
-import { FileOwnerState } from "./File.types";
+import MuiCheckbox, {CheckboxProps} from "@mui/material/Checkbox";
+import {fileClasses, getFileUtilityClass} from "./fileClasses";
+import {shouldForwardProp} from '@mui/system/createStyled';
+import {alpha, styled, SxProps, Theme} from '@mui/material/styles';
+import {UseFileStatus} from "../internals/models/UseFileStatus";
+import {FileOwnerState} from "./File.types";
 
 export const FileRoot = styled('li', {
   name: 'MuiFile',

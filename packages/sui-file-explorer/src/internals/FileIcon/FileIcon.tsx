@@ -1,10 +1,11 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import { resolveComponentProps, useSlotProps } from '@mui/base/utils';
-import { FileIconProps } from './FileIcon.types';
-import { useFileExplorerContext } from '../FileExplorerProvider/useFileExplorerContext';
-import { UseFileExplorerIconsSignature } from '../plugins/useFileExplorerIcons/useFileExplorerIcons.types';
-import { FileExplorerCollapseIcon, FileExplorerExpandIcon } from '../../icons';
+import {resolveComponentProps, useSlotProps} from '@mui/base/utils';
+import {FileIconProps} from './FileIcon.types';
+import {useFileExplorerContext} from '../FileExplorerProvider/useFileExplorerContext';
+import {
+  UseFileExplorerIconsSignature
+} from '../plugins/useFileExplorerIcons/useFileExplorerIcons.types';
+import {FileExplorerCollapseIcon, FileExplorerExpandIcon} from '../../icons';
 
 function FileIcon(props: FileIconProps): React.JSX.Element | undefined {
   const { slots, slotProps, status } = props;

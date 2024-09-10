@@ -11,7 +11,6 @@ import { jssPreset, StylesProvider } from '@mui/styles';
 import { CssVarsProvider, extendTheme } from '@mui/joy/styles';
 import { useTheme, styled, createTheme, ThemeProvider } from '@mui/material/styles';
 import rtl from 'jss-rtl';
-import DemoErrorBoundary from 'docs/src/modules/components/DemoErrorBoundary';
 import { useTranslate } from '@mui/docs/i18n';
 import { getDesignTokens } from '@mui/docs/branding';
 import { highDensity } from 'docs/src/modules/components/ThemeContext';
@@ -198,15 +197,9 @@ function DemoSandbox(props) {
   const children = <Sandbox {...sandboxProps}>{childrenProp}</Sandbox>;
 
   return (
-    <DemoErrorBoundary name={name} onResetDemoClick={onResetDemoClick} t={t}>
-      {productId === 'joy-ui' ? (
-        children
-      ) : (
-        <StylesProvider jss={jss}>
-          <ThemeProvider theme={(outerTheme) => getTheme(outerTheme)}>{children}</ThemeProvider>
-        </StylesProvider>
-      )}
-    </DemoErrorBoundary>
+    <StylesProvider jss={jss}>
+      <ThemeProvider theme={(outerTheme) => getTheme(outerTheme)}>{children}</ThemeProvider>
+    </StylesProvider>
   );
 }
 

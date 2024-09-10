@@ -1,6 +1,5 @@
 import * as React from "react";
-import { ExtensionMimeTypeMap } from "./MimeType";
-import MediaType from "./MediaType";
+import {MediaType} from "./MediaType";
 
 export interface IMediaFileBase {
   readonly path?: string;
@@ -15,6 +14,9 @@ export interface IMediaDirectory extends IMediaFileBase{
 export interface IMediaFile extends File, IMediaDirectory {
   readonly mediaType: MediaType;
   readonly id: string;
+  readonly blob: Blob;
+  _url?: string;
+  readonly url: string;
 }
 
 export const FILES_TO_IGNORE = [
@@ -25,6 +27,11 @@ export const FILES_TO_IGNORE = [
 
 export interface FileSystemFileHandle {
   getFile(): Promise<File>;
+}
+
+export interface I2d {
+  width: number | string;
+  height: number | string;
 }
 
 /**
@@ -48,4 +55,5 @@ export type FromEventInput = DragEvent | React.ChangeEvent<HTMLInputElement> | E
 export interface FileArray extends Array<FileValue> {}
 export type FileValue = IMediaFile
   | FileArray[];
+
 

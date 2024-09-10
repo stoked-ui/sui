@@ -1,7 +1,7 @@
 import {
   UseEditorInstanceEventsInstance
 } from '../corePlugins/useEditorInstanceEvents/useEditorInstanceEvents.types';
-import { EditorAnyPluginSignature, EditorUsedEvents } from '../models';
+import {EditorAnyPluginSignature, EditorUsedEvents} from '../models';
 
 export const publishEditorEvent = <
   Instance extends UseEditorInstanceEventsInstance & {

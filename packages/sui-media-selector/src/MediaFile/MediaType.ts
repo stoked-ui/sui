@@ -1,4 +1,4 @@
-import MimeType, {MimeTypeExtension} from "./MimeType";
+import {MimeType, MimeTypeExtension} from "./MimeType";
 
 const  MimeMediaWildcardMap: Map<MimeType | `${string}*` | '*' | 'folder', string> = new Map([
   ['application/msword',                                                      'doc'],
@@ -19,15 +19,15 @@ const MimeTypeWildcards = Object.keys(MimeMediaWildcardMap);
 
 export type MimeMediaWildcardType = typeof MimeMediaWildcardMap;
 export type MimeTypeWildcard = MimeMediaWildcardType extends Map<infer K, unknown> ? K : never;
-type MediaType = MimeMediaWildcardType extends Map<MimeTypeExtension, infer V> ? V : never;
-export default MediaType;
+export type MediaType = MimeMediaWildcardType extends Map<MimeTypeExtension, infer V> ? V : never;
 
 export function getMediaType(value?: string): MediaType {
   let mediaType: MediaType = 'file';
   if (!value) {
     return mediaType;
   }
-  for (const allowedValue of MimeTypeWildcards) {
+  for (let i = 0; i < MimeTypeWildcards.length; i += 1){
+    const allowedValue = MimeTypeWildcards[i];
     if (value.startsWith(allowedValue.slice(0, -1)) || value === allowedValue) {
       mediaType = MimeMediaWildcardMap[allowedValue];
       break;

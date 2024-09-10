@@ -1,11 +1,8 @@
 import * as React from 'react';
 import {
-  ConvertSignaturesIntoPlugins,
-  EditorAnyPluginSignature,
-  EditorPlugin,
-  MergeSignaturesProperty,
+  ConvertSignaturesIntoPlugins, EditorAnyPluginSignature, MergeSignaturesProperty,
 } from '../models';
-import { EditorCorePluginSignatures } from '../corePlugins';
+import {EditorCorePluginSignatures} from '../corePlugins';
 
 /**
  * Implements the same behavior as `useControlled` but for several models.

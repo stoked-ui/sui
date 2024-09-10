@@ -2,7 +2,7 @@ import * as React from 'react';
 import {
   UseFileExplorerGridSignature
 } from "../internals/plugins/useFileExplorerGrid/useFileExplorerGrid.types";
-import { useFileExplorerContext } from '../internals/FileExplorerProvider/useFileExplorerContext';
+import {useFileExplorerContext} from '../internals/FileExplorerProvider/useFileExplorerContext';
 import {
   UseFileExplorerSelectionSignature
 } from '../internals/plugins/useFileExplorerSelection/useFileExplorerSelection.types';

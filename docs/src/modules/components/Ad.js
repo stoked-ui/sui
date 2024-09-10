@@ -73,6 +73,7 @@ const inHouseAds = [
       '<b>For Figma</b>. A large UI kit with over 600 handcrafted Material UI, SUI X, Joy UI components 🎨.',
   },
 ];
+/*
 
 class AdErrorBoundary extends React.Component {
   static propTypes = {
@@ -90,11 +91,11 @@ class AdErrorBoundary extends React.Component {
     // send explicit `'null'`
     const eventLabel = String(this.props.eventLabel);
     // TODO: Use proper error monitoring service (for example Sentry) instead
-
+/!*
     window.gtag('event', 'ad', {
       eventAction: 'crash',
       eventLabel,
-    });
+    }); *!/
   }
 
   render() {
@@ -107,6 +108,7 @@ class AdErrorBoundary extends React.Component {
     return children;
   }
 }
+*/
 
 export const AD_MARGIN_TOP = 3;
 export const AD_MARGIN_BOTTOM = 3;
@@ -129,7 +131,7 @@ export default function Ad() {
   let children;
   let label;
   // Hide the content to google bot to avoid its indexation.
-  if ((typeof window !== 'undefined' && isBot()) || disableAd) {
+  if ((window && typeof window !== 'undefined' && isBot()) || disableAd) {
     children = <span />;
   } else if (adblock) {
     if (randomAdblock < 0.2) {
@@ -203,11 +205,14 @@ export default function Ad() {
     }
 
     const delay = setTimeout(() => {
+      /*
       window.gtag('event', 'ad', {
         eventAction: 'display',
         eventLabel,
       });
+       */
     }, 2500);
+
 
     return () => {
       clearTimeout(delay);
@@ -241,7 +246,7 @@ export default function Ad() {
       data-ga-event-label={eventLabel}
       className="Ad-root"
     >
-      <AdErrorBoundary eventLabel={eventLabel}>{children}</AdErrorBoundary>
+      {/* <AdErrorBoundary eventLabel={eventLabel}>{children}</AdErrorBoundary> */}
     </Box>
   );
 }

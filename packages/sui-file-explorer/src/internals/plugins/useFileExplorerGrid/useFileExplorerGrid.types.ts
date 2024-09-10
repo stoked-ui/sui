@@ -1,9 +1,9 @@
 import * as React from "react";
-import { SystemStyleObject } from "@mui/system";
-import { DefaultizedProps, FileExplorerPlugin, FileExplorerPluginSignature } from '../../models';
-import { FileId } from '../../../models';
-import { UseFileStatus } from "../../models/UseFileStatus";
-import { ItemMode } from "../useFileExplorerFiles/useFileExplorerFiles.types";
+import {SystemStyleObject} from "@mui/system";
+import {DefaultizedProps, FileExplorerPlugin, FileExplorerPluginSignature} from '../../models';
+import {FileId} from '../../../models';
+import {UseFileStatus} from "../../models/UseFileStatus";
+import {ItemMode} from "../useFileExplorerFiles/useFileExplorerFiles.types";
 
 export type GridHeader = {
   sx: SystemStyleObject,

@@ -1,5 +1,5 @@
-import type { Instruction } from '@atlaskit/pragmatic-drag-and-drop-hitbox/tree-item';
-import { FileBase } from '../../../models';
+import type {Instruction} from '@atlaskit/pragmatic-drag-and-drop-hitbox/tree-item';
+import {FileBase} from '../../../models';
 
 export type FileExplorerDndAction<R extends FileBase> =
   | {

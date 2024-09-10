@@ -1,4 +1,4 @@
-import { EditorClassKey } from '../Editor';
+import {EditorClassKey} from '../Editor';
 
 // prettier-ignore
 export interface EditorComponentNameToClassKey {

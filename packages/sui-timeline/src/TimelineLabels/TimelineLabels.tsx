@@ -1,10 +1,9 @@
 import * as React from 'react';
 import composeClasses from "@mui/utils/composeClasses";
-import { useSlotProps } from '@mui/base/utils';
+import {useSlotProps} from '@mui/base/utils';
 import {emphasize, styled, useThemeProps} from '@mui/material/styles';
-import { TimelineLabelsProps } from './TimelineLabels.types';
-import { getTimelineLabelsUtilityClass } from "./timelineLabelsClasses";
-import { OnScrollParams } from "react-virtualized";
+import {TimelineLabelsProps} from './TimelineLabels.types';
+import {getTimelineLabelsUtilityClass} from "./timelineLabelsClasses";
 
 const useUtilityClasses = (
   ownerState: TimelineLabelsProps,
@@ -71,7 +70,7 @@ const TimelineLabel = styled('div', {
  *
  * - [TimelineLabels](https://stoked-ui.github.io/timeline/api/)
  */
-export const TimelineLabels = React.forwardRef(
+const TimelineLabels = React.forwardRef(
   function TimelineLabels(inProps: TimelineLabelsProps, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
     const { tracks, slots, slotProps, sx, timelineState } = useThemeProps({ props: inProps, name: 'MuiTimelineLabels' });
 
@@ -106,3 +105,4 @@ export const TimelineLabels = React.forwardRef(
     )
   })
 
+export default TimelineLabels;

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { FileId } from '../../models';
+import {FileId} from '../../models';
 
 export const FileDepthContext = React.createContext<
   number | ((itemId: FileId) => number)

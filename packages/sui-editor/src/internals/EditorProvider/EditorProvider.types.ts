@@ -3,8 +3,8 @@ import {
   EditorAnyPluginSignature,
   EditorInstance,
   EditorPublicAPI,
-  VideoPluginResponse,
   MergeSignaturesProperty,
+  VideoPluginResponse,
 } from '../models';
 
 export type VideoPluginsRunner = <TProps extends {}>(

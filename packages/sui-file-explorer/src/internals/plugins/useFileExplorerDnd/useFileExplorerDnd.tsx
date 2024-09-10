@@ -1,15 +1,10 @@
 import * as React from "react";
-import type {
-  BaseEventPayload,
-  DragLocationHistory
-} from "@atlaskit/pragmatic-drag-and-drop/types";
+import type {BaseEventPayload, DragLocationHistory} from "@atlaskit/pragmatic-drag-and-drop/types";
 import useForkRef from "@mui/utils/useForkRef";
 import invariant from "tiny-invariant";
-import { combine } from "@atlaskit/pragmatic-drag-and-drop/combine";
+import {combine} from "@atlaskit/pragmatic-drag-and-drop/combine";
 import {
-  draggable,
-  dropTargetForElements,
-  monitorForElements
+  draggable, dropTargetForElements, monitorForElements
 } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import {
   setCustomNativeDragPreview
@@ -18,28 +13,24 @@ import {
   pointerOutsideOfPreview
 } from "@atlaskit/pragmatic-drag-and-drop/element/pointer-outside-of-preview";
 import {
-  dropTargetForExternal,
-  monitorForExternal
+  dropTargetForExternal, monitorForExternal
 } from "@atlaskit/pragmatic-drag-and-drop/external/adapter";
-import { containsFiles } from "@atlaskit/pragmatic-drag-and-drop/external/file";
-import { preventUnhandled } from "@atlaskit/pragmatic-drag-and-drop/prevent-unhandled";
-import type { Instruction } from "@atlaskit/pragmatic-drag-and-drop-hitbox/tree-item";
-import { namedId, MediaFile } from "@stoked-ui/media-selector";
+import {containsFiles} from "@atlaskit/pragmatic-drag-and-drop/external/file";
+import {preventUnhandled} from "@atlaskit/pragmatic-drag-and-drop/prevent-unhandled";
+import type {Instruction} from "@atlaskit/pragmatic-drag-and-drop-hitbox/tree-item";
+import {MediaFile} from "@stoked-ui/media-selector";
 import memoizeOne from "memoize-one";
 import {
   triggerPostMoveFlash
 } from "@atlaskit/pragmatic-drag-and-drop-flourish/trigger-post-move-flash";
-import { FileExplorerPlugin, FilePlugin, FilePluginOptions } from '../../models/plugin';
+import {FileExplorerPlugin, FilePlugin, FilePluginOptions} from '../../models/plugin';
 import {
-  DndItemState,
-  DropInternalData,
-  ElementDragType,
-  UseFileExplorerDndSignature
+  DndItemState, DropInternalData, ElementDragType, UseFileExplorerDndSignature
 } from './useFileExplorerDnd.types';
 import {FileBase, FileBaseFromMediaFile} from "../../../models";
-import { FileExplorerDndAction } from "./FileExplorerDndAction";
-import { indentPerLevel } from "./constants";
-import { FileExplorerDndItemContext } from "./FileExplorerDndItemContext";
+import {FileExplorerDndAction} from "./FileExplorerDndAction";
+import {indentPerLevel} from "./constants";
+import {FileExplorerDndItemContext} from "./FileExplorerDndItemContext";
 import {
   fileExplorer,
   FileExplorerDndContext,
@@ -48,7 +39,7 @@ import {
   fileListStateReducer,
   getFileExplorerStateDefault
 } from "./FileExplorerDndContext";
-import { UseMinimalPlus } from "../../models/plugin.types";
+import {UseMinimalPlus} from "../../models/plugin.types";
 
 type CleanupFn = () => void;
 
@@ -355,6 +346,7 @@ function delay({ waitMs: timeMs, fn }: { waitMs: number; fn: () => void }): () =
     }
   };
 }
+/*
 
 function useDnd({ status, pluginContentRef, props, instance }) {
   const cancelExpandRef = React.useRef<(() => void) | null>(null);
@@ -579,7 +571,7 @@ function useDnd({ status, pluginContentRef, props, instance }) {
         }
         const mediaFiles = await MediaFile.from(dropEvent);
         const {self} = dropEvent;
-        const files = mediaFiles.map((mediaFile: MediaFile) => {
+        const files = mediaFiles.map((mediaFile: IMediaFile) => {
           const newId = namedId({id: 'file'})
           return ({
             type: mediaFile.mediaType,
@@ -628,6 +620,7 @@ function useDnd({ status, pluginContentRef, props, instance }) {
     [cancelExpand],
   );
 }
+*/
 
 const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDndSignature>> = (inProps: FilePluginOptions<UseMinimalPlus<UseFileExplorerDndSignature>>) => {
   const { props, rootRef, contentRef, instance, status } = inProps;
@@ -717,16 +710,12 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
     const label = getTargetLabel(element);
     if (label) {
       if (label.classList.contains('can-drop')) {
-        console.log('remove can-drop', label.innerHTML);
         label.classList.remove('can-drop')
       } else if (label.classList.contains('can-not-drop')) {
-        console.log('remove can-not-drop', label.innerHTML);
         label.classList.remove('can-not-drop')
       } else if (label.classList.contains('can-not-drop-selected')) {
-        console.log('remove can-not-drop-selected', label.innerHTML);
         label.classList.remove('can-not-drop-selected')
       } else if (label.classList.contains('can-drop-selected')) {
-        console.log('remove can-not-drop-selected', label.innerHTML);
         label.classList.remove('can-drop-selected')
       }
     }
@@ -744,7 +733,6 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
       if (!canDrop) {
         affordance = isSelected ? 'can-not-drop-selected' : 'can-not-drop';
       }
-      console.log('affordance',affordance, label.innerHTML)
       label.classList.add(affordance)
     }
   }
@@ -779,7 +767,6 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
       element: pluginContentRef.current,
       canDrag: () => true,
       getInitialData: (data) => {
-        console.log('getInitialData', data, props, canDrop);
         const initialData = {
           itemId: props.itemId,
           type: 'file-element',
@@ -790,7 +777,6 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
       },
       onGenerateDragPreview: (dragPreviewProps) => {
         const {nativeSetDragImage} = dragPreviewProps;
-        console.log('dragPreviewProps', dragPreviewProps)
 
         setCustomNativeDragPreview({
           getOffset: pointerOutsideOfPreview({x: '16px', y: '8px'}),
@@ -875,7 +861,7 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
       canMonitor: ({source}) => source.data.uniqueContextId === uniqueContextId,
       onDragStart: updateIsParentOfInstruction,
       onDrag: updateIsParentOfInstruction,
-      onDrop(dropData) {
+      onDrop() {
         clearParentOfInstructionState();
       },
     });
@@ -899,7 +885,7 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
         });
         // console.info('dropTargetForElements => dataInstruction', dataInstruction)
         return dataInstruction;
-      }, onDragEnter: ({self}) => {
+      }, onDragEnter: () => {
         setState({...state, dndState: 'parent-of-instruction'});
       }, onDragLeave: ({self}) => {
         removeDropTargetAffordance(self.element);

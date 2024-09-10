@@ -1,6 +1,6 @@
 import * as React from 'react';
 import useForkRef from '@mui/utils/useForkRef';
-import { EventHandlers } from '@mui/base/utils';
+import {EventHandlers} from '@mui/base/utils';
 import {
   ConvertSignaturesIntoPlugins,
   FileExplorerAnyPluginSignature,
@@ -17,12 +17,12 @@ import {
   UseFileExplorerReturnValue,
   UseFileExplorerRootSlotProps,
 } from './useFileExplorer.types';
-import { useFileExplorerModels } from './useFileExplorerModels';
-import { FileExplorerContextValue, FilePluginsRunner } from '../FileExplorerProvider';
-import { FILE_EXPLORER_VIEW_CORE_PLUGINS, FileExplorerCorePluginSignatures } from '../corePlugins';
-import { extractPluginParamsFromProps } from './extractPluginParamsFromProps';
-import { UseFileStatus } from '../models/UseFileStatus';
-import { FileBase } from "../../models";
+import {useFileExplorerModels} from './useFileExplorerModels';
+import {FileExplorerContextValue, FilePluginsRunner} from '../FileExplorerProvider';
+import {FILE_EXPLORER_VIEW_CORE_PLUGINS, FileExplorerCorePluginSignatures} from '../corePlugins';
+import {extractPluginParamsFromProps} from './extractPluginParamsFromProps';
+import {UseFileStatus} from '../models/UseFileStatus';
+import {FileBase} from "../../models";
 
 export function useFileExplorerApiInitialization<T>(
   inputApiRef: React.MutableRefObject<T | undefined> | undefined,

@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { FileExplorerAnyPluginSignature } from '../models';
-import { FileExplorerContext } from './FileExplorerContext';
-import { FileExplorerContextValue } from './FileExplorerProvider.types';
+import {FileExplorerAnyPluginSignature} from '../models';
+import {FileExplorerContext} from './FileExplorerContext';
+import {FileExplorerContextValue} from './FileExplorerProvider.types';
 
 export const useFileExplorerContext = <
   TSignatures extends readonly FileExplorerAnyPluginSignature[],

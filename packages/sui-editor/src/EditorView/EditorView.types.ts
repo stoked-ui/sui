@@ -1,11 +1,10 @@
 import * as React from 'react';
-import { Theme } from '@mui/material/styles';
-import { SxProps } from '@mui/system';
-import { SlotComponentProps } from '@mui/base/utils';
-import { FileBase } from '@stoked-ui/file-explorer/models/items';
-import { EditorViewClasses } from './editorViewClasses';
-import { TimelineEngine } from "@stoked-ui/timeline";
-
+import {Theme} from '@mui/material/styles';
+import {SxProps} from '@mui/system';
+import {SlotComponentProps} from '@mui/base/utils';
+import {FileBase} from '@stoked-ui/file-explorer/models/items';
+import {EditorViewClasses} from './editorViewClasses';
+import {TimelineEngine} from "@stoked-ui/timeline";
 
 export interface EditorViewSlots {
   /**

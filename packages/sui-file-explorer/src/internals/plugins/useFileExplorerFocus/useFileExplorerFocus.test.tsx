@@ -1,17 +1,16 @@
 import * as React from 'react';
-import { expect } from 'chai';
-import { spy } from 'sinon';
-import { act, fireEvent } from '@stoked-ui/internal-test-utils';
-import { describeFileExplorer } from 'test/utils/fileExplorer-view/describeFileExplorer';
+import {expect} from 'chai';
+import {spy} from 'sinon';
+import {act, fireEvent} from '@stoked-ui/internal-test-utils';
+import {describeFileExplorer} from 'test/utils/fileExplorer-view/describeFileExplorer';
 import {
-  UseFileExplorerFilesSignature,
-  UseFileExplorerFocusSignature,
-  UseFileExplorerSelectionSignature,
+  UseFileExplorerFilesSignature, UseFileExplorerFocusSignature, UseFileExplorerSelectionSignature,
 } from '@stoked-ui/file-explorer/internals';
 
 /**
- * All tests related to keyboard navigation (e.g.: type-ahead when using `props.disabledItemsFocusable`)
- * are located in the `useFileExplorerKeyboardNavigation.test.tsx` file.
+ * All tests related to keyboard navigation (e.g.: type-ahead when using
+ * `props.disabledItemsFocusable`) are located in the `useFileExplorerKeyboardNavigation.test.tsx`
+ * file.
  */
 describeFileExplorer<
   [UseFileExplorerFocusSignature, UseFileExplorerSelectionSignature, UseFileExplorerFilesSignature]

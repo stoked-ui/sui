@@ -1,7 +1,7 @@
 import {
   UseFileExplorerInstanceEventsInstance
 } from '../corePlugins/useFileExplorerInstanceEvents/useFileExplorerInstanceEvents.types';
-import { FileExplorerAnyPluginSignature, FileExplorerUsedEvents } from '../models';
+import {FileExplorerAnyPluginSignature, FileExplorerUsedEvents} from '../models';
 
 export const publishFileExplorerEvent = <
   Instance extends UseFileExplorerInstanceEventsInstance & {

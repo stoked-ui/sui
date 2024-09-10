@@ -1,4 +1,4 @@
-import { DndState } from "./fileExplorerView";
+import {DndState} from "./fileExplorerView";
 
 export interface UseFileStatus {
   expandable: boolean;

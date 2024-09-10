@@ -1,4 +1,4 @@
-import { CleanupTracking, UnregisterToken, UnsubscribeFn } from './CleanupTracking';
+import {CleanupTracking, UnregisterToken, UnsubscribeFn} from './CleanupTracking';
 
 export class FinalizationRegistryBasedCleanupTracking implements CleanupTracking {
   registry = new FinalizationRegistry<UnsubscribeFn>((unsubscribe) => {

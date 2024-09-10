@@ -79,7 +79,7 @@ function orderedPages(pages, current = []) {
 }
 
 async function postFeedback(data) {
-  const env = window.location.host.indexOf('mui.com') !== -1 ? 'prod' : 'dev';
+  const env = 'prod'; // window.location.host.indexOf('mui.com') !== -1 ? 'prod' : 'dev';
   try {
     const response = await fetch(`${process.env.FEEDBACK_URL}/${env}/feedback`, {
       method: 'POST',
@@ -97,6 +97,9 @@ async function postFeedback(data) {
 async function postFeedbackOnSlack(data) {
   const { rating, comment, commentedSection } = data;
 
+  if (!window) {
+    return;
+  }
   const sentData = {
     callback_id: 'send_feedback',
     rating,
