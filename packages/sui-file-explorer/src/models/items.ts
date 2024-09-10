@@ -1,6 +1,5 @@
 import {IMediaFile, MediaType, namedId} from "@stoked-ui/media-selector";
 
-export { MediaType };
 export type FileId = string;
 
 type CommonBase = {

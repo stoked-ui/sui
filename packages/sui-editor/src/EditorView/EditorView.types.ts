@@ -33,7 +33,7 @@ export interface EditorViewPropsBase extends React.HTMLAttributes<HTMLDivElement
    */
   sx?: SxProps<Theme>;
 
-  engine: React.RefObject<IEngine>;
+  engine: IEngine | null;
 }
 
 export interface EditorViewProps<R extends FileBase, Multiple extends boolean | undefined>
