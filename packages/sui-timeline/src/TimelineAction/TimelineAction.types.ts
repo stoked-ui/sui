@@ -2,26 +2,27 @@ import * as React from 'react';
 import {SxProps, Theme} from "@mui/material/styles";
 import {SlotComponentProps} from "@mui/material";
 import {CSSProperties} from "@mui/system/CSSProperties";
+import {MediaFile} from "@stoked-ui/media-selector";
 import {TimelineActionClasses} from "./timelineActionClasses";
 import {DragLineData} from "../TimelineTrackArea/TimelineTrackAreaDragLines";
 import {CommonProps} from '../interface/common_prop';
-import {type ITimelineEngine} from "../TimelineEngine/TimelineEngine.types";
-import {type ITimelineTrack} from "../TimelineTrack/TimelineTrack.types";
+import {type ITimelineTrack } from "../TimelineTrack/TimelineTrack.types";
+import {IEngine} from "../Timeline";
 
-export type TimelineActionParams = {
+export type ControllerParams = {
   action: ITimelineAction;
   time: number;
-  engine: ITimelineEngine;
+  engine: IEngine;
 };
 
 export type GetBackgroundImage = (action: ITimelineAction) => Promise<string>;
 
-export interface ITimelineActionType {
-  start?: (params: TimelineActionParams) => void;
-  stop?: (params: TimelineActionParams) => void;
-  enter?: (params: TimelineActionParams) => void;
-  leave: (params: TimelineActionParams) => void;
-  update?: (params: TimelineActionParams) => void;
+export interface IController {
+  start?: (params: ControllerParams) => void;
+  stop?: (params: ControllerParams) => void;
+  enter?: (params: ControllerParams) => void;
+  leave: (params: ControllerParams) => void;
+  update?: (params: ControllerParams) => void;
   viewerUpdate?: (engine: any) => void;
   destroy?: () => void;
   color?: string;
@@ -38,6 +39,10 @@ export interface TimelineActionState {
   movable?: boolean;
   /** Whether the action is prohibited from running */
   disable?: boolean;
+  /** Whether the action is hidden from timeline */
+  hidden?: boolean;
+  /** Whether the action is locked on the timeline */
+  locked?: boolean;
 }
 
 export interface ITimelineActionInput extends TimelineActionState {
@@ -73,6 +78,8 @@ export interface ITimelineAction extends Omit<ITimelineActionInput, 'id' | 'name
   /** Action end time */
   end: number;
 
+  file?: MediaFile;
+
   /** Minimum start time limit for actions */
   minStart?: number;
   /** Maximum end time limit of action */
@@ -85,7 +92,7 @@ export interface ITimelineAction extends Omit<ITimelineActionInput, 'id' | 'name
     style?: CSSProperties;
   };
 
-  getBackgroundImage?: (actionType: ITimelineActionType, src: string) => string;
+  getBackgroundImage?: (actionType: IController, src: string) => string;
 }
 
 export interface TimelineActionSlots {

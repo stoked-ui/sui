@@ -1,6 +1,5 @@
 import * as React from 'react';
 import composeClasses from "@mui/utils/composeClasses";
-import {useSlotProps} from '@mui/base/utils';
 import {emphasize, styled, useThemeProps} from '@mui/material/styles';
 import ToggleButton from "@mui/material/ToggleButton";
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -8,7 +7,7 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import LockIcon from '@mui/icons-material/Lock';
-import {TimelineTrack} from "@stoked-ui/timeline";
+import {ITimelineTrack} from "@stoked-ui/timeline";
 import {EditorLabelsProps} from './EditorLabels.types';
 import {EditorLabelsClasses, getEditorLabelsUtilityClass} from "./editorLabelsClasses";
 
@@ -48,7 +47,7 @@ const EditorLabelsRoot = styled('div', {
   name: 'MuiEditorLabels',
   slot: 'root',
   overridesResolver: (props, styles) => styles.icon,
-})(({ theme }) => ({
+})(() => ({
   display: 'flex',
   flexDirection: 'column',
   marginTop: '42px',
@@ -62,7 +61,7 @@ const EditorLabelRoot = styled('div', {
   name: 'MuiEditorLabel',
   slot: 'Label',
   overridesResolver: (props, styles) => styles.icon,
-})(({ theme }) => ({
+})(() => ({
   height: '32px',
   paddingLeft: '6px',
   display: 'flex',
@@ -125,13 +124,13 @@ const EditorLabelText = styled('div', {
 }));
 
 const EditorLabel = React.forwardRef(
-  function EditorLabel(inProps: {track: TimelineTrack, tracks: TimelineTrack[], classes: EditorLabelsClasses, setTracks: (updatedTracks: TimelineTrack[]) => void}, ref: React.Ref<HTMLElement>): React.JSX.Element {
+  function EditorLabel(inProps: {track: ITimelineTrack, tracks: ITimelineTrack[], classes: EditorLabelsClasses, setTracks: (updatedTracks: ITimelineTrack[]) => void}, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
     const { track, tracks, classes } = inProps;
     const visibilityIcon = track.hidden ? <VisibilityOffIcon fontSize={'small'}/> : <VisibilityIcon fontSize={'small'}/>;
 
     const lockIcon = track.lock ? <LockIcon fontSize={'small'}/> : <LockOpenIcon fontSize={'small'}/>;
     return (
-      <EditorLabelRoot key={track.id} className={classes.label}>
+      <EditorLabelRoot key={track.id} className={classes.label} ref={ref}>
         <EditorLabelContainer>
           <EditorLabelText>{track.name}</EditorLabelText>
           <ToggleButtonGroupStyled
@@ -141,7 +140,7 @@ const EditorLabel = React.forwardRef(
             <ToggleButton
               id={`${track.id}-hidden`}
               value={track.hidden ?? false}
-              onChange={(e, val) => {
+              onChange={(e, ) => {
                 const currentTrackIndex = tracks.findIndex((currTrack) => currTrack.id === e.currentTarget.id.replace('-hidden', ''))
                 if (currentTrackIndex === -1) {
                   return
@@ -161,7 +160,7 @@ const EditorLabel = React.forwardRef(
               value={track.lock ?? false}
               aria-label="lock"
               size={'small'}
-              onChange={(e, val) => {
+              onChange={(e, ) => {
                 const currentTrackIndex = tracks.findIndex((currTrack) => currTrack.id === e.currentTarget.id.replace('-lock', ''))
                 if (currentTrackIndex === -1) {
                   return
@@ -197,18 +196,20 @@ const EditorLabel = React.forwardRef(
  */
 const EditorLabels = React.forwardRef(
   function EditorLabels(inProps: EditorLabelsProps, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
-    const { tracks, slots, slotProps, sx, timelineState } = useThemeProps({ props: inProps, name: 'MuiEditorLabels' });
+    const { tracks, slots, sx, timelineState } = useThemeProps({ props: inProps, name: 'MuiEditorLabels' });
 
     const classes = useUtilityClasses(inProps);
 
     const Root = slots?.root ?? EditorLabelsRoot;
+    /*
+    const { slotProps } = inProps;
     const rootProps = useSlotProps({
       elementType: Root,
       externalSlotProps: slotProps?.root,
       className: classes.root,
       ownerState: inProps,
     });
-
+  */
     return (
       <Root
         ref={ref}
@@ -216,7 +217,7 @@ const EditorLabels = React.forwardRef(
         onScroll={(scrollEvent:  React.UIEvent<HTMLDivElement, UIEvent>) => {
           timelineState.current?.setScrollTop((scrollEvent.target as HTMLDivElement).scrollTop);
         }}
-
+        sx={sx}
         classes={classes}
         className={`${classes.root} timeline-list`}>
         {tracks?.map((track) => {

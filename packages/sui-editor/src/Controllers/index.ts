@@ -1,8 +1,14 @@
 import Controllers from './Controllers';
-import IMediaController from './Controller.types';
-import IMediaEngine from './Controller';
 
 export default Controllers;
-export  { IMediaController, IMediaEngine }
-export * from './Controller.types';
+
+export { default as AnimationController } from './AnimationController';
+export { default as AudioController } from './AudioController';
+export { default as ImageController } from './ImageController';
+export { default as VideoController } from './VideoController';
 export * from './Controller';
+export * from './Controllers';
+export * from './AnimationController';
+export * from './AudioController';
+export * from './ImageController';
+export * from './VideoController';

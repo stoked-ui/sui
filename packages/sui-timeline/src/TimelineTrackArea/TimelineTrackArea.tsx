@@ -1,8 +1,6 @@
 import * as React from 'react';
 import {styled} from "@mui/material/styles";
-import {AutoSizer, Grid, GridCellRenderer, OnScrollParams} from 'react-virtualized';
-import { ITimelineTrack } from '../TimelineTrack/TimelineTrack.types';
-import {CommonProps} from '../interface/common_prop';
+import { AutoSizer, Grid, GridCellRenderer } from 'react-virtualized';
 import {TimelineControlPropsBase} from '../TimelineControl/TimelineControl.types';
 import {prefix} from '../utils/deal_class_prefix';
 import {parserTimeToPixel} from '../utils/deal_data';
@@ -10,19 +8,6 @@ import TimelineTrackAreaDragLines from './TimelineTrackAreaDragLines';
 import TimelineTrack from '../TimelineTrack/TimelineTrack';
 import {TimelineTrackAreaProps} from './TimelineTrackArea.types'
 import {useDragLine} from './useDragLine';
-
-export type EditAreaProps =  CommonProps & {
-  /** Scroll distance from the left */
-  scrollLeft: number;
-  /** Scroll distance from top */
-  scrollTop?: number;
-  /** Scroll callback, used for synchronous scrolling */
-  onScroll: (params: OnScrollParams) => void;
-  /** Set editor data */
-  setEditorData: (tracks: ITimelineTrack[]) => void;
-  /** Set scroll left */
-  deltaScrollLeft: (scrollLeft: number) => void;
-};
 
 /** edit area ref data */
 export interface TimelineTrackAreaState {

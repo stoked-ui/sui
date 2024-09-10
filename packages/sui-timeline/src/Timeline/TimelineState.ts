@@ -1,12 +1,11 @@
 import {ITimelineTrack} from "../TimelineTrack";
-import { type Emitter } from "../TimelineEngine/emitter";
-import { type EventTypes } from "../TimelineEngine/events";
+import {EventTypes, IEmitter} from "./Timeline.types";
 
 export interface TimelineState {
   /** dom node */
   target: HTMLElement;
   /** Run the listener */
-  listener: Emitter<EventTypes>;
+  listener: IEmitter<EventTypes>;
   /** Whether it is playing */
   isPlaying: boolean;
   /** Whether it is paused */
