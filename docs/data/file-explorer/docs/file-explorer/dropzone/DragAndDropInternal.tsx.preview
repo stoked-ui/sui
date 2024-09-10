@@ -2,4 +2,5 @@
   defaultExpandedItems={['Notes']}
   items={NestedFiles}
   dndInternal
+  dropzone
 />

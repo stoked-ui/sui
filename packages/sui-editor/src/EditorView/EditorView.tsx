@@ -2,10 +2,10 @@ import * as React from 'react';
 import {FileBase} from '@stoked-ui/file-explorer';
 import composeClasses from "@mui/utils/composeClasses";
 import {useSlotProps} from '@mui/base/utils';
+import useForkRef from "@mui/utils/useForkRef";
 import {createUseThemeProps, styled} from '../internals/zero-styled';
 import {EditorViewProps} from './EditorView.types';
 import {getEditorViewUtilityClass} from "./editorViewClasses";
-import useForkRef from "@mui/utils/useForkRef";
 
 const useThemeProps = createUseThemeProps('MuiEditorView');
 
@@ -24,7 +24,7 @@ const useUtilityClasses = <R extends FileBase, Multiple extends boolean | undefi
 const EditorViewRoot = styled('div', {
   name: "MuiEditorView",
   slot: "root"
-})(({ theme }) => ({
+})(() => ({
   display: 'flex',
   flexDirection: 'column',
   width: '100%',
@@ -36,7 +36,7 @@ const EditorViewRoot = styled('div', {
 const EditorViewRenderer = styled('canvas', {
   name: "MuiEditorViewRenderer",
   slot: "renderer"
-})(({ theme }) => ({
+})(() => ({
   display: 'flex',
   flexDirection: 'column',
   width: '100%',
@@ -52,18 +52,6 @@ const EditorViewRenderer = styled('canvas', {
     rgba(0, 0, 0, 0.3) 20px
   ),
   url(http://s3-us-west-2.amazonaws.com/s.cdpn.io/3/old_map_@2X.png)` */
-}));
-
-const EditorViewPreview = styled('div', {
-  name: "MuiEditorViewPreview",
-  slot: "preview"
-})(({ theme }) => ({
-  display: 'flex',
-  flexDirection: 'column',
-  width: '100%',
-  aspectRatio: 16 / 9,
-  position: 'relative',
-  overflow: 'hidden',
 }));
 
 /**
@@ -84,13 +72,13 @@ export const EditorView = React.forwardRef(function EditorView<
   const viewRef = React.useRef<HTMLDivElement>(null);
   const combinedViewRef = useForkRef(ref , viewRef);
 
-  const [viewerSize, setViewerSize] = React.useState<{w: number, h: number}>({w: 0, h: 0});
+  const [, setViewerSize] = React.useState<{w: number, h: number}>({w: 0, h: 0});
   const viewerRef = React.useRef<HTMLDivElement>(null);
   const rendererRef = React.useRef<HTMLCanvasElement>(null);
 
   React.useEffect(() => {
-    if (inProps.engine.current && viewRef?.current) {
-      inProps.engine.current.viewer = viewRef.current;
+    if (inProps.engine && viewRef?.current) {
+      inProps.engine.viewer = viewRef.current;
       if (viewRef.current.parentElement && viewRef.current.parentElement.id) {
         viewRef.current.id = `viewer-${viewRef.current.parentElement.id}`
         viewRef.current.classList.add(viewRef.current.parentElement.id);
@@ -132,7 +120,8 @@ export const EditorView = React.forwardRef(function EditorView<
   // if the viewer resizes make the renderer match it
   React.useEffect(() => {
     const resizeObserver = new ResizeObserver((entries) => {
-      for (const entry of entries) {
+      for (let i = 0; i < entries.length; i += 1){
+        const entry = entries[i];
         if (entry.target === viewerRef.current) {
           setViewerSize({w: entry.contentRect.width, h: entry.contentRect.height});
           if (rendererRef.current) {
@@ -143,6 +132,9 @@ export const EditorView = React.forwardRef(function EditorView<
         }
       }
     });
+    return () => {
+      resizeObserver.disconnect()
+    }
   }, [viewerRef]);
 
   return (
