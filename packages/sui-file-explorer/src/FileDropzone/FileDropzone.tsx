@@ -1,13 +1,11 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import composeClasses from '@mui/utils/composeClasses';
-import { useSlotProps } from '@mui/base/utils';
-import { createUseThemeProps, styled } from '../internals/zero-styled';
-import { getFileDropzoneUtilityClass } from './fileDropzoneClasses';
-import { FileDropzoneProps } from './FileDropzone.types';
-import { useFileExplorer } from '../internals/useFileExplorer/useFileExplorer';
-import { FileExplorerProvider } from '../internals/FileExplorerProvider';
-import { buildWarning } from '../internals/utils/warning';
+import {useSlotProps} from '@mui/base/utils';
+import {createUseThemeProps, styled} from '../internals/zero-styled';
+import {getFileDropzoneUtilityClass} from './fileDropzoneClasses';
+import {FileDropzoneProps} from './FileDropzone.types';
+import {buildWarning} from '../internals/utils/warning';
 
 const useThemeProps = createUseThemeProps('MuiFileDropzone');
 
@@ -55,7 +53,8 @@ const itemsPropWarning = buildWarning([
  *
  * API:
  *
- * - [FileDropzone API](https://stoked-ui.github.io/x/api/fileExplorer-view/simple-fileExplorer-view/)
+ * - [FileDropzone
+ * API](https://stoked-ui.github.io/x/api/fileExplorer-view/simple-fileExplorer-view/)
  */
 const FileDropzone = React.forwardRef(function FileDropzone(inProps: FileDropzoneProps, ref: React.Ref<HTMLUListElement>) {
   const props = useThemeProps({ props: inProps, name: 'MuiFileDropzone' });
@@ -95,7 +94,8 @@ FileDropzone.propTypes = {
     PropTypes.object,
   ]),
   /**
-   * The ref object that allows FileExplorer View manipulation. Can be instantiated with `useFileExplorerApiRef()`.
+   * The ref object that allows FileExplorer View manipulation. Can be instantiated with
+   * `useFileExplorerApiRef()`.
    */
   apiRef: PropTypes.shape({
     current: PropTypes.shape({
@@ -110,7 +110,8 @@ FileDropzone.propTypes = {
     }),
   }),
   /**
-   * If `true`, the fileExplorer view renders a checkbox at the left of its label that allows selecting it.
+   * If `true`, the fileExplorer view renders a checkbox at the left of its label that allows
+   * selecting it.
    * @default false
    */
   checkboxSelection: PropTypes.bool,
@@ -200,12 +201,14 @@ FileDropzone.propTypes = {
    * Callback fired when a fileExplorer item is expanded or collapsed.
    * @param {React.SyntheticEvent} event The event source of the callback.
    * @param {array} itemId The itemId of the modified item.
-   * @param {array} isExpanded `true` if the item has just been expanded, `false` if it has just been collapsed.
+   * @param {array} isExpanded `true` if the item has just been expanded, `false` if it has just
+   *   been collapsed.
    */
   onItemExpansionToggle: PropTypes.func,
   /**
    * Callback fired when fileExplorer items are focused.
-   * @param {React.SyntheticEvent} event The event source of the callback **Warning**: This is a generic event not a focus event.
+   * @param {React.SyntheticEvent} event The event source of the callback **Warning**: This is a
+   *   generic event not a focus event.
    * @param {string} itemId The id of the focused item.
    * @param {string} value of the focused item.
    */
@@ -214,7 +217,8 @@ FileDropzone.propTypes = {
    * Callback fired when a fileExplorer item is selected or deselected.
    * @param {React.SyntheticEvent} event The event source of the callback.
    * @param {array} itemId The itemId of the modified item.
-   * @param {array} isSelected `true` if the item has just been selected, `false` if it has just been deselected.
+   * @param {array} isSelected `true` if the item has just been selected, `false` if it has just
+   *   been deselected.
    */
   onItemSelectionToggle: PropTypes.func,
   /**

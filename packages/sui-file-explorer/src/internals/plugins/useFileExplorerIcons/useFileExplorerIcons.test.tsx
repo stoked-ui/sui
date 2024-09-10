@@ -1,12 +1,10 @@
 import * as React from 'react';
-import { expect } from 'chai';
+import {expect} from 'chai';
 import {
-  describeFileExplorer,
-  DescribeFileExplorerRendererReturnValue,
+  describeFileExplorer, DescribeFileExplorerRendererReturnValue,
 } from 'test/utils/fileExplorer-view/describeFileExplorer';
 import {
-  UseFileExplorerExpansionSignature,
-  UseFileExplorerIconsSignature,
+  UseFileExplorerExpansionSignature, UseFileExplorerIconsSignature,
 } from '@stoked-ui/file-explorer/internals';
 
 describeFileExplorer<[UseFileExplorerIconsSignature, UseFileExplorerExpansionSignature]>(

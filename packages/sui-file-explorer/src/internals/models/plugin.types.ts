@@ -5,7 +5,7 @@ import type {
 import type {
   UseFileExplorerFocusSignature
 } from "../plugins/useFileExplorerFocus/useFileExplorerFocus.types";
-import type{
+import type {
   UseFileExplorerFilesSignature
 } from "../plugins/useFileExplorerFiles/useFileExplorerFiles.types";
 import type {
@@ -20,9 +20,8 @@ import type {
 import type {
   UseFileExplorerDndSignature
 } from "../plugins/useFileExplorerDnd/useFileExplorerDnd.types";
-import { FileExplorerEventLookupElement } from "./events";
-import { FileExplorerModel } from "./fileExplorerView";
-
+import {FileExplorerEventLookupElement} from "./events";
+import {FileExplorerModel} from "./fileExplorerView";
 
 export type FileExplorerAnyPluginSignature = {
   state: any;
@@ -42,7 +41,8 @@ export type FileExplorerAnyPluginSignature = {
 
 export type UseMinimalPlus<TSignatures extends FileExplorerAnyPluginSignature> = [...UseMinimalPlugins, TSignatures]
 /**
- * Plugins that need to be present in the FileExplorer View in order for `useFile` to work correctly.
+ * Plugins that need to be present in the FileExplorer View in order for `useFile` to work
+ * correctly.
  */
 export type UseMinimalPlugins = [
   UseFileExplorerSelectionSignature,
@@ -60,7 +60,8 @@ export type UseMinimalPlugins = [
 export type UseMinimalOptionalPlugins = [];
 
 /**
- * Plugins that need to be present in the FileExplorer View in order for `useFile` to work correctly.
+ * Plugins that need to be present in the FileExplorer View in order for `useFile` to work
+ * correctly.
  */
 export type UseFileMinimalPlugins = readonly [
   UseFileExplorerSelectionSignature,

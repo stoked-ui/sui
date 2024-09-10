@@ -1,5 +1,5 @@
-import { useEditorInstanceEvents } from './useEditorInstanceEvents';
-import { ConvertPluginsIntoSignatures } from '../models';
+import {useEditorInstanceEvents} from './useEditorInstanceEvents';
+import {ConvertPluginsIntoSignatures} from '../models';
 
 /**
  * Internal plugins that create the tools used by the other plugins.

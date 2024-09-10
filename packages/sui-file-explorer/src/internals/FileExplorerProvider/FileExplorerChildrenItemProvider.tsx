@@ -1,12 +1,14 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { useFileExplorerContext } from './useFileExplorerContext';
-import { escapeOperandAttributeSelector } from '../utils/utils';
-import type { UseFileExplorerJSXItemsSignature } from '../plugins/useFileExplorerJSXItems/useFileExplorerJSXItems.types';
-import type { UseFileExplorerFilesSignature } from '../plugins/useFileExplorerFiles/useFileExplorerFiles.types';
-import {
-  UseFileExplorerDndSignature
-} from '../plugins/useFileExplorerDnd/useFileExplorerDnd.types';
+import {useFileExplorerContext} from './useFileExplorerContext';
+import {escapeOperandAttributeSelector} from '../utils/utils';
+import type {
+  UseFileExplorerJSXItemsSignature
+} from '../plugins/useFileExplorerJSXItems/useFileExplorerJSXItems.types';
+import type {
+  UseFileExplorerFilesSignature
+} from '../plugins/useFileExplorerFiles/useFileExplorerFiles.types';
+import {UseFileExplorerDndSignature} from '../plugins/useFileExplorerDnd/useFileExplorerDnd.types';
 
 export const FileExplorerChildrenItemContext =
   React.createContext<FileExplorerChildrenItemContextValue | null>(null);

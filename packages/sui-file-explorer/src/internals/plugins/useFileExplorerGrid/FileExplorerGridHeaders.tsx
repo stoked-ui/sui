@@ -1,19 +1,18 @@
 import * as React from 'react';
-import { useFileExplorerContext } from "../../FileExplorerProvider/useFileExplorerContext";
-import { UseFileExplorerGridSignature } from "./useFileExplorerGrid.types";
-import type{
+import {useFileExplorerContext} from "../../FileExplorerProvider/useFileExplorerContext";
+import {UseFileExplorerGridSignature} from "./useFileExplorerGrid.types";
+import type {
   UseFileExplorerFilesSignature
 } from "../useFileExplorerFiles/useFileExplorerFiles.types";
 import type {
   UseFileExplorerExpansionSignature
 } from "../useFileExplorerExpansion/useFileExplorerExpansion.types";
-import { useFileExplorerGridHeaders } from "./useFileExplorerGridHeaders";
-import { UseFileExplorerGridHeadersParameters } from "./useFileExplorerGridHeaders.types";
-import { UseFileMinimalPlugins } from "../../models";
-import { UseFileExplorerDndSignature } from '../useFileExplorerDnd/useFileExplorerDnd.types';
-import { styled } from '@mui/material/styles';
-import { HeaderCell } from "../../../File/FileLabel";
-
+import {useFileExplorerGridHeaders} from "./useFileExplorerGridHeaders";
+import {UseFileExplorerGridHeadersParameters} from "./useFileExplorerGridHeaders.types";
+import {UseFileMinimalPlugins} from "../../models";
+import {UseFileExplorerDndSignature} from '../useFileExplorerDnd/useFileExplorerDnd.types';
+import {styled} from '@mui/material/styles';
+import {HeaderCell} from "../../../File/FileLabel";
 
 export const FileExplorerHeadersRoot = styled('li', {
   name: 'MuiFile',

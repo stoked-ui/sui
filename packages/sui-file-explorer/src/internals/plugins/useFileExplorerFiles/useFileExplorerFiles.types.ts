@@ -1,11 +1,10 @@
-import { SxProps, Theme } from "@mui/system";
-import { DefaultizedProps, FileExplorerPluginSignature, FileMeta } from '../../models';
-import { FileBase, FileId } from '../../../models';
+import {SxProps, Theme} from "@mui/system";
+import {DefaultizedProps, FileExplorerPluginSignature, FileMeta} from '../../models';
+import {FileBase, FileId} from '../../../models';
 import {
-  DndItemState,
-  UseFileExplorerDndSignature
+  DndItemState, UseFileExplorerDndSignature
 } from "../useFileExplorerDnd/useFileExplorerDnd.types";
-import { UseFileExplorerExpansionSignature } from "../useFileExplorerExpansion";
+import {UseFileExplorerExpansionSignature} from "../useFileExplorerExpansion";
 
 interface FileProps {
   label: string;
@@ -17,7 +16,8 @@ interface FileProps {
 export interface UseFileExplorerFilesPublicAPI<R extends {}> {
   /**
    * Get the item with the given id.
-   * When used in the `FileExplorerBasic`, it returns an object with the `id` and `label` properties.
+   * When used in the `FileExplorerBasic`, it returns an object with the `id` and `label`
+   * properties.
    * @param {string} itemId The id of the item to return.
    * @returns {R} The item with the given id.
    */
@@ -94,12 +94,14 @@ export interface UseFileExplorerFilesInstance<R extends FileBase[] = FileBase[]>
   getItemIndex: (itemId: FileId) => number;
   /**
    * Freeze any future update to the state based on the `items` prop.
-   * This is useful when `useFileExplorerJSXItems` is used to avoid having conflicting sources of truth.
+   * This is useful when `useFileExplorerJSXItems` is used to avoid having conflicting sources of
+   * truth.
    */
   preventItemUpdates: () => void;
   /**
    * Check if the updates to the state based on the `items` prop are prevented.
-   * This is useful when `useFileExplorerJSXItems` is used to avoid having conflicting sources of truth.
+   * This is useful when `useFileExplorerJSXItems` is used to avoid having conflicting sources of
+   * truth.
    * @returns {boolean} `true` if the updates to the state based on the `items` prop are prevented.
    */
   areItemUpdatesPrevented: () => boolean;

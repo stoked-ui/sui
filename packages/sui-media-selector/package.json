@@ -43,36 +43,8 @@
     "eslint-plugin-react-refresh": "^0.4.7",
     "typescript": "5.4.5"
   },
-  "product": {
-    "id": "media-selector",
-    "name": "Media Selector",
-    "fullName": "Stoked UI: Media Selector",
-    "description": "Library used to select and gather type specific meta data from client side files",
-    "metadata": "Stoked UI",
-    "productMenu": false,
-    "docsMenu": true,
-    "swipeable": false,
-    "category": "core",
-    "icon": "product-advanced",
-    "url": "/media-selector",
-    "hideProductFeatures": true,
-    "owners": ["brian-stoker"],
-    "features": [{
-      "name": "Overview",
-      "description": "Overview, installation, lions, tigers, and bears oh mai!",
-      "id": "overview"
-    }, {
-      "name": "MediaFile",
-      "description": "Library used to select and automatically pull appropriate meta data from client side files",
-      "id": "file-with-path"
-    }, {
-      "name": "IdGenerator",
-      "description": "Highly extensible file explorer component with drag and drop support.",
-      "id": "id-generator"
-    }, {
-      "name": "Roadmap",
-      "description": "What&apos;s next",
-      "id": "roadmap"
-    }]
+  "dependencies": {
+    "exifreader": "^4.23.5",
+    "music-metadata": "^10.5.0"
   }
 }

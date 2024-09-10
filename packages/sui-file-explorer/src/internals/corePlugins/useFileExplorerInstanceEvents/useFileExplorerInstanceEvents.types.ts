@@ -1,12 +1,13 @@
-import { FileExplorerPluginSignature } from '../../models/plugin.types';
-import { FileExplorerEventListener } from '../../models/events';
+import {FileExplorerPluginSignature} from '../../models/plugin.types';
+import {FileExplorerEventListener} from '../../models/events';
 
 export interface UseFileExplorerInstanceEventsInstance {
   /**
    * Should never be used directly.
    * Please use `useInstanceEventHandler` instead.
    * @param {string} eventName Name of the event to subscribe to.
-   * @param {FileExplorerEventListener<any>} handler Event handler to call when the event is published.
+   * @param {FileExplorerEventListener<any>} handler Event handler to call when the event is
+   *   published.
    * @returns {() => void} Cleanup function.
    */
   $$subscribeEvent: (eventName: string, handler: FileExplorerEventListener<any>) => () => void;

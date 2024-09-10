@@ -36,7 +36,8 @@ function lazyReload() {
   clearInterval(reloadInterval);
   reloadInterval = setInterval(() => {
     if (document.hasFocus()) {
-      window.location.reload();
+      /* window.location.reload(); */
+      console.warn('reload not called check here');
     }
   }, 100);
 }
@@ -86,8 +87,10 @@ function forcePageReload(registration) {
 async function registerServiceWorker() {
   if (
     'serviceWorker' in navigator &&
-    process.env.NODE_ENV === 'production' &&
+    process.env.NODE_ENV === 'production'
+    /*
     window.location.host.indexOf('github.io') !== -1
+     */
   ) {
     // register() automatically attempts to refresh the sw.js.
     const registration = await navigator.serviceWorker.register('/sw.js');
@@ -294,12 +297,12 @@ export function reportWebVitals({ id, name, label, delta, value }) {
   if (disableWebVitalsReporting) {
     return;
   }
-
+/*
   window.gtag('event', name, {
     value: delta,
     metric_label: label === 'web-vital' ? 'Web Vitals' : 'Next.js custom metric',
     metric_value: value,
     metric_delta: delta,
     metric_id: id, // id unique to current page load
-  });
+  }); */
 }

@@ -11,10 +11,9 @@ import { jssPreset, StylesProvider } from '@mui/styles';
 import { CssVarsProvider, extendTheme } from '@mui/joy/styles';
 import { useTheme, styled, createTheme, ThemeProvider } from '@mui/material/styles';
 import rtl from 'jss-rtl';
-import { useTranslate } from '../i18n';
-import { getDesignTokens } from '../branding';
-import DemoErrorBoundary from './DemoErrorBoundary';
-import { highDensity } from '../components/ThemeContext';
+import { useTranslate } from '@mui/docs/i18n';
+import { getDesignTokens } from '@mui/docs/branding';
+import { highDensity } from 'docs/src/modules/components/ThemeContext';
 
 const iframeDefaultJoyTheme = extendTheme({
   cssVarPrefix: 'demo-iframe',
@@ -97,14 +96,14 @@ function DemoIframe(props) {
   /**
    * @type {import('react').Ref<HTMLIFrameElement>}
    */
-  const frameRef = React.useRef<HTMLIFrameElement>(null);
+  const frameRef = React.useRef(null);
 
   // If we portal content into the iframe before the load event then that content
   // is dropped in firefox.
   const [iframeLoaded, onLoad] = React.useReducer(() => true, false);
 
   React.useEffect(() => {
-    const document = frameRef.current?.contentDocument;
+    const document = frameRef.current.contentDocument;
     // When we hydrate the iframe then the load event is already dispatched
     // once the iframe markup is parsed (maybe later but the important part is
     // that it happens before React can attach event listeners).
@@ -117,16 +116,16 @@ function DemoIframe(props) {
     }
   }, [iframeLoaded]);
 
-  const document = frameRef.current?.contentDocument as Document | undefined | null;
+  const document = frameRef.current?.contentDocument;
   return (
     <React.Fragment>
       <Iframe onLoad={onLoad} ref={frameRef} title={`${name} demo`} {...other} />
       {iframeLoaded !== false
         ? ReactDOM.createPortal(
-            <FramedDemo document={document as object} productId={productId}>
+            <FramedDemo document={document} productId={productId}>
               {children}
             </FramedDemo>,
-            document?.body as HTMLElement,
+            document.body,
           )
         : null}
     </React.Fragment>
@@ -143,7 +142,7 @@ DemoIframe.propTypes = {
 function getTheme(outerTheme) {
   const brandingDesignTokens = getDesignTokens(outerTheme.palette.mode);
   const isCustomized =
-    outerTheme.palette.primary?.main && brandingDesignTokens.palette?.primary && "main" in brandingDesignTokens.palette.primary &&
+    outerTheme.palette.primary?.main &&
     outerTheme.palette.primary.main !== brandingDesignTokens.palette.primary.main;
   const resultTheme = createTheme(
     {
@@ -173,7 +172,7 @@ function getTheme(outerTheme) {
 const jss = create({
   plugins: [...jssPreset().plugins, rtl()],
   insertionPoint:
-    typeof window !== 'undefined' ? document.querySelector('#insertion-point-jss') as string | HTMLElement | Comment : undefined,
+    typeof window !== 'undefined' ? document.querySelector('#insertion-point-jss') : null,
 });
 
 /**
@@ -187,7 +186,6 @@ function DemoSandbox(props) {
     name,
     onResetDemoClick,
     productId,
-    sx,
     ...other
   } = props;
   const Sandbox = iframe ? DemoIframe : React.Fragment;
@@ -196,18 +194,12 @@ function DemoSandbox(props) {
   const t = useTranslate();
 
   // `childrenProp` needs to be a child of `Sandbox` since the iframe implementation rely on `cloneElement`.
-  const children = <Sandbox sx={sx} {...sandboxProps}>{childrenProp}</Sandbox>;
+  const children = <Sandbox {...sandboxProps}>{childrenProp}</Sandbox>;
 
   return (
-    <DemoErrorBoundary name={name} onResetDemoClick={onResetDemoClick} t={t}>
-      {productId === 'joy-ui' ? (
-        children
-      ) : (
-        <StylesProvider jss={jss}>
-          <ThemeProvider theme={(outerTheme) => getTheme(outerTheme)}>{children}</ThemeProvider>
-        </StylesProvider>
-      )}
-    </DemoErrorBoundary>
+    <StylesProvider jss={jss}>
+      <ThemeProvider theme={(outerTheme) => getTheme(outerTheme)}>{children}</ThemeProvider>
+    </StylesProvider>
   );
 }
 
@@ -217,7 +209,6 @@ DemoSandbox.propTypes = {
   name: PropTypes.string.isRequired,
   onResetDemoClick: PropTypes.func.isRequired,
   productId: PropTypes.string,
-  sx: PropTypes.any,
-} as any;
+};
 
 export default React.memo(DemoSandbox);

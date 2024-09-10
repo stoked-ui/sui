@@ -1,21 +1,14 @@
 import * as React from 'react';
-import { Theme } from '@mui/material/styles';
-import { SxProps } from '@mui/system';
-import { SlotComponentProps } from '@mui/base/utils';
-import { FileBase } from '@stoked-ui/file-explorer/models/items';
+import {Theme} from '@mui/material/styles';
+import {SxProps} from '@mui/system';
+import {SlotComponentProps} from '@mui/base/utils';
+import {FileBase} from '@stoked-ui/file-explorer/models/items';
 import {
-  EditorPluginParameters,
-  EditorPluginSignatures,
-  EditorPluginSlotProps,
-  EditorPluginSlots,
+  EditorPluginParameters, EditorPluginSignatures, EditorPluginSlotProps, EditorPluginSlots,
 } from './Editor.plugins';
-import { EditorClasses } from './editorClasses';
-import {
-  EditorExperimentalFeatures,
-  EditorPublicAPI,
-} from '../internals/models';
-import { ITimelineAction, TimelineTrack, ITimelineActionInput } from "@stoked-ui/timeline";
-
+import {EditorClasses} from './editorClasses';
+import {EditorExperimentalFeatures, EditorPublicAPI,} from '../internals/models';
+import {ITimelineAction, ITimelineActionInput, TimelineTrack} from "@stoked-ui/timeline";
 
 export interface EditorSlots extends EditorPluginSlots {
   /**
@@ -99,7 +92,8 @@ export interface EditorProps<R extends FileBase = FileBase, Multiple extends boo
    */
   slotProps?: EditorSlotProps<R, Multiple>;
   /**
-   * The ref object that allows Editor View manipulation. Can be instantiated with `useEditorApiRef()`.
+   * The ref object that allows Editor View manipulation. Can be instantiated with
+   * `useEditorApiRef()`.
    */
   apiRef?: EditorApiRef;
   /**

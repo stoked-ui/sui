@@ -1,4 +1,4 @@
-import { DndState } from "./editor";
+import {DndState} from "./editor";
 
 export interface UseEditorStatus {
   expandable: boolean;

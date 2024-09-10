@@ -1,32 +1,26 @@
-import * as React from "react";
-import { EditorPlugin } from '../../models';
+import { ITimelineAction } from '@stoked-ui/timeline/TimelineAction';
 import {
   UseEditorMetadataDefaultizedParameters, UseEditorMetadataSignature,
 } from './useEditorMetadata.types';
-import {buildTracks} from "../../utils/TrackBuilder";
-
-
-//const [actionId] = IncGenerator('action');
-//const [trackId] = IncGenerator('track')
+import {EditorPlugin} from '../../models';
 
 export const useEditorMetadata: EditorPlugin<UseEditorMetadataSignature> = ({
   params,
-  instance
+
 }) => {
-  params.tracks.forEach((track) => {
-    track.actions.forEach((action) => {
-      action.onKeyDown = (event: any, id: string) => {
-        console.log('on key down', action);
-        instance.handleItemKeyDown(event, 'action', action)
-      }
-    })
-  })
+  const onKeyDown = (event: any, action: ITimelineAction) => {
+    console.log('on key down', action);
+  };
+
   return {
     contextValue: {
       tracks: params.tracks,
       actions: params.actions,
       actionData: params.actionData
     },
+    instance: {
+      onKeyDown
+    }
   };
 };
 
@@ -35,7 +29,7 @@ useEditorMetadata.getDefaultizedParams = (params) => {
     ...params,
     actionData: params.actionData ?? [],
     actions: params.actions ?? [],
-    tracks: buildTracks(params),
+    tracks: params.tracks ?? [],
   } as UseEditorMetadataDefaultizedParameters;
 }
 

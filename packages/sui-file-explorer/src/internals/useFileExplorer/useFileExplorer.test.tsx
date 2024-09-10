@@ -1,9 +1,8 @@
 import * as React from 'react';
-import { expect } from 'chai';
-import { act, fireEvent } from '@stoked-ui/internal-test-utils';
+import {expect} from 'chai';
+import {act, fireEvent} from '@stoked-ui/internal-test-utils';
 import {
-  describeFileExplorer,
-  DescribeFileExplorerRendererUtils,
+  describeFileExplorer, DescribeFileExplorerRendererUtils,
 } from 'test/utils/fileExplorer-view/describeFileExplorer';
 
 describeFileExplorer<[]>(

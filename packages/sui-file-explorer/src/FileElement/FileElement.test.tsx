@@ -1,14 +1,14 @@
 import * as React from 'react';
-import { expect } from 'chai';
+import {expect} from 'chai';
 import PropTypes from 'prop-types';
-import { createRenderer } from '@stoked-ui/internal-test-utils';
-import { FileElement, fileElementClasses as classes } from '@mui/x-tree-view/FileElement';
+import {createRenderer} from '@stoked-ui/internal-test-utils';
+import {FileElement, fileElementClasses as classes} from '@mui/x-tree-view/FileElement';
 import {
   FileExplorerContext
 } from '@mui/x-tree-view/internals/FileExplorerProvider/FileExplorerContext';
-import { describeConformance } from 'test/utils/describeConformance';
-import { describeFileExplorer } from 'test/utils/tree-view/describeFileExplorer';
-import { getFakeContextValue } from 'test/utils/tree-view/fakeContextValue';
+import {describeConformance} from 'test/utils/describeConformance';
+import {describeFileExplorer} from 'test/utils/tree-view/describeFileExplorer';
+import {getFakeContextValue} from 'test/utils/tree-view/fakeContextValue';
 
 describeFileExplorer<[]>('FileElement component', ({ render, fileElementComponentName }) => {
   describe('ContentComponent / ContentProps props (FileElement only)', () => {

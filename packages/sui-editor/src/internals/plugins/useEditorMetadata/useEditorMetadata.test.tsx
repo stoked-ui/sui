@@ -1,10 +1,9 @@
-import { expect } from 'chai';
-import { spy } from 'sinon';
-import { fireEvent } from '@stoked-ui/internal-test-utils';
-import { describeEditor } from 'test/utils/editor-view/describeEditor';
+import {expect} from 'chai';
+import {spy} from 'sinon';
+import {fireEvent} from '@stoked-ui/internal-test-utils';
+import {describeEditor} from 'test/utils/editor-view/describeEditor';
 import {
-  UseEditorExpansionSignature,
-  UseEditorSelectionSignature,
+  UseEditorExpansionSignature, UseEditorSelectionSignature,
 } from '@stoked-ui/file-explorer/internals';
 
 /**

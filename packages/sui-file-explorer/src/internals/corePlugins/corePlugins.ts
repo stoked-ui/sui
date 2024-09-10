@@ -1,6 +1,6 @@
-import { useFileExplorerInstanceEvents } from './useFileExplorerInstanceEvents';
-import { useFileExplorerId, UseFileExplorerIdParameters } from './useFileExplorerId';
-import { ConvertPluginsIntoSignatures } from '../models';
+import {useFileExplorerInstanceEvents} from './useFileExplorerInstanceEvents';
+import {useFileExplorerId, UseFileExplorerIdParameters} from './useFileExplorerId';
+import {ConvertPluginsIntoSignatures} from '../models';
 
 /**
  * Internal plugins that create the tools used by the other plugins.

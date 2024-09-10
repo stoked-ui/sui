@@ -1,20 +1,20 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import useForkRef from '@mui/utils/useForkRef';
-import { FileBase, FileExplorer } from '@stoked-ui/file-explorer';
-import { useSlotProps } from '@mui/base/utils';
+import {FileBase, FileExplorer} from '@stoked-ui/file-explorer';
+import {useSlotProps} from '@mui/base/utils';
 import composeClasses from '@mui/utils/composeClasses';
 import Stack from '@mui/material/Stack';
-import { Timeline, TimelineEngine, TimelineState, TimelineTrack } from '@stoked-ui/timeline';
-import { styled, createUseThemeProps } from '../internals/zero-styled';
-import { useEditor } from '../internals/useEditor';
-import { EditorProps } from './Editor.types';
-import { EditorPluginSignatures, VIDEO_EDITOR_PLUGINS } from './Editor.plugins';
-import { EditorControls } from '../EditorControls';
-import { EditorView } from '../EditorView';
-import { getEditorUtilityClass } from './editorClasses';
-import { EditorLabels } from '../EditorLabels';
-import { buildTracks } from '../internals/utils/TrackBuilder';
+import {Timeline, TimelineEngine, TimelineState} from '@stoked-ui/timeline';
+import {createUseThemeProps, styled} from '../internals/zero-styled';
+import {useEditor} from '../internals/useEditor';
+import {EditorProps} from './Editor.types';
+import {EditorPluginSignatures, VIDEO_EDITOR_PLUGINS} from './Editor.plugins';
+import {EditorControls} from '../EditorControls';
+import {EditorView} from '../EditorView';
+import {getEditorUtilityClass} from './editorClasses';
+import {EditorLabels} from '../EditorLabels';
+import {buildTracks} from '../internals/utils/TrackBuilder';
 
 const useThemeProps = createUseThemeProps('MuiEditor');
 
@@ -77,12 +77,7 @@ const Editor = React.forwardRef(function Editor<
   const { sx, ...props } = useThemeProps({ props: inProps, name: 'MuiEditor' });
   const editorRef = React.useRef<HTMLDivElement>(null);
   const combinedEditorRef = useForkRef(ref, editorRef);
-  const processedTracks = buildTracks({
-    tracks: props.tracks,
-    actions: props.actions,
-    actionData: props.actionData,
-  });
-  const [tracks, setTracks] = React.useState(processedTracks);
+
 
   const {
     getRootProps,
@@ -171,7 +166,7 @@ const Editor = React.forwardRef(function Editor<
       if (event.target) {
         const actionTracks = engine.current.getSelectedActions();
         if (actionTracks?.length && event.key === 'Backspace') {
-          const updatedTracks = [...tracks];
+          const updatedTracks = [...timelineState.current.tracks];
           const deletedActionIds = actionTracks.map((at) => at.action.id);
           updatedTracks.forEach((updateTrack) => {
             updateTrack = { ...updateTrack };

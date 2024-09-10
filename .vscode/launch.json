@@ -2,14 +2,12 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "type": "node",
+      "type": "pwa-chrome",
       "request": "launch",
-      "name": "Test Current File",
-      "program": "test/cli.js",
-      "args": ["${relativeFile}", "--inspecting"],
-      "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen",
-      "disableOptimisticBPs": true
+      "name": "Launch Chrome against localhost",
+      "url": "http://localhost:5199",
+      "webRoot": "${workspaceFolder}",
+      "preLaunchTask": "Run pnpm docs:dev"
     }
   ]
 }

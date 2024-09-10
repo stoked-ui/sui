@@ -373,9 +373,11 @@ export default function Demo(props) {
   }
 
   React.useEffect(() => {
-    const navigatedDemoName = getDemoName(window.location.hash);
-    if (navigatedDemoName && demoName === navigatedDemoName) {
-      setCodeOpen(true);
+    if (typeof window !== 'undefined') {
+      const navigatedDemoName = getDemoName(window.location.hash);
+      if (navigatedDemoName && demoName === navigatedDemoName) {
+        setCodeOpen(true);
+      }
     }
   }, [demoName]);
 

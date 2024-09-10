@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { FileExplorerProviderProps } from './FileExplorerProvider.types';
-import { FileExplorerContext } from './FileExplorerContext';
-import { FileExplorerAnyPluginSignature } from '../models';
+import {FileExplorerProviderProps} from './FileExplorerProvider.types';
+import {FileExplorerContext} from './FileExplorerContext';
+import {FileExplorerAnyPluginSignature} from '../models';
 
 /**
  * Sets up the contexts for the underlying File components.

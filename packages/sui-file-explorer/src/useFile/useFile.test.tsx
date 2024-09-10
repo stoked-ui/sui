@@ -1,16 +1,14 @@
 import * as React from 'react';
-import { expect } from 'chai';
-import { spy } from 'sinon';
-import { act, createEvent, fireEvent, screen } from '@stoked-ui/internal-test-utils';
+import {expect} from 'chai';
+import {spy} from 'sinon';
+import {act, createEvent, fireEvent, screen} from '@stoked-ui/internal-test-utils';
 import {
-  describeFileExplorer,
-  DescribeFileExplorerRendererUtils,
+  describeFileExplorer, DescribeFileExplorerRendererUtils,
 } from 'test/utils/fileExplorer-view/describeFileExplorer';
 import {
-  UseFileExplorerExpansionSignature,
-  UseFileExplorerIconsSignature,
+  UseFileExplorerExpansionSignature, UseFileExplorerIconsSignature,
 } from '@stoked-ui/file-explorer/internals';
-import { fileClasses } from '@stoked-ui/file-explorer/File';
+import {fileClasses} from '@stoked-ui/file-explorer/File';
 
 describeFileExplorer<[UseFileExplorerExpansionSignature, UseFileExplorerIconsSignature]>(
   'useFile hook',

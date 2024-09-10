@@ -5,21 +5,17 @@ import StopIcon from '@mui/icons-material/Stop';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import SkipNextIcon from '@mui/icons-material/SkipNext';
 import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
-import FastRewindIcon from '@mui/icons-material/FastRewind';
-import FastForwardIcon from '@mui/icons-material/FastForward';
-import IconButton from '@mui/material/IconButton';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
+import Select, {SelectChangeEvent} from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
-import { FileBase } from '@stoked-ui/file-explorer';
-import { TimelineState } from '@stoked-ui/timeline';
-import { styled, createUseThemeProps } from '../internals/zero-styled';
+import {FileBase} from '@stoked-ui/file-explorer';
+import {createUseThemeProps, styled} from '../internals/zero-styled';
 
-import { EditorControlsProps } from './EditorControls.types';
-import { getEditorControlsUtilityClass } from "./editorControlsClasses";
+import {EditorControlsProps} from './EditorControls.types';
+import {getEditorControlsUtilityClass} from "./editorControlsClasses";
 import TextField from '@mui/material/TextField';
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
-import { alpha, emphasize } from '@mui/material/styles';
+import {emphasize} from '@mui/material/styles';
 
 export const Rates = [0.2, 0.5, 1.0, 1.5, 2.0];
 const useThemeProps = createUseThemeProps('MuiEditor');
@@ -113,9 +109,9 @@ const RateControlSelect = styled(Select)(({ theme }) => ({
 export const EditorControls = React.forwardRef(function EditorControls<
   R extends FileBase = FileBase,
   Multiple extends boolean | undefined = undefined,
->({ scale = 1, scaleWidth = 160, startLeft = 20, tracks, ...inProps }: EditorControlsProps<R, Multiple>, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
+>({ scale = 1, scaleWidth = 160, startLeft = 20, ...inProps }: EditorControlsProps<R, Multiple>, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
   const props = useThemeProps({ props: inProps, name: 'MuiEditorControls' });
-  const { timelineState, editorData, autoScrollWhenPlay } = inProps;
+  const { timelineState, tracks, autoScrollWhenPlay } = inProps;
   const [isPlaying, setIsPlaying] = React.useState(false);
   const [time, setTime] = React.useState(0);
   const [showRate, setShowRate] = React.useState(false);

@@ -1,56 +1,13 @@
-import {
-  ITimelineAction,
-  ITimelineActionType
-} from '../TimelineAction/TimelineAction.types';
-import * as React from 'react';
-import { TimelineTrack } from '../interface/TimelineAction';
-import { Emitter } from './emitter';
-import { Events, EventTypes } from './events';
-import {TimelineState} from "../Timeline/TimelineState";
+import {EngineOptions, ITimelineEngine} from './TimelineEngine.types';
+import {ITimelineAction, ITimelineActionType} from '../TimelineAction/TimelineAction.types';
+import { ITimelineTrack } from '../TimelineTrack/TimelineTrack.types';
+import {Events, type EventTypes} from './events';
+import {Emitter} from "./emitter";
 
 const PLAYING = 'playing';
 const PAUSED = 'paused';
 type PlayState = 'playing' | 'paused';
 
-export interface ITimelineEngine extends Emitter<EventTypes> {
-  readonly isPlaying: boolean;
-  readonly isPaused: boolean;
-  actionTypes: Record<string, ITimelineActionType>;
-  tracks: TimelineTrack[];
-  viewer: HTMLElement;
-  readonly renderer: HTMLCanvasElement;
-  readonly renderCtx: CanvasRenderingContext2D;
-  readonly preview: HTMLElement;
-
-
-  /** Set playback rate */
-  setPlayRate(rate: number): boolean;
-  /** Get playback rate */
-  getPlayRate(): number;
-  /** Re-render the current time */
-  reRender(): void;
-  /** Set playback time */
-  setTime(time: number, isTick?: boolean): boolean;
-  /** Get playback time */
-  getTime(): number;
-  /** Play */
-  play(param: {
-    /** By default, it runs from beginning to end, with a priority greater than autoEnd */
-    toTime?: number;
-    /** Whether to automatically end after playing */
-    autoEnd?: boolean;
-  }): boolean;
-  /** pause */
-  pause(): void;
-
-  getAction(actionId: string): { action: ITimelineAction, track: TimelineTrack };
-  getActionTrack(actionId: string):  TimelineTrack;
-  getSelectedActions(): { action: ITimelineAction, track: TimelineTrack }[];
-}
-
-type EngineOptions = {
-  renderer?: HTMLCanvasElement
-}
 
 /**
  * Timeline player
@@ -136,7 +93,7 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
   /** Action map that needs to be run */
   private _actionMap: Record<string, ITimelineAction> = {};
 
-  private _actionTrackMap: Record<string, TimelineTrack> = {};
+  private _actionTrackMap: Record<string, ITimelineTrack> = {};
 
   /** Action ID array sorted in positive order by action start time */
   private _actionSortIds: string[] = [];
@@ -159,7 +116,7 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
   }
 
   getSelectedActions() {
-    const actionTracks: {action: ITimelineAction, track: TimelineTrack}[] = [];
+    const actionTracks: {action: ITimelineAction, track: ITimelineTrack}[] = [];
     for (let i = 0; i < this._activeActionIds.length; i += 1) {
       const actionId = this._activeActionIds[i];
       const action = this._actionMap[actionId];
@@ -174,6 +131,7 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
   get loading() {
     return this._loading;
   }
+
   /** Whether it is playing */
   get isPlaying() {
     return this._playState === 'playing';
@@ -188,7 +146,7 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
     this._actionTypes = actionTypes;
   }
 
-  set tracks(tracks: TimelineTrack[]) {
+  set tracks(tracks: ITimelineTrack[]) {
     if (this.isPlaying) {
       this.pause();
     }
@@ -345,9 +303,9 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
 
   private _viewerUpdate() {
     this._assignElements()
-    console.log(this.viewer, 'renderer', this.renderer, 'preview', this.preview);
     const actionTypes: ITimelineActionType[] = Object.values(this._actionTypes);
-    for (const actionType of actionTypes) {
+    for (let i = 0; i < actionTypes.length; i += 1){
+      const actionType = actionTypes[i];
       if (actionType?.viewerUpdate) {
         actionType.viewerUpdate(this);
       }
@@ -357,11 +315,12 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
   private _verifyLoaded() {
     if (this.loading) {
       const notReadyYet = new Error('start or stop before finished loading')
-      console.log(notReadyYet, notReadyYet.stack);
+      console.error(notReadyYet);
       return false
     }
     return true;
   }
+
   private _startOrStop(type?: 'start' | 'stop') {
     if (!this._verifyLoaded()) {
       return;
@@ -506,7 +465,7 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
   }
 
   /** Data processing */
-  private _dealData(tracks: TimelineTrack[]) {
+  private _dealData(tracks: ITimelineTrack[]) {
     const actions: ITimelineAction[] = [];
     tracks?.forEach((track) => {
       actions.push(...track.actions);

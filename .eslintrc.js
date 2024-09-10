@@ -105,6 +105,7 @@ module.exports = {
     // Not sure why it doesn't work
     'import/named': 'off',
     'import/no-cycle': 'error',
+    'import/order': 'error',
     // Missing yarn workspace support
     'import/no-extraneous-dependencies': 'off',
     // The code is already coupled to webpack. Prefer explicit coupling.

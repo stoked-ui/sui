@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { FileExplorerPluginSignature } from '../../models/plugin.types';
+import {FileExplorerPluginSignature} from '../../models/plugin.types';
 import type {
   UseFileExplorerFilesSignature
 } from '../useFileExplorerFiles/useFileExplorerFiles.types';
@@ -9,8 +9,8 @@ import type {
 import {
   UseFileExplorerExpansionSignature
 } from '../useFileExplorerExpansion/useFileExplorerExpansion.types';
-import { FileId } from '../../../models';
-import { UseFileExplorerDndSignature } from '../useFileExplorerDnd/useFileExplorerDnd.types';
+import {FileId} from '../../../models';
+import {UseFileExplorerDndSignature} from '../useFileExplorerDnd/useFileExplorerDnd.types';
 
 export interface UseFileExplorerFocusPublicAPI {
   /**
@@ -34,8 +34,9 @@ export interface UseFileExplorerFocusInstance extends UseFileExplorerFocusPublic
   isItemFocused: (itemId: FileId) => boolean;
   /**
    * Check if an item should be sequentially focusable (usually with the Tab key).
-   * At any point in time, there is a single item that can be sequentially focused in the FileExplorer View.
-   * This item is the first selected item (that is both visible and navigable), if any, or the first navigable item if no item is selected.
+   * At any point in time, there is a single item that can be sequentially focused in the
+   * FileExplorer View. This item is the first selected item (that is both visible and navigable),
+   * if any, or the first navigable item if no item is selected.
    * @param {FileId} itemId The id of the item to check.
    * @returns {boolean} `true` if the item can be sequentially focusable, `false` otherwise.
    */
@@ -49,7 +50,8 @@ export interface UseFileExplorerFocusInstance extends UseFileExplorerFocusPublic
 export interface UseFileExplorerFocusParameters {
   /**
    * Callback fired when fileExplorer items are focused.
-   * @param {React.SyntheticEvent} event The event source of the callback **Warning**: This is a generic event not a focus event.
+   * @param {React.SyntheticEvent} event The event source of the callback **Warning**: This is a
+   *   generic event not a focus event.
    * @param {string} itemId The id of the focused item.
    * @param {string} value of the focused item.
    */

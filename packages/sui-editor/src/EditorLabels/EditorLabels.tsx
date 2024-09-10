@@ -1,7 +1,7 @@
 import * as React from 'react';
 import composeClasses from "@mui/utils/composeClasses";
-import { useSlotProps } from '@mui/base/utils';
-import {styled, emphasize, useTheme, useThemeProps} from '@mui/material/styles';
+import {useSlotProps} from '@mui/base/utils';
+import {emphasize, styled, useThemeProps} from '@mui/material/styles';
 import ToggleButton from "@mui/material/ToggleButton";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
@@ -9,7 +9,7 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import LockIcon from '@mui/icons-material/Lock';
 import {TimelineTrack} from "@stoked-ui/timeline";
-import { EditorLabelsProps } from './EditorLabels.types';
+import {EditorLabelsProps} from './EditorLabels.types';
 import {EditorLabelsClasses, getEditorLabelsUtilityClass} from "./editorLabelsClasses";
 
 const useUtilityClasses = (
@@ -209,7 +209,6 @@ const EditorLabels = React.forwardRef(
       ownerState: inProps,
     });
 
-    console.log('tracks', tracks);
     return (
       <Root
         ref={ref}

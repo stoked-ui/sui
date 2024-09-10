@@ -1,14 +1,16 @@
 export function randomBytes(length: number): string {
   const bytes = new Uint8Array(length);
-  for (let i = 0; i < length; i++) {
+  for (let i = 0; i < length; i += 1) {
     bytes[i] = Math.floor(Math.random() * 256);
   }
   return Array.from(bytes)
   .map(byte => byte.toString(16).padStart(2, '0'))
   .join('').substring(0, length);
 }
-interface namedIdProps {id?: string, length?: number, prefix?: string, suffix?: string};
-export default function namedId(props?: namedIdProps) {
+
+interface NamedIdProps {id?: string, length?: number, prefix?: string, suffix?: string}
+
+export default function namedId(props?: NamedIdProps) {
   if (!props) {
     props = { id: 'id', length: 7 };
   }

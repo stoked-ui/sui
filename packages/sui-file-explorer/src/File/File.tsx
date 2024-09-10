@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { useSlotProps } from '@mui/base/utils';
+import {useSlotProps} from '@mui/base/utils';
 import unsupportedProp from '@mui/utils/unsupportedProp';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
@@ -12,21 +12,21 @@ import VideoCameraBackIcon from '@mui/icons-material/VideoCameraBack';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Box from '@mui/material/Box';
-import { namedId } from '@stoked-ui/media-selector';
-import { FileLabel } from './FileLabel';
-import { createUseThemeProps } from '../internals/zero-styled';
-import { FileProvider } from '../internals/FileProvider';
-import { FileComponent, FileOwnerState, FileProps } from './File.types';
-import { useFile } from '../useFile';
-import { FileExplorerGridColumns } from '../internals/plugins/useFileExplorerGrid/FileExplorerGridColumns';
-import { FileExplorerDndItemContext } from '../internals/plugins/useFileExplorerDnd/FileExplorerDndItemContext';
-import { MediaType } from '../models';
+import {namedId} from '@stoked-ui/media-selector';
+import {FileLabel} from './FileLabel';
+import {createUseThemeProps} from '../internals/zero-styled';
+import {FileProvider} from '../internals/FileProvider';
+import {FileComponent, FileOwnerState, FileProps} from './File.types';
+import {useFile} from '../useFile';
 import {
-  useUtilityClasses,
-  FileContent,
-  FileRoot,
-  FileCheckbox,
-  TransitionComponent,
+  FileExplorerGridColumns
+} from '../internals/plugins/useFileExplorerGrid/FileExplorerGridColumns';
+import {
+  FileExplorerDndItemContext
+} from '../internals/plugins/useFileExplorerDnd/FileExplorerDndItemContext';
+import {MediaType} from '../models';
+import {
+  FileCheckbox, FileContent, FileRoot, TransitionComponent, useUtilityClasses,
 } from './FileExtras';
 
 const useThemeProps = createUseThemeProps('MuiFile');

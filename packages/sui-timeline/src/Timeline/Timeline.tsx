@@ -2,17 +2,16 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import composeClasses from '@mui/utils/composeClasses';
-import { useSlotProps } from '@mui/base/utils';
-import { styled, useThemeProps, emphasize } from '@mui/material/styles';
+import {useSlotProps} from '@mui/base/utils';
+import {emphasize, styled, useThemeProps} from '@mui/material/styles';
 import useForkRef from '@mui/utils/useForkRef';
-import { TimelineComponent, TimelineProps } from './Timeline.types';
-import { getTimelineUtilityClass } from './timelineClasses';
-import { TimelineState } from './TimelineState';
-import { TimelineLabels } from '../TimelineLabels/TimelineLabels';
-import { ITimelineAction } from '../TimelineAction/TimelineAction.types';
-import { TimelineControl } from '../TimelineControl/TimelineControl';
-import { TimelineLabelsProps } from '../TimelineLabels/TimelineLabels.types';
-import { TimelineTrack } from 'src/TimelineControl/TimelineControl.types';
+import {TimelineComponent, TimelineProps} from './Timeline.types';
+import {getTimelineUtilityClass} from './timelineClasses';
+import {TimelineState} from './TimelineState';
+import TimelineLabels from '../TimelineLabels/TimelineLabels';
+import {ITimelineAction} from '../TimelineAction/TimelineAction.types';
+import TimelineControl from '../TimelineControl/TimelineControl';
+import {TimelineLabelsProps} from '../TimelineLabels/TimelineLabels.types';
 
 const useUtilityClasses = (ownerState: TimelineProps) => {
   const { classes } = ownerState;

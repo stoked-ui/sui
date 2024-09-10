@@ -1,7 +1,6 @@
-import type { CSSObject } from '@mui/system';
-import type {} from '@mui/material/themeCssVarsAugmentation';
+import type {CSSObject} from '@mui/system';
 import ArrowDropDownRounded from '@mui/icons-material/ArrowDropDownRounded';
-import { createTheme, ThemeOptions, Theme, alpha } from '@mui/material/styles';
+import {alpha, createTheme, Theme, ThemeOptions} from '@mui/material/styles';
 
 interface ApplyDarkStyles {
   (scheme: CSSObject): CSSObject;
@@ -360,8 +359,9 @@ export const getDesignTokens = (mode: 'light' | 'dark') =>
     },
 
     /**
-     * This utility exists to help transitioning to CSS variables page by page (prevent dark mode flicker).
-     * It will use the proper styling method based on the theme because the component might be on the page that does not support CSS variables yet.
+     * This utility exists to help transitioning to CSS variables page by page (prevent dark mode
+     * flicker). It will use the proper styling method based on the theme because the component
+     * might be on the page that does not support CSS variables yet.
      *
      * 😓 Without this utility:
      * {
@@ -384,7 +384,8 @@ export const getDesignTokens = (mode: 'light' | 'dark') =>
      * }
      *
      * -------------------------------------------------------------------------------------------------
-     * 💡 This util should be used in an array if the styles contain pseudo classes or nested selectors:
+     * 💡 This util should be used in an array if the styles contain pseudo classes or nested
+     * selectors:
      *
      * ❌ There is a chance that the upper selectors could be overridden
      * {

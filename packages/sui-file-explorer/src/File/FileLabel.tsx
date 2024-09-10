@@ -1,19 +1,16 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import Typography from '@mui/material/Typography';
-import { SxProps, Theme } from '@mui/system';
+import {SxProps, Theme} from '@mui/system';
 import Box from '@mui/material/Box';
-import { shouldForwardProp } from '@mui/system/createStyled';
-import { resolveComponentProps, useSlotProps } from '@mui/base/utils';
-import { styled } from '../internals/zero-styled';
-import { FileIconContainer } from './FileIconContainer';
-import { useFileExplorerContext } from '../internals/FileExplorerProvider/useFileExplorerContext';
-import { UseFileExplorerIconsSignature } from '../internals/plugins/useFileExplorerIcons/useFileExplorerIcons.types';
-import { FileExplorerCollapseIcon, FileExplorerExpandIcon } from '../icons';
-import { UseFileExplorerGridColumnHeaderStatus } from '../internals/plugins/useFileExplorerGrid/useFileExplorerGrid.types';
-import { FileIcon, FileIconSlotProps, FileIconSlots } from '../internals/FileIcon';
-import { useFileExplorerGridColumnHeader } from '../internals/plugins/useFileExplorerGrid/useFileExplorerGridColumnHeader';
-import { UseFileMinimalPlugins } from '../internals/models';
+import {shouldForwardProp} from '@mui/system/createStyled';
+import {styled} from '../internals/zero-styled';
+import {FileIconContainer} from './FileIconContainer';
+import {FileIcon} from '../internals/FileIcon';
+import {
+  useFileExplorerGridColumnHeader
+} from '../internals/plugins/useFileExplorerGrid/useFileExplorerGridColumnHeader';
+import {UseFileMinimalPlugins} from '../internals/models';
 
 const FileLabelRoot = styled('div', {
   name: 'MuiFile',

@@ -1,80 +1,71 @@
-import MediaType, { getMediaType } from './MediaType';
+import {MediaType, getMediaType} from './MediaType';
 import {
-  IMediaFile,
-  IMediaDirectory,
-  FromEventInput,
-  PragmaticDndEvent,
   DropFile,
-  FileSystemFileHandle,
   FileArray,
+  FILES_TO_IGNORE,
+  FileSystemFileHandle,
   FileValue,
-  FILES_TO_IGNORE
+  FromEventInput,
+  IMediaFile,
+  PragmaticDndEvent
 } from './MediaFile.types'
 import {ExtensionMimeTypeMap} from "./MimeType";
 import namedId from "../namedId";
 
-interface MediaDirectoryProps {
-  path?: string;
-  lastModified?: number;
-  name: string;
-  size?: number;
-  webkitRelativePath?: string;
-  fullPath: string;
-}
-
-export class MediaDirectory implements IMediaDirectory {
-  readonly path?: string;
-  readonly lastModified: number;
-  readonly name: string;
-  readonly size: number;
-  readonly webkitRelativePath: string;
-
-  constructor(file: MediaDirectoryProps) {
-    this.lastModified = file.lastModified ?? 0;
-    this.name = file.name;
-    this.size = file.size ?? 0;
-    this.path = file.fullPath;
-    if ("webkitRelativePath" in file && file.webkitRelativePath && file.webkitRelativePath.length > 0) {
-      this.path = file.webkitRelativePath;
-    }
-    this.webkitRelativePath = file.webkitRelativePath ?? '';
-  }
-
-  static fromDirectory(entry: FileSystemDirectoryEntry, path?: string): MediaDirectory {
-    const directory = new MediaDirectory(entry)
-    console.log('from directory', directory)
-    if (typeof directory.path !== 'string') { // on electron, path is already set to the absolute path
-      const {webkitRelativePath} = directory;
-      Object.defineProperty(directory, 'path', {
-        value: typeof path === 'string' ? path
-          // If <input webkitdirectory> is set,
-          // the File will have a {webkitRelativePath} property
-          // https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement/webkitdirectory
-          : typeof webkitRelativePath === 'string' && webkitRelativePath.length > 0 ? webkitRelativePath : directory.name,
-        writable: false,
-        configurable: false,
-        enumerable: true
-      });
-    }
-    return directory;
-  }
-}
+export type MediaFileParams =  {file: MediaFile, options?: { metadata?: true}};
 
 export default class MediaFile implements IMediaFile {
   readonly id: string;
+
   readonly path?: string;
+
   readonly lastModified: number;
+
   readonly name: string;
+
   readonly size: number;
+
   readonly type: string;
+
   readonly mediaType: MediaType;
+
   readonly webkitRelativePath: string;
+
+  metadata?: any;
+
+  readonly blob: Blob;
+
+  _url?: string;
+
+  static container: HTMLDivElement;
+
+  static renderer: HTMLCanvasElement;
+
+  static renderCtx: CanvasRenderingContext2D;
+
   arrayBuffer: () => Promise<ArrayBuffer>;
+
   slice: (start?: number, end?: number, contentType?: string) => Blob;
+
   stream: () => ReadableStream<Uint8Array>;
+
   text: () => Promise<string>;
 
-  constructor(file: MediaFile) {
+  get url() {
+    if (!this._url) {
+      this._url = URL.createObjectURL(this.blob);
+    }
+    return this._url;
+  }
+
+
+  constructor(params: MediaFileParams) {
+    const { file } = params;
+
+    if (!file) {
+      throw new Error('Either file or url must be provided');
+    }
+
     this.id = namedId({id: 'mediaFile', length: 6});
     this.lastModified = file.lastModified;
     this.name = file.name;
@@ -89,20 +80,40 @@ export default class MediaFile implements IMediaFile {
     if (!this.mediaType && this.type) {
       this.mediaType = getMediaType(this.type);
     }
+
     this.arrayBuffer = file.arrayBuffer.bind(file);
     this.slice = file.slice.bind(file);
     this.stream = file.stream.bind(file);
     this.text = file.text.bind(file);
+    /*
+    if (params.options?.metadata) {
+      getMetadata(this).then(() => {
+        console.log('metadata', this.metadata);
+      }).catch((err) => {
+        console.error('Error getting metadata', err);
+      });
+    }
+    */
+    this.blob = new Blob([file], { type: file.type });
   }
+
   static async from(input: FromEventInput | { source?: { items: unknown[] } }): Promise<IMediaFile[]> {
-    const fromWrapper = (input: FromEventInput | { source?: { items: unknown[] } }) => {
-      if (isObject<DragEvent>(input) && isDataTransfer(input.dataTransfer)) {
-        return getDataTransferFiles(input.dataTransfer, input.type);
-      } else if (isChangeEvt(input)) {
-        return getInputFiles(input);
-      } else if ('source' in input && input.source && 'items' in input.source && Array.isArray(input.source.items) && input.source.items.length > 0) {
+    if (!MediaFile.container) {
+      MediaFile.container = document.createElement('div');
+      MediaFile.renderer = document.createElement('canvas');
+      MediaFile.renderCtx = MediaFile.renderer.getContext('2d') as CanvasRenderingContext2D;
+    }
+    const fromWrapper = (inputWrapper: FromEventInput | { source?: { items: unknown[] } }) => {
+      if (isObject<DragEvent>(inputWrapper) && isDataTransfer(inputWrapper.dataTransfer)) {
+        return getDataTransferFiles(inputWrapper.dataTransfer, inputWrapper.type);
+      }
+      if (isChangeEvt(inputWrapper)) {
+        return getInputFiles(inputWrapper);
+      }
+      if ('source' in inputWrapper && inputWrapper.source && 'items' in inputWrapper.source && Array.isArray(inputWrapper.source.items) && inputWrapper.source.items.length > 0) {
         return getDropFiles(input as PragmaticDndEvent);
-      } else if ((Array.isArray(input) && input.every(item => 'getFile' in item && typeof item.getFile === 'function')) || (input as FileSystemFileHandle[] !== undefined)) {
+      }
+      if ((Array.isArray(inputWrapper) && inputWrapper.every(item => 'getFile' in item && typeof item.getFile === 'function')) || (inputWrapper as FileSystemFileHandle[] !== undefined)) {
         return getFsHandleFiles(input as FileSystemFileHandle[])
       }
       return [];
@@ -111,20 +122,25 @@ export default class MediaFile implements IMediaFile {
     return noIgnoredFiles(files);
   }
 
-  static fromFile(file: MediaFile, path?: string): MediaFile {
+  static async fromUrl(url: string) {
+    const blob = await loadFileUrl(url) as File;
+
+    const file = new File([blob], url.split('/').pop()!, { type: blob.type });
+    return MediaFile.fromFile({...file, url} as IMediaFile);
+  }
+
+  static fromFile(file: IMediaFile, path?: string) {
     const f = this.withMimeType(file);
-    console.log('from file', file)
+    const {webkitRelativePath} = file;
+    let pathValue = file.name;
+    if (typeof path === 'string') {
+      pathValue = path;
+    } else if (webkitRelativePath && webkitRelativePath.length > 0) {
+      pathValue = webkitRelativePath
+    }
     if (typeof f.path !== 'string') { // on electron, path is already set to the absolute path
-      const {webkitRelativePath} = file;
       Object.defineProperty(f, 'path', {
-        value: typeof path === 'string'
-          ? path
-          // If <input webkitdirectory> is set,
-          // the File will have a {webkitRelativePath} property
-          // https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement/webkitdirectory
-          : typeof webkitRelativePath === 'string' && webkitRelativePath.length > 0
-            ? webkitRelativePath
-            : file.name,
+        value: pathValue,
         writable: false,
         configurable: false,
         enumerable: true
@@ -165,21 +181,76 @@ export default class MediaFile implements IMediaFile {
 
 }
 
-async function getDropFiles(input: PragmaticDndEvent): Promise<MediaFile[]> {
+async function getDropFiles(input: PragmaticDndEvent): Promise<IMediaFile[]> {
   if (!input?.source?.items) {
-    return [] as MediaFile[];
+    return [] as IMediaFile[];
   }
-  console.log('input', JSON.stringify(input.source, null, 2));
+  // console.log('input', JSON.stringify(input.source, null, 2));
   const files = input.source.items;
   const finalizedFiles = await Promise.all(files.map(async (item: DropFile) =>  {
     if (item as DataTransferItem) {
       const dti = item as DataTransferItem;
-      const files = toFilePromises(dti);
-      return files;
+      return toFilePromises(dti);
     }
-    return MediaFile.fromFile(item as MediaFile);
+    return MediaFile.fromFile(item as IMediaFile);
   }));
-  return noIgnoredFiles(finalizedFiles.flat() as MediaFile[]);
+  return noIgnoredFiles(finalizedFiles.flat() as IMediaFile[]);
+}
+
+function getUrlExtension( url ) {
+  return url.split(/[#?]/)[0].split('.').pop().trim();
+}
+
+function getFileName(url: string, includeExtension?: boolean) {
+  const matches = url && typeof url.match === "function" && url.match(/\/?([^/.]*)\.?([^/]*)$/);
+  if (!matches) {
+    return null;
+  }
+  if (includeExtension && matches.length > 2 && matches[2]) {
+    return matches.slice(1).join(".");
+  }
+  return matches[1];
+}
+
+function loadFileUrl(url: string) {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.responseType = 'arraybuffer';
+
+    xhr.onload = async function onLoad() {
+      if (xhr.status === 200) {
+        try {
+          if (xhr.response.byteLength === 0) {
+            throw new Error('Fetched file data is empty.');
+          }
+          let contentType = xhr.getResponseHeader('Content-Type');
+          if (contentType === null) {
+            contentType = getUrlExtension(url);
+          }
+          // console.info('Fetched file data size:', xhr.response.byteLength);
+          // console.info('Fetched file data type:', {type:  contentType});
+
+          // new Blob([xhr.response], { type: contentType ?? 'application/octet-stream' });
+          const file = new File([xhr.response], getFileName(url) ?? 'url-file', {type: contentType ?? 'application/octet-stream'});
+          const mediaFile = MediaFile.fromFile(file as IMediaFile);
+          resolve(mediaFile);
+        } catch (error) {
+          // console.error('Error fetching data:', error);
+          // console.error('File data size:', xhr.response.byteLength);
+          reject(error);
+        }
+      } else {
+        reject(new Error(`HTTP error! status: ${xhr.status}`));
+      }
+    };
+
+    xhr.onerror = function onError() {
+      reject(new Error('Network error occurred'));
+    };
+
+    xhr.send();
+  });
 }
 
 function isDataTransfer(value: unknown): value is DataTransfer {
@@ -195,13 +266,13 @@ function isObject<T>(v: unknown): v is T {
 }
 
 function getInputFiles(evt: Event) {
-  return fromList((evt.target as HTMLInputElement).files).map(file => MediaFile.fromFile(file as MediaFile));
+  return fromList((evt.target as HTMLInputElement).files).map(file => MediaFile.fromFile(file as IMediaFile));
 }
 
 // Ee expect each handle to be https://developer.mozilla.org/en-US/docs/Web/API/FileSystemFileHandle
 async function getFsHandleFiles(handles: FileSystemFileHandle[]) {
   const files = await Promise.all(handles.map(h => h.getFile()));
-  return files.map(file => MediaFile.fromFile(file as MediaFile));
+  return files.map(file => MediaFile.fromFile(file as IMediaFile));
 }
 
 async function getDataTransferFiles(dt: DataTransfer, type: string) {
@@ -216,16 +287,16 @@ async function getDataTransferFiles(dt: DataTransfer, type: string) {
       return [];
     }
     const files = await Promise.all((items as DataTransferItem[]).map(toFilePromises));
-    return noIgnoredFiles(files.flat() as MediaFile[]);
+    return noIgnoredFiles(files.flat() as IMediaFile[]);
   }
 
   return noIgnoredFiles(fromList(dt.files)
-  .map((file) => MediaFile.fromFile(file as MediaFile)));
+  .map((file) => MediaFile.fromFile(file as IMediaFile)));
 }
 
-function noIgnoredFiles(files: MediaFile[]) {
+function noIgnoredFiles(files: IMediaFile[]) {
   return files.flat(Infinity).filter(file => {
-    console.log('ignore name: ', file.name, FILES_TO_IGNORE.indexOf(file.name) );
+    // console.log('ignore name: ', file.name, FILES_TO_IGNORE.indexOf(file.name) );
     return FILES_TO_IGNORE.indexOf(file.name) === -1
   });
 }
@@ -234,19 +305,19 @@ function noIgnoredFiles(files: MediaFile[]) {
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/from#Browser_compatibility
 // https://developer.mozilla.org/en-US/docs/Web/API/FileList
 // https://developer.mozilla.org/en-US/docs/Web/API/DataTransferItemList
-export function fromList(items: DataTransferItemList | FileList | null): (MediaFile | DataTransferItem)[] {
+export function fromList(items: DataTransferItemList | FileList | null): (IMediaFile | DataTransferItem)[] {
   if (items === null) {
     return [];
   }
 
-  const files : (MediaFile | DataTransferItem)[] = [];
+  const files : (IMediaFile | DataTransferItem)[] = [];
 
   // tslint:disable: prefer-for-of
-  for (let i = 0; i < items.length; i++) {
-    const file = items[i] as MediaFile | DataTransferItem
+  for (let i = 0; i < items.length; i += 1) {
+    const file = items[i] as IMediaFile | DataTransferItem
     files.push(file);
   }
-  return files as (MediaFile | DataTransferItem)[];
+  return files as (IMediaFile | DataTransferItem)[];
 }
 
 // https://developer.mozilla.org/en-US/docs/Web/API/DataTransferItem
@@ -266,20 +337,22 @@ function toFilePromises(item: DataTransferItem) {
 
   return fromDataTransferItem(item);
 }
+
 /*
  function flatten<T = []>(items: T): T[] {
  return items.reduce((acc, files) => [
  ...acc,
  ...(Array.isArray(files) ? flatten(files) : [files])
  ], []);
- }*/
+ }
+ */
 
 function fromDataTransferItem(item: DataTransferItem) {
   const file = item.getAsFile();
   if (!file) {
-    return Promise.reject(`${item} is not a File`);
+    return Promise.reject(new Error(`${item} is not a File`));
   }
-  const fwp = MediaFile.fromFile(file as MediaFile);
+  const fwp = MediaFile.fromFile(file as IMediaFile);
   return Promise.resolve(fwp);
 }
 
@@ -329,9 +402,9 @@ function fromDirEntry(entry: FileSystemDirectoryEntry) {
 // type FileFunc = (toFile: ToMediaFile, errorFunc: ErrorFunc) => void
 // type EntryFile = { fullPath: string, file: FileFunc };
 async function fromFileEntry(entry: FileSystemFileEntry) {
-  return new Promise<MediaFile>((resolve, reject) => {
+  return new Promise<IMediaFile>((resolve, reject) => {
     entry.file((file: File) => {
-      const fwp = MediaFile.fromFile(file as MediaFile, entry.fullPath);
+      const fwp = MediaFile.fromFile(file as IMediaFile, entry.fullPath);
       resolve(fwp);
     },  (err: unknown) => {
       reject(err);

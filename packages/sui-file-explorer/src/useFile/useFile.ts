@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { EventHandlers, extractEventHandlers } from '@mui/base/utils';
+import {EventHandlers, extractEventHandlers} from '@mui/base/utils';
 import useForkRef from '@mui/utils/useForkRef';
 import {
   UseFileCheckboxSlotProps,
@@ -11,11 +11,11 @@ import {
   UseFileReturnValue,
   UseFileRootSlotProps,
 } from './useFile.types';
-import { UseFileMinimalPlugins, UseFileOptionalPlugins, } from '../internals/models';
-import { useFileExplorerContext } from '../internals/FileExplorerProvider/useFileExplorerContext';
-import { MuiCancellableEvent } from '../internals/models/MuiCancellableEvent';
-import { useFileUtils } from '../hooks/useFileUtils';
-import { FileDepthContext } from '../internals/FileDepthContext';
+import {UseFileMinimalPlugins, UseFileOptionalPlugins,} from '../internals/models';
+import {useFileExplorerContext} from '../internals/FileExplorerProvider/useFileExplorerContext';
+import {MuiCancellableEvent} from '../internals/models/MuiCancellableEvent';
+import {useFileUtils} from '../hooks/useFileUtils';
+import {FileDepthContext} from '../internals/FileDepthContext';
 
 export const useFile = <
   TSignatures extends UseFileMinimalPlugins = UseFileMinimalPlugins,

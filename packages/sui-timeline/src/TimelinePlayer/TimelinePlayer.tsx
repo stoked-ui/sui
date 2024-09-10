@@ -1,15 +1,14 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import { styled } from '@mui/material/styles';
+import {styled} from '@mui/material/styles';
 import PauseIcon from '@mui/icons-material/Pause';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import SkipNextIcon from '@mui/icons-material/SkipNext';
 import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
 import IconButton from '@mui/material/IconButton';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
+import Select, {SelectChangeEvent} from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
-import { TimelineState } from '../Timeline/TimelineState';
-import { TimelineTrack } from '../interface/TimelineAction';
+import {TimelineState} from '../Timeline/TimelineState';
+import { ITimelineTrack } from '../TimelineTrack/TimelineTrack.types';
 
 export const Rates = [0.2, 0.5, 1.0, 1.5, 2.0];
 
@@ -51,7 +50,7 @@ function TimelinePlayer({
   startLeft = 20,
 }: {
   timelineState?: React.RefObject<TimelineState>;
-  tracks?: TimelineTrack[];
+  tracks?: ITimelineTrack[];
   autoScrollWhenPlay: boolean;
   scale?: number;
   scaleWidth?: number;

@@ -1,9 +1,9 @@
-import { FileExplorerPluginSignature, FileMeta } from '../../models';
-import { UseFileExplorerFilesSignature } from '../useFileExplorerFiles';
-import { UseFileExplorerKeyboardNavigationSignature } from '../useFileExplorerKeyboardNavigation';
-import { FileId } from '../../../models';
-import { UseFileExplorerGridSignature } from "../useFileExplorerGrid";
-import { UseFileExplorerDndSignature } from '../useFileExplorerDnd/useFileExplorerDnd.types';
+import {FileExplorerPluginSignature, FileMeta} from '../../models';
+import {UseFileExplorerFilesSignature} from '../useFileExplorerFiles';
+import {UseFileExplorerKeyboardNavigationSignature} from '../useFileExplorerKeyboardNavigation';
+import {FileId} from '../../../models';
+import {UseFileExplorerGridSignature} from "../useFileExplorerGrid";
+import {UseFileExplorerDndSignature} from '../useFileExplorerDnd/useFileExplorerDnd.types';
 
 export interface UseFileExplorerFilesInstance {
   /**

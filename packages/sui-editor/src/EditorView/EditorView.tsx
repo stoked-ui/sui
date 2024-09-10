@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { FileBase } from '@stoked-ui/file-explorer';
+import {FileBase} from '@stoked-ui/file-explorer';
 import composeClasses from "@mui/utils/composeClasses";
-import { useSlotProps } from '@mui/base/utils';
-import { styled, createUseThemeProps } from '../internals/zero-styled';
-import { EditorViewProps } from './EditorView.types';
-import { getEditorViewUtilityClass } from "./editorViewClasses";
+import {useSlotProps} from '@mui/base/utils';
+import {createUseThemeProps, styled} from '../internals/zero-styled';
+import {EditorViewProps} from './EditorView.types';
+import {getEditorViewUtilityClass} from "./editorViewClasses";
 import useForkRef from "@mui/utils/useForkRef";
 
 const useThemeProps = createUseThemeProps('MuiEditorView');

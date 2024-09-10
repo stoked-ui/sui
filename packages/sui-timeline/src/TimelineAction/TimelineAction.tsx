@@ -1,20 +1,15 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { alpha, emphasize, styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles';
 import composeClasses from '@mui/utils/composeClasses';
-import clsx from 'clsx';
-import useSlotProps from '@mui/utils/useSlotProps';
-import { shouldForwardProp } from '@mui/system/createStyled';
-import { blend } from '@mui/system';
-import { TimelineTrack } from '../interface/TimelineAction';
-import { DEFAULT_ADSORPTION_DISTANCE, DEFAULT_MOVE_GRID } from '../interface/const';
+// import clsx from 'clsx';
+// import useSlotProps from '@mui/utils/useSlotProps';
+import {shouldForwardProp} from '@mui/system/createStyled';
+import {DEFAULT_ADSORPTION_DISTANCE, DEFAULT_MOVE_GRID} from '../interface/const';
 import {
-  getScaleCountByPixel,
-  parserTimeToPixel,
-  parserTimeToTransform,
-  parserTransformToTime,
+  getScaleCountByPixel, parserTimeToPixel, parserTimeToTransform, parserTransformToTime,
 } from '../utils/deal_data';
-import { RowDnd } from '../components/row_rnd/row_rnd';
+import TimelineTrackDnd from '../TimelineTrack/TimelineTrackDnd';
 import {
   RndDragCallback,
   RndDragEndCallback,
@@ -23,11 +18,11 @@ import {
   RndResizeEndCallback,
   RndResizeStartCallback,
   RowRndApi,
-} from '../components/row_rnd/row_rnd_interface';
-import { getTimelineActionUtilityClass } from './timelineActionClasses';
-import { prefix } from '../utils/deal_class_prefix';
-import { TimelineActionOwnerState, TimelineActionProps } from './TimelineAction.types';
-import { TimelineEngine } from '../TimelineEngine/TimelineEngine';
+} from '../TimelineTrack/TimelineTrackDnd.types';
+import {getTimelineActionUtilityClass} from './timelineActionClasses';
+import {prefix} from '../utils/deal_class_prefix';
+import {TimelineActionOwnerState, TimelineActionProps} from './TimelineAction.types';
+import {type ITimelineTrack} from '../TimelineTrack/TimelineTrack.types';
 
 export const useActionUtilityClasses = (ownerState: TimelineActionOwnerState) => {
   const { classes } = ownerState;
@@ -53,17 +48,18 @@ const Action = styled('div', {
 })<{
   selected: boolean;
   color: string;
-}>(({ theme, selected, color = 'blue' }) => {
-  const base = theme.vars ? `rgba(color(from ${color}) / 1)` : alpha(color, 1);
+}>(({ theme, color = 'blue' }) => {
+  /* const base = theme.vars ? `rgba(color(from ${color}) / 1)` : alpha(color, 1);
   const unselected = emphasize(color, 0.7);
   const hover = emphasize(color, 0.45);
   const selectedColor = emphasize(color, 0.3);
-  const background = selected ? selectedColor : unselected;
+  const background = selected ? selectedColor : unselected; */
+  // console.log('color', color)
   return {
     position: 'absolute',
     left: 0,
     top: 0,
-    backgroundColor: background,
+    backgroundColor: color,
     alignContent: 'center',
     padding: '0 0 0 10px',
     overflow: 'hidden',
@@ -71,7 +67,7 @@ const Action = styled('div', {
     borderTop: `1px solid ${theme.palette.action.hover}`,
     borderBottom: `1px solid ${theme.palette.action.hover}`,
     '&:hover': {
-      backgroundColor: hover,
+      // backgroundColor:  emphasize(color || '#0000ff', 0.3),
     },
   };
 });
@@ -123,26 +119,28 @@ const RightStretch = styled('div')(({ theme }) => ({
 }));
 
 function TimelineAction(props: TimelineActionProps) {
-  const { slotProps = {}, action, ...restProps } = props;
+  const { action, setTracks, ...restProps } = props;
   const { selected, flexible = true, movable = true, disable } = action;
   const state = { selected, flexible, movable, disable };
-  const ownerStateProps = { ...state, ...restProps, ...action };
+  const ownerStateProps = { ...state, ...restProps, ...action, setTracks };
   const { onKeyDown, ...ownerState } = ownerStateProps;
   const classes = useActionUtilityClasses(ownerState);
-  const classNamesNew = Object.keys(classes).reduce((result, key) => {
+  /* const classNamesNew = Object.keys(classes).reduce((result, key) => {
     const classKey = classes[key];
     result[classKey] = !!state[key];
     return result;
-  }, {});
+  }, {}); */
 
-  const rootProps = useSlotProps({
+  /*
+    const { slotProps = {} } = props;
+    const rootProps = useSlotProps({
     elementType: TimelineAction,
     externalSlotProps: slotProps.root,
     externalForwardedProps: props,
     ownerState,
     className: clsx(props.className, classes.root, classNamesNew),
-  });
-
+  }); */
+  /* const actionEl = React.useRef(null); */
   const rowRnd = React.useRef<RowRndApi>();
   const isDragWhenClick = React.useRef(false);
   const { id, maxEnd, minStart, end, start, effectId } = action;
@@ -244,7 +242,7 @@ function TimelineAction(props: TimelineActionProps) {
     handleScaleCount(left, width);
   };
 
-  const { tracks, setEditorData, onActionMoveEnd } = props;
+  const { tracks, onActionMoveEnd } = props;
   const handleDragEnd: RndDragEndCallback = ({ left, width }) => {
     if (track.lock) {
       return;
@@ -260,7 +258,7 @@ function TimelineAction(props: TimelineActionProps) {
     const dragEndAction = rowItem.actions.find((item) => item.id === id);
     dragEndAction.start = dragEndStart;
     dragEndAction.end = dragEndEnd;
-    setEditorData(tracks);
+    setTracks(tracks);
 
     // executeCallback
     if (onActionMoveEnd) {
@@ -319,7 +317,7 @@ function TimelineAction(props: TimelineActionProps) {
     const resizeEndAction = rowItem.actions.find((item) => item.id === id);
     resizeEndAction.start = resizeEndStart;
     resizeEndAction.end = resizeEndEnd;
-    setEditorData(tracks);
+    setTracks(tracks);
 
     // triggerCallback
     if (onActionResizeEnd) {
@@ -341,7 +339,7 @@ function TimelineAction(props: TimelineActionProps) {
     ),
   };
 
-  const nowRow: TimelineTrack = {
+  const nowRow: ITimelineTrack = {
     ...track,
     actions: [...track.actions],
   };
@@ -349,6 +347,17 @@ function TimelineAction(props: TimelineActionProps) {
     nowRow.actions[track.actions.indexOf(action)] = nowAction;
   }
 
+  const [backgroundImage, setBackgroundImage] = React.useState<null | string>(null);
+  React.useEffect(() => {
+    try {
+      actionTypes[action.effectId].getBackgroundImage?.(action).then((img) => {
+        // console.log('img', img);
+        setBackgroundImage(img);
+      });
+    } catch (error) {
+      console.error('Error applying audio waveform:', error);
+    }
+  }, [])
   const {
     areaRef,
     gridSnap,
@@ -361,10 +370,10 @@ function TimelineAction(props: TimelineActionProps) {
     onDoubleClickAction,
     onContextMenuAction,
     rowHeight,
-    getActionRender,
+    getActionRender
   } = props;
   return (
-    <RowDnd
+    <TimelineTrackDnd
       ref={rowRnd}
       parentRef={areaRef}
       start={startLeft}
@@ -412,7 +421,16 @@ function TimelineAction(props: TimelineActionProps) {
           if (track.lock) {
             return;
           }
-          action.selected = true;
+          tracks.forEach((t) => {
+            t.actions.forEach((a) => {
+              if (a.id === action.id) {
+                action.selected = true;
+              } else {
+                a.selected = false;
+              }
+            })
+          })
+          setTracks([...tracks]);
           let time: number;
           if (onClickAction) {
             time = handleTime(e);
@@ -445,8 +463,8 @@ function TimelineAction(props: TimelineActionProps) {
         }}
         className={prefix((classNames || []).join(' '))}
         selected={action.selected}
-        style={{ height: rowHeight }}
-        color={actionTypes?.[action.effectId]?.color ?? '#ccc'}
+        style={{ height: rowHeight, ...(backgroundImage ? {backgroundImage, backgroundSize: 'contain' } : {}) }}
+        color={`${actionTypes?.[action.effectId]?.color}`}
       >
         {getActionRender && getActionRender(nowAction, nowRow)}
         {flexible && <LeftStretch className={`${prefix('action-left-stretch')} ${classes.left}`} />}
@@ -454,7 +472,7 @@ function TimelineAction(props: TimelineActionProps) {
           <RightStretch className={`${prefix('action-right-stretch')} ${classes.right}`} />
         )}
       </Action>
-    </RowDnd>
+    </TimelineTrackDnd>
   );
 }
 
@@ -533,7 +551,8 @@ TimelineAction.propTypes = {
    */
   getActionRender: PropTypes.func.isRequired,
   /**
-   * @description Get the action id list to prompt the auxiliary line. Calculate it when move/resize start. By default, get all the action ids except the current move action.
+   * @description Get the action id list to prompt the auxiliary line. Calculate it when
+   *   move/resize start. By default, get all the action ids except the current move action.
    */
   getAssistDragLineActionIds: PropTypes.func.isRequired,
   /**
@@ -667,7 +686,9 @@ TimelineAction.propTypes = {
    */
   setScaleCount: PropTypes.func.isRequired,
   /**
-   * @description Data change callback, which will be triggered after the operation action end changes the data (returning false will prevent automatic engine synchronization to reduce performance overhead)
+   * @description Data change callback, which will be triggered after the operation action end
+   *   changes the data (returning false will prevent automatic engine synchronization to reduce
+   *   performance overhead)
    */
   setTracks: PropTypes.func.isRequired,
   /**

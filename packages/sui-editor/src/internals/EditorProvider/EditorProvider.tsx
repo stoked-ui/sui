@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { EditorProviderProps } from './EditorProvider.types';
-import { EditorContext } from './EditorContext';
-import { EditorAnyPluginSignature } from '../models';
+import {EditorProviderProps} from './EditorProvider.types';
+import {EditorContext} from './EditorContext';
+import {EditorAnyPluginSignature} from '../models';
 
 /**
  * Sets up the contexts for the underlying File components.

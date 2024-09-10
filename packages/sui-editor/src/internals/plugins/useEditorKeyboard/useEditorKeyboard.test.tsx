@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { expect } from 'chai';
-import { spy } from 'sinon';
-import { act, fireEvent } from '@stoked-ui/internal-test-utils';
-import { describeEditor } from 'test/utils/editor-view/describeEditor';
+import {expect} from 'chai';
+import {spy} from 'sinon';
+import {act, fireEvent} from '@stoked-ui/internal-test-utils';
+import {describeEditor} from 'test/utils/editor-view/describeEditor';
 import {
   UseEditorExpansionSignature,
   UseEditorFilesSignature,

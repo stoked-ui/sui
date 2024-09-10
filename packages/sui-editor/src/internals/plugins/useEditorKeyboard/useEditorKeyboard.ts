@@ -1,13 +1,9 @@
 import * as React from 'react';
-import { useRtl } from '@mui/system/RtlProvider';
+import {useRtl} from '@mui/system/RtlProvider';
 import useEventCallback from '@mui/utils/useEventCallback';
-import { EditorPlugin } from '../../models';
-import {
-  EditorFirstCharMap,
-  UseEditorKeyboardSignature,
-} from './useEditorKeyboard.types';
-import { ITimelineAction } from '@stoked-ui/timeline';
-import { MuiCancellableEvent } from '../../models/MuiCancellableEvent';
+import {EditorPlugin} from '../../models';
+import {EditorFirstCharMap, UseEditorKeyboardSignature,} from './useEditorKeyboard.types';
+import {ITimelineAction} from '@stoked-ui/timeline';
 
 function isPrintableCharacter(string: string) {
   return !!string && string.length === 1 && !!string.match(/\S/);

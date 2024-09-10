@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { EventManager } from '../../utils/EventManager';
-import type { EditorPlugin } from '../../models';
-import { UseEditorInstanceEventsSignature } from './useEditorInstanceEvents.types';
-import type { EditorEventListener } from '../../models/events';
+import {EventManager} from '../../utils/EventManager';
+import type {EditorPlugin} from '../../models';
+import {UseEditorInstanceEventsSignature} from './useEditorInstanceEvents.types';
+import type {EditorEventListener} from '../../models/events';
 
 const isSyntheticEvent = (event: any): event is React.SyntheticEvent => {
   return event.isPropagationStopped !== undefined;

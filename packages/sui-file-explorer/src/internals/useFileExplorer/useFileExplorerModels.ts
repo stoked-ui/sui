@@ -5,11 +5,12 @@ import {
   FileExplorerPlugin,
   MergeSignaturesProperty,
 } from '../models';
-import { FileExplorerCorePluginSignatures } from '../corePlugins';
+import {FileExplorerCorePluginSignatures} from '../corePlugins';
 
 /**
  * Implements the same behavior as `useControlled` but for several models.
- * The controlled models are never stored in the state, and the state is only updated if the model is not controlled.
+ * The controlled models are never stored in the state, and the state is only updated if the model
+ * is not controlled.
  */
 export const useFileExplorerModels = <TSignatures extends readonly FileExplorerAnyPluginSignature[]>(
   plugins: ConvertSignaturesIntoPlugins<readonly [...FileExplorerCorePluginSignatures, ...TSignatures]>,
