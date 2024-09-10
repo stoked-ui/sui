@@ -70,7 +70,7 @@ export function checkProps(props: TimelineControlProps): TimelineControlProps {
   return {
     ...temp,
     tracks: props.tracks,
-    actionTypes: props.actionTypes,
+    controllers: props.controllers,
     scrollTop,
     scale,
     scaleSplitCount: scaleSplitCount || 10,

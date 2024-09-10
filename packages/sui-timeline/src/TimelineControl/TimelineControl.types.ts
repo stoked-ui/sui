@@ -1,10 +1,9 @@
 import * as React from 'react';
-import {OnScrollParams} from 'react-virtualized';
 import {SxProps, Theme} from "@mui/material/styles";
-import {ITimelineEngine} from '../TimelineEngine/TimelineEngine.types';
-import {ITimelineActionType} from "../TimelineAction/TimelineAction.types";
+import {IController} from "../TimelineAction/TimelineAction.types";
 import {type ITimelineTrack} from "../TimelineTrack/TimelineTrack.types";
 import {type ITimelineAction} from "../TimelineAction/TimelineAction.types";
+import {IEngine} from "../Timeline/Timeline.types";
 
 export interface TimelineControlPropsBase {
   /**
@@ -20,7 +19,7 @@ export interface TimelineControlPropsBase {
   /**
    * @description timelineControl action actionType map
    */
-  actionTypes?: Record<string, ITimelineActionType>;
+  controllers?: Record<string, IController>;
   /**
    * @description Single tick mark category (>0)
    * @default 1
@@ -79,7 +78,7 @@ export interface TimelineControlPropsBase {
   /**
    * @description timelineControl runner, if not passed, the built-in runner will be used
    */
-  engine?: React.RefObject<ITimelineEngine>;
+  engine?: React.RefObject<IEngine>;
   /**
    * @description Custom action area rendering
    */

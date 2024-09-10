@@ -31,7 +31,7 @@ const TimelineControl = React.forwardRef<TimelineState, TimelineControlProps>(
     const checkedProps = checkProps(props);
     const { style } = props;
     const {
-      actionTypes,
+      controllers,
       tracks,
       scrollTop,
       autoScroll,
@@ -79,13 +79,13 @@ const TimelineControl = React.forwardRef<TimelineState, TimelineControlProps>(
 
     React.useEffect(() => {
       if (engineRef?.current) {
-        engineRef.current.actionTypes = actionTypes;
+        engineRef.current.controllers = controllers;
       }
-    }, [actionTypes]);
+    }, [controllers]);
 
     React.useEffect(() => {
       if (engineRef?.current) {
-        engineRef.current.tracks = tracks;
+        setTracks([...tracks]);
       }
     }, [tracks]);
 
@@ -106,7 +106,7 @@ const TimelineControl = React.forwardRef<TimelineState, TimelineControlProps>(
     const handleEditorDataChange = (updatedTracks: ITimelineTrack[]) => {
       if (engineRef?.current) {
         setTracks(updatedTracks);
-        engineRef.current.tracks = updatedTracks;
+        setTracks([...tracks]);
         if (autoReRender) {
           engineRef.current.reRender();
         }
@@ -286,7 +286,7 @@ const TimelineControl = React.forwardRef<TimelineState, TimelineControlProps>(
                 scrollLeft={scrollLeft}
                 setEditorData={handleEditorDataChange}
                 deltaScrollLeft={autoScroll && handleDeltaScrollLeft}
-                actionTypes={actionTypes}
+                controllers={controllers}
                 onScroll={(params) => {
                   onScroll(params);
                   if (onScrollVertical) {
@@ -336,7 +336,7 @@ TimelineControl.propTypes = {
   /**
    * @description timelineControl action actionType map
    */
-  actionTypes: PropTypes.object.isRequired,
+  controllers: PropTypes.object.isRequired,
   /**
    * @description Whether to automatically re-render (update tick when data changes or cursor time
    *   changes)

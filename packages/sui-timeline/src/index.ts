@@ -1,9 +1,22 @@
+export { default as Timeline } from './Timeline';
+export { default as TimelineAction } from './TimelineAction';
+export { default as TimelineControl } from './TimelineControl';
+export { default as TimelineCursor } from './TimelineCursor';
+export { default as TimelineLabels } from './TimelineLabels';
+export { default as TimelinePlayer } from './TimelinePlayer';
+export { default as TimelineScrollResizer } from './TimelineScrollResizer';
+export { default as TimelineTime } from './TimelineTime';
+export { default as TimelineTrack } from './TimelineTrack';
+export { default as TimelineTrackArea } from './TimelineTrackArea';
 export * from './Timeline';
+export * from './TimelineAction';
 export * from './TimelineControl';
-export * from './TimelinePlayer/TimelinePlayer';
-export * from './Timeline/TimelineState';
-export * from './TimelineTrack/TimelineTrack.types';
-export * from './TimelineAction/TimelineAction';
-export { default as TimelineAction } from './TimelineAction/TimelineAction';
-export * from './TimelineAction/TimelineAction.types';
+export * from './TimelineCursor';
+export * from './TimelineLabels';
+export * from './TimelinePlayer';
+export * from './TimelineScrollResizer';
+export * from './TimelineTime';
+export * from './TimelineTrack';
+export * from './TimelineTrackArea';
+
 

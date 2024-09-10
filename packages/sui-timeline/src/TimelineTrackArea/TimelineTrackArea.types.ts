@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {OnScrollParams} from 'react-virtualized';
-import { ITimelineTrack } from '../TimelineTrack/TimelineTrack.types';
+import {ITimelineTrack} from '../TimelineTrack/TimelineTrack.types';
 import {CommonProps} from '../interface/common_prop';
 
 export type TimelineTrackAreaProps =  CommonProps & {

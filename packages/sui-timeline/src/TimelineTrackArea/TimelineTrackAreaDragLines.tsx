@@ -8,16 +8,16 @@ export interface DragLineData {
   assistPositions: number[];
 }
 
-export type DragLineProps = DragLineData & {scrollLeft: number};
+export type TimelineTrackAreaDragLinesProps = DragLineData & {scrollLeft: number};
 
-const DragLinesRoot = styled('div')({
+const TimelineTrackAreaDragLinesRoot = styled('div')({
   position: 'absolute',
   height: '100%',
   top: 0,
   left: 0,
 });
 
-const DragLineRoot = styled('div')({
+const TimelineTrackAreaDragLineRoot = styled('div')({
   width: 0,
   position: 'absolute',
   top: 0,
@@ -31,16 +31,16 @@ export default function TimelineTrackAreaDragLines ({
   movePositions = [],
   assistPositions = [],
   scrollLeft,
-}: DragLineProps) {
+}: TimelineTrackAreaDragLinesProps) {
   return(
-    <DragLinesRoot className={prefix('drag-line-container')}>
+    <TimelineTrackAreaDragLinesRoot className={prefix('drag-line-container')}>
       {
         isMoving && movePositions.filter(item => assistPositions.includes(item)).map(((linePos, index) => {
           return (
-            <DragLineRoot key={index} className={prefix('drag-line')} style={{left: linePos - scrollLeft}} />
+            <TimelineTrackAreaDragLineRoot key={index} className={prefix('drag-line')} style={{left: linePos - scrollLeft}} />
           )
         }))
       }
-    </DragLinesRoot>
+    </TimelineTrackAreaDragLinesRoot>
   )
 }

@@ -1,7 +1,7 @@
-import VideoFile from "./Video/VideoFile";
-import ImageFile from "./Image/ImageFile";
-import AudioFile from "./Audio/AudioFile";
-import AnimationFile from "./Animation/AnimationFile";
+import VideoFile from "./VideoFile";
+import ImageFile from "./ImageFile";
+import AudioFile from "./AudioFile";
+import AnimationFile from "./AnimationFile";
 
 export default async function getMetadata (file: any) {
   switch (file.mediaType) {

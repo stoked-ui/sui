@@ -151,7 +151,7 @@ const Timeline = React.forwardRef(function Timeline(
         autoScroll
         setTracks={setTracks}
         className={'SuiTimeline'}
-        actionTypes={inProps.actionTypes}
+        controllers={inProps.controllers}
         viewSelector={inProps.viewSelector ?? '.viewer'}
         onClickAction={(e, { track, action, time }) => {
           const updateTracks = [...inProps.tracks];
@@ -187,7 +187,7 @@ Timeline.propTypes = {
   // | These PropTypes are generated from the TypeScript type definitions |
   // | To update them edit the TypeScript types and run "pnpm proptypes"  |
   // ----------------------------------------------------------------------
-  actionTypes: PropTypes.object.isRequired,
+  controllers: PropTypes.object.isRequired,
   children: PropTypes.node,
   /**
    * Override or extend the styles applied to the component.
@@ -203,7 +203,7 @@ Timeline.propTypes = {
   ]).isRequired,
   engine: PropTypes.shape({
     current: PropTypes.shape({
-      actionTypes: PropTypes.object.isRequired,
+      controllers: PropTypes.object.isRequired,
       bind: PropTypes.func.isRequired,
       canvas: PropTypes.object.isRequired,
       events: PropTypes.object.isRequired,
@@ -355,4 +355,4 @@ Timeline.propTypes = {
   viewSelector: PropTypes.string.isRequired,
 };
 
-export { Timeline };
+export default Timeline;

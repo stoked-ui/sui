@@ -1,4 +1,4 @@
-import IController, {ControllerParams} from "./Controller.types";
+import {IController, ControllerParams} from "@stoked-ui/timeline";
 
 abstract class Controller implements IController {
   id: string;
