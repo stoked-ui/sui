@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {EventHandlers} from '@mui/base/utils';
-import {TimelineTrack} from "@stoked-ui/timeline";
+import {ITimelineTrack} from "@stoked-ui/timeline";
 import type {EditorContextValue} from '../EditorProvider';
 import {
   ConvertSignaturesIntoPlugins,
@@ -56,7 +56,7 @@ export interface UseTimelineSlotProps
     React.HTMLAttributes<HTMLDivElement>,
     'onFocus' | 'onBlur' | 'onKeyDown' | 'id' | 'aria-multiselectable' | 'role' | 'tabIndex'
   > {
-  tracks: TimelineTrack[];
+  tracks: ITimelineTrack[];
   ref?: React.Ref<HTMLDivElement>;
 }
 
@@ -98,4 +98,5 @@ export interface UseEditorReturnValue<TSignatures extends readonly EditorAnyPlug
   rootRef: React.RefCallback<HTMLDivElement> | null;
   contextValue: EditorContextValue<TSignatures>;
   instance: EditorInstance<TSignatures>;
+  id: string;
 }

@@ -1,5 +1,4 @@
 import * as React from 'react';
-import composeClasses from "@mui/utils/composeClasses";
 import FormControl from '@mui/material/FormControl';
 import StopIcon from '@mui/icons-material/Stop';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
@@ -7,19 +6,18 @@ import SkipNextIcon from '@mui/icons-material/SkipNext';
 import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
 import Select, {SelectChangeEvent} from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
-import {FileBase} from '@stoked-ui/file-explorer';
-import {createUseThemeProps, styled} from '../internals/zero-styled';
-
-import {EditorControlsProps} from './EditorControls.types';
-import {getEditorControlsUtilityClass} from "./editorControlsClasses";
 import TextField from '@mui/material/TextField';
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import {emphasize} from '@mui/material/styles';
+import {FileBase} from '@stoked-ui/file-explorer';
+import {createUseThemeProps, styled} from '../internals/zero-styled';
+import {EditorControlsProps} from './EditorControls.types';
 
 export const Rates = [0.2, 0.5, 1.0, 1.5, 2.0];
 const useThemeProps = createUseThemeProps('MuiEditor');
 
+/*
 
 const useUtilityClasses = <R extends FileBase, Multiple extends boolean | undefined>(
   ownerState: EditorControlsProps<R, Multiple>,
@@ -32,6 +30,7 @@ const useUtilityClasses = <R extends FileBase, Multiple extends boolean | undefi
 
   return composeClasses(slots, getEditorControlsUtilityClass, classes);
 };
+*/
 
 const ToggleButtonGroupStyled = styled(ToggleButtonGroup)(({theme})=> {
   return ({
@@ -111,7 +110,7 @@ export const EditorControls = React.forwardRef(function EditorControls<
   Multiple extends boolean | undefined = undefined,
 >({ scale = 1, scaleWidth = 160, startLeft = 20, ...inProps }: EditorControlsProps<R, Multiple>, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
   const props = useThemeProps({ props: inProps, name: 'MuiEditorControls' });
-  const { timelineState, tracks, autoScrollWhenPlay } = inProps;
+  const { timelineState, autoScrollWhenPlay } = props;
   const [isPlaying, setIsPlaying] = React.useState(false);
   const [time, setTime] = React.useState(0);
   const [showRate, setShowRate] = React.useState(false);
@@ -151,7 +150,6 @@ export const EditorControls = React.forwardRef(function EditorControls<
 
   // Start or pause
   const handlePlayOrPause = () => {
-    console.log('play', timelineState?.current)
     if (!timelineState || !timelineState.current) {
       return;
     }
@@ -185,6 +183,7 @@ export const EditorControls = React.forwardRef(function EditorControls<
   }
 
   const handleEnd = () => {
+    const tracks = timelineState.current?.tracks;
     if (tracks) {
       let furthest = 0;
       tracks.forEach((row) => {
@@ -197,7 +196,7 @@ export const EditorControls = React.forwardRef(function EditorControls<
       timelineState?.current?.setTime(furthest, true);
     }
   }
-
+/*
   const handleSlowDown = () => {
     const currRate: number = timelineState?.current?.getPlayRate() || 1;
     const rateIndex = Rates.indexOf(currRate);
@@ -220,32 +219,32 @@ export const EditorControls = React.forwardRef(function EditorControls<
       inProps.setScaleWidth(scaleWidth);
     }
   }
+   */
   const controlsInput: string[] = [];
   const [controls, setControls] = React.useState(controlsInput);
   return (
-    <PlayerRoot className="timeline-player">
+    <PlayerRoot className="timeline-player" ref={ref}>
 
       <div style={{display: 'flex', flexDirection: 'row', alignContent: 'center', width: '100%'}}>
-          <ToggleButtonGroupStyled
-            value={controls}
-            exclusive
-            onChange={(event, value) => {
-
-            }}
-            size={'small'}
-            aria-label="text alignment"
-          >
-            <ToggleButton onClick={handleStart}  value="previous" aria-label="hidden">
-              <SkipPreviousIcon fontSize={'small'}/>
-            </ToggleButton>
-            <ToggleButton value="playPause" onClick={handlePlayOrPause}>
-              {isPlaying ? <StopIcon /> : <PlayArrowIcon/>}
-            </ToggleButton>
-            <ToggleButton onClick={handleEnd} value="next" aria-label="lock">
-              <SkipNextIcon />
-            </ToggleButton>
-          </ToggleButtonGroupStyled>
-
+        <ToggleButtonGroupStyled
+          value={controls}
+          exclusive
+          onChange={(event, changeControls) => {
+            setControls(changeControls)
+          }}
+          size={'small'}
+          aria-label="text alignment"
+        >
+          <ToggleButton onClick={handleStart}  value="previous" aria-label="hidden">
+            <SkipPreviousIcon fontSize={'small'}/>
+          </ToggleButton>
+          <ToggleButton value="playPause" onClick={handlePlayOrPause}>
+            {isPlaying ? <StopIcon /> : <PlayArrowIcon/>}
+          </ToggleButton>
+          <ToggleButton onClick={handleEnd} value="next" aria-label="lock">
+            <SkipNextIcon />
+          </ToggleButton>
+        </ToggleButtonGroupStyled>
       </div>
       <div style={{display: 'flex', flexDirection: 'row'}}>
         <TimeRoot
@@ -255,7 +254,7 @@ export const EditorControls = React.forwardRef(function EditorControls<
           helperText={false}
           value={timeRender(time)}
         />
-        <RateControlRoot sx={{ minWidth: '80px' }} className="rate-control">
+        {showRate && <RateControlRoot sx={{ minWidth: '80px' }} className="rate-control">
           <RateControlSelect
             value={timelineState.current?.getPlayRate() ?? 1}
             onChange={handleRateChange}
@@ -272,7 +271,7 @@ export const EditorControls = React.forwardRef(function EditorControls<
               </MenuItem>
             ))}
           </RateControlSelect>
-        </RateControlRoot>
+        </RateControlRoot>}
       </div>
     </PlayerRoot>
   );

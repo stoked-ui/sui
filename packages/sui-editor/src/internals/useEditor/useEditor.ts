@@ -1,6 +1,7 @@
 import * as React from 'react';
 import useForkRef from '@mui/utils/useForkRef';
 import {EventHandlers} from '@mui/base/utils';
+import namedId from '@stoked-ui/media-selector/namedId';
 import {
   ConvertSignaturesIntoPlugins,
   EditorAnyPluginSignature,
@@ -16,7 +17,7 @@ import {useEditorModels} from './useEditorModels';
 import {EditorContextValue, VideoPluginsRunner} from '../EditorProvider';
 import {EditorCorePluginSignatures, VIDEO_EDITOR_CORE_PLUGINS} from '../corePlugins';
 import {extractPluginParamsFromProps} from './extractPluginParamsFromProps';
-import {MediaControllers} from "@stoked-ui/media-selector";
+import Controllers from "../../Controllers";
 
 export function useEditorApiInitialization<T>(
   inputApiRef: React.MutableRefObject<T | undefined> | undefined,
@@ -35,7 +36,7 @@ export function useEditorApiInitialization<T>(
 
 export const useEditor = <
   TSignatures extends readonly EditorAnyPluginSignature[],
-  TProps extends Partial<UseEditorBaseProps<TSignatures>>,
+  TProps extends Partial<UseEditorBaseProps<TSignatures> & { id: string | undefined }>,
 >({
     plugins: inPlugins,
     rootRef,
@@ -54,7 +55,7 @@ export const useEditor = <
   } = extractPluginParamsFromProps<TSignatures, TProps>({
     plugins, props,
   });
-
+  const id = props.id ?? namedId('editor');
   const models = useEditorModels<TSignatures>(plugins, pluginParams);
   const instanceRef = React.useRef({} as EditorInstance<TSignatures>);
   const instance = instanceRef.current as EditorInstance<TSignatures>;
@@ -194,7 +195,7 @@ export const useEditor = <
       ...forwardedProps,
       ...otherHandlers,
       tracks: contextValue.tracks ?? [],
-      actionTypes: MediaControllers,
+      controllers: Controllers,
     };
   };
 
@@ -226,5 +227,6 @@ export const useEditor = <
     rootRef: handleRootRef,
     contextValue,
     instance,
+    id
   };
 };

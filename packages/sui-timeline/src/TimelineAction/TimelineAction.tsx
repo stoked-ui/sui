@@ -148,7 +148,7 @@ function TimelineAction(props: TimelineActionProps) {
     track,
     scaleCount,
     setScaleCount,
-    actionTypes,
+    controllers,
     startLeft,
     scale,
     scaleWidth,
@@ -196,7 +196,7 @@ function TimelineAction(props: TimelineActionProps) {
   if (flexible) {
     classNames.push('action-flexible');
   }
-  if (actionTypes?.[effectId]) {
+  if (controllers?.[effectId]) {
     classNames.push(`action-actionType-${effectId}`);
   }
   // rootProps.className = classNames.join(' ')
@@ -350,7 +350,7 @@ function TimelineAction(props: TimelineActionProps) {
   const [backgroundImage, setBackgroundImage] = React.useState<null | string>(null);
   React.useEffect(() => {
     try {
-      actionTypes[action.effectId].getBackgroundImage?.(action).then((img) => {
+      controllers[action.effectId].getBackgroundImage?.(action).then((img) => {
         // console.log('img', img);
         setBackgroundImage(img);
       });
@@ -464,7 +464,7 @@ function TimelineAction(props: TimelineActionProps) {
         className={prefix((classNames || []).join(' '))}
         selected={action.selected}
         style={{ height: rowHeight, ...(backgroundImage ? {backgroundImage, backgroundSize: 'contain' } : {}) }}
-        color={`${actionTypes?.[action.effectId]?.color}`}
+        color={`${controllers?.[action.effectId]?.color}`}
       >
         {getActionRender && getActionRender(nowAction, nowRow)}
         {flexible && <LeftStretch className={`${prefix('action-left-stretch')} ${classes.left}`} />}
@@ -502,7 +502,7 @@ TimelineAction.propTypes = {
   /**
    * @description timelineControl action actionType map
    */
-  actionTypes: PropTypes.object.isRequired,
+  controllers: PropTypes.object.isRequired,
   areaRef: PropTypes.shape({
     current: PropTypes.object.isRequired,
   }).isRequired,

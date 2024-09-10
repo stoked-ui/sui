@@ -147,7 +147,6 @@ export const EditorView = React.forwardRef(function EditorView<
 
   return (
     <Root role={'viewer'} {...rootProps} ref={combinedViewRef} >
-      <EditorViewPreview role={'preview'} ref={viewerRef}/>
       <EditorViewRenderer role={'renderer'}  ref={rendererRef}/>
     </Root>
   )
