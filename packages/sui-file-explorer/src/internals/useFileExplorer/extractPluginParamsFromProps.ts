@@ -5,8 +5,8 @@ import {
   FileExplorerPluginSignature,
   MergeSignaturesProperty,
 } from '../models';
-import { UseFileExplorerBaseProps } from './useFileExplorer.types';
-import { FileExplorerCorePluginSignatures } from '../corePlugins';
+import {UseFileExplorerBaseProps} from './useFileExplorer.types';
+import {FileExplorerCorePluginSignatures} from '../corePlugins';
 
 interface ExtractPluginParamsFromPropsParameters<
   TSignatures extends readonly FileExplorerAnyPluginSignature[],

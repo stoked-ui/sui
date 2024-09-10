@@ -1,5 +1,5 @@
-import type { FileExplorerPlugin } from './plugin';
-import type { FileExplorerAnyPluginSignature } from './plugin.types';
+import type {FileExplorerPlugin} from './plugin';
+import type {FileExplorerAnyPluginSignature} from './plugin.types';
 
 export type DefaultizedProps<
   P extends {},

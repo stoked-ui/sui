@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Translations, UserLanguageProvider } from '../i18n';
+import {Translations, UserLanguageProvider} from '../i18n';
 
 export interface DocsConfig {
   LANGUAGES: string[];

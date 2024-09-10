@@ -1,9 +1,6 @@
 import * as React from 'react';
 import {
-  FileExplorerAnyPluginSignature,
-  FileExplorerInstance,
-  FileExplorerPublicAPI,
-  UseFileMinimalPlugins
+  FileExplorerAnyPluginSignature, FileExplorerInstance, FileExplorerPublicAPI, UseFileMinimalPlugins
 } from '../../models';
 
 export interface UseFileExplorerGridHeadersParameters {
@@ -60,7 +57,8 @@ export interface UseFileExplorerGridHeadersReturnValue<
   /**
    * Resolver for the root slot's props.
    * @param {ExternalProps} externalProps Additional props for the root slot
-   * @returns {UseFileExplorerGridHeadersRootSlotProps<ExternalProps>} Props that should be spread on the root slot
+   * @returns {UseFileExplorerGridHeadersRootSlotProps<ExternalProps>} Props that should be spread
+   *   on the root slot
    */
   getRootProps: <ExternalProps extends Record<string, any> = {}>(
     externalProps?: ExternalProps,

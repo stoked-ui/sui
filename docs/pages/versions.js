@@ -41,18 +41,16 @@ Page.getInitialProps = async () => {
     const FILTERED_BRANCHES = ['main', 'l10n', 'next', 'migration', 'material-ui.com'];
 
     const branches = await getBranches();
-    /**
-     * @type {import('docs/src/pages/versions/VersionsContext').VersionsContextValue}
-     */
+
     const versions = [];
     if (branches.length) {
       branches.forEach((branch) => {
-        if (FILTERED_BRANCHES.indexOf(branch?.name) === -1 ) {
+        if (FILTERED_BRANCHES.indexOf(branch?.name) === -1 && branch?.name.startsWith('v')) {
           const version = branch?.name;
           versions.push({
             version,
             // Replace dot with dashes for Netlify branch subdomains
-            url: `https://${version.replace(/\./g, '-')}.mui.com`,
+            url: `https://${version.replace(/\./g, '-')}.stoked-ui.com`,
           });
         }
       });
@@ -62,12 +60,12 @@ Page.getInitialProps = async () => {
     versions.push(
       {
         version: `v${process.env.LIB_VERSION}`,
-        url: 'https://stokedconsulting.com',
+        url: 'https://stoked-ui.com',
       });
     // Legacy documentation.
     versions.push({
       version: 'v0',
-      url: 'https://v0.mui.com',
+      url: 'https://v0.stoked-ui.com',
     });
     versions.sort((a, b) => formatVersion(b.version).localeCompare(formatVersion(a.version)));
     if (
@@ -76,7 +74,7 @@ Page.getInitialProps = async () => {
     ) {
       versions.unshift({
         version: `v${Number(versions[0].version[1]) + 1} pre-release`,
-        url: 'https://next.mui.com',
+        url: 'https://next.stoked-ui.com',
       });
     }
 

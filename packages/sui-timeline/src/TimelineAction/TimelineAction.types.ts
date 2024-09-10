@@ -1,18 +1,20 @@
 import * as React from 'react';
-import { SxProps, Theme } from "@mui/material/styles";
-import { SlotComponentProps } from "@mui/material";
-import { CSSProperties } from "@mui/system/CSSProperties";
-import { TimelineActionClasses } from "./timelineActionClasses";
-import { TimelineTrack } from "../interface/TimelineAction";
-import { DragLineData } from "../components/edit_area/drag_lines";
-import { CommonProps } from '../interface/common_prop';
-import {ITimelineEngine} from "../TimelineEngine/TimelineEngine";
+import {SxProps, Theme} from "@mui/material/styles";
+import {SlotComponentProps} from "@mui/material";
+import {CSSProperties} from "@mui/system/CSSProperties";
+import {TimelineActionClasses} from "./timelineActionClasses";
+import {DragLineData} from "../TimelineTrackArea/TimelineTrackAreaDragLines";
+import {CommonProps} from '../interface/common_prop';
+import {type ITimelineEngine} from "../TimelineEngine/TimelineEngine.types";
+import {type ITimelineTrack} from "../TimelineTrack/TimelineTrack.types";
 
 export type TimelineActionParams = {
   action: ITimelineAction;
   time: number;
   engine: ITimelineEngine;
 };
+
+export type GetBackgroundImage = (action: ITimelineAction) => Promise<string>;
 
 export interface ITimelineActionType {
   start?: (params: TimelineActionParams) => void;
@@ -23,6 +25,8 @@ export interface ITimelineActionType {
   viewerUpdate?: (engine: any) => void;
   destroy?: () => void;
   color?: string;
+  colorSecondary?: string;
+  getBackgroundImage?: GetBackgroundImage;
 }
 
 export interface TimelineActionState {
@@ -59,7 +63,7 @@ export interface ITimelineActionInput extends TimelineActionState {
  * @export
  * @interface ITimelineAction
  */
-export interface ITimelineAction extends Omit<ITimelineActionInput, 'id' | 'name' | 'start' | 'end' | 'data'> {
+export interface ITimelineAction extends Omit<ITimelineActionInput, 'id' | 'name' | 'start' | 'end' | 'data'>, TimelineActionState {
   /** action id */
   id: string;
   /** action display name */
@@ -80,6 +84,8 @@ export interface ITimelineAction extends Omit<ITimelineActionInput, 'id' | 'name
     src: string;
     style?: CSSProperties;
   };
+
+  getBackgroundImage?: (actionType: ITimelineActionType, src: string) => string;
 }
 
 export interface TimelineActionSlots {
@@ -103,7 +109,7 @@ export interface TimelineActionSlotProps {
 export interface TimelineActionProps
   extends TimelineActionState,
     CommonProps,
-    Omit<React.HTMLAttributes<HTMLUListElement>, 'id'> {
+    Omit<React.HTMLAttributes<HTMLUListElement>, 'id' | 'onScroll'> {
   /**
    * The content of the component.
    */
@@ -127,10 +133,9 @@ export interface TimelineActionProps
    */
   sx?: SxProps<Theme>;
 
-  track: TimelineTrack;
+  track: ITimelineTrack;
   action: ITimelineAction;
   dragLineData: DragLineData;
-  setEditorData: (tracks: TimelineTrack[]) => void;
   handleTime: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => number;
   areaRef: React.MutableRefObject<HTMLDivElement>;
   /* setUp scroll left */

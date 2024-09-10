@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { createRenderer } from '@stoked-ui/internal-test-utils';
-import { File, fileClasses as classes } from '@mui/x-file-list/File';
-import { FileListContext } from '@mui/x-file-list/internals/FileListProvider/FileListContext';
-import { describeConformance } from 'test/utils/describeConformance';
-import { getFakeContextValue } from 'test/utils/file-list/fakeContextValue';
-import { describeSlotsConformance } from 'test/utils/describeSlotsConformance';
+import {createRenderer} from '@stoked-ui/internal-test-utils';
+import {File, fileClasses as classes} from '@mui/x-file-list/File';
+import {FileListContext} from '@mui/x-file-list/internals/FileListProvider/FileListContext';
+import {describeConformance} from 'test/utils/describeConformance';
+import {getFakeContextValue} from 'test/utils/file-list/fakeContextValue';
+import {describeSlotsConformance} from 'test/utils/describeSlotsConformance';
 
 describe('<File />', () => {
   const { render } = createRenderer();

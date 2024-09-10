@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { EditorAnyPluginSignature } from '../models';
-import { EditorContext } from './EditorContext';
-import { EditorContextValue } from './EditorProvider.types';
+import {EditorAnyPluginSignature} from '../models';
+import {EditorContext} from './EditorContext';
+import {EditorContextValue} from './EditorProvider.types';
 
 export const useEditorContext = <
   TSignatures extends readonly EditorAnyPluginSignature[],

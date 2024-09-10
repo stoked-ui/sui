@@ -1,10 +1,7 @@
 import * as React from 'react';
-import { expect } from 'chai';
-import { act, fireEvent } from '@stoked-ui/internal-test-utils';
-import {
-  describeEditor,
-  DescribeEditorRendererUtils,
-} from 'test/utils/editor-view/describeEditor';
+import {expect} from 'chai';
+import {act, fireEvent} from '@stoked-ui/internal-test-utils';
+import {describeEditor, DescribeEditorRendererUtils,} from 'test/utils/editor-view/describeEditor';
 
 describeEditor<[]>(
   'useEditor hook',

@@ -1,20 +1,18 @@
 import * as React from 'react';
-import { SxProps, Theme, useTheme } from "@mui/system";
-import { namedId } from "@stoked-ui/media-selector";
-import { FileMeta } from '../../models/fileExplorerView';
-import { FileExplorerPlugin } from '../../models/plugin';
+import {SxProps, Theme, useTheme} from "@mui/system";
+import {namedId} from "@stoked-ui/media-selector";
+import {FileMeta} from '../../models/fileExplorerView';
+import {FileExplorerPlugin} from '../../models/plugin';
 import type {
   UseFileExplorerFilesDefaultizedParameters,
-  UseFileExplorerFilesState, UseFileExplorerFilesSignature,
+  UseFileExplorerFilesSignature,
+  UseFileExplorerFilesState,
 } from './useFileExplorerFiles.types';
-import { publishFileExplorerEvent } from '../../utils/publishFileExplorerEvent';
-import { FileBase, FileId } from '../../../models';
-import {
-  buildSiblingIndexes,
-  FILE_EXPLORER_VIEW_ROOT_PARENT_ID
-} from './useFileExplorerFiles.utils';
-import { FileDepthContext } from '../../FileDepthContext';
-import { DndItemState } from '../useFileExplorerDnd/useFileExplorerDnd.types';
+import {publishFileExplorerEvent} from '../../utils/publishFileExplorerEvent';
+import {FileBase, FileId} from '../../../models';
+import {buildSiblingIndexes, FILE_EXPLORER_VIEW_ROOT_PARENT_ID} from './useFileExplorerFiles.utils';
+import {FileDepthContext} from '../../FileDepthContext';
+import {DndItemState} from '../useFileExplorerDnd/useFileExplorerDnd.types';
 
 interface UpdateNodesStateParameters
   extends Pick<

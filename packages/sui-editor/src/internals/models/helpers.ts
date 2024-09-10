@@ -1,4 +1,4 @@
-import type { EditorPlugin, EditorAnyPluginSignature } from './plugin';
+import type {EditorAnyPluginSignature, EditorPlugin} from './plugin';
 
 export type DefaultizedProps<
   P extends {},

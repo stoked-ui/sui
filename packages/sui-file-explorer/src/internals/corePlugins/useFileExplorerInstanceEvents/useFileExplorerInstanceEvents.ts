@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { EventManager } from '../../utils/EventManager';
-import type { FileExplorerPlugin } from '../../models';
-import { UseFileExplorerInstanceEventsSignature } from './useFileExplorerInstanceEvents.types';
-import type { FileExplorerEventListener } from '../../models/events';
+import {EventManager} from '../../utils/EventManager';
+import type {FileExplorerPlugin} from '../../models';
+import {UseFileExplorerInstanceEventsSignature} from './useFileExplorerInstanceEvents.types';
+import type {FileExplorerEventListener} from '../../models/events';
 
 const isSyntheticEvent = (event: any): event is React.SyntheticEvent => {
   return event.isPropagationStopped !== undefined;

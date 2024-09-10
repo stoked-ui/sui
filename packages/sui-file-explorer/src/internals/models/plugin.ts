@@ -1,17 +1,14 @@
 import * as React from 'react';
-import { EventHandlers } from '@mui/base/utils';
+import {EventHandlers} from '@mui/base/utils';
 import {
-  FileExplorerExperimentalFeatures,
-  FileExplorerInstance,
-  FileExplorerModel,
-  FileMeta
+  FileExplorerExperimentalFeatures, FileExplorerInstance, FileExplorerModel, FileMeta
 } from './fileExplorerView';
-import type { MergeSignaturesProperty, OptionalIfEmpty } from './helpers';
-import type { FileExplorerCorePluginSignatures } from '../corePlugins';
-import { FileId } from '../../models';
-import type { UseFileStatus } from "./UseFileStatus";
-import type { FileProps } from "../../File/File.types";
-import { FileExplorerAnyPluginSignature, UseMinimalPlugins } from "./plugin.types";
+import type {MergeSignaturesProperty, OptionalIfEmpty} from './helpers';
+import type {FileExplorerCorePluginSignatures} from '../corePlugins';
+import {FileId} from '../../models';
+import type {UseFileStatus} from "./UseFileStatus";
+import type {FileProps} from "../../File/File.types";
+import {FileExplorerAnyPluginSignature, UseMinimalPlugins} from "./plugin.types";
 
 export interface FileExplorerPluginOptions<TSignature extends FileExplorerAnyPluginSignature> {
   instance: FileExplorerUsedInstance<TSignature>;
@@ -63,7 +60,8 @@ type FileExplorerUsedDefaultizedParams<TSignature extends FileExplorerAnyPluginS
 export type FileExplorerUsedInstance<TSignature extends FileExplorerAnyPluginSignature> =
   PluginPropertyWithDependencies<TSignature, 'instance'> & {
     /**
-     * Private property only defined in TypeScript to be able to access the plugin signature from the instance object.
+     * Private property only defined in TypeScript to be able to access the plugin signature from
+     * the instance object.
      */
     $$signature: TSignature;
   };

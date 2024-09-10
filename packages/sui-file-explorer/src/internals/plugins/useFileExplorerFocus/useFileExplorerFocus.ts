@@ -1,14 +1,14 @@
 import * as React from 'react';
+import {SyntheticEvent} from 'react';
 import useEventCallback from '@mui/utils/useEventCallback';
-import { EventHandlers } from '@mui/base/utils';
+import {EventHandlers} from '@mui/base/utils';
 import ownerDocument from '@mui/utils/ownerDocument';
-import { SyntheticEvent } from "react";
-import { FileExplorerPlugin, FileExplorerUsedInstance } from '../../models/plugin';
-import { UseFileExplorerFocusSignature } from './useFileExplorerFocus.types';
-import { useInstanceEventHandler } from '../../hooks/useInstanceEventHandler';
-import { getActiveElement } from '../../utils/utils';
-import { getFirstNavigableItem } from '../../utils/fileExplorer';
-import { MuiCancellableEvent } from '../../models/MuiCancellableEvent';
+import {FileExplorerPlugin, FileExplorerUsedInstance} from '../../models/plugin';
+import {UseFileExplorerFocusSignature} from './useFileExplorerFocus.types';
+import {useInstanceEventHandler} from '../../hooks/useInstanceEventHandler';
+import {getActiveElement} from '../../utils/utils';
+import {getFirstNavigableItem} from '../../utils/fileExplorer';
+import {MuiCancellableEvent} from '../../models/MuiCancellableEvent';
 import {
   convertSelectedItemsToArray
 } from '../useFileExplorerSelection/useFileExplorerSelection.utils';

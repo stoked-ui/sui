@@ -1,5 +1,5 @@
-import { EditorPluginSignature } from '../../models/plugin';
-import { EditorEventListener } from '../../models/events';
+import {EditorPluginSignature} from '../../models/plugin';
+import {EditorEventListener} from '../../models/events';
 
 export interface UseEditorInstanceEventsInstance {
   /**

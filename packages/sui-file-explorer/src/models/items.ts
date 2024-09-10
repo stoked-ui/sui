@@ -1,4 +1,4 @@
-import {MediaFile, MediaType, namedId } from "@stoked-ui/media-selector";
+import {IMediaFile, MediaType, namedId} from "@stoked-ui/media-selector";
 
 export { MediaType };
 export type FileId = string;
@@ -14,14 +14,14 @@ export type FileBase<R extends {} = {}> = R & CommonBase & {
   size?: number;
   modified?: number;
   type?: MediaType;
-  file?: MediaFile;
+  file?: IMediaFile;
   visibleIndex?: number;
   expanded?: boolean;
   selected?: boolean;
   name?: string;
 };
 
-export function FileBaseFromMediaFile(file: MediaFile) {
+export function FileBaseFromMediaFile(file: IMediaFile) {
   const newId = namedId({id: 'file', length: 4});
   const type = file.type;
   const mediaType = file.mediaType;

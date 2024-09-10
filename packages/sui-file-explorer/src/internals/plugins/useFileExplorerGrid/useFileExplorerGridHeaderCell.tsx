@@ -1,7 +1,7 @@
 import * as React from "react";
-import { useFileExplorerGridColumnHeader } from "./useFileExplorerGridColumnHeader";
-import { UseFileMinimalPlugins } from "../../models";
-import { FileLabel } from "../../../File/FileLabel";
+import {useFileExplorerGridColumnHeader} from "./useFileExplorerGridColumnHeader";
+import {UseFileMinimalPlugins} from "../../models";
+import {FileLabel} from "../../../File/FileLabel";
 
 export const HeaderCell = React.forwardRef(
   function HeaderCell(inProps: { columnName: string, id: string } & React.HTMLAttributes<HTMLDivElement> & React.HTMLProps<HTMLDivElement>, ref: React.Ref<HTMLDivElement>) {

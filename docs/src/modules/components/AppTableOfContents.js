@@ -119,10 +119,14 @@ function useThrottledOnScroll(callback, delay) {
     if (throttledCallback === noop) {
       return undefined;
     }
+    if (typeof window !== 'undefined') {
+      window.addEventListener('scroll', throttledCallback);
+    }
 
-    window.addEventListener('scroll', throttledCallback);
     return () => {
-      window.removeEventListener('scroll', throttledCallback);
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('scroll', throttledCallback);
+      }
       throttledCallback.cancel();
     };
   }, [throttledCallback]);

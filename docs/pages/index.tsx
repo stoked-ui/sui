@@ -1,7 +1,5 @@
 import * as React from 'react';
 import NoSsr from "@mui/material/NoSsr";
-import Box from "@mui/material/Box";
-import Divider from "@mui/material/Divider";
 import { PRODUCTS } from 'docs/src/products';
 import BrandingCssVarsProvider from 'docs/src/BrandingCssVarsProvider';
 import dynamic from 'next/dynamic';
@@ -10,7 +8,6 @@ import Head from "../src/modules/components/Head";
 import NewsletterToast from "../src/components/home/NewsletterToast";
 import AppHeaderBanner from "../src/components/banner/AppHeaderBanner";
 import AppHeader from "../src/layouts/AppHeader";
-import Hero from "../src/components/home/HeroMain";
 import EditorSandbox from "../src/components/home/EditorSandbox";
 
 
@@ -73,7 +70,6 @@ let MainView:  React.ComponentType<{}> = function MainView() {
   )
 }
 export default function Home({ HomeMain }: { HomeMain: React.ComponentType }) {
-
   return <HomeView HomeMain={ HomeMain || MainView } />;
 }
 Home.getInitialProps = async(context: { req: any; query: any; res: any; asPath: any; pathname: any; }) => {

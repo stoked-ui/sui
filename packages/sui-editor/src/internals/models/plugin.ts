@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { EventHandlers } from '@mui/base/utils';
-import { EditorExperimentalFeatures, EditorModel } from './editor';
-import type { MergeSignaturesProperty, OptionalIfEmpty } from './helpers';
-import { EditorEventLookupElement } from './events';
-import type { EditorCorePluginSignatures } from '../corePlugins';
+import {EventHandlers} from '@mui/base/utils';
+import {EditorExperimentalFeatures, EditorModel} from './editor';
+import type {MergeSignaturesProperty, OptionalIfEmpty} from './helpers';
+import {EditorEventLookupElement} from './events';
+import type {EditorCorePluginSignatures} from '../corePlugins';
 
 export interface EditorPluginOptions<TSignature extends EditorAnyPluginSignature> {
   instance: EditorUsedInstance<TSignature>;
@@ -113,7 +113,8 @@ type EditorUsedDefaultizedParams<TSignature extends EditorAnyPluginSignature> =
 export type EditorUsedInstance<TSignature extends EditorAnyPluginSignature> =
   PluginPropertyWithDependencies<TSignature, 'instance'> & {
   /**
-   * Private property only defined in TypeScript to be able to access the plugin signature from the instance object.
+   * Private property only defined in TypeScript to be able to access the plugin signature from the
+   * instance object.
    */
   $$signature: TSignature;
 };

@@ -1,15 +1,15 @@
 import * as React from 'react';
-import { SystemStyleObject, Theme, useTheme } from "@mui/system";
-import { useFileExplorerContext } from "../../FileExplorerProvider/useFileExplorerContext";
+import {SystemStyleObject, Theme, useTheme} from "@mui/system";
+import {useFileExplorerContext} from "../../FileExplorerProvider/useFileExplorerContext";
 import type {
   UseFileExplorerFilesSignature
 } from "../useFileExplorerFiles/useFileExplorerFiles.types";
 import type {
   UseFileExplorerExpansionSignature
 } from "../useFileExplorerExpansion/useFileExplorerExpansion.types";
-import type { GridColumns, UseFileExplorerGridSignature } from "./useFileExplorerGrid.types";
-import { UseFileExplorerDndSignature } from '../useFileExplorerDnd/useFileExplorerDnd.types';
-import { FileLabel } from "../../../File/FileLabel";
+import type {GridColumns, UseFileExplorerGridSignature} from "./useFileExplorerGrid.types";
+import {UseFileExplorerDndSignature} from '../useFileExplorerDnd/useFileExplorerDnd.types';
+import {FileLabel} from "../../../File/FileLabel";
 
 function FileExplorerGridCell({
                                 sx, last, id, columnName, content, grow, selected, itemId

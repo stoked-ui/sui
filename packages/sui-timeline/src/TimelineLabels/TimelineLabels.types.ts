@@ -1,11 +1,10 @@
 import * as React from 'react';
-import { Theme } from '@mui/material/styles';
-import { SxProps } from '@mui/system';
-import { SlotComponentProps } from '@mui/base/utils';
-import { TimelineLabelsClasses } from './timelineLabelsClasses';
-import { TimelineState } from "../Timeline/TimelineState";
-import { TimelineTrack } from "../interface/TimelineAction";
-
+import {Theme} from '@mui/material/styles';
+import {SxProps} from '@mui/system';
+import {SlotComponentProps} from '@mui/base/utils';
+import {TimelineLabelsClasses} from './timelineLabelsClasses';
+import {TimelineState} from "../Timeline/TimelineState";
+import { ITimelineTrack } from "../TimelineTrack/TimelineTrack.types";
 
 export interface TimelineLabelsSlots {
   /**
@@ -34,7 +33,7 @@ export interface TimelineLabelsPropsBase extends React.HTMLAttributes<HTMLDivEle
 
   timelineState: React.RefObject<TimelineState>;
 
-  tracks?: TimelineTrack[];
+  tracks?: ITimelineTrack[];
 }
 
 export interface TimelineLabelsProps
@@ -52,5 +51,5 @@ export interface TimelineLabelsProps
 
   onToggle?: (id: string, property: string) => void;
   setFlags?: (id: string) => string[];
-  setTracks: (updatedTracks: TimelineTrack[]) => void;
+  setTracks: (updatedTracks: ITimelineTrack[]) => void;
 }

@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { EventHandlers } from '@mui/base/utils';
-import type { FileExplorerContextValue } from '../FileExplorerProvider';
+import {EventHandlers} from '@mui/base/utils';
+import type {FileExplorerContextValue} from '../FileExplorerProvider';
 import {
   ConvertSignaturesIntoPlugins,
   FileExplorerAnyPluginSignature,

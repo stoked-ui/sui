@@ -1,4 +1,4 @@
-import { ComponentsOverrides, ComponentsProps, ComponentsVariants } from '@mui/material/styles';
+import {ComponentsOverrides, ComponentsProps, ComponentsVariants} from '@mui/material/styles';
 
 export interface EditorComponents<Theme = unknown> {
   MuiEditorTest?: {

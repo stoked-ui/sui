@@ -1,4 +1,4 @@
-import { FileExplorerInstance } from '../models';
+import {FileExplorerInstance} from '../models';
 import type {
   UseFileExplorerExpansionSignature
 } from '../plugins/useFileExplorerExpansion/useFileExplorerExpansion.types';

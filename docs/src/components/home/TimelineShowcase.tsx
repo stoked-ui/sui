@@ -5,7 +5,7 @@ import HighlightedCode from 'docs/src/modules/components/HighlightedCode';
 import MarkdownElement from 'docs/src/components/markdown/MarkdownElement';
 import {FileExplorer} from "@stoked-ui/file-explorer";
 import {SxProps} from "@mui/system";
-import {ITimelineActionType, Timeline, TimelineTrack} from "@stoked-ui/timeline";
+import {ITimelineActionType, Timeline, TimelineTrackTypes} from "@stoked-ui/timeline";
 import { getDynamicFiles } from '../fileExplorer/data';
 
 

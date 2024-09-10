@@ -1,11 +1,9 @@
-
 import {
-  useEditorMetadata,
-  UseEditorMetadataParameters,
+  useEditorMetadata, UseEditorMetadataParameters,
 } from '../internals/plugins/useEditorMetadata';
 
-import { ConvertPluginsIntoSignatures, MergeSignaturesProperty } from '../internals/models';
-import { useEditorKeyboard } from "../internals/plugins/useEditorKeyboard";
+import {ConvertPluginsIntoSignatures, MergeSignaturesProperty} from '../internals/models';
+import {useEditorKeyboard} from "../internals/plugins/useEditorKeyboard";
 
 export const VIDEO_EDITOR_PLUGINS = [
   useEditorMetadata,

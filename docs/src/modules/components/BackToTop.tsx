@@ -28,8 +28,9 @@ export default function BackToTop() {
   const handleClick = () => {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     const behavior = prefersReducedMotion.matches ? 'auto' : 'smooth';
-
-    window.scrollTo({ top: 0, behavior });
+    if (typeof window !== 'undefined') {
+      window.scrollTo({top: 0, behavior});
+    }
     setOpen(false);
   };
 

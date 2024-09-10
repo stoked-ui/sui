@@ -5,5 +5,6 @@ module.exports = {
     'import/no-cycle': 'error',
     'no-underscore-dangle': 'off',
     'jsx-a11y/aria-role': 'off',
+    'import/order': 'error',
   },
 };

@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { SlotComponentProps } from '@mui/base/utils';
-import { SxProps, Theme } from "@mui/system";
-import { UseFileParameters } from '../useFile/useFile.types';
-import { FileClasses } from './fileClasses';
-import { FileIconSlotProps, FileIconSlots } from '../internals/FileIcon';
-import { MuiCancellableEventHandler } from '../internals/models/MuiCancellableEvent';
-import { UseFileStatus } from '../internals/models/UseFileStatus';
+import {SlotComponentProps} from '@mui/base/utils';
+import {SxProps, Theme} from "@mui/system";
+import {UseFileParameters} from '../useFile/useFile.types';
+import {FileClasses} from './fileClasses';
+import {FileIconSlotProps, FileIconSlots} from '../internals/FileIcon';
+import {MuiCancellableEventHandler} from '../internals/models/MuiCancellableEvent';
+import {UseFileStatus} from '../internals/models/UseFileStatus';
 
 export type FileComponent = ((
   props: FileProps & React.RefAttributes<HTMLLIElement>,

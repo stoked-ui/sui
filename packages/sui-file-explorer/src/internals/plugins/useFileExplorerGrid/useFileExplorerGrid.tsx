@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { namedId } from "@stoked-ui/media-selector";
+import {namedId} from "@stoked-ui/media-selector";
 import {
   GridColumn,
   GridColumns,
@@ -8,9 +8,9 @@ import {
   UseFileExplorerGridPlugin,
   UseFileExplorerGridState
 } from './useFileExplorerGrid.types';
-import { FileBase, FileId } from '../../../models';
-import { bytesToSize, calcSize, getRelativeTimeString } from "./PropUtils";
-import { ItemMode } from "../useFileExplorerFiles/useFileExplorerFiles.types";
+import {FileBase, FileId} from '../../../models';
+import {bytesToSize, calcSize, getRelativeTimeString} from "./PropUtils";
+import {ItemMode} from "../useFileExplorerFiles/useFileExplorerFiles.types";
 
 const updateGridState = ({ headers, columns, initializedIndexes, id }: { headers: GridHeaders, columns: GridColumns, initializedIndexes: boolean, id?: string } ): UseFileExplorerGridState => {
   const { label, size, modified } = headers;

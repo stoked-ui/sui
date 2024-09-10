@@ -1,17 +1,17 @@
 import generateUtilityClass from '@mui/utils/generateUtilityClass';
 import generateUtilityClasses from '@mui/utils/generateUtilityClasses';
 
-export interface ViewSpaceClasses {
+export interface TimelineControlClasses {
   /** Styles applied to the root element. */
   root: string;
 }
 
-export type ViewSpaceClassKey = keyof ViewSpaceClasses;
+export type TimelineControlClassKey = keyof TimelineControlClasses;
 
-export function getViewSpaceUtilityClass(slot: string): string {
-  return generateUtilityClass('MuiViewSpace', slot);
+export function getTimelineControlUtilityClass(slot: string): string {
+  return generateUtilityClass('MuiTimelineControl', slot);
 }
 
-export const viewSpaceClasses: ViewSpaceClasses = generateUtilityClasses('MuiViewSpace', [
+export const timelineControlClasses: TimelineControlClasses = generateUtilityClasses('MuiTimelineControl', [
   'root',
 ]);

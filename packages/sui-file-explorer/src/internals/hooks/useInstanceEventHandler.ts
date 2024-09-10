@@ -1,11 +1,11 @@
 import * as React from 'react';
-import { CleanupTracking, UnregisterToken } from '../utils/cleanupTracking/CleanupTracking';
-import { TimerBasedCleanupTracking } from '../utils/cleanupTracking/TimerBasedCleanupTracking';
+import {CleanupTracking, UnregisterToken} from '../utils/cleanupTracking/CleanupTracking';
+import {TimerBasedCleanupTracking} from '../utils/cleanupTracking/TimerBasedCleanupTracking';
 import {
   FinalizationRegistryBasedCleanupTracking
 } from '../utils/cleanupTracking/FinalizationRegistryBasedCleanupTracking';
-import { FileExplorerAnyPluginSignature, FileExplorerUsedEvents } from '../models';
-import { FileExplorerEventListener } from '../models/events';
+import {FileExplorerAnyPluginSignature, FileExplorerUsedEvents} from '../models';
+import {FileExplorerEventListener} from '../models/events';
 import {
   UseFileExplorerInstanceEventsInstance
 } from '../corePlugins/useFileExplorerInstanceEvents/useFileExplorerInstanceEvents.types';

@@ -1,18 +1,14 @@
 import * as React from 'react';
-import { useRtl } from '@mui/system/RtlProvider';
+import {useRtl} from '@mui/system/RtlProvider';
 import useEventCallback from '@mui/utils/useEventCallback';
-import { FileExplorerPlugin, FileMeta } from '../../models';
+import {FileExplorerPlugin, FileMeta} from '../../models';
 import {
-  getFirstNavigableItem,
-  getLastNavigableItem,
-  getNextNavigableItem,
-  getPreviousNavigableItem,
+  getFirstNavigableItem, getLastNavigableItem, getNextNavigableItem, getPreviousNavigableItem,
 } from '../../utils/fileExplorer';
 import {
-  FileExplorerFirstCharMap,
-  UseFileExplorerKeyboardNavigationSignature,
+  FileExplorerFirstCharMap, UseFileExplorerKeyboardNavigationSignature,
 } from './useFileExplorerKeyboardNavigation.types';
-import { MuiCancellableEvent } from '../../models/MuiCancellableEvent';
+import {MuiCancellableEvent} from '../../models/MuiCancellableEvent';
 
 function isPrintableCharacter(string: string) {
   return !!string && string.length === 1 && !!string.match(/\S/);

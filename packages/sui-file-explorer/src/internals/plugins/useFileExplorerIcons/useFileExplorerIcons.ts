@@ -1,5 +1,5 @@
-import { FileExplorerPlugin } from '../../models';
-import { UseFileExplorerIconsSignature } from './useFileExplorerIcons.types';
+import {FileExplorerPlugin} from '../../models';
+import {UseFileExplorerIconsSignature} from './useFileExplorerIcons.types';
 
 export const useFileExplorerIcons: FileExplorerPlugin<UseFileExplorerIconsSignature> = ({
   slots,

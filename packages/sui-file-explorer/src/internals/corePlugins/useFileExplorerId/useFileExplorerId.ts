@@ -1,7 +1,7 @@
 import * as React from 'react';
 import useId from '@mui/utils/useId';
-import { FileExplorerPlugin } from '../../models';
-import { UseFileExplorerIdSignature } from './useFileExplorerId.types';
+import {FileExplorerPlugin} from '../../models';
+import {UseFileExplorerIdSignature} from './useFileExplorerId.types';
 
 export const useFileExplorerId: FileExplorerPlugin<UseFileExplorerIdSignature> = ({ params }) => {
   const fileExplorerId = useId(params.id);

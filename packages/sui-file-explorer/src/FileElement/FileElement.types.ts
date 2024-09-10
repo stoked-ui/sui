@@ -1,13 +1,20 @@
 import * as React from 'react';
-import { Theme } from '@mui/material/styles';
-import { SlotComponentProps } from '@mui/base/utils';
-import { TransitionProps } from '@mui/material/transitions';
-import { SxProps } from '@mui/system';
-import { FileElementClasses } from './fileElementClasses';
-import { FileId } from '../models';
-import { SlotComponentPropsFromProps } from '../internals/models';
-import { MuiCancellableEventHandler } from '../internals/models/MuiCancellableEvent';
-import type { UseFileExplorerKeyboardNavigationSignature, UseFileExplorerFilesSignature, UseFileExplorerIconsSignature, UseFileExplorerSelectionSignature, UseFileExplorerFocusSignature, UseFileExplorerExpansionSignature } from '../internals';
+import {Theme} from '@mui/material/styles';
+import {SlotComponentProps} from '@mui/base/utils';
+import {TransitionProps} from '@mui/material/transitions';
+import {SxProps} from '@mui/system';
+import {FileElementClasses} from './fileElementClasses';
+import {FileId} from '../models';
+import {SlotComponentPropsFromProps} from '../internals/models';
+import {MuiCancellableEventHandler} from '../internals/models/MuiCancellableEvent';
+import type {
+  UseFileExplorerExpansionSignature,
+  UseFileExplorerFilesSignature,
+  UseFileExplorerFocusSignature,
+  UseFileExplorerIconsSignature,
+  UseFileExplorerKeyboardNavigationSignature,
+  UseFileExplorerSelectionSignature
+} from '../internals';
 import {FileElementContentProps} from "./FileElementContent";
 
 export interface FileElementSlots {

@@ -1,4 +1,4 @@
-import { TimelineTrack } from '@stoked-ui/timeline';
+import { TimelineTrackTypes } from '@stoked-ui/timeline';
 
 export const mockData: TimelineTrack[] = [
   {

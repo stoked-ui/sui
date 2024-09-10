@@ -1,8 +1,8 @@
 import * as React from 'react';
 import useEventCallback from '@mui/utils/useEventCallback';
-import { FileExplorerPlugin } from '../../models/plugin';
-import { UseFileExplorerExpansionSignature } from './useFileExplorerExpansion.types';
-import { FileId } from '../../../models';
+import {FileExplorerPlugin} from '../../models/plugin';
+import {UseFileExplorerExpansionSignature} from './useFileExplorerExpansion.types';
+import {FileId} from '../../../models';
 
 export const useFileExplorerExpansion: FileExplorerPlugin<UseFileExplorerExpansionSignature> = ({
   instance,

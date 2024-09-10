@@ -1202,8 +1202,7 @@ const ExtensionMimeTypeMap = new Map([
 
 export { ExtensionMimeTypeMap };
 export type MimeTypeExtension = typeof ExtensionMimeTypeMap extends Map<infer K, unknown> ? K : never;
-type MimeType = typeof ExtensionMimeTypeMap extends Map<MimeTypeExtension, infer V> ? V : never;
-export default MimeType;
+export type MimeType = typeof ExtensionMimeTypeMap extends Map<MimeTypeExtension, infer V> ? V : never;
 
 
 

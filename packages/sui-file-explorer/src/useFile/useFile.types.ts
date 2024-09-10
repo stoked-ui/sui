@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { FileId, MediaType } from '../models';
-import { MuiCancellableEventHandler } from '../internals/models/MuiCancellableEvent';
-import { FileExplorerPublicAPI } from '../internals/models';
-import { UseFileMinimalPlugins, UseFileOptionalPlugins } from '../internals/models/plugin.types';
-import { UseFileStatus } from '../internals/models/UseFileStatus';
+import {FileId, MediaType} from '../models';
+import {MuiCancellableEventHandler} from '../internals/models/MuiCancellableEvent';
+import {FileExplorerPublicAPI} from '../internals/models';
+import {UseFileMinimalPlugins, UseFileOptionalPlugins} from '../internals/models/plugin.types';
+import {UseFileStatus} from '../internals/models/UseFileStatus';
 
 export interface UseFileParameters {
   /**
@@ -126,7 +126,8 @@ export interface UseFileReturnValue<
   /**
    * Resolver for the content slot's props.
    * @param {ExternalProps} externalProps Additional props for the content slot
-   * @returns {UseFileContentSlotProps<ExternalProps>} Props that should be spread on the content slot
+   * @returns {UseFileContentSlotProps<ExternalProps>} Props that should be spread on the content
+   *   slot
    */
   getContentProps: <ExternalProps extends Record<string, any> = {}>(
     externalProps?: ExternalProps,
@@ -142,7 +143,8 @@ export interface UseFileReturnValue<
   /**
    * Resolver for the checkbox slot's props.
    * @param {ExternalProps} externalProps Additional props for the checkbox slot
-   * @returns {UseFileCheckboxSlotProps<ExternalProps>} Props that should be spread on the checkbox slot
+   * @returns {UseFileCheckboxSlotProps<ExternalProps>} Props that should be spread on the checkbox
+   *   slot
    */
   getCheckboxProps: <ExternalProps extends Record<string, any> = {}>(
     externalProps?: ExternalProps,
@@ -150,7 +152,8 @@ export interface UseFileReturnValue<
   /**
    * Resolver for the iconContainer slot's props.
    * @param {ExternalProps} externalProps Additional props for the iconContainer slot
-   * @returns {UseFileIconContainerSlotProps<ExternalProps>} Props that should be spread on the iconContainer slot
+   * @returns {UseFileIconContainerSlotProps<ExternalProps>} Props that should be spread on the
+   *   iconContainer slot
    */
   getIconContainerProps: <ExternalProps extends Record<string, any> = {}>(
     externalProps?: ExternalProps,
@@ -158,7 +161,8 @@ export interface UseFileReturnValue<
   /**
    * Resolver for the GroupTransition slot's props.
    * @param {ExternalProps} externalProps Additional props for the GroupTransition slot
-   * @returns {UseFileGroupTransitionSlotProps<ExternalProps>} Props that should be spread on the GroupTransition slot
+   * @returns {UseFileGroupTransitionSlotProps<ExternalProps>} Props that should be spread on the
+   *   GroupTransition slot
    */
   getGroupTransitionProps: <ExternalProps extends Record<string, any> = {}>(
     externalProps?: ExternalProps,

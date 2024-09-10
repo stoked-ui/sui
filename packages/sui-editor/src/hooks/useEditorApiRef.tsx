@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { EditorAnyPluginSignature, EditorPublicAPI } from '../internals/models';
-import { EditorPluginSignatures } from '../Editor/Editor.plugins';
+import {EditorAnyPluginSignature, EditorPublicAPI} from '../internals/models';
+import {EditorPluginSignatures} from '../Editor/Editor.plugins';
 
 /**
  * Hook that instantiates a [[EditorApiRef]].

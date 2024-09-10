@@ -14,12 +14,12 @@ interface IncrementFunc extends IncrementByFunc{
  */
 export default function useIncId(id: string, length: number = 3, prefix?: string, initialValue: number = 1, step: number = 1): IncrementFunc {
   const incrementId = prefix ? `${prefix}-${id}` : id;
-  const createId = (val: number) => {
-    return `${incrementId}-${String(val).padStart(length, "0")}`;
-  }
+
   const [value, setValue] = React.useState(initialValue);
   return React.useMemo(() => {
-
+    const createId = (val: number) => {
+      return `${incrementId}-${String(val).padStart(length, "0")}`;
+    }
     const incrementFunc = () => {
       setValue(v => v + step);
       return createId(value);
@@ -31,5 +31,5 @@ export default function useIncId(id: string, length: number = 3, prefix?: string
     }
 
     return incrementFunc;
-  }, [step]);
+  }, [step, incrementId, length, value]);
 }

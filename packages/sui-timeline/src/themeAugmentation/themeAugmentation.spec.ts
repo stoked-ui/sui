@@ -1,6 +1,6 @@
-import { createTheme } from '@mui/material/styles';
-import { timelineClasses } from '../Timeline';
-import { timelineActionClasses } from '../TimelineAction';
+import {createTheme} from '@mui/material/styles';
+import {timelineClasses} from '../Timeline';
+import {timelineActionClasses} from '../TimelineAction';
 
 createTheme({
   components: {

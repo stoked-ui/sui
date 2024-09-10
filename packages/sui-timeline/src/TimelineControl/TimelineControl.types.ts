@@ -1,26 +1,22 @@
 import * as React from 'react';
-import { OnScrollParams } from 'react-virtualized';
-import { SxProps, Theme } from "@mui/material/styles";
-import { ITimelineEngine } from '../TimelineEngine/TimelineEngine';
-import { TimelineTrack } from '../interface/TimelineAction';
-import { ITimelineAction, ITimelineActionType } from '../TimelineAction/TimelineAction.types';
-import {TimelineState} from "../Timeline/TimelineState";
-export * from '../interface/TimelineAction';
-export * from '../TimelineAction/TimelineAction.types';
+import {OnScrollParams} from 'react-virtualized';
+import {SxProps, Theme} from "@mui/material/styles";
+import {ITimelineEngine} from '../TimelineEngine/TimelineEngine.types';
+import {ITimelineActionType} from "../TimelineAction/TimelineAction.types";
+import {type ITimelineTrack} from "../TimelineTrack/TimelineTrack.types";
+import {type ITimelineAction} from "../TimelineAction/TimelineAction.types";
 
-export type TimelineControlComponent = ((
-  props: TimelineControlProps & TimelineState,
-) => React.JSX.Element) & { propTypes?: any };
-
-export interface EditData {
+export interface TimelineControlPropsBase {
   /**
    * @description TimelineControl editing data
    */
-  tracks: TimelineTrack[];
+  tracks: ITimelineTrack[];
   /**
-   * @description Data change callback, which will be triggered after the operation action end changes the data (returning false will prevent automatic engine synchronization to reduce performance overhead)
+   * @description Data change callback, which will be triggered after the operation action end
+   *   changes the data (returning false will prevent automatic engine synchronization to reduce
+   *   performance overhead)
    */
-  setTracks: (updatedTracks: TimelineTrack[]) => void;
+  setTracks: (updatedTracks: ITimelineTrack[]) => void;
   /**
    * @description timelineControl action actionType map
    */
@@ -87,7 +83,7 @@ export interface EditData {
   /**
    * @description Custom action area rendering
    */
-  getActionRender?: (action: ITimelineAction, track: TimelineTrack) => React.ReactNode;
+  getActionRender?: (action: ITimelineAction, track: ITimelineTrack) => React.ReactNode;
   /**
    * @description Custom scale rendering
    */
@@ -95,34 +91,34 @@ export interface EditData {
   /**
    * @description Start moving callback
    */
-  onActionMoveStart?: (params: { action: ITimelineAction; track: TimelineTrack }) => void;
+  onActionMoveStart?: (params: { action: ITimelineAction; track: ITimelineTrack }) => void;
   /**
    * @description Move callback (return false to prevent movement)
    */
-  onActionMoving?: (params: { action: ITimelineAction; track: TimelineTrack; start: number; end: number }) => void | boolean;
+  onActionMoving?: (params: { action: ITimelineAction; track: ITimelineTrack; start: number; end: number }) => void | boolean;
   /**
    * @description Move end callback (return false to prevent onChange from triggering)
    */
-  onActionMoveEnd?: (params: { action: ITimelineAction; track: TimelineTrack; start: number; end: number }) => void;
+  onActionMoveEnd?: (params: { action: ITimelineAction; track: ITimelineTrack; start: number; end: number }) => void;
   /**
    * @description Start changing the size callback
    */
-  onActionResizeStart?: (params: { action: ITimelineAction; track: TimelineTrack; dir: 'right' | 'left' }) => void;
+  onActionResizeStart?: (params: { action: ITimelineAction; track: ITimelineTrack; dir: 'right' | 'left' }) => void;
   /**
    * @description Start size callback (return false to prevent changes)
    */
-  onActionResizing?: (params: { action: ITimelineAction; track: TimelineTrack; start: number; end: number; dir: 'right' | 'left' }) => void | boolean;
+  onActionResizing?: (params: { action: ITimelineAction; track: ITimelineTrack; start: number; end: number; dir: 'right' | 'left' }) => void | boolean;
   /**
    * @description size change end callback (return false to prevent onChange from triggering)
    */
-  onActionResizeEnd?: (params: { action: ITimelineAction; track: TimelineTrack; start: number; end: number; dir: 'right' | 'left' }) => void;
+  onActionResizeEnd?: (params: { action: ITimelineAction; track: ITimelineTrack; start: number; end: number; dir: 'right' | 'left' }) => void;
   /**
    * @description Click track callback
    */
   onClickRow?: (
     e: React.MouseEvent<HTMLElement, MouseEvent>,
     param: {
-      track: TimelineTrack;
+      track: ITimelineTrack;
       time: number;
     },
   ) => void;
@@ -133,7 +129,7 @@ export interface EditData {
     e: React.MouseEvent<HTMLElement, MouseEvent>,
     param: {
       action: ITimelineAction;
-      track: TimelineTrack;
+      track: ITimelineTrack;
       time: number;
     },
   ) => void;
@@ -144,7 +140,7 @@ export interface EditData {
     e: React.MouseEvent<HTMLElement, MouseEvent>,
     param: {
       action: ITimelineAction;
-      track: TimelineTrack;
+      track: ITimelineTrack;
       time: number;
     },
   ) => void;
@@ -154,7 +150,7 @@ export interface EditData {
   onDoubleClickRow?: (
     e: React.MouseEvent<HTMLElement, MouseEvent>,
     param: {
-      track: TimelineTrack;
+      track: ITimelineTrack;
       time: number;
     },
   ) => void;
@@ -165,7 +161,7 @@ export interface EditData {
     e: React.MouseEvent<HTMLElement, MouseEvent>,
     param: {
       action: ITimelineAction;
-      track: TimelineTrack;
+      track: ITimelineTrack;
       time: number;
     },
   ) => void;
@@ -175,7 +171,7 @@ export interface EditData {
   onContextMenuRow?: (
     e: React.MouseEvent<HTMLElement, MouseEvent>,
     param: {
-      track: TimelineTrack;
+      track: ITimelineTrack;
       time: number;
     },
   ) => void;
@@ -186,14 +182,15 @@ export interface EditData {
     e: React.MouseEvent<HTMLElement, MouseEvent>,
     param: {
       action: ITimelineAction;
-      track: TimelineTrack;
+      track: ITimelineTrack;
       time: number;
     },
   ) => void;
   /**
-   * @description Get the action id list to prompt the auxiliary line. Calculate it when move/resize start. By default, get all the action ids except the current move action.
+   * @description Get the action id list to prompt the auxiliary line. Calculate it when
+   *   move/resize start. By default, get all the action ids except the current move action.
    */
-  getAssistDragLineActionIds?: (params: { action: ITimelineAction; tracks: TimelineTrack[]; track: TimelineTrack }) => string[];
+  getAssistDragLineActionIds?: (params: { action: ITimelineAction; tracks: ITimelineTrack[]; track: ITimelineTrack }) => string[];
   /**
    * @description cursor starts drag event
    */
@@ -216,38 +213,4 @@ export interface EditData {
   trackSx?: SxProps<Theme>;
 
   viewSelector?: string;
-}
-
-/**
- * Animation editor parameters
- * @export
- * @interface TimelineControlProps
- */
-export interface TimelineControlProps extends EditData {
-  /**
-   * @description The scroll distance from the top of the editing area (please use ref.setScrollTop instead)
-   * @deprecated
-   */
-  scrollTop?: number;
-  /**
-   * @description Edit area scrolling callback (used to control synchronization with editing track scrolling)
-   */
-  onScroll?: (params: OnScrollParams) => void;
-  /**
-   * @description Whether to start automatic scrolling when dragging
-   * @default false
-   */
-  autoScroll?: boolean;
-  /**
-   * @description Custom timelineControl style
-   */
-  style?: React.CSSProperties;
-  /**
-   * @description Whether to automatically re-render (update tick when data changes or cursor time changes)
-   * @default true
-   */
-  autoReRender?: boolean;
-
-
-  setScaleWidth?: (scaleWidth: number) => void;
 }

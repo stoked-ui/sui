@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { EditorContextValue } from './EditorProvider.types';
+import {EditorContextValue} from './EditorProvider.types';
 
 /**
  * @ignore - internal component.

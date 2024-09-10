@@ -1,15 +1,15 @@
 import * as React from 'react';
-import { EventHandlers } from '@mui/base/utils';
-import type { EditorContextValue } from '../EditorProvider';
+import {EventHandlers} from '@mui/base/utils';
+import {TimelineTrack} from "@stoked-ui/timeline";
+import type {EditorContextValue} from '../EditorProvider';
 import {
-  EditorAnyPluginSignature,
   ConvertSignaturesIntoPlugins,
-  MergeSignaturesProperty,
+  EditorAnyPluginSignature,
+  EditorExperimentalFeatures,
   EditorInstance,
   EditorPublicAPI,
-  EditorExperimentalFeatures,
+  MergeSignaturesProperty,
 } from '../models';
-import { TimelineTrack } from "@stoked-ui/timeline";
 
 export interface UseEditorParameters<
   TSignatures extends readonly EditorAnyPluginSignature[],

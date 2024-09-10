@@ -1,11 +1,7 @@
 import * as React from 'react';
-import dynamic from 'next/dynamic';
-import { useTheme } from '@mui/material/styles';
-import Box, { BoxProps } from '@mui/material/Box';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import Stack from "@mui/material/Stack";
 import { Editor } from '@stoked-ui/editor';
 import { cloneDeep } from 'lodash';
+import { namedId } from '@stoked-ui/media-selector';
 
 export const scaleWidth = 160;
 export const scale = 2;
@@ -13,6 +9,7 @@ export const startLeft = 20;
 
 export const actions = [
   {
+    id: namedId('action'),
     name: 'write stuff',
     start: 9.5,
     end: 16,
@@ -22,6 +19,7 @@ export const actions = [
     },
   },
   {
+    id: namedId('action'),
     name: 'doing things',
     start: 5,
     end: 9.5,
@@ -31,6 +29,7 @@ export const actions = [
     },
   },
   {
+    id: namedId('action'),
     name: 'stolen cow',
     start: 0,
     end: 5,
@@ -40,15 +39,18 @@ export const actions = [
     },
   },
   {
+    id: namedId('action'),
     name: 'music',
     start: 0,
     end: 20,
     effectId: 'audio',
     data: {
-      src: '/static/timeline/docs/overview/bg.mp3',
+      src: 'https://adam-rodgers.s3.amazonaws.com/stoked-studio/funeral.mp3',
+      /* src:'https://archive.org/download/radiohead-ok-computer-oknotok-1997-2017-remastered/02%20Paranoid%20Android%20%28Remastered%29.mp3', */
     },
   },
   {
+    id: namedId('action'),
     name: 'video',
     start: 0,
     end: 10,
@@ -59,47 +61,14 @@ export const actions = [
     },
   },
 ];
-function createLoading(sx: BoxProps['sx']) {
-  return function Loading() {
-    return (
-      <Box
-        sx={[
-          (theme) => ({
-            borderRadius: 1,
-            bgcolor: 'grey.100',
-            ...theme.applyDarkStyles({
-              bgcolor: 'primaryDark.800',
-            }),
-          }),
-          ...(Array.isArray(sx) ? sx : [sx]),
-        ]}
-      />
-    );
-  };
-}
 const defaultEditorData = cloneDeep(actions);
 
 export default function Hero() {
-  const globalTheme = useTheme();
-  const isMdUp = useMediaQuery(globalTheme.breakpoints.up('md'));
 
-  React.useEffect(() => {
-    /*
-    const canvas: HTMLCanvasElement | null = document.querySelector('#editor-sandbox canvas');
-    const target: HTMLDivElement | null = document.getElementById('canvas-target');
-
-    if (target && canvas) {
-      canvas.parentNode?.removeChild(canvas)
-      target.appendChild(canvas);
-      if (canvas.style) {
-        canvas.style.position = 'relative';
-      }
-    } */
-  }, [])
-  const [data, setData] = React.useState(defaultEditorData);
+  const [data,] = React.useState(defaultEditorData);
 
 
   return (
-      <Editor id='editor-sandbox' labels sx={{ width: '100%'}} actionData={data} />
+      <Editor id='editor-sandbox' sx={{ width: '100%'}} actionData={data} />
   );
 }

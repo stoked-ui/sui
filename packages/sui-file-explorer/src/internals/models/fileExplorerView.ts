@@ -1,7 +1,7 @@
-import { Instruction } from "@atlaskit/pragmatic-drag-and-drop-hitbox/tree-item";
-import type { FileExplorerAnyPluginSignature } from './plugin.types';
-import type { MergeSignaturesProperty } from './helpers';
-import type { FileExplorerCorePluginSignatures } from '../corePlugins';
+import {Instruction} from "@atlaskit/pragmatic-drag-and-drop-hitbox/tree-item";
+import type {FileExplorerAnyPluginSignature} from './plugin.types';
+import type {MergeSignaturesProperty} from './helpers';
+import type {FileExplorerCorePluginSignatures} from '../corePlugins';
 
 export type DndState = 'idle' | 'dragging' | 'preview' | 'parent-of-instruction';
 
