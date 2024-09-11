@@ -1,27 +1,20 @@
 import * as React from 'react';
-import Box from '@mui/material/Box';
-import { FileExplorerBasic } from '@stoked-ui/file-explorer/FileExplorerBasic';
-import { FileElement } from '@stoked-ui/file-explorer/FileElement';
+import { Timeline, IController} from '@stoked-ui/timeline';
+import { useTheme } from '@mui/material/styles';
+
+import { mockData } from '../mock';
 
 export default function FirstComponent() {
+  const controllers: Record<string, IController> = {
+    effect: {
+      enter: params => { console.log(params); },
+      leave: params => { console.log(params); },
+    }
+  };
+  const theme = useTheme();
+  console.log('theme', theme);
   return (
-    <Box sx={{ minHeight: 352, minWidth: 250 }}>
-      <FileExplorerBasic getItemId>
-          <FileElement name={"Notes"}>
-            <FileElement name="doc.pdf" />
-            <FileElement name="notes.txt" />
-          </FileElement>
-          <FileElement name={"Images"}>
-            <FileElement name={"logo.png"} />
-            <FileElement name={"favicon.ico"} />
-          </FileElement>
-          <FileElement name={"Movies"}>
-            <FileElement name={"feature.mp4"} />
-          </FileElement>
-          <FileElement name={"Data"}>
-            <FileElement name={"client-data.xls"} />
-          </FileElement>
-      </FileExplorerBasic>
-    </Box>
+    <Timeline tracks={mockData} sx={{width:'100%'}} controllers={controllers}/>
   );
-}
+};
+

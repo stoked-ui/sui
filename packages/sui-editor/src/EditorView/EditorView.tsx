@@ -76,6 +76,8 @@ export const EditorView = React.forwardRef(function EditorView<
   const viewerRef = React.useRef<HTMLDivElement>(null);
   const rendererRef = React.useRef<HTMLCanvasElement>(null);
 
+
+
   React.useEffect(() => {
     if (inProps.engine && viewRef?.current) {
       inProps.engine.viewer = viewRef.current;

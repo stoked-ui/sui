@@ -15,10 +15,10 @@ class AudioController extends Controller{
     }
   > = {};
 
-  constructor() {
+  constructor(props?: {primaryColor?: string , secondaryColor?: string}) {
     super({
-      color: AudioFile.primaryColor,
-      colorSecondary: AudioFile.secondaryColor,
+      color: props?.primaryColor ?? AudioFile.primaryColor,
+      colorSecondary: props?.secondaryColor  ?? AudioFile.secondaryColor,
       name: 'Audio',
       id: 'audio',
     });
@@ -41,7 +41,7 @@ class AudioController extends Controller{
       item.seek((time - action.start) % item.duration());
       item.play();
     } else {
-      item = new Howl({ src: action.data.src, loop: true, autoplay: true });
+      item = new Howl({ src: action.data.src, loop: false, autoplay: false });
       this.cacheMap[action.id] = item;
       item.on('load', () => {
         item.rate(engine.getPlayRate());

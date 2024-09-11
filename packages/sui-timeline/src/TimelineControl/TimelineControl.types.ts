@@ -1,9 +1,8 @@
 import * as React from 'react';
 import {SxProps, Theme} from "@mui/material/styles";
-import {IController} from "../TimelineAction/TimelineAction.types";
+import type {ITimelineAction, IController, ITimelineActionInput} from "../TimelineAction/TimelineAction.types";
 import {type ITimelineTrack} from "../TimelineTrack/TimelineTrack.types";
-import {type ITimelineAction} from "../TimelineAction/TimelineAction.types";
-import {IEngine} from "../Timeline/Timeline.types";
+import type {IEngine} from "../Timeline/Timeline.types";
 
 export interface TimelineControlPropsBase {
   /**
@@ -78,7 +77,7 @@ export interface TimelineControlPropsBase {
   /**
    * @description timelineControl runner, if not passed, the built-in runner will be used
    */
-  engine?: React.RefObject<IEngine>;
+  engineRef?: React.RefObject<IEngine>;
   /**
    * @description Custom action area rendering
    */
@@ -212,4 +211,6 @@ export interface TimelineControlPropsBase {
   trackSx?: SxProps<Theme>;
 
   viewSelector?: string;
+
+  actionData?: ITimelineActionInput[];
 }

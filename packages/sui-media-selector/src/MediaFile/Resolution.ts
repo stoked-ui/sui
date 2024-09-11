@@ -1,20 +1,13 @@
-import MediaFile, {MediaFileParams} from "./MediaFile";
-
-export interface IResolution {
-  width: number;
-  height: number;
-}
-
-export interface IDuration {
-  duration: number;
-}
+import MediaFile from "./MediaFile";
+import {IMediaDirectory, IMediaFile} from "./MediaFile.types";
+import {MediaType} from "./MediaType";
 
 export interface IText {
   text: string;
 }
 
 export type ResolutionProps = { width: number, height: number };
-export type ResolutionFileProps = MediaFileParams & ResolutionProps;
+export type ResolutionFileProps = { file: ResolutionFile, options?: { metadata?: true } & ResolutionProps }
 
 export enum Res {
   Standard = 'Standard',
@@ -80,23 +73,21 @@ export enum Orientation {
   Square = 'Square'
 }
 
-export class ResolutionFile extends MediaFile {
-  _width: number;
+export interface IResolutionFile extends File, IMediaFile, IMediaDirectory {
+  readonly _width?: number;
+  readonly _height?: number;
+  readonly _resolution?: Res;
+  readonly aspectRatio?: number;
+}
 
-  _height: number;
+export class ResolutionFile extends MediaFile implements IResolutionFile {
+  _width?: number;
+
+  _height?: number;
 
   _resolution?: Res;
 
   aspectRatio: number = 16/9;
-
-  _orientation: Orientation = Orientation.Landscape;
-
-  constructor(params: ResolutionFileProps) {
-    const { width, height } = params;
-    super(params);
-    this._width = width;
-    this._height = height;
-  }
 
   set width(width: number) {
     this._width = width;
@@ -105,7 +96,7 @@ export class ResolutionFile extends MediaFile {
     this._resolution = resolution;
   }
 
-  get width() { return this._width }
+  get width(): number | undefined { return this._width }
 
   set height(height: number) {
     this._height = height;
@@ -114,7 +105,7 @@ export class ResolutionFile extends MediaFile {
     this._resolution = resolution;
   }
 
-  get height() { return this._height; }
+  get height(): number | undefined { return this._height; }
 
   set resolution(res: Res) {
     this._resolution = res;

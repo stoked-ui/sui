@@ -1,95 +1,123 @@
-import * as ExifReader from "exifreader";
 import lottie, {AnimationItem} from "lottie-web";
-import MediaFile, {MediaFileParams} from "./MediaFile";
-import {IDuration, IResolution, ResolutionFile} from "./Resolution";
+import MediaFile from "./MediaFile";
+import {IResolutionFile, ResolutionFile} from "./Resolution";
 import namedId from "../namedId";
+import {MediaType} from "./MediaType";
 
-/*
 type ScreenShotParams = {
   width?: number,
   height?: number;
   maxWidth?: number,
   maxHeight?: number;
 }
-*/
 
-export type AnimationFileParams = IResolution & MediaFileParams & IDuration;
-
-export default class AnimationFile extends ResolutionFile implements IResolution, IDuration {
+export default class AnimationFile extends ResolutionFile implements IResolutionFile {
   static element: HTMLDivElement;
 
-  duration: number;
-
   lottie: AnimationItem;
-
-  id: string;
 
   data: {
     src: string
   } & any;
 
-  constructor(params: AnimationFileParams) {
-    super(params);
+  static primaryColor = '#146b4e';
+
+  static secondaryColor = '#2bd797';
+
+  constructor(file: MediaFile) {
+    super(file);
     if (!AnimationFile.element) {
       AnimationFile.element = document.createElement('div') as HTMLDivElement;
     }
-    this.id = namedId('lottie');
+    // this.id = namedId('lottie');
     this.data = {
       src: URL.createObjectURL(this),
       className: `${this.id}-class`
     }
     this.lottie = AnimationFile.load({
-      file: this,
+      id: this.id,
+      src: file.url,
       container: AnimationFile.element,
       mode: 'canvas',
       renderCtx: MediaFile.renderer.getContext('2d'),
     })
-    this.duration = this.lottie.getDuration();
+    this.duration = -1;
+    this.lottie.addEventListener('loaded_images', () => {
+      this.lottie.show();
+      this.icon = this.captureScreenshot({width: 24, height: 24}) || null;
+      this.thumbnail = this.captureScreenshot({maxWidth: 250, maxHeight: 250}) || null;
+      this.duration = this.lottie.getDuration();
+    });
     // console.log('lottie', this.lottie);
   }
 
-  static async getMetadata(file: MediaFile) {
+  static fromFileUrl(file: AnimationFile, url: string, path?: string) {
+    throw new Error('do not use yet');
+    const animationFile = MediaFile.fromFile(file as MediaFile, path) as AnimationFile;
     if (!AnimationFile.element) {
       AnimationFile.element = document.createElement('div') as HTMLDivElement;
     }
-
-    if (!file.metadata) {
-      file.metadata = {}
+    animationFile._url = url;
+    // animationFile.id = namedId('lottie');
+    animationFile.data = {
+      src: URL.createObjectURL(animationFile),
+      className: `${animationFile.id}-class`
     }
-    const tags = ExifReader.load(file);
-    if (tags) {
-      if (!file.metadata.tags) {
-        file.metadata.tags = tags;
-      } else {
-        file.metadata.tags = {...file.metadata.tags, ...tags};
+    animationFile.lottie = AnimationFile.load({
+      id: animationFile.id,
+      src: url,
+      container: AnimationFile.element,
+      mode: 'canvas',
+      renderCtx: MediaFile.renderer.getContext('2d'),
+    })
+    animationFile.duration = -1;
+    return new Promise((resolve, reject) =>{
+      try {
+        animationFile.lottie.addEventListener('loaded_images', () => {
+          animationFile.lottie.show();
+          animationFile.icon = animationFile.captureScreenshot({width: 24, height: 24}) || null;
+          animationFile.thumbnail = animationFile.captureScreenshot({maxWidth: 250, maxHeight: 250}) || null;
+          animationFile.duration = animationFile.lottie.getDuration();
+          resolve(animationFile);
+        });
+      } catch (ex) {
+        console.error('REJECT - AnimationFile.fromFileUrl:', ex);
+        reject(ex);
       }
-    }
-    // this.metadata.icon = this.captureScreenshot({width: 24, height: 24});
-    // this.metadata.thumbnail = this.captureScreenshot({maxWidth: 250, maxHeight: 250});
+    })
+
   }
 
   static globalCache: Record<string, AnimationItem> = {};
 
   static globalCacheEnabled = false;
 
-  static load (params: { file: AnimationFile, container: HTMLElement, mode?: 'canvas' | 'svg', renderCtx: CanvasRenderingContext2D | null }) {
-    const { container, renderCtx, file, mode = 'canvas' } = params;
-    const cacheKey = `${mode}-${file.id || namedId('lottie')}`;
+  static load (params: { id?: string, src: string, container: HTMLElement, mode?: 'canvas' | 'svg', renderCtx: CanvasRenderingContext2D | null, className?: string }) {
+    const { container, renderCtx, src, mode = 'canvas', className } = params;
+    if (!container) {
+      throw new Error('Can not create animationItem without a container');
+    }
+    if (!params.id) {
+      params.id = namedId('lottie');
+    }
+    const { id } = params;
+    const cacheKey = `${mode}-${id || namedId('lottie')}`;
     const animLoader = () => {
       const rendererSettings = mode === 'canvas' ? {
         context: renderCtx,
         clearCanvas: true,
         preserveAspectRatio: 'xMinYMin slice', // Supports the same options as the svg element's preserveAspectRatio property
         progressiveLoad: false, // Boolean, only svg renderer, loads dom elements when needed. Might speed up initialization for large number of elements.
-        className: file.data.className ? file.data.className : `${file.id}-class`,
+        className: className ?? `${id}-class`,
       } : {};
+      console.log('load', id, src, mode, rendererSettings )
       const options = {
-        name: file.id,
+        name: id,
         container,
         renderer: mode,
         loop: true,
         autoplay: false,
-        path: file.data!.src,
+        path: src,
         rendererSettings,
       }
       return lottie.loadAnimation(options);
@@ -112,23 +140,20 @@ export default class AnimationFile extends ResolutionFile implements IResolution
     return anim;
   }
 
-  /*
+  // eslint-disable-next-line class-methods-use-this
   captureScreenshot(params: ScreenShotParams) {
     const { maxHeight, maxWidth  } = params;
     let { width, height  } = params;
-    const element = VideoFile.element;
-    const renderer = VideoFile.renderer;
+    const renderer = AnimationFile.renderer;
     const renderCtx = renderer.getContext('2d');
 
     if (!renderCtx) {
-      return;
+      throw new Error("render context is not valid");
     }
-    const url = URL.createObjectURL(this);
-    element.src = url;
 
     // set image source
-    width = Math.max(maxWidth ?? width ?? element.videoWidth, width ?? 0);
-    height = Math.max(maxHeight ?? height ?? element.videoHeight, height ?? 0);
+    width = Math.max(maxWidth ?? width ?? AnimationFile.renderer.width, width ?? 0);
+    height = Math.max(maxHeight ?? height ?? AnimationFile.renderer.height, height ?? 0);
     if (!width || !height) {
       throw new Error("Width and height must be provided");
     }
@@ -136,12 +161,11 @@ export default class AnimationFile extends ResolutionFile implements IResolution
     renderer.height = height;
 
     // draw current video frame on canvas
-    renderCtx.drawImage(element, 0, 0, width, height);
+    // renderCtx.drawImage(AnimationFile.element, 0, 0, width, height);
 
     // export canvas data
     return renderer.toDataURL();
   }
-  */
 }
 
 
