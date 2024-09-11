@@ -2,7 +2,7 @@ import * as React from 'react';
 import {Theme} from '@mui/material/styles';
 import {SxProps} from '@mui/system';
 import {SlotComponentProps} from '@mui/base/utils';
-import {IEngine} from "@stoked-ui/timeline";
+import {IEngine, TimelineState} from "@stoked-ui/timeline";
 import {FileBase} from '@stoked-ui/file-explorer/models/items';
 import {EditorViewClasses} from './editorViewClasses';
 
@@ -33,7 +33,9 @@ export interface EditorViewPropsBase extends React.HTMLAttributes<HTMLDivElement
    */
   sx?: SxProps<Theme>;
 
-  engine: IEngine | null;
+  engine?: IEngine;
+
+  timelineState?: React.RefObject<TimelineState>;
 }
 
 export interface EditorViewProps<R extends FileBase, Multiple extends boolean | undefined>

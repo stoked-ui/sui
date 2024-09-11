@@ -12,8 +12,6 @@ import {
 import {ExtensionMimeTypeMap} from "./MimeType";
 import namedId from "../namedId";
 
-export type MediaFileParams =  {file: MediaFile, options?: { metadata?: true}};
-
 export default class MediaFile implements IMediaFile {
   readonly id: string;
 
@@ -31,11 +29,19 @@ export default class MediaFile implements IMediaFile {
 
   readonly webkitRelativePath: string;
 
-  metadata?: any;
+  duration?: number;
+
+  icon: string | null = null;
+
+  thumbnail: string | null = null;
+
+  tags?: any;
 
   readonly blob: Blob;
 
   _url?: string;
+
+  backgroundImage?: string;
 
   static container: HTMLDivElement;
 
@@ -59,8 +65,7 @@ export default class MediaFile implements IMediaFile {
   }
 
 
-  constructor(params: MediaFileParams) {
-    const { file } = params;
+  constructor(file: MediaFile) {
 
     if (!file) {
       throw new Error('Either file or url must be provided');
@@ -85,15 +90,7 @@ export default class MediaFile implements IMediaFile {
     this.slice = file.slice.bind(file);
     this.stream = file.stream.bind(file);
     this.text = file.text.bind(file);
-    /*
-    if (params.options?.metadata) {
-      getMetadata(this).then(() => {
-        console.log('metadata', this.metadata);
-      }).catch((err) => {
-        console.error('Error getting metadata', err);
-      });
-    }
-    */
+
     this.blob = new Blob([file], { type: file.type });
   }
 
@@ -122,13 +119,6 @@ export default class MediaFile implements IMediaFile {
     return noIgnoredFiles(files);
   }
 
-  static async fromUrl(url: string) {
-    const blob = await loadFileUrl(url) as File;
-
-    const file = new File([blob], url.split('/').pop()!, { type: blob.type });
-    return MediaFile.fromFile({...file, url} as IMediaFile);
-  }
-
   static fromFile(file: IMediaFile, path?: string) {
     const f = this.withMimeType(file);
     const {webkitRelativePath} = file;
@@ -150,7 +140,11 @@ export default class MediaFile implements IMediaFile {
     return f;
   }
 
-  private static withMimeType(file: IMediaFile) {
+  static async fromAction(action: { id?: string, data: { src: string; } }) {
+    return loadAction(action);
+  }
+
+  static withMimeType(file: IMediaFile) {
     const {name} = file;
     const hasExtension = name && name.lastIndexOf('.') !== -1;
     if (hasExtension) {
@@ -173,7 +167,6 @@ export default class MediaFile implements IMediaFile {
           enumerable: true
         })
       }
-
     }
 
     return file;
@@ -197,11 +190,7 @@ async function getDropFiles(input: PragmaticDndEvent): Promise<IMediaFile[]> {
   return noIgnoredFiles(finalizedFiles.flat() as IMediaFile[]);
 }
 
-function getUrlExtension( url ) {
-  return url.split(/[#?]/)[0].split('.').pop().trim();
-}
-
-function getFileName(url: string, includeExtension?: boolean) {
+export function getFileName(url: string, includeExtension?: boolean) {
   const matches = url && typeof url.match === "function" && url.match(/\/?([^/.]*)\.?([^/]*)$/);
   if (!matches) {
     return null;
@@ -212,46 +201,6 @@ function getFileName(url: string, includeExtension?: boolean) {
   return matches[1];
 }
 
-function loadFileUrl(url: string) {
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.open('GET', url, true);
-    xhr.responseType = 'arraybuffer';
-
-    xhr.onload = async function onLoad() {
-      if (xhr.status === 200) {
-        try {
-          if (xhr.response.byteLength === 0) {
-            throw new Error('Fetched file data is empty.');
-          }
-          let contentType = xhr.getResponseHeader('Content-Type');
-          if (contentType === null) {
-            contentType = getUrlExtension(url);
-          }
-          // console.info('Fetched file data size:', xhr.response.byteLength);
-          // console.info('Fetched file data type:', {type:  contentType});
-
-          // new Blob([xhr.response], { type: contentType ?? 'application/octet-stream' });
-          const file = new File([xhr.response], getFileName(url) ?? 'url-file', {type: contentType ?? 'application/octet-stream'});
-          const mediaFile = MediaFile.fromFile(file as IMediaFile);
-          resolve(mediaFile);
-        } catch (error) {
-          // console.error('Error fetching data:', error);
-          // console.error('File data size:', xhr.response.byteLength);
-          reject(error);
-        }
-      } else {
-        reject(new Error(`HTTP error! status: ${xhr.status}`));
-      }
-    };
-
-    xhr.onerror = function onError() {
-      reject(new Error('Network error occurred'));
-    };
-
-    xhr.send();
-  });
-}
 
 function isDataTransfer(value: unknown): value is DataTransfer {
   return isObject(value);
@@ -299,6 +248,41 @@ function noIgnoredFiles(files: IMediaFile[]) {
     // console.log('ignore name: ', file.name, FILES_TO_IGNORE.indexOf(file.name) );
     return FILES_TO_IGNORE.indexOf(file.name) === -1
   });
+}
+
+async function loadAction(action: { id?: string, data: { src: string; } }): Promise<any> {
+  const response = await fetch(action.data.src);
+  if (!response.ok) {
+    throw new Error('Network response was not ok');
+  }
+  const contentType = response.headers.get("content-type");
+  const blob = await response.blob()
+  const file = new File([blob], getFileName(action.data.src, true) ?? 'url-file', {type: contentType ?? 'application/octet-stream'});
+  const mediaFile = file as IMediaFile;
+  Object.defineProperty(mediaFile, 'url', {
+    value: action.data.src,
+    writable: false,
+    configurable: false,
+    enumerable: true
+  });
+  Object.defineProperty(mediaFile, 'id', {
+    value: action.id,
+    writable: false,
+    configurable: false,
+    enumerable: true
+  });
+  return MediaFile.fromFile(mediaFile as IMediaFile);
+}
+
+async function loadFileUrl(url: string): Promise<any> {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error('Network response was not ok');
+  }
+  const contentType = response.headers.get("content-type");
+  const blob = await response.blob()
+  const file = new File([blob], getFileName(url, true) ?? 'url-file', {type: contentType ?? 'application/octet-stream'});
+  return MediaFile.fromFile({...file, url} as IMediaFile);
 }
 
 // IE11 does not support Array.from()

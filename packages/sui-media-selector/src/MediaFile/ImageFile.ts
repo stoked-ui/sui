@@ -1,6 +1,7 @@
 import * as ExifReader from 'exifreader';
-import {IResolution, ResolutionFile} from "./Resolution";
-import MediaFile, { MediaFileParams } from "./MediaFile";
+import {IResolutionFile, ResolutionFile, ResolutionFileProps} from "./Resolution";
+import MediaFile from "./MediaFile";
+import {IMediaFile} from "./MediaFile.types";
 
 type ScreenShotParams = {
   width?: number,
@@ -9,39 +10,37 @@ type ScreenShotParams = {
   maxHeight?: number;
 }
 
-export type ImageFileParams = IResolution & MediaFileParams;
+export type ImageFileProps = ResolutionFileProps;
 
-export default class ImageFile extends ResolutionFile implements IResolution {
+export default class ImageFile extends ResolutionFile implements IResolutionFile {
   static element: HTMLImageElement;
 
-  constructor(params: ImageFileParams) {
-    super(params);
+  constructor(file: MediaFile) {
+    super(file);
     if (!ImageFile.element) {
       ImageFile.element = document.createElement('img') as HTMLImageElement;
     }
     ImageFile.element.src = URL.createObjectURL(this);
+    this.tags = ExifReader.load(file);
     this._height = ImageFile.element.naturalHeight;
     this._width = ImageFile.element.naturalWidth;
+    this.icon = ImageFile.captureScreenshot(file, {width: 24, height: 24});
+    this.thumbnail = ImageFile.captureScreenshot(file, {maxWidth: 250, maxHeight: 250});
   }
 
-  static async getMetadata(file: MediaFile) {
+  static fromFile(file: ImageFile, url: string, path?: string) {
+    const imageFile = MediaFile.fromFile(file as MediaFile, path) as ImageFile;
     if (!ImageFile.element) {
       ImageFile.element = document.createElement('img') as HTMLImageElement;
     }
-
-    if (!file.metadata) {
-      file.metadata = {}
-    }
-    const tags = ExifReader.load(file);
-    if (tags) {
-      if (!file.metadata.tags) {
-        file.metadata.tags = tags;
-      } else {
-        file.metadata.tags = {...file.metadata.tags, ...tags};
-      }
-    }
-    file.metadata.icon = ImageFile.captureScreenshot(file, {width: 24, height: 24});
-    file.metadata.thumbnail = ImageFile.captureScreenshot(file, {maxWidth: 250, maxHeight: 250});
+    ImageFile.element.src = URL.createObjectURL(imageFile);
+    imageFile.tags = ExifReader.load(file);
+    imageFile._url = url;
+    imageFile._height = ImageFile.element.naturalHeight;
+    imageFile._width = ImageFile.element.naturalWidth;
+    imageFile.icon = ImageFile.captureScreenshot(file, {width: 24, height: 24});
+    imageFile.thumbnail = ImageFile.captureScreenshot(file, {maxWidth: 250, maxHeight: 250});
+    return imageFile;
   }
 
   static captureScreenshot(file: MediaFile, params: ScreenShotParams): string | null {

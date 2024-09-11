@@ -4,7 +4,7 @@ import {CommonProps} from '../interface/common_prop';
 import {prefix} from '../utils/deal_class_prefix';
 import {parserPixelToTime} from '../utils/deal_data';
 import {DragLineData} from '../TimelineTrackArea/TimelineTrackAreaDragLines';
-import {TimelineControlPropsBase} from "../TimelineControl/TimelineControl.types";
+import {type TimelineControlPropsBase} from "../TimelineControl/TimelineControl.types";
 import TimelineAction from "../TimelineAction/TimelineAction";
 import {type ITimelineTrack} from "./TimelineTrack.types";
 

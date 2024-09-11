@@ -70,9 +70,6 @@ export interface EditorPropsBase extends React.HTMLAttributes<HTMLDivElement> {
 
   // project?: VideoProject<R>;
   actionData?: ITimelineActionInput[];
-
-  actions?: ITimelineAction[];
-
 }
 
 export interface EditorProps<R extends FileBase = FileBase, Multiple extends boolean | undefined = true>

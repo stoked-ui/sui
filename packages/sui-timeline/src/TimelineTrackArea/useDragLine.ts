@@ -1,6 +1,6 @@
 import * as React from "react";
 import { ITimelineTrack } from "../TimelineTrack/TimelineTrack.types";
-import {ITimelineAction} from "../TimelineAction/TimelineAction.types"
+import {type ITimelineAction} from "../TimelineAction/TimelineAction.types"
 import {parserActionsToPositions, parserTimeToTransform} from "../utils/deal_data";
 import {DragLineData} from "./TimelineTrackAreaDragLines";
 

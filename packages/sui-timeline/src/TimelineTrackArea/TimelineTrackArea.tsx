@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {styled} from "@mui/material/styles";
 import { AutoSizer, Grid, GridCellRenderer } from 'react-virtualized';
-import {TimelineControlPropsBase} from '../TimelineControl/TimelineControl.types';
+import {type TimelineControlPropsBase} from '../TimelineControl/TimelineControl.types';
 import {prefix} from '../utils/deal_class_prefix';
 import {parserTimeToPixel} from '../utils/deal_data';
 import TimelineTrackAreaDragLines from './TimelineTrackAreaDragLines';

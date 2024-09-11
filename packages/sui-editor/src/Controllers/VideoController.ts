@@ -81,7 +81,7 @@ class VideoController extends Controller {
       });
       this.cacheMap[action.id] = item;
 
-      if (engine.viewer && engine.renderer) {
+      if (engine.viewer && engine.renderer && engine.renderCtx) {
         engine.viewer.appendChild(item);
         this._setRenderListener(engine.renderCtx, engine.renderer, item);
       } else {
@@ -106,7 +106,7 @@ class VideoController extends Controller {
 
   leave(params: ControllerParams) {
     const { action, time, engine } = params;
-    engine.renderCtx.clearRect(0, 0, engine.renderer.width, engine.renderer.height);
+    engine.renderCtx?.clearRect(0, 0, engine.renderer?.width ?? 0, engine.renderer?.height ?? 0);
     const item = this.cacheMap[action.id];
     if (!item) {
       return;
