@@ -1,5 +1,5 @@
 import {ITimelineTrack} from "../TimelineTrack/TimelineTrack.types";
-import {ITimelineAction} from "../TimelineAction/TimelineAction.types";
+import {type ITimelineAction} from "../TimelineAction/TimelineAction.types";
 import {ADD_SCALE_COUNT} from "../interface/const";
 
 /** time to pixel */

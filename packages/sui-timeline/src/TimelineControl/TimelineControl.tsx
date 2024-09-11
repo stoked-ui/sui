@@ -5,7 +5,7 @@ import {ScrollSync} from 'react-virtualized';
 import {MIN_SCALE_COUNT, PREFIX, START_CURSOR_TIME} from '../interface/const';
 import { ITimelineTrack } from '../TimelineTrack/TimelineTrack.types';
 import {TimelineControlComponent, TimelineControlProps} from './TimelineControlProps';
-import {TimelineState} from '../Timeline/TimelineState';
+import {type TimelineState} from '../Timeline/TimelineState';
 import {checkProps} from '../utils/check_props';
 import {getScaleCountByRows, parserPixelToTime, parserTimeToPixel} from '../utils/deal_data';
 import TimelineCursor from '../TimelineCursor/TimelineCursor';
@@ -25,9 +25,8 @@ const TimelineControlRoot = styled('div')(({ theme }) => ({
   overflow: 'hidden',
 }));
 
-
-const TimelineControl = React.forwardRef<TimelineState, TimelineControlProps>(
-  function TimelineControl(props, ref) {
+const TimelineControl = React.forwardRef(
+  function TimelineControl(props: TimelineControlProps, ref) {
     const checkedProps = checkProps(props);
     const { style } = props;
     const {
@@ -43,7 +42,7 @@ const TimelineControl = React.forwardRef<TimelineState, TimelineControlProps>(
       minScaleCount,
       maxScaleCount,
       setTracks,
-      engine: engineRef,
+      engineRef,
       autoReRender = true,
       onScroll: onScrollVertical,
     } = checkedProps;
@@ -74,7 +73,7 @@ const TimelineControl = React.forwardRef<TimelineState, TimelineControlProps>(
       if (setTracks) {
         setTracks(tracks);
       }
-    }, [tracks, minScaleCount, maxScaleCount, scale]);
+    }, [minScaleCount, maxScaleCount, scale]);
 
 
     React.useEffect(() => {
@@ -85,7 +84,7 @@ const TimelineControl = React.forwardRef<TimelineState, TimelineControlProps>(
 
     React.useEffect(() => {
       if (engineRef?.current) {
-        setTracks([...tracks]);
+        engineRef.current.tracks = tracks;
       }
     }, [tracks]);
 
@@ -104,9 +103,8 @@ const TimelineControl = React.forwardRef<TimelineState, TimelineControlProps>(
 
     /** handle proactive data changes */
     const handleEditorDataChange = (updatedTracks: ITimelineTrack[]) => {
-      if (engineRef?.current) {
-        setTracks(updatedTracks);
-        setTracks([...tracks]);
+      if (engineRef.current) {
+        setTracks([...updatedTracks]);
         if (autoReRender) {
           engineRef.current.reRender();
         }
@@ -170,7 +168,7 @@ const TimelineControl = React.forwardRef<TimelineState, TimelineControlProps>(
 
     // process runner related data
     React.useEffect(() => {
-      if (!engineRef?.current) {
+      if (!engineRef.current) {
         return;
       }
       const handleTime = ({ time }) => {
@@ -181,7 +179,7 @@ const TimelineControl = React.forwardRef<TimelineState, TimelineControlProps>(
       engineRef.current.on('setTimeByTick', handleTime);
       engineRef.current.on('play', handlePlay);
       engineRef.current.on('paused', handlePaused);
-    }, [engineRef]);
+    }, [engineRef.current]);
 
     // ref data
     React.useImperativeHandle(
@@ -199,14 +197,14 @@ const TimelineControl = React.forwardRef<TimelineState, TimelineControlProps>(
         get isPaused() {
           return engineRef.current?.isPaused;
         },
-        setPlayRate: engineRef?.current?.setPlayRate.bind(engineRef.current),
-        getPlayRate: engineRef?.current?.getPlayRate.bind(engineRef.current),
+        setPlayRate: engineRef.current?.setPlayRate.bind(engineRef.current),
+        getPlayRate: engineRef.current?.getPlayRate.bind(engineRef.current),
         setTime: (time: number, move?: boolean) => handleSetCursor({ time, move }),
-        getTime: engineRef?.current?.getTime.bind(engineRef.current),
-        reRender: engineRef?.current?.reRender.bind(engineRef.current),
+        getTime: engineRef.current?.getTime.bind(engineRef.current),
+        reRender: engineRef.current?.reRender.bind(engineRef.current),
         play: (param: Parameters<TimelineState['play']>[0]) =>
-          engineRef?.current?.play({ ...(param as any) }),
-        pause: engineRef?.current?.pause.bind(engineRef.current),
+          engineRef.current?.play({ ...(param as any) }),
+        pause: engineRef.current?.pause.bind(engineRef.current),
         setScrollLeft: (val: number) => {
           if (scrollSync?.current) {
             scrollSync?.current?.setState({ scrollLeft: Math.max(val, 0) });
@@ -220,7 +218,7 @@ const TimelineControl = React.forwardRef<TimelineState, TimelineControlProps>(
         tracks,
         setTracks,
       }),
-      [engineRef],
+      [engineRef.current],
     );
 
     window.end = () => {
@@ -265,7 +263,6 @@ const TimelineControl = React.forwardRef<TimelineState, TimelineControlProps>(
                 disableDrag={disableDrag || isPlaying}
                 setCursor={handleSetCursor}
                 cursorTime={cursorTime}
-                tracks={tracks}
                 scaleCount={scaleCount}
                 setScaleCount={handleSetScaleCount}
                 onScroll={onScroll}
@@ -278,7 +275,6 @@ const TimelineControl = React.forwardRef<TimelineState, TimelineControlProps>(
                   (areaRef.current as any) = editAreaRef?.domRef.current;
                 }}
                 disableDrag={disableDrag || isPlaying}
-                tracks={tracks}
                 cursorTime={cursorTime}
                 scaleCount={scaleCount}
                 setScaleCount={handleSetScaleCount}
@@ -334,10 +330,6 @@ TimelineControl.propTypes = {
   // | To update them edit the TypeScript types and run "pnpm proptypes"  |
   // ----------------------------------------------------------------------
   /**
-   * @description timelineControl action actionType map
-   */
-  controllers: PropTypes.object.isRequired,
-  /**
    * @description Whether to automatically re-render (update tick when data changes or cursor time
    *   changes)
    * @default true
@@ -348,6 +340,10 @@ TimelineControl.propTypes = {
    * @default false
    */
   autoScroll: PropTypes.bool.isRequired,
+  /**
+   * @description timelineControl action actionType map
+   */
+  controllers: PropTypes.object.isRequired,
   /**
    * @description Disable dragging of all action areas
    * @default false
@@ -361,7 +357,7 @@ TimelineControl.propTypes = {
   /**
    * @description timelineControl runner, if not passed, the built-in runner will be used
    */
-  engine: PropTypes.any.isRequired,
+  engineRef: PropTypes.any.isRequired,
   /**
    * @description Custom action area rendering
    */
@@ -566,13 +562,7 @@ TimelineControl.propTypes = {
    * @description Custom timelineControl style
    */
   style: PropTypes.object.isRequired,
-  sx: PropTypes.oneOfType([
-    PropTypes.arrayOf(
-      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]).isRequired,
-    ),
-    PropTypes.func,
-    PropTypes.object,
-  ]).isRequired,
+  sx: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]).isRequired,), PropTypes.func, PropTypes.object,]).isRequired,
   /**
    * dom node
    */
@@ -580,16 +570,8 @@ TimelineControl.propTypes = {
   /**
    * @description TimelineControl editing data
    */
-  tracks: PropTypes.arrayOf(
-    PropTypes.any,
-  ).isRequired,
-  trackSx: PropTypes.oneOfType([
-    PropTypes.arrayOf(
-      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]).isRequired,
-    ),
-    PropTypes.func,
-    PropTypes.object,
-  ]).isRequired,
+  tracks: PropTypes.arrayOf(PropTypes.any,).isRequired,
+  trackSx: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]).isRequired,), PropTypes.func, PropTypes.object,]).isRequired,
   viewSelector: PropTypes.string.isRequired,
 };
 

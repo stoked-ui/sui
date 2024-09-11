@@ -10,6 +10,7 @@ import TextField from '@mui/material/TextField';
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import {emphasize} from '@mui/material/styles';
+import {TimelineState} from '@stoked-ui/timeline';
 import {FileBase} from '@stoked-ui/file-explorer';
 import {createUseThemeProps, styled} from '../internals/zero-styled';
 import {EditorControlsProps} from './EditorControls.types';
@@ -110,7 +111,7 @@ export const EditorControls = React.forwardRef(function EditorControls<
   Multiple extends boolean | undefined = undefined,
 >({ scale = 1, scaleWidth = 160, startLeft = 20, ...inProps }: EditorControlsProps<R, Multiple>, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
   const props = useThemeProps({ props: inProps, name: 'MuiEditorControls' });
-  const { timelineState, autoScrollWhenPlay } = props;
+  const { timelineState, autoScrollWhenPlay } = inProps;
   const [isPlaying, setIsPlaying] = React.useState(false);
   const [time, setTime] = React.useState(0);
   const [showRate, setShowRate] = React.useState(false);

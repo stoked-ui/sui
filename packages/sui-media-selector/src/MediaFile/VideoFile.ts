@@ -1,8 +1,9 @@
 import * as ExifReader from 'exifreader';
-import {IDuration, IResolution, ResolutionFile} from "./Resolution";
-import MediaFile, {MediaFileParams} from "./MediaFile";
-
-// let takingScreenshot: boolean = false;
+import {IResolutionFile, ResolutionFileProps} from "./Resolution";
+import { ResolutionFile } from './Resolution';
+import MediaFile from "./MediaFile";
+import {IMediaFile} from "./MediaFile.types";
+import {MediaType} from "./MediaType";
 
 type ScreenShotParams = {
   width?: number,
@@ -10,49 +11,53 @@ type ScreenShotParams = {
   maxWidth?: number,
   maxHeight?: number;
 }
-export type VideoFileParams = IResolution & MediaFileParams & IDuration;
+export type VideoFileProps = ResolutionFileProps;
 
-export default class VideoFile extends ResolutionFile implements IResolution, IDuration {
+export default class VideoFile extends ResolutionFile implements IResolutionFile {
   static element: HTMLVideoElement;
 
-  duration: number;
-
-  constructor(params: VideoFileParams) {
-    super(params);
+  constructor(file: MediaFile) {
+    super(file);
     if (!VideoFile.element) {
       VideoFile.element = document.createElement('video') as HTMLVideoElement;
     }
     VideoFile.element.src = URL.createObjectURL(this);
-    // VideoFile.element.addEventListener('loadedmetadata', () => VideoFile.getMetadata(this));
-    this.duration = params.duration ?? -1;
+    this.duration = file.duration ?? -1;
+    VideoFile.element.addEventListener('loadeddata', () => {
+      this.duration = VideoFile.element.duration;
+      this._width = VideoFile.element.videoWidth;
+      this._height = VideoFile.element.videoHeight;
+      this.icon = this.captureScreenshot({width: 24, height: 24});
+      this.thumbnail = this.captureScreenshot({maxWidth: 250, maxHeight: 250});
+      this.tags = ExifReader.load(file);
+    });
   }
 
-  static async getMetadata(file: MediaFile) {
+  static fromFileUrl(file: VideoFile, url: string, path?: string) {
+    const videoFile = MediaFile.fromFile(file as MediaFile, path) as VideoFile;
     if (!VideoFile.element) {
       VideoFile.element = document.createElement('video') as HTMLVideoElement;
     }
-    VideoFile.element.src = URL.createObjectURL(file);
-    const fileStub = {
-      width: VideoFile.element.videoWidth,
-      height: VideoFile.element.videoHeight,
-      duration: VideoFile.element.duration,
-      file
-    }
-    const videoFile = new VideoFile(fileStub);
-
-    if (!videoFile.metadata) {
-      videoFile.metadata = {}
-    }
-    const tags = ExifReader.load(file);
-    if (tags) {
-      if (!videoFile.metadata.tags) {
-        videoFile.metadata.tags = tags;
-      } else {
-        videoFile.metadata.tags = {...file.metadata.tags, ...tags};
+    VideoFile.element.src = URL.createObjectURL(videoFile);
+    videoFile.duration = file.duration ?? -1;
+    videoFile._url = url;
+    return new Promise((resolve, reject) =>{
+      try {
+        VideoFile.element.addEventListener('loadeddata', () => {
+          videoFile.duration = VideoFile.element.duration;
+          videoFile._width = VideoFile.element.videoWidth;
+          videoFile._height = VideoFile.element.videoHeight;
+          videoFile.icon = videoFile.captureScreenshot({width: 24, height: 24});
+          videoFile.thumbnail = videoFile.captureScreenshot({maxWidth: 250, maxHeight: 250});
+          videoFile.tags = ExifReader.load(file);
+          resolve(videoFile);
+        });
+      } catch (ex) {
+        console.error('REJECT - VideoFile.fromFileUrl:', ex);
+        reject(ex);
       }
-    }
-    videoFile.metadata.icon = videoFile.captureScreenshot({width: 24, height: 24});
-    videoFile.metadata.thumbnail = videoFile.captureScreenshot({maxWidth: 250, maxHeight: 250});
+    })
+
   }
 
   captureScreenshot(params: ScreenShotParams): string | null {

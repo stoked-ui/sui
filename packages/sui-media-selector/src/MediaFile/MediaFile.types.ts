@@ -14,6 +14,9 @@ export interface IMediaDirectory extends IMediaFileBase{
 export interface IMediaFile extends File, IMediaDirectory {
   readonly mediaType: MediaType;
   readonly id: string;
+  duration?: number;
+  icon: string | null;
+  thumbnail: string | null;
   readonly blob: Blob;
   _url?: string;
   readonly url: string;

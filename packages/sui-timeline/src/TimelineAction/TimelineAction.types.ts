@@ -87,6 +87,7 @@ export interface ITimelineAction extends Omit<ITimelineActionInput, 'id' | 'name
 
   onKeyDown?: (event: any, id: string) => void;
 
+  duration?: number;
   data?: {
     src: string;
     style?: CSSProperties;
@@ -147,6 +148,7 @@ export interface TimelineActionProps
   areaRef: React.MutableRefObject<HTMLDivElement>;
   /* setUp scroll left */
   deltaScrollLeft?: (delta: number) => void;
+  getActionRender?: (action: ITimelineAction, track: ITimelineTrack) => any;
 }
 
 export interface TimelineActionOwnerState extends Omit<TimelineActionProps, 'action' | 'onKeyDown'>, ITimelineAction  {}

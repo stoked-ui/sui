@@ -21,7 +21,7 @@ import {
 } from '../TimelineTrack/TimelineTrackDnd.types';
 import {getTimelineActionUtilityClass} from './timelineActionClasses';
 import {prefix} from '../utils/deal_class_prefix';
-import {TimelineActionOwnerState, TimelineActionProps} from './TimelineAction.types';
+import {type TimelineActionOwnerState, type TimelineActionProps} from './TimelineAction.types';
 import {type ITimelineTrack} from '../TimelineTrack/TimelineTrack.types';
 
 export const useActionUtilityClasses = (ownerState: TimelineActionOwnerState) => {
@@ -466,7 +466,7 @@ function TimelineAction(props: TimelineActionProps) {
         style={{ height: rowHeight, ...(backgroundImage ? {backgroundImage, backgroundSize: 'contain' } : {}) }}
         color={`${controllers?.[action.effectId]?.color}`}
       >
-        {getActionRender && getActionRender(nowAction, nowRow)}
+        {action.name}
         {flexible && <LeftStretch className={`${prefix('action-left-stretch')} ${classes.left}`} />}
         {flexible && (
           <RightStretch className={`${prefix('action-right-stretch')} ${classes.right}`} />
@@ -483,270 +483,270 @@ TimelineAction.propTypes = {
   // ----------------------------------------------------------------------
   action: PropTypes.shape({
     data: PropTypes.shape({
-      src: PropTypes.string.isRequired,
-      style: PropTypes.object.isRequired,
-    }).isRequired,
-    disable: PropTypes.bool.isRequired,
-    effectId: PropTypes.string.isRequired,
-    end: PropTypes.number.isRequired,
-    flexible: PropTypes.bool.isRequired,
-    id: PropTypes.string.isRequired,
-    maxEnd: PropTypes.number.isRequired,
-    minStart: PropTypes.number.isRequired,
-    movable: PropTypes.bool.isRequired,
-    name: PropTypes.string.isRequired,
-    onKeyDown: PropTypes.func.isRequired,
-    selected: PropTypes.bool.isRequired,
-    start: PropTypes.number.isRequired,
-  }).isRequired,
+      src: PropTypes.string,
+      style: PropTypes.object,
+    }),
+    disable: PropTypes.bool,
+    effectId: PropTypes.string,
+    end: PropTypes.number,
+    flexible: PropTypes.bool,
+    id: PropTypes.string,
+    maxEnd: PropTypes.number,
+    minStart: PropTypes.number,
+    movable: PropTypes.bool,
+    name: PropTypes.string,
+    onKeyDown: PropTypes.func,
+    selected: PropTypes.bool,
+    start: PropTypes.number,
+  }),
   /**
    * @description timelineControl action actionType map
    */
-  controllers: PropTypes.object.isRequired,
+  controllers: PropTypes.object,
   areaRef: PropTypes.shape({
-    current: PropTypes.object.isRequired,
-  }).isRequired,
+    current: PropTypes.object,
+  }),
   /**
    * The content of the component.
    */
   children: PropTypes.node,
-  classes: PropTypes.object.isRequired,
-  className: PropTypes.string.isRequired,
+  classes: PropTypes.object,
+  className: PropTypes.string,
   /**
    * Cursor time
    */
-  cursorTime: PropTypes.number.isRequired,
-  deltaScrollLeft: PropTypes.func.isRequired,
+  cursorTime: PropTypes.number,
+  deltaScrollLeft: PropTypes.func,
   /**
    * Whether the action is prohibited from running
    */
-  disable: PropTypes.bool.isRequired,
+  disable: PropTypes.bool,
   /**
    * @description Disable dragging of all action areas
    * @default false
    */
-  disableDrag: PropTypes.bool.isRequired,
+  disableDrag: PropTypes.bool,
   /**
    * @description Start dragging auxiliary line adsorption
    * @default false
    */
-  dragLine: PropTypes.bool.isRequired,
+  dragLine: PropTypes.bool,
   dragLineData: PropTypes.shape({
-    assistPositions: PropTypes.arrayOf(PropTypes.number).isRequired,
-    isMoving: PropTypes.bool.isRequired,
-    movePositions: PropTypes.arrayOf(PropTypes.number).isRequired,
-  }).isRequired,
+    assistPositions: PropTypes.arrayOf(PropTypes.number),
+    isMoving: PropTypes.bool,
+    movePositions: PropTypes.arrayOf(PropTypes.number),
+  }),
   /**
    * @description timelineControl runner, if not passed, the built-in runner will be used
    */
   engine: PropTypes.shape({
-    current: PropTypes.any.isRequired,
-  }).isRequired,
+    current: PropTypes.any,
+  }),
   /**
    * Whether the action is scalable
    */
-  flexible: PropTypes.bool.isRequired,
+  flexible: PropTypes.bool,
   /**
    * @description Custom action area rendering
    */
-  getActionRender: PropTypes.func.isRequired,
+  getActionRender: PropTypes.func,
   /**
    * @description Get the action id list to prompt the auxiliary line. Calculate it when
    *   move/resize start. By default, get all the action ids except the current move action.
    */
-  getAssistDragLineActionIds: PropTypes.func.isRequired,
+  getAssistDragLineActionIds: PropTypes.func,
   /**
    * @description Custom scale rendering
    */
-  getScaleRender: PropTypes.func.isRequired,
+  getScaleRender: PropTypes.func,
   /**
    * @description Whether to enable grid movement adsorption
    * @default false
    */
-  gridSnap: PropTypes.bool.isRequired,
-  handleTime: PropTypes.func.isRequired,
+  gridSnap: PropTypes.bool,
+  handleTime: PropTypes.func,
   /**
    * @description whether to hide the cursor
    * @default false
    */
-  hideCursor: PropTypes.bool.isRequired,
+  hideCursor: PropTypes.bool,
   /**
    * @description Maximum number of scales (>=minScaleCount)
    * @default Infinity
    */
-  maxScaleCount: PropTypes.number.isRequired,
+  maxScaleCount: PropTypes.number,
   /**
    * @description Minimum number of ticks (>=1)
    * @default 20
    */
-  minScaleCount: PropTypes.number.isRequired,
+  minScaleCount: PropTypes.number,
   /**
    * Whether the action is movable
    */
-  movable: PropTypes.bool.isRequired,
+  movable: PropTypes.bool,
   /**
    * @description Move end callback (return false to prevent onChange from triggering)
    */
-  onActionMoveEnd: PropTypes.func.isRequired,
+  onActionMoveEnd: PropTypes.func,
   /**
    * @description Start moving callback
    */
-  onActionMoveStart: PropTypes.func.isRequired,
+  onActionMoveStart: PropTypes.func,
   /**
    * @description Move callback (return false to prevent movement)
    */
-  onActionMoving: PropTypes.func.isRequired,
+  onActionMoving: PropTypes.func,
   /**
    * @description size change end callback (return false to prevent onChange from triggering)
    */
-  onActionResizeEnd: PropTypes.func.isRequired,
+  onActionResizeEnd: PropTypes.func,
   /**
    * @description Start changing the size callback
    */
-  onActionResizeStart: PropTypes.func.isRequired,
+  onActionResizeStart: PropTypes.func,
   /**
    * @description Start size callback (return false to prevent changes)
    */
-  onActionResizing: PropTypes.func.isRequired,
+  onActionResizing: PropTypes.func,
   /**
    * @description click action callback
    */
-  onClickAction: PropTypes.func.isRequired,
+  onClickAction: PropTypes.func,
   /**
    * @description Click action callback (not executed when drag is triggered)
    */
-  onClickActionOnly: PropTypes.func.isRequired,
+  onClickActionOnly: PropTypes.func,
   /**
    * @description Click track callback
    */
-  onClickRow: PropTypes.func.isRequired,
+  onClickRow: PropTypes.func,
   /**
    * @description Click time area event, prevent setting time when returning false
    */
-  onClickTimeArea: PropTypes.func.isRequired,
+  onClickTimeArea: PropTypes.func,
   /**
    * @description Right-click action callback
    */
-  onContextMenuAction: PropTypes.func.isRequired,
+  onContextMenuAction: PropTypes.func,
   /**
    * @description Right-click track callback
    */
-  onContextMenuRow: PropTypes.func.isRequired,
+  onContextMenuRow: PropTypes.func,
   /**
    * @description cursor drag event
    */
-  onCursorDrag: PropTypes.func.isRequired,
+  onCursorDrag: PropTypes.func,
   /**
    * @description cursor ends drag event
    */
-  onCursorDragEnd: PropTypes.func.isRequired,
+  onCursorDragEnd: PropTypes.func,
   /**
    * @description cursor starts drag event
    */
-  onCursorDragStart: PropTypes.func.isRequired,
+  onCursorDragStart: PropTypes.func,
   /**
    * @description Double-click action callback
    */
-  onDoubleClickAction: PropTypes.func.isRequired,
+  onDoubleClickAction: PropTypes.func,
   /**
    * @description Double-click track callback
    */
-  onDoubleClickRow: PropTypes.func.isRequired,
+  onDoubleClickRow: PropTypes.func,
   /**
    * @description Default height of each edit line (>0, unit: px)
    * @default 32
    */
-  rowHeight: PropTypes.number.isRequired,
+  rowHeight: PropTypes.number,
   /**
    * @description Single tick mark category (>0)
    * @default 1
    */
-  scale: PropTypes.number.isRequired,
+  scale: PropTypes.number,
   /**
    * Number of scales
    */
-  scaleCount: PropTypes.number.isRequired,
+  scaleCount: PropTypes.number,
   /**
    * @description Number of single scale subdivision units (>0 integer)
    * @default 10
    */
-  scaleSplitCount: PropTypes.number.isRequired,
+  scaleSplitCount: PropTypes.number,
   /**
    * @description Display width of a single scale (>0, unit: px)
    * @default 160
    */
-  scaleWidth: PropTypes.number.isRequired,
+  scaleWidth: PropTypes.number,
   /**
    * Whether the action is selected
    */
-  selected: PropTypes.bool.isRequired,
-  setEditorData: PropTypes.func.isRequired,
+  selected: PropTypes.bool,
+  setEditorData: PropTypes.func,
   /**
    * Set the number of scales
    */
-  setScaleCount: PropTypes.func.isRequired,
+  setScaleCount: PropTypes.func,
   /**
    * @description Data change callback, which will be triggered after the operation action end
    *   changes the data (returning false will prevent automatic engine synchronization to reduce
    *   performance overhead)
    */
-  setTracks: PropTypes.func.isRequired,
+  setTracks: PropTypes.func,
   /**
    * The props used for each component slot.
    */
-  slotProps: PropTypes.object.isRequired,
+  slotProps: PropTypes.object,
   /**
    * Overridable component slots.
    */
-  slots: PropTypes.object.isRequired,
+  slots: PropTypes.object,
   /**
    * @description The distance from the start of the scale to the left (>=0, unit: px)
    * @default 20
    */
-  startLeft: PropTypes.number.isRequired,
+  startLeft: PropTypes.number,
   /**
    * The system prop that allows defining system overrides as well as additional CSS styles.
    */
   sx: PropTypes.oneOfType([
     PropTypes.arrayOf(
-      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]).isRequired,
+      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),
     ),
     PropTypes.func,
     PropTypes.object,
-  ]).isRequired,
+  ]),
   /**
    * Current timeline width
    */
-  timelineWidth: PropTypes.number.isRequired,
+  timelineWidth: PropTypes.number,
   track: PropTypes.shape({
     actions: PropTypes.arrayOf(
       PropTypes.shape({
         data: PropTypes.shape({
-          src: PropTypes.string.isRequired,
-          style: PropTypes.object.isRequired,
-        }).isRequired,
-        disable: PropTypes.bool.isRequired,
-        effectId: PropTypes.string.isRequired,
-        end: PropTypes.number.isRequired,
-        flexible: PropTypes.bool.isRequired,
-        id: PropTypes.string.isRequired,
-        maxEnd: PropTypes.number.isRequired,
-        minStart: PropTypes.number.isRequired,
-        movable: PropTypes.bool.isRequired,
-        name: PropTypes.string.isRequired,
-        onKeyDown: PropTypes.func.isRequired,
-        selected: PropTypes.bool.isRequired,
-        start: PropTypes.number.isRequired,
+          src: PropTypes.string,
+          style: PropTypes.object,
+        }),
+        disable: PropTypes.bool,
+        effectId: PropTypes.string,
+        end: PropTypes.number,
+        flexible: PropTypes.bool,
+        id: PropTypes.string,
+        maxEnd: PropTypes.number,
+        minStart: PropTypes.number,
+        movable: PropTypes.bool,
+        name: PropTypes.string,
+        onKeyDown: PropTypes.func,
+        selected: PropTypes.bool,
+        start: PropTypes.number,
       }),
-    ).isRequired,
-    classNames: PropTypes.arrayOf(PropTypes.string).isRequired,
-    hidden: PropTypes.bool.isRequired,
-    id: PropTypes.string.isRequired,
-    lock: PropTypes.bool.isRequired,
-    name: PropTypes.string.isRequired,
-    rowHeight: PropTypes.number.isRequired,
-    selected: PropTypes.bool.isRequired,
-  }).isRequired,
+    ),
+    classNames: PropTypes.arrayOf(PropTypes.string),
+    hidden: PropTypes.bool,
+    id: PropTypes.string,
+    lock: PropTypes.bool,
+    name: PropTypes.string,
+    rowHeight: PropTypes.number,
+    selected: PropTypes.bool,
+  }),
   /**
    * @description TimelineControl editing data
    */
@@ -755,40 +755,40 @@ TimelineAction.propTypes = {
       actions: PropTypes.arrayOf(
         PropTypes.shape({
           data: PropTypes.shape({
-            src: PropTypes.string.isRequired,
-            style: PropTypes.object.isRequired,
-          }).isRequired,
-          disable: PropTypes.bool.isRequired,
-          effectId: PropTypes.string.isRequired,
-          end: PropTypes.number.isRequired,
-          flexible: PropTypes.bool.isRequired,
-          id: PropTypes.string.isRequired,
-          maxEnd: PropTypes.number.isRequired,
-          minStart: PropTypes.number.isRequired,
-          movable: PropTypes.bool.isRequired,
-          name: PropTypes.string.isRequired,
-          onKeyDown: PropTypes.func.isRequired,
-          selected: PropTypes.bool.isRequired,
-          start: PropTypes.number.isRequired,
+            src: PropTypes.string,
+            style: PropTypes.object,
+          }),
+          disable: PropTypes.bool,
+          effectId: PropTypes.string,
+          end: PropTypes.number,
+          flexible: PropTypes.bool,
+          id: PropTypes.string,
+          maxEnd: PropTypes.number,
+          minStart: PropTypes.number,
+          movable: PropTypes.bool,
+          name: PropTypes.string,
+          onKeyDown: PropTypes.func,
+          selected: PropTypes.bool,
+          start: PropTypes.number,
         }),
-      ).isRequired,
-      classNames: PropTypes.arrayOf(PropTypes.string).isRequired,
-      hidden: PropTypes.bool.isRequired,
-      id: PropTypes.string.isRequired,
-      lock: PropTypes.bool.isRequired,
-      name: PropTypes.string.isRequired,
-      rowHeight: PropTypes.number.isRequired,
-      selected: PropTypes.bool.isRequired,
+      ),
+      classNames: PropTypes.arrayOf(PropTypes.string),
+      hidden: PropTypes.bool,
+      id: PropTypes.string,
+      lock: PropTypes.bool,
+      name: PropTypes.string,
+      rowHeight: PropTypes.number,
+      selected: PropTypes.bool,
     }),
-  ).isRequired,
+  ),
   trackSx: PropTypes.oneOfType([
     PropTypes.arrayOf(
-      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]).isRequired,
+      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),
     ),
     PropTypes.func,
     PropTypes.object,
-  ]).isRequired,
-  viewSelector: PropTypes.string.isRequired,
+  ]),
+  viewSelector: PropTypes.string,
 } as any;
 
 export default TimelineAction;

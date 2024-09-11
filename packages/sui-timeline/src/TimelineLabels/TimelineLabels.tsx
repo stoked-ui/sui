@@ -2,7 +2,7 @@ import * as React from 'react';
 import composeClasses from "@mui/utils/composeClasses";
 import {useSlotProps} from '@mui/base/utils';
 import {emphasize, styled, useThemeProps} from '@mui/material/styles';
-import {TimelineLabelsProps} from './TimelineLabels.types';
+import {type TimelineLabelsProps} from './TimelineLabels.types';
 import {getTimelineLabelsUtilityClass} from "./timelineLabelsClasses";
 
 const useUtilityClasses = (

@@ -2,10 +2,10 @@ import * as React from 'react';
 import { Timeline } from '@stoked-ui/timeline';
 import { useTheme } from '@mui/material/styles';
 
-import { tracks } from './mock';
+import { mockData } from '../mock';
 
 export default function TimelineEditorDemo() {
-  const actionTypes = {
+  const controllers = {
     effect: {
       enter: (params) => {
         console.log(params);
@@ -18,6 +18,6 @@ export default function TimelineEditorDemo() {
   const theme = useTheme();
   console.log('theme', theme);
   return (
-    <Timeline tracks={tracks} sx={{ width: '100%' }} actionTypes={actionTypes} />
+    <Timeline tracks={mockData} sx={{ width: '100%' }} controllers={controllers} />
   );
 }

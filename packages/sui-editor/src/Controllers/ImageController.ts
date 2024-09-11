@@ -60,7 +60,7 @@ class ImageController extends Controller {
   }
 
   static renderImage(item: HTMLImageElement, engine: IEngine) {
-    engine.renderCtx.drawImage(item, 0, 0, engine.renderer.width, engine.renderer.height);
+    engine.renderCtx?.drawImage(item, 0, 0,  engine.renderWidth, engine.renderHeight);
   }
 
   update(params: ControllerParams) {
@@ -73,7 +73,7 @@ class ImageController extends Controller {
     if (action.hidden) {
       item.style.display = 'none';
     } else {
-      engine.renderCtx.drawImage(item, 0, 0, engine.renderer.width, engine.renderer.height);
+      engine.renderCtx?.drawImage(item, 0, 0,  engine.renderWidth, engine.renderHeight);
     }
   }
 
@@ -86,7 +86,7 @@ class ImageController extends Controller {
 
     if (time > action.end || time < action.start) {
       item.style.display = 'none';
-      engine.renderCtx.clearRect(0, 0, engine.renderer.width, engine.renderer.height);
+      engine.renderCtx?.clearRect(0, 0, engine.renderWidth, engine.renderHeight);
     } else {
       item.style.display = 'block';
     }

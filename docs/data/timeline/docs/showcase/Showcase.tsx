@@ -2,14 +2,13 @@ import * as React from 'react';
 import { alpha, ThemeProvider, createTheme, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Button, { buttonClasses } from '@mui/material/Button';
-import HighlightedCode from '@stoked-ui/docs/HighlightedCode';
-import MarkdownElement from '@stoked-ui/docs/Markdown/MarkdownElement';
+import FlashCode from 'docs/src/components/animation/FlashCode';
+import HighlightedCode from 'docs/src/modules/components/HighlightedCode';
+import MarkdownElement from 'docs/src/components/markdown/MarkdownElement';
 import ShowcaseContainer from 'docs/src/components/home/ShowcaseContainer';
 import PointerContainer, { Data } from 'docs/src/components/home/ElementPointer';
-import StylingInfo from '@stoked-ui/docs/action/StylingInfo';
-import FlashCode from 'docs/src/components/animation/FlashCode';
+import StylingInfo from 'docs/src/components/action/StylingInfo';
 import DesignDemo, { componentCode } from './DesignDemo';
-import ROUTES from "../../../../src/route";
 
 const lineMapping: Record<string, number | number[]> = {
   card: [0, 20],
@@ -191,7 +190,7 @@ export default function Showcase() {
                 code={componentCode}
                 language="jsx"
               />
-              <StylingInfo appeared={customized} sx={{ mx: -2 }} routes={ROUTES}/>
+              <StylingInfo appeared={customized} sx={{ mx: -2 }} />
             </Box>
           </Box>
         </div>

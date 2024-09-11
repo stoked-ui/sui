@@ -19,20 +19,16 @@ class AnimationController implements Controller {
   static secondaryColor: '#cd6bff';
 
   constructor({
-    id,
-    name,
-    color = AnimationController.primaryColor,
-    colorSecondary = AnimationController.secondaryColor
+    color,
+    colorSecondary
   }: {
-    id: string,
-    name: string,
     color: string,
     colorSecondary: string
   }) {
-    this.id = id;
-    this.name = name;
-    this.color = color;
-    this.colorSecondary = colorSecondary;
+    this.id = 'animation';
+    this.name = 'Animation';
+    this.color = color ?? '#1a0378';
+    this.colorSecondary = colorSecondary ?? '#cd6bff';
   }
 
 
@@ -60,14 +56,16 @@ class AnimationController implements Controller {
       item = this.cacheMap[action.id];
       item.show();
       this._goToAndStop(item, time);
-    } else {
-      item = AnimationFile.load({ file: action.file as AnimationFile, container: engine.viewer, renderCtx: engine.renderCtx });
+    } else if (engine.viewer && engine.renderCtx) {
+      item = AnimationFile.load({ id: action.id, src: action.data.src, container: engine.viewer, renderCtx: engine.renderCtx, mode: 'canvas' });
 
       item.addEventListener('loaded_images', () => {
         this._goToAndStop(item, time - action.start);
       });
 
       this.cacheMap[action.id] = item;
+      console.log('added to animation cache', item);
+
     }
   }
 
@@ -81,16 +79,18 @@ class AnimationController implements Controller {
   }
 
   leave(params: ControllerParams) {
-    const { action, time } = params;
+    const { action, time, engine } = params;
     const item = this.cacheMap[action.id];
     if (!item) {
       return;
     }
+    console.log('engine', engine.viewer, engine.viewer?.style, engine );
     if (time > action.end || time < action.start) {
 
       item.hide();
     } else {
       const cur = time - action.start;
+      console.log('item', item);
       item.show();
       this._goToAndStop(item, cur);
     }
@@ -126,8 +126,6 @@ class AnimationController implements Controller {
 }
 export { AnimationController };
 const AnimationControllerInstance = new AnimationController({
-  id: 'animation',
-  name: 'Animation',
   color: AnimationController.primaryColor,
   colorSecondary: AnimationController.secondaryColor
 });

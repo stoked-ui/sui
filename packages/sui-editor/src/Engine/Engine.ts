@@ -7,8 +7,7 @@ const PAUSED = 'paused';
 type PlayState = 'playing' | 'paused';
 
 export type EngineOptions = {
-  renderer: HTMLCanvasElement;
-  viewer: HTMLElement;
+  viewer?: HTMLElement;
   id: string;
 }
 
@@ -21,32 +20,35 @@ export type EngineOptions = {
  */
 export class Engine extends Emitter<EventTypes> implements IEngine {
 
-  private _viewer: HTMLElement;
+  private _viewer: HTMLElement | null = null;
 
-  private _renderer: HTMLCanvasElement;
+  private _renderer: HTMLCanvasElement | null = null;
 
-  private _renderCtx: CanvasRenderingContext2D;
+  private _renderCtx: CanvasRenderingContext2D | null = null
 
   constructor(params: EngineOptions ) {
     super(new Events());
-    this._renderer = params.renderer;
-    this._viewer = params.viewer;
     this._editorId = params.id;
-
-    const ctx = this._renderer.getContext('2d');
-    if (!ctx) {
-      throw new Error('Could not get 2d context from renderer');
+    if (params?.viewer) {
+      this.viewer = params.viewer;
     }
-    this._renderCtx = ctx;
   }
 
   set viewer(viewer: HTMLElement) {
     this._viewer = viewer;
+    const renderer = viewer.querySelector(`#${this._editorId} div[role='renderer']`) as HTMLCanvasElement;
+    if (renderer) {
+      this._renderer = renderer;
+      const ctx = renderer.getContext('2d');
+      if (ctx) {
+        this._renderCtx = ctx;
+      }
+    }
+
     this._viewerUpdate();
     if (this.renderer && this.viewer && this.renderCtx) {
       this._loading = false;
     } else {
-
       throw new Error('Assigned a viewer but could not locate the renderer, renderCtx, or' +
                       ' preview elements.\n' +
                       'Please ensure that the viewer has the following children:\n' +
@@ -55,17 +57,18 @@ export class Engine extends Emitter<EventTypes> implements IEngine {
     }
   }
 
-  get viewer() {
+  get viewer(): HTMLElement | null {
     return this._viewer;
   }
 
-  get renderer() {
+  get renderer(): HTMLCanvasElement | null {
     return this._renderer;
   }
 
   set renderer(canvas: HTMLCanvasElement) {
     this._renderer = canvas;
     if (canvas) {
+      console.log('setcontext ')
       const ctx = canvas.getContext('2d');
       if (!ctx) {
         throw new Error('Could not get 2d context from renderer');
@@ -76,6 +79,14 @@ export class Engine extends Emitter<EventTypes> implements IEngine {
 
   get renderCtx() {
     return this._renderCtx;
+  }
+
+  get renderWidth() {
+    return this._renderCtx?.canvas.width ?? 1920
+  }
+
+  get renderHeight() {
+    return this._renderCtx?.canvas.height ?? 1080
   }
 
   private _editorId: string;

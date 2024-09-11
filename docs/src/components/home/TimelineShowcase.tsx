@@ -1,12 +1,10 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import ShowcaseContainer from 'docs/src/components/home/ShowcaseContainer';
-import HighlightedCode from '@stoked-ui/docs/HighlightedCode';
-import MarkdownElement from '@stoked-ui/docs/Markdown/MarkdownElement';
-import {FileExplorer} from "@stoked-ui/file-explorer";
+import HighlightedCode from 'docs/src/modules/components/HighlightedCode';
+import MarkdownElement from 'docs/src/components/markdown/MarkdownElement';
 import {SxProps} from "@mui/system";
-import {ITimelineActionType, Timeline, TimelineTrackTypes} from "@stoked-ui/timeline";
-import { getDynamicFiles } from '../fileExplorer/data';
+import {IController, Timeline, ITimelineTrack} from "@stoked-ui/timeline";
 
 
 const code = `
@@ -89,7 +87,7 @@ const tracks: TimelineTrack[] = [
 
 
 export default function TimelineEditorDemo() {
-  const actionTypes: Record<string, ITimelineActionType> = {
+  const controllers: Record<string, ITimelineActionType> = {
     effect: {
       enter: params => { console.log(params); },
       leave: params => { console.log(params); },
@@ -98,12 +96,12 @@ export default function TimelineEditorDemo() {
   const theme = useTheme();
   console.log('theme', theme);
   return (
-    <Timeline tracks={tracks} sx={{width:'100%'}}  actionTypes={actionTypes}/>
+    <Timeline tracks={tracks} sx={{width:'100%'}}  controllers={controllers}/>
   );
 };`
 
 function TimelineEditorDemo() {
-  const tracks: TimelineTrack[] = [
+  const tracks: ITimelineTrack[] = [
     {
       id: '0',
       actions: [
@@ -178,14 +176,14 @@ function TimelineEditorDemo() {
       ],
     },
   ];
-  const actionTypes: Record<string, ITimelineActionType> = {
+  const controllers: Record<string, IController> = {
     effect: {
       enter: params => { console.log(params); },
       leave: params => { console.log(params); },
     }
   };
   return (
-    <Timeline tracks={tracks} sx={{width:'100%'}}  actionTypes={actionTypes}/>
+    <Timeline engine={null} tracks={tracks} sx={{width:'100%'}}  controllers={controllers}/>
   );
 };
 

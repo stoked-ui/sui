@@ -1,11 +1,10 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import useForkRef from '@mui/utils/useForkRef';
 import {FileBase, FileExplorer} from '@stoked-ui/file-explorer';
 import {useSlotProps} from '@mui/base/utils';
 import composeClasses from '@mui/utils/composeClasses';
 import Stack from '@mui/material/Stack';
-import {Timeline, TimelineState} from '@stoked-ui/timeline';
+import {Timeline, type TimelineState} from '@stoked-ui/timeline';
 import {createUseThemeProps, styled} from '../internals/zero-styled';
 import {useEditor} from '../internals/useEditor';
 import {EditorProps} from './Editor.types';
@@ -15,6 +14,7 @@ import {EditorView} from '../EditorView';
 import {getEditorUtilityClass} from './editorClasses';
 import {EditorLabels} from '../EditorLabels';
 import {Engine} from "../Engine/Engine";
+import Controllers from "../Controllers";
 
 const useThemeProps = createUseThemeProps('MuiEditor');
 
@@ -76,7 +76,6 @@ const Editor = React.forwardRef(function Editor<
 >(inProps: EditorProps<R, Multiple>, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
   const { sx, ...props } = useThemeProps({ props: inProps, name: 'MuiEditor' });
   const editorRef = React.useRef<HTMLDivElement>(null);
-
   const {
     getRootProps,
     getEditorViewProps,
@@ -84,7 +83,8 @@ const Editor = React.forwardRef(function Editor<
     getTimelineProps,
     getBottomLeftProps,
     getBottomRightProps,
-    id
+    id,
+    instance
   } = useEditor<EditorPluginSignatures, EditorProps<R, Multiple>>({
     plugins: VIDEO_EDITOR_PLUGINS,
     rootRef: ref,
@@ -148,28 +148,15 @@ const Editor = React.forwardRef(function Editor<
     ownerState: props as any,
   });
   const timelineState = React.useRef<TimelineState>(null);
-  const [engine, setEngine] = React.useState<Engine | null>(null);
+  const engineRef = React.useRef<Engine>(new Engine({id}));
   const [scaleWidth, setScaleWidth] = React.useState(160);
   const viewerRef = React.useRef<HTMLDivElement>(null);
 
-  React.useEffect(() => {
-    if (viewerRef.current) {
-      const renderer = viewerRef.current.querySelector('.renderer') as HTMLCanvasElement | null;
-      if (renderer) {
-        const newEngine = new Engine({
-          renderer,
-          viewer: viewerRef.current,
-          id
-        });
-        setEngine(newEngine);
-      }
-    }
-  }, [viewerRef])
   const setScaleWidthProxy = (val: number) => {
     setScaleWidth(val);
   };
 
-  React.useEffect(() => {
+  /* React.useEffect(() => {
     if (!editorRef?.current || !engine) {
       return;
     }
@@ -190,18 +177,22 @@ const Editor = React.forwardRef(function Editor<
         }
       }
     });
-  }, [editorRef]);
+  }, [editorRef]); */
+
+  React.useEffect(() =>{
+    console.log('we have timeline state', timelineState);
+  }, [timelineState.current])
 
   const [startIt, setStartIt] = React.useState(false);
   React.useEffect(() => {
-    if (!startIt && viewerRef.current && engine) {
-      engine.viewer = viewerRef.current;
+    if (!startIt && viewerRef.current && engineRef.current) {
+      engineRef.current.viewer = viewerRef.current;
       setStartIt(true);
     }
   }, [viewerRef.current]);
 
   return (<Root role={'editor'} {...rootProps} sx={sx}>
-      <EditorViewSlot {...editorViewProps} ref={viewerRef} engine={engine}/>
+      <EditorViewSlot {...editorViewProps} ref={viewerRef} engineRef={engineRef}/>
       <ControlsSlot
         role={'controls'}
         {...videoControlsProps}
@@ -209,17 +200,22 @@ const Editor = React.forwardRef(function Editor<
         scaleWidth={scaleWidth}
         setScaleWidth={setScaleWidthProxy}
       />
-      {startIt && (<TimelineSlot
-        role={'timeline'}
+      {startIt &&
+        <TimelineSlot
+          role={'timeline'}
           {...timelineProps}
+          controllers={Controllers}
           timelineState={timelineState}
+          actionData={inProps.actionData}
           scaleWidth={scaleWidth}
+          onKeyDown={instance.onKeyDown}
           setScaleWidth={setScaleWidthProxy}
           viewSelector={`.MuiEditorView-root`}
           slots={{labels: EditorLabels}}
           labels
-          engine={engine}
-        />)}
+          engineRef={engineRef}
+        />
+      }
 
       <Stack direction="row" spacing={2}>
         <BottomLeft role={'explorer-left'} {...bottomLeftProps} />
@@ -233,7 +229,8 @@ Editor.propTypes = {
   // | These PropTypes are generated from the TypeScript type definitions |
   // | To update them edit the TypeScript types and run "pnpm proptypes"  |
   // ----------------------------------------------------------------------
-  actionData: PropTypes.any, actions: PropTypes.any, /**
+  actionData: PropTypes.any,
+  /**
    * The ref object that allows Editor View manipulation. Can be instantiated with
    * `useEditorApiRef()`.
    */

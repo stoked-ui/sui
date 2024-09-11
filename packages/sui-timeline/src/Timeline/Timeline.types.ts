@@ -3,15 +3,13 @@ import {Theme} from '@mui/material/styles';
 import {SxProps} from '@mui/system';
 import {SlotComponentProps} from '@mui/base/utils';
 import {
-  IController,
-  ITimelineAction
+  type IController, type ITimelineAction, type ITimelineActionInput
 } from '../TimelineAction/TimelineAction.types';
 import {TimelineClasses} from './timelineClasses';
-import TimelineControl from "../TimelineControl/TimelineControl";
-import {TimelineControlProps} from "../TimelineControl/TimelineControlProps";
 import { ITimelineTrack } from "../TimelineTrack/TimelineTrack.types";
-import {TimelineLabelsProps} from "../TimelineLabels/TimelineLabels.types";
-import {TimelineState} from "./TimelineState";
+import {type TimelineLabelsProps} from "../TimelineLabels/TimelineLabels.types";
+import {type TimelineState} from "./TimelineState";
+import TimelineControl, {TimelineControlProps} from "../TimelineControl";
 
 export interface IEmitter<EventTypes> {
   events: { [key: string]: CallableFunction[] };
@@ -27,10 +25,12 @@ export interface IEngine extends IEmitter<EventTypes> {
   readonly isPlaying: boolean;
   readonly isPaused: boolean;
   controllers: Record<string, any>;
-  viewer: HTMLElement;
-  readonly renderer: HTMLCanvasElement;
-  readonly renderCtx: CanvasRenderingContext2D;
+  viewer: HTMLElement | null
+  readonly renderer: HTMLCanvasElement | null
+  readonly renderCtx: CanvasRenderingContext2D | null
   tracks: ITimelineTrack[];
+  readonly renderWidth: number;
+  readonly renderHeight: number;
 
   /** Set playback rate */
   setPlayRate(rate: number): boolean;
@@ -124,13 +124,13 @@ export interface TimelineSlots {
    */
   root?: React.ElementType;
   labels?: React.ElementType;
-  control?: typeof TimelineControl;
+  control?: React.ElementType;
 }
 
 export interface TimelineSlotProps {
   root?: SlotComponentProps<'div', {}, TimelineProps>;
   labels?: SlotComponentProps<'div', {}, TimelineLabelsProps>;
-  control?: SlotComponentProps<'div', {}, TimelineControlProps>;
+  control?: SlotComponentProps<typeof TimelineControl, {}, TimelineControlProps>;
 }
 
 export interface TimelineProps
@@ -159,15 +159,15 @@ export interface TimelineProps
   labelSx?: SxProps<Theme>;
   controlSx?: SxProps<Theme>;
   trackSx?: SxProps<Theme>;
-  setTracks?: (updatedTracks: ITimelineTrack[]) => void;
 
   tracks?: ITimelineTrack[];
   controllers: Record<string, IController>;
   timelineState?: React.RefObject<TimelineState>;
   viewSelector?: string;
-  engine?: React.RefObject<IEngine>;
+  engineRef?: React.RefObject<IEngine>;
   labels?: boolean;
 
   scaleWidth?: number;
   setScaleWidth?: (scaleWidth: number) => void;
+  actionData?: ITimelineActionInput[];
 }

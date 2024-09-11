@@ -24,7 +24,8 @@ const FileLabelRoot = styled('div', {
     prop !== 'header' &&
     prop !== 'first' &&
     prop !== 'grid' &&
-    prop !== 'selected',
+    prop !== 'selected' &&
+    prop !== 'iconName',
 })<{
   grow?: boolean;
   header?: boolean;

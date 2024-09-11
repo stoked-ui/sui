@@ -10,28 +10,35 @@ const  MimeMediaWildcardMap: Map<MimeType | `${string}*` | '*' | 'folder', strin
   ['application/pdf',                                                         'pdf'],
   ['video/*',                                                                 'video'],
   ['image/*',                                                                 'image'],
-  ['folder',                                                                 'folder'],
+  ['folder',                                                                  'folder'],
+  ['application/json',                                                        'json'],
+  ['text/*',                                                                  'text'],
   ['*',                                                                       'file'],
 ]);
 
 export { MimeMediaWildcardMap };
-const MimeTypeWildcards = Object.keys(MimeMediaWildcardMap);
-
 export type MimeMediaWildcardType = typeof MimeMediaWildcardMap;
 export type MimeTypeWildcard = MimeMediaWildcardType extends Map<infer K, unknown> ? K : never;
 export type MediaType = MimeMediaWildcardType extends Map<MimeTypeExtension, infer V> ? V : never;
 
-export function getMediaType(value?: string): MediaType {
+export function getMediaType(mimeType?: string): MediaType {
   let mediaType: MediaType = 'file';
-  if (!value) {
+  if (!mimeType) {
     return mediaType;
   }
-  for (let i = 0; i < MimeTypeWildcards.length; i += 1){
-    const allowedValue = MimeTypeWildcards[i];
-    if (value.startsWith(allowedValue.slice(0, -1)) || value === allowedValue) {
-      mediaType = MimeMediaWildcardMap[allowedValue];
+
+  for (const [wildcard, wildcardMediaType] of MimeMediaWildcardMap) {
+    let mimeTypeCurrent = mimeType;
+    const wildcardIndex = wildcard.indexOf('*')
+    if (wildcardIndex !== -1) {
+      mimeTypeCurrent = mimeType.slice(0,wildcardIndex);
+    }
+    if (wildcard.replace('*', '') === mimeTypeCurrent) {
+      mediaType = wildcardMediaType;
       break;
     }
   }
+
   return mediaType;
 }
+
