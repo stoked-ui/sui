@@ -169,7 +169,7 @@ module.exports = {
     // noopener is enough, no IE 11 support
     // https://github.com/jsx-eslint/eslint-plugin-react/blob/master/docs/rules/jsx-no-target-blank.md#rule-options
     'react/jsx-no-target-blank': ['error', { allowReferrer: true }],
-
+    'array-simple': 'off',
     'no-restricted-syntax': [
       // See https://github.com/eslint/eslint/issues/9192 for why it's needed
       ...baseStyleRules['no-restricted-syntax'],

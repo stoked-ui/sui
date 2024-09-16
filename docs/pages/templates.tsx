@@ -1,16 +1,16 @@
 import * as React from 'react';
 import Divider from '@mui/material/Divider';
-import Head from 'docs/src/modules/components/Head';
-import AppHeader from 'docs/src/layouts/AppHeader';
-import AppFooter from 'docs/src/layouts/AppFooter';
+import Head from '@stoked-ui/docs/Layouts/Head';
+import AppHeader from '@stoked-ui/docs/Layouts/AppHeader';
+import AppFooter from '@stoked-ui/docs/Layouts/AppFooter';
 import TemplateHero from 'docs/src/components/productTemplate/TemplateHero';
 import ValueProposition from 'docs/src/components/home/ValueProposition';
 import TemplateDemo from 'docs/src/components/productTemplate/TemplateDemo';
 import Testimonials from 'docs/src/components/home/Testimonials';
 import HeroEnd from 'docs/src/components/home/HeroEnd';
-import BrandingCssVarsProvider from 'docs/src/BrandingCssVarsProvider';
+import BrandingCssVarsProvider from '@stoked-ui/docs/branding/BrandingCssVarsProvider';
 import References, { TEMPLATES_CUSTOMERS } from 'docs/src/components/home/References';
-import AppHeaderBanner from 'docs/src/components/banner/AppHeaderBanner';
+import AppHeaderBanner from '@stoked-ui/docs/banner/AppHeaderBanner';
 
 export default function Templates() {
   return (

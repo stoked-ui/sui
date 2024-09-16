@@ -23,7 +23,6 @@ export default function FileExplorerHero(props: { id: string, sx?: SxProps, grid
       dndInternal
       dndTrash
       getItemId={() => {
-        console.log('wtf mate', new Error().stack);
         return namedId({id: 'file', length: 24 });
       }}
     />

@@ -49,6 +49,7 @@
     "@babel/runtime": "^7.24.8",
     "@mui/base": "^5.0.0-beta.40",
     "@mui/system": "^5.16.0",
+    "@mui/styled-engine": "^5.15.14",
     "@mui/utils": "^5.16.0",
     "@react-spring/web": "^9.7.3",
     "clsx": "^2.1.1",
@@ -87,5 +88,29 @@
   },
   "engines": {
     "node": ">=14.0.0"
+  },
+  "product": {
+    "id": "editor",
+    "name": "Editor",
+    "fullName": "Stoked UI: Editor",
+    "description": "Editor contains components intended for use as raw building blocks for tools that can.. well.. EDIT things.",
+    "metadata": "Stoked UI",
+    "productMenu": false,
+    "docsMenu": true,
+    "swipeable": true,
+    "category": "core",
+    "icon": "product-templates",
+    "url": "/editor",
+    "hideProductFeatures": true,
+    "owners": ["brian-stoker"],
+    "features": [{
+      "name": "Overview",
+      "description": "Overview, installation, lions, tigers, and bears oh mai!",
+      "id": "overview"
+    }, {
+      "name": "Editor",
+      "description": "Library used to select and automatically pull appropriate meta data from client side files",
+      "id": "editor"
+    }]
   }
 }

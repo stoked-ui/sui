@@ -374,7 +374,7 @@ export async function buildInterfacesDocumentationPage(
     await writePrettifiedFile(
       path.resolve(apiPagesDirectory, `${slug}.js`),
       `import * as React from 'react';
-    import InterfaceApiPage from 'docs/src/modules/components/InterfaceApiPage';
+    import InterfaceApiPage from '@stoked-ui/docs/components/InterfaceApiPage';
     import layoutConfig from 'docs/src/modules/utils/dataGridLayoutConfig';
     import mapApiPageTranslations from 'docs/src/modules/utils/mapApiPageTranslations';
     import jsonPageContent from './${slug}.json';

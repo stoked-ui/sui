@@ -8,10 +8,10 @@ import AllInclusiveOutlinedIcon from '@mui/icons-material/AllInclusiveOutlined';
 import ReplayRoundedIcon from '@mui/icons-material/ReplayRounded';
 import AcUnitIcon from '@mui/icons-material/AcUnit';
 import HelpOutlineOutlinedIcon from '@mui/icons-material/HelpOutlineOutlined';
-import Section from 'docs/src/layouts/Section';
+import Section from '@stoked-ui/docs/Layouts/Section';
 import { Link } from '@mui/docs/Link';
-import GradientText from 'docs/src/components/typography/GradientText';
-import SectionHeadline from 'docs/src/components/typography/SectionHeadline';
+import GradientText from '@stoked-ui/docs/typography/GradientText';
+import SectionHeadline from '@stoked-ui/docs/typography/SectionHeadline';
 
 export default function PricingWhatToExpect() {
   return (

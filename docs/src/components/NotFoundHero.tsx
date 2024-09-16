@@ -2,8 +2,8 @@ import * as React from 'react';
 import { alpha } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import Section from 'docs/src/layouts/Section';
-import SectionHeadline from 'docs/src/components/typography/SectionHeadline';
+import Section from '@stoked-ui/docs/Layouts/Section';
+import SectionHeadline from '@stoked-ui/docs/typography/SectionHeadline';
 import SearchOffRoundedIcon from '@mui/icons-material/SearchOffRounded';
 
 function NotFoundIllustration() {

@@ -1,8 +1,8 @@
 import * as React from 'react';
 import Divider from '@mui/material/Divider';
-import Head from 'docs/src/modules/components/Head';
-import BrandingCssVarsProvider from 'docs/src/BrandingCssVarsProvider';
-import AppHeader from 'docs/src/layouts/AppHeader';
+import Head from '@stoked-ui/docs/Layouts/Head';
+import BrandingCssVarsProvider from '@stoked-ui/docs/branding/BrandingCssVarsProvider';
+import AppHeader from '@stoked-ui/docs/Layouts/AppHeader';
 import MaterialHero from 'docs/src/components/productMaterial/MaterialHero';
 import MaterialComponents from 'docs/src/components/productMaterial/MaterialComponents';
 import MaterialTheming from 'docs/src/components/productMaterial/MaterialTheming';
@@ -11,8 +11,8 @@ import MaterialTemplates from 'docs/src/components/productMaterial/MaterialTempl
 import MaterialDesignKits from 'docs/src/components/productMaterial/MaterialDesignKits';
 import MaterialEnd from 'docs/src/components/productMaterial/MaterialEnd';
 import References, { CORE_CUSTOMERS } from 'docs/src/components/home/References';
-import AppFooter from 'docs/src/layouts/AppFooter';
-import AppHeaderBanner from 'docs/src/components/banner/AppHeaderBanner';
+import AppFooter from '@stoked-ui/docs/Layouts/AppFooter';
+import AppHeaderBanner from '@stoked-ui/docs/banner/AppHeaderBanner';
 
 export default function MaterialUI() {
   return (
