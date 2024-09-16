@@ -13,8 +13,8 @@ export default class DynamicMediaType {
         return VideoFile.fromFileUrl(mediaFile as VideoFile, url, path);
       case 'image':
         return ImageFile.fromFile(mediaFile as ImageFile, url, path);
-      case 'animation':
-        return AnimationFile.fromFileUrl(mediaFile as AnimationFile, url, path);
+      // case 'animation':
+        // return AnimationFile.fromFileUrl(mediaFile as AnimationFile, url, path);
       case 'audio':
         return AudioFile.fromFileUrl(mediaFile as AudioFile, url, path);
      /*  case 'doc':

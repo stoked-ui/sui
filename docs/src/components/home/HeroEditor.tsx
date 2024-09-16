@@ -37,20 +37,37 @@ const EditorHero = dynamic(() => import('../showcase/EditorHero'), {
 export default function Hero() {
   const globalTheme = useTheme();
   const isMdUp = useMediaQuery(globalTheme.breakpoints.up('md'));
+  /* React.useEffect(() => {
+    var velocity = 0.2;
+    if (window) {
+      const mainContent = document.getElementById('main-content');
+      const textBg = document.getElementById('text-bg');
+      textBg?.addEventListener("scroll", (event, second) => {
+        console.log('111', event, second)
+        if (textBg?.style && mainContent) {
+          const height = mainContent.clientHeight;
+          const pos = document.body.scrollTop - 18;
+          console.log('(height - pos) * velocity)', (height - pos) * velocity, height, pos, event.target.scrollTop);
+          textBg.style.backgroundPositionY = `${Math.round((height - pos) * velocity)}px`
+        }
+      });
+    }
+  }, []) */
+
   return (
     <HeroContainer
       linearGradient
       left={
         <Box sx={{ textAlign: { xs: 'center', md: 'left' }, maxWidth: 500 }}>
           <Typography variant="h2" mb={1}>
-            Making
+            Make
           </Typography>
-          <Typography variant="h1" mb={1} sx={{
+          <Typography id='text-bg' variant="h1" mb={1} sx={{
             backgroundRepeat: 'repeat',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             WebkitFontSmoothing: "antialiased",
-            backgroundImage: 'url("/static/images/editor/them-thangs-1.png")',
+            backgroundImage: 'url("/static/images/editor/them-thangs-0.png")',
             backgroundAttachment: 'fixed',
             backgroundPosition: 'center',
             backgroundSize: 'cover',
@@ -84,7 +101,7 @@ export default function Hero() {
             }}> Editor</div>
           </Box>
           <Typography color="text.secondary" mb={3}>
-            Stoked UI: Editor. A library that <sup style={{ color: 'red' }}>^ will</sup> contain<span style={{color: 'red', textDecoration: 'line-through'}}>s</span> components used as building blocks for.. well.. Editors. PR&apos;s welcome!
+            Stoked UI: Editor. An advanced MUI based component that allows you to quickly and easily make things, that make things.. PR&apos;s welcome!
           </Typography>
           <GetStartedButtons primaryLabel="Checkout the roadmap to see whats next" primaryUrl="https://github.com/orgs/stoked-ui/projects/1/views/1" />
         </Box>

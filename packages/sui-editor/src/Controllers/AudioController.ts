@@ -30,9 +30,6 @@ class AudioController extends Controller{
 
   start(params: ControllerParams) {
     const { action, time, engine } = params;
-    if (!action.data) {
-      throw new Error('engine is required to play audio');
-    }
 
     let item: Howl;
     if (this.cacheMap[action.id]) {
@@ -41,7 +38,7 @@ class AudioController extends Controller{
       item.seek((time - action.start) % item.duration());
       item.play();
     } else {
-      item = new Howl({ src: action.data.src, loop: false, autoplay: false });
+      item = new Howl({ src: action.src, loop: false, autoplay: false });
       this.cacheMap[action.id] = item;
       item.on('load', () => {
         item.rate(engine.getPlayRate());
@@ -89,8 +86,8 @@ class AudioController extends Controller{
   }
 
   getBackgroundImage?: GetBackgroundImage = async (action: ITimelineAction) => {
-    const blobUrl = await generateWaveformImage(action.data!.src, {
-      width: 5000, height: 300, backgroundColor: this.color, // Black
+    const blobUrl = await generateWaveformImage(action!.src, {
+      width: 5000, height: 300, backgroundColor: '#0000', // Black
       waveformColor: this.colorSecondary,   // Green waveform
       outputType: 'blob'          // Output a Blob URL
     })

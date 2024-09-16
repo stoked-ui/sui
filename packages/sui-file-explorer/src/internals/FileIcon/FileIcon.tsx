@@ -35,24 +35,23 @@ function FileIcon(props: FileIconProps): React.JSX.Element | undefined {
   }
 
   const Icon = slots?.[iconName] ?? contextIcons[iconName as keyof typeof contextIcons];
-  const iconProps = useSlotProps({
+  const { ...iconProps} = useSlotProps({
     elementType: Icon,
-    externalSlotProps: (tempOwnerState: any) => ({
+    externalSlotProps: () => ({
       ...resolveComponentProps(
         contextIconProps[iconName as keyof typeof contextIconProps],
-        tempOwnerState,
+        props,
       ),
-      ...resolveComponentProps(slotProps?.[iconName], tempOwnerState),
+      ...resolveComponentProps(slotProps?.[iconName], props),
     }),
     // TODO: Add proper ownerState
-    ownerState: {},
+    ownerState: props,
   });
 
   if (!Icon) {
     return undefined;
   }
-
-  return <Icon {...iconProps} />;
+  return <Icon ownerState={iconProps.ownerState} />;
 }
 
 FileIcon.propTypes = {

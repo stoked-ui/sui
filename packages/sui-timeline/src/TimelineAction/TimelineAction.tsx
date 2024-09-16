@@ -1,7 +1,8 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { styled } from '@mui/material/styles';
+import {alpha, emphasize, styled} from '@mui/material/styles';
 import composeClasses from '@mui/utils/composeClasses';
+import Typography from '@mui/material/Typography';
 // import clsx from 'clsx';
 // import useSlotProps from '@mui/utils/useSlotProps';
 import {shouldForwardProp} from '@mui/system/createStyled';
@@ -21,7 +22,10 @@ import {
 } from '../TimelineTrack/TimelineTrackDnd.types';
 import {getTimelineActionUtilityClass} from './timelineActionClasses';
 import {prefix} from '../utils/deal_class_prefix';
-import {type TimelineActionOwnerState, type TimelineActionProps} from './TimelineAction.types';
+import {
+  type TimelineActionOwnerState,
+  type TimelineActionProps
+} from './TimelineAction.types';
 import {type ITimelineTrack} from '../TimelineTrack/TimelineTrack.types';
 
 export const useActionUtilityClasses = (ownerState: TimelineActionOwnerState) => {
@@ -59,16 +63,29 @@ const Action = styled('div', {
     position: 'absolute',
     left: 0,
     top: 0,
-    backgroundColor: color,
+    backgroundColor: `${emphasize(color, 0.10)}`,
     alignContent: 'center',
     padding: '0 0 0 10px',
     overflow: 'hidden',
     textWrap: 'nowrap',
+    height: '100%',
     borderTop: `1px solid ${theme.palette.action.hover}`,
     borderBottom: `1px solid ${theme.palette.action.hover}`,
+    userSelect: 'none',
     '&:hover': {
-      // backgroundColor:  emphasize(color || '#0000ff', 0.3),
+      backgroundColor:   `${emphasize(color, 0.15)}`,
     },
+    variants: [{
+      props: {
+        selected: true
+      },
+      style: {
+        backgroundColor: `${color}`,
+        '&:hover': {
+          backgroundColor:   `${emphasize(color, 0.05)}`,
+        },
+      }
+    }]
   };
 });
 
@@ -118,13 +135,37 @@ const RightStretch = styled('div')(({ theme }) => ({
   },
 }));
 
+
+
+const ActionLabel = styled('div', {
+  name: 'MuiTimelineAction',
+  slot: 'root',
+  overridesResolver: (props, styles) => styles.root,
+  shouldForwardProp: (prop) => shouldForwardProp(prop) && prop !== 'color',
+})<{
+  color: string;
+}>(({ theme }) => {
+
+  const bgColor = alpha(theme.palette.background.default, theme.palette.action.focusOpacity * 4);
+  return {
+    padding: '3px 6px',
+    display: 'flex',
+    width: 'min-content',
+    borderRadius: '4px',
+    background: bgColor,
+    position: 'sticky',
+    right: 0,
+    alignSelf: 'end'
+  }
+});
+
 function TimelineAction(props: TimelineActionProps) {
   const { action, setTracks, ...restProps } = props;
   const { selected, flexible = true, movable = true, disable } = action;
   const state = { selected, flexible, movable, disable };
   const ownerStateProps = { ...state, ...restProps, ...action, setTracks };
   const { onKeyDown, ...ownerState } = ownerStateProps;
-  const classes = useActionUtilityClasses(ownerState);
+  const classes = useActionUtilityClasses(ownerState as TimelineActionOwnerState);
   /* const classNamesNew = Object.keys(classes).reduce((result, key) => {
     const classKey = classes[key];
     result[classKey] = !!state[key];
@@ -133,17 +174,20 @@ function TimelineAction(props: TimelineActionProps) {
 
   /*
     const { slotProps = {} } = props;
-    const rootProps = useSlotProps({
-    elementType: TimelineAction,
-    externalSlotProps: slotProps.root,
-    externalForwardedProps: props,
-    ownerState,
-    className: clsx(props.className, classes.root, classNamesNew),
-  }); */
-  /* const actionEl = React.useRef(null); */
+      const rootProps = useSlotProps({
+      elementType: TimelineAction,
+      externalSlotProps: slotProps.root,
+      externalForwardedProps: props,
+      ownerState,
+      className: clsx(props.className, classes.root, classNamesNew),
+    });
+  */
+  /*
+  const actionEl = React.useRef(null);
+  */
   const rowRnd = React.useRef<RowRndApi>();
   const isDragWhenClick = React.useRef(false);
-  const { id, maxEnd, minStart, end, start, effectId } = action;
+  const { id, maxEnd, minStart, end, start } = action;
   const {
     track,
     scaleCount,
@@ -196,9 +240,7 @@ function TimelineAction(props: TimelineActionProps) {
   if (flexible) {
     classNames.push('action-flexible');
   }
-  if (controllers?.[effectId]) {
-    classNames.push(`action-actionType-${effectId}`);
-  }
+
   // rootProps.className = classNames.join(' ')
 
   /** calculate scale count */
@@ -350,7 +392,7 @@ function TimelineAction(props: TimelineActionProps) {
   const [backgroundImage, setBackgroundImage] = React.useState<null | string>(null);
   React.useEffect(() => {
     try {
-      controllers[action.effectId].getBackgroundImage?.(action).then((img) => {
+      controllers.controller.getBackgroundImage?.(action).then((img) => {
         // console.log('img', img);
         setBackgroundImage(img);
       });
@@ -370,7 +412,6 @@ function TimelineAction(props: TimelineActionProps) {
     onDoubleClickAction,
     onContextMenuAction,
     rowHeight,
-    getActionRender
   } = props;
   return (
     <TimelineTrackDnd
@@ -434,13 +475,13 @@ function TimelineAction(props: TimelineActionProps) {
           let time: number;
           if (onClickAction) {
             time = handleTime(e);
-            onClickAction(e, { track, action, time });
+            onClickAction(e, {track, action, time});
           }
           if (!isDragWhenClick.current && onClickActionOnly) {
             if (!time) {
               time = handleTime(e);
             }
-            onClickActionOnly(e, { track, action, time });
+            onClickActionOnly(e, {track, action, time});
           }
         }}
         onDoubleClick={(e) => {
@@ -449,7 +490,7 @@ function TimelineAction(props: TimelineActionProps) {
           }
           if (onDoubleClickAction) {
             const time = handleTime(e);
-            onDoubleClickAction(e, { track, action, time });
+            onDoubleClickAction(e, {track, action, time});
           }
         }}
         onContextMenu={(e) => {
@@ -458,22 +499,31 @@ function TimelineAction(props: TimelineActionProps) {
           }
           if (onContextMenuAction) {
             const time = handleTime(e);
-            onContextMenuAction(e, { track, action, time });
+            onContextMenuAction(e, {track, action, time});
           }
         }}
         className={prefix((classNames || []).join(' '))}
         selected={action.selected}
-        style={{ height: rowHeight, ...(backgroundImage ? {backgroundImage, backgroundSize: 'contain' } : {}) }}
-        color={`${controllers?.[action.effectId]?.color}`}
+        style={{
+          height: rowHeight - 1, ...(backgroundImage ? {
+            backgroundImage,
+            backgroundSize: 'contain'
+          } : {})
+        }}
+        color={`${action?.controller?.color}`}
       >
-        {action.name}
-        {flexible && <LeftStretch className={`${prefix('action-left-stretch')} ${classes.left}`} />}
+        <ActionLabel color={`${controllers?.controller?.color}`}>
+          <Typography variant="body2" color="text.primary" sx={(theme) => ({
+            color: `${theme.palette.mode === 'light' ? '#000' : '#FFF'}`, fontWeight: '500',
+          })}>
+            {action.name}
+          </Typography>
+        </ActionLabel>
+        {flexible && <LeftStretch className={`${prefix('action-left-stretch')} ${classes.left}`}/>}
         {flexible && (
-          <RightStretch className={`${prefix('action-right-stretch')} ${classes.right}`} />
-        )}
+          <RightStretch className={`${prefix('action-right-stretch')} ${classes.right}`}/>)}
       </Action>
-    </TimelineTrackDnd>
-  );
+    </TimelineTrackDnd>);
 }
 
 TimelineAction.propTypes = {
@@ -487,7 +537,6 @@ TimelineAction.propTypes = {
       style: PropTypes.object,
     }),
     disable: PropTypes.bool,
-    effectId: PropTypes.string,
     end: PropTypes.number,
     flexible: PropTypes.bool,
     id: PropTypes.string,
@@ -726,7 +775,6 @@ TimelineAction.propTypes = {
           style: PropTypes.object,
         }),
         disable: PropTypes.bool,
-        effectId: PropTypes.string,
         end: PropTypes.number,
         flexible: PropTypes.bool,
         id: PropTypes.string,
@@ -759,7 +807,6 @@ TimelineAction.propTypes = {
             style: PropTypes.object,
           }),
           disable: PropTypes.bool,
-          effectId: PropTypes.string,
           end: PropTypes.number,
           flexible: PropTypes.bool,
           id: PropTypes.string,

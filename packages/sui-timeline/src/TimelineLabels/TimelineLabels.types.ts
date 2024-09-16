@@ -2,6 +2,7 @@ import * as React from 'react';
 import {Theme} from '@mui/material/styles';
 import {SxProps} from '@mui/system';
 import {SlotComponentProps} from '@mui/base/utils';
+import { IController } from '../TimelineAction/TimelineAction.types';
 import {TimelineLabelsClasses} from './timelineLabelsClasses';
 import {TimelineState} from "../Timeline/TimelineState";
 import { ITimelineTrack } from "../TimelineTrack/TimelineTrack.types";
@@ -34,6 +35,7 @@ export interface TimelineLabelsPropsBase extends React.HTMLAttributes<HTMLDivEle
   timelineState: React.RefObject<TimelineState>;
 
   tracks?: ITimelineTrack[];
+  controllers: Record<string, IController>
 }
 
 export interface TimelineLabelsProps

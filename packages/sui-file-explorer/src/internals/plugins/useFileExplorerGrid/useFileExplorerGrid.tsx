@@ -83,12 +83,13 @@ export const useFileExplorerGrid: UseFileExplorerGridPlugin = <R extends FileBas
       const columns = document.querySelectorAll(`#${state.id} .column-${name}`);
       let width = data.width !== -1 ? data.width : 0;
       columns.forEach((column) => {
-        if (!data.rowData[column.id]) {
-          data.rowData[column.id] = {
+        if (!data.track[column.id]) {
+          data.track[column.id] = {
             width: column.clientWidth
           }
         }
         if (column.clientWidth > width + 8) {
+          console.log(column.clientWidth, width, column, data.track[column.id]);
           width = column.clientWidth;
         }
       });
@@ -306,7 +307,7 @@ const DEFAULT_COLUMN_DATA = {
     paddingRight: '8px'
   },
   width: -1,
-  rowData: {},
+  track: {},
   waiting: false,
   cells: [],
 }

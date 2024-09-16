@@ -140,7 +140,7 @@ export default class MediaFile implements IMediaFile {
     return f;
   }
 
-  static async fromAction(action: { id?: string, data: { src: string; } }) {
+  static async fromAction(action: { id?: string, src: string; }) {
     return loadAction(action);
   }
 
@@ -250,17 +250,17 @@ function noIgnoredFiles(files: IMediaFile[]) {
   });
 }
 
-async function loadAction(action: { id?: string, data: { src: string; } }): Promise<any> {
-  const response = await fetch(action.data.src);
+async function loadAction(action: { id?: string, src: string; }): Promise<any> {
+  const response = await fetch(action.src);
   if (!response.ok) {
     throw new Error('Network response was not ok');
   }
   const contentType = response.headers.get("content-type");
   const blob = await response.blob()
-  const file = new File([blob], getFileName(action.data.src, true) ?? 'url-file', {type: contentType ?? 'application/octet-stream'});
+  const file = new File([blob], getFileName(action.src, true) ?? 'url-file', {type: contentType ?? 'application/octet-stream'});
   const mediaFile = file as IMediaFile;
   Object.defineProperty(mediaFile, 'url', {
-    value: action.data.src,
+    value: action.src,
     writable: false,
     configurable: false,
     enumerable: true

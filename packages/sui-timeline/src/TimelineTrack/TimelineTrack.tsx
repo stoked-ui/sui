@@ -1,5 +1,7 @@
 import * as React from 'react';
-import {styled} from "@mui/material/styles";
+import {alpha, emphasize, styled} from "@mui/material/styles";
+import {shouldForwardProp} from "@mui/system/createStyled";
+import {blend} from "@mui/system";
 import {CommonProps} from '../interface/common_prop';
 import {prefix} from '../utils/deal_class_prefix';
 import {parserPixelToTime} from '../utils/deal_data';
@@ -7,10 +9,11 @@ import {DragLineData} from '../TimelineTrackArea/TimelineTrackAreaDragLines';
 import {type TimelineControlPropsBase} from "../TimelineControl/TimelineControl.types";
 import TimelineAction from "../TimelineAction/TimelineAction";
 import {type ITimelineTrack} from "./TimelineTrack.types";
+import {IController} from "../TimelineAction";
 
 export type TimelineTrackProps = CommonProps & TimelineControlPropsBase & {
   areaRef: React.MutableRefObject<HTMLDivElement>;
-  rowData?: ITimelineTrack;
+  track?: ITimelineTrack;
   style?: React.CSSProperties;
   dragLineData: DragLineData;
   setEditorData: (tracks: ITimelineTrack[]) => void;
@@ -22,18 +25,74 @@ export type TimelineTrackProps = CommonProps & TimelineControlPropsBase & {
 
 const TimelineTrackRoot = styled('div', {
   name: 'MuiTimelineTrack',
-  slot: 'Root'
-})(({ theme }) => ({
-  backgroundRepeat: 'no-repeat, repeat',
-  backgroundImage: `linear-gradient(#0000, #0000), linear-gradient(90deg, ${theme.palette.action.selected} 1px, transparent 0)`,
-  display: 'flex',
-  flexDirection: 'row',
-  boxSizing: 'border-box',
-}));
+  slot: 'Root',
+  overridesResolver: (props, styles) => styles.root,
+  shouldForwardProp: (prop) => shouldForwardProp(prop)
+                               && prop !== 'lock'
+                               && prop !== 'hidden'
+                               && prop !== 'color',
+})<{ hidden?: boolean, lock?: boolean, color: string, selected?: boolean}>
+(({ theme, color }) => {
+  const bgColor = alpha(color, theme.palette.action.focusOpacity);
+  const lockedBgBase = emphasize(theme.palette.background.default, 0.12);
+  const lockedBg = blend(lockedBgBase, color, .3);
+  return {
+    borderBottom: `1px solid ${theme.palette.background.default}`,
+    background: bgColor,
+    display: 'flex',
+    flexDirection: 'row',
+    boxSizing: 'border-box',
+    variants: [{
+      props: {
+        hidden: true
+      },
+      style: {
+        opacity: '.4'
+      }
+    },{
+      props: {
+        lock: true
+      },
+      style: {
+        backgroundImage: `linear-gradient(to bottom, transparent 50%, #28487d 50%), linear-gradient(to right, #617ca2 50%, #28487d 50%);`,
+        backgroundSize: `5px 5px, 5px 5px`,
+        /* background: lockedBg,
+        '& .timeline-editor-action': {
+          background: emphasize(theme.palette.background.default, 0.24)
+        } */
+      }
+    },{
+      props: {
+        selected: true
+      },
+      style: {
+        background: `${alpha(color, 0.3)}`
+      }
+    }]
+  }
+});
+
+export function getTrackControllerName(track: ITimelineTrack) {
+  return track.actions.length ? track.actions[0].controllerName : undefined;
+}
+
+export function getTrackController(track: ITimelineTrack, controllers: Record<string, IController>) {
+  const controllerName = getTrackControllerName(track);
+  return controllers[controllerName];
+}
+
+export function getTrackColor(track: ITimelineTrack, controllers: Record<string, IController> ) {
+  const trackController = getTrackController(track, controllers);
+  return trackController ? alpha(trackController.color ?? '#666', 0.11) : '#00000011';
+}
+
+export function isTrackSelected(track: ITimelineTrack) {
+  return track.actions.some(action => action.selected);
+}
 
 export default function TimelineTrack(props: TimelineTrackProps) {
   const {
-    rowData,
+    track,
     style = {},
     onClickRow,
     onDoubleClickRow,
@@ -42,11 +101,12 @@ export default function TimelineTrack(props: TimelineTrackProps) {
     scrollLeft,
     startLeft,
     scale,
+    controllers,
     scaleWidth,
   } = props;
 
   const classNames = ['edit-track'];
-  if (rowData?.selected) {
+  if (track?.selected) {
     classNames.push('edit-track-selected');
   }
 
@@ -63,38 +123,42 @@ export default function TimelineTrack(props: TimelineTrackProps) {
 
   return (
     <TimelineTrackRoot
-      className={`${prefix(...classNames)} ${(rowData?.classNames || []).join(
+      className={`${prefix(...classNames)} ${(track?.classNames || []).join(
         ' ',
       )}`}
+      lock={track.lock}
+      hidden={track.hidden}
+      selected={isTrackSelected(track)}
+      color={getTrackColor(track, controllers)}
       style={style}
       onKeyDown={(e) => {
         console.info('row root', e);
       }}
       onClick={(e) => {
-        if (rowData && onClickRow) {
+        if (track && onClickRow) {
           const time = handleTime(e);
-          onClickRow(e, { track: rowData, time });
+          onClickRow(e, { track: track, time });
         }
       }}
       onDoubleClick={(e) => {
-        if (rowData && onDoubleClickRow) {
+        if (track && onDoubleClickRow) {
           const time = handleTime(e);
-          onDoubleClickRow(e, { track: rowData, time });
+          onDoubleClickRow(e, { track, time });
         }
       }}
       onContextMenu={(e) => {
-        if (rowData && onContextMenuRow) {
+        if (track && onContextMenuRow) {
           const time = handleTime(e);
-          onContextMenuRow(e, { track: rowData, time });
+          onContextMenuRow(e, { track: track, time });
         }
       }}
     >
-      {(rowData?.actions || []).map((action) => {
+      {(track?.actions || []).map((action) => {
         return <TimelineAction
           key={action.id}
           {...props}
           handleTime={handleTime}
-          track={rowData}
+          track={track}
           action={action}
         />
       })}

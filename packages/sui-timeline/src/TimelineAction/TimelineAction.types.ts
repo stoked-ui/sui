@@ -7,13 +7,7 @@ import {TimelineActionClasses} from "./timelineActionClasses";
 import {DragLineData} from "../TimelineTrackArea/TimelineTrackAreaDragLines";
 import {CommonProps} from '../interface/common_prop';
 import {type ITimelineTrack } from "../TimelineTrack/TimelineTrack.types";
-import {IEngine} from "../Timeline";
-
-export type ControllerParams = {
-  action: ITimelineAction;
-  time: number;
-  engine: IEngine;
-};
+import ControllerParams from "../TimelineControl/ControllerParams";
 
 export type GetBackgroundImage = (action: ITimelineAction) => Promise<string>;
 
@@ -54,13 +48,14 @@ export interface ITimelineActionInput extends TimelineActionState {
   start: number;
   /** Action end time */
   end: number;
-  /** The effectId corresponding to the action */
-  effectId: string;
+  /** The controllerName corresponding to the action */
+  controllerName: string;
 
-  data?: {
-    src: string;
-    style?: CSSProperties;
-  };
+  layer?: string;
+
+  src: string;
+
+  style?: CSSProperties;
 }
 
 /**
@@ -68,17 +63,18 @@ export interface ITimelineActionInput extends TimelineActionState {
  * @export
  * @interface ITimelineAction
  */
-export interface ITimelineAction extends Omit<ITimelineActionInput, 'id' | 'name' | 'start' | 'end' | 'data'>, TimelineActionState {
+export interface ITimelineAction extends Omit<ITimelineActionInput, 'id' | 'start' | 'end' | 'data'>, TimelineActionState {
   /** action id */
   id: string;
-  /** action display name */
-  name?: string;
   /** Action start time */
   start: number;
   /** Action end time */
   end: number;
 
   file?: MediaFile;
+
+  /** z index */
+  z: number;
 
   /** Minimum start time limit for actions */
   minStart?: number;
@@ -88,13 +84,23 @@ export interface ITimelineAction extends Omit<ITimelineActionInput, 'id' | 'name
   onKeyDown?: (event: any, id: string) => void;
 
   duration?: number;
-  data?: {
-    src: string;
-    style?: CSSProperties;
-  };
+
+  src: string;
+
+  style?: CSSProperties;
 
   getBackgroundImage?: (actionType: IController, src: string) => string;
+
+  staticZ: boolean;
+
+  name: string;
+
+  fullName: string;
+
+  controller: IController;
 }
+
+export type ITimelineActionLayer = 'background' | 'foreground';
 
 export interface TimelineActionSlots {
   /**
@@ -148,7 +154,7 @@ export interface TimelineActionProps
   areaRef: React.MutableRefObject<HTMLDivElement>;
   /* setUp scroll left */
   deltaScrollLeft?: (delta: number) => void;
-  getActionRender?: (action: ITimelineAction, track: ITimelineTrack) => any;
+  getActionRender?: (action: ITimelineAction, track: ITimelineTrack) => React.ReactNode;
 }
 
-export interface TimelineActionOwnerState extends Omit<TimelineActionProps, 'action' | 'onKeyDown'>, ITimelineAction  {}
+export interface TimelineActionOwnerState extends Omit<TimelineActionProps, 'action' | 'onKeyDown' | 'style'>, ITimelineAction  {}

@@ -8,7 +8,10 @@ import Head from "../src/modules/components/Head";
 import NewsletterToast from "../src/components/home/NewsletterToast";
 import AppHeaderBanner from "../src/components/banner/AppHeaderBanner";
 import AppHeader from "../src/layouts/AppHeader";
-import EditorSandbox from "../src/components/home/EditorSandbox";
+import EditorHero from "../src/components/showcase/EditorHero";
+import Box from "@mui/material/Box";
+import Divider from "@mui/material/Divider";
+import Hero from "../src/components/home/HeroEditor";
 
 
 function randomHome(homePages: string[]) {
@@ -61,9 +64,8 @@ export function HomeView({ HomeMain}: { HomeMain: React.ComponentType }){
 let MainView:  React.ComponentType<{}> = function MainView() {
   return (
     <React.Fragment>
-      <EditorSandbox/>
-     {/*
-     <Hero/>
+      <div style={{width: 1000}}><EditorHero /></div>
+      {/* <Hero />
       <Box sx={{ height: '112px' }}/>
       <Divider/> */}
     </React.Fragment>
