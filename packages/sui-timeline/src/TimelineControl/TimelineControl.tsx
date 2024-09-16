@@ -25,6 +25,10 @@ const TimelineControlRoot = styled('div')(({ theme }) => ({
   overflow: 'hidden',
 }));
 
+function getInitialScaleWidth(startLeft: number, duration: number, timelineAreaWidth: number) {
+  return (timelineAreaWidth - startLeft) / duration;
+}
+
 const TimelineControl = React.forwardRef(
   function TimelineControl(props: TimelineControlProps, ref) {
     const checkedProps = checkProps(props);
@@ -36,20 +40,22 @@ const TimelineControl = React.forwardRef(
       autoScroll,
       hideCursor,
       disableDrag,
-      scale,
       scaleWidth,
       startLeft = 2,
-      minScaleCount,
+      minScaleCount: initialMinScaleCount,
       maxScaleCount,
+      scaleSplitCount: initialScaleSplitCount,
       setTracks,
       engineRef,
       autoReRender = true,
       onScroll: onScrollVertical,
     } = checkedProps;
 
+
     const domRef = React.useRef<HTMLDivElement>(null);
 
-    const areaRef = React.useRef<HTMLDivElement>();
+    const areaRef = React.useRef<HTMLDivElement>(null);
+    const gridRef = React.useRef<HTMLDivElement>(null);
     const scrollSync = React.useRef<ScrollSync>();
 
     // Editor data
@@ -62,7 +68,9 @@ const TimelineControl = React.forwardRef(
     const [duration, setDuration] = React.useState<number>()
     // Current timelineControl width
     const [width, setWidth] = React.useState(Number.MAX_SAFE_INTEGER);
-
+    const [scale, setScale] = React.useState(1);
+    const [minScaleCount, setMinScaleCount] = React.useState(initialMinScaleCount);
+    const [scaleSplitCount, setScaleSplitCount] = React.useState(initialScaleSplitCount)
     /** dynamicSettings scale count */
     const handleSetScaleCount = (value: number) => {
       setScaleCount(Math.min(maxScaleCount, Math.max(minScaleCount, value)));
@@ -74,8 +82,22 @@ const TimelineControl = React.forwardRef(
       if (setTracks) {
         setTracks(tracks);
       }
+
     }, [minScaleCount, maxScaleCount, scale]);
 
+    React.useEffect(() => {
+      let newScaleSplitCount = scaleSplitCount;
+      if (scaleWidth < 50) {
+        newScaleSplitCount = 2;
+      } else if (scaleWidth < 100) {
+        newScaleSplitCount = 5;
+      } else {
+        newScaleSplitCount = 10;
+      }
+      if (newScaleSplitCount !== scaleSplitCount) {
+        setScaleSplitCount(newScaleSplitCount)
+      }
+    }, [scaleWidth])
 
     React.useEffect(() => {
       if (engineRef?.current) {
@@ -84,9 +106,27 @@ const TimelineControl = React.forwardRef(
     }, [controllers]);
 
     React.useEffect(() => {
-      if (engineRef?.current) {
-        engineRef.current.tracks = tracks;
+      if (!engineRef?.current || !tracks) {
+        return;
       }
+      engineRef.current.tracks = tracks;
+      const getDuration = () => {
+        let furthest = 0;
+        if (tracks) {
+          tracks.forEach((row) => {
+            row.actions.forEach((action) => {
+              if (action.end > furthest) {
+                furthest = action.end;
+              }
+            })
+          });
+        }
+        return furthest;
+      }
+      const durr = getDuration();
+      setDuration(durr);
+      setMinScaleCount(durr + 2);
+
     }, [tracks]);
 
 
@@ -164,17 +204,29 @@ const TimelineControl = React.forwardRef(
 
     // process runner related data
     React.useEffect(() => {
+
       if (!engineRef.current) {
         return;
       }
+
       const handleTime = ({ time }) => {
         handleSetCursor({ time, updateTime: false });
       };
+
       const handlePlay = () => setIsPlaying(true);
+
       const handlePaused = () => setIsPlaying(false);
+
+      const handleScrollLeft = (({ left }) => {
+        if (scrollSync?.current) {
+          scrollSync?.current?.setState({scrollLeft: Math.max(left, 0)});
+        }
+      })
+
       engineRef.current.on('setTimeByTick', handleTime);
       engineRef.current.on('play', handlePlay);
       engineRef.current.on('paused', handlePaused);
+      engineRef.current.on('setScrollLeft', handleScrollLeft);
     }, [engineRef.current]);
 
     // ref data
@@ -204,9 +256,7 @@ const TimelineControl = React.forwardRef(
           play: (param: Parameters<TimelineState['play']>[0]) => engineRef.current?.play({...(param as any)}),
           pause: engineRef.current?.pause.bind(engineRef.current),
           setScrollLeft: (val: number) => {
-            if (scrollSync?.current) {
-              scrollSync?.current?.setState({scrollLeft: Math.max(val, 0)});
-            }
+            return engineRef.current?.setScrollLeft(val);
           },
           setScrollTop: (val: number) => {
             if (scrollSync.current) {
@@ -215,7 +265,9 @@ const TimelineControl = React.forwardRef(
           },
           tracks,
           setTracks,
-          duration: duration ?? 0,
+          get duration() {
+            return engineRef.current?.duration;
+          }
         }), [engineRef.current, duration],
     );
 
@@ -224,8 +276,20 @@ const TimelineControl = React.forwardRef(
       scrollSync?.current?.setState({ scrollLeft: Math.max(width, 0) });
     }
 
+    const [initialized, setInitialized] = React.useState(false);
+    React.useEffect(() => {
+      if (width !== Number.MAX_SAFE_INTEGER && duration && !initialized) {
+        const newScaleWidth = getInitialScaleWidth(startLeft, minScaleCount, areaRef.current.clientWidth);
+        props.setScaleWidth(newScaleWidth);
+        setInitialized(true);
+      }
+    })
+
     // monitor timelineControl area width changes
     React.useEffect(() => {
+      if (!areaRef.current) {
+        return undefined;
+      }
       const observer = new ResizeObserver(() => {
         if (!areaRef.current) {
           return;
@@ -233,7 +297,7 @@ const TimelineControl = React.forwardRef(
         setWidth(areaRef.current.getBoundingClientRect().width);
       });
 
-      if (areaRef.current === undefined && width === Number.MAX_SAFE_INTEGER) {
+      if (width === Number.MAX_SAFE_INTEGER) {
         observer.observe(areaRef.current!);
       }
 
@@ -242,13 +306,14 @@ const TimelineControl = React.forwardRef(
           observer.disconnect();
         }
       };
-    }, []);
+    }, [areaRef.current]);
 
     const setScaleFallback = () => {};
+    const newProps = {...checkedProps, scaleSplitCount, scale, scaleWidth, minScaleCount};
     return (
       <TimelineControlRoot
         style={style}
-        sx={props.sx}
+        sx={{...props.sx, backgroundColor: 'unset'}}
         ref={domRef}
         className={`${PREFIX} ${disableDrag ? `${PREFIX}-disable` : ''}`}
       >
@@ -256,7 +321,7 @@ const TimelineControl = React.forwardRef(
           {({ scrollLeft, scrollTop: scrollTopCurrent, onScroll }) => (
             <React.Fragment>
               <TimelineArea
-                {...checkedProps}
+                {...newProps}
                 timelineWidth={width}
                 disableDrag={disableDrag || isPlaying}
                 setCursor={handleSetCursor}
@@ -267,10 +332,11 @@ const TimelineControl = React.forwardRef(
                 scrollLeft={scrollLeft}
               />
               <TimelineTrackArea
-                {...checkedProps}
+                {...newProps}
                 timelineWidth={width}
                 ref={(editAreaRef: TimelineTrackAreaState) => {
                   (areaRef.current as any) = editAreaRef?.domRef.current;
+                  (gridRef.current as any) = editAreaRef?.gridRef.current;
                 }}
                 disableDrag={disableDrag || isPlaying}
                 cursorTime={cursorTime}
@@ -290,7 +356,7 @@ const TimelineControl = React.forwardRef(
               />
               {!hideCursor && (
                 <TimelineCursor
-                  {...checkedProps}
+                  {...newProps}
                   timelineWidth={width}
                   disableDrag={isPlaying}
                   scrollLeft={scrollLeft}
@@ -308,14 +374,14 @@ const TimelineControl = React.forwardRef(
           )}
         </ScrollSync>
         <TimelineScrollResizer
-          parentRef={areaRef}
-          selector={'[role=grid]'}
-          scale={scaleWidth}
-          scrollLeft={scrollSync.current?.state?.scrollLeft}
-          maxScale={scaleWidth * 20}
-          minScale={1}
-          setScale={props.setScaleWidth ?? setScaleFallback}
-          setHorizontalScroll={setHorizontalScroll}
+          element={gridRef}
+          type='horizontal'
+          adjustScale={(value) => {
+            console.log(value);
+            const newScaleWidth = getInitialScaleWidth(startLeft, minScaleCount, areaRef.current.clientWidth - value);
+            props.setScaleWidth(newScaleWidth);
+            return true;
+          }}
         />
       </TimelineControlRoot>
     );

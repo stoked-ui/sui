@@ -8,7 +8,7 @@ export const DEFAULT_SCALE = 1;
 export const DEFAULT_SCALE_SPLIT_COUNT = 10;
 
 /** Default scale display width */
-export const DEFAULT_SCALE_WIDTH = 160;
+export const DEFAULT_SCALE_WIDTH = 100;
 /** Default starting distance on the left side of the scale */
 export const DEFAULT_START_LEFT = 20;
 /** Default minimum pixel movement */

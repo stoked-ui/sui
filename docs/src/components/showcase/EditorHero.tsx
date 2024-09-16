@@ -56,7 +56,6 @@ export default function EditorHero() {
   return (
     <Fade in timeout={700}>
       <Card
-        data-mui-color-scheme="dark"
         sx={{
           minWidth: 280,
           maxWidth: '100%',

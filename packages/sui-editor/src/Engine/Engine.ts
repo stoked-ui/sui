@@ -1,3 +1,4 @@
+import * as React from 'react';
 import BTree from "sorted-btree";
 import {namedId, getFileName, MediaFile} from "@stoked-ui/media-selector";
 import { type ITimelineAction, type IController, type IEngine, type ITimelineTrack, type ITimelineActionInput } from '@stoked-ui/timeline';
@@ -37,6 +38,8 @@ export class Engine extends Emitter<EventTypes> implements IEngine {
 
   private _renderCtx: CanvasRenderingContext2D | null = null
 
+  setTracks: React.Dispatch<React.SetStateAction<ITimelineTrack[]>> | undefined = undefined;
+
   constructor(params: EngineOptions ) {
     super(new Events());
     this._editorId = params.id;
@@ -50,6 +53,28 @@ export class Engine extends Emitter<EventTypes> implements IEngine {
 
   get screener() {
     return this._screener;
+  }
+
+  set action(action: ITimelineAction) {
+    this._actionMap[action.id] = action;
+    const track = this._actionTrackMap[action.id];
+    this.setTracks?.((prev) => {
+      return prev.map((prevTrack) => {
+        if (track.id === prevTrack.id) {
+          const actionIndex = track.actions.indexOf(action);
+          prevTrack.actions[actionIndex] = action;
+        }
+        return {...prevTrack, actions: [...prevTrack.actions] }
+      })
+    })
+  }
+
+  get action(): ITimelineAction | undefined {
+    const vals = Object.values(this._actionMap)
+    if (vals.length) {
+      return vals[0];
+    }
+    return undefined;
   }
 
   set viewer(viewer: HTMLElement) {
@@ -83,6 +108,17 @@ export class Engine extends Emitter<EventTypes> implements IEngine {
 
   get stage(): HTMLDivElement | null {
     return this._stage;
+  }
+
+  get duration() {
+    const actions = Object.values(this._actionMap);
+    let end = 0;
+    for(let i = 0; i < actions.length; i += 1) {
+      if (actions[i].end > end) {
+        end = actions[i].end;
+      }
+    }
+    return end;
   }
 
   get renderer(): HTMLCanvasElement | null {
@@ -144,7 +180,7 @@ export class Engine extends Emitter<EventTypes> implements IEngine {
   private _playState: PlayState = 'paused';
 
   /** Time frame pre data */
-  private _prev: number = -1;
+  private _prev: number = 0;
 
   /** Action actionType map */
   private _controllers: Record<string, IController> = {};
@@ -161,7 +197,7 @@ export class Engine extends Emitter<EventTypes> implements IEngine {
   private _next: number = 0;
 
   /** The action time range contains the actionId list of the current time */
-  private _activeActionIds: string[] = [];
+  // private _activeIds: string[] = [];
 
   private _activeIds: BTree = new BTree<string, number>();
 
@@ -178,20 +214,12 @@ export class Engine extends Emitter<EventTypes> implements IEngine {
 
   getSelectedActions() {
     const actionTracks: {action: ITimelineAction, track: ITimelineTrack}[] = [];
-    this._activeIds.forEach((v,actionId) => {
-      const action = this._actionMap[actionId];
+    for (const [key, ] of this._activeIds.entries()) {
+      const action = this._actionMap[key];
       if (action.selected) {
-        actionTracks.push({ action, track: this._actionTrackMap[actionId] });
+        actionTracks.push({ action, track: this._actionTrackMap[key] });
       }
-    })
-    /*
-    for (let i = 0; i < this._activeActionIds.length; i += 1) {
-      const actionId = this._activeActionIds[i];
-      const action = this._actionMap[actionId];
-      if (action.selected) {
-        actionTracks.push({ action, track: this._actionTrackMap[actionId] });
-      }
-    } */
+    }
     return actionTracks;
   }
 
@@ -227,7 +255,7 @@ export class Engine extends Emitter<EventTypes> implements IEngine {
   async buildTracks(controllers: Record<string, IController>, actionData: ITimelineActionInput[]): Promise<ITimelineTrack[]> {
     try {
       if (actionData) {
-        actionData.forEach((actionInput, index) => {
+        const actions = actionData.map((actionInput, index) => {
           const action = actionInput as ITimelineAction;
           // console.log('actionInput.src 1', actionInput.src)
           action.src = action.src.indexOf('http') !== -1 ? action!.src : `${window.location.href}${action!.src}`;
@@ -262,16 +290,18 @@ export class Engine extends Emitter<EventTypes> implements IEngine {
           }
           return action;
         })
+        const preload = actions.map((action) => action.controller.preload ? action.controller.preload({action, engine: this }) : action)
+        const loadedActions = await Promise.all(preload);
 
-        const filePromises = actionData.map((actionInput) => MediaFile.fromAction(actionInput as any));
+        const filePromises = loadedActions.map((action) => MediaFile.fromAction(action as any));
         const mediaFiles = await Promise.all(filePromises);
         const tracks = mediaFiles.map((file) => {
-          const actionInput = actionData.find((a) => a!.src === file.url);
-          if (!actionInput) {
+          const loadedAction = actionData.find((a) => a!.src === file.url);
+          if (!loadedAction) {
             throw new Error(`Action input not found for file ${JSON.stringify(actionData, null, 2)} - ${file.url}`);
           }
           const action = {
-            ...actionInput, file, name: file.name, src: actionInput.src, id: actionInput.id,
+            ...loadedAction, file, name: file.name, src: loadedAction.src, id: loadedAction.id,
           } as ITimelineAction
           const trackGenId = namedId('track')
           return {
@@ -457,18 +487,18 @@ export class Engine extends Emitter<EventTypes> implements IEngine {
     if (!this._verifyLoaded()) {
       return;
     }
-    /*
-    for (let i = 0; i < this._activeActionIds.length; i += 1) {
-      const actionId = this._activeActionIds[i];
-      const action = this._actionMap[actionId];
-      const controller = this._controllers[action?.controllerName];
+    for (const key of this._activeIds.keys()) {
+      console.log(`Key: ${key}`);
+      const action = this._actionMap[key];
 
-      if (type === 'start' && controller?.start) {
-        controller.start({action, time: this.getTime(), engine: this});
-      } else if (type === 'stop' && controller?.stop) {
-        controller.stop({action, time: this.getTime(), engine: this});
+      if (type === 'start' && action?.controller?.start) {
+        action.controller.start({action, time: this.getTime(), engine: this});
+      } else if (type === 'stop' && action?.controller?.stop) {
+        action.controller.stop({action, time: this.getTime(), engine: this});
       }
-    } */
+    }
+
+    /*
     this._activeIds.forEach((v, actionId) => {
       const action = this._actionMap[actionId];
       if (action) {
@@ -479,7 +509,7 @@ export class Engine extends Emitter<EventTypes> implements IEngine {
           controller.stop({action, time: this.getTime(), engine: this});
         }
       }
-    });
+    }); */
   }
 
   /** Execute every frame */
@@ -506,13 +536,6 @@ export class Engine extends Emitter<EventTypes> implements IEngine {
     // Execute action
     this._tickAction(currentTime);
     // In the case of automatic stop, determine whether all actions have been executed.
-    /*
-    if (!to && autoEnd && this._next >= this._actionSortIds.length && this._activeActionIds.length === 0) {
-      this._end();
-      return;
-    }
- */
-
     if (!to && autoEnd && this._next >= this._actionSortIds.length && this._activeIds.length === 0) {
       this._end();
       return;
@@ -533,69 +556,56 @@ export class Engine extends Emitter<EventTypes> implements IEngine {
 
   /** tick runs actions */
   private _tickAction(time: number) {
-    if (!this._verifyLoaded()) {
+    if (!this._verifyLoaded() || !this._renderCtx) {
       return;
     }
     this._dealEnter(time);
     this._dealLeave(time);
-/*
 
-    // render
-    const length = this._activeActionIds.length;
-    for (let i = 0; i < length; i +=1) {
-      const actionId = this._activeActionIds[i];
-      const action = this._actionMap[actionId];
-      const controller = this._controllers[action.controllerName];
-      if (controller && controller?.update) {
-        controller.update({action, time: this.getTime(), engine: this});
-      }
-    }
-*/
-
-
-    console.log('----------------------------------------------------------------------')
-    let index = 0;
-    if (!this._renderCtx) {
-      return;
-    }
     this._renderCtx!.clearRect(0, 0, this.renderWidth, this.renderHeight)
     // render
-    this._activeIds.forEach((v,actionId) => {
-      const action = this._actionMap[actionId];
-      console.log('action', v, actionId, action.name);
-      if (action.controller && action.controller?.update) {
-        action.controller.update({action, time: this.getTime(), engine: this});
+    const iterator = this._activeIds.entries();
+    let current: { id: string, val: number } | undefined = undefined;
+    const getNext = () => {
+      const next = iterator.next();
+      if (next.done) {
+        return false;
       }
-      index += 1;
-    });
-    console.log('----------------------------------------------------------------------')
+      current = {id: next.value[0], val: next.value[1] };
+      return true;
+    }
+    const renderPass: string[] = [];
+    while (getNext()) {
+      const action = this._actionMap[current!.id];
+      renderPass.push(`${action.z}:${action.controllerName}:${action.name}`)
+      if (action.controller && action.controller?.update) {
+        const track = this._actionTrackMap[action.id];
+        const actionTrack = {...action, hidden: track.hidden, lock: track.lock };
+        action.controller.update({action: actionTrack, time: this.getTime(), engine: this});
+      }
+    }
+    console.log(renderPass.join(' => '));
+  }
+
+  setScrollLeft(left: number) {
+    this.trigger('setScrollLeft', { left, engine: this });
   }
 
   /** Reset active data */
   private _dealClear() {
-    /* while (this._activeActionIds.length) {
-      const actionId = this._activeActionIds.shift();
-      if (!actionId) {
-        continue;
-      }
-      const action = this._actionMap[actionId];
+    while (this._activeIds.size > 0) {
+      const minKey = this._activeIds.minKey(); // Get the smallest entry in the BTree
+      if (minKey) {
+        const action = this._actionMap[minKey];
+        console.log(`Deleting Key: ${minKey}, Value: ${action}`);
+        this._activeIds.delete(minKey); // Delete the current smallest key
 
-      const controller = this._controllers[action?.controllerName];
-      if (controller?.leave) {
-        controller.leave({action, time: this.getTime(), engine: this});
-      }
-    }
-     */
-    const activeIds = Array.from(this._activeIds.keys())
-    while (activeIds.length) {
-      const actionId = activeIds[0];
-      if (!actionId) {
-        continue;
-      }
-      const action = activeIds.shift();
-      const controller = this._controllers[action?.controllerName];
-      if (controller?.leave) {
-        controller.leave({action, time: this.getTime(), engine: this});
+        if (action) {
+          const controller = action.controller;
+          if (controller?.leave) {
+            controller.leave({action, time: this.getTime(), engine: this});
+          }
+        }
       }
     }
     this._next = 0;
@@ -622,24 +632,8 @@ export class Engine extends Emitter<EventTypes> implements IEngine {
             controller.enter({action, time: this.getTime(), engine: this});
           }
 
-          let zModifier = 0;
-          if (action.layer === 'foreground') {
-            zModifier = 100;
-          }
-          this._activeIds.set(actionId, action.z + zModifier);
+          this._activeIds.set(actionId, action.z);
         }
-        /*
-
-         // The action can be executed and started
-         if (action.end > time && !this._activeActionIds.includes(actionId)) {
-         const controller = this._controllers[action.controllerName];
-         if (controller && controller?.enter && action?.data) {
-         controller.enter({action, time: this.getTime(), engine: this});
-         }
-
-         this._activeActionIds.push(actionId);
-         }
-          */
       }
       this._next += 1;
     }
@@ -647,9 +641,11 @@ export class Engine extends Emitter<EventTypes> implements IEngine {
 
   /** Handle action time leave */
   private _dealLeave(time: number) {
-    /* while (this._activeActionIds[i]) {
-      const actionId = this._activeActionIds[i];
-      const action = this._actionMap[actionId];
+    const keysToDelete: string[] = [];
+    const keys = Array.from(this._activeIds.keys());
+    for (let i = 0; i < keys.length; i += 1) {
+      const key = keys[i]; // Get the smallest entry in the BTree
+      const action = this._actionMap[key];
 
       // Not within the playback area
       if (action.start > time || action.end < time) {
@@ -659,25 +655,7 @@ export class Engine extends Emitter<EventTypes> implements IEngine {
           controller.leave({action, time: this.getTime(), engine: this});
         }
 
-        this._activeActionIds.splice(i, 1);
-        continue;
-      }
-      i += 1;
-    } */
-    const activeIds = Array.from(this._activeIds.keys())
-    while (activeIds.length) {
-      const actionId = activeIds[0];
-      if (!actionId) {
-        continue;
-      }
-      const action = activeIds.shift();
-      // Not within the playback area
-      if (action.start > time || action.end < time) {
-        const controller = this._controllers[action.controllerName];
-
-        if (controller && controller?.leave) {
-          controller.leave({action, time: this.getTime(), engine: this});
-        }
+        keysToDelete.push(key);
       }
     }
   }

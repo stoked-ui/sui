@@ -64,10 +64,9 @@ export function HomeView({ HomeMain}: { HomeMain: React.ComponentType }){
 let MainView:  React.ComponentType<{}> = function MainView() {
   return (
     <React.Fragment>
-      <div style={{width: 1000}}><EditorHero /></div>
-      {/* <Hero />
+      <Hero />
       <Box sx={{ height: '112px' }}/>
-      <Divider/> */}
+      <Divider/>
     </React.Fragment>
   )
 }

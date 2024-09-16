@@ -38,7 +38,6 @@ const TimelineTrackRoot = styled('div', {
   const lockedBg = blend(lockedBgBase, color, .3);
   return {
     borderBottom: `1px solid ${theme.palette.background.default}`,
-    background: bgColor,
     display: 'flex',
     flexDirection: 'row',
     boxSizing: 'border-box',
@@ -62,11 +61,14 @@ const TimelineTrackRoot = styled('div', {
         } */
       }
     },{
-      props: {
-        selected: true
-      },
+      props: { selected: true},
       style: {
         background: `${alpha(color, 0.3)}`
+      }
+    },{
+      props: { selected: false },
+      style: {
+        background: `${bgColor}`
       }
     }]
   }

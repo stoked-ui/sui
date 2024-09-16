@@ -14,6 +14,7 @@ export class Events {
       play: [],
       paused: [],
       ended: [],
+      setScrollLeft: [],
       ...handlers,
     };
   }
@@ -69,4 +70,6 @@ export interface EventTypes {
    * @memberofEventTypes
    */
   ended: { engine: Engine };
+
+  setScrollLeft: { left: number, engine: Engine }
 }

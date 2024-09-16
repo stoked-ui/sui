@@ -183,9 +183,6 @@ const Editor = React.forwardRef(function Editor<
     });
   }, [editorRef]); */
 
-  React.useEffect(() =>{
-    console.log('we have timeline state', timelineState);
-  }, [timelineState.current])
 
   const [startIt, setStartIt] = React.useState(false);
   React.useEffect(() => {
@@ -195,15 +192,17 @@ const Editor = React.forwardRef(function Editor<
     }
   }, [viewerRef.current]);
 
-  return (<Root role={'editor'} {...rootProps} sx={sx}>
+  return (<Root role={'editor'} {...rootProps} >
       <EditorViewSlot {...editorViewProps} ref={viewerRef} engineRef={engineRef}/>
-      <ControlsSlot
-        role={'controls'}
-        {...videoControlsProps}
-        timelineState={timelineState}
-        scaleWidth={scaleWidth}
-        setScaleWidth={setScaleWidthProxy}
-      />
+      {startIt &&
+       <ControlsSlot
+          role={'controls'}
+          {...videoControlsProps}
+          engineRef={engineRef}
+          scaleWidth={scaleWidth}
+          setScaleWidth={setScaleWidthProxy}
+        />
+      }
       {startIt &&
         <TimelineSlot
           role={'timeline'}
