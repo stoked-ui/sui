@@ -118,7 +118,7 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
         areaRef={editAreaRef}
         key={key}
         rowHeight={track?.rowHeight || rowHeight}
-        rowData={track}
+        track={track}
         dragLineData={dragLineData}
 
         onActionMoveStart={(data) => {

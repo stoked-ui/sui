@@ -3,7 +3,7 @@ import * as React from 'react';
 import { styled, alpha } from '@mui/material/styles';
 import { unstable_debounce as debounce } from '@mui/utils';
 import ROUTES from 'docs/src/route';
-import { PRODUCTS, Product, ALL_PRODUCTS } from 'docs/src/products';
+import { PRODUCTS, ALL_PRODUCTS } from 'docs/src/products';
 import { Link } from '@mui/docs/Link';
 
 const Navigation = styled('nav')(({ theme }) => [

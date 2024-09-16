@@ -13177,7 +13177,7 @@ _Aug 24, 2015_
     The example also includes a 'super header' and 'super footer' row.
   - **Upgrade Path:** Instead of passing in the raw JSON data, you'll need to generate the appropriate
     TableHeader/TableRow/TableHeaderColumn components and pass them in as children. The same should be applied
-    to the rowData and the footer.
+    to the track and the footer.
 - Tabs can now be controlled. In order to make this work we had to change the parameters being passed back to
   the `onChange` event to: `onChange(value, e, tab)`. Where value is the value of the tab that it was changed
   to, e is the event, and tab is the actual tab component. (#1232, #1235)
@@ -13433,7 +13433,7 @@ _Jul 9, 2015_
   - Clicking slider track advances the slider knob. (#1089, #1074)
 - Table
   - Fixed `displayRowCheckbox` prop (#935)
-  - Table rows can be selected in the rowData configuration (#1023)
+  - Table rows can be selected in the track configuration (#1023)
   - Removed duplicate table calls and support multiple tables (#954, #1087, #1084)
 - Tab - Added `contentContainerStyle` prop (#953)
 - Tabs - Fixed a bug that caused inkbar to not display properly (#1015, #940)

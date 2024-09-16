@@ -4,6 +4,7 @@ import {useSlotProps} from '@mui/base/utils';
 import {emphasize, styled, useThemeProps} from '@mui/material/styles';
 import {type TimelineLabelsProps} from './TimelineLabels.types';
 import {getTimelineLabelsUtilityClass} from "./timelineLabelsClasses";
+import { getTrackColor } from '../TimelineTrack/TimelineTrack';
 
 const useUtilityClasses = (
   ownerState: TimelineLabelsProps,
@@ -72,7 +73,7 @@ const TimelineLabel = styled('div', {
  */
 const TimelineLabels = React.forwardRef(
   function TimelineLabels(inProps: TimelineLabelsProps, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
-    const { tracks, slots, slotProps, sx, timelineState } = useThemeProps({ props: inProps, name: 'MuiTimelineLabels' });
+    const { tracks, slots, slotProps, sx, timelineState, controllers } = useThemeProps({ props: inProps, name: 'MuiTimelineLabels' });
 
     const classes = useUtilityClasses(inProps);
 
@@ -96,7 +97,7 @@ const TimelineLabels = React.forwardRef(
         className={`${classes.root} timeline-list`}>
         {tracks?.map((item) => {
           return (
-            <TimelineLabel key={item.id} className={classes.label}>
+            <TimelineLabel key={item.id} className={classes.label} color={getTrackColor(item, controllers)}>
               <div>{item.name}</div>
             </TimelineLabel>
           );

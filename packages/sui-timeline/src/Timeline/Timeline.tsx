@@ -5,6 +5,7 @@ import composeClasses from '@mui/utils/composeClasses';
 import {useSlotProps} from '@mui/base/utils';
 import {emphasize, styled, useThemeProps} from '@mui/material/styles';
 import useForkRef from '@mui/utils/useForkRef';
+import { namedId } from '@stoked-ui/media-selector';
 import {type TimelineComponent, type TimelineProps} from './Timeline.types';
 import {getTimelineUtilityClass} from './timelineClasses';
 import {type TimelineState} from './TimelineState';
@@ -13,7 +14,6 @@ import {type ITimelineAction} from '../TimelineAction/TimelineAction.types';
 import TimelineControl from '../TimelineControl/TimelineControl';
 import {type TimelineLabelsProps} from '../TimelineLabels/TimelineLabels.types';
 import {type ITimelineTrack} from "../TimelineTrack";
-import {buildTracksOld} from "../TimelineTrack/TrackBuilder";
 
 const useUtilityClasses = (ownerState: TimelineProps) => {
   const { classes } = ownerState;
@@ -34,11 +34,9 @@ const TimelineRoot = styled('div', {
 })(({ theme  }) => ({
   display: 'flex',
   backgroundColor: emphasize(theme.palette.background.default, 0.04),
-  '&:hover': {
     '& .SuiScrollbar': {
-      height: '12px',
+      height: '18px',
     },
-  },
 }));
 
 /**
@@ -55,7 +53,7 @@ const Timeline = React.forwardRef(function Timeline(
   inProps: TimelineProps,
   ref: React.Ref<HTMLDivElement>,
 ): React.JSX.Element {
-  const { slots, slotProps, controlSx, onChange, trackSx, actionData } = useThemeProps({
+  const { slots, slotProps, controlSx, onChange, trackSx, engineRef, controllers } = useThemeProps({
     props: inProps,
     name: 'MuiTimeline',
   });
@@ -72,14 +70,12 @@ const Timeline = React.forwardRef(function Timeline(
   const [tracks, setTracks] = React.useState<ITimelineTrack[] | null>(null);
 
   React.useEffect(() => {
-    if (inProps.tracks?.length) {
-      setTracks(inProps.tracks);
-    } else if (actionData) {
-      buildTracksOld(actionData).then((generatedTracks) => {
-        setTracks(generatedTracks)
-      })
-    }
+    engineRef.current?.buildTracks(controllers, inProps.actionData)
+      .then((initialTracks) => {
+        setTracks(initialTracks)
+      });
   }, [])
+
   const Root = slots?.root ?? TimelineRoot;
   const rootProps = useSlotProps({
     elementType: Root,
@@ -106,16 +102,18 @@ const Timeline = React.forwardRef(function Timeline(
   });
 
   const createAction = (e: React.MouseEvent<HTMLElement, MouseEvent>, { track, time }) => {
-    const updatedTracks = [...inProps.tracks];
-    const rowIndex = updatedTracks.findIndex((previousTrack) => previousTrack.id === track.id);
-    const newAction: ITimelineAction = {
-      id: `action ${tracks.length}`,
+    if (!track.actions.length) {
+      return;
+    }
+    const existingTrackAction = track.actions[0];
+    const rowIndex = tracks.findIndex((previousTrack) => previousTrack.id === track.id);
+    const newAction: ITimelineAction = {...existingTrackAction, ...{
+      id: namedId('action'),
       start: time,
       end: time + 0.5,
-      effectId: 'effect0',
-    };
-    updatedTracks[rowIndex] = { ...track, actions: [...track.actions, newAction] };
-    setTracks(updatedTracks);
+    }};
+    tracks[rowIndex] = { ...track, actions: [...track.actions, newAction] };
+    setTracks([...tracks]);
   };
 
   return (
@@ -124,8 +122,10 @@ const Timeline = React.forwardRef(function Timeline(
         <Labels
           ref={labelsRef}
           {...labelsProps.ownerState}
+          tracks={tracks}
           timelineState={timelineState}
           onChange={onChange}
+          controllers={inProps.controllers}
         />
       )}
 
@@ -196,35 +196,35 @@ Timeline.propTypes = {
   /**
    * Override or extend the styles applied to the component.
    */
-  classes: PropTypes.object.isRequired,
-  className: PropTypes.string.isRequired,
-  controllers: PropTypes.object.isRequired,
-  controlSx: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]).isRequired,), PropTypes.func, PropTypes.object,]).isRequired,
+  classes: PropTypes.object,
+  className: PropTypes.string,
+  controllers: PropTypes.object,
+  controlSx: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),), PropTypes.func, PropTypes.object,]),
   engine: PropTypes.any,
-  labels: PropTypes.bool.isRequired,
-  labelsSx: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]).isRequired,), PropTypes.func, PropTypes.object,]).isRequired,
-  labelSx: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]).isRequired,), PropTypes.func, PropTypes.object,]).isRequired,
-  scaleWidth: PropTypes.number.isRequired,
-  setScaleWidth: PropTypes.func.isRequired,
-  setTracks: PropTypes.func.isRequired,
+  labels: PropTypes.bool,
+  labelsSx: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),), PropTypes.func, PropTypes.object,]),
+  labelSx: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),), PropTypes.func, PropTypes.object,]),
+  scaleWidth: PropTypes.number,
+  setScaleWidth: PropTypes.func,
+  setTracks: PropTypes.func,
   /**
    * The props used for each component slot.
    * @default {}
    */
-  slotProps: PropTypes.object.isRequired,
+  slotProps: PropTypes.object,
   /**
    * Overridable component slots.
    * @default {}
    */
-  slots: PropTypes.object.isRequired,
+  slots: PropTypes.object,
   /**
    * The system prop that allows defining system overrides as well as additional CSS styles.
    */
-  sx: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]).isRequired,), PropTypes.func, PropTypes.object,]).isRequired,
-  timelineState: PropTypes.any.isRequired,
+  sx: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),), PropTypes.func, PropTypes.object,]),
+  timelineState: PropTypes.any,
   tracks: PropTypes.any,
-  trackSx: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]).isRequired,), PropTypes.func, PropTypes.object,]).isRequired,
-  viewSelector: PropTypes.string.isRequired,
+  trackSx: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),), PropTypes.func, PropTypes.object,]),
+  viewSelector: PropTypes.string,
 };
 
 export default Timeline;

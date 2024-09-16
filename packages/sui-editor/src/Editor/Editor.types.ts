@@ -2,7 +2,7 @@ import * as React from 'react';
 import {Theme} from '@mui/material/styles';
 import {SxProps} from '@mui/system';
 import {SlotComponentProps} from '@mui/base/utils';
-import {ITimelineAction, ITimelineActionInput, ITimelineTrack} from "@stoked-ui/timeline";
+import {type ITimelineActionInput } from "@stoked-ui/timeline";
 import {FileBase} from '@stoked-ui/file-explorer/models/items';
 import {EditorPluginParameters, EditorPluginSignatures, EditorPluginSlotProps, EditorPluginSlots} from './Editor.plugins';
 import {EditorClasses} from './editorClasses';

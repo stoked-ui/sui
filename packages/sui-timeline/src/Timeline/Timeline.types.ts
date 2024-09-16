@@ -6,7 +6,7 @@ import {
   type IController, type ITimelineAction, type ITimelineActionInput
 } from '../TimelineAction/TimelineAction.types';
 import {TimelineClasses} from './timelineClasses';
-import { ITimelineTrack } from "../TimelineTrack/TimelineTrack.types";
+import {type ITimelineTrack} from "../TimelineTrack/TimelineTrack.types";
 import {type TimelineLabelsProps} from "../TimelineLabels/TimelineLabels.types";
 import {type TimelineState} from "./TimelineState";
 import TimelineControl, {TimelineControlProps} from "../TimelineControl";
@@ -25,13 +25,15 @@ export interface IEngine extends IEmitter<EventTypes> {
   readonly isPlaying: boolean;
   readonly isPaused: boolean;
   controllers: Record<string, any>;
-  viewer: HTMLElement | null
-  readonly renderer: HTMLCanvasElement | null
-  readonly renderCtx: CanvasRenderingContext2D | null
+  viewer: HTMLElement | null;
+  readonly screener: HTMLVideoElement | null;
+  readonly stage: HTMLDivElement | null;
+  readonly renderer: HTMLCanvasElement | null;
+  readonly renderCtx: CanvasRenderingContext2D | null;
   tracks: ITimelineTrack[];
   readonly renderWidth: number;
   readonly renderHeight: number;
-
+  buildTracks: (controllers: Record<string, IController>, actionData: ITimelineActionInput[]) => Promise<ITimelineTrack[]>
   /** Set playback rate */
   setPlayRate(rate: number): boolean;
   /** Get playback rate */
@@ -44,16 +46,18 @@ export interface IEngine extends IEmitter<EventTypes> {
   getTime(): number;
   /** Play */
   play(param: {
-    /** By default, it runs from beginning to end, with a priority greater than autoEnd */
-    toTime?: number;
-    /** Whether to automatically end after playing */
-    autoEnd?: boolean;
+  /** By default, it runs from beginning to end, with a priority greater than autoEnd */
+  toTime?: number;
+  /** Whether to automatically end after playing */
+  autoEnd?: boolean;
   }): boolean;
   /** pause */
   pause(): void;
 
   getAction(actionId: string): { action: ITimelineAction, track: ITimelineTrack };
+
   getActionTrack(actionId: string):  any;
+
   getSelectedActions(): { action: ITimelineAction, track: ITimelineTrack }[];
 }
 
@@ -161,7 +165,7 @@ export interface TimelineProps
   trackSx?: SxProps<Theme>;
 
   tracks?: ITimelineTrack[];
-  controllers: Record<string, IController>;
+  controllers?: Record<string, IController>;
   timelineState?: React.RefObject<TimelineState>;
   viewSelector?: string;
   engineRef?: React.RefObject<IEngine>;
@@ -169,5 +173,5 @@ export interface TimelineProps
 
   scaleWidth?: number;
   setScaleWidth?: (scaleWidth: number) => void;
-  actionData?: ITimelineActionInput[];
+  actionData?: ITimelineAction[];
 }

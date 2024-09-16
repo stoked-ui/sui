@@ -33,17 +33,18 @@ const EditorViewRoot = styled('div', {
   aspectRatio: 16 / 9,
 }));
 
-const EditorViewRenderer = styled('canvas', {
+const Renderer = styled('canvas', {
   name: "MuiEditorViewRenderer",
   slot: "renderer"
 })(() => ({
   display: 'flex',
   flexDirection: 'column',
-  width: '100%',
   position: 'absolute',
   left: 0,
   overflow: 'hidden',
   aspectRatio: 16 / 9,
+  width: '100%',
+  height: '100%'
 /*   background: `repeating-linear-gradient(
     45deg,
     rgba(0, 0, 0, 0.2),
@@ -54,6 +55,53 @@ const EditorViewRenderer = styled('canvas', {
   url(http://s3-us-west-2.amazonaws.com/s.cdpn.io/3/old_map_@2X.png)` */
 }));
 
+const Screener = styled('video', {
+  name: "MuiEditorViewScreener",
+  slot: "screener"
+})(() => ({
+  display: 'none',
+  flexDirection: 'column',
+  width: '100%',
+  position: 'absolute',
+  left: 0,
+  overflow: 'hidden',
+  aspectRatio: 16 / 9,
+  zIndex: 50,
+
+  /*   background: `repeating-linear-gradient(
+   45deg,
+   rgba(0, 0, 0, 0.2),
+   rgba(0, 0, 0, 0.2) 10px,
+   rgba(0, 0, 0, 0.3) 10px,
+   rgba(0, 0, 0, 0.3) 20px
+   ),
+   url(http://s3-us-west-2.amazonaws.com/s.cedpn.io/3/old_map_@2X.png)` */
+}));
+
+const Stage = styled('div', {
+  name: "MuiEditorViewStage",
+  slot: "stage"
+})(() => ({
+  display: 'flex',
+  flexDirection: 'column',
+  width: '100%',
+  position: 'absolute',
+  left: 0,
+  overflow: 'hidden',
+  aspectRatio: 16 / 9,
+  vIndex: 100,
+  opacity: .2,
+  right: '-2000px'
+
+  /*   background: `repeating-linear-gradient(
+   45deg,
+   rgba(0, 0, 0, 0.2),
+   rgba(0, 0, 0, 0.2) 10px,
+   rgba(0, 0, 0, 0.3) 10px,
+   rgba(0, 0, 0, 0.3) 20px
+   ),
+   url(http://s3-us-west-2.amazonaws.com/s.cdpn.io/3/old_map_@2X.png)` */
+}));
 /**
  *
  * Demos:
@@ -75,8 +123,8 @@ export const EditorView = React.forwardRef(function EditorView<
   const [, setViewerSize] = React.useState<{w: number, h: number}>({w: 0, h: 0});
   const viewerRef = React.useRef<HTMLDivElement>(null);
   const rendererRef = React.useRef<HTMLCanvasElement>(null);
-
-
+  const screenerRef = React.useRef<HTMLVideoElement>(null);
+  const stageRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     if (inProps.engine && viewRef?.current) {
@@ -98,15 +146,26 @@ export const EditorView = React.forwardRef(function EditorView<
     }
   })
 
-  // tie the viewer to the editor
+  // tie the renderer to the editor
   React.useEffect(() => {
-    if (viewerRef.current && viewRef.current) {
-      if (!viewerRef.current.id && viewRef.current.parentElement) {
-        viewerRef.current.id = `preview-${viewRef.current.parentElement.id}`
-        viewerRef.current.classList.add(viewRef.current.parentElement.id);
+    if (screenerRef.current && viewRef.current) {
+      if (!screenerRef.current.id && viewRef.current.parentElement) {
+        screenerRef.current.id = `screener-${viewRef.current.parentElement.id}`
+        screenerRef.current.classList.add(viewRef.current.parentElement.id);
       }
     }
   })
+
+  // tie the renderer to the editor
+  React.useEffect(() => {
+    if (stageRef.current && viewRef.current) {
+      if (!stageRef.current.id && viewRef.current.parentElement) {
+        stageRef.current.id = `stage-${viewRef.current.parentElement.id}`
+        stageRef.current.classList.add(viewRef.current.parentElement.id);
+      }
+    }
+  })
+
 
   const { slots, slotProps } = props;
   const classes = useUtilityClasses(props);
@@ -140,8 +199,10 @@ export const EditorView = React.forwardRef(function EditorView<
   }, [viewerRef]);
 
   return (
-    <Root role={'viewer'} {...rootProps} ref={combinedViewRef} >
-      <EditorViewRenderer role={'renderer'}  ref={rendererRef}/>
+    <Root role={'viewer'} {...rootProps} ref={combinedViewRef} data-preserve-aspect-ratio >
+      <Renderer role={'renderer'} ref={rendererRef} data-preserve-aspect-ratio/>
+      <Screener role={'screener'} ref={screenerRef}/>
+      <Stage role={'stage'} ref={stageRef}/>
     </Root>
   )
 })

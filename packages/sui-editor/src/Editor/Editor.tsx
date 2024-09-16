@@ -42,6 +42,10 @@ const EditorRoot = styled('div', {
   display: 'flex',
   flexDirection: 'column',
   width: '100%',
+  '& .lottie-canvas': {
+    width: '50%',
+    backgroundColor: '#ffff00',
+  },
   '& .player-panel': {
     width: '100%',
     height: '500px',
@@ -148,7 +152,7 @@ const Editor = React.forwardRef(function Editor<
     ownerState: props as any,
   });
   const timelineState = React.useRef<TimelineState>(null);
-  const engineRef = React.useRef<Engine>(new Engine({id}));
+  const engineRef = React.useRef<Engine>(new Engine({id, controllers: Controllers}));
   const [scaleWidth, setScaleWidth] = React.useState(160);
   const viewerRef = React.useRef<HTMLDivElement>(null);
 
@@ -216,7 +220,6 @@ const Editor = React.forwardRef(function Editor<
           engineRef={engineRef}
         />
       }
-
       <Stack direction="row" spacing={2}>
         <BottomLeft role={'explorer-left'} {...bottomLeftProps} />
         <BottomRight role={'explorer-right'} {...bottomRightProps} />

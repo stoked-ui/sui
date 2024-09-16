@@ -35,7 +35,7 @@ export type GridColumn = {
   renderContent: (content: any) => string,
   evaluator?: (item: any, columnName: string) => any,
   width: number,
-  rowData: GridColumnRowData,
+  track: GridColumnRowData,
   waiting: boolean
   cells: React.ReactElement[];
   children: (cells: React.ReactElement[]) => React.ReactNode;
