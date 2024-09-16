@@ -1,7 +1,7 @@
-import type { MuiPage } from 'docs/src/MuiPage';
-import standardNavIcons from 'docs/src/modules/components/AppNavIcons';
+import type SuiPage from '@stoked-ui/docs/SuiPage/SuiPage';
+import standardNavIcons from '@stoked-ui/docs/components/AppNavIcons';
 
-const pages: readonly MuiPage[] = [
+const pages: readonly SuiPage[] = [
   { pathname: '/versions' },
   {
     pathname: 'https://mui.com/store/',

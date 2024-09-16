@@ -7,7 +7,7 @@ import Document, { Html, Head, Main, NextScript } from 'next/document';
 import GlobalStyles from '@mui/material/GlobalStyles';
 import { getInitColorSchemeScript as getMuiInitColorSchemeScript } from '@mui/material/styles';
 import { getInitColorSchemeScript as getJoyInitColorSchemeScript } from '@mui/joy/styles';
-import { pathnameToLanguage } from 'docs/src/modules/utils/helpers';
+import { pathnameToLanguage } from '@stoked-ui/docs/utils/helpers';
 import createEmotionCache from 'docs/src/createEmotionCache';
 import { getMetaThemeColor } from '@mui/docs/branding';
 

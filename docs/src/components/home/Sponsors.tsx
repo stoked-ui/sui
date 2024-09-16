@@ -1,10 +1,10 @@
 import * as React from 'react';
 import Typography from '@mui/material/Typography';
-import Section from 'docs/src/layouts/Section';
+import Section from '@stoked-ui/docs/Layouts/Section';
 import DiamondSponsors from 'docs/src/components/home/DiamondSponsors';
 import GoldSponsors from 'docs/src/components/home/GoldSponsors';
-import SectionHeadline from 'docs/src/components/typography/SectionHeadline';
-import GradientText from 'docs/src/components/typography/GradientText';
+import SectionHeadline from '@stoked-ui/docs/typography/SectionHeadline';
+import GradientText from '@stoked-ui/docs/typography/GradientText';
 
 export default function Sponsors() {
   return (

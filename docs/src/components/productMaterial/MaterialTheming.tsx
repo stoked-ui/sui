@@ -3,16 +3,16 @@ import { Experimental_CssVarsProvider as CssVarsProvider } from '@mui/material/s
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import AutoAwesomeRounded from '@mui/icons-material/AutoAwesomeRounded';
-import Section from 'docs/src/layouts/Section';
-import SectionHeadline from 'docs/src/components/typography/SectionHeadline';
-import GradientText from 'docs/src/components/typography/GradientText';
-import Item, { Group } from 'docs/src/components/action/Item';
-import Highlighter from 'docs/src/components/action/Highlighter';
+import Section from '@stoked-ui/docs/Layouts/Section';
+import SectionHeadline from '@stoked-ui/docs/typography/SectionHeadline';
+import GradientText from '@stoked-ui/docs/typography/GradientText';
+import Item, { Group } from '@stoked-ui/docs/action/Item';
+import Highlighter from '@stoked-ui/docs/action/Highlighter';
 import SvgMaterialDesign from 'docs/src/icons/SvgMaterialDesign';
-import Frame from 'docs/src/components/action/Frame';
+import Frame from '@stoked-ui/docs/action/Frame';
 import PlayerCard from 'docs/src/components/showcase/PlayerCard';
-import HighlightedCode from 'docs/src/modules/components/HighlightedCode';
-import MarkdownElement from 'docs/src/components/markdown/MarkdownElement';
+import HighlightedCode from '@stoked-ui/docs/HighlightedCode';
+import MarkdownElement from '@stoked-ui/docs/Markdown/MarkdownElement';
 
 const code = `
 <Card

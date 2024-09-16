@@ -34,9 +34,9 @@ export const fileExplorerSettings: ProjectSettings = {
       .filter((page): page is PageType => page !== null)
       .sort((a: PageType, b: PageType) => a.title.localeCompare(b.title));
 
-    return `import type { MuiPage } from 'docs/src/MuiPage';
+    return `import type SuiPage from '@stoked-ui/docs/SuiPage';
 
-const apiPages: MuiPage[] = ${JSON.stringify(pages, null, 2)};
+const apiPages: SuiPage[] = ${JSON.stringify(pages, null, 2)};
 export default apiPages;
 `;
   },
