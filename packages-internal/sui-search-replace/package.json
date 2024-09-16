@@ -9,6 +9,10 @@
   "scripts": {
     "test": "echo \"Derp\" && exit 0"
   },
+  "publishConfig": {
+    "access": "public",
+    "directory": "./"
+  },
   "keywords": [],
   "author": "",
   "license": "MIT",
