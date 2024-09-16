@@ -52,7 +52,8 @@ const Action = styled('div', {
 })<{
   selected: boolean;
   color: string;
-}>(({ theme, color = 'blue' }) => {
+  size?: number;
+}>(({ theme, color = 'blue', size }) => {
   /* const base = theme.vars ? `rgba(color(from ${color}) / 1)` : alpha(color, 1);
   const unselected = emphasize(color, 0.7);
   const hover = emphasize(color, 0.45);
@@ -63,6 +64,8 @@ const Action = styled('div', {
     position: 'absolute',
     left: 0,
     top: 0,
+    background: `linear-gradient(to right, ${theme.palette.background.default} 1px, transparent 1px)`,
+    backgroundSize: size ? `${size}px` : undefined,
     backgroundColor: `${emphasize(color, 0.10)}`,
     alignContent: 'center',
     padding: '0 0 0 10px',
@@ -97,6 +100,11 @@ const LeftStretch = styled('div')(({ theme }) => ({
   height: '100%',
   overflow: 'hidden',
   left: 0,
+  '&:hover': {
+    '&::after': {
+      borderLeftColor: theme.palette.text.primary,
+    }
+  },
   '&::after': {
     position: 'absolute',
     top: 0,
@@ -120,6 +128,11 @@ const RightStretch = styled('div')(({ theme }) => ({
   height: '100%',
   overflow: 'hidden',
   right: 0,
+  '&:hover': {
+    '&::after': {
+      borderRightColor: theme.palette.text.primary,
+    }
+  },
   '&::after': {
     position: 'absolute',
     top: 0,
@@ -392,7 +405,7 @@ function TimelineAction(props: TimelineActionProps) {
   const [backgroundImage, setBackgroundImage] = React.useState<null | string>(null);
   React.useEffect(() => {
     try {
-      controllers.controller.getBackgroundImage?.(action).then((img) => {
+      action.controller.getBackgroundImage?.(action).then((img) => {
         // console.log('img', img);
         setBackgroundImage(img);
       });
@@ -413,6 +426,7 @@ function TimelineAction(props: TimelineActionProps) {
     onContextMenuAction,
     rowHeight,
   } = props;
+
   return (
     <TimelineTrackDnd
       ref={rowRnd}
@@ -446,6 +460,7 @@ function TimelineAction(props: TimelineActionProps) {
       deltaScrollLeft={deltaScrollLeft}
     >
       <Action
+        size={action.file?.duration ? action.file.duration * scaleWidth : undefined}
         id={action.id}
         onKeyDown={(event: any) => {
           event.currentTarget = action;
@@ -512,6 +527,8 @@ function TimelineAction(props: TimelineActionProps) {
         }}
         color={`${action?.controller?.color}`}
       >
+        {flexible && <LeftStretch className={`${prefix('action-left-stretch')} ${classes.left}`}/>}
+        {flexible && (<RightStretch className={`${prefix('action-right-stretch')} ${classes.right}`}/>)}
         <ActionLabel color={`${controllers?.controller?.color}`}>
           <Typography variant="body2" color="text.primary" sx={(theme) => ({
             color: `${theme.palette.mode === 'light' ? '#000' : '#FFF'}`, fontWeight: '500',
@@ -519,9 +536,7 @@ function TimelineAction(props: TimelineActionProps) {
             {action.name}
           </Typography>
         </ActionLabel>
-        {flexible && <LeftStretch className={`${prefix('action-left-stretch')} ${classes.left}`}/>}
-        {flexible && (
-          <RightStretch className={`${prefix('action-right-stretch')} ${classes.right}`}/>)}
+
       </Action>
     </TimelineTrackDnd>);
 }

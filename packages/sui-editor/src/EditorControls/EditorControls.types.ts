@@ -3,7 +3,7 @@ import {Theme} from '@mui/material/styles';
 import {SxProps} from '@mui/system';
 import {SlotComponentProps} from '@mui/base/utils';
 import {FileBase} from '@stoked-ui/file-explorer/models/items';
-import {TimelineState} from '@stoked-ui/timeline';
+import {IEngine, TimelineState} from '@stoked-ui/timeline';
 import {EditorControlsClasses} from './editorControlsClasses';
 
 export interface EditorControlsSlots {
@@ -45,7 +45,8 @@ export interface EditorControlsPropsBase extends React.HTMLAttributes<HTMLDivEle
   */
   startLeft?: number;
   timelineState: React.RefObject<TimelineState>;
-  autoScrollWhenPlay: boolean;
+  engineRef: React.RefObject<IEngine>;
+  autoScroll: boolean;
 }
 
 export interface EditorControlsProps<R extends FileBase, Multiple extends boolean | undefined>

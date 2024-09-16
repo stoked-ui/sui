@@ -30,10 +30,15 @@ export interface IEngine extends IEmitter<EventTypes> {
   readonly stage: HTMLDivElement | null;
   readonly renderer: HTMLCanvasElement | null;
   readonly renderCtx: CanvasRenderingContext2D | null;
+  readonly duration: number;
   tracks: ITimelineTrack[];
+  setTracks: React.Dispatch<React.SetStateAction<ITimelineTrack[]>> | undefined;
   readonly renderWidth: number;
   readonly renderHeight: number;
   buildTracks: (controllers: Record<string, IController>, actionData: ITimelineActionInput[]) => Promise<ITimelineTrack[]>
+  action: ITimelineAction | undefined;
+
+  setScrollLeft(left: number): void;
   /** Set playback rate */
   setPlayRate(rate: number): boolean;
   /** Get playback rate */
@@ -115,6 +120,8 @@ export interface EventTypes {
    * @memberofEventTypes
    */
   ended: { engine: IEngine };
+
+  setScrollLeft: { left: number, engine: IEngine };
 }
 
 export type TimelineComponent = ((

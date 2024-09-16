@@ -22,6 +22,7 @@ export interface IController {
   color?: string;
   colorSecondary?: string;
   getBackgroundImage?: GetBackgroundImage;
+  preload?: (params: Omit<ControllerParams, 'time'>) => ITimelineAction;
 }
 
 export interface TimelineActionState {
@@ -96,6 +97,8 @@ export interface ITimelineAction extends Omit<ITimelineActionInput, 'id' | 'star
   name: string;
 
   fullName: string;
+
+  element?: any;
 
   controller: IController;
 }

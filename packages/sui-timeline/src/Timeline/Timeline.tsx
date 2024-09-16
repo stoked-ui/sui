@@ -69,6 +69,8 @@ const Timeline = React.forwardRef(function Timeline(
 
   const [tracks, setTracks] = React.useState<ITimelineTrack[] | null>(null);
 
+  engineRef.current.setTracks = setTracks;
+
   React.useEffect(() => {
     engineRef.current?.buildTracks(controllers, inProps.actionData)
       .then((initialTracks) => {
@@ -138,6 +140,7 @@ const Timeline = React.forwardRef(function Timeline(
             top: '50%',
             transform: 'translateY(-50%)',
           },
+          backgroundColor: 'red',
         }}
         {...controlProps.ownerState}
         onDoubleClickRow={createAction}

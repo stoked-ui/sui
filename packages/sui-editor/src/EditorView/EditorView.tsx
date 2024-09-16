@@ -82,7 +82,7 @@ const Stage = styled('div', {
   name: "MuiEditorViewStage",
   slot: "stage"
 })(() => ({
-  display: 'flex',
+  display: 'none',
   flexDirection: 'column',
   width: '100%',
   position: 'absolute',
@@ -90,7 +90,7 @@ const Stage = styled('div', {
   overflow: 'hidden',
   aspectRatio: 16 / 9,
   vIndex: 100,
-  opacity: .2,
+  // opacity: .2,
   right: '-2000px'
 
   /*   background: `repeating-linear-gradient(

@@ -22,7 +22,7 @@ const ScrollbarThumb = styled('div')<{ width: number; left: number }>(({  width,
   minWidth: '40px',
   backgroundColor: '#55555599',
   position: 'absolute',
-  left: `${left}px`,
+  left: `${left}%`,
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
@@ -45,91 +45,86 @@ const ResizeHandle = styled('div')(({ theme }) => ({
 }));
 
 export default function TimelineScrollResizer({
-  element,
-  adjustScale,
-  type,
+  parentRef,
+  selector,
+  minScale = 0.5,
+  maxScale = 2,
+  scale = 1,
+  setScale,
+  setHorizontalScroll,
 }: TimelineScrollResizerProps) {
   const [isResizing, setIsResizing] = React.useState(false);
   const [isDragging, setIsDragging] = React.useState(false);
   const [startX, setStartX] = React.useState(0);
-  const [clientPercentage, setClientPercentage] = React.useState(100);
+  const [initialScaleOnDrag, setInitialScaleOnDrag] = React.useState(scale);
   const [scrollThumbPosition, setScrollThumbPosition] = React.useState(0);
-  const [startScrollThumbPosition, setStartScrollThumbPosition] = React.useState(null);
   const [thumbWidth, setThumbWidth] = React.useState(50);
-  // const contentRef = React.useRef<HTMLElement>(null);
-
-  const getThumbnailWidth = (totalWidth = element.current.scrollWidth) => {
-    const visibleWidth = element.current.clientWidth;
-    return visibleWidth / (totalWidth / visibleWidth);
-  }
+  const contentRef = React.useRef<HTMLElement>(null);
 
   React.useEffect(() => {
-    if (!element.current) {
-      return undefined;
+    if (parentRef.current) {
+      const scrollElement = parentRef.current.querySelector(selector);
+      if (scrollElement && scrollElement as HTMLElement !== null) {
+        contentRef.current = scrollElement as HTMLElement;
+      }
     }
+  }, [parentRef]);
 
-    const observer = new ResizeObserver(() => {
-      if (!element.current) {
-        return;
-      }
-
-      setClientPercentage(element.current.scrollWidth / element.current.clientWidth)
-      const tWidth = getThumbnailWidth();
-      setThumbWidth(tWidth);
-    });
-
-    observer.observe(element.current!);
-
-    return () => {
-      if (observer) {
-        observer.disconnect();
-      }
-    };
-  }, [element.current]);
+  React.useEffect(() => {
+    if (setScale && contentRef.current) {
+      setScale(scale);
+    }
+  }, [scale, contentRef]);
 
   const handleMouseDownResize = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsResizing(true);
     setStartX(e.clientX);
+    setInitialScaleOnDrag(scale);
   };
 
+  const getThumbnailWidth = () => {
+    const visibleWidth = contentRef.current.clientWidth;
+    const totalWidth = contentRef.current.scrollWidth;
+    return visibleWidth / (totalWidth / visibleWidth);
+  }
   const handleMouseDownDrag = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsDragging(true);
     setStartX(e.clientX);
-    setStartScrollThumbPosition(scrollThumbPosition);
-    console.log(scrollThumbPosition)
   };
 
   const handleMouseMove = (e: MouseEvent) => {
     if (isResizing) {
       const updateThumbSize = (newThumbWidth: number) => {
-        if (element.current) {
+        if (contentRef.current) {
           setThumbWidth(Math.max(50, newThumbWidth)); // Minimum thumb width is 50px
         }
       };
       console.log('e.clientX', e.clientX)
-      const deltaX = (e.clientX - startX);
-      // let newScale = initialScaleOnDrag + deltaX;
-      // newScale = Math.max(minScale, Math.min(maxScale, newScale));
-
-      const valid = adjustScale(deltaX);
-      updateThumbSize(thumbWidth + deltaX);
-      // const newThumbWidth = getThumbnailWidth(element.current.scrollWidth - deltaX);
-      // if (thumbWidth !== newThumbWidth && newThumbWidth <= contentRef.current.clientWidth) {
-      //  console.log('newScale', newThumbWidth, contentRef.current.clientWidth, newScale)
-      //  setScale(newScale);
-      //  updateThumbSize(newThumbWidth);
-      // }
+      const deltaX = (e.clientX - startX) * -1;
+      let newScale = initialScaleOnDrag + deltaX;
+      newScale = Math.max(minScale, Math.min(maxScale, newScale));
+      const newThumbWidth = getThumbnailWidth();
+      if (thumbWidth !== newThumbWidth && newThumbWidth <= contentRef.current.clientWidth) {
+        console.log('newScale', newThumbWidth, contentRef.current.clientWidth, newScale)
+        setScale(newScale);
+        updateThumbSize(newThumbWidth);
+      }
     } else if (isDragging) {
       const deltaX = e.clientX - startX;
-      const newPos = startScrollThumbPosition + deltaX;
-      const adjustedPos = Math.min(Math.max(0, newPos), element.current.clientWidth - thumbWidth);
-      console.log('adjustedPos', adjustedPos)
-      setScrollThumbPosition(adjustedPos);
-      if (element.current && deltaX) {
-        element.current.scrollLeft += deltaX;
-        //setScroll(startScrollThumbPosition + deltaX);
+      const trackWidth = contentRef.current?.clientWidth  || 1;
+      const maxScrollPercent = 100 - (thumbWidth / (trackWidth / 100));
+      const maxScrollPosition = trackWidth - thumbWidth;
+
+      const newScrollPosition = Math.max(
+        0,
+        Math.min(maxScrollPercent, scrollThumbPosition + (deltaX / maxScrollPosition) * 100)
+      );
+      setScrollThumbPosition(newScrollPosition);
+
+      if (contentRef.current) {
+        setHorizontalScroll(newScrollPosition);
       }
     }
   };
