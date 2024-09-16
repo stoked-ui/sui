@@ -1103,6 +1103,7 @@ importers:
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
+    publishDirectory: build
 
   packages-internal/sui-envinfo:
     dependencies:
