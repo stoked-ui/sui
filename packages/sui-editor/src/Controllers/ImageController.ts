@@ -12,10 +12,6 @@ class ImageController extends Controller {
 
   enter(params: ControllerParams) {
     const {action, engine} = params;
-    if (!action.data) {
-      return;
-    }
-
     let item: HTMLImageElement;
     if (this.cacheMap[action.id]) {
       item = this.cacheMap[action.id];
@@ -34,19 +30,19 @@ class ImageController extends Controller {
 
   static createNewImage(action: ITimelineAction): HTMLImageElement {
     const item = document.createElement('image') as HTMLImageElement;
-    item.src = action.data!.src;
+    item.src = action!.src;
     item.style.display = 'flex';
     ImageController.applyStyles(action, item);
     return item;
   }
 
   static applyStyles(action: ITimelineAction, item: HTMLImageElement) {
-    if (action.data?.style) {
+    if (action?.style) {
       // eslint-disable-next-line guard-for-in
-      const keys = Object.keys(action.data.style);
+      const keys = Object.keys(action.style);
       for (let i = 0; i <  keys.length; i += 1) {
         const prop = keys[i];
-        item.style[prop] = action.data.style[prop];
+        item.style[prop] = action.style[prop];
       }
     }
   }

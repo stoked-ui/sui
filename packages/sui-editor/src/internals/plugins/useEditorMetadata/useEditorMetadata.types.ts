@@ -1,4 +1,4 @@
-import {ITimelineAction, ITimelineActionInput, ITimelineTrack} from '@stoked-ui/timeline';
+import {type ITimelineAction, type ITimelineTrack, type ITimelineActionInput} from '@stoked-ui/timeline';
 import type {DefaultizedProps, EditorPluginSignature} from '../../models';
 import {
   UseEditorKeyboardSignature

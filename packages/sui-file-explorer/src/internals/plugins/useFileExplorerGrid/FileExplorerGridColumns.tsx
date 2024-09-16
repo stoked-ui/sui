@@ -47,7 +47,7 @@ export function FileExplorerGridColumns({ item }: { item: any}) {
 
   const columnsEntries = Object.entries(gridColumns).filter(([columnName]) => columnName !== 'label');
   const columns =  columnsEntries.map(([columnName, columnData], index) => {
-    const columnWidthAndHasBeenSet = columnData.rowData[`grid-${item.id}-row`] !== null && columnData.width !== -1;
+    const columnWidthAndHasBeenSet = columnData.track[`grid-${item.id}-row`] !== null && columnData.width !== -1;
     const customSx: any = {width: columnWidthAndHasBeenSet  ? `${columnData.width}px` : undefined};
     let content = item[columnName];
     if (!content && columnData.evaluator) {

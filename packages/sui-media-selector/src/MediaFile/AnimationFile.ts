@@ -1,4 +1,4 @@
-import lottie, {AnimationItem} from "lottie-web";
+import lottie, {AnimationItem, AnimationConfigWithPath} from "lottie-web";
 import MediaFile from "./MediaFile";
 import {IResolutionFile, ResolutionFile} from "./Resolution";
 import namedId from "../namedId";
@@ -51,8 +51,12 @@ export default class AnimationFile extends ResolutionFile implements IResolution
     // console.log('lottie', this.lottie);
   }
 
-  static fromFileUrl(file: AnimationFile, url: string, path?: string) {
+  /* static fromFileUrl(file: AnimationFile, url: string, path?: string) { */
+
+  static fromFileUrl() {
     throw new Error('do not use yet');
+
+    /*
     const animationFile = MediaFile.fromFile(file as MediaFile, path) as AnimationFile;
     if (!AnimationFile.element) {
       AnimationFile.element = document.createElement('div') as HTMLDivElement;
@@ -84,43 +88,41 @@ export default class AnimationFile extends ResolutionFile implements IResolution
         console.error('REJECT - AnimationFile.fromFileUrl:', ex);
         reject(ex);
       }
-    })
-
+    }) */
   }
 
   static globalCache: Record<string, AnimationItem> = {};
 
   static globalCacheEnabled = false;
 
-  static load (params: { id?: string, src: string, container: HTMLElement, mode?: 'canvas' | 'svg', renderCtx: CanvasRenderingContext2D | null, className?: string }) {
+  static load (params: { id?: string, src: string, container?: HTMLElement, mode?: 'canvas' | 'svg', renderCtx: CanvasRenderingContext2D | null, className?: string }) {
     const { container, renderCtx, src, mode = 'canvas', className } = params;
-    if (!container) {
-      throw new Error('Can not create animationItem without a container');
-    }
     if (!params.id) {
       params.id = namedId('lottie');
     }
     const { id } = params;
     const cacheKey = `${mode}-${id || namedId('lottie')}`;
     const animLoader = () => {
-      const rendererSettings = mode === 'canvas' ? {
-        context: renderCtx,
-        clearCanvas: true,
-        preserveAspectRatio: 'xMinYMin slice', // Supports the same options as the svg element's preserveAspectRatio property
-        progressiveLoad: false, // Boolean, only svg renderer, loads dom elements when needed. Might speed up initialization for large number of elements.
-        className: className ?? `${id}-class`,
-      } : {};
-      console.log('load', id, src, mode, rendererSettings )
       const options = {
         name: id,
-        container,
         renderer: mode,
-        loop: true,
+        container,
+        loop: false,
         autoplay: false,
         path: src,
-        rendererSettings,
+        rendererSettings: {
+          context: renderCtx,
+          clearCanvas: false,
+          preserveAspectRatio: 'xMidYMid meet',
+
+          progressiveLoad: false, // Boolean, only svg renderer, loads dom elements when needed. Might speed up initialization for large number of elements.
+          className: className ?? `${id}-class`,
+          id: id.replace('id', 'lottie').replace('mediaFile', 'lottie')
+        },
       }
-      return lottie.loadAnimation(options);
+      console.log('load', id, src, mode, options)
+
+      return lottie.loadAnimation(options as AnimationConfigWithPath<typeof mode>);
     }
     if (this.globalCacheEnabled && this.globalCache[cacheKey]) {
       const anim = this.globalCache[cacheKey]

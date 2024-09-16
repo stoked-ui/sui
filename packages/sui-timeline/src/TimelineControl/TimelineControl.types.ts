@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {SxProps, Theme} from "@mui/material/styles";
-import type {ITimelineAction, IController, ITimelineActionInput} from "../TimelineAction/TimelineAction.types";
+import type {IController, ITimelineAction} from "../TimelineAction/TimelineAction.types";
 import {type ITimelineTrack} from "../TimelineTrack/TimelineTrack.types";
 import type {IEngine} from "../Timeline/Timeline.types";
 
@@ -212,5 +212,5 @@ export interface TimelineControlPropsBase {
 
   viewSelector?: string;
 
-  actionData?: ITimelineActionInput[];
+  actionData?: ITimelineAction[];
 }

@@ -13,7 +13,7 @@ export const actions = [
     name: 'write stuff',
     start: 9.5,
     end: 16,
-    effectId: 'animation',
+    controllerName: 'animation',
     data: {
       src: '/static/timeline/docs/overview/lottie1.json',
     },
@@ -23,7 +23,7 @@ export const actions = [
     name: 'doing things',
     start: 5,
     end: 9.5,
-    effectId: 'animation',
+    controllerName: 'animation',
     data: {
       src: '/static/timeline/docs/overview/lottie2.json',
     },
@@ -33,7 +33,7 @@ export const actions = [
     name: 'stolen cow',
     start: 0,
     end: 5,
-    effectId: 'animation',
+    controllerName: 'animation',
     data: {
       src: '/static/timeline/docs/overview/lottie3.json',
     },
@@ -43,9 +43,9 @@ export const actions = [
     name: 'music',
     start: 0,
     end: 20,
-    effectId: 'audio',
+    controllerName: 'audio',
     data: {
-      src: 'https://adam-rodgers.s3.amazonaws.com/stoked-studio/funeral.mp3',
+      src: '/static/timeline/docs/overview/funeral.m4a',
       /* src:'https://archive.org/download/radiohead-ok-computer-oknotok-1997-2017-remastered/02%20Paranoid%20Android%20%28Remastered%29.mp3', */
     },
   },
@@ -54,7 +54,7 @@ export const actions = [
     name: 'video',
     start: 0,
     end: 10,
-    effectId: 'video',  // Use the new video effect
+    controllerName: 'video',  // Use the new video effect
     data: {
       src: '/static/video-editor/stock-loop.mp4',
       style: { width: '100%'}

@@ -104,8 +104,8 @@ const TimelineRowDnd = React.forwardRef<RowRndApi, RowRndProps>(
       onDragStart?.();
     };
 
-    const move = (param: { preLeft: number; preWidth: number; scrollDelta?: number }) => {
-      const { preLeft, preWidth, scrollDelta } = param;
+    const move = (param: { left: number; width: number; scrollDelta?: number }) => {
+      const { left: preLeft, width: preWidth, scrollDelta } = param;
       const distance = isAdsorption.current ? adsorptionDistance : grid;
       if (Math.abs(deltaX.current) >= distance) {
         const count = parseInt(`${deltaX.current / distance}`, 10);
@@ -167,16 +167,15 @@ const TimelineRowDnd = React.forwardRef<RowRndApi, RowRndProps>(
 
     const handleMove = (e: DragEvent) => {
       const target = e.target;
-
+      const { left: leftMove, width: widthMove } = target.dataset;
+      const preLeft = parseFloat(leftMove);
+      const preWidth = parseFloat(widthMove);
       if (deltaScrollLeft && parentRef?.current) {
         const result = dealDragAutoScroll(e, (delta) => {
           deltaScrollLeft(delta);
 
-          const { leftMove, widthMove } = target.dataset;
-          const preLeft = parseFloat(leftMove);
-          const preWidth = parseFloat(widthMove);
           deltaX.current += delta;
-          move({ preLeft, preWidth, scrollDelta: delta });
+          move({ left: preLeft, width: preWidth, scrollDelta: delta });
         });
 
         if (!result) {
@@ -184,12 +183,8 @@ const TimelineRowDnd = React.forwardRef<RowRndApi, RowRndProps>(
         }
       }
 
-      const { leftMove, widthMove } = target.dataset;
-      const preLeft = parseFloat(leftMove);
-      const preWidth = parseFloat(widthMove);
-
       deltaX.current += e.dx;
-      move({ preLeft, preWidth });
+      move({ left: preLeft, width: preWidth });
     };
 
     const handleMoveStop = (e: DragEvent) => {
@@ -198,7 +193,7 @@ const TimelineRowDnd = React.forwardRef<RowRndApi, RowRndProps>(
       stopAutoScroll();
 
       const target = e.target;
-      const { leftMoveStop, widthMoveStop } = target.dataset;
+      const { left: leftMoveStop, width: widthMoveStop } = target.dataset;
       onDragEnd?.({ left: parseFloat(leftMoveStop), width: parseFloat(widthMoveStop) });
     };
 
@@ -211,8 +206,8 @@ const TimelineRowDnd = React.forwardRef<RowRndApi, RowRndProps>(
       onResizeStart?.(dir);
     };
 
-    const resize = (param: { preLeft: number; preWidth: number; dir: 'left' | 'right' }) => {
-      const { dir, preWidth, preLeft } = param;
+    const resize = (param: { left: number; width: number; dir: 'left' | 'right' }) => {
+      const { dir, width: preWidth, left: preLeft } = param;
       const distance = isAdsorption.current ? adsorptionDistance : grid;
 
       if (dir === 'left') {
@@ -327,23 +322,23 @@ const TimelineRowDnd = React.forwardRef<RowRndApi, RowRndProps>(
         const result = dealResizeAutoScroll(e, dir, (delta) => {
           deltaScrollLeft(delta);
 
-          const { leftResize, widthResize } = target.dataset;
+          const { left: leftResize, width: widthResize } = target.dataset;
           const preLeft = parseFloat(leftResize);
           const preWidth = parseFloat(widthResize);
           deltaX.current += delta;
-          resize({ preLeft, preWidth, dir });
+          resize({ left: preLeft, width: preWidth, dir });
         });
         if (!result) {
           return;
         }
       }
 
-      const { leftResize, widthResize } = target.dataset;
+      const { left: leftResize, width: widthResize } = target.dataset;
       const preLeft = parseFloat(leftResize);
       const preWidth = parseFloat(widthResize);
 
       deltaX.current += dir === 'left' ? e.deltaRect.left : e.deltaRect.right;
-      resize({ preLeft, preWidth, dir });
+      resize({ left: preLeft, width: preWidth, dir });
     };
 
     const handleResizeStop = (e: ResizeEvent) => {
@@ -352,12 +347,9 @@ const TimelineRowDnd = React.forwardRef<RowRndApi, RowRndProps>(
       stopAutoScroll();
 
       const target = e.target;
-      const { leftResizeStop, widthResizeStop } = target.dataset;
+      const { left: leftResizeStop, width: widthResizeStop } = target.dataset;
       const dir: Direction = e.edges?.right ? 'right' : 'left';
-      onResizeEnd?.(dir, {
-        left: parseFloat(leftResizeStop),
-        width: parseFloat(widthResizeStop),
-      });
+      onResizeEnd?.(dir, {left: parseFloat(leftResizeStop), width: parseFloat(widthResizeStop),});
     };
 
     return (

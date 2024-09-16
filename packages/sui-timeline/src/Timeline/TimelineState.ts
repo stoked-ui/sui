@@ -1,11 +1,13 @@
 import {ITimelineTrack} from "../TimelineTrack";
-import {EventTypes, IEmitter} from "./Timeline.types";
+import {EventTypes, IEmitter, IEngine} from "./Timeline.types";
 
 export interface TimelineState {
   /** dom node */
   target: HTMLElement;
   /** Run the listener */
   listener: IEmitter<EventTypes>;
+  /** attached engine */
+  engine: IEngine;
   /** Whether it is playing */
   isPlaying: boolean;
   /** Whether it is paused */
@@ -20,6 +22,8 @@ export interface TimelineState {
   getPlayRate: () => number;
   /** Re-render the current time */
   reRender: () => void;
+  /** Current video duration time */
+  duration: number;
   /** Play */
   play: (param: {
     /** By default, it runs from beginning to end, with a priority greater than autoEnd */

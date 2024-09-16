@@ -1,6 +1,5 @@
-import {ControllerParams} from "@stoked-ui/timeline";
+import {ControllerParams, IEngine, ITimelineAction} from "@stoked-ui/timeline";
 import Controller from "./Controller";
-
 
 class VideoController extends Controller {
   cacheMap: Record<string, HTMLVideoElement> = {};
@@ -18,6 +17,9 @@ class VideoController extends Controller {
 
   // eslint-disable-next-line class-methods-use-this
   private _goToAndStop(item: HTMLVideoElement, time: number) {
+    if (Number.isNaN(time)) {
+      return;
+    }
     const duration = item.duration * 1000;
     time *= 1000;
     if (time > duration) {
@@ -28,29 +30,30 @@ class VideoController extends Controller {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  private _setRenderListener = (renderCtx: CanvasRenderingContext2D, renderer: HTMLCanvasElement, item: HTMLVideoElement) => {
+  private _setRenderListener = (engine: IEngine, video: HTMLVideoElement, action: ITimelineAction) => {
+    const { renderer, renderCtx } = engine;
     let animationHandle: any;
-    item.addEventListener('loadeddata', videoLoadCallback, false);
+    video.addEventListener('loadedmetadata', videoLoadCallback, false);
+
+    const renderFrame = () => { // update the canvas when a
+      if (!renderCtx || !renderer) {
+        return;
+      }
+      if (!action.hidden) {
+        renderCtx.drawImage(video, 0, 0, engine.renderWidth, engine.renderHeight);
+        video.requestVideoFrameCallback(renderFrame);
+      }
+    }
 
     function videoLoadCallback() {
-      item.cancelVideoFrameCallback(animationHandle);
-      renderCtx.canvas.width  = window.innerWidth;
-      renderCtx.canvas.height = window.innerHeight;
-      step()
+      video.cancelVideoFrameCallback(animationHandle);
+      renderFrame()
     }
-
-    function step() { // update the canvas when a video proceeds to next frame
-      renderCtx.drawImage(item, 0, 0, renderer.width, renderer.height);
-      animationHandle = item.requestVideoFrameCallback(step);
-    }
+    renderFrame();
   }
 
   enter(params: ControllerParams) {
     const { action, time, engine} = params;
-
-    if (!action.data) {
-      return;
-    }
 
     let item: HTMLVideoElement;
     if (this.cacheMap[action.id]) {
@@ -61,29 +64,32 @@ class VideoController extends Controller {
         item.style.display = 'flex';
         this._goToAndStop(item, time);
       }
-    } else if (!action.hidden){
+    } else if (!action.hidden && engine.renderer){
       item = document.createElement('video');
-      item.src = action.data.src;
-      item.style.display = 'flex';
-      item.style.opacity = '0.3';
-      if (action.data?.style) {
-        const styleKeys =  Object.keys(action.data.style);
+      item.src = action.src;
+      item.style.display = 'none';
+      item.width = engine.renderWidth;
+      item.height = engine.renderHeight;
+      item.style.opacity = '1';
+
+      if (action?.style) {
+        const styleKeys =  Object.keys(action.style);
         for (let i = 0; i < styleKeys.length; i += 1) {
           const prop = styleKeys[i];
-          item.style[prop] = action.data.style[prop];
+          item.style[prop] = action.style[prop];
         }
       }
 
-      item.loop = true;
-      item.muted = true;  // Prevent autoplay restrictions
+      item.loop = false;
+      item.muted = false;  // Prevent autoplay restrictions
       item.addEventListener('loadedmetadata', () => {
         this._goToAndStop(item, time - action.start);
       });
       this.cacheMap[action.id] = item;
 
-      if (engine.viewer && engine.renderer && engine.renderCtx) {
-        engine.viewer.appendChild(item);
-        this._setRenderListener(engine.renderCtx, engine.renderer, item);
+      if (engine.stage && engine.renderer && engine.renderCtx) {
+        engine.stage.appendChild(item);
+        this._setRenderListener(engine, item, action);
       } else {
         console.warn('no viewer specified when video control loaded meta data', item.src)
       }
@@ -91,7 +97,7 @@ class VideoController extends Controller {
   }
 
   update(params: ControllerParams) {
-    const { action, time } = params;
+    const { action, time, engine } = params;
 
     const item = this.cacheMap[action.id];
     if (!item) {
@@ -99,20 +105,26 @@ class VideoController extends Controller {
     }
     if (action.hidden) {
       item.style.display = 'none';
-    } else {
-      this._goToAndStop(item, time - action.start);
+      return;
     }
+    const { renderCtx, renderer } = engine;
+    if (!renderCtx || !renderer) {
+      return;
+    }
+    item.currentTime = time - action.start;
+    renderCtx.drawImage(item, 0, 0, engine.renderWidth, engine.renderHeight);
+    // this._goToAndStop(item, time - action.start);
   }
 
   leave(params: ControllerParams) {
     const { action, time, engine } = params;
-    engine.renderCtx?.clearRect(0, 0, engine.renderer?.width ?? 0, engine.renderer?.height ?? 0);
+    engine.renderCtx?.clearRect(0, 0, engine.renderWidth, engine.renderHeight);
     const item = this.cacheMap[action.id];
     if (!item) {
       return;
     }
     if (time > action.end || time < action.start) {
-      item.style.display = 'none';
+      //item.style.display = 'none';
       // console.log('vid none')
     } else {
       // console.log('vid block')

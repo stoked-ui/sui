@@ -1,4 +1,6 @@
-import { IController, IEngine, ITimelineTrack, ITimelineAction } from '@stoked-ui/timeline';
+import BTree from "sorted-btree";
+import {namedId, getFileName, MediaFile} from "@stoked-ui/media-selector";
+import { type ITimelineAction, type IController, type IEngine, type ITimelineTrack, type ITimelineActionInput } from '@stoked-ui/timeline';
 import {Events, type EventTypes} from './events';
 import {Emitter} from "./emitter";
 
@@ -9,6 +11,7 @@ type PlayState = 'playing' | 'paused';
 export type EngineOptions = {
   viewer?: HTMLElement;
   id: string;
+  controllers?: Record<string, IController>;
 }
 
 /**
@@ -24,6 +27,14 @@ export class Engine extends Emitter<EventTypes> implements IEngine {
 
   private _renderer: HTMLCanvasElement | null = null;
 
+  private  _renderWidth: number = 0;
+
+  private _renderHeight: number = 0;
+
+  private _screener: HTMLVideoElement | null = null;
+
+  private _stage: HTMLDivElement | null = null;
+
   private _renderCtx: CanvasRenderingContext2D | null = null
 
   constructor(params: EngineOptions ) {
@@ -32,11 +43,20 @@ export class Engine extends Emitter<EventTypes> implements IEngine {
     if (params?.viewer) {
       this.viewer = params.viewer;
     }
+    if (params?.controllers) {
+      this._controllers = params.controllers;
+    }
+  }
+
+  get screener() {
+    return this._screener;
   }
 
   set viewer(viewer: HTMLElement) {
     this._viewer = viewer;
     const renderer = viewer.querySelector(`#${this._editorId} div[role='renderer']`) as HTMLCanvasElement;
+    this._screener = viewer.querySelector(`#${this._editorId} video[role='screener']`) as HTMLVideoElement;
+    this._stage = viewer.querySelector(`#${this._editorId} div[role='stage']`) as HTMLDivElement;
     if (renderer) {
       this._renderer = renderer;
       const ctx = renderer.getContext('2d');
@@ -61,6 +81,10 @@ export class Engine extends Emitter<EventTypes> implements IEngine {
     return this._viewer;
   }
 
+  get stage(): HTMLDivElement | null {
+    return this._stage;
+  }
+
   get renderer(): HTMLCanvasElement | null {
     return this._renderer;
   }
@@ -68,8 +92,12 @@ export class Engine extends Emitter<EventTypes> implements IEngine {
   set renderer(canvas: HTMLCanvasElement) {
     this._renderer = canvas;
     if (canvas) {
-      console.log('setcontext ')
       const ctx = canvas.getContext('2d');
+      if (ctx) {
+        // ctx.canvas.width = ctx.canvas.clientWidth;
+        // ctx.canvas.height = ctx.canvas.clientHeight;
+      }
+
       if (!ctx) {
         throw new Error('Could not get 2d context from renderer');
       }
@@ -77,16 +105,26 @@ export class Engine extends Emitter<EventTypes> implements IEngine {
     }
   }
 
+
   get renderCtx() {
+    if (this._renderCtx) {
+      this._renderCtx.canvas.width = this.renderWidth;
+      this._renderCtx.canvas.height = this.renderHeight;
+    }
     return this._renderCtx;
   }
 
+  setRenderView(width: number, height: number) {
+    this._renderWidth = width;
+    this._renderHeight = height;
+  }
+
   get renderWidth() {
-    return this._renderCtx?.canvas.width ?? 1920
+    return this._renderWidth || 1920
   }
 
   get renderHeight() {
-    return this._renderCtx?.canvas.height ?? 1080
+    return this._renderHeight || 1080
   }
 
   private _editorId: string;
@@ -125,6 +163,8 @@ export class Engine extends Emitter<EventTypes> implements IEngine {
   /** The action time range contains the actionId list of the current time */
   private _activeActionIds: string[] = [];
 
+  private _activeIds: BTree = new BTree<string, number>();
+
   getAction(actionId: string) {
     return {
       action: this._actionMap[actionId],
@@ -138,13 +178,20 @@ export class Engine extends Emitter<EventTypes> implements IEngine {
 
   getSelectedActions() {
     const actionTracks: {action: ITimelineAction, track: ITimelineTrack}[] = [];
+    this._activeIds.forEach((v,actionId) => {
+      const action = this._actionMap[actionId];
+      if (action.selected) {
+        actionTracks.push({ action, track: this._actionTrackMap[actionId] });
+      }
+    })
+    /*
     for (let i = 0; i < this._activeActionIds.length; i += 1) {
       const actionId = this._activeActionIds[i];
       const action = this._actionMap[actionId];
       if (action.selected) {
         actionTracks.push({ action, track: this._actionTrackMap[actionId] });
       }
-    }
+    } */
     return actionTracks;
   }
 
@@ -174,6 +221,74 @@ export class Engine extends Emitter<EventTypes> implements IEngine {
     this._dealData(tracks);
     this._dealClear();
     this._dealEnter(this._currentTime);
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  async buildTracks(controllers: Record<string, IController>, actionData: ITimelineActionInput[]): Promise<ITimelineTrack[]> {
+    try {
+      if (actionData) {
+        actionData.forEach((actionInput, index) => {
+          const action = actionInput as ITimelineAction;
+          // console.log('actionInput.src 1', actionInput.src)
+          action.src = action.src.indexOf('http') !== -1 ? action!.src : `${window.location.href}${action!.src}`;
+          // console.log('actionInput.src 2', actionInput.src)
+          action.src = action.src.replace(/([^:]\/)\/+/g, "$1");
+          // console.log('actionInput.src 3', actionInput.src)
+          if (!action.name) {
+            const fullName = getFileName(action.src, true);
+            const name = getFileName(action.src);
+            if (!name || !fullName) {
+              throw new Error('no action name available');
+            }
+            action.name = name;
+            action.fullName = fullName;
+          } else {
+            action.fullName = getFileName(action.name, true)!;
+            action.name = getFileName(action.name)!;
+          }
+
+          action.controller = controllers[action.controllerName];
+
+          if (!action.id) {
+            action.id = namedId('mediaFile');
+          }
+          if (!action.z) {
+            action.z = index;
+          } else {
+            action.staticZ = true;
+          }
+          if (!action.layer) {
+            action.layer = 'foreground';
+          }
+          return action;
+        })
+
+        const filePromises = actionData.map((actionInput) => MediaFile.fromAction(actionInput as any));
+        const mediaFiles = await Promise.all(filePromises);
+        const tracks = mediaFiles.map((file) => {
+          const actionInput = actionData.find((a) => a!.src === file.url);
+          if (!actionInput) {
+            throw new Error(`Action input not found for file ${JSON.stringify(actionData, null, 2)} - ${file.url}`);
+          }
+          const action = {
+            ...actionInput, file, name: file.name, src: actionInput.src, id: actionInput.id,
+          } as ITimelineAction
+          const trackGenId = namedId('track')
+          return {
+            id: trackGenId,
+            name: action.name ?? trackGenId,
+            actions: [action],
+            hidden: false,
+            lock: false
+          } as ITimelineTrack;
+        })
+        return tracks;
+      }
+      return [];
+    } catch (ex) {
+      console.error('buildTracks:', ex);
+      return [];
+    }
   }
 
   /**
@@ -342,17 +457,29 @@ export class Engine extends Emitter<EventTypes> implements IEngine {
     if (!this._verifyLoaded()) {
       return;
     }
+    /*
     for (let i = 0; i < this._activeActionIds.length; i += 1) {
       const actionId = this._activeActionIds[i];
       const action = this._actionMap[actionId];
-      const controller = this._controllers[action?.effectId];
+      const controller = this._controllers[action?.controllerName];
 
       if (type === 'start' && controller?.start) {
         controller.start({action, time: this.getTime(), engine: this});
       } else if (type === 'stop' && controller?.stop) {
         controller.stop({action, time: this.getTime(), engine: this});
       }
-    }
+    } */
+    this._activeIds.forEach((v, actionId) => {
+      const action = this._actionMap[actionId];
+      if (action) {
+        const controller = action.controller;
+        if (type === 'start' && controller?.start) {
+          controller.start({action, time: this.getTime(), engine: this});
+        } else if (type === 'stop' && controller?.stop) {
+          controller.stop({action, time: this.getTime(), engine: this});
+        }
+      }
+    });
   }
 
   /** Execute every frame */
@@ -379,7 +506,14 @@ export class Engine extends Emitter<EventTypes> implements IEngine {
     // Execute action
     this._tickAction(currentTime);
     // In the case of automatic stop, determine whether all actions have been executed.
+    /*
     if (!to && autoEnd && this._next >= this._actionSortIds.length && this._activeActionIds.length === 0) {
+      this._end();
+      return;
+    }
+ */
+
+    if (!to && autoEnd && this._next >= this._actionSortIds.length && this._activeIds.length === 0) {
       this._end();
       return;
     }
@@ -404,29 +538,62 @@ export class Engine extends Emitter<EventTypes> implements IEngine {
     }
     this._dealEnter(time);
     this._dealLeave(time);
+/*
 
     // render
     const length = this._activeActionIds.length;
     for (let i = 0; i < length; i +=1) {
       const actionId = this._activeActionIds[i];
       const action = this._actionMap[actionId];
-      const controller = this._controllers[action.effectId];
+      const controller = this._controllers[action.controllerName];
       if (controller && controller?.update) {
         controller.update({action, time: this.getTime(), engine: this});
       }
     }
+*/
+
+
+    console.log('----------------------------------------------------------------------')
+    let index = 0;
+    if (!this._renderCtx) {
+      return;
+    }
+    this._renderCtx!.clearRect(0, 0, this.renderWidth, this.renderHeight)
+    // render
+    this._activeIds.forEach((v,actionId) => {
+      const action = this._actionMap[actionId];
+      console.log('action', v, actionId, action.name);
+      if (action.controller && action.controller?.update) {
+        action.controller.update({action, time: this.getTime(), engine: this});
+      }
+      index += 1;
+    });
+    console.log('----------------------------------------------------------------------')
   }
 
   /** Reset active data */
   private _dealClear() {
-    while (this._activeActionIds.length) {
+    /* while (this._activeActionIds.length) {
       const actionId = this._activeActionIds.shift();
       if (!actionId) {
         continue;
       }
       const action = this._actionMap[actionId];
 
-      const controller = this._controllers[action?.effectId];
+      const controller = this._controllers[action?.controllerName];
+      if (controller?.leave) {
+        controller.leave({action, time: this.getTime(), engine: this});
+      }
+    }
+     */
+    const activeIds = Array.from(this._activeIds.keys())
+    while (activeIds.length) {
+      const actionId = activeIds[0];
+      if (!actionId) {
+        continue;
+      }
+      const action = activeIds.shift();
+      const controller = this._controllers[action?.controllerName];
       if (controller?.leave) {
         controller.leave({action, time: this.getTime(), engine: this});
       }
@@ -449,14 +616,30 @@ export class Engine extends Emitter<EventTypes> implements IEngine {
           break;
         }
         // The action can be executed and started
-        if (action.end > time && !this._activeActionIds.includes(actionId)) {
-          const controller = this._controllers[action.effectId];
-          if (controller && controller?.enter && action?.data) {
+        if (action.end > time && !this._activeIds.has(actionId)) {
+          const controller = action.controller;
+          if (controller && controller?.enter) {
             controller.enter({action, time: this.getTime(), engine: this});
           }
 
-          this._activeActionIds.push(actionId);
+          let zModifier = 0;
+          if (action.layer === 'foreground') {
+            zModifier = 100;
+          }
+          this._activeIds.set(actionId, action.z + zModifier);
         }
+        /*
+
+         // The action can be executed and started
+         if (action.end > time && !this._activeActionIds.includes(actionId)) {
+         const controller = this._controllers[action.controllerName];
+         if (controller && controller?.enter && action?.data) {
+         controller.enter({action, time: this.getTime(), engine: this});
+         }
+
+         this._activeActionIds.push(actionId);
+         }
+          */
       }
       this._next += 1;
     }
@@ -464,14 +647,13 @@ export class Engine extends Emitter<EventTypes> implements IEngine {
 
   /** Handle action time leave */
   private _dealLeave(time: number) {
-    let i = 0;
-    while (this._activeActionIds[i]) {
+    /* while (this._activeActionIds[i]) {
       const actionId = this._activeActionIds[i];
       const action = this._actionMap[actionId];
 
       // Not within the playback area
       if (action.start > time || action.end < time) {
-        const controller = this._controllers[action.effectId];
+        const controller = this._controllers[action.controllerName];
 
         if (controller && controller?.leave) {
           controller.leave({action, time: this.getTime(), engine: this});
@@ -481,6 +663,22 @@ export class Engine extends Emitter<EventTypes> implements IEngine {
         continue;
       }
       i += 1;
+    } */
+    const activeIds = Array.from(this._activeIds.keys())
+    while (activeIds.length) {
+      const actionId = activeIds[0];
+      if (!actionId) {
+        continue;
+      }
+      const action = activeIds.shift();
+      // Not within the playback area
+      if (action.start > time || action.end < time) {
+        const controller = this._controllers[action.controllerName];
+
+        if (controller && controller?.leave) {
+          controller.leave({action, time: this.getTime(), engine: this});
+        }
+      }
     }
   }
 
