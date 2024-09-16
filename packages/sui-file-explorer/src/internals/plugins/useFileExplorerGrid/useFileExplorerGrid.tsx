@@ -89,7 +89,6 @@ export const useFileExplorerGrid: UseFileExplorerGridPlugin = <R extends FileBas
           }
         }
         if (column.clientWidth > width + 8) {
-          console.log(column.clientWidth, width, column, data.track[column.id]);
           width = column.clientWidth;
         }
       });

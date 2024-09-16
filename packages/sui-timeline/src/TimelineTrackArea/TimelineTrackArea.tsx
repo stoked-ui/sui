@@ -12,6 +12,7 @@ import {useDragLine} from './useDragLine';
 /** edit area ref data */
 export interface TimelineTrackAreaState {
   domRef: React.MutableRefObject<HTMLDivElement>;
+  gridRef: React.MutableRefObject<HTMLDivElement>;
 }
 
 const TimelineTrackAreaRoot = styled('div')(() => ({
@@ -58,6 +59,7 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
   const { dragLineData, initDragLine, updateDragLine, disposeDragLine, defaultGetAssistPosition, defaultGetMovePosition } = useDragLine();
   const editAreaRef = React.useRef<HTMLDivElement>();
   const gridRef = React.useRef<Grid>();
+  const gridElementRef = React.useRef<HTMLDivElement>();
   const heightRef = React.useRef(-1);
 
   // ref 数据
@@ -65,6 +67,9 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
     get domRef() {
       return editAreaRef;
     },
+    get gridRef() {
+      return gridElementRef;
+    }
   }));
 
   const handleInitDragLine: TimelineControlPropsBase['onActionMoveStart'] = (data) => {
@@ -149,6 +154,12 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
       />
     );
   };
+
+  React.useEffect(() => {
+    if (gridRef.current) {
+      gridElementRef.current = document.getElementById('thisisedit') as HTMLDivElement;
+    }
+  }, [gridRef])
 
   React.useEffect(() => {
     gridRef.current?.scrollToPosition({ scrollTop, scrollLeft });

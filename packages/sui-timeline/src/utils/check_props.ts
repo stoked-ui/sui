@@ -11,6 +11,7 @@ import ConsoleLogger from "./logger";
 
 const logger = new ConsoleLogger('timeline');
 
+
 export function checkProps(props: TimelineControlProps): TimelineControlProps {
   let {
     scrollTop = 0,

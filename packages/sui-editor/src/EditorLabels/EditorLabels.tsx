@@ -92,11 +92,11 @@ const EditorLabelContainer = styled('div', {
   name: 'MuiEditorLabelContainer',
   slot: 'container',
   overridesResolver: (props, styles) => styles.icon,
-})<{ lock?: boolean, color?: string}>(({ theme, color }) => ({
-  background: `linear-gradient(to right, ${emphasize(theme.palette.background.default, 0.12)}, 80%, ${alpha(color ?? '#666', .8)})`,
+})<{ lock?: boolean, color: string, selected: boolean, hidden: boolean}>(({ theme, color, selected, lock, hidden }) => ({
   color: theme.palette.text.primary,
   borderTopLeftRadius: '4px',
   borderBottomLeftRadius: '4px',
+  borderBottom: `1px solid ${theme.palette.background.default}`,
   width: '250px',
   display: 'flex',
   alignItems: 'center',
@@ -105,7 +105,41 @@ const EditorLabelContainer = styled('div', {
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
   textWrap: 'nowrap',
-  flexGrow: '1'
+  flexGrow: '1',
+  variants: [{
+    props: {
+      hidden: true
+    },
+    style: {
+      opacity: '.4'
+    }
+  },{
+    props: {
+      lock: true
+    },
+    style: {
+      backgroundImage: `linear-gradient(to bottom, transparent 50%, #28487d 50%), linear-gradient(to right, #617ca2 50%, #28487d 50%);`,
+      backgroundSize: `5px 5px, 5px 5px`,
+      /* background: lockedBg,
+       '& .timeline-editor-action': {
+       background: emphasize(theme.palette.background.default, 0.24)
+       } */
+    }
+  },{
+    props: { selected: true},
+    style: {
+      // background: `linear-gradient(to right, ${emphasize(theme.palette.background.default,
+      // 0.12)}, 0%, ${alpha(color, .8)}, 70%, ${alpha(color, 0.3)})`,
+      backgroundColor: 'red',
+      border: `1px solid ${theme.palette.text.primary}`,
+
+    }
+  },{
+    props: { selected: false },
+    style: {
+      background: `linear-gradient(to right, ${emphasize(theme.palette.background.default, 0.12)}, 0%, ${alpha(color, .8)}, 70%, ${alpha(color, theme.palette.action.focusOpacity)})`,
+    }
+  }]
 }));
 
 const EditorLabelText = styled('div', {
@@ -113,7 +147,6 @@ const EditorLabelText = styled('div', {
   slot: 'label',
   overridesResolver: (props, styles) => styles.icon,
 })(({ theme }) => ({
-  backgroundColor: emphasize(theme.palette.background.default, 0.12),
   color: theme.palette.text.primary,
   height: '28px',
   display: 'flex',
@@ -143,7 +176,7 @@ const EditorLabel = React.forwardRef(
 
     return (
       <EditorLabelRoot key={track.id} className={classes.label} ref={ref}>
-        <EditorLabelContainer color={controller?.color}>
+        <EditorLabelContainer color={controller?.color!} lock={track.lock} hidden={!!track.hidden} selected={!!track.selected}>
           <EditorLabelText><Typography variant="button" color="text.secondary" >{track.name}</Typography></EditorLabelText>
           <ToggleButtonGroupStyled
             exclusive
@@ -222,7 +255,6 @@ const EditorLabels = React.forwardRef(
       ownerState: inProps,
     });
 
-    console.log('timelineState.current?.duration', timelineState.current?.duration);
     return (
       <Root
         {...rootProps}

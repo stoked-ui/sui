@@ -35,19 +35,6 @@ const useUtilityClasses = <R extends FileBase, Multiple extends boolean | undefi
 };
 */
 
-const ToggleButtonGroupStyled = styled(ToggleButtonGroup)(({theme})=> {
-  return ({
-      background: theme.palette.background.default,
-      '& .MuiButtonBase-root': {
-        color: theme.palette.text.primary,
-        '&:hover': {
-          color: theme.palette.primary.main,
-          background: theme.palette.background.default,
-          border: `1px solid ${theme.palette.text.primary}`,
-      },
-    }
-  })
-});
 
 const PlayerRoot = styled('div')(({ theme }) => ({
   height: '42px',
@@ -105,53 +92,42 @@ function Controls(inProps) {
   const controlsInput: string[] = [];
   const [controls, setControls] = React.useState(controlsInput);
 
-  const props = useThemeProps({ props: inProps, name: 'MuiEditorControls' });
-  const { timelineState, setVideoURLs, isPlaying, setIsPlaying } = props;
+  const props = useThemeProps({ props: inProps, name: 'MuiControls' });
+  const { engineRef, setVideoURLs, isPlaying, setIsPlaying } = props;
   const [mediaRecorder, setMediaRecorder] = React.useState<MediaRecorder | null>(null);
   const [recordedChunks, setRecordedChunks] = React.useState<Blob[]>([]);
 
   const handlePlay = () => {
-    if (!timelineState || !timelineState.current) {
+    if (!engineRef || !engineRef.current) {
       return;
     }
-    if (!timelineState.current.isPlaying) {
-      timelineState.current.play({ autoEnd: true });
+    if (!engineRef.current.isPlaying) {
+      engineRef.current.play({ autoEnd: true });
       setIsPlaying(true)
     }
   }
 
   // Start or pause
   const handlePause = () => {
-    if (!timelineState || !timelineState.current) {
+    if (!engineRef || !engineRef.current) {
       return;
     }
-    if (timelineState.current.isPlaying) {
-      timelineState.current.pause();
-      setIsPlaying(false)
+    if (engineRef.current.isPlaying) {
+      engineRef.current.pause();
     }
-  };
+    setIsPlaying(false)
+  }
 
   const handleStart = () => {
-    timelineState?.current?.setTime(0, true);
+    engineRef?.current?.setTime(0, true);
   }
 
   const handleEnd = () => {
-    const tracks = timelineState.current?.tracks;
-    if (tracks) {
-      let furthest = 0;
-      tracks.forEach((row) => {
-        row.actions.forEach((action) => {
-          if (action.end > furthest) {
-            furthest = action.end;
-          }
-        })
-      });
-      timelineState?.current?.setTime(furthest, true);
-    }
+    engineRef?.current?.setTime(engineRef.current?.duration, true);
   }
 
   const handleStop = () => {
-    const engine = timelineState.current?.engine;
+    const engine = engineRef.current?.engine;
     if (engine) {
       engine.pause();
       handleStart();
@@ -170,7 +146,7 @@ function Controls(inProps) {
   }
 
   const finalizeVideo = () => {
-    const engine = timelineState.current?.engine;
+    const engine = engineRef.current;
     if (!engine || !engine?.renderer || !engine?.screener || !engine?.stage) {
       return;
     }
@@ -192,7 +168,7 @@ function Controls(inProps) {
   }
 
   const handleRecord = () => {
-    const engine = timelineState.current?.engine;
+    const engine = engineRef.current;
     if (engine && engine.renderer) {
       const stream = engine.renderer.captureStream();
       const recorder = new MediaRecorder(stream, {
@@ -223,7 +199,7 @@ function Controls(inProps) {
   }
 
   const handleRecordStop = () => {
-    const engine = timelineState.current?.engine;
+    const engine = engineRef.current;
     if (mediaRecorder && engine && engine.screener) {
       // recordBtn.textContent = "Record";
       mediaRecorder.stop();
@@ -233,7 +209,19 @@ function Controls(inProps) {
 
   return (
     <div style={{display: 'flex', flexDirection: 'row', marginLeft: '6px', alignContent: 'center', width: '100%'}}>
-      <ToggleButtonGroupStyled
+      <ToggleButtonGroup
+        sx={(theme) => ({
+          backgroundColor: theme.palette.mode === 'light' ? '#FFF' : '#000',
+          '& .MuiButtonBase-root': {
+            backgroundColor: 'transparent',
+            color: theme.palette.text.primary,
+            '&:hover': {
+              color: theme.palette.primary.main,
+              backgroundColor: theme.palette.background.default,
+              border: `1px solid ${theme.palette.text.primary}`,
+            },
+          }
+        })}
         value={controls}
         exclusive
         onChange={(event, changeControls) => {
@@ -258,7 +246,7 @@ function Controls(inProps) {
         }}>
           <RecordIcon/>
         </ToggleButton>
-      </ToggleButtonGroupStyled>
+      </ToggleButtonGroup>
     </div>)
 }
 /**
@@ -277,7 +265,7 @@ export const EditorControls = React.forwardRef(function EditorControls<
 >({ scale = 1, scaleWidth = 160, startLeft = 20, ...inProps }: EditorControlsProps<R, Multiple>, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
 
   const props = useThemeProps({ props: inProps, name: 'MuiEditorControls' });
-  const { timelineState, autoScrollWhenPlay } = props;
+  const { engineRef, autoScroll = true } = props;
   const [isPlaying, setIsPlaying] = React.useState(false);
   const [time, setTime] = React.useState(0);
   const [showRate, setShowRate] = React.useState(true);
@@ -285,10 +273,10 @@ export const EditorControls = React.forwardRef(function EditorControls<
 
   // Set playback rate
   const handleRateChange = (event: SelectChangeEvent<unknown>) => {
-    if (!timelineState || !timelineState.current) {
+    if (!engineRef || !engineRef.current) {
       return;
     }
-    timelineState.current.setPlayRate(event.target.value as number);
+    engineRef.current.setPlayRate(event.target.value as number);
   };
 
   // Time display
@@ -300,36 +288,36 @@ export const EditorControls = React.forwardRef(function EditorControls<
   };
 
   React.useEffect(() => {
-    if (timelineState.current) {
+    if (engineRef.current) {
       setShowRate(true);
     }
-  }, [timelineState.current])
+  }, [engineRef?.current])
 
   React.useEffect(() => {
-    if (!timelineState || !timelineState.current) {
+    if (!engineRef || !engineRef.current) {
       return undefined;
     }
-    const engine = timelineState.current;
-    engine.listener?.on('play', () => setIsPlaying(true));
-    engine.listener?.on('paused', () => setIsPlaying(false));
-    engine.listener?.on('afterSetTime', (params) => {
-      console.log('afterSetTime', params.time, params)
-      setTime(params.time)
-    });
-    engine.listener?.on('setTimeByTick', (params) => {
-      setTime(params.time);
-      console.log('setTimeByTick', params.time)
-      if (autoScrollWhenPlay) {
+    const engine = engineRef.current;
+    engine?.on('play', () => setIsPlaying(true));
+    engine?.on('paused', () => setIsPlaying(false));
+    engine.on('afterSetTime', (afterTimeProps) => setTime(afterTimeProps.time));
+    engine.on('ended', () => engine.pause());
+    engine.on('setTimeByTick', (setTimeProps) => {
+      console.log('setTimeProps', setTimeProps.time)
+      setTime(setTimeProps.time);
+
+      /* if (autoScroll) {
         const autoScrollFrom = 500;
-        const left = params.time * (scaleWidth / scale) + startLeft - autoScrollFrom;
-        timelineState.current?.setScrollLeft(left)
-      }
+        const left = setTimeProps.time * (scaleWidth / scale) + startLeft - autoScrollFrom;
+        engineRef.current?.setScrollLeft(left);
+      } */
     });
+
 
     return () => {
       if (engine) {
         engine.pause();
-        engine.listener.offAll();
+        engine.offAll();
       }
       return undefined;
     };
@@ -348,7 +336,7 @@ export const EditorControls = React.forwardRef(function EditorControls<
     return (videoURLs?.length || 0) > 0
   }
 
-  const controlProps = { timelineState, setVideoURLs, isPlaying, setIsPlaying };
+  const controlProps = { engineRef, setVideoURLs, isPlaying, setIsPlaying };
   return (
     <PlayerRoot className="timeline-player" ref={ref}>
       <div style={{display: 'flex', flexDirection: 'row', alignContent: 'center', width: '100%'}}>
@@ -365,7 +353,7 @@ export const EditorControls = React.forwardRef(function EditorControls<
         />
         {showRate && <RateControlRoot sx={{minWidth: '80px', marginRight: '6px'}} className="rate-control">
           <RateControlSelect
-            value={timelineState.current?.getPlayRate() ?? 1}
+            value={engineRef.current?.getPlayRate() ?? 1}
             onChange={handleRateChange}
             displayEmpty
             inputProps={{'aria-label': 'Play Rate'}}

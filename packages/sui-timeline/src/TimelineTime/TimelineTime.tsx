@@ -73,6 +73,7 @@ function TimelineTime(props: TimeAreaProps) {
 
   const gridRef = React.useRef<Grid>();
   const timeInteract = React.useRef<HTMLDivElement>();
+  const timeAreaRef = React.useRef<HTMLDivElement>();
   /** Whether to display subdivision scales */
   const showUnit = scaleSplitCount > 0;
   /** Get the rendering content of each cell */
@@ -89,28 +90,38 @@ function TimelineTime(props: TimeAreaProps) {
       </TimeUnit>
     );
   };
-  const [customScaleSplitCount, setCustomScaleSplitCount] = React.useState(scaleSplitCount);
+  const [customScaleSplitCount, setCustomScaleSplitCount] = React.useState(null);
 
   React.useEffect(() => {
     gridRef.current?.recomputeGridSize();
   }, [scaleWidth, startLeft]);
 
-  // if the viewer resizes make the renderer match it
-  React.useEffect(() => {
-    const resizeObserver = new ResizeObserver((entries) => {
-      const unit = entries.find((entry) => entry.target.classList.contains('timeline-editor-time-unit'));
-      if (unit) {
-        if (unit.target.clientWidth < 10) {
-          setCustomScaleSplitCount(customScaleSplitCount * 2);
-        } else if (unit.target.clientWidth > 20) {
-          setCustomScaleSplitCount(customScaleSplitCount * 0.5);
-        }
+  React.useLayoutEffect(() => {
+    const unit = gridRef.current;
+
+    if (!unit) {
+      return undefined;
+    }
+
+    const resizeObserver = new ResizeObserver(() => {
+      const timeUnit = document.querySelector('.timeline-editor-time-unit');
+      if (!timeUnit) {
+        return;
+      }
+      if (timeUnit.clientWidth < 10) {
+        setCustomScaleSplitCount(customScaleSplitCount * 2);
+      } else if (timeUnit.clientWidth > 20) {
+        setCustomScaleSplitCount(customScaleSplitCount * 0.5);
       }
     });
+    const timeUnit = document.querySelector('.timeline-editor-time-unit');
+    const grid = document.getElementById('time-area-grid');
+    resizeObserver.observe(grid);
+
     return () => {
-      resizeObserver.disconnect();
-    }
-  }, [scaleWidth]);
+      resizeObserver.unobserve(grid);
+    };
+  }, []);
 
 
   /** Get column width */
@@ -124,12 +135,13 @@ function TimelineTime(props: TimeAreaProps) {
   };
   const estColumnWidth=getColumnWidth({index:1});
   return (
-    <TimeAreaRoot className={prefix('time-area')}>
+    <TimeAreaRoot ref={timeAreaRef} className={prefix('time-area')}>
       <AutoSizer>
         {({ width, height }) => {
           return (
             <React.Fragment>
               <Grid
+                id={'time-area-grid'}
                 ref={gridRef}
                 columnCount={showUnit ? scaleCount * scaleSplitCount + 1 : scaleCount}
                 columnWidth={getColumnWidth}
