@@ -8,10 +8,10 @@ import KeyboardArrowRightRounded from '@mui/icons-material/KeyboardArrowRightRou
 import ForumRoundedIcon from '@mui/icons-material/ForumRounded';
 import PeopleRoundedIcon from '@mui/icons-material/PeopleRounded';
 import LocalAtmRoundedIcon from '@mui/icons-material/LocalAtmRounded';
-import GradientText from '@stoked-ui/docs/typography/GradientText';
+import GradientText from 'docs/src/components/typography/GradientText';
 import { Link } from '@mui/docs/Link';
-import Section from '@stoked-ui/docs/Layouts/Section';
-import SectionHeadline from '@stoked-ui/docs/typography/SectionHeadline';
+import Section from 'docs/src/layouts/Section';
+import SectionHeadline from 'docs/src/components/typography/SectionHeadline';
 import { GlowingIconContainer } from '@mui/docs/InfoCard';
 
 function Widget({

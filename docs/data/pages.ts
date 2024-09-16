@@ -1,10 +1,9 @@
 import type SuiPage from '@stoked-ui/docs/SuiPage/SuiPage';
 import fileExplorerComponentApi from './file-explorer-component-api-pages';
-
-const pages: SuiPage[] = [
 import timelineComponentApi from './timeline-component-api-pages';
 import editorComponentApi from './editor-component-api-pages';
-const pages: MuiPage[] = [
+
+const pages: SuiPage[] = [
   {
     pathname: '/stoked-ui/introduction-group',
     title: 'Introduction',

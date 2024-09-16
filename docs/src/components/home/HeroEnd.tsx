@@ -3,7 +3,7 @@ import dynamic from 'next/dynamic';
 import { useInView } from 'react-intersection-observer';
 import Box from '@mui/material/Box';
 import { alpha } from '@mui/material/styles';
-import Section from '@stoked-ui/docs/Layouts/Section';
+import Section from 'docs/src/layouts/Section';
 
 function Placeholder() {
   return <Box sx={{ height: { xs: 616 - 48 * 2, sm: 438 - 80 * 2, md: 461 - 96 * 2 } }} />;

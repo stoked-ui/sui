@@ -3,8 +3,10 @@ import * as React from 'react';
 import { styled, alpha } from '@mui/material/styles';
 import { unstable_debounce as debounce } from '@mui/utils';
 import ROUTES from 'docs/src/route';
-import { PRODUCTS, ALL_PRODUCTS } from 'docs/src/products';
+import getProducts from 'docs/src/products';
 import { Link } from '@mui/docs/Link';
+
+const PRODUCTS = getProducts();
 
 const Navigation = styled('nav')(({ theme }) => [
   {
@@ -154,8 +156,8 @@ export default function HeaderNavBar() {
   return (
     <Navigation>
       <ul ref={navRef} onKeyDown={handleKeyDown}>
-        {ALL_PRODUCTS.menu({ type: 'products', ...menuProps, menuRef: productsMenuRef})}
-        {ALL_PRODUCTS.menu({ type: 'docs', ...menuProps, menuRef: docsMenuRef})}
+        {PRODUCTS.menu({ type: 'products', ...menuProps, menuRef: productsMenuRef})}
+        {PRODUCTS.menu({ type: 'docs', ...menuProps, menuRef: docsMenuRef})}
         <li>
           <Link href={ROUTES.about}>About us</Link>
         </li>

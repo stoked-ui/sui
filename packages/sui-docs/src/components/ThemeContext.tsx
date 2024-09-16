@@ -12,7 +12,7 @@ import { useUserLanguage } from '../i18n';
 import { getCookie } from '../utils/helpers';
 import useLazyCSS from '../utils/useLazyCSS';
 import { getDesignTokens, getThemedComponents, getMetaThemeColor } from '../branding';
-
+import highDensity from "./highDensity";
 
 const languageMap = {
   en: enUS,
@@ -41,76 +41,6 @@ type Action =
   | {
   type: 'CHANGE';
   payload: Partial<Pick<ThemeState, 'paletteMode' | 'direction' | 'paletteColors'>>;
-};
-
-export const highDensity = {
-  components: {
-    MuiButton: {
-      defaultProps: {
-        size: 'small',
-      },
-    },
-    MuiFilledInput: {
-      defaultProps: {
-        margin: 'dense',
-      },
-    },
-    MuiFormControl: {
-      defaultProps: {
-        margin: 'dense',
-      },
-    },
-    MuiFormHelperText: {
-      defaultProps: {
-        margin: 'dense',
-      },
-    },
-    MuiIconButton: {
-      defaultProps: {
-        size: 'small',
-      },
-    },
-    MuiInputBase: {
-      defaultProps: {
-        margin: 'dense',
-      },
-    },
-    MuiInputLabel: {
-      defaultProps: {
-        margin: 'dense',
-      },
-    },
-    MuiListItem: {
-      defaultProps: {
-        dense: true,
-      },
-    },
-    MuiOutlinedInput: {
-      defaultProps: {
-        margin: 'dense',
-      },
-    },
-    MuiFab: {
-      defaultProps: {
-        size: 'small',
-      },
-    },
-    MuiTable: {
-      defaultProps: {
-        size: 'small',
-      },
-    },
-    MuiTextField: {
-      defaultProps: {
-        margin: 'dense',
-      },
-    },
-    MuiToolbar: {
-      defaultProps: {
-        variant: 'dense',
-      },
-    },
-  },
 };
 
 export const DispatchContext = React.createContext<React.Dispatch<Action>>(() => {

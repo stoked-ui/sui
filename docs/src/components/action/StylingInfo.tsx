@@ -6,13 +6,13 @@ import Typography from '@mui/material/Typography';
 import KeyboardArrowUpRounded from '@mui/icons-material/KeyboardArrowUpRounded';
 import KeyboardArrowDownRounded from '@mui/icons-material/KeyboardArrowDownRounded';
 import { Link } from '@mui/docs/Link';
+import ROUTES from 'docs/src/route';
 
 export default function StylingInfo({
   appeared,
   stylingContent,
-  routes,
   ...props
-}: { appeared: boolean; stylingContent?: React.ReactElement, routes: Record<string, string> } & BoxProps) {
+}: { appeared: boolean; stylingContent?: React.ReactElement } & BoxProps) {
   const [hidden, setHidden] = React.useState(false);
   const defaultContent = (
     <React.Fragment>
@@ -21,7 +21,7 @@ export default function StylingInfo({
       </Typography>
       <Typography color="text.secondary" variant="body2">
         Build your own design system using the{' '}
-        <Link href={routes.theming}>sophisticated theming features</Link>. You can also start by
+        <Link href={ROUTES.theming}>sophisticated theming features</Link>. You can also start by
         using Google&apos;s Material Design.
       </Typography>
     </React.Fragment>

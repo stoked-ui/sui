@@ -21,17 +21,17 @@ import TableViewRounded from '@mui/icons-material/TableViewRounded';
 import WarningRounded from '@mui/icons-material/WarningRounded';
 import ShoppingCartRounded from '@mui/icons-material/ShoppingCartRounded';
 import InfoRounded from '@mui/icons-material/InfoRounded';
-import Section from '@stoked-ui/docs/Layouts/Section';
-import SectionHeadline from '@stoked-ui/docs/typography/SectionHeadline';
-import GradientText from '@stoked-ui/docs/typography/GradientText';
-import Item, { Group } from '@stoked-ui/docs/action/Item';
-import Highlighter from '@stoked-ui/docs/action/Highlighter';
-import More from '@stoked-ui/docs/action/More';
-import Frame from '@stoked-ui/docs/action/Frame';
+import Section from 'docs/src/layouts/Section';
+import SectionHeadline from 'docs/src/components/typography/SectionHeadline';
+import GradientText from 'docs/src/components/typography/GradientText';
+import Item, { Group } from 'docs/src/components/action/Item';
+import Highlighter from 'docs/src/components/action/Highlighter';
+import More from 'docs/src/components/action/More';
+import Frame from 'docs/src/components/action/Frame';
 import { customTheme } from 'docs/src/components/home/MaterialDesignComponents';
-import HighlightedCode from '@stoked-ui/docs/HighlightedCode';
-import MarkdownElement from '@stoked-ui/docs/Markdown/MarkdownElement';
-import StylingInfo from '@stoked-ui/docs/action/StylingInfo';
+import HighlightedCode from 'docs/src/modules/components/HighlightedCode';
+import MarkdownElement from 'docs/src/components/markdown/MarkdownElement';
+import StylingInfo from 'docs/src/components/action/StylingInfo';
 import ROUTES from 'docs/src/route';
 
 const DEMOS = ['Button', 'Text field', 'Table', 'Alert', 'Tooltip'] as const;
@@ -295,7 +295,7 @@ export default function MaterialComponents() {
                 pt: 5,
               }}
             >
-              <StylingInfo appeared={customized} routes={ROUTES} />
+              <StylingInfo appeared={customized} />
               <Box
                 sx={{
                   overflow: 'auto',

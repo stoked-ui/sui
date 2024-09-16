@@ -5,9 +5,9 @@ import Palette from '@mui/icons-material/Palette';
 import LibraryBooks from '@mui/icons-material/LibraryBooks';
 import { InfoCard } from '@mui/docs/InfoCard';
 import CodeRounded from '@mui/icons-material/CodeRounded';
-import GradientText from '@stoked-ui/docs/typography/GradientText';
-import Section from '@stoked-ui/docs/Layouts/Section';
-import SectionHeadline from '@stoked-ui/docs/typography/SectionHeadline';
+import GradientText from 'docs/src/components/typography/GradientText';
+import Section from 'docs/src/layouts/Section';
+import SectionHeadline from 'docs/src/components/typography/SectionHeadline';
 
 const content = [
   {

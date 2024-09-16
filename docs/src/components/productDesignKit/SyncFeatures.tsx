@@ -8,12 +8,12 @@ import Fade from '@mui/material/Fade';
 import FormatShapesRoundedIcon from '@mui/icons-material/FormatShapesRounded';
 import SvgStorybook from 'docs/src/icons/SvgStorybook';
 import ImagesearchRollerRoundedIcon from '@mui/icons-material/ImagesearchRollerRounded';
-import Section from '@stoked-ui/docs/Layouts/Section';
-import SectionHeadline from '@stoked-ui/docs/typography/SectionHeadline';
-import GradientText from '@stoked-ui/docs/typography/GradientText';
-import Item, { Group } from '@stoked-ui/docs/action/Item';
-import Highlighter from '@stoked-ui/docs/action/Highlighter';
-import Frame from '@stoked-ui/docs/action/Frame';
+import Section from 'docs/src/layouts/Section';
+import SectionHeadline from 'docs/src/components/typography/SectionHeadline';
+import GradientText from 'docs/src/components/typography/GradientText';
+import Item, { Group } from 'docs/src/components/action/Item';
+import Highlighter from 'docs/src/components/action/Highlighter';
+import Frame from 'docs/src/components/action/Frame';
 import { Link } from '@mui/docs/Link';
 
 const Image = styled('img')(({ theme }) => ({

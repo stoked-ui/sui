@@ -2,8 +2,8 @@ import * as React from 'react';
 import { styled, alpha } from '@mui/material/styles';
 import { AvatarProps } from '@mui/material/Avatar';
 import Box, { BoxProps } from '@mui/material/Box';
-import Slide from '@stoked-ui/docs/animation/Slide';
-import FadeDelay from '@stoked-ui/docs/animation/FadeDelay';
+import Slide from 'docs/src/components/animation/Slide';
+import FadeDelay from 'docs/src/components/animation/FadeDelay';
 
 const ratio = 900 / 494;
 

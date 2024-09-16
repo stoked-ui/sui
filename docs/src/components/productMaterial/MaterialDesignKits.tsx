@@ -7,12 +7,12 @@ import Fade from '@mui/material/Fade';
 import Typography from '@mui/material/Typography';
 import ExtensionRoundedIcon from '@mui/icons-material/ExtensionRounded';
 import DrawRoundedIcon from '@mui/icons-material/DrawRounded';
-import Section from '@stoked-ui/docs/Layouts/Section';
-import SectionHeadline from '@stoked-ui/docs/typography/SectionHeadline';
-import GradientText from '@stoked-ui/docs/typography/GradientText';
-import Item, { Group } from '@stoked-ui/docs/action/Item';
-import Highlighter from '@stoked-ui/docs/action/Highlighter';
-import Frame from '@stoked-ui/docs/action/Frame';
+import Section from 'docs/src/layouts/Section';
+import SectionHeadline from 'docs/src/components/typography/SectionHeadline';
+import GradientText from 'docs/src/components/typography/GradientText';
+import Item, { Group } from 'docs/src/components/action/Item';
+import Highlighter from 'docs/src/components/action/Highlighter';
+import Frame from 'docs/src/components/action/Frame';
 import {
   MaterialDesignKitInfo,
   MaterialFigmaComponents,

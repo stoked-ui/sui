@@ -2,9 +2,9 @@ import * as React from 'react';
 import { alpha } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import GradientText from '@stoked-ui/docs/typography/GradientText';
-import HeroContainer from '@stoked-ui/docs/Layouts/HeroContainer';
-import IconImage from '@stoked-ui/docs/icon/IconImage';
+import GradientText from 'docs/src/components/typography/GradientText';
+import HeroContainer from 'docs/src/layouts/HeroContainer';
+import IconImage from 'docs/src/components/icon/IconImage';
 import GetStartedButtons from 'docs/src/components/home/GetStartedButtons';
 import {
   DesignKitImagesSet1,

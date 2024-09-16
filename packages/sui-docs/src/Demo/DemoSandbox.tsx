@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
-import { create } from 'jss';
+import { create, InsertionPoint } from 'jss';
 import { prefixer } from 'stylis';
 import rtlPlugin from 'stylis-plugin-rtl';
 import createCache from '@emotion/cache';
@@ -11,9 +11,8 @@ import { jssPreset, StylesProvider } from '@mui/styles';
 import { CssVarsProvider, extendTheme } from '@mui/joy/styles';
 import { useTheme, styled, createTheme, ThemeProvider } from '@mui/material/styles';
 import rtl from 'jss-rtl';
-import { useTranslate } from '@mui/docs/i18n';
-import { getDesignTokens } from '@mui/docs/branding';
-import { highDensity } from 'docs/src/modules/components/ThemeContext';
+import highDensity from '@stoked-ui/docs/src/components/highDensity';
+import { getDesignTokens } from '../branding';
 
 const iframeDefaultJoyTheme = extendTheme({
   cssVarPrefix: 'demo-iframe',
@@ -96,14 +95,14 @@ function DemoIframe(props) {
   /**
    * @type {import('react').Ref<HTMLIFrameElement>}
    */
-  const frameRef = React.useRef(null);
+  const frameRef = React.useRef<HTMLIFrameElement>(null);
 
   // If we portal content into the iframe before the load event then that content
   // is dropped in firefox.
   const [iframeLoaded, onLoad] = React.useReducer(() => true, false);
 
   React.useEffect(() => {
-    const document = frameRef.current.contentDocument;
+    const document = frameRef.current?.contentDocument;
     // When we hydrate the iframe then the load event is already dispatched
     // once the iframe markup is parsed (maybe later but the important part is
     // that it happens before React can attach event listeners).
@@ -120,7 +119,7 @@ function DemoIframe(props) {
   return (
     <React.Fragment>
       <Iframe onLoad={onLoad} ref={frameRef} title={`${name} demo`} {...other} />
-      {iframeLoaded !== false
+      {(iframeLoaded && document)
         ? ReactDOM.createPortal(
             <FramedDemo document={document} productId={productId}>
               {children}
@@ -143,7 +142,7 @@ function getTheme(outerTheme) {
   const brandingDesignTokens = getDesignTokens(outerTheme.palette.mode);
   const isCustomized =
     outerTheme.palette.primary?.main &&
-    outerTheme.palette.primary.main !== brandingDesignTokens.palette.primary.main;
+    outerTheme.palette.primary.main !== (brandingDesignTokens.palette?.primary as any)?.main;
   const resultTheme = createTheme(
     {
       palette: {
@@ -172,7 +171,7 @@ function getTheme(outerTheme) {
 const jss = create({
   plugins: [...jssPreset().plugins, rtl()],
   insertionPoint:
-    typeof window !== 'undefined' ? document.querySelector('#insertion-point-jss') : null,
+    typeof window !== 'undefined' ? document.querySelector('#insertion-point-jss') as InsertionPoint || undefined : undefined,
 });
 
 /**
@@ -191,7 +190,6 @@ function DemoSandbox(props) {
   const Sandbox = iframe ? DemoIframe : React.Fragment;
   const sandboxProps = iframe ? { name, productId, ...other } : {};
 
-  const t = useTranslate();
 
   // `childrenProp` needs to be a child of `Sandbox` since the iframe implementation rely on `cloneElement`.
   const children = <Sandbox {...sandboxProps}>{childrenProp}</Sandbox>;
@@ -209,6 +207,7 @@ DemoSandbox.propTypes = {
   name: PropTypes.string.isRequired,
   onResetDemoClick: PropTypes.func.isRequired,
   productId: PropTypes.string,
-};
+  sx: PropTypes.any,
+} as any;
 
 export default React.memo(DemoSandbox);

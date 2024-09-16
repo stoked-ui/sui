@@ -7,9 +7,9 @@ import HighlightedCode from './HighlightedCode';
 import Demo from './Demo';
 import SuiPage from './SuiPage';
 import ReactRunner from './ReactRunner';
+import highDensity from './components/highDensity'
 
-
-export { Ad, Demo, HighlightedCode, en, ReactRunner, NProgressBar, Products, SuiPage, AdobeXDIcon};
+export { highDensity, Ad, Demo, HighlightedCode, en, ReactRunner, NProgressBar, Products, SuiPage, AdobeXDIcon};
 export * from './Products';
 export * from './Ad';
 export * from './App';
@@ -24,4 +24,6 @@ export * from './svgIcons';
 export * from './MaterialUIComponents';
 export * from './Markdown';
 export * from './SuiPage';
+export * from './components/ThemeContext'
+
 
