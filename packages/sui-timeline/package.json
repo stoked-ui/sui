@@ -74,5 +74,29 @@
     "lodash": "^4.17.21",
     "prettier": "^2.2.1",
     "yorkie": "^2.0.0"
+  },
+  "product": {
+    "id": "timeline",
+    "name": "Timeline",
+    "fullName": "Stoked UI: Timeline",
+    "description": "Timeline component used to construct tools that manipulate things over time",
+    "metadata": "Stoked UI",
+    "productMenu": false,
+    "docsMenu": true,
+    "swipeable": true,
+    "category": "core",
+    "icon": "product-toolpad",
+    "url": "/timeline",
+    "hideProductFeatures": true,
+    "owners": ["brian-stoker"],
+    "features": [{
+      "name": "Overview",
+      "description": "Overview, installation, lions, tigers, and bears oh mai!",
+      "id": "overview"
+    }, {
+      "name": "Timeline",
+      "description": "Component useful in creating components capable of editing something over time or at key frames",
+      "id": "timeline"
+    }]
   }
 }

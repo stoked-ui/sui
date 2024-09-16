@@ -9,9 +9,9 @@ import CompareIcon from '@mui/icons-material/Compare';
 import StyleRoundedIcon from '@mui/icons-material/StyleRounded';
 import { GlowingIconContainer } from '@mui/docs/InfoCard';
 import GetStartedButtons from 'docs/src/components/home/GetStartedButtons';
-import Section from 'docs/src/layouts/Section';
-import SectionHeadline from 'docs/src/components/typography/SectionHeadline';
-import GradientText from 'docs/src/components/typography/GradientText';
+import Section from '@stoked-ui/docs/Layouts/Section';
+import SectionHeadline from '@stoked-ui/docs/typography/SectionHeadline';
+import GradientText from '@stoked-ui/docs/typography/GradientText';
 import { Link } from '@mui/docs/Link';
 import ROUTES from 'docs/src/route';
 

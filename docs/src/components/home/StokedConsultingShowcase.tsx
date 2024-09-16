@@ -3,8 +3,8 @@ import { styled, alpha } from '@mui/material/styles';
 import Box, { BoxProps } from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import LaunchRounded from '@mui/icons-material/LaunchRounded';
-import Slide from 'docs/src/components/animation/Slide';
-import FadeDelay from 'docs/src/components/animation/FadeDelay';
+import Slide from '@stoked-ui/docs/animation/Slide';
+import FadeDelay from '@stoked-ui/docs/animation/FadeDelay';
 
 const ratio = 900 / 494;
 

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import sortedUniqBy from 'lodash/sortedUniqBy';
-import MarkdownDocs from 'docs/src/modules/components/MarkdownDocs';
+import MarkdownDocs from '@stoked-ui/docs/Markdown/MarkdownDocs';
 import VersionsContext from 'docs/src/pages/versions/VersionsContext';
 import * as pageProps from 'docs/src/pages/versions/versions.md?muiMarkdown';
 

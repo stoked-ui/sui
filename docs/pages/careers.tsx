@@ -15,16 +15,16 @@ import MuiAccordionSummary from '@mui/material/AccordionSummary';
 import MuiAccordionDetail from '@mui/material/AccordionDetails';
 import OurValues from 'docs/src/components/about/OurValues';
 import { Link } from '@mui/docs/Link';
-import AppHeader from 'docs/src/layouts/AppHeader';
-import AppFooter from 'docs/src/layouts/AppFooter';
+import AppHeader from '@stoked-ui/docs/Layouts/AppHeader';
+import AppFooter from '@stoked-ui/docs/Layouts/AppFooter';
 import GradientText from 'docs/src/components/typography/GradientText';
 import IconImage from 'docs/src/components/icon/IconImage';
-import BrandingCssVarsProvider from 'docs/src/BrandingCssVarsProvider';
-import Section from 'docs/src/layouts/Section';
+import BrandingCssVarsProvider from '@stoked-ui/docs/branding/BrandingCssVarsProvider';
+import Section from '@stoked-ui/docs/Layouts/Section';
 import SectionHeadline from 'docs/src/components/typography/SectionHeadline';
-import Head from 'docs/src/modules/components/Head';
+import Head from '@stoked-ui/docs/Layouts/Head';
 import ROUTES from 'docs/src/route';
-import AppHeaderBanner from 'docs/src/components/banner/AppHeaderBanner';
+import AppHeaderBanner from '@stoked-ui/docs/banner/AppHeaderBanner';
 
 interface RoleProps {
   description: string;

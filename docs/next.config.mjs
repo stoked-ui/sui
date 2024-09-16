@@ -5,7 +5,7 @@ import * as fs from 'fs';
 // @ts-ignore
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 import { createRequire } from 'module';
-import { findPages } from './src/modules/utils/find.mjs';
+import { findPages } from '@stoked-ui/docs/utils/find.js';
 
 const currentDirectory = url.fileURLToPath(new URL('.', import.meta.url));
 const require = createRequire(import.meta.url);
@@ -56,7 +56,6 @@ export default withDocsInfra({
         }),
       );
     }
-
     // next includes node_modules in webpack externals. Some of those have dependencies
     // on the aliases defined above. If a module is an external those aliases won't be used.
     // We need tell webpack to not consider those packages as externals.
@@ -101,7 +100,6 @@ export default withDocsInfra({
         alias: {
           ...config.resolve.alias,
           // for 3rd party packages with dependencies in this repository
-          '@stoked-ui/docs': path.resolve(workspaceRoot, 'packages/sui-docs/src'),
          },
         extensions: [
           '.tsx',
@@ -151,11 +149,13 @@ export default withDocsInfra({
                           productId: 'file-explorer',
                           paths: [
                             path.join(workspaceRoot, 'packages/sui-file-explorer/src'),
+                            path.join(workspaceRoot, 'packages/sui-docs/src'),
                           ],
                           subPackagePaths: [
                             path.join(workspaceRoot, 'node_modules/@mui/base'),
                             path.join(workspaceRoot, 'node_modules/@mui/lab'),
                             path.join(workspaceRoot, 'node_modules/@stoked-ui/media-selector'),
+                            path.join(workspaceRoot, 'node_modules/@stoked-ui/docs'),
                           ],
                         },
                         {

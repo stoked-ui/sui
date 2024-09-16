@@ -5468,7 +5468,7 @@ A big thanks to the 18 contributors who made this release possible. Here are som
 - &#8203;<!-- 25 -->[core] Remove useless comment in fixtures (#34581) @Garz4
 - &#8203;<!-- 24 -->[core] Fix link to CODE_OF_CONDUCT.md (#34543) @peippo
 - &#8203;<!-- 23 -->[core] Remove outdated docsearch.js dependency (#34421) @oliviertassinari
-- &#8203;<!-- 22 -->[core] Add `newFeature` to the typing of MuiPage (#34511) @flaviendelangle
+- &#8203;<!-- 22 -->[core] Add `newFeature` to the typing of SuiPage (#34511) @flaviendelangle
 
 All contributors of this release in alphabetical order: @Aporim2051, @Dustin-Digitar, @flaviendelangle, @Garz4, @hbjORbj, @hghmn, @kabernardes, @kskd1804, @meenarama, @minkyngkm, @mnajdova, @ndebeiss, @oliviertassinari, @peippo, @rolule, @samuelsycamore, @siriwatknp, @ZeeshanTamboli
 
@@ -6747,7 +6747,7 @@ A big thanks to the 14 contributors who made this release possible. Here are som
 ### Core
 
 - &#8203;<!-- 32 -->[core] Enabled Renovate's lockfile maintenance (#32635) @michaldudak
-- &#8203;<!-- 31 -->[core] Extract `MuiPage` interface to separate file (#32715) @cherniavskii
+- &#8203;<!-- 31 -->[core] Extract `SuiPage` interface to separate file (#32715) @cherniavskii
 - &#8203;<!-- 30 -->[core] Remove unnecessary `spacing` parameter from `createMixins` method (#32690) @ZeeshanTamboli
 - &#8203;<!-- 06 -->[private-classnames] Remove package and move everything to utils (#32758) @mnajdova
 

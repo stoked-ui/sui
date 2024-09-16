@@ -80,7 +80,7 @@ export async function createModulePackages({ from, to }) {
   );
 }
 
-export async function typescriptCopy({ from, to }) {
+export async function typescriptCopy({ from, to, main }) {
   if (!(await fse.pathExists(to))) {
     console.warn(`path ${to} does not exists`);
     return [];
@@ -91,7 +91,7 @@ export async function typescriptCopy({ from, to }) {
   return Promise.all(cmds);
 }
 
-export async function createPackageFile() {
+export async function createPackageFile(main = 'node') {
   const packageData = await fse.readFile(path.resolve(packagePath, './package.json'), 'utf8');
   const { nyc, scripts, devDependencies, workspaces, ...packageDataOther } =
     JSON.parse(packageData);
@@ -101,8 +101,8 @@ export async function createPackageFile() {
     private: false,
     ...(packageDataOther.main
       ? {
-          main: fse.existsSync(path.resolve(buildPath, './node/index.js'))
-            ? './node/index.js'
+          main: fse.existsSync(path.resolve(buildPath, `./${main}/index.js`))
+            ? `./${main}/index.js`
             : './index.js',
           module: fse.existsSync(path.resolve(buildPath, './esm/index.js'))
             ? './esm/index.js'
