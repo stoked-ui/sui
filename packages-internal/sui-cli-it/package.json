@@ -1,6 +1,6 @@
 {
   "name": "@stoked-ui/cli-it",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A CLI tool to turn .sh files into CLI commands",
   "main": "dist/cli.js",
   "bin": {
