@@ -6,6 +6,10 @@
   "bin": {
     "cli-it": "./build/cli.js"
   },
+  "publishConfig": {
+    "access": "public",
+    "directory": "build"
+  },
   "scripts": {
     "build": "tsc",
     "start": "ts-node src/cli.ts"
