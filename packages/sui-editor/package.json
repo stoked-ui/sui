@@ -1,6 +1,6 @@
 {
   "name": "@stoked-ui/editor",
-  "version": "0.1.0-alpha.7",
+  "version": "0.1.0",
   "description": "Editor Component using File Explorer, Media Selector, and Timeline",
   "author": "Brian Stoker",
   "main": "src/index.ts",
