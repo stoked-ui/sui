@@ -205,7 +205,7 @@ const TimelineControl = React.forwardRef(
     // process runner related data
     React.useEffect(() => {
 
-      if (!engineRef.current) {
+      if (!engineRef?.current) {
         return;
       }
 
@@ -227,7 +227,7 @@ const TimelineControl = React.forwardRef(
       engineRef.current.on('play', handlePlay);
       engineRef.current.on('paused', handlePaused);
       engineRef.current.on('setScrollLeft', handleScrollLeft);
-    }, [engineRef.current]);
+    }, [engineRef?.current]);
 
     // ref data
     React.useImperativeHandle(
@@ -268,7 +268,7 @@ const TimelineControl = React.forwardRef(
           get duration() {
             return engineRef.current?.duration;
           }
-        }), [engineRef.current, duration],
+        }), [engineRef?.current, duration],
     );
 
     window.end = () => {

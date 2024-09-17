@@ -1,11 +1,6 @@
 import * as React from 'react';
 import { Timeline } from '@stoked-ui/timeline';
-import {
-  AudioControl,
-  AnimationControl,
-  VideoControl,
-  ImageControl,
-} from '@stoked-ui/editor';
+import { Controllers } from "@stoked-ui/editor";
 
 export const demoActions = [
   {
@@ -46,13 +41,6 @@ export const demoActions = [
   },
 ];
 
-const Controllers = {
-  audio: AudioControl,
-  animation: AnimationControl,
-  video: VideoControl,
-  image: ImageControl,
-};
-
 /**
  *
  * Demos:
@@ -63,7 +51,7 @@ const Controllers = {
  *
  * - [FileExplorer API](https://stoked-ui.github.io/editor/api/)
  */
-function Editor(inProps) {
+export default function TimelineEngineDemo(inProps) {
   const timelineState = React.useRef(null);
   const [scaleWidth, setScaleWidth] = React.useState(160);
 
@@ -83,5 +71,3 @@ function Editor(inProps) {
     />
   );
 }
-
-export { Editor };
