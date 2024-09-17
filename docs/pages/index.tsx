@@ -62,12 +62,14 @@ export function HomeView({ HomeMain}: { HomeMain: React.ComponentType }){
   </BrandingCssVarsProvider>;
 }
 let MainView:  React.ComponentType<{}> = function MainView() {
+  if (process.env.NODE_ENV !== 'production') {
+    return <EditorHero id={'editor'} grid sx={{ width: '750px' }} />
+  }
   return (
     <React.Fragment>
-      <EditorHero id={'file-explorer-grid'} grid sx={{ width: '750px' }} />
-      {/* <Hero />
-       <Box sx={{ height: '112px' }}/>
-      <Divider/> */}
+      <Hero />
+      <Box sx={{ height: '112px' }}/>
+      <Divider/>
     </React.Fragment>
   )
 }
