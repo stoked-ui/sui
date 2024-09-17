@@ -5,7 +5,8 @@
   "author": "SUI Team",
   "license": "MIT",
   "scripts": {
-    "build": "rimraf docs/export && cross-env NODE_ENV=production NODE_OPTIONS=\"--max_old_space_size=8192 --trace-warnings\" next build --profile && pnpm build-sw && rimraf ../../stoked-ui-docs/* && cp -R ./export/ ../../stoked-ui-docs",
+    "build": "rimraf docs/export && cross-env NODE_ENV=production NODE_OPTIONS=\"--max_old_space_size=8192 --trace-warnings\" next build --profile && pnpm build-sw",
+    "build:copy2": "mkdir -p ../../stoked-ui-docs && rimraf ../../stoked-ui-docs/* && cp -R ./export/ ../../stoked-ui-docs",
     "deploy:copy": "mkdir -p ../../stokedconsulting.com && rimraf --glob \"../../stokedconsulting.com/\" && cp -r ./export/* ../../stokedconsulting.com",
     "deploy:site": "cd ../../stokedconsulting.com && git add -A && git commit -m \"chore: update site\" && git push",
     "deploy:release": "pnpm build:clean && pnpm deploy:copy && pnpm deploy:site && pnpm deploy:sync && pnpm deploy:invalidate",
