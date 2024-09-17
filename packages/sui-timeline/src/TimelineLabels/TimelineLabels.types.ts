@@ -2,7 +2,7 @@ import * as React from 'react';
 import {Theme} from '@mui/material/styles';
 import {SxProps} from '@mui/system';
 import {SlotComponentProps} from '@mui/base/utils';
-import { IController } from '../TimelineAction/TimelineAction.types';
+import { IController } from '../Engine/Controller.types';
 import {TimelineLabelsClasses} from './timelineLabelsClasses';
 import {TimelineState} from "../Timeline/TimelineState";
 import { ITimelineTrack } from "../TimelineTrack/TimelineTrack.types";

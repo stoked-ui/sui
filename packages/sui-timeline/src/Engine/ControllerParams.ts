@@ -1,4 +1,4 @@
-import {type IEngine} from "../Timeline";
+import {type IEngine} from "./Engine.types";
 import {type ITimelineAction} from "../TimelineAction/TimelineAction.types";
 
 type ControllerParams = {

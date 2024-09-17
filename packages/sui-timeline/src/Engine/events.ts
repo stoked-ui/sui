@@ -1,4 +1,4 @@
-import {type Engine} from "./Engine";
+import type { IEngine } from "./Engine.types";
 
 export class Events {
   handlers = {};
@@ -23,53 +23,53 @@ export class Events {
 export interface EventTypes {
   /**
    * Before setting time (manual)
-   * @type {{ time: number, engine: Engine }}
+   * @type {{ time: number, engine: IEngine }}
    * @memberofEventTypes
    */
-  beforeSetTime: { time: number; engine: Engine };
+  beforeSetTime: { time: number; engine: IEngine };
   /**
    * After setting time (manual)
-   * @type {{ time: number, engine: Engine }}
+   * @type {{ time: number, engine: IEngine }}
    * @memberofEventTypes
    */
-  afterSetTime: { time: number; engine: Engine };
+  afterSetTime: { time: number; engine: IEngine };
   /**
    * After tick setting time
-   * @type {{ time: number, engine: Engine }}
+   * @type {{ time: number, engine: IEngine }}
    * @memberofEventTypes
    */
-  setTimeByTick: { time: number; engine: Engine };
+  setTimeByTick: { time: number; engine: IEngine };
   /**
    * Before setting the running speed
    * return false will prevent setting rate
-   * @type {{ speed: number, engine: Engine }}
+   * @type {{ speed: number, engine: IEngine }}
    * @memberofEventTypes
    */
-  beforeSetPlayRate: { rate: number; engine: Engine };
+  beforeSetPlayRate: { rate: number; engine: IEngine };
   /**
    * After setting the running rate
-   * @type {{ speed: number, engine: Engine }}
+   * @type {{ speed: number, engine: IEngine }}
    * @memberofEventTypes
    */
-  afterSetPlayRate: { rate: number; engine: Engine };
+  afterSetPlayRate: { rate: number; engine: IEngine };
   /**
    * run
-   * @type {{engine: Engine}}
+   * @type {{engine: IEngine}}
    * @memberofEventTypes
    */
-  play: { engine: Engine };
+  play: { engine: IEngine };
   /**
    * stop
-   * @type {{ engine: Engine }}
+   * @type {{ engine: IEngine }}
    * @memberofEventTypes
    */
-  paused: { engine: Engine };
+  paused: { engine: IEngine };
   /**
    * End of operation
-   * @type {{ engine: Engine }}
+   * @type {{ engine: IEngine }}
    * @memberofEventTypes
    */
-  ended: { engine: Engine };
+  ended: { engine: IEngine };
 
-  setScrollLeft: { left: number, engine: Engine }
+  setScrollLeft: { left: number, engine: IEngine }
 }

@@ -1,7 +1,12 @@
 import * as React from 'react';
 import BTree from "sorted-btree";
 import {namedId, getFileName, MediaFile} from "@stoked-ui/media-selector";
-import {Events, Emitter, type EventTypes, type ITimelineAction, type IController, type IEngine, type ITimelineTrack, type ITimelineActionInput } from '@stoked-ui/timeline';
+import { type IController } from './Controller.types';
+import { type IEngine } from './Engine.types';
+import { type ITimelineAction, type ITimelineActionInput  } from '../TimelineAction/TimelineAction.types';
+import { type ITimelineTrack } from '../TimelineTrack/TimelineTrack.types';
+import {Events, type EventTypes} from './events';
+import {Emitter} from "./emitter";
 
 const PLAYING = 'playing';
 const PAUSED = 'paused';
@@ -214,7 +219,7 @@ export default class Engine extends Emitter<EventTypes> implements IEngine {
   getSelectedActions() {
     const actionTracks: {action: ITimelineAction, track: ITimelineTrack}[] = [];
     // eslint-disable-next-line no-restricted-syntax
-    for (const [key, ] of this._activeIds.entries()) {
+    for (const key of this._activeIds.keys()) {
       const action = this._actionMap[key];
       if (action.selected) {
         actionTracks.push({ action, track: this._actionTrackMap[key] });
@@ -521,7 +526,7 @@ export default class Engine extends Emitter<EventTypes> implements IEngine {
     if (this.isPaused) {
       return;
     }
-    const { now, autoEnd = true, to } = data;
+    const { now, autoEnd, to } = data;
 
     // Calculate the current time
     let currentTime = this.getTime() + (Math.min(1000, now - this._prev) / 1000) * this._playRate;
@@ -562,7 +567,7 @@ export default class Engine extends Emitter<EventTypes> implements IEngine {
     this._dealEnter(time);
     this._dealLeave(time);
 
-    // this._renderCtx!.clearRect(0, 0, this.renderWidth, this.renderHeight)
+    this._renderCtx!.clearRect(0, 0, this.renderWidth, this.renderHeight)
     // render
     const renderPass: string[] = [];
     // eslint-disable-next-line no-restricted-syntax
@@ -632,7 +637,10 @@ export default class Engine extends Emitter<EventTypes> implements IEngine {
 
   /** Handle action time leave */
   protected _dealLeave(time: number) {
-    this._activeIds.forEach((value, key) => {
+    const keysToDelete: string[] = [];
+    const keys = Array.from(this._activeIds.keys());
+    for (let i = 0; i < keys.length; i += 1) {
+      const key = keys[i]; // Get the smallest entry in the BTree
       const action = this._actionMap[key];
 
       // Not within the playback area
@@ -643,9 +651,9 @@ export default class Engine extends Emitter<EventTypes> implements IEngine {
           controller.leave({action, time: this.getTime(), engine: this});
         }
 
-        this._activeIds.delete(key);
+        keysToDelete.push(key);
       }
-    });
+    }
   }
 
   /** Data processing */

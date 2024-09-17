@@ -1,8 +1,9 @@
 import * as React from 'react';
 import {SxProps, Theme} from "@mui/material/styles";
-import type {IController, ITimelineAction} from "../TimelineAction/TimelineAction.types";
+import type { IController } from '../Engine/Controller.types';
+import type {ITimelineAction} from "../TimelineAction/TimelineAction.types";
 import {type ITimelineTrack} from "../TimelineTrack/TimelineTrack.types";
-import type {IEngine} from "../Timeline/Timeline.types";
+import type {IEngine} from "../Engine/Engine.types";
 
 export interface TimelineControlPropsBase {
   /**

@@ -64,9 +64,10 @@ export function HomeView({ HomeMain}: { HomeMain: React.ComponentType }){
 let MainView:  React.ComponentType<{}> = function MainView() {
   return (
     <React.Fragment>
-      <Hero />
-      <Box sx={{ height: '112px' }}/>
-      <Divider/>
+      <EditorHero id={'file-explorer-grid'} grid sx={{ width: '750px' }} />
+      {/* <Hero />
+       <Box sx={{ height: '112px' }}/>
+      <Divider/> */}
     </React.Fragment>
   )
 }

@@ -1,9 +1,8 @@
 import * as React from "react";
 import {namedId, getFileName, MediaFile} from "@stoked-ui/media-selector";
 import {type ITimelineTrack} from "./TimelineTrack.types";
-import {
-  IController, type ITimelineAction
-} from "../TimelineAction/TimelineAction.types";
+import { type ITimelineAction } from "../TimelineAction/TimelineAction.types";
+import { type IController } from '../Engine/Controller.types';
 
 // TODO: consider moving this code to the timeline library..
 export async function buildTracks(controllers: Record<string, IController>, actionData: ITimelineAction[]): Promise<ITimelineTrack[]> {

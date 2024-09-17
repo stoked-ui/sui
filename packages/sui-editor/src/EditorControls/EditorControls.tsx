@@ -89,13 +89,25 @@ const RateControlSelect = styled(Select)(({ theme }) => ({
 }));
 
 function Controls(inProps) {
-  const controlsInput: string[] = [];
-  const [controls, setControls] = React.useState(controlsInput);
+  const controlsInput: string = '';
+  const [controls, setControlsBase] = React.useState(controlsInput);
 
   const props = useThemeProps({ props: inProps, name: 'MuiControls' });
   const { engineRef, setVideoURLs, isPlaying, setIsPlaying } = props;
   const [mediaRecorder, setMediaRecorder] = React.useState<MediaRecorder | null>(null);
   const [recordedChunks, setRecordedChunks] = React.useState<Blob[]>([]);
+
+  const setControls = (toggleValue: string) => {
+    if (['end', 'start'].indexOf(toggleValue) === -1) {
+      setControlsBase(toggleValue)
+    }
+  }
+
+  React.useEffect(() => {
+    if (controls === 'play' && !isPlaying) {
+      setControlsBase('');
+    }
+  }, [isPlaying])
 
   const handlePlay = () => {
     if (!engineRef || !engineRef.current) {
@@ -207,6 +219,7 @@ function Controls(inProps) {
     }
   }
 
+
   return (
     <div style={{display: 'flex', flexDirection: 'row', marginLeft: '6px', alignContent: 'center', width: '100%'}}>
       <ToggleButtonGroup
@@ -230,15 +243,15 @@ function Controls(inProps) {
         size={'small'}
         aria-label="text alignment"
       >
-        <ToggleButton onClick={handleStart} value="previous" aria-label="hidden">
+        <ToggleButton onClick={handleStart} value="start" aria-label="hidden">
           <SkipPreviousIcon fontSize={'small'}/>
         </ToggleButton>
-        <ToggleButton value="playPause" onClick={() => {
-          stateFunc('playPause', handlePlay, handlePause)
+        <ToggleButton value="play" onClick={() => {
+          stateFunc('play', handlePlay, handlePause)
         }}>
           {isPlaying ? <PauseIcon/> : <PlayArrowIcon/>}
         </ToggleButton>
-        <ToggleButton onClick={handleEnd} value="next" aria-label="lock">
+        <ToggleButton onClick={handleEnd} value="end" aria-label="lock">
           <SkipNextIcon/>
         </ToggleButton>
         <ToggleButton value="record" onClick={() => {
@@ -303,7 +316,6 @@ export const EditorControls = React.forwardRef(function EditorControls<
     engine.on('afterSetTime', (afterTimeProps) => setTime(afterTimeProps.time));
     engine.on('ended', () => engine.pause());
     engine.on('setTimeByTick', (setTimeProps) => {
-      console.log('setTimeProps', setTimeProps.time)
       setTime(setTimeProps.time);
 
       /* if (autoScroll) {

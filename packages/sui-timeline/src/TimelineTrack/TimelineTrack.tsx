@@ -9,7 +9,7 @@ import {DragLineData} from '../TimelineTrackArea/TimelineTrackAreaDragLines';
 import {type TimelineControlPropsBase} from "../TimelineControl/TimelineControl.types";
 import TimelineAction from "../TimelineAction/TimelineAction";
 import {type ITimelineTrack} from "./TimelineTrack.types";
-import {IController} from "../TimelineAction";
+import {IController} from "../Engine/Controller.types";
 
 export type TimelineTrackProps = CommonProps & TimelineControlPropsBase & {
   areaRef: React.MutableRefObject<HTMLDivElement>;
