@@ -1,12 +1,6 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
-import Stack from '@mui/material/Stack';
-import { Timeline, TimelineState} from '@stoked-ui/timeline';
-import Controller from "@stoked-ui/editor/src/Controllers/Controller";
-import AudioControl from "@stoked-ui/editor/src/Controllers/AudioController";
-import AnimationControl from "@stoked-ui/editor/src/Controllers/AnimationController";
-import VideoControl from "@stoked-ui/editor/src/Controllers/VideoController";
-import ImageControl from "@stoked-ui/editor/src/Controllers/ImageController";
+import { Timeline, TimelineState } from '@stoked-ui/timeline';
+import { Controllers } from "@stoked-ui/editor";
 
 export const demoActions = [
   {
@@ -47,14 +41,6 @@ export const demoActions = [
   },
 ];
 
-
-const Controllers: Record<string, Controller> = {
-  audio: AudioControl,
-  animation: AnimationControl,
-  video: VideoControl,
-  image: ImageControl,
-}
-
 /**
  *
  * Demos:
@@ -65,7 +51,7 @@ const Controllers: Record<string, Controller> = {
  *
  * - [FileExplorer API](https://stoked-ui.github.io/editor/api/)
  */
-function Editor(inProps: any) {
+export default function TimelineEngineDemo(inProps: any) {
 
   const timelineState = React.useRef<TimelineState>(null);
   const [scaleWidth, setScaleWidth] = React.useState(160);
@@ -85,48 +71,3 @@ function Editor(inProps: any) {
     />)
 }
 
-Editor.propTypes = {
-  // ----------------------------- Warning --------------------------------
-  // | These PropTypes are generated from the TypeScript type definitions |
-  // | To update them edit the TypeScript types and run "pnpm proptypes"  |
-  // ----------------------------------------------------------------------
-  actionData: PropTypes.any,
-  /**
-   * The ref object that allows Editor View manipulation. Can be instantiated with
-   * `useEditorApiRef()`.
-   */
-  apiRef: PropTypes.any, /**
-   * Override or extend the styles applied to the component.
-   */
-  classes: PropTypes.object,
-  className: PropTypes.string,
-  /**
-   * Unstable features, breaking changes might be introduced.
-   * For each feature, if the flag is not explicitly set to `true`,
-   * the feature will be fully disabled and any property / method call will not have any effect.
-   */
-  experimentalFeatures: PropTypes.object,
-  /**
-   * The props used for each component slot.
-   * @default {}
-   */
-  slotProps: PropTypes.object,
-  /**
-   * Overridable component slots.
-   * @default {}
-   */
-  slots: PropTypes.object,
-  /**
-   * The system prop that allows defining system overrides as well as additional CSS styles.
-   */
-  sx: PropTypes.oneOfType([
-    PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool])),
-    PropTypes.func,
-    PropTypes.object,
-  ]),
-  tracks: PropTypes.arrayOf(
-    PropTypes.any,
-  ),
-};
-
-export { Editor };

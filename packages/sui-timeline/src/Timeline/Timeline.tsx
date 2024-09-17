@@ -14,6 +14,7 @@ import {type ITimelineAction} from '../TimelineAction/TimelineAction.types';
 import TimelineControl from '../TimelineControl/TimelineControl';
 import {type TimelineLabelsProps} from '../TimelineLabels/TimelineLabels.types';
 import {type ITimelineTrack} from "../TimelineTrack";
+import Engine from "../Engine";
 
 const useUtilityClasses = (ownerState: TimelineProps) => {
   const { classes } = ownerState;
@@ -53,10 +54,12 @@ const Timeline = React.forwardRef(function Timeline(
   inProps: TimelineProps,
   ref: React.Ref<HTMLDivElement>,
 ): React.JSX.Element {
-  const { slots, slotProps, controlSx, onChange, trackSx, engineRef, controllers } = useThemeProps({
+  const emptyEngine = React.useRef<Engine>(new Engine({id: inProps.id, controllers: inProps.controllers }));
+  const { slots, slotProps, controlSx, onChange, trackSx, controllers } = useThemeProps({
     props: inProps,
     name: 'MuiTimeline',
   });
+  let { engineRef } = inProps;
   const classes = useUtilityClasses(inProps);
 
   const timelineState = React.useRef<TimelineState>(null);
@@ -69,7 +72,11 @@ const Timeline = React.forwardRef(function Timeline(
 
   const [tracks, setTracks] = React.useState<ITimelineTrack[] | null>(null);
 
-  engineRef.current.setTracks = setTracks;
+  if (engineRef) {
+    engineRef.current.setTracks = setTracks;
+  } else {
+    engineRef = emptyEngine;
+  }
   const tracksInitialized = React.useRef(false);
 
   React.useEffect(() => {
