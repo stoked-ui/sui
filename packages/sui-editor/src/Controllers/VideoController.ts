@@ -1,6 +1,6 @@
 import { Controller, ControllerParams, IEngine, ITimelineAction } from "@stoked-ui/timeline";
 
-class VideoController extends Controller {
+class VideoControl extends Controller {
   cacheMap: Record<string, HTMLVideoElement> = {};
 
   cacheFrameSync: Record<string, number> = {};
@@ -214,6 +214,6 @@ class VideoController extends Controller {
   }
 }
 
-export { VideoController };
-const VideoControllerInstance = new VideoController();
-export default VideoControllerInstance;
+export { VideoControl };
+const VideoController = new VideoControl();
+export default VideoController;
