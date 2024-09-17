@@ -13,7 +13,7 @@ import {EditorControls} from '../EditorControls';
 import {EditorView} from '../EditorView';
 import {getEditorUtilityClass} from './editorClasses';
 import {EditorLabels} from '../EditorLabels';
-import {Engine} from "../Engine/Engine";
+import Engine from "../Engine/Engine";
 import Controllers from "../Controllers";
 
 const useThemeProps = createUseThemeProps('MuiEditor');

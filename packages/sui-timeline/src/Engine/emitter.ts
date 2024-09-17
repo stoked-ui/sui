@@ -1,4 +1,4 @@
-import { IEmitter } from '@stoked-ui/timeline';
+import { IEmitter } from './Engine.types';
 import { Events } from './events';
 
 /**
@@ -47,7 +47,9 @@ export class Emitter<EventTypes> implements IEmitter<EventTypes> {
   off<K extends keyof EventTypes>(name: K, handler?: (args: EventTypes[K]) => boolean | unknown) {
     if (this.events[name as string]) {
       const listener = this.events[name as string];
-      if (!handler) this.events[name as string] = [];
+      if (!handler) {
+        this.events[name as string] = [];
+      }
       else {
         const index = listener.indexOf(handler);
         if (index !== -1) {

@@ -82,7 +82,7 @@ const Stage = styled('div', {
   name: "MuiEditorViewStage",
   slot: "stage"
 })(() => ({
-  display: 'none',
+  display: 'flex',
   flexDirection: 'column',
   width: '100%',
   position: 'absolute',

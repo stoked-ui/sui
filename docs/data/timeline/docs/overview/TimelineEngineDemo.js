@@ -4,7 +4,7 @@ import { useTheme } from '@mui/material/styles';
 
 import { mockData } from '../mock';
 
-export default function TimelineEditorDemo() {
+export default function TimelineEngineDemo() {
   const controllers = {
     effect: {
       enter: (params) => {
