@@ -1,8 +1,7 @@
 import {Howl} from 'howler';
 import { AudioFile } from "@stoked-ui/media-selector";
 import {GetBackgroundImage, ControllerParams, ITimelineAction} from "@stoked-ui/timeline";
-import generateWaveformImage from "./AudioImage";
-import { Controller } from "@stoked-ui/timeline";
+import Controller from "./Controller";
 
 class AudioController extends Controller{
   cacheMap: Record<string, Howl> = {};
@@ -36,9 +35,7 @@ class AudioController extends Controller{
       item = this.cacheMap[action.id];
       item.rate(engine.getPlayRate());
       item.seek((time - action.start) % item.duration());
-      if (engine.isPlaying) {
-        item.play();
-      }
+      item.play();
     } else {
       item = new Howl({ src: action.src, loop: false, autoplay: false });
       this.cacheMap[action.id] = item;
