@@ -527,8 +527,6 @@ function TimelineAction(props: TimelineActionProps) {
         }}
         color={`${action?.controller?.color}`}
       >
-        {flexible && <LeftStretch className={`${prefix('action-left-stretch')} ${classes.left}`}/>}
-        {flexible && (<RightStretch className={`${prefix('action-right-stretch')} ${classes.right}`}/>)}
         <ActionLabel color={`${controllers?.controller?.color}`}>
           <Typography variant="body2" color="text.primary" sx={(theme) => ({
             color: `${theme.palette.mode === 'light' ? '#000' : '#FFF'}`, fontWeight: '500',
@@ -536,7 +534,8 @@ function TimelineAction(props: TimelineActionProps) {
             {action.name}
           </Typography>
         </ActionLabel>
-
+        {flexible && <LeftStretch className={`${prefix('action-left-stretch')} ${classes.left}`}/>}
+        {flexible && (<RightStretch className={`${prefix('action-right-stretch')} ${classes.right}`}/>)}
       </Action>
     </TimelineTrackDnd>);
 }

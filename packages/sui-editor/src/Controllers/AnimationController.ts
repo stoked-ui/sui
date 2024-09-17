@@ -1,7 +1,6 @@
 import lottie, {AnimationItem} from 'lottie-web';
 import { AnimationFile } from "@stoked-ui/media-selector";
-import { ControllerParams, IEngine, ITimelineAction } from "@stoked-ui/timeline";
-import Controller from "./Controller";
+import { Controller, ControllerParams, IEngine, ITimelineAction } from "@stoked-ui/timeline";
 
 class AnimationController implements Controller {
   id: string;
@@ -83,7 +82,7 @@ class AnimationController implements Controller {
     if (time > action.end || time < action.start) {
 
     } else {
-      console.log(action.name, time);
+//      console.log(action.name, time);
       this._goToAndStop(item, time - action.start);
     }
   }

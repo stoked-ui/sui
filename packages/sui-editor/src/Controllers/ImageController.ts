@@ -1,5 +1,4 @@
-import { ControllerParams, IEngine, ITimelineAction } from "@stoked-ui/timeline";
-import Controller from "./Controller";
+import { Controller, ControllerParams, IEngine, ITimelineAction } from "@stoked-ui/timeline";
 
 class ImageController extends Controller {
   cacheMap: Record<string, HTMLImageElement> = {};

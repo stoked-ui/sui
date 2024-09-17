@@ -1,5 +1,6 @@
 import {ITimelineTrack} from "../TimelineTrack";
-import {EventTypes, IEmitter, IEngine} from "./Timeline.types";
+import { IEmitter, IEngine} from "../Engine/Engine.types";
+import {EventTypes} from "../Engine/events";
 
 export interface TimelineState {
   /** dom node */

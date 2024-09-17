@@ -70,12 +70,16 @@ const Timeline = React.forwardRef(function Timeline(
   const [tracks, setTracks] = React.useState<ITimelineTrack[] | null>(null);
 
   engineRef.current.setTracks = setTracks;
+  const tracksInitialized = React.useRef(false);
 
   React.useEffect(() => {
-    engineRef.current?.buildTracks(controllers, inProps.actionData)
+    if (!tracksInitialized.current) {
+      tracksInitialized.current = true;
+      engineRef.current?.buildTracks(controllers, inProps.actionData)
       .then((initialTracks) => {
         setTracks(initialTracks)
       });
+    }
   }, [])
 
   const Root = slots?.root ?? TimelineRoot;
