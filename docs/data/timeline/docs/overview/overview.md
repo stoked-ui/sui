@@ -9,21 +9,16 @@ packageName: '@stoked-ui/timeline'
 
 # Overview
 
-<p class="description">The File Explorer component lets users navigate hierarchical lists of data with nested levels that can be expanded and collapsed.</p>
+<p class="description">The Timeline component provides users a track for each action they want to manipulate controls to easily adjust them.</p>
 
 {{"component": "modules/components/ComponentLinkHeader"}}
 
-## Available components
-
-The MUI X File Explorer package exposes two different versions of the component:
-
-### File Explorer Basic
+## Timeline
 
 ```jsx
 import { Timeline } from '@stoked-ui/timeline/Timeline';
 ```
 
-The simple version of the File Explorer component receives its items as JSX children.
-This is the recommended version for hardcoded items.
+The Timeline component receives its actions either from input props or files that can be dragged and dropped onto the control itself.
 
-{{"demo": "TimelineEditorDemo.js", "hideToolbar": true, "bg": "inline"}}
+{{"demo": "TimelineEngineDemo.js", "hideToolbar": true, "bg": "inline"}}

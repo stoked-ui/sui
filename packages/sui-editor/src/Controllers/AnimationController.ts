@@ -2,7 +2,7 @@ import lottie, {AnimationItem} from 'lottie-web';
 import { AnimationFile } from "@stoked-ui/media-selector";
 import { Controller, ControllerParams, IEngine, ITimelineAction } from "@stoked-ui/timeline";
 
-class AnimationController implements Controller {
+class AnimationControl implements Controller {
   id: string;
 
   name: string;
@@ -121,9 +121,9 @@ class AnimationController implements Controller {
   }
   */
 }
-export { AnimationController };
-const AnimationControllerInstance = new AnimationController({
-  color: AnimationController.primaryColor,
-  colorSecondary: AnimationController.secondaryColor
+export { AnimationControl };
+const AnimationController = new AnimationControl({
+  color: AnimationControl.primaryColor,
+  colorSecondary: AnimationControl.secondaryColor
 });
-export default AnimationControllerInstance;
+export default AnimationController;

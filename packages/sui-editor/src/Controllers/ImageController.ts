@@ -1,6 +1,6 @@
 import { Controller, ControllerParams, IEngine, ITimelineAction } from "@stoked-ui/timeline";
 
-class ImageController extends Controller {
+class ImageControl extends Controller {
   cacheMap: Record<string, HTMLImageElement> = {};
 
   constructor() {
@@ -14,12 +14,12 @@ class ImageController extends Controller {
     let item: HTMLImageElement;
     if (this.cacheMap[action.id]) {
       item = this.cacheMap[action.id];
-      ImageController.toggleDisplay(action, item);
+      ImageControl.toggleDisplay(action, item);
     } else if (!action.hidden) {
-      item = ImageController.createNewImage(action);
+      item = ImageControl.createNewImage(action);
       this.cacheMap[action.id] = item;
-      ImageController.attachItemToViewer(item, engine);
-      ImageController.renderImage(item, engine);
+      ImageControl.attachItemToViewer(item, engine);
+      ImageControl.renderImage(item, engine);
     }
   }
 
@@ -31,7 +31,7 @@ class ImageController extends Controller {
     const item = document.createElement('image') as HTMLImageElement;
     item.src = action!.src;
     item.style.display = 'flex';
-    ImageController.applyStyles(action, item);
+    ImageControl.applyStyles(action, item);
     return item;
   }
 
@@ -88,6 +88,6 @@ class ImageController extends Controller {
   }
 }
 
-export { ImageController };
-const ImageControllerInstance = new ImageController();
-export default ImageControllerInstance;
+export { ImageControl };
+const ImageController = new ImageControl();
+export default ImageController;

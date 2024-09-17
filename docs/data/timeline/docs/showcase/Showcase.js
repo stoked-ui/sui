@@ -2,13 +2,13 @@ import * as React from 'react';
 import { alpha, ThemeProvider, createTheme, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Button, { buttonClasses } from '@mui/material/Button';
+import FlashCode from 'docs/src/components/animation/FlashCode';
 import HighlightedCode from 'docs/src/modules/components/HighlightedCode';
 import MarkdownElement from 'docs/src/components/markdown/MarkdownElement';
-import DesignDemo, { componentCode } from './DesignDemo';
 import ShowcaseContainer from 'docs/src/components/home/ShowcaseContainer';
 import PointerContainer from 'docs/src/components/home/ElementPointer';
 import StylingInfo from 'docs/src/components/action/StylingInfo';
-import FlashCode from 'docs/src/components/animation/FlashCode';
+import DesignDemo, { componentCode } from './DesignDemo';
 
 const lineMapping = {
   card: [0, 20],
