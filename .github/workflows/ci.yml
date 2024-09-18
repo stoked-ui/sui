@@ -64,7 +64,6 @@ jobs:
           name: main-build
           path: /home/runner/work/mono/mono/docs/export
       - run: ls -la /home/runner/work/mono/mono/docs/export
-      - uses: actions/checkout@main
       - uses: jakejarvis/s3-sync-action@master
         with:
           args: --follow-symlinks --delete
