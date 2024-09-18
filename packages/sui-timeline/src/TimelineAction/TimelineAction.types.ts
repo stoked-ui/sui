@@ -89,6 +89,8 @@ export interface ITimelineAction extends Omit<ITimelineActionInput, 'id' | 'star
   controller: IController;
 
   frameSyncId?: number;
+
+  translate?: {x?: number, y?: number};
 }
 
 export type ITimelineActionLayer = 'background' | 'foreground';

@@ -562,6 +562,7 @@ export default class Engine extends Emitter<EventTypes> implements IEngine {
     this._dealEnter(time);
     this._dealLeave(time);
 
+    this._renderCtx.reset();
     // this._renderCtx!.clearRect(0, 0, this.renderWidth, this.renderHeight)
     // render
     const renderPass: string[] = [];
@@ -633,10 +634,12 @@ export default class Engine extends Emitter<EventTypes> implements IEngine {
   /** Handle action time leave */
   protected _dealLeave(time: number) {
     this._activeIds.forEach((value, key) => {
-      const action = this._actionMap[key];
 
-      // Not within the playback area
-      if (action.start > time || action.end < time) {
+      const action = this._actionMap[key];
+      const track = this._actionTrackMap[action.id];
+
+      // Not within the playback area or hidden
+      if (action.start > time || action.end < time || track.hidden) {
         const controller = this._controllers[action.controllerName];
 
         if (controller && controller?.leave) {

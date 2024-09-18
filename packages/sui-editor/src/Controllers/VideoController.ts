@@ -104,12 +104,8 @@ class VideoControl extends Controller {
     };
 
     action.frameSyncId = item.requestVideoFrameCallback(updateCanvas);
-    item.currentTime += 0.0001;
+    setTimeout(() => {item.currentTime += 0.0001}, 10);
   };
-
-  removeCanvasSync(engine: IEngine, item: HTMLVideoElement) {
-
-  }
 
 
   isVideoPlaying(video: HTMLVideoElement) {

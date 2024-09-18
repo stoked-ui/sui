@@ -18,6 +18,34 @@ export const actions = [
     src: '/static/video-editor/stock-loop.mp4',
     layer: 'background',
   },
+  {
+    name: 'write stuff',
+    start: 9.5,
+    end: 16,
+    controllerName: 'animation',
+    src: '/static/timeline/docs/overview/lottie1.json',
+  },
+  {
+    name: 'doing things',
+    start: 5,
+    end: 9.5,
+    controllerName: 'animation',
+    src: '/static/timeline/docs/overview/lottie2.json',
+  },
+  {
+    name: 'stolen cow',
+    start: 0,
+    end: 5,
+    controllerName: 'animation',
+    src: '/static/timeline/docs/overview/lottie3.json',
+  },
+  {
+    name: 'music',
+    start: 0,
+    end: 20,
+    controllerName: 'audio',
+    src: '/static/timeline/docs/overview/funeral.m4a',
+  },
 
 ];
 

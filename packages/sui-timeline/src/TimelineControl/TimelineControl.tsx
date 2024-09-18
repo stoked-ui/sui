@@ -125,7 +125,7 @@ const TimelineControl = React.forwardRef(
       }
       const durr = getDuration();
       setDuration(durr);
-      setMinScaleCount(durr + 2);
+      setMinScaleCount( durr + 2 );
 
     }, [tracks]);
 
@@ -233,42 +233,42 @@ const TimelineControl = React.forwardRef(
     React.useImperativeHandle(
       ref,
       () => ({
-          get engine() {
-            return engineRef.current;
-          },
-          get target() {
-            return domRef.current;
-          },
-          get listener() {
-            return engineRef.current;
-          },
-          get isPlaying() {
-            return engineRef.current?.isPlaying;
-          },
-          get isPaused() {
-            return engineRef.current?.isPaused;
-          },
-          setPlayRate: engineRef.current?.setPlayRate.bind(engineRef.current),
-          getPlayRate: engineRef.current?.getPlayRate.bind(engineRef.current),
-          setTime: (time: number, move?: boolean) => handleSetCursor({time, move}),
-          getTime: engineRef.current?.getTime.bind(engineRef.current),
-          reRender: engineRef.current?.reRender.bind(engineRef.current),
-          play: (param: Parameters<TimelineState['play']>[0]) => engineRef.current?.play({...(param as any)}),
-          pause: engineRef.current?.pause.bind(engineRef.current),
-          setScrollLeft: (val: number) => {
-            return engineRef.current?.setScrollLeft(val);
-          },
-          setScrollTop: (val: number) => {
-            if (scrollSync.current) {
-              scrollSync.current?.setState({scrollTop: Math.max(val, 0)});
-            }
-          },
-          tracks,
-          setTracks,
-          get duration() {
-            return engineRef.current?.duration;
+        get engine() {
+          return engineRef.current;
+        },
+        get target() {
+          return domRef.current;
+        },
+        get listener() {
+          return engineRef.current;
+        },
+        get isPlaying() {
+          return engineRef.current?.isPlaying;
+        },
+        get isPaused() {
+          return engineRef.current?.isPaused;
+        },
+        setPlayRate: engineRef.current?.setPlayRate.bind(engineRef.current),
+        getPlayRate: engineRef.current?.getPlayRate.bind(engineRef.current),
+        setTime: (time: number, move?: boolean) => handleSetCursor({time, move}),
+        getTime: engineRef.current?.getTime.bind(engineRef.current),
+        reRender: engineRef.current?.reRender.bind(engineRef.current),
+        play: (param: Parameters<TimelineState['play']>[0]) => engineRef.current?.play({...(param as any)}),
+        pause: engineRef.current?.pause.bind(engineRef.current),
+        setScrollLeft: (val: number) => {
+          return engineRef.current?.setScrollLeft(val);
+        },
+        setScrollTop: (val: number) => {
+          if (scrollSync.current) {
+            scrollSync.current?.setState({scrollTop: Math.max(val, 0)});
           }
-        }), [engineRef?.current, duration],
+        },
+        tracks,
+        setTracks,
+        get duration() {
+          return engineRef.current?.duration;
+        }
+      }), [engineRef?.current, duration],
     );
 
     window.end = () => {
@@ -377,7 +377,6 @@ const TimelineControl = React.forwardRef(
           element={gridRef}
           type='horizontal'
           adjustScale={(value) => {
-            console.log(value);
             const newScaleWidth = getInitialScaleWidth(startLeft, minScaleCount, areaRef.current.clientWidth - value);
             props.setScaleWidth(newScaleWidth);
             return true;
