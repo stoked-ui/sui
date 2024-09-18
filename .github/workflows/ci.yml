@@ -57,6 +57,7 @@ jobs:
           path: /home/runner/work/mono/mono/docs/export
   deploy:
     if: ${{ always() && (github.head_ref || github.ref_name) == 'main' }}
+    needs: test-dev
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
