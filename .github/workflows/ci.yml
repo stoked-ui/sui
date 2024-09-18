@@ -74,3 +74,4 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.PROD_SYNC_AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: 'us-west-1'   # optional: defaults to us-east-1
           SOURCE_DIR: /home/runner/work/mono/mono/docs/export     # optional: defaults to entire repository
+          DEST_DIR: v2
