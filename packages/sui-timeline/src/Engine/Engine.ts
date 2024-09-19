@@ -59,6 +59,10 @@ export default class Engine extends Emitter<EventTypes> implements IEngine {
     return this._screener;
   }
 
+  get actions() {
+    return this._actionMap;
+  }
+
   set action(action: ITimelineAction) {
     this._actionMap[action.id] = action;
     const track = this._actionTrackMap[action.id];
@@ -502,19 +506,6 @@ export default class Engine extends Emitter<EventTypes> implements IEngine {
         action.controller.stop({action, time: this.getTime(), engine: this});
       }
     }
-
-    /*
-    this._activeIds.forEach((v, actionId) => {
-      const action = this._actionMap[actionId];
-      if (action) {
-        const controller = action.controller;
-        if (type === 'start' && controller?.start) {
-          controller.start({action, time: this.getTime(), engine: this});
-        } else if (type === 'stop' && controller?.stop) {
-          controller.stop({action, time: this.getTime(), engine: this});
-        }
-      }
-    }); */
   }
 
   /** Execute every frame */

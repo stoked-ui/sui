@@ -78,7 +78,9 @@ const FileDropzone = React.forwardRef(function FileDropzone(inProps: FileDropzon
   });
 
   return (
-      <Root {...rootProps} />
+    <Root {...rootProps} >
+      drag and drop files here
+    </Root>
   );
 }) as FileDropzoneComponent;
 

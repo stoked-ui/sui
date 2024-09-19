@@ -3,6 +3,7 @@ import {SxProps, Theme} from "@mui/material/styles";
 import {SlotComponentProps} from "@mui/material";
 import {CSSProperties} from "@mui/system/CSSProperties";
 import {MediaFile} from "@stoked-ui/media-selector";
+import {FileBase, FileBaseFromMediaFile} from '@stoked-ui/file-explorer';
 import {TimelineActionClasses} from "./timelineActionClasses";
 import {DragLineData} from "../TimelineTrackArea/TimelineTrackAreaDragLines";
 import {CommonProps} from '../interface/common_prop';
@@ -89,6 +90,8 @@ export interface ITimelineAction extends Omit<ITimelineActionInput, 'id' | 'star
   controller: IController;
 
   frameSyncId?: number;
+
+  translate?: {x?: number, y?: number};
 }
 
 export type ITimelineActionLayer = 'background' | 'foreground';
@@ -148,4 +151,8 @@ export interface TimelineActionProps
   getActionRender?: (action: ITimelineAction, track: ITimelineTrack) => React.ReactNode;
 }
 
-export interface TimelineActionOwnerState extends Omit<TimelineActionProps, 'action' | 'onKeyDown' | 'style'>, ITimelineAction  {}
+export interface TimelineActionOwnerState extends Omit<TimelineActionProps, 'action' | 'onKeyDown' | 'style' | 'translate'>, ITimelineAction  {}
+
+export function FilesFromActions(actions: ITimelineAction[] = []): FileBase[] {
+  return actions.map((action) => FileBaseFromMediaFile(action.file));
+}
