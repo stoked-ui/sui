@@ -139,10 +139,10 @@ const FileExplorer = React.forwardRef(function FileExplorer<
       </FileWrapped>
     );
   };
+  if (!props.items?.length && props.dropzone) {
+    return <FileDropzone />;
+  }
   const getContent = () => {
-    if (!props.items?.length) {
-      return <FileDropzone />;
-    }
     if (!props.grid) {
       return (
         <Root {...rootProps} sx={props.sx}>
@@ -231,6 +231,12 @@ FileExplorer.propTypes = {
   dndFileTypes: PropTypes.arrayOf(PropTypes.string),
   dndInternal: PropTypes.oneOf([true]),
   dndTrash: PropTypes.oneOf([true]),
+
+  /**
+   * If `true` creates a dropzone when no files exist
+   * @default false
+   */
+  dropzone: PropTypes.bool,
   /**
    * Expanded item ids.
    * Used when the item's expansion is controlled.
@@ -404,6 +410,8 @@ FileExplorer.propTypes = {
     PropTypes.func,
     PropTypes.object,
   ]),
+
+  trash: PropTypes.bool,
 };
 
 export { FileExplorer };

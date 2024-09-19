@@ -75,8 +75,13 @@ const Action = styled('div', {
     borderTop: `1px solid ${theme.palette.action.hover}`,
     borderBottom: `1px solid ${theme.palette.action.hover}`,
     userSelect: 'none',
+    justifyContent: 'end',
+    display: 'flex',
     '&:hover': {
       backgroundColor:   `${emphasize(color, 0.15)}`,
+      '& .label': {
+        opacity: '1',
+      }
     },
     variants: [{
       props: {
@@ -92,6 +97,9 @@ const Action = styled('div', {
   };
 });
 
+const sizerColor = (theme) => alpha(theme.palette.background.default, .6);
+const sizerHoverColor = (theme) => alpha(theme.palette.background.default, .9)
+
 const LeftStretch = styled('div')(({ theme }) => ({
   position: 'absolute',
   top: 0,
@@ -102,7 +110,7 @@ const LeftStretch = styled('div')(({ theme }) => ({
   left: 0,
   '&:hover': {
     '&::after': {
-      borderLeftColor: theme.palette.text.primary,
+      borderLeftColor: sizerHoverColor(theme),
     }
   },
   '&::after': {
@@ -115,7 +123,7 @@ const LeftStretch = styled('div')(({ theme }) => ({
     borderBottom: '28px solid transparent',
     left: 0,
     content: "''",
-    borderLeft: `7px solid ${theme.palette.action.disabled}`,
+    borderLeft: `7px solid ${sizerColor(theme)}`,
     borderRight: '7px solid transparent',
   },
 }));
@@ -130,7 +138,7 @@ const RightStretch = styled('div')(({ theme }) => ({
   right: 0,
   '&:hover': {
     '&::after': {
-      borderRightColor: theme.palette.text.primary,
+      borderRightColor: sizerHoverColor(theme),
     }
   },
   '&::after': {
@@ -138,13 +146,13 @@ const RightStretch = styled('div')(({ theme }) => ({
     top: 0,
     bottom: 0,
     margin: 'auto',
-    bordeRadius: '4px',
+    borderRadius: '4px',
     borderTop: '28px solid transparent',
     borderBottom: '28px solid transparent',
     right: 0,
     content: "''",
     borderLeft: '7px solid transparent',
-    borderRight: `7px solid ${theme.palette.action.disabled}`,
+    borderRight: `7px solid ${sizerColor(theme)}`,
   },
 }));
 
@@ -161,6 +169,9 @@ const ActionLabel = styled('div', {
 
   const bgColor = alpha(theme.palette.background.default, theme.palette.action.focusOpacity * 4);
   return {
+    '& p': {
+      color: theme.palette.background.default,
+    },
     padding: '3px 6px',
     display: 'flex',
     width: 'min-content',
@@ -168,7 +179,10 @@ const ActionLabel = styled('div', {
     background: bgColor,
     position: 'sticky',
     right: 0,
-    alignSelf: 'end'
+    marginRight: '8px',
+    alignSelf: 'center',
+    opacity: '0',
+    transition: 'opacity .3s ease-in-out'
   }
 });
 
@@ -460,10 +474,14 @@ function TimelineAction(props: TimelineActionProps) {
       deltaScrollLeft={deltaScrollLeft}
     >
       <Action
-        size={action.file?.duration ? action.file.duration * scaleWidth : undefined}
+        size={action?.duration ? action.duration * scaleWidth : undefined}
         id={action.id}
         onKeyDown={(event: any) => {
           event.currentTarget = action;
+          console.log('event.key', event.key)
+          if (event.key === 'Delete') {
+            console.log('Delete key pressed');
+          }
           action.onKeyDown(event, action.id);
           event.preventDefault();
         }}
@@ -527,7 +545,7 @@ function TimelineAction(props: TimelineActionProps) {
         }}
         color={`${action?.controller?.color}`}
       >
-        <ActionLabel color={`${controllers?.controller?.color}`}>
+        <ActionLabel className={'label'} color={`${controllers?.controller?.color}`}>
           <Typography variant="body2" color="text.primary" sx={(theme) => ({
             color: `${theme.palette.mode === 'light' ? '#000' : '#FFF'}`, fontWeight: '500',
           })}>

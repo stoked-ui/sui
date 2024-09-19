@@ -482,6 +482,7 @@ const ExtensionMimeTypeMap = new Map([
   ['lnk', 'application/x-ms-shortcut'],
   ['log', 'text/plain'],
   ['lostxml', 'application/lost+xml'],
+  ['lottie', 'application/vnd.lottie+json'],
   ['lrf', 'application/octet-stream'],
   ['lrm', 'application/vnd.ms-lrm'],
   ['ltf', 'application/vnd.frogans.ltf'],

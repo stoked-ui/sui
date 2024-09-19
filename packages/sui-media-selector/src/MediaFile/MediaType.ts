@@ -13,6 +13,7 @@ const  MimeMediaWildcardMap: Map<MimeType | `${string}*` | '*' | 'folder', strin
   ['folder',                                                                  'folder'],
   ['application/json',                                                        'json'],
   ['text/*',                                                                  'text'],
+  ['application/vnd.lottie+json',                                             'lottie'],
   ['*',                                                                       'file'],
 ]);
 

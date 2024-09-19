@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {getTrackController, IController, ITimelineTrack} from "@stoked-ui/timeline";
+import {getTrackController, IController, ITimelineTrack, TimelineState} from "@stoked-ui/timeline";
 import composeClasses from "@mui/utils/composeClasses";
 import {emphasize, styled, useThemeProps, alpha} from '@mui/material/styles';
 import {useSlotProps} from "@mui/base/utils";
@@ -53,7 +53,6 @@ const EditorLabelsRoot = styled('div', {
   display: 'flex',
   flexDirection: 'column',
   marginTop: '42px',
-  height: '258px',
   flex: '0 1 auto',
   overflow: 'overlay',
 }));
@@ -147,7 +146,9 @@ const EditorLabelText = styled('div', {
   slot: 'label',
   overridesResolver: (props, styles) => styles.icon,
 })(({ theme }) => ({
-  color: theme.palette.text.primary,
+  '& span': {
+    color: theme.palette.background.default,
+  },
   height: '28px',
   display: 'flex',
   alignItems: 'center',
@@ -165,7 +166,8 @@ const EditorLabel = React.forwardRef(
       tracks: ITimelineTrack[],
       classes: EditorLabelsClasses,
       controller?: IController,
-      setTracks: (updatedTracks: ITimelineTrack[]) => void
+      setTracks: (updatedTracks: ITimelineTrack[]) => void,
+      timelineState: React.RefObject<TimelineState>
     },
     ref: React.Ref<HTMLDivElement>
   ): React.JSX.Element {
@@ -274,10 +276,12 @@ const EditorLabels = React.forwardRef(
             key={track.id}
             controller={controller}
             setTracks={inProps.setTracks}
+            timelineState={timelineState}
           />
         })}
-        <Box sx={(theme) => ({ display: 'flex', height: 18, background: alpha(theme.palette.background.default, .4)})} >
-          <Typography variant='caption' sx={(theme) => ({ textTransform: 'uppercase', padding: '0 6px', color: `${alpha(theme.palette.text.primary,.2)}`})}>Duration: {timelineState.current?.duration}</Typography></Box>
+        {/* <Box sx={(theme) => ({ display: 'flex', height: 18, background: alpha(theme.palette.background.default, .4)})} >
+          <Typography variant='caption' sx={(theme) => ({ textTransform: 'uppercase', padding: '0 6px', color: `${alpha(theme.palette.text.primary,.2)}`})}>Duration: {timelineState.current?.engine.duration}</Typography>
+        </Box> */}
       </Root>
     )
   })

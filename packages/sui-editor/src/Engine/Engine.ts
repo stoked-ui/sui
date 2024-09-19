@@ -54,6 +54,10 @@ export default class Engine extends Emitter<EventTypes> implements IEngine {
     return this._screener;
   }
 
+  get actions() {
+    return this._actionMap;
+  }
+
   set action(action: ITimelineAction) {
     this._actionMap[action.id] = action;
     const track = this._actionTrackMap[action.id];
@@ -562,7 +566,6 @@ export default class Engine extends Emitter<EventTypes> implements IEngine {
     this._dealEnter(time);
     this._dealLeave(time);
 
-    // this._renderCtx!.clearRect(0, 0, this.renderWidth, this.renderHeight)
     // render
     const renderPass: string[] = [];
     // eslint-disable-next-line no-restricted-syntax
@@ -633,17 +636,21 @@ export default class Engine extends Emitter<EventTypes> implements IEngine {
   /** Handle action time leave */
   protected _dealLeave(time: number) {
     this._activeIds.forEach((value, key) => {
+
       const action = this._actionMap[key];
+      // const track = this._actionTrackMap[action.id];
 
-      // Not within the playback area
-      if (action.start > time || action.end < time) {
-        const controller = this._controllers[action.controllerName];
+      if (action) {
+        // Not within the playback area or hidden
+        if (action.start > time || action.end < time) {
+          const controller = this._controllers[action.controllerName];
 
-        if (controller && controller?.leave) {
-          controller.leave({action, time: this.getTime(), engine: this});
+          if (controller && controller?.leave) {
+            controller.leave({action, time: this.getTime(), engine: this});
+          }
+
+          this._activeIds.delete(key);
         }
-
-        this._activeIds.delete(key);
       }
     });
   }

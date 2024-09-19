@@ -16,6 +16,8 @@ import {FileBase} from '@stoked-ui/file-explorer';
 import {Button} from "@mui/material";
 import {createUseThemeProps, styled} from '../internals/zero-styled';
 import {EditorControlsProps} from './EditorControls.types';
+import TimelineView from '../icons/TimelineView';
+import SvgIcon from "@mui/material/SvgIcon";
 
 export const Rates = [0.2, 0.5, 1.0, 1.5, 2.0];
 const useThemeProps = createUseThemeProps('MuiEditor');
@@ -35,6 +37,38 @@ const useUtilityClasses = <R extends FileBase, Multiple extends boolean | undefi
 };
 */
 
+const ViewGroup = styled(ToggleButtonGroup)(({ theme }) => ({
+  background: 'unset!important',
+  backgroundColor: 'unset!important',
+  border: 'unset!important',
+  '&:hover': {
+    background: 'unset!important',
+    backgroundColor: 'unset!important',
+    border: 'unset!important',
+    '& svg': {
+      strokeWidth: '20px',
+      '&:hover': {
+        strokeWidth: '40px'
+      }
+    }
+  },
+  '& button': {
+    background: 'unset!important',
+    backgroundColor: 'unset!important',
+    border: 'unset!important',
+    '&:hover': {
+      background: 'unset!important',
+      backgroundColor: 'unset!important',
+      border: 'unset!important',
+
+    }
+  }
+}))
+
+const ViewButton = styled(ToggleButton)(({ theme }) => ({
+  background: 'unset',
+  backgroundColor: 'unset'
+}))
 
 const PlayerRoot = styled('div')(({ theme }) => ({
   height: '42px',
@@ -278,7 +312,7 @@ export const EditorControls = React.forwardRef(function EditorControls<
 >({ scale = 1, scaleWidth = 160, startLeft = 20, ...inProps }: EditorControlsProps<R, Multiple>, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
 
   const props = useThemeProps({ props: inProps, name: 'MuiEditorControls' });
-  const { engineRef, autoScroll = true } = props;
+  const { engineRef, autoScroll = true, viewRef } = props;
   const [isPlaying, setIsPlaying] = React.useState(false);
   const [time, setTime] = React.useState(0);
   const [showRate, setShowRate] = React.useState(true);
@@ -348,6 +382,8 @@ export const EditorControls = React.forwardRef(function EditorControls<
     return (videoURLs?.length || 0) > 0
   }
 
+  const [view, setView] = React.useState(viewRef.current);
+
   const controlProps = { engineRef, setVideoURLs, isPlaying, setIsPlaying };
   return (
     <PlayerRoot className="timeline-player" ref={ref}>
@@ -356,6 +392,39 @@ export const EditorControls = React.forwardRef(function EditorControls<
         {hasDownload() && <Button onClick={() => download()} variant={'text'}>Download</Button>}
       </div>
       <div style={{display: 'flex', flexDirection: 'row'}}>
+        <ViewGroup
+          sx={(theme) => ({
+            backgroundColor: theme.palette.mode === 'light' ? '#FFF' : '#000',
+            '& .MuiButtonBase-root': {
+              backgroundColor: 'transparent',
+              color: theme.palette.text.primary,
+              '&:hover': {
+                color: theme.palette.primary.main,
+                backgroundColor: theme.palette.background.default,
+                border: `1px solid ${theme.palette.text.primary}`,
+              },
+            }
+          })}
+          value={view}
+          exclusive
+          onChange={(event, newView) => {
+            viewRef.current = newView as 'timeline' | 'files';
+            setView(newView)
+          }}
+          size={'small'}
+          aria-label="text alignment"
+        >
+          <ViewButton value="files" aria-label="lock">
+            <SvgIcon>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="46.057 64.188 404.091 497.187" width="404.091" height="497.187">
+                <path d="M 409.103 64.188 L 197.159 64.188 C 174.513 64.188 156.111 82.603 156.111 105.232 L 156.111 119.2 L 142.132 119.2 C 119.502 119.2 101.068 137.598 101.068 160.243 L 101.068 174.259 L 87.121 174.259 C 64.491 174.259 46.057 192.677 46.057 215.304 L 46.057 520.326 C 46.057 542.955 64.492 561.375 87.121 561.375 L 299.05 561.375 C 321.696 561.375 340.11 542.955 340.11 520.326 L 340.11 506.347 L 354.078 506.347 C 376.708 506.347 395.137 487.93 395.137 465.284 L 395.137 451.323 L 409.105 451.323 C 431.735 451.323 450.148 432.904 450.148 410.274 L 450.148 105.232 C 450.146 82.603 431.733 64.188 409.103 64.188 Z M 307.34 520.326 C 307.34 524.895 303.613 528.604 299.05 528.604 L 87.121 528.604 C 82.554 528.604 78.827 524.895 78.827 520.326 L 78.827 215.303 C 78.827 210.739 82.554 207.028 87.121 207.028 L 299.05 207.028 C 303.614 207.028 307.34 210.739 307.34 215.303 L 307.34 520.326 Z M 362.35 465.284 C 362.35 469.868 358.645 473.579 354.077 473.579 L 340.109 473.579 L 340.109 215.303 C 340.109 192.676 321.696 174.258 299.049 174.258 L 133.837 174.258 L 133.837 160.243 C 133.837 155.659 137.564 151.954 142.132 151.954 L 354.077 151.954 C 358.645 151.954 362.35 155.659 362.35 160.243 L 362.35 465.284 Z M 417.377 410.274 C 417.377 414.841 413.672 418.547 409.104 418.547 L 395.136 418.547 L 395.136 160.243 C 395.136 137.597 376.707 119.2 354.077 119.2 L 188.863 119.2 L 188.863 105.232 C 188.863 100.665 192.59 96.96 197.159 96.96 L 409.103 96.96 C 413.671 96.96 417.376 100.665 417.376 105.232 L 417.376 410.274 L 417.377 410.274 Z M 137.35 292.584 L 222.587 292.584 C 231.629 292.584 238.985 285.25 238.985 276.191 C 238.985 267.14 231.629 259.815 222.587 259.815 L 137.35 259.815 C 128.314 259.815 120.956 267.14 120.956 276.191 C 120.957 285.251 128.314 292.584 137.35 292.584 Z M 248.816 325.393 L 137.35 325.393 C 128.314 325.393 120.956 332.729 120.956 341.784 C 120.956 350.838 128.313 358.163 137.35 358.163 L 248.816 358.163 C 257.874 358.163 265.193 350.838 265.193 341.784 C 265.193 332.729 257.874 325.393 248.816 325.393 Z M 248.816 390.963 L 137.35 390.963 C 128.314 390.963 120.956 398.282 120.956 407.34 C 120.956 416.393 128.313 423.717 137.35 423.717 L 248.81 423.717 C 257.868 423.717 265.187 416.393 265.187 407.34 C 265.193 398.283 257.874 390.963 248.816 390.963 Z M 248.816 456.52 L 137.35 456.52 C 128.314 456.52 120.956 463.838 120.956 472.895 C 120.956 481.949 128.313 489.289 137.35 489.289 L 248.816 489.289 C 257.874 489.289 265.193 481.949 265.193 472.895 C 265.193 463.838 257.874 456.52 248.816 456.52 Z" fill="currentColor"/>
+              </svg>
+            </SvgIcon>
+          </ViewButton>
+          <ViewButton value="timeline">
+            <TimelineView/>
+          </ViewButton>
+        </ViewGroup>
         <TimeRoot
           variant={'outlined'}
           disabled
