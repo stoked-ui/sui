@@ -1,4 +1,5 @@
 import * as React from 'react';
+import {MediaFile} from '@stoked-ui/media-selector';
 import composeClasses from "@mui/utils/composeClasses";
 import {useSlotProps} from '@mui/base/utils';
 import {emphasize, styled, useThemeProps} from '@mui/material/styles';
@@ -10,12 +11,10 @@ const useUtilityClasses = (
   ownerState: TimelineLabelsProps,
 ) => {
   const { classes } = ownerState;
-
   const slots = {
     root: ['root'],
     label: ['label']
   };
-
   return composeClasses(slots, getTimelineLabelsUtilityClass, classes);
 };
 
@@ -74,6 +73,8 @@ const TimelineLabel = styled('div', {
 const TimelineLabels = React.forwardRef(
   function TimelineLabels(inProps: TimelineLabelsProps, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
     const { tracks, slots, slotProps, sx, timelineState, controllers } = useThemeProps({ props: inProps, name: 'MuiTimelineLabels' });
+    const [selectedFile, setSelectedFile] = React.useState<MediaFile | null>(null);
+    const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
 
     const classes = useUtilityClasses(inProps);
 
@@ -84,6 +85,17 @@ const TimelineLabels = React.forwardRef(
       className: classes.root,
       ownerState: inProps,
     });
+
+
+    const handleItemClick = (file: MediaFile, event: React.MouseEvent<HTMLElement>) => {
+      setSelectedFile(file);
+      setAnchorEl(event.currentTarget);
+    };
+
+    const handleClose = () => {
+      setAnchorEl(null);
+      setSelectedFile(null);
+    };
 
     return (
       <Root
@@ -97,7 +109,12 @@ const TimelineLabels = React.forwardRef(
         className={`${classes.root} timeline-list`}>
         {tracks?.map((item) => {
           return (
-            <TimelineLabel key={item.id} className={classes.label} color={getTrackColor(item, controllers)}>
+            <TimelineLabel
+              key={item.id}
+              className={classes.label}
+              onClick={(e) => item.actions.length ? handleItemClick( item.actions[0].file, e) : undefined }
+              color={getTrackColor(item, controllers)}
+            >
               <div>{item.name}</div>
             </TimelineLabel>
           );
