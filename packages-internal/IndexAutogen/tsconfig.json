@@ -1,0 +1,23 @@
+{
+  "extends": "../../tsconfig.x.json",
+  "compilerOptions": {
+    "target": "ES2015",
+    "types": [
+      "@stoked-ui/internal-test-utils/initMatchers",
+      "@mui/material/themeCssVarsAugmentation",
+      "chai-dom",
+      "mocha",
+      "node"
+    ],
+    "importHelpers": true,
+    "jsx": "react",
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "baseUrl": "./",
+    "strict": false,
+    "noImplicitAny": false,
+    "allowSyntheticDefaultImports": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["**/*.test.tsx"]
+}

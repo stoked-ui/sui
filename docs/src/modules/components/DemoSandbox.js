@@ -141,9 +141,7 @@ DemoIframe.propTypes = {
 // Use the default Stoked UI theme for the demos
 function getTheme(outerTheme) {
   const brandingDesignTokens = getDesignTokens(outerTheme.palette.mode);
-  const isCustomized =
-    outerTheme.palette.primary?.main &&
-    outerTheme.palette.primary.main !== brandingDesignTokens.palette.primary.main;
+  const isCustomized = outerTheme.palette.primary?.main && outerTheme.palette.primary.main !== brandingDesignTokens.palette.primary.main;
   const resultTheme = createTheme(
     {
       palette: {

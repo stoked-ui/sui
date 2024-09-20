@@ -10,6 +10,8 @@ export function createRender(context: {
   toc: TableOfContentsEntry[];
   userLanguage: string;
   ignoreLanguagePages: (path: string) => boolean;
+  location: any;
+  options: any;
 }): (markdown: string) => string;
 
 export function getHeaders(markdown: string): Record<string, string | string[]>;

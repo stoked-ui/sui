@@ -1,0 +1,42 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+  <!-- Unique identifier of the plugin. It should be FQN. It cannot be changed between the plugin versions. -->
+  <id>com.stokedui.indexautogen</id>
+
+  <!-- Public plugin name should be written in Title Case.
+       Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-name -->
+  <name>IndexAutogen</name>
+
+  <!-- A displayed Vendor name or Organization ID displayed on the Plugins Page. -->
+  <vendor email="IndexAutogen@stokedui.com" url="https://stokedui.com">Stoked UI</vendor>
+
+  <!-- Description of the plugin displayed on the Plugin Page and IDE Plugin Manager.
+       Simple HTML elements (text formatting, paragraphs, and lists) can be added inside of <![CDATA[ ]]> tag.
+       Guidelines: https://plugins.jetbrains.com/docs/marketplace/plugin-overview-page.html#plugin-description -->
+  <description><![CDATA[
+    A plugin to automatically generate and keep index.ts files up to date on typescript libraries.<br><br>
+    This plugin was generated via a <b>Chat GPT</b> prompt, therefore I feel obligated to state for the record, that "I for one support our new robot overlords!".
+  ]]></description>
+
+  <!-- Product and plugin compatibility requirements.
+       Read more: https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html -->
+  <depends>com.intellij.modules.platform</depends>
+
+  <!-- Extension points defined by the plugin.
+       Read more: https://plugins.jetbrains.com/docs/intellij/plugin-extension-points.html -->
+  <extensions defaultExtensionNs="com.intellij">
+
+  </extensions>
+
+  <applicationListeners>
+    <listener class="com.stokedui.indexautogen.IndexAutogenListener"
+              topic="com.intellij.openapi.fileEditor.FileDocumentManagerListener"/>
+  </applicationListeners>
+
+  <actions>
+    <action id="IndexAutogen.EnableAction" class="com.stokedui.indexautogen.IndexAutogenAction"
+            text="Enable IndexAutogen for Directory" description="Enable IndexAutogen on this directory">
+      <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+    </action>
+  </actions>
+</idea-plugin>

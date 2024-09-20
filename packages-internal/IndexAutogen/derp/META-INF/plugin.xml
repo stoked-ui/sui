@@ -1,0 +1,24 @@
+<idea-plugin>
+  <id>com.stoked-ui.index-autogen</id>
+  <name>Index Autogen</name>
+  <version>1.0</version>
+  <vendor email="index-autogen@stokedui.com" url="https://stokedui.com">Index Autogen</vendor>
+
+  <description>
+    Automatically generates and updates index.ts files in selected directories on file save.
+  </description>
+
+  <depends>com.intellij.modules.platform</depends>
+
+  <applicationListeners>
+    <listener class="com.stoked-ui.index-autogen.IndexAutogenListener"
+              topic="com.intellij.openapi.fileEditor.FileDocumentManagerListener"/>
+  </applicationListeners>
+
+  <actions>
+    <action id="IndexAutogen.EnableAction" class="com.stokedui.index-autogen.IndexAutogenAction"
+            text="Enable IndexAutogen for Directory" description="Enable IndexAutogen on this directory">
+      <add-to-group group-id="ProjectViewPopupMenu" anchor="last"/>
+    </action>
+  </actions>
+</idea-plugin>

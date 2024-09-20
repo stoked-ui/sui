@@ -165,7 +165,7 @@ export const warning = {
   900: 'hsl(36, 100%, 18%)',
 };
 
-const systemFont = [
+const systemFont: Array<any> = [
   '-apple-system',
   'BlinkMacSystemFont',
   '"Segoe UI"',
@@ -187,7 +187,7 @@ export const getMetaThemeColor = (mode: 'light' | 'dark') => {
 };
 
 export const getDesignTokens = (mode: 'light' | 'dark') =>
-  ({
+  (({
     palette: {
       primary: {
         ...blue,
@@ -263,10 +263,13 @@ export const getDesignTokens = (mode: 'light' | 'dark') =>
             : `linear-gradient(to bottom right, ${alpha(blue[900], 0.1)} 25%, ${alpha(blueDark[800], 0.2)} 100%)`,
       },
     },
+
     shape: {
       borderRadius: 12,
     },
+
     spacing: 8,
+
     typography: {
       fontFamily: ['"IBM Plex Sans"', ...systemFont].join(','),
       // Match VS Code
@@ -354,6 +357,7 @@ export const getDesignTokens = (mode: 'light' | 'dark') =>
         scrollMarginTop: 'calc(var(--MuiDocs-header-height) + 32px)',
       },
     },
+
     /**
      * This utility exists to help transitioning to CSS variables page by page (prevent dark mode
      * flicker). It will use the proper styling method based on the theme because the component
@@ -411,8 +415,8 @@ export const getDesignTokens = (mode: 'light' | 'dark') =>
      */
     applyDarkStyles(css: Parameters<ApplyDarkStyles>[0]) {
       return (this as Theme).applyStyles('dark', css);
-    },
-  }) as ThemeOptions;
+    }
+  }) as ThemeOptions);
 
 export function getThemedComponents(): ThemeOptions {
   return {

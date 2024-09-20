@@ -307,9 +307,9 @@ const EditorLabels = React.forwardRef(
             controller={controller}
             setTracks={inProps.setTracks}
             timelineState={timelineState}
-            onClick={(e) => track.actions.length && track.actions[0].file ? handleItemClick( track.actions[0].file, e) : undefined }/>
+            onClick={(e: Event) => track.actions.length && track.actions[0].file ? handleItemClick( track.actions[0].file, e as unknown as React.MouseEvent<HTMLElement>) : undefined }/>
         })}
-        {selectedFile && (
+        {(selectedFile && anchorEl) && (
           <FileDetail
             file={selectedFile}
             anchorEl={anchorEl}
