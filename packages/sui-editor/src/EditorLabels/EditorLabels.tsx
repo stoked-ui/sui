@@ -150,7 +150,7 @@ const EditorLabelText = styled('div', {
   overridesResolver: (props, styles) => styles.icon,
 })(({ theme }) => ({
   '& span': {
-    color: theme.palette.background.default,
+    color: theme.palette.text.primary,
   },
   height: '28px',
   display: 'flex',
@@ -307,9 +307,9 @@ const EditorLabels = React.forwardRef(
             controller={controller}
             setTracks={inProps.setTracks}
             timelineState={timelineState}
-            onClick={(e) => track.actions.length && track.actions[0].file ? handleItemClick( track.actions[0].file, e) : undefined }/>
+            onClick={(e) => track.actions.length && track.actions[0].file ? handleItemClick( track.actions[0].file, e as unknown as React.MouseEvent<HTMLElement>) : undefined }/>
         })}
-        {selectedFile && (
+        {(selectedFile && anchorEl) && (
           <FileDetail
             file={selectedFile}
             anchorEl={anchorEl}

@@ -217,7 +217,7 @@ const Editor = React.forwardRef(function Editor<
           viewRef={viewRef}
         />
       }
-      {startIt &&
+      {(viewRef.current === 'timeline' && startIt) &&
         <TimelineSlot
           role={'timeline'}
           {...timelineProps}
@@ -233,7 +233,7 @@ const Editor = React.forwardRef(function Editor<
           engineRef={engineRef}
         />
       }
-      {playerFiles.length && <BottomLeft
+      {(viewRef.current === 'files' && playerFiles?.length) && <BottomLeft
         grid
         role={'file-explorer'}
         id={'editor-file-explorer'}

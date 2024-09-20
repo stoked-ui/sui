@@ -170,7 +170,7 @@ const ActionLabel = styled('div', {
   const bgColor = alpha(theme.palette.background.default, theme.palette.action.focusOpacity * 4);
   return {
     '& p': {
-      color: theme.palette.background.default,
+      color: theme.palette.text.primary,
     },
     padding: '3px 6px',
     display: 'flex',

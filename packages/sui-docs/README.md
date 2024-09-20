@@ -15,13 +15,13 @@ This component has the following peer dependencies that you will need to install
 
 ```json
 "peerDependencies": {
-  "@mui/base": "*",
-  "@mui/icons-material": "^5.0.0",
-  "@mui/material": "^5.0.0",
-  "@mui/system": "^5.0.0",
-  "@types/react": "^18.3.1",
-  "next": "^13.5.1 || ^14",
-  "react": "18.3.1"
+"@mui/base": "*",
+"@mui/icons-material": "^5.0.0",
+"@mui/material": "^5.0.0",
+"@mui/system": "^5.0.0",
+"@types/react": "^18.3.1",
+"next": "^13.5.1 || ^14",
+"react": "18.3.1"
 },
 ```
 
