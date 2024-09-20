@@ -623,7 +623,10 @@ export default class Engine extends Emitter<EventTypes> implements IEngine {
         if (action.end > time && !this._activeIds.has(actionId)) {
           const controller = action.controller;
           if (controller && controller?.enter) {
-            controller.enter({action, time: this.getTime(), engine: this});
+            const track = this._actionTrackMap[actionId];
+            if (!track || !track.hidden) {
+              controller.enter({action, time: this.getTime(), engine: this});
+            }
           }
 
           this._activeIds.set(actionId, action.z);

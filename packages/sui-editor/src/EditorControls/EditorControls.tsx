@@ -381,8 +381,12 @@ export const EditorControls = React.forwardRef(function EditorControls<
   const hasDownload = () => {
     return (videoURLs?.length || 0) > 0
   }
+  const [view, setView] = React.useState(viewRef?.current);
 
-  const [view, setView] = React.useState(viewRef.current);
+  React.useEffect(() => {
+    setView(viewRef.current);
+  }, [viewRef.current])
+
 
   const controlProps = { engineRef, setVideoURLs, isPlaying, setIsPlaying };
   return (
