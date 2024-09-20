@@ -1,9 +1,11 @@
 import * as React from 'react';
-import {getTrackController, IController, ITimelineTrack} from "@stoked-ui/timeline";
+import { MediaFile } from '@stoked-ui/media-selector';
+import { FileDetail } from '@stoked-ui/file-explorer'; // The popover component
+import {getTrackController, IController, ITimelineTrack, TimelineState} from "@stoked-ui/timeline";
 import composeClasses from "@mui/utils/composeClasses";
 import {emphasize, styled, useThemeProps, alpha} from '@mui/material/styles';
 import {useSlotProps} from "@mui/base/utils";
-import {Box, Typography} from "@mui/material";
+import {Typography} from "@mui/material";
 import ToggleButton from "@mui/material/ToggleButton";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
@@ -12,6 +14,7 @@ import LockOpenIcon from '@mui/icons-material/LockOpen';
 import LockIcon from '@mui/icons-material/Lock';
 import {EditorLabelsProps} from './EditorLabels.types';
 import {EditorLabelsClasses, getEditorLabelsUtilityClass} from "./editorLabelsClasses";
+
 
 const useUtilityClasses = (
   ownerState: EditorLabelsProps,
@@ -53,7 +56,6 @@ const EditorLabelsRoot = styled('div', {
   display: 'flex',
   flexDirection: 'column',
   marginTop: '42px',
-  height: '258px',
   flex: '0 1 auto',
   overflow: 'overlay',
 }));
@@ -147,7 +149,9 @@ const EditorLabelText = styled('div', {
   slot: 'label',
   overridesResolver: (props, styles) => styles.icon,
 })(({ theme }) => ({
-  color: theme.palette.text.primary,
+  '& span': {
+    color: theme.palette.text.primary,
+  },
   height: '28px',
   display: 'flex',
   alignItems: 'center',
@@ -165,19 +169,34 @@ const EditorLabel = React.forwardRef(
       tracks: ITimelineTrack[],
       classes: EditorLabelsClasses,
       controller?: IController,
-      setTracks: (updatedTracks: ITimelineTrack[]) => void
+      setTracks: (updatedTracks: ITimelineTrack[]) => void,
+      timelineState: React.RefObject<TimelineState>,
+      onClick: (event: Event) => void,
     },
     ref: React.Ref<HTMLDivElement>
   ): React.JSX.Element {
     const { track, tracks, classes, controller } = inProps;
-    const visibilityIcon = track.hidden ? <VisibilityOffIcon fontSize={'small'}/> : <VisibilityIcon fontSize={'small'}/>;
-
+    const visibilityIcon = track.hidden ? <VisibilityOffIcon fontSize={'small'} /> : <VisibilityIcon fontSize={'small'} />;
     const lockIcon = track.lock ? <LockIcon fontSize={'small'}/> : <LockOpenIcon fontSize={'small'}/>;
+    const [selectedFile, setSelectedFile] = React.useState<MediaFile | null>(null);
+    const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
+
+    const handleItemClick = (file: MediaFile, event: React.MouseEvent<HTMLElement>) => {
+      setSelectedFile(file);
+      setAnchorEl(event.currentTarget);
+    }
+
+    const handleClose = () => {
+      setAnchorEl(null);
+      setSelectedFile(null);
+    }
 
     return (
       <EditorLabelRoot key={track.id} className={classes.label} ref={ref}>
         <EditorLabelContainer color={controller?.color!} lock={track.lock} hidden={!!track.hidden} selected={!!track.selected}>
-          <EditorLabelText><Typography variant="button" color="text.secondary" >{track.name}</Typography></EditorLabelText>
+          <EditorLabelText onClick={(e) => track.actions && track.actions[0].file ? handleItemClick(track.actions[0].file, e) : undefined}>
+            <Typography variant="button" color="text.secondary" >{track.name}</Typography>
+          </EditorLabelText>
           <ToggleButtonGroupStyled
             exclusive
             aria-label="text alignment"
@@ -186,7 +205,8 @@ const EditorLabel = React.forwardRef(
               id={`${track.id}-hidden`}
               value={track.hidden ?? false}
               onChange={(e, ) => {
-                const currentTrackIndex = tracks.findIndex((currTrack) => currTrack.id === e.currentTarget.id.replace('-hidden', ''))
+                const currentTrackIndex = tracks.findIndex((currTrack) =>
+                  currTrack.id === e.currentTarget.id.replace('-hidden', ''))
                 if (currentTrackIndex === -1) {
                   return
                 }
@@ -242,6 +262,8 @@ const EditorLabel = React.forwardRef(
 const EditorLabels = React.forwardRef(
   function EditorLabels(inProps: EditorLabelsProps, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
     const { tracks, slots, sx, timelineState, controllers } = useThemeProps({ props: inProps, name: 'MuiEditorLabels' });
+    const [selectedFile, setSelectedFile] = React.useState<MediaFile | null>(null);
+    const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
 
     const classes = useUtilityClasses(inProps);
 
@@ -254,6 +276,16 @@ const EditorLabels = React.forwardRef(
       className: classes.root,
       ownerState: inProps,
     });
+
+    const handleItemClick = (file: MediaFile, event: React.MouseEvent<HTMLElement>) => {
+      setSelectedFile(file);
+      setAnchorEl(event.currentTarget);
+    };
+
+    const handleClose = () => {
+      setAnchorEl(null);
+      setSelectedFile(null);
+    };
 
     return (
       <Root
@@ -274,10 +306,19 @@ const EditorLabels = React.forwardRef(
             key={track.id}
             controller={controller}
             setTracks={inProps.setTracks}
-          />
+            timelineState={timelineState}
+            onClick={(e) => track.actions.length && track.actions[0].file ? handleItemClick( track.actions[0].file, e as unknown as React.MouseEvent<HTMLElement>) : undefined }/>
         })}
-        <Box sx={(theme) => ({ display: 'flex', height: 18, background: alpha(theme.palette.background.default, .4)})} >
-          <Typography variant='caption' sx={(theme) => ({ textTransform: 'uppercase', padding: '0 6px', color: `${alpha(theme.palette.text.primary,.2)}`})}>Duration: {timelineState.current?.duration}</Typography></Box>
+        {(selectedFile && anchorEl) && (
+          <FileDetail
+            file={selectedFile}
+            anchorEl={anchorEl}
+            onClose={handleClose}
+          />
+        )}
+        {/* <Box sx={(theme) => ({ display: 'flex', height: 18, background: alpha(theme.palette.background.default, .4)})} >
+          <Typography variant='caption' sx={(theme) => ({ textTransform: 'uppercase', padding: '0 6px', color: `${alpha(theme.palette.text.primary,.2)}`})}>Duration: {timelineState.current?.engine.duration}</Typography>
+        </Box> */}
       </Root>
     )
   })

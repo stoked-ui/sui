@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 export default function Docs() {
   const router = useRouter();
   React.useEffect(() => {
-    router.push('./stoked-ui/docs/overview');
+    router.push('./docs-lib/docs/overview');
   }, []);
   return null;
 }

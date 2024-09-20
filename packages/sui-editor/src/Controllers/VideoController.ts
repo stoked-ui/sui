@@ -107,11 +107,6 @@ class VideoControl extends Controller {
     item.currentTime += 0.0001;
   };
 
-  removeCanvasSync(engine: IEngine, item: HTMLVideoElement) {
-
-  }
-
-
   isVideoPlaying(video: HTMLVideoElement) {
     return !!(video.currentTime > 0 && !video.paused && !video.ended && video.readyState > 2);
   }
@@ -128,7 +123,7 @@ class VideoControl extends Controller {
       this.canvasSync(engine, item, action);
       if (engine.isPlaying) {
         item = this.cacheMap[action.id];
-        item.play();
+        item.currentTime += 0.0001;
       }
     } else if (!action.hidden && engine.renderer){
       this.preload({engine, action})
@@ -136,10 +131,12 @@ class VideoControl extends Controller {
           item = (loadedAction as ITimelineAction).element as HTMLVideoElement;
           this.canvasSync(engine, (loadedAction as ITimelineAction).element, action)
           if (engine.isPlaying) {
-            item.play();
+            item.currentTime += 0.0001;
           }
         })
     }
+
+
 
   }
 

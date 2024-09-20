@@ -8,10 +8,12 @@ import FolderRounded from '@mui/icons-material/FolderRounded';
 import ImageIcon from '@mui/icons-material/Image';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import ArticleIcon from '@mui/icons-material/Article';
-import VideoCameraBackIcon from '@mui/icons-material/VideoCameraBack';
+import VideoFile from '@mui/icons-material/VideoFile';
+import AudioFile from '@mui/icons-material/AudioFile';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Box from '@mui/material/Box';
+import LottieIcon from '../icons/LottieIcon';
 import { MediaType, namedId } from '@stoked-ui/media-selector'
 import {FileLabel} from './FileLabel';
 import {createUseThemeProps} from '../internals/zero-styled';
@@ -139,8 +141,12 @@ export const File = React.forwardRef(function File(
         return PictureAsPdfIcon;
       case 'doc':
         return ArticleIcon;
+      case 'lottie':
+        return LottieIcon;
+      case 'audio':
+        return AudioFile;
       case 'video':
-        return VideoCameraBackIcon;
+        return VideoFile;
       case 'folder':
         return FolderRounded;
       case 'pinned':
