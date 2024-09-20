@@ -1,26 +1,32 @@
-# SUI X FileExplorer View
+# Stoked UI - Editor
 
-This package is the Community plan edition of the FileExplorer View components.
-It's part of [SUI X](https://stoked-ui.github.io/x/), an open-core extension of SUI Core, with advanced components.
+This package contains Stoked UI's Editor components.
+It's part of [Stoked UI](https://stoked-ui.com/stoked-ui/docs), an open-sourced advanced media component library.
 
 ## Installation
 
 Install the package in your project directory with:
 
 ```bash
-npm install @stoked-ui/file-explorer
+npm install @stoked-ui/editor
 ```
 
 This component has the following peer dependencies that you will need to install as well.
 
 ```json
 "peerDependencies": {
-  "@mui/material": "^5.15.14",
-  "react": "^17.0.0 || ^18.0.0",
+  "@emotion/react": "^11.9.0",
+  "@emotion/styled": "^11.8.1",
+  "@mui/icons-material": "^5.15.21",
+  "@mui/material": "^5.15.21",
+  "@stoked-ui/file-explorer": "workspace:^",
+  "@stoked-ui/media-selector": "workspace:^",
+  "@stoked-ui/timeline": "workspace:^",
+  "react": "18.3.1",
   "react-dom": "^17.0.0 || ^18.0.0"
 },
 ```
 
 ## Documentation
 
-Visit [https://stoked-ui.github.io/x/react-fileExplorer-view/](https://stoked-ui.github.io/x/react-fileExplorer-view/) to view the full documentation.
+Visit [https://stoked-ui.com/editor/docs](https://stoked-ui.com/editor/docs/) to view the full documentation.

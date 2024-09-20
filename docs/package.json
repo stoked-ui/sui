@@ -19,7 +19,7 @@
     "deploy": "git push -f material-ui-docs master:latest",
     "icons": "rimraf --glob public/static/icons/* && node ./scripts/buildIcons.js",
     "start": "next start",
-    "serve": "serve ../../stokedconsulting.com/ -l 3010",
+    "serve": "serve ../../stoked-ui-docs/ -l 3010",
     "create-playground": "cpy --cwd=scripts playground.template.tsx ../../pages/playground --rename=index.tsx",
     "typescript": "tsc -p tsconfig.json && tsc -p scripts/tsconfig.json",
     "typescript:transpile": "echo 'Use `pnpm docs:typescript:formatted'` instead && exit 1",

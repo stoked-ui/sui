@@ -4,7 +4,7 @@ import {FileBase, FileExplorer} from '@stoked-ui/file-explorer';
 import {useSlotProps} from '@mui/base/utils';
 import composeClasses from '@mui/utils/composeClasses';
 import Stack from '@mui/material/Stack';
-import {Timeline, type TimelineState} from '@stoked-ui/timeline';
+import {Timeline, type TimelineState, FilesFromActions} from '@stoked-ui/timeline';
 import {createUseThemeProps, styled} from '../internals/zero-styled';
 import {useEditor} from '../internals/useEditor';
 import {EditorProps} from './Editor.types';
@@ -155,6 +155,7 @@ const Editor = React.forwardRef(function Editor<
   const engineRef = React.useRef<Engine>(new Engine({id, controllers: Controllers}));
   const [scaleWidth, setScaleWidth] = React.useState(160);
   const viewerRef = React.useRef<HTMLDivElement>(null);
+  const viewRef = React.useRef<'timeline' | 'files'>('timeline');
 
   const setScaleWidthProxy = (val: number) => {
     setScaleWidth(val);
@@ -192,6 +193,18 @@ const Editor = React.forwardRef(function Editor<
     }
   }, [viewerRef.current]);
 
+  const [playerFiles, setPlayerFiles] = React.useState<FileBase[]>([])
+  React.useEffect(() => {
+    const actions = engineRef.current?.actions ? Object.values(engineRef.current?.actions) : undefined;
+    if (!playerFiles.length && actions?.length) {
+      const files = FilesFromActions(actions) as FileBase[];
+      const tracks = {
+        id: 'tracks', label: 'Tracks', expanded: true, selected: true, type: 'folder', children: files,
+      } as FileBase
+      setPlayerFiles([tracks]);
+    }
+  }, [engineRef.current?.actions])
+
   return (<Root role={'editor'} {...rootProps} >
       <EditorViewSlot {...editorViewProps} ref={viewerRef} engineRef={engineRef}/>
       {startIt &&
@@ -201,9 +214,10 @@ const Editor = React.forwardRef(function Editor<
           engineRef={engineRef}
           scaleWidth={scaleWidth}
           setScaleWidth={setScaleWidthProxy}
+          viewRef={viewRef}
         />
       }
-      {startIt &&
+      {(viewRef.current === 'timeline' && startIt) &&
         <TimelineSlot
           role={'timeline'}
           {...timelineProps}
@@ -219,10 +233,17 @@ const Editor = React.forwardRef(function Editor<
           engineRef={engineRef}
         />
       }
-      <Stack direction="row" spacing={2}>
-        <BottomLeft role={'explorer-left'} {...bottomLeftProps} />
-        <BottomRight role={'explorer-right'} {...bottomRightProps} />
-      </Stack>
+      {(viewRef.current === 'files' && playerFiles?.length) && <BottomLeft
+        grid
+        role={'file-explorer'}
+        id={'editor-file-explorer'}
+        {...bottomLeftProps}
+        items={playerFiles}
+        dndInternal
+        dndExternal
+        alternatingRows
+        defaultExpandedItems={['tracks']}
+      /> }
     </Root>);
 });
 
@@ -271,3 +292,7 @@ Editor.propTypes = {
 };
 
 export { Editor };
+    function namedId(arg0: string) {
+        throw new Error('Function not implemented.');
+    }
+

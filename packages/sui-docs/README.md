@@ -1,22 +1,30 @@
-# @mui/docs
+# Stoked UI - Docs
 
-This package hosts the documentation building blocks.
+This package contains Stoked UI's Docs components.
+It's part of [Stoked UI](https://stoked-ui.com/stoked-ui/docs), an open-sourced advanced media component library.
 
 ## Installation
 
 Install the package in your project directory with:
 
 ```bash
-npm install @mui/docs
+npm install @stoked-ui/docs
 ```
 
-The docs has a peer dependency on the core components.
-If you are not already using Material UI in your project, you can add it with:
+This component has the following peer dependencies that you will need to install as well.
 
-```bash
-npm install @mui/material
+```json
+"peerDependencies": {
+"@mui/base": "*",
+"@mui/icons-material": "^5.0.0",
+"@mui/material": "^5.0.0",
+"@mui/system": "^5.0.0",
+"@types/react": "^18.3.1",
+"next": "^13.5.1 || ^14",
+"react": "18.3.1"
+},
 ```
 
 ## Documentation
 
-We have no documentation for these components.
+Visit [https://stoked-ui.com/docs-lib/docs](https://stoked-ui.com/docs-lib/docs/) to view the full documentation.

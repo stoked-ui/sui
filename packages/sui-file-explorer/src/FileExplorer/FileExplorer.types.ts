@@ -59,6 +59,8 @@ export interface FileExplorerPropsBase extends React.HTMLAttributes<HTMLUListEle
    * The system prop that allows defining system overrides as well as additional CSS styles.
    */
   sx?: SxProps<Theme>;
+
+  dropzone?: boolean;
 }
 
 export interface FileExplorerProps<R extends FileBase, Multiple extends boolean | undefined>

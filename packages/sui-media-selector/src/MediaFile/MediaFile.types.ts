@@ -20,6 +20,9 @@ export interface IMediaFile extends File, IMediaDirectory {
   readonly blob: Blob;
   _url?: string;
   readonly url: string;
+  readonly lastModified: number;
+  readonly name: string;
+  readonly webkitRelativePath: string;
 }
 
 export const FILES_TO_IGNORE = [

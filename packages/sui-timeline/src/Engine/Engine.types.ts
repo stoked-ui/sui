@@ -30,6 +30,7 @@ export interface IEngine extends IEmitter<EventTypes> {
   readonly renderHeight: number;
   buildTracks: (controllers: Record<string, IController>, actionData: ITimelineActionInput[]) => Promise<ITimelineTrack[]>
   action: ITimelineAction | undefined;
+  readonly actions: Record<string, ITimelineAction>;
 
   setScrollLeft(left: number): void;
   /** Set playback rate */
