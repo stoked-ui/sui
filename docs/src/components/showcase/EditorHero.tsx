@@ -4,6 +4,7 @@ import { cloneDeep } from 'lodash';
 import Fade from "@mui/material/Fade";
 import {Card} from "@mui/material";
 import {alpha} from "@mui/material/styles";
+import {SxProps} from "@mui/system";
 
 export const scaleWidth = 160;
 export const scale = 2;
@@ -38,20 +39,22 @@ export const actions = [
     end: 5,
     controllerName: 'animation',
     src: '/static/timeline/docs/overview/stolen-cow.lottie',
+    style: { width: '1920px', height: '1080px' },
+    x: '50%'
   },
   {
     name: 'music',
     start: 0,
     end: 20,
     controllerName: 'audio',
-    src: '/static/timeline/docs/overview/funeral.m4a',
+    src: 'https://adam-rodgers.s3.amazonaws.com/stoked-studio/funeral.mp3',
   },
 
 ];
 
 const defaultEditorData = cloneDeep(actions);
 
-export default function EditorHero() {
+export default function EditorHero(props: { id: string, sx?: SxProps}) {
   const [data, ] = React.useState(defaultEditorData);
   return (
     <Fade in timeout={700}>
@@ -68,7 +71,7 @@ export default function EditorHero() {
           boxShadow: (theme) => `0px 4px 8px ${alpha(theme.palette.grey[200], 0.6)}`,
         }}
       >
-        <Editor id='video-editor-test' sx={{ borderRadius: '12px 12px 0 0' }} actionData={data} />
+        <Editor id={props.id ? props.id : 'video-editor-test'} sx={props.sx ? props.sx : { borderRadius: '12px 12px 0 0' }} actionData={data} />
       </Card>
     </Fade>
   );

@@ -119,6 +119,7 @@ function TimelineTime(props: TimeAreaProps) {
     resizeObserver.observe(grid);
 
     return () => {
+      console.log('unobserve')
       resizeObserver.unobserve(grid);
     };
   }, []);

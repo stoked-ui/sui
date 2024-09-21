@@ -44,31 +44,21 @@ class AnimationControl implements Controller {
     item.goToAndStop(time);
   }
 
-  static draw(engine: IEngine, action: ITimelineAction) {
-    if (engine.renderCtx && engine.stage && engine.renderer) {
-      const stagedElements = Array.from(engine.stage.getElementsByTagName(action.id));
-      const svg = stagedElements.find((el) => el.id === action.id) as SVGElement | undefined;
-      if (svg) {
-        const image = new Image();
-        image.src = `data:image/svg+xml;base64,${window.btoa(svg.innerHTML)}`;
-        engine.renderCtx.drawImage(image, 0, 0, image.clientWidth, image.clientHeight )
-      }
-    }
-  }
-
   enter(params: ControllerParams) {
     const { action, engine, time } = params;
     let item: AnimationItem;
     if (this.cacheMap[action.id]) {
       item = this.cacheMap[action.id];
-      // item.show();
       this._goToAndStop(item, time - action.start);
     } else if (engine.viewer && engine.renderCtx && engine.renderer) {
       item = AnimationFile.load({ id: action.id, src: action.src, renderCtx: engine.renderCtx, mode: 'canvas', className: 'lottie-canvas' });
 
-      item.addEventListener('loaded_images', (event) => {
-        item.goToAndStop( time - action.start);
+      item.addEventListener('data_ready', (event) => {
+        if (time === 0) {
+          item.goToAndStop(Controller.getActionTime(0.1, action));
+        }
       });
+
       this.cacheMap[action.id] = item;
     }
   }
@@ -80,9 +70,8 @@ class AnimationControl implements Controller {
       return;
     }
     if (time > action.end || time < action.start) {
-
+      return;
     } else {
-//      console.log(action.name, time);
       this._goToAndStop(item, time - action.start);
     }
   }
@@ -94,7 +83,7 @@ class AnimationControl implements Controller {
       return;
     }
     if (time > action.end || time < action.start) {
-
+      return;
     } else {
       const cur = time - action.start;
       this._goToAndStop(item, cur);

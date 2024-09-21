@@ -31,6 +31,10 @@ const EditorViewRoot = styled('div', {
   position: 'relative',
   overflow: 'hidden',
   aspectRatio: 16 / 9,
+  '& .lottie-canvas': {
+    width: '1920px!important',
+    height: '1080px!important'
+  }
 }));
 
 const Renderer = styled('canvas', {
@@ -82,16 +86,15 @@ const Stage = styled('div', {
   name: "MuiEditorViewStage",
   slot: "stage"
 })(() => ({
-  display: 'flex',
+  display: 'none',
   flexDirection: 'column',
-  width: '100%',
+  width: 'fit-content',
   position: 'absolute',
   left: 0,
   overflow: 'hidden',
   aspectRatio: 16 / 9,
   vIndex: 100,
   // opacity: .2,
-  right: '-2000px'
 
   /*   background: `repeating-linear-gradient(
    45deg,
@@ -166,7 +169,6 @@ export const EditorView = React.forwardRef(function EditorView<
     }
   })
 
-
   const { slots, slotProps } = props;
   const classes = useUtilityClasses(props);
 
@@ -199,10 +201,10 @@ export const EditorView = React.forwardRef(function EditorView<
   }, [viewerRef]);
 
   return (
-    <Root role={'viewer'} {...rootProps} ref={combinedViewRef} data-preserve-aspect-ratio >
-      <Renderer role={'renderer'} ref={rendererRef} data-preserve-aspect-ratio/>
-      <Screener role={'screener'} ref={screenerRef}/>
-      <Stage role={'stage'} ref={stageRef}/>
+    <Root role={'viewer'} {...rootProps} ref={combinedViewRef} data-preserve-aspect-ratio>
+      <Renderer role={'renderer'} ref={rendererRef} data-preserve-aspect-ratio />
+      <Screener role={'screener'} ref={screenerRef} />
+      <Stage role={'stage'} ref={stageRef} />
     </Root>
   )
 })
