@@ -197,6 +197,7 @@ export default withDocsInfra({
                       env: {
                         SOURCE_CODE_REPO: options.config.env.SOURCE_CODE_REPO,
                         LIB_VERSION: options.config.env.LIB_VERSION,
+                        PROD_DISPLAY: process.env.PROD_DISPLAY
                       },
                     },
                   },

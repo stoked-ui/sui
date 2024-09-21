@@ -64,6 +64,14 @@ export interface ITimelineAction extends Omit<ITimelineActionInput, 'id' | 'star
   /** z index */
   z: number;
 
+  x: number;
+
+  y: number;
+
+  width: number;
+
+  height: number;
+
   /** Minimum start time limit for actions */
   minStart?: number;
   /** Maximum end time limit of action */
