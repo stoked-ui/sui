@@ -97,8 +97,8 @@ const Action = styled('div', {
   };
 });
 
-const sizerColor = (theme) => alpha(theme.palette.background.default, .6);
-const sizerHoverColor = (theme) => alpha(theme.palette.background.default, .9)
+const sizerColor = (theme) => alpha(theme.palette.text.primary, .2);
+const sizerHoverColor = (theme) => alpha(theme.palette.text.primary, .9)
 
 const LeftStretch = styled('div')(({ theme }) => ({
   position: 'absolute',

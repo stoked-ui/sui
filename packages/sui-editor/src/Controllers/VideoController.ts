@@ -30,38 +30,23 @@ class VideoControl extends Controller {
         item.addEventListener('loadedmetadata', () => {
           action.duration = item.duration;
           action.element = item;
-          document.body?.appendChild(item);
-          resolve(action);
         });
+        item.addEventListener('canplay', () => {
+          item.width = engine.renderWidth;
+          item.height = engine.renderHeight;
+          engine.stage?.appendChild(item);
+          resolve(action);
+        })
         item.autoplay = false;
         item.loop = true;
         item.muted = true;
-        item.width = engine.renderWidth;
-        item.height = engine.renderHeight;
-        item.style.display = 'none';
-        item.style.width = '25%';
-        item.style.top = '0px';
-        item.style.left = '0px';
+        item.style.display = 'flex';
         item.src = action.src;
 
       } catch (ex) {
         reject(ex);
       }
     })
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  private _goToAndStop(item: HTMLVideoElement, time: number) {
-    if (Number.isNaN(time)) {
-      return;
-    }
-    const duration = item.duration * 1000;
-    time *= 1000;
-    if (time > duration) {
-      time %= duration;
-    }
-    item.currentTime = time / 1000;
-    item.pause();
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -92,9 +77,13 @@ class VideoControl extends Controller {
       if (startTime === 0.0) {
         startTime = now;
       }
+      if (engine.renderWidth && engine.renderHeight) {
+        item.width = engine.renderWidth;
+        item.height = engine.renderHeight;
+      }
 
-      renderCtx.drawImage(item, 0, 0, engine.renderWidth, engine.renderHeight);
-
+      renderCtx.clearRect(0, 0, engine.renderWidth, engine.renderHeight); // Clear before drawing the new frame
+      renderCtx.drawImage(item, 0, 0, engine.renderWidth, engine.renderHeight); // Draw full size video
       // const elapsed = (now - startTime) / 1000.0;
       // const fps = (++paintCount / elapsed).toFixed(3);
       // fpsInfo.innerText = !isFinite(fps) ? 0 : fps;
@@ -104,7 +93,6 @@ class VideoControl extends Controller {
     };
 
     action.frameSyncId = item.requestVideoFrameCallback(updateCanvas);
-    item.currentTime += 0.0001;
   };
 
   isVideoPlaying(video: HTMLVideoElement) {
@@ -129,21 +117,9 @@ class VideoControl extends Controller {
       this.preload({engine, action})
         .then((loadedAction) => {
           item = (loadedAction as ITimelineAction).element as HTMLVideoElement;
-          this.canvasSync(engine, (loadedAction as ITimelineAction).element, action)
-          if (engine.isPlaying) {
-            item.currentTime += 0.0001;
-          }
-        })
+          this.canvasSync(engine, (loadedAction as ITimelineAction).element, action);
+        });
     }
-
-
-
-  }
-
-  getActionTime(time: number, action: ITimelineAction) {
-    const startDelta = time - action.start;
-    const durationAdjusted = action.duration ? startDelta % action.duration : startDelta;;
-    return durationAdjusted;
   }
 
   start(params: ControllerParams) {
@@ -162,8 +138,12 @@ class VideoControl extends Controller {
   }
 
   update(params: ControllerParams) {
-    /* const { action, time, engine } = params;
-    console.log('video update', time)
+    const { action } = params;
+    const item = this.cacheMap[action.id];
+    if (item.currentTime === 0) {
+      item.currentTime += 0.0001;
+    }
+    /*console.log('video update', time)
     const item = this.cacheMap[action.id];
     if (!item) {
       return;

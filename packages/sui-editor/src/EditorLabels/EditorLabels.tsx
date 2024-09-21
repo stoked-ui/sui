@@ -139,7 +139,7 @@ const EditorLabelContainer = styled('div', {
   },{
     props: { selected: false },
     style: {
-      background: `linear-gradient(to right, ${emphasize(theme.palette.background.default, 0.12)}, 0%, ${alpha(color, .8)}, 70%, ${alpha(color, theme.palette.action.focusOpacity)})`,
+      background: `linear-gradient(to right,${alpha(color, (theme.palette.mode === 'dark' ? .8 : .62))}, 70%, ${alpha(color, theme.palette.action.focusOpacity)})`,
     }
   }]
 }));

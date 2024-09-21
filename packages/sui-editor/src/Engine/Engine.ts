@@ -261,14 +261,11 @@ export default class Engine extends Emitter<EventTypes> implements IEngine {
       if (actionData) {
         const actions = actionData.map((actionInput, index) => {
           const action = actionInput as ITimelineAction;
-          // console.log('actionInput.src 1', actionInput.src)
           action.src = action.src.indexOf('http') !== -1 ? action!.src : `${window.location.href}${action!.src}`;
-          // console.log('actionInput.src 2', actionInput.src)
           action.src = action.src.replace(/([^:]\/)\/+/g, "$1");
-          // console.log('actionInput.src 3', actionInput.src)
           if (!action.name) {
-            const fullName = getFileName(action.src, true);
-            const name = getFileName(action.src);
+            const fullName = getFileName(action.src);
+            const name = getFileName(action.src, false);
             if (!name || !fullName) {
               throw new Error('no action name available');
             }
@@ -276,7 +273,7 @@ export default class Engine extends Emitter<EventTypes> implements IEngine {
             action.fullName = fullName;
           } else {
             action.fullName = getFileName(action.name, true)!;
-            action.name = getFileName(action.name)!;
+            action.name = getFileName(action.name, false)!;
           }
 
           action.controller = controllers[action.controllerName];
@@ -300,12 +297,13 @@ export default class Engine extends Emitter<EventTypes> implements IEngine {
         const filePromises = loadedActions.map((action) => MediaFile.fromAction(action as any));
         const mediaFiles = await Promise.all(filePromises);
         const tracks = mediaFiles.map((file) => {
-          const loadedAction = actionData.find((a) => a!.src === file.url);
+          const loadedAction = loadedActions.find((a) => a!.src === file.url);
+          console.log('loadedAction', loadedAction)
           if (!loadedAction) {
             throw new Error(`Action input not found for file ${JSON.stringify(actionData, null, 2)} - ${file.url}`);
           }
           const action = {
-            ...loadedAction, file, name: file.name, src: loadedAction.src, id: loadedAction.id,
+            ...loadedAction, file, src: loadedAction.src, id: loadedAction.id,
           } as ITimelineAction
           const trackGenId = namedId('track')
           return {
@@ -492,28 +490,15 @@ export default class Engine extends Emitter<EventTypes> implements IEngine {
       return;
     }
     // eslint-disable-next-line no-restricted-syntax
-    for (const key of this._activeIds.keys()) {
+    this._activeIds.forEach((key, ) => {
       const action = this._actionMap[key];
-
-      if (type === 'start' && action?.controller?.start) {
+      const track = this._actionTrackMap[action.id];
+      if (type === 'start' && action?.controller?.start && !track.hidden) {
         action.controller.start({action, time: this.getTime(), engine: this});
-      } else if (type === 'stop' && action?.controller?.stop) {
+      } else if (type === 'stop' && action?.controller?.stop && !track.hidden) {
         action.controller.stop({action, time: this.getTime(), engine: this});
       }
-    }
-
-    /*
-    this._activeIds.forEach((v, actionId) => {
-      const action = this._actionMap[actionId];
-      if (action) {
-        const controller = action.controller;
-        if (type === 'start' && controller?.start) {
-          controller.start({action, time: this.getTime(), engine: this});
-        } else if (type === 'stop' && controller?.stop) {
-          controller.stop({action, time: this.getTime(), engine: this});
-        }
-      }
-    }); */
+    });
   }
 
   /** Execute every frame */
@@ -563,13 +548,14 @@ export default class Engine extends Emitter<EventTypes> implements IEngine {
     if (!this._verifyLoaded() || !this._renderCtx) {
       return;
     }
+
     this._dealEnter(time);
     this._dealLeave(time);
 
     // render
     const renderPass: string[] = [];
     // eslint-disable-next-line no-restricted-syntax
-    for (const key of this._activeIds.keys()) {
+    this._activeIds.forEach((key, value) => {
       const action = this._actionMap[key];
       renderPass.push(`${action.z}:${action.controllerName}:${action.name}`)
       if (action.controller && action.controller?.update) {
@@ -577,8 +563,8 @@ export default class Engine extends Emitter<EventTypes> implements IEngine {
         const actionTrack = {...action, hidden: track.hidden, lock: track.lock };
         action.controller.update({action: actionTrack, time: this.getTime(), engine: this});
       }
-    }
-    // console.log(renderPass.join(' => '));
+    });
+    console.log(renderPass.join(' => '));
   }
 
   setScrollLeft(left: number) {
@@ -589,8 +575,8 @@ export default class Engine extends Emitter<EventTypes> implements IEngine {
   protected _dealClear() {
     while (this._activeIds.size > 0) {
       const minKey = this._activeIds.minKey(); // Get the smallest entry in the BTree
-      if (minKey) {
-        const action = this._actionMap[minKey];
+      if (minKey !== undefined) {
+        const action = Object.values(this._actionMap)[minKey];
         // console.log(`Deleting Key: ${minKey}, Value: ${action}`);
         this._activeIds.delete(minKey); // Delete the current smallest key
 
@@ -619,17 +605,15 @@ export default class Engine extends Emitter<EventTypes> implements IEngine {
         if (action.start > time) {
           break;
         }
+        const track = this._actionTrackMap[actionId];
         // The action can be executed and started
-        if (action.end > time && !this._activeIds.has(actionId)) {
+        if (action.end > time && !this._activeIds.has(actionId) && !track.hidden) {
           const controller = action.controller;
           if (controller && controller?.enter) {
-            const track = this._actionTrackMap[actionId];
-            if (!track || !track.hidden) {
-              controller.enter({action, time: this.getTime(), engine: this});
-            }
+            controller.enter({action, time: this.getTime(), engine: this});
           }
 
-          this._activeIds.set(actionId, action.z);
+          this._activeIds.set(action.z, actionId);
         }
       }
       this._next += 1;
@@ -638,14 +622,15 @@ export default class Engine extends Emitter<EventTypes> implements IEngine {
 
   /** Handle action time leave */
   protected _dealLeave(time: number) {
-    this._activeIds.forEach((value, key) => {
+    this._activeIds.forEach(( key, value) => {
 
       const action = this._actionMap[key];
-      // const track = this._actionTrackMap[action.id];
 
       if (action) {
+        const track = this._actionTrackMap[action.id];
+
         // Not within the playback area or hidden
-        if (action.start > time || action.end < time) {
+        if (action.start > time || action.end < time || track.hidden) {
           const controller = this._controllers[action.controllerName];
 
           if (controller && controller?.leave) {

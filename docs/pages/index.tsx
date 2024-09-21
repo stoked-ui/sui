@@ -61,9 +61,10 @@ export function HomeView({ HomeMain}: { HomeMain: React.ComponentType }){
     <AppFooter/>
   </BrandingCssVarsProvider>;
 }
+
 let MainView:  React.ComponentType<{}> = function MainView() {
-  if (process.env.NODE_ENV !== 'production') {
-    return <EditorHero id={'editor'} grid sx={{ width: '750px' }} />
+  if (process.env.NODE_ENV !== 'production' && process.env.PROD_DISPLAY) {
+    return <EditorHero id={'editor'} sx={{ width: '750px' }} />
   }
   return (
     <React.Fragment>
