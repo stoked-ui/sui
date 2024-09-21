@@ -155,7 +155,6 @@ const Editor = React.forwardRef(function Editor<
   const engineRef = React.useRef<Engine>(new Engine({id, controllers: Controllers}));
   const [scaleWidth, setScaleWidth] = React.useState(160);
   const viewerRef = React.useRef<HTMLDivElement>(null);
-  const viewRef = React.useRef<'timeline' | 'files'>('timeline');
 
   const setScaleWidthProxy = (val: number) => {
     setScaleWidth(val);
@@ -205,19 +204,22 @@ const Editor = React.forwardRef(function Editor<
     }
   }, [engineRef.current?.actions])
 
+  const [view, setView] = React.useState<'timeline' | 'files'>('timeline')
+
   return (<Root role={'editor'} {...rootProps} >
       <EditorViewSlot {...editorViewProps} ref={viewerRef} engineRef={engineRef}/>
       {startIt &&
        <ControlsSlot
           role={'controls'}
           {...videoControlsProps}
+          view={view}
+          setView={setView}
           engineRef={engineRef}
           scaleWidth={scaleWidth}
           setScaleWidth={setScaleWidthProxy}
-          viewRef={viewRef}
         />
       }
-      {(viewRef.current === 'timeline' && startIt) &&
+      {(view === 'timeline' && startIt) &&
         <TimelineSlot
           role={'timeline'}
           {...timelineProps}
@@ -233,7 +235,7 @@ const Editor = React.forwardRef(function Editor<
           engineRef={engineRef}
         />
       }
-      {(viewRef.current === 'files' && playerFiles?.length) && <BottomLeft
+      {(view === 'files' && playerFiles?.length) && <BottomLeft
         grid
         role={'file-explorer'}
         id={'editor-file-explorer'}

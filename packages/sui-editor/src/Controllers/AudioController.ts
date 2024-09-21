@@ -1,8 +1,7 @@
 import {Howl} from 'howler';
 import { AudioFile } from "@stoked-ui/media-selector";
-import {GetBackgroundImage, ControllerParams, ITimelineAction} from "@stoked-ui/timeline";
+import { Controller, GetBackgroundImage, ControllerParams, ITimelineAction} from "@stoked-ui/timeline";
 import generateWaveformImage from "./AudioImage";
-import { Controller } from "@stoked-ui/timeline";
 
 class AudioControl extends Controller{
   cacheMap: Record<string, Howl> = {};
@@ -26,11 +25,12 @@ class AudioControl extends Controller{
 
   enter(params: ControllerParams) {
     this.start(params);
+    console.log('howl enter')
   }
 
   start(params: ControllerParams) {
     const { action, time, engine } = params;
-
+    console.log('howl start')
     let item: Howl;
     if (this.cacheMap[action.id]) {
       item = this.cacheMap[action.id];

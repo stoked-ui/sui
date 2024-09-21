@@ -47,7 +47,8 @@ export interface EditorControlsPropsBase extends React.HTMLAttributes<HTMLDivEle
   timelineState: React.RefObject<TimelineState>;
   engineRef: React.RefObject<IEngine>;
   autoScroll: boolean;
-  viewRef: React.MutableRefObject<'timeline' | 'files'>;
+  view: 'timeline' | 'files',
+  setView: (newView: 'timeline' | 'files') => void
 }
 
 export interface EditorControlsProps<R extends FileBase, Multiple extends boolean | undefined>

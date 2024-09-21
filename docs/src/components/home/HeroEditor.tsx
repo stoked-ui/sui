@@ -89,7 +89,6 @@ export default function Hero() {
             <div style={{
               fontSize: 'clamp(1.5rem, 0.9643rem + 1.4286vw, 2.25rem)',
               lineHeight: '1.2222222222222223',
-              color: 'hsl(210, 14%, 13%)',
               alignSelf: 'center'
             }}>w/</div>
             <div style={{
