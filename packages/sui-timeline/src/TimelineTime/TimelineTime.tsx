@@ -105,6 +105,7 @@ function TimelineTime(props: TimeAreaProps) {
 
     const resizeObserver = new ResizeObserver(() => {
       const timeUnit = document.querySelector('.timeline-editor-time-unit');
+      console.log('observe')
       if (!timeUnit) {
         return;
       }
