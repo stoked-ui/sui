@@ -1,5 +1,7 @@
 import * as React from 'react';
 import NoSsr from "@mui/material/NoSsr";
+import Box from "@mui/material/Box";
+import Divider from "@mui/material/Divider";
 import { PRODUCTS } from 'docs/src/products';
 import BrandingCssVarsProvider from 'docs/src/BrandingCssVarsProvider';
 import dynamic from 'next/dynamic';
@@ -9,14 +11,12 @@ import NewsletterToast from "../src/components/home/NewsletterToast";
 import AppHeaderBanner from "../src/components/banner/AppHeaderBanner";
 import AppHeader from "../src/layouts/AppHeader";
 import EditorHero from "../src/components/showcase/EditorHero";
-import Box from "@mui/material/Box";
-import Divider from "@mui/material/Divider";
 import Hero from "../src/components/home/HeroEditor";
-
 
 function randomHome(homePages: string[]) {
   return homePages[Math.floor(Math.random()*homePages.length)];
 }
+
 const homeUrl = randomHome(PRODUCTS.pages);
 const RandomHome = dynamic(() => import((`.${homeUrl}main`)), { ssr: false });
 

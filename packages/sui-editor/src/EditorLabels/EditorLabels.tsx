@@ -28,26 +28,7 @@ const useUtilityClasses = (
 
   return composeClasses(slots, getEditorLabelsUtilityClass, classes);
 };
-/*
 
- const useUtilityClasses = <R extends FileBase, Multiple extends boolean | undefined>(
- ownerState: EditorProps<R, Multiple>,
- ) => {
- const { classes } = ownerState;
-
- const slots = {
- root: ['root'],
- viewSpace: ['viewSpace'],
- videoControls: ['videoControls'],
- timeline: ['timeline'],
- bottomLeft: ['bottomLeft'],
- bottomRight: ['bottomRight'],
- };
-
- return composeClasses(slots, getEditorUtilityClass, classes);
- };
-
- */
 const EditorLabelsRoot = styled('div', {
   name: 'MuiEditorLabels',
   slot: 'root',
@@ -59,7 +40,6 @@ const EditorLabelsRoot = styled('div', {
   flex: '0 1 auto',
   overflow: 'overlay',
 }));
-
 
 const EditorLabelRoot = styled('div', {
   name: 'MuiEditorLabel',

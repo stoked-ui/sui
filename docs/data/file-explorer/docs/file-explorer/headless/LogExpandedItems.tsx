@@ -116,7 +116,7 @@ function FileExplorer<R extends {}, Multiple extends boolean | undefined>(
     </FileExplorerProvider>
   );
 }
-useFileExplorerLogExpanded.code = 'log';
+
 export default function LogExpandedItems() {
   const [logs, setLogs] = React.useState<string[]>([]);
 

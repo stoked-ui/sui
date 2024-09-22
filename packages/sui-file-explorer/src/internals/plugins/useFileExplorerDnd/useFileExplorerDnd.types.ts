@@ -1,5 +1,6 @@
 import type {BaseEventPayload, DragLocation} from "@atlaskit/pragmatic-drag-and-drop/types";
 import type {Instruction} from "@atlaskit/pragmatic-drag-and-drop-hitbox/tree-item";
+import { IMediaFile } from "@stoked-ui/media-selector";
 import {FileBase} from '../../../models';
 import {DndState} from '../../models/fileExplorerView';
 import {FileExplorerPluginSignature} from "../../models/plugin.types";
@@ -7,6 +8,7 @@ import {FileExplorerDndContextValue} from "./FileExplorerDndContext";
 import type {
   UseFileExplorerFilesSignature
 } from "../useFileExplorerFiles/useFileExplorerFiles.types";
+
 
 export type DndItemState = {
   dndState: DndState,
@@ -54,7 +56,7 @@ export interface UseFileListItemsInstance {
   dndTrash: () => true | undefined;
   getDndContext: FileExplorerDndContextValue<FileBase>
   dropInternal: (event: BaseEventPayload<ElementDragType>) => void;
-  createChildren: (items: FileBase[], targetId: string | null) => void;
+  createChildren: (files: IMediaFile[], targetId: string | null) => void;
   createChild: (item: FileBase, targetId: string | null) => void;
   removeItem: (itemId: string) => void;
 }
@@ -64,6 +66,7 @@ export interface UseFileExplorerDndParameters {
   dndExternal?: true;
   dndFileTypes?: string[];
   dndTrash?: true;
+  onAddFiles?: (files: IMediaFile[]) => void;
 }
 
 export type UseFileExplorerDndDefaultizedParameters = UseFileExplorerDndParameters;

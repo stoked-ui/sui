@@ -82,7 +82,6 @@ class VideoControl extends Controller {
         item.height = engine.renderHeight;
       }
 
-      renderCtx.clearRect(0, 0, engine.renderWidth, engine.renderHeight); // Clear before drawing the new frame
       renderCtx.drawImage(item, 0, 0, engine.renderWidth, engine.renderHeight); // Draw full size video
       // const elapsed = (now - startTime) / 1000.0;
       // const fps = (++paintCount / elapsed).toFixed(3);
@@ -101,9 +100,10 @@ class VideoControl extends Controller {
 
   enter(params: ControllerParams) {
     const { action, time, engine} = params;
-    console.log('video enter', time)
     let item: HTMLVideoElement;
     if (this.cacheMap[action.id] || action.element) {
+      console.log('video enter cached', time)
+
       if (!this.cacheMap[action.id]) {
         this.cacheMap[action.id] = action.element;
       }
@@ -114,6 +114,7 @@ class VideoControl extends Controller {
         item.currentTime += 0.0001;
       }
     } else if (!action.hidden && engine.renderer){
+      console.log('video enter not cached', time)
       this.preload({engine, action})
         .then((loadedAction) => {
           item = (loadedAction as ITimelineAction).element as HTMLVideoElement;
