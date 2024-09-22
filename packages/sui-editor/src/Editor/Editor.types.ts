@@ -7,6 +7,9 @@ import {FileBase} from '@stoked-ui/file-explorer/models/items';
 import {EditorPluginParameters, EditorPluginSignatures, EditorPluginSlotProps, EditorPluginSlots} from './Editor.plugins';
 import {EditorClasses} from './editorClasses';
 import {EditorExperimentalFeatures, EditorPublicAPI,} from '../internals/models';
+import {
+  FileExplorerProps
+} from "stokedui-com/data/file-explorer/docs/file-explorer/headless/LogExpandedItems";
 
 export interface EditorSlots extends EditorPluginSlots {
   /**
@@ -30,15 +33,10 @@ export interface EditorSlots extends EditorPluginSlots {
    */
   timeline?: React.ElementType;
   /**
-   * Bottom left ui component
+   * FileExplorer View
    * @default FileExplorer
    */
-  bottomLeft?: React.ElementType;
-  /**
-   * Bottom right ui component
-   * @default FileExplorer
-   */
-  bottomRight?: React.ElementType;
+  fileExplorer?: React.ElementType;
 
 }
 
@@ -48,8 +46,7 @@ export interface EditorSlotProps<R extends FileBase, Multiple extends boolean | 
   editorView?: SlotComponentProps<'div', {}, {}>;
   videoControls?: SlotComponentProps<'div', {}, {}>;
   timeline?: SlotComponentProps<'div', {}, {}>;
-  bottomLeft?: SlotComponentProps<'div', {}, {}>;
-  bottomRight?: SlotComponentProps<'div', {}, {}>;
+  fileExplorer?: SlotComponentProps<'ul', {}, {}>;
 }
 
 

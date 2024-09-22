@@ -62,17 +62,18 @@ export default function Hero() {
           <Typography variant="h2" mb={1}>
             Make
           </Typography>
-          <Typography id='text-bg' variant="h1" mb={1} sx={{
+          <Typography id='text-bg' variant="h1" mb={1} sx={(theme) => ({
             backgroundRepeat: 'repeat',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             WebkitFontSmoothing: "antialiased",
             backgroundImage: 'url("/static/images/editor/them-thangs-0.png")',
             backgroundAttachment: 'fixed',
+            filter: theme.palette.mode === 'dark' ? 'invert(100%)' : undefined,
             backgroundPosition: 'center',
             backgroundSize: 'cover',
             lineHeight: '1.17'
-          }}>
+          })}>
              them thangs
           </Typography>
           <Box sx={{
