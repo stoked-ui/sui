@@ -7,8 +7,7 @@ export interface EditorClasses {
   editorView: string;
   videoControls: string;
   timeline: string;
-  bottomLeft: string;
-  bottomRight: string;
+  fileExplorer: string;
 }
 
 export type EditorClassKey = keyof EditorClasses;
@@ -22,6 +21,5 @@ export const editorClasses: EditorClasses = generateUtilityClasses('MuiEditor', 
   'editorView',
   'videoControls',
   'timeline',
-  'bottomLeft',
-  'bottomRight',
+  'fileExplorer',
 ]);
