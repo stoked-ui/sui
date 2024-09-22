@@ -18,7 +18,7 @@ import {
 import {containsFiles} from "@atlaskit/pragmatic-drag-and-drop/external/file";
 import {preventUnhandled} from "@atlaskit/pragmatic-drag-and-drop/prevent-unhandled";
 import type {Instruction} from "@atlaskit/pragmatic-drag-and-drop-hitbox/tree-item";
-import {MediaFile} from "@stoked-ui/media-selector";
+import {IMediaFile, MediaFile} from "@stoked-ui/media-selector";
 import memoizeOne from "memoize-one";
 import {
   triggerPostMoveFlash
@@ -70,6 +70,10 @@ export const useFileExplorerDnd: FileExplorerPlugin<UseFileExplorerDndSignature>
     const reducedState = fileListStateReducer(wrappedState, action);
     instance.updateItems(reducedState.items);
     instance.recalcVisibleIndices(reducedState.items, true, 0)
+    if (params !== undefined && action.type === 'create-children') {
+      const initialFiles = action.items.map((item) => item.file)
+      const files: IMediaFile[] = initialFiles.filter((item) => item !== undefined) as IMediaFile[]
+    }
     return reducedState;
   }
 
@@ -95,8 +99,9 @@ export const useFileExplorerDnd: FileExplorerPlugin<UseFileExplorerDndSignature>
   }, [lastAction, registry]);
 
   const createChildren = React.useCallback(
-    (childItems: FileBase[], targetId: string | null) => {
-      console.log('create-children',childItems);
+    (files: IMediaFile[], targetId: string | null) => {
+      const childItems = files.flat(Infinity).map(file => FileBaseFromMediaFile(file));
+      params.onAddFiles?.(files);
       updateState({
         type: 'create-children',
         items: childItems,
@@ -307,6 +312,7 @@ export const useFileExplorerDnd: FileExplorerPlugin<UseFileExplorerDndSignature>
       } : undefined
     },
     params: {
+      onAddItems: params.onAddFiles,
       dndItems: reducedState.items,
       lastDndAction: reducedState.lastAction,
     }
@@ -328,6 +334,7 @@ useFileExplorerDnd.params = {
   dndExternal: true,
   dndFileTypes: true,
   dndTrash: true,
+  onAddFiles: true,
 };
 
 useFileExplorerDnd.getInitialState = () => ({
@@ -766,7 +773,7 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
     const handleDraggable = draggable({
       element: pluginContentRef.current,
       canDrag: () => true,
-      getInitialData: (data) => {
+      getInitialData: () => {
         const initialData = {
           itemId: props.itemId,
           type: 'file-element',
@@ -925,8 +932,7 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
         }
         const files = await MediaFile.from(dropEvent);
          const {self} = dropEvent;
-         const updated = files.flat(Infinity).map(file => FileBaseFromMediaFile(file));
-         instance.createChildren(updated, self.data.itemId as string);
+         instance.createChildren(files, self.data.itemId as string);
         cancelExpand();
         setState({...state, dndInstruction: null});
       },

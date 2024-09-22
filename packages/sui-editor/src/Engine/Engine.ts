@@ -297,10 +297,9 @@ export default class Engine extends Emitter<EventTypes> implements IEngine {
         const filePromises = loadedActions.map((action) => MediaFile.fromAction(action as any));
         const mediaFiles = await Promise.all(filePromises);
         const tracks = mediaFiles.map((file) => {
-          const loadedAction = loadedActions.find((a) => a!.src === file.url);
-          console.log('loadedAction', loadedAction)
+          const loadedAction = loadedActions.find((a) => a!.id === file.id);
           if (!loadedAction) {
-            throw new Error(`Action input not found for file ${JSON.stringify(actionData, null, 2)} - ${file.url}`);
+            throw new Error(`Action input not found for file ${JSON.stringify(file, null, 2)} - ${file.url}`);
           }
           const action = {
             ...loadedAction, file, src: loadedAction.src, id: loadedAction.id,
@@ -594,6 +593,7 @@ export default class Engine extends Emitter<EventTypes> implements IEngine {
   /** Process action time enter */
   protected _dealEnter(time: number) {
 
+    const active = Array.from(this._activeIds.values())
     // add to active
     while (this._actionSortIds[this._next]) {
       const actionId = this._actionSortIds[this._next];
@@ -607,7 +607,7 @@ export default class Engine extends Emitter<EventTypes> implements IEngine {
         }
         const track = this._actionTrackMap[actionId];
         // The action can be executed and started
-        if (action.end > time && !this._activeIds.has(actionId) && !track.hidden) {
+        if (action.end > time && active.indexOf(actionId) === -1 && !track.hidden) {
           const controller = action.controller;
           if (controller && controller?.enter) {
             controller.enter({action, time: this.getTime(), engine: this});

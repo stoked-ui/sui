@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { IMediaFile } from '@stoked-ui/media-selector';
 import { Theme } from '@mui/material/styles';
 import { SxProps } from '@mui/system';
 import { SlotComponentProps } from '@mui/base/utils';
@@ -61,6 +62,8 @@ export interface FileExplorerPropsBase extends React.HTMLAttributes<HTMLUListEle
   sx?: SxProps<Theme>;
 
   dropzone?: boolean;
+
+  onAddFiles?:  (mediaFile: IMediaFile[]) => void;
 }
 
 export interface FileExplorerProps<R extends FileBase, Multiple extends boolean | undefined>
@@ -77,7 +80,8 @@ export interface FileExplorerProps<R extends FileBase, Multiple extends boolean 
    */
   slotProps?: FileExplorerSlotProps<R, Multiple>;
   /**
-   * The ref object that allows FileExplorer View manipulation. Can be instantiated with `useFileExplorerApiRef()`.
+   * The ref object that allows FileExplorer View manipulation. Can be instantiated with
+   * `useFileExplorerApiRef()`.
    */
   apiRef?: FileExplorerApiRef;
   /**

@@ -65,18 +65,19 @@ export default class MediaFile implements IMediaFile {
   }
 
 
-  constructor(file: MediaFile) {
+  constructor(file: any) {
 
     if (!file) {
       throw new Error('Either file or url must be provided');
     }
 
-    this.id = namedId({id: 'mediaFile', length: 6});
+    this.id = file.id ? file.id : namedId({id: 'mediaFile', length: 6});
     this.lastModified = file.lastModified;
     this.name = file.name;
     this.size = file.size;
     this.type = file.type;
     this.path = file.name;
+    this._url = file.src;
     if ("webkitRelativePath" in file && file.webkitRelativePath.length > 0) {
       this.path = file.webkitRelativePath;
     }
@@ -137,7 +138,7 @@ export default class MediaFile implements IMediaFile {
       });
     }
 
-    return f;
+    return new MediaFile(f);
   }
 
   static async fromAction(action: { id?: string, src: string; }) {
