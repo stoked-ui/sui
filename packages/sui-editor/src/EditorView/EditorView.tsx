@@ -6,6 +6,7 @@ import useForkRef from "@mui/utils/useForkRef";
 import {createUseThemeProps, styled} from '../internals/zero-styled';
 import {EditorViewProps} from './EditorView.types';
 import {getEditorViewUtilityClass} from "./editorViewClasses";
+import {Mode} from "../EditorControls";
 
 const useThemeProps = createUseThemeProps('MuiEditorView');
 
@@ -39,9 +40,10 @@ const EditorViewRoot = styled('div', {
 
 const Renderer = styled('canvas', {
   name: "MuiEditorViewRenderer",
-  slot: "renderer"
-})(() => ({
-  display: 'flex',
+  slot: "renderer",
+  shouldForwardProp: (prop) => prop !== 'mode',
+})<{ mode?: Mode }>(({  mode }) => ({
+  display: mode === 'record' ? 'flex' : 'none',
   flexDirection: 'column',
   position: 'absolute',
   left: 0,
@@ -61,9 +63,10 @@ const Renderer = styled('canvas', {
 
 const Screener = styled('video', {
   name: "MuiEditorViewScreener",
-  slot: "screener"
-})(() => ({
-  display: 'none',
+  slot: "screener",
+  shouldForwardProp: (prop) => prop !== 'mode',
+})<{ mode?: Mode }>(({  mode }) => ({
+  display: mode === 'preview' ? 'flex' : 'none',
   flexDirection: 'column',
   width: '100%',
   position: 'absolute',
@@ -71,22 +74,12 @@ const Screener = styled('video', {
   overflow: 'hidden',
   aspectRatio: 16 / 9,
   zIndex: 50,
-
-  /*   background: `repeating-linear-gradient(
-   45deg,
-   rgba(0, 0, 0, 0.2),
-   rgba(0, 0, 0, 0.2) 10px,
-   rgba(0, 0, 0, 0.3) 10px,
-   rgba(0, 0, 0, 0.3) 20px
-   ),
-   url(http://s3-us-west-2.amazonaws.com/s.cedpn.io/3/old_map_@2X.png)` */
 }));
 
 const Stage = styled('div', {
-  name: "MuiEditorViewStage",
-  slot: "stage"
-})(() => ({
-  display: 'none',
+  shouldForwardProp: (prop) => prop !== 'mode',
+})<{ mode: Mode }>(({  mode }) => ({
+  display: mode === 'edit' ? 'flex' : 'none',
   flexDirection: 'column',
   width: 'fit-content',
   position: 'absolute',
@@ -94,17 +87,8 @@ const Stage = styled('div', {
   overflow: 'hidden',
   aspectRatio: 16 / 9,
   vIndex: 100,
-  // opacity: .2,
-
-  /*   background: `repeating-linear-gradient(
-   45deg,
-   rgba(0, 0, 0, 0.2),
-   rgba(0, 0, 0, 0.2) 10px,
-   rgba(0, 0, 0, 0.3) 10px,
-   rgba(0, 0, 0, 0.3) 20px
-   ),
-   url(http://s3-us-west-2.amazonaws.com/s.cdpn.io/3/old_map_@2X.png)` */
 }));
+
 /**
  *
  * Demos:
@@ -128,6 +112,7 @@ export const EditorView = React.forwardRef(function EditorView<
   const rendererRef = React.useRef<HTMLCanvasElement>(null);
   const screenerRef = React.useRef<HTMLVideoElement>(null);
   const stageRef = React.useRef<HTMLDivElement>(null);
+
 
   React.useEffect(() => {
     if (inProps.engine && viewRef?.current) {
@@ -200,11 +185,13 @@ export const EditorView = React.forwardRef(function EditorView<
     }
   }, [viewerRef]);
 
+  console.log('renderer', inProps.mode)
   return (
     <Root role={'viewer'} {...rootProps} ref={combinedViewRef} data-preserve-aspect-ratio>
-      <Renderer role={'renderer'} ref={rendererRef} data-preserve-aspect-ratio />
-      <Screener role={'screener'} ref={screenerRef} />
-      <Stage role={'stage'} ref={stageRef} />
+
+      <Renderer role={'renderer'} ref={rendererRef} data-preserve-aspect-ratio mode={inProps.mode}/>
+      <Screener role={'screener'} ref={screenerRef} mode={inProps.mode} />
+      <Stage role={'stage'} ref={stageRef} mode={inProps.mode}  />
     </Root>
   )
 })

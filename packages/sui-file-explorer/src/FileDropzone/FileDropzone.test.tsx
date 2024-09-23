@@ -6,7 +6,7 @@ import {
 } from '@stoked-ui/file-explorer/FileDropzone';
 import { describeConformance } from 'test/utils/describeConformance';
 
-describe('<FileDropzone />', () => {
+describe('ee<FileDropzone />', () => {
   const { render } = createRenderer();
 
   describeConformance(<FileDropzone />, () => ({

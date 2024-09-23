@@ -136,12 +136,10 @@ function TimelineTime(props: TimeAreaProps) {
     }
   };
   const estColumnWidth=getColumnWidth({index:1});
-  console.log('estColumnWidth', estColumnWidth)
   return (
     <TimeAreaRoot ref={timeAreaRef} className={prefix('time-area')}>
       <AutoSizer>
         {({ width, height }) => {
-          console.log('hi hi hi', width, height);
           return (
             <React.Fragment>
               <Grid

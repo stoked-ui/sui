@@ -5,7 +5,6 @@ export * from './FileExplorerBasic';
 // FileExplorer Item
 export * from './File';
 export * from './FileElement';
-export * from './FileDetail';
 export * from './useFile';
 export * from './internals/FileIcon';
 export * from './internals/FileProvider';

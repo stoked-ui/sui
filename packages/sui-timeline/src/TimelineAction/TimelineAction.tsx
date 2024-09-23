@@ -65,7 +65,7 @@ const Action = styled('div', {
     left: 0,
     top: 0,
     background: `linear-gradient(to right, ${theme.palette.background.default} 1px, transparent 1px)`,
-    backgroundSize: size ? `${size}px` : undefined,
+    backgroundSize: size ? `${size}px ` : undefined,
     backgroundColor: `${emphasize(color, 0.10)}`,
     alignContent: 'center',
     padding: '0 0 0 10px',
@@ -415,7 +415,6 @@ function TimelineAction(props: TimelineActionProps) {
   if (track.actions.includes(action)) {
     nowRow.actions[track.actions.indexOf(action)] = nowAction;
   }
-
   const [backgroundImage, setBackgroundImage] = React.useState<null | string>(null);
   React.useEffect(() => {
     try {
@@ -540,7 +539,8 @@ function TimelineAction(props: TimelineActionProps) {
         style={{
           height: rowHeight - 1, ...(backgroundImage ? {
             backgroundImage,
-            backgroundSize: 'contain'
+            backgroundSize: `${(scaleWidth * action.duration)}px 31px`,
+            backgroundPosition: `${-scaleWidth * (action.trimStart || 0)}px 0px`
           } : {})
         }}
         color={`${action?.controller?.color}`}

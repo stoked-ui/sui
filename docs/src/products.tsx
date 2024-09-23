@@ -695,7 +695,7 @@ class Products extends IndexObject<Product> {
     const { productIndex, setProductIndex } = props;
     return (<Stack spacing={1} sx={{ display: { xs: 'none', md: 'flex' }, maxWidth: 500 }}>
       {this.live.map((product, index) => {
-        if (product.id !== 'media-selector') {
+        if (product.id !== 'media-selector' && product.id !== 'timeline') {
           return product.highlightedItem(productIndex, setProductIndex, index);
         }
       })}

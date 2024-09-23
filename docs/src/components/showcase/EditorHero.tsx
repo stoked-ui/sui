@@ -40,7 +40,7 @@ export const actions = [
     controllerName: 'animation',
     src: '/static/timeline/docs/overview/stolen-cow.lottie',
     style: { width: '1920px', height: '1080px' },
-    x: '50%'
+    x: 990,
   },
   {
     name: 'music',
@@ -48,6 +48,7 @@ export const actions = [
     end: 20,
     controllerName: 'audio',
     src: 'https://adam-rodgers.s3.amazonaws.com/stoked-studio/funeral.mp3',
+    trimStart: 7.2,
   },
 
 ];
