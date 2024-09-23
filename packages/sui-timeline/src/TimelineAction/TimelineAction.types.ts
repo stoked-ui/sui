@@ -39,6 +39,10 @@ export interface ITimelineActionInput extends TimelineActionState {
   /** The controllerName corresponding to the action */
   controllerName: string;
 
+  trimStart?: number;
+
+  trimEnd?: number;
+
   layer?: string;
 
   src: string;

@@ -81,7 +81,8 @@ class VideoControl extends Controller {
         item.width = engine.renderWidth;
         item.height = engine.renderHeight;
       }
-
+      renderCtx.canvas.width = engine.renderWidth;
+      renderCtx.canvas.height = engine.renderHeight;
       renderCtx.drawImage(item, 0, 0, engine.renderWidth, engine.renderHeight); // Draw full size video
       // const elapsed = (now - startTime) / 1000.0;
       // const fps = (++paintCount / elapsed).toFixed(3);

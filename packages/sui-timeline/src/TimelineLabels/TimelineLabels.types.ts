@@ -39,7 +39,7 @@ export interface TimelineLabelsPropsBase extends React.HTMLAttributes<HTMLDivEle
 }
 
 export interface TimelineLabelsProps
-  extends TimelineLabelsPropsBase {
+  extends Omit<TimelineLabelsPropsBase, 'onToggle'> {
   /**
    * Overridable component slots.
    * @default {}

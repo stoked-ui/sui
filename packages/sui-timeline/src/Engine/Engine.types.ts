@@ -4,13 +4,13 @@ import type { IController } from './Controller.types';
 import type { ITimelineAction, ITimelineActionInput} from "../TimelineAction";
 import type { EventTypes } from './events';
 
-export interface IEmitter<EventTypes> {
+export interface IEmitter<Events> {
   events: { [key: string]: CallableFunction[] };
-  on<K extends keyof EventTypes>(names: K | K[], handler: (args: EventTypes[K]) => boolean | unknown): this;
-  trigger<K extends keyof EventTypes>(name: K, params: EventTypes[K]): boolean;
+  on<K extends keyof Events>(names: K | K[], handler: (args: Events[K]) => boolean | unknown): this;
+  trigger<K extends keyof Events>(name: K, params: Events[K]): boolean;
   bind(name: string): void;
   exist(name: string): boolean;
-  off<K extends keyof EventTypes>(name: K, handler?: (args: EventTypes[K]) => boolean | unknown): void;
+  off<K extends keyof Events>(name: K, handler?: (args: Events[K]) => boolean | unknown): void;
   offAll(): void;
 }
 
@@ -59,4 +59,6 @@ export interface IEngine extends IEmitter<EventTypes> {
 
   getSelectedActions(): { action: ITimelineAction, track: ITimelineTrack }[];
 }
+
+export type PlayState = 'playing' | 'paused';
 

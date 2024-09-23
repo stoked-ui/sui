@@ -120,7 +120,6 @@ export default class AnimationFile extends ResolutionFile implements IResolution
         },
       }
       console.log('load', id, src, mode, options)
-
       return lottie.loadAnimation(options as AnimationConfigWithPath<typeof mode>);
     }
     if (this.globalCacheEnabled && this.globalCache[cacheKey]) {

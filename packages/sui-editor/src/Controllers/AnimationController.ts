@@ -30,9 +30,17 @@ class AnimationControl implements Controller {
     this.colorSecondary = colorSecondary ?? '#cd6bff';
   }
 
+  async preload(params: Omit<ControllerParams, 'time'>) {
+    const { action, engine } = params;
+    const item = AnimationFile.load({ id: action.id, src: action.src, renderCtx: engine.renderCtx, mode: 'canvas', className: 'lottie-canvas' });
+    this.cacheMap[action.id] = item;
+    action.duration = item.getDuration();
+    return action;
+  }
+
 
   // eslint-disable-next-line class-methods-use-this
-  private _goToAndStop(item: AnimationItem, time: number) {
+  private _goToAndStop(engine: IEngine, action: ITimelineAction, item: AnimationItem, time: number) {
     if(!item.getDuration()) {
       return;
     }
@@ -41,7 +49,14 @@ class AnimationControl implements Controller {
     if (time > duration) {
       time %= duration;
     }
+    /* if (engine.renderCtx && (action.x || action.y)) {
+      engine.renderCtx.translate(action.x, action.y);
+    } */
     item.goToAndStop(time);
+
+    /* if (engine.renderCtx) {
+      engine.renderCtx.reset();
+    } */
   }
 
   enter(params: ControllerParams) {
@@ -49,7 +64,7 @@ class AnimationControl implements Controller {
     let item: AnimationItem;
     if (this.cacheMap[action.id]) {
       item = this.cacheMap[action.id];
-      this._goToAndStop(item, time - action.start);
+      this._goToAndStop(engine, action, item, time - action.start);
     } else if (engine.viewer && engine.renderCtx && engine.renderer) {
       item = AnimationFile.load({ id: action.id, src: action.src, renderCtx: engine.renderCtx, mode: 'canvas', className: 'lottie-canvas' });
 
@@ -64,30 +79,28 @@ class AnimationControl implements Controller {
   }
 
   update(params: ControllerParams) {
-    const { action, time } = params;
+    const { action, time, engine } = params;
     const item = this.cacheMap[action.id];
     if (!item) {
       return;
     }
     if (time > action.end || time < action.start) {
       return;
-    } else {
-      this._goToAndStop(item, time - action.start);
     }
+    this._goToAndStop(engine, action, item, time - action.start);
   }
 
   leave(params: ControllerParams) {
-    const { action, time } = params;
+    const { action, time, engine } = params;
     const item = this.cacheMap[action.id];
     if (!item) {
       return;
     }
     if (time > action.end || time < action.start) {
       return;
-    } else {
-      const cur = time - action.start;
-      this._goToAndStop(item, cur);
     }
+    const cur = time - action.start;
+    this._goToAndStop(engine, action, item, cur);
   }
 
   destroy() {

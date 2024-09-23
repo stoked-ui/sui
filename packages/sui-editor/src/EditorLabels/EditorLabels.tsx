@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { MediaFile } from '@stoked-ui/media-selector';
-import { FileDetail } from '@stoked-ui/file-explorer'; // The popover component
-import {getTrackController, IController, ITimelineTrack, TimelineState} from "@stoked-ui/timeline";
+import {getTrackController, IController, ITimelineTrack, TimelineState, ITimelineAction} from "@stoked-ui/timeline";
 import composeClasses from "@mui/utils/composeClasses";
 import {emphasize, styled, useThemeProps, alpha} from '@mui/material/styles';
 import {useSlotProps} from "@mui/base/utils";
@@ -152,16 +151,18 @@ const EditorLabel = React.forwardRef(
       setTracks: (updatedTracks: ITimelineTrack[]) => void,
       timelineState: React.RefObject<TimelineState>,
       onClick: (event: Event) => void,
+      selectedFile: ITimelineAction | null,
+      setSelectedFile:  React.Dispatch<React.SetStateAction<ITimelineAction | null>>,
+      anchorEl: HTMLElement | null,
+      setAnchorEl: React.Dispatch<React.SetStateAction<HTMLElement | null>>
     },
     ref: React.Ref<HTMLDivElement>
   ): React.JSX.Element {
-    const { track, tracks, classes, controller } = inProps;
+    const { track, tracks, classes, controller, setSelectedFile, selectedFile, setAnchorEl, anchorEl } = inProps;
     const visibilityIcon = track.hidden ? <VisibilityOffIcon fontSize={'small'} /> : <VisibilityIcon fontSize={'small'} />;
     const lockIcon = track.lock ? <LockIcon fontSize={'small'}/> : <LockOpenIcon fontSize={'small'}/>;
-    const [selectedFile, setSelectedFile] = React.useState<MediaFile | null>(null);
-    const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
 
-    const handleItemClick = (file: MediaFile, event: React.MouseEvent<HTMLElement>) => {
+    const handleItemClick = (file: ITimelineAction, event: React.MouseEvent<HTMLElement>) => {
       setSelectedFile(file);
       setAnchorEl(event.currentTarget);
     }
@@ -170,11 +171,14 @@ const EditorLabel = React.forwardRef(
       setAnchorEl(null);
       setSelectedFile(null);
     }
+    const trackFile = track.actions && track.actions[0] ? track.actions[0] : undefined;
 
     return (
       <EditorLabelRoot key={track.id} className={classes.label} ref={ref}>
         <EditorLabelContainer color={controller?.color!} lock={track.lock} hidden={!!track.hidden} selected={!!track.selected}>
-          <EditorLabelText onClick={(e) => track.actions && track.actions[0].file ? handleItemClick(track.actions[0].file, e) : undefined}>
+          <EditorLabelText
+            onClick={(e) => trackFile ? handleItemClick(trackFile, e) : undefined}
+          >
             <Typography variant="button" color="text.secondary" >{track.name}</Typography>
           </EditorLabelText>
           <ToggleButtonGroupStyled
@@ -242,7 +246,7 @@ const EditorLabel = React.forwardRef(
 const EditorLabels = React.forwardRef(
   function EditorLabels(inProps: EditorLabelsProps, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
     const { tracks, slots, sx, timelineState, controllers } = useThemeProps({ props: inProps, name: 'MuiEditorLabels' });
-    const [selectedFile, setSelectedFile] = React.useState<MediaFile | null>(null);
+    const [selectedFile, setSelectedFile] = React.useState<ITimelineAction | null>(null);
     const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
 
     const classes = useUtilityClasses(inProps);
@@ -257,7 +261,7 @@ const EditorLabels = React.forwardRef(
       ownerState: inProps,
     });
 
-    const handleItemClick = (file: MediaFile, event: React.MouseEvent<HTMLElement>) => {
+    const handleItemClick = (file: ITimelineAction, event: React.MouseEvent<HTMLElement>) => {
       setSelectedFile(file);
       setAnchorEl(event.currentTarget);
     };
@@ -279,6 +283,15 @@ const EditorLabels = React.forwardRef(
         className={`${classes.root} timeline-list`}>
         {tracks?.map((track) => {
           const controller = controllers ? getTrackController(track, controllers) : undefined;
+          const trackHasFile = track.actions.length && track.actions[0].file;
+          const trackAction = trackHasFile ? track.actions[0] : undefined;
+          console.log('trackAction', trackAction);
+          const extraProps = {
+            anchorEl,
+            setAnchorEl,
+            selectedFile,
+            setSelectedFile
+          };
           return <EditorLabel
             track={track}
             tracks={tracks}
@@ -287,15 +300,21 @@ const EditorLabels = React.forwardRef(
             controller={controller}
             setTracks={inProps.setTracks}
             timelineState={timelineState}
-            onClick={(e) => track.actions.length && track.actions[0].file ? handleItemClick( track.actions[0].file, e as unknown as React.MouseEvent<HTMLElement>) : undefined }/>
+            onClick={(e) => {
+              if (trackAction) {
+                handleItemClick(trackAction, e as unknown as React.MouseEvent<HTMLElement>);
+              }
+            }}
+            {...extraProps}
+          />
         })}
-        {(selectedFile && anchorEl) && (
+       {/*  {(selectedFile && anchorEl) && (
           <FileDetail
-            file={selectedFile}
+            action={selectedFile}
             anchorEl={anchorEl}
             onClose={handleClose}
           />
-        )}
+        )} */}
         {/* <Box sx={(theme) => ({ display: 'flex', height: 18, background: alpha(theme.palette.background.default, .4)})} >
           <Typography variant='caption' sx={(theme) => ({ textTransform: 'uppercase', padding: '0 6px', color: `${alpha(theme.palette.text.primary,.2)}`})}>Duration: {timelineState.current?.engine.duration}</Typography>
         </Box> */}
