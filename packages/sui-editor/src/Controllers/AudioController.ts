@@ -23,6 +23,14 @@ class AudioControl extends Controller{
     });
   }
 
+  async preload(params: Omit<ControllerParams, 'time'>) {
+    const { action } = params;
+    const item = new Howl({ src: action.src, loop: false, autoplay: false });
+    this.cacheMap[action.id] = item;
+    action.duration = item.duration();
+    return action;
+  }
+
   enter(params: ControllerParams) {
     this.start(params);
     console.log('howl enter')
@@ -35,7 +43,7 @@ class AudioControl extends Controller{
     if (this.cacheMap[action.id]) {
       item = this.cacheMap[action.id];
       item.rate(engine.getPlayRate());
-      item.seek((time - action.start) % item.duration());
+      item.seek((time - action.start + (action?.trimStart || 0)) % item.duration());
       if (engine.isPlaying) {
         item.play();
       }

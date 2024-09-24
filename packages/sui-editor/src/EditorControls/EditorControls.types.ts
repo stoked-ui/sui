@@ -5,6 +5,7 @@ import {SlotComponentProps} from '@mui/base/utils';
 import {FileBase} from '@stoked-ui/file-explorer/models/items';
 import {IEngine, TimelineState} from '@stoked-ui/timeline';
 import {EditorControlsClasses} from './editorControlsClasses';
+import EditorEngine from "../Engine/Engine";
 
 export interface EditorControlsSlots {
   /**
@@ -14,8 +15,8 @@ export interface EditorControlsSlots {
   root?: React.ElementType;
 }
 
-export interface EditorControlsSlotProps<R extends FileBase, Multiple extends boolean | undefined> {
-  root?: SlotComponentProps<'div', {}, EditorControlsProps<R, Multiple>>;
+export interface EditorControlsSlotProps {
+  root?: SlotComponentProps<'div', {}, EditorControlsProps>;
 }
 
 export interface EditorControlsPropsBase extends React.HTMLAttributes<HTMLDivElement> {
@@ -45,13 +46,15 @@ export interface EditorControlsPropsBase extends React.HTMLAttributes<HTMLDivEle
   */
   startLeft?: number;
   timelineState: React.RefObject<TimelineState>;
-  engineRef: React.RefObject<IEngine>;
+  engineRef: React.RefObject<EditorEngine>;
   autoScroll: boolean;
   view: 'timeline' | 'files',
-  setView: (newView: 'timeline' | 'files') => void
+  setView: (newView: 'timeline' | 'files') => void;
+  mode: Mode,
+  setMode: (newMode: Mode) => void;
 }
 
-export interface EditorControlsProps<R extends FileBase, Multiple extends boolean | undefined>
+export interface EditorControlsProps
   extends EditorControlsPropsBase {
   /**
    * Overridable component slots.
@@ -62,5 +65,8 @@ export interface EditorControlsProps<R extends FileBase, Multiple extends boolea
    * The props used for each component slot.
    * @default {}
    */
-  slotProps?: EditorControlsSlotProps<R, Multiple>;
+  slotProps?: EditorControlsSlotProps
 }
+
+export type Mode = 'record' | 'preview' | 'edit';
+export type ControlState = 'paused' | 'playing' | 'recording'
