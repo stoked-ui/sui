@@ -9,13 +9,14 @@ import {createUseThemeProps, styled} from '../internals/zero-styled';
 import {useEditor} from '../internals/useEditor';
 import {EditorProps} from './Editor.types';
 import {EditorPluginSignatures, VIDEO_EDITOR_PLUGINS} from './Editor.plugins';
-import {EditorControls} from '../EditorControls';
+import {ControlState, EditorControls, Mode} from '../EditorControls';
 import {EditorView} from '../EditorView';
 import {getEditorUtilityClass} from './editorClasses';
 import {EditorLabels} from '../EditorLabels';
 import Engine from "../Engine/Engine";
 import Controllers from "../Controllers";
 import {SxProps} from "@mui/material";
+import EditorEngine from "../Engine/Engine";
 
 const useThemeProps = createUseThemeProps('MuiEditor');
 
@@ -63,6 +64,7 @@ const EditorRoot = styled('div', {
   },
   overflow: 'hidden',
 }));
+
 
 /**
  *
@@ -144,7 +146,7 @@ const Editor = React.forwardRef(function Editor<
   });
 
   const timelineState = React.useRef<TimelineState>(null);
-  const engineRef = React.useRef<Engine>(new Engine({id, controllers: Controllers}));
+  const engineRef = React.useRef<Engine>(new EditorEngine({id, controllers: Controllers, defaultState: 'paused' as ControlState}));
   const [scaleWidth, setScaleWidth] = React.useState(160);
   const viewerRef = React.useRef<HTMLDivElement>(null);
 
@@ -197,6 +199,7 @@ const Editor = React.forwardRef(function Editor<
   }, [engineRef.current?.actions])
 
   const [view, setView] = React.useState<'timeline' | 'files'>('timeline')
+  const [mode, setMode] = React.useState<Mode>('record')
   const hiddenSx: SxProps = {position: 'absolute!important', opacity: '0!important', left: '200%'};
   const visibleSx: SxProps = {position: 'static!important', opacity: '1!important'};
   const timelineSx = {...(view === 'files' ? hiddenSx : visibleSx),  width: '100%'};
@@ -234,13 +237,15 @@ const Editor = React.forwardRef(function Editor<
   }
 
   return (<Root role={'editor'} {...rootProps} >
-      <EditorViewSlot {...editorViewProps} ref={viewerRef} engineRef={engineRef}/>
+      <EditorViewSlot {...editorViewProps} ref={viewerRef} engineRef={engineRef} mode={mode}/>
       {startIt &&
        <ControlsSlot
           role={'controls'}
           {...videoControlsProps}
           view={view}
           setView={setView}
+          mode={mode}
+          setMode={setMode}
           engineRef={engineRef}
           scaleWidth={scaleWidth}
           setScaleWidth={setScaleWidthProxy}

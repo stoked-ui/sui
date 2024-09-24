@@ -1,6 +1,9 @@
 import * as React from 'react';
 import FormControl from '@mui/material/FormControl';
 import StopIcon from '@mui/icons-material/Stop';
+import TransformIcon from '@mui/icons-material/Transform';
+import PreviewIcon from '@mui/icons-material/Preview';
+import SvgIcon from "@mui/material/SvgIcon";
 import PauseIcon from '@mui/icons-material/Pause';
 import RecordIcon from '@mui/icons-material/FiberManualRecord';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
@@ -14,10 +17,10 @@ import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import {alpha, emphasize, Theme} from '@mui/material/styles';
 import {FileBase} from '@stoked-ui/file-explorer';
 import {Button, SxProps, Tooltip} from "@mui/material";
+import EditorEngine from '../Engine/Engine';
 import {createUseThemeProps, styled} from '../internals/zero-styled';
-import {EditorControlsProps} from './EditorControls.types';
+import {ControlState, EditorControlsProps, type Mode} from './EditorControls.types';
 import TimelineView from '../icons/TimelineView';
-import SvgIcon from "@mui/material/SvgIcon";
 
 export const Rates = [0.2, 0.5, 1.0, 1.5, 2.0];
 const useThemeProps = createUseThemeProps('MuiEditor');
@@ -65,7 +68,7 @@ const ViewGroup = styled(ToggleButtonGroup)(({ theme }) => ({
   }
 }))
 
-const ViewButton = styled(ToggleButton)(({ theme }) => ({
+const ViewButton = styled(ToggleButton)(({  }) => ({
   background: 'unset',
   backgroundColor: 'unset',
 }))
@@ -110,7 +113,6 @@ const RateControlRoot = styled(FormControl)({
 });
 
 const RateControlSelect = styled(Select)(({ theme }) => ({
-
   height: 40,
   background: theme.palette.background.default,
   '& .MuiSelect-select': {
@@ -119,15 +121,21 @@ const RateControlSelect = styled(Select)(({ theme }) => ({
     py: '4px',
     fontSize: 16,
   },
-
 }));
 
-function Controls(inProps) {
+type ControlProps =  {
+  engineRef: React.RefObject<EditorEngine>;
+  setVideoURLs: React.Dispatch<React.SetStateAction<string[]>>;
+  setControlState: React.Dispatch<React.SetStateAction<ControlState>>;
+  controlState: ControlState;
+}
+
+function Controls(inProps: ControlProps) {
   const controlsInput: string = '';
   const [controls, setControlsBase] = React.useState(controlsInput);
 
   const props = useThemeProps({ props: inProps, name: 'MuiControls' });
-  const { engineRef, setVideoURLs, isPlaying, setIsPlaying } = props;
+  const { engineRef, setVideoURLs, controlState, setControlState } = props;
   const [mediaRecorder, setMediaRecorder] = React.useState<MediaRecorder | null>(null);
   const [recordedChunks, setRecordedChunks] = React.useState<Blob[]>([]);
 
@@ -138,10 +146,13 @@ function Controls(inProps) {
   }
 
   React.useEffect(() => {
-    if (controls === 'play' && !isPlaying) {
-      setControlsBase('');
+    console.log('controls', controls, 'controlState', controlState)
+    if (controls === 'play' && controlState === 'paused') {
+      setControlsBase('playing');
+    } else if (controls === 'play' && controlState === 'paused') {
+      setControlsBase('recording');
     }
-  }, [isPlaying])
+  }, [controlState])
 
   const handlePlay = () => {
     if (!engineRef || !engineRef.current) {
@@ -149,7 +160,7 @@ function Controls(inProps) {
     }
     if (!engineRef.current.isPlaying) {
       engineRef.current.play({ autoEnd: true });
-      setIsPlaying(true)
+      setControlState('playing')
     }
   }
 
@@ -161,7 +172,7 @@ function Controls(inProps) {
     if (engineRef.current.isPlaying) {
       engineRef.current.pause();
     }
-    setIsPlaying(false)
+    setControlState('paused')
   }
 
   const handleStart = () => {
@@ -173,7 +184,7 @@ function Controls(inProps) {
   }
 
   const handleStop = () => {
-    const engine = engineRef.current?.engine;
+    const engine = engineRef.current;
     if (engine) {
       engine.pause();
       handleStart();
@@ -191,68 +202,115 @@ function Controls(inProps) {
     return downFunc();
   }
 
+  const saveVersion = (blob: Blob) => {
+    // Create an example Blob object
+
+    try {
+      let store = db.transaction(['entries'], 'readwrite').objectStore('entries');
+
+      // Store the object
+      let req = store.put(blob, 'blob');
+      req.onerror = function(e) {
+        console.log(e);
+      };
+      req.onsuccess = function(event) {
+        console.log('Successfully stored a blob as Blob.');
+      };
+    } catch (e) {
+      var reader = new FileReader();
+      reader.onload = function(event) {
+        // After exception, you have to start over from getting transaction.
+        var store = db.transaction(['entries'], 'readwrite').objectStore('entries');
+
+        // Obtain DataURL string
+        var data = event.target.result;
+        var req = store.put(data, 'blob');
+        req.onerror = function(e) {
+          console.log(e);
+        };
+        req.onsuccess = function(event) {
+          console.log('Successfully stored a blob as String.');
+        };
+      };
+      // Convert Blob into DataURL string
+      reader.readAsDataURL(blob);
+    }
+  }
   const finalizeVideo = () => {
     const engine = engineRef.current;
     if (!engine || !engine?.renderer || !engine?.screener || !engine?.stage) {
       return;
     }
     const blob = new Blob(recordedChunks, {
-      type: "video/webm"
+      type: "video/mp4"
     });
+    saveVersion(blob);
     const url = URL.createObjectURL(blob);
     // URL.revokeObjectURL(url);
     engine.screener!.src = url;
     setVideoURLs((prev) => [url, ...prev]);
     setRecordedChunks([]);
     handlePause();
-    engine.renderer.style.display = 'none';
-    engine.stage.style.display = 'none';
-    engine.screener.src = url;
-    engine.screener.style.display = 'flex';
     setMediaRecorder(null)
     console.info('recording finalized', url);
   }
-
   const handleRecord = () => {
     const engine = engineRef.current;
     if (engine && engine.renderer) {
-      const stream = engine.renderer.captureStream();
-      const recorder = new MediaRecorder(stream, {
-        mimeType: 'video/webm;codecs=vp9',
+      if (engineRef.current) {
+        handlePlay()
+        engineRef.current.record({ autoEnd: true });
+      }
+
+      // Get the video stream from the canvas renderer
+      const videoStream = engine.renderer.captureStream();
+
+      // Get the Howler audio stream
+      const audioContext = Howler.ctx;
+      const destination = audioContext.createMediaStreamDestination();
+      Howler.masterGain.connect(destination);
+      const audioStream = destination.stream;
+
+      // Combine the video and audio streams
+      const combinedStream = new MediaStream([
+        ...videoStream.getVideoTracks(),
+        ...audioStream.getAudioTracks(),
+      ]);
+
+      // Create the MediaRecorder with the combined stream
+      const recorder = new MediaRecorder(combinedStream, {
+        mimeType: 'video/mp4',
       });
       setMediaRecorder(recorder);
       setRecordedChunks([]);
-      recorder.ondataavailable = e => {
+      recorder.ondataavailable = (e) => {
         if (e.data.size > 0) {
-          recordedChunks.push(e.data)
-          setRecordedChunks([...recordedChunks])
+          recordedChunks.push(e.data);
+          setRecordedChunks([...recordedChunks]);
         }
       };
 
       recorder.onstop = () => {
-        if (!engine || !engine?.screener ||  !engine.renderer ||  !engine.stage) {
-          console.warn('recording couldn\'t stop')
+        if (!engine || !engine.screener || !engine.renderer || !engine.stage) {
+          console.warn("recording couldn't stop");
           return;
         }
         handlePause();
-        console.info('recording stopped');
+        console.info("recording stopped");
         finalizeVideo();
       };
 
-      recorder.start(100);
-      handlePlay();
+      recorder.start(100); // Start recording
     }
-  }
+  };
 
   const handleRecordStop = () => {
     const engine = engineRef.current;
     if (mediaRecorder && engine && engine.screener) {
-      // recordBtn.textContent = "Record";
       mediaRecorder.stop();
       handlePause();
     }
   }
-
 
   return (
     <div style={{display: 'flex', flexDirection: 'row', marginLeft: '6px', alignContent: 'center', width: '100%'}}>
@@ -283,7 +341,7 @@ function Controls(inProps) {
         <ToggleButton value="play" onClick={() => {
           stateFunc('play', handlePlay, handlePause)
         }}>
-          {isPlaying ? <PauseIcon/> : <PlayArrowIcon/>}
+          {controlState === 'playing' ? <PauseIcon/> : <PlayArrowIcon/>}
         </ToggleButton>
         <ToggleButton onClick={handleEnd} value="end" aria-label="lock">
           <SkipNextIcon/>
@@ -291,7 +349,7 @@ function Controls(inProps) {
         <ToggleButton value="record" onClick={() => {
           stateFunc('record', handleRecord, handleRecordStop)
         }}>
-          <RecordIcon/>
+          {controlState === 'recording' ? <StopIcon/> : <RecordIcon/>}
         </ToggleButton>
       </ToggleButtonGroup>
     </div>)
@@ -362,6 +420,70 @@ export function ViewToggle({view, setView}: {view: 'timeline' | 'files', setView
 
   </ViewGroup>
 }
+
+export function PreviewToggle({mode, setMode, visible}: {mode: Mode, setMode: (newMode: Mode) => void, visible: boolean }) {
+  const selectedColor = (theme: Theme) => theme.palette.mode === 'light' ? '#FFF' : '#000';
+  const sxButton = (theme: Theme) => {
+    return {
+      borderRadius: '0px!important',
+      border: `2px solid ${selectedColor(theme)}!important`,
+
+    }};
+
+  if (!visible) {
+    return undefined;
+  }
+  return <ViewGroup
+    sx={(theme) => ({
+      backgroundColor: theme.palette.text.primary,
+      alignItems: 'center',
+      margin: '0px 6px',
+      '& .MuiButtonBase-root': {
+        backgroundColor: 'transparent',
+        color: theme.palette.text.primary,
+        border: `2px solid ${selectedColor(theme)}!important`,
+        '&:hover': {
+          color: theme.palette.primary.main,
+          backgroundColor: theme.palette.background.default,
+          border: `2px solid ${alpha(selectedColor(theme), .5)}!important`,
+        },
+      },
+      '& MuiButtonBase-root.MuiToggleButtonGroup-grouped.MuiToggleButtonGroup-groupedHorizontal.MuiToggleButton-root.Mui-selectedMuiToggleButton-sizeSmall.MuiToggleButton-standard':{
+        border: `2px solid ${selectedColor(theme)}!important`,
+        '&:hover': {
+          border: `2px solid ${alpha(selectedColor(theme), .5)}!important`,
+        },
+      }
+    })}
+    value={mode}
+    exclusive
+    onChange={(event, newMode) => {
+      if (!newMode) {
+        newMode = mode === 'preview' ? 'record' : 'preview';
+      }
+      setMode(newMode)
+    }}
+    size={'small'}
+    aria-label="text alignment"
+  >
+
+    {mode === 'record' &&
+     <Tooltip title={"Switch to Preview Mode"}>
+       <ViewButton sx={sxButton} value="preview" aria-label="lock">
+         <PreviewIcon fontSize={'small'}/>
+       </ViewButton>
+     </Tooltip>
+    }
+    {mode === 'preview' &&
+     <Tooltip title={"Switch to Record Mode"} sx={{position: 'absolute'}}>
+       <ViewButton sx={sxButton} value="record">
+         <RecordIcon fontSize={'small'}/>
+       </ViewButton>
+     </Tooltip>
+    }
+
+  </ViewGroup>
+}
 /**
  *
  * Demos:
@@ -372,14 +494,12 @@ export function ViewToggle({view, setView}: {view: 'timeline' | 'files', setView
  *
  * - [EditorControls API](https://stoked-ui.github.io/editor/api/)
  */
-export const EditorControls = React.forwardRef(function EditorControls<
-  R extends FileBase = FileBase,
-  Multiple extends boolean | undefined = undefined,
->(inProps : EditorControlsProps<R, Multiple>, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
+export const EditorControls = React.forwardRef(
+  function EditorControls(inProps : EditorControlsProps, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
 
   const props = useThemeProps({ props: inProps, name: 'MuiEditorControls' });
-  const { engineRef, autoScroll = true, view, setView } = props;
-  const [isPlaying, setIsPlaying] = React.useState(false);
+  const { engineRef, autoScroll = true, view, setView, mode, setMode } = props;
+  const [controlState, setControlState] = React.useState<ControlState>('paused');
   const [time, setTime] = React.useState(0);
   const [showRate, setShowRate] = React.useState(true);
   const [videoURLs, setVideoURLs] = React.useState<string[]>([]);
@@ -411,8 +531,9 @@ export const EditorControls = React.forwardRef(function EditorControls<
       return undefined;
     }
     const engine = engineRef.current;
-    engine?.on('play', () => setIsPlaying(true));
-    engine?.on('paused', () => setIsPlaying(false));
+    engine?.on('play', () => setControlState('playing'));
+    engine?.on('record', () => setControlState('recording'));
+    engine?.on('paused', () => setControlState('paused'));
     engine.on('afterSetTime', (afterTimeProps) => setTime(afterTimeProps.time));
     engine.on('ended', () => engine.pause());
     engine.on('setTimeByTick', (setTimeProps) => {
@@ -449,13 +570,14 @@ export const EditorControls = React.forwardRef(function EditorControls<
   }
 
 
-  const controlProps = { engineRef, setVideoURLs, isPlaying, setIsPlaying };
+  const controlProps = { engineRef, setVideoURLs, setControlState, controlState };
   return (
     <PlayerRoot className="timeline-player" ref={ref}>
       <div style={{display: 'flex', flexDirection: 'row', alignContent: 'center', width: '100%'}}>
         <div style={{display: 'flex', flexDirection: 'row', alignContent: 'center', height: '100%'}}>
           <Controls {...controlProps} />
-          <ViewToggle view={view} setView={setView}/>
+          <ViewToggle view={view} setView={setView} />
+          <PreviewToggle mode={mode} setMode={setMode} visible={videoURLs.length > 0} />
         </div>
       </div>
       <div style={{display: 'flex', flexDirection: 'row'}}>

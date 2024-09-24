@@ -54,7 +54,7 @@ const Timeline = React.forwardRef(function Timeline(
   inProps: TimelineProps,
   ref: React.Ref<HTMLDivElement>,
 ): React.JSX.Element {
-  const emptyEngine = React.useRef<Engine>(new Engine({id: inProps.id, controllers: inProps.controllers }));
+  const emptyEngine = React.useRef<Engine>(new Engine({id: inProps.id, controllers: inProps.controllers, defaultState: 'paused' }));
   const { slots, slotProps, controlSx, onChange, trackSx, controllers } = useThemeProps({
     props: inProps,
     name: 'MuiTimeline',

@@ -5,6 +5,7 @@ import {SlotComponentProps} from '@mui/base/utils';
 import {IEngine, TimelineState} from "@stoked-ui/timeline";
 import {FileBase} from '@stoked-ui/file-explorer/models/items';
 import {EditorViewClasses} from './editorViewClasses';
+import {Mode} from '../EditorControls/EditorControls.types';
 
 export interface EditorViewSlots {
   /**
@@ -36,6 +37,9 @@ export interface EditorViewPropsBase extends React.HTMLAttributes<HTMLDivElement
   engine?: IEngine;
 
   timelineState?: React.RefObject<TimelineState>;
+
+  mode: Mode;
+  setMode: React.Dispatch<React.SetStateAction<Mode>>
 }
 
 export interface EditorViewProps<R extends FileBase, Multiple extends boolean | undefined>

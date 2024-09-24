@@ -22,6 +22,7 @@ import { DocsProvider as DocsProviderStoked } from '@stoked-ui/docs/DocsProvider
 import { mapTranslations } from '@mui/docs/i18n';
 import fileExplorerPages from '../data/pages';
 import './global.css';
+import "plyr-react/plyr.css"
 import '../public/static/components-gallery/base-theme.css';
 import config from '../config';
 
