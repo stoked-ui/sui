@@ -1,12 +1,12 @@
 import * as React from 'react';
 import {FileBase} from '@stoked-ui/file-explorer';
+import {ViewMode} from "@stoked-ui/timeline";
 import composeClasses from "@mui/utils/composeClasses";
 import {useSlotProps} from '@mui/base/utils';
 import useForkRef from "@mui/utils/useForkRef";
 import {createUseThemeProps, styled} from '../internals/zero-styled';
 import {EditorViewProps} from './EditorView.types';
 import {getEditorViewUtilityClass} from "./editorViewClasses";
-import {Mode} from "../EditorControls";
 
 const useThemeProps = createUseThemeProps('MuiEditorView');
 
@@ -42,8 +42,8 @@ const Renderer = styled('canvas', {
   name: "MuiEditorViewRenderer",
   slot: "renderer",
   shouldForwardProp: (prop) => prop !== 'mode',
-})<{ mode?: Mode }>(({  mode }) => ({
-  display: mode === 'record' ? 'flex' : 'none',
+})<{ viewMode?: ViewMode }>(({  viewMode }) => ({
+  display: viewMode === 'Renderer' ? 'flex' : 'none',
   flexDirection: 'column',
   position: 'absolute',
   left: 0,
@@ -65,8 +65,8 @@ const Screener = styled('video', {
   name: "MuiEditorViewScreener",
   slot: "screener",
   shouldForwardProp: (prop) => prop !== 'mode',
-})<{ mode?: Mode }>(({  mode }) => ({
-  display: mode === 'preview' ? 'flex' : 'none',
+})<{ viewMode?: ViewMode }>(({  viewMode }) => ({
+  display: viewMode === 'Screener' ? 'flex' : 'none',
   flexDirection: 'column',
   width: '100%',
   position: 'absolute',
@@ -78,8 +78,8 @@ const Screener = styled('video', {
 
 const Stage = styled('div', {
   shouldForwardProp: (prop) => prop !== 'mode',
-})<{ mode: Mode }>(({  mode }) => ({
-  display: mode === 'edit' ? 'flex' : 'none',
+})<{ viewMode?: ViewMode }>(({  viewMode }) => ({
+  display: viewMode === 'Edit' ? 'flex' : 'none',
   flexDirection: 'column',
   width: 'fit-content',
   position: 'absolute',
@@ -185,13 +185,12 @@ export const EditorView = React.forwardRef(function EditorView<
     }
   }, [viewerRef]);
 
-  console.log('renderer', inProps.mode)
+
   return (
     <Root role={'viewer'} {...rootProps} ref={combinedViewRef} data-preserve-aspect-ratio>
-
-      <Renderer role={'renderer'} ref={rendererRef} data-preserve-aspect-ratio mode={inProps.mode}/>
-      <Screener role={'screener'} ref={screenerRef} mode={inProps.mode} />
-      <Stage role={'stage'} ref={stageRef} mode={inProps.mode}  />
+      <Renderer role={'renderer'} ref={rendererRef} data-preserve-aspect-ratio viewMode={inProps.engine?.viewMode || 'Renderer'}/>
+      <Screener role={'screener'} ref={screenerRef} viewMode={inProps.engine?.viewMode || 'Renderer'} />
+      <Stage role={'stage'} ref={stageRef} viewMode={inProps.engine?.viewMode || 'Renderer'}  />
     </Root>
   )
 })

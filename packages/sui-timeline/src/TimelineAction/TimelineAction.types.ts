@@ -99,6 +99,8 @@ export interface ITimelineAction extends Omit<ITimelineActionInput, 'id' | 'star
 
   element?: any;
 
+  timeUpdate?: (time: number) => void;
+
   controller: IController;
 
   frameSyncId?: number;

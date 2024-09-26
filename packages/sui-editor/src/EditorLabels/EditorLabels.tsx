@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { MediaFile } from '@stoked-ui/media-selector';
-import {getTrackController, IController, ITimelineTrack, TimelineState, ITimelineAction} from "@stoked-ui/timeline";
+import {getTrackController, IController, ITimelineTrack, TimelineState, ITimelineAction, ViewMode} from "@stoked-ui/timeline";
 import composeClasses from "@mui/utils/composeClasses";
 import {emphasize, styled, useThemeProps, alpha} from '@mui/material/styles';
 import {useSlotProps} from "@mui/base/utils";
@@ -154,11 +154,12 @@ const EditorLabel = React.forwardRef(
       selectedFile: ITimelineAction | null,
       setSelectedFile:  React.Dispatch<React.SetStateAction<ITimelineAction | null>>,
       anchorEl: HTMLElement | null,
-      setAnchorEl: React.Dispatch<React.SetStateAction<HTMLElement | null>>
+      setAnchorEl: React.Dispatch<React.SetStateAction<HTMLElement | null>>,
+      viewMode: ViewMode
     },
     ref: React.Ref<HTMLDivElement>
   ): React.JSX.Element {
-    const { track, tracks, classes, controller, setSelectedFile, selectedFile, setAnchorEl, anchorEl } = inProps;
+    const { track, tracks, classes, controller, setSelectedFile, selectedFile, setAnchorEl, anchorEl, viewMode } = inProps;
     const visibilityIcon = track.hidden ? <VisibilityOffIcon fontSize={'small'} /> : <VisibilityIcon fontSize={'small'} />;
     const lockIcon = track.lock ? <LockIcon fontSize={'small'}/> : <LockOpenIcon fontSize={'small'}/>;
 
@@ -181,7 +182,7 @@ const EditorLabel = React.forwardRef(
           >
             <Typography variant="button" color="text.secondary" >{track.name}</Typography>
           </EditorLabelText>
-          <ToggleButtonGroupStyled
+          {viewMode === 'Renderer' && <ToggleButtonGroupStyled
             exclusive
             aria-label="text alignment"
           >
@@ -227,7 +228,7 @@ const EditorLabel = React.forwardRef(
             >
               {lockIcon}
             </ToggleButton>
-          </ToggleButtonGroupStyled>
+          </ToggleButtonGroupStyled>}
         </EditorLabelContainer>
       </EditorLabelRoot>
     );
@@ -285,7 +286,6 @@ const EditorLabels = React.forwardRef(
           const controller = controllers ? getTrackController(track, controllers) : undefined;
           const trackHasFile = track.actions.length && track.actions[0].file;
           const trackAction = trackHasFile ? track.actions[0] : undefined;
-          console.log('trackAction', trackAction);
           const extraProps = {
             anchorEl,
             setAnchorEl,
@@ -294,6 +294,7 @@ const EditorLabels = React.forwardRef(
           };
           return <EditorLabel
             track={track}
+            viewMode={inProps.viewMode}
             tracks={tracks}
             classes={classes}
             key={track.id}

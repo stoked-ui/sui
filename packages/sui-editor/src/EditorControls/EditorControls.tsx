@@ -1,7 +1,7 @@
 import * as React from 'react';
+import { openDB } from 'idb';
 import FormControl from '@mui/material/FormControl';
 import StopIcon from '@mui/icons-material/Stop';
-import TransformIcon from '@mui/icons-material/Transform';
 import PreviewIcon from '@mui/icons-material/Preview';
 import SvgIcon from "@mui/material/SvgIcon";
 import PauseIcon from '@mui/icons-material/Pause';
@@ -15,32 +15,24 @@ import TextField from '@mui/material/TextField';
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import {alpha, emphasize, Theme} from '@mui/material/styles';
-import {FileBase} from '@stoked-ui/file-explorer';
-import {Button, SxProps, Tooltip} from "@mui/material";
-import EditorEngine from '../Engine/Engine';
+import {Tooltip} from "@mui/material";
+import {ScreenerBlob, ViewMode } from '@stoked-ui/timeline';
+import {type Version } from '../Editor';
+import EditorEngine from '../EditorEngine/EditorEngine';
+import {ScreenVideoBlob} from '../EditorEngine/EditorEngine.types';
 import {createUseThemeProps, styled} from '../internals/zero-styled';
-import {ControlState, EditorControlsProps, type Mode} from './EditorControls.types';
+import {ControlState, EditorControlsProps} from './EditorControls.types';
 import TimelineView from '../icons/TimelineView';
 
 export const Rates = [0.2, 0.5, 1.0, 1.5, 2.0];
 const useThemeProps = createUseThemeProps('MuiEditor');
 
-/*
+export const VideoVersionFromKey = (key) => {
+  const parts = key.split('|');
+  return { id: parts[0], version: Number(parts[1]), key} as Version;
+}
 
-const useUtilityClasses = <R extends FileBase, Multiple extends boolean | undefined>(
-  ownerState: EditorControlsProps<R, Multiple>,
-) => {
-  const { classes } = ownerState;
-
-  const slots = {
-    root: ['root'],
-  };
-
-  return composeClasses(slots, getEditorControlsUtilityClass, classes);
-};
-*/
-
-const ViewGroup = styled(ToggleButtonGroup)(({ theme }) => ({
+const ViewGroup = styled(ToggleButtonGroup)(() => ({
   background: 'unset!important',
   backgroundColor: 'unset!important',
   border: 'unset!important',
@@ -63,12 +55,11 @@ const ViewGroup = styled(ToggleButtonGroup)(({ theme }) => ({
       background: 'unset!important',
       backgroundColor: 'unset!important',
       border: 'unset!important',
-
     }
   }
 }))
 
-const ViewButton = styled(ToggleButton)(({  }) => ({
+const ViewButton = styled(ToggleButton)(() => ({
   background: 'unset',
   backgroundColor: 'unset',
 }))
@@ -90,7 +81,6 @@ const TimeRoot = styled(TextField)(({ theme }) => ({
   width: '120px',
   alignSelf: 'center',
   borderRadius: '12px',
-
   "& .MuiInputBase-input": {
     fontSize: 16,
     fontFamily: "monospace",
@@ -123,34 +113,49 @@ const RateControlSelect = styled(Select)(({ theme }) => ({
   },
 }));
 
+
+const VersionRoot = styled(FormControl)({
+  justifySelf: 'flex-end',
+  alignContent: 'center',
+  marginRight: '2px',
+});
+
+const VersionSelect = styled(Select)(({ theme }) => ({
+  height: 40,
+  background: theme.palette.background.default,
+  '& .MuiSelect-select': {
+    fontFamily: "'Roboto Condensed', sans-serif",
+    fontWeight: 600,
+    py: '4px',
+    fontSize: 16,
+  },
+}));
+
 type ControlProps =  {
   engineRef: React.RefObject<EditorEngine>;
   setVideoURLs: React.Dispatch<React.SetStateAction<string[]>>;
-  setControlState: React.Dispatch<React.SetStateAction<ControlState>>;
   controlState: ControlState;
+  setControlState: React.Dispatch<React.SetStateAction<ControlState>>;
+  versions: Version[];
+  setVersions: React.Dispatch<React.SetStateAction<Version[]>>;
+  viewMode: ViewMode;
 }
 
 function Controls(inProps: ControlProps) {
   const controlsInput: string = '';
-  const [controls, setControlsBase] = React.useState(controlsInput);
+  const [controls, setControls] = React.useState<string>(controlsInput);
 
   const props = useThemeProps({ props: inProps, name: 'MuiControls' });
-  const { engineRef, setVideoURLs, controlState, setControlState } = props;
+  const { engineRef, setVideoURLs, controlState, versions, setVersions, viewMode, setControlState } = inProps;
   const [mediaRecorder, setMediaRecorder] = React.useState<MediaRecorder | null>(null);
   const [recordedChunks, setRecordedChunks] = React.useState<Blob[]>([]);
 
-  const setControls = (toggleValue: string) => {
-    if (['end', 'start'].indexOf(toggleValue) === -1) {
-      setControlsBase(toggleValue)
-    }
-  }
 
   React.useEffect(() => {
-    console.log('controls', controls, 'controlState', controlState)
     if (controls === 'play' && controlState === 'paused') {
-      setControlsBase('playing');
-    } else if (controls === 'play' && controlState === 'paused') {
-      setControlsBase('recording');
+      // setControlsBase('playing');
+    } else if (controls === 'record' && controlState === 'paused') {
+      // setControlsBase('recording');
     }
   }, [controlState])
 
@@ -160,7 +165,6 @@ function Controls(inProps: ControlProps) {
     }
     if (!engineRef.current.isPlaying) {
       engineRef.current.play({ autoEnd: true });
-      setControlState('playing')
     }
   }
 
@@ -169,10 +173,9 @@ function Controls(inProps: ControlProps) {
     if (!engineRef || !engineRef.current) {
       return;
     }
-    if (engineRef.current.isPlaying) {
+    if (engineRef.current.isPlaying || engineRef.current.isRecording) {
       engineRef.current.pause();
     }
-    setControlState('paused')
   }
 
   const handleStart = () => {
@@ -183,18 +186,6 @@ function Controls(inProps: ControlProps) {
     engineRef?.current?.setTime(engineRef.current?.duration, true);
   }
 
-  const handleStop = () => {
-    const engine = engineRef.current;
-    if (engine) {
-      engine.pause();
-      handleStart();
-    }
-
-    if (mediaRecorder) {
-      mediaRecorder.stop();
-    }
-  }
-
   const stateFunc = (value: string, upFunc: () => void, downFunc: () => void) => {
     if (!controls || controls.indexOf(value) === -1) {
       return upFunc();
@@ -202,40 +193,25 @@ function Controls(inProps: ControlProps) {
     return downFunc();
   }
 
-  const saveVersion = (blob: Blob) => {
-    // Create an example Blob object
+  const saveVersion = async (vidBlob: ScreenerBlob) => {
 
+    let res;
     try {
-      let store = db.transaction(['entries'], 'readwrite').objectStore('entries');
+
+      // Create an example Blob object
+      const db = await openDB('editor', 1);
+      const store = db.transaction('video', 'readwrite').objectStore('video');
 
       // Store the object
-      let req = store.put(blob, 'blob');
-      req.onerror = function(e) {
-        console.log(e);
-      };
-      req.onsuccess = function(event) {
-        console.log('Successfully stored a blob as Blob.');
-      };
+      const req = await store.put(vidBlob, vidBlob.key);
+      res = req;
     } catch (e) {
-      var reader = new FileReader();
-      reader.onload = function(event) {
-        // After exception, you have to start over from getting transaction.
-        var store = db.transaction(['entries'], 'readwrite').objectStore('entries');
-
-        // Obtain DataURL string
-        var data = event.target.result;
-        var req = store.put(data, 'blob');
-        req.onerror = function(e) {
-          console.log(e);
-        };
-        req.onsuccess = function(event) {
-          console.log('Successfully stored a blob as String.');
-        };
-      };
-      // Convert Blob into DataURL string
-      reader.readAsDataURL(blob);
+      console.error(e);
+      throw new Error(e as string);
     }
+    return res;
   }
+
   const finalizeVideo = () => {
     const engine = engineRef.current;
     if (!engine || !engine?.renderer || !engine?.screener || !engine?.stage) {
@@ -244,21 +220,27 @@ function Controls(inProps: ControlProps) {
     const blob = new Blob(recordedChunks, {
       type: "video/mp4"
     });
-    saveVersion(blob);
-    const url = URL.createObjectURL(blob);
-    // URL.revokeObjectURL(url);
-    engine.screener!.src = url;
+
+    const dbKey = `${engine._editorId}|${versions.length + 1}`;
+    const version = VideoVersionFromKey(dbKey);
+    const screenerBlob = { blob, key: dbKey, version: version.version, name: version.id };
+    saveVersion(screenerBlob)
+      .then((test) => {
+          setVersions([...versions, version]);
+        });
+
+    const url = ScreenVideoBlob(blob, engine, version);
     setVideoURLs((prev) => [url, ...prev]);
     setRecordedChunks([]);
     handlePause();
-    setMediaRecorder(null)
-    console.info('recording finalized', url);
+    setMediaRecorder(null);
+
   }
+
   const handleRecord = () => {
     const engine = engineRef.current;
     if (engine && engine.renderer) {
       if (engineRef.current) {
-        handlePlay()
         engineRef.current.record({ autoEnd: true });
       }
 
@@ -296,7 +278,6 @@ function Controls(inProps: ControlProps) {
           return;
         }
         handlePause();
-        console.info("recording stopped");
         finalizeVideo();
       };
 
@@ -307,10 +288,35 @@ function Controls(inProps: ControlProps) {
   const handleRecordStop = () => {
     const engine = engineRef.current;
     if (mediaRecorder && engine && engine.screener) {
-      mediaRecorder.stop();
       handlePause();
+      mediaRecorder.stop();
     }
   }
+
+  const getControlState = () => {
+    return controlState;
+  }
+  React.useEffect(() => {
+    if (!engineRef || !engineRef.current) {
+      return;
+    }
+    const engine = engineRef.current;
+    engine?.on('paused', () => {
+      setControlState('paused')
+    });
+    engine.on('ended', () => {
+
+    });
+
+  }, []);
+
+  React.useEffect(() => {
+    console.log('controlState', controlState);
+    if (mediaRecorder && controlState === 'paused') {
+      handleRecordStop();
+      setControls('')
+    }
+  }, [controlState])
 
   return (
     <div style={{display: 'flex', flexDirection: 'row', marginLeft: '6px', alignContent: 'center', width: '100%'}}>
@@ -330,6 +336,7 @@ function Controls(inProps: ControlProps) {
         value={controls}
         exclusive
         onChange={(event, changeControls) => {
+          console.log('changeControls', changeControls)
           setControls(changeControls)
         }}
         size={'small'}
@@ -346,11 +353,13 @@ function Controls(inProps: ControlProps) {
         <ToggleButton onClick={handleEnd} value="end" aria-label="lock">
           <SkipNextIcon/>
         </ToggleButton>
-        <ToggleButton value="record" onClick={() => {
-          stateFunc('record', handleRecord, handleRecordStop)
-        }}>
-          {controlState === 'recording' ? <StopIcon/> : <RecordIcon/>}
-        </ToggleButton>
+        {
+          viewMode === 'Renderer' && <ToggleButton value="record" onClick={() => {
+           stateFunc('record', handleRecord, handleRecordStop)
+          }}>
+            {controlState === 'recording' ? <StopIcon/> : <RecordIcon/>}
+          </ToggleButton>
+        }
       </ToggleButtonGroup>
     </div>)
 }
@@ -421,7 +430,14 @@ export function ViewToggle({view, setView}: {view: 'timeline' | 'files', setView
   </ViewGroup>
 }
 
-export function PreviewToggle({mode, setMode, visible}: {mode: Mode, setMode: (newMode: Mode) => void, visible: boolean }) {
+type PreviewToggleProps =  {
+  engineRef: React.RefObject<EditorEngine>;
+  visible: boolean;
+  mode: ViewMode;
+  setMode: React.Dispatch<React.SetStateAction<ViewMode>>;
+}
+
+export function PreviewToggle({engineRef, visible, mode, setMode}: PreviewToggleProps) {
   const selectedColor = (theme: Theme) => theme.palette.mode === 'light' ? '#FFF' : '#000';
   const sxButton = (theme: Theme) => {
     return {
@@ -430,9 +446,19 @@ export function PreviewToggle({mode, setMode, visible}: {mode: Mode, setMode: (n
 
     }};
 
-  if (!visible) {
+  React.useEffect(() => {
+    if (!engineRef.current?.viewMode) {
+      return;
+    }
+    if (mode !== engineRef.current?.viewMode) {
+      setMode(engineRef.current.viewMode);
+    }
+  }, [engineRef.current, engineRef.current?.viewMode])
+
+  if (!visible || !engineRef.current) {
     return undefined;
   }
+  const engine = engineRef.current;
   return <ViewGroup
     sx={(theme) => ({
       backgroundColor: theme.palette.text.primary,
@@ -455,34 +481,99 @@ export function PreviewToggle({mode, setMode, visible}: {mode: Mode, setMode: (n
         },
       }
     })}
-    value={mode}
+    value={engine.viewMode}
     exclusive
     onChange={(event, newMode) => {
       if (!newMode) {
-        newMode = mode === 'preview' ? 'record' : 'preview';
+        newMode = engine.viewMode === 'Screener' ? 'Renderer' : 'Screener';
       }
-      setMode(newMode)
+      engine.viewMode = newMode;
+      setMode(newMode);
     }}
     size={'small'}
     aria-label="text alignment"
   >
 
-    {mode === 'record' &&
+    {mode === 'Renderer' &&
      <Tooltip title={"Switch to Preview Mode"}>
-       <ViewButton sx={sxButton} value="preview" aria-label="lock">
+       <ViewButton sx={sxButton} value="Screener" aria-label="lock">
          <PreviewIcon fontSize={'small'}/>
        </ViewButton>
      </Tooltip>
     }
-    {mode === 'preview' &&
+    {mode === 'Screener' &&
      <Tooltip title={"Switch to Record Mode"} sx={{position: 'absolute'}}>
-       <ViewButton sx={sxButton} value="record">
+       <ViewButton sx={sxButton} value="Renderer">
          <RecordIcon fontSize={'small'}/>
        </ViewButton>
      </Tooltip>
     }
 
   </ViewGroup>
+}
+
+
+type VersionProps =  {
+  engineRef: React.RefObject<EditorEngine>;
+  versions: Version[];
+  setVersions: React.Dispatch<React.SetStateAction<Version[]>>;
+  viewMode: ViewMode;
+}
+
+function Versions ({engineRef, setVersions, versions, viewMode }: VersionProps) {
+  const [currentVersion, setCurrentVersion] = React.useState<string>()
+
+  const handleVersionChange = async (event: SelectChangeEvent<unknown>) => {
+    const screenerBlob = await EditorEngine.loadVersion(event.target.value as string)
+    if (!engineRef.current) {
+      return
+    }
+    engineRef.current.screenerBlob = screenerBlob;
+    setCurrentVersion(screenerBlob.key);
+  }
+
+  React.useEffect(() => {
+    const engine = engineRef.current;
+    if (!engine?._editorId) {
+      return;
+    }
+    engine.getVersionKeys()
+      .then((idbVersions) => setVersions(idbVersions))
+  }, [])
+
+  React.useEffect(() => {
+    const engine = engineRef.current;
+    if (versions.length && engine) {
+      console.log('set current version', versions[versions.length - 1])
+      const previousVersion = versions[versions.length - 1];
+      EditorEngine.loadVersion(previousVersion.key)
+        .then((blob) => {
+          engine.screenerBlob = blob
+        })
+        .catch((err) => {
+          console.error(`Error loading previous version: ${previousVersion.id} v${previousVersion.version} - ${err}`)
+        })
+    }
+  }, [versions])
+
+  if (!versions.length || viewMode !== 'Screener') {
+    return undefined;
+  }
+  return  <VersionRoot sx={{minWidth: '200px', marginRight: '6px'}} className="rate-control">
+    <VersionSelect
+      value={currentVersion}
+      onChange={handleVersionChange}
+      inputProps={{'aria-label': 'Play Rate'}}
+      defaultValue={versions[versions.length - 1].key}
+    >
+      <MenuItem key={-1} value={-1}>
+        <em>Version</em>
+      </MenuItem>
+      {versions.map((version: Version, index: number) => (<MenuItem key={index} value={version.key}>
+        {version.id} v{version.version}
+      </MenuItem>))}
+    </VersionSelect>
+  </VersionRoot>
 }
 /**
  *
@@ -496,10 +587,10 @@ export function PreviewToggle({mode, setMode, visible}: {mode: Mode, setMode: (n
  */
 export const EditorControls = React.forwardRef(
   function EditorControls(inProps : EditorControlsProps, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
+  const [controlState, setControlState] = React.useState<ControlState>('paused');
 
   const props = useThemeProps({ props: inProps, name: 'MuiEditorControls' });
-  const { engineRef, autoScroll = true, view, setView, mode, setMode } = props;
-  const [controlState, setControlState] = React.useState<ControlState>('paused');
+  const { engineRef, autoScroll = true, view, setView, versions, setVersions, mode, setMode } = props;
   const [time, setTime] = React.useState(0);
   const [showRate, setShowRate] = React.useState(true);
   const [videoURLs, setVideoURLs] = React.useState<string[]>([]);
@@ -533,9 +624,7 @@ export const EditorControls = React.forwardRef(
     const engine = engineRef.current;
     engine?.on('play', () => setControlState('playing'));
     engine?.on('record', () => setControlState('recording'));
-    engine?.on('paused', () => setControlState('paused'));
     engine.on('afterSetTime', (afterTimeProps) => setTime(afterTimeProps.time));
-    engine.on('ended', () => engine.pause());
     engine.on('setTimeByTick', (setTimeProps) => {
       setTime(setTimeProps.time);
 
@@ -570,19 +659,20 @@ export const EditorControls = React.forwardRef(
   }
 
 
-  const controlProps = { engineRef, setVideoURLs, setControlState, controlState };
+  const controlProps = { engineRef, setVideoURLs, setControlState, versions, setVersions, viewMode: mode };
+  const versionProps = { engineRef, versions, setVersions, viewMode: mode };
   return (
     <PlayerRoot className="timeline-player" ref={ref}>
       <div style={{display: 'flex', flexDirection: 'row', alignContent: 'center', width: '100%'}}>
         <div style={{display: 'flex', flexDirection: 'row', alignContent: 'center', height: '100%'}}>
-          <Controls {...controlProps} />
+          <Controls {...controlProps} controlState={controlState} setControlState={setControlState} />
           <ViewToggle view={view} setView={setView} />
-          <PreviewToggle mode={mode} setMode={setMode} visible={videoURLs.length > 0} />
+          <PreviewToggle engineRef={engineRef} visible={versions.length > 0} mode={mode} setMode={setMode} />
         </div>
       </div>
       <div style={{display: 'flex', flexDirection: 'row'}}>
-        {hasDownload() && <Button onClick={() => download()} variant={'text'}>Download</Button>}
-
+        {/* {hasDownload() && <Button onClick={() => download()} variant={'text'}>Download</Button>} */}
+        <Versions {...versionProps} />
         <TimeRoot
           variant={'outlined'}
           disabled
@@ -599,7 +689,7 @@ export const EditorControls = React.forwardRef(
             defaultValue={1}
           >
             <MenuItem key={-1} value={-1}>
-              <em>Rate</em>
+              <em>Version</em>
             </MenuItem>
             {Rates.map((rate, index) => (<MenuItem key={index} value={rate}>
                 {`${rate.toFixed(1)}x`}

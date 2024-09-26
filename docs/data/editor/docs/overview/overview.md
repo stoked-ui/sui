@@ -14,7 +14,7 @@ packageName: '@stoked-ui/mono'
 
 ## Getting Started
 
-The Stoked UI Editor package exposes two components intialy.
+The Stoked UI Editor package is a client side video editing component.
 
 ```jsx
 import Editor from '@stoked-ui/editor/Editor';

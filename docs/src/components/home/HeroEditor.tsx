@@ -5,7 +5,6 @@ import Box, { BoxProps } from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import GradientText from 'docs/src/components/typography/GradientText';
 import GetStartedButtons from 'docs/src/components/home/GetStartedButtons';
 import HeroContainer from 'docs/src/layouts/HeroContainer';
 
@@ -56,6 +55,7 @@ export default function Hero() {
 
   return (
     <HeroContainer
+      mdHeight={750}
       linearGradient
       left={
         <Box sx={{ textAlign: { xs: 'center', md: 'left' }, maxWidth: 500 }}>
@@ -98,6 +98,7 @@ export default function Hero() {
               WebkitTextFillColor: 'transparent',
               fontSize: 'clamp(2.5rem, 1.125rem + 3.5vw, 3.5em)',
               lineHeight: '1.1142857142857143',
+              // eslint-disable-next-line no-irregular-whitespace
             }}> Editor</div>
           </Box>
           <Typography color="text.secondary" mb={3}>
@@ -108,7 +109,6 @@ export default function Hero() {
       }
       rightSx={{
         p: 4,
-        ml: 2,
         minWidth: 2000,
         overflow: 'hidden', // the components in the Hero section are mostly illustrative, even though they're interactive. That's why scrolling is disabled.
         '& > div': {
@@ -129,7 +129,7 @@ export default function Hero() {
         <React.Fragment>
           {isMdUp && (
             <Stack spacing={3} useFlexGap sx={{ '& > .MuiPaper-root': { maxWidth: 'none' } }}>
-              <EditorHero id={'file-explorer-grid'} grid sx={{ width: '100%' }} />
+              <EditorHero id={'editor-hero'} sx={{ width: '100%' }} />
             </Stack>
           )}
         </React.Fragment>

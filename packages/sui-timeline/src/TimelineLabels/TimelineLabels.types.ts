@@ -6,6 +6,7 @@ import { IController } from '../Engine/Controller.types';
 import {TimelineLabelsClasses} from './timelineLabelsClasses';
 import {TimelineState} from "../Timeline/TimelineState";
 import { ITimelineTrack } from "../TimelineTrack/TimelineTrack.types";
+import {ViewMode} from "../Engine";
 
 export interface TimelineLabelsSlots {
   /**
@@ -36,6 +37,7 @@ export interface TimelineLabelsPropsBase extends React.HTMLAttributes<HTMLDivEle
 
   tracks?: ITimelineTrack[];
   controllers: Record<string, IController>
+  viewMode: ViewMode;
 }
 
 export interface TimelineLabelsProps

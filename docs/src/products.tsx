@@ -695,7 +695,7 @@ class Products extends IndexObject<Product> {
     const { productIndex, setProductIndex } = props;
     return (<Stack spacing={1} sx={{ display: { xs: 'none', md: 'flex' }, maxWidth: 500 }}>
       {this.live.map((product, index) => {
-        if (product.id !== 'media-selector' && product.id !== 'timeline') {
+        if (product.id !== 'media-selector') {
           return product.highlightedItem(productIndex, setProductIndex, index);
         }
       })}
@@ -761,6 +761,7 @@ const stokedUiData: TProduct = {
     id: 'overview',
   }],
 };
+
 const sui = new Product(stokedUiData);
 const fileExplorerData: TProduct = {
   id: 'file-explorer',
@@ -851,6 +852,7 @@ const mediaSelectorData: TProduct = {
   }],
 };
 const mediaSelector = new Product(mediaSelectorData);
+
 const timelineData: TProduct = {
   id: 'timeline',
   name: "Timeline",

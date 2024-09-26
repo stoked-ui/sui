@@ -83,54 +83,46 @@ export const scaleWidth = 160;
 export const scale = 2;
 export const startLeft = 20;
 
-export const actions: ITimelineAction[] = [
+export const actions = [
+  {
+    name: 'video',
+    start: 0,
+    end: 20,
+    controllerName: 'video',  // Use the new video effect
+    src: '/static/video-editor/stock-loop.mp4',
+    layer: 'background',
+  },
   {
     name: 'write stuff',
     start: 9.5,
     end: 16,
     controllerName: 'animation',
-    data: {
-      src: '/static/timeline/docs/overview/lottie1.json',
-    },
+    src: '/static/timeline/docs/overview/writing.lottie',
   },
   {
     name: 'doing things',
     start: 5,
     end: 9.5,
     controllerName: 'animation',
-    data: {
-      src: '/static/timeline/docs/overview/lottie2.json',
-    },
+    src: '/static/timeline/docs/overview/doing-things.lottie',
   },
   {
     name: 'stolen cow',
     start: 0,
     end: 5,
     controllerName: 'animation',
-    data: {
-      src: '/static/timeline/docs/overview/lottie3.json',
-    },
+    src: '/static/timeline/docs/overview/stolen-cow.lottie',
+    style: { width: '1920px', height: '1080px' },
+    x: 990,
   },
   {
     name: 'music',
     start: 0,
     end: 20,
     controllerName: 'audio',
-    data: {
-      src: '/static/timeline/docs/overview/bg.mp3',
-    },
-  },
-  {
-    name: 'video',
-    start: 0,
-    end: 10,
-    controllerName: 'video',  // Use the new video effect
-    data: {
-      src: '/static/video-editor/stock-loop.mp4',
-      style: {
-        width: '100%'
-      }
-    },
+    // src: 'https://adam-rodgers.s3.amazonaws.com/stoked-studio/funeral.mp3',
+    src: '/static/timeline/docs/overview/funeral.m4a',
+    trimStart: 7.2,
   },
 ];
 
