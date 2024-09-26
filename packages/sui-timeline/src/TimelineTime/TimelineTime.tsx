@@ -6,7 +6,7 @@ import {CommonProps} from '../interface/common_prop';
 import {prefix} from '../utils/deal_class_prefix';
 
 /** Animation timeline component parameters */
-export type TimeAreaProps = CommonProps & {
+export type TimelineTimeProps = CommonProps & {
   /** Left scroll distance */
   scrollLeft: number;
   /** Scroll callback, used for synchronous scrolling */
@@ -56,7 +56,7 @@ const TimeUnit = styled('div')(({ theme }) => ({
 }));
 
 /** Animation timeline component */
-function TimelineTime(props: TimeAreaProps) {
+function TimelineTime(props: TimelineTimeProps) {
   const {
     setCursor,
     maxScaleCount,
@@ -105,7 +105,6 @@ function TimelineTime(props: TimeAreaProps) {
 
     const resizeObserver = new ResizeObserver(() => {
       const timeUnit = document.querySelector('.timeline-editor-time-unit');
-      console.log('observe')
       if (!timeUnit) {
         return;
       }
@@ -120,7 +119,6 @@ function TimelineTime(props: TimeAreaProps) {
     resizeObserver.observe(grid);
 
     return () => {
-      console.log('unobserve')
       resizeObserver.unobserve(grid);
     };
   }, []);

@@ -12,6 +12,7 @@ interface HeroContainerProps {
   linearGradient?: boolean;
   right: React.ReactElement;
   rightSx?: BoxProps['sx'];
+  mdHeight?: number
 }
 
 export default function HeroContainer(props: HeroContainerProps) {
@@ -22,6 +23,7 @@ export default function HeroContainer(props: HeroContainerProps) {
     linearGradient,
     right,
     rightSx,
+    mdHeight,
   } = props;
   const frame = React.useRef<HTMLDivElement>(null);
 
@@ -96,7 +98,7 @@ export default function HeroContainer(props: HeroContainerProps) {
           sx={{
             minHeight: { xs: 'auto', sm: 500 },
             height: { md: 'calc(100vh - 120px)' },
-            maxHeight: { md: 700, xl: 850 },
+            maxHeight: { md: mdHeight || 700, xl: 850 },
             transition: '0.3s',
           }}
         >
@@ -142,7 +144,7 @@ export default function HeroContainer(props: HeroContainerProps) {
           pt: { xs: 8, md: 0 },
           minHeight: { xs: 'auto', md: 500 },
           height: { md: 'calc(100vh - 120px)' },
-          maxHeight: { md: 700, xl: 850 },
+          maxHeight: { md: 750, xl: 850 },
           transition: '0.3s',
         }}
       >

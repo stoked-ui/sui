@@ -11,6 +11,7 @@ export { default as TimelineTrackArea } from './TimelineTrackArea';
 export { default as Engine} from './Engine';
 export * from './Timeline';
 export * from './TimelineAction';
+export * from './TimelineTime';
 export * from './TimelineControl';
 export * from './TimelineCursor';
 export * from './TimelineLabels';
@@ -20,5 +21,7 @@ export * from './TimelineTime';
 export * from './TimelineTrack';
 export * from './TimelineTrackArea';
 export * from './Engine';
+export * from './interface/const';
+export * from './utils';
 
 

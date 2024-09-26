@@ -14,20 +14,27 @@ export interface IEmitter<Events> {
   offAll(): void;
 }
 
+export type ViewMode = 'Renderer' | 'Screener' | 'Edit';
+export type ScreenerBlob = { blob: Blob, version: number, name: string, key: string};
 export interface IEngine extends IEmitter<EventTypes> {
   readonly isPlaying: boolean;
   readonly isPaused: boolean;
   controllers: Record<string, any>;
   viewer: HTMLElement | null;
+  viewMode: ViewMode;
   readonly screener: HTMLVideoElement | null;
+  screenerBlob: ScreenerBlob | null;
   readonly stage: HTMLDivElement | null;
   readonly renderer: HTMLCanvasElement | null;
   readonly renderCtx: CanvasRenderingContext2D | null;
   readonly duration: number;
   tracks: ITimelineTrack[];
   setTracks: React.Dispatch<React.SetStateAction<ITimelineTrack[]>> | undefined;
+  screenerTrack: ITimelineTrack;
+  setScreenerTrack: React.Dispatch<React.SetStateAction<ITimelineTrack>> | undefined;
   readonly renderWidth: number;
   readonly renderHeight: number;
+  buildScreenerTrack: (controller: IController, actionInput: ITimelineActionInput) => Promise<ITimelineTrack>;
   buildTracks: (controllers: Record<string, IController>, actionData: ITimelineActionInput[]) => Promise<ITimelineTrack[]>
   action: ITimelineAction | undefined;
   readonly actions: Record<string, ITimelineAction>;

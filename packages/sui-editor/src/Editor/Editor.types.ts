@@ -6,10 +6,9 @@ import {type ITimelineActionInput } from "@stoked-ui/timeline";
 import {FileBase} from '@stoked-ui/file-explorer/models/items';
 import {EditorPluginParameters, EditorPluginSignatures, EditorPluginSlotProps, EditorPluginSlots} from './Editor.plugins';
 import {EditorClasses} from './editorClasses';
-import {EditorExperimentalFeatures, EditorPublicAPI,} from '../internals/models';
-import {
-  FileExplorerProps
-} from "stokedui-com/data/file-explorer/docs/file-explorer/headless/LogExpandedItems";
+import { EditorExperimentalFeatures, EditorPublicAPI } from '../internals/models';
+
+export type Version = { id: string, version: number, key: string };
 
 export interface EditorSlots extends EditorPluginSlots {
   /**

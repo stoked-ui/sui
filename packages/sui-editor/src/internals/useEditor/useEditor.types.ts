@@ -60,7 +60,7 @@ export interface UseTimelineSlotProps
   ref?: React.Ref<HTMLDivElement>;
 }
 
-export interface UseBottomLeftSlotProps
+export interface UseFileExplorerSlotProps
   extends Pick<
     React.HTMLAttributes<HTMLDivElement>,
     'onFocus' | 'onBlur' | 'onKeyDown' | 'id' | 'aria-multiselectable' | 'role' | 'tabIndex'
@@ -89,12 +89,9 @@ export interface UseEditorReturnValue<TSignatures extends readonly EditorAnyPlug
   getTimelineProps: <TOther extends EventHandlers = {}>(
     otherHandlers?: TOther,
   ) => UseTimelineSlotProps;
-  getBottomLeftProps: <TOther extends EventHandlers = {}>(
+  getFileExplorerProps: <TOther extends EventHandlers = {}>(
     otherHandlers?: TOther,
-  ) => UseBottomLeftSlotProps;
-  getBottomRightProps: <TOther extends EventHandlers = {}>(
-    otherHandlers?: TOther,
-  ) => UseBottomRightSlotProps;
+  ) => UseFileExplorerSlotProps;
   rootRef: React.RefCallback<HTMLDivElement> | null;
   contextValue: EditorContextValue<TSignatures>;
   instance: EditorInstance<TSignatures>;
