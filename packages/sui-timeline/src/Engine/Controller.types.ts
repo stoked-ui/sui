@@ -14,5 +14,5 @@ export interface IController {
   color?: string;
   colorSecondary?: string;
   getBackgroundImage?: GetBackgroundImage;
-  preload?: (params: Omit<ControllerParams, 'time'>) => ITimelineAction;
+  preload?: (params: Omit<ControllerParams, 'time'>) => Promise<ITimelineAction>;
 }

@@ -47,10 +47,10 @@ export const actions = [
     start: 0,
     end: 20,
     controllerName: 'audio',
-    src: 'https://adam-rodgers.s3.amazonaws.com/stoked-studio/funeral.mp3',
+    // src: 'https://adam-rodgers.s3.amazonaws.com/stoked-studio/funeral.mp3',
+    src: '/static/timeline/docs/overview/funeral.m4a',
     trimStart: 7.2,
   },
-
 ];
 
 const defaultEditorData = cloneDeep(actions);
@@ -72,7 +72,7 @@ export default function EditorHero(props: { id: string, sx?: SxProps}) {
           boxShadow: (theme) => `0px 4px 8px ${alpha(theme.palette.grey[200], 0.6)}`,
         }}
       >
-        <Editor id={props.id ? props.id : 'video-editor-test'} sx={props.sx ? props.sx : { borderRadius: '12px 12px 0 0' }} actionData={data} />
+        <Editor id={props.id ? props.id : 'editor-hero-demo'} sx={props.sx ? props.sx : { borderRadius: '12px 12px 0 0' }} actionData={data} />
       </Card>
     </Fade>
   );

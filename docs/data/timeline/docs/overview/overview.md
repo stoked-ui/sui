@@ -1,9 +1,8 @@
 ---
 productId: file-explorer
-title: File Explorer React component
+title: Timeline component
 githubLabel: 'component: timeline'
 components: TimelineEngine, Timeline, TimelineRow, TimelineAction, TimelineEffect
-waiAria: https://www.w3.org/WAI/ARIA/apg/patterns/treeview/
 packageName: '@stoked-ui/timeline'
 ---
 

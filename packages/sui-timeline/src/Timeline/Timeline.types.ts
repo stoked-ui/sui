@@ -2,14 +2,14 @@ import * as React from 'react';
 import {Theme} from '@mui/material/styles';
 import {SxProps} from '@mui/system';
 import {SlotComponentProps} from '@mui/base/utils';
-import { type ITimelineAction } from '../TimelineAction/TimelineAction.types';
+import {type ITimelineAction, ITimelineActionInput} from '../TimelineAction/TimelineAction.types';
 import { type IController } from '../Engine/Controller.types';
 import {TimelineClasses} from './timelineClasses';
 import {type ITimelineTrack} from "../TimelineTrack/TimelineTrack.types";
 import {type TimelineLabelsProps} from "../TimelineLabels/TimelineLabels.types";
 import {type TimelineState} from "./TimelineState";
 import TimelineControl, {TimelineControlProps} from "../TimelineControl";
-import {IEngine} from "../Engine/Engine.types";
+import {IEngine, ViewMode} from "../Engine/Engine.types";
 
 export type TimelineComponent = ((
   props: TimelineProps & React.RefAttributes<HTMLDivElement>,
@@ -67,5 +67,6 @@ export interface TimelineProps
 
   scaleWidth?: number;
   setScaleWidth?: (scaleWidth: number) => void;
-  actionData?: ITimelineAction[];
+  actionData?: ITimelineActionInput[];
+  viewMode?: ViewMode;
 }

@@ -31,6 +31,7 @@ class VideoControl extends Controller {
           action.duration = item.duration;
           action.element = item;
         });
+
         item.addEventListener('canplay', () => {
           item.width = engine.renderWidth;
           item.height = engine.renderHeight;
@@ -63,7 +64,9 @@ class VideoControl extends Controller {
 
     item.addEventListener('play', () => {
       if (!('requestVideoFrameCallback' in HTMLVideoElement.prototype)) {
-        return alert('Your browser does not support the `Video.requestVideoFrameCallback()` API.');
+        const err = 'Your browser does not support the `Video.requestVideoFrameCallback()` API.';
+        console.error(err);
+        throw new Error(err)
       }
     });
 
@@ -73,7 +76,7 @@ class VideoControl extends Controller {
     // let paintCount = 0;
     let startTime = 0.0;
 
-    const updateCanvas = (now, metadata) => {
+    const updateCanvas = (now) => {
       if (startTime === 0.0) {
         startTime = now;
       }
@@ -95,15 +98,15 @@ class VideoControl extends Controller {
     action.frameSyncId = item.requestVideoFrameCallback(updateCanvas);
   };
 
+  // eslint-disable-next-line class-methods-use-this
   isVideoPlaying(video: HTMLVideoElement) {
-    return !!(video.currentTime > 0 && !video.paused && !video.ended && video.readyState > 2);
+    return (video.currentTime > 0 && !video.paused && !video.ended && video.readyState > 2);
   }
 
   enter(params: ControllerParams) {
-    const { action, time, engine} = params;
+    const { action, engine} = params;
     let item: HTMLVideoElement;
     if (this.cacheMap[action.id] || action.element) {
-      console.log('video enter cached', time)
 
       if (!this.cacheMap[action.id]) {
         this.cacheMap[action.id] = action.element;
@@ -115,7 +118,6 @@ class VideoControl extends Controller {
         item.currentTime += 0.0001;
       }
     } else if (!action.hidden && engine.renderer){
-      console.log('video enter not cached', time)
       this.preload({engine, action})
         .then((loadedAction) => {
           item = (loadedAction as ITimelineAction).element as HTMLVideoElement;
@@ -125,8 +127,7 @@ class VideoControl extends Controller {
   }
 
   start(params: ControllerParams) {
-    const { engine, action, time } = params;
-    console.log('video start', time)
+    const { engine, action } = params;
     if (engine.isPlaying) {
       const item = this.cacheMap[action.id];
       item.play();
@@ -134,7 +135,7 @@ class VideoControl extends Controller {
   }
 
   stop(params: ControllerParams) {
-    const { action, time } = params;
+    const { action } = params;
     const item = this.cacheMap[action.id];
     item.pause();
   }
@@ -145,7 +146,7 @@ class VideoControl extends Controller {
     if (item.currentTime === 0) {
       item.currentTime += 0.0001;
     }
-    /*console.log('video update', time)
+    /* console.log('video update', time)
     const item = this.cacheMap[action.id];
     if (!item) {
       return;
@@ -166,9 +167,9 @@ class VideoControl extends Controller {
   }
 
   leave(params: ControllerParams) {
-    const { action, time, engine} = params;
+    const { action, time } = params;
     const item = this.cacheMap[action.id];
-    engine.renderCtx?.clearRect(0, 0, engine.renderWidth, engine.renderHeight);
+    // engine.renderCtx?.clearRect(0, 0, engine.renderWidth, engine.renderHeight);
 
     if (!item) {
       return;

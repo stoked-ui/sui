@@ -14,7 +14,7 @@ import {type ITimelineAction} from '../TimelineAction/TimelineAction.types';
 import TimelineControl from '../TimelineControl/TimelineControl';
 import {type TimelineLabelsProps} from '../TimelineLabels/TimelineLabels.types';
 import {type ITimelineTrack} from "../TimelineTrack";
-import Engine from "../Engine";
+import Engine, {IEngine} from "../Engine";
 
 const useUtilityClasses = (ownerState: TimelineProps) => {
   const { classes } = ownerState;
@@ -54,12 +54,19 @@ const Timeline = React.forwardRef(function Timeline(
   inProps: TimelineProps,
   ref: React.Ref<HTMLDivElement>,
 ): React.JSX.Element {
-  const emptyEngine = React.useRef<Engine>(new Engine({id: inProps.id, controllers: inProps.controllers, defaultState: 'paused' }));
-  const { slots, slotProps, controlSx, onChange, trackSx, controllers } = useThemeProps({
+  const { slots, slotProps, controlSx, onChange, trackSx, controllers, viewMode, setScaleWidth: inSetScaleWidth, scaleWidth: inScaleWidth } = useThemeProps({
     props: inProps,
     name: 'MuiTimeline',
   });
-  let { engineRef } = inProps;
+  const { engineRef: engineIn } = inProps;
+  const createEngine = (): IEngine => {
+    return new Engine({id: inProps.id, controllers: inProps.controllers, defaultState: 'paused' });
+  }
+  const [scaleWidthNew, setScaleWidthNew] = React.useState<number>(inScaleWidth);
+  const scaleWidth = inScaleWidth ?? scaleWidthNew;
+  const setScaleWidth = inSetScaleWidth ?? setScaleWidthNew;
+  const engineRef = React.useRef<IEngine>(engineIn?.current ? engineIn.current : createEngine());
+
   const classes = useUtilityClasses(inProps);
 
   const timelineState = React.useRef<TimelineState>(null);
@@ -71,23 +78,68 @@ const Timeline = React.forwardRef(function Timeline(
   const combinedRootRef = useForkRef(ref, forkedRootRef);
 
   const [tracks, setTracks] = React.useState<ITimelineTrack[] | null>(null);
+  const [screenerTrack, setScreenerTrack] = React.useState<ITimelineTrack | null>(null);
 
-  if (engineRef) {
-    engineRef.current.setTracks = setTracks;
-  } else {
-    engineRef = emptyEngine;
-  }
+  const [currentTracks, setCurrentTracks] = React.useState(engineRef.current.viewMode === 'Renderer' ? tracks : [screenerTrack]);
+
+  engineRef.current.setTracks = setTracks;
+  engineRef.current.setScreenerTrack = setScreenerTrack;
+  React.useEffect(() => {
+    console.log('new view mode', engineRef.current.viewMode);
+    setCurrentTracks(engineRef.current.viewMode === 'Renderer' ? tracks : [screenerTrack])
+  }, [engineRef.current.viewMode])
+
+
+  React.useEffect(() => {
+    if (engineRef.current.viewMode === 'Renderer') {
+      setCurrentTracks(tracks)
+    }
+  }, [tracks])
+
+  React.useEffect(() => {
+    if (engineRef.current.viewMode === 'Screener') {
+      setCurrentTracks([screenerTrack])
+    }
+  }, [screenerTrack])
+
   const tracksInitialized = React.useRef(false);
 
   React.useEffect(() => {
     if (!tracksInitialized.current) {
       tracksInitialized.current = true;
       engineRef.current?.buildTracks(controllers, inProps.actionData)
-      .then((initialTracks) => {
-        setTracks(initialTracks)
-      });
+        .then((initialTracks) => {
+          setTracks(initialTracks)
+        });
     }
   }, [])
+
+
+  React.useEffect(() => {
+    const engine = engineRef.current;
+    const screenerStuff = engineRef.current.screenerBlob;
+    if (!engine || !screenerStuff) {
+      return;
+    }
+
+    const actionInput = {
+      name: `${screenerStuff.name} v${screenerStuff.version}`,
+      start: 0,
+      end: 1,
+      controllerName: 'video',
+      src: engine.screener.src,
+      layer: 'screener',
+    }
+
+    engine.buildScreenerTrack(controllers.video, actionInput)
+    .then((track) => {
+      setScreenerTrack(track);
+    })
+      .catch((err) => {
+        console.error(err);
+        throw new Error(err);
+      })
+  }, [engineRef.current.screenerBlob])
 
   const Root = slots?.root ?? TimelineRoot;
   const rootProps = useSlotProps({
@@ -103,7 +155,7 @@ const Timeline = React.forwardRef(function Timeline(
     elementType: Root,
     externalSlotProps: slotProps?.labels,
     className: classes.labels,
-    ownerState: { setTracks, ...inProps, sx: inProps.labelsSx, timelineState } as TimelineLabelsProps,
+    ownerState: { setTracks, ...inProps, sx: inProps.labelsSx, timelineState, viewMode: engineRef.current.viewMode } as TimelineLabelsProps,
   });
 
   const Control = slots?.control ?? TimelineControl;
@@ -111,7 +163,7 @@ const Timeline = React.forwardRef(function Timeline(
     elementType: Control,
     externalSlotProps: slotProps?.control,
     className: classes.control,
-    ownerState: { sx: controlSx, trackSx, tracks, setTracks, engineRef: inProps.engineRef },
+    ownerState: { sx: controlSx, trackSx, tracks: currentTracks, setTracks, engineRef, setScreenerTrack, screenerTrack },
   });
 
   const createAction = (e: React.MouseEvent<HTMLElement, MouseEvent>, { track, time }) => {
@@ -135,14 +187,14 @@ const Timeline = React.forwardRef(function Timeline(
         <Labels
           ref={labelsRef}
           {...labelsProps.ownerState}
-          tracks={tracks}
+          tracks={currentTracks}
           timelineState={timelineState}
           onChange={onChange}
           controllers={inProps.controllers}
         />
       )}
 
-      <Control
+      {engineRef?.current && <Control
         sx={{
           width: '100%',
           flex: '1 1 auto',
@@ -162,10 +214,10 @@ const Timeline = React.forwardRef(function Timeline(
         }}
         startLeft={10}
         ref={combinedTimelineRef}
-        scaleWidth={inProps.scaleWidth}
-        setScaleWidth={inProps.setScaleWidth}
-        engineRef={inProps.engineRef}
-        tracks={tracks}
+        scaleWidth={scaleWidth}
+        setScaleWidth={setScaleWidth}
+        engineRef={engineRef}
+        tracks={currentTracks}
         autoScroll
         setTracks={setTracks}
         controllers={inProps.controllers}
@@ -194,7 +246,7 @@ const Timeline = React.forwardRef(function Timeline(
           updateTracks[trackIndex].actions[actionIndex].selected = true;
           setTracks(updateTracks);
         }}
-      />
+      />}
     </Root>
   );
 }) as TimelineComponent;

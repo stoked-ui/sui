@@ -199,16 +199,7 @@ export const useEditor = <
     };
   };
 
-  const getBottomLeftProps = <TOther extends EventHandlers = {}>(
-    otherHandlers: TOther = {} as TOther,
-  ) => {
-    return {
-      ...forwardedProps,
-      ...otherHandlers,
-    };
-  };
-
-  const getBottomRightProps = <TOther extends EventHandlers = {}>(
+  const getFileExplorerProps = <TOther extends EventHandlers = {}>(
     otherHandlers: TOther = {} as TOther,
   ) => {
     return {
@@ -222,11 +213,10 @@ export const useEditor = <
     getEditorViewProps,
     getControlsProps,
     getTimelineProps,
-    getBottomLeftProps,
-    getBottomRightProps,
+    getFileExplorerProps,
     rootRef: handleRootRef,
     contextValue,
     instance,
-    id
-  };
+    id,
+  }
 };

@@ -29,11 +29,12 @@ export default function AdDisplay(props) {
     if (Math.random() > GA_ADS_DISPLAY_RATIO || !ad.label) {
       return;
     }
-
-    window.gtag('event', 'ad', {
-      eventAction: 'display',
-      eventLabel: ad.label,
-    });
+    if (window && typeof window !== 'undefined' ) {
+      window.gtag('event', 'ad', {
+        eventAction: 'display',
+        eventLabel: ad.label,
+      });
+    }
   }, [ad.label]);
 
   /* eslint-disable material-ui/no-hardcoded-labels, react/no-danger */

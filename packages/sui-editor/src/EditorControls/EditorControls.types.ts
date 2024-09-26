@@ -3,9 +3,10 @@ import {Theme} from '@mui/material/styles';
 import {SxProps} from '@mui/system';
 import {SlotComponentProps} from '@mui/base/utils';
 import {FileBase} from '@stoked-ui/file-explorer/models/items';
-import {IEngine, TimelineState} from '@stoked-ui/timeline';
+import {IEngine, TimelineState, ViewMode} from '@stoked-ui/timeline';
 import {EditorControlsClasses} from './editorControlsClasses';
-import EditorEngine from "../Engine/Engine";
+import EditorEngine from "../EditorEngine/EditorEngine";
+import { Version } from '../Editor/Editor.types';
 
 export interface EditorControlsSlots {
   /**
@@ -50,8 +51,10 @@ export interface EditorControlsPropsBase extends React.HTMLAttributes<HTMLDivEle
   autoScroll: boolean;
   view: 'timeline' | 'files',
   setView: (newView: 'timeline' | 'files') => void;
-  mode: Mode,
-  setMode: (newMode: Mode) => void;
+  versions: Version[];
+  setVersions:  React.Dispatch<React.SetStateAction<Version[]>>;
+  mode: ViewMode;
+  setMode:  React.Dispatch<React.SetStateAction<ViewMode>>;
 }
 
 export interface EditorControlsProps
@@ -68,5 +71,4 @@ export interface EditorControlsProps
   slotProps?: EditorControlsSlotProps
 }
 
-export type Mode = 'record' | 'preview' | 'edit';
 export type ControlState = 'paused' | 'playing' | 'recording'

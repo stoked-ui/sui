@@ -1,4 +1,4 @@
-import type { IEngine } from "./Engine.types";
+import type { IEngine, PlayState } from "./Engine.types";
 
 export class Events {
   handlers = {};
@@ -63,7 +63,7 @@ export interface EventTypes {
    * @type {{ engine: IEngine }}
    * @memberofEventTypes
    */
-  paused: { engine: IEngine };
+  paused: { engine: IEngine, previousState: PlayState };
   /**
    * End of operation
    * @type {{ engine: IEngine }}
