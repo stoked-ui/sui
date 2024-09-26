@@ -97,7 +97,7 @@ async function postFeedback(data) {
 async function postFeedbackOnSlack(data) {
   const { rating, comment, commentedSection } = data;
 
-  if (!window) {
+  if (!window || typeof window === 'undefined' ) {
     return;
   }
   const sentData = {

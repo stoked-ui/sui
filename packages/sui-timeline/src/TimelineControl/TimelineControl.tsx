@@ -10,7 +10,7 @@ import {checkProps} from '../utils/check_props';
 import {getScaleCountByRows, parserPixelToTime, parserTimeToPixel} from '../utils/deal_data';
 import TimelineCursor from '../TimelineCursor/TimelineCursor';
 import TimelineTrackArea, { TimelineTrackAreaState } from '../TimelineTrackArea/TimelineTrackArea';
-import TimelineArea from '../TimelineTime/TimelineTime';
+import TimelineTime from '../TimelineTime/TimelineTime';
 import TimelineScrollResizer from '../TimelineScrollResizer/TimelineScrollResizer';
 
 const TimelineControlRoot = styled('div')(({ theme }) => ({
@@ -46,6 +46,8 @@ const TimelineControl = React.forwardRef(
       maxScaleCount,
       scaleSplitCount: initialScaleSplitCount,
       setTracks,
+      screenerTrack,
+      setScreenerTrack,
       engineRef,
       autoReRender = true,
       onScroll: onScrollVertical,
@@ -265,18 +267,26 @@ const TimelineControl = React.forwardRef(
         },
         tracks,
         setTracks,
+        screenerTrack,
+        setScreenerTrack,
         get duration() {
           return engineRef.current?.duration;
         }
       }), [engineRef?.current, duration],
     );
 
-    window.end = () => {
-      handleSetCursor({ left: width });
-      scrollSync?.current?.setState({ scrollLeft: Math.max(width, 0) });
+    if (typeof window !== 'undefined' ) {
+      window.end = () => {
+        handleSetCursor({left: width});
+        scrollSync?.current?.setState({scrollLeft: Math.max(width, 0)});
+      }
     }
 
     const [initialized, setInitialized] = React.useState(false);
+    React.useEffect(() => {
+      setInitialized(false);
+    }, [engineRef?.current.viewMode])
+
     React.useEffect(() => {
       if (width !== Number.MAX_SAFE_INTEGER && duration && !initialized) {
         const newScaleWidth = getInitialScaleWidth(startLeft, minScaleCount, areaRef.current.clientWidth);
@@ -308,8 +318,10 @@ const TimelineControl = React.forwardRef(
       };
     }, [areaRef.current]);
 
-    const setScaleFallback = () => {};
+
     const newProps = {...checkedProps, scaleSplitCount, scale, scaleWidth, minScaleCount};
+
+
     return (
       <TimelineControlRoot
         style={style}
@@ -320,7 +332,7 @@ const TimelineControl = React.forwardRef(
         <ScrollSync ref={scrollSync}>
           {({ scrollLeft, scrollTop: scrollTopCurrent, onScroll }) => (
             <React.Fragment>
-              <TimelineArea
+              <TimelineTime
                 {...newProps}
                 timelineWidth={width}
                 disableDrag={disableDrag || isPlaying}
@@ -338,6 +350,7 @@ const TimelineControl = React.forwardRef(
                   (areaRef.current as any) = editAreaRef?.domRef.current;
                   (gridRef.current as any) = editAreaRef?.gridRef.current;
                 }}
+                viewMode={engineRef.current.viewMode}
                 disableDrag={disableDrag || isPlaying}
                 cursorTime={cursorTime}
                 scaleCount={scaleCount}

@@ -3,13 +3,16 @@ import {SxProps, Theme} from "@mui/material/styles";
 import type { IController } from '../Engine/Controller.types';
 import type {ITimelineAction} from "../TimelineAction/TimelineAction.types";
 import {type ITimelineTrack} from "../TimelineTrack/TimelineTrack.types";
-import type {IEngine} from "../Engine/Engine.types";
+import type {IEngine, ViewMode} from "../Engine/Engine.types";
 
 export interface TimelineControlPropsBase {
   /**
    * @description TimelineControl editing data
    */
   tracks: ITimelineTrack[];
+
+  screenerTrack: ITimelineTrack;
+  setScreenerTrack: (screenerTrack: ITimelineTrack) => void;
   /**
    * @description Data change callback, which will be triggered after the operation action end
    *   changes the data (returning false will prevent automatic engine synchronization to reduce
@@ -75,6 +78,7 @@ export interface TimelineControlPropsBase {
    * @default false
    */
   disableDrag?: boolean;
+  viewMode?: ViewMode;
   /**
    * @description timelineControl runner, if not passed, the built-in runner will be used
    */

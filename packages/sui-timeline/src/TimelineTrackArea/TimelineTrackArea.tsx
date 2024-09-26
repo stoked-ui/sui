@@ -55,6 +55,7 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
     onActionResizeEnd,
     onActionResizeStart,
     onActionResizing,
+    viewMode
   } = props;
   const { dragLineData, initDragLine, updateDragLine, disposeDragLine, defaultGetAssistPosition, defaultGetMovePosition } = useDragLine();
   const editAreaRef = React.useRef<HTMLDivElement>();
@@ -181,7 +182,7 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
             totalHeight += itemHeight;
             return itemHeight;
           });
-          if (totalHeight < height && heights) {
+          if (totalHeight < height && heights && viewMode === 'Renderer') {
             heights.push(height - totalHeight);
             if (heightRef.current !== height && heightRef.current >= 0) {
               setTimeout(() =>

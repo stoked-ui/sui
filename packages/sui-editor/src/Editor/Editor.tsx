@@ -3,20 +3,20 @@ import PropTypes from 'prop-types';
 import {FileBase, FileExplorer} from '@stoked-ui/file-explorer';
 import { IMediaFile } from '@stoked-ui/media-selector';
 import { useSlotProps} from '@mui/base/utils';
+import {SxProps} from "@mui/material";
 import composeClasses from '@mui/utils/composeClasses';
-import {Timeline, type TimelineState, FilesFromActions, ITimelineActionInput} from '@stoked-ui/timeline';
+import {Timeline, type TimelineState, FilesFromActions, ITimelineActionInput, ITimelineTrack, ViewMode} from '@stoked-ui/timeline';
 import {createUseThemeProps, styled} from '../internals/zero-styled';
 import {useEditor} from '../internals/useEditor';
-import {EditorProps} from './Editor.types';
+import {EditorProps, type Version } from './Editor.types';
 import {EditorPluginSignatures, VIDEO_EDITOR_PLUGINS} from './Editor.plugins';
-import {ControlState, EditorControls, Mode} from '../EditorControls';
+import {ControlState, EditorControls} from '../EditorControls';
 import {EditorView} from '../EditorView';
 import {getEditorUtilityClass} from './editorClasses';
 import {EditorLabels} from '../EditorLabels';
-import Engine from "../Engine/Engine";
 import Controllers from "../Controllers";
-import {SxProps} from "@mui/material";
-import EditorEngine from "../Engine/Engine";
+import EditorEngine from "../EditorEngine/EditorEngine";
+import initDb from '../db/init'
 
 const useThemeProps = createUseThemeProps('MuiEditor');
 
@@ -81,14 +81,12 @@ const Editor = React.forwardRef(function Editor<
   Multiple extends boolean | undefined = undefined,
 >(inProps: EditorProps<R, Multiple>, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
   const { sx, ...props } = useThemeProps({ props: inProps, name: 'MuiEditor' });
-  const editorRef = React.useRef<HTMLDivElement>(null);
   const {
     getRootProps,
     getEditorViewProps,
     getControlsProps,
     getTimelineProps,
-    getBottomLeftProps,
-    getBottomRightProps,
+    getFileExplorerProps,
     id,
     instance
   } = useEditor<EditorPluginSignatures, EditorProps<R, Multiple>>({
@@ -99,6 +97,7 @@ const Editor = React.forwardRef(function Editor<
 
   const { slots, slotProps } = props;
   const classes = useUtilityClasses(props);
+  const [mode, setMode] = React.useState<ViewMode>('Renderer');
 
   const Root = slots?.root ?? EditorRoot;
   const rootProps = useSlotProps({
@@ -124,7 +123,7 @@ const Editor = React.forwardRef(function Editor<
     externalSlotProps: slotProps?.videoControls,
     className: classes.videoControls,
     getSlotProps: getControlsProps,
-    ownerState: props,
+    ownerState: {...props, mode, setMode},
   });
 
   const TimelineSlot = slots?.timeline ?? Timeline;
@@ -136,17 +135,17 @@ const Editor = React.forwardRef(function Editor<
     ownerState: inProps,
   });
 
-  const BottomLeft = slots?.fileExplorer ?? FileExplorer;
-  const bottomLeftProps = useSlotProps({
-    elementType: BottomLeft,
+  const Explorer = slots?.fileExplorer ?? FileExplorer;
+  const fileExplorerProps = useSlotProps({
+    elementType: Explorer,
     externalSlotProps: slotProps?.fileExplorer,
     className: classes.fileExplorer,
-    getSlotProps: getBottomLeftProps,
+    getSlotProps: getFileExplorerProps,
     ownerState: props as any,
   });
 
   const timelineState = React.useRef<TimelineState>(null);
-  const engineRef = React.useRef<Engine>(new EditorEngine({id, controllers: Controllers, defaultState: 'paused' as ControlState}));
+  const engineRef = React.useRef<EditorEngine>(new EditorEngine({id, controllers: Controllers, defaultState: 'paused' as ControlState}));
   const [scaleWidth, setScaleWidth] = React.useState(160);
   const viewerRef = React.useRef<HTMLDivElement>(null);
 
@@ -154,7 +153,14 @@ const Editor = React.forwardRef(function Editor<
     setScaleWidth(val);
   };
 
-  /* React.useEffect(() => {
+  React.useEffect(() => {
+    initDb('video').then((initResults) => {
+      console.log('db init results', initResults);
+    });
+  }, [])
+
+  /*
+  React.useEffect(() => {
     if (!editorRef?.current || !engine) {
       return;
     }
@@ -198,8 +204,20 @@ const Editor = React.forwardRef(function Editor<
     }
   }, [engineRef.current?.actions])
 
+  const [screenerFiles, setScreenerFiles] = React.useState<FileBase[]>([])
+  React.useEffect(() => {
+    const actions = engineRef.current?.actions ? Object.values(engineRef.current?.actions) : undefined;
+    if (!playerFiles.length && actions?.length) {
+      const files = FilesFromActions(actions) as FileBase[];
+      const tracks = {
+        id: 'versions', label: 'Versions', expanded: true, selected: true, type: 'folder', children: files,
+      } as FileBase
+      setPlayerFiles([tracks]);
+    }
+  }, [engineRef.current?.actions])
+
+  const [versions, setVersions] = React.useState<Version[]>([]);
   const [view, setView] = React.useState<'timeline' | 'files'>('timeline')
-  const [mode, setMode] = React.useState<Mode>('record')
   const hiddenSx: SxProps = {position: 'absolute!important', opacity: '0!important', left: '200%'};
   const visibleSx: SxProps = {position: 'static!important', opacity: '1!important'};
   const timelineSx = {...(view === 'files' ? hiddenSx : visibleSx),  width: '100%'};
@@ -236,19 +254,26 @@ const Editor = React.forwardRef(function Editor<
     }
   }
 
+
+
+
+
+
   return (<Root role={'editor'} {...rootProps} >
-      <EditorViewSlot {...editorViewProps} ref={viewerRef} engineRef={engineRef} mode={mode}/>
+      <EditorViewSlot {...editorViewProps} ref={viewerRef}/>
       {startIt &&
        <ControlsSlot
           role={'controls'}
           {...videoControlsProps}
           view={view}
-          setView={setView}
           mode={mode}
           setMode={setMode}
+          setView={setView}
           engineRef={engineRef}
           scaleWidth={scaleWidth}
           setScaleWidth={setScaleWidthProxy}
+          versions={versions}
+          setVersions={setVersions}
         />
       }
       {startIt &&
@@ -268,19 +293,7 @@ const Editor = React.forwardRef(function Editor<
           sx={timelineSx}
         />
       }
-    {playerFiles?.length && <BottomLeft
-        grid
-        role={'file-explorer'}
-        id={'editor-file-explorer'}
-        {...bottomLeftProps}
-        items={playerFiles}
-        dndInternal
-        dndExternal
-        alternatingRows
-        defaultExpandedItems={['tracks']}
-        sx={filesSx}
-        onAddFiles={onAddFiles}
-      />}
+
     </Root>);
 });
 

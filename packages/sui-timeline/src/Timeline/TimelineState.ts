@@ -42,4 +42,5 @@ export interface TimelineState {
   setScrollTop: (val: number) => void;
   tracks: ITimelineTrack[]
   setTracks: (tracks: ITimelineTrack[]) => void;
+  setScreenerTrack: (screenerTrack: ITimelineTrack) => void;
 }
