@@ -10,7 +10,7 @@ import {createUseThemeProps, styled} from '../internals/zero-styled';
 import {useEditor} from '../internals/useEditor';
 import {EditorProps, type Version } from './Editor.types';
 import {EditorPluginSignatures, VIDEO_EDITOR_PLUGINS} from './Editor.plugins';
-import {ControlState, EditorControls} from '../EditorControls';
+import {type ControlState, EditorControls} from '../EditorControls';
 import {EditorView} from '../EditorView';
 import {getEditorUtilityClass} from './editorClasses';
 import {EditorLabels} from '../EditorLabels';
@@ -204,17 +204,6 @@ const Editor = React.forwardRef(function Editor<
     }
   }, [engineRef.current?.actions])
 
-  const [screenerFiles, setScreenerFiles] = React.useState<FileBase[]>([])
-  React.useEffect(() => {
-    const actions = engineRef.current?.actions ? Object.values(engineRef.current?.actions) : undefined;
-    if (!playerFiles.length && actions?.length) {
-      const files = FilesFromActions(actions) as FileBase[];
-      const tracks = {
-        id: 'versions', label: 'Versions', expanded: true, selected: true, type: 'folder', children: files,
-      } as FileBase
-      setPlayerFiles([tracks]);
-    }
-  }, [engineRef.current?.actions])
 
   const [versions, setVersions] = React.useState<Version[]>([]);
   const [view, setView] = React.useState<'timeline' | 'files'>('timeline')
@@ -222,6 +211,21 @@ const Editor = React.forwardRef(function Editor<
   const visibleSx: SxProps = {position: 'static!important', opacity: '1!important'};
   const timelineSx = {...(view === 'files' ? hiddenSx : visibleSx),  width: '100%'};
   const filesSx = view !== 'files' ? hiddenSx : visibleSx ;
+  const [currentVersion, setCurrentVersion] = React.useState<string>()
+
+
+  const [screenerFiles, setScreenerFiles] = React.useState<FileBase[]>([])
+  React.useEffect(() => {
+    if (!screenerFiles.length && versions?.length) {
+      engineRef.current.versionFiles()
+        .then((versionFiles) => {
+          const versionFolder = {
+            id: 'versions', label: 'Versions', expanded: true, selected: true, type: 'folder', children: versionFiles,
+          } as FileBase
+          setScreenerFiles([versionFolder]);
+        })
+    }
+  }, [currentVersion, versions])
 
   const onAddFiles = (mediaFiles: IMediaFile[]) => {
     console.log('mediaFile', JSON.stringify(mediaFiles, null, 2))
@@ -254,11 +258,6 @@ const Editor = React.forwardRef(function Editor<
     }
   }
 
-
-
-
-
-
   return (<Root role={'editor'} {...rootProps} >
       <EditorViewSlot {...editorViewProps} ref={viewerRef}/>
       {startIt &&
@@ -274,6 +273,8 @@ const Editor = React.forwardRef(function Editor<
           setScaleWidth={setScaleWidthProxy}
           versions={versions}
           setVersions={setVersions}
+          currentVersion={currentVersion}
+          setCurrentVersion={setCurrentVersion}
         />
       }
       {startIt &&
@@ -293,7 +294,32 @@ const Editor = React.forwardRef(function Editor<
           sx={timelineSx}
         />
       }
-
+    {engineRef.current.viewMode === 'Renderer' && (playerFiles?.length ?? -1) > 0 && <Explorer
+        grid
+        role={'file-explorer'}
+        id={'editor-file-explorer-renderer'}
+        {...fileExplorerProps}
+        items={playerFiles}
+        dndInternal
+        dndExternal
+        alternatingRows
+        defaultExpandedItems={['tracks']}
+        sx={filesSx}
+        onAddFiles={onAddFiles}
+      />}
+    {engineRef.current.viewMode === 'Screener' && (screenerFiles?.length ?? -1) > 0 && <Explorer
+      grid
+      role={'file-explorer'}
+      id={'editor-file-explorer-screener'}
+      {...fileExplorerProps}
+      items={screenerFiles}
+      dndInternal
+      dndExternal
+      alternatingRows
+      defaultExpandedItems={['versions']}
+      sx={filesSx}
+      onAddFiles={onAddFiles}
+    />}
     </Root>);
 });
 
@@ -341,8 +367,4 @@ Editor.propTypes = {
   ),
 };
 
-export { Editor };
-    function namedId(arg0: string) {
-        throw new Error('Function not implemented.');
-    }
-
+export default Editor;

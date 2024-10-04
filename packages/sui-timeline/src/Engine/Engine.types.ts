@@ -15,7 +15,7 @@ export interface IEmitter<Events> {
 }
 
 export type ViewMode = 'Renderer' | 'Screener' | 'Edit';
-export type ScreenerBlob = { blob: Blob, version: number, name: string, key: string};
+export type ScreenerBlob = { blob: Blob, version: number, name: string, key: string, created: number, size: number};
 export interface IEngine extends IEmitter<EventTypes> {
   readonly isPlaying: boolean;
   readonly isPaused: boolean;

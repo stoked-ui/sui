@@ -62,9 +62,9 @@ const defaultEditorData = cloneDeep(actions);
 export default function CoreDemo() {
   return (
     <Editor
-      id="video-editor"
+      id={'video-editor'}
       sx={{ borderRadius: '12px 12px 0 0' }}
-      actionData={defaultEditorData}
+      actionData={ defaultEditorData }
     />
   );
 }

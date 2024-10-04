@@ -73,7 +73,7 @@ export function parserTimeToTransform(
 export function getScaleCountByRows(tracks: ITimelineTrack[], param: { scale: number }) {
   let max = 0;
   tracks?.forEach((track) => {
-    track.actions.forEach((action) => {
+    track?.actions.forEach((action) => {
       max = Math.max(max, action.end);
     });
   });

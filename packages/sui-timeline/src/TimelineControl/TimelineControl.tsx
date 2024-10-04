@@ -81,10 +81,6 @@ const TimelineControl = React.forwardRef(
     /** Monitor data changes */
     React.useEffect(() => {
       handleSetScaleCount(getScaleCountByRows(tracks, { scale }));
-      if (setTracks) {
-        setTracks(tracks);
-      }
-
     }, [minScaleCount, maxScaleCount, scale]);
 
     React.useEffect(() => {
@@ -116,7 +112,8 @@ const TimelineControl = React.forwardRef(
         let furthest = 0;
         if (tracks) {
           tracks.forEach((row) => {
-            row.actions.forEach((action) => {
+            console.log('get duration row', row);
+            row?.actions?.forEach((action) => {
               if (action.end > furthest) {
                 furthest = action.end;
               }

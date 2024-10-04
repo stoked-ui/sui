@@ -55,6 +55,8 @@ export interface EditorControlsPropsBase extends React.HTMLAttributes<HTMLDivEle
   setVersions:  React.Dispatch<React.SetStateAction<Version[]>>;
   mode: ViewMode;
   setMode:  React.Dispatch<React.SetStateAction<ViewMode>>;
+  currentVersion: string | undefined;
+  setCurrentVersion: React.Dispatch<React.SetStateAction<string | undefined>>;
 }
 
 export interface EditorControlsProps
@@ -72,3 +74,8 @@ export interface EditorControlsProps
 }
 
 export type ControlState = 'paused' | 'playing' | 'recording'
+
+export const VideoVersionFromKey = (key) => {
+  const parts = key.split('|');
+  return { id: parts[0], version: Number(parts[1]), key} as Version;
+}

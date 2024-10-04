@@ -44,6 +44,7 @@ const EditorLabelRoot = styled('div', {
   name: 'MuiEditorLabel',
   slot: 'Label',
   overridesResolver: (props, styles) => styles.icon,
+  shouldForwardProp: (prop) => prop !== 'lock',
 })(() => ({
   height: '32px',
   paddingLeft: '6px',
@@ -73,7 +74,9 @@ const EditorLabelContainer = styled('div', {
   name: 'MuiEditorLabelContainer',
   slot: 'container',
   overridesResolver: (props, styles) => styles.icon,
-})<{ lock?: boolean, color: string, selected: boolean, hidden: boolean}>(({ theme, color, selected, lock, hidden }) => ({
+  shouldForwardProp: (prop) => prop !== 'lock',
+
+})<{ lock?: boolean, color: string, selected: boolean, hidden: boolean}>(({ theme, color }) => ({
   color: theme.palette.text.primary,
   borderTopLeftRadius: '4px',
   borderBottomLeftRadius: '4px',
@@ -176,7 +179,7 @@ const EditorLabel = React.forwardRef(
 
     return (
       <EditorLabelRoot key={track.id} className={classes.label} ref={ref}>
-        <EditorLabelContainer color={controller?.color!} lock={track.lock} hidden={!!track.hidden} selected={!!track.selected}>
+        <EditorLabelContainer color={controller?.color ?? '#0000'} lock={track.lock} hidden={!!track.hidden} selected={!!track.selected}>
           <EditorLabelText
             onClick={(e) => trackFile ? handleItemClick(trackFile, e) : undefined}
           >
@@ -283,9 +286,10 @@ const EditorLabels = React.forwardRef(
         classes={classes}
         className={`${classes.root} timeline-list`}>
         {tracks?.map((track) => {
+          if (!track) {
+            return undefined;
+          }
           const controller = controllers ? getTrackController(track, controllers) : undefined;
-          const trackHasFile = track.actions.length && track.actions[0].file;
-          const trackAction = trackHasFile ? track.actions[0] : undefined;
           const extraProps = {
             anchorEl,
             setAnchorEl,
@@ -302,9 +306,7 @@ const EditorLabels = React.forwardRef(
             setTracks={inProps.setTracks}
             timelineState={timelineState}
             onClick={(e) => {
-              if (trackAction) {
-                handleItemClick(trackAction, e as unknown as React.MouseEvent<HTMLElement>);
-              }
+              handleItemClick(track.actionRef, e as unknown as React.MouseEvent<HTMLElement>);
             }}
             {...extraProps}
           />

@@ -1,5 +1,7 @@
 import Controllers from './Controllers';
+import Editor from './Editor';
 
+export default Editor;
 export { Controllers };
 export * from './Editor';
 export * from './models';

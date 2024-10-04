@@ -22,4 +22,6 @@ export interface ITimelineTrack {
   hidden?: boolean;
   /** Whether the action is hidden */
   lock?: boolean;
+
+  actionRef: ITimelineAction;
 }
