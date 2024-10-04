@@ -75,7 +75,7 @@ const TimelineTrackRoot = styled('div', {
 });
 
 export function getTrackControllerName(track: ITimelineTrack) {
-  return track.actions.length ? track.actions[0].controllerName : undefined;
+  return track.actionRef.controllerName;
 }
 
 export function getTrackController(track: ITimelineTrack, controllers: Record<string, IController>) {
@@ -123,6 +123,9 @@ export default function TimelineTrack(props: TimelineTrackProps) {
     return time;
   };
 
+  if (!track) {
+    return undefined;
+  }
   return (
     <TimelineTrackRoot
       className={`${prefix(...classNames)} ${(track?.classNames || []).join(
@@ -139,7 +142,7 @@ export default function TimelineTrack(props: TimelineTrackProps) {
       onClick={(e) => {
         if (track && onClickRow) {
           const time = handleTime(e);
-          onClickRow(e, { track: track, time });
+          onClickRow(e, { track, time });
         }
       }}
       onDoubleClick={(e) => {
@@ -151,7 +154,7 @@ export default function TimelineTrack(props: TimelineTrackProps) {
       onContextMenu={(e) => {
         if (track && onContextMenuRow) {
           const time = handleTime(e);
-          onContextMenuRow(e, { track: track, time });
+          onContextMenuRow(e, { track, time });
         }
       }}
     >

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Editor } from '@stoked-ui/editor';
+import Editor from '@stoked-ui/editor';
 import { cloneDeep } from 'lodash';
 import Fade from "@mui/material/Fade";
 import {Card} from "@mui/material";
@@ -14,7 +14,7 @@ export const actions = [
   {
     name: 'video',
     start: 0,
-    end: 20,
+    end: 15.5,
     controllerName: 'video',  // Use the new video effect
     src: '/static/video-editor/stock-loop.mp4',
     layer: 'background',
@@ -22,7 +22,7 @@ export const actions = [
   {
     name: 'write stuff',
     start: 9.5,
-    end: 16,
+    end: 15.5,
     controllerName: 'animation',
     src: '/static/timeline/docs/overview/writing.lottie',
   },
@@ -45,7 +45,7 @@ export const actions = [
   {
     name: 'music',
     start: 0,
-    end: 20,
+    end: 15.5,
     controllerName: 'audio',
     // src: 'https://adam-rodgers.s3.amazonaws.com/stoked-studio/funeral.mp3',
     src: '/static/timeline/docs/overview/funeral.m4a',

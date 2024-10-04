@@ -77,7 +77,15 @@ const Timeline = React.forwardRef(function Timeline(
   const forkedRootRef = React.useRef<HTMLDivElement>(null);
   const combinedRootRef = useForkRef(ref, forkedRootRef);
 
-  const [tracks, setTracks] = React.useState<ITimelineTrack[] | null>(null);
+  const [tracks, setTracksBase] = React.useState<ITimelineTrack[] | null>(null);
+  const setTracks: React.Dispatch<React.SetStateAction<ITimelineTrack[]>> = (tracksUpdater) => {
+    if (typeof tracksUpdater === "function") {
+      setTracksBase((prevTracks) => tracksUpdater(prevTracks));
+    } else {
+      setTracksBase(tracksUpdater);
+    }
+  };
+
   const [screenerTrack, setScreenerTrack] = React.useState<ITimelineTrack | null>(null);
 
   const [currentTracks, setCurrentTracks] = React.useState(engineRef.current.viewMode === 'Renderer' ? tracks : [screenerTrack]);
@@ -85,9 +93,13 @@ const Timeline = React.forwardRef(function Timeline(
   engineRef.current.setTracks = setTracks;
   engineRef.current.setScreenerTrack = setScreenerTrack;
   React.useEffect(() => {
-    console.log('new view mode', engineRef.current.viewMode);
-    setCurrentTracks(engineRef.current.viewMode === 'Renderer' ? tracks : [screenerTrack])
-  }, [engineRef.current.viewMode])
+    console.log('new view mode', engineRef.current.viewMode, engineRef.current.screenerBlob, screenerTrack);
+    let screenerTracks = screenerTrack ? [screenerTrack] : null;
+    if (!screenerTrack && engineRef.current.viewMode === 'Screener') {
+      screenerTracks = [engineRef.current.screenerTrack];
+    }
+    setCurrentTracks(engineRef.current.viewMode === 'Renderer' ? tracks : screenerTracks)
+  }, [engineRef.current.viewMode, engineRef.current.screenerTrack])
 
 
   React.useEffect(() => {
@@ -133,6 +145,7 @@ const Timeline = React.forwardRef(function Timeline(
 
     engine.buildScreenerTrack(controllers.video, actionInput)
     .then((track) => {
+      console.log('track', track);
       setScreenerTrack(track);
     })
       .catch((err) => {
@@ -167,10 +180,10 @@ const Timeline = React.forwardRef(function Timeline(
   });
 
   const createAction = (e: React.MouseEvent<HTMLElement, MouseEvent>, { track, time }) => {
-    if (!track.actions.length) {
+    if (!track.actionRef) {
       return;
     }
-    const existingTrackAction = track.actions[0];
+    const existingTrackAction = track.actionRef;
     const rowIndex = tracks.findIndex((previousTrack) => previousTrack.id === track.id);
     const newAction: ITimelineAction = {...existingTrackAction, ...{
       id: namedId('action'),
