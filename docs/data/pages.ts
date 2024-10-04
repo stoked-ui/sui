@@ -13,6 +13,7 @@ const pages: MuiPage[] = [
       { pathname: `/stoked-ui/docs/example-projects` },
       { pathname: `/stoked-ui/docs/faq` },
       { pathname: `/stoked-ui/docs/support` },
+      { pathname: `/stoked-ui/docs/consulting` },
       { pathname: `/stoked-ui/docs/vision` },
       { pathname: `/stoked-ui/docs/roadmap` },
     ],

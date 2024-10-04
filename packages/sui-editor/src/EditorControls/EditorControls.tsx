@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { openDB } from 'idb';
+import {FastForward, FastRewind} from "@mui/icons-material";
 import FormControl from '@mui/material/FormControl';
 import StopIcon from '@mui/icons-material/Stop';
 import PreviewIcon from '@mui/icons-material/Preview';
@@ -21,16 +22,12 @@ import {type Version } from '../Editor';
 import EditorEngine from '../EditorEngine/EditorEngine';
 import {ScreenVideoBlob} from '../EditorEngine/EditorEngine.types';
 import {createUseThemeProps, styled} from '../internals/zero-styled';
-import {ControlState, EditorControlsProps} from './EditorControls.types';
+import {ControlState, EditorControlsProps, VideoVersionFromKey} from './EditorControls.types';
 import TimelineView from '../icons/TimelineView';
 
-export const Rates = [0.2, 0.5, 1.0, 1.5, 2.0];
+export const Rates = [-3, -2.5, -2.0, -1.5, -1.0, -0.5, -0.2, 0.2, 0.5, 1.0, 1.5, 2.0, 2.5, 3];
 const useThemeProps = createUseThemeProps('MuiEditor');
 
-export const VideoVersionFromKey = (key) => {
-  const parts = key.split('|');
-  return { id: parts[0], version: Number(parts[1]), key} as Version;
-}
 
 const ViewGroup = styled(ToggleButtonGroup)(() => ({
   background: 'unset!important',
@@ -113,7 +110,6 @@ const RateControlSelect = styled(Select)(({ theme }) => ({
   },
 }));
 
-
 const VersionRoot = styled(FormControl)({
   justifySelf: 'flex-end',
   alignContent: 'center',
@@ -145,15 +141,13 @@ function Controls(inProps: ControlProps) {
   const controlsInput: string = '';
   const [controls, setControls] = React.useState<string>(controlsInput);
 
-  const props = useThemeProps({ props: inProps, name: 'MuiControls' });
+  useThemeProps({ props: inProps, name: 'MuiControls' });
   const { engineRef, setVideoURLs, controlState, versions, setVersions, viewMode, setControlState } = inProps;
   const [mediaRecorder, setMediaRecorder] = React.useState<MediaRecorder | null>(null);
   const [recordedChunks, setRecordedChunks] = React.useState<Blob[]>([]);
 
-
   React.useEffect(() => {
     if (controls === 'play' && controlState === 'paused') {
-      // setControlsBase('playing');
     } else if (controls === 'record' && controlState === 'paused') {
       // setControlsBase('recording');
     }
@@ -164,6 +158,7 @@ function Controls(inProps: ControlProps) {
       return;
     }
     if (!engineRef.current.isPlaying) {
+      engineRef.current.setPlayRate(1);
       engineRef.current.play({ autoEnd: true });
     }
   }
@@ -173,28 +168,48 @@ function Controls(inProps: ControlProps) {
     if (!engineRef || !engineRef.current) {
       return;
     }
+    setControls('');
     if (engineRef.current.isPlaying || engineRef.current.isRecording) {
       engineRef.current.pause();
     }
-  }
+  };
+
+  const handleRewind = () => {
+    const playRate = engineRef.current?.getPlayRate?.() ?? 1;
+    if (playRate > 0 || playRate <= -3) {
+      engineRef.current?.setPlayRate?.(-1);
+    } else if (playRate > -3) {
+      engineRef.current?.setPlayRate?.(playRate - .5);
+    }
+    handlePlay();
+  };
+
+  const handleFastForward = () => {
+    const playRate = engineRef.current?.getPlayRate?.() ?? 1;
+    if (playRate < 0 || playRate >= 3) {
+      engineRef.current?.setPlayRate?.(1.5);
+    } else if (playRate < 3) {
+      engineRef.current?.setPlayRate?.(playRate + .5);
+    }
+    handlePlay();
+  };
 
   const handleStart = () => {
     engineRef?.current?.setTime(0, true);
-  }
+  };
 
   const handleEnd = () => {
     engineRef?.current?.setTime(engineRef.current?.duration, true);
-  }
+  };
 
   const stateFunc = (value: string, upFunc: () => void, downFunc: () => void) => {
     if (!controls || controls.indexOf(value) === -1) {
       return upFunc();
     }
     return downFunc();
-  }
+  };
 
   const saveVersion = async (vidBlob: ScreenerBlob) => {
-
     let res;
     try {
 
@@ -210,7 +225,7 @@ function Controls(inProps: ControlProps) {
       throw new Error(e as string);
     }
     return res;
-  }
+  };
 
   const finalizeVideo = () => {
     const engine = engineRef.current;
@@ -218,24 +233,22 @@ function Controls(inProps: ControlProps) {
       return;
     }
     const blob = new Blob(recordedChunks, {
-      type: "video/mp4"
+      type: "video/mp4",
     });
 
     const dbKey = `${engine._editorId}|${versions.length + 1}`;
     const version = VideoVersionFromKey(dbKey);
-    const screenerBlob = { blob, key: dbKey, version: version.version, name: version.id };
-    saveVersion(screenerBlob)
-      .then((test) => {
-          setVersions([...versions, version]);
-        });
+    const screenerBlob = { blob, key: dbKey, version: version.version, name: version.id, created: Date.now(), size: blob.size };
+    saveVersion(screenerBlob).then(() => {
+      setVersions([...versions, version]);
+    });
 
-    const url = ScreenVideoBlob(blob, engine, version);
+    const url = ScreenVideoBlob(screenerBlob, engine);
     setVideoURLs((prev) => [url, ...prev]);
     setRecordedChunks([]);
     handlePause();
     setMediaRecorder(null);
-
-  }
+  };
 
   const handleRecord = () => {
     const engine = engineRef.current;
@@ -286,16 +299,12 @@ function Controls(inProps: ControlProps) {
   };
 
   const handleRecordStop = () => {
-    const engine = engineRef.current;
-    if (mediaRecorder && engine && engine.screener) {
+    if (mediaRecorder) {
       handlePause();
       mediaRecorder.stop();
     }
-  }
+  };
 
-  const getControlState = () => {
-    return controlState;
-  }
   React.useEffect(() => {
     if (!engineRef || !engineRef.current) {
       return;
@@ -303,10 +312,9 @@ function Controls(inProps: ControlProps) {
     const engine = engineRef.current;
     engine?.on('paused', () => {
       setControlState('paused')
+      setControls('')
     });
-    engine.on('ended', () => {
-
-    });
+    engine.on('ended', () => {});
 
   }, []);
 
@@ -314,9 +322,9 @@ function Controls(inProps: ControlProps) {
     console.log('controlState', controlState);
     if (mediaRecorder && controlState === 'paused') {
       handleRecordStop();
-      setControls('')
+      setControls('');
     }
-  }, [controlState])
+  }, [controlState]);
 
   return (
     <div style={{display: 'flex', flexDirection: 'row', marginLeft: '6px', alignContent: 'center', width: '100%'}}>
@@ -337,6 +345,9 @@ function Controls(inProps: ControlProps) {
         exclusive
         onChange={(event, changeControls) => {
           console.log('changeControls', changeControls)
+          if (['start','end', 'rewind', 'fast-forward'].indexOf(changeControls) !== -1) {
+            return;
+          }
           setControls(changeControls)
         }}
         size={'small'}
@@ -345,10 +356,16 @@ function Controls(inProps: ControlProps) {
         <ToggleButton onClick={handleStart} value="start" aria-label="hidden">
           <SkipPreviousIcon fontSize={'small'}/>
         </ToggleButton>
+        <ToggleButton onClick={handleRewind} value="rewind" aria-label="hidden">
+          <FastRewind fontSize={'small'}/>
+        </ToggleButton>
         <ToggleButton value="play" onClick={() => {
           stateFunc('play', handlePlay, handlePause)
         }}>
           {controlState === 'playing' ? <PauseIcon/> : <PlayArrowIcon/>}
+        </ToggleButton>
+        <ToggleButton onClick={handleFastForward} value="fast-forward" aria-label="hidden">
+          <FastForward fontSize={'small'}/>
         </ToggleButton>
         <ToggleButton onClick={handleEnd} value="end" aria-label="lock">
           <SkipNextIcon/>
@@ -487,8 +504,10 @@ export function PreviewToggle({engineRef, visible, mode, setMode}: PreviewToggle
       if (!newMode) {
         newMode = engine.viewMode === 'Screener' ? 'Renderer' : 'Screener';
       }
-      engine.viewMode = newMode;
-      setMode(newMode);
+      engine.setViewMode(newMode)
+        .then(() => {
+          setMode(newMode);
+        })
     }}
     size={'small'}
     aria-label="text alignment"
@@ -518,10 +537,11 @@ type VersionProps =  {
   versions: Version[];
   setVersions: React.Dispatch<React.SetStateAction<Version[]>>;
   viewMode: ViewMode;
+  currentVersion: string | undefined;
+  setCurrentVersion: React.Dispatch<React.SetStateAction<string | undefined>>;
 }
 
-function Versions ({engineRef, setVersions, versions, viewMode }: VersionProps) {
-  const [currentVersion, setCurrentVersion] = React.useState<string>()
+function Versions ({engineRef, setVersions, versions, viewMode, currentVersion, setCurrentVersion }: VersionProps) {
 
   const handleVersionChange = async (event: SelectChangeEvent<unknown>) => {
     const screenerBlob = await EditorEngine.loadVersion(event.target.value as string)
@@ -546,13 +566,15 @@ function Versions ({engineRef, setVersions, versions, viewMode }: VersionProps) 
     if (versions.length && engine) {
       console.log('set current version', versions[versions.length - 1])
       const previousVersion = versions[versions.length - 1];
-      EditorEngine.loadVersion(previousVersion.key)
-        .then((blob) => {
-          engine.screenerBlob = blob
-        })
-        .catch((err) => {
-          console.error(`Error loading previous version: ${previousVersion.id} v${previousVersion.version} - ${err}`)
-        })
+      if (!engine.screenerBlob || engine.screenerBlob.key !== previousVersion.key) {
+        EditorEngine.loadVersion(previousVersion.key)
+          .then((blob) => {
+            engine.screenerBlob = blob
+          })
+          .catch((err) => {
+            console.error(`Error loading previous version: ${previousVersion.id} v${previousVersion.version} - ${err}`)
+          })
+      }
     }
   }, [versions])
 
@@ -590,7 +612,7 @@ export const EditorControls = React.forwardRef(
   const [controlState, setControlState] = React.useState<ControlState>('paused');
 
   const props = useThemeProps({ props: inProps, name: 'MuiEditorControls' });
-  const { engineRef, autoScroll = true, view, setView, versions, setVersions, mode, setMode } = props;
+  const { engineRef, autoScroll = true, view, setView, versions, setVersions, mode, setMode, currentVersion, setCurrentVersion } = props;
   const [time, setTime] = React.useState(0);
   const [showRate, setShowRate] = React.useState(true);
   const [videoURLs, setVideoURLs] = React.useState<string[]>([]);
@@ -660,7 +682,7 @@ export const EditorControls = React.forwardRef(
 
 
   const controlProps = { engineRef, setVideoURLs, setControlState, versions, setVersions, viewMode: mode };
-  const versionProps = { engineRef, versions, setVersions, viewMode: mode };
+  const versionProps = { engineRef, versions, setVersions, viewMode: mode, currentVersion, setCurrentVersion };
   return (
     <PlayerRoot className="timeline-player" ref={ref}>
       <div style={{display: 'flex', flexDirection: 'row', alignContent: 'center', width: '100%'}}>

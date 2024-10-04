@@ -1,5 +1,5 @@
-import { IEngine, PlayState } from '@stoked-ui/timeline';
-import {Version} from "../Editor";
+import { IEngine, PlayState, ScreenerBlob } from '@stoked-ui/timeline';
+import {type Version} from "../Editor";
 
 export interface IEditorEngine extends IEngine {
   readonly isRecording: boolean;
@@ -16,10 +16,11 @@ export interface IEditorEngine extends IEngine {
 const RECORDING = 'recording';
 export type EditorState = PlayState & typeof RECORDING;
 
-export function ScreenVideoBlob(blob: Blob, engine: IEditorEngine, version: Version) {
-  engine.screenerBlob = {blob, version: version.version, name: version.id, key: version.key};
-  const url = URL.createObjectURL(blob);
+export function ScreenVideoBlob(blob: ScreenerBlob, engine: IEditorEngine) {
+  engine.screenerBlob = blob;
+  const url = URL.createObjectURL(blob.blob);
   // URL.revokeObjectURL(url);
   engine.screener!.src = url;
   return url;
 }
+
