@@ -178,7 +178,7 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
           let totalHeight = 0;
           // HEIGHT LIST
           const heights = tracks?.map((track) => {
-            const itemHeight = track.rowHeight || rowHeight;
+            const itemHeight = track?.rowHeight || rowHeight;
             totalHeight += itemHeight;
             return itemHeight;
           });

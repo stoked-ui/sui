@@ -475,13 +475,17 @@ function TimelineAction(props: TimelineActionProps) {
       <Action
         size={action?.duration ? action.duration * scaleWidth : undefined}
         id={action.id}
+        tabIndex={0}
         onKeyDown={(event: any) => {
           event.currentTarget = action;
           console.log('event.key', event.key)
-          if (event.key === 'Delete') {
+          if (event.key === 'Backspace') {
             console.log('Delete key pressed');
+            track.actions = track.actions.filter((trackAction) => trackAction.id !== action.id);
+            const trackIndex = tracks.indexOf(track);
+            tracks[trackIndex] = {...track};
+            setTracks([...tracks])
           }
-          action.onKeyDown(event, action.id);
           event.preventDefault();
         }}
         onMouseDown={() => {

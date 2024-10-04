@@ -3,8 +3,9 @@ import {openDB} from "idb";
 import {EditorEvents, EditorEventTypes} from './events';
 import {IEditorEngine, EditorState, ScreenVideoBlob} from "./EditorEngine.types";
 import {getKeysStartingWithPrefix} from "../db/get";
-import {Version} from "../Editor";
-import {VideoVersionFromKey} from "../EditorControls";
+import {Version} from "../Editor/Editor.types";
+import { VideoVersionFromKey} from "../EditorControls/EditorControls.types";
+import {FileBase} from "../models";
 
 
 /**
@@ -59,7 +60,30 @@ export default class EditorEngine extends Engine<EditorState, EditorEventTypes> 
   };
 
   displayVersion(screenerBlob: ScreenerBlob) {
-    ScreenVideoBlob(screenerBlob.blob, this, VideoVersionFromKey(screenerBlob.key));
+    ScreenVideoBlob(screenerBlob, this);
+  }
+
+  async versionFiles() {
+    const versionBlobs = await this.getVersions();
+    return versionBlobs.map((versionBlob) => {
+      const newId = versionBlob.key;
+      const type = 'video/mp4';
+      const mediaType = 'video';
+      const fileBase = {
+        mime: type,
+        type: mediaType,
+        id: newId,
+        itemId: newId,
+
+        label: versionBlob.name,
+        expanded: false,
+        modified: Date.now(),
+        size: 0,
+        children: [] as FileBase[],
+        parent: null,
+      } as FileBase;
+      return fileBase;
+    })
   }
 
   /**

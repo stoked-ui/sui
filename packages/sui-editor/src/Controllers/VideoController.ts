@@ -36,6 +36,7 @@ class VideoControl extends Controller {
           item.width = engine.renderWidth;
           item.height = engine.renderHeight;
           engine.stage?.appendChild(item);
+          console.log('action', action);
           resolve(action);
         })
         item.autoplay = false;
@@ -52,6 +53,9 @@ class VideoControl extends Controller {
 
   // eslint-disable-next-line class-methods-use-this
   canvasSync(engine: IEngine, item: HTMLVideoElement, action: ITimelineAction) {
+    if (engine.viewMode === 'Screener') {
+      return;
+    }
     // const fpsInfo = document.querySelector("#fps-info");
     // const metadataInfo =  document.querySelector("#metadata-info");
 
@@ -113,6 +117,7 @@ class VideoControl extends Controller {
       }
       item = this.cacheMap[action.id] || action.element;
       this.canvasSync(engine, item, action);
+
       if (engine.isPlaying) {
         item = this.cacheMap[action.id];
         item.currentTime += 0.0001;
@@ -129,8 +134,12 @@ class VideoControl extends Controller {
   start(params: ControllerParams) {
     const { engine, action } = params;
     if (engine.isPlaying) {
-      const item = this.cacheMap[action.id];
-      item.play();
+      if (engine.viewMode === 'Renderer') {
+        const item = this.cacheMap[action.id];
+        item.play().catch((err) => console.error(err))
+      } else {
+        engine.screener?.play().catch((err) => console.error(err))
+      }
     }
   }
 
@@ -141,29 +150,13 @@ class VideoControl extends Controller {
   }
 
   update(params: ControllerParams) {
-    const { action } = params;
+    const { action, time } = params;
     const item = this.cacheMap[action.id];
     if (item.currentTime === 0) {
       item.currentTime += 0.0001;
+    } else {
+      item.currentTime = time;
     }
-    /* console.log('video update', time)
-    const item = this.cacheMap[action.id];
-    if (!item) {
-      return;
-    }
-    if (action.hidden) {
-      //item.style.display = 'none';
-      return;
-    }
-    const { renderCtx, renderer } = engine;
-    if (!renderCtx || !renderer) {
-      return;
-    } */
-
-    // console.log(this.isVideoPlaying(item));
-    // item.currentTime = this.getActionTime(time, action);
-    // renderCtx.drawImage(item, 0, 0, engine.renderWidth, engine.renderHeight);
-    // this._goToAndStop(item, item.currentTime );
   }
 
   leave(params: ControllerParams) {
