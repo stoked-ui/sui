@@ -80,39 +80,17 @@ const Timeline = React.forwardRef(function Timeline(
   const [tracks, setTracksBase] = React.useState<ITimelineTrack[] | null>(null);
   const setTracks: React.Dispatch<React.SetStateAction<ITimelineTrack[]>> = (tracksUpdater) => {
     if (typeof tracksUpdater === "function") {
-      setTracksBase((prevTracks) => tracksUpdater(prevTracks));
+      setTracksBase((prevTracks) => {
+        return tracksUpdater(prevTracks);
+      });
+      engineRef.current.tracks = tracks;
     } else {
       setTracksBase(tracksUpdater);
+      engineRef.current.tracks = tracksUpdater;
     }
   };
 
-  const [screenerTrack, setScreenerTrack] = React.useState<ITimelineTrack | null>(null);
-
-  const [currentTracks, setCurrentTracks] = React.useState(engineRef.current.viewMode === 'Renderer' ? tracks : [screenerTrack]);
-
   engineRef.current.setTracks = setTracks;
-  engineRef.current.setScreenerTrack = setScreenerTrack;
-  React.useEffect(() => {
-    console.log('new view mode', engineRef.current.viewMode, engineRef.current.screenerBlob, screenerTrack);
-    let screenerTracks = screenerTrack ? [screenerTrack] : null;
-    if (!screenerTrack && engineRef.current.viewMode === 'Screener') {
-      screenerTracks = [engineRef.current.screenerTrack];
-    }
-    setCurrentTracks(engineRef.current.viewMode === 'Renderer' ? tracks : screenerTracks)
-  }, [engineRef.current.viewMode, engineRef.current.screenerTrack])
-
-
-  React.useEffect(() => {
-    if (engineRef.current.viewMode === 'Renderer') {
-      setCurrentTracks(tracks)
-    }
-  }, [tracks])
-
-  React.useEffect(() => {
-    if (engineRef.current.viewMode === 'Screener') {
-      setCurrentTracks([screenerTrack])
-    }
-  }, [screenerTrack])
 
   const tracksInitialized = React.useRef(false);
 
@@ -143,15 +121,7 @@ const Timeline = React.forwardRef(function Timeline(
       layer: 'screener',
     }
 
-    engine.buildScreenerTrack(controllers.video, actionInput)
-    .then((track) => {
-      console.log('track', track);
-      setScreenerTrack(track);
-    })
-      .catch((err) => {
-        console.error(err);
-        throw new Error(err);
-      })
+
   }, [engineRef.current.screenerBlob])
 
   const Root = slots?.root ?? TimelineRoot;
@@ -176,7 +146,7 @@ const Timeline = React.forwardRef(function Timeline(
     elementType: Control,
     externalSlotProps: slotProps?.control,
     className: classes.control,
-    ownerState: { sx: controlSx, trackSx, tracks: currentTracks, setTracks, engineRef, setScreenerTrack, screenerTrack },
+    ownerState: { sx: controlSx, trackSx, tracks, setTracks, engineRef },
   });
 
   const createAction = (e: React.MouseEvent<HTMLElement, MouseEvent>, { track, time }) => {
@@ -200,7 +170,7 @@ const Timeline = React.forwardRef(function Timeline(
         <Labels
           ref={labelsRef}
           {...labelsProps.ownerState}
-          tracks={currentTracks}
+          tracks={tracks}
           timelineState={timelineState}
           onChange={onChange}
           controllers={inProps.controllers}
@@ -225,12 +195,12 @@ const Timeline = React.forwardRef(function Timeline(
             labelsRef.current.scrollTop = scrollTop;
           }
         }}
-        startLeft={10}
+        startLeft={9}
         ref={combinedTimelineRef}
         scaleWidth={scaleWidth}
         setScaleWidth={setScaleWidth}
         engineRef={engineRef}
-        tracks={currentTracks}
+        tracks={tracks}
         autoScroll
         setTracks={setTracks}
         controllers={inProps.controllers}

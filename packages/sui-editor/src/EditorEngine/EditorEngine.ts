@@ -15,7 +15,7 @@ import {FileBase} from "../models";
  * @class Engine
  * @extends {Engine<EditorState, EditorEventTypes>}
  */
-export default class EditorEngine extends Engine<EditorState, EditorEventTypes> implements IEditorEngine{
+export default class EditorEngine extends Engine<EditorState, EditorEventTypes> implements IEditorEngine {
 
   constructor(params: EngineOptions ) {
     super({...params, events: new EditorEvents()});

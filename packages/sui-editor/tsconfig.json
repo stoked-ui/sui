@@ -9,8 +9,9 @@
       "mocha",
       "node"
     ],
-    "noImplicitAny": false
+    "noImplicitAny": false,
+
   },
   "include": ["src/**/*"],
-  "exclude": ["**/*.test.tsx"]
+  "exclude": ["**/*.test.tsx"],
 }

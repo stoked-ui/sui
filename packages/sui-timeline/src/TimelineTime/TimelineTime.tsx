@@ -17,7 +17,7 @@ export type TimelineTimeProps = CommonProps & {
 
 const TimeAreaRoot = styled('div')(({theme}) => ({
   position: 'relative',
-  height: '32px',
+  height: '31px',
   flex: '0 0 auto',
   backgroundColor: emphasize(theme.palette.background.default, 0.04),
   '& .ReactVirtualized__Grid': {

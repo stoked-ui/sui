@@ -46,8 +46,6 @@ const TimelineControl = React.forwardRef(
       maxScaleCount,
       scaleSplitCount: initialScaleSplitCount,
       setTracks,
-      screenerTrack,
-      setScreenerTrack,
       engineRef,
       autoReRender = true,
       onScroll: onScrollVertical,
@@ -107,12 +105,10 @@ const TimelineControl = React.forwardRef(
       if (!engineRef?.current || !tracks) {
         return;
       }
-      engineRef.current.tracks = tracks;
       const getDuration = () => {
         let furthest = 0;
         if (tracks) {
           tracks.forEach((row) => {
-            console.log('get duration row', row);
             row?.actions?.forEach((action) => {
               if (action.end > furthest) {
                 furthest = action.end;
@@ -264,10 +260,11 @@ const TimelineControl = React.forwardRef(
         },
         tracks,
         setTracks,
-        screenerTrack,
-        setScreenerTrack,
         get duration() {
           return engineRef.current?.duration;
+        },
+        get selectedTrack() {
+          return engineRef.current?.tracks.find(t => t.selected);
         }
       }), [engineRef?.current, duration],
     );

@@ -11,6 +11,8 @@ abstract class Controller implements IController {
 
   color: string;
 
+  logging: boolean = false;
+
   constructor(options: {
     id: string,
     name: string,
@@ -32,6 +34,8 @@ abstract class Controller implements IController {
     const durationAdjusted = action.duration ? startDelta % action.duration : startDelta;;
     return durationAdjusted;
   }
+
+
 }
 
 export default Controller;

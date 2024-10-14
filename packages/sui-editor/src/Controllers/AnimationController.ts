@@ -17,6 +17,8 @@ class AnimationControl implements Controller {
 
   static secondaryColor: '#cd6bff';
 
+  logging: boolean = false;
+
   constructor({
     color,
     colorSecondary

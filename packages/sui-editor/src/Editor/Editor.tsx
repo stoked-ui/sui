@@ -81,6 +81,7 @@ const Editor = React.forwardRef(function Editor<
   Multiple extends boolean | undefined = undefined,
 >(inProps: EditorProps<R, Multiple>, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
   const { sx, ...props } = useThemeProps({ props: inProps, name: 'MuiEditor' });
+
   const {
     getRootProps,
     getEditorViewProps,
@@ -192,19 +193,26 @@ const Editor = React.forwardRef(function Editor<
     }
   }, [viewerRef.current]);
 
-  const [playerFiles, setPlayerFiles] = React.useState<FileBase[]>([])
+  const [files, setFiles] = React.useState<FileBase[]>([]);
+
   React.useEffect(() => {
     const actions = engineRef.current?.actions ? Object.values(engineRef.current?.actions) : undefined;
-    if (!playerFiles.length && actions?.length) {
-      const files = FilesFromActions(actions) as FileBase[];
-      const tracks = {
-        id: 'tracks', label: 'Tracks', expanded: true, selected: true, type: 'folder', children: files,
-      } as FileBase
-      setPlayerFiles([tracks]);
+    if (!files.length && actions?.length) {
+      const actionFiles  = FilesFromActions(actions) as FileBase[];
+      const tracks: FileBase = {
+        id: 'tracks',
+        label: 'Tracks',
+        expanded: true,
+        selected: true,
+        type: 'folder',
+        children: actionFiles,
+      };
+
+      setFiles([tracks]);
     }
   }, [engineRef.current?.actions])
 
-
+  const [saved, setSaved] = React.useState<FileBase[]>([])
   const [versions, setVersions] = React.useState<Version[]>([]);
   const [view, setView] = React.useState<'timeline' | 'files'>('timeline')
   const hiddenSx: SxProps = {position: 'absolute!important', opacity: '0!important', left: '200%'};
@@ -213,16 +221,26 @@ const Editor = React.forwardRef(function Editor<
   const filesSx = view !== 'files' ? hiddenSx : visibleSx ;
   const [currentVersion, setCurrentVersion] = React.useState<string>()
 
-
-  const [screenerFiles, setScreenerFiles] = React.useState<FileBase[]>([])
   React.useEffect(() => {
-    if (!screenerFiles.length && versions?.length) {
+    if (!saved.length && versions?.length) {
       engineRef.current.versionFiles()
         .then((versionFiles) => {
-          const versionFolder = {
-            id: 'versions', label: 'Versions', expanded: true, selected: true, type: 'folder', children: versionFiles,
-          } as FileBase
-          setScreenerFiles([versionFolder]);
+          const updatedVersionFiles = [...files];
+          const versionDirIndex = updatedVersionFiles.findIndex((file) => file.id === 'versions');
+          if (versionDirIndex === -1) {
+            updatedVersionFiles.push({
+              id: 'versions',
+              label: 'Versions',
+              expanded: true,
+              selected: true,
+              type: 'folder',
+              children: versionFiles,
+            } as FileBase);
+          } else {
+            updatedVersionFiles[versionDirIndex].children = versionFiles;
+          }
+
+          setFiles(updatedVersionFiles);
         })
     }
   }, [currentVersion, versions])
@@ -245,17 +263,11 @@ const Editor = React.forwardRef(function Editor<
     });
 
     const actions: ITimelineActionInput[] = Object.values(engine.actions);
-    if (actions.length) {
-      engine.buildTracks(Controllers, [...actions, ...actionInput])
-        .then((tracks) => {
-          timelineState.current?.setTracks(tracks);
-        })
-    } else {
-      engine.buildTracks(Controllers, [...actionInput])
-        .then((tracks) => {
-          timelineState.current?.setTracks(tracks);
-        })
-    }
+    const input = actions.concat(actionInput);
+    engine.buildTracks(Controllers, input)
+      .then((builtTracks : ITimelineTrack[]) => {
+        timelineState.current?.setTracks(builtTracks);
+      });
   }
 
   return (<Root role={'editor'} {...rootProps} >
@@ -294,12 +306,12 @@ const Editor = React.forwardRef(function Editor<
           sx={timelineSx}
         />
       }
-    {engineRef.current.viewMode === 'Renderer' && (playerFiles?.length ?? -1) > 0 && <Explorer
+    {engineRef.current.viewMode === 'Renderer' && (files?.length ?? -1) > 0 && <Explorer
         grid
         role={'file-explorer'}
         id={'editor-file-explorer-renderer'}
         {...fileExplorerProps}
-        items={playerFiles}
+        items={files}
         dndInternal
         dndExternal
         alternatingRows
@@ -307,12 +319,12 @@ const Editor = React.forwardRef(function Editor<
         sx={filesSx}
         onAddFiles={onAddFiles}
       />}
-    {engineRef.current.viewMode === 'Screener' && (screenerFiles?.length ?? -1) > 0 && <Explorer
+    {engineRef.current.viewMode === 'Screener' && (saved?.length ?? -1) > 0 && <Explorer
       grid
       role={'file-explorer'}
       id={'editor-file-explorer-screener'}
       {...fileExplorerProps}
-      items={screenerFiles}
+      items={saved}
       dndInternal
       dndExternal
       alternatingRows

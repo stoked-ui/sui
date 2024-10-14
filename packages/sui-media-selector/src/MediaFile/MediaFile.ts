@@ -251,14 +251,14 @@ function noIgnoredFiles(files: IMediaFile[]) {
   });
 }
 
-async function loadAction(action: { id?: string, src: string; }): Promise<any> {
+async function loadAction(action: { id?: string, src: string; fullName?: string; name?: string }): Promise<any> {
   const response = await fetch(action.src);
   if (!response.ok) {
     throw new Error('Network response was not ok');
   }
   const contentType = response.headers.get("content-type");
   const blob = await response.blob()
-  const file = new File([blob], getFileName(action.src, true) ?? 'url-file', {type: contentType ?? 'application/octet-stream'});
+  const file = new File([blob], action.fullName ?? action.name ?? getFileName(action.src, true) ?? 'url-file', {type: contentType ?? 'application/octet-stream'});
   const mediaFile = file as IMediaFile;
   Object.defineProperty(mediaFile, 'url', {
     value: action.src,

@@ -1,27 +1,29 @@
 import * as React from 'react';
 import {styled} from '@mui/system';
+import {emphasize} from "@mui/material/styles";
 import {TimelineScrollResizerProps} from './TimelineScrollResizer.types';
 
-const ScrollbarContainer = styled('div')(({ theme }) => ({
+const ScrollbarContainer = styled('div')(({theme}) => ({
   width: '100%',
   height: '0px',
-  backgroundColor: theme.palette.action.divider,
+  backgroundColor: emphasize(theme.palette.background.default, 0.1),
   position: 'relative',
 }));
 
-const ScrollbarTrack = styled('div')(({ theme }) => ({
+const ScrollbarTrack = styled('div')(({theme}) => ({
   height: '100%',
   width: '100%',
-  backgroundColor: theme.palette.action.hover,
+  backgroundColor: emphasize(theme.palette.background.default, 0.1),
   position: 'relative',
 }));
 
-const ScrollbarThumb = styled('div')<{ width: number; left: number }>(({  width, left }) => ({
+const ScrollbarThumb = styled('div')<{ width: number; left: number }>(({width, left}) => ({
   height: '100%',
   width: `${width}px`,
   minWidth: '40px',
-  backgroundColor: '#55555599',
   position: 'absolute',
+  backgroundColor: '#555555',
+  borderRadius: '9px',
   left: `${left}px`,
   display: 'flex',
   justifyContent: 'space-between',
@@ -29,10 +31,9 @@ const ScrollbarThumb = styled('div')<{ width: number; left: number }>(({  width,
   cursor: 'pointer',
 }));
 
-const ResizeHandle = styled('div')(({ theme }) => ({
-  width: '10px',
-  height: '100%',
-  backgroundColor: theme.palette.grey[700],
+const ResizeHandleRoot = styled('div')(({theme}) => ({
+  width: '18px',
+  height: '18px',
   cursor: 'ew-resize',
 
   '&:first-of-type': {
@@ -42,12 +43,25 @@ const ResizeHandle = styled('div')(({ theme }) => ({
   '&:last-of-type': {
     borderRadius: '0 5px 5px 0',
   },
+  '& svg': {
+    fill: theme.palette.mode === 'dark' ? '#222' : '#DDD',
+    stroke: theme.palette.mode === 'dark' ? '#000' : '#FFF'
+  }
 }));
 
+function Handle({onMouseDown}) {
+  return <ResizeHandleRoot onMouseDown={onMouseDown}>
+    <svg width={18}>
+    <g strokeWidth="3">
+      <circle cx="9" cy="9" r="7"/>
+    </g>
+    </svg>
+  </ResizeHandleRoot>
+}
+
+
 export default function TimelineScrollResizer({
-  element,
-  adjustScale,
-  type,
+  element, adjustScale, type,
 }: TimelineScrollResizerProps) {
   const [isResizing, setIsResizing] = React.useState(false);
   const [isDragging, setIsDragging] = React.useState(false);
@@ -96,7 +110,7 @@ export default function TimelineScrollResizer({
   const handleMouseDownDrag = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsDragging(true);
-    setStartX(e.clientX);
+    setStartX(e.clientX );
     setStartScrollThumbPosition(scrollThumbPosition);
     console.log(scrollThumbPosition)
   };
@@ -114,7 +128,7 @@ export default function TimelineScrollResizer({
       // newScale = Math.max(minScale, Math.min(maxScale, newScale));
 
       const valid = adjustScale(deltaX);
-      updateThumbSize(thumbWidth + deltaX);
+      updateThumbSize(thumbWidth - deltaX);
       // const newThumbWidth = getThumbnailWidth(element.current.scrollWidth - deltaX);
       // if (thumbWidth !== newThumbWidth && newThumbWidth <= contentRef.current.clientWidth) {
       //  console.log('newScale', newThumbWidth, contentRef.current.clientWidth, newScale)
@@ -154,19 +168,17 @@ export default function TimelineScrollResizer({
     };
   }, [isResizing, isDragging]);
 
-  return (
-    <ScrollbarContainer className={'SuiScrollbar'}>
+  return (<ScrollbarContainer className={'SuiScrollbar'}>
       <ScrollbarTrack>
         <ScrollbarThumb
           width={thumbWidth}
           left={scrollThumbPosition}
           onMouseDown={handleMouseDownDrag}
         >
-          <ResizeHandle onMouseDown={handleMouseDownResize} />
-          <ResizeHandle onMouseDown={handleMouseDownResize} />
+          <Handle onMouseDown={handleMouseDownResize} />
+          <Handle onMouseDown={handleMouseDownResize} />
         </ScrollbarThumb>
       </ScrollbarTrack>
-    </ScrollbarContainer>
-  );
+    </ScrollbarContainer>);
 };
 
