@@ -1,9 +1,8 @@
 import * as React from 'react';
 import { openDB } from 'idb';
-import {FastForward, FastRewind} from "@mui/icons-material";
+import {FastForward, FastRewind, VolumeDown, VolumeUp, VolumeMute, VolumeOff} from "@mui/icons-material";
 import FormControl from '@mui/material/FormControl';
 import StopIcon from '@mui/icons-material/Stop';
-import PreviewIcon from '@mui/icons-material/Preview';
 import SvgIcon from "@mui/material/SvgIcon";
 import PauseIcon from '@mui/icons-material/Pause';
 import RecordIcon from '@mui/icons-material/FiberManualRecord';
@@ -16,7 +15,7 @@ import TextField from '@mui/material/TextField';
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import {alpha, emphasize, Theme} from '@mui/material/styles';
-import {Tooltip} from "@mui/material";
+import { Slider, Stack, Tooltip } from "@mui/material";
 import {ScreenerBlob, ViewMode } from '@stoked-ui/timeline';
 import {type Version } from '../Editor';
 import EditorEngine from '../EditorEngine/EditorEngine';
@@ -447,91 +446,6 @@ export function ViewToggle({view, setView}: {view: 'timeline' | 'files', setView
   </ViewGroup>
 }
 
-type PreviewToggleProps =  {
-  engineRef: React.RefObject<EditorEngine>;
-  visible: boolean;
-  mode: ViewMode;
-  setMode: React.Dispatch<React.SetStateAction<ViewMode>>;
-}
-
-export function PreviewToggle({engineRef, visible, mode, setMode}: PreviewToggleProps) {
-  const selectedColor = (theme: Theme) => theme.palette.mode === 'light' ? '#FFF' : '#000';
-  const sxButton = (theme: Theme) => {
-    return {
-      borderRadius: '0px!important',
-      border: `2px solid ${selectedColor(theme)}!important`,
-
-    }};
-
-  React.useEffect(() => {
-    if (!engineRef.current?.viewMode) {
-      return;
-    }
-    if (mode !== engineRef.current?.viewMode) {
-      setMode(engineRef.current.viewMode);
-    }
-  }, [engineRef.current, engineRef.current?.viewMode])
-
-  if (!visible || !engineRef.current) {
-    return undefined;
-  }
-  const engine = engineRef.current;
-  return <ViewGroup
-    sx={(theme) => ({
-      backgroundColor: theme.palette.text.primary,
-      alignItems: 'center',
-      margin: '0px 6px',
-      '& .MuiButtonBase-root': {
-        backgroundColor: 'transparent',
-        color: theme.palette.text.primary,
-        border: `2px solid ${selectedColor(theme)}!important`,
-        '&:hover': {
-          color: theme.palette.primary.main,
-          backgroundColor: theme.palette.background.default,
-          border: `2px solid ${alpha(selectedColor(theme), .5)}!important`,
-        },
-      },
-      '& MuiButtonBase-root.MuiToggleButtonGroup-grouped.MuiToggleButtonGroup-groupedHorizontal.MuiToggleButton-root.Mui-selectedMuiToggleButton-sizeSmall.MuiToggleButton-standard':{
-        border: `2px solid ${selectedColor(theme)}!important`,
-        '&:hover': {
-          border: `2px solid ${alpha(selectedColor(theme), .5)}!important`,
-        },
-      }
-    })}
-    value={engine.viewMode}
-    exclusive
-    onChange={(event, newMode) => {
-      if (!newMode) {
-        newMode = engine.viewMode === 'Screener' ? 'Renderer' : 'Screener';
-      }
-      engine.setViewMode(newMode)
-        .then(() => {
-          setMode(newMode);
-        })
-    }}
-    size={'small'}
-    aria-label="text alignment"
-  >
-
-    {mode === 'Renderer' &&
-     <Tooltip title={"Switch to Preview Mode"}>
-       <ViewButton sx={sxButton} value="Screener" aria-label="lock">
-         <PreviewIcon fontSize={'small'}/>
-       </ViewButton>
-     </Tooltip>
-    }
-    {mode === 'Screener' &&
-     <Tooltip title={"Switch to Record Mode"} sx={{position: 'absolute'}}>
-       <ViewButton sx={sxButton} value="Renderer">
-         <RecordIcon fontSize={'small'}/>
-       </ViewButton>
-     </Tooltip>
-    }
-
-  </ViewGroup>
-}
-
-
 type VersionProps =  {
   engineRef: React.RefObject<EditorEngine>;
   versions: Version[];
@@ -564,7 +478,6 @@ function Versions ({engineRef, setVersions, versions, viewMode, currentVersion, 
   React.useEffect(() => {
     const engine = engineRef.current;
     if (versions.length && engine) {
-      console.log('set current version', versions[versions.length - 1])
       const previousVersion = versions[versions.length - 1];
       if (!engine.screenerBlob || engine.screenerBlob.key !== previousVersion.key) {
         EditorEngine.loadVersion(previousVersion.key)
@@ -596,6 +509,68 @@ function Versions ({engineRef, setVersions, versions, viewMode, currentVersion, 
       </MenuItem>))}
     </VersionSelect>
   </VersionRoot>
+}
+
+function Volume() {
+  const [value, setValue] = React.useState<number>(100);
+  const [mute, setMute] = React.useState<boolean>(false);
+
+  const handleChange = (event: Event, newValue: number | number[]) => {
+    setValue(newValue as number);
+    Howler.volume(newValue as number / 100);
+    if (mute) {
+      setMute(false);
+    }
+  };
+
+  const toggleMute = () => {
+    Howler.mute(!mute);
+    setMute(!mute);
+  }
+
+  const getIcon = (isMute: boolean, volume: number) => {
+    let icon = <VolumeUp onClick={toggleMute} sx={{ mr: '4px!important' }} />;
+    if (isMute) {
+      icon = <VolumeOff onClick={toggleMute} sx={{ mr: '4px!important' }} />;
+    } else if (volume === 0) {
+      icon = <VolumeMute onClick={toggleMute} sx={{ left: '-4px', position: 'relative', mr: '4px!important' }} />;
+    } else if (volume < 70) {
+      icon = <VolumeDown sx={{ left: '-2px', position: 'relative', mr: '4px!important' }} onClick={toggleMute} />;
+    }
+    return icon;
+  }
+
+  return <Stack spacing={1} direction="row" sx={{
+    alignItems: 'center',
+    width: '120px',
+    mr: 2,
+  }}>
+    {getIcon(mute, value)}
+    <Slider
+      aria-label="Volume"
+      size="small"
+      sx={{
+        '& .MuiSlider-thumb::after': {
+            position: 'absolute',
+            content: '""',
+            borderRadius: '50%', // 42px is the hit target
+            width: '10px!important',
+            height: '10px!important',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+        },
+        '& .MuiSlider-thumb:has(> input:focus-visible)': {
+          boxShadow: '0px 0px 0px 4px rgba(var(--muidocs-palette-primary-mainChannel) /' +
+                     ' 0.16)!important',
+        }
+      }}
+      value={mute ? 0 : value}
+      onChange={handleChange}
+      min={0}
+      max={100}
+    />
+  </Stack>
 }
 /**
  *
@@ -689,10 +664,10 @@ export const EditorControls = React.forwardRef(
         <div style={{display: 'flex', flexDirection: 'row', alignContent: 'center', height: '100%'}}>
           <Controls {...controlProps} controlState={controlState} setControlState={setControlState} />
           <ViewToggle view={view} setView={setView} />
-          <PreviewToggle engineRef={engineRef} visible={versions.length > 0} mode={mode} setMode={setMode} />
         </div>
       </div>
       <div style={{display: 'flex', flexDirection: 'row'}}>
+        <Volume />
         {/* {hasDownload() && <Button onClick={() => download()} variant={'text'}>Download</Button>} */}
         <Versions {...versionProps} />
         <TimeRoot

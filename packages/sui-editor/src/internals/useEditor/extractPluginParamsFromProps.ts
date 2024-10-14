@@ -1,3 +1,4 @@
+import * as React from 'react';
 import {
   ConvertSignaturesIntoPlugins,
   EditorAnyPluginSignature,
@@ -14,6 +15,7 @@ interface ExtractPluginParamsFromPropsParameters<
 > {
   plugins: ConvertSignaturesIntoPlugins<readonly [...EditorCorePluginSignatures, ...TSignatures]>;
   props: TProps;
+  idFunc: () => string;
 }
 
 interface ExtractPluginParamsFromPropsReturnValue<
@@ -30,6 +32,7 @@ export const extractPluginParamsFromProps = <
 >({
   props: { slots, slotProps, apiRef, experimentalFeatures, ...props },
   plugins,
+  idFunc
 }: ExtractPluginParamsFromPropsParameters<
   TSignatures,
   TProps
@@ -45,8 +48,15 @@ export const extractPluginParamsFromProps = <
   const forwardedProps = {} as Omit<TProps, keyof PluginParams>;
 
   Object.keys(props).forEach((propName) => {
-    const prop = props[propName as keyof typeof props] as any;
-
+    let prop = props[propName as keyof typeof props] as any;
+    if (propName === 'actionData') {
+      prop = prop.map((p) => {
+        if (p.id === undefined) {
+          p.id = idFunc();
+        }
+        return p;
+      });
+    }
     if (paramsLookup[propName as keyof PluginParams]) {
       pluginParams[propName as keyof PluginParams] = prop;
     } else {

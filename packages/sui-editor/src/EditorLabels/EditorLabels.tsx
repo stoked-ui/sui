@@ -1,8 +1,7 @@
 import * as React from 'react';
-import { MediaFile } from '@stoked-ui/media-selector';
 import {getTrackController, IController, ITimelineTrack, TimelineState, ITimelineAction, ViewMode} from "@stoked-ui/timeline";
 import composeClasses from "@mui/utils/composeClasses";
-import {emphasize, styled, useThemeProps, alpha} from '@mui/material/styles';
+import { styled, useThemeProps, alpha } from '@mui/material/styles';
 import {useSlotProps} from "@mui/base/utils";
 import {Typography} from "@mui/material";
 import ToggleButton from "@mui/material/ToggleButton";
@@ -13,7 +12,7 @@ import LockOpenIcon from '@mui/icons-material/LockOpen';
 import LockIcon from '@mui/icons-material/Lock';
 import {EditorLabelsProps} from './EditorLabels.types';
 import {EditorLabelsClasses, getEditorLabelsUtilityClass} from "./editorLabelsClasses";
-
+import FileDetail from '../FileDetail/FileDetail'
 
 const useUtilityClasses = (
   ownerState: EditorLabelsProps,
@@ -76,8 +75,8 @@ const EditorLabelContainer = styled('div', {
   overridesResolver: (props, styles) => styles.icon,
   shouldForwardProp: (prop) => prop !== 'lock',
 
-})<{ lock?: boolean, color: string, selected: boolean, hidden: boolean}>(({ theme, color }) => ({
-  color: theme.palette.text.primary,
+})<{ lock?: boolean, color: string, selected: boolean, hidden: boolean, track: ITimelineTrack}>(({ theme, color, track }) => ({
+  color: track.selected ? theme.palette.text.primary : theme.palette.text.secondary,
   borderTopLeftRadius: '4px',
   borderBottomLeftRadius: '4px',
   borderBottom: `1px solid ${theme.palette.background.default}`,
@@ -90,6 +89,11 @@ const EditorLabelContainer = styled('div', {
   whiteSpace: 'nowrap',
   textWrap: 'nowrap',
   flexGrow: '1',
+  background:
+  // eslint-disable-next-line no-nested-ternary
+    track.selected ? `linear-gradient(to right,${alpha(color, (theme.palette.mode === 'dark' ? .8 : .62))}, 70%, ${alpha("#F00", theme.palette.action.focusOpacity)})` :
+      track.lock ? `linear-gradient(to right,${alpha(color, (theme.palette.mode === 'dark' ? .8 : .62))}, 70%, ${alpha("#00F", theme.palette.action.focusOpacity)})` :
+        `linear-gradient(to right,${alpha(color, (theme.palette.mode === 'dark' ? .8 : .62))}, 70%, ${alpha(color, theme.palette.action.focusOpacity)})`,
   variants: [{
     props: {
       hidden: true
@@ -102,7 +106,8 @@ const EditorLabelContainer = styled('div', {
       lock: true
     },
     style: {
-      backgroundImage: `linear-gradient(to bottom, transparent 50%, #28487d 50%), linear-gradient(to right, #617ca2 50%, #28487d 50%);`,
+      // backgroundImage: `linear-gradient(to bottom, transparent 50%, #28487d 50%),
+      // linear-gradient(to right, #617ca2 50%, red 50%);`,
       backgroundSize: `5px 5px, 5px 5px`,
       /* background: lockedBg,
        '& .timeline-editor-action': {
@@ -114,7 +119,7 @@ const EditorLabelContainer = styled('div', {
     style: {
       // background: `linear-gradient(to right, ${emphasize(theme.palette.background.default,
       // 0.12)}, 0%, ${alpha(color, .8)}, 70%, ${alpha(color, 0.3)})`,
-      backgroundColor: 'red',
+      background: `linear-gradient(to right,${alpha(color, (theme.palette.mode === 'dark' ? .8 : .62))}, 70%, red)`,
       border: `1px solid ${theme.palette.text.primary}`,
 
     }
@@ -162,10 +167,10 @@ const EditorLabel = React.forwardRef(
     },
     ref: React.Ref<HTMLDivElement>
   ): React.JSX.Element {
-    const { track, tracks, classes, controller, setSelectedFile, selectedFile, setAnchorEl, anchorEl, viewMode } = inProps;
+    const { track, tracks, classes, controller, setSelectedFile, selectedFile, setAnchorEl, anchorEl, viewMode, timelineState } = inProps;
     const visibilityIcon = track.hidden ? <VisibilityOffIcon fontSize={'small'} /> : <VisibilityIcon fontSize={'small'} />;
     const lockIcon = track.lock ? <LockIcon fontSize={'small'}/> : <LockOpenIcon fontSize={'small'}/>;
-
+    const [selected, setSelected] = React.useState<boolean>(false);
     const handleItemClick = (file: ITimelineAction, event: React.MouseEvent<HTMLElement>) => {
       setSelectedFile(file);
       setAnchorEl(event.currentTarget);
@@ -176,10 +181,17 @@ const EditorLabel = React.forwardRef(
       setSelectedFile(null);
     }
     const trackFile = track.actions && track.actions[0] ? track.actions[0] : undefined;
+    React.useEffect(() => {
+      if (timelineState.current?.selectedTrack) {
+        // eslint-disable-next-line no-alert
+        alert(timelineState.current.selectedTrack.id);
+      }
+      setSelected(track.selected ?? false);
+    }, [timelineState.current?.selectedTrack])
 
     return (
       <EditorLabelRoot key={track.id} className={classes.label} ref={ref}>
-        <EditorLabelContainer color={controller?.color ?? '#0000'} lock={track.lock} hidden={!!track.hidden} selected={!!track.selected}>
+        <EditorLabelContainer color={controller?.color ?? '#0000'} track={track} lock={track.lock} hidden={!!track.hidden} selected={(timelineState.current?.selectedTrack?.id ?? '') === track.id}>
           <EditorLabelText
             onClick={(e) => trackFile ? handleItemClick(trackFile, e) : undefined}
           >
@@ -311,7 +323,7 @@ const EditorLabels = React.forwardRef(
             {...extraProps}
           />
         })}
-       {/*  {(selectedFile && anchorEl) && (
+       {/* {(selectedFile && anchorEl) && (
           <FileDetail
             action={selectedFile}
             anchorEl={anchorEl}

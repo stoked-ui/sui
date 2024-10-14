@@ -12,6 +12,7 @@ function generateWaveformImage(
 ): Promise<string> {
   const offlineAudioContext = new OfflineAudioContext(1, 44100 * 40, 44100);
 
+
   if (typeof audioSource === 'string') {
     // Fetch the audio file from the URL using XMLHttpRequest
     return new Promise((resolve, reject) => {
@@ -66,8 +67,8 @@ function generateWaveformImage(
         const result = await processAudioBuffer(decodedData, options);
         resolve(result);
       } catch (error) {
-        // console.log('Error decoding audio data:', error);
-        // console.log('Audio data size:', (e.target?.result as ArrayBuffer).byteLength);
+        console.info('Audio data size:', (e.target?.result as ArrayBuffer).byteLength);
+        console.error('Error decoding audio data:', error);
         reject(error);
       }
     };
@@ -80,10 +81,12 @@ function decodeAudioData(context: OfflineAudioContext, arrayBuffer: ArrayBuffer)
   return new Promise((resolve, reject) => {
     context.decodeAudioData(
       arrayBuffer,
-      buffer => resolve(buffer),
+      buffer => {
+        resolve(buffer);
+      },
       error => {
-        // console.log('Error decoding audio data:', error);
-        // console.log('Audio data size:', arrayBuffer.byteLength);
+        console.info('Audio data size:', arrayBuffer.byteLength);
+        console.error('Error decoding audio data:', error);
         reject(new Error(`Error decoding audio data: ${error}`));
       }
     );
@@ -112,19 +115,40 @@ function processAudioBuffer(audioBuffer: AudioBuffer, options: WaveformOptions):
   canvasContext.beginPath();
 
   const halfHeight = height / 2;
+  let maxY = 0;
+  let minY = 0;
+  let total = 0;
+  const plots: [number, number][] = [];
   for (let i = 0; i < width; i += 1) {
     const start = i * samplesPerPixel;
     const end = start + samplesPerPixel;
     const min = Math.min(...waveform.slice(start, end));
     const max = Math.max(...waveform.slice(start, end));
+    plots.push([min, max]);
+    if (min < minY) {
+      minY = min;
+    }
+    if (max > maxY) {
+      maxY = max;
+    }
+    const totalMax = (min * halfHeight) + (max * halfHeight);
+    if (totalMax > total) {
+      total = totalMax;
+    }
+  }
 
-    const yMin = halfHeight + min * halfHeight;
-    const yMax = halfHeight + max * halfHeight;
+  const modifier = 300 / (total) - 1;
+  for (let i = 0; i < width; i += 1) {
+    const min = plots[i][0];
+    const max = plots[i][1];
+
+
+    const yMin = halfHeight + min * halfHeight * modifier;
+    const yMax = halfHeight + max * halfHeight * modifier;
 
     canvasContext.moveTo(i, yMin);
     canvasContext.lineTo(i, yMax);
   }
-
   canvasContext.stroke();
 
   if (options.outputType === 'blob') {

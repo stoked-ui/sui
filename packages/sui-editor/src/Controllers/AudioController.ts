@@ -6,6 +6,8 @@ import generateWaveformImage from "./AudioImage";
 class AudioControl extends Controller{
   cacheMap: Record<string, Howl> = {};
 
+  logging: boolean = false;
+
   listenerMap: Record<
     string,
     {
@@ -25,20 +27,31 @@ class AudioControl extends Controller{
 
   async preload(params: Omit<ControllerParams, 'time'>) {
     const { action } = params;
-    const item = new Howl({ src: action.src, loop: false, autoplay: false });
-    this.cacheMap[action.id] = item;
-    action.duration = item.duration();
-    return action;
+    return new Promise((resolve, reject) => {
+      try {
+        const item = new Howl({
+          src: action.src, loop: false, autoplay: false, onload: () => {
+            this.cacheMap[action.id] = item;
+            action.duration = item.duration();
+            resolve(action);
+          }
+        });
+      } catch(ex) {
+        let msg = `Error loading audio file: ${action.src}`;
+        if (ex as Error) {
+          msg += (ex as Error).message;
+        }
+        reject(new Error(msg));
+      }
+    })
   }
 
   enter(params: ControllerParams) {
     this.start(params);
-    console.log('howl enter')
   }
 
   start(params: ControllerParams) {
     const { action, time, engine } = params;
-    console.log('howl start')
     let item: Howl;
     if (this.cacheMap[action.id]) {
       item = this.cacheMap[action.id];
@@ -96,8 +109,11 @@ class AudioControl extends Controller{
   }
 
   getBackgroundImage?: GetBackgroundImage = async (action: ITimelineAction) => {
+    if (!action) {
+      throw new Error('attempting to generate a wave image for an audio action and the action was not supplied')
+    }
     const blobUrl = await generateWaveformImage(action!.src, {
-      width: 5000, height: 300, backgroundColor: '#0000', // Black
+      width: action.duration! * 100, height: 300, backgroundColor: '#0000', // Black
       waveformColor: this.colorSecondary,   // Green waveform
       outputType: 'blob'          // Output a Blob URL
     })

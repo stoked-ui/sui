@@ -1,5 +1,5 @@
 import { ITimelineAction, type ITimelineActionInput } from '@stoked-ui/timeline/TimelineAction';
-import { namedId, getFileName } from '@stoked-ui/media-selector';
+import { namedId, getFileName, useIncId } from '@stoked-ui/media-selector';
 import {
   UseEditorMetadataDefaultizedParameters, UseEditorMetadataSignature,
 } from './useEditorMetadata.types';
@@ -26,16 +26,17 @@ export const useEditorMetadata: EditorPlugin<UseEditorMetadataSignature> = ({
 };
 
 function initializeActionData(actionData: ITimelineActionInput[] | undefined) {
+
   if (!actionData) {
     return undefined;
   }
   actionData.forEach((action) => {
-    action.id = namedId('action')
-    action.name = getFileName(action.src, true) ?? action.id;
+    action.name = getFileName(action.src, true) ?? action.id!;
   })
   return actionData;
 }
 useEditorMetadata.getDefaultizedParams = (params) => {
+
   return {
     ...params,
     actionData: initializeActionData(params.actionData) ?? [],

@@ -3,6 +3,8 @@ import { Controller, ControllerParams, IEngine, ITimelineAction } from "@stoked-
 class ImageControl extends Controller {
   cacheMap: Record<string, HTMLImageElement> = {};
 
+  logging: boolean = false;
+
   constructor() {
     super({
       id: 'image', name: 'Image', color: '#6b3514', colorSecondary: '#d76d2b',
@@ -81,7 +83,7 @@ class ImageControl extends Controller {
 
     if (time > action.end || time < action.start) {
       item.style.display = 'none';
-      engine.renderCtx?.clearRect(0, 0, engine.renderWidth, engine.renderHeight);
+      // engine.renderCtx?.clearRect(0, 0, engine.renderWidth, engine.renderHeight);
     } else {
       item.style.display = 'block';
     }

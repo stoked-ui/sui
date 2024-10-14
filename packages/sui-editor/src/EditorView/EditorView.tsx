@@ -41,7 +41,7 @@ const EditorViewRoot = styled('div', {
 const Renderer = styled('canvas', {
   name: "MuiEditorViewRenderer",
   slot: "renderer",
-  shouldForwardProp: (prop) => prop !== 'mode',
+  shouldForwardProp: (prop) => prop !== 'viewMode',
 })<{ viewMode?: ViewMode }>(({  viewMode }) => ({
   display: viewMode === 'Renderer' ? 'flex' : 'none',
   flexDirection: 'column',
@@ -64,7 +64,7 @@ const Renderer = styled('canvas', {
 const Screener = styled('video', {
   name: "MuiEditorViewScreener",
   slot: "screener",
-  shouldForwardProp: (prop) => prop !== 'mode',
+  shouldForwardProp: (prop) => prop !== 'viewMode',
 })<{ viewMode?: ViewMode }>(({  viewMode }) => ({
   display: viewMode === 'Screener' ? 'flex' : 'none',
   flexDirection: 'column',
@@ -77,7 +77,7 @@ const Screener = styled('video', {
 }));
 
 const Stage = styled('div', {
-  shouldForwardProp: (prop) => prop !== 'mode',
+  shouldForwardProp: (prop) => prop !== 'viewMode',
 })<{ viewMode?: ViewMode }>(({  viewMode }) => ({
   display: viewMode === 'Edit' ? 'flex' : 'none',
   flexDirection: 'column',

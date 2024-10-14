@@ -10,16 +10,25 @@ export function randomBytes(length: number): string {
 
 interface NamedIdProps {id?: string, length?: number, prefix?: string, suffix?: string}
 
-export default function namedId(props?: NamedIdProps) {
-  if (!props) {
-    props = { id: 'id', length: 7 };
+export default function namedId(props?: NamedIdProps | string) {
+  let id = 'id';
+  let length = 7;
+  let prefix: string | undefined;
+  let suffix: string | undefined;
+  if (props as string) {
+    id = props as string;
+  } else if (props && props as NamedIdProps) {
+    const namedProps = props as NamedIdProps;
+    if (namedProps.id) {
+      id = namedProps.id
+    }
+    if (namedProps.length) {
+      length = namedProps.length
+    }
+    prefix = namedProps.prefix;
+    suffix = namedProps.suffix;
   }
-  const {
-    id = 'id',
-    length = 7,
-    prefix,
-    suffix
-  } = props;
+
   let start = prefix ? `${prefix}-${id}` : id;
   start = suffix ? `${start}-${suffix}` : start;
   return `${start}-${randomBytes(length!)}`;

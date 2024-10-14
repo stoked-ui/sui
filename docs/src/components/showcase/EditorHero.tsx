@@ -12,44 +12,37 @@ export const startLeft = 20;
 
 export const actions = [
   {
-    name: 'video',
+    name: 'stock-loop',
     start: 0,
-    end: 15.5,
+    end: 12,
     controllerName: 'video',  // Use the new video effect
     src: '/static/video-editor/stock-loop.mp4',
     layer: 'background',
+    fit: 'fill' as 'fill',
   },
   {
-    name: 'write stuff',
-    start: 9.5,
-    end: 15.5,
-    controllerName: 'animation',
-    src: '/static/timeline/docs/overview/writing.lottie',
+    name: 'stock-loop-alpha',
+    start: 12,
+    end: 26,
+    controllerName: 'video',  // Use the new video effect
+    src: '/static/video-editor/stock-loop-alpha.webm',
+    fit: 'fill' as 'fill',
   },
   {
-    name: 'doing things',
-    start: 5,
-    end: 9.5,
-    controllerName: 'animation',
-    src: '/static/timeline/docs/overview/doing-things.lottie',
-  },
-  {
-    name: 'stolen cow',
+    name: 'stoked-ui',
     start: 0,
-    end: 5,
-    controllerName: 'animation',
-    src: '/static/timeline/docs/overview/stolen-cow.lottie',
-    style: { width: '1920px', height: '1080px' },
-    x: 990,
+    end: 12,
+    loop: false,
+    controllerName: 'video',  // Use the new video effect
+    src: '/static/video-editor/stoked-ui-v8-24fps-opus.webm',
   },
   {
     name: 'music',
     start: 0,
     end: 15.5,
+    trimStart: .5,
     controllerName: 'audio',
-    // src: 'https://adam-rodgers.s3.amazonaws.com/stoked-studio/funeral.mp3',
     src: '/static/timeline/docs/overview/funeral.m4a',
-    trimStart: 7.2,
   },
 ];
 

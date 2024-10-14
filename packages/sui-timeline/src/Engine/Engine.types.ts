@@ -19,9 +19,11 @@ export type ScreenerBlob = { blob: Blob, version: number, name: string, key: str
 export interface IEngine extends IEmitter<EventTypes> {
   readonly isPlaying: boolean;
   readonly isPaused: boolean;
+  logging: boolean;
   controllers: Record<string, any>;
   viewer: HTMLElement | null;
   viewMode: ViewMode;
+  alpha: boolean;
   readonly screener: HTMLVideoElement | null;
   screenerBlob: ScreenerBlob | null;
   readonly stage: HTMLDivElement | null;

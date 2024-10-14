@@ -17,7 +17,7 @@ export interface TimelineTrackAreaState {
 
 const TimelineTrackAreaRoot = styled('div')(() => ({
   flex: '1 1 auto',
-  marginTop: '10px',
+  marginTop: '11px',
   overflow: 'hidden',
   position: 'relative',
   height: '100%',
@@ -25,7 +25,6 @@ const TimelineTrackAreaRoot = styled('div')(() => ({
   '& .ReactVirtualized__Grid': {
     outline: 'none !important',
     overflow: 'overlay !important',
-
     '&::-webkit-scrollbar': {
       width: 0,
       height: 0,
