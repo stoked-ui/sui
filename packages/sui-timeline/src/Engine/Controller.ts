@@ -1,5 +1,5 @@
 import {IController } from "./Controller.types";
-import ControllerParams from './ControllerParams';
+import {ControllerParams} from './ControllerParams';
 import {ITimelineAction} from "../TimelineAction";
 
 abstract class Controller implements IController {
