@@ -353,7 +353,11 @@ class VideoControl extends Controller {
       item.style.display = 'flex';
     }
     if (action.frameSyncId) {
-      item.cancelVideoFrameCallback(action.frameSyncId);
+      if ('cancelVideoFrameCallback' in item) {
+        item.cancelVideoFrameCallback(action.frameSyncId);
+      } else {
+        cancelAnimationFrame(action.frameSyncId);
+      }
     }
     this.stop(params);
 
