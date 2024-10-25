@@ -1,4 +1,4 @@
-import ControllerParams from "./ControllerParams";
+import {ControllerParams} from "./ControllerParams";
 import {type GetBackgroundImage, type ITimelineAction} from "../TimelineAction/TimelineAction.types";
 
 export interface DrawData {

@@ -1,9 +1,9 @@
 import Engine from "./Engine";
 import Controller from './Controller'
-import ControllerParams from "./ControllerParams";
 
 export default Engine;
-export { Controller, ControllerParams };
+export { Controller };
+export * from "./ControllerParams";
 export * from './Engine';
 export * from './Engine.types';
 export * from './Controller.types';

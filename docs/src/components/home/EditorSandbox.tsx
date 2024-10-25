@@ -1,7 +1,8 @@
 import * as React from 'react';
-import { Editor } from '@stoked-ui/editor';
+import Editor from '@stoked-ui/editor';
 import { cloneDeep } from 'lodash';
 import { namedId } from '@stoked-ui/media-selector';
+import {TimelineFile} from "@stoked-ui/timeline";
 
 export const scaleWidth = 160;
 export const scale = 2;
@@ -14,9 +15,7 @@ export const actions = [
     start: 9.5,
     end: 16,
     controllerName: 'animation',
-    data: {
-      src: '/static/timeline/docs/overview/lottie1.json',
-    },
+    src: '/static/timeline/docs/overview/lottie1.json',
   },
   {
     id: namedId('action'),
@@ -24,9 +23,7 @@ export const actions = [
     start: 5,
     end: 9.5,
     controllerName: 'animation',
-    data: {
-      src: '/static/timeline/docs/overview/lottie2.json',
-    },
+    src: '/static/timeline/docs/overview/lottie2.json',
   },
   {
     id: namedId('action'),
@@ -34,9 +31,7 @@ export const actions = [
     start: 0,
     end: 5,
     controllerName: 'animation',
-    data: {
-      src: '/static/timeline/docs/overview/lottie3.json',
-    },
+    src: '/static/timeline/docs/overview/lottie3.json',
   },
   {
     id: namedId('action'),
@@ -44,10 +39,8 @@ export const actions = [
     start: 0,
     end: 20,
     controllerName: 'audio',
-    data: {
-      src: '/static/timeline/docs/overview/funeral.m4a',
-      /* src:'https://archive.org/download/radiohead-ok-computer-oknotok-1997-2017-remastered/02%20Paranoid%20Android%20%28Remastered%29.mp3', */
-    },
+    src: '/static/timeline/docs/overview/funeral.m4a',
+    /* src:'https://archive.org/download/radiohead-ok-computer-oknotok-1997-2017-remastered/02%20Paranoid%20Android%20%28Remastered%29.mp3', */
   },
   {
     id: namedId('action'),
@@ -55,20 +48,15 @@ export const actions = [
     start: 0,
     end: 10,
     controllerName: 'video',  // Use the new video effect
-    data: {
-      src: '/static/video-editor/stock-loop.mp4',
-      style: { width: '100%'}
-    },
+    src: '/static/video-editor/stock-loop.mp4',
+    style: { width: '100%'}
   },
 ];
 const defaultEditorData = cloneDeep(actions);
 
 export default function Hero() {
 
-  const [data,] = React.useState(defaultEditorData);
-
-
   return (
-      <Editor id='editor-sandbox' sx={{ width: '100%'}} actionData={data} />
+      <Editor id='editor-sandbox' sx={{ width: '100%'}} file={new TimelineFile({ actionData: defaultEditorData})} />
   );
 }

@@ -1,18 +1,15 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
+import {TimelineFile} from "@stoked-ui/timeline";
+import Editor from '@stoked-ui/editor';
 import ShowcaseContainer from 'docs/src/components/home/ShowcaseContainer';
 import HighlightedCode from 'docs/src/modules/components/HighlightedCode';
 import MarkdownElement from 'docs/src/components/markdown/MarkdownElement';
-import {SxProps} from "@mui/system";
-import { Editor } from '@stoked-ui/editor';
 import { cloneDeep } from 'lodash';
-import { ITimelineAction }from '@stoked-ui/timeline'
-
-
 
 const code = `
 import * as React from 'react';
-import { Editor } from '@stoked-ui/editor';
+import Editor from '@stoked-ui/editor';
 import { cloneDeep } from 'lodash';
 import { ITimelineAction }from '@stoked-ui/timeline'
 
@@ -130,13 +127,12 @@ const defaultEditorData = cloneDeep(actions);
 
 function EditorDemo() {
   return (
-    <Editor id='video-editor' sx={{ borderRadius: '12px 12px 0 0' }} actionData={defaultEditorData} />
+    <Editor id='video-editor' sx={{ borderRadius: '12px 12px 0 0' }} file={new TimelineFile({actionData: defaultEditorData})} />
   );
-};
+}
 
 
 export default function FileExplorerShowcase() {
-  const sx: SxProps = { height: 'fit-content', flexGrow: 1, width: '100%', overflowY: 'auto', };
   return (
     <ShowcaseContainer
       preview={
