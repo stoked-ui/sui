@@ -17,6 +17,8 @@ export default class MediaFile implements IMediaFile {
 
   readonly path?: string;
 
+  readonly created: number;
+
   readonly lastModified: number;
 
   readonly name: string;
@@ -72,6 +74,7 @@ export default class MediaFile implements IMediaFile {
     }
 
     this.id = file.id ? file.id : namedId({id: 'mediaFile', length: 6});
+    this.created = file.created ?? file.lastModified ?? Date.now();
     this.lastModified = file.lastModified;
     this.name = file.name;
     this.size = file.size;
@@ -172,7 +175,6 @@ export default class MediaFile implements IMediaFile {
 
     return file;
   }
-
 }
 
 async function getDropFiles(input: PragmaticDndEvent): Promise<IMediaFile[]> {
@@ -251,14 +253,14 @@ function noIgnoredFiles(files: IMediaFile[]) {
   });
 }
 
-async function loadAction(action: { id?: string, src: string; }): Promise<any> {
-  const response = await fetch(action.src);
+async function loadAction(action: { id?: string, src: string; fullName?: string; name?: string }): Promise<any> {
+  const response = await fetch(action.src, {cache: "no-store"});
   if (!response.ok) {
     throw new Error('Network response was not ok');
   }
   const contentType = response.headers.get("content-type");
   const blob = await response.blob()
-  const file = new File([blob], getFileName(action.src, true) ?? 'url-file', {type: contentType ?? 'application/octet-stream'});
+  const file = new File([blob], action.fullName ?? action.name ?? getFileName(action.src, true) ?? 'url-file', {type: contentType ?? 'application/octet-stream'});
   const mediaFile = file as IMediaFile;
   Object.defineProperty(mediaFile, 'url', {
     value: action.src,
@@ -394,5 +396,14 @@ async function fromFileEntry(entry: FileSystemFileEntry) {
     },  (err: unknown) => {
       reject(err);
     });
+  });
+}
+
+export async function base64Encode (file: Blob): Promise<string> {
+  const reader = new FileReader();
+  return new Promise((resolve, reject) => {
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
   });
 }

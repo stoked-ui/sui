@@ -1,7 +1,6 @@
-import {MediaFile} from "@stoked-ui/media-selector";
+import { MediaFile, MediaType } from "@stoked-ui/media-selector";
 
 export type FileId = string;
-export type MediaType = 'image' | 'pdf' | 'doc' | 'video' | 'folder' | 'trash' | 'file' | 'lottie'
 
 type CommonBase = {
   id?: string;

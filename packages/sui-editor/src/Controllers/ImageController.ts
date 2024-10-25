@@ -3,6 +3,8 @@ import { Controller, ControllerParams, IEngine, ITimelineAction } from "@stoked-
 class ImageControl extends Controller {
   cacheMap: Record<string, HTMLImageElement> = {};
 
+  logging: boolean = false;
+
   constructor() {
     super({
       id: 'image', name: 'Image', color: '#6b3514', colorSecondary: '#d76d2b',
@@ -16,7 +18,9 @@ class ImageControl extends Controller {
       item = this.cacheMap[action.id];
       ImageControl.toggleDisplay(action, item);
     } else if (!action.hidden) {
+      console.log('action', action)
       item = ImageControl.createNewImage(action);
+      console.log('action item engine', item, engine);
       this.cacheMap[action.id] = item;
       ImageControl.attachItemToViewer(item, engine);
       ImageControl.renderImage(item, engine);
@@ -28,7 +32,7 @@ class ImageControl extends Controller {
   }
 
   static createNewImage(action: ITimelineAction): HTMLImageElement {
-    const item = document.createElement('image') as HTMLImageElement;
+    const item = document.createElement('img') as HTMLImageElement;
     item.src = action!.src;
     item.style.display = 'flex';
     ImageControl.applyStyles(action, item);
@@ -81,10 +85,14 @@ class ImageControl extends Controller {
 
     if (time > action.end || time < action.start) {
       item.style.display = 'none';
-      engine.renderCtx?.clearRect(0, 0, engine.renderWidth, engine.renderHeight);
+      // engine.renderCtx?.clearRect(0, 0, engine.renderWidth, engine.renderHeight);
     } else {
       item.style.display = 'block';
     }
+  }
+
+  getElement(actionId: string) {
+    return this.cacheMap[actionId];
   }
 }
 

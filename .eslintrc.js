@@ -57,7 +57,7 @@ module.exports = {
     // Stylistic opinion
     'arrow-body-style': 'off',
     // Allow warn and error for dev environments
-    'no-console': ['error', { allow: ['warn', 'error'] }],
+    'no-console': ['error', { allow: ['warn', 'error', 'info'] }],
     'no-param-reassign': 'off', // It's fine.
     // Airbnb use warn https://github.com/airbnb/javascript/blob/63098cbb6c05376dbefc9a91351f5727540c1ce1/packages/eslint-config-airbnb-base/rules/style.js#L97
     // but eslint recommands error

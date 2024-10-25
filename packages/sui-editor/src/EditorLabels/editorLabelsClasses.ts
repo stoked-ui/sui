@@ -4,6 +4,8 @@ import generateUtilityClasses from '@mui/utils/generateUtilityClasses';
 export interface EditorLabelsClasses {
   root: string;
   label: string;
+  template: string;
+  container: string;
 }
 
 export type EditorLabelsClassKey = keyof EditorLabelsClasses;
@@ -14,5 +16,7 @@ export function getEditorLabelsUtilityClass(slot: string): string {
 
 export const editorLabelsClasses: EditorLabelsClasses = generateUtilityClasses('MuiEditorLabels', [
   'root',
-  'label'
+  'label',
+  'template',
+  'container'
 ]);

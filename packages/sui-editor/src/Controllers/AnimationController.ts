@@ -17,6 +17,8 @@ class AnimationControl implements Controller {
 
   static secondaryColor: '#cd6bff';
 
+  logging: boolean = false;
+
   constructor({
     color,
     colorSecondary
@@ -64,13 +66,13 @@ class AnimationControl implements Controller {
     let item: AnimationItem;
     if (this.cacheMap[action.id]) {
       item = this.cacheMap[action.id];
-      this._goToAndStop(engine, action, item, time - action.start);
+      this._goToAndStop(engine, action, item, Controller.getActionTime(params));
     } else if (engine.viewer && engine.renderCtx && engine.renderer) {
       item = AnimationFile.load({ id: action.id, src: action.src, renderCtx: engine.renderCtx, mode: 'canvas', className: 'lottie-canvas' });
 
-      item.addEventListener('data_ready', (event) => {
+      item.addEventListener('data_ready', () => {
         if (time === 0) {
-          item.goToAndStop(Controller.getActionTime(0.1, action));
+          item.goToAndStop(Controller.getActionTime({ ...params, time: 0.1 }));
         }
       });
 
@@ -87,7 +89,7 @@ class AnimationControl implements Controller {
     if (time > action.end || time < action.start) {
       return;
     }
-    this._goToAndStop(engine, action, item, time - action.start);
+    this._goToAndStop(engine, action, item, Controller.getActionTime(params));
   }
 
   leave(params: ControllerParams) {
@@ -99,8 +101,7 @@ class AnimationControl implements Controller {
     if (time > action.end || time < action.start) {
       return;
     }
-    const cur = time - action.start;
-    this._goToAndStop(engine, action, item, cur);
+    this._goToAndStop(engine, action, item, Controller.getActionTime(params));
   }
 
   destroy() {
@@ -122,6 +123,10 @@ class AnimationControl implements Controller {
     return `url(${action.src})`;
   }
   */
+
+  getElement(actionId: string) {
+    return this.cacheMap[actionId];
+  }
 }
 export { AnimationControl };
 const AnimationController = new AnimationControl({

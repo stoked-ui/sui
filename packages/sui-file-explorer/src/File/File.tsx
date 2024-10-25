@@ -13,8 +13,8 @@ import AudioFile from '@mui/icons-material/AudioFile';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Box from '@mui/material/Box';
-import LottieIcon from '../icons/LottieIcon';
 import { MediaType, namedId } from '@stoked-ui/media-selector'
+import LottieIcon from '../icons/LottieIcon';
 import {FileLabel} from './FileLabel';
 import {createUseThemeProps} from '../internals/zero-styled';
 import {FileProvider} from '../internals/FileProvider';
@@ -292,5 +292,5 @@ File.propTypes = {
     PropTypes.func,
     PropTypes.object,
   ]),
-  type: PropTypes.oneOf(['doc', 'file', 'folder', 'image', 'pdf', 'trash', 'video']),
+  type: PropTypes.oneOf(['doc', 'file', 'folder', 'image', 'pdf', 'trash', 'video', 'audio']),
 };

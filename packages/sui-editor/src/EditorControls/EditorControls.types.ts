@@ -51,12 +51,15 @@ export interface EditorControlsPropsBase extends React.HTMLAttributes<HTMLDivEle
   autoScroll: boolean;
   view: 'timeline' | 'files',
   setView: (newView: 'timeline' | 'files') => void;
-  versions: Version[];
-  setVersions:  React.Dispatch<React.SetStateAction<Version[]>>;
+  versions?: Version[];
+  setVersions?: React.Dispatch<React.SetStateAction<Version[]>>;
   mode: ViewMode;
   setMode:  React.Dispatch<React.SetStateAction<ViewMode>>;
-  currentVersion: string | undefined;
-  setCurrentVersion: React.Dispatch<React.SetStateAction<string | undefined>>;
+  currentVersion?: string | undefined;
+  setCurrentVersion?: React.Dispatch<React.SetStateAction<string | undefined>>;
+
+  timeline?: boolean;
+  switchView?: boolean;
 }
 
 export interface EditorControlsProps

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import {alpha, emphasize, styled} from '@mui/material/styles';
+import {alpha, darken, emphasize, lighten, styled,} from '@mui/material/styles';
 import composeClasses from '@mui/utils/composeClasses';
 import Typography from '@mui/material/Typography';
 // import clsx from 'clsx';
@@ -23,8 +23,7 @@ import {
 import {getTimelineActionUtilityClass} from './timelineActionClasses';
 import {prefix} from '../utils/deal_class_prefix';
 import {
-  type TimelineActionOwnerState,
-  type TimelineActionProps
+  BackgroundImageStyle, type TimelineActionOwnerState, type TimelineActionProps
 } from './TimelineAction.types';
 import {type ITimelineTrack} from '../TimelineTrack/TimelineTrack.types';
 
@@ -47,36 +46,86 @@ export const useActionUtilityClasses = (ownerState: TimelineActionOwnerState) =>
 const Action = styled('div', {
   name: 'MuiTimelineAction',
   slot: 'root',
-  overridesResolver: (props, styles) => styles.root,
-  shouldForwardProp: (prop) => shouldForwardProp(prop) && prop !== 'selected',
+  shouldForwardProp: prop => shouldForwardProp(prop) &&
+                             prop !== 'selected' &&
+                             prop !== 'color' &&
+                             prop !== 'duration' &&
+                             prop !== 'scaleWidth' &&
+                             prop !== 'loopCount' &&
+                             prop !== 'loop'
+
 })<{
-  selected: boolean;
-  color: string;
-  size?: number;
-}>(({ theme, color = 'blue', size }) => {
+  selected?: boolean;
+  color?: string;
+  duration?: number;
+  scaleWidth?: number;
+  loop?: boolean;
+  loopCount?: number;
+}>(({ theme, duration, scaleWidth, color, loop = true, loopCount }) => {
   /* const base = theme.vars ? `rgba(color(from ${color}) / 1)` : alpha(color, 1);
   const unselected = emphasize(color, 0.7);
   const hover = emphasize(color, 0.45);
   const selectedColor = emphasize(color, 0.3);
   const background = selected ? selectedColor : unselected; */
   // console.log('color', color)
+
+  const backgroundColor = emphasize(color, 0.10);
+  const darker = darken(backgroundColor, .6);
+  const lighter = lighten(backgroundColor, .6);
+  const size = (duration && scaleWidth) ? duration * (100 / scaleWidth) : undefined;
+  let background =  `linear-gradient(to right, ${backgroundColor} 1px, ${theme.palette.action.hover} 1px)`
+  let backgroundSize = size ? `${size}px ` : undefined;
+  let backgroundRepeat: string | undefined;
+  let backgroundPosition: string | undefined;
+  if (loop) {
+    if (loopCount) {
+      const newBack: string[] = [];
+      const newSize: string[] = [];
+      const newRepeat: string[] = [];
+      let total = 0;
+      for (let i = 0; i < loopCount; i += 1) {
+        newBack.push(background);
+        newRepeat.push('no-repeat');
+        if (size) {
+          newSize.push(`${total}px top`)
+          total += size;
+        }
+      }
+      background = `${newBack.join(',')};`;
+      backgroundSize = `${newSize.join(',')};`;
+      backgroundRepeat = `${newRepeat.join(',')};`;
+    }
+  } else {
+    background += `,linear-gradient(to right, ${lighter} 1px, ${darker} 2
+    px, transparent 1px)`;
+    backgroundSize = undefined;
+    backgroundPosition = `0px top, ${size}px top`;
+    backgroundRepeat = 'no-repeat';
+  }
   return {
+    borderRadius: '4px',
+    marginTop: '-1px',
     position: 'absolute',
     left: 0,
     top: 0,
-    background: `linear-gradient(to right, ${theme.palette.background.default} 1px, transparent 1px)`,
-    backgroundSize: size ? `${size}px ` : undefined,
-    backgroundColor: `${emphasize(color, 0.10)}`,
+    background,
+    backgroundSize,
+    backgroundRepeat,
+    backgroundPosition,
+    backgroundColor,
     alignContent: 'center',
     padding: '0 0 0 10px',
     overflow: 'hidden',
     textWrap: 'nowrap',
     height: '100%',
-    borderTop: `1px solid ${theme.palette.action.hover}`,
-    borderBottom: `1px solid ${theme.palette.action.hover}`,
+    borderTop: `1px solid ${lighter}`,
+    borderBottom: `1px solid ${darker}`,
     userSelect: 'none',
     justifyContent: 'end',
     display: 'flex',
+    '&.volume:hover': {
+      cursor: 'url(\'/static/cursors/volume-pen.svg\') 16 16, auto',
+    },
     '&:hover': {
       backgroundColor:   `${emphasize(color, 0.15)}`,
       '& .label': {
@@ -84,20 +133,18 @@ const Action = styled('div', {
       }
     },
     variants: [{
-      props: {
-        selected: true
-      },
+      props: {  selected: true },
       style: {
         backgroundColor: `${color}`,
         '&:hover': {
-          backgroundColor:   `${emphasize(color, 0.05)}`,
+          backgroundColor: `${emphasize(color, 0.05)}`,
         },
       }
     }]
   };
 });
 
-const sizerColor = (theme) => alpha(theme.palette.text.primary, .2);
+const sizerColor = (theme) => alpha(theme.palette.text.primary, .5);
 const sizerHoverColor = (theme) => alpha(theme.palette.text.primary, .9)
 
 const LeftStretch = styled('div')(({ theme }) => ({
@@ -210,8 +257,9 @@ function TimelineAction(props: TimelineActionProps) {
     });
   */
   /*
-  const actionEl = React.useRef(null);
   */
+  const actionEl = React.useRef<HTMLDivElement>(null);
+
   const rowRnd = React.useRef<RowRndApi>();
   const isDragWhenClick = React.useRef(false);
   const { id, maxEnd, minStart, end, start } = action;
@@ -415,17 +463,33 @@ function TimelineAction(props: TimelineActionProps) {
   if (track.actions.includes(action)) {
     nowRow.actions[track.actions.indexOf(action)] = nowAction;
   }
-  const [backgroundImage, setBackgroundImage] = React.useState<null | string>(null);
+  const [backgroundStyle, setBackgroundStyle] = React.useState<null | BackgroundImageStyle>(null);
+  const [buildingImage, setBuildingImage] = React.useState<boolean>(false);
   React.useEffect(() => {
     try {
-      action.controller.getBackgroundImage?.(action).then((img) => {
-        // console.log('img', img);
-        setBackgroundImage(img);
-      });
+      if (!buildingImage && action.controller.getBackgroundImage) {
+        setBuildingImage(true);
+        action.controller.getBackgroundImage?.(action).then((img) => {
+          setBackgroundStyle({
+            backgroundImage: img,
+            backgroundPosition: `${-scaleWidth * (action.trimStart || 0)}px 0px`,
+            backgroundSize: `${(scaleWidth * action.duration) / 100}px 31px`
+          });
+        });
+      }
     } catch (error) {
       console.error('Error applying audio waveform:', error);
     }
   }, [])
+
+  React.useEffect(()=>{
+    if (backgroundStyle !== null) {
+      const newBackgroundStyle = backgroundStyle;
+      newBackgroundStyle.backgroundPosition = `${-scaleWidth * (action.trimStart || 0)}px 0px`;
+      newBackgroundStyle.backgroundSize = `${(scaleWidth * action.duration) / 100}px 31px`;
+      setBackgroundStyle(newBackgroundStyle);
+    }
+  },[scaleWidth])
   const {
     areaRef,
     gridSnap,
@@ -440,7 +504,8 @@ function TimelineAction(props: TimelineActionProps) {
     rowHeight,
   } = props;
 
-  return (
+  const loopCount = (!!action?.loop && typeof action.loop === 'number' && action.loop > 0) ? action.loop : undefined;
+                                                                                                                                                                                               return (
     <TimelineTrackDnd
       ref={rowRnd}
       parentRef={areaRef}
@@ -473,20 +538,38 @@ function TimelineAction(props: TimelineActionProps) {
       deltaScrollLeft={deltaScrollLeft}
     >
       <Action
-        size={action?.duration ? action.duration * scaleWidth : undefined}
+        ref={actionEl}
+        duration={action?.duration}
+        scaleWidth={100 / scaleWidth}
+        loop={!!action?.loop}
+        loopCount={loopCount}
         id={action.id}
         tabIndex={0}
         onKeyDown={(event: any) => {
           event.currentTarget = action;
-          console.log('event.key', event.key)
-          if (event.key === 'Backspace') {
-            console.log('Delete key pressed');
-            track.actions = track.actions.filter((trackAction) => trackAction.id !== action.id);
-            const trackIndex = tracks.indexOf(track);
-            tracks[trackIndex] = {...track};
-            setTracks([...tracks])
+          console.log('hello hello', event.key)
+          // eslint-disable-next-line default-case
+          switch (event.key) {
+            case 'Backspace':
+            case 'Delete':
+            {
+              track.actions = track.actions.filter((trackAction) => trackAction.id !== action.id);
+              const trackIndex = tracks.indexOf(track);
+              tracks[trackIndex] = {...track};
+              setTracks([...tracks])
+              break;
+            }
+            case 'Meta': {
+              // actionEl.current.classList?.add('volume');
+              break;
+            }
           }
+
+          console.log('key', event.key);
           event.preventDefault();
+        }}
+        onMouseLeave={() => {
+          // actionEl.current?.classList.remove('volume');
         }}
         onMouseDown={() => {
           if (track.lock) {
@@ -499,13 +582,16 @@ function TimelineAction(props: TimelineActionProps) {
             return;
           }
           tracks.forEach((t) => {
+            let selectedTrack = false;
             t.actions.forEach((a) => {
               if (a.id === action.id) {
                 action.selected = true;
+                selectedTrack = true
               } else {
                 a.selected = false;
               }
             })
+            t.selected = selectedTrack;
           })
           setTracks([...tracks]);
           let time: number;
@@ -539,13 +625,10 @@ function TimelineAction(props: TimelineActionProps) {
           }
         }}
         className={prefix((classNames || []).join(' '))}
-        selected={action.selected}
+        selected={action.selected !== undefined ? action.selected : false}
         style={{
-          height: rowHeight - 1, ...(backgroundImage ? {
-            backgroundImage,
-            backgroundSize: `${(scaleWidth * action.duration)}px 31px`,
-            backgroundPosition: `${-scaleWidth * (action.trimStart || 0)}px 0px`
-          } : {})
+          height: rowHeight,
+          ...backgroundStyle
         }}
         color={`${action?.controller?.color}`}
       >
@@ -556,8 +639,8 @@ function TimelineAction(props: TimelineActionProps) {
             {action.name}
           </Typography>
         </ActionLabel>
-        {flexible && <LeftStretch className={`${prefix('action-left-stretch')} ${classes.left}`}/>}
-        {flexible && (<RightStretch className={`${prefix('action-right-stretch')} ${classes.right}`}/>)}
+        {!disableDrag && flexible && <LeftStretch className={`${prefix('action-left-stretch')} ${classes.left}`}/>}
+        {!disableDrag && flexible && (<RightStretch className={`${prefix('action-right-stretch')} ${classes.right}`}/>)}
       </Action>
     </TimelineTrackDnd>);
 }

@@ -1,19 +1,20 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import {FileBase, FileExplorer} from '@stoked-ui/file-explorer';
+import { ITimelineFileAction, ITimelineFile } from '@stoked-ui/timeline';
+import { FileBase, FileExplorer } from '@stoked-ui/file-explorer';
 import { IMediaFile } from '@stoked-ui/media-selector';
 import { useSlotProps} from '@mui/base/utils';
-import {SxProps} from "@mui/material";
+import { SxProps } from "@mui/material";
 import composeClasses from '@mui/utils/composeClasses';
-import {Timeline, type TimelineState, FilesFromActions, ITimelineActionInput, ITimelineTrack, ViewMode} from '@stoked-ui/timeline';
-import {createUseThemeProps, styled} from '../internals/zero-styled';
-import {useEditor} from '../internals/useEditor';
-import {EditorProps, type Version } from './Editor.types';
-import {EditorPluginSignatures, VIDEO_EDITOR_PLUGINS} from './Editor.plugins';
-import {type ControlState, EditorControls} from '../EditorControls';
-import {EditorView} from '../EditorView';
-import {getEditorUtilityClass} from './editorClasses';
-import {EditorLabels} from '../EditorLabels';
+import { Timeline, type TimelineState, FilesFromActions, ITimelineTrack, ViewMode} from '@stoked-ui/timeline';
+import { createUseThemeProps, styled} from '../internals/zero-styled';
+import { useEditor } from '../internals/useEditor';
+import { EditorProps, type Version } from './Editor.types';
+import { EditorPluginSignatures, VIDEO_EDITOR_PLUGINS } from './Editor.plugins';
+import { type ControlState, EditorControls } from '../EditorControls';
+import { EditorView } from '../EditorView';
+import { getEditorUtilityClass } from './editorClasses';
+import { EditorLabels } from '../EditorLabels';
 import Controllers from "../Controllers";
 import EditorEngine from "../EditorEngine/EditorEngine";
 import initDb from '../db/init'
@@ -81,6 +82,7 @@ const Editor = React.forwardRef(function Editor<
   Multiple extends boolean | undefined = undefined,
 >(inProps: EditorProps<R, Multiple>, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
   const { sx, ...props } = useThemeProps({ props: inProps, name: 'MuiEditor' });
+  const [video, setVideo] = React.useState<ITimelineFile | null>(inProps.file ?? null)
   const {
     getRootProps,
     getEditorViewProps,
@@ -94,6 +96,27 @@ const Editor = React.forwardRef(function Editor<
     rootRef: ref,
     props,
   });
+
+  const [tracks, setTracksBase] = React.useState<ITimelineTrack[] | null>(inProps.tracks ?? null);
+  const setTracks: React.Dispatch<React.SetStateAction<ITimelineTrack[] | null>> = (tracksUpdater) => {
+    if (typeof tracksUpdater === "function") {
+      setTracksBase((prevTracks) => {
+        if (tracks) {
+          const updatedTracks = tracksUpdater(tracks);
+          if (updatedTracks) {
+            engineRef.current.tracks = updatedTracks;
+          }
+          return updatedTracks
+        }
+        return tracksUpdater(prevTracks);
+      });
+
+    } else if (tracksUpdater) {
+      setTracksBase(tracksUpdater);
+      engineRef.current.tracks = tracksUpdater;
+    }
+  };
+
 
   const { slots, slotProps } = props;
   const classes = useUtilityClasses(props);
@@ -114,7 +137,7 @@ const Editor = React.forwardRef(function Editor<
     externalSlotProps: slotProps?.editorView,
     className: classes.editorView,
     getSlotProps: getEditorViewProps,
-    ownerState: props,
+    ownerState: {...props, video},
   });
 
   const ControlsSlot = slots?.videoControls ?? EditorControls;
@@ -145,67 +168,40 @@ const Editor = React.forwardRef(function Editor<
   });
 
   const timelineState = React.useRef<TimelineState>(null);
-  const engineRef = React.useRef<EditorEngine>(new EditorEngine({id, controllers: Controllers, defaultState: 'paused' as ControlState}));
-  const [scaleWidth, setScaleWidth] = React.useState(160);
-  const viewerRef = React.useRef<HTMLDivElement>(null);
+  const engineRef = React.useRef<EditorEngine>(new EditorEngine({
+    id,
+    controllers: Controllers,
+    defaultState: 'paused' as ControlState,
+    file: video,
+    setFile: setVideo
+  }));
 
-  const setScaleWidthProxy = (val: number) => {
-    setScaleWidth(val);
-  };
+  engineRef.current.setFile = setVideo;
+  engineRef.current.control.timelineProps = timelineProps;
+  engineRef.current.setTracks = setTracks;
+
+  const viewerRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     initDb('video').then((initResults) => {
-      console.log('db init results', initResults);
+      // co nsole.log('db init results', initResults);
     });
-  }, [])
-
-  /*
-  React.useEffect(() => {
-    if (!editorRef?.current || !engine) {
-      return;
-    }
-
-    editorRef.current?.addEventListener('keydown', (event: any) => {
-      if (event.target) {
-        const actionTracks = engine.getSelectedActions();
-        if (actionTracks?.length && event.key === 'Backspace' && timelineState.current) {
-          const updatedTracks = [...timelineState.current.tracks];
-          const deletedActionIds = actionTracks.map((at) => at.action.id);
-          updatedTracks.forEach((updateTrack) => {
-            updateTrack = { ...updateTrack };
-            updateTrack.actions = [
-              ...updateTrack.actions.filter((action) => deletedActionIds.indexOf(action.id) === -1),
-            ];
-          });
-          engine.tracks = updatedTracks
-        }
-      }
-    });
-  }, [editorRef]); */
-
+  }, []);
 
   const [startIt, setStartIt] = React.useState(false);
   React.useEffect(() => {
+
     if (!startIt && viewerRef.current && engineRef.current) {
       engineRef.current.viewer = viewerRef.current;
       setStartIt(true);
     }
-  }, [viewerRef.current]);
+  }, [viewerRef.current,  engineRef.current]);
 
-  const [playerFiles, setPlayerFiles] = React.useState<FileBase[]>([])
-  React.useEffect(() => {
-    const actions = engineRef.current?.actions ? Object.values(engineRef.current?.actions) : undefined;
-    if (!playerFiles.length && actions?.length) {
-      const files = FilesFromActions(actions) as FileBase[];
-      const tracks = {
-        id: 'tracks', label: 'Tracks', expanded: true, selected: true, type: 'folder', children: files,
-      } as FileBase
-      setPlayerFiles([tracks]);
-    }
-  }, [engineRef.current?.actions])
-
-
+  const [mediaFiles, setMediaFiles] = React.useState<FileBase[]>([]);
+  const [files, setFiles] = React.useState<FileBase[]>([]);
+  const [saved, setSaved] = React.useState<FileBase[]>([])
   const [versions, setVersions] = React.useState<Version[]>([]);
+  // const [versionFiles, setVersionFiles] = React.useState<FileBase[]>([]);
   const [view, setView] = React.useState<'timeline' | 'files'>('timeline')
   const hiddenSx: SxProps = {position: 'absolute!important', opacity: '0!important', left: '200%'};
   const visibleSx: SxProps = {position: 'static!important', opacity: '1!important'};
@@ -213,27 +209,64 @@ const Editor = React.forwardRef(function Editor<
   const filesSx = view !== 'files' ? hiddenSx : visibleSx ;
   const [currentVersion, setCurrentVersion] = React.useState<string>()
 
-
-  const [screenerFiles, setScreenerFiles] = React.useState<FileBase[]>([])
   React.useEffect(() => {
-    if (!screenerFiles.length && versions?.length) {
+    const actionFilesFolder: FileBase = {
+      id: 'tracks',
+      label: 'Tracks',
+      expanded: true,
+      selected: true,
+      type: 'folder',
+      children: mediaFiles,
+    };
+    const versionsFolder: FileBase = {
+      id: 'versions',
+      label: 'Versions',
+      expanded: true,
+      selected: true,
+      type: 'folder',
+      children: saved,
+    }
+    setFiles([actionFilesFolder, versionsFolder]);
+
+  }, [mediaFiles, saved])
+
+  React.useEffect(() => {
+    const actions = engineRef.current.actions ? Object.values(engineRef.current.actions) : undefined;
+    if (actions?.length) {
+      const actionFiles  = FilesFromActions(actions) as FileBase[];
+      setMediaFiles(actionFiles);
+    }
+    if (versions?.length) {
       engineRef.current.versionFiles()
-        .then((versionFiles) => {
-          const versionFolder = {
-            id: 'versions', label: 'Versions', expanded: true, selected: true, type: 'folder', children: versionFiles,
-          } as FileBase
-          setScreenerFiles([versionFolder]);
+        .then((latestVersionFiles) => {
+          setSaved(latestVersionFiles);
         })
     }
-  }, [currentVersion, versions])
 
-  const onAddFiles = (mediaFiles: IMediaFile[]) => {
-    console.log('mediaFile', JSON.stringify(mediaFiles, null, 2))
+  }, [currentVersion, versions, engineRef.current?.actions])
+  const timelineRef = React.useRef<HTMLDivElement>(null);
+  React.useEffect(() => {
+    if (timelineState?.current && startIt) {
+      if (inProps.tracks?.length) {
+        engineRef.current?.setTracks?.(inProps.tracks)
+      } else if (inProps.file?.actionData?.length) {
+        engineRef.current?.buildTracks(Controllers, inProps.file.actionData)
+          .then((initialTracks) => {
+            if (engineRef.current) {
+              engineRef.current?.setTracks?.(initialTracks)
+            }
+          });
+      }
+    }
+  }, [timelineState?.current, startIt])
+
+  const onAddFiles = (newMediaFiles: IMediaFile[]) => {
+
     if (!timelineState.current || !(timelineState.current as TimelineState)?.engine) {
       return;
     }
     const engine = timelineState.current.engine;
-    const actionInput: ITimelineActionInput[] = mediaFiles.map((file) => {
+    const actionInput: ITimelineFileAction[] = newMediaFiles.map((file) => {
       return {
         id: file.id,
         name: file.name,
@@ -244,62 +277,54 @@ const Editor = React.forwardRef(function Editor<
       };
     });
 
-    const actions: ITimelineActionInput[] = Object.values(engine.actions);
-    if (actions.length) {
-      engine.buildTracks(Controllers, [...actions, ...actionInput])
-        .then((tracks) => {
-          timelineState.current?.setTracks(tracks);
-        })
-    } else {
-      engine.buildTracks(Controllers, [...actionInput])
-        .then((tracks) => {
-          timelineState.current?.setTracks(tracks);
-        })
-    }
+    const actions: ITimelineFileAction[] = Object.values(engine.actions);
+    const input = actions.concat(actionInput);
+    engine.buildTracks(Controllers, input)
+      .then((builtTracks : ITimelineTrack[]) => {
+        timelineState.current?.setTracks(builtTracks);
+      });
   }
 
   return (<Root role={'editor'} {...rootProps} >
-      <EditorViewSlot {...editorViewProps} ref={viewerRef}/>
-      {startIt &&
-       <ControlsSlot
-          role={'controls'}
-          {...videoControlsProps}
-          view={view}
-          mode={mode}
-          setMode={setMode}
-          setView={setView}
-          engineRef={engineRef}
-          scaleWidth={scaleWidth}
-          setScaleWidth={setScaleWidthProxy}
-          versions={versions}
-          setVersions={setVersions}
-          currentVersion={currentVersion}
-          setCurrentVersion={setCurrentVersion}
-        />
-      }
-      {startIt &&
-        <TimelineSlot
-          role={'timeline'}
-          {...timelineProps}
-          controllers={Controllers}
-          timelineState={timelineState}
-          actionData={inProps.actionData}
-          scaleWidth={scaleWidth}
-          onKeyDown={instance.onKeyDown}
-          setScaleWidth={setScaleWidthProxy}
-          viewSelector={`.MuiEditorView-root`}
-          slots={{labels: EditorLabels}}
-          labels
-          engineRef={engineRef}
-          sx={timelineSx}
-        />
-      }
-    {engineRef.current.viewMode === 'Renderer' && (playerFiles?.length ?? -1) > 0 && <Explorer
+    <EditorViewSlot {...editorViewProps} ref={viewerRef}
+                    setTracks={timelineState.current?.setTracks} tracks={tracks} engine={engineRef.current}
+                    video={video}/>
+    {startIt && <ControlsSlot
+      role={'controls'}
+      {...videoControlsProps}
+      view={view}
+      mode={mode}
+      setMode={setMode}
+      setView={setView}
+      engineRef={engineRef}
+      versions={versions}
+      setVersions={setVersions}
+      currentVersion={currentVersion}
+      setCurrentVersion={setCurrentVersion}
+    />}
+    {startIt && <TimelineSlot
+      role={'timeline'}
+      {...timelineProps}
+      ref={timelineRef}
+      controllers={Controllers}
+      timelineState={timelineState}
+      file={inProps.file}
+      onKeyDown={instance.onKeyDown}
+      viewSelector={`.MuiEditorView-root`}
+      slots={{labels: EditorLabels}}
+      labels
+      engineRef={engineRef}
+      sx={timelineSx}
+      tracks={tracks}
+      setTracks={setTracks}
+      onAddFiles={onAddFiles}
+    />}
+    {engineRef.current.viewMode === 'Renderer' && (files?.length ?? -1) > 0 && <Explorer
         grid
         role={'file-explorer'}
         id={'editor-file-explorer-renderer'}
         {...fileExplorerProps}
-        items={playerFiles}
+        items={files}
         dndInternal
         dndExternal
         alternatingRows
@@ -307,12 +332,12 @@ const Editor = React.forwardRef(function Editor<
         sx={filesSx}
         onAddFiles={onAddFiles}
       />}
-    {engineRef.current.viewMode === 'Screener' && (screenerFiles?.length ?? -1) > 0 && <Explorer
+    {engineRef.current.viewMode === 'Screener' && (saved?.length ?? -1) > 0 && <Explorer
       grid
       role={'file-explorer'}
       id={'editor-file-explorer-screener'}
       {...fileExplorerProps}
-      items={screenerFiles}
+      items={saved}
       dndInternal
       dndExternal
       alternatingRows
@@ -320,7 +345,7 @@ const Editor = React.forwardRef(function Editor<
       sx={filesSx}
       onAddFiles={onAddFiles}
     />}
-    </Root>);
+  </Root>);
 });
 
 Editor.propTypes = {
@@ -328,7 +353,7 @@ Editor.propTypes = {
   // | These PropTypes are generated from the TypeScript type definitions |
   // | To update them edit the TypeScript types and run "pnpm proptypes"  |
   // ----------------------------------------------------------------------
-  actionData: PropTypes.any,
+  file: PropTypes.any,
   /**
    * The ref object that allows Editor View manipulation. Can be instantiated with
    * `useEditorApiRef()`.

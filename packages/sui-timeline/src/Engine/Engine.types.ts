@@ -1,8 +1,9 @@
 import * as React from "react";
 import type {ITimelineTrack} from "../TimelineTrack";
-import type { IController } from './Controller.types';
-import type { ITimelineAction, ITimelineActionInput} from "../TimelineAction";
+import type {DrawData, IController} from './Controller.types';
+import type {ITimelineAction, ITimelineFileAction} from "../TimelineAction";
 import type { EventTypes } from './events';
+import {ITimelineFile} from "../TimelineFile/TimelineFile";
 
 export interface IEmitter<Events> {
   events: { [key: string]: CallableFunction[] };
@@ -19,6 +20,8 @@ export type ScreenerBlob = { blob: Blob, version: number, name: string, key: str
 export interface IEngine extends IEmitter<EventTypes> {
   readonly isPlaying: boolean;
   readonly isPaused: boolean;
+  logging: boolean;
+  detailMode?: boolean;
   controllers: Record<string, any>;
   viewer: HTMLElement | null;
   viewMode: ViewMode;
@@ -27,17 +30,22 @@ export interface IEngine extends IEmitter<EventTypes> {
   readonly stage: HTMLDivElement | null;
   readonly renderer: HTMLCanvasElement | null;
   readonly renderCtx: CanvasRenderingContext2D | null;
+  rendererDetail: HTMLCanvasElement | null;
+  readonly renderDetailCtx: CanvasRenderingContext2D | null;
   readonly duration: number;
   tracks: ITimelineTrack[];
-  setTracks: React.Dispatch<React.SetStateAction<ITimelineTrack[]>> | undefined;
-  screenerTrack: ITimelineTrack;
-  setScreenerTrack: React.Dispatch<React.SetStateAction<ITimelineTrack>> | undefined;
+  setTracks: React.Dispatch<React.SetStateAction<ITimelineTrack[] | null>> | undefined;
   readonly renderWidth: number;
   readonly renderHeight: number;
-  buildScreenerTrack: (controller: IController, actionInput: ITimelineActionInput) => Promise<ITimelineTrack>;
-  buildTracks: (controllers: Record<string, IController>, actionData: ITimelineActionInput[]) => Promise<ITimelineTrack[]>
+  buildTracks: (controllers: Record<string, IController>, actionData: ITimelineFileAction[]) => Promise<ITimelineTrack[]>
   action: ITimelineAction | undefined;
   readonly actions: Record<string, ITimelineAction>;
+  file: ITimelineFile;
+  control: any;
+  setFile: React.Dispatch<React.SetStateAction<ITimelineFile>> | undefined;
+  selected: any;
+
+  drawImage(dd: DrawData): void;
 
   setScrollLeft(left: number): void;
   /** Set playback rate */
@@ -46,6 +54,8 @@ export interface IEngine extends IEmitter<EventTypes> {
   getPlayRate(): number;
   /** Re-render the current time */
   reRender(): void;
+  /** process a single tick */
+  tickAction(time: number): void;
   /** Set playback time */
   setTime(time: number, isTick?: boolean): boolean;
   /** Get playback time */
@@ -60,12 +70,26 @@ export interface IEngine extends IEmitter<EventTypes> {
   /** pause */
   pause(): void;
 
-  getAction(actionId: string): { action: ITimelineAction, track: ITimelineTrack };
+  getAction(actionId: string):
 
-  getActionTrack(actionId: string):  any;
+    { action: ITimelineAction, track: ITimelineTrack };
+
+  getActionTrack(actionId: string):  ITimelineTrack;
 
   getSelectedActions(): { action: ITimelineAction, track: ITimelineTrack }[];
+
+
+
 }
 
 export type PlayState = 'playing' | 'paused';
 
+export type EngineOptions = {
+  viewer?: HTMLElement;
+  id: string;
+  controllers?: Record<string, IController>;
+  events?: any;
+  defaultState: string;
+  file: any;
+  setFile: React.Dispatch<React.SetStateAction<any>>
+}

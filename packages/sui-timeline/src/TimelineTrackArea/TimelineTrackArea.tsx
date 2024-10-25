@@ -17,15 +17,12 @@ export interface TimelineTrackAreaState {
 
 const TimelineTrackAreaRoot = styled('div')(() => ({
   flex: '1 1 auto',
-  marginTop: '10px',
   overflow: 'hidden',
   position: 'relative',
-  height: '100%',
   minHeight: 'fit-content',
   '& .ReactVirtualized__Grid': {
     outline: 'none !important',
     overflow: 'overlay !important',
-
     '&::-webkit-scrollbar': {
       width: 0,
       height: 0,
@@ -126,6 +123,7 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
         rowHeight={track?.rowHeight || rowHeight}
         track={track}
         dragLineData={dragLineData}
+        disableDrag={props.disableDrag}
 
         onActionMoveStart={(data) => {
           handleInitDragLine(data);
@@ -182,7 +180,7 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
             totalHeight += itemHeight;
             return itemHeight;
           });
-          if (totalHeight < height && heights && viewMode === 'Renderer') {
+         /*  if (totalHeight < height && heights && viewMode === 'Renderer') {
             heights.push(height - totalHeight);
             if (heightRef.current !== height && heightRef.current >= 0) {
               setTimeout(() =>
@@ -191,8 +189,8 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
                 }),
               );
             }
-          }
-          heightRef.current = height;
+          } */
+          heightRef.current = totalHeight;
           return (
             <Grid
               id={'thisisedit'}

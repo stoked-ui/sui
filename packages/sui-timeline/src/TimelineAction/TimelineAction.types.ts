@@ -2,15 +2,17 @@ import * as React from 'react';
 import {SxProps, Theme} from "@mui/material/styles";
 import {SlotComponentProps} from "@mui/material";
 import {CSSProperties} from "@mui/system/CSSProperties";
-import {MediaFile} from "@stoked-ui/media-selector";
+import {MediaFile } from "@stoked-ui/media-selector";
 import {FileBase, FileBaseFromMediaFile} from '@stoked-ui/file-explorer';
 import {TimelineActionClasses} from "./timelineActionClasses";
 import {DragLineData} from "../TimelineTrackArea/TimelineTrackAreaDragLines";
 import {CommonProps} from '../interface/common_prop';
 import {type ITimelineTrack } from "../TimelineTrack/TimelineTrack.types";
-import { IController } from '../Engine/Controller.types';
+import {DrawData, IController} from '../Engine/Controller.types';
 
 export type GetBackgroundImage = (action: ITimelineAction) => Promise<string>;
+
+
 
 export interface TimelineActionState {
   /** Whether the action is selected */
@@ -27,17 +29,19 @@ export interface TimelineActionState {
   locked?: boolean;
 }
 
-export interface ITimelineActionInput extends TimelineActionState {
+export interface ITimelineActionUserData {
   /** action id */
-  id?: string;
+  id: string;
   /** action display name */
-  name: string;
+  name?: string;
+
+  fullName?: string;
   /** Action start time */
-  start: number;
+  start?: number;
   /** Action end time */
-  end: number;
+  end?: number;
   /** The controllerName corresponding to the action */
-  controllerName: string;
+  controllerName?: string;
 
   trimStart?: number;
 
@@ -47,7 +51,43 @@ export interface ITimelineActionInput extends TimelineActionState {
 
   src: string;
 
-  style?: CSSProperties;
+  playbackRate?: number;
+
+  velocity?: number;
+
+  acceleration?: number;
+
+  freeze?: number;
+
+  loop?: boolean | number;
+
+  width?: number;
+
+  height?: number;
+
+  z?: number;
+
+  x?: number | string;
+
+  y?: number | string;
+
+  fit?:
+    'fill'    | // The action is resized to fill the given dimension. If necessary, the action will be stretched or squished to fit
+    'cover'   | // The action keeps its aspect ratio and fills the given dimension. The action will be clipped to fit
+    'contain' | // The action keeps its aspect ratio, but is resized to fit within the given dimension
+    'none'      // DEFAULT - The action is not resized
+
+  volume?: [ volume: number, start?: number, end?: number] []
+}
+
+export interface ITimelineFileAction
+  extends TimelineActionState, Omit<ITimelineActionUserData, 'id' | 'file'> {
+  /** action id */
+  id?: string;
+
+  layer?: string;
+
+  style?: React.CSSProperties;
 }
 
 /**
@@ -55,57 +95,56 @@ export interface ITimelineActionInput extends TimelineActionState {
  * @export
  * @interface ITimelineAction
  */
-export interface ITimelineAction extends Omit<ITimelineActionInput, 'id' | 'start' | 'end' | 'data'>, TimelineActionState {
+export interface ITimelineAction
+  extends Omit<ITimelineFileAction, 'id' | 'start' | 'end' | 'width' | 'height' | 'x' | 'y' | 'z' | 'fit' | 'name'> {
   /** action id */
   id: string;
-  /** Action start time */
-  start: number;
-  /** Action end time */
-  end: number;
 
-  file?: MediaFile;
+  name: string;
 
-  /** z index */
-  z: number;
-
-  x: number;
-
-  y: number;
-
-  width: number;
-
-  height: number;
-
-  /** Minimum start time limit for actions */
-  minStart?: number;
-  /** Maximum end time limit of action */
-  maxEnd?: number;
+  file: MediaFile;
 
   onKeyDown?: (event: any, id: string) => void;
 
   duration?: number;
 
-  src: string;
-
   style?: CSSProperties;
+  /** Action start time */
+  start: number;
+  /** Action end time */
+  end: number;
+
+  width: number;
+
+  height: number;
+
+  z: number;
+
+  x?: number;
+
+  y?: number;
 
   getBackgroundImage?: (actionType: IController, src: string) => string;
-
-  staticZ: boolean;
-
-  name: string;
-
-  fullName: string;
-
-  element?: any;
-
-  timeUpdate?: (time: number) => void;
 
   controller: IController;
 
   frameSyncId?: number;
+  /** Minimum start time limit for actions */
+  minStart?: number;
+  /** Maximum end time limit of action */
+  maxEnd?: number;
+  playCount?: number;
 
-  translate?: {x?: number, y?: number};
+  nextFrame?: DrawData;
+
+  volumeIndex: number;
+
+  fit:
+    'fill'    | // The action is resized to fill the given dimension. If necessary, the action will be stretched or squished to fit
+    'cover'   | // The action keeps its aspect ratio and fills the given dimension. The action will be clipped to fit
+    'contain' | // The action keeps its aspect ratio, but is resized to fit within the given dimension
+    'none'      // DEFAULT - The action is not resized
+
 }
 
 export type ITimelineActionLayer = 'background' | 'foreground';
@@ -169,4 +208,11 @@ export interface TimelineActionOwnerState extends Omit<TimelineActionProps, 'act
 
 export function FilesFromActions(actions: ITimelineAction[] = []): FileBase[] {
   return actions.map((action) => FileBaseFromMediaFile(action.file));
+}
+
+
+export interface BackgroundImageStyle {
+  backgroundImage: string,
+  backgroundPosition: string,
+  backgroundSize: string
 }

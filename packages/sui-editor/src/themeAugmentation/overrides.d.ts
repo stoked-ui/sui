@@ -2,7 +2,7 @@ import {EditorClassKey} from '../Editor';
 
 // prettier-ignore
 export interface EditorComponentNameToClassKey {
-  MuiEditorTest: EditorClassKey;
+  MuiEditor: EditorClassKey;
 }
 
 declare module '@mui/material/styles' {

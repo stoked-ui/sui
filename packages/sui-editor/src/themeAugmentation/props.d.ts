@@ -1,7 +1,7 @@
 import {EditorProps} from '../Editor';
 
 export interface EditorComponentsPropsList {
-  MuiEditorTest: EditorProps<any, any>;
+  MuiEditor: EditorProps<any, any>;
 }
 
 declare module '@mui/material/styles' {

@@ -4,14 +4,8 @@ import {MediaType} from "./MediaType";
 export interface IMediaFileBase {
   readonly path?: string;
 }
-export interface IMediaDirectory extends IMediaFileBase{
-  readonly lastModified: number;
-  readonly name: string;
-  readonly size: number;
-  readonly webkitRelativePath: string;
-}
 
-export interface IMediaFile extends File, IMediaDirectory {
+export interface IMediaFile extends File, IMediaFileBase {
   readonly mediaType: MediaType;
   readonly id: string;
   duration?: number;
@@ -20,6 +14,7 @@ export interface IMediaFile extends File, IMediaDirectory {
   readonly blob: Blob;
   _url?: string;
   readonly url: string;
+  readonly created: number;
   readonly lastModified: number;
   readonly name: string;
   readonly webkitRelativePath: string;
@@ -41,7 +36,7 @@ export interface I2d {
 }
 
 /**
- * Convert a DragEvent's DataTrasfer object to a list of File objects
+ * Convert a DragEvent's DataTransfer object to a list of File objects
  * NOTE: If some of the items are folders,
  * everything will be flattened and placed in the same list but the paths will be kept as a {path}
  * property.
