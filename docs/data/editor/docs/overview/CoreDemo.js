@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { Editor } from '@stoked-ui/editor';
+import Editor from '@stoked-ui/editor';
+import { TimelineFile } from '@stoked-ui/timeline';
 import { cloneDeep } from 'lodash';
 
 export const scaleWidth = 160;
@@ -64,7 +65,7 @@ export default function CoreDemo() {
     <Editor
       id={'video-editor'}
       sx={{ borderRadius: '12px 12px 0 0' }}
-      actionData={ defaultEditorData }
+      file={new TimelineFile({ actionData: defaultEditorData})}
     />
   );
 }
