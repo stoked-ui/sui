@@ -718,7 +718,6 @@ export const EditorControls = React.forwardRef(
                  >
               {timeRender(time)}
             </div>
-            <fieldset aria-hidden="true" className="MuiOutlinedInput-notchedOutline css-jb0nqk-MuiOutlinedInput-notchedOutline" />
           </div>
         </TimeRoot>
 
