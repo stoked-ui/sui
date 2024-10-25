@@ -49,8 +49,8 @@ export const extractPluginParamsFromProps = <
 
   Object.keys(props).forEach((propName) => {
     let prop = props[propName as keyof typeof props] as any;
-    if (propName === 'actionData') {
-      prop = prop.map((p) => {
+    if (propName === 'file') {
+      prop = prop.actionData.map((p) => {
         if (p.id === undefined) {
           p.id = idFunc();
         }

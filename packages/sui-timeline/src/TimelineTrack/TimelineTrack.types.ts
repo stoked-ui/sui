@@ -1,3 +1,4 @@
+import { MediaFile } from '@stoked-ui/media-selector';
 import { type ITimelineAction } from '../TimelineAction/TimelineAction.types';
 
 /**
@@ -23,5 +24,16 @@ export interface ITimelineTrack {
   /** Whether the action is hidden */
   lock?: boolean;
 
+  file?: MediaFile;
+
   actionRef: ITimelineAction;
 }
+
+export interface ITimelineTrackNew extends Omit<ITimelineTrack, 'id' | 'actionRef'> {
+
+  id: 'newTrack';
+
+  actionRef: null;
+}
+
+export type TimelineTrackEx = ITimelineTrack | ITimelineTrackNew;

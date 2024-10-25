@@ -1,5 +1,4 @@
 import { IEngine, PlayState, ScreenerBlob } from '@stoked-ui/timeline';
-import {type Version} from "../Editor";
 
 export interface IEditorEngine extends IEngine {
   readonly isRecording: boolean;

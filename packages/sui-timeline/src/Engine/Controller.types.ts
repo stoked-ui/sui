@@ -7,10 +7,10 @@ export interface DrawData {
   sy: number,
   sWidth: number,
   sHeight: number,
-  dx: number,
-  dy: number,
-  dWidth: number,
-  dHeight: number
+  dx?: number,
+  dy?: number,
+  dWidth?: number,
+  dHeight?: number
 }
 
 export interface IController {
@@ -28,4 +28,8 @@ export interface IController {
   logging: boolean;
   getBackgroundImage?: GetBackgroundImage;
   preload?: (params: Omit<ControllerParams, 'time'>) => Promise<ITimelineAction>;
+  getElement: (actionId: string) => HTMLElement;
 }
+
+export type VolumeSection = [volume: number, start?: number, end?: number];
+export type VolumeSections = VolumeSection[];

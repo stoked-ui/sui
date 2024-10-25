@@ -18,7 +18,9 @@ class ImageControl extends Controller {
       item = this.cacheMap[action.id];
       ImageControl.toggleDisplay(action, item);
     } else if (!action.hidden) {
+      console.log('action', action)
       item = ImageControl.createNewImage(action);
+      console.log('action item engine', item, engine);
       this.cacheMap[action.id] = item;
       ImageControl.attachItemToViewer(item, engine);
       ImageControl.renderImage(item, engine);
@@ -30,7 +32,7 @@ class ImageControl extends Controller {
   }
 
   static createNewImage(action: ITimelineAction): HTMLImageElement {
-    const item = document.createElement('image') as HTMLImageElement;
+    const item = document.createElement('img') as HTMLImageElement;
     item.src = action!.src;
     item.style.display = 'flex';
     ImageControl.applyStyles(action, item);
@@ -87,6 +89,10 @@ class ImageControl extends Controller {
     } else {
       item.style.display = 'block';
     }
+  }
+
+  getElement(actionId: string) {
+    return this.cacheMap[actionId];
   }
 }
 

@@ -137,7 +137,7 @@ function processAudioBuffer(audioBuffer: AudioBuffer, options: WaveformOptions):
     }
   }
 
-  const modifier = 300 / (total) - 1;
+  const modifier = (300 / (total) - 1) * .5;
   for (let i = 0; i < width; i += 1) {
     const min = plots[i][0];
     const max = plots[i][1];

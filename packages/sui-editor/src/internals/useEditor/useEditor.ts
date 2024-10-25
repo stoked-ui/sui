@@ -198,7 +198,7 @@ export const useEditor = <
       ...forwardedProps,
       ...otherHandlers,
       tracks: contextValue.tracks ?? [],
-      controllers: Controllers,
+      controllers: Controllers
     };
   };
 

@@ -1,24 +1,16 @@
 import * as React from 'react';
 import BTree from "sorted-btree";
-import {namedId, getFileName, MediaFile} from "@stoked-ui/media-selector";
-import { type ITimelineAction, type ITimelineActionInput } from '../TimelineAction/TimelineAction.types'
-import { type IController } from './Controller.types';
-import {type IEngine, type PlayState, ScreenerBlob, type ViewMode} from './Engine.types';
+import {namedId, getFileName, MediaFile } from "@stoked-ui/media-selector";
+import {type ITimelineAction, ITimelineFileAction} from '../TimelineAction/TimelineAction.types'
+import {DrawData, type IController} from './Controller.types';
+import {type IEngine, type PlayState, ScreenerBlob, type ViewMode, type EngineOptions} from './Engine.types';
 import { type ITimelineTrack} from '../TimelineTrack/TimelineTrack.types';
 import {Events, type EventTypes} from './events'
 import {Emitter} from './emitter'
+import Controller from "./Controller";
 
 const PLAYING = 'playing';
 const PAUSED = 'paused';
-
-
-export type EngineOptions = {
-  viewer?: HTMLElement;
-  id: string;
-  controllers?: Record<string, IController>;
-  events?: any;
-  defaultState: string;
-}
 
 /**
  * Timeline player
@@ -29,9 +21,17 @@ export type EngineOptions = {
  */
 export default class Engine<State extends PlayState = PlayState, Events extends EventTypes = EventTypes> extends Emitter<Events> implements IEngine {
 
+  protected _file: any = null;
+
   protected _viewer: HTMLElement | null = null;
 
   protected _renderer: HTMLCanvasElement | null = null;
+
+  protected _renderCtx: CanvasRenderingContext2D | null = null;
+
+  protected _rendererDetail: HTMLCanvasElement | null = null;
+
+  protected _renderDetailCtx: CanvasRenderingContext2D | null = null
 
   protected  _renderWidth: number = 0;
 
@@ -41,19 +41,24 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
 
   protected _screenerBlob: ScreenerBlob | null = null;
 
-  protected _screenerTrack: ITimelineTrack | null = null;
-
   protected _stage: HTMLDivElement | null = null;
 
-  protected _renderCtx: CanvasRenderingContext2D | null = null
+  protected _logging: boolean = false;
 
-  protected _alphaMode: boolean = false;
+  protected _tracks: ITimelineTrack[] | null = null;
 
-  protected _logging: boolean = true;
+  selected: any;
 
-  setTracks: React.Dispatch<React.SetStateAction<ITimelineTrack[]>> | undefined = undefined;
+  detailMode: boolean = false;
 
-  setScreenerTrack: React.Dispatch<React.SetStateAction<ITimelineTrack>> | undefined = undefined;
+  control: any = {};
+
+  setTracks: React.Dispatch<React.SetStateAction<ITimelineTrack[] | null>> | undefined = undefined;
+
+  setFile: React.Dispatch<React.SetStateAction<any>> | undefined = undefined;
+
+  // @ts-ignore
+  protected engine: IEngine = this;
 
   constructor(params: EngineOptions ) {
     super(params.events || new Events());
@@ -68,6 +73,17 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
     this._viewMode = 'Renderer';
   }
 
+  get file() {
+    return this._file;
+  }
+
+  set file(file: any) {
+    if (this.setFile) {
+      this.setFile(file);
+    }
+    this._file = file;
+  }
+
   get logging() {
     return this._logging;
   }
@@ -80,14 +96,6 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
       const controller = controllers[i];
       controller.logging = enableLogging;
     }
-  }
-
-  get screenerTrack() {
-    return this._screenerTrack;
-  }
-
-  set screenerTrack(track: ITimelineTrack) {
-    this._screenerTrack = track;
   }
 
   get screener() {
@@ -126,23 +134,6 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
       return vals[0];
     }
     return undefined;
-  }
-
-  set alpha(enabled: boolean) {
-   /*  if (enabled === this._alphaMode) {
-      return;
-    }
-
-    const ctx = this._renderer.getContext('2d', { alpha: true, willReadFrequently: true });
-    if (ctx) {
-      this._renderCtx = ctx;
-      this._renderCtx.clearRect(0, 0, this.renderWidth, this.renderHeight);
-    }
-    this._alphaMode = enabled; */
-  }
-
-  get alpha() {
-    return this._alphaMode;
   }
 
   set viewer(viewer: HTMLElement) {
@@ -214,9 +205,31 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
     }
   }
 
-
   get renderCtx() {
     return this._renderCtx;
+  }
+
+  get rendererDetail() {
+    return this._rendererDetail;
+  }
+
+  set rendererDetail(canvas: HTMLCanvasElement) {
+    this._rendererDetail = canvas;
+    if (canvas) {
+      canvas.width = this.renderWidth;
+      canvas.height = this.renderHeight;
+      const ctx = canvas.getContext('2d', { alpha: true, willReadFrequently: true });
+
+      if (!ctx) {
+        throw new Error('Could not get 2d context from renderer');
+      }
+      this._renderDetailCtx = ctx;
+      this._renderDetailCtx.clearRect(0, 0, this.renderWidth, this.renderHeight);
+    }
+  }
+
+  get renderDetailCtx() {
+    return this._renderDetailCtx;
   }
 
   setRenderView(width: number, height: number) {
@@ -265,7 +278,7 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
       this._screener.style.display = 'flex';
       this._renderer.style.display = 'none';
     }
-    if (viewMode === 'Screener' && !this.screenerTrack) {
+  /*   if (viewMode === 'Screener' && !this.screenerTrack) {
       if (!this.screenerBlob) {
         return;
       }
@@ -282,7 +295,7 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
 
       // this.screenerTrack = await this.buildScreenerTrack(this._controllers.video, actionInput)
       this.screener.src = url;
-    }
+    } */
     this._viewMode = viewMode;
   }
 
@@ -349,59 +362,31 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
   }
 
   set tracks(tracks: ITimelineTrack[]) {
-    // if (this.isPlaying) {
-    //  this.pause();
-    // }
+    this._tracks = tracks;
+
     this._dealData(tracks);
     this._dealClear();
     this._dealEnter(this._currentTime);
   }
 
-  async buildScreenerTrack(controller: IController, actionInput: ITimelineActionInput): Promise<ITimelineTrack> {
-    try {
-      const action = actionInput as ITimelineAction;
-      action.src = action.src.indexOf('http') !== -1 ? action!.src : `${window.location.href}${action!.src}`;
-      action.src = action.src.replace(/([^:]\/)\/+/g, "$1");
-      action.fullName =  action.name;
-
-      if (!action.id) {
-        action.id = namedId('mediaFile');
-      }
-      action.timeUpdate = (time: number) => {
-        this.setTime(time, true);
-      }
-      action.controller = controller;
-
-      const preload = action.controller.preload ? await action.controller.preload({action, engine: this }) : action;
-
-      action.end = preload.duration;
-      action.file = await MediaFile.fromAction(preload as any);
-
-      const trackGenId = namedId('track')
-      return {
-        id: trackGenId,
-        name: action.name ?? trackGenId,
-        actions: [action],
-        actionRef: action,
-        lock: false,
-        hidden: false,
-      } as ITimelineTrack;
-    } catch (ex) {
-      console.error('buildTracks:', ex);
-      throw new Error(ex);
-    }
-  }
-
   // eslint-disable-next-line class-methods-use-this
-  async buildTracks(controllers: Record<string, IController>, actionData: ITimelineActionInput[]): Promise<ITimelineTrack[]> {
+  async buildTracks(controllers: Record<string, IController>, actionData: ITimelineFileAction[]): Promise<ITimelineTrack[]> {
     try {
+      const newTrack = {
+        id: 'newTrack',
+        name: 'new track',
+        actions: [],
+        actionRef: null,
+        hidden: false,
+        lock: false
+      } as ITimelineTrack
       if (actionData) {
         const actions = actionData.map((actionInput, index) => {
           const action = actionInput as ITimelineAction;
           action.src = action.src.indexOf('http') !== -1 ? action!.src : `${window.location.origin}${action!.src}`;
           action.src = action.src.replace(/([^:]\/)\/+/g, "$1");
           if (!action.name) {
-            const fullName = getFileName(action.src);
+            const fullName = getFileName(action.src, true);
             const name = getFileName(action.src, false);
             if (!name || !fullName) {
               throw new Error('no action name available');
@@ -409,8 +394,21 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
             action.name = name;
             action.fullName = fullName;
           } else {
-            action.fullName = getFileName(action.name, true)!;
-            action.name = getFileName(action.name, false)!;
+            action.fullName = getFileName(action.src, true)!;
+          }
+
+          if (!action.volume) {
+            action.volumeIndex = -2; // -2: no volume parts available => volume 1
+          } else {
+            action.volumeIndex = -1; // -1: volume part unassigned => volume 1 until assigned
+
+            for (let i = 0; i < action.volume!.length; i += 1) {
+              const { volume } = Controller.getVol(action.volume![i]);
+
+              if (volume < 0 || volume > 1) {
+                console.info(`${action.name} specifies a volume of ${volume} which is outside the standard range: 0.0 - 1.0`)
+              }
+            }
           }
 
           action.controller = controllers[action.controllerName];
@@ -418,10 +416,9 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
           if (!action.id) {
             action.id = namedId('mediaFile');
           }
+
           if (!action.z) {
             action.z = index;
-          } else {
-            action.staticZ = true;
           }
 
           if (!action.layer) {
@@ -429,7 +426,7 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
           }
           return action;
         })
-        const preload = actions.map((action) => action.controller.preload ? action.controller.preload({action, engine: this }) : action)
+        const preload = actions.map((action) => action.controller.preload ? action.controller.preload({action, engine: this.engine }) : action)
         const loadedActions = await Promise.all(preload);
 
         const filePromises = loadedActions.map((action) => MediaFile.fromAction(action as any));
@@ -451,7 +448,6 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
           }
           const action = {
             fit: 'none',
-            alpha: false,
             loop: true,
             ...loadedAction,
             file,
@@ -468,9 +464,11 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
             lock: false
           } as ITimelineTrack;
         })
+
+        tracks.push(newTrack);
         return tracks;
       }
-      return [];
+      return [newTrack];
     } catch (ex) {
       console.error('buildTracks:', ex);
       return [];
@@ -486,12 +484,12 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
       console.error('Error: rate cannot be less than -3 or more than 3!');
       return false;
     }
-    const result = this.trigger('beforeSetPlayRate', { rate, engine: this });
+    const result = this.trigger('beforeSetPlayRate', { rate, engine: this.engine });
     if (!result) {
       return false;
     }
     this._playRate = rate;
-    this.trigger('afterSetPlayRate', { rate, engine: this });
+    this.trigger('afterSetPlayRate', { rate, engine: this.engine });
 
     return true;
   }
@@ -513,7 +511,7 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
     if (this.isPlaying) {
       return;
     }
-    this._tickAction(this._currentTime);
+    this.tickAction(this._currentTime);
   }
 
   /**
@@ -523,7 +521,7 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
    * @memberof Engine
    */
   setTime(time: number, isTick?: boolean): boolean {
-    const result = isTick || this.trigger('beforeSetTime', { time, engine: this });
+    const result = isTick || this.trigger('beforeSetTime', { time, engine: this.engine });
     if (!result) {
       return false;
     }
@@ -534,14 +532,19 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
     }
 
     this._next = 0;
+    if (this.detailMode) {
+      this.renderDetailCtx?.clearRect(0, 0, this.renderWidth, this.renderHeight);
+    } else {
+      this.renderCtx?.clearRect(0, 0, this.renderWidth, this.renderHeight);
+    }
     this._dealLeave(time);
     this._dealEnter(time);
 
     if (isTick) {
-      this.trigger('setTimeByTick', { time, engine: this });
+      this.trigger('setTimeByTick', { time, engine: this.engine });
     }
     else {
-      this.trigger('afterSetTime', { time, engine: this });
+      this.trigger('afterSetTime', { time, engine: this.engine });
     }
     return true;
   }
@@ -581,7 +584,7 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
     this._startOrStop('start');
 
     // trigger event
-    this.trigger('play', { engine: this });
+    this.trigger('play', { engine: this.engine });
     if (this.viewMode === 'Screener') {
       this.screener.play()
         .then(() => {
@@ -618,7 +621,7 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
       // activeIds run stop
       this._startOrStop('stop');
 
-      this.trigger('paused', { engine: this, previousState });
+      this.trigger('paused', { engine: this.engine, previousState });
     }
     cancelAnimationFrame(this._timerId);
   }
@@ -626,7 +629,7 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
   /** Playback completed */
   protected _end() {
     this.pause();
-    this.trigger('ended', { engine: this });
+    this.trigger('ended', { engine: this.engine });
   }
 
   protected _assignElements() {
@@ -665,21 +668,21 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
     }
 
     if (this._viewMode === 'Screener') {
-      const screenerAction = this.screenerTrack.actionRef;
+      /* const screenerAction = this.screenerTrack.actionRef;
       if (type === 'start' && screenerAction?.controller?.start && !this.screenerTrack.hidden) {
         screenerAction.controller.start({action: screenerAction, time: this.getTime(), engine: this});
       } else if (type === 'stop' && screenerAction?.controller?.stop && !this.screenerTrack.hidden) {
         screenerAction.controller.stop({action: screenerAction, time: this.getTime(), engine: this});
-      }
+      } */
     } else {
       // eslint-disable-next-line no-restricted-syntax
       this._activeIds.forEach((key, ) => {
         const action = this._actionMap[key];
         const track = this._actionTrackMap[action.id];
         if (type === 'start' && action?.controller?.start && !track.hidden) {
-          action.controller.start({action, time: this.getTime(), engine: this});
+          action.controller.start({action, time: this.getTime(), engine: this.engine});
         } else if (type === 'stop' && action?.controller?.stop && !track.hidden) {
-          action.controller.stop({action, time: this.getTime(), engine: this});
+          action.controller.stop({action, time: this.getTime(), engine: this.engine});
         }
       });
     }
@@ -728,7 +731,7 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
     this.setTime(currentTime, true);
 
     // Execute action
-    this._tickAction(currentTime);
+    this.tickAction(currentTime);
     // In the case of automatic stop, determine whether all actions have been executed.
     if (!to && autoEnd && this._next >= this._actionSortIds.length && this._activeIds.length === 0) {
       this._end();
@@ -754,45 +757,45 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
   }
 
   /** tick runs actions */
-  protected _tickAction(time: number) {
-    if (!this._verifyLoaded() || !this._renderCtx) {
+  tickAction(time: number) {
+    if (!this._verifyLoaded() || !this._renderCtx || (this.detailMode === true && !this.renderDetailCtx)) {
       return;
     }
-    this.log('_tickAction', 'clearRect')
-    this.renderCtx?.clearRect(0, 0, this.renderWidth, this.renderHeight);
+    this.log('tickAction')
+
+    if (this.detailMode) {
+      this.renderDetailCtx?.clearRect(0, 0, this.renderWidth, this.renderHeight);
+    } else {
+      this.renderCtx?.clearRect(0, 0, this.renderWidth, this.renderHeight);
+    }
+
     this._dealEnter(time);
     this._dealLeave(time);
 
-    this.log('_tickAction', 'preUpdate')
     // render
 
-    if (this.viewMode === 'Renderer') {
-      // eslint-disable-next-line no-restricted-syntax
-      /* this._activeIds.forEach((key, ) => {
-        const action = this._actionMap[key];
-        if (action.controller && action.controller?.update) {
-          action.controller.update({action, time: this.getTime(), engine: this});
-        }
-      }); */
-      this._activeIds.forEach((key, ) => {
-        const action = this._actionMap[key];
-        if (action.nextFrame) {
-          const frameData = action.nextFrame;
-          this._renderCtx.drawImage(frameData.source, frameData.sx, frameData.sy, frameData.sWidth, frameData.sHeight, frameData.dx, frameData.dy, frameData.dWidth, frameData.dHeight);
-        }
-      });
+    // eslint-disable-next-line no-restricted-syntax
+    this._activeIds.forEach((key, ) => {
+      const action = this._actionMap[key];
+      if (action.controller && action.controller?.update) {
+        action.controller.update({action, time: this.getTime(), engine: this.engine});
+      }
+    });
 
-
-    } else {
-      const screenerAction = this.screenerTrack.actionRef;
-      screenerAction.controller.update({ action: screenerAction, time: this.getTime(), engine: this});
-    }
     this.log('_tickAction', 'postUpdate')
     // console.log(renderPass.join(' => '));
   }
 
   setScrollLeft(left: number) {
-    this.trigger('setScrollLeft', { left, engine: this });
+    this.trigger('setScrollLeft', { left, engine: this.engine });
+  }
+
+  drawImage(dd: DrawData) {
+    if (this.detailMode) {
+      this.renderDetailCtx?.drawImage(dd.source, dd.sx, dd.sy, dd.sWidth, dd.sHeight, dd.dx ?? 0, dd.dy ?? 0, dd.dWidth ?? 1920, dd.dHeight ?? 1080);
+    } else {
+      this.renderCtx?.drawImage(dd.source, dd.sx, dd.sy, dd.sWidth, dd.sHeight, dd.dx ?? 0, dd.dy ?? 0, dd.dWidth ?? 1920, dd.dHeight ?? 1080);
+    }
   }
 
   /** Reset active data */
@@ -807,7 +810,7 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
         if (action) {
           const controller = action.controller;
           if (controller?.leave) {
-            controller.leave({action, time: this.getTime(), engine: this});
+            controller.leave({action, time: this.getTime(), engine: this.engine});
           }
         }
       } else {
@@ -836,7 +839,7 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
         if (action.end > time && active.indexOf(actionId) === -1 && !track.hidden) {
           const controller = action.controller;
           if (controller && controller?.enter) {
-            controller.enter({action, time: this.getTime(), engine: this});
+            controller.enter({action, time: this.getTime(), engine: this.engine});
           }
 
           this._activeIds.set(action.z, actionId);
@@ -860,7 +863,7 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
           const controller = this._controllers[action.controllerName];
 
           if (controller && controller?.leave) {
-            controller.leave({action, time: this.getTime(), engine: this});
+            controller.leave({action, time: this.getTime(), engine: this.engine});
           }
 
           this._activeIds.delete(value);
@@ -942,7 +945,6 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
 
       throw new Error(`Unsupported format for value: ${value}`);
     };
-
 
     return parseValue(coord, coordContext, sceneContext);
   }

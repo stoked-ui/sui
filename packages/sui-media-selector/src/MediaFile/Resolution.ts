@@ -1,6 +1,5 @@
 import MediaFile from "./MediaFile";
-import {IMediaDirectory, IMediaFile} from "./MediaFile.types";
-import {MediaType} from "./MediaType";
+import {IMediaFile} from "./MediaFile.types";
 
 export interface IText {
   text: string;
@@ -73,7 +72,7 @@ export enum Orientation {
   Square = 'Square'
 }
 
-export interface IResolutionFile extends File, IMediaFile, IMediaDirectory {
+export interface IResolutionFile extends File, IMediaFile {
   readonly _width?: number;
   readonly _height?: number;
   readonly _resolution?: Res;
