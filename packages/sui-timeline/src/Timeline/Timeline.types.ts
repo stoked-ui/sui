@@ -2,7 +2,6 @@ import * as React from 'react';
 import {Theme} from '@mui/material/styles';
 import {SxProps} from '@mui/system';
 import {SlotComponentProps} from '@mui/base/utils';
-import {type ITimelineAction, ITimelineActionInput} from '../TimelineAction/TimelineAction.types';
 import { type IController } from '../Engine/Controller.types';
 import {TimelineClasses} from './timelineClasses';
 import {type ITimelineTrack} from "../TimelineTrack/TimelineTrack.types";
@@ -10,6 +9,8 @@ import {type TimelineLabelsProps} from "../TimelineLabels/TimelineLabels.types";
 import {type TimelineState} from "./TimelineState";
 import TimelineControl, {TimelineControlProps} from "../TimelineControl";
 import {IEngine, ViewMode} from "../Engine/Engine.types";
+import {ITimelineFile} from "../TimelineFile/TimelineFile";
+import { MediaFile } from '@stoked-ui/media-selector';
 
 export type TimelineComponent = ((
   props: TimelineProps & React.RefAttributes<HTMLDivElement>,
@@ -33,6 +34,8 @@ export interface TimelineSlotProps {
 
 export interface TimelineProps
   extends React.HTMLAttributes<HTMLDivElement> {
+  detailMode?: boolean,
+
   children?: React.ReactNode;
   /**
    * Overridable component slots.
@@ -59,6 +62,7 @@ export interface TimelineProps
   trackSx?: SxProps<Theme>;
 
   tracks?: ITimelineTrack[];
+  setTracks?: React.Dispatch<React.SetStateAction<ITimelineTrack[] | null>>;
   controllers?: Record<string, IController>;
   timelineState?: React.RefObject<TimelineState>;
   viewSelector?: string;
@@ -67,6 +71,11 @@ export interface TimelineProps
 
   scaleWidth?: number;
   setScaleWidth?: (scaleWidth: number) => void;
-  actionData?: ITimelineActionInput[];
+  file?: ITimelineFile;
   viewMode?: ViewMode;
+
+  detailRenderer?: boolean;
+  locked?: boolean;
+
+  onAddFiles?: (mediaFiles: MediaFile[]) => void;
 }

@@ -6,7 +6,8 @@ import { IController } from '../Engine/Controller.types';
 import {TimelineLabelsClasses} from './timelineLabelsClasses';
 import {TimelineState} from "../Timeline/TimelineState";
 import { ITimelineTrack } from "../TimelineTrack/TimelineTrack.types";
-import {ViewMode} from "../Engine";
+import {IEngine, ViewMode} from "../Engine";
+import { MediaFile } from '@stoked-ui/media-selector';
 
 export interface TimelineLabelsSlots {
   /**
@@ -33,11 +34,14 @@ export interface TimelineLabelsPropsBase extends React.HTMLAttributes<HTMLDivEle
    */
   sx?: SxProps<Theme>;
 
-  timelineState: React.RefObject<TimelineState>;
+  engineRef: React.RefObject<IEngine>;
 
-  tracks?: ITimelineTrack[];
+  tracks: ITimelineTrack[];
   controllers: Record<string, IController>
   viewMode: ViewMode;
+  detailMode?: boolean;
+
+  onAddFiles?: (mediaFiles: MediaFile[]) => void;
 }
 
 export interface TimelineLabelsProps
@@ -55,5 +59,5 @@ export interface TimelineLabelsProps
 
   onToggle?: (id: string, property: string) => void;
   setFlags?: (id: string) => string[];
-  setTracks: (updatedTracks: ITimelineTrack[]) => void;
+  setTracks:  React.Dispatch<React.SetStateAction<ITimelineTrack[]>>;
 }

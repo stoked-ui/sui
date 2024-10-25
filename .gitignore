@@ -41,3 +41,4 @@ docs/public/static/blog/feed/*
 .nx/cache
 **.env
 packages-internal/x-tree-view-example
+/.nx/

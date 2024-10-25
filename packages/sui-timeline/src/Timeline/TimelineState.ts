@@ -43,5 +43,5 @@ export interface TimelineState {
   tracks: ITimelineTrack[]
   setTracks: (tracks: ITimelineTrack[]) => void;
 
-  selectedTrack: ITimelineTrack | undefined;
+  getSelectedTrack: () => ITimelineTrack | undefined;
 }

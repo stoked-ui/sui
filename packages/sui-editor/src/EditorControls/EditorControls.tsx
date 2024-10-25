@@ -11,7 +11,6 @@ import SkipNextIcon from '@mui/icons-material/SkipNext';
 import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
 import Select, {SelectChangeEvent} from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
-import TextField from '@mui/material/TextField';
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import {alpha, emphasize, Theme} from '@mui/material/styles';
@@ -69,15 +68,17 @@ const PlayerRoot = styled('div')(({ theme }) => ({
   backgroundColor: emphasize(theme.palette.background.default, 0.2),
 }));
 
-const TimeRoot = styled(TextField)(({ theme }) => ({
+const TimeRoot = styled('div')(({ theme }) => ({
   fontSize: '1px',
   fontFamily: "'Roboto Condensed', sans-serif",
   margin: '0 2px',
-  py: '4px',
+  padding: '0px 4px',
   width: '120px',
   alignSelf: 'center',
   borderRadius: '12px',
+  userSelect: 'none',
   "& .MuiInputBase-input": {
+    userSelect: 'none',
     fontSize: 16,
     fontFamily: "monospace",
     fontWeight: 600,
@@ -88,6 +89,14 @@ const TimeRoot = styled(TextField)(({ theme }) => ({
     color: `${theme.palette.text.primary}!important`,
     WebkitTextFillColor: 'unset!important',
     textAlign: 'center',
+    webkitUserSelect: 'none',
+    webkitTouchCallout: 'none',
+    mozUserSelect: 'none',
+    msUserSelect: 'none',
+    alignContent: 'center'
+  },
+  "& input": {
+
   },
   minWidth: '120px',
 }));
@@ -144,6 +153,7 @@ function Controls(inProps: ControlProps) {
   const { engineRef, setVideoURLs, controlState, versions, setVersions, viewMode, setControlState } = inProps;
   const [mediaRecorder, setMediaRecorder] = React.useState<MediaRecorder | null>(null);
   const [recordedChunks, setRecordedChunks] = React.useState<Blob[]>([]);
+/*
 
   React.useEffect(() => {
     if (controls === 'play' && controlState === 'paused') {
@@ -151,6 +161,7 @@ function Controls(inProps: ControlProps) {
       // setControlsBase('recording');
     }
   }, [controlState])
+*/
 
   const handlePlay = () => {
     if (!engineRef || !engineRef.current) {
@@ -195,10 +206,14 @@ function Controls(inProps: ControlProps) {
 
   const handleStart = () => {
     engineRef?.current?.setTime(0, true);
+    engineRef?.current?.tickAction(0);
+    engineRef?.current?.reRender();
   };
 
   const handleEnd = () => {
     engineRef?.current?.setTime(engineRef.current?.duration, true);
+    engineRef?.current?.tickAction(engineRef.current?.duration);
+    engineRef?.current?.reRender();
   };
 
   const stateFunc = (value: string, upFunc: () => void, downFunc: () => void) => {
@@ -265,10 +280,30 @@ function Controls(inProps: ControlProps) {
       Howler.masterGain.connect(destination);
       const audioStream = destination.stream;
 
+      // Get audio tracks from video elements
+      const videoElements = document.querySelectorAll('video');
+      const videoAudioStreams: MediaStreamTrack[] = [];
+      videoElements.forEach((video) => {
+        const videoElement = video as HTMLVideoElement & { captureStream?: () => MediaStream };
+        console.log('videoElement', videoElement);
+        if (videoElement.captureStream) {
+          const videoStream = videoElement.captureStream();
+          videoStream.getAudioTracks().forEach((track) => {
+            videoAudioStreams.push(track);
+          });
+        }
+      });
+
+      // Combine Howler and video audio streams
+      const combinedAudioStream = new MediaStream([
+        ...audioStream.getAudioTracks(),
+        ...videoAudioStreams,
+      ]);
+
       // Combine the video and audio streams
       const combinedStream = new MediaStream([
         ...videoStream.getVideoTracks(),
-        ...audioStream.getAudioTracks(),
+        ...combinedAudioStream.getAudioTracks(),
       ]);
 
       // Create the MediaRecorder with the combined stream
@@ -318,7 +353,6 @@ function Controls(inProps: ControlProps) {
   }, []);
 
   React.useEffect(() => {
-    console.log('controlState', controlState);
     if (mediaRecorder && controlState === 'paused') {
       handleRecordStop();
       setControls('');
@@ -343,7 +377,6 @@ function Controls(inProps: ControlProps) {
         value={controls}
         exclusive
         onChange={(event, changeControls) => {
-          console.log('changeControls', changeControls)
           if (['start','end', 'rewind', 'fast-forward'].indexOf(changeControls) !== -1) {
             return;
           }
@@ -385,7 +418,7 @@ export function ViewToggle({view, setView}: {view: 'timeline' | 'files', setView
   const sxButton = (theme: Theme) => {
     return {
       borderRadius: '0px!important',
-      border: `2px solid ${selectedColor(theme)}!important`,
+      // border: `2px solid ${selectedColor(theme)}!important`,
 
   }};
 
@@ -397,17 +430,17 @@ export function ViewToggle({view, setView}: {view: 'timeline' | 'files', setView
       '& .MuiButtonBase-root': {
         backgroundColor: 'transparent',
         color: theme.palette.text.primary,
-        border: `2px solid ${selectedColor(theme)}!important`,
+        // border: `2px solid ${selectedColor(theme)}!important`,
         '&:hover': {
           color: theme.palette.primary.main,
           backgroundColor: theme.palette.background.default,
-          border: `2px solid ${alpha(selectedColor(theme), .5)}!important`,
+          // border: `2px solid ${alpha(selectedColor(theme), .5)}!important`,
         },
       },
       '& MuiButtonBase-root.MuiToggleButtonGroup-grouped.MuiToggleButtonGroup-groupedHorizontal.MuiToggleButton-root.Mui-selectedMuiToggleButton-sizeSmall.MuiToggleButton-standard':{
-        border: `2px solid ${selectedColor(theme)}!important`,
+        // border: `2px solid ${selectedColor(theme)}!important`,
         '&:hover': {
-          border: `2px solid ${alpha(selectedColor(theme), .5)}!important`,
+          // border: `2px solid ${alpha(selectedColor(theme), .5)}!important`,
         },
       }
     })}
@@ -417,7 +450,6 @@ export function ViewToggle({view, setView}: {view: 'timeline' | 'files', setView
       if (!newView) {
         newView = view === 'timeline' ? 'files' : 'timeline';
       }
-      console.log('newView', newView)
       setView(newView)
     }}
     size={'small'}
@@ -587,7 +619,8 @@ export const EditorControls = React.forwardRef(
   const [controlState, setControlState] = React.useState<ControlState>('paused');
 
   const props = useThemeProps({ props: inProps, name: 'MuiEditorControls' });
-  const { engineRef, autoScroll = true, view, setView, versions, setVersions, mode, setMode, currentVersion, setCurrentVersion } = props;
+  const { timeline, switchView = true } = inProps;
+  const { engineRef, view = timeline ? 'timeline' : 'files', setView, versions, setVersions, mode, currentVersion, setCurrentVersion } = props;
   const [time, setTime] = React.useState(0);
   const [showRate, setShowRate] = React.useState(true);
   const [videoURLs, setVideoURLs] = React.useState<string[]>([]);
@@ -641,6 +674,7 @@ export const EditorControls = React.forwardRef(
       return undefined;
     };
   }, []);
+/*
 
   const download = () => {
     if (videoURLs) {
@@ -650,49 +684,61 @@ export const EditorControls = React.forwardRef(
       a.click();
     }
   }
+*/
+/*
 
   const hasDownload = () => {
     return (videoURLs?.length || 0) > 0
   }
+*/
 
 
   const controlProps = { engineRef, setVideoURLs, setControlState, versions, setVersions, viewMode: mode };
+
+  const showVersions = !!versions && !!currentVersion && !!setCurrentVersion && !!setVersions;
   const versionProps = { engineRef, versions, setVersions, viewMode: mode, currentVersion, setCurrentVersion };
   return (
-    <PlayerRoot className="timeline-player" ref={ref}>
+    <PlayerRoot id={'timeline-controls'} className="timeline-player" ref={ref}>
       <div style={{display: 'flex', flexDirection: 'row', alignContent: 'center', width: '100%'}}>
         <div style={{display: 'flex', flexDirection: 'row', alignContent: 'center', height: '100%'}}>
-          <Controls {...controlProps} controlState={controlState} setControlState={setControlState} />
-          <ViewToggle view={view} setView={setView} />
+          <Controls {...controlProps} controlState={controlState} setControlState={setControlState} versions={versions!} setVersions={setVersions!} />
+          {(switchView) && <ViewToggle view={view} setView={setView} />}
         </div>
       </div>
       <div style={{display: 'flex', flexDirection: 'row'}}>
-        <Volume />
+        <Volume/>
         {/* {hasDownload() && <Button onClick={() => download()} variant={'text'}>Download</Button>} */}
-        <Versions {...versionProps} />
+        {showVersions && <Versions {...versionProps} setVersions={setVersions!} versions={versions!} setCurrentVersion={setCurrentVersion}/>}
         <TimeRoot
-          variant={'outlined'}
-          disabled
-          size={'small'}
-          helperText={false}
-          value={timeRender(time)}
-        />
-        {showRate && <RateControlRoot sx={{minWidth: '80px', marginRight: '6px'}} className="rate-control">
-          <RateControlSelect
-            value={engineRef.current?.getPlayRate() ?? 1}
-            onChange={handleRateChange}
-            displayEmpty
-            inputProps={{'aria-label': 'Play Rate'}}
-            defaultValue={1}
-          >
-            <MenuItem key={-1} value={-1}>
-              <em>Version</em>
-            </MenuItem>
-            {Rates.map((rate, index) => (<MenuItem key={index} value={rate}>
-                {`${rate.toFixed(1)}x`}
-              </MenuItem>))}
-          </RateControlSelect>
-        </RateControlRoot>}
+          className="MuiFormControl-root MuiTextField-root css-a9j8fb-MuiFormControl-root-MuiTextField-root">
+          <div
+            className="MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary Mui-disabled MuiInputBase-formControl MuiInputBase-sizeSmall css-qp45lg-MuiInputBase-root-MuiOutlinedInput-root">
+            <div aria-invalid="false" id="time"
+                   className="MuiInputBase-input MuiOutlinedInput-input Mui-disabled MuiInputBase-inputSizeSmall css-r07wst-MuiInputBase-input-MuiOutlinedInput-input"
+                 >
+              {timeRender(time)}
+            </div>
+            <fieldset aria-hidden="true" className="MuiOutlinedInput-notchedOutline css-jb0nqk-MuiOutlinedInput-notchedOutline" />
+          </div>
+        </TimeRoot>
+
+        {showRate &&
+         <RateControlRoot sx={{minWidth: '80px', marginRight: '6px'}} className="rate-control">
+           <RateControlSelect
+             value={engineRef.current?.getPlayRate() ?? 1}
+             onChange={handleRateChange}
+             displayEmpty
+             inputProps={{'aria-label': 'Play Rate'}}
+             defaultValue={1}
+           >
+             <MenuItem key={-1} value={-1}>
+               <em>Version</em>
+             </MenuItem>
+             {Rates.map((rate, index) => (<MenuItem key={index} value={rate}>
+               {`${rate.toFixed(1)}x`}
+             </MenuItem>))}
+           </RateControlSelect>
+         </RateControlRoot>}
       </div>
     </PlayerRoot>);
-});
+  });

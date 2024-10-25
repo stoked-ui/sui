@@ -57,7 +57,6 @@ export interface UseTimelineSlotProps
     'onFocus' | 'onBlur' | 'onKeyDown' | 'id' | 'aria-multiselectable' | 'role' | 'tabIndex'
   > {
   tracks: ITimelineTrack[];
-  ref?: React.Ref<HTMLDivElement>;
 }
 
 export interface UseFileExplorerSlotProps

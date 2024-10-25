@@ -63,16 +63,16 @@ export function HomeView({ HomeMain}: { HomeMain: React.ComponentType }){
 }
 
 let MainView:  React.ComponentType<{}> = function MainView() {
-  // if (process.env.NODE_ENV !== 'production' && process.env.PROD_DISPLAY) {
-    return <EditorHero id={'editor'} sx={{ width: '750px' }} />
-  // }
-  /* return (
+  if (process.env.DEV_DISPLAY) {
+    return <EditorHero id={'editor'} sx={{ width: '1080px' }} />
+ }
+ return (
     <React.Fragment>
       <Hero />
       <Box sx={{ height: '112px' }}/>
       <Divider/>
     </React.Fragment>
-  ) */
+  )
 }
 export default function Home({ HomeMain }: { HomeMain: React.ComponentType }) {
   return <HomeView HomeMain={ HomeMain || MainView } />;

@@ -76,12 +76,12 @@ const TimelineTrackRoot = styled('div', {
 });
 
 export function getTrackControllerName(track: ITimelineTrack) {
-  return track.actionRef.controllerName;
+  return track.actionRef?.controllerName;
 }
 
 export function getTrackController(track: ITimelineTrack, controllers: Record<string, IController>) {
   const controllerName = getTrackControllerName(track);
-  return controllers[controllerName];
+  return controllerName ? controllers[controllerName] : null;
 }
 
 export function getTrackColor(track: ITimelineTrack, controllers: Record<string, IController> ) {
@@ -135,7 +135,7 @@ export default function TimelineTrack(props: TimelineTrackProps) {
       lock={track.lock}
       hidden={track.hidden}
       selected={isTrackSelected(track)}
-      color={getTrackColor(track, controllers)}
+      color={track.id === 'newTrack' ? '#8882' : getTrackColor(track, controllers)}
       style={style}
       onKeyDown={(e) => {
         console.info('row root', e);

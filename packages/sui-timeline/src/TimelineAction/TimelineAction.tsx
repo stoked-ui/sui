@@ -23,8 +23,7 @@ import {
 import {getTimelineActionUtilityClass} from './timelineActionClasses';
 import {prefix} from '../utils/deal_class_prefix';
 import {
-  type TimelineActionOwnerState,
-  type TimelineActionProps
+  BackgroundImageStyle, type TimelineActionOwnerState, type TimelineActionProps
 } from './TimelineAction.types';
 import {type ITimelineTrack} from '../TimelineTrack/TimelineTrack.types';
 
@@ -124,6 +123,9 @@ const Action = styled('div', {
     userSelect: 'none',
     justifyContent: 'end',
     display: 'flex',
+    '&.volume:hover': {
+      cursor: 'url(\'/static/cursors/volume-pen.svg\') 16 16, auto',
+    },
     '&:hover': {
       backgroundColor:   `${emphasize(color, 0.15)}`,
       '& .label': {
@@ -461,17 +463,17 @@ function TimelineAction(props: TimelineActionProps) {
   if (track.actions.includes(action)) {
     nowRow.actions[track.actions.indexOf(action)] = nowAction;
   }
-  const [backgroundStyle, setBackgroundStyle] = React.useState<null | { backgroundImage: string, backgroundPosition: string, backgroundSize: string } | {}>({});
+  const [backgroundStyle, setBackgroundStyle] = React.useState<null | BackgroundImageStyle>(null);
   const [buildingImage, setBuildingImage] = React.useState<boolean>(false);
   React.useEffect(() => {
     try {
-      if (!buildingImage) {
+      if (!buildingImage && action.controller.getBackgroundImage) {
         setBuildingImage(true);
         action.controller.getBackgroundImage?.(action).then((img) => {
           setBackgroundStyle({
             backgroundImage: img,
             backgroundPosition: `${-scaleWidth * (action.trimStart || 0)}px 0px`,
-            backgroundSize: `${(scaleWidth * action.duration)}px 31px`
+            backgroundSize: `${(scaleWidth * action.duration) / 100}px 31px`
           });
         });
       }
@@ -479,6 +481,15 @@ function TimelineAction(props: TimelineActionProps) {
       console.error('Error applying audio waveform:', error);
     }
   }, [])
+
+  React.useEffect(()=>{
+    if (backgroundStyle !== null) {
+      const newBackgroundStyle = backgroundStyle;
+      newBackgroundStyle.backgroundPosition = `${-scaleWidth * (action.trimStart || 0)}px 0px`;
+      newBackgroundStyle.backgroundSize = `${(scaleWidth * action.duration) / 100}px 31px`;
+      setBackgroundStyle(newBackgroundStyle);
+    }
+  },[scaleWidth])
   const {
     areaRef,
     gridSnap,
@@ -536,13 +547,29 @@ function TimelineAction(props: TimelineActionProps) {
         tabIndex={0}
         onKeyDown={(event: any) => {
           event.currentTarget = action;
-          if (event.key === 'Backspace') {
-            track.actions = track.actions.filter((trackAction) => trackAction.id !== action.id);
-            const trackIndex = tracks.indexOf(track);
-            tracks[trackIndex] = {...track};
-            setTracks([...tracks])
+          console.log('hello hello', event.key)
+          // eslint-disable-next-line default-case
+          switch (event.key) {
+            case 'Backspace':
+            case 'Delete':
+            {
+              track.actions = track.actions.filter((trackAction) => trackAction.id !== action.id);
+              const trackIndex = tracks.indexOf(track);
+              tracks[trackIndex] = {...track};
+              setTracks([...tracks])
+              break;
+            }
+            case 'Meta': {
+              // actionEl.current.classList?.add('volume');
+              break;
+            }
           }
+
+          console.log('key', event.key);
           event.preventDefault();
+        }}
+        onMouseLeave={() => {
+          // actionEl.current?.classList.remove('volume');
         }}
         onMouseDown={() => {
           if (track.lock) {
@@ -555,13 +582,16 @@ function TimelineAction(props: TimelineActionProps) {
             return;
           }
           tracks.forEach((t) => {
+            let selectedTrack = false;
             t.actions.forEach((a) => {
               if (a.id === action.id) {
                 action.selected = true;
+                selectedTrack = true
               } else {
                 a.selected = false;
               }
             })
+            t.selected = selectedTrack;
           })
           setTracks([...tracks]);
           let time: number;
@@ -609,8 +639,8 @@ function TimelineAction(props: TimelineActionProps) {
             {action.name}
           </Typography>
         </ActionLabel>
-        {flexible && <LeftStretch className={`${prefix('action-left-stretch')} ${classes.left}`}/>}
-        {flexible && (<RightStretch className={`${prefix('action-right-stretch')} ${classes.right}`}/>)}
+        {!disableDrag && flexible && <LeftStretch className={`${prefix('action-left-stretch')} ${classes.left}`}/>}
+        {!disableDrag && flexible && (<RightStretch className={`${prefix('action-right-stretch')} ${classes.right}`}/>)}
       </Action>
     </TimelineTrackDnd>);
 }

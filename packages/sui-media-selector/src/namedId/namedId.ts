@@ -15,18 +15,20 @@ export default function namedId(props?: NamedIdProps | string) {
   let length = 7;
   let prefix: string | undefined;
   let suffix: string | undefined;
-  if (props as string) {
-    id = props as string;
-  } else if (props && props as NamedIdProps) {
-    const namedProps = props as NamedIdProps;
-    if (namedProps.id) {
-      id = namedProps.id
+  if (props) {
+    if (typeof props === 'string') {
+      id = props as string;
+    } else if (props && props as NamedIdProps) {
+      const namedProps = props as NamedIdProps;
+      if (namedProps.id) {
+        id = namedProps.id
+      }
+      if (namedProps.length) {
+        length = namedProps.length
+      }
+      prefix = namedProps.prefix;
+      suffix = namedProps.suffix;
     }
-    if (namedProps.length) {
-      length = namedProps.length
-    }
-    prefix = namedProps.prefix;
-    suffix = namedProps.suffix;
   }
 
   let start = prefix ? `${prefix}-${id}` : id;

@@ -9,7 +9,7 @@ import {RowRndApi} from '../TimelineTrack/TimelineTrackDnd.types';
 const CursorRoot = styled('div')({
   cursor: 'ew-resize',
   position: 'absolute',
-  top: '34px',
+  top: '1px',
   height: '100%',
   boxSizing: 'border-box',
   borderLeft: '1px solid #5297FF',

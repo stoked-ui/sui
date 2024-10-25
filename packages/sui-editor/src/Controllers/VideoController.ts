@@ -1,4 +1,4 @@
-import { Controller, ControllerParams, IEngine, ITimelineAction, DrawData } from "@stoked-ui/timeline";
+import { Controller, ControllerParams,  IEngine, ITimelineAction, DrawData } from "@stoked-ui/timeline";
 
 interface VideoDrawData extends Omit<DrawData, 'source'> {
   source: HTMLVideoElement
@@ -11,7 +11,7 @@ class VideoControl extends Controller {
 
   _videoItem: HTMLVideoElement | null = null;
 
-  logging: boolean = false;
+  logging: boolean = true;
 
   constructor() {
     super({
@@ -22,6 +22,11 @@ class VideoControl extends Controller {
     });
   }
 
+  static hasAudio (item: HTMLMediaElement) {
+    return item && (("audioTracks" in item && ("mozHasAudio" in item || Boolean((item.audioTracks as any)?.length))) ||
+    ("webkitAudioDecodedByteCount" in item && (item.webkitAudioDecodedByteCount as number) > 0))
+  }
+
   // eslint-disable-next-line class-methods-use-this
   async preload(params: Omit<ControllerParams, 'time'>): Promise<ITimelineAction> {
     const { action, engine } = params;
@@ -30,7 +35,6 @@ class VideoControl extends Controller {
     item.preload = 'auto';
     engine.stage?.appendChild(item);
     this.cacheMap[action.id] = item;
-    console.log(`preload start: ${action.id}`)
     return new Promise((resolve, reject) => {
       try {
         if (!item) {
@@ -44,7 +48,7 @@ class VideoControl extends Controller {
           action.height = item.videoHeight;
           const ratio = action.width / action.height;
           item.style.aspectRatio = `${ratio}`;
-          item.style.objectFit = action.fit;
+          item.style.objectFit = action.fit as string;
           // this.cacheMap[action.id] = item;
           loadedMetaData = true;
         });
@@ -81,14 +85,11 @@ class VideoControl extends Controller {
         }
         const waitUntilLoaded = () =>{
           intervalId = setInterval(() => {
-            console.log(`loadingSeconds ${loadingSeconds}`);
             loadingSeconds += 1;
             if (isLoaded()) {
               clearInterval(intervalId);
-              console.log(`action ${action.name} preloaded readyState: ${item.readyState} ${item.id}`);
               resolve(action);
             } else if (loadingSeconds > 20) {
-              console.log(`action ${action.name} preload failed readyState: ${item.readyState} ${item.id}`);
               reject(action)
             }
           }, 1000); // Run every 1 second
@@ -96,8 +97,6 @@ class VideoControl extends Controller {
 
         if (!isLoaded()) {
           waitUntilLoaded();
-        } else {
-          console.log('already loaded')
         }
 
       } catch (ex) {
@@ -148,13 +147,12 @@ class VideoControl extends Controller {
     }
   }
 
-  draw(params: ControllerParams) {
+  draw(params: ControllerParams, videoData?: VideoDrawData) {
     const { action, engine } = params;
-    const dd = this.getDrawData(params) as VideoDrawData;
+    const dd = videoData ? videoData : this.getDrawData(params) as VideoDrawData;
 
     this.log(params, `draw[${action.fit} | ${action.width} x ${action.height} @ { x: ${action.x}, y: ${action.y} } - readyState: ${dd.source.readyState} ${dd.source.id} ${dd.source.playbackRate}`)
-
-    engine.renderCtx?.drawImage(dd.source, dd.sx, dd.sy, dd.sWidth, dd.sHeight, dd.dx, dd.dy, dd.dWidth, dd.dHeight);
+    engine.renderCtx?.drawImage(dd.source, dd.sx, dd.sy, dd.sWidth, dd.sHeight, dd.dx ?? 0, dd.dy ?? 0, dd.dWidth ?? 1920, dd.dHeight ?? 1080);
   }
 
   getDrawData(params: ControllerParams): DrawData {
@@ -222,7 +220,7 @@ class VideoControl extends Controller {
 
   enter(params: ControllerParams) {
 
-    const { action, engine, time } = params;
+    const { action, engine } = params;
 
     const finalizeEnter = (item: HTMLVideoElement) => {
 
@@ -242,23 +240,25 @@ class VideoControl extends Controller {
     } else {
        const cachedItem = this.cacheMap[action.id];
        this.log(params, `cached video readyState: ${cachedItem.readyState}`)
-    } /* else if (!action.hidden && engine.renderer){
-      console.log('preload on enter')
-      this.preload({engine, action})
-        .then((loadedAction) => {
-          finalizeEnter(this.cacheMap[loadedAction.id]);
-        });
-    } */
+    }
+
     if (engine.isPlaying) {
       this.start(params);
+    } else {
+      this.update(params);
     }
   }
 
   start(params: ControllerParams) {
     this.log(params, 'start')
-    const { engine, action } = params;
+    const { engine, action, time } = params;
     if (engine.isPlaying) {
       const item = this.cacheMap[action.id];
+      item.currentTime = (time - action.start + (action?.trimStart || 0)) % (action?.duration ?? 0);
+      if (action?.playbackRate ?? 1 < 0) {
+        (item as HTMLVideoElement).playbackRate = action.playbackRate as number;
+      }
+
       if (engine.viewMode === 'Renderer') {
         if (action.freeze === undefined) {
           item.play().catch((err) => console.error(err))
@@ -277,9 +277,16 @@ class VideoControl extends Controller {
   }
 
   update(params: ControllerParams) {
+
     const { action, engine, time } = params;
     const item = this.cacheMap[action.id] as HTMLVideoElement;
-    // this.log(params, `update - [${item.src  }}${item.currentTime}`);
+    const volumeUpdate = Controller.getVolumeUpdate(params, item.currentTime)
+
+    if (volumeUpdate) {
+      item.volume = volumeUpdate.volume;
+      action.volumeIndex = volumeUpdate.volumeIndex;
+      console.info(`${action.name} - editorTime: ${params.time}, actionTime: ${Controller.getActionTime(params)}, volume: ${volumeUpdate.volume}`)
+    }
 
     if (!engine.renderCtx) {
       console.error('no render context');
@@ -290,25 +297,21 @@ class VideoControl extends Controller {
       item.currentTime += 0.0001;
     } else if (action.freeze !== undefined) {
       item.currentTime = action.freeze;
-    } else {
-      //
     }
 
     if (engine.isPlaying) {
       if (!action.nextFrame) {
-        console.warn('failed to play a frame because no frame data available');
-        return;
+        // console.warn('failed to play a frame because no frame data available');
+        action.nextFrame = this.getDrawData({ action, engine, time: item.currentTime });
       }
 
-      const fd = action.nextFrame as DrawData;
-      engine.renderCtx!.drawImage(fd.source as HTMLVideoElement, fd.sx, fd.sy, fd.sWidth, fd.sHeight, fd.dx, fd.dy, fd.dWidth, fd.dHeight);
-      if (action.freeze === undefined) {
-        action.nextFrame = undefined;
-      }
+      const fd = action.nextFrame as VideoDrawData;
+      this.draw(params, fd);
     } else {
-      item.currentTime = time - action.start;
+      item.currentTime = Controller.getActionTime(params);
       this.draw(params);
     }
+
     /*
     // Default velocity and acceleration if not provided
     let velocity = action.velocity ?? 0;
@@ -363,6 +366,10 @@ class VideoControl extends Controller {
     });
     this.cacheMap = {};
     process.exit(333);
+  }
+
+  getElement(actionId: string) {
+    return this.cacheMap[actionId];
   }
 }
 

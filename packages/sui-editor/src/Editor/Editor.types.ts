@@ -2,7 +2,6 @@ import * as React from 'react';
 import {Theme} from '@mui/material/styles';
 import {SxProps} from '@mui/system';
 import {SlotComponentProps} from '@mui/base/utils';
-import {type ITimelineActionInput } from "@stoked-ui/timeline";
 import {FileBase} from '@stoked-ui/file-explorer/models/items';
 import {EditorPluginParameters, EditorPluginSignatures, EditorPluginSlotProps, EditorPluginSlots} from './Editor.plugins';
 import {EditorClasses} from './editorClasses';
@@ -63,9 +62,6 @@ export interface EditorPropsBase extends React.HTMLAttributes<HTMLDivElement> {
    * The system prop that allows defining system overrides as well as additional CSS styles.
    */
   sx?: SxProps<Theme>;
-
-  // project?: VideoProject<R>;
-  actionData?: ITimelineActionInput[];
 }
 
 export interface EditorProps<R extends FileBase = FileBase, Multiple extends boolean | undefined = true>

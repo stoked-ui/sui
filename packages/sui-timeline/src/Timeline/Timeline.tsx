@@ -54,17 +54,22 @@ const Timeline = React.forwardRef(function Timeline(
   inProps: TimelineProps,
   ref: React.Ref<HTMLDivElement>,
 ): React.JSX.Element {
-  const { slots, slotProps, controlSx, onChange, trackSx, controllers, viewMode, setScaleWidth: inSetScaleWidth, scaleWidth: inScaleWidth } = useThemeProps({
+  const { slots, slotProps, controlSx, onChange, trackSx, controllers, viewMode, locked } = useThemeProps({
     props: inProps,
     name: 'MuiTimeline',
   });
-  const { engineRef: engineIn } = inProps;
+  const hideLock = locked;
+  const { engineRef: engineIn, tracks, setTracks, onAddFiles } = inProps;
+  const [file, setFile] = React.useState<any>(inProps.file);
   const createEngine = (): IEngine => {
-    return new Engine({id: inProps.id, controllers: inProps.controllers, defaultState: 'paused' });
+    return new Engine({
+      id: inProps.id,
+      controllers: inProps.controllers,
+      defaultState: 'paused',
+      file,
+      setFile
+    });
   }
-  const [scaleWidthNew, setScaleWidthNew] = React.useState<number>(inScaleWidth);
-  const scaleWidth = inScaleWidth ?? scaleWidthNew;
-  const setScaleWidth = inSetScaleWidth ?? setScaleWidthNew;
   const engineRef = React.useRef<IEngine>(engineIn?.current ? engineIn.current : createEngine());
 
   const classes = useUtilityClasses(inProps);
@@ -76,34 +81,6 @@ const Timeline = React.forwardRef(function Timeline(
 
   const forkedRootRef = React.useRef<HTMLDivElement>(null);
   const combinedRootRef = useForkRef(ref, forkedRootRef);
-
-  const [tracks, setTracksBase] = React.useState<ITimelineTrack[] | null>(null);
-  const setTracks: React.Dispatch<React.SetStateAction<ITimelineTrack[]>> = (tracksUpdater) => {
-    if (typeof tracksUpdater === "function") {
-      setTracksBase((prevTracks) => {
-        return tracksUpdater(prevTracks);
-      });
-      engineRef.current.tracks = tracks;
-    } else {
-      setTracksBase(tracksUpdater);
-      engineRef.current.tracks = tracksUpdater;
-    }
-  };
-
-  engineRef.current.setTracks = setTracks;
-
-  const tracksInitialized = React.useRef(false);
-
-  React.useEffect(() => {
-    if (!tracksInitialized.current) {
-      tracksInitialized.current = true;
-      engineRef.current?.buildTracks(controllers, inProps.actionData)
-        .then((initialTracks) => {
-          setTracks(initialTracks)
-        });
-    }
-  }, [])
-
 
   React.useEffect(() => {
     const engine = engineRef.current;
@@ -150,7 +127,7 @@ const Timeline = React.forwardRef(function Timeline(
   });
 
   const createAction = (e: React.MouseEvent<HTMLElement, MouseEvent>, { track, time }) => {
-    if (!track.actionRef) {
+    if (locked || !track.actionRef) {
       return;
     }
     const existingTrackAction = track.actionRef;
@@ -171,9 +148,12 @@ const Timeline = React.forwardRef(function Timeline(
           ref={labelsRef}
           {...labelsProps.ownerState}
           tracks={tracks}
-          timelineState={timelineState}
+          engine={engineRef.current}
           onChange={onChange}
+          hideLock={hideLock}
           controllers={inProps.controllers}
+          detailMode={inProps.detailMode}
+          onAddFiles={onAddFiles}
         />
       )}
 
@@ -197,11 +177,11 @@ const Timeline = React.forwardRef(function Timeline(
         }}
         startLeft={9}
         ref={combinedTimelineRef}
-        scaleWidth={scaleWidth}
-        setScaleWidth={setScaleWidth}
         engineRef={engineRef}
         tracks={tracks}
         autoScroll
+        disableDrag={locked}
+        dragLine={true}
         setTracks={setTracks}
         controllers={inProps.controllers}
         viewSelector={inProps.viewSelector ?? '.viewer'}
@@ -234,27 +214,30 @@ const Timeline = React.forwardRef(function Timeline(
   );
 }) as TimelineComponent;
 
+// ----------------------------- Warning --------------------------------
+// | These PropTypes are generated from the TypeScript type definitions |
+// | To update them edit the TypeScript types and run "pnpm proptypes"  |
+// ----------------------------------------------------------------------
 Timeline.propTypes = {
+
   actionData: PropTypes.any,
 
-  // ----------------------------- Warning --------------------------------
-  // | These PropTypes are generated from the TypeScript type definitions |
-  // | To update them edit the TypeScript types and run "pnpm proptypes"  |
-  // ----------------------------------------------------------------------
   children: PropTypes.node,
+
+  className: PropTypes.string,
   /**
    * Override or extend the styles applied to the component.
    */
   classes: PropTypes.object,
-  className: PropTypes.string,
-  controllers: PropTypes.object,
   controlSx: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),), PropTypes.func, PropTypes.object,]),
+  controllers: PropTypes.object,
+  detailMode: PropTypes.bool,
+  detailRenderer: PropTypes.bool,
   engine: PropTypes.any,
+  labelSx: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),), PropTypes.func, PropTypes.object,]),
   labels: PropTypes.bool,
   labelsSx: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),), PropTypes.func, PropTypes.object,]),
-  labelSx: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),), PropTypes.func, PropTypes.object,]),
-  scaleWidth: PropTypes.number,
-  setScaleWidth: PropTypes.func,
+
   setTracks: PropTypes.func,
   /**
    * The props used for each component slot.
@@ -271,8 +254,8 @@ Timeline.propTypes = {
    */
   sx: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),), PropTypes.func, PropTypes.object,]),
   timelineState: PropTypes.any,
-  tracks: PropTypes.any,
   trackSx: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),), PropTypes.func, PropTypes.object,]),
+  tracks: PropTypes.any,
   viewSelector: PropTypes.string,
 };
 

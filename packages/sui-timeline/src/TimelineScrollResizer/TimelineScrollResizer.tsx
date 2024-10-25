@@ -8,6 +8,7 @@ const ScrollbarContainer = styled('div')(({theme}) => ({
   height: '0px',
   backgroundColor: emphasize(theme.palette.background.default, 0.1),
   position: 'relative',
+  marginLeft: '7px'
 }));
 
 const ScrollbarTrack = styled('div')(({theme}) => ({
@@ -69,8 +70,14 @@ export default function TimelineScrollResizer({
   const [clientPercentage, setClientPercentage] = React.useState(100);
   const [scrollThumbPosition, setScrollThumbPosition] = React.useState(0);
   const [startScrollThumbPosition, setStartScrollThumbPosition] = React.useState(null);
-  const [thumbWidth, setThumbWidth] = React.useState(50);
+  const [thumbWidth, setThumbWidth] = React.useState<number>();
   // const contentRef = React.useRef<HTMLElement>(null);
+
+  React.useEffect(() => {
+    if (!isResizing && !isDragging && element?.current?.clientWidth) {
+      setThumbWidth(element.current.clientWidth - 7)
+    }
+  }, [element?.current?.clientWidth])
 
   const getThumbnailWidth = (totalWidth = element.current.scrollWidth) => {
     const visibleWidth = element.current.clientWidth;
@@ -122,13 +129,16 @@ export default function TimelineScrollResizer({
           setThumbWidth(Math.max(50, newThumbWidth)); // Minimum thumb width is 50px
         }
       };
-      console.log('e.clientX', e.clientX)
       const deltaX = (e.clientX - startX);
       // let newScale = initialScaleOnDrag + deltaX;
       // newScale = Math.max(minScale, Math.min(maxScale, newScale));
-
+      if (thumbWidth + deltaX > element.current.clientWidth) {
+        return;
+      }
       const valid = adjustScale(deltaX);
-      updateThumbSize(thumbWidth - deltaX);
+      const newWidth = Math.min(thumbWidth + deltaX, element.current.clientWidth);
+
+      updateThumbSize(newWidth);
       // const newThumbWidth = getThumbnailWidth(element.current.scrollWidth - deltaX);
       // if (thumbWidth !== newThumbWidth && newThumbWidth <= contentRef.current.clientWidth) {
       //  console.log('newScale', newThumbWidth, contentRef.current.clientWidth, newScale)
