@@ -1,7 +1,7 @@
-import { ITimelineAction, type ITimelineActionInput } from '@stoked-ui/timeline/TimelineAction';
-import { namedId, getFileName } from '@stoked-ui/media-selector';
+import { ITimelineAction, type ITimelineFileAction, ITimelineFile, TimelineFile } from '@stoked-ui/timeline';
+import { namedId, getFileName, useIncId,  } from '@stoked-ui/media-selector';
 import {
-  UseEditorMetadataDefaultizedParameters, UseEditorMetadataSignature,
+  UseEditorMetadataDefaultizedParameters, UseEditorMetadataParameters, UseEditorMetadataSignature,
 } from './useEditorMetadata.types';
 import {EditorPlugin} from '../../models';
 
@@ -17,7 +17,8 @@ export const useEditorMetadata: EditorPlugin<UseEditorMetadataSignature> = ({
     contextValue: {
       tracks: params.tracks,
       actions: params.actions,
-      actionData: params.actionData
+      file: params.file,
+      url: params.url
     },
     instance: {
       onKeyDown
@@ -25,27 +26,49 @@ export const useEditorMetadata: EditorPlugin<UseEditorMetadataSignature> = ({
   };
 };
 
-function initializeActionData(actionData: ITimelineActionInput[] | undefined) {
-  if (!actionData) {
-    return undefined;
+function initialize(params?: UseEditorMetadataParameters): UseEditorMetadataDefaultizedParameters {
+  if (!params) {
+    return {
+      file: new TimelineFile({ name: 'new video'}),
+      url: '',
+      tracks: [],
+      actions: []
+    };
   }
-  actionData.forEach((action) => {
-    action.id = namedId('action')
-    action.name = getFileName(action.src, true) ?? action.id;
+  let { file, url = '', tracks = [], actions = [] } = params;
+
+  actions.forEach((action) => {
+    if (!action.name) {
+      action.name = getFileName(action.src, false) ?? action.id!;
+    }
   })
-  return actionData;
+
+  if (file) {
+    return { file, url, tracks, actions };
+  }
+
+  if (url.length) {
+    return {
+      file: new TimelineFile({ name: 'new video', src: url}),
+      url,
+      tracks,
+      actions
+    }
+  }
+
+  return { file: {} as TimelineFile, url, tracks, actions};
 }
+
 useEditorMetadata.getDefaultizedParams = (params) => {
   return {
     ...params,
-    actionData: initializeActionData(params.actionData) ?? [],
-    actions: params.actions ?? [],
-    tracks: params.tracks ?? [],
+    ...(initialize(params))
   } as UseEditorMetadataDefaultizedParameters;
 }
 
 useEditorMetadata.params = {
   tracks: true,
   actions: true,
-  actionData: true,
+  file: true,
+  url: true,
 };

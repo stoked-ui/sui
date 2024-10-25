@@ -9,6 +9,7 @@ const  MimeMediaWildcardMap: Map<MimeType | `${string}*` | '*' | 'folder', strin
   ['application/vnd.openxmlformats-officedocument.wordprocessingml.template', 'doc'],
   ['application/pdf',                                                         'pdf'],
   ['video/*',                                                                 'video'],
+  ['audio/*',                                                                 'audio'],
   ['image/*',                                                                 'image'],
   ['folder',                                                                  'folder'],
   ['application/json',                                                        'json'],

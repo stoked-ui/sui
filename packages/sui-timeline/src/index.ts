@@ -9,6 +9,8 @@ export { default as TimelineTime } from './TimelineTime';
 export { default as TimelineTrack } from './TimelineTrack';
 export { default as TimelineTrackArea } from './TimelineTrackArea';
 export { default as Engine} from './Engine';
+export { default as TimelineFile } from './TimelineFile/TimelineFile';
+export * from './TimelineFile';
 export * from './Timeline';
 export * from './TimelineAction';
 export * from './TimelineTime';

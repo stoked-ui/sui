@@ -1,12 +1,15 @@
 import * as React from 'react';
 import {FileBase} from '@stoked-ui/file-explorer';
 import {ViewMode} from "@stoked-ui/timeline";
+import SettingsIcon from '@mui/icons-material/Settings';
+import IconButton from '@mui/material/IconButton';
 import composeClasses from "@mui/utils/composeClasses";
 import {useSlotProps} from '@mui/base/utils';
 import useForkRef from "@mui/utils/useForkRef";
 import {createUseThemeProps, styled} from '../internals/zero-styled';
 import {EditorViewProps} from './EditorView.types';
 import {getEditorViewUtilityClass} from "./editorViewClasses";
+import DetailView from "../DetailView/DetailView";
 
 const useThemeProps = createUseThemeProps('MuiEditorView');
 
@@ -35,13 +38,16 @@ const EditorViewRoot = styled('div', {
   '& .lottie-canvas': {
     width: '1920px!important',
     height: '1080px!important'
+  },
+  '& #settings': {
+    alignSelf: 'bottom'
   }
 }));
 
 const Renderer = styled('canvas', {
   name: "MuiEditorViewRenderer",
   slot: "renderer",
-  shouldForwardProp: (prop) => prop !== 'mode',
+  shouldForwardProp: (prop) => prop !== 'viewMode',
 })<{ viewMode?: ViewMode }>(({  viewMode }) => ({
   display: viewMode === 'Renderer' ? 'flex' : 'none',
   flexDirection: 'column',
@@ -64,7 +70,7 @@ const Renderer = styled('canvas', {
 const Screener = styled('video', {
   name: "MuiEditorViewScreener",
   slot: "screener",
-  shouldForwardProp: (prop) => prop !== 'mode',
+  shouldForwardProp: (prop) => prop !== 'viewMode',
 })<{ viewMode?: ViewMode }>(({  viewMode }) => ({
   display: viewMode === 'Screener' ? 'flex' : 'none',
   flexDirection: 'column',
@@ -77,7 +83,7 @@ const Screener = styled('video', {
 }));
 
 const Stage = styled('div', {
-  shouldForwardProp: (prop) => prop !== 'mode',
+  shouldForwardProp: (prop) => prop !== 'viewMode',
 })<{ viewMode?: ViewMode }>(({  viewMode }) => ({
   display: viewMode === 'Edit' ? 'flex' : 'none',
   flexDirection: 'column',
@@ -102,11 +108,17 @@ const Stage = styled('div', {
 export const EditorView = React.forwardRef(function EditorView<
   R extends FileBase = FileBase,
   Multiple extends boolean | undefined = undefined,
->(inProps: EditorViewProps<R, Multiple>, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
+>(
+  inProps: EditorViewProps<R, Multiple>,
+  ref: React.Ref<HTMLDivElement>
+): React.JSX.Element {
   const props = useThemeProps({ props: inProps, name: 'MuiEditorView' });
   const viewRef = React.useRef<HTMLDivElement>(null);
   const combinedViewRef = useForkRef(ref , viewRef);
+  const { engine, tracks } = inProps;
 
+  const [showSettings, setShowSettings] = React.useState<boolean>(false);
+  const [showSettingsPanel, setShowSettingsPanel] = React.useState<boolean>(false);
   const [, setViewerSize] = React.useState<{w: number, h: number}>({w: 0, h: 0});
   const viewerRef = React.useRef<HTMLDivElement>(null);
   const rendererRef = React.useRef<HTMLCanvasElement>(null);
@@ -185,12 +197,45 @@ export const EditorView = React.forwardRef(function EditorView<
     }
   }, [viewerRef]);
 
+  function handleClose() {
 
+    setShowSettingsPanel(false);
+  }
+  console.info('editor tracks', tracks)
   return (
-    <Root role={'viewer'} {...rootProps} ref={combinedViewRef} data-preserve-aspect-ratio>
+    <Root role={'viewer'} {...rootProps} ref={combinedViewRef} data-preserve-aspect-ratio onMouseEnter={() => setShowSettings(true)} onMouseLeave={() => setShowSettings(false)}>
       <Renderer role={'renderer'} ref={rendererRef} data-preserve-aspect-ratio viewMode={inProps.engine?.viewMode || 'Renderer'}/>
       <Screener role={'screener'} ref={screenerRef} viewMode={inProps.engine?.viewMode || 'Renderer'} />
-      <Stage role={'stage'} ref={stageRef} viewMode={inProps.engine?.viewMode || 'Renderer'}  />
+      <Stage role={'stage'} ref={stageRef} viewMode={inProps.engine?.viewMode || 'Renderer'} />
+      {showSettings &&
+        <IconButton
+          id={'settings'}
+          aria-label="settings"
+          sx={{
+            position: 'absolute',
+            right: '0px',
+            alignContent: 'top',
+            borderRadius: '24px'
+          }}
+          onClick={() => {
+            if (engine) {
+              engine.selected = engine.file;
+            }
+            setShowSettingsPanel(true)
+          }}
+        >
+          <SettingsIcon/>
+        </IconButton>
+      }
+
+      {(showSettingsPanel && engine && viewRef.current) && (
+        <DetailView
+          engine={engine}
+          anchorEl={viewRef.current}
+          onClose={handleClose}
+          tracks={tracks}
+        />
+      )}
     </Root>
   )
 })

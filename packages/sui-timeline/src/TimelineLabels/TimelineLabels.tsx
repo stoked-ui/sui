@@ -72,7 +72,7 @@ const TimelineLabel = styled('div', {
  */
 const TimelineLabels = React.forwardRef(
   function TimelineLabels(inProps: TimelineLabelsProps, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
-    const { tracks, slots, slotProps, sx, timelineState, controllers } = useThemeProps({ props: inProps, name: 'MuiTimelineLabels' });
+    const { tracks, slots, slotProps, sx, engineRef, controllers } = useThemeProps({ props: inProps, name: 'MuiTimelineLabels' });
     const [selectedFile, setSelectedFile] = React.useState<MediaFile | null>(null);
     const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
 
@@ -103,7 +103,7 @@ const TimelineLabels = React.forwardRef(
         setTracks={inProps.setTracks}
         style={{ overflow: 'overlay', height: 'fit-content' }}
         onScroll={(scrollEvent:  React.UIEvent<HTMLDivElement, UIEvent>) => {
-          timelineState.current?.setScrollTop((scrollEvent.target as HTMLDivElement).scrollTop);
+          // engineRef.current?.setScrollTop((scrollEvent.target as HTMLDivElement).scrollTop);
         }}
         classes={classes}
         className={`${classes.root} timeline-list`}>

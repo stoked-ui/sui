@@ -18,6 +18,7 @@ const {
   LANGUAGES_IN_PROGRESS,
 } = require('./config.js');
 
+console.log('process.env.DEV_DISPLAY', process.env.DEV_DISPLAY)
 const workspaceRoot = path.join(currentDirectory, '../');
 
 const l10nPRInNetlify = /^l10n_/.test(process.env.HEAD || '') && process.env.NETLIFY === 'true';
@@ -197,7 +198,7 @@ export default withDocsInfra({
                       env: {
                         SOURCE_CODE_REPO: options.config.env.SOURCE_CODE_REPO,
                         LIB_VERSION: options.config.env.LIB_VERSION,
-                        PROD_DISPLAY: process.env.PROD_DISPLAY
+                        DEV_DISPLAY: `${process.env.DEV_DISPLAY}`,
                       },
                     },
                   },
@@ -232,6 +233,7 @@ export default withDocsInfra({
     SOURCE_GITHUB_BRANCH: 'main', // #default-branch-switch
     GITHUB_TEMPLATE_DOCS_FEEDBACK: '4.docs-feedback.yml',
     BUILD_ONLY_ENGLISH_LOCALE: String(buildOnlyEnglishLocale),
+    DEV_DISPLAY: `${process.env.DEV_DISPLAY}`,
     // SUI Core related
     GITHUB_AUTH: process.env.GITHUB_AUTH
       ? `Basic ${Buffer.from(process.env.GITHUB_AUTH).toString('base64')}`

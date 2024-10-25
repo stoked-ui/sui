@@ -25,6 +25,17 @@ const TimelineControlRoot = styled('div')(({ theme }) => ({
   overflow: 'hidden',
 }));
 
+function getInitialScaleData(startLeft: number, duration: number, minScaleCount: number, timelineAreaWidth: number) {
+  const scaleWidth = (timelineAreaWidth - startLeft) / duration;
+  console.log('scaleWidth', scaleWidth, 'duration', duration, 'timelineAreaWidth', timelineAreaWidth, '(timelineAreaWidth - startLeft) / minScaleCount', (timelineAreaWidth - startLeft) / duration);
+
+  if (scaleWidth < 40) {
+    const multiplier = Math.ceil(40 / scaleWidth);
+    return { scaleWidth: multiplier * scaleWidth, scale: multiplier };
+  }
+  return { scaleWidth, scale: 1 };
+}
+
 function getInitialScaleWidth(startLeft: number, duration: number, timelineAreaWidth: number) {
   return (timelineAreaWidth - startLeft) / duration;
 }
@@ -40,14 +51,13 @@ const TimelineControl = React.forwardRef(
       autoScroll,
       hideCursor,
       disableDrag,
-      scaleWidth,
+      scaleWidth: scaleWidthDefault,
+      scale: scaleDefault,
       startLeft = 2,
-      minScaleCount: initialMinScaleCount,
-      maxScaleCount,
+      minScaleCount,
+      maxScaleCount: initialMaxScaleCount,
       scaleSplitCount: initialScaleSplitCount,
       setTracks,
-      screenerTrack,
-      setScreenerTrack,
       engineRef,
       autoReRender = true,
       onScroll: onScrollVertical,
@@ -67,12 +77,15 @@ const TimelineControl = React.forwardRef(
     const [cursorTime, setCursorTime] = React.useState(START_CURSOR_TIME);
     // Is it running?
     const [isPlaying, setIsPlaying] = React.useState(false);
-    const [duration, setDuration] = React.useState<number>()
+    const [duration, setDuration] = React.useState<number>(0)
     // Current timelineControl width
     const [width, setWidth] = React.useState(Number.MAX_SAFE_INTEGER);
-    const [scale, setScale] = React.useState(1);
-    const [minScaleCount, setMinScaleCount] = React.useState(initialMinScaleCount);
+    const [maxScaleCount, setMaxScaleCount] = React.useState(initialMaxScaleCount);
     const [scaleSplitCount, setScaleSplitCount] = React.useState(initialScaleSplitCount)
+
+    const [scale, setScale] = React.useState(scaleDefault);
+    const [scaleWidth, setScaleWidth] = React.useState(scaleWidthDefault);
+
     /** dynamicSettings scale count */
     const handleSetScaleCount = (value: number) => {
       setScaleCount(Math.min(maxScaleCount, Math.max(minScaleCount, value)));
@@ -107,12 +120,10 @@ const TimelineControl = React.forwardRef(
       if (!engineRef?.current || !tracks) {
         return;
       }
-      engineRef.current.tracks = tracks;
       const getDuration = () => {
         let furthest = 0;
         if (tracks) {
           tracks.forEach((row) => {
-            console.log('get duration row', row);
             row?.actions?.forEach((action) => {
               if (action.end > furthest) {
                 furthest = action.end;
@@ -122,9 +133,10 @@ const TimelineControl = React.forwardRef(
         }
         return furthest;
       }
+
       const durr = getDuration();
       setDuration(durr);
-      setMinScaleCount( durr + 2 );
+      setMaxScaleCount( durr + 2 );
 
     }, [tracks]);
 
@@ -264,10 +276,11 @@ const TimelineControl = React.forwardRef(
         },
         tracks,
         setTracks,
-        screenerTrack,
-        setScreenerTrack,
         get duration() {
           return engineRef.current?.duration;
+        },
+        getSelectedTrack: () => {
+          return engineRef.current?.tracks.find(t => t.selected);
         }
       }), [engineRef?.current, duration],
     );
@@ -280,23 +293,32 @@ const TimelineControl = React.forwardRef(
     }
 
     const [initialized, setInitialized] = React.useState(false);
-    React.useEffect(() => {
-      setInitialized(false);
-    }, [engineRef?.current.viewMode])
-
-    React.useEffect(() => {
+    /* React.useEffect(() => {
       if (width !== Number.MAX_SAFE_INTEGER && duration && !initialized) {
         const newScaleWidth = getInitialScaleWidth(startLeft, minScaleCount, areaRef.current.clientWidth);
-        props.setScaleWidth(newScaleWidth);
+        setScaleWidth(newScaleWidth);
         setInitialized(true);
       }
     })
+    React.useEffect(() => {
+      setInitialized(false);
+    }, [engineRef?.current.viewMode]) */
+
+    React.useEffect(() => {
+      console.log('width', width, '!initialized', !initialized, 'initializeBool', width !== Number.MAX_SAFE_INTEGER && !initialized)
+      if (width === Number.MAX_SAFE_INTEGER && !initialized && gridRef.current?.clientWidth && duration) {
+        const { scaleWidth: newScaleWidth, scale: newScale } = getInitialScaleData(startLeft, duration, minScaleCount, gridRef.current?.clientWidth);
+        console.info('newScale', newScale, 'newScaleWidth', newScaleWidth);
+        setScale(newScale);
+        setScaleWidth(newScaleWidth);
+        props.setScaleWidth?.(newScaleWidth);
+        setInitialized(true);
+      }
+    }, [areaRef?.current?.scrollWidth])
+    const newProps = {...checkedProps, scaleSplitCount, scale, scaleWidth, minScaleCount};
 
     // monitor timelineControl area width changes
     React.useEffect(() => {
-      if (!areaRef.current) {
-        return undefined;
-      }
       const observer = new ResizeObserver(() => {
         if (!areaRef.current) {
           return;
@@ -304,7 +326,7 @@ const TimelineControl = React.forwardRef(
         setWidth(areaRef.current.getBoundingClientRect().width);
       });
 
-      if (width === Number.MAX_SAFE_INTEGER) {
+      if (areaRef.current === undefined && width === Number.MAX_SAFE_INTEGER) {
         observer.observe(areaRef.current!);
       }
 
@@ -313,11 +335,7 @@ const TimelineControl = React.forwardRef(
           observer.disconnect();
         }
       };
-    }, [areaRef.current]);
-
-
-    const newProps = {...checkedProps, scaleSplitCount, scale, scaleWidth, minScaleCount};
-
+    }, []);
 
     return (
       <TimelineControlRoot
@@ -387,8 +405,21 @@ const TimelineControl = React.forwardRef(
           element={gridRef}
           type='horizontal'
           adjustScale={(value) => {
-            const newScaleWidth = getInitialScaleWidth(startLeft, minScaleCount, areaRef.current.clientWidth - value);
-            props.setScaleWidth(newScaleWidth);
+             console.log('adjustScale',  value)
+            const { scaleWidth: newScaleWidth, scale: newScale } = getInitialScaleData(startLeft, duration, minScaleCount, gridRef.current.clientWidth - value);
+            setScale(newScale);
+            setScaleWidth(newScaleWidth);
+            // const newScaleWidth = getInitialScaleWidth(startLeft, minScaleCount, areaRef.current.clientWidth - value);
+             // if (newScaleWidth < 20) {
+              // props.setScaleWidth(newScaleWidth * 2);
+              //  setScale(scale * 2)
+            // } else {
+              // props.setScaleWidth(newScaleWidth);
+            // }
+
+            //const newScaleWidth = getInitialScaleWidth(startLeft, minScaleCount,
+            // areaRef.current.clientWidth - value);
+            //setScaleWidth(newScaleWidth);
             return true;
           }}
         />

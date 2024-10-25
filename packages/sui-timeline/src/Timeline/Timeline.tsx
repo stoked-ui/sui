@@ -54,17 +54,22 @@ const Timeline = React.forwardRef(function Timeline(
   inProps: TimelineProps,
   ref: React.Ref<HTMLDivElement>,
 ): React.JSX.Element {
-  const { slots, slotProps, controlSx, onChange, trackSx, controllers, viewMode, setScaleWidth: inSetScaleWidth, scaleWidth: inScaleWidth } = useThemeProps({
+  const { slots, slotProps, controlSx, onChange, trackSx, controllers, viewMode, locked } = useThemeProps({
     props: inProps,
     name: 'MuiTimeline',
   });
-  const { engineRef: engineIn } = inProps;
+  const hideLock = locked;
+  const { engineRef: engineIn, tracks, setTracks, onAddFiles } = inProps;
+  const [file, setFile] = React.useState<any>(inProps.file);
   const createEngine = (): IEngine => {
-    return new Engine({id: inProps.id, controllers: inProps.controllers, defaultState: 'paused' });
+    return new Engine({
+      id: inProps.id,
+      controllers: inProps.controllers,
+      defaultState: 'paused',
+      file,
+      setFile
+    });
   }
-  const [scaleWidthNew, setScaleWidthNew] = React.useState<number>(inScaleWidth);
-  const scaleWidth = inScaleWidth ?? scaleWidthNew;
-  const setScaleWidth = inSetScaleWidth ?? setScaleWidthNew;
   const engineRef = React.useRef<IEngine>(engineIn?.current ? engineIn.current : createEngine());
 
   const classes = useUtilityClasses(inProps);
@@ -76,56 +81,6 @@ const Timeline = React.forwardRef(function Timeline(
 
   const forkedRootRef = React.useRef<HTMLDivElement>(null);
   const combinedRootRef = useForkRef(ref, forkedRootRef);
-
-  const [tracks, setTracksBase] = React.useState<ITimelineTrack[] | null>(null);
-  const setTracks: React.Dispatch<React.SetStateAction<ITimelineTrack[]>> = (tracksUpdater) => {
-    if (typeof tracksUpdater === "function") {
-      setTracksBase((prevTracks) => tracksUpdater(prevTracks));
-    } else {
-      setTracksBase(tracksUpdater);
-    }
-  };
-
-  const [screenerTrack, setScreenerTrack] = React.useState<ITimelineTrack | null>(null);
-
-  const [currentTracks, setCurrentTracks] = React.useState(engineRef.current.viewMode === 'Renderer' ? tracks : [screenerTrack]);
-
-  engineRef.current.setTracks = setTracks;
-  engineRef.current.setScreenerTrack = setScreenerTrack;
-  React.useEffect(() => {
-    console.log('new view mode', engineRef.current.viewMode, engineRef.current.screenerBlob, screenerTrack);
-    let screenerTracks = screenerTrack ? [screenerTrack] : null;
-    if (!screenerTrack && engineRef.current.viewMode === 'Screener') {
-      screenerTracks = [engineRef.current.screenerTrack];
-    }
-    setCurrentTracks(engineRef.current.viewMode === 'Renderer' ? tracks : screenerTracks)
-  }, [engineRef.current.viewMode, engineRef.current.screenerTrack])
-
-
-  React.useEffect(() => {
-    if (engineRef.current.viewMode === 'Renderer') {
-      setCurrentTracks(tracks)
-    }
-  }, [tracks])
-
-  React.useEffect(() => {
-    if (engineRef.current.viewMode === 'Screener') {
-      setCurrentTracks([screenerTrack])
-    }
-  }, [screenerTrack])
-
-  const tracksInitialized = React.useRef(false);
-
-  React.useEffect(() => {
-    if (!tracksInitialized.current) {
-      tracksInitialized.current = true;
-      engineRef.current?.buildTracks(controllers, inProps.actionData)
-        .then((initialTracks) => {
-          setTracks(initialTracks)
-        });
-    }
-  }, [])
-
 
   React.useEffect(() => {
     const engine = engineRef.current;
@@ -143,15 +98,7 @@ const Timeline = React.forwardRef(function Timeline(
       layer: 'screener',
     }
 
-    engine.buildScreenerTrack(controllers.video, actionInput)
-    .then((track) => {
-      console.log('track', track);
-      setScreenerTrack(track);
-    })
-      .catch((err) => {
-        console.error(err);
-        throw new Error(err);
-      })
+
   }, [engineRef.current.screenerBlob])
 
   const Root = slots?.root ?? TimelineRoot;
@@ -176,11 +123,11 @@ const Timeline = React.forwardRef(function Timeline(
     elementType: Control,
     externalSlotProps: slotProps?.control,
     className: classes.control,
-    ownerState: { sx: controlSx, trackSx, tracks: currentTracks, setTracks, engineRef, setScreenerTrack, screenerTrack },
+    ownerState: { sx: controlSx, trackSx, tracks, setTracks, engineRef },
   });
 
   const createAction = (e: React.MouseEvent<HTMLElement, MouseEvent>, { track, time }) => {
-    if (!track.actionRef) {
+    if (locked || !track.actionRef) {
       return;
     }
     const existingTrackAction = track.actionRef;
@@ -200,10 +147,13 @@ const Timeline = React.forwardRef(function Timeline(
         <Labels
           ref={labelsRef}
           {...labelsProps.ownerState}
-          tracks={currentTracks}
-          timelineState={timelineState}
+          tracks={tracks}
+          engine={engineRef.current}
           onChange={onChange}
+          hideLock={hideLock}
           controllers={inProps.controllers}
+          detailMode={inProps.detailMode}
+          onAddFiles={onAddFiles}
         />
       )}
 
@@ -225,13 +175,13 @@ const Timeline = React.forwardRef(function Timeline(
             labelsRef.current.scrollTop = scrollTop;
           }
         }}
-        startLeft={10}
+        startLeft={9}
         ref={combinedTimelineRef}
-        scaleWidth={scaleWidth}
-        setScaleWidth={setScaleWidth}
         engineRef={engineRef}
-        tracks={currentTracks}
+        tracks={tracks}
         autoScroll
+        disableDrag={locked}
+        dragLine={true}
         setTracks={setTracks}
         controllers={inProps.controllers}
         viewSelector={inProps.viewSelector ?? '.viewer'}
@@ -264,27 +214,30 @@ const Timeline = React.forwardRef(function Timeline(
   );
 }) as TimelineComponent;
 
+// ----------------------------- Warning --------------------------------
+// | These PropTypes are generated from the TypeScript type definitions |
+// | To update them edit the TypeScript types and run "pnpm proptypes"  |
+// ----------------------------------------------------------------------
 Timeline.propTypes = {
+
   actionData: PropTypes.any,
 
-  // ----------------------------- Warning --------------------------------
-  // | These PropTypes are generated from the TypeScript type definitions |
-  // | To update them edit the TypeScript types and run "pnpm proptypes"  |
-  // ----------------------------------------------------------------------
   children: PropTypes.node,
+
+  className: PropTypes.string,
   /**
    * Override or extend the styles applied to the component.
    */
   classes: PropTypes.object,
-  className: PropTypes.string,
-  controllers: PropTypes.object,
   controlSx: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),), PropTypes.func, PropTypes.object,]),
+  controllers: PropTypes.object,
+  detailMode: PropTypes.bool,
+  detailRenderer: PropTypes.bool,
   engine: PropTypes.any,
+  labelSx: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),), PropTypes.func, PropTypes.object,]),
   labels: PropTypes.bool,
   labelsSx: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),), PropTypes.func, PropTypes.object,]),
-  labelSx: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),), PropTypes.func, PropTypes.object,]),
-  scaleWidth: PropTypes.number,
-  setScaleWidth: PropTypes.func,
+
   setTracks: PropTypes.func,
   /**
    * The props used for each component slot.
@@ -301,8 +254,8 @@ Timeline.propTypes = {
    */
   sx: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),), PropTypes.func, PropTypes.object,]),
   timelineState: PropTypes.any,
-  tracks: PropTypes.any,
   trackSx: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),), PropTypes.func, PropTypes.object,]),
+  tracks: PropTypes.any,
   viewSelector: PropTypes.string,
 };
 

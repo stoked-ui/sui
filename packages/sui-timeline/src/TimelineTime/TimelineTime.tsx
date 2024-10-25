@@ -17,7 +17,7 @@ export type TimelineTimeProps = CommonProps & {
 
 const TimeAreaRoot = styled('div')(({theme}) => ({
   position: 'relative',
-  height: '32px',
+  height: '37px !important',
   flex: '0 0 auto',
   backgroundColor: emphasize(theme.palette.background.default, 0.04),
   '& .ReactVirtualized__Grid': {
@@ -27,6 +27,18 @@ const TimeAreaRoot = styled('div')(({theme}) => ({
     }
   }
 }));
+/*
+const TimeUnitScale = styled('div')(({ theme }) => ({
+  color: theme.palette.text.secondary,
+  position: 'absolute',
+  right: 0,
+  top: 0,
+  transform: 'translate(50%, -100%)',
+  userSelect: 'none',
+  paddingInlineStart: '0px',
+  lineHeight: '20px',
+})); */
+
 
 const TimeUnitScale = styled('div')(({ theme }) => ({
   color: theme.palette.text.secondary,
@@ -54,6 +66,20 @@ const TimeUnit = styled('div')(({ theme }) => ({
     height: '8px !important',
   }
 }));
+/*
+
+ const TimeUnit = styled('div')(({ theme }) => ({
+ borderRight: `1px solid ${theme.palette.text.primary}`,
+ position: 'relative',
+ boxSizing: 'content-box',
+ height: '4px !important',
+ bottom: '0 !important',
+ top: '31px !important',
+ '&.timeline-editor-time-unit-big': {
+ height: '8px !important',
+ }
+ }));
+ */
 
 /** Animation timeline component */
 function TimelineTime(props: TimelineTimeProps) {

@@ -11,8 +11,6 @@ export interface TimelineControlPropsBase {
    */
   tracks: ITimelineTrack[];
 
-  screenerTrack: ITimelineTrack;
-  setScreenerTrack: (screenerTrack: ITimelineTrack) => void;
   /**
    * @description Data change callback, which will be triggered after the operation action end
    *   changes the data (returning false will prevent automatic engine synchronization to reduce
