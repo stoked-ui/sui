@@ -35,12 +35,6 @@ export interface EditorViewPropsBase extends React.HTMLAttributes<HTMLDivElement
    * The system prop that allows defining system overrides as well as additional CSS styles.
    */
   sx?: SxProps<Theme>;
-
-  engine?: IEngine;
-
-  tracks: ITimelineTrack[];
-
-  setTracks: React.Dispatch<React.SetStateAction<ITimelineTrack[]>>;
 }
 
 export interface EditorViewProps<R extends FileBase, Multiple extends boolean | undefined>

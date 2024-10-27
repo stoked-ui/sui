@@ -588,7 +588,7 @@ function useDnd({ status, pluginContentRef, props, instance }) {
             file: mediaFile,
             label: mediaFile.name,
             expanded: false,
-            modified: mediaFile.lastModified,
+            lastModified: mediaFile.lastModified,
             size: mediaFile.size,
             children: [] as FileBase[],
             parent: null,

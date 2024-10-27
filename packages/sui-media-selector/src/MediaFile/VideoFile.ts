@@ -22,9 +22,9 @@ export default class VideoFile extends ResolutionFile implements IResolutionFile
       VideoFile.element = document.createElement('video') as HTMLVideoElement;
     }
     VideoFile.element.src = URL.createObjectURL(this);
-    this.duration = file.duration ?? -1;
+    // this.duration = file.duration ?? -1;
     VideoFile.element.addEventListener('loadeddata', () => {
-      this.duration = VideoFile.element.duration;
+      // this.duration = VideoFile.element.duration;
       this._width = VideoFile.element.videoWidth;
       this._height = VideoFile.element.videoHeight;
       this.icon = this.captureScreenshot({width: 24, height: 24});
@@ -39,12 +39,12 @@ export default class VideoFile extends ResolutionFile implements IResolutionFile
       VideoFile.element = document.createElement('video') as HTMLVideoElement;
     }
     VideoFile.element.src = URL.createObjectURL(videoFile);
-    videoFile.duration = file.duration ?? -1;
+    // videoFile.duration = file.duration ?? -1;
     videoFile._url = url;
     return new Promise((resolve, reject) =>{
       try {
         VideoFile.element.addEventListener('loadeddata', () => {
-          videoFile.duration = VideoFile.element.duration;
+          // videoFile.duration = VideoFile.element.duration;
           videoFile._width = VideoFile.element.videoWidth;
           videoFile._height = VideoFile.element.videoHeight;
           videoFile.icon = videoFile.captureScreenshot({width: 24, height: 24});

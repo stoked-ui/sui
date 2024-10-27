@@ -68,7 +68,7 @@ export interface UseFileExplorerExpansionParameters {
   /**
    * Callback fired when a fileExplorer item is expanded or collapsed.
    * @param {React.SyntheticEvent} event The event source of the callback.
-   * @param {array} itemId The itemId of the modified item.
+   * @param {array} itemId The itemId of the lastModified item.
    * @param {array} isExpanded `true` if the item has just been expanded, `false` if it has just
    *   been collapsed.
    */

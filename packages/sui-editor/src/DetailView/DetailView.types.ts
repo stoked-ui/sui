@@ -47,13 +47,9 @@ export interface DetailViewPropsBase extends React.HTMLAttributes<HTMLUListEleme
    */
   sx?: SxProps<Theme>;
 
-  engine: IEngine;
+  anchorEl?: HTMLElement;
 
-  anchorEl: HTMLElement;
-
-  onClose: () => void;
-
-  tracks: ITimelineTrack[];
+  onClose: (event: {} |  React.MouseEvent<HTMLElement, MouseEvent>, reason: ("backdropClick" | "escapeKeyDown")) => void;
 }
 
 export interface DetailViewProps

@@ -13,11 +13,11 @@ import {bytesToSize, calcSize, getRelativeTimeString} from "./PropUtils";
 import {ItemMode} from "../useFileExplorerFiles/useFileExplorerFiles.types";
 
 const updateGridState = ({ headers, columns, initializedIndexes, id }: { headers: GridHeaders, columns: GridColumns, initializedIndexes: boolean, id?: string } ): UseFileExplorerGridState => {
-  const { label, size, modified } = headers;
+  const { label, size, lastModified } = headers;
   const font = { };
   label.sx = {...label.sx, flexGrow: 1, display: 'flex', justifyContent: 'start', ...font }
   size.sx = {...label.sx, display: 'flex',  ...font }
-  modified.sx = {...label.sx, display: 'flex',  ...font }
+  lastModified.sx = {...label.sx, display: 'flex',  ...font }
   return {
     grid: {
       headers: headers ?? {},
@@ -328,7 +328,7 @@ const DEFAULT_HEADERS: GridHeaders = {
     ...JSON.parse(JSON.stringify(DEFAULT_HEADER_DATA)),
     children,
   },
-  modified: {
+  lastModified: {
     ...JSON.parse(JSON.stringify(DEFAULT_HEADER_DATA)),
     children
   }
@@ -343,7 +343,7 @@ const DEFAULT_COLUMNS: GridColumns = {
     renderContent: bytesToSize,
     evaluator: calcSize
   },
-  modified: {
+  lastModified: {
     ...JSON.parse(JSON.stringify(DEFAULT_COLUMN_DATA)),
     renderContent: getRelativeTimeString
   }

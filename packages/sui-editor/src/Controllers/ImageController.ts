@@ -1,4 +1,5 @@
 import { Controller, ControllerParams, IEngine, ITimelineAction } from "@stoked-ui/timeline";
+import { IMediaFile } from "@stoked-ui/media-selector";
 
 class ImageControl extends Controller {
   cacheMap: Record<string, HTMLImageElement> = {};
@@ -19,7 +20,8 @@ class ImageControl extends Controller {
       ImageControl.toggleDisplay(action, item);
     } else if (!action.hidden) {
       console.log('action', action)
-      item = ImageControl.createNewImage(action);
+      const track = engine.getActionTrack(action.id)
+      item = ImageControl.createNewImage(action, track.file);
       console.log('action item engine', item, engine);
       this.cacheMap[action.id] = item;
       ImageControl.attachItemToViewer(item, engine);
@@ -31,9 +33,9 @@ class ImageControl extends Controller {
     item.style.display = action.hidden ? 'none' : 'flex';
   }
 
-  static createNewImage(action: ITimelineAction): HTMLImageElement {
+  static createNewImage(action: ITimelineAction, file: IMediaFile): HTMLImageElement {
     const item = document.createElement('img') as HTMLImageElement;
-    item.src = action!.src;
+    item.src = file.url;
     item.style.display = 'flex';
     ImageControl.applyStyles(action, item);
     return item;

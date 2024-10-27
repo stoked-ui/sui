@@ -8,6 +8,7 @@ import TimelineTrackAreaDragLines from './TimelineTrackAreaDragLines';
 import TimelineTrack from '../TimelineTrack/TimelineTrack';
 import {TimelineTrackAreaProps} from './TimelineTrackArea.types'
 import {useDragLine} from './useDragLine';
+import {useTimeline} from "../TimelineProvider";
 
 /** edit area ref data */
 export interface TimelineTrackAreaState {
@@ -32,8 +33,8 @@ const TimelineTrackAreaRoot = styled('div')(() => ({
 }));
 
 const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrackAreaProps>((props, ref) => {
+  const { file: { tracks }} = useTimeline();
   const {
-    tracks,
     rowHeight,
     scaleWidth,
     scaleCount,
@@ -120,7 +121,7 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
         }}
         areaRef={editAreaRef}
         key={key}
-        rowHeight={track?.rowHeight || rowHeight}
+        rowHeight={ rowHeight}
         track={track}
         dragLineData={dragLineData}
         disableDrag={props.disableDrag}
@@ -176,9 +177,8 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
           let totalHeight = 0;
           // HEIGHT LIST
           const heights = tracks?.map((track) => {
-            const itemHeight = track?.rowHeight || rowHeight;
-            totalHeight += itemHeight;
-            return itemHeight;
+            totalHeight += rowHeight;
+            return rowHeight;
           });
          /*  if (totalHeight < height && heights && viewMode === 'Renderer') {
             heights.push(height - totalHeight);

@@ -11,7 +11,19 @@ import {
 } from './MediaFile.types'
 import {ExtensionMimeTypeMap} from "./MimeType";
 import namedId from "../namedId";
+import {Howl} from "howler";
 
+/*
+ children?: FileBase<R>[];
+ size?: number;
+ modified?: number;
+ type?: MediaType;
+ file?: MediaFile;
+ visibleIndex?: number;
+ expanded?: boolean;
+ selected?: boolean;
+ name?: string;
+ */
 export default class MediaFile implements IMediaFile {
   readonly id: string;
 
@@ -31,7 +43,25 @@ export default class MediaFile implements IMediaFile {
 
   readonly webkitRelativePath: string;
 
-  duration?: number;
+  readonly element?: any;
+
+  readonly duration?: number;
+
+  readonly width?: number;
+
+  readonly height?: number;
+
+  readonly aspectRatio?: number;
+
+  readonly version: number;
+
+  children?: IMediaFile[];
+
+  visibleIndex?: number;
+
+  expanded?: boolean;
+
+  selected?: boolean;
 
   icon: string | null = null;
 
@@ -44,6 +74,8 @@ export default class MediaFile implements IMediaFile {
   _url?: string;
 
   backgroundImage?: string;
+
+  itemId: string;
 
   static container: HTMLDivElement;
 
@@ -59,13 +91,13 @@ export default class MediaFile implements IMediaFile {
 
   text: () => Promise<string>;
 
+
   get url() {
     if (!this._url) {
       this._url = URL.createObjectURL(this.blob);
     }
     return this._url;
   }
-
 
   constructor(file: any) {
 
@@ -74,13 +106,15 @@ export default class MediaFile implements IMediaFile {
     }
 
     this.id = file.id ? file.id : namedId({id: 'mediaFile', length: 6});
+    this.itemId = file.itemId ?? this.id;
     this.created = file.created ?? file.lastModified ?? Date.now();
     this.lastModified = file.lastModified;
     this.name = file.name;
     this.size = file.size;
     this.type = file.type;
     this.path = file.name;
-    this._url = file.src;
+    this._url = file._url ?? file.src;
+    this.version = file.version ?? 1;
     if ("webkitRelativePath" in file && file.webkitRelativePath.length > 0) {
       this.path = file.webkitRelativePath;
     }
@@ -89,6 +123,10 @@ export default class MediaFile implements IMediaFile {
     if (!this.mediaType && this.type) {
       this.mediaType = getMediaType(this.type);
     }
+    this.children = file.children;
+    this.expanded = file.expanded;
+    this.selected = file.selected;
+    this.visibleIndex = file.visibleIndex;
 
     this.arrayBuffer = file.arrayBuffer.bind(file);
     this.slice = file.slice.bind(file);
@@ -144,8 +182,116 @@ export default class MediaFile implements IMediaFile {
     return new MediaFile(f);
   }
 
-  static async fromAction(action: { id?: string, src: string; }) {
-    return loadAction(action);
+  static setProperty(o: any, name: string, value: any) {
+    Object.defineProperty(o, name, {
+      value,
+      writable: false,
+      configurable: false,
+      enumerable: true
+    });
+  }
+  static async fromUrl(url: string, container?: HTMLDivElement): Promise<IMediaFile> {
+
+    if (!container) {
+      if (!MediaFile.container) {
+        MediaFile.container = document.createElement('div');
+      }
+      container = MediaFile.container;
+    }
+    const response = await fetch(url, {cache: "no-store"});
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const contentType = response.headers.get("content-type");
+    const blob = await response.blob()
+    const file = new File([blob], getFileName(url, true) ?? 'url-file', {type: contentType ?? 'application/octet-stream'});
+    const mediaFile = file as IMediaFile;
+    MediaFile.setProperty(mediaFile, '_url', response.url);
+    MediaFile.setProperty(mediaFile, 'id', namedId('mediaFile'));
+
+    const fullMediaFile: MediaFile = MediaFile.fromFile(mediaFile as IMediaFile);
+
+    switch(fullMediaFile.mediaType) {
+      case 'video':
+      {
+        const item = document.createElement('video') as HTMLVideoElement;
+        item.id = fullMediaFile.id;
+        item.preload = 'auto';
+        container.appendChild(item);
+        return new Promise((resolve, reject) => {
+          try {
+            let loadedMetaData = false;
+            item.addEventListener('loadedmetadata', () => {
+              MediaFile.setProperty(fullMediaFile, 'duration', item.duration);
+              MediaFile.setProperty(fullMediaFile, 'width', item.videoWidth);
+              MediaFile.setProperty(fullMediaFile, 'height', item.videoHeight);
+              const ratio = item.videoWidth / item.videoHeight;
+              MediaFile.setProperty(fullMediaFile, 'aspectRatio', ratio);
+              item.style.aspectRatio = `${ratio}`;
+              // item.style.objectFit = action.fit as string;
+              loadedMetaData = true;
+            });
+
+            let canPlayThrough = false;
+            item.addEventListener('canplaythrough', () => {
+              canPlayThrough = true;
+            })
+
+            item.autoplay = false;
+            item.style.display = 'flex';
+            item.src = url;
+            let intervalId;
+            let loadingSeconds = 0;
+
+            const isLoaded = () => {
+              return item.readyState === 4 && loadedMetaData && canPlayThrough;
+            }
+            const waitUntilLoaded = () =>{
+              intervalId = setInterval(() => {
+                loadingSeconds += 1;
+                if (isLoaded()) {
+                  clearInterval(intervalId);
+                  MediaFile.setProperty(fullMediaFile, 'element', item);
+                  resolve(fullMediaFile);
+                } else if (loadingSeconds > 20) {
+                  reject(new Error('didn\'t load video within 20 seconds'));
+                }
+              }, 1000); // Run every 1 second
+            }
+
+            if (!isLoaded()) {
+              waitUntilLoaded();
+            }
+
+          } catch (ex) {
+            reject(ex);
+          }
+        })
+      }
+      case 'audio': {
+        return new Promise((resolve, reject) => {
+          try {
+            const item = new Howl({
+              src: url,
+              loop: false,
+              autoplay: false,
+              onload: () => {
+                MediaFile.setProperty(fullMediaFile, 'element', item);
+                resolve(fullMediaFile);
+              }
+            });
+          } catch(ex) {
+            let msg = `Error loading audio file: ${url}`;
+            if (ex as Error) {
+              msg += (ex as Error).message;
+            }
+            reject(new Error(msg));
+          }
+        })
+      }
+
+    }
+    return fullMediaFile;
   }
 
   static withMimeType(file: IMediaFile) {
@@ -253,28 +399,8 @@ function noIgnoredFiles(files: IMediaFile[]) {
   });
 }
 
-async function loadAction(action: { id?: string, src: string; fullName?: string; name?: string }): Promise<any> {
-  const response = await fetch(action.src, {cache: "no-store"});
-  if (!response.ok) {
-    throw new Error('Network response was not ok');
-  }
-  const contentType = response.headers.get("content-type");
-  const blob = await response.blob()
-  const file = new File([blob], action.fullName ?? action.name ?? getFileName(action.src, true) ?? 'url-file', {type: contentType ?? 'application/octet-stream'});
-  const mediaFile = file as IMediaFile;
-  Object.defineProperty(mediaFile, 'url', {
-    value: action.src,
-    writable: false,
-    configurable: false,
-    enumerable: true
-  });
-  Object.defineProperty(mediaFile, 'id', {
-    value: action.id,
-    writable: false,
-    configurable: false,
-    enumerable: true
-  });
-  return MediaFile.fromFile(mediaFile as IMediaFile);
+async function loadTrack(track: { id?: string, src: string; name?: string }): Promise<any> {
+
 }
 
 async function loadFileUrl(url: string): Promise<any> {

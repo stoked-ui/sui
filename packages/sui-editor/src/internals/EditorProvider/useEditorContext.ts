@@ -3,7 +3,7 @@ import {EditorAnyPluginSignature} from '../models';
 import {EditorContext} from './EditorContext';
 import {EditorContextValue} from './EditorProvider.types';
 
-export const useEditorContext = <
+export const useTimeline = <
   TSignatures extends readonly EditorAnyPluginSignature[],
   TOptionalSignatures extends readonly EditorAnyPluginSignature[] = [],
 >() => {

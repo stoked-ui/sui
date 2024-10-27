@@ -61,4 +61,5 @@ declare interface ITimelineAction {
   getBackgroundImage?: (actionType: any, src: string) => string;
 }
 
+
 export {};

@@ -2,7 +2,7 @@ import * as React from 'react';
 import {Theme} from '@mui/material/styles';
 import {SxProps} from '@mui/system';
 import {SlotComponentProps} from '@mui/base/utils';
-import { type IController } from '../Engine/Controller.types';
+import { type IController } from '../Controller/Controller.types';
 import {TimelineClasses} from './timelineClasses';
 import {type ITimelineTrack} from "../TimelineTrack/TimelineTrack.types";
 import {type TimelineLabelsProps} from "../TimelineLabels/TimelineLabels.types";
@@ -11,6 +11,7 @@ import TimelineControl, {TimelineControlProps} from "../TimelineControl";
 import {IEngine, ViewMode} from "../Engine/Engine.types";
 import {ITimelineFile} from "../TimelineFile/TimelineFile";
 import { MediaFile } from '@stoked-ui/media-selector';
+import {ITimelineAction} from "../TimelineAction";
 
 export type TimelineComponent = ((
   props: TimelineProps & React.RefAttributes<HTMLDivElement>,
@@ -61,21 +62,39 @@ export interface TimelineProps
   controlSx?: SxProps<Theme>;
   trackSx?: SxProps<Theme>;
 
-  tracks?: ITimelineTrack[];
-  setTracks?: React.Dispatch<React.SetStateAction<ITimelineTrack[] | null>>;
   controllers?: Record<string, IController>;
   timelineState?: React.RefObject<TimelineState>;
   viewSelector?: string;
-  engineRef?: React.RefObject<IEngine>;
   labels?: boolean;
 
   scaleWidth?: number;
   setScaleWidth?: (scaleWidth: number) => void;
-  file?: ITimelineFile;
   viewMode?: ViewMode;
 
   detailRenderer?: boolean;
   locked?: boolean;
 
   onAddFiles?: (mediaFiles: MediaFile[]) => void;
+
+  /**
+   * @description Right-click track callback
+   */
+  onContextMenuTrack?: (
+    e: React.MouseEvent<HTMLElement, MouseEvent>,
+    param: {
+      track: ITimelineTrack;
+      time: number;
+    },
+  ) => void;
+  /**
+   * @description Right-click action callback
+   */
+  onContextMenuAction?: (
+    e: React.MouseEvent<HTMLElement, MouseEvent>,
+    param: {
+      action: ITimelineAction;
+      track: ITimelineTrack;
+      time: number;
+    },
+  ) => void;
 }

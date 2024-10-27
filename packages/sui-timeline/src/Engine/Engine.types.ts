@@ -1,25 +1,59 @@
 import * as React from "react";
 import type {ITimelineTrack} from "../TimelineTrack";
-import type {DrawData, IController} from './Controller.types';
+import type {DrawData, IController} from '../Controller/Controller.types';
 import type {ITimelineAction, ITimelineFileAction} from "../TimelineAction";
 import type { EventTypes } from './events';
-import {ITimelineFile} from "../TimelineFile/TimelineFile";
+import { Events } from "./events";
+import { IMediaFile, MediaFile } from "@stoked-ui/media-selector";
 
-export interface IEmitter<Events> {
-  events: { [key: string]: CallableFunction[] };
-  on<K extends keyof Events>(names: K | K[], handler: (args: Events[K]) => boolean | unknown): this;
+export interface IEmitterFuncs<Events> {
+  on<K extends keyof Events>(names: K | K[], handler: (args: Events[K]) => boolean | unknown): IEmitter<Events>;
   trigger<K extends keyof Events>(name: K, params: Events[K]): boolean;
   bind(name: string): void;
   exist(name: string): boolean;
   off<K extends keyof Events>(name: K, handler?: (args: Events[K]) => boolean | unknown): void;
   offAll(): void;
 }
+export interface IEmitter<Events> extends IEmitterFuncs<Events> {
+  events: { [key: string]: CallableFunction[] };
+}
 
 export type ViewMode = 'Renderer' | 'Screener' | 'Edit';
-export type ScreenerBlob = { blob: Blob, version: number, name: string, key: string, created: number, size: number};
-export interface IEngine extends IEmitter<EventTypes> {
+
+export type ScreenerBlob = {
+  blob: Blob,
+  id: string,
+  version: number,
+  name: string,
+  key: string,
+  created: number,
+  lastModified: number,
+  size: number
+};
+
+export function MediaFileFromScreenerBlob(screenerBlob: ScreenerBlob): IMediaFile {
+  const { blob } = screenerBlob;
+  const mediaFile: IMediaFile = {
+    ...screenerBlob,
+    mediaType: 'video',
+    icon: null,
+    thumbnail: null,
+    url: URL.createObjectURL(screenerBlob.blob),
+    type: 'video/webm',
+    arrayBuffer: blob.arrayBuffer,
+    stream: blob.stream,
+    text: blob.text,
+    slice: blob.slice,
+    webkitRelativePath: screenerBlob.name,
+    itemId: screenerBlob.id,
+  };
+  return MediaFile.fromFile(mediaFile);
+}
+
+export interface IEngine<Events extends EventTypes = EventTypes> extends IEmitterFuncs<Events> {
   readonly isPlaying: boolean;
   readonly isPaused: boolean;
+  readonly isLoading: boolean;
   logging: boolean;
   detailMode?: boolean;
   controllers: Record<string, any>;
@@ -33,17 +67,15 @@ export interface IEngine extends IEmitter<EventTypes> {
   rendererDetail: HTMLCanvasElement | null;
   readonly renderDetailCtx: CanvasRenderingContext2D | null;
   readonly duration: number;
-  tracks: ITimelineTrack[];
-  setTracks: React.Dispatch<React.SetStateAction<ITimelineTrack[] | null>> | undefined;
   readonly renderWidth: number;
   readonly renderHeight: number;
-  buildTracks: (controllers: Record<string, IController>, actionData: ITimelineFileAction[]) => Promise<ITimelineTrack[]>
-  action: ITimelineAction | undefined;
   readonly actions: Record<string, ITimelineAction>;
-  file: ITimelineFile;
   control: any;
-  setFile: React.Dispatch<React.SetStateAction<ITimelineFile>> | undefined;
-  selected: any;
+  emitter: IEmitter<Events>;
+
+  saveVersion(vidBlob: ScreenerBlob): Promise<IDBValidKey>;
+
+  loaded(): void;
 
   drawImage(dd: DrawData): void;
 
@@ -77,19 +109,19 @@ export interface IEngine extends IEmitter<EventTypes> {
   getActionTrack(actionId: string):  ITimelineTrack;
 
   getSelectedActions(): { action: ITimelineAction, track: ITimelineTrack }[];
+  setTracks(tracks: ITimelineTrack[]): void;
+  versionFiles(id: string): Promise<IMediaFile[]>
 
-
+  getVersionKeys(id: string): Promise<Version[]>;
 
 }
 
-export type PlayState = 'playing' | 'paused';
+export type EngineState = 'loading' | 'playing' | 'paused';
 
 export type EngineOptions = {
   viewer?: HTMLElement;
-  id: string;
   controllers?: Record<string, IController>;
-  events?: any;
-  defaultState: string;
-  file: any;
-  setFile: React.Dispatch<React.SetStateAction<any>>
+  events?: Events;
 }
+
+export type Version = { id: string, version: number, key: string };

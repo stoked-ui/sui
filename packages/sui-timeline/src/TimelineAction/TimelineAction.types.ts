@@ -2,15 +2,14 @@ import * as React from 'react';
 import {SxProps, Theme} from "@mui/material/styles";
 import {SlotComponentProps} from "@mui/material";
 import {CSSProperties} from "@mui/system/CSSProperties";
-import {MediaFile } from "@stoked-ui/media-selector";
-import {FileBase, FileBaseFromMediaFile} from '@stoked-ui/file-explorer';
+import {IMediaFile, MediaFile } from "@stoked-ui/media-selector";
 import {TimelineActionClasses} from "./timelineActionClasses";
 import {DragLineData} from "../TimelineTrackArea/TimelineTrackAreaDragLines";
 import {CommonProps} from '../interface/common_prop';
 import {type ITimelineTrack } from "../TimelineTrack/TimelineTrack.types";
-import {DrawData, IController} from '../Engine/Controller.types';
+import {DrawData, IController} from '../Controller/Controller.types';
 
-export type GetBackgroundImage = (action: ITimelineAction) => Promise<string>;
+export type GetBackgroundImage = (file: IMediaFile) => Promise<string>;
 
 
 
@@ -34,8 +33,6 @@ export interface ITimelineActionUserData {
   id: string;
   /** action display name */
   name?: string;
-
-  fullName?: string;
   /** Action start time */
   start?: number;
   /** Action end time */
@@ -48,8 +45,6 @@ export interface ITimelineActionUserData {
   trimEnd?: number;
 
   layer?: string;
-
-  src: string;
 
   playbackRate?: number;
 
@@ -102,8 +97,6 @@ export interface ITimelineAction
 
   name: string;
 
-  file: MediaFile;
-
   onKeyDown?: (event: any, id: string) => void;
 
   duration?: number;
@@ -125,8 +118,6 @@ export interface ITimelineAction
   y?: number;
 
   getBackgroundImage?: (actionType: IController, src: string) => string;
-
-  controller: IController;
 
   frameSyncId?: number;
   /** Minimum start time limit for actions */
@@ -206,9 +197,6 @@ export interface TimelineActionProps
 
 export interface TimelineActionOwnerState extends Omit<TimelineActionProps, 'action' | 'onKeyDown' | 'style' | 'translate'>, ITimelineAction  {}
 
-export function FilesFromActions(actions: ITimelineAction[] = []): FileBase[] {
-  return actions.map((action) => FileBaseFromMediaFile(action.file));
-}
 
 
 export interface BackgroundImageStyle {

@@ -1,10 +1,10 @@
 import { namedId, base64Encode, getFileName, MediaFile } from "@stoked-ui/media-selector";
 import {type ITimelineAction, ITimelineFileAction} from "../TimelineAction";
-import {ITimelineTrack} from "../TimelineTrack";
+import {ITimelineFileTrack, ITimelineTrack} from "../TimelineTrack";
 import path from "path";
 import * as fs from "node:fs";
 import Engine, {IController, IEngine} from "../Engine";
-import Controller from "../Engine/Controller";
+import Controller from "../Controller/Controller";
 
 export interface ITimelineFile {
   id: string;
@@ -17,8 +17,7 @@ export interface ITimelineFile {
   width: number;
   height: number;
   src?: string;
-  // actionData?: ITimelineFileAction[]
-  // tracks?: ITimelineTrack[];
+  tracks?: ITimelineTrack[];
 }
 
 export interface ITimelineFileProps {
@@ -32,8 +31,7 @@ export interface ITimelineFileProps {
   width?: number;
   height?: number;
   src?: string;
-  actionData?: ITimelineFileAction[];
-  tracks?: ITimelineTrack[];
+  tracks?: ITimelineFileTrack[];
 }
 
 function getName(props: ITimelineFileProps): string {
@@ -74,11 +72,9 @@ export default class TimelineFile implements ITimelineFile {
 
   src?: string;
 
-  actionData?: ITimelineFileAction[]
+  protected _fileTracks?: ITimelineFileTrack[];
 
   protected _tracks?: ITimelineTrack[];
-
-  protected _displayTracks?: ITimelineTrack[];
 
   constructor(props: ITimelineFileProps) {
     this.id = props.id ?? namedId('timelineFile');
@@ -90,78 +86,125 @@ export default class TimelineFile implements ITimelineFile {
     this.backgroundColor = props.backgroundColor ?? '#000';
     this.width = props.width ?? 1920;
     this.height = props.height ?? 1080;
-    this.actionData = props.actionData ?? [];
-    this._tracks = props.tracks ?? [];
+    this._fileTracks = props.tracks ?? [];
   }
 
   get tracks() {
     return this._tracks;
   }
 
+  set tracks(updatedTracks: ITimelineTrack[]) {
+    this._tracks = updatedTracks.filter((updatedTrack) => updatedTrack.id !== 'newTrack');
+  }
+
   get displayTracks() {
-    return this._displayTracks;
+    const base = this._tracks?.length ? this._tracks : [];
+    return base.concat([{
+      id: 'newTrack',
+      name: 'new track',
+      actions: [],
+      file: null,
+      hidden: false,
+      lock: false
+    } as ITimelineTrack]);
+  }
+
+  static setVolumeIndex(action: ITimelineFileAction) {
+    if (!action.volume) {
+      return -2; // -2: no volume parts available => volume 1
+    } else {
+      for (let i = 0; i < action.volume!.length; i += 1) {
+        const { volume } = Controller.getVol(action.volume![i]);
+
+        if (volume < 0 || volume > 1) {
+          console.info(`${action.name} specifies a volume of ${volume} which is outside the standard range: 0.0 - 1.0`)
+        }
+      }
+      return -1; // -1: volume part unassigned => volume 1 until assigned
+    }
+  }
+
+  static initializeAction(engine: IEngine, fileAction: ITimelineFileAction, trackIndex: number) {
+    const newAction = fileAction as ITimelineAction;
+    newAction.volumeIndex = TimelineFile.setVolumeIndex(newAction)
+
+    if (!newAction.z) {
+      newAction.z = trackIndex;
+    }
+
+    if (!newAction.layer) {
+      newAction.layer = 'foreground';
+    }
+
+    if (!newAction.id) {
+      newAction.id = namedId('action');
+    }
+
+    if (!newAction.width) {
+      newAction.width = engine.renderWidth;
+    }
+
+    if (!newAction.height) {
+      newAction.height = engine.renderHeight;
+    }
+
+    if (!newAction.fit) {
+      newAction.fit = 'none';
+    }
+
+    return newAction;
   }
 
   async generateTracks(controllers: Record<string, IController>, engine: IEngine) {
-    if (!this.actionData?.length || this.tracks.length) {
+    if (!this._fileTracks?.length || this._tracks?.length) {
       return;
     }
 
     try {
-      const actions = this.actionData.map((actionInput, index) => {
-        const action = actionInput as ITimelineAction;
-        action.src = action.src.indexOf('http') !== -1 ? action!.src : `${window.location.origin}${action!.src}`;
-        action.src = action.src.replace(/([^:]\/)\/+/g, "$1");
-        if (!action.name) {
-          const fullName = getFileName(action.src, true);
-          const name = getFileName(action.src, false);
-          if (!name || !fullName) {
-            throw new Error('no action name available');
-          }
-          action.name = name;
-          action.fullName = fullName;
-        } else {
-          action.fullName = getFileName(action.src, true)!;
-        }
-
-        if (!action.volume) {
-          action.volumeIndex = -2; // -2: no volume parts available => volume 1
-        } else {
-          action.volumeIndex = -1; // -1: volume part unassigned => volume 1 until assigned
-
-          for (let i = 0; i < action.volume!.length; i += 1) {
-            const { volume } = Controller.getVol(action.volume![i]);
-
-            if (volume < 0 || volume > 1) {
-              console.info(`${action.name} specifies a volume of ${volume} which is outside the standard range: 0.0 - 1.0`)
-            }
-          }
-        }
-
-        action.controller = controllers[action.controllerName];
-
-        if (!action.id) {
-          action.id = namedId('mediaFile');
-        }
-
-        if (!action.z) {
-          action.z = index;
-        }
-
-        if (!action.layer) {
-          action.layer = 'foreground';
-        }
-        return action;
-      })
-      const preload = actions.map((action) => action.controller.preload ? action.controller.preload({action, engine }) : action)
-      const loadedActions = await Promise.all(preload);
-
-      const filePromises = loadedActions.map((action) => MediaFile.fromAction(action as any));
+      const filePromises = this._fileTracks.map((fileTrack) => MediaFile.fromUrl(fileTrack.src));
       const mediaFiles: MediaFile[] = await Promise.all(filePromises);
-      this._tracks = mediaFiles.map((file) => {
-        const loadedAction = loadedActions.find((a) => a!.fullName === file.path);
+
+      this._tracks = this._fileTracks.map((trackInput, index) => {
+        trackInput.src = trackInput.src.indexOf('http') !== -1 ? trackInput!.src : `${window.location.origin}${trackInput!.src}`;
+        trackInput.src = trackInput.src.replace(/([^:]\/)\/+/g, "$1");
+
+        const file =  mediaFiles.find((file) => file._url === trackInput.src);
+
+        if (!file) {
+          throw new Error('couldn\'t find media file source');
+        }
+
+
+        const actions = trackInput.actions.map((action: ITimelineFileAction) => {
+          return TimelineFile.initializeAction(engine, action, index);
+        }) as ITimelineAction[];
+
+        const track: ITimelineTrack = {
+          id: trackInput.id ?? namedId('track'),
+          name: trackInput.name,
+          actions,
+          file: file,
+          controller: trackInput.controller ? trackInput.controller : controllers[trackInput.controllerName],
+          hidden: trackInput.hidden,
+          lock: trackInput.lock,
+          selected: trackInput.selected
+        };
+
+        return track;
+      });
+      const nestedPreloads = this._tracks.map((track) => {
+        return track.actions.map((action) => track.controller.preload ? track.controller.preload({
+          action,
+          engine,
+          file: track.file
+        }) : action)
+      });
+      const preloads = nestedPreloads.flat();
+      const loadedActions = await Promise.all(preloads);
+
+      loadedActions.forEach((loadedAction) => {
         if (!loadedAction) {
-          throw new Error(`Action input not found for file ${JSON.stringify(file, null, 2)} - ${file.path} - ${loadedActions.map((act) => act.fullName)}`);
+          throw new Error(`Action not preloaded`);
         }
         if (loadedAction.x) {
           loadedAction.x = Engine.parseCoord(loadedAction.x, loadedAction.width, engine.renderWidth);
@@ -173,41 +216,11 @@ export default class TimelineFile implements ITimelineFile {
         } else {
           loadedAction.y = 0;
         }
-        const action = {
-          fit: 'none',
-          loop: true,
-          ...loadedAction,
-          src: loadedAction.src,
-          id: loadedAction.id,
-        } as ITimelineAction
-        const trackGenId = namedId('track')
-        return {
-          id: trackGenId,
-          name: action.name ?? trackGenId,
-          actions: [action],
-          file: action.file,
-          hidden: false,
-          lock: false
-        } as ITimelineTrack;
       })
-      this._displayTracks = [];
-      if (this._tracks.length) {
-        this._displayTracks = this._tracks;
-      }
-      this._displayTracks.push({
-        id: 'newTrack',
-        name: 'new track',
-        actions: [],
-        file: null,
-        hidden: false,
-        lock: false
-      } as ITimelineTrack);
 
-      this.actionData = undefined;
     } catch (ex) {
       console.error('buildTracks:', ex);
     }
-
   }
 
   async serialize() {
@@ -233,7 +246,7 @@ export default class TimelineFile implements ITimelineFile {
         classNames: track.classNames,
         hidden: track.hidden,
         lock: track.lock,
-        actionRef: track.actionRef
+        // actionRef: track.actionRef
       }
     }
   }

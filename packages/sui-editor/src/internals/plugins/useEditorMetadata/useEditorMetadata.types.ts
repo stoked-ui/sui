@@ -9,14 +9,12 @@ export interface UseEditorMetadataInstance {
 }
 
 export interface UseEditorMetadataParameters {
-  tracks?: ITimelineTrack[];
-  actions?: ITimelineAction[];
   file?: TimelineFile;
   url?: string;
 }
 
 export type UseEditorMetadataDefaultizedParameters = DefaultizedProps<
-  UseEditorMetadataParameters, 'tracks' | 'actions' | 'file' | 'url'
+  UseEditorMetadataParameters, 'file' | 'url'
 >;
 
 export type UseEditorMetadataSignature = EditorPluginSignature<{

@@ -1,13 +1,20 @@
-import * as React from 'react';
 import BTree from "sorted-btree";
-import {namedId, getFileName, MediaFile } from "@stoked-ui/media-selector";
-import {type ITimelineAction, ITimelineFileAction} from '../TimelineAction/TimelineAction.types'
-import {DrawData, type IController} from './Controller.types';
-import {type IEngine, type PlayState, ScreenerBlob, type ViewMode, type EngineOptions} from './Engine.types';
+import {openDB} from '@tempfix/idb';
+import {getKeysStartingWithPrefix} from "../db/get";
+import {type ITimelineAction} from '../TimelineAction/TimelineAction.types'
+import {DrawData, type IController} from '../Controller/Controller.types';
+import {
+  type IEngine,
+  type EngineState,
+  ScreenerBlob,
+  type ViewMode,
+  type EngineOptions,
+  Version, MediaFileFromScreenerBlob
+} from './Engine.types';
 import { type ITimelineTrack} from '../TimelineTrack/TimelineTrack.types';
 import {Events, type EventTypes} from './events'
 import {Emitter} from './emitter'
-import Controller from "./Controller";
+;
 
 const PLAYING = 'playing';
 const PAUSED = 'paused';
@@ -19,9 +26,7 @@ const PAUSED = 'paused';
  * @class Engine
  * @extends {Emitter<EventTypes>}
  */
-export default class Engine<State extends PlayState = PlayState, Events extends EventTypes = EventTypes> extends Emitter<Events> implements IEngine {
-
-  protected _file: any = null;
+export default class Engine<State extends EngineState = EngineState, Events extends EventTypes = EventTypes> implements IEngine<Events> {
 
   protected _viewer: HTMLElement | null = null;
 
@@ -45,43 +50,56 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
 
   protected _logging: boolean = false;
 
-  protected _tracks: ITimelineTrack[] | null = null;
-
-  selected: any;
-
   detailMode: boolean = false;
 
   control: any = {};
 
-  setTracks: React.Dispatch<React.SetStateAction<ITimelineTrack[] | null>> | undefined = undefined;
+  /** requestAnimationFrame timerId */
+  protected _timerId: number = 0;
 
-  setFile: React.Dispatch<React.SetStateAction<any>> | undefined = undefined;
+  /** Playback rate */
+  protected _playRate = 1;
 
-  // @ts-ignore
-  protected engine: IEngine = this;
+  /** current time */
+  protected _currentTime: number = 0;
+
+  /** Playback status */
+  protected _state: State;
+
+  protected _viewMode: ViewMode;
+
+  /** Time frame pre data */
+  protected _prev: number = 0;
+
+  /** Action actionType map */
+  protected _controllers: Record<string, IController> = {};
+
+  /** Action map that needs to be run */
+  protected _actionMap: Record<string, ITimelineAction> = {};
+
+  protected _actionTrackMap: Record<string, ITimelineTrack> = {};
+
+  /** Action ID array sorted in positive order by action start time */
+  protected _actionSortIds: string[] = [];
+
+  /** The currently traversed action index */
+  protected _next: number = 0;
+
+  /** The action time range contains the actionId list of the current time */
+  protected _activeIds: BTree = new BTree<string, number>();
+
+  emitter: Emitter<Events>
 
   constructor(params: EngineOptions ) {
-    super(params.events || new Events());
-    this._editorId = params.id;
+    this.emitter = new Emitter<Events>(params.events ?? new Events());
     if (params?.viewer) {
       this.viewer = params.viewer;
     }
     if (params?.controllers) {
       this._controllers = params.controllers;
     }
-    this._playState = params.defaultState as State;
+    this._state = 'loading' as State;
     this._viewMode = 'Renderer';
-  }
-
-  get file() {
-    return this._file;
-  }
-
-  set file(file: any) {
-    if (this.setFile) {
-      this.setFile(file);
-    }
-    this._file = file;
   }
 
   get logging() {
@@ -114,20 +132,6 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
     return this._actionMap;
   }
 
-  set action(action: ITimelineAction) {
-    this._actionMap[action.id] = action;
-    const track = this._actionTrackMap[action.id];
-    this.setTracks?.((prev) => {
-      return prev.map((prevTrack) => {
-        if (track.id === prevTrack.id) {
-          const actionIndex = track.actions.indexOf(action);
-          prevTrack.actions[actionIndex] = action;
-        }
-        return {...prevTrack, actions: [...prevTrack.actions] }
-      })
-    })
-  }
-
   get action(): ITimelineAction | undefined {
     const vals = Object.values(this._actionMap)
     if (vals.length) {
@@ -138,9 +142,9 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
 
   set viewer(viewer: HTMLElement) {
     this._viewer = viewer;
-    const renderer = viewer.querySelector(`#${this._editorId} div[role='renderer']`) as HTMLCanvasElement;
-    this._screener = viewer.querySelector(`#${this._editorId} video[role='screener']`) as HTMLVideoElement;
-    this._stage = viewer.querySelector(`#${this._editorId} div[role='stage']`) as HTMLDivElement;
+    const renderer = viewer.querySelector("canvas[role='renderer']") as HTMLCanvasElement;
+    this._screener = viewer.querySelector("video[role='screener']") as HTMLVideoElement;
+    this._stage = viewer.querySelector("div[role='stage']") as HTMLDivElement;
     if (renderer) {
       renderer.width = this.renderWidth;
       renderer.height = this.renderHeight;
@@ -157,7 +161,7 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
 
     this._viewerUpdate();
     if (this.renderer && this.viewer && this.renderCtx) {
-      this._loading = false;
+      this._state = 'paused' as State;
     } else {
       throw new Error('Assigned a viewer but could not locate the renderer, renderCtx, or' +
                       ' preview elements.\n' +
@@ -245,24 +249,6 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
     return this._renderHeight || 1080
   }
 
-  _editorId: string;
-
-  protected _loading = true;
-
-  /** requestAnimationFrame timerId */
-  protected _timerId: number = 0;
-
-  /** Playback rate */
-  protected _playRate = 1;
-
-  /** current time */
-  protected _currentTime: number = 0;
-
-  /** Playback status */
-  protected _playState: State;
-
-  protected _viewMode: ViewMode;
-
   get viewMode() {
     return this._viewMode;
   }
@@ -299,25 +285,48 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
     this._viewMode = viewMode;
   }
 
-  /** Time frame pre data */
-  protected _prev: number = 0;
+  static async loadVersion(dbKey: string | number): Promise<ScreenerBlob> {
+    const db = await openDB('editor', 1);
+    const store = db.transaction('video').objectStore('video');
+    return store.get(dbKey);
+  };
 
-  /** Action actionType map */
-  protected _controllers: Record<string, IController> = {};
+  async getVersionKeys(id: string) {
+    const matchingKeys = await getKeysStartingWithPrefix('editor', 'video', id)
+    return matchingKeys.map((match) => {
+      const parts = match.split('|');
+      return { id: parts[0], version: Number(parts[1]), key: match} as Version;
+    })
+  }
 
-  /** Action map that needs to be run */
-  protected _actionMap: Record<string, ITimelineAction> = {};
+  async getVersions(id: string): Promise<ScreenerBlob[]> {
+    const versions = await this.getVersionKeys(id);
+    const promises = versions.map((version) => Engine.loadVersion(version.key))
+    return Promise.all(promises);
+  }
 
-  protected _actionTrackMap: Record<string, ITimelineTrack> = {};
+  async versionFiles(id: string) {
+    const versionBlobs = await this.getVersions(id);
+    return versionBlobs.map((versionBlob) => {
+     /*  const newId = versionBlob.key;
+      const type = 'video/mp4';
+      const mediaType = 'video';
+      const fileBase = {
+        mime: type,
+        type: mediaType,
+        id: newId,
+        itemId: newId,
 
-  /** Action ID array sorted in positive order by action start time */
-  protected _actionSortIds: string[] = [];
-
-  /** The currently traversed action index */
-  protected _next: number = 0;
-
-  /** The action time range contains the actionId list of the current time */
-  protected _activeIds: BTree = new BTree<string, number>();
+        label: versionBlob.name,
+        expanded: false,
+        modified: Date.now(),
+        size: 0,
+        children: [] as IMediaFile[],
+        parent: null,
+      } as IMediaFile; */
+      return MediaFileFromScreenerBlob(versionBlob);
+    })
+  }
 
   getAction(actionId: string) {
     return {
@@ -343,17 +352,21 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
   }
 
   get loading() {
-    return this._loading;
+    return this._state === 'loading';
+  }
+
+  get isLoading() {
+    return this._state === 'loading';
   }
 
   /** Whether it is playing */
   get isPlaying() {
-    return this._playState === 'playing';
+    return this._state === 'playing';
   }
 
   /** Whether it is paused */
   get isPaused() {
-    return this._playState === 'paused';
+    return this._state === 'paused';
   }
 
   set controllers(controllers: Record<string, IController>) {
@@ -361,120 +374,18 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
     this.logging = this._logging;
   }
 
-  set tracks(tracks: ITimelineTrack[]) {
-    this._tracks = tracks;
-
+  setTracks(tracks: ITimelineTrack[]) {
+    console.info('tracks', tracks);
     this._dealData(tracks);
     this._dealClear();
     this._dealEnter(this._currentTime);
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  async buildTracks(controllers: Record<string, IController>, actionData: ITimelineFileAction[]): Promise<ITimelineTrack[]> {
-    try {
-      const newTrack = {
-        id: 'newTrack',
-        name: 'new track',
-        actions: [],
-        actionRef: null,
-        hidden: false,
-        lock: false
-      } as ITimelineTrack
-      if (actionData) {
-        const actions = actionData.map((actionInput, index) => {
-          const action = actionInput as ITimelineAction;
-          action.src = action.src.indexOf('http') !== -1 ? action!.src : `${window.location.origin}${action!.src}`;
-          action.src = action.src.replace(/([^:]\/)\/+/g, "$1");
-          if (!action.name) {
-            const fullName = getFileName(action.src, true);
-            const name = getFileName(action.src, false);
-            if (!name || !fullName) {
-              throw new Error('no action name available');
-            }
-            action.name = name;
-            action.fullName = fullName;
-          } else {
-            action.fullName = getFileName(action.src, true)!;
-          }
-
-          if (!action.volume) {
-            action.volumeIndex = -2; // -2: no volume parts available => volume 1
-          } else {
-            action.volumeIndex = -1; // -1: volume part unassigned => volume 1 until assigned
-
-            for (let i = 0; i < action.volume!.length; i += 1) {
-              const { volume } = Controller.getVol(action.volume![i]);
-
-              if (volume < 0 || volume > 1) {
-                console.info(`${action.name} specifies a volume of ${volume} which is outside the standard range: 0.0 - 1.0`)
-              }
-            }
-          }
-
-          action.controller = controllers[action.controllerName];
-
-          if (!action.id) {
-            action.id = namedId('mediaFile');
-          }
-
-          if (!action.z) {
-            action.z = index;
-          }
-
-          if (!action.layer) {
-            action.layer = 'foreground';
-          }
-          return action;
-        })
-        const preload = actions.map((action) => action.controller.preload ? action.controller.preload({action, engine: this.engine }) : action)
-        const loadedActions = await Promise.all(preload);
-
-        const filePromises = loadedActions.map((action) => MediaFile.fromAction(action as any));
-        const mediaFiles: MediaFile[] = await Promise.all(filePromises);
-        const tracks = mediaFiles.map((file) => {
-          const loadedAction = loadedActions.find((a) => a!.fullName === file.path);
-          if (!loadedAction) {
-            throw new Error(`Action input not found for file ${JSON.stringify(file, null, 2)} - ${file.path} - ${loadedActions.map((act) => act.fullName)}`);
-          }
-          if (loadedAction.x) {
-            loadedAction.x = Engine.parseCoord(loadedAction.x, loadedAction.width, this.renderWidth);
-          } else {
-            loadedAction.x = 0;
-          }
-          if (loadedAction.y) {
-            loadedAction.y = Engine.parseCoord(loadedAction.y, loadedAction.height, this.renderHeight);
-          } else {
-            loadedAction.y = 0;
-          }
-          const action = {
-            fit: 'none',
-            loop: true,
-            ...loadedAction,
-            file,
-            src: loadedAction.src,
-            id: loadedAction.id,
-          } as ITimelineAction
-          const trackGenId = namedId('track')
-          return {
-            id: trackGenId,
-            name: action.name ?? trackGenId,
-            actions: [action],
-            actionRef: action,
-            hidden: false,
-            lock: false
-          } as ITimelineTrack;
-        })
-
-        tracks.push(newTrack);
-        return tracks;
-      }
-      return [newTrack];
-    } catch (ex) {
-      console.error('buildTracks:', ex);
-      return [];
+  loaded() {
+    if (this._renderCtx && this._state === 'loading') {
+      this._state = 'paused' as State;
     }
   }
-
   /**
    * Set playback rate
    * @memberof Engine
@@ -484,15 +395,33 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
       console.error('Error: rate cannot be less than -3 or more than 3!');
       return false;
     }
-    const result = this.trigger('beforeSetPlayRate', { rate, engine: this.engine });
+    const result = this.trigger('beforeSetPlayRate', { rate, engine: this as IEngine });
     if (!result) {
       return false;
     }
     this._playRate = rate;
-    this.trigger('afterSetPlayRate', { rate, engine: this.engine });
+    this.trigger('afterSetPlayRate', { rate, engine: this as IEngine });
 
     return true;
   }
+
+  async saveVersion(vidBlob: ScreenerBlob) {
+    let res;
+    try {
+
+      // Create an example Blob object
+      const db = await openDB('editor', 1);
+      const store = db.transaction('video', 'readwrite').objectStore('video');
+
+      // Store the object
+      const req = await store.put(vidBlob, vidBlob.key);
+      res = req;
+    } catch (e) {
+      console.error(e);
+      throw new Error(e as string);
+    }
+    return res;
+  };
 
   /**
    * Get playback rate
@@ -521,7 +450,7 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
    * @memberof Engine
    */
   setTime(time: number, isTick?: boolean): boolean {
-    const result = isTick || this.trigger('beforeSetTime', { time, engine: this.engine });
+    const result = isTick || this.trigger('beforeSetTime', { time, engine: this as IEngine });
     if (!result) {
       return false;
     }
@@ -541,10 +470,10 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
     this._dealEnter(time);
 
     if (isTick) {
-      this.trigger('setTimeByTick', { time, engine: this.engine });
+      this.trigger('setTimeByTick', { time, engine: this as IEngine });
     }
     else {
-      this.trigger('afterSetTime', { time, engine: this.engine });
+      this.trigger('afterSetTime', { time, engine: this as IEngine });
     }
     return true;
   }
@@ -578,13 +507,13 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
     }
 
     // Set running status
-    this._playState = PLAYING as State;
+    this._state = PLAYING as State;
 
     // activeIds run start
     this._startOrStop('start');
 
     // trigger event
-    this.trigger('play', { engine: this.engine });
+    this.trigger('play', { engine: this as IEngine });
     if (this.viewMode === 'Screener') {
       this.screener.play()
         .then(() => {
@@ -610,8 +539,8 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
    */
   pause() {
     if (this.isPlaying) {
-      const previousState: State = this._playState;
-      this._playState = PAUSED as State;
+      const previousState: State = this._state;
+      this._state = PAUSED as State;
 
       if (this._viewMode === 'Screener') {
         this._screener.pause();
@@ -621,7 +550,7 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
       // activeIds run stop
       this._startOrStop('stop');
 
-      this.trigger('paused', { engine: this.engine, previousState });
+      this.trigger('paused', { engine: this as IEngine, previousState });
     }
     cancelAnimationFrame(this._timerId);
   }
@@ -629,12 +558,12 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
   /** Playback completed */
   protected _end() {
     this.pause();
-    this.trigger('ended', { engine: this.engine });
+    this.trigger('ended', { engine: this as IEngine });
   }
 
   protected _assignElements() {
     const getEditorRole = (role: string) => {
-      return document.querySelector(`#${this._editorId} [role=${role}]`)
+      return document.querySelector(`[role=${role}]`)
     }
     const renderer = getEditorRole('renderer');
     if (renderer) {
@@ -654,7 +583,7 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
   }
 
   protected _verifyLoaded() {
-    if (this.loading) {
+    if (this._state === 'loading') {
       const notReadyYet = new Error('start or stop before finished loading')
       console.error(notReadyYet);
       return false
@@ -679,15 +608,13 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
       this._activeIds.forEach((key, ) => {
         const action = this._actionMap[key];
         const track = this._actionTrackMap[action.id];
-        if (type === 'start' && action?.controller?.start && !track.hidden) {
-          action.controller.start({action, time: this.getTime(), engine: this.engine});
-        } else if (type === 'stop' && action?.controller?.stop && !track.hidden) {
-          action.controller.stop({action, time: this.getTime(), engine: this.engine});
+        if (type === 'start' && track?.controller?.start && !track.hidden) {
+          track.controller.start({action, time: this.getTime(), engine: this as IEngine});
+        } else if (type === 'stop' && track?.controller?.stop && !track.hidden) {
+          track.controller.stop({action, time: this.getTime(), engine: this as IEngine});
         }
       });
     }
-
-
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -701,7 +628,6 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
     }
     console.info(finalMsg)
   }
-
 
   /** Execute every frame */
   protected _tick(data: { now: number; autoEnd?: boolean; to?: number }) {
@@ -777,8 +703,9 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
     // eslint-disable-next-line no-restricted-syntax
     this._activeIds.forEach((key, ) => {
       const action = this._actionMap[key];
-      if (action.controller && action.controller?.update) {
-        action.controller.update({action, time: this.getTime(), engine: this.engine});
+      const track = this._actionTrackMap[action.id];
+      if (track.controller && track.controller?.update) {
+        track.controller.update({action, time: this.getTime(), engine: this as IEngine});
       }
     });
 
@@ -787,7 +714,7 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
   }
 
   setScrollLeft(left: number) {
-    this.trigger('setScrollLeft', { left, engine: this.engine });
+    this.trigger('setScrollLeft', { left, engine: this as IEngine });
   }
 
   drawImage(dd: DrawData) {
@@ -808,9 +735,10 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
         this._activeIds.delete(minKey); // Delete the current smallest key
 
         if (action) {
-          const controller = action.controller;
+          const track = this._actionTrackMap[action.id];
+          const controller = track.controller;
           if (controller?.leave) {
-            controller.leave({action, time: this.getTime(), engine: this.engine});
+            controller.leave({action, time: this.getTime(), engine: this as IEngine});
           }
         }
       } else {
@@ -837,9 +765,9 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
         const track = this._actionTrackMap[actionId];
         // The action can be executed and started
         if (action.end > time && active.indexOf(actionId) === -1 && !track.hidden) {
-          const controller = action.controller;
+          const controller = track.controller;
           if (controller && controller?.enter) {
-            controller.enter({action, time: this.getTime(), engine: this.engine});
+            controller.enter({action, time: this.getTime(), engine: this as IEngine});
           }
 
           this._activeIds.set(action.z, actionId);
@@ -863,7 +791,7 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
           const controller = this._controllers[action.controllerName];
 
           if (controller && controller?.leave) {
-            controller.leave({action, time: this.getTime(), engine: this.engine});
+            controller.leave({action, time: this.getTime(), engine: this as IEngine});
           }
 
           this._activeIds.delete(value);
@@ -947,5 +875,30 @@ export default class Engine<State extends PlayState = PlayState, Events extends 
     };
 
     return parseValue(coord, coordContext, sceneContext);
+  }
+
+  on<K extends keyof Events>(names: K | K[], handler: (args: Events[K]) => boolean | unknown): Emitter<Events> {
+    this.emitter.on<K>(names, handler);
+    return this.emitter;
+  }
+
+  trigger<K extends keyof Events>(name: K, params: Events[K]) {
+    return this.emitter.trigger<K>(name, params);
+  }
+
+  bind(name: string) {
+    this.emitter.bind(name);
+  }
+
+  exist(name: string) {
+    return this.emitter.exist(name);
+  }
+
+  off<K extends keyof Events>(name: K, handler?: (args: Events[K]) => boolean | unknown) {
+    this.emitter.off<K>(name, handler);
+  }
+
+  offAll() {
+    this.emitter.offAll();
   }
 }

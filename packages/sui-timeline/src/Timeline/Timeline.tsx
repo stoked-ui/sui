@@ -10,11 +10,10 @@ import {type TimelineComponent, type TimelineProps} from './Timeline.types';
 import {getTimelineUtilityClass} from './timelineClasses';
 import {type TimelineState} from './TimelineState';
 import TimelineLabels from '../TimelineLabels/TimelineLabels';
-import {type ITimelineAction} from '../TimelineAction/TimelineAction.types';
+import {ITimelineFileAction, type ITimelineAction} from '../TimelineAction/TimelineAction.types';
 import TimelineControl from '../TimelineControl/TimelineControl';
 import {type TimelineLabelsProps} from '../TimelineLabels/TimelineLabels.types';
-import {type ITimelineTrack} from "../TimelineTrack";
-import Engine, {IEngine} from "../Engine";
+import {useTimeline} from "../TimelineProvider";
 
 const useUtilityClasses = (ownerState: TimelineProps) => {
   const { classes } = ownerState;
@@ -58,19 +57,9 @@ const Timeline = React.forwardRef(function Timeline(
     props: inProps,
     name: 'MuiTimeline',
   });
+  const { file, engine, dispatch } = useTimeline();
+
   const hideLock = locked;
-  const { engineRef: engineIn, tracks, setTracks, onAddFiles } = inProps;
-  const [file, setFile] = React.useState<any>(inProps.file);
-  const createEngine = (): IEngine => {
-    return new Engine({
-      id: inProps.id,
-      controllers: inProps.controllers,
-      defaultState: 'paused',
-      file,
-      setFile
-    });
-  }
-  const engineRef = React.useRef<IEngine>(engineIn?.current ? engineIn.current : createEngine());
 
   const classes = useUtilityClasses(inProps);
 
@@ -83,8 +72,7 @@ const Timeline = React.forwardRef(function Timeline(
   const combinedRootRef = useForkRef(ref, forkedRootRef);
 
   React.useEffect(() => {
-    const engine = engineRef.current;
-    const screenerStuff = engineRef.current.screenerBlob;
+    const screenerStuff = engine.screenerBlob;
     if (!engine || !screenerStuff) {
       return;
     }
@@ -99,7 +87,7 @@ const Timeline = React.forwardRef(function Timeline(
     }
 
 
-  }, [engineRef.current.screenerBlob])
+  }, [engine.screenerBlob])
 
   const Root = slots?.root ?? TimelineRoot;
   const rootProps = useSlotProps({
@@ -115,7 +103,7 @@ const Timeline = React.forwardRef(function Timeline(
     elementType: Root,
     externalSlotProps: slotProps?.labels,
     className: classes.labels,
-    ownerState: { setTracks, ...inProps, sx: inProps.labelsSx, timelineState, viewMode: engineRef.current.viewMode } as TimelineLabelsProps,
+    ownerState: { ...inProps, sx: inProps.labelsSx, timelineState, viewMode: engine.viewMode } as TimelineLabelsProps,
   });
 
   const Control = slots?.control ?? TimelineControl;
@@ -123,23 +111,21 @@ const Timeline = React.forwardRef(function Timeline(
     elementType: Control,
     externalSlotProps: slotProps?.control,
     className: classes.control,
-    ownerState: { sx: controlSx, trackSx, tracks, setTracks, engineRef },
+    ownerState: { sx: controlSx, trackSx },
   });
 
   const createAction = (e: React.MouseEvent<HTMLElement, MouseEvent>, { track, time }) => {
-    if (locked || !track.actionRef) {
+    if (locked || !track) {
       return;
     }
-    const existingTrackAction = track.actionRef;
-    const rowIndex = tracks.findIndex((previousTrack) => previousTrack.id === track.id);
-    const newAction: ITimelineAction = {...existingTrackAction, ...{
-      id: namedId('action'),
+
+    const newAction: ITimelineFileAction = {
+      name: file.name,
       start: time,
       end: time + 0.5,
-    }};
-    tracks[rowIndex] = { ...track, actions: [...track.actions, newAction] };
-    setTracks([...tracks]);
-  };
+    };
+    dispatch({ type: 'CREATE_ACTION', payload: { action: newAction, track }})
+  }
 
   return (
     <Root ref={combinedRootRef} {...rootProps} sx={inProps.sx}>
@@ -147,69 +133,51 @@ const Timeline = React.forwardRef(function Timeline(
         <Labels
           ref={labelsRef}
           {...labelsProps.ownerState}
-          tracks={tracks}
-          engine={engineRef.current}
           onChange={onChange}
           hideLock={hideLock}
           controllers={inProps.controllers}
           detailMode={inProps.detailMode}
-          onAddFiles={onAddFiles}
+          onAddFiles={inProps.onAddFiles}
+          onContextMenu={inProps.onContextMenuTrack}
         />
       )}
 
-      {engineRef?.current && <Control
-        sx={{
-          width: '100%',
-          flex: '1 1 auto',
-          '&-action': {
-            height: '28px !important',
-            top: '50%',
-            transform: 'translateY(-50%)',
-          },
-          backgroundColor: 'red',
-        }}
-        {...controlProps.ownerState}
-        onDoubleClickRow={createAction}
-        onScroll={({ scrollTop }) => {
-          if (labelsRef.current) {
-            labelsRef.current.scrollTop = scrollTop;
-          }
-        }}
-        startLeft={9}
-        ref={combinedTimelineRef}
-        engineRef={engineRef}
-        tracks={tracks}
-        autoScroll
-        disableDrag={locked}
-        dragLine={true}
-        setTracks={setTracks}
-        controllers={inProps.controllers}
-        viewSelector={inProps.viewSelector ?? '.viewer'}
-        onClickAction={(e, { track, action }) => {
-          const updateTracks = [...inProps.tracks];
-          const trackIndex = updateTracks.indexOf(track);
-          if (trackIndex === -1) {
-            return;
-          }
-          const actionIndex = updateTracks[trackIndex].actions.indexOf(action);
-          if (actionIndex === -1) {
-            return;
-          }
-          updateTracks.forEach((trackUnselect) => {
-            trackUnselect = { ...trackUnselect };
-            if (trackUnselect.selected) {
-              trackUnselect.actions.forEach((actionUnselect) => {
-                actionUnselect = { ...actionUnselect };
-                actionUnselect.selected = false;
-              });
-              trackUnselect.selected = false;
+      {engine &&
+        <Control
+          sx={{
+            width: '100%',
+            flex: '1 1 auto',
+            '&-action': {
+              height: '28px !important',
+              top: '50%',
+              transform: 'translateY(-50%)',
+            },
+            backgroundColor: 'red',
+          }}
+          {...controlProps.ownerState}
+          onDoubleClickRow={createAction}
+          onScroll={({ scrollTop }) => {
+            if (labelsRef.current) {
+              labelsRef.current.scrollTop = scrollTop;
             }
-          });
-          updateTracks[trackIndex].selected = true;
-          updateTracks[trackIndex].actions[actionIndex].selected = true;
-          setTracks(updateTracks);
-        }}
+          }}
+          startLeft={9}
+          ref={combinedTimelineRef}
+          autoScroll
+          disableDrag={locked}
+          dragLine={true}
+          controllers={inProps.controllers}
+          viewSelector={inProps.viewSelector ?? '.viewer'}
+          onClickTrack={(e, {track }) => {
+           dispatch({type: 'SELECT_TRACK', payload: track });
+          }}
+          onClickAction={(e, { track, action }) => {
+            dispatch({type: 'SELECT_ACTION', payload: {track, action} });
+          }}
+          onContextMenuAction={inProps.onContextMenuAction}
+          onContextMenuTrack={inProps.onContextMenuTrack}
       />}
+
     </Root>
   );
 }) as TimelineComponent;

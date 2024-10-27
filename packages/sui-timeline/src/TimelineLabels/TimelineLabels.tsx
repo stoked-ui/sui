@@ -6,6 +6,7 @@ import {emphasize, styled, useThemeProps} from '@mui/material/styles';
 import {type TimelineLabelsProps} from './TimelineLabels.types';
 import {getTimelineLabelsUtilityClass} from "./timelineLabelsClasses";
 import { getTrackColor } from '../TimelineTrack/TimelineTrack';
+import {useTimeline} from "../TimelineProvider";
 
 const useUtilityClasses = (
   ownerState: TimelineLabelsProps,
@@ -72,7 +73,8 @@ const TimelineLabel = styled('div', {
  */
 const TimelineLabels = React.forwardRef(
   function TimelineLabels(inProps: TimelineLabelsProps, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
-    const { tracks, slots, slotProps, sx, engineRef, controllers } = useThemeProps({ props: inProps, name: 'MuiTimelineLabels' });
+    const { engine, file, selectedTrack, dispatch } = useTimeline();
+    const {  slots, slotProps, sx } = useThemeProps({ props: inProps, name: 'MuiTimelineLabels' });
     const [selectedFile, setSelectedFile] = React.useState<MediaFile | null>(null);
     const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
 
@@ -100,20 +102,19 @@ const TimelineLabels = React.forwardRef(
     return (
       <Root
         ref={ref}
-        setTracks={inProps.setTracks}
         style={{ overflow: 'overlay', height: 'fit-content' }}
         onScroll={(scrollEvent:  React.UIEvent<HTMLDivElement, UIEvent>) => {
           // engineRef.current?.setScrollTop((scrollEvent.target as HTMLDivElement).scrollTop);
         }}
         classes={classes}
         className={`${classes.root} timeline-list`}>
-        {tracks?.map((item) => {
+        {file.tracks?.map((item) => {
           return (
             <TimelineLabel
               key={item.id}
               className={classes.label}
-              onClick={(e) => item.actions.length ? handleItemClick( item.actions[0].file, e) : undefined }
-              color={getTrackColor(item, controllers)}
+              onClick={(e) => item.actions.length ? handleItemClick( item.file, e) : undefined }
+              color={getTrackColor(item)}
             >
               <div>{item.name}</div>
             </TimelineLabel>

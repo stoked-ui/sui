@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { openDB } from 'idb';
 import {FastForward, FastRewind, VolumeDown, VolumeUp, VolumeMute, VolumeOff} from "@mui/icons-material";
 import FormControl from '@mui/material/FormControl';
 import StopIcon from '@mui/icons-material/Stop';
@@ -15,10 +14,10 @@ import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import {alpha, emphasize, Theme} from '@mui/material/styles';
 import { Slider, Stack, Tooltip } from "@mui/material";
-import {ScreenerBlob, ViewMode } from '@stoked-ui/timeline';
-import {type Version } from '../Editor';
+import { namedId } from '@stoked-ui/media-selector';
+import {ScreenerBlob, ViewMode, useTimeline, Version } from '@stoked-ui/timeline';
 import EditorEngine from '../EditorEngine/EditorEngine';
-import {ScreenVideoBlob} from '../EditorEngine/EditorEngine.types';
+import {IEditorEngine, ScreenVideoBlob} from '../EditorEngine/EditorEngine.types';
 import {createUseThemeProps, styled} from '../internals/zero-styled';
 import {ControlState, EditorControlsProps, VideoVersionFromKey} from './EditorControls.types';
 import TimelineView from '../icons/TimelineView';
@@ -77,6 +76,12 @@ const TimeRoot = styled('div')(({ theme }) => ({
   alignSelf: 'center',
   borderRadius: '12px',
   userSelect: 'none',
+  '& #time': {
+    border: `1px solid ${alpha(theme.palette.text.primary, .2)}`,
+    '&:hover': {
+      border: `1px solid ${theme.palette.text.primary}`
+    },
+  },
   "& .MuiInputBase-input": {
     userSelect: 'none',
     fontSize: 16,
@@ -136,7 +141,6 @@ const VersionSelect = styled(Select)(({ theme }) => ({
 }));
 
 type ControlProps =  {
-  engineRef: React.RefObject<EditorEngine>;
   setVideoURLs: React.Dispatch<React.SetStateAction<string[]>>;
   controlState: ControlState;
   setControlState: React.Dispatch<React.SetStateAction<ControlState>>;
@@ -146,11 +150,13 @@ type ControlProps =  {
 }
 
 function Controls(inProps: ControlProps) {
+  const { engine: engineInput, id } = useTimeline();
+  const engine = engineInput as IEditorEngine;
   const controlsInput: string = '';
   const [controls, setControls] = React.useState<string>(controlsInput);
 
   useThemeProps({ props: inProps, name: 'MuiControls' });
-  const { engineRef, setVideoURLs, controlState, versions, setVersions, viewMode, setControlState } = inProps;
+  const { setVideoURLs, controlState, versions, setVersions, viewMode, setControlState } = inProps;
   const [mediaRecorder, setMediaRecorder] = React.useState<MediaRecorder | null>(null);
   const [recordedChunks, setRecordedChunks] = React.useState<Blob[]>([]);
 /*
@@ -164,56 +170,50 @@ function Controls(inProps: ControlProps) {
 */
 
   const handlePlay = () => {
-    if (!engineRef || !engineRef.current) {
-      return;
-    }
-    if (!engineRef.current.isPlaying) {
-      engineRef.current.setPlayRate(1);
-      engineRef.current.play({ autoEnd: true });
+    if (!engine.isPlaying) {
+      engine.setPlayRate(1);
+      engine.play({ autoEnd: true });
     }
   }
 
   // Start or pause
   const handlePause = () => {
-    if (!engineRef || !engineRef.current) {
-      return;
-    }
     setControls('');
-    if (engineRef.current.isPlaying || engineRef.current.isRecording) {
-      engineRef.current.pause();
+    if (engine.isPlaying || engine.isRecording) {
+      engine.pause();
     }
   };
 
   const handleRewind = () => {
-    const playRate = engineRef.current?.getPlayRate?.() ?? 1;
+    const playRate = engine.getPlayRate?.() ?? 1;
     if (playRate > 0 || playRate <= -3) {
-      engineRef.current?.setPlayRate?.(-1);
+      engine.setPlayRate?.(-1);
     } else if (playRate > -3) {
-      engineRef.current?.setPlayRate?.(playRate - .5);
+      engine.setPlayRate?.(playRate - .5);
     }
     handlePlay();
   };
 
   const handleFastForward = () => {
-    const playRate = engineRef.current?.getPlayRate?.() ?? 1;
+    const playRate = engine.getPlayRate?.() ?? 1;
     if (playRate < 0 || playRate >= 3) {
-      engineRef.current?.setPlayRate?.(1.5);
+      engine.setPlayRate?.(1.5);
     } else if (playRate < 3) {
-      engineRef.current?.setPlayRate?.(playRate + .5);
+      engine.setPlayRate?.(playRate + .5);
     }
     handlePlay();
   };
 
   const handleStart = () => {
-    engineRef?.current?.setTime(0, true);
-    engineRef?.current?.tickAction(0);
-    engineRef?.current?.reRender();
+    engine.setTime(0, true);
+    engine.tickAction(0);
+    engine.reRender();
   };
 
   const handleEnd = () => {
-    engineRef?.current?.setTime(engineRef.current?.duration, true);
-    engineRef?.current?.tickAction(engineRef.current?.duration);
-    engineRef?.current?.reRender();
+    engine.setTime(engine.duration, true);
+    engine.tickAction(engine.duration);
+    engine.reRender();
   };
 
   const stateFunc = (value: string, upFunc: () => void, downFunc: () => void) => {
@@ -223,26 +223,8 @@ function Controls(inProps: ControlProps) {
     return downFunc();
   };
 
-  const saveVersion = async (vidBlob: ScreenerBlob) => {
-    let res;
-    try {
-
-      // Create an example Blob object
-      const db = await openDB('editor', 1);
-      const store = db.transaction('video', 'readwrite').objectStore('video');
-
-      // Store the object
-      const req = await store.put(vidBlob, vidBlob.key);
-      res = req;
-    } catch (e) {
-      console.error(e);
-      throw new Error(e as string);
-    }
-    return res;
-  };
 
   const finalizeVideo = () => {
-    const engine = engineRef.current;
     if (!engine || !engine?.renderer || !engine?.screener || !engine?.stage) {
       return;
     }
@@ -250,10 +232,20 @@ function Controls(inProps: ControlProps) {
       type: "video/mp4",
     });
 
-    const dbKey = `${engine._editorId}|${versions.length + 1}`;
+    const dbKey = `${id}|${versions.length + 1}`;
     const version = VideoVersionFromKey(dbKey);
-    const screenerBlob = { blob, key: dbKey, version: version.version, name: version.id, created: Date.now(), size: blob.size };
-    saveVersion(screenerBlob).then(() => {
+    const created = Date.now();
+    const screenerBlob: ScreenerBlob = {
+      blob,
+      key: dbKey,
+      version: version.version,
+      name: version.id,
+      created,
+      size: blob.size,
+      id: namedId('screener'),
+      lastModified: created
+    };
+    engine.saveVersion(screenerBlob).then(() => {
       setVersions([...versions, version]);
     });
 
@@ -265,11 +257,8 @@ function Controls(inProps: ControlProps) {
   };
 
   const handleRecord = () => {
-    const engine = engineRef.current;
     if (engine && engine.renderer) {
-      if (engineRef.current) {
-        engineRef.current.record({ autoEnd: true });
-      }
+      engine.record({ autoEnd: true });
 
       // Get the video stream from the canvas renderer
       const videoStream = engine.renderer.captureStream();
@@ -340,10 +329,6 @@ function Controls(inProps: ControlProps) {
   };
 
   React.useEffect(() => {
-    if (!engineRef || !engineRef.current) {
-      return;
-    }
-    const engine = engineRef.current;
     engine?.on('paused', () => {
       setControlState('paused')
       setControls('')
@@ -479,7 +464,6 @@ export function ViewToggle({view, setView}: {view: 'timeline' | 'files', setView
 }
 
 type VersionProps =  {
-  engineRef: React.RefObject<EditorEngine>;
   versions: Version[];
   setVersions: React.Dispatch<React.SetStateAction<Version[]>>;
   viewMode: ViewMode;
@@ -487,28 +471,21 @@ type VersionProps =  {
   setCurrentVersion: React.Dispatch<React.SetStateAction<string | undefined>>;
 }
 
-function Versions ({engineRef, setVersions, versions, viewMode, currentVersion, setCurrentVersion }: VersionProps) {
-
+function Versions ({setVersions, versions, viewMode, currentVersion, setCurrentVersion }: VersionProps) {
+  const { id, engine } = useTimeline();
   const handleVersionChange = async (event: SelectChangeEvent<unknown>) => {
     const screenerBlob = await EditorEngine.loadVersion(event.target.value as string)
-    if (!engineRef.current) {
-      return
-    }
-    engineRef.current.screenerBlob = screenerBlob;
+    engine.screenerBlob = screenerBlob;
     setCurrentVersion(screenerBlob.key);
   }
 
   React.useEffect(() => {
-    const engine = engineRef.current;
-    if (!engine?._editorId) {
-      return;
-    }
-    engine.getVersionKeys()
+
+    engine.getVersionKeys(id)
       .then((idbVersions) => setVersions(idbVersions))
   }, [])
 
   React.useEffect(() => {
-    const engine = engineRef.current;
     if (versions.length && engine) {
       const previousVersion = versions[versions.length - 1];
       if (!engine.screenerBlob || engine.screenerBlob.key !== previousVersion.key) {
@@ -617,20 +594,17 @@ function Volume() {
 export const EditorControls = React.forwardRef(
   function EditorControls(inProps : EditorControlsProps, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
   const [controlState, setControlState] = React.useState<ControlState>('paused');
-
+  const { engine: engineInput } = useTimeline();
+  const engine: IEditorEngine = engineInput as IEditorEngine;
   const props = useThemeProps({ props: inProps, name: 'MuiEditorControls' });
   const { timeline, switchView = true } = inProps;
-  const { engineRef, view = timeline ? 'timeline' : 'files', setView, versions, setVersions, mode, currentVersion, setCurrentVersion } = props;
+  const { view = timeline ? 'timeline' : 'files', setView, versions, setVersions, mode, currentVersion, setCurrentVersion } = props;
   const [time, setTime] = React.useState(0);
-  const [showRate, setShowRate] = React.useState(true);
   const [videoURLs, setVideoURLs] = React.useState<string[]>([]);
 
   // Set playback rate
   const handleRateChange = (event: SelectChangeEvent<unknown>) => {
-    if (!engineRef || !engineRef.current) {
-      return;
-    }
-    engineRef.current.setPlayRate(event.target.value as number);
+    engine.setPlayRate(event.target.value as number);
   };
 
   // Time display
@@ -642,16 +616,6 @@ export const EditorControls = React.forwardRef(
   };
 
   React.useEffect(() => {
-    if (engineRef.current) {
-      setShowRate(true);
-    }
-  }, [engineRef?.current])
-
-  React.useEffect(() => {
-    if (!engineRef || !engineRef.current) {
-      return undefined;
-    }
-    const engine = engineRef.current;
     engine?.on('play', () => setControlState('playing'));
     engine?.on('record', () => setControlState('recording'));
     engine.on('afterSetTime', (afterTimeProps) => setTime(afterTimeProps.time));
@@ -693,10 +657,10 @@ export const EditorControls = React.forwardRef(
 */
 
 
-  const controlProps = { engineRef, setVideoURLs, setControlState, versions, setVersions, viewMode: mode };
+  const controlProps = { setVideoURLs, setControlState, versions, setVersions, viewMode: mode };
 
   const showVersions = !!versions && !!currentVersion && !!setCurrentVersion && !!setVersions;
-  const versionProps = { engineRef, versions, setVersions, viewMode: mode, currentVersion, setCurrentVersion };
+  const versionProps = { versions, setVersions, viewMode: mode, currentVersion, setCurrentVersion };
   return (
     <PlayerRoot id={'timeline-controls'} className="timeline-player" ref={ref}>
       <div style={{display: 'flex', flexDirection: 'row', alignContent: 'center', width: '100%'}}>
@@ -720,24 +684,24 @@ export const EditorControls = React.forwardRef(
             </div>
           </div>
         </TimeRoot>
-
-        {showRate &&
-         <RateControlRoot sx={{minWidth: '80px', marginRight: '6px'}} className="rate-control">
-           <RateControlSelect
-             value={engineRef.current?.getPlayRate() ?? 1}
-             onChange={handleRateChange}
-             displayEmpty
-             inputProps={{'aria-label': 'Play Rate'}}
-             defaultValue={1}
-           >
-             <MenuItem key={-1} value={-1}>
-               <em>Version</em>
-             </MenuItem>
-             {Rates.map((rate, index) => (<MenuItem key={index} value={rate}>
-               {`${rate.toFixed(1)}x`}
-             </MenuItem>))}
-           </RateControlSelect>
-         </RateControlRoot>}
+        <RateControlRoot sx={{minWidth: '80px', marginRight: '6px'}} className="rate-control">
+          <RateControlSelect
+            value={engine.getPlayRate() ?? 1}
+            onChange={handleRateChange}
+            displayEmpty
+            inputProps={{'aria-label': 'Play Rate'}}
+            defaultValue={1}
+          >
+            <MenuItem key={-1} value={-1}>
+              <em>Version</em>
+            </MenuItem>
+            {Rates.map((rate, index) => (
+              <MenuItem key={index} value={rate}>
+                {`${rate.toFixed(1)}x`}
+              </MenuItem>)
+            )}
+          </RateControlSelect>
+        </RateControlRoot>
       </div>
     </PlayerRoot>);
   });

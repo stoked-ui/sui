@@ -21,13 +21,13 @@ export default class AudioFile extends MediaFile implements IResolutionFile {
   constructor(file: MediaFile) {
     super(file);
     const howl = new Howl({ src: file.url, loop: false, autoplay: false });
-    this.duration = -1;
+    // this.duration = -1;
 
     howl.on('load', async () => {
-      this.duration = howl.duration();
+      // this.duration = howl.duration();
       const options: WaveformOptions = {
-        width: this.duration * 20,
-        height: 250,
+        // width: this.duration * 20,
+        // height: 250,
         backgroundColor: AudioFile.primaryColor,
         waveformColor: AudioFile.secondaryColor,
         outputType: 'dataurl'
@@ -40,15 +40,15 @@ export default class AudioFile extends MediaFile implements IResolutionFile {
     const audioFile = MediaFile.fromFile(file as MediaFile, path) as AudioFile;
     const howl = new Howl({ src: file.url, loop: false, autoplay: false });
     audioFile._url = url;
-    audioFile.duration = -1;
+    // audioFile.duration = -1;
 
     return new Promise((resolve, reject) =>{
       try {
         howl.on('load', async () => {
-          audioFile.duration = howl.duration();
+          // audioFile.duration = howl.duration();
           const options: WaveformOptions = {
-            width: audioFile.duration * 20,
-            height: 250,
+            // width: audioFile.duration * 20,
+            // height: 250,
             backgroundColor: AudioFile.primaryColor,
             waveformColor: AudioFile.secondaryColor,
             outputType: 'dataurl'

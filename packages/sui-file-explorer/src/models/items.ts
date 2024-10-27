@@ -11,7 +11,7 @@ type CommonBase = {
 export type FileBase<R extends {} = {}> = R & CommonBase & {
   children?: FileBase<R>[];
   size?: number;
-  modified?: number;
+  lastModified?: number;
   type?: MediaType;
   file?: IMediaFile;
   visibleIndex?: number;
@@ -32,7 +32,7 @@ export function FileBaseFromMediaFile(file: IMediaFile) {
     file,
     label: file.name,
     expanded: false,
-    modified: file.lastModified,
+    lastModified: file.lastModified,
     size: file.size,
     children: [] as FileBase[],
     parent: null,
@@ -43,6 +43,6 @@ export function FileBaseFromMediaFile(file: IMediaFile) {
 export type FileBaseInput<R extends {} = {}> = R & CommonBase & {
   children?: FileBaseInput<R>[];
   size?: number;
-  modified?: number;
+  lastModified?: number;
   type?: MediaType;
 };

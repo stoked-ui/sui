@@ -40,8 +40,4 @@ export interface TimelineState {
   setScrollLeft: (val: number) => void;
   /** Set scroll top */
   setScrollTop: (val: number) => void;
-  tracks: ITimelineTrack[]
-  setTracks: (tracks: ITimelineTrack[]) => void;
-
-  getSelectedTrack: () => ITimelineTrack | undefined;
 }

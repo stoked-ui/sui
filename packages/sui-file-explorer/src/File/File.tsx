@@ -62,7 +62,7 @@ export const File = React.forwardRef(function File(
     slotProps = {},
     type,
     size,
-    modified,
+    lastModified,
     sx,
     ...other
   } = props ?? newProps();
@@ -77,7 +77,7 @@ export const File = React.forwardRef(function File(
     slotProps,
     type,
     size,
-    modified,
+    lastModified,
     sx,
   };
 
@@ -261,7 +261,7 @@ File.propTypes = {
    * The label of the item.
    */
   label: PropTypes.node,
-  modified: PropTypes.number,
+  lastModified: PropTypes.number,
   name: PropTypes.string,
   /**
    * Callback fired when the item root is blurred.

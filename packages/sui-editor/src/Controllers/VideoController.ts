@@ -1,4 +1,5 @@
-import { Controller, ControllerParams,  IEngine, ITimelineAction, DrawData } from "@stoked-ui/timeline";
+import { Controller, ControllerParams,  IEngine, ITimelineAction, DrawData, PreloadParams } from "@stoked-ui/timeline";
+import { MediaFile } from "@stoked-ui/media-selector";
 
 interface VideoDrawData extends Omit<DrawData, 'source'> {
   source: HTMLVideoElement
@@ -28,17 +29,34 @@ class VideoControl extends Controller {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  async preload(params: Omit<ControllerParams, 'time'>): Promise<ITimelineAction> {
-    const { action, engine } = params;
+  async preload(params: PreloadParams): Promise<ITimelineAction> {
+    const { action, engine, file } = params;
+    const preloaded = !!file.element;
     const item = document.createElement('video') as HTMLVideoElement;
     item.id = action.id;
-    item.preload = 'auto';
-    engine.stage?.appendChild(item);
     this.cacheMap[action.id] = item;
+    engine.stage?.appendChild(item);
+    if (action.loop === false || action.loop === undefined || action.loop === 0) {
+      action.loop = 0;
+      item.loop = false;
+    }
+
+    if (action.loop === true || action.loop === Infinity) {
+      action.playCount = Infinity;
+    }
+
+    item.addEventListener('ended', () => {
+
+      if (action.loop && action.playCount) {
+        item.play();
+        action.playCount -= 1;
+      }
+    })
+    item.preload = 'auto';
     return new Promise((resolve, reject) => {
       try {
         if (!item) {
-          reject(new Error(`Video not loaded ${action.name} - ${action.src}`))
+          reject(new Error(`Video not loaded ${action.name} - ${file._url}`))
           return;
         }
         let loadedMetaData = false;
@@ -58,25 +76,10 @@ class VideoControl extends Controller {
           canPlayThrough = true;
         })
 
-        item.addEventListener('ended', () => {
-          if (action.loop as number || action.loop) {
-            if(action.playCount! < (action.loop as number)) {
-              action.playCount = 0;
-            } else {
-              item.play();
-              if (action.playCount !== undefined) {
-                action.playCount += 1;
-              }
-            }
-          }
-        })
-
-        action.playCount = 0;
         item.autoplay = false;
-        item.loop = action.loop !== false;
-        action.loop = action.loop === false ? 0 : action.loop;
+
         item.style.display = 'flex';
-        item.src = action.src;
+        item.src = file.url;
         let intervalId;
         let loadingSeconds = 0;
 
@@ -213,7 +216,7 @@ class VideoControl extends Controller {
   // eslint-disable-next-line class-methods-use-this
   log(params: ControllerParams, msg: string) {
     const { action, time } = params;
-    if (action.controller.logging) {
+    if (this.logging) {
       console.info(`[${time}] ${action.name} => ${msg} `)
     }
   }
@@ -247,6 +250,11 @@ class VideoControl extends Controller {
     } else {
       this.update(params);
     }
+    if (action.loop === true || action.loop === Infinity) {
+      action.playCount = Infinity;
+    } else if (action.loop) {
+      action.playCount = action.loop as number;
+    }
   }
 
   start(params: ControllerParams) {
@@ -258,13 +266,8 @@ class VideoControl extends Controller {
       if (action?.playbackRate ?? 1 < 0) {
         (item as HTMLVideoElement).playbackRate = action.playbackRate as number;
       }
-
-      if (engine.viewMode === 'Renderer') {
-        if (action.freeze === undefined) {
-          item.play().catch((err) => console.error(err))
-        }
-      } else {
-        engine.screener?.play().catch((err) => console.error(err))
+      if (action.freeze === undefined) {
+        item.play().catch((err) => console.error(err))
       }
     }
   }

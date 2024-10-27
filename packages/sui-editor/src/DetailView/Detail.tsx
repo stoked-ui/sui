@@ -108,7 +108,6 @@ export interface SubmitSignature {
 }
 
 export interface DetailTypeProps {
-  engine: IEngine;
   setEditMode:  React.Dispatch<React.SetStateAction<boolean>>;
   editMode: boolean;
   onClickEdit: (event: Event) => void;
@@ -118,8 +117,6 @@ export interface DetailTypeProps {
   setDetail: React.Dispatch<React.SetStateAction<DetailSelection>>;
   formData: IDetailData,
   setFormData: React.Dispatch<React.SetStateAction<IDetailData>>;
-  tracks: ITimelineTrack[];
-  setTracks: React.Dispatch<React.SetStateAction<ITimelineTrack[]>>;
   schema: any;
   onClose: () => void;
 }

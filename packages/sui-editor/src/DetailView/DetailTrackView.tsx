@@ -2,30 +2,22 @@ import * as React from "react";
 import {SubmitHandler, useForm} from "react-hook-form";
 import {yupResolver} from "@hookform/resolvers/yup";
 import { Checkbox, FormControlLabel } from "@mui/material";
-import { ITimelineAction } from "@stoked-ui/timeline";
-import {SelectChangeEvent} from "@mui/material/Select";
+import { useTimeline } from "@stoked-ui/timeline";
 import ControlledText from "./ControlledText";
 import {
   CtrlCell,
-
   CtrlGroup,
-  CtrlRow,
-  DetailForm,
   DetailTypeProps, DetailViewBase,
-  RootBox
 } from './Detail'
 import {
-  getTrackSchema,
   humanFileSize,
   IDetailTrack,
-  IDetailFile,
 
 } from "./DetailTrackView.types";
-import DesSelect from "./DesSelect";
 
 export default function DetailTrackView(props: DetailTypeProps) {
+  const { file, engine, dispatch } = useTimeline();
   const {
-    engine,
     detail,
     setDetail,
     setEditMode,
@@ -35,7 +27,6 @@ export default function DetailTrackView(props: DetailTypeProps) {
     breadcrumbs,
     formData,
     setFormData,
-    tracks: inputTracks,
     schema,
     onClose
   } = props;
@@ -73,12 +64,11 @@ export default function DetailTrackView(props: DetailTypeProps) {
     }
     setDetail(newDetail);
 
-    const tracks = [...inputTracks];
-    const trackIndex = tracks.findIndex((prevTrack) => prevTrack.id === dataTrack.id);
-    if (trackIndex !== -1 && dataTrack) {
-      tracks[trackIndex].name = dataTrack!.name;
+    const trackIndex = file.tracks?.findIndex((prevTrack) => prevTrack.id === dataTrack.id);
+    if (trackIndex !== undefined && trackIndex !== -1 && dataTrack && file.tracks?.[trackIndex]) {
+      file.tracks[trackIndex].name = dataTrack!.name;
+      dispatch({ type: 'SET_TRACKS', payload: file.tracks});
     }
-    engine?.setTracks?.(tracks);
   };
 
   const detailViewBase = {
