@@ -1,22 +1,21 @@
 import * as React from "react";
+import { IMediaFile, MediaFile } from "@stoked-ui/media-selector";
 import type {ITimelineTrack} from "../TimelineTrack";
 import type {DrawData, IController} from '../Controller/Controller.types';
 import type {ITimelineAction, ITimelineFileAction} from "../TimelineAction";
 import type { EventTypes } from './events';
 import { Events } from "./events";
-import { IMediaFile, MediaFile } from "@stoked-ui/media-selector";
-
-export interface IEmitterFuncs<Events> {
+import { Emitter } from "./emitter";
+/*
+export interface IEmitter<Events extends EventTypes = EventTypes> {
+  events: { [key: string]: CallableFunction[] };
   on<K extends keyof Events>(names: K | K[], handler: (args: Events[K]) => boolean | unknown): IEmitter<Events>;
   trigger<K extends keyof Events>(name: K, params: Events[K]): boolean;
   bind(name: string): void;
   exist(name: string): boolean;
   off<K extends keyof Events>(name: K, handler?: (args: Events[K]) => boolean | unknown): void;
   offAll(): void;
-}
-export interface IEmitter<Events> extends IEmitterFuncs<Events> {
-  events: { [key: string]: CallableFunction[] };
-}
+} */
 
 export type ViewMode = 'Renderer' | 'Screener' | 'Edit';
 
@@ -50,7 +49,7 @@ export function MediaFileFromScreenerBlob(screenerBlob: ScreenerBlob): IMediaFil
   return MediaFile.fromFile(mediaFile);
 }
 
-export interface IEngine<Events extends EventTypes = EventTypes> extends IEmitterFuncs<Events> {
+export interface IEngine<EmitterEvents extends EventTypes = EventTypes> extends Emitter<EmitterEvents> {
   readonly isPlaying: boolean;
   readonly isPaused: boolean;
   readonly isLoading: boolean;
@@ -71,7 +70,6 @@ export interface IEngine<Events extends EventTypes = EventTypes> extends IEmitte
   readonly renderHeight: number;
   readonly actions: Record<string, ITimelineAction>;
   control: any;
-  emitter: IEmitter<Events>;
 
   saveVersion(vidBlob: ScreenerBlob): Promise<IDBValidKey>;
 
@@ -113,7 +111,6 @@ export interface IEngine<Events extends EventTypes = EventTypes> extends IEmitte
   versionFiles(id: string): Promise<IMediaFile[]>
 
   getVersionKeys(id: string): Promise<Version[]>;
-
 }
 
 export type EngineState = 'loading' | 'playing' | 'paused';
@@ -121,7 +118,7 @@ export type EngineState = 'loading' | 'playing' | 'paused';
 export type EngineOptions = {
   viewer?: HTMLElement;
   controllers?: Record<string, IController>;
-  events?: Events;
+  events?: any;
 }
 
 export type Version = { id: string, version: number, key: string };

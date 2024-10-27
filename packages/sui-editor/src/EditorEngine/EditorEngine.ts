@@ -1,9 +1,8 @@
-import {Emitter, Engine,  ITimelineTrack, ScreenerBlob } from '@stoked-ui/timeline';
+import {Emitter, Engine,  ITimelineTrack, ScreenerBlob, EngineOptions, EventTypes, EngineState } from '@stoked-ui/timeline';
 import {EditorEvents, EditorEventTypes} from './events';
 import {
-  IEditorEngine,
-  EditorEngineState,
-  ScreenVideoBlob, EditorEngineOptions
+  IEditorEngine, EditorEngineState, ScreenVideoBlob,
+
 } from "./EditorEngine.types";
 
 
@@ -14,23 +13,29 @@ import {
  * @class Engine
  * @extends {Engine<EditorState, EditorEventTypes>}
  */
-export default class EditorEngine extends Engine<EditorEngineState, EditorEventTypes> implements IEditorEngine<EditorEventTypes> {
-
-  emitter: Emitter<EditorEventTypes>;
+export default class EditorEngine<
+  State extends string = EditorEngineState,
+  EmitterEvents extends EditorEventTypes = EditorEventTypes
+> extends Engine<State, EmitterEvents> implements IEditorEngine<State, EmitterEvents> {
 
   _recorder?: MediaRecorder;
 
   _recordedChunks: Blob[] = [];
 
-  constructor(params: EditorEngineOptions ) {
+  override _state: State;
+
+  constructor(params: EngineOptions ) {
+    if (!params.events) {
+      params.events = new EditorEvents()
+    }
     super({...params});
-    this.emitter = new Emitter<EditorEventTypes>(params.events ?? new EditorEvents())
     if (params?.viewer) {
       this.viewer = params.viewer;
     }
     if (params?.controllers) {
       this._controllers = params.controllers;
     }
+    this._state = 'loading' as State;
   }
 
   set tracks(tracks: ITimelineTrack[]) {
@@ -41,62 +46,17 @@ export default class EditorEngine extends Engine<EditorEngineState, EditorEventT
 
   /** Whether it is playing */
   get isPlaying() {
-    return this._state === 'playing' || this.isRecording;
+    return this._state === 'playing' as State || this.isRecording;
   }
 
   /** Whether it is playing */
   get isRecording() {
-    return this._state === 'recording';
+    return this._state === 'recording' as State;
   }
-/*
-
-  async getVersionKeys(id: string) {
-    const matchingKeys = await getKeysStartingWithPrefix('editor', 'video', id)
-    return matchingKeys.map((match) => {
-      const parts = match.split('|');
-      return { id: parts[0], version: Number(parts[1]), key: match} as Version;
-    })
-  }
-
-  async getVersions(id: string): Promise<ScreenerBlob[]> {
-    const versions = await this.getVersionKeys(id);
-    const promises = versions.map((version) => EditorEngine.loadVersion(version.key))
-    return Promise.all(promises);
-  }
-
-  static async loadVersion(dbKey: string): Promise<ScreenerBlob> {
-    const db = await openDB('editor', 1);
-    const store = db.transaction('video').objectStore('video');
-    return store.get(dbKey);
-  };
-*/
 
   displayVersion(screenerBlob: ScreenerBlob) {
-    ScreenVideoBlob(screenerBlob, this);
+    ScreenVideoBlob(screenerBlob, this as any);
   }
-
-/*
-  finalizeVideo() {
-    if (!this.renderer || !this.screener || !this.stage) {
-      return;
-    }
-    const blob = new Blob(this._recordedChunks, {
-      type: "video/mp4",
-    });
-
-    const dbKey = `${this._editorId}|${versions.length + 1}`;
-    const version = VideoVersionFromKey(dbKey);
-    const screenerBlob = { blob, key: dbKey, version: version.version, name: version.id, created: Date.now(), size: blob.size };
-    saveVersion(screenerBlob).then(() => {
-      setVersions([...versions, version]);
-    });
-
-    const url = ScreenVideoBlob(screenerBlob, this);
-    setVideoURLs((prev) => [url, ...prev]);
-    this._recordedChunks = [];
-    this.pause();
-    this._recorder = undefined;
-  }; */
 
 
   /**
@@ -118,11 +78,11 @@ export default class EditorEngine extends Engine<EditorEngineState, EditorEventT
       return false;
     }
 
-    this._state = 'recording' as EditorEngineState;
+    this._state = 'recording' as State;
     // activeIds run start
     this._startOrStop('start');
     // trigger event
-    this.trigger('record', {engine: this});
+    this.trigger('record', { engine: this as any });
 
     // Set running status
 

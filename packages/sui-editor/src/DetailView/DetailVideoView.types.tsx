@@ -1,24 +1,7 @@
 import * as React from "react";
-import {ITimelineFile, ITimelineTrack } from "@stoked-ui/timeline";
-import { namedId } from "@stoked-ui/media-selector";
+import {ITimelineFileBase, ITimelineTrack } from "@stoked-ui/timeline";
 import * as yup from "yup";
 import {DetailSelection} from "./Detail";
-import {getTrackSchema} from "./DetailTrackView.types";
-/*
-
-export interface IDetailVideo {
-  id: string;
-  name: string;
-  description?: string;
-  author?: string
-  created: number;
-  lastModified?: number;
-  backgroundColor?: string;
-  width: number;
-  height: number;
-  data: any;
-}
-*/
 
 export const getVideoSchema = () => {
 
@@ -36,9 +19,9 @@ export const getVideoSchema = () => {
   return yup.object(schemaObj).required();
 }
 
-export function getVideoFormData(detail: DetailSelection, tracks: ITimelineTrack[]): ITimelineFile {
+export function getVideoFormData(detail: DetailSelection, tracks: ITimelineTrack[]): ITimelineFileBase {
   const {video} = detail;
-          if (video && !video.id) {
+  if (video && !video.id) {
     throw new Error('can not load detail video view without a video id');
   }
   return {

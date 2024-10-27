@@ -2,7 +2,7 @@ import * as React from 'react';
 import {Theme} from '@mui/material/styles';
 import {SxProps} from '@mui/system';
 import {SlotComponentProps} from '@mui/base/utils';
-import {FileBase} from '@stoked-ui/file-explorer/models/items';
+import {IMediaFile} from '@stoked-ui/media-selector';
 import {EditorPluginParameters, EditorPluginSignatures, EditorPluginSlotProps, EditorPluginSlots} from './Editor.plugins';
 import {EditorClasses} from './editorClasses';
 import { EditorExperimentalFeatures, EditorPublicAPI } from '../internals/models';
@@ -37,7 +37,7 @@ export interface EditorSlots extends EditorPluginSlots {
 
 }
 
-export interface EditorSlotProps<R extends FileBase, Multiple extends boolean | undefined>
+export interface EditorSlotProps<R extends IMediaFile, Multiple extends boolean | undefined>
   extends EditorPluginSlotProps {
   root?: SlotComponentProps<'div', {}, EditorProps<R, Multiple>>;
   editorView?: SlotComponentProps<'div', {}, {}>;
@@ -63,7 +63,7 @@ export interface EditorPropsBase extends React.HTMLAttributes<HTMLDivElement> {
   sx?: SxProps<Theme>;
 }
 
-export interface EditorProps<R extends FileBase = FileBase, Multiple extends boolean | undefined = true>
+export interface EditorProps<R extends IMediaFile = IMediaFile, Multiple extends boolean | undefined = true>
   extends Omit<EditorPluginParameters, 'actions'>,
     EditorPropsBase {
   /**

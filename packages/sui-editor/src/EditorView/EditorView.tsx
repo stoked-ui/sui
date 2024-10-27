@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {FileBase} from '@stoked-ui/file-explorer';
+import {IMediaFile} from '@stoked-ui/media-selector';
 import {ViewMode, useTimeline} from "@stoked-ui/timeline";
 import SettingsIcon from '@mui/icons-material/Settings';
 import IconButton from '@mui/material/IconButton';
@@ -12,7 +12,7 @@ import {getEditorViewUtilityClass} from "./editorViewClasses";
 
 const useThemeProps = createUseThemeProps('MuiEditorView');
 
-const useUtilityClasses = <R extends FileBase, Multiple extends boolean | undefined>(
+const useUtilityClasses = <R extends IMediaFile, Multiple extends boolean | undefined>(
   ownerState: EditorViewProps<R, Multiple>,
 ) => {
   const { classes } = ownerState;
@@ -105,7 +105,7 @@ const Stage = styled('div', {
  * - [FileExplorer API](https://stoked-ui.github.io/editor/api/)
  */
 const EditorView = React.forwardRef(function EditorView<
-  R extends FileBase = FileBase,
+  R extends IMediaFile = IMediaFile,
   Multiple extends boolean | undefined = undefined,
 >(
   inProps: EditorViewProps<R, Multiple>,

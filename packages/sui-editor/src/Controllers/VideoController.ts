@@ -12,7 +12,7 @@ class VideoControl extends Controller {
 
   _videoItem: HTMLVideoElement | null = null;
 
-  logging: boolean = true;
+  logging: boolean = false;
 
   constructor() {
     super({

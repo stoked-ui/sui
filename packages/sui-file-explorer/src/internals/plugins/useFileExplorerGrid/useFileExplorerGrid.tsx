@@ -1,5 +1,5 @@
 import * as React from 'react'
-import {namedId} from "@stoked-ui/media-selector";
+import {namedId, IMediaFile} from "@stoked-ui/media-selector";
 import {
   GridColumn,
   GridColumns,
@@ -8,16 +8,16 @@ import {
   UseFileExplorerGridPlugin,
   UseFileExplorerGridState
 } from './useFileExplorerGrid.types';
-import {FileBase, FileId} from '../../../models';
+import { FileId} from '../../../models';
 import {bytesToSize, calcSize, getRelativeTimeString} from "./PropUtils";
 import {ItemMode} from "../useFileExplorerFiles/useFileExplorerFiles.types";
 
 const updateGridState = ({ headers, columns, initializedIndexes, id }: { headers: GridHeaders, columns: GridColumns, initializedIndexes: boolean, id?: string } ): UseFileExplorerGridState => {
-  const { label, size, lastModified } = headers;
+  const { name, size, lastModified } = headers;
   const font = { };
-  label.sx = {...label.sx, flexGrow: 1, display: 'flex', justifyContent: 'start', ...font }
-  size.sx = {...label.sx, display: 'flex',  ...font }
-  lastModified.sx = {...label.sx, display: 'flex',  ...font }
+  name.sx = {...name.sx, flexGrow: 1, display: 'flex', justifyContent: 'start', ...font }
+  size.sx = {...name.sx, display: 'flex',  ...font }
+  lastModified.sx = {...name.sx, display: 'flex',  ...font }
   return {
     grid: {
       headers: headers ?? {},
@@ -28,7 +28,7 @@ const updateGridState = ({ headers, columns, initializedIndexes, id }: { headers
   };
 };
 
-export const useFileExplorerGrid: UseFileExplorerGridPlugin = <R extends FileBase>({
+export const useFileExplorerGrid: UseFileExplorerGridPlugin = <R extends IMediaFile>({
   instance,
   state,
   rootRef,
@@ -319,7 +319,7 @@ const children = (cells: React.ReactElement[]) => {
   );
 }
 const DEFAULT_HEADERS: GridHeaders = {
-  label: {
+  name: {
     ...JSON.parse(JSON.stringify(DEFAULT_HEADER_DATA)),
     children,
     ...{ status: { sort: true, ascending: true, focused: true, visible: true }}
@@ -335,7 +335,7 @@ const DEFAULT_HEADERS: GridHeaders = {
 }
 
 const DEFAULT_COLUMNS: GridColumns = {
-  label: {
+  name: {
     ...JSON.parse(JSON.stringify(DEFAULT_COLUMN_DATA)),
   },
   size: {

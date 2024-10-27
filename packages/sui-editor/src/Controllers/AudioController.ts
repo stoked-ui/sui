@@ -126,6 +126,7 @@ class AudioControl extends Controller{
     if (this.cacheMap[action.id]) {
       const item = this.cacheMap[action.id];
       item.stop();
+      item.mute();
       if (this.listenerMap[action.id]) {
         if (this.listenerMap[action.id].time) {
           engine.off('afterSetTime', this.listenerMap[action.id].time);

@@ -6,7 +6,8 @@ import * as fs from "node:fs";
 import Engine, {IController, IEngine} from "../Engine";
 import Controller from "../Controller/Controller";
 
-export interface ITimelineFile {
+
+export interface ITimelineFileBase {
   id: string;
   name: string;
   description?: string;
@@ -17,7 +18,12 @@ export interface ITimelineFile {
   width: number;
   height: number;
   src?: string;
+}
+
+
+export interface ITimelineFile extends ITimelineFileBase {
   tracks?: ITimelineTrack[];
+  needsGeneration(): boolean;
 }
 
 export interface ITimelineFileProps {
@@ -153,6 +159,13 @@ export default class TimelineFile implements ITimelineFile {
     }
 
     return newAction;
+  }
+
+  needsGeneration() {
+    if (!this._fileTracks?.length || this._tracks?.length) {
+      return false;
+    }
+    return true;
   }
 
   async generateTracks(controllers: Record<string, IController>, engine: IEngine) {

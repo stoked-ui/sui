@@ -34,5 +34,5 @@ export interface EditorEventTypes extends EventTypes {
    * @type {{ engine: IEngine }}
    * @memberofEventTypes
    */
-  paused: { engine: IEditorEngine, previousState: EditorEngineState };
+  paused: { engine: IEditorEngine, previousState: any };
 }

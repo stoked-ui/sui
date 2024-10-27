@@ -13,17 +13,6 @@ import {ExtensionMimeTypeMap} from "./MimeType";
 import namedId from "../namedId";
 import {Howl} from "howler";
 
-/*
- children?: FileBase<R>[];
- size?: number;
- modified?: number;
- type?: MediaType;
- file?: MediaFile;
- visibleIndex?: number;
- expanded?: boolean;
- selected?: boolean;
- name?: string;
- */
 export default class MediaFile implements IMediaFile {
   readonly id: string;
 

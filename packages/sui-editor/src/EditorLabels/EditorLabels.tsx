@@ -459,7 +459,16 @@ export function ViewToggle({view, setView}: {view: 'timeline' | 'files', setView
  */
 const EditorLabels = React.forwardRef(
   function EditorLabels(inProps: EditorLabelsProps, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
-    const { engine, dispatch, file } = useTimeline();
+    const timelineContext = useTimeline();
+    const timelineState = {tracks: timelineContext.file.tracks, isLoading: timelineContext.engine.isLoading};
+    const [state, setState] = React.useState<{ tracks: ITimelineTrack[], isLoading: boolean }>(timelineState);
+
+    React.useEffect(() => {
+      console.log('file - engine', {tracks: timelineContext.file.tracks, isLoading: timelineContext.engine.isLoading});
+      setState({tracks: timelineContext.file.tracks, isLoading: timelineContext.engine.isLoading});
+    }, [timelineContext.engine.isLoading])
+
+
     const { onAddFiles, hideLock = false } = inProps;
     const { slots, sx,  } = useThemeProps({ props: inProps, name: 'MuiEditorLabels' });
 
@@ -490,21 +499,14 @@ const EditorLabels = React.forwardRef(
         newTrackClick();
         return;
       }
-      dispatch({type: 'SELECT_TRACK', payload: t});
+      timelineContext.dispatch({type: 'SELECT_TRACK', payload: t});
 
-      if (!engine.detailMode) {
-        dispatch({type: 'DETAIL', payload: true});
+      if (!timelineContext.engine.detailMode) {
+        timelineContext.dispatch({type: 'DETAIL', payload: true});
       }
     };
 
-    const handleClose = () => {
-      if (engine.detailMode) {
-        engine.detailMode = false;
-      }
-      dispatch({type: 'DETAIL', payload: false});
-    };
 
-    console.log('EDITOR_LABELS => tracks.. file', file.tracks);
 
     return (
       <Root
@@ -518,7 +520,7 @@ const EditorLabels = React.forwardRef(
         classes={classes}
         className={`${classes.root} timeline-list`}>
         <Box sx={{height: '37px'}}></Box>
-          {!engine.isLoading && file.tracks?.map((track) => {
+          {!state.isLoading && state.tracks?.map((track) => {
             if (!track) {
               return undefined;
             }

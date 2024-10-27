@@ -1,8 +1,6 @@
-import { MediaFile } from '@stoked-ui/media-selector';
-import {FileBase, FileBaseFromMediaFile} from '@stoked-ui/file-explorer';
+import {IMediaFile, MediaFile } from '@stoked-ui/media-selector';
 import {type ITimelineAction, ITimelineFileAction} from '../TimelineAction/TimelineAction.types';
 import {IController} from "../Engine";
-import controller from "../Controller/Controller";
 
 /**
  *Basic parameters of action lines
@@ -54,8 +52,8 @@ export interface ITimelineTrackNew extends Omit<ITimelineTrack, 'id' | 'file'> {
   file: null;
 }
 
-export function FilesFromTracks(tracks: ITimelineTrack[] = []): FileBase[] {
-  return tracks.map((track) => FileBaseFromMediaFile(track.file));
+export function FilesFromTracks(tracks: ITimelineTrack[] = []): IMediaFile[] {
+  return tracks.map((track) => track.file);
 }
 
 export type TimelineTrackEx = ITimelineTrack | ITimelineTrackNew;
