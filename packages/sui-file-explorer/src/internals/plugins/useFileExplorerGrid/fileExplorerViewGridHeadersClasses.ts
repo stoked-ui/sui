@@ -11,7 +11,7 @@ export interface FileExplorerGridHeadersClasses {
   /** Styles applied to the content element. */
   iconContainer: string;
   /** Styles applied to the label element. */
-  label: string;
+  name: string;
 }
 
 export type FileExplorerGridHeadersClassKey = keyof FileExplorerGridHeadersClasses;
@@ -25,5 +25,5 @@ export const fileExplorerViewGridHeadersClasses: FileExplorerGridHeadersClasses 
   'column',
   'groupTransition',
   'iconContainer',
-  'label',
+  'name',
 ]);

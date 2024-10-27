@@ -235,7 +235,7 @@ const TimelineControl = React.forwardRef(
           return domRef.current;
         },
         get listener() {
-          return engine.emitter;
+          return engine;
         },
         get isPlaying() {
           return engine.isPlaying;

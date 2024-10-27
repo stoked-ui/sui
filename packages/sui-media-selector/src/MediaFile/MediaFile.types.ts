@@ -5,6 +5,17 @@ export interface IMediaFileBase {
   readonly path?: string;
 }
 
+export interface IMediaFileInput {
+  id?: string,
+  name?: string,
+  children?: IMediaFileInput[],
+  size?: number,
+  expanded?: boolean,
+  selected?: boolean,
+  type?: string,
+  lastModified?: number,
+}
+
 export interface IMediaFile extends File, IMediaFileBase {
   readonly mediaType: MediaType;
   readonly id: string;

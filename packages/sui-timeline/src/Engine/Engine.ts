@@ -16,8 +16,6 @@ import {Events, type EventTypes} from './events'
 import {Emitter} from './emitter'
 ;
 
-const PLAYING = 'playing';
-const PAUSED = 'paused';
 
 /**
  * Timeline player
@@ -26,7 +24,10 @@ const PAUSED = 'paused';
  * @class Engine
  * @extends {Emitter<EventTypes>}
  */
-export default class Engine<State extends EngineState = EngineState, Events extends EventTypes = EventTypes> implements IEngine<Events> {
+export default class Engine<
+  State extends string = EngineState,
+  EmitterEvents extends EventTypes = EventTypes
+> extends Emitter<EmitterEvents> implements IEngine<EmitterEvents> {
 
   protected _viewer: HTMLElement | null = null;
 
@@ -64,7 +65,7 @@ export default class Engine<State extends EngineState = EngineState, Events exte
   protected _currentTime: number = 0;
 
   /** Playback status */
-  protected _state: State;
+  _state: State;
 
   protected _viewMode: ViewMode;
 
@@ -88,10 +89,8 @@ export default class Engine<State extends EngineState = EngineState, Events exte
   /** The action time range contains the actionId list of the current time */
   protected _activeIds: BTree = new BTree<string, number>();
 
-  emitter: Emitter<Events>
-
   constructor(params: EngineOptions ) {
-    this.emitter = new Emitter<Events>(params.events ?? new Events());
+    super(params.events ?? new Events())
     if (params?.viewer) {
       this.viewer = params.viewer;
     }
@@ -160,9 +159,7 @@ export default class Engine<State extends EngineState = EngineState, Events exte
     }
 
     this._viewerUpdate();
-    if (this.renderer && this.viewer && this.renderCtx) {
-      this._state = 'paused' as State;
-    } else {
+    if (!(this.renderer && this.viewer && this.renderCtx)) {
       throw new Error('Assigned a viewer but could not locate the renderer, renderCtx, or' +
                       ' preview elements.\n' +
                       'Please ensure that the viewer has the following children:\n' +
@@ -361,12 +358,12 @@ export default class Engine<State extends EngineState = EngineState, Events exte
 
   /** Whether it is playing */
   get isPlaying() {
-    return this._state === 'playing';
+    return this._state === 'playing' as State;
   }
 
   /** Whether it is paused */
   get isPaused() {
-    return this._state === 'paused';
+    return this._state === 'paused' as State;
   }
 
   set controllers(controllers: Record<string, IController>) {
@@ -395,12 +392,12 @@ export default class Engine<State extends EngineState = EngineState, Events exte
       console.error('Error: rate cannot be less than -3 or more than 3!');
       return false;
     }
-    const result = this.trigger('beforeSetPlayRate', { rate, engine: this as IEngine });
+    const result = this.trigger('beforeSetPlayRate' as keyof EmitterEvents, { rate, engine: this as IEngine } as EmitterEvents[keyof EmitterEvents]);
     if (!result) {
       return false;
     }
     this._playRate = rate;
-    this.trigger('afterSetPlayRate', { rate, engine: this as IEngine });
+    this.trigger('afterSetPlayRate' as keyof EmitterEvents, { rate, engine: this as IEngine } as EmitterEvents[keyof EmitterEvents]);
 
     return true;
   }
@@ -450,7 +447,7 @@ export default class Engine<State extends EngineState = EngineState, Events exte
    * @memberof Engine
    */
   setTime(time: number, isTick?: boolean): boolean {
-    const result = isTick || this.trigger('beforeSetTime', { time, engine: this as IEngine });
+    const result = isTick || this.trigger('beforeSetTime' as  keyof EmitterEvents, { time, engine: this as IEngine } as EmitterEvents[keyof EmitterEvents]);
     if (!result) {
       return false;
     }
@@ -470,10 +467,10 @@ export default class Engine<State extends EngineState = EngineState, Events exte
     this._dealEnter(time);
 
     if (isTick) {
-      this.trigger('setTimeByTick', { time, engine: this as IEngine });
+      this.trigger('setTimeByTick' as keyof EmitterEvents, { time, engine: this as IEngine } as EmitterEvents[keyof EmitterEvents]);
     }
     else {
-      this.trigger('afterSetTime', { time, engine: this as IEngine });
+      this.trigger('afterSetTime' as keyof EmitterEvents, { time, engine: this as IEngine } as EmitterEvents[keyof EmitterEvents]);
     }
     return true;
   }
@@ -507,13 +504,13 @@ export default class Engine<State extends EngineState = EngineState, Events exte
     }
 
     // Set running status
-    this._state = PLAYING as State;
+    this._state = 'playing' as State;
 
     // activeIds run start
     this._startOrStop('start');
 
     // trigger event
-    this.trigger('play', { engine: this as IEngine });
+    this.trigger('play' as keyof EmitterEvents, { engine: this as IEngine } as EmitterEvents[keyof EmitterEvents]);
     if (this.viewMode === 'Screener') {
       this.screener.play()
         .then(() => {
@@ -539,8 +536,8 @@ export default class Engine<State extends EngineState = EngineState, Events exte
    */
   pause() {
     if (this.isPlaying) {
-      const previousState: State = this._state;
-      this._state = PAUSED as State;
+      const previousState = this._state;
+      this._state = 'paused' as State;
 
       if (this._viewMode === 'Screener') {
         this._screener.pause();
@@ -550,7 +547,7 @@ export default class Engine<State extends EngineState = EngineState, Events exte
       // activeIds run stop
       this._startOrStop('stop');
 
-      this.trigger('paused', { engine: this as IEngine, previousState });
+      this.trigger('paused' as keyof EmitterEvents, { engine: this as IEngine, previousState } as EmitterEvents[keyof EmitterEvents]);
     }
     cancelAnimationFrame(this._timerId);
   }
@@ -558,7 +555,7 @@ export default class Engine<State extends EngineState = EngineState, Events exte
   /** Playback completed */
   protected _end() {
     this.pause();
-    this.trigger('ended', { engine: this as IEngine });
+    this.trigger('ended' as keyof EmitterEvents, { engine: this as IEngine } as EmitterEvents[keyof EmitterEvents]);
   }
 
   protected _assignElements() {
@@ -609,9 +606,9 @@ export default class Engine<State extends EngineState = EngineState, Events exte
         const action = this._actionMap[key];
         const track = this._actionTrackMap[action.id];
         if (type === 'start' && track?.controller?.start && !track.hidden) {
-          track.controller.start({action, time: this.getTime(), engine: this as IEngine});
+          track.controller.start({action, time: this.getTime(), engine: this as IEngine });
         } else if (type === 'stop' && track?.controller?.stop && !track.hidden) {
-          track.controller.stop({action, time: this.getTime(), engine: this as IEngine});
+          track.controller.stop({action, time: this.getTime(), engine: this as IEngine });
         }
       });
     }
@@ -705,7 +702,7 @@ export default class Engine<State extends EngineState = EngineState, Events exte
       const action = this._actionMap[key];
       const track = this._actionTrackMap[action.id];
       if (track.controller && track.controller?.update) {
-        track.controller.update({action, time: this.getTime(), engine: this as IEngine});
+        track.controller.update({action, time: this.getTime(), engine: this as IEngine });
       }
     });
 
@@ -714,7 +711,7 @@ export default class Engine<State extends EngineState = EngineState, Events exte
   }
 
   setScrollLeft(left: number) {
-    this.trigger('setScrollLeft', { left, engine: this as IEngine });
+    this.trigger('setScrollLeft' as keyof EmitterEvents, { left, engine: this as IEngine } as EmitterEvents[keyof EmitterEvents]);
   }
 
   drawImage(dd: DrawData) {
@@ -875,30 +872,5 @@ export default class Engine<State extends EngineState = EngineState, Events exte
     };
 
     return parseValue(coord, coordContext, sceneContext);
-  }
-
-  on<K extends keyof Events>(names: K | K[], handler: (args: Events[K]) => boolean | unknown): Emitter<Events> {
-    this.emitter.on<K>(names, handler);
-    return this.emitter;
-  }
-
-  trigger<K extends keyof Events>(name: K, params: Events[K]) {
-    return this.emitter.trigger<K>(name, params);
-  }
-
-  bind(name: string) {
-    this.emitter.bind(name);
-  }
-
-  exist(name: string) {
-    return this.emitter.exist(name);
-  }
-
-  off<K extends keyof Events>(name: K, handler?: (args: Events[K]) => boolean | unknown) {
-    this.emitter.off<K>(name, handler);
-  }
-
-  offAll() {
-    this.emitter.offAll();
   }
 }

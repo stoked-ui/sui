@@ -24,7 +24,6 @@ export interface UseFileParameters {
   /**
    * The label of the item.
    */
-  label?: React.ReactNode;
   rootRef?: React.Ref<HTMLLIElement>;
   /**
    * The content of the component.

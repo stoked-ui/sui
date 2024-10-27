@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import composeClasses from '@mui/utils/composeClasses';
 import { useSlotProps } from '@mui/base/utils';
 import { shouldForwardProp } from '@mui/system/createStyled';
+import { IMediaFile } from '@stoked-ui/media-selector';
 import { getFileExplorerUtilityClass } from './fileExplorerClasses';
 import { FileExplorerProps } from './FileExplorer.types';
 import { createUseThemeProps, styled } from '../internals/zero-styled';
@@ -13,12 +14,12 @@ import { buildWarning } from '../internals/utils/warning';
 import { FileExplorerGridHeaders } from '../internals/plugins/useFileExplorerGrid/FileExplorerGridHeaders';
 import { FileWrapped } from './FileWrapped';
 import { FileExplorerDndContext } from '../internals/plugins/useFileExplorerDnd/FileExplorerDndContext';
-import { FileBase } from '../models';
+
 import { FileDropzone } from '../FileDropzone';
 
 const useThemeProps = createUseThemeProps('MuiFileExplorer');
 
-const useUtilityClasses = <R extends FileBase, Multiple extends boolean | undefined>(
+const useUtilityClasses = <R extends IMediaFile, Multiple extends boolean | undefined>(
   ownerState: FileExplorerProps<R, Multiple>,
 ) => {
   const { classes } = ownerState;
@@ -73,7 +74,7 @@ export const FileExplorerRoot = styled('ul', {
 }));
 
 type FileExplorerComponent = (<
-  R extends FileBase,
+  R extends IMediaFile,
   Multiple extends boolean | undefined = undefined,
 >(
   props: FileExplorerProps<R, Multiple> & React.RefAttributes<HTMLUListElement>,
@@ -96,7 +97,7 @@ const childrenWarning = buildWarning([
  * - [FileExplorer API](https://stoked-ui.github.io/file-explorer/api/)
  */
 const FileExplorer = React.forwardRef(function FileExplorer<
-  R extends FileBase = FileBase,
+  R extends IMediaFile = IMediaFile,
   Multiple extends boolean | undefined = undefined,
 >(inProps: FileExplorerProps<R, Multiple>, ref: React.Ref<HTMLUListElement>) {
   const props = useThemeProps({ props: inProps, name: 'MuiFileExplorer' });
@@ -320,7 +321,7 @@ FileExplorer.propTypes = {
           name: PropTypes.string,
           selected: PropTypes.bool,
           size: PropTypes.number,
-          type: PropTypes.oneOf(['doc', 'file', 'folder', 'image', 'pdf', 'trash', 'video', 'audio']),
+          type: PropTypes.string,
           visibleIndex: PropTypes.number,
         }),
       ),
@@ -344,7 +345,7 @@ FileExplorer.propTypes = {
       name: PropTypes.string,
       selected: PropTypes.bool,
       size: PropTypes.number,
-      type: PropTypes.oneOf(['doc', 'file', 'folder', 'image', 'pdf', 'trash', 'video', 'audio']),
+      type: PropTypes.string,
       visibleIndex: PropTypes.number,
     }),
   ),

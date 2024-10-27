@@ -1,11 +1,10 @@
 import * as React from "react";
 import { useSlotProps } from "@mui/base/utils";
-import { MediaType } from '@stoked-ui/media-selector'
+import { MediaType, IMediaFile } from '@stoked-ui/media-selector'
 import { FileExplorerProps } from "./FileExplorer.types";
 import { File, FileProps } from "../File";
-import { FileBase } from "../models";
 
-export function FileWrapped<R extends FileBase, Multiple extends boolean | undefined>(props: Pick<FileExplorerProps<R, Multiple>, 'slots' | 'slotProps'> &
+export function FileWrapped<R extends IMediaFile, Multiple extends boolean | undefined>(props: Pick<FileExplorerProps<R, Multiple>, 'slots' | 'slotProps'> &
   Pick<FileProps, 'children' | 'id' | 'itemId'> & { type: MediaType, size: number, lastModified: number, label: string, last?: boolean }) {
   const {
     slots,

@@ -50,12 +50,12 @@ export const File = React.forwardRef(function File(
   const props = useThemeProps({ props: inProps, name: 'MuiFile' });
   const newProps = () => {
     const id = namedId({ id: 'file', length: 6 });
-    return { id, itemId: id, label: '', disabled: false, children: null };
+    return { id, itemId: id, name: 'file', disabled: false, children: null };
   };
   const {
     id,
     itemId,
-    label,
+    name,
     disabled,
     children,
     slots = {},
@@ -70,7 +70,7 @@ export const File = React.forwardRef(function File(
   const item = {
     id,
     itemId,
-    label,
+    name,
     disabled,
     children,
     slots,
@@ -260,7 +260,6 @@ File.propTypes = {
   /**
    * The label of the item.
    */
-  label: PropTypes.node,
   lastModified: PropTypes.number,
   name: PropTypes.string,
   /**
@@ -292,5 +291,5 @@ File.propTypes = {
     PropTypes.func,
     PropTypes.object,
   ]),
-  type: PropTypes.oneOf(['doc', 'file', 'folder', 'image', 'pdf', 'trash', 'video', 'audio']),
+  type: PropTypes.string,
 };

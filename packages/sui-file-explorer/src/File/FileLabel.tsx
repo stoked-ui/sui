@@ -15,7 +15,7 @@ import {UseFileMinimalPlugins} from '../internals/models';
 const FileLabelRoot = styled('div', {
   name: 'MuiFile',
   slot: 'Label',
-  overridesResolver: (props, styles) => styles.label,
+  overridesResolver: (props, styles) => styles.name,
   shouldForwardProp: (prop) =>
     shouldForwardProp(prop) &&
     prop !== 'grow' &&

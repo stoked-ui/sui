@@ -1,7 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { ITimelineAction, useTimeline } from '@stoked-ui/timeline';
-import { FileBase, FileExplorer } from '@stoked-ui/file-explorer';
+import {  FileExplorer } from '@stoked-ui/file-explorer';
 import {IMediaFile, MediaFile } from '@stoked-ui/media-selector';
 import { useSlotProps} from '@mui/base/utils';
 import { SxProps } from "@mui/material";
@@ -21,7 +21,7 @@ import {DetailView} from "../DetailView";
 
 const useThemeProps = createUseThemeProps('MuiEditor');
 
-const useUtilityClasses = <R extends FileBase, Multiple extends boolean | undefined>(
+const useUtilityClasses = <R extends IMediaFile, Multiple extends boolean | undefined>(
   ownerState: EditorProps<R, Multiple>,
 ) => {
   const { classes } = ownerState;
@@ -96,7 +96,7 @@ function createDirectoryFile({dirname, children}: { dirname: string, children: I
  * - [FileExplorer API](https://stoked-ui.github.io/editor/api/)
  */
 const Editor = React.forwardRef(function Editor<
-  R extends FileBase = FileBase,
+  R extends IMediaFile = IMediaFile,
   Multiple extends boolean | undefined = undefined,
 >(inProps: EditorProps<R, Multiple>, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
   const { file, engine, showDetail, id, dispatch } = useTimeline();
@@ -177,9 +177,21 @@ const Editor = React.forwardRef(function Editor<
   const [startIt, setStartIt] = React.useState(false);
   React.useEffect(() => {
 
-    if (!startIt && !engine.isLoading &&  viewerRef.current) {
-      engine.viewer = viewerRef.current;
+    if (!startIt && engine.isLoading && viewerRef.current) {
       setStartIt(true);
+      engine.viewer = viewerRef.current;
+      if (file?.needsGeneration()) {
+        file?.generateTracks(Controllers, engine)
+        .then(() => {
+          dispatch({
+            type: 'SET_LOADED',
+            payload: {
+              tracks: file.tracks,
+              viewer: viewerRef.current as HTMLDivElement
+            }
+          });
+        })
+      }
     }
   }, [viewerRef.current, engine, engine.isLoading]);
 
@@ -214,20 +226,7 @@ const Editor = React.forwardRef(function Editor<
     }
   }, [currentVersion, versions, engine])
   const timelineRef = React.useRef<HTMLDivElement>(null);
-  React.useEffect(() => {
 
-    if (timelineState?.current && viewerRef.current && startIt) {
-      file?.generateTracks(Controllers, engine)
-        .then(() => {
-          dispatch({type: 'SET_TRACKS', payload: file.tracks});
-          dispatch( {type: 'VIEWER', payload: viewerRef.current! })
-        })
-
-      /*  engineRef.current.file.generateTracks(Controllers, engineRef.current).then(() => {
-          engineRef.current?.setTracks?.(engineRef.current.file.displayTracks)
-        }); */
-    }
-  }, [timelineState?.current, startIt])
 
   const [contextMenu, setContextMenu] = React.useState<{
     mouseX: number;
@@ -256,6 +255,12 @@ const Editor = React.forwardRef(function Editor<
     setContextMenu(null);
   };
 
+  const handleDetailClose = (event: React.MouseEvent<HTMLElement, MouseEvent>, reason: "backdropClick" | "escapeKeyDown") => {
+    event.preventDefault();
+    if (engine.detailMode) {
+      dispatch({type: 'DETAIL', payload: !engine.detailMode});
+    }
+  };
   return (
     <Root role={'editor'} {...rootProps} id={id}>
       <EditorViewSlot {...editorViewProps} ref={viewerRef} />
@@ -312,7 +317,7 @@ const Editor = React.forwardRef(function Editor<
       {(showDetail) && (
         <DetailView
           anchorEl={viewerRef.current ?? undefined}
-          onClose={handleClose as (event: {}, reason: "backdropClick" | "escapeKeyDown") => void}
+          onClose={handleDetailClose as (event: {}, reason: "backdropClick" | "escapeKeyDown") => void}
         />
       )}
     </Root>);

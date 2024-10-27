@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import {shouldForwardProp} from "@mui/system/createStyled";
 import { IMediaFile } from "@stoked-ui/media-selector";
-import { ITimelineFile, IEngine, ITimelineAction, ITimelineTrack } from "@stoked-ui/timeline";
+import { ITimelineFile, IEngine, ITimelineAction, ITimelineTrack, ITimelineFileBase } from "@stoked-ui/timeline";
 import {alpha} from "@mui/material/styles";
 import Plyr, {PlyrProps} from "plyr-react";
 import {SelectChangeEvent} from "@mui/material/Select";
@@ -95,7 +95,7 @@ export function CtrlGroup ({children, label}){
 }
 
 export interface IDetailData {
-  video: ITimelineFile,
+  video: ITimelineFileBase,
   tracks: ITimelineTrack[],
   file?: IDetailFile,
   track?: IDetailTrack,

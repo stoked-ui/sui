@@ -53,6 +53,15 @@ export type TimelineStateAction = {
 } | {
   type: 'VIEWER',
   payload: HTMLDivElement
+} | {
+  type: 'SET_LOADED',
+  payload: {
+    tracks: ITimelineTrack[],
+    viewer: HTMLDivElement
+  }
+} | {
+  type: 'SHOW_DETAIL',
+  payload: boolean,
 };
 
 export type TimelineContextType = ITimelineState & {
@@ -67,7 +76,7 @@ export const initialTimelineState = {
   showDetail: false,
 };
 
-const TimelineContext = createContext<TimelineContextType | undefined>(undefined);
+export const TimelineContext = createContext<TimelineContextType | undefined>(undefined);
 
 const onAddFiles = (state: ITimelineState, newMediaFiles: IMediaFile[]) => {
   const { engine, file: { tracks } } = state;
@@ -94,7 +103,7 @@ const onAddFiles = (state: ITimelineState, newMediaFiles: IMediaFile[]) => {
     } as ITimelineTrack;
   });
   state.file.tracks = tracks.concat(newTracks);
-  return state;
+  return {...state};
 }
 
 const TimelineReducer = (state: ITimelineState, stateAction: TimelineStateAction) => {
@@ -122,23 +131,35 @@ const TimelineReducer = (state: ITimelineState, stateAction: TimelineStateAction
       const actions = [...state.file.tracks[updatedTrackIndex].actions];
       actions.push(TimelineFile.initializeAction(state.engine, action, updatedTrackIndex));
       state.file.tracks[updatedTrackIndex].actions = actions;
-      return state;
+      return {...state};
     case 'CREATE_TRACKS':
-      return onAddFiles(state, stateAction.payload);
+      const newState = onAddFiles(state, stateAction.payload);
+      state.engine.setTracks(newState.file.tracks);
+      return newState;
     case 'SET_TRACKS':
       state.file.tracks = [...stateAction.payload];
       state.engine.setTracks(state.file.tracks);
-      return state;
+      return {...state};
     case 'LOADED':
       state.engine.loaded();
-      return state;
+      return {...state};
     case 'STATE':
-      return stateAction.payload;
+      return {...stateAction.payload};
     case 'VIEWER':
       state.engine.viewer = stateAction.payload;
+      return {...state};
+    case 'DETAIL':
+      state.showDetail = stateAction.payload;
       return state;
+    case 'SET_LOADED':
+      const { viewer, tracks } = stateAction.payload;
+      state.engine.viewer = viewer;
+      state.file.tracks = [...tracks];
+      state.engine.setTracks(state.file.tracks);
+      state.engine.loaded();
+      return {...state};
     default:
-      return state;
+      return {...state};
   }
 };
 export interface TimelineProviderProps {

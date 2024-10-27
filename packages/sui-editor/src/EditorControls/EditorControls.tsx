@@ -17,10 +17,16 @@ import { Slider, Stack, Tooltip } from "@mui/material";
 import { namedId } from '@stoked-ui/media-selector';
 import {ScreenerBlob, ViewMode, useTimeline, Version } from '@stoked-ui/timeline';
 import EditorEngine from '../EditorEngine/EditorEngine';
-import {IEditorEngine, ScreenVideoBlob} from '../EditorEngine/EditorEngine.types';
+import {
+  EditorEngineState,
+  IEditorEngine,
+  ScreenVideoBlob
+} from '../EditorEngine/EditorEngine.types';
 import {createUseThemeProps, styled} from '../internals/zero-styled';
 import {ControlState, EditorControlsProps, VideoVersionFromKey} from './EditorControls.types';
 import TimelineView from '../icons/TimelineView';
+import {EditorEventTypes} from "../EditorEngine";
+import {useEditorContext} from "../EditorProvider";
 
 export const Rates = [-3, -2.5, -2.0, -1.5, -1.0, -0.5, -0.2, 0.2, 0.5, 1.0, 1.5, 2.0, 2.5, 3];
 const useThemeProps = createUseThemeProps('MuiEditor');
@@ -594,8 +600,8 @@ function Volume() {
 export const EditorControls = React.forwardRef(
   function EditorControls(inProps : EditorControlsProps, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
   const [controlState, setControlState] = React.useState<ControlState>('paused');
-  const { engine: engineInput } = useTimeline();
-  const engine: IEditorEngine = engineInput as IEditorEngine;
+  const { engine: engineInput } = useEditorContext();
+  const engine: IEditorEngine<EditorEngineState, EditorEventTypes> = engineInput as IEditorEngine<EditorEngineState, EditorEventTypes>;
   const props = useThemeProps({ props: inProps, name: 'MuiEditorControls' });
   const { timeline, switchView = true } = inProps;
   const { view = timeline ? 'timeline' : 'files', setView, versions, setVersions, mode, currentVersion, setCurrentVersion } = props;

@@ -1,13 +1,12 @@
 import * as React from 'react';
 import {
   TimelineContextType, TimelineProvider, useTimeline, TimelineProviderProps, TimelineReducer,
-  ITimelineState, initialTimelineState, TimelineStateAction,
-  ThemeMode, TimelineFile,
+  ITimelineState, TimelineStateAction, TimelineContext,
   TimelineActionState
 } from '@stoked-ui/timeline';
 import EditorEngine from "../EditorEngine/EditorEngine";
 import {EditorEngineState, IEditorEngine} from "../EditorEngine/EditorEngine.types";
-import {EditorEventTypes} from "../EditorEngine";
+import {EditorEvents, EditorEventTypes} from "../EditorEngine";
 
 interface IEditorState extends Omit<ITimelineState, 'engine'> {
   engine: IEditorEngine;
@@ -50,7 +49,7 @@ function EditorProviderBase(props: EditorProviderProps) {
 export default function EditorProvider(props: EditorProviderProps) {
   const timelineProps = { ...props, engine: props.engine };
   if (!timelineProps.engine) {
-    timelineProps.engine = new EditorEngine({controllers: props.controllers});
+    timelineProps.engine = new EditorEngine({events: new EditorEvents(), controllers: props.controllers});
   }
   return (
     <TimelineProvider {...timelineProps}>
@@ -59,10 +58,13 @@ export default function EditorProvider(props: EditorProviderProps) {
   )
 }
 
-function useEditorContext(): EditorContextType {
-  const context = React.useContext(EditorContext);
+// Custom hook to access the extended context
+function useEditorContext(): TimelineContextType {
+  const context = React.useContext<TimelineContextType>(TimelineContext);
   if (!context) throw new Error("useEditorContext must be used within a EditorProvider");
-  return context;
+  return context as EditorContextType;
 }
+
+
 
 export { useEditorContext, EditorReducer, IEditorState, EditorProviderProps, EditorContext, EditorContextType }
