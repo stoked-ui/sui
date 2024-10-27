@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {FileBase} from '@stoked-ui/file-explorer';
-import {ViewMode} from "@stoked-ui/timeline";
+import {ViewMode, useTimeline} from "@stoked-ui/timeline";
 import SettingsIcon from '@mui/icons-material/Settings';
 import IconButton from '@mui/material/IconButton';
 import composeClasses from "@mui/utils/composeClasses";
@@ -9,7 +9,6 @@ import useForkRef from "@mui/utils/useForkRef";
 import {createUseThemeProps, styled} from '../internals/zero-styled';
 import {EditorViewProps} from './EditorView.types';
 import {getEditorViewUtilityClass} from "./editorViewClasses";
-import DetailView from "../DetailView/DetailView";
 
 const useThemeProps = createUseThemeProps('MuiEditorView');
 
@@ -105,17 +104,17 @@ const Stage = styled('div', {
  *
  * - [FileExplorer API](https://stoked-ui.github.io/editor/api/)
  */
-export const EditorView = React.forwardRef(function EditorView<
+const EditorView = React.forwardRef(function EditorView<
   R extends FileBase = FileBase,
   Multiple extends boolean | undefined = undefined,
 >(
   inProps: EditorViewProps<R, Multiple>,
   ref: React.Ref<HTMLDivElement>
 ): React.JSX.Element {
+  const { id, file, engine } = useTimeline();
   const props = useThemeProps({ props: inProps, name: 'MuiEditorView' });
   const viewRef = React.useRef<HTMLDivElement>(null);
   const combinedViewRef = useForkRef(ref , viewRef);
-  const { engine, tracks } = inProps;
 
   const [showSettings, setShowSettings] = React.useState<boolean>(false);
   const [showSettingsPanel, setShowSettingsPanel] = React.useState<boolean>(false);
@@ -127,21 +126,21 @@ export const EditorView = React.forwardRef(function EditorView<
 
 
   React.useEffect(() => {
-    if (inProps.engine && viewRef?.current) {
-      inProps.engine.viewer = viewRef.current;
-      if (viewRef.current.parentElement && viewRef.current.parentElement.id) {
-        viewRef.current.id = `viewer-${viewRef.current.parentElement.id}`
-        viewRef.current.classList.add(viewRef.current.parentElement.id);
+    if (engine && viewRef?.current) {
+      engine.viewer = viewRef.current;
+      if (viewRef.current.parentElement) {
+        viewRef.current.id = `viewer-${id}`
+        viewRef.current.classList.add(id);
       }
     }
-  }, [viewRef, inProps.engine])
+  }, [viewRef, engine])
 
   // tie the renderer to the editor
   React.useEffect(() => {
     if (rendererRef.current && viewRef.current) {
       if (!rendererRef.current.id && viewRef.current.parentElement) {
-        rendererRef.current.id = `renderer-${viewRef.current.parentElement.id}`
-        rendererRef.current.classList.add(viewRef.current.parentElement.id);
+        rendererRef.current.id = `renderer-${id}`
+        rendererRef.current.classList.add(id);
       }
     }
   })
@@ -150,8 +149,8 @@ export const EditorView = React.forwardRef(function EditorView<
   React.useEffect(() => {
     if (screenerRef.current && viewRef.current) {
       if (!screenerRef.current.id && viewRef.current.parentElement) {
-        screenerRef.current.id = `screener-${viewRef.current.parentElement.id}`
-        screenerRef.current.classList.add(viewRef.current.parentElement.id);
+        screenerRef.current.id = `screener-${id}`
+        screenerRef.current.classList.add(id);
       }
     }
   })
@@ -160,8 +159,8 @@ export const EditorView = React.forwardRef(function EditorView<
   React.useEffect(() => {
     if (stageRef.current && viewRef.current) {
       if (!stageRef.current.id && viewRef.current.parentElement) {
-        stageRef.current.id = `stage-${viewRef.current.parentElement.id}`
-        stageRef.current.classList.add(viewRef.current.parentElement.id);
+        stageRef.current.id = `stage-${id}`
+        stageRef.current.classList.add(id);
       }
     }
   })
@@ -201,12 +200,11 @@ export const EditorView = React.forwardRef(function EditorView<
 
     setShowSettingsPanel(false);
   }
-  console.info('editor tracks', tracks)
   return (
     <Root role={'viewer'} {...rootProps} ref={combinedViewRef} data-preserve-aspect-ratio onMouseEnter={() => setShowSettings(true)} onMouseLeave={() => setShowSettings(false)}>
-      <Renderer role={'renderer'} ref={rendererRef} data-preserve-aspect-ratio viewMode={inProps.engine?.viewMode || 'Renderer'}/>
-      <Screener role={'screener'} ref={screenerRef} viewMode={inProps.engine?.viewMode || 'Renderer'} />
-      <Stage role={'stage'} ref={stageRef} viewMode={inProps.engine?.viewMode || 'Renderer'} />
+      <Renderer role={'renderer'} ref={rendererRef} data-preserve-aspect-ratio viewMode={engine.viewMode || 'Renderer'}/>
+      <Screener role={'screener'} ref={screenerRef} viewMode={engine.viewMode || 'Renderer'} />
+      <Stage role={'stage'} ref={stageRef} viewMode={engine.viewMode || 'Renderer'} />
       {showSettings &&
         <IconButton
           id={'settings'}
@@ -218,25 +216,15 @@ export const EditorView = React.forwardRef(function EditorView<
             borderRadius: '24px'
           }}
           onClick={() => {
-            if (engine) {
-              engine.selected = engine.file;
-            }
+
             setShowSettingsPanel(true)
           }}
         >
           <SettingsIcon/>
         </IconButton>
       }
-
-      {(showSettingsPanel && engine && viewRef.current) && (
-        <DetailView
-          engine={engine}
-          anchorEl={viewRef.current}
-          onClose={handleClose}
-          tracks={tracks}
-        />
-      )}
     </Root>
   )
 })
 
+export default EditorView;

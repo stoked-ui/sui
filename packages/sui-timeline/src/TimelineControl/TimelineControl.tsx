@@ -12,6 +12,7 @@ import TimelineCursor from '../TimelineCursor/TimelineCursor';
 import TimelineTrackArea, { TimelineTrackAreaState } from '../TimelineTrackArea/TimelineTrackArea';
 import TimelineTime from '../TimelineTime/TimelineTime';
 import TimelineScrollResizer from '../TimelineScrollResizer/TimelineScrollResizer';
+import {useTimeline} from "../TimelineProvider";
 
 const TimelineControlRoot = styled('div')(({ theme }) => ({
   width: '100%',
@@ -43,10 +44,10 @@ function getInitialScaleWidth(startLeft: number, duration: number, timelineAreaW
 const TimelineControl = React.forwardRef(
   function TimelineControl(props: TimelineControlProps, ref) {
     const checkedProps = checkProps(props);
+    const { engine, file, dispatch } = useTimeline();
+    const { tracks } = file;
     const { style } = props;
     const {
-      controllers,
-      tracks,
       scrollTop,
       autoScroll,
       hideCursor,
@@ -57,8 +58,6 @@ const TimelineControl = React.forwardRef(
       minScaleCount,
       maxScaleCount: initialMaxScaleCount,
       scaleSplitCount: initialScaleSplitCount,
-      setTracks,
-      engineRef,
       autoReRender = true,
       onScroll: onScrollVertical,
     } = checkedProps;
@@ -111,15 +110,6 @@ const TimelineControl = React.forwardRef(
     }, [scaleWidth])
 
     React.useEffect(() => {
-      if (engineRef?.current) {
-        engineRef.current.controllers = controllers;
-      }
-    }, [controllers]);
-
-    React.useEffect(() => {
-      if (!engineRef?.current || !tracks) {
-        return;
-      }
       const getDuration = () => {
         let furthest = 0;
         if (tracks) {
@@ -150,12 +140,10 @@ const TimelineControl = React.forwardRef(
 
     /** handle proactive data changes */
     const handleEditorDataChange = (updatedTracks: ITimelineTrack[]) => {
-      if (engineRef.current) {
-        setTracks([...updatedTracks]);
+        dispatch({ type: 'SET_TRACKS', payload: [...updatedTracks]});
         if (autoReRender) {
-          engineRef.current.reRender();
+          engine.reRender();
         }
-      }
     };
 
     const setHorizontalScroll = (left: number) => {
@@ -163,6 +151,7 @@ const TimelineControl = React.forwardRef(
         scrollLeft: Math.max(left, 0),
       });
     };
+
     /** handleCursor */
     const handleSetCursor = (param: { left?: number; time?: number; updateTime?: boolean, move?: boolean }) => {
       let { left, time } = param;
@@ -186,9 +175,9 @@ const TimelineControl = React.forwardRef(
 
       let result = true;
       if (updateTime) {
-        result = engineRef.current.setTime(time);
+        result = engine.setTime(time);
         if (autoReRender) {
-          engineRef.current.reRender();
+          engine.reRender();
         }
       }
 
@@ -215,11 +204,6 @@ const TimelineControl = React.forwardRef(
 
     // process runner related data
     React.useEffect(() => {
-
-      if (!engineRef?.current) {
-        return;
-      }
-
       const handleTime = ({ time }) => {
         handleSetCursor({ time, updateTime: false });
       };
@@ -234,55 +218,50 @@ const TimelineControl = React.forwardRef(
         }
       })
 
-      engineRef.current.on('setTimeByTick', handleTime);
-      engineRef.current.on('play', handlePlay);
-      engineRef.current.on('paused', handlePaused);
-      engineRef.current.on('setScrollLeft', handleScrollLeft);
-    }, [engineRef?.current]);
+      engine.on('setTimeByTick', handleTime);
+      engine.on('play', handlePlay);
+      engine.on('paused', handlePaused);
+      engine.on('setScrollLeft', handleScrollLeft);
+    }, [engine]);
 
     // ref data
     React.useImperativeHandle(
       ref,
       () => ({
         get engine() {
-          return engineRef.current;
+          return engine;
         },
         get target() {
           return domRef.current;
         },
         get listener() {
-          return engineRef.current;
+          return engine.emitter;
         },
         get isPlaying() {
-          return engineRef.current?.isPlaying;
+          return engine.isPlaying;
         },
         get isPaused() {
-          return engineRef.current?.isPaused;
+          return engine.isPaused;
         },
-        setPlayRate: engineRef.current?.setPlayRate.bind(engineRef.current),
-        getPlayRate: engineRef.current?.getPlayRate.bind(engineRef.current),
+        setPlayRate: engine.setPlayRate.bind(engine),
+        getPlayRate: engine.getPlayRate.bind(engine),
         setTime: (time: number, move?: boolean) => handleSetCursor({time, move}),
-        getTime: engineRef.current?.getTime.bind(engineRef.current),
-        reRender: engineRef.current?.reRender.bind(engineRef.current),
-        play: (param: Parameters<TimelineState['play']>[0]) => engineRef.current?.play({...(param as any)}),
-        pause: engineRef.current?.pause.bind(engineRef.current),
+        getTime: engine.getTime.bind(engine),
+        reRender: engine.reRender.bind(engine),
+        play: (param: Parameters<TimelineState['play']>[0]) => engine.play({...(param as any)}),
+        pause: engine.pause.bind(engine),
         setScrollLeft: (val: number) => {
-          return engineRef.current?.setScrollLeft(val);
+          return engine.setScrollLeft(val);
         },
         setScrollTop: (val: number) => {
           if (scrollSync.current) {
             scrollSync.current?.setState({scrollTop: Math.max(val, 0)});
           }
         },
-        tracks,
-        setTracks,
         get duration() {
-          return engineRef.current?.duration;
+          return engine.duration;
         },
-        getSelectedTrack: () => {
-          return engineRef.current?.tracks.find(t => t.selected);
-        }
-      }), [engineRef?.current, duration],
+      }), [engine, duration],
     );
 
     if (typeof window !== 'undefined' ) {
@@ -365,7 +344,7 @@ const TimelineControl = React.forwardRef(
                   (areaRef.current as any) = editAreaRef?.domRef.current;
                   (gridRef.current as any) = editAreaRef?.gridRef.current;
                 }}
-                viewMode={engineRef.current.viewMode}
+                viewMode={engine.viewMode}
                 disableDrag={disableDrag || isPlaying}
                 cursorTime={cursorTime}
                 scaleCount={scaleCount}
@@ -374,7 +353,6 @@ const TimelineControl = React.forwardRef(
                 scrollLeft={scrollLeft}
                 setEditorData={handleEditorDataChange}
                 deltaScrollLeft={autoScroll && handleDeltaScrollLeft}
-                controllers={controllers}
                 onScroll={(params) => {
                   onScroll(params);
                   if (onScrollVertical) {
@@ -392,7 +370,6 @@ const TimelineControl = React.forwardRef(
                   setScaleCount={handleSetScaleCount}
                   setCursor={handleSetCursor}
                   cursorTime={cursorTime}
-                  tracks={tracks}
                   areaRef={areaRef}
                   scrollSync={scrollSync}
                   deltaScrollLeft={autoScroll && handleDeltaScrollLeft}
@@ -458,10 +435,6 @@ TimelineControl.propTypes = {
    * @default false
    */
   dragLine: PropTypes.bool,
-  /**
-   * @description timelineControl runner, if not passed, the built-in runner will be used
-   */
-  engineRef: PropTypes.any,
   /**
    * @description Custom action area rendering
    */
@@ -558,7 +531,7 @@ TimelineControl.propTypes = {
   /**
    * @description Click track callback
    */
-  onClickRow: PropTypes.func,
+  onClickTrack: PropTypes.func,
   /**
    * @description Click time area event, prevent setting time when returning false
    */
@@ -570,7 +543,7 @@ TimelineControl.propTypes = {
   /**
    * @description Right-click track callback
    */
-  onContextMenuRow: PropTypes.func,
+  onContextMenuTrack: PropTypes.func,
   /**
    * @description cursor drag event
    */

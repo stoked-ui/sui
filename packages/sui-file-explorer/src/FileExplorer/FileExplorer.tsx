@@ -316,7 +316,7 @@ FileExplorer.propTypes = {
           id: PropTypes.string,
           itemId: PropTypes.string,
           label: PropTypes.string,
-          modified: PropTypes.number,
+          lastModified: PropTypes.number,
           name: PropTypes.string,
           selected: PropTypes.bool,
           size: PropTypes.number,
@@ -340,7 +340,7 @@ FileExplorer.propTypes = {
       id: PropTypes.string,
       itemId: PropTypes.string,
       label: PropTypes.string,
-      modified: PropTypes.number,
+      lastModified: PropTypes.number,
       name: PropTypes.string,
       selected: PropTypes.bool,
       size: PropTypes.number,
@@ -362,7 +362,7 @@ FileExplorer.propTypes = {
   /**
    * Callback fired when a fileExplorer item is expanded or collapsed.
    * @param {React.SyntheticEvent} event The event source of the callback.
-   * @param {array} itemId The itemId of the modified item.
+   * @param {array} itemId The itemId of the lastModified item.
    * @param {array} isExpanded `true` if the item has just been expanded, `false` if it has just been collapsed.
    */
   onItemExpansionToggle: PropTypes.func,
@@ -376,7 +376,7 @@ FileExplorer.propTypes = {
   /**
    * Callback fired when a fileExplorer item is selected or deselected.
    * @param {React.SyntheticEvent} event The event source of the callback.
-   * @param {array} itemId The itemId of the modified item.
+   * @param {array} itemId The itemId of the lastModified item.
    * @param {array} isSelected `true` if the item has just been selected, `false` if it has just been deselected.
    */
   onItemSelectionToggle: PropTypes.func,

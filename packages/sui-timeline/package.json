@@ -45,14 +45,15 @@
     "@emotion/styled": "^11.8.1",
     "@mui/icons-material": "^5.15.21",
     "@mui/material": "^5.15.21",
-    "@stoked-ui/media-selector": "workspace:^",
     "@stoked-ui/file-explorer": "workspace:^",
+    "@stoked-ui/media-selector": "workspace:^",
     "react": "18.3.1",
     "react-dom": "^17.0.0 || ^18.0.0"
   },
   "dependencies": {
     "@interactjs/types": "^1.10.11",
     "@mui/system": "^5",
+    "@tempfix/idb": "^8.0.3",
     "@types/react-virtualized": "^9.21.14",
     "framework-utils": "^1.1.0",
     "interactjs": "^1.10.11",

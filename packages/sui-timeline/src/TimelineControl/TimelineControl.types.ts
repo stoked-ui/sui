@@ -1,26 +1,11 @@
 import * as React from 'react';
 import {SxProps, Theme} from "@mui/material/styles";
-import type { IController } from '../Engine/Controller.types';
+import type { IController } from '../Controller/Controller.types';
 import type {ITimelineAction} from "../TimelineAction/TimelineAction.types";
 import {type ITimelineTrack} from "../TimelineTrack/TimelineTrack.types";
 import type {IEngine, ViewMode} from "../Engine/Engine.types";
 
 export interface TimelineControlPropsBase {
-  /**
-   * @description TimelineControl editing data
-   */
-  tracks: ITimelineTrack[];
-
-  /**
-   * @description Data change callback, which will be triggered after the operation action end
-   *   changes the data (returning false will prevent automatic engine synchronization to reduce
-   *   performance overhead)
-   */
-  setTracks: (updatedTracks: ITimelineTrack[]) => void;
-  /**
-   * @description timelineControl action actionType map
-   */
-  controllers?: Record<string, IController>;
   /**
    * @description Single tick mark category (>0)
    * @default 1
@@ -78,10 +63,6 @@ export interface TimelineControlPropsBase {
   disableDrag?: boolean;
   viewMode?: ViewMode;
   /**
-   * @description timelineControl runner, if not passed, the built-in runner will be used
-   */
-  engineRef?: React.RefObject<IEngine>;
-  /**
    * @description Custom action area rendering
    */
   getActionRender?: (action: ITimelineAction, track: ITimelineTrack) => React.ReactNode;
@@ -116,7 +97,7 @@ export interface TimelineControlPropsBase {
   /**
    * @description Click track callback
    */
-  onClickRow?: (
+  onClickTrack?: (
     e: React.MouseEvent<HTMLElement, MouseEvent>,
     param: {
       track: ITimelineTrack;
@@ -169,7 +150,7 @@ export interface TimelineControlPropsBase {
   /**
    * @description Right-click track callback
    */
-  onContextMenuRow?: (
+  onContextMenuTrack?: (
     e: React.MouseEvent<HTMLElement, MouseEvent>,
     param: {
       track: ITimelineTrack;
@@ -215,5 +196,4 @@ export interface TimelineControlPropsBase {
 
   viewSelector?: string;
 
-  actionData?: ITimelineAction[];
 }

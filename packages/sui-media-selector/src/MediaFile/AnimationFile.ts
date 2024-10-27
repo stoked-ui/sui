@@ -41,12 +41,12 @@ export default class AnimationFile extends ResolutionFile implements IResolution
       mode: 'canvas',
       renderCtx: MediaFile.renderer.getContext('2d'),
     })
-    this.duration = -1;
+    // this.duration = -1;
     this.lottie.addEventListener('loaded_images', () => {
       this.lottie.show();
       this.icon = this.captureScreenshot({width: 24, height: 24}) || null;
       this.thumbnail = this.captureScreenshot({maxWidth: 250, maxHeight: 250}) || null;
-      this.duration = this.lottie.getDuration();
+      // this.duration = this.lottie.getDuration();
     });
     // console.log('lottie', this.lottie);
   }

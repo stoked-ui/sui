@@ -122,7 +122,7 @@ export interface UseFileExplorerSelectionParameters<Multiple extends boolean | u
   /**
    * Callback fired when a fileExplorer item is selected or deselected.
    * @param {React.SyntheticEvent} event The event source of the callback.
-   * @param {array} itemId The itemId of the modified item.
+   * @param {array} itemId The itemId of the lastModified item.
    * @param {array} isSelected `true` if the item has just been selected, `false` if it has just
    *   been deselected.
    */

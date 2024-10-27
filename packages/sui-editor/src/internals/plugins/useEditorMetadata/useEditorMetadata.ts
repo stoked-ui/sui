@@ -15,8 +15,6 @@ export const useEditorMetadata: EditorPlugin<UseEditorMetadataSignature> = ({
 
   return {
     contextValue: {
-      tracks: params.tracks,
-      actions: params.actions,
       file: params.file,
       url: params.url
     },
@@ -27,36 +25,22 @@ export const useEditorMetadata: EditorPlugin<UseEditorMetadataSignature> = ({
 };
 
 function initialize(params?: UseEditorMetadataParameters): UseEditorMetadataDefaultizedParameters {
-  if (!params) {
+  if (!params || (!params.file && !params.url)) {
     return {
       file: new TimelineFile({ name: 'new video'}),
       url: '',
-      tracks: [],
-      actions: []
     };
   }
-  let { file, url = '', tracks = [], actions = [] } = params;
+  let { file, url = '' } = params;
 
-  actions.forEach((action) => {
-    if (!action.name) {
-      action.name = getFileName(action.src, false) ?? action.id!;
-    }
-  })
-
-  if (file) {
-    return { file, url, tracks, actions };
-  }
-
-  if (url.length) {
+  if (url.length && !file) {
     return {
-      file: new TimelineFile({ name: 'new video', src: url}),
+      file: new TimelineFile({ name: getFileName(url, false) ?? 'new video', src: url}),
       url,
-      tracks,
-      actions
     }
   }
 
-  return { file: {} as TimelineFile, url, tracks, actions};
+  return { file: file ?? new TimelineFile({ name: 'new video'}), url };
 }
 
 useEditorMetadata.getDefaultizedParams = (params) => {
@@ -67,8 +51,6 @@ useEditorMetadata.getDefaultizedParams = (params) => {
 }
 
 useEditorMetadata.params = {
-  tracks: true,
-  actions: true,
   file: true,
   url: true,
 };

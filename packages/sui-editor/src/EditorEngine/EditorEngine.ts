@@ -1,11 +1,10 @@
-import { Engine, EngineOptions, ITimelineTrack, ScreenerBlob } from '@stoked-ui/timeline';
-import {openDB} from "idb";
+import {Emitter, Engine,  ITimelineTrack, ScreenerBlob } from '@stoked-ui/timeline';
 import {EditorEvents, EditorEventTypes} from './events';
-import {IEditorEngine, EditorState, ScreenVideoBlob} from "./EditorEngine.types";
-import {getKeysStartingWithPrefix} from "../db/get";
-import {Version} from "../Editor/Editor.types";
-import {FileBase} from "../models";
-import {VideoVersionFromKey} from "../EditorControls";
+import {
+  IEditorEngine,
+  EditorEngineState,
+  ScreenVideoBlob, EditorEngineOptions
+} from "./EditorEngine.types";
 
 
 /**
@@ -15,28 +14,26 @@ import {VideoVersionFromKey} from "../EditorControls";
  * @class Engine
  * @extends {Engine<EditorState, EditorEventTypes>}
  */
-export default class EditorEngine extends Engine<EditorState, EditorEventTypes> implements IEditorEngine {
+export default class EditorEngine extends Engine<EditorEngineState, EditorEventTypes> implements IEditorEngine<EditorEventTypes> {
+
+  emitter: Emitter<EditorEventTypes>;
 
   _recorder?: MediaRecorder;
 
   _recordedChunks: Blob[] = [];
 
-  constructor(params: EngineOptions ) {
-    super({...params, events: new EditorEvents()});
-    this._editorId = params.id;
+  constructor(params: EditorEngineOptions ) {
+    super({...params});
+    this.emitter = new Emitter<EditorEventTypes>(params.events ?? new EditorEvents())
     if (params?.viewer) {
       this.viewer = params.viewer;
     }
     if (params?.controllers) {
       this._controllers = params.controllers;
     }
-    this._playState = params.defaultState as EditorState;
-    this._file = params.file;
-    this.setFile = params.setFile;
   }
 
   set tracks(tracks: ITimelineTrack[]) {
-    this._tracks = tracks;
     this._dealData(tracks);
     this._dealClear();
     this._dealEnter(this._currentTime);
@@ -44,24 +41,25 @@ export default class EditorEngine extends Engine<EditorState, EditorEventTypes> 
 
   /** Whether it is playing */
   get isPlaying() {
-    return this._playState === 'playing' || this.isRecording;
+    return this._state === 'playing' || this.isRecording;
   }
 
   /** Whether it is playing */
   get isRecording() {
-    return this._playState === 'recording';
+    return this._state === 'recording';
   }
+/*
 
-  async getVersionKeys() {
-    const matchingKeys = await getKeysStartingWithPrefix('editor', 'video', this._editorId)
+  async getVersionKeys(id: string) {
+    const matchingKeys = await getKeysStartingWithPrefix('editor', 'video', id)
     return matchingKeys.map((match) => {
       const parts = match.split('|');
       return { id: parts[0], version: Number(parts[1]), key: match} as Version;
     })
   }
 
-  async getVersions(): Promise<ScreenerBlob[]> {
-    const versions = await this.getVersionKeys();
+  async getVersions(id: string): Promise<ScreenerBlob[]> {
+    const versions = await this.getVersionKeys(id);
     const promises = versions.map((version) => EditorEngine.loadVersion(version.key))
     return Promise.all(promises);
   }
@@ -71,34 +69,12 @@ export default class EditorEngine extends Engine<EditorState, EditorEventTypes> 
     const store = db.transaction('video').objectStore('video');
     return store.get(dbKey);
   };
-
+*/
 
   displayVersion(screenerBlob: ScreenerBlob) {
     ScreenVideoBlob(screenerBlob, this);
   }
 
-  async versionFiles() {
-    const versionBlobs = await this.getVersions();
-    return versionBlobs.map((versionBlob) => {
-      const newId = versionBlob.key;
-      const type = 'video/mp4';
-      const mediaType = 'video';
-      const fileBase = {
-        mime: type,
-        type: mediaType,
-        id: newId,
-        itemId: newId,
-
-        label: versionBlob.name,
-        expanded: false,
-        modified: Date.now(),
-        size: 0,
-        children: [] as FileBase[],
-        parent: null,
-      } as FileBase;
-      return fileBase;
-    })
-  }
 /*
   finalizeVideo() {
     if (!this.renderer || !this.screener || !this.stage) {
@@ -142,7 +118,7 @@ export default class EditorEngine extends Engine<EditorState, EditorEventTypes> 
       return false;
     }
 
-    this._playState = 'recording' as EditorState;
+    this._state = 'recording' as EditorEngineState;
     // activeIds run start
     this._startOrStop('start');
     // trigger event

@@ -11,7 +11,7 @@ export class Emitter<EventTypes> implements IEmitter<EventTypes> {
     this.events = events.handlers;
   }
 
-  on<K extends keyof EventTypes>(names: K | K[], handler: (args: EventTypes[K]) => boolean | unknown): this {
+  on<K extends keyof EventTypes>(names: K | K[], handler: (args: EventTypes[K]) => boolean | unknown): Emitter<EventTypes> {
     const events = names instanceof Array ? names : (names as string).split(' ');
 
     (events as string[]).forEach((name) => {
@@ -21,7 +21,7 @@ export class Emitter<EventTypes> implements IEmitter<EventTypes> {
       this.events[name].push(handler);
     });
 
-    return this;
+    return this as Emitter<EventTypes>;
   }
 
   trigger<K extends keyof EventTypes>(name: K, params: EventTypes[K]) {

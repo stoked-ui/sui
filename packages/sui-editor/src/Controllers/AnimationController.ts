@@ -1,6 +1,6 @@
 import lottie, {AnimationItem} from 'lottie-web';
 import { AnimationFile } from "@stoked-ui/media-selector";
-import { Controller, ControllerParams, IEngine, ITimelineAction } from "@stoked-ui/timeline";
+import { Controller, ControllerParams, IEngine, ITimelineAction, PreloadParams } from "@stoked-ui/timeline";
 
 class AnimationControl implements Controller {
   id: string;
@@ -32,9 +32,9 @@ class AnimationControl implements Controller {
     this.colorSecondary = colorSecondary ?? '#cd6bff';
   }
 
-  async preload(params: Omit<ControllerParams, 'time'>) {
-    const { action, engine } = params;
-    const item = AnimationFile.load({ id: action.id, src: action.src, renderCtx: engine.renderCtx, mode: 'canvas', className: 'lottie-canvas' });
+  async preload(params: PreloadParams) {
+    const { action, engine, file } = params;
+    const item = AnimationFile.load({ id: action.id, src: file.url, renderCtx: engine.renderCtx, mode: 'canvas', className: 'lottie-canvas' });
     this.cacheMap[action.id] = item;
     action.duration = item.getDuration();
     return action;
@@ -68,7 +68,14 @@ class AnimationControl implements Controller {
       item = this.cacheMap[action.id];
       this._goToAndStop(engine, action, item, Controller.getActionTime(params));
     } else if (engine.viewer && engine.renderCtx && engine.renderer) {
-      item = AnimationFile.load({ id: action.id, src: action.src, renderCtx: engine.renderCtx, mode: 'canvas', className: 'lottie-canvas' });
+      const track = engine.getActionTrack(action.id);
+      item = AnimationFile.load({
+        id: action.id,
+        src: track.file.url,
+        renderCtx: engine.renderCtx,
+        mode: 'canvas',
+        className: 'lottie-canvas'
+      });
 
       item.addEventListener('data_ready', () => {
         if (time === 0) {

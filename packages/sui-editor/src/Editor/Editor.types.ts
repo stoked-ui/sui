@@ -7,7 +7,6 @@ import {EditorPluginParameters, EditorPluginSignatures, EditorPluginSlotProps, E
 import {EditorClasses} from './editorClasses';
 import { EditorExperimentalFeatures, EditorPublicAPI } from '../internals/models';
 
-export type Version = { id: string, version: number, key: string };
 
 export interface EditorSlots extends EditorPluginSlots {
   /**

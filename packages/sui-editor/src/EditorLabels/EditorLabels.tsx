@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {getTrackController, IController, ITimelineTrack, TimelineState, ITimelineAction, ViewMode} from "@stoked-ui/timeline";
+import {IController, IEngine, ITimelineTrack, ViewMode, useTimeline} from "@stoked-ui/timeline";
 import composeClasses from "@mui/utils/composeClasses";
 import AddIcon from '@mui/icons-material/Add';
 import {styled, useThemeProps, alpha, Theme} from '@mui/material/styles';
@@ -19,7 +19,6 @@ import EdgeSnap from "stokedui-com/src/icons/EdgeSnap";
 import SvgIcon from "@mui/material/SvgIcon";
 import TimelineView from "../icons/TimelineView";
 import MediaFile from 'packages/sui-media-selector/build/MediaFile';
-// import EditorFile from "../DetailView/DetailVideoView.types";
 
 const useUtilityClasses = (
   ownerState: EditorLabelsProps,
@@ -167,22 +166,22 @@ const EditorLabelText = styled('div', {
 const EditorLabel = React.forwardRef(
   function EditorLabel(inProps: {
       track: ITimelineTrack,
-      tracks: ITimelineTrack[],
       classes: EditorLabelsClasses,
       controller?: IController,
-      setTracks: (updatedTracks: ITimelineTrack[]) => void,
       onClick: (track: ITimelineTrack, event: React.MouseEvent<HTMLDivElement>) => void,
       viewMode: ViewMode,
-      hideLock?: boolean
+      hideLock?: boolean,
     },
     ref: React.Ref<HTMLDivElement>
   ): React.JSX.Element {
-    const { track, tracks, classes, controller, viewMode, onClick } = inProps;
+    const { engine, file, selectedTrack, dispatch } = useTimeline();
+    const { track, classes, controller, viewMode, onClick } = inProps;
     const visibilityIcon = track.hidden ? <VisibilityOffIcon fontSize={'small'} /> : <VisibilityIcon fontSize={'small'} />;
     const lockIcon = track.lock ? <LockIcon fontSize={'small'}/> : <LockOpenIcon fontSize={'small'}/>;
     const toggleClick = (event: React.MouseEvent<HTMLElement, MouseEvent>, value: any) => {
       event.stopPropagation();
     }
+
     return (
       <EditorLabelRoot key={track.id} className={classes.label} ref={ref}>
 
@@ -192,7 +191,7 @@ const EditorLabel = React.forwardRef(
           track={track}
           lock={track.lock}
           hidden={!!track.hidden}
-          selected={!!track.selected}
+          selected={track.id === selectedTrack?.id}
           onClick={(event) => {
             onClick(track, event)
           }}
@@ -212,44 +211,45 @@ const EditorLabel = React.forwardRef(
               id={`${track.id}-hidden`}
               value={track.hidden ?? false}
               onChange={(e, ) => {
-                const currentTrackIndex = tracks.findIndex((currTrack) =>
+                const currentTrackIndex = file.tracks.findIndex((currTrack) =>
                   currTrack.id === e.currentTarget.id.replace('-hidden', ''))
                 if (currentTrackIndex === -1) {
                   return
                 }
-                const currentTrack = {...tracks[currentTrackIndex]};
+                const currentTrack = {...file.tracks[currentTrackIndex]};
                 currentTrack.hidden = !currentTrack.hidden;
-                const updatedTracks = [...tracks];
+                const updatedTracks = [...file.tracks];
                 updatedTracks[currentTrackIndex] = currentTrack;
-                inProps.setTracks(updatedTracks)
+                dispatch({ type: 'SET_TRACKS', payload: updatedTracks });
               }}
               onClick={toggleClick}
               aria-label="hidden"
               size={'small'}>
               {visibilityIcon}
             </ToggleButton>
-            {!inProps.hideLock && <ToggleButton
-              id={`${track.id}-lock`}
-              value={track.lock ?? false}
-              aria-label="lock"
-              size={'small'}
-              onChange={(e, ) => {
-                const currentTrackIndex = tracks.findIndex((currTrack) => currTrack.id === e.currentTarget.id.replace('-lock', ''))
-                if (currentTrackIndex === -1) {
-                  return
-                }
-                const currentTrack = {...tracks[currentTrackIndex]};
-                currentTrack.lock = !currentTrack.lock;
-                currentTrack.actions.forEach((updateAction) => {
-                  updateAction.movable = !currentTrack.lock;
-                  updateAction.flexible = !currentTrack.lock;
-                })
-                const updatedTracks = [...tracks];
-                updatedTracks[currentTrackIndex] = currentTrack;
-                inProps.setTracks(updatedTracks)
-              }}
-              onClick={toggleClick}
-            >
+            {!inProps.hideLock &&
+              <ToggleButton
+                id={`${track.id}-lock`}
+                value={track.lock ?? false}
+                aria-label="lock"
+                size={'small'}
+                onChange={(e, ) => {
+                  const currentTrackIndex = file.tracks.findIndex((currTrack) => currTrack.id === e.currentTarget.id.replace('-lock', ''))
+                  if (currentTrackIndex === -1) {
+                    return
+                  }
+                  const currentTrack = {...file.tracks[currentTrackIndex]};
+                  currentTrack.lock = !currentTrack.lock;
+                  currentTrack.actions.forEach((updateAction) => {
+                    updateAction.movable = !currentTrack.lock;
+                    updateAction.flexible = !currentTrack.lock;
+                  })
+                  const updatedTracks = [...file.tracks];
+                  updatedTracks[currentTrackIndex] = currentTrack;
+                  dispatch({ type: 'SET_TRACKS', payload: updatedTracks });
+                }}
+                onClick={toggleClick}
+              >
               {lockIcon}
             </ToggleButton>}
           </ToggleButtonGroupStyled>}
@@ -459,11 +459,9 @@ export function ViewToggle({view, setView}: {view: 'timeline' | 'files', setView
  */
 const EditorLabels = React.forwardRef(
   function EditorLabels(inProps: EditorLabelsProps, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
-    const { engineRef, tracks, setTracks, onAddFiles, hideLock = false } = inProps;
-    const { slots, sx, controllers } = useThemeProps({ props: inProps, name: 'MuiEditorLabels' });
-    const [selectedTrack, setSelectedTrack] = React.useState<ITimelineTrack | null>(null);
-    const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
-    const detailViewRef = React.useRef<HTMLDivElement>();
+    const { engine, dispatch, file } = useTimeline();
+    const { onAddFiles, hideLock = false } = inProps;
+    const { slots, sx,  } = useThemeProps({ props: inProps, name: 'MuiEditorLabels' });
 
     const classes = useUtilityClasses(inProps);
     const Root = slots?.root ?? EditorLabelsRoot;
@@ -486,27 +484,27 @@ const EditorLabels = React.forwardRef(
       }
       input.click();
     }
+
     const handleItemClick = (t: ITimelineTrack, event: React.MouseEvent<HTMLElement>) => {
       if (t.id === 'newTrack') {
         newTrackClick();
         return;
       }
-      if (engineRef.current) {
-        engineRef.current.selected = {...t};
-        if (!engineRef.current?.detailMode) {
-          setSelectedTrack(t);
-          setAnchorEl(event.currentTarget);
-        }
+      dispatch({type: 'SELECT_TRACK', payload: t});
+
+      if (!engine.detailMode) {
+        dispatch({type: 'DETAIL', payload: true});
       }
     };
 
     const handleClose = () => {
-      if (engineRef.current?.detailMode) {
-        engineRef.current.detailMode = false;
+      if (engine.detailMode) {
+        engine.detailMode = false;
       }
-      setAnchorEl(null);
-      setSelectedTrack(null);
+      dispatch({type: 'DETAIL', payload: false});
     };
+
+    console.log('EDITOR_LABELS => tracks.. file', file.tracks);
 
     return (
       <Root
@@ -520,32 +518,20 @@ const EditorLabels = React.forwardRef(
         classes={classes}
         className={`${classes.root} timeline-list`}>
         <Box sx={{height: '37px'}}></Box>
-        {tracks?.map((track) => {
-          if (!track) {
-            return undefined;
-          }
-          const controller = controllers ? getTrackController(track, controllers) : undefined;
-
-          return <EditorLabel
-            track={track}
-            viewMode={inProps.viewMode}
-            hideLock={inProps.hideLock}
-            tracks={tracks}
-            classes={classes}
-            key={track.id}
-            controller={controller}
-            setTracks={inProps.setTracks}
-            onClick={handleItemClick}
-          />
-        })}
-       {(selectedTrack && anchorEl && engineRef.current && !inProps.detailMode) && (
-          <DetailView
-            engine={engineRef.current}
-            anchorEl={anchorEl}
-            onClose={handleClose}
-            tracks={tracks}
-          />
-        )}
+          {!engine.isLoading && file.tracks?.map((track) => {
+            if (!track) {
+              return undefined;
+            }
+            return <EditorLabel
+              track={track}
+              viewMode={inProps.viewMode}
+              hideLock={inProps.hideLock}
+              classes={classes}
+              key={track.id}
+              controller={track.controller}
+              onClick={handleItemClick}
+            />
+          })}
       </Root>
     )
   })

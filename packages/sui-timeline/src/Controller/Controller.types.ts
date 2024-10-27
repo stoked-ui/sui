@@ -1,3 +1,4 @@
+import { IMediaFile } from "@stoked-ui/media-selector";
 import {ControllerParams} from "./ControllerParams";
 import {type GetBackgroundImage, type ITimelineAction} from "../TimelineAction/TimelineAction.types";
 
@@ -13,6 +14,8 @@ export interface DrawData {
   dHeight?: number
 }
 
+export interface PreloadParams extends Omit<ControllerParams & { file: IMediaFile }, 'time'> {}
+
 export interface IController {
   start?: (params: ControllerParams) => void;
   stop?: (params: ControllerParams) => void;
@@ -26,8 +29,9 @@ export interface IController {
   color?: string;
   colorSecondary?: string;
   logging: boolean;
+  backgroundImage?: string;
   getBackgroundImage?: GetBackgroundImage;
-  preload?: (params: Omit<ControllerParams, 'time'>) => Promise<ITimelineAction>;
+  preload?: (params: PreloadParams) => Promise<ITimelineAction>;
   getElement: (actionId: string) => HTMLElement;
 }
 

@@ -1,8 +1,5 @@
 import * as React from 'react';
-import {shouldForwardProp} from "@mui/system/createStyled";
-import _ from 'lodash';
-import {alpha} from "@mui/material/styles";
-import {ITimelineTrack, ITimelineAction, IEngine, ITimelineFile } from "@stoked-ui/timeline";
+import {ITimelineTrack, ITimelineAction, IEngine, ITimelineFile, useTimeline } from "@stoked-ui/timeline";
 import {
   Popover, Card, CardContent, styled, Button, CardActions, Breadcrumbs, Link, Typography
 } from '@mui/material';
@@ -35,22 +32,22 @@ function DetailType(props){
   return <DetailVideoView {...props} />;
 }
 
-function getInput(props: { engine: IEngine, selected: ITimelineTrack | ITimelineAction | ITimelineFile }): DetailSelection {
-  const { selected, engine } = props;
+function getInput(props: { file: ITimelineFile, engine: IEngine, selected: ITimelineTrack | ITimelineAction | ITimelineFile }): DetailSelection {
+  const { selected, engine, file } = props;
   if ("actions" in selected) {
     const track = selected as ITimelineTrack;
     return {
-      video: (engine.file as ITimelineFile),
+      video: (file as ITimelineFile),
       track,
-      selectedFile: track.actionRef.file,
+      selectedFile: track.file,
       action: undefined }
   }
   if ("getBackgroundImage" in selected) {
     const track = engine.getActionTrack(selected.id);
     return {
-      video: (engine.file as ITimelineFile),
+      video: (file as ITimelineFile),
       track,
-      selectedFile: track.actionRef.file,
+      selectedFile: track.file,
       action: selected as ITimelineAction
     }
   }
@@ -66,7 +63,8 @@ const DetailView = React.forwardRef(function DetailView(
   inProps: DetailViewProps,
   ref: React.Ref<HTMLDivElement>,
 ) {
-  const { engine, anchorEl, onClose, tracks } = inProps;
+  const { selectedAction, selectedTrack, file, engine } = useTimeline();
+  const { anchorEl, onClose } = inProps;
   const open = Boolean(anchorEl);
   const [editMode, setEditMode] = React.useState<boolean>(false);
   const formRef = React.useRef<HTMLFormElement>(null);
@@ -82,19 +80,28 @@ const DetailView = React.forwardRef(function DetailView(
     // event.preventDefault();
     event.stopPropagation();
   }
+  const getSelection = () => {
+    if (selectedAction) {
+      return selectedAction;
+    }
+    if (selectedTrack) {
+      return selectedTrack;
+    }
+    return file;
+  }
 
-  const [detail, setDetail] = React.useState<DetailSelection>(getInput({ selected: engine.selected, engine }));
-  const [formData, setFormData] = React.useState<IDetailData>(getFormData(detail, tracks));
+  const [detail, setDetail] = React.useState<DetailSelection>(getInput({ selected: getSelection(), engine, file }));
+  const [formData, setFormData] = React.useState<IDetailData>(getFormData(detail, file.tracks ?? []));
 
   React.useEffect(() => {
-    setDetail(getInput({ selected: engine.selected, engine }));
-    setFormData(getFormData(detail, tracks));
-  }, [engine.selected])
+    setDetail(getInput({ selected: getSelection(), engine, file }));
+    setFormData(getFormData(detail, file.tracks ?? []));
+  }, [selectedTrack, selectedAction])
 
 
   const schema = getFormSchema();
   const commonProps = {
-    tracks,
+    tracks: file.tracks ?? [],
     setEditMode,
     editMode,
     engine,
@@ -113,9 +120,9 @@ const DetailView = React.forwardRef(function DetailView(
       ref={ref}
       open={open}
       anchorEl={anchorEl}
-      onClose={() => {
+      onClose={(event, reason) => {
         engine.detailMode = false;
-        onClose();
+        onClose(event, reason);
       }}
       anchorReference={'none'}
     >

@@ -70,8 +70,6 @@ export function checkProps(props: TimelineControlProps): TimelineControlProps {
   delete temp.style;
   return {
     ...temp,
-    tracks: props.tracks,
-    controllers: props.controllers,
     scrollTop,
     scale,
     scaleSplitCount: scaleSplitCount || 10,

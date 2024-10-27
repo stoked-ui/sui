@@ -9,7 +9,8 @@ import {DragLineData} from '../TimelineTrackArea/TimelineTrackAreaDragLines';
 import {type TimelineControlPropsBase} from "../TimelineControl/TimelineControl.types";
 import TimelineAction from "../TimelineAction/TimelineAction";
 import {type ITimelineTrack} from "./TimelineTrack.types";
-import {IController} from "../Engine/Controller.types";
+import {IController} from "../Controller/Controller.types";
+import {useTimeline} from "../TimelineProvider";
 
 export type TimelineTrackProps = CommonProps & TimelineControlPropsBase & {
   areaRef: React.MutableRefObject<HTMLDivElement>;
@@ -75,17 +76,8 @@ const TimelineTrackRoot = styled('div', {
   }
 });
 
-export function getTrackControllerName(track: ITimelineTrack) {
-  return track.actionRef?.controllerName;
-}
-
-export function getTrackController(track: ITimelineTrack, controllers: Record<string, IController>) {
-  const controllerName = getTrackControllerName(track);
-  return controllerName ? controllers[controllerName] : null;
-}
-
-export function getTrackColor(track: ITimelineTrack, controllers: Record<string, IController> ) {
-  const trackController = getTrackController(track, controllers);
+export function getTrackColor(track: ITimelineTrack) {
+  const trackController = track.controller;
   return trackController ? alpha(trackController.color ?? '#666', 0.11) : '#00000011';
 }
 
@@ -94,17 +86,17 @@ export function isTrackSelected(track: ITimelineTrack) {
 }
 
 export default function TimelineTrack(props: TimelineTrackProps) {
+  const { dispatch, } = useTimeline();
   const {
     track,
     style = {},
-    onClickRow,
+    onClickTrack,
     onDoubleClickRow,
-    onContextMenuRow,
+    onContextMenuTrack,
     areaRef,
     scrollLeft,
     startLeft,
     scale,
-    controllers,
     scaleWidth,
   } = props;
 
@@ -135,15 +127,15 @@ export default function TimelineTrack(props: TimelineTrackProps) {
       lock={track.lock}
       hidden={track.hidden}
       selected={isTrackSelected(track)}
-      color={track.id === 'newTrack' ? '#8882' : getTrackColor(track, controllers)}
+      color={track.id === 'newTrack' ? '#8882' : getTrackColor(track)}
       style={style}
       onKeyDown={(e) => {
         console.info('row root', e);
       }}
       onClick={(e) => {
-        if (track && onClickRow) {
+        if (track && onClickTrack) {
           const time = handleTime(e);
-          onClickRow(e, { track, time });
+          onClickTrack(e, { track, time });
         }
       }}
       onDoubleClick={(e) => {
@@ -153,9 +145,12 @@ export default function TimelineTrack(props: TimelineTrackProps) {
         }
       }}
       onContextMenu={(e) => {
-        if (track && onContextMenuRow) {
+        if (track && onContextMenuTrack) {
+          console.log('context track')
+          e.stopPropagation();
+          e.preventDefault();
           const time = handleTime(e);
-          onContextMenuRow(e, { track, time });
+          onContextMenuTrack(e, { track, time });
         }
       }}
     >

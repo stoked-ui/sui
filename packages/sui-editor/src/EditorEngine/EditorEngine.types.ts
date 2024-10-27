@@ -1,8 +1,9 @@
-import { IEngine, PlayState, ScreenerBlob } from '@stoked-ui/timeline';
+import { IEngine, EngineState, ScreenerBlob, EngineOptions } from '@stoked-ui/timeline';
+import {FileBase} from "../models";
+import {EditorEvents, EditorEventTypes} from "./events";
 
-export interface IEditorEngine extends IEngine {
+export interface IEditorEngine<Events extends EditorEventTypes = EditorEventTypes> extends IEngine<Events> {
   readonly isRecording: boolean;
-
 
   record(param: {
     /** By default, it runs from beginning to end, with a priority greater than autoEnd */
@@ -13,7 +14,7 @@ export interface IEditorEngine extends IEngine {
 }
 
 const RECORDING = 'recording';
-export type EditorState = PlayState & typeof RECORDING;
+export type EditorEngineState = EngineState & typeof RECORDING;
 
 export function ScreenVideoBlob(blob: ScreenerBlob, engine: IEditorEngine) {
   engine.screenerBlob = blob;
@@ -23,3 +24,7 @@ export function ScreenVideoBlob(blob: ScreenerBlob, engine: IEditorEngine) {
   return url;
 }
 
+
+export type EditorEngineOptions = Omit<EngineOptions, 'events'> & {
+  events?: EditorEvents;
+}

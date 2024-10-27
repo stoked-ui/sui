@@ -2,7 +2,7 @@ import * as React from 'react';
 import {Theme} from '@mui/material/styles';
 import {SxProps} from '@mui/system';
 import {SlotComponentProps} from '@mui/base/utils';
-import { IController } from '../Engine/Controller.types';
+import { IController } from '../Controller/Controller.types';
 import {TimelineLabelsClasses} from './timelineLabelsClasses';
 import {TimelineState} from "../Timeline/TimelineState";
 import { ITimelineTrack } from "../TimelineTrack/TimelineTrack.types";
@@ -34,9 +34,6 @@ export interface TimelineLabelsPropsBase extends React.HTMLAttributes<HTMLDivEle
    */
   sx?: SxProps<Theme>;
 
-  engineRef: React.RefObject<IEngine>;
-
-  tracks: ITimelineTrack[];
   controllers: Record<string, IController>
   viewMode: ViewMode;
   detailMode?: boolean;
@@ -59,5 +56,4 @@ export interface TimelineLabelsProps
 
   onToggle?: (id: string, property: string) => void;
   setFlags?: (id: string) => string[];
-  setTracks:  React.Dispatch<React.SetStateAction<ITimelineTrack[]>>;
 }

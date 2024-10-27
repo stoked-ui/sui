@@ -32,7 +32,7 @@ export interface UseFileParameters {
   children?: React.ReactNode;
   type?: MediaType;
   size?: number;
-  modified?: number;
+  lastModified?: number;
   name?: string;
 }
 

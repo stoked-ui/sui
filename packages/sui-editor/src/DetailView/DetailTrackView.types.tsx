@@ -102,11 +102,11 @@ export function getTrackFormData(detail: DetailSelection): IDetailTrack | undefi
 
   return {
     id: track.id,
-    name: track.name ?? track.actionRef!.name!,
+    name: track.name ?? track.file!.name!,
     selected: track.selected ?? false,
     hidden: track.hidden ?? false,
     lock: track.lock ?? false,
-    file: track.actionRef!.file,
+    file: track.file,
   };
 }
 
