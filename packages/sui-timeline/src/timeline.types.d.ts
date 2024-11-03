@@ -1,5 +1,13 @@
 import {CSSProperties} from "@mui/system/CSSProperties";
 
+declare global {
+  interface Window {
+    end: any
+  }
+}
+
+/*
+
 declare class Emitter<T> {
   on(event: T, listener: Function): void;
   off(event: T, listener: Function): void;
@@ -8,6 +16,7 @@ declare class Emitter<T> {
 
 declare class EventTypes {
   constructor();
+
   play: string;
 
   pause: string;
@@ -30,28 +39,23 @@ declare interface ITimelineTrack {
   lock?: boolean
 }
 
-declare global {
-  interface Window {
-    end: any
-  }
-}
 
 declare interface ITimelineAction {
   selected?: boolean;
   flexible?: boolean;
   movable?: boolean;
   disable?: boolean;
-  /** Action id */
+  /!** Action id *!/
   id: string;
-  /** Action display name */
+  /!** Action display name *!/
   name?: string;
-  /** Action start time */
+  /!** Action start time *!/
   start: number;
-  /** Action end time */
+  /!** Action end time *!/
   end: number;
-  /** Minimum start time limit for actions */
+  /!** Minimum start time limit for actions *!/
   minStart?: number;
-  /** Maximum end time limit of action */
+  /!** Maximum end time limit of action *!/
   maxEnd?: number;
   onKeyDown?: (event: any, id: string) => void;
   data?: {
@@ -61,5 +65,6 @@ declare interface ITimelineAction {
   getBackgroundImage?: (actionType: any, src: string) => string;
 }
 
+*/
 
 export {};

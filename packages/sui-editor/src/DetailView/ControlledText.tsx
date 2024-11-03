@@ -8,7 +8,7 @@ import OutlinedStyle from "./OutlinedStyle";
 
 const TextFieldStyle = OutlinedStyle(TextField);
 
-export default function ControlledText({ control, name, label, disabled, className, rules, onFocus, onBlur, multiline, rows, onClick, format, type }: any) {
+export default function ControlledText({ ref, value, control, name, label, disabled, className, rules, onFocus, onBlur, multiline, rows, onClick, format, type }: any) {
 
   if (!rules) {
     rules = {
@@ -21,7 +21,22 @@ export default function ControlledText({ control, name, label, disabled, classNa
       return optionNamePart.charAt(0).toLowerCase() + optionNamePart.slice(1)
     }).join('.')
   }
-
+  if (disabled && value) {
+    return <TextFieldStyle
+      id={name}
+      onClick={onClick}
+      value={format ? format(value) : value} // input value
+      inputRef={ref}
+      multiline={multiline}
+      rows={rows}
+      label={label}
+      fullWidth
+      type={type}
+      variant={'outlined'}
+      disabled={disabled}
+      className={className}
+    />
+  }
   const {
     field,
     fieldState: { invalid, isTouched, isDirty, error },

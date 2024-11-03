@@ -1,20 +1,10 @@
 import { IMediaFile } from "@stoked-ui/media-selector";
 import {ControllerParams} from "./ControllerParams";
-import {type GetBackgroundImage, type ITimelineAction} from "../TimelineAction/TimelineAction.types";
-
-export interface DrawData {
-  source:  HTMLImageElement | SVGImageElement | HTMLVideoElement | HTMLCanvasElement | ImageBitmap | OffscreenCanvas | VideoFrame,
-  sx: number,
-  sy: number,
-  sWidth: number,
-  sHeight: number,
-  dx?: number,
-  dy?: number,
-  dWidth?: number,
-  dHeight?: number
-}
+import {type ITimelineAction} from "../TimelineAction/TimelineAction.types";
 
 export interface PreloadParams extends Omit<ControllerParams & { file: IMediaFile }, 'time'> {}
+
+export type GetBackgroundImage = (file: IMediaFile, options: any) => Promise<string>;
 
 export interface IController {
   start?: (params: ControllerParams) => void;
@@ -22,17 +12,16 @@ export interface IController {
   enter?: (params: ControllerParams) => void;
   leave: (params: ControllerParams) => void;
   update?: (params: ControllerParams) => void;
+  preload?: (params: PreloadParams) => Promise<ITimelineAction>;
+
   viewerUpdate?: (engine: any) => void;
-  draw?: (params: ControllerParams) => void;
-  getDrawData?: (params: ControllerParams) => DrawData;
   destroy?: () => void;
   color?: string;
   colorSecondary?: string;
   logging: boolean;
   backgroundImage?: string;
   getBackgroundImage?: GetBackgroundImage;
-  preload?: (params: PreloadParams) => Promise<ITimelineAction>;
-  getElement: (actionId: string) => HTMLElement;
+  getElement: (actionId: string) => any;
 }
 
 export type VolumeSection = [volume: number, start?: number, end?: number];

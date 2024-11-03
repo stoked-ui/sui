@@ -5,7 +5,7 @@ export interface EditorClasses {
   /** Styles applied to the root element. */
   root: string;
   editorView: string;
-  videoControls: string;
+  controls: string;
   timeline: string;
   fileExplorer: string;
 }
@@ -19,7 +19,7 @@ export function getEditorUtilityClass(slot: string): string {
 export const editorClasses: EditorClasses = generateUtilityClasses('MuiEditor', [
   'root',
   'editorView',
-  'videoControls',
+  'controls',
   'timeline',
   'fileExplorer',
 ]);

@@ -5,7 +5,7 @@ import { FileExplorerProps } from "./FileExplorer.types";
 import { File, FileProps } from "../File";
 
 export function FileWrapped<R extends IMediaFile, Multiple extends boolean | undefined>(props: Pick<FileExplorerProps<R, Multiple>, 'slots' | 'slotProps'> &
-  Pick<FileProps, 'children' | 'id' | 'itemId'> & { type: MediaType, size: number, lastModified: number, label: string, last?: boolean }) {
+  Pick<FileProps, 'children' | 'id' | 'itemId'> & { mediaType: MediaType, type: string, size: number, lastModified: number, label: string, last?: boolean }) {
   const {
     slots,
     slotProps,
@@ -15,6 +15,7 @@ export function FileWrapped<R extends IMediaFile, Multiple extends boolean | und
     id,
     itemId,
     type,
+    mediaType,
     size,
     lastModified,
     ...other
@@ -23,7 +24,7 @@ export function FileWrapped<R extends IMediaFile, Multiple extends boolean | und
   const itemProps = useSlotProps({
     elementType: Item,
     externalSlotProps: slotProps?.item,
-    additionalProps: { label, id, itemId, last, type, size, lastModified, ...other},
+    additionalProps: { label, id, itemId, last, type, mediaType, size, lastModified, ...other},
     ownerState: { itemId: itemId!, label },
   });
   return <Item {...itemProps}>{children}</Item>;

@@ -29,7 +29,8 @@ export interface UseFileParameters {
    * The content of the component.
    */
   children?: React.ReactNode;
-  type?: MediaType;
+  mediaType?: MediaType;
+  type?: string;
   size?: number;
   lastModified?: number;
   name?: string;

@@ -1,11 +1,15 @@
-import { Controller, ControllerParams,  IEngine, ITimelineAction, DrawData, PreloadParams } from "@stoked-ui/timeline";
+import { Controller, ControllerParams,  IEngine, ITimelineAction, PreloadParams } from "@stoked-ui/timeline";
 import { MediaFile } from "@stoked-ui/media-selector";
+import EditorController from "./EditorController";
+import {EditorControllerParams, EditorPreloadParams} from "./EditorControllerParams";
+import {DrawData, IEditorEngine} from "../EditorEngine";
+import {IEditorAction} from "../EditorAction/EditorAction";
 
 interface VideoDrawData extends Omit<DrawData, 'source'> {
   source: HTMLVideoElement
 }
 
-class VideoControl extends Controller {
+class VideoControl extends EditorController {
   cacheMap: Record<string, HTMLVideoElement> = {};
 
   cacheFrameSync: Record<string, number> = {};
@@ -29,7 +33,7 @@ class VideoControl extends Controller {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  async preload(params: PreloadParams): Promise<ITimelineAction> {
+  async preload(params: EditorPreloadParams): Promise<ITimelineAction> {
     const { action, engine, file } = params;
     const preloaded = !!file.element;
     const item = document.createElement('video') as HTMLVideoElement;
@@ -109,11 +113,7 @@ class VideoControl extends Controller {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  canvasSync(engine: IEngine, item: HTMLVideoElement, action: ITimelineAction) {
-    if (engine.viewMode === 'Screener') {
-      return;
-    }
-
+  canvasSync(engine: IEditorEngine, item: HTMLVideoElement, action: IEditorAction) {
     const { renderCtx, renderer } = engine;
     if (!renderer || !renderCtx) {
       return;
@@ -150,7 +150,7 @@ class VideoControl extends Controller {
     }
   }
 
-  draw(params: ControllerParams, videoData?: VideoDrawData) {
+  draw(params: EditorControllerParams, videoData?: VideoDrawData) {
     const { action, engine } = params;
     const dd = videoData ? videoData : this.getDrawData(params) as VideoDrawData;
 
@@ -158,7 +158,7 @@ class VideoControl extends Controller {
     engine.renderCtx?.drawImage(dd.source, dd.sx, dd.sy, dd.sWidth, dd.sHeight, dd.dx ?? 0, dd.dy ?? 0, dd.dWidth ?? 1920, dd.dHeight ?? 1080);
   }
 
-  getDrawData(params: ControllerParams): DrawData {
+  getDrawData(params: EditorControllerParams): DrawData {
     const { engine, action } = params;
     const item = this.cacheMap[action.id];
     this.log({time: item.currentTime, action, engine}, `getDrawData[${action.fit} | ${action.width} x ${action.height} @ { x: ${action.x}, y: ${action.y} }`)
@@ -221,7 +221,7 @@ class VideoControl extends Controller {
     }
   }
 
-  enter(params: ControllerParams) {
+  enter(params: EditorControllerParams) {
 
     const { action, engine } = params;
 
@@ -257,7 +257,7 @@ class VideoControl extends Controller {
     }
   }
 
-  start(params: ControllerParams) {
+  start(params: EditorControllerParams) {
     this.log(params, 'start')
     const { engine, action, time } = params;
     if (engine.isPlaying) {
@@ -272,14 +272,14 @@ class VideoControl extends Controller {
     }
   }
 
-  stop(params: ControllerParams) {
+  stop(params: EditorControllerParams) {
     this.log(params, 'stop')
     const { action } = params;
     const item = this.cacheMap[action.id];
     item.pause();
   }
 
-  update(params: ControllerParams) {
+  update(params: EditorControllerParams) {
 
     const { action, engine, time } = params;
     const item = this.cacheMap[action.id] as HTMLVideoElement;
@@ -342,7 +342,7 @@ class VideoControl extends Controller {
     } */
   }
 
-  leave(params: ControllerParams) {
+  leave(params: EditorControllerParams) {
     this.log(params, 'leave')
     const { action, time } = params;
     const item = this.cacheMap[action.id];
@@ -363,7 +363,6 @@ class VideoControl extends Controller {
       }
     }
     this.stop(params);
-
   }
 
   destroy() {

@@ -4,6 +4,8 @@ import generateUtilityClasses from '@mui/utils/generateUtilityClasses';
 export interface TimelineLabelsClasses {
   root: string;
   label: string;
+  template: string;
+  container: string;
 }
 
 export type TimelineLabelsClassKey = keyof TimelineLabelsClasses;
@@ -14,5 +16,7 @@ export function getTimelineLabelsUtilityClass(slot: string): string {
 
 export const timelineLabelsClasses: TimelineLabelsClasses = generateUtilityClasses('MuiTimelineLabels', [
   'root',
-  'label'
+  'label',
+  'template',
+  'container'
 ]);

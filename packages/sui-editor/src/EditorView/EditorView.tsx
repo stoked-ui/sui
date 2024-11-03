@@ -1,7 +1,8 @@
 import * as React from 'react';
 import {IMediaFile} from '@stoked-ui/media-selector';
-import {ViewMode, useTimeline} from "@stoked-ui/timeline";
+import {ITimelineFileProps, useTimeline} from "@stoked-ui/timeline";
 import SettingsIcon from '@mui/icons-material/Settings';
+import SaveIcon from '@mui/icons-material/Save';
 import IconButton from '@mui/material/IconButton';
 import composeClasses from "@mui/utils/composeClasses";
 import {useSlotProps} from '@mui/base/utils';
@@ -9,6 +10,11 @@ import useForkRef from "@mui/utils/useForkRef";
 import {createUseThemeProps, styled} from '../internals/zero-styled';
 import {EditorViewProps} from './EditorView.types';
 import {getEditorViewUtilityClass} from "./editorViewClasses";
+import {useEditorContext} from "../EditorProvider";
+import {keyframes} from "@emotion/react";
+import Loader from "../Editor/Loader";
+import EditorFile, {editorFileCache, IEditorFileProps} from '../Editor/EditorFile';
+import {useContext} from "react";
 
 const useThemeProps = createUseThemeProps('MuiEditorView');
 
@@ -27,7 +33,13 @@ const useUtilityClasses = <R extends IMediaFile, Multiple extends boolean | unde
 const EditorViewRoot = styled('div', {
   name: "MuiEditorView",
   slot: "root"
-})(() => ({
+})<{ loading: boolean }>(({ loading }) => {
+  const spin = keyframes`
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  `;
+  const anim = `2.5s cubic-bezier(0.35, 0.04, 0.63, 0.95) 0s infinite normal none running ${spin}`;
+  return {
   display: 'flex',
   flexDirection: 'column',
   width: '100%',
@@ -40,15 +52,26 @@ const EditorViewRoot = styled('div', {
   },
   '& #settings': {
     alignSelf: 'bottom'
+  },
+  '& #tri-loader':{
+    zIndex: 1000,
+    animation: anim,
+    transformOrigin: '50% 65%',
+    '& svg': {
+      transformOrigin: '50% 65%',
+      '& polygon': {
+        strokeDasharray: 17, animation: anim, transformOrigin: '0px 0px',
+      }
+    }
   }
-}));
+}});
 
 const Renderer = styled('canvas', {
   name: "MuiEditorViewRenderer",
   slot: "renderer",
   shouldForwardProp: (prop) => prop !== 'viewMode',
-})<{ viewMode?: ViewMode }>(({  viewMode }) => ({
-  display: viewMode === 'Renderer' ? 'flex' : 'none',
+})(() => ({
+  display: 'flex',
   flexDirection: 'column',
   position: 'absolute',
   left: 0,
@@ -70,8 +93,8 @@ const Screener = styled('video', {
   name: "MuiEditorViewScreener",
   slot: "screener",
   shouldForwardProp: (prop) => prop !== 'viewMode',
-})<{ viewMode?: ViewMode }>(({  viewMode }) => ({
-  display: viewMode === 'Screener' ? 'flex' : 'none',
+})(() => ({
+  display: 'none',
   flexDirection: 'column',
   width: '100%',
   position: 'absolute',
@@ -83,8 +106,8 @@ const Screener = styled('video', {
 
 const Stage = styled('div', {
   shouldForwardProp: (prop) => prop !== 'viewMode',
-})<{ viewMode?: ViewMode }>(({  viewMode }) => ({
-  display: viewMode === 'Edit' ? 'flex' : 'none',
+})(() => ({
+  display: 'none',
   flexDirection: 'column',
   width: 'fit-content',
   position: 'absolute',
@@ -111,7 +134,10 @@ const EditorView = React.forwardRef(function EditorView<
   inProps: EditorViewProps<R, Multiple>,
   ref: React.Ref<HTMLDivElement>
 ): React.JSX.Element {
-  const { id, file, engine } = useTimeline();
+  const editorContext = useEditorContext();
+  const { id, file, engine, isMobile } = editorContext;
+  const timelineContext = useTimeline();
+  console.log('isMobile', isMobile);
   const props = useThemeProps({ props: inProps, name: 'MuiEditorView' });
   const viewRef = React.useRef<HTMLDivElement>(null);
   const combinedViewRef = useForkRef(ref , viewRef);
@@ -176,6 +202,10 @@ const EditorView = React.forwardRef(function EditorView<
     ownerState: {...props, ref: viewRef },
   });
 
+  const saveHandler = async () => {
+    const newFile = new EditorFile(file as IEditorFileProps);
+    file?.save();
+  }
   // if the viewer resizes make the renderer match it
   React.useEffect(() => {
     const resizeObserver = new ResizeObserver((entries) => {
@@ -200,31 +230,58 @@ const EditorView = React.forwardRef(function EditorView<
 
     setShowSettingsPanel(false);
   }
-  return (
-    <Root role={'viewer'} {...rootProps} ref={combinedViewRef} data-preserve-aspect-ratio onMouseEnter={() => setShowSettings(true)} onMouseLeave={() => setShowSettings(false)}>
-      <Renderer role={'renderer'} ref={rendererRef} data-preserve-aspect-ratio viewMode={engine.viewMode || 'Renderer'}/>
-      <Screener role={'screener'} ref={screenerRef} viewMode={engine.viewMode || 'Renderer'} />
-      <Stage role={'stage'} ref={stageRef} viewMode={engine.viewMode || 'Renderer'} />
-      {showSettings &&
-        <IconButton
-          id={'settings'}
-          aria-label="settings"
-          sx={{
-            position: 'absolute',
-            right: '0px',
-            alignContent: 'top',
-            borderRadius: '24px'
-          }}
-          onClick={() => {
+  return (<Root role={'viewer'}
+                {...rootProps}
+                ref={combinedViewRef}
+                data-preserve-aspect-ratio
+                onMouseEnter={() => {
+                  setShowSettings(true)
 
-            setShowSettingsPanel(true)
-          }}
-        >
-          <SettingsIcon/>
-        </IconButton>
-      }
-    </Root>
-  )
+                }}
+                onMouseLeave={() => {
+                  setShowSettings(false)
+                }}
+  >
+
+    <Loader />
+    <Renderer role={'renderer'} style={{backgroundColor: file?.backgroundColor}} ref={rendererRef}
+              data-preserve-aspect-ratio/>
+    <Screener role={'screener'} ref={screenerRef}/>
+    <Stage role={'stage'} ref={stageRef}/>
+    {showSettings && (<React.Fragment>
+      {file && <IconButton
+        id={'save'}
+        aria-label="save"
+        sx={{
+          position: 'absolute',
+          right: '40px',
+          alignContent: 'top',
+          borderRadius: '24px',
+          margin: '8px'
+        }}
+        onClick={saveHandler}
+      >
+        <SaveIcon/>
+      </IconButton>}
+      <IconButton
+        id={'settings'}
+        aria-label="settings"
+        sx={{
+          position: 'absolute',
+          right: '0px',
+          alignContent: 'top',
+          borderRadius: '24px',
+          margin: '8px'
+        }}
+        onClick={() => {
+
+          setShowSettingsPanel(true)
+        }}
+      >
+        <SettingsIcon/>
+      </IconButton>
+    </React.Fragment>)}
+  </Root>)
 })
 
 export default EditorView;

@@ -9,6 +9,7 @@ import TimelineTrack from '../TimelineTrack/TimelineTrack';
 import {TimelineTrackAreaProps} from './TimelineTrackArea.types'
 import {useDragLine} from './useDragLine';
 import {useTimeline} from "../TimelineProvider";
+import {TimelineFile} from "../TimelineFile";
 
 /** edit area ref data */
 export interface TimelineTrackAreaState {
@@ -33,7 +34,8 @@ const TimelineTrackAreaRoot = styled('div')(() => ({
 }));
 
 const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrackAreaProps>((props, ref) => {
-  const { file: { tracks }} = useTimeline();
+  const { file } = useTimeline();
+  const tracks = TimelineFile.displayTracks(file?.tracks);
   const {
     rowHeight,
     scaleWidth,
@@ -53,7 +55,6 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
     onActionResizeEnd,
     onActionResizeStart,
     onActionResizing,
-    viewMode
   } = props;
   const { dragLineData, initDragLine, updateDragLine, disposeDragLine, defaultGetAssistPosition, defaultGetMovePosition } = useDragLine();
   const editAreaRef = React.useRef<HTMLDivElement>();

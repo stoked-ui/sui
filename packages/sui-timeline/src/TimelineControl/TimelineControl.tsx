@@ -45,7 +45,6 @@ const TimelineControl = React.forwardRef(
   function TimelineControl(props: TimelineControlProps, ref) {
     const checkedProps = checkProps(props);
     const { engine, file, dispatch } = useTimeline();
-    const { tracks } = file;
     const { style } = props;
     const {
       scrollTop,
@@ -60,8 +59,8 @@ const TimelineControl = React.forwardRef(
       scaleSplitCount: initialScaleSplitCount,
       autoReRender = true,
       onScroll: onScrollVertical,
+      disabled,
     } = checkedProps;
-
 
     const domRef = React.useRef<HTMLDivElement>(null);
 
@@ -92,7 +91,7 @@ const TimelineControl = React.forwardRef(
 
     /** Monitor data changes */
     React.useEffect(() => {
-      handleSetScaleCount(getScaleCountByRows(tracks, { scale }));
+      handleSetScaleCount(getScaleCountByRows(file?.tracks || [], { scale }));
     }, [minScaleCount, maxScaleCount, scale]);
 
     React.useEffect(() => {
@@ -112,8 +111,8 @@ const TimelineControl = React.forwardRef(
     React.useEffect(() => {
       const getDuration = () => {
         let furthest = 0;
-        if (tracks) {
-          tracks.forEach((row) => {
+        if (file?.tracks) {
+          file.tracks.forEach((row) => {
             row?.actions?.forEach((action) => {
               if (action.end > furthest) {
                 furthest = action.end;
@@ -128,7 +127,7 @@ const TimelineControl = React.forwardRef(
       setDuration(durr);
       setMaxScaleCount( durr + 2 );
 
-    }, [tracks]);
+    }, [file?.tracks]);
 
 
     // deprecated
@@ -272,22 +271,10 @@ const TimelineControl = React.forwardRef(
     }
 
     const [initialized, setInitialized] = React.useState(false);
-    /* React.useEffect(() => {
-      if (width !== Number.MAX_SAFE_INTEGER && duration && !initialized) {
-        const newScaleWidth = getInitialScaleWidth(startLeft, minScaleCount, areaRef.current.clientWidth);
-        setScaleWidth(newScaleWidth);
-        setInitialized(true);
-      }
-    })
-    React.useEffect(() => {
-      setInitialized(false);
-    }, [engineRef?.current.viewMode]) */
 
     React.useEffect(() => {
-      console.log('width', width, '!initialized', !initialized, 'initializeBool', width !== Number.MAX_SAFE_INTEGER && !initialized)
-      if (width === Number.MAX_SAFE_INTEGER && !initialized && gridRef.current?.clientWidth && duration) {
+      if (width === Number.MAX_SAFE_INTEGER && !initialized && gridRef.current?.clientWidth && duration && !engine.isLoading) {
         const { scaleWidth: newScaleWidth, scale: newScale } = getInitialScaleData(startLeft, duration, minScaleCount, gridRef.current?.clientWidth);
-        console.info('newScale', newScale, 'newScaleWidth', newScaleWidth);
         setScale(newScale);
         setScaleWidth(newScaleWidth);
         props.setScaleWidth?.(newScaleWidth);
@@ -316,12 +303,13 @@ const TimelineControl = React.forwardRef(
       };
     }, []);
 
+    console.log('maxScaleCount', maxScaleCount, 'scaleCount', scaleCount, 'minScaleCount', minScaleCount, 'scaleWidth', scaleWidth, 'scale', scale);
     return (
       <TimelineControlRoot
         style={style}
         sx={{...props.sx, backgroundColor: 'unset'}}
         ref={domRef}
-        className={`${PREFIX} ${disableDrag ? `${PREFIX}-disable` : ''}`}
+        className={`${PREFIX} ${disableDrag ? `${PREFIX}-disable` : ''} ${engine.isLoading ? `${PREFIX}-loaded` : ''}`}
       >
         <ScrollSync ref={scrollSync}>
           {({ scrollLeft, scrollTop: scrollTopCurrent, onScroll }) => (
@@ -336,6 +324,7 @@ const TimelineControl = React.forwardRef(
                 setScaleCount={handleSetScaleCount}
                 onScroll={onScroll}
                 scrollLeft={scrollLeft}
+                disabled={disabled}
               />
               <TimelineTrackArea
                 {...newProps}
@@ -344,7 +333,6 @@ const TimelineControl = React.forwardRef(
                   (areaRef.current as any) = editAreaRef?.domRef.current;
                   (gridRef.current as any) = editAreaRef?.gridRef.current;
                 }}
-                viewMode={engine.viewMode}
                 disableDrag={disableDrag || isPlaying}
                 cursorTime={cursorTime}
                 scaleCount={scaleCount}
@@ -386,17 +374,6 @@ const TimelineControl = React.forwardRef(
             const { scaleWidth: newScaleWidth, scale: newScale } = getInitialScaleData(startLeft, duration, minScaleCount, gridRef.current.clientWidth - value);
             setScale(newScale);
             setScaleWidth(newScaleWidth);
-            // const newScaleWidth = getInitialScaleWidth(startLeft, minScaleCount, areaRef.current.clientWidth - value);
-             // if (newScaleWidth < 20) {
-              // props.setScaleWidth(newScaleWidth * 2);
-              //  setScale(scale * 2)
-            // } else {
-              // props.setScaleWidth(newScaleWidth);
-            // }
-
-            //const newScaleWidth = getInitialScaleWidth(startLeft, minScaleCount,
-            // areaRef.current.clientWidth - value);
-            //setScaleWidth(newScaleWidth);
             return true;
           }}
         />

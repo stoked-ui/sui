@@ -15,7 +15,7 @@ packageName: '@stoked-ui/timeline'
 ## Timeline
 
 ```jsx
-import { Timeline } from '@stoked-ui/timeline/Timeline';
+import Timeline from '@stoked-ui/timeline';
 ```
 
 The Timeline component receives its actions either from input props or files that can be dragged and dropped onto the control itself.

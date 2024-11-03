@@ -2,16 +2,14 @@ import * as React from 'react';
 import {SxProps, Theme} from "@mui/material/styles";
 import {SlotComponentProps} from "@mui/material";
 import {CSSProperties} from "@mui/system/CSSProperties";
-import {IMediaFile, MediaFile } from "@stoked-ui/media-selector";
+import {IMediaFile, MediaFile, namedId } from "@stoked-ui/media-selector";
 import {TimelineActionClasses} from "./timelineActionClasses";
 import {DragLineData} from "../TimelineTrackArea/TimelineTrackAreaDragLines";
 import {CommonProps} from '../interface/common_prop';
 import {type ITimelineTrack } from "../TimelineTrack/TimelineTrack.types";
-import {DrawData, IController} from '../Controller/Controller.types';
-
-export type GetBackgroundImage = (file: IMediaFile) => Promise<string>;
-
-
+import {IController} from '../Controller/Controller.types';
+import Controller from "../Controller";
+import { IEngine } from '../Engine/Engine.types';
 
 export interface TimelineActionState {
   /** Whether the action is selected */
@@ -28,61 +26,33 @@ export interface TimelineActionState {
   locked?: boolean;
 }
 
-export interface ITimelineActionUserData {
+
+export interface ITimelineFileAction
+  extends TimelineActionState {
   /** action id */
-  id: string;
+  id?: string;
   /** action display name */
   name?: string;
   /** Action start time */
   start?: number;
   /** Action end time */
   end?: number;
-  /** The controllerName corresponding to the action */
-  controllerName?: string;
 
   trimStart?: number;
 
   trimEnd?: number;
 
-  layer?: string;
-
   playbackRate?: number;
-
-  velocity?: number;
-
-  acceleration?: number;
 
   freeze?: number;
 
   loop?: boolean | number;
 
-  width?: number;
+  volume?: [ volume: number, start?: number, end?: number] [];
 
-  height?: number;
+  url?: string;
 
-  z?: number;
-
-  x?: number | string;
-
-  y?: number | string;
-
-  fit?:
-    'fill'    | // The action is resized to fill the given dimension. If necessary, the action will be stretched or squished to fit
-    'cover'   | // The action keeps its aspect ratio and fills the given dimension. The action will be clipped to fit
-    'contain' | // The action keeps its aspect ratio, but is resized to fit within the given dimension
-    'none'      // DEFAULT - The action is not resized
-
-  volume?: [ volume: number, start?: number, end?: number] []
-}
-
-export interface ITimelineFileAction
-  extends TimelineActionState, Omit<ITimelineActionUserData, 'id' | 'file'> {
-  /** action id */
-  id?: string;
-
-  layer?: string;
-
-  style?: React.CSSProperties;
+  style?: CSSProperties;
 }
 
 /**
@@ -91,31 +61,21 @@ export interface ITimelineFileAction
  * @interface ITimelineAction
  */
 export interface ITimelineAction
-  extends Omit<ITimelineFileAction, 'id' | 'start' | 'end' | 'width' | 'height' | 'x' | 'y' | 'z' | 'fit' | 'name'> {
+  extends Omit<ITimelineFileAction, 'id' | 'start' | 'end' | 'name' | 'url' | 'style'> {
   /** action id */
   id: string;
-
+  /** action display name */
   name: string;
+  /** Action start time */
+  start: number;
+  /** Action end time */
+  end: number;
 
   onKeyDown?: (event: any, id: string) => void;
 
   duration?: number;
 
   style?: CSSProperties;
-  /** Action start time */
-  start: number;
-  /** Action end time */
-  end: number;
-
-  width: number;
-
-  height: number;
-
-  z: number;
-
-  x?: number;
-
-  y?: number;
 
   getBackgroundImage?: (actionType: IController, src: string) => string;
 
@@ -124,21 +84,40 @@ export interface ITimelineAction
   minStart?: number;
   /** Maximum end time limit of action */
   maxEnd?: number;
+
   playCount?: number;
 
-  nextFrame?: DrawData;
-
   volumeIndex: number;
-
-  fit:
-    'fill'    | // The action is resized to fill the given dimension. If necessary, the action will be stretched or squished to fit
-    'cover'   | // The action keeps its aspect ratio and fills the given dimension. The action will be clipped to fit
-    'contain' | // The action keeps its aspect ratio, but is resized to fit within the given dimension
-    'none'      // DEFAULT - The action is not resized
-
 }
 
-export type ITimelineActionLayer = 'background' | 'foreground';
+function setVolumeIndex(action: ITimelineFileAction) {
+  if (!action.volume) {
+    return -2; // -2: no volume parts available => volume 1
+  } else {
+    for (let i = 0; i < action.volume!.length; i += 1) {
+      const { volume } = Controller.getVol(action.volume![i]);
+
+      if (volume < 0 || volume > 1) {
+        console.info(`${action.name} specifies a volume of ${volume} which is outside the standard range: 0.0 - 1.0`)
+      }
+    }
+    return -1; // -1: volume part unassigned => volume 1 until assigned
+  }
+}
+
+export type ActionInitFunc = (engine: IEngine, action: ITimelineFileAction, index: number) => ITimelineAction;
+
+export const initTimelineAction: ActionInitFunc = (engine: IEngine, fileAction: ITimelineFileAction, trackIndex: number) => {
+  const newAction = fileAction as ITimelineAction;
+  newAction.volumeIndex = setVolumeIndex(newAction)
+
+  if (!newAction.id) {
+    newAction.id = namedId('action');
+  }
+
+  return newAction;
+}
+
 
 export interface TimelineActionSlots {
   /**

@@ -38,6 +38,7 @@ export const FileRoot = styled('li', {
     prop !== 'webkitRelativePath' &&
     prop !== 'mediaType' &&
     prop !== 'type' &&
+    prop !== 'mediaType' &&
     prop !== 'text' &&
     prop !== 'icon',
 })(({ theme }) => ({

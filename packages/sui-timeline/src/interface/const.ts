@@ -16,7 +16,9 @@ export const DEFAULT_MOVE_GRID = 1;
 /** Default adsorption pixel */
 export const DEFAULT_ADSORPTION_DISTANCE = 8;
 /** Default action track height */
-export const DEFAULT_ROW_HEIGHT = 32;
+export const DEFAULT_TRACK_HEIGHT = 36;
+/** Default mobile action track height */
+export const DEFAULT_MOBILE_ROW_HEIGHT = 60;
 
 /** Minimum number of scales */
 export const MIN_SCALE_COUNT = 10;

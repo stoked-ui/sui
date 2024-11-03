@@ -4,7 +4,7 @@ import ShowcaseContainer from 'docs/src/components/home/ShowcaseContainer';
 import HighlightedCode from 'docs/src/modules/components/HighlightedCode';
 import MarkdownElement from 'docs/src/components/markdown/MarkdownElement';
 import {SxProps} from "@mui/system";
-import {IController, Timeline } from "@stoked-ui/timeline";
+import Timeline, { IController } from "@stoked-ui/timeline";
 
 
 const code = `
@@ -15,7 +15,7 @@ const actions = [
       start: 0,
       end: 20,
       controllerName: 'effect',  // Use the new video effect
-      src: '/static/video-editor/stock-loop.mp4',
+      src: '/static/editor/stock-loop.mp4',
       layer: 'background',
     },
     {
@@ -72,7 +72,7 @@ function TimelineEditorDemo() {
       start: 0,
       end: 20,
       controllerName: 'effect',  // Use the new video effect
-      src: '/static/video-editor/stock-loop.mp4',
+      src: '/static/editor/stock-loop.mp4',
       layer: 'background',
     },
     {

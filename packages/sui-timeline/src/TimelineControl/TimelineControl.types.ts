@@ -3,7 +3,6 @@ import {SxProps, Theme} from "@mui/material/styles";
 import type { IController } from '../Controller/Controller.types';
 import type {ITimelineAction} from "../TimelineAction/TimelineAction.types";
 import {type ITimelineTrack} from "../TimelineTrack/TimelineTrack.types";
-import type {IEngine, ViewMode} from "../Engine/Engine.types";
 
 export interface TimelineControlPropsBase {
   /**
@@ -61,7 +60,6 @@ export interface TimelineControlPropsBase {
    * @default false
    */
   disableDrag?: boolean;
-  viewMode?: ViewMode;
   /**
    * @description Custom action area rendering
    */

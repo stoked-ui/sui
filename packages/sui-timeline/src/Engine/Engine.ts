@@ -1,20 +1,14 @@
 import BTree from "sorted-btree";
-import {openDB} from '@tempfix/idb';
-import {getKeysStartingWithPrefix} from "../db/get";
-import {type ITimelineAction} from '../TimelineAction/TimelineAction.types'
-import {DrawData, type IController} from '../Controller/Controller.types';
+import {type ITimelineAction, ITimelineFileAction} from '../TimelineAction/TimelineAction.types'
+import {type IController} from '../Controller/Controller.types';
 import {
   type IEngine,
   type EngineState,
-  ScreenerBlob,
-  type ViewMode,
   type EngineOptions,
-  Version, MediaFileFromScreenerBlob
 } from './Engine.types';
 import { type ITimelineTrack} from '../TimelineTrack/TimelineTrack.types';
 import {Events, type EventTypes} from './events'
-import {Emitter} from './emitter'
-;
+import {Emitter} from './emitter';
 
 
 /**
@@ -28,26 +22,6 @@ export default class Engine<
   State extends string = EngineState,
   EmitterEvents extends EventTypes = EventTypes
 > extends Emitter<EmitterEvents> implements IEngine<EmitterEvents> {
-
-  protected _viewer: HTMLElement | null = null;
-
-  protected _renderer: HTMLCanvasElement | null = null;
-
-  protected _renderCtx: CanvasRenderingContext2D | null = null;
-
-  protected _rendererDetail: HTMLCanvasElement | null = null;
-
-  protected _renderDetailCtx: CanvasRenderingContext2D | null = null
-
-  protected  _renderWidth: number = 0;
-
-  protected _renderHeight: number = 0;
-
-  protected _screener: HTMLVideoElement | null = null;
-
-  protected _screenerBlob: ScreenerBlob | null = null;
-
-  protected _stage: HTMLDivElement | null = null;
 
   protected _logging: boolean = false;
 
@@ -67,7 +41,7 @@ export default class Engine<
   /** Playback status */
   _state: State;
 
-  protected _viewMode: ViewMode;
+
 
   /** Time frame pre data */
   protected _prev: number = 0;
@@ -91,14 +65,19 @@ export default class Engine<
 
   constructor(params: EngineOptions ) {
     super(params.events ?? new Events())
-    if (params?.viewer) {
-      this.viewer = params.viewer;
-    }
+
     if (params?.controllers) {
       this._controllers = params.controllers;
     }
     this._state = 'loading' as State;
-    this._viewMode = 'Renderer';
+  }
+
+  get state() {
+    return this._state as string;
+  }
+
+  set state(newState: string) {
+    this._state = newState as State;
   }
 
   get logging() {
@@ -115,17 +94,9 @@ export default class Engine<
     }
   }
 
-  get screener() {
+  /* get screener() {
     return this._screener;
-  }
-
-  get screenerBlob() {
-    return this._screenerBlob;
-  }
-
-  set screenerBlob(blob: ScreenerBlob) {
-    this._screenerBlob = blob;
-  }
+  } */
 
   get actions() {
     return this._actionMap;
@@ -139,42 +110,6 @@ export default class Engine<
     return undefined;
   }
 
-  set viewer(viewer: HTMLElement) {
-    this._viewer = viewer;
-    const renderer = viewer.querySelector("canvas[role='renderer']") as HTMLCanvasElement;
-    this._screener = viewer.querySelector("video[role='screener']") as HTMLVideoElement;
-    this._stage = viewer.querySelector("div[role='stage']") as HTMLDivElement;
-    if (renderer) {
-      renderer.width = this.renderWidth;
-      renderer.height = this.renderHeight;
-
-      this._renderer = renderer;
-
-      const ctx = renderer.getContext('2d', { alpha: true, willReadFrequently: true });
-      if (ctx) {
-        this._renderCtx = ctx;
-        this._renderCtx.clearRect(0, 0, this.renderWidth, this.renderHeight);
-
-      }
-    }
-
-    this._viewerUpdate();
-    if (!(this.renderer && this.viewer && this.renderCtx)) {
-      throw new Error('Assigned a viewer but could not locate the renderer, renderCtx, or' +
-                      ' preview elements.\n' +
-                      'Please ensure that the viewer has the following children:\n' +
-                      `  - renderer (canvas with working 2d context): ${this.renderer}` +
-                      `  - viewer: ${this.viewer}`);
-    }
-  }
-
-  get viewer(): HTMLElement | null {
-    return this._viewer;
-  }
-
-  get stage(): HTMLDivElement | null {
-    return this._stage;
-  }
 
   get duration() {
     const actions = Object.values(this._actionMap);
@@ -185,144 +120,6 @@ export default class Engine<
       }
     }
     return end;
-  }
-
-  get renderer(): HTMLCanvasElement | null {
-    return this._renderer;
-  }
-
-  set renderer(canvas: HTMLCanvasElement) {
-    this._renderer = canvas;
-    if (canvas) {
-      canvas.width = this.renderWidth;
-      canvas.height = this.renderHeight;
-      const ctx = canvas.getContext('2d', { alpha: true, willReadFrequently: true });
-
-      if (!ctx) {
-        throw new Error('Could not get 2d context from renderer');
-      }
-      this._renderCtx = ctx;
-      this._renderCtx.clearRect(0, 0, this.renderWidth, this.renderHeight);
-    }
-  }
-
-  get renderCtx() {
-    return this._renderCtx;
-  }
-
-  get rendererDetail() {
-    return this._rendererDetail;
-  }
-
-  set rendererDetail(canvas: HTMLCanvasElement) {
-    this._rendererDetail = canvas;
-    if (canvas) {
-      canvas.width = this.renderWidth;
-      canvas.height = this.renderHeight;
-      const ctx = canvas.getContext('2d', { alpha: true, willReadFrequently: true });
-
-      if (!ctx) {
-        throw new Error('Could not get 2d context from renderer');
-      }
-      this._renderDetailCtx = ctx;
-      this._renderDetailCtx.clearRect(0, 0, this.renderWidth, this.renderHeight);
-    }
-  }
-
-  get renderDetailCtx() {
-    return this._renderDetailCtx;
-  }
-
-  setRenderView(width: number, height: number) {
-    this._renderWidth = width;
-    this._renderHeight = height;
-  }
-
-  get renderWidth() {
-    return this._renderWidth || 1920
-  }
-
-  get renderHeight() {
-    return this._renderHeight || 1080
-  }
-
-  get viewMode() {
-    return this._viewMode;
-  }
-
-  async setViewMode(viewMode: ViewMode) {
-    if (viewMode === this._viewMode) {
-      return;
-    }
-    if (viewMode === 'Renderer') {
-      this._screener.style.display = 'none';
-      this._renderer.style.display = 'flex';
-    } else if (viewMode === 'Screener') {
-      this._screener.style.display = 'flex';
-      this._renderer.style.display = 'none';
-    }
-  /*   if (viewMode === 'Screener' && !this.screenerTrack) {
-      if (!this.screenerBlob) {
-        return;
-      }
-
-      const url = URL.createObjectURL(this.screenerBlob?.blob)
-      const actionInput = {
-        name: `${this.screenerBlob.name} v${this.screenerBlob.version}`,
-        start: 0,
-        end: 1,
-        controllerName: 'video',
-        src: url,
-        layer: 'screener',
-      }
-
-      // this.screenerTrack = await this.buildScreenerTrack(this._controllers.video, actionInput)
-      this.screener.src = url;
-    } */
-    this._viewMode = viewMode;
-  }
-
-  static async loadVersion(dbKey: string | number): Promise<ScreenerBlob> {
-    const db = await openDB('editor', 1);
-    const store = db.transaction('video').objectStore('video');
-    return store.get(dbKey);
-  };
-
-  async getVersionKeys(id: string) {
-    const matchingKeys = await getKeysStartingWithPrefix('editor', 'video', id)
-    return matchingKeys.map((match) => {
-      const parts = match.split('|');
-      return { id: parts[0], version: Number(parts[1]), key: match} as Version;
-    })
-  }
-
-  async getVersions(id: string): Promise<ScreenerBlob[]> {
-    const versions = await this.getVersionKeys(id);
-    const promises = versions.map((version) => Engine.loadVersion(version.key))
-    return Promise.all(promises);
-  }
-
-  async versionFiles(id: string) {
-    const versionBlobs = await this.getVersions(id);
-    return versionBlobs.map((versionBlob) => {
-     /*  const newId = versionBlob.key;
-      const type = 'video/mp4';
-      const mediaType = 'video';
-      const fileBase = {
-        mime: type,
-        type: mediaType,
-        id: newId,
-        itemId: newId,
-
-        label: versionBlob.name,
-        expanded: false,
-        modified: Date.now(),
-        size: 0,
-        children: [] as IMediaFile[],
-        parent: null,
-      } as IMediaFile; */
-      return MediaFileFromScreenerBlob(versionBlob);
-    })
   }
 
   getAction(actionId: string) {
@@ -348,8 +145,8 @@ export default class Engine<
     return actionTracks;
   }
 
-  get loading() {
-    return this._state === 'loading';
+  get isReady() {
+    return this._state === 'ready';
   }
 
   get isLoading() {
@@ -378,11 +175,6 @@ export default class Engine<
     this._dealEnter(this._currentTime);
   }
 
-  loaded() {
-    if (this._renderCtx && this._state === 'loading') {
-      this._state = 'paused' as State;
-    }
-  }
   /**
    * Set playback rate
    * @memberof Engine
@@ -402,23 +194,6 @@ export default class Engine<
     return true;
   }
 
-  async saveVersion(vidBlob: ScreenerBlob) {
-    let res;
-    try {
-
-      // Create an example Blob object
-      const db = await openDB('editor', 1);
-      const store = db.transaction('video', 'readwrite').objectStore('video');
-
-      // Store the object
-      const req = await store.put(vidBlob, vidBlob.key);
-      res = req;
-    } catch (e) {
-      console.error(e);
-      throw new Error(e as string);
-    }
-    return res;
-  };
 
   /**
    * Get playback rate
@@ -451,18 +226,11 @@ export default class Engine<
     if (!result) {
       return false;
     }
-    if (this._viewMode === 'Renderer') {
-      this._currentTime = time;
-    } else {
-      this._screener.currentTime = time;
-    }
 
     this._next = 0;
-    if (this.detailMode) {
-      this.renderDetailCtx?.clearRect(0, 0, this.renderWidth, this.renderHeight);
-    } else {
-      this.renderCtx?.clearRect(0, 0, this.renderWidth, this.renderHeight);
-    }
+
+    this._currentTime = time;
+
     this._dealLeave(time);
     this._dealEnter(time);
 
@@ -481,7 +249,7 @@ export default class Engine<
    * @memberof Engine
    */
   getTime(): number {
-    return this._viewMode === 'Renderer' ? this._currentTime : this._screener.currentTime;
+    return this._currentTime;
   }
 
   /**
@@ -511,21 +279,11 @@ export default class Engine<
 
     // trigger event
     this.trigger('play' as keyof EmitterEvents, { engine: this as IEngine } as EmitterEvents[keyof EmitterEvents]);
-    if (this.viewMode === 'Screener') {
-      this.screener.play()
-        .then(() => {
-          this._timerId = requestAnimationFrame((time: number) => {
 
-            this._prev = time;
-            this._tick({now: time, autoEnd, to: toTime});
-          });
-        })
-    } else {
-      this._timerId = requestAnimationFrame((time: number) => {
-        this._prev = time;
-        this._tick({now: time, autoEnd, to: toTime});
-      });
-    }
+    this._timerId = requestAnimationFrame((time: number) => {
+      this._prev = time;
+      this._tick({now: time, autoEnd, to: toTime});
+    });
 
     return true;
   }
@@ -538,11 +296,6 @@ export default class Engine<
     if (this.isPlaying) {
       const previousState = this._state;
       this._state = 'paused' as State;
-
-      if (this._viewMode === 'Screener') {
-        this._screener.pause();
-        return;
-      }
 
       // activeIds run stop
       this._startOrStop('stop');
@@ -558,60 +311,21 @@ export default class Engine<
     this.trigger('ended' as keyof EmitterEvents, { engine: this as IEngine } as EmitterEvents[keyof EmitterEvents]);
   }
 
-  protected _assignElements() {
-    const getEditorRole = (role: string) => {
-      return document.querySelector(`[role=${role}]`)
-    }
-    const renderer = getEditorRole('renderer');
-    if (renderer) {
-      this.renderer = renderer as HTMLCanvasElement;
-    }
-  }
-
-  protected _viewerUpdate() {
-    this._assignElements()
-    const controllers: IController[] = Object.values(this._controllers);
-    for (let i = 0; i < controllers.length; i += 1){
-      const actionType = controllers[i];
-      if (actionType?.viewerUpdate) {
-        actionType.viewerUpdate(this);
-      }
-    }
-  }
-
-  protected _verifyLoaded() {
-    if (this._state === 'loading') {
-      const notReadyYet = new Error('start or stop before finished loading')
-      console.error(notReadyYet);
-      return false
-    }
-    return true;
-  }
-
   protected _startOrStop(type?: 'start' | 'stop') {
-    if (!this._verifyLoaded()) {
+    if (this.isLoading) {
       return;
     }
 
-    if (this._viewMode === 'Screener') {
-      /* const screenerAction = this.screenerTrack.actionRef;
-      if (type === 'start' && screenerAction?.controller?.start && !this.screenerTrack.hidden) {
-        screenerAction.controller.start({action: screenerAction, time: this.getTime(), engine: this});
-      } else if (type === 'stop' && screenerAction?.controller?.stop && !this.screenerTrack.hidden) {
-        screenerAction.controller.stop({action: screenerAction, time: this.getTime(), engine: this});
-      } */
-    } else {
-      // eslint-disable-next-line no-restricted-syntax
-      this._activeIds.forEach((key, ) => {
-        const action = this._actionMap[key];
-        const track = this._actionTrackMap[action.id];
-        if (type === 'start' && track?.controller?.start && !track.hidden) {
-          track.controller.start({action, time: this.getTime(), engine: this as IEngine });
-        } else if (type === 'stop' && track?.controller?.stop && !track.hidden) {
-          track.controller.stop({action, time: this.getTime(), engine: this as IEngine });
-        }
-      });
-    }
+    // eslint-disable-next-line no-restricted-syntax
+    this._activeIds.forEach((key, ) => {
+      const action = this._actionMap[key];
+      const track = this._actionTrackMap[action.id];
+      if (type === 'start' && track?.controller?.start && !track.hidden) {
+        track.controller.start({action, time: this.getTime(), engine: this as IEngine });
+      } else if (type === 'stop' && track?.controller?.stop && !track.hidden) {
+        track.controller.stop({action, time: this.getTime(), engine: this as IEngine });
+      }
+    });
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -628,11 +342,7 @@ export default class Engine<
 
   /** Execute every frame */
   protected _tick(data: { now: number; autoEnd?: boolean; to?: number }) {
-    if (!this._verifyLoaded()) {
-      return;
-    }
-
-    if (this.isPaused) {
+    if (this.isLoading || this.isPaused) {
       return;
     }
 
@@ -681,16 +391,10 @@ export default class Engine<
 
   /** tick runs actions */
   tickAction(time: number) {
-    if (!this._verifyLoaded() || !this._renderCtx || (this.detailMode === true && !this.renderDetailCtx)) {
+    if (this.isLoading) {
       return;
     }
     this.log('tickAction')
-
-    if (this.detailMode) {
-      this.renderDetailCtx?.clearRect(0, 0, this.renderWidth, this.renderHeight);
-    } else {
-      this.renderCtx?.clearRect(0, 0, this.renderWidth, this.renderHeight);
-    }
 
     this._dealEnter(time);
     this._dealLeave(time);
@@ -714,13 +418,6 @@ export default class Engine<
     this.trigger('setScrollLeft' as keyof EmitterEvents, { left, engine: this as IEngine } as EmitterEvents[keyof EmitterEvents]);
   }
 
-  drawImage(dd: DrawData) {
-    if (this.detailMode) {
-      this.renderDetailCtx?.drawImage(dd.source, dd.sx, dd.sy, dd.sWidth, dd.sHeight, dd.dx ?? 0, dd.dy ?? 0, dd.dWidth ?? 1920, dd.dHeight ?? 1080);
-    } else {
-      this.renderCtx?.drawImage(dd.source, dd.sx, dd.sy, dd.sWidth, dd.sHeight, dd.dx ?? 0, dd.dy ?? 0, dd.dWidth ?? 1920, dd.dHeight ?? 1080);
-    }
-  }
 
   /** Reset active data */
   protected _dealClear() {
@@ -767,7 +464,7 @@ export default class Engine<
             controller.enter({action, time: this.getTime(), engine: this as IEngine});
           }
 
-          this._activeIds.set(action.z, actionId);
+          this._activeIds.set(this._next, actionId);
         }
       }
       this._next += 1;
@@ -785,7 +482,7 @@ export default class Engine<
 
         // Not within the playback area or hidden
         if (action.start > time || action.end < time || track.hidden) {
-          const controller = this._controllers[action.controllerName];
+          const controller = track.controller;
 
           if (controller && controller?.leave) {
             controller.leave({action, time: this.getTime(), engine: this as IEngine});
@@ -818,59 +515,5 @@ export default class Engine<
     });
     this._actionMap = actionMap;
     this._actionSortIds = actionSortIds;
-  }
-
-  static parseCoord(
-    coord: number | string,
-    coordContext: number,
-    sceneContext: number
-  ): number {
-
-    // Helper to evaluate calc expressions like 'calc(100% - 20px)'
-    const evaluateCalc = (expression: string, localSize: number, sceneSize: number): number => {
-      // Replace 'vw' and 'vh' with '100%' since they map to width and height in this context
-      expression = expression.replace(/(\d+)vw/g, (_, value) => `${(parseFloat(value) / 100) * (sceneSize - localSize)}px`);
-
-      // Replace percentage values with their evaluated numbers
-      expression = expression.replace(/(\d+)%/g, (_, value) => `${(parseFloat(value) / 100) * (sceneSize - localSize)}`);
-
-      // Use `eval` to compute the final expression
-      // eslint-disable-next-line no-eval
-      const result = eval(expression);
-      if (Number.isNaN(result)) {
-        throw new Error(`Failed to evaluate calc expression: ${expression}`);
-      }
-      return result;
-    };
-
-    const parseValue = (value: number | string, localSize: number, sceneSize: number): number => {
-      if (typeof value === 'number') {
-        // If it's already a number, return it directly
-        return value;
-      }
-
-      if (typeof value === 'string') {
-        // Handle calc() values like 'calc(100% - 20px)'
-        if (value.startsWith('calc(') && value.endsWith(')')) {
-          const expression = value.slice(5, -1); // Extract the expression inside calc()
-          return evaluateCalc(expression, localSize, sceneSize);
-        }
-
-        // Handle pixel values like '20px'
-        if (value.endsWith('px')) {
-          return parseFloat(value); // Convert the string to a number
-        }
-
-        // Handle percentage values like '50%'
-        if (value.endsWith('%')) {
-          const percentage = parseFloat(value) / 100;
-          return (sceneSize - localSize) * percentage; // Calculate percentage of the total
-        }
-      }
-
-      throw new Error(`Unsupported format for value: ${value}`);
-    };
-
-    return parseValue(coord, coordContext, sceneContext);
   }
 }

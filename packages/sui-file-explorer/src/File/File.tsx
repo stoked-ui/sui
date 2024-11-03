@@ -61,6 +61,7 @@ export const File = React.forwardRef(function File(
     slots = {},
     slotProps = {},
     type,
+    mediaType,
     size,
     lastModified,
     sx,
@@ -76,6 +77,7 @@ export const File = React.forwardRef(function File(
     slots,
     slotProps,
     type,
+    mediaType,
     size,
     lastModified,
     sx,
@@ -161,8 +163,8 @@ export const File = React.forwardRef(function File(
   let icon;
   if (status.expandable) {
     icon = FolderRounded;
-  } else if (item.type) {
-    icon = getIconFromFileType(item.itemId === 'trash' ? 'trash' : item.type);
+  } else if (item.mediaType) {
+    icon = getIconFromFileType(item.itemId === 'trash' ? 'trash' : item.mediaType);
   }
 
   const contentMetaProps = {

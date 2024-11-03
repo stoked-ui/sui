@@ -1,11 +1,8 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import {alpha, darken, emphasize, lighten, styled,} from '@mui/material/styles';
 import composeClasses from '@mui/utils/composeClasses';
 import Typography from '@mui/material/Typography';
-// import clsx from 'clsx';
-// import useSlotProps from '@mui/utils/useSlotProps';
-import {shouldForwardProp} from '@mui/system/createStyled';
+import {alpha, darken, emphasize, lighten, styled,} from '@mui/material/styles';
 import {DEFAULT_ADSORPTION_DISTANCE, DEFAULT_MOVE_GRID} from '../interface/const';
 import {
   getScaleCountByPixel, parserTimeToPixel, parserTimeToTransform, parserTransformToTime,
@@ -20,13 +17,14 @@ import {
   RndResizeStartCallback,
   RowRndApi,
 } from '../TimelineTrack/TimelineTrackDnd.types';
-import {getTimelineActionUtilityClass} from './timelineActionClasses';
 import {prefix} from '../utils/deal_class_prefix';
 import {
   BackgroundImageStyle, ITimelineAction, type TimelineActionOwnerState, type TimelineActionProps
 } from './TimelineAction.types';
 import {type ITimelineTrack} from '../TimelineTrack/TimelineTrack.types';
 import {useTimeline} from "../TimelineProvider";
+import {shouldForwardProp} from "@mui/system/createStyled";
+/*
 
 export const useActionUtilityClasses = (ownerState: TimelineActionOwnerState) => {
   const { classes } = ownerState;
@@ -43,11 +41,12 @@ export const useActionUtilityClasses = (ownerState: TimelineActionOwnerState) =>
 
   return composeClasses(slots, getTimelineActionUtilityClass, classes);
 };
+*/
 
 const Action = styled('div', {
   name: 'MuiTimelineAction',
   slot: 'root',
-  shouldForwardProp: prop => shouldForwardProp(prop) &&
+    shouldForwardProp: prop => shouldForwardProp(prop) &&
                              prop !== 'selected' &&
                              prop !== 'color' &&
                              prop !== 'duration' &&
@@ -241,7 +240,7 @@ function TimelineAction(props: TimelineActionProps) {
   const state = { selected, flexible, movable, disable };
   const ownerStateProps = { ...state, ...restProps, ...action };
   const { onKeyDown, ...ownerState } = ownerStateProps;
-  const classes = useActionUtilityClasses(ownerState as TimelineActionOwnerState);
+  //const classes = useActionUtilityClasses(ownerState as TimelineActionOwnerState);
 
   const actionEl = React.useRef<HTMLDivElement>(null);
 
@@ -463,7 +462,7 @@ function TimelineAction(props: TimelineActionProps) {
       setBackgroundStyle({
         backgroundImage: track.controller.backgroundImage,
         backgroundPosition: `${-adjustedScale * (action.trimStart || 0)}px 0px`,
-        backgroundSize: `${adjustedScale * action.duration}px 31px`
+        backgroundSize: `${adjustedScale * action.duration}px ${rowHeight - 1}px`
       });
     }
   },[scaleWidth, track.controller.backgroundImage])
@@ -607,8 +606,8 @@ function TimelineAction(props: TimelineActionProps) {
             {action.name}
           </Typography>
         </ActionLabel>
-        {!disableDrag && flexible && <LeftStretch className={`${prefix('action-left-stretch')} ${classes.left}`}/>}
-        {!disableDrag && flexible && (<RightStretch className={`${prefix('action-right-stretch')} ${classes.right}`}/>)}
+        {!disableDrag && flexible && <LeftStretch className={`${prefix('action-left-stretch')}`}/>}
+        {!disableDrag && flexible && (<RightStretch className={`${prefix('action-right-stretch')}`}/>)}
       </Action>
     </TimelineTrackDnd>);
 }
@@ -925,4 +924,4 @@ TimelineAction.propTypes = {
   viewSelector: PropTypes.string,
 } as any;
 
-export default TimelineAction;
+export { TimelineAction };
