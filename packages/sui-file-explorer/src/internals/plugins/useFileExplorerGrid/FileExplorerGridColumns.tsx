@@ -45,7 +45,7 @@ export function FileExplorerGridColumns({ item }: { item: any}) {
     return <React.Fragment/>
   }
 
-  const columnsEntries = Object.entries(gridColumns).filter(([columnName]) => columnName !== 'label');
+  const columnsEntries = Object.entries(gridColumns).filter(([columnName]) => columnName !== 'name');
   const columns =  columnsEntries.map(([columnName, columnData], index) => {
     const columnWidthAndHasBeenSet = columnData.track[`grid-${item.id}-row`] !== null && columnData.width !== -1;
     const customSx: any = {width: columnWidthAndHasBeenSet  ? `${columnData.width}px` : undefined};

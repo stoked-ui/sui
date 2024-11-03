@@ -7,7 +7,8 @@
       "@mui/material/themeCssVarsAugmentation",
       "chai-dom",
       "mocha",
-      "node"
+      "node",
+      "wicg-file-system-access"
     ],
     "importHelpers": true,
     "jsx": "react",

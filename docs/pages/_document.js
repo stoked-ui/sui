@@ -43,11 +43,44 @@ export default class MyDocument extends Document {
     return (
       <Html lang={userLanguage} data-mui-color-scheme="light" data-joy-color-scheme="light">
         <Head>
+          {/*<meta charSet="utf-8"/>
+          <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+           Web App Config
+          <meta name="viewport"
+                content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+          <meta name="theme-color" content="#3367d6"/>
+          <meta name="color-scheme" content="dark light"/>
+          <meta name="apple-mobile-web-app-capable" content="yes"/>
+          <meta name="apple-mobile-web-app-title" content="Stoked UI"/>
+
+          Descriptions
+          <meta name="description"
+                content="Instantly share images, videos, PDFs, and links with people nearby. Peer2Peer and Open Source. No Setup, No Signup."/>
+          <meta name="keywords" content="File, Transfer, Share, Peer2Peer"/>
+          <meta name="author" content="RobinLinus"/>
+          <meta property="og:title" content="Snapdrop"/>
+          <meta property="og:type" content="article"/>
+          <meta property="og:url" content="https://snapdrop.net/"/>
+          <meta property="og:author" content="https://facebook.com/RobinLinus"/>
+          <meta name="twitter:author" content="@RobinLinus"/>
+          <meta name="twitter:card" content="summary_large_image"/>
+          <meta name="twitter:description"
+                content="Instantly share images, videos, PDFs, and links with people nearby. Peer2Peer and Open Source. No Setup, No Signup."/>
+          <meta name="og:description"
+                content="Instantly share images, videos, PDFs, and links with people nearby. Peer2Peer and Open Source. No Setup, No Signup."/>
+         Icons  */}
+          <link rel="icon" sizes="96x96" href="images/favicon-96x96.png"/>
+          <link rel="shortcut icon" href="images/favicon-96x96.png"/>
+          {/* <meta name="msapplication-TileImage" content="images/mstile-150x150.png"/> */}
+          <link rel="fluid-icon" type="image/png" href="images/android-chrome-192x192.png"/>
+        {/*   <meta name="twitter:image" content="https://snapdrop.net/images/twitter-stream.jpg"/>
+          <meta property="og:image" content="https://snapdrop.net/images/twitter-stream.jpg"/> */}
+          {/*  Resources */}
           {/*
             manifest.json provides metadata used when your web app is added to the
             homescreen on Android. See https://developers.google.com/web/fundamentals/engage-and-retain/web-app-manifest/
           */}
-          <link rel="manifest" href="/static/manifest.json"/>
+          <link rel="manifest" href="/static/web-app/manifest.json" key={"manifest"}/>
           {/* PWA primary color */}
           <meta
             name="theme-color"
@@ -204,6 +237,7 @@ export default class MyDocument extends Document {
               },
             }}
           />
+
         </Head>
         <body>
         {getMuiInitColorSchemeScript({defaultMode: 'system'})}
@@ -263,7 +297,7 @@ MyDocument.getInitialProps = async (ctx) => {
             let css = jssSheets.toString();
             // It might be undefined, for example after an error.
             if (css && process.env.NODE_ENV === 'production') {
-              const result1 = await prefixer.process(css, { from: undefined });
+              const result1 = await prefixer.process(css, {from: undefined});
               css = result1.css;
               css = cleanCSS.minify(css).styles;
             }
@@ -276,9 +310,9 @@ MyDocument.getInitialProps = async (ctx) => {
                   id="jss-server-side"
                   key="jss-server-side"
                   // eslint-disable-next-line react/no-danger
-                  dangerouslySetInnerHTML={{ __html: css }}
+                  dangerouslySetInnerHTML={{__html: css}}
                 />,
-                <style id="insertion-point-jss" key="insertion-point-jss" />,
+                <style id="insertion-point-jss" key="insertion-point-jss"/>,
               ],
             };
           },
@@ -298,7 +332,7 @@ MyDocument.getInitialProps = async (ctx) => {
       canonicalAsServer: pathnameToLanguage(url).canonicalAsServer,
       userLanguage: ctx.query.userLanguage || 'en',
       styles: [
-        <style id="material-icon-font" key="material-icon-font" />,
+        <style id="material-icon-font" key="material-icon-font"/>,
         <style id="font-awesome-css" key="font-awesome-css" />,
         ...finalProps.emotionStyleTags,
         <style id="app-search" key="app-search" />,

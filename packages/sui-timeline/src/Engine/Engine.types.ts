@@ -1,51 +1,35 @@
 import * as React from "react";
+import { IMediaFile, MediaFile } from "@stoked-ui/media-selector";
 import type {ITimelineTrack} from "../TimelineTrack";
-import type {DrawData, IController} from './Controller.types';
+import type {IController} from '../Controller/Controller.types';
 import type {ITimelineAction, ITimelineFileAction} from "../TimelineAction";
 import type { EventTypes } from './events';
-import {ITimelineFile} from "../TimelineFile/TimelineFile";
-
-export interface IEmitter<Events> {
+import { Events } from "./events";
+import { Emitter } from "./emitter";
+import {OutputBlob} from "../TimelineFile";
+/*
+export interface IEmitter<Events extends EventTypes = EventTypes> {
   events: { [key: string]: CallableFunction[] };
-  on<K extends keyof Events>(names: K | K[], handler: (args: Events[K]) => boolean | unknown): this;
+  on<K extends keyof Events>(names: K | K[], handler: (args: Events[K]) => boolean | unknown): IEmitter<Events>;
   trigger<K extends keyof Events>(name: K, params: Events[K]): boolean;
   bind(name: string): void;
   exist(name: string): boolean;
   off<K extends keyof Events>(name: K, handler?: (args: Events[K]) => boolean | unknown): void;
   offAll(): void;
-}
+} */
 
-export type ViewMode = 'Renderer' | 'Screener' | 'Edit';
-export type ScreenerBlob = { blob: Blob, version: number, name: string, key: string, created: number, size: number};
-export interface IEngine extends IEmitter<EventTypes> {
+
+export interface IEngine<EmitterEvents extends EventTypes = EventTypes> extends Emitter<EmitterEvents> {
   readonly isPlaying: boolean;
   readonly isPaused: boolean;
+  readonly isLoading: boolean;
   logging: boolean;
   detailMode?: boolean;
   controllers: Record<string, any>;
-  viewer: HTMLElement | null;
-  viewMode: ViewMode;
-  readonly screener: HTMLVideoElement | null;
-  screenerBlob: ScreenerBlob | null;
-  readonly stage: HTMLDivElement | null;
-  readonly renderer: HTMLCanvasElement | null;
-  readonly renderCtx: CanvasRenderingContext2D | null;
-  rendererDetail: HTMLCanvasElement | null;
-  readonly renderDetailCtx: CanvasRenderingContext2D | null;
   readonly duration: number;
-  tracks: ITimelineTrack[];
-  setTracks: React.Dispatch<React.SetStateAction<ITimelineTrack[] | null>> | undefined;
-  readonly renderWidth: number;
-  readonly renderHeight: number;
-  buildTracks: (controllers: Record<string, IController>, actionData: ITimelineFileAction[]) => Promise<ITimelineTrack[]>
-  action: ITimelineAction | undefined;
   readonly actions: Record<string, ITimelineAction>;
-  file: ITimelineFile;
   control: any;
-  setFile: React.Dispatch<React.SetStateAction<ITimelineFile>> | undefined;
-  selected: any;
-
-  drawImage(dd: DrawData): void;
+  state: string;
 
   setScrollLeft(left: number): void;
   /** Set playback rate */
@@ -77,19 +61,16 @@ export interface IEngine extends IEmitter<EventTypes> {
   getActionTrack(actionId: string):  ITimelineTrack;
 
   getSelectedActions(): { action: ITimelineAction, track: ITimelineTrack }[];
-
-
+  setTracks(tracks: ITimelineTrack[]): void;
 
 }
 
-export type PlayState = 'playing' | 'paused';
+export type EngineState = 'loading' | 'playing' | 'paused' | 'ready';
 
 export type EngineOptions = {
   viewer?: HTMLElement;
-  id: string;
   controllers?: Record<string, IController>;
   events?: any;
-  defaultState: string;
-  file: any;
-  setFile: React.Dispatch<React.SetStateAction<any>>
 }
+
+export type Version = { id: string, version: number, key: string };

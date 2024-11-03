@@ -40,7 +40,7 @@ export const useFileExplorerJSXItems: FileExplorerPlugin<UseFileExplorerJSXItems
           ...prevState.items,
           itemMetaMap: { ...prevState.items.itemMetaMap, [item.id]: item },
           // For `FileExplorerBasic`, we don't have a proper `item` object, so we create a very basic one.
-          itemMap: { ...prevState.items.itemMap, [item.id]: { id: item.id, label: item.label } },
+          itemMap: { ...prevState.items.itemMap, [item.id]: { id: item.id, label: item.name } },
         },
       };
     });
@@ -120,10 +120,10 @@ const useFileExplorerJSXItemsItemPlugin: FilePlugin = ({
   contentRef,
 }) => {
   const { instance } = useFileExplorerContext<[UseFileExplorerGridSignature, UseFileExplorerJSXItemsSignature]>();
-  const { children, disabled = false, label: initialLabel, itemId: initialItemId, id: initialId, name } = props;
-  const id = initialId ?? initialItemId ?? initialLabel ?? name ?? namedId({id: 'file', length: 4});
+  const { children, disabled = false, name: initialName, itemId: initialItemId, id: initialId } = props;
+  const id = initialId ?? initialItemId ?? initialName ?? props.name ?? namedId({id: 'file', length: 4});
   const itemId = initialItemId ?? id;
-  const label = initialLabel ?? id;
+  const name = props.name ?? initialName ?? id;
 
   const parentContext = React.useContext(FileExplorerChildrenItemContext);
   if (parentContext == null) {
@@ -164,14 +164,14 @@ const useFileExplorerJSXItemsItemPlugin: FilePlugin = ({
   }, [instance, parentId, itemId, expandable, disabled, id]);
 
   React.useEffect(() => {
-    if (label) {
+    if (name) {
       return instance.mapFirstCharFromJSX(
         itemId,
         (pluginContentRef.current?.textContent ?? '').substring(0, 1).toLowerCase(),
       );
     }
     return undefined;
-  }, [instance, itemId, label]);
+  }, [instance, itemId, name]);
 
   return {
     contentRef: handleContentRef,

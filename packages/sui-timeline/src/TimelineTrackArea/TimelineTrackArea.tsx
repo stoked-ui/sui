@@ -8,6 +8,8 @@ import TimelineTrackAreaDragLines from './TimelineTrackAreaDragLines';
 import TimelineTrack from '../TimelineTrack/TimelineTrack';
 import {TimelineTrackAreaProps} from './TimelineTrackArea.types'
 import {useDragLine} from './useDragLine';
+import {useTimeline} from "../TimelineProvider";
+import {TimelineFile} from "../TimelineFile";
 
 /** edit area ref data */
 export interface TimelineTrackAreaState {
@@ -32,8 +34,9 @@ const TimelineTrackAreaRoot = styled('div')(() => ({
 }));
 
 const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrackAreaProps>((props, ref) => {
+  const { file } = useTimeline();
+  const tracks = TimelineFile.displayTracks(file?.tracks);
   const {
-    tracks,
     rowHeight,
     scaleWidth,
     scaleCount,
@@ -52,7 +55,6 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
     onActionResizeEnd,
     onActionResizeStart,
     onActionResizing,
-    viewMode
   } = props;
   const { dragLineData, initDragLine, updateDragLine, disposeDragLine, defaultGetAssistPosition, defaultGetMovePosition } = useDragLine();
   const editAreaRef = React.useRef<HTMLDivElement>();
@@ -120,7 +122,7 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
         }}
         areaRef={editAreaRef}
         key={key}
-        rowHeight={track?.rowHeight || rowHeight}
+        rowHeight={ rowHeight}
         track={track}
         dragLineData={dragLineData}
         disableDrag={props.disableDrag}
@@ -176,9 +178,8 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
           let totalHeight = 0;
           // HEIGHT LIST
           const heights = tracks?.map((track) => {
-            const itemHeight = track?.rowHeight || rowHeight;
-            totalHeight += itemHeight;
-            return itemHeight;
+            totalHeight += rowHeight;
+            return rowHeight;
           });
          /*  if (totalHeight < height && heights && viewMode === 'Renderer') {
             heights.push(height - totalHeight);

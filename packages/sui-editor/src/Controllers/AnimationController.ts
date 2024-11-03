@@ -1,15 +1,11 @@
-import lottie, {AnimationItem} from 'lottie-web';
-import { AnimationFile } from "@stoked-ui/media-selector";
-import { Controller, ControllerParams, IEngine, ITimelineAction } from "@stoked-ui/timeline";
+import lottie, {AnimationConfigWithPath, AnimationItem} from 'lottie-web';
+import { namedId, AnimationFile } from "@stoked-ui/media-selector";
+import { Controller, ControllerParams, IEngine, ITimelineAction, PreloadParams } from "@stoked-ui/timeline";
+import {IEditorEngine} from "../EditorEngine";
+import {EditorControllerParams, EditorPreloadParams} from "./EditorControllerParams";
+import EditorController from "./EditorController";
 
-class AnimationControl implements Controller {
-  id: string;
-
-  name: string;
-
-  color: string;
-
-  colorSecondary: string;
+class AnimationControl extends EditorController {
 
   cacheMap: Record<string, AnimationItem> = {};
 
@@ -19,22 +15,18 @@ class AnimationControl implements Controller {
 
   logging: boolean = false;
 
-  constructor({
-    color,
-    colorSecondary
-  }: {
-    color: string,
-    colorSecondary: string
-  }) {
-    this.id = 'animation';
-    this.name = 'Animation';
-    this.color = color ?? '#1a0378';
-    this.colorSecondary = colorSecondary ?? '#cd6bff';
+  constructor({color, colorSecondary}: { color: string, colorSecondary: string }) {
+    super({
+      id: 'animation',
+      name: 'Animation',
+      color,
+      colorSecondary
+    });
   }
 
-  async preload(params: Omit<ControllerParams, 'time'>) {
-    const { action, engine } = params;
-    const item = AnimationFile.load({ id: action.id, src: action.src, renderCtx: engine.renderCtx, mode: 'canvas', className: 'lottie-canvas' });
+  async preload(params: EditorPreloadParams) {
+    const { action, engine, file } = params;
+    const item = AnimationControl.load({ id: action.id, src: file.url, engine, mode: 'canvas', className: 'lottie-canvas' });
     this.cacheMap[action.id] = item;
     action.duration = item.getDuration();
     return action;
@@ -61,14 +53,21 @@ class AnimationControl implements Controller {
     } */
   }
 
-  enter(params: ControllerParams) {
+  enter(params: EditorControllerParams) {
     const { action, engine, time } = params;
     let item: AnimationItem;
     if (this.cacheMap[action.id]) {
       item = this.cacheMap[action.id];
       this._goToAndStop(engine, action, item, Controller.getActionTime(params));
     } else if (engine.viewer && engine.renderCtx && engine.renderer) {
-      item = AnimationFile.load({ id: action.id, src: action.src, renderCtx: engine.renderCtx, mode: 'canvas', className: 'lottie-canvas' });
+      const track = engine.getActionTrack(action.id);
+      item = AnimationControl.load({
+        id: action.id,
+        src: track.file.url,
+        engine,
+        mode: 'canvas',
+        className: 'lottie-canvas'
+      });
 
       item.addEventListener('data_ready', () => {
         if (time === 0) {
@@ -126,6 +125,54 @@ class AnimationControl implements Controller {
 
   getElement(actionId: string) {
     return this.cacheMap[actionId];
+  }
+  static globalCache: Record<string, AnimationItem> = {};
+
+  static globalCacheEnabled = false;
+
+  static load (params: { id?: string, src: string, container?: HTMLElement, mode?: 'canvas' | 'svg', engine: IEditorEngine, className?: string }) {
+    const { container, engine, src, mode = 'canvas', className } = params;
+    const { renderCtx } = engine;
+    if (!params.id) {
+      params.id = namedId('lottie');
+    }
+    const { id } = params;
+    const cacheKey = `${mode}-${id || namedId('lottie')}`;
+    const animLoader = () => {
+      const options = {
+        name: id,
+        renderer: mode,
+        container,
+        loop: false,
+        autoplay: false,
+        path: src,
+        rendererSettings: {
+          context: renderCtx,
+          clearCanvas: false,
+          preserveAspectRatio: 'xMidYMid meet',
+          progressiveLoad: false, // Boolean, only svg renderer, loads dom elements when needed. Might speed up initialization for large number of elements.
+          className: className ?? `${id}-class`,
+          id: id.replace('id', 'lottie').replace('mediaFile', 'lottie')
+        },
+      }
+      return lottie.loadAnimation(options as AnimationConfigWithPath<typeof mode>);
+    }
+    if (this.globalCacheEnabled && this.globalCache[cacheKey]) {
+      const anim = this.globalCache[cacheKey]
+      if ("container" in anim && anim.container !== container) {
+        anim.container = container;
+      }
+      if (renderCtx && "canvasContext" in anim.renderer && anim.renderer.canvasContext !== renderCtx) {
+        anim.renderer.canvasContext = renderCtx;
+      }
+      return this.globalCache[cacheKey];
+    }
+
+    const anim = animLoader();
+    if (this.globalCacheEnabled) {
+      this.globalCache[cacheKey] = anim;
+    }
+    return anim;
   }
 }
 export { AnimationControl };

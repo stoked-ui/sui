@@ -1,13 +1,14 @@
 import {SxProps, Theme} from "@mui/system";
+import { IMediaFile } from '@stoked-ui/media-selector';
 import {DefaultizedProps, FileExplorerPluginSignature, FileMeta} from '../../models';
-import {FileBase, FileId} from '../../../models';
+import { FileId } from '../../../models';
 import {
   DndItemState, UseFileExplorerDndSignature
 } from "../useFileExplorerDnd/useFileExplorerDnd.types";
 import {UseFileExplorerExpansionSignature} from "../useFileExplorerExpansion";
 
 interface FileProps {
-  label: string;
+  name: string;
   itemId: string;
   id: string | undefined;
   children?: FileProps[];
@@ -32,15 +33,15 @@ export interface UseFileExplorerFilesPublicAPI<R extends {}> {
 
 export interface UpdateNodesStateParameters
   extends Pick<
-    UseFileExplorerFilesDefaultizedParameters<FileBase>,
+    UseFileExplorerFilesDefaultizedParameters<IMediaFile>,
     'items' | 'isItemDisabled' | 'getItemLabel' | 'getItemId'
   > {
 }
 
 export type ItemMode = 'standard' | 'last-in-group' | 'expanded';
 
-export interface UseFileExplorerFilesInstance<R extends FileBase[] = FileBase[]> extends UseFileExplorerFilesPublicAPI<R> {
-  recalcVisibleIndices: (items: FileBase[], force: boolean, index: number) => void;
+export interface UseFileExplorerFilesInstance<R extends IMediaFile[] = IMediaFile[]> extends UseFileExplorerFilesPublicAPI<R> {
+  recalcVisibleIndices: (items: IMediaFile[], force: boolean, index: number) => void;
   getVisibleIndex: (itemId: string) => number;
   updateItems: (item: R[]) => void;
   getFiles: () => R[];
@@ -107,7 +108,7 @@ export interface UseFileExplorerFilesInstance<R extends FileBase[] = FileBase[]>
   areItemUpdatesPrevented: () => boolean;
 }
 
-export interface UseFileExplorerFilesParameters<R extends FileBase = FileBase> {
+export interface UseFileExplorerFilesParameters<R extends IMediaFile = IMediaFile> {
 
   alternatingRows?: SxProps<Theme> | true;
 
@@ -150,7 +151,7 @@ export interface UseFileExplorerFilesParameters<R extends FileBase = FileBase> {
   items: readonly R[];
 }
 
-export type UseFileExplorerFilesDefaultizedParameters<R extends FileBase> = DefaultizedProps<
+export type UseFileExplorerFilesDefaultizedParameters<R extends IMediaFile> = DefaultizedProps<
   UseFileExplorerFilesParameters<R>,
   'disabledItemsFocusable' | 'itemChildrenIndentation'
 >

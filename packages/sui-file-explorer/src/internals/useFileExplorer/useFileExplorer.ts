@@ -1,6 +1,8 @@
 import * as React from 'react';
 import useForkRef from '@mui/utils/useForkRef';
 import {EventHandlers} from '@mui/base/utils';
+import { IMediaFile } from '@stoked-ui/media-selector';
+
 import {
   ConvertSignaturesIntoPlugins,
   FileExplorerAnyPluginSignature,
@@ -22,7 +24,6 @@ import {FileExplorerContextValue, FilePluginsRunner} from '../FileExplorerProvid
 import {FILE_EXPLORER_VIEW_CORE_PLUGINS, FileExplorerCorePluginSignatures} from '../corePlugins';
 import {extractPluginParamsFromProps} from './extractPluginParamsFromProps';
 import {UseFileStatus} from '../models/UseFileStatus';
-import {FileBase} from "../../models";
 
 export function useFileExplorerApiInitialization<T>(
   inputApiRef: React.MutableRefObject<T | undefined> | undefined,
@@ -57,12 +58,12 @@ export const useFileExplorer = <
   ] as unknown as ConvertSignaturesIntoPlugins<TSignaturesWithCorePluginSignatures>;
 
   if ('dndInternal' in props && 'dndTrash' in props && 'items' in props) {
-    props.items = [...(props?.items ?? []) as FileBase[], {
+    props.items = [...(props?.items ?? []) as IMediaFile[], {
       id: 'trash',
-      label: 'Trash',
+      name: 'Trash',
       type: 'folder',
       size: 0,
-      modified: Date.now(),
+      lastModified: Date.now(),
     }]
   }
 

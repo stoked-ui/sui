@@ -7,7 +7,7 @@ type CommonBase = {
   label?: string;
   itemId?: string;
 }
-
+/*
 export type FileBase<R extends {} = {}> = R & CommonBase & {
   children?: FileBase<R>[];
   size?: number;
@@ -18,7 +18,7 @@ export type FileBase<R extends {} = {}> = R & CommonBase & {
   expanded?: boolean;
   selected?: boolean;
   name?: string;
-};
+}; */
 
 export type FileBaseInput<R extends {} = {}> = R & CommonBase & {
   children?: FileBaseInput<R>[];

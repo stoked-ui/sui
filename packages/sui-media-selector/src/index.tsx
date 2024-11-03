@@ -6,3 +6,4 @@ export { MediaFile, namedId, useIncId };
 export * from './useIncId';
 export *  from './namedId';
 export * from './MediaFile';
+export * from './zip';

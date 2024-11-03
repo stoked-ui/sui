@@ -1,12 +1,13 @@
 import {ITimelineTrack} from "../TimelineTrack";
-import { IEmitter, IEngine} from "../Engine/Engine.types";
+import { IEngine } from "../Engine/Engine.types";
 import {EventTypes} from "../Engine/events";
+import {Emitter} from "../Engine";
 
 export interface TimelineState {
   /** dom node */
   target: HTMLElement;
   /** Run the listener */
-  listener: IEmitter<EventTypes>;
+  listener: Emitter<EventTypes>;
   /** attached engine */
   engine: IEngine;
   /** Whether it is playing */
@@ -40,8 +41,4 @@ export interface TimelineState {
   setScrollLeft: (val: number) => void;
   /** Set scroll top */
   setScrollTop: (val: number) => void;
-  tracks: ITimelineTrack[]
-  setTracks: (tracks: ITimelineTrack[]) => void;
-
-  getSelectedTrack: () => ITimelineTrack | undefined;
 }

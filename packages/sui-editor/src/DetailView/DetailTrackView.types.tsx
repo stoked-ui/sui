@@ -35,6 +35,52 @@ export function humanFileSize(bytes: number, si=false, dp=1) {
   return `${bytes.toFixed(dp)} ${units[u]}`;
 }
 
+export const getActionSchema = () => {
+  const schemaObj = {
+    id: yup.string().required('ID is required'),
+    name: yup.string().required('Name is required'),
+    start: yup.number().required('Start is required'),
+    end: yup.number().required('End is required'),
+    x: yup.number().optional(),
+    y: yup.number().optional(),
+    z: yup.number().required(),
+    width: yup.number().required(),
+    height: yup.number().required(),
+  };
+  return yup.object(schemaObj);
+};
+
+export interface IDetailAction {
+  id: string;
+  name: string;
+  start: number;
+  end: number;
+  x?: number;
+  y?: number;
+  z: number;
+  width: number;
+  height: number;
+}
+
+export function getActionFormData(detail: DetailSelection): IDetailAction | undefined {
+  const { action } = detail;
+  if (action && !action.id) {
+    throw new Error('can not load detail action view without a action id');
+  }
+
+  return action ? {
+    id: action.id,
+    name: action.name ?? '',
+    start: action.start,
+    end: action.end,
+    x: action.x,
+    y: action.y,
+    z: action.z,
+    width: action.width,
+    height: action.height,
+  } : undefined;
+}
+
 export const getMediaFileSchema = () => {
   const schemaObj = {
     id: yup.string().required(),
@@ -56,7 +102,6 @@ export const getTrackSchema = () => {
     file: yup.object().required('File is required'),
     lock: yup.boolean().required(),
     hidden: yup.boolean().required(),
-    selected: yup.boolean().required(),
     name: yup.string().required('Name is required'),
     id: yup.string().required('ID is required'),
   };
@@ -80,14 +125,12 @@ export interface IDetailFile {
 export interface IDetailTrack {
   id: string;
   name: string;
-  selected: boolean;
   hidden: boolean;
   lock: boolean;
-  file: object;
 }
 
 export function getTrackFormData(detail: DetailSelection): IDetailTrack | undefined {
-  const {track} = detail;
+  const {track, selectedFile } = detail;
   if (!track) {
     return undefined;
   }
@@ -96,17 +139,15 @@ export function getTrackFormData(detail: DetailSelection): IDetailTrack | undefi
     throw new Error('can not load detail track view without a track id');
   }
 
-  if (track.id === 'newTrack' && track.file === null) {
+  if (track.id === 'newTrack' && selectedFile === null) {
     return undefined;
   }
 
   return {
     id: track.id,
-    name: track.name ?? track.actionRef!.name!,
-    selected: track.selected ?? false,
+    name: track.name ?? selectedFile?.name,
     hidden: track.hidden ?? false,
     lock: track.lock ?? false,
-    file: track.actionRef!.file,
   };
 }
 

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {SxProps, Theme, useTheme} from "@mui/system";
-import {namedId} from "@stoked-ui/media-selector";
+import {namedId, IMediaFile, MediaFile} from "@stoked-ui/media-selector";
 import {FileMeta} from '../../models/fileExplorerView';
 import {FileExplorerPlugin} from '../../models/plugin';
 import type {
@@ -9,17 +9,17 @@ import type {
   UseFileExplorerFilesState,
 } from './useFileExplorerFiles.types';
 import {publishFileExplorerEvent} from '../../utils/publishFileExplorerEvent';
-import {FileBase, FileId} from '../../../models';
+import {FileId} from '../../../models';
 import {buildSiblingIndexes, FILE_EXPLORER_VIEW_ROOT_PARENT_ID} from './useFileExplorerFiles.utils';
 import {FileDepthContext} from '../../FileDepthContext';
 import {DndItemState} from '../useFileExplorerDnd/useFileExplorerDnd.types';
 
 interface UpdateNodesStateParameters
   extends Pick<
-    UseFileExplorerFilesDefaultizedParameters<FileBase>,
+    UseFileExplorerFilesDefaultizedParameters<IMediaFile>,
     'items' | 'isItemDisabled' | 'getItemLabel' | 'getItemId'
   > {
-  recalcVisibleIndices: (items: FileBase[], force: boolean, index: number) => void;
+  recalcVisibleIndices: (items: IMediaFile[], force: boolean, index: number) => void;
 }
 
 type State = UseFileExplorerFilesState<any>['items'];
@@ -36,16 +36,16 @@ const updateItemsState = ({
     [FILE_EXPLORER_VIEW_ROOT_PARENT_ID]: [],
   };
 
-  const processItem = (item: FileBase, depth: number, parentId: string | null) => {
+  const processItem = (item: IMediaFile, depth: number, parentId: string | null) => {
     const id = item?.itemId ?? item.id ?? namedId({id:'file', length:4});
     if (itemMetaMap[id]){
       // TODO: FIX THIS SERIOUSLY
       console.warn(`DIRTY HACK: this item id already exists - item: ${JSON.stringify(item, null, 2)}, existing item: ${JSON.stringify(itemMetaMap[id], null, 2)}`)
       return;
     }
-    item.id = id;
-    item.itemId = item.itemId ?? id;
-    item.label = item.label ?? id;
+    MediaFile.setProperty(item,'id', id);
+    MediaFile.setProperty(item,'itemId', item.itemId ?? id);
+    MediaFile.setProperty(item,'name', item.name ?? id);
 
     if (id == null) {
       throw new Error(
@@ -68,8 +68,8 @@ const updateItemsState = ({
       );
     }
 
-    const label = getItemLabel ? getItemLabel(item) : (item as { label: string }).label;
-    if (label == null) {
+    const name = getItemLabel ? getItemLabel(item) : (item as { name: string }).name;
+    if (name == null) {
       throw new Error(
         [
           'SUI X: The FileExplorer View component requires all items to have a `label` property.',
@@ -81,7 +81,7 @@ const updateItemsState = ({
     }
     itemMetaMap[id] = {
       id,
-      label,
+      name,
       parentId,
       idAttribute: undefined,
       expandable: !!item.children?.length,
@@ -142,9 +142,9 @@ export const useFileExplorerFiles: FileExplorerPlugin<UseFileExplorerFilesSignat
     return state.items.itemOrderedChildrenIds[FILE_EXPLORER_VIEW_ROOT_PARENT_ID].map((id) => state.items.itemMap[id]);
   }
 
-  const recalcVisibleIndices  = (items: FileBase[] = getFiles(), force: boolean = false, index: number = 0) => {
+  const recalcVisibleIndices  = (items: IMediaFile[] = getFiles(), force: boolean = false, index: number = 0) => {
     // console.log('recalc items', items);
-    const recalVisibleIndicesBase  = (baseItems: FileBase[], baseIndex: number = 0) => {
+    const recalVisibleIndicesBase  = (baseItems: IMediaFile[], baseIndex: number = 0) => {
       for (let i = 0; i < baseItems.length; i += 1){
         const item = baseItems[i];
         if (item) {
@@ -158,7 +158,7 @@ export const useFileExplorerFiles: FileExplorerPlugin<UseFileExplorerFilesSignat
       }
       return baseIndex;
     }
-    const initializeVisibleIndices  = (initItems: FileBase[]) => {
+    const initializeVisibleIndices  = (initItems: IMediaFile[]) => {
       for (let i = 0; i < initItems.length; i += 1){
         const item = initItems[i];
         if (item) {
@@ -252,7 +252,7 @@ export const useFileExplorerFiles: FileExplorerPlugin<UseFileExplorerFilesSignat
   }, []);
 
   const areItemUpdatesPrevented = React.useCallback(() => areItemUpdatesPreventedRef.current, []);
-  const updateItems = (items: FileBase[]) => {
+  const updateItems = (items: IMediaFile[]) => {
     setState((prevState) => {
       const newState = updateItemsState({
         items,
@@ -307,7 +307,7 @@ export const useFileExplorerFiles: FileExplorerPlugin<UseFileExplorerFilesSignat
     ): ReturnType<typeof instance.getItemsToRender>[number] => {
       const item = state.items.itemMetaMap[id];
       return {
-        label: item.label!,
+        name: item.name!,
         itemId: item.id,
         id: item.idAttribute,
         children: state.items.itemOrderedChildrenIds[id].map(getPropsFromItemId),

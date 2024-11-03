@@ -22,7 +22,7 @@ export interface FileClasses {
   /** Styles applied to the tree item icon. */
   iconContainer: string;
   /** Styles applied to the label element. */
-  label: string;
+  name: string;
   /** Styles applied to the checkbox element. */
   checkbox: string;
 }
@@ -43,6 +43,6 @@ export const fileClasses: FileClasses = generateUtilityClasses('MuiFile', [
   'focused',
   'disabled',
   'iconContainer',
-  'label',
+  'name',
   'checkbox',
 ]);

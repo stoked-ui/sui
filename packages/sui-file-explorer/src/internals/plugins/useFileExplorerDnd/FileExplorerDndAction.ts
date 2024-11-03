@@ -1,7 +1,7 @@
 import type {Instruction} from '@atlaskit/pragmatic-drag-and-drop-hitbox/tree-item';
-import {FileBase} from '../../../models';
+import { IMediaFile } from '@stoked-ui/media-selector';
 
-export type FileExplorerDndAction<R extends FileBase> =
+export type FileExplorerDndAction<R extends IMediaFile> =
   | {
   type: 'instruction';
   instruction: Instruction;

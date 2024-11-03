@@ -9,7 +9,7 @@
     "emitDeclarationOnly": true,
     "outDir": "build",
     "rootDir": "./src",
-    "types": ["node", "@mui/material/themeCssVarsAugmentation"]
+    "types": [ "wicg-file-system-access", "node", "@mui/material/themeCssVarsAugmentation"],
   },
   "include": ["src/**/*.ts*"],
   "exclude": ["src/**/*.spec.ts*", "src/**/*.test.ts*", "src/tests/**/*", "build/**/*"]

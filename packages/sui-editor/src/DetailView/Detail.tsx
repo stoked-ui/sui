@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import {shouldForwardProp} from "@mui/system/createStyled";
 import { IMediaFile } from "@stoked-ui/media-selector";
-import { ITimelineFile, IEngine, ITimelineAction, ITimelineTrack } from "@stoked-ui/timeline";
+import { ITimelineFile, IEngine, ITimelineAction, ITimelineTrack, ITimelineFileBase } from "@stoked-ui/timeline";
 import {alpha} from "@mui/material/styles";
 import Plyr, {PlyrProps} from "plyr-react";
 import {SelectChangeEvent} from "@mui/material/Select";
@@ -21,11 +21,12 @@ import {
 } from "react-hook-form";
 import {getVideoFormData} from "./DetailVideoView.types";
 import {
-  getFileFormData, getTrackFormData, IDetailFile, IDetailTrack
+  getFileFormData, getTrackFormData, IDetailFile, IDetailTrack, IDetailAction, getActionFormData
 } from "./DetailTrackView.types";
-
-import {IDetailAction, getActionFormData} from "./DetailActionView.types";
 import DetailBreadcrumbs from "./DetailBreadcrumbs";
+import AudioPlayer from "../Editor/AudioPlayer";
+import {MediaScreener, VideoPlayer} from "../Editor/Editor.styled";
+import {IEditorAction} from "../EditorAction/EditorAction";
 
 export const CtrlCell = styled('div', {
   name: 'MuiFileDetail',
@@ -95,7 +96,7 @@ export function CtrlGroup ({children, label}){
 }
 
 export interface IDetailData {
-  video: ITimelineFile,
+  video: ITimelineFileBase,
   tracks: ITimelineTrack[],
   file?: IDetailFile,
   track?: IDetailTrack,
@@ -108,7 +109,6 @@ export interface SubmitSignature {
 }
 
 export interface DetailTypeProps {
-  engine: IEngine;
   setEditMode:  React.Dispatch<React.SetStateAction<boolean>>;
   editMode: boolean;
   onClickEdit: (event: Event) => void;
@@ -118,8 +118,6 @@ export interface DetailTypeProps {
   setDetail: React.Dispatch<React.SetStateAction<DetailSelection>>;
   formData: IDetailData,
   setFormData: React.Dispatch<React.SetStateAction<IDetailData>>;
-  tracks: ITimelineTrack[];
-  setTracks: React.Dispatch<React.SetStateAction<ITimelineTrack[]>>;
   schema: any;
   onClose: () => void;
 }
@@ -161,7 +159,7 @@ export const DetailForm = styled('form', {
   }
 });
 
-export const RootBox = styled('div')(({theme}) => ({
+export const RootBox = styled(Box)(({theme}) => ({
   '& .MuiInputBase-root': {
     backgroundColor: theme.palette.background.default,
     borderRadius: '4px'
@@ -213,7 +211,7 @@ export const RootBox = styled('div')(({theme}) => ({
     background: theme.palette.primary.main,
   },
   '& .plyr--audio .plyr__control': {
-    color: theme.palette.text.primary
+    color: theme.palette.background.default,
   },
   '& .plyr--audio .plyr__control:hover': {
     background: theme.palette.primary.main,
@@ -245,8 +243,8 @@ export const RootBox = styled('div')(({theme}) => ({
 
 export type DetailSelection = {
   video: ITimelineFile,
-  track?: ITimelineTrack,
-  action?: ITimelineAction,
+  track?: Omit<ITimelineTrack, 'file'>,
+  action?: IEditorAction,
   selectedFile?: IMediaFile
 }
 
@@ -263,43 +261,6 @@ export function getFormData(detail: DetailSelection, tracks: ITimelineTrack[]): 
     action,
   }
 }
-
-export function AudioPlayer({mediaFile}: {mediaFile: IMediaFile}){
-  const audioSource:  Plyr.SourceInfo = {
-    type: 'audio',
-    sources: [
-      {
-        src: mediaFile.url, // Replace with your audio selectedFile URL
-        type: mediaFile.type,
-      },
-    ],
-  };
-
-  return (
-    <Plyr source={audioSource} />
-  );
-}
-
-export function VideoPlayer({mediaFile}: {mediaFile: IMediaFile}){
-  const plyrProps: PlyrProps = {
-    source: {
-      type: 'video',
-      title: mediaFile.name,
-      sources: [
-        {
-          src: mediaFile.url,
-        },
-      ],
-    },
-  }
-
-  React.useEffect(() => {
-    return () => {
-    }
-  }, [])
-  return <Plyr source={plyrProps.source} options={{controls: ['play', 'progress', 'mute', 'volume']}} />
-}
-
 
 
 export function DetailViewBase({children,title, formName, editMode,engine, handleSubmit, onSubmit, detail, setDetail, errors, control, onClickEdit, formData, isDirty, reset, setEditMode, onClose}: {
@@ -349,9 +310,7 @@ export function DetailViewBase({children,title, formName, editMode,engine, handl
             {title}
           </Typography>
           {(detail.track || detail.action) && <CtrlCell>
-            {(detail.track && detail.selectedFile) && <VideoPlayer mediaFile={detail.selectedFile} />}
-            {detail.selectedFile?.mediaType === 'audio' && <AudioPlayer mediaFile={detail.selectedFile} />}
-            {detail.selectedFile?.mediaType === 'image' && <img src={detail.selectedFile.url} alt={detail.selectedFile.name} style={{ maxWidth: '100%' }} />}
+            <MediaScreener mediaFile={detail.selectedFile} />
           </CtrlCell>}
           {children}
           <CardActions sx={{ width: '100%', justifyContent: 'right'}}>
@@ -360,9 +319,7 @@ export function DetailViewBase({children,title, formName, editMode,engine, handl
               variant="outlined"
               color="secondary"
               onClick={() => {
-
                 setEditMode(false);
-                onClose();
               }}>
               Cancel
             </Button>

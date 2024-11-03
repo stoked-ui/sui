@@ -18,7 +18,7 @@ export interface FileMeta {
   /**
    * Only defined for `FileExplorer` and `FileExplorerPro`.
    */
-  label?: string;
+  name?: string;
   dndInstruction: Instruction | null;
   dndState: DndState;
   dndContainer: HTMLElement | null;

@@ -1,5 +1,5 @@
 import {
-  DEFAULT_ROW_HEIGHT,
+  DEFAULT_TRACK_HEIGHT,
   DEFAULT_SCALE,
   DEFAULT_SCALE_SPLIT_COUNT,
   DEFAULT_SCALE_WIDTH,
@@ -21,7 +21,7 @@ export function checkProps(props: TimelineControlProps): TimelineControlProps {
     startLeft = DEFAULT_START_LEFT,
     minScaleCount = MIN_SCALE_COUNT,
     maxScaleCount = Infinity,
-    rowHeight = DEFAULT_ROW_HEIGHT,
+    rowHeight = DEFAULT_TRACK_HEIGHT,
   } = props;
 
   if(scale <= 0) {
@@ -63,15 +63,13 @@ export function checkProps(props: TimelineControlProps): TimelineControlProps {
 
   if(rowHeight <= 0) {
     logger.warn('Warning: rowHeight must be greater than 0!')
-    rowHeight = DEFAULT_ROW_HEIGHT
+    rowHeight = DEFAULT_TRACK_HEIGHT
   }
 
   const temp = {...props};
   delete temp.style;
   return {
     ...temp,
-    tracks: props.tracks,
-    controllers: props.controllers,
     scrollTop,
     scale,
     scaleSplitCount: scaleSplitCount || 10,

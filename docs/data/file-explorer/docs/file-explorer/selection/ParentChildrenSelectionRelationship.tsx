@@ -1,12 +1,13 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
+import {IMediaFile} from "@stoked-ui/media-selector";
 import { FileExplorer } from '@stoked-ui/file-explorer/FileExplorer';
 import { useFileExplorerApiRef } from '@stoked-ui/file-explorer/hooks';
-import { FileBase } from '@stoked-ui/file-explorer/models';
 import { NestedFiles } from 'docs/src/components/fileExplorer/data';
 
 
-function getItemDescendantsIds(item: FileBase) {
+
+function getItemDescendantsIds(item: IMediaFile) {
   const ids: string[] = [];
   item.children?.forEach((child) => {
     ids.push(child.id);

@@ -7,9 +7,10 @@ import {prefix} from '../utils/deal_class_prefix';
 import {parserPixelToTime} from '../utils/deal_data';
 import {DragLineData} from '../TimelineTrackArea/TimelineTrackAreaDragLines';
 import {type TimelineControlPropsBase} from "../TimelineControl/TimelineControl.types";
-import TimelineAction from "../TimelineAction/TimelineAction";
+import {TimelineAction} from "../TimelineAction/TimelineAction";
 import {type ITimelineTrack} from "./TimelineTrack.types";
-import {IController} from "../Engine/Controller.types";
+import {IController} from "../Controller/Controller.types";
+import {useTimeline} from "../TimelineProvider";
 
 export type TimelineTrackProps = CommonProps & TimelineControlPropsBase & {
   areaRef: React.MutableRefObject<HTMLDivElement>;
@@ -41,6 +42,7 @@ const TimelineTrackRoot = styled('div', {
     borderTop: `1px solid ${emphasize(theme.palette.background.default, 0.04)}`,
     display: 'flex',
     flexDirection: 'row',
+    cursor: 'pointer',
     boxSizing: 'border-box',
     variants: [{
       props: {
@@ -75,41 +77,47 @@ const TimelineTrackRoot = styled('div', {
   }
 });
 
-export function getTrackControllerName(track: ITimelineTrack) {
-  return track.actionRef?.controllerName;
-}
-
-export function getTrackController(track: ITimelineTrack, controllers: Record<string, IController>) {
-  const controllerName = getTrackControllerName(track);
-  return controllerName ? controllers[controllerName] : null;
-}
-
-export function getTrackColor(track: ITimelineTrack, controllers: Record<string, IController> ) {
-  const trackController = getTrackController(track, controllers);
+const TrackSizer = styled('div', {
+  name: 'MuiTimelineTrack',
+  slot: 'TrackSizer'
+})(({ theme }) => ({
+  width: '100%',
+  display: 'none',
+  cursor: 'pointer',
+  position: 'absolute',
+  height: '3px',
+  margin: '-1px',
+  zIndex: 5,
+  '&:hover': {
+    background: theme.palette.action.active
+  }
+}))
+export function getTrackColor(track: ITimelineTrack) {
+  const trackController = track.controller;
   return trackController ? alpha(trackController.color ?? '#666', 0.11) : '#00000011';
 }
 
-export function isTrackSelected(track: ITimelineTrack) {
-  return track.actions.some(action => action.selected);
-}
 
 export default function TimelineTrack(props: TimelineTrackProps) {
+  const { selectedTrack, file, dispatch, } = useTimeline();
   const {
     track,
     style = {},
-    onClickRow,
+    onClickTrack,
     onDoubleClickRow,
-    onContextMenuRow,
+    onContextMenuTrack,
     areaRef,
     scrollLeft,
     startLeft,
     scale,
-    controllers,
     scaleWidth,
   } = props;
 
   const classNames = ['edit-track'];
-  if (track?.selected) {
+  const isTrackSelected = (track: ITimelineTrack) => {
+    return selectedTrack?.id === track.id;
+  }
+  if (track?.id === selectedTrack?.id) {
     classNames.push('edit-track-selected');
   }
 
@@ -127,6 +135,9 @@ export default function TimelineTrack(props: TimelineTrackProps) {
   if (!track) {
     return undefined;
   }
+  const trackIndex = file?.tracks?.findIndex((t) => t.id === track.id);
+
+  const [sizerData, setSizerData] = React.useState<{hover: boolean, down: boolean, startY: number }>({hover: false, down: false, startY: 0})
   return (
     <TimelineTrackRoot
       className={`${prefix(...classNames)} ${(track?.classNames || []).join(
@@ -135,15 +146,31 @@ export default function TimelineTrack(props: TimelineTrackProps) {
       lock={track.lock}
       hidden={track.hidden}
       selected={isTrackSelected(track)}
-      color={track.id === 'newTrack' ? '#8882' : getTrackColor(track, controllers)}
-      style={style}
+      color={track.id === 'newTrack' ? '#8882' : getTrackColor(track)}
+      style={{...style}}
+      sx={{
+        '& .timeline-editor-edit-track': {
+          opacity: 0,
+          transform: 'scaleX(100%):nth-child(3n+1)',
+          transitionProperty: 'opacity, transform',
+          transitionDuration: '0.3s',
+          transitionTimingFunction: 'cubic-bezier(0.750, -0.015, 0.565, 1.055)'
+        },
+        '& .MuiTimeline-loaded': {
+          '& .timeline-editor-edit-track': {
+            opacity: 1,
+            transform: 'translateX(0)',
+            transitionDelay: `calc(0.055s * var(${trackIndex})))`,
+          }
+        }
+      }}
       onKeyDown={(e) => {
         console.info('row root', e);
       }}
       onClick={(e) => {
-        if (track && onClickRow) {
+        if (track && onClickTrack) {
           const time = handleTime(e);
-          onClickRow(e, { track, time });
+          onClickTrack(e, { track, time });
         }
       }}
       onDoubleClick={(e) => {
@@ -153,12 +180,18 @@ export default function TimelineTrack(props: TimelineTrackProps) {
         }
       }}
       onContextMenu={(e) => {
-        if (track && onContextMenuRow) {
+        if (track && onContextMenuTrack) {
+          console.log('context track')
+          e.stopPropagation();
+          e.preventDefault();
           const time = handleTime(e);
-          onContextMenuRow(e, { track, time });
+          onContextMenuTrack(e, { track, time });
         }
       }}
     >
+      <TrackSizer
+        onMouseEnter={() => { setSizerData({...sizerData, hover: true }) }}
+        onMouseLeave={() => { setSizerData({...sizerData, hover: false }) }}/>
       {(track?.actions || []).map((action) => {
         return <TimelineAction
           key={action.id}
@@ -171,3 +204,5 @@ export default function TimelineTrack(props: TimelineTrackProps) {
     </TimelineTrackRoot>
   );
 };
+
+

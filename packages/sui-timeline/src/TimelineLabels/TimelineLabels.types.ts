@@ -2,11 +2,8 @@ import * as React from 'react';
 import {Theme} from '@mui/material/styles';
 import {SxProps} from '@mui/system';
 import {SlotComponentProps} from '@mui/base/utils';
-import { IController } from '../Engine/Controller.types';
+import { IController } from '../Controller/Controller.types';
 import {TimelineLabelsClasses} from './timelineLabelsClasses';
-import {TimelineState} from "../Timeline/TimelineState";
-import { ITimelineTrack } from "../TimelineTrack/TimelineTrack.types";
-import {IEngine, ViewMode} from "../Engine";
 import { MediaFile } from '@stoked-ui/media-selector';
 
 export interface TimelineLabelsSlots {
@@ -16,11 +13,15 @@ export interface TimelineLabelsSlots {
    */
   root?: React.ElementType;
   label?: React.ElementType;
+  template?: React.ElementType;
+  container?: React.ElementType;
 }
 
 export interface TimelineLabelsSlotProps {
   root?: SlotComponentProps<'div', {}, TimelineLabelsProps>;
   label?: SlotComponentProps<'div', {}, TimelineLabelsProps>;
+  template?: SlotComponentProps<'div', {}, TimelineLabelsProps>;
+  container?: SlotComponentProps<'div', {}, TimelineLabelsProps>;
 }
 
 export interface TimelineLabelsPropsBase extends React.HTMLAttributes<HTMLDivElement> {
@@ -34,14 +35,14 @@ export interface TimelineLabelsPropsBase extends React.HTMLAttributes<HTMLDivEle
    */
   sx?: SxProps<Theme>;
 
-  engineRef: React.RefObject<IEngine>;
-
-  tracks: ITimelineTrack[];
   controllers: Record<string, IController>
-  viewMode: ViewMode;
   detailMode?: boolean;
 
   onAddFiles?: (mediaFiles: MediaFile[]) => void;
+
+  hideLock?: boolean;
+
+  width?: number | string;
 }
 
 export interface TimelineLabelsProps
@@ -59,5 +60,5 @@ export interface TimelineLabelsProps
 
   onToggle?: (id: string, property: string) => void;
   setFlags?: (id: string) => string[];
-  setTracks:  React.Dispatch<React.SetStateAction<ITimelineTrack[]>>;
+
 }

@@ -1,16 +1,16 @@
 import * as React from 'react';
-import {Theme} from '@mui/material/styles';
-import {SxProps} from '@mui/system';
+import {Theme, styled} from '@mui/material/styles';
+import {shouldForwardProp, SxProps} from '@mui/system';
+import { MediaFile } from '@stoked-ui/media-selector';
+import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import {SlotComponentProps} from '@mui/base/utils';
-import { type IController } from '../Engine/Controller.types';
+import { type IController } from '../Controller/Controller.types';
 import {TimelineClasses} from './timelineClasses';
 import {type ITimelineTrack} from "../TimelineTrack/TimelineTrack.types";
 import {type TimelineLabelsProps} from "../TimelineLabels/TimelineLabels.types";
 import {type TimelineState} from "./TimelineState";
 import TimelineControl, {TimelineControlProps} from "../TimelineControl";
-import {IEngine, ViewMode} from "../Engine/Engine.types";
-import {ITimelineFile} from "../TimelineFile/TimelineFile";
-import { MediaFile } from '@stoked-ui/media-selector';
+import {ITimelineAction} from "../TimelineAction";
 
 export type TimelineComponent = ((
   props: TimelineProps & React.RefAttributes<HTMLDivElement>,
@@ -61,21 +61,74 @@ export interface TimelineProps
   controlSx?: SxProps<Theme>;
   trackSx?: SxProps<Theme>;
 
-  tracks?: ITimelineTrack[];
-  setTracks?: React.Dispatch<React.SetStateAction<ITimelineTrack[] | null>>;
   controllers?: Record<string, IController>;
   timelineState?: React.RefObject<TimelineState>;
   viewSelector?: string;
-  engineRef?: React.RefObject<IEngine>;
   labels?: boolean;
 
   scaleWidth?: number;
   setScaleWidth?: (scaleWidth: number) => void;
-  file?: ITimelineFile;
-  viewMode?: ViewMode;
 
   detailRenderer?: boolean;
   locked?: boolean;
 
+  disabled?: boolean;
+
   onAddFiles?: (mediaFiles: MediaFile[]) => void;
+
+  /**
+   * @description Right-click track callback
+   */
+  onContextMenuTrack?: (
+    e: React.MouseEvent<HTMLElement, MouseEvent>,
+    param: {
+      track: ITimelineTrack;
+      time: number;
+    },
+  ) => void;
+  /**
+   * @description Right-click action callback
+   */
+  onContextMenuAction?: (
+    e: React.MouseEvent<HTMLElement, MouseEvent>,
+    param: {
+      action: ITimelineAction;
+      track: ITimelineTrack;
+      time: number;
+    },
+  ) => void;
+}
+
+export function ToggleButtonGroupSx(theme: Theme, width: number = 38, height: number = 40) {
+  return {
+    backgroundColor: theme.palette.mode === 'light' ? '#FFF' : '#000', '& .MuiButtonBase-root': {
+      backgroundColor: 'transparent',
+      color: theme.palette.text.primary,
+      border: `1px solid ${theme.palette.text.primary}`,
+      height: `${height}px`,
+      width: `${width}px`,
+      '&:hover': {
+        color: theme.palette.primary.main,
+        backgroundColor: theme.palette.background.default,
+        border: `2px solid ${theme.palette.primary[500]}`,
+        zIndex: 30,
+        height: `${height}px`,
+        width: `${width}px`,
+      }
+    }, '& .MuiButtonBase-root.Mui-selected': {
+      backgroundColor: 'transparent',
+      color: `${theme.palette.primary[theme.palette.mode]}!important`,
+      border: `2px solid ${theme.palette.primary[theme.palette.mode === 'dark' ? 'light' : 'dark']}!important`,
+      zIndex: 20,
+      height: `${height}px`,
+      width: `${width}px`,
+      '&:hover': {
+        backgroundColor: theme.palette.background.default,
+        border: `2px solid ${theme.palette.primary[theme.palette.mode]}!important`,
+        zIndex: 20,
+        height: `${height}px`,
+        width: `${width}px`,
+      }
+    }
+  }
 }

@@ -1,4 +1,4 @@
-export { FileIcon } from './FileIcon';
+export * from './FileIcon';
 export type {
   FileIconProps,
   FileIconSlots,

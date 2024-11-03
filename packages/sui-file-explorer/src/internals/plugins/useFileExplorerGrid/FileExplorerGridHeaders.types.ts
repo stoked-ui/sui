@@ -31,7 +31,7 @@ export interface FileExplorerGridHeadersSlots {
    * The component that renders the item label.
    * @default FileLabel
    */
-  label?: React.ElementType;
+  name?: React.ElementType;
 }
 
 export interface FileExplorerGridHeadersSlotProps {
@@ -39,7 +39,7 @@ export interface FileExplorerGridHeadersSlotProps {
   column?: SlotComponentProps<'div', {}, {}>;
   groupTransition?: SlotComponentProps<'div', {}, {}>;
   iconContainer?: SlotComponentProps<'div', {}, {}>;
-  label?: SlotComponentProps<'div', {}, {}>;
+  name?: SlotComponentProps<'div', {}, {}>;
 }
 
 export interface FileExplorerGridHeadersProps

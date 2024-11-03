@@ -3,7 +3,7 @@ import Fade from "@mui/material/Fade";
 import {Card} from "@mui/material";
 import {alpha} from "@mui/material/styles";
 import {SxProps} from "@mui/system";
-import {IController, Timeline} from "@stoked-ui/timeline";
+import Timeline, { IController } from "@stoked-ui/timeline";
 
 export default function TimelineHero(props: { id: string, sx?: SxProps}) {
   const actions = [
@@ -12,7 +12,7 @@ export default function TimelineHero(props: { id: string, sx?: SxProps}) {
       start: 0,
       end: 20,
       controllerName: 'effect',  // Use the new video effect
-      src: '/static/video-editor/stock-loop.mp4',
+      src: '/static/editor/stock-loop.mp4',
       layer: 'background',
     },
     {

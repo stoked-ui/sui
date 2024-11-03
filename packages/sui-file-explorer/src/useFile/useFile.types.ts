@@ -24,15 +24,15 @@ export interface UseFileParameters {
   /**
    * The label of the item.
    */
-  label?: React.ReactNode;
   rootRef?: React.Ref<HTMLLIElement>;
   /**
    * The content of the component.
    */
   children?: React.ReactNode;
-  type?: MediaType;
+  mediaType?: MediaType;
+  type?: string;
   size?: number;
-  modified?: number;
+  lastModified?: number;
   name?: string;
 }
 

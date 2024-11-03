@@ -36,7 +36,7 @@ export const useFile = <
   } = useFileExplorerContext<TSignatures, TOptionalSignatures>();
   const depthContext = React.useContext(FileDepthContext);
 
-  const { id, itemId, label, children, rootRef } = parameters;
+  const { id, itemId, name, children, rootRef } = parameters;
   const itemMeta = instance.getItemMeta(itemId!);
   const initialStatus = instance.getItemStatus(itemId!, children)
   const { rootRef: pluginRootRef, contentRef, status: pluginStatus } = runItemPlugins({...itemMeta, ...parameters, instance, status: initialStatus });
@@ -232,7 +232,7 @@ export const useFile = <
 
     return {
       ...externalEventHandlers,
-      children: label,
+      children: name,
       ...externalProps,
     };
   };

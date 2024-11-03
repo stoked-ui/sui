@@ -50,19 +50,20 @@ export const File = React.forwardRef(function File(
   const props = useThemeProps({ props: inProps, name: 'MuiFile' });
   const newProps = () => {
     const id = namedId({ id: 'file', length: 6 });
-    return { id, itemId: id, label: '', disabled: false, children: null };
+    return { id, itemId: id, name: 'file', disabled: false, children: null };
   };
   const {
     id,
     itemId,
-    label,
+    name,
     disabled,
     children,
     slots = {},
     slotProps = {},
     type,
+    mediaType,
     size,
-    modified,
+    lastModified,
     sx,
     ...other
   } = props ?? newProps();
@@ -70,14 +71,15 @@ export const File = React.forwardRef(function File(
   const item = {
     id,
     itemId,
-    label,
+    name,
     disabled,
     children,
     slots,
     slotProps,
     type,
+    mediaType,
     size,
-    modified,
+    lastModified,
     sx,
   };
 
@@ -161,8 +163,8 @@ export const File = React.forwardRef(function File(
   let icon;
   if (status.expandable) {
     icon = FolderRounded;
-  } else if (item.type) {
-    icon = getIconFromFileType(item.itemId === 'trash' ? 'trash' : item.type);
+  } else if (item.mediaType) {
+    icon = getIconFromFileType(item.itemId === 'trash' ? 'trash' : item.mediaType);
   }
 
   const contentMetaProps = {
@@ -260,8 +262,7 @@ File.propTypes = {
   /**
    * The label of the item.
    */
-  label: PropTypes.node,
-  modified: PropTypes.number,
+  lastModified: PropTypes.number,
   name: PropTypes.string,
   /**
    * Callback fired when the item root is blurred.
@@ -292,5 +293,5 @@ File.propTypes = {
     PropTypes.func,
     PropTypes.object,
   ]),
-  type: PropTypes.oneOf(['doc', 'file', 'folder', 'image', 'pdf', 'trash', 'video', 'audio']),
+  type: PropTypes.string,
 };

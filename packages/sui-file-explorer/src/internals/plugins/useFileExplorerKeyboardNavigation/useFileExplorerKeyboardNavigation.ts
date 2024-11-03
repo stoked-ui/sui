@@ -34,7 +34,7 @@ export const useFileExplorerKeyboardNavigation: FileExplorerPlugin<
     const newFirstCharMap: { [itemId: string]: string } = {};
 
     const processItem = (item: FileMeta) => {
-      newFirstCharMap[item.id] = item.label!.substring(0, 1).toLowerCase();
+      newFirstCharMap[item.id] = item.name!.substring(0, 1).toLowerCase();
     };
 
     Object.values(state.items.itemMetaMap).forEach(processItem);
