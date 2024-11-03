@@ -3,7 +3,7 @@ import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Avatar from '@mui/material/Avatar';
 import { FileExplorer } from '@stoked-ui/file-explorer/FileExplorer';
-import { FileBase } from '@stoked-ui/file-explorer/models';
+import { IMediaFile, IMediaFileInput } from '@stoked-ui/media-selector';
 import {
   useFile,
   UseFileParameters,
@@ -15,15 +15,15 @@ import {
   FileLabel,
   FileRoot,
   FileCheckbox,
+  FileIcon,
+  FileProvider
 } from '@stoked-ui/file-explorer/File';
-import { FileIcon } from 'packages/sui-file-explorer/src/internals/FileIcon';
-import { FileProvider } from 'packages/sui-file-explorer/src/internals/FileProvider';
 
-const ITEMS: FileBase[] = [
+const ITEMS: IMediaFileInput[] = [
   {
     id: '1',
     label: 'Amelia Hart',
-    children: [{ id: '2', label: 'Jane Fisher' }],
+    children: [{ id: '2', name: 'Jane Fisher' }],
   },
   {
     id: '3',

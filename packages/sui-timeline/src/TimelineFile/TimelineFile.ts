@@ -1,24 +1,33 @@
-import { namedId, base64Encode, getFileName, MediaFile } from "@stoked-ui/media-selector";
-import {type ITimelineAction, ITimelineFileAction} from "../TimelineAction";
-import {ITimelineTrack} from "../TimelineTrack";
-import path from "path";
-import * as fs from "node:fs";
-import Engine, {IController, IEngine} from "../Engine";
-import Controller from "../Engine/Controller";
+import { namedId, MediaFile, extractMeta, getMimeType, createZip, IMediaFile } from "@stoked-ui/media-selector";
+import {openDB} from "@tempfix/idb";
+import {initTimelineAction, type ITimelineAction, ITimelineFileAction} from "../TimelineAction";
+import {ITimelineFileTrack, ITimelineTrack} from "../TimelineTrack";
+import {IController, IEngine } from "../Engine";
+import {Controllers} from "../Controller/AudioController";
 
-export interface ITimelineFile {
-  id: string;
-  name: string;
-  description?: string;
-  author?: string
-  created: number;
-  lastModified?: number;
+export interface ITimelineFileBase {
+  id: string,
+  name: string,
+  description?: string,
+  created: number,
+  lastModified?: number,
+  author?: string,
+  size?: number,
+  url?: string;
+  image?: string;
   backgroundColor?: string;
   width: number;
   height: number;
-  src?: string;
-  // actionData?: ITimelineFileAction[]
-  // tracks?: ITimelineTrack[];
+}
+
+export interface ITimelineFile extends ITimelineFileBase {
+  tracks: ITimelineTrack[];
+  needsGeneration(): boolean;
+  version: number;
+  saveOutput(blob: OutputBlob): Promise<IDBValidKey>;
+  save(silent?: boolean): void;
+  generateTracks(controllers: Record<string, IController>, engine: IEngine): Promise<void>;
+  loadOutput(): Promise<IMediaFile[] | undefined>;
 }
 
 export interface ITimelineFileProps {
@@ -31,28 +40,150 @@ export interface ITimelineFileProps {
   backgroundColor?: string;
   width?: number;
   height?: number;
-  src?: string;
-  actionData?: ITimelineFileAction[];
-  tracks?: ITimelineTrack[];
+  url?: string;
+  image?: string;
+  tracks?: ITimelineFileTrack[];
 }
 
-function getName(props: ITimelineFileProps): string {
-  if (props.name) {
-    return props.name;
+
+export type SaveOptions = {
+  id?: string,
+  types?: FilePickerAcceptType[],
+  suggestedName?: string,
+  suggestedExt?: FileExtension,
+};
+
+export type SaveDialogProps = SaveFilePickerOptions & { fileBlob: Blob }
+
+export abstract class BaseFile {
+
+  protected lastChecksum: null | string = null;
+
+  protected _version: number = 0;
+
+  id?: string;
+
+  get version() {
+    return this._version;
+  };
+
+  protected primaryType: FilePickerAcceptType = {
+    description: 'Timeline Project Files',
+    accept: {
+      'application/stoked-ui-timeline': ['.sut'],
+    },
+  };
+
+  protected primaryExt: string = '.sut';
+
+  protected types: FilePickerAcceptType[] = [];
+
+  private get fileApiAvailable() {
+    return 'showSaveFilePicker' in window;
   }
 
-  if (props.tracks?.length) {
-    for (let i = 0; i < props.tracks.length; i += 1) {
-      if (props.tracks[i].name) {
-        return props.tracks[i].name as string;
-      }
+  protected getSaveApiOptions(optionProps: SaveOptions): SaveFilePickerOptions {
+    const { id, types, suggestedName } = optionProps;
+    return {
+      id: id ?? this.id,
+      suggestedName,
+      excludeAcceptAllOption: false,
+      types: types ? types : [this.primaryType, ...this.types],
+      startIn: id ? undefined : 'documents'
     }
   }
 
-  return 'new video';
+  protected async saveAs(options: SaveDialogProps) {
+    if (this.fileApiAvailable) {
+      return this.saveFileApi(options);
+    }
+    return this.saveFileHack(options);
+  }
+
+  private async saveFileHack(options: SaveDialogProps) {
+    const { fileBlob } = options;
+    const mainDiv = document.querySelector('main') as HTMLDivElement
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(fileBlob);
+    link.download = options.suggestedName;
+    link.style.width = '200px';
+    link.style.height = '200px';
+    link.style.color = 'black';
+    link.innerText = 'hello';
+    link.style.display = 'flex';
+    mainDiv.appendChild(link);
+    link.click();
+    URL.revokeObjectURL(link.href)
+    link.remove();
+  }
+
+  private async saveFileApi(options: SaveDialogProps) {
+    if (!this.fileApiAvailable) {
+      return;
+    }
+
+    try {
+      // Show the save file picker
+      const fileHandle = await window.showSaveFilePicker(options);
+
+      // Create a writable stream to the selected file
+      const writableStream = await fileHandle.createWritable();
+
+      // Write the Blob to the file
+      await writableStream.write(options.fileBlob);
+
+      // Close the writable stream
+      await writableStream.close();
+
+      console.log('File saved successfully!');
+    } catch (error) {
+      console.error('Error saving file:', error);
+    }
+  }
+
+  async hashString(canonicalString: string): Promise<string> {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(canonicalString);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  async checksum(): Promise<string> {
+    return 'default';
+  }
+
+  async isDirty(): Promise<boolean> {
+    const checksum = await this.checksum();
+    if (this.lastChecksum === checksum || checksum === 'default') {
+      return true;
+    }
+    this.lastChecksum = checksum;
+    return false;
+  }
 }
 
-export default class TimelineFile implements ITimelineFile {
+export type DBFileRecord = {
+  id: string,
+  data: Record<string, Blob>
+};
+
+export type DBOutputRecord = {
+  id: string,
+  data: OutputBlob[]
+}
+
+export type OutputBlob = {
+  id: string,
+  sourceId: string,
+  version: number,
+  name: string,
+  created: number,
+  blob: Blob,
+  size: number
+};
+
+export class TimelineFile extends BaseFile implements ITimelineFile {
 
   id: string;
 
@@ -72,17 +203,24 @@ export default class TimelineFile implements ITimelineFile {
 
   height: number = 1080;
 
-  src?: string;
+  url?: string;
 
-  actionData?: ITimelineFileAction[]
+  image?: string;
+
+  protected _fileTracks?: ITimelineFileTrack[];
 
   protected _tracks?: ITimelineTrack[];
 
-  protected _displayTracks?: ITimelineTrack[];
+  protected OBJECT_STORE_NAME: string = 'timeline';
+
+  protected OBJECT_OUTPUT_STORE_NAME: string = 'timeline-output';
+
+  protected DB_NAME: string = 'stoked-ui';
 
   constructor(props: ITimelineFileProps) {
+    super();
     this.id = props.id ?? namedId('timelineFile');
-    this.name = getName(props);
+    this.name = this.getName(props);
     this.description = props.description;
     this.author = props.author;
     this.created = props.created ?? props.lastModified ?? Date.now();
@@ -90,178 +228,392 @@ export default class TimelineFile implements ITimelineFile {
     this.backgroundColor = props.backgroundColor ?? '#000';
     this.width = props.width ?? 1920;
     this.height = props.height ?? 1080;
-    this.actionData = props.actionData ?? [];
-    this._tracks = props.tracks ?? [];
+    this.url = props.url;
+    this._fileTracks = props.tracks ?? [];
+  }
+
+
+  getName(props: ITimelineFileProps): string {
+    if (props.name) {
+      return props.name;
+    }
+
+    if (props.tracks?.length) {
+      for (let i = 0; i < props.tracks.length; i += 1) {
+        if (props.tracks[i].name) {
+          return props.tracks[i].name as string;
+        }
+      }
+    }
+    return 'new video';
+  }
+
+  get rootJson(): Partial<ITimelineFile> {
+    const {_tracks, _fileTracks, lastChecksum, ...jsonFileData} = this as TimelineFile;
+    return jsonFileData;
+  }
+
+  get tracksJson(): ITimelineTrack[] {
+    return this.tracks.map((track) => {
+      const { file, ...trackJson } = track;
+      return trackJson;
+    }) as ITimelineTrack[]
+  }
+
+  async checksum(): Promise<string> {
+    const canonicalRoot = JSON.stringify(this.rootJson, Object.keys(this.rootJson).sort());
+    const canonicalTracks = this.tracksJson.map((track) => {
+      const { actions, ...limitedTrack } = track;
+      const canonicalActions = actions.map((action) => {
+        return JSON.stringify(action, Object.keys(action).sort());
+      }).join();
+      return JSON.stringify(limitedTrack, Object.keys(limitedTrack).sort()) + canonicalActions;
+    }).join();
+    return await this.hashString(`${canonicalRoot}${canonicalTracks}`);
+  }
+
+  protected getSaveApiOptions(optionProps: SaveOptions): SaveFilePickerOptions {
+    if (!optionProps.suggestedName) {
+      if (!optionProps.suggestedExt) {
+        const exts = Object.values(this.primaryType.accept);
+        optionProps.suggestedExt = (exts.length ? exts[0] : this.primaryExt) as FileExtension;
+      }
+      optionProps.suggestedName = `${this.name}${Object.values(this.primaryType.accept)}`
+    }
+    return super.getSaveApiOptions(optionProps);
   }
 
   get tracks() {
     return this._tracks;
   }
 
-  get displayTracks() {
-    return this._displayTracks;
+  set tracks(updatedTracks: ITimelineTrack[]) {
+    this._tracks = updatedTracks.filter((updatedTrack) => updatedTrack.id !== 'newTrack');
   }
 
-  async generateTracks(controllers: Record<string, IController>, engine: IEngine) {
-    if (!this.actionData?.length || this.tracks.length) {
+  static newTrack(): ITimelineTrack[] {
+    return [{
+      id: 'newTrack',
+      name: 'new track',
+      actions: [],
+      file: null,
+      hidden: false,
+      lock: false
+    } as ITimelineTrack];
+  }
+
+  static displayTracks(tracks?: ITimelineTrack[]) {
+    if (tracks?.length) {
+      return tracks.concat(TimelineFile.newTrack());
+    }
+    return TimelineFile.newTrack();
+  }
+
+  needsGeneration() {
+    if (!this._fileTracks?.length || this._tracks?.length) {
+      return false;
+    }
+    return true;
+  }
+
+  async generateTracks(controllers: Record<string, IController>, engine: IEngine, initAction: (engine: IEngine, action: ITimelineFileAction, index: number) => ITimelineAction = initTimelineAction) {
+    if (!this._fileTracks?.length || this._tracks?.length) {
       return;
     }
 
     try {
-      const actions = this.actionData.map((actionInput, index) => {
-        const action = actionInput as ITimelineAction;
-        action.src = action.src.indexOf('http') !== -1 ? action!.src : `${window.location.origin}${action!.src}`;
-        action.src = action.src.replace(/([^:]\/)\/+/g, "$1");
-        if (!action.name) {
-          const fullName = getFileName(action.src, true);
-          const name = getFileName(action.src, false);
-          if (!name || !fullName) {
-            throw new Error('no action name available');
-          }
-          action.name = name;
-          action.fullName = fullName;
-        } else {
-          action.fullName = getFileName(action.src, true)!;
-        }
-
-        if (!action.volume) {
-          action.volumeIndex = -2; // -2: no volume parts available => volume 1
-        } else {
-          action.volumeIndex = -1; // -1: volume part unassigned => volume 1 until assigned
-
-          for (let i = 0; i < action.volume!.length; i += 1) {
-            const { volume } = Controller.getVol(action.volume![i]);
-
-            if (volume < 0 || volume > 1) {
-              console.info(`${action.name} specifies a volume of ${volume} which is outside the standard range: 0.0 - 1.0`)
-            }
-          }
-        }
-
-        action.controller = controllers[action.controllerName];
-
-        if (!action.id) {
-          action.id = namedId('mediaFile');
-        }
-
-        if (!action.z) {
-          action.z = index;
-        }
-
-        if (!action.layer) {
-          action.layer = 'foreground';
-        }
-        return action;
-      })
-      const preload = actions.map((action) => action.controller.preload ? action.controller.preload({action, engine }) : action)
-      const loadedActions = await Promise.all(preload);
-
-      const filePromises = loadedActions.map((action) => MediaFile.fromAction(action as any));
+      const filePromises = this._fileTracks.map((fileTrack) => MediaFile.fromUrl(fileTrack.url));
       const mediaFiles: MediaFile[] = await Promise.all(filePromises);
-      this._tracks = mediaFiles.map((file) => {
-        const loadedAction = loadedActions.find((a) => a!.fullName === file.path);
-        if (!loadedAction) {
-          throw new Error(`Action input not found for file ${JSON.stringify(file, null, 2)} - ${file.path} - ${loadedActions.map((act) => act.fullName)}`);
-        }
-        if (loadedAction.x) {
-          loadedAction.x = Engine.parseCoord(loadedAction.x, loadedAction.width, engine.renderWidth);
-        } else {
-          loadedAction.x = 0;
-        }
-        if (loadedAction.y) {
-          loadedAction.y = Engine.parseCoord(loadedAction.y, loadedAction.height, engine.renderHeight);
-        } else {
-          loadedAction.y = 0;
-        }
-        const action = {
-          fit: 'none',
-          loop: true,
-          ...loadedAction,
-          src: loadedAction.src,
-          id: loadedAction.id,
-        } as ITimelineAction
-        const trackGenId = namedId('track')
-        return {
-          id: trackGenId,
-          name: action.name ?? trackGenId,
-          actions: [action],
-          file: action.file,
-          hidden: false,
-          lock: false
-        } as ITimelineTrack;
-      })
-      this._displayTracks = [];
-      if (this._tracks.length) {
-        this._displayTracks = this._tracks;
-      }
-      this._displayTracks.push({
-        id: 'newTrack',
-        name: 'new track',
-        actions: [],
-        file: null,
-        hidden: false,
-        lock: false
-      } as ITimelineTrack);
 
-      this.actionData = undefined;
+      this._tracks = this._fileTracks.map((trackInput, index) => {
+        trackInput.url = trackInput.url.indexOf('http') !== -1 ? trackInput!.url : `${window.location.origin}${trackInput!.url}`;
+        trackInput.url = trackInput.url.replace(/([^:]\/)\/+/g, "$1");
+
+        const file =  mediaFiles.find((file) => file._url === trackInput.url);
+
+        if (!file) {
+          throw new Error('couldn\'t find media file source');
+        }
+
+        const actions = trackInput.actions.map((action: ITimelineFileAction) => {
+          return initAction(engine, action, index);
+        }) as ITimelineAction[];
+
+        const track: ITimelineTrack = {
+          id: trackInput.id ?? namedId('track'),
+          name: trackInput.name,
+          actions,
+          file: file,
+          controller: trackInput.controller ? trackInput.controller : controllers[trackInput.controllerName],
+          hidden: trackInput.hidden,
+          lock: trackInput.lock,
+        };
+
+        return track;
+      });
+      const nestedPreloads = this._tracks.map((track) => {
+        return track.actions.map((action) => track.controller.preload ? track.controller.preload({
+          action,
+          engine,
+          file: track.file
+        }) : action)
+      });
+      const preloads = nestedPreloads.flat();
+      await Promise.all(preloads);
+
+      this.lastChecksum = await this.checksum();
     } catch (ex) {
       console.error('buildTracks:', ex);
     }
-
   }
 
-  async serialize() {
-    const file = {
-      id: this.id,
-      name: this.name,
-      description: this.description,
-      author: this.author,
-      created: this.created,
-      lastModified: this.lastModified,
-      backgroundColor: this.backgroundColor,
-      width: this.width,
-      height: this.height,
-      src: this.src,
-      tracks: []
+  toTracksBlob({subTypePrefix = 'stoked-ui-timeline', type = 'application'}: { type?: string, subTypePrefix?: string } = {}): Blob {
+    const blobs =  this.tracks.map((track) => {
+      const { actions, file, controller, ...trackJson } = track;
+      return new Blob([JSON.stringify(trackJson), file.blob], getMimeType({type, subTypePrefix, subType: 'track'}));
+    })
+    return new Blob(blobs,  getMimeType({type, subTypePrefix, subType: 'tracks'}))
+  }
+
+  // Function to create a combined file with JSON data and attached files
+  async createBlob(): Promise<File> {
+    try {
+      // create json blob for non-binary root data
+      const jsonBlob = new Blob([JSON.stringify(this.rootJson)], { type: 'text/json' });
+
+      // Convert Blob to a File for easier handling or saving
+      const blob = new Blob([jsonBlob, this.toTracksBlob()], { type: 'blob' });
+      return new File([blob], this.name, { type: 'application/stoked-ui-timeline' });
+    } catch (ex) {
+      console.error(ex);
     }
-    for (let i = 0; i < this.tracks.length; i += 1) {
-      const track = this.tracks[i];
-      const serializedTrack = {
-        id: track.id,
-        name: track.name,
-        actions: track.actions,
-        classNames: track.classNames,
-        hidden: track.hidden,
-        lock: track.lock,
-        actionRef: track.actionRef
+  }
+
+  async save(silent: boolean = false) {
+    const isDirty = await this.isDirty()
+    if (!isDirty) {
+      return;
+    }
+    this._version += 1;
+    const fileBlob = await this.createBlob();
+    await this.saveDb(fileBlob);
+
+    if (!silent) {
+      const saveOptions = this.getSaveApiOptions({ })
+      await this.saveAs({ ...saveOptions, fileBlob });
+    }
+  }
+
+  async getTransaction(store: string) {
+    const { DB_NAME } = this;
+    const db = await openDB(DB_NAME, 1);
+    return db.transaction(store, 'readwrite');
+  }
+
+  async saveDb(blob: Blob): Promise<IDBValidKey> {
+    let res: IDBValidKey;
+    try {
+      const { OBJECT_STORE_NAME } = this;
+      const tx = await this.getTransaction(OBJECT_STORE_NAME);
+      const versionId = `${this.version}`;
+
+      const dbFile: DBFileRecord = {
+        id: this.id,
+        data: { versionId: blob }
       }
+
+      if (this.version === 1) {
+        // Create initial record for file
+        res = await tx.objectStore(OBJECT_STORE_NAME).put(dbFile);
+      } else {
+        // Get the record.
+        let record: DBFileRecord = await tx.objectStore(OBJECT_STORE_NAME).get(this.id);
+        if (!record) {
+          record = dbFile;
+        } else {
+          record.data[versionId] = blob;
+        }
+
+        // Put the modified record back.
+        res = await tx.objectStore(OBJECT_STORE_NAME).put(record);
+      }
+
+    } catch (e) {
+      console.error(e);
+      throw new Error(e as string);
     }
+    return res;
+  };
+
+  async saveOutput(blob: OutputBlob): Promise<IDBValidKey> {
+    let res: IDBValidKey;
+    try {
+      const { OBJECT_OUTPUT_STORE_NAME } = this;
+
+      const dbFile: DBOutputRecord = {
+        id: this.id,
+        data: [blob]
+      }
+
+      const tx = await this.getTransaction(OBJECT_OUTPUT_STORE_NAME);
+
+      if (this.version === 1) {
+        // Create initial record for file
+        res = await tx.objectStore(OBJECT_OUTPUT_STORE_NAME).put(dbFile);
+      } else {
+        // Get the record.
+        let record: DBOutputRecord = await tx.objectStore(OBJECT_OUTPUT_STORE_NAME).get(this.id);
+        if (!record) {
+          record = dbFile;
+        } else {
+          record.data.push(blob);
+        }
+
+        // Put the modified record back.
+        res = await tx.objectStore(OBJECT_OUTPUT_STORE_NAME).put(record);
+      }
+
+    } catch (e) {
+      console.error(e);
+      throw new Error(e as string);
+    }
+    return res;
+  };
+
+  protected async loadStoreData(store: string) {
+    const tx = await this.getTransaction(store);
+    const outputRecord = await tx.objectStore(store).get(this.id);
+    return outputRecord?.data;
   }
-  /*
-  static async Save(file: TimelineFile) {
-    const trackFileBase64 = await blobToBase64(instance.trackFile);
-    const videoFileBase64 = await blobToBase64(instance.videoFile);
 
-    const serializedData = JSON.stringify({
-      id: instance.id,
-      trackFile: trackFileBase64,
-      videoFile: videoFileBase64,
+  async load() {
+    return await this.loadStoreData(this.OBJECT_STORE_NAME)
+  }
+
+  async loadOutput(): Promise<IMediaFile[] | undefined> {
+    const outputBlobs: OutputBlob[] | undefined = await this.loadStoreData(this.OBJECT_OUTPUT_STORE_NAME);
+    return outputBlobs?.map((output) => {
+      return MediaFileFromOutputBlob(output);
+    })
+  }
+
+  static createPlaceHolder(author: string): TimelineFile {
+    const placeholderId =  namedId('placeholder');
+    return new TimelineFile({
+      id: placeholderId,
+      name: `placeholder [${placeholderId.replace('placeholder-', '')}]`,
+      author,
+      created: Date.now(),
+      backgroundColor: '#000',
+      width: 1920,
+      height: 1080,
     });
+  }
 
-    const blob = new Blob([serializedData], { type: 'application/json' });
+  static fromUrl(url: string): TimelineFile {
+    return new TimelineFile({ url });
+  }
 
-    // Trigger download using the Blob method as a fallback (or File System API if available)
-    const fileName = `${instance.id}.json`;
 
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.href = url;
-    link.download = fileName;
-    document.body.appendChild(link);
-    link.click();
+  async fromFile(file: File): Promise<TimelineFile> {
+    // Read the file as a single Blob and parse it
+    const data = await file.arrayBuffer();
+    const blob = new Blob([data]);
 
-    // Clean up
-    URL.revokeObjectURL(url);
-    link.remove();
-  } */
+    // Split the blob into the root JSON part and the track blobs
+    const [jsonBlob, tracksBlob] = await this.splitBlob(blob);
+
+    // Parse the root JSON
+    const jsonText = await jsonBlob.text();
+
+    const parsedMeta = JSON.parse(jsonText);
+    this.id = parsedMeta.id;
+    this.name = parsedMeta.name;
+    this.description = parsedMeta.description;
+    this.author = parsedMeta.author;
+    this.created = parsedMeta.created
+    this.lastModified = parsedMeta.lastModified
+    this.backgroundColor = parsedMeta.backgroundColor;
+    this.width = parsedMeta.width;
+    this.height = parsedMeta.height;
+    this.url = parsedMeta.url;
+
+    console.log('parse track', this)
+
+    // Parse each track blob back to track objects
+    const tracksArrayBuffer = await tracksBlob.arrayBuffer();
+    const tracksBlobParts = this.splitTracksBlob(tracksArrayBuffer);
+
+    // Loop through track blobs and parse each one
+    for (const trackBlob of tracksBlobParts) {
+      const trackData = await trackBlob.arrayBuffer();
+      const trackText = await new Blob([trackData]).text();
+      const track = JSON.parse(trackText);
+      this.tracks.push(track);
+    }
+
+    return this;
+  }
+
+  private async splitBlob(blob: Blob): Promise<[Blob, Blob]> {
+    // Assume the JSON part is small; we could use a fixed offset for simplicity
+    const jsonSize = 1000; // Adjust based on estimated JSON size
+    return [blob.slice(0, jsonSize), blob.slice(jsonSize)];
+  }
+
+  private splitTracksBlob(buffer: ArrayBuffer): Blob[] {
+    // Implement logic to split the tracks data
+    // Placeholder logic
+    return [];
+  }
+
+  static async fromFileActions(actions: ITimelineFileAction[]) {
+    const filePromises = actions.map((action) => MediaFile.fromUrl(action.url));
+    const files = await Promise.all(filePromises);
+    const tracks = files.map((mediaFile) => {
+      const actionIndex = actions.findIndex((fileAction) => fileAction.url === mediaFile._url);
+      if (actionIndex !== -1) {
+        const action = actions[actionIndex];
+        return {
+          id: namedId('timelineFile'),
+          name: 'new video',
+          tracks: tracks,
+          file: mediaFile,
+          url: mediaFile._url,
+          controller: Controllers[mediaFile.mediaType],
+          actions: [{
+            id: namedId('action'),
+            name: action.name,
+            start: action.start || 0,
+            end: (action.end || 0) + 2,
+            volumeIndex: -2,
+          } as ITimelineAction],
+        }
+      }
+    })
+
+    return new TimelineFile({
+      tracks
+    });
+  }
+}
+
+export function MediaFileFromOutputBlob(outputBlob: OutputBlob): IMediaFile {
+  const { blob } = outputBlob;
+  const mediaFile: IMediaFile = {
+    ...outputBlob,
+    mediaType: 'video',
+    icon: null,
+    thumbnail: null,
+    lastModified: undefined,
+    url: URL.createObjectURL(outputBlob.blob),
+    type: 'video/webm',
+    arrayBuffer: blob.arrayBuffer,
+    stream: blob.stream,
+    text: blob.text,
+    slice: blob.slice,
+    webkitRelativePath: outputBlob.name,
+    itemId: outputBlob.id,
+  };
+  return MediaFile.fromFile(mediaFile);
 }

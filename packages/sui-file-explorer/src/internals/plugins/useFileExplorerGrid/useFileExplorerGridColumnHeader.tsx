@@ -171,7 +171,7 @@ export const useFileExplorerGridColumnHeader =  <
 
     if (columnData && headerData) {
       const width = (columnData?.width ?? -1) !== -1 ? {width: `${columnData.width - 8}px`} : undefined;
-      const flexGrow = columnName === 'label' ? { flexGrow: 1 } : undefined;
+      const flexGrow = columnName === 'name' ? { flexGrow: 1 } : undefined;
       const sx: SxProps = {
         ...headerData.sx,
         color: theme.palette.text.primary,
@@ -229,7 +229,7 @@ export const useFileExplorerGridColumnHeader =  <
 
     return {
       ...externalEventHandlers,
-      children: toTitleCase(columnName === 'label' ? 'File' : columnName),
+      children: toTitleCase(columnName === 'name' ? 'File' : columnName),
       ...externalProps,
     };
   };

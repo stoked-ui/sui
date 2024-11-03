@@ -88,12 +88,12 @@ export class ResolutionFile extends MediaFile implements IResolutionFile {
 
   aspectRatio: number = 16/9;
 
-  set width(width: number) {
-    this._width = width;
-    const { resolution, height} = WidthLookup[width];
-    this._height = height;
-    this._resolution = resolution;
-  }
+  /* set width(width: number) {
+   this._width = width;
+   const { resolution, height} = WidthLookup[width];
+   this._height = height;
+   this._resolution = resolution;
+   }
 
   get width(): number | undefined { return this._width }
 
@@ -105,12 +105,12 @@ export class ResolutionFile extends MediaFile implements IResolutionFile {
   }
 
   get height(): number | undefined { return this._height; }
-
+   */
   set resolution(res: Res) {
     this._resolution = res;
-    const { width, height} = ResLookup[res];
-    this.width = width;
-    this.height = height;
+    // const { width, height} = ResLookup[res];
+    // this.width = width;
+    // this.height = height;
   }
 
   get resolution(): Res | undefined { return this._resolution; }

@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { IMediaFile } from '@stoked-ui/media-selector';
 import { Theme } from '@mui/material/styles';
 import { SxProps } from '@mui/system';
 import { SlotComponentProps } from '@mui/base/utils';
+import { IMediaFile } from '@stoked-ui/media-selector';
 import { FileExplorerClasses } from './fileExplorerClasses';
 import {
   FileExplorerPluginParameters,
@@ -11,7 +11,7 @@ import {
   FileExplorerPluginSlots,
 } from './FileExplorer.plugins';
 import { FileProps } from '../File';
-import { FileBase, FileId } from '../models';
+import { FileId } from '../models';
 import {
   FileExplorerExperimentalFeatures,
   FileExplorerPublicAPI,
@@ -36,7 +36,7 @@ export interface FileExplorerSlots extends FileExplorerPluginSlots {
   item?: React.JSXElementConstructor<FileProps> | React.JSXElementConstructor<FileProps>;
 }
 
-export interface FileExplorerSlotProps<R extends FileBase, Multiple extends boolean | undefined>
+export interface FileExplorerSlotProps<R extends IMediaFile, Multiple extends boolean | undefined>
   extends FileExplorerPluginSlotProps {
   root?: SlotComponentProps<'ul', {}, FileExplorerProps<R, Multiple>>;
   item?: SlotComponentPropsFromProps<
@@ -66,7 +66,7 @@ export interface FileExplorerPropsBase extends React.HTMLAttributes<HTMLUListEle
   onAddFiles?:  (mediaFile: IMediaFile[]) => void;
 }
 
-export interface FileExplorerProps<R extends FileBase, Multiple extends boolean | undefined>
+export interface FileExplorerProps<R extends IMediaFile, Multiple extends boolean | undefined>
   extends FileExplorerPluginParameters<R, Multiple>,
     FileExplorerPropsBase {
   /**

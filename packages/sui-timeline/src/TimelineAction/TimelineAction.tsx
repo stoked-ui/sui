@@ -1,11 +1,8 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import {alpha, darken, emphasize, lighten, styled,} from '@mui/material/styles';
 import composeClasses from '@mui/utils/composeClasses';
 import Typography from '@mui/material/Typography';
-// import clsx from 'clsx';
-// import useSlotProps from '@mui/utils/useSlotProps';
-import {shouldForwardProp} from '@mui/system/createStyled';
+import {alpha, darken, emphasize, lighten, styled,} from '@mui/material/styles';
 import {DEFAULT_ADSORPTION_DISTANCE, DEFAULT_MOVE_GRID} from '../interface/const';
 import {
   getScaleCountByPixel, parserTimeToPixel, parserTimeToTransform, parserTransformToTime,
@@ -20,12 +17,14 @@ import {
   RndResizeStartCallback,
   RowRndApi,
 } from '../TimelineTrack/TimelineTrackDnd.types';
-import {getTimelineActionUtilityClass} from './timelineActionClasses';
 import {prefix} from '../utils/deal_class_prefix';
 import {
-  BackgroundImageStyle, type TimelineActionOwnerState, type TimelineActionProps
+  BackgroundImageStyle, ITimelineAction, type TimelineActionOwnerState, type TimelineActionProps
 } from './TimelineAction.types';
 import {type ITimelineTrack} from '../TimelineTrack/TimelineTrack.types';
+import {useTimeline} from "../TimelineProvider";
+import {shouldForwardProp} from "@mui/system/createStyled";
+/*
 
 export const useActionUtilityClasses = (ownerState: TimelineActionOwnerState) => {
   const { classes } = ownerState;
@@ -42,11 +41,12 @@ export const useActionUtilityClasses = (ownerState: TimelineActionOwnerState) =>
 
   return composeClasses(slots, getTimelineActionUtilityClass, classes);
 };
+*/
 
 const Action = styled('div', {
   name: 'MuiTimelineAction',
   slot: 'root',
-  shouldForwardProp: prop => shouldForwardProp(prop) &&
+    shouldForwardProp: prop => shouldForwardProp(prop) &&
                              prop !== 'selected' &&
                              prop !== 'color' &&
                              prop !== 'duration' &&
@@ -234,30 +234,14 @@ const ActionLabel = styled('div', {
 });
 
 function TimelineAction(props: TimelineActionProps) {
-  const { action, setTracks, ...restProps } = props;
+  const { engine, dispatch, file } = useTimeline();
+  const { action, ...restProps } = props;
   const { selected, flexible = true, movable = true, disable } = action;
   const state = { selected, flexible, movable, disable };
-  const ownerStateProps = { ...state, ...restProps, ...action, setTracks };
+  const ownerStateProps = { ...state, ...restProps, ...action };
   const { onKeyDown, ...ownerState } = ownerStateProps;
-  const classes = useActionUtilityClasses(ownerState as TimelineActionOwnerState);
-  /* const classNamesNew = Object.keys(classes).reduce((result, key) => {
-    const classKey = classes[key];
-    result[classKey] = !!state[key];
-    return result;
-  }, {}); */
+  //const classes = useActionUtilityClasses(ownerState as TimelineActionOwnerState);
 
-  /*
-    const { slotProps = {} } = props;
-      const rootProps = useSlotProps({
-      elementType: TimelineAction,
-      externalSlotProps: slotProps.root,
-      externalForwardedProps: props,
-      ownerState,
-      className: clsx(props.className, classes.root, classNamesNew),
-    });
-  */
-  /*
-  */
   const actionEl = React.useRef<HTMLDivElement>(null);
 
   const rowRnd = React.useRef<RowRndApi>();
@@ -267,7 +251,6 @@ function TimelineAction(props: TimelineActionProps) {
     track,
     scaleCount,
     setScaleCount,
-    controllers,
     startLeft,
     scale,
     scaleWidth,
@@ -359,7 +342,7 @@ function TimelineAction(props: TimelineActionProps) {
     handleScaleCount(left, width);
   };
 
-  const { tracks, onActionMoveEnd } = props;
+  const { onActionMoveEnd } = props;
   const handleDragEnd: RndDragEndCallback = ({ left, width }) => {
     if (track.lock) {
       return;
@@ -371,15 +354,15 @@ function TimelineAction(props: TimelineActionProps) {
     );
 
     // setData
-    const rowItem = tracks.find((item) => item.id === track.id);
+    const rowItem = file.tracks.find((item) => item.id === track.id);
     const dragEndAction = rowItem.actions.find((item) => item.id === id);
     dragEndAction.start = dragEndStart;
     dragEndAction.end = dragEndEnd;
-    setTracks(tracks);
+    dispatch({ type: 'SET_TRACKS', payload: file.tracks})
 
     // executeCallback
     if (onActionMoveEnd) {
-      onActionMoveEnd({ action: dragEndAction, track, start: dragEndStart, end: dragEndEnd });
+      onActionMoveEnd({ action: dragEndAction as ITimelineAction, track, start: dragEndStart, end: dragEndEnd });
     }
   };
 
@@ -430,16 +413,17 @@ function TimelineAction(props: TimelineActionProps) {
     );
 
     // Set data
-    const rowItem = tracks.find((item) => item.id === track.id);
+    const rowItem = file.tracks.find((item) => item.id === track.id);
     const resizeEndAction = rowItem.actions.find((item) => item.id === id);
     resizeEndAction.start = resizeEndStart;
     resizeEndAction.end = resizeEndEnd;
-    setTracks(tracks);
+    dispatch({ type: 'SET_TRACKS', payload: file.tracks})
+
 
     // triggerCallback
     if (onActionResizeEnd) {
       onActionResizeEnd({
-        action: resizeEndAction,
+        action: resizeEndAction as ITimelineAction,
         track,
         start: resizeEndStart,
         end: resizeEndEnd,
@@ -464,32 +448,24 @@ function TimelineAction(props: TimelineActionProps) {
     nowRow.actions[track.actions.indexOf(action)] = nowAction;
   }
   const [backgroundStyle, setBackgroundStyle] = React.useState<null | BackgroundImageStyle>(null);
-  const [buildingImage, setBuildingImage] = React.useState<boolean>(false);
+  // const [buildingImage, setBuildingImage] = React.useState<boolean>(false);
   React.useEffect(() => {
     try {
-      if (!buildingImage && action.controller.getBackgroundImage) {
-        setBuildingImage(true);
-        action.controller.getBackgroundImage?.(action).then((img) => {
-          setBackgroundStyle({
-            backgroundImage: img,
-            backgroundPosition: `${-scaleWidth * (action.trimStart || 0)}px 0px`,
-            backgroundSize: `${(scaleWidth * action.duration) / 100}px 31px`
-          });
-        });
-      }
     } catch (error) {
       console.error('Error applying audio waveform:', error);
     }
   }, [])
 
-  React.useEffect(()=>{
-    if (backgroundStyle !== null) {
-      const newBackgroundStyle = backgroundStyle;
-      newBackgroundStyle.backgroundPosition = `${-scaleWidth * (action.trimStart || 0)}px 0px`;
-      newBackgroundStyle.backgroundSize = `${(scaleWidth * action.duration) / 100}px 31px`;
-      setBackgroundStyle(newBackgroundStyle);
+  React.useEffect(() => {
+    if (track.controller.backgroundImage) {
+      const adjustedScale = scaleWidth / scale;
+      setBackgroundStyle({
+        backgroundImage: track.controller.backgroundImage,
+        backgroundPosition: `${-adjustedScale * (action.trimStart || 0)}px 0px`,
+        backgroundSize: `${adjustedScale * action.duration}px ${rowHeight - 1}px`
+      });
     }
-  },[scaleWidth])
+  },[scaleWidth, track.controller.backgroundImage])
   const {
     areaRef,
     gridSnap,
@@ -505,7 +481,8 @@ function TimelineAction(props: TimelineActionProps) {
   } = props;
 
   const loopCount = (!!action?.loop && typeof action.loop === 'number' && action.loop > 0) ? action.loop : undefined;
-                                                                                                                                                                                               return (
+
+  return (
     <TimelineTrackDnd
       ref={rowRnd}
       parentRef={areaRef}
@@ -554,9 +531,10 @@ function TimelineAction(props: TimelineActionProps) {
             case 'Delete':
             {
               track.actions = track.actions.filter((trackAction) => trackAction.id !== action.id);
-              const trackIndex = tracks.indexOf(track);
-              tracks[trackIndex] = {...track};
-              setTracks([...tracks])
+              const trackIndex = file.tracks.indexOf(track);
+              file.tracks[trackIndex] = {...track};
+              dispatch({ type: 'SET_TRACKS', payload: [...file.tracks]})
+
               break;
             }
             case 'Meta': {
@@ -581,19 +559,6 @@ function TimelineAction(props: TimelineActionProps) {
           if (track.lock) {
             return;
           }
-          tracks.forEach((t) => {
-            let selectedTrack = false;
-            t.actions.forEach((a) => {
-              if (a.id === action.id) {
-                action.selected = true;
-                selectedTrack = true
-              } else {
-                a.selected = false;
-              }
-            })
-            t.selected = selectedTrack;
-          })
-          setTracks([...tracks]);
           let time: number;
           if (onClickAction) {
             time = handleTime(e);
@@ -620,6 +585,8 @@ function TimelineAction(props: TimelineActionProps) {
             return;
           }
           if (onContextMenuAction) {
+            e.stopPropagation();
+            e.preventDefault();
             const time = handleTime(e);
             onContextMenuAction(e, {track, action, time});
           }
@@ -630,17 +597,17 @@ function TimelineAction(props: TimelineActionProps) {
           height: rowHeight,
           ...backgroundStyle
         }}
-        color={`${action?.controller?.color}`}
+        color={`${track?.controller?.color}`}
       >
-        <ActionLabel className={'label'} color={`${controllers?.controller?.color}`}>
+        <ActionLabel className={'label'} color={`${track?.controller?.color}`}>
           <Typography variant="body2" color="text.primary" sx={(theme) => ({
             color: `${theme.palette.mode === 'light' ? '#000' : '#FFF'}`, fontWeight: '500',
           })}>
             {action.name}
           </Typography>
         </ActionLabel>
-        {!disableDrag && flexible && <LeftStretch className={`${prefix('action-left-stretch')} ${classes.left}`}/>}
-        {!disableDrag && flexible && (<RightStretch className={`${prefix('action-right-stretch')} ${classes.right}`}/>)}
+        {!disableDrag && flexible && <LeftStretch className={`${prefix('action-left-stretch')}`}/>}
+        {!disableDrag && flexible && (<RightStretch className={`${prefix('action-right-stretch')}`}/>)}
       </Action>
     </TimelineTrackDnd>);
 }
@@ -787,7 +754,7 @@ TimelineAction.propTypes = {
   /**
    * @description Click track callback
    */
-  onClickRow: PropTypes.func,
+  onClickTrack: PropTypes.func,
   /**
    * @description Click time area event, prevent setting time when returning false
    */
@@ -957,4 +924,4 @@ TimelineAction.propTypes = {
   viewSelector: PropTypes.string,
 } as any;
 
-export default TimelineAction;
+export { TimelineAction };

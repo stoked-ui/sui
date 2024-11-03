@@ -60,7 +60,7 @@ export const actions: ITimelineAction[] = [
     end: 10,
     controllerName: 'video',  // Use the new video effect
     data: {
-      src: '/static/video-editor/stock-loop.mp4',
+      src: '/static/editor/stock-loop.mp4',
       style: {
         width: '100%'
       }
@@ -86,7 +86,7 @@ export const actions = [
     start: 0,
     end: 20,
     controllerName: 'video',  // Use the new video effect
-    src: '/static/video-editor/stock-loop.mp4',
+    src: '/static/editor/stock-loop.mp4',
     layer: 'background',
   },
   {

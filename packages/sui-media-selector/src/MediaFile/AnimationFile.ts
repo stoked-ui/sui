@@ -24,7 +24,7 @@ export default class AnimationFile extends ResolutionFile implements IResolution
 
   static secondaryColor = '#2bd797';
 
-  constructor(file: MediaFile) {
+  constructor(file: MediaFile, lottie: AnimationItem) {
     super(file);
     if (!AnimationFile.element) {
       AnimationFile.element = document.createElement('div') as HTMLDivElement;
@@ -34,19 +34,13 @@ export default class AnimationFile extends ResolutionFile implements IResolution
       src: URL.createObjectURL(this),
       className: `${this.id}-class`
     }
-    this.lottie = AnimationFile.load({
-      id: this.id,
-      src: file.url,
-      container: AnimationFile.element,
-      mode: 'canvas',
-      renderCtx: MediaFile.renderer.getContext('2d'),
-    })
-    this.duration = -1;
+    this.lottie = lottie;
+    // this.duration = -1;
     this.lottie.addEventListener('loaded_images', () => {
       this.lottie.show();
       this.icon = this.captureScreenshot({width: 24, height: 24}) || null;
       this.thumbnail = this.captureScreenshot({maxWidth: 250, maxHeight: 250}) || null;
-      this.duration = this.lottie.getDuration();
+      // this.duration = this.lottie.getDuration();
     });
     // console.log('lottie', this.lottie);
   }
@@ -89,54 +83,6 @@ export default class AnimationFile extends ResolutionFile implements IResolution
         reject(ex);
       }
     }) */
-  }
-
-  static globalCache: Record<string, AnimationItem> = {};
-
-  static globalCacheEnabled = false;
-
-  static load (params: { id?: string, src: string, container?: HTMLElement, mode?: 'canvas' | 'svg', renderCtx: CanvasRenderingContext2D | null, className?: string }) {
-    const { container, renderCtx, src, mode = 'canvas', className } = params;
-    if (!params.id) {
-      params.id = namedId('lottie');
-    }
-    const { id } = params;
-    const cacheKey = `${mode}-${id || namedId('lottie')}`;
-    const animLoader = () => {
-      const options = {
-        name: id,
-        renderer: mode,
-        container,
-        loop: false,
-        autoplay: false,
-        path: src,
-        rendererSettings: {
-          context: renderCtx,
-          clearCanvas: false,
-          preserveAspectRatio: 'xMidYMid meet',
-          progressiveLoad: false, // Boolean, only svg renderer, loads dom elements when needed. Might speed up initialization for large number of elements.
-          className: className ?? `${id}-class`,
-          id: id.replace('id', 'lottie').replace('mediaFile', 'lottie')
-        },
-      }
-      return lottie.loadAnimation(options as AnimationConfigWithPath<typeof mode>);
-    }
-    if (this.globalCacheEnabled && this.globalCache[cacheKey]) {
-      const anim = this.globalCache[cacheKey]
-      if ("container" in anim && anim.container !== container) {
-        anim.container = container;
-      }
-      if (renderCtx && "canvasContext" in anim.renderer && anim.renderer.canvasContext !== renderCtx) {
-        anim.renderer.canvasContext = renderCtx;
-      }
-      return this.globalCache[cacheKey];
-    }
-
-    const anim = animLoader();
-    if (this.globalCacheEnabled) {
-      this.globalCache[cacheKey] = anim;
-    }
-    return anim;
   }
 
   // eslint-disable-next-line class-methods-use-this

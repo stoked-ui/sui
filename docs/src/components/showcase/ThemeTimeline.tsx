@@ -10,6 +10,7 @@ import TimelineSeparator from '@mui/lab/TimelineSeparator';
 import TimelineConnector, { timelineConnectorClasses } from '@mui/lab/TimelineConnector';
 import TimelineContent, { timelineContentClasses } from '@mui/lab/TimelineContent';
 import TimelineDot, { timelineDotClasses } from '@mui/lab/TimelineDot';
+import { TimelineProvider } from '@stoked-ui/timeline';
 
 export default function BasicTimeline() {
   return (
@@ -59,6 +60,7 @@ export default function BasicTimeline() {
             Install one of our production-ready libraries to get your next app started inevitably
             successful:
           </Typography>
+          <TimelineProvider>
           <Timeline
             sx={[
               {
@@ -120,6 +122,7 @@ export default function BasicTimeline() {
               <TimelineContent>Joy UI</TimelineContent>
             </TimelineItem>
           </Timeline>
+          </TimelineProvider>
         </Box>
       </Card>
     </Fade>

@@ -36,6 +36,7 @@ export interface TimelineControlProps extends TimelineControlPropsBase {
    */
   autoReRender?: boolean;
 
+  disabled?: boolean;
 
   setScaleWidth?: (scaleWidth: number) => void;
   setScale?: (scale: number) => void;

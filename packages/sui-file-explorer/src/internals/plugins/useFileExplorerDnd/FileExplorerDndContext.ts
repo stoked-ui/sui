@@ -1,11 +1,10 @@
 import * as React from "react";
 import invariant from "tiny-invariant";
-import {namedId} from "@stoked-ui/media-selector";
+import {IMediaFile, namedId} from "@stoked-ui/media-selector";
 import {FileExplorerDndAction} from "./FileExplorerDndAction";
-import {FileBase} from "../../../models";
 
 export const fileExplorer = {
-  remove<R extends FileBase>(items: R[], id: string): FileBase[] {
+  remove<R extends IMediaFile>(items: R[], id: string): IMediaFile[] {
     return items
       .filter(item => item?.id !== id)
       .map(item => {
@@ -19,7 +18,7 @@ export const fileExplorer = {
         return item;
       });
   },
-  insertBefore<R extends FileBase>(
+  insertBefore<R extends IMediaFile>(
     items: R[],
     targetId: string,
     newItem: R,
@@ -37,7 +36,7 @@ export const fileExplorer = {
       return item;
     });
   },
-  insertAfter<R extends FileBase>(
+  insertAfter<R extends IMediaFile>(
     items: R[],
     targetId: string,
     newItem: R,
@@ -57,7 +56,7 @@ export const fileExplorer = {
       return item;
     });
   },
-  insertChild<R extends FileBase>(
+  insertChild<R extends IMediaFile>(
     items: R[],
     targetId: string,
     newItem: R,
@@ -83,7 +82,7 @@ export const fileExplorer = {
       };
     });
   },
-  find<R extends FileBase>(items: R[], itemId: string): R | undefined {
+  find<R extends IMediaFile>(items: R[], itemId: string): R | undefined {
 
     for (let i = 0; i < items.length; i += 1){
       const item = items[i];
@@ -100,36 +99,34 @@ export const fileExplorer = {
     }
     return undefined;
   },
-  createChild<R extends FileBase>(items: R[], newItem: R, targetId: string | null) {
+  createChild<R extends IMediaFile>(items: R[], newItem: R, targetId: string | null) {
     let target = targetId === null ? null : fileExplorer.find(items, targetId);
     if (targetId === null || target !== undefined) {
-      if (newItem.file !== undefined) {
-        if (newItem.file.path !== undefined) {
-          const paths = newItem.file.path.split('/')
-          paths.pop();
-          paths.forEach((path: string) => {
-            if (path === '') {
-              return;
-            }
-            const pathItem = target!.children?.find((child) => child.label === path);
-            if (pathItem !== undefined) {
-              target = pathItem as R;
-            } else {
-              const newId = namedId({id: 'file', length: 5});
-              const newPath = {
-                id: newId,
-                itemId: newId,
-                label: path,
-                type: 'folder',
-                children: [] as R[],
-                parent: target ?? null
-              } as unknown as R;
-              console.log('newItem create child')
-              fileExplorer.createChild(items, newPath, target?.id ?? null)
-              target = newPath as R;
-            }
-          });
-        }
+      if (newItem.path !== undefined) {
+        const paths = newItem.path.split('/')
+        paths.pop();
+        paths.forEach((path: string) => {
+          if (path === '') {
+            return;
+          }
+          const pathItem = target!.children?.find((child) => child.name === path);
+          if (pathItem !== undefined) {
+            target = pathItem as R;
+          } else {
+            const newId = namedId({id: 'file', length: 5});
+            const newPath = {
+              id: newId,
+              itemId: newId,
+              label: path,
+              type: 'folder',
+              children: [] as R[],
+              parent: target ?? null
+            } as unknown as R;
+            console.log('newItem create child')
+            fileExplorer.createChild(items, newPath, target?.id ?? null)
+            target = newPath as R;
+          }
+        });
       }
       if (!target || targetId === null) {
         console.log('newItem2', newItem)
@@ -143,7 +140,7 @@ export const fileExplorer = {
       target.children?.push(newItem);
     }
   },
-  createChildren(items: FileBase[], newChildren: FileBase[], targetId: string | null) {
+  createChildren(items: IMediaFile[], newChildren: IMediaFile[], targetId: string | null) {
     newChildren.forEach((child) => {
       fileExplorer.createChild(items, child, targetId);
     })
@@ -153,7 +150,7 @@ export const fileExplorer = {
                   targetId,
                   parentIds = [],
                 }: {
-    current: FileBase[];
+    current: IMediaFile[];
     targetId: string;
     parentIds?: string[];
   }): string[] | undefined {
@@ -178,10 +175,10 @@ export const fileExplorer = {
     }
     return undefined;
   },
-  hasNodes(item: FileBase): boolean {
+  hasNodes(item: IMediaFile): boolean {
     return !!(item && item.children && item.children.length > 0);
   },
-  calculateFolderSize(items: FileBase[], id: string): number {
+  calculateFolderSize(items: IMediaFile[], id: string): number {
     const folder = fileExplorer.find(items, id);
     if (folder === undefined || folder.children === undefined) {
       return 0;
@@ -199,14 +196,14 @@ export const fileExplorer = {
   },
 };
 
-export function getFileExplorerStateDefault<R extends FileBase = FileBase>(items: R[] = []): FileExplorerState<R> {
+export function getFileExplorerStateDefault<R extends IMediaFile = IMediaFile>(items: R[] = []): FileExplorerState<R> {
   return {
     lastAction: null,
     items,
   }
 }
 
-const dataReducer = <R extends FileBase>(items: R[], action: FileExplorerDndAction<R>) => {
+const dataReducer = <R extends IMediaFile>(items: R[], action: FileExplorerDndAction<R>) => {
 
   if (action.type === 'set-state') {
     return action.items;
@@ -279,7 +276,7 @@ const dataReducer = <R extends FileBase>(items: R[], action: FileExplorerDndActi
   return items;
 };
 
-export function fileListStateReducer<R extends FileBase>(
+export function fileListStateReducer<R extends IMediaFile>(
   state: FileExplorerState<R>,
   action: FileExplorerDndAction<R>,
 ): FileExplorerState<R> {
@@ -291,24 +288,24 @@ export function fileListStateReducer<R extends FileBase>(
 }
 
 
-export type FileExplorerState<R extends FileBase = FileBase> = {
+export type FileExplorerState<R extends IMediaFile = IMediaFile> = {
   lastAction: FileExplorerDndAction<R> | null;
   items: R[];
 };
 
-export type FileExplorerDndContextValue<R extends FileBase> = {
+export type FileExplorerDndContextValue<R extends IMediaFile> = {
   dispatch: (action: FileExplorerDndAction<R>) => void;
   uniqueContextId: Symbol;
   getPathToItem: (itemId: string) => string[];
-  getMoveTargets: ({ itemId }: { itemId: string }) => FileBase[];
-  getNodesOfItem: (itemId: string) => FileBase[];
+  getMoveTargets: ({ itemId }: { itemId: string }) => IMediaFile[];
+  getNodesOfItem: (itemId: string) => IMediaFile[];
   registerFile: (args: {
     itemId: string;
     element: HTMLElement;
   }) => void;
 };
 
-export const FileExplorerDndContext = React.createContext<FileExplorerDndContextValue<FileBase>>({
+export const FileExplorerDndContext = React.createContext<FileExplorerDndContextValue<IMediaFile>>({
   dispatch: () => {},
   uniqueContextId: Symbol('uniqueId'),
   getPathToItem: () => [],

@@ -2,9 +2,7 @@ import * as React from 'react';
 import {Theme} from '@mui/material/styles';
 import {SxProps} from '@mui/system';
 import {SlotComponentProps} from '@mui/base/utils';
-import { ITimelineFile } from "@stoked-ui/timeline";
-import {IEngine, ITimelineTrack, TimelineState} from "@stoked-ui/timeline";
-import {FileBase} from '@stoked-ui/file-explorer/models/items';
+import { IMediaFile } from "@stoked-ui/media-selector";
 import {EditorViewClasses} from './editorViewClasses';
 
 
@@ -19,7 +17,7 @@ export interface EditorViewSlots {
   preview?: React.ElementType;
 }
 
-export interface EditorViewSlotProps<R extends FileBase, Multiple extends boolean | undefined> {
+export interface EditorViewSlotProps<R extends IMediaFile, Multiple extends boolean | undefined> {
   root?: SlotComponentProps<'div', {}, EditorViewProps<R, Multiple>>;
   renderer?: SlotComponentProps<'canvas', {}, {}>;
   preview?: SlotComponentProps<'div', {}, {}>;
@@ -35,15 +33,9 @@ export interface EditorViewPropsBase extends React.HTMLAttributes<HTMLDivElement
    * The system prop that allows defining system overrides as well as additional CSS styles.
    */
   sx?: SxProps<Theme>;
-
-  engine?: IEngine;
-
-  tracks: ITimelineTrack[];
-
-  setTracks: React.Dispatch<React.SetStateAction<ITimelineTrack[]>>;
 }
 
-export interface EditorViewProps<R extends FileBase, Multiple extends boolean | undefined>
+export interface EditorViewProps<R extends IMediaFile, Multiple extends boolean | undefined>
   extends EditorViewPropsBase {
   /**
    * Overridable component slots.

@@ -1,17 +1,16 @@
-import { IEmitter } from './Engine.types';
-import { Events } from './events';
+import {Events, type EventTypes} from './events';
 
 /**
  * eventDispatcher
  */
-export class Emitter<EventTypes> implements IEmitter<EventTypes> {
+export class Emitter<EmitterEvents> {
   events: { [key: string]: CallableFunction[] } = {};
 
   constructor(events: Events) {
     this.events = events.handlers;
   }
 
-  on<K extends keyof EventTypes>(names: K | K[], handler: (args: EventTypes[K]) => boolean | unknown): this {
+  on<K extends keyof EmitterEvents>(names: K | K[], handler: (args: EmitterEvents[K]) => boolean | unknown): this {
     const events = names instanceof Array ? names : (names as string).split(' ');
 
     (events as string[]).forEach((name) => {
@@ -24,7 +23,7 @@ export class Emitter<EventTypes> implements IEmitter<EventTypes> {
     return this;
   }
 
-  trigger<K extends keyof EventTypes>(name: K, params: EventTypes[K]) {
+  trigger<K extends keyof EmitterEvents>(name: K, params: EmitterEvents[K]) {
     if (!(name in this.events)) {
       throw new Error(`The event ${String(name)} cannot be triggered`);
     }
@@ -44,7 +43,7 @@ export class Emitter<EventTypes> implements IEmitter<EventTypes> {
     return Array.isArray(this.events[name]);
   }
 
-  off<K extends keyof EventTypes>(name: K, handler?: (args: EventTypes[K]) => boolean | unknown) {
+  off<K extends keyof EmitterEvents>(name: K, handler?: (args: EmitterEvents[K]) => boolean | unknown) {
     if (this.events[name as string]) {
       const listener = this.events[name as string];
       if (!handler) {

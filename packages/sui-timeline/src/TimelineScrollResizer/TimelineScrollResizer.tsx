@@ -1,12 +1,12 @@
 import * as React from 'react';
 import {styled} from '@mui/system';
-import {emphasize} from "@mui/material/styles";
+import {alpha, emphasize, Theme} from "@mui/material/styles";
 import {TimelineScrollResizerProps} from './TimelineScrollResizer.types';
 
 const ScrollbarContainer = styled('div')(({theme}) => ({
   width: '100%',
   height: '0px',
-  backgroundColor: emphasize(theme.palette.background.default, 0.1),
+  // backgroundColor: emphasize(theme.palette.background.default, 0.1),
   position: 'relative',
   marginLeft: '7px'
 }));
@@ -14,22 +14,25 @@ const ScrollbarContainer = styled('div')(({theme}) => ({
 const ScrollbarTrack = styled('div')(({theme}) => ({
   height: '100%',
   width: '100%',
-  backgroundColor: emphasize(theme.palette.background.default, 0.1),
+  // backgroundColor: emphasize(theme.palette.background.default, 0.1),
   position: 'relative',
 }));
 
-const ScrollbarThumb = styled('div')<{ width: number; left: number }>(({width, left}) => ({
+const ScrollbarThumb = styled('div')<{ width: number; left: number; }>(({width, left, theme}) => ({
   height: '100%',
   width: `${width}px`,
   minWidth: '40px',
   position: 'absolute',
-  backgroundColor: '#555555',
+  backgroundColor: alpha(theme.palette.text.primary, 0.3),
   borderRadius: '9px',
   left: `${left}px`,
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
   cursor: 'pointer',
+  '&:hover': {
+    backgroundColor: alpha(theme.palette.text.primary, 0.4)
+  }
 }));
 
 const ResizeHandleRoot = styled('div')(({theme}) => ({
@@ -59,7 +62,6 @@ function Handle({onMouseDown}) {
     </svg>
   </ResizeHandleRoot>
 }
-
 
 export default function TimelineScrollResizer({
   element, adjustScale, type,

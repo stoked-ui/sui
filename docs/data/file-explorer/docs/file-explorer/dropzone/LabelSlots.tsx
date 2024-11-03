@@ -5,8 +5,8 @@ import {
   FileLabel,
   FileProps,
 } from '@stoked-ui/file-explorer/File';
+import {namedId, IMediaFile} from "@stoked-ui/media-selector";
 import { FileExplorer } from '@stoked-ui/file-explorer/FileExplorer';
-import { FileBase } from '@stoked-ui/file-explorer/models';
 import { UseFileContentSlotOwnProps } from '@stoked-ui/file-explorer/useFile';
 import { useFileUtils } from '@stoked-ui/file-explorer/hooks';
 import { NestedFiles } from 'docs/src/components/fileExplorer/data';
@@ -72,17 +72,17 @@ const TreeItemContext = React.createContext<{
   onLabelValueChange: (itemId: string, label: string) => void;
 }>({ onLabelValueChange: () => {} });
 
-const CustomTreeItem = React.forwardRef(
-  (props: FileProps, ref: React.Ref<HTMLLIElement>) => {
+const CustomTreeItem = React.forwardRef((props: FileProps, ref: React.Ref<HTMLLIElement>) => {
     const { interactions } = useFileUtils({
-      itemId: props.itemId,
+      itemId: props.itemId ?? props.id ?? namedId('treeItem'),
       children: props.children,
+      status: null
     });
 
     const { onLabelValueChange } = React.useContext(TreeItemContext);
 
     const handleLabelValueChange = (newLabel: string) => {
-      onLabelValueChange(props.itemId, newLabel);
+      onLabelValueChange(props.itemId ?? props.id ?? namedId('treeItem'), newLabel);
     };
 
     const handleContentClick: UseFileContentSlotOwnProps['onClick'] = (
@@ -101,12 +101,12 @@ const CustomTreeItem = React.forwardRef(
         ref={ref}
         {...props}
         slots={{
-          label: CustomLabel,
+          name: CustomLabel,
         }}
         slotProps={{
           content: { onClick: handleContentClick },
           iconContainer: { onClick: handleIconContainerClick },
-          label: {
+          name: {
             onChange: handleLabelValueChange,
           } as any,
         }}
@@ -123,11 +123,11 @@ export default function LabelSlots() {
 
   const context = React.useMemo(
     () => ({
-      onLabelValueChange: (itemId: string, label: string) =>
+      onLabelValueChange: (itemId: string, name: string) =>
         setProducts((prev) => {
-          const walkTree = (item: FileBase): FileBase => {
+          const walkTree = (item: IMediaFile): IMediaFile => {
             if (item.id === itemId) {
-              return { ...item, label };
+              return { ...item, name};
             }
             if (item.children) {
               return { ...item, children: item.children.map(walkTree) };

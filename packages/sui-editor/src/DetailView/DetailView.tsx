@@ -1,8 +1,5 @@
 import * as React from 'react';
-import {shouldForwardProp} from "@mui/system/createStyled";
-import _ from 'lodash';
-import {alpha} from "@mui/material/styles";
-import {ITimelineTrack, ITimelineAction, IEngine, ITimelineFile } from "@stoked-ui/timeline";
+import {ITimelineTrack, ITimelineAction, IEngine, ITimelineFile, useTimeline } from "@stoked-ui/timeline";
 import {
   Popover, Card, CardContent, styled, Button, CardActions, Breadcrumbs, Link, Typography
 } from '@mui/material';
@@ -10,64 +7,52 @@ import {DetailViewProps, getFormSchema} from "./DetailView.types";
 import DetailTrackView from './DetailTrackView';
 import DetailVideoView from './DetailVideoView';
 import {getFormData, IDetailData, DetailSelection, SubmitSignature} from "./Detail";
-import DetailActionView from './DetailActionView';
-
-const DetailPopover = styled(Popover, {
-  name: 'MuiFileDetail',
-  slot: 'Root',
-  overridesResolver: (props, styles) => styles.root,
-})(({ theme }) => {
-  return {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-  }
-});
+import EditorFile from "../Editor/EditorFile";
+import {EditorPopover} from "../Editor/Editor.styled";
+import { useEditorContext } from '../EditorProvider/EditorProvider';
+import {IEditorAction} from "../EditorAction/EditorAction";
 
 function DetailType(props){
   const { detail } = props;
-  if (detail.action) {
-    return <DetailActionView {...props} />
-  }
   if (detail.track) {
     return <DetailTrackView {...props} />;
   }
   return <DetailVideoView {...props} />;
 }
 
-function getInput(props: { engine: IEngine, selected: ITimelineTrack | ITimelineAction | ITimelineFile }): DetailSelection {
-  const { selected, engine } = props;
+function getInput(props: { file: ITimelineFile, engine: IEngine, selected: ITimelineTrack | IEditorAction | ITimelineFile }): DetailSelection {
+  const { engine, file: video } = props;
+  let { selected } = props;
+  if (selected === null) {
+    selected = new EditorFile({name: 'new video'});
+  }
   if ("actions" in selected) {
-    const track = selected as ITimelineTrack;
+    const {file, ...track } = selected as ITimelineTrack;
     return {
-      video: (engine.file as ITimelineFile),
+      video,
       track,
-      selectedFile: track.actionRef.file,
+      selectedFile: file,
       action: undefined }
   }
   if ("getBackgroundImage" in selected) {
-    const track = engine.getActionTrack(selected.id);
+    const {file, ...track } = engine.getActionTrack(selected.id);
     return {
-      video: (engine.file as ITimelineFile),
+      video,
       track,
-      selectedFile: track.actionRef.file,
-      action: selected as ITimelineAction
+      selectedFile: file,
+      action: selected as IEditorAction
     }
   }
   return {
-    video: (selected as ITimelineFile),
+    video,
     track: undefined,
     selectedFile: undefined,
     action: undefined
   }
 }
 
-const DetailView = React.forwardRef(function DetailView(
-  inProps: DetailViewProps,
-  ref: React.Ref<HTMLDivElement>,
-) {
-  const { engine, anchorEl, onClose, tracks } = inProps;
-  const open = Boolean(anchorEl);
+function DetailView(inProps: DetailViewProps,) {
+  const { detailAnchor, selectedAction, selectedTrack, file, engine, dispatch } = useEditorContext();
   const [editMode, setEditMode] = React.useState<boolean>(false);
   const formRef = React.useRef<HTMLFormElement>(null);
 
@@ -82,19 +67,31 @@ const DetailView = React.forwardRef(function DetailView(
     // event.preventDefault();
     event.stopPropagation();
   }
+  const getSelection = () => {
+    if (selectedAction) {
+      return selectedAction;
+    }
+    if (selectedTrack) {
+      return selectedTrack;
+    }
+    return file!;
+  }
 
-  const [detail, setDetail] = React.useState<DetailSelection>(getInput({ selected: engine.selected, engine }));
-  const [formData, setFormData] = React.useState<IDetailData>(getFormData(detail, tracks));
+  const [detail, setDetail] = React.useState<DetailSelection>(getInput({ selected: getSelection(), engine, file: (file as ITimelineFile) }));
+  const [formData, setFormData] = React.useState<IDetailData>(getFormData(detail, file?.tracks ?? []));
 
   React.useEffect(() => {
-    setDetail(getInput({ selected: engine.selected, engine }));
-    setFormData(getFormData(detail, tracks));
-  }, [engine.selected])
+    if (file) {
+      setDetail(getInput({selected: getSelection(), engine, file}));
+      setFormData(getFormData(detail, file.tracks ?? []));
+    }
+  }, [selectedTrack, selectedAction])
 
 
   const schema = getFormSchema();
+
   const commonProps = {
-    tracks,
+    tracks: file?.tracks ?? [],
     setEditMode,
     editMode,
     engine,
@@ -105,22 +102,14 @@ const DetailView = React.forwardRef(function DetailView(
     formData,
     setFormData,
     schema,
-    onClose: inProps.onClose
   };
 
   return (
-    <DetailPopover
-      ref={ref}
-      open={open}
-      anchorEl={anchorEl}
-      onClose={() => {
-        engine.detailMode = false;
-        onClose();
-      }}
-      anchorReference={'none'}
+    <EditorPopover
+      open={!!detailAnchor}
     >
       <DetailType {...commonProps} formData={formData} detail={detail} />
-    </DetailPopover>);
-})
+    </EditorPopover>);
+}
 
 export default DetailView;

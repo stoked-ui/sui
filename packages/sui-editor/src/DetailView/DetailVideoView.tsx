@@ -1,12 +1,8 @@
 import * as React from "react";
-import {Control, SubmitHandler, useForm} from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 import {yupResolver} from "@hookform/resolvers/yup";
-import {Button, CardActions, styled, Typography} from "@mui/material";
-import { ITimelineFile, ITimelineFileAction, ITimelineTrack } from "@stoked-ui/timeline";
-
-import {IEngine, Timeline, TimelineControl, TimelineControlProps,
-  TimelineState, TimelineTime, checkProps} from '@stoked-ui/timeline';
-import _ from "lodash";
+import { styled } from "@mui/material";
+import Timeline, { TimelineControlProps, ITimelineFile, TimelineState, checkProps, ITimelineFileBase } from "@stoked-ui/timeline";
 import ControlledText from "./ControlledText";
 import {
   CtrlCell,
@@ -16,9 +12,9 @@ import {
   DetailViewBase
 } from './Detail'
 import Controllers from "../Controllers/Controllers";
-import {EditorLabels} from "../EditorLabels";
 import {EditorControls} from "../EditorControls";
 import ControlledColor from "./ControlledColor";
+import {useEditorContext} from "../EditorProvider";
 
 const DetailRenderer = styled('canvas', {
   name: "MuiEditorViewRenderer",
@@ -35,26 +31,10 @@ const DetailRenderer = styled('canvas', {
   height: '100%'
 }));
 
-
-export interface ITimelineFile2 {
-  id: string;
-  name: string;
-  description?: string;
-  author?: string
-  created: number;
-  lastModified?: number;
-  backgroundColor?: string;
-  width: number;
-  height: number;
-  src?: string;
-}
-
-
 export default function DetailVideoView(props: DetailTypeProps) {
   const timelineState = React.useRef<TimelineState>(null);
-  console.info('detail video', props.formData, props.formData.video)
+  const { file, engine } = useEditorContext();
   const {
-    engine,
     detail,
     setEditMode,
     setDetail,
@@ -64,20 +44,11 @@ export default function DetailVideoView(props: DetailTypeProps) {
     breadcrumbs,
     formData,
     setFormData,
-    tracks: inputTracks,
     schema,
     onClose
   } = props;
 
-  const detailCanvas = React.useRef<HTMLCanvasElement>(null)
-  const engineRef = React.useRef<IEngine>(engine);
-  React.useEffect(() => {
-    if (detailCanvas.current) {
-      engine.rendererDetail = detailCanvas.current
-    }
-  },[detailCanvas.current])
-
-  const useFormResult = useForm<ITimelineFile2>({
+  const useFormResult = useForm<ITimelineFileBase>({
     mode: 'onChange',
     defaultValues: formData.video,
     resolver: yupResolver(schema.video),
@@ -111,7 +82,7 @@ export default function DetailVideoView(props: DetailTypeProps) {
   };
 
   const detailViewBase = {
-    title: detail.action?.name ?? detail.track?.name ?? detail.video.name,
+    title: file?.name ?? '',
     formName: 'video-detail',
     editMode,
     onClickEdit,
@@ -131,19 +102,6 @@ export default function DetailVideoView(props: DetailTypeProps) {
 
   const checkedProps = checkProps({} as TimelineControlProps);
 
-  React.useEffect(() => {
-   console.info('SET DETAIL CANVAS')
-    if (timelineState.current?.engine && detailCanvas.current) {
-      timelineState.current.engine.rendererDetail = detailCanvas.current;
-      console.info('SET DETAIL CANVAS 1')
-    }
-
-    return () => {
-      console.info('UNSET DETAIL CANVAS')
-
-    }
-  }, [])
-
   console.log('isDirty', isDirty, formData.video, );
   return (
     <DetailViewBase {...detailViewBase}>
@@ -151,25 +109,20 @@ export default function DetailVideoView(props: DetailTypeProps) {
         <DetailRenderer ata-preserve-aspect-ratio width={'1920'} sx={{ backgroundColor: `${formData.video.backgroundColor}!important` }}/>
         <EditorControls
           role={'controls'}
-          {...engineRef.current.control.videoControlsProps}
+          {...engine.control.videoControlsProps}
           timeline
-          engineRef={engineRef}
           switchView={false}
         />
         <Timeline
           role={'timeline'}
-          {...engineRef.current.control.timelineProps}
+          {...engine.control.timelineProps}
           controllers={Controllers}
           timelineState={timelineState}
-          tracks={inputTracks}
           labels
           detailMode
           locked
           disableDrag={true}
-          slots={{labels: EditorLabels}}
           viewSelector={`.MuiEditorView-root`}
-          engineRef={engineRef}
-          setTracks={engineRef?.current?.setTracks}
           sx={{ width: '100%' }}
         />
       </CtrlColumn>

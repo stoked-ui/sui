@@ -5,10 +5,20 @@ export interface IMediaFileBase {
   readonly path?: string;
 }
 
+export interface IMediaFileInput {
+  id?: string,
+  name?: string,
+  children?: IMediaFileInput[],
+  size?: number,
+  expanded?: boolean,
+  selected?: boolean,
+  type?: string,
+  lastModified?: number,
+}
+
 export interface IMediaFile extends File, IMediaFileBase {
   readonly mediaType: MediaType;
   readonly id: string;
-  duration?: number;
   icon: string | null;
   thumbnail: string | null;
   readonly blob: Blob;
@@ -18,6 +28,17 @@ export interface IMediaFile extends File, IMediaFileBase {
   readonly lastModified: number;
   readonly name: string;
   readonly webkitRelativePath: string;
+  readonly element?: any;
+  readonly duration?: number;
+  readonly width?: number;
+  readonly height?: number;
+  readonly aspectRatio?: number;
+  readonly version: number;
+  itemId: string;
+  visibleIndex?: number;
+  expanded?: boolean;
+  selected?: boolean;
+  children?: IMediaFile[]
 }
 
 export const FILES_TO_IGNORE = [

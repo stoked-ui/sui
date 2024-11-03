@@ -1,4 +1,4 @@
-import { FileBase } from "@stoked-ui/file-explorer";
+import {IMediaFileInput} from "@stoked-ui/media-selector";
 
 const second = 1000;
 const minute = 60 * second;
@@ -37,47 +37,47 @@ export const BasicFiles = [
     children: [{ name: "client-data.xls"}],
   },
 ];
-export const NestedFiles: FileBase[] = [
+export const NestedFiles: IMediaFileInput[] = [
   {
     id: '1',
-    label: 'Documents',
+    name: 'Documents',
     expanded: true,
     selected: true,
     type: 'folder',
     children: [
       {
         id: '1.1',
-        label: 'Company',
+        name: 'Company',
         expanded: true,
         type: 'folder',
         children: [
           {
             id: '1.1.1',
-            label: 'Invoice',
+            name: 'Invoice',
             type: 'pdf',
             size: 234223424,
           },
           {
             id: '1.1.2',
-            label: 'Meeting notes',
+            name: 'Meeting notes',
             type: 'doc',
             size: 233423424,
           },
           {
             id: '1.1.3',
-            label: 'Tasks list',
+            name: 'Tasks list',
             type: 'doc',
             size: 123423424,
           },
           {
             id: '1.1.4',
-            label: 'Equipment',
+            name: 'Equipment',
             type: 'pdf',
             size: 293424,
           },
           {
             id: '1.1.5',
-            label: 'Video conference',
+            name: 'Video conference',
             type: 'video',
             size: 423424,
           },
@@ -85,12 +85,12 @@ export const NestedFiles: FileBase[] = [
       },
       {
         id: '1.2',
-        label: 'Personal',
+        name: 'Personal',
         type: 'folder',
       },
       {
         id: '1.3',
-        label: 'Group photo',
+        name: 'Group photo',
         type: 'image',
         size: 2238424,
       },
@@ -98,27 +98,27 @@ export const NestedFiles: FileBase[] = [
   },
   {
     id: '2',
-    label: 'Bookmarked',
+    name: 'Bookmarked',
     type: 'folder',
     children: [
       {
         id: '2.1',
-        label: 'Learning materials',
+        name: 'Learning materials',
         type: 'folder',
       },
       {
         id: '2.2',
-        label: 'News',
+        name: 'News',
         type: 'folder',
       },
       {
         id: '2.3',
-        label: 'Forums',
+        name: 'Forums',
         type: 'folder',
       },
       {
         id: '2.4',
-        label: 'Travel documents',
+        name: 'Travel documents',
         type: 'pdf',
         size: 23424,
       },
@@ -126,119 +126,118 @@ export const NestedFiles: FileBase[] = [
   },
   {
     id: '3',
-    label: 'History',
+    name: 'History',
     type: 'folder',
   }
 ];
 
-export function getDynamicFiles (): readonly FileBase[] {
+export function getDynamicFiles (): readonly IMediaFileInput[] {
   return [
     {
       id: '1',
-      label: 'Documents',
+      name: 'Documents',
       expanded: true,
       selected: true,
       type: 'folder',
-      modified: createRelativeDate(month),
+      lastModified: createRelativeDate(month),
       children: [
         {
           id: '1.1',
-          label: 'Company',
+          name: 'Company',
           expanded: true,
-          modified: createRelativeDate(3 * week),
+          lastModified: createRelativeDate(3 * week),
           type: 'folder',
           children: [
             {
               id: '1.1.1',
-              label: 'Invoice',
+              name: 'Invoice',
               type: 'pdf',
               size: 234223424,
-
-              modified: createRelativeDate(2 * week),
+              lastModified: createRelativeDate(2 * week),
             },
             {
               id: '1.1.2',
-              label: 'Meeting notes',
+              name: 'Meeting notes',
               type: 'doc',
               size: 233423424,
-              modified: createRelativeDate(2 * week + 3 * day),
+              lastModified: createRelativeDate(2 * week + 3 * day),
             },
             {
               id: '1.1.3',
-              label: 'Tasks list',
+              name: 'Tasks list',
               type: 'doc',
               size: 123423424,
-              modified: createRelativeDate(3 * day),
+              lastModified: createRelativeDate(3 * day),
             },
             {
               id: '1.1.4',
-              label: 'Equipment',
+              name: 'Equipment',
               type: 'pdf',
               size: 293424,
-              modified: createRelativeDate(2 * hour),
+              lastModified: createRelativeDate(2 * hour),
             },
             {
               id: '1.1.5',
-              label: 'Video conference',
+              name: 'Video conference',
               type: 'video',
               size: 423424,
-              modified: createRelativeDate(2 * week),
+              lastModified: createRelativeDate(2 * week),
             },
           ],
         },
         {
           id: '1.2',
-          label: 'Personal',
+          name: 'Personal',
           type: 'folder',
-          modified: createRelativeDate(1 * day),
+          lastModified: createRelativeDate(1 * day),
         },
         {
           id: '1.3',
-          label: 'Group photo',
+          name: 'Group photo',
           type: 'image',
           size: 2238424,
-          modified: createRelativeDate(2 * week),
+          lastModified: createRelativeDate(2 * week),
         },
       ],
     },
     {
       id: '2',
-      label: 'Bookmarked',
+      name: 'Bookmarked',
       type: 'folder',
-      modified: createRelativeDate(1 * day),
+      lastModified: createRelativeDate(1 * day),
       children: [
         {
           id: '2.1',
-          label: 'Learning materials',
+          name: 'Learning materials',
           type: 'folder',
-          modified: createRelativeDate(1 * hour),
+          lastModified: createRelativeDate(1 * hour),
         },
         {
           id: '2.2',
-          label: 'News',
+          name: 'News',
           type: 'folder',
-          modified: createRelativeDate(5 * hour),
+          lastModified: createRelativeDate(5 * hour),
         },
         {
           id: '2.3',
-          label: 'Forums',
+          name: 'Forums',
           type: 'folder',
-          modified: createRelativeDate(3 * hour),
+          lastModified: createRelativeDate(3 * hour),
         },
         {
           id: '2.4',
-          label: 'Travel documents',
+          name: 'Travel documents',
           type: 'pdf',
           size: 23424,
-          modified: createRelativeDate(23 * hour),
+          lastModified: createRelativeDate(23 * hour),
         },
       ],
     },
     {
       id: '3',
-      label: 'History',
+      name: 'History',
       type: 'folder',
-      modified: createRelativeDate(1 * week),
+      lastModified: createRelativeDate(1 * week),
     }
   ];
 }

@@ -29,7 +29,18 @@ export const FileRoot = styled('li', {
     prop !== 'visibleIndex' &&
     prop !== 'visible' &&
     prop !== 'grid' &&
-    prop !== 'dnd',
+    prop !== 'dnd' &&
+    prop !== 'arrayBuffer' &&
+    prop !== 'slice' &&
+    prop !== 'stream' &&
+    prop !== 'backgroundImage' &&
+    prop !== 'aspectRatio' &&
+    prop !== 'webkitRelativePath' &&
+    prop !== 'mediaType' &&
+    prop !== 'type' &&
+    prop !== 'mediaType' &&
+    prop !== 'text' &&
+    prop !== 'icon',
 })(({ theme }) => ({
   listStyle: 'none',
   margin: 0,
@@ -237,7 +248,7 @@ export const useUtilityClasses = (ownerState: FileOwnerState) => {
     disabled: ['disabled'],
     iconContainer: ['iconContainer'],
     checkbox: ['checkbox'],
-    label: ['label'],
+    name: ['name'],
     groupTransition: ['groupTransition'],
     grid: ['grid'],
   };

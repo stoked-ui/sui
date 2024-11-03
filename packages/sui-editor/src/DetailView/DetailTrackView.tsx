@@ -2,30 +2,21 @@ import * as React from "react";
 import {SubmitHandler, useForm} from "react-hook-form";
 import {yupResolver} from "@hookform/resolvers/yup";
 import { Checkbox, FormControlLabel } from "@mui/material";
-import { ITimelineAction } from "@stoked-ui/timeline";
-import {SelectChangeEvent} from "@mui/material/Select";
+import { useTimeline } from "@stoked-ui/timeline";
 import ControlledText from "./ControlledText";
 import {
-  CtrlCell,
-
-  CtrlGroup,
-  CtrlRow,
-  DetailForm,
-  DetailTypeProps, DetailViewBase,
-  RootBox
+  CtrlCell, CtrlGroup, CtrlRow, DetailTypeProps, DetailViewBase,
 } from './Detail'
 import {
-  getTrackSchema,
   humanFileSize,
   IDetailTrack,
-  IDetailFile,
 
 } from "./DetailTrackView.types";
-import DesSelect from "./DesSelect";
+import ControlledCheckbox from "./ControlledCheckbox";
 
 export default function DetailTrackView(props: DetailTypeProps) {
+  const { file, engine, dispatch } = useTimeline();
   const {
-    engine,
     detail,
     setDetail,
     setEditMode,
@@ -35,7 +26,6 @@ export default function DetailTrackView(props: DetailTypeProps) {
     breadcrumbs,
     formData,
     setFormData,
-    tracks: inputTracks,
     schema,
     onClose
   } = props;
@@ -73,16 +63,15 @@ export default function DetailTrackView(props: DetailTypeProps) {
     }
     setDetail(newDetail);
 
-    const tracks = [...inputTracks];
-    const trackIndex = tracks.findIndex((prevTrack) => prevTrack.id === dataTrack.id);
-    if (trackIndex !== -1 && dataTrack) {
-      tracks[trackIndex].name = dataTrack!.name;
+    const trackIndex = file?.tracks?.findIndex((prevTrack) => prevTrack.id === dataTrack.id);
+    if (trackIndex !== undefined && trackIndex !== -1 && dataTrack && file?.tracks?.[trackIndex]) {
+      file.tracks[trackIndex].name = dataTrack!.name;
+      dispatch({ type: 'SET_TRACKS', payload: file.tracks});
     }
-    engine?.setTracks?.(tracks);
   };
 
   const detailViewBase = {
-    title: detail.action?.name ?? detail.track?.name ?? detail.video.name,
+    title: detail.action?.name ?? detail.track?.name ?? detail.video?.name,
     formName: 'track-detail',
     editMode,
     onClickEdit,
@@ -101,28 +90,13 @@ export default function DetailTrackView(props: DetailTypeProps) {
   };
   return (
     <DetailViewBase {...detailViewBase}>
-      <CtrlCell width="100%">
-        <FormControlLabel control={<Checkbox defaultChecked={detail.track?.hidden} />} label="Hidden" />
-        <FormControlLabel control={<Checkbox defaultChecked={detail.track?.lock} />} label="Locked" />
-      </CtrlCell>
-      <CtrlCell width="100%">
-        <ControlledText
-          className={'whitespace-nowrap flex-grow flex'}
-          label={'Track Name'}
-          name={'name'}
-          control={control}
-          disabled={!editMode}
-          onClick={onClickEdit}
-        />
-      </CtrlCell>
       <CtrlGroup label={'Track File'}>
         <CtrlCell width="70%">
           <ControlledText
             className={'whitespace-nowrap flex-grow flex'}
             label={'File Name'}
-            name={'file.name'}
-            control={control}
-            disabled={!editMode}
+            value={detail.selectedFile?.name}
+            disabled
             onClick={onClickEdit}
           />
         </CtrlCell>
@@ -131,12 +105,45 @@ export default function DetailTrackView(props: DetailTypeProps) {
           <ControlledText
             className={'whitespace-nowrap flex-grow flex'}
             label={'File Size'}
-            control={control}
+            value={detail.selectedFile?.size}
             disabled
             format={humanFileSize}
           />
         </CtrlCell>
       </CtrlGroup>
+      <CtrlRow>
+        <CtrlCell width="65%">
+          <ControlledText
+            className={'whitespace-nowrap flex-grow flex'}
+            label={'Track Name'}
+            name={'name'}
+            control={control}
+            disabled={!editMode}
+            onClick={onClickEdit}
+          />
+        </CtrlCell>
+        <CtrlCell width="30%">
+          <ControlledCheckbox
+            className={'whitespace-nowrap flex-grow flex'}
+            label={'Hidden'}
+            control={control}
+            disabled={!editMode}
+            onClickLabel={onClickEdit}
+            onClick={onClickEdit}
+          />
+          <ControlledCheckbox
+            className={'whitespace-nowrap flex-grow flex'}
+            label={'Locked'}
+            name={'lock'}
+            control={control}
+            disabled={!editMode}
+            onClickLabel={onClickEdit}
+            onClick={onClickEdit}
+          />
+
+        </CtrlCell>
+      </CtrlRow>
+
       {/* <CtrlGroup label={'Actions'}>
         <CtrlCell width="100%">
           <DesSelect

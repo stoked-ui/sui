@@ -1,0 +1,32 @@
+{
+  "name": "Stoked UI Editor",
+  "short_name": "Editor",
+  "display": "standalone",
+  "start_url": "/editor/pwa/",
+  "theme_color": "#007FFF",
+  "background_color": "#ffffff",
+  "icons": [
+    {
+      "sizes": "any",
+      "src": "/static/logo-2-color.svg",
+      "type": "image/svg"
+    }
+  ],
+  "file_handlers": {
+    "editor-project": {
+      "action": "/open-file",
+      "accept": {
+        "application/stoked-ui-editor-video-project": [".sue"]
+      }
+    }
+  },
+  "share_target": {
+    "method": "GET",
+    "action": "/?share_target",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  }
+}

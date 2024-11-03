@@ -2,7 +2,6 @@ import * as React from 'react';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import { FileExplorer } from '@stoked-ui/file-explorer/FileExplorer';
-import { FileBase } from '@stoked-ui/file-explorer/models';
 import Typography from '@mui/material/Typography';
 import { NestedFiles } from 'docs/src/components/fileExplorer/data';
 

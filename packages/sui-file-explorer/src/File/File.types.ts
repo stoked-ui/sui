@@ -42,7 +42,7 @@ export interface FileSlots extends FileIconSlots {
    * The component that renders the item label.
    * @default FileLabel
    */
-  label?: React.ElementType;
+  name?: React.ElementType;
 
 }
 
@@ -52,7 +52,7 @@ export interface FileSlotProps extends FileIconSlotProps {
   groupTransition?: SlotComponentProps<'div', {}, {}>;
   iconContainer?: SlotComponentProps<'div', {}, {}>;
   checkbox?: SlotComponentProps<'button', {}, {}>;
-  label?: SlotComponentProps<'div', {}, {}>;
+  name?: SlotComponentProps<'div', {}, {}>;
 }
 
 export interface FileProps

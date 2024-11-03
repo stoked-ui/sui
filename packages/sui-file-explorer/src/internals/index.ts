@@ -54,4 +54,6 @@ export type {
   UseFileExplorerGridParameters,
 } from './plugins/useFileExplorerGrid';
 
+export * from './FileIcon';
+
 export { buildWarning } from './utils/warning';
