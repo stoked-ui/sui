@@ -62,6 +62,8 @@ export default class MediaFile implements IMediaFile {
 
   _url?: string;
 
+  image?: string;
+
   backgroundImage?: string;
 
   itemId: string;
@@ -102,7 +104,8 @@ export default class MediaFile implements IMediaFile {
     this.size = file.size;
     this.type = file.type;
     this.path = file.name;
-    this._url = file._url ?? file.src;
+    this._url = file._url ?? file.url;
+    this.image = file.image;
     this.version = file.version ?? 1;
     if ("webkitRelativePath" in file && file.webkitRelativePath.length > 0) {
       this.path = file.webkitRelativePath;

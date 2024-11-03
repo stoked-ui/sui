@@ -14,8 +14,6 @@ export interface ITimelineTrack {
   name: string;
   /** Row action list */
   actions: ITimelineAction[];
-  /** Whether the track is selected */
-  selected?: boolean;
   /** Extended class name of track */
   classNames?: string[];
   /** Whether the action is hidden */
@@ -24,6 +22,10 @@ export interface ITimelineTrack {
   lock?: boolean;
 
   file: MediaFile;
+
+  image?: string;
+
+  controllerName?: string;
 
   controller: IController;
 }
@@ -36,7 +38,9 @@ export interface ITimelineFileTrack extends Omit<ITimelineTrack, 'id' | 'control
   /** Row action list */
   actions: ITimelineFileAction[];
 
-  src: string;
+  url?: string;
+
+  image?: string;
 
   file?: MediaFile;
 

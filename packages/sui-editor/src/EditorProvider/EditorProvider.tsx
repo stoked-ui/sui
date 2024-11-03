@@ -1,70 +1,144 @@
 import * as React from 'react';
+import { IMediaFile, namedId } from '@stoked-ui/media-selector';
 import {
   TimelineContextType, TimelineProvider, useTimeline, TimelineProviderProps, TimelineReducer,
-  ITimelineState, TimelineStateAction, TimelineContext,
-  TimelineActionState
+  ITimelineState, TimelineStateAction, TimelineContext, initialTimelineState, ITimelineTrack,
+  TimelineFile,
+  EngineState,
+  IEngine,
 } from '@stoked-ui/timeline';
 import EditorEngine from "../EditorEngine/EditorEngine";
 import {EditorEngineState, IEditorEngine} from "../EditorEngine/EditorEngine.types";
-import {EditorEvents, EditorEventTypes} from "../EditorEngine";
+import { EditorEvents } from "../EditorEngine";
+import EditorFile from "../Editor/EditorFile";
+import Controllers from "../Controllers/Controllers";
+import { IEditorAction, initEditorAction } from "../EditorAction/EditorAction";
 
-interface IEditorState extends Omit<ITimelineState, 'engine'> {
+// Function to add files as tracks immutably
+const onAddFiles = (state: IEditorState, newMediaFiles: IMediaFile[]) => {
+  const { engine, file } = state;
+  if (!file) return state;
+
+  const { tracks } = file;
+  const filteredFiles = newMediaFiles.filter((file) => Controllers[file.mediaType]);
+  const newTracks: ITimelineTrack[] = filteredFiles.map((file, index) => ({
+    id: namedId('track'),
+    name: file.name,
+    file,
+    src: file._url,
+    controller: Controllers[file.mediaType],
+    actions: [{
+      id: namedId('action'),
+      name: file.name,
+      start: engine.getTime() || 0,
+      end: (engine.getTime() || 0) + 2,
+      volumeIndex: -2,
+      width: file.width,
+      height: file.height,
+      z: (tracks?.length || 0) + index,
+      fit: 'none'
+    } as IEditorAction],
+    controllerName: file.mediaType,
+  }));
+
+  return {
+    ...state,
+    file: {
+      ...file,
+      tracks: [...tracks || [], ...newTracks],
+    }
+  };
+};
+
+export type EditorStateAction = TimelineStateAction |
+  {
+    type: 'LOAD_EDITOR_PROPS',
+    payload: {
+      tracks: ITimelineTrack[],
+      viewer: HTMLDivElement
+    }
+} | {
+  type: 'SCREENER',
+  payload: HTMLElement | null
+} | {
+  type: 'VIEWER',
+    payload: HTMLDivElement
+};
+
+function EditorReducer(state: ITimelineState, stateAction: EditorStateAction): ITimelineState {
+  const engine = state.engine as IEditorEngine;
+  switch (stateAction.type) {
+    case 'VIEWER':
+      engine.viewer = stateAction.payload;
+      return {
+        ...state,
+        engine,
+      };
+    case 'CREATE_ACTION': {
+      const { action, track } = stateAction.payload;
+      const updatedTracks = state.file?.tracks.map((t, index) =>
+        t.id === track.id ? { ...t, actions: [...t.actions, initEditorAction(state.engine as IEngine, action, index)] } : t
+      ) ?? [];
+      return {
+        ...state,
+        file: state.file ? { ...state.file, tracks: updatedTracks } : null,
+      };
+    }
+    case 'LOAD_EDITOR_PROPS': {
+      const { viewer, tracks } = stateAction.payload;
+      let newState = EditorReducer(state, { type: 'VIEWER', payload: viewer });
+      return TimelineReducer(newState, { type: 'SET_TRACKS', payload: tracks });
+    }
+    case 'SCREENER':
+      return { ...state };
+    default:
+      return TimelineReducer(state, stateAction);
+  }
+}
+
+// Editor-specific state interface
+interface IEditorState extends Omit<ITimelineState, 'engine' | 'selectedAction' | 'state'> {
   engine: IEditorEngine;
+  selectedAction: IEditorAction | null;
+  state(): EditorEngineState;
 }
 
 type EditorContextType = IEditorState & {
-  dispatch: React.Dispatch<TimelineStateAction>;
+  dispatch: React.Dispatch<EditorStateAction>;
 };
 
-const EditorContext = React.createContext<EditorContextType | undefined>(undefined);
-
 interface EditorProviderProps extends Omit<TimelineProviderProps, 'engine'> {
-  engine?: IEditorEngine
-}
-
-const EditorReducer = (state: IEditorState, stateAction: TimelineStateAction) => {
-  return TimelineReducer(state, stateAction) as IEditorState;
-}
-
-function EditorProviderBase(props: EditorProviderProps) {
-  const timelineState = useTimeline();
-  // const { controllers, engine: inputEngine} = props;
-
-  // const createNewEngine = !inputEngine || !("record" in inputEngine);
-  // const engine: IEditorEngine = createNewEngine ? new EditorEngine({controllers}) :
-  // inputEngine as EditorEngine;
-
-  //const initialState: IEditorState = {...timelineState, engine };
-  // const [state, dispatch] = React.useReducer(EditorReducer, initialState as IEditorState);
-  // timelineState.dispatch({ type: 'STATE', payload: state });
-
-
-  return (
-    <React.Fragment>
-      {props.children}
-    </React.Fragment>
-  );
+  engine?: IEditorEngine;
 }
 
 export default function EditorProvider(props: EditorProviderProps) {
-  const timelineProps = { ...props, engine: props.engine };
-  if (!timelineProps.engine) {
-    timelineProps.engine = new EditorEngine({events: new EditorEvents(), controllers: props.controllers});
+  const engine = props.engine ?? new EditorEngine({ events: new EditorEvents(), controllers: props.controllers });
+  const getState = () => {
+    return engine.state as EditorEngineState;
   }
+  const setState = (newState: EditorEngineState | string) => {
+    engine.state = newState;
+  }
+  const editorProps: ITimelineState = {
+    ...initialTimelineState,
+    id: props.id ?? 'editor',
+    engine,
+    getState,
+    setState,
+  };
+
   return (
-    <TimelineProvider {...timelineProps}>
+    <TimelineProvider {...props} {...editorProps} file={props.file} controllers={Controllers} reducer={EditorReducer}>
       {props.children}
     </TimelineProvider>
-  )
+  );
 }
 
-// Custom hook to access the extended context
-function useEditorContext(): TimelineContextType {
-  const context = React.useContext<TimelineContextType>(TimelineContext);
-  if (!context) throw new Error("useEditorContext must be used within a EditorProvider");
+// Custom hook to access the extended Editor context
+function useEditorContext(): EditorContextType {
+  const context = React.useContext(TimelineContext);
+  if (!context) throw new Error("useEditorContext must be used within an EditorProvider");
   return context as EditorContextType;
 }
 
-
-
-export { useEditorContext, EditorReducer, IEditorState, EditorProviderProps, EditorContext, EditorContextType }
+export { EditorReducer, useEditorContext, IEditorState, EditorProviderProps, EditorContextType };

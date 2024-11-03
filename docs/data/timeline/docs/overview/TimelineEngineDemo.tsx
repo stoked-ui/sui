@@ -1,6 +1,5 @@
 import * as React from 'react';
-import { Timeline, TimelineState } from '@stoked-ui/timeline';
-import { Controllers } from "@stoked-ui/editor";
+import Timeline, {TimelineProvider, TimelineState, Controllers} from '@stoked-ui/timeline';
 
 export const demoActions = [
   {
@@ -8,7 +7,7 @@ export const demoActions = [
     start: 0,
     end: 20,
     controllerName: 'video',  // Use the new video effect
-    src: '/static/video-editor/stock-loop.mp4',
+    src: '/static/editor/stock-loop.mp4',
     layer: 'background',
   },
   {
@@ -51,7 +50,7 @@ export const demoActions = [
  *
  * - [FileExplorer API](https://stoked-ui.github.io/editor/api/)
  */
-export default function TimelineEngineDemo(inProps: any) {
+export default function TimelineEngineDemo() {
 
   const timelineState = React.useRef<TimelineState>(null);
   const [scaleWidth, setScaleWidth] = React.useState(160);
@@ -60,14 +59,17 @@ export default function TimelineEngineDemo(inProps: any) {
     setScaleWidth(val);
   };
 
-  return (<Timeline
-      controllers={Controllers}
-      timelineState={timelineState}
-      actionData={inProps.actionData}
-      scaleWidth={scaleWidth}
-      setScaleWidth={setScaleWidthProxy}
-      viewSelector={`.MuiEditorView-root`}
-      labels
-    />)
+  return (
+    <TimelineProvider actions={demoActions}>
+      <Timeline
+        controllers={Controllers}
+        timelineState={timelineState}
+        scaleWidth={scaleWidth}
+        setScaleWidth={setScaleWidthProxy}
+        viewSelector={`.MuiEditorView-root`}
+        labels
+      />
+    </TimelineProvider>
+  )
 }
 

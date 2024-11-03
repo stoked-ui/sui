@@ -6,6 +6,7 @@ import {IMediaFile} from '@stoked-ui/media-selector';
 import {EditorPluginParameters, EditorPluginSignatures, EditorPluginSlotProps, EditorPluginSlots} from './Editor.plugins';
 import {EditorClasses} from './editorClasses';
 import { EditorExperimentalFeatures, EditorPublicAPI } from '../internals/models';
+import {Popover, styled} from "@mui/material";
 
 
 export interface EditorSlots extends EditorPluginSlots {
@@ -23,7 +24,7 @@ export interface EditorSlots extends EditorPluginSlots {
    * Element that renders the view space for the editor
    * @default React.JSXElementConstructor<HTMLDivElement>;
    */
-  videoControls?: React.ElementType;
+  controls?: React.ElementType;
   /**
    * Element that renders the view space for the editor
    * @default Timeline
@@ -41,7 +42,7 @@ export interface EditorSlotProps<R extends IMediaFile, Multiple extends boolean 
   extends EditorPluginSlotProps {
   root?: SlotComponentProps<'div', {}, EditorProps<R, Multiple>>;
   editorView?: SlotComponentProps<'div', {}, {}>;
-  videoControls?: SlotComponentProps<'div', {}, {}>;
+  controls?: SlotComponentProps<'div', {}, {}>;
   timeline?: SlotComponentProps<'div', {}, {}>;
   fileExplorer?: SlotComponentProps<'ul', {}, {}>;
 }
@@ -88,3 +89,5 @@ export interface EditorProps<R extends IMediaFile = IMediaFile, Multiple extends
    */
   experimentalFeatures?: EditorExperimentalFeatures<EditorPluginSignatures>;
 }
+
+

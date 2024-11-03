@@ -43,8 +43,5 @@ export default function DetailBreadcrumbs({ formData, detail, setDetail, control
      </Link>
     }
     {(detail.track && !detail.action) && <Typography sx={sxSelectedLabel}>{detail.track!.name}</Typography>}
-    {detail.track && <Typography sx={{ color: 'text.primary' }}>Actions</Typography>}
-    {detail.action && <Typography sx={sxSelectedLabel}>{ detail.action?.name }</Typography>}
-    {detail.track && !detail.action && <DetailTrackActions setDetail={setDetail} detail={detail} editMode={true} control={control} onClickEdit={onClickEdit} size={'small'} sx={{background: 'transparent'}}/>}
   </Root>
 }

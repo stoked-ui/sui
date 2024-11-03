@@ -1,5 +1,7 @@
 import { Controller, ControllerParams, IEngine, ITimelineAction } from "@stoked-ui/timeline";
 import { IMediaFile } from "@stoked-ui/media-selector";
+import {IEditorEngine} from "../EditorEngine";
+import {EditorControllerParams} from "./EditorControllerParams";
 
 class ImageControl extends Controller {
   cacheMap: Record<string, HTMLImageElement> = {};
@@ -12,7 +14,7 @@ class ImageControl extends Controller {
     });
   }
 
-  enter(params: ControllerParams) {
+  enter(params: EditorControllerParams) {
     const {action, engine} = params;
     let item: HTMLImageElement;
     if (this.cacheMap[action.id]) {
@@ -52,7 +54,7 @@ class ImageControl extends Controller {
     }
   }
 
-  static attachItemToViewer(item: HTMLImageElement, engine: IEngine) {
+  static attachItemToViewer(item: HTMLImageElement, engine: IEditorEngine) {
     if (engine.viewer && engine.renderer) {
       engine.viewer.appendChild(item);
     } else {
@@ -60,11 +62,11 @@ class ImageControl extends Controller {
     }
   }
 
-  static renderImage(item: HTMLImageElement, engine: IEngine) {
+  static renderImage(item: HTMLImageElement, engine: IEditorEngine) {
     engine.renderCtx?.drawImage(item, 0, 0,  engine.renderWidth, engine.renderHeight);
   }
 
-  update(params: ControllerParams) {
+  update(params: EditorControllerParams) {
     const { action, engine } = params;
 
     const item = this.cacheMap[action.id];

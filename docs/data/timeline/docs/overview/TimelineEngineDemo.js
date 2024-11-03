@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { Timeline } from '@stoked-ui/timeline';
-import { Controllers } from "@stoked-ui/editor";
+import Timeline, {TimelineProvider, Controllers} from '@stoked-ui/timeline';
+import {actions} from "../../../editor/docs/overview/CoreDemo";
 
 export const demoActions = [
   {
@@ -8,7 +8,7 @@ export const demoActions = [
     start: 0,
     end: 20,
     controllerName: 'video', // Use the new video effect
-    src: '/static/video-editor/stock-loop.mp4',
+    src: '/static/editor/stock-loop.mp4',
     layer: 'background',
   },
   {
@@ -60,14 +60,16 @@ export default function TimelineEngineDemo(inProps) {
   };
 
   return (
-    <Timeline
-      controllers={Controllers}
-      timelineState={timelineState}
-      actionData={inProps.actionData}
-      scaleWidth={scaleWidth}
-      setScaleWidth={setScaleWidthProxy}
-      viewSelector={`.MuiEditorView-root`}
-      labels
-    />
+    <TimelineProvider actions={demoActions}>
+      <Timeline
+        controllers={Controllers}
+        timelineState={timelineState}
+        actionData={inProps.actionData}
+        scaleWidth={scaleWidth}
+        setScaleWidth={setScaleWidthProxy}
+        viewSelector={`.MuiEditorView-root`}
+        labels
+      />
+    </TimelineProvider>
   );
 }

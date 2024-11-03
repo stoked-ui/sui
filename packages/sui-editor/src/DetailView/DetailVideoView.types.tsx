@@ -21,8 +21,8 @@ export const getVideoSchema = () => {
 
 export function getVideoFormData(detail: DetailSelection, tracks: ITimelineTrack[]): ITimelineFileBase {
   const {video} = detail;
-  if (video && !video.id) {
-    throw new Error('can not load detail video view without a video id');
+  if (!video || !video.id) {
+    throw new Error('can not load detail view without a video id');
   }
   return {
     id: video.id,

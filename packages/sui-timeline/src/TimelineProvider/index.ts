@@ -1,4 +1,2 @@
-import TimelineProvider from './TimelineProvider'
-
-export default TimelineProvider;
 export * from './TimelineProvider';
+export * from './TimelineProvider.types';

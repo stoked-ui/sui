@@ -1,3 +1,4 @@
+/*
 import * as React from "react";
 import * as yup from "yup";
 import { DetailSelection } from "./Detail";
@@ -47,3 +48,4 @@ export function getActionFormData(detail: DetailSelection): IDetailAction | unde
     height: action.height,
   } : undefined;
 }
+*/

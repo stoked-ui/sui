@@ -1,3 +1,4 @@
+/*
 import * as React from "react";
 import {SubmitHandler, useForm} from "react-hook-form";
 import {yupResolver} from "@hookform/resolvers/yup";
@@ -62,8 +63,8 @@ export default function DetailActionView(props: DetailTypeProps) {
     }
     setDetail(newDetail);
 
-    const trackIndex = file.tracks?.findIndex((prevTrack) => prevTrack.id === dataAction.id);
-    if (trackIndex && trackIndex !== -1 && dataAction && file.tracks?.[trackIndex]) {
+    const trackIndex = file?.tracks?.findIndex((prevTrack) => prevTrack.id === dataAction.id);
+    if (trackIndex && trackIndex !== -1 && dataAction && file?.tracks?.[trackIndex]) {
       file.tracks[trackIndex].name = dataAction!.name;
     }
     console.log('Form data:', dataAction, 'detail', detail);
@@ -105,27 +106,7 @@ export default function DetailActionView(props: DetailTypeProps) {
           onClick={onClickEdit}
         />
       </CtrlCell>
-      <CtrlGroup label={'Track File'}>
-        <CtrlCell width="70%">
-          <ControlledText
-            className={'whitespace-nowrap flex-grow flex'}
-            label={'File Name'}
-            name={'file.name'}
-            control={control}
-            disabled={!editMode}
-            onClick={onClickEdit}
-          />
-        </CtrlCell>
-        <CtrlCell width="25%">
-          <ControlledText
-            className={'whitespace-nowrap flex-grow flex'}
-            label={'File Size'}
-            control={control}
-            disabled
-            format={humanFileSize}
-          />
-        </CtrlCell>
-      </CtrlGroup>
+
       <CtrlGroup label={'Actions'}>
         <CtrlCell width="100%">
           <DesSelect
@@ -266,3 +247,4 @@ export default function DetailActionView(props: DetailTypeProps) {
     </DetailViewBase>
   );
 }
+*/

@@ -2,7 +2,7 @@ import * as React from 'react';
 import {Theme} from '@mui/material/styles';
 import {SxProps} from '@mui/system';
 import {SlotComponentProps} from '@mui/base/utils';
-import {TimelineState, ViewMode, Version} from '@stoked-ui/timeline';
+import {TimelineState, Version} from '@stoked-ui/timeline';
 import {EditorControlsClasses} from './editorControlsClasses';
 import EditorEngine from "../EditorEngine/EditorEngine";
 
@@ -29,20 +29,20 @@ export interface EditorControlsPropsBase extends React.HTMLAttributes<HTMLDivEle
    */
   sx?: SxProps<Theme>;
   /*
-  * The scale of the video
-  * @default 1
-  */
+   * The scale of the video
+   * @default 1
+   */
   scale?: number;
   setScaleWidth: (scaleWidth: number) => void;
   /*
-  * The width of the scale
-  * @default 160
-  */
+   * The width of the scale
+   * @default 160
+   */
   scaleWidth?: number;
   /*
-  * How many ticks to the left of the view at start
-  * @default 20
-  */
+   * How many ticks to the left of the view at start
+   * @default 20
+   */
   startLeft?: number;
   timelineState: React.RefObject<TimelineState>;
   engineRef: React.RefObject<EditorEngine>;
@@ -51,13 +51,11 @@ export interface EditorControlsPropsBase extends React.HTMLAttributes<HTMLDivEle
   setView: (newView: 'timeline' | 'files') => void;
   versions?: Version[];
   setVersions?: React.Dispatch<React.SetStateAction<Version[]>>;
-  mode: ViewMode;
-  setMode:  React.Dispatch<React.SetStateAction<ViewMode>>;
   currentVersion?: string | undefined;
   setCurrentVersion?: React.Dispatch<React.SetStateAction<string | undefined>>;
-
   timeline?: boolean;
   switchView?: boolean;
+  disabled?: boolean;
 }
 
 export interface EditorControlsProps

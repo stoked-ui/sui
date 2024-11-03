@@ -34,9 +34,39 @@ const TimelineRoot = styled('div', {
 })(({ theme  }) => ({
   display: 'flex',
   backgroundColor: emphasize(theme.palette.background.default, 0.04),
-    '& .SuiScrollbar': {
-      height: '18px',
+  '& .SuiScrollbar': {
+    height: '18px',
+  },
+  '& .timeline-editor-edit-track': {
+    opacity: 0,
+    transform: 'scaleX(100%):nth-child(3n+1)',
+    transitionProperty: 'opacity, transform',
+    transitionDuration: '0.3s',
+    transitionTimingFunction: 'cubic-bezier(0.750, -0.015, 0.565, 1.055)'
+  },
+  '& .MuiEditorLabels-label': {
+    opacity: 0,
+    transform: 'scaleX(100%)',
+    transitionProperty: 'opacity, transform',
+    transitionDuration: '0.3s',
+    transitionTimingFunction: 'cubic-bezier(0.750, -0.015, 0.565, 1.055)'
+  },
+  '&.MuiTimeline-loaded': {
+    '& .timeline-editor-edit-track': {
+      opacity: 1,
+      transform: 'translateX(0)',
+      transitionDelay: 'calc(0.055s * var(--trackIndex)))',
     },
+    '& .MuiEditorLabels-label': {
+      opacity: 1,
+      transform: 'translateX(0)',
+      transitionDelay: 'calc(0.055s * var(--trackIndex)))',
+    },
+    '& #time-area-grid .ReactVirtualized__Grid__innerScrollContainer': {
+      minWidth: '100%!important'
+    }
+
+}
 }));
 
 /**
@@ -53,11 +83,11 @@ const Timeline = React.forwardRef(function Timeline(
   inProps: TimelineProps,
   ref: React.Ref<HTMLDivElement>,
 ): React.JSX.Element {
-  const { slots, slotProps, controlSx, onChange, trackSx, controllers, viewMode, locked } = useThemeProps({
+  const { slots, slotProps, controlSx, onChange, trackSx, controllers, locked } = useThemeProps({
     props: inProps,
     name: 'MuiTimeline',
   });
-  const { file, engine, dispatch } = useTimeline();
+  const { file, engine, dispatch, getState } = useTimeline();
 
   const hideLock = locked;
 
@@ -70,24 +100,6 @@ const Timeline = React.forwardRef(function Timeline(
 
   const forkedRootRef = React.useRef<HTMLDivElement>(null);
   const combinedRootRef = useForkRef(ref, forkedRootRef);
-
-  React.useEffect(() => {
-    const screenerStuff = engine.screenerBlob;
-    if (!engine || !screenerStuff) {
-      return;
-    }
-
-    const actionInput = {
-      name: `${screenerStuff.name} v${screenerStuff.version}`,
-      start: 0,
-      end: 1,
-      controllerName: 'video',
-      src: engine.screener.src,
-      layer: 'screener',
-    }
-
-
-  }, [engine.screenerBlob])
 
   const Root = slots?.root ?? TimelineRoot;
   const rootProps = useSlotProps({
@@ -103,7 +115,7 @@ const Timeline = React.forwardRef(function Timeline(
     elementType: Root,
     externalSlotProps: slotProps?.labels,
     className: classes.labels,
-    ownerState: { ...inProps, sx: inProps.labelsSx, timelineState, viewMode: engine.viewMode } as TimelineLabelsProps,
+    ownerState: { ...inProps, sx: inProps.labelsSx, timelineState } as TimelineLabelsProps,
   });
 
   const Control = slots?.control ?? TimelineControl;
@@ -127,8 +139,10 @@ const Timeline = React.forwardRef(function Timeline(
     dispatch({ type: 'CREATE_ACTION', payload: { action: newAction, track }})
   }
 
+  const rootClasses = `${rootProps.className} ${!engine.isLoading ? 'MuiTimeline-loaded' : ''}`
+  console.log('rootClasses', rootClasses, getState())
   return (
-    <Root ref={combinedRootRef} {...rootProps} sx={inProps.sx}>
+    <Root ref={combinedRootRef} {...rootProps} className={rootClasses} sx={inProps.sx}>
       {inProps.labels && (
         <Labels
           ref={labelsRef}
@@ -166,6 +180,7 @@ const Timeline = React.forwardRef(function Timeline(
           autoScroll
           disableDrag={locked}
           dragLine={true}
+          disabled={inProps.disabled}
           controllers={inProps.controllers}
           viewSelector={inProps.viewSelector ?? '.viewer'}
           onClickTrack={(e, {track }) => {

@@ -1,4 +1,5 @@
-import type { TimelineFile, ITimelineAction, ITimelineTrack } from '@stoked-ui/timeline';
+import type { ITimelineAction, ITimelineTrack } from '@stoked-ui/timeline';
+import EditorFile from '../../../Editor/EditorFile';
 import type {DefaultizedProps, EditorPluginSignature} from '../../models';
 import {
   UseEditorKeyboardSignature
@@ -9,7 +10,7 @@ export interface UseEditorMetadataInstance {
 }
 
 export interface UseEditorMetadataParameters {
-  file?: TimelineFile;
+  file?: EditorFile;
   url?: string;
 }
 

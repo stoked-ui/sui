@@ -1,9 +1,10 @@
-import { ITimelineAction, type ITimelineFileAction, ITimelineFile, TimelineFile } from '@stoked-ui/timeline';
-import { namedId, getFileName, useIncId,  } from '@stoked-ui/media-selector';
+import { ITimelineAction } from '@stoked-ui/timeline';
+import { getFileName } from '@stoked-ui/media-selector';
 import {
   UseEditorMetadataDefaultizedParameters, UseEditorMetadataParameters, UseEditorMetadataSignature,
 } from './useEditorMetadata.types';
 import {EditorPlugin} from '../../models';
+import EditorFile from 'packages/sui-editor/src/Editor/EditorFile';
 
 export const useEditorMetadata: EditorPlugin<UseEditorMetadataSignature> = ({
   params,
@@ -27,7 +28,7 @@ export const useEditorMetadata: EditorPlugin<UseEditorMetadataSignature> = ({
 function initialize(params?: UseEditorMetadataParameters): UseEditorMetadataDefaultizedParameters {
   if (!params || (!params.file && !params.url)) {
     return {
-      file: new TimelineFile({ name: 'new video'}),
+      file: new EditorFile({ name: 'new video'}),
       url: '',
     };
   }
@@ -35,12 +36,12 @@ function initialize(params?: UseEditorMetadataParameters): UseEditorMetadataDefa
 
   if (url.length && !file) {
     return {
-      file: new TimelineFile({ name: getFileName(url, false) ?? 'new video', src: url}),
+      file: new EditorFile({ name: getFileName(url, false) ?? 'new video', url }),
       url,
     }
   }
 
-  return { file: file ?? new TimelineFile({ name: 'new video'}), url };
+  return { file: file ?? new EditorFile({ name: 'new video'}), url };
 }
 
 useEditorMetadata.getDefaultizedParams = (params) => {

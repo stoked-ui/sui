@@ -1,4 +1,5 @@
 import * as React from 'react';
+import useResizeObserver from 'use-resize-observer';
 import {emphasize, styled} from "@mui/material/styles";
 import {AutoSizer, Grid, GridCellRenderer, OnScrollParams} from 'react-virtualized';
 import {parserPixelToTime} from '../utils/deal_data';
@@ -25,6 +26,9 @@ const TimeAreaRoot = styled('div')(({theme}) => ({
     '&::-webkit-scrollbar': {
       display: 'none',
     }
+  },
+  '& #time-area-grid': {
+
   }
 }));
 /*
@@ -95,6 +99,7 @@ function TimelineTime(props: TimelineTimeProps) {
     scrollLeft,
     onClickTimeArea,
     getScaleRender,
+    disabled
   } = props;
 
   const gridRef = React.useRef<Grid>();
@@ -102,6 +107,7 @@ function TimelineTime(props: TimelineTimeProps) {
   const timeAreaRef = React.useRef<HTMLDivElement>();
   /** Whether to display subdivision scales */
   const showUnit = scaleSplitCount > 0;
+
   /** Get the rendering content of each cell */
   const cellRenderer: GridCellRenderer = ({ columnIndex, key, style }) => {
     const isShowScale = showUnit ? columnIndex % scaleSplitCount === 0 : true;
@@ -122,14 +128,10 @@ function TimelineTime(props: TimelineTimeProps) {
     gridRef.current?.recomputeGridSize();
   }, [scaleWidth, startLeft]);
 
-  React.useLayoutEffect(() => {
-    const unit = gridRef.current;
 
-    if (!unit) {
-      return undefined;
-    }
-
-    const resizeObserver = new ResizeObserver(() => {
+  useResizeObserver({
+    ref: timeAreaRef,
+    onResize: ({ width }) => {
       const timeUnit = document.querySelector('.timeline-editor-time-unit');
       if (!timeUnit) {
         return;
@@ -139,16 +141,8 @@ function TimelineTime(props: TimelineTimeProps) {
       } else if (timeUnit.clientWidth > 20) {
         setCustomScaleSplitCount(customScaleSplitCount * 0.5);
       }
-    });
-    const timeUnit = document.querySelector('.timeline-editor-time-unit');
-    const grid = document.getElementById('time-area-grid');
-    resizeObserver.observe(grid);
-
-    return () => {
-      resizeObserver.unobserve(grid);
-    };
-  }, []);
-
+    },
+  });
 
   /** Get column width */
   const getColumnWidth = (data: { index: number }) => {

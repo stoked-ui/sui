@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { cloneDeep } from "lodash";
 import { withPointer } from 'docs/src/components/home/ElementPointer';
-import { Timeline as MuiTimeline } from '@stoked-ui/timeline';
+import { default as MuiTimeline } from '@stoked-ui/timeline';
 
 import { mockData } from './mock' ;
 
