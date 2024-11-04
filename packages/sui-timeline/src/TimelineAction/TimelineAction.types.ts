@@ -79,6 +79,10 @@ export interface ITimelineAction
 
   getBackgroundImage?: (actionType: IController, src: string) => string;
 
+  backgroundImageStyle?: BackgroundImageStyle | object;
+
+  backgroundImage?: string;
+
   frameSyncId?: number;
   /** Minimum start time limit for actions */
   minStart?: number;
