@@ -6,7 +6,12 @@ import {IController} from "../Controller";
 import {TimelineFile, ITimelineFile} from "../TimelineFile";
 import {EngineState, IEngine} from "../Engine";
 import {ITimelineTrack} from "../TimelineTrack";
-import {initTimelineAction, ITimelineAction, ITimelineFileAction} from "../TimelineAction";
+import {
+  BackgroundImageStyle,
+  initTimelineAction,
+  ITimelineAction,
+  ITimelineFileAction
+} from "../TimelineAction";
 import {DEFAULT_MOBILE_ROW_HEIGHT, DEFAULT_TRACK_HEIGHT} from "../interface/const";
 
 export interface ITimelineState {
@@ -90,7 +95,10 @@ export type TimelineStateAction = {
 } | {
   type: 'SET_ROW_HEIGHT',
   payload: number
-};
+} | {
+  type: 'UPDATE_ACTION_STYLE',
+  payload: { action: ITimelineAction, backgroundImageStyle: BackgroundImageStyle }
+}
 
 export type TimelineContextType = ITimelineState & {
   dispatch: React.Dispatch<TimelineStateAction>;
@@ -164,6 +172,22 @@ export function TimelineReducer(state: ITimelineState, stateAction: TimelineStat
         ...state,
         rowHeight: stateAction.payload,
       }
+    }
+    case 'UPDATE_ACTION_STYLE': {
+      const { action, backgroundImageStyle } = stateAction.payload;
+      const updatedTracks = state.file?.tracks.map((t) => {
+        t.actions = t.actions.map((a) => {
+          if (a.id === action.id) {
+            a.backgroundImageStyle = backgroundImageStyle;
+          }
+          return a;
+        })
+        return t;
+      });
+      return {
+        ...state,
+        file: state.file ? { ...state.file, tracks: [...updatedTracks] } : null,
+      };
     }
     default:
       return state;
