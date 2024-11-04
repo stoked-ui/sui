@@ -1,6 +1,5 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import composeClasses from '@mui/utils/composeClasses';
 import Typography from '@mui/material/Typography';
 import {alpha, darken, emphasize, lighten, styled,} from '@mui/material/styles';
 import {DEFAULT_ADSORPTION_DISTANCE, DEFAULT_MOVE_GRID} from '../interface/const';
@@ -240,10 +239,7 @@ function TimelineAction(props: TimelineActionProps) {
   const state = { selected, flexible, movable, disable };
   const ownerStateProps = { ...state, ...restProps, ...action };
   const { onKeyDown, ...ownerState } = ownerStateProps;
-  //const classes = useActionUtilityClasses(ownerState as TimelineActionOwnerState);
-
   const actionEl = React.useRef<HTMLDivElement>(null);
-
   const rowRnd = React.useRef<RowRndApi>();
   const isDragWhenClick = React.useRef(false);
   const { id, maxEnd, minStart, end, start } = action;
@@ -447,8 +443,6 @@ function TimelineAction(props: TimelineActionProps) {
   if (track.actions.includes(action)) {
     nowRow.actions[track.actions.indexOf(action)] = nowAction;
   }
-  const [backgroundStyle, setBackgroundStyle] = React.useState<null | BackgroundImageStyle>(null);
-  // const [buildingImage, setBuildingImage] = React.useState<boolean>(false);
   React.useEffect(() => {
     try {
     } catch (error) {
@@ -456,16 +450,7 @@ function TimelineAction(props: TimelineActionProps) {
     }
   }, [])
 
-  React.useEffect(() => {
-    if (track.controller.backgroundImage) {
-      const adjustedScale = scaleWidth / scale;
-      setBackgroundStyle({
-        backgroundImage: track.controller.backgroundImage,
-        backgroundPosition: `${-adjustedScale * (action.trimStart || 0)}px 0px`,
-        backgroundSize: `${adjustedScale * action.duration}px ${rowHeight - 1}px`
-      });
-    }
-  },[scaleWidth, track.controller.backgroundImage])
+
   const {
     areaRef,
     gridSnap,
@@ -479,6 +464,21 @@ function TimelineAction(props: TimelineActionProps) {
     onContextMenuAction,
     rowHeight,
   } = props;
+
+  React.useEffect(() => {
+    const backgroundImageStyle = track.controller.getActionStyle?.(action, scaleWidth, scale, rowHeight)
+    if (backgroundImageStyle) {
+      dispatch({
+        type: 'UPDATE_ACTION_STYLE',
+        payload: {
+          action,
+          backgroundImageStyle,
+        }
+      })
+      console.info('backgroundImageStyle', action.backgroundImageStyle);
+    }
+
+  },[scaleWidth, scale, rowHeight, action.backgroundImage]);
 
   const loopCount = (!!action?.loop && typeof action.loop === 'number' && action.loop > 0) ? action.loop : undefined;
 
@@ -524,7 +524,6 @@ function TimelineAction(props: TimelineActionProps) {
         tabIndex={0}
         onKeyDown={(event: any) => {
           event.currentTarget = action;
-          console.log('hello hello', event.key)
           // eslint-disable-next-line default-case
           switch (event.key) {
             case 'Backspace':
@@ -542,8 +541,6 @@ function TimelineAction(props: TimelineActionProps) {
               break;
             }
           }
-
-          console.log('key', event.key);
           event.preventDefault();
         }}
         onMouseLeave={() => {
@@ -595,7 +592,7 @@ function TimelineAction(props: TimelineActionProps) {
         selected={action.selected !== undefined ? action.selected : false}
         style={{
           height: rowHeight,
-          ...backgroundStyle
+          ...action.backgroundImageStyle
         }}
         color={`${track?.controller?.color}`}
       >
