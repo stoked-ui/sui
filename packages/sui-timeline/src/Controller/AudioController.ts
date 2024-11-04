@@ -30,31 +30,33 @@ class AudioControl extends Controller {
 
   async preload(params: PreloadParams): Promise<ITimelineAction> {
     const { action, file } = params;
+    const imageOptions = {
+      width: file.element.duration() * 100,
+      height: 300
+    }
+    if (file.element) {
+      this.cacheMap[action.id] = file.element;
+      action.duration = (file.element as Howl).duration();
+      action.backgroundImage = await this.getBackgroundImage?.(file, imageOptions);
+      console.info('action.backgroundImage', action.backgroundImage)
+      return action;
+    }
     return new Promise((resolve, reject) => {
       try {
-        if (file.element) {
-          this.cacheMap[action.id] = file.element;
-          action.duration = (file.element as Howl).duration();
-          this.getBackgroundImage?.(file, { width: file.element.duration() * 100, height: 300 }).then((img) => {
-            this.backgroundImage = img;
-          })
-          resolve(action);
-        } else {
-          const item = new Howl({
-            src: file.url as string,
-            loop: false,
-            autoplay: false,
-            onload: () => {
-              this.cacheMap[action.id] = item;
-              action.duration = item.duration();
-              this.getBackgroundImage?.(file,  { width: file.element.duration() * 100, height: 300 }).then((img) => {
-                this.backgroundImage = img;
-              })
-              resolve(action);
-            }
-          });
-        }
-      } catch(ex) {
+        const item = new Howl({
+          src: file.url as string,
+          loop: false,
+          autoplay: false,
+          onload: () => {
+            this.cacheMap[action.id] = item;
+            action.duration = item.duration();
+            this.getBackgroundImage?.(file, imageOptions).then((img) => {
+              action.backgroundImage = img;
+            })
+            resolve(action);
+          }
+        });
+      } catch (ex) {
         let msg = `Error loading audio file: ${file.url}`;
         if (ex as Error) {
           msg += (ex as Error).message;
@@ -155,6 +157,19 @@ class AudioControl extends Controller {
 
   getElement(actionId: string) {
     return this.cacheMap[actionId];
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  getActionStyle(action: ITimelineAction, scaleWidth: number, scale: number, rowHeight: number) {
+    const adjustedScale = scaleWidth / scale;
+    if (!action.backgroundImage) {
+      return null;
+    }
+    return {
+      backgroundImage: action.backgroundImage,
+      backgroundPosition: `${-adjustedScale * (action.trimStart || 0)}px 0px`,
+      backgroundSize: `${adjustedScale * action.duration}px ${rowHeight - 1}px`
+    }
   }
 }
 

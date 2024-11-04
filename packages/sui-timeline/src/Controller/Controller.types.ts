@@ -1,6 +1,6 @@
 import { IMediaFile } from "@stoked-ui/media-selector";
 import {ControllerParams} from "./ControllerParams";
-import {type ITimelineAction} from "../TimelineAction/TimelineAction.types";
+import { BackgroundImageStyle, type ITimelineAction } from "../TimelineAction/TimelineAction.types";
 
 export interface PreloadParams extends Omit<ControllerParams & { file: IMediaFile }, 'time'> {}
 
@@ -19,9 +19,8 @@ export interface IController {
   color?: string;
   colorSecondary?: string;
   logging: boolean;
-  backgroundImage?: string;
   getBackgroundImage?: GetBackgroundImage;
-  getElement: (actionId: string) => any;
+  getActionStyle?: (action: ITimelineAction, scaleWidth: number, scale: number, rowHeight: number) => null | BackgroundImageStyle
 }
 
 export type VolumeSection = [volume: number, start?: number, end?: number];
