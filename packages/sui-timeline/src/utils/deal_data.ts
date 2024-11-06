@@ -1,6 +1,7 @@
 import {ITimelineTrack} from "../TimelineTrack/TimelineTrack.types";
 import {type ITimelineAction} from "../TimelineAction/TimelineAction.types";
 import {ADD_SCALE_COUNT} from "../interface/const";
+import { IController } from "../Controller";
 
 /** time to pixel */
 export function parserTimeToPixel(
@@ -70,7 +71,9 @@ export function parserTimeToTransform(
   };
 }
 /** Get the number of scales based on data */
-export function getScaleCountByRows(tracks: ITimelineTrack[], param: { scale: number }) {
+export function getScaleCountByRows<
+  ActionType extends ITimelineAction = ITimelineAction,
+>(tracks: ITimelineTrack<ActionType>[], param: { scale: number }) {
   let max = 0;
   tracks?.forEach((track) => {
     track?.actions.forEach((action) => {
@@ -96,8 +99,11 @@ export function getScaleCountByPixel(
 }
 
 /** Get the position collection of the entire time of the action */
-export function parserActionsToPositions(
-  actions: ITimelineAction[],
+export function parserActionsToPositions<
+  ControllerType extends IController = IController,
+  ActionType extends ITimelineAction = ITimelineAction,
+>(
+  actions: ActionType[],
   param: {
     startLeft: number;
     scale: number;

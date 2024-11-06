@@ -15,6 +15,7 @@ import {keyframes} from "@emotion/react";
 import Loader from "../Editor/Loader";
 import EditorFile, {editorFileCache, IEditorFileProps} from '../Editor/EditorFile';
 import {useContext} from "react";
+import { IEditorFileTrack } from "../EditorTrack/EditorTrack";
 
 const useThemeProps = createUseThemeProps('MuiEditorView');
 
@@ -203,7 +204,7 @@ const EditorView = React.forwardRef(function EditorView<
   });
 
   const saveHandler = async () => {
-    const newFile = new EditorFile(file as IEditorFileProps);
+    const newFile = new EditorFile(file as IEditorFileProps<IEditorFileTrack>);
     file?.save();
   }
   // if the viewer resizes make the renderer match it

@@ -74,7 +74,7 @@ export interface TimelineProps
 
   disabled?: boolean;
 
-  onAddFiles?: (mediaFiles: MediaFile[]) => void;
+  onAddFiles?: () => void;
 
   /**
    * @description Right-click track callback
@@ -108,27 +108,37 @@ export function ToggleButtonGroupSx(theme: Theme, width: number = 38, height: nu
       height: `${height}px`,
       width: `${width}px`,
       '&:hover': {
-        color: theme.palette.primary.main,
+        color: theme.palette.primary[theme.palette.mode],
         backgroundColor: theme.palette.background.default,
-        border: `2px solid ${theme.palette.primary[500]}`,
+        border: `2px solid ${theme.palette.primary[theme.palette.mode]}`,
         zIndex: 30,
         height: `${height}px`,
         width: `${width}px`,
       }
     }, '& .MuiButtonBase-root.Mui-selected': {
       backgroundColor: 'transparent',
-      color: `${theme.palette.primary[theme.palette.mode]}!important`,
+      color: `${theme.palette.primary.main}!important`,
       border: `2px solid ${theme.palette.primary[theme.palette.mode === 'dark' ? 'light' : 'dark']}!important`,
       zIndex: 20,
       height: `${height}px`,
       width: `${width}px`,
       '&:hover': {
         backgroundColor: theme.palette.background.default,
-        border: `2px solid ${theme.palette.primary[theme.palette.mode]}!important`,
+        border: `2px solid ${theme.palette.primary.main}!important`,
         zIndex: 20,
         height: `${height}px`,
         width: `${width}px`,
       }
+    },
+    '& .MuiButtonBase-root.Mui-focusVisible': {
+      color: `${theme.palette.primary[theme.palette.mode]}!important`,
+      backgroundColor: theme.palette.background.default,
+      border: `2px solid ${theme.palette.primary[theme.palette.mode]}!important`,
+      zIndex: 30,
+      height: `${height}px`,
+      width: `${width}px`,
+      outline: 'none',
+      outlineOffset: 'none',
     }
   }
 }

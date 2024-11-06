@@ -7,11 +7,12 @@ import LockOpenIcon from "@mui/icons-material/LockOpen";
 import {IconButton, Typography} from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import ToggleButton from "@mui/material/ToggleButton";
+import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import {ITimelineTrack} from "../TimelineTrack";
 import {IController} from "../Controller";
 import {TimelineLabelsClasses} from "./timelineLabelsClasses";
 import {useTimeline} from "../TimelineProvider";
-import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
+import { ToggleButtonGroupSx } from "../Timeline/Timeline.types";
 
 
 const TimelineLabelRoot = styled('div', {
@@ -155,6 +156,7 @@ const TimelineLabel = React.forwardRef(
           {(file && track.id !== 'newTrack') && <ToggleButtonGroupStyled
             exclusive
             aria-label="text alignment"
+            sx={(theme) => ToggleButtonGroupSx(theme, 34, 32)}
           >
             <ToggleButton
               id={`${track.id}-hidden`}

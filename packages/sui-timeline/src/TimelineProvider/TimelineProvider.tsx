@@ -5,7 +5,7 @@ import Engine, {EngineState} from "../Engine";
 
 import { TimelineProviderProps, ITimelineState, initialTimelineState, TimelineReducer, TimelineContext, TimelineContextType } from './TimelineProvider.types';
 
-const TimelineProvider = (props: TimelineProviderProps) => {
+function TimelineProvider(props: TimelineProviderProps) {
   const { children, id, file, controllers, engine } = props;
 
   const theEngine = engine ?? new Engine({ controllers: controllers ?? Controllers });

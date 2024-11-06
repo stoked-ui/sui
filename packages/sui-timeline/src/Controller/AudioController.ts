@@ -2,11 +2,15 @@ import {Howl} from 'howler';
 import { AudioFile, IMediaFile } from "@stoked-ui/media-selector";
 import generateWaveformImage from "./AudioImage";
 import Controller from './Controller';
-import {PreloadParams, GetBackgroundImage, IController} from "./Controller.types";
-import {ControllerParams} from "./ControllerParams";
-import {ITimelineAction} from "../TimelineAction";
+import { GetBackgroundImage, IController } from "./Controller.types";
+import { type ITimelineAction} from "../TimelineAction";
+import { ControllerParams, IEngine } from "../Engine";
+import { type ITimelineTrack } from "../TimelineTrack";
 
-class AudioControl extends Controller {
+class AudioControl<
+  ActionType extends ITimelineAction = ITimelineAction,
+  EngineType extends IEngine = IEngine,
+> extends Controller {
   cacheMap: Record<string, Howl> = {};
 
   logging: boolean = false;
@@ -28,7 +32,7 @@ class AudioControl extends Controller {
     });
   }
 
-  async preload(params: PreloadParams): Promise<ITimelineAction> {
+  async preload(params: { action: ActionType, file: IMediaFile, engine: EngineType }): Promise<ActionType> {
     const { action, file } = params;
     const imageOptions = {
       width: file.element.duration() * 100,
@@ -72,7 +76,7 @@ class AudioControl extends Controller {
 
   start(params: ControllerParams) {
     const { action, time, engine } = params;
-    let item: Howl;
+    let item: Howl
     if (this.cacheMap[action.id]) {
       item = this.cacheMap[action.id];
       item.rate(engine.getPlayRate());
@@ -82,7 +86,7 @@ class AudioControl extends Controller {
         item.play();
       }
     } else {
-      const track = engine.getActionTrack(action.id);
+      const track = engine.getActionTrack(action.id) as ITimelineTrack;
       item = new Howl({ src: track.file.url as string, loop: false, autoplay: false });
       this.cacheMap[action.id] = item;
       item.on('load', () => {
@@ -110,7 +114,7 @@ class AudioControl extends Controller {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  update(params: ControllerParams) {
+  update = (params: ControllerParams) => {
     const { action } = params;
     const item: Howl = this.cacheMap[action.id]
     const volumeUpdate = Controller.getVolumeUpdate(params, item.seek() as number)
@@ -120,7 +124,7 @@ class AudioControl extends Controller {
     }
   }
 
-  stop(params: ControllerParams) {
+  stop = (params: ControllerParams) => {
     const { action, engine } = params;
     if (this.cacheMap[action.id]) {
       const item = this.cacheMap[action.id];
@@ -142,7 +146,7 @@ class AudioControl extends Controller {
     this.stop(params);
   }
 
-  getBackgroundImage?: GetBackgroundImage = async (file: IMediaFile, options: { width: number, height: number }) => {
+  getBackgroundImage?: GetBackgroundImage = async (file: IMediaFile) => {
     if (!file || !file.element?.duration()) {
       throw new Error('attempting to generate a wave image for an audio action and the action was not supplied')
     }
@@ -160,7 +164,7 @@ class AudioControl extends Controller {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  getActionStyle(action: ITimelineAction, scaleWidth: number, scale: number, rowHeight: number) {
+  getActionStyle(action: ActionType, scaleWidth: number, scale: number, rowHeight: number) {
     const adjustedScale = scaleWidth / scale;
     if (!action.backgroundImage) {
       return null;

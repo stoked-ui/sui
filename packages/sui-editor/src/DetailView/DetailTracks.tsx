@@ -3,8 +3,10 @@ import { SelectChangeEvent } from "@mui/material/Select";
 import { ITimelineAction, ITimelineTrack } from "@stoked-ui/timeline";
 import DesSelect from "./DesSelect";
 import StokedSelect from "./StokedSelect";
+import { useEditorContext } from "../EditorProvider";
 
-export default function DetailTracks({ tracks, editMode, detail, setDetail, onClickEdit, size, sx }) {
+export default function DetailTracks({ tracks, editMode, detail, onClickEdit, size, sx }) {
+  const { dispatch } = useEditorContext();
   return <StokedSelect
     label={'Track'}
     placeholder={'Select Track'}
@@ -26,7 +28,7 @@ export default function DetailTracks({ tracks, editMode, detail, setDetail, onCl
       console.info('event', event, 'child', child)
       const newTrack = tracks.find((track: ITimelineTrack) => track.id === child.props.value);
       if (!detail.track || (newTrack && detail.track.id !== newTrack.id)) {
-        setDetail({...detail, track: newTrack});
+        dispatch({ type: 'SELECT_TRACK', payload: newTrack });
       }
     }}
   />

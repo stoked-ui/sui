@@ -30,7 +30,7 @@ export interface EditorScreenerSlotProps {
 }
 
 interface EditorScreenerPropsBase {
-  mediaFile: IMediaFile
+  file: IMediaFile
 }
 
 export interface EditorScreenerProps

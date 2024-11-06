@@ -83,11 +83,11 @@ const Timeline = React.forwardRef(function Timeline(
   inProps: TimelineProps,
   ref: React.Ref<HTMLDivElement>,
 ): React.JSX.Element {
-  const { slots, slotProps, controlSx, onChange, trackSx, controllers, locked } = useThemeProps({
+  const { slots, slotProps, controlSx, onChange, trackSx, locked } = useThemeProps({
     props: inProps,
     name: 'MuiTimeline',
   });
-  const { file, engine, dispatch, getState } = useTimeline();
+  const { file, engine, dispatch, snapOptions } = useTimeline();
 
   const hideLock = locked;
 
@@ -140,7 +140,6 @@ const Timeline = React.forwardRef(function Timeline(
   }
 
   const rootClasses = `${rootProps.className} ${!engine.isLoading ? 'MuiTimeline-loaded' : ''}`
-  console.log('rootClasses', rootClasses, getState())
   return (
     <Root ref={combinedRootRef} {...rootProps} className={rootClasses} sx={inProps.sx}>
       {inProps.labels && (
@@ -179,7 +178,8 @@ const Timeline = React.forwardRef(function Timeline(
           ref={combinedTimelineRef}
           autoScroll
           disableDrag={locked}
-          dragLine={true}
+          dragLine={snapOptions.includes('edgeSnap')}
+          gridSnap={snapOptions.includes('featureSnap')}
           disabled={inProps.disabled}
           controllers={inProps.controllers}
           viewSelector={inProps.viewSelector ?? '.viewer'}
@@ -207,19 +207,19 @@ Timeline.propTypes = {
 
   children: PropTypes.node,
 
-  className: PropTypes.string,
   /**
    * Override or extend the styles applied to the component.
    */
   classes: PropTypes.object,
-  controlSx: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),), PropTypes.func, PropTypes.object,]),
+  className: PropTypes.string,
   controllers: PropTypes.object,
+  controlSx: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),), PropTypes.func, PropTypes.object,]),
   detailMode: PropTypes.bool,
   detailRenderer: PropTypes.bool,
   engine: PropTypes.any,
-  labelSx: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),), PropTypes.func, PropTypes.object,]),
   labels: PropTypes.bool,
   labelsSx: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),), PropTypes.func, PropTypes.object,]),
+  labelSx: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),), PropTypes.func, PropTypes.object,]),
 
   setTracks: PropTypes.func,
   /**
@@ -237,8 +237,8 @@ Timeline.propTypes = {
    */
   sx: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),), PropTypes.func, PropTypes.object,]),
   timelineState: PropTypes.any,
-  trackSx: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),), PropTypes.func, PropTypes.object,]),
   tracks: PropTypes.any,
+  trackSx: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),), PropTypes.func, PropTypes.object,]),
   viewSelector: PropTypes.string,
 };
 

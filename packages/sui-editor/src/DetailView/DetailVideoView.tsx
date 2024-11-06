@@ -15,6 +15,7 @@ import Controllers from "../Controllers/Controllers";
 import {EditorControls} from "../EditorControls";
 import ControlledColor from "./ControlledColor";
 import {useEditorContext} from "../EditorProvider";
+import { FormData } from '../DetailView/DetailView.types';
 
 const DetailRenderer = styled('canvas', {
   name: "MuiEditorViewRenderer",
@@ -33,28 +34,26 @@ const DetailRenderer = styled('canvas', {
 
 export default function DetailVideoView(props: DetailTypeProps) {
   const timelineState = React.useRef<TimelineState>(null);
-  const { file, engine } = useEditorContext();
+  const { file, engine, dispatch } = useEditorContext();
   const {
-    detail,
     setEditMode,
-    setDetail,
     editMode,
     formRef,
     onClickEdit,
     breadcrumbs,
-    formData,
-    setFormData,
+    formInfo,
     schema,
     onClose
   } = props;
+  const { data, detail } = formInfo;
 
   const useFormResult = useForm<ITimelineFileBase>({
     mode: 'onChange',
-    defaultValues: formData.video,
+    defaultValues: data.video,
     resolver: yupResolver(schema.video),
   });
 
-  console.info('formData.video', formData.video)
+  console.info('formData.video', data.video)
   const {
     control,
     handleSubmit,
@@ -71,14 +70,9 @@ export default function DetailVideoView(props: DetailTypeProps) {
   } = useFormResult;
 
   // Form submit handler
-  const onSubmit: SubmitHandler<ITimelineFile> = (detailVid: ITimelineFile) => {
-    detailVid.lastModified = Date.now();
-    setDetail((prev: DetailSelection) =>
-      {
-        return {
-          ...prev,
-          video: {...detailVid}
-      }});
+  const onSubmit: SubmitHandler<FormData> = (data: FormData) => {
+    data.video.lastModified = Date.now();
+    dispatch({ type: 'UPDATE_VIDEO', payload: data.video });
   };
 
   const detailViewBase = {
@@ -89,10 +83,9 @@ export default function DetailVideoView(props: DetailTypeProps) {
     handleSubmit,
     onSubmit,
     detail,
-    setDetail,
     errors,
     control,
-    formData,
+    formInfo,
     isDirty,
     reset,
     setEditMode,
@@ -102,11 +95,11 @@ export default function DetailVideoView(props: DetailTypeProps) {
 
   const checkedProps = checkProps({} as TimelineControlProps);
 
-  console.log('isDirty', isDirty, formData.video, );
+  console.log('isDirty', isDirty, data.video, );
   return (
     <DetailViewBase {...detailViewBase}>
       <CtrlColumn id={'detail-renderer-container'}>
-        <DetailRenderer ata-preserve-aspect-ratio width={'1920'} sx={{ backgroundColor: `${formData.video.backgroundColor}!important` }}/>
+        <DetailRenderer ata-preserve-aspect-ratio width={'1920'} sx={{ backgroundColor: `${data.video.backgroundColor}!important` }}/>
         <EditorControls
           role={'controls'}
           {...engine.control.videoControlsProps}
@@ -121,7 +114,7 @@ export default function DetailVideoView(props: DetailTypeProps) {
           labels
           detailMode
           locked
-          disableDrag={true}
+          disableDrag
           viewSelector={`.MuiEditorView-root`}
           sx={{ width: '100%' }}
         />
@@ -131,6 +124,7 @@ export default function DetailVideoView(props: DetailTypeProps) {
           <ControlledText
             className={'whitespace-nowrap flex-grow flex'}
             label={'Name'}
+            name={'video.name'}
             control={control}
             disabled={!editMode}
             onClick={onClickEdit}
@@ -140,6 +134,7 @@ export default function DetailVideoView(props: DetailTypeProps) {
           <ControlledText
             className={'whitespace-nowrap flex-grow flex'}
             label={'Description'}
+            name={'video.description'}
             control={control}
             disabled={!editMode}
             onClick={onClickEdit}
@@ -149,6 +144,7 @@ export default function DetailVideoView(props: DetailTypeProps) {
           <ControlledText
             className={'whitespace-nowrap flex-grow flex'}
             label={'Author'}
+            name={'video.author'}
             control={control}
             disabled={!editMode}
             onClick={onClickEdit}
@@ -158,8 +154,9 @@ export default function DetailVideoView(props: DetailTypeProps) {
           <ControlledText
             className={'whitespace-nowrap flex-grow flex'}
             label={'Created'}
+            name={'video.created'}
             control={control}
-            disabled={true}
+            disabled
             format={(epoch: number) => {
               if (epoch) {
                 return new Date(epoch).toDateString();
@@ -173,8 +170,9 @@ export default function DetailVideoView(props: DetailTypeProps) {
           <ControlledText
             className={'whitespace-nowrap flex-grow flex'}
             label={'Last Modified'}
+            name={'video.lastModified'}
             control={control}
-            disabled={true}
+            disabled
             format={(epoch: number) => {
               if (epoch) {
                 return new Date(epoch).toDateString();
@@ -188,7 +186,7 @@ export default function DetailVideoView(props: DetailTypeProps) {
           <ControlledColor
             className={'whitespace-nowrap flex-grow flex'}
             label={'Background Color'}
-            name={'backgroundColor'}
+            name={'video.backgroundColor'}
             type={'color'}
             control={control}
             disabled={!editMode}
@@ -199,8 +197,9 @@ export default function DetailVideoView(props: DetailTypeProps) {
           <ControlledText
             className={'w-[194px] whitespace-nowrap w-full flex-grow flex'}
             label={'Width'}
+            name={'video.width'}
             control={control}
-            disabled={true}
+            disabled
             onClick={onClickEdit}
           />
         </CtrlCell>
@@ -208,8 +207,9 @@ export default function DetailVideoView(props: DetailTypeProps) {
           <ControlledText
             className={'w-[194px] whitespace-nowrap w-full flex-grow flex'}
             label={'Height'}
+            name={'video.height'}
             control={control}
-            disabled={true}
+            disabled
             onClick={onClickEdit}
           />
         </CtrlCell>

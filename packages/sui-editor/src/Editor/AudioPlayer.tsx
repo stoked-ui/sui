@@ -49,7 +49,7 @@ const TinyText = styled(Typography)({
   letterSpacing: 0.2,
 });
 
-export default function AudioPlayer({ mediaFile }) {
+export default function AudioPlayer({ file }) {
   const duration = 200; // seconds
   const [position, setPosition] = React.useState(32);
   const [paused, setPaused] = React.useState(false);
@@ -59,7 +59,7 @@ export default function AudioPlayer({ mediaFile }) {
     return `${minute}:${secondLeft < 10 ? `0${secondLeft}` : secondLeft}`;
   }
   React.useEffect(() => {
-    const audio: Howl = mediaFile.element as Howl;
+    const audio: Howl = file.element as Howl;
     audio.on('seek', (params) => {
       console.log('audio seek', params)
     })
@@ -69,8 +69,8 @@ export default function AudioPlayer({ mediaFile }) {
     type: 'audio',
     sources: [
       {
-        src: mediaFile.url, // Replace with your audio selectedFile URL
-        type: mediaFile.type,
+        src: file.url, // Replace with your audio selectedFile URL
+        type: file.type,
       },
     ],
   };
@@ -79,10 +79,10 @@ export default function AudioPlayer({ mediaFile }) {
     <Box sx={{ width: '100%', overflow: 'hidden', position: 'relative', p: 3 }}>
       <Widget>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          {mediaFile?.image &&
+          {file?.image &&
             <CoverImage>
               <img
-                src={mediaFile.image}
+                src={file.image}
                 alt="Funeral - Adam Rodgers"
               />
             </CoverImage>

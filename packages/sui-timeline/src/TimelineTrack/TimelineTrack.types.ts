@@ -1,19 +1,21 @@
-import {IMediaFile, MediaFile } from '@stoked-ui/media-selector';
-import {type ITimelineAction, ITimelineFileAction} from '../TimelineAction/TimelineAction.types';
-import {IController} from "../Engine";
+import { IMediaFile } from '@stoked-ui/media-selector';
+import { type ITimelineAction, type ITimelineFileAction } from '../TimelineAction/TimelineAction.types';
+import { type IController } from "../Controller/Controller.types";
 
 /**
  *Basic parameters of action lines
  * @export
  * @interface ITimelineTrack
  */
-export interface ITimelineTrack {
+export interface ITimelineTrack<
+  ActionType extends ITimelineAction = ITimelineAction,
+> {
   /** Action track id */
   id: string;
 
   name: string;
   /** Row action list */
-  actions: ITimelineAction[];
+  actions: ActionType[];
   /** Extended class name of track */
   classNames?: string[];
   /** Whether the action is hidden */
@@ -21,7 +23,7 @@ export interface ITimelineTrack {
   /** Whether the action is hidden */
   lock?: boolean;
 
-  file: MediaFile;
+  file?: IMediaFile;
 
   image?: string;
 
@@ -42,22 +44,27 @@ export interface ITimelineFileTrack extends Omit<ITimelineTrack, 'id' | 'control
 
   image?: string;
 
-  file?: MediaFile;
+  file?: IMediaFile;
 
   controllerName?: string;
 
   controller?: IController;
 }
 
-export interface ITimelineTrackNew extends Omit<ITimelineTrack, 'id' | 'file'> {
+export interface ITimelineTrackNew<
+  ActionType extends ITimelineAction = ITimelineAction,
+>
+  extends Omit<ITimelineTrack<ActionType>, 'id' | 'file'> {
 
   id: 'newTrack';
 
   file: null;
 }
+/*
 
 export function FilesFromTracks(tracks: ITimelineTrack[] = []): IMediaFile[] {
   return tracks.map((track) => track.file);
 }
 
 export type TimelineTrackEx = ITimelineTrack | ITimelineTrackNew;
+*/

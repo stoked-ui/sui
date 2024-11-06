@@ -11,7 +11,7 @@ export const getVideoSchema = () => {
     description: yup.string().optional(),
     author: yup.string().optional(),
     created: yup.number().required(),
-    modified: yup.number().optional(),
+    lastModified: yup.number().optional(),
     backgroundColor: yup.string().optional(),
     width: yup.number().required(),
     height: yup.number().required(),
@@ -19,7 +19,7 @@ export const getVideoSchema = () => {
   return yup.object(schemaObj).required();
 }
 
-export function getVideoFormData(detail: DetailSelection, tracks: ITimelineTrack[]): ITimelineFileBase {
+export function getVideoFormData(detail: DetailSelection): ITimelineFileBase {
   const {video} = detail;
   if (!video || !video.id) {
     throw new Error('can not load detail view without a video id');

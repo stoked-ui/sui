@@ -35,10 +35,11 @@ export interface TimelineLabelsPropsBase extends React.HTMLAttributes<HTMLDivEle
    */
   sx?: SxProps<Theme>;
 
-  controllers: Record<string, IController>
+  controllers: Record<string, IController>;
+
   detailMode?: boolean;
 
-  onAddFiles?: (mediaFiles: MediaFile[]) => void;
+  onAddFiles?: () => void;
 
   hideLock?: boolean;
 
