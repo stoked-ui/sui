@@ -1,19 +1,21 @@
-import {Emitter, Engine,  ITimelineTrack, EngineOptions, EventTypes, EngineState } from '@stoked-ui/timeline';
+import {
+  Engine,
+  EngineOptions, IController,
+} from '@stoked-ui/timeline';
 import {EditorEvents, EditorEventTypes} from './events';
 import {
-  IEditorEngine, EditorEngineState, ViewMode, DrawData,
-
+  IEditorEngine,
+  EditorEngineState,
+  DrawData, IEditorTrack,
 } from "./EditorEngine.types";
-import {IEditorAction} from "../EditorAction/EditorAction";
-import {IEditorTrack} from "../EditorTrack/EditorTrack";
-
+import {type IEditorAction} from "../EditorAction/EditorAction";
+// import { type IEditorController } from "../Controllers";
 
 /**
- * Timeline player
  * Can be run independently of the editor
  * @export
- * @class Engine
- * @extends {Engine<EditorState, EditorEventTypes>}
+ * @class EditorEngine
+ * @extends {EditorEngine}
  */
 export default class EditorEngine<
   State extends string = EditorEngineState,
@@ -64,6 +66,10 @@ export default class EditorEngine<
     this._state = 'loading' as State;
   }
 
+  getActionTrack(actionId: string): IEditorTrack {
+    return this._actionTrackMap[actionId];
+  }
+
   get state() {
     return this._state as State;
   };
@@ -107,7 +113,7 @@ export default class EditorEngine<
     return this._stage;
   }
 
-  set tracks(tracks: ITimelineTrack[]) {
+  set tracks(tracks: IEditorTrack[]) {
     this._dealData(tracks);
     this._dealClear();
     this._dealEnter(this._currentTime);
@@ -122,10 +128,6 @@ export default class EditorEngine<
   get isRecording() {
     return this._state === 'recording' as State;
   }
-/*
-  displayVersion(screenerBlob: ScreenerBlob) {
-    ScreenVideoBlob(screenerBlob, this as any);
-  } */
 
   /**
    * Get the current time
@@ -167,140 +169,9 @@ export default class EditorEngine<
       this._prev = time;
       this._tick({now: time, autoEnd, to: toTime});
     });
-/*
-    // Get the video stream from the canvas renderer
-    const videoStream = this.renderer?.captureStream();
-
-    // Get the Howler audio stream
-    const audioContext = Howler.ctx;
-    const destination = audioContext.createMediaStreamDestination();
-    Howler.masterGain.connect(destination);
-    const audioStream = destination.stream;
-
-    // Get audio tracks from video elements
-    const videoElements = document.querySelectorAll('video');
-    const videoAudioStreams: MediaStreamTrack[] = [];
-    videoElements.forEach((video) => {
-      const videoElement = video as HTMLVideoElement & { captureStream?: () => MediaStream };
-
-      if (videoElement.captureStream) {
-        const videoStream = videoElement.captureStream();
-        videoStream.getAudioTracks().forEach((track) => {
-          videoAudioStreams.push(track);
-        });
-      }
-    });
-
-    // Combine Howler and video audio streams
-    const combinedAudioStream = new MediaStream([
-      ...audioStream.getAudioTracks(),
-      ...videoAudioStreams,
-    ]);
-
-    // Combine the video and audio streams
-    const combinedStream = new MediaStream([
-      ...videoStream.getVideoTracks(),
-      ...combinedAudioStream.getAudioTracks(),
-    ]);
-
-    // Create the MediaRecorder with the combined stream
-    this._recorder = new MediaRecorder(combinedStream, {
-      mimeType: 'video/mp4',
-    });
-    // setMediaRecorder(recorder);
-    // setRecordedChunks([]);
-    this._recorder.ondataavailable = (e) => {
-      if (e.data.size > 0) {
-        this._recordedChunks.push(e.data);
-        // setRecordedChunks([...recordedChunks]);
-      }
-    };
-
-    this._recorder.onstop = () => {
-      if (!this.screener || !this.renderer || !this.stage) {
-        console.warn("recording couldn't stop");
-        return;
-      }
-      this.pause();
-      this.finalizeRecording();
-    };
-
-    this._recorder.start(100); // Start recording
-
-     */
-    return true;
-  }
-   /**
-   * Run: The start time is the current time
-   * @param param
-   * @return {boolean} {boolean}
-   */
-  /*
-  play(param: {
-    // By default, it runs from beginning to end, with a priority greater than autoEnd
-    toTime?: number;
-    // Whether to automatically end after playing
-    autoEnd?: boolean;
-  }): boolean {
-    const { toTime, autoEnd } = param;
-
-    const currentTime = this.getTime();
-    // The current state is being played or the running end time is less than the start time,  return directly
-
-    if (this.isPlaying || (toTime && toTime <= currentTime)) {
-      return false;
-    }
-
-    // Set running status
-    this._state = 'playing' as State;
-
-    // activeIds run start
-    this._startOrStop('start');
-
-    // trigger event
-    this.trigger('play' as keyof EmitterEvents, { engine: this as IEngine } as EmitterEvents[keyof EmitterEvents]);
-    if (this.viewMode === 'Screener') {
-      this.screener.play()
-      .then(() => {
-        this._timerId = requestAnimationFrame((time: number) => {
-
-          this._prev = time;
-          this._tick({now: time, autoEnd, to: toTime});
-        });
-      })
-    } else {
-      this._timerId = requestAnimationFrame((time: number) => {
-        this._prev = time;
-        this._tick({now: time, autoEnd, to: toTime});
-      });
-    }
 
     return true;
   }
-
-  */
-  /**
-   * Pause playback
-   * @memberof Engine
-   */
-  /*
-  pause() {
-    if (this.isPlaying) {
-      const previousState = this._state;
-      this._state = 'paused' as State;
-
-      if (this._viewMode === 'Screener') {
-        this._screener.pause();
-        return;
-      }
-
-      // activeIds run stop
-      this._startOrStop('stop');
-
-      this.trigger('paused' as keyof EmitterEvents, { engine: this as IEngine, previousState } as EmitterEvents[keyof EmitterEvents]);
-    }
-    cancelAnimationFrame(this._timerId);
-  } */
 
   get renderer(): HTMLCanvasElement | null {
     return this._renderer;
@@ -324,30 +195,6 @@ export default class EditorEngine<
   get renderCtx() {
     return this._renderCtx;
   }
-/*
-  get rendererDetail() {
-    return this._rendererDetail;
-  }
-
-  set rendererDetail(canvas: HTMLCanvasElement) {
-    this._rendererDetail = canvas;
-    if (canvas) {
-      canvas.width = this.renderWidth;
-      canvas.height = this.renderHeight;
-      const ctx = canvas.getContext('2d', { alpha: true, willReadFrequently: true });
-
-      if (!ctx) {
-        throw new Error('Could not get 2d context from renderer');
-      }
-      this._renderDetailCtx = ctx;
-      this._renderDetailCtx.clearRect(0, 0, this.renderWidth, this.renderHeight);
-    }
-  }
-
-  get renderDetailCtx() {
-    return this._renderDetailCtx;
-  }
- */
 
   setRenderView(width: number, height: number) {
     this._renderWidth = width;
@@ -419,6 +266,7 @@ export default class EditorEngine<
 
     return parseValue(coord, coordContext, sceneContext);
   }
+
   /**
    * Set playback time
    * @param {number} time
@@ -478,22 +326,4 @@ export default class EditorEngine<
     }
   }
 }
-/*
-
- loadedActions.forEach((loadedAction) => {
- if (!loadedAction) {
- throw new Error(`Action not preloaded`);
- }
- if (loadedAction.x) {
- loadedAction.x = Engine.parseCoord(loadedAction.x, loadedAction.width, engine.renderWidth);
- } else {
- loadedAction.x = 0;
- }
- if (loadedAction.y) {
- loadedAction.y = Engine.parseCoord(loadedAction.y, loadedAction.height, engine.renderHeight);
- } else {
- loadedAction.y = 0;
- }
- })
- */
 

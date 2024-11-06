@@ -4,7 +4,11 @@ import type { IController } from '../Controller/Controller.types';
 import type {ITimelineAction} from "../TimelineAction/TimelineAction.types";
 import {type ITimelineTrack} from "../TimelineTrack/TimelineTrack.types";
 
-export interface TimelineControlPropsBase {
+export interface TimelineControlPropsBase<
+  ControllerType extends IController = IController,
+  TrackType extends ITimelineTrack = ITimelineTrack,
+  ActionType extends ITimelineAction = ITimelineAction,
+> {
   /**
    * @description Single tick mark category (>0)
    * @default 1
@@ -61,44 +65,40 @@ export interface TimelineControlPropsBase {
    */
   disableDrag?: boolean;
   /**
-   * @description Custom action area rendering
-   */
-  getActionRender?: (action: ITimelineAction, track: ITimelineTrack) => React.ReactNode;
-  /**
    * @description Custom scale rendering
    */
   getScaleRender?: (scale: number) => React.ReactNode;
   /**
    * @description Start moving callback
    */
-  onActionMoveStart?: (params: { action: ITimelineAction; track: ITimelineTrack }) => void;
+  onActionMoveStart?: (params: { action: ActionType; track: TrackType }) => void;
   /**
    * @description Move callback (return false to prevent movement)
    */
-  onActionMoving?: (params: { action: ITimelineAction; track: ITimelineTrack; start: number; end: number }) => void | boolean;
+  onActionMoving?: (params: { action: ActionType; track: TrackType; start: number; end: number }) => void | boolean;
   /**
    * @description Move end callback (return false to prevent onChange from triggering)
    */
-  onActionMoveEnd?: (params: { action: ITimelineAction; track: ITimelineTrack; start: number; end: number }) => void;
+  onActionMoveEnd?: (params: { action: ActionType; track: TrackType; start: number; end: number }) => void;
   /**
    * @description Start changing the size callback
    */
-  onActionResizeStart?: (params: { action: ITimelineAction; track: ITimelineTrack; dir: 'right' | 'left' }) => void;
+  onActionResizeStart?: (params: { action: ActionType; track: TrackType; dir: 'right' | 'left' }) => void;
   /**
    * @description Start size callback (return false to prevent changes)
    */
-  onActionResizing?: (params: { action: ITimelineAction; track: ITimelineTrack; start: number; end: number; dir: 'right' | 'left' }) => void | boolean;
+  onActionResizing?: (params: { action: ActionType; track: TrackType; start: number; end: number; dir: 'right' | 'left' }) => void | boolean;
   /**
    * @description size change end callback (return false to prevent onChange from triggering)
    */
-  onActionResizeEnd?: (params: { action: ITimelineAction; track: ITimelineTrack; start: number; end: number; dir: 'right' | 'left' }) => void;
+  onActionResizeEnd?: (params: { action: ActionType; track: TrackType; start: number; end: number; dir: 'right' | 'left' }) => void;
   /**
    * @description Click track callback
    */
   onClickTrack?: (
     e: React.MouseEvent<HTMLElement, MouseEvent>,
     param: {
-      track: ITimelineTrack;
+      track: TrackType;
       time: number;
     },
   ) => void;
@@ -108,8 +108,8 @@ export interface TimelineControlPropsBase {
   onClickAction?: (
     e: React.MouseEvent<HTMLElement, MouseEvent>,
     param: {
-      action: ITimelineAction;
-      track: ITimelineTrack;
+      action: ActionType;
+      track: TrackType;
       time: number;
     },
   ) => void;
@@ -119,8 +119,8 @@ export interface TimelineControlPropsBase {
   onClickActionOnly?: (
     e: React.MouseEvent<HTMLElement, MouseEvent>,
     param: {
-      action: ITimelineAction;
-      track: ITimelineTrack;
+      action: ActionType;
+      track: TrackType;
       time: number;
     },
   ) => void;
@@ -130,7 +130,7 @@ export interface TimelineControlPropsBase {
   onDoubleClickRow?: (
     e: React.MouseEvent<HTMLElement, MouseEvent>,
     param: {
-      track: ITimelineTrack;
+      track: TrackType;
       time: number;
     },
   ) => void;
@@ -140,8 +140,8 @@ export interface TimelineControlPropsBase {
   onDoubleClickAction?: (
     e: React.MouseEvent<HTMLElement, MouseEvent>,
     param: {
-      action: ITimelineAction;
-      track: ITimelineTrack;
+      action: ActionType;
+      track: TrackType;
       time: number;
     },
   ) => void;
@@ -151,7 +151,7 @@ export interface TimelineControlPropsBase {
   onContextMenuTrack?: (
     e: React.MouseEvent<HTMLElement, MouseEvent>,
     param: {
-      track: ITimelineTrack;
+      track: TrackType;
       time: number;
     },
   ) => void;
@@ -161,8 +161,8 @@ export interface TimelineControlPropsBase {
   onContextMenuAction?: (
     e: React.MouseEvent<HTMLElement, MouseEvent>,
     param: {
-      action: ITimelineAction;
-      track: ITimelineTrack;
+      action: ActionType;
+      track: TrackType;
       time: number;
     },
   ) => void;
@@ -170,7 +170,7 @@ export interface TimelineControlPropsBase {
    * @description Get the action id list to prompt the auxiliary line. Calculate it when
    *   move/resize start. By default, get all the action ids except the current move action.
    */
-  getAssistDragLineActionIds?: (params: { action: ITimelineAction; tracks: ITimelineTrack[]; track: ITimelineTrack }) => string[];
+  getAssistDragLineActionIds?: (params: { action: ActionType; tracks: TrackType[]; track: TrackType }) => string[];
   /**
    * @description cursor starts drag event
    */
@@ -193,5 +193,4 @@ export interface TimelineControlPropsBase {
   trackSx?: SxProps<Theme>;
 
   viewSelector?: string;
-
 }

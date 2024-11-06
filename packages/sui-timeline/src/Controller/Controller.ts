@@ -1,4 +1,4 @@
-import {IController } from "./Controller.types";
+import {type IController } from "./Controller.types";
 import {ControllerParams} from './ControllerParams';
 
 abstract class Controller implements IController {

@@ -1,4 +1,4 @@
-import type { IEngine, EngineState } from "./Engine.types";
+import type { EngineState, IEngine } from "./Engine.types";
 
 export class Events {
   handlers = {};
@@ -63,7 +63,7 @@ export interface EventTypes {
    * @type {{ engine: IEngine }}
    * @memberofEventTypes
    */
-  paused: { engine: IEngine, previousState: EngineState };
+  paused: { engine: IEngine, previousState: string | EngineState };
   /**
    * End of operation
    * @type {{ engine: IEngine }}

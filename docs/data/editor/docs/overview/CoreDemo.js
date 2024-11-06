@@ -1,5 +1,5 @@
 import * as React from 'react';
-import Editor from '@stoked-ui/editor';
+import Editor, {EditorProvider} from '@stoked-ui/editor';
 import { TimelineFile } from '@stoked-ui/timeline';
 import { cloneDeep } from 'lodash';
 
@@ -14,7 +14,7 @@ export const actions = [
     end: 16,
     controllerName: 'animation',
     data: {
-      src: '/static/timeline/docs/overview/lottie1.json',
+      src: '/static/timeline/docs/overview/writing.lottie',
     },
   },
   {
@@ -23,7 +23,7 @@ export const actions = [
     end: 9.5,
     controllerName: 'animation',
     data: {
-      src: '/static/timeline/docs/overview/lottie2.json',
+      src: '/static/timeline/docs/overview/writing.lottie',
     },
   },
   {
@@ -32,7 +32,7 @@ export const actions = [
     end: 5,
     controllerName: 'animation',
     data: {
-      src: '/static/timeline/docs/overview/lottie3.json',
+      src: '/static/timeline/docs/overview/writing.lottie',
     },
   },
   {

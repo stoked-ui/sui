@@ -13,6 +13,8 @@ import TimelineTrackArea, { TimelineTrackAreaState } from '../TimelineTrackArea/
 import TimelineTime from '../TimelineTime/TimelineTime';
 import TimelineScrollResizer from '../TimelineScrollResizer/TimelineScrollResizer';
 import {useTimeline} from "../TimelineProvider";
+import { IController } from "../Controller";
+import { ITimelineAction } from "../TimelineAction";
 
 const TimelineControlRoot = styled('div')(({ theme }) => ({
   width: '100%',
@@ -28,17 +30,13 @@ const TimelineControlRoot = styled('div')(({ theme }) => ({
 
 function getInitialScaleData(startLeft: number, duration: number, minScaleCount: number, timelineAreaWidth: number) {
   const scaleWidth = (timelineAreaWidth - startLeft) / duration;
-  console.log('scaleWidth', scaleWidth, 'duration', duration, 'timelineAreaWidth', timelineAreaWidth, '(timelineAreaWidth - startLeft) / minScaleCount', (timelineAreaWidth - startLeft) / duration);
+  console.info('scaleWidth', scaleWidth, 'duration', duration, 'timelineAreaWidth', timelineAreaWidth, '(timelineAreaWidth - startLeft) / minScaleCount', (timelineAreaWidth - startLeft) / duration);
 
   if (scaleWidth < 40) {
     const multiplier = Math.ceil(40 / scaleWidth);
     return { scaleWidth: multiplier * scaleWidth, scale: multiplier };
   }
   return { scaleWidth, scale: 1 };
-}
-
-function getInitialScaleWidth(startLeft: number, duration: number, timelineAreaWidth: number) {
-  return (timelineAreaWidth - startLeft) / duration;
 }
 
 const TimelineControl = React.forwardRef(
@@ -303,7 +301,7 @@ const TimelineControl = React.forwardRef(
       };
     }, []);
 
-    console.log('maxScaleCount', maxScaleCount, 'scaleCount', scaleCount, 'minScaleCount', minScaleCount, 'scaleWidth', scaleWidth, 'scale', scale);
+    console.info('maxScaleCount', maxScaleCount, 'scaleCount', scaleCount, 'minScaleCount', minScaleCount, 'scaleWidth', scaleWidth, 'scale', scale);
     return (
       <TimelineControlRoot
         style={style}
@@ -370,7 +368,6 @@ const TimelineControl = React.forwardRef(
           element={gridRef}
           type='horizontal'
           adjustScale={(value) => {
-             console.log('adjustScale',  value)
             const { scaleWidth: newScaleWidth, scale: newScale } = getInitialScaleData(startLeft, duration, minScaleCount, gridRef.current.clientWidth - value);
             setScale(newScale);
             setScaleWidth(newScaleWidth);
@@ -451,9 +448,6 @@ TimelineControl.propTypes = {
    * Whether it is playing
    */
   isPlaying: PropTypes.bool,
-  /**
-   * Run the listener
-   */
   listener: PropTypes.shape({
     bind: PropTypes.func,
     events: PropTypes.object,
@@ -506,13 +500,13 @@ TimelineControl.propTypes = {
    */
   onClickActionOnly: PropTypes.func,
   /**
-   * @description Click track callback
-   */
-  onClickTrack: PropTypes.func,
-  /**
    * @description Click time area event, prevent setting time when returning false
    */
   onClickTimeArea: PropTypes.func,
+  /**
+   * @description Click track callback
+   */
+  onClickTrack: PropTypes.func,
   /**
    * @description Right-click action callback
    */

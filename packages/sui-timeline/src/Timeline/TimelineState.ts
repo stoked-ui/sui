@@ -1,13 +1,12 @@
-import {ITimelineTrack} from "../TimelineTrack";
-import { IEngine } from "../Engine/Engine.types";
+import { type EngineState, IEngine } from "../Engine/Engine.types";
 import {EventTypes} from "../Engine/events";
 import {Emitter} from "../Engine";
 
-export interface TimelineState {
+export interface TimelineState<EmitterEvents extends EventTypes = EventTypes,> {
   /** dom node */
   target: HTMLElement;
   /** Run the listener */
-  listener: Emitter<EventTypes>;
+  listener: Emitter<EmitterEvents>;
   /** attached engine */
   engine: IEngine;
   /** Whether it is playing */

@@ -1,22 +1,20 @@
-import { Engine, EngineState } from '@stoked-ui/timeline';
-import {EditorEventTypes} from "./events";
+import {
+  Engine,
+  EngineState,
+  ITimelineTrack,
+} from '@stoked-ui/timeline';
+import { type EditorEventTypes} from "./events";
+import type { IEditorAction } from "../EditorAction/EditorAction";
 
-export type ViewMode = 'Renderer' | 'Screener' | 'Edit';
+export interface IEditorTrack<
+  ActionType extends IEditorAction = IEditorAction,
+>  extends ITimelineTrack<ActionType> {}
 
-export interface DrawData {
-  source:  HTMLImageElement | SVGImageElement | HTMLVideoElement | HTMLCanvasElement | ImageBitmap | OffscreenCanvas | VideoFrame,
-  sx: number,
-  sy: number,
-  sWidth: number,
-  sHeight: number,
-  dx?: number,
-  dy?: number,
-  dWidth?: number,
-  dHeight?: number
-}
-
-//interface IEngine<EmitterEvents extends EventTypes = EventTypes> extends Emitter<EmitterEvents> {
-export interface IEditorEngine<State extends string = EditorEngineState, EmitterEvents extends EditorEventTypes = EditorEventTypes>  extends Engine<State, EmitterEvents> {
+export interface IEditorEngine<
+  State extends string = EditorEngineState,
+  EmitterEvents extends EditorEventTypes = EditorEventTypes
+>
+  extends Engine<State, EmitterEvents> {
 
   readonly isRecording: boolean;
   viewer: HTMLElement | null;
@@ -37,3 +35,19 @@ export interface IEditorEngine<State extends string = EditorEngineState, Emitter
 }
 
 export type EditorEngineState = EngineState | 'recording';
+
+export interface DrawData {
+  source:  HTMLImageElement | SVGImageElement | HTMLVideoElement | HTMLCanvasElement | ImageBitmap | OffscreenCanvas | VideoFrame,
+  sx: number,
+  sy: number,
+  sWidth: number,
+  sHeight: number,
+  dx?: number,
+  dy?: number,
+  dWidth?: number,
+  dHeight?: number
+}
+
+export type ViewMode = 'Renderer' | 'Screener' | 'Edit';
+
+

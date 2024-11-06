@@ -2,20 +2,20 @@ import * as React from 'react';
 import {MediaFile} from '@stoked-ui/media-selector';
 import composeClasses from "@mui/utils/composeClasses";
 import {useSlotProps} from '@mui/base/utils';
-import {emphasize, styled, Theme, useThemeProps} from '@mui/material/styles';
+import {Box, Stack, Tooltip} from "@mui/material";
+import Slider from "@mui/material/Slider";
+import ToggleButton from "@mui/material/ToggleButton";
+import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
+import {styled, Theme, useThemeProps} from '@mui/material/styles';
 import {type TimelineLabelsProps} from './TimelineLabels.types';
 import {getTimelineLabelsUtilityClass} from "./timelineLabelsClasses";
 import {useTimeline} from "../TimelineProvider";
-import {Box, Stack, Tooltip} from "@mui/material";
-import Slider from "@mui/material/Slider";
 import {ITimelineTrack} from "../TimelineTrack";
 import {TimelineFile} from "../TimelineFile";
 import TimelineTrackIcon from '../icons/TimelineTrackIcon';
 import TimelineLabel from "./TimelineLabel";
 import EdgeSnap from "../icons/EdgeSnap";
-import FeatureSnap from "../icons/FeatureSnap";
-import ToggleButton from "@mui/material/ToggleButton";
-import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
+import GridSnap from "../icons/GridSnap";
 import {ToggleButtonGroupSx} from "../Timeline/Timeline.types";
 
 const useUtilityClasses = (
@@ -35,87 +35,44 @@ const TimelineLabelsRoot = styled('div', {
   name: 'MuiTimelineLabels',
   slot: 'root',
   overridesResolver: (props, styles) => styles.icon,
-})(({ theme }) => ({
+})(() => ({
 
   width: '150px',
   height: '258px',
   flex: '0 1 auto',
   overflow: 'overlay',
 }));
-
-const ToolbarGroup  = styled(ToggleButtonGroup, {
-  name: 'MuiEditorLabels',
-  slot: 'toolbar',
-  overridesResolver: (props, styles) => styles.icon,
-})(({ theme }) => ({
-  background: 'unset!important',
-  backgroundColor: 'unset!important',
-  border: 'unset!important',
-  '&:hover': {
-    background: 'unset!important',
-    backgroundColor: 'unset!important',
-    border: 'unset!important',
-    '& svg': {
-      strokeWidth: '20px',
-      '&:hover': {
-        strokeWidth: '40px'
-      }
-    }
-  },
-  '& button': {
-    background: 'unset!important',
-    backgroundColor: 'unset!important',
-    border: 'unset!important',
-    '&:hover': {
-      background: 'unset!important',
-      backgroundColor: 'unset!important',
-      border: 'unset!important',
-    }
-  }
-}))
-
 const ToolbarToggle = styled(ToggleButton)(() => ({
   background: 'unset',
   backgroundColor: 'unset',
 }))
 
 export function Toolbar() {
-  const { dispatch } = useTimeline();
-  const selectedColor = (theme: Theme) => theme.palette.mode === 'light' ? '#FFF' : '#000';
-  const sxButton = (theme: Theme) => {
-    return {
-      borderRadius: '0px!important',
-      // border: `2px solid ${selectedColor(theme)}!important`,
-      padding: '5px 6px',
-      '& svg': {
-        width: '28px',
-        height: '28px'
-      },
-    }
-  };
+  const { dispatch, snapOptions } = useTimeline();
 
   const handleSnapOptions = (
     event: React.MouseEvent<HTMLElement>,
-    snapOptions: string[],
+    newOptions: string[],
   ) => {
-    dispatch({ type: 'SET_SNAP_OPTIONS', payload: snapOptions })
+    console.info('newOptions', newOptions)
+    dispatch({ type: 'SET_SNAP_OPTIONS', payload: newOptions })
   };
-
+  console.info('snapOptions', snapOptions)
   return <ToggleButtonGroup
-    exclusive
     onChange={handleSnapOptions}
+    value={snapOptions}
     size={'small'}
     aria-label="text alignment"
     sx={(theme) => ToggleButtonGroupSx(theme, 40, 32)}
   >
-    <Tooltip title={"Snap to Edge"}>
+    <Tooltip title={"Edge Snap"}>
       <ToggleButton value="edgeSnap" aria-label="edge snap">
         <EdgeSnap/>
       </ToggleButton>
     </Tooltip>
-    <Tooltip title={"Snap to Feature"}>
+    <Tooltip title={"Grid Snap"}>
       <ToolbarToggle value="featureSnap" aria-label="feature snap">
-        <FeatureSnap />
+        <GridSnap />
       </ToolbarToggle>
     </Tooltip>
   </ToggleButtonGroup>
@@ -135,9 +92,9 @@ const TimelineLabels = React.forwardRef(
   function TimelineLabels(inProps: TimelineLabelsProps, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
     const { engine, file, dispatch, rowHeight } = useTimeline();
 
-    const { slotProps, slots, sx, hideLock = false, width } = inProps;
-    const finalWidth = width ? width : '250px';
-    const { } = useThemeProps({ props: inProps, name: 'MuiEditorLabels' });
+    const { slotProps, slots, sx, width } = inProps;
+    const finalWidth = width || '250px';
+    // const themeProps = useThemeProps({ props: inProps, name: 'MuiTimelineLabels' });
 
     const classes = useUtilityClasses(inProps);
     const Root = slots?.root ?? TimelineLabelsRoot;
@@ -149,23 +106,15 @@ const TimelineLabels = React.forwardRef(
       ownerState: inProps,
     });
 
-    const newTrackClick = () => {
-      const input = document.createElement('input') as HTMLInputElement;
-      input.type = 'file';
-      input.onchange =  async (ev) => {
-        const files =  await MediaFile.from(ev)
-        dispatch({ type: 'CREATE_TRACKS', payload: files });
-      }
-      input.click();
-    }
-
     const handleItemClick = (t: ITimelineTrack, event: React.MouseEvent<HTMLElement>) => {
       if (t.id === 'newTrack') {
-        newTrackClick();
+        inProps.onAddFiles();
         return;
       }
-      dispatch({type: 'SELECT_TRACK', payload: t});
-      dispatch({type: 'DETAIL', payload: event.currentTarget});
+
+      dispatch({type: 'SELECT_TRACK', payload: t})
+      dispatch({type: 'SET_POPOVER', payload: { open: true, name: 'detail' }});
+
     };
 
     return (

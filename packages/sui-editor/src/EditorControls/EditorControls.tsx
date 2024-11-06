@@ -11,13 +11,14 @@ import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
 import Select, {SelectChangeEvent} from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import ToggleButton from "@mui/material/ToggleButton";
+import IconButton from "@mui/material/IconButton";
+import Box from "@mui/material/Box";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import {alpha, emphasize, Theme} from '@mui/material/styles';
 import { Slider, Stack, Tooltip } from "@mui/material";
 import { namedId } from '@stoked-ui/media-selector';
 import { OutputBlob, Version, ToggleButtonGroupSx } from '@stoked-ui/timeline';
-import { useEditorContext } from '../EditorProvider'
-import EditorEngine from '../EditorEngine/EditorEngine';
+import { useEditorContext } from '../EditorProvider';
 import {
   EditorEngineState,
   IEditorEngine,
@@ -26,8 +27,6 @@ import {createUseThemeProps, styled} from '../internals/zero-styled';
 import {ControlState, EditorControlsProps, VideoVersionFromKey} from './EditorControls.types';
 import TimelineView from '../icons/TimelineView';
 import {EditorEventTypes} from "../EditorEngine";
-import IconButton from "@mui/material/IconButton";
-import Box from "@mui/material/Box";
 
 export const Rates = [-3, -2.5, -2.0, -1.5, -1.0, -0.5, -0.2, 0.2, 0.5, 1.0, 1.5, 2.0, 2.5, 3];
 const useThemeProps = createUseThemeProps('MuiEditor');
@@ -295,8 +294,8 @@ function Controls(inProps: ControlProps) {
       videoElements.forEach((video) => {
         const videoElement = video as HTMLVideoElement & { captureStream?: () => MediaStream };
         if (videoElement.captureStream) {
-          const videoStream = videoElement.captureStream();
-          videoStream.getAudioTracks().forEach((track) => {
+          const vidStream = videoElement.captureStream();
+          vidStream.getAudioTracks().forEach((track) => {
             videoAudioStreams.push(track);
           });
         }
@@ -576,10 +575,9 @@ function Volume({ disabled }) {
  * - [EditorControls API](https://stoked-ui.github.io/editor/api/)
  */
 export const EditorControls = React.forwardRef(
-  function EditorControls(inProps : EditorControlsProps, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
+  function EditorControls(inProps: EditorControlsProps, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
     const [controlState, setControlState] = React.useState<ControlState>('paused');
-    const { engine: engineInput, file } = useEditorContext();
-    const engine: IEditorEngine<EditorEngineState, EditorEventTypes> = engineInput as IEditorEngine<EditorEngineState, EditorEventTypes>;
+    const { engine, file } = useEditorContext();
     const props = useThemeProps({ props: inProps, name: 'MuiEditorControls' });
     const { timeline, switchView = true, disabled } = inProps;
     const { view = timeline ? 'timeline' : 'files', setView, versions, setVersions, currentVersion, setCurrentVersion } = props;

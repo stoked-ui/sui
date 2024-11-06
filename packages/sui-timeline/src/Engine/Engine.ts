@@ -1,5 +1,5 @@
 import BTree from "sorted-btree";
-import {type ITimelineAction, ITimelineFileAction} from '../TimelineAction/TimelineAction.types'
+import {type ITimelineAction } from '../TimelineAction/TimelineAction.types'
 import {type IController} from '../Controller/Controller.types';
 import {
   type IEngine,
@@ -20,8 +20,10 @@ import {Emitter} from './emitter';
  */
 export default class Engine<
   State extends string = EngineState,
-  EmitterEvents extends EventTypes = EventTypes
-> extends Emitter<EmitterEvents> implements IEngine<EmitterEvents> {
+  EmitterEvents extends EventTypes = EventTypes,
+  ActionType extends ITimelineAction = ITimelineAction,
+  TrackType extends ITimelineTrack = ITimelineTrack
+  > extends Emitter<EmitterEvents> implements IEngine<EmitterEvents> {
 
   protected _logging: boolean = false;
 
@@ -41,8 +43,6 @@ export default class Engine<
   /** Playback status */
   _state: State;
 
-
-
   /** Time frame pre data */
   protected _prev: number = 0;
 
@@ -50,9 +50,9 @@ export default class Engine<
   protected _controllers: Record<string, IController> = {};
 
   /** Action map that needs to be run */
-  protected _actionMap: Record<string, ITimelineAction> = {};
+  protected _actionMap: Record<string, ActionType> = {};
 
-  protected _actionTrackMap: Record<string, ITimelineTrack> = {};
+  protected _actionTrackMap: Record<string, TrackType> = {};
 
   /** Action ID array sorted in positive order by action start time */
   protected _actionSortIds: string[] = [];
@@ -102,7 +102,7 @@ export default class Engine<
     return this._actionMap;
   }
 
-  get action(): ITimelineAction | undefined {
+  get action(): ActionType | undefined {
     const vals = Object.values(this._actionMap)
     if (vals.length) {
       return vals[0];
@@ -134,7 +134,7 @@ export default class Engine<
   }
 
   getSelectedActions() {
-    const actionTracks: {action: ITimelineAction, track: ITimelineTrack}[] = [];
+    const actionTracks: {action: ActionType, track: TrackType}[] = [];
     // eslint-disable-next-line no-restricted-syntax
     for (const [key, ] of this._activeIds.entries()) {
       const action = this._actionMap[key];
@@ -168,7 +168,7 @@ export default class Engine<
     this.logging = this._logging;
   }
 
-  setTracks(tracks: ITimelineTrack[]) {
+  setTracks(tracks: TrackType[]) {
     console.info('tracks', tracks);
     this._dealData(tracks);
     this._dealClear();
@@ -495,18 +495,18 @@ export default class Engine<
   }
 
   /** Data processing */
-  protected _dealData(tracks: ITimelineTrack[]) {
-    const actions: ITimelineAction[] = [];
+  protected _dealData(tracks: TrackType[]) {
+    const actions: ActionType[] = [];
     tracks?.forEach((track) => {
       if (track) {
-        actions.push(...track.actions);
+        actions.push(...track.actions as ActionType[]);
         track.actions.forEach((action) => {
           this._actionTrackMap[action.id] = track;
         })
       }
     });
     const sortActions = actions.sort((a, b) => a.start - b.start);
-    const actionMap: Record<string, ITimelineAction> = {};
+    const actionMap: Record<string, ActionType> = {};
     const actionSortIds: string[] = [];
 
     sortActions.forEach((action) => {
