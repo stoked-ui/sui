@@ -1,11 +1,9 @@
 import {Breadcrumbs, Link, styled, Typography} from "@mui/material";
 import * as React from "react";
-import DetailTrackActions from "./DetailTrackActions";
-import {useController} from "react-hook-form";
 import DetailTracks from "./DetailTracks";
+import { useEditorContext } from "../EditorProvider";
 
 const Root = styled(Breadcrumbs, {
-
 })(({ theme }) => ({
   '& p.MuiFormHelperText-root.MuiFormHelperText-sizeSmall.MuiFormHelperText-contained': {
     display: 'none'
@@ -14,31 +12,41 @@ const Root = styled(Breadcrumbs, {
     padding: 0
   }
 }))
-export default function DetailBreadcrumbs({ formData, detail, setDetail, control, onClickEdit  }) {
+export default function DetailBreadcrumbs({ formInfo, control, onClickEdit  }) {
   const sxSelectedLabel = (theme) => ({ color: theme.palette.background.paper, backgroundColor: theme.palette.text.primary, padding: '0 10px', borderRadius: '6px' });
+  const { file, dispatch } = useEditorContext();
+  const { detail, data } = formInfo;
   return <Root aria-label="breadcrumb">
     <Typography sx={{ color: 'text.primary' }}>Video</Typography>
     { detail.track ?
-      <Link component={'button'} underline="hover" color="inherit" onClick={()=> {
-        setDetail({
-          video: detail.video,
-          track: undefined,
-          action: undefined
-        }) }}
+      <Link
+        component={'button'}
+        underline="hover"
+        color="inherit"
+        onClick={()=> {
+            dispatch({ type: 'SELECT_VIDEO' })
+        }}
       >
+
         {detail.video.name}
       </Link> :
       <Typography sx={sxSelectedLabel}>{detail.video.name}</Typography>
     }
     <Typography sx={{ color: 'text.primary' }}>Tracks</Typography>
-    {!detail.track && <DetailTracks setDetail={setDetail} detail={detail} tracks={formData.tracks} editMode={true} onClickEdit={onClickEdit} size={'small'} sx={{background: 'transparent'}}/>}
+    {!detail.track &&
+      <DetailTracks
+        detail={detail}
+        tracks={file?.tracks}
+        editMode
+        onClickEdit={onClickEdit}
+        size={'small'}
+        sx={{background: 'transparent'}}
+      />}
     {(detail.track && detail.action) &&
-     <Link component={'button'} underline="hover" color="inherit" onClick={() => {
-       setDetail({
-         ...detail,
-         track: detail.track,
-         action: undefined
-       }) }} >
+     <Link component={'button'} underline="hover" color="inherit"  onClick={()=> {
+       dispatch({ type: 'SELECT_TRACK', payload: detail.track })
+     }}
+     >
        {detail.track!.name}
      </Link>
     }

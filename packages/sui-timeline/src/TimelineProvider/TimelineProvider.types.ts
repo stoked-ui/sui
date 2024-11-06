@@ -1,85 +1,106 @@
 import * as React from 'react';
 import { IMediaFile, namedId } from '@stoked-ui/media-selector';
-import {isMobile} from 'react-device-detect';
-import {Controllers} from '../Controller/AudioController';
-import {IController} from "../Controller";
-import {TimelineFile, ITimelineFile} from "../TimelineFile";
-import {EngineState, IEngine} from "../Engine";
-import {ITimelineTrack} from "../TimelineTrack";
+import { isMobile } from 'react-device-detect';
+import { Controllers } from '../Controller/AudioController';
+import { IController } from "../Controller";
+import { ITimelineFile } from "../TimelineFile";
+import { EngineState, IEngine } from "../Engine";
+import { type ITimelineTrack } from "../TimelineTrack";
+import { DEFAULT_MOBILE_ROW_HEIGHT, DEFAULT_TRACK_HEIGHT } from "../interface/const";
 import {
-  BackgroundImageStyle,
-  initTimelineAction,
+  BackgroundImageStyle, initTimelineAction,
   ITimelineAction,
   ITimelineFileAction
-} from "../TimelineAction";
-import {DEFAULT_MOBILE_ROW_HEIGHT, DEFAULT_TRACK_HEIGHT} from "../interface/const";
+} from "../TimelineAction/TimelineAction.types";
 
-export interface ITimelineState {
-  engine: IEngine,
-  file: ITimelineFile | null,
+export interface ITimelineState<
+  EngineType extends IEngine = IEngine,
+  State extends string | EngineState = string | EngineState,
+  FileType extends ITimelineFile = ITimelineFile,
+  ActionType extends ITimelineAction = ITimelineAction,
+  TrackType extends ITimelineTrack = ITimelineTrack,
+> {
+  engine: EngineType,
+  file: FileType | null,
   id: string,
-  selectedAction: ITimelineAction | null;
-  selectedTrack: ITimelineTrack | null;
-  detailAnchor: HTMLElement | null;
+  selectedAction: ActionType | null;
+  selectedTrack: TrackType | null;
+  popovers: Record<string, boolean>;
   snapOptions: string[];
   isMobile: boolean;
   versions: IMediaFile[];
-
-  getState: () => string | EngineState;
-  setState: (newState: string | EngineState) => void;
-
+  getState: () => string | State;
+  setState: (newState: string | State) => void;
   rowHeight: number;
 }
 
-export const onAddFiles = (state: ITimelineState, newMediaFiles: IMediaFile[]) => {
+export const onAddFiles = <
+  EngineType extends IEngine = IEngine,
+  State extends string | EngineState = string | EngineState,
+  FileType extends ITimelineFile = ITimelineFile,
+  ControllerType extends IController = IController,
+  ActionType extends ITimelineAction = ITimelineAction,
+  TrackType extends ITimelineTrack = ITimelineTrack,
+>(state: ITimelineState<EngineType, State, FileType, ActionType, TrackType>, newMediaFiles: IMediaFile[]) => {
   const { engine, file } = state;
 
-  if (!file) return state;
+  if (!file) {
+    return state;
+  }
 
   const { tracks } = file;
-  newMediaFiles = newMediaFiles.filter((file) => engine.controllers[file.mediaType])
-  const newTracks: ITimelineTrack[] = newMediaFiles.map((file, index) => {
+  newMediaFiles = newMediaFiles.filter((mediaFile) => engine.controllers[mediaFile.mediaType])
+  const newTracks = newMediaFiles.map((mediaFile) => {
     return {
       id: namedId('track'),
-      name: file.name,
-      file: file,
-      src: file._url,
-      controller: Controllers[file.mediaType],
+      name: mediaFile.name,
+      file: mediaFile,
+      controller: Controllers[mediaFile.mediaType] as ControllerType,
       actions: [{
         id: namedId('action'),
         name: file.name,
         start: engine.getTime() || 0,
         end: (engine.getTime() || 0) + 2,
         volumeIndex: -2,
-      }],
-      controllerName: file.mediaType,
+      }] as ActionType[],
+      controllerName: mediaFile.mediaType,
     } as ITimelineTrack;
-  });
+  })
   state.file.tracks = tracks.concat(newTracks);
   return {...state};
 }
 
-export type TimelineStateAction = {
+type SelectActionPayload<
+  ActionType extends ITimelineAction,
+  TrackType extends ITimelineTrack,
+> = {
+  action: ActionType | null,
+  track: TrackType
+};
+
+export type TimelineStateAction<
+  FileType extends ITimelineFile = ITimelineFile,
+  FileActionType extends ITimelineFileAction = ITimelineFileAction,
+  ActionType extends ITimelineAction = ITimelineAction,
+  TrackType extends ITimelineTrack = ITimelineTrack,
+> = {
   type: 'SELECT_ACTION',
-  payload: {
-    action: ITimelineAction,
-    track: ITimelineTrack
-  },
+  payload: SelectActionPayload<ActionType, TrackType>,
 } | {
   type: 'SELECT_TRACK',
-  payload: ITimelineTrack,
+  payload: TrackType,
 } | {
   type: 'CREATE_ACTION',
   payload: {
-    action: ITimelineFileAction,
-    track: ITimelineTrack
+    action: FileActionType,
+    track: TrackType
   }
 } | {
   type: 'CREATE_TRACKS',
   payload: IMediaFile[]
 } | {
-  type: 'DETAIL',
-  payload: HTMLElement | null
+  type: 'SET_POPOVER',
+  payload: { open: boolean, name: string }
 } | {
   type: 'SET_SNAP_OPTIONS',
   payload: string[]
@@ -88,16 +109,19 @@ export type TimelineStateAction = {
   payload: IMediaFile[]
 } | {
   type: 'SET_FILE',
-  payload: TimelineFile
+  payload: FileType
 } | {
   type: 'SET_TRACKS',
-  payload: ITimelineTrack[]
+  payload: TrackType[]
 } | {
   type: 'SET_ROW_HEIGHT',
   payload: number
 } | {
   type: 'UPDATE_ACTION_STYLE',
-  payload: { action: ITimelineAction, backgroundImageStyle: BackgroundImageStyle }
+  payload: {
+    action: ActionType,
+    backgroundImageStyle: BackgroundImageStyle
+  }
 }
 
 export type TimelineContextType = ITimelineState & {
@@ -109,12 +133,6 @@ export const TimelineContext = React.createContext<TimelineContextType | undefin
 export function TimelineReducer(state: ITimelineState, stateAction: TimelineStateAction): ITimelineState {
   switch (stateAction.type) {
 
-    case 'SELECT_ACTION':
-      return {
-        ...state,
-        selectedAction: stateAction.payload.action,
-        selectedTrack: stateAction.payload.track,
-      };
     case 'SELECT_TRACK':
       return {
         ...state,
@@ -137,10 +155,10 @@ export function TimelineReducer(state: ITimelineState, stateAction: TimelineStat
         file: state.file ? { ...state.file, tracks: updatedTracks } : null,
       };
     }
-    case 'DETAIL':
+    case 'SET_POPOVER':
       return {
         ...state,
-        detailAnchor: stateAction.payload,
+        popovers: {[stateAction.payload.name]: stateAction.payload.open},
       };
     case 'LOAD_VERSIONS':
       return {
@@ -194,20 +212,26 @@ export function TimelineReducer(state: ITimelineState, stateAction: TimelineStat
   }
 }
 
-export interface TimelineProviderProps {
+export interface TimelineProviderProps<
+  FileType extends ITimelineFile = ITimelineFile,
+  EngineType  = IEngine,
+  FileActionType extends ITimelineAction = ITimelineAction,
+  State extends ITimelineState = ITimelineState,
+  StateActionType  = TimelineStateAction
+> {
   children: React.ReactNode,
   id?: string,
-  file?: ITimelineFile,
+  file?: FileType,
   controllers?: Record<string, IController>,
-  engine?: IEngine,
-  reducer?: (state: ITimelineState, stateAction: TimelineStateAction) => ITimelineState;
-  actions?: ITimelineFileAction[],
+  engine?: EngineType,
+  reducer?: (state: State, stateAction: StateActionType) => State;
+  actions?: FileActionType[],
 }
 
 export const initialTimelineState: Omit<ITimelineState, 'engine' | 'getState' | 'setState'> = {
   selectedTrack: null,
   selectedAction: null,
-  detailAnchor: null,
+  popovers: { },
   isMobile,
   snapOptions: [],
   versions: [],

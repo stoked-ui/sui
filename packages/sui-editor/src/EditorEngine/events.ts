@@ -1,4 +1,4 @@
-import { Events, type EventTypes, type IEngine } from '@stoked-ui/timeline';
+import { Events, EventTypes , IEngine  } from '@stoked-ui/timeline';
 import {EditorEngineState, IEditorEngine} from './EditorEngine.types'
 
 export class EditorEvents extends Events  {
@@ -34,5 +34,5 @@ export interface EditorEventTypes extends EventTypes {
    * @type {{ engine: IEngine }}
    * @memberofEventTypes
    */
-  paused: { engine: IEditorEngine, previousState: any };
+  paused: { engine: IEditorEngine, previousState: string | EditorEngineState };
 }

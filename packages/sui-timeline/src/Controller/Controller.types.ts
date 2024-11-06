@@ -1,18 +1,29 @@
 import { IMediaFile } from "@stoked-ui/media-selector";
-import {ControllerParams} from "./ControllerParams";
-import { BackgroundImageStyle, type ITimelineAction } from "../TimelineAction/TimelineAction.types";
+import { type BackgroundImageStyle, type ITimelineAction } from "../TimelineAction/TimelineAction.types";
+import { type IEngine } from "../Engine";
 
-export interface PreloadParams extends Omit<ControllerParams & { file: IMediaFile }, 'time'> {}
 
 export type GetBackgroundImage = (file: IMediaFile, options: any) => Promise<string>;
+/*
 
-export interface IController {
-  start?: (params: ControllerParams) => void;
-  stop?: (params: ControllerParams) => void;
-  enter?: (params: ControllerParams) => void;
-  leave: (params: ControllerParams) => void;
-  update?: (params: ControllerParams) => void;
-  preload?: (params: PreloadParams) => Promise<ITimelineAction>;
+export type ControllerFunc<
+  ActionType extends ITimelineAction = ITimelineAction,
+  EngineType extends IEngine = IEngine,
+> =  (params: { action: ActionType, time: number, engine: EngineType }) => void
+
+export type ControllerPreloadFunc<
+  ActionType extends ITimelineAction = ITimelineAction,
+  EngineType extends IEngine = IEngine,
+> =  (params: { action: ActionType, file: IMediaFile, engine: EngineType }) => Promise<ActionType>;
+*/
+
+export interface IController{
+  start?: (params: { action: ITimelineAction, time: number, engine: IEngine }) => void
+  stop?: (params: { action: ITimelineAction, time: number, engine: IEngine }) => void
+  enter?: (params: { action: ITimelineAction, time: number, engine: IEngine }) => void
+  leave: (params: { action: ITimelineAction, time: number, engine: IEngine }) => void
+  update?: (params: { action: ITimelineAction, time: number, engine: IEngine }) => void
+  preload?: (params: { action: ITimelineAction, file: IMediaFile, engine: IEngine }) => Promise<ITimelineAction>;
 
   viewerUpdate?: (engine: any) => void;
   destroy?: () => void;

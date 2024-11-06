@@ -50,6 +50,7 @@ const TimeUnitScale = styled('div')(({ theme }) => ({
   right: 0,
   top: 0,
   transform: 'translate(50%, -100%)',
+  userSelect: 'none'
 }));
 
 const TimeAreaInteract = styled('div')({

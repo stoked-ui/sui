@@ -1,13 +1,14 @@
 import * as React from 'react';
-import Editor from '@stoked-ui/editor';
+import Editor, { Controllers, EditorProvider } from '@stoked-ui/editor';
 import { cloneDeep } from 'lodash';
 import { namedId } from '@stoked-ui/media-selector';
 import {TimelineFile} from "@stoked-ui/timeline";
+import EditorExample from "../showcase/EditorExample";
 
 export const scaleWidth = 160;
 export const scale = 2;
 export const startLeft = 20;
-
+/*
 export const actions = [
   {
     id: namedId('action'),
@@ -15,7 +16,7 @@ export const actions = [
     start: 9.5,
     end: 16,
     controllerName: 'animation',
-    src: '/static/timeline/docs/overview/lottie1.json',
+    src: '/static/timeline/docs/overview/writing.lottie',
   },
   {
     id: namedId('action'),
@@ -23,7 +24,7 @@ export const actions = [
     start: 5,
     end: 9.5,
     controllerName: 'animation',
-    src: '/static/timeline/docs/overview/lottie2.json',
+    src: '/static/timeline/docs/overview/doing-things.lottie',
   },
   {
     id: namedId('action'),
@@ -31,7 +32,7 @@ export const actions = [
     start: 0,
     end: 5,
     controllerName: 'animation',
-    src: '/static/timeline/docs/overview/lottie3.json',
+    src: '/static/timeline/docs/overview/stolen-cow.lottie',
   },
   {
     id: namedId('action'),
@@ -40,7 +41,7 @@ export const actions = [
     end: 20,
     controllerName: 'audio',
     src: '/static/timeline/docs/overview/funeral.m4a',
-    /* src:'https://archive.org/download/radiohead-ok-computer-oknotok-1997-2017-remastered/02%20Paranoid%20Android%20%28Remastered%29.mp3', */
+    /!* src:'https://archive.org/download/radiohead-ok-computer-oknotok-1997-2017-remastered/02%20Paranoid%20Android%20%28Remastered%29.mp3', *!/
   },
   {
     id: namedId('action'),
@@ -52,11 +53,13 @@ export const actions = [
     style: { width: '100%'}
   },
 ];
-const defaultEditorData = cloneDeep(actions);
+*/
 
 export default function Hero() {
 
   return (
-      <Editor id='editor-sandbox' sx={{ width: '100%'}} file={new TimelineFile({ actionData: defaultEditorData})} />
+    <EditorProvider id={'core-demo'} controllers={Controllers} file={EditorExample} >
+      <Editor id='editor-sandbox' sx={{ width: '100%'}} />
+    </EditorProvider>
   );
 }

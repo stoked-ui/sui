@@ -4,14 +4,9 @@ import { ITimelineAction, OutputBlob, useTimeline } from '@stoked-ui/timeline';
 import {  FileExplorer } from '@stoked-ui/file-explorer';
 import {IMediaFile, MediaFile } from '@stoked-ui/media-selector';
 import { useSlotProps} from '@mui/base/utils';
-import {SxProps, Tooltip} from "@mui/material";
-import ToggleButton from "@mui/material/ToggleButton";
-import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
+import { SxProps } from "@mui/material";
 import composeClasses from '@mui/utils/composeClasses';
-import IconButton from '@mui/material/IconButton';
-import SearchIcon from '@mui/icons-material/Search';
-import RefreshIcon from '@mui/icons-material/Refresh';
-import Timeline, { type TimelineState, FilesFromTracks, ITimelineTrack, type Version } from '@stoked-ui/timeline';
+import Timeline, { type TimelineState, ITimelineTrack } from '@stoked-ui/timeline';
 import { createUseThemeProps, styled} from '../internals/zero-styled';
 import { useEditor } from '../internals/useEditor';
 import { EditorProps} from './Editor.types';
@@ -23,6 +18,7 @@ import Controllers from "../Controllers";
 import initDb from '../db/init'
 import {DetailView} from "../DetailView";
 import {useEditorContext} from "../EditorProvider";
+import { initEditorAction } from "../EditorAction/EditorAction";
 
 const useThemeProps = createUseThemeProps('MuiEditor');
 
@@ -186,7 +182,7 @@ const Editor = React.forwardRef(function Editor<
       setStartIt(true);
       engine.viewer = viewerRef.current;
       if (file.needsGeneration()) {
-        file.generateTracks(Controllers, engine)
+        file.generateTracks(Controllers, engine, initEditorAction)
           .then(() => {
             dispatch({
               type: 'LOAD_EDITOR_PROPS',
@@ -219,8 +215,9 @@ const Editor = React.forwardRef(function Editor<
 
   React.useEffect(() => {
     if (file?.tracks) {
-      const files  = file.tracks.map((track) => track.file);
-      setMediaFiles(files);
+      const trackFiles  = file.tracks.map((track) => track.file);
+      // const tFiles: IMediaFile[] = trackFiles.filter((tf) => tf !== undefined);
+      // setMediaFiles(tFiles);
     }
     if (versions?.length) {
       setSaved(versions);
@@ -260,6 +257,16 @@ const Editor = React.forwardRef(function Editor<
     setContextMenu({ mouseX: event.clientX + 2, mouseY: event.clientY - 6, context: param.track, type: 'label' });
   };
 
+  const onAddFiles = () => {
+    const input = document.createElement('input') as HTMLInputElement;
+    input.type = 'file';
+    input.onchange =  async (ev) => {
+      const addedFiles =  await MediaFile.from(ev)
+      dispatch({ type: 'CREATE_TRACKS', payload: addedFiles });
+    }
+    input.click();
+  };
+
   return (
     <Root role={'editor'} {...rootProps} id={id}>
       <EditorViewSlot {...editorViewProps} ref={viewerRef} />
@@ -291,6 +298,7 @@ const Editor = React.forwardRef(function Editor<
             onContextMenuTrack={handleContextMenuTrack}
             onContextMenuAction={handleContextMenuAction}
             onContextMenu={handleContextMenuLabel}
+            onAddFiles={onAddFiles}
           />
           <Explorer
             grid
@@ -303,37 +311,35 @@ const Editor = React.forwardRef(function Editor<
             alternatingRows
             defaultExpandedItems={['tracks']}
             sx={filesSx}
-            onAddFiles={(mediaFiles: MediaFile[]) => {
-              dispatch({ type: 'CREATE_TRACKS', payload: mediaFiles });
-            }}
+            onAddFiles={onAddFiles}
           />
           <DetailView />
         </React.Fragment>
       }
     </Root>);
 });
-{/* {(files?.length ?? -1) > 0 && */}
+
 Editor.propTypes = {
-  // ----------------------------- Warning --------------------------------
-  // | These PropTypes are generated from the TypeScript type definitions |
-  // | To update them edit the TypeScript types and run "pnpm proptypes"  |
-  // ----------------------------------------------------------------------
-  file: PropTypes.any,
   /**
    * The ref object that allows Editor View manipulation. Can be instantiated with
    * `useEditorApiRef()`.
    */
-  apiRef: PropTypes.any, /**
+  apiRef: PropTypes.any,
+  /**
    * Override or extend the styles applied to the component.
    */
-  classes: PropTypes.object,
-  className: PropTypes.string,
+  classes: PropTypes.object, className: PropTypes.string,
   /**
    * Unstable features, breaking changes might be introduced.
    * For each feature, if the flag is not explicitly set to `true`,
    * the feature will be fully disabled and any property / method call will not have any effect.
    */
   experimentalFeatures: PropTypes.object,
+  // ----------------------------- Warning --------------------------------
+  // | These PropTypes are generated from the TypeScript type definitions |
+  // | To update them edit the TypeScript types and run "pnpm proptypes"  |
+  // ----------------------------------------------------------------------
+  file: PropTypes.any,
   /**
    * The props used for each component slot.
    * @default {}

@@ -2,13 +2,13 @@ import * as React from 'react';
 import {SxProps, Theme} from "@mui/material/styles";
 import {SlotComponentProps} from "@mui/material";
 import {CSSProperties} from "@mui/system/CSSProperties";
-import {IMediaFile, MediaFile, namedId } from "@stoked-ui/media-selector";
+import { namedId } from "@stoked-ui/media-selector";
 import {TimelineActionClasses} from "./timelineActionClasses";
 import {DragLineData} from "../TimelineTrackArea/TimelineTrackAreaDragLines";
 import {CommonProps} from '../interface/common_prop';
 import {type ITimelineTrack } from "../TimelineTrack/TimelineTrack.types";
-import {IController} from '../Controller/Controller.types';
-import Controller from "../Controller";
+import { GetBackgroundImage, IController } from '../Controller/Controller.types';
+import Controller from "../Controller/Controller";
 import { IEngine } from '../Engine/Engine.types';
 
 export interface TimelineActionState {
@@ -77,8 +77,6 @@ export interface ITimelineAction
 
   style?: CSSProperties;
 
-  getBackgroundImage?: (actionType: IController, src: string) => string;
-
   backgroundImageStyle?: BackgroundImageStyle | object;
 
   backgroundImage?: string;
@@ -91,27 +89,25 @@ export interface ITimelineAction
 
   playCount?: number;
 
-  volumeIndex: number;
+  volumeIndex?: number;
 }
 
 function setVolumeIndex(action: ITimelineFileAction) {
   if (!action.volume) {
     return -2; // -2: no volume parts available => volume 1
-  } else {
-    for (let i = 0; i < action.volume!.length; i += 1) {
-      const { volume } = Controller.getVol(action.volume![i]);
-
-      if (volume < 0 || volume > 1) {
-        console.info(`${action.name} specifies a volume of ${volume} which is outside the standard range: 0.0 - 1.0`)
-      }
-    }
-    return -1; // -1: volume part unassigned => volume 1 until assigned
   }
+  for (let i = 0; i < action.volume!.length; i += 1) {
+    const { volume } = Controller.getVol(action.volume![i]);
+
+    if (volume < 0 || volume > 1) {
+      console.info(`${action.name} specifies a volume of ${volume} which is outside the standard range: 0.0 - 1.0`)
+    }
+  }
+  return -1; // -1: volume part unassigned => volume 1 until assigned
 }
 
-export type ActionInitFunc = (engine: IEngine, action: ITimelineFileAction, index: number) => ITimelineAction;
-
-export const initTimelineAction: ActionInitFunc = (engine: IEngine, fileAction: ITimelineFileAction, trackIndex: number) => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const initTimelineAction = (engine: IEngine, fileAction: ITimelineFileAction, trackIndex: number) => {
   const newAction = fileAction as ITimelineAction;
   newAction.volumeIndex = setVolumeIndex(newAction)
 
@@ -141,7 +137,10 @@ export interface TimelineActionSlotProps {
   right?: SlotComponentProps<'div', {}, {}>;
 }
 
-export interface TimelineActionProps
+export interface TimelineActionProps<
+  ActionType extends ITimelineAction = ITimelineAction,
+  TrackType extends ITimelineTrack = ITimelineTrack,
+>
   extends TimelineActionState,
     CommonProps,
     Omit<React.HTMLAttributes<HTMLUListElement>, 'id' | 'onScroll'> {
@@ -168,19 +167,14 @@ export interface TimelineActionProps
    */
   sx?: SxProps<Theme>;
 
-  track: ITimelineTrack;
-  action: ITimelineAction;
+  track: TrackType;
+  action: ActionType;
   dragLineData: DragLineData;
   handleTime: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => number;
   areaRef: React.MutableRefObject<HTMLDivElement>;
   /* setUp scroll left */
   deltaScrollLeft?: (delta: number) => void;
-  getActionRender?: (action: ITimelineAction, track: ITimelineTrack) => React.ReactNode;
 }
-
-export interface TimelineActionOwnerState extends Omit<TimelineActionProps, 'action' | 'onKeyDown' | 'style' | 'translate'>, ITimelineAction  {}
-
-
 
 export interface BackgroundImageStyle {
   backgroundImage: string,

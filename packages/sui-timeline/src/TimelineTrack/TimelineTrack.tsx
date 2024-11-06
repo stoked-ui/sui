@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {alpha, emphasize, styled} from "@mui/material/styles";
 import {shouldForwardProp} from "@mui/system/createStyled";
-import {blend} from "@mui/system";
+// import {blend} from "@mui/system";
 import {CommonProps} from '../interface/common_prop';
 import {prefix} from '../utils/deal_class_prefix';
 import {parserPixelToTime} from '../utils/deal_data';
@@ -11,13 +11,18 @@ import {TimelineAction} from "../TimelineAction/TimelineAction";
 import {type ITimelineTrack} from "./TimelineTrack.types";
 import {IController} from "../Controller/Controller.types";
 import {useTimeline} from "../TimelineProvider";
+import { ITimelineAction } from "../TimelineAction";
 
-export type TimelineTrackProps = CommonProps & TimelineControlPropsBase & {
+export type TimelineTrackProps<
+  ControllerType extends IController = IController,
+  ActionType extends ITimelineAction = ITimelineAction,
+  TrackType extends ITimelineTrack = ITimelineTrack,
+> = CommonProps & TimelineControlPropsBase<ControllerType, TrackType, ActionType> & {
   areaRef: React.MutableRefObject<HTMLDivElement>;
-  track?: ITimelineTrack;
+  track?: TrackType;
   style?: React.CSSProperties;
   dragLineData: DragLineData;
-  setEditorData: (tracks: ITimelineTrack[]) => void;
+  setEditorData: (tracks: TrackType[]) => void;
   /** scroll distance from left */
   scrollLeft: number;
   /** setUp scroll left */
@@ -35,8 +40,8 @@ const TimelineTrackRoot = styled('div', {
 })<{ hidden?: boolean, lock?: boolean, color: string, selected?: boolean}>
 (({ theme, color }) => {
   const bgColor = alpha(color, theme.palette.action.focusOpacity);
-  const lockedBgBase = emphasize(theme.palette.background.default, 0.12);
-  const lockedBg = blend(lockedBgBase, color, .3);
+  // const lockedBgBase = emphasize(theme.palette.background.default, 0.12);
+  // const lockedBg = blend(lockedBgBase, color, .3);
   return {
     borderBottom: `1px solid ${theme.palette.background.default}`,
     borderTop: `1px solid ${emphasize(theme.palette.background.default, 0.04)}`,
@@ -92,14 +97,20 @@ const TrackSizer = styled('div', {
     background: theme.palette.action.active
   }
 }))
-export function getTrackColor(track: ITimelineTrack) {
+export function getTrackColor<
+  TrackType extends ITimelineTrack = ITimelineTrack
+>(track: TrackType) {
   const trackController = track.controller;
   return trackController ? alpha(trackController.color ?? '#666', 0.11) : '#00000011';
 }
 
 
-export default function TimelineTrack(props: TimelineTrackProps) {
-  const { selectedTrack, file, dispatch, } = useTimeline();
+export default function TimelineTrack<
+  ControllerType extends IController = IController,
+  TrackType extends ITimelineTrack = ITimelineTrack,
+  ActionType extends ITimelineAction = ITimelineAction,
+>(props: TimelineTrackProps<ControllerType, ActionType, TrackType>) {
+  const { selectedTrack, file } = useTimeline();
   const {
     track,
     style = {},
@@ -114,13 +125,9 @@ export default function TimelineTrack(props: TimelineTrackProps) {
   } = props;
 
   const classNames = ['edit-track'];
-  const isTrackSelected = (track: ITimelineTrack) => {
-    return selectedTrack?.id === track.id;
+  const isTrackSelected = (isSelectedTrack: TrackType) => {
+    return selectedTrack?.id === isSelectedTrack.id;
   }
-  if (track?.id === selectedTrack?.id) {
-    classNames.push('edit-track-selected');
-  }
-
   const handleTime = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     if (!areaRef.current) {
       return undefined;
@@ -132,12 +139,18 @@ export default function TimelineTrack(props: TimelineTrackProps) {
     return time;
   };
 
-  if (!track) {
-    return undefined;
-  }
   const trackIndex = file?.tracks?.findIndex((t) => t.id === track.id);
 
   const [sizerData, setSizerData] = React.useState<{hover: boolean, down: boolean, startY: number }>({hover: false, down: false, startY: 0})
+
+  if (!track) {
+    return undefined;
+  }
+
+  if (track?.id === selectedTrack?.id) {
+    classNames.push('edit-track-selected');
+  }
+
   return (
     <TimelineTrackRoot
       className={`${prefix(...classNames)} ${(track?.classNames || []).join(
@@ -181,7 +194,6 @@ export default function TimelineTrack(props: TimelineTrackProps) {
       }}
       onContextMenu={(e) => {
         if (track && onContextMenuTrack) {
-          console.log('context track')
           e.stopPropagation();
           e.preventDefault();
           const time = handleTime(e);
