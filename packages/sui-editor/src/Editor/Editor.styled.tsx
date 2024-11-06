@@ -4,17 +4,20 @@ import Plyr, {PlyrProps} from "plyr-react";
 import * as React from "react";
 import AudioPlayer from "./AudioPlayer";
 import Collapse from "@mui/material/Collapse";
+import { useEditorContext } from "../EditorProvider";
+import { IDetailFile } from "../DetailView";
 
 export type PlayerProps = PlyrProps;
 
 export const EditorPopover = React.forwardRef(function EditorPopover(
-  props: { open: boolean, children: React.ReactNode },
+  props: { name: string, children: React.ReactNode },
   ref: React.Ref<HTMLDivElement>,
 ) {
   const { children } = props;
-  const [open, setOpen] = React.useState<boolean>(props.open);
+  const context = useEditorContext();
+
   const onClose = (event, reason) => {
-    setOpen(false);
+    context.dispatch({ type: 'SET_POPOVER', payload: { open: false, name: props.name } });
   }
   return (
     <Popover
@@ -24,7 +27,7 @@ export const EditorPopover = React.forwardRef(function EditorPopover(
         alignItems: 'center'
       }}
       ref={ref}
-      open={open}
+      open={context.popovers[props.name]}
       onClose={onClose}
       anchorReference={'none'}
     >
@@ -117,17 +120,17 @@ const StyledPlyrBase = styled(Plyr)(({theme}) => ({
 
 export function StyledPlyr(props: PlayerProps) {
 
-  return <StyledPlyr {...props} />
+  return <Plyr {...props} />
 }
 
-export function VideoPlayer({mediaFile}: {mediaFile: IMediaFile}){
+export function VideoPlayer({file}: {file: IMediaFile | IDetailFile}){
   const plyrProps: PlyrProps = {
     source: {
       type: 'video',
-      title: mediaFile.name,
+      title: file.name,
       sources: [
         {
-          src: mediaFile.url,
+          src: file.url,
         },
       ],
     },
@@ -140,20 +143,20 @@ export function VideoPlayer({mediaFile}: {mediaFile: IMediaFile}){
   return <StyledPlyr source={plyrProps.source} options={{controls: ['play', 'progress', 'mute', 'volume']}} />
 }
 
-export function MediaScreener(props: { mediaFile: IMediaFile | undefined }) {
-  const { mediaFile } = props;
-  if (!mediaFile) {
-    return;
+export function MediaScreener(props: { file: IMediaFile | IDetailFile | undefined }) {
+  const { file } = props;
+  if (!file) {
+    return undefined;
   }
-  switch (mediaFile?.mediaType) {
+  switch (file?.mediaType) {
     case 'video':
-      return<VideoPlayer mediaFile={mediaFile}/>
+      return<VideoPlayer file={file}/>
     case 'audio':
-      return <AudioPlayer mediaFile={mediaFile}/>
+      return <AudioPlayer file={file}/>
     case 'image':
-      return <img src={mediaFile.url} alt={mediaFile.name} style={{maxWidth: '100%'}}/>
+      return <img src={file.url} alt={file.name} style={{maxWidth: '100%'}}/>
     default:
-      return <div>Media screener not available for [{mediaFile.mediaType}].</div>;
+      return <div>Media screener not available for [{file.mediaType}].</div>;
   }
 }
 

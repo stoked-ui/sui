@@ -80,7 +80,7 @@ const EditorScreenerMobile = React.forwardRef(function EditorScreenerMobile(
   inProps: EditorScreenerProps,
   ref: React.Ref<HTMLDivElement>,
 ) {
-  const { versions, detailAnchor, file, engine, dispatch } = useEditorContext();
+  const { versions, file, engine, dispatch } = useEditorContext();
 
   if (engine) {
     engine.detailMode = true;
@@ -94,9 +94,9 @@ const EditorScreenerMobile = React.forwardRef(function EditorScreenerMobile(
   return (
     <EditorPopover
       ref={ref}
-      open={!!detailAnchor}
+      name={'screener'}
     >
-      <MediaScreener mediaFile={inProps.mediaFile} />
+      <MediaScreener file={inProps.file} />
     </EditorPopover>);
 })
 

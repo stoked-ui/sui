@@ -1,11 +1,15 @@
-import { Controller } from "@stoked-ui/timeline";
+/*
+import { Controller, IController, PreloadParams } from "@stoked-ui/timeline";
 import {IEditorController} from "./EditorController.types";
-import {EditorControllerParams} from "./EditorControllerParams";
+import { EditorControllerParams, EditorPreloadParams } from "./EditorControllerParams";
+export default abstract class EditorController<
+  ParamsType extends EditorControllerParams = EditorControllerParams,
+  PreloadType extends EditorPreloadParams = EditorPreloadParams,
+> extends Controller<ParamsType, PreloadType> implements IController<ParamsType, PreloadType> {
 
-export default abstract class EditorController extends Controller implements IEditorController {
+  abstract enter(params: ParamsType): void;
 
-  abstract enter(params: EditorControllerParams): void;
-
-  abstract leave(params: EditorControllerParams): void;
+  abstract leave(params: ParamsType): void;
 
 }
+*/

@@ -20,13 +20,19 @@ import {
   Control, DefaultValues, KeepStateOptions, SubmitErrorHandler, SubmitHandler, UseFormHandleSubmit, UseFormReset, FieldErrors
 } from "react-hook-form";
 import {getVideoFormData} from "./DetailVideoView.types";
-import {
-  getFileFormData, getTrackFormData, IDetailFile, IDetailTrack, IDetailAction, getActionFormData
-} from "./DetailTrackView.types";
 import DetailBreadcrumbs from "./DetailBreadcrumbs";
-import AudioPlayer from "../Editor/AudioPlayer";
 import {MediaScreener, VideoPlayer} from "../Editor/Editor.styled";
 import {IEditorAction} from "../EditorAction/EditorAction";
+import { IEditorFile } from "../Editor/EditorFile";
+import { IEditorTrack } from "../EditorTrack/EditorTrack";
+import {
+  FormData, FormInfo,
+  getActionFormData,
+  getFileFormData, getTrackFormData,
+  IDetailAction,
+  IDetailFile,
+  IDetailTrack
+} from "./DetailView.types";
 
 export const CtrlCell = styled('div', {
   name: 'MuiFileDetail',
@@ -89,15 +95,16 @@ export const CtrlLabel = styled('legend')(({theme}) => ({
 }))
 
 export function CtrlGroup ({children, label}){
-  return <CtrlGroupRoot>
+  return (
+    <CtrlGroupRoot>
       <CtrlLabel>{label}</CtrlLabel>
       {children}
-  </CtrlGroupRoot>
+    </CtrlGroupRoot>
+  )
 }
 
 export interface IDetailData {
   video: ITimelineFileBase,
-  tracks: ITimelineTrack[],
   file?: IDetailFile,
   track?: IDetailTrack,
   action?: IDetailAction
@@ -114,10 +121,8 @@ export interface DetailTypeProps {
   onClickEdit: (event: Event) => void;
   formRef: React.RefObject<HTMLFormElement>;
   breadcrumbs: React.JSX.Element;
-  detail: DetailSelection;
-  setDetail: React.Dispatch<React.SetStateAction<DetailSelection>>;
-  formData: IDetailData,
-  setFormData: React.Dispatch<React.SetStateAction<IDetailData>>;
+  formInfo: FormInfo,
+  setFormInfo: React.Dispatch<React.SetStateAction<FormInfo>>;
   schema: any;
   onClose: () => void;
 }
@@ -159,7 +164,7 @@ export const DetailForm = styled('form', {
   }
 });
 
-export const RootBox = styled(Box)(({theme}) => ({
+export const RootBox = styled('div')(({theme}) => ({
   '& .MuiInputBase-root': {
     backgroundColor: theme.palette.background.default,
     borderRadius: '4px'
@@ -242,47 +247,29 @@ export const RootBox = styled(Box)(({theme}) => ({
 }));
 
 export type DetailSelection = {
-  video: ITimelineFile,
-  track?: Omit<ITimelineTrack, 'file'>,
+  video: IEditorFile,
+  track?: IEditorTrack,
   action?: IEditorAction,
-  selectedFile?: IMediaFile
 }
 
-export function getFormData(detail: DetailSelection, tracks: ITimelineTrack[]): IDetailData {
-  const video = getVideoFormData(detail, tracks);
-  const track = getTrackFormData(detail);
-  const file = getFileFormData(detail);
-  const action = getActionFormData(detail);
-  return {
-    video,
-    tracks,
-    track,
-    file,
-    action,
-  }
-}
-
-
-export function DetailViewBase({children,title, formName, editMode,engine, handleSubmit, onSubmit, detail, setDetail, errors, control, onClickEdit, formData, isDirty, reset, setEditMode, onClose}: {
+export function DetailViewBase({children,title, formName, editMode, engine, handleSubmit, onSubmit, errors, control, onClickEdit, formInfo, isDirty, reset, setEditMode, onClose}: {
   children: React.ReactNode,
   control: Control<any, any>,
-  detail: DetailSelection,
   editMode: boolean,
   engine: IEngine,
   errors: FieldErrors<any>,
-  formData: IDetailData,
+  formInfo: FormInfo,
   formName: string,
   handleSubmit: (onValid: SubmitHandler<any>, onInvalid?: SubmitErrorHandler<any>) => (e?: React.BaseSyntheticEvent) => Promise<void>,
   isDirty: boolean
   onClickEdit: (event: Event) => void,
   onSubmit: SubmitHandler<any>,
   reset: UseFormReset<any>,
-  setDetail: React.Dispatch<React.SetStateAction<DetailSelection>>,
   setEditMode: React.Dispatch<React.SetStateAction<boolean>>,
   title: string,
   onClose: () => void
 }) {
-
+  const { detail, data } = formInfo;
   return <DetailForm
       id={formName}
       editMode={editMode}
@@ -303,14 +290,14 @@ export function DetailViewBase({children,title, formName, editMode,engine, handl
           flexDirection: 'column',
           flexWrap: 'wrap'
         }}>
-          <DetailBreadcrumbs  {...{ detail, formData, setDetail, control, onClickEdit, }} />
+          <DetailBreadcrumbs  {...{ formInfo, control, onClickEdit, }} />
           <Typography variant="h6" sx={{
             marginTop: '6px'
           }}>
             {title}
           </Typography>
           {(detail.track || detail.action) && <CtrlCell>
-            <MediaScreener mediaFile={detail.selectedFile} />
+            <MediaScreener file={data.file} />
           </CtrlCell>}
           {children}
           <CardActions sx={{ width: '100%', justifyContent: 'right'}}>

@@ -1,31 +1,27 @@
 import * as React from "react";
 import {SubmitHandler, useForm} from "react-hook-form";
 import {yupResolver} from "@hookform/resolvers/yup";
-import { Checkbox, FormControlLabel } from "@mui/material";
-import { useTimeline } from "@stoked-ui/timeline";
+import { ITimelineAction, ITimelineTrack, useTimeline } from "@stoked-ui/timeline";
+import { SelectChangeEvent } from "@mui/material/Select";
 import ControlledText from "./ControlledText";
-import {
-  CtrlCell, CtrlGroup, CtrlRow, DetailTypeProps, DetailViewBase,
-} from './Detail'
-import {
-  humanFileSize,
-  IDetailTrack,
-
-} from "./DetailTrackView.types";
+import { CtrlCell, CtrlGroup, CtrlRow, DetailTypeProps, DetailViewBase, } from './Detail'
+import { humanFileSize } from "./DetailTrackView.types";
 import ControlledCheckbox from "./ControlledCheckbox";
+import DesSelect from "./DesSelect";
+import { IEditorAction } from "../EditorAction/EditorAction";
+import { FormData, IDetailTrack } from "./DetailView.types";
+import { useEditorContext } from "../EditorProvider";
 
 export default function DetailTrackView(props: DetailTypeProps) {
-  const { file, engine, dispatch } = useTimeline();
+  const { file, engine, dispatch } = useEditorContext();
   const {
-    detail,
-    setDetail,
     setEditMode,
     editMode,
     onClickEdit,
     formRef,
     breadcrumbs,
-    formData,
-    setFormData,
+    formInfo,
+    setFormInfo,
     schema,
     onClose
   } = props;
@@ -48,28 +44,20 @@ export default function DetailTrackView(props: DetailTypeProps) {
     reset,
     trigger,
     setValue,
-  } = useForm<IDetailTrack>({
+  } = useForm<FormData>({
     mode: 'onChange',
-    defaultValues: formData.track,
-    resolver: yupResolver(schema.track),
+    defaultValues: formInfo.data,
+    resolver: yupResolver(schema),
   });
 
   // Form submit handler
-  const onSubmit: SubmitHandler<IDetailTrack> = (dataTrack) => {
-
-    const newDetail = {...detail};
-    if (newDetail.track && dataTrack) {
-      newDetail.track.name = dataTrack.name;
-    }
-    setDetail(newDetail);
-
-    const trackIndex = file?.tracks?.findIndex((prevTrack) => prevTrack.id === dataTrack.id);
-    if (trackIndex !== undefined && trackIndex !== -1 && dataTrack && file?.tracks?.[trackIndex]) {
-      file.tracks[trackIndex].name = dataTrack!.name;
-      dispatch({ type: 'SET_TRACKS', payload: file.tracks});
+  const onSubmit: SubmitHandler<FormData> = (data: FormData) => {
+    if (data.action) {
+      data.video.lastModified = Date.now();
+      dispatch({ type: 'UPDATE_ACTION', payload: data.action });
     }
   };
-
+  const { detail } = formInfo;
   const detailViewBase = {
     title: detail.action?.name ?? detail.track?.name ?? detail.video?.name,
     formName: 'track-detail',
@@ -77,11 +65,10 @@ export default function DetailTrackView(props: DetailTypeProps) {
     onClickEdit,
     handleSubmit,
     onSubmit,
-    detail,
-    setDetail,
     errors,
     control,
-    formData,
+    formInfo,
+    setFormInfo,
     isDirty,
     reset,
     setEditMode,
@@ -90,12 +77,12 @@ export default function DetailTrackView(props: DetailTypeProps) {
   };
   return (
     <DetailViewBase {...detailViewBase}>
-      <CtrlGroup label={'Track File'}>
+      <CtrlGroup label={'File Name'}>
         <CtrlCell width="70%">
           <ControlledText
             className={'whitespace-nowrap flex-grow flex'}
             label={'File Name'}
-            value={detail.selectedFile?.name}
+            value={formInfo.data.file?.name}
             disabled
             onClick={onClickEdit}
           />
@@ -104,8 +91,8 @@ export default function DetailTrackView(props: DetailTypeProps) {
         <CtrlCell width="25%">
           <ControlledText
             className={'whitespace-nowrap flex-grow flex'}
-            label={'File Size'}
-            value={detail.selectedFile?.size}
+            label={'Size'}
+            value={formInfo.data.file?.size}
             disabled
             format={humanFileSize}
           />
@@ -116,7 +103,6 @@ export default function DetailTrackView(props: DetailTypeProps) {
           <ControlledText
             className={'whitespace-nowrap flex-grow flex'}
             label={'Track Name'}
-            name={'name'}
             control={control}
             disabled={!editMode}
             onClick={onClickEdit}
@@ -126,6 +112,7 @@ export default function DetailTrackView(props: DetailTypeProps) {
           <ControlledCheckbox
             className={'whitespace-nowrap flex-grow flex'}
             label={'Hidden'}
+            name={'track.hidden'}
             control={control}
             disabled={!editMode}
             onClickLabel={onClickEdit}
@@ -134,7 +121,7 @@ export default function DetailTrackView(props: DetailTypeProps) {
           <ControlledCheckbox
             className={'whitespace-nowrap flex-grow flex'}
             label={'Locked'}
-            name={'lock'}
+            name={'track.lock'}
             control={control}
             disabled={!editMode}
             onClickLabel={onClickEdit}
@@ -143,8 +130,7 @@ export default function DetailTrackView(props: DetailTypeProps) {
 
         </CtrlCell>
       </CtrlRow>
-
-      {/* <CtrlGroup label={'Actions'}>
+      <CtrlGroup label={'Actions'}>
         <CtrlCell width="100%">
           <DesSelect
             control={control}
@@ -154,7 +140,7 @@ export default function DetailTrackView(props: DetailTypeProps) {
             key={'id'}
             value={'id'}
             width={400}
-            format={(action: ITimelineAction) => `${action.start} - ${action.end}`}
+            format={(action: IEditorAction) => `${action.start} - ${action.end}`}
             options={detail.track?.actions.map((action) => {
               return {
                 value: action.id,
@@ -165,13 +151,16 @@ export default function DetailTrackView(props: DetailTypeProps) {
             onChange={(event: SelectChangeEvent, fieldOnChange: (event: SelectChangeEvent, child?: any) => void, child?: any) => {
               fieldOnChange(event, child);
               console.info('event', event, 'child', child)
+
               const newAction = detail.track?.actions.find((action) => action.id === child.props.value)
-              if (!detail.action || (newAction && detail.action.id !== newAction.id)) {
-                setDetail({...detail, action: newAction})
+              if (detail.track && (!detail.action  || (newAction && detail.action.id !== newAction.id))) {
+                const payload = { action: newAction || null, track: detail.track };
+                dispatch({ type: 'SELECT_ACTION', payload });
               }
             }}
           />
-        </CtrlCell> */}
+        </CtrlCell>
+      </CtrlGroup>
       {detail.action &&
         <React.Fragment>
           <CtrlCell width="40%">

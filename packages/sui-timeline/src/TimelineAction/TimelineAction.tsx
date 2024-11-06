@@ -2,6 +2,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import Typography from '@mui/material/Typography';
 import {alpha, darken, emphasize, lighten, styled,} from '@mui/material/styles';
+import {shouldForwardProp} from "@mui/system/createStyled";
 import {DEFAULT_ADSORPTION_DISTANCE, DEFAULT_MOVE_GRID} from '../interface/const';
 import {
   getScaleCountByPixel, parserTimeToPixel, parserTimeToTransform, parserTransformToTime,
@@ -16,31 +17,14 @@ import {
   RndResizeStartCallback,
   RowRndApi,
 } from '../TimelineTrack/TimelineTrackDnd.types';
-import {prefix} from '../utils/deal_class_prefix';
+import { prefix } from '../utils/deal_class_prefix';
 import {
-  BackgroundImageStyle, ITimelineAction, type TimelineActionOwnerState, type TimelineActionProps
+  ITimelineAction,
+  type TimelineActionProps
 } from './TimelineAction.types';
-import {type ITimelineTrack} from '../TimelineTrack/TimelineTrack.types';
-import {useTimeline} from "../TimelineProvider";
-import {shouldForwardProp} from "@mui/system/createStyled";
-/*
-
-export const useActionUtilityClasses = (ownerState: TimelineActionOwnerState) => {
-  const { classes } = ownerState;
-
-  const slots = {
-    root: ['root'],
-    left: ['left'],
-    right: ['right'],
-    selected: ['selected'],
-    flexible: ['flexible'],
-    movable: ['movable'],
-    disable: ['disable'],
-  };
-
-  return composeClasses(slots, getTimelineActionUtilityClass, classes);
-};
-*/
+import { type ITimelineTrack } from '../TimelineTrack/TimelineTrack.types';
+import { useTimeline } from "../TimelineProvider";
+import { IController } from "../Controller";
 
 const Action = styled('div', {
   name: 'MuiTimelineAction',
@@ -232,7 +216,10 @@ const ActionLabel = styled('div', {
   }
 });
 
-function TimelineAction(props: TimelineActionProps) {
+function TimelineAction<
+  ActionType extends ITimelineAction = ITimelineAction,
+  TrackType extends ITimelineTrack = ITimelineTrack,
+>(props: TimelineActionProps<ActionType, TrackType>) {
   const { engine, dispatch, file } = useTimeline();
   const { action, ...restProps } = props;
   const { selected, flexible = true, movable = true, disable } = action;
@@ -358,7 +345,7 @@ function TimelineAction(props: TimelineActionProps) {
 
     // executeCallback
     if (onActionMoveEnd) {
-      onActionMoveEnd({ action: dragEndAction as ITimelineAction, track, start: dragEndStart, end: dragEndEnd });
+      onActionMoveEnd({ action: dragEndAction as ActionType, track, start: dragEndStart, end: dragEndEnd });
     }
   };
 
@@ -419,7 +406,7 @@ function TimelineAction(props: TimelineActionProps) {
     // triggerCallback
     if (onActionResizeEnd) {
       onActionResizeEnd({
-        action: resizeEndAction as ITimelineAction,
+        action: resizeEndAction as ActionType,
         track,
         start: resizeEndStart,
         end: resizeEndEnd,
@@ -436,20 +423,13 @@ function TimelineAction(props: TimelineActionProps) {
     ),
   };
 
-  const nowRow: ITimelineTrack = {
+  const nowRow: TrackType = {
     ...track,
     actions: [...track.actions],
   };
   if (track.actions.includes(action)) {
     nowRow.actions[track.actions.indexOf(action)] = nowAction;
   }
-  React.useEffect(() => {
-    try {
-    } catch (error) {
-      console.error('Error applying audio waveform:', error);
-    }
-  }, [])
-
 
   const {
     areaRef,

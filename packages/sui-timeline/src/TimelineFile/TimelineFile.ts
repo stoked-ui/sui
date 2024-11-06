@@ -1,8 +1,14 @@
-import { namedId, MediaFile, extractMeta, getMimeType, createZip, IMediaFile } from "@stoked-ui/media-selector";
+/* eslint-disable class-methods-use-this */
+/*  eslint-disable @typescript-eslint/naming-convention */
+
+import { namedId, MediaFile, getMimeType, IMediaFile } from "@stoked-ui/media-selector";
 import {openDB} from "@tempfix/idb";
-import {initTimelineAction, type ITimelineAction, ITimelineFileAction} from "../TimelineAction";
-import {ITimelineFileTrack, ITimelineTrack} from "../TimelineTrack";
-import {IController, IEngine } from "../Engine";
+import {
+  type ITimelineAction,
+  type ITimelineFileAction
+} from "../TimelineAction/TimelineAction.types";
+import {ITimelineFileTrack, ITimelineTrack} from "../TimelineTrack/TimelineTrack.types";
+import { IController, IEngine } from "../Engine";
 import {Controllers} from "../Controller/AudioController";
 
 export interface ITimelineFileBase {
@@ -18,19 +24,26 @@ export interface ITimelineFileBase {
   backgroundColor?: string;
   width: number;
   height: number;
+  video?: IMediaFile;
 }
 
-export interface ITimelineFile extends ITimelineFileBase {
-  tracks: ITimelineTrack[];
+export interface ITimelineFile<
+  ControllerType = IController,
+  FileActionType extends ITimelineFileAction = ITimelineFileAction,
+  ActionType extends ITimelineAction = ITimelineAction,
+  TrackType extends ITimelineTrack = ITimelineTrack,
+  EngineType extends IEngine = IEngine
+> extends ITimelineFileBase {
+  tracks: TrackType[];
   needsGeneration(): boolean;
   version: number;
   saveOutput(blob: OutputBlob): Promise<IDBValidKey>;
   save(silent?: boolean): void;
-  generateTracks(controllers: Record<string, IController>, engine: IEngine): Promise<void>;
+  generateTracks(controllers: Record<string, ControllerType>, engine: EngineType, initAction: (engine: any, actionFile: any, index: number) => any): Promise<void>;
   loadOutput(): Promise<IMediaFile[] | undefined>;
 }
 
-export interface ITimelineFileProps {
+export interface ITimelineFileProps<FileTrackType> {
   id?: string;
   name?: string;
   description?: string;
@@ -42,9 +55,8 @@ export interface ITimelineFileProps {
   height?: number;
   url?: string;
   image?: string;
-  tracks?: ITimelineFileTrack[];
+  tracks?: FileTrackType[];
 }
-
 
 export type SaveOptions = {
   id?: string,
@@ -88,7 +100,7 @@ export abstract class BaseFile {
       id: id ?? this.id,
       suggestedName,
       excludeAcceptAllOption: false,
-      types: types ? types : [this.primaryType, ...this.types],
+      types: types || [this.primaryType, ...this.types],
       startIn: id ? undefined : 'documents'
     }
   }
@@ -135,7 +147,7 @@ export abstract class BaseFile {
       // Close the writable stream
       await writableStream.close();
 
-      console.log('File saved successfully!');
+      console.info('File saved successfully!');
     } catch (error) {
       console.error('Error saving file:', error);
     }
@@ -183,7 +195,18 @@ export type OutputBlob = {
   size: number
 };
 
-export class TimelineFile extends BaseFile implements ITimelineFile {
+export type FileMimeType = { type?: string, subTypePrefix?: string };
+
+export class TimelineFile<
+  ControllerType extends IController = IController,
+  FileActionType extends ITimelineFileAction = ITimelineFileAction,
+  ActionType extends ITimelineAction = ITimelineAction,
+  FileTrackType extends ITimelineFileTrack = ITimelineFileTrack,
+  EngineType extends IEngine = IEngine,
+  TrackType extends ITimelineTrack = ITimelineTrack,
+>
+  extends BaseFile
+  implements ITimelineFile<ControllerType, FileActionType, ActionType, TrackType, EngineType> {
 
   id: string;
 
@@ -207,9 +230,9 @@ export class TimelineFile extends BaseFile implements ITimelineFile {
 
   image?: string;
 
-  protected _fileTracks?: ITimelineFileTrack[];
+  protected _fileTracks?: FileTrackType[];
 
-  protected _tracks?: ITimelineTrack[];
+  protected _tracks?: TrackType[];
 
   protected OBJECT_STORE_NAME: string = 'timeline';
 
@@ -217,7 +240,7 @@ export class TimelineFile extends BaseFile implements ITimelineFile {
 
   protected DB_NAME: string = 'stoked-ui';
 
-  constructor(props: ITimelineFileProps) {
+  constructor(props: ITimelineFileProps<FileTrackType>) {
     super();
     this.id = props.id ?? namedId('timelineFile');
     this.name = this.getName(props);
@@ -232,8 +255,7 @@ export class TimelineFile extends BaseFile implements ITimelineFile {
     this._fileTracks = props.tracks ?? [];
   }
 
-
-  getName(props: ITimelineFileProps): string {
+  getName(props: ITimelineFileProps<FileTrackType>): string {
     if (props.name) {
       return props.name;
     }
@@ -253,11 +275,11 @@ export class TimelineFile extends BaseFile implements ITimelineFile {
     return jsonFileData;
   }
 
-  get tracksJson(): ITimelineTrack[] {
+  get tracksJson(): TrackType[] {
     return this.tracks.map((track) => {
       const { file, ...trackJson } = track;
       return trackJson;
-    }) as ITimelineTrack[]
+    }) as TrackType[]
   }
 
   async checksum(): Promise<string> {
@@ -269,7 +291,7 @@ export class TimelineFile extends BaseFile implements ITimelineFile {
       }).join();
       return JSON.stringify(limitedTrack, Object.keys(limitedTrack).sort()) + canonicalActions;
     }).join();
-    return await this.hashString(`${canonicalRoot}${canonicalTracks}`);
+    return this.hashString(`${canonicalRoot}${canonicalTracks}`);
   }
 
   protected getSaveApiOptions(optionProps: SaveOptions): SaveFilePickerOptions {
@@ -283,15 +305,15 @@ export class TimelineFile extends BaseFile implements ITimelineFile {
     return super.getSaveApiOptions(optionProps);
   }
 
-  get tracks() {
-    return this._tracks;
+  get tracks(): TrackType[] {
+    return this._tracks as TrackType[];
   }
 
-  set tracks(updatedTracks: ITimelineTrack[]) {
+  set tracks(updatedTracks: TrackType[]) {
     this._tracks = updatedTracks.filter((updatedTrack) => updatedTrack.id !== 'newTrack');
   }
 
-  static newTrack(): ITimelineTrack[] {
+  static newTrack<TrackType extends ITimelineTrack = ITimelineTrack>(): TrackType[] {
     return [{
       id: 'newTrack',
       name: 'new track',
@@ -299,10 +321,10 @@ export class TimelineFile extends BaseFile implements ITimelineFile {
       file: null,
       hidden: false,
       lock: false
-    } as ITimelineTrack];
+    } as TrackType];
   }
 
-  static displayTracks(tracks?: ITimelineTrack[]) {
+  static displayTracks<TrackType extends ITimelineTrack = ITimelineTrack>(tracks?: TrackType[]) {
     if (tracks?.length) {
       return tracks.concat(TimelineFile.newTrack());
     }
@@ -310,61 +332,61 @@ export class TimelineFile extends BaseFile implements ITimelineFile {
   }
 
   needsGeneration() {
-    if (!this._fileTracks?.length || this._tracks?.length) {
-      return false;
-    }
-    return true;
+    return !(!this._fileTracks?.length || this._tracks?.length);
   }
 
-  async generateTracks(controllers: Record<string, IController>, engine: IEngine, initAction: (engine: IEngine, action: ITimelineFileAction, index: number) => ITimelineAction = initTimelineAction) {
-    if (!this._fileTracks?.length || this._tracks?.length) {
-      return;
-    }
+  async generateTracks(
+    controllers: Record<string, ControllerType>,
+    engine: EngineType,
+    initAction: any): Promise<void> {
 
-    try {
-      const filePromises = this._fileTracks.map((fileTrack) => MediaFile.fromUrl(fileTrack.url));
-      const mediaFiles: MediaFile[] = await Promise.all(filePromises);
+      if (!this._fileTracks?.length || this._tracks?.length) {
+        return;
+      }
 
-      this._tracks = this._fileTracks.map((trackInput, index) => {
-        trackInput.url = trackInput.url.indexOf('http') !== -1 ? trackInput!.url : `${window.location.origin}${trackInput!.url}`;
-        trackInput.url = trackInput.url.replace(/([^:]\/)\/+/g, "$1");
+      try {
+        const filePromises = this._fileTracks.map((fileTrack) => MediaFile.fromUrl(fileTrack.url));
+        const mediaFiles: MediaFile[] = await Promise.all(filePromises);
 
-        const file =  mediaFiles.find((file) => file._url === trackInput.url);
+        this._tracks = this._fileTracks.map((trackInput, index) => {
+          trackInput.url = trackInput.url.indexOf('http') !== -1 ? trackInput!.url : `${window.location.origin}${trackInput!.url}`;
+          trackInput.url = trackInput.url.replace(/([^:]\/)\/+/g, "$1");
 
-        if (!file) {
-          throw new Error('couldn\'t find media file source');
-        }
+          const file =  mediaFiles.find((mediaFile) => mediaFile._url === trackInput.url);
 
-        const actions = trackInput.actions.map((action: ITimelineFileAction) => {
-          return initAction(engine, action, index);
-        }) as ITimelineAction[];
+          if (!file) {
+            throw new Error('couldn\'t find media file source');
+          }
 
-        const track: ITimelineTrack = {
-          id: trackInput.id ?? namedId('track'),
-          name: trackInput.name,
-          actions,
-          file: file,
-          controller: trackInput.controller ? trackInput.controller : controllers[trackInput.controllerName],
-          hidden: trackInput.hidden,
-          lock: trackInput.lock,
-        };
+          const actions = trackInput.actions.map((action: FileActionType) => {
+            return initAction(engine, action, index);
+          }) as ActionType[];
 
-        return track;
-      });
-      const nestedPreloads = this._tracks.map((track) => {
-        return track.actions.map((action) => track.controller.preload ? track.controller.preload({
-          action,
-          engine,
-          file: track.file
-        }) : action)
-      });
-      const preloads = nestedPreloads.flat();
-      await Promise.all(preloads);
+          return {
+            id: trackInput.id ?? namedId('track'),
+            name: trackInput.name,
+            actions,
+            file,
+            controller: trackInput.controller ? trackInput.controller : controllers[trackInput.controllerName],
+            hidden: trackInput.hidden,
+            lock: trackInput.lock,
+          } as any;
+        });
 
-      this.lastChecksum = await this.checksum();
-    } catch (ex) {
-      console.error('buildTracks:', ex);
-    }
+        const nestedPreloads = this._tracks.map((track) => {
+          return track.actions.map((action) => track.controller.preload ? track.controller.preload({
+            action,
+            engine,
+            file: track.file
+          }) : action)
+        });
+        const preloads = nestedPreloads.flat();
+        await Promise.all(preloads);
+
+        this.lastChecksum = await this.checksum();
+      } catch (ex) {
+        console.error('buildTracks:', ex);
+      }
   }
 
   toTracksBlob({subTypePrefix = 'stoked-ui-timeline', type = 'application'}: { type?: string, subTypePrefix?: string } = {}): Blob {
@@ -386,6 +408,7 @@ export class TimelineFile extends BaseFile implements ITimelineFile {
       return new File([blob], this.name, { type: 'application/stoked-ui-timeline' });
     } catch (ex) {
       console.error(ex);
+      throw new Error(ex as string);
     }
   }
 
@@ -487,7 +510,7 @@ export class TimelineFile extends BaseFile implements ITimelineFile {
   }
 
   async load() {
-    return await this.loadStoreData(this.OBJECT_STORE_NAME)
+    return this.loadStoreData(this.OBJECT_STORE_NAME);
   }
 
   async loadOutput(): Promise<IMediaFile[] | undefined> {
@@ -538,16 +561,18 @@ export class TimelineFile extends BaseFile implements ITimelineFile {
     this.height = parsedMeta.height;
     this.url = parsedMeta.url;
 
-    console.log('parse track', this)
-
     // Parse each track blob back to track objects
     const tracksArrayBuffer = await tracksBlob.arrayBuffer();
     const tracksBlobParts = this.splitTracksBlob(tracksArrayBuffer);
 
     // Loop through track blobs and parse each one
-    for (const trackBlob of tracksBlobParts) {
-      const trackData = await trackBlob.arrayBuffer();
-      const trackText = await new Blob([trackData]).text();
+    for (let i = 0; i < tracksBlobParts.length; i += 1){
+      const trackBlobPart = tracksBlobParts[i];
+      // eslint-disable-next-line no-await-in-loop
+      const trackData = await trackBlobPart.arrayBuffer();
+      const trackBlob = new Blob([trackData]);
+      // eslint-disable-next-line no-await-in-loop
+      const trackText = await trackBlob.text();
       const track = JSON.parse(trackText);
       this.tracks.push(track);
     }
@@ -561,36 +586,43 @@ export class TimelineFile extends BaseFile implements ITimelineFile {
     return [blob.slice(0, jsonSize), blob.slice(jsonSize)];
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private splitTracksBlob(buffer: ArrayBuffer): Blob[] {
     // Implement logic to split the tracks data
     // Placeholder logic
     return [];
   }
 
-  static async fromFileActions(actions: ITimelineFileAction[]) {
+  static async fromFileActions<
+    ActionType extends ITimelineAction = ITimelineAction,
+  >(actions: ITimelineFileAction[]) {
     const filePromises = actions.map((action) => MediaFile.fromUrl(action.url));
-    const files = await Promise.all(filePromises);
-    const tracks = files.map((mediaFile) => {
+    const allFiles = await Promise.all(filePromises);
+    const fileActions: ({ file: IMediaFile, action: ITimelineFileAction } | null)[] = allFiles.map((mediaFile)=> {
       const actionIndex = actions.findIndex((fileAction) => fileAction.url === mediaFile._url);
-      if (actionIndex !== -1) {
-        const action = actions[actionIndex];
-        return {
-          id: namedId('timelineFile'),
-          name: 'new video',
-          tracks: tracks,
-          file: mediaFile,
-          url: mediaFile._url,
-          controller: Controllers[mediaFile.mediaType],
-          actions: [{
-            id: namedId('action'),
-            name: action.name,
-            start: action.start || 0,
-            end: (action.end || 0) + 2,
-            volumeIndex: -2,
-          } as ITimelineAction],
-        }
+      if(actionIndex !== -1) {
+        return { file: mediaFile, action: actions[actionIndex] }
       }
-    })
+      return null
+    });
+    const fileActionsClean = fileActions.filter((fileAction) => fileAction !== null) as { file: IMediaFile, action: ITimelineFileAction }[];
+    const tracks = fileActionsClean.map((fileAction)=> {
+      return {
+        id: namedId('timelineFile'),
+        name: 'new video',
+        tracks,
+        file: fileAction.file,
+        url: fileAction.file._url,
+        controller: Controllers[fileAction.file.mediaType],
+        actions: [{
+          id: namedId('action'),
+          name: fileAction.action.name,
+          start: fileAction.action.start || 0,
+          end: (fileAction.action.end || 0) + 2,
+          volumeIndex: -2,
+        } as ActionType],
+      }
+    });
 
     return new TimelineFile({
       tracks

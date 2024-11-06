@@ -2,10 +2,12 @@ import lottie, {AnimationConfigWithPath, AnimationItem} from 'lottie-web';
 import { namedId, AnimationFile } from "@stoked-ui/media-selector";
 import { Controller, ControllerParams, IEngine, ITimelineAction, PreloadParams } from "@stoked-ui/timeline";
 import {IEditorEngine} from "../EditorEngine";
-import {EditorControllerParams, EditorPreloadParams} from "./EditorControllerParams";
-import EditorController from "./EditorController";
+// import EditorController from "./EditorController";
+import { IEditorAction } from "../EditorAction/EditorAction";
+// import { IEditorController } from "./EditorController.types";
+import { EditorControllerParams, EditorPreloadParams } from "./EditorControllerParams";
 
-class AnimationControl extends EditorController {
+class AnimationControl extends Controller {
 
   cacheMap: Record<string, AnimationItem> = {};
 
@@ -34,7 +36,7 @@ class AnimationControl extends EditorController {
 
 
   // eslint-disable-next-line class-methods-use-this
-  private _goToAndStop(engine: IEngine, action: ITimelineAction, item: AnimationItem, time: number) {
+  private _goToAndStop(engine: IEditorEngine, action: ITimelineAction, item: AnimationItem, time: number) {
     if(!item.getDuration()) {
       return;
     }
@@ -61,6 +63,9 @@ class AnimationControl extends EditorController {
       this._goToAndStop(engine, action, item, Controller.getActionTime(params));
     } else if (engine.viewer && engine.renderCtx && engine.renderer) {
       const track = engine.getActionTrack(action.id);
+      if (!track.file?.url) {
+        return;
+      }
       item = AnimationControl.load({
         id: action.id,
         src: track.file.url,
@@ -79,7 +84,7 @@ class AnimationControl extends EditorController {
     }
   }
 
-  update(params: ControllerParams) {
+  update(params: EditorControllerParams) {
     const { action, time, engine } = params;
     const item = this.cacheMap[action.id];
     if (!item) {
@@ -91,7 +96,7 @@ class AnimationControl extends EditorController {
     this._goToAndStop(engine, action, item, Controller.getActionTime(params));
   }
 
-  leave(params: ControllerParams) {
+  leave(params: EditorControllerParams) {
     const { action, time, engine } = params;
     const item = this.cacheMap[action.id];
     if (!item) {
@@ -126,6 +131,7 @@ class AnimationControl extends EditorController {
   getElement(actionId: string) {
     return this.cacheMap[actionId];
   }
+
   static globalCache: Record<string, AnimationItem> = {};
 
   static globalCacheEnabled = false;

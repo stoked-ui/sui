@@ -24,7 +24,7 @@ export const actions: ITimelineAction[] = [
     end: 16,
     controllerName: 'animation',
     data: {
-      src: '/static/timeline/docs/overview/lottie1.json',
+      src: '/static/timeline/docs/overview/writing.lottie',
     },
   },
   {
@@ -33,7 +33,7 @@ export const actions: ITimelineAction[] = [
     end: 9.5,
     controllerName: 'animation',
     data: {
-      src: '/static/timeline/docs/overview/lottie2.json',
+      src: '/static/timeline/docs/overview/doing-things.lottie',
     },
   },
   {
@@ -42,7 +42,7 @@ export const actions: ITimelineAction[] = [
     end: 5,
     controllerName: 'animation',
     data: {
-      src: '/static/timeline/docs/overview/lottie3.json',
+      src: '/static/timeline/docs/overview/stolen-cow.lottie',
     },
   },
   {

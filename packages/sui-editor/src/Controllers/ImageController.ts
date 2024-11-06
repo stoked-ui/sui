@@ -17,14 +17,15 @@ class ImageControl extends Controller {
   enter(params: EditorControllerParams) {
     const {action, engine} = params;
     let item: HTMLImageElement;
+    const track = engine.getActionTrack(action.id)
+    if (!track) {
+      return;
+    }
     if (this.cacheMap[action.id]) {
       item = this.cacheMap[action.id];
       ImageControl.toggleDisplay(action, item);
     } else if (!action.hidden) {
-      console.log('action', action)
-      const track = engine.getActionTrack(action.id)
-      item = ImageControl.createNewImage(action, track.file);
-      console.log('action item engine', item, engine);
+      item = ImageControl.createNewImage(action, track.file!);
       this.cacheMap[action.id] = item;
       ImageControl.attachItemToViewer(item, engine);
       ImageControl.renderImage(item, engine);

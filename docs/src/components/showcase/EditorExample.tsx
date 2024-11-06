@@ -1,7 +1,7 @@
-import {ITimelineFileAction } from "@stoked-ui/timeline";
 import {namedId} from "@stoked-ui/media-selector";
-import {Controllers} from "@stoked-ui/editor";
-import EditorFile from "@stoked-ui/editor/src/Editor/EditorFile";
+import { EditorFile, VideoController } from "@stoked-ui/editor";
+import { AudioController } from "@stoked-ui/timeline";
+
 const idFunc = () => namedId('track');
 
 const EditorExample = new EditorFile({
@@ -15,8 +15,7 @@ const EditorExample = new EditorFile({
       id: idFunc(),
       name: 'dr. strange trailer',
       url: '/static/editor/vast-multiverse.mp4',
-      controller: Controllers['video'],
-
+      controller: VideoController,
       actions: [{
         name: 'vast-multiverse',
         start: 11,
@@ -24,8 +23,8 @@ const EditorExample = new EditorFile({
         trimStart: 29.5,
         volume: [
           [0, 0, 32],
-          [1, 32, 41.5],
-          [0, 41.5, ]
+          [1, 32, 40.5],
+          [0, 40.5, ]
         ],
         z: -2,
         fit: 'fill' as 'fill',
@@ -36,7 +35,7 @@ const EditorExample = new EditorFile({
       id: idFunc(),
       name: 'tunnel alpha',
       url: '/static/editor/background-alpha.webm',
-      controller: Controllers['video'],
+      controller: VideoController,
       actions: [{
         name: 'background-alpha',
         start: 0,
@@ -51,7 +50,7 @@ const EditorExample = new EditorFile({
       id: idFunc(),
       name: 'sui logo',
       url: '/static/editor/stoked-ui.webm',
-      controller: Controllers['video'],
+      controller: VideoController,
       actions: [{
         name: 'stoked-ui',
         start: 0,
@@ -62,7 +61,7 @@ const EditorExample = new EditorFile({
       id: idFunc(),
       name: 'sui reverse logo',
       url: '/static/editor/stoked-ui-reverse.webm',
-      controller: Controllers['video'],
+      controller: VideoController,
       actions: [{
         name: 'stoked-ui-reverse',
         start: 35.7,
@@ -73,9 +72,9 @@ const EditorExample = new EditorFile({
     {
       id: idFunc(),
       name: 'Funeral - Adam Rodgers',
-      url: '/static/timeline/docs/overview/funeral.m4a',
+      url: '/static/editor/funeral.mp3',
       image: '/static/editor/adam-rodgers.jpeg',
-      controller: Controllers['audio'],
+      controller: AudioController,
       actions: [{
         name: 'funeral',
         start: 3,

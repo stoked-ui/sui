@@ -10,7 +10,6 @@ export { default as TimelineTime } from './TimelineTime';
 export { default as TimelineTrack } from './TimelineTrack';
 export { default as TimelineTrackArea } from './TimelineTrackArea';
 export { default as Engine} from './Engine';
-export { default as Controller } from './Controller'
 export * from './Controller'
 export * from './TimelineFile';
 export * from './Timeline';

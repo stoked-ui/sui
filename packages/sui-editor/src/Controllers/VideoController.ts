@@ -1,15 +1,23 @@
-import { Controller, ControllerParams,  IEngine, ITimelineAction, PreloadParams } from "@stoked-ui/timeline";
+import {
+  Controller,
+  ControllerParams,
+  IController,
+  IEngine,
+  ITimelineAction,
+  PreloadParams
+} from "@stoked-ui/timeline";
 import { MediaFile } from "@stoked-ui/media-selector";
-import EditorController from "./EditorController";
+// import EditorController from "./EditorController";
 import {EditorControllerParams, EditorPreloadParams} from "./EditorControllerParams";
 import {DrawData, IEditorEngine} from "../EditorEngine";
 import {IEditorAction} from "../EditorAction/EditorAction";
+// import { IEditorController } from "./EditorController.types";
 
 interface VideoDrawData extends Omit<DrawData, 'source'> {
   source: HTMLVideoElement
 }
 
-class VideoControl extends EditorController {
+class VideoControl extends Controller {
   cacheMap: Record<string, HTMLVideoElement> = {};
 
   cacheFrameSync: Record<string, number> = {};
@@ -95,7 +103,7 @@ class VideoControl extends EditorController {
             loadingSeconds += 1;
             if (isLoaded()) {
               clearInterval(intervalId);
-              resolve(action);
+              resolve(action as ITimelineAction);
             } else if (loadingSeconds > 20) {
               reject(action)
             }
@@ -152,7 +160,7 @@ class VideoControl extends EditorController {
 
   draw(params: EditorControllerParams, videoData?: VideoDrawData) {
     const { action, engine } = params;
-    const dd = videoData ? videoData : this.getDrawData(params) as VideoDrawData;
+    const dd = videoData || this.getDrawData(params) as VideoDrawData;
 
     this.log(params, `draw[${action.fit} | ${action.width} x ${action.height} @ { x: ${action.x}, y: ${action.y} } - readyState: ${dd.source.readyState} ${dd.source.id} ${dd.source.playbackRate}`)
     engine.renderCtx?.drawImage(dd.source, dd.sx, dd.sy, dd.sWidth, dd.sHeight, dd.dx ?? 0, dd.dy ?? 0, dd.dWidth ?? 1920, dd.dHeight ?? 1080);

@@ -1,13 +1,11 @@
-import {ControllerParams, type PreloadParams} from "@stoked-ui/timeline";
-import {type IEditorEngine} from "../EditorEngine/EditorEngine.types";
-import {IEditorAction} from "../EditorAction/EditorAction";
+import { ControllerParams, PreloadParams } from "@stoked-ui/timeline";
+import { IMediaFile} from "@stoked-ui/media-selector";
 
-export interface EditorPreloadParams extends Omit<PreloadParams, 'engine' | 'time' | 'action'> {
-  engine: IEditorEngine;
-  action: IEditorAction;
-}
+import { type IEditorEngine } from "../EditorEngine";
+import { type IEditorAction } from "../EditorAction/EditorAction";
 
-export interface EditorControllerParams extends Omit<ControllerParams, 'engine'> {
-  engine: IEditorEngine;
+export interface EditorControllerParams extends Omit<ControllerParams, 'action' | 'engine'> {
   action: IEditorAction;
+  engine: IEditorEngine;
 }
+export interface EditorPreloadParams extends Omit<EditorControllerParams & { file: IMediaFile }, 'time'> {}
