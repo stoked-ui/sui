@@ -3,12 +3,15 @@ import Box, { BoxProps } from '@mui/material/Box';
 import Fade from '@mui/material/Fade';
 import NoSsr from '@mui/material/NoSsr';
 import Frame from 'docs/src/components/action/Frame';
+import { namedId } from '@stoked-ui/media-selector/src';
 
 export default function ShowcaseContainer({
   preview,
   code,
   sx,
+  id = null,
 }: {
+  id: string | null;
   preview?: React.ReactNode;
   code?: React.ReactNode;
   sx?: BoxProps['sx'];
@@ -32,6 +35,7 @@ export default function ShowcaseContainer({
         }}
       >
         <Frame.Demo
+          id={`${id}-preview` || namedId('preview')}
           sx={{
             display: 'flex',
             position: 'relative',
@@ -43,7 +47,10 @@ export default function ShowcaseContainer({
         >
           {preview}
         </Frame.Demo>
-        <Frame.Info data-mui-color-scheme="dark" sx={{ p: 2, borderTop: 0 }}>
+        <Frame.Info
+          id={`${id}-code` || namedId('code')}
+          data-mui-color-scheme="dark"
+          sx={{ p: 2, borderTop: 0 }}>
           <NoSsr>{code}</NoSsr>
         </Frame.Info>
       </Box>

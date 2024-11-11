@@ -17,16 +17,14 @@ import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import {alpha, emphasize, Theme} from '@mui/material/styles';
 import { Slider, Stack, Tooltip } from "@mui/material";
 import { namedId } from '@stoked-ui/media-selector';
-import { OutputBlob, Version, ToggleButtonGroupSx } from '@stoked-ui/timeline';
-import { useEditorContext } from '../EditorProvider';
+import { OutputBlob, Version, ToggleButtonGroupEx } from '@stoked-ui/timeline';
+import { useEditorContext } from '../EditorProvider/EditorContext';
 import {
-  EditorEngineState,
   IEditorEngine,
 } from '../EditorEngine/EditorEngine.types';
 import {createUseThemeProps, styled} from '../internals/zero-styled';
 import {ControlState, EditorControlsProps, VideoVersionFromKey} from './EditorControls.types';
 import TimelineView from '../icons/TimelineView';
-import {EditorEventTypes} from "../EditorEngine";
 
 export const Rates = [-3, -2.5, -2.0, -1.5, -1.0, -0.5, -0.2, 0.2, 0.5, 1.0, 1.5, 2.0, 2.5, 3];
 const useThemeProps = createUseThemeProps('MuiEditor');
@@ -73,93 +71,97 @@ const PlayerRoot = styled('div')(({ theme }) => ({
   backgroundColor: emphasize(theme.palette.background.default, 0.2),
 }));
 
-const TimeRoot = styled('div')<{disabled: boolean}>(({ theme, disabled }) => ({
-  fontSize: '1px',
-  fontFamily: "'Roboto Condensed', sans-serif",
-  margin: '0 2px',
-  padding: '0px 4px',
-  width: '120px',
-  alignSelf: 'center',
-  borderRadius: '12px',
-  userSelect: 'none',
-  "& .MuiInputBase-input": {
-    userSelect: 'none',
-    fontSize: 16,
-    fontFamily: "monospace",
-    fontWeight: 600,
-    height: 40,
-    padding: '0 4px',
-    borderRadius: '12px',
-    background: theme.palette.background.default,
-    WebkitTextFillColor: 'unset!important',
-    textAlign: 'center',
-    webkitUserSelect: 'none',
-    webkitTouchCallout: 'none',
-    mozUserSelect: 'none',
-    msUserSelect: 'none',
-    alignContent: 'center',
-    '&:hover': {
-      color: `${theme.palette.primary.main}!important`,
-      backgroundColor: theme.palette.background.default,
-      border: `2px solid ${theme.palette.primary[500]}!important`,
-    }
-  },
-  minWidth: '120px',
-  variants: [{
-    props: {
-      disabled: false
-    },
-    style: {
-      "& .MuiInputBase-input": {
+const TimeRoot = styled('div', {
+
+  }) <{disabled: boolean }>(({ theme, disabled }) => {
+    let enabledStyle = {};
+    if (!disabled) {
+      enabledStyle = {
         border: `1px solid ${theme.palette.text.primary}!important`,
-      }
-    }
-  }]
-}));
-
-const RateControlRoot = styled(FormControl)(({theme}) => ({
-  justifySelf: 'flex-end',
-  alignContent: 'center',
-  marginRight: '2px',
-
-  '&:hover': {
-    '& div.MuiSelect-select.MuiSelect-outlined': {
-      color: theme.palette.primary[500],
-    },
-    '& fieldset': {
-      border: `2px solid ${theme.palette.primary[500]}!important`,
-    },
-
-  },
-
-  variants: [{
-    props: {
-      disabled: false
-    },
-    style: {
-      '& fieldset': {
-        border: '1px solid black!important',
         '&:hover': {
-          color: theme.palette.primary.main,
-          backgroundColor: theme.palette.background.default,
+          color: `${theme.palette.primary.main}!important`,
+          backgroundColor: theme.palette.background.paper,
           border: `2px solid ${theme.palette.primary[500]}!important`,
         }
+      }
+    }
+  return {
+    fontSize: '1px',
+    fontFamily: "'Roboto Condensed', sans-serif",
+    margin: '0 2px',
+    padding: '0px 4px',
+    width: '120px',
+    alignSelf: 'center',
+    borderRadius: '12px!important',
+    userSelect: 'none',
+    "& .MuiInputBase-input": {
+      userSelect: 'none',
+      fontSize: 16,
+      fontFamily: "monospace",
+      fontWeight: 600,
+      height: 40,
+      padding: '0 4px',
+      borderRadius: '12px!important',
+      background: `${theme.palette.background.paper}!important`,
+      WebkitTextFillColor: 'unset!important',
+      textAlign: 'center',
+      webkitUserSelect: 'none',
+      webkitTouchCallout: 'none',
+      mozUserSelect: 'none',
+      msUserSelect: 'none',
+      alignContent: 'center',
+      ...enabledStyle,
+    },
+    minWidth: '120px',
+  }
+  });
+
+const RateControlRoot = styled(FormControl)<{ disabled?: boolean }>(({theme, disabled}) => {
+  let enabledStyled = {};
+  if (!disabled) {
+
+    enabledStyled = {
+      '& .MuiInputBase-root': {
+        backgroundColor: `${theme.palette.background.paper}!important`,
+        borderRadius: '12px!important',
+      },
+      '& .MuiSelect-select': {
+        padding: '8px 32px 7px 14px',
+        border: `1px solid ${theme.palette.text.primary}`
+      },
+      '& fieldset': {
+        display: 'none'
       },
       '& .MuiInputBase-root svg': {
         fill: `${theme.palette.text.primary}!important`,
       },
-      '& .MuiInputBase-root fieldset': {
-        border: `1px solid ${theme.palette.text.primary}!important`,
-      },
       '&  .MuiInputBase-root:hover fieldset': {
         border: `2px solid ${theme.palette.primary[500]}!important`,
-      }
-    }
-  }]
-}));
+      },
+      '&:hover': {
+        '& div.MuiSelect-select.MuiSelect-outlined': {
+          color: theme.palette.primary[500],
+        },
+        '& .MuiSelect-select': {
+          border: `2px solid ${theme.palette.primary[500]}!important`,
+          padding: '8px 32px 7px 13px',
+        },
+        '& .MuiInputBase-root svg': {
+          fill: `${theme.palette.primary[500]}!important`,
+        },
+      },
+    };
+  }
+  return {
+    justifySelf: 'flex-end',
+    alignContent: 'center',
+    marginRight: '2px',
+    ...enabledStyled
+  }
+});
 
-const RateControlSelect = styled(Select)(({ theme }) => ({
-  height: 40,
+const RateControlSelect = styled(Select)<{ disabled?: boolean }>(({ theme, disabled }) => ({
+  height: disabled ? 42 : 40,
   background: theme.palette.background.default,
   border: '0 solid #FFF!important',
   '& .MuiSelect-select': {
@@ -364,8 +366,9 @@ function Controls(inProps: ControlProps) {
 
   return (
     <div style={{display: 'flex', flexDirection: 'row', marginLeft: '6px', alignContent: 'center', width: '100%'}}>
-      <ToggleButtonGroup
-        sx={(theme) => ToggleButtonGroupSx(theme)}
+      <ToggleButtonGroupEx
+        width={52}
+        height={40}
         value={controls}
         exclusive
         onChange={(event, changeControls) => {
@@ -374,7 +377,6 @@ function Controls(inProps: ControlProps) {
           }
           setControls(changeControls)
         }}
-        size={'small'}
         aria-label="text alignment"
         disabled={disabled}
       >
@@ -400,26 +402,30 @@ function Controls(inProps: ControlProps) {
         }}>
           {controlState === 'recording' ? <StopIcon/> : <RecordIcon/>}
         </ToggleButton>
-      </ToggleButtonGroup>
+      </ToggleButtonGroupEx>
     </div>)
 }
 
-const getView = ({view, disabled}: {view: 'timeline' | 'files', disabled?: boolean}) => {
+export function ViewToggle({disabled = false}: { disabled?: boolean }) {
+  const { flags, dispatch } = useEditorContext();
+  const set = ['timelineView', 'filesView'];
 
-}
+  const handleOptions = (
+    event: React.MouseEvent<HTMLElement>,
+    newOptions: string[],
+  ) => {
+    dispatch({ type: 'SET_FLAGS', payload: { set, values: newOptions } })
+  };
 
-export function ViewToggle({view, setView, disabled = false}: {view: 'timeline' | 'files', setView: (newView: 'timeline' | 'files') => void, disabled?: boolean }) {
-  const selectedColor = (theme: Theme) => theme.palette.mode === 'light' ? '#FFF' : '#000';
-  const sxButton = (theme: Theme) => {
-    return {
-      borderRadius: '0px!important',
-      // border: `2px solid ${selectedColor(theme)}!important`,
+  React.useEffect(() => {
+    dispatch({ type: 'SET_FLAGS', payload: { set, values: ['timelineView'] } })
+  }, [])
 
-    }};
+  const isTimelineView = flags.includes(set[0]);
   let viewFinal;
-  if (view === 'timeline') {
+  if (isTimelineView) {
     viewFinal = (
-      <ViewButton sx={sxButton} value="files" aria-label="lock" disabled={disabled}>
+      <ViewButton value="filesView" aria-label="lock" disabled={disabled}>
         <SvgIcon  fontSize={'small'}>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="46.057 64.188 404.091 497.187" width="404.091" height="497.187">
             <path d="M 409.103 64.188 L 197.159 64.188 C 174.513 64.188 156.111 82.603 156.111 105.232 L 156.111 119.2 L 142.132 119.2 C 119.502 119.2 101.068 137.598 101.068 160.243 L 101.068 174.259 L 87.121 174.259 C 64.491 174.259 46.057 192.677 46.057 215.304 L 46.057 520.326 C 46.057 542.955 64.492 561.375 87.121 561.375 L 299.05 561.375 C 321.696 561.375 340.11 542.955 340.11 520.326 L 340.11 506.347 L 354.078 506.347 C 376.708 506.347 395.137 487.93 395.137 465.284 L 395.137 451.323 L 409.105 451.323 C 431.735 451.323 450.148 432.904 450.148 410.274 L 450.148 105.232 C 450.146 82.603 431.733 64.188 409.103 64.188 Z M 307.34 520.326 C 307.34 524.895 303.613 528.604 299.05 528.604 L 87.121 528.604 C 82.554 528.604 78.827 524.895 78.827 520.326 L 78.827 215.303 C 78.827 210.739 82.554 207.028 87.121 207.028 L 299.05 207.028 C 303.614 207.028 307.34 210.739 307.34 215.303 L 307.34 520.326 Z M 362.35 465.284 C 362.35 469.868 358.645 473.579 354.077 473.579 L 340.109 473.579 L 340.109 215.303 C 340.109 192.676 321.696 174.258 299.049 174.258 L 133.837 174.258 L 133.837 160.243 C 133.837 155.659 137.564 151.954 142.132 151.954 L 354.077 151.954 C 358.645 151.954 362.35 155.659 362.35 160.243 L 362.35 465.284 Z M 417.377 410.274 C 417.377 414.841 413.672 418.547 409.104 418.547 L 395.136 418.547 L 395.136 160.243 C 395.136 137.597 376.707 119.2 354.077 119.2 L 188.863 119.2 L 188.863 105.232 C 188.863 100.665 192.59 96.96 197.159 96.96 L 409.103 96.96 C 413.671 96.96 417.376 100.665 417.376 105.232 L 417.376 410.274 L 417.377 410.274 Z M 137.35 292.584 L 222.587 292.584 C 231.629 292.584 238.985 285.25 238.985 276.191 C 238.985 267.14 231.629 259.815 222.587 259.815 L 137.35 259.815 C 128.314 259.815 120.956 267.14 120.956 276.191 C 120.957 285.251 128.314 292.584 137.35 292.584 Z M 248.816 325.393 L 137.35 325.393 C 128.314 325.393 120.956 332.729 120.956 341.784 C 120.956 350.838 128.313 358.163 137.35 358.163 L 248.816 358.163 C 257.874 358.163 265.193 350.838 265.193 341.784 C 265.193 332.729 257.874 325.393 248.816 325.393 Z M 248.816 390.963 L 137.35 390.963 C 128.314 390.963 120.956 398.282 120.956 407.34 C 120.956 416.393 128.313 423.717 137.35 423.717 L 248.81 423.717 C 257.868 423.717 265.187 416.393 265.187 407.34 C 265.193 398.283 257.874 390.963 248.816 390.963 Z M 248.816 456.52 L 137.35 456.52 C 128.314 456.52 120.956 463.838 120.956 472.895 C 120.956 481.949 128.313 489.289 137.35 489.289 L 248.816 489.289 C 257.874 489.289 265.193 481.949 265.193 472.895 C 265.193 463.838 257.874 456.52 248.816 456.52 Z" fill="currentColor"/>
@@ -429,20 +435,20 @@ export function ViewToggle({view, setView, disabled = false}: {view: 'timeline' 
     )
     if (!disabled) {
       viewFinal = (
-        <Tooltip title={"Switch to Files View"}>
+        <Tooltip enterDelay={1000} title={"Switch to Files View"}>
           {viewFinal}
         </Tooltip>
       )
     }
   } else {
     viewFinal = (
-      <ViewButton sx={sxButton} value="timeline">
+      <ViewButton value="timelineView">
         <TimelineView fontSize={'small'}/>
       </ViewButton>
     )
     if (!disabled) {
       viewFinal = (
-        <Tooltip title={"Switch to Timeline View"} sx={{ position: 'absolute' }}>
+        <Tooltip enterDelay={1000} title={"Switch to Timeline View"} sx={{ position: 'absolute' }}>
           {viewFinal}
         </Tooltip>
       )
@@ -470,14 +476,9 @@ export function ViewToggle({view, setView, disabled = false}: {view: 'timeline' 
         },
       }
     })}
-    value={view}
+    value={flags.filter((s) => set.includes(s))}
     exclusive
-    onChange={(event, newView) => {
-      if (!newView) {
-        newView = view === 'timeline' ? 'files' : 'timeline';
-      }
-      setView(newView)
-    }}
+    onChange={handleOptions}
     size={'small'}
     aria-label="text alignment"
   >
@@ -487,7 +488,7 @@ export function ViewToggle({view, setView, disabled = false}: {view: 'timeline' 
 
 
 
-function Volume({ disabled }) {
+function Volume({disabled}: { disabled?: boolean }) {
   const { engine } = useEditorContext();
   const [value, setValue] = React.useState<number>(100);
   const [mute, setMute] = React.useState<boolean>(false);
@@ -505,13 +506,21 @@ function Volume({ disabled }) {
     setMute(!mute);
   }
 
-  const cursor = { cursor: 'pointer' };
-  const hover = (theme) => ({ '&:hover': { fill: `${theme.palette.primary[500]}!important` }});
-  const base = (theme) => ({ mr: '4px!important', ...cursor, ...hover(theme) });
+  const base = (theme) => {
+    return {
+      mr: '4px!important',
+      fill: disabled ? theme.palette.action.disabled : theme.palette.text.primary,
+      cursor: 'pointer',
+      '&:hover': {
+        fill: `${theme.palette.primary[500]}!important`
+      }
+    }
+  };
+
   const getIcon = (isMute: boolean, volume: number) => {
     let icon = <VolumeUp  sx={base} />;
     if (isMute) {
-      icon = <VolumeOff sx={base} />;
+      icon = <VolumeOff  sx={base} />;
     } else if (volume === 0) {
       icon = <VolumeMute sx={{ ...base, left: '-4px', position: 'relative' }} />;
     } else if (volume < 70) {
@@ -526,14 +535,13 @@ function Volume({ disabled }) {
     mr: 2,
   }}>
     <IconButton
-      className={`${disabled ? 'Mui-disabled' : ''}`}
       sx={{
-        color: disabled ? undefined : 'black',
         '&:hover': {
           background: 'transparent',
         }
       }}
       onClick={toggleMute}
+      disabled={disabled}
     >
       {getIcon(mute, value)}
     </IconButton>
@@ -580,7 +588,7 @@ export const EditorControls = React.forwardRef(
     const { engine, file } = useEditorContext();
     const props = useThemeProps({ props: inProps, name: 'MuiEditorControls' });
     const { timeline, switchView = true, disabled } = inProps;
-    const { view = timeline ? 'timeline' : 'files', setView, versions, setVersions, currentVersion, setCurrentVersion } = props;
+    const { versions, setVersions, currentVersion, setCurrentVersion } = props;
     const [time, setTime] = React.useState(0);
     const [videoURLs, setVideoURLs] = React.useState<string[]>([]);
 
@@ -625,7 +633,7 @@ export const EditorControls = React.forwardRef(
         <div style={{display: 'flex', flexDirection: 'row', alignContent: 'center', width: '100%'}}>
           <div style={{display: 'flex', flexDirection: 'row', alignContent: 'center', height: '100%'}}>
             <Controls {...controlProps} controlState={controlState} setControlState={setControlState} versions={versions!} setVersions={setVersions!} disabled={disabled} />
-            {(switchView) && <ViewToggle view={view} setView={setView} disabled={disabled} />}
+            {(switchView) && <ViewToggle disabled={disabled} />}
           </div>
         </div>
         <Box sx={(theme) => ({
@@ -635,8 +643,7 @@ export const EditorControls = React.forwardRef(
           <Volume disabled={disabled}/>
           {/* {hasDownload() && <Button onClick={() => download()} variant={'text'}>Download</Button>} */}
           <TimeRoot disabled={!!disabled} className={`MuiFormControl-root MuiTextField-root ${disabled ? 'Mui-disabled' : ''}`}>
-            <div
-              className={`MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary ${disabled ? 'Mui-disabled' : ''} MuiInputBase-formControl MuiInputBase-sizeSmall css-qp45lg-MuiInputBase-root-MuiOutlinedInput-root`}>
+            <div style={{ borderRadius: '12px!important'}} className={`MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary ${disabled ? 'Mui-disabled' : ''} MuiInputBase-formControl MuiInputBase-sizeSmall css-qp45lg-MuiInputBase-root-MuiOutlinedInput-root`}>
               <Box aria-invalid="false" id="time"
                 sx={(theme) => ({
                   color: `${disabled ? theme.palette.text.disabled : theme.palette.text.primary}!important`

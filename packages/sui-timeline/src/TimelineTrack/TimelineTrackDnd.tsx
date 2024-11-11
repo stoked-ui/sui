@@ -383,7 +383,7 @@ const TimelineRowDnd = React.forwardRef<RowRndApi, RowRndProps>(
       >
         {React.cloneElement(children as React.ReactElement, {
           style: {
-            ...((children as React.ReactElement).props.style || {}),
+            ...((children as React.ReactElement).props?.style || {}),
             left,
             width,
           },

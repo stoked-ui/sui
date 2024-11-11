@@ -2,7 +2,7 @@ import * as React from 'react';
 import {expect} from 'chai';
 import {spy} from 'sinon';
 import {fireEvent} from '@stoked-ui/internal-test-utils';
-import {describeFileExplorer} from 'test/utils/fileExplorer-view/describeFileExplorer';
+import {describeFileExplorer} from 'test/utils/fileExplorer/describeFileExplorer';
 import {
   UseFileExplorerExpansionSignature,
   UseFileExplorerFilesSignature,

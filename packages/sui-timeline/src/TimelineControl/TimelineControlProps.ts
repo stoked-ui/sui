@@ -42,6 +42,10 @@ export interface TimelineControlProps extends TimelineControlPropsBase {
   setScale?: (scale: number) => void;
 
   ref?: React.RefObject<TimelineState>;
+
+  timelineState?: TimelineState;
+
+  collapsed?: boolean;
 }
 
 export type TimelineControlComponent = ((

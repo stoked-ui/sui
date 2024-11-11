@@ -1,7 +1,6 @@
 import { ITimelineFileAction, ITimelineAction, initTimelineAction, IEngine } from '@stoked-ui/timeline';
 import * as React from "react";
 import { type DrawData, type IEditorEngine } from "../EditorEngine";
-// import { type IEditorController } from "../Controllers/EditorController.types";
 
 export interface IEditorFileAction extends ITimelineFileAction {
 
@@ -30,6 +29,8 @@ export interface IEditorFileAction extends ITimelineFileAction {
 
 export interface IEditorAction extends ITimelineAction {
 
+  id: string;
+
   style?: React.CSSProperties;
 
   width: number;
@@ -52,20 +53,19 @@ export interface IEditorAction extends ITimelineAction {
 
 }
 
-export function initEditorAction(engine: IEngine, fileAction: ITimelineFileAction, trackIndex: number) {
-  const newAction: IEditorAction = initTimelineAction(engine as any, fileAction as ITimelineFileAction, trackIndex) as IEditorAction
+export function initEditorAction(fileAction: ITimelineFileAction, trackIndex: number) {
+  const newAction: IEditorAction = initTimelineAction(fileAction as ITimelineFileAction, trackIndex) as IEditorAction
 
-  const editorEngine = engine as IEditorEngine;
   if (!newAction.z) {
     newAction.z = trackIndex;
   }
 
   if (!newAction.width) {
-    newAction.width = editorEngine.renderWidth;
+    newAction.width = 1920;
   }
 
   if (!newAction.height) {
-    newAction.height = editorEngine.renderHeight;
+    newAction.height = 1080;
   }
 
   if (!newAction.fit) {

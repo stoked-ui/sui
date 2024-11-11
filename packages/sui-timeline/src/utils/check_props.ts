@@ -21,7 +21,7 @@ export function checkProps(props: TimelineControlProps): TimelineControlProps {
     startLeft = DEFAULT_START_LEFT,
     minScaleCount = MIN_SCALE_COUNT,
     maxScaleCount = Infinity,
-    rowHeight = DEFAULT_TRACK_HEIGHT,
+    trackHeight = DEFAULT_TRACK_HEIGHT,
   } = props;
 
   if(scale <= 0) {
@@ -61,9 +61,9 @@ export function checkProps(props: TimelineControlProps): TimelineControlProps {
   }
   maxScaleCount = maxScaleCount === Infinity ? Infinity : parseInt(`${maxScaleCount}`, 10);
 
-  if(rowHeight <= 0) {
-    logger.warn('Warning: rowHeight must be greater than 0!')
-    rowHeight = DEFAULT_TRACK_HEIGHT
+  if(trackHeight <= 0) {
+    logger.warn('Warning: trackHeight must be greater than 0!')
+    trackHeight = DEFAULT_TRACK_HEIGHT
   }
 
   const temp = {...props};
@@ -77,6 +77,6 @@ export function checkProps(props: TimelineControlProps): TimelineControlProps {
     startLeft,
     minScaleCount,
     maxScaleCount,
-    rowHeight,
+    trackHeight,
   }
 }

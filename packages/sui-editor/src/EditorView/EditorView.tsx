@@ -1,21 +1,19 @@
 import * as React from 'react';
 import {IMediaFile} from '@stoked-ui/media-selector';
-import {ITimelineFileProps, useTimeline} from "@stoked-ui/timeline";
+import { ITimelineFileProps, TimelineFile, useTimeline } from "@stoked-ui/timeline";
 import SettingsIcon from '@mui/icons-material/Settings';
 import SaveIcon from '@mui/icons-material/Save';
 import IconButton from '@mui/material/IconButton';
 import composeClasses from "@mui/utils/composeClasses";
 import {useSlotProps} from '@mui/base/utils';
+import {keyframes} from "@emotion/react";
 import useForkRef from "@mui/utils/useForkRef";
 import {createUseThemeProps, styled} from '../internals/zero-styled';
 import {EditorViewProps} from './EditorView.types';
 import {getEditorViewUtilityClass} from "./editorViewClasses";
-import {useEditorContext} from "../EditorProvider";
-import {keyframes} from "@emotion/react";
+import {useEditorContext} from "../EditorProvider/EditorContext";
 import Loader from "../Editor/Loader";
-import EditorFile, {editorFileCache, IEditorFileProps} from '../Editor/EditorFile';
-import {useContext} from "react";
-import { IEditorFileTrack } from "../EditorTrack/EditorTrack";
+import EditorFile from '../Editor/EditorFile';
 
 const useThemeProps = createUseThemeProps('MuiEditorView');
 
@@ -80,14 +78,6 @@ const Renderer = styled('canvas', {
   aspectRatio: 16 / 9,
   width: '100%',
   height: '100%'
-/*   background: `repeating-linear-gradient(
-    45deg,
-    rgba(0, 0, 0, 0.2),
-    rgba(0, 0, 0, 0.2) 10px,
-    rgba(0, 0, 0, 0.3) 10px,
-    rgba(0, 0, 0, 0.3) 20px
-  ),
-  url(http://s3-us-west-2.amazonaws.com/s.cdpn.io/3/old_map_@2X.png)` */
 }));
 
 const Screener = styled('video', {
@@ -136,9 +126,10 @@ const EditorView = React.forwardRef(function EditorView<
   ref: React.Ref<HTMLDivElement>
 ): React.JSX.Element {
   const editorContext = useEditorContext();
-  const { id, file, engine, isMobile } = editorContext;
+  const { id, file, engine, flags, dispatch } = editorContext;
+  const isMobile = flags.includes('isMobile');
+
   const timelineContext = useTimeline();
-  console.log('isMobile', isMobile);
   const props = useThemeProps({ props: inProps, name: 'MuiEditorView' });
   const viewRef = React.useRef<HTMLDivElement>(null);
   const combinedViewRef = useForkRef(ref , viewRef);
@@ -200,12 +191,46 @@ const EditorView = React.forwardRef(function EditorView<
     elementType: Root,
     externalSlotProps: slotProps?.root,
     className: classes.root,
-    ownerState: {...props, ref: viewRef },
+    ownerState: {...props, ref: viewRef }
   });
 
   const saveHandler = async () => {
-    const newFile = new EditorFile(file as IEditorFileProps<IEditorFileTrack>);
-    file?.save();
+    if (!file) {
+      return;
+    }
+    const actualFile: EditorFile = file as EditorFile;
+    await TimelineFile.SaveAs(actualFile);
+    /*
+    const props: IEditorFileProps = {
+      id: file.id,
+      name: file.name,
+      tracks: file.tracks.map((track: IEditorFileTrack) => {
+        return {
+          id: track.id,
+          name: track.name,
+          actions: track.actions.map((action: IEditorAction) => {
+            return {
+              id: action.id,
+              name: action.name,
+              type: action.type,
+              volume: action.volume,
+              x: action.x,
+              y: action.y,
+              z: action.z,
+              duration: action.duration,
+              start: action.start,
+              end: action.end,
+            }
+          })
+        }
+      }),
+      backgroundColor: file.backgroundColor,
+      duration: file.,
+      height: file.height,
+      width: file.width,
+    }
+     */
+
   }
   // if the viewer resizes make the renderer match it
   React.useEffect(() => {
@@ -245,6 +270,7 @@ const EditorView = React.forwardRef(function EditorView<
   >
 
     <Loader />
+
     <Renderer role={'renderer'} style={{backgroundColor: file?.backgroundColor}} ref={rendererRef}
               data-preserve-aspect-ratio/>
     <Screener role={'screener'} ref={screenerRef}/>
@@ -275,8 +301,7 @@ const EditorView = React.forwardRef(function EditorView<
           margin: '8px'
         }}
         onClick={() => {
-
-          setShowSettingsPanel(true)
+          dispatch({ type: 'PROJECT_DETAIL'});
         }}
       >
         <SettingsIcon/>

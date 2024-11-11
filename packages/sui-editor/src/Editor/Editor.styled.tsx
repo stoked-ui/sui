@@ -1,40 +1,15 @@
-import { Popover, styled} from "@mui/material";
-import { IMediaFile } from "@stoked-ui/media-selector";
-import Plyr, {PlyrProps} from "plyr-react";
 import * as React from "react";
-import AudioPlayer from "./AudioPlayer";
+import { Modal, styled, Popover} from "@mui/material";
+import { IMediaFile } from "@stoked-ui/media-selector";
+import CloseIcon from '@mui/icons-material/Close';
+import Plyr, {PlyrProps} from "plyr-react";
 import Collapse from "@mui/material/Collapse";
-import { useEditorContext } from "../EditorProvider";
-import { IDetailFile } from "../DetailView";
+import AudioPlayer from "./AudioPlayer";
+import { type IDetailFile } from "../DetailView/Detail.types";
+import { EditorStateAction } from "../EditorProvider/EditorProvider.types";
 
 export type PlayerProps = PlyrProps;
 
-export const EditorPopover = React.forwardRef(function EditorPopover(
-  props: { name: string, children: React.ReactNode },
-  ref: React.Ref<HTMLDivElement>,
-) {
-  const { children } = props;
-  const context = useEditorContext();
-
-  const onClose = (event, reason) => {
-    context.dispatch({ type: 'SET_POPOVER', payload: { open: false, name: props.name } });
-  }
-  return (
-    <Popover
-      sx={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center'
-      }}
-      ref={ref}
-      open={context.popovers[props.name]}
-      onClose={onClose}
-      anchorReference={'none'}
-    >
-      {children}
-    </Popover>
-  )
-});
 
 const StyledPlyrBase = styled(Plyr)(({theme}) => ({
   '& .MuiInputBase-root': {
@@ -176,3 +151,22 @@ const StyledCollapse = styled(Collapse, {
     }),
   };
 });
+
+type CloseModalDispatchFunc = (params: EditorStateAction) => void;
+export function closeModal(dispatch: CloseModalDispatchFunc, modalName: string) {
+  dispatch({
+    type: 'SET_FLAGS',
+    payload: {
+      set: [modalName],
+      values: []
+    }
+  });
+}
+
+export function getModalStyle() {
+  return {
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+  };
+}

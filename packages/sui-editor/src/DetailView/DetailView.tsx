@@ -1,155 +1,65 @@
 import * as React from 'react';
-import {
-  DetailViewProps,
-  FormInfo,
-  getTrackFormData,
-  getActionFormData, getFileFormData, getFormSchema
-} from "./DetailView.types";
-import DetailTrackView from './DetailTrackView';
-import DetailVideoView from './DetailVideoView';
-import {IDetailData, DetailSelection, SubmitSignature} from "./Detail";
-import EditorFile, { IEditorFile } from "../Editor/EditorFile";
-import {EditorPopover} from "../Editor/Editor.styled";
-import { useEditorContext } from '../EditorProvider/EditorProvider';
-import {IEditorAction} from "../EditorAction/EditorAction";
-import { getVideoFormData } from "./DetailVideoView.types";
-import { IEditorTrack } from "../EditorTrack/EditorTrack";
-import { IEditorEngine } from "../EditorEngine";
+import IconButton from "@mui/material/IconButton";
+import { Close } from "@mui/icons-material";
+import Modal from "@mui/material/Modal";
+import { DetailDataAction, DetailDataProject, DetailDataTrack } from "./Detail.types";
+import { DetailTrack } from './DetailTrack';
+import { useEditorContext } from '../EditorProvider/EditorContext';
+import { closeModal } from '../Editor/Editor.styled';
+import { DetailProject } from './DetailProject';
+import { DetailAction } from './DetailAction';
+import { Zettor } from "../EditorProvider/EditorProvider.types";
 
-function DetailType(props){
-  const { detail } = props;
-  if (detail.track) {
-    return <DetailTrackView {...props} />;
+
+export const DetailView = React.forwardRef(function DetailView(inProps, ref: React.Ref<HTMLDivElement>) {
+  const { detail, settings, selectedTrack, file, selectedAction, engine, dispatch } = useEditorContext();
+  const [editor, setEditor] = React.useState(new Zettor('detailView-edit', dispatch))
+  const props = {
+    editor,
   }
-  return <DetailVideoView {...props} />;
-}
-
-function getInput(props: { video: IEditorFile, engine?: IEditorEngine, selected?: IEditorTrack | IEditorAction | IEditorFile }): DetailSelection {
-  const { engine, video, selected} = props;
-
-  if (!engine) {
-    throw new Error('Engine is required for detail view');
-  }
-
-  if (!video) {
-    throw new Error('Video is required for detail view');
-  }
-
-  if ("actions" in selected!) {
-    const track = selected as IEditorTrack;
-    return {
-      video,
-      track,
-      action: undefined
-    }
-  }
-  if ("volume" in selected!) {
-    const track = props.engine?.getActionTrack(selected.id) as IEditorTrack;
-    if (!track) {
-      console.error('Track not found for action (this should not happen)', selected);
-      throw new Error('Track not found for action');
-    }
-    return {
-      video,
-      track: track!,
-      action: selected as IEditorAction
-    }
-  }
-  return {
-    video,
-    track: undefined,
-    action: undefined
-  }
-}
-
-
-function DetailView(inProps: DetailViewProps,) {
-  const { selectedAction, selectedTrack, file, engine, dispatch } = useEditorContext();
-
-  const [editMode, setEditMode] = React.useState<boolean>(false);
-  const formRef = React.useRef<HTMLFormElement>(null);
-
-  if (engine) {
-    engine.detailMode = true;
-  }
-
-  const onClickEdit = (event: Event) => {
-    if (!editMode) {
-      setEditMode(true);
-    }
-    // event.preventDefault();
-    event.stopPropagation();
-  }
-  const getSelection = () => {
-    if (selectedAction) {
-      return selectedAction;
-    }
-    if (selectedTrack) {
-      return selectedTrack;
-    }
-    return file!;
-  }
-
-  const getFormData = (detail: DetailSelection) => {
-    if (selectedAction) {
-      return {
-        video: getVideoFormData(detail),
-        track: getTrackFormData(detail),
-        action: getActionFormData(detail),
-        file: getFileFormData(detail)
-      };
-    }
-    if (selectedTrack) {
-      return {
-        video: getVideoFormData(detail),
-        track: getTrackFormData(detail),
-        file: getFileFormData(detail)
-      }
-    }
-    return {
-      video: getVideoFormData(detail),
-    }
-  }
-
-  const getData = (): FormInfo => {
-    const input = { selected: getSelection(), engine, video: file! }
-    const detail = getInput(input);
-    const data = getFormData(detail)
-
-    return {
-      detail,
-      data
-    }
-  }
-
-  const [formInfo, setFormInfo] = React.useState<FormInfo>(getData());
-
-  React.useEffect(() => {
-    if (file) {
-      setFormInfo(getData());
-    }
-  }, [file, formInfo.data, selectedTrack, selectedAction])
-
-  const schema = getFormSchema();
-
-  const commonProps = {
-    tracks: file?.tracks ?? [],
-    setEditMode,
-    editMode,
-    engine,
-    onClickEdit,
-    formRef,
-    formInfo,
-    setFormInfo,
-    schema,
-  };
-
   return (
-    <EditorPopover
-      name={'detail'}
-    >
-      <DetailType {...commonProps} />
-    </EditorPopover>);
+    <div style={{ position: 'relative'}}>
+      <IconButton
+        sx={{
+          position: 'absolute',
+          top: 0,
+          right: 0
+        }}
+        onClick={() => closeModal(dispatch, DetailModal.flag)}
+      >
+        <Close/>
+      </IconButton>
+
+      {(() => {
+        switch (detail.type) {
+          case 'track':
+            return  <DetailTrack {...props} data={detail as DetailDataTrack}/>
+          case 'action':
+            return <DetailAction {...props} data={detail as DetailDataAction}/>
+          case 'project':
+            return <DetailProject {...props} data={detail as DetailDataProject}/>
+          default:
+            return null
+        }
+      })()}
+    </div>
+  );
+});
+
+
+function DetailModal () {
+  const { flags, dispatch } = useEditorContext();
+  return (<Modal
+    open={flags.includes(DetailModal.flag)}
+    onClose={() => closeModal(dispatch, 'detailPopover')}
+    aria-labelledby="modal-modal-title"
+    aria-describedby="modal-modal-description"
+    style={{display:'flex',alignItems:'center',justifyContent:'center'}}
+  >
+    <DetailView />
+  </Modal>)
 }
 
-export default DetailView;
+DetailModal.flag = 'detailPopover';
+
+export default DetailModal;

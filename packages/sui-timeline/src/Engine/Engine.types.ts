@@ -3,19 +3,37 @@ import type {IController} from '../Controller/Controller.types';
 import type {ITimelineAction } from "../TimelineAction";
 import type { EventTypes } from './events';
 import { Emitter } from "./emitter";
+import { RowRndApi } from "../TimelineTrack/TimelineTrackDnd.types";
 
+export type SetAction<S> = S | ((prevState: S) => S);
+export type Dispatch<A> = (value: A) => void;
 
 export interface IEngine<EmitterEvents extends EventTypes = EventTypes> extends Emitter<EmitterEvents> {
   readonly isPlaying: boolean;
   readonly isPaused: boolean;
   readonly isLoading: boolean;
   logging: boolean;
-  detailMode?: boolean;
   controllers: Record<string, any>;
   readonly duration: number;
   readonly actions: Record<string, ITimelineAction>;
   control: any;
   state: string;
+
+  resetCursor?: () => void;
+
+  cursorData?: () => {
+    dnd?: { current: RowRndApi };
+    dragLeft: { current: number };
+    scrollLeft: { current: number };
+    setCursor: (param: {
+      left?: number,
+      time?: number
+    }) => boolean;
+  }
+
+  cursorDragStart?: (time: number) => void;
+  cursorDragEnd?: () => void;
+  cursorDrag?: (left: number, scroll?: number) => void;
 
   setScrollLeft(left: number): void;
   /** Set playback rate */

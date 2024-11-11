@@ -14,7 +14,7 @@ import {TimelineFile} from "../TimelineFile";
 /** edit area ref data */
 export interface TimelineTrackAreaState {
   domRef: React.MutableRefObject<HTMLDivElement>;
-  gridRef: React.MutableRefObject<HTMLDivElement>;
+  tracksRef: React.MutableRefObject<HTMLDivElement>;
 }
 
 const TimelineTrackAreaRoot = styled('div')(() => ({
@@ -36,8 +36,9 @@ const TimelineTrackAreaRoot = styled('div')(() => ({
 const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrackAreaProps>((props, ref) => {
   const { file } = useTimeline();
   const tracks = TimelineFile.displayTracks(file?.tracks);
+
   const {
-    rowHeight,
+    trackHeight,
     scaleWidth,
     scaleCount,
     startLeft,
@@ -58,8 +59,8 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
   } = props;
   const { dragLineData, initDragLine, updateDragLine, disposeDragLine, defaultGetAssistPosition, defaultGetMovePosition } = useDragLine();
   const editAreaRef = React.useRef<HTMLDivElement>();
-  const gridRef = React.useRef<Grid>();
-  const gridElementRef = React.useRef<HTMLDivElement>();
+  const tracksRef = React.useRef<Grid>();
+  const tracksElementRef = React.useRef<HTMLDivElement>();
   const heightRef = React.useRef(-1);
 
   // ref 数据
@@ -67,8 +68,8 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
     get domRef() {
       return editAreaRef;
     },
-    get gridRef() {
-      return gridElementRef;
+    get tracksRef() {
+      return tracksElementRef;
     }
   }));
 
@@ -111,7 +112,7 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
 
 /** Get the rendering content of each cell */
   const cellRenderer: GridCellRenderer = ({ rowIndex, key, style }) => {
-    const track = tracks[rowIndex]; // track data
+    const gridTrack = tracks[rowIndex]; // track data
     return (
       <TimelineTrack
         {...props}
@@ -122,8 +123,8 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
         }}
         areaRef={editAreaRef}
         key={key}
-        rowHeight={ rowHeight}
-        track={track}
+        trackHeight={ trackHeight}
+        track={gridTrack}
         dragLineData={dragLineData}
         disableDrag={props.disableDrag}
 
@@ -157,17 +158,17 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
   };
 
   React.useEffect(() => {
-    if (gridRef.current) {
-      gridElementRef.current = document.getElementById('thisisedit') as HTMLDivElement;
+    if (tracksRef.current) {
+      tracksElementRef.current = document.getElementById('thisisedit') as HTMLDivElement;
     }
-  }, [gridRef])
+  }, [tracksRef])
 
   React.useEffect(() => {
-    gridRef.current?.scrollToPosition({ scrollTop, scrollLeft });
+    tracksRef.current?.scrollToPosition({ scrollTop, scrollLeft });
   }, [scrollTop, scrollLeft]);
 
   React.useEffect(() => {
-    gridRef.current.recomputeGridSize();
+    tracksRef.current.recomputeGridSize();
   }, [tracks]);
 
   return (
@@ -177,15 +178,15 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
           // Get full height
           let totalHeight = 0;
           // HEIGHT LIST
-          const heights = tracks?.map((track) => {
-            totalHeight += rowHeight;
-            return rowHeight;
+          const heights = tracks?.map((heightTrack) => {
+            totalHeight += trackHeight;
+            return trackHeight;
           });
          /*  if (totalHeight < height && heights && viewMode === 'Renderer') {
             heights.push(height - totalHeight);
             if (heightRef.current !== height && heightRef.current >= 0) {
               setTimeout(() =>
-                gridRef.current?.recomputeGridSize({
+                tracksRef.current?.recomputeGridSize({
                   rowIndex: heights?.length ?? 0 - 1,
                 }),
               );
@@ -197,7 +198,7 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
               id={'thisisedit'}
               columnCount={1}
               rowCount={heights?.length ?? 0}
-              ref={gridRef}
+              ref={tracksRef}
               style={{
                 overscrollBehavior: 'none',
               }}
@@ -205,7 +206,7 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
               columnWidth={Math.max(scaleCount * scaleWidth + startLeft, width)}
               width={width}
               height={totalHeight}
-              rowHeight={({ index }) => heights[index] || rowHeight}
+              rowHeight={({ index }) => heights[index] || trackHeight}
               overscanRowCount={10}
               overscanColumnCount={0}
               onScroll={(param) => {

@@ -3,9 +3,9 @@ import {SxProps, Theme} from "@mui/material/styles";
 import type { IController } from '../Controller/Controller.types';
 import type {ITimelineAction} from "../TimelineAction/TimelineAction.types";
 import {type ITimelineTrack} from "../TimelineTrack/TimelineTrack.types";
+import { getScaleCountByRows } from "../utils";
 
 export interface TimelineControlPropsBase<
-  ControllerType extends IController = IController,
   TrackType extends ITimelineTrack = ITimelineTrack,
   ActionType extends ITimelineAction = ITimelineAction,
 > {
@@ -43,7 +43,7 @@ export interface TimelineControlPropsBase<
    * @description Default height of each edit line (>0, unit: px)
    * @default 32
    */
-  rowHeight?: number;
+  trackHeight?: number;
   /**
    * @description Whether to enable grid movement adsorption
    * @default false

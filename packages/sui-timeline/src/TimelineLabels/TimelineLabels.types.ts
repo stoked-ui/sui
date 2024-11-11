@@ -5,6 +5,7 @@ import {SlotComponentProps} from '@mui/base/utils';
 import { IController } from '../Controller/Controller.types';
 import {TimelineLabelsClasses} from './timelineLabelsClasses';
 import { MediaFile } from '@stoked-ui/media-selector';
+import { ITimelineTrack } from "../TimelineTrack";
 
 export interface TimelineLabelsSlots {
   /**
@@ -37,13 +38,13 @@ export interface TimelineLabelsPropsBase extends React.HTMLAttributes<HTMLDivEle
 
   controllers: Record<string, IController>;
 
-  detailMode?: boolean;
-
   onAddFiles?: () => void;
 
   hideLock?: boolean;
 
   width?: number | string;
+
+  onLabelClick?: (track: ITimelineTrack) => void;
 }
 
 export interface TimelineLabelsProps
