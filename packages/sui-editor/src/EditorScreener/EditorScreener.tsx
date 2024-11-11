@@ -1,11 +1,12 @@
-import {useEditorContext} from "../EditorProvider";
-import Select, {SelectChangeEvent} from "@mui/material/Select";
 import * as React from "react";
+import { IMediaFile } from "@stoked-ui/media-selector";
+
+import Select, {SelectChangeEvent} from "@mui/material/Select";
 import FormControl from "@mui/material/FormControl";
 import MenuItem from "@mui/material/MenuItem";
-import { IMediaFile } from "@stoked-ui/media-selector";
-import {EditorScreenerProps, VersionProps} from "./EditorScreener.types";
-import {EditorPopover, MediaScreener} from "../Editor/Editor.styled";
+import {useEditorContext} from "../EditorProvider/EditorContext";
+import {VersionProps} from "./EditorScreener.types";
+import {MediaScreener} from "../Editor/Editor.styled";
 import {styled} from "../internals/zero-styled";
 
 const VersionRoot = styled(FormControl)({
@@ -42,18 +43,7 @@ function Versions ({currentVersion, setCurrentVersion }: VersionProps) {
   }, [])
 
   React.useEffect(() => {
-    /* if (versions.length && engine) {
-      const previousVersion = versions[versions.length - 1];
-      if (!engine.screenerBlob || engine.screenerBlob.key !== previousVersion.key) {
-        EditorEngine.loadVersion(previousVersion.key)
-        .then((blob) => {
-          engine.screenerBlob = blob
-        })
-        .catch((err) => {
-          console.error(`Error loading previous version: ${previousVersion.id} v${previousVersion.version} - ${err}`)
-        })
-      }
-    } */
+
   }, [versions])
 
   if (!versions.length) {
@@ -75,28 +65,3 @@ function Versions ({currentVersion, setCurrentVersion }: VersionProps) {
     </VersionSelect>
   </VersionRoot>
 }
-
-const EditorScreenerMobile = React.forwardRef(function EditorScreenerMobile(
-  inProps: EditorScreenerProps,
-  ref: React.Ref<HTMLDivElement>,
-) {
-  const { versions, file, engine, dispatch } = useEditorContext();
-
-  if (engine) {
-    engine.detailMode = true;
-  }
-
-  const commonProps = {
-    tracks: file?.tracks ?? [],
-    engine,
-  };
-
-  return (
-    <EditorPopover
-      ref={ref}
-      name={'screener'}
-    >
-      <MediaScreener file={inProps.file} />
-    </EditorPopover>);
-})
-

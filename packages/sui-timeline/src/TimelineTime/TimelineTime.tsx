@@ -103,7 +103,7 @@ function TimelineTime(props: TimelineTimeProps) {
     disabled
   } = props;
 
-  const gridRef = React.useRef<Grid>();
+  const tracksRef = React.useRef<Grid>();
   const timeInteract = React.useRef<HTMLDivElement>();
   const timeAreaRef = React.useRef<HTMLDivElement>();
   /** Whether to display subdivision scales */
@@ -126,7 +126,7 @@ function TimelineTime(props: TimelineTimeProps) {
   const [customScaleSplitCount, setCustomScaleSplitCount] = React.useState(null);
 
   React.useEffect(() => {
-    gridRef.current?.recomputeGridSize();
+    tracksRef.current?.recomputeGridSize();
   }, [scaleWidth, startLeft]);
 
 
@@ -163,7 +163,7 @@ function TimelineTime(props: TimelineTimeProps) {
             <React.Fragment>
               <Grid
                 id={'time-area-grid'}
-                ref={gridRef}
+                ref={tracksRef}
                 columnCount={showUnit ? scaleCount * scaleSplitCount + 1 : scaleCount}
                 columnWidth={getColumnWidth}
                 estimatedColumnSize={estColumnWidth}

@@ -442,11 +442,11 @@ function TimelineAction<
     onClickActionOnly,
     onDoubleClickAction,
     onContextMenuAction,
-    rowHeight,
+    trackHeight,
   } = props;
 
   React.useEffect(() => {
-    const backgroundImageStyle = track.controller.getActionStyle?.(action, scaleWidth, scale, rowHeight)
+    const backgroundImageStyle = track.controller.getActionStyle?.(action, scaleWidth, scale, trackHeight)
     if (backgroundImageStyle) {
       dispatch({
         type: 'UPDATE_ACTION_STYLE',
@@ -455,10 +455,8 @@ function TimelineAction<
           backgroundImageStyle,
         }
       })
-      console.info('backgroundImageStyle', action.backgroundImageStyle);
     }
-
-  },[scaleWidth, scale, rowHeight, action.backgroundImage]);
+  },[scaleWidth, scale, trackHeight, action.backgroundImage]);
 
   const loopCount = (!!action?.loop && typeof action.loop === 'number' && action.loop > 0) ? action.loop : undefined;
 
@@ -571,7 +569,7 @@ function TimelineAction<
         className={prefix((classNames || []).join(' '))}
         selected={action.selected !== undefined ? action.selected : false}
         style={{
-          height: rowHeight,
+          height: trackHeight,
           ...action.backgroundImageStyle
         }}
         color={`${track?.controller?.color}`}
@@ -768,7 +766,7 @@ TimelineAction.propTypes = {
    * @description Default height of each edit line (>0, unit: px)
    * @default 32
    */
-  rowHeight: PropTypes.number,
+  trackHeight: PropTypes.number,
   /**
    * @description Single tick mark category (>0)
    * @default 1
@@ -792,7 +790,6 @@ TimelineAction.propTypes = {
    * Whether the action is selected
    */
   selected: PropTypes.bool,
-  setEditorData: PropTypes.func,
   /**
    * Set the number of scales
    */
@@ -855,7 +852,7 @@ TimelineAction.propTypes = {
     id: PropTypes.string,
     lock: PropTypes.bool,
     name: PropTypes.string,
-    rowHeight: PropTypes.number,
+    trackHeight: PropTypes.number,
     selected: PropTypes.bool,
   }),
   /**
@@ -887,7 +884,7 @@ TimelineAction.propTypes = {
       id: PropTypes.string,
       lock: PropTypes.bool,
       name: PropTypes.string,
-      rowHeight: PropTypes.number,
+      trackHeight: PropTypes.number,
       selected: PropTypes.bool,
     }),
   ),

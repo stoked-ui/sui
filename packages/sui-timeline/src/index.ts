@@ -20,10 +20,11 @@ export * from './TimelineCursor';
 export * from './TimelineLabels';
 export * from './TimelinePlayer';
 export * from './TimelineScrollResizer';
-export * from './TimelineTime';
+export * from './components';
 export * from './TimelineTrack';
 export * from './TimelineProvider'
 export * from './TimelineTrackArea';
 export * from './Engine';
 export * from './interface/const';
 export * from './utils';
+export * from './utils/check_props';

@@ -9,6 +9,7 @@ import {
   DrawData, IEditorTrack,
 } from "./EditorEngine.types";
 import {type IEditorAction} from "../EditorAction/EditorAction";
+import Controllers from "../Controllers";
 // import { type IEditorController } from "../Controllers";
 
 /**
@@ -59,10 +60,8 @@ export default class EditorEngine<
     if (params?.viewer) {
       this._viewer = params.viewer;
     }
-    if (params?.controllers) {
-      this._controllers = params.controllers;
-    }
 
+    this._controllers = params.controllers || Controllers;
     this._state = 'loading' as State;
   }
 

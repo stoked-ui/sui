@@ -550,7 +550,7 @@ function GridTest() {
 
 function ImageListTest() {
   return (
-    <ImageList rowHeight={160} cols={3} onClick={(e) => log(e)}>
+    <ImageList trackHeight={160} cols={3} onClick={(e) => log(e)}>
       <ImageListItem cols={1} rows={4} onClick={(e) => log(e)}>
         <img src="img.png" alt="alt text" />
       </ImageListItem>

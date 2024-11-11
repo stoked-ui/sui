@@ -1,17 +1,12 @@
 import {
   Controller,
   ControllerParams,
-  IController,
-  IEngine,
   ITimelineAction,
-  PreloadParams
 } from "@stoked-ui/timeline";
-import { MediaFile } from "@stoked-ui/media-selector";
-// import EditorController from "./EditorController";
 import {EditorControllerParams, EditorPreloadParams} from "./EditorControllerParams";
 import {DrawData, IEditorEngine} from "../EditorEngine";
 import {IEditorAction} from "../EditorAction/EditorAction";
-// import { IEditorController } from "./EditorController.types";
+import ShadowStage from '../ShadowStage';
 
 interface VideoDrawData extends Omit<DrawData, 'source'> {
   source: HTMLVideoElement
@@ -42,12 +37,14 @@ class VideoControl extends Controller {
 
   // eslint-disable-next-line class-methods-use-this
   async preload(params: EditorPreloadParams): Promise<ITimelineAction> {
-    const { action, engine, file } = params;
+    const { action, file } = params;
     const preloaded = !!file.element;
     const item = document.createElement('video') as HTMLVideoElement;
     item.id = action.id;
     this.cacheMap[action.id] = item;
-    engine.stage?.appendChild(item);
+
+    ShadowStage.getStage().appendChild(item);
+
     if (action.loop === false || action.loop === undefined || action.loop === 0) {
       action.loop = 0;
       item.loop = false;
@@ -319,8 +316,13 @@ class VideoControl extends Controller {
       const fd = action.nextFrame as VideoDrawData;
       this.draw(params, fd);
     } else {
-      item.currentTime = Controller.getActionTime(params);
-      this.draw(params);
+      const actionTime = Controller.getActionTime(params);
+      if (Number.isFinite(actionTime)) {
+        item.currentTime = actionTime;
+        this.draw(params);
+      } else {
+        console.error('no time available', actionTime, params);
+      }
     }
 
     /*

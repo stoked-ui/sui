@@ -87,19 +87,23 @@ const Timeline = React.forwardRef(function Timeline(
     props: inProps,
     name: 'MuiTimeline',
   });
-  const { file, engine, dispatch, snapOptions } = useTimeline();
+  const { file, engine, dispatch, flags } = useTimeline();
 
   const hideLock = locked;
 
   const classes = useUtilityClasses(inProps);
 
-  const timelineState = React.useRef<TimelineState>(null);
 
-  const timelineRef = React.useRef<TimelineState>(null);
-  const combinedTimelineRef = useForkRef(inProps.timelineState, timelineRef);
-
+  const [timelineState, setTimelineState] = React.useState<TimelineState>();
   const forkedRootRef = React.useRef<HTMLDivElement>(null);
   const combinedRootRef = useForkRef(ref, forkedRootRef);
+
+  React.useEffect(() => {
+    if (inProps.timelineState.current) {
+
+      setTimelineState(inProps.timelineState.current);
+    }
+  }, [inProps.timelineState.current]);
 
   const Root = slots?.root ?? TimelineRoot;
   const rootProps = useSlotProps({
@@ -142,16 +146,16 @@ const Timeline = React.forwardRef(function Timeline(
   const rootClasses = `${rootProps.className} ${!engine.isLoading ? 'MuiTimeline-loaded' : ''}`
   return (
     <Root ref={combinedRootRef} {...rootProps} className={rootClasses} sx={inProps.sx}>
-      {inProps.labels && (
+      {(inProps.labels && !inProps.collapsed) && (
         <Labels
           ref={labelsRef}
           {...labelsProps.ownerState}
           onChange={onChange}
           hideLock={hideLock}
           controllers={inProps.controllers}
-          detailMode={inProps.detailMode}
           onAddFiles={inProps.onAddFiles}
           onContextMenu={inProps.onContextMenuTrack}
+          onClick={inProps.onLabelClick}
         />
       )}
 
@@ -175,11 +179,12 @@ const Timeline = React.forwardRef(function Timeline(
             }
           }}
           startLeft={9}
-          ref={combinedTimelineRef}
+          ref={inProps.timelineState}
+          timelineState={timelineState}
           autoScroll
           disableDrag={locked}
-          dragLine={snapOptions.includes('edgeSnap')}
-          gridSnap={snapOptions.includes('featureSnap')}
+          dragLine={flags.includes('edgeSnap')}
+          gridSnap={flags.includes('gridSnap')}
           disabled={inProps.disabled}
           controllers={inProps.controllers}
           viewSelector={inProps.viewSelector ?? '.viewer'}
@@ -191,6 +196,7 @@ const Timeline = React.forwardRef(function Timeline(
           }}
           onContextMenuAction={inProps.onContextMenuAction}
           onContextMenuTrack={inProps.onContextMenuTrack}
+          collapsed={inProps.collapsed}
       />}
 
     </Root>
@@ -214,7 +220,6 @@ Timeline.propTypes = {
   className: PropTypes.string,
   controllers: PropTypes.object,
   controlSx: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),), PropTypes.func, PropTypes.object,]),
-  detailMode: PropTypes.bool,
   detailRenderer: PropTypes.bool,
   engine: PropTypes.any,
   labels: PropTypes.bool,

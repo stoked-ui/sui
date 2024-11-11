@@ -1,5 +1,4 @@
 import * as React from 'react';
-import {Controllers} from '../Controller/AudioController';
 import {TimelineFile} from "../TimelineFile";
 import Engine, {EngineState} from "../Engine";
 
@@ -8,7 +7,7 @@ import { TimelineProviderProps, ITimelineState, initialTimelineState, TimelineRe
 function TimelineProvider(props: TimelineProviderProps) {
   const { children, id, file, controllers, engine } = props;
 
-  const theEngine = engine ?? new Engine({ controllers: controllers ?? Controllers });
+  const theEngine = engine ?? new Engine({ controllers  });
   const getState = () => {
     return theEngine.state as EngineState;
   }
@@ -18,7 +17,7 @@ function TimelineProvider(props: TimelineProviderProps) {
   const initialState: ITimelineState = {
     ...initialTimelineState,
     id: id ?? 'timeline',
-    file: file ?? null,
+    file: file ?? new TimelineFile({ name: 'new file' }),
     engine: theEngine,
     getState,
     setState

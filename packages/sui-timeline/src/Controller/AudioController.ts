@@ -2,14 +2,13 @@ import {Howl} from 'howler';
 import { AudioFile, IMediaFile } from "@stoked-ui/media-selector";
 import generateWaveformImage from "./AudioImage";
 import Controller from './Controller';
-import { GetBackgroundImage, IController } from "./Controller.types";
+import { GetBackgroundImage } from "./Controller.types";
 import { type ITimelineAction} from "../TimelineAction";
-import { ControllerParams, IEngine } from "../Engine";
+import { ControllerParams, PreloadParams } from "./ControllerParams";
 import { type ITimelineTrack } from "../TimelineTrack";
 
 class AudioControl<
   ActionType extends ITimelineAction = ITimelineAction,
-  EngineType extends IEngine = IEngine,
 > extends Controller {
   cacheMap: Record<string, Howl> = {};
 
@@ -32,7 +31,7 @@ class AudioControl<
     });
   }
 
-  async preload(params: { action: ActionType, file: IMediaFile, engine: EngineType }): Promise<ActionType> {
+  async preload(params: PreloadParams): Promise<ActionType> {
     const { action, file } = params;
     const imageOptions = {
       width: file.element.duration() * 100,
@@ -42,8 +41,7 @@ class AudioControl<
       this.cacheMap[action.id] = file.element;
       action.duration = (file.element as Howl).duration();
       action.backgroundImage = await this.getBackgroundImage?.(file, imageOptions);
-      console.info('action.backgroundImage', action.backgroundImage)
-      return action;
+      return action as ActionType;
     }
     return new Promise((resolve, reject) => {
       try {
@@ -57,7 +55,7 @@ class AudioControl<
             this.getBackgroundImage?.(file, imageOptions).then((img) => {
               action.backgroundImage = img;
             })
-            resolve(action);
+            resolve(action as ActionType);
           }
         });
       } catch (ex) {
@@ -164,7 +162,7 @@ class AudioControl<
   }
 
   // eslint-disable-next-line class-methods-use-this
-  getActionStyle(action: ActionType, scaleWidth: number, scale: number, rowHeight: number) {
+  getActionStyle(action: ActionType, scaleWidth: number, scale: number, trackHeight: number) {
     const adjustedScale = scaleWidth / scale;
     if (!action.backgroundImage) {
       return null;
@@ -172,12 +170,11 @@ class AudioControl<
     return {
       backgroundImage: action.backgroundImage,
       backgroundPosition: `${-adjustedScale * (action.trimStart || 0)}px 0px`,
-      backgroundSize: `${adjustedScale * action.duration}px ${rowHeight - 1}px`
+      backgroundSize: `${adjustedScale * action.duration}px ${trackHeight - 1}px`
     }
   }
 }
 
 const AudioController = new AudioControl();
-const Controllers:  Record<string, IController> = { audio: AudioController };
-export { AudioControl, Controllers };
+export { AudioControl };
 export default AudioController

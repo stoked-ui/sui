@@ -1,12 +1,16 @@
 import * as React from "react";
 import Box from "@mui/material/Box";
-import {FormControlPropsSizeOverrides, InputLabelPropsSizeOverrides, Tooltip} from "@mui/material";
+import {
+  FormControlPropsSizeOverrides,
+  InputLabelPropsSizeOverrides,
+  Tooltip
+} from "@mui/material";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
-import Select, {SelectChangeEvent} from "@mui/material/Select";
+import Select, { SelectChangeEvent } from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import FormHelperText from "@mui/material/FormHelperText";
-import {SxProps, } from "@mui/system";
+import { SxProps, } from "@mui/system";
 import { OverridableStringUnion } from '@mui/types';
 import OutlinedStyle from "./OutlinedStyle";
 
@@ -59,7 +63,6 @@ export default function StokedSelect(inProps: StokedSelectProps) {
           }}
         >
           {options && options?.map((option, index) => {
-            console.log('option', option);
             return <MenuItem key={index} value={option.value}>{option.label}</MenuItem>
           })}
         </DesSelectType>

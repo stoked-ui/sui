@@ -182,8 +182,8 @@ export default class MediaFile implements IMediaFile {
       enumerable: true
     });
   }
-  static async fromUrl(url: string, container?: HTMLDivElement): Promise<IMediaFile> {
 
+  static async fromUrl(url: string, container?: HTMLDivElement): Promise<IMediaFile> {
     if (!container) {
       if (!MediaFile.container) {
         MediaFile.container = document.createElement('div');
@@ -246,7 +246,7 @@ export default class MediaFile implements IMediaFile {
                   MediaFile.setProperty(fullMediaFile, 'element', item);
                   resolve(fullMediaFile);
                 } else if (loadingSeconds > 20) {
-                  reject(new Error('didn\'t load video within 20 seconds'));
+                  reject(new Error(`didn\'t load video ${fullMediaFile.url} within 20 seconds'`));
                 }
               }, 1000); // Run every 1 second
             }
@@ -292,9 +292,8 @@ export default class MediaFile implements IMediaFile {
     if (hasExtension) {
       const ext = name.split('.')
       .pop()!.toLowerCase();
+
       const type = ExtensionMimeTypeMap.get(ext);
-
-
       if (type) {
         Object.defineProperty(file, 'type', {
           value: type,
@@ -341,7 +340,6 @@ export function getFileName(url: string, includeExtension?: boolean) {
   }
   return matches[1];
 }
-
 
 function isDataTransfer(value: unknown): value is DataTransfer {
   return isObject(value);

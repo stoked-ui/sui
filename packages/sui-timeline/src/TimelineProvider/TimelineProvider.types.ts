@@ -1,12 +1,15 @@
 import * as React from 'react';
 import { IMediaFile, namedId } from '@stoked-ui/media-selector';
 import { isMobile } from 'react-device-detect';
-import { Controllers } from '../Controller/AudioController';
+import Controllers from '../Controller/Controllers';
 import { IController } from "../Controller";
 import { ITimelineFile } from "../TimelineFile";
 import { EngineState, IEngine } from "../Engine";
 import { type ITimelineTrack } from "../TimelineTrack";
-import { DEFAULT_MOBILE_ROW_HEIGHT, DEFAULT_TRACK_HEIGHT } from "../interface/const";
+import {
+  DEFAULT_MOBILE_TRACK_HEIGHT,
+  DEFAULT_TRACK_HEIGHT
+} from "../interface/const";
 import {
   BackgroundImageStyle, initTimelineAction,
   ITimelineAction,
@@ -25,20 +28,17 @@ export interface ITimelineState<
   id: string,
   selectedAction: ActionType | null;
   selectedTrack: TrackType | null;
-  popovers: Record<string, boolean>;
-  snapOptions: string[];
-  isMobile: boolean;
+  flags: string[];
+  settings: Record<string, any>;
   versions: IMediaFile[];
   getState: () => string | State;
   setState: (newState: string | State) => void;
-  rowHeight: number;
 }
 
 export const onAddFiles = <
   EngineType extends IEngine = IEngine,
   State extends string | EngineState = string | EngineState,
   FileType extends ITimelineFile = ITimelineFile,
-  ControllerType extends IController = IController,
   ActionType extends ITimelineAction = ITimelineAction,
   TrackType extends ITimelineTrack = ITimelineTrack,
 >(state: ITimelineState<EngineType, State, FileType, ActionType, TrackType>, newMediaFiles: IMediaFile[]) => {
@@ -55,7 +55,7 @@ export const onAddFiles = <
       id: namedId('track'),
       name: mediaFile.name,
       file: mediaFile,
-      controller: Controllers[mediaFile.mediaType] as ControllerType,
+      controller: Controllers[mediaFile.mediaType],
       actions: [{
         id: namedId('action'),
         name: file.name,
@@ -74,7 +74,7 @@ type SelectActionPayload<
   ActionType extends ITimelineAction,
   TrackType extends ITimelineTrack,
 > = {
-  action: ActionType | null,
+  action: ActionType,
   track: TrackType
 };
 
@@ -90,6 +90,9 @@ export type TimelineStateAction<
   type: 'SELECT_TRACK',
   payload: TrackType,
 } | {
+  type: 'TRACK_HOVER',
+  payload: string
+} | {
   type: 'CREATE_ACTION',
   payload: {
     action: FileActionType,
@@ -99,10 +102,7 @@ export type TimelineStateAction<
   type: 'CREATE_TRACKS',
   payload: IMediaFile[]
 } | {
-  type: 'SET_POPOVER',
-  payload: { open: boolean, name: string }
-} | {
-  type: 'SET_SNAP_OPTIONS',
+  type: 'SET_SNAP_FLAGS',
   payload: string[]
 } | {
   type: 'LOAD_VERSIONS',
@@ -114,14 +114,26 @@ export type TimelineStateAction<
   type: 'SET_TRACKS',
   payload: TrackType[]
 } | {
-  type: 'SET_ROW_HEIGHT',
-  payload: number
+  type: 'SET_SETTING',
+  payload: {
+    key: string,
+    value: any
+  }
+} | {
+  type: 'SET_FLAGS',
+  payload: {
+    set: string[],
+    values: string[]
+  }
 } | {
   type: 'UPDATE_ACTION_STYLE',
   payload: {
     action: ActionType,
     backgroundImageStyle: BackgroundImageStyle
   }
+} | {
+  type: 'TRACK_ENTER',
+  payload: string
 }
 
 export type TimelineContextType = ITimelineState & {
@@ -129,6 +141,33 @@ export type TimelineContextType = ITimelineState & {
 };
 
 export const TimelineContext = React.createContext<TimelineContextType | undefined>(undefined);
+
+export function setSetting({key, value}: {key: string, value: any}, state: ITimelineState): ITimelineState {
+  return {
+    ...state,
+    settings: {
+      ...state.settings,
+      [key]: value,
+    },
+  };
+}
+
+export function setFlags({set, values}: {set: string[], values: string[]}, state: ITimelineState) {
+  const flags = [...state.flags].filter((flag) => !set.includes(flag));
+  flags.push(...values);
+  return {
+    ...state,
+    flags: [...flags]
+  };
+}
+
+export function addFlag(key: string, state: ITimelineState) {
+  return setFlags({set: [key], values: [key]}, state);
+}
+
+export function removeFlag(key: string, state: ITimelineState) {
+  return setFlags({set: [key], values: []}, state);
+}
 
 export function TimelineReducer(state: ITimelineState, stateAction: TimelineStateAction): ITimelineState {
   switch (stateAction.type) {
@@ -145,21 +184,24 @@ export function TimelineReducer(state: ITimelineState, stateAction: TimelineStat
       return { ...newState };
     }
     case 'SET_TRACKS': {
-      const updatedTracks = [...stateAction.payload];
+      const updatedTracks = [...(stateAction.payload ?? [])];
       state.engine.setTracks(updatedTracks);
       if (state.getState() === "loading") {
         state.setState("ready");
       }
+      let file = null;
+      if (state.file) {
+        file = state.file;
+        file.tracks = updatedTracks;
+      }
       return {
         ...state,
-        file: state.file ? { ...state.file, tracks: updatedTracks } : null,
+        file,
       };
     }
-    case 'SET_POPOVER':
-      return {
-        ...state,
-        popovers: {[stateAction.payload.name]: stateAction.payload.open},
-      };
+    case 'TRACK_HOVER': {
+      return setSetting({ key: 'hoverTrack', value: stateAction.payload }, state);
+    }
     case 'LOAD_VERSIONS':
       return {
         ...state,
@@ -168,11 +210,16 @@ export function TimelineReducer(state: ITimelineState, stateAction: TimelineStat
     case 'CREATE_ACTION': {
       const { action, track } = stateAction.payload;
       const updatedTracks = state.file?.tracks.map((t, index) =>
-        t.id === track.id ? { ...t, actions: [...t.actions, initTimelineAction(state.engine, action, index)] } : t
+        t.id === track.id ? { ...t, actions: [...t.actions, initTimelineAction( action, index)] } : t
       ) ?? [];
+      let file = null;
+      if (state.file) {
+        file = state.file;
+        file.tracks = updatedTracks;
+      }
       return {
         ...state,
-        file: state.file ? { ...state.file, tracks: updatedTracks } : null,
+        file,
       };
     }
     case 'SET_FILE':
@@ -180,16 +227,16 @@ export function TimelineReducer(state: ITimelineState, stateAction: TimelineStat
         ...state,
         file: stateAction.payload,
       };
-    case 'SET_SNAP_OPTIONS':
+    case 'SET_SNAP_FLAGS':
       return {
         ...state,
-        snapOptions: [...stateAction.payload],
+        flags: [...stateAction.payload],
       };
-    case 'SET_ROW_HEIGHT': {
-      return {
-        ...state,
-        rowHeight: stateAction.payload,
-      }
+    case 'SET_SETTING': {
+      return setSetting(stateAction.payload, state);
+    }
+    case 'SET_FLAGS': {
+      return setFlags(stateAction.payload, state);
     }
     case 'UPDATE_ACTION_STYLE': {
       const { action, backgroundImageStyle } = stateAction.payload;
@@ -202,9 +249,14 @@ export function TimelineReducer(state: ITimelineState, stateAction: TimelineStat
         })
         return t;
       });
+      let file = null;
+      if (state.file) {
+        file = state.file;
+        file.tracks = updatedTracks;
+      }
       return {
         ...state,
-        file: state.file ? { ...state.file, tracks: [...updatedTracks] } : null,
+        file,
       };
     }
     default:
@@ -231,11 +283,9 @@ export interface TimelineProviderProps<
 export const initialTimelineState: Omit<ITimelineState, 'engine' | 'getState' | 'setState'> = {
   selectedTrack: null,
   selectedAction: null,
-  popovers: { },
-  isMobile,
-  snapOptions: [],
+  flags: isMobile ? ['isMobile'] : [],
+  settings: { trackHeight: isMobile ? DEFAULT_MOBILE_TRACK_HEIGHT : DEFAULT_TRACK_HEIGHT },
   versions: [],
   id: 'timeline',
   file: null,
-  rowHeight: isMobile ? DEFAULT_MOBILE_ROW_HEIGHT : DEFAULT_TRACK_HEIGHT,
 }

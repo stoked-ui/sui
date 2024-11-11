@@ -1,6 +1,8 @@
 import { type EngineState, IEngine } from "../Engine/Engine.types";
 import {EventTypes} from "../Engine/events";
 import {Emitter} from "../Engine";
+import { parserPixelToTime, parserTimeToPixel } from "../utils";
+import { RowRndApi } from "../TimelineTrack/TimelineTrackDnd.types";
 
 export interface TimelineState<EmitterEvents extends EventTypes = EventTypes,> {
   /** dom node */

@@ -32,17 +32,3 @@ export interface EditorScreenerSlotProps {
 interface EditorScreenerPropsBase {
   file: IMediaFile
 }
-
-export interface EditorScreenerProps
-  extends EditorScreenerPropsBase {
-  /**
-   * Overridable component slots.
-   * @default {}
-   */
-  slots?: EditorScreenerSlots;
-  /**
-   * The props used for each component slot.
-   * @default {}
-   */
-  slotProps?: EditorScreenerSlotProps
-}

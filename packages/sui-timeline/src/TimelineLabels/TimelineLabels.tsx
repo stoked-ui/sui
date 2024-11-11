@@ -1,12 +1,11 @@
 import * as React from 'react';
-import {MediaFile} from '@stoked-ui/media-selector';
 import composeClasses from "@mui/utils/composeClasses";
 import {useSlotProps} from '@mui/base/utils';
 import {Box, Stack, Tooltip} from "@mui/material";
 import Slider from "@mui/material/Slider";
 import ToggleButton from "@mui/material/ToggleButton";
-import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
-import {styled, Theme, useThemeProps} from '@mui/material/styles';
+import {styled, } from '@mui/material/styles';
+import ToggleButtonGroupEx from '../components/ToggleButtonGroupEx';
 import {type TimelineLabelsProps} from './TimelineLabels.types';
 import {getTimelineLabelsUtilityClass} from "./timelineLabelsClasses";
 import {useTimeline} from "../TimelineProvider";
@@ -16,7 +15,6 @@ import TimelineTrackIcon from '../icons/TimelineTrackIcon';
 import TimelineLabel from "./TimelineLabel";
 import EdgeSnap from "../icons/EdgeSnap";
 import GridSnap from "../icons/GridSnap";
-import {ToggleButtonGroupSx} from "../Timeline/Timeline.types";
 
 const useUtilityClasses = (
   ownerState: TimelineLabelsProps,
@@ -48,34 +46,35 @@ const ToolbarToggle = styled(ToggleButton)(() => ({
 }))
 
 export function Toolbar() {
-  const { dispatch, snapOptions } = useTimeline();
+  const { dispatch, flags } = useTimeline();
 
+  const set =  ['edgeSnap', 'gridSnap'];
   const handleSnapOptions = (
     event: React.MouseEvent<HTMLElement>,
     newOptions: string[],
   ) => {
-    console.info('newOptions', newOptions)
-    dispatch({ type: 'SET_SNAP_OPTIONS', payload: newOptions })
+    dispatch({ type: 'SET_FLAGS', payload: { set, values: newOptions } })
   };
-  console.info('snapOptions', snapOptions)
-  return <ToggleButtonGroup
+
+  return <ToggleButtonGroupEx
     onChange={handleSnapOptions}
-    value={snapOptions}
+    value={flags.filter((s) => set.includes(s))}
     size={'small'}
     aria-label="text alignment"
-    sx={(theme) => ToggleButtonGroupSx(theme, 40, 32)}
+    maxWidth={40}
+    maxHeight={32}
   >
-    <Tooltip title={"Edge Snap"}>
+    <Tooltip enterDelay={1000} title={"Edge Snap"}>
       <ToggleButton value="edgeSnap" aria-label="edge snap">
         <EdgeSnap/>
       </ToggleButton>
     </Tooltip>
-    <Tooltip title={"Grid Snap"}>
-      <ToolbarToggle value="featureSnap" aria-label="feature snap">
+    <Tooltip enterDelay={1000} title={"Grid Snap"}>
+      <ToolbarToggle value="gridSnap" aria-label="grid snap">
         <GridSnap />
       </ToolbarToggle>
     </Tooltip>
-  </ToggleButtonGroup>
+  </ToggleButtonGroupEx>
 }
 
 /**
@@ -90,7 +89,7 @@ export function Toolbar() {
  */
 const TimelineLabels = React.forwardRef(
   function TimelineLabels(inProps: TimelineLabelsProps, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
-    const { engine, file, dispatch, rowHeight } = useTimeline();
+    const { engine, file, dispatch, settings: { trackHeight } } = useTimeline();
 
     const { slotProps, slots, sx, width } = inProps;
     const finalWidth = width || '250px';
@@ -111,10 +110,7 @@ const TimelineLabels = React.forwardRef(
         inProps.onAddFiles();
         return;
       }
-
-      dispatch({type: 'SELECT_TRACK', payload: t})
-      dispatch({type: 'SET_POPOVER', payload: { open: true, name: 'detail' }});
-
+      inProps.onLabelClick(t);
     };
 
     return (
@@ -128,7 +124,7 @@ const TimelineLabels = React.forwardRef(
         sx={[sx, { width: finalWidth }]}
         classes={classes}
         className={`${classes.root} timeline-list`}>
-        <Box sx={{height: '37.5px', padding: '3px 6px'}}>
+        <Box sx={{height: '37.5px', padding: '3px 0px', justifyContent: 'end', display: 'flex'}}>
           <Toolbar />
         </Box>
         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
@@ -137,13 +133,13 @@ const TimelineLabels = React.forwardRef(
               return undefined;
             }
             return <TimelineLabel
-              rowHeight={rowHeight}
+              trackHeight={trackHeight}
               track={track}
               hideLock={inProps.hideLock}
               classes={classes}
               key={track.id}
               controller={track.controller}
-              onClick={handleItemClick}
+              onClick={inProps.onLabelClick}
             />
           })}
         </Box>
@@ -153,8 +149,16 @@ const TimelineLabels = React.forwardRef(
           <TimelineTrackIcon sx={{ width: '15px', height: '15px' }} />
           <Slider size="small"
                   aria-label="Volume"
-                  value={rowHeight}
-                  onChange={(event, value, ) => dispatch({type: 'SET_ROW_HEIGHT', payload: value as number})} />
+                  value={trackHeight}
+                  onChange={(event, value, ) =>
+                    dispatch({
+                      type: 'SET_SETTING',
+                      payload: {
+                        key: 'trackHeight',
+                        value: value as number
+                      }
+                    })
+          } />
           <TimelineTrackIcon sx={{ width: '32px', height: '32px' }} />
         </Stack>
       </Root>

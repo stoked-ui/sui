@@ -1,6 +1,6 @@
-import React from 'react';
+import * as React from 'react';
 import { styled, keyframes } from '@mui/material/styles';
-import {useEditorContext} from "../EditorProvider";
+import {useEditorContext} from "../EditorProvider/EditorContext";
 
 const scale = keyframes`
   0% {
@@ -46,10 +46,17 @@ const LoaderCircle = styled('div')(({ theme }) => ({
     animation: `${scale} 1s linear 0.5s infinite`,
   },
 }));
+let count = 0;
 function Loader() {
   const { engine } = useEditorContext();
   if (engine?.isLoading) {
-    return <LoaderCircle />
+
+    console.info(count += 1);
+    return (
+      <React.Fragment>
+        <LoaderCircle />
+      </React.Fragment>
+    )
   }
   return <React.Fragment />
 }
