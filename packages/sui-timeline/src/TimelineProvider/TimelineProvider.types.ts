@@ -265,7 +265,6 @@ export function TimelineReducer(state: ITimelineState, stateAction: TimelineStat
 }
 
 export interface TimelineProviderProps<
-  FileType extends ITimelineFile = ITimelineFile,
   EngineType  = IEngine,
   FileActionType extends ITimelineAction = ITimelineAction,
   State extends ITimelineState = ITimelineState,
@@ -273,7 +272,6 @@ export interface TimelineProviderProps<
 > {
   children: React.ReactNode,
   id?: string,
-  file?: FileType,
   controllers?: Record<string, IController>,
   engine?: EngineType,
   reducer?: (state: State, stateAction: StateActionType) => State;

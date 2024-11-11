@@ -298,7 +298,7 @@ export type EditorContextType = IEditorState & {
   dispatch: React.Dispatch<EditorStateAction>;
 };
 
-export interface EditorProviderProps extends TimelineProviderProps<IEditorFile, IEditorEngine, IEditorAction, IEditorState, EditorStateAction> {}
+export interface EditorProviderProps extends TimelineProviderProps<IEditorEngine, IEditorAction, IEditorState, EditorStateAction> {}
 
 export class Zettor {
   dispatch: React.Dispatch<EditorStateAction>;

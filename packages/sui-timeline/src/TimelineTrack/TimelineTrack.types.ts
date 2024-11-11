@@ -7,7 +7,7 @@ import { CommonProps } from "../interface/common_prop";
 import type { TimelineControlPropsBase } from "../TimelineControl";
 import { DragLineData } from "../TimelineTrackArea/TimelineTrackAreaDragLines";
 import { getScaleCountByRows } from "../utils";
-import { DEFAULT_SCALE_WIDTH } from "../../build/modern";
+import { DEFAULT_SCALE_WIDTH } from "../interface/const";
 
 export type TimelineTrackProps<
   ActionType extends ITimelineAction = ITimelineAction,

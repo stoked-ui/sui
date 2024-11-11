@@ -9,7 +9,7 @@ import { EditorProviderProps, EditorReducer, IEditorState, } from "./EditorProvi
 import { setDetail } from "../DetailView/Detail.types";
 import EditorFile from "../Editor/EditorFile";
 
-export default function EditorProvider(props: EditorProviderProps & any) {
+export default function EditorProvider(props: EditorProviderProps) {
   const engine = props?.engine ?? new EditorEngine({ events: new EditorEvents(), controllers: props.controllers });
   const getState = () => {
     return engine.state as EditorEngineState;
@@ -25,7 +25,6 @@ export default function EditorProvider(props: EditorProviderProps & any) {
     engine,
     getState,
     setState,
-    file: props.file,
   };
 
   const detailState = setDetail(stateProps as IEditorState);
