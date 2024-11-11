@@ -4,8 +4,11 @@ import { IMediaFile} from "@stoked-ui/media-selector";
 import { type IEditorEngine } from "../EditorEngine";
 import { type IEditorAction } from "../EditorAction/EditorAction";
 
-export interface EditorControllerParams extends Omit<ControllerParams, 'action' | 'engine'> {
+export interface EditorControllerParams extends ControllerParams {
   action: IEditorAction;
   engine: IEditorEngine;
 }
-export interface EditorPreloadParams extends Omit<EditorControllerParams & { file: IMediaFile }, 'time'> {}
+
+export interface EditorPreloadParams extends PreloadParams {
+  action: IEditorAction;
+}

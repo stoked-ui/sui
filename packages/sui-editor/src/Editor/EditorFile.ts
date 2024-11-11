@@ -14,24 +14,21 @@ export const editorFileCache: Record<string, EditorFile> = {};
 export interface IEditorFileProps<FileTrackType> extends ITimelineFileProps<FileTrackType> {}
 
 export interface IEditorFile<
-  ControllerType extends IController = IController,
   FileActionType extends IEditorFileAction = IEditorFileAction,
   ActionType extends IEditorAction = IEditorAction,
   TrackType extends IEditorTrack = IEditorTrack,
   EngineType extends IEditorEngine = IEditorEngine
->  extends ITimelineFile<ControllerType, FileActionType, ActionType, TrackType, EngineType> { }
+>  extends ITimelineFile< TrackType> { }
 
 export default class EditorFile<
-  ControllerType extends IController = IController,
   FileActionType extends IEditorFileAction = IEditorFileAction,
   ActionType extends IEditorAction = IEditorAction,
   FileTrackType extends ITimelineFileTrack = ITimelineFileTrack,
   EngineType extends IEditorEngine = IEditorEngine,
   TrackType extends IEditorTrack = IEditorTrack,
 > extends TimelineFile<
-  ControllerType, FileActionType, ActionType, FileTrackType, EngineType, TrackType
+  FileActionType, ActionType, FileTrackType, TrackType
 > implements IEditorFile<
-  ControllerType,
   FileActionType,
   ActionType,
   TrackType,
@@ -40,18 +37,18 @@ export default class EditorFile<
 
   protected _tracks?: TrackType[];
 
-  protected primaryType: FilePickerAcceptType = {
+  primaryType: FilePickerAcceptType = {
     description: 'Editor Video File',
     accept: {
       'application/stoked-ui-editor': ['.sue'],
     },
   };
 
-  protected primaryExt: string = '.sue';
+  primaryExt: string = '.sue';
 
-  protected OBJECT_STORE_NAME: string = 'editor';
+  OBJECT_STORE_NAME: string = 'editor';
 
-  protected OBJECT_OUTPUT_STORE_NAME: string = 'editor-output';
+  OBJECT_OUTPUT_STORE_NAME: string = 'editor-output';
 
 
   constructor(props: IEditorFileProps<FileTrackType>) {
@@ -59,11 +56,12 @@ export default class EditorFile<
     editorFileCache[props.id as string] = this;
   }
 
-  async generateTracks(controllers: Record<string, ControllerType>, engine: EngineType, initAction: any) {
-    await super.generateTracks(controllers, engine, initAction );
+  async initialize( initAction: any) {
+    await super.initialize(initAction );
   }
 
-  async save(silent: boolean = false) {
+  async save( silent: boolean = false): Promise<void> {
+    await this.initialize(initEditorAction);
     return super.save(silent);
   }
 
@@ -74,6 +72,15 @@ export default class EditorFile<
   async saveOutput(blob: OutputBlob): Promise<IDBValidKey> {
     return super.saveOutput(blob);
   }
+
+  static async load(file: IEditorFile, initAction: any): Promise<IEditorFile> {
+    if (!file.initialized) {
+      await file.initialize(initAction);
+    }
+    return file;
+  }
+
+  static fileCache: Record<string, EditorFile> = {};
 }
 
 

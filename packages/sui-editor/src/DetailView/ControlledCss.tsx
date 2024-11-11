@@ -1,5 +1,4 @@
-import * as ds from 'react';
-import { useController, Control, FieldValues, Path, PathValue } from 'react-hook-form';
+import { Control, FieldValues, Path, PathValue, useController } from 'react-hook-form';
 import { TextField, TextFieldProps } from '@mui/material';
 
 type CSSPropertiesFormFieldProps<T extends FieldValues> = {
@@ -14,7 +13,8 @@ function ControlledCss <T extends FieldValues>({
                                                          label,
                                                          control,
                                                          defaultValue = {},
-                                                         ...textFieldProps
+                                                 className,
+                                                 ...textFieldProps
                                                        }: CSSPropertiesFormFieldProps<T>) {
   const {
     field: { onChange, onBlur, value },
@@ -50,6 +50,7 @@ function ControlledCss <T extends FieldValues>({
       error={!!error}
       helperText={error ? error.message : 'Enter a valid CSSProperties object'}
       multiline
+      className={className}
       fullWidth
     />
   );

@@ -6,7 +6,6 @@ import {IMediaFile} from '@stoked-ui/media-selector';
 import {EditorPluginParameters, EditorPluginSignatures, EditorPluginSlotProps, EditorPluginSlots} from './Editor.plugins';
 import {EditorClasses} from './editorClasses';
 import { EditorExperimentalFeatures, EditorPublicAPI } from '../internals/models';
-import {Popover, styled} from "@mui/material";
 
 
 export interface EditorSlots extends EditorPluginSlots {
@@ -89,5 +88,4 @@ export interface EditorProps<R extends IMediaFile = IMediaFile, Multiple extends
    */
   experimentalFeatures?: EditorExperimentalFeatures<EditorPluginSignatures>;
 }
-
 

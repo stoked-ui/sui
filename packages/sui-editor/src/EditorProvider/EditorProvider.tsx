@@ -1,13 +1,15 @@
 import * as React from 'react';
-import { TimelineProvider, ITimelineState, TimelineContext, initialTimelineState } from '@stoked-ui/timeline';
+import { namedId } from '@stoked-ui/media-selector';
+import { initialTimelineState, ITimelineFile, TimelineProvider } from '@stoked-ui/timeline';
 import EditorEngine from "../EditorEngine/EditorEngine";
-import {EditorEngineState } from "../EditorEngine/EditorEngine.types";
+import { EditorEngineState } from "../EditorEngine/EditorEngine.types";
 import { EditorEvents } from "../EditorEngine";
 import Controllers from "../Controllers/Controllers";
-import { EditorContextType, EditorProviderProps, EditorReducer } from "./EditorProvider.types";
+import { EditorProviderProps, EditorReducer, IEditorState, } from "./EditorProvider.types";
+import { setDetail } from "../DetailView/Detail.types";
+import EditorFile from "../Editor/EditorFile";
 
 export default function EditorProvider(props: EditorProviderProps & any) {
-
   const engine = props?.engine ?? new EditorEngine({ events: new EditorEvents(), controllers: props.controllers });
   const getState = () => {
     return engine.state as EditorEngineState;
@@ -15,27 +17,30 @@ export default function EditorProvider(props: EditorProviderProps & any) {
   const setState = (newState: EditorEngineState | string) => {
     engine.state = newState;
   }
-  const editorProps: ITimelineState = {
+  const [originalFile, setOriginalFile] = React.useState<EditorFile>(props.file);
+
+  const stateProps = {
     ...initialTimelineState,
-    id: props.id ?? 'editor',
+    editorId: props.id ?? namedId('editor'),
     engine,
     getState,
     setState,
+    file: props.file,
   };
 
+  const detailState = setDetail(stateProps as IEditorState);
+
+  const editorProps: IEditorState = {
+    ...detailState,
+    id: props.id ??
+    engine,
+    getState,
+    setState,
+  }
+
   return (
-    <TimelineProvider {...props} {...editorProps} file={props.file} controllers={Controllers} reducer={EditorReducer}>
+    <TimelineProvider {...props} {...editorProps} file={props.file as ITimelineFile} controllers={Controllers} reducer={EditorReducer}>
       {props.children}
     </TimelineProvider>
   );
 }
-
-// Custom hook to access the extended Editor context
-export function useEditorContext(): EditorContextType {
-  const context = React.useContext(TimelineContext);
-  if (!context) {
-    throw new Error("useEditorContext must be used within an EditorProvider");
-  }
-  return context as EditorContextType;
-}
-

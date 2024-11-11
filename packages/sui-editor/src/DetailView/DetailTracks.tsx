@@ -1,23 +1,25 @@
 import * as React from "react";
 import { SelectChangeEvent } from "@mui/material/Select";
-import { ITimelineAction, ITimelineTrack } from "@stoked-ui/timeline";
-import DesSelect from "./DesSelect";
+import { ITimelineTrack } from "@stoked-ui/timeline";
 import StokedSelect from "./StokedSelect";
-import { useEditorContext } from "../EditorProvider";
+import { useEditorContext } from "../EditorProvider/EditorContext";
+import { IEditorTrack } from "../EditorTrack/EditorTrack";
+import { Zettor } from "../EditorProvider/EditorProvider.types";
+import { Theme } from "@mui/material/styles";
+import { SxProps } from "@mui/material";
 
-export default function DetailTracks({ tracks, editMode, detail, onClickEdit, size, sx }) {
-  const { dispatch } = useEditorContext();
+export default function DetailTracks({ tracks, editor, size, sx }: { tracks: IEditorTrack[], editor: Zettor, size: 'small' | 'medium' | 'large', sx: SxProps<Theme> }) {
+  const { dispatch, detail, settings } = useEditorContext();
   return <StokedSelect
     label={'Track'}
     placeholder={'Select Track'}
     name={'tracks'}
-    disabled={!editMode}
+    disabled={!editor.isTrue(settings)}
     key={'id'}
     value={'id'}
 
-    size={size}
-    onClick={onClickEdit}
-    sx={sx}
+    size={'small'}
+    onClick={editor.setFunc()}
     options={tracks?.map((track: ITimelineTrack) => {
       return {
         value: track.id,
@@ -25,9 +27,8 @@ export default function DetailTracks({ tracks, editMode, detail, onClickEdit, si
       }
     })}
     onChange={(event: SelectChangeEvent, child?: any) => {
-      console.info('event', event, 'child', child)
       const newTrack = tracks.find((track: ITimelineTrack) => track.id === child.props.value);
-      if (!detail.track || (newTrack && detail.track.id !== newTrack.id)) {
+      if (newTrack) {
         dispatch({ type: 'SELECT_TRACK', payload: newTrack });
       }
     }}

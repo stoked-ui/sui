@@ -2,6 +2,7 @@ import {
   Engine,
   EngineState,
   ITimelineTrack,
+  RowRndApi
 } from '@stoked-ui/timeline';
 import { type EditorEventTypes} from "./events";
 import type { IEditorAction } from "../EditorAction/EditorAction";
@@ -19,7 +20,7 @@ export interface IEditorEngine<
   readonly isRecording: boolean;
   viewer: HTMLElement | null;
   readonly stage: HTMLDivElement | null;
-  readonly renderer: HTMLCanvasElement | null;
+  renderer: HTMLCanvasElement | null;
   readonly renderCtx: CanvasRenderingContext2D | null;
   readonly renderWidth: number;
   readonly renderHeight: number;
@@ -31,6 +32,9 @@ export interface IEditorEngine<
     toTime?: number;
     /** Whether to automatically end after playing */
     autoEnd?: boolean;
+
+
+
   }): boolean;
 }
 

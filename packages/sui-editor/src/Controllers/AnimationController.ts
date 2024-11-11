@@ -1,10 +1,7 @@
 import lottie, {AnimationConfigWithPath, AnimationItem} from 'lottie-web';
 import { namedId, AnimationFile } from "@stoked-ui/media-selector";
 import { Controller, ControllerParams, IEngine, ITimelineAction, PreloadParams } from "@stoked-ui/timeline";
-import {IEditorEngine} from "../EditorEngine";
-// import EditorController from "./EditorController";
-import { IEditorAction } from "../EditorAction/EditorAction";
-// import { IEditorController } from "./EditorController.types";
+import { type IEditorEngine } from "../EditorEngine";
 import { EditorControllerParams, EditorPreloadParams } from "./EditorControllerParams";
 
 class AnimationControl extends Controller {
@@ -27,8 +24,8 @@ class AnimationControl extends Controller {
   }
 
   async preload(params: EditorPreloadParams) {
-    const { action, engine, file } = params;
-    const item = AnimationControl.load({ id: action.id, src: file.url, engine, mode: 'canvas', className: 'lottie-canvas' });
+    const { action, file } = params;
+    const item = AnimationControl.load({ id: action.id, src: file.url,  mode: 'canvas', className: 'lottie-canvas' });
     this.cacheMap[action.id] = item;
     action.duration = item.getDuration();
     return action;
@@ -69,7 +66,8 @@ class AnimationControl extends Controller {
       item = AnimationControl.load({
         id: action.id,
         src: track.file.url,
-        engine,
+        // TODO: FIX THIS TO FIX LOTTIE
+        // engine,
         mode: 'canvas',
         className: 'lottie-canvas'
       });
@@ -136,9 +134,11 @@ class AnimationControl extends Controller {
 
   static globalCacheEnabled = false;
 
-  static load (params: { id?: string, src: string, container?: HTMLElement, mode?: 'canvas' | 'svg', engine: IEditorEngine, className?: string }) {
-    const { container, engine, src, mode = 'canvas', className } = params;
-    const { renderCtx } = engine;
+  static load (params: { id?: string, src: string, container?: HTMLElement, mode?: 'canvas' | 'svg',  className?: string }) {
+    const { container, src, mode = 'canvas', className } = params;
+    // TODO: FIX THIS FOR LOTTIE TO WORK AGAIN
+
+    // const { renderCtx } = engine;
     if (!params.id) {
       params.id = namedId('lottie');
     }
@@ -153,7 +153,8 @@ class AnimationControl extends Controller {
         autoplay: false,
         path: src,
         rendererSettings: {
-          context: renderCtx,
+          // TODO: FIX THIS FOR LOTTIE TO WORK AGAIN
+          // context: renderCtx,
           clearCanvas: false,
           preserveAspectRatio: 'xMidYMid meet',
           progressiveLoad: false, // Boolean, only svg renderer, loads dom elements when needed. Might speed up initialization for large number of elements.
@@ -168,9 +169,10 @@ class AnimationControl extends Controller {
       if ("container" in anim && anim.container !== container) {
         anim.container = container;
       }
-      if (renderCtx && "canvasContext" in anim.renderer && anim.renderer.canvasContext !== renderCtx) {
-        anim.renderer.canvasContext = renderCtx;
-      }
+      // TODO: FIX THIS FOR LOTTIE TO WORK AGAIN
+      // if (renderCtx && "canvasContext" in anim.renderer && anim.renderer.canvasContext !== renderCtx) {
+      //  anim.renderer.canvasContext = renderCtx;
+      // }
       return this.globalCache[cacheKey];
     }
 

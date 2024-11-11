@@ -5,7 +5,6 @@ import HighlightedCode from 'docs/src/modules/components/HighlightedCode';
 import MarkdownElement from 'docs/src/components/markdown/MarkdownElement';
 import {SxProps} from "@mui/system";
 import Timeline, { AudioController, TimelineProvider } from "@stoked-ui/timeline";
-import { Controllers } from "@stoked-ui/editor";
 import TimelineExample from "../showcase/TimelineExample";
 
 

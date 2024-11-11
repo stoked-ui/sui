@@ -1,5 +1,5 @@
 import {namedId} from "@stoked-ui/media-selector";
-import { EditorFile, VideoController } from "@stoked-ui/editor";
+import { IEditorFileAction, IEditorFileTrack, EditorFile, VideoController } from "@stoked-ui/editor";
 import { AudioController } from "@stoked-ui/timeline";
 
 const idFunc = () => namedId('track');
@@ -81,9 +81,9 @@ const EditorExample = new EditorFile({
         end: 37.6,
         trimStart: .5,
         volume: [[0, 14, 20.5], [4, 20.5,],],
-      }]
+      }] as IEditorFileAction[]
     },
-  ]
+  ] as IEditorFileTrack[],
 });
 
 export default EditorExample;

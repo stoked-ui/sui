@@ -1,4 +1,4 @@
-import {styled} from "@mui/material/styles";
+import { styled } from "@mui/material/styles";
 
 const OutlinedStyle = (tag) => {
   return styled(tag)(() => ({

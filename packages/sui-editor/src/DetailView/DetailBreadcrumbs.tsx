@@ -1,7 +1,7 @@
-import {Breadcrumbs, Link, styled, Typography} from "@mui/material";
 import * as React from "react";
+import { Breadcrumbs, Link, styled, Typography } from "@mui/material";
 import DetailTracks from "./DetailTracks";
-import { useEditorContext } from "../EditorProvider";
+import { useEditorContext } from "../EditorProvider/EditorContext";
 
 const Root = styled(Breadcrumbs, {
 })(({ theme }) => ({
@@ -10,46 +10,43 @@ const Root = styled(Breadcrumbs, {
   },
   '& li .MuiBox-root .MuiFormControl-root .MuiFormLabel-root': {
     padding: 0
+  },
+  '& .MuiFormLabel-root.MuiInputLabel-root':{
+    background: 'white',
+    '& .MuiInputLabel-formControl.MuiInputLabel-animated.MuiInputLabel-shrink': {
+      display: 'none'
+    }
   }
 }))
-export default function DetailBreadcrumbs({ formInfo, control, onClickEdit  }) {
-  const sxSelectedLabel = (theme) => ({ color: theme.palette.background.paper, backgroundColor: theme.palette.text.primary, padding: '0 10px', borderRadius: '6px' });
-  const { file, dispatch } = useEditorContext();
-  const { detail, data } = formInfo;
+export function DetailBreadcrumbs({  control, editor  }) {
+  const sxSelectedLabel = (theme) => ({ color: theme.palette.text.primary, backgroundColor: theme.palette.background.paper, padding: '0 10px', borderRadius: '6px' });
+  const { file, selectedTrack, detail, dispatch } = useEditorContext();
   return <Root aria-label="breadcrumb">
     <Typography sx={{ color: 'text.primary' }}>Video</Typography>
-    { detail.track ?
+    { detail.project ?
       <Link
         component={'button'}
         underline="hover"
         color="inherit"
         onClick={()=> {
-            dispatch({ type: 'SELECT_VIDEO' })
+            dispatch({ type: 'SELECT_PROJECT' })
         }}
       >
 
-        {detail.video.name}
+        {detail.project.name}
       </Link> :
-      <Typography sx={sxSelectedLabel}>{detail.video.name}</Typography>
+      <Typography sx={sxSelectedLabel}>{file?.name}</Typography>
     }
     <Typography sx={{ color: 'text.primary' }}>Tracks</Typography>
-    {!detail.track &&
+    {!selectedTrack ?
       <DetailTracks
-        detail={detail}
-        tracks={file?.tracks}
-        editMode
-        onClickEdit={onClickEdit}
+        tracks={file?.tracks || []}
+        editor={editor}
         size={'small'}
         sx={{background: 'transparent'}}
-      />}
-    {(detail.track && detail.action) &&
-     <Link component={'button'} underline="hover" color="inherit"  onClick={()=> {
-       dispatch({ type: 'SELECT_TRACK', payload: detail.track })
-     }}
-     >
-       {detail.track!.name}
-     </Link>
+      />
+      :
+      <Typography sx={sxSelectedLabel}>{selectedTrack!.name}</Typography>
     }
-    {(detail.track && !detail.action) && <Typography sx={sxSelectedLabel}>{detail.track!.name}</Typography>}
   </Root>
 }

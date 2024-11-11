@@ -100,14 +100,14 @@ function setVolumeIndex(action: ITimelineFileAction) {
     const { volume } = Controller.getVol(action.volume![i]);
 
     if (volume < 0 || volume > 1) {
-      console.info(`${action.name} specifies a volume of ${volume} which is outside the standard range: 0.0 - 1.0`)
+      console.info(`${action.name} [${action.url}] - specifies a volume of ${volume} which is outside the standard range: 0.0 - 1.0`)
     }
   }
   return -1; // -1: volume part unassigned => volume 1 until assigned
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const initTimelineAction = (engine: IEngine, fileAction: ITimelineFileAction, trackIndex: number) => {
+export const initTimelineAction = (fileAction: ITimelineFileAction, trackIndex: number) => {
   const newAction = fileAction as ITimelineAction;
   newAction.volumeIndex = setVolumeIndex(newAction)
 
@@ -171,7 +171,7 @@ export interface TimelineActionProps<
   action: ActionType;
   dragLineData: DragLineData;
   handleTime: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => number;
-  areaRef: React.MutableRefObject<HTMLDivElement>;
+  areaRef?: React.MutableRefObject<HTMLDivElement>;
   /* setUp scroll left */
   deltaScrollLeft?: (delta: number) => void;
 }

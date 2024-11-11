@@ -30,8 +30,8 @@ export default function EditorHero({ id, sx }: { id: string, sx?: SxProps}) {
           ...(Array.isArray(sx) ? sx : [sx]),
         ]}
       >
-        <EditorProvider id={id ? id : 'editor-hero-demo'} controllers={Controllers} file={EditorExample} >
-          <Editor sx={sx ? sx : { borderRadius: '12px 12px 0 0' }}/>
+        <EditorProvider id={id} controllers={Controllers} fileUrl={'/static/editor/stoked-ui-trailer.sue'} >
+          <Editor sx={sx || { borderRadius: '12px 12px 0 0' }}/>
         </EditorProvider>
       </Card>
       </div>
@@ -39,4 +39,5 @@ export default function EditorHero({ id, sx }: { id: string, sx?: SxProps}) {
   );
 }
 
+// file={EditorExample}
 
