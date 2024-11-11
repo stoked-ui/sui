@@ -33,7 +33,6 @@ export interface EditorControlsPropsBase extends React.HTMLAttributes<HTMLDivEle
    * @default 1
    */
   scale?: number;
-  setScaleWidth: (scaleWidth: number) => void;
   /*
    * The width of the scale
    * @default 160
@@ -44,11 +43,6 @@ export interface EditorControlsPropsBase extends React.HTMLAttributes<HTMLDivEle
    * @default 20
    */
   startLeft?: number;
-  timelineState: React.RefObject<TimelineState>;
-  engineRef: React.RefObject<EditorEngine>;
-  autoScroll: boolean;
-  view: 'timeline' | 'files',
-  setView: (newView: 'timeline' | 'files') => void;
   versions?: Version[];
   setVersions?: React.Dispatch<React.SetStateAction<Version[]>>;
   currentVersion?: string | undefined;

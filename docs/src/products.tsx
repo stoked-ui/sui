@@ -24,8 +24,7 @@ import Highlighter from "./components/action/Highlighter";
 import Section from "./layouts/Section";
 import SectionHeadline from "./components/typography/SectionHeadline";
 import GradientText from "./components/typography/GradientText";
-import StokedConsultingShowcase, { PrefetchStoreTemplateImages } from "./components/home/StokedConsultingShowcase";
-import { PrefetchDesignKitImages } from "./components/home/DesignKits";
+import StokedConsultingShowcase from "./components/home/StokedConsultingShowcase";
 import AdvancedShowcase from "./components/home/AdvancedShowcase";
 import FileExplorerShowcase from './components/home/FileExplorerShowcase';
 import TimelineShowcase from "./components/home/TimelineShowcase";
@@ -889,7 +888,7 @@ const videoEditorData: TProduct = {
   id: 'editor',
   name: "Editor",
   fullName: "Stoked UI: Editor",
-  description: "Editor contains components intended for use as raw building blocks for tools that can.. well.. EDIT things.",
+  description: "The Editor component is an open source client side video editor.",
   icon: "product-templates",
   url: "/editor",
   hideProductFeatures: true,

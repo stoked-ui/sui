@@ -1,6 +1,7 @@
 import * as React from 'react';
 import {ScrollSync} from 'react-virtualized';
 import {CommonProps} from '../interface/common_prop';
+import { RowRndApi } from "../TimelineTrack";
 
 /** Animation timeline component parameters */
 export type TimelineCursorProps = CommonProps & {
@@ -14,4 +15,8 @@ export type TimelineCursorProps = CommonProps & {
   deltaScrollLeft: (delta: number) => void;
   /** Scroll synchronization ref (TODO: This data is used to temporarily solve the problem of out-of-synchronization when scrollLeft is dragged) */
   scrollSync: React.MutableRefObject<ScrollSync>;
-};
+
+  rowRnd?: React.RefObject<RowRndApi>;
+
+  draggingLeft?: React.RefObject<undefined | number>;
+}

@@ -95,7 +95,7 @@ export default function TimelineScrollResizer({
       if (!element.current) {
         return;
       }
-
+      console.log('client %', element.current.scrollWidth / element.current.clientWidth)
       setClientPercentage(element.current.scrollWidth / element.current.clientWidth)
       const tWidth = getThumbnailWidth();
       setThumbWidth(tWidth);
@@ -140,7 +140,10 @@ export default function TimelineScrollResizer({
       const valid = adjustScale(deltaX);
       const newWidth = Math.min(thumbWidth + deltaX, element.current.clientWidth);
 
-      updateThumbSize(newWidth);
+      if (valid) {
+        updateThumbSize(newWidth);
+      }
+
       // const newThumbWidth = getThumbnailWidth(element.current.scrollWidth - deltaX);
       // if (thumbWidth !== newThumbWidth && newThumbWidth <= contentRef.current.clientWidth) {
       //  console.log('newScale', newThumbWidth, contentRef.current.clientWidth, newScale)
@@ -151,11 +154,10 @@ export default function TimelineScrollResizer({
       const deltaX = e.clientX - startX;
       const newPos = startScrollThumbPosition + deltaX;
       const adjustedPos = Math.min(Math.max(0, newPos), element.current.clientWidth - thumbWidth);
-      console.log('adjustedPos', adjustedPos)
       setScrollThumbPosition(adjustedPos);
       if (element.current && deltaX) {
         element.current.scrollLeft += deltaX;
-        //setScroll(startScrollThumbPosition + deltaX);
+        // setScroll(startScrollThumbPosition + deltaX);
       }
     }
   };

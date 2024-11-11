@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import styled from '@mui/system/styled';
 import {ScrollSync} from 'react-virtualized';
 import {MIN_SCALE_COUNT, PREFIX, START_CURSOR_TIME} from '../interface/const';
-import { ITimelineTrack } from '../TimelineTrack/TimelineTrack.types';
 import {TimelineControlComponent, TimelineControlProps} from './TimelineControlProps';
 import {type TimelineState} from '../Timeline/TimelineState';
 import {checkProps} from '../utils/check_props';
@@ -13,8 +12,8 @@ import TimelineTrackArea, { TimelineTrackAreaState } from '../TimelineTrackArea/
 import TimelineTime from '../TimelineTime/TimelineTime';
 import TimelineScrollResizer from '../TimelineScrollResizer/TimelineScrollResizer';
 import {useTimeline} from "../TimelineProvider";
-import { IController } from "../Controller";
-import { ITimelineAction } from "../TimelineAction";
+import { TimelineTrackAreaCollapsed } from '../TimelineTrackArea/TimelineTrackAreaCollapsed';
+import { fitScaleData } from '../TimelineTrack/TimelineTrack.types';
 
 const TimelineControlRoot = styled('div')(({ theme }) => ({
   width: '100%',
@@ -28,21 +27,10 @@ const TimelineControlRoot = styled('div')(({ theme }) => ({
   overflow: 'hidden',
 }));
 
-function getInitialScaleData(startLeft: number, duration: number, minScaleCount: number, timelineAreaWidth: number) {
-  const scaleWidth = (timelineAreaWidth - startLeft) / duration;
-  console.info('scaleWidth', scaleWidth, 'duration', duration, 'timelineAreaWidth', timelineAreaWidth, '(timelineAreaWidth - startLeft) / minScaleCount', (timelineAreaWidth - startLeft) / duration);
-
-  if (scaleWidth < 40) {
-    const multiplier = Math.ceil(40 / scaleWidth);
-    return { scaleWidth: multiplier * scaleWidth, scale: multiplier };
-  }
-  return { scaleWidth, scale: 1 };
-}
-
 const TimelineControl = React.forwardRef(
   function TimelineControl(props: TimelineControlProps, ref) {
     const checkedProps = checkProps(props);
-    const { engine, file, dispatch } = useTimeline();
+    const { engine, file, settings, dispatch } = useTimeline();
     const { style } = props;
     const {
       scrollTop,
@@ -58,12 +46,13 @@ const TimelineControl = React.forwardRef(
       autoReRender = true,
       onScroll: onScrollVertical,
       disabled,
+      collapsed,
     } = checkedProps;
 
     const domRef = React.useRef<HTMLDivElement>(null);
 
     const areaRef = React.useRef<HTMLDivElement>(null);
-    const gridRef = React.useRef<HTMLDivElement>(null);
+    const tracksRef = React.useRef<HTMLDivElement>(null);
     const scrollSync = React.useRef<ScrollSync>();
 
     // Editor data
@@ -75,7 +64,7 @@ const TimelineControl = React.forwardRef(
     const [isPlaying, setIsPlaying] = React.useState(false);
     const [duration, setDuration] = React.useState<number>(0)
     // Current timelineControl width
-    const [width, setWidth] = React.useState(Number.MAX_SAFE_INTEGER);
+    const [timelineWidth, setTimelineWidth] = React.useState(Number.MAX_SAFE_INTEGER);
     const [maxScaleCount, setMaxScaleCount] = React.useState(initialMaxScaleCount);
     const [scaleSplitCount, setScaleSplitCount] = React.useState(initialScaleSplitCount)
 
@@ -127,21 +116,12 @@ const TimelineControl = React.forwardRef(
 
     }, [file?.tracks]);
 
-
     // deprecated
     React.useEffect(() => {
       if (scrollSync.current) {
         scrollSync.current.setState({ scrollTop });
       }
     }, [scrollTop]);
-
-    /** handle proactive data changes */
-    const handleEditorDataChange = (updatedTracks: ITimelineTrack[]) => {
-        dispatch({ type: 'SET_TRACKS', payload: [...updatedTracks]});
-        if (autoReRender) {
-          engine.reRender();
-        }
-    };
 
     const setHorizontalScroll = (left: number) => {
       scrollSync.current.setState({
@@ -190,7 +170,7 @@ const TimelineControl = React.forwardRef(
     const handleDeltaScrollLeft = (delta: number) => {
       // Disable automatic scrolling when the maximum distance is exceeded
       const dataScrollLeft = scrollSync.current.state.scrollLeft + delta;
-      if (dataScrollLeft > scaleCount * (scaleWidth - 1) + startLeft - width) {
+      if (dataScrollLeft > scaleCount * (scaleWidth - 1) + startLeft - timelineWidth) {
         return;
       }
 
@@ -263,23 +243,52 @@ const TimelineControl = React.forwardRef(
 
     if (typeof window !== 'undefined' ) {
       window.end = () => {
-        handleSetCursor({left: width});
-        scrollSync?.current?.setState({scrollLeft: Math.max(width, 0)});
+        handleSetCursor({left: timelineWidth});
+        scrollSync?.current?.setState({scrollLeft: Math.max(timelineWidth, 0)});
       }
     }
 
     const [initialized, setInitialized] = React.useState(false);
 
     React.useEffect(() => {
-      if (width === Number.MAX_SAFE_INTEGER && !initialized && gridRef.current?.clientWidth && duration && !engine.isLoading) {
-        const { scaleWidth: newScaleWidth, scale: newScale } = getInitialScaleData(startLeft, duration, minScaleCount, gridRef.current?.clientWidth);
-        setScale(newScale);
-        setScaleWidth(newScaleWidth);
-        props.setScaleWidth?.(newScaleWidth);
+      if (timelineWidth === Number.MAX_SAFE_INTEGER && !initialized && tracksRef.current?.clientWidth && !engine.isLoading) {
         setInitialized(true);
+        const scaleData = fitScaleData(file.tracks, minScaleCount, maxScaleCount, startLeft, duration, tracksRef.current?.clientWidth);
+        const timeline =  { scrollTop, autoScroll, hideCursor, disableDrag,
+          scaleWidth, scale, startLeft, minScaleCount, maxScaleCount,
+          scaleSplitCount, autoReRender, disabled, collapsed,
+          ...scaleData
+        };
+        setScale(timeline.scale);
+        setScaleWidth(timeline.scaleWidth);
+        setMaxScaleCount(timeline.maxScaleCount);
+        setScaleCount(timeline.scaleCount);
+
+        dispatch({ type: 'SET_SETTING', payload: { key: 'timeline', value: { ...timeline } } });
       }
     }, [areaRef?.current?.scrollWidth])
-    const newProps = {...checkedProps, scaleSplitCount, scale, scaleWidth, minScaleCount};
+
+    const commonProps= {
+      ...checkedProps,
+      scaleSplitCount,
+      scale,
+      scaleWidth,
+      minScaleCount,
+      timelineWidth,
+      setTimelineWidth,
+      setCursor: handleSetCursor,
+      setScaleCount: handleSetScaleCount,
+      deltaScrollLeft: handleDeltaScrollLeft,
+      cursorTime,
+      scaleCount,
+      disabled,
+      areaRef,
+      tracksRef,
+      disableDrag,
+      isPlaying,
+      onScrollVertical,
+      collapsed
+    };
 
     // monitor timelineControl area width changes
     React.useEffect(() => {
@@ -287,10 +296,10 @@ const TimelineControl = React.forwardRef(
         if (!areaRef.current) {
           return;
         }
-        setWidth(areaRef.current.getBoundingClientRect().width);
+        setTimelineWidth(areaRef.current.getBoundingClientRect().width);
       });
 
-      if (areaRef.current === undefined && width === Number.MAX_SAFE_INTEGER) {
+      if (areaRef.current === undefined && timelineWidth === Number.MAX_SAFE_INTEGER) {
         observer.observe(areaRef.current!);
       }
 
@@ -301,7 +310,8 @@ const TimelineControl = React.forwardRef(
       };
     }, []);
 
-    console.info('maxScaleCount', maxScaleCount, 'scaleCount', scaleCount, 'minScaleCount', minScaleCount, 'scaleWidth', scaleWidth, 'scale', scale);
+    const TrackArea = collapsed ? TimelineTrackAreaCollapsed : TimelineTrackArea;
+    // console.info('maxScaleCount', maxScaleCount, 'scaleCount', scaleCount, 'minScaleCount', minScaleCount, 'scaleWidth', scaleWidth, 'scale', scale);
     return (
       <TimelineControlRoot
         style={style}
@@ -310,67 +320,54 @@ const TimelineControl = React.forwardRef(
         className={`${PREFIX} ${disableDrag ? `${PREFIX}-disable` : ''} ${engine.isLoading ? `${PREFIX}-loaded` : ''}`}
       >
         <ScrollSync ref={scrollSync}>
-          {({ scrollLeft, scrollTop: scrollTopCurrent, onScroll }) => (
-            <React.Fragment>
-              <TimelineTime
-                {...newProps}
-                timelineWidth={width}
-                disableDrag={disableDrag || isPlaying}
-                setCursor={handleSetCursor}
-                cursorTime={cursorTime}
-                scaleCount={scaleCount}
-                setScaleCount={handleSetScaleCount}
-                onScroll={onScroll}
-                scrollLeft={scrollLeft}
-                disabled={disabled}
+          {({ scrollLeft, scrollTop: scrollTopCurrent, onScroll }) => {
+            return (<React.Fragment>
+              <TimelineTime {...commonProps}
+                            disableDrag={disableDrag || isPlaying}
+                            onScroll={onScroll}
+                            scrollLeft={scrollLeft}
               />
-              <TimelineTrackArea
-                {...newProps}
-                timelineWidth={width}
+              <TrackArea {...commonProps}
                 ref={(editAreaRef: TimelineTrackAreaState) => {
                   (areaRef.current as any) = editAreaRef?.domRef.current;
-                  (gridRef.current as any) = editAreaRef?.gridRef.current;
+                  (tracksRef.current as any) = editAreaRef?.tracksRef.current;
                 }}
                 disableDrag={disableDrag || isPlaying}
-                cursorTime={cursorTime}
-                scaleCount={scaleCount}
-                setScaleCount={handleSetScaleCount}
                 scrollTop={scrollTopCurrent}
                 scrollLeft={scrollLeft}
-                setEditorData={handleEditorDataChange}
-                deltaScrollLeft={autoScroll && handleDeltaScrollLeft}
+                deltaScrollLeft={autoScroll && commonProps.deltaScrollLeft}
                 onScroll={(params) => {
-                  onScroll(params);
-                  if (onScrollVertical) {
-                    onScrollVertical(params);
-                  }
-                }}
+                onScroll(params);
+                if (onScrollVertical) {
+                  onScrollVertical(params);
+                }}}
               />
               {!hideCursor && (
-                <TimelineCursor
-                  {...newProps}
-                  timelineWidth={width}
-                  disableDrag={isPlaying}
-                  scrollLeft={scrollLeft}
-                  scaleCount={scaleCount}
-                  setScaleCount={handleSetScaleCount}
-                  setCursor={handleSetCursor}
-                  cursorTime={cursorTime}
-                  areaRef={areaRef}
-                  scrollSync={scrollSync}
-                  deltaScrollLeft={autoScroll && handleDeltaScrollLeft}
+                <TimelineCursor {...commonProps}
+                                scrollSync={scrollSync}
+                               disableDrag={isPlaying}
+                               scrollLeft={scrollLeft}
+                               deltaScrollLeft={autoScroll && commonProps.deltaScrollLeft}
                 />
               )}
-            </React.Fragment>
-          )}
+            </React.Fragment>)
+          }}
         </ScrollSync>
         <TimelineScrollResizer
-          element={gridRef}
+          element={tracksRef}
           type='horizontal'
           adjustScale={(value) => {
-            const { scaleWidth: newScaleWidth, scale: newScale } = getInitialScaleData(startLeft, duration, minScaleCount, gridRef.current.clientWidth - value);
-            setScale(newScale);
-            setScaleWidth(newScaleWidth);
+            const scaleData = fitScaleData(file.tracks, settings.minScaleCount, settings.maxScaleCount, settings.startLeft, settings.duration, tracksRef?.current?.scrollWidth - 7);
+            const timeline =  {
+              ...settings,
+              ...scaleData
+            };
+
+            dispatch({ type: 'SET_SETTING', payload: { key: 'timeline', value: { ...timeline } } });
+            setScale(timeline.scale);
+            setScaleWidth(timeline.scaleWidth);
+            setMaxScaleCount(timeline.maxScaleCount);
+            setScaleCount(timeline.scaleCount);
             return true;
           }}
         />
@@ -553,11 +550,6 @@ TimelineControl.propTypes = {
    */
   reRender: PropTypes.func,
   /**
-   * @description Default height of each edit line (>0, unit: px)
-   * @default 32
-   */
-  rowHeight: PropTypes.number,
-  /**
    * @description Single tick mark category (>0)
    * @default 1
    */
@@ -615,6 +607,11 @@ TimelineControl.propTypes = {
    * dom node
    */
   target: PropTypes.any,
+  /**
+   * @description Default height of each edit line (>0, unit: px)
+   * @default 32
+   */
+  trackHeight: PropTypes.number,
   /**
    * @description TimelineControl editing data
    */

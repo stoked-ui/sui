@@ -1,24 +1,27 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { ITimelineAction, OutputBlob, useTimeline } from '@stoked-ui/timeline';
+import { FileState, ITimelineAction, TimelineFile } from '@stoked-ui/timeline';
 import {  FileExplorer } from '@stoked-ui/file-explorer';
 import {IMediaFile, MediaFile } from '@stoked-ui/media-selector';
 import { useSlotProps} from '@mui/base/utils';
 import { SxProps } from "@mui/material";
+import Modal from "@mui/material/Modal";
 import composeClasses from '@mui/utils/composeClasses';
 import Timeline, { type TimelineState, ITimelineTrack } from '@stoked-ui/timeline';
 import { createUseThemeProps, styled} from '../internals/zero-styled';
 import { useEditor } from '../internals/useEditor';
 import { EditorProps} from './Editor.types';
 import { EditorPluginSignatures, VIDEO_EDITOR_PLUGINS } from './Editor.plugins';
-import {  EditorControls } from '../EditorControls';
+import {  EditorControls } from '../EditorControls/EditorControls';
 import EditorView from '../EditorView';
 import { getEditorUtilityClass } from './editorClasses';
 import Controllers from "../Controllers";
 import initDb from '../db/init'
-import {DetailView} from "../DetailView";
-import {useEditorContext} from "../EditorProvider";
+import DetailModal, {DetailView} from "../DetailView/DetailView";
+import { useEditorContext } from "../EditorProvider/EditorContext";
 import { initEditorAction } from "../EditorAction/EditorAction";
+import { IEditorTrack } from "../EditorTrack/EditorTrack";
+import EditorFile from "./EditorFile";
 
 const useThemeProps = createUseThemeProps('MuiEditor');
 
@@ -87,21 +90,22 @@ function createDirectoryFile({dirname, children}: { dirname: string, children: I
   return mediaFile;
 }
 
+
 /**
  *
  * Demos:
  *
- * - [FileExplorer View](https://stoked-ui.github.io/editor/docs/)
+ * - [Editor](https://stoked-ui.github.io/editor/docs/)
  *
  * API:
  *
- * - [FileExplorer API](https://stoked-ui.github.io/editor/api/)
+ * - [Editor API](https://stoked-ui.github.io/editor/api/)
  */
 const Editor = React.forwardRef(function Editor<
   R extends IMediaFile = IMediaFile,
   Multiple extends boolean | undefined = undefined,
 >(inProps: EditorProps<R, Multiple>, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
-  const { file, engine, versions, id, dispatch } = useEditorContext();
+  const { id, selectedTrack, detail, selected, selectedAction,  file, flags, engine, versions, dispatch } = useEditorContext();
   const { sx, ...props } = useThemeProps({ props: inProps, name: 'MuiEditor' });
   const {
     getRootProps,
@@ -134,7 +138,7 @@ const Editor = React.forwardRef(function Editor<
     externalSlotProps: slotProps?.editorView,
     className: classes.editorView,
     getSlotProps: getEditorViewProps,
-    ownerState: {...props },
+    ownerState: { ...props },
   });
 
   const ControlsSlot = slots?.controls ?? EditorControls;
@@ -143,7 +147,7 @@ const Editor = React.forwardRef(function Editor<
     externalSlotProps: slotProps?.controls,
     className: classes.controls,
     getSlotProps: getControlsProps,
-    ownerState: {...props },
+    ownerState: { ...props },
   });
 
   const TimelineSlot = slots?.timeline ?? Timeline;
@@ -181,13 +185,14 @@ const Editor = React.forwardRef(function Editor<
     if (!startIt && file && engine.isLoading && viewerRef.current) {
       setStartIt(true);
       engine.viewer = viewerRef.current;
-      if (file.needsGeneration()) {
-        file.generateTracks(Controllers, engine, initEditorAction)
-          .then(() => {
+      if (file && TimelineFile.fileState[file.id] === FileState.CONSTRUCTED) {
+        TimelineFile.fileState[file.id] = FileState.INITIALIZING;
+        EditorFile.load(file, initEditorAction)
+          .then((loadedFile) => {
             dispatch({
-              type: 'LOAD_EDITOR_PROPS',
+              type: 'ENGINE_INIT',
               payload: {
-                tracks: file.tracks,
+                file: loadedFile,
                 viewer: viewerRef.current as HTMLDivElement
               }
             });
@@ -200,10 +205,14 @@ const Editor = React.forwardRef(function Editor<
   const [files, setFiles] = React.useState<IMediaFile[]>([]);
   const [saved, setSaved] = React.useState<IMediaFile[]>([])
   const [view, setView] = React.useState<'timeline' | 'files'>('timeline')
-  const hiddenSx: SxProps = {position: 'absolute!important', opacity: '0!important', left: '200%'};
-  const visibleSx: SxProps = {position: 'static!important', opacity: '1!important'};
-  const timelineSx = {...(view === 'files' ? hiddenSx : visibleSx),  width: '100%'};
-  const filesSx = view !== 'files' ? hiddenSx : visibleSx ;
+  const hiddenSx: SxProps = {
+    position: 'absolute!important',
+    opacity: '0!important',
+    left: '200%'
+  };
+  const visibleSx: SxProps = { position: 'static!important', opacity: '1!important' };
+  const timelineSx = { ...(view === 'files' ? hiddenSx : visibleSx), width: '100%' };
+  const filesSx = view !== 'files' ? hiddenSx : visibleSx;
   const [currentVersion, setCurrentVersion] = React.useState<string>()
 
   React.useEffect(() => {
@@ -215,7 +224,7 @@ const Editor = React.forwardRef(function Editor<
 
   React.useEffect(() => {
     if (file?.tracks) {
-      const trackFiles  = file.tracks.map((track) => track.file);
+      const trackFiles = file.tracks.map((track) => track.file);
       // const tFiles: IMediaFile[] = trackFiles.filter((tf) => tf !== undefined);
       // setMediaFiles(tFiles);
     }
@@ -228,7 +237,7 @@ const Editor = React.forwardRef(function Editor<
     if ("launchQueue" in window && "setConsumer" in (window.launchQueue as any)) {
       (window.launchQueue as any)?.setConsumer?.((launchParams) => {
         if (launchParams.files && launchParams.files.length) {
-          file?.save()
+          // file?.save()
         }
       })
     }
@@ -242,34 +251,65 @@ const Editor = React.forwardRef(function Editor<
     type: 'action' | 'track' | 'label'
   } | null>(null);
 
-  const handleContextMenuAction = (event: React.MouseEvent<HTMLElement, MouseEvent>, param: { action: ITimelineAction; track: ITimelineTrack; time: number; }) => {
+  const handleContextMenuAction = (event: React.MouseEvent<HTMLElement, MouseEvent>, param: {
+    action: ITimelineAction;
+    track: ITimelineTrack;
+    time: number;
+  }) => {
     event.preventDefault();
-    setContextMenu({ mouseX: event.clientX + 2, mouseY: event.clientY - 6, context: param.action, type: 'action' });
+    setContextMenu({
+      mouseX: event.clientX + 2,
+      mouseY: event.clientY - 6,
+      context: param.action,
+      type: 'action'
+    });
   };
 
-  const handleContextMenuTrack = (event: React.MouseEvent<HTMLElement, MouseEvent>, param: { track: ITimelineTrack; time: number; }) => {
+  const handleContextMenuTrack = (event: React.MouseEvent<HTMLElement, MouseEvent>, param: {
+    track: ITimelineTrack;
+    time: number;
+  }) => {
     event.preventDefault();
-    setContextMenu({ mouseX: event.clientX + 2, mouseY: event.clientY - 6, context: param.track, type: 'track' });
+    setContextMenu({
+      mouseX: event.clientX + 2,
+      mouseY: event.clientY - 6,
+      context: param.track,
+      type: 'track'
+    });
   };
 
-  const handleContextMenuLabel = (event: React.MouseEvent<HTMLElement, MouseEvent>, param: { track: ITimelineTrack; time: number; }) => {
+  const handleContextMenuLabel = (event: React.MouseEvent<HTMLElement, MouseEvent>, param: {
+    track: ITimelineTrack;
+    time: number;
+  }) => {
     event.preventDefault();
-    setContextMenu({ mouseX: event.clientX + 2, mouseY: event.clientY - 6, context: param.track, type: 'label' });
+    setContextMenu({
+      mouseX: event.clientX + 2,
+      mouseY: event.clientY - 6,
+      context: param.track,
+      type: 'label'
+    });
   };
 
   const onAddFiles = () => {
     const input = document.createElement('input') as HTMLInputElement;
     input.type = 'file';
-    input.onchange =  async (ev) => {
-      const addedFiles =  await MediaFile.from(ev)
+    input.onchange = async (ev) => {
+      const addedFiles = await MediaFile.from(ev)
       dispatch({ type: 'CREATE_TRACKS', payload: addedFiles });
     }
     input.click();
   };
 
+  const onLabelClick = (t: IEditorTrack) => {
+    dispatch({ type: 'TRACK_DETAIL', payload: t as IEditorTrack});
+  }
+
+  const { ...editorViewPropsNew } = editorViewProps;
+
   return (
     <Root role={'editor'} {...rootProps} id={id}>
-      <EditorViewSlot {...editorViewProps} ref={viewerRef} />
+      <EditorViewSlot {...editorViewPropsNew} ref={viewerRef} />
       <ControlsSlot
         role={'controls'}
         {...videoControlsProps}
@@ -299,6 +339,7 @@ const Editor = React.forwardRef(function Editor<
             onContextMenuAction={handleContextMenuAction}
             onContextMenu={handleContextMenuLabel}
             onAddFiles={onAddFiles}
+            onLabelClick={onLabelClick}
           />
           <Explorer
             grid
@@ -313,10 +354,10 @@ const Editor = React.forwardRef(function Editor<
             sx={filesSx}
             onAddFiles={onAddFiles}
           />
-          <DetailView />
+          <DetailModal />
         </React.Fragment>
       }
-    </Root>);
+    </Root>)
 });
 
 Editor.propTypes = {

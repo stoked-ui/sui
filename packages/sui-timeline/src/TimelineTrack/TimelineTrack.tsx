@@ -1,48 +1,42 @@
 import * as React from 'react';
-import {alpha, emphasize, styled} from "@mui/material/styles";
+import { alpha, emphasize, styled } from "@mui/material/styles";
 import {shouldForwardProp} from "@mui/system/createStyled";
-// import {blend} from "@mui/system";
-import {CommonProps} from '../interface/common_prop';
 import {prefix} from '../utils/deal_class_prefix';
 import {parserPixelToTime} from '../utils/deal_data';
-import {DragLineData} from '../TimelineTrackArea/TimelineTrackAreaDragLines';
-import {type TimelineControlPropsBase} from "../TimelineControl/TimelineControl.types";
 import {TimelineAction} from "../TimelineAction/TimelineAction";
-import {type ITimelineTrack} from "./TimelineTrack.types";
+import {
+  fitScaleData,
+  getTrackBackgroundColor,
+  type ITimelineTrack,
+  TimelineTrackProps
+} from "./TimelineTrack.types";
 import {IController} from "../Controller/Controller.types";
 import {useTimeline} from "../TimelineProvider";
 import { ITimelineAction } from "../TimelineAction";
-
-export type TimelineTrackProps<
-  ControllerType extends IController = IController,
-  ActionType extends ITimelineAction = ITimelineAction,
-  TrackType extends ITimelineTrack = ITimelineTrack,
-> = CommonProps & TimelineControlPropsBase<ControllerType, TrackType, ActionType> & {
-  areaRef: React.MutableRefObject<HTMLDivElement>;
-  track?: TrackType;
-  style?: React.CSSProperties;
-  dragLineData: DragLineData;
-  setEditorData: (tracks: TrackType[]) => void;
-  /** scroll distance from left */
-  scrollLeft: number;
-  /** setUp scroll left */
-  deltaScrollLeft: (scrollLeft: number) => void;
-};
+import { checkProps } from "../utils";
 
 const TimelineTrackRoot = styled('div', {
   name: 'MuiTimelineTrack',
   slot: 'Root',
   overridesResolver: (props, styles) => styles.root,
   shouldForwardProp: (prop) => shouldForwardProp(prop)
-                               && prop !== 'lock'
-                               && prop !== 'hidden'
-                               && prop !== 'color',
-})<{ hidden?: boolean, lock?: boolean, color: string, selected?: boolean}>
-(({ theme, color }) => {
-  const bgColor = alpha(color, theme.palette.action.focusOpacity);
-  // const lockedBgBase = emphasize(theme.palette.background.default, 0.12);
-  // const lockedBg = blend(lockedBgBase, color, .3);
+    && prop !== 'lock'
+    && prop !== 'hidden'
+    && prop !== 'color'
+    && prop !== 'collapsed'
+    && prop !== 'trackHeight'
+    && prop !== 'hover'
+})<{ lock?: boolean, color: string, selected?: boolean, hidden?: boolean, trackHeight: number, hover?: boolean, collapsed?: boolean}>
+(({ theme, color, selected, hover, collapsed}) => {
+
+  if (collapsed) {
+    color = theme.palette.mode === 'dark' ? '#ccc' : '#444';
+  }
+  const trackBack = getTrackBackgroundColor(color, theme.palette.mode, selected, hover);
+
   return {
+    ...trackBack.row,
+    transition: 'all 0.5s ease',
     borderBottom: `1px solid ${theme.palette.background.default}`,
     borderTop: `1px solid ${emphasize(theme.palette.background.default, 0.04)}`,
     display: 'flex',
@@ -68,17 +62,7 @@ const TimelineTrackRoot = styled('div', {
           background: emphasize(theme.palette.background.default, 0.24)
         } */
       }
-    },{
-      props: { selected: true},
-      style: {
-        background: `${alpha(color, 0.3)}`
-      }
-    },{
-      props: { selected: false },
-      style: {
-        background: `${bgColor}`
-      }
-    }]
+    },]
   }
 });
 
@@ -97,6 +81,7 @@ const TrackSizer = styled('div', {
     background: theme.palette.action.active
   }
 }))
+
 export function getTrackColor<
   TrackType extends ITimelineTrack = ITimelineTrack
 >(track: TrackType) {
@@ -106,11 +91,10 @@ export function getTrackColor<
 
 
 export default function TimelineTrack<
-  ControllerType extends IController = IController,
   TrackType extends ITimelineTrack = ITimelineTrack,
   ActionType extends ITimelineAction = ITimelineAction,
->(props: TimelineTrackProps<ControllerType, ActionType, TrackType>) {
-  const { selectedTrack, file } = useTimeline();
+>(props: TimelineTrackProps<ActionType, TrackType>) {
+  const { settings, selectedTrack, dispatch } = useTimeline();
   const {
     track,
     style = {},
@@ -122,11 +106,12 @@ export default function TimelineTrack<
     startLeft,
     scale,
     scaleWidth,
+    collapsed,
   } = props;
 
   const classNames = ['edit-track'];
   const isTrackSelected = (isSelectedTrack: TrackType) => {
-    return selectedTrack?.id === isSelectedTrack.id;
+    return selectedTrack?.id === isSelectedTrack.id || collapsed;
   }
   const handleTime = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     if (!areaRef.current) {
@@ -139,15 +124,13 @@ export default function TimelineTrack<
     return time;
   };
 
-  const trackIndex = file?.tracks?.findIndex((t) => t.id === track.id);
-
   const [sizerData, setSizerData] = React.useState<{hover: boolean, down: boolean, startY: number }>({hover: false, down: false, startY: 0})
 
   if (!track) {
     return undefined;
   }
 
-  if (track?.id === selectedTrack?.id) {
+  if (track?.id === selectedTrack?.id || collapsed) {
     classNames.push('edit-track-selected');
   }
 
@@ -158,25 +141,26 @@ export default function TimelineTrack<
       )}`}
       lock={track.lock}
       hidden={track.hidden}
+      collapsed={collapsed}
+      onMouseEnter={(() => {
+        dispatch({ type: 'SET_SETTING', payload: { key: 'track-hover', value: track.id } })
+      })}
+      onMouseLeave={(() => {
+        dispatch({ type: 'SET_SETTING', payload: { key: 'track-hover', value: undefined} })
+      })}
+      hover={settings['track-hover'] === track.id}
       selected={isTrackSelected(track)}
       color={track.id === 'newTrack' ? '#8882' : getTrackColor(track)}
       style={{...style}}
+      trackHeight={settings.trackHeight}
       sx={{
-        '& .timeline-editor-edit-track': {
-          opacity: 0,
-          transform: 'scaleX(100%):nth-child(3n+1)',
-          transitionProperty: 'opacity, transform',
-          transitionDuration: '0.3s',
-          transitionTimingFunction: 'cubic-bezier(0.750, -0.015, 0.565, 1.055)'
-        },
-        '& .MuiTimeline-loaded': {
-          '& .timeline-editor-edit-track': {
-            opacity: 1,
-            transform: 'translateX(0)',
-            transitionDelay: `calc(0.055s * var(${trackIndex})))`,
-          }
-        }
+        opacity: 0,
+        transform: 'scaleX(100%):nth-child(3n+1)',
+        transitionProperty: 'opacity, color, transform',
+        transitionDuration: '1s',
+        transitionTimingFunction: 'ease-in-out',
       }}
+
       onKeyDown={(e) => {
         console.info('row root', e);
       }}
@@ -209,12 +193,90 @@ export default function TimelineTrack<
           key={action.id}
           {...props}
           handleTime={handleTime}
-          track={track}
+          track={collapsed ? props.actionTrackMap[action.id] : track}
           action={action}
         />
       })}
     </TimelineTrackRoot>
   );
 };
+/*
+
+export function useFileLoadMonitor() {
+  const [lastLoaded, setLastLoaded] = React.useState<number>(0);
+  const { settings: initialSettings, selectedTrack, engine, dispatch } = useTimeline();
+  React.useEffect(() => {
+
+  }, [TimelineFile.lastLoadedTime])
+  const { minScaleCount, maxScaleCount, startLeft, ...timelineSettings } = checkProps(initialSettings);
+
+  React.useEffect(() => {
+
+  }, []);
+
+  if (!selectedTrack) {
+    return undefined;
+  }
+
+  const scaleData = fitScaleData([selectedTrack], minScaleCount, maxScaleCount, startLeft, engine.duration, timelineWidth);
+  const scaledSettings = {...timelineSettings, timelineWidth, ...scaleData};
+
+  let key = 'timeline';
+
+  if (name?.length) {
+    key = `timeline-${name}`;
+  }
+
+  dispatch({ type: 'SET_SETTING', payload: { key, value: scaledSettings } });
+}
+*/
 
 
+export function ControlledTrack({name, width, height}: {name?: string, width: number, height?: number }) {
+  const { settings: initialSettings, selectedTrack, engine, dispatch,  } = useTimeline();
+  const { minScaleCount, maxScaleCount, startLeft, ...timelineSettings } = checkProps(initialSettings);
+
+  React.useEffect(() => {
+
+  }, []);
+
+  if (!selectedTrack) {
+    return undefined;
+  }
+
+  const scaleData = fitScaleData([selectedTrack], minScaleCount, maxScaleCount, startLeft, engine.duration, width);
+  const scaledSettings = {...timelineSettings, width, ...scaleData};
+
+  let key = 'timeline';
+
+  if (name?.length) {
+    key = `timeline-${name}`;
+  }
+
+  dispatch({ type: 'SET_SETTING', payload: { key, value: scaledSettings } });
+
+  return (
+    <TimelineTrack
+      {...scaledSettings}
+      timelineWidth={width}
+      style={{
+        width: '100%',
+        height: height || scaledSettings.trackHeight,
+        overscrollBehavior: 'none',
+        backgroundPositionX: `0, ${startLeft}px`,
+        backgroundSize: `${startLeft}px, ${scaleData.scaleWidth}px`,
+      }}
+      track={selectedTrack}
+      disableDrag
+      dragLineData={{
+        isMoving: false,
+        assistPositions: [],
+        movePositions: []
+      }}
+      deltaScrollLeft={() => {}}
+      setScaleCount={() => {}}
+      cursorTime={0}
+      scrollLeft={0}
+    />
+  )
+}

@@ -4,11 +4,13 @@ import {type IController} from '../Controller/Controller.types';
 import {
   type IEngine,
   type EngineState,
-  type EngineOptions,
+  type EngineOptions, Dispatch, SetAction,
 } from './Engine.types';
 import { type ITimelineTrack} from '../TimelineTrack/TimelineTrack.types';
 import {Events, type EventTypes} from './events'
 import {Emitter} from './emitter';
+import { RowRndApi } from "../TimelineTrack/TimelineTrackDnd.types";
+import Controllers from "../Controller/Controllers";
 
 
 /**
@@ -27,7 +29,6 @@ export default class Engine<
 
   protected _logging: boolean = false;
 
-  detailMode: boolean = false;
 
   control: any = {};
 
@@ -47,7 +48,7 @@ export default class Engine<
   protected _prev: number = 0;
 
   /** Action actionType map */
-  protected _controllers: Record<string, IController> = {};
+  protected _controllers: Record<string, IController> = Controllers;
 
   /** Action map that needs to be run */
   protected _actionMap: Record<string, ActionType> = {};
@@ -63,6 +64,8 @@ export default class Engine<
   /** The action time range contains the actionId list of the current time */
   protected _activeIds: BTree = new BTree<string, number>();
 
+  resetCursor?: () => void;
+
   constructor(params: EngineOptions ) {
     super(params.events ?? new Events())
 
@@ -71,6 +74,22 @@ export default class Engine<
     }
     this._state = 'loading' as State;
   }
+
+  cursorData?: () => {
+    dnd?: { current: RowRndApi };
+    dragLeft: { current: number };
+    scrollLeft: { current: number };
+    setCursor: (param: {
+      left?: number,
+      time?: number
+    }) => boolean;
+  }
+
+  cursorDragStart?: (time: number) => void;
+
+  cursorDragEnd?: () => void;
+
+  cursorDrag?: (left: number, scroll) => void;
 
   get state() {
     return this._state as string;
@@ -169,7 +188,6 @@ export default class Engine<
   }
 
   setTracks(tracks: TrackType[]) {
-    console.info('tracks', tracks);
     this._dealData(tracks);
     this._dealClear();
     this._dealEnter(this._currentTime);
@@ -308,6 +326,12 @@ export default class Engine<
   /** Playback completed */
   protected _end() {
     this.pause();
+
+    // reset the cursor
+    this.setTime(0, true);
+    this.tickAction(0);
+    this.reRender();
+
     this.trigger('ended' as keyof EmitterEvents, { engine: this as IEngine } as EmitterEvents[keyof EmitterEvents]);
   }
 
@@ -329,7 +353,7 @@ export default class Engine<
   }
 
   // eslint-disable-next-line class-methods-use-this
-   log(msg: string, ctx?: string) {
+  log(msg: string, ctx?: string) {
     if (!this._logging) {
       return;
     }

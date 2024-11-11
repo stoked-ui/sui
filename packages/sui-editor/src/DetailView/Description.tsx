@@ -1,7 +1,7 @@
 import * as React from 'react';
 import TextField from "@mui/material/TextField";
-import {Tooltip} from "@mui/material";
-import {useController} from "react-hook-form";
+import { Tooltip } from "@mui/material";
+import { useController } from "react-hook-form";
 import OutlinedStyle from "./OutlinedStyle";
 
 
@@ -18,8 +18,6 @@ export default function Description({ className, control, name, label, disabled 
     control,
     rules: { required: true },
   });
-  console.log('touchedFields', touchedFields);
-  console.log('dirtyFields', dirtyFields);
 
   return (
     <Tooltip

@@ -1,10 +1,8 @@
 import * as React from 'react';
 import {FastForward, FastRewind, VolumeDown, VolumeUp, VolumeMute, VolumeOff} from "@mui/icons-material";
 import FormControl from '@mui/material/FormControl';
-import StopIcon from '@mui/icons-material/Stop';
 import SvgIcon from "@mui/material/SvgIcon";
 import PauseIcon from '@mui/icons-material/Pause';
-import RecordIcon from '@mui/icons-material/FiberManualRecord';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import SkipNextIcon from '@mui/icons-material/SkipNext';
 import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
@@ -12,25 +10,17 @@ import Select, {SelectChangeEvent} from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
-import {alpha, emphasize, Theme} from '@mui/material/styles';
+import {emphasize, Theme} from '@mui/material/styles';
 import { Slider, Stack, Tooltip } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import Box from "@mui/material/Box";
 import styled from "@mui/system/styled";
 import {createUseThemeProps} from "@mui/material/zero-styled";
-import { namedId } from '@stoked-ui/media-selector';
 import {Version} from '../Engine/Engine.types';
-import {TimelineState} from '../Timeline/TimelineState'
-import { useTimeline } from '../TimelineProvider'
-import {
-  EngineState,
-  IEngine,
-} from '../Engine/Engine.types';
-import {ControlState, EditorControlsProps, VideoVersionFromKey} from './TimelineControls.types';
+import { useTimeline } from '../TimelineProvider';
+import { ControlState, EditorControlsProps } from './TimelineControls.types';
 import TimelineView from '../icons/TimelineView';
-import {EventTypes} from "../Engine/events";
-import {ToggleButtonGroupSx} from "../Timeline/Timeline.types";
-import theme from "stokedui-com/src/pages/premium-themes/onepirate/modules/theme";
+import ToggleButtonGroupEx from '../components/ToggleButtonGroupEx';
 
 export const Rates = [-3, -2.5, -2.0, -1.5, -1.0, -0.5, -0.2, 0.2, 0.5, 1.0, 1.5, 2.0, 2.5, 3];
 const useThemeProps = createUseThemeProps('MuiTimeline');
@@ -221,8 +211,7 @@ function Controls(inProps: ControlProps) {
 
   return (
     <div style={{display: 'flex', flexDirection: 'row', marginLeft: '6px', alignContent: 'center', width: '100%'}}>
-      <ToggleButtonGroup
-        sx={(theme) => ToggleButtonGroupSx(theme)}
+      <ToggleButtonGroupEx
         value={controls}
         exclusive
         onChange={(event, changeControls) => {
@@ -252,7 +241,7 @@ function Controls(inProps: ControlProps) {
         <ToggleButton onClick={handleEnd} value="end" aria-label="lock">
           <SkipNextIcon/>
         </ToggleButton>
-      </ToggleButtonGroup>
+      </ToggleButtonGroupEx>
     </div>)
 }
 
@@ -299,7 +288,7 @@ export function ViewToggle({view, setView, disabled = false}: {view: 'timeline' 
     aria-label="text alignment"
   >
     {view === 'timeline' &&
-     <Tooltip title={"Switch to Files View"}>
+     <Tooltip enterDelay={1000} title={"Switch to Files View"}>
        <ViewButton sx={sxButton} value="files" aria-label="lock" disabled={disabled}>
          <SvgIcon  fontSize={'small'}>
            <svg xmlns="http://www.w3.org/2000/svg" viewBox="46.057 64.188 404.091 497.187" width="404.091" height="497.187">
@@ -310,7 +299,7 @@ export function ViewToggle({view, setView, disabled = false}: {view: 'timeline' 
      </Tooltip>
     }
     {view === 'files' &&
-     <Tooltip title={"Switch to Timeline View"} sx={{position: 'absolute'}}>
+     <Tooltip enterDelay={1000} title={"Switch to Timeline View"} sx={{position: 'absolute'}}>
        <ViewButton sx={sxButton} value="timeline">
          <TimelineView fontSize={'small'}/>
        </ViewButton>

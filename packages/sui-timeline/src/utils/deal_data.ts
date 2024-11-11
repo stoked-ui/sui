@@ -100,7 +100,6 @@ export function getScaleCountByPixel(
 
 /** Get the position collection of the entire time of the action */
 export function parserActionsToPositions<
-  ControllerType extends IController = IController,
   ActionType extends ITimelineAction = ITimelineAction,
 >(
   actions: ActionType[],

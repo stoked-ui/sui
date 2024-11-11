@@ -43,7 +43,8 @@ export default class MyDocument extends Document {
     return (
       <Html lang={userLanguage} data-mui-color-scheme="light" data-joy-color-scheme="light">
         <Head>
-          {/*<meta charSet="utf-8"/>
+          {/*
+          <meta charSet="utf-8"/>
           <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
            Web App Config
           <meta name="viewport"
@@ -68,9 +69,10 @@ export default class MyDocument extends Document {
                 content="Instantly share images, videos, PDFs, and links with people nearby. Peer2Peer and Open Source. No Setup, No Signup."/>
           <meta name="og:description"
                 content="Instantly share images, videos, PDFs, and links with people nearby. Peer2Peer and Open Source. No Setup, No Signup."/>
-         Icons  */}
-          <link rel="icon" sizes="96x96" href="images/favicon-96x96.png"/>
-          <link rel="shortcut icon" href="images/favicon-96x96.png"/>
+         Icons
+          */}
+          <link rel="icon" sizes="96x96" href="static/icons/96x96.png"/>
+          <link rel="shortcut icon" href="static/icons/96x96.png"/>
           {/* <meta name="msapplication-TileImage" content="images/mstile-150x150.png"/> */}
           <link rel="fluid-icon" type="image/png" href="images/android-chrome-192x192.png"/>
         {/*   <meta name="twitter:image" content="https://snapdrop.net/images/twitter-stream.jpg"/>

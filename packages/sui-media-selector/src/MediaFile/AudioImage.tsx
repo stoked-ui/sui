@@ -16,7 +16,6 @@ function generateWaveformImage(
     // Fetch the audio file from the URL using XMLHttpRequest
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
-      console.log('audioSource', audioSource)
       xhr.open('GET', audioSource, true);
       xhr.responseType = 'arraybuffer';
 
