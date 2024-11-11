@@ -11,6 +11,6 @@
     "rootDir": "./src",
     "types": [ "wicg-file-system-access", "node", "@mui/material/themeCssVarsAugmentation"],
   },
-  "include": ["src/**/*.ts*"],
+  "include": ["src/**/*"],
   "exclude": ["src/**/*.spec.ts*", "src/**/*.test.ts*", "src/tests/**/*", "build/**/*"]
 }
