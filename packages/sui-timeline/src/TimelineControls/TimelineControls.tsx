@@ -20,7 +20,7 @@ import {Version} from '../Engine/Engine.types';
 import { useTimeline } from '../TimelineProvider';
 import { ControlState, EditorControlsProps } from './TimelineControls.types';
 import TimelineView from '../icons/TimelineView';
-import ToggleButtonGroupEx from '../components/ToggleButtonGroupEx';
+import ToggleButtonGroupEx from '../components/ToggleButtonGroupEx/ToggleButtonGroupEx';
 
 export const Rates = [-3, -2.5, -2.0, -1.5, -1.0, -0.5, -0.2, 0.2, 0.5, 1.0, 1.5, 2.0, 2.5, 3];
 const useThemeProps = createUseThemeProps('MuiTimeline');
