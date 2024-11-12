@@ -23,7 +23,8 @@ export interface IMediaFile extends File, IMediaFileBase {
   thumbnail: string | null;
   readonly blob: Blob;
   _url?: string;
-  readonly url: string;
+  get url(): string;
+  get mediaFileSize(): number;
   readonly created: number;
   readonly lastModified: number;
   readonly name: string;

@@ -62,10 +62,11 @@ const ViewButton = styled(ToggleButton)(() => ({
   backgroundColor: 'unset',
 }))
 
-const PlayerRoot = styled('div')(({ theme }) => ({
+const PlayerRoot = styled('div')
+<{ loading: boolean }>(({ theme, loading }) => ({
   height: '42px',
   width: '100%',
-  display: 'flex',
+  display: loading ? 'none' : 'flex',
   flexDirection: 'row',
   alignItems: 'center',
   backgroundColor: emphasize(theme.palette.background.default, 0.2),
@@ -365,7 +366,7 @@ function Controls(inProps: ControlProps) {
   }, [controlState]);
 
   return (
-    <div style={{display: 'flex', flexDirection: 'row', marginLeft: '6px', alignContent: 'center', width: '100%'}}>
+    <div style={{ display: 'flex', flexDirection: 'row', marginLeft: '6px', alignContent: 'center', width: '100%'}}>
       <ToggleButtonGroupEx
         width={52}
         height={40}
@@ -629,7 +630,7 @@ export const EditorControls = React.forwardRef(
     const versionProps = { versions, setVersions, currentVersion, setCurrentVersion };
 
     return (
-      <PlayerRoot id={'timeline-controls'} className="timeline-player" ref={ref}>
+      <PlayerRoot id={'timeline-controls'} className="timeline-player" ref={ref} loading={engine.isLoading}>
         <div style={{display: 'flex', flexDirection: 'row', alignContent: 'center', width: '100%'}}>
           <div style={{display: 'flex', flexDirection: 'row', alignContent: 'center', height: '100%'}}>
             <Controls {...controlProps} controlState={controlState} setControlState={setControlState} versions={versions!} setVersions={setVersions!} disabled={disabled} />

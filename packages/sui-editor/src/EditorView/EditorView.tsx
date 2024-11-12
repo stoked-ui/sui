@@ -84,7 +84,7 @@ const Screener = styled('video', {
   name: "MuiEditorViewScreener",
   slot: "screener",
   shouldForwardProp: (prop) => prop !== 'viewMode',
-})(() => ({
+})({
   display: 'none',
   flexDirection: 'column',
   width: '100%',
@@ -93,7 +93,7 @@ const Screener = styled('video', {
   overflow: 'hidden',
   aspectRatio: 16 / 9,
   zIndex: 50,
-}));
+});
 
 const Stage = styled('div', {
   shouldForwardProp: (prop) => prop !== 'viewMode',
@@ -200,37 +200,6 @@ const EditorView = React.forwardRef(function EditorView<
     }
     const actualFile: EditorFile = file as EditorFile;
     await TimelineFile.SaveAs(actualFile);
-    /*
-    const props: IEditorFileProps = {
-      id: file.id,
-      name: file.name,
-      tracks: file.tracks.map((track: IEditorFileTrack) => {
-        return {
-          id: track.id,
-          name: track.name,
-          actions: track.actions.map((action: IEditorAction) => {
-            return {
-              id: action.id,
-              name: action.name,
-              type: action.type,
-              volume: action.volume,
-              x: action.x,
-              y: action.y,
-              z: action.z,
-              duration: action.duration,
-              start: action.start,
-              end: action.end,
-            }
-          })
-        }
-      }),
-      backgroundColor: file.backgroundColor,
-      duration: file.,
-      height: file.height,
-      width: file.width,
-    }
-     */
-
   }
   // if the viewer resizes make the renderer match it
   React.useEffect(() => {
@@ -252,6 +221,16 @@ const EditorView = React.forwardRef(function EditorView<
     }
   }, [viewerRef]);
 
+
+  React.useEffect(() => {
+
+    if (rendererRef.current) {
+     // setComponentRef<HTMLCanvasElement>(rendererRef, 'renderer');
+    }
+
+
+  }, [rendererRef]);
+
   function handleClose() {
 
     setShowSettingsPanel(false);
@@ -269,11 +248,10 @@ const EditorView = React.forwardRef(function EditorView<
                 }}
   >
 
-    <Loader />
-
     <Renderer role={'renderer'} style={{backgroundColor: file?.backgroundColor}} ref={rendererRef}
               data-preserve-aspect-ratio/>
-    <Screener role={'screener'} ref={screenerRef}/>
+    <Screener role={'screener'} ref={screenerRef} />
+    <Loader />
     <Stage role={'stage'} ref={stageRef}/>
     {showSettings && (<React.Fragment>
       {file && <IconButton

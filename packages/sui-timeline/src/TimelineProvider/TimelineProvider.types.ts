@@ -33,6 +33,7 @@ export interface ITimelineState<
   versions: IMediaFile[];
   getState: () => string | State;
   setState: (newState: string | State) => void;
+  components: Record<string, HTMLElement>;
 }
 
 export const onAddFiles = <
@@ -134,6 +135,12 @@ export type TimelineStateAction<
 } | {
   type: 'TRACK_ENTER',
   payload: string
+} | {
+  type: 'SET_COMPONENT',
+  payload: {
+    key: string,
+    value: HTMLElement
+  }
 }
 
 export type TimelineContextType = ITimelineState & {
@@ -168,7 +175,6 @@ export function addFlag(key: string, state: ITimelineState) {
 export function removeFlag(key: string, state: ITimelineState) {
   return setFlags({set: [key], values: []}, state);
 }
-
 export function TimelineReducer(state: ITimelineState, stateAction: TimelineStateAction): ITimelineState {
   switch (stateAction.type) {
 
@@ -209,7 +215,7 @@ export function TimelineReducer(state: ITimelineState, stateAction: TimelineStat
       };
     case 'CREATE_ACTION': {
       const { action, track } = stateAction.payload;
-      const updatedTracks = state.file?.tracks.map((t, index) =>
+      const updatedTracks = state.file?.tracks?.map((t, index) =>
         t.id === track.id ? { ...t, actions: [...t.actions, initTimelineAction( action, index)] } : t
       ) ?? [];
       let file = null;
@@ -240,7 +246,7 @@ export function TimelineReducer(state: ITimelineState, stateAction: TimelineStat
     }
     case 'UPDATE_ACTION_STYLE': {
       const { action, backgroundImageStyle } = stateAction.payload;
-      const updatedTracks = state.file?.tracks.map((t) => {
+      const updatedTracks = state.file?.tracks?.map((t) => {
         t.actions = t.actions.map((a) => {
           if (a.id === action.id) {
             a.backgroundImageStyle = backgroundImageStyle;
@@ -259,6 +265,16 @@ export function TimelineReducer(state: ITimelineState, stateAction: TimelineStat
         file,
       };
     }
+    case 'SET_COMPONENT': {
+      const { key, value } = stateAction.payload;
+      return {
+        ...state,
+        components: {
+          ...state.components,
+          [key]: value,
+        },
+      };
+    }
     default:
       return state;
   }
@@ -266,7 +282,6 @@ export function TimelineReducer(state: ITimelineState, stateAction: TimelineStat
 
 export interface TimelineProviderProps<
   EngineType  = IEngine,
-  FileActionType extends ITimelineAction = ITimelineAction,
   State extends ITimelineState = ITimelineState,
   StateActionType  = TimelineStateAction
 > {
@@ -275,7 +290,6 @@ export interface TimelineProviderProps<
   controllers?: Record<string, IController>,
   engine?: EngineType,
   reducer?: (state: State, stateAction: StateActionType) => State;
-  actions?: FileActionType[],
 }
 
 export const initialTimelineState: Omit<ITimelineState, 'engine' | 'getState' | 'setState'> = {
@@ -286,4 +300,5 @@ export const initialTimelineState: Omit<ITimelineState, 'engine' | 'getState' | 
   versions: [],
   id: 'timeline',
   file: null,
+  components: {},
 }

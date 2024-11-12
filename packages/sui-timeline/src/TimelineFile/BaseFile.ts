@@ -14,16 +14,9 @@ export abstract class BaseFile {
     return this._version;
   };
 
-  primaryType: FilePickerAcceptType = {
-    description: 'Timeline Project Files',
-    accept: {
-      'application/stoked-ui-timeline': ['.sut'],
-    },
-  };
 
-  primaryExt: string = '.sut';
 
-  types: FilePickerAcceptType[] = [];
+  static types: FilePickerAcceptType[] = [];
 
   async hashString(canonicalString: string): Promise<string> {
     const encoder = new TextEncoder();

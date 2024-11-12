@@ -1,15 +1,29 @@
 import * as React from 'react';
 import { namedId } from '@stoked-ui/media-selector';
-import { initialTimelineState, ITimelineFile, TimelineProvider } from '@stoked-ui/timeline';
+import {
+  initialTimelineState,
+  ITimelineFile, ITimelineState,
+  TimelineProvider,
+  TimelineReducer,
+  TimelineStateAction
+} from '@stoked-ui/timeline';
 import EditorEngine from "../EditorEngine/EditorEngine";
-import { EditorEngineState } from "../EditorEngine/EditorEngine.types";
+import { EditorEngineState, IEditorEngine } from "../EditorEngine/EditorEngine.types";
 import { EditorEvents } from "../EditorEngine";
 import Controllers from "../Controllers/Controllers";
-import { EditorProviderProps, EditorReducer, IEditorState, } from "./EditorProvider.types";
+import {
+  EditorProviderProps,
+  EditorReducer,
+  EditorStateAction,
+  IEditorState, IEditorStateUnselected,
+} from "./EditorProvider.types";
 import { setDetail } from "../DetailView/Detail.types";
-import EditorFile from "../Editor/EditorFile";
 
-export default function EditorProvider(props: EditorProviderProps) {
+export default function EditorProvider<
+  EngineType extends IEditorEngine = IEditorEngine,
+  State extends IEditorState = IEditorState,
+  StateActionType extends EditorStateAction = EditorStateAction,
+>(props: EditorProviderProps<EngineType, State, StateActionType>) {
   const engine = props?.engine ?? new EditorEngine({ events: new EditorEvents(), controllers: props.controllers });
   const getState = () => {
     return engine.state as EditorEngineState;
@@ -17,7 +31,6 @@ export default function EditorProvider(props: EditorProviderProps) {
   const setState = (newState: EditorEngineState | string) => {
     engine.state = newState;
   }
-  const [originalFile, setOriginalFile] = React.useState<EditorFile>(props.file);
 
   const stateProps = {
     ...initialTimelineState,
@@ -25,20 +38,20 @@ export default function EditorProvider(props: EditorProviderProps) {
     engine,
     getState,
     setState,
-  };
+  } as IEditorStateUnselected;
 
-  const detailState = setDetail(stateProps as IEditorState);
+  const detailState = setDetail(stateProps);
 
   const editorProps: IEditorState = {
     ...detailState,
-    id: props.id ??
-    engine,
+    id: props.id ?? namedId('timeline'),
+    engine: engine as EditorEngine,
     getState,
     setState,
   }
 
   return (
-    <TimelineProvider {...props} {...editorProps} file={props.file as ITimelineFile} controllers={Controllers} reducer={EditorReducer}>
+    <TimelineProvider<IEditorEngine, IEditorState, EditorStateAction> {...props} {...editorProps} controllers={Controllers} reducer={EditorReducer}>
       {props.children}
     </TimelineProvider>
   );

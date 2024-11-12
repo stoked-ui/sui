@@ -46,10 +46,9 @@ export default class EditorFile<
 
   primaryExt: string = '.sue';
 
-  OBJECT_STORE_NAME: string = 'editor';
+  primaryMimeSubtypeSuffix: string = 'editor';
 
-  OBJECT_OUTPUT_STORE_NAME: string = 'editor-output';
-
+  primaryOutputMimeSubtypeSuffix: string = 'editor-output';
 
   constructor(props: IEditorFileProps<FileTrackType>) {
     super(props);

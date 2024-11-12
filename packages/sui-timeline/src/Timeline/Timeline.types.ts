@@ -10,7 +10,9 @@ import {type ITimelineTrack} from "../TimelineTrack/TimelineTrack.types";
 import {type TimelineLabelsProps} from "../TimelineLabels/TimelineLabels.types";
 import {type TimelineState} from "./TimelineState";
 import TimelineControl, {TimelineControlProps} from "../TimelineControl";
-import {ITimelineAction} from "../TimelineAction";
+import { ITimelineAction, ITimelineFileAction } from "../TimelineAction";
+import { ITimelineFile } from "../TimelineFile";
+import { useTimeline } from "../TimelineProvider";
 
 export type TimelineComponent = ((
   props: TimelineProps & React.RefAttributes<HTMLDivElement>,
@@ -34,57 +36,26 @@ export interface TimelineSlotProps {
 
 export interface TimelineProps
   extends React.HTMLAttributes<HTMLDivElement> {
-
+  actions?: ITimelineFileAction[],
   children?: React.ReactNode;
-  /**
-   * Overridable component slots.
-   * @default {}
-   */
-  slots?: TimelineSlots;
-  /**
-   * The props used for each component slot.
-   * @default {}
-   */
-  slotProps?: TimelineSlotProps;
   className?: string;
   /**
    * Override or extend the styles applied to the component.
    */
   classes?: Partial<TimelineClasses>;
-  /**
-   * The system prop that allows defining system overrides as well as additional CSS styles.
-   */
-  sx?: SxProps<Theme>;
-  labelsSx?: SxProps<Theme>;
-  labelSx?: SxProps<Theme>;
+  collapsed?: boolean;
   controlSx?: SxProps<Theme>;
-  trackSx?: SxProps<Theme>;
-
   controllers?: Record<string, IController>;
-  timelineState?: React.RefObject<TimelineState>;
-  viewSelector?: string;
+  detailRenderer?: boolean;
+  disabled?: boolean;
+  file?: ITimelineFile;
+  fileUrl?: string;
+  labelSx?: SxProps<Theme>;
   labels?: boolean;
 
-  scaleWidth?: number;
-  setScaleWidth?: (scaleWidth: number) => void;
-
-  detailRenderer?: boolean;
+  labelsSx?: SxProps<Theme>;
   locked?: boolean;
-
-  disabled?: boolean;
-
   onAddFiles?: () => void;
-
-  /**
-   * @description Right-click track callback
-   */
-  onContextMenuTrack?: (
-    e: React.MouseEvent<HTMLElement, MouseEvent>,
-    param: {
-      track: ITimelineTrack;
-      time: number;
-    },
-  ) => void;
   /**
    * @description Right-click action callback
    */
@@ -97,9 +68,42 @@ export interface TimelineProps
     },
   ) => void;
 
+  /**
+   * @description Right-click track callback
+   */
+  onContextMenuTrack?: (
+    e: React.MouseEvent<HTMLElement, MouseEvent>,
+    param: {
+      track: ITimelineTrack;
+      time: number;
+    },
+  ) => void;
   onLabelClick?: (track: ITimelineTrack) => void;
 
-  collapsed?: boolean;
+  scaleWidth?: number;
+  setScaleWidth?: (scaleWidth: number) => void;
+
+  /**
+   * The props used for each component slot.
+   * @default {}
+   */
+  slotProps?: TimelineSlotProps;
+
+  /**
+   * Overridable component slots.
+   * @default {}
+   */
+  slots?: TimelineSlots;
+
+  /**
+   * The system prop that allows defining system overrides as well as additional CSS styles.
+   */
+  sx?: SxProps<Theme>;
+  timelineState?: React.RefObject<TimelineState>;
+
+  trackSx?: SxProps<Theme>;
+
+  viewSelector?: string;
 }
 
 export interface ToggleButtonGroupSxProps {
@@ -109,58 +113,17 @@ export interface ToggleButtonGroupSxProps {
   minHeight: number
 }
 
-export function ToggleButtonGroupSx(id: string = namedId('toggle-button-sx'), { maxWidth = 38, maxHeight = 40, minWidth = 22, minHeight = 22 }: ToggleButtonGroupSxProps) {
-  document.getElementById(id)
-  return (theme: Theme) => ({
-    height: `${maxHeight}px`,
-    width: 'calc(100% + 1px)',
-    backgroundColor: theme.palette.mode === 'light' ? '#FFF' : '#000', '& .MuiButtonBase-root': {
-      backgroundColor: 'transparent',
-      color: theme.palette.text.primary,
-      border: `1px solid ${theme.palette.text.primary}`,
-      width: `${maxWidth}px`,
-      minHeight: `${minHeight}px`,
-      maxHeight: `${maxWidth}px`,
-      minWidth: `${minWidth}px`,
-      maxWidth: `${maxHeight}px`,
-      '&:hover': {
-        minHeight: `${minHeight}px`,
-        maxHeight: `${maxWidth}px`,
-        minWidth: `${minWidth}px`,
-        maxWidth: `${maxHeight}px`,
-        color: theme.palette.primary[theme.palette.mode === 'light' ? 'dark' : 'light'],
-        backgroundColor: theme.palette.background.default,
-        border: `2px solid ${theme.palette.primary[theme.palette.mode]}`,
-        outline: '1px solid black',
-        zIndex: 30,
+export function useComponentRef<ElementType extends HTMLElement>(componentRef: React.RefObject<ElementType>, key: string) {
+  const { dispatch, components } = useTimeline();
+  return React.useCallback(() => {
+    if (!components[key]) {
+      const element = componentRef.current as ElementType;
+      if (element) {
+        dispatch({
+          type: 'SET_COMPONENT',
+          payload: { key, value: element as ElementType }
+        });
       }
-    },
-    '& .MuiButtonBase-root.Mui-selected': {
-      backgroundColor: 'transparent',
-      color: `${theme.palette.primary.main}!important`,
-      border: `2px solid ${theme.palette.primary[theme.palette.mode === 'dark' ? 'light' : 'dark']}!important`,
-      zIndex: 20,
-      '&:hover': {
-        minHeight: `${minHeight}px`,
-        maxHeight: `${maxWidth}px`,
-        minWidth: `${minWidth}px`,
-        maxWidth: `${maxHeight}px`,
-        backgroundColor: theme.palette.background.default,
-        border: `2px solid ${theme.palette.primary.main}!important`,
-        zIndex: 20,
-      }
-    },
-    '& .MuiButtonBase-root.Mui-focusVisible': {
-      minHeight: `${minHeight}px`,
-      maxHeight: `${maxWidth}px`,
-      minWidth: `${minWidth}px`,
-      maxWidth: `${maxHeight}px`,
-      color: `${theme.palette.primary[theme.palette.mode]}!important`,
-      backgroundColor: theme.palette.background.default,
-      border: `2px solid ${theme.palette.primary[theme.palette.mode]}!important`,
-      zIndex: 30,
-      outline: 'none',
-      outlineOffset: 'none',
     }
-  });
+  }, []);
 }

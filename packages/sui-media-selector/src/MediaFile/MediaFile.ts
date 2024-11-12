@@ -1,3 +1,4 @@
+import {Howl} from "howler";
 import {MediaType, getMediaType} from './MediaType';
 import {
   DropFile,
@@ -11,7 +12,8 @@ import {
 } from './MediaFile.types'
 import {ExtensionMimeTypeMap} from "./MimeType";
 import namedId from "../namedId";
-import {Howl} from "howler";
+
+type MediaFileMeta = Omit<IMediaFile, keyof File>;
 
 export default class MediaFile implements IMediaFile {
   readonly id: string;
@@ -25,6 +27,11 @@ export default class MediaFile implements IMediaFile {
   readonly name: string;
 
   readonly size: number;
+
+  get mediaFileSize() {
+    const nonFileMeta = this as MediaFileMeta;
+    return JSON.stringify(nonFileMeta).length + this.size;
+  }
 
   readonly type: string;
 
@@ -246,7 +253,7 @@ export default class MediaFile implements IMediaFile {
                   MediaFile.setProperty(fullMediaFile, 'element', item);
                   resolve(fullMediaFile);
                 } else if (loadingSeconds > 20) {
-                  reject(new Error(`didn\'t load video ${fullMediaFile.url} within 20 seconds'`));
+                  reject(new Error(`didn't load video ${fullMediaFile.url} within 20 seconds'`));
                 }
               }, 1000); // Run every 1 second
             }
@@ -281,10 +288,32 @@ export default class MediaFile implements IMediaFile {
           }
         })
       }
-
+      default: {
+        return fullMediaFile;
+      }
     }
     return fullMediaFile;
   }
+
+  static async writeFiles(files: MediaFile[], controller: ReadableStreamDefaultController<Uint8Array>, chunkSize = 64 * 1024) {
+    for (let i = 0; i < files.length; i += 1){
+      const file = files[i];
+      let position = 0;
+
+      while (position < file.mediaFileSize) {
+        // Read the chunk from the file
+        // eslint-disable-next-line no-await-in-loop
+        const chunk = await file.slice(position, position + chunkSize).arrayBuffer();
+
+        // Write the chunk to the stream
+        controller.enqueue(new Uint8Array(chunk));
+
+        // Move the position for the next chunk
+        position += chunkSize;
+      }
+    }
+  }
+
 
   static withMimeType(file: IMediaFile) {
     const {name} = file;

@@ -22,7 +22,7 @@ import {
   ITimelineAction,
   type TimelineActionProps
 } from './TimelineAction.types';
-import { type ITimelineTrack } from '../TimelineTrack/TimelineTrack.types';
+import { getTrackBackgroundColor, type ITimelineTrack } from '../TimelineTrack/TimelineTrack.types';
 import { useTimeline } from "../TimelineProvider";
 import { IController } from "../Controller";
 
@@ -44,13 +44,23 @@ const Action = styled('div', {
   scaleWidth?: number;
   loop?: boolean;
   loopCount?: number;
-}>(({ theme, duration, scaleWidth, color, loop = true, loopCount }) => {
+  hover: boolean;
+
+}>(({ theme, duration, scaleWidth, color, loop = true, loopCount, selected, hover }) => {
   /* const base = theme.vars ? `rgba(color(from ${color}) / 1)` : alpha(color, 1);
   const unselected = emphasize(color, 0.7);
   const hover = emphasize(color, 0.45);
   const selectedColor = emphasize(color, 0.3);
   const background = selected ? selectedColor : unselected; */
   // console.log('color', color)
+
+
+  // if (collapsed) {
+  //   color = theme.palette.mode === 'dark' ? '#ccc' : '#444';
+  // }
+  const trackBack = getTrackBackgroundColor(color, theme.palette.mode, selected, hover);
+
+
 
   const backgroundColor = emphasize(color, 0.10);
   const darker = darken(backgroundColor, .6);
@@ -85,6 +95,8 @@ const Action = styled('div', {
     backgroundPosition = `0px top, ${size}px top`;
     backgroundRepeat = 'no-repeat';
   }
+
+
   return {
     borderRadius: '4px',
     marginTop: '-1px',
@@ -95,7 +107,8 @@ const Action = styled('div', {
     backgroundSize,
     backgroundRepeat,
     backgroundPosition,
-    backgroundColor,
+    // backgroundColor,
+    ...trackBack.action,
     alignContent: 'center',
     padding: '0 0 0 10px',
     overflow: 'hidden',
@@ -110,7 +123,7 @@ const Action = styled('div', {
       cursor: 'url(\'/static/cursors/volume-pen.svg\') 16 16, auto',
     },
     '&:hover': {
-      backgroundColor:   `${emphasize(color, 0.15)}`,
+      // backgroundColor:   `${emphasize(color, 0.15)}`,
       '& .label': {
         opacity: '1',
       }
@@ -118,9 +131,9 @@ const Action = styled('div', {
     variants: [{
       props: {  selected: true },
       style: {
-        backgroundColor: `${color}`,
+        // backgroundColor: `${color}`,
         '&:hover': {
-          backgroundColor: `${emphasize(color, 0.05)}`,
+          // backgroundColor: `${emphasize(color, 0.05)}`,
         },
       }
     }]
@@ -220,7 +233,7 @@ function TimelineAction<
   ActionType extends ITimelineAction = ITimelineAction,
   TrackType extends ITimelineTrack = ITimelineTrack,
 >(props: TimelineActionProps<ActionType, TrackType>) {
-  const { engine, dispatch, file } = useTimeline();
+  const {  dispatch, file, settings } = useTimeline();
   const { action, ...restProps } = props;
   const { selected, flexible = true, movable = true, disable } = action;
   const state = { selected, flexible, movable, disable };
@@ -521,9 +534,16 @@ function TimelineAction<
           }
           event.preventDefault();
         }}
-        onMouseLeave={() => {
-          // actionEl.current?.classList.remove('volume');
-        }}
+        hover={settings['action-hover'] === action.id}
+        onMouseEnter={((event) => {
+          dispatch({ type: 'SET_SETTING', payload: { key: 'action-hover', value: action.id } })
+          dispatch({ type: 'SET_SETTING', payload: { key: 'track-hover', value: track.id } })
+          event.stopPropagation();
+        })}
+        onMouseLeave={(() => {
+          dispatch({ type: 'SET_SETTING', payload: { key: 'action-hover', value: undefined } })
+          dispatch({ type: 'SET_SETTING', payload: { key: 'track-hover', value: undefined} })
+        })}
         onMouseDown={() => {
           if (track.lock) {
             return;
