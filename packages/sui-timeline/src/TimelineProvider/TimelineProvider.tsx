@@ -1,11 +1,21 @@
 import * as React from 'react';
-import {TimelineFile} from "../TimelineFile";
-import Engine, {EngineState} from "../Engine";
+import Engine, { EngineState, IEngine } from "../Engine";
 
-import { TimelineProviderProps, ITimelineState, initialTimelineState, TimelineReducer, TimelineContext, TimelineContextType } from './TimelineProvider.types';
+import {
+  TimelineProviderProps,
+  ITimelineState,
+  initialTimelineState,
+  TimelineReducer,
+  TimelineContext,
+  TimelineContextType, TimelineStateAction
+} from './TimelineProvider.types';
 
-function TimelineProvider(props: TimelineProviderProps) {
-  const { children, id, file, controllers, engine } = props;
+function TimelineProvider<
+  EngineType extends IEngine = IEngine,
+  StateType extends ITimelineState = ITimelineState,
+  StateActionType = TimelineStateAction
+>(props: TimelineProviderProps<EngineType, StateType, StateActionType>) {
+  const { children, id, controllers, engine } = props;
 
   const theEngine = engine ?? new Engine({ controllers  });
   const getState = () => {
@@ -17,7 +27,6 @@ function TimelineProvider(props: TimelineProviderProps) {
   const initialState: ITimelineState = {
     ...initialTimelineState,
     id: id ?? 'timeline',
-    file: file ?? new TimelineFile({ name: 'new file' }),
     engine: theEngine,
     getState,
     setState
@@ -26,19 +35,9 @@ function TimelineProvider(props: TimelineProviderProps) {
   const reducer = props.reducer ?? TimelineReducer;
   const [state, dispatch] = React.useReducer(reducer, initialState);
 
-  React.useEffect(() => {
-
-    if (!file && props.actions) {
-      TimelineFile.fromFileActions(props.actions)
-        .then((timelineFile) => {
-          dispatch({ type: 'SET_FILE', payload: timelineFile })
-        })
-    }
-  }, [])
-
 
   return (
-    <TimelineContext.Provider value={{ ...state, dispatch }}>
+    <TimelineContext.Provider value={React.useMemo(() => ({ ...state, dispatch }), [state, dispatch])}>
       {children}
     </TimelineContext.Provider>
   );
@@ -47,7 +46,9 @@ function TimelineProvider(props: TimelineProviderProps) {
 // Custom hook to access the extended context
 function useTimeline(): TimelineContextType {
   const context = React.useContext(TimelineContext);
-  if (!context) throw new Error("useTimeline must be used within a TimelineProvider");
+  if (!context) {
+    throw new Error("useTimeline must be used within a TimelineProvider");
+  }
   return context;
 }
 

@@ -28,39 +28,46 @@ export type TimelineTrackProps<
 export const TrackColorAlpha = {
   dark: {
     hoverSelect: {
-      row: .6,
+      action: .9,
+      row: .42,
       label: .85,
     },
     selected: {
-      row: .75,
-      label: .8,
-    },
-    hover: {
-      row: .95,
+      action: .82,
+      row: .36,
       label: 63,
     },
+    hover: {
+      action: .62,
+      row: .30,
+      label: .8,
+    },
     normal: {
-      row:
-        .48,
+      action: .48,
+      row: .24,
       label: .82,
     }
   },
   light: {
     hoverSelect: {
-      row: .6,
-      label: .9,
+      action: .85,
+      row: .53,
+      label: .4,
     },
     selected: {
-      row: .4,
-      label: .7,
+      action: .8,
+      row:  .47,
+      label:.35,
     },
     hover: {
-      row: .25,
-      label: .6,
+      action: .62,
+      row: .42,
+      label: .25,
     },
     normal: {
-      row: .12,
-      label: .52,
+      action: .52,
+      row:  .32,
+      label: .12,
     }
   }
 }
@@ -78,22 +85,27 @@ const getState = (selected?: boolean, hover?: boolean) => {
   return 'normal';
 }
 
-export const getTrackBackgroundColor = (color: string, mode: 'dark' | 'light', selected?: boolean, hover?: boolean) => {
+export const getTrackBackgroundColor = (color: string, mode: 'dark' | 'light', selected?: boolean, hover?: boolean, track?: boolean) => {
   const state = getState(selected, hover);
   const modeState = TrackColorAlpha[mode][state];
-  const firstColor = alpha(color, modeState.label);
-  const endColor = alpha(color, modeState.row)
+  const modeMod = (scalar: number) => mode === 'light' ? scalar : scalar;
+  const firstColor = alpha(color, modeMod(modeState.label));
+  const endColor = alpha(color, modeMod(modeState.row))
   let opacity = 1;
   if (state === 'normal') {
     opacity = .95;
   }
   return {
     label: {
-      background: `linear-gradient(to right,${firstColor}, 70%, ${endColor})`,
+      background: `linear-gradient(to right,${firstColor}, 80%, ${endColor})`,
       opacity: `${opacity}!important`
     },
     row: {
       background: endColor,
+      opacity: `${opacity}!important`
+    },
+    action: {
+      background: alpha(color, modeMod(modeState.action)),
       opacity: `${opacity}!important`
     }
   };
@@ -127,6 +139,10 @@ export interface ITimelineTrack<
   controllerName?: string;
 
   controller: IController;
+}
+
+export type ITimelineTrackMetadata<TrackType extends ITimelineTrack = ITimelineTrack> = Omit<TrackType, 'file' | 'controller'> & {
+  fileIndex?: number;
 }
 
 export interface ITimelineFileTrack extends Omit<ITimelineTrack, 'id' | 'controller' | 'actions' | 'file'> {

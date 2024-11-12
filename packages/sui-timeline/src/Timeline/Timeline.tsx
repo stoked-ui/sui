@@ -14,6 +14,7 @@ import {ITimelineFileAction, type ITimelineAction} from '../TimelineAction/Timel
 import TimelineControl from '../TimelineControl/TimelineControl';
 import {type TimelineLabelsProps} from '../TimelineLabels/TimelineLabels.types';
 import {useTimeline} from "../TimelineProvider";
+import { TimelineFile } from "../TimelineFile";
 
 const useUtilityClasses = (ownerState: TimelineProps) => {
   const { classes } = ownerState;
@@ -142,6 +143,15 @@ const Timeline = React.forwardRef(function Timeline(
     };
     dispatch({ type: 'CREATE_ACTION', payload: { action: newAction, track }})
   }
+
+  React.useEffect(() => {
+    if (inProps.actions) {
+      TimelineFile.fromActions(inProps.actions)
+        .then((timelineFile) => {
+          dispatch({ type: 'SET_FILE', payload: timelineFile })
+        })
+    }
+  }, [])
 
   const rootClasses = `${rootProps.className} ${!engine.isLoading ? 'MuiTimeline-loaded' : ''}`
   return (

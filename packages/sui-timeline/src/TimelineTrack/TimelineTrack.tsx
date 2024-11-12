@@ -32,7 +32,7 @@ const TimelineTrackRoot = styled('div', {
   if (collapsed) {
     color = theme.palette.mode === 'dark' ? '#ccc' : '#444';
   }
-  const trackBack = getTrackBackgroundColor(color, theme.palette.mode, selected, hover);
+  const trackBack = getTrackBackgroundColor(color, theme.palette.mode, selected, hover, true);
 
   return {
     ...trackBack.row,

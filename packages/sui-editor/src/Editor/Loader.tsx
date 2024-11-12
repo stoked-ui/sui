@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { styled, keyframes } from '@mui/material/styles';
+import { useComponentRef } from '@stoked-ui/timeline';
 import {useEditorContext} from "../EditorProvider/EditorContext";
 
 const scale = keyframes`
@@ -17,14 +18,35 @@ const scale = keyframes`
   }
 `;
 
+const LoadingVideo = styled('video', {
+  name: "MuiEditorViewLoadingVideo",
+  slot: "loading-video",
+  shouldForwardProp: (prop) => prop !== 'viewMode',
+})({
+  display: 'none',
+  flexDirection: 'column',
+  width: '100%',
+  position: 'absolute',
+  left: 0,
+  overflow: 'hidden',
+  aspectRatio: 16 / 9,
+  zIndex: 50,
+  opacity: 0,
+  transition: 'opacity 4s',
+  '&.show': {
+    opacity: 1,
+  },
+});
+
 const LoaderCircle = styled('div')(({ theme }) => ({
   width: '25px',
   height: '25px',
   display: 'inline-block',
-  'z-index': 10,
+  'z-index': 51,
   bottom: 0,
   position: 'absolute',
   margin: '24px',
+
   '&::before, &::after': {
     content: '""',
     display: 'block',
@@ -34,26 +56,51 @@ const LoaderCircle = styled('div')(({ theme }) => ({
     borderRadius: '50%',
     width: '25px',
     height: '25px',
-    borderColor: '#bbb',
     top: 0,
     left: 0,
   },
   '&::before': {
     animation: `${scale} 1s linear 0s infinite`,
+    borderColor: theme.palette.text.primary,
   },
   '&::after': {
     opacity: 0,
     animation: `${scale} 1s linear 0.5s infinite`,
+    borderColor: theme.palette.primary.main,
   },
 }));
 let count = 0;
 function Loader() {
-  const { engine } = useEditorContext();
+  const { editorId, engine, components } = useEditorContext();
+  const loadingVideoRef = React.useRef<HTMLVideoElement>(null);
+  useComponentRef<HTMLVideoElement>(loadingVideoRef, 'loadingVideo')();
+
+  React.useEffect(() => {
+      const loadingVideo = components.loadingVideo as HTMLVideoElement;
+      const renderer = components.renderer as HTMLCanvasElement;
+    if (loadingVideo) {
+
+      loadingVideo.oncanplay = () => {
+        loadingVideo.muted = true;
+        loadingVideo.loop = true;
+        loadingVideo.style.display = 'flex';
+        loadingVideo.play();
+        // Set isVisible to true after a short delay to trigger the animation
+        const timeout = setTimeout(() => {
+          loadingVideo.classList.add('show');
+        }, 100);
+
+      }
+      // loadingVideo.src = 'https://assets9.lottiefiles.com/packages/lf20_9yjzqz.json';
+      loadingVideo.src = '/static/editor/stock-loop.mp4';
+    }
+  }, [components.loadingVideo])
   if (engine?.isLoading) {
 
     console.info(count += 1);
     return (
       <React.Fragment>
+        <LoadingVideo role={'loading-video'} ref={loadingVideoRef} />
         <LoaderCircle />
       </React.Fragment>
     )

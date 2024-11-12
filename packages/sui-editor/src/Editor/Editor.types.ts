@@ -6,6 +6,8 @@ import {IMediaFile} from '@stoked-ui/media-selector';
 import {EditorPluginParameters, EditorPluginSignatures, EditorPluginSlotProps, EditorPluginSlots} from './Editor.plugins';
 import {EditorClasses} from './editorClasses';
 import { EditorExperimentalFeatures, EditorPublicAPI } from '../internals/models';
+import { IEditorFileAction } from "../EditorAction";
+import { IEditorFile } from "./EditorFile";
 
 
 export interface EditorSlots extends EditorPluginSlots {
@@ -52,11 +54,15 @@ export type EditorApiRef = React.MutableRefObject<
 >;
 
 export interface EditorPropsBase extends React.HTMLAttributes<HTMLDivElement> {
+  actions?: IEditorFileAction[];
   className?: string;
   /**
    * Override or extend the styles applied to the component.
    */
   classes?: Partial<EditorClasses>;
+  file?: IEditorFile;
+
+  fileUrl?: string,
   /**
    * The system prop that allows defining system overrides as well as additional CSS styles.
    */
@@ -64,18 +70,8 @@ export interface EditorPropsBase extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export interface EditorProps<R extends IMediaFile = IMediaFile, Multiple extends boolean | undefined = true>
-  extends Omit<EditorPluginParameters, 'actions'>,
+  extends Omit<EditorPluginParameters, 'actions' | 'file'>,
     EditorPropsBase {
-  /**
-   * Overridable component slots.
-   * @default {}
-   */
-  slots?: EditorSlots;
-  /**
-   * The props used for each component slot.
-   * @default {}
-   */
-  slotProps?: EditorSlotProps<R, Multiple>;
   /**
    * The ref object that allows Editor View manipulation. Can be instantiated with
    * `useEditorApiRef()`.
@@ -87,5 +83,19 @@ export interface EditorProps<R extends IMediaFile = IMediaFile, Multiple extends
    * the feature will be fully disabled and any property / method call will not have any effect.
    */
   experimentalFeatures?: EditorExperimentalFeatures<EditorPluginSignatures>;
+  /**
+   * Override or extend the styles applied to the component.
+   */
+
+  /**
+   * The props used for each component slot.
+   * @default {}
+   */
+  slotProps?: EditorSlotProps<R, Multiple>;
+  /**
+   * Overridable component slots.
+   * @default {}
+   */
+  slots?: EditorSlots;
 }
 

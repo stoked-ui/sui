@@ -43,7 +43,7 @@ const TimelineLabelContainer = styled('div', {
     && prop !== 'hover',
 })<{ lock?: boolean, color: string, selected?: boolean, hidden?: boolean, track?: ITimelineTrack, trackHeight: number, hover?: boolean}>
 (({ theme, color, selected, trackHeight, hover}) => {
-  const trackBack = getTrackBackgroundColor(color, theme.palette.mode, selected, hover);
+  const trackBack = getTrackBackgroundColor(color, theme.palette.mode, selected, hover, true);
   return {
     ...trackBack.label,
     transition: 'all 0.5s ease',

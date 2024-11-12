@@ -19,9 +19,10 @@ import Controllers from "../Controllers";
 import initDb from '../db/init'
 import DetailModal, {DetailView} from "../DetailView/DetailView";
 import { useEditorContext } from "../EditorProvider/EditorContext";
-import { initEditorAction } from "../EditorAction/EditorAction";
+import { IEditorFileAction, IEditorAction, initEditorAction } from "../EditorAction/EditorAction";
 import { IEditorTrack } from "../EditorTrack/EditorTrack";
 import EditorFile from "./EditorFile";
+import { IEditorEngine } from '../EditorEngine/EditorEngine.types';
 
 const useThemeProps = createUseThemeProps('MuiEditor');
 
@@ -307,6 +308,28 @@ const Editor = React.forwardRef(function Editor<
 
   const { ...editorViewPropsNew } = editorViewProps;
 
+
+  React.useEffect(() => {
+    const editorElement = document.getElementById(id);
+    if (editorElement) {
+      dispatch({ type: 'SET_COMPONENT', payload: { key: 'editor', value: editorElement } });
+    }
+    if (inProps.file) {
+      dispatch({ type: 'SET_FILE', payload: inProps.file })
+    } else if (inProps.fileUrl) {
+      EditorFile.fromUrl(inProps.fileUrl)
+        .then((timelineFile) => {
+          dispatch({ type: 'SET_FILE', payload: timelineFile as EditorFile })
+        })
+    } else if (inProps.actions) {
+      EditorFile.fromActions<IEditorFileAction, IEditorAction, EditorFile>(inProps.actions)
+        .then((timelineFile) => {
+          dispatch({ type: 'SET_FILE', payload: timelineFile as EditorFile })
+        })
+    }
+
+  }, [])
+
   return (
     <Root role={'editor'} {...rootProps} id={id}>
       <EditorViewSlot {...editorViewPropsNew} ref={viewerRef} />
@@ -361,26 +384,30 @@ const Editor = React.forwardRef(function Editor<
 });
 
 Editor.propTypes = {
+  actions: PropTypes.array,
   /**
    * The ref object that allows Editor View manipulation. Can be instantiated with
    * `useEditorApiRef()`.
    */
-  apiRef: PropTypes.any,
+  apiRef: PropTypes.any, className: PropTypes.string,
   /**
    * Override or extend the styles applied to the component.
    */
-  classes: PropTypes.object, className: PropTypes.string,
+  classes: PropTypes.object,
+  // ----------------------------- Warning --------------------------------
+  // | These PropTypes are generated from the TypeScript type definitions |
+  // | To update them edit the TypeScript types and run "pnpm proptypes"  |
+  // ----------------------------------------------------------------------
   /**
    * Unstable features, breaking changes might be introduced.
    * For each feature, if the flag is not explicitly set to `true`,
    * the feature will be fully disabled and any property / method call will not have any effect.
    */
   experimentalFeatures: PropTypes.object,
-  // ----------------------------- Warning --------------------------------
-  // | These PropTypes are generated from the TypeScript type definitions |
-  // | To update them edit the TypeScript types and run "pnpm proptypes"  |
-  // ----------------------------------------------------------------------
+
   file: PropTypes.any,
+
+  fileUrl: PropTypes.string,
   /**
    * The props used for each component slot.
    * @default {}

@@ -60,7 +60,7 @@ export default function AudioPlayer({ file }) {
   }
   React.useEffect(() => {
     const audio: Howl = file.element as Howl;
-    audio.on('seek', (params) => {
+    audio?.on('seek', (params) => {
       console.log('audio seek', params)
     })
   }, [])
