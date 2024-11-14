@@ -1,6 +1,7 @@
+import * as React from 'react';
 import {namedId} from "@stoked-ui/media-selector";
-import { IEditorFileAction, IEditorFileTrack, EditorFile, VideoController } from "@stoked-ui/editor";
 import { AudioController } from "@stoked-ui/timeline";
+import { IEditorFileAction,  EditorFile, VideoController, IEditorFileTrack } from "@stoked-ui/editor";
 
 const idFunc = () => namedId('track');
 

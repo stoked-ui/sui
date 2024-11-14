@@ -1,15 +1,25 @@
 import { IController, ITimelineFileTrack, ITimelineTrack } from "@stoked-ui/timeline";
-import { type IEditorAction, type IEditorFileAction } from "../EditorAction/EditorAction";
+import {
+  BlendMode,
+  Fit,
+  type IEditorAction,
+  type IEditorFileAction
+} from "../EditorAction/EditorAction";
 // import { type IEditorController } from "../Controllers/EditorController.types";
 import { MediaFile } from "@stoked-ui/media-selector";
 
 
 export interface IEditorTrack<
   ActionType extends IEditorAction = IEditorAction,
-> extends ITimelineTrack<ActionType> {}
+> extends ITimelineTrack<ActionType> {
+
+  blendMode: BlendMode;
+
+  fit: Fit;
+}
 
 
-export interface IEditorFileTrack extends Omit<IEditorTrack, 'id' | 'controller' | 'actions' | 'file'> {
+export interface IEditorFileTrack extends Omit<IEditorTrack, 'id' | 'controller' | 'actions' | 'file' | 'blendMode' | 'fit'> {
   /** Action track id */
   id?: string;
 
@@ -26,4 +36,8 @@ export interface IEditorFileTrack extends Omit<IEditorTrack, 'id' | 'controller'
   controllerName?: string;
 
   controller?: IController;
+
+  blendMode?: BlendMode;
+
+  fit?: Fit;
 }

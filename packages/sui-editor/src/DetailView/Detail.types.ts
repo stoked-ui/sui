@@ -4,6 +4,7 @@ import { IEditorAction } from "../EditorAction/EditorAction";
 import { IEditorTrack } from "../EditorTrack/EditorTrack";
 import EditorFile, { IEditorFile } from "../Editor/EditorFile";
 import { IEditorState, IEditorStateUnselected } from "../EditorProvider/EditorProvider.types";
+import { IDetailStateUnselected } from "./DetailProvider.types";
 
 export type Selection = IEditorAction | IEditorTrack | IEditorFile;
 
@@ -136,33 +137,29 @@ export function getFileDetail(file: IMediaFile): IDetailFile {
   };
 }
 
-export function setDetail(state: IEditorStateUnselected): IEditorState {
+export function setDetail<OutputState = IEditorState>(state: any): OutputState {
   const { engine} = state;
   let { file } = state;
-  let selected = state.selected;
-  if (!selected) {
+  if (!state.selected) {
     if (state.selectedAction) {
-      selected = state.selectedAction;
+      state.selected = state.selectedAction;
     } else if (state.selectedTrack) {
-      selected = state.selectedTrack;
+      state.selected = state.selectedTrack;
     } else  {
-      if (!state.file) {
+      if (!state.                youfile) {
         state.file = new EditorFile({ name: 'new project', width: 1920, height: 1080 });
       }
-      selected = state.file;
+      state.selected = state.file;
     }
   }
-
-  if (!engine) {
-    throw new Error('Engine is required for detail view');
-  }
+  const { selected } = state;
 
   if (!file) {
     // throw new Error('Video is required for detail view');
     file = new EditorFile({ name: 'new project', width: 1920, height: 1080 }) as IEditorFile;
   }
 
-  if ("actions" in selected! && 'file' in selected!) {
+  if (selected && "actions" in selected && 'file' in selected) {
     if (!selected.file) {
       throw new Error('Track file not found');
     }
@@ -173,17 +170,22 @@ export function setDetail(state: IEditorStateUnselected): IEditorState {
       track: getTrackDetail(track),
       file: getFileDetail(selected.file),
     }
-    return state as IEditorState;
+    return state as unknown as OutputState;
   }
-  if ("volume" in selected!) {
-    const track = state.engine?.getActionTrack(selected.id) as IEditorTrack;
+  if ("z" in selected!) {
+    if (!engine) {
+      throw new Error('Engine is required for detail view');
+    }
+
+    const track: IEditorTrack= state.engine?.getActionTrack(selected.id) as IEditorTrack;
     if (!track) {
-      console.error('Track not found for action (this should not happen)', selected);
-      throw new Error('Track not found for action');
+      throw new Error(`Track not found for action - ${selected.name} [${selected.url}]`);
     }
+
     if (!track.file) {
-      throw new Error('Action track file not found');
+      throw new Error(`Action track file not found -  ${selected.name} [${selected.url}]`);
     }
+
     state.detail = {
       type: 'action',
       project: getProjectDetail(file),
@@ -191,13 +193,13 @@ export function setDetail(state: IEditorStateUnselected): IEditorState {
       file: getFileDetail(track.file),
       action: getActionDetail(selected as IEditorAction)
     }
-    return state as IEditorState;;
+    return state as unknown as OutputState;
   }
   state.detail ={
     type: 'project',
     project: getProjectDetail(file),
   }
-  return state as IEditorState;;
+  return state as unknown as OutputState;
 }
 
 // Define Yup schema for IDetailAction
