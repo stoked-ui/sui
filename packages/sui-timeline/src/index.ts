@@ -1,7 +1,6 @@
 import Timeline from './Timeline';
 
 export default Timeline;
-export { default as TimelineControl } from './TimelineControl';
 export { default as TimelineCursor } from './TimelineCursor';
 export { default as TimelineLabels } from './TimelineLabels';
 export { default as TimelinePlayer } from './TimelinePlayer';

@@ -1,22 +1,21 @@
 import * as React from 'react';
 import IconButton from "@mui/material/IconButton";
 import { Close } from "@mui/icons-material";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
 import Modal from "@mui/material/Modal";
 import { DetailDataAction, DetailDataProject, DetailDataTrack } from "./Detail.types";
 import { DetailTrack } from './DetailTrack';
 import { useEditorContext } from '../EditorProvider/EditorContext';
-import { closeModal } from '../Editor/Editor.styled';
 import { DetailProject } from './DetailProject';
 import { DetailAction } from './DetailAction';
-import { Zettor } from "../EditorProvider/EditorProvider.types";
+import { RootBox } from "./Detail";
+import DetailProvider, { useDetail } from "./DetailProvider";
+import { IEditorFile } from "../Editor/EditorFile";
 
+export const DetailView = React.forwardRef(function DetailView({ onClose }: { onClose: () => void}, ref: React.Ref<HTMLDivElement>) {
+  const { detail, dispatch } = useDetail();
 
-export const DetailView = React.forwardRef(function DetailView(inProps, ref: React.Ref<HTMLDivElement>) {
-  const { detail, settings, selectedTrack, file, selectedAction, engine, dispatch } = useEditorContext();
-  const [editor, setEditor] = React.useState(new Zettor('detailView-edit', dispatch))
-  const props = {
-    editor,
-  }
   return (
     <div style={{ position: 'relative'}}>
       <IconButton
@@ -25,38 +24,74 @@ export const DetailView = React.forwardRef(function DetailView(inProps, ref: Rea
           top: 0,
           right: 0
         }}
-        onClick={() => closeModal(dispatch, DetailModal.flag)}
+        onClick={onClose}
       >
         <Close/>
       </IconButton>
-
-      {(() => {
-        switch (detail.type) {
-          case 'track':
-            return  <DetailTrack {...props} data={detail as DetailDataTrack}/>
-          case 'action':
-            return <DetailAction {...props} data={detail as DetailDataAction}/>
-          case 'project':
-            return <DetailProject {...props} data={detail as DetailDataProject}/>
-          default:
-            return null
-        }
-      })()}
+      <Card
+        component={RootBox}
+        sx={(theme) => ({
+          maxWidth: '850px',
+          minWidth: '500px',
+          backgroundColor: theme.palette.background.default
+        })}>
+        <CardContent sx={(theme) => ({
+          gap: '0.8rem',
+          padding: '6px 24px 24px 24px',
+          display: 'flex',
+          flexDirection: 'column',
+          flexWrap: 'wrap',
+          background: `linear-gradient(168deg, rgba(0, 59, 117, 0.4108018207282913) 0%,  ${theme.palette.mode === 'dark' ? '#000' : '#FFF'} 100%)`,
+          '& .MuiFormControl-root .MuiInputBase-root .MuiInputBase-input': {
+            WebkitTextFillColor: theme.palette.text.primary
+          }
+        })}>
+          {(() => {
+            switch (detail.type) {
+              case 'track':
+                return  <DetailTrack data={detail as DetailDataTrack}/>
+              case 'action':
+                return <DetailAction  data={detail as DetailDataAction}/>
+              case 'project':
+                return <DetailProject data={detail as DetailDataProject}/>
+              default:
+                return null
+            }
+          })()}
+        </CardContent>
+      </Card>
     </div>
   );
 });
 
 
 function DetailModal () {
-  const { flags, dispatch } = useEditorContext();
+  const editorState = useEditorContext();
+  const { file, detailOpen, selectedAction, selectedTrack, dispatch } = editorState;
+  const onClose = () => {
+    dispatch({ type: 'CLOSE_DETAIL' });
+  }
+  const detailRendererRef = React.useRef<HTMLCanvasElement | null>(null);
+
+  React.useEffect(() => {
+    if (detailRendererRef.current) {
+      dispatch({ type: 'SET_RENDERER', payload: detailRendererRef.current as HTMLCanvasElement });
+    }
+  }, [detailRendererRef.current]);
+
+  if (!file) {
+    return undefined;
+  }
   return (<Modal
-    open={flags.includes(DetailModal.flag)}
-    onClose={() => closeModal(dispatch, 'detailPopover')}
+    open={detailOpen}
+    onClose={onClose}
     aria-labelledby="modal-modal-title"
     aria-describedby="modal-modal-description"
-    style={{display:'flex',alignItems:'center',justifyContent:'center'}}
+    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
   >
-    <DetailView />
+    <DetailProvider file={file as IEditorFile} detailRendererRef={detailRendererRef} selectedActionId={selectedAction?.id} selectedTrackId={selectedTrack?.id}>
+      <DetailView onClose={onClose} />
+    </DetailProvider>
   </Modal>)
 }
 

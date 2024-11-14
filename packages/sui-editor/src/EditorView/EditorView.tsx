@@ -1,8 +1,9 @@
 import * as React from 'react';
-import {IMediaFile} from '@stoked-ui/media-selector';
-import { ITimelineFileProps, TimelineFile, useTimeline } from "@stoked-ui/timeline";
+import { IMediaFile, MediaFile } from '@stoked-ui/media-selector';
+import { useTimeline } from "@stoked-ui/timeline";
 import SettingsIcon from '@mui/icons-material/Settings';
 import SaveIcon from '@mui/icons-material/Save';
+import OpenIcon from '@mui/icons-material/OpenInBrowser';
 import IconButton from '@mui/material/IconButton';
 import composeClasses from "@mui/utils/composeClasses";
 import {useSlotProps} from '@mui/base/utils';
@@ -14,6 +15,7 @@ import {getEditorViewUtilityClass} from "./editorViewClasses";
 import {useEditorContext} from "../EditorProvider/EditorContext";
 import Loader from "../Editor/Loader";
 import EditorFile from '../Editor/EditorFile';
+import { initEditorAction } from "../EditorAction";
 
 const useThemeProps = createUseThemeProps('MuiEditorView');
 
@@ -69,7 +71,7 @@ const Renderer = styled('canvas', {
   name: "MuiEditorViewRenderer",
   slot: "renderer",
   shouldForwardProp: (prop) => prop !== 'viewMode',
-})(() => ({
+})(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
   position: 'absolute',
@@ -77,7 +79,8 @@ const Renderer = styled('canvas', {
   overflow: 'hidden',
   aspectRatio: 16 / 9,
   width: '100%',
-  height: '100%'
+  height: '100%',
+  backgroundColor: theme.palette.background.default
 }));
 
 const Screener = styled('video', {
@@ -194,13 +197,43 @@ const EditorView = React.forwardRef(function EditorView<
     ownerState: {...props, ref: viewRef }
   });
 
+  const openHandler = async () => {
+    const input = document.createElement('input') as HTMLInputElement;
+    input.type = 'file';
+
+    function handleFiles() {
+      const reader = new FileReader();
+      reader.addEventListener(
+        "load",
+        () => {
+          // this will then display a text file
+          const jsonFile = JSON.parse(reader.result as string);
+          const addedProjectFile = new EditorFile(jsonFile);
+          EditorFile.load(addedProjectFile, initEditorAction)
+            .then((loadedFile) => {
+              dispatch({ type: 'SET_FILE', payload: loadedFile });
+            })
+        },
+        false,
+      );
+      if (input.files?.length) {
+        reader.readAsText(input.files[0]);
+      } /* now you can work with the file list */
+    }
+
+    input.addEventListener("change", handleFiles, false);
+
+    input.click();
+  }
+
   const saveHandler = async () => {
     if (!file) {
       return;
     }
     const actualFile: EditorFile = file as EditorFile;
-    await TimelineFile.SaveAs(actualFile);
+    await EditorFile.SaveAs<EditorFile>(actualFile);
   }
+
   // if the viewer resizes make the renderer match it
   React.useEffect(() => {
     const resizeObserver = new ResizeObserver((entries) => {
@@ -254,6 +287,20 @@ const EditorView = React.forwardRef(function EditorView<
     <Loader />
     <Stage role={'stage'} ref={stageRef}/>
     {showSettings && (<React.Fragment>
+      <IconButton
+        id={'open'}
+        aria-label="open"
+        sx={{
+          position: 'absolute',
+          right: '80px',
+          alignContent: 'top',
+          borderRadius: '24px',
+          margin: '8px'
+        }}
+        onClick={openHandler}
+      >
+        <OpenIcon/>
+      </IconButton>
       {file && <IconButton
         id={'save'}
         aria-label="save"

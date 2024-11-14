@@ -1,26 +1,31 @@
 import * as React from "react";
-import { IMediaFile } from '@stoked-ui/media-selector';
+import { IMediaFile, namedId } from '@stoked-ui/media-selector';
 import { Button, Card, CardActions, CardContent, styled, Typography } from "@mui/material";
 import { shouldForwardProp } from "@mui/system/createStyled";
-import { IEngine, } from "@stoked-ui/timeline";
+import Timeline, {
+  checkProps,
+  fitScaleData,
+  IEngine,
+  TimelineState,
+  TimelineTrack,
+} from "@stoked-ui/timeline";
 import { alpha, Theme } from "@mui/material/styles";
 import _ from "lodash";
 import {
-  Control,
   FieldErrors,
-  FieldValues,
-  SubmitErrorHandler,
   SubmitHandler,
   UseFormHandleSubmit,
   UseFormReset
 } from "react-hook-form";
 import { DetailBreadcrumbs } from "./DetailBreadcrumbs";
 import { MediaScreener } from "../Editor/Editor.styled";
-import { DetailData, } from "./Detail.types";
 import { UncontrolledText } from "./ControlledText";
 import { humanFileSize } from "./DetailTrack.types";
-import { useEditorContext } from "../EditorProvider";
-import { Zettor } from "../EditorProvider/EditorProvider.types";
+import { EditorControls } from "../EditorControls";
+import Controllers from "../Controllers";
+import { useDetail } from "./DetailProvider";
+import Editor, { EditorProvider } from "../index";
+
 
 export const CtrlCell = styled('div', {
   name: 'MuiFileDetail',
@@ -73,6 +78,7 @@ const CtrlGroupRoot = styled('fieldset', {
   display: 'flex',
   flexDirection: 'row',
   flexWrap: 'wrap',
+  borderRadius: '4px',
   borderColor: `${alpha(theme.palette.primary[600], 0.3)}`
 }))
 
@@ -100,9 +106,7 @@ export const DetailForm = styled('form', {
   name: 'MuiDetail',
   slot: 'Cell',
   overridesResolver: (props, styles) => styles.root,
-  shouldForwardProp: (prop) => shouldForwardProp(prop)
-                               && prop !== 'editMode'
-})<{ editMode: boolean }>
+})
 (({ theme}) => {
   return {
     '& video': {
@@ -256,97 +260,41 @@ export const RootBox = styled('div')(({theme}) => ({
 }));
 
 
-export function DetailViewBase<ViewType extends FieldValues>({display, children
-                                                               , control, errors, title,
-                                                               formName, handleSubmit, onSubmit, editor,
-                                                               isDirty, reset
-}: {
-  display: React.ReactNode,
-  children: React.ReactNode,
-  control: Control<any, any>,
+export function DetailActions({ errors, isDirty, reset, editModeData }: {
   errors: FieldErrors<any>,
-  formName: string,
-  handleSubmit: (onValid: SubmitHandler<any>, onInvalid?: SubmitErrorHandler<any>) => (e?: React.BaseSyntheticEvent) => Promise<void>,
   isDirty: boolean
-  onSubmit: SubmitHandler<ViewType>,
   reset: UseFormReset<any>,
-  title: string,
-  editor: Zettor,
+  editModeData: { editMode: boolean, setEdit: () => void, setDisable: () => void }
 }) {
-  const { detail, dispatch, settings } = useEditorContext();
+  const { detail } = useDetail();
+  const { editMode, setEdit, setDisable } = editModeData;
   return (
-    <Card
-      component={RootBox}
-      sx={(theme) => ({
-
-        maxWidth: '850px',
-        minWidth: '500px',
-        backgroundColor: theme.palette.background.default
-      })}>
-      <CardContent sx={(theme) => ({
-        gap: '0.8rem',
-        padding: '6px 24px 24px 24px',
-        display: 'flex',
-        flexDirection: 'column',
-        flexWrap: 'wrap',
-        background: `linear-gradient(168deg, rgba(0, 59, 117, 0.4108018207282913) 0%,  ${theme.palette.mode === 'dark' ? '#000' : '#FFF'} 100%)`,
-        '& .MuiFormControl-root .MuiInputBase-root .MuiInputBase-input': {
-          WebkitTextFillColor: theme.palette.text.primary
-        }
-      })}>
-
-        <DetailBreadcrumbs  {...{ detail, control, editor, }} />
-        <Typography variant="h6" sx={{
-          marginTop: '6px'
+    <CardActions sx={{ width: '100%', justifyContent: 'right'}}>
+      <Button
+        className=""
+        variant="outlined"
+        color="secondary"
+        disabled={!isDirty && !editMode}
+        onClick={() => {
+          setDisable();
+          reset(detail[detail.type]);
         }}>
-          {title}
-        </Typography>
-        {(detail.type === 'track' || detail.type === 'action') && <CtrlCell>
-          <MediaScreener file={detail.file} />
-        </CtrlCell>}
-        <CtrlCell>
-          {display}
-        </CtrlCell>
-        <div className={'SUI-form'}>
-          <DetailForm
-            id={formName}
-            editMode={editor.isTrue(settings)}
-            className={`SUI-form ${editor.isTrue(settings) ? 'editableForm' : 'disabledForm'}`}
-            onSubmit={handleSubmit(onSubmit)}
-          >
-            {children}
-
-          {editor.isTrue(settings) &&
-            <CardActions sx={{ width: '100%', justifyContent: 'right'}}>
-              <Button
-                className=""
-                variant="outlined"
-                color="secondary"
-                disabled={!isDirty}
-                onClick={() => {
-                  editor.unsetFunc();
-                  reset(detail[detail.type]);
-                }}>
-                Cancel
-              </Button>
-              <Button
-                className=""
-                variant="contained"
-                color="secondary"
-                type="submit"
-                disabled={!isDirty || !_.isEmpty(errors)}
-              >
-                Save
-              </Button>
-            </CardActions>
-          }
-          </DetailForm>
-        </div>
-    </CardContent>
-  </Card>)
+        Cancel
+      </Button>
+      <Button
+        className=""
+        variant="contained"
+        color="secondary"
+        type="submit"
+        disabled={!isDirty || !_.isEmpty(errors)}
+      >
+        Save
+      </Button>
+    </CardActions>
+  )
 }
 
-export function FileDetailView({ file, onClick }: { file?: IMediaFile, onClick: (event: Event) => void }): React.ReactNode {
+export function FileDetailView({ file }: { file?: IMediaFile }): React.ReactNode {
   return (
     <CtrlGroup className={"SUI-form"} label={'Track File'}>
       <CtrlCell width="40%">
@@ -355,7 +303,6 @@ export function FileDetailView({ file, onClick }: { file?: IMediaFile, onClick: 
           label={'File Name'}
           value={file?.name}
           disabled
-          onClick={onClick}
         />
       </CtrlCell>
 
@@ -365,7 +312,6 @@ export function FileDetailView({ file, onClick }: { file?: IMediaFile, onClick: 
           label={'Size'}
           value={file?.size}
           disabled
-          onClick={onClick}
           format={humanFileSize}
         />
       </CtrlCell>
@@ -375,9 +321,114 @@ export function FileDetailView({ file, onClick }: { file?: IMediaFile, onClick: 
           label={'Media Type'}
           value={file?.mediaType}
           disabled
-          onClick={onClick}
         />
       </CtrlCell>
     </CtrlGroup>
+  )
+}
+
+export function useEditMode() {
+  const [editMode, setEditMode] = React.useState(false);
+  const setEdit = () => {
+    if (!editMode) {
+      setEditMode(true);
+    }
+  }
+  const setDisable = () => {
+    if (editMode) {
+      setEditMode(false);
+    }
+  }
+  return { editMode, setEdit, setDisable };
+}
+
+const DetailRenderer = styled('canvas', {
+  name: "MuiEditorViewRenderer",
+  slot: "renderer",
+})(({theme}) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  left: 0,
+  overflow: 'hidden',
+  aspectRatio: `${16 / 9}`,
+  borderRadius: '12px 12px 0px 0px',
+  background: theme.palette.background.default,
+  width: '100%',
+  height: '100%'
+}));
+
+export function FormWrap({ title, handleSubmit, onSubmit, children}) {
+  const detailState = useDetail();
+  const { detail, file, selectedTrack } = detailState;
+
+  if (!file) {
+    return null;
+  }
+
+  return <React.Fragment>
+    <DetailBreadcrumbs />
+    <Typography variant="h6" sx={{
+      marginTop: '6px'
+    }}>
+      {title}
+    </Typography>
+    {(detail.type === 'track' || detail.type === 'action') && <CtrlCell>
+      <MediaScreener file={detail.file} />
+    </CtrlCell>}
+    <CtrlCell>
+      {detail.type === 'project' && <CtrlColumn id={'detail-renderer-container'} sx={{ padding: '0px' }}>
+        <EditorProvider id={namedId('detail-editor')} {...detailState} controllers={Controllers} >
+          <Editor file={file} />
+        </EditorProvider>
+      </CtrlColumn>}
+      {detail.type !== 'project' && <FileDetailView file={selectedTrack!.file} />}
+    </CtrlCell>
+    <div className={'SUI-form'}>
+      <DetailForm
+        id={'detailView'}
+        className={`SUI-form}`}
+        onSubmit={handleSubmit(onSubmit)}
+      >
+        {children}
+      </DetailForm>
+    </div>
+  </React.Fragment>
+}
+
+
+export function ControlledTrack({name, width, height}: {name?: string, width: number, height?: number }) {
+  const { selectedTrack, engine, dispatch,  } = useDetail();
+  const { minScaleCount, maxScaleCount, startLeft, ...timelineSettings } = checkProps({  });
+
+  if (!selectedTrack) {
+    return undefined;
+  }
+
+  const scaleData = fitScaleData([selectedTrack], minScaleCount!, maxScaleCount || Infinity, startLeft, engine.duration, width);
+  const scaledSettings = {...timelineSettings, width, ...scaleData};
+
+  return (
+    <TimelineTrack
+      {...scaledSettings}
+      timelineWidth={width}
+      style={{
+        width: '100%',
+        height: height || scaledSettings.trackHeight,
+        overscrollBehavior: 'none',
+        backgroundPositionX: `0, ${startLeft}px`,
+        backgroundSize: `${startLeft}px, ${scaleData.scaleWidth}px`,
+      }}
+      track={selectedTrack}
+      disableDrag
+      dragLineData={{
+        isMoving: false,
+        assistPositions: [],
+        movePositions: []
+      }}
+      deltaScrollLeft={() => {}}
+      setScaleCount={() => {}}
+      cursorTime={0}
+      scrollLeft={0}
+    />
   )
 }

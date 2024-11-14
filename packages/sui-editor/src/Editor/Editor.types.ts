@@ -8,6 +8,7 @@ import {EditorClasses} from './editorClasses';
 import { EditorExperimentalFeatures, EditorPublicAPI } from '../internals/models';
 import { IEditorFileAction } from "../EditorAction";
 import { IEditorFile } from "./EditorFile";
+import Controllers from '../Controllers/Controllers';
 
 
 export interface EditorSlots extends EditorPluginSlots {
@@ -67,6 +68,20 @@ export interface EditorPropsBase extends React.HTMLAttributes<HTMLDivElement> {
    * The system prop that allows defining system overrides as well as additional CSS styles.
    */
   sx?: SxProps<Theme>;
+
+  labels?: boolean;
+
+  fileView?: boolean;
+
+  trackControls?: boolean;
+
+  snapControls?: boolean;
+
+  openSaveControls?: boolean;
+
+  idb?: boolean;
+
+  record?: boolean;
 }
 
 export interface EditorProps<R extends IMediaFile = IMediaFile, Multiple extends boolean | undefined = true>
