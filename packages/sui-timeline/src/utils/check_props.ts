@@ -12,13 +12,22 @@ import ConsoleLogger from "./logger";
 const logger = new ConsoleLogger('timeline');
 
 
-export function checkProps(props: TimelineControlProps): TimelineControlProps {
+export function checkProps(props: TimelineControlProps): TimelineControlProps & {
+  scrollTop: number,
+  scale: number,
+  scaleSplitCount: number,
+  scaleWidth: number,
+  startLeft: number,
+  minScaleCount: number,
+  maxScaleCount: number,
+  trackHeight: number
+} {
   let {
     scrollTop = 0,
     scale = DEFAULT_SCALE,
     scaleSplitCount = DEFAULT_SCALE_SPLIT_COUNT,
     scaleWidth = DEFAULT_SCALE_WIDTH,
-    startLeft = DEFAULT_START_LEFT,
+    startLeft = 72,
     minScaleCount = MIN_SCALE_COUNT,
     maxScaleCount = Infinity,
     trackHeight = DEFAULT_TRACK_HEIGHT,

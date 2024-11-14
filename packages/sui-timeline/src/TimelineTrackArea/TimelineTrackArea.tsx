@@ -127,7 +127,7 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
         track={gridTrack}
         dragLineData={dragLineData}
         disableDrag={props.disableDrag}
-
+        onAddFiles={props.onAddFiles}
         onActionMoveStart={(data) => {
           handleInitDragLine(data);
           return onActionMoveStart && onActionMoveStart(data);

@@ -4,13 +4,13 @@ import {type IController} from '../Controller/Controller.types';
 import {
   type IEngine,
   type EngineState,
-  type EngineOptions, Dispatch, SetAction,
+  type EngineOptions,
 } from './Engine.types';
 import { type ITimelineTrack} from '../TimelineTrack/TimelineTrack.types';
 import {Events, type EventTypes} from './events'
 import {Emitter} from './emitter';
 import { RowRndApi } from "../TimelineTrack/TimelineTrackDnd.types";
-import Controllers from "../Controller/Controllers";
+import { TimelineFile } from "../TimelineFile/TimelineFile";
 
 
 /**
@@ -48,7 +48,7 @@ export default class Engine<
   protected _prev: number = 0;
 
   /** Action actionType map */
-  protected _controllers: Record<string, IController> = Controllers;
+  protected _controllers: Record<string, IController>;
 
   /** Action map that needs to be run */
   protected _actionMap: Record<string, ActionType> = {};
@@ -73,6 +73,7 @@ export default class Engine<
       this._controllers = params.controllers;
     }
     this._state = 'loading' as State;
+    this._controllers = TimelineFile.globalControllers;
   }
 
   cursorData?: () => {

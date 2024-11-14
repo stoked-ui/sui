@@ -4,43 +4,23 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { styled } from "@mui/material";
 import Timeline, { TimelineState } from "@stoked-ui/timeline";
 import ControlledText, { UncontrolledText } from "./ControlledText";
-import { CtrlCell, CtrlColumn, CtrlRow, DetailViewBase } from './Detail'
-import Controllers from "../Controllers/Controllers";
-import { EditorControls } from "../EditorControls";
+import {
+  CtrlCell,
+  CtrlRow,
+  DetailActions,
+  FormWrap,
+  useEditMode
+} from './Detail'
 import ControlledColor from "./ControlledColor";
-import { useEditorContext } from "../EditorProvider/EditorContext";
 import { DetailProjectProps } from './DetailProject.types';
 import { IDetailProject, projectSchema } from "./Detail.types";
+import { useDetail } from "./DetailProvider";
 
-const DetailRenderer = styled('canvas', {
-  name: "MuiEditorViewRenderer",
-  slot: "renderer",
-})(({theme}) => ({
-  display: 'flex',
-  flexDirection: 'column',
-  left: 0,
-  overflow: 'hidden',
-  aspectRatio: `${16 / 9}`,
-  borderRadius: '12px 12px 0px 0px',
-  background: theme.palette.background.default,
-  width: '100%',
-  height: '100%'
-}));
 
 export function DetailProject(props: DetailProjectProps) {
-  const timelineState = React.useRef<TimelineState>(null);
-  const { id, detail,settings,  file, engine, dispatch } = useEditorContext();
-  const {
-    editor
-  } = props;
-
-  const editable = () => editor.isTrue(settings);
-  React.useEffect(() => {
-    const detailCanvas = document.getElementById('detail-renderer');
-    if (detailCanvas) {
-      dispatch({ type: 'SET_RENDERER', payload: detailCanvas as HTMLCanvasElement });
-    }
-  }, []);
+  const { detail,file, selected , engine, dispatch } = useDetail();
+  const editModeData = useEditMode();
+  const { editMode, setEdit, setDisable } = editModeData;
 
   const {
     control,
@@ -59,55 +39,22 @@ export function DetailProject(props: DetailProjectProps) {
   const onSubmit: SubmitHandler<IDetailProject> = (submitData: IDetailProject) => {
     submitData.lastModified = Date.now();
     dispatch({ type: 'UPDATE_PROJECT', payload: submitData });
-    editor.set(undefined);
-  };
-
-  const detailViewBase = {
-    title: file?.name ?? '',
-    formName: 'project-detail',
-    editor,
-    handleSubmit,
-    onSubmit,
-    errors,
-    control,
-    isDirty,
-    reset,
   };
 
   return (
-    <DetailViewBase<IDetailProject> {...detailViewBase}
-      display={ <CtrlColumn id={'detail-renderer-container'} sx={{ padding: '0px' }}>
-        <DetailRenderer id={'detail-renderer'} ata-preserve-aspect-ratio width={'1920'} sx={{ backgroundColor: `${detail.project.backgroundColor}!important` }}/>
-        <EditorControls
-          role={'controls'}
-          timeline
-          switchView={false}
-        />
-        <Timeline
-          role={'timeline'}
-          {...engine.control.timelineProps}
-          controllers={Controllers}
-          timelineState={timelineState}
-          autoScroll
-          labels
-          locked
-          collapsed
-          disableDrag
-          viewSelector={`.MuiEditorView-root`}
-          sx={{ width: '100%' }}
-        />
-      </CtrlColumn>}
+    <FormWrap
       onSubmit={onSubmit}
+      handleSubmit={handleSubmit}
+      title={selected.name}
     >
-
       <CtrlRow>
         <CtrlCell width="40%">
           <ControlledText
             className={'whitespace-nowrap flex-grow flex'}
             label={'Name'}
             control={control}
-            disabled={!editor.isTrue(settings)}
-            onClick={editor.setFunc(true)}
+            disabled={!editMode}
+            onClick={setEdit}
           />
         </CtrlCell>
         <CtrlCell width="15%">
@@ -116,7 +63,7 @@ export function DetailProject(props: DetailProjectProps) {
             label={'Size'}
             value={`${detail.project.width} x ${detail.project.height}`}
             disabled
-            onClick={editor.setFunc(true)}
+            onClick={setEdit}
           />
         </CtrlCell>
 
@@ -126,8 +73,8 @@ export function DetailProject(props: DetailProjectProps) {
             label={'Description'}
             name={'description'}
             control={control}
-            disabled={!editable()}
-            onClick={editor.setFunc(true)}
+            disabled={!editMode}
+            onClick={setEdit}
           />
         </CtrlCell>
         <CtrlCell width="15%">
@@ -142,7 +89,7 @@ export function DetailProject(props: DetailProjectProps) {
               }
               return epoch;
             }}
-            onClick={editor.setFunc(true)}
+            onClick={setEdit}
           />
         </CtrlCell>
         <CtrlCell width="15%">
@@ -157,7 +104,7 @@ export function DetailProject(props: DetailProjectProps) {
               }
               return '';
             }}
-            onClick={editor.setFunc(true)}
+            onClick={setEdit}
           />
         </CtrlCell>
         <CtrlCell width="40%">
@@ -166,8 +113,8 @@ export function DetailProject(props: DetailProjectProps) {
             label={'Author'}
             name={'project.author'}
             control={control}
-            disabled={!editable()}
-            onClick={editor.setFunc(true)}
+            disabled={!editMode}
+            onClick={setEdit}
           />
         </CtrlCell>
         <CtrlCell width="40%">
@@ -177,11 +124,12 @@ export function DetailProject(props: DetailProjectProps) {
             name={'backgroundColor'}
             type={'color'}
             control={control}
-            disabled={!editor.isTrue(settings)}
-            onClick={editor.setFunc(true)}
+            disabled={!editMode}
+            onClick={setEdit}
           />
         </CtrlCell>
       </CtrlRow>
-    </DetailViewBase>
-  );
+      <DetailActions errors={errors} isDirty={isDirty} reset={reset} editModeData={editModeData} />
+    </FormWrap>
+  )
 }

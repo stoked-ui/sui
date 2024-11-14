@@ -18,6 +18,7 @@ import {
   IEditorState, IEditorStateUnselected,
 } from "./EditorProvider.types";
 import { setDetail } from "../DetailView/Detail.types";
+import { IDetailStateUnselected } from '../DetailView/DetailProvider.types';
 
 export default function EditorProvider<
   EngineType extends IEditorEngine = IEditorEngine,
@@ -38,6 +39,7 @@ export default function EditorProvider<
     engine,
     getState,
     setState,
+    detailOpen: false,
   } as IEditorStateUnselected;
 
   const detailState = setDetail(stateProps);

@@ -11,7 +11,7 @@ import { getTrackBackgroundColor, ITimelineTrack } from "../TimelineTrack";
 import {IController} from "../Controller";
 import {TimelineLabelsClasses} from "./timelineLabelsClasses";
 import {useTimeline} from "../TimelineProvider";
-import ToggleButtonGroupEx from "../components/ToggleButtonGroupEx";
+import TimelineTrackActions from "./TimelineTrackActions";
 
 
 const TimelineLabelRoot = styled('div', {
@@ -128,19 +128,15 @@ const TimelineLabel = React.forwardRef(
     },
     ref: React.Ref<HTMLDivElement>
   ): React.JSX.Element {
-    const { settings, file, selectedTrack, settings: { trackHeight }, dispatch } = useTimeline();
+    const { settings, file, selectedTrack, dispatch } = useTimeline();
     const { track, classes, controller, onClick } = inProps;
-    const visibilityIcon = track.hidden ? <VisibilityOffIcon fontSize={'small'} /> : <VisibilityIcon fontSize={'small'} />;
-    const lockIcon = track.lock ? <LockIcon fontSize={'small'}/> : <LockOpenIcon fontSize={'small'}/>;
-    const toggleClick = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
-      event.stopPropagation();
-    }
+
     const trackIndex = file?.tracks?.findIndex((t) => t.id === track.id);
     const trackHover = settings['track-hover'] === track.id;
     return (
-      <TimelineLabelRoot key={track.id} className={classes.label} ref={ref} trackHeight={trackHeight}>
+      <TimelineLabelRoot key={track.id} className={classes.label} ref={ref} trackHeight={settings['timeline.trackHeight']}>
         <TimelineLabelContainer
-          trackHeight={trackHeight}
+          trackHeight={settings['timeline.trackHeight']}
           className={classes.container}
           color={controller?.color ?? '#8882'}
           hover={trackHover}
@@ -178,63 +174,10 @@ const TimelineLabel = React.forwardRef(
            <IconButton sx={{ borderRadius: '24px', width: '24px', height: '24px' }} size={'small'}>
              <AddIcon />
            </IconButton>}
-          <TimelineLabelText trackHeight={trackHeight}>
+          <TimelineLabelText trackHeight={settings['timeline.trackHeight']}>
             <Typography variant="button" color="text.secondary" >{track.name}</Typography>
           </TimelineLabelText>
-          {(file && track.id !== 'newTrack') &&
-            <ToggleButtonGroupEx
-              exclusive
-              aria-label="text alignment"
-              width={32}
-              height={28}
-            >
-              <ToggleButton
-                id={`${track.id}-hidden`}
-                value={track.hidden ?? false}
-                onChange={(e, ) => {
-                  const currentTrackIndex = file.tracks.findIndex((currTrack) =>
-                    currTrack.id === e.currentTarget.id.replace('-hidden', ''))
-                  if (currentTrackIndex === -1) {
-                    return
-                  }
-                  const currentTrack = {...file.tracks[currentTrackIndex]};
-                  currentTrack.hidden = !currentTrack.hidden;
-                  const updatedTracks = [...file.tracks];
-                  updatedTracks[currentTrackIndex] = currentTrack;
-                  dispatch({ type: 'SET_TRACKS', payload: updatedTracks });
-                }}
-                onClick={toggleClick}
-                aria-label="hidden"
-                size={'small'}>
-                {visibilityIcon}
-              </ToggleButton>
-            {!inProps.hideLock &&
-               <ToggleButton
-                 id={`${track.id}-lock`}
-                 value={track.lock ?? false}
-                 aria-label="lock"
-                 size={'small'}
-                 onChange={(e, ) => {
-                   const currentTrackIndex = file.tracks.findIndex((currTrack) => currTrack.id === e.currentTarget.id.replace('-lock', ''))
-                   if (currentTrackIndex === -1) {
-                     return
-                   }
-                   const currentTrack = {...file.tracks[currentTrackIndex]};
-                   currentTrack.lock = !currentTrack.lock;
-                   currentTrack.actions.forEach((updateAction) => {
-                     updateAction.movable = !currentTrack.lock;
-                     updateAction.flexible = !currentTrack.lock;
-                   })
-                   const updatedTracks = [...file.tracks];
-                   updatedTracks[currentTrackIndex] = currentTrack;
-                   dispatch({ type: 'SET_TRACKS', payload: updatedTracks });
-                 }}
-                 onClick={toggleClick}
-               >
-                 {lockIcon}
-               </ToggleButton>
-            }
-          </ToggleButtonGroupEx>}
+          {(file && track.id !== 'newTrack') && <TimelineTrackActions track={track} />}
         </TimelineLabelContainer>
       </TimelineLabelRoot>
     );

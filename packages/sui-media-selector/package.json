@@ -46,6 +46,7 @@
   "dependencies": {
     "exifreader": "^4.23.5",
     "jszip": "^3.10.1",
-    "music-metadata": "^10.5.0"
+    "music-metadata": "^10.5.0",
+    "safe-stringify": "^1.1.1"
   }
 }

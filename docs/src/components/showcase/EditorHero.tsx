@@ -4,7 +4,7 @@ import Fade from "@mui/material/Fade";
 import {Card} from "@mui/material";
 import {alpha} from "@mui/material/styles";
 import {SxProps} from "@mui/system";
-import EditorExample from "./EditorExample";
+import EditorExample from './EditorExample';
 
 export const scaleWidth = 160;
 export const scale = 2;
@@ -31,7 +31,14 @@ export default function EditorHero({ id, sx }: { id: string, sx?: SxProps}) {
         ]}
       >
         <EditorProvider id={id} controllers={Controllers} >
-          <Editor sx={sx || { borderRadius: '12px 12px 0 0' }} file={EditorExample} />
+          <Editor
+            sx={sx || { borderRadius: '12px 12px 0 0' }}
+            trackControls
+            snapControls
+            labels
+            fileView
+            openSaveControls
+            file={EditorExample} />
         </EditorProvider>
       </Card>
       </div>

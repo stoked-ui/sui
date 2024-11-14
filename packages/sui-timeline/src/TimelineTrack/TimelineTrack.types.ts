@@ -23,6 +23,8 @@ export type TimelineTrackProps<
   deltaScrollLeft: (scrollLeft: number) => void;
   actionTrackMap?: Record<string, TrackType>
   trackRef?: React.RefObject<HTMLDivElement>;
+  onAddFiles?: () => void;
+  useProvider?: () => any
 };
 
 export const TrackColorAlpha = {
@@ -35,7 +37,7 @@ export const TrackColorAlpha = {
     selected: {
       action: .82,
       row: .36,
-      label: 63,
+      label: .63,
     },
     hover: {
       action: .62,

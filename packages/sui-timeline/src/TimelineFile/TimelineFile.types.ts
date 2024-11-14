@@ -1,5 +1,9 @@
 import { IMediaFile } from "@stoked-ui/media-selector";
-import { ITimelineTrack, ITimelineTrackMetadata } from "../TimelineTrack/TimelineTrack.types";
+import {
+  ITimelineFileTrack,
+  ITimelineTrack,
+  ITimelineTrackMetadata
+} from "../TimelineTrack/TimelineTrack.types";
 
 export type DBFileRecord = {
   id: string,
@@ -30,11 +34,6 @@ export interface ITimelineFileBase {
   author?: string,
   size?: number,
   url?: string;
-  image?: string;
-  backgroundColor?: string;
-  width: number;
-  height: number;
-  video?: IMediaFile;
 }
 
 export interface ITimelineFile<
@@ -48,10 +47,11 @@ export interface ITimelineFile<
   initialize(initAction: (actionFile: any, index: number) => any): Promise<void>;
   loadOutput(): Promise<IMediaFile[] | undefined>;
   saveDb(blob: Blob): Promise<IDBValidKey>;
+  get fileProps(): ITimelineFileProps;
 }
 
 
-export interface ITimelineFileProps<FileTrackType> {
+export interface ITimelineFileProps<FileTrackType = ITimelineFileTrack> {
   id?: string;
   name?: string;
   description?: string;

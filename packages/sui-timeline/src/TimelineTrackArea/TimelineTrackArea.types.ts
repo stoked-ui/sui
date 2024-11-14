@@ -12,6 +12,8 @@ export type TimelineTrackAreaProps =  CommonProps & {
   /** Set editor data */
   /** Set scroll left */
   deltaScrollLeft: (scrollLeft: number) => void;
+
+  onAddFiles?: () => void;
 };
 
 /** edit area ref data */

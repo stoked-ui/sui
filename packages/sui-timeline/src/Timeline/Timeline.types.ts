@@ -1,15 +1,13 @@
 import * as React from 'react';
-import {Theme, styled} from '@mui/material/styles';
-import {shouldForwardProp, SxProps} from '@mui/system';
-import { MediaFile, namedId } from '@stoked-ui/media-selector';
-import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
+import {Theme} from '@mui/material/styles';
+import {SxProps} from '@mui/system';
 import {SlotComponentProps} from '@mui/base/utils';
 import { type IController } from '../Controller/Controller.types';
 import {TimelineClasses} from './timelineClasses';
 import {type ITimelineTrack} from "../TimelineTrack/TimelineTrack.types";
 import {type TimelineLabelsProps} from "../TimelineLabels/TimelineLabels.types";
 import {type TimelineState} from "./TimelineState";
-import TimelineControl, {TimelineControlProps} from "../TimelineControl";
+import {TimelineControlProps} from "../TimelineControl";
 import { ITimelineAction, ITimelineFileAction } from "../TimelineAction";
 import { ITimelineFile } from "../TimelineFile";
 import { useTimeline } from "../TimelineProvider";
@@ -25,13 +23,17 @@ export interface TimelineSlots {
    */
   root?: React.ElementType;
   labels?: React.ElementType;
-  control?: React.ElementType;
+  time?: React.ElementType;
+  trackArea?: React.ElementType;
+  resizer?: React.ElementType;
 }
 
 export interface TimelineSlotProps {
   root?: SlotComponentProps<'div', {}, TimelineProps>;
   labels?: SlotComponentProps<'div', {}, TimelineLabelsProps>;
-  control?: SlotComponentProps<typeof TimelineControl, {}, TimelineControlProps>;
+  time?: SlotComponentProps<'div', {}, TimelineControlProps>;
+  trackArea?: SlotComponentProps<'div', {}, TimelineControlProps>;
+  resizer?: SlotComponentProps<'div', {}, TimelineControlProps>;
 }
 
 export interface TimelineProps
@@ -78,9 +80,15 @@ export interface TimelineProps
       time: number;
     },
   ) => void;
+
   onLabelClick?: (track: ITimelineTrack) => void;
 
+  onTrackClick?: (track: ITimelineTrack) => void;
+
+  onActionClick?: (action: ITimelineAction) => void;
+
   scaleWidth?: number;
+
   setScaleWidth?: (scaleWidth: number) => void;
 
   /**
@@ -104,26 +112,4 @@ export interface TimelineProps
   trackSx?: SxProps<Theme>;
 
   viewSelector?: string;
-}
-
-export interface ToggleButtonGroupSxProps {
-  maxWidth: number,
-  maxHeight: number,
-  minWidth: number,
-  minHeight: number
-}
-
-export function useComponentRef<ElementType extends HTMLElement>(componentRef: React.RefObject<ElementType>, key: string) {
-  const { dispatch, components } = useTimeline();
-  return React.useCallback(() => {
-    if (!components[key]) {
-      const element = componentRef.current as ElementType;
-      if (element) {
-        dispatch({
-          type: 'SET_COMPONENT',
-          payload: { key, value: element as ElementType }
-        });
-      }
-    }
-  }, []);
 }

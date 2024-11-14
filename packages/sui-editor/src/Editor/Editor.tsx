@@ -23,6 +23,7 @@ import { IEditorFileAction, IEditorAction, initEditorAction } from "../EditorAct
 import { IEditorTrack } from "../EditorTrack/EditorTrack";
 import EditorFile from "./EditorFile";
 import { IEditorEngine } from '../EditorEngine/EditorEngine.types';
+import DetailProvider from '../DetailView/DetailProvider';
 
 const useThemeProps = createUseThemeProps('MuiEditor');
 
@@ -106,7 +107,12 @@ const Editor = React.forwardRef(function Editor<
   R extends IMediaFile = IMediaFile,
   Multiple extends boolean | undefined = undefined,
 >(inProps: EditorProps<R, Multiple>, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
-  const { id, selectedTrack, detail, selected, selectedAction,  file, flags, engine, versions, dispatch } = useEditorContext();
+  const { id,
+    file,
+    flags,
+    engine,
+    versions,
+    dispatch } = useEditorContext();
   const { sx, ...props } = useThemeProps({ props: inProps, name: 'MuiEditor' });
   const {
     getRootProps,
@@ -178,27 +184,24 @@ const Editor = React.forwardRef(function Editor<
     initDb('video').then((initResults) => {
       // co nsole.log('db init results', initResults);
     });
+
+    const set = ['labels', 'fileView', 'trackControls', 'snapControls', 'idb', 'openSaveControls', 'record'];
+    const values = set.filter((s) => inProps[s]);
+    dispatch({ type: 'SET_FLAGS', payload: { set, values } });
   }, []);
 
   const [startIt, setStartIt] = React.useState(false);
   React.useEffect(() => {
 
-    if (!startIt && file && engine.isLoading && viewerRef.current) {
+    if (!startIt && engine.isLoading && viewerRef.current) {
       setStartIt(true);
       engine.viewer = viewerRef.current;
-      if (file && TimelineFile.fileState[file.id] === FileState.CONSTRUCTED) {
-        TimelineFile.fileState[file.id] = FileState.INITIALIZING;
-        EditorFile.load(file, initEditorAction)
-          .then((loadedFile) => {
-            dispatch({
-              type: 'ENGINE_INIT',
-              payload: {
-                file: loadedFile,
-                viewer: viewerRef.current as HTMLDivElement
-              }
-            });
-          })
-      }
+
+      dispatch({
+        type: 'VIEWER',
+        payload: viewerRef.current
+      });
+
     }
   }, [viewerRef.current, engine, engine.isLoading]);
 
@@ -308,21 +311,23 @@ const Editor = React.forwardRef(function Editor<
 
   const { ...editorViewPropsNew } = editorViewProps;
 
-
   React.useEffect(() => {
     const editorElement = document.getElementById(id);
     if (editorElement) {
       dispatch({ type: 'SET_COMPONENT', payload: { key: 'editor', value: editorElement } });
     }
     if (inProps.file) {
-      dispatch({ type: 'SET_FILE', payload: inProps.file })
+      EditorFile.load(inProps.file, initEditorAction)
+        .then((loadedFile) => {
+          dispatch({ type: 'SET_FILE', payload: loadedFile });
+        })
     } else if (inProps.fileUrl) {
       EditorFile.fromUrl(inProps.fileUrl)
         .then((timelineFile) => {
           dispatch({ type: 'SET_FILE', payload: timelineFile as EditorFile })
         })
     } else if (inProps.actions) {
-      EditorFile.fromActions<IEditorFileAction, IEditorAction, EditorFile>(inProps.actions)
+      EditorFile.fromActions<IEditorAction, EditorFile>(inProps.actions)
         .then((timelineFile) => {
           dispatch({ type: 'SET_FILE', payload: timelineFile as EditorFile })
         })
@@ -354,7 +359,7 @@ const Editor = React.forwardRef(function Editor<
             file={inProps.file}
             onKeyDown={instance.onKeyDown}
             viewSelector={`.MuiEditorView-root`}
-            labels
+            labels={flags.includes('labels')}
             sx={timelineSx}
             disabled={engine.isLoading}
             onContextMenuLabel={handleContextMenuLabel}
@@ -377,9 +382,12 @@ const Editor = React.forwardRef(function Editor<
             sx={filesSx}
             onAddFiles={onAddFiles}
           />
-          <DetailModal />
+
         </React.Fragment>
       }
+
+      <DetailModal />
+
     </Root>)
 });
 
@@ -389,11 +397,11 @@ Editor.propTypes = {
    * The ref object that allows Editor View manipulation. Can be instantiated with
    * `useEditorApiRef()`.
    */
-  apiRef: PropTypes.any, className: PropTypes.string,
-  /**
+  apiRef: PropTypes.any, /**
    * Override or extend the styles applied to the component.
    */
   classes: PropTypes.object,
+  className: PropTypes.string,
   // ----------------------------- Warning --------------------------------
   // | These PropTypes are generated from the TypeScript type definitions |
   // | To update them edit the TypeScript types and run "pnpm proptypes"  |
@@ -408,6 +416,16 @@ Editor.propTypes = {
   file: PropTypes.any,
 
   fileUrl: PropTypes.string,
+
+  fileView: PropTypes.bool,
+
+  idb: PropTypes.bool,
+
+  labels: PropTypes.bool,
+
+  openSaveControls: PropTypes.bool,
+
+  record: PropTypes.bool,
   /**
    * The props used for each component slot.
    * @default {}
@@ -418,6 +436,7 @@ Editor.propTypes = {
    * @default {}
    */
   slots: PropTypes.object,
+  snapControls: PropTypes.bool,
   /**
    * The system prop that allows defining system overrides as well as additional CSS styles.
    */
@@ -426,6 +445,7 @@ Editor.propTypes = {
     PropTypes.func,
     PropTypes.object,
   ]),
+  trackControls: PropTypes.bool,
 
 };
 

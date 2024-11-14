@@ -9,12 +9,13 @@ import ToggleButtonGroupEx from '../components/ToggleButtonGroupEx';
 import {type TimelineLabelsProps} from './TimelineLabels.types';
 import {getTimelineLabelsUtilityClass} from "./timelineLabelsClasses";
 import {useTimeline} from "../TimelineProvider";
-import {ITimelineTrack} from "../TimelineTrack";
+import { fitScaleData, ITimelineTrack } from "../TimelineTrack";
 import {TimelineFile} from "../TimelineFile";
 import TimelineTrackIcon from '../icons/TimelineTrackIcon';
 import TimelineLabel from "./TimelineLabel";
 import EdgeSnap from "../icons/EdgeSnap";
 import GridSnap from "../icons/GridSnap";
+import TimelineScrollResizer from "../TimelineScrollResizer";
 
 const useUtilityClasses = (
   ownerState: TimelineLabelsProps,
@@ -89,7 +90,7 @@ export function Toolbar() {
  */
 const TimelineLabels = React.forwardRef(
   function TimelineLabels(inProps: TimelineLabelsProps, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
-    const { engine, file, dispatch, settings: { trackHeight } } = useTimeline();
+    const { engine, file, dispatch, settings } = useTimeline();
 
     const { slotProps, slots, sx, width } = inProps;
     const finalWidth = width || '250px';
@@ -133,7 +134,7 @@ const TimelineLabels = React.forwardRef(
               return undefined;
             }
             return <TimelineLabel
-              trackHeight={trackHeight}
+              trackHeight={settings['timeline.trackHeight']}
               track={track}
               hideLock={inProps.hideLock}
               classes={classes}
@@ -149,7 +150,7 @@ const TimelineLabels = React.forwardRef(
           <TimelineTrackIcon sx={{ width: '15px', height: '15px' }} />
           <Slider size="small"
                   aria-label="Volume"
-                  value={trackHeight}
+                  value={settings['timeline.trackHeight']}
                   onChange={(event, value, ) =>
                     dispatch({
                       type: 'SET_SETTING',
