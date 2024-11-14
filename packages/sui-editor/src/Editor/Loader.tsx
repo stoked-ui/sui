@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { styled, keyframes } from '@mui/material/styles';
-import { useComponentRef } from '@stoked-ui/timeline';
 import {useEditorContext} from "../EditorProvider/EditorContext";
 
 const scale = keyframes`
@@ -23,7 +22,7 @@ const LoadingVideo = styled('video', {
   slot: "loading-video",
   shouldForwardProp: (prop) => prop !== 'viewMode',
 })({
-  display: 'none',
+  display: 'flex',
   flexDirection: 'column',
   width: '100%',
   position: 'absolute',
@@ -71,33 +70,40 @@ const LoaderCircle = styled('div')(({ theme }) => ({
 }));
 let count = 0;
 function Loader() {
-  const { editorId, engine, components } = useEditorContext();
+  const { editorId,dispatch, engine, components } = useEditorContext();
   const loadingVideoRef = React.useRef<HTMLVideoElement>(null);
-  useComponentRef<HTMLVideoElement>(loadingVideoRef, 'loadingVideo')();
 
   React.useEffect(() => {
-      const loadingVideo = components.loadingVideo as HTMLVideoElement;
-      const renderer = components.renderer as HTMLCanvasElement;
-    if (loadingVideo) {
 
-      loadingVideo.oncanplay = () => {
-        loadingVideo.muted = true;
-        loadingVideo.loop = true;
-        loadingVideo.style.display = 'flex';
-        loadingVideo.play();
-        // Set isVisible to true after a short delay to trigger the animation
-        const timeout = setTimeout(() => {
-          loadingVideo.classList.add('show');
-        }, 100);
-
+    if (loadingVideoRef.current) {
+      const element = loadingVideoRef.current as HTMLVideoElement;
+      if (element) {
+        dispatch({
+          type: 'SET_COMPONENT',
+          payload: { key: 'loadingVideo', value: element as HTMLVideoElement }
+        });
       }
-      // loadingVideo.src = 'https://assets9.lottiefiles.com/packages/lf20_9yjzqz.json';
-      loadingVideo.src = '/static/editor/stock-loop.mp4';
+      const loadingVideo = loadingVideoRef.current as HTMLVideoElement;
+      if (loadingVideo) {
+
+        loadingVideo.oncanplay = () => {
+          loadingVideo.muted = true;
+          loadingVideo.loop = true;
+          loadingVideo.style.display = 'flex';
+          loadingVideo.play();
+          // Set isVisible to true after a short delay to trigger the animation
+          const timeout = setTimeout(() => {
+            loadingVideo.classList.add('show');
+          }, 100);
+        }
+        // loadingVideo.src = 'https://assets9.lottiefiles.com/packages/lf20_9yjzqz.json';
+        loadingVideo.src = '/static/editor/stock-loop.mp4';
+      }
     }
-  }, [components.loadingVideo])
+  }, [loadingVideoRef.current]);
+
   if (engine?.isLoading) {
 
-    console.info(count += 1);
     return (
       <React.Fragment>
         <LoadingVideo role={'loading-video'} ref={loadingVideoRef} />

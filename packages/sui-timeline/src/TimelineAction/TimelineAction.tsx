@@ -35,7 +35,8 @@ const Action = styled('div', {
                              prop !== 'duration' &&
                              prop !== 'scaleWidth' &&
                              prop !== 'loopCount' &&
-                             prop !== 'loop'
+                             prop !== 'loop' &&
+      prop !== 'trackHeight'
 
 })<{
   selected?: boolean;
@@ -45,8 +46,8 @@ const Action = styled('div', {
   loop?: boolean;
   loopCount?: number;
   hover: boolean;
-
-}>(({ theme, duration, scaleWidth, color, loop = true, loopCount, selected, hover }) => {
+  trackHeight: number;
+}>(({ theme, duration, scaleWidth, color, loop = true, loopCount, selected, hover , trackHeight}) => {
   /* const base = theme.vars ? `rgba(color(from ${color}) / 1)` : alpha(color, 1);
   const unselected = emphasize(color, 0.7);
   const hover = emphasize(color, 0.45);
@@ -96,9 +97,16 @@ const Action = styled('div', {
     backgroundRepeat = 'no-repeat';
   }
 
-
+  let height = '100%';
+  let borderWidth = '1px';
+  if (selected) {
+    height = `${ trackHeight + 2 }px`;
+  } else if (hover) {
+    height = `${ trackHeight + 4 }px`;
+  }
   return {
     borderRadius: '4px',
+    borderWidth,
     marginTop: '-1px',
     position: 'absolute',
     left: 0,
@@ -113,7 +121,7 @@ const Action = styled('div', {
     padding: '0 0 0 10px',
     overflow: 'hidden',
     textWrap: 'nowrap',
-    height: '100%',
+    height,
     borderTop: `1px solid ${lighter}`,
     borderBottom: `1px solid ${darker}`,
     userSelect: 'none',
@@ -513,6 +521,7 @@ function TimelineAction<
         loopCount={loopCount}
         id={action.id}
         tabIndex={0}
+        trackHeight={settings.timeline.trackHeight}
         onKeyDown={(event: any) => {
           event.currentTarget = action;
           // eslint-disable-next-line default-case
@@ -594,13 +603,6 @@ function TimelineAction<
         }}
         color={`${track?.controller?.color}`}
       >
-        <ActionLabel className={'label'} color={`${track?.controller?.color}`}>
-          <Typography variant="body2" color="text.primary" sx={(theme) => ({
-            color: `${theme.palette.mode === 'light' ? '#000' : '#FFF'}`, fontWeight: '500',
-          })}>
-            {action.name}
-          </Typography>
-        </ActionLabel>
         {!disableDrag && flexible && <LeftStretch className={`${prefix('action-left-stretch')}`}/>}
         {!disableDrag && flexible && (<RightStretch className={`${prefix('action-right-stretch')}`}/>)}
       </Action>

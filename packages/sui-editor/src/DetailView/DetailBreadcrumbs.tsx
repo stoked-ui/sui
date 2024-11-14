@@ -2,6 +2,9 @@ import * as React from "react";
 import { Breadcrumbs, Link, styled, Typography } from "@mui/material";
 import DetailTracks from "./DetailTracks";
 import { useEditorContext } from "../EditorProvider/EditorContext";
+import { useDetail } from "./DetailProvider";
+import { IEditorTrack } from "../EditorTrack/EditorTrack";
+import { IEditorAction } from "../EditorAction";
 
 const Root = styled(Breadcrumbs, {
 })(({ theme }) => ({
@@ -18,9 +21,9 @@ const Root = styled(Breadcrumbs, {
     }
   }
 }))
-export function DetailBreadcrumbs({  control, editor  }) {
+export function DetailBreadcrumbs(){
   const sxSelectedLabel = (theme) => ({ color: theme.palette.text.primary, backgroundColor: theme.palette.background.paper, padding: '0 10px', borderRadius: '6px' });
-  const { file, selectedTrack, detail, dispatch } = useEditorContext();
+  const { file,  selectedTrack, detail, dispatch } = useDetail();
   return <Root aria-label="breadcrumb">
     <Typography sx={{ color: 'text.primary' }}>Video</Typography>
     { detail.project ?
@@ -40,8 +43,7 @@ export function DetailBreadcrumbs({  control, editor  }) {
     <Typography sx={{ color: 'text.primary' }}>Tracks</Typography>
     {!selectedTrack ?
       <DetailTracks
-        tracks={file?.tracks || []}
-        editor={editor}
+        tracks={(file?.tracks || []) as IEditorTrack[]}
         size={'small'}
         sx={{background: 'transparent'}}
       />

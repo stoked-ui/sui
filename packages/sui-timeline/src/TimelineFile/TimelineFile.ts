@@ -31,8 +31,56 @@ import {
   fileDelimiters,
   delimiterFuncs
 } from "./TimelineFile.types";
+import type { IController } from "../Controller";
 
+export class TimelineFileMeta {
+  primaryType: FilePickerAcceptType = {
+    description: 'Timeline Project Files',
+    accept: {
+      'application/stoked-ui-timeline': ['.sut'],
+    },
+  }
 
+  primaryExt: string = '.sut'
+
+  primaryMimeSubtypeSuffix: string = 'timeline'
+
+  primaryOutputMimeSubtypeSuffix: string = `${this.primaryMimeSubtypeSuffix}-output`
+
+  primaryMimeSubtype: string = 'stoked-ui'
+
+  get mimeSubtype() {
+    return `${this.primaryMimeSubtype}-${this.primaryMimeSubtypeSuffix}`;
+  }
+
+  get outputMimeSubtype() {
+    return `${this.primaryMimeSubtype}-${this.primaryOutputMimeSubtypeSuffix}`;
+  }
+
+  get mimeType() {
+    return `application/${this.mimeSubtype}`;
+  }
+
+  get outputMimeType() {
+    return `application/${this.outputMimeSubtype}`;
+  }
+
+  get MimeType() {
+    return getMimeType({
+      type: 'application',
+      subType: this.primaryMimeSubtype,
+      subTypePrefix: this.primaryMimeSubtypeSuffix
+    });
+  }
+
+  get OutputMimeType() {
+    return getMimeType({
+      type: 'application',
+      subType: this.primaryMimeSubtype,
+      subTypePrefix: this.primaryOutputMimeSubtypeSuffix
+    });
+  }
+}
 
 export class TimelineFile<
   FileActionType extends ITimelineFileAction = ITimelineFileAction,
@@ -69,52 +117,9 @@ export class TimelineFile<
 
   protected _tracks?: TrackType[];
 
-  static primaryType: FilePickerAcceptType = {
-    description: 'Timeline Project Files',
-    accept: {
-      'application/stoked-ui-timeline': ['.sut'],
-    },
-  };
+  static fileMeta: TimelineFileMeta = new TimelineFileMeta();
 
-  static primaryExt: string = '.sut';
-
-  static primaryMimeSubtypeSuffix: string = 'timeline';
-
-  static primaryOutputMimeSubtypeSuffix: string = `${this.primaryMimeSubtypeSuffix}-output`;
-
-  static primaryMimeSubtype: string = 'stoked-ui';
-
-  static get mimeSubtype() {
-    return `${this.primaryMimeSubtype}-${this.primaryMimeSubtypeSuffix}`;
-  }
-
-  static get outputMimeSubtype() {
-    return `${this.primaryMimeSubtype}-${this.primaryOutputMimeSubtypeSuffix}`;
-  }
-
-  static get mimeType() {
-    return `application/${this.mimeSubtype}`;
-  }
-
-  static get outputMimeType() {
-    return `application/${this.outputMimeSubtype}`;
-  }
-
-  static get MimeType() {
-    return getMimeType({
-      type: 'application',
-      subType: this.primaryMimeSubtype,
-      subTypePrefix: this.primaryMimeSubtypeSuffix
-    });
-  }
-
-  static get OutputMimeType() {
-    return getMimeType({
-      type: 'application',
-      subType: this.primaryMimeSubtype,
-      subTypePrefix: this.primaryOutputMimeSubtypeSuffix
-    });
-  }
+  static globalControllers: Record<string, IController> = Controllers;
 
   constructor(props: ITimelineFileProps<FileTrackType>) {
     super();
@@ -128,7 +133,16 @@ export class TimelineFile<
     this.width = props.width ?? 1920;
     this.height = props.height ?? 1080;
     this.url = props.url;
-    this._fileTracks = props.tracks ?? [];
+    this._fileTracks = props.tracks?.map((track) => {
+      if (!track.controller) {
+        if (track.controllerName) {
+          track.controller = TimelineFile.globalControllers[track.controllerName];
+        } else {
+          throw new Error(`controllerName or a controller is required for each track and none was found for the track: ${track.name || track.id}`);
+        }
+      }
+      return track;
+    }) ?? [];
     TimelineFile.fileState[this.id] = FileState.CONSTRUCTED;
   }
 
@@ -185,17 +199,17 @@ export class TimelineFile<
   static getSaveApiOptions(file: TimelineFile, optionProps: SaveOptions): SaveFilePickerOptions {
     if (!optionProps.suggestedName) {
       if (!optionProps.suggestedExt) {
-        const exts = Object.values(TimelineFile.primaryType.accept);
-        optionProps.suggestedExt = (exts.length ? exts[0] : TimelineFile.primaryExt) as FileExtension;
+        const exts = Object.values(this.fileMeta.primaryType.accept);
+        optionProps.suggestedExt = (exts.length ? exts[0] : this.fileMeta.primaryExt) as FileExtension;
       }
-      optionProps.suggestedName = `${file.name}${Object.values(TimelineFile.primaryType.accept)}`
+      optionProps.suggestedName = `${file.name}${Object.values(this.fileMeta.primaryType.accept)}`
     }
     const { id, types, suggestedName } = optionProps;
     return {
       id: id ?? file.id,
       suggestedName,
       excludeAcceptAllOption: false,
-      types: types || [TimelineFile.primaryType, ...TimelineFile.types],
+      types: types || [this.fileMeta.primaryType, ...this.types],
       startIn: id ? undefined : 'documents'
     }
   }
@@ -215,57 +229,58 @@ export class TimelineFile<
 
   async initialize(initAction: any): Promise<void> {
 
-      if (this.initialized) {
-        return;
-      }
+    if (this.initialized) {
+      return;
+    }
+    TimelineFile.fileState[this.id] = FileState.INITIALIZING;
+    try {
+      const filePromises = this._fileTracks.map((fileTrack) => MediaFile.fromUrl(fileTrack.url));
+      const mediaFiles: MediaFile[] = await Promise.all(filePromises);
 
-      try {
-        const filePromises = this._fileTracks.map((fileTrack) => MediaFile.fromUrl(fileTrack.url));
-        const mediaFiles: MediaFile[] = await Promise.all(filePromises);
+      this._tracks = this._fileTracks.map((trackInput, index) => {
+        trackInput.url = trackInput.url.indexOf('http') !== -1 ? trackInput!.url : `${window.location.origin}${trackInput!.url}`;
+        trackInput.url = trackInput.url.replace(/([^:]\/)\/+/g, "$1");
 
-        this._tracks = this._fileTracks.map((trackInput, index) => {
-          trackInput.url = trackInput.url.indexOf('http') !== -1 ? trackInput!.url : `${window.location.origin}${trackInput!.url}`;
-          trackInput.url = trackInput.url.replace(/([^:]\/)\/+/g, "$1");
+        const file =  mediaFiles.find((mediaFile) => mediaFile._url === trackInput.url);
 
-          const file =  mediaFiles.find((mediaFile) => mediaFile._url === trackInput.url);
+        if (!file) {
+          throw new Error('couldn\'t find media file source');
+        }
 
-          if (!file) {
-            throw new Error('couldn\'t find media file source');
-          }
+        const actions = trackInput.actions.map((action: FileActionType) => {
+          return initAction(action, index);
+        }) as ActionType[];
 
-          const actions = trackInput.actions.map((action: FileActionType) => {
-            return initAction(action, index);
-          }) as ActionType[];
+        return {
+          id: trackInput.id ?? namedId('track'),
+          name: trackInput.name,
+          actions,
+          file,
+          controller: trackInput.controller ? trackInput.controller : TimelineFile.globalControllers[trackInput.controllerName],
+          hidden: trackInput.hidden,
+          lock: trackInput.lock,
+        } as any;
+      });
 
-          return {
-            id: trackInput.id ?? namedId('track'),
-            name: trackInput.name,
-            actions,
-            file,
-            controller: trackInput.controller ? trackInput.controller : Controllers[trackInput.controllerName],
-            hidden: trackInput.hidden,
-            lock: trackInput.lock,
-          } as any;
-        });
+      const nestedPreloads = this._tracks.map((track) => {
+        return track.actions.map((action) => track.controller.preload ? track.controller.preload({
+          action,
+          file: track.file
+        }) : action)
+      });
+      const preloads = nestedPreloads.flat();
+      await Promise.all(preloads);
 
-        const nestedPreloads = this._tracks.map((track) => {
-          return track.actions.map((action) => track.controller.preload ? track.controller.preload({
-            action,
-            file: track.file
-          }) : action)
-        });
-        const preloads = nestedPreloads.flat();
-        await Promise.all(preloads);
-
-        this._fileTracks = [];
-        this.lastChecksum = await this.checksum();
-      } catch (ex) {
-        console.error('buildTracks:', ex);
-      }
+      this._fileTracks = [];
+      this.lastChecksum = await this.checksum();
+      TimelineFile.fileState[this.id] = FileState.READY
+    } catch (ex) {
+      console.error('buildTracks:', ex);
+    }
   }
 
   async getTransaction(store: string) {
-    const { primaryMimeSubtype } = TimelineFile;
+    const { primaryMimeSubtype } = TimelineFile.fileMeta;
     console.info(`IDB Open: ${primaryMimeSubtype}`);
     const db = await openDB(primaryMimeSubtype, 1);
     return db.transaction(store, 'readwrite');
@@ -293,7 +308,7 @@ export class TimelineFile<
     }
   }
 
-  static async SaveAs(file: TimelineFile) {
+  static async SaveAs<FileType extends TimelineFile = TimelineFile>(file: FileType) {
     const fileBlob = await file.createBlob();
     const saveOptions = this.getSaveApiOptions(file,{ });
     if (this._fileApiAvailable) {
@@ -305,8 +320,8 @@ export class TimelineFile<
   async saveDb(blob: Blob): Promise<IDBValidKey> {
     let res: IDBValidKey;
     try {
-      console.info(`IDB Save: [${this.id}] ${this.name} - ${TimelineFile.primaryMimeSubtype}::${TimelineFile.primaryMimeSubtypeSuffix}`);
-      const { primaryMimeSubtypeSuffix } = TimelineFile;
+      console.info(`IDB Save: [${this.id}] ${this.name} - ${TimelineFile.fileMeta.primaryMimeSubtype}::${TimelineFile.fileMeta.primaryMimeSubtypeSuffix}`);
+      const { primaryMimeSubtypeSuffix } = TimelineFile.fileMeta;
       const tx = await this.getTransaction(primaryMimeSubtypeSuffix);
       const versionId = `${this.version}`;
 
@@ -330,10 +345,10 @@ export class TimelineFile<
         // Put the modified record back.
         res = await tx.objectStore(primaryMimeSubtypeSuffix).put(record);
       }
-      console.info(`IDB Save: [${this.id}] ${this.name} - ${TimelineFile.primaryMimeSubtype}::${TimelineFile.primaryMimeSubtypeSuffix} => Complete`);
+      console.info(`IDB Save: [${this.id}] ${this.name} - ${TimelineFile.fileMeta.primaryMimeSubtype}::${TimelineFile.fileMeta.primaryMimeSubtypeSuffix} => Complete`);
 
     } catch (e) {
-      console.info(`IDB Save Error: [${this.id}] ${this.name} - ${TimelineFile.primaryMimeSubtype}::${TimelineFile.primaryMimeSubtypeSuffix}`);
+      console.info(`IDB Save Error: [${this.id}] ${this.name} - ${TimelineFile.fileMeta.primaryMimeSubtype}::${TimelineFile.fileMeta.primaryMimeSubtypeSuffix}`);
       throw new Error(e as string);
     }
     return res;
@@ -342,7 +357,7 @@ export class TimelineFile<
   async saveOutput(blob: OutputBlob): Promise<IDBValidKey> {
     let res: IDBValidKey;
     try {
-      const { primaryOutputMimeSubtypeSuffix } = TimelineFile;
+      const { primaryOutputMimeSubtypeSuffix } = TimelineFile.fileMeta;
 
       const dbFile: DBOutputRecord = {
         id: this.id,
@@ -381,44 +396,66 @@ export class TimelineFile<
   }
 
   async load() {
-    return this.loadStoreData(TimelineFile.mimeSubtype);
+    return this.loadStoreData(TimelineFile.fileMeta.mimeSubtype);
   }
 
   async loadOutput(): Promise<IMediaFile[] | undefined> {
-    const outputBlobs: OutputBlob[] | undefined = await this.loadStoreData(TimelineFile.outputMimeSubtype);
+    const outputBlobs: OutputBlob[] | undefined = await this.loadStoreData(TimelineFile.fileMeta.outputMimeSubtype);
     return outputBlobs?.map((output) => {
       return MediaFileFromOutputBlob(output);
     })
   }
 
+  get fileProps() {
+    return {
+      id: this.id,
+      name: this.name,
+      description: this.description,
+      author: this.author,
+      created: this.created,
+      lastModified: this.lastModified,
+      backgroundColor: this.backgroundColor,
+      width: 1920,
+      height: 1080,
+      url: this.url,
+      version: this.version,
+      initialized: false,
+      tracks: this.tracks.map((track) => {
+        const { file, controller, ...trackJson } = track;
+        return {
+          ...trackJson,
+          url: file._url,
+          controllerName: file.mediaType,
+        }
+      }),
+    };
+  }
+
   // Function to create a combined file with JSON data and attached files
   async createBlob(): Promise<File> {
     try {
-
-      const meta = this.metadata;
-      const projectMetaData = JSON.stringify(this.metadata);
-      const trackFiles = this.trackFiles;
-
-      const projectParts: any[] = [projectMetaData, fileDelimiters[FileDelimiters.METADATA]];
+      const saveFile = this.fileProps;
+      const projectMetaData = JSON.stringify(saveFile);
 
       const stream = new ReadableStream({
         async start(controller) {
-          controller.enqueue(projectParts.join(''));
-          // This is where we pass the stream to other functions to write data into it
-          await MediaFile.writeFiles(trackFiles, controller);
+          const encoder = new TextEncoder();
+          // Encode projectMetaData as Uint8Array and enqueue it
+          controller.enqueue(encoder.encode(projectMetaData));
           controller.close();
         }
       });
 
       const response = new Response(stream);
-      // Convert Blob to a File for easier handling or saving
-      // const blob = new Blob(blobParts, { type: 'blob' });
-      return new File([await response.blob()], this.name, TimelineFile.MimeType);
+
+      // Convert the Response stream to a blob, which can then be saved as a File
+      return new File([await response.blob()], this.name, TimelineFile.fileMeta.MimeType);
     } catch (ex) {
       console.error(ex);
       throw new Error(ex as string);
     }
   }
+
 
   async readObjectFromStream<T>(stream: ReadableStream<Uint8Array>): Promise<T> {
     const reader = stream.getReader();
@@ -599,12 +636,11 @@ export class TimelineFile<
     }
     const contentType = response.headers.get("content-type");
     const blob = await response.blob()
-    const file = new File([blob], getFileName(url, true) ?? 'url-file', contentType ? {type: contentType } : this.MimeType );
+    const file = new File([blob], getFileName(url, true) ?? 'url-file', contentType ? {type: contentType } : TimelineFile.fileMeta.MimeType );
     return this.fromFile(file);
   }
 
   static async fromActions<
-    FileActionType extends ITimelineFileAction = ITimelineFileAction,
     ActionType extends ITimelineAction = ITimelineAction,
     FileType extends TimelineFile = TimelineFile
   >(actions: ITimelineFileAction[]): Promise<FileType> {
@@ -625,7 +661,7 @@ export class TimelineFile<
         tracks,
         file: fileAction.file,
         url: fileAction.file._url,
-        controller: Controllers[fileAction.file.mediaType],
+        controller: TimelineFile.globalControllers[fileAction.file.mediaType],
         actions: [{
           id: namedId('action'),
           name: fileAction.action.name,

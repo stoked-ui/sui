@@ -15,7 +15,12 @@ import {
 } from "@stoked-ui/timeline";
 import { IMediaFile, namedId } from "@stoked-ui/media-selector";
 import Controllers from "../Controllers";
-import { IEditorAction, IEditorFileAction, initEditorAction } from "../EditorAction/EditorAction";
+import {
+  BlendMode, Fit,
+  IEditorAction,
+  IEditorFileAction,
+  initEditorAction
+} from "../EditorAction/EditorAction";
 import { IEditorTrack } from "../EditorTrack/EditorTrack";
 import EditorFile, { IEditorFile } from "../Editor/EditorFile";
 import { EditorEngineState, IEditorEngine } from "../EditorEngine";
@@ -38,6 +43,7 @@ export interface IEditorState<
   editorId: string;
   detail: DetailData;
   selected: Selection;
+  detailOpen: boolean;
 }
 
 export interface IEditorStateUnselected extends Omit<IEditorState, 'detail' | 'selected'> {
@@ -59,6 +65,8 @@ export const onAddFiles = (state: IEditorState, newMediaFiles: IMediaFile[]) => 
     file: mediaFile,
     src: mediaFile._url,
     controller: Controllers[mediaFile.mediaType],
+    blendMode: 'normal',
+    fit: 'none',
     actions: [{
       id: namedId('action'),
       name: file.name,
@@ -82,13 +90,18 @@ export const onAddFiles = (state: IEditorState, newMediaFiles: IMediaFile[]) => 
   };
 };
 
-type SelectActionPayload<
-  ActionType extends IEditorAction,
-  TrackType extends IEditorTrack,
-> = {
-  action: ActionType,
-  track: TrackType
-};
+export type BlendModeAction = {
+  type: 'SET_BLEND_MODE',
+  payload:  { contextId: string, value: BlendMode }
+}
+
+export type SetFitAction = {
+  type: 'SET_FIT',
+  payload:  { contextId: string, value: Fit }
+}
+
+export type SetContextActions = BlendModeAction | SetFitAction
+
 
 export type EditorStateAction<
   FileType extends IEditorFile = IEditorFile,
@@ -97,19 +110,19 @@ export type EditorStateAction<
   TrackType extends IEditorTrack = IEditorTrack,
 > = TimelineStateAction<FileType, FileActionType, ActionType, TrackType> | {
   type: 'SELECT_ACTION' | 'ACTION_DETAIL',
-  payload: SelectActionPayload<ActionType, TrackType>,
+  payload: ActionType,
 } | {
   type: 'SELECT_TRACK' | 'TRACK_DETAIL';
   payload: TrackType,
 } | {
   type: 'SELECT_PROJECT' | 'PROJECT_DETAIL';
 } | {
-    type: 'ENGINE_INIT',
-    payload: {
-      file: FileType,
-      viewer: HTMLDivElement
-    }
-  } | {
+  type: 'ENGINE_INIT',
+  payload: {
+    file: FileType,
+    viewer: HTMLDivElement
+  }
+} | {
   type: 'SCREENER',
   payload: HTMLElement | null
 } | {
@@ -139,6 +152,40 @@ export type EditorStateAction<
 } | {
   type: 'CACHE_LOADED_FILE',
   payload: FileType
+} | {
+  type: 'CLOSE_DETAIL'
+} | SetContextActions
+
+const setContext = (key: string, state: IEditorState, stateAction: SetContextActions) => {
+  const { file } = state;
+  if (!file) {
+    return state;
+  }
+  const { tracks } = file;
+  const { contextId, value } = stateAction.payload;
+  if (!tracks && file?.id === contextId) {
+    file[key] = value;
+    return {
+      ...state,
+      file,
+    }
+  }
+  if (!tracks) {
+    throw new Error('Invalid context');
+  }
+  tracks.forEach((track) => {
+    if (track.id === contextId) {
+      track[key] = value;
+    }
+    track.actions.forEach((action) => {
+      if (action.id === contextId) {
+        action[key] = value;
+      }
+    });
+  })
+  return {
+    ...state,
+  }
 }
 
 
@@ -147,16 +194,18 @@ export function EditorReducer(state: IEditorState, stateAction: EditorStateActio
   switch (stateAction.type) {
     case 'SELECT_ACTION':
     case 'ACTION_DETAIL': {
+      const action = stateAction.payload as IEditorAction;
+      const track = state.file?.tracks.filter((t) => t.actions.some((a) => a.id === action.id))
       const newState = setDetail({
         ...state,
-        selectedAction: { ...stateAction.payload.action },
-        selectedTrack: stateAction.payload.track,
-        selected: stateAction.payload.action,
+        selectedAction: action,
+        selectedTrack: track,
+        selected: action,
       });
       if (stateAction.type === 'SELECT_ACTION') {
         return newState;
       }
-      return addFlag('detailPopover', newState) as IEditorState;;
+      return { ...newState, detailOpen: true };
     }
     case 'SELECT_TRACK':
     case 'TRACK_DETAIL': {
@@ -169,7 +218,7 @@ export function EditorReducer(state: IEditorState, stateAction: EditorStateActio
       if (stateAction.type === 'SELECT_TRACK') {
         return newState;
       }
-      return addFlag('detailPopover', newState) as IEditorState;
+      return { ...newState, detailOpen: true };
     }
     case 'SELECT_PROJECT':
     case 'PROJECT_DETAIL': {
@@ -182,7 +231,7 @@ export function EditorReducer(state: IEditorState, stateAction: EditorStateActio
       if (stateAction.type === 'SELECT_PROJECT') {
         return newState;
       }
-      return addFlag('detailPopover', newState) as IEditorState;
+      return { ...newState, detailOpen: true };
     }
     case 'VIEWER':
       engine.viewer = stateAction.payload;
@@ -205,12 +254,14 @@ export function EditorReducer(state: IEditorState, stateAction: EditorStateActio
         file,
       };
     }
+    /*
     case 'ENGINE_INIT': {
       const { viewer, file } = stateAction.payload;
       let newState = EditorReducer(state, { type: 'VIEWER', payload: viewer });
       newState = EditorReducer(newState as IEditorState, { type: 'CACHE_LOADED_FILE', payload: file });
       return TimelineReducer(newState, { type: 'SET_TRACKS', payload: file.tracks }) as IEditorState;
     }
+    */
     case 'CACHE_LOADED_FILE':
       return {
         ...state,
@@ -299,6 +350,18 @@ export function EditorReducer(state: IEditorState, stateAction: EditorStateActio
       return {
         ...state,
       };
+    case 'CLOSE_DETAIL': {
+      return {
+        ...state,
+        detailOpen: false,
+      };
+    }
+    case 'SET_BLEND_MODE': {
+      return setContext('blendMode', state, stateAction);
+    }
+    case 'SET_FIT': {
+      return setContext('fit', state, stateAction);
+    }
     default:
       return TimelineReducer(state as ITimelineState, stateAction as TimelineStateAction) as IEditorState;
   }
@@ -309,34 +372,3 @@ export type EditorContextType = IEditorState & {
 };
 
 export interface EditorProviderProps<EngineType, StateType extends IEditorState, StateActionType > extends TimelineProviderProps<EngineType, StateType, StateActionType> {}
-
-export class Zettor {
-  dispatch: React.Dispatch<EditorStateAction>;
-
-  key: string;
-
-  constructor(key: string, dispatch: React.Dispatch<EditorStateAction>) {
-    this.dispatch = dispatch;
-    this.key = key;
-  }
-
-  setFunc(value?: any) {
-    return () => this.set(value || true);
-  }
-
-  unsetFunc(value?: any) {
-    return () => this.set(value || false);
-  }
-
-  set(value: any) {
-    this.dispatch({ type: 'SET_SETTING', payload: { key: this.key, value } });
-  }
-
-  unset () {
-    this.dispatch({ type: 'SET_SETTING', payload: { key: this.key, value: undefined } });
-  }
-
-  isTrue(settings: Record<string, any>) {
-    return settings[this.key]
-  }
-}

@@ -309,7 +309,7 @@ class VideoControl extends Controller {
 
     if (engine.isPlaying) {
       if (!action.nextFrame) {
-        // console.warn('failed to play a frame because no frame data available');
+        console.warn('failed to play a frame because no frame data available');
         action.nextFrame = this.getDrawData({ action, engine, time: item.currentTime });
       }
 

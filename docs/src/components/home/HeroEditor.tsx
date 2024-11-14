@@ -102,7 +102,7 @@ export default function Hero() {
             }}> Editor</div>
           </Box>
           <Typography color="text.secondary" mb={3}>
-            Stoked UI: Editor. An advanced MUI based component that allows you to quickly and easily make things, that make things.. PR&apos;s welcome!
+            Stoked UI: Editor. An advanced MUI based video editor that allows you to quickly make professional, high quality videos. No installs. No uploads. No BS!!
           </Typography>
           <GetStartedButtons primaryLabel="Checkout the roadmap to see whats next" primaryUrl="https://github.com/orgs/stoked-ui/projects/1/views/1" />
         </Box>

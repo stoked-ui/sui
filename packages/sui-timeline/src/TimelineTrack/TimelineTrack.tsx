@@ -1,5 +1,7 @@
 import * as React from 'react';
-import { alpha, emphasize, styled } from "@mui/material/styles";
+import { alpha, emphasize, styled } from "@mui/material/styles"
+import Typography from "@mui/material/Typography";
+import { Box } from "@mui/material";
 import {shouldForwardProp} from "@mui/system/createStyled";
 import {prefix} from '../utils/deal_class_prefix';
 import {parserPixelToTime} from '../utils/deal_data';
@@ -10,10 +12,10 @@ import {
   type ITimelineTrack,
   TimelineTrackProps
 } from "./TimelineTrack.types";
-import {IController} from "../Controller/Controller.types";
-import {useTimeline} from "../TimelineProvider";
+import { useTimeline } from "../TimelineProvider";
 import { ITimelineAction } from "../TimelineAction";
 import { checkProps } from "../utils";
+import TimelineTrackActions from "../TimelineLabels/TimelineTrackActions";
 
 const TimelineTrackRoot = styled('div', {
   name: 'MuiTimelineTrack',
@@ -36,9 +38,10 @@ const TimelineTrackRoot = styled('div', {
 
   return {
     ...trackBack.row,
-    transition: 'all 0.5s ease',
     borderBottom: `1px solid ${theme.palette.background.default}`,
     borderTop: `1px solid ${emphasize(theme.palette.background.default, 0.04)}`,
+    '& .label': {
+    },
     display: 'flex',
     flexDirection: 'row',
     cursor: 'pointer',
@@ -89,12 +92,81 @@ export function getTrackColor<
   return trackController ? alpha(trackController.color ?? '#666', 0.11) : '#00000011';
 }
 
+const TrackLabel = styled('label', {
+  name: 'MuiTimelineAction',
+  slot: 'root',
+  overridesResolver: (props, styles) => styles.root,
+  shouldForwardProp: (prop) => shouldForwardProp(prop) && prop !== 'color',
+})<{
+  hover: boolean;
+  color: string;
+}>(({ theme, hover }) => {
+
+  const bgColor = alpha(theme.palette.background.default, .95);
+  return {
+    '& p': {
+      color: theme.palette.text.primary,
+      textWrap: 'none',
+      whiteSpace: 'nowrap',
+      position: 'sticky',
+      left: 0,
+    },
+    padding: '3px 6px',
+    display: 'flex-inline',
+    width: 'min-content',
+    borderRadius: '4px',
+    background: bgColor,
+    position: 'relative',
+    margin: '8px 0px',
+    alignSelf: 'center',
+    overflow: 'auto',
+    opacity: hover ? '1' : '0',
+    marginRight: '8px',
+    transition: hover ? 'opacity .4s ease-in' : 'opacity .4s 1s ease-out',
+    zIndex: 200,
+  }
+});
+
+export function TimelineTrackLabel({track, areaRef }: {track: ITimelineTrack, areaRef: React.RefObject<HTMLDivElement>}) {
+  const { settings, flags } = useTimeline();
+  const labelRef = React.useRef<HTMLDivElement>(null);
+  React.useEffect(() => {
+    if (labelRef.current && areaRef?.current?.clientWidth !== labelRef.current?.clientWidth) {
+      labelRef.current.style.width = `${areaRef.current.clientWidth - 8}px`;
+    }
+  }, [areaRef?.current?.clientWidth]);
+
+  React.useEffect(() => {
+    if ((labelRef?.current?.style?.left !== undefined) && areaRef?.current?.scrollLeft !== parseInt(labelRef.current?.style.left, 10)) {
+      labelRef.current.style.left = `${areaRef?.current?.scrollLeft}px`;
+    }
+  }, [areaRef?.current?.scrollLeft]);
+
+  return (
+    <Box sx={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }} ref={labelRef}>
+      {!flags.includes('labels') && <TimelineTrackActions track={track} />}
+      {flags.includes('labels') && <div></div>}
+      <TrackLabel color={`${track?.controller?.color}`} hover={settings['track-hover'] === track.id} >
+        <Typography variant="body2" color="text.primary" sx={(theme) => ({
+          color: `${theme.palette.mode === 'light' ? '#000' : '#FFF'}`, fontWeight: '500',
+          zIndex: 1000,
+        })}>
+          {track.name}
+        </Typography>
+
+      </TrackLabel>
+    </Box>
+  )
+}
 
 export default function TimelineTrack<
   TrackType extends ITimelineTrack = ITimelineTrack,
   ActionType extends ITimelineAction = ITimelineAction,
 >(props: TimelineTrackProps<ActionType, TrackType>) {
-  const { settings, selectedTrack, dispatch } = useTimeline();
+  const { useProvider } = props;
+  const useContext = useProvider || useTimeline;
+  const { settings, selectedTrack, dispatch } = useContext();
+
   const {
     track,
     style = {},
@@ -152,7 +224,7 @@ export default function TimelineTrack<
       selected={isTrackSelected(track)}
       color={track.id === 'newTrack' ? '#8882' : getTrackColor(track)}
       style={{...style}}
-      trackHeight={settings.trackHeight}
+      trackHeight={settings.timeline.trackHeight}
       sx={{
         opacity: 0,
         transform: 'scaleX(100%):nth-child(3n+1)',
@@ -165,6 +237,11 @@ export default function TimelineTrack<
         console.info('row root', e);
       }}
       onClick={(e) => {
+        if (track.id === 'newTrack') {
+          props.onAddFiles();
+          e.stopPropagation();
+          return;
+        }
         if (track && onClickTrack) {
           const time = handleTime(e);
           onClickTrack(e, { track, time });
@@ -187,7 +264,7 @@ export default function TimelineTrack<
     >
       <TrackSizer
         onMouseEnter={() => { setSizerData({...sizerData, hover: true }) }}
-        onMouseLeave={() => { setSizerData({...sizerData, hover: false }) }}/>
+        onMouseLeave={() => { setSizerData({...sizerData, hover: false }) }} id={'test 123'}/>
       {(track?.actions || []).map((action) => {
         return <TimelineAction
           key={action.id}
@@ -197,6 +274,7 @@ export default function TimelineTrack<
           action={action}
         />
       })}
+      <TimelineTrackLabel track={track} areaRef={areaRef}/>
     </TimelineTrackRoot>
   );
 };
@@ -232,13 +310,9 @@ export function useFileLoadMonitor() {
 */
 
 
-export function ControlledTrack({name, width, height}: {name?: string, width: number, height?: number }) {
-  const { settings: initialSettings, selectedTrack, engine, dispatch,  } = useTimeline();
+export function ControlledTrack({ width, height }: {name?: string, width: number, height?: number }) {
+  const { settings: initialSettings, selectedTrack, engine  } = useTimeline();
   const { minScaleCount, maxScaleCount, startLeft, ...timelineSettings } = checkProps(initialSettings);
-
-  React.useEffect(() => {
-
-  }, []);
 
   if (!selectedTrack) {
     return undefined;
@@ -247,15 +321,8 @@ export function ControlledTrack({name, width, height}: {name?: string, width: nu
   const scaleData = fitScaleData([selectedTrack], minScaleCount, maxScaleCount, startLeft, engine.duration, width);
   const scaledSettings = {...timelineSettings, width, ...scaleData};
 
-  let key = 'timeline';
-
-  if (name?.length) {
-    key = `timeline-${name}`;
-  }
-
-  dispatch({ type: 'SET_SETTING', payload: { key, value: scaledSettings } });
-
   return (
+    <div style={{ position: 'relative' }}>
     <TimelineTrack
       {...scaledSettings}
       timelineWidth={width}
@@ -278,5 +345,6 @@ export function ControlledTrack({name, width, height}: {name?: string, width: nu
       cursorTime={0}
       scrollLeft={0}
     />
+    </div>
   )
 }

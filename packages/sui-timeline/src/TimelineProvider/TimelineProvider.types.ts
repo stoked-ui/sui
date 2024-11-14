@@ -1,9 +1,8 @@
 import * as React from 'react';
 import { IMediaFile, namedId } from '@stoked-ui/media-selector';
 import { isMobile } from 'react-device-detect';
-import Controllers from '../Controller/Controllers';
 import { IController } from "../Controller";
-import { ITimelineFile } from "../TimelineFile";
+import { ITimelineFile, TimelineFile} from "../TimelineFile";
 import { EngineState, IEngine } from "../Engine";
 import { type ITimelineTrack } from "../TimelineTrack";
 import {
@@ -15,6 +14,7 @@ import {
   ITimelineAction,
   ITimelineFileAction
 } from "../TimelineAction/TimelineAction.types";
+import Settings from "./Settings";
 
 export interface ITimelineState<
   EngineType extends IEngine = IEngine,
@@ -29,7 +29,7 @@ export interface ITimelineState<
   selectedAction: ActionType | null;
   selectedTrack: TrackType | null;
   flags: string[];
-  settings: Record<string, any>;
+  settings: Settings;
   versions: IMediaFile[];
   getState: () => string | State;
   setState: (newState: string | State) => void;
@@ -56,7 +56,7 @@ export const onAddFiles = <
       id: namedId('track'),
       name: mediaFile.name,
       file: mediaFile,
-      controller: Controllers[mediaFile.mediaType],
+      controller: TimelineFile.globalControllers[mediaFile.mediaType] as IController,
       actions: [{
         id: namedId('action'),
         name: file.name,
@@ -139,7 +139,8 @@ export type TimelineStateAction<
   type: 'SET_COMPONENT',
   payload: {
     key: string,
-    value: HTMLElement
+    value: HTMLElement,
+    onSet?: () => void,
   }
 }
 
@@ -149,32 +150,78 @@ export type TimelineContextType = ITimelineState & {
 
 export const TimelineContext = React.createContext<TimelineContextType | undefined>(undefined);
 
-export function setSetting({key, value}: {key: string, value: any}, state: ITimelineState): ITimelineState {
-  return {
-    ...state,
-    settings: {
-      ...state.settings,
-      [key]: value,
-    },
-  };
-}
-
-export function setFlags({set, values}: {set: string[], values: string[]}, state: ITimelineState) {
-  const flags = [...state.flags].filter((flag) => !set.includes(flag));
-  flags.push(...values);
-  return {
-    ...state,
-    flags: [...flags]
-  };
+export function setSetting(key: string, value: any, state: ITimelineState): ITimelineState {
+  state.settings[key] = value;
+  return { ...state };
 }
 
 export function addFlag(key: string, state: ITimelineState) {
-  return setFlags({set: [key], values: [key]}, state);
+  if (!state.flags.includes(key)) {
+    state.flags.push(key);
+  }
+  return state;
 }
 
 export function removeFlag(key: string, state: ITimelineState) {
-  return setFlags({set: [key], values: []}, state);
+  if (state.flags.includes(key)) {
+    state.flags = state.flags.filter((flag) => flag !== key);
+  }
+  return state;
 }
+
+function flagTrigger(flag: string, set: boolean, key: string, value: any, state: ITimelineState) {
+  if (set) {
+    return setSetting(key, value, state);
+  }
+  return setSetting(key, value, state);
+}
+
+const flagTriggers = {
+  labels: {
+    'timeline.startLeft': {
+      enabled: 7,
+      disabled: 72,
+    },
+  }
+}
+const settingOverrides = Object.keys(Object.values(flagTriggers)) as string[];
+const settingOverridesEnabled = settingOverrides.reduce((acc, overrideKey ) => {
+  acc[overrideKey] = false;
+  return acc;
+}, {} as { [key: string]: boolean });
+
+function executeFlagTriggers(set: string[], values: string[], state: ITimelineState) {
+  const triggers = Object.keys(flagTriggers).filter((key) => set.includes(key));
+
+  triggers.forEach((key) => {
+    const enabled = values.includes(key);
+    const overrideSettings = Object.keys(flagTriggers[key]);
+    overrideSettings.forEach((setting) => {
+      settingOverridesEnabled[setting] = true;
+      if (enabled) {
+        state = flagTrigger(key, true, setting, flagTriggers[key].enabled, state);
+      } else {
+        state =  flagTrigger(key, false, setting, flagTriggers[key].disabled, state);
+      }
+    });
+  })
+  return state;
+}
+
+export function setFlags(set: string[], values: string[], state: ITimelineState) {
+  const newState = {
+    ...state,
+    flags: [...state.flags].filter((flag) => !set.includes(flag))
+  }
+  newState.flags = newState.flags.concat(values);
+  return executeFlagTriggers(set, values, newState);
+}
+
+
+function isObject(value: any): boolean {
+  return typeof value === 'object' && value !== null;
+}
+
 export function TimelineReducer(state: ITimelineState, stateAction: TimelineStateAction): ITimelineState {
   switch (stateAction.type) {
 
@@ -206,7 +253,7 @@ export function TimelineReducer(state: ITimelineState, stateAction: TimelineStat
       };
     }
     case 'TRACK_HOVER': {
-      return setSetting({ key: 'hoverTrack', value: stateAction.payload }, state);
+      return setSetting('hoverTrack',stateAction.payload, state);
     }
     case 'LOAD_VERSIONS':
       return {
@@ -228,21 +275,47 @@ export function TimelineReducer(state: ITimelineState, stateAction: TimelineStat
         file,
       };
     }
-    case 'SET_FILE':
-      return {
+    case 'SET_FILE': {
+      const stateWithFile = {
         ...state,
         file: stateAction.payload,
       };
+      return TimelineReducer(stateWithFile, {
+        type: 'SET_TRACKS',
+        payload: stateAction.payload.tracks
+      });
+    }
     case 'SET_SNAP_FLAGS':
       return {
         ...state,
         flags: [...stateAction.payload],
       };
     case 'SET_SETTING': {
-      return setSetting(stateAction.payload, state);
+      const { key, value } = stateAction.payload;
+      const valIsObject = isObject(value);
+      let newState = state;
+      if (valIsObject) {
+        const keys = Object.keys(value);
+
+        const result = keys.reduce((obj, nestedKey) => {
+          obj[`${key}.${nestedKey}`] = value[nestedKey];
+          return obj;
+        }, {});
+        Object.entries(result).forEach(([nestedKey, nestedValue]) => {
+          if (!settingOverridesEnabled[nestedKey]) {
+            newState = setSetting(nestedKey, nestedValue, newState);
+          }
+        });
+        return newState;
+      }
+      if (!settingOverridesEnabled[key]) {
+        newState =  setSetting(key, value, state);
+      }
+      return newState;
     }
     case 'SET_FLAGS': {
-      return setFlags(stateAction.payload, state);
+      const { set, values } = stateAction.payload;
+      return setFlags(set, values , state);
     }
     case 'UPDATE_ACTION_STYLE': {
       const { action, backgroundImageStyle } = stateAction.payload;
@@ -266,7 +339,11 @@ export function TimelineReducer(state: ITimelineState, stateAction: TimelineStat
       };
     }
     case 'SET_COMPONENT': {
-      const { key, value } = stateAction.payload;
+      const { key, value, onSet } = stateAction.payload;
+      const { components } = state;
+      if (!components[key] && onSet) {
+        onSet();
+      }
       return {
         ...state,
         components: {
@@ -296,7 +373,7 @@ export const initialTimelineState: Omit<ITimelineState, 'engine' | 'getState' | 
   selectedTrack: null,
   selectedAction: null,
   flags: isMobile ? ['isMobile'] : [],
-  settings: { trackHeight: isMobile ? DEFAULT_MOBILE_TRACK_HEIGHT : DEFAULT_TRACK_HEIGHT },
+  settings: new Settings({ timeline: {trackHeight: isMobile ? DEFAULT_MOBILE_TRACK_HEIGHT : DEFAULT_TRACK_HEIGHT } }),
   versions: [],
   id: 'timeline',
   file: null,

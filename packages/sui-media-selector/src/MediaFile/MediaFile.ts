@@ -1,3 +1,4 @@
+import safeStringify from "safe-stringify";
 import {Howl} from "howler";
 import {MediaType, getMediaType} from './MediaType';
 import {
@@ -13,14 +14,13 @@ import {
 import {ExtensionMimeTypeMap} from "./MimeType";
 import namedId from "../namedId";
 
-type MediaFileMeta = Omit<IMediaFile, keyof File>;
-
 export default class MediaFile implements IMediaFile {
   readonly id: string;
 
   readonly path?: string;
 
   readonly created: number;
+
 
   readonly lastModified: number;
 
@@ -29,8 +29,7 @@ export default class MediaFile implements IMediaFile {
   readonly size: number;
 
   get mediaFileSize() {
-    const nonFileMeta = this as MediaFileMeta;
-    return JSON.stringify(nonFileMeta).length + this.size;
+    return this.size;
   }
 
   readonly type: string;
