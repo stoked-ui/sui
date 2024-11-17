@@ -22,18 +22,18 @@ import {
 const ITEMS: IMediaFileInput[] = [
   {
     id: '1',
-    label: 'Amelia Hart',
+    name: 'Amelia Hart',
     children: [{ id: '2', name: 'Jane Fisher' }],
   },
   {
     id: '3',
-    label: 'Bailey Monroe',
+    name: 'Bailey Monroe',
     children: [
-      { id: '4', label: 'Freddie Reed' },
+      { id: '4', name: 'Freddie Reed' },
       {
         id: '5',
-        label: 'Georgia Johnson',
-        children: [{ id: '6', label: 'Samantha Malone' }],
+        name: 'Georgia Johnson',
+        children: [{ id: '6', name: 'Samantha Malone' }],
       },
     ],
   },
@@ -51,7 +51,7 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(
   props: CustomTreeItemProps,
   ref: React.Ref<HTMLLIElement>,
 ) {
-  const { id, itemId, label, disabled, children, ...other } = props;
+  const { id, itemId, name, disabled, children, ...other } = props;
 
   const {
     getRootProps,
@@ -61,7 +61,7 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(
     getLabelProps,
     getGroupTransitionProps,
     status,
-  } = useFile({ id, itemId, children, label, disabled, rootRef: ref });
+  } = useFile({ id, itemId, children, name, disabled, rootRef: ref });
 
   return (
     <FileProvider itemId={itemId}>
@@ -79,7 +79,7 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(
                 fontSize: '0.8rem',
               })}
             >
-              {(label as string)[0]}
+              {(name as string)[0]}
             </Avatar>
             <FileCheckbox {...getCheckboxProps()} />
             <FileLabel {...getLabelProps()} />
