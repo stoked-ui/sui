@@ -211,7 +211,7 @@ yargs(process.argv.slice(2))
           type: 'string',
         })
         .option('repo', {
-          default: 'mono',
+          default: 'sui',
           describe: 'Repository to generate a changelog for',
           type: 'string',
         });
