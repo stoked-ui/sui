@@ -375,14 +375,12 @@ export function FormWrap({ title, handleSubmit, onSubmit, children}) {
     {(detail.type === 'track' || detail.type === 'action') && <CtrlCell>
       <MediaScreener file={detail.file} />
     </CtrlCell>}
-    <CtrlCell>
-      {detail.type === 'project' && <CtrlColumn id={'detail-renderer-container'} sx={{ padding: '0px' }}>
-        <EditorProvider id={namedId('detail-editor')} {...detailState} controllers={Controllers} >
-          <Editor file={file} />
-        </EditorProvider>
-      </CtrlColumn>}
-      {detail.type !== 'project' && <FileDetailView file={selectedTrack!.file} />}
-    </CtrlCell>
+    {detail.type === 'project' &&
+      <EditorProvider id={namedId('detail-editor')} {...detailState} controllers={Controllers} >
+        <Editor file={file} detailMode />
+      </EditorProvider>
+    }
+    {detail.type !== 'project' && <FileDetailView file={selectedTrack!.file} />}
     <div className={'SUI-form'}>
       <DetailForm
         id={'detailView'}

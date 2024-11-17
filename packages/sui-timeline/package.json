@@ -51,12 +51,13 @@
     "react-dom": "^17.0.0 || ^18.0.0"
   },
   "dependencies": {
+    "@emotion/styled": "^11.8.1",
     "@interactjs/types": "^1.10.11",
     "@mui/system": "^5",
     "@tempfix/idb": "^8.0.3",
     "@types/react-virtualized": "^9.21.14",
     "framework-utils": "^1.1.0",
-    "@emotion/styled": "^11.8.1",
+    "idb": "^8.0.0",
     "interactjs": "^1.10.11",
     "react-scroll-sync": "^0.11.2",
     "react-virtualized": "^9.22.3",
@@ -66,7 +67,6 @@
   "devDependencies": {
     "@babel/plugin-transform-typescript": "^7.16.7",
     "@emotion/react": "^11.9.0",
-
     "@mui/icons-material": "^5.15.21",
     "@types/howler": "^2.2.4",
     "@types/lodash": "^4.14.177",
@@ -78,7 +78,7 @@
     "lint-staged": "^10.0.7",
     "lodash": "^4.17.21",
     "prettier": "^2.2.1",
-    "yorkie": "^2.0.0",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "yorkie": "^2.0.0"
   }
 }

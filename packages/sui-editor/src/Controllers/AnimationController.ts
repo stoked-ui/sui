@@ -1,10 +1,24 @@
 import lottie, {AnimationConfigWithPath, AnimationItem} from 'lottie-web';
 import { namedId, AnimationFile } from "@stoked-ui/media-selector";
-import { Controller, ControllerParams, IEngine, ITimelineAction, PreloadParams } from "@stoked-ui/timeline";
+import { BackgroundImageStyle,
+  Controller,
+  EventTypes,
+  IEngine,
+  ITimelineAction
+} from "@stoked-ui/timeline";
 import { type IEditorEngine } from "../EditorEngine";
 import { EditorControllerParams, EditorPreloadParams } from "./EditorControllerParams";
 
 class AnimationControl extends Controller {
+  getActionStyle(action: ITimelineAction, scaleWidth: number, scale: number, trackHeight: number): BackgroundImageStyle {
+      throw new Error('Method not implemented.');
+  }
+  start(params: { action: ITimelineAction; time: number; engine: IEngine<EventTypes>; }): void {
+      throw new Error('Method not implemented.');
+  }
+  stop(params: { action: ITimelineAction; time: number; engine: IEngine<EventTypes>; }): void {
+      throw new Error('Method not implemented.');
+  }
 
   cacheMap: Record<string, AnimationItem> = {};
 

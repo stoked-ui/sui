@@ -6,7 +6,7 @@ import Select, { SelectChangeEvent } from "@mui/material/Select";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import { BlendMode, Fit, IEditorAction } from '../EditorAction/EditorAction';
-import { IEditorFile } from './EditorFile';
+import { IEditorFile } from '../EditorFile/EditorFile';
 import { IEditorTrack } from '../EditorTrack/EditorTrack';
 import { useEditorContext } from "../EditorProvider/EditorContext";
 

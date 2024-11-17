@@ -2,7 +2,7 @@ import { IMediaFile, namedId } from "@stoked-ui/media-selector";
 import * as yup from "yup";
 import { IEditorAction } from "../EditorAction/EditorAction";
 import { IEditorTrack } from "../EditorTrack/EditorTrack";
-import EditorFile, { IEditorFile } from "../Editor/EditorFile";
+import EditorFile, { IEditorFile } from "../EditorFile/EditorFile";
 import { IEditorState, IEditorStateUnselected } from "../EditorProvider/EditorProvider.types";
 import { IDetailStateUnselected } from "./DetailProvider.types";
 

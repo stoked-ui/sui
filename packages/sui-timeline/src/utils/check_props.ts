@@ -6,7 +6,7 @@ import {
   DEFAULT_START_LEFT,
   MIN_SCALE_COUNT
 } from "../interface/const";
-import {TimelineControlProps} from "../TimelineControl/TimelineControlProps";
+import {TimelineControlProps} from "../Timeline/TimelineControlProps";
 import ConsoleLogger from "./logger";
 
 const logger = new ConsoleLogger('timeline');
@@ -27,7 +27,7 @@ export function checkProps(props: TimelineControlProps): TimelineControlProps & 
     scale = DEFAULT_SCALE,
     scaleSplitCount = DEFAULT_SCALE_SPLIT_COUNT,
     scaleWidth = DEFAULT_SCALE_WIDTH,
-    startLeft = 72,
+    startLeft = DEFAULT_START_LEFT,
     minScaleCount = MIN_SCALE_COUNT,
     maxScaleCount = Infinity,
     trackHeight = DEFAULT_TRACK_HEIGHT,

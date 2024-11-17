@@ -9,13 +9,12 @@ import ToggleButtonGroupEx from '../components/ToggleButtonGroupEx';
 import {type TimelineLabelsProps} from './TimelineLabels.types';
 import {getTimelineLabelsUtilityClass} from "./timelineLabelsClasses";
 import {useTimeline} from "../TimelineProvider";
-import { fitScaleData, ITimelineTrack } from "../TimelineTrack";
-import {TimelineFile} from "../TimelineFile";
+import { ITimelineTrack } from "../TimelineTrack";
+import TimelineFile from "../TimelineFile";
 import TimelineTrackIcon from '../icons/TimelineTrackIcon';
 import TimelineLabel from "./TimelineLabel";
 import EdgeSnap from "../icons/EdgeSnap";
 import GridSnap from "../icons/GridSnap";
-import TimelineScrollResizer from "../TimelineScrollResizer";
 
 const useUtilityClasses = (
   ownerState: TimelineLabelsProps,
@@ -90,7 +89,7 @@ export function Toolbar() {
  */
 const TimelineLabels = React.forwardRef(
   function TimelineLabels(inProps: TimelineLabelsProps, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
-    const { engine, file, dispatch, settings } = useTimeline();
+    const { engine, flags, file, dispatch, settings } = useTimeline();
 
     const { slotProps, slots, sx, width } = inProps;
     const finalWidth = width || '250px';
@@ -106,14 +105,13 @@ const TimelineLabels = React.forwardRef(
       ownerState: inProps,
     });
 
-    const handleItemClick = (t: ITimelineTrack, event: React.MouseEvent<HTMLElement>) => {
+    const handleItemClick = (event: React.MouseEvent<HTMLElement>, t: ITimelineTrack) => {
       if (t.id === 'newTrack') {
         inProps.onAddFiles();
         return;
       }
       inProps.onLabelClick(t);
     };
-
     return (
       <Root
         {...rootProps}
@@ -125,9 +123,9 @@ const TimelineLabels = React.forwardRef(
         sx={[sx, { width: finalWidth }]}
         classes={classes}
         className={`${classes.root} timeline-list`}>
-        <Box sx={{height: '37.5px', padding: '3px 0px', justifyContent: 'end', display: 'flex'}}>
+        {flags.includes('snapControls') && <Box sx={{height: '37.5px', padding: '3px 0px', justifyContent: 'end', display: 'flex'}}>
           <Toolbar />
-        </Box>
+        </Box>}
         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
           {!engine.isLoading && TimelineFile.displayTracks(file?.tracks).map((track) => {
             if (!track) {
@@ -140,7 +138,9 @@ const TimelineLabels = React.forwardRef(
               classes={classes}
               key={track.id}
               controller={track.controller}
-              onClick={inProps.onLabelClick}
+              onClick={(event: React.MouseEvent<HTMLElement>, clickTrack: ITimelineTrack) => {
+                handleItemClick(event, clickTrack);
+              }}
             />
           })}
         </Box>

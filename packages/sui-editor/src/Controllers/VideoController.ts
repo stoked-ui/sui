@@ -247,7 +247,7 @@ class VideoControl extends Controller {
 
     } else {
        const cachedItem = this.cacheMap[action.id];
-       this.log(params, `cached video readyState: ${cachedItem.readyState}`)
+       this.log(params, `cached video readyState: ${cachedItem?.readyState}`)
     }
 
     if (engine.isPlaying) {

@@ -10,7 +10,7 @@ import {
 } from "./Detail.types";
 import { IEditorAction } from "../EditorAction";
 import { IEditorTrack } from "../EditorTrack/EditorTrack";
-import EditorFile, { IEditorFile } from "../Editor/EditorFile";
+import EditorFile, { IEditorFile } from "../EditorFile/EditorFile";
 import { IEditorEngine } from '../EditorEngine/EditorEngine.types';
 
 export interface IDetailState {

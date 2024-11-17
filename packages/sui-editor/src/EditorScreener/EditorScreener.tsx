@@ -37,8 +37,8 @@ function Versions ({currentVersion, setCurrentVersion }: VersionProps) {
 
   React.useEffect(() => {
     if (file) {
-      file.loadOutput()
-        .then((idbVersions) => dispatch({ type: 'LOAD_VERSIONS', payload: idbVersions ?? [] }))
+     // file.loadOutput()
+     //   .then((idbVersions) => dispatch({ type: 'LOAD_VERSIONS', payload: idbVersions ?? [] }))
     }
   }, [])
 

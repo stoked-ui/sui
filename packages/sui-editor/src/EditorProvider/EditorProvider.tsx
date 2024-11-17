@@ -2,10 +2,12 @@ import * as React from 'react';
 import { namedId } from '@stoked-ui/media-selector';
 import {
   initialTimelineState,
-  ITimelineFile, ITimelineState,
+  ITimelineFile, ITimelineState, LocalDb,
   TimelineProvider,
   TimelineReducer,
-  TimelineStateAction
+  TimelineStateAction,
+  LocalDbProps,
+  getDbProps
 } from '@stoked-ui/timeline';
 import EditorEngine from "../EditorEngine/EditorEngine";
 import { EditorEngineState, IEditorEngine } from "../EditorEngine/EditorEngine.types";
@@ -19,6 +21,7 @@ import {
 } from "./EditorProvider.types";
 import { setDetail } from "../DetailView/Detail.types";
 import { IDetailStateUnselected } from '../DetailView/DetailProvider.types';
+import EditorFile, { EditorFileType } from "../EditorFile/EditorFile";
 
 export default function EditorProvider<
   EngineType extends IEditorEngine = IEditorEngine,
@@ -43,6 +46,7 @@ export default function EditorProvider<
   } as IEditorStateUnselected;
 
   const detailState = setDetail(stateProps);
+  const fileMeta = new EditorFileType();
 
   const editorProps: IEditorState = {
     ...detailState,
@@ -51,9 +55,24 @@ export default function EditorProvider<
     getState,
     setState,
   }
+/*
+  React.useEffect(() => {
+    if (flags){
+      LocalDb.init({ dbName: EditorFile.fileMeta.mimeSubtype, EditorFile.fileMeta.primaryMimeSubtype).then((initResults) => {
+        console.info('db init results', initResults);
+      });
+    }
+    }, [flags.includes('idb')]);
+    */
 
   return (
-    <TimelineProvider<IEditorEngine, IEditorState, EditorStateAction> {...props} {...editorProps} controllers={Controllers} reducer={EditorReducer}>
+    <TimelineProvider<IEditorEngine, IEditorState, EditorStateAction>
+      {...props}
+      {...editorProps}
+      controllers={Controllers}
+      reducer={EditorReducer}
+      localDb={getDbProps(fileMeta, props.localDb)}
+    >
       {props.children}
     </TimelineProvider>
   );
