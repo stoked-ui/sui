@@ -16,7 +16,7 @@ import Box from "@mui/material/Box";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import {alpha, emphasize, Theme} from '@mui/material/styles';
 import { Slider, Stack, Tooltip } from "@mui/material";
-import { namedId } from '@stoked-ui/media-selector';
+import { MediaFile, namedId } from '@stoked-ui/media-selector';
 import { OutputBlob, Version, ToggleButtonGroupEx } from '@stoked-ui/timeline';
 import { useEditorContext } from '../EditorProvider/EditorContext';
 import {
@@ -25,10 +25,10 @@ import {
 import {createUseThemeProps, styled} from '../internals/zero-styled';
 import {ControlState, EditorControlsProps, VideoVersionFromKey} from './EditorControls.types';
 import TimelineView from '../icons/TimelineView';
+import { SUVideoFile } from "../EditorFile/EditorFile";
 
 export const Rates = [-3, -2.5, -2.0, -1.5, -1.0, -0.5, -0.2, 0.2, 0.5, 1.0, 1.5, 2.0, 2.5, 3];
 const useThemeProps = createUseThemeProps('MuiEditor');
-
 
 const ViewGroup = styled(ToggleButtonGroup)(() => ({
   background: 'unset!important',
@@ -183,10 +183,11 @@ type ControlProps =  {
 }
 
 function Controls(inProps: ControlProps) {
-  const { engine, file, id } = useEditorContext();
+  const { dispatch, engine, file, id } = useEditorContext();
   const editorEngine = engine as IEditorEngine;
   const controlsInput: string = '';
   const [controls, setControls] = React.useState<string>(controlsInput);
+  const { flags } = useEditorContext();
 
   useThemeProps({ props: inProps, name: 'MuiControls' });
   const { setVideoURLs, controlState, versions, setVersions, setControlState, disabled } = inProps;
@@ -255,21 +256,19 @@ function Controls(inProps: ControlProps) {
       type: "video/mp4",
     });
 
-    const dbKey = `${id}|${versions.length + 1}`;
-    const version = VideoVersionFromKey(dbKey);
-    const created = Date.now();
-    const outputBlob: OutputBlob = {
-      blob,
+    const videoFile = new File([blob], `${file.name}.mp4`, { type: "video/mp4" });
+    const videoMediaFile = new MediaFile(videoFile);
+    const suiVideo = new SUVideoFile({
+      file: videoMediaFile,
       version: file?.version,
       sourceId: file?.id,
       name: file?.name,
       created: Date.now(),
       size: blob.size,
-      id: namedId('screener')
-    };
-    file?.saveOutput(outputBlob).then(() => {
-      setVersions([...versions, version]);
+      id: namedId('sui-video'),
     });
+
+    dispatch({ type: 'VIDEO_CREATED', payload: suiVideo });
 
     const url = URL.createObjectURL(blob);
     setVideoURLs((prev) => [url, ...prev]);
@@ -398,11 +397,11 @@ function Controls(inProps: ControlProps) {
         <ToggleButton onClick={handleEnd} value="end" aria-label="lock">
           <SkipNextIcon/>
         </ToggleButton>
-        <ToggleButton value="record" onClick={() => {
+        {flags.includes('record') && <ToggleButton value="record" onClick={() => {
           stateFunc('record', handleRecord, handleRecordStop)
         }}>
           {controlState === 'recording' ? <StopIcon/> : <RecordIcon/>}
-        </ToggleButton>
+        </ToggleButton>}
       </ToggleButtonGroupEx>
     </div>)
 }

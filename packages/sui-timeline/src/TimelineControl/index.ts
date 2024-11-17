@@ -1,3 +1,3 @@
 export * from './timelineControlClasses';
-export * from './TimelineControl.types';
-export * from './TimelineControlProps';
+export * from '../Timeline/TimelineControl.types';
+export * from '../Timeline/TimelineControlProps';

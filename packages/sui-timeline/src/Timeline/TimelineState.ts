@@ -18,7 +18,7 @@ export interface TimelineState<EmitterEvents extends EventTypes = EventTypes,> {
   /** Set the current playback time */
   setTime: (time: number, move?: boolean) => void;
   /** Get the current playback time */
-  getTime: () => number;
+  get time(): number;
   /** Set playback rate */
   setPlayRate: (rate: number) => void;
   /** Set playback rate */

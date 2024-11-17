@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {styled} from "@mui/material/styles";
 import { AutoSizer } from 'react-virtualized';
-import {type TimelineControlPropsBase} from '../TimelineControl/TimelineControl.types';
+import {type TimelineControlPropsBase} from '../Timeline/TimelineControl.types';
 import {prefix} from '../utils/deal_class_prefix';
 import {parserTimeToPixel} from '../utils/deal_data';
 import TimelineTrackAreaDragLines from './TimelineTrackAreaDragLines';
@@ -9,7 +9,7 @@ import TimelineTrack from '../TimelineTrack/TimelineTrack';
 import {TimelineTrackAreaProps} from './TimelineTrackArea.types'
 import {useDragLine} from './useDragLine';
 import {useTimeline} from "../TimelineProvider";
-import {TimelineFile} from "../TimelineFile";
+import TimelineFile from "../TimelineFile";
 
 /** edit area ref data */
 export interface TimelineTrackAreaState {

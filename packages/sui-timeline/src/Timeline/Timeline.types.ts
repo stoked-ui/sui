@@ -6,11 +6,9 @@ import { type IController } from '../Controller/Controller.types';
 import {TimelineClasses} from './timelineClasses';
 import {type ITimelineTrack} from "../TimelineTrack/TimelineTrack.types";
 import {type TimelineLabelsProps} from "../TimelineLabels/TimelineLabels.types";
-import {type TimelineState} from "./TimelineState";
-import {TimelineControlProps} from "../TimelineControl";
+import {TimelineControlProps} from "./TimelineControlProps";
 import { ITimelineAction, ITimelineFileAction } from "../TimelineAction";
 import { ITimelineFile } from "../TimelineFile";
-import { useTimeline } from "../TimelineProvider";
 
 export type TimelineComponent = ((
   props: TimelineProps & React.RefAttributes<HTMLDivElement>,
@@ -107,7 +105,6 @@ export interface TimelineProps
    * The system prop that allows defining system overrides as well as additional CSS styles.
    */
   sx?: SxProps<Theme>;
-  timelineState?: React.RefObject<TimelineState>;
 
   trackSx?: SxProps<Theme>;
 

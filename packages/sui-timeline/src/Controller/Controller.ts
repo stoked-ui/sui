@@ -1,5 +1,7 @@
-import {type IController } from "./Controller.types";
-import {ControllerParams} from './ControllerParams';
+import { GetBackgroundImage, type IController } from "./Controller.types";
+import { ControllerParams, PreloadParams } from './ControllerParams';
+import type { BackgroundImageStyle, ITimelineAction } from "../TimelineAction";
+import type { IEngine } from "../Engine";
 
 abstract class Controller implements IController {
   id: string;
@@ -26,15 +28,35 @@ abstract class Controller implements IController {
     this.colorSecondary = options.colorSecondary;
   }
 
-  static getVol(volumePart: [volume: number, start?: number, end?: number]) {
-    return { volume: volumePart[0], start: volumePart[1], end: volumePart[2] };
-  }
+  viewerUpdate?: (engine: any) => void;
+
+  // eslint-disable-next-line class-methods-use-this
+  destroy(){ };
+
+  getBackgroundImage?: GetBackgroundImage;
+
+  // eslint-disable-next-line class-methods-use-this,@typescript-eslint/no-unused-vars
+  getActionStyle(action: ITimelineAction, scaleWidth: number, scale: number, trackHeight: number) { return null };
 
   abstract getElement(actionId: string): any
+
+  // eslint-disable-next-line class-methods-use-this
+  start(params: { action: ITimelineAction, time: number, engine: IEngine }) { }
+
+  // eslint-disable-next-line class-methods-use-this
+  stop(params: { action: ITimelineAction, time: number, engine: IEngine }) { }
 
   abstract enter(params: ControllerParams): void;
 
   abstract leave(params: ControllerParams): void;
+
+  abstract update(params: { action: ITimelineAction, time: number, engine: IEngine }): void
+
+  async preload(params: PreloadParams): Promise<ITimelineAction> { return params.action; }
+
+  static getVol(volumePart: [volume: number, start?: number, end?: number]) {
+    return { volume: volumePart[0], start: volumePart[1], end: volumePart[2] };
+  }
 
   static getActionTime(params: ControllerParams) {
     const { action, time } = params;
@@ -60,11 +82,6 @@ abstract class Controller implements IController {
     if (action.volumeIndex === -1) {
       for (let i = 0; i < action.volume!.length; i += 1) {
         const { volume, start, end } = Controller.getVol(action.volume![i]);
-
-        if (volume < 0 || volume > 1) {
-          console.warn(`${action.name} `)
-        }
-
         if ((start === undefined || actionTime >= start) && (end === undefined || actionTime < end)) {
           return { volume, volumeIndex: i };
         }

@@ -7,7 +7,7 @@ import {EditorPluginParameters, EditorPluginSignatures, EditorPluginSlotProps, E
 import {EditorClasses} from './editorClasses';
 import { EditorExperimentalFeatures, EditorPublicAPI } from '../internals/models';
 import { IEditorFileAction } from "../EditorAction";
-import { IEditorFile } from "./EditorFile";
+import EditorFile, { IEditorFile } from "../EditorFile/EditorFile";
 import Controllers from '../Controllers/Controllers';
 
 
@@ -56,32 +56,36 @@ export type EditorApiRef = React.MutableRefObject<
 
 export interface EditorPropsBase extends React.HTMLAttributes<HTMLDivElement> {
   actions?: IEditorFileAction[];
+  allControls?: boolean;
   className?: string;
   /**
    * Override or extend the styles applied to the component.
    */
   classes?: Partial<EditorClasses>;
+  detailMode?: boolean;
   file?: IEditorFile;
 
   fileUrl?: string,
+  fileView?: boolean;
+
+  localDb?: boolean;
+
+  labels?: boolean;
+
+  noResizer?: boolean;
+
+  openSaveControls?: boolean;
+
+  record?: boolean;
+
+  snapControls?: boolean;
+
   /**
    * The system prop that allows defining system overrides as well as additional CSS styles.
    */
   sx?: SxProps<Theme>;
 
-  labels?: boolean;
-
-  fileView?: boolean;
-
   trackControls?: boolean;
-
-  snapControls?: boolean;
-
-  openSaveControls?: boolean;
-
-  idb?: boolean;
-
-  record?: boolean;
 }
 
 export interface EditorProps<R extends IMediaFile = IMediaFile, Multiple extends boolean | undefined = true>

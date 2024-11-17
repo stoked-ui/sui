@@ -6,6 +6,7 @@ import {prefix} from '../utils/deal_class_prefix';
 import {parserPixelToTime, parserTimeToPixel} from '../utils/deal_data';
 import TimelineTrackDnd from '../TimelineTrack/TimelineTrackDnd';
 import {RowRndApi} from '../TimelineTrack/TimelineTrackDnd.types';
+import { useTimeline } from "../TimelineProvider";
 
 const CursorRoot = styled('div')(({ theme}) => {
   return {
@@ -58,54 +59,67 @@ function TimelineCursor({
   const rowRnd = React.useRef<RowRndApi>();
   const draggingLeft = React.useRef<undefined | number>();
   const timeInteract = React.useRef<HTMLDivElement>();
-
+  const { engine } = useTimeline();
   React.useEffect(() => {
+    console.info('cursorTime', cursorTime);
     if (typeof draggingLeft.current === 'undefined') {
       // When not dragging, update the cursor scale based on the dragging parameters.
       rowRnd.current.updateLeft(parserTimeToPixel(cursorTime, { startLeft, scaleWidth, scale }) - scrollLeft);
     }
   }, [cursorTime, startLeft, scaleWidth, scale, scrollLeft]);
-const onDrag = ({ left }, scroll = 0) => {
-  const scrollLeftDrag = scrollSync.current.state.scrollLeft;
 
-  if (!scroll || scrollLeftDrag === 0) {
-    // When dragging, if the current left < left min, set the value to left min
-    if (left < startLeft - scrollLeftDrag) {
-      draggingLeft.current = startLeft - scrollLeftDrag;
+  React.useEffect(() => {
+    engine?.on('afterSetTime', ({ time }) => {
+      // setCursor({ time });
+    });
+    engine?.on('setTimeByTick', ({ time }) => {
+      //   setCursor({ time });
+    });
+  }, []);
+
+  const onDrag = ({ left }, scroll = 0) => {
+    const scrollLeftDrag = scrollSync.current.state.scrollLeft;
+
+    if (!scroll || scrollLeftDrag === 0) {
+      // When dragging, if the current left < left min, set the value to left min
+      if (left < startLeft - scrollLeftDrag) {
+        draggingLeft.current = startLeft - scrollLeftDrag;
+      }
+      else {
+        draggingLeft.current = left;
+      }
+    } else if (draggingLeft.current < startLeft - scrollLeftDrag - scroll) {
+      draggingLeft.current = startLeft - scrollLeftDrag - scroll;
     }
-    else {
-      draggingLeft.current = left;
-    }
-  } else if (draggingLeft.current < startLeft - scrollLeftDrag - scroll) {
-    draggingLeft.current = startLeft - scrollLeftDrag - scroll;
+    rowRnd.current.updateLeft(draggingLeft.current);
+    const time = parserPixelToTime(draggingLeft.current + scrollLeftDrag, { startLeft, scale, scaleWidth });
+    setCursor({ time });
+    onCursorDrag?.(time);
+    return false;
   }
-  rowRnd.current.updateLeft(draggingLeft.current);
-  const time = parserPixelToTime(draggingLeft.current + scrollLeftDrag, { startLeft, scale, scaleWidth });
-  setCursor({ time });
-  onCursorDrag?.(time);
-  return false;
-}
-const onDragEnd = () => {
-  const time = parserPixelToTime(draggingLeft.current + scrollLeft, { startLeft, scale, scaleWidth });
-  setCursor({ time });
-  onCursorDragEnd?.(time);
-  draggingLeft.current = undefined;
-}
-const onDragStart = () => {
-  onCursorDragStart?.(cursorTime);
-  draggingLeft.current = parserTimeToPixel(cursorTime, { startLeft, scaleWidth, scale }) - scrollLeft;
-  rowRnd.current.updateLeft(draggingLeft.current);
-}
+
+  const onDragEnd = () => {
+    const time = parserPixelToTime(draggingLeft.current + scrollLeft, { startLeft, scale, scaleWidth });
+    setCursor({ time });
+    onCursorDragEnd?.(time);
+    draggingLeft.current = undefined;
+  }
+
+  const onDragStart = () => {
+    onCursorDragStart?.(cursorTime);
+    draggingLeft.current = parserTimeToPixel(cursorTime, { startLeft, scaleWidth, scale }) - scrollLeft;
+    rowRnd.current.updateLeft(draggingLeft.current);
+  }
+
   const [isDragging, setIsDragging] = React.useState(false);
-  const [position, setPosition] = React.useState({ x: 0, y: 0 });
+  // const [position, setPosition] = React.useState({ x: 0, y: 0 });
 
   const clickTime = (e) => {
     if (hideCursor) {
       return;
     }
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-    const position = e.clientX - rect.x;
-    const left = Math.max(position + scrollLeft, startLeft);
+    const left = Math.max(e.clientX - rect.x + scrollLeft, startLeft);
     if (left > maxScaleCount * scaleWidth + startLeft - scrollLeft) {
       return;
     }
@@ -118,11 +132,10 @@ const onDragStart = () => {
     setCursor({ time });
   }
 
-
   const handleMouseDown = (e) => {
     clickTime(e);
     setIsDragging(true);
-    setPosition({ x: e.clientX, y: e.clientY });
+    // setPosition({ x: e.clientX, y: e.clientY });
   };
 
   const handleMouseMove = (e) => {
@@ -133,7 +146,7 @@ const onDragStart = () => {
         return;
       }
       clickTime(e);
-      setPosition({ x: e.clientX, y: e.clientY });
+      // setPosition({ x: e.clientX, y: e.clientY });
     }
   };
 

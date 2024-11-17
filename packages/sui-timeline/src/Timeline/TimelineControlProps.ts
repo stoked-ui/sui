@@ -1,7 +1,7 @@
 import {OnScrollParams} from "react-virtualized";
 import * as React from "react";
 import {type TimelineControlPropsBase} from "./TimelineControl.types";
-import {type TimelineState} from "../Timeline/TimelineState";
+import {type TimelineState} from "./TimelineState";
 
 /**
  * Animation editor parameters
@@ -43,7 +43,6 @@ export interface TimelineControlProps extends TimelineControlPropsBase {
 
   ref?: React.RefObject<TimelineState>;
 
-  timelineState?: TimelineState;
 
   collapsed?: boolean;
 }
