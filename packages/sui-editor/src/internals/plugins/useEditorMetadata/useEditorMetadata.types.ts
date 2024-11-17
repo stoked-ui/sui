@@ -1,5 +1,5 @@
 import type { ITimelineAction, ITimelineTrack } from '@stoked-ui/timeline';
-import EditorFile from '../../../Editor/EditorFile';
+import EditorFile from '../../../EditorFile/EditorFile';
 import type {DefaultizedProps, EditorPluginSignature} from '../../models';
 import {
   UseEditorKeyboardSignature

@@ -12,7 +12,7 @@ import TimelineLabels from '../TimelineLabels/TimelineLabels';
 import {ITimelineFileAction} from '../TimelineAction/TimelineAction.types';
 import {type TimelineLabelsProps} from '../TimelineLabels/TimelineLabels.types';
 import {useTimeline} from "../TimelineProvider";
-import { TimelineFile } from "../TimelineFile";
+import TimelineFile from "../TimelineFile";
 import { fitScaleData } from "../TimelineTrack";
 import TimelineScrollResizer from "../TimelineScrollResizer";
 import { MIN_SCALE_COUNT, PREFIX, START_CURSOR_TIME } from "../interface/const";
@@ -21,7 +21,7 @@ import TimelineTrackArea, { TimelineTrackAreaState } from "../TimelineTrackArea/
 import TimelineCursor from "../TimelineCursor";
 import { TimelineTrackAreaCollapsed } from "../TimelineTrackArea/TimelineTrackAreaCollapsed";
 import { checkProps, getScaleCountByRows, parserPixelToTime, parserTimeToPixel } from "../utils";
-import { TimelineControlProps } from "../TimelineControl";
+import { TimelineControlProps } from "./TimelineControlProps";
 
 const useUtilityClasses = (ownerState: TimelineProps) => {
   const { classes } = ownerState;
@@ -186,6 +186,7 @@ const Timeline = React.forwardRef(function Timeline(
   // Editor data
   // scale quantity
   const [scaleCount, setScaleCount] = React.useState(MIN_SCALE_COUNT);
+
   // cursor distance
   const [cursorTime, setCursorTime] = React.useState(START_CURSOR_TIME);
   // Current timelineControl width
@@ -356,7 +357,6 @@ const Timeline = React.forwardRef(function Timeline(
   const rootClasses = `${rootProps.className} ${!engine.isLoading ? 'MuiTimeline-loaded' : ''}`
   const TrackArea = inProps.collapsed ? TimelineTrackAreaCollapsed : TimelineTrackArea;
 
-console.log('flags', flags);
   return (
     <Root ref={combinedRootRef} {...rootProps} className={rootClasses} sx={inProps.sx}>
       {(flags.includes('labels') && !flags.includes('collapsed')) && (
@@ -371,7 +371,7 @@ console.log('flags', flags);
             onContextMenu={inProps.onContextMenuTrack}
             onClick={inProps.onLabelClick}
           />
-          {components.timelineArea &&
+          {!flags.includes('noResizer') && components.timelineArea &&
             <TimelineScrollResizer
               scrollSync={scrollSync}
               type='vertical'
@@ -380,7 +380,7 @@ console.log('flags', flags);
                   return false;
                 }
                 // console.info(file.tracks, settings.minScaleCount, settings.maxScaleCount, settings.startLeft, settings.duration, components.timelineArea?.scrollWidth - 7);
-                const scaleData = fitScaleData(file.tracks, settings['minScaleCount'], settings['maxScaleCount'], settings['startLeft'], settings['duration'], labelsRef!.current.scrollWidth - value);
+                const scaleData = fitScaleData(file.tracks, settings['timeline.minScaleCount'], settings['timeline.maxScaleCount'], settings['timeline.startLeft'], settings['timeline.duration'], labelsRef!.current.scrollWidth - value);
                 const timeline =  {
                   ...settings,
                   ...scaleData
@@ -441,12 +441,13 @@ console.log('flags', flags);
                                   disableDrag={engine.isPlaying}
                                   scrollLeft={scrollLeft}
                                   deltaScrollLeft={autoScroll && commonProps.deltaScrollLeft}
+                                  cursorTime={engine.time}
                   />
                 )}
               </React.Fragment>)
             }}
           </ScrollSync>
-          <TimelineScrollResizer
+          {!flags.includes('noResizer') && <TimelineScrollResizer
             scrollSync={scrollSync}
             type='horizontal'
             adjustScale={(value) => {
@@ -455,10 +456,10 @@ console.log('flags', flags);
               }
               const scaleData = fitScaleData(
                 file.tracks,
-                settings['minScaleCount'],
-                settings['maxScaleCount'],
-                settings['startLeft'],
-                settings['duration'],
+                settings['timeline.minScaleCount'],
+                settings['timeline.maxScaleCount'],
+                settings['timeline.startLeft'],
+                settings['timeline.duration'],
                 scrollSync.current.state.clientWidth - value
               );
 
@@ -474,7 +475,7 @@ console.log('flags', flags);
               setScaleCount(timeline.scaleCount);
               return true;
             }}
-          />
+          />}
         </TimelineControlRoot>
         /*
         <Control
@@ -563,7 +564,6 @@ Timeline.propTypes = {
    * The system prop that allows defining system overrides as well as additional CSS styles.
    */
   sx: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),), PropTypes.func, PropTypes.object,]),
-  timelineState: PropTypes.any,
   tracks: PropTypes.any,
   trackSx: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),), PropTypes.func, PropTypes.object,]),
   viewSelector: PropTypes.string,

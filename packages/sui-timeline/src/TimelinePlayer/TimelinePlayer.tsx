@@ -9,6 +9,7 @@ import Select, {SelectChangeEvent} from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import {TimelineState} from '../Timeline/TimelineState';
 import { ITimelineTrack } from '../TimelineTrack/TimelineTrack.types';
+import { useTimeline } from "../TimelineProvider";
 
 export const Rates = [0.2, 0.5, 1.0, 1.5, 2.0];
 
@@ -42,45 +43,40 @@ const RateControlRoot = styled('div')({
 });
 
 function TimelinePlayer({
-  timelineState,
   tracks,
   autoScrollWhenPlay,
   scale = 1,
   scaleWidth = 160,
   startLeft = 20,
 }: {
-  timelineState?: React.RefObject<TimelineState>;
   tracks?: ITimelineTrack[];
   autoScrollWhenPlay: boolean;
   scale?: number;
   scaleWidth?: number;
   startLeft?: number;
 }) {
+  const { engine } = useTimeline();
   const [isPlaying, setIsPlaying] = React.useState(false);
   const [time, setTime] = React.useState(0);
 
   React.useEffect(() => {
-    if (!timelineState || !timelineState.current) {
-      return undefined;
-    }
-    const engine = timelineState.current;
-    engine.listener?.on('play', () => setIsPlaying(true));
-    engine.listener?.on('paused', () => setIsPlaying(false));
-    engine.listener?.on('afterSetTime', ({ time: afterSetTime }) => setTime(afterSetTime));
-    engine.listener?.on('setTimeByTick', ({ time: setTimeByTickTime }) => {
+    engine?.on('play', () => setIsPlaying(true));
+    engine?.on('paused', () => setIsPlaying(false));
+    engine?.on('afterSetTime', ({ time: afterSetTime }) => setTime(afterSetTime));
+    engine?.on('setTimeByTick', ({ time: setTimeByTickTime }) => {
       setTime(setTimeByTickTime);
 
       if (autoScrollWhenPlay) {
         const autoScrollFrom = 500;
         const left = setTimeByTickTime * (scaleWidth / scale) + startLeft - autoScrollFrom;
-        timelineState.current?.setScrollLeft(left);
+        engine.setScrollLeft(left);
       }
     });
 
     return () => {
       if (engine) {
         engine.pause();
-        engine.listener.offAll();
+        engine.offAll();
       }
       return undefined;
     };
@@ -88,22 +84,18 @@ function TimelinePlayer({
 
   // Start or pause
   const handlePlayOrPause = () => {
-    if (!timelineState || !timelineState.current) {
-      return;
-    }
-    if (timelineState.current.isPlaying) {
-      timelineState.current.pause();
+
+    if (engine.isPlaying) {
+      engine.pause();
     } else {
-      timelineState.current.play({ autoEnd: true });
+      engine.play({ autoEnd: true });
     }
   };
 
   // Set playback rate
   const handleRateChange = (event: SelectChangeEvent<number>) => {
-    if (!timelineState || !timelineState.current) {
-      return;
-    }
-    timelineState.current.setPlayRate(event.target.value as number);
+
+    engine.setPlayRate(event.target.value as number);
   };
 
   // Time display
@@ -115,7 +107,7 @@ function TimelinePlayer({
   };
 
   const handleStart = () => {
-    timelineState?.current?.setTime(0);
+    engine.setTime(0);
   };
 
   const handleEnd = () => {
@@ -128,7 +120,7 @@ function TimelinePlayer({
           }
         });
       });
-      timelineState?.current?.setTime(furthest);
+      engine.setTime(furthest);
     }
   };
 

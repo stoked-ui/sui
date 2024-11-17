@@ -1,19 +1,11 @@
-import { IMediaFile } from "@stoked-ui/media-selector";
 import {
   ITimelineFileTrack,
   ITimelineTrack,
-  ITimelineTrackMetadata
+  ITimelineTrackMetadata,
 } from "../TimelineTrack/TimelineTrack.types";
-
-export type DBFileRecord = {
-  id: string,
-  data: Record<string, Blob>
-};
-
-export type DBOutputRecord = {
-  id: string,
-  data: OutputBlob[]
-}
+import { IWebFileProps } from "./WebFile.types";
+import { IProjectFile, IProjectFileProps } from "./ProjectFile";
+import FileTypeMeta from "./FileTypeMeta";
 
 export type OutputBlob = {
   id: string,
@@ -25,48 +17,39 @@ export type OutputBlob = {
   size: number
 };
 
-export interface ITimelineFileBase {
-  id: string,
-  name: string,
-  description?: string,
-  created: number,
-  lastModified?: number,
-  author?: string,
-  size?: number,
-  url?: string;
-}
-
 export interface ITimelineFile<
   TrackType extends ITimelineTrack = ITimelineTrack,
-> extends ITimelineFileBase {
+> extends IProjectFile {
   tracks: TrackType[];
-  readonly initialized: boolean;
-  version: number;
-  saveOutput(blob: OutputBlob): Promise<IDBValidKey>;
-  save(silent?: boolean): Promise<void>;
-  initialize(initAction: (actionFile: any, index: number) => any): Promise<void>;
-  loadOutput(): Promise<IMediaFile[] | undefined>;
-  saveDb(blob: Blob): Promise<IDBValidKey>;
+
   get fileProps(): ITimelineFileProps;
 }
 
+export class TimelineFileMeta extends FileTypeMeta {
 
-export interface ITimelineFileProps<FileTrackType = ITimelineFileTrack> {
-  id?: string;
-  name?: string;
-  description?: string;
-  author?: string
-  created?: number;
-  lastModified?: number;
-  backgroundColor?: string;
-  width?: number;
-  height?: number;
-  url?: string;
+  description: string = 'Stoked UI - Timeline Project File';
+
+  ext: `.${string}` = '.sut'
+
+  name: string = 'timeline'
+}
+
+export class TimelineOutputFileMeta extends FileTypeMeta {
+
+  description: string = 'Stoked UI - Timeline Audio File';
+
+  ext: `.${string}` = '.suta'
+
+  name: string = 'timeline-audio'
+}
+
+export interface ITimelineFileProps<FileTrackType = ITimelineFileTrack> extends IProjectFileProps {
+  // backgroundColor?: string;
   image?: string;
   tracks?: FileTrackType[];
 }
 
-export type ITimelineFileMetadata = Omit<ITimelineFile, 'tracks' | 'video' | '_fileTracks' | 'initialized'> & {
+export type ITimelineFileMetadata = Omit<ITimelineFile, 'tracks' | 'video' | '_fileTracks' | 'fileProps' | 'save' | 'initialize' | 'fileMeta' | 'createBlob'> & {
   tracks: ITimelineTrackMetadata[]
 }
 

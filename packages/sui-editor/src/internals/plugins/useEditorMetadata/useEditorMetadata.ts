@@ -4,7 +4,7 @@ import {
   UseEditorMetadataDefaultizedParameters, UseEditorMetadataParameters, UseEditorMetadataSignature,
 } from './useEditorMetadata.types';
 import {EditorPlugin} from '../../models';
-import EditorFile from 'packages/sui-editor/src/Editor/EditorFile';
+import EditorFile from '../../../EditorFile/EditorFile';
 
 export const useEditorMetadata: EditorPlugin<UseEditorMetadataSignature> = ({
   params,

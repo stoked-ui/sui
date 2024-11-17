@@ -22,7 +22,7 @@ import {
   initEditorAction
 } from "../EditorAction/EditorAction";
 import { IEditorTrack } from "../EditorTrack/EditorTrack";
-import EditorFile, { IEditorFile } from "../Editor/EditorFile";
+import EditorFile, { IEditorFile, SUVideoFile } from "../EditorFile/EditorFile";
 import { EditorEngineState, IEditorEngine } from "../EditorEngine";
 import {
   DetailData,
@@ -70,8 +70,8 @@ export const onAddFiles = (state: IEditorState, newMediaFiles: IMediaFile[]) => 
     actions: [{
       id: namedId('action'),
       name: file.name,
-      start: engine.getTime() || 0,
-      end: (engine.getTime() || 0) + 2,
+      start: engine.time || 0,
+      end: (engine.time || 0) + 2,
       volumeIndex: -2,
       width: file.width,
       height: file.height,
@@ -154,6 +154,9 @@ export type EditorStateAction<
   payload: FileType
 } | {
   type: 'CLOSE_DETAIL'
+} | {
+  type: 'VIDEO_CREATED',
+  payload: SUVideoFile,
 } | SetContextActions
 
 const setContext = (key: string, state: IEditorState, stateAction: SetContextActions) => {

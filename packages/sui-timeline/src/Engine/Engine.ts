@@ -10,7 +10,7 @@ import { type ITimelineTrack} from '../TimelineTrack/TimelineTrack.types';
 import {Events, type EventTypes} from './events'
 import {Emitter} from './emitter';
 import { RowRndApi } from "../TimelineTrack/TimelineTrackDnd.types";
-import { TimelineFile } from "../TimelineFile/TimelineFile";
+import TimelineFile from "../TimelineFile/TimelineFile";
 
 
 /**
@@ -183,6 +183,10 @@ export default class Engine<
     return this._state === 'paused' as State;
   }
 
+  get controllers() {
+    return this._controllers;
+  }
+
   set controllers(controllers: Record<string, IController>) {
     this._controllers = controllers;
     this.logging = this._logging;
@@ -267,7 +271,7 @@ export default class Engine<
    * @return {*} {number}
    * @memberof Engine
    */
-  getTime(): number {
+  get time(): number {
     return this._currentTime;
   }
 
@@ -284,7 +288,7 @@ export default class Engine<
   }): boolean {
     const { toTime, autoEnd } = param;
 
-    const currentTime = this.getTime();
+    const currentTime = this.time;
     /** The current state is being played or the running end time is less than the start time, return directly */
     if (this.isPlaying || (toTime && toTime <= currentTime)) {
       return false;
@@ -346,9 +350,9 @@ export default class Engine<
       const action = this._actionMap[key];
       const track = this._actionTrackMap[action.id];
       if (type === 'start' && track?.controller?.start && !track.hidden) {
-        track.controller.start({action, time: this.getTime(), engine: this as IEngine });
+        track.controller.start({action, time: this.time, engine: this as IEngine });
       } else if (type === 'stop' && track?.controller?.stop && !track.hidden) {
-        track.controller.stop({action, time: this.getTime(), engine: this as IEngine });
+        track.controller.stop({action, time: this.time, engine: this as IEngine });
       }
     });
   }
@@ -358,7 +362,7 @@ export default class Engine<
     if (!this._logging) {
       return;
     }
-    let finalMsg = `${this.getTime().toFixed(3)} - ${msg}`;
+    let finalMsg = `${this.time.toFixed(3)} - ${msg}`;
     if (ctx) {
       finalMsg = `${finalMsg} [${ctx}]`
     }
@@ -374,7 +378,7 @@ export default class Engine<
     this.log('tick')
     const { now, autoEnd = true, to } = data;
 
-    const initialTime = this.getTime();
+    const initialTime = this.time;
     // Calculate the current time
     let currentTime = initialTime + (Math.min(1000, now - this._prev) / 1000) * this._playRate;
     currentTime = Math.max(0, currentTime);
@@ -431,7 +435,7 @@ export default class Engine<
       const action = this._actionMap[key];
       const track = this._actionTrackMap[action.id];
       if (track.controller && track.controller?.update) {
-        track.controller.update({action, time: this.getTime(), engine: this as IEngine });
+        track.controller.update({action, time: this.time, engine: this as IEngine });
       }
     });
 
@@ -457,7 +461,7 @@ export default class Engine<
           const track = this._actionTrackMap[action.id];
           const controller = track.controller;
           if (controller?.leave) {
-            controller.leave({action, time: this.getTime(), engine: this as IEngine});
+            controller.leave({action, time: this.time, engine: this as IEngine});
           }
         }
       } else {
@@ -486,7 +490,7 @@ export default class Engine<
         if (action.end > time && active.indexOf(actionId) === -1 && !track.hidden) {
           const controller = track.controller;
           if (controller && controller?.enter) {
-            controller.enter({action, time: this.getTime(), engine: this as IEngine});
+            controller.enter({action, time: this.time, engine: this as IEngine});
           }
 
           this._activeIds.set(this._next, actionId);
@@ -510,7 +514,7 @@ export default class Engine<
           const controller = track.controller;
 
           if (controller && controller?.leave) {
-            controller.leave({action, time: this.getTime(), engine: this as IEngine});
+            controller.leave({action, time: this.time, engine: this as IEngine});
           }
 
           this._activeIds.delete(value);

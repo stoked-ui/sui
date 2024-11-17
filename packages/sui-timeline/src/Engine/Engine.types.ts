@@ -47,7 +47,7 @@ export interface IEngine<EmitterEvents extends EventTypes = EventTypes> extends 
   /** Set playback time */
   setTime(time: number, isTick?: boolean): boolean;
   /** Get playback time */
-  getTime(): number;
+  get time(): number;
   /** Play */
   play(param: {
     /** By default, it runs from beginning to end, with a priority greater than autoEnd */

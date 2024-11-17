@@ -11,7 +11,7 @@ import { DetailProject } from './DetailProject';
 import { DetailAction } from './DetailAction';
 import { RootBox } from "./Detail";
 import DetailProvider, { useDetail } from "./DetailProvider";
-import { IEditorFile } from "../Editor/EditorFile";
+import { IEditorFile } from "../EditorFile/EditorFile";
 
 export const DetailView = React.forwardRef(function DetailView({ onClose }: { onClose: () => void}, ref: React.Ref<HTMLDivElement>) {
   const { detail, dispatch } = useDetail();
@@ -83,7 +83,7 @@ function DetailModal () {
     return undefined;
   }
   return (<Modal
-    open={detailOpen}
+    open={!!detailOpen}
     onClose={onClose}
     aria-labelledby="modal-modal-title"
     aria-describedby="modal-modal-description"

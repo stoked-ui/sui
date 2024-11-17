@@ -1,8 +1,9 @@
 import * as React from 'react';
 import { IMediaFile, namedId } from '@stoked-ui/media-selector';
 import { isMobile } from 'react-device-detect';
-import { IController } from "../Controller";
-import { ITimelineFile, TimelineFile} from "../TimelineFile";
+import { Controllers, IController } from "../Controller";
+import Controller from '../Controller/Controller';
+import TimelineFile, { FileTypeMeta, ITimelineFile } from "../TimelineFile";
 import { EngineState, IEngine } from "../Engine";
 import { type ITimelineTrack } from "../TimelineTrack";
 import {
@@ -15,6 +16,7 @@ import {
   ITimelineFileAction
 } from "../TimelineAction/TimelineAction.types";
 import Settings from "./Settings";
+import { LocalDbProps } from '../LocalDb/LocalDb';
 
 export interface ITimelineState<
   EngineType extends IEngine = IEngine,
@@ -34,6 +36,8 @@ export interface ITimelineState<
   getState: () => string | State;
   setState: (newState: string | State) => void;
   components: Record<string, HTMLElement>;
+  controllers: Record<string, Controller>;
+  localDbProps: LocalDbProps | null;
 }
 
 export const onAddFiles = <
@@ -42,32 +46,10 @@ export const onAddFiles = <
   FileType extends ITimelineFile = ITimelineFile,
   ActionType extends ITimelineAction = ITimelineAction,
   TrackType extends ITimelineTrack = ITimelineTrack,
->(state: ITimelineState<EngineType, State, FileType, ActionType, TrackType>, newMediaFiles: IMediaFile[]) => {
-  const { engine, file } = state;
+>(state: ITimelineState<EngineType, State, FileType, ActionType, TrackType>, newTracks) => {
+  const { file } = state;
 
-  if (!file) {
-    return state;
-  }
-
-  const { tracks } = file;
-  newMediaFiles = newMediaFiles.filter((mediaFile) => engine.controllers[mediaFile.mediaType])
-  const newTracks = newMediaFiles.map((mediaFile) => {
-    return {
-      id: namedId('track'),
-      name: mediaFile.name,
-      file: mediaFile,
-      controller: TimelineFile.globalControllers[mediaFile.mediaType] as IController,
-      actions: [{
-        id: namedId('action'),
-        name: file.name,
-        start: engine.getTime() || 0,
-        end: (engine.getTime() || 0) + 2,
-        volumeIndex: -2,
-      }] as ActionType[],
-      controllerName: mediaFile.mediaType,
-    } as ITimelineTrack;
-  })
-  state.file.tracks = tracks.concat(newTracks);
+  state.file.tracks = file?.tracks.concat(newTracks);
   return {...state};
 }
 
@@ -101,7 +83,7 @@ export type TimelineStateAction<
   }
 } | {
   type: 'CREATE_TRACKS',
-  payload: IMediaFile[]
+  payload: ITimelineTrack[]
 } | {
   type: 'SET_SNAP_FLAGS',
   payload: string[]
@@ -180,10 +162,10 @@ const flagTriggers = {
   labels: {
     'timeline.startLeft': {
       enabled: 7,
-      disabled: 72,
+      disabled: 7,
     },
   }
-}
+}/*
 const settingOverrides = Object.keys(Object.values(flagTriggers)) as string[];
 const settingOverridesEnabled = settingOverrides.reduce((acc, overrideKey ) => {
   acc[overrideKey] = false;
@@ -207,16 +189,25 @@ function executeFlagTriggers(set: string[], values: string[], state: ITimelineSt
   })
   return state;
 }
+*/
 
 export function setFlags(set: string[], values: string[], state: ITimelineState) {
   const newState = {
     ...state,
     flags: [...state.flags].filter((flag) => !set.includes(flag))
   }
+ /* let { flags } = newState;
+  if (set.includes('detailMode') && values.includes('detailMode')) {
+     flags = flags.filter((flag) => !['noResizer', 'record', 'labels'].includes(flag));
+     flags.push('noResizer');
+  }
+  if (set.includes('allControls') && values.includes('allControls')) {
+    flags = flags.filter((flag) => !['fileView', 'trackControls', 'snapControls', 'openSaveControls'].includes(flag));
+    flags.push('fileView', 'trackControls', 'snapControls', 'openSaveControls');
+  }*/
   newState.flags = newState.flags.concat(values);
-  return executeFlagTriggers(set, values, newState);
+  return newState;
 }
-
 
 function isObject(value: any): boolean {
   return typeof value === 'object' && value !== null;
@@ -302,15 +293,15 @@ export function TimelineReducer(state: ITimelineState, stateAction: TimelineStat
           return obj;
         }, {});
         Object.entries(result).forEach(([nestedKey, nestedValue]) => {
-          if (!settingOverridesEnabled[nestedKey]) {
+          // if (!settingOverridesEnabled[nestedKey]) {
             newState = setSetting(nestedKey, nestedValue, newState);
-          }
+          // }
         });
         return newState;
       }
-      if (!settingOverridesEnabled[key]) {
+      // if (!settingOverridesEnabled[key]) {
         newState =  setSetting(key, value, state);
-      }
+      // }
       return newState;
     }
     case 'SET_FLAGS': {
@@ -367,6 +358,7 @@ export interface TimelineProviderProps<
   controllers?: Record<string, IController>,
   engine?: EngineType,
   reducer?: (state: State, stateAction: StateActionType) => State;
+  localDb?: LocalDbProps | false;
 }
 
 export const initialTimelineState: Omit<ITimelineState, 'engine' | 'getState' | 'setState'> = {
@@ -378,4 +370,27 @@ export const initialTimelineState: Omit<ITimelineState, 'engine' | 'getState' | 
   id: 'timeline',
   file: null,
   components: {},
+  controllers: Controllers,
+  localDbProps: null,
+}
+
+export function getDbProps(fileMeta: FileTypeMeta, localDbProps?: LocalDbProps | false): LocalDbProps {
+  switch (localDbProps) {
+    case false:
+      return {
+        dbName: fileMeta.applicationName,
+        stores: [fileMeta.name],
+        initializeStores: [fileMeta.name],
+        disabled: true,
+      };
+    case undefined:
+      return {
+        dbName: fileMeta.applicationName,
+        stores: [fileMeta.name],
+        initializeStores: [fileMeta.name],
+        disabled: false,
+      }
+    default:
+      return localDbProps;
+  }
 }

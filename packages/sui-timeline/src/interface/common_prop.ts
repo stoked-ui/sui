@@ -1,4 +1,4 @@
-import {TimelineControlProps} from "../TimelineControl/TimelineControlProps";
+import {TimelineControlProps} from "../Timeline/TimelineControlProps";
 
 /** Component public parameters */
 export interface CommonProps extends TimelineControlProps {
