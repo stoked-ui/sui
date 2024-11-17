@@ -1,12 +1,8 @@
-import {styled} from "@mui/material/styles";
+import { alpha, styled } from "@mui/material/styles";
 import * as React from "react";
-import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import LockIcon from "@mui/icons-material/Lock";
-import LockOpenIcon from "@mui/icons-material/LockOpen";
-import {IconButton, Typography} from "@mui/material";
+import { Box, IconButton, Typography } from "@mui/material";
+import { shouldForwardProp } from "@mui/system/createStyled";
 import AddIcon from "@mui/icons-material/Add";
-import ToggleButton from "@mui/material/ToggleButton";
 import { getTrackBackgroundColor, ITimelineTrack } from "../TimelineTrack";
 import {IController} from "../Controller";
 import {TimelineLabelsClasses} from "./timelineLabelsClasses";
@@ -82,19 +78,76 @@ const TimelineLabelContainer = styled('div', {
     }]
   }
 });
-/*
-,{
-      props: { hover: true },
-      style: {
-        background: `linear-gradient(to right,${alpha(color, (theme.palette.mode === 'dark' ? .835 : .65))}, 70%, ${endColor})`,
-      }
-    },{
-      props: { selected: true},
-      style: {
-        background: `linear-gradient(to right,${color}, 70%, ${theme.palette.action.active})`,
-      }
+
+const TrackLabel = styled('label', {
+  name: 'MuiTimelineAction',
+  slot: 'root',
+  overridesResolver: (props, styles) => styles.root,
+  shouldForwardProp: (prop) => shouldForwardProp(prop) && prop !== 'color',
+})<{
+  hover: boolean;
+  color: string;
+}>(({ theme, hover }) => {
+
+  const bgColor = alpha(theme.palette.background.default, .95);
+  return {
+    '& p': {
+      color: theme.palette.text.primary,
+      textWrap: 'none',
+      whiteSpace: 'nowrap',
+      position: 'sticky',
+      left: 0,
+    },
+    padding: '3px 6px',
+    display: 'flex-inline',
+    width: 'min-content',
+    borderRadius: '4px',
+    background: bgColor,
+    position: 'relative',
+    margin: '8px 0px',
+    alignSelf: 'center',
+    overflow: 'auto',
+    opacity: hover ? '1' : '0',
+    marginRight: '8px',
+    transition: hover ? 'opacity .4s ease-in' : 'opacity .4s 1s ease-out',
+    zIndex: 200,
+  }
+});
+
+export function TimelineTrackLabel({track, areaRef }: {track: ITimelineTrack, areaRef: React.RefObject<HTMLDivElement>}) {
+  const { settings, flags } = useTimeline();
+  const labelRef = React.useRef<HTMLDivElement>(null);
+  React.useEffect(() => {
+    if (labelRef.current && areaRef?.current?.clientWidth !== labelRef.current?.clientWidth) {
+      labelRef.current.style.width = `${areaRef.current.clientWidth - 8}px`;
     }
- */
+  }, [areaRef?.current?.clientWidth]);
+
+  React.useEffect(() => {
+    if ((labelRef?.current?.style?.left !== undefined) && areaRef?.current?.scrollLeft !== parseInt(labelRef.current?.style.left, 10)) {
+      labelRef.current.style.left = `${areaRef?.current?.scrollLeft}px`;
+    }
+  }, [areaRef?.current?.scrollLeft]);
+
+  return (
+    <Box sx={{ width: '100%', display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }} ref={labelRef}>
+      {!flags.includes('labels') && <TimelineTrackActions track={track} />}
+      {flags.includes('labels') && <div/>}
+      <TrackLabel color={`${track?.controller?.color}`} hover={settings['track-hover'] === track.id} >
+        <Typography variant="body2" color="text.primary"
+                    sx={(theme) => ({
+                      color: `${theme.palette.mode === 'light' ? '#000' : '#FFF'}`,
+                      fontWeight: '500',
+                      zIndex: 1000,
+                    })}>
+          {track.name}
+        </Typography>
+
+      </TrackLabel>
+    </Box>
+  )
+}
+
 const TimelineLabelText = styled('div', {
   name: 'MuiTimelineLabels',
   slot: 'label',
@@ -121,14 +174,14 @@ const TimelineLabel = React.forwardRef(
       track: ITimelineTrack,
       classes: TimelineLabelsClasses,
       controller?: IController,
-      onClick: (track: ITimelineTrack) => void,
+      onClick: (event: React.MouseEvent<HTMLElement>, track: ITimelineTrack) => void,
       hideLock?: boolean,
       trackHeight: number,
       collapsed?: boolean
     },
     ref: React.Ref<HTMLDivElement>
   ): React.JSX.Element {
-    const { settings, file, selectedTrack, dispatch } = useTimeline();
+    const { settings, flags, file, selectedTrack, dispatch } = useTimeline();
     const { track, classes, controller, onClick } = inProps;
 
     const trackIndex = file?.tracks?.findIndex((t) => t.id === track.id);
@@ -160,8 +213,8 @@ const TimelineLabel = React.forwardRef(
               }
             }
           }}
-          onClick={() => {
-            onClick(track)
+          onClick={(event: React.MouseEvent<HTMLElement>) => {
+            onClick(event, track)
           }}
           onMouseEnter={(() => {
             dispatch({ type: 'SET_SETTING', payload: { key: 'track-hover', value: track.id } })
@@ -177,7 +230,7 @@ const TimelineLabel = React.forwardRef(
           <TimelineLabelText trackHeight={settings['timeline.trackHeight']}>
             <Typography variant="button" color="text.secondary" >{track.name}</Typography>
           </TimelineLabelText>
-          {(file && track.id !== 'newTrack') && <TimelineTrackActions track={track} />}
+          {(flags.includes('trackControls') && file && track.id !== 'newTrack') && <TimelineTrackActions track={track} />}
         </TimelineLabelContainer>
       </TimelineLabelRoot>
     );

@@ -6,7 +6,7 @@ import {
   DetailReducer,
   IDetailState
 } from './DetailProvider.types';
-import EditorFile, { IEditorFile, IEditorFileProps } from '../Editor/EditorFile';
+import EditorFile, { IEditorFile, IEditorFileProps } from '../EditorFile/EditorFile';
 import { IEditorFileTrack, IEditorTrack } from '../EditorTrack/EditorTrack';
 import { IEditorAction, IEditorFileAction } from '../EditorAction/EditorAction';
 import EditorEngine, { EditorEvents, IEditorEngine } from "../EditorEngine";

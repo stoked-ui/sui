@@ -129,15 +129,6 @@ export default class EditorEngine<
   }
 
   /**
-   * Get the current time
-   * @return {*} {number}
-   * @memberof Engine
-   */
-  getTime(): number {
-    return this._currentTime;
-  }
-
-  /**
    * Run: The start time is the current time
    * @param param
    * @return {boolean} {boolean}
@@ -149,7 +140,7 @@ export default class EditorEngine<
   }): boolean {
     const {toTime, autoEnd} = param;
 
-    const currentTime = this.getTime();
+    const currentTime = this.time;
 
     /** The current state is being played or the running end time is less than the start time, return directly */
     if (this.isPlaying || (toTime && toTime <= currentTime)) {
@@ -315,7 +306,7 @@ export default class EditorEngine<
         if (action.end > time && active.indexOf(actionId) === -1 && !track.hidden) {
           const controller = track.controller;
           if (controller && controller?.enter) {
-            controller.enter({action, time: this.getTime(), engine: this as IEditorEngine});
+            controller.enter({action, time: this.time, engine: this as IEditorEngine});
           }
 
           this._activeIds.set(action.z, actionId);

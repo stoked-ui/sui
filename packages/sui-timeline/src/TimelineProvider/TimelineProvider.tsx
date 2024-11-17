@@ -1,14 +1,15 @@
 import * as React from 'react';
 import Engine, { EngineState, IEngine } from "../Engine";
-
 import {
   TimelineProviderProps,
   ITimelineState,
   initialTimelineState,
   TimelineReducer,
   TimelineContext,
-  TimelineContextType, TimelineStateAction
+  TimelineContextType, TimelineStateAction, getDbProps
 } from './TimelineProvider.types';
+import LocalDb, { initDb } from "../LocalDb";
+import TimelineFile, { TimelineFileMeta } from "../TimelineFile";
 
 function TimelineProvider<
   EngineType extends IEngine = IEngine,
@@ -32,9 +33,17 @@ function TimelineProvider<
     setState
   };
 
+  const fileMeta = new TimelineFileMeta();
   const reducer = props.reducer ?? TimelineReducer;
   const [state, dispatch] = React.useReducer(reducer, initialState);
+  const { flags } = state;
+  React.useEffect(() => {
 
+    if (!LocalDb.initialized) {
+      LocalDb.init(props.localDb ? props.localDb : getDbProps(fileMeta, props.localDb));
+    }
+
+  }, [flags.includes('localDb')]);
 
   return (
     <TimelineContext.Provider value={React.useMemo(() => ({ ...state, dispatch }), [state, dispatch])}>

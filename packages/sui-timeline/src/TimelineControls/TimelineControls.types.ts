@@ -45,7 +45,6 @@ export interface EditorControlsPropsBase extends React.HTMLAttributes<HTMLDivEle
   * @default 20
   */
   startLeft?: number;
-  timelineState: React.RefObject<TimelineState>;
   autoScroll: boolean;
   view: 'timeline' | 'files',
   setView: (newView: 'timeline' | 'files') => void;

@@ -37,8 +37,11 @@ export default function EditorHero({ id, sx }: { id: string, sx?: SxProps}) {
             snapControls
             labels
             fileView
+            record
             openSaveControls
-            file={EditorExample} />
+            file={EditorExample}
+            /* fileUrl={'/static/editor/stoked-ui.sue'} */
+          />
         </EditorProvider>
       </Card>
       </div>

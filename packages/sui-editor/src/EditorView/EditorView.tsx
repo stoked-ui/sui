@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { IMediaFile, MediaFile } from '@stoked-ui/media-selector';
-import { useTimeline } from "@stoked-ui/timeline";
+import { useTimeline, WebFile } from "@stoked-ui/timeline";
 import SettingsIcon from '@mui/icons-material/Settings';
 import SaveIcon from '@mui/icons-material/Save';
 import OpenIcon from '@mui/icons-material/OpenInBrowser';
@@ -14,7 +14,7 @@ import {EditorViewProps} from './EditorView.types';
 import {getEditorViewUtilityClass} from "./editorViewClasses";
 import {useEditorContext} from "../EditorProvider/EditorContext";
 import Loader from "../Editor/Loader";
-import EditorFile from '../Editor/EditorFile';
+import EditorFile, { EditorFileType, SUVideoFileType } from '../EditorFile/EditorFile';
 import { initEditorAction } from "../EditorAction";
 
 const useThemeProps = createUseThemeProps('MuiEditorView');
@@ -111,6 +111,84 @@ const Stage = styled('div', {
   vIndex: 100,
 }));
 
+function OpenSaveControls() {
+
+  const { dispatch, file } = useEditorContext();
+
+  const [fileIsDirty, setIsDirty] = React.useState<boolean>(false);
+  React.useEffect(() => {
+    const isFileDirty = async () => {
+      const isDirty = await (file as EditorFile)?.isDirty();
+      setIsDirty(isDirty);
+    }
+
+    isFileDirty().catch();
+
+  }, [file])
+  const saveHandler = async () => {
+    if (!file) {
+      return;
+    }
+    file.save().then(() => {
+      console.info('file saved');
+    });
+  }
+
+  const openHandler = async () => {
+    const input = document.createElement('input') as HTMLInputElement;
+    input.type = 'file';
+
+    async function handleFiles() {
+      if (!input.files) {
+        return;
+      }
+      const files = Array.from(input.files);
+      if (files.length) {
+        for (let i = 0; i < files.length; i += 1) {
+          const clientFile = files[i];
+          // eslint-disable-next-line no-await-in-loop
+          const loadedFile = await WebFile.fromBlob<SUVideoFileType, EditorFile<EditorFileType>>(clientFile);
+          dispatch({ type: 'SET_FILE', payload: loadedFile });
+        }
+      }
+    }
+    input.addEventListener("change", handleFiles, false);
+
+    input.click();
+  }
+
+
+  return <React.Fragment>
+    {fileIsDirty && <IconButton
+      id={'save'}
+      aria-label="save"
+      sx={{
+        position: 'absolute',
+        right: '80px',
+        alignContent: 'top',
+        borderRadius: '24px',
+        margin: '8px'
+      }}
+      onClick={saveHandler}
+    >
+      <SaveIcon/>
+    </IconButton>}
+    <IconButton
+      id={'open'}
+      aria-label="open"
+      sx={{
+        position: 'absolute',
+        right: '40px',
+        alignContent: 'top',
+        borderRadius: '24px',
+        margin: '8px'
+      }}
+      onClick={openHandler}
+    >
+      <OpenIcon/>
+    </IconButton>
+  </React.Fragment>
+}
 /**
  *
  * Demos:
@@ -197,43 +275,6 @@ const EditorView = React.forwardRef(function EditorView<
     ownerState: {...props, ref: viewRef }
   });
 
-  const openHandler = async () => {
-    const input = document.createElement('input') as HTMLInputElement;
-    input.type = 'file';
-
-    function handleFiles() {
-      const reader = new FileReader();
-      reader.addEventListener(
-        "load",
-        () => {
-          // this will then display a text file
-          const jsonFile = JSON.parse(reader.result as string);
-          const addedProjectFile = new EditorFile(jsonFile);
-          EditorFile.load(addedProjectFile, initEditorAction)
-            .then((loadedFile) => {
-              dispatch({ type: 'SET_FILE', payload: loadedFile });
-            })
-        },
-        false,
-      );
-      if (input.files?.length) {
-        reader.readAsText(input.files[0]);
-      } /* now you can work with the file list */
-    }
-
-    input.addEventListener("change", handleFiles, false);
-
-    input.click();
-  }
-
-  const saveHandler = async () => {
-    if (!file) {
-      return;
-    }
-    const actualFile: EditorFile = file as EditorFile;
-    await EditorFile.SaveAs<EditorFile>(actualFile);
-  }
-
   // if the viewer resizes make the renderer match it
   React.useEffect(() => {
     const resizeObserver = new ResizeObserver((entries) => {
@@ -253,16 +294,6 @@ const EditorView = React.forwardRef(function EditorView<
       resizeObserver.disconnect()
     }
   }, [viewerRef]);
-
-
-  React.useEffect(() => {
-
-    if (rendererRef.current) {
-     // setComponentRef<HTMLCanvasElement>(rendererRef, 'renderer');
-    }
-
-
-  }, [rendererRef]);
 
   function handleClose() {
 
@@ -286,52 +317,27 @@ const EditorView = React.forwardRef(function EditorView<
     <Screener role={'screener'} ref={screenerRef} />
     <Loader />
     <Stage role={'stage'} ref={stageRef}/>
-    {showSettings && (<React.Fragment>
-      <IconButton
-        id={'open'}
-        aria-label="open"
-        sx={{
-          position: 'absolute',
-          right: '80px',
-          alignContent: 'top',
-          borderRadius: '24px',
-          margin: '8px'
-        }}
-        onClick={openHandler}
-      >
-        <OpenIcon/>
-      </IconButton>
-      {file && <IconButton
-        id={'save'}
-        aria-label="save"
-        sx={{
-          position: 'absolute',
-          right: '40px',
-          alignContent: 'top',
-          borderRadius: '24px',
-          margin: '8px'
-        }}
-        onClick={saveHandler}
-      >
-        <SaveIcon/>
-      </IconButton>}
-      <IconButton
-        id={'settings'}
-        aria-label="settings"
-        sx={{
-          position: 'absolute',
-          right: '0px',
-          alignContent: 'top',
-          borderRadius: '24px',
-          margin: '8px'
-        }}
-        onClick={() => {
-          dispatch({ type: 'PROJECT_DETAIL'});
-        }}
-      >
-        <SettingsIcon/>
-      </IconButton>
-    </React.Fragment>)}
+    {showSettings && (
+      <React.Fragment>
+        <OpenSaveControls/>
+        <IconButton
+          id={'settings'}
+          aria-label="settings"
+          sx={{
+            position: 'absolute',
+            right: '0px',
+            alignContent: 'top',
+            borderRadius: '24px',
+            margin: '8px'
+          }}
+          onClick={() => {
+            dispatch({ type: 'PROJECT_DETAIL'});
+          }}
+        >
+          <SettingsIcon/>
+        </IconButton>
+      </React.Fragment>)
+    }
   </Root>)
 })
 

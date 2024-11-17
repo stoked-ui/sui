@@ -15,3 +15,4 @@ export * from './models';
 export * from './hooks';
 export * from './Controllers';
 export * from './EditorAction';
+export * from './EditorTrack';
