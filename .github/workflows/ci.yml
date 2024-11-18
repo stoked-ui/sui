@@ -54,7 +54,7 @@ jobs:
         if: ${{ matrix.os == 'ubuntu-latest' && (github.head_ref || github.ref_name) == 'main' }}
         with:
           name: main-build
-          path: /home/runner/work/mono/mono/docs/export
+          path: ./docs/export
   deploy:
     if: ${{ always() && (github.head_ref || github.ref_name) == 'main' }}
     needs: test-dev
@@ -63,8 +63,8 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: main-build
-          path: /home/runner/work/mono/mono/docs/export
-      - run: ls -la /home/runner/work/mono/mono/docs/export
+          path: ./docs/export
+      - run: ls -la ./docs/export
       - uses: jakejarvis/s3-sync-action@master
         with:
           args: --follow-symlinks --delete
@@ -73,7 +73,7 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.PROD_SYNC_AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.PROD_SYNC_AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: 'us-west-1'   # optional: defaults to us-east-1
-          SOURCE_DIR: /home/runner/work/mono/mono/docs/export     # optional: defaults to entire repository
+          SOURCE_DIR: ./docs/export     # optional: defaults to entire repository
           DEST_DIR: v2
       - name: Invalidate CloudFront
         uses: chetan/invalidate-cloudfront-action@v2
