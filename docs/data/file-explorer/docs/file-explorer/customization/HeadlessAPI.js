@@ -1,13 +1,11 @@
 import * as React from 'react';
+import PropTypes from 'prop-types';
 import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Avatar from '@mui/material/Avatar';
 import { FileExplorer } from '@stoked-ui/file-explorer/FileExplorer';
-import { IMediaFile, IMediaFileInput } from '@stoked-ui/media-selector';
-import {
-  useFile,
-  UseFileParameters,
-} from '@stoked-ui/file-explorer/useFile';
+
+import { useFile } from '@stoked-ui/file-explorer/useFile';
 import {
   FileContent,
   FileIconContainer,
@@ -16,8 +14,8 @@ import {
   FileRoot,
   FileCheckbox,
   FileIcon,
-  FileProvider
-} from '@stoked-ui/file-explorer/File';
+  FileProvider,
+} from '@stoked-ui/file-explorer';
 
 const ITEMS = [
   {
@@ -43,11 +41,7 @@ const CustomTreeItemContent = styled(FileContent)(({ theme }) => ({
   padding: theme.spacing(0.5, 1),
 }));
 
-
-const CustomTreeItem = React.forwardRef(function CustomTreeItem(
-  props,
-  ref
-) {
+const CustomTreeItem = React.forwardRef(function CustomTreeItem(props, ref) {
   const { id, itemId, name, disabled, children, ...other } = props;
 
   const {
@@ -76,7 +70,7 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(
                 fontSize: '0.8rem',
               })}
             >
-              {(name)[0]}
+              {name[0]}
             </Avatar>
             <FileCheckbox {...getCheckboxProps()} />
             <FileLabel {...getLabelProps()} />
@@ -87,6 +81,28 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(
     </FileProvider>
   );
 });
+
+CustomTreeItem.propTypes = {
+  /**
+   * The content of the component.
+   */
+  children: PropTypes.node,
+  /**
+   * If `true`, the item is disabled.
+   * @default false
+   */
+  disabled: PropTypes.bool,
+  /**
+   * The id attribute of the item. If not provided, it will be generated.
+   */
+  id: PropTypes.string,
+  /**
+   * The id of the item.
+   * Must be unique.
+   */
+  itemId: PropTypes.string,
+  name: PropTypes.string,
+};
 
 export default function HeadlessAPI() {
   return (

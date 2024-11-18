@@ -61,6 +61,7 @@ function Frame({ sx, ...props }: BoxProps) {
             borderBottomLeftRadius: '12px',
             borderBottomRightRadius: '12px',
           },
+          borderColor: 'red',
         },
         ...(Array.isArray(sx) ? sx : [sx]),
       ]}

@@ -8,13 +8,27 @@ import IconButton from '@mui/material/IconButton';
 import composeClasses from "@mui/utils/composeClasses";
 import {useSlotProps} from '@mui/base/utils';
 import {keyframes} from "@emotion/react";
+import InputIcon from '@mui/icons-material/Input';
+import OutputIcon from '@mui/icons-material/Output';
+import {
+  Fab,
+  Popover,
+  SpeedDial,
+  SpeedDialAction,
+  Stack,
+  Tooltip,
+  TooltipProps,
+  Zoom,
+  alpha,
+  tooltipClasses
+} from "@mui/material";
 import useForkRef from "@mui/utils/useForkRef";
 import {createUseThemeProps, styled} from '../internals/zero-styled';
 import {EditorViewProps} from './EditorView.types';
 import {getEditorViewUtilityClass} from "./editorViewClasses";
 import {useEditorContext} from "../EditorProvider/EditorContext";
 import Loader from "../Editor/Loader";
-import EditorFile, { EditorFileType, SUVideoFileType } from '../EditorFile/EditorFile';
+import EditorFile, { EditorFileType, SUVideoMime } from '../EditorFile/EditorFile';
 import { initEditorAction } from "../EditorAction";
 
 const useThemeProps = createUseThemeProps('MuiEditorView');
@@ -54,17 +68,7 @@ const EditorViewRoot = styled('div', {
   '& #settings': {
     alignSelf: 'bottom'
   },
-  '& #tri-loader':{
-    zIndex: 1000,
-    animation: anim,
-    transformOrigin: '50% 65%',
-    '& svg': {
-      transformOrigin: '50% 65%',
-      '& polygon': {
-        strokeDasharray: 17, animation: anim, transformOrigin: '0px 0px',
-      }
-    }
-  }
+
 }});
 
 const Renderer = styled('canvas', {
@@ -111,7 +115,7 @@ const Stage = styled('div', {
   vIndex: 100,
 }));
 
-function OpenSaveControls() {
+function Actions({ visible }: {visible: boolean}) {
 
   const { dispatch, file } = useEditorContext();
 
@@ -125,13 +129,21 @@ function OpenSaveControls() {
     isFileDirty().catch();
 
   }, [file])
-  const saveHandler = async () => {
+
+  const saveHandler = async (embeded: boolean) => {
     if (!file) {
       return;
     }
-    file.save().then(() => {
-      console.info('file saved');
-    });
+    await file.save()
+    console.info('file saved');
+  }
+
+  const saveEmbeddedHandler = async () => {
+    await saveHandler(true);
+  }
+
+  const saveUrlRefsHandler = async () => {
+    await saveHandler(false);
   }
 
   const openHandler = async () => {
@@ -147,7 +159,7 @@ function OpenSaveControls() {
         for (let i = 0; i < files.length; i += 1) {
           const clientFile = files[i];
           // eslint-disable-next-line no-await-in-loop
-          const loadedFile = await WebFile.fromBlob<SUVideoFileType, EditorFile<EditorFileType>>(clientFile);
+          const loadedFile = await WebFile.fromBlob<SUVideoMime, EditorFile<EditorFileType>>(clientFile);
           dispatch({ type: 'SET_FILE', payload: loadedFile });
         }
       }
@@ -157,37 +169,82 @@ function OpenSaveControls() {
     input.click();
   }
 
+  const [open, setOpen] = React.useState(false);
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
 
-  return <React.Fragment>
-    {fileIsDirty && <IconButton
-      id={'save'}
-      aria-label="save"
-      sx={{
-        position: 'absolute',
-        right: '80px',
-        alignContent: 'top',
-        borderRadius: '24px',
-        margin: '8px'
-      }}
-      onClick={saveHandler}
-    >
-      <SaveIcon/>
-    </IconButton>}
-    <IconButton
-      id={'open'}
-      aria-label="open"
-      sx={{
-        position: 'absolute',
-        right: '40px',
-        alignContent: 'top',
-        borderRadius: '24px',
-        margin: '8px'
-      }}
-      onClick={openHandler}
-    >
-      <OpenIcon/>
-    </IconButton>
-  </React.Fragment>
+  const actions = [
+    { icon: <InputIcon />, name: 'Embedded', click: saveEmbeddedHandler },
+    { icon: <OutputIcon />, name: 'Urls', click: saveUrlRefsHandler },
+  ];
+
+  return <Stack direction={'row'}>
+    {fileIsDirty && visible &&
+      <SpeedDial
+        ariaLabel="Save"
+        sx={{
+          position: 'absolute',
+          right: '88px',
+          alignContent: 'top',
+          margin: '8px',
+          '& .MuiSpeedDialAction-staticTooltip': {
+            maxWidth: 'none'
+          }
+        }}
+        icon={<SaveIcon />}
+        onClose={handleClose}
+        onOpen={handleOpen}
+        open={open}
+        id={'save'}
+        color={'standard'}
+        direction={'down'}
+        FabProps={{ size: 'small' }}
+      >
+        {actions.map((action) => (
+          <SpeedDialAction
+            key={action.name}
+            icon={action.icon}
+            tooltipTitle={action.name}
+            tooltipOpen
+            onClick={action.click}
+            FabProps={{ size: 'small' }}
+          />
+        ))}
+      </SpeedDial>
+    }
+    <Zoom in={visible} >
+      <Fab
+        id={'open'}
+        aria-label="open"
+        size="small"
+        sx={{
+          position: 'absolute',
+          right: '48px',
+          margin: '8px',
+        }}
+        onClick={openHandler}
+      >
+        <OpenIcon/>
+      </Fab>
+    </Zoom>
+    <Zoom in={visible}>
+      <Fab
+        id={'settings'}
+        aria-label="settings"
+        size="small"
+        sx={(theme) => ({
+          position: 'absolute',
+          right: '0px',
+          margin: '8px',
+        })}
+        onClick={() => {
+          dispatch({ type: 'PROJECT_DETAIL'});
+        }}
+      >
+        <SettingsIcon/>
+      </Fab>
+    </Zoom>
+  </Stack>
 }
 /**
  *
@@ -215,8 +272,8 @@ const EditorView = React.forwardRef(function EditorView<
   const viewRef = React.useRef<HTMLDivElement>(null);
   const combinedViewRef = useForkRef(ref , viewRef);
 
-  const [showSettings, setShowSettings] = React.useState<boolean>(false);
-  const [showSettingsPanel, setShowSettingsPanel] = React.useState<boolean>(false);
+  const [showActions, setShowSettings] = React.useState<boolean>(false);
+  const [showActionsPanel, setShowSettingsPanel] = React.useState<boolean>(false);
   const [, setViewerSize] = React.useState<{w: number, h: number}>({w: 0, h: 0});
   const viewerRef = React.useRef<HTMLDivElement>(null);
   const rendererRef = React.useRef<HTMLCanvasElement>(null);
@@ -299,7 +356,8 @@ const EditorView = React.forwardRef(function EditorView<
 
     setShowSettingsPanel(false);
   }
-  return (<Root role={'viewer'}
+  return (
+    <Root role={'viewer'}
                 {...rootProps}
                 ref={combinedViewRef}
                 data-preserve-aspect-ratio
@@ -310,35 +368,16 @@ const EditorView = React.forwardRef(function EditorView<
                 onMouseLeave={() => {
                   setShowSettings(false)
                 }}
-  >
+    >
 
-    <Renderer role={'renderer'} style={{backgroundColor: file?.backgroundColor}} ref={rendererRef}
-              data-preserve-aspect-ratio/>
-    <Screener role={'screener'} ref={screenerRef} />
-    <Loader />
-    <Stage role={'stage'} ref={stageRef}/>
-    {showSettings && (
-      <React.Fragment>
-        <OpenSaveControls/>
-        <IconButton
-          id={'settings'}
-          aria-label="settings"
-          sx={{
-            position: 'absolute',
-            right: '0px',
-            alignContent: 'top',
-            borderRadius: '24px',
-            margin: '8px'
-          }}
-          onClick={() => {
-            dispatch({ type: 'PROJECT_DETAIL'});
-          }}
-        >
-          <SettingsIcon/>
-        </IconButton>
-      </React.Fragment>)
-    }
-  </Root>)
+      <Renderer role={'renderer'} style={{backgroundColor: file?.backgroundColor}} ref={rendererRef}
+                data-preserve-aspect-ratio/>
+      <Screener role={'screener'} ref={screenerRef} />
+      <Loader />
+      <Stage role={'stage'} ref={stageRef}/>
+      <Actions visible={showActions} />
+    </Root>
+  )
 })
 
 export default EditorView;

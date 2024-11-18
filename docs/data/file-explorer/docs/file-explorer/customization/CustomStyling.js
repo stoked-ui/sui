@@ -6,7 +6,6 @@ import {
   FileElement,
   fileElementClasses,
 } from '@stoked-ui/file-explorer/FileElement';
-
 import { NestedFiles } from 'docs/src/components/fileExplorer/data';
 
 const CustomTreeItem = styled(FileElement)(({ theme }) => ({

@@ -101,10 +101,6 @@ CustomTreeItem.propTypes = {
    * Must be unique.
    */
   itemId: PropTypes.string,
-  /**
-   * The label of the item.
-   */
-  label: PropTypes.node,
 };
 
 export default function HeadlessAPI() {
