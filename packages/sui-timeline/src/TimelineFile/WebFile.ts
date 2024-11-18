@@ -5,7 +5,7 @@ import LocalDb from "../LocalDb/LocalDb";
 import FileTypeMeta from "./FileTypeMeta";
 import {
   WebFileInitializer,
-  Constructor, hasFileApiSupport,
+  Constructor,
   IBaseDecodedFile,
   IWebFile,
   IWebFileProps, saveFileApi, saveFileHack, IWebData
@@ -48,7 +48,7 @@ export default class WebFile<MimeType extends FileTypeMeta> implements IWebFile 
     this.state = FileState.CONSTRUCTED;
   }
 
-  private _version: number = 0;
+  protected _version: number = 0;
 
   get version(): number {
     return this._version;
@@ -92,7 +92,7 @@ export default class WebFile<MimeType extends FileTypeMeta> implements IWebFile 
   async saveAs() {
     const fileBlob = await this.createBlob();
     const saveOptions = this.getSaveApiOptions({ });
-    if (hasFileApiSupport()) {
+    if ('showSaveFilePicker' in window) {
       return saveFileApi({ ...saveOptions, fileBlob });
     }
     return saveFileHack({ ...saveOptions, fileBlob });
@@ -116,7 +116,7 @@ export default class WebFile<MimeType extends FileTypeMeta> implements IWebFile 
     }
   }
 
-  async save(silent: boolean = false): Promise<void> {
+  async save(silent: boolean = false, embedded: boolean = true): Promise<void> {
     const isDirty = await this.isDirty()
     if (!isDirty) {
       return;
@@ -126,10 +126,11 @@ export default class WebFile<MimeType extends FileTypeMeta> implements IWebFile 
     if (!silent) {
       const saveOptions = this.getSaveApiOptions({ });
       const options = { ...saveOptions, fileBlob };
-      if (hasFileApiSupport()) {
+      if ('showSaveFilePicker' in window) {
         await saveFileApi(options);
+      } else {
+        await saveFileHack(options);
       }
-      await saveFileHack(options);
     }
     this._version += 1;
   }

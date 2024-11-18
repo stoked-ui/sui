@@ -5,7 +5,7 @@ import {
   ITimelineFileProps,
   Controller,
   FileTypeMeta, WebFile, IWebFileProps,
-  ProjectOutputFile, IProjectOutputFileProps, Constructor
+  ProjectOutputFile, IProjectOutputFileProps, Constructor, saveFileHack, saveFileApi, LocalDb
 } from '@stoked-ui/timeline';
 import { getFileName, getMimeType, IMediaFile } from '@stoked-ui/media-selector';
 import Controllers from '../Controllers/Controllers';
@@ -40,18 +40,38 @@ export interface IEditorFile<
   fit: Fit;
 }
 
-export class SUVideoFileType extends FileTypeMeta {
+export class SUVideoUrlRefMime extends FileTypeMeta {
   description: string = 'Stoked UI - Timeline Video File';
 
-  ext: `.${string}` = '.suev'
+  ext: `.${string}` = '.suvr'
+
+  name: string = 'editor-video-refs'
+}
+
+export class SUVideoUrlRefFile extends ProjectOutputFile<SUVideoUrlRefMime>  {
+  file: IMediaFile;
+
+  sourceId: string;
+
+  constructor(props: IProjectOutputFileProps) {
+    super(props);
+    this.file = props.file;
+    this.sourceId = props.sourceId;
+  }
+}
+
+export class SUVideoMime extends FileTypeMeta {
+  description: string = 'Stoked UI - Editor Video File';
+
+  ext: `.${string}` = '.suv'
 
   name: string = 'editor-video'
 }
 
-export class SUVideoFile extends ProjectOutputFile<SUVideoFileType> {
+export class SUVideoFile extends ProjectOutputFile<SUVideoMime> {
   file: IMediaFile;
 
-  sourceId: string;det
+  sourceId: string;
 
   constructor(props: IProjectOutputFileProps) {
     super(props);
@@ -81,7 +101,7 @@ TimelineFile.globalControllers = Controllers;
 
 export default class EditorFile<
   MimeType extends FileTypeMeta = EditorFileType,
-  OutputMimeType extends FileTypeMeta = SUVideoFileType,
+  OutputMimeType extends FileTypeMeta = SUVideoMime,
   FileActionType extends IEditorFileAction = IEditorFileAction,
   ActionType extends IEditorAction = IEditorAction,
   FileTrackType extends IEditorFileTrack = IEditorFileTrack,
@@ -99,17 +119,19 @@ export default class EditorFile<
 
   fit: Fit;
 
-  backgroundColor?: string = '#000';
+  backgroundColor?: string;
 
   width: number = 1920;
 
   height: number = 1080;
 
+  protected _version: number = 0;
+
   constructor(props: IEditorFileProps<FileTrackType>) {
     editorFileCache[props.id as string] = JSON.stringify(props);
     super(props);
 
-    this.backgroundColor = props.backgroundColor ?? '#000';
+    this.backgroundColor = props.backgroundColor ?? 'transparent';
     this.width = props.width ?? 1920;
     this.height = props.height ?? 1080;
 
@@ -128,7 +150,7 @@ export default class EditorFile<
     const FileTypeConstructor = EditorFileType as unknown as Constructor<MimeType>;
     this.fileMeta = new FileTypeConstructor();
 
-    const OutputFileTypeConstructor = SUVideoFileType as unknown as Constructor<OutputMimeType>;
+    const OutputFileTypeConstructor = SUVideoMime as unknown as Constructor<OutputMimeType>;
     this.outputFileMeta = new OutputFileTypeConstructor();
   }
 
@@ -154,9 +176,25 @@ export default class EditorFile<
   }
 
 
-  async save( silent: boolean = false): Promise<void> {
+  async save(silent: boolean = false, embedded: boolean = true): Promise<void> {
     await this.initialize();
-    return super.save(silent);
+
+    const isDirty = await this.isDirty()
+    if (!isDirty) {
+      return;
+    }
+    const fileBlob = await LocalDb.saveFile(this);
+
+    if (!silent) {
+      const saveOptions = this.getSaveApiOptions({ });
+      const options = { ...saveOptions, fileBlob };
+      if ('showSaveFilePicker' in window) {
+        await saveFileApi(options);
+      } else {
+        await saveFileHack(options);
+      }
+    }
+    this._version += 1;
   }
 
 /*

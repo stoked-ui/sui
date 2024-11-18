@@ -1,0 +1,10 @@
+<TimelineProvider actions={demoActions}>
+  <Timeline
+    controllers={Controllers}
+    timelineState={timelineState}
+    scaleWidth={scaleWidth}
+    setScaleWidth={setScaleWidthProxy}
+    viewSelector={`.MuiEditorView-root`}
+    labels
+  />
+</TimelineProvider>
