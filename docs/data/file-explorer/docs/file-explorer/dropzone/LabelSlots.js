@@ -2,6 +2,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import Box from '@mui/material/Box';
 import { File, FileLabel } from '@stoked-ui/file-explorer/File';
+import { namedId } from '@stoked-ui/media-selector';
 import { FileExplorer } from '@stoked-ui/file-explorer/FileExplorer';
 
 import { useFileUtils } from '@stoked-ui/file-explorer/hooks';
@@ -67,14 +68,15 @@ const TreeItemContext = React.createContext({ onLabelValueChange: () => {} });
 
 const CustomTreeItem = React.forwardRef((props, ref) => {
   const { interactions } = useFileUtils({
-    itemId: props.itemId,
+    itemId: props.itemId ?? props.id ?? namedId('treeItem'),
     children: props.children,
+    status: null,
   });
 
   const { onLabelValueChange } = React.useContext(TreeItemContext);
 
   const handleLabelValueChange = (newLabel) => {
-    onLabelValueChange(props.itemId, newLabel);
+    onLabelValueChange(props.itemId ?? props.id ?? namedId('treeItem'), newLabel);
   };
 
   const handleContentClick = (event) => {
@@ -91,12 +93,12 @@ const CustomTreeItem = React.forwardRef((props, ref) => {
       ref={ref}
       {...props}
       slots={{
-        label: CustomLabel,
+        name: CustomLabel,
       }}
       slotProps={{
         content: { onClick: handleContentClick },
         iconContainer: { onClick: handleIconContainerClick },
-        label: {
+        name: {
           onChange: handleLabelValueChange,
         },
       }}
@@ -109,6 +111,10 @@ CustomTreeItem.propTypes = {
    * The content of the component.
    */
   children: PropTypes.node,
+  /**
+   * The id attribute of the item. If not provided, it will be generated.
+   */
+  id: PropTypes.string,
   /**
    * The id of the item.
    * Must be unique.
@@ -123,11 +129,11 @@ export default function LabelSlots() {
 
   const context = React.useMemo(
     () => ({
-      onLabelValueChange: (itemId, label) =>
+      onLabelValueChange: (itemId, name) =>
         setProducts((prev) => {
           const walkTree = (item) => {
             if (item.id === itemId) {
-              return { ...item, label };
+              return { ...item, name };
             }
             if (item.children) {
               return { ...item, children: item.children.map(walkTree) };

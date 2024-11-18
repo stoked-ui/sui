@@ -1,1 +1,3 @@
-<Editor id='video-editor' sx={{ borderRadius: '12px 12px 0 0' }} actionData={defaultEditorData} />
+<EditorProvider id={'core-demo'} controllers={Controllers} file={EditorExample} >
+  <Editor id='video-editor' sx={{ borderRadius: '12px 12px 0 0' }} />
+</EditorProvider>

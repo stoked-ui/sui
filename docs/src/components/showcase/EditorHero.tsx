@@ -24,7 +24,7 @@ export default function EditorHero({ id, sx }: { id: string, sx?: SxProps}) {
           flexDirection: 'column',
           p: 0,
           border: '1px solid',
-          borderColor: 'grey.200',
+          borderColor: '#BBB',
           boxShadow: `0px 4px 8px ${alpha(theme.palette.grey[200], 0.6)}`,
         }),
           ...(Array.isArray(sx) ? sx : [sx]),
@@ -36,7 +36,7 @@ export default function EditorHero({ id, sx }: { id: string, sx?: SxProps}) {
             trackControls
             snapControls
             labels
-            fileView
+
             record
             openSaveControls
             file={EditorExample}

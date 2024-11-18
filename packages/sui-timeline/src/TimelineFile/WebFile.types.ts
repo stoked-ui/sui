@@ -24,7 +24,7 @@ export interface IWebData {
 export type WebFileInitializer = ((files?: File[], ...arg: any[]) => Promise<void> | ((files?: File[]) => Promise<void>));
 
 export interface IWebFile extends IWebData {
-  save(silent?: boolean): Promise<void>;
+  save(silent?: boolean, embedded?: boolean): Promise<void>;
   initialize(files: File[], ...arg: any[]): Promise<void>;
   fileMeta: FileTypeMeta;
   createBlob(): Promise<Blob>;
@@ -42,15 +42,7 @@ export interface IBaseDecodedFile {
     type: `${string}/${string}`,
 }
 
-export function hasFileApiSupport() {
-  return 'showSaveFilePicker' in window;
-}
-
 export async function saveFileApi(options: SaveDialogProps) {
-  if (!hasFileApiSupport()) {
-    return;
-  }
-
   try {
 
     if ('hasbeenActive' in UserActivation) {

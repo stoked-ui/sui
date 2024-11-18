@@ -613,7 +613,7 @@ function ProductsPreviews({ products }: { products: Products } ) {
           item
           xs={12}
           md={6}
-          sx={productIndex === 0 ? { minHeight: { xs: 777, sm: 757, md: 'unset' } } : {}}
+          sx={productIndex === 0 ? { minHeight: { xs: 777, sm: 757, md: 'unset', borderColor: 'red' } } : {}}
         >
           {inView ? (
             <React.Fragment>

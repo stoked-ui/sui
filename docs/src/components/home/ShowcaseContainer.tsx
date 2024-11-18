@@ -35,7 +35,7 @@ export default function ShowcaseContainer({
         }}
       >
         <Frame.Demo
-          id={`${id}-preview` || namedId('preview')}
+          id={id ? `${id}-preview` : namedId('preview')}
           sx={{
             display: 'flex',
             position: 'relative',

@@ -3,7 +3,7 @@ import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Avatar from '@mui/material/Avatar';
 import { FileExplorer } from '@stoked-ui/file-explorer/FileExplorer';
-import { IMediaFile, IMediaFileInput } from '@stoked-ui/media-selector';
+import { IMediaFileInput } from '@stoked-ui/media-selector';
 import {
   useFile,
   UseFileParameters,
@@ -17,7 +17,7 @@ import {
   FileCheckbox,
   FileIcon,
   FileProvider
-} from '@stoked-ui/file-explorer/File';
+} from '@stoked-ui/file-explorer';
 
 const ITEMS: IMediaFileInput[] = [
   {
