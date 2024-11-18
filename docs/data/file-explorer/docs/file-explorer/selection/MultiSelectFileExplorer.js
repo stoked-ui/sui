@@ -1,7 +1,6 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import { FileExplorer } from '@stoked-ui/file-explorer/FileExplorer';
-
 import { NestedFiles } from 'docs/src/components/fileExplorer/data';
 
 export default function MultiSelectFileExplorer() {

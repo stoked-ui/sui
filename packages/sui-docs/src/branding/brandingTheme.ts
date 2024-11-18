@@ -1078,7 +1078,7 @@ export function getThemedComponents(): ThemeOptions {
               }),
               ...(ownerState.variant === 'outlined' && {
                 display: 'block',
-                borderColor: theme.palette.grey[100],
+                borderColor: theme.palette.grey[300],
                 '&[href]': {
                   textDecorationLine: 'none',
                   boxShadow: `hsl(200, 0%, 100%) 0 2px 0 inset, ${alpha(theme.palette.grey[100], 0.3)} 0 -2px 0 inset, ${alpha(theme.palette.grey[200], 0.5)} 0 1px 2px 0`,

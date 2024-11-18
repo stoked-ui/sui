@@ -53,7 +53,7 @@ export type {
   UseFileExplorerGridSignature,
   UseFileExplorerGridParameters,
 } from './plugins/useFileExplorerGrid';
-
+export * from './FileProvider';
 export * from './FileIcon';
 
 export { buildWarning } from './utils/warning';

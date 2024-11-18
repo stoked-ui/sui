@@ -41,7 +41,7 @@ const LoaderCircle = styled('div')(({ theme }) => ({
   width: '25px',
   height: '25px',
   display: 'inline-block',
-  'z-index': 51,
+  zIndex: 51,
   bottom: 0,
   position: 'absolute',
   margin: '24px',

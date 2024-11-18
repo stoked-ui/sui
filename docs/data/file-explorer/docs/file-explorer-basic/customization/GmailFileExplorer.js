@@ -158,10 +158,6 @@ CustomTreeItem.propTypes = {
    * Must be unique.
    */
   itemId: PropTypes.string,
-  /**
-   * The label of the item.
-   */
-  label: PropTypes.node,
   labelIcon: PropTypes.elementType.isRequired,
   labelInfo: PropTypes.string,
 };

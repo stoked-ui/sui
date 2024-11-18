@@ -63,7 +63,6 @@ function FileExplorer(props) {
   );
 }
 
-useFileExplorerLogExpanded.code = 'log';
 export default function LogExpandedItems() {
   const [logs, setLogs] = React.useState([]);
 

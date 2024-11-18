@@ -17,7 +17,7 @@ class ShadowStage {
     stage.style.width = '100%';
     stage.style.height = '100%';
     stage.style.pointerEvents = 'none';
-    stage.style.zIndex = '9999';
+    stage.style.zIndex = '49';
     stage.style.display = 'none';
     stageHost.appendChild(stage);
     return stage;

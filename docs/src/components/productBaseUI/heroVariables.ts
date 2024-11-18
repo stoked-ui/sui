@@ -36,7 +36,7 @@ const sleek = {
     // dark tokens
     '--color-primary': 'var(--muidocs-palette-primary-light)',
     '--color-primary-light': 'var(--muidocs-palette-primaryDark-600)',
-    '--border-color': 'var(--muidocs-palette-primaryDark-700)',
+    '--border-color': 'red',
     '--formControl-shadow': '0px 2px 3px rgba(0, 0, 0, 0.6)',
     // dark components
     '--Panel-shadow': '0 4px 24px 0 rgba(0, 0, 0, 0.4)',

@@ -1,8 +1,8 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
+
 import { FileExplorer } from '@stoked-ui/file-explorer/FileExplorer';
 import { useFileExplorerApiRef } from '@stoked-ui/file-explorer/hooks';
-
 import { NestedFiles } from 'docs/src/components/fileExplorer/data';
 
 function getItemDescendantsIds(item) {
