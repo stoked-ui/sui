@@ -141,6 +141,7 @@
     "@octokit/rest": "^20.0.2",
     "@pigment-css/react": "^0.0.3",
     "@playwright/test": "1.42.1",
+    "@stoked-ui/common": "workspace:^",
     "@stoked-ui/docs-markdown": "workspace:^",
     "@stoked-ui/docs-utils": "workspace:^",
     "@stoked-ui/editor": "workspace:^",

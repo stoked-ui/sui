@@ -5,6 +5,8 @@ import {AutoSizer, Grid, GridCellRenderer, OnScrollParams} from 'react-virtualiz
 import {parserPixelToTime} from '../utils/deal_data';
 import {CommonProps} from '../interface/common_prop';
 import {prefix} from '../utils/deal_class_prefix';
+import { SnapControls } from "../TimelineLabels/TimelineLabels";
+import { useTimeline } from "../TimelineProvider";
 
 /** Animation timeline component parameters */
 export type TimelineTimeProps = CommonProps & {
@@ -102,7 +104,7 @@ function TimelineTime(props: TimelineTimeProps) {
     getScaleRender,
     disabled
   } = props;
-
+  const { flags } = useTimeline();
   const tracksRef = React.useRef<Grid>();
   const timeInteract = React.useRef<HTMLDivElement>();
   const timeAreaRef = React.useRef<HTMLDivElement>();
@@ -117,6 +119,7 @@ function TimelineTime(props: TimelineTimeProps) {
       classNames.push('time-unit-big');
     }
     const item = (showUnit ? columnIndex / scaleSplitCount : columnIndex) * scale;
+
     return (
       <TimeUnit key={key} style={style} className={prefix(...classNames)}>
         {isShowScale && <TimeUnitScale className={prefix('time-unit-scale')}>{getScaleRender ? getScaleRender(item) : item}</TimeUnitScale>}
@@ -149,14 +152,14 @@ function TimelineTime(props: TimelineTimeProps) {
   const getColumnWidth = (data: { index: number }) => {
     switch (data.index) {
       case 0:
-        return startLeft;
+        return 7;
       default:
         return showUnit ? scaleWidth / scaleSplitCount : scaleWidth;
     }
   };
   const estColumnWidth=getColumnWidth({index:1});
   return (
-    <TimeAreaRoot ref={timeAreaRef} className={prefix('time-area')}>
+    <TimeAreaRoot sx={{marginLeft: `${startLeft - 7}px`}} ref={timeAreaRef} className={prefix('time-area')}>
       <AutoSizer>
         {({ width, height }) => {
           return (
@@ -168,6 +171,7 @@ function TimelineTime(props: TimelineTimeProps) {
                 columnWidth={getColumnWidth}
                 estimatedColumnSize={estColumnWidth}
                 rowCount={1}
+                style={{ overflowX: 'hidden' }}
                 rowHeight={height}
                 width={width}
                 height={height}

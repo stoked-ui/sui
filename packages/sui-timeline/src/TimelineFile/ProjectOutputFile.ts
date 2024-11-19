@@ -1,7 +1,6 @@
 import { IMediaFile, MediaFile } from "@stoked-ui/media-selector";
 import WebFile from "./WebFile";
 import { IWebFile, IWebFileProps } from "./WebFile.types";
-import FileTypeMeta from "./FileTypeMeta";
 import { OutputBlob } from "./TimelineFile.types";
 
 export interface IProjectOutputFileProps extends IWebFileProps {
@@ -14,10 +13,8 @@ export interface IProjectOutputFile extends IWebFile {
   file: IMediaFile;
 }
 
-export default class ProjectOutputFile<
-  MimeType extends FileTypeMeta
->
-  extends WebFile<MimeType>
+export default class ProjectOutputFile
+  extends WebFile
   implements IProjectOutputFile {
 
   sourceId: string;

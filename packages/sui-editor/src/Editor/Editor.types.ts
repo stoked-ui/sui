@@ -72,6 +72,8 @@ export interface EditorPropsBase extends React.HTMLAttributes<HTMLDivElement> {
 
   labels?: boolean;
 
+  minimal?: boolean;
+
   noResizer?: boolean;
 
   openSaveControls?: boolean;

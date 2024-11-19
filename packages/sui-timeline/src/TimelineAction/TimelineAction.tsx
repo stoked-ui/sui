@@ -25,6 +25,8 @@ import {
 import { getTrackBackgroundColor, type ITimelineTrack } from '../TimelineTrack/TimelineTrack.types';
 import { useTimeline } from "../TimelineProvider";
 import { IController } from "../Controller";
+import LockIcon from "@mui/icons-material/Lock";
+import Zoom from '@mui/material/Zoom';
 
 const Action = styled('div', {
   name: 'MuiTimelineAction',
@@ -127,7 +129,9 @@ const Action = styled('div', {
     userSelect: 'none',
     justifyContent: 'end',
     display: 'flex',
-    '&.volume:hover': {
+    touchAction: 'none',
+
+  '&.volume:hover': {
       cursor: 'url(\'/static/cursors/volume-pen.svg\') 16 16, auto',
     },
     '&:hover': {
@@ -481,6 +485,17 @@ function TimelineAction<
 
   const loopCount = (!!action?.loop && typeof action.loop === 'number' && action.loop > 0) ? action.loop : undefined;
 
+  const hoverLocks = settings['action-hover'] === action.id && track.lock;
+  const lock = (
+    <Zoom in={hoverLocks}>
+      <LockIcon
+        sx={(theme) => ({marginRight: '10px', color: alpha(`${theme.palette.text.primary}`, .65)})}
+        fontSize={'small'}
+      />
+    </Zoom>
+  );
+  const locks = track.lock ? <React.Fragment>{lock}{lock}</React.Fragment> : undefined;
+
   return (
     <TimelineTrackDnd
       ref={rowRnd}
@@ -543,7 +558,7 @@ function TimelineAction<
           }
           event.preventDefault();
         }}
-        hover={settings['action-hover'] === action.id}
+        hover={settings['action-hover'] === action.id ? true : undefined}
         onMouseEnter={((event) => {
           dispatch({ type: 'SET_SETTING', payload: { key: 'action-hover', value: action.id } })
           dispatch({ type: 'SET_SETTING', payload: { key: 'track-hover', value: track.id } })
@@ -599,10 +614,13 @@ function TimelineAction<
         selected={action.selected !== undefined ? action.selected : false}
         style={{
           height: trackHeight,
+          alignItems: 'center',
+          justifyContent: 'space-between',
           ...action.backgroundImageStyle
         }}
         color={`${track?.controller?.color}`}
       >
+        {locks}
         {!disableDrag && flexible && <LeftStretch className={`${prefix('action-left-stretch')}`}/>}
         {!disableDrag && flexible && (<RightStretch className={`${prefix('action-right-stretch')}`}/>)}
       </Action>

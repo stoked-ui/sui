@@ -23,6 +23,7 @@ const fileExplorerSettings = getProjectSettings('file-explorer', [
 const timelineSettings = getProjectSettings('timeline', []);
 const videoEditorSettings = getProjectSettings('editor', []);
 const mediaSelectorSettings = getProjectSettings('media-selector', []);
+const commonSettings = getProjectSettings('common', []);
 
 const projectSettings: ProjectSettings[] = [
   fileExplorerSettings,

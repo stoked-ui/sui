@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { type IEditorState } from "../EditorProvider/EditorProvider.types";
+import { FileState } from '@stoked-ui/timeline';
 import {
   DetailData,
   IDetailAction,
@@ -12,6 +12,7 @@ import { IEditorAction } from "../EditorAction";
 import { IEditorTrack } from "../EditorTrack/EditorTrack";
 import EditorFile, { IEditorFile } from "../EditorFile/EditorFile";
 import { IEditorEngine } from '../EditorEngine/EditorEngine.types';
+
 
 export interface IDetailState {
   selected: Selection;

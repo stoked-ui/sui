@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 /*  eslint-disable @typescript-eslint/naming-convention */
-import { SaveDialogProps } from "./TimelineFile.types";
-import FileTypeMeta from "./FileTypeMeta";
+import { FileState, SaveDialogProps } from "./TimelineFile.types";
+import { IMimeType } from "./MimeType";
 
 export type NoArgsConstructor<T> = new () => T;
 
@@ -18,19 +18,20 @@ export interface IWebData {
   lastModified?: number,
   description?: string,
   author?: string,
+  mimeType: IMimeType,
   readonly version: number;
 }
 
 export type WebFileInitializer = ((files?: File[], ...arg: any[]) => Promise<void> | ((files?: File[]) => Promise<void>));
 
 export interface IWebFile extends IWebData {
-  save(silent?: boolean, embedded?: boolean): Promise<void>;
+  save(silent?: boolean): Promise<void>;
   initialize(files: File[], ...arg: any[]): Promise<void>;
-  fileMeta: FileTypeMeta;
-  createBlob(): Promise<Blob>;
+  createBlob(embedded: boolean, mimeType: IMimeType): Promise<Blob>;
+  state: FileState;
 }
 
-export interface IWebFileProps extends Omit<IWebData, 'id' | 'created' | 'version'> {
+export interface IWebFileProps extends Omit<IWebData, 'id' | 'created' | 'version' | 'mimeType'> {
   id?: string,
   created?: number,
   readonly version?: number,
@@ -45,34 +46,13 @@ export interface IBaseDecodedFile {
 export async function saveFileApi(options: SaveDialogProps) {
   try {
 
-    if ('hasbeenActive' in UserActivation) {
-      console.info('hasbeenActive', UserActivation.hasbeenActive);
-    }
-
-    if ('isActive' in UserActivation) {
-      console.info('isActive', UserActivation.isActive);
-    }
-
+    console.info('options', options);
     // Show the save file picker
     const fileHandle = await window.showSaveFilePicker(options);
 
-    if ('hasbeenActive' in UserActivation) {
-      console.info('hasbeenActive 2', UserActivation.hasbeenActive);
-    }
-
-    if ('isActive' in UserActivation) {
-      console.info('isActive', UserActivation.isActive);
-    }
     // Create a writable stream to the selected file
     const writableStream = await fileHandle.createWritable();
 
-    if ('hasbeenActive' in UserActivation) {
-      console.info('hasbeenActive 3', UserActivation.hasbeenActive);
-    }
-
-    if ('isActive' in UserActivation) {
-      console.info('isActive', UserActivation.isActive);
-    }
     // Write the Blob to the file
     await writableStream.write(options.fileBlob);
 
@@ -100,4 +80,25 @@ export async function saveFileHack(options: SaveDialogProps) {
   link.click();
   URL.revokeObjectURL(link.href)
   link.remove();
+}
+
+export function isValidUrl(input: string): boolean {
+  try {
+    const url = new URL(input);
+
+    // Ensure it's not a blob or data URL
+    if (url.protocol === "blob:" || url.protocol === "data:") {
+      return false;
+    }
+
+    // Ensure it's not a relative URL
+    if (!url.host || !url.protocol) {
+      return false;
+    }
+
+    return true;
+  } catch {
+    // If the URL constructor throws, it's not a valid URL
+    return false;
+  }
 }

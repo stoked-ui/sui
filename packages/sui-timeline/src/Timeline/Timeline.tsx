@@ -8,7 +8,7 @@ import useForkRef from '@mui/utils/useForkRef';
 import { ScrollSync } from "react-virtualized";
 import {type TimelineComponent, type TimelineProps} from './Timeline.types';
 import {getTimelineUtilityClass} from './timelineClasses';
-import TimelineLabels from '../TimelineLabels/TimelineLabels';
+import TimelineLabels, { SnapControls } from '../TimelineLabels/TimelineLabels';
 import {ITimelineFileAction} from '../TimelineAction/TimelineAction.types';
 import {type TimelineLabelsProps} from '../TimelineLabels/TimelineLabels.types';
 import {useTimeline} from "../TimelineProvider";
@@ -108,7 +108,11 @@ const Timeline = React.forwardRef(function Timeline(
     name: 'MuiTimeline',
   });
   const { file,flags , components, settings, engine, dispatch } = useTimeline();
-  const checkedProps = checkProps(inProps);
+  const checkedProps = checkProps({
+    ...inProps,
+    startLeft: settings['timeline.startLeft'],
+    trackHeight: settings['timeline.trackHeight'],
+  });
 
   React.useEffect(() => {
     dispatch({ type: 'SET_SETTING', payload: { key: 'timeline', value: checkedProps } });
@@ -175,10 +179,7 @@ const Timeline = React.forwardRef(function Timeline(
     }
   }, [])
 
-
-
   const domRef = React.useRef<HTMLDivElement>(null);
-
   const areaRef = React.useRef<HTMLDivElement>(null);
   const tracksRef = React.useRef<HTMLDivElement>(null);
   const scrollSync = React.useRef<ScrollSync>();
@@ -359,7 +360,7 @@ const Timeline = React.forwardRef(function Timeline(
 
   return (
     <Root ref={combinedRootRef} {...rootProps} className={rootClasses} sx={inProps.sx}>
-      {(flags.includes('labels') && !flags.includes('collapsed')) && (
+      {!flags.includes('collapsed') && flags.includes('labels') && (
         <React.Fragment>
           <Labels
             ref={labelsRef}
@@ -371,7 +372,7 @@ const Timeline = React.forwardRef(function Timeline(
             onContextMenu={inProps.onContextMenuTrack}
             onClick={inProps.onLabelClick}
           />
-          {!flags.includes('noResizer') && components.timelineArea &&
+          {flags.includes('verticalResizer') && !flags.includes('noResizer') && components.timelineArea &&
             <TimelineScrollResizer
               scrollSync={scrollSync}
               type='vertical'
@@ -428,12 +429,21 @@ const Timeline = React.forwardRef(function Timeline(
                   scrollLeft={scrollLeft}
                   deltaScrollLeft={autoScroll && commonProps.deltaScrollLeft}
                   onDoubleClickRow={createAction}
+                  onClickTrack={(e, {track }) => {
+                    inProps?.onTrackClick?.(track);
+                  }}
+                  onClickAction={(e, { track, action }) => {
+                    inProps?.onActionClick?.(action);
+                    e.stopPropagation();
+                  }}
                   onScroll={(params) => {
                     onScroll(params);
                     if (onScrollVertical) {
                       onScrollVertical(params);
                     }}}
                   onAddFiles={inProps.onAddFiles}
+                  onContextMenuAction={inProps.onContextMenuAction}
+                  onContextMenuTrack={inProps.onContextMenuTrack}
                 />
                 {!hideCursor && (
                   <TimelineCursor {...commonProps}

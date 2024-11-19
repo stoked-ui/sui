@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { IMediaFile, namedId } from '@stoked-ui/media-selector';
+import { IMediaFile } from '@stoked-ui/media-selector';
 import { isMobile } from 'react-device-detect';
 import { Controllers, IController } from "../Controller";
 import Controller from '../Controller/Controller';
-import TimelineFile, { FileTypeMeta, ITimelineFile } from "../TimelineFile";
+import { FileState, IMimeType, ITimelineFile } from "../TimelineFile";
 import { EngineState, IEngine } from "../Engine";
 import { type ITimelineTrack } from "../TimelineTrack";
 import {
@@ -18,6 +18,7 @@ import {
 import Settings from "./Settings";
 import { LocalDbProps } from '../LocalDb/LocalDb';
 
+
 export interface ITimelineState<
   EngineType extends IEngine = IEngine,
   State extends string | EngineState = string | EngineState,
@@ -28,6 +29,7 @@ export interface ITimelineState<
   engine: EngineType,
   file: FileType | null,
   id: string,
+  selected: ActionType | TrackType | FileType | null;
   selectedAction: ActionType | null;
   selectedTrack: TrackType | null;
   flags: string[];
@@ -38,6 +40,7 @@ export interface ITimelineState<
   components: Record<string, HTMLElement>;
   controllers: Record<string, Controller>;
   localDbProps: LocalDbProps | null;
+  preview?: boolean;
 }
 
 export const onAddFiles = <
@@ -68,10 +71,12 @@ export type TimelineStateAction<
   TrackType extends ITimelineTrack = ITimelineTrack,
 > = {
   type: 'SELECT_ACTION',
-  payload: SelectActionPayload<ActionType, TrackType>,
+  payload: ActionType,
 } | {
   type: 'SELECT_TRACK',
   payload: TrackType,
+} | {
+  type: 'SELECT_PROJECT',
 } | {
   type: 'TRACK_HOVER',
   payload: string
@@ -103,7 +108,7 @@ export type TimelineStateAction<
     value: any
   }
 } | {
-  type: 'SET_FLAGS',
+  type: 'SET_FLAGS' | 'INITIAL_FLAGS',
   payload: {
     set: string[],
     values: string[]
@@ -137,74 +142,49 @@ export function setSetting(key: string, value: any, state: ITimelineState): ITim
   return { ...state };
 }
 
-export function addFlag(key: string, state: ITimelineState) {
-  if (!state.flags.includes(key)) {
-    state.flags.push(key);
+export function addFlag(key: string | string[], state: ITimelineState) {
+  if (!Array.isArray(key)) {
+    key = [key];
   }
+  key.forEach((k) => {
+    if (!state.flags.includes(k)) {
+      state.flags.push(k);
+    }
+  });
   return state;
 }
 
-export function removeFlag(key: string, state: ITimelineState) {
-  if (state.flags.includes(key)) {
-    state.flags = state.flags.filter((flag) => flag !== key);
+export function removeFlag(key: string | string[], state: ITimelineState) {
+  if (!Array.isArray(key)) {
+    key = [key];
   }
+  key.forEach((k) => {
+    state.flags = state.flags.filter((flag) => flag !== k);
+  });
   return state;
 }
 
-function flagTrigger(flag: string, set: boolean, key: string, value: any, state: ITimelineState) {
-  if (set) {
-    return setSetting(key, value, state);
-  }
-  return setSetting(key, value, state);
+function inSetOn(flag: string, set: string[], values: string[]) {
+  return set.includes(flag) && values.includes(flag);
 }
-
-const flagTriggers = {
-  labels: {
-    'timeline.startLeft': {
-      enabled: 7,
-      disabled: 7,
-    },
-  }
-}/*
-const settingOverrides = Object.keys(Object.values(flagTriggers)) as string[];
-const settingOverridesEnabled = settingOverrides.reduce((acc, overrideKey ) => {
-  acc[overrideKey] = false;
-  return acc;
-}, {} as { [key: string]: boolean });
-
-function executeFlagTriggers(set: string[], values: string[], state: ITimelineState) {
-  const triggers = Object.keys(flagTriggers).filter((key) => set.includes(key));
-
-  triggers.forEach((key) => {
-    const enabled = values.includes(key);
-    const overrideSettings = Object.keys(flagTriggers[key]);
-    overrideSettings.forEach((setting) => {
-      settingOverridesEnabled[setting] = true;
-      if (enabled) {
-        state = flagTrigger(key, true, setting, flagTriggers[key].enabled, state);
-      } else {
-        state =  flagTrigger(key, false, setting, flagTriggers[key].disabled, state);
-      }
-    });
-  })
-  return state;
-}
-*/
 
 export function setFlags(set: string[], values: string[], state: ITimelineState) {
-  const newState = {
+  let newState = {
     ...state,
     flags: [...state.flags].filter((flag) => !set.includes(flag))
   }
- /* let { flags } = newState;
-  if (set.includes('detailMode') && values.includes('detailMode')) {
-     flags = flags.filter((flag) => !['noResizer', 'record', 'labels'].includes(flag));
-     flags.push('noResizer');
+  if (inSetOn('detailMode', set, values)) {
+     newState = removeFlag(['record', 'labels'], newState);
+     newState = addFlag('noResizer', newState);
   }
-  if (set.includes('allControls') && values.includes('allControls')) {
-    flags = flags.filter((flag) => !['fileView', 'trackControls', 'snapControls', 'openSaveControls'].includes(flag));
-    flags.push('fileView', 'trackControls', 'snapControls', 'openSaveControls');
-  }*/
+  if (inSetOn('allControls', set, values)) {
+    newState = addFlag(['fileView', 'trackControls', 'snapControls', 'openSaveControls'], newState);
+  }
+  if (inSetOn('minimal', set, values)) {
+    newState = removeFlag(['labels', 'detailMode', 'trackControls'], newState);
+    newState = addFlag(['noResizer'], newState);
+  }
+
   newState.flags = newState.flags.concat(values);
   return newState;
 }
@@ -213,15 +193,35 @@ function isObject(value: any): boolean {
   return typeof value === 'object' && value !== null;
 }
 
-export function TimelineReducer(state: ITimelineState, stateAction: TimelineStateAction): ITimelineState {
-  switch (stateAction.type) {
 
-    case 'SELECT_TRACK':
+function TimelineReducerBase(state: ITimelineState, stateAction: TimelineStateAction): ITimelineState {
+  switch (stateAction.type) {
+    case 'SELECT_ACTION': {
+      const action = stateAction.payload;
+      const trackIndex = state.file?.tracks.findIndex((t) => t.actions.some((a) => a.id === action.id))
+      return {
+        ...state,
+        selectedAction: action,
+        selectedTrack: state.file!.tracks[trackIndex],
+        selected: action,
+      }
+    }
+    case 'SELECT_TRACK':{
       return {
         ...state,
         selectedAction: null,
         selectedTrack: stateAction.payload,
-      };
+        selected: stateAction.payload,
+      }
+    }
+    case 'SELECT_PROJECT':{
+      return {
+        ...state,
+        selectedAction: null,
+        selectedTrack: null,
+        selected: state.file,
+      }
+    }
     case 'CREATE_TRACKS': {
       const newState = onAddFiles(state, stateAction.payload);
       newState.engine.setTracks(newState.file?.tracks ?? []);
@@ -271,7 +271,7 @@ export function TimelineReducer(state: ITimelineState, stateAction: TimelineStat
         ...state,
         file: stateAction.payload,
       };
-      return TimelineReducer(stateWithFile, {
+      return TimelineReducerBase(stateWithFile, {
         type: 'SET_TRACKS',
         payload: stateAction.payload.tracks
       });
@@ -283,29 +283,30 @@ export function TimelineReducer(state: ITimelineState, stateAction: TimelineStat
       };
     case 'SET_SETTING': {
       const { key, value } = stateAction.payload;
-      const valIsObject = isObject(value);
-      let newState = state;
-      if (valIsObject) {
-        const keys = Object.keys(value);
 
+      if (isObject(value)) {
+        const keys = Object.keys(value);
         const result = keys.reduce((obj, nestedKey) => {
-          obj[`${key}.${nestedKey}`] = value[nestedKey];
+          obj[`${key ? `${key}.` : ''}${nestedKey}`] = value[nestedKey];
           return obj;
         }, {});
         Object.entries(result).forEach(([nestedKey, nestedValue]) => {
-          // if (!settingOverridesEnabled[nestedKey]) {
-            newState = setSetting(nestedKey, nestedValue, newState);
-          // }
+          state = setSetting(nestedKey, nestedValue, state);
         });
-        return newState;
+        return state;
       }
-      // if (!settingOverridesEnabled[key]) {
-        newState =  setSetting(key, value, state);
-      // }
-      return newState;
+      return setSetting(key, value, state);
     }
+    case 'INITIAL_FLAGS': {
+
+      console.info('initial-flags', stateAction.payload, state);
+    }
+    // eslint-disable-next-line no-fallthrough
     case 'SET_FLAGS': {
       const { set, values } = stateAction.payload;
+      if (set.includes('labels')) {
+        state = setSetting('timeline.startLeft', values.includes('labels') ? 7 : 72, state);
+      }
       return setFlags(set, values , state);
     }
     case 'UPDATE_ACTION_STYLE': {
@@ -332,6 +333,8 @@ export function TimelineReducer(state: ITimelineState, stateAction: TimelineStat
     case 'SET_COMPONENT': {
       const { key, value, onSet } = stateAction.payload;
       const { components } = state;
+//      console.info('@'.repeat(process.stdout.columns))
+      // console.info('@'.repeat(process.stdout.columns))
       if (!components[key] && onSet) {
         onSet();
       }
@@ -346,6 +349,18 @@ export function TimelineReducer(state: ITimelineState, stateAction: TimelineStat
     default:
       return state;
   }
+}
+
+export function TimelineReducer(state: ITimelineState, stateAction: TimelineStateAction): ITimelineState {
+  const newState = TimelineReducerBase(state, stateAction);
+  const { engine, file } = newState;
+  newState.getState = () => {
+    if (!file || file?.state === FileState.READY) {
+      return engine.state as EngineState;
+    }
+    return 'loading';
+  }
+  return newState;
 }
 
 export interface TimelineProviderProps<
@@ -372,22 +387,23 @@ export const initialTimelineState: Omit<ITimelineState, 'engine' | 'getState' | 
   components: {},
   controllers: Controllers,
   localDbProps: null,
+  selected: null,
 }
 
-export function getDbProps(fileMeta: FileTypeMeta, localDbProps?: LocalDbProps | false): LocalDbProps {
+export function getDbProps(mimeType: IMimeType, localDbProps?: LocalDbProps | false): LocalDbProps {
   switch (localDbProps) {
     case false:
       return {
-        dbName: fileMeta.applicationName,
-        stores: [fileMeta.name],
-        initializeStores: [fileMeta.name],
+        dbName: mimeType.subType,
+        stores: [mimeType.name],
+        initializeStores: [mimeType.name],
         disabled: true,
       };
     case undefined:
       return {
-        dbName: fileMeta.applicationName,
-        stores: [fileMeta.name],
-        initializeStores: [fileMeta.name],
+        dbName: mimeType.subType,
+        stores: [mimeType.name],
+        initializeStores: [mimeType.name],
         disabled: false,
       }
     default:

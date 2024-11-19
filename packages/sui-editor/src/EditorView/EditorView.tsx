@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { IMediaFile, MediaFile } from '@stoked-ui/media-selector';
-import { useTimeline, WebFile } from "@stoked-ui/timeline";
+import { useTimeline, WebFile, MimeType} from "@stoked-ui/timeline";
 import SettingsIcon from '@mui/icons-material/Settings';
 import SaveIcon from '@mui/icons-material/Save';
 import OpenIcon from '@mui/icons-material/OpenInBrowser';
@@ -16,6 +16,7 @@ import {
   SpeedDial,
   SpeedDialAction,
   Stack,
+  SxProps,
   Tooltip,
   TooltipProps,
   Zoom,
@@ -28,8 +29,7 @@ import {EditorViewProps} from './EditorView.types';
 import {getEditorViewUtilityClass} from "./editorViewClasses";
 import {useEditorContext} from "../EditorProvider/EditorContext";
 import Loader from "../Editor/Loader";
-import EditorFile, { EditorFileType, SUVideoMime } from '../EditorFile/EditorFile';
-import { initEditorAction } from "../EditorAction";
+import EditorFile from '../EditorFile/EditorFile';
 
 const useThemeProps = createUseThemeProps('MuiEditorView');
 
@@ -41,7 +41,6 @@ const useUtilityClasses = <R extends IMediaFile, Multiple extends boolean | unde
   const slots = {
     root: ['root'],
   };
-
   return composeClasses(slots, getEditorViewUtilityClass, classes);
 };
 
@@ -55,21 +54,22 @@ const EditorViewRoot = styled('div', {
   `;
   const anim = `2.5s cubic-bezier(0.35, 0.04, 0.63, 0.95) 0s infinite normal none running ${spin}`;
   return {
-  display: 'flex',
-  flexDirection: 'column',
-  width: '100%',
-  position: 'relative',
-  overflow: 'hidden',
-  aspectRatio: 16 / 9,
-  '& .lottie-canvas': {
-    width: '1920px!important',
-    height: '1080px!important'
-  },
-  '& #settings': {
-    alignSelf: 'bottom'
-  },
-
-}});
+    display: 'flex',
+    flexDirection: 'column',
+    width: '100%',
+    position: 'relative',
+    overflow: 'hidden',
+    maxWidth: '100vw',
+    aspectRatio: 16 / 9,
+    '& .lottie-canvas': {
+      width: '1920px!important',
+      height: '1080px!important'
+    },
+    '& #settings': {
+      alignSelf: 'bottom'
+    },
+  }
+});
 
 const Renderer = styled('canvas', {
   name: "MuiEditorViewRenderer",
@@ -84,6 +84,7 @@ const Renderer = styled('canvas', {
   aspectRatio: 16 / 9,
   width: '100%',
   height: '100%',
+  minWidth: '480px',
   backgroundColor: theme.palette.background.default
 }));
 
@@ -130,20 +131,12 @@ function Actions({ visible }: {visible: boolean}) {
 
   }, [file])
 
-  const saveHandler = async (embeded: boolean) => {
+  const saveHandler = async () => {
     if (!file) {
       return;
     }
     await file.save()
     console.info('file saved');
-  }
-
-  const saveEmbeddedHandler = async () => {
-    await saveHandler(true);
-  }
-
-  const saveUrlRefsHandler = async () => {
-    await saveHandler(false);
   }
 
   const openHandler = async () => {
@@ -159,7 +152,7 @@ function Actions({ visible }: {visible: boolean}) {
         for (let i = 0; i < files.length; i += 1) {
           const clientFile = files[i];
           // eslint-disable-next-line no-await-in-loop
-          const loadedFile = await WebFile.fromBlob<SUVideoMime, EditorFile<EditorFileType>>(clientFile);
+          const loadedFile = await WebFile.fromBlob<EditorFile>(clientFile.type as MimeType,clientFile);
           dispatch({ type: 'SET_FILE', payload: loadedFile });
         }
       }
@@ -169,52 +162,29 @@ function Actions({ visible }: {visible: boolean}) {
     input.click();
   }
 
-  const [open, setOpen] = React.useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
-
-  const actions = [
-    { icon: <InputIcon />, name: 'Embedded', click: saveEmbeddedHandler },
-    { icon: <OutputIcon />, name: 'Urls', click: saveUrlRefsHandler },
-  ];
-
   return <Stack direction={'row'}>
     {fileIsDirty && visible &&
-      <SpeedDial
-        ariaLabel="Save"
-        sx={{
-          position: 'absolute',
-          right: '88px',
-          alignContent: 'top',
-          margin: '8px',
-          '& .MuiSpeedDialAction-staticTooltip': {
-            maxWidth: 'none'
-          }
-        }}
-        icon={<SaveIcon />}
-        onClose={handleClose}
-        onOpen={handleOpen}
-        open={open}
-        id={'save'}
-        color={'standard'}
-        direction={'down'}
-        FabProps={{ size: 'small' }}
-      >
-        {actions.map((action) => (
-          <SpeedDialAction
-            key={action.name}
-            icon={action.icon}
-            tooltipTitle={action.name}
-            tooltipOpen
-            onClick={action.click}
-            FabProps={{ size: 'small' }}
-          />
-        ))}
-      </SpeedDial>
+      <Zoom in={visible} >
+        <Fab
+          id={'save'}
+          aria-label="save"
+          size="small"
+          color={'secondary'}
+          sx={{
+            position: 'absolute',
+            right: '96px',
+            margin: '8px',
+          }}
+          onClick={saveHandler}
+        >
+          <SaveIcon/>
+        </Fab>
+      </Zoom>
     }
     <Zoom in={visible} >
       <Fab
         id={'open'}
+        color={'secondary'}
         aria-label="open"
         size="small"
         sx={{
@@ -230,6 +200,7 @@ function Actions({ visible }: {visible: boolean}) {
     <Zoom in={visible}>
       <Fab
         id={'settings'}
+        color={'primary'}
         aria-label="settings"
         size="small"
         sx={(theme) => ({
@@ -356,6 +327,18 @@ const EditorView = React.forwardRef(function EditorView<
 
     setShowSettingsPanel(false);
   }
+
+  const styles: React.CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+    position: 'absolute',
+    left: 0,
+    overflow: 'hidden',
+    aspectRatio: 16 / 9,
+    width: '100%',
+    height: '100%',
+  };
+
   return (
     <Root role={'viewer'}
                 {...rootProps}
@@ -370,10 +353,14 @@ const EditorView = React.forwardRef(function EditorView<
                 }}
     >
 
-      <Renderer role={'renderer'} style={{backgroundColor: file?.backgroundColor}} ref={rendererRef}
-                data-preserve-aspect-ratio/>
+      <Renderer
+        role={'renderer'}
+        style={{backgroundColor: file?.backgroundColor}}
+        ref={rendererRef}
+        data-preserve-aspect-ratio
+      />
       <Screener role={'screener'} ref={screenerRef} />
-      <Loader />
+      <Loader styles={styles} />
       <Stage role={'stage'} ref={stageRef}/>
       <Actions visible={showActions} />
     </Root>

@@ -21,7 +21,7 @@ export const DEFAULT_TRACK_HEIGHT = 36;
 export const DEFAULT_MOBILE_TRACK_HEIGHT = 60;
 
 /** Minimum number of scales */
-export const MIN_SCALE_COUNT = 10;
+export const MIN_SCALE_COUNT = 40;
 /** The number of new scales added each time */
 export const ADD_SCALE_COUNT = 5;
 

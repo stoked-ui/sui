@@ -12,6 +12,7 @@ import {
   removeFlag,
   setSetting,
   setFlags,
+  FileState,
 } from "@stoked-ui/timeline";
 import { IMediaFile, namedId } from "@stoked-ui/media-selector";
 import Controllers from "../Controllers";
@@ -40,9 +41,13 @@ export interface IEditorState<
   ActionType extends IEditorAction = IEditorAction,
   TrackType extends IEditorTrack = IEditorTrack,
 > extends ITimelineState<EngineType, State, FileType, ActionType, TrackType> {
+  file: FileType | null;
+  selected: ActionType | TrackType | FileType;
+  selectedAction: ActionType | null;
+  selectedTrack: TrackType | null;
+  engine: EngineType;
   editorId: string;
   detail: DetailData;
-  selected: Selection;
   detailOpen: boolean;
 }
 
@@ -81,12 +86,10 @@ export const onAddFiles = (state: IEditorState, newMediaFiles: IMediaFile[]) => 
     controllerName: mediaFile.mediaType,
   })) as IEditorTrack[];
 
+  file.tracks = [...tracks || [], ...newTracks];
   return {
     ...state,
-    file: {
-      ...file,
-      tracks: [...tracks || [], ...newTracks],
-    }
+    file
   };
 };
 
@@ -109,13 +112,13 @@ export type EditorStateAction<
   ActionType extends IEditorAction = IEditorAction,
   TrackType extends IEditorTrack = IEditorTrack,
 > = TimelineStateAction<FileType, FileActionType, ActionType, TrackType> | {
-  type: 'SELECT_ACTION' | 'ACTION_DETAIL',
+  type: 'ACTION_DETAIL',
   payload: ActionType,
 } | {
-  type: 'SELECT_TRACK' | 'TRACK_DETAIL';
+  type: 'TRACK_DETAIL';
   payload: TrackType,
 } | {
-  type: 'SELECT_PROJECT' | 'PROJECT_DETAIL';
+  type: 'PROJECT_DETAIL';
 } | {
   type: 'ENGINE_INIT',
   payload: {
@@ -149,9 +152,6 @@ export type EditorStateAction<
 } | {
   type: 'SET_RENDERER',
   payload?: HTMLCanvasElement | null
-} | {
-  type: 'CACHE_LOADED_FILE',
-  payload: FileType
 } | {
   type: 'CLOSE_DETAIL'
 } | {
@@ -191,50 +191,23 @@ const setContext = (key: string, state: IEditorState, stateAction: SetContextAct
   }
 }
 
-
-export function EditorReducer(state: IEditorState, stateAction: EditorStateAction): IEditorState {
+export function EditorReducerBase(state: IEditorState, stateAction: EditorStateAction): IEditorState {
   const engine = state.engine;
   switch (stateAction.type) {
-    case 'SELECT_ACTION':
     case 'ACTION_DETAIL': {
-      const action = stateAction.payload as IEditorAction;
-      const track = state.file?.tracks.filter((t) => t.actions.some((a) => a.id === action.id))
-      const newState = setDetail({
-        ...state,
-        selectedAction: action,
-        selectedTrack: track,
-        selected: action,
-      });
-      if (stateAction.type === 'SELECT_ACTION') {
-        return newState;
-      }
-      return { ...newState, detailOpen: true };
+      state = TimelineReducer(state, { ...stateAction, type: 'SELECT_ACTION' } as any) as IEditorState;
+      state = setDetail(state);
+      return { ...state, detailOpen: true };
     }
-    case 'SELECT_TRACK':
     case 'TRACK_DETAIL': {
-      const newState = setDetail({
-        ...state,
-        selectedAction: null,
-        selectedTrack: stateAction.payload,
-        selected: stateAction.payload,
-      });
-      if (stateAction.type === 'SELECT_TRACK') {
-        return newState;
-      }
-      return { ...newState, detailOpen: true };
+      state = TimelineReducer(state, { ...stateAction, type: 'SELECT_TRACK' } as any) as IEditorState;
+      state = setDetail(state);
+      return { ...state, detailOpen: true };
     }
-    case 'SELECT_PROJECT':
     case 'PROJECT_DETAIL': {
-      const newState = setDetail({
-        ...state,
-        selectedAction: null,
-        selectedTrack: null,
-        selected: state.file as Selection,
-      });
-      if (stateAction.type === 'SELECT_PROJECT') {
-        return newState;
-      }
-      return { ...newState, detailOpen: true };
+      state = TimelineReducer(state, { ...stateAction, type: 'SELECT_PROJECT' } as any) as IEditorState;
+      state = setDetail(state);
+      return { ...state, detailOpen: true };
     }
     case 'VIEWER':
       engine.viewer = stateAction.payload;
@@ -257,19 +230,6 @@ export function EditorReducer(state: IEditorState, stateAction: EditorStateActio
         file,
       };
     }
-    /*
-    case 'ENGINE_INIT': {
-      const { viewer, file } = stateAction.payload;
-      let newState = EditorReducer(state, { type: 'VIEWER', payload: viewer });
-      newState = EditorReducer(newState as IEditorState, { type: 'CACHE_LOADED_FILE', payload: file });
-      return TimelineReducer(newState, { type: 'SET_TRACKS', payload: file.tracks }) as IEditorState;
-    }
-    */
-    case 'CACHE_LOADED_FILE':
-      return {
-        ...state,
-        file: stateAction.payload,
-      };
     case 'UPDATE_PROJECT':{
       let file: any = null;
       if (state.file) {
@@ -368,6 +328,19 @@ export function EditorReducer(state: IEditorState, stateAction: EditorStateActio
     default:
       return TimelineReducer(state as ITimelineState, stateAction as TimelineStateAction) as IEditorState;
   }
+}
+
+export function EditorReducer(state: IEditorState, stateAction: EditorStateAction): IEditorState {
+  const newState = EditorReducerBase(state, stateAction);
+  const { engine, file } = newState;
+  newState.getState = () => {
+    console.info('file-state2', file?.state);
+    if (!file || file?.state === FileState.READY) {
+      return engine.state as EditorEngineState;
+    }
+    return 'loading';
+  }
+  return newState;
 }
 
 export type EditorContextType = IEditorState & {

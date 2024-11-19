@@ -27,10 +27,10 @@ export function checkProps(props: TimelineControlProps): TimelineControlProps & 
     scale = DEFAULT_SCALE,
     scaleSplitCount = DEFAULT_SCALE_SPLIT_COUNT,
     scaleWidth = DEFAULT_SCALE_WIDTH,
-    startLeft = DEFAULT_START_LEFT,
+    startLeft,
     minScaleCount = MIN_SCALE_COUNT,
     maxScaleCount = Infinity,
-    trackHeight = DEFAULT_TRACK_HEIGHT,
+    trackHeight,
   } = props;
 
   if(scale <= 0) {
