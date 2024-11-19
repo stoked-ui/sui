@@ -45,6 +45,7 @@
     "@emotion/styled": "^11.8.1",
     "@mui/icons-material": "^5.15.21",
     "@mui/material": "^5.15.21",
+    "@stoked-ui/common": "workspace:^",
     "@stoked-ui/file-explorer": "workspace:^",
     "@stoked-ui/media-selector": "workspace:^",
     "react": "18.3.1",

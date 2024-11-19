@@ -1,26 +1,25 @@
 // eslint-disable-next-line @typescript-eslint/no-use-before-define
-import FileTypeMeta from "./FileTypeMeta";
+import { IMimeType } from "./MimeType";
 import WebFile from "./WebFile";
-import { TimelineOutputFileMeta } from "./TimelineFile.types";
-import { Constructor, IWebFile, IWebFileProps } from "./WebFile.types";
+import { IWebFile, IWebFileProps } from "./WebFile.types";
 
-export interface IProjectFileProps extends IWebFileProps {}
+export interface IProjectFileProps extends IWebFileProps {
+}
 
-export interface IProjectFile extends IWebFile {}
+export interface IProjectFile extends IWebFile {
+}
 
-export default class ProjectFile<
-  MimeType extends FileTypeMeta,
-  OutputMimeType extends FileTypeMeta
-> extends WebFile<MimeType>
+export default abstract class ProjectFile extends WebFile
   implements IProjectFile {
 
-  constructor(props: IProjectFileProps) {
-    super(props);
+  outputMimeTypes: [IMimeType];
+
+  get fileProps(): Omit<IProjectFile, 'save' | 'initialize' | 'fileMeta' | 'createBlob' | 'state'>  {
+    return {
+      ...super.fileProps,
+    };
   }
 
-  protected OutputFileTypeConstructor: Constructor<OutputMimeType> = TimelineOutputFileMeta as Constructor<OutputMimeType>;
-
-  outputFileMeta: OutputMimeType = new this.OutputFileTypeConstructor();
 }
 
 

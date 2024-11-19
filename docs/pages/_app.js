@@ -244,7 +244,7 @@ function AppWrapper(props) {
               <CodeVariantProvider>
                 <PageContext.Provider value={pageContextValue}>
                   <ThemeProvider>
-                    <DocsStyledEngineProvider cacheLtr={emotionCache}>
+                    <DocsStyledEngineProvider cacheLtr={emotionCache} injectFirst>
                       {children}
                       {/*
                       <GoogleAnalytics />

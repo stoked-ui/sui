@@ -35,12 +35,11 @@ export default function EditorHero({ id, sx }: { id: string, sx?: SxProps}) {
             sx={sx || { borderRadius: '12px 12px 0 0' }}
             trackControls
             snapControls
-            labels
-
             record
             openSaveControls
-            file={EditorExample}
-            /* fileUrl={'/static/editor/stoked-ui.sue'} */
+            file={EditorExample} /*
+  */            /* fileUrl={'/static/editor/stoked-ui.sue'} */
+            fileUrl={'/static/editor/stoked-ui-3.sue'}
           />
         </EditorProvider>
       </Card>

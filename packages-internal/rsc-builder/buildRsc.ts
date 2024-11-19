@@ -15,12 +15,24 @@ type Project = {
 
 const PROJECTS: Project[] = [
   {
+    name: 'common',
+    rootPath: path.join(process.cwd(), 'packages/sui-common'),
+  },
+  {
     name: 'media-selector',
     rootPath: path.join(process.cwd(), 'packages/sui-media-selector'),
   },
   {
     name: 'file-explorer',
     rootPath: path.join(process.cwd(), 'packages/sui-file-explorer'),
+  },
+  {
+    name: 'timeline',
+    rootPath: path.join(process.cwd(), 'packages/sui-timeline'),
+  },
+  {
+    name: 'editor',
+    rootPath: path.join(process.cwd(), 'packages/sui-editor'),
   },
 ];
 

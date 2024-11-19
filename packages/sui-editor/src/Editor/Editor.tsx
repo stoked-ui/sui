@@ -1,6 +1,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import Timeline, { ITimelineTrack, ITimelineAction, TimelineFile, WebFile, IController } from '@stoked-ui/timeline';
+import Timeline, { ITimelineTrack, ITimelineAction, TimelineFile, WebFile, IController, FileState } from '@stoked-ui/timeline';
 import {  FileExplorer } from '@stoked-ui/file-explorer';
 import { IMediaFile, MediaFile, namedId } from '@stoked-ui/media-selector';
 import { useSlotProps} from '@mui/base/utils';
@@ -18,7 +18,7 @@ import DetailModal from "../DetailView/DetailView";
 import { useEditorContext } from "../EditorProvider/EditorContext";
 import { IEditorAction, IEditorFileAction, initEditorAction } from "../EditorAction/EditorAction";
 import { IEditorTrack } from "../EditorTrack/EditorTrack";
-import EditorFile, { EditorFileType, IEditorFile } from "../EditorFile/EditorFile";
+import EditorFile, { IEditorFile } from "../EditorFile/EditorFile";
 
 const useThemeProps = createUseThemeProps('MuiEditor');
 
@@ -41,6 +41,15 @@ const useUtilityClasses = <R extends IMediaFile, Multiple extends boolean | unde
 const EditorRoot = styled('div', {
   name: 'MuiEditor',
   slot: 'root',
+  shouldForwardProp: (prop) =>
+    prop !== 'allControls'
+    && prop !== 'ownerState'
+    && prop !== 'fileUrl'
+    && prop !== 'openSaveControls'
+    && prop !== 'record'
+    && prop !== 'snapControls'
+    && prop !== 'trackControls',
+
 })(() => ({
   display: 'flex',
   flexDirection: 'column',
@@ -116,10 +125,14 @@ const Editor = React.forwardRef(function Editor<
   React.useEffect(() => {
 
 
-    const set = ['labels', 'fileView', 'trackControls', 'snapControls', 'localDb', 'openSaveControls', 'record', 'noResizer', 'allControls'];
+    const set = ['labels', 'fileView', 'trackControls', 'snapControls', 'localDb', 'openSaveControls', 'record', 'noResizer', 'allControls', 'detailMode', 'minimal'];
     const values = set.filter((s) => inProps[s]);
 
-    dispatch({ type: 'SET_FLAGS', payload: { set, values } });
+    if (!values.filter((s) => ['minimal', 'detailMode'].includes(s)).length || !flags.includes('isMobile')) {
+      values.push('labels');
+    }
+    // dispatch({ type: 'SET_SETTING', payload: {key: 'timeline', value: { startLeft: 72 }}});
+    dispatch({ type: 'INITIAL_FLAGS', payload: { set, values } });
   }, []);
 
   const {
@@ -233,6 +246,8 @@ const Editor = React.forwardRef(function Editor<
     }
   }, [currentVersion, versions, engine]);
 
+
+
   const timelineRef = React.useRef<HTMLDivElement>(null);
   const [contextMenu, setContextMenu] = React.useState<{
     mouseX: number;
@@ -338,7 +353,7 @@ const Editor = React.forwardRef(function Editor<
            dispatch({ type: 'SET_FILE', payload: inputFile as EditorFile });
         })
     } else if (inProps.fileUrl) {
-      WebFile.fromUrl<EditorFileType>(inProps.fileUrl)
+      WebFile.fromUrl(inProps.fileUrl)
         .then((timelineFile) => {
           dispatch({ type: 'SET_FILE', payload: timelineFile as EditorFile })
         })
@@ -351,8 +366,13 @@ const Editor = React.forwardRef(function Editor<
 
   }, [])
 
+  React.useEffect(() => {
+    console.info('state', file?.state)
+  }, [file]);
+  const newRootProps = { ...rootProps, ...rootProps.ownerState };
+  const displayTimeline = !flags.includes('fileView') && engine && !engine.isLoading && file && file.state === FileState.READY;
   return (
-    <Root role={'editor'} {...rootProps} sx={sx} id={id}>
+    <Root role={'editor'} {...newRootProps} sx={sx} id={id}>
       <EditorViewSlot {...editorViewPropsNew} ref={viewerRef} />
       <ControlsSlot
         role={'controls'}
@@ -364,16 +384,15 @@ const Editor = React.forwardRef(function Editor<
         setCurrentVersion={setCurrentVersion}
         disabled={engine.isLoading}
       />
-      {!engine.isLoading &&
+      {displayTimeline &&
         <React.Fragment>
-          {!flags.includes('fileView') && <TimelineSlot
+         <TimelineSlot
             role={'timeline'}
             {...timelineProps}
             ref={timelineRef}
             controllers={Controllers}
             onKeyDown={instance.onKeyDown}
             viewSelector={`.MuiEditorView-root`}
-            labels={flags.includes('labels')}
             sx={timelineSx}
             disabled={engine.isLoading}
             onContextMenuLabel={handleContextMenuLabel}
@@ -382,7 +401,9 @@ const Editor = React.forwardRef(function Editor<
             onContextMenu={handleContextMenuLabel}
             onAddFiles={onAddFiles}
             onLabelClick={onLabelClick}
-          />}
+            onActionClick={(action: ITimelineAction) => dispatch({type: 'SELECT_ACTION', payload: action as any})}
+            onTrackClick={(track: ITimelineTrack) => dispatch({type: 'SELECT_TRACK', payload: track as any})}
+          />
           {flags.includes('fileView') && <Explorer
             grid
             role={'file-explorer'}
@@ -435,9 +456,11 @@ Editor.propTypes = {
 
   fileView: PropTypes.bool,
 
+  labels: PropTypes.bool,
+
   localDb: PropTypes.bool,
 
-  labels: PropTypes.bool,
+  minimal: PropTypes.bool,
 
   noResizer: PropTypes.bool,
 

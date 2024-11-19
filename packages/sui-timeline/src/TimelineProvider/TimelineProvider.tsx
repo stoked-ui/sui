@@ -8,8 +8,8 @@ import {
   TimelineContext,
   TimelineContextType, TimelineStateAction, getDbProps
 } from './TimelineProvider.types';
-import LocalDb, { initDb } from "../LocalDb";
-import TimelineFile, { TimelineFileMeta } from "../TimelineFile";
+import LocalDb from "../LocalDb";
+import { SUITimeline } from "../TimelineFile";
 
 function TimelineProvider<
   EngineType extends IEngine = IEngine,
@@ -19,28 +19,29 @@ function TimelineProvider<
   const { children, id, controllers, engine } = props;
 
   const theEngine = engine ?? new Engine({ controllers  });
-  const getState = () => {
+  const getStateBase = () => {
     return theEngine.state as EngineState;
   }
-  const setState = (newState: EngineState | string) => {
+
+  const setStateBase = (newState: EngineState | string) => {
     theEngine.state = newState;
   }
+
   const initialState: ITimelineState = {
     ...initialTimelineState,
     id: id ?? 'timeline',
     engine: theEngine,
-    getState,
-    setState
+    getState: getStateBase,
+    setState: setStateBase
   };
 
-  const fileMeta = new TimelineFileMeta();
   const reducer = props.reducer ?? TimelineReducer;
   const [state, dispatch] = React.useReducer(reducer, initialState);
   const { flags } = state;
-  React.useEffect(() => {
 
+  React.useEffect(() => {
     if (!LocalDb.initialized) {
-      LocalDb.init(props.localDb ? props.localDb : getDbProps(fileMeta, props.localDb));
+      LocalDb.init(props.localDb ? props.localDb : getDbProps(SUITimeline, props.localDb));
     }
 
   }, [flags.includes('localDb')]);

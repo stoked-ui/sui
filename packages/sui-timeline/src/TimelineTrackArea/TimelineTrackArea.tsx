@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {styled} from "@mui/material/styles";
+import { alpha, styled } from "@mui/material/styles";
 import { AutoSizer, Grid, GridCellRenderer } from 'react-virtualized';
 import {type TimelineControlPropsBase} from '../Timeline/TimelineControl.types';
 import {prefix} from '../utils/deal_class_prefix';
@@ -10,6 +10,9 @@ import {TimelineTrackAreaProps} from './TimelineTrackArea.types'
 import {useDragLine} from './useDragLine';
 import {useTimeline} from "../TimelineProvider";
 import TimelineFile from "../TimelineFile";
+import { SnapControls } from "../TimelineLabels/TimelineLabels";
+import { shouldForwardProp } from "@mui/system/createStyled";
+import { Box, Typography } from '@mui/material';
 
 /** edit area ref data */
 export interface TimelineTrackAreaState {
@@ -33,8 +36,75 @@ const TimelineTrackAreaRoot = styled('div')(() => ({
   },
 }));
 
+const TrackLabel = styled('label', {
+  name: 'MuiTimelineAction',
+  slot: 'root',
+  overridesResolver: (props, styles) => styles.root,
+  shouldForwardProp: (prop) => shouldForwardProp(prop) && prop !== 'color',
+})<{
+  hover: boolean;
+  color: string;
+}>(({ theme, hover }) => {
+
+  const bgColor = alpha(theme.palette.background.default, .95);
+  return {
+    '& p': {
+      color: theme.palette.text.primary,
+      textWrap: 'none',
+      whiteSpace: 'nowrap',
+      position: 'sticky',
+      left: 0
+    },
+    padding: '3px 6px',
+    position: 'absolute',
+    display: 'flex-inline',
+    width: 'min-content',
+    whiteSpace: 'nowrap',
+    borderRadius: '4px',
+    background: bgColor,
+    alignSelf: 'center',
+    right: 0,
+    overflow: 'auto',
+    opacity: hover ? '1' : '0',
+    marginRight: '8px',
+    transition: hover ? 'opacity .2s ease-in' : 'opacity .2s .7s ease-out',
+    zIndex: 200,
+  }
+});
+
+const FloatingTracksRoot = styled('div',{
+  shouldForwardProp: (prop) =>
+    shouldForwardProp(prop) &&
+    prop !== 'hover',
+})(() => ({
+  position: 'absolute',
+  width: '100%',
+  height: '100%',
+  justifyItems: 'end',
+  paddingTop: '37px'
+}));
+
+function FloatingTrackLabels({ tracks }) {
+  const { settings } = useTimeline();
+
+  return (
+    <FloatingTracksRoot >
+      {tracks.map((track, index) => (
+        <Box sx={{ height: settings['timeline.trackHeight'], display: 'flex' }} key={`${track.name}-${index}`}>
+          <TrackLabel
+            color={track.controller?.color}
+            hover={settings['track-hover'] === track.id ? true : undefined}
+          >
+            <Typography variant="button" color="text.secondary" >{track.name}</Typography>
+          </TrackLabel>
+        </Box>
+      ))}
+    </FloatingTracksRoot>
+  )
+}
+
 const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrackAreaProps>((props, ref) => {
-  const { file } = useTimeline();
+  const { file , dispatch } = useTimeline();
   const tracks = TimelineFile.displayTracks(file?.tracks);
 
   const {
@@ -110,7 +180,13 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
     }
   };
 
-/** Get the rendering content of each cell */
+  React.useEffect(() => {
+    if (editAreaRef.current) {
+      dispatch({ type: 'SET_COMPONENT', payload: { key: 'timelineArea', value: editAreaRef.current as HTMLDivElement } });
+    }
+  }, [editAreaRef.current]);
+
+  /** Get the rendering content of each cell */
   const cellRenderer: GridCellRenderer = ({ rowIndex, key, style }) => {
     const gridTrack = tracks[rowIndex]; // track data
     return (
@@ -172,13 +248,15 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
   }, [tracks]);
 
   return (
+    <React.Fragment>
+      <FloatingTrackLabels tracks={tracks} />
     <TimelineTrackAreaRoot ref={editAreaRef} className={`SuiTimelineEditArea-root ${prefix('edit-area')}`}>
       <AutoSizer className={'auto-sizer'} style={{height: 'fit-content'}}>
         {({ width, height }) => {
           // Get full height
           let totalHeight = 0;
           // HEIGHT LIST
-          const heights = tracks?.map((heightTrack) => {
+          const heights = tracks?.map(() => {
             totalHeight += trackHeight;
             return trackHeight;
           });
@@ -210,6 +288,9 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
               overscanRowCount={10}
               overscanColumnCount={0}
               onScroll={(param) => {
+/*
+                adjustTrackLabels();
+*/
                 onScroll(param);
               }}
             />
@@ -218,6 +299,7 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
       </AutoSizer>
       {dragLine && <TimelineTrackAreaDragLines scrollLeft={scrollLeft} {...dragLineData} />}
     </TimelineTrackAreaRoot>
+    </React.Fragment>
   );
 });
 export default TimelineTrackArea;

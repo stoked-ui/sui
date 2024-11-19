@@ -6,6 +6,9 @@ import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import LockIcon from "@mui/icons-material/Lock";
 import LockOpenIcon from "@mui/icons-material/LockOpen";
+import { IconButton } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import Fab from "@mui/material/Fab";
 
 export default function TimelineTrackActions({ track, sx }: { track: any, sx?: any }) {
   const { file, dispatch, flags } = useTimeline();
@@ -14,12 +17,18 @@ export default function TimelineTrackActions({ track, sx }: { track: any, sx?: a
   const toggleClick = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
     event.stopPropagation();
   }
+  if (track.id === 'newTrack') {
+    return (
+      <Fab color="primary" size={'small'} sx={{ scale: '.7'}}><AddIcon fontSize={'large'} /></Fab>
+    )
+
+  }
   return <ToggleButtonGroupEx
     exclusive
     aria-label="text alignment"
     width={32}
-    height={28}
-    sx={sx}
+    height={32}
+    sx={[...(Array.isArray(sx) ? sx : [sx]), { marginLeft: '8px'}]}
   >
     <ToggleButton
       id={`${track.id}-hidden`}

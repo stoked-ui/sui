@@ -89,9 +89,11 @@ function DetailModal () {
     aria-describedby="modal-modal-description"
     style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
   >
-    <DetailProvider file={file as IEditorFile} detailRendererRef={detailRendererRef} selectedActionId={selectedAction?.id} selectedTrackId={selectedTrack?.id}>
-      <DetailView onClose={onClose} />
-    </DetailProvider>
+    <div>
+      <DetailProvider file={file as IEditorFile} detailRendererRef={detailRendererRef} selectedActionId={selectedAction?.id} selectedTrackId={selectedTrack?.id}>
+        <DetailView onClose={onClose} />
+      </DetailProvider>
+    </div>
   </Modal>)
 }
 

@@ -17,7 +17,7 @@ import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import {alpha, emphasize, Theme} from '@mui/material/styles';
 import { Slider, Stack, Tooltip } from "@mui/material";
 import { MediaFile, namedId } from '@stoked-ui/media-selector';
-import { OutputBlob, Version, ToggleButtonGroupEx } from '@stoked-ui/timeline';
+import { OutputBlob, Version, ToggleButtonGroupEx, FileState, SnapControls } from '@stoked-ui/timeline';
 import { useEditorContext } from '../EditorProvider/EditorContext';
 import {
   IEditorEngine,
@@ -62,8 +62,11 @@ const ViewButton = styled(ToggleButton)(() => ({
   backgroundColor: 'unset',
 }))
 
-const PlayerRoot = styled('div')
-<{ loading: boolean }>(({ theme, loading }) => ({
+const PlayerRoot = styled('div',{
+  shouldForwardProp: (prop) =>
+    prop !== 'loading' &&
+    prop !== 'viewMode',
+})<{ loading: boolean }>(({ theme, loading }) => ({
   height: '42px',
   width: '100%',
   display: loading ? 'none' : 'flex',
@@ -585,7 +588,7 @@ function Volume({disabled}: { disabled?: boolean }) {
 export const EditorControls = React.forwardRef(
   function EditorControls(inProps: EditorControlsProps, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
     const [controlState, setControlState] = React.useState<ControlState>('paused');
-    const { engine, file } = useEditorContext();
+    const { engine, flags, file } = useEditorContext();
     const props = useThemeProps({ props: inProps, name: 'MuiEditorControls' });
     const { timeline, switchView = true, disabled } = inProps;
     const { versions, setVersions, currentVersion, setCurrentVersion } = props;
@@ -627,12 +630,16 @@ export const EditorControls = React.forwardRef(
 
     const showVersions = !!versions && !!currentVersion && !!setCurrentVersion && !!setVersions;
     const versionProps = { versions, setVersions, currentVersion, setCurrentVersion };
-
+    const ready = engine && !engine.isLoading && file && file.state === FileState.READY;
+    if (!ready) {
+      return <div></div>
+    }
     return (
       <PlayerRoot id={'timeline-controls'} className="timeline-player" ref={ref} loading={engine.isLoading}>
         <div style={{display: 'flex', flexDirection: 'row', alignContent: 'center', width: '100%'}}>
           <div style={{display: 'flex', flexDirection: 'row', alignContent: 'center', height: '100%'}}>
             <Controls {...controlProps} controlState={controlState} setControlState={setControlState} versions={versions!} setVersions={setVersions!} disabled={disabled} />
+            {!flags.includes('labels') && flags.includes('snapControls') && <SnapControls />}
             {(switchView) && <ViewToggle disabled={disabled} />}
           </div>
         </div>

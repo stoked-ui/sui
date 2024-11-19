@@ -1,5 +1,7 @@
 import * as React from 'react';
 import { styled, keyframes } from '@mui/material/styles';
+import { SxProps } from '@mui/system';
+import { FileState } from '@stoked-ui/timeline';
 import {useEditorContext} from "../EditorProvider/EditorContext";
 
 const scale = keyframes`
@@ -21,21 +23,23 @@ const LoadingVideo = styled('video', {
   name: "MuiEditorViewLoadingVideo",
   slot: "loading-video",
   shouldForwardProp: (prop) => prop !== 'viewMode',
-})({
+})<{ styles: React.CSSProperties }>(({ theme, styles }) => ({
   display: 'flex',
   flexDirection: 'column',
-  width: '100%',
   position: 'absolute',
   left: 0,
   overflow: 'hidden',
   aspectRatio: 16 / 9,
+  width: '100%',
+  height: '100%',
+  backgroundColor: theme.palette.background.default,
   zIndex: 50,
   opacity: 0,
   transition: 'opacity 4s',
   '&.show': {
     opacity: 1,
   },
-});
+}));
 
 const LoaderCircle = styled('div')(({ theme }) => ({
   width: '25px',
@@ -68,9 +72,9 @@ const LoaderCircle = styled('div')(({ theme }) => ({
     borderColor: theme.palette.primary.main,
   },
 }));
-let count = 0;
-function Loader() {
-  const { editorId,dispatch, engine, components } = useEditorContext();
+
+function Loader({styles}: {styles: React.CSSProperties}) {
+  const { dispatch, file , engine } = useEditorContext();
   const loadingVideoRef = React.useRef<HTMLVideoElement>(null);
 
   React.useEffect(() => {
@@ -101,12 +105,11 @@ function Loader() {
       }
     }
   }, [loadingVideoRef.current]);
-
-  if (engine?.isLoading) {
+  if (!engine || engine?.isLoading || !file || file.state !== FileState.READY) {
 
     return (
       <React.Fragment>
-        <LoadingVideo role={'loading-video'} ref={loadingVideoRef} />
+        <LoadingVideo role={'loading-video'} ref={loadingVideoRef} styles={styles} />
         <LoaderCircle />
       </React.Fragment>
     )

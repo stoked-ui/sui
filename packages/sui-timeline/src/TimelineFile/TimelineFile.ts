@@ -6,7 +6,6 @@ import {
   namedId
 } from "@stoked-ui/media-selector";
 import {
-  initTimelineAction,
   type ITimelineAction,
   type ITimelineFileAction
 } from "../TimelineAction/TimelineAction.types";
@@ -16,28 +15,24 @@ import {
   ITimelineTrackMetadata
 } from "../TimelineTrack/TimelineTrack.types";
 import WebFile from "./WebFile";
-import FileTypeMeta from './FileTypeMeta';
 import { Constructor } from "./WebFile.types";
 import {
-  FileState, isRepeatingDelimiter, TimelineOutputFileMeta,
+  FileState,
   ITimelineFile, ITimelineFileMetadata, ITimelineFileProps,
-  StreamData, FileDelimiters, fileDelimiters,
-  delimiterFuncs, TimelineFileMeta,
+  SUIAudio,
+  SUITimeline,
 } from "./TimelineFile.types";
 import Controllers from "../Controller/Controllers";
 import Controller from "../Controller";
 import ProjectFile from "./ProjectFile";
-import LocalDb from "../LocalDb";
 
 export default class TimelineFile<
-  MimeType extends FileTypeMeta = TimelineFileMeta,
-  OutputMimeType extends FileTypeMeta = TimelineOutputFileMeta,
   FileTrackType extends ITimelineFileTrack = ITimelineFileTrack,
   TrackType extends ITimelineTrack = ITimelineTrack,
   FileActionType extends ITimelineFileAction = ITimelineFileAction,
   ActionType extends ITimelineAction = ITimelineAction
 >
-  extends ProjectFile<MimeType, OutputMimeType>
+  extends ProjectFile
   implements ITimelineFile {
 
   image?: string;
@@ -55,6 +50,8 @@ export default class TimelineFile<
 
     this.name = props.name ?? this.getName(props);
 
+    this.mimeType = SUITimeline;
+    this.outputMimeTypes = [SUIAudio];
     this._fileTracks = props.tracks?.map((track) => {
       if (!track.controller) {
         if (track.controllerName) {
@@ -90,15 +87,10 @@ export default class TimelineFile<
 
       return newAction;
     };
-
-    const FileTypeConstructor: Constructor<MimeType> = FileTypeMeta as unknown as Constructor<MimeType>;
-    this.fileMeta = new FileTypeConstructor();
-
   }
 
-  fileMeta: FileTypeMeta;
-
   async initialize(files = []) {
+    console.info('timeline initialize')
     if (this.state !== FileState.CONSTRUCTED) {
       return;
     }
@@ -140,9 +132,10 @@ export default class TimelineFile<
       this._fileTracks = [];
       this.lastChecksum = await this.checksum();
 
-      await LocalDb.saveFile(this);
+      await this.save(true);
 
-      TimelineFile.fileState[this.id] = FileState.READY
+      this.state = FileState.READY
+      console.info('timeline initialize 2')
     } catch (ex) {
       console.error('buildTracks:', ex);
     }
@@ -228,11 +221,12 @@ export default class TimelineFile<
   set tracks(updatedTracks: TrackType[]) {
     this._tracks = updatedTracks?.filter((updatedTrack) => updatedTrack.id !== 'newTrack');
   }
-
+/*
   async save(silent: boolean = false): Promise<void> {
     await this.initialize(this.files);
     await super.save(silent);
   }
+  */
 
   get fileProps(): ITimelineFileMetadata {
     return {
@@ -247,32 +241,6 @@ export default class TimelineFile<
       }),
     } as ITimelineFileMetadata;
   }
-
-  // Function to create a combined file with JSON data and attached files
-  async createBlob(): Promise<Blob> {
-    try {
-      const saveFile = this.fileProps;
-      const projectMetaData = JSON.stringify(saveFile);
-
-      const stream = new ReadableStream({
-        async start(controller) {
-          const encoder = new TextEncoder();
-          // Encode projectMetaData as Uint8Array and enqueue it
-          controller.enqueue(encoder.encode(projectMetaData));
-          controller.close();
-        }
-      });
-
-      const response = new Response(stream);
-
-      // Convert the Response stream to a blob, which can then be saved as a File
-      return new Blob([await response.blob()], this.fileMeta.MimeType);
-    } catch (ex) {
-      console.error(ex);
-      throw new Error(ex as string);
-    }
-  }
-
 
   async readObjectFromStream<T>(stream: ReadableStream<Uint8Array>): Promise<T> {
     const reader = stream.getReader();
@@ -291,116 +259,6 @@ export default class TimelineFile<
 
     return JSON.parse(result) as T; // Parse the final JSON string into the object of type T
   }
-
-  private static parseDelimiter(
-    sd: StreamData
-  ): StreamData {
-
-    const jsonPart = sd.decoded.slice(0, sd.delimiterPosition);
-    const json = JSON.parse(jsonPart);
-    const sectionName = FileDelimiters[sd.currentDelimiterIndex];
-
-    const delimiterData = delimiterFuncs[sd.currentDelimiterIndex](json);
-    if (isRepeatingDelimiter(FileDelimiters[sd.currentDelimiterIndex])) {
-      if (!sd.parsed[sectionName]) {
-        sd.parsed[sectionName] = [delimiterData];
-      } else {
-        sd.parsed[sectionName].push(delimiterData);
-      }
-    } else {
-      sd.parsed[sectionName] = delimiterData;
-    }
-    return sd;
-  }
-
-  private static async parseChunk(
-    sd: StreamData
-  ): Promise<StreamData> {
-
-    const chunk = await sd.file.slice(sd.currentPosition, sd.currentPosition + sd.chunkSize).arrayBuffer();
-    const chunkText = sd.decoder.decode(chunk, { stream: true });
-    sd.decoded += chunkText;
-    sd.delimiterPosition = sd.decoded.indexOf(fileDelimiters[sd.currentDelimiterIndex]);
-    const repeatingDelimiter = isRepeatingDelimiter(FileDelimiters[sd.currentDelimiterIndex]);
-    if (repeatingDelimiter) {
-      const nextDelimiterIndex = sd.currentDelimiterIndex + 1;
-      if (sd.delimiterPosition === -1) {
-        sd.delimiterPosition = sd.decoded.indexOf(fileDelimiters[nextDelimiterIndex]);
-        if (sd.delimiterPosition !== -1) {
-          sd.currentDelimiterIndex += 1;
-          sd.endSection = true;
-        }
-      }
-    }
-    if (sd.delimiterPosition !== -1) {
-      sd.currentPosition += sd.delimiterPosition;
-      sd = await this.parseDelimiter(sd);
-      if (!repeatingDelimiter) {
-        sd.currentDelimiterIndex += 1;
-      } else if (repeatingDelimiter && sd.endSection) {
-        sd.currentDelimiterIndex += 2;
-        sd.endSection = false;
-      }
-    } else {
-      sd.currentPosition += sd.chunkSize;
-    }
-
-    return sd;
-  }
-
-  /*
-  async fromFile<FileType>(file: File): Promise<FileType> {
-/!*
-
-    let streamData = {
-      decoder: new TextDecoder("utf-8"),
-      chunkSize: 64 * 1024,
-      startPosition: 0,
-      currentPosition: 0,
-      decoded: "",
-      file,
-      currentDelimiterIndex: 0,
-      parsed: {},
-      delimiterPosition: -1,
-      endSection: false,
-    }
-
-    try {
-      while (streamData.currentPosition < streamData.file.size) {
-        // eslint-disable-next-line no-await-in-loop
-        streamData = await this.parseChunk(streamData);
-      }
-
-      // TODO: test to make sure the entire file matches the expected structure
-      // if ( does it match ?) {
-      //  throw new Error("Delimiter not found in the file.");
-      // }
-
-    } catch (error) {
-      console.error("Failed to parse large file:", error);
-      throw error;
-    }
-*!/
-
-    await this.readBlob(file, true);
-    const newFile = new TimelineFile({...streamData.parsed, name: file.name, version: 1} );
-    await newFile.initialize(initTimelineAction);
-    return newFile as FileType;
-  }
-
-  static async splitBlob(blob: Blob): Promise<[Blob, Blob]> {
-    // Assume the JSON part is small; we could use a fixed offset for simplicity
-    const jsonSize = 1000; // Adjust based on estimated JSON size
-    return [blob.slice(0, jsonSize), blob.slice(jsonSize)];
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  static splitTracksBlob(buffer: ArrayBuffer): Blob[] {
-    // Implement logic to split the tracks data
-    // Placeholder logic
-    return [];
-  }
-  */
 
   static newTrack<TrackType extends ITimelineTrack = ITimelineTrack>(): TrackType[] {
     return [{

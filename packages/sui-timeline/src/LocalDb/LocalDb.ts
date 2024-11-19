@@ -1,7 +1,5 @@
 import { openDB } from '@tempfix/idb';
-import WebFile from "../TimelineFile/WebFile";
-import { IWebData, IWebFile } from "../TimelineFile";
-import FileTypeMeta from "../TimelineFile/FileTypeMeta";
+import { IWebData } from "../TimelineFile";
 
 
 
@@ -36,6 +34,20 @@ export interface LocalDbProps {
   disabled: boolean;
 }
 
+export interface FileSaveRequest {
+  id: string,
+  version: number,
+  embedded: boolean,
+  meta: IWebData,
+  blob: Blob,
+  type: string
+}
+
+export interface FileLoadRequest {
+  id: string,
+  version?: number,
+  type: string,
+}
 /**
  * Class representing the local database.
  */
@@ -96,8 +108,8 @@ export default class LocalDb {
    * @param version - The version requested from idb.
    * @returns A promise that resolves to the file data.
    */
-  static async loadId(store: string, id: string, version: number = -1): Promise<Blob | null> {
-    return this.stores[store].loadId(id, version);
+  static async loadId({ type, id, version = -1 }: FileLoadRequest): Promise<Blob | null> {
+    return this.stores[type].loadId(id, version);
   }
 
   /**
@@ -114,8 +126,8 @@ export default class LocalDb {
    * @param file - The file to be saved.
    * @returns A promise that resolves to the ID of the saved file.
    */
-  static async saveFile<FileType extends WebFile<FileTypeMeta>>(file: IWebFile): Promise<Blob> {
-    return this.stores[file.fileMeta.name].saveFile<FileType>(file);
+  static async saveFile(fileData: FileSaveRequest): Promise<boolean> {
+    return this.stores[fileData.type].saveFile(fileData);
   }
 }
 
@@ -188,49 +200,50 @@ class LocalDbStore {
       return null;
     }
     const fileData: IDBFileVersion = record.data[versionId];
+
+    console.info('loadId success', fileData);
     return fileData.data;
   }
 
   /**
    * Saves a file to the store.
-   * @param file - The file to be saved.
-   * @returns A promise that resolves to the ID of the saved file.
+   * @param fileData - The file data to be saved.
+   * @returns A promise indicating whether the save was successful.
    */
-  async saveFile<FileType extends WebFile<FileTypeMeta>>(file: IWebFile): Promise<Blob> {
-    try {
-      const typedFiled: FileType = file as FileType;
-      const fileBlob = await typedFiled.createBlob();
-      let res: IDBValidKey;
+  async saveFile(fileData: FileSaveRequest): Promise<boolean> {
+    const { id, version, blob, meta } = fileData;
 
+    try {
       const db = await openDB(LocalDb.dbName, LocalDb.version);
       const tx = db.transaction(this.name, 'readwrite');
       const store = tx.objectStore(this.name);
 
-      const versionData = { ...typedFiled.fileProps, data: fileBlob } as IDBFileVersion
+      const versionData = { ...meta, data: blob } as IDBFileVersion
 
-      const dbFile: IDBVersionedFile = { [file.version]: versionData }
+      const dbFile: IDBVersionedFile = { [version]: versionData }
 
-      if (file.version === 1) {
-        res = await store.put(dbFile, file.id);
+      if (version === 1) {
+        await store.put(dbFile, id);
       } else {
-        let versionedFile: IDBVersionedFile = await store.get(file.id);
+        let versionedFile: IDBVersionedFile = await store.get(id);
         if (!versionedFile) {
           versionedFile = dbFile;
         } else {
-          versionedFile[file.version] = versionData;
+          versionedFile[version] = versionData;
         }
 
-        res = await store.put(versionedFile, file.id);
+        await store.put(versionedFile, id);
       }
 
       await tx.done;
 
-      console.info(`IDB Save: [${file.id}] ${this.name} - ${file.fileMeta.applicationName}::${file.fileMeta.name} => Complete`);
+      console.info(`IDB Save: [${id}] ${this.name} - ${LocalDb.dbName}::${this.name} => Complete`);
 
-      return fileBlob;
+      return true;
     } catch (e) {
-      console.info(`IDB Save Error: [${file.id}] ${this.name} - ${file.fileMeta.applicationName}::${file.fileMeta.name}`);
-      throw new Error(e as string);
+      console.error(`IDB Save Error: [${id}] ${this.name} - ${LocalDb.dbName}::${this.name}`);
+      // throw new Error(e as string);
+      return false
     }
   };
 

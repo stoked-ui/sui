@@ -21,7 +21,7 @@ import {
 } from "./EditorProvider.types";
 import { setDetail } from "../DetailView/Detail.types";
 import { IDetailStateUnselected } from '../DetailView/DetailProvider.types';
-import EditorFile, { EditorFileType } from "../EditorFile/EditorFile";
+import EditorFile, { SUIEditor } from "../EditorFile/EditorFile";
 
 export default function EditorProvider<
   EngineType extends IEditorEngine = IEditorEngine,
@@ -43,10 +43,9 @@ export default function EditorProvider<
     getState,
     setState,
     detailOpen: false,
-  } as IEditorStateUnselected;
+  } as any;
 
   const detailState = setDetail(stateProps);
-  const fileMeta = new EditorFileType();
 
   const editorProps: IEditorState = {
     ...detailState,
@@ -71,7 +70,7 @@ export default function EditorProvider<
       {...editorProps}
       controllers={Controllers}
       reducer={EditorReducer}
-      localDb={getDbProps(fileMeta, props.localDb)}
+      localDb={getDbProps(SUIEditor, props.localDb)}
     >
       {props.children}
     </TimelineProvider>

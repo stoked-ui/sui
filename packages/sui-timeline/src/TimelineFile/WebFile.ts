@@ -1,8 +1,9 @@
 /* eslint-disable class-methods-use-this */
 /*  eslint-disable @typescript-eslint/naming-convention */
+import { namedId } from "@stoked-ui/media-selector";
 import { FileState, SaveOptions } from "./TimelineFile.types";
-import LocalDb from "../LocalDb/LocalDb";
-import FileTypeMeta from "./FileTypeMeta";
+import LocalDb, { FileLoadRequest, FileSaveRequest } from "../LocalDb/LocalDb";
+import { IMimeType, MimeType } from "./MimeType";
 import {
   WebFileInitializer,
   Constructor,
@@ -10,10 +11,11 @@ import {
   IWebFile,
   IWebFileProps, saveFileApi, saveFileHack, IWebData
 } from "./WebFile.types";
-import { namedId } from "@stoked-ui/media-selector";
 
+const PropsDelimiter = '---STOKED_UI_PROPS_END---';
+const FilesTableDelimiter = '---STOKED_UI_FILES_TABLE_END---'
 
-export default class WebFile<MimeType extends FileTypeMeta> implements IWebFile {
+export default abstract class WebFile implements IWebFile {
 
   id: string;
 
@@ -40,11 +42,7 @@ export default class WebFile<MimeType extends FileTypeMeta> implements IWebFile 
     this.lastModified = props.lastModified;
     this.url = props.url;
     this._version = props.version ?? 1;
-
-    const FileTypeConstructor: Constructor<MimeType> = FileTypeMeta as unknown as Constructor<MimeType>;
-    this.fileMeta = new FileTypeConstructor();
-
-    console.info(`WebFile: ${this.id} - ${this.name} - ${JSON.stringify(this.fileMeta)}`);
+    console.info(`WebFile: ${this.id} - ${this.name}`);
     this.state = FileState.CONSTRUCTED;
   }
 
@@ -54,9 +52,9 @@ export default class WebFile<MimeType extends FileTypeMeta> implements IWebFile 
     return this._version;
   }
 
-  protected FileConstructor: Constructor<WebFile<MimeType>> = WebFile as unknown as Constructor<WebFile<MimeType>>;
+  protected FileConstructor: Constructor<WebFile> = WebFile as unknown as Constructor<WebFile>;
 
-  fileMeta: FileTypeMeta;
+  mimeType: IMimeType;
 
   // last saved checksum
   protected lastChecksum: null | string = null;
@@ -68,7 +66,18 @@ export default class WebFile<MimeType extends FileTypeMeta> implements IWebFile 
     return Promise.resolve();
   };
 
-  get metaData(): IWebFileProps {
+  async getSaveRequest(embedded: boolean = !this.fileUrlsValid ): Promise<FileSaveRequest> {
+    return {
+      id: this.id,
+      version: this.version,
+      blob: await this.createBlob(),
+      meta: this.fileProps,
+      type: this.mimeType.name,
+      embedded
+    }
+  }
+
+  get metaData(): IWebFileProps & { mimeType: IMimeType } {
     return {
       id: this.id,
       name: this.name,
@@ -78,6 +87,7 @@ export default class WebFile<MimeType extends FileTypeMeta> implements IWebFile 
       lastModified: this.lastModified,
       url: this.url,
       version: this.version,
+      mimeType: this.mimeType,
     };
   }
 
@@ -89,43 +99,37 @@ export default class WebFile<MimeType extends FileTypeMeta> implements IWebFile 
     return [];
   }
 
-  async saveAs() {
-    const fileBlob = await this.createBlob();
-    const saveOptions = this.getSaveApiOptions({ });
-    if ('showSaveFilePicker' in window) {
-      return saveFileApi({ ...saveOptions, fileBlob });
-    }
-    return saveFileHack({ ...saveOptions, fileBlob });
-  }
-
   getSaveApiOptions(optionProps: SaveOptions): SaveFilePickerOptions {
     if (!optionProps.suggestedName) {
       if (!optionProps.suggestedExt) {
-        const exts = Object.values(this.fileMeta.primaryType.accept);
-        optionProps.suggestedExt = (exts.length ? exts[0] : this.fileMeta.ext) as FileExtension;
+        optionProps.suggestedExt = this.mimeType.ext as FileExtension;
       }
-      optionProps.suggestedName = `${this.name}${Object.values(this.fileMeta.primaryType.accept)}`
+      optionProps.suggestedName = `${this.name}${optionProps.suggestedExt}`
     }
     const { id, types, suggestedName } = optionProps;
+
     return {
       id: id ?? this.id,
       suggestedName,
       excludeAcceptAllOption: false,
-      types: types || [this.fileMeta.primaryType, ...this.types],
+      types: types || this.types,
       startIn: id ? undefined : 'documents'
     }
   }
 
-  async save(silent: boolean = false, embedded: boolean = true): Promise<void> {
+  async save(silent: boolean = false): Promise<void> {
     const isDirty = await this.isDirty()
     if (!isDirty) {
       return;
     }
-    const fileBlob = await LocalDb.saveFile(this);
+
+    const fileData = await this.getSaveRequest();
+  console.log('fileData', fileData);
+    await LocalDb.saveFile(fileData);
 
     if (!silent) {
       const saveOptions = this.getSaveApiOptions({ });
-      const options = { ...saveOptions, fileBlob };
+      const options = { ...saveOptions, fileBlob: fileData.blob };
       if ('showSaveFilePicker' in window) {
         await saveFileApi(options);
       } else {
@@ -143,23 +147,28 @@ export default class WebFile<MimeType extends FileTypeMeta> implements IWebFile 
       const fileParams = this.fileParams;
       const fileParamsString = JSON.stringify(fileParams);
 
+      const embedded = !this.fileUrlsValid;
       const stream = new ReadableStream({
         async start(controller) {
           const encoder = new TextEncoder();
           // Encode fileProps as Uint8Array and enqueue it
           controller.enqueue(encoder.encode(propsString));
-          // Encode filesMeta as Uint8Array and enqueue it
-          controller.enqueue(encoder.encode(fileParamsString));
-          // Get additional data streams and pipe them
-          const additionalStreams = this.getDataStreams();
-          // eslint-disable-next-line no-restricted-syntax
-          for await (const readableStream of additionalStreams) {
-            const reader = readableStream.getReader();
-            let chunk: ReadableStreamReadResult<Uint8Array>;
+          if (embedded) {
+            controller.enqueue(encoder.encode(PropsDelimiter));
+            // Encode filesMeta as Uint8Array and enqueue it
+            controller.enqueue(encoder.encode(fileParamsString));
+            controller.enqueue(encoder.encode(FilesTableDelimiter));
+            // Get additional data streams and pipe them
+            const additionalStreams = this.getDataStreams();
+            // eslint-disable-next-line no-restricted-syntax
+            for await (const readableStream of additionalStreams) {
+              const reader = readableStream.getReader();
+              let chunk: ReadableStreamReadResult<Uint8Array>;
 
-            // eslint-disable-next-line no-cond-assign,no-await-in-loop
-            while (!(chunk = await reader.read()).done) {
-              controller.enqueue(chunk.value);
+              // eslint-disable-next-line no-cond-assign,no-await-in-loop
+              while (!(chunk = await reader.read()).done) {
+                controller.enqueue(chunk.value);
+              }
             }
           }
           controller.close();
@@ -169,14 +178,14 @@ export default class WebFile<MimeType extends FileTypeMeta> implements IWebFile 
       const response = new Response(stream);
 
       // Convert the Response stream to a blob, which can then be saved as a File
-      return new Blob([await response.blob()], this.fileMeta.MimeType);
+      return new Blob([await response.blob()], this.mimeType.typeObj);
     } catch (ex) {
       console.error(ex);
       throw new Error(ex as string);
     }
   }
 
-  static async readBlob(fileMeta: FileTypeMeta, blob: Blob, searchDb: boolean = false): Promise<{
+  static async readBlob(mimeType: string, blob: Blob, searchDb: boolean = false): Promise<{
     props: IWebFileProps;
     fileParams: IBaseDecodedFile[];
     files: File[];
@@ -208,20 +217,24 @@ export default class WebFile<MimeType extends FileTypeMeta> implements IWebFile 
     }
 
     // Read the JSON props
-    const propsString = await readUntilDelimiter('}');
-    const props: IWebFileProps = JSON.parse(`${propsString}}`);
+    const propsString = await readUntilDelimiter(PropsDelimiter);
+    const props: IWebData = JSON.parse(`${propsString}`);
 
     if (searchDb) {
-      const dbBlob = await LocalDb.loadId(fileMeta.mimeSubtype, props.id, props.version);
+      const loadRequest: FileLoadRequest = {
+        id: props.id,
+        type: props.mimeType.name,
+        version: props.version,
+      }
+      const dbBlob = await LocalDb.loadId(loadRequest);
       if (dbBlob !== null) {
-        const dbFile = new File([dbBlob], this.name, fileMeta.MimeType)
-        return this.readBlob(fileMeta,dbFile, false);
+        return this.readBlob(mimeType,dbBlob, false);
       }
     }
 
     // Read the JSON file parameters
-    const fileParamsString = await readUntilDelimiter(']');
-    const fileParams: IBaseDecodedFile[] = JSON.parse(`${fileParamsString}]`);
+    const fileParamsString = await readUntilDelimiter( FilesTableDelimiter);
+    const fileParams: IBaseDecodedFile[] = JSON.parse(`${fileParamsString}`);
 
     // Read and parse file data based on fileParams
     const files: File[] = [];
@@ -253,6 +266,14 @@ export default class WebFile<MimeType extends FileTypeMeta> implements IWebFile 
     return [];
   }
 
+  protected get fileUrls(): string[] {
+    return [];
+  }
+
+  protected get fileUrlsValid(): boolean {
+    return true;
+  }
+
   // Method to be overridden by subclasses for providing data streams
   protected getDataStreams(): AsyncIterable<ReadableStream<Uint8Array>> {
     return {
@@ -266,7 +287,12 @@ export default class WebFile<MimeType extends FileTypeMeta> implements IWebFile 
     };
   }
 
-  protected types: FilePickerAcceptType[] = [];
+  get types() {
+    return [{
+      accept: this.mimeType.accept,
+      description: this.mimeType.description,
+    }];
+  };
 
   async hashString(canonicalString: string): Promise<string> {
     const encoder = new TextEncoder();
@@ -288,17 +314,17 @@ export default class WebFile<MimeType extends FileTypeMeta> implements IWebFile 
     return true;
   }
 
-  static async fromUrl<MimeType extends FileTypeMeta>(url: string): Promise<WebFile<MimeType>> {
+  static async fromUrl(url: string): Promise<WebFile> {
     const response = await fetch(url, { cache: "no-store" });
     if (!response.ok) {
       throw new Error('Network response was not ok');
     }
     try {
-      const contentType = response.headers.get("content-type");
+      const contentType = response.headers.get("content-type") as MimeType;
       console.info(`Load: ${url} Content-Type: ${contentType}`);
       const blob = await response.blob()
       // const file = new File([blob], getFileName(url, true) ?? 'url-file', contentType ? { type: contentType } : this.fileMeta.MimeType);
-      return this.fromBlob<MimeType>(blob, true, );
+      return this.fromBlob(contentType,blob, true, );
     } catch (ex) {
       throw new Error(`Error loading file from url: ${url}`);
     }
@@ -312,23 +338,21 @@ export default class WebFile<MimeType extends FileTypeMeta> implements IWebFile 
 
     await this.initializer(files, args);
 
-    await LocalDb.saveFile(this);
+    await this.save(true);
     this.state = FileState.READY;
   };
 
   static async fromBlob<
-    MimeType extends FileTypeMeta,
-    FileType extends WebFile<MimeType> = WebFile<MimeType>
+    FileType extends WebFile
   >(
+    mimeType: string,
     blob: Blob,
     dbLoad: boolean = true,
   ): Promise<FileType>
   {
     try {
       const FileConstructor: Constructor<FileType> = WebFile as unknown as Constructor<FileType>;
-      const MetaFileConstructor: Constructor<MimeType> = FileTypeMeta as Constructor<MimeType>;
-      const fileMeta = new MetaFileConstructor();
-      const { props, files } = await WebFile.readBlob(fileMeta,blob, dbLoad);
+      const { props, files } = await WebFile.readBlob(mimeType,blob, dbLoad);
       const projectFile = new FileConstructor(props);
       await projectFile.initialize(files);
       return projectFile;
@@ -339,11 +363,6 @@ export default class WebFile<MimeType extends FileTypeMeta> implements IWebFile 
 
   static fileState: Record<string, FileState> = {};
 
-  get state(): FileState {
-    return WebFile.fileState[this.id];
-  }
 
-  set state(state: FileState) {
-    WebFile.fileState[this.id] = state;
-  }
+  state: FileState = FileState.NONE;
 }

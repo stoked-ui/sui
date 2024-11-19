@@ -1,6 +1,5 @@
 import * as React from 'react';
-import {EditorProvider} from "@stoked-ui/editor";
-import Editor, { Controllers } from "@stoked-ui/editor";
+import Editor, { Controllers, EditorProvider } from "@stoked-ui/editor";
 import EditorExample from 'docs/src/components/showcase/EditorExample';
 import BrandingCssVarsProvider from 'docs/src/BrandingCssVarsProvider';
 
@@ -13,9 +12,8 @@ export default function Index() {
   }, [])
   return (
     <BrandingCssVarsProvider>
-      <EditorProvider id={'stoked-ui-editor-example'} controllers={Controllers}
-                             file={EditorExample}>
-        <Editor/>
+      <EditorProvider id={'stoked-ui-editor-example'} controllers={Controllers}>
+        <Editor  file={EditorExample} allControls />
       </EditorProvider>
     </BrandingCssVarsProvider>
   )

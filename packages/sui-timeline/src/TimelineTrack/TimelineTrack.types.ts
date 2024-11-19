@@ -1,6 +1,7 @@
 import * as React from "react";
 import { IMediaFile } from '@stoked-ui/media-selector';
 import { alpha } from "@mui/material/styles";
+import { compositeColors } from "@stoked-ui/common";
 import { type ITimelineAction, type ITimelineFileAction } from '../TimelineAction/TimelineAction.types';
 import { type IController } from "../Controller/Controller.types";
 import { CommonProps } from "../interface/common_prop";
@@ -91,8 +92,9 @@ export const getTrackBackgroundColor = (color: string, mode: 'dark' | 'light', s
   const state = getState(selected, hover);
   const modeState = TrackColorAlpha[mode][state];
   const modeMod = (scalar: number) => mode === 'light' ? scalar : scalar;
-  const firstColor = alpha(color, modeMod(modeState.label));
-  const endColor = alpha(color, modeMod(modeState.row))
+  const baseColor = mode === 'light' ? '#fff' : '#000';
+  const firstColor = compositeColors(baseColor, alpha(color, modeMod(modeState.label)));
+  const endColor = compositeColors(baseColor, alpha(color, modeMod(modeState.row)));
   let opacity = 1;
   if (state === 'normal') {
     opacity = .95;

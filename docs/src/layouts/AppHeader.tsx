@@ -7,13 +7,12 @@ import Container from '@mui/material/Container';
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import GitHubIcon from '@mui/icons-material/GitHub';
-import HeaderNavBar from 'docs/src/components/header/HeaderNavBar';
-import HeaderNavDropdown from 'docs/src/components/header/HeaderNavDropdown';
 import ThemeModeToggle from 'docs/src/components/header/ThemeModeToggle';
 import { Link } from '@mui/docs/Link';
 import { DeferredAppSearch } from 'docs/src/modules/components/AppFrame';
 import { useTranslate } from '@mui/docs/i18n';
 import SvgSuiLogomark from "../icons/SvgSuiLogomark";
+import dynamic from "next/dynamic";
 
 const Header = styled('header')(({ theme }) => [
   {
@@ -36,6 +35,15 @@ const HEIGHT = 60;
 interface AppHeaderProps {
   gitHubRepository?: string;
 }
+
+
+const HeaderNavBar = dynamic(() => import('docs/src/components/header/HeaderNavBar'), {
+  ssr: false,
+});
+
+const HeaderNavDropdown = dynamic(() => import('docs/src/components/header/HeaderNavDropdown'), {
+  ssr: false,
+});
 
 export default function AppHeader(props: AppHeaderProps) {
   const { gitHubRepository = 'https://github.com/stoked-ui/mono' } = props;

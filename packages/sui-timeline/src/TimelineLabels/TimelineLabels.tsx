@@ -45,7 +45,7 @@ const ToolbarToggle = styled(ToggleButton)(() => ({
   backgroundColor: 'unset',
 }))
 
-export function Toolbar() {
+export function SnapControls({style}: {style?: React.CSSProperties}) {
   const { dispatch, flags } = useTimeline();
 
   const set =  ['edgeSnap', 'gridSnap'];
@@ -55,22 +55,25 @@ export function Toolbar() {
   ) => {
     dispatch({ type: 'SET_FLAGS', payload: { set, values: newOptions } })
   };
-
+  const onControls = !flags.includes('labels') && flags.includes('snapControls');
+  const width = onControls ? 52 : 40;
+  const height = onControls ? 40 : 32;
   return <ToggleButtonGroupEx
     onChange={handleSnapOptions}
     value={flags.filter((s) => set.includes(s))}
     size={'small'}
     aria-label="text alignment"
-    maxWidth={40}
-    maxHeight={32}
+    maxWidth={width}
+    maxHeight={height}
+    style={style}
   >
-    <Tooltip enterDelay={1000} title={"Edge Snap"}>
-      <ToggleButton value="edgeSnap" aria-label="edge snap">
+    <Tooltip enterDelay={1000} title={"Edge Snap"} key={'edgeSnap'}>
+      <ToggleButton value="edgeSnap" aria-label="edge snap" key={'edgeSnap-tooltip'}>
         <EdgeSnap/>
       </ToggleButton>
     </Tooltip>
-    <Tooltip enterDelay={1000} title={"Grid Snap"}>
-      <ToolbarToggle value="gridSnap" aria-label="grid snap">
+    <Tooltip enterDelay={1000} title={"Grid Snap"} key={'gridSnap'}>
+      <ToolbarToggle value="gridSnap" aria-label="grid snap" key={'gridSnap-tooltip'}>
         <GridSnap />
       </ToolbarToggle>
     </Tooltip>
@@ -92,7 +95,7 @@ const TimelineLabels = React.forwardRef(
     const { engine, flags, file, dispatch, settings } = useTimeline();
 
     const { slotProps, slots, sx, width } = inProps;
-    const finalWidth = width || '250px';
+    const finalWidth = width || flags.includes('labels') ? '275px' :'0px';
     // const themeProps = useThemeProps({ props: inProps, name: 'MuiTimelineLabels' });
 
     const classes = useUtilityClasses(inProps);
@@ -123,8 +126,8 @@ const TimelineLabels = React.forwardRef(
         sx={[sx, { width: finalWidth }]}
         classes={classes}
         className={`${classes.root} timeline-list`}>
-        {flags.includes('snapControls') && <Box sx={{height: '37.5px', padding: '3px 0px', justifyContent: 'end', display: 'flex'}}>
-          <Toolbar />
+        {flags.includes('snapControls') && !flags.includes('isMobile') && <Box sx={{height: '37.5px', padding: '3px 0px', justifyContent: 'end', display: 'flex'}}>
+          <SnapControls style={{ display: 'flex' }}/>
         </Box>}
         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
           {!engine.isLoading && TimelineFile.displayTracks(file?.tracks).map((track) => {
