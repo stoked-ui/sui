@@ -39,9 +39,12 @@ export const extractPluginParamsFromProps = <
 >): ExtractPluginParamsFromPropsReturnValue<TSignatures, TProps> => {
   type PluginParams = MergeSignaturesProperty<TSignatures, 'params'>;
 
+
   const paramsLookup = {} as Record<keyof PluginParams, true>;
   plugins.forEach((plugin) => {
-    Object.assign(paramsLookup, plugin.params);
+    if (plugin?.params) {
+      Object.assign(paramsLookup, plugin.params);
+    }
   });
 
   const pluginParams = {} as PluginParams;
@@ -58,7 +61,7 @@ export const extractPluginParamsFromProps = <
 
   const defaultizedPluginParams = plugins.reduce(
     (acc, plugin: EditorPlugin<EditorAnyPluginSignature>) => {
-      if (plugin.getDefaultizedParams) {
+      if (plugin?.getDefaultizedParams) {
         return plugin.getDefaultizedParams(acc);
       }
 

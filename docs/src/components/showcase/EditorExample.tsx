@@ -10,6 +10,7 @@ const EditorExample: IEditorFile = new EditorFile({
   description: 'demonstrate the @stoked-ui/editor features',
   author: 'Brian Stoker',
   created: 1729783494563,
+  version: 1,
   tracks: [
     {
       id: idFunc(),

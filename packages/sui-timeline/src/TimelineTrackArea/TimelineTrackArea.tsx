@@ -90,14 +90,16 @@ function FloatingTrackLabels({ tracks }) {
   return (
     <FloatingTracksRoot >
       {tracks.map((track, index) => (
-        <Box sx={{ height: settings['timeline.trackHeight'], display: 'flex' }} key={`${track.name}-${index}`}>
-          <TrackLabel
-            color={track.controller?.color}
-            hover={settings['track-hover'] === track.id ? true : undefined}
-          >
-            <Typography variant="button" color="text.secondary" >{track.name}</Typography>
-          </TrackLabel>
-        </Box>
+        track.id !== 'newTrack' &&
+          <Box sx={{height: settings['timeline.trackHeight'], display: 'flex'}}
+            key={`${track.name}-${index}`}>
+            <TrackLabel
+              color={track.controller?.color}
+              hover={settings['track-hover'] === track.id ? true : undefined}
+            >
+              <Typography variant="button" color="text.secondary">{track.name}</Typography>
+            </TrackLabel>
+          </Box>
       ))}
     </FloatingTracksRoot>
   )

@@ -13,7 +13,7 @@ export interface IProjectOutputFile extends IWebFile {
   file: IMediaFile;
 }
 
-export default class ProjectOutputFile
+export default abstract class ProjectOutputFile
   extends WebFile
   implements IProjectOutputFile {
 

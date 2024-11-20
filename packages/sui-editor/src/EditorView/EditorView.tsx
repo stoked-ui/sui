@@ -4,12 +4,10 @@ import { useTimeline, WebFile, MimeType} from "@stoked-ui/timeline";
 import SettingsIcon from '@mui/icons-material/Settings';
 import SaveIcon from '@mui/icons-material/Save';
 import OpenIcon from '@mui/icons-material/OpenInBrowser';
-import IconButton from '@mui/material/IconButton';
+import ClearIcon from '@mui/icons-material/Clear';
 import composeClasses from "@mui/utils/composeClasses";
 import {useSlotProps} from '@mui/base/utils';
 import {keyframes} from "@emotion/react";
-import InputIcon from '@mui/icons-material/Input';
-import OutputIcon from '@mui/icons-material/Output';
 import {
   Fab,
   Popover,
@@ -152,7 +150,7 @@ function Actions({ visible }: {visible: boolean}) {
         for (let i = 0; i < files.length; i += 1) {
           const clientFile = files[i];
           // eslint-disable-next-line no-await-in-loop
-          const loadedFile = await WebFile.fromBlob<EditorFile>(clientFile.type as MimeType,clientFile);
+          const loadedFile = await WebFile.fromBlob<EditorFile>(clientFile);
           dispatch({ type: 'SET_FILE', payload: loadedFile });
         }
       }
@@ -162,60 +160,81 @@ function Actions({ visible }: {visible: boolean}) {
     input.click();
   }
 
-  return <Stack direction={'row'}>
-    {fileIsDirty && visible &&
-      <Zoom in={visible} >
+  return(
+    <Stack direction={'column'}>
+      <Zoom in={visible && !!file}>
         <Fab
-          id={'save'}
-          aria-label="save"
+          id={'clear'}
+          color={'error'}
+          aria-label="clear"
           size="small"
-          color={'secondary'}
-          sx={{
+          sx={(theme) => ({
             position: 'absolute',
-            right: '96px',
+            left: '0px',
             margin: '8px',
+          })}
+          onClick={() => {
+            dispatch({ type: 'DISCARD_FILE'});
           }}
-          onClick={saveHandler}
         >
-          <SaveIcon/>
+          <ClearIcon />
         </Fab>
       </Zoom>
-    }
-    <Zoom in={visible} >
-      <Fab
-        id={'open'}
-        color={'secondary'}
-        aria-label="open"
-        size="small"
-        sx={{
-          position: 'absolute',
-          right: '48px',
-          margin: '8px',
-        }}
-        onClick={openHandler}
-      >
-        <OpenIcon/>
-      </Fab>
-    </Zoom>
-    <Zoom in={visible}>
-      <Fab
-        id={'settings'}
-        color={'primary'}
-        aria-label="settings"
-        size="small"
-        sx={(theme) => ({
-          position: 'absolute',
-          right: '0px',
-          margin: '8px',
-        })}
-        onClick={() => {
-          dispatch({ type: 'PROJECT_DETAIL'});
-        }}
-      >
-        <SettingsIcon/>
-      </Fab>
-    </Zoom>
-  </Stack>
+      <Stack direction={'row'}>
+        {fileIsDirty && visible &&
+          <Zoom in={visible} >
+            <Fab
+              id={'save'}
+              aria-label="save"
+              size="small"
+              color={'secondary'}
+              sx={{
+                position: 'absolute',
+                right: '96px',
+                margin: '8px',
+              }}
+              onClick={saveHandler}
+            >
+              <SaveIcon/>
+            </Fab>
+          </Zoom>
+        }
+        <Zoom in={visible} >
+          <Fab
+            id={'open'}
+            color={'secondary'}
+            aria-label="open"
+            size="small"
+            sx={{
+              position: 'absolute',
+              right: '48px',
+              margin: '8px',
+            }}
+            onClick={openHandler}
+          >
+            <OpenIcon/>
+          </Fab>
+        </Zoom>
+        <Zoom in={visible}>
+          <Fab
+            id={'settings'}
+            color={'primary'}
+            aria-label="settings"
+            size="small"
+            sx={(theme) => ({
+              position: 'absolute',
+              right: '0px',
+              margin: '8px',
+            })}
+            onClick={() => {
+              dispatch({ type: 'PROJECT_DETAIL'});
+            }}
+          >
+            <SettingsIcon/>
+          </Fab>
+        </Zoom>
+      </Stack>
+    </Stack>)
 }
 /**
  *

@@ -15,16 +15,19 @@ import {
   ITimelineTrackMetadata
 } from "../TimelineTrack/TimelineTrack.types";
 import WebFile from "./WebFile";
-import { Constructor } from "./WebFile.types";
+import { Constructor, IBaseDecodedFile } from "./WebFile.types";
 import {
   FileState,
   ITimelineFile, ITimelineFileMetadata, ITimelineFileProps,
   SUIAudio,
+  SUIAudioRefs,
   SUITimeline,
+  SUITimelineRefs,
 } from "./TimelineFile.types";
 import Controllers from "../Controller/Controllers";
 import Controller from "../Controller";
 import ProjectFile from "./ProjectFile";
+import { IMimeType, MimeType } from "./MimeType";
 
 export default class TimelineFile<
   FileTrackType extends ITimelineFileTrack = ITimelineFileTrack,
@@ -43,19 +46,15 @@ export default class TimelineFile<
 
   protected actionInitializer: (action: FileActionType, index: number) => ActionType;
 
-  static globalControllers: Record<string, Controller> = Controllers;
-
   constructor(props: ITimelineFileProps<FileTrackType>) {
     super(props);
 
     this.name = props.name ?? this.getName(props);
 
-    this.mimeType = SUITimeline;
-    this.outputMimeTypes = [SUIAudio];
     this._fileTracks = props.tracks?.map((track) => {
       if (!track.controller) {
         if (track.controllerName) {
-          track.controller = TimelineFile.globalControllers[track.controllerName];
+          track.controller = Controllers[track.controllerName];
         } else {
           throw new Error(`controllerName or a controller is required for each track and none was found for the track: ${track.name || track.id}`);
         }
@@ -89,8 +88,22 @@ export default class TimelineFile<
     };
   }
 
-  async initialize(files = []) {
-    console.info('timeline initialize')
+  mimeTypes: IMimeType[] = [
+    SUITimeline,                 // embedded
+    SUITimelineRefs              // w/ url refs
+  ];
+
+  outputMimeTypes: IMimeType[] = [
+    SUIAudio,                 // embedded
+    SUIAudioRefs              // w/ url refs
+  ];
+
+  get fileParams(): IBaseDecodedFile[] {
+
+    return this.trackFiles.map((f) => { return { name: f.name, size: f.size, type: f.type }});
+  }
+
+  async initialize(files?: File[], ...args: any[]) {
     if (this.state !== FileState.CONSTRUCTED) {
       return;
     }
@@ -114,7 +127,7 @@ export default class TimelineFile<
           name: trackInput.name,
           actions,
           file: trackInput.file,
-          controller: trackInput.controller ? trackInput.controller : TimelineFile.globalControllers[trackInput.controllerName],
+          controller: trackInput.controller ? trackInput.controller : Controllers[trackInput.controllerName],
           hidden: trackInput.hidden,
           lock: trackInput.lock,
         } as any;
@@ -130,18 +143,16 @@ export default class TimelineFile<
       await Promise.all(preloads);
 
       this._fileTracks = [];
-      this.lastChecksum = await this.checksum();
 
-      await this.save(true);
 
       this.state = FileState.READY
-      console.info('timeline initialize 2')
     } catch (ex) {
       console.error('buildTracks:', ex);
     }
   }
 
-  async assignFiles(files: File[]) {
+
+  async assignFiles(files: File[] = []) {
     if (files.length && files.length === this._fileTracks.length) {
       this._fileTracks = this._fileTracks.map((trackInput, index) => {
         this._fileTracks[index].file = new MediaFile(files[index]);
@@ -180,7 +191,11 @@ export default class TimelineFile<
 
   get metadata(): ITimelineFileMetadata {
     const tracks = this.tracks as ITimelineTrackMetadata<TrackType>[];
-    const metadata = { ...this as ITimelineFileMetadata, tracks };
+    const metadata = {
+      ...this.fileProps,
+      tracks ,
+      mimeType: this.getMimeType().type as MimeType
+    };
     metadata.tracks.reduce((curr, offset, index) => {
       metadata.tracks[index].fileIndex = curr;
       return curr + this.tracks[index].file.mediaFileSize;
@@ -190,6 +205,10 @@ export default class TimelineFile<
 
   get trackFiles(): IMediaFile[] {
     return this.tracks.map((track) => track.file);
+  }
+
+  get files(): File[] {
+    return this.trackFiles;
   }
 
   get tracksMetadata(): ITimelineTrackMetadata<TrackType>[] {
@@ -330,7 +349,7 @@ export default class TimelineFile<
         tracks,
         file: fileAction.file,
         url: fileAction.file._url,
-        controller: TimelineFile.globalControllers[fileAction.file.mediaType],
+        controller: Controllers[fileAction.file.mediaType],
         actions: [{
           id: namedId('action'),
           name: fileAction.action.name,

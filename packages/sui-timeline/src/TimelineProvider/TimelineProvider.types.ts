@@ -3,7 +3,7 @@ import { IMediaFile } from '@stoked-ui/media-selector';
 import { isMobile } from 'react-device-detect';
 import { Controllers, IController } from "../Controller";
 import Controller from '../Controller/Controller';
-import { FileState, IMimeType, ITimelineFile } from "../TimelineFile";
+import TimelineFile, { FileState, IMimeType, ITimelineFile } from "../TimelineFile";
 import { EngineState, IEngine } from "../Engine";
 import { type ITimelineTrack } from "../TimelineTrack";
 import {
@@ -41,6 +41,7 @@ export interface ITimelineState<
   controllers: Record<string, Controller>;
   localDbProps: LocalDbProps | null;
   preview?: boolean;
+  createNewFile: () => any;
 }
 
 export const onAddFiles = <
@@ -129,6 +130,8 @@ export type TimelineStateAction<
     value: HTMLElement,
     onSet?: () => void,
   }
+} | {
+  type: 'DISCARD_FILE'
 }
 
 export type TimelineContextType = ITimelineState & {
@@ -299,7 +302,6 @@ function TimelineReducerBase(state: ITimelineState, stateAction: TimelineStateAc
     }
     case 'INITIAL_FLAGS': {
 
-      console.info('initial-flags', stateAction.payload, state);
     }
     // eslint-disable-next-line no-fallthrough
     case 'SET_FLAGS': {
@@ -346,6 +348,14 @@ function TimelineReducerBase(state: ITimelineState, stateAction: TimelineStateAc
         },
       };
     }
+    case 'DISCARD_FILE': {
+      const newFile = state.createNewFile();
+      newFile.state = FileState.READY;
+      return {
+        ...state,
+        file: newFile
+      };
+    }
     default:
       return state;
   }
@@ -388,6 +398,9 @@ export const initialTimelineState: Omit<ITimelineState, 'engine' | 'getState' | 
   controllers: Controllers,
   localDbProps: null,
   selected: null,
+  createNewFile: function newFile(){
+    return new TimelineFile({ name: 'New Timeline Project' });
+  },
 }
 
 export function getDbProps(mimeType: IMimeType, localDbProps?: LocalDbProps | false): LocalDbProps {

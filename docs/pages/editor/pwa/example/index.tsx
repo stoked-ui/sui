@@ -1,7 +1,6 @@
 import * as React from 'react';
 import {EditorProvider} from "@stoked-ui/editor";
 import Editor, { Controllers } from "@stoked-ui/editor";
-import EditorExample from 'docs/src/components/showcase/EditorExample';
 import BrandingCssVarsProvider from 'docs/src/BrandingCssVarsProvider';
 import Head from 'docs/src/modules/components/Head';
 
@@ -21,9 +20,16 @@ export default function Index() {
         >
           <link rel="manifest" href="/static/manifest.editor.pwa.example.json" key={'manifest'}/>
         </Head>
-        <EditorProvider id={'stoked-ui-editor-example'} controllers={Controllers}
-                        file={EditorExample}>
-          <Editor/>
+        <EditorProvider id={'pwa-example'} controllers={Controllers} >
+          <Editor
+            trackControls
+            snapControls
+            record
+            openSaveControls
+            /* file={EditorExample}
+  */            /* fileUrl={'/static/editor/stoked-ui.sue'} */
+            fileUrl={'/static/editor/stoked-ui-3.suer'}
+          />
         </EditorProvider>
     </React.Fragment>
     </BrandingCssVarsProvider>

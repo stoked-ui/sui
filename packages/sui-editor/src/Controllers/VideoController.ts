@@ -4,7 +4,7 @@ import {
   ITimelineAction,
 } from "@stoked-ui/timeline";
 import {EditorControllerParams, EditorPreloadParams} from "./EditorControllerParams";
-import {DrawData, IEditorEngine} from "../EditorEngine";
+import {DrawData, IEditorEngine} from "../EditorEngine/EditorEngine.types";
 import {IEditorAction} from "../EditorAction/EditorAction";
 import ShadowStage from '../ShadowStage';
 
@@ -54,13 +54,6 @@ class VideoControl extends Controller {
       action.playCount = Infinity;
     }
 
-    item.addEventListener('ended', () => {
-
-      if (action.loop && action.playCount) {
-        item.play();
-        action.playCount -= 1;
-      }
-    })
     item.preload = 'auto';
     return new Promise((resolve, reject) => {
       try {
@@ -316,13 +309,8 @@ class VideoControl extends Controller {
       const fd = action.nextFrame as VideoDrawData;
       this.draw(params, fd);
     } else {
-      const actionTime = Controller.getActionTime(params);
-      if (Number.isFinite(actionTime)) {
-        item.currentTime = actionTime;
-        this.draw(params);
-      } else {
-        console.error('no time available', actionTime, params);
-      }
+      item.currentTime = Controller.getActionTime(params);
+      this.draw(params);
     }
 
     /*

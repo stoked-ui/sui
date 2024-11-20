@@ -1,26 +1,26 @@
 import * as React from 'react';
+
 import { namedId } from '@stoked-ui/media-selector';
 import {
   initialTimelineState,
-  ITimelineFile, ITimelineState, LocalDb,
   TimelineProvider,
-  TimelineReducer,
-  TimelineStateAction,
-  LocalDbProps,
-  getDbProps
+  getDbProps,
+  ReplaceAudioController,
 } from '@stoked-ui/timeline';
+import Controllers from "../Controllers/Controllers";
+
+ReplaceAudioController(Controllers.audio);
+
 import EditorEngine from "../EditorEngine/EditorEngine";
 import { EditorEngineState, IEditorEngine } from "../EditorEngine/EditorEngine.types";
 import { EditorEvents } from "../EditorEngine";
-import Controllers from "../Controllers/Controllers";
 import {
   EditorProviderProps,
   EditorReducer,
   EditorStateAction,
-  IEditorState, IEditorStateUnselected,
+  IEditorState,
 } from "./EditorProvider.types";
 import { setDetail } from "../DetailView/Detail.types";
-import { IDetailStateUnselected } from '../DetailView/DetailProvider.types';
 import EditorFile, { SUIEditor } from "../EditorFile/EditorFile";
 
 export default function EditorProvider<
@@ -38,11 +38,14 @@ export default function EditorProvider<
 
   const stateProps = {
     ...initialTimelineState,
-    editorId: props.id ?? namedId('editor'),
+    editorId: props.id ?? namedId(' editor'),
     engine,
     getState,
     setState,
     detailOpen: false,
+    createNewFile: () => {
+      return new EditorFile({ name: 'New Editor Project' });
+    }
   } as any;
 
   const detailState = setDetail(stateProps);

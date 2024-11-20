@@ -1,15 +1,10 @@
 import {Howl} from 'howler';
 import { AudioFile, IMediaFile } from "@stoked-ui/media-selector";
+import { Controller, GetBackgroundImage, PreloadParams, ControllerParams, ITimelineTrack, ITimelineAction} from "@stoked-ui/timeline";
 import generateWaveformImage from "./AudioImage";
-import Controller from './Controller';
-import { GetBackgroundImage } from "./Controller.types";
-import { type ITimelineAction} from "../TimelineAction";
-import { ControllerParams, PreloadParams } from "./ControllerParams";
-import { type ITimelineTrack } from "../TimelineTrack";
 
-class AudioControl<
-  ActionType extends ITimelineAction = ITimelineAction,
-> extends Controller {
+
+class AudioControl extends Controller{
   cacheMap: Record<string, Howl> = {};
 
   logging: boolean = false;
@@ -31,8 +26,8 @@ class AudioControl<
     });
   }
 
-  async preload(params: PreloadParams): Promise<ActionType> {
-    console.info('preload audio')
+  async preload(params: PreloadParams ): Promise<ITimelineAction> {
+    this.log({ action: params.action, time: Date.now() }, 'audio preload');
     const { action, file } = params;
     const imageOptions = {
       width: file.element.duration() * 100,
@@ -42,7 +37,7 @@ class AudioControl<
       this.cacheMap[action.id] = file.element;
       action.duration = (file.element as Howl).duration();
       action.backgroundImage = await this.getBackgroundImage?.(file, imageOptions);
-      return action as ActionType;
+      return action as ITimelineAction;
     }
     return new Promise((resolve, reject) => {
       try {
@@ -56,7 +51,7 @@ class AudioControl<
             this.getBackgroundImage?.(file, imageOptions).then((img) => {
               action.backgroundImage = img;
             })
-            resolve(action as ActionType);
+            resolve(action as ITimelineAction);
           }
         });
       } catch (ex) {
@@ -70,15 +65,14 @@ class AudioControl<
   }
 
   enter(params: ControllerParams) {
-    const { action, time, engine } = params;
-    this.log({ action, time }, 'audio ');
+    const { action, time } = params;
+    this.log({ action, time }, 'audio enter');
     this.start(params);
   }
 
   start(params: ControllerParams) {
-    const { action, time, engine } = params;
-
-    this.log({ action, time }, 'audio ');
+    const { action, time , engine} = params;
+    this.log({ action, time }, 'audio start')
     let item: Howl
     if (this.cacheMap[action.id]) {
       item = this.cacheMap[action.id];
@@ -89,8 +83,9 @@ class AudioControl<
         item.play();
       }
     } else {
+      this.log(params, 'audio start not cached');
       const track = engine.getActionTrack(action.id) as ITimelineTrack;
-      item = new Howl({ src: track.file.url as string, loop: false, autoplay: false });
+      item = new Howl({ src: track.file?.url as string, loop: false, autoplay: false });
       this.cacheMap[action.id] = item;
       item.on('load', () => {
         item.rate(engine.getPlayRate());
@@ -117,7 +112,7 @@ class AudioControl<
   }
 
   // eslint-disable-next-line class-methods-use-this
-  update = (params: ControllerParams) => {
+  update(params: ControllerParams) {
     const { action, time } = params;
     this.log({ action, time }, 'audio ');
     const item: Howl = this.cacheMap[action.id]
@@ -128,8 +123,8 @@ class AudioControl<
     }
   }
 
-  stop = (params: ControllerParams) => {
-    const { action, engine, time } = params;
+  stop(params: ControllerParams) {
+    const { action, time, engine } = params;
     this.log({ action, time }, 'audio stop');
     if (this.cacheMap[action.id]) {
       const item = this.cacheMap[action.id];
@@ -149,7 +144,7 @@ class AudioControl<
 
   leave(params: ControllerParams) {
     const { action, time } = params;
-    this.log({ action, time }, 'audio leave');
+    this.log({ action, time }, 'audio stop');
     this.stop(params);
   }
 
@@ -171,7 +166,7 @@ class AudioControl<
   }
 
   // eslint-disable-next-line class-methods-use-this
-  getActionStyle(action: ActionType, scaleWidth: number, scale: number, trackHeight: number) {
+  getActionStyle(action: ITimelineAction, scaleWidth: number, scale: number, trackHeight: number) {
     const adjustedScale = scaleWidth / scale;
     if (!action.backgroundImage) {
       return null;
@@ -179,7 +174,7 @@ class AudioControl<
     return {
       backgroundImage: action.backgroundImage,
       backgroundPosition: `${-adjustedScale * (action.trimStart || 0)}px 0px`,
-      backgroundSize: `${adjustedScale * action.duration}px ${trackHeight - 1}px`
+      backgroundSize: `${adjustedScale * (action.duration || 0)}px ${trackHeight - 1}px`
     }
   }
 }

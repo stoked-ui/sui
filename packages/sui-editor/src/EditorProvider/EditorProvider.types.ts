@@ -334,7 +334,6 @@ export function EditorReducer(state: IEditorState, stateAction: EditorStateActio
   const newState = EditorReducerBase(state, stateAction);
   const { engine, file } = newState;
   newState.getState = () => {
-    console.info('file-state2', file?.state);
     if (!file || file?.state === FileState.READY) {
       return engine.state as EditorEngineState;
     }

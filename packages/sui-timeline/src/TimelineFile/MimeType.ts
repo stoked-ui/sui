@@ -14,6 +14,8 @@ export interface IMimeType {
 
   get description(): string;
 
+  get embedded(): boolean;
+
   get accept(): AcceptType;
 
   get typeObj(): { type: MimeType };
@@ -44,13 +46,16 @@ export class MimeRegistry {
 
   private static _types: Record<MimeType, IMimeType> = {};
 
-  static create(subType: string, name: string, ext: Ext, description: string, type: string = 'application'): IMimeType {
+  static create(subType: string, name: string, ext: Ext, description: string, embedded: boolean = true, type: string = 'application'): IMimeType {
     const mimeType = {
       get type() {
-        return `${type}/${this.subtype}` as MimeType;
+        return `${type}/${this.subType}` as MimeType;
       },
       get subType() {
         return `${subType}-${name}` as MimeSubtype;
+      },
+      get subTypePrefix() {
+        return subType;
       },
       get name() {
         return name;
@@ -60,6 +65,9 @@ export class MimeRegistry {
       },
       get description() {
         return description;
+      },
+      get embedded() {
+        return embedded;
       },
       get accept() {
         return {
@@ -76,4 +84,14 @@ export class MimeRegistry {
     this.types[mimeType.type] = mimeType;
     return mimeType;
   }
+}
+
+export function getExtension(url) {
+  const urlObj = new URL(url);
+  const pathname = urlObj.pathname;
+  const lastIndex = pathname.lastIndexOf(".");
+  if (lastIndex === -1) {
+    return ""; // No extension found
+  }
+  return pathname.substring(lastIndex);
 }

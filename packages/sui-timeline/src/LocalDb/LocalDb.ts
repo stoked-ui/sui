@@ -1,13 +1,14 @@
 import { openDB } from '@tempfix/idb';
-import { IWebData } from "../TimelineFile";
-
+import { IWebData } from "../TimelineFile/WebFile.types";
+import { MimeType, IMimeType } from "../TimelineFile/MimeType";
 
 
 /**
  * Represents a version of a file stored in IndexedDB.
  */
-export type IDBFileVersion = IWebData & {
+export type IDBFileVersion = Omit<IWebData, 'mimeType'> & {
   data: Blob;
+  mimeType: MimeType;
 };
 
 export type IDBVersionedFile = Record<number, IDBFileVersion>;
@@ -40,7 +41,7 @@ export interface FileSaveRequest {
   embedded: boolean,
   meta: IWebData,
   blob: Blob,
-  type: string
+  mime: IMimeType
 }
 
 export interface FileLoadRequest {
@@ -108,7 +109,7 @@ export default class LocalDb {
    * @param version - The version requested from idb.
    * @returns A promise that resolves to the file data.
    */
-  static async loadId({ type, id, version = -1 }: FileLoadRequest): Promise<Blob | null> {
+  static async loadId({ type, id, version = -1 }: FileLoadRequest): Promise<{ mimeType: MimeType, blob: Blob } | null> {
     return this.stores[type].loadId(id, version);
   }
 
@@ -127,7 +128,7 @@ export default class LocalDb {
    * @returns A promise that resolves to the ID of the saved file.
    */
   static async saveFile(fileData: FileSaveRequest): Promise<boolean> {
-    return this.stores[fileData.type].saveFile(fileData);
+    return this.stores[fileData.mime.name].saveFile(fileData);
   }
 }
 
@@ -184,7 +185,7 @@ class LocalDbStore {
    * @param version - The version of the file (default is -1 used for the latest version). Version is 1 based so 0 is invalid.
    * @returns A promise that resolves to the file data.
    */
-  async loadId(id: string, version: number = -1): Promise<Blob | null> {
+  async loadId(id: string, version: number = -1): Promise<{ mimeType: MimeType, blob: Blob } | null> {
     if (!this.initialized) {
       await this.init();
     }
@@ -202,7 +203,7 @@ class LocalDbStore {
     const fileData: IDBFileVersion = record.data[versionId];
 
     console.info('loadId success', fileData);
-    return fileData.data;
+    return { mimeType: fileData.mimeType, blob: fileData.data };
   }
 
   /**
@@ -211,14 +212,14 @@ class LocalDbStore {
    * @returns A promise indicating whether the save was successful.
    */
   async saveFile(fileData: FileSaveRequest): Promise<boolean> {
-    const { id, version, blob, meta } = fileData;
+    const { id, version, blob, meta, mime } = fileData;
 
     try {
       const db = await openDB(LocalDb.dbName, LocalDb.version);
       const tx = db.transaction(this.name, 'readwrite');
       const store = tx.objectStore(this.name);
 
-      const versionData = { ...meta, data: blob } as IDBFileVersion
+      const versionData = { ...meta, data: blob, mimeType: mime.type  } as IDBFileVersion
 
       const dbFile: IDBVersionedFile = { [version]: versionData }
 

@@ -319,7 +319,11 @@ const Editor = React.forwardRef(function Editor<
           volumeIndex: -2,
         } as ITimelineAction;
 
-        const controller = TimelineFile.globalControllers[mediaFile.mediaType];
+        const controller = Controllers[mediaFile.mediaType];
+        if (!controller) {
+          console.info('No controller found for', mediaFile.mediaType, mediaFile);
+          return;
+        }
         // eslint-disable-next-line no-await-in-loop
         await controller.preload({ action, file: mediaFile})
         newTracks.push({
@@ -331,6 +335,7 @@ const Editor = React.forwardRef(function Editor<
           controllerName: mediaFile.mediaType,
         } as ITimelineTrack);
       }
+      console.log('dispatch', "CREATE_TRACKS");
       dispatch({ type: 'CREATE_TRACKS', payload: newTracks });
     }
     input.click();
@@ -353,7 +358,7 @@ const Editor = React.forwardRef(function Editor<
            dispatch({ type: 'SET_FILE', payload: inputFile as EditorFile });
         })
     } else if (inProps.fileUrl) {
-      WebFile.fromUrl(inProps.fileUrl)
+      WebFile.fromUrl<EditorFile>(inProps.fileUrl)
         .then((timelineFile) => {
           dispatch({ type: 'SET_FILE', payload: timelineFile as EditorFile })
         })
@@ -366,9 +371,6 @@ const Editor = React.forwardRef(function Editor<
 
   }, [])
 
-  React.useEffect(() => {
-    console.info('state', file?.state)
-  }, [file]);
   const newRootProps = { ...rootProps, ...rootProps.ownerState };
   const displayTimeline = !flags.includes('fileView') && engine && !engine.isLoading && file && file.state === FileState.READY;
   return (

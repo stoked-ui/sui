@@ -13,7 +13,7 @@ import {ITimelineFileAction} from '../TimelineAction/TimelineAction.types';
 import {type TimelineLabelsProps} from '../TimelineLabels/TimelineLabels.types';
 import {useTimeline} from "../TimelineProvider";
 import TimelineFile from "../TimelineFile";
-import { fitScaleData } from "../TimelineTrack";
+import { fitScaleData, ITimelineTrack } from "../TimelineTrack";
 import TimelineScrollResizer from "../TimelineScrollResizer";
 import { MIN_SCALE_COUNT, PREFIX, START_CURSOR_TIME } from "../interface/const";
 import TimelineTime from "../TimelineTime";
@@ -183,7 +183,9 @@ const Timeline = React.forwardRef(function Timeline(
   const areaRef = React.useRef<HTMLDivElement>(null);
   const tracksRef = React.useRef<HTMLDivElement>(null);
   const scrollSync = React.useRef<ScrollSync>();
-
+  // Is it running?
+  const [isPlaying, setIsPlaying] = React.useState(false);
+  const [duration, setDuration] = React.useState<number>(0)
   // Editor data
   // scale quantity
   const [scaleCount, setScaleCount] = React.useState(MIN_SCALE_COUNT);
@@ -194,7 +196,8 @@ const Timeline = React.forwardRef(function Timeline(
   const [timelineWidth, setTimelineWidth] = React.useState(Number.MAX_SAFE_INTEGER);
   const [maxScaleCount, setMaxScaleCount] = React.useState(initialMaxScaleCount);
   const [scaleSplitCount, setScaleSplitCount] = React.useState(initialScaleSplitCount)
-
+  // Current timelineControl width
+  const [width, setWidth] = React.useState(Number.MAX_SAFE_INTEGER);
   const [scale, setScale] = React.useState(scaleDefault);
   const [scaleWidth, setScaleWidth] = React.useState(scaleWidthDefault);
 
@@ -358,6 +361,129 @@ const Timeline = React.forwardRef(function Timeline(
   const rootClasses = `${rootProps.className} ${!engine.isLoading ? 'MuiTimeline-loaded' : ''}`
   const TrackArea = inProps.collapsed ? TimelineTrackAreaCollapsed : TimelineTrackArea;
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  /** Monitor data changes */
+  React.useEffect(() => {
+    handleSetScaleCount(getScaleCountByRows(file?.tracks || [], { scale }));
+  }, [minScaleCount, maxScaleCount, scale]);
+
+  React.useEffect(() => {
+    let newScaleSplitCount = scaleSplitCount;
+    if (scaleWidth < 50) {
+      newScaleSplitCount = 2;
+    } else if (scaleWidth < 100) {
+      newScaleSplitCount = 5;
+    } else {
+      newScaleSplitCount = 10;
+    }
+    if (newScaleSplitCount !== scaleSplitCount) {
+      setScaleSplitCount(newScaleSplitCount)
+    }
+  }, [scaleWidth])
+
+  React.useEffect(() => {
+    const getDuration = () => {
+      let furthest = 0;
+      if (file?.tracks) {
+        file.tracks.forEach((row) => {
+          row?.actions?.forEach((action) => {
+            if (action.end > furthest) {
+              furthest = action.end;
+            }
+          })
+        });
+      }
+      return furthest;
+    }
+
+    const durr = getDuration();
+    setDuration(durr);
+    setMaxScaleCount( durr + 2 );
+
+  }, [file?.tracks]);
+
+
+  // deprecated
+  React.useEffect(() => {
+    if (scrollSync.current) {
+      scrollSync.current.setState({ scrollTop });
+    }
+  }, [scrollTop]);
+
+  /** handle proactive data changes */
+  const handleEditorDataChange = (updatedTracks: ITimelineTrack[]) => {
+    dispatch({ type: 'SET_TRACKS', payload: [...updatedTracks]});
+    if (autoReRender) {
+      engine.reRender();
+    }
+  };
+
+
+
+  // process runner related data
+  React.useEffect(() => {
+    const handleTime = ({ time }) => {
+      handleSetCursor({ time, updateTime: false });
+    };
+
+    const handlePlay = () => setIsPlaying(true);
+
+    const handlePaused = () => setIsPlaying(false);
+
+    const handleScrollLeft = (({ left }) => {
+      if (scrollSync?.current) {
+        scrollSync?.current?.setState({scrollLeft: Math.max(left, 0)});
+      }
+    })
+
+    engine.on('setTimeByTick', handleTime);
+    engine.on('play', handlePlay);
+    engine.on('paused', handlePaused);
+    engine.on('setScrollLeft', handleScrollLeft);
+  }, [engine]);
+
+
+  if (typeof window !== 'undefined' ) {
+    window.end = () => {
+      handleSetCursor({left: width});
+      scrollSync?.current?.setState({scrollLeft: Math.max(width, 0)});
+    }
+  }
+  const newProps = {...checkedProps, scaleSplitCount, scale, scaleWidth, minScaleCount};
+
+
   return (
     <Root ref={combinedRootRef} {...rootProps} className={rootClasses} sx={inProps.sx}>
       {!flags.includes('collapsed') && flags.includes('labels') && (
@@ -446,13 +572,20 @@ const Timeline = React.forwardRef(function Timeline(
                   onContextMenuTrack={inProps.onContextMenuTrack}
                 />
                 {!hideCursor && (
-                  <TimelineCursor {...commonProps}
-                                  scrollSync={scrollSync}
-                                  disableDrag={engine.isPlaying}
-                                  scrollLeft={scrollLeft}
-                                  deltaScrollLeft={autoScroll && commonProps.deltaScrollLeft}
-                                  cursorTime={engine.time}
+                  <TimelineCursor
+                    {...checkedProps}
+                    timelineWidth={width}
+                    disableDrag={isPlaying}
+                    scrollLeft={scrollLeft}
+                    scaleCount={scaleCount}
+                    setScaleCount={handleSetScaleCount}
+                    setCursor={handleSetCursor}
+                    cursorTime={cursorTime}
+                    areaRef={areaRef}
+                    scrollSync={scrollSync}
+                    deltaScrollLeft={autoScroll && handleDeltaScrollLeft}
                   />
+
                 )}
               </React.Fragment>)
             }}

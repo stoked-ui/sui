@@ -205,49 +205,6 @@ export default function TimelineTrack<
     classNames.push('edit-track-selected');
   }
 
-  const stickyRef = React.useRef<HTMLDivElement>(null);
-  const adjustStickyPosition = () => {
-    console.log('adjustStickyPosition')
-    if (!areaRef.current || !stickyRef.current) {
-      return;
-    }
-    const containerRect = areaRef.current?.getBoundingClientRect();
-    const stickyRect = stickyRef.current?.getBoundingClientRect();
-
-
-    // Calculate the right position of the sticky element relative to the viewport
-    const rightEdge = Math.min(
-      containerRect.right, // Prevent sticking beyond the container's right edge
-      window.innerWidth // Prevent sticking beyond the viewport
-    );
-
-    // Update the sticky element's position
-    stickyRef.current.style.right = `${window.innerWidth - rightEdge}px`;
-
-    console.log('containerRect', containerRect, 'stickyRect', stickyRect, 'rightEdge', rightEdge, 'right', window.innerWidth - rightEdge  )
-
-    // Prevent sticky element from moving above or below the container's visible area
-    if (containerRect.top > 0) {
-      stickyRef.current.style.top = `${containerRect.top}px`;
-    } else if (containerRect.bottom < stickyRect.height) {
-      stickyRef.current.style.top = `${containerRect.bottom - stickyRect.height}px`;
-    } else {
-      stickyRef.current.style.top = '0px';
-    }
-  };
-
-  const [started, setStarted] = React.useState<boolean>(false);
-  React.useEffect(() => {
-    if (!areaRef.current || !stickyRef.current || started) {
-      return;
-    }
-    setStarted(true);
-    // Adjust the position on scroll and resize
-    areaRef.current.addEventListener('scroll', adjustStickyPosition);
-    window.addEventListener('resize', adjustStickyPosition);
-    console.info('setup sticky events');
-  }, [areaRef.current, stickyRef.current])
-
   return (
     <React.Fragment>
       <TimelineTrackRoot

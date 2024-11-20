@@ -10,8 +10,7 @@ import { type ITimelineTrack} from '../TimelineTrack/TimelineTrack.types';
 import {Events, type EventTypes} from './events'
 import {Emitter} from './emitter';
 import { RowRndApi } from "../TimelineTrack/TimelineTrackDnd.types";
-import TimelineFile from "../TimelineFile/TimelineFile";
-
+import Controllers from "../Controller/Controllers";
 
 /**
  * Timeline player
@@ -73,7 +72,9 @@ export default class Engine<
       this._controllers = params.controllers;
     }
     this._state = 'loading' as State;
-    this._controllers = TimelineFile.globalControllers;
+    if (Controllers) {
+      this._controllers = Controllers;
+    }
   }
 
   cursorData?: () => {
@@ -286,6 +287,7 @@ export default class Engine<
     /** Whether to automatically end after playing */
     autoEnd?: boolean;
   }): boolean {
+    console.log('play');
     const { toTime, autoEnd } = param;
 
     const currentTime = this.time;
@@ -316,6 +318,7 @@ export default class Engine<
    * @memberof Engine
    */
   pause() {
+    console.log('pause');
     if (this.isPlaying) {
       const previousState = this._state;
       this._state = 'paused' as State;
@@ -330,6 +333,7 @@ export default class Engine<
 
   /** Playback completed */
   protected _end() {
+    console.log('end');
     this.pause();
 
     // reset the cursor
