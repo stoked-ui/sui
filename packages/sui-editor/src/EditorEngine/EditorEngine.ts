@@ -9,7 +9,7 @@ import {
   DrawData, IEditorTrack,
 } from "./EditorEngine.types";
 import {type IEditorAction} from "../EditorAction/EditorAction";
-import Controllers from "../Controllers";
+import Controllers from "../Controllers/Controllers";
 // import { type IEditorController } from "../Controllers";
 
 /**

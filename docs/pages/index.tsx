@@ -56,7 +56,7 @@ export function HomeView({ HomeMain}: { HomeMain: React.ComponentType }){
     <AppHeader/>
     <main id="main-content">
       {isClient ? <Main/> : ''}
-      {PRODUCTS.previews()}
+      {process.env.DEV_DISPLAY !== '1' && PRODUCTS.previews()}
     </main>
     <AppFooter/>
   </BrandingCssVarsProvider>;

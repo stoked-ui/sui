@@ -1,5 +1,6 @@
-import { Controller, AudioController, IController } from '@stoked-ui/timeline';
+import { Controller } from '@stoked-ui/timeline';
 import AnimationController from "./AnimationController";
+import AudioController from "./AudioController";
 import VideoController from "./VideoController";
 import ImageController from "./ImageController";
 

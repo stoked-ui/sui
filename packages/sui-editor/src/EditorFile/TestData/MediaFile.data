@@ -131,7 +131,7 @@ export default class MediaFile implements IMediaFile {
     this.stream = file.stream.bind(file);
     this.text = file.text.bind(file);
 
-    this.blob = file instanceof Blob ? file : new Blob([file], { type: file.type });
+    this.blob = new Blob([file], { type: file.type });
   }
 
   static ensureStaticHtml() {

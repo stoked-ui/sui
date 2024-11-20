@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 /*  eslint-disable @typescript-eslint/naming-convention */
 import { FileState, SaveDialogProps } from "./TimelineFile.types";
-import { IMimeType } from "./MimeType";
+import { IMimeType, MimeType } from "./MimeType";
 
 export type NoArgsConstructor<T> = new () => T;
 
@@ -18,13 +18,13 @@ export interface IWebData {
   lastModified?: number,
   description?: string,
   author?: string,
-  mimeType: IMimeType,
+  mimeType: MimeType;
   readonly version: number;
 }
 
 export type WebFileInitializer = ((files?: File[], ...arg: any[]) => Promise<void> | ((files?: File[]) => Promise<void>));
 
-export interface IWebFile extends IWebData {
+export interface IWebFile extends Omit<IWebData, 'mimeType'> {
   save(silent?: boolean): Promise<void>;
   initialize(files: File[], ...arg: any[]): Promise<void>;
   createBlob(embedded: boolean, mimeType: IMimeType): Promise<Blob>;
@@ -40,7 +40,7 @@ export interface IWebFileProps extends Omit<IWebData, 'id' | 'created' | 'versio
 export interface IBaseDecodedFile {
     name: string,
     size: number,
-    type: `${string}/${string}`,
+    type: string,
 }
 
 export async function saveFileApi(options: SaveDialogProps) {

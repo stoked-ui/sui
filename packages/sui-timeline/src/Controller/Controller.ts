@@ -58,6 +58,14 @@ abstract class Controller implements IController {
     return { volume: volumePart[0], start: volumePart[1], end: volumePart[2] };
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  log(params: { action: ITimelineAction, time: number }, msg: string) {
+    const { action, time } = params;
+    if (this.logging) {
+      console.info(`[${time}] ${action.name} => ${msg} `)
+    }
+  }
+
   static getActionTime(params: ControllerParams) {
     const { action, time } = params;
     const actionTime = (time - action.start + (action?.trimStart || 0)) % (action?.duration ?? 0);

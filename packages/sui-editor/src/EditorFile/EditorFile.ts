@@ -43,8 +43,10 @@ export interface IEditorFile<
 }
 
 // @ts-ignore
-export const SUIEditor: IMimeType = MimeRegistry.create('stoked-ui', 'timeline', '.sue', 'Stoked UI - Editor Project File');
-export const SUIVideo: IMimeType = MimeRegistry.create('stoked-ui', 'video', '.suv', 'Stoked UI - Video File');
+export const SUIEditorRefs: IMimeType = MimeRegistry.create('stoked-ui', 'timeline', '.suer', 'Stoked UI - Editor Project File w/ Url Refs', false);
+export const SUIEditor: IMimeType = MimeRegistry.create('stoked-ui', 'timeline', '.sue', 'Stoked UI - Editor Project File', true);
+export const SUIVideoRefs: IMimeType = MimeRegistry.create('stoked-ui', 'video', '.suvr', 'Stoked UI - Video File w/ Url Refs', false);
+export const SUIVideo: IMimeType = MimeRegistry.create('stoked-ui', 'video', '.suv', 'Stoked UI - Video File', true);
 
 export class SUVideoFile extends ProjectOutputFile {
   file: IMediaFile;
@@ -58,8 +60,6 @@ export class SUVideoFile extends ProjectOutputFile {
   }
 }
 
-
-TimelineFile.globalControllers = Controllers;
 
 export default class EditorFile<
   FileActionType extends IEditorFileAction = IEditorFileAction,
@@ -91,9 +91,6 @@ export default class EditorFile<
     editorFileCache[props.id as string] = JSON.stringify(props);
     super(props);
 
-    this.mimeType = SUIEditor;
-    this.outputMimeTypes = [SUIVideo];
-
     this.backgroundColor = props.backgroundColor ?? 'transparent';
     this.width = props.width ?? 1920;
     this.height = props.height ?? 1080;
@@ -112,26 +109,34 @@ export default class EditorFile<
     this.fit = props.fit ?? 'none';
   }
 
+  mimeTypes: IMimeType[] = [
+    SUIEditor,                 // embedded
+    SUIEditorRefs              // w/ url refs
+  ];
+
+  outputMimeTypes: IMimeType[] = [
+    SUIVideo,                 // embedded
+    SUIVideoRefs              // w/ url refs
+  ];
+
   get fileProps() {
     return {
       ...super.fileProps,
       backgroundColor: this.backgroundColor,
       width: 1920,
       height: 1080,
+      blendMode: this.blendMode,
       initialized: false,
-      tracks: this.tracks.map((track) => {
+      tracks: this._tracks?.map((track) => {
         const { file, controller, ...trackJson } = track;
         return {
           ...trackJson,
           url: file?._url,
-          controllerName: file?.mediaType,
+          controllerName: file!.mediaType,
         }
-      }),
+      }) || [],
     };
   }
-
-  static globalControllers: Record<string, Controller> = Controllers;
-
 
   static fileCache: Record<string, EditorFile> = {};
 }

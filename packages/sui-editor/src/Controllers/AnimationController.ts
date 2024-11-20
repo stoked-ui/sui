@@ -4,21 +4,13 @@ import { BackgroundImageStyle,
   Controller,
   EventTypes,
   IEngine,
-  ITimelineAction
 } from "@stoked-ui/timeline";
 import { type IEditorEngine } from "../EditorEngine";
 import { EditorControllerParams, EditorPreloadParams } from "./EditorControllerParams";
+import { IEditorAction } from '../EditorAction/EditorAction';
 
 class AnimationControl extends Controller {
-  getActionStyle(action: ITimelineAction, scaleWidth: number, scale: number, trackHeight: number): BackgroundImageStyle {
-      throw new Error('Method not implemented.');
-  }
-  start(params: { action: ITimelineAction; time: number; engine: IEngine<EventTypes>; }): void {
-      throw new Error('Method not implemented.');
-  }
-  stop(params: { action: ITimelineAction; time: number; engine: IEngine<EventTypes>; }): void {
-      throw new Error('Method not implemented.');
-  }
+
 
   cacheMap: Record<string, AnimationItem> = {};
 
@@ -35,7 +27,7 @@ class AnimationControl extends Controller {
       color,
       colorSecondary
     });
-  }
+  }log
 
   async preload(params: EditorPreloadParams) {
     const { action, file } = params;
@@ -47,7 +39,7 @@ class AnimationControl extends Controller {
 
 
   // eslint-disable-next-line class-methods-use-this
-  private _goToAndStop(engine: IEditorEngine, action: ITimelineAction, item: AnimationItem, time: number) {
+  private _goToAndStop(engine: IEditorEngine, action: IEditorAction, item: AnimationItem, time: number) {
     if(!item.getDuration()) {
       return;
     }

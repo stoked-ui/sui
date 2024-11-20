@@ -4,7 +4,7 @@ import {
   ITimelineTrackMetadata,
 } from "../TimelineTrack/TimelineTrack.types";
 import { IProjectFile, IProjectFileProps } from "./ProjectFile";
-import { IMimeType, MimeRegistry } from "./MimeType";
+import { IMimeType, MimeType, MimeRegistry } from "./MimeType";
 
 export type OutputBlob = {
   id: string,
@@ -24,8 +24,10 @@ export interface ITimelineFile<
   get fileProps(): ITimelineFileProps;
 }
 
-export const SUITimeline: IMimeType = MimeRegistry.create('stoked-ui', 'timeline', '.sut', 'Stoked UI - Timeline Project File');
-export const SUIAudio: IMimeType = MimeRegistry.create('stoked-ui', 'audio', '.sua', 'Stoked UI - Timeline Audio File');
+export const SUITimelineRefs: IMimeType = MimeRegistry.create('stoked-ui', 'timeline', '.sutr', 'Stoked UI - Timeline Project File w/ Url Refs', false);
+export const SUITimeline: IMimeType = MimeRegistry.create('stoked-ui', 'timeline', '.sut', 'Stoked UI - Timeline Project File', true);
+export const SUIAudioRefs: IMimeType = MimeRegistry.create('stoked-ui', 'audio', '.sua', 'Stoked UI - Timeline Audio File w/ Url Refs', false);
+export const SUIAudio: IMimeType = MimeRegistry.create('stoked-ui', 'audio', '.sua', 'Stoked UI - Timeline Audio File', true);
 
 export interface ITimelineFileProps<FileTrackType = ITimelineFileTrack> extends IProjectFileProps {
   // backgroundColor?: string;
@@ -35,6 +37,7 @@ export interface ITimelineFileProps<FileTrackType = ITimelineFileTrack> extends 
 
 export type ITimelineFileMetadata = Omit<ITimelineFile, 'tracks' | 'video' | '_fileTracks' | 'fileProps' | 'save' | 'initialize' | 'fileMeta' | 'createBlob' | 'state'> & {
   tracks: ITimelineTrackMetadata[]
+  mimeType: MimeType
 }
 
 export type SaveOptions = {

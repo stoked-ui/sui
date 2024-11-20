@@ -7,3 +7,4 @@ export { AudioController, Controllers };
 export * from './AudioController';
 export * from './Controller.types';
 export * from './ControllerParams';
+export * from './Controllers';

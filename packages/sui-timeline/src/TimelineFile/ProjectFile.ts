@@ -1,20 +1,20 @@
 // eslint-disable-next-line @typescript-eslint/no-use-before-define
-import { IMimeType } from "./MimeType";
+import { IMimeType, MimeType } from "./MimeType";
 import WebFile from "./WebFile";
-import { IWebFile, IWebFileProps } from "./WebFile.types";
+import { IWebData, IWebFile, IWebFileProps } from "./WebFile.types";
 
 export interface IProjectFileProps extends IWebFileProps {
 }
 
-export interface IProjectFile extends IWebFile {
+export interface IProjectFile extends Omit<IWebFile, 'mimeType'> {
 }
 
 export default abstract class ProjectFile extends WebFile
-  implements IProjectFile {
+  implements Omit<IProjectFile, 'mimeType'> {
 
-  outputMimeTypes: [IMimeType];
+  outputMimeTypes: IMimeType[];
 
-  get fileProps(): Omit<IProjectFile, 'save' | 'initialize' | 'fileMeta' | 'createBlob' | 'state'>  {
+  get fileProps(): Omit<IProjectFile, 'save' | 'initialize' | 'fileMeta' | 'createBlob' | 'state' > & { mimeType: MimeType } {
     return {
       ...super.fileProps,
     };
