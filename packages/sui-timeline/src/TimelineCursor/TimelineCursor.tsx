@@ -1,10 +1,12 @@
 import * as React from 'react';
-import {styled} from "@mui/material/styles";
-import {TimelineCursorProps} from './TimelineCursor.types';
-import {prefix} from '../utils/deal_class_prefix';
-import {parserPixelToTime, parserTimeToPixel} from '../utils/deal_data';
+import PropTypes from 'prop-types';
+import { styled } from '@mui/material/styles';
+import { TimelineCursorProps } from './TimelineCursor.types';
+import { prefix } from '../utils/deal_class_prefix';
+import { parserPixelToTime, parserTimeToPixel } from '../utils/deal_data';
 import TimelineTrackDnd from '../TimelineTrack/TimelineTrackDnd';
-import {RowRndApi} from '../TimelineTrack/TimelineTrackDnd.types';
+import { RowRndApi } from '../TimelineTrack/TimelineTrackDnd.types';
+import { useTimeline } from '../TimelineProvider';
 
 const CursorRoot = styled('div')({
   cursor: 'ew-resize',
@@ -36,72 +38,83 @@ const CursorAreaRoot = styled('div')({
 });
 
 function TimelineCursor({
-                          disableDrag,
-                          cursorTime,
-                          setCursor,
-                          startLeft,
-                          timelineWidth,
-                          scaleWidth,
-                          scale,
-                          scrollLeft,
-                          scrollSync,
-                          areaRef,
-                          maxScaleCount,
-                          deltaScrollLeft,
-                          onCursorDragStart,
-                          onCursorDrag,
-                          onCursorDragEnd,
-                        }: TimelineCursorProps) {
+  scrollLeft,
+  onCursorDragStart,
+  onCursorDrag,
+  onCursorDragEnd,
+}: TimelineCursorProps) {
   const rowRnd = React.useRef<RowRndApi>();
   const draggingLeft = React.useRef<undefined | number>();
+  const context = useTimeline();
+  const { engine, components, settings } = context;
+  const {
+    cursorTime,
+    setCursor,
+    startLeft,
+    timelineWidth,
+    scaleWidth,
+    scale,
+    maxScaleCount,
+      // deltaScrollLeft: deltaScrollLeftFunc
+  } = settings;
+  const scrollSync = components.scrollSync as React.PureComponent & { state: Readonly<any> };
+  // const deltaScrollLeft = flags.autoScroll && deltaScrollLeftFunc;
 
   React.useEffect(() => {
     if (typeof draggingLeft.current === 'undefined') {
       // When not dragging, update the cursor scale based on the dragging parameters.
-      rowRnd.current.updateLeft(parserTimeToPixel(cursorTime, { startLeft, scaleWidth, scale }) - scrollLeft);
+      rowRnd.current.updateLeft(
+        parserTimeToPixel(cursorTime, { startLeft, scaleWidth, scale }) - scrollLeft,
+      );
     }
   }, [cursorTime, startLeft, scaleWidth, scale, scrollLeft]);
 
+
   return (
     <TimelineTrackDnd
-      start={startLeft}
       ref={rowRnd}
-      parentRef={areaRef}
       bounds={{
         left: 0,
         right: Math.min(timelineWidth, maxScaleCount * scaleWidth + startLeft - scrollLeft),
       }}
-      deltaScrollLeft={deltaScrollLeft}
-      enableDragging={!disableDrag}
+      enableDragging={!engine.isPlaying}
       enableResizing={false}
-      onDragStart={() => {
+            onDragStart={() => {
         onCursorDragStart?.(cursorTime);
-        draggingLeft.current = parserTimeToPixel(cursorTime, { startLeft, scaleWidth, scale }) - scrollLeft;
+        draggingLeft.current =
+          parserTimeToPixel(cursorTime, { startLeft, scaleWidth, scale }) - scrollLeft;
         rowRnd.current.updateLeft(draggingLeft.current);
       }}
       onDragEnd={() => {
-        const time = parserPixelToTime(draggingLeft.current + scrollLeft, { startLeft, scale, scaleWidth });
-        setCursor({ time });
+        const time = parserPixelToTime(draggingLeft.current + scrollLeft, {
+          startLeft,
+          scale,
+          scaleWidth,
+        });
+        setCursor({ time }, context);
         onCursorDragEnd?.(time);
         draggingLeft.current = undefined;
       }}
       onDrag={({ left }, scroll = 0) => {
-        const scrollLeftDrag = scrollSync.current.state.scrollLeft;
+        const scrollLeftDrag = scrollSync.state.scrollLeft;
 
         if (!scroll || scrollLeftDrag === 0) {
           // When dragging, if the current left < left min, set the value to left min
           if (left < startLeft - scrollLeftDrag) {
             draggingLeft.current = startLeft - scrollLeftDrag;
-          }
-          else {
+          } else {
             draggingLeft.current = left;
           }
         } else if (draggingLeft.current < startLeft - scrollLeftDrag - scroll) {
           draggingLeft.current = startLeft - scrollLeftDrag - scroll;
         }
         rowRnd.current.updateLeft(draggingLeft.current);
-        const time = parserPixelToTime(draggingLeft.current + scrollLeftDrag, { startLeft, scale, scaleWidth });
-        setCursor({ time });
+        const time = parserPixelToTime(draggingLeft.current + scrollLeftDrag, {
+          startLeft,
+          scale,
+          scaleWidth,
+        });
+        setCursor({ time }, context);
         onCursorDrag?.(time);
         return false;
       }}
@@ -118,10 +131,126 @@ function TimelineCursor({
     </TimelineTrackDnd>
   );
 }
+
+TimelineCursor.propTypes = {
+  // ----------------------------- Warning --------------------------------
+  // | These PropTypes are generated from the TypeScript type definitions |
+  // | To update them edit the TypeScript types and run "pnpm proptypes"  |
+  // ----------------------------------------------------------------------
+  draggingLeft: PropTypes.shape({
+    current: PropTypes.number.isRequired,
+  }).isRequired,
+  /**
+   * @description Get the action id list to prompt the auxiliary line. Calculate it when
+   *   move/resize start. By default, get all the action ids except the current move action.
+   */
+  getAssistDragLineActionIds: PropTypes.func.isRequired,
+  /**
+   * @description Custom scale rendering
+   */
+  getScaleRender: PropTypes.func.isRequired,
+  /**
+   * @description Move end callback (return false to prevent onChange from triggering)
+   */
+  onActionMoveEnd: PropTypes.func.isRequired,
+  /**
+   * @description Start moving callback
+   */
+  onActionMoveStart: PropTypes.func.isRequired,
+  /**
+   * @description Move callback (return false to prevent movement)
+   */
+  onActionMoving: PropTypes.func.isRequired,
+  /**
+   * @description size change end callback (return false to prevent onChange from triggering)
+   */
+  onActionResizeEnd: PropTypes.func.isRequired,
+  /**
+   * @description Start changing the size callback
+   */
+  onActionResizeStart: PropTypes.func.isRequired,
+  /**
+   * @description Start size callback (return false to prevent changes)
+   */
+  onActionResizing: PropTypes.func.isRequired,
+  /**
+   * @description click action callback
+   */
+  onClickAction: PropTypes.func.isRequired,
+  /**
+   * @description Click action callback (not executed when drag is triggered)
+   */
+  onClickActionOnly: PropTypes.func.isRequired,
+  /**
+   * @description Click time area event, prevent setting time when returning false
+   */
+  onClickTimeArea: PropTypes.func.isRequired,
+  /**
+   * @description Click track callback
+   */
+  onClickTrack: PropTypes.func.isRequired,
+  /**
+   * @description Right-click action callback
+   */
+  onContextMenuAction: PropTypes.func.isRequired,
+  /**
+   * @description Right-click track callback
+   */
+  onContextMenuTrack: PropTypes.func.isRequired,
+  /**
+   * @description cursor drag event
+   */
+  onCursorDrag: PropTypes.func.isRequired,
+  /**
+   * @description cursor ends drag event
+   */
+  onCursorDragEnd: PropTypes.func.isRequired,
+  /**
+   * @description cursor starts drag event
+   */
+  onCursorDragStart: PropTypes.func.isRequired,
+  /**
+   * @description Double-click action callback
+   */
+  onDoubleClickAction: PropTypes.func.isRequired,
+  /**
+   * @description Double-click track callback
+   */
+  onDoubleClickTrack: PropTypes.func.isRequired,
+  onScroll: PropTypes.func.isRequired,
+  /**
+   * Scroll synchronization ref (TODO: This data is used to temporarily solve the problem of out-of-synchronization when scrollLeft is dragged)
+   */
+  rowRnd: PropTypes.shape({
+    current: PropTypes.shape({
+      getLeft: PropTypes.func.isRequired,
+      getWidth: PropTypes.func.isRequired,
+      updateLeft: PropTypes.func.isRequired,
+      updateWidth: PropTypes.func.isRequired,
+    }).isRequired,
+  }).isRequired,
+  /**
+   * Scroll distance from the left
+   */
+  scrollLeft: PropTypes.number.isRequired,
+  /**
+   * Set the number of scales
+   */
+  setScaleCount: PropTypes.func.isRequired,
+  /**
+   * @description Custom timelineControl style
+   */
+  style: PropTypes.object.isRequired,
+  sx: PropTypes.oneOfType([
+    PropTypes.arrayOf(
+      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]).isRequired,
+    ),
+    PropTypes.func,
+    PropTypes.object,
+  ]).isRequired,
+} as any;
+
 export default TimelineCursor;
-
-
-
 
 /*
 import * as React from 'react';

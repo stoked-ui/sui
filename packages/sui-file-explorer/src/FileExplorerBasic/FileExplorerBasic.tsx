@@ -128,7 +128,8 @@ FileExplorerBasic.propTypes = {
     }),
   }),
   /**
-   * If `true`, the fileExplorer view renders a checkbox at the left of its label that allows selecting it.
+   * If `true`, the fileExplorer view renders a checkbox at the left of its label that allows
+   * selecting it.
    * @default false
    */
   checkboxSelection: PropTypes.bool,
@@ -208,6 +209,7 @@ FileExplorerBasic.propTypes = {
    * @default false
    */
   multiSelect: PropTypes.bool,
+  onAddFiles: PropTypes.func,
   /**
    * Callback fired when fileExplorer items are expanded/collapsed.
    * @param {React.SyntheticEvent} event The event source of the callback.
@@ -218,12 +220,14 @@ FileExplorerBasic.propTypes = {
    * Callback fired when a fileExplorer item is expanded or collapsed.
    * @param {React.SyntheticEvent} event The event source of the callback.
    * @param {array} itemId The itemId of the lastModified item.
-   * @param {array} isExpanded `true` if the item has just been expanded, `false` if it has just been collapsed.
+   * @param {array} isExpanded `true` if the item has just been expanded, `false` if it has just
+   *   been collapsed.
    */
   onItemExpansionToggle: PropTypes.func,
   /**
    * Callback fired when fileExplorer items are focused.
-   * @param {React.SyntheticEvent} event The event source of the callback **Warning**: This is a generic event not a focus event.
+   * @param {React.SyntheticEvent} event The event source of the callback **Warning**: This is a
+   *   generic event not a focus event.
    * @param {string} itemId The id of the focused item.
    * @param {string} value of the focused item.
    */
@@ -232,7 +236,8 @@ FileExplorerBasic.propTypes = {
    * Callback fired when a fileExplorer item is selected or deselected.
    * @param {React.SyntheticEvent} event The event source of the callback.
    * @param {array} itemId The itemId of the lastModified item.
-   * @param {array} isSelected `true` if the item has just been selected, `false` if it has just been deselected.
+   * @param {array} isSelected `true` if the item has just been selected, `false` if it has just
+   *   been deselected.
    */
   onItemSelectionToggle: PropTypes.func,
   /**

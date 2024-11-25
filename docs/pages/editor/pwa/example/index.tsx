@@ -22,10 +22,7 @@ export default function Index() {
         </Head>
         <EditorProvider id={'pwa-example'} controllers={Controllers} >
           <Editor
-            trackControls
-            snapControls
             record
-            openSaveControls
             /* file={EditorExample}
   */            /* fileUrl={'/static/editor/stoked-ui.sue'} */
             fileUrl={'/static/editor/stoked-ui-3.suer'}

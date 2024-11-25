@@ -2,25 +2,28 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import Collapse from '@mui/material/Collapse';
-import {resolveComponentProps, useSlotProps} from '@mui/base/utils';
+import { resolveComponentProps, useSlotProps } from '@mui/base/utils';
 import useForkRef from '@mui/utils/useForkRef';
 import unsupportedProp from '@mui/utils/unsupportedProp';
-import {alpha, useThemeProps} from '@mui/material/styles';
-import {shouldForwardProp} from '@mui/system/createStyled';
-import {TransitionProps} from '@mui/material/transitions';
-import {unstable_composeClasses as composeClasses} from '@mui/base';
-import {namedId} from '@stoked-ui/media-selector';
-import {FileElementContent} from './FileElementContent';
-import {fileElementClasses, getFileElementUtilityClass} from './fileElementClasses';
+import { alpha, useThemeProps } from '@mui/material/styles';
+import { shouldForwardProp } from '@mui/system/createStyled';
+import { TransitionProps } from '@mui/material/transitions';
+import { unstable_composeClasses as composeClasses } from '@mui/base';
+import { namedId } from '@stoked-ui/media-selector';
+import { FileElementContent } from './FileElementContent';
+import { fileElementClasses, getFileElementUtilityClass } from './fileElementClasses';
 import {
-  FileElementMinimalPlugins, FileElementOptionalPlugins, FileElementOwnerState, FileElementProps,
+  FileElementMinimalPlugins,
+  FileElementOptionalPlugins,
+  FileElementOwnerState,
+  FileElementProps,
 } from './FileElement.types';
-import {useFileExplorerContext} from '../internals/FileExplorerProvider/useFileExplorerContext';
-import {FileExplorerCollapseIcon, FileExplorerExpandIcon} from '../icons';
-import {FileProvider} from '../internals/FileProvider';
-import {FileDepthContext} from '../internals/FileDepthContext';
-import {useFileElementState} from './useFileElementState';
-import {styled} from '../internals/zero-styled';
+import { useFileExplorerContext } from '../internals/FileExplorerProvider/useFileExplorerContext';
+import { FileExplorerCollapseIcon, FileExplorerExpandIcon } from '../icons';
+import { FileProvider } from '../internals/FileProvider';
+import { FileDepthContext } from '../internals/FileDepthContext';
+import { useFileElementState } from './useFileElementState';
+import { styled } from '../internals/zero-styled';
 
 const useUtilityClasses = (ownerState: FileElementOwnerState) => {
   const { classes } = ownerState;

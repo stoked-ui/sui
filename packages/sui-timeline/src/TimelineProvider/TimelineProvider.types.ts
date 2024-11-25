@@ -1,47 +1,179 @@
 import * as React from 'react';
+import {isMobile} from "react-device-detect";
 import { IMediaFile } from '@stoked-ui/media-selector';
-import { isMobile } from 'react-device-detect';
-import { Controllers, IController } from "../Controller";
-import Controller from '../Controller/Controller';
+import {createProviderState, FlagData, ProviderState, Settings} from "@stoked-ui/common";
+import Controller  from "../Controller";
 import TimelineFile, { FileState, IMimeType, ITimelineFile } from "../TimelineFile";
 import { EngineState, IEngine } from "../Engine";
 import { type ITimelineTrack } from "../TimelineTrack";
 import {
+  ADD_SCALE_COUNT,
   DEFAULT_MOBILE_TRACK_HEIGHT,
-  DEFAULT_TRACK_HEIGHT
+  DEFAULT_SCALE,
+  DEFAULT_SCALE_SPLIT_COUNT,
+  DEFAULT_SCALE_WIDTH,
+  DEFAULT_TRACK_HEIGHT,
+  MIN_SCALE_COUNT
 } from "../interface/const";
 import {
   BackgroundImageStyle, initTimelineAction,
   ITimelineAction,
   ITimelineFileAction
 } from "../TimelineAction/TimelineAction.types";
-import Settings from "./Settings";
 import { LocalDbProps } from '../LocalDb/LocalDb';
+import {DetailData, getDetail, SelectionTypeName} from "./TimelineDetail";
+// eslint-disable-next-line import/no-cycle
+import { createAction, fitScaleData, getTrackHeight, setCursor, setHorizontalScroll, setScaleCount } from "./TimelineProviderFunctions";
 
-
-export interface ITimelineState<
+export interface TimelineState<
   EngineType extends IEngine = IEngine,
   State extends string | EngineState = string | EngineState,
   FileType extends ITimelineFile = ITimelineFile,
   ActionType extends ITimelineAction = ITimelineAction,
   TrackType extends ITimelineTrack = ITimelineTrack,
-> {
-  engine: EngineType,
-  file: FileType | null,
-  id: string,
+> extends ProviderState {
+  engine: EngineType;
+
+  file: FileType | null;
+
+  id: string;
+
+  selectedDetail: DetailData | null;
+
+  selectedType: SelectionTypeName | null
+
   selected: ActionType | TrackType | FileType | null;
+
   selectedAction: ActionType | null;
+
   selectedTrack: TrackType | null;
-  flags: string[];
-  settings: Settings;
-  versions: IMediaFile[];
+
   getState: () => string | State;
-  setState: (newState: string | State) => void;
-  components: Record<string, HTMLElement>;
+
+  components: Record<string, React.PureComponent & { state: Readonly<any>} | React.Component | HTMLElement>;
+
   controllers: Record<string, Controller>;
+
   localDbProps: LocalDbProps | null;
+
   preview?: boolean;
+
   createNewFile: () => any;
+}
+
+export interface ITimelineStateProps<
+  EngineType extends IEngine = IEngine,
+  EngineStateType extends string | EngineState = string | EngineState,
+  FileType extends ITimelineFile = ITimelineFile,
+> {
+  id?: string,
+  engine: EngineType,
+  file?: FileType,
+  getState:() => string | EngineStateType
+}
+
+export function createTimelineState<
+  EngineType extends IEngine = IEngine,
+  EngineStateType extends string | EngineState = string | EngineState,
+  FileType extends ITimelineFile = ITimelineFile,
+  ActionType extends ITimelineAction = ITimelineAction,
+  TrackType extends ITimelineTrack = ITimelineTrack,
+>(props: ITimelineStateProps<EngineType,EngineStateType, FileType>) {
+
+  const initialFlags: FlagData[] = [{
+    flag: 'isMobile',
+    config: {
+      defaultValue: isMobile,
+    }
+  },{
+    flag: 'noLabels',
+    config: { defaultValue: false}
+  }, {
+    flag: 'fileView',
+    config: { defaultValue: false },
+  }, {
+    flag: 'noTrackControls',
+    config: { defaultValue: false },
+  }, {
+    flag: 'noSnapControls',
+    config: { defaultValue: false },
+  }, {
+    flag: 'localDb',
+    config: { defaultValue: true },
+  }, {
+    flag: 'noSaveControls',
+    config: { defaultValue: false }
+  }, {
+    flag: 'record',
+    config: { defaultValue: true }
+  }, {
+    flag: 'noResizer',
+    config: { defaultValue: false }
+  }, {
+    flag: 'collapsed',
+    config: { defaultValue: false }
+  }, {
+    flag: 'allControls',
+    config: { defaultValue: false
+    }
+  }, {
+    flag: 'newTrack',
+    config: {defaultValue: true}
+  }, {
+    flag: 'detailMode',
+    config: { defaultValue: false,
+      addTriggers: ['minimal'],
+      removeTriggers: ['record', 'newTrack']
+    }
+  }, {
+    flag: 'minimal',
+    config: {
+      defaultValue: false,
+      addTriggers: ['noLabels', 'noResizer', 'noTrackControls', 'noSnapControls', 'noViewControls']
+    }
+  },]
+
+  const detailData = getDetail({ file: props.file });
+  return {
+    ...createProviderState({
+      flags: initialFlags,
+      settings: {
+        trackHeight: isMobile ? DEFAULT_MOBILE_TRACK_HEIGHT : DEFAULT_TRACK_HEIGHT,
+        scale: DEFAULT_SCALE,
+        scaleSplitCount: DEFAULT_SCALE_SPLIT_COUNT,
+        scaleWidth: DEFAULT_SCALE_WIDTH,
+        minScaleCount: MIN_SCALE_COUNT,
+        maxScaleCount: Infinity ,
+        timelineWidth: Infinity,
+        scaleCount: 40,
+        startLeft: 7,
+        cursorTime: 0,
+        versions: [],
+        setCursor,
+        setHorizontalScroll,
+        createAction,
+        setScaleCount,
+        fitScaleData,
+        getTrackHeight
+      }}),
+    selectedTrack: null,
+    selectedAction: null,
+    engine: props.engine,
+    // versions: [],
+    id: props.id,
+    file: props.file ?? null,
+    selectedDetail: detailData?.detail ?? null,
+    selectedType: detailData?.type ?? null,
+    selected: props.file ?? null,
+    components: {},
+    controllers: {},
+    localDbProps: null,
+    createNewFile: function newFile(){
+      return new TimelineFile({ name: 'New Timeline Project' });
+    },
+    getState: props.getState,
+    // setState: setStateBase
+  } as TimelineState<EngineType, EngineStateType, FileType, ActionType, TrackType>;
 }
 
 export const onAddFiles = <
@@ -50,20 +182,12 @@ export const onAddFiles = <
   FileType extends ITimelineFile = ITimelineFile,
   ActionType extends ITimelineAction = ITimelineAction,
   TrackType extends ITimelineTrack = ITimelineTrack,
->(state: ITimelineState<EngineType, State, FileType, ActionType, TrackType>, newTracks) => {
+>(state: TimelineState<EngineType, State, FileType, ActionType, TrackType>, newTracks: TrackType[]) => {
   const { file } = state;
 
   state.file.tracks = file?.tracks.concat(newTracks);
   return {...state};
 }
-
-type SelectActionPayload<
-  ActionType extends ITimelineAction,
-  TrackType extends ITimelineTrack,
-> = {
-  action: ActionType,
-  track: TrackType
-};
 
 export type TimelineStateAction<
   FileType extends ITimelineFile = ITimelineFile,
@@ -88,12 +212,6 @@ export type TimelineStateAction<
     track: TrackType
   }
 } | {
-  type: 'CREATE_TRACKS',
-  payload: ITimelineTrack[]
-} | {
-  type: 'SET_SNAP_FLAGS',
-  payload: string[]
-} | {
   type: 'LOAD_VERSIONS',
   payload: IMediaFile[]
 } | {
@@ -105,14 +223,14 @@ export type TimelineStateAction<
 } | {
   type: 'SET_SETTING',
   payload: {
-    key: string,
+    key?: string,
     value: any
   }
 } | {
-  type: 'SET_FLAGS' | 'INITIAL_FLAGS',
+  type: 'SET_FLAGS',
   payload: {
-    set: string[],
-    values: string[]
+    add: string[],
+    remove: string[]
   }
 } | {
   type: 'UPDATE_ACTION_STYLE',
@@ -127,133 +245,107 @@ export type TimelineStateAction<
   type: 'SET_COMPONENT',
   payload: {
     key: string,
-    value: HTMLElement,
+    value:  HTMLElement | React.Component | React.PureComponent & { state: Readonly<any> },
     onSet?: () => void,
   }
 } | {
   type: 'DISCARD_FILE'
 }
 
-export type TimelineContextType = ITimelineState & {
+export type TimelineContextType = TimelineState & {
   dispatch: React.Dispatch<TimelineStateAction>;
 };
 
 export const TimelineContext = React.createContext<TimelineContextType | undefined>(undefined);
 
-export function setSetting(key: string, value: any, state: ITimelineState): ITimelineState {
+export function setSetting<
+  State extends TimelineState = TimelineState
+>(key: string, value: any, state: State): State {
   state.settings[key] = value;
-  return { ...state };
-}
-
-export function addFlag(key: string | string[], state: ITimelineState) {
-  if (!Array.isArray(key)) {
-    key = [key];
-  }
-  key.forEach((k) => {
-    if (!state.flags.includes(k)) {
-      state.flags.push(k);
-    }
-  });
-  return state;
-}
-
-export function removeFlag(key: string | string[], state: ITimelineState) {
-  if (!Array.isArray(key)) {
-    key = [key];
-  }
-  key.forEach((k) => {
-    state.flags = state.flags.filter((flag) => flag !== k);
-  });
-  return state;
-}
-
-function inSetOn(flag: string, set: string[], values: string[]) {
-  return set.includes(flag) && values.includes(flag);
-}
-
-export function setFlags(set: string[], values: string[], state: ITimelineState) {
-  let newState = {
-    ...state,
-    flags: [...state.flags].filter((flag) => !set.includes(flag))
-  }
-  if (inSetOn('detailMode', set, values)) {
-     newState = removeFlag(['record', 'labels'], newState);
-     newState = addFlag('noResizer', newState);
-  }
-  if (inSetOn('allControls', set, values)) {
-    newState = addFlag(['fileView', 'trackControls', 'snapControls', 'openSaveControls'], newState);
-  }
-  if (inSetOn('minimal', set, values)) {
-    newState = removeFlag(['labels', 'detailMode', 'trackControls'], newState);
-    newState = addFlag(['noResizer'], newState);
-  }
-
-  newState.flags = newState.flags.concat(values);
-  return newState;
+  return state as State;
 }
 
 function isObject(value: any): boolean {
   return typeof value === 'object' && value !== null;
 }
 
+function updateTrackData<State extends TimelineState = TimelineState>(state: State): State {
+  if (state.flags.detailMode) {
+    state.file.tracks = state.file.tracks.map((track, index) => {
+      return {
+        ...track,
+        disabled: state.settings.selectedTrackIndex !== index
+      };
+    })
+  }
+  const detailData = getDetail(state)
+  state.selectedDetail = detailData.detail;
+  state.selectedType = detailData.type;
+  return {...state};
+}
 
-function TimelineReducerBase(state: ITimelineState, stateAction: TimelineStateAction): ITimelineState {
+const setIndexes = (tracks: ITimelineTrack[], settings: Settings, actionId: string) => {
+  for (let i = 0; i < tracks.length; i += 1){
+    const t = tracks[i];
+    const actionIndex = t.actions.findIndex((a) => a.id === actionId);
+    if (actionIndex > -1) {
+      settings.selectedTrackIndex = i;
+      settings.selectedActionIndex = actionIndex;
+      return true;
+    }
+  }
+  return false;
+}
+
+function TimelineReducerBase<
+  State extends TimelineState = TimelineState,
+  StateActionType extends TimelineStateAction = TimelineStateAction
+>(state: State, stateAction: StateActionType): State {
   switch (stateAction.type) {
     case 'SELECT_ACTION': {
       const action = stateAction.payload;
-      const trackIndex = state.file?.tracks.findIndex((t) => t.actions.some((a) => a.id === action.id))
-      return {
-        ...state,
-        selectedAction: action,
-        selectedTrack: state.file!.tracks[trackIndex],
-        selected: action,
+      const tracks = state.file?.tracks;
+      if (!setIndexes(tracks, state.settings, action.id)) {
+        return state;
       }
+      state.selectedAction = {...action};
+      state.selectedTrack = {...state.file.tracks[state.settings.selectedTrackIndex]};
+      state.selected = state.selectedAction;
+      return updateTrackData<State>(state);
     }
     case 'SELECT_TRACK':{
-      return {
-        ...state,
-        selectedAction: null,
-        selectedTrack: stateAction.payload,
-        selected: stateAction.payload,
-      }
+      state.selectedAction = null;
+      state.settings.selectedActionIndex = -1;
+      state.selectedTrack = {...stateAction.payload};
+      state.settings.selectedTrackIndex = state.file.tracks.indexOf(state.selectedTrack);
+      state.selected = state.selectedTrack;
+      return updateTrackData(state);
     }
     case 'SELECT_PROJECT':{
-      return {
-        ...state,
-        selectedAction: null,
-        selectedTrack: null,
-        selected: state.file,
-      }
-    }
-    case 'CREATE_TRACKS': {
-      const newState = onAddFiles(state, stateAction.payload);
-      newState.engine.setTracks(newState.file?.tracks ?? []);
-      return { ...newState };
+      state.selectedAction = null;
+      state.selectedTrack = null;
+      state.settings.selectedTrackIndex = -1;
+      state.settings.selectedActionIndex = -1;
+      state.selected = state.file;
+      return updateTrackData(state);
     }
     case 'SET_TRACKS': {
       const updatedTracks = [...(stateAction.payload ?? [])];
       state.engine.setTracks(updatedTracks);
-      if (state.getState() === "loading") {
-        state.setState("ready");
-      }
+
       let file = null;
       if (state.file) {
         file = state.file;
         file.tracks = updatedTracks;
       }
-      return {
-        ...state,
-        file,
-      };
+      state.file = file;
+      return TimelineReducer(state, { type: 'SET_SETTING', payload: { key: 'maxScaleCount', value: state.engine.duration + ADD_SCALE_COUNT } });
     }
     case 'TRACK_HOVER': {
       return setSetting('hoverTrack',stateAction.payload, state);
     }
     case 'LOAD_VERSIONS':
-      return {
-        ...state,
-        versions: [...stateAction.payload],
-      };
+      return state;
     case 'CREATE_ACTION': {
       const { action, track } = stateAction.payload;
       const updatedTracks = state.file?.tracks?.map((t, index) =>
@@ -264,26 +356,25 @@ function TimelineReducerBase(state: ITimelineState, stateAction: TimelineStateAc
         file = state.file;
         file.tracks = updatedTracks;
       }
-      return {
-        ...state,
-        file,
-      };
+      state.file = file;
+      return state;
     }
     case 'SET_FILE': {
-      const stateWithFile = {
-        ...state,
-        file: stateAction.payload,
-      };
-      return TimelineReducerBase(stateWithFile, {
+      state.file = stateAction.payload;
+      state.file.state = stateAction.payload.state;
+      state.file.lastModified = Date.now();
+      if (state.getState() === EngineState.LOADING) {
+        state.engine.state = EngineState.READY;
+      }
+      const detailData = getDetail(state)
+      state.selectedDetail = detailData.detail;
+      state.selectedType = detailData.type;
+
+      return TimelineReducerBase(state, {
         type: 'SET_TRACKS',
         payload: stateAction.payload.tracks
       });
     }
-    case 'SET_SNAP_FLAGS':
-      return {
-        ...state,
-        flags: [...stateAction.payload],
-      };
     case 'SET_SETTING': {
       const { key, value } = stateAction.payload;
 
@@ -294,22 +385,20 @@ function TimelineReducerBase(state: ITimelineState, stateAction: TimelineStateAc
           return obj;
         }, {});
         Object.entries(result).forEach(([nestedKey, nestedValue]) => {
-          state = setSetting(nestedKey, nestedValue, state);
+          state = setSetting<State>(nestedKey, nestedValue, state);
         });
         return state;
       }
       return setSetting(key, value, state);
     }
-    case 'INITIAL_FLAGS': {
-
-    }
-    // eslint-disable-next-line no-fallthrough
     case 'SET_FLAGS': {
-      const { set, values } = stateAction.payload;
-      if (set.includes('labels')) {
-        state = setSetting('timeline.startLeft', values.includes('labels') ? 7 : 72, state);
-      }
-      return setFlags(set, values , state);
+      const { add, remove } = stateAction.payload;
+      /* if (set.includes('noLabels')) {
+        state = setSetting('timeline.startLeft', values.includes('noLabels') ? 72 : 7, state, stateAction.type);
+      } */
+      state.enableFlags(add);
+      state.disableFlags(remove);
+      return state;
     }
     case 'UPDATE_ACTION_STYLE': {
       const { action, backgroundImageStyle } = stateAction.payload;
@@ -327,10 +416,8 @@ function TimelineReducerBase(state: ITimelineState, stateAction: TimelineStateAc
         file = state.file;
         file.tracks = updatedTracks;
       }
-      return {
-        ...state,
-        file,
-      };
+      state.file = file;
+      return state;
     }
     case 'SET_COMPONENT': {
       const { key, value, onSet } = stateAction.payload;
@@ -340,67 +427,52 @@ function TimelineReducerBase(state: ITimelineState, stateAction: TimelineStateAc
       if (!components[key] && onSet) {
         onSet();
       }
-      return {
-        ...state,
-        components: {
-          ...state.components,
-          [key]: value,
-        },
+      state.components = {
+        ...state.components,
+        [key]: value,
       };
+      return state;
     }
     case 'DISCARD_FILE': {
       const newFile = state.createNewFile();
       newFile.state = FileState.READY;
-      return {
-        ...state,
-        file: newFile
-      };
+      state.file = newFile;
+      return state;
     }
     default:
       return state;
   }
 }
 
-export function TimelineReducer(state: ITimelineState, stateAction: TimelineStateAction): ITimelineState {
+export function TimelineReducer<
+  State extends TimelineState = TimelineState,
+  StateActionType extends TimelineStateAction = TimelineStateAction
+>(state: State, stateAction: StateActionType): State {
   const newState = TimelineReducerBase(state, stateAction);
   const { engine, file } = newState;
   newState.getState = () => {
     if (!file || file?.state === FileState.READY) {
       return engine.state as EngineState;
     }
-    return 'loading';
+    return EngineState.LOADING;
   }
-  return newState;
+  const { type, ...rest } = stateAction;
+  return {...newState};
 }
 
 export interface TimelineProviderProps<
   EngineType  = IEngine,
-  State extends ITimelineState = ITimelineState,
-  StateActionType  = TimelineStateAction
+  State extends TimelineState = TimelineState,
+  StateActionType  = TimelineStateAction,
+  FileType = ITimelineFile
 > {
   children: React.ReactNode,
   id?: string,
-  controllers?: Record<string, IController>,
+  file?: FileType,
+  controllers?: Record<string, Controller>,
   engine?: EngineType,
   reducer?: (state: State, stateAction: StateActionType) => State;
   localDb?: LocalDbProps | false;
-}
-
-export const initialTimelineState: Omit<ITimelineState, 'engine' | 'getState' | 'setState'> = {
-  selectedTrack: null,
-  selectedAction: null,
-  flags: isMobile ? ['isMobile'] : [],
-  settings: new Settings({ timeline: {trackHeight: isMobile ? DEFAULT_MOBILE_TRACK_HEIGHT : DEFAULT_TRACK_HEIGHT } }),
-  versions: [],
-  id: 'timeline',
-  file: null,
-  components: {},
-  controllers: Controllers,
-  localDbProps: null,
-  selected: null,
-  createNewFile: function newFile(){
-    return new TimelineFile({ name: 'New Timeline Project' });
-  },
 }
 
 export function getDbProps(mimeType: IMimeType, localDbProps?: LocalDbProps | false): LocalDbProps {

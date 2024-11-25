@@ -1,3 +1,4 @@
+/*
 import {Howl} from 'howler';
 import { AudioFile, IMediaFile } from "@stoked-ui/media-selector";
 import generateWaveformImage from "./AudioImage";
@@ -184,6 +185,5 @@ class AudioControl<
   }
 }
 
-const AudioController = new AudioControl();
 export { AudioControl };
-export default AudioController
+*/

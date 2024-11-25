@@ -15,6 +15,8 @@ interface VideoDrawData extends Omit<DrawData, 'source'> {
 class VideoControl extends Controller {
   cacheMap: Record<string, HTMLVideoElement> = {};
 
+  screenshots: Record<string, string> = {};
+
   cacheFrameSync: Record<string, number> = {};
 
   _videoItem: HTMLVideoElement | null = null;
@@ -33,6 +35,23 @@ class VideoControl extends Controller {
   static hasAudio (item: HTMLMediaElement) {
     return item && (("audioTracks" in item && ("mozHasAudio" in item || Boolean((item.audioTracks as any)?.length))) ||
     ("webkitAudioDecodedByteCount" in item && (item.webkitAudioDecodedByteCount as number) > 0))
+  }
+
+  static captureScreenshot(video: HTMLVideoElement, time: number): Promise<string> {
+    return new Promise((resolve) => {
+      video.currentTime = time;
+      video.pause();
+
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+
+      const ctx = canvas.getContext('2d');
+      video.addEventListener('seeked', () => {
+        ctx?.drawImage(video, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL('image/png')); // Returns a Base64 image URL
+      }, { once: true });
+    });
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -76,6 +95,9 @@ class VideoControl extends Controller {
         let canPlayThrough = false;
         item.addEventListener('canplaythrough', () => {
           canPlayThrough = true;
+          //VideoControl.captureScreenshot(item, ((action.end - action.start) / 2) + action.start).then((screenshot) => {
+          //  this.screenshots[action.id] = screenshot;
+          //})
         })
 
         item.autoplay = false;

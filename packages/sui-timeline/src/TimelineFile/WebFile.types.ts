@@ -26,7 +26,7 @@ export type WebFileInitializer = ((files?: File[], ...arg: any[]) => Promise<voi
 
 export interface IWebFile extends Omit<IWebData, 'mimeType'> {
   save(silent?: boolean): Promise<void>;
-  initialize(files: File[], ...arg: any[]): Promise<void>;
+  initialize(files?: File[]): Promise<void>;
   createBlob(embedded: boolean, mimeType: IMimeType): Promise<Blob>;
   state: FileState;
 }

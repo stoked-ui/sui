@@ -1,19 +1,20 @@
 import * as React from "react";
 import { IMediaFile } from '@stoked-ui/media-selector';
-import { alpha } from "@mui/material/styles";
+import {alpha, darken, lighten} from "@mui/material/styles";
 import { compositeColors } from "@stoked-ui/common";
-import { type ITimelineAction, type ITimelineFileAction } from '../TimelineAction/TimelineAction.types';
+import { type ITimelineAction, type ITimelineFileAction, ITimelineActionHandlers } from '../TimelineAction/TimelineAction.types';
 import { type IController } from "../Controller/Controller.types";
-import { CommonProps } from "../interface/common_prop";
 import type { TimelineControlPropsBase } from "../TimelineControl";
 import { DragLineData } from "../TimelineTrackArea/TimelineTrackAreaDragLines";
-import { getScaleCountByRows } from "../utils";
-import { DEFAULT_SCALE_WIDTH } from "../interface/const";
 
 export type TimelineTrackProps<
-  ActionType extends ITimelineAction = ITimelineAction,
   TrackType extends ITimelineTrack = ITimelineTrack,
-> = CommonProps & TimelineControlPropsBase<TrackType, ActionType> & {
+  ActionType extends ITimelineAction = ITimelineAction,
+> =
+  ITimelineActionHandlers<TrackType, ActionType> &
+  TimelineControlPropsBase<TrackType, ActionType>
+  & ITimelineTrackHandlers<TrackType>
+  & {
   areaRef?: React.MutableRefObject<HTMLDivElement>;
   track?: TrackType;
   style?: React.CSSProperties;
@@ -26,6 +27,7 @@ export type TimelineTrackProps<
   trackRef?: React.RefObject<HTMLDivElement>;
   onAddFiles?: () => void;
   useProvider?: () => any
+
 };
 
 export const TrackColorAlpha = {
@@ -88,16 +90,63 @@ const getState = (selected?: boolean, hover?: boolean) => {
   return 'normal';
 }
 
-export const getTrackBackgroundColor = (color: string, mode: 'dark' | 'light', selected?: boolean, hover?: boolean, track?: boolean) => {
+export interface ITimelineTrackHandlers<
+  TrackType extends ITimelineTrack = ITimelineTrack,
+>{
+  /**
+   * @description Click track callback
+   */
+  onClickTrack?: (
+    e: React.MouseEvent<HTMLElement, MouseEvent>,
+    param: {
+      track: TrackType;
+      time: number;
+    },
+  ) => void;
+  /**
+   * @description Double-click track callback
+   */
+  onDoubleClickTrack?: (
+    e: React.MouseEvent<HTMLElement, MouseEvent>,
+    param: {
+      track: TrackType;
+      time: number;
+    },
+  ) => void;
+  /**
+   * @description Right-click track callback
+   */
+  onContextMenuTrack?: (
+    e: React.MouseEvent<HTMLElement, MouseEvent>,
+    param: {
+      track: TrackType;
+      time: number;
+    },
+  ) => void;
+}
+
+export const getTrackBackgroundColor = (color: string, mode: 'dark' | 'light', selected?: boolean, hover?: boolean, disabled?: boolean, dim?: boolean) => {
   const state = getState(selected, hover);
   const modeState = TrackColorAlpha[mode][state];
   const modeMod = (scalar: number) => mode === 'light' ? scalar : scalar;
-  const baseColor = mode === 'light' ? '#fff' : '#000';
-  const firstColor = compositeColors(baseColor, alpha(color, modeMod(modeState.label)));
-  const endColor = compositeColors(baseColor, alpha(color, modeMod(modeState.row)));
+  const firstAlpha = (scalar: number) => mode === 'light' ? scalar * 8 : scalar;
+  const endAlpha = (scalar: number) => mode === 'light' ? scalar : scalar;
+  let baseColor = mode === 'light' ? '#fff' : '#000';
+  if (disabled) {
+    baseColor = mode === 'light' ? '#f5f5f5' : '#424242';
+  }
+  const dimMultiplier = dim ? .8 : 1
+  const oneMinusDimMultiplier = dim ? .9 : 0;
+  let firstColor = compositeColors(baseColor, alpha(color, firstAlpha(modeMod(modeState.label)) * dimMultiplier));
+  const endColor = compositeColors(baseColor, alpha(color, endAlpha(modeMod(modeState.row)) * dimMultiplier));
   let opacity = 1;
   if (state === 'normal') {
     opacity = .95;
+  }
+  if (mode === 'dark') {
+    firstColor = lighten(firstColor, .4)
+  } else {
+    firstColor = darken(firstColor, .2)
   }
   return {
     label: {
@@ -109,7 +158,7 @@ export const getTrackBackgroundColor = (color: string, mode: 'dark' | 'light', s
       opacity: `${opacity}!important`
     },
     action: {
-      background: alpha(color, modeMod(modeState.action)),
+      background: alpha(color, modeMod(modeState.action) * dimMultiplier),
       opacity: `${opacity}!important`
     }
   };
@@ -131,9 +180,9 @@ export interface ITimelineTrack<
   actions: ActionType[];
   /** Extended class name of track */
   classNames?: string[];
-  /** Whether the action is hidden */
-  hidden?: boolean;
-  /** Whether the action is hidden */
+  /** Whether the track is movable */
+  mute?: boolean;
+  /** Whether the track is movable */
   lock?: boolean;
 
   file?: IMediaFile;
@@ -141,6 +190,8 @@ export interface ITimelineTrack<
   image?: string;
 
   controllerName?: string;
+
+  disabled?: boolean;
 
   controller: IController;
 }
@@ -178,28 +229,3 @@ export interface ITimelineTrackNew<
   file: null;
 }
 
-export function fitScaleData(tracks: ITimelineTrack[], minScaleCount: number, maxScaleCount: number, startLeft: number, duration: number, width: number) {
-  const getScale = () => {
-    const scaleWidth = (width - startLeft) / duration;
-    if (scaleWidth < 40) {
-      const multiplier = Math.ceil(40 / scaleWidth);
-      return { scaleWidth: multiplier * scaleWidth, scale: multiplier };
-    }
-    return { scaleWidth, scale: 1 };
-  }
-  const scaleRes = getScale();
-  if (scaleRes.scaleWidth === Infinity) {
-    scaleRes.scaleWidth = DEFAULT_SCALE_WIDTH;
-  }
-  const { scaleWidth, scale } = scaleRes;
-  const scaleCount = getScaleCountByRows(tracks || [], { scale })
-  maxScaleCount = Math.max(maxScaleCount, Math.min(scaleCount, minScaleCount));
-  minScaleCount = Math.min(maxScaleCount, Math.max(minScaleCount, scaleCount));
-  return {
-    scaleWidth,
-    scaleCount,
-    minScaleCount,
-    maxScaleCount,
-    scale,
-  }
-}

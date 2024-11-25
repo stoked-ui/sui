@@ -1,12 +1,16 @@
 import * as React from 'react';
 import {OnScrollParams} from 'react-virtualized';
-import {CommonProps} from '../interface/common_prop';
+import {ITimelineTrack, ITimelineTrackHandlers} from "../TimelineTrack";
+import {ITimelineAction, ITimelineActionHandlers} from "../TimelineAction";
+import {TimelineTimeProps} from "../TimelineTime";
+import {TimelineCursorProps} from "../TimelineCursor";
 
-export type TimelineTrackAreaProps =  CommonProps & {
-  /** Scroll distance from the left */
-  scrollLeft: number;
-  /** Scroll distance from top */
-  scrollTop?: number;
+export type TimelineTrackAreaProps<
+  TrackType extends ITimelineTrack = ITimelineTrack,
+  ActionType extends ITimelineAction = ITimelineAction
+> =  ITimelineTrackHandlers & ITimelineActionHandlers & TimelineTimeProps & TimelineCursorProps &{
+  getAssistDragLineActionIds?: (params: { action: ActionType; tracks: TrackType[]; track: TrackType }) => string[];
+
   /** Scroll callback, used for synchronous scrolling */
   onScroll: (params: OnScrollParams) => void;
   /** Set editor data */

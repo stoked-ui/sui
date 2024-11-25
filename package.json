@@ -74,7 +74,7 @@
     "prettier:all": "prettier --write . --ignore-path .eslintignore",
     "size:snapshot": "node --max-old-space-size=4096 ./scripts/sizeSnapshot/create",
     "size:why": "pnpm size:snapshot --analyze",
-    "start": "pnpm docs:dev",
+    "start": "pnpm docs:debug",
     "test": "node scripts/test.mjs",
     "tc": "node test/cli.js",
     "test:extended": "pnpm eslint && pnpm typescript && pnpm test:coverage",

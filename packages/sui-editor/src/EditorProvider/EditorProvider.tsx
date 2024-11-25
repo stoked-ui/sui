@@ -1,81 +1,129 @@
 import * as React from 'react';
+import PropTypes from 'prop-types';
+import { TimelineProvider, getDbProps } from '@stoked-ui/timeline';
+import Controllers from '../Controllers/Controllers';
+import EditorEngine from '../EditorEngine/EditorEngine';
+import { EditorEngineState, IEditorEngine } from '../EditorEngine/EditorEngine.types';
+import { EditorEvents } from '../EditorEngine';
+import { EditorProviderProps, EditorReducer, EditorStateAction } from './EditorProvider.types';
+import { IEditorFile, SUIEditor } from '../EditorFile/EditorFile';
+import EditorState, {createEditorState, IEditorStateProps} from './EditorState';
+import {IEditorAction} from "../EditorAction";
+import {IEditorTrack} from "../EditorTrack";
 
-import { namedId } from '@stoked-ui/media-selector';
-import {
-  initialTimelineState,
-  TimelineProvider,
-  getDbProps,
-  ReplaceAudioController,
-} from '@stoked-ui/timeline';
-import Controllers from "../Controllers/Controllers";
-
-ReplaceAudioController(Controllers.audio);
-
-import EditorEngine from "../EditorEngine/EditorEngine";
-import { EditorEngineState, IEditorEngine } from "../EditorEngine/EditorEngine.types";
-import { EditorEvents } from "../EditorEngine";
-import {
-  EditorProviderProps,
-  EditorReducer,
-  EditorStateAction,
-  IEditorState,
-} from "./EditorProvider.types";
-import { setDetail } from "../DetailView/Detail.types";
-import EditorFile, { SUIEditor } from "../EditorFile/EditorFile";
-
-export default function EditorProvider<
+function EditorProvider<
   EngineType extends IEditorEngine = IEditorEngine,
-  State extends IEditorState = IEditorState,
+  EngineStateType extends EditorEngineState = EditorEngineState,
+  State extends EditorState = EditorState,
   StateActionType extends EditorStateAction = EditorStateAction,
->(props: EditorProviderProps<EngineType, State, StateActionType>) {
-  const engine = props?.engine ?? new EditorEngine({ events: new EditorEvents(), controllers: props.controllers });
+  FileType extends IEditorFile = IEditorFile,
+  ActionType extends IEditorAction = IEditorAction,
+  TrackType extends IEditorTrack = IEditorTrack,
+>(props: EditorProviderProps<EngineType, State, StateActionType, FileType>) {
+  const engine =
+    props?.engine ??
+    (new EditorEngine({
+      events: new EditorEvents(),
+      controllers: props.controllers,
+    }) as IEditorEngine);
   const getState = () => {
     return engine.state as EditorEngineState;
-  }
+  };
   const setState = (newState: EditorEngineState | string) => {
     engine.state = newState;
+  };
+  if (props.editorId === 'detail') {
   }
-
-  const stateProps = {
-    ...initialTimelineState,
-    editorId: props.id ?? namedId(' editor'),
-    engine,
+  const editorStateProps: IEditorStateProps<EngineType, EngineStateType, FileType> = {
+    editorId: props.editorId,
+    timelineId: props.timelineId,
     getState,
-    setState,
-    detailOpen: false,
-    createNewFile: () => {
-      return new EditorFile({ name: 'New Editor Project' });
+    engine: engine as EngineType,
+    file: props.file,
+  };
+  const editorState = createEditorState<EngineType, EngineStateType, FileType, ActionType, TrackType>(editorStateProps);
+
+  editorState.createFlags([{
+    flag: 'noLabels',
+    config: { defaultValue: false}
+  }, {
+    flag: 'fileView',
+    config: { defaultValue: true },
+  }, {
+    flag: 'noTrackControls',
+    config: { defaultValue: false },
+  }, {
+    flag: 'noSnapControls',
+    config: { defaultValue: false },
+  }, {
+    flag: 'localDb',
+    config: { defaultValue: true },
+  }, {
+    flag: 'noSaveControls',
+    config: { defaultValue: false }
+  }, {
+    flag: 'record',
+    config: { defaultValue: true }
+  }, {
+    flag: 'noResizer',
+    config: { defaultValue: false }
+  }, {
+    flag: 'collapsed',
+    config: { defaultValue: false }
+  }, {
+    flag: 'allControls',
+    config: { defaultValue: false
     }
-  } as any;
-
-  const detailState = setDetail(stateProps);
-
-  const editorProps: IEditorState = {
-    ...detailState,
-    id: props.id ?? namedId('timeline'),
-    engine: engine as EditorEngine,
-    getState,
-    setState,
-  }
-/*
-  React.useEffect(() => {
-    if (flags){
-      LocalDb.init({ dbName: EditorFile.fileMeta.mimeSubtype, EditorFile.fileMeta.primaryMimeSubtype).then((initResults) => {
-        console.info('db init results', initResults);
-      });
+  }, {
+    flag: 'detailMode',
+    config: { defaultValue: false,
+      addTriggers: ['minimal', 'noSaveControls'],
+      removeTriggers: ['record']
     }
-    }, [flags.includes('idb')]);
-    */
-
+  }, {
+    flag: 'minimal',
+    config: {
+      defaultValue: false,
+      addTriggers: ['noLabels', 'noResizer', 'noTrackControls', 'noSnapControls', 'noViewControls']
+    }
+  },])
+  const reducer = EditorReducer as (state: State, stateAction: StateActionType) => State;
   return (
-    <TimelineProvider<IEditorEngine, IEditorState, EditorStateAction>
+    <TimelineProvider<EngineType, EngineStateType, State, StateActionType, FileType>
       {...props}
-      {...editorProps}
-      controllers={Controllers}
-      reducer={EditorReducer}
+      {...editorState}
+      file={editorState.file as FileType}
+      engine={editorState.engine as EngineType}
+      controllers={props.controllers ?? Controllers}
+      reducer={reducer}
       localDb={getDbProps(SUIEditor, props.localDb)}
     >
       {props.children}
     </TimelineProvider>
   );
 }
+
+EditorProvider.propTypes = {
+  // ----------------------------- Warning --------------------------------
+  // | These PropTypes are generated from the TypeScript type definitions |
+  // | To update them edit the TypeScript types and run "pnpm proptypes"  |
+  // ----------------------------------------------------------------------
+  children: PropTypes.any,
+  controllers: PropTypes.object,
+  editorId: PropTypes.string,
+  engine: PropTypes.object,
+  file: PropTypes.any,
+  localDb: PropTypes.oneOfType([
+    PropTypes.oneOf([false]),
+    PropTypes.shape({
+      dbName: PropTypes.string.isRequired,
+      disabled: PropTypes.bool.isRequired,
+      initializeStores: PropTypes.arrayOf(PropTypes.string).isRequired,
+      stores: PropTypes.arrayOf(PropTypes.string).isRequired,
+    }),
+  ]),
+  reducer: PropTypes.func,
+  timelineId: PropTypes.string,
+} as any;
+
+export default EditorProvider;

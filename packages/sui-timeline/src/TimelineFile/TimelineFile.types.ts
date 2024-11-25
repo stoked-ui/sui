@@ -35,7 +35,7 @@ export interface ITimelineFileProps<FileTrackType = ITimelineFileTrack> extends 
   tracks?: FileTrackType[];
 }
 
-export type ITimelineFileMetadata = Omit<ITimelineFile, 'tracks' | 'video' | '_fileTracks' | 'fileProps' | 'save' | 'initialize' | 'fileMeta' | 'createBlob' | 'state'> & {
+export type ITimelineFileMetadata = Omit<ITimelineFile, 'tracks' | 'video' | '_fileTracks' | 'fileProps' | 'save' | 'initialize' | 'fileMeta' | 'createBlob' | 'state' | 'trackFiles'> & {
   tracks: ITimelineTrackMetadata[]
   mimeType: MimeType
 }

@@ -1,7 +1,6 @@
 import * as React from 'react';
 import {namedId} from "@stoked-ui/media-selector";
-import { AudioController } from "@stoked-ui/timeline";
-import { IEditorFileAction,  EditorFile, IEditorFile, VideoController, IEditorFileTrack } from "@stoked-ui/editor";
+import { AudioController, IEditorFileAction,  EditorFile, IEditorFile, VideoController, IEditorFileTrack } from "@stoked-ui/editor";
 
 const idFunc = () => namedId('track');
 
@@ -25,7 +24,7 @@ const EditorExample: IEditorFile = new EditorFile({
         volume: [
           [0, 0, 32],
           [1, 32, 40.5],
-          [0, 40.5, ]
+          [.35, 40.5, ]
         ],
         z: -2,
         fit: 'fill' as 'fill',
@@ -54,6 +53,7 @@ const EditorExample: IEditorFile = new EditorFile({
       controller: VideoController,
       actions: [{
         name: 'stoked-ui',
+        loop: 3,
         start: 0,
         end: 12,
       }]
@@ -81,7 +81,6 @@ const EditorExample: IEditorFile = new EditorFile({
         start: 3,
         end: 37.6,
         trimStart: .5,
-        volume: [[0, 14, 20.5], [4, 20.5,],],
       }] as IEditorFileAction[]
     },
   ] as IEditorFileTrack[],

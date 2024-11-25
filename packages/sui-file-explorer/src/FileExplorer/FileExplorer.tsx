@@ -1,4 +1,4 @@
-import * as React from 'react';
+  import * as React from 'react';
 import PropTypes from 'prop-types';
 import composeClasses from '@mui/utils/composeClasses';
 import { useSlotProps } from '@mui/base/utils';
@@ -93,7 +93,7 @@ const childrenWarning = buildWarning([
  * - [FileExplorer View](https://stoked-ui.github.io/file-explorer/docs/)
  *
  * API:
- *
+ *  
  * - [FileExplorer API](https://stoked-ui.github.io/file-explorer/api/)
  */
 const FileExplorer = React.forwardRef(function FileExplorer<
@@ -179,22 +179,24 @@ FileExplorer.propTypes = {
     PropTypes.object,
   ]),
   /**
-   * The ref object that allows FileExplorer View manipulation. Can be instantiated with `useFileExplorerApiRef()`.
+   * The ref object that allows FileExplorer View manipulation. Can be instantiated with
+   * `useFileExplorerApiRef()`.
    */
   apiRef: PropTypes.shape({
     current: PropTypes.shape({
-      focusItem: PropTypes.func,
-      getItem: PropTypes.func,
-      getItemDOMElement: PropTypes.func,
-      gridEnabled: PropTypes.func,
-      selectItem: PropTypes.func,
-      setColumns: PropTypes.func,
-      setItemExpansion: PropTypes.func,
-      setVisibleOrder: PropTypes.func,
+      focusItem: PropTypes.func.isRequired,
+      getItem: PropTypes.func.isRequired,
+      getItemDOMElement: PropTypes.func.isRequired,
+      gridEnabled: PropTypes.func.isRequired,
+      selectItem: PropTypes.func.isRequired,
+      setColumns: PropTypes.func.isRequired,
+      setItemExpansion: PropTypes.func.isRequired,
+      setVisibleOrder: PropTypes.func.isRequired,
     }),
   }),
   /**
-   * If `true`, the fileExplorer view renders a checkbox at the left of its label that allows selecting it.
+   * If `true`, the fileExplorer view renders a checkbox at the left of its label that allows
+   * selecting it.
    * @default false
    */
   checkboxSelection: PropTypes.bool,
@@ -232,11 +234,6 @@ FileExplorer.propTypes = {
   dndFileTypes: PropTypes.arrayOf(PropTypes.string),
   dndInternal: PropTypes.oneOf([true]),
   dndTrash: PropTypes.oneOf([true]),
-
-  /**
-   * If `true` creates a dropzone when no files exist
-   * @default false
-   */
   dropzone: PropTypes.bool,
   /**
    * Expanded item ids.
@@ -296,64 +293,13 @@ FileExplorer.propTypes = {
    * @default 12px
    */
   itemChildrenIndentation: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-  items: PropTypes.arrayOf(
-    PropTypes.shape({
-      children: PropTypes.arrayOf(
-        PropTypes.shape({
-          children: PropTypes.arrayOf(PropTypes.object),
-          expanded: PropTypes.bool,
-          file: PropTypes.shape({
-            arrayBuffer: PropTypes.func,
-            lastModified: PropTypes.number,
-            name: PropTypes.string,
-            path: PropTypes.string,
-            size: PropTypes.number,
-            slice: PropTypes.func,
-            stream: PropTypes.func,
-            text: PropTypes.func,
-            type: PropTypes.string,
-            webkitRelativePath: PropTypes.string,
-          }),
-          id: PropTypes.string,
-          itemId: PropTypes.string,
-          label: PropTypes.string,
-          lastModified: PropTypes.number,
-          name: PropTypes.string,
-          selected: PropTypes.bool,
-          size: PropTypes.number,
-          type: PropTypes.string,
-          visibleIndex: PropTypes.number,
-        }),
-      ),
-      expanded: PropTypes.bool,
-      file: PropTypes.shape({
-        arrayBuffer: PropTypes.func,
-        lastModified: PropTypes.number,
-        name: PropTypes.string,
-        path: PropTypes.string,
-        size: PropTypes.number,
-        slice: PropTypes.func,
-        stream: PropTypes.func,
-        text: PropTypes.func,
-        type: PropTypes.string,
-        webkitRelativePath: PropTypes.string,
-      }),
-      id: PropTypes.string,
-      itemId: PropTypes.string,
-      label: PropTypes.string,
-      lastModified: PropTypes.number,
-      name: PropTypes.string,
-      selected: PropTypes.bool,
-      size: PropTypes.number,
-      type: PropTypes.string,
-      visibleIndex: PropTypes.number,
-    }),
-  ),
+  items: PropTypes.any.isRequired,
   /**
    * If `true`, `ctrl` and `shift` will trigger multiselect.
    * @default false
    */
   multiSelect: PropTypes.bool,
+  onAddFiles: PropTypes.func,
   /**
    * Callback fired when fileExplorer items are expanded/collapsed.
    * @param {React.SyntheticEvent} event The event source of the callback.
@@ -364,12 +310,14 @@ FileExplorer.propTypes = {
    * Callback fired when a fileExplorer item is expanded or collapsed.
    * @param {React.SyntheticEvent} event The event source of the callback.
    * @param {array} itemId The itemId of the lastModified item.
-   * @param {array} isExpanded `true` if the item has just been expanded, `false` if it has just been collapsed.
+   * @param {array} isExpanded `true` if the item has just been expanded, `false` if it has just
+   *   been collapsed.
    */
   onItemExpansionToggle: PropTypes.func,
   /**
    * Callback fired when fileExplorer items are focused.
-   * @param {React.SyntheticEvent} event The event source of the callback **Warning**: This is a generic event not a focus event.
+   * @param {React.SyntheticEvent} event The event source of the callback **Warning**: This is a
+   *   generic event not a focus event.
    * @param {string} itemId The id of the focused item.
    * @param {string} value of the focused item.
    */
@@ -378,7 +326,8 @@ FileExplorer.propTypes = {
    * Callback fired when a fileExplorer item is selected or deselected.
    * @param {React.SyntheticEvent} event The event source of the callback.
    * @param {array} itemId The itemId of the lastModified item.
-   * @param {array} isSelected `true` if the item has just been selected, `false` if it has just been deselected.
+   * @param {array} isSelected `true` if the item has just been selected, `false` if it has just
+   *   been deselected.
    */
   onItemSelectionToggle: PropTypes.func,
   /**
@@ -411,8 +360,6 @@ FileExplorer.propTypes = {
     PropTypes.func,
     PropTypes.object,
   ]),
-
-  trash: PropTypes.bool,
 };
 
 export { FileExplorer };

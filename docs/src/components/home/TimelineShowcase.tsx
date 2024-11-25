@@ -1,11 +1,13 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
+import {SxProps} from "@mui/system";
+import Timeline, {TimelineProvider, Controller} from "@stoked-ui/timeline";
 import ShowcaseContainer from 'docs/src/components/home/ShowcaseContainer';
 import HighlightedCode from 'docs/src/modules/components/HighlightedCode';
 import MarkdownElement from 'docs/src/components/markdown/MarkdownElement';
-import {SxProps} from "@mui/system";
-import Timeline, { AudioController, TimelineProvider } from "@stoked-ui/timeline";
+/*
 import TimelineExample from "../showcase/TimelineExample";
+*/
 
 
 const code = `
@@ -24,11 +26,10 @@ const code = `
 };`
 
 function TimelineEditorDemo() {
-
-
   return (
-    <TimelineProvider id={'timeline-showcase'} controllers={{ audio: AudioController}} file={TimelineExample} >
-      <Timeline sx={{width:'100%'}}/>
+    <TimelineProvider id={'timeline-showcase'} >
+ {/*      <Timeline sx={{width:'100%'}}/> */}
+      <div/>
     </TimelineProvider>
   );
 };
@@ -37,6 +38,7 @@ export default function TimelineShowcase() {
   const sx: SxProps = { height: 'fit-content', flexGrow: 1, width: '100%', overflowY: 'auto', };
   return (
     <ShowcaseContainer
+      id={'timeline-showcase'}
       preview={
         <TimelineEditorDemo/>
       }

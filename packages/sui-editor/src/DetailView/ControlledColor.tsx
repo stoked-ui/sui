@@ -52,11 +52,6 @@ export default function ControlledColor({ control, name, label, disabled, classN
         onClick={(ev) => {
           onClick?.(ev);
         }}
-        sx={{
-          '& input': {
-            blockSize: '56px', padding: 0
-          }
-        }}
         inputRef={field.ref}
         multiline={multiline}
         rows={rows}
@@ -67,8 +62,26 @@ export default function ControlledColor({ control, name, label, disabled, classN
         disabled={disabled}
         className={className}
         error={!!error}
-      >
-      </TextFieldStyle>
+        sx={(theme) => ({
+          '& input': {blockSize: '56px', padding: 0},
+          '& fieldset': {
+            color: theme.palette.text.primary,
+            padding: '3px 8px',
+            borderRadius: '6px',
+            outlineOffset: 0,
+            // backgroundImage: `linear-gradient(90deg, ${theme.palette.background.default},
+            // ${theme.palette.background.default}), linear-gradient(90deg, ${theme.palette.background.default}, ${theme.palette.background.default})`,
+            // backgroundSize: '100% 12px, 100% 17px',
+            // backgroundPosition: '0 0, 0 100%',
+            // backgroundRepeat: 'no-repeat, no-repeat'
+          },
+
+          '& ::-webkit-color-swatch-wrapper': {
+            padding: '0px',
+            borderRadius: '6px'
+          },
+        })}
+      />
     </Tooltip>
   );
 }

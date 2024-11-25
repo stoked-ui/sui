@@ -1,81 +1,91 @@
 import * as React from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { ControlledTrack, } from '@stoked-ui/timeline';
+import {
+  ActionDetail,
+  ITimelineTrackDetail
+} from '@stoked-ui/timeline';
 import ControlledText from "./ControlledText";
 import {
   CtrlCell,
   DetailActions,
-  FormWrap,
   useEditMode
 } from './Detail'
-import { DetailActionProps } from "./DetailAction.types";
-import { actionSchema, DetailDataAction, IDetailAction } from "./Detail.types";
+import {
+  actionSchema, DetailViewProps,
+  IEditorActionDetail,
+  IEditorProjectDetail
+} from "./Detail.types";
 import { useEditorContext } from "../EditorProvider/EditorContext";
-import { useDetail } from "./DetailProvider";
 
-export function DetailAction(props: DetailActionProps) {
-  const { detail, selected, selectedTrack, selectedAction, dispatch } = useDetail();
-  const editModeData = useEditMode();
-  const { editMode, setEdit, setDisable } = editModeData;
-
-  const data = detail as DetailDataAction;
+export function DetailAction(props: DetailViewProps) {
+  const { selectedTrack, selectedAction, dispatch } = useEditorContext();
+  const { editMode, enableEdit, disableEdit } = props;
+  const data = props.detail as ActionDetail;
   const {
     control,
-    handleSubmit,
+    handleSubmit: detailHandleSubmit,
     formState: {
       isDirty,
       errors,
     },
     reset,
-  } = useForm<IDetailAction>({
+  } = useForm<ActionDetail<IEditorProjectDetail, ITimelineTrackDetail, IEditorActionDetail>>({
     mode: 'onChange',
-    defaultValues: data.action,
+    defaultValues: data,
     // @ts-ignore
     resolver: yupResolver(actionSchema),
   });
 
   // Form submit handler
-  const onSubmitAction: SubmitHandler<IDetailAction> = (submitData: IDetailAction) => {
+  const onSubmitAction: SubmitHandler<IEditorActionDetail> = (submitData: IEditorActionDetail) => {
     dispatch({ type: 'UPDATE_ACTION', payload: submitData });
   };
+
+  React.useEffect(() => {
+    dispatch({ type: 'SET_SETTING', payload: {
+        value: {
+          detailSubmit: onSubmitAction,
+          detailHandleSubmit,
+        }
+      }})
+  }, [])
 
   if (!selectedAction || !selectedTrack) {
     return undefined;
   }
 
   return (
-    <FormWrap
-      onSubmit={onSubmitAction}
-      handleSubmit={handleSubmit}
-      title={selected.name}
-    >
+    <React.Fragment>
       <CtrlCell width="40%">
         <ControlledText
           className={'whitespace-nowrap flex-grow flex'}
           label={'Start'}
-          name={'selectedAction.start'}
+          prefix={'action'}
           control={control}
           disabled={!editMode}
-          onClick={setEdit}
+          onClick={enableEdit}
         />
       </CtrlCell>
       <CtrlCell width="40%">
         <ControlledText
           className={'whitespace-nowrap flex-grow flex'}
           label={'end'}
+          prefix={'action'}
           control={control}
           disabled={!editMode}
-          onClick={setEdit}
+          onClick={enableEdit}
         />
       </CtrlCell>
       <CtrlCell width="40%">
         <ControlledText
+          prefix={'action'}
           className={'whitespace-nowrap flex-grow flex'}
-          label={'x'}
+          label={'Coordinates'}
+          name={['x', 'y', 'z']}
           control={control}
           disabled={!editMode}
-          onClick={setEdit}
+          onClick={enableEdit}
         />
       </CtrlCell>
       <CtrlCell width="40%">
@@ -84,7 +94,7 @@ export function DetailAction(props: DetailActionProps) {
           label={'y'}
           control={control}
           disabled={!editMode}
-          onClick={setEdit}
+          onClick={enableEdit}
         />
       </CtrlCell>
       <CtrlCell width="40%">
@@ -93,7 +103,7 @@ export function DetailAction(props: DetailActionProps) {
           label={'Width'}
           control={control}
           disabled={!editMode}
-          onClick={setEdit}
+          onClick={enableEdit}
         />
       </CtrlCell>
       <CtrlCell width="40%">
@@ -102,7 +112,7 @@ export function DetailAction(props: DetailActionProps) {
           label={'Height'}
           control={control}
           disabled={!editMode}
-          onClick={setEdit}
+          onClick={enableEdit}
         />
       </CtrlCell>
       <CtrlCell width="40%">
@@ -111,7 +121,7 @@ export function DetailAction(props: DetailActionProps) {
           label={'Start Trim'}
           control={control}
           disabled={!editMode}
-          onClick={setEdit}
+          onClick={enableEdit}
         />
       </CtrlCell>
       <CtrlCell width="40%">
@@ -120,7 +130,7 @@ export function DetailAction(props: DetailActionProps) {
           label={'End Trim'}
           control={control}
           disabled={!editMode}
-          onClick={setEdit}
+          onClick={enableEdit}
         />
       </CtrlCell>
       <CtrlCell width="40%">
@@ -128,9 +138,9 @@ export function DetailAction(props: DetailActionProps) {
           className={'w-[194px] whitespace-nowrap w-full flex-grow flex'}
           label={'Duration'}
           control={control}
-          onClick={setEdit}
+          onClick={enableEdit}
         />
       </CtrlCell>
-      <DetailActions errors={errors} isDirty={isDirty} reset={reset} editModeData={editModeData} />
-    </FormWrap>)
+      <DetailActions errors={errors} isDirty={isDirty} reset={reset} disableEdit={disableEdit} editMode={editMode} />
+    </React.Fragment>)
 }

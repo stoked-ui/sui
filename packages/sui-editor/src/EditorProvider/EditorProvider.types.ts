@@ -1,18 +1,14 @@
-
-// Function to add files as tracks immutably
-
 import * as React from "react";
 import {
-  BackgroundImageStyle,
-  ITimelineState,
+  TimelineState,
   TimelineProviderProps,
   TimelineReducer,
   TimelineStateAction,
-  addFlag,
-  removeFlag,
-  setSetting,
-  setFlags,
   FileState,
+  DetailData,
+  ITimelineActionDetail,
+  IProjectDetail,
+  ITimelineTrackDetail,
 } from "@stoked-ui/timeline";
 import { IMediaFile, namedId } from "@stoked-ui/media-selector";
 import Controllers from "../Controllers";
@@ -23,40 +19,20 @@ import {
   initEditorAction
 } from "../EditorAction/EditorAction";
 import { IEditorTrack } from "../EditorTrack/EditorTrack";
-import EditorFile, { IEditorFile, SUVideoFile } from "../EditorFile/EditorFile";
+import { IEditorFile, SUVideoFile } from "../EditorFile/EditorFile";
 import { EditorEngineState, IEditorEngine } from "../EditorEngine";
 import {
-  DetailData,
-  IDetailAction,
-  IDetailProject,
-  IDetailTrack,
-  Selection, setDetail
+
 } from "../DetailView/Detail.types";
+import EditorState from "./EditorState";
 
-// Editor-specific state interfaceæ
-export interface IEditorState<
-  EngineType extends IEditorEngine = IEditorEngine,
-  State extends string | EditorEngineState = string | EditorEngineState,
-  FileType extends IEditorFile = IEditorFile,
-  ActionType extends IEditorAction = IEditorAction,
-  TrackType extends IEditorTrack = IEditorTrack,
-> extends ITimelineState<EngineType, State, FileType, ActionType, TrackType> {
-  file: FileType | null;
-  selected: ActionType | TrackType | FileType;
-  selectedAction: ActionType | null;
-  selectedTrack: TrackType | null;
-  engine: EngineType;
-  editorId: string;
-  detail: DetailData;
-  detailOpen: boolean;
-}
 
-export interface IEditorStateUnselected extends Omit<IEditorState, 'detail' | 'selected'> {
+export interface IEditorStateUnselected extends Omit<EditorState, 'detail' | 'selected'> {
   detail?: DetailData,
   selected?: Selection
 }
 
-export const onAddFiles = (state: IEditorState, newMediaFiles: IMediaFile[]) => {
+export const onAddFiles = (state: EditorState, newMediaFiles: IMediaFile[]) => {
   const { engine, file } = state;
   if (!file) {
     return state;
@@ -85,7 +61,6 @@ export const onAddFiles = (state: IEditorState, newMediaFiles: IMediaFile[]) => 
     }] as IEditorAction[],
     controllerName: mediaFile.mediaType,
   })) as IEditorTrack[];
-
   file.tracks = [...tracks || [], ...newTracks];
   return {
     ...state,
@@ -112,13 +87,7 @@ export type EditorStateAction<
   ActionType extends IEditorAction = IEditorAction,
   TrackType extends IEditorTrack = IEditorTrack,
 > = TimelineStateAction<FileType, FileActionType, ActionType, TrackType> | {
-  type: 'ACTION_DETAIL',
-  payload: ActionType,
-} | {
-  type: 'TRACK_DETAIL';
-  payload: TrackType,
-} | {
-  type: 'PROJECT_DETAIL';
+  type: 'DETAIL_OPEN',
 } | {
   type: 'ENGINE_INIT',
   payload: {
@@ -133,22 +102,13 @@ export type EditorStateAction<
   payload: HTMLDivElement
 } | {
   type: 'UPDATE_PROJECT',
-  payload: IDetailProject,
+  payload: IProjectDetail,
 } | {
   type: 'UPDATE_ACTION',
-  payload: IDetailAction,
+  payload: ITimelineActionDetail,
 } |{
   type: 'UPDATE_TRACK',
-  payload: IDetailTrack,
-} |  {
-  type: 'UPDATE_ACTION_STYLE',
-  payload: {
-    action: IEditorAction,
-    backgroundImageStyle: BackgroundImageStyle
-  }
-} | {
-  type: 'SET_POPOVER',
-  payload: { open: boolean, name: string }
+  payload: ITimelineTrackDetail,
 } | {
   type: 'SET_RENDERER',
   payload?: HTMLCanvasElement | null
@@ -159,7 +119,7 @@ export type EditorStateAction<
   payload: SUVideoFile,
 } | SetContextActions
 
-const setContext = (key: string, state: IEditorState, stateAction: SetContextActions) => {
+const setContext = (key: string, state: EditorState, stateAction: SetContextActions) => {
   const { file } = state;
   if (!file) {
     return state;
@@ -191,30 +151,16 @@ const setContext = (key: string, state: IEditorState, stateAction: SetContextAct
   }
 }
 
-export function EditorReducerBase(state: IEditorState, stateAction: EditorStateAction): IEditorState {
+export function EditorReducerBase(state: EditorState, stateAction: EditorStateAction): EditorState {
   const engine = state.engine;
   switch (stateAction.type) {
-    case 'ACTION_DETAIL': {
-      state = TimelineReducer(state, { ...stateAction, type: 'SELECT_ACTION' } as any) as IEditorState;
-      state = setDetail(state);
-      return { ...state, detailOpen: true };
-    }
-    case 'TRACK_DETAIL': {
-      state = TimelineReducer(state, { ...stateAction, type: 'SELECT_TRACK' } as any) as IEditorState;
-      state = setDetail(state);
-      return { ...state, detailOpen: true };
-    }
-    case 'PROJECT_DETAIL': {
-      state = TimelineReducer(state, { ...stateAction, type: 'SELECT_PROJECT' } as any) as IEditorState;
-      state = setDetail(state);
-      return { ...state, detailOpen: true };
+    case 'DETAIL_OPEN': {
+      state.detailOpen = true;
+      return state;
     }
     case 'VIEWER':
-      engine.viewer = stateAction.payload;
-      return {
-        ...state,
-        engine,
-      };
+      state.engine.viewer = stateAction.payload;
+      return state;
     case 'CREATE_ACTION': {
       const { action, track } = stateAction.payload;
       const updatedTracks = state.file?.tracks.map((t, index) =>
@@ -223,22 +169,21 @@ export function EditorReducerBase(state: IEditorState, stateAction: EditorStateA
       let file: IEditorFile | null = null;
       if (state.file) {
         file = state.file;
-        file.tracks = updatedTracks as IEditorTrack[];
+        file!.tracks = updatedTracks as IEditorTrack[];
       }
-      return {
-        ...state,
-        file,
-      };
+      state.file = file;
+      return state;
     }
     case 'UPDATE_PROJECT':{
       let file: any = null;
       if (state.file) {
         file = stateAction.payload as IEditorFile
       }
-      return {
-        ...state,
-        file
+      if (state.settings['timeline.autoReRender']) {
+        engine.reRender();
       }
+      state.file = file;
+      return state;
     }
     case 'UPDATE_ACTION': {
      if (!state.file) {
@@ -255,11 +200,13 @@ export function EditorReducerBase(state: IEditorState, stateAction: EditorStateA
       let file: IEditorFile | null= null;
       if (state.file) {
         file = state.file;
-        file.tracks = tracks as IEditorTrack[];
+        file!.tracks = tracks as IEditorTrack[];
       }
-      return {
-        ...state, file
-      };
+      if (state.settings['timeline.autoReRender']) {
+        engine.reRender();
+      }
+      state.file = file;
+      return state;
     }
     case 'UPDATE_TRACK': {
       if (!state.file) {
@@ -275,32 +222,16 @@ export function EditorReducerBase(state: IEditorState, stateAction: EditorStateA
       let file: IEditorFile | null= null;
       if (state.file) {
         file = state.file;
-        file.tracks = tracks;
+        file!.tracks = tracks;
       }
-
-      return {
-        ...state,
-        file
-      };
+      if (state.settings['timeline.autoReRender']) {
+        engine.reRender();
+      }
+      state.file = file;
+      return state;
     }
     case 'SCREENER':
-      return { ...state };
-    case 'SET_POPOVER': {
-      const isOpen = !!state.flags[stateAction.payload.name];
-      if (isOpen === stateAction.payload.open) {
-        return state;
-      }
-      let flags = [...state.flags];
-      if (stateAction.payload.open) {
-        flags.push(stateAction.payload.name);
-      } else {
-        flags = flags.filter((name) => name !== stateAction.payload.name);
-      }
-      return {
-        ...state,
-        flags,
-      };
-    }
+      return state;
     case 'SET_RENDERER':
       if (stateAction.payload !== null) {
         state.engine.renderer = stateAction.payload as HTMLCanvasElement;
@@ -310,14 +241,10 @@ export function EditorReducerBase(state: IEditorState, stateAction: EditorStateA
           state.engine.renderer = canvas as HTMLCanvasElement;
         }
       }
-      return {
-        ...state,
-      };
+      return state;
     case 'CLOSE_DETAIL': {
-      return {
-        ...state,
-        detailOpen: false,
-      };
+      state.detailOpen = false;
+      return state;
     }
     case 'SET_BLEND_MODE': {
       return setContext('blendMode', state, stateAction);
@@ -325,25 +252,51 @@ export function EditorReducerBase(state: IEditorState, stateAction: EditorStateA
     case 'SET_FIT': {
       return setContext('fit', state, stateAction);
     }
+    case 'VIDEO_CREATED': {
+      const { file } = state;
+      const { payload: video } = stateAction;
+      if (file) {
+        file.video = video.file;
+      }
+      video.save(true).catch(console.warn);
+      state.file = file;
+      return state;
+    }
     default:
-      return TimelineReducer(state as ITimelineState, stateAction as TimelineStateAction) as IEditorState;
+      return TimelineReducer(state as TimelineState, stateAction as TimelineStateAction) as EditorState;
   }
 }
 
-export function EditorReducer(state: IEditorState, stateAction: EditorStateAction): IEditorState {
+export function EditorReducer<
+  State extends EditorState = EditorState,
+  StateAction extends EditorStateAction = EditorStateAction
+>(state: State, stateAction: StateAction): State {
   const newState = EditorReducerBase(state, stateAction);
   const { engine, file } = newState;
   newState.getState = () => {
     if (!file || file?.state === FileState.READY) {
       return engine.state as EditorEngineState;
     }
-    return 'loading';
+    return 'LOADING';
   }
-  return newState;
+  return TimelineReducer({...newState} as State, { ...stateAction, type: 'UPDATE_STATE' } as any) as State;
 }
 
-export type EditorContextType = IEditorState & {
+export type EditorContextType = EditorState & {
   dispatch: React.Dispatch<EditorStateAction>;
 };
 
-export interface EditorProviderProps<EngineType, StateType extends IEditorState, StateActionType > extends TimelineProviderProps<EngineType, StateType, StateActionType> {}
+export interface EditorProviderProps<
+  EngineType  = IEditorEngine,
+  State extends EditorState = EditorState,
+  StateActionType = EditorStateAction,
+  FileType = IEditorFile
+> extends Omit<TimelineProviderProps <
+  EngineType,
+  State,
+  StateActionType,
+  FileType
+>, 'id'> {
+  editorId?: string;
+  timelineId?: string;
+}

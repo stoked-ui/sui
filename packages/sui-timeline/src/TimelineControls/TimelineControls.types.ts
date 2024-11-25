@@ -3,9 +3,7 @@ import {Theme} from '@mui/material/styles';
 import {SxProps} from '@mui/system';
 import {SlotComponentProps} from '@mui/base/utils';
 import {Version} from '../Engine/Engine.types';
-import {TimelineState} from '../Timeline/TimelineState'
 import {TimelineControlsClasses} from './timelineControlsClasses';
-import Engine from "../Engine/Engine";
 
 export interface EditorControlsSlots {
   /**

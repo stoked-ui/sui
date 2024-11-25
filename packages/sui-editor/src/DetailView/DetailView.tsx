@@ -4,20 +4,27 @@ import { Close } from "@mui/icons-material";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Modal from "@mui/material/Modal";
-import { DetailDataAction, DetailDataProject, DetailDataTrack } from "./Detail.types";
-import { DetailTrack } from './DetailTrack';
 import { useEditorContext } from '../EditorProvider/EditorContext';
-import { DetailProject } from './DetailProject';
-import { DetailAction } from './DetailAction';
 import { RootBox } from "./Detail";
-import DetailProvider, { useDetail } from "./DetailProvider";
-import { IEditorFile } from "../EditorFile/EditorFile";
-
+import {namedId} from "@stoked-ui/media-selector";
+import Controllers from "../Controllers";
+import EditorProvider from "../EditorProvider";
+import { DetailCombined } from './DetailCombined';
+import Box from "@mui/material/Box";
+const seen = new WeakSet();
+const replacer = (key, value) => {
+  if (typeof value === 'object' && value !== null) {
+    if (seen.has(value)) {
+      return '[Circular]';
+    }
+    seen.add(value);
+  }
+  return value;
+};
 export const DetailView = React.forwardRef(function DetailView({ onClose }: { onClose: () => void}, ref: React.Ref<HTMLDivElement>) {
-  const { detail, dispatch } = useDetail();
 
   return (
-    <div style={{ position: 'relative'}}>
+    <div style={{ position: 'relative', minWidth: '800px', minHeight: '740px'}}>
       <IconButton
         sx={{
           position: 'absolute',
@@ -46,18 +53,7 @@ export const DetailView = React.forwardRef(function DetailView({ onClose }: { on
             WebkitTextFillColor: theme.palette.text.primary
           }
         })}>
-          {(() => {
-            switch (detail.type) {
-              case 'track':
-                return  <DetailTrack data={detail as DetailDataTrack}/>
-              case 'action':
-                return <DetailAction  data={detail as DetailDataAction}/>
-              case 'project':
-                return <DetailProject data={detail as DetailDataProject}/>
-              default:
-                return null
-            }
-          })()}
+          <DetailCombined />
         </CardContent>
       </Card>
     </div>
@@ -79,7 +75,7 @@ function DetailModal () {
     }
   }, [detailRendererRef.current]);
 
-  if (!file) {
+  if (!file || !detailOpen) {
     return undefined;
   }
   return (<Modal
@@ -87,13 +83,21 @@ function DetailModal () {
     onClose={onClose}
     aria-labelledby="modal-modal-title"
     aria-describedby="modal-modal-description"
-    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+    style={{ display: 'flex', alignItems: 'top', marginTop: '20px', marginBottom:'20px',  justifyContent: 'center' }}
   >
-    <div>
-      <DetailProvider file={file as IEditorFile} detailRendererRef={detailRendererRef} selectedActionId={selectedAction?.id} selectedTrackId={selectedTrack?.id}>
-        <DetailView onClose={onClose} />
+    <Box sx={{
+      '&::visible-focus': {
+        outline: 'none',
+      },
+      outline: 'none',
+    }}>
+        <EditorProvider {...editorState} file={editorState.file ?? undefined} editorId={namedId('detail-editor')} controllers={Controllers}>
+          <DetailView onClose={onClose} />
+        </EditorProvider>
+{/*
       </DetailProvider>
-    </div>
+*/}
+    </Box>
   </Modal>)
 }
 

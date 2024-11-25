@@ -13,6 +13,9 @@ export interface IEditorTrack<
   ActionType extends IEditorAction = IEditorAction,
 > extends ITimelineTrack<ActionType> {
 
+  /** Whether the action is hidden */
+  hidden?: boolean;
+
   blendMode: BlendMode;
 
   fit: Fit;

@@ -56,7 +56,6 @@ export default abstract class WebFile implements IWebFile {
     return this._version;
   }
 
-  protected FileConstructor: Constructor<WebFile> = WebFile as unknown as Constructor<WebFile>;
 
   mimeTypes: IMimeType[] = [
     SUIWebFile,                 // embedded
@@ -69,7 +68,7 @@ export default abstract class WebFile implements IWebFile {
   protected latestChecksum: null | string = null;
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  initializer: WebFileInitializer = (fileParams, files, ...args) => {
+  initializer: WebFileInitializer = (fileParams, files) => {
     return Promise.resolve();
   };
 
@@ -171,6 +170,7 @@ export default abstract class WebFile implements IWebFile {
       throw new Error(ex as string);
     }
   }
+
   // Function to create a combined file with JSON data and attached files
   async createBlob(embedded: boolean = true): Promise<Blob> {
     try {
@@ -184,7 +184,6 @@ export default abstract class WebFile implements IWebFile {
       }
 
       const instance = this; // Capture the `this` context
-      console.info('propsString', propsString, 'fileParams', fileParams);
       const stream = new ReadableStream({
         async start(controller) {
           const encoder = new TextEncoder();
@@ -322,18 +321,7 @@ export default abstract class WebFile implements IWebFile {
   }
 
 
-  protected getDataStreams(): AsyncIterable<ReadableStream<Uint8Array>> {
-    const instance = this; // Preserve the `this` context
-    return {
-      async *[Symbol.asyncIterator]() {
-        for (let i = 0; i < instance.files.length; i += 1) {
-          const file = instance.files[i];
-          // Create a ReadableStream for each file
-          yield file.stream() as ReadableStream<Uint8Array>;
-        }
-      },
-    };
-  }
+  protected abstract getDataStreams(): AsyncIterable<ReadableStream<Uint8Array>>;
 
   protected get files(): File[] {
     return createStaticFiles();
@@ -369,17 +357,7 @@ export default abstract class WebFile implements IWebFile {
     return true;
   }
 
-  async initialize(files?: File[], ...args: any[]) {
-    if (this.state !== FileState.CONSTRUCTED) {
-      return;
-    }
-    this.state = FileState.INITIALIZING;
-
-    await this.initializer(files, args);
-
-    await this.save(true);
-    this.state = FileState.READY;
-  };
+  abstract initialize(files?: File[]): Promise<void>;
 
   static async fromUrl<FileType extends WebFile>(url: string): Promise<FileType> {
     const response = await fetch(url, { cache: "no-store" });

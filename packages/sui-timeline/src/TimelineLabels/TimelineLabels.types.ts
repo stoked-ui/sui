@@ -4,7 +4,6 @@ import {SxProps} from '@mui/system';
 import {SlotComponentProps} from '@mui/base/utils';
 import { IController } from '../Controller/Controller.types';
 import {TimelineLabelsClasses} from './timelineLabelsClasses';
-import { MediaFile } from '@stoked-ui/media-selector';
 import { ITimelineTrack } from "../TimelineTrack";
 
 export interface TimelineLabelsSlots {
@@ -14,15 +13,13 @@ export interface TimelineLabelsSlots {
    */
   root?: React.ElementType;
   label?: React.ElementType;
-  template?: React.ElementType;
-  container?: React.ElementType;
+  actions?: React.ElementType;
 }
 
 export interface TimelineLabelsSlotProps {
   root?: SlotComponentProps<'div', {}, TimelineLabelsProps>;
   label?: SlotComponentProps<'div', {}, TimelineLabelsProps>;
-  template?: SlotComponentProps<'div', {}, TimelineLabelsProps>;
-  container?: SlotComponentProps<'div', {}, TimelineLabelsProps>;
+  actions?: SlotComponentProps<'div', {}, TimelineLabelsProps>;
 }
 
 export interface TimelineLabelsPropsBase extends React.HTMLAttributes<HTMLDivElement> {
@@ -44,7 +41,7 @@ export interface TimelineLabelsPropsBase extends React.HTMLAttributes<HTMLDivEle
 
   width?: number | string;
 
-  onLabelClick?: (track: ITimelineTrack) => void;
+  onClickLabel?: (event: React.MouseEvent<HTMLElement, MouseEvent>, track: ITimelineTrack) => void;
 }
 
 export interface TimelineLabelsProps
@@ -62,5 +59,7 @@ export interface TimelineLabelsProps
 
   onToggle?: (id: string, property: string) => void;
   setFlags?: (id: string) => string[];
+
+  trackControls?: React.ElementType;
 
 }

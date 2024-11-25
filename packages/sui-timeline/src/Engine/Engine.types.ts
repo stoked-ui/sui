@@ -69,7 +69,12 @@ export interface IEngine<EmitterEvents extends EventTypes = EventTypes> extends 
 
 }
 
-export type EngineState = 'loading' | 'playing' | 'paused' | 'ready';
+export enum EngineState {
+  LOADING = 'LOADING',
+  PLAYING = 'PLAYING',
+  PAUSED = 'PAUSED',
+  READY = 'READY',
+}
 
 export type EngineOptions = {
   viewer?: HTMLElement;
