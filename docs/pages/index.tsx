@@ -63,7 +63,7 @@ export function HomeView({ HomeMain}: { HomeMain: React.ComponentType }){
 }
 
 let MainView:  React.ComponentType<{}> = function MainView() {
-  if (process.env.DEV_DISPLAY !== '1') {
+  if (process.env.DEV_DISPLAY === '1') {
     return <EditorHero id={'editor'} sx={{ width: '1080px' }} />
   }
   return (

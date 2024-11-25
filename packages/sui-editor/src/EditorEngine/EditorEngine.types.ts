@@ -5,11 +5,6 @@ import {
   RowRndApi
 } from '@stoked-ui/timeline';
 import { type EditorEventTypes} from "./events";
-import type { IEditorAction } from "../EditorAction/EditorAction";
-
-export interface IEditorTrack<
-  ActionType extends IEditorAction = IEditorAction,
->  extends ITimelineTrack<ActionType> {}
 
 export interface IEditorEngine<
   State extends string = EditorEngineState,
@@ -38,7 +33,11 @@ export interface IEditorEngine<
   }): boolean;
 }
 
-export type EditorEngineState = EngineState | 'recording';
+export enum EngineStateEx {
+  RECORDING = 'RECORDING'
+}
+
+export type EditorEngineState =  EngineState | EngineStateEx;
 
 export interface DrawData {
   source:  HTMLImageElement | SVGImageElement | HTMLVideoElement | HTMLCanvasElement | ImageBitmap | OffscreenCanvas | VideoFrame,

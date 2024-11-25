@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { styled, keyframes } from '@mui/material/styles';
 import { SxProps } from '@mui/system';
-import { FileState } from '@stoked-ui/timeline';
+import {EngineState, FileState} from '@stoked-ui/timeline';
 import {useEditorContext} from "../EditorProvider/EditorContext";
 
 const scale = keyframes`
@@ -74,7 +74,7 @@ const LoaderCircle = styled('div')(({ theme }) => ({
 }));
 
 function Loader({styles}: {styles: React.CSSProperties}) {
-  const { dispatch, file , engine } = useEditorContext();
+  const { dispatch, file , engine, getState } = useEditorContext();
   const loadingVideoRef = React.useRef<HTMLVideoElement>(null);
 
   React.useEffect(() => {
@@ -105,7 +105,11 @@ function Loader({styles}: {styles: React.CSSProperties}) {
       }
     }
   }, [loadingVideoRef.current]);
-  if (!engine || engine?.isLoading || !file || file.state !== FileState.READY) {
+
+  React.useEffect(() => {
+  }, [file?.state]);
+
+  if (getState() === EngineState.LOADING) {
 
     return (
       <React.Fragment>
@@ -114,6 +118,7 @@ function Loader({styles}: {styles: React.CSSProperties}) {
       </React.Fragment>
     )
   }
+
   return <React.Fragment />
 }
 

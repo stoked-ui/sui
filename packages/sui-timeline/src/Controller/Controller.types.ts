@@ -18,7 +18,7 @@ export type ControllerPreloadFunc<
 > =  (params: { action: ActionType, file: IMediaFile, engine: EngineType }) => Promise<ActionType>;
 */
 
-export interface IController{
+export interface IController {
   start(params: { action: ITimelineAction, time: number, engine: IEngine }): void
   stop(params: { action: ITimelineAction, time: number, engine: IEngine }): void
   enter(params: { action: ITimelineAction, time: number, engine: IEngine }): void

@@ -6,11 +6,11 @@ import {EditorEvents, EditorEventTypes} from './events';
 import {
   IEditorEngine,
   EditorEngineState,
-  DrawData, IEditorTrack,
+  DrawData,
 } from "./EditorEngine.types";
+import { IEditorTrack } from '../EditorTrack/EditorTrack';
 import {type IEditorAction} from "../EditorAction/EditorAction";
 import Controllers from "../Controllers/Controllers";
-// import { type IEditorController } from "../Controllers";
 
 /**
  * Can be run independently of the editor
@@ -62,7 +62,7 @@ export default class EditorEngine<
     }
 
     this._controllers = params.controllers || Controllers;
-    this._state = 'loading' as State;
+    this._state = 'LOADING' as State;
   }
 
   getActionTrack(actionId: string): IEditorTrack {
@@ -120,12 +120,12 @@ export default class EditorEngine<
 
   /** Whether it is playing */
   get isPlaying() {
-    return this._state === 'playing' as State || this.isRecording;
+    return this._state === 'PLAYING' as State || this.isRecording;
   }
 
   /** Whether it is playing */
   get isRecording() {
-    return this._state === 'recording' as State;
+    return this._state === 'RECORDING' as State;
   }
 
   /**
@@ -269,7 +269,10 @@ export default class EditorEngine<
       return false;
     }
 
-    this._renderCtx?.clearRect(0, 0, this.renderWidth, this.renderHeight)
+       this._renderCtx?.clearRect(0, 0, this.renderWidth, this.renderHeight)
+    // if (isTick)  {
+    //  this._renderCtx?.clearRect(0, 0, this.renderWidth, this.renderHeight)
+    // }
 
     this._next = 0;
 
@@ -290,6 +293,7 @@ export default class EditorEngine<
   /** Process action time enter */
   protected _dealEnter(time: number) {
     const active = Array.from(this._activeIds.values())
+    const actionIdIndex = Object.keys(this._actionTrackMap);
     // add to active
     while (this._actionSortIds[this._next]) {
       const actionId = this._actionSortIds[this._next];
@@ -303,13 +307,14 @@ export default class EditorEngine<
         }
         const track = this._actionTrackMap[actionId];
         // The action can be executed and started
-        if (action.end > time && active.indexOf(actionId) === -1 && !track.hidden) {
+        if (action.end > time && active.indexOf(actionId) === -1) {
           const controller = track.controller;
           if (controller && controller?.enter) {
             controller.enter({action, time: this.time, engine: this as IEditorEngine});
           }
 
-          this._activeIds.set(action.z, actionId);
+          const actionIndex = actionIdIndex.indexOf(actionId);
+          this._activeIds.set(action.z ?? actionIndex, actionId);
         }
       }
       this._next += 1;

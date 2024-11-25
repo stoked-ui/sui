@@ -1,7 +1,6 @@
 import * as React from 'react';
 import {SxProps, Theme} from "@mui/material/styles";
 import {SlotComponentProps} from "@mui/material";
-import {CommonProps} from '../interface/common_prop';
 import {TimelinePlayerClasses} from "./timelinePlayerClasses";
 
 export interface TimelinePlayerSlots {
@@ -23,8 +22,7 @@ export interface TimelinePlayerSlotProps {
 }
 
 export interface TimelinePlayerProps
-  extends CommonProps,
-    Omit<React.HTMLAttributes<HTMLDivElement>, 'id' | 'onScroll'> {
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, 'id' | 'onScroll'> {
   /**
    * The content of the component.
    */

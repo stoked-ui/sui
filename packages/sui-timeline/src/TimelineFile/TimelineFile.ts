@@ -24,7 +24,7 @@ import {
   SUITimeline,
   SUITimelineRefs,
 } from "./TimelineFile.types";
-import Controllers from "../Controller/Controllers";
+// import Controllers from "../Controller/Controllers";
 import Controller from "../Controller";
 import ProjectFile from "./ProjectFile";
 import { IMimeType, MimeType } from "./MimeType";
@@ -54,7 +54,7 @@ export default class TimelineFile<
     this._fileTracks = props.tracks?.map((track) => {
       if (!track.controller) {
         if (track.controllerName) {
-          track.controller = Controllers[track.controllerName];
+          track.controller = TimelineFile.Controllers[track.controllerName];
         } else {
           throw new Error(`controllerName or a controller is required for each track and none was found for the track: ${track.name || track.id}`);
         }
@@ -99,16 +99,15 @@ export default class TimelineFile<
   ];
 
   get fileParams(): IBaseDecodedFile[] {
-
     return this.trackFiles.map((f) => { return { name: f.name, size: f.size, type: f.type }});
   }
 
-  async initialize(files?: File[], ...args: any[]) {
+  async initialize(files: File[] = null) {
     if (this.state !== FileState.CONSTRUCTED) {
       return;
     }
     this.state = FileState.INITIALIZING;
-
+    console.info('initialize', this.state);
     try {
       await this.assignFiles(files);
       // const filePromises = this._fileTracks.map((fileTrack) => MediaFile.fromUrl(fileTrack.url));
@@ -127,8 +126,8 @@ export default class TimelineFile<
           name: trackInput.name,
           actions,
           file: trackInput.file,
-          controller: trackInput.controller ? trackInput.controller : Controllers[trackInput.controllerName],
-          hidden: trackInput.hidden,
+          controller: trackInput.controller ? trackInput.controller : TimelineFile.Controllers[trackInput.controllerName],
+          mute: trackInput.mute,
           lock: trackInput.lock,
         } as any;
       });
@@ -144,8 +143,8 @@ export default class TimelineFile<
 
       this._fileTracks = [];
 
-
-      this.state = FileState.READY
+      this.state = FileState.READY;
+      console.info('initialize', this.state);
     } catch (ex) {
       console.error('buildTracks:', ex);
     }
@@ -153,7 +152,7 @@ export default class TimelineFile<
 
 
   async assignFiles(files: File[] = []) {
-    if (files.length && files.length === this._fileTracks.length) {
+    if (files?.length && files.length === this._fileTracks.length) {
       this._fileTracks = this._fileTracks.map((trackInput, index) => {
         this._fileTracks[index].file = new MediaFile(files[index]);
         return this._fileTracks[index];
@@ -196,7 +195,7 @@ export default class TimelineFile<
       tracks ,
       mimeType: this.getMimeType().type as MimeType
     };
-    metadata.tracks.reduce((curr, offset, index) => {
+    metadata.tracks?.reduce((curr, offset, index) => {
       metadata.tracks[index].fileIndex = curr;
       return curr + this.tracks[index].file.mediaFileSize;
     }, 0 as number)
@@ -204,7 +203,7 @@ export default class TimelineFile<
   }
 
   get trackFiles(): IMediaFile[] {
-    return this.tracks.map((track) => track.file);
+    return this.tracks?.map((track) => track.file) || [];
   }
 
   get files(): File[] {
@@ -250,7 +249,7 @@ export default class TimelineFile<
   get fileProps(): ITimelineFileMetadata {
     return {
       ...super.fileProps,
-      tracks: this.tracks.map((track) => {
+      tracks: this.tracks?.map((track) => {
         const { file, controller, ...trackJson } = track;
         return {
           ...trackJson,
@@ -285,12 +284,15 @@ export default class TimelineFile<
       name: 'new track',
       actions: [],
       file: null,
-      hidden: false,
+      mute: false,
       lock: false
     } as TrackType];
   }
 
-  static displayTracks<TrackType extends ITimelineTrack = ITimelineTrack>(tracks?: TrackType[]) {
+  static displayTracks<TrackType extends ITimelineTrack = ITimelineTrack>(tracks?: TrackType[], newTrack: boolean = true) {
+    if (!newTrack) {
+      return tracks ?? [];
+    }
     if (tracks?.length) {
       return tracks.concat(TimelineFile.newTrack());
     }
@@ -309,7 +311,7 @@ export default class TimelineFile<
         name: 'collapsed track',
         actions: tracks.map((track) => track.actions.map((action) => action)).flat(2),
         file: null,
-        hidden: false,
+        mute: false,
         lock: false
       } as TrackType
     }
@@ -349,7 +351,7 @@ export default class TimelineFile<
         tracks,
         file: fileAction.file,
         url: fileAction.file._url,
-        controller: Controllers[fileAction.file.mediaType],
+        controller: TimelineFile.Controllers[fileAction.file.mediaType],
         actions: [{
           id: namedId('action'),
           name: fileAction.action.name,
@@ -366,26 +368,42 @@ export default class TimelineFile<
       version: 1
     }) as FileType;
   }
-/*
 
-  static async createInstance(fileData: ITimelineFileProps<ITimelineFileTrack>): Promise<TimelineFile> {
-    try {
-      const file: TimelineFile = new TimelineFile(fileData);
-      return new Promise((resolve, reject) => {
-        file.initialize(initTimelineAction)
-          .then(() => {
-            resolve(file);
-          })
-          .catch((ex) => {
-            reject(ex);
-          });
-      })
-    } catch (ex) {
-      return Promise.reject(ex);
-    }
+  protected getDataStreams(): AsyncIterable<ReadableStream<Uint8Array>> {
+    // eslint-disable-next-line consistent-this
+    const instance = this; // Preserve the `this` context
+    return {
+      async *[Symbol.asyncIterator]() {
+        for (let i = 0; i < instance.files.length; i += 1) {
+          const file = instance.files[i];
+          // Create a ReadableStream for each file
+          yield file.stream() as ReadableStream<Uint8Array>;
+        }
+      },
+    };
   }
-*/
 
+  /*
+
+    static async createInstance(fileData: ITimelineFileProps<ITimelineFileTrack>): Promise<TimelineFile> {
+      try {
+        const file: TimelineFile = new TimelineFile(fileData);
+        return new Promise((resolve, reject) => {
+          file.initialize(initTimelineAction)
+            .then(() => {
+              resolve(file);
+            })
+            .catch((ex) => {
+              reject(ex);
+            });
+        })
+      } catch (ex) {
+        return Promise.reject(ex);
+      }
+    }
+  */
+
+  static Controllers: Record<string, Controller> = {};
 
   static fileState: Record<string, FileState> = {};
 }

@@ -1,87 +1,68 @@
 import * as React from "react";
-import { SubmitHandler, useForm } from "react-hook-form";
+import {SubmitHandler, useForm} from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { styled } from "@mui/material";
-import Timeline, { TimelineState } from "@stoked-ui/timeline";
 import ControlledText, { UncontrolledText } from "./ControlledText";
 import {
   CtrlCell,
   CtrlRow,
   DetailActions,
-  FormWrap,
   useEditMode
 } from './Detail'
 import ControlledColor from "./ControlledColor";
-import { DetailProjectProps } from './DetailProject.types';
-import { IDetailProject, projectSchema } from "./Detail.types";
-import { useDetail } from "./DetailProvider";
+import {DetailViewProps, IEditorProjectDetail, projectSchema} from "./Detail.types";
+import {useEditorContext} from "../EditorProvider";
 
 
-export function DetailProject(props: DetailProjectProps) {
-  const { detail,file, selected , engine, dispatch } = useDetail();
-  const editModeData = useEditMode();
-  const { editMode, setEdit, setDisable } = editModeData;
+export function DetailProject(props: DetailViewProps) {
+  const { file, selected , engine, dispatch } = useEditorContext();
 
   const {
     control,
-    handleSubmit,
+    handleSubmit: detailHandleSubmit,
     formState: {
       isDirty,
       errors,
     },
     reset,
-  } = useForm<IDetailProject>({
-    defaultValues: detail.project,
+  } = useForm<IEditorProjectDetail>({
+    defaultValues: props.detail.project as IEditorProjectDetail,
     resolver: yupResolver(projectSchema),
   });
 
-  // Form submit handler
-  const onSubmit: SubmitHandler<IDetailProject> = (submitData: IDetailProject) => {
-    submitData.lastModified = Date.now();
+  const detailSubmit: SubmitHandler<IEditorProjectDetail> = (submitData: IEditorProjectDetail) => {
+    props.disableEdit();
     dispatch({ type: 'UPDATE_PROJECT', payload: submitData });
   };
 
+  React.useEffect(() => {
+    dispatch({ type: 'SET_SETTING', payload: {
+        value: {
+          detailSubmit,
+          detailHandleSubmit,
+        }
+      }})
+  }, []);
+
   return (
-    <FormWrap
-      onSubmit={onSubmit}
-      handleSubmit={handleSubmit}
-      title={selected.name}
-    >
+   <React.Fragment>
       <CtrlRow>
         <CtrlCell width="40%">
           <ControlledText
             className={'whitespace-nowrap flex-grow flex'}
             label={'Name'}
             control={control}
-            disabled={!editMode}
-            onClick={setEdit}
+            disabled={!props.editMode}
+            onClick={() => {
+              console.log('derp')
+            }}
           />
         </CtrlCell>
         <CtrlCell width="15%">
-          <UncontrolledText
-            className={'w-[194px] whitespace-nowrap w-full flex-grow flex'}
-            label={'Size'}
-            value={`${detail.project.width} x ${detail.project.height}`}
-            disabled
-            onClick={setEdit}
-          />
-        </CtrlCell>
-
-        <CtrlCell width="40%">
           <ControlledText
-            className={'whitespace-nowrap flex-grow flex'}
-            label={'Description'}
-            name={'description'}
-            control={control}
-            disabled={!editMode}
-            onClick={setEdit}
-          />
-        </CtrlCell>
-        <CtrlCell width="15%">
-          <UncontrolledText
             className={'whitespace-nowrap flex-grow flex'}
             label={'Created'}
             name={'created'}
+            control={control}
             disabled
             format={(epoch: number) => {
               if (epoch) {
@@ -89,47 +70,73 @@ export function DetailProject(props: DetailProjectProps) {
               }
               return epoch;
             }}
-            onClick={setEdit}
+            onClick={props.enableEdit}
+          />
+        </CtrlCell>
+        <CtrlCell width="15%">
+        <ControlledText
+          className={'whitespace-nowrap flex-grow flex'}
+          label={'Last Modified'}
+          name={'lastModified'}
+          disabled
+          control={control}
+          format={(epoch: number) => {
+            if (epoch) {
+              return new Date(epoch).toDateString();
+            }
+            return '';
+          }}
+          onClick={props.enableEdit}
+        />
+      </CtrlCell>
+        <CtrlCell width="40%">
+          <ControlledText
+            className={'whitespace-nowrap flex-grow flex'}
+            label={'Description'}
+            name={'description'}
+            control={control}
+            disabled={!props.editMode}
+            onClick={props.enableEdit}
           />
         </CtrlCell>
         <CtrlCell width="15%">
           <UncontrolledText
-            className={'whitespace-nowrap flex-grow flex'}
-            label={'Last Modified'}
-            name={'lastModified'}
+            className={'w-[194px] whitespace-nowrap w-full flex-grow flex'}
+            label={'Size'}
+            value={`${file!.width} x ${file!.height}`}
             disabled
-            format={(epoch: number) => {
-              if (epoch) {
-                return new Date(epoch).toDateString();
-              }
-              return '';
-            }}
-            onClick={setEdit}
+            onClick={props.enableEdit}
           />
         </CtrlCell>
-        <CtrlCell width="40%">
-          <ControlledText
-            className={'whitespace-nowrap flex-grow flex'}
-            label={'Author'}
-            name={'project.author'}
-            control={control}
-            disabled={!editMode}
-            onClick={setEdit}
-          />
-        </CtrlCell>
-        <CtrlCell width="40%">
+        <CtrlCell width="15%">
           <ControlledColor
             className={'whitespace-nowrap flex-grow flex Mui-shrink-full'}
             label={'Background Color'}
             name={'backgroundColor'}
             type={'color'}
             control={control}
-            disabled={!editMode}
-            onClick={setEdit}
+            disabled={!props.editMode}
+            onClick={props.enableEdit}
+          />
+        </CtrlCell>
+        <CtrlCell width="40%">
+          <ControlledText
+            className={'whitespace-nowrap flex-grow flex'}
+            label={'Author'}
+            name={'author'}
+            control={control}
+            disabled={!props.editMode}
+            onClick={props.enableEdit}
           />
         </CtrlCell>
       </CtrlRow>
-      <DetailActions errors={errors} isDirty={isDirty} reset={reset} editModeData={editModeData} />
-    </FormWrap>
+      <DetailActions
+        errors={errors}
+        isDirty={isDirty}
+        reset={reset}
+        editMode={props.editMode}
+        disableEdit={props.disableEdit}
+      />
+   </React.Fragment>
   )
 }

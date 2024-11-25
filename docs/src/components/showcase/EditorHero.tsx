@@ -30,16 +30,14 @@ export default function EditorHero({ id, sx }: { id: string, sx?: SxProps}) {
           ...(Array.isArray(sx) ? sx : [sx]),
         ]}
       >
-        <EditorProvider id={id} controllers={Controllers} >
+        <EditorProvider controllers={Controllers} >
           <Editor
             sx={sx || { borderRadius: '12px 12px 0 0' }}
-            trackControls
-            snapControls
-            record
-            openSaveControls
-            file={EditorExample}/*  f
-           fileUrl={'/static/editor/stoked-ui-3.suer'}    */    /*
-            fileUrl={'/static/editor/stoked-ui-3.suer'} */
+            file={EditorExample}
+            /*
+            fileUrl={'/static/editor/stoked-ui-3.suer'}
+            fileUrl={'/static/editor/stoked-ui-3.suer'}
+           */
           />
         </EditorProvider>
       </Card>

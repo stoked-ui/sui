@@ -1,4 +1,5 @@
 import * as React from 'react';
+import {Howler } from 'howler';
 import {FastForward, FastRewind, VolumeDown, VolumeUp, VolumeMute, VolumeOff} from "@mui/icons-material";
 import FormControl from '@mui/material/FormControl';
 import SvgIcon from "@mui/material/SvgIcon";

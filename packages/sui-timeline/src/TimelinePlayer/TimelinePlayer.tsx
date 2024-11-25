@@ -1,15 +1,15 @@
 import * as React from 'react';
-import {styled} from '@mui/material/styles';
+import PropTypes from 'prop-types';
+import { styled } from '@mui/material/styles';
 import PauseIcon from '@mui/icons-material/Pause';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import SkipNextIcon from '@mui/icons-material/SkipNext';
 import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
 import IconButton from '@mui/material/IconButton';
-import Select, {SelectChangeEvent} from '@mui/material/Select';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
-import {TimelineState} from '../Timeline/TimelineState';
 import { ITimelineTrack } from '../TimelineTrack/TimelineTrack.types';
-import { useTimeline } from "../TimelineProvider";
+import { useTimeline } from '../TimelineProvider';
 
 export const Rates = [0.2, 0.5, 1.0, 1.5, 2.0];
 
@@ -56,12 +56,10 @@ function TimelinePlayer({
   startLeft?: number;
 }) {
   const { engine } = useTimeline();
-  const [isPlaying, setIsPlaying] = React.useState(false);
+
   const [time, setTime] = React.useState(0);
 
   React.useEffect(() => {
-    engine?.on('play', () => setIsPlaying(true));
-    engine?.on('paused', () => setIsPlaying(false));
     engine?.on('afterSetTime', ({ time: afterSetTime }) => setTime(afterSetTime));
     engine?.on('setTimeByTick', ({ time: setTimeByTickTime }) => {
       setTime(setTimeByTickTime);
@@ -84,7 +82,6 @@ function TimelinePlayer({
 
   // Start or pause
   const handlePlayOrPause = () => {
-
     if (engine.isPlaying) {
       engine.pause();
     } else {
@@ -94,7 +91,6 @@ function TimelinePlayer({
 
   // Set playback rate
   const handleRateChange = (event: SelectChangeEvent<number>) => {
-
     engine.setPlayRate(event.target.value as number);
   };
 
@@ -131,7 +127,7 @@ function TimelinePlayer({
       </IconButtonControlRoot>
 
       <IconButtonControlRoot size={'small'} className="play-control" onClick={handlePlayOrPause}>
-        {isPlaying ? <PauseIcon /> : <PlayArrowIcon />}
+        {engine.isPlaying ? <PauseIcon /> : <PlayArrowIcon />}
       </IconButtonControlRoot>
 
       <IconButtonControlRoot size={'small'} className="play-control" onClick={handleEnd}>
@@ -164,7 +160,126 @@ function TimelinePlayer({
 }
 
 TimelinePlayer.propTypes = {
-
-};
+  // ----------------------------- Warning --------------------------------
+  // | These PropTypes are generated from the TypeScript type definitions |
+  // | To update them edit the TypeScript types and run "pnpm proptypes"  |
+  // ----------------------------------------------------------------------
+  autoScrollWhenPlay: PropTypes.bool.isRequired,
+  scale: PropTypes.number.isRequired,
+  scaleWidth: PropTypes.number.isRequired,
+  startLeft: PropTypes.number.isRequired,
+  tracks: PropTypes.arrayOf(
+    PropTypes.shape({
+      actions: PropTypes.arrayOf(
+        PropTypes.shape({
+          backgroundImage: PropTypes.string.isRequired,
+          backgroundImageStyle: PropTypes.oneOfType([
+            PropTypes.object,
+            PropTypes.shape({
+              backgroundImage: PropTypes.string.isRequired,
+              backgroundPosition: PropTypes.string.isRequired,
+              backgroundSize: PropTypes.string.isRequired,
+            }),
+          ]).isRequired,
+          disable: PropTypes.bool.isRequired,
+          duration: PropTypes.number.isRequired,
+          end: PropTypes.number.isRequired,
+          flexible: PropTypes.bool.isRequired,
+          frameSyncId: PropTypes.number.isRequired,
+          freeze: PropTypes.number.isRequired,
+          hidden: PropTypes.bool.isRequired,
+          id: PropTypes.string.isRequired,
+          locked: PropTypes.bool.isRequired,
+          loop: PropTypes.oneOfType([PropTypes.number, PropTypes.bool]).isRequired,
+          maxEnd: PropTypes.number.isRequired,
+          minStart: PropTypes.number.isRequired,
+          movable: PropTypes.bool.isRequired,
+          name: PropTypes.string.isRequired,
+          onKeyDown: PropTypes.func.isRequired,
+          playbackRate: PropTypes.number.isRequired,
+          playCount: PropTypes.number.isRequired,
+          selected: PropTypes.bool.isRequired,
+          start: PropTypes.number.isRequired,
+          style: PropTypes.object.isRequired,
+          trimEnd: PropTypes.number.isRequired,
+          trimStart: PropTypes.number.isRequired,
+          volume: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number.isRequired)).isRequired,
+          volumeIndex: PropTypes.number.isRequired,
+        }),
+      ).isRequired,
+      classNames: PropTypes.arrayOf(PropTypes.string).isRequired,
+      controller: PropTypes.shape({
+        color: PropTypes.string.isRequired,
+        colorSecondary: PropTypes.string.isRequired,
+        destroy: PropTypes.func.isRequired,
+        enter: PropTypes.func.isRequired,
+        getActionStyle: PropTypes.func.isRequired,
+        getBackgroundImage: PropTypes.func.isRequired,
+        leave: PropTypes.func.isRequired,
+        logging: PropTypes.bool.isRequired,
+        preload: PropTypes.func.isRequired,
+        start: PropTypes.func.isRequired,
+        stop: PropTypes.func.isRequired,
+        update: PropTypes.func.isRequired,
+        viewerUpdate: PropTypes.func.isRequired,
+      }).isRequired,
+      controllerName: PropTypes.string.isRequired,
+      file: PropTypes.shape({
+        _url: PropTypes.string.isRequired,
+        arrayBuffer: PropTypes.func.isRequired,
+        aspectRatio: PropTypes.number.isRequired,
+        blob: PropTypes.shape({
+          arrayBuffer: PropTypes.func.isRequired,
+          size: PropTypes.number.isRequired,
+          slice: PropTypes.func.isRequired,
+          stream: PropTypes.func.isRequired,
+          text: PropTypes.func.isRequired,
+          type: PropTypes.string.isRequired,
+        }).isRequired,
+        children: PropTypes.arrayOf(PropTypes.object).isRequired,
+        created: PropTypes.number.isRequired,
+        duration: PropTypes.number.isRequired,
+        element: PropTypes.any,
+        expanded: PropTypes.bool.isRequired,
+        height: PropTypes.number.isRequired,
+        icon: PropTypes.string.isRequired,
+        id: PropTypes.string.isRequired,
+        itemId: PropTypes.string.isRequired,
+        lastModified: PropTypes.number.isRequired,
+        mediaFileSize: PropTypes.number.isRequired,
+        mediaType: PropTypes.oneOf([
+          'audio',
+          'doc',
+          'file',
+          'folder',
+          'image',
+          'lottie',
+          'pdf',
+          'trash',
+          'video',
+        ]).isRequired,
+        name: PropTypes.string.isRequired,
+        path: PropTypes.string.isRequired,
+        selected: PropTypes.bool.isRequired,
+        size: PropTypes.number.isRequired,
+        slice: PropTypes.func.isRequired,
+        stream: PropTypes.func.isRequired,
+        text: PropTypes.func.isRequired,
+        thumbnail: PropTypes.string.isRequired,
+        type: PropTypes.string.isRequired,
+        url: PropTypes.string.isRequired,
+        version: PropTypes.number.isRequired,
+        visibleIndex: PropTypes.number.isRequired,
+        webkitRelativePath: PropTypes.string.isRequired,
+        width: PropTypes.number.isRequired,
+      }).isRequired,
+      hidden: PropTypes.bool.isRequired,
+      id: PropTypes.string.isRequired,
+      image: PropTypes.string.isRequired,
+      lock: PropTypes.bool.isRequired,
+      name: PropTypes.string.isRequired,
+    }),
+  ).isRequired,
+} as any;
 
 export default TimelinePlayer;

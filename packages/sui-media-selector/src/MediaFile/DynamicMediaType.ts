@@ -7,7 +7,6 @@ import MediaFile, {getFileName} from "./MediaFile";
 export default class DynamicMediaType {
   static async fromFile(file: File, url: string, path?: string) {
     const mediaFile: MediaFile = MediaFile.withMimeType(file as MediaFile);
-    console.log('mediaFile 1', mediaFile);
     switch(mediaFile.mediaType) {
       case 'video':
         return VideoFile.fromFileUrl(mediaFile as VideoFile, url, path);
@@ -38,7 +37,6 @@ export default class DynamicMediaType {
 
       // const mediaFile = MediaFile.fromFile(file as IMediaFile);
       const mediaFile = await DynamicMediaType.fromFile(file, url);
-      console.log('mediaFile', file, mediaFile);
       return mediaFile;
     } catch (ex) {
       console.warn(ex);

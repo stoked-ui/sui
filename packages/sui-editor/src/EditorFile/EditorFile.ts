@@ -7,6 +7,7 @@ import {
   IMimeType,
   ProjectOutputFile, IProjectOutputFileProps, Constructor,
   MimeRegistry,
+  FileState,
 } from '@stoked-ui/timeline';
 import { getFileName, getMimeType, IMediaFile } from '@stoked-ui/media-selector';
 import Controllers from '../Controllers/Controllers';
@@ -16,8 +17,8 @@ import {
   IEditorFileAction,
   initEditorAction
 } from "../EditorAction/EditorAction";
-import { IEditorEngine, IEditorTrack } from "../EditorEngine";
-import { IEditorFileTrack } from "../EditorTrack/EditorTrack";
+import { IEditorEngine } from "../EditorEngine";
+import { IEditorFileTrack, IEditorTrack } from "../EditorTrack/EditorTrack";
 
 export const editorFileCache: Record<string, any> = {};
 
@@ -57,6 +58,30 @@ export class SUVideoFile extends ProjectOutputFile {
     super(props);
     this.file = props.file;
     this.sourceId = props.sourceId;
+  }
+
+
+  async initialize(files?: File[]) {
+    if (this.state !== FileState.CONSTRUCTED) {
+      return;
+    }
+    this.state = FileState.INITIALIZING;
+
+    await this.initializer(files);
+
+    await this.save(true);
+    this.state = FileState.READY;
+  };
+
+  protected getDataStreams(): AsyncIterable<ReadableStream<Uint8Array>> {
+    // eslint-disable-next-line consistent-this
+    const instance = this; // Preserve the `this` context
+    return {
+      async *[Symbol.asyncIterator]() {
+        // Create a ReadableStream for each file
+        yield instance.file.stream() as ReadableStream<Uint8Array>;
+      },
+    };
   }
 }
 

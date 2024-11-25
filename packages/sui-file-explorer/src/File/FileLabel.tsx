@@ -1,16 +1,14 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import Typography from '@mui/material/Typography';
-import {SxProps, Theme} from '@mui/system';
+import { SxProps, Theme } from '@mui/system';
 import Box from '@mui/material/Box';
-import {shouldForwardProp} from '@mui/system/createStyled';
-import {styled} from '../internals/zero-styled';
-import {FileIconContainer} from './FileIconContainer';
-import {FileIcon} from '../internals/FileIcon';
-import {
-  useFileExplorerGridColumnHeader
-} from '../internals/plugins/useFileExplorerGrid/useFileExplorerGridColumnHeader';
-import {UseFileMinimalPlugins} from '../internals/models';
+import { shouldForwardProp } from '@mui/system/createStyled';
+import { styled } from '../internals/zero-styled';
+import { FileIconContainer } from './FileIconContainer';
+import { FileIcon } from '../internals/FileIcon';
+import { useFileExplorerGridColumnHeader } from '../internals/plugins/useFileExplorerGrid/useFileExplorerGridColumnHeader';
+import { UseFileMinimalPlugins } from '../internals/models';
 
 const FileLabelRoot = styled('div', {
   name: 'MuiFile',
@@ -138,7 +136,7 @@ export const FileLabel = React.forwardRef(function FileExplorer(
       : { alignSelf: 'center', color: 'black' };
   const sxProp: SxProps = {
     display: header ? 'flex' : undefined,
-    overflow: 'hidden'
+    overflow: 'hidden',
   };
   showIcon = showIcon || header;
   if (!status && showIcon) {

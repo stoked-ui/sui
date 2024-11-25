@@ -1,3 +1,4 @@
+/*
 import { type EngineState, IEngine } from "../Engine/Engine.types";
 import {EventTypes} from "../Engine/events";
 import {Emitter} from "../Engine";
@@ -5,41 +6,42 @@ import { parserPixelToTime, parserTimeToPixel } from "../utils";
 import { RowRndApi } from "../TimelineTrack/TimelineTrackDnd.types";
 
 export interface TimelineState<EmitterEvents extends EventTypes = EventTypes,> {
-  /** dom node */
+  /!** dom node *!/
   target: HTMLElement;
-  /** Run the listener */
+  /!** Run the listener *!/
   listener: Emitter<EmitterEvents>;
-  /** attached engine */
+  /!** attached engine *!/
   engine: IEngine;
-  /** Whether it is playing */
+  /!** Whether it is playing *!/
   isPlaying: boolean;
-  /** Whether it is paused */
+  /!** Whether it is paused *!/
   isPaused: boolean;
-  /** Set the current playback time */
+  /!** Set the current playback time *!/
   setTime: (time: number, move?: boolean) => void;
-  /** Get the current playback time */
+  /!** Get the current playback time *!/
   get time(): number;
-  /** Set playback rate */
+  /!** Set playback rate *!/
   setPlayRate: (rate: number) => void;
-  /** Set playback rate */
+  /!** Set playback rate *!/
   getPlayRate: () => number;
-  /** Re-render the current time */
+  /!** Re-render the current time *!/
   reRender: () => void;
-  /** Current video duration time */
+  /!** Current video duration time *!/
   duration: number;
-  /** Play */
+  /!** Play *!/
   play: (param: {
-    /** By default, it runs from beginning to end, with a priority greater than autoEnd */
+    /!** By default, it runs from beginning to end, with a priority greater than autoEnd *!/
     toTime?: number;
-    /** Whether to automatically end after playing */
+    /!** Whether to automatically end after playing *!/
     autoEnd?: boolean;
-    /** List of actionIds to run, all run by default */
+    /!** List of actionIds to run, all run by default *!/
     runActionIds?: string[];
   }) => boolean;
-  /** pause */
+  /!** pause *!/
   pause: () => void;
-  /** Set scroll left */
+  /!** Set scroll left *!/
   setScrollLeft: (val: number) => void;
-  /** Set scroll top */
+  /!** Set scroll top *!/
   setScrollTop: (val: number) => void;
 }
+*/

@@ -5,9 +5,9 @@ import { Tooltip } from "@mui/material";
 import { namedId } from '@stoked-ui/media-selector';
 import OutlinedStyle from "./OutlinedStyle";
 
-const TextFieldStyle = OutlinedStyle(TextField);
+// const TextFieldStyle = OutlinedStyle(TextField);
 
-export default function ControlledText({ ref, value, control, name, label, disabled, className, rules, onFocus, onBlur, multiline, rows, onClick, format, type }: any) {
+export default function ControlledText({ ref, prefix, value, control, name, label, disabled, className, rules, onFocus, onBlur, multiline, rows, onClick, format, type }: any) {
 
   if (!rules) {
     rules = {
@@ -17,9 +17,15 @@ export default function ControlledText({ ref, value, control, name, label, disab
 
   if (!name && label) {
     name = label.split(' ').map((optionNamePart: string) => {
-      return optionNamePart.charAt(0).toLowerCase() + optionNamePart.slice(1)
+      return `${optionNamePart.charAt(0).toLowerCase()}${optionNamePart.slice(1)}`
     }).join('.')
   }
+
+  if (prefix) {
+    name = `${prefix}.${name}`;
+  }
+
+  /*
   if (disabled && value) {
     return <TextFieldStyle
       id={name}
@@ -35,7 +41,8 @@ export default function ControlledText({ ref, value, control, name, label, disab
       disabled={disabled}
       className={className}
     />
-  }
+  } */
+
   const {
     field,
     fieldState: { invalid, isTouched, isDirty, error },
@@ -43,6 +50,7 @@ export default function ControlledText({ ref, value, control, name, label, disab
   } = useController({
     name,
     control,
+    disabled,
     rules
   });
 
@@ -61,7 +69,7 @@ export default function ControlledText({ ref, value, control, name, label, disab
       disableTouchListener
       title={error?.message}
     >
-      <TextFieldStyle
+      <TextField
         {...field}
         id={namedId(field.name)}
         onClick={onClick}
@@ -90,7 +98,7 @@ export function UncontrolledText(props: any) {
     }).join('.')
   }
 
-    return <TextFieldStyle
+    return <TextField
       id={name}
       onClick={onClick}
       value={format ? format(value) : value} // input value

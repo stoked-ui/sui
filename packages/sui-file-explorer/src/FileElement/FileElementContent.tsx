@@ -2,7 +2,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import Checkbox from '@mui/material/Checkbox';
-import {useFileElementState} from './useFileElementState';
+import { useFileElementState } from './useFileElementState';
 
 export interface FileElementContentProps extends React.HTMLAttributes<HTMLElement> {
   className?: string;

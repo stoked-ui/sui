@@ -6,30 +6,29 @@ import { SxProps } from "@mui/material";
 import StokedSelect from "./StokedSelect";
 import { useEditorContext } from "../EditorProvider/EditorContext";
 import { IEditorTrack } from "../EditorTrack/EditorTrack";
-import { useDetail } from "./DetailProvider";
 
-export default function DetailTracks({ tracks, disabled, size, sx, onClick }: { onClick?: (event: Event) => void, tracks: IEditorTrack[], disabled?: boolean, size: 'small' | 'medium' | 'large', sx: SxProps<Theme> }) {
-  const { dispatch } = useDetail();
+export default function DetailTracks({  disabled, size, sx, onClick }: { onClick?: (event: Event) => void, disabled?: boolean, size: 'small' | 'medium' | 'large', sx: SxProps<Theme> }) {
+  const { dispatch, file, selectedTrack } = useEditorContext();
   return <StokedSelect
     label={'Track'}
     placeholder={'Select Track'}
     name={'tracks'}
     disabled={disabled}
     key={'id'}
-    value={'id'}
+    value={selectedTrack}
 
     size={'small'}
     onClick={onClick || (() => {})}
-    options={tracks?.map((track: ITimelineTrack) => {
+    options={file?.tracks?.map((track: ITimelineTrack) => {
       return {
-        value: track.id,
+        value: track,
         label: track.name
       }
     })}
     onChange={(event: SelectChangeEvent, child?: any) => {
-      const newTrack = tracks.find((track: ITimelineTrack) => track.id === child.props.value);
-      if (newTrack) {
-        dispatch({ type: 'SELECT_TRACK', payload: newTrack });
+
+      if ( child.props.value) {
+        dispatch({ type: 'SELECT_TRACK', payload:  child.props.value as IEditorTrack});
       }
     }}
   />

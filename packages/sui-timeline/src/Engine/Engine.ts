@@ -3,14 +3,13 @@ import {type ITimelineAction } from '../TimelineAction/TimelineAction.types'
 import {type IController} from '../Controller/Controller.types';
 import {
   type IEngine,
-  type EngineState,
+  EngineState,
   type EngineOptions,
 } from './Engine.types';
 import { type ITimelineTrack} from '../TimelineTrack/TimelineTrack.types';
 import {Events, type EventTypes} from './events'
 import {Emitter} from './emitter';
 import { RowRndApi } from "../TimelineTrack/TimelineTrackDnd.types";
-import Controllers from "../Controller/Controllers";
 
 /**
  * Timeline player
@@ -71,9 +70,9 @@ export default class Engine<
     if (params?.controllers) {
       this._controllers = params.controllers;
     }
-    this._state = 'loading' as State;
-    if (Controllers) {
-      this._controllers = Controllers;
+    this._state = EngineState.LOADING as State;
+    if (!params?.controllers) {
+      throw new Error('Error: No controllers set!');
     }
   }
 
@@ -94,7 +93,7 @@ export default class Engine<
   cursorDrag?: (left: number, scroll) => void;
 
   get state() {
-    return this._state as string;
+    return this._state as State;
   }
 
   set state(newState: string) {
@@ -167,21 +166,21 @@ export default class Engine<
   }
 
   get isReady() {
-    return this._state === 'ready';
+    return this._state === EngineState.READY;
   }
 
   get isLoading() {
-    return this._state === 'loading';
+    return this._state === EngineState.LOADING;
   }
 
   /** Whether it is playing */
   get isPlaying() {
-    return this._state === 'playing' as State;
+    return this._state === EngineState.PLAYING;
   }
 
   /** Whether it is paused */
   get isPaused() {
-    return this._state === 'paused' as State;
+    return this._state === EngineState.PAUSED;
   }
 
   get controllers() {
@@ -197,6 +196,9 @@ export default class Engine<
     this._dealData(tracks);
     this._dealClear();
     this._dealEnter(this._currentTime);
+    if (this.state === EngineState.LOADING) {
+      this.state = EngineState.READY;
+    }
   }
 
   /**
@@ -287,7 +289,6 @@ export default class Engine<
     /** Whether to automatically end after playing */
     autoEnd?: boolean;
   }): boolean {
-    console.log('play');
     const { toTime, autoEnd } = param;
 
     const currentTime = this.time;
@@ -297,7 +298,7 @@ export default class Engine<
     }
 
     // Set running status
-    this._state = 'playing' as State;
+    this._state = EngineState.PLAYING as State;
 
     // activeIds run start
     this._startOrStop('start');
@@ -318,10 +319,9 @@ export default class Engine<
    * @memberof Engine
    */
   pause() {
-    console.log('pause');
     if (this.isPlaying) {
       const previousState = this._state;
-      this._state = 'paused' as State;
+      this._state = EngineState.PAUSED as State;
 
       // activeIds run stop
       this._startOrStop('stop');
@@ -333,9 +333,7 @@ export default class Engine<
 
   /** Playback completed */
   protected _end() {
-    console.log('end');
     this.pause();
-
     // reset the cursor
     this.setTime(0, true);
     this.tickAction(0);
@@ -353,9 +351,9 @@ export default class Engine<
     this._activeIds.forEach((key, ) => {
       const action = this._actionMap[key];
       const track = this._actionTrackMap[action.id];
-      if (type === 'start' && track?.controller?.start && !track.hidden) {
+      if (type === 'start' && track?.controller?.start) {
         track.controller.start({action, time: this.time, engine: this as IEngine });
-      } else if (type === 'stop' && track?.controller?.stop && !track.hidden) {
+      } else if (type === 'stop' && track?.controller?.stop) {
         track.controller.stop({action, time: this.time, engine: this as IEngine });
       }
     });
@@ -491,9 +489,10 @@ export default class Engine<
         }
         const track = this._actionTrackMap[actionId];
         // The action can be executed and started
-        if (action.end > time && active.indexOf(actionId) === -1 && !track.hidden) {
+        if (action.end > time && active.indexOf(actionId) === -1) {
           const controller = track.controller;
           if (controller && controller?.enter) {
+            console.info('enter', action.name, time);
             controller.enter({action, time: this.time, engine: this as IEngine});
           }
 
@@ -514,7 +513,7 @@ export default class Engine<
         const track = this._actionTrackMap[action.id];
 
         // Not within the playback area or hidden
-        if (action.start > time || action.end < time || track.hidden) {
+        if (action.start > time || action.end < time) {
           const controller = track.controller;
 
           if (controller && controller?.leave) {

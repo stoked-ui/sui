@@ -1,3 +1,4 @@
+/*
 import {
   DEFAULT_TRACK_HEIGHT,
   DEFAULT_SCALE,
@@ -89,3 +90,4 @@ export function checkProps(props: TimelineControlProps): TimelineControlProps & 
     trackHeight,
   }
 }
+*/

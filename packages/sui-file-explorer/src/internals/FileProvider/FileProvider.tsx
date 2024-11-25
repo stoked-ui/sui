@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
-import {FileProviderProps} from './FileProvider.types';
-import {useFileExplorerContext} from '../FileExplorerProvider/useFileExplorerContext';
+import { FileProviderProps } from './FileProvider.types';
+import { useFileExplorerContext } from '../FileExplorerProvider/useFileExplorerContext';
 
 function FileProvider(props: FileProviderProps) {
   const { children, itemId } = props;

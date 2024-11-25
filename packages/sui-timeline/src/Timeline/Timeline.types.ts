@@ -39,12 +39,12 @@ export interface TimelineProps
   actions?: ITimelineFileAction[],
   children?: React.ReactNode;
   className?: string;
+  onScrollVertical?: React.UIEventHandler<HTMLDivElement>;
   /**
    * Override or extend the styles applied to the component.
    */
   classes?: Partial<TimelineClasses>;
   collapsed?: boolean;
-  controlSx?: SxProps<Theme>;
   controllers?: Record<string, IController>;
   detailRenderer?: boolean;
   disabled?: boolean;
@@ -56,6 +56,8 @@ export interface TimelineProps
   labelsSx?: SxProps<Theme>;
   locked?: boolean;
   onAddFiles?: () => void;
+
+
   /**
    * @description Right-click action callback
    */
@@ -79,11 +81,37 @@ export interface TimelineProps
     },
   ) => void;
 
-  onLabelClick?: (track: ITimelineTrack) => void;
+  /**
+   * @description Click label callback
+   */
+  onClickLabel?: (
+    e: React.MouseEvent<HTMLElement, MouseEvent>,
+    track: ITimelineTrack,
+  ) => void;
 
-  onTrackClick?: (track: ITimelineTrack) => void;
+  /**
+   * @description Click track callback
+   */
+  onClickTrack?: (
+    e: React.MouseEvent<HTMLElement, MouseEvent>,
+    param: {
+      track: ITimelineTrack;
+      time: number;
+    },
+  ) => void;
 
-  onActionClick?: (action: ITimelineAction) => void;
+  /**
+   * @description Click track callback
+   */
+  onClickAction?: (
+    e: React.MouseEvent<HTMLElement, MouseEvent>,
+    param: {
+      action: ITimelineAction;
+      track: ITimelineTrack;
+      time: number;
+    },
+  ) => void;
+
 
   scaleWidth?: number;
 

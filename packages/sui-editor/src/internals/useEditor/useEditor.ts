@@ -18,6 +18,7 @@ import {EditorContextValue, VideoPluginsRunner} from '../EditorProvider';
 import {EditorCorePluginSignatures, VIDEO_EDITOR_CORE_PLUGINS} from '../corePlugins';
 import {extractPluginParamsFromProps} from './extractPluginParamsFromProps';
 import Controllers from "../../Controllers";
+import {EditorPropsBase} from "../../Editor";
 
 export function useEditorApiInitialization<T>(
   inputApiRef: React.MutableRefObject<T | undefined> | undefined,
@@ -36,7 +37,7 @@ export function useEditorApiInitialization<T>(
 
 export const useEditor = <
   TSignatures extends readonly EditorAnyPluginSignature[],
-  TProps extends Partial<UseEditorBaseProps<TSignatures> & { id: string | undefined }>,
+  TProps extends Partial<UseEditorBaseProps<TSignatures> & { id: string | undefined } & EditorPropsBase>,
 >({
     plugins: inPlugins,
     rootRef,
@@ -160,7 +161,9 @@ export const useEditor = <
   ) => {
     const rootProps: UseEditorRootSlotProps = {
       role: 'editor',
-      ...forwardedProps,
+      ...{
+        ...forwardedProps
+      },
       ...otherHandlers,
       ref: handleRootRef,
     };
@@ -190,15 +193,18 @@ export const useEditor = <
       ...otherHandlers,
     };
   };
-
+  const timelineRef = React.useRef<HTMLDivElement>(null);
   const getTimelineProps = <TOther extends EventHandlers = {}>(
     otherHandlers: TOther = {} as TOther,
   ) => {
+
     return {
       ...forwardedProps,
       ...otherHandlers,
       tracks: contextValue.tracks ?? [],
-      controllers: Controllers
+      controllers: Controllers,
+      ref: timelineRef,
+      sx: props.timelineSx,
     };
   };
 

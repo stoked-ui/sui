@@ -1,20 +1,23 @@
-import { TimelineFile, AudioController } from "@stoked-ui/timeline";
+/*
+import { TimelineFile, AudioControl } from "@stoked-ui/timeline";
 import {namedId} from "@stoked-ui/media-selector";
 
 const idFunc = () => namedId('track');
+
+const AudioController = new AudioControl();
 
 const TimelineExample = new TimelineFile({
   name: 'Sample UI - Demo',
   description: 'Demonstrate features of the sample UI editor',
   author: 'Your Name',
   created: 1729783494563,
-  backgroundColor: '#000',
   tracks: [
     {
       id: idFunc(),
       name: 'Nature Sounds',
       url: 'https://www.soundjay.com/nature/sounds/rain-1.mp3',
       controller: AudioController,
+      controllerName: 'audio',
       actions: [{
         name: 'nature-sounds',
         start: 0,
@@ -31,6 +34,7 @@ const TimelineExample = new TimelineFile({
       name: 'Background Music',
       url: 'https://www.bensound.com/bensound-music/bensound-ukulele.mp3',
       controller: AudioController,
+      controllerName: 'audio',
       actions: [{
         name: 'ukulele-music',
         start: 0,
@@ -44,6 +48,7 @@ const TimelineExample = new TimelineFile({
       name: 'Intro Sound',
       url: 'https://www.soundjay.com/button/sounds/button-16.mp3',
       controller: AudioController,
+      controllerName: 'audio',
       actions: [{
         name: 'intro-sound',
         start: 0,
@@ -55,6 +60,7 @@ const TimelineExample = new TimelineFile({
       name: 'Outro Sound',
       url: 'https://www.soundjay.com/button/sounds/button-9.mp3',
       controller: AudioController,
+      controllerName: 'audio',
       actions: [{
         name: 'outro-sound',
         start: 0,
@@ -68,6 +74,7 @@ const TimelineExample = new TimelineFile({
       url: 'https://www.bensound.com/bensound-music/bensound-love.mp3',
       image: 'https://www.bensound.com/bensound-img/bensound-love.jpg',
       controller: AudioController,
+      controllerName: 'audio',
       actions: [{
         name: 'calm-piano',
         start: 5,
@@ -80,3 +87,4 @@ const TimelineExample = new TimelineFile({
 });
 
 export default TimelineExample;
+*/

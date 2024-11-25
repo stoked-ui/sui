@@ -1,7 +1,7 @@
 import * as React from "react";
-import { Control, SubmitHandler, useForm } from "react-hook-form";
+import {Control, SubmitHandler, useForm, Resolver, ResolverOptions} from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { ControlledTrack } from "@stoked-ui/timeline";
+import {ControlledTrack, ITimelineTrackDetail, TrackDetail, IFileDetail } from "@stoked-ui/timeline";
 import ControlledText from "./ControlledText";
 import {
   CtrlCell,
@@ -10,48 +10,54 @@ import {
   FormWrap,
   useEditMode,
 } from './Detail'
-import { DetailTrackProps } from "./DetailTrack.types";
 import ControlledCheckbox from "./ControlledCheckbox";
-import { IDetailTrack, trackSchema } from "./Detail.types";
-import { useDetail } from "./DetailProvider";
+import {
+  DetailViewProps, IEditorActionDetail, IEditorProjectDetail, IEditorTrackDetail, trackSchema
+} from "./Detail.types";
+import {useEditorContext} from "../EditorProvider";
+import BlendModeSelect from "./BlendModeSelect";
 
-
-export function DetailTrack(props: DetailTrackProps) {
-  const { detail, selectedTrack, selected, dispatch } = useDetail();
-  const editModeData = useEditMode();
-  const { editMode, setEdit, setDisable } = editModeData;
+export function DetailTrack(props: DetailViewProps) {
+  const { selectedTrack, selected, dispatch } = useEditorContext();
+  const {
+    editMode,
+    enableEdit,
+    disableEdit
+  } = props;
 
   const {
     control,
-    handleSubmit,
+    handleSubmit: detailHandleSubmit,
     formState: {
       isDirty,
       errors,
     },
     reset,
-  } = useForm<IDetailTrack>({
-    defaultValues: detail[detail.type],
-    resolver: yupResolver(trackSchema),
+  } = useForm<TrackDetail<IEditorProjectDetail, IEditorTrackDetail>>({
+    defaultValues: props.detail as TrackDetail,
+    resolver: yupResolver(trackSchema) as any,
   });
 
-  const onSubmitTrack: SubmitHandler<IDetailTrack> = (submitData: IDetailTrack) => {
-    setDisable();
+  const onSubmitTrack: SubmitHandler<ITimelineTrackDetail> = (submitData: ITimelineTrackDetail) => {
+    disableEdit();
     dispatch({ type: 'UPDATE_TRACK', payload: submitData });
   };
+
+  React.useEffect(() => {
+    dispatch({ type: 'SET_SETTING', payload: {
+        value: {
+          detailSubmit: onSubmitTrack,
+          detailHandleSubmit,
+        }
+      }})
+  }, [])
 
   if (!selectedTrack) {
     return undefined;
   }
 
   return (
-    <FormWrap
-      onSubmit={onSubmitTrack}
-      handleSubmit={handleSubmit}
-      title={selected.name}
-    >
-      <CtrlRow>
-        <ControlledTrack width={800} />
-      </CtrlRow>
+    <React.Fragment>
       <CtrlRow>
         <CtrlCell width="45%">
           <ControlledText
@@ -59,7 +65,7 @@ export function DetailTrack(props: DetailTrackProps) {
             label={'Name'}
             control={control}
             disabled={!editMode}
-            onClick={setEdit}
+            onClick={enableEdit}
           />
         </CtrlCell>
         <CtrlCell width="30%">
@@ -68,8 +74,8 @@ export function DetailTrack(props: DetailTrackProps) {
             label={'Hidden'}
             control={control}
             disabled={!editMode}
-            onClickLabel={setEdit}
-            onClick={setEdit}
+            onClickLabel={enableEdit}
+            onClick={enableEdit}
           />
           <ControlledCheckbox
             className={'whitespace-nowrap flex-grow flex'}
@@ -77,12 +83,17 @@ export function DetailTrack(props: DetailTrackProps) {
             name={'lock'}
             control={control}
             disabled={!editMode}
-            onClickLabel={setEdit}
-            onClick={setEdit}
+            onClickLabel={enableEdit}
+            onClick={enableEdit}
           />
         </CtrlCell>
       </CtrlRow>
-      <DetailActions errors={errors} isDirty={isDirty} reset={reset} editModeData={editModeData} />
-    </FormWrap>
+      <CtrlRow>
+        <CtrlCell width="40%">
+          <BlendModeSelect onClickEdit={enableEdit} editMode={editMode} />
+        </CtrlCell>
+      </CtrlRow>
+      <DetailActions errors={errors} isDirty={isDirty} reset={reset} disableEdit={disableEdit} />
+    </React.Fragment>
   )
 }

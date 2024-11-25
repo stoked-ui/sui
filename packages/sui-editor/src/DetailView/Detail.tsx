@@ -1,16 +1,10 @@
 import * as React from "react";
 import { IMediaFile, namedId } from '@stoked-ui/media-selector';
-import { Button, Card, CardActions, CardContent, styled, Typography } from "@mui/material";
+import { Button, CardActions, styled, Typography } from "@mui/material";
 import { shouldForwardProp } from "@mui/system/createStyled";
-import Timeline, {
-  checkProps,
-  fitScaleData,
-  IEngine,
-  TimelineState,
-  TimelineTrack,
-} from "@stoked-ui/timeline";
 import { alpha, Theme } from "@mui/material/styles";
 import _ from "lodash";
+
 import {
   FieldErrors,
   SubmitHandler,
@@ -18,14 +12,10 @@ import {
   UseFormReset
 } from "react-hook-form";
 import { DetailBreadcrumbs } from "./DetailBreadcrumbs";
-import { MediaScreener } from "../Editor/Editor.styled";
 import { UncontrolledText } from "./ControlledText";
 import { humanFileSize } from "./DetailTrack.types";
-import { EditorControls } from "../EditorControls";
-import Controllers from "../Controllers";
-import { useDetail } from "./DetailProvider";
-import Editor, { EditorProvider } from "../index";
-
+import Editor from "../Editor/Editor";
+import {useEditorContext} from '../EditorProvider/EditorContext';
 
 export const CtrlCell = styled('div', {
   name: 'MuiFileDetail',
@@ -137,137 +127,29 @@ export const DetailForm = styled('form', {
   }
 });
 
-const inputDefaultAlpha = 1;
+const inputDefaultAlpha = .4;
 const backgroundAlpha = (theme: Theme) => alpha(theme.palette.background.default, inputDefaultAlpha);
 export const RootBox = styled('div')(({theme}) => ({
-  '& .SUI-form': {
+
     '& .MuiFormControl-root .MuiInputBase-root': {
-      backgroundColor: alpha(theme.palette.background.default, inputDefaultAlpha),
+      // backgroundColor: alpha(theme.palette.background.default, inputDefaultAlpha),
       borderRadius: '4px'
     },
-    '& input[type="color"]': {
-      '-webkit-appearance': 'none',
-      border: 'none',
-      '&::-webkit-color-swatch-wrapper': {
-        padding: '0px',
-      },
-      '&::-webkit-color-swatch': {
-        border: 'none',
-        borderRadius: '4px',
-      },
-    },
-    '& input[type="color"]::-webkit-color-swatch-wrapper': {
-      padding: '0px',
-    },
-    '& video, audio': {
-      borderRadius: '6px'
-    },
-    '& .MuiChip-root': {
-      backgroundColor: theme.palette.background.paper
-    },
-    '& .MuiChip-avatar': {
-      backgroundColor: theme.palette.background.default
-    },
-    '& .MuiTooltip-tooltip': {
-      backgroundColor: 'red',
-      color: 'white'
-    },
-    '& .disabledForm input': {
-      'WebkitTextFillColor': theme.palette.text.primary
-    },
-    '& .disabledForm .MuiSelect-select': {
-      'WebkitTextFillColor': theme.palette.text.primary
-    },
-    '& .disabledForm textarea': {
-      'WebkitTextFillColor': theme.palette.text.primary
-    },
-    '& .disabledForm fieldset': {
-      display: 'none'
-    },
-    '& input[disabled]': {
-      pointerEvents: 'none'
-    },
-    '& textarea[disabled]': {
-      pointerEvents: 'none'
-    },
-    /*
-     background-color: hsl(210, 14%, 22%);
-     border-color: hsl(210, 14%, 36%);
-     color: hsl(215, 15%, 92%);
-     outline-color: hsl(210, 100%, 45%);
-     */
-    '& .plyr.plyr--full-ui.plyr--video': {
-      borderRadius: '6px'
-    },
-    '& .plyr--full-ui input[type=range]': {
-      color: theme.palette.primary.main,
-    },
-    '& .plyr__control--overlaid': {
-      background: theme.palette.primary.main,
-    },
-    '& .plyr--audio .plyr__control': {
-      color: theme.palette.background.default,
-    },
-    '& .plyr--audio .plyr__control:hover': {
-      background: theme.palette.primary.main,
-      color: theme.palette.secondary.main
-    },
-    '&  .plyr--video .plyr__control.plyr__tab-focus, .plyr--video.plyr__control[aria-expanded=true]': {
-      background: theme.palette.secondary.main,
-    },
-    '& .plyr__control .plyr__tab-focus': {
-      boxShadow: '0 0 0 5px #FFF',
-    },
-    '& .plyr__menu__container': {
-      background: 'hsl(210, 14%, 7%)',
-    },
-    '& .plyr--audio .plyr__controls': {
-      background: 'hsl(210, 14%, 7%)',
-      borderRadius: '6px'
-    },
-    '& .plyr__controls__item.plyr__time--current, .plyr__controls__item.plyr__time--duration.plyr__time': {
-      color: '#FFF'
-    },
-    '& .MuiFormControl-root legend': {
-      background: 'transparent',
-      marginLeft: '5px',
-      paddingRight: '2px',
-    },
-    '&:hover .MuiOutlinedInput-notchedOutline': {
-      borderColor: theme.palette.primary.main,
-      '&.Mui-focused': {
-        borderColor: theme.palette.primary.main
-      }
-    },
-    '& .MuiFormLabel-root.MuiInputLabel-root.MuiInputLabel-shrink': {
-      color: theme.palette.text.primary,
-      padding: '3px 8px',
-      borderRadius: '6px',
-      backgroundImage: `linear-gradient(90deg, ${backgroundAlpha(theme)}, ${backgroundAlpha(theme)})`,
-      backgroundSize: '100% 12px',
-      backgroundRepeat: 'no-repeat'
-    },
-    '& .Mui-shrink-full .MuiFormLabel-root.MuiInputLabel-root.MuiInputLabel-shrink': {
-      color: theme.palette.text.primary,
-      padding: '3px 8px',
-      borderRadius: '6px',
-      backgroundImage: `linear-gradient(90deg, ${backgroundAlpha(theme)}, ${backgroundAlpha(theme)}), linear-gradient(90deg, ${theme.palette.background.paper}, ${theme.palette.background.paper})`,
-      backgroundSize: '100% 12px, 100% 17px',
-      backgroundPosition: '0 0, 0 100%',
-      backgroundRepeat: 'no-repeat, no-repeat'
-    },
-  }
+
 }));
 
 
-export function DetailActions({ errors, isDirty, reset, editModeData }: {
+export function DetailActions({ errors, isDirty, reset, disableEdit, editMode }: {
   errors: FieldErrors<any>,
   isDirty: boolean
   reset: UseFormReset<any>,
-  editModeData: { editMode: boolean, setEdit: () => void, setDisable: () => void }
+  editMode: boolean,
+  disableEdit: () => void
 }) {
-  const { detail } = useDetail();
-  const { editMode, setEdit, setDisable } = editModeData;
+  const { selectedDetail, selectedType } = useEditorContext();
+  if (!selectedDetail || !selectedType || !editMode) {
+    return undefined;
+  }
   return (
     <CardActions sx={{ width: '100%', justifyContent: 'right'}}>
       <Button
@@ -276,8 +158,8 @@ export function DetailActions({ errors, isDirty, reset, editModeData }: {
         color="secondary"
         disabled={!isDirty && !editMode}
         onClick={() => {
-          setDisable();
-          reset(detail[detail.type]);
+          disableEdit();
+          reset(selectedDetail[selectedType]);
         }}>
         Cancel
       </Button>
@@ -330,14 +212,12 @@ export function FileDetailView({ file }: { file?: IMediaFile }): React.ReactNode
 export function useEditMode() {
   const [editMode, setEditMode] = React.useState(false);
   const setEdit = () => {
-    if (!editMode) {
-      setEditMode(true);
-    }
+    console.info('edit mode: enabled');
+    setEditMode(true);
   }
   const setDisable = () => {
-    if (editMode) {
-      setEditMode(false);
-    }
+    console.info('edit mode: disabled');
+    setEditMode(false);
   }
   return { editMode, setEdit, setDisable };
 }
@@ -358,75 +238,44 @@ const DetailRenderer = styled('canvas', {
 }));
 
 export function FormWrap({ title, handleSubmit, onSubmit, children}) {
-  const detailState = useDetail();
-  const { detail, file, selectedTrack } = detailState;
+  const context = useEditorContext();
+  const {  settings, selectedType, file,  selectedTrack } = context;
+  const { detailHandleSubmit, detailOnSubmit, selected } = settings;
 
-  if (!file) {
-    return null;
+  let submit = () => {};
+  if (detailHandleSubmit && detailOnSubmit) {
+    submit = detailHandleSubmit(detailOnSubmit);
   }
-
   return <React.Fragment>
     <DetailBreadcrumbs />
-    <Typography variant="h6" sx={{
-      marginTop: '6px'
+    <div style={{ overflowY: 'scroll',      maxHeight: 'calc(100vh - 40px)',
     }}>
-      {title}
-    </Typography>
-    {(detail.type === 'track' || detail.type === 'action') && <CtrlCell>
-      <MediaScreener file={detail.file} />
-    </CtrlCell>}
-    {detail.type === 'project' &&
-      <EditorProvider id={namedId('detail-editor')} {...detailState} controllers={Controllers} >
-        <Editor file={file} detailMode />
-      </EditorProvider>
-    }
-    {detail.type !== 'project' && <FileDetailView file={selectedTrack!.file} />}
-    <div className={'SUI-form'}>
-      <DetailForm
-        id={'detailView'}
-        className={`SUI-form}`}
-        onSubmit={handleSubmit(onSubmit)}
-      >
-        {children}
-      </DetailForm>
+      <Typography variant="h6" sx={{
+        marginTop: '6px'
+      }}>
+        {title}
+      </Typography>
+
+      <Editor
+        file={file || undefined}
+        detailMode
+        noLabels
+        noSaveControls
+        noTrackControls
+        sx={(theme) => ({ border: '1px solid #999' })}
+      />
+
+      {selectedType && selectedType !== 'project' && <FileDetailView file={selectedTrack!.file} />}
+      <div className={'SUI-form'}>
+        <DetailForm
+          id={'detailView'}
+          className={`SUI-form}`}
+          onSubmit={submit}
+        >
+          {children}
+        </DetailForm>
+      </div>
     </div>
   </React.Fragment>
 }
 
-
-export function ControlledTrack({name, width, height}: {name?: string, width: number, height?: number }) {
-  const { selectedTrack, engine, dispatch,  } = useDetail();
-  const { minScaleCount, maxScaleCount, startLeft, ...timelineSettings } = checkProps({  });
-
-  if (!selectedTrack) {
-    return undefined;
-  }
-
-  const scaleData = fitScaleData([selectedTrack], minScaleCount!, maxScaleCount || Infinity, startLeft, engine.duration, width);
-  const scaledSettings = {...timelineSettings, width, ...scaleData};
-
-  return (
-    <TimelineTrack
-      {...scaledSettings}
-      timelineWidth={width}
-      style={{
-        width: '100%',
-        height: height || scaledSettings.trackHeight,
-        overscrollBehavior: 'none',
-        backgroundPositionX: `0, ${startLeft}px`,
-        backgroundSize: `${startLeft}px, ${scaleData.scaleWidth}px`,
-      }}
-      track={selectedTrack}
-      disableDrag
-      dragLineData={{
-        isMoving: false,
-        assistPositions: [],
-        movePositions: []
-      }}
-      deltaScrollLeft={() => {}}
-      setScaleCount={() => {}}
-      cursorTime={0}
-      scrollLeft={0}
-    />
-  )
-}
