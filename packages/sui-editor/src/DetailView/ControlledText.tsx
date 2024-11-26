@@ -50,8 +50,7 @@ export default function ControlledText({ ref, prefix, value, control, name, labe
   } = useController({
     name,
     control,
-    disabled,
-    rules
+    rules,
   });
 
   if (!type) {
@@ -71,6 +70,7 @@ export default function ControlledText({ ref, prefix, value, control, name, labe
     >
       <TextField
         {...field}
+        disabled={disabled}
         id={namedId(field.name)}
         onClick={onClick}
         value={format ? format(field.value) : field.value} // input value
@@ -81,7 +81,6 @@ export default function ControlledText({ ref, prefix, value, control, name, labe
         fullWidth
         type={type}
         variant={'outlined'}
-        disabled={disabled}
         className={className}
         error={!!error}
       />

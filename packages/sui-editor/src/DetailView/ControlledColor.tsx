@@ -75,7 +75,12 @@ export default function ControlledColor({ control, name, label, disabled, classN
             // backgroundPosition: '0 0, 0 100%',
             // backgroundRepeat: 'no-repeat, no-repeat'
           },
-
+          '& label': {
+            backgroundImage: `linear-gradient(90deg, ${theme.palette.background.paper}, ${theme.palette.background.paper}), linear-gradient(90deg, ${theme.palette.background.paper}, ${theme.palette.background.paper})`,
+            backgroundSize: '100% 12px, 100% 17px',
+            backgroundPosition: '0 0, 0 100%',
+            backgroundRepeat: 'no-repeat, no-repeat'
+          },
           '& ::-webkit-color-swatch-wrapper': {
             padding: '0px',
             borderRadius: '6px'

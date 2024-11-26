@@ -93,7 +93,7 @@ export function DetailTrack(props: DetailViewProps) {
           <BlendModeSelect onClickEdit={enableEdit} editMode={editMode} />
         </CtrlCell>
       </CtrlRow>
-      <DetailActions errors={errors} isDirty={isDirty} reset={reset} disableEdit={disableEdit} />
+      <DetailActions errors={errors} isDirty={isDirty} reset={reset} disableEdit={disableEdit} editMode={editMode} />
     </React.Fragment>
   )
 }

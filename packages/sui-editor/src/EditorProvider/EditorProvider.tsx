@@ -37,9 +37,11 @@ function EditorProvider<
   const editorStateProps: IEditorStateProps<EngineType, EngineStateType, FileType> = {
     editorId: props.editorId,
     timelineId: props.timelineId,
+    ...props,
     getState,
     engine: engine as EngineType,
-    file: props.file,
+    selectedTrack: props.selectedTrack ?? null,
+    selectedAction: props.selectedAction ?? null,
   };
   const editorState = createEditorState<EngineType, EngineStateType, FileType, ActionType, TrackType>(editorStateProps);
 

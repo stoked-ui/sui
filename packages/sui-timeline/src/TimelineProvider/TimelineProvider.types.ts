@@ -65,11 +65,15 @@ export interface ITimelineStateProps<
   EngineType extends IEngine = IEngine,
   EngineStateType extends string | EngineState = string | EngineState,
   FileType extends ITimelineFile = ITimelineFile,
+
 > {
   id?: string,
   engine: EngineType,
   file?: FileType,
   getState:() => string | EngineStateType
+  selectedTrack: ITimelineTrack | null,
+  selectedAction: ITimelineAction | null,
+
 }
 
 export function createTimelineState<
@@ -311,6 +315,7 @@ function TimelineReducerBase<
       state.selectedAction = {...action};
       state.selectedTrack = {...state.file.tracks[state.settings.selectedTrackIndex]};
       state.selected = state.selectedAction;
+      console.info('SELECTED', state.selectedTrack, state.selectedAction);
       return updateTrackData<State>(state);
     }
     case 'SELECT_TRACK':{
@@ -464,7 +469,9 @@ export interface TimelineProviderProps<
   EngineType  = IEngine,
   State extends TimelineState = TimelineState,
   StateActionType  = TimelineStateAction,
-  FileType = ITimelineFile
+  FileType = ITimelineFile,
+  ActionType extends ITimelineAction = ITimelineAction,
+  TrackType extends ITimelineTrack = ITimelineTrack,
 > {
   children: React.ReactNode,
   id?: string,
@@ -473,6 +480,8 @@ export interface TimelineProviderProps<
   engine?: EngineType,
   reducer?: (state: State, stateAction: StateActionType) => State;
   localDb?: LocalDbProps | false;
+  selectedTrack: TrackType | null;
+  selectedAction: ActionType | null;
 }
 
 export function getDbProps(mimeType: IMimeType, localDbProps?: LocalDbProps | false): LocalDbProps {

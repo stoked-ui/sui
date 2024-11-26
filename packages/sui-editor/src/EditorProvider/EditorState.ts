@@ -31,7 +31,7 @@ export interface IEditorStateProps<
   EngineType extends IEditorEngine = IEditorEngine,
   EngineStateType extends string | EditorEngineState = string | EditorEngineState,
   FileType extends IEditorFile = IEditorFile,
-> {
+> extends Omit<ITimelineStateProps<EngineType, EngineStateType, FileType>, 'id'> {
   file?: FileType,
   editorId?: string,
   timelineId?: string,
@@ -47,7 +47,14 @@ export function createEditorState<
   TrackType extends IEditorTrack = IEditorTrack,
 >(props: IEditorStateProps<EngineType, EngineStateType, FileType>): EditorState  {
 
-  const timelinePropsInput = { id: props.timelineId, engine: props.engine, getState: props.getState, file: props.file };
+  const timelinePropsInput = {
+    id: props.timelineId,
+    engine: props.engine,
+    getState: props.getState,
+    file: props.file,
+    selectedTrack: props.selectedTrack ?? null,
+    selectedAction: props.selectedAction ?? null,
+  };
   const timelineStateProps = createTimelineState<EngineType, EngineStateType, FileType, ActionType, TrackType>(timelinePropsInput) as ITimelineStateProps;
   const unselectedStateProps = {
     ...timelineStateProps,

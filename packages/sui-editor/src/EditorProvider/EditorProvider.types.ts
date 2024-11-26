@@ -236,7 +236,7 @@ export function EditorReducerBase(state: EditorState, stateAction: EditorStateAc
       if (stateAction.payload !== null) {
         state.engine.renderer = stateAction.payload as HTMLCanvasElement;
       } else {
-        const canvas = document.getElementById(state.id)?.querySelector("canvas[role='renderer']") as HTMLCanvasElement;
+        const canvas = document.getElementById(state.editorId)?.querySelector("canvas[role='renderer']") as HTMLCanvasElement;
         if (!canvas) {
           state.engine.renderer = canvas as HTMLCanvasElement;
         }
@@ -290,12 +290,16 @@ export interface EditorProviderProps<
   EngineType  = IEditorEngine,
   State extends EditorState = EditorState,
   StateActionType = EditorStateAction,
-  FileType = IEditorFile
+  FileType = IEditorFile,
+  ActionType extends IEditorAction = IEditorAction,
+  TrackType extends IEditorTrack = IEditorTrack,
 > extends Omit<TimelineProviderProps <
   EngineType,
   State,
   StateActionType,
-  FileType
+  FileType,
+  ActionType,
+  TrackType
 >, 'id'> {
   editorId?: string;
   timelineId?: string;
