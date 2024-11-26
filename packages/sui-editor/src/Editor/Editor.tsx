@@ -364,9 +364,10 @@ const Editor = React.forwardRef(function Editor<
     input.click();
   };
 
-  const handleClickLabel = (event: React.MouseEvent<HTMLElement, MouseEvent>, track: ITimelineTrack) => {
+  const handleClickLabel = (event: React.MouseEvent<HTMLElement, MouseEvent>, track: IEditorTrack) => {
     inProps.onClickLabel?.(event, track);
     if (!flags.detailMode) {
+      dispatch({ type: 'SELECT_TRACK', payload: track });
       dispatch({ type: 'DETAIL_OPEN'});
     }
   }

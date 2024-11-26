@@ -23,7 +23,7 @@ const replacer = (key, value) => {
 
 export function DetailCombined() {
   const {selectedType, selectedDetail, settings, selected } = useEditorContext();
-  const [editMode, setEditMode] = React.useState(true);
+  const [editMode, setEditMode] = React.useState(false);
   const enableEdit = () => {
     console.info('edit mode: enabled');
     setEditMode(true);

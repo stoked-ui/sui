@@ -24,7 +24,7 @@ const replacer = (key, value) => {
 export const DetailView = React.forwardRef(function DetailView({ onClose }: { onClose: () => void}, ref: React.Ref<HTMLDivElement>) {
 
   return (
-    <div style={{ position: 'relative', minWidth: '800px', minHeight: '740px'}}>
+    <div style={{ position: 'relative', minWidth: '800px', minHeight: '600px', maxHeight: 'calc(100vh - 40px)'}}>
       <IconButton
         sx={{
           position: 'absolute',
@@ -40,7 +40,7 @@ export const DetailView = React.forwardRef(function DetailView({ onClose }: { on
         sx={(theme) => ({
           maxWidth: '850px',
           minWidth: '500px',
-          backgroundColor: theme.palette.background.default
+          backgroundColor: theme.palette.background.default,
         })}>
         <CardContent sx={(theme) => ({
           gap: '0.8rem',

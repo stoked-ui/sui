@@ -40,6 +40,8 @@ function TimelineProvider<
     file: props.file,
     engine: theEngine,
     getState: getStateBase,
+    selectedTrack: props.selectedTrack ?? null,
+    selectedAction: props.selectedAction ?? null,
   };
 
   const timelineState = createTimelineState<EngineType, EngineStateType, FileType, ActionType, TrackType>(stateProps);

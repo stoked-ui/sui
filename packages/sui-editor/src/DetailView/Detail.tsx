@@ -129,13 +129,144 @@ export const DetailForm = styled('form', {
 
 const inputDefaultAlpha = .4;
 const backgroundAlpha = (theme: Theme) => alpha(theme.palette.background.default, inputDefaultAlpha);
+const wAlpha = (theme: Theme, alphaMultiplier: number = inputDefaultAlpha) => alpha(theme.palette.background.default, alphaMultiplier);
 export const RootBox = styled('div')(({theme}) => ({
+  '& .SUI-form': {
+    '& .MuiFormControl-root': {
+      '& .MuiFormLabel-root.MuiInputLabel-outlined.Mui-disabled': {
+        color:`${theme.palette.primary[600]}!important`,
+        fontWeight: 'bold',
+      },
+      '& .MuiOutlinedInput-root.Mui-disabled': {
+        backgroundImage: `linear-gradient(90deg, ${wAlpha(theme, )}, ${backgroundAlpha(theme)})`,
+        '& fieldset': {
+          border: 0,
+        },
+        '& MuiInputLabel-root.Mui-disabled': {
+          color:`${theme.palette.primary.main}!important`,
+        },
+        '& label': {
+          color: `${theme.palette.primary.main}!important`,
+        }
+      },
+    },
 
     '& .MuiFormControl-root .MuiInputBase-root': {
       // backgroundColor: alpha(theme.palette.background.default, inputDefaultAlpha),
       borderRadius: '4px'
     },
-
+    '& input[type="color"]': {
+      '-webkit-appearance': 'none',
+      border: 'none',
+      '&::-webkit-color-swatch-wrapper': {
+        padding: '0px',
+      },
+      '&::-webkit-color-swatch': {
+        border: 'none',
+        borderRadius: '4px',
+      },
+    },
+    '& input[type="color"]::-webkit-color-swatch-wrapper': {
+      padding: '0px',
+    },
+    '& video, audio': {
+      borderRadius: '6px'
+    },
+    '& .MuiChip-root': {
+      backgroundColor: theme.palette.background.paper
+    },
+    '& .MuiChip-avatar': {
+      backgroundColor: theme.palette.background.default
+    },
+    '& .MuiTooltip-tooltip': {
+      backgroundColor: 'red',
+      color: 'white'
+    },
+    '& .disabledForm input': {
+      'WebkitTextFillColor': theme.palette.text.primary
+    },
+    '& .disabledForm .MuiSelect-select': {
+      'WebkitTextFillColor': theme.palette.text.primary
+    },
+    '& .disabledForm textarea': {
+      'WebkitTextFillColor': theme.palette.text.primary
+    },
+    '& .disabledForm fieldset': {
+      display: 'none'
+    },
+    '& input[disabled]': {
+      pointerEvents: 'none'
+    },
+    '& textarea[disabled]': {
+      pointerEvents: 'none'
+    },
+    /*
+     background-color: hsl(210, 14%, 22%);
+     border-color: hsl(210, 14%, 36%);
+     color: hsl(215, 15%, 92%);
+     outline-color: hsl(210, 100%, 45%);
+     */
+    '& .plyr.plyr--full-ui.plyr--video': {
+      borderRadius: '6px'
+    },
+    '& .plyr--full-ui input[type=range]': {
+      color: theme.palette.primary.main,
+    },
+    '& .plyr__control--overlaid': {
+      background: theme.palette.primary.main,
+    },
+    '& .plyr--audio .plyr__control': {
+      color: theme.palette.background.default,
+    },
+    '& .plyr--audio .plyr__control:hover': {
+      background: theme.palette.primary.main,
+      color: theme.palette.secondary.main
+    },
+    '&  .plyr--video .plyr__control.plyr__tab-focus, .plyr--video.plyr__control[aria-expanded=true]': {
+      background: theme.palette.secondary.main,
+    },
+    '& .plyr__control .plyr__tab-focus': {
+      boxShadow: '0 0 0 5px #FFF',
+    },
+    '& .plyr__menu__container': {
+      background: 'hsl(210, 14%, 7%)',
+    },
+    '& .plyr--audio .plyr__controls': {
+      background: 'hsl(210, 14%, 7%)',
+      borderRadius: '6px'
+    },
+    '& .plyr__controls__item.plyr__time--current, .plyr__controls__item.plyr__time--duration.plyr__time': {
+      color: '#FFF'
+    },
+    '& .MuiFormControl-root legend': {
+      background: 'transparent',
+      marginLeft: '5px',
+      paddingRight: '2px',
+    },
+    '&:hover .MuiOutlinedInput-notchedOutline': {
+      borderColor: theme.palette.primary.main,
+      '&.Mui-focused': {
+        borderColor: theme.palette.primary.main
+      }
+    },
+    /*'& .MuiFormLabel-root.MuiInputLabel-root.MuiInputLabel-shrink': {
+      color: theme.palette.text.primary,
+      padding: '3px 8px',
+      borderRadius: '6px',
+      backgroundImage: `linear-gradient(90deg, ${backgroundAlpha(theme)}, ${backgroundAlpha(theme)})`,
+      backgroundSize: '100% 12px',
+      backgroundRepeat: 'no-repeat'
+    },*/
+   /* '& .Mui-shrink-full .MuiFormLabel-root.MuiInputLabel-root.MuiInputLabel-shrink': {
+      color: theme.palette.text.primary,
+      padding: '3px 8px',
+      borderRadius: '6px',
+      backgroundImage: `linear-gradient(90deg, ${backgroundAlpha(theme)}, ${backgroundAlpha(theme)}), linear-gradient(90deg, ${theme.palette.background.paper}, ${theme.palette.background.paper})`,
+      backgroundSize: '100% 12px, 100% 17px',
+      backgroundPosition: '0 0, 0 100%',
+      backgroundRepeat: 'no-repeat, no-repeat'
+    },*/
+  }
 }));
 
 
@@ -248,13 +379,14 @@ export function FormWrap({ title, handleSubmit, onSubmit, children}) {
   }
   return <React.Fragment>
     <DetailBreadcrumbs />
+    <Typography variant="h6" sx={{
+      marginTop: '6px'
+    }}>
+      {title}
+    </Typography>
     <div style={{ overflowY: 'scroll',      maxHeight: 'calc(100vh - 40px)',
     }}>
-      <Typography variant="h6" sx={{
-        marginTop: '6px'
-      }}>
-        {title}
-      </Typography>
+
 
       <Editor
         file={file || undefined}
