@@ -13,17 +13,18 @@ export function ToggleVolume({ track, file, toggleClick, dispatch, children }) {
 
   return  <ToggleButton
     id={`${track.id}-mute`}
-    value={track.mute ?? false}
+    value={track.muted ?? false}
     onChange={(e, ) => {
-      const currentTrackIndex = file.tracks.findIndex((currTrack) =>
-        currTrack.id === e.currentTarget.id.replace('-mute', ''))
+      const currentTrackIndex = file.tracks.findIndex((currTrack) => currTrack.id === track.id)
       if (currentTrackIndex === -1) {
         return
       }
-      const currentTrack = {...file.tracks[currentTrackIndex]};
-      currentTrack.mute = !currentTrack.mute;
+
+      const currentTrack = {...track};
+      currentTrack.muted = !currentTrack.muted;
       const updatedTracks = [...file.tracks];
       updatedTracks[currentTrackIndex] = currentTrack;
+      console.log('mute toggle track', currentTrack);
       dispatch({ type: 'SET_TRACKS', payload: updatedTracks });
     }}
     onClick={toggleClick}
@@ -39,25 +40,25 @@ export function ToggleLock({ track, file, toggleClick, dispatch, hide, children 
   }
   return (
     <ToggleButton
-      id={`${track.id}-lock`}
-      value={track.lock ?? false}
-      aria-label="lock"
+      id={`${track.id}-locked`}
+      value={track.locked ?? false}
+      aria-label="locked"
       size={'small'}
       sx={{marginRight: '2px'}}
       onChange={(e, ) => {
-      const currentTrackIndex = file.tracks.findIndex((currTrack) => currTrack.id === e.currentTarget.id.replace('-lock', ''))
-      if (currentTrackIndex === -1) {
-      return
-      }
-      const currentTrack = {...file.tracks[currentTrackIndex]};
-      currentTrack.lock = !currentTrack.lock;
-      currentTrack.actions.forEach((updateAction) => {
-      updateAction.movable = !currentTrack.lock;
-      updateAction.flexible = !currentTrack.lock;
-      })
-      const updatedTracks = [...file.tracks];
-      updatedTracks[currentTrackIndex] = currentTrack;
-      dispatch({ type: 'SET_TRACKS', payload: updatedTracks });
+        const currentTrackIndex = file.tracks.findIndex((currTrack) => currTrack.id === e.currentTarget.id.replace('-locked', ''))
+        if (currentTrackIndex === -1) {
+          return
+        }
+        const currentTrack = {...file.tracks[currentTrackIndex]};
+        currentTrack.locked = !currentTrack.locked;
+        currentTrack.actions.forEach((updateAction) => {
+          updateAction.movable = !currentTrack.locked;
+          updateAction.flexible = !currentTrack.locked;
+        })
+        const updatedTracks = [...file.tracks];
+        updatedTracks[currentTrackIndex] = currentTrack;
+        dispatch({ type: 'SET_TRACKS', payload: updatedTracks });
       }}
       onClick={toggleClick}
     >
@@ -66,10 +67,11 @@ export function ToggleLock({ track, file, toggleClick, dispatch, hide, children 
   );
 }
 
-export default function TimelineTrackActions({ track, sx }: { track: any, sx?: any }) {
+export interface TimelineTrackActionsProps { track: any, sx?: any }
+export default function TimelineTrackActions({ track, sx }: TimelineTrackActionsProps) {
   const { file, dispatch, flags } = useTimeline();
-  const volumeIcon = track.hidden ? <VolumeOff fontSize={'small'} /> : <VolumeUp fontSize={'small'} />;
-  const lockIcon = track.lock ? <LockIcon fontSize={'small'}/> : <LockOpenIcon fontSize={'small'}/>;
+  const volumeIcon = track.muted ? <VolumeOff fontSize={'small'} /> : <VolumeUp fontSize={'small'} />;
+  const lockIcon = track.locked ? <LockIcon fontSize={'small'}/> : <LockOpenIcon fontSize={'small'}/>;
   const toggleClick = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
     event.stopPropagation();
   }

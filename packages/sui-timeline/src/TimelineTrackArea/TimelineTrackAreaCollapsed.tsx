@@ -99,7 +99,7 @@ const TimelineTrackAreaCollapsed = React.forwardRef<TimelineTrackAreaState, Time
               style={{
                 width,
                 height: trackHeight,
-                overscrollBehavior: 'none',
+                overscrollBehaviorX: 'none',
                 backgroundPositionX: `0, ${startLeft}px`,
                 backgroundSize: `${startLeft}px, ${scaleWidth}px`,
               }}

@@ -9,5 +9,5 @@ export default MediaFile;
 export { DynamicMediaType, VideoFile, AudioFile, AnimationFile, ImageFile };
 export * from './MediaFile';
 export * from './MediaFile.types';
-export * from './MediaType';
-export * from './MimeType';
+export * from '../MediaType/MediaType';
+export * from '../MimeType/MimeType';

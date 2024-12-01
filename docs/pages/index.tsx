@@ -10,8 +10,8 @@ import Head from "../src/modules/components/Head";
 import NewsletterToast from "../src/components/home/NewsletterToast";
 import AppHeaderBanner from "../src/components/banner/AppHeaderBanner";
 import AppHeader from "../src/layouts/AppHeader";
-import EditorHero from "../src/components/showcase/EditorHero";
-import Hero from "../src/components/home/HeroEditor";
+
+const EditorHero = dynamic(() => import('../src/components/showcase/EditorHero'), {ssr: false });
 
 function randomHome(homePages: string[]) {
   return homePages[Math.floor(Math.random()*homePages.length)];
@@ -68,7 +68,7 @@ let MainView:  React.ComponentType<{}> = function MainView() {
   }
   return (
     <React.Fragment>
-      <Hero />
+      <EditorHero id={'editor'} sx={{ width: '1080px' }} />
       <Box sx={{ height: '112px' }}/>
       <Divider/>
     </React.Fragment>

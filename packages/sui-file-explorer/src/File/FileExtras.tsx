@@ -40,6 +40,10 @@ export const FileRoot = styled('li', {
     prop !== 'type' &&
     prop !== 'mediaType' &&
     prop !== 'text' &&
+    prop !== '_aspectRatio' &&
+    prop !== '_width' &&
+    prop !== '_height' &&
+    prop !== '_duration' &&
     prop !== 'icon',
 })(({ theme }) => ({
   listStyle: 'none',

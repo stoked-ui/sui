@@ -11,7 +11,7 @@ import Select, {SelectChangeEvent} from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
-import {emphasize, Theme} from '@mui/material/styles';
+import {emphasize } from '@mui/material/styles';
 import { Slider, Stack, Tooltip } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import Box from "@mui/material/Box";
@@ -19,7 +19,8 @@ import styled from "@mui/system/styled";
 import {createUseThemeProps} from "@mui/material/zero-styled";
 import {Version} from '../Engine/Engine.types';
 import { useTimeline } from '../TimelineProvider';
-import { ControlState, EditorControlsProps } from './TimelineControls.types';
+import {TimelineControlsProps} from './TimelineControls.types';
+import { ControlState } from '.';
 import TimelineView from '../icons/TimelineView';
 import ToggleButtonGroupEx from '../components/ToggleButtonGroupEx/ToggleButtonGroupEx';
 
@@ -67,7 +68,7 @@ const PlayerRoot = styled('div')(({ theme }) => ({
   backgroundColor: emphasize(theme.palette.background.default, 0.2),
 }));
 
-const TimeRoot = styled('div')<{disabled: boolean}>(({ theme, disabled }) => ({
+const TimeRoot = styled('div')<{disabled: boolean}>(({ theme }) => ({
   fontSize: '1px',
   fontFamily: "'Roboto Condensed', sans-serif",
   margin: '0 2px',
@@ -129,23 +130,22 @@ const RateControlSelect = styled(Select)(({ theme }) => ({
 
 type ControlProps =  {
   setVideoURLs: React.Dispatch<React.SetStateAction<string[]>>;
-  controlState: ControlState;
-  setControlState: React.Dispatch<React.SetStateAction<ControlState>>;
+  controls: ControlState[];
+  setControls: React.Dispatch<React.SetStateAction<ControlState[]>>;
   versions: Version[];
-  setVersions: React.Dispatch<React.SetStateAction<Version[]>>;
   disabled?: boolean;
 }
 
 function Controls(inProps: ControlProps) {
-  const { engine, file, id } = useTimeline();
+  const { engine,  } = useTimeline();
   // const editorEngine = engine as IEditorEngine;
   const controlsInput: string = '';
   const [controls, setControls] = React.useState<string>(controlsInput);
 
   useThemeProps({ props: inProps, name: 'MuiControls' });
-  const { setVideoURLs, controlState, versions, setVersions, setControlState, disabled } = inProps;
-  const [mediaRecorder, setMediaRecorder] = React.useState<MediaRecorder | null>(null);
-  const [recordedChunks, setRecordedChunks] = React.useState<Blob[]>([]);
+  const { disabled } = inProps;
+  // const [mediaRecorder, setMediaRecorder] = React.useState<MediaRecorder | null>(null);
+  // const [recordedChunks, setRecordedChunks] = React.useState<Blob[]>([]);
 
   const handlePlay = () => {
     if (!engine.isPlaying) {
@@ -202,9 +202,8 @@ function Controls(inProps: ControlProps) {
   };
 
   React.useEffect(() => {
-    engine?.on('paused', () => {
-      setControlState('paused')
-      setControls('')
+    engine?.on('pause', () => {
+      setControls('pause')
     });
     engine.on('ended', () => {});
 
@@ -215,11 +214,11 @@ function Controls(inProps: ControlProps) {
       <ToggleButtonGroupEx
         value={controls}
         exclusive
-        onChange={(event, changeControls) => {
-          if (['start','end', 'rewind', 'fast-forward'].indexOf(changeControls) !== -1) {
-            return;
-          }
-          setControls(changeControls)
+        onChange={() => {
+          // if (['start','end', 'rewind', 'fast-forward'].indexOf(changeControls) !== -1) {
+          //   return;
+          // }
+          // setControls(changeControls)
         }}
         size={'small'}
         aria-label="text alignment"
@@ -234,7 +233,7 @@ function Controls(inProps: ControlProps) {
         <ToggleButton value="play" onClick={() => {
           stateFunc('play', handlePlay, handlePause)
         }}>
-          {controlState === 'playing' ? <PauseIcon/> : <PlayArrowIcon/>}
+          {controls.includes('play') ? <PauseIcon/> : <PlayArrowIcon/>}
         </ToggleButton>
         <ToggleButton onClick={handleFastForward} value="fast-forward" aria-label="hidden">
           <FastForward fontSize={'small'}/>
@@ -247,8 +246,7 @@ function Controls(inProps: ControlProps) {
 }
 
 export function ViewToggle({view, setView, disabled = false}: {view: 'timeline' | 'files', setView: (newView: 'timeline' | 'files') => void, disabled?: boolean }) {
-  const selectedColor = (theme: Theme) => theme.palette.mode === 'light' ? '#FFF' : '#000';
-  const sxButton = (theme: Theme) => {
+  const sxButton = () => {
     return {
       borderRadius: '0px!important',
       // border: `2px solid ${selectedColor(theme)}!important`,
@@ -386,14 +384,14 @@ function Volume({ disabled }) {
  * - [EditorControls API](https://stoked-ui.github.io/editor/api/)
  */
 export const TimelineControls = React.forwardRef(
-  function EditorControls(inProps : EditorControlsProps, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
-  const [controlState, setControlState] = React.useState<ControlState>('paused');
-  const { engine, file } = useTimeline();
-  const props = useThemeProps({ props: inProps, name: 'MuiEditorControls' });
-  const { timeline, switchView = true, disabled } = inProps;
-  const { view = timeline ? 'timeline' : 'files', setView, versions, setVersions, currentVersion, setCurrentVersion } = props;
-  const [time, setTime] = React.useState(0);
-  const [videoURLs, setVideoURLs] = React.useState<string[]>([]);
+  function TimelineControls(inProps : TimelineControlsProps, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
+    const [controls, setControls] = React.useState<ControlState[]>(['pause']);
+    const { engine } = useTimeline();
+    const props = useThemeProps({ props: inProps, name: 'MuiTimelineControls' });
+    const { disabled } = inProps;
+    const { versions } = props;
+    const [time, setTime] = React.useState(0);
+    const [videoUrls, setVideoURLs] = React.useState<string[]>([]);
 
   // Set playback rate
   const handleRateChange = (event: SelectChangeEvent<unknown>) => {
@@ -409,7 +407,9 @@ export const TimelineControls = React.forwardRef(
   };
 
   React.useEffect(() => {
-    engine?.on('play', () => setControlState('playing'));
+    engine?.on('rewind', () => setControls(['play', 'rewind']));
+    engine?.on('fastForward', () => setControls(['play', 'fastForward']));
+    engine?.on('play', () => setControls(['play']));
     engine.on('afterSetTime', (afterTimeProps) => setTime(afterTimeProps.time));
     engine.on('setTimeByTick', (setTimeProps) => {
       setTime(setTimeProps.time);
@@ -425,17 +425,15 @@ export const TimelineControls = React.forwardRef(
     };
   }, []);
 
-  const controlProps = { setVideoURLs, setControlState, versions, setVersions};
+  const controlProps = { setVideoURLs, setControls, versions};
 
-  const showVersions = !!versions && !!currentVersion && !!setCurrentVersion && !!setVersions;
-  const versionProps = { versions, setVersions, currentVersion, setCurrentVersion };
 
   return (
     <PlayerRoot id={'timeline-controls'} className="timeline-player" ref={ref}>
       <div style={{display: 'flex', flexDirection: 'row', alignContent: 'center', width: '100%'}}>
         <div style={{display: 'flex', flexDirection: 'row', alignContent: 'center', height: '100%'}}>
-          <Controls {...controlProps} controlState={controlState} setControlState={setControlState} versions={versions!} setVersions={setVersions!} disabled={disabled} />
-          {(switchView) && <ViewToggle view={view} setView={setView} disabled={disabled} />}
+          <Controls {...controlProps} controls={controls} setControls={setControls} versions={versions!} disabled={disabled} />
+          {/* (switchView) && <ViewToggle view={view} setView={setView} disabled={disabled} /> */}
         </div>
       </div>
       <div style={{display: 'flex', flexDirection: 'row'}}>

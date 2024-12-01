@@ -15,6 +15,7 @@ export interface IEditorEngine<
   readonly isRecording: boolean;
   viewer: HTMLElement | null;
   readonly stage: HTMLDivElement | null;
+  readonly screener: HTMLVideoElement | null;
   renderer: HTMLCanvasElement | null;
   readonly renderCtx: CanvasRenderingContext2D | null;
   readonly renderWidth: number;

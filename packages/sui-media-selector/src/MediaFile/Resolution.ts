@@ -73,22 +73,26 @@ export enum Orientation {
 }
 
 export interface IResolutionFile extends File, IMediaFile {
+
+  readonly _resolution?: Res;
+  /*
   readonly _width?: number;
   readonly _height?: number;
-  readonly _resolution?: Res;
-  readonly aspectRatio?: number;
+  readonly _aspectRatio?: number;
+
+   */
 }
 
 export class ResolutionFile extends MediaFile implements IResolutionFile {
-  _width?: number;
-
-  _height?: number;
 
   _resolution?: Res;
 
-  aspectRatio: number = 16/9;
+  /*
+   _width?: number;
+   _height?: number;
+   _aspectRatio: number = 16/9;
 
-  /* set width(width: number) {
+   set width(width: number) {
    this._width = width;
    const { resolution, height} = WidthLookup[width];
    this._height = height;

@@ -22,8 +22,8 @@ export default class ImageFile extends ResolutionFile implements IResolutionFile
     }
     ImageFile.element.src = URL.createObjectURL(this);
     this.tags = ExifReader.load(file);
-    this._height = ImageFile.element.naturalHeight;
-    this._width = ImageFile.element.naturalWidth;
+    // this._height = ImageFile.element.naturalHeight;
+    // this._width = ImageFile.element.naturalWidth;
     this.icon = ImageFile.captureScreenshot(file, {width: 24, height: 24});
     this.thumbnail = ImageFile.captureScreenshot(file, {maxWidth: 250, maxHeight: 250});
   }
@@ -36,8 +36,8 @@ export default class ImageFile extends ResolutionFile implements IResolutionFile
     ImageFile.element.src = URL.createObjectURL(imageFile);
     imageFile.tags = ExifReader.load(file);
     imageFile._url = url;
-    imageFile._height = ImageFile.element.naturalHeight;
-    imageFile._width = ImageFile.element.naturalWidth;
+    // imageFile._height = ImageFile.element.naturalHeight;
+    // imageFile._width = ImageFile.element.naturalWidth;
     imageFile.icon = ImageFile.captureScreenshot(file, {width: 24, height: 24});
     imageFile.thumbnail = ImageFile.captureScreenshot(file, {maxWidth: 250, maxHeight: 250});
     return imageFile;

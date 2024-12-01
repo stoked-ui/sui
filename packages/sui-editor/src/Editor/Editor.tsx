@@ -11,12 +11,14 @@ import Timeline, {
   TimelineProps, TimelineControlProps
 } from '@stoked-ui/timeline';
 import {  FileExplorer } from '@stoked-ui/file-explorer';
-import { IMediaFile, MediaFile, namedId } from '@stoked-ui/media-selector';
+import { IMediaFile2, MediaFile2, namedId } from '@stoked-ui/media-selector';
 import {SlotComponentProps, useSlotProps} from '@mui/base/utils';
 import { SxProps } from "@mui/material";
 import composeClasses from '@mui/utils/composeClasses';
+import useForkRef from "@mui/utils/useForkRef";
 import { createUseThemeProps, styled} from '../internals/zero-styled';
 import { useEditor } from '../internals/useEditor';
+import EditorTrackActions from '../EditorTrack/EditorTrackActions';
 import { EditorProps} from './Editor.types';
 import { EditorPluginSignatures, VIDEO_EDITOR_PLUGINS } from './Editor.plugins';
 import {  EditorControls } from '../EditorControls/EditorControls';
@@ -25,14 +27,13 @@ import { getEditorUtilityClass } from './editorClasses';
 import Controllers from "../Controllers";
 import DetailModal from "../DetailView/DetailView";
 import { useEditorContext } from "../EditorProvider/EditorContext";
-import { IEditorAction, IEditorFileAction, initEditorAction } from "../EditorAction/EditorAction";
-import {IEditorFileTrack, IEditorTrack} from "../EditorTrack/EditorTrack";
+import { IEditorAction, IEditorFileAction } from "../EditorAction/EditorAction";
+import { IEditorTrack} from "../EditorTrack/EditorTrack";
 import EditorFile, { IEditorFile } from "../EditorFile/EditorFile";
-import {IEditorEngine} from "../EditorEngine";
 
 const useThemeProps = createUseThemeProps('MuiEditor');
 
-const useUtilityClasses = <R extends IMediaFile, Multiple extends boolean | undefined>(
+const useUtilityClasses = <R extends IMediaFile2, Multiple extends boolean | undefined>(
   ownerState: EditorProps<R, Multiple>,
 ) => {
   const { classes } = ownerState;
@@ -58,36 +59,51 @@ const EditorRoot = styled('div', {
     && prop !== 'noSaveControls'
     && prop !== 'record'
     && prop !== 'noSnapControls'
-    && prop !== 'noTrackControls',
+    && prop !== 'noTrackControls'
+    && prop !== 'noTrackControls'
+    && prop !== 'file'
+    && prop !== 'fileView'
+    && prop !== 'fullscreen',
 
-})(() => ({
-  display: 'flex',
-  flexDirection: 'column',
-  width: '100%',
-  '& .lottie-canvas': {
-    width: '50%',
-    backgroundColor: '#ffff00',
-  },
-  '& .player-panel': {
-    width: '100%',
-    height: '500px',
-    position: 'relative',
-    '& .lottie-ani': {
-      position: 'absolute',
-      width: '100%',
-      height: '100%',
-      left: 0,
-      top: 0,
+})<{ fullscreen: boolean, fileView: boolean }>(({ theme, fullscreen , fileView }) => {
+  const width = fullscreen ? '100vw' : '100%';
+  const height = fullscreen ? '100vh' : '100%';
+  return {
+    display: "grid",
+    flexDirection: 'column',
+    width,
+    height,
+    "@media (max-height: 700px)": {
+      gridTemplateAreas: `
+        "viewer"
+        "controls"
+        "timeline"`,
+      gridTemplateRows: "min-content min-content max-content",
+      '& [role="file-explorer"]': {
+        display: 'none'
+      }
     },
-  },
-  '& .MuiEditorView-root': {
+    "@media (min-height: 701px)": {
+      gridTemplateAreas: `
+        "viewer"
+        "controls"
+        "timeline"
+        ${fileView ? "files" : ''}`,
+      gridTemplateRows: `min-content min-content ${fileView ? 'auto auto' : 'auto'}`,
+      '& ul[role=file-explorer]': {
+        display: `${fileView ? 'block' : 'none'}`,
+        position: `${fileView ? undefined : 'absolute'}`,
+      }
+    },
+    '& .MuiEditorView-root': {
+      overflow: 'hidden',
+    },
     overflow: 'hidden',
-  },
-  overflow: 'hidden',
-}));
+  }
+});
 
 
-function createDirectoryFile({dirname, children}: { dirname: string, children: IMediaFile[] }) {
+function createDirectoryFile({dirname, children}: { dirname: string, children: IMediaFile2[] }) {
   const versionDir = {
     id: dirname.toLocaleLowerCase(),
     name: dirname,
@@ -101,7 +117,7 @@ function createDirectoryFile({dirname, children}: { dirname: string, children: I
   const blob = new Blob([JSON.stringify(versionDir)], { type: "inode/directory" });
   const url = URL.createObjectURL(blob);
   const versionFile = new File([blob], versionDir.name, { type: 'inode/directory' });
-  const mediaFile =  MediaFile.fromFile(versionFile as IMediaFile);
+  const mediaFile =  MediaFile2.fromFile(versionFile as IMediaFile2);
   mediaFile.children = children;
   return mediaFile;
 }
@@ -118,29 +134,46 @@ function createDirectoryFile({dirname, children}: { dirname: string, children: I
  * - [Editor API](https://stoked-ui.github.io/editor/api/)
  */
 const Editor = React.forwardRef(function Editor<
-  R extends IMediaFile = IMediaFile,
+  R extends IMediaFile2 = IMediaFile2,
   Multiple extends boolean | undefined = undefined,
->(inProps: EditorProps<R, Multiple>, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
+>(inPropsId: EditorProps<R, Multiple>, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
+  const context = useEditorContext();
   const {
-    editorId,
     file,
     flags,
     engine,
     dispatch,
     getState,
     settings
-  } = useEditorContext();
+  } = context;
 
-  const { sx = { borderRadius: '6px' }, ...props } = useThemeProps({ props: inProps, name: 'MuiEditor' });
+  const { id: editorIdLocal, ...inProps } = inPropsId;
 
+  const defaultSx = inProps.fullscreen || flags.fullscreen ? {} : { borderRadius: '6px 6px 0 0'}
+  const { sx = defaultSx, ...props } = useThemeProps({ props: inProps, name: 'MuiEditor' });
+  const { noLabels, fileView, trackControls, snapControls, localDb, openSaveControls, record, noResizer, allControls, fullscreen, detailMode, minimal, ...noFlagProps} = inProps;
   React.useEffect(() => {
-    const set = ['noLabels', 'fileView', 'trackControls', 'snapControls', 'localDb', 'openSaveControls', 'record', 'noResizer', 'allControls', 'detailMode', 'minimal'];
-    const values = set.filter((s) => inProps[s]);
-
+    const set = [
+      'noLabels',
+      'fileView',
+      'trackControls',
+      'snapControls',
+      'localDb',
+      'openSaveControls',
+      'record',
+      'noResizer',
+      'allControls',
+      'fullscreen',
+      'detailMode',
+      'minimal'
+    ];
+    const flagProps = {noLabels, fileView, trackControls, snapControls, localDb, openSaveControls, record, noResizer, allControls, fullscreen, detailMode, minimal }
+    const values = Object.keys(flagProps).filter((key) => flagProps[key] === true);
     dispatch({ type: 'SET_FLAGS', payload: { add: values, remove: [] } });
   }, []);
 
   const {
+    rootRef,
     getRootProps,
     getEditorViewProps,
     getControlsProps,
@@ -189,7 +222,7 @@ const Editor = React.forwardRef(function Editor<
     externalSlotProps: slotProps?.timeline,
     className: classes.timeline,
     getSlotProps: getTimelineProps,
-    ownerState: inProps as any,
+    ownerState: {...noFlagProps, trackControls: EditorTrackActions } as any,
   });
 
   const Explorer = slots?.fileExplorer ?? FileExplorer;
@@ -198,7 +231,7 @@ const Editor = React.forwardRef(function Editor<
     externalSlotProps: slotProps?.fileExplorer,
     className: classes.fileExplorer,
     getSlotProps: getFileExplorerProps,
-    ownerState: props as any,
+    ownerState: inProps.FileExplorerProps as any,
   });
 
   const viewerRef = React.useRef<HTMLDivElement>(null);
@@ -219,18 +252,16 @@ const Editor = React.forwardRef(function Editor<
     }
   }, [viewerRef.current, engine, engine.isLoading]);
 
-  const [mediaFiles, setMediaFiles] = React.useState<IMediaFile[]>([]);
-  const [files, setFiles] = React.useState<IMediaFile[]>([]);
-  const [saved, setSaved] = React.useState<IMediaFile[]>([])
+  const [mediaFiles, setMediaFiles] = React.useState<IMediaFile2[]>([]);
+  const [files, setFiles] = React.useState<IMediaFile2[]>([]);
+  const [saved, setSaved] = React.useState<IMediaFile2[]>([])
   const [view, setView] = React.useState<'timeline' | 'files'>('timeline')
-  const hiddenSx: SxProps = {
+ /*  const hiddenSx: SxProps = {
     position: 'absolute!important',
     opacity: '0!important',
     left: '200%'
-  };
-  const visibleSx: SxProps = { position: 'static!important', opacity: '1!important' };
-  const timelineSx = { ...(view === 'files' ? hiddenSx : visibleSx), width: '100%' };
-  const filesSx = view !== 'files' ? hiddenSx : visibleSx;
+  };"/static/editor/funeral.mp3" */
+ /*  const visibleSx: SxProps = { position: 'static!important', opacity: '1!important' }; */
   const [currentVersion, setCurrentVersion] = React.useState<string>()
 
   React.useEffect(() => {
@@ -243,9 +274,9 @@ const Editor = React.forwardRef(function Editor<
 
   React.useEffect(() => {
     if (!settings.editorMode ) {
-      dispatch({type: 'SET_SETTING', payload: {key: 'editorMode', value: inProps.mode ?? 'project'}});
+      dispatch({type: 'SET_SETTING', payload: {key: 'editorMode', value: noFlagProps.mode ?? 'project'}});
     }
-  }, [inProps.mode])
+  }, [noFlagProps.mode])
 
     /*
   React.useEffect(() => {
@@ -314,7 +345,7 @@ const Editor = React.forwardRef(function Editor<
     const input = document.createElement('input') as HTMLInputElement;
     input.type = 'file';
     input.onchange = async (ev) => {
-      let newMediaFiles = await MediaFile.from(ev)
+      let newMediaFiles = await MediaFile2.from(ev)
 
       if (!file) {
         return;
@@ -345,7 +376,7 @@ const Editor = React.forwardRef(function Editor<
           return;
         }
         // eslint-disable-next-line no-await-in-loop
-        await controller.preload({ action, file: mediaFile})
+        // await controller.preload({ action, file: mediaFile})
         newTracks.push({
           id: namedId('track'),
           name: mediaFile.name,
@@ -365,96 +396,139 @@ const Editor = React.forwardRef(function Editor<
   };
 
   const handleClickLabel = (event: React.MouseEvent<HTMLElement, MouseEvent>, track: IEditorTrack) => {
-    inProps.onClickLabel?.(event, track);
+    noFlagProps.onClickLabel?.(event, track);
     if (!flags.detailMode) {
       dispatch({ type: 'SELECT_TRACK', payload: track });
       dispatch({ type: 'DETAIL_OPEN'});
     }
   }
 
+  const baseRef = React.useRef<HTMLDivElement>()
+  const handleRef = useForkRef(baseRef, ref)
 
   const { ...editorViewPropsNew } = editorViewProps;
-
+  const { file: propsFile, fileUrl, actions } = noFlagProps;
   React.useEffect(() => {
-    const editorElement = document.getElementById(editorId);
-    if (editorElement) {
-      dispatch({ type: 'SET_COMPONENT', payload: { key: 'editor', value: editorElement } });
-    }
-    if (inProps.file) {
-      const inputFile = inProps.file as IEditorFile;
-       inputFile.initialize(inputFile.trackFiles ?? []).then(() => {
-           dispatch({ type: 'SET_FILE', payload: inputFile});
-        })
-    } else if (inProps.fileUrl) {
-      WebFile.fromUrl<EditorFile>(inProps.fileUrl)
-        .then((timelineFile) => {
-          dispatch({ type: 'SET_FILE', payload: timelineFile as IEditorFile})
-        })
-    } else if (inProps.actions) {
-      TimelineFile.fromActions<IEditorFileAction, IEditorAction, EditorFile>(inProps.actions)
-        .then((timelineFile) => {
-          dispatch({ type: 'SET_FILE', payload: timelineFile as EditorFile })
-        })
-    } else {
-      engine.state = EngineState.READY;
+    const nextState = propsFile || fileUrl || actions ? EngineState.LOADING : EngineState.READY;
+    engine.state = inProps.preview ? EngineState.PREVIEW : nextState;
+    if (!settings.editorId) {
+      dispatch({type: 'SET_SETTING', payload: {key: 'editorId', value: editorIdLocal ?? namedId('editor')}});
     }
 
   }, [])
 
-  const newRootProps = { ...rootProps, ...rootProps.ownerState };
-  const displayTimeline = !flags?.fileView && getState() !== 'LOADING';
-  return (
-    <Root role={'editor'} {...newRootProps} sx={sx} id={editorId}>
-      <EditorViewSlot {...editorViewPropsNew} ref={viewerRef} />
-      <ControlsSlot
-        role={'controls'}
-        {...videoControlsProps}
-        view={view}
-        setView={setView}
-        versions={[]}
-        currentVersion={currentVersion}
-        setCurrentVersion={setCurrentVersion}
-        disabled={engine.isLoading}
-      />
-      {displayTimeline &&
-        <React.Fragment>
-         <TimelineSlot
-            role={'timeline'}
-            {...timelineProps}
-            ref={timelineRef}
-            controllers={Controllers}
-            onKeyDown={instance.onKeyDown}
-            viewSelector={`.MuiEditorView-root`}
-            sx={timelineSx}
-            disabled={engine.isLoading}
-            onContextMenuLabel={handleContextMenuLabel}
-            onContextMenuTrack={handleContextMenuTrack}
-            onContextMenuAction={handleContextMenuAction}
-            onContextMenu={handleContextMenuLabel}
-            onClickLabel={handleClickLabel}
-            onClickTrack={inProps.onClickTrack}
-            onClickAction={inProps.onClickAction}
-          />
-          {flags.fileView && <Explorer
-            grid
-            role={'file-explorer'}
-            id={'editor-file-explorer-renderer'}
-            {...fileExplorerProps}
-            items={files}
-            dndInternal
-            dndExternal
-            alternatingRows
-            defaultExpandedItems={['tracks']}
-            sx={[filesSx, { display: 'none'}]}
-            onAddFiles={onAddFiles}
-          />}
+  React.useEffect(() => {
+    if (propsFile) {
+      const inputFile = propsFile as IEditorFile;
+      inputFile.initialize(inputFile.trackFiles ?? []).then(() => {
+        dispatch({ type: 'SET_FILE', payload: inputFile});
+      })
+    } else if (fileUrl) {
+      EditorFile.fromUrl(fileUrl)
+      .then((timelineFile) => {
+        dispatch({ type: 'SET_FILE', payload: timelineFile as IEditorFile})
+      })
+    } else if (actions) {
+      EditorFile.fromActions<IEditorFileAction, IEditorAction, EditorFile>(actions)
+      .then((timelineFile) => {
+        dispatch({ type: 'SET_FILE', payload: timelineFile as EditorFile })
+      })
+    }
+  }, [propsFile, fileUrl, actions])
 
-        </React.Fragment>
+  React.useEffect(() => {
+    if (!baseRef?.current) {
+      return undefined;
+    }
+
+    dispatch({ type: 'SET_COMPONENT', payload: { key: 'editor', value: baseRef.current } });
+
+    const observer = new ResizeObserver(() => {
+      if (!rootRef) {
+        return;
       }
+      // const width = baseRef.current?.clientWidth;
+      const settingKey = flags.detailMode ? 'detail' : undefined;
+      const value = {
+        width: baseRef.current?.clientWidth,
+        height: baseRef.current?.clientHeight,
+      }
+      dispatch({type: 'SET_SETTING', payload: {key: settingKey, value }});
+    });
 
-      {!flags.detailMode && <DetailModal />}
+    observer.observe(baseRef.current);
 
-    </Root>)
+    return () => {
+      if (observer) {
+        observer.disconnect();
+      }
+    };
+  }, [baseRef?.current])
+
+
+  const newRootProps = { ...rootProps, ...rootProps.ownerState };
+  const displayTimeline = getState() !== 'LOADING';
+  const wrapStyle = flags.fullscreen ? {
+    height: '100vh',
+    maxHeight: '100vh',
+    width: '100vw',
+    maxWidth: '100vw'
+  } : {
+  };
+  return (<Root role={'editor'} {...newRootProps} sx={[...(Array.isArray(sx) ? sx : [sx]),]}
+                id={settings.editorId ?? editorIdLocal} fileView={fileView}>
+    <EditorViewSlot {...editorViewPropsNew} ref={viewerRef}/>
+    <ControlsSlot
+      role={'controls'}
+      {...videoControlsProps}
+      view={view}
+      setView={setView}
+      versions={[]}
+      currentVersion={currentVersion}
+      setCurrentVersion={setCurrentVersion}
+    />
+    {displayTimeline && <React.Fragment>
+      <TimelineSlot
+        role={'timeline'}
+        {...{...timelineProps, ...timelineProps.ownerState}}
+        ref={timelineRef}
+        id={`timeline-${settings.editorId}`}
+        controllers={Controllers}
+        onKeyDown={instance.onKeyDown}
+        viewSelector={`.MuiEditorView-root`}
+        sx={noFlagProps.timelineSx}
+        disabled={engine.isLoading}
+        onAddFiles={onAddFiles}
+        onContextMenuLabel={handleContextMenuLabel}
+        onContextMenuTrack={handleContextMenuTrack}
+        onContextMenuAction={handleContextMenuAction}
+        onContextMenu={handleContextMenuLabel}
+        onClickLabel={handleClickLabel}
+        onClickTrack={noFlagProps.onClickTrack}
+        onClickAction={noFlagProps.onClickAction}
+      />
+      <Explorer
+        grid
+        role={'file-explorer'}
+        id={'editor-file-explorer-renderer'}
+        {...fileExplorerProps.ownerState}
+        items={files}
+        dndInternal
+        dndExternal
+        alternatingRows
+        defaultExpandedItems={['tracks']}
+        sx={noFlagProps.filesSx}
+        onAddFiles={onAddFiles}
+      />
+    </React.Fragment>}
+    {!flags.detailMode && <DetailModal/>}
+
+
+
+
+
+
+  </Root>)
 });
 
 Editor.propTypes = {
@@ -478,16 +552,24 @@ Editor.propTypes = {
 
   file: PropTypes.any,
 
+  FileExplorerProps: PropTypes.any,
+
+  filesSx: PropTypes.object,
+
   fileUrl: PropTypes.string,
 
   fileView: PropTypes.bool,
+
+  fullscreen: PropTypes.bool,
 
   localDb: PropTypes.bool,
 
   minimal: PropTypes.bool,
 
   mode: PropTypes.oneOf(["project", "track", "action"]),
+
   newTrack: PropTypes.bool,
+
   noLabels: PropTypes.bool,
 
   noResizer: PropTypes.bool,
@@ -500,18 +582,29 @@ Editor.propTypes = {
 
   noZoom: PropTypes.bool,
 
-  record: PropTypes.bool, /**
+  openSaveControls: PropTypes.bool,
+
+  preview: PropTypes.bool,
+
+  record: PropTypes.bool,
+
+  /**
    * The props used for each component slot.
    * @default {}
    */
-  slotProps: PropTypes.object, /**
+  slotProps: PropTypes.object,
+
+  /**
    * Overridable component slots.
    * @default {}
    */
-  slots: PropTypes.object, /**
+  slots: PropTypes.object,
+  snapControls: PropTypes.bool,
+  /**
    * The system prop that allows defining system overrides as well as additional CSS styles.
    */
   sx: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool])), PropTypes.func, PropTypes.object,]),
+  trackControls: PropTypes.bool,
 
 };
 

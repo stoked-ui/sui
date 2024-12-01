@@ -1,34 +1,16 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { IMediaFile, MediaFile } from '@stoked-ui/media-selector';
-import { useTimeline, WebFile, MimeType, EngineState } from '@stoked-ui/timeline';
-import SettingsIcon from '@mui/icons-material/Settings';
-import SaveIcon from '@mui/icons-material/Save';
-import OpenIcon from '@mui/icons-material/OpenInBrowser';
-import ClearIcon from '@mui/icons-material/Clear';
+import { IMediaFile } from '@stoked-ui/media-selector';
 import composeClasses from '@mui/utils/composeClasses';
 import { useSlotProps } from '@mui/base/utils';
 import { keyframes } from '@emotion/react';
-import {
-  Fab,
-  Popover,
-  SpeedDial,
-  SpeedDialAction,
-  Stack,
-  SxProps,
-  Tooltip,
-  TooltipProps,
-  Zoom,
-  alpha,
-  tooltipClasses,
-} from '@mui/material';
 import useForkRef from '@mui/utils/useForkRef';
 import { createUseThemeProps, styled } from '../internals/zero-styled';
 import { EditorViewProps } from './EditorView.types';
 import { getEditorViewUtilityClass } from './editorViewClasses';
 import { useEditorContext } from '../EditorProvider/EditorContext';
 import Loader from '../Editor/Loader';
-import EditorFile from '../EditorFile/EditorFile';
+import EditorViewActions from "./EditorViewActions";
 
 const useThemeProps = createUseThemeProps('MuiEditorView');
 
@@ -53,6 +35,7 @@ const EditorViewRoot = styled('div', {
   `;
   const anim = `2.5s cubic-bezier(0.35, 0.04, 0.63, 0.95) 0s infinite normal none running ${spin}`;
   return {
+    gridArea: 'viewer',
     display: 'flex',
     flexDirection: 'column',
     width: '100%',
@@ -73,7 +56,9 @@ const EditorViewRoot = styled('div', {
 const Renderer = styled('canvas', {
   name: 'MuiEditorViewRenderer',
   slot: 'renderer',
-  shouldForwardProp: (prop) => prop !== 'viewMode',
+  shouldForwardProp: (prop) =>
+    prop !== 'viewMode' &&
+  prop !== 'detailMode',
 })(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
@@ -115,155 +100,13 @@ const Stage = styled('div', {
   vIndex: 100,
 }));
 
-function Actions({ visible }: { visible: boolean }) {
-  const { dispatch, file } = useEditorContext();
-
-  const [fileIsDirty, setIsDirty] = React.useState<boolean>(false);
-  React.useEffect(() => {
-    const isFileDirty = async () => {
-      const isDirty = await (file as EditorFile)?.isDirty();
-      setIsDirty(isDirty);
-    };
-
-    isFileDirty().catch();
-  }, [file]);
-
-  const saveHandler = async () => {
-    if (!file) {
-      return;
-    }
-    await file.save();
-    console.info('file saved');
-  };
-
-  const openHandler = async () => {
-    const input = document.createElement('input') as HTMLInputElement;
-    input.type = 'file';
-
-    async function handleFiles() {
-      if (!input.files) {
-        return;
-      }
-      const files = Array.from(input.files);
-      if (files.length) {
-        for (let i = 0; i < files.length; i += 1) {
-          const clientFile = files[i];
-          // eslint-disable-next-line no-await-in-loop
-          const loadedFile = await WebFile.fromBlob<EditorFile>(clientFile);
-          dispatch({ type: 'SET_FILE', payload: loadedFile });
-        }
-      }
-    }
-    input.addEventListener('change', handleFiles, false);
-    input.click();
-  };
-
-  return (
-    <Stack direction={'column'}>
-      <Zoom in={visible && !!file}>
-        <Fab
-          id={'clear'}
-          color={'error'}
-          aria-label="clear"
-          size="small"
-          sx={(theme) => ({
-            position: 'absolute',
-            left: '0px',
-            margin: '8px',
-            color: theme.palette.text.primary,
-          })}
-          onClick={() => {
-            dispatch({ type: 'DISCARD_FILE' });
-          }}
-        >
-          <ClearIcon />
-        </Fab>
-      </Zoom>
-      <Stack direction={'row'}>
-        {fileIsDirty && visible && (
-          <Zoom in={visible}>
-            <Fab
-              id={'save'}
-              aria-label="save"
-              size="small"
-              color={'secondary'}
-              sx={(theme) => ({
-                position: 'absolute',
-                right: '96px',
-                margin: '8px',
-                color: theme.palette.text.primary,
-              })}
-              onClick={saveHandler}
-            >
-              <SaveIcon />
-            </Fab>
-          </Zoom>
-        )}
-        <Zoom in={visible}>
-          <Fab
-            id={'open'}
-            color={'secondary'}
-            aria-label="open"
-            size="small"
-            sx={(theme) => ({
-              position: 'absolute',
-              right: '48px',
-              margin: '8px',
-              color: theme.palette.text.primary,
-            })}
-            onClick={openHandler}
-          >
-            <OpenIcon />
-          </Fab>
-        </Zoom>
-        <Zoom in={visible}>
-          <Fab
-            id={'settings'}
-            color={'primary'}
-            aria-label="settings"
-            size="small"
-            sx={(theme) => ({
-              position: 'absolute',
-              right: '0px',
-              margin: '8px',
-              color: theme.palette.text.primary,
-            })}
-            onClick={() => {
-              dispatch({ type: 'DETAIL_OPEN' });
-            }}
-          >
-            <SettingsIcon />
-          </Fab>
-        </Zoom>
-      </Stack>
-    </Stack>
-  );
-}
-/**
- *
- * Demos:
- *
- * - [FileExplorer View](https://stoked-ui.github.io/editor/docs/)
- *
- * API:
- *
- * - [FileExplorer API](https://stoked-ui.github.io/editor/api/)
- */
-
-Actions.propTypes = {
-  // ----------------------------- Warning --------------------------------
-  // | These PropTypes are generated from the TypeScript type definitions |
-  // | To update them edit the TypeScript types and run "pnpm proptypes"  |
-  // ----------------------------------------------------------------------
-  visible: PropTypes.bool.isRequired,
-};
 
 const EditorView = React.forwardRef(function EditorView<
   R extends IMediaFile = IMediaFile,
   Multiple extends boolean | undefined = undefined,
 >(inProps: EditorViewProps<R, Multiple>, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
   const editorContext = useEditorContext();
-  const { id, file, engine, flags, getState } = editorContext;
+  const { settings, file, engine, dispatch, flags } = editorContext;
   const props = useThemeProps({ props: inProps, name: 'MuiEditorView' });
   const viewRef = React.useRef<HTMLDivElement>(null);
   const combinedViewRef = useForkRef(ref, viewRef);
@@ -280,8 +123,8 @@ const EditorView = React.forwardRef(function EditorView<
     if (engine && viewRef?.current) {
       engine.viewer = viewRef.current;
       if (viewRef.current.parentElement) {
-        viewRef.current.id = `viewer-${id}`;
-        viewRef.current.classList.add(id);
+        viewRef.current.id = `viewer-${settings.editorId}`;
+        viewRef.current.classList.add(settings.editorId);
       }
     }
   }, [viewRef, engine]);
@@ -290,8 +133,8 @@ const EditorView = React.forwardRef(function EditorView<
   React.useEffect(() => {
     if (rendererRef.current && viewRef.current) {
       if (!rendererRef.current.id && viewRef.current.parentElement) {
-        rendererRef.current.id = `renderer-${id}`;
-        rendererRef.current.classList.add(id);
+        rendererRef.current.id = `renderer-${settings.editorId}`;
+        rendererRef.current.classList.add(settings.editorId);
       }
     }
   });
@@ -300,21 +143,24 @@ const EditorView = React.forwardRef(function EditorView<
   React.useEffect(() => {
     if (screenerRef.current && viewRef.current) {
       if (!screenerRef.current.id && viewRef.current.parentElement) {
-        screenerRef.current.id = `screener-${id}`;
-        screenerRef.current.classList.add(id);
+        screenerRef.current.id = `screener-${settings.editorId}`;
+        screenerRef.current.classList.add(settings.editorId);
       }
     }
   });
 
   // tie the renderer to the editor
   React.useEffect(() => {
+    if (stageRef.current) {
+      // ShadowStage.setStage(stageRef.current);
+    }
     if (stageRef.current && viewRef.current) {
       if (!stageRef.current.id && viewRef.current.parentElement) {
-        stageRef.current.id = `stage-${id}`;
-        stageRef.current.classList.add(id);
+        stageRef.current.id = `stage-${settings.editorId}`;
+        stageRef.current.classList.add(settings.editorId);
       }
     }
-  });
+  }, [stageRef.current]);
 
   const { slots, slotProps } = props;
   const classes = useUtilityClasses(props);
@@ -369,10 +215,10 @@ const EditorView = React.forwardRef(function EditorView<
       ref={combinedViewRef}
       data-preserve-aspect-ratio
       onMouseEnter={() => {
-        setShowSettings(true && getState() !== EngineState.LOADING);
+        dispatch({ type: 'SET_FLAGS', payload: { add: ['showViewControls'] }});
       }}
       onMouseLeave={() => {
-        setShowSettings(false);
+        dispatch({ type: 'SET_FLAGS', payload: { remove: ['showViewControls'] }});
       }}
     >
       <Renderer
@@ -384,7 +230,7 @@ const EditorView = React.forwardRef(function EditorView<
       <Screener role={'screener'} ref={screenerRef} />
       <Loader styles={styles} />
       <Stage role={'stage'} ref={stageRef} />
-      {false && <Actions visible={showActions} />}
+      <EditorViewActions visible={flags.showViewControls} />
     </Root>
   );
 });

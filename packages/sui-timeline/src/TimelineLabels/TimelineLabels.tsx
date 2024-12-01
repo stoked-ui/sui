@@ -111,7 +111,7 @@ SnapControls.propTypes = {
   // | These PropTypes are generated from the TypeScript type definitions |
   // | To update them edit the TypeScript types and run "pnpm proptypes"  |
   // ----------------------------------------------------------------------
-  style: PropTypes.object.isRequired,
+  style: PropTypes.object,
 } as any;
 
 export { SnapControls };
@@ -121,7 +121,7 @@ const TimelineLabels = React.forwardRef(function TimelineLabels(
 ): React.JSX.Element {
   const context = useTimeline();
   const { engine, flags, file, dispatch, settings, } = context;
-  const { getTrackHeight } = settings;
+  const { trackHeight } = settings;
   const { slotProps, slots, sx, width } = inProps;
   const finalWidth = width || !flags.noLabels ? '275px' : '0px';
   // const themeProps = useThemeProps({ props: inProps, name: 'MuiTimelineLabels' });
@@ -143,7 +143,7 @@ const TimelineLabels = React.forwardRef(function TimelineLabels(
     }
     inProps.onClickLabel(event, t);
   };
-  const displayTracks = TimelineFile.displayTracks(file?.tracks, !flags.newTrack);
+  const displayTracks = file?.tracks || [];
 
   return (
     <Root
@@ -169,10 +169,10 @@ const TimelineLabels = React.forwardRef(function TimelineLabels(
             if (!track) {
               return undefined;
             }
-            const trackHeight = getTrackHeight(index, context);
             return (
               <TimelineLabel
                 trackHeight={trackHeight}
+                trackControls={inProps.trackControls}
                 track={track}
                 hideLock={inProps.hideLock}
                 classes={classes}
@@ -218,35 +218,35 @@ TimelineLabels.propTypes = {
   /**
    * Override or extend the styles applied to the component.
    */
-  classes: PropTypes.object.isRequired,
-  className: PropTypes.string.isRequired,
-  controllers: PropTypes.any.isRequired,
-  hideLock: PropTypes.bool.isRequired,
-  onAddFiles: PropTypes.func.isRequired,
-  onLabelClick: PropTypes.func.isRequired,
-  onToggle: PropTypes.func.isRequired,
-  setFlags: PropTypes.func.isRequired,
+  classes: PropTypes.object,
+  className: PropTypes.string,
+  controllers: PropTypes.any,
+  hideLock: PropTypes.bool,
+  onAddFiles: PropTypes.func,
+  onLabelClick: PropTypes.func,
+  onToggle: PropTypes.func,
+  setFlags: PropTypes.func,
   /**
    * The props used for each component slot.
    * @default {}
    */
-  slotProps: PropTypes.object.isRequired,
+  slotProps: PropTypes.object,
   /**
    * Overridable component slots.
    * @default {}
    */
-  slots: PropTypes.object.isRequired,
+  slots: PropTypes.object,
   /**
    * The system prop that allows defining system overrides as well as additional CSS styles.
    */
   sx: PropTypes.oneOfType([
     PropTypes.arrayOf(
-      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]).isRequired,
+      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),
     ),
     PropTypes.func,
     PropTypes.object,
-  ]).isRequired,
-  width: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
+  ]),
+  width: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 } as any;
 
 export default TimelineLabels;

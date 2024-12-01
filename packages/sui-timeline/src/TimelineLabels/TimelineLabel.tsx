@@ -1,25 +1,25 @@
-import { styled } from "@mui/material/styles";
+import {styled, SxProps, Theme} from "@mui/material/styles";
 import * as React from "react";
-import { IconButton, Typography } from "@mui/material";
+import {Box, IconButton, Typography} from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { getTrackBackgroundColor, ITimelineTrack } from "../TimelineTrack";
 import {IController} from "../Controller";
 import {TimelineLabelsClasses} from "./timelineLabelsClasses";
 import {useTimeline} from "../TimelineProvider";
-import TimelineTrackActions from "./TimelineTrackActions";
+import TimelineFile from "../TimelineFile";
 
 
 const TimelineLabelRoot = styled('div', {
   name: 'MuiTimelineLabels',
   slot: 'label',
   overridesResolver: (props, styles) => styles.icon,
-  shouldForwardProp: (prop) => prop !== 'lock' && prop !== 'trackHeight',
+  shouldForwardProp: (prop) => prop !== 'locked' && prop !== 'muted' && prop !== 'trackHeight',
 })<{ trackHeight: number }>(({trackHeight} ) => {
   return ({
     height: `${trackHeight}px`,
     marginLeft: '3px',
     paddingLeft: '1px',
-    backgroundImage: 'linear-gradient(to right, #BBB , #BBB0)',
+    background: 'linear-gradient(to right, #BBB , #BBB0)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -28,17 +28,23 @@ const TimelineLabelRoot = styled('div', {
   })
 });
 
-
-const TimelineLabelContainer = styled('div', {
+// eslint-disable-next-line stoked-ui/no-styled-box
+const TimelineLabelContainer = styled(Box, {
   name: 'MuiTimelineLabels',
   slot: 'container',
   overridesResolver: (props, styles) => styles.icon,
   shouldForwardProp: (prop) =>
-    prop !== 'lock'
+    prop !== 'locked'
+    && prop !== 'color'
+    && prop !== 'selected'
+    && prop !== 'muted'
     && prop !== 'track'
     && prop !== 'trackHeight'
-    && prop !== 'hover',
-})<{ lock?: boolean, color: string, selected?: boolean, hidden?: boolean, track?: ITimelineTrack, trackHeight: number, hover?: boolean, disabled: boolean, dim?: boolean}>
+    && prop !== 'hover'
+    && prop !== 'disabled'
+    && prop !== 'sx'
+    && prop !== 'dim',
+})<{ sx: SxProps<Theme>, locked?: boolean, color: string, selected?: boolean, muted?: boolean, track?: ITimelineTrack, trackHeight: number, hover?: boolean, disabled: boolean, dim?: boolean}>
 (({ theme, color, selected, trackHeight, hover, disabled, dim}) => {
   const trackBack = getTrackBackgroundColor(color, theme.palette.mode, selected, hover, disabled, dim);
   return {
@@ -60,19 +66,19 @@ const TimelineLabelContainer = styled('div', {
     flexGrow: '1',
     variants: [{
       props: {
-        hidden: true
+        muted: true
       },
       style: {
         opacity: '.4'
       }
     },{
       props: {
-        lock: true
+        locked: true
       },
       style: {
-        background: `linear-gradient(to right,#0008, 70%, #0003)`,
+        // background: `linear-gradient(to right,#0008, 70%, #0003)`,
         /* background: lockedBg,
-        '& .timeline-editor-action': {
+        '& .timeline-action': {
           background: emphasize(theme.palette.background.default, 0.24)
         } */
       }
@@ -111,46 +117,49 @@ const TimelineLabel = React.forwardRef(
     trackHeight: number,
     collapsed?: boolean,
     last: boolean
+    trackControls?: React.ElementType<any, keyof React.JSX.IntrinsicElements>
   },
   ref: React.Ref<HTMLDivElement>
 ): React.JSX.Element {
   const context = useTimeline();
   const { settings, flags, file, selectedTrack, dispatch } = context;
-  const { editorMode, getTrackHeight } = settings;
-  const { track, trackHeight, classes, controller, onClick } = inProps;
+  const { editorMode } = settings;
+  const { track, trackHeight, classes,  onClick, trackControls: TrackControls } = inProps;
   const { trackHoverId } = settings;
 
   const trackIndex = file?.tracks?.findIndex((t) => t.id === track.id);
   const trackHover = trackHoverId === track.id;
+  const newTrackSim = track.id === 'newTrack';
+  const adjustNoNew = inProps.last && !flags.newTracks
   return (
     <React.Fragment>
       {!flags.noLabels && <TimelineLabelRoot key={track.id} className={classes.label} ref={ref} trackHeight={trackHeight}>
         <TimelineLabelContainer
           trackHeight={trackHeight}
           className={classes.label}
-          color={controller?.color ?? '#8882'}
+          color={TimelineFile.getTrackColor(track)}
           hover={trackHover ? true : undefined}
           track={track}
-          lock={track.lock}
+          locked={track.locked}
           disabled={track.disabled}
           selected={track.id === selectedTrack?.id}
-          dim={editorMode !== 'project' && selectedTrack?.id !== track.id}
+          dim={editorMode !== 'project' && selectedTrack?.id !== track.id && newTrackSim}
           sx={(theme) => ({
-            '& .timeline-editor-edit-track': {
+            '& .timeline-track': {
               opacity: 0,
               transform: 'scaleX(100%):nth-child(3n+1)',
               transitionProperty: 'opacity, transform',
               transitionDuration: '0.3s',
               transitionTimingFunction: 'cubic-bezier(0.750, -0.015, 0.565, 1.055)'
             }, '& .MuiTimeline-loaded': {
-              '& .timeline-editor-edit-track': {
+              '& .timeline-track': {
                 opacity: 1,
                 transform: 'translateX(0)',
                 transitionDelay: `calc(.5s * var(${trackIndex})))`,
               }
             },
-            borderImage: `${(inProps.last && theme.palette.mode === 'light' ? `linear-gradient(to right, transparent, #BBB 3%, white 95%) 1` : undefined)}`,
-            borderWidth: `${inProps.last ? '1px' : undefined}`,
+            borderImage: `${(adjustNoNew && theme.palette.mode === 'light' ? `linear-gradient(to right, transparent, #BBB 3%, white 95%) 1` : undefined)}`,
+            borderWidth: `${adjustNoNew ? '1px' : undefined}`,
           })}
           onClick={(event: React.MouseEvent<HTMLElement>) => {
             onClick(event, track)
@@ -169,7 +178,7 @@ const TimelineLabel = React.forwardRef(
           <TimelineLabelText trackHeight={trackHeight}>
             <Typography variant="button" color="text.secondary" sx={(theme) => ({ color: `${theme.palette.background.default}!important` })} >{track.name}</Typography>
           </TimelineLabelText>
-          {(file && track.id !== 'newTrack') && <TimelineTrackActions track={track} />}
+          {(file && !newTrackSim) && <TrackControls track={track} />}
         </TimelineLabelContainer>
       </TimelineLabelRoot>}
     </React.Fragment>);

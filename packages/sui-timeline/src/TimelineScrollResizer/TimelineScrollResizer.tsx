@@ -1,6 +1,7 @@
 import * as React from 'react';
 import {styled} from '@mui/system';
 import {TimelineScrollResizerProps} from './TimelineScrollResizer.types';
+import { useTimeline } from '../TimelineProvider/TimelineProvider';
 
 const ScrollbarContainer = styled('div')(({ theme }) => ({
   width: '100%',
@@ -49,7 +50,9 @@ export default function TimelineScrollResizer({
   adjustScale,
   type = 'horizontal',
 }: TimelineScrollResizerProps) {
-  const [isResizing, setIsResizing] = React.useState(false);
+  const { engine, settings }  = useTimeline();
+  const [isResizingLeft, setIsResizingLeft] = React.useState(false);
+  const [isResizingRight, setIsResizingRight] = React.useState(false);
   const [isDragging, setIsDragging] = React.useState(false);
   const [startX, setStartX] = React.useState(0);
   const [clientPercentage, setClientPercentage] = React.useState(100);
@@ -58,8 +61,17 @@ export default function TimelineScrollResizer({
   const [thumbWidth, setThumbWidth] = React.useState(50);
   // const contentRef = React.useRef<HTMLElement>(null);
 
-  const getThumbnailWidth = (totalWidth = elementRef.current.scrollWidth) => {
-    const visibleWidth = elementRef.current.clientWidth;
+  const getBoundaryWidth = () => {
+    const adjustedScaleWidth = settings.scaleWidth / settings.scaleSplitCount;
+    const extraSpace = (adjustedScaleWidth * 2);
+    const durationSpace = engine.canvasDuration * adjustedScaleWidth;
+    return durationSpace + extraSpace;
+  }
+  const getThumbnailWidth = (totalWidth = getBoundaryWidth()) => {
+    if (!elementRef.current) {
+      return thumbWidth;
+    }
+    const visibleWidth = elementRef.current?.clientWidth;
     return visibleWidth / (totalWidth / visibleWidth);
   }
 
@@ -73,9 +85,16 @@ export default function TimelineScrollResizer({
         return;
       }
 
-      setClientPercentage(elementRef.current.scrollWidth / elementRef.current.clientWidth)
-      const tWidth = getThumbnailWidth();
-      setThumbWidth(tWidth);
+      setTimeout(() => {
+        const grid = document.getElementById('thisisedit');
+        if (!grid) {
+          return;
+        }
+        setClientPercentage(getBoundaryWidth() / grid.clientWidth)
+        const tWidth = getThumbnailWidth();
+        setThumbWidth(tWidth);
+      }, 1000)
+
     });
 
     observer.observe(elementRef.current!);
@@ -87,9 +106,15 @@ export default function TimelineScrollResizer({
     };
   }, [elementRef.current]);
 
-  const handleMouseDownResize = (e: React.MouseEvent) => {
+  const handleMouseDownResizeRight = (e: React.MouseEvent) => {
     e.preventDefault();
-    setIsResizing(true);
+    setIsResizingRight(true);
+    setStartX(e.clientX);
+  };
+
+  const handleMouseDownResizeLeft = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizingLeft(true);
     setStartX(e.clientX);
   };
 
@@ -98,11 +123,10 @@ export default function TimelineScrollResizer({
     setIsDragging(true);
     setStartX(e.clientX);
     setStartScrollThumbPosition(scrollThumbPosition);
-    console.log(scrollThumbPosition)
   };
 
   const handleMouseMove = (e: MouseEvent) => {
-    if (isResizing) {
+    if (isResizingLeft || isResizingRight) {
       const updateThumbSize = (newThumbWidth: number) => {
         if (elementRef.current) {
           setThumbWidth(Math.max(50, newThumbWidth)); // Minimum thumb width is 50px
@@ -122,7 +146,7 @@ export default function TimelineScrollResizer({
       //  updateThumbSize(newThumbWidth);
       // }
     } else if (isDragging) {
-      const deltaX = e.clientX - startX;
+     /*  const deltaX = e.clientX - startX;
       const newPos = startScrollThumbPosition + deltaX;
       const adjustedPos = Math.min(Math.max(0, newPos), elementRef.current.clientWidth - thumbWidth);
       console.log('adjustedPos', adjustedPos)
@@ -130,17 +154,36 @@ export default function TimelineScrollResizer({
       if (elementRef.current && deltaX) {
         elementRef.current.scrollLeft += deltaX;
         //setScroll(startScrollThumbPosition + deltaX);
-      }
+      } */
+      const deltaX = e.clientX - startX;
+      const containerWidth = elementRef.current.clientWidth;
+      const scrollableWidth = getBoundaryWidth() - containerWidth; // Total scrollable area
+      const thumbRange = containerWidth - thumbWidth; // Range the thumb can move
+
+      // Calculate the new thumb position
+      let newPos = startScrollThumbPosition + deltaX;
+      newPos = Math.max(0, Math.min(newPos, thumbRange)); // Clamp position
+
+      // Calculate the scrollLeft based on the thumb position
+      const scrollRatio = newPos / thumbRange;
+      const newScrollLeft = scrollRatio * scrollableWidth;
+
+      // Apply the new positions
+      setScrollThumbPosition(newPos);
+      elementRef.current.scrollLeft = newScrollLeft;
+
+      console.log('DeltaX:', deltaX, 'ThumbPos:', newPos, 'ScrollLeft:', newScrollLeft);
     }
   };
 
   const handleMouseUp = () => {
-    setIsResizing(false);
+    setIsResizingLeft(false);
+    setIsResizingRight(false);
     setIsDragging(false);
   };
 
   React.useEffect(() => {
-    if (isResizing || isDragging) {
+    if (isResizingLeft || isResizingRight || isDragging) {
       window.addEventListener('mousemove', handleMouseMove);
       window.addEventListener('mouseup', handleMouseUp);
     } else {
@@ -152,7 +195,7 @@ export default function TimelineScrollResizer({
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isResizing, isDragging]);
+  }, [isResizingLeft, isResizingRight, isDragging]);
 
   return (
     <ScrollbarContainer className={'SuiScrollbar'}>
@@ -162,8 +205,8 @@ export default function TimelineScrollResizer({
           left={scrollThumbPosition}
           onMouseDown={handleMouseDownDrag}
         >
-          <ResizeHandle onMouseDown={handleMouseDownResize} />
-          <ResizeHandle onMouseDown={handleMouseDownResize} />
+          <ResizeHandle onMouseDown={handleMouseDownResizeLeft} />
+          <ResizeHandle onMouseDown={handleMouseDownResizeRight} />
         </ScrollbarThumb>
       </ScrollbarTrack>
     </ScrollbarContainer>

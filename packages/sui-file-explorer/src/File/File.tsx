@@ -37,7 +37,7 @@ const useThemeProps = createUseThemeProps('MuiFile');
  *
  * Demos:
  *
- * - [File List View](https://stoked-ui.github.io/x/react-file-list-view/)
+ * - [File](https://stoked-ui.github.io/x/react-file-list-view/)
  *
  * API:
  *

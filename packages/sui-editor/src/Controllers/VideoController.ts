@@ -1,3 +1,4 @@
+import { ShadowStage } from '@stoked-ui/media-selector';
 import {
   Controller,
   ControllerParams,
@@ -6,7 +7,7 @@ import {
 import {EditorControllerParams, EditorPreloadParams} from "./EditorControllerParams";
 import {DrawData, IEditorEngine} from "../EditorEngine/EditorEngine.types";
 import {IEditorAction} from "../EditorAction/EditorAction";
-import ShadowStage from '../ShadowStage';
+import {IEditorTrack} from "../EditorTrack";
 
 interface VideoDrawData extends Omit<DrawData, 'source'> {
   source: HTMLVideoElement
@@ -56,9 +57,13 @@ class VideoControl extends Controller {
 
   // eslint-disable-next-line class-methods-use-this
   async preload(params: EditorPreloadParams): Promise<ITimelineAction> {
-    const { action, file } = params;
-    const preloaded = !!file.element;
+    const { action, track } = params;
+    const { file } = track;
+    if (!file) {
+      return action;
+    }
     const item = document.createElement('video') as HTMLVideoElement;
+    file.element = item;
     item.id = action.id;
     this.cacheMap[action.id] = item;
 
@@ -90,14 +95,16 @@ class VideoControl extends Controller {
           item.style.objectFit = action.fit as string;
           // this.cacheMap[action.id] = item;
           loadedMetaData = true;
+          // console.info('action preload: video loadedmetadata', action.name)
         });
 
         let canPlayThrough = false;
         item.addEventListener('canplaythrough', () => {
           canPlayThrough = true;
-          //VideoControl.captureScreenshot(item, ((action.end - action.start) / 2) + action.start).then((screenshot) => {
+          // console.info('action preload: video canplaythrough', action.name)
+          // VideoControl.captureScreenshot(item, ((action.end - action.start) / 2) + action.start).then((screenshot) => {
           //  this.screenshots[action.id] = screenshot;
-          //})
+          // })
         })
 
         item.autoplay = false;
@@ -117,7 +124,8 @@ class VideoControl extends Controller {
               clearInterval(intervalId);
               resolve(action as ITimelineAction);
             } else if (loadingSeconds > 20) {
-              reject(action)
+              clearInterval(intervalId);
+              resolve(action)
             }
           }, 1000); // Run every 1 second
         }
@@ -133,7 +141,7 @@ class VideoControl extends Controller {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  canvasSync(engine: IEditorEngine, item: HTMLVideoElement, action: IEditorAction) {
+  canvasSync(engine: IEditorEngine, item: HTMLVideoElement, action: IEditorAction, track: IEditorTrack) {
     const { renderCtx, renderer } = engine;
     if (!renderer || !renderCtx) {
       return;
@@ -150,8 +158,8 @@ class VideoControl extends Controller {
         // renderCtx.canvas.height = engine.renderHeight;
       }
 
-      this.log({ time: item.currentTime, action, engine }, 'drawImage');
-      action.nextFrame = this.getDrawData({ action, engine, time: item.currentTime });
+      this.log({ time: item.currentTime, action, engine, track }, 'drawImage');
+      action.nextFrame = this.getDrawData({ action, engine, time: item.currentTime, track });
 
       if ('requestVideoFrameCallback' in item) {
         action.frameSyncId = item.requestVideoFrameCallback(updateCanvas);
@@ -162,7 +170,7 @@ class VideoControl extends Controller {
 
     if (action.freeze !== undefined) {
       item.currentTime = action.freeze;
-      action.nextFrame = this.getDrawData({ action, engine, time: item.currentTime });
+      action.nextFrame = this.getDrawData({ action, track, engine, time: item.currentTime });
     } else if ('requestVideoFrameCallback' in item) {
       action.frameSyncId = item.requestVideoFrameCallback(updateCanvas);
     } else {
@@ -181,7 +189,7 @@ class VideoControl extends Controller {
   getDrawData(params: EditorControllerParams): DrawData {
     const { engine, action } = params;
     const item = this.cacheMap[action.id];
-    this.log({time: item.currentTime, action, engine}, `getDrawData[${action.fit} | ${action.width} x ${action.height} @ { x: ${action.x}, y: ${action.y} }`)
+    this.log(params, `getDrawData[${action.fit} | ${action.width} x ${action.height} @ { x: ${action.x}, y: ${action.y} }`)
     const data = {
       source: item,
       sx: 0,
@@ -243,11 +251,11 @@ class VideoControl extends Controller {
 
   enter(params: EditorControllerParams) {
 
-    const { action, engine } = params;
+    const { action, engine, track } = params;
 
     const finalizeEnter = (item: HTMLVideoElement) => {
 
-      this.canvasSync(engine, item, action);
+      this.canvasSync(engine, item, action, track);
     }
     const vidItem = document.getElementById(action.id) as HTMLVideoElement;
     if (vidItem) {
@@ -301,7 +309,7 @@ class VideoControl extends Controller {
 
   update(params: EditorControllerParams) {
 
-    const { action, engine, time } = params;
+    const { action, track, engine, time } = params;
     const item = this.cacheMap[action.id] as HTMLVideoElement;
     const volumeUpdate = Controller.getVolumeUpdate(params, item.currentTime)
 
@@ -325,13 +333,14 @@ class VideoControl extends Controller {
     if (engine.isPlaying) {
       if (!action.nextFrame) {
         console.warn('failed to play a frame because no frame data available');
-        action.nextFrame = this.getDrawData({ action, engine, time: item.currentTime });
+        action.nextFrame = this.getDrawData({ track, action, engine, time: item.currentTime });
       }
 
       const fd = action.nextFrame as VideoDrawData;
       this.draw(params, fd);
     } else {
-      item.currentTime = Controller.getActionTime(params);
+      const derp = Controller.getActionTime(params);
+      item.currentTime = derp;
       this.draw(params);
     }
 
@@ -386,7 +395,6 @@ class VideoControl extends Controller {
   }
 
   destroy() {
-    process.exit(333);
     Object.values(this.cacheMap).forEach(video => {
       video.remove();
     });

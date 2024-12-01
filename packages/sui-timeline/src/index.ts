@@ -13,7 +13,8 @@ export { default as Engine} from './Engine';
 export { default as Controller } from './Controller';
 export { default as LocalDb } from './LocalDb';
 export * from './LocalDb';
-export * from './Controller'
+export * from './Controller';
+export * from './TimelineControls';
 export * from './TimelineFile';
 export * from './Timeline';
 export * from './TimelineAction';

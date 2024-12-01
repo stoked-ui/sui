@@ -50,6 +50,9 @@ export function createProviderState({
         flagNames = [flagNames];
       }
       flagNames.forEach((flag) => {
+        if (process.env.FLAG_DEBUGGING) {
+          console.info('ENABLE FLAG', flag, 'config', this.flagConfigs[flag]);
+        }
         this.flags[flag] = true;
         this.checkTriggers(flag, true);
       });
@@ -60,6 +63,9 @@ export function createProviderState({
         flagNames = [flagNames];
       }
       flagNames.forEach((flag) => {
+        if (process.env.FLAG_DEBUGGING) {
+          console.info('DISABLE FLAG', flag, 'config', this.flagConfigs[flag]);
+        }
         this.flags[flag] = false;
         this.checkTriggers(flag, false);
       });

@@ -30,7 +30,11 @@ class AnimationControl extends Controller {
   }log
 
   async preload(params: EditorPreloadParams) {
-    const { action, file } = params;
+    const { action, track } = params;
+    const { file } = track;
+    if (!file) {
+      return action;
+    }
     const item = AnimationControl.load({ id: action.id, src: file.url,  mode: 'canvas', className: 'lottie-canvas' });
     this.cacheMap[action.id] = item;
     action.duration = item.getDuration();

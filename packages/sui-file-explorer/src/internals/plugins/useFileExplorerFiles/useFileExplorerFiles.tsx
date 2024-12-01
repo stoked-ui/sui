@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {SxProps, Theme, useTheme} from "@mui/system";
-import {namedId, IMediaFile, MediaFile} from "@stoked-ui/media-selector";
+import {namedId, IMediaFile2, MediaFile2} from "@stoked-ui/media-selector";
 import {FileMeta} from '../../models/fileExplorerView';
 import {FileExplorerPlugin} from '../../models/plugin';
 import type {
@@ -16,10 +16,10 @@ import {DndItemState} from '../useFileExplorerDnd/useFileExplorerDnd.types';
 
 interface UpdateNodesStateParameters
   extends Pick<
-    UseFileExplorerFilesDefaultizedParameters<IMediaFile>,
+    UseFileExplorerFilesDefaultizedParameters<IMediaFile2>,
     'items' | 'isItemDisabled' | 'getItemLabel' | 'getItemId'
   > {
-  recalcVisibleIndices: (items: IMediaFile[], force: boolean, index: number) => void;
+  recalcVisibleIndices: (items: IMediaFile2[], force: boolean, index: number) => void;
 }
 
 type State = UseFileExplorerFilesState<any>['items'];
@@ -36,16 +36,16 @@ const updateItemsState = ({
     [FILE_EXPLORER_VIEW_ROOT_PARENT_ID]: [],
   };
 
-  const processItem = (item: IMediaFile, depth: number, parentId: string | null) => {
+  const processItem = (item: IMediaFile2, depth: number, parentId: string | null) => {
     const id = item?.itemId ?? item.id ?? namedId({id:'file', length:4});
     if (itemMetaMap[id]){
       // TODO: FIX THIS SERIOUSLY
       console.warn(`DIRTY HACK: this item id already exists - item: ${JSON.stringify(item, null, 2)}, existing item: ${JSON.stringify(itemMetaMap[id], null, 2)}`)
       return;
     }
-    MediaFile.setProperty(item,'id', id);
-    MediaFile.setProperty(item,'itemId', item.itemId ?? id);
-    MediaFile.setProperty(item,'name', item.name ?? id);
+    MediaFile2.setProperty(item,'id', id);
+    MediaFile2.setProperty(item,'itemId', item.itemId ?? id);
+    MediaFile2.setProperty(item,'name', item.name ?? id);
 
     if (id == null) {
       throw new Error(
@@ -142,9 +142,9 @@ export const useFileExplorerFiles: FileExplorerPlugin<UseFileExplorerFilesSignat
     return state.items.itemOrderedChildrenIds[FILE_EXPLORER_VIEW_ROOT_PARENT_ID].map((id) => state.items.itemMap[id]);
   }
 
-  const recalcVisibleIndices  = (items: IMediaFile[] = getFiles(), force: boolean = false, index: number = 0) => {
+  const recalcVisibleIndices  = (items: IMediaFile2[] = getFiles(), force: boolean = false, index: number = 0) => {
     // console.log('recalc items', items);
-    const recalVisibleIndicesBase  = (baseItems: IMediaFile[], baseIndex: number = 0) => {
+    const recalVisibleIndicesBase  = (baseItems: IMediaFile2[], baseIndex: number = 0) => {
       for (let i = 0; i < baseItems.length; i += 1){
         const item = baseItems[i];
         if (item) {
@@ -158,7 +158,7 @@ export const useFileExplorerFiles: FileExplorerPlugin<UseFileExplorerFilesSignat
       }
       return baseIndex;
     }
-    const initializeVisibleIndices  = (initItems: IMediaFile[]) => {
+    const initializeVisibleIndices  = (initItems: IMediaFile2[]) => {
       for (let i = 0; i < initItems.length; i += 1){
         const item = initItems[i];
         if (item) {
@@ -252,7 +252,7 @@ export const useFileExplorerFiles: FileExplorerPlugin<UseFileExplorerFilesSignat
   }, []);
 
   const areItemUpdatesPrevented = React.useCallback(() => areItemUpdatesPreventedRef.current, []);
-  const updateItems = (items: IMediaFile[]) => {
+  const updateItems = (items: IMediaFile2[]) => {
     setState((prevState) => {
       const newState = updateItemsState({
         items,

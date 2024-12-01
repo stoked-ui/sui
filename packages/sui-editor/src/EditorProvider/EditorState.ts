@@ -1,68 +1,31 @@
-import * as React from 'react';
-import {namedId} from "@stoked-ui/media-selector";
 import {
   TimelineState,
-    ITimelineStateProps,
-  createTimelineState, IEngine, DetailData
 } from '@stoked-ui/timeline';
 import {EditorEngineState, IEditorEngine} from "../EditorEngine";
-import EditorFile, {IEditorFile} from "../EditorFile/EditorFile";
-import {IEditorAction} from "../EditorAction";
+import { IEditorFile } from '../EditorFile';
 import {IEditorTrack} from "../EditorTrack";
+import {IEditorAction} from "../EditorAction";
 
-export default interface EditorState<
-  EngineType extends IEditorEngine = IEditorEngine,
-  EngineState extends string | EditorEngineState = string | EditorEngineState,
-  FileType extends IEditorFile = IEditorFile,
-  ActionType extends IEditorAction = IEditorAction,
-  TrackType extends IEditorTrack = IEditorTrack,
-> extends TimelineState<
-  EngineType,
-  EngineState,
-  FileType,
-  ActionType,
-  TrackType
-> {
-  editorId: string;
-  detailOpen: boolean;
-}
+export default interface EditorState extends TimelineState<
+  IEditorEngine,
+  string | EditorEngineState,
+  IEditorFile,
+  IEditorTrack,
+  IEditorAction
+> { }
 
-export interface IEditorStateProps<
-  EngineType extends IEditorEngine = IEditorEngine,
-  EngineStateType extends string | EditorEngineState = string | EditorEngineState,
-  FileType extends IEditorFile = IEditorFile,
-> extends Omit<ITimelineStateProps<EngineType, EngineStateType, FileType>, 'id'> {
-  file?: FileType,
-  editorId?: string,
-  timelineId?: string,
-  engine: EngineType,
-  getState:() => string | EngineStateType
-}
-
-export function createEditorState<
-  EngineType extends IEditorEngine = IEditorEngine,
-  EngineStateType extends string = EditorEngineState,
-  FileType extends IEditorFile = IEditorFile,
-  ActionType extends IEditorAction = IEditorAction,
-  TrackType extends IEditorTrack = IEditorTrack,
->(props: IEditorStateProps<EngineType, EngineStateType, FileType>): EditorState  {
-
-  const timelinePropsInput = {
-    id: props.timelineId,
-    engine: props.engine,
-    getState: props.getState,
-    file: props.file,
-    selectedTrack: props.selectedTrack ?? null,
-    selectedAction: props.selectedAction ?? null,
-  };
-  const timelineStateProps = createTimelineState<EngineType, EngineStateType, FileType, ActionType, TrackType>(timelinePropsInput) as ITimelineStateProps;
-  const unselectedStateProps = {
-    ...timelineStateProps,
-    engine: timelineStateProps.engine as EngineType,
-    editorId: props.editorId ,
-    createNewFile: () => {
-      return new EditorFile({ name: 'New Editor Project' });
-    },
+export const getActionSelectionData = (actionId: string, state: TimelineState) => {
+  const { settings, file} = state;
+  const tracks = file?.tracks ?? [];
+  for (let i = 0; i < tracks.length; i += 1) {
+    const t = tracks[i];
+    const actionIndex = t.actions.findIndex((a) => a.id === actionId);
+    if (actionIndex > -1) {
+      settings.selectedTrackIndex = i;
+      settings.selectedActionIndex = actionIndex;
+      state = { ...state, settings, selectedTrack: {...tracks[state.settings.selectedTrackIndex]} };
+      break;
+    }
   }
-  return unselectedStateProps as EditorState<EngineType, EngineStateType, FileType, ActionType, TrackType>
+  return state;
 }

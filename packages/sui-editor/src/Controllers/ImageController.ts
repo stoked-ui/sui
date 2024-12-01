@@ -1,7 +1,13 @@
-import { Controller, ControllerParams, IEngine, ITimelineAction } from "@stoked-ui/timeline";
-import { IMediaFile } from "@stoked-ui/media-selector";
+import {
+  Controller,
+  ControllerParams,
+  IEngine,
+  ITimelineAction, ITimelineTrack
+} from "@stoked-ui/timeline";
+import { IMediaFile2 } from "@stoked-ui/media-selector";
 import {IEditorEngine} from "../EditorEngine";
 import {EditorControllerParams} from "./EditorControllerParams";
+import {IEditorTrack} from "../EditorTrack";
 
 class ImageControl extends Controller {
   cacheMap: Record<string, HTMLImageElement> = {};
@@ -15,16 +21,15 @@ class ImageControl extends Controller {
   }
 
   enter(params: EditorControllerParams) {
-    const {action, engine} = params;
+    const {action, engine, track} = params;
     let item: HTMLImageElement;
-    const track = engine.getActionTrack(action.id)
     if (!track) {
       return;
     }
     if (this.cacheMap[action.id]) {
       item = this.cacheMap[action.id];
-      ImageControl.toggleDisplay(action, item);
-    } else if (!action.hidden) {
+      ImageControl.toggleDisplay(track, item);
+    } else if (!track.hidden) {
       item = ImageControl.createNewImage(action, track.file!);
       this.cacheMap[action.id] = item;
       ImageControl.attachItemToViewer(item, engine);
@@ -32,11 +37,11 @@ class ImageControl extends Controller {
     }
   }
 
-  static toggleDisplay(action: ITimelineAction, item: HTMLImageElement) {
-    item.style.display = action.hidden ? 'none' : 'flex';
+  static toggleDisplay(track: IEditorTrack, item: HTMLImageElement) {
+    item.style.display = track.hidden ? 'none' : 'flex';
   }
 
-  static createNewImage(action: ITimelineAction, file: IMediaFile): HTMLImageElement {
+  static createNewImage(action: ITimelineAction, file: IMediaFile2): HTMLImageElement {
     const item = document.createElement('img') as HTMLImageElement;
     item.src = file.url;
     item.style.display = 'flex';
@@ -68,13 +73,13 @@ class ImageControl extends Controller {
   }
 
   update(params: EditorControllerParams) {
-    const { action, engine } = params;
+    const { action, engine, track} = params;
 
     const item = this.cacheMap[action.id];
     if (!item) {
       return;
     }
-    if (action.hidden) {
+    if (track.hidden) {
       item.style.display = 'none';
     } else {
       engine.renderCtx?.drawImage(item, 0, 0,  engine.renderWidth, engine.renderHeight);

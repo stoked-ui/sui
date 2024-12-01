@@ -68,7 +68,7 @@ const TimeUnit = styled('div')(({ theme }) => ({
  height: '4px !important',
  bottom: '0 !important',
  top: '31px !important',
- '&.timeline-editor-time-unit-big': {
+ '&.timeline-time-unit-big': {
  height: '8px !important',
  }
  }));
@@ -127,7 +127,7 @@ function TimelineTime(props: TimelineTimeProps) {
     }
 
     const resizeObserver = new ResizeObserver(() => {
-      const timeUnit = document.querySelector('.timeline-editor-time-unit');
+      const timeUnit = document.querySelector('.timeline-time-unit');
       if (!timeUnit) {
         return;
       }
@@ -137,7 +137,7 @@ function TimelineTime(props: TimelineTimeProps) {
         setCustomScaleSplitCount(customScaleSplitCount * 0.5);
       }
     });
-    const timeUnit = document.querySelector('.timeline-editor-time-unit');
+    const timeUnit = document.querySelector('.timeline-time-unit');
     const grid = document.getElementById('time-area-grid');
     resizeObserver.observe(grid);
 
@@ -248,95 +248,95 @@ TimelineTime.propTypes = {
    * @description Get the action id list to prompt the auxiliary line. Calculate it when
    *   move/resize start. By default, get all the action ids except the current move action.
    */
-  getAssistDragLineActionIds: PropTypes.func.isRequired,
+  getAssistDragLineActionIds: PropTypes.func,
   /**
    * @description Custom scale rendering
    */
-  getScaleRender: PropTypes.func.isRequired,
+  getScaleRender: PropTypes.func,
   /**
    * @description Move end callback (return false to prevent onChange from triggering)
    */
-  onActionMoveEnd: PropTypes.func.isRequired,
+  onActionMoveEnd: PropTypes.func,
   /**
    * @description Start moving callback
    */
-  onActionMoveStart: PropTypes.func.isRequired,
+  onActionMoveStart: PropTypes.func,
   /**
    * @description Move callback (return false to prevent movement)
    */
-  onActionMoving: PropTypes.func.isRequired,
+  onActionMoving: PropTypes.func,
   /**
    * @description size change end callback (return false to prevent onChange from triggering)
    */
-  onActionResizeEnd: PropTypes.func.isRequired,
+  onActionResizeEnd: PropTypes.func,
   /**
    * @description Start changing the size callback
    */
-  onActionResizeStart: PropTypes.func.isRequired,
+  onActionResizeStart: PropTypes.func,
   /**
    * @description Start size callback (return false to prevent changes)
    */
-  onActionResizing: PropTypes.func.isRequired,
+  onActionResizing: PropTypes.func,
   /**
    * @description click action callback
    */
-  onClickAction: PropTypes.func.isRequired,
+  onClickAction: PropTypes.func,
   /**
    * @description Click action callback (not executed when drag is triggered)
    */
-  onClickActionOnly: PropTypes.func.isRequired,
+  onClickActionOnly: PropTypes.func,
   /**
    * @description Click time area event, prevent setting time when returning false
    */
-  onClickTimeArea: PropTypes.func.isRequired,
+  onClickTimeArea: PropTypes.func,
   /**
    * @description Click track callback
    */
-  onClickTrack: PropTypes.func.isRequired,
+  onClickTrack: PropTypes.func,
   /**
    * @description Right-click action callback
    */
-  onContextMenuAction: PropTypes.func.isRequired,
+  onContextMenuAction: PropTypes.func,
   /**
    * @description Right-click track callback
    */
-  onContextMenuTrack: PropTypes.func.isRequired,
+  onContextMenuTrack: PropTypes.func,
   /**
    * @description cursor drag event
    */
-  onCursorDrag: PropTypes.func.isRequired,
+  onCursorDrag: PropTypes.func,
   /**
    * @description cursor ends drag event
    */
-  onCursorDragEnd: PropTypes.func.isRequired,
+  onCursorDragEnd: PropTypes.func,
   /**
    * @description cursor starts drag event
    */
-  onCursorDragStart: PropTypes.func.isRequired,
+  onCursorDragStart: PropTypes.func,
   /**
    * @description Double-click action callback
    */
-  onDoubleClickAction: PropTypes.func.isRequired,
+  onDoubleClickAction: PropTypes.func,
   /**
    * @description Double-click track callback
    */
-  onDoubleClickTrack: PropTypes.func.isRequired,
-  onScroll: PropTypes.func.isRequired,
+  onDoubleClickTrack: PropTypes.func,
+  onScroll: PropTypes.func,
   /**
    * Set the number of scales
    */
-  setScaleCount: PropTypes.func.isRequired,
+  setScaleCount: PropTypes.func,
   /**
    * @description Custom timelineControl style
    */
-  style: PropTypes.object.isRequired,
+  style: PropTypes.object,
   sx: PropTypes.oneOfType([
     PropTypes.arrayOf(
-      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]).isRequired,
+      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),
     ),
     PropTypes.func,
     PropTypes.object,
-  ]).isRequired,
+  ]),
 } as any;
 
 export default TimelineTime;

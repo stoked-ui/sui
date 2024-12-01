@@ -1,24 +1,23 @@
 /* eslint-disable class-methods-use-this */
 /*  eslint-disable @typescript-eslint/naming-convention */
-import { namedId } from "@stoked-ui/media-selector";
+import {MediaFile2, namedId} from "@stoked-ui/media-selector";
 import { FileState, SaveOptions } from "./TimelineFile.types";
 import LocalDb, { FileLoadRequest, FileSaveRequest } from "../LocalDb/LocalDb";
-import { IMimeType, MimeType, MimeRegistry } from "./MimeType";
+import { IMimeType, MimeRegistry } from "./MimeType";
 import {
   WebFileInitializer,
-  Constructor,
-  IBaseDecodedFile,
   IWebFile,
-  IWebFileProps, saveFileApi, saveFileHack, IWebData
+  IWebFileProps,
+  saveFileApi,
+  saveFileHack,
+  IWebData, IFileParams
 } from "./WebFile.types";
-import { createStaticFiles } from "./test";
 
 const PropsDelimiter = '---STOKED_UI_PROPS_END---';
 const FilesTableDelimiter = '---STOKED_UI_FILES_TABLE_END---'
 
 export const SUIWebFileRefs: IMimeType = MimeRegistry.create('stoked-ui', 'webfile', '.suwr', 'Stoked UI - Editor Project File w/ Url Refs', false);
 export const SUIWebFile: IMimeType = MimeRegistry.create('stoked-ui', 'webfile', '.suw', 'Stoked UI - Editor Project File', true);
-
 export default abstract class WebFile implements IWebFile {
 
   id: string;
@@ -45,14 +44,19 @@ export default abstract class WebFile implements IWebFile {
     this.created = props.created ?? Date.now();
     this.lastModified = props.lastModified;
     this.url = props.url;
-    this._version = !props.version ? 1 : props.version;
+    this._version = [0, undefined, null].includes(props.version) ? 1 : props.version;
     console.info(`WebFile: ${this.id} - ${this.name}`);
     this.state = FileState.CONSTRUCTED;
   }
 
-  protected _version: number = 0;
+  protected _version: number = 1;
+
+  abstract get fileParams(): IFileParams[];
 
   get version(): number {
+    if (this._version === 0) {
+      this._version = 1;
+    }
     return this._version;
   }
 
@@ -116,10 +120,6 @@ export default abstract class WebFile implements IWebFile {
     return this.metaData as IWebData ;
   }
 
-  get fileParams(): IBaseDecodedFile[] {
-    return [];
-  }
-
   getSaveApiOptions(optionProps: SaveOptions): SaveFilePickerOptions {
     if (!optionProps.suggestedName) {
       if (!optionProps.suggestedExt) {
@@ -177,37 +177,52 @@ export default abstract class WebFile implements IWebFile {
       const fileProps = this.fileProps;
       const propsString = JSON.stringify({ ...fileProps });
       const fileParams = this.fileParams;
+      console.info('fileParamsString', JSON.stringify(fileParams, null, 2));
+
       const fileParamsString = JSON.stringify(fileParams);
 
       if (!embedded && !this.fileUrlsValid) {
         embedded = true;
       }
 
+      // eslint-disable-next-line consistent-this
       const instance = this; // Capture the `this` context
       const stream = new ReadableStream({
         async start(controller) {
           const encoder = new TextEncoder();
 
           try {
+            const additionalStreams = instance.getDataStreams(); // Use captured instance
+
+            const encodedPropsString = encoder.encode(propsString)
             // Encode and enqueue fileProps
-            controller.enqueue(encoder.encode(propsString));
-
+            controller.enqueue(encodedPropsString);
             if (embedded) {
-              controller.enqueue(encoder.encode(PropsDelimiter));
-              controller.enqueue(encoder.encode(fileParamsString));
-              controller.enqueue(encoder.encode(FilesTableDelimiter));
-
+              const encodedDelimiter = encoder.encode(PropsDelimiter);
+              controller.enqueue(encodedDelimiter);
+              const fileParamsEncoded = encoder.encode(fileParamsString);
+              controller.enqueue(fileParamsEncoded);
+              const filesTableDelimiter = encoder.encode(FilesTableDelimiter);
+              controller.enqueue(filesTableDelimiter);
               // Get additional data streams and process them
-              const additionalStreams = instance.getDataStreams(); // Use captured instance
-              console.info('additionalStreams', additionalStreams);
+              // eslint-disable-next-line no-restricted-syntax
+              const fileWrites: number[] = [];
+              // eslint-disable-next-line no-restricted-syntax
               for await (const readableStream of additionalStreams) {
                 const reader = readableStream.getReader();
+                let totalBytes = 0;
                 let chunk: ReadableStreamReadResult<Uint8Array>;
 
+                // eslint-disable-next-line no-cond-assign,no-await-in-loop
                 while (!(chunk = await reader.read()).done) {
+                  totalBytes += chunk.value.length;
                   controller.enqueue(chunk.value);
                 }
+                fileWrites.push(totalBytes);
+
               }
+
+              console.info('file writes', fileWrites);
             }
 
             controller.close();
@@ -230,90 +245,99 @@ export default abstract class WebFile implements IWebFile {
 
   static async readBlob(blob: Blob , searchDb: boolean = false): Promise<{
     props: IWebFileProps;
-    fileParams: IBaseDecodedFile[];
+    fileParams: IFileParams[];
     files: File[];
   }> {
-    const reader = blob.stream().getReader();
-    const decoder = new TextDecoder();
+    try {
+      const reader = blob.stream().getReader();
+      const decoder = new TextDecoder();
+      let leftoverBuffer = ""; // Persistent buffer for leftover data
 
-    // Helper function to read a portion of the stream until a delimiter
-    async function readUntilDelimiter(delimiter: string): Promise<string> {
-      let done = false;
-      let text = "";
-      while (!done) {
-        // eslint-disable-next-line no-await-in-loop
-        const { value, done: readerDone } = await reader.read();
-        if (value) {
-          text += decoder.decode(value, { stream: true });
-          const delimiterIndex = text.indexOf(delimiter);
-          if (delimiterIndex !== -1) {
-            // Slice up to the delimiter and return
-            const result = text.slice(0, delimiterIndex);
-            text = text.slice(delimiterIndex + delimiter.length);
-            reader.releaseLock();
-            return result;
+      // Helper function to read a portion of the stream until a delimiter
+      // eslint-disable-next-line no-inner-declarations
+      async function readUntilDelimiter(delimiter: string): Promise<string> {
+        let done = false;
+        let text = leftoverBuffer; // Start with leftover data
+        leftoverBuffer = ""; // Reset leftover buffer
+        let delimiterIndex = text.indexOf(delimiter);
+        if (delimiterIndex !== -1) {
+          const result = text.slice(0, delimiterIndex);
+          leftoverBuffer = text.slice(delimiterIndex + delimiter.length);
+          return result;
+        }
+        while (!done) {
+          // eslint-disable-next-line no-await-in-loop
+          const {value, done: readerDone} = await reader.read();
+          if (value) {
+            text += decoder.decode(value, {stream: true});
+            delimiterIndex = text.indexOf(delimiter);
+            if (delimiterIndex !== -1) {
+              // Slice up to the delimiter and return
+              const result = text.slice(0, delimiterIndex);
+              leftoverBuffer = text.slice(delimiterIndex + delimiter.length);
+              return result;
+            }
           }
+          done = readerDone;
         }
-        done = readerDone;
-      }
-      return text;
-    }
-
-    // Read the JSON props
-    const propsString = await readUntilDelimiter(PropsDelimiter);
-    const props: IWebData = JSON.parse(`${propsString}`);
-
-    const mimeType = MimeRegistry.types[props.mimeType];
-    if (!mimeType.embedded) {
-      return { props, fileParams: [], files: [] };
-    }
-
-    if (searchDb) {
-      const loadRequest: FileLoadRequest = {
-        id: props.id,
-        type: props.mimeType,
-        version: props.version,
+        return text;
       }
 
-      // attempt to load it from idb instead of fetching from the webs
-      const dbBlob = await LocalDb.loadId(loadRequest);
-      if (dbBlob !== null) {
-        return this.readBlob(dbBlob.blob, false);
+      // Read the JSON props
+      const propsString = await readUntilDelimiter(PropsDelimiter);
+      const props: IWebData = JSON.parse(`${propsString}`);
+
+      const mimeType = MimeRegistry.types[props.mimeType];
+      if (!props.mimeType || !mimeType.embedded) {
+        return {props, fileParams: [], files: []};
       }
-    }
 
-    // Read the JSON file parameters
-    const fileParamsString = await readUntilDelimiter( FilesTableDelimiter);
-    const fileParams: IBaseDecodedFile[] = JSON.parse(`${fileParamsString}`);
-
-    // Read and parse file data based on fileParams
-    const files: File[] = [];
-    // eslint-disable-next-line no-restricted-syntax
-    for (const { name, size, type } of fileParams) {
-      const chunks: Uint8Array[] = [];
-      let remainingSize = size;
-
-      while (remainingSize > 0) {
-        // eslint-disable-next-line no-await-in-loop
-        const { value, done } = await reader.read();
-        if (done) {
-          throw new Error("Unexpected end of stream while reading file data");
+      if (searchDb) {
+        const loadRequest: FileLoadRequest = {
+          id: props.id, type: MimeRegistry.types[props.mimeType].name, version: props.version,
         }
-        const chunk = value.subarray(0, Math.min(remainingSize, value.length));
-        chunks.push(chunk);
-        remainingSize -= chunk.length;
+
+        // attempt to load it from idb instead of fetching from the webs
+        const dbBlob = await LocalDb.loadId(loadRequest);
+        if (dbBlob !== null) {
+          return this.readBlob(dbBlob.blob, false);
+        }
       }
 
-      // Create a File object from the chunks
-      const fileData = new Blob(chunks, { type });
-      files.push(new File([fileData], name, { type }));
+      // Read the JSON file parameters
+      const fileParamsString = await readUntilDelimiter(FilesTableDelimiter);
+      const fileParams: IFileParams[] = JSON.parse(`${fileParamsString}`);
+
+      // Read and parse file data based on fileParams
+      const files: File[] = [];
+      // eslint-disable-next-line no-restricted-syntax
+      for (const {name, size, type} of fileParams) {
+        const buffer = new TextEncoder().encode(leftoverBuffer); // Convert leftover to Uint8Array
+        const chunks: Uint8Array[] = [buffer];
+        let remainingSize = size - buffer.length;
+
+        while (remainingSize > 0) {
+          // eslint-disable-next-line no-await-in-loop
+          const {value, done} = await reader.read();
+          if (done) {
+            throw new Error("Unexpected end of stream while reading file data");
+          }
+          const chunk = value.subarray(0, Math.min(remainingSize, value.length));
+          chunks.push(chunk);
+          remainingSize -= chunk.length;
+        }
+
+        // Create a File object from the chunks
+        const fileData = new Blob(chunks, {type});
+        const file = new File([fileData], name, {type});
+        const mediaFile = new MediaFile2(file);
+        files.push(mediaFile);
+      }
+      return { props, fileParams, files };
+    } catch (ex) {
+      throw new Error(`[${blob.type}] WebFile: failed to read file data - ${ex}`)
     }
 
-    return { props, fileParams, files };
-  }
-
-  protected get fileUrls(): string[] {
-    return [];
   }
 
   protected get fileUrlsValid(): boolean {
@@ -322,11 +346,6 @@ export default abstract class WebFile implements IWebFile {
 
 
   protected abstract getDataStreams(): AsyncIterable<ReadableStream<Uint8Array>>;
-
-  protected get files(): File[] {
-    return createStaticFiles();
-  }
-
 
   get types() {
     return this.mimeTypes.map((mime) => {
@@ -358,39 +377,40 @@ export default abstract class WebFile implements IWebFile {
   }
 
   abstract initialize(files?: File[]): Promise<void>;
+  //
+  // static async fromUrl<FileType extends WebFile>(url: string): Promise<FileType> {
+  //   const response = await FetchBackoff(url, { cache: "no-store" });
+  //   if (!response.ok) {
+  //     throw new Error(`Network response was not ok: ${url}`);
+  //   }
+  //   try {
+  //     const contentType = response.headers.get("content-type") as MimeType;
+  //     console.info(`Load: ${url} Content-Type: ${contentType}`);
+  //     const blob = await response.blob()
+  //
+  //     return this.fromBlob<FileType>(blob );
+  //   } catch (ex) {
+  //     throw new Error(`Error loading file from url: ${url}`);
+  //   }
+  // }
 
-  static async fromUrl<FileType extends WebFile>(url: string): Promise<FileType> {
-    const response = await fetch(url, { cache: "no-store" });
-    if (!response.ok) {
-      throw new Error(`Network response was not ok: ${url}`);
-    }
-    try {
-      const contentType = response.headers.get("content-type") as MimeType;
-      console.info(`Load: ${url} Content-Type: ${contentType}`);
-      const blob = await response.blob()
-
-      return this.fromBlob<FileType>(blob );
-    } catch (ex) {
-      throw new Error(`Error loading file from url: ${url}`);
-    }
-  }
-
-  static async fromBlob<
-    FileType extends WebFile
-  >(
-    blob: Blob,
-  ): Promise<FileType>
-  {
-    try {
-      const FileConstructor: Constructor<FileType> = WebFile as unknown as Constructor<FileType>;
-      const { props, files } = await WebFile.readBlob(blob, true);
-      const projectFile = new FileConstructor(props);
-      await projectFile.initialize(files);
-      return projectFile;
-    } catch (ex) {
-      throw new Error(`Error loading file from blob: ${blob}`);
-    }
-  }
+  //
+  // static async fromBlob<
+  //   FileType extends WebFile
+  // >(
+  //   blob: Blob,
+  // ): Promise<FileType>
+  // {
+  //   try {
+  //     const FileConstructor: Constructor<FileType> = WebFile as unknown as Constructor<FileType>;
+  //     const { props, files } = await WebFile.readBlob(blob, true);
+  //     const projectFile = new FileConstructor(props);
+  //     await projectFile.initialize( files);
+  //     return projectFile;
+  //   } catch (ex) {
+  //     throw new Error(`Error loading file from blob: ${blob}`);
+  //   }
+  // }
 
   static fileState: Record<string, FileState> = {};
 

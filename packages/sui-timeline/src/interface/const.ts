@@ -1,4 +1,4 @@
-export const PREFIX = `timeline-editor`;
+export const PREFIX = `timeline`;
 
 /** The time where the cursor is at the beginning */
 export const START_CURSOR_TIME = 0;

@@ -15,12 +15,13 @@ export interface IEngine<EmitterEvents extends EventTypes = EventTypes> extends 
   logging: boolean;
   controllers: Record<string, any>;
   readonly duration: number;
+  maxDuration: number;
+  readonly canvasDuration: number;
   readonly actions: Record<string, ITimelineAction>;
-  control: any;
   state: string;
 
+  playbackMode: 'media' | 'canvas';
   resetCursor?: () => void;
-
   cursorData?: () => {
     dnd?: { current: RowRndApi };
     dragLeft: { current: number };
@@ -48,6 +49,10 @@ export interface IEngine<EmitterEvents extends EventTypes = EventTypes> extends 
   setTime(time: number, isTick?: boolean): boolean;
   /** Get playback time */
   get time(): number;
+  /** Play backwards increasing in speed incrementally */
+  rewind(delta: number): void;
+  /** Play forwards increasing in speed incrementally */
+  fastForward(delta: number): void;
   /** Play */
   play(param: {
     /** By default, it runs from beginning to end, with a priority greater than autoEnd */
@@ -74,6 +79,7 @@ export enum EngineState {
   PLAYING = 'PLAYING',
   PAUSED = 'PAUSED',
   READY = 'READY',
+  PREVIEW = 'PREVIEW',
 }
 
 export type EngineOptions = {

@@ -14,6 +14,7 @@ import {
 import { useTimeline } from '../TimelineProvider';
 import { ITimelineAction } from '../TimelineAction';
 import TimelineTrackActions from '../TimelineLabels/TimelineTrackActions';
+import TimelineFile from "../TimelineFile";
 
 const TimelineTrackRoot = styled('div', {
   name: 'MuiTimelineTrack',
@@ -21,42 +22,81 @@ const TimelineTrackRoot = styled('div', {
   overridesResolver: (props, styles) => styles.root,
   shouldForwardProp: (prop) =>
     shouldForwardProp(prop) &&
-    prop !== 'lock' &&
+    prop !== 'muted' &&
+    prop !== 'locked' &&
     prop !== 'hidden' &&
     prop !== 'color' &&
     prop !== 'collapsed' &&
     prop !== 'trackHeight' &&
+    prop !== 'yPercent' &&
+    prop !== 'dim' &&
+    prop !== 'detailSelectedHeight' &&
+    prop !== 'detailUnselectedHeight' &&
     prop !== 'hover',
 })<{
-  lock?: boolean;
+  locked?: boolean;
   color: string;
   selected?: boolean;
-  hidden?: boolean;
+  muted?: boolean;
   trackHeight: number;
   hover?: boolean;
   collapsed?: boolean;
   disabled: boolean;
   dim?: boolean;
-}>(({ theme, color, selected, hover, collapsed, disabled, dim }) => {
+  yPercent?: number;
+  detailSelectedHeight: number;
+  detailUnselectedHeight: number;
+}>(({ theme, color, selected, hover, collapsed, disabled, dim, yPercent, trackHeight, detailSelectedHeight, detailUnselectedHeight }) => {
   if (collapsed) {
     color = theme.palette.mode === 'dark' ? '#ccc' : '#444';
   }
   const trackBack = getTrackBackgroundColor(color, theme.palette.mode, selected, hover, disabled, dim);
-
   return {
     ...trackBack.row,
+    '&.timeline-track-selected': {
+      zIndex: 210,
+    },
+
+    '&.timeline-detail.timeline-track-selected': {
+      height: `${detailSelectedHeight}px!important`,
+      '& .timeline-action': {
+        height: `${detailSelectedHeight}px!important`,
+        '& .timeline-action-left-stretch, .timeline-action-right-stretch, .timeline-action-left-stretch::after, .timeline-action-right-stretch::after': {
+          height: `${detailSelectedHeight}px!important`,
+        }
+      }
+    },
+    '&.timeline-detail.timeline-track-unselected': {
+      height: `${detailUnselectedHeight}px!important`,
+      '& .timeline-action': {
+        height: `${detailUnselectedHeight}px!important`,
+        '& .timeline-action-left-stretch, .timeline-action-right-stretch, .timeline-action-left-stretch::after, .timeline-action-right-stretch::after': {
+          height: `${detailUnselectedHeight}px!important`,
+        }
+      }
+    },
+    '& .timeline-action': {
+      transformOrigin: `50% ${yPercent}%!important`,
+      transition: `all 1s ease-in-out!important`,
+      '& .timeline-action-left-stretch, .timeline-action-right-stretch, .timeline-action-left-stretch::after, .timeline-action-right-stretch::after': {
+        transformOrigin: `50% ${yPercent}%!important`,
+        transition: `all 1s ease-in-out!important`,
+      },
+    },
     borderBottom: `1px solid ${theme.palette.background.default}`,
     borderTop: `1px solid ${emphasize(theme.palette.background.default, 0.04)}`,
-    '& .label': {},
     position: 'relative',
+    height: `${trackHeight}px`,
     display: 'flex',
     flexDirection: 'row',
     cursor: 'pointer',
     boxSizing: 'border-box',
+    transformOrigin: `50% ${yPercent}%!important`,
+    transition: `all 1s ease-in-out!important`,
     variants: [
       {
         props: {
-          hidden: true,
+          muted: true,
         },
         style: {
           opacity: '.4',
@@ -65,7 +105,8 @@ const TimelineTrackRoot = styled('div', {
     ],
   };
 });
-
+/*
+TODO: potentially can use this for drag indicators to rearrange track orders.. not right meow though
 const TrackSizer = styled('div', {
   name: 'MuiTimelineTrack',
   slot: 'TrackSizer',
@@ -81,11 +122,7 @@ const TrackSizer = styled('div', {
     background: theme.palette.action.active,
   },
 }));
-
-export function getTrackColor<TrackType extends ITimelineTrack = ITimelineTrack>(track: TrackType) {
-  const trackController = track.controller;
-  return trackController ? alpha(trackController.color ?? '#666', 0.11) : '#00000011';
-}
+*/
 
 const TrackLabel = styled('label', {
   name: 'MuiTimelineAction',
@@ -122,12 +159,15 @@ const TrackLabel = styled('label', {
 });
 
 function TimelineTrackLabel({ track }: { track: ITimelineTrack }) {
+
   const {
     settings: { trackHoverId },
     components,
   } = useTimeline();
+
   const timelineArea = components.timelineArea as HTMLElement;
   const labelRef = React.useRef<HTMLDivElement>(null);
+
   React.useEffect(() => {
     if (
       labelRef.current &&
@@ -167,7 +207,7 @@ function TimelineTrackLabel({ track }: { track: ITimelineTrack }) {
           sx={(theme) => ({
             color: `${theme.palette.mode === 'light' ? '#000' : '#FFF'}`,
             fontWeight: '500',
-            zIndex: 1000,
+            zIndex: 250,
           })}
         >
           {track.name}
@@ -183,18 +223,20 @@ TimelineTrackLabel.propTypes = {
   // | To update them edit the TypeScript types and run "pnpm proptypes"  |
   // ----------------------------------------------------------------------
   track: PropTypes.shape({
-    actions: PropTypes.any.isRequired,
-    classNames: PropTypes.arrayOf(PropTypes.string).isRequired,
-    controller: PropTypes.any.isRequired,
-    controllerName: PropTypes.string.isRequired,
-    file: PropTypes.any.isRequired,
-    hidden: PropTypes.bool.isRequired,
-    id: PropTypes.string.isRequired,
-    image: PropTypes.string.isRequired,
-    lock: PropTypes.bool.isRequired,
-    name: PropTypes.string.isRequired,
-  }).isRequired,
+    actions: PropTypes.any,
+    classNames: PropTypes.arrayOf(PropTypes.string),
+    controller: PropTypes.any,
+    controllerName: PropTypes.string,
+    file: PropTypes.any,
+    hidden: PropTypes.bool,
+    id: PropTypes.string,
+    image: PropTypes.string,
+    locked: PropTypes.bool,
+    name: PropTypes.string,
+  }),
 } as any;
+
+const selectedScale = 1.65;
 
 export { TimelineTrackLabel };
 function TimelineTrack<
@@ -202,15 +244,15 @@ function TimelineTrack<
   ActionType extends ITimelineAction = ITimelineAction,
 >(props: TimelineTrackProps<TrackType, ActionType>) {
   const context = useTimeline();
+  const ref = React.useRef<HTMLDivElement>(null);
   const {
-    settings: {
-      scrollLeft, startLeft, scale, scaleWidth, trackHoverId, getTrackHeight, editorMode
-    },
+    settings,
     selectedTrack,
     dispatch,
     flags,
     file
   } = context;
+  const  { scrollLeft, startLeft, scale, scaleWidth, trackHoverId, trackHeight, editorMode } = settings;
 
   const { track,
     style = {},
@@ -223,11 +265,7 @@ function TimelineTrack<
     areaRef } = props;
 
   const index = file?.tracks?.indexOf(track);
-  const trackHeight = getTrackHeight(index, context);
-  const classNames = ['edit-track'];
-  const isTrackSelected = (isSelectedTrack: TrackType) => {
-    return selectedTrack?.id === isSelectedTrack.id || flags.collapsed;
-  };
+  const classNames = ['track'];
   const handleTime = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     if (!areaRef.current) {
       return undefined;
@@ -235,111 +273,147 @@ function TimelineTrack<
     const rect = areaRef.current.getBoundingClientRect();
     const position = e.clientX - rect.x;
     const left = position + scrollLeft;
-    const time = parserPixelToTime(left, { startLeft, scale, scaleWidth });
-    return time;
+    return parserPixelToTime(left, { startLeft, scale, scaleWidth });
   };
-
+  const selected = index === context.settings.selectedTrackIndex;
+  React.useEffect(() => {
+    const value = {
+      detailSelectedHeight: selectedScale * trackHeight,
+      detailUnselectedHeight: (1 - ((selectedScale - 1) / (file.tracks.length - 1))) * trackHeight
+    }
+    if (!settings.detailSelectedHeight || settings.detailSelectedHeight !== value.detailSelectedHeight) {
+      dispatch({ type: 'SET_SETTING', payload: {value} });
+    }
+  }, [])
+/*
+  // TODO: implement reorder tracks
   const [sizerData, setSizerData] = React.useState<{
     hover: boolean;
     down: boolean;
     startY: number;
   }>({ hover: false, down: false, startY: 0 });
+*/
 
   if (!track) {
     return undefined;
   }
 
+  if (flags.detailMode) {
+    classNames.push('detail')
+    if (track?.id !== selectedTrack?.id) {
+      classNames.push('track-unselected');
+    }
+  }
   if (track?.id === selectedTrack?.id || flags.collapsed) {
-    classNames.push('edit-track-selected');
+    classNames.push('track-selected');
   }
 
+  const calculatePercentage = (totalIndexes: number, currentIndex: number) => {
+    if (currentIndex < 0 || currentIndex >= totalIndexes) {
+      console.info('Invalid index', currentIndex, totalIndexes, track);
+    }
+    if (totalIndexes <= 1) {
+      return 50;
+    }
+
+    return (currentIndex / (totalIndexes - 1)) * 100;
+  }
+  const detailDisable = flags.detailMode && (!selectedTrack || selectedTrack.id !== track.id);
   return (
-    <React.Fragment>
-      <TimelineTrackRoot
-        className={`${prefix(...classNames)} ${(track?.classNames || []).join(' ')}`}
-        lock={track.lock}
-        disabled={track.disabled}
-        dim={editorMode !== 'project' && selectedTrack?.id !== track.id}
+    <TimelineTrackRoot
+      ref={ref}
+      className={`${prefix(...classNames)} ${(track?.classNames || []).join(' ')}`}
+      locked={track.locked}
+      yPercent={calculatePercentage(file?.tracks?.length, index)}
+      disabled={track.disabled || detailDisable}
+      dim={editorMode !== 'project' && selectedTrack?.id !== track.id}
+      onMouseEnter={() => {
+        dispatch({
+          type: 'SET_SETTING',
+          payload: { key: 'trackHoverId', value: track.id },
+        });
+      }}
+      onMouseLeave={() => {
+        dispatch({
+          type: 'SET_SETTING',
+          payload: { key: 'trackHoverId', value: undefined },
+        });
+      }}
+      detailSelectedHeight={settings.detailSelectedHeight}
+      detailUnselectedHeight={settings.detailUnselectedHeight}
+      hover={trackHoverId === track.id ? true : undefined}
+      selected={selected}
+      color={TimelineFile.getTrackColor(track)}
+      style={{ ...style }}
+      trackHeight={trackHeight}
+      sx={{
+        opacity: 0,
+        transform: 'scaleX(100%):nth-child(3n+1)',
+        transitionProperty: 'opacity, color, transform',
+        transitionDuration: '1s',
+        transitionTimingFunction: 'ease-in-out',
+        alignItems: 'center',
+      }}
+      onKeyDown={(e) => {
+        console.info('row root', e);
+      }}
+      onClick={(e) => {
+        if (track.id !== 'newTrack') {
+          dispatch({type: 'SELECT_TRACK', payload: track});
+        } else {
+          props.onAddFiles();
+        }
+        if (track && onClickTrack) {
+          e.stopPropagation();
+          e.preventDefault();
+          const time = handleTime(e);
+          onClickTrack(e, {track, time});
+        }
+      }}
+      onDoubleClick={(e) => {
+        if (track && onDoubleClickTrack) {
+          e.stopPropagation();
+          e.preventDefault();
+          const time = handleTime(e);
+          onDoubleClickTrack(e, { track, time });
+        }
+      }}
+      onContextMenu={(e) => {
+        if (track && onContextMenuTrack) {
+          // e.stopPropagation();
+          // e.preventDefault();
+          // const time = handleTime(e);
+          // onContextMenuTrack(e, { track, time });
+        }
+      }}
+    >
+      {flags.noLabels && !flags.isMobile && <TimelineTrackActions track={track} />}
+
+      {/*
+      TODO: potentially can use this for drag indicators to rearrange track orders.. not right meow though
+      <TrackSizer
         onMouseEnter={() => {
-          dispatch({
-            type: 'SET_SETTING',
-            payload: { key: 'trackHoverId', value: track.id },
-          });
+          setSizerData({ ...sizerData, hover: true });
         }}
         onMouseLeave={() => {
-          dispatch({
-            type: 'SET_SETTING',
-            payload: { key: 'trackHoverId', value: undefined },
-          });
+          setSizerData({ ...sizerData, hover: false });
         }}
-        hover={trackHoverId === track.id ? true : undefined}
-        selected={isTrackSelected(track)}
-        color={track.id === 'newTrack' ? '#8882' : getTrackColor(track)}
-        style={{ ...style }}
-        trackHeight={trackHeight}
-        sx={{
-          opacity: 0,
-          transform: 'scaleX(100%):nth-child(3n+1)',
-          transitionProperty: 'opacity, color, transform',
-          transitionDuration: '1s',
-          transitionTimingFunction: 'ease-in-out',
-          alignItems: 'center',
-        }}
-        onKeyDown={(e) => {
-          console.info('row root', e);
-        }}
-        onClick={(e) => {
-          dispatch({ type: 'SELECT_TRACK', payload: track });
-          if (track && onClickTrack) {
-            e.stopPropagation();
-            e.preventDefault();
-            const time = handleTime(e);
-            onClickTrack(e, {track, time});
-          }
-        }}
-        onDoubleClick={(e) => {
-          if (track && onDoubleClickTrack) {
-            e.stopPropagation();
-            e.preventDefault();
-            const time = handleTime(e);
-            onDoubleClickTrack(e, { track, time });
-          }
-        }}
-        onContextMenu={(e) => {
-          if (track && onContextMenuTrack) {
-            e.stopPropagation();
-            e.preventDefault();
-            const time = handleTime(e);
-            onContextMenuTrack(e, { track, time });
-          }
-        }}
-      >
-        {flags.noLabels && !flags.isMobile && <TimelineTrackActions track={track} />}
-
-        <TrackSizer
-          onMouseEnter={() => {
-            setSizerData({ ...sizerData, hover: true });
-          }}
-          onMouseLeave={() => {
-            setSizerData({ ...sizerData, hover: false });
-          }}
-        />
-        {(track?.actions || []).map((action) => {
-          return (
-            <TimelineAction
-              key={action.id}
-              {...props}
-              handleTime={handleTime}
-              track={flags.collapsed ? props.actionTrackMap[action.id] : track}
-              action={action}
-              onClickAction={onClickAction}
-              onDoubleClickAction={onDoubleClickAction}
-              oncontextMenuAction={onContextMenuAction}
-            />
-          );
-        })}
-      </TimelineTrackRoot>
-    </React.Fragment>
+      /> */}
+      {(track?.actions || []).map((action) => {
+        return (
+          <TimelineAction
+            key={action.id}
+            {...props}
+            handleTime={handleTime}
+            track={flags.collapsed ? props.actionTrackMap[action.id] : track}
+            action={action}
+            onClickAction={onClickAction}
+            onDoubleClickAction={onDoubleClickAction}
+            oncontextMenuAction={onContextMenuAction}
+          />
+        );
+      })}
+    </TimelineTrackRoot>
   );
 }
 
@@ -348,122 +422,121 @@ TimelineTrack.propTypes = {
   // | These PropTypes are generated from the TypeScript type definitions |
   // | To update them edit the TypeScript types and run "pnpm proptypes"  |
   // ----------------------------------------------------------------------
-  actionTrackMap: PropTypes.object.isRequired,
+  actionTrackMap: PropTypes.object,
   areaRef: PropTypes.shape({
-    current: PropTypes.object.isRequired,
-  }).isRequired,
+    current: PropTypes.object,
+  }),
   /**
    * setUp scroll left
    */
-  deltaScrollLeft: PropTypes.func.isRequired,
+  deltaScrollLeft: PropTypes.func,
   dragLineData: PropTypes.shape({
-    assistPositions: PropTypes.arrayOf(PropTypes.number).isRequired,
-    isMoving: PropTypes.bool.isRequired,
-    movePositions: PropTypes.arrayOf(PropTypes.number).isRequired,
-  }).isRequired,
+    assistPositions: PropTypes.arrayOf(PropTypes.number),
+    isMoving: PropTypes.bool,
+    movePositions: PropTypes.arrayOf(PropTypes.number),
+  }),
   /**
    * @description Get the action id list to prompt the auxiliary line. Calculate it when
    *   move/resize start. By default, get all the action ids except the current move action.
    */
-  getAssistDragLineActionIds: PropTypes.func.isRequired,
+  getAssistDragLineActionIds: PropTypes.func,
   /**
    * @description Custom scale rendering
    */
-  getScaleRender: PropTypes.func.isRequired,
+  getScaleRender: PropTypes.func,
   /**
    * @description Move end callback (return false to prevent onChange from triggering)
    */
-  onActionMoveEnd: PropTypes.func.isRequired,
+  onActionMoveEnd: PropTypes.func,
   /**
    * @description Start moving callback
    */
-  onActionMoveStart: PropTypes.func.isRequired,
+  onActionMoveStart: PropTypes.func,
   /**
    * @description Move callback (return false to prevent movement)
    */
-  onActionMoving: PropTypes.func.isRequired,
+  onActionMoving: PropTypes.func,
   /**
    * @description size change end callback (return false to prevent onChange from triggering)
    */
-  onActionResizeEnd: PropTypes.func.isRequired,
+  onActionResizeEnd: PropTypes.func,
   /**
    * @description Start changing the size callback
    */
-  onActionResizeStart: PropTypes.func.isRequired,
+  onActionResizeStart: PropTypes.func,
   /**
    * @description Start size callback (return false to prevent changes)
    */
-  onActionResizing: PropTypes.func.isRequired,
-  onAddFiles: PropTypes.func.isRequired,
+  onActionResizing: PropTypes.func,
+  onAddFiles: PropTypes.func,
   /**
    * @description click action callback
    */
-  onClickAction: PropTypes.func.isRequired,
+  onClickAction: PropTypes.func,
   /**
    * @description Click action callback (not executed when drag is triggered)
    */
-  onClickActionOnly: PropTypes.func.isRequired,
+  onClickActionOnly: PropTypes.func,
   /**
    * @description Click time area event, prevent setting time when returning false
    */
-  onClickTimeArea: PropTypes.func.isRequired,
+  onClickTimeArea: PropTypes.func,
   /**
    * @description Click track callback
    */
-  onClickTrack: PropTypes.func.isRequired,
+  onClickTrack: PropTypes.func,
   /**
    * @description Right-click action callback
    */
-  onContextMenuAction: PropTypes.func.isRequired,
+  onContextMenuAction: PropTypes.func,
   /**
    * @description Right-click track callback
    */
-  onContextMenuTrack: PropTypes.func.isRequired,
+  onContextMenuTrack: PropTypes.func,
   /**
    * @description cursor drag event
    */
-  onCursorDrag: PropTypes.func.isRequired,
+  onCursorDrag: PropTypes.func,
   /**
    * @description cursor ends drag event
    */
-  onCursorDragEnd: PropTypes.func.isRequired,
+  onCursorDragEnd: PropTypes.func,
   /**
    * @description cursor starts drag event
    */
-  onCursorDragStart: PropTypes.func.isRequired,
+  onCursorDragStart: PropTypes.func,
   /**
    * @description Double-click action callback
    */
-  onDoubleClickAction: PropTypes.func.isRequired,
+  onDoubleClickAction: PropTypes.func,
   /**
    * @description Double-click track callback
    */
-  onDoubleClickTrack: PropTypes.func.isRequired,
-  onScroll: PropTypes.func.isRequired,
+  onDoubleClickTrack: PropTypes.func,
+  onScroll: PropTypes.func,
   /**
    * scroll distance from left
    */
-  scrollLeft: PropTypes.number.isRequired,
+  scrollLeft: PropTypes.number,
   /**
    * Set the number of scales
    */
-  setScaleCount: PropTypes.func.isRequired,
+  setScaleCount: PropTypes.func,
   /**
    * @description Custom timelineControl style
    */
-  style: PropTypes.object.isRequired,
+  style: PropTypes.object,
   sx: PropTypes.oneOfType([
     PropTypes.arrayOf(
-      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]).isRequired,
+      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),
     ),
     PropTypes.func,
     PropTypes.object,
-  ]).isRequired,
-  track: PropTypes.any.isRequired,
+  ]),
+  track: PropTypes.any,
   trackRef: PropTypes.shape({
-    current: PropTypes.object.isRequired,
-  }).isRequired,
-  useProvider: PropTypes.func.isRequired,
+    current: PropTypes.object,
+  }),
 } as any;
 
 export default TimelineTrack;
@@ -480,9 +553,9 @@ function ControlledTrack({ width, height }: { name?: string; width: number; heig
   }
 
   const scaleData = fitScaleData(
-    [selectedTrack],
     context,
     width,
+    [selectedTrack]
   );
   const scaledSettings = { ...settings, width, ...scaleData };
 
@@ -494,7 +567,7 @@ function ControlledTrack({ width, height }: { name?: string; width: number; heig
         style={{
           width: '100%',
           height: height || scaledSettings.trackHeight,
-          overscrollBehavior: 'none',
+          overscrollBehaviorX: 'none',
           backgroundPositionX: `0, ${startLeft}px`,
           backgroundSize: `${startLeft}px, ${scaleData.scaleWidth}px`,
         }}
@@ -519,9 +592,9 @@ ControlledTrack.propTypes = {
   // | These PropTypes are generated from the TypeScript type definitions |
   // | To update them edit the TypeScript types and run "pnpm proptypes"  |
   // ----------------------------------------------------------------------
-  height: PropTypes.number.isRequired,
-  name: PropTypes.string.isRequired,
-  width: PropTypes.number.isRequired,
+  height: PropTypes.number,
+  name: PropTypes.string,
+  width: PropTypes.number,
 } as any;
 
 export { ControlledTrack };

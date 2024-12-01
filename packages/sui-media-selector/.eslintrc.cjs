@@ -5,5 +5,6 @@ module.exports = {
     'import/no-cycle': 'error',
     'import/order': 'error',
     'no-underscore-dangle': 'off',
+    'import/prefer-default-export': 'off',
   },
 }

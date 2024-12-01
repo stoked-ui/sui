@@ -46,7 +46,7 @@ function TimelineCursor({
   const rowRnd = React.useRef<RowRndApi>();
   const draggingLeft = React.useRef<undefined | number>();
   const context = useTimeline();
-  const { engine, components, settings } = context;
+  const { engine, components, settings, flags } = context;
   const {
     cursorTime,
     setCursor,
@@ -69,6 +69,11 @@ function TimelineCursor({
     }
   }, [cursorTime, startLeft, scaleWidth, scale, scrollLeft]);
 
+  React.useEffect(() => {
+    if (flags.detailMode && settings.playbackMode !== 'canvas') {
+      setCursor({ time: settings.actionTime }, context);
+    }
+  }, [settings.actionTime]);
 
   return (
     <TimelineTrackDnd
@@ -138,116 +143,116 @@ TimelineCursor.propTypes = {
   // | To update them edit the TypeScript types and run "pnpm proptypes"  |
   // ----------------------------------------------------------------------
   draggingLeft: PropTypes.shape({
-    current: PropTypes.number.isRequired,
-  }).isRequired,
+    current: PropTypes.number,
+  }),
   /**
    * @description Get the action id list to prompt the auxiliary line. Calculate it when
    *   move/resize start. By default, get all the action ids except the current move action.
    */
-  getAssistDragLineActionIds: PropTypes.func.isRequired,
+  getAssistDragLineActionIds: PropTypes.func,
   /**
    * @description Custom scale rendering
    */
-  getScaleRender: PropTypes.func.isRequired,
+  getScaleRender: PropTypes.func,
   /**
    * @description Move end callback (return false to prevent onChange from triggering)
    */
-  onActionMoveEnd: PropTypes.func.isRequired,
+  onActionMoveEnd: PropTypes.func,
   /**
    * @description Start moving callback
    */
-  onActionMoveStart: PropTypes.func.isRequired,
+  onActionMoveStart: PropTypes.func,
   /**
    * @description Move callback (return false to prevent movement)
    */
-  onActionMoving: PropTypes.func.isRequired,
+  onActionMoving: PropTypes.func,
   /**
    * @description size change end callback (return false to prevent onChange from triggering)
    */
-  onActionResizeEnd: PropTypes.func.isRequired,
+  onActionResizeEnd: PropTypes.func,
   /**
    * @description Start changing the size callback
    */
-  onActionResizeStart: PropTypes.func.isRequired,
+  onActionResizeStart: PropTypes.func,
   /**
    * @description Start size callback (return false to prevent changes)
    */
-  onActionResizing: PropTypes.func.isRequired,
+  onActionResizing: PropTypes.func,
   /**
    * @description click action callback
    */
-  onClickAction: PropTypes.func.isRequired,
+  onClickAction: PropTypes.func,
   /**
    * @description Click action callback (not executed when drag is triggered)
    */
-  onClickActionOnly: PropTypes.func.isRequired,
+  onClickActionOnly: PropTypes.func,
   /**
    * @description Click time area event, prevent setting time when returning false
    */
-  onClickTimeArea: PropTypes.func.isRequired,
+  onClickTimeArea: PropTypes.func,
   /**
    * @description Click track callback
    */
-  onClickTrack: PropTypes.func.isRequired,
+  onClickTrack: PropTypes.func,
   /**
    * @description Right-click action callback
    */
-  onContextMenuAction: PropTypes.func.isRequired,
+  onContextMenuAction: PropTypes.func,
   /**
    * @description Right-click track callback
    */
-  onContextMenuTrack: PropTypes.func.isRequired,
+  onContextMenuTrack: PropTypes.func,
   /**
    * @description cursor drag event
    */
-  onCursorDrag: PropTypes.func.isRequired,
+  onCursorDrag: PropTypes.func,
   /**
    * @description cursor ends drag event
    */
-  onCursorDragEnd: PropTypes.func.isRequired,
+  onCursorDragEnd: PropTypes.func,
   /**
    * @description cursor starts drag event
    */
-  onCursorDragStart: PropTypes.func.isRequired,
+  onCursorDragStart: PropTypes.func,
   /**
    * @description Double-click action callback
    */
-  onDoubleClickAction: PropTypes.func.isRequired,
+  onDoubleClickAction: PropTypes.func,
   /**
    * @description Double-click track callback
    */
-  onDoubleClickTrack: PropTypes.func.isRequired,
-  onScroll: PropTypes.func.isRequired,
+  onDoubleClickTrack: PropTypes.func,
+  onScroll: PropTypes.func,
   /**
    * Scroll synchronization ref (TODO: This data is used to temporarily solve the problem of out-of-synchronization when scrollLeft is dragged)
    */
   rowRnd: PropTypes.shape({
     current: PropTypes.shape({
-      getLeft: PropTypes.func.isRequired,
-      getWidth: PropTypes.func.isRequired,
-      updateLeft: PropTypes.func.isRequired,
-      updateWidth: PropTypes.func.isRequired,
-    }).isRequired,
-  }).isRequired,
+      getLeft: PropTypes.func,
+      getWidth: PropTypes.func,
+      updateLeft: PropTypes.func,
+      updateWidth: PropTypes.func,
+    }),
+  }),
   /**
    * Scroll distance from the left
    */
-  scrollLeft: PropTypes.number.isRequired,
+  scrollLeft: PropTypes.number,
   /**
    * Set the number of scales
    */
-  setScaleCount: PropTypes.func.isRequired,
+  setScaleCount: PropTypes.func,
   /**
    * @description Custom timelineControl style
    */
-  style: PropTypes.object.isRequired,
+  style: PropTypes.object,
   sx: PropTypes.oneOfType([
     PropTypes.arrayOf(
-      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]).isRequired,
+      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),
     ),
     PropTypes.func,
     PropTypes.object,
-  ]).isRequired,
+  ]),
 } as any;
 
 export default TimelineCursor;

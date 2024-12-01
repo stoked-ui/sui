@@ -147,7 +147,8 @@ export const trackObjectSchema = yup.object({
   id: yup.string().required("ID is required"),
   name: yup.string().required("Name is required"),
   hidden: yup.boolean().required("Hidden flag is required"),
-  lock: yup.boolean().required("Lock flag is required"),
+  muted: yup.boolean().required("Muted flag is required"),
+  locked: yup.boolean().required("Lock flag is required"),
   blendMode: yup.string().required(),
 });
 

@@ -79,8 +79,16 @@ export function DetailTrack(props: DetailViewProps) {
           />
           <ControlledCheckbox
             className={'whitespace-nowrap flex-grow flex'}
+            label={'Muted'}
+            control={control}
+            disabled={!editMode}
+            onClickLabel={enableEdit}
+            onClick={enableEdit}
+          />
+          <ControlledCheckbox
+            className={'whitespace-nowrap flex-grow flex'}
             label={'Locked'}
-            name={'lock'}
+            name={'locked'}
             control={control}
             disabled={!editMode}
             onClickLabel={enableEdit}

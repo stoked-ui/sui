@@ -1,6 +1,6 @@
 import * as React from "react";
-import { IMediaFile, namedId } from '@stoked-ui/media-selector';
-import { Button, CardActions, styled, Typography } from "@mui/material";
+import { IMediaFile2 } from '@stoked-ui/media-selector';
+import {Button, CardActions, Fade, styled, Typography} from "@mui/material";
 import { shouldForwardProp } from "@mui/system/createStyled";
 import { alpha, Theme } from "@mui/material/styles";
 import _ from "lodash";
@@ -64,11 +64,11 @@ const CtrlGroupRoot = styled('fieldset', {
   slot: 'row',
 })(({theme}) => ({
   gap: '0.8rem',
-  padding: '0.8rem 1.2rem',
   display: 'flex',
   flexDirection: 'row',
   flexWrap: 'wrap',
   borderRadius: '4px',
+  padding: '6px 5px 0px 5px',
   borderColor: `${alpha(theme.palette.primary[600], 0.3)}`
 }))
 
@@ -76,16 +76,24 @@ export const CtrlLabel = styled('legend')(({theme}) => ({
   position: 'relative',
   display: 'flex',
   zIndex: 10,
+  fontSize: '14px',
+  fontWeight: 700,
+  lineHeight: '23px',
+  color: theme.palette.primary[900]
 }))
 
-export function CtrlGroup ({className, children, label}){
+export interface CtrlGroupProps {
+  label: string,
+}
+
+export const CtrlGroup = React.forwardRef(({ style, className, children, label }: CtrlGroupProps & React.HTMLProps<HTMLFieldSetElement>, ref: React.Ref<HTMLFieldSetElement>) => {
   return (
-    <CtrlGroupRoot className={className}>
+    <CtrlGroupRoot ref={ref} className={className} style={style}>
       <CtrlLabel>{label}</CtrlLabel>
       {children}
     </CtrlGroupRoot>
-  )
-}
+  );
+});
 
 export interface SubmitSignature {
   form: UseFormHandleSubmit<any, any> | undefined,
@@ -249,15 +257,16 @@ export const RootBox = styled('div')(({theme}) => ({
         borderColor: theme.palette.primary.main
       }
     },
-    /*'& .MuiFormLabel-root.MuiInputLabel-root.MuiInputLabel-shrink': {
+    /*
+    '& .MuiFormLabel-root.MuiInputLabel-root.MuiInputLabel-shrink': {
       color: theme.palette.text.primary,
       padding: '3px 8px',
       borderRadius: '6px',
       backgroundImage: `linear-gradient(90deg, ${backgroundAlpha(theme)}, ${backgroundAlpha(theme)})`,
       backgroundSize: '100% 12px',
       backgroundRepeat: 'no-repeat'
-    },*/
-   /* '& .Mui-shrink-full .MuiFormLabel-root.MuiInputLabel-root.MuiInputLabel-shrink': {
+    },
+   '& .Mui-shrink-full .MuiFormLabel-root.MuiInputLabel-root.MuiInputLabel-shrink': {
       color: theme.palette.text.primary,
       padding: '3px 8px',
       borderRadius: '6px',
@@ -265,7 +274,7 @@ export const RootBox = styled('div')(({theme}) => ({
       backgroundSize: '100% 12px, 100% 17px',
       backgroundPosition: '0 0, 0 100%',
       backgroundRepeat: 'no-repeat, no-repeat'
-    },*/
+    }, */
   }
 }));
 
@@ -307,36 +316,68 @@ export function DetailActions({ errors, isDirty, reset, disableEdit, editMode }:
   )
 }
 
-export function FileDetailView({ file }: { file?: IMediaFile }): React.ReactNode {
-  return (
-    <CtrlGroup className={"SUI-form"} label={'Track File'}>
-      <CtrlCell width="40%">
-        <UncontrolledText
-          className={'whitespace-nowrap flex-grow flex'}
-          label={'File Name'}
-          value={file?.name}
-          disabled
-        />
-      </CtrlCell>
+export function FileDetailView({ file }: { file?: IMediaFile2 }): React.ReactNode {
+  const { settings, flags, engine, dispatch } = useEditorContext();
+  const ref = React.useRef<HTMLFieldSetElement>(null);
 
-      <CtrlCell width="15%">
-        <UncontrolledText
-          className={'whitespace-nowrap flex-grow flex'}
-          label={'Size'}
-          value={file?.size}
-          disabled
-          format={humanFileSize}
-        />
-      </CtrlCell>
-      <CtrlCell width="15%">
-        <UncontrolledText
-          className={'whitespace-nowrap flex-grow flex'}
-          label={'Media Type'}
-          value={file?.mediaType}
-          disabled
-        />
-      </CtrlCell>
-    </CtrlGroup>
+  React.useEffect(() => {
+    const anchorEl = engine.viewer;
+    if (anchorEl && ref.current) {
+      const childDiv: HTMLFieldSetElement = ref.current;
+      if (childDiv.parentNode) {
+        childDiv?.remove();
+      }
+
+      // Ensure the parent div has a position of relative
+      anchorEl.style.position = 'relative';
+      anchorEl.appendChild(childDiv);
+      // Set the child div to be positioned at the bottom
+      childDiv.style.position = 'absolute';
+      childDiv.style.bottom = '0';
+      childDiv.style.left = '0';
+      childDiv.style.scale = '.8';
+      childDiv.style.transformOrigin = 'left bottom';
+      childDiv.style.margin = '12px';
+    }
+  }, [ref.current]);
+
+  return (
+    <Fade in={flags.showViewControls}>
+      <CtrlGroup
+        onMouseEnter={() => {
+          dispatch({ type: 'SET_FLAGS', payload: { add: ['showViewControls'] }});
+        }}
+        onMouseLeave={() => {
+          dispatch({ type: 'SET_FLAGS', payload: { remove: ['showViewControls'] }});
+        }}
+        style={{ scale: .8, transformOrigin: 'left' }} className={"fileDetailView"} label={'Track File'} ref={ref}>
+        <CtrlCell width="40%">
+          <UncontrolledText
+            className={'whitespace-nowrap flex-grow flex'}
+            label={'File Name'}
+            value={file?.name}
+            disabled
+          />
+        </CtrlCell>
+        <CtrlCell width="15%">
+          <UncontrolledText
+            className={'whitespace-nowrap flex-grow flex'}
+            label={'Size'}
+            value={file?.size}
+            disabled
+            format={humanFileSize}
+          />
+        </CtrlCell>
+        <CtrlCell width="15%">
+          <UncontrolledText
+            className={'whitespace-nowrap flex-grow flex'}
+            label={'Media Type'}
+            value={file?.mediaType}
+            disabled
+          />
+        </CtrlCell>
+      </CtrlGroup>
+    </Fade>
   )
 }
 
@@ -372,6 +413,13 @@ export function FormWrap({ title, handleSubmit, onSubmit, children}) {
   const context = useEditorContext();
   const {  settings, selectedType, file,  selectedTrack } = context;
   const { detailHandleSubmit, detailOnSubmit, selected } = settings;
+  const ref = React.useRef<HTMLDivElement>(null);
+  React.useEffect(() => {
+    if (ref.current?.clientWidth) {
+      const scaledData = settings.fitScaleData(context, ref.current.clientWidth - 14);
+      context.dispatch({type: 'SET_SETTING', payload: {value: {...scaledData,}}})
+    }
+  }, [ref.current?.clientWidth]);
 
   let submit = () => {};
   if (detailHandleSubmit && detailOnSubmit) {
@@ -384,16 +432,12 @@ export function FormWrap({ title, handleSubmit, onSubmit, children}) {
     }}>
       {title}
     </Typography>
-    <div style={{ overflowY: 'scroll',      maxHeight: 'calc(100vh - 40px)',
-    }}>
-
-
+    <div style={{ overflowY: 'scroll', maxHeight: 'calc(100vh - 40px)' }}>
       <Editor
         file={file || undefined}
+        id={'detail-editor'}
         detailMode
-        noLabels
-        noSaveControls
-        noTrackControls
+        ref={ref}
         sx={(theme) => ({ border: '1px solid #999' })}
       />
 

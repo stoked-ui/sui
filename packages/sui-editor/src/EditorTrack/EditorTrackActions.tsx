@@ -27,7 +27,7 @@ export function ToggleHidden({ track, file, toggleClick, dispatch, hide, childre
           return
         }
         const currentTrack = {...file.tracks[currentTrackIndex]};
-        currentTrack.mute = !currentTrack.mute;
+        currentTrack.hidden = !currentTrack.hidden;
         const updatedTracks = [...file.tracks];
         updatedTracks[currentTrackIndex] = currentTrack;
         dispatch({ type: 'SET_TRACKS', payload: updatedTracks });
@@ -43,9 +43,9 @@ export function ToggleHidden({ track, file, toggleClick, dispatch, hide, childre
 
 export default function EditorTrackActions({ track, sx }: { track: any, sx?: any }) {
   const { file, dispatch, flags } = useEditorContext();
-  const volumeIcon = track.hidden ? <VolumeOff fontSize={'small'} /> : <VolumeUp fontSize={'small'} />;
+  const volumeIcon = track.muted ? <VolumeOff fontSize={'small'} /> : <VolumeUp fontSize={'small'} />;
   const visibilityIcon = track.hidden ? <VisibilityOffIcon fontSize={'small'} /> : <VisibilityIcon fontSize={'small'} />;
-  const lockIcon = track.lock ? <LockIcon fontSize={'small'}/> : <LockOpenIcon fontSize={'small'}/>;
+  const lockIcon = track.locked ? <LockIcon fontSize={'small'}/> : <LockOpenIcon fontSize={'small'}/>;
   const toggleClick = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
     event.stopPropagation();
   }

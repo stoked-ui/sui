@@ -16,9 +16,9 @@ export interface TimelineActionState {
   /** Whether the action is movable */
   movable?: boolean;
   /** Whether the action is prohibited from running */
-  disable?: boolean;
+  disabled?: boolean;
   /** Whether the action is hidden from timeline */
-  hidden?: boolean;
+  muted?: boolean;
   /** Whether the action is locked on the timeline */
   locked?: boolean;
 }
@@ -89,6 +89,8 @@ export interface ITimelineAction
   volumeIndex?: number;
 
   disabled?: boolean;
+
+
 }
 
 function setVolumeIndex(action: ITimelineFileAction) {
