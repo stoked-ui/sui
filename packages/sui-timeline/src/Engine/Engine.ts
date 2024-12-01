@@ -27,8 +27,7 @@ export default class Engine<
 
   protected _logging: boolean = false;
 
-
-  control: any = {};
+  maxDuration: number = 15;
 
   /** requestAnimationFrame timerId */
   protected _timerId: number = 0;
@@ -44,6 +43,10 @@ export default class Engine<
 
   /** Time frame pre data */
   protected _prev: number = 0;
+
+  playbackMode: 'media' | 'canvas' = 'canvas';
+
+  media: HTMLMediaElement | null;
 
   /** Action actionType map */
   protected _controllers: Record<string, IController>;
@@ -130,8 +133,14 @@ export default class Engine<
     return undefined;
   }
 
-
   get duration() {
+    if (this.playbackMode === 'media' && this.media) {
+      return this.media.duration;
+    }
+    return this.canvasDuration;
+  }
+
+  get canvasDuration() {
     const actions = Object.values(this._actionMap);
     let end = 0;
     for(let i = 0; i < actions.length; i += 1) {
@@ -257,8 +266,12 @@ export default class Engine<
 
     this._currentTime = time;
 
-    this._dealLeave(time);
-    this._dealEnter(time);
+    if (this.playbackMode === 'canvas') {
+      this._dealLeave(time);
+      this._dealEnter(time);
+    } else if (this.media) {
+      this.media.currentTime = time;
+    }
 
     if (isTick) {
       this.trigger('setTimeByTick' as keyof EmitterEvents, { time, engine: this as IEngine } as EmitterEvents[keyof EmitterEvents]);
@@ -275,15 +288,38 @@ export default class Engine<
    * @memberof Engine
    */
   get time(): number {
+    if (this.playbackMode === 'media' && this.media) {
+      return this.media.currentTime;
+    }
     return this._currentTime;
   }
+
+
+  rewind(delta: number) {
+    if (this._playRate > 0 || this._playRate <= -3) {
+      this.setPlayRate(-1);
+    } else if (this._playRate > -10) {
+      this.setPlayRate(this._playRate - delta);
+    }
+    this.run({ autoEnd: true });
+  }
+
+  fastForward(delta: number) {
+    if (this._playRate < 0 || this._playRate === 1 || this._playRate >= 3) {
+      this.setPlayRate(1.5);
+    } else if (this._playRate < 10) {
+      this.setPlayRate(this._playRate + delta);
+    }
+    this.run({ autoEnd: true });
+  }
+
 
   /**
    * Run: The start time is the current time
    * @param param
    * @return {boolean} {boolean}
    */
-  play(param: {
+  run(param: {
     /** By default, it runs from beginning to end, with a priority greater than autoEnd */
     toTime?: number;
     /** Whether to automatically end after playing */
@@ -304,7 +340,13 @@ export default class Engine<
     this._startOrStop('start');
 
     // trigger event
-    this.trigger('play' as keyof EmitterEvents, { engine: this as IEngine } as EmitterEvents[keyof EmitterEvents]);
+    if (this._playRate > 1) {
+      this.trigger('fastForward' as keyof EmitterEvents, { engine: this as IEngine } as EmitterEvents[keyof EmitterEvents]);
+    } else if (this._playRate < 0) {
+      this.trigger('rewind' as keyof EmitterEvents, { engine: this as IEngine } as EmitterEvents[keyof EmitterEvents]);
+    } else {
+      this.trigger('play' as keyof EmitterEvents, {engine: this as IEngine} as EmitterEvents[keyof EmitterEvents]);
+    }
 
     this._timerId = requestAnimationFrame((time: number) => {
       this._prev = time;
@@ -312,6 +354,22 @@ export default class Engine<
     });
 
     return true;
+  }
+
+  /**
+   * Run: The start time is the current time
+   * @param param
+   * @return {boolean} {boolean}
+   */
+  play(param: {
+    /** By default, it runs from beginning to end, with a priority greater than autoEnd */
+    toTime?: number;
+    /** Whether to automatically end after playing */
+    autoEnd?: boolean;
+  }): boolean {
+    this._playRate = 1;
+
+    return this.run(param);
   }
 
   /**
@@ -326,7 +384,7 @@ export default class Engine<
       // activeIds run stop
       this._startOrStop('stop');
 
-      this.trigger('paused' as keyof EmitterEvents, { engine: this as IEngine, previousState } as EmitterEvents[keyof EmitterEvents]);
+      this.trigger('pause' as keyof EmitterEvents, { engine: this as IEngine, previousState } as EmitterEvents[keyof EmitterEvents]);
     }
     cancelAnimationFrame(this._timerId);
   }
@@ -346,15 +404,22 @@ export default class Engine<
     if (this.isLoading) {
       return;
     }
-
+    if (this.playbackMode === 'media' && this.media) {
+      if (type === 'start') {
+        this.media.play();
+      } else if (type === 'stop') {
+        this.media.pause();
+      }
+      return
+    }
     // eslint-disable-next-line no-restricted-syntax
     this._activeIds.forEach((key, ) => {
       const action = this._actionMap[key];
       const track = this._actionTrackMap[action.id];
       if (type === 'start' && track?.controller?.start) {
-        track.controller.start({action, time: this.time, engine: this as IEngine });
+        track.controller.start({action, track, time: this.time, engine: this as IEngine });
       } else if (type === 'stop' && track?.controller?.stop) {
-        track.controller.stop({action, time: this.time, engine: this as IEngine });
+        track.controller.stop({action, track, time: this.time, engine: this as IEngine });
       }
     });
   }
@@ -383,12 +448,18 @@ export default class Engine<
     const initialTime = this.time;
     // Calculate the current time
     let currentTime = initialTime + (Math.min(1000, now - this._prev) / 1000) * this._playRate;
-    currentTime = Math.max(0, currentTime);
+    const forwards = this._playRate > 0;
+    if (!forwards) {
+      currentTime = Math.min(this.canvasDuration, currentTime);
+    } else if (forwards) {
+      currentTime = Math.max(0, currentTime);
+    }
     this._prev = now;
 
-
     // Set the current time
-    if (to && to <= currentTime) {
+    if (forwards && to && to <= currentTime) {
+      currentTime = to;
+    } else if (!forwards && to && to >= currentTime) {
       currentTime = to;
     }
 
@@ -396,24 +467,34 @@ export default class Engine<
 
     // Execute action
     this.tickAction(currentTime);
+
+    console.info('forwards', forwards, initialTime, currentTime);
+
     // In the case of automatic stop, determine whether all actions have been executed.
     if (!to && autoEnd && this._next >= this._actionSortIds.length && this._activeIds.length === 0) {
       this._end();
       return;
     }
-    if (initialTime > currentTime && currentTime === 0) {
+    if (forwards && initialTime > this.canvasDuration) {
+      this._end();
+      return;
+    }
+    if (!forwards && initialTime < 0) {
       this._end();
       return;
     }
 
     // Determine whether to terminate
-    if (to && to <= currentTime) {
+    if (forwards && to && to <= currentTime) {
+      this._end();
+    } else if (!forwards && to && to >= this.canvasDuration) {
       this._end();
     }
 
     if (this.isPaused) {
       return;
     }
+
     this._timerId = requestAnimationFrame((time) => {
       this.log('requestAnimationFrame')
       this._tick({ now: time, autoEnd, to });
@@ -437,7 +518,7 @@ export default class Engine<
       const action = this._actionMap[key];
       const track = this._actionTrackMap[action.id];
       if (track.controller && track.controller?.update) {
-        track.controller.update({action, time: this.time, engine: this as IEngine });
+        track.controller.update({action, track, time: this.time, engine: this as IEngine });
       }
     });
 
@@ -463,7 +544,7 @@ export default class Engine<
           const track = this._actionTrackMap[action.id];
           const controller = track.controller;
           if (controller?.leave) {
-            controller.leave({action, time: this.time, engine: this as IEngine});
+            controller.leave({action, track, time: this.time, engine: this as IEngine});
           }
         }
       } else {
@@ -481,7 +562,7 @@ export default class Engine<
       const actionId = this._actionSortIds[this._next];
       const action = this._actionMap[actionId];
 
-      if (!action.disable) {
+      if (!action.disabled) {
         // Determine whether the action start time has arrived
 
         if (action.start > time) {
@@ -493,7 +574,7 @@ export default class Engine<
           const controller = track.controller;
           if (controller && controller?.enter) {
             console.info('enter', action.name, time);
-            controller.enter({action, time: this.time, engine: this as IEngine});
+            controller.enter({action, track, time: this.time, engine: this as IEngine});
           }
 
           this._activeIds.set(this._next, actionId);
@@ -517,7 +598,7 @@ export default class Engine<
           const controller = track.controller;
 
           if (controller && controller?.leave) {
-            controller.leave({action, time: this.time, engine: this as IEngine});
+            controller.leave({action, time: this.time, track, engine: this as IEngine});
           }
 
           this._activeIds.delete(value);

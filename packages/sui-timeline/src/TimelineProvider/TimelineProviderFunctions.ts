@@ -6,7 +6,7 @@ import {DEFAULT_SCALE_WIDTH, NEW_ACTION_DURATION} from "../interface/const";
 import {getScaleCountByRows, parserPixelToTime, parserTimeToPixel} from "../utils";
 
 export const createAction = (e: React.MouseEvent<HTMLElement, MouseEvent>, track: ITimelineTrack, context: TimelineContextType) =>  {
-  if (!track || track.lock) {
+  if (!track || track.locked) {
     return;
   }
   const name = `${track.name} - ${track.actions.length}`;
@@ -88,15 +88,16 @@ export const setScaleCount = (value: number, context: TimelineContextType) =>  {
   context.dispatch({ type: 'SET_SETTING', payload: { key: 'scaleCount', value: newScaleCount } });
 }
 
-export const  fitScaleData = (tracks: ITimelineTrack[], context: TimelineContextType, newWidth: number)  => {
-  if (!newWidth) {
+export const  fitScaleData = (context: TimelineContextType, newWidth: number, tracks?: ITimelineTrack[])  => {
+  tracks = tracks || context.file?.tracks;
+  if (!newWidth || !tracks?.length) {
     return undefined;
   }
   const { settings } = context;
   const { startLeft, maxScaleCount, minScaleCount } = settings;
 
   const getScale = () => {
-    const scaleWidth = (newWidth - (startLeft * 2)) / context.engine.duration;
+    const scaleWidth = (newWidth - (startLeft * 2)) / context.engine.maxDuration;
     if (scaleWidth < 40) {
       const multiplier = Math.ceil(40 / scaleWidth);
       return { scaleWidth: multiplier * scaleWidth, scale: multiplier };
@@ -116,18 +117,4 @@ export const  fitScaleData = (tracks: ITimelineTrack[], context: TimelineContext
     maxScaleCount: Math.max(maxScaleCount, Math.min(scaleCount, minScaleCount)),
     scale,
   }
-}
-
-export const getTrackHeight = (index: number, context: TimelineContextType) => {
-  const { settings: { trackHeight, editorMode, selectedTrackIndex} } = context;
-  return trackHeight;
-  /* if (editorMode === 'project') {
-    return trackHeight;
-  }
-  if (index === selectedTrackIndex) {
-    return trackHeight;
-  }
-  return trackHeight *.65;
-
-   */
 }

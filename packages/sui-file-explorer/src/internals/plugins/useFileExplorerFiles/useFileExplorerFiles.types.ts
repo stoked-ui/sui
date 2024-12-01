@@ -1,5 +1,5 @@
 import {SxProps, Theme} from "@mui/system";
-import { IMediaFile } from '@stoked-ui/media-selector';
+import { IMediaFile2 } from '@stoked-ui/media-selector';
 import {DefaultizedProps, FileExplorerPluginSignature, FileMeta} from '../../models';
 import { FileId } from '../../../models';
 import {
@@ -33,15 +33,15 @@ export interface UseFileExplorerFilesPublicAPI<R extends {}> {
 
 export interface UpdateNodesStateParameters
   extends Pick<
-    UseFileExplorerFilesDefaultizedParameters<IMediaFile>,
+    UseFileExplorerFilesDefaultizedParameters<IMediaFile2>,
     'items' | 'isItemDisabled' | 'getItemLabel' | 'getItemId'
   > {
 }
 
 export type ItemMode = 'standard' | 'last-in-group' | 'expanded';
 
-export interface UseFileExplorerFilesInstance<R extends IMediaFile[] = IMediaFile[]> extends UseFileExplorerFilesPublicAPI<R> {
-  recalcVisibleIndices: (items: IMediaFile[], force: boolean, index: number) => void;
+export interface UseFileExplorerFilesInstance<R extends IMediaFile2[] = IMediaFile2[]> extends UseFileExplorerFilesPublicAPI<R> {
+  recalcVisibleIndices: (items: IMediaFile2[], force: boolean, index: number) => void;
   getVisibleIndex: (itemId: string) => number;
   updateItems: (item: R[]) => void;
   getFiles: () => R[];
@@ -108,7 +108,7 @@ export interface UseFileExplorerFilesInstance<R extends IMediaFile[] = IMediaFil
   areItemUpdatesPrevented: () => boolean;
 }
 
-export interface UseFileExplorerFilesParameters<R extends IMediaFile = IMediaFile> {
+export interface UseFileExplorerFilesParameters<R extends IMediaFile2 = IMediaFile2> {
 
   alternatingRows?: SxProps<Theme> | true;
 
@@ -151,7 +151,7 @@ export interface UseFileExplorerFilesParameters<R extends IMediaFile = IMediaFil
   items: readonly R[];
 }
 
-export type UseFileExplorerFilesDefaultizedParameters<R extends IMediaFile> = DefaultizedProps<
+export type UseFileExplorerFilesDefaultizedParameters<R extends IMediaFile2> = DefaultizedProps<
   UseFileExplorerFilesParameters<R>,
   'disabledItemsFocusable' | 'itemChildrenIndentation'
 >

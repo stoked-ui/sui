@@ -11,7 +11,7 @@ export const useEditorMetadata: EditorPlugin<UseEditorMetadataSignature> = ({
 
 }) => {
   const onKeyDown = (event: any, action: ITimelineAction) => {
-    console.log('on key down', action);
+    console.info('on key down', action);
   };
 
   return {
@@ -25,29 +25,9 @@ export const useEditorMetadata: EditorPlugin<UseEditorMetadataSignature> = ({
   };
 };
 
-function initialize(params?: UseEditorMetadataParameters): UseEditorMetadataDefaultizedParameters {
-  if (!params || (!params.file && !params.url)) {
-    return {
-      file: new EditorFile({ name: 'new video'}),
-      url: '',
-    };
-  }
-  let { file, url = '' } = params;
-
-  if (url.length && !file) {
-    return {
-      file: new EditorFile({ name: getFileName(url, false) ?? 'new video', url }),
-      url,
-    }
-  }
-
-  return { file: file ?? new EditorFile({ name: 'new video'}), url };
-}
-
 useEditorMetadata.getDefaultizedParams = (params) => {
   return {
     ...params,
-    ...(initialize(params))
   } as UseEditorMetadataDefaultizedParameters;
 }
 

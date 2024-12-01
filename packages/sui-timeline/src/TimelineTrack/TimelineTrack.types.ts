@@ -1,5 +1,5 @@
 import * as React from "react";
-import { IMediaFile } from '@stoked-ui/media-selector';
+import { IMediaFile2 } from '@stoked-ui/media-selector';
 import {alpha, darken, lighten} from "@mui/material/styles";
 import { compositeColors } from "@stoked-ui/common";
 import { type ITimelineAction, type ITimelineFileAction, ITimelineActionHandlers } from '../TimelineAction/TimelineAction.types';
@@ -26,7 +26,6 @@ export type TimelineTrackProps<
   actionTrackMap?: Record<string, TrackType>
   trackRef?: React.RefObject<HTMLDivElement>;
   onAddFiles?: () => void;
-  useProvider?: () => any
 
 };
 
@@ -135,14 +134,49 @@ export const getTrackBackgroundColor = (color: string, mode: 'dark' | 'light', s
   if (disabled) {
     baseColor = mode === 'light' ? '#f5f5f5' : '#424242';
   }
-  const dimMultiplier = dim ? .8 : 1
+  const dimMultiplier = dim ? 1 : 1
   const oneMinusDimMultiplier = dim ? .9 : 0;
-  let firstColor = compositeColors(baseColor, alpha(color, firstAlpha(modeMod(modeState.label)) * dimMultiplier));
-  const endColor = compositeColors(baseColor, alpha(color, endAlpha(modeMod(modeState.row)) * dimMultiplier));
+  let firstColor = compositeColors(baseColor, alpha(color, Math.max(0, Math.min(1, firstAlpha(modeMod(modeState.label)) * dimMultiplier))));
+    const endColor = compositeColors(baseColor, alpha(color, Math.max(0, Math.min(1, endAlpha(modeMod(modeState.row)) * dimMultiplier))));
   let opacity = 1;
   if (state === 'normal') {
     opacity = .95;
   }
+  if (mode === 'dark') {
+    firstColor = lighten(firstColor, .4)
+  } else {
+    firstColor = darken(firstColor, .2)
+  }
+  return {
+    label: {
+      background: `linear-gradient(to right,${firstColor}, 80%, ${endColor})`,
+      opacity: `${1}!important`
+    },
+    row: {
+      background: endColor,
+      opacity: `${opacity}!important`
+    },
+    action: {
+      background: alpha(color, modeMod(modeState.action) * dimMultiplier),
+      opacity: `${opacity}!important`
+    }
+  };
+}
+export const getTrackBackgroundColorDetail = (color: string, mode: 'dark' | 'light', selected?: boolean, hover?: boolean, disabled?: boolean, dim?: boolean) => {
+  const state = getState(selected, hover);
+  const modeState = TrackColorAlpha[mode][state];
+  const modeMod = (scalar: number) => mode === 'light' ? scalar : scalar;
+  const firstAlpha = (scalar: number) => mode === 'light' ? scalar * 8 : scalar;
+  const endAlpha = (scalar: number) => mode === 'light' ? scalar : scalar;
+  const baseColor = mode === 'light' ? '#fff' : '#000';
+  if (disabled) {
+    color = compositeColors(color, alpha(baseColor, .75));
+  }
+  const dimMultiplier = dim ? .8 : 1
+  let firstColor = compositeColors(baseColor, alpha(color, firstAlpha(modeMod(modeState.label)) * dimMultiplier));
+  const endColor = compositeColors(baseColor, alpha(color, endAlpha(modeMod(modeState.row)) * dimMultiplier));
+  let opacity = 1;
+
   if (mode === 'dark') {
     firstColor = lighten(firstColor, .4)
   } else {
@@ -163,7 +197,6 @@ export const getTrackBackgroundColor = (color: string, mode: 'dark' | 'light', s
     }
   };
 }
-
 /**
  *Basic parameters of action lines
  * @export
@@ -181,11 +214,11 @@ export interface ITimelineTrack<
   /** Extended class name of track */
   classNames?: string[];
   /** Whether the track is movable */
-  mute?: boolean;
+  muted?: boolean;
   /** Whether the track is movable */
-  lock?: boolean;
+  locked?: boolean;
 
-  file?: IMediaFile;
+  file?: IMediaFile2;
 
   image?: string;
 
@@ -196,9 +229,7 @@ export interface ITimelineTrack<
   controller: IController;
 }
 
-export type ITimelineTrackMetadata<TrackType extends ITimelineTrack = ITimelineTrack> = Omit<TrackType, 'file' | 'controller'> & {
-  fileIndex?: number;
-}
+export type ITimelineTrackMetadata<TrackType extends ITimelineTrack = ITimelineTrack> = Omit<TrackType, 'file' | 'controller'> & {}
 
 export interface ITimelineFileTrack extends Omit<ITimelineTrack, 'id' | 'controller' | 'actions' | 'file'> {
   /** Action track id */
@@ -212,7 +243,7 @@ export interface ITimelineFileTrack extends Omit<ITimelineTrack, 'id' | 'control
 
   image?: string;
 
-  file?: IMediaFile;
+  file?: IMediaFile2;
 
   controllerName?: string;
 

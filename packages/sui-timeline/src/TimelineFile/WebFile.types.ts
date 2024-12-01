@@ -3,12 +3,6 @@
 import { FileState, SaveDialogProps } from "./TimelineFile.types";
 import { IMimeType, MimeType } from "./MimeType";
 
-export type NoArgsConstructor<T> = new () => T;
-
-export type ArgsConstructor<T> = new (...args: any[]) => T;
-
-export type Constructor<T> = (NoArgsConstructor<T> | ArgsConstructor<T>);
-
 export interface IWebData {
   id: string,
   name: string,
@@ -37,10 +31,11 @@ export interface IWebFileProps extends Omit<IWebData, 'id' | 'created' | 'versio
   readonly version?: number,
 }
 
-export interface IBaseDecodedFile {
-    name: string,
-    size: number,
-    type: string,
+export interface IFileParams {
+  name: string,
+  size: number,
+  type: string,
+  url: string,
 }
 
 export async function saveFileApi(options: SaveDialogProps) {

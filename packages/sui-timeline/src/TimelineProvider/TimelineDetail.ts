@@ -1,4 +1,4 @@
-import { IMediaFile, namedId } from "@stoked-ui/media-selector";
+import { IMediaFile2, namedId } from "@stoked-ui/media-selector";
 import * as yup from "yup";
 import { ITimelineAction } from "../TimelineAction/TimelineAction.types";
 import { ITimelineTrack } from "../TimelineTrack/TimelineTrack.types";
@@ -33,8 +33,8 @@ export interface IFileDetail {
 export interface ITimelineTrackDetail {
   id: string;
   name: string;
-  mute: boolean;
-  lock: boolean;
+  muted: boolean;
+  locked: boolean;
 }
 
 export interface ITimelineActionDetail {
@@ -104,12 +104,12 @@ export function getTrackDetail(track: ITimelineTrack): ITimelineTrackDetail {
   return {
     id: track?.id || namedId('track'),
     name: track?.name || track.file?.name || '',
-    mute: track?.mute ?? false,
-    lock: track?.lock ?? false,
+    muted: track?.muted ?? false,
+    locked: track?.locked ?? false,
   };
 }
 
-export function getFileDetail(file: IMediaFile): IFileDetail {
+export function getFileDetail(file: IMediaFile2): IFileDetail {
   return {
     id: file.id,
     name: file.name,
@@ -152,7 +152,7 @@ export function getSelected(props: { selectedAction: any, selectedTrack: any, fi
   return{ selected: file, type: 'project' };
 }
 
-export function getDetail(props: GetDetailProps & any): SelectionDetail {
+export function getDetail(props: GetDetailProps & any): SelectionDetail | null {
   const { selectedAction: action, selectedTrack: track, file: project } = props;
   const { type, selected } = getSelected(props);
   if (type === 'track') {
@@ -176,12 +176,14 @@ export function getDetail(props: GetDetailProps & any): SelectionDetail {
       }, selected, type,
     }
   }
-  return {
-    detail: {
-      type,
-      project: getProjectDetail(project),
-    }, selected, type,
+  if (project) {
+    return {
+      detail: {
+        type, project: getProjectDetail(project),
+      }, selected, type,
+    }
   }
+  return null;
 }
 
 // Define Yup schema for ITimelineActionDetail
@@ -228,6 +230,6 @@ export const projectObjectSchema = yup.object({
 export const trackObjectSchema = yup.object({
   id: yup.string().required("ID is required"),
   name: yup.string().required("Name is required"),
-  hidden: yup.boolean().required("Hidden flag is required"),
-  lock: yup.boolean().required("Lock flag is required"),
+  muted: yup.boolean().required("Hidden flag is required"),
+  locked: yup.boolean().required("Lock flag is required"),
 });

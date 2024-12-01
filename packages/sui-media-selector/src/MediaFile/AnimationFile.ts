@@ -2,7 +2,7 @@ import lottie, {AnimationItem, AnimationConfigWithPath} from "lottie-web";
 import MediaFile from "./MediaFile";
 import {IResolutionFile, ResolutionFile} from "./Resolution";
 import namedId from "../namedId";
-import {MediaType} from "./MediaType";
+import {MediaType} from "../MediaType/MediaType";
 
 type ScreenShotParams = {
   width?: number,

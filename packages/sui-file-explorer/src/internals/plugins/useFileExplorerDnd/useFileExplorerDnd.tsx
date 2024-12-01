@@ -18,7 +18,7 @@ import {
 import {containsFiles} from "@atlaskit/pragmatic-drag-and-drop/external/file";
 import {preventUnhandled} from "@atlaskit/pragmatic-drag-and-drop/prevent-unhandled";
 import type {Instruction} from "@atlaskit/pragmatic-drag-and-drop-hitbox/tree-item";
-import {IMediaFile, MediaFile} from "@stoked-ui/media-selector";
+import {IMediaFile2, MediaFile2} from "@stoked-ui/media-selector";
 import memoizeOne from "memoize-one";
 import {
   triggerPostMoveFlash
@@ -65,13 +65,13 @@ export const useFileExplorerDnd: FileExplorerPlugin<UseFileExplorerDndSignature>
   rootRef,
 }) => {
 
-  const reducerWrapper = <R extends IMediaFile>(wrappedState: FileExplorerState<R>, action: FileExplorerDndAction<R>)=> {
+  const reducerWrapper = <R extends IMediaFile2>(wrappedState: FileExplorerState<R>, action: FileExplorerDndAction<R>)=> {
     const reducedState = fileListStateReducer(wrappedState, action);
     instance.updateItems(reducedState.items);
     instance.recalcVisibleIndices(reducedState.items, true, 0)
     if (params !== undefined && action.type === 'create-children') {
       const initialFiles = action.items.map((item) => item)
-      const files: IMediaFile[] = initialFiles.filter((item) => item !== undefined) as IMediaFile[]
+      const files: IMediaFile2[] = initialFiles.filter((item) => item !== undefined) as IMediaFile2[]
     }
     return reducedState;
   }
@@ -79,7 +79,7 @@ export const useFileExplorerDnd: FileExplorerPlugin<UseFileExplorerDndSignature>
   const [reducedState, updateState] = React.useReducer(
     reducerWrapper,
     getFileExplorerStateDefault(),
-    () => getFileExplorerStateDefault(params.items as IMediaFile[])
+    () => getFileExplorerStateDefault(params.items as IMediaFile2[])
   );
   const [{ registry, registerFile }] = React.useState(createFileRegistry);
   const { items, lastAction } = reducedState;
@@ -98,7 +98,7 @@ export const useFileExplorerDnd: FileExplorerPlugin<UseFileExplorerDndSignature>
   }, [lastAction, registry]);
 
   const createChildren = React.useCallback(
-    (files: IMediaFile[], targetId: string | null) => {
+    (files: IMediaFile2[], targetId: string | null) => {
       const childItems = files.flat(Infinity);
       params.onAddFiles?.(files);
       updateState({
@@ -112,7 +112,7 @@ export const useFileExplorerDnd: FileExplorerPlugin<UseFileExplorerDndSignature>
   );
 
   const createChild = React.useCallback(
-    (item: IMediaFile, targetId: string | null) => {
+    (item: IMediaFile2, targetId: string | null) => {
       updateState({
         type: 'create-child',
         item,
@@ -133,7 +133,7 @@ export const useFileExplorerDnd: FileExplorerPlugin<UseFileExplorerDndSignature>
   )
   const getMoveTargets = React.useCallback(({ itemId }: { itemId: string }) => {
 
-    const targets: IMediaFile[] = [];
+    const targets: IMediaFile2[] = [];
 
     const searchStack = Array.from(items);
     while (searchStack.length > 0) {
@@ -148,11 +148,11 @@ export const useFileExplorerDnd: FileExplorerPlugin<UseFileExplorerDndSignature>
       }
 
       if (!node.children) {
-        node.children = new Array<IMediaFile>()
+        node.children = new Array<IMediaFile2>()
       }
       targets.push(node);
 
-      node.children?.forEach((childNode) => searchStack.push(childNode as IMediaFile));
+      node.children?.forEach((childNode) => searchStack.push(childNode as IMediaFile2));
     }
 
     return targets;
@@ -163,15 +163,15 @@ export const useFileExplorerDnd: FileExplorerPlugin<UseFileExplorerDndSignature>
       return [...items];
     }
 
-    const item = fileExplorer.find(items as IMediaFile[], itemId);
+    const item = fileExplorer.find(items as IMediaFile2[], itemId);
     invariant(items);
     return item?.children ?? [];
   }, [items]);
 
   const getPathToItem = memoizeOne((targetId: string) =>
-    fileExplorer.getPathToItem({ current: items as IMediaFile[], targetId }) ?? [],);
+    fileExplorer.getPathToItem({ current: items as IMediaFile2[], targetId }) ?? [],);
 
-  const context = React.useMemo<FileExplorerDndContextValue<IMediaFile>>(
+  const context = React.useMemo<FileExplorerDndContextValue<IMediaFile2>>(
     () => ({
       dispatch: updateState,
       uniqueContextId: Symbol('unique-id'),
@@ -654,7 +654,7 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
         if (!instance.isItemExpanded(props.itemId!)) {
           instance.toggleItemExpansion(null as unknown as React.SyntheticEvent, props.itemId!);
         }
-        const files = await MediaFile.from(dropEvent);
+        const files = await MediaFile2.from(dropEvent);
          const {self} = dropEvent;
          instance.createChildren(files, self.data.itemId as string);
         cancelExpand();

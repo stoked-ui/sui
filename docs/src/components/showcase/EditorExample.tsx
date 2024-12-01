@@ -1,10 +1,10 @@
-import * as React from 'react';
 import {namedId} from "@stoked-ui/media-selector";
 import { AudioController, IEditorFileAction,  EditorFile, IEditorFile, VideoController, IEditorFileTrack } from "@stoked-ui/editor";
 
 const idFunc = () => namedId('track');
 
 const EditorExample: IEditorFile = new EditorFile({
+  id: 'stoked-ui-editor-project-example',
   name: 'Stoked UI - Multiverse',
   description: 'demonstrate the @stoked-ui/editor features',
   author: 'Brian Stoker',

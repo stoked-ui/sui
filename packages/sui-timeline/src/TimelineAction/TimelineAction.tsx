@@ -30,14 +30,17 @@ const Action = styled('div', {
   name: 'MuiTimelineAction',
   slot: 'root',
   shouldForwardProp: (prop) =>
-    shouldForwardProp(prop) &&
-    prop !== 'selected' &&
-    prop !== 'color' &&
-    prop !== 'duration' &&
-    prop !== 'scaleWidth' &&
-    prop !== 'loopCount' &&
-    prop !== 'loop' &&
-    prop !== 'trackHeight',
+    shouldForwardProp(prop)
+    && prop !== 'selected'
+    && prop !== 'color'
+    && prop !== 'duration'
+    && prop !== 'scaleWidth'
+    && prop !== 'loop'
+    && prop !== 'loopCount'
+    && prop !== 'hover'
+    && prop !== 'trackHeight'
+    && prop !== 'disabled'
+    && prop !== 'dim',
 })<{
   selected?: boolean;
   color?: string;
@@ -184,7 +187,7 @@ const LeftStretch = styled('div')(({ theme }) => ({
     top: 0,
     bottom: 0,
     margin: 'auto',
-    bordeRadius: '4px',
+    borderRadius: '4px',
     borderTop: '28px solid transparent',
     borderBottom: '28px solid transparent',
     left: 0,
@@ -241,7 +244,7 @@ function TimelineAction<
       scaleSplitCount,
       actionHoverId,
       setScaleCount,
-      getTrackHeight,
+      trackHeight,
       editorMode,
       selectedAction,
       selectedTrack
@@ -257,7 +260,6 @@ function TimelineAction<
   const isDragWhenClick = React.useRef(false);
   const { id, maxEnd, minStart, end, start } = action;
   const { track } = props;
-  const trackHeight =  getTrackHeight(file.tracks.indexOf(track), context);
 
   // get the maximum minimum pixel range
   const leftLimit = parserTimeToPixel(minStart || 0, {
@@ -281,7 +283,7 @@ function TimelineAction<
   });
 
   React.useEffect(() => {
-    if (track.lock) {
+    if (track.locked) {
       return;
     }
     setTransform(parserTimeToTransform({ start, end }, { startLeft, scale, scaleWidth }));
@@ -292,7 +294,7 @@ function TimelineAction<
 
   // actionName
   const classNames = ['action'];
-  if (movable && !track.lock) {
+  if (movable && !track.locked) {
     classNames.push('action-movable');
   }
   if (selected) {
@@ -318,7 +320,7 @@ function TimelineAction<
 
   const { onActionMoveStart, onActionMoving } = props;
   const handleDragStart: RndDragStartCallback = () => {
-    if (track.lock) {
+    if (track.locked) {
       return;
     }
     if (onActionMoveStart) {
@@ -326,7 +328,7 @@ function TimelineAction<
     }
   };
   const handleDrag: RndDragCallback = ({ left, width }) => {
-    if (track.lock) {
+    if (track.locked) {
       return;
     }
     isDragWhenClick.current = true;
@@ -347,7 +349,7 @@ function TimelineAction<
 
   const { onActionMoveEnd } = props;
   const handleDragEnd: RndDragEndCallback = ({ left, width }) => {
-    if (track.lock) {
+    if (track.locked) {
       return;
     }
     // Computation time
@@ -377,7 +379,7 @@ function TimelineAction<
   const { onActionResizeStart, onActionResizing, onActionResizeEnd } = props;
 
   const handleResizeStart: RndResizeStartCallback = (dir) => {
-    if (track.lock) {
+    if (track.locked) {
       return;
     }
     if (onActionResizeStart) {
@@ -386,7 +388,7 @@ function TimelineAction<
   };
 
   const handleResizing: RndResizeCallback = (dir, { left, width }) => {
-    if (track.lock) {
+    if (track.locked) {
       return;
     }
     isDragWhenClick.current = true;
@@ -411,7 +413,7 @@ function TimelineAction<
   };
 
   const handleResizeEnd: RndResizeEndCallback = (dir, { left, width }) => {
-    if (track.lock) {
+    if (track.locked) {
       return;
     }
     // calculatingTime
@@ -487,8 +489,8 @@ function TimelineAction<
   const loopCount =
     !!action?.loop && typeof action.loop === 'number' && action.loop > 0 ? action.loop : undefined;
 
-  const hoverLocks = actionHoverId === action.id && track.lock;
-  const lock = (
+  const hoverLocks = actionHoverId === action.id && track.locked;
+  const locked = (
     <Zoom in={hoverLocks}>
       <LockIcon
         sx={(theme) => ({
@@ -500,10 +502,10 @@ function TimelineAction<
     </Zoom>
   );
 
-  const locks = track.lock ? (
+  const locks = track.locked ? (
     <React.Fragment>
-      {lock}
-      {lock}
+      {locked}
+      {locked}
     </React.Fragment>
   ) : undefined;
 
@@ -593,7 +595,7 @@ function TimelineAction<
           });
         }}
         onMouseDown={() => {
-          if (track.lock) {
+          if (track.locked) {
             return;
           }
           isDragWhenClick.current = false;
@@ -613,7 +615,7 @@ function TimelineAction<
         }}
         onDoubleClick={(e) => {
           e.stopPropagation();
-          if (track.lock) {
+          if (track.locked) {
             return;
           }
           if (onDoubleClickAction) {
@@ -624,7 +626,7 @@ function TimelineAction<
           }
         }}
         onContextMenu={(e) => {
-          if (track.lock) {
+          if (track.locked) {
             return;
           }
           if (onContextMenuAction) {
@@ -659,152 +661,152 @@ TimelineAction.propTypes = {
   // | These PropTypes are generated from the TypeScript type definitions |
   // | To update them edit the TypeScript types and run "pnpm proptypes"  |
   // ----------------------------------------------------------------------
-  action: PropTypes.any.isRequired,
+  action: PropTypes.any,
   areaRef: PropTypes.shape({
-    current: PropTypes.object.isRequired,
-  }).isRequired,
+    current: PropTypes.object,
+  }),
   /**
    * The content of the component.
    */
   children: PropTypes.node,
-  classes: PropTypes.object.isRequired,
-  className: PropTypes.string.isRequired,
-  deltaScrollLeft: PropTypes.func.isRequired,
+  classes: PropTypes.object,
+  className: PropTypes.string,
+  deltaScrollLeft: PropTypes.func,
   /**
    * Whether the action is prohibited from running
    */
-  disable: PropTypes.bool.isRequired,
+  disabled: PropTypes.bool,
   dragLineData: PropTypes.shape({
-    assistPositions: PropTypes.arrayOf(PropTypes.number).isRequired,
-    isMoving: PropTypes.bool.isRequired,
-    movePositions: PropTypes.arrayOf(PropTypes.number).isRequired,
-  }).isRequired,
+    assistPositions: PropTypes.arrayOf(PropTypes.number),
+    isMoving: PropTypes.bool,
+    movePositions: PropTypes.arrayOf(PropTypes.number),
+  }),
   /**
    * Whether the action is scalable
    */
-  flexible: PropTypes.bool.isRequired,
+  flexible: PropTypes.bool,
   /**
    * @description Get the action id list to prompt the auxiliary line. Calculate it when
    *   move/resize start. By default, get all the action ids except the current move action.
    */
-  getAssistDragLineActionIds: PropTypes.func.isRequired,
+  getAssistDragLineActionIds: PropTypes.func,
   /**
    * @description Custom scale rendering
    */
-  getScaleRender: PropTypes.func.isRequired,
-  handleTime: PropTypes.func.isRequired,
+  getScaleRender: PropTypes.func,
+  handleTime: PropTypes.func,
   /**
    * Whether the action is hidden from timeline
    */
-  hidden: PropTypes.bool.isRequired,
+  muted: PropTypes.bool,
   /**
    * Whether the action is locked on the timeline
    */
-  locked: PropTypes.bool.isRequired,
+  locked: PropTypes.bool,
   /**
    * Whether the action is movable
    */
-  movable: PropTypes.bool.isRequired,
+  movable: PropTypes.bool,
   /**
    * @description Move end callback (return false to prevent onChange from triggering)
    */
-  onActionMoveEnd: PropTypes.func.isRequired,
+  onActionMoveEnd: PropTypes.func,
   /**
    * @description Start moving callback
    */
-  onActionMoveStart: PropTypes.func.isRequired,
+  onActionMoveStart: PropTypes.func,
   /**
    * @description Move callback (return false to prevent movement)
    */
-  onActionMoving: PropTypes.func.isRequired,
+  onActionMoving: PropTypes.func,
   /**
    * @description size change end callback (return false to prevent onChange from triggering)
    */
-  onActionResizeEnd: PropTypes.func.isRequired,
+  onActionResizeEnd: PropTypes.func,
   /**
    * @description Start changing the size callback
    */
-  onActionResizeStart: PropTypes.func.isRequired,
+  onActionResizeStart: PropTypes.func,
   /**
    * @description Start size callback (return false to prevent changes)
    */
-  onActionResizing: PropTypes.func.isRequired,
+  onActionResizing: PropTypes.func,
   /**
    * @description click action callback
    */
-  onClickAction: PropTypes.func.isRequired,
+  onClickAction: PropTypes.func,
   /**
    * @description Click action callback (not executed when drag is triggered)
    */
-  onClickActionOnly: PropTypes.func.isRequired,
+  onClickActionOnly: PropTypes.func,
   /**
    * @description Click time area event, prevent setting time when returning false
    */
-  onClickTimeArea: PropTypes.func.isRequired,
+  onClickTimeArea: PropTypes.func,
   /**
    * @description Click track callback
    */
-  onClickTrack: PropTypes.func.isRequired,
+  onClickTrack: PropTypes.func,
   /**
    * @description Right-click action callback
    */
-  onContextMenuAction: PropTypes.func.isRequired,
+  onContextMenuAction: PropTypes.func,
   /**
    * @description Right-click track callback
    */
-  onContextMenuTrack: PropTypes.func.isRequired,
+  onContextMenuTrack: PropTypes.func,
   /**
    * @description cursor drag event
    */
-  onCursorDrag: PropTypes.func.isRequired,
+  onCursorDrag: PropTypes.func,
   /**
    * @description cursor ends drag event
    */
-  onCursorDragEnd: PropTypes.func.isRequired,
+  onCursorDragEnd: PropTypes.func,
   /**
    * @description cursor starts drag event
    */
-  onCursorDragStart: PropTypes.func.isRequired,
+  onCursorDragStart: PropTypes.func,
   /**
    * @description Double-click action callback
    */
-  onDoubleClickAction: PropTypes.func.isRequired,
+  onDoubleClickAction: PropTypes.func,
   /**
    * @description Double-click track callback
    */
-  onDoubleClickTrack: PropTypes.func.isRequired,
-  onScroll: PropTypes.func.isRequired,
+  onDoubleClickTrack: PropTypes.func,
+  onScroll: PropTypes.func,
   /**
    * Whether the action is selected
    */
-  selected: PropTypes.bool.isRequired,
+  selected: PropTypes.bool,
   /**
    * Set the number of scales
    */
-  setScaleCount: PropTypes.func.isRequired,
+  setScaleCount: PropTypes.func,
   /**
    * The props used for each component slot.
    */
-  slotProps: PropTypes.object.isRequired,
+  slotProps: PropTypes.object,
   /**
    * Overridable component slots.
    */
-  slots: PropTypes.object.isRequired,
+  slots: PropTypes.object,
   /**
    * @description Custom timelineControl style
    */
-  style: PropTypes.object.isRequired,
+  style: PropTypes.object,
   /**
    * The system prop that allows defining system overrides as well as additional CSS styles.
    */
   sx: PropTypes.oneOfType([
     PropTypes.arrayOf(
-      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]).isRequired,
+      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),
     ),
     PropTypes.func,
     PropTypes.object,
-  ]).isRequired,
-  track: PropTypes.any.isRequired,
+  ]),
+  track: PropTypes.any,
 } as any;
 
 export { TimelineAction };

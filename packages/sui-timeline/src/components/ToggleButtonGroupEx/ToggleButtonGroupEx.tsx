@@ -183,12 +183,12 @@ ToggleButtonGroupEx.propTypes = {
   // | These PropTypes are generated from the TypeScript type definitions |
   // | To update them edit the TypeScript types and run "pnpm proptypes"  |
   // ----------------------------------------------------------------------
-  height: PropTypes.number.isRequired,
-  maxHeight: PropTypes.number.isRequired,
-  maxWidth: PropTypes.number.isRequired,
-  minHeight: PropTypes.number.isRequired,
-  minWidth: PropTypes.number.isRequired,
-  width: PropTypes.number.isRequired,
+  height: PropTypes.number,
+  maxHeight: PropTypes.number,
+  maxWidth: PropTypes.number,
+  minHeight: PropTypes.number,
+  minWidth: PropTypes.number,
+  width: PropTypes.number,
   children: PropTypes.any,
   sx: PropTypes.oneOfType([PropTypes.object, PropTypes.array]), // Add this line
 } as any;

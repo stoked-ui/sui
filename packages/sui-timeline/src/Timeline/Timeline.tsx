@@ -23,6 +23,7 @@ import { getScaleCountByRows } from "../utils";
 import { TimelineControlProps } from "./TimelineControlProps";
 import {fitScaleData} from "../TimelineProvider/TimelineProviderFunctions";
 import TimelineTrackActions from "../TimelineLabels/TimelineTrackActions";
+import {Box} from "@mui/material";
 
 const useUtilityClasses = (ownerState: TimelineProps) => {
   const { classes } = ownerState;
@@ -46,7 +47,7 @@ const TimelineRoot = styled('div', {
   '& .SuiScrollbar': {
     height: '18px',
   },
-  '& .timeline-editor-edit-track': {
+  '& .timeline-track': {
     opacity: 0,
     transform: 'scaleX(100%):nth-child(3n+1)',
     transitionProperty: 'opacity, transform',
@@ -61,7 +62,7 @@ const TimelineRoot = styled('div', {
     transitionTimingFunction: 'cubic-bezier(0.750, -0.015, 0.565, 1.055)'
   },
   '&.MuiTimeline-loaded': {
-    '& .timeline-editor-edit-track': {
+    '& .timeline-track': {
       opacity: 1,
       transform: 'translateX(0)',
       transitionDelay: 'calc(0.055s * var(--trackIndex)))',
@@ -192,11 +193,15 @@ const Timeline = React.forwardRef(function Timeline(
   }, [settings.scrollTop]);
 
   React.useEffect(() => {
+    if (engine.canvasDuration + 2 > engine.maxDuration) {
+      engine.maxDuration = engine.canvasDuration + 2;
+    }
     if (tracksRef.current?.clientWidth && !engine.isLoading) {
-      const scaleData = fitScaleData(file?.tracks, context, tracksRef.current?.clientWidth);
+      const scaleData = fitScaleData(context, tracksRef.current?.clientWidth);
+      console.info('initialize scale', JSON.stringify(scaleData));
       dispatch({ type: 'SET_SETTING', payload: { value: { ...scaleData } } });
     }
-  }, [tracksRef.current?.clientWidth,  tracksRef.current?.scrollWidth, engine.isLoading])
+  }, [engine.maxDuration, engine.canvasDuration, engine.isLoading])
 
 
   React.useEffect(() => {
@@ -260,172 +265,114 @@ const Timeline = React.forwardRef(function Timeline(
       dispatch({ type: 'SET_COMPONENT', payload: { key: 'scrollSync', value: scrollSync.current }});
     }
   }, [scrollSync.current])
+
   return (
     <Root
       ref={ref}
       {...rootProps}
       className={rootClasses}
-      sx={sx}
+      sx={[...(Array.isArray(sx) ? sx : [sx]), { height: '100%' }]}
       onScroll={inProps.onScrollVertical}
     >
-      {!flags.collapsed && !flags.noLabels && (
-        <React.Fragment>
-          <Labels
-            ref={labelsRef}
-            {...labelsProps.ownerState}
-            onChange={onChange}
-            controllers={inProps.controllers}
-            onAddFiles={inProps.onAddFiles}
-            onContextMenu={inProps.onContextMenuTrack}
-            onClick={inProps.onClickLabel}
-          />
-          {flags.verticalResizer && !flags.noResizer && components.timelineArea &&
-            <TimelineScrollResizer
-              elementRef={tracksRef}
-              type='vertical'
-              adjustScale={(value) => {
-                if (labelsRef.current) {
-                  return false;
-                }
-                const scaleData = fitScaleData(file.tracks, context, labelsRef!.current.clientWidth - value);
-                dispatch({ type: 'SET_SETTING', payload: { value: { ...scaleData } } });
-                return true;
-              }}
+        {!flags.collapsed && !flags.noLabels && (
+          <React.Fragment>
+            <Labels
+              ref={labelsRef}
+              {...labelsProps.ownerState}
+              onChange={onChange}
+              controllers={inProps.controllers}
+              onAddFiles={inProps.onAddFiles}
+              onContextMenu={inProps.onContextMenuTrack}
+              onClick={inProps.onClickLabel}
             />
-          }
-        </React.Fragment>
-      )}
-
-      {engine &&
-        <TimelineControlRoot
-          /* style={style} */
-          sx={{...{
-              width: '100%',
-              flex: '1 1 auto',
-              '&-action': {
-                height: '28px !important',
-                top: '50%',
-                transform: 'translateY(-50%)',
-              },
-              backgroundColor: 'red',
-            }, backgroundColor: 'unset'}}
-          ref={domRef}
-          className={`${PREFIX} ${inProps.locked ? `${PREFIX}-disable` : ''} ${engine.isLoading ? `${PREFIX}-loaded` : ''}`}
-        >
-          <ScrollSync ref={scrollSync}>
-            {({ scrollLeft, scrollTop: scrollTopCurrent, onScroll }) => {
-              return (<React.Fragment>
-
-                <TimelineTime
-                  {...commonProps}
-                  onScroll={onScroll}
-                  scrollLeft={scrollLeft}
-                />
-                <TrackArea
-                  {...commonProps}
-                  ref={(editAreaRef: TimelineTrackAreaState) => {
-                    (areaRef.current as any) = editAreaRef?.domRef.current;
-                    (tracksRef.current as any) = editAreaRef?.tracksRef.current;
-                  }}
-                  scrollTop={scrollTopCurrent}
-                  scrollLeft={scrollLeft}
-                  deltaScrollLeft={flags.autoScroll && commonProps.deltaScrollLeft}
-                  onClickTrack={inProps.onClickTrack}
-                  onClickAction={inProps.onClickAction}
-                  onScroll={(params) => {
-                    onScroll(params);
-                    if (inProps.onScrollVertical) {
-                      inProps.onScrollVertical(params as any);
-                    }}}
-                  onAddFiles={inProps.onAddFiles}
-                  onContextMenuAction={inProps.onContextMenuAction}
-                  onContextMenuTrack={inProps.onContextMenuTrack}
-                />
-                {!flags.hideCursor && (
-                  <TimelineCursor
-                    {...settings}
-                    scrollLeft={scrollLeft}
-                    areaRef={areaRef}
-                    scrollSync={scrollSync}
-                  />
-
-                )}
-              </React.Fragment>)
-            }}
-          </ScrollSync>
-          {/* flags.noResizer && <TimelineScrollResizer
-            scrollSync={scrollSync}
-            type='horizontal'
-            adjustScale={(value) => {
-              if (scrollSync?.current?.state?.clientWidth) {
-                return false;
-              }
-              const scaleData = fitScaleData(
-                file.tracks,
-                context,
-                scrollSync.current.state.clientWidth - value - startLeft
-              );
-
-              dispatch({ type: 'SET_SETTING', payload: { value: { ...scaleData } } });
-              return true;
-            }}
-          /> */}
-
-
-        {!flags.noResizer &&
-         <TimelineScrollResizer elementRef={tracksRef}
-            type='horizontal'
-            adjustScale={(value) => {
-            const scaledSettings = fitScaleData(file.tracks, context, areaRef.current.clientWidth - value);
-            dispatch({ type: 'SET_SETTING', payload: { value: { ...scaledSettings } } });
-            return true;
-          }}
-        />}
-        </TimelineControlRoot>
-        /*
-        <Control
-          sx={{
-            width: '100%',
-            flex: '1 1 auto',
-            '&-action': {
-              height: '28px !important',
-              top: '50%',
-              transform: 'translateY(-50%)',
-            },
-            backgroundColor: 'red',
-          }}
-          {...controlProps.ownerState}
-          onDoubleClickTrack={createAction}
-          onScroll={({ scrollTop }) => {
-            if (labelsRef.current) {
-              labelsRef.current.scrollTop = scrollTop;
+            {flags.verticalResizer && !flags.noResizer && components.timelineArea &&
+              <TimelineScrollResizer
+                elementRef={tracksRef}
+                type='vertical'
+                adjustScale={(value) => {
+                  if (labelsRef.current) {
+                    return false;
+                  }
+                  const scaleData = fitScaleData(context, labelsRef!.current.clientWidth - value);
+                  dispatch({ type: 'SET_SETTING', payload: { value: { ...scaleData } } });
+                  return true;
+                }}
+              />
             }
-          }}
-          startLeft={9}
-          ref={inProps.timelineState}
-          timelineState={timelineState}
-          autoScroll
-          disableDrag={locked}
-          dragLine={flags.includes('edgeSnap')}
-          gridSnap={flags.includes('gridSnap')}
-          disabled={inProps.disabled}
-          controllers={inProps.controllers}
-          viewSelector={inProps.viewSelector ?? '.viewer'}
-          onClickTrack={(e, {track }) => {
-           dispatch({type: 'SELECT_TRACK', payload: track });
-           inProps?.onTrackClick?.(track);
-          }}
-          onClickAction={(e, { track, action }) => {
-            e.stopPropagation();
-            dispatch({type: 'SELECT_ACTION', payload: {track, action} });
-            inProps?.onActionClick?.(action);
-          }}
-          onContextMenuAction={inProps.onContextMenuAction}
-          onContextMenuTrack={inProps.onContextMenuTrack}
-          collapsed={inProps.collapsed}
-      />
-      */
-      }
+          </React.Fragment>
+        )}
+
+        {engine &&
+          <TimelineControlRoot
+            /* style={style} */
+            sx={{...{
+                width: '100%',
+                flex: '1 1 auto',
+                '&-action': {
+                  height: '28px !important',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                },
+                backgroundColor: 'red',
+              }, backgroundColor: 'unset'}}
+            ref={domRef}
+            className={`${PREFIX} ${inProps.locked ? `${PREFIX}-disabled` : ''} ${engine.isLoading ? `${PREFIX}-loaded` : ''}`}>
+            <ScrollSync ref={scrollSync}>
+              {({ scrollLeft, scrollTop: scrollTopCurrent, onScroll }) => {
+                return (<React.Fragment>
+
+                  <TimelineTime
+                    {...commonProps}
+                    onScroll={onScroll}
+                    scrollLeft={scrollLeft}
+                  />
+                  <TrackArea
+                    {...commonProps}
+                    ref={(editAreaRef: TimelineTrackAreaState) => {
+                      (areaRef.current as any) = editAreaRef?.domRef.current;
+                      (tracksRef.current as any) = editAreaRef?.tracksRef.current;
+                    }}
+                    scrollTop={scrollTopCurrent}
+                    scrollLeft={scrollLeft}
+                    deltaScrollLeft={flags.autoScroll && commonProps.deltaScrollLeft}
+                    onClickTrack={inProps.onClickTrack}
+                    onClickAction={inProps.onClickAction}
+                    onScroll={(params) => {
+                      onScroll(params);
+                      if (inProps.onScrollVertical) {
+                        inProps.onScrollVertical(params as any);
+                      }}}
+                    onAddFiles={inProps.onAddFiles}
+                    onContextMenuAction={inProps.onContextMenuAction}
+                    onContextMenuTrack={inProps.onContextMenuTrack}
+                  />
+                  {!flags.hideCursor && (
+                    <TimelineCursor
+                      {...settings}
+                      scrollLeft={scrollLeft}
+                      areaRef={areaRef}
+                      scrollSync={scrollSync}
+                    />
+
+                  )}
+                </React.Fragment>)
+              }}
+            </ScrollSync>
+
+
+            {!flags.noResizer &&
+             <TimelineScrollResizer
+               elementRef={tracksRef}
+               type='horizontal'
+               adjustScale={(value) => {
+                 const scaledSettings = fitScaleData(context, areaRef.current.clientWidth - value);
+                 dispatch({ type: 'SET_SETTING', payload: { value: { ...scaledSettings } } });
+                 return true;
+               }}
+             />}
+
+          </TimelineControlRoot>
+        }
 
     </Root>
   );

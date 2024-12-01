@@ -5,6 +5,7 @@ import {SlotComponentProps} from '@mui/base/utils';
 import { IController } from '../Controller/Controller.types';
 import {TimelineLabelsClasses} from './timelineLabelsClasses';
 import { ITimelineTrack } from "../TimelineTrack";
+import {TimelineTrackActionsProps} from "./TimelineTrackActions";
 
 export interface TimelineLabelsSlots {
   /**
@@ -19,7 +20,7 @@ export interface TimelineLabelsSlots {
 export interface TimelineLabelsSlotProps {
   root?: SlotComponentProps<'div', {}, TimelineLabelsProps>;
   label?: SlotComponentProps<'div', {}, TimelineLabelsProps>;
-  actions?: SlotComponentProps<'div', {}, TimelineLabelsProps>;
+  actions?: SlotComponentProps<'div', {}, TimelineTrackActionsProps>;
 }
 
 export interface TimelineLabelsPropsBase extends React.HTMLAttributes<HTMLDivElement> {

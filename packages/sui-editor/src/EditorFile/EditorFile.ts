@@ -5,12 +5,15 @@ import {
   ITimelineFileProps,
   Controller,
   IMimeType,
-  ProjectOutputFile, IProjectOutputFileProps, Constructor,
+  ProjectOutputFile,
+  IProjectOutputFileProps,
   MimeRegistry,
   FileState,
+  WebFile,
+  MimeType, IFileParams,
 } from '@stoked-ui/timeline';
-import { getFileName, getMimeType, IMediaFile } from '@stoked-ui/media-selector';
-import Controllers from '../Controllers/Controllers';
+import { FetchBackoff } from '@stoked-ui/common';
+import { IMediaFile2 } from '@stoked-ui/media-selector';
 import {
   BlendMode, Fit,
   IEditorAction,
@@ -38,19 +41,19 @@ export interface IEditorFile<
   backgroundColor?: string;
   width: number;
   height: number;
-  video?: IMediaFile;
+  video?: IMediaFile2;
   blendMode: BlendMode;
   fit: Fit;
 }
 
 // @ts-ignore
-export const SUIEditorRefs: IMimeType = MimeRegistry.create('stoked-ui', 'timeline', '.suer', 'Stoked UI - Editor Project File w/ Url Refs', false);
-export const SUIEditor: IMimeType = MimeRegistry.create('stoked-ui', 'timeline', '.sue', 'Stoked UI - Editor Project File', true);
+export const SUIEditorRefs: IMimeType = MimeRegistry.create('stoked-ui', 'editor', '.suer', 'Stoked UI - Editor Project File w/ Url Refs', false);
+export const SUIEditor: IMimeType = MimeRegistry.create('stoked-ui', 'editor', '.sue', 'Stoked UI - Editor Project File', true);
 export const SUIVideoRefs: IMimeType = MimeRegistry.create('stoked-ui', 'video', '.suvr', 'Stoked UI - Video File w/ Url Refs', false);
 export const SUIVideo: IMimeType = MimeRegistry.create('stoked-ui', 'video', '.suv', 'Stoked UI - Video File', true);
 
 export class SUVideoFile extends ProjectOutputFile {
-  file: IMediaFile;
+  file: IMediaFile2;
 
   sourceId: string;
 
@@ -59,7 +62,6 @@ export class SUVideoFile extends ProjectOutputFile {
     this.file = props.file;
     this.sourceId = props.sourceId;
   }
-
 
   async initialize(files?: File[]) {
     if (this.state !== FileState.CONSTRUCTED) {
@@ -73,16 +75,6 @@ export class SUVideoFile extends ProjectOutputFile {
     this.state = FileState.READY;
   };
 
-  protected getDataStreams(): AsyncIterable<ReadableStream<Uint8Array>> {
-    // eslint-disable-next-line consistent-this
-    const instance = this; // Preserve the `this` context
-    return {
-      async *[Symbol.asyncIterator]() {
-        // Create a ReadableStream for each file
-        yield instance.file.stream() as ReadableStream<Uint8Array>;
-      },
-    };
-  }
 }
 
 
@@ -162,6 +154,84 @@ export default class EditorFile<
       }) || [],
     };
   }
+
+
+  // Function to create a combined file with JSON data and attached files
+  async createBlob(embedded: boolean = true): Promise<Blob> {
+    await this.fullRead();
+    return super.createBlob(embedded);
+  }
+
+  async initialize(files: File[] = []) {
+    try {
+      await super.initialize(files);
+    } catch (ex) {
+      console.error('Error initializing Editor File:', ex);
+    }
+  }
+
+  static async fromBlob(blob: Blob): Promise<EditorFile>
+  {
+    try {
+      console.info('Project File: -2', blob);
+      const { props, files } = await EditorFile.readBlob(blob, false);
+      console.info('Project File: -1', props);
+      const projectFile = new EditorFile(props);
+      console.info('Project File:', projectFile);
+      await projectFile.initialize(files);
+      console.info('Project File: 2', projectFile);
+      return projectFile;
+    } catch (ex) {
+      throw new Error(`Error loading file from blob: ${blob}`);
+    }
+  }
+
+  static async fromUrl(url: string): Promise<EditorFile> {
+    const response = await FetchBackoff(url, { cache: "no-store" });
+    if (!response.ok) {
+      throw new Error(`Network response was not ok: ${url}`);
+    }
+    try {
+      const contentType = response.headers.get("content-type") as MimeType;
+      console.info(`Load: ${url} Content-Type: ${contentType}`);
+      const blob = await response.blob()
+      return this.fromBlob(blob);
+    } catch (ex) {
+      throw new Error(`Error loading file from url: ${url}`);
+    }
+  }
+
+  /*
+    static async fromBlob(
+      blob: Blob,
+    ): Promise<EditorFile>
+    {
+      try {
+        const { props, files } = await this.readBlob(blob, true);
+        const projectFile = new EditorFile(props);
+        await projectFile.initialize(files);
+        return projectFile;
+      } catch (ex) {
+        throw new Error(`Error loading file from blob: ${blob}`);
+      }
+    }
+
+    static async fromUrl(url: string): Promise<EditorFile> {
+      const response = await fetch(url, { cache: "no-store" });
+      if (!response.ok) {
+        throw new Error(`Network response was not ok: ${url}`);
+      }
+      try {
+        const contentType = response.headers.get("content-type") as MimeType;
+        console.info(`Load: ${url} Content-Type: ${contentType}`);
+        const blob = await response.blob()
+
+        return this.fromBlob(blob );
+      } catch (ex) {
+        throw new Error(`Error loading file from url: ${url}`);
+      }
+    } */
+
 
   static fileCache: Record<string, EditorFile> = {};
 }

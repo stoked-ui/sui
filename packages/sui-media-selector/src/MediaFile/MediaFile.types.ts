@@ -1,5 +1,5 @@
 import * as React from "react";
-import {MediaType} from "./MediaType";
+import {MediaType} from "../MediaType/MediaType";
 
 export interface IMediaFileBase {
   readonly path?: string;
@@ -24,22 +24,24 @@ export interface IMediaFile extends File, IMediaFileBase {
   readonly blob: Blob;
   _url?: string;
   get url(): string;
-  get mediaFileSize(): number;
+  preload(): Promise<void>;
   readonly created: number;
   readonly lastModified: number;
   readonly name: string;
   readonly webkitRelativePath: string;
-  readonly element?: any;
-  readonly duration?: number;
-  readonly width?: number;
-  readonly height?: number;
-  readonly aspectRatio?: number;
+  element?: any;
+  get duration(): number | null;
+  get width(): number | null;
+  get height(): number | null;
+  get aspectRatio(): number | null;
   readonly version: number;
   itemId: string;
   visibleIndex?: number;
   expanded?: boolean;
   selected?: boolean;
   children?: IMediaFile[]
+  readonly _metadataSize: number;
+  readonly _metadataBlob: Blob;
 }
 
 export const FILES_TO_IGNORE = [

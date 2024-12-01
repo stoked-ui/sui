@@ -21,34 +21,34 @@ function TimelineProvider<
   StateType extends TimelineState = TimelineState,
   StateActionType = TimelineStateAction,
   FileType extends ITimelineFile = ITimelineFile,
-  ActionType extends ITimelineAction = ITimelineAction,
   TrackType extends ITimelineTrack = ITimelineTrack,
->(props: TimelineProviderProps<EngineType, StateType, StateActionType, FileType>) {
-  const { children, id, engine } = props;
+  ActionType extends ITimelineAction = ITimelineAction,
+>(props: TimelineProviderProps<EngineType, StateType, StateActionType, FileType, TrackType, ActionType>) {
+  const { children, engine  } = props;
+  let { state: initialState } = props;
 
-  const controllers = props.controllers;
-  TimelineProvider.Controllers = controllers;
-  TimelineFile.Controllers = controllers;
+  if (!initialState) {
+    const controllers = props.controllers;
+    TimelineProvider.Controllers = controllers;
+    TimelineFile.Controllers = controllers;
 
-  const theEngine = (engine ?? new Engine({ controllers })) as EngineType;
-  const getStateBase = () => {
-    return theEngine.state as EngineState;
-  };
+    const theEngine = (engine ?? new Engine({controllers})) as EngineType;
+    const getStateBase = () => {
+      return theEngine.state as EngineState;
+    };
 
-  const stateProps = {
-    id,
-    file: props.file,
-    engine: theEngine,
-    getState: getStateBase,
-    selectedTrack: props.selectedTrack ?? null,
-    selectedAction: props.selectedAction ?? null,
-  };
+    const stateProps = {
+      file: props.file,
+      engine: theEngine,
+      getState: getStateBase,
+      selectedTrack: props.selectedTrack,
+      selectedAction: props.selectedAction,
+    };
 
-  const timelineState = createTimelineState<EngineType, EngineStateType, FileType, ActionType, TrackType>(stateProps);
-
-
+    initialState = createTimelineState<StateType, EngineType, EngineStateType, FileType, TrackType, ActionType>(stateProps);
+  }
   const reducer = props.reducer ?? TimelineReducer;
-  const [state, dispatch] = React.useReducer(reducer, timelineState);
+  const [state, dispatch] = React.useReducer(reducer, initialState);
 
   React.useEffect(() => {
     if (!LocalDb.initialized) {

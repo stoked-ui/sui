@@ -1,6 +1,6 @@
 /*
 import {Howl} from 'howler';
-import { AudioFile, IMediaFile } from "@stoked-ui/media-selector";
+import { AudioFile, IMediaFile2 } from "@stoked-ui/media-selector";
 import generateWaveformImage from "./AudioImage";
 import Controller from './Controller';
 import { GetBackgroundImage } from "./Controller.types";
@@ -154,7 +154,7 @@ class AudioControl<
     this.stop(params);
   }
 
-  getBackgroundImage?: GetBackgroundImage = async (file: IMediaFile) => {
+  getBackgroundImage?: GetBackgroundImage = async (file: IMediaFile2) => {
     if (!file || !file.element?.duration()) {
       throw new Error('attempting to generate a wave image for an audio action and the action was not supplied')
     }

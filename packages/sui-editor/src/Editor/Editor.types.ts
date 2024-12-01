@@ -67,36 +67,31 @@ export interface EditorPropsBase extends React.HTMLAttributes<HTMLDivElement> {
   classes?: Partial<EditorClasses>;
   detailMode?: boolean;
   file?: IEditorFile;
-
+  FileExplorerProps?: FileExplorerProps<IMediaFile, undefined>;
   fileUrl?: string,
   fileView?: boolean;
-
-  localDb?: boolean;
-
+  fullscreen?: boolean;
   labels?: boolean;
-
+  localDb?: boolean;
   minimal?: boolean;
   newTrack?: boolean;
-  noResizer?: boolean;
-
   noLabels?: boolean;
-
+  noResizer?: boolean;
   noSaveControls?: boolean;
-
-  record?: boolean;
-
   noSnapControls?: boolean;
-
+  noTrackControls?: boolean;
+  noZoom?: boolean;
+  preview?: boolean;
+  record?: boolean;
+  openSaveControls?: boolean;
+  snapControls?: boolean;
+  trackControls?: boolean;
   /**
    * The system prop that allows defining system overrides as well as additional CSS styles.
    */
   sx?: SxProps<Theme>;
-
   timelineSx?: SxProps<Theme>;
-
-  noTrackControls?: boolean;
-
-  noZoom?: boolean;
+  filesSx?: SxProps<Theme>;
 }
 
 export interface EditorProps<R extends IMediaFile = IMediaFile, Multiple extends boolean | undefined = true>

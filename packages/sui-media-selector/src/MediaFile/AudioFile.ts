@@ -1,7 +1,7 @@
 import {Howl} from 'howler';
 import MediaFile from "./MediaFile";
 import {IResolutionFile} from "./Resolution";
-import {MediaType} from "./MediaType";
+import {MediaType} from "../MediaType/MediaType";
 
 interface WaveformOptions {
   width?: number;

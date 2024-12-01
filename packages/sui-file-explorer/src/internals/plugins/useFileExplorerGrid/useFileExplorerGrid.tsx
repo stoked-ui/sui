@@ -1,5 +1,5 @@
 import * as React from 'react'
-import {namedId, IMediaFile} from "@stoked-ui/media-selector";
+import {namedId, IMediaFile2} from "@stoked-ui/media-selector";
 import {
   GridColumn,
   GridColumns,
@@ -28,7 +28,7 @@ const updateGridState = ({ headers, columns, initializedIndexes, id }: { headers
   };
 };
 
-export const useFileExplorerGrid: UseFileExplorerGridPlugin = <R extends IMediaFile>({
+export const useFileExplorerGrid: UseFileExplorerGridPlugin = <R extends IMediaFile2>({
   instance,
   state,
   rootRef,

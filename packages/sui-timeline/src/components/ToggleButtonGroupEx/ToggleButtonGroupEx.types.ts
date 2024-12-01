@@ -10,6 +10,6 @@ export interface ToggleButtonGroupExProps extends ToggleButtonGroupProps {
   maxHeight?: number,
   width?: number,
   height?: number,
-  children?: React.ReactElement[],
+  children?: React.ReactNode[],
   sx?: SxProps<Theme>,
 }

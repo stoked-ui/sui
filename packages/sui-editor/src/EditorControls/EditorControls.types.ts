@@ -1,10 +1,9 @@
 import * as React from 'react';
+import { Version, ControlState } from '@stoked-ui/timeline';
 import {Theme} from '@mui/material/styles';
 import {SxProps} from '@mui/system';
 import {SlotComponentProps} from '@mui/base/utils';
-import {TimelineState, Version} from '@stoked-ui/timeline';
 import {EditorControlsClasses} from './editorControlsClasses';
-import EditorEngine from "../EditorEngine/EditorEngine";
 
 export interface EditorControlsSlots {
   /**
@@ -66,7 +65,7 @@ export interface EditorControlsProps
   slotProps?: EditorControlsSlotProps
 }
 
-export type ControlState = 'paused' | 'playing' | 'recording'
+export type EditorControlState = ControlState | 'record';
 
 export const VideoVersionFromKey = (key) => {
   const parts = key.split('|');

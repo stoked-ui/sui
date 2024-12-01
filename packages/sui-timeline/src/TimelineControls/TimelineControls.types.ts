@@ -5,7 +5,7 @@ import {SlotComponentProps} from '@mui/base/utils';
 import {Version} from '../Engine/Engine.types';
 import {TimelineControlsClasses} from './timelineControlsClasses';
 
-export interface EditorControlsSlots {
+export interface TimelineControlsSlots {
   /**
    * Element rendered at the root.
    * @default EditorControlsRoot
@@ -13,11 +13,11 @@ export interface EditorControlsSlots {
   root?: React.ElementType;
 }
 
-export interface EditorControlsSlotProps {
-  root?: SlotComponentProps<'div', {}, EditorControlsProps>;
+export interface TimelineControlsSlotProps {
+  root?: SlotComponentProps<'div', {}, TimelineControlsSlots>;
 }
 
-export interface EditorControlsPropsBase extends React.HTMLAttributes<HTMLDivElement> {
+export interface TimelineControlsPropsBase extends React.HTMLAttributes<HTMLDivElement> {
   className?: string;
   /**
    * Override or extend the styles applied to the component.
@@ -55,21 +55,21 @@ export interface EditorControlsPropsBase extends React.HTMLAttributes<HTMLDivEle
   disabled?: boolean;
 }
 
-export interface EditorControlsProps
-  extends EditorControlsPropsBase {
+export interface TimelineControlsProps
+  extends TimelineControlsPropsBase {
   /**
    * Overridable component slots.
    * @default {}
    */
-  slots?: EditorControlsSlots;
+  slots?: TimelineControlsSlots;
   /**
    * The props used for each component slot.
    * @default {}
    */
-  slotProps?: EditorControlsSlotProps
+  slotProps?: TimelineControlsSlotProps
 }
 
-export type ControlState = 'paused' | 'playing' | 'recording'
+export type ControlState = 'pause' | 'play' | 'rewind' | 'fastForward';
 
 export const VideoVersionFromKey = (key) => {
   const parts = key.split('|');

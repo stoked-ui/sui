@@ -86,24 +86,39 @@ const FloatingTracksRoot = styled('div', {
 function FloatingTrackLabels({ tracks }) {
   const context = useTimeline();
   const { settings, flags } = context;
-  const {trackHoverId, getTrackHeight, selectedTrack, editorMode} = settings;
+  const {trackHoverId, selectedTrack, editorMode, trackHeight, selectedTrackIndex} = settings;
   if (!flags.noLabels) {
     return undefined;
   }
   const editorModeHidden = editorMode === 'track' || editorMode === 'action';
+  const isSelected = (index: number) => selectedTrackIndex === index ?? false;
+  const selectedHeight = flags.detailMode && selectedTrackIndex !== -1 ? settings.detailSelectedHeight: trackHeight;
+  const unselectedHeight = flags.detailMode && selectedTrackIndex !== -1 ? settings.detailUnselectedHeight : trackHeight;
+  const getHeight = (index: number) => (isSelected(index) ? selectedHeight : unselectedHeight);
   return (
     <FloatingTracksRoot>
       {tracks.map(
-        (track, index) =>
+        (track: ITimelineTrack, index: number) =>
           track.id !== 'newTrack' && (
             <Box
-              sx={{ height: getTrackHeight(index, context), display: 'flex', background: editorModeHidden && selectedTrack?.id !== track.id ? 'transparent' : undefined }}
+              sx={{
+                height: getHeight(index),
+                display: 'flex',
+                background: editorModeHidden && selectedTrack?.id !== track.id ? 'transparent' : undefined,
+                transition: 'all 1s ease-in-out'
+            }}
               key={`${track.name}-${index}`}
             >
               <TrackLabel
                 color={track.controller?.color}
                 hover={trackHoverId === track.id ? true : undefined}
-                sx={{ background: editorModeHidden && selectedTrack?.id !== track.id ? 'transparent' : undefined }}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  height: `${isSelected(index) ? trackHeight : trackHeight - 10}px`,
+                  background: editorModeHidden && selectedTrack?.id !== track.id ? 'transparent' : undefined,
+                  transition: 'all 1s ease-in-out'
+                }}
               >
                 <Typography variant="button" color="text.secondary">
                   {track.name}
@@ -128,11 +143,11 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
       scrollTop,
       scale,
       cursorTime,
-      getTrackHeight,
+      trackHeight,
       selectedTrackIndex
     } = settings;
 
-    const tracks = TimelineFile.displayTracks(file?.tracks, flags.newTrack);
+    const tracks = file?.tracks;
     const {  dragLine } = flags;
     const {
       onScroll,
@@ -312,7 +327,8 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
       return undefined;
     }
 
-
+    const selectedHeight = flags.detailMode && selectedTrackIndex !== -1 ? trackHeight * 1.65 : trackHeight;
+    const unselectedHeight = flags.detailMode && selectedTrackIndex !== -1 ? trackHeight * (1 - (.65 / (tracks.length - 1))) : trackHeight;
     return (
       <React.Fragment>
         <FloatingTrackLabels tracks={tracks} />
@@ -326,7 +342,6 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
               let totalHeight = 0;
               // HEIGHT LIST
               tracks?.forEach((track, index) => {
-                const trackHeight = getTrackHeight(index, context);
                 totalHeight += trackHeight;
               });
 
@@ -339,13 +354,13 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
                   rowCount={ (tracks?.length ?? 0)}
                   ref={tracksRef}
                   style={{
-                    overscrollBehavior: 'none',
+                    overscrollBehaviorX: 'none',
                   }}
                   cellRenderer={cellRenderer}
                   columnWidth={Math.max(scaleCount * scaleWidth + startLeft, width)}
                   width={width}
                   height={totalHeight}
-                  rowHeight={({ index }) => getTrackHeight(index, context)}
+                  rowHeight={({ index }) => index === selectedTrackIndex ? selectedHeight : unselectedHeight}
                   overscanRowCount={10}
                   overscanColumnCount={0}
                   onScroll={(param) => {
@@ -370,61 +385,61 @@ TimelineTrackArea.propTypes = {
   /**
    * Set scroll left
    */
-  deltaScrollLeft: PropTypes.func.isRequired,
+  deltaScrollLeft: PropTypes.func,
   /**
    * @description Get the action id list to prompt the auxiliary line. Calculate it when
    *   move/resize start. By default, get all the action ids except the current move action.
    */
-  getAssistDragLineActionIds: PropTypes.func.isRequired,
+  getAssistDragLineActionIds: PropTypes.func,
   /**
    * @description Custom scale rendering
    */
-  getScaleRender: PropTypes.func.isRequired,
+  getScaleRender: PropTypes.func,
   /**
    * @description Move end callback (return false to prevent onChange from triggering)
    */
-  onActionMoveEnd: PropTypes.func.isRequired,
+  onActionMoveEnd: PropTypes.func,
   /**
    * @description Start moving callback
    */
-  onActionMoveStart: PropTypes.func.isRequired,
+  onActionMoveStart: PropTypes.func,
   /**
    * @description Move callback (return false to prevent movement)
    */
-  onActionMoving: PropTypes.func.isRequired,
+  onActionMoving: PropTypes.func,
   /**
    * @description size change end callback (return false to prevent onChange from triggering)
    */
-  onActionResizeEnd: PropTypes.func.isRequired,
+  onActionResizeEnd: PropTypes.func,
   /**
    * @description Start changing the size callback
    */
-  onActionResizeStart: PropTypes.func.isRequired,
+  onActionResizeStart: PropTypes.func,
   /**
    * @description Start size callback (return false to prevent changes)
    */
-  onActionResizing: PropTypes.func.isRequired,
-  onAddFiles: PropTypes.func.isRequired,
+  onActionResizing: PropTypes.func,
+  onAddFiles: PropTypes.func,
   /**
    * @description Click time area event, prevent setting time when returning false
    */
-  onClickTimeArea: PropTypes.func.isRequired,
+  onClickTimeArea: PropTypes.func,
   /**
    * @description cursor drag event
    */
-  onCursorDrag: PropTypes.func.isRequired,
+  onCursorDrag: PropTypes.func,
   /**
    * @description cursor ends drag event
    */
-  onCursorDragEnd: PropTypes.func.isRequired,
+  onCursorDragEnd: PropTypes.func,
   /**
    * @description cursor starts drag event
    */
-  onCursorDragStart: PropTypes.func.isRequired,
+  onCursorDragStart: PropTypes.func,
   /**
    * Scroll callback, used for synchronous scrolling
    */
-  onScroll: PropTypes.func.isRequired,
+  onScroll: PropTypes.func,
   /**
    * Set the number of scales
    */
@@ -433,11 +448,11 @@ TimelineTrackArea.propTypes = {
    */
   /* sx: PropTypes.oneOfType([
     PropTypes.arrayOf(
-      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]).isRequired,
+      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),
     ),
     PropTypes.func,
     PropTypes.object,
-  ]).isRequired, */
+  ]), */
 };
 
 export default TimelineTrackArea;

@@ -31,11 +31,12 @@ import {
   ToggleButtonGroupEx,
   FileState,
   SnapControls,
+  EngineState,
 } from '@stoked-ui/timeline';
 import { useEditorContext } from '../EditorProvider/EditorContext';
 import { IEditorEngine } from '../EditorEngine/EditorEngine.types';
 import { createUseThemeProps, styled } from '../internals/zero-styled';
-import { ControlState, EditorControlsProps, VideoVersionFromKey } from './EditorControls.types';
+import { EditorControlState, EditorControlsProps } from './EditorControls.types';
 import TimelineView from '../icons/TimelineView';
 import { SUVideoFile } from '../EditorFile/EditorFile';
 
@@ -82,6 +83,7 @@ const PlayerRoot = styled('div', {
   display: loading ? 'none' : 'flex',
   flexDirection: 'row',
   alignItems: 'center',
+  gridArea: 'controls',
   backgroundColor: emphasize(theme.palette.background.default, 0.2),
 }));
 
@@ -105,16 +107,18 @@ const TimeRoot = styled(
     fontFamily: "'Roboto Condensed', sans-serif",
     margin: '0 2px',
     padding: '0px 4px',
-    width: '120px',
+    width: '120px!important',
     alignSelf: 'center',
     borderRadius: '12px!important',
     userSelect: 'none',
     '& .MuiInputBase-input': {
       userSelect: 'none',
+      boxSizing: 'border-box!important',
+      width: '112px!important',
       fontSize: 16,
       fontFamily: 'monospace',
       fontWeight: 600,
-      height: 40,
+      height: '40px!important',
       padding: '0 4px',
       borderRadius: '12px!important',
       background: `${theme.palette.background.paper}!important`,
@@ -188,72 +192,74 @@ const RateControlSelect = styled(Select)<{ disabled?: boolean }>(({ theme, disab
 
 type ControlProps = {
   setVideoURLs: React.Dispatch<React.SetStateAction<string[]>>;
-  controlState: ControlState;
-  setControlState: React.Dispatch<React.SetStateAction<ControlState>>;
+  controls: EditorControlState[];
+  setControls: React.Dispatch<React.SetStateAction<EditorControlState[]>>;
   versions: Version[];
   setVersions: React.Dispatch<React.SetStateAction<Version[]>>;
   disabled?: boolean;
 };
 
 function Controls(inProps: ControlProps) {
-  const { dispatch, engine, file, id } = useEditorContext();
+  const { dispatch, engine, file } = useEditorContext();
   const editorEngine = engine as IEditorEngine;
   const controlsInput: string = '';
-  const [controls, setControls] = React.useState<string>(controlsInput);
-  const { flags } = useEditorContext();
+  const { flags, settings } = useEditorContext();
 
   useThemeProps({ props: inProps, name: 'MuiControls' });
-  const { setVideoURLs, controlState, versions, setVersions, setControlState, disabled } = inProps;
+  const { setVideoURLs, controls, versions, setVersions, setControls, disabled } = inProps;
   const [mediaRecorder, setMediaRecorder] = React.useState<MediaRecorder | null>(null);
   const [recordedChunks, setRecordedChunks] = React.useState<Blob[]>([]);
 
+  const playbackMode = flags.detailMode ? settings.playbackMode : 'canvas'
+
   const handlePlay = () => {
     if (!engine.isPlaying) {
-      engine.play({ autoEnd: true });
+      engine.play({autoEnd: true});
     }
   };
 
   // Start or pause
   const handlePause = () => {
-    setControls('');
     if (engine.isPlaying || editorEngine.isRecording) {
       engine.pause();
     }
   };
 
-  const handleRewind = () => {
-    const playRate = engine.getPlayRate?.() ?? 1;
-    if (playRate > 0 || playRate <= -3) {
-      engine.setPlayRate?.(-1);
-    } else if (playRate > -3) {
-      engine.setPlayRate?.(playRate - 0.5);
-    }
-    handlePlay();
-  };
+  const handleVariableDelta = (event: React.MouseEvent) => {
+    let delta = 1;
 
-  const handleFastForward = () => {
-    const playRate = engine.getPlayRate?.() ?? 1;
-    if (playRate < 0 || playRate >= 3) {
-      engine.setPlayRate?.(1.5);
-    } else if (playRate < 3) {
-      engine.setPlayRate?.(playRate + 0.5);
+    if (event.shiftKey) {
+      delta = .5;
     }
-    handlePlay();
-  };
+    if (event.ctrlKey) {
+      delta = 2;
+    }
+    return delta;
+  }
+
+  const handleRewind = (event: React.MouseEvent) => {
+    const delta = handleVariableDelta(event);
+    engine.rewind(delta);
+  }
+
+  const handleFastForward = (event: React.MouseEvent) => {
+    const delta = handleVariableDelta(event);
+    engine.fastForward(delta);
+  }
 
   const handleStart = () => {
     engine.setTime(0, true);
     engine.tickAction(0);
     engine.reRender();
-  };
+  }
 
   const handleEnd = () => {
     engine.setTime(engine.duration, true);
     engine.tickAction(engine.duration);
     engine.reRender();
-  };
+  }
 
-  const stateFunc = (value: string, upFunc: () => void, downFunc: () => void) => {
+  const stateFunc = (value: EditorControlState, upFunc: () => void, downFunc: () => void) => {
     if (!controls || controls.indexOf(value) === -1) {
       return upFunc();
     }
@@ -354,35 +360,10 @@ function Controls(inProps: ControlProps) {
   };
 
   const handleRecordStop = () => {
-    if (mediaRecorder) {
-      handlePause();
-      mediaRecorder.stop();
+    if (engine.isPlaying) {
+      engine.record({ autoEnd: true });
     }
   };
-
-  React.useEffect(() => {
-    engine?.on('paused', () => {
-      setControlState('paused');
-      setControls('');
-    });
-    engine.on('ended', () => {});
-  }, []);
-
-  React.useEffect(() => {
-    if (mediaRecorder && controlState === 'paused') {
-      handleRecordStop();
-      setControls('');
-    }
-  }, [controlState]);
-
-  const getRecordButton = () => {
-    if (!flags.record) {
-      return undefined;
-    }
-    return <ToggleButton value="record" onClick={() => {stateFunc('record', handleRecord, handleRecordStop);}}>
-      {controlState === 'recording' ? <StopIcon /> : <RecordIcon />}
-    </ToggleButton>
-  }
 
   return (
     <div
@@ -400,10 +381,11 @@ function Controls(inProps: ControlProps) {
         value={controls}
         exclusive
         onChange={(event, changeControls) => {
-          if (['rewind', 'fast-forward'].indexOf(changeControls) !== -1) {
-            return;
-          }
-          setControls(changeControls);
+          // if (['start', 'end', 'rewind', 'fastForward'].indexOf(changeControls) !== -1) {
+          //  return;
+          // }
+          // console.info('changeControls', changeControls);
+          // setControls(changeControls);
         }}
         aria-label="text alignment"
         disabled={disabled}
@@ -420,17 +402,24 @@ function Controls(inProps: ControlProps) {
             stateFunc('play', handlePlay, handlePause);
           }}
         >
-          {controlState === 'playing' ? <PauseIcon /> : <PlayArrowIcon />}
+          {controls.includes('play') ? <StopIcon /> : <PlayArrowIcon />}
         </ToggleButton>
-        <ToggleButton onClick={handleFastForward} value="fast-forward" aria-label="hidden">
+        <ToggleButton onClick={handleFastForward} value="fastForward" aria-label="hidden">
           <FastForward fontSize={'small'} />
         </ToggleButton>
         <ToggleButton onClick={handleEnd} value="end" aria-label="lock">
           <SkipNextIcon />
         </ToggleButton>
-        <ToggleButton style={{ display: `${!flags.record ? 'none' : 'visible' }`}} value="record" onClick={() => {stateFunc('record', handleRecord, handleRecordStop);}}>
-          {controlState === 'recording' ? <StopIcon /> : <RecordIcon />}
-        </ToggleButton>
+        {flags.record ? (
+          <ToggleButton
+            value="record"
+            onClick={() => {
+              stateFunc('record', handleRecord, handleRecordStop);
+            }}
+          >
+            {controls.includes('record') ? <StopIcon /> : <RecordIcon />}
+          </ToggleButton>
+        ) : null}
       </ToggleButtonGroupEx>
     </div>
   );
@@ -441,17 +430,17 @@ Controls.propTypes = {
   // | These PropTypes are generated from the TypeScript type definitions |
   // | To update them edit the TypeScript types and run "pnpm proptypes"  |
   // ----------------------------------------------------------------------
-  controlState: PropTypes.oneOf(['paused', 'playing', 'recording']).isRequired,
+  controls: PropTypes.arrayOf(PropTypes.string).isRequired,
   disabled: PropTypes.bool,
-  setControlState: PropTypes.func.isRequired,
-  setVersions: PropTypes.func.isRequired,
+  setControls: PropTypes.func.isRequired,
+  setVersions: PropTypes.func,
   setVideoURLs: PropTypes.func.isRequired,
   versions: PropTypes.array.isRequired,
 } as any;
 
 function ViewToggle({ disabled = false }: { disabled?: boolean }) {
   const { flags, dispatch } = useEditorContext();
-  const set = ['timelineView', 'filesView'];
+  const set = ['timelineView', 'fileView'];
 
   const handleOptions = (event: React.MouseEvent<HTMLElement>, newOptions: string[]) => {
     dispatch({ type: 'SET_FLAGS', payload: { add: newOptions, remove: [] } });
@@ -509,7 +498,7 @@ function ViewToggle({ disabled = false }: { disabled?: boolean }) {
     controlFlags.push('timelineView');
   }
   if (flags.filesView) {
-    controlFlags.push('filesView');
+    controlFlags.push('fileView');
   }
   return (
     <ViewGroup
@@ -670,10 +659,10 @@ const EditorControls = React.forwardRef(function EditorControls(
   inProps: EditorControlsProps,
   ref: React.Ref<HTMLDivElement>,
 ): React.JSX.Element {
-  const [controlState, setControlState] = React.useState<ControlState>('paused');
-  const { engine, flags, file } = useEditorContext();
+  const [controls, setControls] = React.useState<EditorControlState[]>(['pause']);
+  const { engine, settings, flags, file, getState } = useEditorContext();
   const props = useThemeProps({ props: inProps, name: 'MuiEditorControls' });
-  const { timeline, switchView = true, disabled } = inProps;
+  const { disabled } = inProps;
   const { versions, setVersions, currentVersion, setCurrentVersion } = props;
   const [time, setTime] = React.useState(0);
   const [videoURLs, setVideoURLs] = React.useState<string[]>([]);
@@ -692,8 +681,11 @@ const EditorControls = React.forwardRef(function EditorControls(
   };
 
   React.useEffect(() => {
-    engine?.on('play', () => setControlState('playing'));
-    engine?.on('record', () => setControlState('recording'));
+    engine?.on('rewind', () => setControls(['play', 'rewind']));
+    engine?.on('fastForward', () => setControls(['play', 'fastForward']));
+    engine?.on('play', () => setControls(['play']));
+    engine?.on('record', () => setControls(['record', 'play']));
+    engine?.on('pause', () => setControls([]));
     engine.on('afterSetTime', (afterTimeProps) => setTime(afterTimeProps.time));
     engine.on('setTimeByTick', (setTimeProps) => {
       setTime(setTimeProps.time);
@@ -708,20 +700,17 @@ const EditorControls = React.forwardRef(function EditorControls(
     };
   }, []);
 
-  const controlProps = { setVideoURLs, setControlState, versions, setVersions };
+  const controlProps = { setVideoURLs, controls, setControls, versions, setVersions };
 
   const showVersions = !!versions && !!currentVersion && !!setCurrentVersion && !!setVersions;
   const versionProps = { versions, setVersions, currentVersion, setCurrentVersion };
-  const ready = engine && !engine.isLoading && file && file.state === FileState.READY;
-  if (!ready) {
-    return <div />;
-  }
+
   return (
     <PlayerRoot
-      id={'timeline-controls'}
+      id={`controls-${settings.editorId}`}
       className="timeline-player"
       ref={ref}
-      loading={engine.isLoading}
+      loading={getState() === EngineState.LOADING}
     >
       <div style={{ display: 'flex', flexDirection: 'row', alignContent: 'center', width: '100%' }}>
         <div
@@ -729,14 +718,14 @@ const EditorControls = React.forwardRef(function EditorControls(
         >
           <Controls
             {...controlProps}
-            controlState={controlState}
-            setControlState={setControlState}
+            controls={controls}
+            setControls={setControls}
             versions={versions!}
             setVersions={setVersions!}
             disabled={disabled}
           />
           {flags.noLabels && <SnapControls />}
-          {switchView && <ViewToggle disabled={disabled} />}
+          {/* switchView && <ViewToggle disabled={disabled} /> */}
         </div>
       </div>
       <Box
@@ -757,7 +746,7 @@ const EditorControls = React.forwardRef(function EditorControls(
           >
             <Box
               aria-invalid="false"
-              id="time"
+              id={`time-${settings.editorId}`}
               sx={(theme) => ({
                 color: `${disabled ? theme.palette.text.disabled : theme.palette.text.primary}!important`,
               })}
@@ -769,7 +758,7 @@ const EditorControls = React.forwardRef(function EditorControls(
         </TimeRoot>
         <RateControlRoot
           sx={{
-            minWidth: '80px',
+            minWidth: '84px',
             marginRight: '6px',
           }}
           disabled={disabled}
@@ -781,7 +770,7 @@ const EditorControls = React.forwardRef(function EditorControls(
             displayEmpty
             inputProps={{ 'aria-label': 'Play Rate' }}
             defaultValue={1}
-            id={'rate-select'}
+            id={`rate-select-${settings.editorId}`}
             disabled={disabled}
           >
             <MenuItem key={-1} value={-1}>

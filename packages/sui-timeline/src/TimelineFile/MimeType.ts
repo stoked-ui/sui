@@ -10,6 +10,8 @@ export interface IMimeType {
 
   get name(): string;
 
+  get application(): string;
+
   get ext(): Ext;
 
   get description(): string;
@@ -46,16 +48,16 @@ export class MimeRegistry {
 
   private static _types: Record<MimeType, IMimeType> = {};
 
-  static create(subType: string, name: string, ext: Ext, description: string, embedded: boolean = true, type: string = 'application'): IMimeType {
+  static create(application: string, name: string, ext: Ext, description: string, embedded: boolean = true, type: string = 'application'): IMimeType {
     const mimeType = {
       get type() {
         return `${type}/${this.subType}` as MimeType;
       },
       get subType() {
-        return `${subType}-${name}` as MimeSubtype;
+        return `${application}-${name}` as MimeSubtype;
       },
-      get subTypePrefix() {
-        return subType;
+      get application() {
+        return application;
       },
       get name() {
         return name;

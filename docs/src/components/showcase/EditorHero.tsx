@@ -32,6 +32,7 @@ export default function EditorHero({ id, sx }: { id: string, sx?: SxProps}) {
       >
         <EditorProvider controllers={Controllers} >
           <Editor
+            id={id}
             sx={sx || { borderRadius: '12px 12px 0 0' }}
             file={EditorExample}
             /*

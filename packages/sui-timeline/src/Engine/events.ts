@@ -11,8 +11,10 @@ export class Events {
       beforeSetPlayRate: [],
       afterSetPlayRate: [],
       setActiveActionIds: [],
+      rewind: [],
+      fastForward: [],
       play: [],
-      paused: [],
+      pause: [],
       ended: [],
       setScrollLeft: [],
       ...handlers,
@@ -57,13 +59,25 @@ export interface EventTypes {
    * @type {{engine: IEngine}}
    * @memberofEventTypes
    */
+  rewind: { engine: IEngine };
+  /**
+   * run
+   * @type {{engine: IEngine}}
+   * @memberofEventTypes
+   */
+  fastForward: { engine: IEngine };
+  /**
+   * run
+   * @type {{engine: IEngine}}
+   * @memberofEventTypes
+   */
   play: { engine: IEngine };
   /**
    * stop
    * @type {{ engine: IEngine }}
    * @memberofEventTypes
    */
-  paused: { engine: IEngine, previousState: string | EngineState };
+  pause: { engine: IEngine, previousState: string | EngineState };
   /**
    * End of operation
    * @type {{ engine: IEngine }}

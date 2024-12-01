@@ -1,10 +1,10 @@
 import * as React from "react";
 import invariant from "tiny-invariant";
-import {IMediaFile, namedId} from "@stoked-ui/media-selector";
+import {IMediaFile2, namedId} from "@stoked-ui/media-selector";
 import {FileExplorerDndAction} from "./FileExplorerDndAction";
 
 export const fileExplorer = {
-  remove<R extends IMediaFile>(items: R[], id: string): IMediaFile[] {
+  remove<R extends IMediaFile2>(items: R[], id: string): IMediaFile2[] {
     return items
       .filter(item => item?.id !== id)
       .map(item => {
@@ -18,7 +18,7 @@ export const fileExplorer = {
         return item;
       });
   },
-  insertBefore<R extends IMediaFile>(
+  insertBefore<R extends IMediaFile2>(
     items: R[],
     targetId: string,
     newItem: R,
@@ -36,7 +36,7 @@ export const fileExplorer = {
       return item;
     });
   },
-  insertAfter<R extends IMediaFile>(
+  insertAfter<R extends IMediaFile2>(
     items: R[],
     targetId: string,
     newItem: R,
@@ -56,7 +56,7 @@ export const fileExplorer = {
       return item;
     });
   },
-  insertChild<R extends IMediaFile>(
+  insertChild<R extends IMediaFile2>(
     items: R[],
     targetId: string,
     newItem: R,
@@ -82,7 +82,7 @@ export const fileExplorer = {
       };
     });
   },
-  find<R extends IMediaFile>(items: R[], itemId: string): R | undefined {
+  find<R extends IMediaFile2>(items: R[], itemId: string): R | undefined {
 
     for (let i = 0; i < items.length; i += 1){
       const item = items[i];
@@ -99,7 +99,7 @@ export const fileExplorer = {
     }
     return undefined;
   },
-  createChild<R extends IMediaFile>(items: R[], newItem: R, targetId: string | null) {
+  createChild<R extends IMediaFile2>(items: R[], newItem: R, targetId: string | null) {
     let target = targetId === null ? null : fileExplorer.find(items, targetId);
     if (targetId === null || target !== undefined) {
       if (newItem.path !== undefined) {
@@ -140,7 +140,7 @@ export const fileExplorer = {
       target.children?.push(newItem);
     }
   },
-  createChildren(items: IMediaFile[], newChildren: IMediaFile[], targetId: string | null) {
+  createChildren(items: IMediaFile2[], newChildren: IMediaFile2[], targetId: string | null) {
     newChildren.forEach((child) => {
       fileExplorer.createChild(items, child, targetId);
     })
@@ -150,7 +150,7 @@ export const fileExplorer = {
                   targetId,
                   parentIds = [],
                 }: {
-    current: IMediaFile[];
+    current: IMediaFile2[];
     targetId: string;
     parentIds?: string[];
   }): string[] | undefined {
@@ -175,10 +175,10 @@ export const fileExplorer = {
     }
     return undefined;
   },
-  hasNodes(item: IMediaFile): boolean {
+  hasNodes(item: IMediaFile2): boolean {
     return !!(item && item.children && item.children.length > 0);
   },
-  calculateFolderSize(items: IMediaFile[], id: string): number {
+  calculateFolderSize(items: IMediaFile2[], id: string): number {
     const folder = fileExplorer.find(items, id);
     if (folder === undefined || folder.children === undefined) {
       return 0;
@@ -196,14 +196,14 @@ export const fileExplorer = {
   },
 };
 
-export function getFileExplorerStateDefault<R extends IMediaFile = IMediaFile>(items: R[] = []): FileExplorerState<R> {
+export function getFileExplorerStateDefault<R extends IMediaFile2 = IMediaFile2>(items: R[] = []): FileExplorerState<R> {
   return {
     lastAction: null,
     items,
   }
 }
 
-const dataReducer = <R extends IMediaFile>(items: R[], action: FileExplorerDndAction<R>) => {
+const dataReducer = <R extends IMediaFile2>(items: R[], action: FileExplorerDndAction<R>) => {
 
   if (action.type === 'set-state') {
     return action.items;
@@ -276,7 +276,7 @@ const dataReducer = <R extends IMediaFile>(items: R[], action: FileExplorerDndAc
   return items;
 };
 
-export function fileListStateReducer<R extends IMediaFile>(
+export function fileListStateReducer<R extends IMediaFile2>(
   state: FileExplorerState<R>,
   action: FileExplorerDndAction<R>,
 ): FileExplorerState<R> {
@@ -288,24 +288,24 @@ export function fileListStateReducer<R extends IMediaFile>(
 }
 
 
-export type FileExplorerState<R extends IMediaFile = IMediaFile> = {
+export type FileExplorerState<R extends IMediaFile2 = IMediaFile2> = {
   lastAction: FileExplorerDndAction<R> | null;
   items: R[];
 };
 
-export type FileExplorerDndContextValue<R extends IMediaFile> = {
+export type FileExplorerDndContextValue<R extends IMediaFile2> = {
   dispatch: (action: FileExplorerDndAction<R>) => void;
   uniqueContextId: Symbol;
   getPathToItem: (itemId: string) => string[];
-  getMoveTargets: ({ itemId }: { itemId: string }) => IMediaFile[];
-  getNodesOfItem: (itemId: string) => IMediaFile[];
+  getMoveTargets: ({ itemId }: { itemId: string }) => IMediaFile2[];
+  getNodesOfItem: (itemId: string) => IMediaFile2[];
   registerFile: (args: {
     itemId: string;
     element: HTMLElement;
   }) => void;
 };
 
-export const FileExplorerDndContext = React.createContext<FileExplorerDndContextValue<IMediaFile>>({
+export const FileExplorerDndContext = React.createContext<FileExplorerDndContextValue<IMediaFile2>>({
   dispatch: () => {},
   uniqueContextId: Symbol('uniqueId'),
   getPathToItem: () => [],

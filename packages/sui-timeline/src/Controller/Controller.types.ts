@@ -1,10 +1,11 @@
-import { IMediaFile } from "@stoked-ui/media-selector";
+import { IMediaFile2 } from "@stoked-ui/media-selector";
 import { type BackgroundImageStyle, type ITimelineAction } from "../TimelineAction/TimelineAction.types";
 import { type IEngine } from "../Engine";
 import { PreloadParams } from "./ControllerParams";
+import {ITimelineTrack} from "../TimelineTrack";
 
 
-export type GetBackgroundImage = (file: IMediaFile, options: any) => Promise<string>;
+export type GetBackgroundImage = (file: IMediaFile2, options: any) => Promise<string>;
 /*
 
 export type ControllerFunc<
@@ -15,15 +16,15 @@ export type ControllerFunc<
 export type ControllerPreloadFunc<
   ActionType extends ITimelineAction = ITimelineAction,
   EngineType extends IEngine = IEngine,
-> =  (params: { action: ActionType, file: IMediaFile, engine: EngineType }) => Promise<ActionType>;
+> =  (params: { action: ActionType, file: IMediaFile2, engine: EngineType }) => Promise<ActionType>;
 */
 
 export interface IController {
-  start(params: { action: ITimelineAction, time: number, engine: IEngine }): void
-  stop(params: { action: ITimelineAction, time: number, engine: IEngine }): void
-  enter(params: { action: ITimelineAction, time: number, engine: IEngine }): void
-  leave(params: { action: ITimelineAction, time: number, engine: IEngine }): void
-  update(params: { action: ITimelineAction, time: number, engine: IEngine }): void
+  start(params: { action: ITimelineAction, track: ITimelineTrack, time: number, engine: IEngine }): void
+  stop(params: { action: ITimelineAction, track: ITimelineTrack, time: number, engine: IEngine }): void
+  enter(params: { action: ITimelineAction, track: ITimelineTrack, time: number, engine: IEngine }): void
+  leave(params: { action: ITimelineAction, track: ITimelineTrack, time: number, engine: IEngine }): void
+  update(params: { action: ITimelineAction, track: ITimelineTrack, time: number, engine: IEngine }): void
   preload(params: PreloadParams): Promise<ITimelineAction>;
 
   viewerUpdate?: (engine: any) => void;

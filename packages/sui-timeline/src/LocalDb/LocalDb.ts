@@ -99,7 +99,7 @@ export default class LocalDb {
    * @returns A promise that resolves to the opened database.
    */
   static async open() {
-    return openDB(this.name, this.version);
+    return openDB(this.dbName, this.version);
   }
 
   /**
@@ -189,21 +189,24 @@ class LocalDbStore {
     if (!this.initialized) {
       await this.init();
     }
-
+    if (!this._keys.size) {
+      await this.retrieveKeys()
+    }
     if (!this._keys.has(id)) {
       return null;
     }
     const tx = await this.getTransaction();
     const record = await tx.objectStore(this.name).get(id) as IDBProjectFile;
-    this._index[id] = record.data;
-    const versionId = this.getVersion(id, version);
-    if (versionId === 0) {
+    if (!record) {
       return null;
     }
-    const fileData: IDBFileVersion = record.data[versionId];
+    const versionRecord = record[version] as IDBFileVersion;
+    if (!versionRecord) {
+      return null;
+    }
 
-    console.info('loadId success', fileData);
-    return { mimeType: fileData.mimeType, blob: fileData.data };
+    console.info('loadId success', versionRecord);
+    return { mimeType: versionRecord.mimeType, blob: versionRecord.data };
   }
 
   /**

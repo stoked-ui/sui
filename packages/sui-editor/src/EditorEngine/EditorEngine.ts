@@ -108,6 +108,10 @@ export default class EditorEngine<
     return this._viewer;
   }
 
+  get screener(): HTMLVideoElement | null {
+    return this._screener;
+  }
+
   get stage(): HTMLDivElement | null {
     return this._stage;
   }
@@ -299,7 +303,7 @@ export default class EditorEngine<
       const actionId = this._actionSortIds[this._next];
       const action = this._actionMap[actionId];
 
-      if (!action.disable) {
+      if (!action.disabled) {
         // Determine whether the action start time has arrived
 
         if (action.start > time) {
@@ -310,7 +314,7 @@ export default class EditorEngine<
         if (action.end > time && active.indexOf(actionId) === -1) {
           const controller = track.controller;
           if (controller && controller?.enter) {
-            controller.enter({action, time: this.time, engine: this as IEditorEngine});
+            controller.enter({action, track, time: this.time, engine: this as IEditorEngine});
           }
 
           const actionIndex = actionIdIndex.indexOf(actionId);

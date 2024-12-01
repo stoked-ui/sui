@@ -52,6 +52,7 @@ abstract class Controller implements IController {
 
   abstract update(params: { action: ITimelineAction, time: number, engine: IEngine }): void
 
+  // eslint-disable-next-line class-methods-use-this
   async preload(params: PreloadParams): Promise<ITimelineAction> { return params.action; }
 
   static getVol(volumePart: [volume: number, start?: number, end?: number]) {
@@ -68,8 +69,10 @@ abstract class Controller implements IController {
 
   static getActionTime(params: ControllerParams) {
     const { action, time } = params;
-    const actionTime = (time - action.start + (action?.trimStart || 0)) % (action?.duration ?? 0);
-    return actionTime;
+    if (action?.duration === undefined) {
+      return action?.trimStart || 0;
+    }
+    return (time - action.start + (action?.trimStart || 0)) % (action?.duration ?? 0);
   }
 
   static getVolumeUpdate(params: ControllerParams, actionTime: number): { volumeIndex: number, volume: number } | undefined {

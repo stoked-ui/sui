@@ -1,9 +1,6 @@
 import * as ExifReader from 'exifreader';
-import {IResolutionFile, ResolutionFileProps} from "./Resolution";
-import { ResolutionFile } from './Resolution';
+import {IResolutionFile, ResolutionFileProps, ResolutionFile} from "./Resolution";
 import MediaFile from "./MediaFile";
-import {IMediaFile} from "./MediaFile.types";
-import {MediaType} from "./MediaType";
 
 type ScreenShotParams = {
   width?: number,
@@ -25,8 +22,6 @@ export default class VideoFile extends ResolutionFile implements IResolutionFile
     // this.duration = file.duration ?? -1;
     VideoFile.element.addEventListener('loadeddata', () => {
       // this.duration = VideoFile.element.duration;
-      this._width = VideoFile.element.videoWidth;
-      this._height = VideoFile.element.videoHeight;
       this.icon = this.captureScreenshot({width: 24, height: 24});
       this.thumbnail = this.captureScreenshot({maxWidth: 250, maxHeight: 250});
       this.tags = ExifReader.load(file);
@@ -45,8 +40,7 @@ export default class VideoFile extends ResolutionFile implements IResolutionFile
       try {
         VideoFile.element.addEventListener('loadeddata', () => {
           // videoFile.duration = VideoFile.element.duration;
-          videoFile._width = VideoFile.element.videoWidth;
-          videoFile._height = VideoFile.element.videoHeight;
+
           videoFile.icon = videoFile.captureScreenshot({width: 24, height: 24});
           videoFile.thumbnail = videoFile.captureScreenshot({maxWidth: 250, maxHeight: 250});
           videoFile.tags = ExifReader.load(file);

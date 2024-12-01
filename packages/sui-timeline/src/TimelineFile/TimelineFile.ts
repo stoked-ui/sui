@@ -1,10 +1,12 @@
 /* eslint-disable class-methods-use-this */
 /*  eslint-disable @typescript-eslint/naming-convention */
 import {
-  IMediaFile,
-  MediaFile,
+  IMediaFile2,
+  MediaFile2,
   namedId
 } from "@stoked-ui/media-selector";
+import {alpha} from "@mui/material/styles";
+import { Constructor } from "@stoked-ui/common";
 import {
   type ITimelineAction,
   type ITimelineFileAction
@@ -15,7 +17,7 @@ import {
   ITimelineTrackMetadata
 } from "../TimelineTrack/TimelineTrack.types";
 import WebFile from "./WebFile";
-import { Constructor, IBaseDecodedFile } from "./WebFile.types";
+import { IFileParams } from "./WebFile.types";
 import {
   FileState,
   ITimelineFile, ITimelineFileMetadata, ITimelineFileProps,
@@ -24,8 +26,8 @@ import {
   SUITimeline,
   SUITimelineRefs,
 } from "./TimelineFile.types";
-// import Controllers from "../Controller/Controllers";
 import Controller from "../Controller";
+import Controllers from "../Controller/Controllers";
 import ProjectFile from "./ProjectFile";
 import { IMimeType, MimeType } from "./MimeType";
 
@@ -98,11 +100,11 @@ export default class TimelineFile<
     SUIAudioRefs              // w/ url refs
   ];
 
-  get fileParams(): IBaseDecodedFile[] {
-    return this.trackFiles.map((f) => { return { name: f.name, size: f.size, type: f.type }});
+  get fileParams(): IFileParams[] {
+    return this.trackFiles.map((f) => { return { name: f.name, size: f.size, type: f.type, url: f.url }});
   }
 
-  async initialize(files: File[] = null) {
+  async initialize(files: File[] = []) {
     if (this.state !== FileState.CONSTRUCTED) {
       return;
     }
@@ -110,12 +112,10 @@ export default class TimelineFile<
     console.info('initialize', this.state);
     try {
       await this.assignFiles(files);
-      // const filePromises = this._fileTracks.map((fileTrack) => MediaFile.fromUrl(fileTrack.url));
-      // const mediaFiles: MediaFile[] = await Promise.all(filePromises);
+      // const filePromises = this._fileTracks.map((fileTrack) => MediaFile2.fromUrl(fileTrack.url));
+      // const mediaFiles: MediaFile2[] = await Promise.all(filePromises);
 
       this._tracks = this._fileTracks.map((trackInput, index) => {
-        trackInput.url = trackInput.url.indexOf('http') !== -1 ? trackInput!.url : `${window.location.origin}${trackInput!.url}`;
-        trackInput.url = trackInput.url.replace(/([^:]\/)\/+/g, "$1");
 
         const actions = trackInput.actions.map((action: ITimelineFileAction) => {
           return this.actionInitializer(action as FileActionType, index);
@@ -126,16 +126,16 @@ export default class TimelineFile<
           name: trackInput.name,
           actions,
           file: trackInput.file,
-          controller: trackInput.controller ? trackInput.controller : TimelineFile.Controllers[trackInput.controllerName],
-          mute: trackInput.mute,
-          lock: trackInput.lock,
+          controller: trackInput.controller ? trackInput.controller : Controllers[trackInput.controllerName],
+          muted: trackInput.muted,
+          locked: trackInput.locked,
         } as any;
       });
 
       const nestedPreloads = this._tracks.map((track) => {
         return track.actions.map((action) => track.controller.preload ? track.controller.preload({
           action,
-          file: track.file
+          track,
         }) : action)
       });
       const preloads = nestedPreloads.flat();
@@ -144,9 +144,9 @@ export default class TimelineFile<
       this._fileTracks = [];
 
       this.state = FileState.READY;
-      console.info('initialize', this.state);
+      await this.save(true)
     } catch (ex) {
-      console.error('buildTracks:', ex);
+      console.error('TimelineFile: initialize', ex);
     }
   }
 
@@ -154,23 +154,26 @@ export default class TimelineFile<
   async assignFiles(files: File[] = []) {
     if (files?.length && files.length === this._fileTracks.length) {
       this._fileTracks = this._fileTracks.map((trackInput, index) => {
-        this._fileTracks[index].file = new MediaFile(files[index]);
+        this._fileTracks[index].file = MediaFile2.fromFile(files[index]);
         return this._fileTracks[index];
       });
       return;
     }
-    const filePromises = this._fileTracks.map((fileTrack) => MediaFile.fromUrl(fileTrack.url));
-    const mediaFiles: MediaFile[] = await Promise.all(filePromises);
-    this._fileTracks = this._fileTracks.map((trackInput, index) => {
-      const file =  mediaFiles.find((mediaFile) => mediaFile._url.endsWith(trackInput.url));
+    const filePromises = this._fileTracks.map((fileTrack) => MediaFile2.fromUrl(fileTrack.url));
+    const mediaFiles: MediaFile2[] = await Promise.all(filePromises);
+    const finalFileTracks = [];
+    this._fileTracks.forEach((trackInput, index) => {
+      const file =  mediaFiles.find((mediaFile) => mediaFile.url.endsWith(trackInput.url));
 
       if (!file) {
-        throw new Error('couldn\'t find media file source');
-      }
+        console.error(`Skipping track because file could not be found: ${trackInput.url}`);
+      } else {
 
-      this._fileTracks[index].file = file;
-      return this._fileTracks[index];
+        this._fileTracks[index].file = file;
+        finalFileTracks.push(this._fileTracks[index]);
+      }
     });
+    this._fileTracks = finalFileTracks;
   }
 
   getName(props: ITimelineFileProps<FileTrackType>): string {
@@ -195,15 +198,15 @@ export default class TimelineFile<
       tracks ,
       mimeType: this.getMimeType().type as MimeType
     };
-    metadata.tracks?.reduce((curr, offset, index) => {
-      metadata.tracks[index].fileIndex = curr;
-      return curr + this.tracks[index].file.mediaFileSize;
-    }, 0 as number)
     return metadata;
   }
 
-  get trackFiles(): IMediaFile[] {
+  get trackFiles(): IMediaFile2[] {
     return this.tracks?.map((track) => track.file) || [];
+  }
+
+  get trackStreams():  ReadableStream<Uint8Array>[] {
+    return this.tracks?.map((track) => track.file.stream()) || [];
   }
 
   get files(): File[] {
@@ -212,9 +215,7 @@ export default class TimelineFile<
 
   get tracksMetadata(): ITimelineTrackMetadata<TrackType>[] {
     return this.tracks?.map((track) => {
-      const { file, ...trackJson } = track;
-      const metadata = trackJson as ITimelineTrackMetadata<TrackType>;
-      metadata.fileIndex = 0;
+      const { file, controller, ...trackJson } = track;
       return trackJson;
     }) as ITimelineTrackMetadata<TrackType>[]
   }
@@ -253,7 +254,7 @@ export default class TimelineFile<
         const { file, controller, ...trackJson } = track;
         return {
           ...trackJson,
-          url: file._url,
+          url: file.url,
           controllerName: file.mediaType,
         }
       }),
@@ -284,19 +285,14 @@ export default class TimelineFile<
       name: 'new track',
       actions: [],
       file: null,
-      mute: false,
-      lock: false
+      muted: false,
+      locked: false
     } as TrackType];
   }
 
-  static displayTracks<TrackType extends ITimelineTrack = ITimelineTrack>(tracks?: TrackType[], newTrack: boolean = true) {
-    if (!newTrack) {
-      return tracks ?? [];
-    }
-    if (tracks?.length) {
-      return tracks.concat(TimelineFile.newTrack());
-    }
-    return TimelineFile.newTrack();
+  static getTrackColor<TrackType extends ITimelineTrack = ITimelineTrack>(track: TrackType) {
+    const trackController = track.controller;
+    return trackController ? alpha(trackController.color ?? '#666', 0.11) : '#00000011';
   }
 
   static collapsedTrack<TrackType extends ITimelineTrack = ITimelineTrack>(tracks?: TrackType[]) {
@@ -311,8 +307,8 @@ export default class TimelineFile<
         name: 'collapsed track',
         actions: tracks.map((track) => track.actions.map((action) => action)).flat(2),
         file: null,
-        mute: false,
-        lock: false
+        muted: false,
+        locked: false
       } as TrackType
     }
   }
@@ -334,23 +330,23 @@ export default class TimelineFile<
     ActionType extends ITimelineAction = ITimelineAction,
     FileType extends TimelineFile = TimelineFile
   >(actions: FileActionType[]): Promise<FileType> {
-    const filePromises = actions.map((action) => MediaFile.fromUrl(action.url));
-    const allFiles = await Promise.all(filePromises);
-    const fileActions: ({ file: IMediaFile, action: FileActionType } | null)[] = allFiles.map((mediaFile)=> {
-      const actionIndex = actions.findIndex((fileAction) => fileAction.url === mediaFile._url);
+    const filePromises = actions.map((action) => MediaFile2.fromUrl(action.url));
+    const allFiles = await Promise.all(filePromises.filter(Boolean));
+    const fileActions: ({ file: IMediaFile2, action: FileActionType } | null)[] = allFiles.map((mediaFile)=> {
+      const actionIndex = actions.findIndex((fileAction) => fileAction.url === mediaFile.url);
       if(actionIndex !== -1) {
         return { file: mediaFile, action: actions[actionIndex] }
       }
       return null
     });
-    const fileActionsClean = fileActions.filter((fileAction) => fileAction !== null) as { file: IMediaFile, action: FileActionType }[];
+    const fileActionsClean = fileActions.filter((fileAction) => fileAction !== null) as { file: IMediaFile2, action: FileActionType }[];
     const tracks = fileActionsClean.map((fileAction)=> {
       return {
         id: namedId('timelineFile'),
         name: 'new video',
         tracks,
         file: fileAction.file,
-        url: fileAction.file._url,
+        url: fileAction.file.url,
         controller: TimelineFile.Controllers[fileAction.file.mediaType],
         actions: [{
           id: namedId('action'),
@@ -367,6 +363,39 @@ export default class TimelineFile<
       name: 'new video',
       version: 1
     }) as FileType;
+  }
+
+  async readFileUsingStream(file: File): Promise<void> {
+    const fileStream = file.stream(); // Get a ReadableStream from the File
+    const reader = fileStream.getReader();
+
+    try {
+      while (true) {
+        // eslint-disable-next-line no-await-in-loop
+        const { done, value } = await reader.read();
+
+        if (done) {
+          console.log("File reading completed.");
+          break;
+        }
+
+        // `value` is a Uint8Array
+        console.log(new TextDecoder().decode(value)); // Decode chunk to text
+      }
+    } catch (err) {
+      console.error("Error while reading file:", err);
+    } finally {
+      reader.releaseLock(); // Always release the reader's lock
+    }
+  }
+
+  protected async fullRead() {
+    for (let i = 0; i < this.files.length; i += 1) {
+      const file = this.files[i];
+      // Create a ReadableStream for each file
+      // eslint-disable-next-line no-await-in-loop
+      await this.readFileUsingStream(file);
+    }
   }
 
   protected getDataStreams(): AsyncIterable<ReadableStream<Uint8Array>> {
