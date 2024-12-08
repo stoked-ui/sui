@@ -18,12 +18,12 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 interface FileExplorerChildrenItemProviderProps {
-  itemId?: string;
+  id?: string;
   children: React.ReactNode;
 }
 
 export function FileExplorerChildrenItemProvider(props: FileExplorerChildrenItemProviderProps) {
-  const { children, itemId = null } = props;
+  const { children, id = null } = props;
 
   const { instance, rootRef } =
     useFileExplorerContext<[UseFileExplorerJSXItemsSignature, UseFileExplorerFilesSignature, UseFileExplorerDndSignature]>();
@@ -35,13 +35,13 @@ export function FileExplorerChildrenItemProvider(props: FileExplorerChildrenItem
     }
 
     let idAttr: string | null = null;
-    if (itemId == null) {
+    if (id == null) {
       idAttr = rootRef.current.id;
     } else {
       // Undefined during 1st render
-      const itemMeta = instance.getItemMeta(itemId);
+      const itemMeta = instance.getItemMeta(id);
       if (itemMeta !== undefined) {
-        idAttr = instance.getFileIdAttribute(itemId, itemMeta.idAttribute);
+        idAttr = instance.getFileIdAttribute(id);
       }
     }
 
@@ -49,10 +49,10 @@ export function FileExplorerChildrenItemProvider(props: FileExplorerChildrenItem
       return;
     }
 
-    const previousChildrenIds = instance.getItemOrderedChildrenIds(itemId ?? null) ?? [];
+    const previousChildrenIds = instance.getItemOrderedChildrenIds(id ?? null) ?? [];
     const escapedIdAttr = escapeOperandAttributeSelector(idAttr);
     const childrenElements = rootRef.current.querySelectorAll(
-      `${itemId == null ? '' : `*[id="${escapedIdAttr}"] `}[role="fileexploreritem"]:not(*[id="${escapedIdAttr}"] [role="fileexploreritem"] [role="fileexploreritem"])`,
+      `${id == null ? '' : `*[id="${escapedIdAttr}"] `}[role="fileexploreritem"]:not(*[id="${escapedIdAttr}"] [role="fileexploreritem"] [role="fileexploreritem"])`,
     );
     const childrenIds = Array.from(childrenElements).map(
       (child) => childrenIdAttrToIdRef.current.get(child.id)!,
@@ -62,7 +62,7 @@ export function FileExplorerChildrenItemProvider(props: FileExplorerChildrenItem
       childrenIds.length !== previousChildrenIds.length ||
       childrenIds.some((childId, index) => childId !== previousChildrenIds[index]);
     if (hasChanged) {
-      instance.setJSXItemsOrderedChildrenIds(itemId ?? null, childrenIds);
+      instance.setJSXItemsOrderedChildrenIds(id ?? null, childrenIds);
     }
   });
 
@@ -71,9 +71,9 @@ export function FileExplorerChildrenItemProvider(props: FileExplorerChildrenItem
       registerChild: (childIdAttribute, childItemId) =>
         childrenIdAttrToIdRef.current.set(childIdAttribute, childItemId),
       unregisterChild: (childIdAttribute) => childrenIdAttrToIdRef.current.delete(childIdAttribute),
-      parentId: itemId,
+      parentId: id,
     }),
-    [itemId],
+    [id],
   );
 
   return (
@@ -89,7 +89,7 @@ FileExplorerChildrenItemProvider.propTypes = {
 } as any;
 
 interface FileExplorerChildrenItemContextValue {
-  registerChild: (idAttribute: string, itemId: string) => void;
+  registerChild: (idAttribute: string, id: string) => void;
   unregisterChild: (idAttribute: string) => void;
   parentId: string | null;
 }

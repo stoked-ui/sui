@@ -55,7 +55,7 @@ function TimelinePlayer({
   scaleWidth?: number;
   startLeft?: number;
 }) {
-  const { engine } = useTimeline();
+  const { state: {engine} } = useTimeline();
 
   const [time, setTime] = React.useState(0);
 

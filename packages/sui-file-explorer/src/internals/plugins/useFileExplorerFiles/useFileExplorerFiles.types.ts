@@ -1,5 +1,5 @@
 import {SxProps, Theme} from "@mui/system";
-import { IMediaFile2 } from '@stoked-ui/media-selector';
+import { IMediaFileEx} from "../../models/IMediaFileEx";
 import {DefaultizedProps, FileExplorerPluginSignature, FileMeta} from '../../models';
 import { FileId } from '../../../models';
 import {
@@ -9,8 +9,7 @@ import {UseFileExplorerExpansionSignature} from "../useFileExplorerExpansion";
 
 interface FileProps {
   name: string;
-  itemId: string;
-  id: string | undefined;
+  id: string;
   children?: FileProps[];
 }
 
@@ -19,46 +18,46 @@ export interface UseFileExplorerFilesPublicAPI<R extends {}> {
    * Get the item with the given id.
    * When used in the `FileExplorerBasic`, it returns an object with the `id` and `label`
    * properties.
-   * @param {string} itemId The id of the item to return.
+   * @param {string} id The id of the item to return.
    * @returns {R} The item with the given id.
    */
-  getItem: (itemId: FileId) => R;
+  getItem: (id: FileId) => R;
   /**
    * Get the DOM element of the item with the given id.
-   * @param {TreeViewItemId} itemId The id of the item to get the DOM element of.
+   * @param {TreeViewItemId} id The id of the item to get the DOM element of.
    * @returns {HTMLElement | null} The DOM element of the item with the given id.
    */
-  getItemDOMElement: (itemId: FileId) => HTMLElement | null;
+  getItemDOMElement: (id: FileId) => HTMLElement | null;
 }
 
 export interface UpdateNodesStateParameters
   extends Pick<
-    UseFileExplorerFilesDefaultizedParameters<IMediaFile2>,
+    UseFileExplorerFilesDefaultizedParameters<IMediaFileEx>,
     'items' | 'isItemDisabled' | 'getItemLabel' | 'getItemId'
   > {
 }
 
 export type ItemMode = 'standard' | 'last-in-group' | 'expanded';
 
-export interface UseFileExplorerFilesInstance<R extends IMediaFile2[] = IMediaFile2[]> extends UseFileExplorerFilesPublicAPI<R> {
-  recalcVisibleIndices: (items: IMediaFile2[], force: boolean, index: number) => void;
-  getVisibleIndex: (itemId: string) => number;
+export interface UseFileExplorerFilesInstance<R extends IMediaFileEx[] = IMediaFileEx[]> extends UseFileExplorerFilesPublicAPI<R> {
+  recalcVisibleIndices: (items: IMediaFileEx[], force: boolean, index: number) => void;
+  getVisibleIndex: (id: string) => number;
   updateItems: (item: R[]) => void;
   getFiles: () => R[];
-  updateDndMeta: (itemId: string, state: DndItemState) => void;
+  updateDndMeta: (id: string, state: DndItemState) => void;
   /**
    * Get the DOM element of the item with the given id.
-   * @param {TreeViewItemId} itemId The id of the item to get the DOM element of.
+   * @param {TreeViewItemId} id The id of the item to get the DOM element of.
    * @returns {HTMLElement | null} The DOM element of the item with the given id.
    */
-  getItemDOMElement: (itemId: FileId) => HTMLElement | null;
+  getItemDOMElement: (id: FileId) => HTMLElement | null;
   /**
    * Get the meta-information of an item.
    * Check the `FileMeta` type for more information.
-   * @param {FileId} itemId The id of the item to get the meta-information of.
+   * @param {FileId} id The id of the item to get the meta-information of.
    * @returns {FileMeta} The meta-information of the item.
    */
-  getItemMeta: (itemId: FileId) => FileMeta;
+  getItemMeta: (id: FileId) => FileMeta;
   /**
    * Get the item that should be rendered.
    * This method is only used on Rich FileExplorer View components.
@@ -69,30 +68,30 @@ export interface UseFileExplorerFilesInstance<R extends IMediaFile2[] = IMediaFi
   /**
    * Get the ids of a given item's children.
    * Those ids are returned in the order they should be rendered.
-   * @param {FileId | null} itemId The id of the item to get the children of.
+   * @param {FileId | null} id The id of the item to get the children of.
    * @returns {FileId[]} The ids of the item's children.
    */
-  getItemOrderedChildrenIds: (itemId: FileId | null) => FileId[];
+  getItemOrderedChildrenIds: (id: FileId | null) => FileId[];
   /**
    * Check if a given item is disabled.
    * An item is disabled if it was marked as disabled or if one of its ancestors is disabled.
-   * @param {FileId} itemId The id of the item to check.
+   * @param {FileId} id The id of the item to check.
    * @returns {boolean} `true` if the item is disabled, `false` otherwise.
    */
-  isItemDisabled: (itemId: FileId) => boolean;
+  isItemDisabled: (id: FileId) => boolean;
   /**
    * Check if a given item is navigable (i.e.: if it can be accessed through keyboard navigation).
    * An item is navigable if it is not disabled or if the `disabledItemsFocusable` prop is `true`.
-   * @param {FileId} itemId The id of the item to check.
+   * @param {FileId} id The id of the item to check.
    * @returns {boolean} `true` if the item is navigable, `false` otherwise.
    */
-  isItemNavigable: (itemId: FileId) => boolean;
+  isItemNavigable: (id: FileId) => boolean;
   /**
    * Get the index of a given item in its parent's children list.
-   * @param {FileId} itemId The id of the item to get the index of.
+   * @param {FileId} id The id of the item to get the index of.
    * @returns {number} The index of the item in its parent's children list.
    */
-  getItemIndex: (itemId: FileId) => number;
+  getItemIndex: (id: FileId) => number;
   /**
    * Freeze any future update to the state based on the `items` prop.
    * This is useful when `useFileExplorerJSXItems` is used to avoid having conflicting sources of
@@ -108,7 +107,7 @@ export interface UseFileExplorerFilesInstance<R extends IMediaFile2[] = IMediaFi
   areItemUpdatesPrevented: () => boolean;
 }
 
-export interface UseFileExplorerFilesParameters<R extends IMediaFile2 = IMediaFile2> {
+export interface UseFileExplorerFilesParameters<R extends IMediaFileEx = IMediaFileEx> {
 
   alternatingRows?: SxProps<Theme> | true;
 
@@ -151,7 +150,7 @@ export interface UseFileExplorerFilesParameters<R extends IMediaFile2 = IMediaFi
   items: readonly R[];
 }
 
-export type UseFileExplorerFilesDefaultizedParameters<R extends IMediaFile2> = DefaultizedProps<
+export type UseFileExplorerFilesDefaultizedParameters<R extends IMediaFileEx> = DefaultizedProps<
   UseFileExplorerFilesParameters<R>,
   'disabledItemsFocusable' | 'itemChildrenIndentation'
 >
@@ -167,7 +166,7 @@ export interface UseFileExplorerFilesState<R extends {}> {
     itemMetaMap: FileMetaMap;
     itemMap: FileMap<R>;
     itemOrderedChildrenIds: { [parentItemId: string]: string[] };
-    itemChildrenIndexes: { [parentItemId: string]: { [itemId: string]: number } };
+    itemChildrenIndexes: { [parentItemId: string]: { [id: string]: number } };
     indiciesDirty: boolean;
   };
 }
@@ -191,6 +190,6 @@ export type UseFileExplorerFilesSignature = FileExplorerPluginSignature<{
   experimentalFeatures: 'indentationAtItemLevel';
 }>;
 
-export type FileMetaMap = { [itemId: string]: FileMeta };
+export type FileMetaMap = { [id: string]: FileMeta };
 
-export type FileMap<R extends {}> = { [itemId: string]: R };
+export type FileMap<R extends {}> = { [id: string]: R };

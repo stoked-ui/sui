@@ -1,6 +1,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { namedId } from '@stoked-ui/media-selector';
+import { namedId} from '@stoked-ui/common';
 import { styled } from '@mui/material/styles';
 import {
   ToggleButtonGroup as ToggleGroup,

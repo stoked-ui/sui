@@ -39,7 +39,7 @@ export const FileExplorerGridHeaders = React.forwardRef(function FileExplorerGri
 
   const { getRootProps } = headerData;
   const headerCells = Object.entries(headers).map(([columnName], index) => {
-    return <HeaderCell id={inProps.id} columnName={columnName} key={`${columnName}-${index}`} className={`column-${columnName} col-${index}`}/>;
+    return <HeaderCell id={inProps.id} columnName={`${columnName}`} key={`${columnName}-${index}`} className={`column-${columnName} col-${index}`}/>;
   });
   return (
     <FileExplorerHeadersRoot style={{display: 'flex', width: '100%', borderBottom: '1px solid #444',}} {...getRootProps()}>

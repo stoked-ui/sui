@@ -19,7 +19,7 @@ export const useFileExplorerSelection: FileExplorerPlugin<UseFileExplorerSelecti
   models,
 }) => {
   const lastSelectedItem = React.useRef<string | null>(null);
-  const lastSelectedRange = React.useRef<{ [itemId: string]: boolean }>({});
+  const lastSelectedRange = React.useRef<{ [id: string]: boolean }>({});
 
   const selectedItemsMap = React.useMemo(() => {
     const temp = new Map<FileId, boolean>();
@@ -41,18 +41,18 @@ export const useFileExplorerSelection: FileExplorerPlugin<UseFileExplorerSelecti
     if (params.onItemSelectionToggle) {
       if (params.multiSelect) {
         const addedItems = (newSelectedItems as string[]).filter(
-          (itemId) => !instance.isItemSelected(itemId),
+          (id) => !instance.isItemSelected(id),
         );
         const removedItems = (models.selectedItems.value as string[]).filter(
-          (itemId) => !(newSelectedItems as string[]).includes(itemId),
+          (id) => !(newSelectedItems as string[]).includes(id),
         );
 
-        addedItems.forEach((itemId) => {
-          params.onItemSelectionToggle!(event, itemId, true);
+        addedItems.forEach((id) => {
+          params.onItemSelectionToggle!(event, id, true);
         });
 
-        removedItems.forEach((itemId) => {
-          params.onItemSelectionToggle!(event, itemId, false);
+        removedItems.forEach((id) => {
+          params.onItemSelectionToggle!(event, id, false);
         });
       } else if (newSelectedItems !== models.selectedItems.value) {
         if (models.selectedItems.value != null) {
@@ -71,11 +71,11 @@ export const useFileExplorerSelection: FileExplorerPlugin<UseFileExplorerSelecti
     models.selectedItems.setControlledValue(newSelectedItems);
   };
 
-  const isItemSelected = (itemId: string) => selectedItemsMap.has(itemId);
+  const isItemSelected = (id: string) => selectedItemsMap.has(id);
 
   const selectItem: UseFileExplorerSelectionInstance['selectItem'] = (
     event,
-    itemId,
+    id,
     keepExistingSelection,
     newValue,
   ) => {
@@ -86,11 +86,11 @@ export const useFileExplorerSelection: FileExplorerPlugin<UseFileExplorerSelecti
     let newSelected: typeof models.selectedItems.value;
     if (keepExistingSelection) {
       const cleanSelectedItems = convertSelectedItemsToArray(models.selectedItems.value);
-      const isSelectedBefore = instance.isItemSelected(itemId);
+      const isSelectedBefore = instance.isItemSelected(id);
       if (isSelectedBefore && (newValue === false || newValue == null)) {
-        newSelected = cleanSelectedItems.filter((id) => id !== itemId);
+        newSelected = cleanSelectedItems.filter((selectId) => selectId !== id);
       } else if (!isSelectedBefore && (newValue === true || newValue == null)) {
-        newSelected = [itemId].concat(cleanSelectedItems);
+        newSelected = [id].concat(cleanSelectedItems);
       } else {
         newSelected = cleanSelectedItems;
       }
@@ -99,12 +99,12 @@ export const useFileExplorerSelection: FileExplorerPlugin<UseFileExplorerSelecti
       if (newValue === false) {
         newSelected = params.multiSelect ? [] : null;
       } else {
-        newSelected = params.multiSelect ? [itemId] : itemId;
+        newSelected = params.multiSelect ? [id] : id;
       }
     }
 
     setSelectedItems(event, newSelected);
-    lastSelectedItem.current = itemId;
+    lastSelectedItem.current = id;
     lastSelectedRange.current = {};
   };
 
@@ -131,19 +131,19 @@ export const useFileExplorerSelection: FileExplorerPlugin<UseFileExplorerSelecti
     lastSelectedRange.current = getLookupFromArray(range);
   };
 
-  const expandSelectionRange = (event: React.SyntheticEvent, itemId: string) => {
+  const expandSelectionRange = (event: React.SyntheticEvent, id: string) => {
     if (lastSelectedItem.current != null) {
-      const [start, end] = findOrderInTremauxFileExplorer(instance, itemId, lastSelectedItem.current);
+      const [start, end] = findOrderInTremauxFileExplorer(instance, id, lastSelectedItem.current);
       selectRange(event, [start, end]);
     }
   };
 
-  const selectRangeFromStartToItem = (event: React.SyntheticEvent, itemId: string) => {
-    selectRange(event, [getFirstNavigableItem(instance), itemId]);
+  const selectRangeFromStartToItem = (event: React.SyntheticEvent, id: string) => {
+    selectRange(event, [getFirstNavigableItem(instance), id]);
   };
 
-  const selectRangeFromItemToEnd = (event: React.SyntheticEvent, itemId: string) => {
-    selectRange(event, [itemId, getLastNavigableItem(instance)]);
+  const selectRangeFromItemToEnd = (event: React.SyntheticEvent, id: string) => {
+    selectRange(event, [id, getLastNavigableItem(instance)]);
   };
 
   const selectAllNavigableItems = (event: React.SyntheticEvent) => {

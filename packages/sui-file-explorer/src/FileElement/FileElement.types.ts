@@ -97,7 +97,7 @@ export interface FileElementProps
   /**
    * The id of the item.
    */
-  itemId?: FileId;
+  id?: FileId;
 
   onFocus?: null;
   /**

@@ -8,7 +8,7 @@ import { useEditorContext } from "../EditorProvider/EditorContext";
 import { IEditorTrack } from "../EditorTrack/EditorTrack";
 
 export default function DetailTracks({  disabled, size, sx, onClick }: { onClick?: (event: Event) => void, disabled?: boolean, size: 'small' | 'medium' | 'large', sx: SxProps<Theme> }) {
-  const { dispatch, file, selectedTrack } = useEditorContext();
+  const { state: {file, selectedTrack}, dispatch } = useEditorContext();
   return <StokedSelect
     label={'Track'}
     placeholder={'Select Track'}

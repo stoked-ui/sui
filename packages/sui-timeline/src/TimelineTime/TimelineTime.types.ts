@@ -8,7 +8,7 @@ export type TimelineTimeProps = {
   /** Scroll callback, used for synchronous scrolling */
   onScroll: (params: OnScrollParams) => void;
   /** Set cursor position */
-  getScaleRender: (scale: number) => React.ReactNode;
+  getScaleRender?: (scale: number) => React.ReactNode;
   onClickTimeArea?: (time: number, e: React.MouseEvent<HTMLDivElement, MouseEvent>) => boolean | undefined;
 
 };

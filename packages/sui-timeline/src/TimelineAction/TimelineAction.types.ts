@@ -2,7 +2,7 @@ import * as React from 'react';
 import {SxProps, Theme} from "@mui/material/styles";
 import {SlotComponentProps} from "@mui/material";
 import {CSSProperties} from "@mui/system/CSSProperties";
-import { namedId } from "@stoked-ui/media-selector";
+import { namedId} from '@stoked-ui/common';
 import {TimelineActionClasses} from "./timelineActionClasses";
 import {DragLineData} from "../TimelineTrackArea/TimelineTrackAreaDragLines";
 import {type ITimelineTrack } from "../TimelineTrack/TimelineTrack.types";
@@ -119,6 +119,18 @@ export const initTimelineAction = (fileAction: ITimelineFileAction, trackIndex: 
   return newAction;
 }
 
+export function getActionFileTimespan<ActionType extends ITimelineAction = ITimelineAction>(action: ActionType) {
+  return {
+    start: action.trimStart || 0,
+    end: (action.trimStart || 0) + (action.end - action.start) - (action?.trimEnd || 0),
+  }
+}
+
+export function createAction<ActionType extends ITimelineAction = ITimelineAction>(props: Partial<ActionType>): ActionType {
+  return {
+    ...props,
+  } as ActionType;
+}
 
 export interface TimelineActionSlots {
   /**

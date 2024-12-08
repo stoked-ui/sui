@@ -21,20 +21,6 @@ export interface IEngine<EmitterEvents extends EventTypes = EventTypes> extends 
   state: string;
 
   playbackMode: 'media' | 'canvas';
-  resetCursor?: () => void;
-  cursorData?: () => {
-    dnd?: { current: RowRndApi };
-    dragLeft: { current: number };
-    scrollLeft: { current: number };
-    setCursor: (param: {
-      left?: number,
-      time?: number
-    }) => boolean;
-  }
-
-  cursorDragStart?: (time: number) => void;
-  cursorDragEnd?: () => void;
-  cursorDrag?: (left: number, scroll?: number) => void;
 
   setScrollLeft(left: number): void;
   /** Set playback rate */

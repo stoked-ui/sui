@@ -1,4 +1,5 @@
-import { IMediaFile2, namedId } from "@stoked-ui/media-selector";
+import { IMediaFile  } from "@stoked-ui/media-selector";
+import { namedId} from '@stoked-ui/common';
 import * as yup from "yup";
 import { ITimelineAction } from "../TimelineAction/TimelineAction.types";
 import { ITimelineTrack } from "../TimelineTrack/TimelineTrack.types";
@@ -74,7 +75,14 @@ export type ActionDetail<
   type: 'action',
 }
 
-export type DetailData = ActionDetail | TrackDetail | ProjectDetail;
+export type SettingsDetail<
+  ProjectType extends IProjectDetail = IProjectDetail,
+> = {
+  project: ProjectType,
+  type: 'settings',
+}
+
+export type DetailData = ActionDetail | TrackDetail | ProjectDetail | SettingsDetail;
 
 export function getProjectDetail(project: ITimelineFile): IProjectDetail {
   if (!project || !project.id) {
@@ -109,7 +117,7 @@ export function getTrackDetail(track: ITimelineTrack): ITimelineTrackDetail {
   };
 }
 
-export function getFileDetail(file: IMediaFile2): IFileDetail {
+export function getFileDetail(file: IMediaFile): IFileDetail {
   return {
     id: file.id,
     name: file.name,
@@ -121,22 +129,23 @@ export function getFileDetail(file: IMediaFile2): IFileDetail {
     lastModified: file.lastModified,
     size: file.size,
     type: file.type,
-    duration: file.duration,
+    duration: file.media.duration,
   };
 }
 
 export type GetDetailProps = {
   file: ITimelineFile,
   selectedAction: ITimelineAction,
-  selectedTrack: ITimelineTrack
+  selectedTrack: ITimelineTrack,
+  selectedType: SelectionTypeName
 }
-export type SelectionTypeName = 'project' | 'track' | 'action';
+export type SelectionTypeName = 'project' | 'track' | 'action' | 'settings';
 
 export type SelectionResult<Selection = SelectionType> = { selected: Selection, type: SelectionTypeName }
 export type SelectionDetail<Selection = SelectionType, Detail = DetailData> = { selected: Selection, detail: Detail, type: SelectionTypeName }
 
-export function getSelected(props: { selectedAction: any, selectedTrack: any, file: any }): SelectionResult {
-  const { selectedAction, selectedTrack, file } = props;
+export function getSelected(props: { selectedAction: any, selectedTrack: any, file: any, selectedType: SelectionTypeName }): SelectionResult {
+  const { selectedAction, selectedTrack, file, selectedType } = props;
   if (selectedAction && !selectedTrack) {
     throw new Error('Selected Action should not be set without a Selected Track');
   }
@@ -149,13 +158,14 @@ export function getSelected(props: { selectedAction: any, selectedTrack: any, fi
   if (selectedTrack) {
     return { selected: selectedTrack, type: 'track' };
   }
-  return{ selected: file, type: 'project' };
+  return{ selected: file, type: selectedType === 'settings' ? 'settings' : 'project' };
 }
 
 export function getDetail(props: GetDetailProps & any): SelectionDetail | null {
   const { selectedAction: action, selectedTrack: track, file: project } = props;
   const { type, selected } = getSelected(props);
   if (type === 'track') {
+    console.info('Track Detail', { type, project, track, file: track.file});
     return {
       detail: {
         type,
@@ -166,6 +176,7 @@ export function getDetail(props: GetDetailProps & any): SelectionDetail | null {
     }
   }
   if (type === 'action') {
+    console.info('Track Action', { type, project, track, file: track.file, action });
     return {
       detail: {
         type,
@@ -176,10 +187,21 @@ export function getDetail(props: GetDetailProps & any): SelectionDetail | null {
       }, selected, type,
     }
   }
-  if (project) {
+  if (type === 'settings') {
+    console.info('Track Settings', { type, project });
     return {
       detail: {
-        type, project: getProjectDetail(project),
+        project: getProjectDetail(project),
+        type: 'settings',
+      }, selected, type,
+    }
+  }
+  if (type === 'project' && project) {
+    console.info('Track Project', { type: 'project', project });
+    return {
+      detail: {
+        type: 'project',
+        project: getProjectDetail(project),
       }, selected, type,
     }
   }

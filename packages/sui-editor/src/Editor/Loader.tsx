@@ -77,8 +77,8 @@ const LoaderCircle = styled('div', {
 }));
 
 function Loader({styles}: {styles: React.CSSProperties}) {
-  const context = useEditorContext();
-  const { dispatch, file , engine, getState } = context;
+  const { state: context, dispatch } = useEditorContext();
+  const { getState, engine, settings, flags, file } = context;
   const loopVideoRef = React.useRef<HTMLVideoElement>(null);
   const previewVideoRef = React.useRef<HTMLVideoElement>(null);
 
@@ -111,14 +111,20 @@ function Loader({styles}: {styles: React.CSSProperties}) {
     }
   }, [loopVideoRef.current]);
 
+  const [loadState, setLoadState] = React.useState<{ loading: boolean, preview: boolean }>({ loading: true, preview: false });
   React.useEffect(() => {
-  }, [file?.state]);
+    const loading = getState() === EngineState.LOADING;
+    setLoadState({
+      preview: settings.disabled,
+      loading
+    });
+  }, [engine.state, file, settings.disabled]);
 
-  const state = getState();
-  const preview = state === EngineState.PREVIEW;
-  const loading = state === EngineState.LOADING;
+  if (flags.detailMode) {
+    return null;
+  }
 
-  if (loading) {
+  if (loadState?.loading) {
     return (
       <React.Fragment>
         <LoopVideo role={'loading-video'} ref={loopVideoRef} styles={styles} />
@@ -127,7 +133,7 @@ function Loader({styles}: {styles: React.CSSProperties}) {
     )
   }
 
-  if (preview) {
+  if (loadState?.preview) {
     return (
       <React.Fragment>
         <LoopVideo role={'preview-video'} ref={loopVideoRef} styles={styles} />

@@ -3,10 +3,10 @@ import { FileProviderProps } from './FileProvider.types';
 import { useFileExplorerContext } from '../FileExplorerProvider/useFileExplorerContext';
 
 function FileProvider(props: FileProviderProps) {
-  const { children, itemId } = props;
+  const { children, id } = props;
   const { wrapItem, instance } = useFileExplorerContext<[]>();
 
-  return wrapItem({ children, itemId, instance });
+  return wrapItem({ children, id, instance });
 }
 
 FileProvider.propTypes = {
@@ -15,7 +15,7 @@ FileProvider.propTypes = {
   // | To update them edit the TypeScript types and run "pnpm proptypes"  |
   // ----------------------------------------------------------------------
   children: PropTypes.node,
-  itemId: PropTypes.string.isRequired,
+  id: PropTypes.string.isRequired,
 } as any;
 
 export { FileProvider };

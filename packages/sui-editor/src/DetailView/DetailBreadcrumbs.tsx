@@ -22,7 +22,9 @@ const Root = styled(Breadcrumbs, {
 }))
 export function DetailBreadcrumbs(){
   const sxSelectedLabel = (theme) => ({ color: theme.palette.text.primary, padding: '0 10px', borderRadius: '6px' });
-  const { file, selectedType, selectedAction, selectedTrack, selectedDetail, dispatch, settings } = useEditorContext();
+  const context = useEditorContext();
+  const { state: { file, selectedType, selectedAction, selectedTrack, selectedDetail, settings}, dispatch } = context;
+
   const selectProject = () => {
     dispatch({ type: 'SELECT_PROJECT' });
   }

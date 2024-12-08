@@ -6,7 +6,7 @@ import {
   type IEditorFileAction
 } from "../EditorAction/EditorAction";
 // import { type IEditorController } from "../Controllers/EditorController.types";
-import { MediaFile2 } from "@stoked-ui/media-selector";
+import { MediaFile } from "@stoked-ui/media-selector";
 
 
 export interface IEditorTrack<
@@ -34,7 +34,7 @@ export interface IEditorFileTrack extends Omit<IEditorTrack, 'id' | 'controller'
 
   image?: string;
 
-  file?: MediaFile2;
+  file?: MediaFile;
 
   controllerName?: string;
 

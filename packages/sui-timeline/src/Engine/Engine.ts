@@ -79,22 +79,6 @@ export default class Engine<
     }
   }
 
-  cursorData?: () => {
-    dnd?: { current: RowRndApi };
-    dragLeft: { current: number };
-    scrollLeft: { current: number };
-    setCursor: (param: {
-      left?: number,
-      time?: number
-    }) => boolean;
-  }
-
-  cursorDragStart?: (time: number) => void;
-
-  cursorDragEnd?: () => void;
-
-  cursorDrag?: (left: number, scroll) => void;
-
   get state() {
     return this._state as State;
   }
@@ -467,8 +451,6 @@ export default class Engine<
 
     // Execute action
     this.tickAction(currentTime);
-
-    console.info('forwards', forwards, initialTime, currentTime);
 
     // In the case of automatic stop, determine whether all actions have been executed.
     if (!to && autoEnd && this._next >= this._actionSortIds.length && this._activeIds.length === 0) {

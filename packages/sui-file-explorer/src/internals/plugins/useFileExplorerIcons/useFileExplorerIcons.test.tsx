@@ -11,8 +11,8 @@ describeFileExplorer<[UseFileExplorerIconsSignature, UseFileExplorerExpansionSig
   'useFileExplorerIcons plugin',
   ({ render }) => {
     describe('slots (expandIcon, collapseIcon, endIcon, icon)', () => {
-      const getIconTestId = (response: DescribeFileExplorerRendererReturnValue<any>, itemId: string) =>
-        response.getItemIconContainer(itemId).querySelector(`div`)?.dataset.testid;
+      const getIconTestId = (response: DescribeFileExplorerRendererReturnValue<any>, id: string) =>
+        response.getItemIconContainer(id).querySelector(`div`)?.dataset.testid;
 
       it('should render the expandIcon slot defined on the fileExplorer if no icon slot is defined on the item and the item is collapsed', () => {
         const response = render({

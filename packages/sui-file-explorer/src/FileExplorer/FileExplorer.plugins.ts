@@ -1,4 +1,3 @@
-import { IMediaFile2 } from '@stoked-ui/media-selector';
 import { FileExplorerCorePluginParameters } from '../internals/corePlugins';
 import {
   useFileExplorerFiles,
@@ -32,6 +31,7 @@ import {
   useFileExplorerDnd,
   UseFileExplorerDndParameters
 } from '../internals/plugins/useFileExplorerDnd';
+import {IMediaFileEx} from "../internals/models/IMediaFileEx";
 
 export const FILE_EXPLORER_PLUGINS = [
   useFileExplorerFiles,
@@ -60,9 +60,9 @@ export type FileExplorerPluginSlotProps = MergeSignaturesProperty<
 >;
 
 // We can't infer this type from the plugin, otherwise we would lose the generics.
-export interface FileExplorerPluginParameters<R extends IMediaFile2, Multiple extends boolean | undefined>
+export interface FileExplorerPluginParameters<Multiple extends boolean | undefined>
   extends FileExplorerCorePluginParameters,
-    UseFileExplorerFilesParameters<R>,
+    UseFileExplorerFilesParameters,
     UseFileExplorerExpansionParameters,
     UseFileExplorerSelectionParameters<Multiple>,
     UseFileExplorerFocusParameters,

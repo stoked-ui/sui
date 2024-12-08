@@ -1,21 +1,22 @@
 import * as React from "react";
-import {ITimelineTrack} from "../TimelineTrack";
-import {TimelineContextType, TimelineState} from "./TimelineProvider.types";
-import {ITimelineFileAction} from "../TimelineAction";
+import {type ITimelineTrack} from "../TimelineTrack";
+import {TimelineContextType, type TimelineState, type TimelineStateAction} from "./TimelineProvider.types";
+import { type ITimelineFileAction} from "../TimelineAction";
 import {DEFAULT_SCALE_WIDTH, NEW_ACTION_DURATION} from "../interface/const";
 import {getScaleCountByRows, parserPixelToTime, parserTimeToPixel} from "../utils";
 
-export const createAction = (e: React.MouseEvent<HTMLElement, MouseEvent>, track: ITimelineTrack, context: TimelineContextType) =>  {
+export const createActionEvent = (e: React.MouseEvent<HTMLElement, MouseEvent>, track: ITimelineTrack, state: TimelineState, dispatch: React.Dispatch<TimelineStateAction>) =>  {
   if (!track || track.locked) {
     return;
   }
+  const { engine } = state;
   const name = `${track.name} - ${track.actions.length}`;
   const newAction: ITimelineFileAction = {
     name,
-    start: context.engine.time,
-    end: context.engine.time + NEW_ACTION_DURATION,
+    start: engine.time,
+    end: engine.time + NEW_ACTION_DURATION,
   };
-  context.dispatch({ type: 'CREATE_ACTION', payload: { action: newAction, track } })
+  dispatch({ type: 'CREATE_ACTION', payload: { action: newAction, track } })
 }
 
 export const  setHorizontalScroll = (left: number, state: TimelineState) =>  {
@@ -29,8 +30,9 @@ export const  setHorizontalScroll = (left: number, state: TimelineState) =>  {
 export const setCursor = (param: { left?: number; time?: number; updateTime?: boolean, move?: boolean }, context: TimelineContextType) => {
   let { left, time } = param;
   const { updateTime = true } = param;
-  const { startLeft, scale, scaleWidth } = context.settings;
-  const scrollSync = context.components.scrollSync as React.PureComponent & { state: Readonly<any>};
+  const { state, dispatch } = context;
+  const { settings: {startLeft, scale, scaleWidth}, components, flags, engine } = state;
+  const scrollSync = components.scrollSync as React.PureComponent & { state: Readonly<any>};
 
   if (typeof left === 'undefined' && typeof time === 'undefined') {
     return undefined;
@@ -45,19 +47,19 @@ export const setCursor = (param: { left?: number; time?: number; updateTime?: bo
   }
 
   if ((typeof time !== 'undefined' || typeof time === 'undefined') && param.move && scrollSync) {
-    setHorizontalScroll(left - (scrollSync.state.clientWidth * .5), context);
+    setHorizontalScroll(left - (scrollSync.state.clientWidth * .5), state);
   }
 
   let result = true;
   if (updateTime) {
-    result = context.engine.setTime(time);
-    if (context.flags.autoReRender) {
-      context.engine.reRender();
+    result = engine.setTime(time);
+    if (flags.autoReRender) {
+      engine.reRender();
     }
   }
 
   if (result) {
-    context.dispatch({ type: 'SET_SETTING', payload: { key: 'cursorTime', value: time } });
+    dispatch({ type: 'SET_SETTING', payload: { key: 'cursorTime', value: time } });
   }
 
   return result;
@@ -83,21 +85,27 @@ export const deltaScrollLeft = (delta: number, state: TimelineState)  => {
 
 /** dynamicSettings scale count */
 export const setScaleCount = (value: number, context: TimelineContextType) =>  {
-  const { settings: { maxScaleCount, minScaleCount } } = context;
+  const { state, dispatch } = context;
+  const { settings: { maxScaleCount, minScaleCount } } = state;
   const newScaleCount = Math.min(maxScaleCount, Math.max(minScaleCount, value));
-  context.dispatch({ type: 'SET_SETTING', payload: { key: 'scaleCount', value: newScaleCount } });
+  dispatch({ type: 'SET_SETTING', payload: { key: 'scaleCount', value: newScaleCount } });
 }
 
-export const  fitScaleData = (context: TimelineContextType, newWidth: number, tracks?: ITimelineTrack[])  => {
-  tracks = tracks || context.file?.tracks;
-  if (!newWidth || !tracks?.length) {
-    return undefined;
+export const  fitScaleData = (context: TimelineContextType, newWidth?: number)  => {
+  const { state, dispatch } = context;
+  const { settings, engine } = state;
+  if (!newWidth) {
+    const timelineGrid = document.getElementById('timeline-grid');
+    newWidth = timelineGrid.clientWidth;
   }
-  const { settings } = context;
+  const tracks = state.file?.tracks;
+  if (!newWidth || !tracks?.length) {
+    return null;
+  }
   const { startLeft, maxScaleCount, minScaleCount } = settings;
 
   const getScale = () => {
-    const scaleWidth = (newWidth - (startLeft * 2)) / context.engine.maxDuration;
+    const scaleWidth = (newWidth - (startLeft * 2)) / engine.maxDuration;
     if (scaleWidth < 40) {
       const multiplier = Math.ceil(40 / scaleWidth);
       return { scaleWidth: multiplier * scaleWidth, scale: multiplier };
@@ -110,11 +118,25 @@ export const  fitScaleData = (context: TimelineContextType, newWidth: number, tr
   }
   const { scaleWidth, scale } = scaleRes;
   const scaleCount = getScaleCountByRows(tracks || [], { scale })
-  return {
+  const scaleData = {
     scaleWidth,
     scaleCount,
     minScaleCount: Math.min(maxScaleCount, Math.max(minScaleCount, scaleCount)),
     maxScaleCount: Math.max(maxScaleCount, Math.min(scaleCount, minScaleCount)),
     scale,
   }
+  dispatch({type: 'SET_SETTING', payload: {value: {...scaleData}}});
+  return scaleData;
+}
+
+const selectedScale = 1.6;
+export const getTrackHeight = (track: ITimelineTrack, state: TimelineState): number => {
+  const { flags: { detailMode }, file, selectedTrack, settings: { trackHeight,  } } = state;
+
+  if (!detailMode) {
+    return trackHeight;
+  }
+  const trackHeightDetailSelected =  selectedScale * trackHeight;
+  const trackHeightDetailUnselected = (1 - ((selectedScale - 1) / ((file?.tracks?.length ?? 2) - 1))) * trackHeight
+  return track.id === selectedTrack?.id ? trackHeightDetailSelected : trackHeightDetailUnselected;
 }

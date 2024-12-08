@@ -15,6 +15,8 @@ import TimelineFile from '../TimelineFile';
 import { EngineState } from '../Engine';
 import {ITimelineAction, ITimelineActionHandlers} from '../TimelineAction';
 import { ITimelineTrack } from '../TimelineTrack';
+import AddIcon from "@mui/icons-material/Add";
+import Fab from "@mui/material/Fab";
 
 /** edit area ref data */
 export interface TimelineTrackAreaState {
@@ -84,16 +86,16 @@ const FloatingTracksRoot = styled('div', {
 }));
 
 function FloatingTrackLabels({ tracks }) {
-  const context = useTimeline();
-  const { settings, flags } = context;
+  const { state} = useTimeline();
+  const { settings, flags } = state;
   const {trackHoverId, selectedTrack, editorMode, trackHeight, selectedTrackIndex} = settings;
   if (!flags.noLabels) {
     return undefined;
   }
   const editorModeHidden = editorMode === 'track' || editorMode === 'action';
   const isSelected = (index: number) => selectedTrackIndex === index ?? false;
-  const selectedHeight = flags.detailMode && selectedTrackIndex !== -1 ? settings.detailSelectedHeight: trackHeight;
-  const unselectedHeight = flags.detailMode && selectedTrackIndex !== -1 ? settings.detailUnselectedHeight : trackHeight;
+  const selectedHeight = flags.detailMode && selectedTrackIndex !== -1 ? settings.trackHeightDetailSelected: trackHeight;
+  const unselectedHeight = flags.detailMode && selectedTrackIndex !== -1 ? settings.trackHeightDetailUnselected : trackHeight;
   const getHeight = (index: number) => (isSelected(index) ? selectedHeight : unselectedHeight);
   return (
     <FloatingTracksRoot>
@@ -133,8 +135,8 @@ function FloatingTrackLabels({ tracks }) {
 
 const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrackAreaProps>(
   (props, ref) => {
-    const context = useTimeline();
-    const { file, getState, dispatch, settings, flags,  } = context;
+    const { state, dispatch } = useTimeline();
+    const { file, getState, settings, flags,  } = state;
     const {
       scaleCount,
       scaleWidth,
@@ -144,7 +146,8 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
       scale,
       cursorTime,
       trackHeight,
-      selectedTrackIndex
+      selectedTrackIndex,
+      getTrackHeight,
     } = settings;
 
     const tracks = file?.tracks;
@@ -310,25 +313,23 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
     };
 
     React.useEffect(() => {
-      if (tracksRef.current) {
-        tracksElementRef.current = document.getElementById('thisisedit') as HTMLDivElement;
-      }
-    }, [tracksRef]);
-
-    React.useEffect(() => {
       tracksRef.current?.scrollToPosition({ scrollTop, scrollLeft });
     }, [scrollTop, scrollLeft]);
 
     React.useEffect(() => {
-      tracksRef.current.recomputeGridSize();
+      tracksRef.current?.recomputeGridSize();
     }, [tracks]);
 
     if (getState() === EngineState.LOADING) {
       return undefined;
     }
-
-    const selectedHeight = flags.detailMode && selectedTrackIndex !== -1 ? trackHeight * 1.65 : trackHeight;
-    const unselectedHeight = flags.detailMode && selectedTrackIndex !== -1 ? trackHeight * (1 - (.65 / (tracks.length - 1))) : trackHeight;
+    if (!tracks || !tracks.length) {
+      return <Box sx={{ minHeight: '60px', width: '100%', display: 'grid', justifyContent: 'center', alignItems: 'center', position: 'relative', height: 'calc(100% - 18px - 37px)' }}>
+        <Typography sx={{justifySelf: 'center'}} color={'action.disabled'}>No tracks</Typography>
+      </Box>;
+    }
+   /*  const selectedHeight = flags.detailMode && selectedTrackIndex !== -1 ? trackHeight * 1.65 : trackHeight;
+    const unselectedHeight = flags.detailMode && selectedTrackIndex !== -1 ? trackHeight * (1 - (.65 / (tracks.length - 1))) : trackHeight; */
     return (
       <React.Fragment>
         <FloatingTrackLabels tracks={tracks} />
@@ -342,14 +343,14 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
               let totalHeight = 0;
               // HEIGHT LIST
               tracks?.forEach((track, index) => {
-                totalHeight += trackHeight;
+                totalHeight += getTrackHeight(track, state)
               });
 
               heightRef.current = totalHeight;
 
               return (
                 <Grid
-                  id={'thisisedit'}
+                  id={'timeline-grid'}
                   columnCount={1}
                   rowCount={ (tracks?.length ?? 0)}
                   ref={tracksRef}
@@ -360,7 +361,10 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
                   columnWidth={Math.max(scaleCount * scaleWidth + startLeft, width)}
                   width={width}
                   height={totalHeight}
-                  rowHeight={({ index }) => index === selectedTrackIndex ? selectedHeight : unselectedHeight}
+                  rowHeight={({ index }) => {
+
+                    return getTrackHeight(tracks[index], state)
+                  }}
                   overscanRowCount={10}
                   overscanColumnCount={0}
                   onScroll={(param) => {

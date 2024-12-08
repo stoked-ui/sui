@@ -6,7 +6,6 @@ import {
   CtrlCell,
   CtrlRow,
   DetailActions,
-  useEditMode
 } from './Detail'
 import ControlledColor from "./ControlledColor";
 import {DetailViewProps, IEditorProjectDetail, projectSchema} from "./Detail.types";
@@ -14,7 +13,7 @@ import {useEditorContext} from "../EditorProvider";
 
 
 export function DetailProject(props: DetailViewProps) {
-  const { file, selected , engine, dispatch } = useEditorContext();
+  const { state: {file, selected , engine}, dispatch } = useEditorContext();
 
   const {
     control,
@@ -44,7 +43,7 @@ export function DetailProject(props: DetailViewProps) {
   }, []);
 
   return (
-   <React.Fragment>
+   <div>
       <CtrlRow>
         <CtrlCell width="40%">
           <ControlledText
@@ -52,9 +51,7 @@ export function DetailProject(props: DetailViewProps) {
             label={'Name'}
             control={control}
             disabled={!props.editMode}
-            onClick={() => {
-              console.log('derp')
-            }}
+            onClick={props.enableEdit}
           />
         </CtrlCell>
         <CtrlCell width="15%">
@@ -88,7 +85,7 @@ export function DetailProject(props: DetailViewProps) {
           }}
           onClick={props.enableEdit}
         />
-      </CtrlCell>
+        </CtrlCell>
         <CtrlCell width="40%">
           <ControlledText
             className={'whitespace-nowrap flex-grow flex'}
@@ -137,6 +134,6 @@ export function DetailProject(props: DetailViewProps) {
         editMode={props.editMode}
         disableEdit={props.disableEdit}
       />
-   </React.Fragment>
+   </div>
   )
 }

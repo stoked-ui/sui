@@ -1,35 +1,48 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import {SxProps} from "@mui/system";
-import Timeline, {TimelineProvider, Controller} from "@stoked-ui/timeline";
+import Timeline, {
+  TimelineFile,
+  ITimelineFileProps,
+  TimelineProvider, ITimelineFile
+} from "@stoked-ui/timeline";
 import ShowcaseContainer from 'docs/src/components/home/ShowcaseContainer';
 import HighlightedCode from 'docs/src/modules/components/HighlightedCode';
 import MarkdownElement from 'docs/src/components/markdown/MarkdownElement';
-/*
-import TimelineExample from "../showcase/TimelineExample";
-*/
+import {EditorFile, IEditorFile, IEditorFileProps} from "@stoked-ui/editor";
+import {
+  createFile, EditorAudioExampleProps, EditorVideoExampleProps
+} from "../showcase/ExampleShowcaseFiles";
 
 
 const code = `
 
-  const controllers: Record<string, IController> = {
-    effect: {
-      enter: params => { console.log(params); },
-      leave: params => { console.log(params); },
-      color: '#FF0000',
-      colorSecondary: '#f1abab'
-    }
-  };
   return (
-    <Timeline actionData={actions} sx={{width:'100%'}}  controllers={controllers}/>
+    <TimelineProvider>
+      <Timeline sx={{width:'100%'}} id={'timeline-showcase'} file={TimelineExample} />
+    </TimelineProvider>
   );
 };`
 
 function TimelineEditorDemo() {
+  const [loadedFile, setLoadedFile] = React.useState<ITimelineFile | undefined>();
+
+  const loadEditorFile = async () => {
+    const editorFile = await createFile<ITimelineFileProps, TimelineFile>(EditorVideoExampleProps, TimelineFile);
+    setLoadedFile(editorFile);
+  }
+
+  const loadTimelineFile = async () => {
+    const timelineFile = await createFile<ITimelineFileProps, TimelineFile>(EditorAudioExampleProps as ITimelineFileProps, TimelineFile);
+    setLoadedFile(timelineFile);
+  }
+
+  React.useEffect(() => {
+    loadEditorFile().then(() => {});
+  }, []);
   return (
-    <TimelineProvider id={'timeline-showcase'} >
- {/*      <Timeline sx={{width:'100%'}}/> */}
-      <div/>
+    <TimelineProvider  >
+      <Timeline sx={{width:'100%'}} id={'timeline-showcase'} file={loadedFile} />
     </TimelineProvider>
   );
 };

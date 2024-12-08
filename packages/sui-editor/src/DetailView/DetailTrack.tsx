@@ -18,7 +18,7 @@ import {useEditorContext} from "../EditorProvider";
 import BlendModeSelect from "./BlendModeSelect";
 
 export function DetailTrack(props: DetailViewProps) {
-  const { selectedTrack, selected, dispatch } = useEditorContext();
+  const { state: {selectedTrack, selected}, dispatch } = useEditorContext();
   const {
     editMode,
     enableEdit,
@@ -57,7 +57,7 @@ export function DetailTrack(props: DetailViewProps) {
   }
 
   return (
-    <React.Fragment>
+    <div>
       <CtrlRow>
         <CtrlCell width="45%">
           <ControlledText
@@ -102,6 +102,6 @@ export function DetailTrack(props: DetailViewProps) {
         </CtrlCell>
       </CtrlRow>
       <DetailActions errors={errors} isDirty={isDirty} reset={reset} disableEdit={disableEdit} editMode={editMode} />
-    </React.Fragment>
+    </div>
   )
 }

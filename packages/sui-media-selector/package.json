@@ -31,12 +31,13 @@
     "prebuild": "rimraf build tsconfig.build.tsbuildinfo"
   },
   "peerDependencies": {
-    "react": "^18.0.0",
-    "@stoked-ui/common": "workspace:^"
+    "@stoked-ui/common": "workspace:^",
+    "react": "^18.0.0"
   },
   "devDependencies": {
     "@babel/runtime": "^7.24.7",
     "@types/react": "^18.3.1",
+    "@types/wicg-file-system-access": "^2023.10.5",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
     "eslint": "^8.57.0",

@@ -1,8 +1,6 @@
 import * as React from "react";
 import Select from "@mui/material/Select";
-import { Theme } from "@mui/material/styles";
 import {FormControl, SxProps} from "@mui/material";
-import { useEditorContext } from "../EditorProvider/EditorContext";
 import MenuItem from "@mui/material/MenuItem";
 import InputLabel from "@mui/material/InputLabel";
 

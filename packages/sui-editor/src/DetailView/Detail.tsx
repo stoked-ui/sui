@@ -1,5 +1,5 @@
 import * as React from "react";
-import { IMediaFile2 } from '@stoked-ui/media-selector';
+import { IMediaFile } from '@stoked-ui/media-selector';
 import {Button, CardActions, Fade, styled, Typography} from "@mui/material";
 import { shouldForwardProp } from "@mui/system/createStyled";
 import { alpha, Theme } from "@mui/material/styles";
@@ -69,7 +69,7 @@ const CtrlGroupRoot = styled('fieldset', {
   flexWrap: 'wrap',
   borderRadius: '4px',
   padding: '6px 5px 0px 5px',
-  borderColor: `${alpha(theme.palette.primary[600], 0.3)}`
+  borderColor: `${alpha(theme.palette.primary[600], 1)}`
 }))
 
 export const CtrlLabel = styled('legend')(({theme}) => ({
@@ -139,143 +139,141 @@ const inputDefaultAlpha = .4;
 const backgroundAlpha = (theme: Theme) => alpha(theme.palette.background.default, inputDefaultAlpha);
 const wAlpha = (theme: Theme, alphaMultiplier: number = inputDefaultAlpha) => alpha(theme.palette.background.default, alphaMultiplier);
 export const RootBox = styled('div')(({theme}) => ({
-  '& .SUI-form': {
-    '& .MuiFormControl-root': {
-      '& .MuiFormLabel-root.MuiInputLabel-outlined.Mui-disabled': {
-        color:`${theme.palette.primary[600]}!important`,
-        fontWeight: 'bold',
+  '& .MuiFormControl-root': {
+    '& .MuiFormLabel-root.MuiInputLabel-outlined.Mui-disabled': {
+      color:`${theme.palette.primary[600]}!important`,
+      fontWeight: 'bold',
+    },
+    '& .MuiOutlinedInput-root.Mui-disabled': {
+      backgroundImage: `linear-gradient(90deg, ${wAlpha(theme, )}, ${backgroundAlpha(theme)})`,
+      '& fieldset': {
+        border: 0,
       },
-      '& .MuiOutlinedInput-root.Mui-disabled': {
-        backgroundImage: `linear-gradient(90deg, ${wAlpha(theme, )}, ${backgroundAlpha(theme)})`,
-        '& fieldset': {
-          border: 0,
-        },
-        '& MuiInputLabel-root.Mui-disabled': {
-          color:`${theme.palette.primary.main}!important`,
-        },
-        '& label': {
-          color: `${theme.palette.primary.main}!important`,
-        }
+      '& MuiInputLabel-root.Mui-disabled': {
+        color:`${theme.palette.primary.main}!important`,
       },
-    },
-
-    '& .MuiFormControl-root .MuiInputBase-root': {
-      // backgroundColor: alpha(theme.palette.background.default, inputDefaultAlpha),
-      borderRadius: '4px'
-    },
-    '& input[type="color"]': {
-      '-webkit-appearance': 'none',
-      border: 'none',
-      '&::-webkit-color-swatch-wrapper': {
-        padding: '0px',
-      },
-      '&::-webkit-color-swatch': {
-        border: 'none',
-        borderRadius: '4px',
-      },
-    },
-    '& input[type="color"]::-webkit-color-swatch-wrapper': {
-      padding: '0px',
-    },
-    '& video, audio': {
-      borderRadius: '6px'
-    },
-    '& .MuiChip-root': {
-      backgroundColor: theme.palette.background.paper
-    },
-    '& .MuiChip-avatar': {
-      backgroundColor: theme.palette.background.default
-    },
-    '& .MuiTooltip-tooltip': {
-      backgroundColor: 'red',
-      color: 'white'
-    },
-    '& .disabledForm input': {
-      'WebkitTextFillColor': theme.palette.text.primary
-    },
-    '& .disabledForm .MuiSelect-select': {
-      'WebkitTextFillColor': theme.palette.text.primary
-    },
-    '& .disabledForm textarea': {
-      'WebkitTextFillColor': theme.palette.text.primary
-    },
-    '& .disabledForm fieldset': {
-      display: 'none'
-    },
-    '& input[disabled]': {
-      pointerEvents: 'none'
-    },
-    '& textarea[disabled]': {
-      pointerEvents: 'none'
-    },
-    /*
-     background-color: hsl(210, 14%, 22%);
-     border-color: hsl(210, 14%, 36%);
-     color: hsl(215, 15%, 92%);
-     outline-color: hsl(210, 100%, 45%);
-     */
-    '& .plyr.plyr--full-ui.plyr--video': {
-      borderRadius: '6px'
-    },
-    '& .plyr--full-ui input[type=range]': {
-      color: theme.palette.primary.main,
-    },
-    '& .plyr__control--overlaid': {
-      background: theme.palette.primary.main,
-    },
-    '& .plyr--audio .plyr__control': {
-      color: theme.palette.background.default,
-    },
-    '& .plyr--audio .plyr__control:hover': {
-      background: theme.palette.primary.main,
-      color: theme.palette.secondary.main
-    },
-    '&  .plyr--video .plyr__control.plyr__tab-focus, .plyr--video.plyr__control[aria-expanded=true]': {
-      background: theme.palette.secondary.main,
-    },
-    '& .plyr__control .plyr__tab-focus': {
-      boxShadow: '0 0 0 5px #FFF',
-    },
-    '& .plyr__menu__container': {
-      background: 'hsl(210, 14%, 7%)',
-    },
-    '& .plyr--audio .plyr__controls': {
-      background: 'hsl(210, 14%, 7%)',
-      borderRadius: '6px'
-    },
-    '& .plyr__controls__item.plyr__time--current, .plyr__controls__item.plyr__time--duration.plyr__time': {
-      color: '#FFF'
-    },
-    '& .MuiFormControl-root legend': {
-      background: 'transparent',
-      marginLeft: '5px',
-      paddingRight: '2px',
-    },
-    '&:hover .MuiOutlinedInput-notchedOutline': {
-      borderColor: theme.palette.primary.main,
-      '&.Mui-focused': {
-        borderColor: theme.palette.primary.main
+      '& label': {
+        color: `${theme.palette.primary.main}!important`,
       }
     },
-    /*
-    '& .MuiFormLabel-root.MuiInputLabel-root.MuiInputLabel-shrink': {
-      color: theme.palette.text.primary,
-      padding: '3px 8px',
-      borderRadius: '6px',
-      backgroundImage: `linear-gradient(90deg, ${backgroundAlpha(theme)}, ${backgroundAlpha(theme)})`,
-      backgroundSize: '100% 12px',
-      backgroundRepeat: 'no-repeat'
+  },
+
+  '& .MuiFormControl-root .MuiInputBase-root': {
+    backgroundColor: alpha(theme.palette.background.default, inputDefaultAlpha),
+    borderRadius: '4px'
+  },
+  '& input[type="color"]': {
+    '-webkit-appearance': 'none',
+      // border: 'none',
+    '&::-webkit-color-swatch-wrapper': {
+      // padding: '0px',
     },
-   '& .Mui-shrink-full .MuiFormLabel-root.MuiInputLabel-root.MuiInputLabel-shrink': {
-      color: theme.palette.text.primary,
-      padding: '3px 8px',
-      borderRadius: '6px',
-      backgroundImage: `linear-gradient(90deg, ${backgroundAlpha(theme)}, ${backgroundAlpha(theme)}), linear-gradient(90deg, ${theme.palette.background.paper}, ${theme.palette.background.paper})`,
-      backgroundSize: '100% 12px, 100% 17px',
-      backgroundPosition: '0 0, 0 100%',
-      backgroundRepeat: 'no-repeat, no-repeat'
-    }, */
-  }
+    '&::-webkit-color-swatch': {
+      border: 'none',
+      borderRadius: '4px',
+    },
+  },
+  '& input[type="color"]::-webkit-color-swatch-wrapper': {
+    // padding: '0px',
+  },
+  '& video, audio': {
+    borderRadius: '6px'
+  },
+  '& .MuiChip-root': {
+    backgroundColor: theme.palette.background.paper
+  },
+  '& .MuiChip-avatar': {
+    backgroundColor: theme.palette.background.default
+  },
+  '& .MuiTooltip-tooltip': {
+    backgroundColor: 'red',
+    color: 'white'
+  },
+  '& .disabledForm input': {
+    'WebkitTextFillColor': theme.palette.text.primary
+  },
+  '& .disabledForm .MuiSelect-select': {
+    'WebkitTextFillColor': theme.palette.text.primary
+  },
+  '& .disabledForm textarea': {
+    'WebkitTextFillColor': theme.palette.text.primary
+  },
+  '& .disabledForm fieldset': {
+    display: 'none'
+  },
+  '& input[disabled]': {
+    pointerEvents: 'none'
+  },
+  '& textarea[disabled]': {
+    pointerEvents: 'none'
+  },
+  /*
+   background-color: hsl(210, 14%, 22%);
+   border-color: hsl(210, 14%, 36%);
+   color: hsl(215, 15%, 92%);
+   outline-color: hsl(210, 100%, 45%);
+   */
+  '& .plyr.plyr--full-ui.plyr--video': {
+    borderRadius: '6px'
+  },
+  '& .plyr--full-ui input[type=range]': {
+    color: theme.palette.primary.main,
+  },
+  '& .plyr__control--overlaid': {
+    background: theme.palette.primary.main,
+  },
+  '& .plyr--audio .plyr__control': {
+    color: theme.palette.background.default,
+  },
+  '& .plyr--audio .plyr__control:hover': {
+    background: theme.palette.primary.main,
+    color: theme.palette.secondary.main
+  },
+  '&  .plyr--video .plyr__control.plyr__tab-focus, .plyr--video.plyr__control[aria-expanded=true]': {
+    background: theme.palette.secondary.main,
+  },
+  '& .plyr__control .plyr__tab-focus': {
+    boxShadow: '0 0 0 5px #FFF',
+  },
+  '& .plyr__menu__container': {
+    background: 'hsl(210, 14%, 7%)',
+  },
+  '& .plyr--audio .plyr__controls': {
+    background: 'hsl(210, 14%, 7%)',
+    borderRadius: '6px'
+  },
+  '& .plyr__controls__item.plyr__time--current, .plyr__controls__item.plyr__time--duration.plyr__time': {
+    color: '#FFF'
+  },
+  '& .MuiFormControl-root legend': {
+    background: 'transparent',
+    marginLeft: '5px',
+    paddingRight: '2px',
+  },
+  '&:hover .MuiOutlinedInput-notchedOutline': {
+    borderColor: theme.palette.primary.main,
+    '&.Mui-focused': {
+      borderColor: theme.palette.primary.main
+    }
+  },
+  /*
+  '& .MuiFormLabel-root.MuiInputLabel-root.MuiInputLabel-shrink': {
+    color: theme.palette.text.primary,
+    padding: '3px 8px',
+    borderRadius: '6px',
+    backgroundImage: `linear-gradient(90deg, ${backgroundAlpha(theme)}, ${backgroundAlpha(theme)})`,
+    backgroundSize: '100% 12px',
+    backgroundRepeat: 'no-repeat'
+  },
+ '& .Mui-shrink-full .MuiFormLabel-root.MuiInputLabel-root.MuiInputLabel-shrink': {
+    color: theme.palette.text.primary,
+    padding: '3px 8px',
+    borderRadius: '6px',
+    backgroundImage: `linear-gradient(90deg, ${backgroundAlpha(theme)}, ${backgroundAlpha(theme)}), linear-gradient(90deg, ${theme.palette.background.paper}, ${theme.palette.background.paper})`,
+    backgroundSize: '100% 12px, 100% 17px',
+    backgroundPosition: '0 0, 0 100%',
+    backgroundRepeat: 'no-repeat, no-repeat'
+  }, */
 }));
 
 
@@ -286,7 +284,7 @@ export function DetailActions({ errors, isDirty, reset, disableEdit, editMode }:
   editMode: boolean,
   disableEdit: () => void
 }) {
-  const { selectedDetail, selectedType } = useEditorContext();
+  const { state: {selectedDetail, selectedType} } = useEditorContext();
   if (!selectedDetail || !selectedType || !editMode) {
     return undefined;
   }
@@ -316,67 +314,86 @@ export function DetailActions({ errors, isDirty, reset, disableEdit, editMode }:
   )
 }
 
-export function FileDetailView({ file }: { file?: IMediaFile2 }): React.ReactNode {
-  const { settings, flags, engine, dispatch } = useEditorContext();
+const TrackFile = styled(CtrlGroup, {
+  shouldForwardProp: (prop) => prop !== 'style'
+})(({theme, style}) => ({
+  ...style,
+  '& .Mui-shrink-full .MuiFormLabel-root.MuiInputLabel-root.MuiInputLabel-shrink': {
+    color: theme.palette.text.primary,
+    padding: '3px 8px',
+    borderRadius: '6px',
+    backgroundImage: `linear-gradient(90deg, ${backgroundAlpha(theme)}, ${backgroundAlpha(theme)}), linear-gradient(90deg, ${theme.palette.background.paper}, ${theme.palette.background.paper})`,
+    backgroundSize: '100% 12px, 100% 17px',
+    backgroundPosition: '0 0, 0 100%',
+    backgroundRepeat: 'no-repeat, no-repeat'
+  },
+}));
+
+export function FileDetailView(): React.ReactNode {
+  const { state: { selectedTrack, flags, engine}, dispatch } = useEditorContext();
   const ref = React.useRef<HTMLFieldSetElement>(null);
 
-  React.useEffect(() => {
-    const anchorEl = engine.viewer;
-    if (anchorEl && ref.current) {
-      const childDiv: HTMLFieldSetElement = ref.current;
-      if (childDiv.parentNode) {
-        childDiv?.remove();
-      }
-
-      // Ensure the parent div has a position of relative
-      anchorEl.style.position = 'relative';
-      anchorEl.appendChild(childDiv);
-      // Set the child div to be positioned at the bottom
-      childDiv.style.position = 'absolute';
-      childDiv.style.bottom = '0';
-      childDiv.style.left = '0';
-      childDiv.style.scale = '.8';
-      childDiv.style.transformOrigin = 'left bottom';
-      childDiv.style.margin = '12px';
-    }
-  }, [ref.current]);
+  if (!selectedTrack?.file) {
+    return null;
+  }
 
   return (
-    <Fade in={flags.showViewControls}>
-      <CtrlGroup
-        onMouseEnter={() => {
-          dispatch({ type: 'SET_FLAGS', payload: { add: ['showViewControls'] }});
-        }}
-        onMouseLeave={() => {
-          dispatch({ type: 'SET_FLAGS', payload: { remove: ['showViewControls'] }});
-        }}
-        style={{ scale: .8, transformOrigin: 'left' }} className={"fileDetailView"} label={'Track File'} ref={ref}>
-        <CtrlCell width="40%">
-          <UncontrolledText
-            className={'whitespace-nowrap flex-grow flex'}
-            label={'File Name'}
-            value={file?.name}
-            disabled
-          />
-        </CtrlCell>
-        <CtrlCell width="15%">
-          <UncontrolledText
-            className={'whitespace-nowrap flex-grow flex'}
-            label={'Size'}
-            value={file?.size}
-            disabled
-            format={humanFileSize}
-          />
-        </CtrlCell>
-        <CtrlCell width="15%">
-          <UncontrolledText
-            className={'whitespace-nowrap flex-grow flex'}
-            label={'Media Type'}
-            value={file?.mediaType}
-            disabled
-          />
-        </CtrlCell>
-      </CtrlGroup>
+    <Fade in={flags.showViewControls || true}
+      id={'file-detail'}
+     >
+      <RootBox style={{
+        zIndex: 1000,
+        padding: '8px',
+        justifyItems: 'center',
+        display: 'grid',
+        bottom: '0px'
+      }}>
+        <TrackFile
+          onMouseEnter={() => {
+            dispatch({ type: 'SET_FLAGS', payload: { add: ['showViewControls'] }});
+          }}
+          onMouseLeave={() => {
+            dispatch({ type: 'SET_FLAGS', payload: { remove: ['showViewControls'] }});
+          }}
+          style={{
+            position: 'absolute',
+            scale: '0.8!important',
+            transformOrigin: 'center bottom',
+            background:' linear-gradient(168deg, #aebcc9 0%, #dde3e8 100%)',
+            marginBottom: '6px',
+            borderRadius: '8px'
+          }}
+          className={"file-detail-view"}
+          label={'Track File'}
+          ref={ref}
+        >
+          <CtrlCell width="40%">
+            <UncontrolledText
+              className={'whitespace-nowrap flex-grow flex'}
+              label={'File Name'}
+              value={selectedTrack?.file?.name}
+              disabled
+            />
+          </CtrlCell>
+          <CtrlCell width="15%">
+            <UncontrolledText
+              className={'whitespace-nowrap flex-grow flex'}
+              label={'Size'}
+              value={selectedTrack?.file?.size}
+              disabled
+              format={humanFileSize}
+            />
+          </CtrlCell>
+          <CtrlCell width="15%">
+            <UncontrolledText
+              className={'whitespace-nowrap flex-grow flex'}
+              label={'Media Type'}
+              value={selectedTrack?.file?.mediaType}
+              disabled
+            />
+          </CtrlCell>
+        </TrackFile>
+      </RootBox>
     </Fade>
   )
 }
@@ -411,37 +428,34 @@ const DetailRenderer = styled('canvas', {
 
 export function FormWrap({ title, handleSubmit, onSubmit, children}) {
   const context = useEditorContext();
-  const {  settings, selectedType, file,  selectedTrack } = context;
-  const { detailHandleSubmit, detailOnSubmit, selected } = settings;
+  const {state, dispatch} = context;
+  const {settings, selectedType, file} = state;
+  const {detailHandleSubmit, detailOnSubmit, selected} = settings;
   const ref = React.useRef<HTMLDivElement>(null);
   React.useEffect(() => {
     if (ref.current?.clientWidth) {
       const scaledData = settings.fitScaleData(context, ref.current.clientWidth - 14);
-      context.dispatch({type: 'SET_SETTING', payload: {value: {...scaledData,}}})
+      dispatch({type: 'SET_SETTING', payload: {value: {...scaledData,}}})
     }
   }, [ref.current?.clientWidth]);
 
-  let submit = () => {};
+  let submit = () => {
+  };
   if (detailHandleSubmit && detailOnSubmit) {
     submit = detailHandleSubmit(detailOnSubmit);
   }
-  return <React.Fragment>
-    <DetailBreadcrumbs />
-    <Typography variant="h6" sx={{
-      marginTop: '6px'
-    }}>
-      {title}
-    </Typography>
-    <div style={{ overflowY: 'scroll', maxHeight: 'calc(100vh - 40px)' }}>
+  const robustView = (
+    <div style={{overflowY: 'scroll', maxHeight: 'calc(100vh - 40px)'}}>
       <Editor
         file={file || undefined}
         id={'detail-editor'}
         detailMode
         ref={ref}
-        sx={(theme) => ({ border: '1px solid #999' })}
-      />
+        sx={(theme) => ({border: '1px solid #999'})}
+      >
+        <FileDetailView/>
+      </Editor>
 
-      {selectedType && selectedType !== 'project' && <FileDetailView file={selectedTrack!.file} />}
       <div className={'SUI-form'}>
         <DetailForm
           id={'detailView'}
@@ -451,7 +465,20 @@ export function FormWrap({ title, handleSubmit, onSubmit, children}) {
           {children}
         </DetailForm>
       </div>
-    </div>
-  </React.Fragment>
+    </div>)
+
+  const baseView = <React.Fragment>{children}</React.Fragment>
+  return <div>
+    <DetailBreadcrumbs/>
+    <Typography variant="h6" sx={{
+      marginTop: '6px'
+    }}>
+      {title}
+    </Typography>
+    {selectedType === 'settings' ?
+      baseView :
+      robustView
+    }
+  </div>
 }
 

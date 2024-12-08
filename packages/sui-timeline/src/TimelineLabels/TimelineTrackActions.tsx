@@ -6,7 +6,7 @@ import LockIcon from "@mui/icons-material/Lock";
 import LockOpenIcon from "@mui/icons-material/LockOpen";
 import AddIcon from "@mui/icons-material/Add";
 import Fab from "@mui/material/Fab";
-import {ToggleButtonGroupEx} from "@stoked-ui/timeline";
+import ToggleButtonGroupEx from "../components/ToggleButtonGroupEx";
 import { useTimeline } from "../TimelineProvider/TimelineProvider";
 
 export function ToggleVolume({ track, file, toggleClick, dispatch, children }) {
@@ -69,16 +69,11 @@ export function ToggleLock({ track, file, toggleClick, dispatch, hide, children 
 
 export interface TimelineTrackActionsProps { track: any, sx?: any }
 export default function TimelineTrackActions({ track, sx }: TimelineTrackActionsProps) {
-  const { file, dispatch, flags } = useTimeline();
+  const { state: { file, flags }, dispatch } = useTimeline();
   const volumeIcon = track.muted ? <VolumeOff fontSize={'small'} /> : <VolumeUp fontSize={'small'} />;
   const lockIcon = track.locked ? <LockIcon fontSize={'small'}/> : <LockOpenIcon fontSize={'small'}/>;
   const toggleClick = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
     event.stopPropagation();
-  }
-  if (track.id === 'newTrack') {
-    return (
-      <Fab color="primary" size={'small'} sx={{ scale: '.7'}}><AddIcon fontSize={'large'} /></Fab>
-    )
   }
   if (!file || flags.noTrackControls) {
     return undefined;

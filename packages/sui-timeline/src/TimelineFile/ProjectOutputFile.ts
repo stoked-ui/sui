@@ -1,15 +1,16 @@
-import { IMediaFile2 } from "@stoked-ui/media-selector";
+/*
+import { IMediaFile } from "@stoked-ui/media-selector";
 import WebFile from "./WebFile";
 import { IWebFile, IWebFileProps, IFileParams } from "./WebFile.types";
 
 export interface IProjectOutputFileProps extends IWebFileProps {
   sourceId: string;
-  file: IMediaFile2;
+  file: IMediaFile;
 }
 
 export interface IProjectOutputFile extends IWebFile {
   sourceId: string;
-  file: IMediaFile2;
+  file: IMediaFile;
 }
 
 export default class ProjectOutputFile
@@ -18,7 +19,7 @@ export default class ProjectOutputFile
 
   sourceId: string;
 
-  file: IMediaFile2;
+  file: IMediaFile;
 
   constructor(props: IProjectOutputFileProps) {
     super(props);
@@ -26,12 +27,13 @@ export default class ProjectOutputFile
     this.file = props.file;
   }
 
-  async initialize(files?: File[]) {
-    this.file = files[0] as IMediaFile2;
+  // eslint-disable-next-line class-methods-use-this
+  async initialize() {
+    await super.initialize();
   }
 
   get fileParams(): IFileParams[] {
-    return [{ name: this.file.name, size: this.file.size, type: this.file.type, url: this.file.url }];
+    return [{ name: this.file.name, size: this.file.size, type: this.file.type }];
   }
 
   protected getDataStreams(): AsyncIterable<ReadableStream<Uint8Array>> {
@@ -45,11 +47,11 @@ export default class ProjectOutputFile
     };
   }
 }
-/*
+/!*
 
-export function MediaFileFromOutputBlob(outputBlob: OutputBlob): IMediaFile2 {
+export function MediaFileFromOutputBlob(outputBlob: OutputBlob): IMediaFile {
   const { blob } = outputBlob;
-  const mediaFile: IMediaFile2 = {
+  const mediaFile: IMediaFile = {
     ...outputBlob,
     mediaType: 'video',
     icon: null,
@@ -65,6 +67,7 @@ export function MediaFileFromOutputBlob(outputBlob: OutputBlob): IMediaFile2 {
     itemId: outputBlob.id,
     mediaFileSize: blob.size,
   };
-  return MediaFile2.fromFile(mediaFile);
+  return MediaFile.fromFile(mediaFile);
 }
+*!/
 */

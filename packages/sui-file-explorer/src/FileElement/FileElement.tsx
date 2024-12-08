@@ -9,7 +9,7 @@ import { alpha, useThemeProps } from '@mui/material/styles';
 import { shouldForwardProp } from '@mui/system/createStyled';
 import { TransitionProps } from '@mui/material/transitions';
 import { unstable_composeClasses as composeClasses } from '@mui/base';
-import { namedId } from '@stoked-ui/media-selector';
+import { namedId} from '@stoked-ui/common';
 import { FileElementContent } from './FileElementContent';
 import { fileElementClasses, getFileElementUtilityClass } from './fileElementClasses';
 import {
@@ -48,7 +48,7 @@ const FileElementRoot = styled('li', {
   name: 'MuiFileElement',
   slot: 'Root',
   overridesResolver: (props, styles) => styles.root,
-  shouldForwardProp: (prop) => shouldForwardProp(prop) && prop !== 'itemId',
+  shouldForwardProp: (prop) => shouldForwardProp(prop) && prop !== 'id',
 })<{ ownerState: FileElementOwnerState }>({
   listStyle: 'none',
   margin: 0,
@@ -212,12 +212,10 @@ export const FileElement = React.forwardRef(function FileElement(
     ...other
   } = props;
 
-  const itemId: string =
-    props.itemId ?? props.id ?? name ?? namedId({ id: 'file-element', length: 6 });
-  const label: React.ReactNode = props.label ?? name ?? itemId ?? props.id;
-  const id = itemId;
+  const id: string = props.id ?? name ?? namedId({ id: 'file-element', length: 6 });
+  const label: React.ReactNode = props.label ?? name ?? id ?? props.id;
 
-  const { expanded, focused, selected, disabled, handleExpansion } = useFileElementState(itemId);
+  const { expanded, focused, selected, disabled, handleExpansion } = useFileElementState(id);
 
   const { contentRef, rootRef } = runItemPlugins<FileElementProps>(props);
   const handleRootRef = useForkRef(inRef, rootRef);
@@ -336,7 +334,7 @@ export const FileElement = React.forwardRef(function FileElement(
   function handleFocus(event: React.FocusEvent<HTMLLIElement>) {
     const canBeFocused = !disabled || disabledItemsFocusable;
     if (!focused && canBeFocused && event.currentTarget === event.target) {
-      instance.focusItem(event, itemId);
+      instance.focusItem(event, id);
     }
   }
 
@@ -347,14 +345,14 @@ export const FileElement = React.forwardRef(function FileElement(
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLLIElement>) => {
     onKeyDown?.(event);
-    instance.handleItemKeyDown(event, itemId);
+    instance.handleItemKeyDown(event, id);
   };
 
-  const idAttribute = instance.getFileIdAttribute(itemId, id);
-  const tabIndex = instance.canItemBeTabbed(itemId) ? 0 : -1;
+  const idAttribute = instance.getFileIdAttribute( id);
+  const tabIndex = instance.canItemBeTabbed(id) ? 0 : -1;
 
   return (
-    <FileProvider itemId={itemId}>
+    <FileProvider id={id}>
       <FileElementRoot
         className={clsx(classes.root, className)}
         role="treeitem"
@@ -374,7 +372,7 @@ export const FileElement = React.forwardRef(function FileElement(
             ? ({
                 ...other.style,
                 '--FileExplorer-itemDepth':
-                  typeof depthContext === 'function' ? depthContext(itemId) : depthContext,
+                  typeof depthContext === 'function' ? depthContext(id) : depthContext,
               } as React.CSSProperties)
             : other.style
         }
@@ -392,7 +390,7 @@ export const FileElement = React.forwardRef(function FileElement(
             checkbox: classes.checkbox,
           }}
           label={label}
-          itemId={itemId}
+          id={id}
           onClick={onClick}
           onMouseDown={onMouseDown}
           icon={icon}
@@ -443,7 +441,7 @@ FileElement.propTypes = {
   /**
    * The id of the item.
    */
-  itemId: PropTypes.string,
+  id: PropTypes.string,
   /**
    * The tree item label.
    */

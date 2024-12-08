@@ -84,8 +84,6 @@ export interface EditorPropsBase extends React.HTMLAttributes<HTMLDivElement> {
   preview?: boolean;
   record?: boolean;
   openSaveControls?: boolean;
-  snapControls?: boolean;
-  trackControls?: boolean;
   /**
    * The system prop that allows defining system overrides as well as additional CSS styles.
    */
@@ -156,5 +154,12 @@ export interface EditorProps<R extends IMediaFile = IMediaFile, Multiple extends
    * @default {}
    */
   slots?: EditorSlots;
+
+  children?: React.ReactNode;
+
+  viewButtons?: React.ReactElement[];
+  viewButtonAppear?: number;
+  viewButtonEnter?: number;
+  viewButtonExit?: number;
 }
 

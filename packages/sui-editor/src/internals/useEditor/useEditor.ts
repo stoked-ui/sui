@@ -1,7 +1,7 @@
 import * as React from 'react';
 import useForkRef from '@mui/utils/useForkRef';
 import {EventHandlers} from '@mui/base/utils';
-import useIncId from '@stoked-ui/media-selector/useIncId';
+import useIncId, {namedId} from '@stoked-ui/common';
 import {
   ConvertSignaturesIntoPlugins,
   EditorAnyPluginSignature,
@@ -45,9 +45,7 @@ export const useEditor = <
   }: UseEditorParameters<TSignatures, TProps>): UseEditorReturnValue<TSignatures> => {
   type TSignaturesWithCorePluginSignatures = readonly [...EditorCorePluginSignatures, ...TSignatures,];
   const plugins = [...VIDEO_EDITOR_CORE_PLUGINS, ...inPlugins,] as unknown as ConvertSignaturesIntoPlugins<TSignaturesWithCorePluginSignatures>;
-
-  const getActionId = useIncId('action');
-
+  const getActionId = () => namedId('action');
   const {
     pluginParams,
     forwardedProps,
@@ -58,8 +56,8 @@ export const useEditor = <
   } = extractPluginParamsFromProps<TSignatures, TProps>({
     plugins, props, idFunc: getActionId
   });
-  const getEditorId = useIncId('editor');
-  const id = props.id ?? getEditorId();
+  const getEditorId = namedId('editor');
+  const id = props.id ?? getActionId();
   const models = useEditorModels<TSignatures>(plugins, pluginParams);
   const instanceRef = React.useRef({} as EditorInstance<TSignatures>);
   const instance = instanceRef.current as EditorInstance<TSignatures>;
@@ -79,7 +77,7 @@ export const useEditor = <
       });
       return temp;
     } catch (ex) {
-      console.log('ex', ex)
+      console.error('ex', ex)
       throw ex;
     }
 

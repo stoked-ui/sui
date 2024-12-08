@@ -1,7 +1,7 @@
 import * as React from 'react';
 import useForkRef from '@mui/utils/useForkRef';
 import {EventHandlers} from '@mui/base/utils';
-import { IMediaFile2 } from '@stoked-ui/media-selector';
+import { IMediaFileEx } from '../models/IMediaFileEx';
 
 import {
   ConvertSignaturesIntoPlugins,
@@ -58,7 +58,7 @@ export const useFileExplorer = <
   ] as unknown as ConvertSignaturesIntoPlugins<TSignaturesWithCorePluginSignatures>;
 
   if ('dndInternal' in props && 'dndTrash' in props && 'items' in props) {
-    props.items = [...(props?.items ?? []) as IMediaFile2[], {
+    props.items = [...(props?.items ?? []) as IMediaFileEx[], {
       id: 'trash',
       name: 'Trash',
       type: 'folder',
@@ -96,10 +96,10 @@ export const useFileExplorer = <
   const itemWrappers = plugins
     .map((plugin) => plugin.wrapItem)
     .filter((wrapItem): wrapItem is FileWrapper<any> => !!wrapItem);
-  const wrapItem: FileWrapper<TSignatures> = ({ itemId, children }) => {
+  const wrapItem: FileWrapper<TSignatures> = ({ id, children }) => {
     let finalChildren: React.ReactNode = children;
     itemWrappers.forEach((itemWrapper) => {
-      finalChildren = itemWrapper({ itemId, children: finalChildren, instance });
+      finalChildren = itemWrapper({ id, children: finalChildren, instance });
     });
 
     return finalChildren;

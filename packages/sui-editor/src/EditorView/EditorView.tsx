@@ -11,6 +11,8 @@ import { getEditorViewUtilityClass } from './editorViewClasses';
 import { useEditorContext } from '../EditorProvider/EditorContext';
 import Loader from '../Editor/Loader';
 import EditorViewActions from "./EditorViewActions";
+import Zoom from "@mui/material/Zoom";
+import {Fade} from "@mui/material";
 
 const useThemeProps = createUseThemeProps('MuiEditorView');
 
@@ -28,6 +30,14 @@ const useUtilityClasses = <R extends IMediaFile, Multiple extends boolean | unde
 const EditorViewRoot = styled('div', {
   name: 'MuiEditorView',
   slot: 'root',
+  shouldForwardProp: (prop) =>
+    prop !== 'ownerState' &&
+    prop !== 'viewButtons' &&
+    prop !== 'fullscreen' &&
+    prop !== 'viewButtonAppear' &&
+    prop !== 'viewButtonExit' &&
+    prop !== 'viewButtonEnter' &&
+    prop !== 'fileView'
 })<{ loading: boolean }>(({ loading }) => {
   const spin = keyframes`
     0% { transform: rotate(0deg); }
@@ -105,14 +115,12 @@ const EditorView = React.forwardRef(function EditorView<
   R extends IMediaFile = IMediaFile,
   Multiple extends boolean | undefined = undefined,
 >(inProps: EditorViewProps<R, Multiple>, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
-  const editorContext = useEditorContext();
-  const { settings, file, engine, dispatch, flags } = editorContext;
+  const {state, dispatch} = useEditorContext();
+  const { settings, file, engine, flags } = state;
   const props = useThemeProps({ props: inProps, name: 'MuiEditorView' });
   const viewRef = React.useRef<HTMLDivElement>(null);
   const combinedViewRef = useForkRef(ref, viewRef);
 
-  const [showActions, setShowSettings] = React.useState<boolean>(false);
-  const [showActionsPanel, setShowSettingsPanel] = React.useState<boolean>(false);
   const [, setViewerSize] = React.useState<{ w: number; h: number }>({ w: 0, h: 0 });
   const viewerRef = React.useRef<HTMLDivElement>(null);
   const rendererRef = React.useRef<HTMLCanvasElement>(null);
@@ -122,7 +130,7 @@ const EditorView = React.forwardRef(function EditorView<
   React.useEffect(() => {
     if (engine && viewRef?.current) {
       engine.viewer = viewRef.current;
-      if (viewRef.current.parentElement) {
+      if (viewRef.current.parentElement && settings) {
         viewRef.current.id = `viewer-${settings.editorId}`;
         viewRef.current.classList.add(settings.editorId);
       }
@@ -132,7 +140,7 @@ const EditorView = React.forwardRef(function EditorView<
   // tie the renderer to the editor
   React.useEffect(() => {
     if (rendererRef.current && viewRef.current) {
-      if (!rendererRef.current.id && viewRef.current.parentElement) {
+      if (!rendererRef.current.id && viewRef.current.parentElement && settings) {
         rendererRef.current.id = `renderer-${settings.editorId}`;
         rendererRef.current.classList.add(settings.editorId);
       }
@@ -142,7 +150,7 @@ const EditorView = React.forwardRef(function EditorView<
   // tie the renderer to the editor
   React.useEffect(() => {
     if (screenerRef.current && viewRef.current) {
-      if (!screenerRef.current.id && viewRef.current.parentElement) {
+      if (!screenerRef.current.id && viewRef.current.parentElement && settings) {
         screenerRef.current.id = `screener-${settings.editorId}`;
         screenerRef.current.classList.add(settings.editorId);
       }
@@ -155,7 +163,7 @@ const EditorView = React.forwardRef(function EditorView<
       // ShadowStage.setStage(stageRef.current);
     }
     if (stageRef.current && viewRef.current) {
-      if (!stageRef.current.id && viewRef.current.parentElement) {
+      if (!stageRef.current.id && viewRef.current.parentElement && settings) {
         stageRef.current.id = `stage-${settings.editorId}`;
         stageRef.current.classList.add(settings.editorId);
       }
@@ -166,11 +174,11 @@ const EditorView = React.forwardRef(function EditorView<
   const classes = useUtilityClasses(props);
 
   const Root = slots?.root ?? EditorViewRoot;
-  const rootProps = useSlotProps({
+  let rootProps = useSlotProps({
     elementType: Root,
     externalSlotProps: slotProps?.root,
     className: classes.root,
-    ownerState: { ...props, ref: viewRef },
+    ownerState: { ...props },
   });
 
   // if the viewer resizes make the renderer match it
@@ -193,9 +201,6 @@ const EditorView = React.forwardRef(function EditorView<
     };
   }, [viewerRef]);
 
-  function handleClose() {
-    setShowSettingsPanel(false);
-  }
 
   const styles: React.CSSProperties = {
     display: 'flex',
@@ -208,10 +213,11 @@ const EditorView = React.forwardRef(function EditorView<
     height: '100%',
   };
 
+  rootProps = { ...rootProps, ...rootProps.ownerState };
   return (
     <Root
       role={'viewer'}
-      {...rootProps}
+      {...rootProps }
       ref={combinedViewRef}
       data-preserve-aspect-ratio
       onMouseEnter={() => {
@@ -221,6 +227,22 @@ const EditorView = React.forwardRef(function EditorView<
         dispatch({ type: 'SET_FLAGS', payload: { remove: ['showViewControls'] }});
       }}
     >
+      {inProps.viewButtons?.map((button, index) => {
+        return (
+          <Fade
+            timeout={{
+              appear: inProps.viewButtonAppear,
+              enter: inProps.viewButtonEnter,
+              exit: inProps.viewButtonExit
+            }}
+            in={flags.showViewControls}
+            key={`key-${index}`}
+          >
+            {button}
+          </Fade>
+        )
+      })}
+      {inProps.children}
       <Renderer
         role={'renderer'}
         style={{ backgroundColor: file?.backgroundColor }}
@@ -230,7 +252,7 @@ const EditorView = React.forwardRef(function EditorView<
       <Screener role={'screener'} ref={screenerRef} />
       <Loader styles={styles} />
       <Stage role={'stage'} ref={stageRef} />
-      <EditorViewActions visible={flags.showViewControls} />
+      <EditorViewActions visible={flags.showViewControls}/>
     </Root>
   );
 });

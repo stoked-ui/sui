@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { SlotComponentProps } from '@mui/base/utils';
-import { IMediaFile2, MediaFile2 } from '@stoked-ui/media-selector';
+import { IMediaFile, MediaFile } from '@stoked-ui/media-selector';
 import { SlotComponentPropsFromProps, } from '../internals/models';
 import {IEditorTrack} from "../EditorTrack";
 import {IEditorAction} from "../EditorAction";
@@ -14,7 +14,7 @@ export interface DetailViewSlots {
 export interface DetailViewSlotProps {
   root?: SlotComponentProps<'div', {}, DetailViewSlots>;
 
-  mediaTypeItem?: SlotComponentPropsFromProps<IMediaFile2, {}, MediaFile2>;
+  mediaTypeItem?: SlotComponentPropsFromProps<IMediaFile, {}, MediaFile>;
 }
 
 export interface DetailViewProps {

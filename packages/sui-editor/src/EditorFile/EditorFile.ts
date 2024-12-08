@@ -1,19 +1,18 @@
 import {
   TimelineFile,
-  OutputBlob,
   ITimelineFile,
   ITimelineFileProps,
-  Controller,
-  IMimeType,
-  ProjectOutputFile,
-  IProjectOutputFileProps,
-  MimeRegistry,
-  FileState,
-  WebFile,
-  MimeType, IFileParams,
+  ITimelineFileData,
+  ITimelineTrackData,
+  ITimelineFileTrack,
+  ITimelineTrack,
+  ITimelineFileAction, ITimelineAction
 } from '@stoked-ui/timeline';
 import { FetchBackoff } from '@stoked-ui/common';
-import { IMediaFile2 } from '@stoked-ui/media-selector';
+
+import {
+  IMediaFile, MediaFile, MimeType, MimeRegistry, IMimeType, AppOutputFile, IAppFile,
+} from '@stoked-ui/media-selector';
 import {
   BlendMode, Fit,
   IEditorAction,
@@ -36,12 +35,13 @@ export interface IEditorFileProps<FileTrackType extends IEditorFileTrack = IEdit
 
 export interface IEditorFile<
   TrackType extends IEditorTrack = IEditorTrack,
->  extends ITimelineFile< TrackType> {
+  FileDataType extends IEditorFileData = IEditorFileData
+>  extends ITimelineFile< TrackType, FileDataType> {
   image?: string;
   backgroundColor?: string;
   width: number;
   height: number;
-  video?: IMediaFile2;
+  video?: IMediaFile;
   blendMode: BlendMode;
   fit: Fit;
 }
@@ -52,45 +52,41 @@ export const SUIEditor: IMimeType = MimeRegistry.create('stoked-ui', 'editor', '
 export const SUIVideoRefs: IMimeType = MimeRegistry.create('stoked-ui', 'video', '.suvr', 'Stoked UI - Video File w/ Url Refs', false);
 export const SUIVideo: IMimeType = MimeRegistry.create('stoked-ui', 'video', '.suv', 'Stoked UI - Video File', true);
 
-export class SUVideoFile extends ProjectOutputFile {
-  file: IMediaFile2;
-
-  sourceId: string;
-
-  constructor(props: IProjectOutputFileProps) {
-    super(props);
-    this.file = props.file;
-    this.sourceId = props.sourceId;
-  }
-
-  async initialize(files?: File[]) {
-    if (this.state !== FileState.CONSTRUCTED) {
-      return;
-    }
-    this.state = FileState.INITIALIZING;
-
-    await this.initializer(files);
-
-    await this.save(true);
-    this.state = FileState.READY;
-  };
+export class SUVideoFile extends AppOutputFile {
 
 }
 
+export type IEditorTrackData<TrackType extends IEditorTrack = IEditorTrack> = ITimelineTrackData<TrackType> & {
+  blendMode?: BlendMode;
+  fit?: Fit;
+  actions: IEditorAction[];
+}
+
+export interface IEditorFileData<TrackDataType extends IEditorTrackData = IEditorTrackData> extends ITimelineFileData<TrackDataType> {
+  blendMode?: BlendMode;
+  fit?: Fit;
+  width?: number;
+  height?: number;
+  backgroundColor?: string;
+  tracks: TrackDataType[];
+}
 
 export default class EditorFile<
-  FileActionType extends IEditorFileAction = IEditorFileAction,
-  ActionType extends IEditorAction = IEditorAction,
   FileTrackType extends IEditorFileTrack = IEditorFileTrack,
   TrackType extends IEditorTrack = IEditorTrack,
-  EngineType extends IEditorEngine = IEditorEngine,
+  FileActionType extends IEditorFileAction = IEditorFileAction,
+  ActionType extends IEditorAction = IEditorAction,
+  FileDataType extends IEditorFileData = IEditorFileData,
 > extends TimelineFile<
-  FileTrackType, TrackType
+  FileTrackType,
+  TrackType,
+  FileActionType,
+  ActionType,
+  FileDataType
 > implements IEditorFile<
-  TrackType
+  TrackType,
+  FileDataType
 > {
-
-  protected _tracks?: TrackType[];
 
   blendMode: BlendMode;
 
@@ -105,17 +101,20 @@ export default class EditorFile<
   protected _version: number = 0;
 
   constructor(props: IEditorFileProps<FileTrackType>) {
-    editorFileCache[props.id as string] = JSON.stringify(props);
+    // editorFileCache[props.id as string] = JSON.stringify(props);
     super(props);
 
     this.backgroundColor = props.backgroundColor ?? 'transparent';
     this.width = props.width ?? 1920;
     this.height = props.height ?? 1080;
 
-    props.tracks?.forEach((track) => {
+    let baseIndex = 0;
+    this._tracks?.forEach((track, trackIndex) => {
+      baseIndex = trackIndex;
       track.blendMode = track.blendMode ?? 'normal';
       track.fit = track.fit ?? 'none';
-      track.actions?.forEach((action) => {
+      track.actions?.forEach((action, actionIndex) => {
+        action.z = baseIndex;
         action.blendMode = action.blendMode ?? 'normal';
         action.fit = action.fit ?? 'none';
       });
@@ -126,114 +125,35 @@ export default class EditorFile<
     this.fit = props.fit ?? 'none';
   }
 
-  mimeTypes: IMimeType[] = [
-    SUIEditor,                 // embedded
-    SUIEditorRefs              // w/ url refs
-  ];
+  get data(): FileDataType {
+    const timelineTracks = super.data.tracks;
+    const editorTracks = (timelineTracks.map((trackData) => {
+      return {
+        ...trackData,
+        blendMode: trackData.blendMode ?? 'normal',
+        fit: trackData.fit ?? 'normal',
+        actions: trackData.actions.map((actionData) => {
+          return {
+            ...actionData,
+            blendMode: actionData.blendMode ?? 'normal',
+            fit: actionData.fit ?? 'normal',
+          }
+        })
+      }
+    }) || []) as IEditorTrackData[];
 
-  outputMimeTypes: IMimeType[] = [
-    SUIVideo,                 // embedded
-    SUIVideoRefs              // w/ url refs
-  ];
-
-  get fileProps() {
     return {
-      ...super.fileProps,
+      ...super.data,
       backgroundColor: this.backgroundColor,
       width: 1920,
       height: 1080,
       blendMode: this.blendMode,
-      initialized: false,
-      tracks: this._tracks?.map((track) => {
-        const { file, controller, ...trackJson } = track;
-        return {
-          ...trackJson,
-          url: file?._url,
-          controllerName: file!.mediaType,
-        }
-      }) || [],
-    };
+      tracks: editorTracks as IEditorTrackData[],
+    } as FileDataType;
   }
-
-
-  // Function to create a combined file with JSON data and attached files
-  async createBlob(embedded: boolean = true): Promise<Blob> {
-    await this.fullRead();
-    return super.createBlob(embedded);
-  }
-
-  async initialize(files: File[] = []) {
-    try {
-      await super.initialize(files);
-    } catch (ex) {
-      console.error('Error initializing Editor File:', ex);
-    }
-  }
-
-  static async fromBlob(blob: Blob): Promise<EditorFile>
-  {
-    try {
-      console.info('Project File: -2', blob);
-      const { props, files } = await EditorFile.readBlob(blob, false);
-      console.info('Project File: -1', props);
-      const projectFile = new EditorFile(props);
-      console.info('Project File:', projectFile);
-      await projectFile.initialize(files);
-      console.info('Project File: 2', projectFile);
-      return projectFile;
-    } catch (ex) {
-      throw new Error(`Error loading file from blob: ${blob}`);
-    }
-  }
-
-  static async fromUrl(url: string): Promise<EditorFile> {
-    const response = await FetchBackoff(url, { cache: "no-store" });
-    if (!response.ok) {
-      throw new Error(`Network response was not ok: ${url}`);
-    }
-    try {
-      const contentType = response.headers.get("content-type") as MimeType;
-      console.info(`Load: ${url} Content-Type: ${contentType}`);
-      const blob = await response.blob()
-      return this.fromBlob(blob);
-    } catch (ex) {
-      throw new Error(`Error loading file from url: ${url}`);
-    }
-  }
-
-  /*
-    static async fromBlob(
-      blob: Blob,
-    ): Promise<EditorFile>
-    {
-      try {
-        const { props, files } = await this.readBlob(blob, true);
-        const projectFile = new EditorFile(props);
-        await projectFile.initialize(files);
-        return projectFile;
-      } catch (ex) {
-        throw new Error(`Error loading file from blob: ${blob}`);
-      }
-    }
-
-    static async fromUrl(url: string): Promise<EditorFile> {
-      const response = await fetch(url, { cache: "no-store" });
-      if (!response.ok) {
-        throw new Error(`Network response was not ok: ${url}`);
-      }
-      try {
-        const contentType = response.headers.get("content-type") as MimeType;
-        console.info(`Load: ${url} Content-Type: ${contentType}`);
-        const blob = await response.blob()
-
-        return this.fromBlob(blob );
-      } catch (ex) {
-        throw new Error(`Error loading file from url: ${url}`);
-      }
-    } */
-
 
   static fileCache: Record<string, EditorFile> = {};
 }
 
 
+0

@@ -47,6 +47,7 @@
     "docs:deploy": "pnpm --filter stokedui-com run deploy",
     "docs:release": "pnpm --filter stokedui-com run deploy:release",
     "docs:dev": "pnpm --filter stokedui-com dev",
+    "caladan": "pnpm --filter stokedui-com caladan",
     "docs:debug": "pnpm --filter stokedui-com debug",
     "docs:icons": "pnpm --filter stokedui-com icons",
     "docs:size-why": "cross-env DOCS_STATS_ENABLED=true pnpm docs:build",
@@ -111,7 +112,8 @@
     "@slack/bolt": "^3.17.1",
     "@types/wicg-file-system-access": "^2023.10.5",
     "execa": "^8.0.1",
-    "google-auth-library": "^9.7.0"
+    "google-auth-library": "^9.7.0",
+    "playwright": "1.49"
   },
   "devDependencies": {
     "@argos-ci/core": "^1.5.5",
@@ -151,6 +153,8 @@
     "@stoked-ui/media-selector": "workspace:^",
     "@stoked-ui/proptypes": "workspace:^",
     "@stoked-ui/timeline": "workspace:^",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.0.0",
     "@types/autosuggest-highlight": "^3.2.3",
     "@types/enzyme": "^3.10.18",
     "@types/fs-extra": "^11.0.4",

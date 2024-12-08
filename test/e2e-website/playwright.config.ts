@@ -8,7 +8,7 @@ const config: PlaywrightTestConfig<TestFixture> = {
     threshold: 60 * 1000, // 1min
   },
   use: {
-    baseURL: process.env.PLAYWRIGHT_TEST_BASE_URL || 'https://mui.com',
+    baseURL: process.env.PLAYWRIGHT_TEST_BASE_URL || 'https://stoked-ui.com',
   },
 };
 

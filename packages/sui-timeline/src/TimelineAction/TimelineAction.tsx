@@ -3,7 +3,9 @@ import PropTypes from 'prop-types';
 import { alpha, darken, emphasize, lighten, styled } from '@mui/material/styles';
 import { shouldForwardProp } from '@mui/system/createStyled';
 import LockIcon from '@mui/icons-material/Lock';
+import {ImageList, ImageListItem} from "@mui/material";
 import Zoom from '@mui/material/Zoom';
+import { Screenshot } from '@stoked-ui/media-selector';
 import { DEFAULT_ADSORPTION_DISTANCE, DEFAULT_MOVE_GRID } from '../interface/const';
 import {
   getScaleCountByPixel,
@@ -22,9 +24,15 @@ import {
   RowRndApi,
 } from '../TimelineTrack/TimelineTrackDnd.types';
 import { prefix } from '../utils/deal_class_prefix';
-import { ITimelineAction, type TimelineActionProps } from './TimelineAction.types';
+import {
+  getActionFileTimespan,
+  ITimelineAction,
+  type TimelineActionProps
+} from './TimelineAction.types';
 import { getTrackBackgroundColor, type ITimelineTrack } from '../TimelineTrack/TimelineTrack.types';
 import { useTimeline } from '../TimelineProvider';
+import TimelineFile from "../TimelineFile";
+import {getTrackHeight} from "../TimelineProvider/TimelineProviderFunctions";
 
 const Action = styled('div', {
   name: 'MuiTimelineAction',
@@ -133,7 +141,7 @@ const Action = styled('div', {
     // backgroundColor,
     ...trackBack.action,
     alignContent: 'center',
-    padding: '0 0 0 10px',
+    padding: 0,
     overflow: 'hidden',
     textWrap: 'nowrap',
     height,
@@ -225,13 +233,15 @@ const RightStretch = styled('div')(({ theme }) => ({
   },
 }));
 
+
 function TimelineAction<
   TrackType extends ITimelineTrack = ITimelineTrack,
   ActionType extends ITimelineAction = ITimelineAction,
 >(props: TimelineActionProps<TrackType, ActionType>) {
   const context = useTimeline();
+  const { state, dispatch} = context;
+  const { settings } = state;
   const {
-    dispatch,
     file,
     flags,
     engine,
@@ -249,7 +259,7 @@ function TimelineAction<
       selectedAction,
       selectedTrack
     },
-  } = context;
+  } = state;
 
   const { gridSnap } = flags;
   const disableDrag = flags.disableDrag || engine.isPlaying;
@@ -314,7 +324,7 @@ function TimelineAction<
       scaleWidth,
     });
     if (curScaleCount !== scaleCount) {
-      setScaleCount(curScaleCount);
+      setScaleCount(curScaleCount, context, dispatch );
     }
   };
 
@@ -468,26 +478,35 @@ function TimelineAction<
     onContextMenuAction,
   } = props;
 
+  const [actionStyle, setActionStyle] = React.useState<any | false>(false);
   React.useEffect(() => {
-    const backgroundImageStyle = track.controller.getActionStyle?.(
-      action,
-      scaleWidth,
-      scale,
-      trackHeight,
-    );
-    if (backgroundImageStyle) {
-      dispatch({
-        type: 'UPDATE_ACTION_STYLE',
-        payload: {
-          action,
-          backgroundImageStyle,
-        },
-      });
+    if (track.file) {
+      const newActionStyle = track.file?.actionStyle(settings, getActionFileTimespan<ITimelineAction>(action))
+      if (JSON.stringify(newActionStyle) !== JSON.stringify(actionStyle)) {
+        setActionStyle(newActionStyle);
+      }
     }
-  }, [scaleWidth, trackHeight, scale, action.backgroundImage]);
+ }, [track.file, action.start, action.end, scaleWidth, scale, trackHeight])
 
-  const loopCount =
-    !!action?.loop && typeof action.loop === 'number' && action.loop > 0 ? action.loop : undefined;
+  const dynamicTrackHeight = getTrackHeight(track, state);
+  const [screenshotData, setScreenshotData] = React.useState<{
+    start: number,
+    end: number,
+    screens: Screenshot[],
+    scaleWidth: number,
+    height: number
+  }>({ start, end, screens: [], scaleWidth, height: dynamicTrackHeight });
+
+  React.useEffect(() => {
+    if ((screenshotData.start !== start || screenshotData.end !== end || track.file.media.screenshotStore?.count !== screenshotData.screens.length) && track.file.media.init) {
+      track.file.media.screenshotStore.queryScreenshots('track', scaleWidth, getActionFileTimespan(action), dynamicTrackHeight).then((screenshots) => {
+        console.info(`${track.file.name} action screenshots retrieved: ${screenshots.length}`);
+        setScreenshotData({end, start, screens: screenshots, scaleWidth, height: dynamicTrackHeight })
+      })
+    }
+  }, [end, start, track.file.media.init, dynamicTrackHeight])
+
+  const loopCount = !!action?.loop && typeof action.loop === 'number' && action.loop > 0 ? action.loop : undefined;
 
   const hoverLocks = actionHoverId === action.id && track.locked;
   const locked = (
@@ -509,7 +528,10 @@ function TimelineAction<
     </React.Fragment>
   ) : undefined;
 
+  const screenWidth = track?.file?.media?.screenshotStore?.aspectRatio ? dynamicTrackHeight * track.file.media.screenshotStore.aspectRatio : 0;
   return (
+
+
     <TimelineTrackDnd
       ref={rowRnd}
       parentRef={areaRef}
@@ -631,9 +653,9 @@ function TimelineAction<
           }
           if (onContextMenuAction) {
             const time: number = handleTime(e);
-            e.stopPropagation();
-            e.preventDefault();
-            onContextMenuAction(e, { track, action, time });
+            // e.stopPropagation();
+            // e.preventDefault();
+            // onContextMenuAction(e, { track, action, time });
           }
         }}
         className={prefix((classNames || []).join(' '))}
@@ -642,15 +664,35 @@ function TimelineAction<
           height: trackHeight,
           alignItems: 'center',
           justifyContent: 'space-between',
-          ...action.backgroundImageStyle,
+          ...actionStyle
         }}
-        color={`${track?.controller?.color}`}
+        color={`${TimelineFile.getTrackColor(track)}`}
       >
+        <ImageList
+          gap={0}
+          cols={screenshotData?.screens?.length}
+          rowHeight={trackHeight}
+        >
+          {screenshotData.screens.map((screen, index) => (
+            <ImageListItem key={`key-${index}`}>
+              <img
+                src={screen.data}
+                alt={`ss-${screen.timestamp}`}
+                className={'screen-shot'}
+                style={{
+                  aspectRatio: track.file.media.screenshotStore.aspectRatio,
+                  objectFit: 'none',
+                  height: '100%',
+                  opacity: 0.9,
+                  width: `${screenWidth}px`,
+                }}
+              />
+            </ImageListItem>
+          ))}
+        </ImageList>
         {locks}
         {!disableDrag && flexible && <LeftStretch className={`${prefix('action-left-stretch')}`} />}
-        {!disableDrag && flexible && (
-          <RightStretch className={`${prefix('action-right-stretch')}`} />
-        )}
+        {!disableDrag && flexible && <RightStretch className={`${prefix('action-right-stretch')}`} />}
       </Action>
     </TimelineTrackDnd>
   );

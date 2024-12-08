@@ -1,9 +1,11 @@
-import { GetBackgroundImage, type IController } from "./Controller.types";
-import { ControllerParams, PreloadParams } from './ControllerParams';
-import type { BackgroundImageStyle, ITimelineAction } from "../TimelineAction";
+import {ScreenshotQueue} from "@stoked-ui/media-selector";
+import { type IController } from "./Controller.types";
+import type { ControllerParams, PreloadParams } from './ControllerParams';
+import type { ITimelineAction } from "../TimelineAction";
 import type { IEngine } from "../Engine";
+import {ITimelineTrack} from "../TimelineTrack";
 
-abstract class Controller implements IController {
+abstract class Controller<ControlType> implements IController {
   id: string;
 
   name: string;
@@ -15,6 +17,8 @@ abstract class Controller implements IController {
   logging: boolean = false;
 
   backgroundImage?: string;
+
+  screenshotQueue: ScreenshotQueue = ScreenshotQueue.getInstance(3);
 
   constructor(options: {
     id: string,
@@ -28,23 +32,21 @@ abstract class Controller implements IController {
     this.colorSecondary = options.colorSecondary;
   }
 
+  abstract getItem(params: PreloadParams): ControlType
+
   viewerUpdate?: (engine: any) => void;
 
   // eslint-disable-next-line class-methods-use-this
   destroy(){ };
 
-  getBackgroundImage?: GetBackgroundImage;
+  // eslint-disable-next-line class-methods-use-this,@typescript-eslint/no-unused-vars
+  getActionStyle(action: ITimelineAction, track: ITimelineTrack, scaleWidth: number, scale: number, trackHeight: number) { return null };
 
   // eslint-disable-next-line class-methods-use-this,@typescript-eslint/no-unused-vars
-  getActionStyle(action: ITimelineAction, scaleWidth: number, scale: number, trackHeight: number) { return null };
+  start(params: ControllerParams) { }
 
-  abstract getElement(actionId: string): any
-
-  // eslint-disable-next-line class-methods-use-this
-  start(params: { action: ITimelineAction, time: number, engine: IEngine }) { }
-
-  // eslint-disable-next-line class-methods-use-this
-  stop(params: { action: ITimelineAction, time: number, engine: IEngine }) { }
+  // eslint-disable-next-line class-methods-use-this,@typescript-eslint/no-unused-vars
+  stop(params: ControllerParams) { }
 
   abstract enter(params: ControllerParams): void;
 

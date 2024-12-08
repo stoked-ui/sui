@@ -13,7 +13,8 @@ import {
   SelectTrack,
   SelectProject,
 } from "@stoked-ui/timeline";
-import { IMediaFile, namedId } from "@stoked-ui/media-selector";
+import { namedId} from '@stoked-ui/common';
+import { IMediaFile } from "@stoked-ui/media-selector";
 import Controllers from "../Controllers";
 import {
   BlendMode, Fit,
@@ -44,7 +45,7 @@ export const onAddFiles = (state: EditorState, newMediaFiles: IMediaFile[]) => {
     id: namedId('track'),
     name: mediaFile.name,
     file: mediaFile,
-    src: mediaFile._url,
+    src: mediaFile.url,
     controller: Controllers[mediaFile.mediaType],
     blendMode: 'normal',
     fit: 'none',
@@ -93,6 +94,8 @@ export type EditorStateAction<
   payload: TrackType,
 } | {
   type: 'SELECT_PROJECT',
+} | {
+  type: 'SELECT_SETTINGS',
 } | {
   type: 'DETAIL_OPEN',
 } | {
@@ -162,7 +165,6 @@ const EditorTimelineReducer = (state: EditorState, stateAction: EditorStateActio
 }
 
 export function EditorReducerBase(state: EditorState, stateAction: EditorStateAction): EditorState {
-  const engine = state.engine;
   switch (stateAction.type) {
     case 'SELECT_ACTION':
       state = EditorTimelineReducer(state, stateAction);
@@ -177,6 +179,13 @@ export function EditorReducerBase(state: EditorState, stateAction: EditorStateAc
       }
       return EditorReducer(state, { type: 'DISPLAY_SCREENER', payload: state.selectedTrack })
     case 'SELECT_PROJECT':{
+      state = EditorTimelineReducer(state, stateAction);
+      if (!state.selected) {
+        return state;
+      }
+      return EditorReducer(state, { type: 'DISPLAY_CANVAS' })
+    }
+    case 'SELECT_SETTINGS':{
       state = EditorTimelineReducer(state, stateAction);
       if (!state.selected) {
         return state;
@@ -217,7 +226,7 @@ export function EditorReducerBase(state: EditorState, stateAction: EditorStateAc
         file = stateAction.payload as IEditorFile
       }
       if (state.settings['timeline.autoReRender']) {
-        engine.reRender();
+        state.engine.reRender();
       }
       state.file = file;
       return state;
@@ -240,7 +249,7 @@ export function EditorReducerBase(state: EditorState, stateAction: EditorStateAc
         file!.tracks = tracks as IEditorTrack[];
       }
       if (state.settings['timeline.autoReRender']) {
-        engine.reRender();
+        state.engine.reRender();
       }
       state.file = file;
       return state;
@@ -262,7 +271,7 @@ export function EditorReducerBase(state: EditorState, stateAction: EditorStateAc
         file!.tracks = tracks;
       }
       if (state.settings['timeline.autoReRender']) {
-        engine.reRender();
+        state.engine.reRender();
       }
       state.file = file;
       return state;
@@ -280,8 +289,8 @@ export function EditorReducerBase(state: EditorState, stateAction: EditorStateAc
       }
       return state;
     case 'CLOSE_DETAIL': {
-      state.flags.detailOpen = false;
-      return state;
+      state.disableFlags('detailOpen')
+      return {...state};
     }
     case 'SET_BLEND_MODE': {
       return setContext('blendMode', state, stateAction);
@@ -293,7 +302,7 @@ export function EditorReducerBase(state: EditorState, stateAction: EditorStateAc
       const { file } = state;
       const { payload: video } = stateAction;
       if (file) {
-        file.video = video.file;
+        // file.video = video.file;
       }
       video.save(true).catch(console.warn);
       state.file = file;
@@ -337,16 +346,8 @@ export function EditorReducer<
   StateAction extends EditorStateAction = EditorStateAction
 >(state: State, stateAction: StateAction): State {
   const newState = EditorReducerBase(state, stateAction);
-  const { engine, file } = newState;
-  newState.getState = () => {
-    if (!file || file?.state === FileState.READY) {
-      return engine.state as EditorEngineState;
-    }
-    return 'LOADING';
-  }
-  return EditorTimelineReducer({...newState} as State, { ...stateAction, type: 'UPDATE_STATE' } as any) as State;
+  return EditorTimelineReducer({...newState} as State, { ...stateAction, type: 'UPDATE_STATE'} as any) as State;
 }
 
-export type EditorContextType = EditorState & {
-  dispatch: React.Dispatch<EditorStateAction>;
-};
+export type EditorContextType =  { state: EditorState, dispatch: React.Dispatch<EditorStateAction> }
+

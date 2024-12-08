@@ -1,12 +1,11 @@
-import namedId from './namedId';
-import useIncId from './useIncId';
 import MediaFile from './MediaFile';
-import MediaFile2 from './MediaFile2';
 import ShadowStage from './ShadowStage';
+import WebFile from './WebFile';
+import App from './App';
 
-export { MediaFile, MediaFile2, namedId, useIncId, ShadowStage };
-export * from './MediaFile2';
-export * from './useIncId';
-export *  from './namedId';
+export { App, MediaFile, WebFile, ShadowStage };
+export * from './App';
+export * from './WebFile';
+export * from './MediaType';
 export * from './MediaFile';
 export * from './zip';

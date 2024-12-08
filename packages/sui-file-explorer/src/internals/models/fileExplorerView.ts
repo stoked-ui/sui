@@ -7,7 +7,6 @@ export type DndState = 'idle' | 'dragging' | 'preview' | 'parent-of-instruction'
 
 export interface FileMeta {
   id: string;
-  idAttribute: string | undefined;
   parentId: string | null;
   expandable: boolean;
   disabled: boolean;
@@ -22,6 +21,7 @@ export interface FileMeta {
   dndInstruction: Instruction | null;
   dndState: DndState;
   dndContainer: HTMLElement | null;
+  visibleIndex: number;
 }
 
 export interface FileExplorerModel<TValue> {

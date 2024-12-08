@@ -9,6 +9,7 @@ import BlendModeSelect from "./BlendModeSelect";
 import {DetailTrack} from "./DetailTrack";
 import {DetailAction} from "./DetailAction";
 import {DetailProject} from "./DetailProject";
+import {DetailSettings} from "./DetailSettings";
 
 const seen = new WeakSet();
 const replacer = (key, value) => {
@@ -22,7 +23,7 @@ const replacer = (key, value) => {
 };
 
 export function DetailCombined() {
-  const {selectedType, selectedDetail, settings, selected } = useEditorContext();
+  const { state: {selectedType, selectedDetail, settings, selected} } = useEditorContext();
   const [editMode, setEditMode] = React.useState(false);
   const enableEdit = () => {
     console.info('edit mode: enabled');
@@ -36,6 +37,7 @@ export function DetailCombined() {
   const isAction = selectedType === 'action';
   const isTrack = selectedType === 'track';
   const isProject = selectedType === 'project';
+  const isSettings = selectedType === 'settings';
 
   return (
     <FormWrap
@@ -46,6 +48,7 @@ export function DetailCombined() {
       {isTrack && <DetailTrack detail={selectedDetail!} enableEdit={enableEdit} disableEdit={disableEdit} editMode={editMode} />}
       {isAction &&  <DetailAction detail={selectedDetail!} enableEdit={enableEdit} disableEdit={disableEdit} editMode={editMode} />}
       {isProject && <DetailProject detail={selectedDetail!} enableEdit={enableEdit} disableEdit={disableEdit} editMode={editMode} />}
+      {isSettings && <DetailSettings detail={selectedDetail!} enableEdit={enableEdit} disableEdit={disableEdit} editMode={editMode} />}
     </FormWrap>
   )
 }

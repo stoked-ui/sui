@@ -2,6 +2,7 @@ import * as React from 'react';
 import useEventCallback from '@mui/utils/useEventCallback';
 import useForkRef from '@mui/utils/useForkRef';
 import useEnhancedEffect from '@mui/utils/useEnhancedEffect';
+import { namedId} from '@stoked-ui/common';
 import {UseFileExplorerGridSignature} from "../useFileExplorerGrid/useFileExplorerGrid.types";
 import {FileExplorerPlugin, FileMeta, FilePlugin} from '../../models';
 import {UseFileExplorerJSXItemsSignature} from './useFileExplorerJSXItems.types';
@@ -14,7 +15,6 @@ import {
   buildSiblingIndexes, FILE_EXPLORER_VIEW_ROOT_PARENT_ID,
 } from '../useFileExplorerFiles/useFileExplorerFiles.utils';
 import {FileDepthContext} from '../../FileDepthContext';
-import {namedId} from "@stoked-ui/media-selector";
 
 export const useFileExplorerJSXItems: FileExplorerPlugin<UseFileExplorerJSXItemsSignature> = ({
   instance,
@@ -83,16 +83,16 @@ export const useFileExplorerJSXItems: FileExplorerPlugin<UseFileExplorerJSXItems
     }));
   };
 
-  const mapFirstCharFromJSX = useEventCallback((itemId: string, firstChar: string) => {
+  const mapFirstCharFromJSX = useEventCallback((id: string, firstChar: string) => {
     instance.updateFirstCharMap((firstCharMap) => {
-      firstCharMap[itemId] = firstChar;
+      firstCharMap[id] = firstChar;
       return firstCharMap;
     });
 
     return () => {
       instance.updateFirstCharMap((firstCharMap) => {
         const newMap = { ...firstCharMap };
-        delete newMap[itemId];
+        delete newMap[id];
         return newMap;
       });
     };
@@ -120,9 +120,8 @@ const useFileExplorerJSXItemsItemPlugin: FilePlugin = ({
   contentRef,
 }) => {
   const { instance } = useFileExplorerContext<[UseFileExplorerGridSignature, UseFileExplorerJSXItemsSignature]>();
-  const { children, disabled = false, name: initialName, itemId: initialItemId, id: initialId } = props;
-  const id = initialId ?? initialItemId ?? initialName ?? props.name ?? namedId({id: 'file', length: 4});
-  const itemId = initialItemId ?? id;
+  const { children, disabled = false, name: initialName, id: initialId, visibleIndex} = props;
+  const id = initialId ?? initialName ?? props.name ?? namedId({id: 'file', length: 4});
   const name = props.name ?? initialName ?? id;
 
   const parentContext = React.useContext(FileExplorerChildrenItemContext);
@@ -142,36 +141,36 @@ const useFileExplorerJSXItemsItemPlugin: FilePlugin = ({
   const handleContentRef = useForkRef(pluginContentRef, contentRef);
   // Prevent any flashing
   useEnhancedEffect(() => {
-    const idAttributeWithDefault = instance.getFileIdAttribute(itemId, id);
-    registerChild(idAttributeWithDefault, itemId);
+    const idAttributeWithDefault = instance.getFileIdAttribute(id);
+    registerChild(idAttributeWithDefault, id);
 
     return () => {
       unregisterChild(idAttributeWithDefault);
     };
-  }, [instance, registerChild, unregisterChild, itemId, id]);
+  }, [instance, registerChild, unregisterChild, id]);
 
   React.useEffect(() => {
     return instance.insertJSXItem({
-      id: itemId,
-      idAttribute: id,
+      id,
       parentId,
       expandable,
       disabled,
       dndState: 'idle',
       dndContainer: null,
-      dndInstruction: null
+      dndInstruction: null,
+      visibleIndex
     });
-  }, [instance, parentId, itemId, expandable, disabled, id]);
+  }, [instance, parentId, expandable, disabled, id, visibleIndex]);
 
   React.useEffect(() => {
     if (name) {
       return instance.mapFirstCharFromJSX(
-        itemId,
+        id,
         (pluginContentRef.current?.textContent ?? '').substring(0, 1).toLowerCase(),
       );
     }
     return undefined;
-  }, [instance, itemId, name]);
+  }, [instance, id, name]);
 
   return {
     contentRef: handleContentRef,
@@ -181,12 +180,12 @@ const useFileExplorerJSXItemsItemPlugin: FilePlugin = ({
 
 useFileExplorerJSXItems.itemPlugin = useFileExplorerJSXItemsItemPlugin;
 
-useFileExplorerJSXItems.wrapItem = ({ children, itemId }) => {
+useFileExplorerJSXItems.wrapItem = ({ children, id }) => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const depthContext = React.useContext(FileDepthContext);
 
   return (
-    <FileExplorerChildrenItemProvider itemId={itemId}>
+    <FileExplorerChildrenItemProvider id={id}>
       <FileDepthContext.Provider value={(depthContext as number) + 1}>
         {children}
       </FileDepthContext.Provider>

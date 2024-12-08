@@ -2,8 +2,7 @@ import * as React from 'react';
 import { useController } from "react-hook-form";
 import TextField from "@mui/material/TextField";
 import { Tooltip } from "@mui/material";
-import { namedId } from '@stoked-ui/media-selector';
-import OutlinedStyle from "./OutlinedStyle";
+import { namedId} from '@stoked-ui/common';
 
 // const TextFieldStyle = OutlinedStyle(TextField);
 

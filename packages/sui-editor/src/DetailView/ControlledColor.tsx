@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useController } from "react-hook-form";
 import TextField from "@mui/material/TextField";
 import { Tooltip } from "@mui/material";
-import { namedId } from '@stoked-ui/media-selector';
+import { namedId} from '@stoked-ui/common';
 import OutlinedStyle from "./OutlinedStyle";
 
 const TextFieldStyle = OutlinedStyle(TextField);
@@ -76,7 +76,7 @@ export default function ControlledColor({ control, name, label, disabled, classN
             // backgroundRepeat: 'no-repeat, no-repeat'
           },
           '& label': {
-            backgroundImage: `linear-gradient(90deg, ${theme.palette.background.paper}, ${theme.palette.background.paper}), linear-gradient(90deg, ${theme.palette.background.paper}, ${theme.palette.background.paper})`,
+            backgroundImage: `linear-gradient(90deg, #aebfcf, #aebfcf), linear-gradient(90deg, #aebfcf, #aebfcf)`,
             backgroundSize: '100% 12px, 100% 17px',
             backgroundPosition: '0 0, 0 100%',
             backgroundRepeat: 'no-repeat, no-repeat'

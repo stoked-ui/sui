@@ -32,8 +32,8 @@ const TimeUnitScale = styled('div')(({ theme }) => ({
   lineHeight: '20px',
 })); */
 
-const TimeUnitScale = styled('div')(({ theme }) => ({
-  color: theme.palette.text.secondary,
+const TimeUnitScale = styled('div')<{disabled: boolean}>(({ theme, disabled }) => ({
+  color: disabled ? theme.palette.action.disabled : theme.palette.text.secondary,
   position: 'absolute',
   right: 0,
   top: 0,
@@ -41,15 +41,15 @@ const TimeUnitScale = styled('div')(({ theme }) => ({
   userSelect: 'none',
 }));
 
-const TimeAreaInteract = styled('div')({
+const TimeAreaInteract = styled('div')<{disabled: boolean}>(({ disabled }) => ({
   position: 'absolute',
-  cursor: 'pointer',
+  cursor: disabled ? 'not-allowed' : 'pointer',
   left: 0,
   top: 0,
-});
+}));
 
-const TimeUnit = styled('div')(({ theme }) => ({
-  borderRight: `1px solid ${theme.palette.text.primary}`,
+const TimeUnit = styled('div')<{disabled: boolean}>(({ theme, disabled }) => ({
+  borderRight: `1px solid ${disabled ? theme.palette.action.disabled : theme.palette.text.secondary}`,
   position: 'relative',
   boxSizing: 'content-box',
   height: '4px !important',
@@ -77,8 +77,9 @@ const TimeUnit = styled('div')(({ theme }) => ({
 /** Animation timeline component */
 function TimelineTime(props: TimelineTimeProps) {
   const context = useTimeline();
+  const { state, dispatch } = context;
+  const { settings } = state;
   const {
-    getState,
     flags,
     engine,
     settings: {
@@ -89,9 +90,9 @@ function TimelineTime(props: TimelineTimeProps) {
       scaleWidth,
       scaleSplitCount,
       setCursor,
-      getScaleRender
+      getScaleRender,
     },
-  } = context;
+  } = state;
 
   const { scrollLeft, onClickTimeArea } = props;
   const gridRef = React.useRef<Grid>();
@@ -108,8 +109,8 @@ function TimelineTime(props: TimelineTimeProps) {
     }
     const item = (showUnit ? columnIndex / scaleSplitCount : columnIndex) * scale;
     return (
-      <TimeUnit key={key} style={style} className={prefix(...classNames)}>
-        {isShowScale && <TimeUnitScale className={prefix('time-unit-scale')}>{getScaleRender ? getScaleRender(item) : item}</TimeUnitScale>}
+      <TimeUnit key={key} style={style} className={prefix(...classNames)} disabled={settings.disabled}>
+        {isShowScale && <TimeUnitScale disabled={settings.disabled} className={prefix('time-unit-scale')}>{getScaleRender ? getScaleRender(item) : item}</TimeUnitScale>}
       </TimeUnit>
     );
   };
@@ -137,7 +138,6 @@ function TimelineTime(props: TimelineTimeProps) {
         setCustomScaleSplitCount(customScaleSplitCount * 0.5);
       }
     });
-    const timeUnit = document.querySelector('.timeline-time-unit');
     const grid = document.getElementById('time-area-grid');
     resizeObserver.observe(grid);
 
@@ -156,10 +156,19 @@ function TimelineTime(props: TimelineTimeProps) {
         return showUnit ? scaleWidth / scaleSplitCount : scaleWidth;
     }
   };
-  const estColumnWidth=getColumnWidth({index:1});
+/*
+  const [disabled, setDisabled] = React.useState(!!state.settings.disabled)
+  React.useEffect(() => {
+    if (state.settings.disabled !== disabled) {
+      setDisabled(!!state.settings.disabled)
+    }
+  }, [state.settings.disabled]); */
+
+  const estColumnWidth = getColumnWidth({index:1});
   const [isDragging, setIsDragging] = React.useState(false);
+
   const setTimeToMouse = (e) =>  {
-    if (flags.hideCursor) {
+    if (flags.hideCursor || engine.isPlaying) {
       return;
     }
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
@@ -180,7 +189,11 @@ function TimelineTime(props: TimelineTimeProps) {
     engine.reRender();
     setCursor({ time }, context);
   }
+
   const handleMouseMove = (e) => {
+    if (engine.isPlaying) {
+      return;
+    }
       if (e.buttons === 0) {
         if (isDragging) {
           setIsDragging(false);
@@ -224,6 +237,7 @@ function TimelineTime(props: TimelineTimeProps) {
               <TimeAreaInteract
                 ref={timeInteract}
                 style={{ width, height }}
+                disabled={settings.disabled}
                 /* onClick={} */
                 onMouseDown={setTimeToMouse}
                 onMouseMove={handleMouseMove}

@@ -121,8 +121,8 @@ const TimelineLabel = React.forwardRef(
   },
   ref: React.Ref<HTMLDivElement>
 ): React.JSX.Element {
-  const context = useTimeline();
-  const { settings, flags, file, selectedTrack, dispatch } = context;
+  const { state: context, dispatch } = useTimeline();
+  const { settings, flags, file, selectedTrack } = context;
   const { editorMode } = settings;
   const { track, trackHeight, classes,  onClick, trackControls: TrackControls } = inProps;
   const { trackHoverId } = settings;
