@@ -42,7 +42,7 @@ export function ToggleHidden({ track, file, toggleClick, dispatch, hide, childre
 }
 
 export default function EditorTrackActions({ track, sx }: { track: any, sx?: any }) {
-  const { file, dispatch, flags } = useEditorContext();
+  const { state: { file, flags }, dispatch} = useEditorContext();
   const volumeIcon = track.muted ? <VolumeOff fontSize={'small'} /> : <VolumeUp fontSize={'small'} />;
   const visibilityIcon = track.hidden ? <VisibilityOffIcon fontSize={'small'} /> : <VisibilityIcon fontSize={'small'} />;
   const lockIcon = track.locked ? <LockIcon fontSize={'small'}/> : <LockOpenIcon fontSize={'small'}/>;

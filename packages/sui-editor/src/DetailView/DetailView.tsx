@@ -4,7 +4,6 @@ import { Close } from "@mui/icons-material";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Modal from "@mui/material/Modal";
-import {namedId} from "@stoked-ui/media-selector";
 import Box from "@mui/material/Box";
 import { useEditorContext } from '../EditorProvider/EditorContext';
 import {  getActionSelectionData } from '../EditorProvider/EditorState';
@@ -12,6 +11,9 @@ import { RootBox } from "./Detail";
 import Controllers from "../Controllers";
 import EditorProvider from "../EditorProvider";
 import { DetailCombined } from './DetailCombined';
+import SettingsIcon from "@mui/icons-material/Settings";
+import Fab from "@mui/material/Fab";
+import OpenIcon from "@mui/icons-material/OpenInBrowser";
 
 const seen = new WeakSet();
 const replacer = (key, value) => {
@@ -38,7 +40,7 @@ interface DetailState {
 export const DetailView = React.forwardRef(function DetailView(
   { detailState, onClose }: DetailOutterProps, ref: React.Ref<HTMLDivElement>
 ) {
-  const newEditorContext = useEditorContext();
+  const { state: newEditorContext, dispatch } = useEditorContext();
   const { selected } = newEditorContext
 
   const { selectedTrackId, selectedActionId, selectedId } = detailState;
@@ -48,7 +50,7 @@ export const DetailView = React.forwardRef(function DetailView(
       if (selectedActionId) {
         const actionSelectionData = getActionSelectionData(selectedActionId, newEditorContext);
         if (actionSelectionData.selectedAction) {
-          newEditorContext.dispatch({
+          dispatch({
             type: 'SELECT_ACTION',
             payload: actionSelectionData.selectedAction
           });
@@ -56,7 +58,7 @@ export const DetailView = React.forwardRef(function DetailView(
       } else if (selectedTrackId) {
         const selectedIndex = newEditorContext.file?.tracks.findIndex((track) => track.id === selectedTrackId);
         if (selectedIndex !== undefined && selectedIndex !== -1 && newEditorContext.file?.tracks[selectedIndex]) {
-          newEditorContext.dispatch({
+          dispatch({
             type: 'SELECT_TRACK',
             payload: newEditorContext.file?.tracks[selectedIndex]
           });
@@ -64,19 +66,39 @@ export const DetailView = React.forwardRef(function DetailView(
       }
     }
   }, [])
-
+  const settingSwitch = () => {
+    dispatch({ type: 'SELECT_SETTINGS' });
+  }
    return (
       <div style={{ position: 'relative',  minHeight: '600px', maxHeight: 'calc(100vh - 40px)', display: 'flex'}}>
-        <IconButton
-          sx={{
+        <Fab
+          id={'settings'}
+          color={'secondary'}
+          aria-label="settings"
+          size="small"
+          sx={(theme) => ({
             position: 'absolute',
-            top: 0,
-            right: 0
-          }}
+            right: '48px',
+            margin: '8px',
+          })}
+          onClick={settingSwitch}
+        >
+          <SettingsIcon />
+        </Fab>
+        <Fab
+          id={'close'}
+          color={'info'}
+          aria-label="close"
+          size="small"
+          sx={(theme) => ({
+            position: 'absolute',
+            right: '0px',
+            margin: '8px',
+          })}
           onClick={onClose}
         >
-          <Close/>
-        </IconButton>
+           <Close/>
+        </Fab>
         <Card
           component={RootBox}
           sx={(theme) => ({
@@ -106,7 +128,7 @@ export const DetailView = React.forwardRef(function DetailView(
 function DetailModal () {
   const editorState = useEditorContext();
   const [initialized, setInitialized] = React.useState(false);
-  const { flags, settings, selected, selectedAction, selectedTrack, dispatch } = editorState;
+  const { state: {flags, file, selected, selectedAction, selectedTrack}, dispatch } = editorState;
   const [detailState, setDetailState] = React.useState<DetailState | null>(null);
 
   const onClose = () => {
@@ -137,7 +159,7 @@ function DetailModal () {
       },
       outline: 'none',
     }}>
-      <EditorProvider file={editorState.file ?? undefined} controllers={Controllers}>
+      <EditorProvider file={file ?? undefined} controllers={Controllers}>
           <DetailView onClose={onClose} detailState={detailState} />
       </EditorProvider>
 

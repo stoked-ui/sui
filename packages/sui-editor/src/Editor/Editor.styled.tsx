@@ -1,6 +1,6 @@
 import * as React from "react";
 import { styled} from "@mui/material";
-import { IMediaFile2 } from "@stoked-ui/media-selector";
+import { IMediaFile } from "@stoked-ui/media-selector";
 import { type IFileDetail } from "@stoked-ui/timeline";
 import Plyr, {PlyrProps} from "plyr-react";
 import Collapse from "@mui/material/Collapse";
@@ -96,7 +96,7 @@ export function StyledPlyr(props: PlayerProps) {
   return <Plyr {...props} />
 }
 
-export function VideoPlayer({file}: {file: IMediaFile2 | IFileDetail}){
+export function VideoPlayer({file}: {file: IMediaFile | IFileDetail}){
   const plyrProps: PlyrProps = {
     source: {
       type: 'video',
@@ -116,7 +116,7 @@ export function VideoPlayer({file}: {file: IMediaFile2 | IFileDetail}){
   return <StyledPlyr source={plyrProps.source} options={{controls: ['play', 'progress', 'mute', 'volume']}} />
 }
 
-export function MediaScreener(props: { file: IMediaFile2 | IFileDetail | undefined }) {
+export function MediaScreener(props: { file: IMediaFile | IFileDetail | undefined }) {
   const { file } = props;
   if (!file) {
     return undefined;

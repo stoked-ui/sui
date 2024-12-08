@@ -1,6 +1,5 @@
 import * as React from "react";
 import PropTypes from "prop-types";
-import { WebFile } from "@stoked-ui/timeline";
 import Fab from "@mui/material/Fab";
 import Stack from "@mui/material/Stack";
 import Zoom from "@mui/material/Zoom";
@@ -8,12 +7,14 @@ import ClearIcon from "@mui/icons-material/Clear";
 import SaveIcon from "@mui/icons-material/Save";
 import OpenIcon from "@mui/icons-material/OpenInBrowser";
 import SettingsIcon from '@mui/icons-material/Settings';
+import { AppFile } from '@stoked-ui/media-selector';
 import {useEditorContext} from "../EditorProvider";
-import EditorFile from '../EditorFile/EditorFile'
+import EditorFile, {IEditorFile} from '../EditorFile/EditorFile'
 
 export default function EditorViewActions({ visible }: { visible: boolean }) {
-  const { dispatch, file } = useEditorContext();
-
+  const context = useEditorContext();
+  const { dispatch, state } = context;
+  const { file, flags, components, settings: { fitScaleData, setCursor } } = state;
   const [fileIsDirty, setIsDirty] = React.useState<boolean>(false);
   React.useEffect(() => {
     const isFileDirty = async () => {
@@ -33,26 +34,22 @@ export default function EditorViewActions({ visible }: { visible: boolean }) {
   };
 
   const openHandler = async () => {
-    const input = document.createElement('input') as HTMLInputElement;
-    input.type = 'file';
+    const loadedFiles: IEditorFile[] = await AppFile.fromOpenDialog<EditorFile>(EditorFile) as IEditorFile[];
 
-    async function handleFiles() {
-      if (!input.files) {
-        return;
-      }
-      const files = Array.from(input.files);
-      if (files.length) {
-        for (let i = 0; i < files.length; i += 1) {
-          const clientFile = files[i];
-          // eslint-disable-next-line no-await-in-loop
-          const loadedFile = await EditorFile.fromBlob(clientFile);
-          dispatch({ type: 'SET_FILE', payload: loadedFile });
-        }
+    if (loadedFiles.length) {
+      const loadedFile = loadedFiles[0];
+      await loadedFile.preload();
+      dispatch({type: 'SET_FILE', payload: loadedFile});
+      const width = (components.timelineGrid as HTMLDivElement)?.clientWidth;
+      if (width) {
+        fitScaleData(context, width);
+        setCursor({ time: 0, updateTime: true}, context);
       }
     }
-    input.addEventListener('change', handleFiles, false);
-    input.click();
   };
+  if (flags.detailMode) {
+    return null;
+  }
 
   return (
     <Stack direction={'column'}>

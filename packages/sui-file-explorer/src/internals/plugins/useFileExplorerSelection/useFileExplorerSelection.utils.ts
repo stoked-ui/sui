@@ -16,9 +16,9 @@ export const convertSelectedItemsToArray = (model: string[] | string | null): st
 };
 
 export const getLookupFromArray = (array: string[]) => {
-  const lookup: { [itemId: string]: boolean } = {};
-  array.forEach((itemId) => {
-    lookup[itemId] = true;
+  const lookup: { [id: string]: boolean } = {};
+  array.forEach((id) => {
+    lookup[id] = true;
   });
   return lookup;
 };

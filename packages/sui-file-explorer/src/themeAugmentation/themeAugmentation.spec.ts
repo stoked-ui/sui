@@ -34,7 +34,7 @@ createTheme({
     },
     MuiFileElement: {
       defaultProps: {
-        itemId: '1',
+        id: '1',
       },
       styleOverrides: {
         root: {
@@ -47,7 +47,7 @@ createTheme({
     },
     MuiFile: {
       defaultProps: {
-        itemId: '1',
+        id: '1',
       },
       styleOverrides: {
         root: {

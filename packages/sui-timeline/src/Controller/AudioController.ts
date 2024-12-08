@@ -1,19 +1,14 @@
-/*
 import {Howl} from 'howler';
-import { AudioFile, IMediaFile2 } from "@stoked-ui/media-selector";
-import generateWaveformImage from "./AudioImage";
-import Controller from './Controller';
-import { GetBackgroundImage } from "./Controller.types";
-import { type ITimelineAction} from "../TimelineAction";
-import { ControllerParams, PreloadParams } from "./ControllerParams";
-import { type ITimelineTrack } from "../TimelineTrack";
+import Controller from './Controller'
+import { IController } from './Controller.types'
+import {ITimelineAction} from "../TimelineAction";
+import {ControllerParams, PreloadParams} from "./ControllerParams";
+import {ITimelineTrack} from "../TimelineTrack";
 
-class AudioControl<
-  ActionType extends ITimelineAction = ITimelineAction,
-> extends Controller {
+class AudioControl extends Controller<Howl> implements IController {
   cacheMap: Record<string, Howl> = {};
 
-  logging: boolean = false;
+  logging: boolean = true;
 
   listenerMap: Record<
     string,
@@ -23,28 +18,23 @@ class AudioControl<
     }
   > = {};
 
-  constructor(props?: {primaryColor?: string , secondaryColor?: string}) {
-    super({
-      color: props?.primaryColor ?? AudioFile.primaryColor,
-      colorSecondary: props?.secondaryColor  ?? AudioFile.secondaryColor,
+  constructor() {
+    super( {
       name: 'Audio',
       id: 'audio',
+      color: '#146b4e',
+      colorSecondary: '#2bd797',
     });
   }
 
-  async preload(params: PreloadParams): Promise<ActionType> {
-    console.info('preload audio')
-    const { action, file } = params;
-    const imageOptions = {
-      width: file.element.duration() * 100,
-      height: 300
+  async preload(params: PreloadParams ): Promise<ITimelineAction> {
+    this.log({ action: params.action, time: Date.now() }, 'audio preload');
+    const { action, track } = params;
+    const { file } = track;
+    if (!file) {
+      return action;
     }
-    if (file.element) {
-      this.cacheMap[action.id] = file.element;
-      action.duration = (file.element as Howl).duration();
-      action.backgroundImage = await this.getBackgroundImage?.(file, imageOptions);
-      return action as ActionType;
-    }
+
     return new Promise((resolve, reject) => {
       try {
         const item = new Howl({
@@ -52,14 +42,10 @@ class AudioControl<
           loop: false,
           autoplay: false,
           onload: () => {
-            this.cacheMap[action.id] = item;
             action.duration = item.duration();
-            this.getBackgroundImage?.(file, imageOptions).then((img) => {
-              action.backgroundImage = img;
-            })
-            resolve(action as ActionType);
           }
         });
+        this.cacheMap[track.id] = item;
       } catch (ex) {
         let msg = `Error loading audio file: ${file.url}`;
         if (ex as Error) {
@@ -71,32 +57,21 @@ class AudioControl<
   }
 
   enter(params: ControllerParams) {
-    const { action, time, engine } = params;
-    this.log({ action, time }, 'audio ');
+    const { action, time } = params;
+    this.log({ action, time }, 'audio enter');
     this.start(params);
   }
 
   start(params: ControllerParams) {
-    const { action, time, engine } = params;
-
-    this.log({ action, time }, 'audio ');
-    let item: Howl
-    if (this.cacheMap[action.id]) {
-      item = this.cacheMap[action.id];
+    const { action, time , engine, track} = params;
+    this.log({ action, time }, 'audio start')
+    const item: Howl = this.getItem(params as PreloadParams);
+    if (item) {
       item.rate(engine.getPlayRate());
-
       item.seek(Controller.getActionTime(params));
       if (engine.isPlaying) {
         item.play();
       }
-    } else {
-      const track = engine.getActionTrack(action.id) as ITimelineTrack;
-      item = new Howl({ src: track.file.url as string, loop: false, autoplay: false });
-      this.cacheMap[action.id] = item;
-      item.on('load', () => {
-        item.rate(engine.getPlayRate());
-        item.seek((time - (action.start ?? 0)) % item.duration());
-      });
     }
 
     const timeListener = (listenTime: { time: number }) => {
@@ -118,10 +93,10 @@ class AudioControl<
   }
 
   // eslint-disable-next-line class-methods-use-this
-  update = (params: ControllerParams) => {
-    const { action, time } = params;
+  update(params: ControllerParams) {
+    const { action, time, track } = params;
     this.log({ action, time }, 'audio ');
-    const item: Howl = this.cacheMap[action.id]
+    const item: Howl = this.cacheMap[track.id]
     const volumeUpdate = Controller.getVolumeUpdate(params, item.seek() as number)
     if (volumeUpdate) {
       item.volume(volumeUpdate.volume);
@@ -129,11 +104,11 @@ class AudioControl<
     }
   }
 
-  stop = (params: ControllerParams) => {
-    const { action, engine, time } = params;
-    this.log({ action, time }, 'audio stop');
-    if (this.cacheMap[action.id]) {
-      const item = this.cacheMap[action.id];
+  stop(params: ControllerParams) {
+    const { action, time, engine, track } = params;
+    // this.log({ action, time }, 'audio stop');
+    if (this.cacheMap[track.id]) {
+      const item = this.cacheMap[track.id];
       item.stop();
       item.mute();
       if (this.listenerMap[action.id]) {
@@ -150,29 +125,12 @@ class AudioControl<
 
   leave(params: ControllerParams) {
     const { action, time } = params;
-    this.log({ action, time }, 'audio leave');
+    this.log({ action, time }, 'audio stop');
     this.stop(params);
   }
 
-  getBackgroundImage?: GetBackgroundImage = async (file: IMediaFile2) => {
-    if (!file || !file.element?.duration()) {
-      throw new Error('attempting to generate a wave image for an audio action and the action was not supplied')
-    }
-    const width = file.element.duration() * 100;
-    const blobUrl = await generateWaveformImage(file.url as string, {
-      width, height: 300, backgroundColor: '#0000', // Black
-      waveformColor: this.colorSecondary,   // Green waveform
-      outputType: 'blob'          // Output a Blob URL
-    })
-    return `url(${blobUrl})`;
-  }
-
-  getElement(actionId: string) {
-    return this.cacheMap[actionId];
-  }
-
   // eslint-disable-next-line class-methods-use-this
-  getActionStyle(action: ActionType, scaleWidth: number, scale: number, trackHeight: number) {
+  getActionStyle(action: ITimelineAction, track: ITimelineTrack, scaleWidth: number, scale: number, trackHeight: number) {
     const adjustedScale = scaleWidth / scale;
     if (!action.backgroundImage) {
       return null;
@@ -180,10 +138,23 @@ class AudioControl<
     return {
       backgroundImage: action.backgroundImage,
       backgroundPosition: `${-adjustedScale * (action.trimStart || 0)}px 0px`,
-      backgroundSize: `${adjustedScale * action.duration}px ${trackHeight - 1}px`
+      backgroundSize: `${adjustedScale * (action.duration || 0)}px 100%`
     }
   }
+
+  getItem(params: PreloadParams) {
+    const { track,} = params;
+    let item = this.cacheMap[track.id];
+    if (item) {
+      return item;
+    }
+    item = new Howl({ src: track.file?.url as string, loop: false, autoplay: false });
+    this.cacheMap[track.id] = item;
+    return item;
+  }
+
 }
 
+const AudioController = new AudioControl();
 export { AudioControl };
-*/
+export default AudioController

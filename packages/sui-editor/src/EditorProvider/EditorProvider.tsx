@@ -1,20 +1,18 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import {
-  TimelineProvider, getDbProps, TimelineProviderProps, ITimelineStateProps, createTimelineState,
-  Controllers as TimelineControllers,
-  TimelineFile,
-} from '@stoked-ui/timeline';
+import { TimelineProvider, getDbProps, TimelineProviderProps, ITimelineStateProps, createTimelineState, TimelineFile } from '@stoked-ui/timeline';
 import Controllers from '../Controllers/Controllers';
 import EditorEngine from '../EditorEngine/EditorEngine';
 import { EditorEngineState, IEditorEngine } from '../EditorEngine/EditorEngine.types';
 import { EditorEvents } from '../EditorEngine';
 import { EditorReducer, EditorStateAction } from './EditorProvider.types';
-import { IEditorFile, SUIEditor } from '../EditorFile/EditorFile';
+import { IEditorFile } from '../EditorFile/EditorFile';
 import EditorState from './EditorState';
 import {IEditorAction} from "../EditorAction";
 import {IEditorTrack} from "../EditorTrack";
+import {StokedUiEditorApp} from "../Editor";
 
+TimelineFile.Controllers = Controllers;
 function EditorProvider<
   EngineType extends IEditorEngine = IEditorEngine,
   EngineStateType extends EditorEngineState = EditorEngineState,
@@ -23,13 +21,10 @@ function EditorProvider<
   FileType extends IEditorFile = IEditorFile,
   ActionType extends IEditorAction = IEditorAction,
   TrackType extends IEditorTrack = IEditorTrack,
->(props: TimelineProviderProps<EngineType, State, StateActionType, FileType, TrackType, ActionType>) {
+  AppType extends StokedUiEditorApp = StokedUiEditorApp
+>(props: TimelineProviderProps<EngineType, State, StateActionType, FileType, TrackType, ActionType, AppType>) {
 
   const controllers = props.controllers ?? Controllers;
-  Object.entries(controllers).forEach(([name, controller]) => {
-    TimelineControllers[name] = controller;
-  });
-  TimelineFile.Controllers = controllers;
 
   const engine =
     props?.engine ??
@@ -41,19 +36,29 @@ function EditorProvider<
     return engine.state as EditorEngineState;
   };
 
-  const editorStateProps: ITimelineStateProps<EngineType, EngineStateType, FileType, TrackType, ActionType> = {
+  const editorStateProps: ITimelineStateProps<EngineType, EngineStateType, FileType, TrackType, ActionType, AppType> = {
     ...props,
     getState,
     engine: engine as EngineType,
     selectedTrack: props.selectedTrack || undefined,
     selectedAction: props.selectedAction || undefined,
+    app: props.app || new StokedUiEditorApp() as AppType,
   };
-  const state = createTimelineState<State, EngineType, EngineStateType, FileType, TrackType, ActionType>(editorStateProps);
+  const state = createTimelineState<State, EngineType, EngineStateType, FileType, TrackType, ActionType, AppType>(editorStateProps);
 
-  const localDb = getDbProps(SUIEditor, props.localDb);
+  const localDb = getDbProps(state.app.defaultInputFileType, props.localDb);
   const reducer = EditorReducer as (state: State, stateAction: StateActionType) => State;
   return (
-    <TimelineProvider<EngineType, EngineStateType, State, StateActionType, FileType>
+    <TimelineProvider<
+        EngineType,
+        EngineStateType,
+        State,
+        StateActionType,
+        FileType,
+        TrackType,
+        ActionType,
+        AppType
+      >
       state={state}
       reducer={reducer}
       localDb={localDb}

@@ -7,7 +7,7 @@ export const useFileExplorerId: FileExplorerPlugin<UseFileExplorerIdSignature> =
   const fileExplorerId = useId(params.id);
 
   const getFileIdAttribute = React.useCallback(
-    (itemId: string, idAttribute: string | undefined) => idAttribute ?? `${fileExplorerId}-${itemId}`,
+    (id: string) => id ?? `${fileExplorerId}-${id}`,
     [fileExplorerId],
   );
 

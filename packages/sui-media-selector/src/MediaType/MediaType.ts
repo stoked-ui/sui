@@ -1,4 +1,4 @@
-import { MimeType } from "../MimeType/MimeType";
+import { MimeType } from "../WebFile/MimeType";
 
 const  MimeMediaWildcardMap: Map<MimeType | `${string}*` | '*' | 'folder', string> = new Map([
   ['application/msword',                                                      'doc'],

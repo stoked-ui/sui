@@ -3,7 +3,7 @@ import Box, { BoxProps } from '@mui/material/Box';
 import Fade from '@mui/material/Fade';
 import NoSsr from '@mui/material/NoSsr';
 import Frame from 'docs/src/components/action/Frame';
-import { namedId } from '@stoked-ui/media-selector/src';
+import { namedId } from '@stoked-ui/common';
 
 export default function ShowcaseContainer({
   preview,

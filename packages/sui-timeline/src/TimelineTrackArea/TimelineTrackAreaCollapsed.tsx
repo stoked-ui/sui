@@ -32,7 +32,7 @@ const TimelineTrackAreaRoot = styled('div')(() => ({
 }));
 
 const TimelineTrackAreaCollapsed = React.forwardRef<TimelineTrackAreaState, TimelineTrackAreaProps>((props, ref) => {
-  const {file, settings, flags} = useTimeline();
+  const { state: {file, settings, flags} } = useTimeline();
   const { trackHeight, scaleWidth, startLeft, scale, cursorTime } = settings;
   const {dragLine} = flags;
 

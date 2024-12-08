@@ -5,7 +5,7 @@ import {
   FileLabel,
   FileProps,
 } from '@stoked-ui/file-explorer/File';
-import { IMediaFile, namedId } from '@stoked-ui/media-selector';
+import { MediaFile, namedId } from '@stoked-ui/media-selector';
 import { FileExplorer } from '@stoked-ui/file-explorer/FileExplorer';
 import { UseFileContentSlotOwnProps } from '@stoked-ui/file-explorer/useFile';
 import { useFileUtils } from '@stoked-ui/file-explorer/hooks';
@@ -126,7 +126,7 @@ export default function LabelSlots() {
     () => ({
       onLabelValueChange: (itemId: string, name: string) =>
         setProducts((prev) => {
-          const walkTree = (item: IMediaFile): IMediaFile => {
+          const walkTree = (item: MediaFile): MediaFile => {
             if (item.id === itemId) {
               return { ...item, name };
             }

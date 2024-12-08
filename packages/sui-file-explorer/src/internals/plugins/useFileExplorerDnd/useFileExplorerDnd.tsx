@@ -18,8 +18,10 @@ import {
 import {containsFiles} from "@atlaskit/pragmatic-drag-and-drop/external/file";
 import {preventUnhandled} from "@atlaskit/pragmatic-drag-and-drop/prevent-unhandled";
 import type {Instruction} from "@atlaskit/pragmatic-drag-and-drop-hitbox/tree-item";
-import {IMediaFile2, MediaFile2} from "@stoked-ui/media-selector";
+import {MediaFile} from "@stoked-ui/media-selector";
+import { IMediaFileEx} from "../../models/IMediaFileEx";
 import memoizeOne from "memoize-one";
+import { setProperty } from "@stoked-ui/common";
 import {
   triggerPostMoveFlash
 } from "@atlaskit/pragmatic-drag-and-drop-flourish/trigger-post-move-flash";
@@ -40,18 +42,19 @@ import {
 } from "./FileExplorerDndContext";
 import {UseMinimalPlus} from "../../models/plugin.types";
 
+
 type CleanupFn = () => void;
 
 function createFileRegistry() {
   const registry = new Map<string, { element: HTMLElement }>();
 
-  const registerFile = ({itemId, element}: {
-    itemId: string;
+  const registerFile = ({id, element}: {
+    id: string;
     element: HTMLElement;
   }): CleanupFn => {
-    registry.set(itemId, { element });
+    registry.set(id, { element });
     return () => {
-      registry.delete(itemId);
+      registry.delete(id);
     };
   };
 
@@ -65,13 +68,13 @@ export const useFileExplorerDnd: FileExplorerPlugin<UseFileExplorerDndSignature>
   rootRef,
 }) => {
 
-  const reducerWrapper = <R extends IMediaFile2>(wrappedState: FileExplorerState<R>, action: FileExplorerDndAction<R>)=> {
+  const reducerWrapper = <R extends IMediaFileEx>(wrappedState: FileExplorerState<R>, action: FileExplorerDndAction<R>)=> {
     const reducedState = fileListStateReducer(wrappedState, action);
     instance.updateItems(reducedState.items);
     instance.recalcVisibleIndices(reducedState.items, true, 0)
     if (params !== undefined && action.type === 'create-children') {
       const initialFiles = action.items.map((item) => item)
-      const files: IMediaFile2[] = initialFiles.filter((item) => item !== undefined) as IMediaFile2[]
+      const files: IMediaFileEx[] = initialFiles.filter((item) => item !== undefined) as IMediaFileEx[]
     }
     return reducedState;
   }
@@ -79,7 +82,7 @@ export const useFileExplorerDnd: FileExplorerPlugin<UseFileExplorerDndSignature>
   const [reducedState, updateState] = React.useReducer(
     reducerWrapper,
     getFileExplorerStateDefault(),
-    () => getFileExplorerStateDefault(params.items as IMediaFile2[])
+    () => getFileExplorerStateDefault(params.items as IMediaFileEx[])
   );
   const [{ registry, registerFile }] = React.useState(createFileRegistry);
   const { items, lastAction } = reducedState;
@@ -90,7 +93,7 @@ export const useFileExplorerDnd: FileExplorerPlugin<UseFileExplorerDndSignature>
     }
 
     if (lastAction.type === 'instruction') {
-      const { element } = registry.get(lastAction.itemId) ?? {};
+      const { element } = registry.get(lastAction.id) ?? {};
       if (element) {
         triggerPostMoveFlash(element);
       }
@@ -98,42 +101,42 @@ export const useFileExplorerDnd: FileExplorerPlugin<UseFileExplorerDndSignature>
   }, [lastAction, registry]);
 
   const createChildren = React.useCallback(
-    (files: IMediaFile2[], targetId: string | null) => {
+    (files: IMediaFileEx[], targetId: string | null) => {
       const childItems = files.flat(Infinity);
       params.onAddFiles?.(files);
       updateState({
         type: 'create-children',
         items: childItems,
         targetId,
-        itemId: childItems[0].id ?? childItems[0].itemId!,
+        id: childItems[0].id ?? childItems[0].id!,
       });
     },
     [updateState],
   );
 
   const createChild = React.useCallback(
-    (item: IMediaFile2, targetId: string | null) => {
+    (item: IMediaFileEx, targetId: string | null) => {
       updateState({
         type: 'create-child',
         item,
         targetId,
-        itemId: item?.id ?? item?.itemId!,
+        id: item?.id ?? item?.id!,
       });
     },
     [updateState],
   );
 
   const removeItem = React.useCallback(
-    (itemId: string) => {
+    (id: string) => {
       updateState({
         type: 'remove',
-        itemId
+        id
       });
     }, []
   )
-  const getMoveTargets = React.useCallback(({ itemId }: { itemId: string }) => {
+  const getMoveTargets = React.useCallback(({ id }: { id: string }) => {
 
-    const targets: IMediaFile2[] = [];
+    const targets: IMediaFileEx[] = [];
 
     const searchStack = Array.from(items);
     while (searchStack.length > 0) {
@@ -143,35 +146,35 @@ export const useFileExplorerDnd: FileExplorerPlugin<UseFileExplorerDndSignature>
         continue;
       }
 
-      if (node.id === itemId) {
+      if (node.id === id) {
         continue;
       }
 
       if (!node.children) {
-        node.children = new Array<IMediaFile2>()
+        node.children = new Array<IMediaFileEx>()
       }
       targets.push(node);
 
-      node.children?.forEach((childNode) => searchStack.push(childNode as IMediaFile2));
+      node.children?.forEach((childNode) => searchStack.push(childNode as IMediaFileEx));
     }
 
     return targets;
   }, [items]);
 
-  const getNodesOfItem = React.useCallback((itemId: string) => {
-    if (itemId === '') {
+  const getNodesOfItem = React.useCallback((id: string) => {
+    if (id === '') {
       return [...items];
     }
 
-    const item = fileExplorer.find(items as IMediaFile2[], itemId);
+    const item = fileExplorer.find(items as IMediaFileEx[], id);
     invariant(items);
     return item?.children ?? [];
   }, [items]);
 
   const getPathToItem = memoizeOne((targetId: string) =>
-    fileExplorer.getPathToItem({ current: items as IMediaFile2[], targetId }) ?? [],);
+    fileExplorer.getPathToItem({ current: items as IMediaFileEx[], targetId }) ?? [],);
 
-  const context = React.useMemo<FileExplorerDndContextValue<IMediaFile2>>(
+  const context = React.useMemo<FileExplorerDndContextValue<IMediaFileEx>>(
     () => ({
       dispatch: updateState,
       uniqueContextId: Symbol('unique-id'),
@@ -197,9 +200,9 @@ export const useFileExplorerDnd: FileExplorerPlugin<UseFileExplorerDndSignature>
       return undefined;
     }
 
-    const sourceId = source.data.itemId as string;
+    const sourceId = source.data.id as string;
     const target = location.current.dropTargets[0];
-    const targetId = target.data.itemId as string;
+    const targetId = target.data.id as string;
     const instruction: Instruction | null = extractInstruction(target.data);
 
     const targetItem = instance.getItem(targetId);
@@ -225,7 +228,7 @@ export const useFileExplorerDnd: FileExplorerPlugin<UseFileExplorerDndSignature>
       console.warn('handleTrashDrop', data)
       updateState({
         type: 'remove',
-        itemId: data.dropped.item.id ?? data.dropped.item.itemId!,
+        id: data.dropped.item.id ?? data.dropped.item.id!,
       });
     }
     const handleFileDrop = (data: DropInternalData) => {
@@ -235,8 +238,8 @@ export const useFileExplorerDnd: FileExplorerPlugin<UseFileExplorerDndSignature>
       updateState({
         type: 'instruction',
         instruction: data.instruction,
-        itemId:  data.dropped.item.id ?? data.dropped.item.itemId!,
-        targetId:  data.target.item.id ?? data.target.item.itemId!,
+        id:  data.dropped.item.id ?? data.dropped.item.id!,
+        targetId:  data.target.item.id ?? data.target.item.id!,
       });
     }
 
@@ -368,19 +371,19 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
   const state = (({dndState, dndInstruction, dndContainer}) => ({dndState, dndInstruction, dndContainer}))(props);
 
   const setState = (newState: DndItemState) => {
-    instance.updateDndMeta(props.itemId!, newState);
+    instance.updateDndMeta(props.id!, newState);
   }
 
   React.useEffect(() => {
     if (pluginContentRef.current) {
       invariant(pluginContentRef.current);
       return registerFile({
-        itemId: props.itemId!,
+        id: props.id!,
         element: pluginContentRef.current,
       });
     }
     return undefined;
-  }, [props.itemId, registerFile]);
+  }, [props.id, registerFile]);
 
   function getParentLevelOfInstruction(currentInstruction: Instruction): number {
     if (currentInstruction.type === 'instruction-blocked') {
@@ -408,13 +411,13 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
         return false;
       }
 
-      const targetId = target.data.itemId;
+      const targetId = target.data.id;
       invariant(typeof targetId === 'string');
 
       const path = getPathToItem(targetId);
       const parentLevel: number = getParentLevelOfInstruction(highlightInstruction);
       const parentId = path[parentLevel];
-      return parentId === props.itemId;
+      return parentId === props.id;
     },
     [getPathToItem, extractInstruction, props],
   );
@@ -499,7 +502,7 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
       canDrag: () => true,
       getInitialData: () => {
         const initialData = {
-          itemId: props.itemId,
+          id: props.id,
           type: 'file-element',
           isOpenOnDragStart: props.children && props.type === 'folder',
           uniqueContextId,
@@ -530,8 +533,8 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
         setState({...state, dndState: 'dragging'});
         // collapse open items during a drag
         if (source.data.isOpenOnDragStart) {
-          if (instance.isItemExpanded(props.itemId!)) {
-            instance.toggleItemExpansion(null as unknown as React.SyntheticEvent, props.itemId!);
+          if (instance.isItemExpanded(props.id!)) {
+            instance.toggleItemExpansion(null as unknown as React.SyntheticEvent, props.id!);
           }
         }
       },
@@ -546,7 +549,7 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
       }, getData: ({input, element}) => {
         addDropTargetAffordance(canDrop, element);
 
-        const data = {itemId: props.itemId, type: props.type};
+        const data = {id: props.id, type: props.type};
         const dataInstruction = attachInstruction(data, {
           input,
           element,
@@ -576,7 +579,7 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
           return;
         }
         if (target) {
-          instance.toggleItemExpansion(null as unknown as React.SyntheticEvent, props.itemId!);instance.toggleItemExpansion(null as unknown as React.SyntheticEvent, props.itemId!);
+          instance.toggleItemExpansion(null as unknown as React.SyntheticEvent, props.id!);instance.toggleItemExpansion(null as unknown as React.SyntheticEvent, props.id!);
         }
         // const { sourceItemId } = source.data;
         // publishFileExplorerEvent(instance, 'removeItem', { targetId: item.id, sourceItemIds });
@@ -603,7 +606,7 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
 
         return true;
       }, getData: ({input, element}) => {
-        const data = {itemId: props.itemId, type: props.type};
+        const data = {id: props.id, type: props.type};
         addDropTargetAffordance(canDrop, element);
 
         const dataInstruction = attachInstruction(data, {
@@ -631,8 +634,8 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
         if (dragInstruction?.type === 'make-child' && props.type === 'folder' && status?.expandable && !status?.expanded && !cancelExpandRef.current) {
           cancelExpandRef.current = delay({
             waitMs: 500, fn: () => {
-              if (!instance.isItemExpanded(props.itemId!)) {
-                instance.toggleItemExpansion(null as unknown as React.SyntheticEvent, props.itemId!);
+              if (!instance.isItemExpanded(props.id!)) {
+                instance.toggleItemExpansion(null as unknown as React.SyntheticEvent, props.id!);
               }
             },
           });
@@ -651,12 +654,12 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
         if (!canDrop) {
           return;
         }
-        if (!instance.isItemExpanded(props.itemId!)) {
-          instance.toggleItemExpansion(null as unknown as React.SyntheticEvent, props.itemId!);
+        if (!instance.isItemExpanded(props.id!)) {
+          instance.toggleItemExpansion(null as unknown as React.SyntheticEvent, props.id!);
         }
-        const files = await MediaFile2.from(dropEvent);
+        const files = await MediaFile.from(dropEvent);
          const {self} = dropEvent;
-         instance.createChildren(files, self.data.itemId as string);
+         instance.createChildren(files, self.data.id as string);
         cancelExpand();
         setState({...state, dndInstruction: null});
       },

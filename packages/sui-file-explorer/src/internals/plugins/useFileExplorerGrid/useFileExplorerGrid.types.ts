@@ -13,7 +13,7 @@ export type GridHeader = {
 }
 
 export type GridHeaders = {
-  [itemId: string]: GridHeader;
+  [id: string]: GridHeader;
 };
 
 export type GridColumnRowData = {
@@ -42,7 +42,7 @@ export type GridColumn = {
 }
 
 export type GridColumns = {
-  [itemId: string]: GridColumn;
+  [id: string]: GridColumn;
 };
 
 export interface UseFileExplorerGridPublicAPI {
@@ -54,8 +54,8 @@ export interface UseFileExplorerGridPublicAPI {
 export type UseFileExplorerGridPlugin = FileExplorerPlugin<UseFileExplorerGridSignature>;
 
 export interface UseFileExplorerGridInstance extends UseFileExplorerGridPublicAPI {
-  getItemStatus: (itemId: FileId, children: React.ReactNode) => UseFileStatus
-  getAltRowClass: (itemId: FileId) => string;
+  getItemStatus: (id: FileId, children: React.ReactNode) => UseFileStatus
+  getAltRowClass: (id: FileId) => string;
   getColumns: () => GridColumns;
   getHeaders: () => GridHeaders;
   focusHeader: (event: React.FocusEvent | React.MouseEvent | null, columnName: string) => void;

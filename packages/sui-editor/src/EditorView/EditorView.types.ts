@@ -47,4 +47,11 @@ export interface EditorViewProps<R extends IMediaFile, Multiple extends boolean 
    * @default {}
    */
   slotProps?: EditorViewSlotProps<R, Multiple>;
+
+  children?: React.ReactNode;
+
+  viewButtons?: React.ReactElement[];
+  viewButtonAppear?: number;
+  viewButtonEnter?: number;
+  viewButtonExit?: number;
 }

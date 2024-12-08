@@ -30,8 +30,8 @@ const TimelineTrackRoot = styled('div', {
     prop !== 'trackHeight' &&
     prop !== 'yPercent' &&
     prop !== 'dim' &&
-    prop !== 'detailSelectedHeight' &&
-    prop !== 'detailUnselectedHeight' &&
+    prop !== 'trackHeightDetailSelected' &&
+    prop !== 'trackHeightDetailUnselected' &&
     prop !== 'hover',
 })<{
   locked?: boolean;
@@ -44,9 +44,9 @@ const TimelineTrackRoot = styled('div', {
   disabled: boolean;
   dim?: boolean;
   yPercent?: number;
-  detailSelectedHeight: number;
-  detailUnselectedHeight: number;
-}>(({ theme, color, selected, hover, collapsed, disabled, dim, yPercent, trackHeight, detailSelectedHeight, detailUnselectedHeight }) => {
+  trackHeightDetailSelected: number;
+  trackHeightDetailUnselected: number;
+}>(({ theme, color, selected, hover, collapsed, disabled, dim, yPercent, trackHeight, trackHeightDetailSelected, trackHeightDetailUnselected }) => {
   if (collapsed) {
     color = theme.palette.mode === 'dark' ? '#ccc' : '#444';
   }
@@ -58,29 +58,29 @@ const TimelineTrackRoot = styled('div', {
     },
 
     '&.timeline-detail.timeline-track-selected': {
-      height: `${detailSelectedHeight}px!important`,
+      height: `${trackHeightDetailSelected}px!important`,
       '& .timeline-action': {
-        height: `${detailSelectedHeight}px!important`,
+        height: `${trackHeightDetailSelected}px!important`,
         '& .timeline-action-left-stretch, .timeline-action-right-stretch, .timeline-action-left-stretch::after, .timeline-action-right-stretch::after': {
-          height: `${detailSelectedHeight}px!important`,
+          height: `${trackHeightDetailSelected}px!important`,
         }
       }
     },
     '&.timeline-detail.timeline-track-unselected': {
-      height: `${detailUnselectedHeight}px!important`,
+      height: `${trackHeightDetailUnselected}px!important`,
       '& .timeline-action': {
-        height: `${detailUnselectedHeight}px!important`,
+        height: `${trackHeightDetailUnselected}px!important`,
         '& .timeline-action-left-stretch, .timeline-action-right-stretch, .timeline-action-left-stretch::after, .timeline-action-right-stretch::after': {
-          height: `${detailUnselectedHeight}px!important`,
+          height: `${trackHeightDetailUnselected}px!important`,
         }
       }
     },
     '& .timeline-action': {
       transformOrigin: `50% ${yPercent}%!important`,
-      transition: `all 1s ease-in-out!important`,
+      transition: `height 1s ease-in-out, top 1s ease-in-out!important`,
       '& .timeline-action-left-stretch, .timeline-action-right-stretch, .timeline-action-left-stretch::after, .timeline-action-right-stretch::after': {
         transformOrigin: `50% ${yPercent}%!important`,
-        transition: `all 1s ease-in-out!important`,
+        transition: `height 1s ease-in-out, top 1s ease-in-out!important`,
       },
     },
     borderBottom: `1px solid ${theme.palette.background.default}`,
@@ -92,7 +92,7 @@ const TimelineTrackRoot = styled('div', {
     cursor: 'pointer',
     boxSizing: 'border-box',
     transformOrigin: `50% ${yPercent}%!important`,
-    transition: `all 1s ease-in-out!important`,
+    transition: `height 1s ease-in-out, top 1s ease-in-out!important`,
     variants: [
       {
         props: {
@@ -160,10 +160,7 @@ const TrackLabel = styled('label', {
 
 function TimelineTrackLabel({ track }: { track: ITimelineTrack }) {
 
-  const {
-    settings: { trackHoverId },
-    components,
-  } = useTimeline();
+  const {state: {settings: { trackHoverId }, components}} = useTimeline();
 
   const timelineArea = components.timelineArea as HTMLElement;
   const labelRef = React.useRef<HTMLDivElement>(null);
@@ -243,12 +240,11 @@ function TimelineTrack<
   TrackType extends ITimelineTrack = ITimelineTrack,
   ActionType extends ITimelineAction = ITimelineAction,
 >(props: TimelineTrackProps<TrackType, ActionType>) {
-  const context = useTimeline();
+  const { state: context, dispatch } = useTimeline();
   const ref = React.useRef<HTMLDivElement>(null);
   const {
     settings,
     selectedTrack,
-    dispatch,
     flags,
     file
   } = context;
@@ -264,7 +260,8 @@ function TimelineTrack<
     onContextMenuAction,
     areaRef } = props;
 
-  const index = file?.tracks?.indexOf(track);
+  const getIndex = (getIndexTrack: ITimelineTrack) => file?.tracks?.findIndex((fileTrack) => fileTrack.id === getIndexTrack.id);
+  const index = getIndex(track);
   const classNames = ['track'];
   const handleTime = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     if (!areaRef.current) {
@@ -278,13 +275,13 @@ function TimelineTrack<
   const selected = index === context.settings.selectedTrackIndex;
   React.useEffect(() => {
     const value = {
-      detailSelectedHeight: selectedScale * trackHeight,
-      detailUnselectedHeight: (1 - ((selectedScale - 1) / (file.tracks.length - 1))) * trackHeight
+      trackHeightDetailSelected: selectedScale * trackHeight,
+      trackHeightDetailUnselected: (1 - ((selectedScale - 1) / (file.tracks.length - 1))) * trackHeight
     }
-    if (!settings.detailSelectedHeight || settings.detailSelectedHeight !== value.detailSelectedHeight) {
+    if (!settings.trackHeightDetailSelected || settings.trackHeightDetailSelected !== value.trackHeightDetailSelected) {
       dispatch({ type: 'SET_SETTING', payload: {value} });
     }
-  }, [])
+  }, []);
 /*
   // TODO: implement reorder tracks
   const [sizerData, setSizerData] = React.useState<{
@@ -315,9 +312,9 @@ function TimelineTrack<
     if (totalIndexes <= 1) {
       return 50;
     }
-
     return (currentIndex / (totalIndexes - 1)) * 100;
   }
+
   const detailDisable = flags.detailMode && (!selectedTrack || selectedTrack.id !== track.id);
   return (
     <TimelineTrackRoot
@@ -339,8 +336,8 @@ function TimelineTrack<
           payload: { key: 'trackHoverId', value: undefined },
         });
       }}
-      detailSelectedHeight={settings.detailSelectedHeight}
-      detailUnselectedHeight={settings.detailUnselectedHeight}
+      trackHeightDetailSelected={settings.trackHeightDetailSelected}
+      trackHeightDetailUnselected={settings.trackHeightDetailUnselected}
       hover={trackHoverId === track.id ? true : undefined}
       selected={selected}
       color={TimelineFile.getTrackColor(track)}
@@ -543,7 +540,8 @@ export default TimelineTrack;
 
 function ControlledTrack({ width, height }: { name?: string; width: number; height?: number }) {
   const context = useTimeline();
-  const { settings, selectedTrack } = context;
+  const { state, dispatch } = context;
+  const {settings, selectedTrack } = state;
   const {
     startLeft, fitScaleData
   } = settings;
@@ -554,8 +552,7 @@ function ControlledTrack({ width, height }: { name?: string; width: number; heig
 
   const scaleData = fitScaleData(
     context,
-    width,
-    [selectedTrack]
+    width
   );
   const scaledSettings = { ...settings, width, ...scaleData };
 

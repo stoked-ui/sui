@@ -31,11 +31,11 @@ export interface UseFileExplorerKeyboardNavigationInstance {
    * Handles all the keyboard navigation logic.
    * @param {React.KeyboardEvent<HTMLElement> & MuiCancellableEvent} event The keyboard event that
    *   triggered the callback.
-   * @param {FileId} itemId The id of the item that the event was triggered on.
+   * @param {FileId} id The id of the item that the event was triggered on.
    */
   handleItemKeyDown: (
     event: React.KeyboardEvent<HTMLElement> & MuiCancellableEvent,
-    itemId: FileId,
+    id: FileId,
   ) => void;
 }
 
@@ -50,4 +50,4 @@ export type UseFileExplorerKeyboardNavigationSignature = FileExplorerPluginSigna
   ];
 }>;
 
-export type FileExplorerFirstCharMap = { [itemId: string]: string };
+export type FileExplorerFirstCharMap = { [id: string]: string };

@@ -137,7 +137,7 @@ module.exports = function setKarmaConfig(config) {
           {
             test: /\.(js|mjs|jsx)$/,
             include:
-              /node_modules(\/|\\)(notistack|@mui(\/|\\)x-data-grid|@mui(\/|\\)x-data-grid-pro|@mui(\/|\\)x-license-pro|@mui(\/|\\)x-data-grid-generator|@mui(\/|\\)x-date-pickers-pro|@mui(\/|\\)x-date-pickers|@mui(\/|\\)x-tree-view)/,
+              /node_modules(\/|\\)/,
             use: {
               loader: 'babel-loader',
               options: {
@@ -150,18 +150,11 @@ module.exports = function setKarmaConfig(config) {
                     {
                       alias: {
                         // all packages in this monorepo
-                        '@mui/material': './packages/mui-material/src',
-                        '@mui/docs': './packages/mui-docs/src',
-                        '@mui/icons-material': './packages/mui-icons-material/lib',
-                        '@mui/lab': './packages/mui-lab/src',
-                        '@mui/styled-engine': './packages/mui-styled-engine/src',
-                        '@mui/styles': './packages/mui-styles/src',
-                        '@mui/system': './packages/mui-system/src',
-                        '@mui/private-theming': './packages/mui-private-theming/src',
-                        '@mui/utils': './packages/mui-utils/src',
-                        '@mui/base': './packages/mui-base/src',
-                        '@mui/material-nextjs': './packages/mui-material-nextjs/src',
-                        '@mui/joy': './packages/mui-joy/src',
+                        '@stoked-ui/common': './packages/sui-common/src',
+                        '@stoked-ui/media-selector': './packages/sui-media-selector/src',
+                        '@stoked-ui/file-editor': './packages/sui-file-editor/lib',
+                        '@stoked-ui/timeline': './packages/sui-timeline/src',
+                        '@stoked-ui/editor': './packages/sui-editor/src',
                       },
                       transformFunctions: ['require'],
                     },

@@ -1,33 +1,27 @@
 import lottie, {AnimationConfigWithPath, AnimationItem} from 'lottie-web';
-import { namedId, AnimationFile } from "@stoked-ui/media-selector";
-import { BackgroundImageStyle,
+import { namedId} from '@stoked-ui/common';
+import {
   Controller,
-  EventTypes,
-  IEngine,
+  IController,
 } from "@stoked-ui/timeline";
 import { type IEditorEngine } from "../EditorEngine";
 import { EditorControllerParams, EditorPreloadParams } from "./EditorControllerParams";
 import { IEditorAction } from '../EditorAction/EditorAction';
 
-class AnimationControl extends Controller {
-
+class AnimationControl extends Controller<AnimationItem> implements IController {
 
   cacheMap: Record<string, AnimationItem> = {};
 
-  static primaryColor: '#1a0378';
-
-  static secondaryColor: '#cd6bff';
-
   logging: boolean = false;
 
-  constructor({color, colorSecondary}: { color: string, colorSecondary: string }) {
+  constructor({color = '#1a0378', colorSecondary = '#cd6bff'}: { color?: string, colorSecondary?: string }) {
     super({
       id: 'animation',
       name: 'Animation',
       color,
       colorSecondary
     });
-  }log
+  }
 
   async preload(params: EditorPreloadParams) {
     const { action, track } = params;
@@ -35,8 +29,7 @@ class AnimationControl extends Controller {
     if (!file) {
       return action;
     }
-    const item = AnimationControl.load({ id: action.id, src: file.url,  mode: 'canvas', className: 'lottie-canvas' });
-    this.cacheMap[action.id] = item;
+    const item = this.getItem(params);
     action.duration = item.getDuration();
     return action;
   }
@@ -63,13 +56,12 @@ class AnimationControl extends Controller {
   }
 
   enter(params: EditorControllerParams) {
-    const { action, engine, time } = params;
+    const { action, engine, time, track } = params;
     let item: AnimationItem;
-    if (this.cacheMap[action.id]) {
-      item = this.cacheMap[action.id];
+    if (this.cacheMap[track.id]) {
+      item = this.cacheMap[track.id];
       this._goToAndStop(engine, action, item, Controller.getActionTime(params));
     } else if (engine.viewer && engine.renderCtx && engine.renderer) {
-      const track = engine.getActionTrack(action.id);
       if (!track.file?.url) {
         return;
       }
@@ -88,13 +80,13 @@ class AnimationControl extends Controller {
         }
       });
 
-      this.cacheMap[action.id] = item;
+      this.cacheMap[track.id] = item;
     }
   }
 
   update(params: EditorControllerParams) {
-    const { action, time, engine } = params;
-    const item = this.cacheMap[action.id];
+    const { action, time, engine, track } = params;
+    const item = this.cacheMap[track.id];
     if (!item) {
       return;
     }
@@ -105,8 +97,8 @@ class AnimationControl extends Controller {
   }
 
   leave(params: EditorControllerParams) {
-    const { action, time, engine } = params;
-    const item = this.cacheMap[action.id];
+    const { action, time, engine, track } = params;
+    const item = this.cacheMap[track.id];
     if (!item) {
       return;
     }
@@ -136,8 +128,19 @@ class AnimationControl extends Controller {
   }
   */
 
-  getElement(actionId: string) {
-    return this.cacheMap[actionId];
+  getItem(params: EditorPreloadParams) {
+    const { action, track } = params;
+    let item = this.cacheMap[track.id];
+    if (item) {
+      return item;
+    }
+    const { file } = track;
+    if (!file) {
+      throw new Error('No file found for animation controlled item');
+    }
+    item = AnimationControl.load({ id: action.id, src: file.url,  mode: 'canvas', className: 'lottie-canvas' });
+    this.cacheMap[track.id] = item;
+    return item;
   }
 
   static globalCache: Record<string, AnimationItem> = {};
@@ -194,8 +197,5 @@ class AnimationControl extends Controller {
   }
 }
 export { AnimationControl };
-const AnimationController = new AnimationControl({
-  color: AnimationControl.primaryColor,
-  colorSecondary: AnimationControl.secondaryColor
-});
+const AnimationController = new AnimationControl({});
 export default AnimationController;

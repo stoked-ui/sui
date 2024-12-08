@@ -1,11 +1,9 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
-import Editor, { Controllers, EditorProvider, EditorFile } from '@stoked-ui/editor';
+import Editor, { Controllers, EditorProvider } from '@stoked-ui/editor';
 import ShowcaseContainer from 'docs/src/components/home/ShowcaseContainer';
 import HighlightedCode from 'docs/src/modules/components/HighlightedCode';
 import MarkdownElement from 'docs/src/components/markdown/MarkdownElement';
-import { cloneDeep } from 'lodash';
-import EditorExample from "../showcase/EditorExample";
 
 const code = `
 import * as React from 'react';
@@ -29,15 +27,15 @@ export const startLeft = 20;
 
 function EditorDemo() {
   return (
-    <EditorProvider id={'editor-hero-demo'} controllers={Controllers} file={EditorExample} >
-      <Editor id='editor-demo' sx={{ borderRadius: '12px 12px 0 0' }} />
+    <EditorProvider id={'editor-hero-demo'} controllers={Controllers} >
+      <Editor id='editor-demo' sx={{ borderRadius: '12px 12px 0 0' }} fileUrl={'/static/editor/stoked-ui.sue'}  />
     </EditorProvider>
   );
 }
 
 export default function EditorShowcase() {
   return (
-    <ShowcaseContainer test={'editor-showcase'} title={'Editor Showcase'}
+    <ShowcaseContainer id={'editor-showcase'}
       preview={
         <EditorDemo/>
       }

@@ -17,7 +17,7 @@
   { "name": "IMarkerFile", "kind": "Interface" },
   { "name": "IMediaContextType", "kind": "Interface" },
   { "name": "IMediaData", "kind": "Interface" },
-  { "name": "IMediaFile", "kind": "Interface" },
+  { "name": "MediaFile", "kind": "Interface" },
   { "name": "IPlacement", "kind": "Interface" },
   { "name": "IPosterFile", "kind": "Interface" },
   { "name": "IResolution", "kind": "Interface" },

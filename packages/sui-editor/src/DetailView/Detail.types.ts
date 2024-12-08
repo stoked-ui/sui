@@ -1,5 +1,5 @@
 import * as yup from "yup";
-import {namedId} from "@stoked-ui/media-selector";
+
 import {
   TimelineState,
   getDetail,

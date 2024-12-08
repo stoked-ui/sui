@@ -13,7 +13,8 @@ import AudioFile from '@mui/icons-material/AudioFile';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Box from '@mui/material/Box';
-import { MediaType, namedId } from '@stoked-ui/media-selector';
+import { namedId} from '@stoked-ui/common';
+import { MediaType } from '@stoked-ui/media-selector';
 import LottieIcon from '../icons/LottieIcon';
 import { FileLabel } from './FileLabel';
 import { createUseThemeProps } from '../internals/zero-styled';
@@ -50,11 +51,10 @@ export const File = React.forwardRef(function File(
   const props = useThemeProps({ props: inProps, name: 'MuiFile' });
   const newProps = () => {
     const id = namedId({ id: 'file', length: 6 });
-    return { id, itemId: id, name: 'file', disabled: false, children: null };
+    return { id, name: 'file', disabled: false, children: null };
   };
   const {
     id,
-    itemId,
     name,
     disabled,
     children,
@@ -70,7 +70,6 @@ export const File = React.forwardRef(function File(
 
   const item = {
     id,
-    itemId,
     name,
     disabled,
     children,
@@ -164,7 +163,7 @@ export const File = React.forwardRef(function File(
   if (status.expandable) {
     icon = FolderRounded;
   } else if (item.mediaType) {
-    icon = getIconFromFileType(item.itemId === 'trash' ? 'trash' : item.mediaType);
+    icon = getIconFromFileType(item.id === 'trash' ? 'trash' : item.mediaType);
   }
 
   const contentMetaProps = {
@@ -184,7 +183,7 @@ export const File = React.forwardRef(function File(
         grid={status.grid}
         status={status}
         showIcon={!status.grid && status.expandable}
-        id={`${item.itemId}-preview`}
+        id={`${item.id}-preview`}
       />
     </div>
   );
@@ -198,7 +197,7 @@ export const File = React.forwardRef(function File(
   const fileContent = itemContent;
   if (status.grid) {
     itemContent = (
-      <FileContent {...contentProps} {...contentMetaProps} id={`grid-${item.itemId}-row`}>
+      <FileContent {...contentProps} {...contentMetaProps} id={`grid-${item.id}-row`}>
         <Box
           sx={(theme) => ({
             display: 'flex',
@@ -207,7 +206,7 @@ export const File = React.forwardRef(function File(
             paddingLeft: theme.spacing(1),
           })}
           className={'cell column-file'}
-          id={`${item.itemId}-primary`}
+          id={`${item.id}-primary`}
         >
           {InnerContent}
         </Box>
@@ -219,7 +218,7 @@ export const File = React.forwardRef(function File(
   const { visibledefaultExpandedItems, defaultSelectedItems, expanded, ...rootPropsAllowed } =
     rootProps;
   return (
-    <FileProvider itemId={item.itemId}>
+    <FileProvider id={item.id}>
       <FileRoot {...rootPropsAllowed}>
         {itemContent}
         {children && <TransitionComponent {...getGroupTransitionProps()} />}
@@ -253,12 +252,12 @@ File.propTypes = {
   /**
    * The id attribute of the item. If not provided, it will be generated.
    */
-  id: PropTypes.string,
   /**
    * The id of the item.
    * Must be unique.
    */
-  itemId: PropTypes.string,
+  id: PropTypes.string,
+
   lastModified: PropTypes.number,
   mediaType: PropTypes.oneOf([
     'audio',

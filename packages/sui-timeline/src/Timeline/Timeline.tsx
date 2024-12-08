@@ -10,7 +10,7 @@ import {getTimelineUtilityClass} from './timelineClasses';
 import TimelineLabels from '../TimelineLabels/TimelineLabels';
 import {TimelineLabelsProps} from '../TimelineLabels/TimelineLabels.types';
 import { useTimeline } from "../TimelineProvider";
-import TimelineFile from "../TimelineFile";
+import TimelineFile, { ITimelineFile } from "../TimelineFile";
 import TimelineScrollResizer from "../TimelineScrollResizer";
 import {
   PREFIX,
@@ -23,7 +23,7 @@ import { getScaleCountByRows } from "../utils";
 import { TimelineControlProps } from "./TimelineControlProps";
 import {fitScaleData} from "../TimelineProvider/TimelineProviderFunctions";
 import TimelineTrackActions from "../TimelineLabels/TimelineTrackActions";
-import {Box} from "@mui/material";
+import AddTrackButton from "./AddTrackButton";
 
 const useUtilityClasses = (ownerState: TimelineProps) => {
   const { classes } = ownerState;
@@ -111,14 +111,14 @@ const Timeline = React.forwardRef(function Timeline(
   });
 
   const context = useTimeline();
+  const {state, dispatch } = context;
   const {
     file,
     flags,
     components,
     settings,
     engine,
-    dispatch,
-  } = context;
+  } = state;
 
   const classes = useUtilityClasses(inProps);
 
@@ -148,6 +148,7 @@ const Timeline = React.forwardRef(function Timeline(
     scaleSplitCount,
     scrollTop,
     setScaleCount,
+    deltaScrollLeft,
   } = settings;
 
   React.useEffect(() => {
@@ -182,34 +183,40 @@ const Timeline = React.forwardRef(function Timeline(
     if (newScaleSplitCount !== scaleSplitCount) {
       dispatch({ type: 'SET_SETTING', payload: { key: 'scaleSplitCount', value: newScaleSplitCount } });
     }
+    if (file) {
+      file.tracks?.forEach((track) =>  {
+        if (track?.file?.media?.screenshotStore) {
+          track.file.media.screenshotStore.scaleWidth = scaleWidth;
+        }
+      })
+    }
   }, [scaleWidth])
 
 
-  // deprecated
-  React.useEffect(() => {
-    if (scrollSync.current) {
-      scrollSync.current.setState({ scrollTop: settings.scrollTop });
-    }
-  }, [settings.scrollTop]);
-
+  const [lastFile, setLastFile] = React.useState<ITimelineFile | undefined>(undefined);
   React.useEffect(() => {
     if (engine.canvasDuration + 2 > engine.maxDuration) {
       engine.maxDuration = engine.canvasDuration + 2;
     }
-    if (tracksRef.current?.clientWidth && !engine.isLoading) {
-      const scaleData = fitScaleData(context, tracksRef.current?.clientWidth);
-      console.info('initialize scale', JSON.stringify(scaleData));
-      dispatch({ type: 'SET_SETTING', payload: { value: { ...scaleData } } });
+    const grid = document.getElementById('timeline-grid');
+
+    if (grid?.clientWidth && !engine.isLoading && file && file.id !== (lastFile?.id ?? 'no-id')) {
+      setLastFile(file);
+      const scaleData = fitScaleData(context, grid?.clientWidth);
+      console.info('fitScaleData', scaleData.scaleWidth, scaleData);
+      if (scaleData) {
+        setTimeout(() => {
+          dispatch({type: 'SET_SETTING', payload: {value: {...scaleData}}});
+        }, 500);
+      }
     }
-  }, [engine.maxDuration, engine.canvasDuration, engine.isLoading])
+  }, [engine.maxDuration, engine.canvasDuration, engine.isLoading, file])
 
 
   React.useEffect(() => {
 
   }, [])
   const commonProps = {
-    ...settings.timeline,
-    setScaleCount,
     areaRef,
     tracksRef,
   };
@@ -266,6 +273,18 @@ const Timeline = React.forwardRef(function Timeline(
     }
   }, [scrollSync.current])
 
+  const isDisabled = () => !file || !file.tracks || !file.tracks.length;
+  React.useEffect(() => {
+    dispatch({type: 'SET_SETTING', payload: {key: 'disabled', value: isDisabled()}});
+  }, [])
+
+  React.useEffect(() => {
+    const disabled = isDisabled();
+    if (disabled !== settings.disabled) {
+      dispatch({type: 'SET_SETTING', payload: {key: 'disabled', value: disabled}});
+    }
+  }, [file, file?.tracks])
+
   return (
     <Root
       ref={ref}
@@ -276,6 +295,7 @@ const Timeline = React.forwardRef(function Timeline(
     >
         {!flags.collapsed && !flags.noLabels && (
           <React.Fragment>
+            <AddTrackButton onAddFiles={inProps.onAddFiles}/>
             <Labels
               ref={labelsRef}
               {...labelsProps.ownerState}
@@ -287,16 +307,8 @@ const Timeline = React.forwardRef(function Timeline(
             />
             {flags.verticalResizer && !flags.noResizer && components.timelineArea &&
               <TimelineScrollResizer
-                elementRef={tracksRef}
+                elementId={'timeline-grid'}
                 type='vertical'
-                adjustScale={(value) => {
-                  if (labelsRef.current) {
-                    return false;
-                  }
-                  const scaleData = fitScaleData(context, labelsRef!.current.clientWidth - value);
-                  dispatch({ type: 'SET_SETTING', payload: { value: { ...scaleData } } });
-                  return true;
-                }}
               />
             }
           </React.Fragment>
@@ -332,9 +344,8 @@ const Timeline = React.forwardRef(function Timeline(
                       (areaRef.current as any) = editAreaRef?.domRef.current;
                       (tracksRef.current as any) = editAreaRef?.tracksRef.current;
                     }}
-                    scrollTop={scrollTopCurrent}
                     scrollLeft={scrollLeft}
-                    deltaScrollLeft={flags.autoScroll && commonProps.deltaScrollLeft}
+                    deltaScrollLeft={flags.autoScroll && deltaScrollLeft}
                     onClickTrack={inProps.onClickTrack}
                     onClickAction={inProps.onClickAction}
                     onScroll={(params) => {
@@ -358,18 +369,7 @@ const Timeline = React.forwardRef(function Timeline(
                 </React.Fragment>)
               }}
             </ScrollSync>
-
-
-            {!flags.noResizer &&
-             <TimelineScrollResizer
-               elementRef={tracksRef}
-               type='horizontal'
-               adjustScale={(value) => {
-                 const scaledSettings = fitScaleData(context, areaRef.current.clientWidth - value);
-                 dispatch({ type: 'SET_SETTING', payload: { value: { ...scaledSettings } } });
-                 return true;
-               }}
-             />}
+            <TimelineScrollResizer elementId={'timeline-grid'} type='horizontal'/>
 
           </TimelineControlRoot>
         }

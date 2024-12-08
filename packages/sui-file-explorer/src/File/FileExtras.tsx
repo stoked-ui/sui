@@ -16,7 +16,6 @@ export const FileRoot = styled('li', {
   overridesResolver: (props, styles) => styles.root,
   shouldForwardProp: (prop) =>
     shouldForwardProp(prop) &&
-    prop !== 'itemId' &&
     prop !== 'parentId' &&
     prop !== 'idAttribute' &&
     prop !== 'dndInstruction' &&
@@ -74,8 +73,7 @@ export const FileContent = styled('div', {
     prop !== 'grid' &&
     prop !== 'meta' &&
     prop !== 'last' &&
-    prop !== 'first' &&
-    prop !== 'itemId',
+    prop !== 'first',
 })<{
   status: UseFileStatus;
   alternatingRows?: SxProps<Theme> | true;
@@ -83,7 +81,7 @@ export const FileContent = styled('div', {
   first?: true;
   grid?: boolean;
   visibleIndex?: number;
-  itemId?: string;
+  id?: string;
 }>(({ theme, alternatingRows }) => {
   return {
     display: 'flex',

@@ -1,10 +1,7 @@
+import {IAppFile, IAppFileProps, IAppFileData,  IMimeType, MimeRegistry} from "@stoked-ui/media-selector";
 import {
-  ITimelineFileTrack,
-  ITimelineTrack,
-  ITimelineTrackMetadata,
+  ITimelineFileTrack, ITimelineTrack, ITimelineTrackData,
 } from "../TimelineTrack/TimelineTrack.types";
-import { IProjectFile, IProjectFileProps } from "./ProjectFile";
-import { IMimeType, MimeType, MimeRegistry } from "./MimeType";
 
 export type OutputBlob = {
   id: string,
@@ -18,26 +15,24 @@ export type OutputBlob = {
 
 export interface ITimelineFile<
   TrackType extends ITimelineTrack = ITimelineTrack,
-> extends IProjectFile {
+  FileDataType extends ITimelineFileData = ITimelineFileData
+> extends IAppFile {
   tracks: TrackType[];
-
-  get fileProps(): ITimelineFileProps;
+  preload(): Promise<void>;
+  get data(): FileDataType;
 }
-
 export const SUITimelineRefs: IMimeType = MimeRegistry.create('stoked-ui', 'timeline', '.sutr', 'Stoked UI - Timeline Project File w/ Url Refs', false);
 export const SUITimeline: IMimeType = MimeRegistry.create('stoked-ui', 'timeline', '.sut', 'Stoked UI - Timeline Project File', true);
 export const SUIAudioRefs: IMimeType = MimeRegistry.create('stoked-ui', 'audio', '.sua', 'Stoked UI - Timeline Audio File w/ Url Refs', false);
 export const SUIAudio: IMimeType = MimeRegistry.create('stoked-ui', 'audio', '.sua', 'Stoked UI - Timeline Audio File', true);
 
-export interface ITimelineFileProps<FileTrackType = ITimelineFileTrack> extends IProjectFileProps {
-  // backgroundColor?: string;
+export interface ITimelineFileProps<FileTrackType = ITimelineFileTrack> extends Omit<IAppFileProps, 'mediaFiles'> {
   image?: string;
   tracks?: FileTrackType[];
 }
 
-export type ITimelineFileMetadata = Omit<ITimelineFile, 'tracks' | 'video' | '_fileTracks' | 'fileProps' | 'save' | 'initialize' | 'fileMeta' | 'createBlob' | 'state' | 'trackFiles'> & {
-  tracks: ITimelineTrackMetadata[]
-  mimeType: MimeType
+export interface ITimelineFileData<TrackDataType extends ITimelineTrackData = ITimelineTrackData> extends IAppFileData {
+  tracks: TrackDataType[]
 }
 
 export type SaveOptions = {
@@ -55,3 +50,5 @@ export enum FileState {
   INITIALIZING,
   READY
 }
+
+

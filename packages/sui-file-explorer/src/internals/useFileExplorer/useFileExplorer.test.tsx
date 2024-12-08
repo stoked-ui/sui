@@ -21,10 +21,10 @@ describeFileExplorer<[]>(
           <React.Fragment>
             <button type="button">Some focusable element</button>
             <FileExplorerComponent>
-              <FileComponent itemId="1" label="1" data-testid="1" />
-              <FileComponent itemId="2" label="2" data-testid="2" />
-              <FileComponent itemId="3" label="3" data-testid="3" />
-              <FileComponent itemId="4" label="4" data-testid="4" />
+              <FileComponent id="1" label="1" data-testid="1" />
+              <FileComponent id="2" label="2" data-testid="2" />
+              <FileComponent id="3" label="3" data-testid="3" />
+              <FileComponent id="4" label="4" data-testid="4" />
             </FileExplorerComponent>
           </React.Fragment>,
         );
@@ -38,7 +38,7 @@ describeFileExplorer<[]>(
                 item: FileComponent,
               }}
               slotProps={{
-                item: (ownerState) => ({ 'data-testid': ownerState.itemId }) as any,
+                item: (ownerState) => ({ 'data-testid': ownerState.id }) as any,
               }}
               getItemLabel={(item) => item.id}
             />

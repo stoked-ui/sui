@@ -125,7 +125,7 @@ export const FileLabel = React.forwardRef(function FileExplorer(
     actualLabel = (
       <Box {...labelProps} sx={sx}>
         <StyledFileLabelText variant="body2" sx={sx}>
-          {labelProps.children}
+          {`${labelProps.children}` === 'Lastmodified' ? 'Modified' : labelProps.children}
         </StyledFileLabelText>
       </Box>
     );
@@ -192,6 +192,7 @@ const HeaderCell = React.forwardRef(function HeaderCell(
       ref,
     });
   const columnProps = getColumnProps();
+  console.log('inProps.columnName', inProps.columnName)
   return (
     <FileLabel
       {...columnProps}

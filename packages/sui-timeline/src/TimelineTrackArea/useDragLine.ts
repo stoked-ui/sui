@@ -7,7 +7,7 @@ import { useTimeline } from "../TimelineProvider";
 
 export function useDragLine() {
   const [dragLineData, setDragLineData] = React.useState<DragLineData>({ isMoving: false, movePositions: [], assistPositions: [] });
-  const { flags: { hideCursor }, settings: {  scale, scaleWidth, startLeft } } = useTimeline();
+  const { state: {flags: { hideCursor }, settings: {  scale, scaleWidth, startLeft }} } = useTimeline();
 
   /** get auxiliary lines */
   function defaultGetAssistPosition (data: {

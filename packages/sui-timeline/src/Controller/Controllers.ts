@@ -1,4 +1,4 @@
-import Controller from "./Controller";
+import { IController } from "./Controller.types";
 
-const Controllers:  Record<string, Controller> = {  };
+const Controllers:  Record<string, IController> = {};
 export default Controllers ;

@@ -15,11 +15,11 @@ export interface UseFileExplorerFilesInstance {
   /**
    * Updates the `firstCharMap` to register the first character of the given item's label.
    * This map is used to navigate the fileExplorer using type-ahead search.
-   * @param {FileId} itemId The id of the item to map the first character of.
+   * @param {FileId} id The id of the item to map the first character of.
    * @param {string} firstChar The first character of the item's label.
    * @returns {() => void} A function to remove the item from the `firstCharMap`.
    */
-  mapFirstCharFromJSX: (itemId: FileId, firstChar: string) => () => void;
+  mapFirstCharFromJSX: (id: FileId, firstChar: string) => () => void;
   /**
    * Store the ids of a given item's children in the state.
    * Those ids must be passed in the order they should be rendered.

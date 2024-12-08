@@ -11,7 +11,6 @@ import { type TimelineLabelsProps } from './TimelineLabels.types';
 import { getTimelineLabelsUtilityClass } from './timelineLabelsClasses';
 import { useTimeline } from '../TimelineProvider';
 import { ITimelineTrack } from '../TimelineTrack';
-import TimelineFile from '../TimelineFile';
 import TimelineTrackIcon from '../icons/TimelineTrackIcon';
 import TimelineLabel from './TimelineLabel';
 import EdgeSnap from '../icons/EdgeSnap';
@@ -42,7 +41,15 @@ const ToolbarToggle = styled(ToggleButton)(() => ({
 }));
 
 function SnapControls({ style }: { style?: React.CSSProperties }) {
-  const { dispatch, flags } = useTimeline();
+  const { dispatch, state: { flags, settings} } = useTimeline();
+
+  const [disabled, setDisabled] = React.useState(!!settings.disabled)
+  React.useEffect(() => {
+    if (settings.disabled !== disabled) {
+      setDisabled(!!settings.disabled)
+    }
+  }, [settings.disabled]);
+
   if (flags.noSnapControls) {
     return undefined;
   }
@@ -61,6 +68,8 @@ function SnapControls({ style }: { style?: React.CSSProperties }) {
     }
     dispatch({ type: 'SET_FLAGS', payload: { add, remove } });
   };
+
+
   const onControls = flags.noLabels && !flags.noSnapControls;
   const width = onControls ? 52 : 40;
   const height = onControls ? 40 : 32;
@@ -80,16 +89,21 @@ function SnapControls({ style }: { style?: React.CSSProperties }) {
       maxWidth={width}
       maxHeight={height}
       style={style}
+      disabled={disabled}
     >
       <Tooltip enterDelay={1000} title={'Edge Snap'} key={'edgeSnap'}>
-        <ToggleButton value="edgeSnap" aria-label="edge snap" key={'edgeSnap-tooltip'}>
-          <EdgeSnap />
-        </ToggleButton>
+        <span>
+          <ToggleButton value="edgeSnap" aria-label="edge snap" key={'edgeSnap-tooltip'}>
+            <EdgeSnap />
+          </ToggleButton>
+        </span>
       </Tooltip>
       <Tooltip enterDelay={1000} title={'Grid Snap'} key={'gridSnap'}>
-        <ToolbarToggle value="gridSnap" aria-label="grid snap" key={'gridSnap-tooltip'}>
-          <GridSnap />
-        </ToolbarToggle>
+        <span>
+          <ToolbarToggle value="gridSnap" aria-label="grid snap" key={'gridSnap-tooltip'}>
+            <GridSnap />
+          </ToolbarToggle>
+        </span>
       </Tooltip>
     </ToggleButtonGroupEx>
   );
@@ -119,8 +133,8 @@ const TimelineLabels = React.forwardRef(function TimelineLabels(
   inProps: TimelineLabelsProps,
   ref: React.Ref<HTMLDivElement>,
 ): React.JSX.Element {
-  const context = useTimeline();
-  const { engine, flags, file, dispatch, settings, } = context;
+  const {state: context,dispatch} = useTimeline();
+  const {engine, flags, file, settings} = context;
   const { trackHeight } = settings;
   const { slotProps, slots, sx, width } = inProps;
   const finalWidth = width || !flags.noLabels ? '275px' : '0px';
@@ -193,7 +207,7 @@ const TimelineLabels = React.forwardRef(function TimelineLabels(
         <Slider
           size="small"
           aria-label="Volume"
-          value={settings['trackHeight']}
+          value={settings.trackHeight}
           onChange={(event, value) =>
             dispatch({
               type: 'SET_SETTING',

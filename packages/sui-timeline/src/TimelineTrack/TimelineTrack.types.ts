@@ -1,5 +1,5 @@
 import * as React from "react";
-import { IMediaFile2 } from '@stoked-ui/media-selector';
+import { IMediaFile } from '@stoked-ui/media-selector';
 import {alpha, darken, lighten} from "@mui/material/styles";
 import { compositeColors } from "@stoked-ui/common";
 import { type ITimelineAction, type ITimelineFileAction, ITimelineActionHandlers } from '../TimelineAction/TimelineAction.types';
@@ -135,7 +135,6 @@ export const getTrackBackgroundColor = (color: string, mode: 'dark' | 'light', s
     baseColor = mode === 'light' ? '#f5f5f5' : '#424242';
   }
   const dimMultiplier = dim ? 1 : 1
-  const oneMinusDimMultiplier = dim ? .9 : 0;
   let firstColor = compositeColors(baseColor, alpha(color, Math.max(0, Math.min(1, firstAlpha(modeMod(modeState.label)) * dimMultiplier))));
     const endColor = compositeColors(baseColor, alpha(color, Math.max(0, Math.min(1, endAlpha(modeMod(modeState.row)) * dimMultiplier))));
   let opacity = 1;
@@ -218,7 +217,9 @@ export interface ITimelineTrack<
   /** Whether the track is movable */
   locked?: boolean;
 
-  file?: IMediaFile2;
+  file?: IMediaFile;
+
+  url?: string;
 
   image?: string;
 
@@ -229,7 +230,7 @@ export interface ITimelineTrack<
   controller: IController;
 }
 
-export type ITimelineTrackMetadata<TrackType extends ITimelineTrack = ITimelineTrack> = Omit<TrackType, 'file' | 'controller'> & {}
+export type ITimelineTrackData<TrackType extends ITimelineTrack = ITimelineTrack> = Omit<TrackType, 'file' | 'controller'> & {}
 
 export interface ITimelineFileTrack extends Omit<ITimelineTrack, 'id' | 'controller' | 'actions' | 'file'> {
   /** Action track id */
@@ -239,11 +240,9 @@ export interface ITimelineFileTrack extends Omit<ITimelineTrack, 'id' | 'control
   /** Row action list */
   actions: ITimelineFileAction[];
 
-  url?: string;
-
   image?: string;
 
-  file?: IMediaFile2;
+  file?: IMediaFile;
 
   controllerName?: string;
 

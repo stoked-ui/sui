@@ -4,12 +4,7 @@ import { type IEditorEngine } from "../EditorEngine";
 import { type IEditorAction } from "../EditorAction/EditorAction";
 import { IEditorTrack } from "../EditorTrack/EditorTrack";
 
-export interface EditorControllerParams extends ControllerParams {
-  action: IEditorAction;
-  track: IEditorTrack;
-  engine: IEditorEngine;
-}
+export interface EditorPreloadParams extends PreloadParams<IEditorAction, IEditorTrack> {}
 
-export interface EditorPreloadParams extends PreloadParams {
-  action: IEditorAction;
-}
+export interface EditorControllerParams extends ControllerParams<IEditorAction, IEditorTrack, IEditorEngine> {}
+

@@ -34,7 +34,7 @@ export interface FileElementContentProps extends React.HTMLAttributes<HTMLElemen
   /**
    * The id of the item.
    */
-  itemId: string;
+  id: string;
   /**
    * The icon to display next to the tree item's label.
    */
@@ -65,7 +65,7 @@ const FileElementContent = React.forwardRef(function FileElementContent(
     expansionIcon,
     icon: iconProp,
     label,
-    itemId,
+    id,
     onClick,
     onMouseDown,
     ...other
@@ -83,7 +83,7 @@ const FileElementContent = React.forwardRef(function FileElementContent(
     handleCheckboxSelection,
     preventSelection,
     expansionTrigger,
-  } = useFileElementState(itemId);
+  } = useFileElementState(id);
 
   const icon = iconProp || expansionIcon || displayIcon;
   const checkboxRef = React.useRef<HTMLButtonElement>(null);
@@ -170,7 +170,7 @@ FileElementContent.propTypes = {
   /**
    * The id of the item.
    */
-  itemId: PropTypes.string.isRequired,
+  id: PropTypes.string.isRequired,
   /**
    * The tree item label.
    */

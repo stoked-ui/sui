@@ -1,26 +1,26 @@
 import type {Instruction} from '@atlaskit/pragmatic-drag-and-drop-hitbox/tree-item';
-import { IMediaFile2 } from '@stoked-ui/media-selector';
+import { IMediaFileEx} from "../../models/IMediaFileEx";
 
-export type FileExplorerDndAction<R extends IMediaFile2> =
+export type FileExplorerDndAction<R extends IMediaFileEx> =
   | {
   type: 'instruction';
   instruction: Instruction;
-  itemId: string;
+  id: string;
   targetId: string;
 } | {
   type: 'create-child';
-  itemId: string;
+  id: string;
   item: R;
   targetId: string | null;
 } | {
   type: 'create-children';
   items: R[];
-  itemId: string;
+  id: string;
   targetId: string | null;
 } | {
   type: 'set-state';
   items: R[];
 } | {
   type: 'remove';
-  itemId: string;
+  id: string;
 }

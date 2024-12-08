@@ -137,7 +137,7 @@ type ControlProps =  {
 }
 
 function Controls(inProps: ControlProps) {
-  const { engine,  } = useTimeline();
+  const { state: {engine} } = useTimeline();
   // const editorEngine = engine as IEditorEngine;
   const controlsInput: string = '';
   const [controls, setControls] = React.useState<string>(controlsInput);
@@ -386,7 +386,7 @@ function Volume({ disabled }) {
 export const TimelineControls = React.forwardRef(
   function TimelineControls(inProps : TimelineControlsProps, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
     const [controls, setControls] = React.useState<ControlState[]>(['pause']);
-    const { engine } = useTimeline();
+    const { state: {engine} } = useTimeline();
     const props = useThemeProps({ props: inProps, name: 'MuiTimelineControls' });
     const { disabled } = inProps;
     const { versions } = props;

@@ -12,7 +12,7 @@ import { useEditorContext } from "../EditorProvider/EditorContext";
 
 
 export default function ContextMenu({ type,  context }:{ type: 'DETAIL_TRACK' | 'DETAIL_ACTION' | 'DETAIL_PROJECT',  context: IEditorAction | IEditorTrack | IEditorFile }) {
-  const { settings, dispatch } = useEditorContext();
+  const { state: { settings }, dispatch } = useEditorContext();
 
   const handleClose = () => {
     const { contextMenu, ...updatedSettings } = settings;

@@ -111,7 +111,7 @@ describeFileExplorer<[UseFileExplorerExpansionSignature, UseFileExplorerIconsSig
       // a File whose mounted state we can control with `setActiveItemMounted`
       function ConditionallyMountedItem(props) {
         const [mounted, setMounted] = React.useState(true);
-        if (props.itemId === '2') {
+        if (props.id === '2') {
           setActiveItemMounted = setMounted;
         }
 
@@ -127,8 +127,8 @@ describeFileExplorer<[UseFileExplorerExpansionSignature, UseFileExplorerIconsSig
           <React.Fragment>
             <button type="button">Some focusable element</button>
             <FileExplorerComponent>
-              <ConditionallyMountedItem itemId="1" label="1" data-testid="1" />
-              <ConditionallyMountedItem itemId="2" label="2" data-testid="2" />
+              <ConditionallyMountedItem id="1" label="1" data-testid="1" />
+              <ConditionallyMountedItem id="2" label="2" data-testid="2" />
             </FileExplorerComponent>
           </React.Fragment>,
         );
@@ -142,7 +142,7 @@ describeFileExplorer<[UseFileExplorerExpansionSignature, UseFileExplorerIconsSig
                 item: ConditionallyMountedItem,
               }}
               slotProps={{
-                item: (ownerState) => ({ 'data-testid': ownerState.itemId }) as any,
+                item: (ownerState) => ({ 'data-testid': ownerState.id }) as any,
               }}
               getItemLabel={(item) => item.id}
             />

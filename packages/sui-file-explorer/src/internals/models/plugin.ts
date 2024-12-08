@@ -106,7 +106,7 @@ export type FilePlugin<TSignatures extends FileExplorerAnyPluginSignature[] = Us
 ) => void | FilePluginResponse;
 
 export type FileWrapper<TSignatures extends readonly FileExplorerAnyPluginSignature[]> = (params: {
-  itemId: FileId;
+  id: FileId;
   children: React.ReactNode;
   instance: FileExplorerInstance<TSignatures>;
 }) => React.ReactNode;

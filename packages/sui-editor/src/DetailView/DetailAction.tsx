@@ -7,9 +7,7 @@ import {
 } from '@stoked-ui/timeline';
 import ControlledText from "./ControlledText";
 import {
-  CtrlCell,
-  DetailActions,
-  useEditMode
+  CtrlCell, CtrlRow, DetailActions, useEditMode
 } from './Detail'
 import {
   actionSchema, DetailViewProps,
@@ -19,7 +17,7 @@ import {
 import { useEditorContext } from "../EditorProvider/EditorContext";
 
 export function DetailAction(props: DetailViewProps) {
-  const { selectedTrack, selectedAction, dispatch } = useEditorContext();
+  const { state: {selectedTrack, selectedAction}, dispatch } = useEditorContext();
   const { editMode, enableEdit, disableEdit } = props;
   const data = props.detail as ActionDetail;
   const {
@@ -56,91 +54,101 @@ export function DetailAction(props: DetailViewProps) {
   }
 
   return (
-    <React.Fragment>
-      <CtrlCell width="40%">
-        <ControlledText
-          className={'whitespace-nowrap flex-grow flex'}
-          label={'Start'}
-          prefix={'action'}
-          control={control}
-          disabled={!editMode}
-          onClick={enableEdit}
-        />
-      </CtrlCell>
-      <CtrlCell width="40%">
-        <ControlledText
-          className={'whitespace-nowrap flex-grow flex'}
-          label={'end'}
-          prefix={'action'}
-          control={control}
-          disabled={!editMode}
-          onClick={enableEdit}
-        />
-      </CtrlCell>
-      <CtrlCell width="40%">
-        <ControlledText
-          prefix={'action'}
-          className={'whitespace-nowrap flex-grow flex'}
-          label={'Coordinates'}
-          name={['x', 'y', 'z']}
-          control={control}
-          disabled={!editMode}
-          onClick={enableEdit}
-        />
-      </CtrlCell>
-      <CtrlCell width="40%">
-        <ControlledText
-          className={'whitespace-nowrap flex-grow flex'}
-          label={'y'}
-          control={control}
-          disabled={!editMode}
-          onClick={enableEdit}
-        />
-      </CtrlCell>
-      <CtrlCell width="40%">
-        <ControlledText
-          className={'whitespace-nowrap flex-grow flex'}
-          label={'Width'}
-          control={control}
-          disabled={!editMode}
-          onClick={enableEdit}
-        />
-      </CtrlCell>
-      <CtrlCell width="40%">
-        <ControlledText
-          className={'whitespace-nowrap flex-grow flex'}
-          label={'Height'}
-          control={control}
-          disabled={!editMode}
-          onClick={enableEdit}
-        />
-      </CtrlCell>
-      <CtrlCell width="40%">
-        <ControlledText
-          className={'w-[194px] whitespace-nowrap w-full flex-grow flex'}
-          label={'Start Trim'}
-          control={control}
-          disabled={!editMode}
-          onClick={enableEdit}
-        />
-      </CtrlCell>
-      <CtrlCell width="40%">
-        <ControlledText
-          className={'w-[194px] whitespace-nowrap w-full flex-grow flex'}
-          label={'End Trim'}
-          control={control}
-          disabled={!editMode}
-          onClick={enableEdit}
-        />
-      </CtrlCell>
-      <CtrlCell width="40%">
-        <ControlledText
-          className={'w-[194px] whitespace-nowrap w-full flex-grow flex'}
-          label={'Duration'}
-          control={control}
-          onClick={enableEdit}
-        />
-      </CtrlCell>
+    <div>
+      <CtrlRow>
+        <CtrlCell width="40%">
+          <ControlledText
+            className={'whitespace-nowrap flex-grow flex'}
+            label={'Start'}
+            prefix={'action'}
+            control={control}
+            disabled={!editMode}
+            onClick={enableEdit}
+          />
+        </CtrlCell>
+        <CtrlCell width="40%">
+          <ControlledText
+            className={'whitespace-nowrap flex-grow flex'}
+            label={'end'}
+            prefix={'action'}
+            control={control}
+            disabled={!editMode}
+            onClick={enableEdit}
+          />
+        </CtrlCell>
+      </CtrlRow>
+      <CtrlRow>
+        <CtrlCell width="40%">
+          <ControlledText
+            prefix={'action'}
+            className={'whitespace-nowrap flex-grow flex'}
+            label={'Coordinates'}
+            name={['x', 'y', 'z']}
+            control={control}
+            disabled={!editMode}
+            onClick={enableEdit}
+          />
+        </CtrlCell>
+        <CtrlCell width="40%">
+          <ControlledText
+            className={'whitespace-nowrap flex-grow flex'}
+            label={'y'}
+            control={control}
+            disabled={!editMode}
+            onClick={enableEdit}
+          />
+        </CtrlCell>
+      </CtrlRow>
+      <CtrlRow>
+        <CtrlCell width="40%">
+          <ControlledText
+            className={'whitespace-nowrap flex-grow flex'}
+            label={'Width'}
+            control={control}
+            disabled={!editMode}
+            onClick={enableEdit}
+          />
+        </CtrlCell>
+        <CtrlCell width="40%">
+          <ControlledText
+            className={'whitespace-nowrap flex-grow flex'}
+            label={'Height'}
+            control={control}
+            disabled={!editMode}
+            onClick={enableEdit}
+          />
+        </CtrlCell>
+      </CtrlRow>
+      <CtrlRow>
+        <CtrlCell width="40%">
+          <ControlledText
+            className={'w-[194px] whitespace-nowrap w-full flex-grow flex'}
+            label={'Start Trim'}
+            control={control}
+            disabled={!editMode}
+            onClick={enableEdit}
+          />
+        </CtrlCell>
+        <CtrlCell width="40%">
+          <ControlledText
+            className={'w-[194px] whitespace-nowrap w-full flex-grow flex'}
+            label={'End Trim'}
+            control={control}
+            disabled={!editMode}
+            onClick={enableEdit}
+          />
+        </CtrlCell>
+      </CtrlRow>
+      <CtrlRow>
+        <CtrlCell width="40%">
+          <ControlledText
+            className={'w-[194px] whitespace-nowrap w-full flex-grow flex'}
+            label={'Duration'}
+            control={control}
+            onClick={enableEdit}
+          />
+        </CtrlCell>
+      </CtrlRow>
       <DetailActions errors={errors} isDirty={isDirty} reset={reset} disableEdit={disableEdit} editMode={editMode} />
-    </React.Fragment>)
+    </div>)
 }

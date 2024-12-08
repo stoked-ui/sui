@@ -1,4 +1,4 @@
-import * as React from 'react';
+  import * as React from 'react';
 import PropTypes from 'prop-types';
 import {
   FastForward,
@@ -8,6 +8,7 @@ import {
   VolumeMute,
   VolumeOff,
 } from '@mui/icons-material';
+import { namedId} from '@stoked-ui/common';
 import FormControl from '@mui/material/FormControl';
 import StopIcon from '@mui/icons-material/Stop';
 import SvgIcon from '@mui/material/SvgIcon';
@@ -24,7 +25,7 @@ import Box from '@mui/material/Box';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import { alpha, emphasize, Theme } from '@mui/material/styles';
 import { Slider, Stack, Tooltip } from '@mui/material';
-import { MediaFile, namedId } from '@stoked-ui/media-selector';
+import { MediaFile } from '@stoked-ui/media-selector';
 import {
   OutputBlob,
   Version,
@@ -200,17 +201,16 @@ type ControlProps = {
 };
 
 function Controls(inProps: ControlProps) {
-  const { dispatch, engine, file } = useEditorContext();
+  const { dispatch, state: { flags, settings, engine, file} } = useEditorContext();
   const editorEngine = engine as IEditorEngine;
   const controlsInput: string = '';
-  const { flags, settings } = useEditorContext();
 
   useThemeProps({ props: inProps, name: 'MuiControls' });
-  const { setVideoURLs, controls, versions, setVersions, setControls, disabled } = inProps;
+  const { setVideoURLs, controls, versions, setVersions, setControls } = inProps;
   const [mediaRecorder, setMediaRecorder] = React.useState<MediaRecorder | null>(null);
   const [recordedChunks, setRecordedChunks] = React.useState<Blob[]>([]);
 
-  const playbackMode = flags.detailMode ? settings.playbackMode : 'canvas'
+  const playbackMode = flags && flags.detailMode ? settings.playbackMode : 'canvas'
 
   const handlePlay = () => {
     if (!engine.isPlaying) {
@@ -274,16 +274,10 @@ function Controls(inProps: ControlProps) {
       type: 'video/mp4',
     });
 
-    const videoFile = new File([blob], `${file.name}.mp4`, { type: 'video/mp4' });
-    const videoMediaFile = new MediaFile(videoFile);
+    const videoFile = new MediaFile([blob], `${file.name}.mp4`, { type: 'video/mp4' });
     const suiVideo = new SUVideoFile({
-      file: videoMediaFile,
-      version: file?.version,
-      sourceId: file?.id,
-      name: file?.name,
-      created: Date.now(),
-      size: blob.size,
-      id: namedId('sui-video'),
+      outputData: blob,
+      name: `${file.name}.mp4`,
     });
 
     dispatch({ type: 'VIDEO_CREATED', payload: suiVideo });
@@ -388,7 +382,7 @@ function Controls(inProps: ControlProps) {
           // setControls(changeControls);
         }}
         aria-label="text alignment"
-        disabled={disabled}
+        disabled={settings.disabled}
       >
         <ToggleButton onClick={handleStart} value="start" aria-label="hidden">
           <SkipPreviousIcon fontSize={'small'} />
@@ -410,7 +404,7 @@ function Controls(inProps: ControlProps) {
         <ToggleButton onClick={handleEnd} value="end" aria-label="lock">
           <SkipNextIcon />
         </ToggleButton>
-        {flags.record ? (
+        {flags && flags.record ? (
           <ToggleButton
             value="record"
             onClick={() => {
@@ -438,8 +432,8 @@ Controls.propTypes = {
   versions: PropTypes.array.isRequired,
 } as any;
 
-function ViewToggle({ disabled = false }: { disabled?: boolean }) {
-  const { flags, dispatch } = useEditorContext();
+function ViewToggle() {
+  const { state: { flags, settings }, dispatch } = useEditorContext();
   const set = ['timelineView', 'fileView'];
 
   const handleOptions = (event: React.MouseEvent<HTMLElement>, newOptions: string[]) => {
@@ -454,7 +448,7 @@ function ViewToggle({ disabled = false }: { disabled?: boolean }) {
   let viewFinal;
   if (isTimelineView) {
     viewFinal = (
-      <ViewButton value="filesView" aria-label="lock" disabled={disabled}>
+      <ViewButton value="filesView" aria-label="lock" disabled={settings.disabled}>
         <SvgIcon fontSize={'small'}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -471,7 +465,7 @@ function ViewToggle({ disabled = false }: { disabled?: boolean }) {
       </ViewButton>
     );
 
-    if (!disabled) {
+    if (!settings.disabled) {
       viewFinal = (
         <Tooltip enterDelay={1000} title={'Switch to Files View'}>
           {viewFinal}
@@ -485,7 +479,7 @@ function ViewToggle({ disabled = false }: { disabled?: boolean }) {
       </ViewButton>
     );
 
-    if (!disabled) {
+    if (!settings.disabled) {
       viewFinal = (
         <Tooltip enterDelay={1000} title={'Switch to Timeline View'} sx={{ position: 'absolute' }}>
           {viewFinal}
@@ -545,8 +539,8 @@ ViewToggle.propTypes = {
 
 export { ViewToggle };
 
-function Volume({ disabled }: { disabled?: boolean }) {
-  const { engine } = useEditorContext();
+function Volume() {
+  const { state: { engine, settings } } = useEditorContext();
   const [value, setValue] = React.useState<number>(100);
   const [mute, setMute] = React.useState<boolean>(false);
 
@@ -566,7 +560,7 @@ function Volume({ disabled }: { disabled?: boolean }) {
   const base = (theme) => {
     return {
       mr: '4px!important',
-      fill: disabled ? theme.palette.action.disabled : theme.palette.text.primary,
+      fill: settings.disabled ? theme.palette.action.disabled : theme.palette.text.primary,
       cursor: 'pointer',
       '&:hover': {
         fill: `${theme.palette.primary[500]}!important`,
@@ -603,14 +597,14 @@ function Volume({ disabled }: { disabled?: boolean }) {
           },
         }}
         onClick={toggleMute}
-        disabled={disabled}
+        disabled={settings.disabled}
       >
         {getIcon(mute, value)}
       </IconButton>
       <Slider
         aria-label="Volume"
         size="small"
-        disabled={disabled}
+        disabled={settings.disabled}
         sx={{
           '& .MuiSlider-thumb::after': {
             position: 'absolute',
@@ -660,9 +654,9 @@ const EditorControls = React.forwardRef(function EditorControls(
   ref: React.Ref<HTMLDivElement>,
 ): React.JSX.Element {
   const [controls, setControls] = React.useState<EditorControlState[]>(['pause']);
-  const { engine, settings, flags, file, getState } = useEditorContext();
+  const { state: { engine, settings, flags, file, getState } } = useEditorContext();
   const props = useThemeProps({ props: inProps, name: 'MuiEditorControls' });
-  const { disabled } = inProps;
+
   const { versions, setVersions, currentVersion, setCurrentVersion } = props;
   const [time, setTime] = React.useState(0);
   const [videoURLs, setVideoURLs] = React.useState<string[]>([]);
@@ -679,6 +673,13 @@ const EditorControls = React.forwardRef(function EditorControls(
     const second = `${parseInt(`${renderTime % 60}`, 10)}`.padStart(2, '0');
     return `${min}:${second}.${float.replace('0.', '')}`;
   };
+/*
+  const [disabled, setDisabled] = React.useState(settings.disabled);
+  React.useEffect(() => {
+    if (settings.disabled !== disabled) {
+      setDisabled(settings.disabled);
+    }
+  }, [settings.disabled]); */
 
   React.useEffect(() => {
     engine?.on('rewind', () => setControls(['play', 'rewind']));
@@ -686,8 +687,8 @@ const EditorControls = React.forwardRef(function EditorControls(
     engine?.on('play', () => setControls(['play']));
     engine?.on('record', () => setControls(['record', 'play']));
     engine?.on('pause', () => setControls([]));
-    engine.on('afterSetTime', (afterTimeProps) => setTime(afterTimeProps.time));
-    engine.on('setTimeByTick', (setTimeProps) => {
+    engine?.on('afterSetTime', (afterTimeProps) => setTime(afterTimeProps.time));
+    engine?.on('setTimeByTick', (setTimeProps) => {
       setTime(setTimeProps.time);
     });
 
@@ -707,10 +708,10 @@ const EditorControls = React.forwardRef(function EditorControls(
 
   return (
     <PlayerRoot
-      id={`controls-${settings.editorId}`}
+      id={`controls-${settings?.editorId}`}
       className="timeline-player"
       ref={ref}
-      loading={getState() === EngineState.LOADING}
+      loading={getState && getState() === EngineState.LOADING}
     >
       <div style={{ display: 'flex', flexDirection: 'row', alignContent: 'center', width: '100%' }}>
         <div
@@ -722,9 +723,9 @@ const EditorControls = React.forwardRef(function EditorControls(
             setControls={setControls}
             versions={versions!}
             setVersions={setVersions!}
-            disabled={disabled}
+            disabled={settings.disabled}
           />
-          {flags.noLabels && <SnapControls />}
+          {flags && flags.noLabels && <SnapControls />}
           {/* switchView && <ViewToggle disabled={disabled} /> */}
         </div>
       </div>
@@ -734,23 +735,23 @@ const EditorControls = React.forwardRef(function EditorControls(
           flexDirection: 'row',
         })}
       >
-        <Volume disabled={disabled} />
+        <Volume disabled={settings.disabled} />
         {/* {hasDownload() && <Button onClick={() => download()} variant={'text'}>Download</Button>} */}
         <TimeRoot
-          disabled={!!disabled}
-          className={`MuiFormControl-root MuiTextField-root ${disabled ? 'Mui-disabled' : ''}`}
+          disabled={!!settings.disabled}
+          className={`MuiFormControl-root MuiTextField-root ${settings.disabled ? 'Mui-disabled' : ''}`}
         >
           <div
             style={{ borderRadius: '12px!important' }}
-            className={`MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary ${disabled ? 'Mui-disabled' : ''} MuiInputBase-formControl MuiInputBase-sizeSmall css-qp45lg-MuiInputBase-root-MuiOutlinedInput-root`}
+            className={`MuiInputBase-root MuiOutlinedInput-root MuiInputBase-colorPrimary ${settings.disabled ? 'Mui-disabled' : ''} MuiInputBase-formControl MuiInputBase-sizeSmall css-qp45lg-MuiInputBase-root-MuiOutlinedInput-root`}
           >
             <Box
               aria-invalid="false"
-              id={`time-${settings.editorId}`}
+              id={`time-${settings && settings.editorId}`}
               sx={(theme) => ({
-                color: `${disabled ? theme.palette.text.disabled : theme.palette.text.primary}!important`,
+                color: `${settings.disabled ? theme.palette.text.disabled : theme.palette.text.primary}!important`,
               })}
-              className={`MuiInputBase-input MuiOutlinedInput-input ${disabled ? 'Mui-disabled' : ''} MuiInputBase-inputSizeSmall css-r07wst-MuiInputBase-input-MuiOutlinedInput-input`}
+              className={`MuiInputBase-input MuiOutlinedInput-input ${settings.disabled ? 'Mui-disabled' : ''} MuiInputBase-inputSizeSmall css-r07wst-MuiInputBase-input-MuiOutlinedInput-input`}
             >
               {timeRender(time)}
             </Box>
@@ -761,17 +762,17 @@ const EditorControls = React.forwardRef(function EditorControls(
             minWidth: '84px',
             marginRight: '6px',
           }}
-          disabled={disabled}
+          disabled={settings.disabled}
           className="rate-control"
         >
           <RateControlSelect
-            value={engine.getPlayRate() ?? 1}
+            value={engine?.getPlayRate() ?? 1}
             onChange={handleRateChange}
             displayEmpty
             inputProps={{ 'aria-label': 'Play Rate' }}
             defaultValue={1}
-            id={`rate-select-${settings.editorId}`}
-            disabled={disabled}
+            id={`rate-select-${settings?.editorId}`}
+            disabled={settings.disabled}
           >
             <MenuItem key={-1} value={-1}>
               <em>Rate</em>

@@ -6,7 +6,7 @@ import { useEditorContext } from "../EditorProvider/EditorContext";
 import StokedSelect from "./StokedSelect";
 
 export default function DetailActions({ disabled, size, sx, onClick }: { onClick?: (event: MouseEvent) => void, disabled?: boolean, size: 'small' | 'medium' , sx?: SxProps }) {
-  const { selectedAction, dispatch, selectedTrack } = useEditorContext();
+  const { state: {selectedAction, selectedTrack}, dispatch,  } = useEditorContext();
   return <StokedSelect
     label={'Action'}
     placeholder={'Select Action'}

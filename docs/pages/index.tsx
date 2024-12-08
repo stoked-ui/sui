@@ -13,6 +13,7 @@ import AppHeader from "../src/layouts/AppHeader";
 
 const EditorHero = dynamic(() => import('../src/components/showcase/EditorHero'), {ssr: false });
 
+
 function randomHome(homePages: string[]) {
   return homePages[Math.floor(Math.random()*homePages.length)];
 }
@@ -65,6 +66,7 @@ export function HomeView({ HomeMain}: { HomeMain: React.ComponentType }){
 let MainView:  React.ComponentType<{}> = function MainView() {
   if (process.env.DEV_DISPLAY === '1') {
     return <EditorHero id={'editor'} sx={{ width: '1080px' }} />
+    // return <EditorFileTestHero id={'editor'} sx={{ width: '1080px' }} />
   }
   return (
     <React.Fragment>
