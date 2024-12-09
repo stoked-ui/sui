@@ -1,7 +1,7 @@
 declare global {
-  interface IMediaFileEx {
+ /*  interface FileBase {
     visibleIndex?: number
-  }
+  } */
 }
 
 export {};

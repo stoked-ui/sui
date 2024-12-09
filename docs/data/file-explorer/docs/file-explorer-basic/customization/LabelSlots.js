@@ -26,8 +26,8 @@ const CustomTreeItem = React.forwardRef((props, ref) => {
     <File
       {...other}
       ref={ref}
-      slots={{ label: CustomLabel }}
-      slotProps={{ label: { tooltip: labelTooltip } }}
+      slots={{ name: CustomLabel }}
+      slotProps={{ name: { tooltip: labelTooltip } }}
     />
   );
 });
@@ -40,46 +40,46 @@ export default function LabelSlots() {
   return (
     <Box sx={{ minHeight: 352, minWidth: 250 }}>
       <FileExplorerBasic defaultExpandedItems={['grid']}>
-        <CustomTreeItem itemId="grid" label="Data Grid">
+        <CustomTreeItem id="grid" name="Data Grid">
           <CustomTreeItem
-            itemId="grid-community"
-            label="@mui/x-data-grid"
+            id="grid-community"
+            name="@mui/x-data-grid"
             labelTooltip="Community version (MIT) of the Data Grid"
           />
           <CustomTreeItem
-            itemId="grid-pro"
-            label="@mui/x-data-grid-pro"
+            id="grid-pro"
+            name="@mui/x-data-grid-pro"
             labelTooltip="Pro version (commercial) of the Data Grid"
           />
           <CustomTreeItem
-            itemId="grid-premium"
-            label="@mui/x-data-grid-premium"
+            id="grid-premium"
+            name="@mui/x-data-grid-premium"
             labelTooltip="Premium version (commercial) of the Data Grid"
           />
         </CustomTreeItem>
-        <CustomTreeItem itemId="pickers" label="Date and Time Pickers">
+        <CustomTreeItem id="pickers" name="Date and Time Pickers">
           <CustomTreeItem
-            itemId="pickers-community"
-            label="@mui/x-date-pickers"
+            id="pickers-community"
+            name="@mui/x-date-pickers"
             labelTooltip="Community version (MIT) of the Date and Time Pickers"
           />
           <CustomTreeItem
-            itemId="pickers-pro"
-            label="@mui/x-date-pickers-pro"
+            id="pickers-pro"
+            name="@mui/x-date-pickers-pro"
             labelTooltip="Pro version (commercial) of the Date and Time Pickers"
           />
         </CustomTreeItem>
-        <CustomTreeItem itemId="charts" label="Charts">
+        <CustomTreeItem id="charts" name="Charts">
           <CustomTreeItem
-            itemId="charts-community"
-            label="@mui/x-charts"
+            id="charts-community"
+            name="@mui/x-charts"
             labelTooltip="Community version (MIT) of the Charts"
           />
         </CustomTreeItem>
-        <CustomTreeItem itemId="file-explorer" label="File Explorer">
+        <CustomTreeItem id="file-explorer" name="File Explorer">
           <CustomTreeItem
-            itemId="file-explorer-community"
-            label="@stoked-ui/file-explorer"
+            id="file-explorer-community"
+            name="@stoked-ui/file-explorer"
             labelTooltip="Community version (MIT) of the File Explorer"
           />
         </CustomTreeItem>

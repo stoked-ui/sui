@@ -73,12 +73,10 @@ export const useFileExplorerSelection: FileExplorerPlugin<UseFileExplorerSelecti
 
   const isItemSelected = (id: string) => selectedItemsMap.has(id);
 
-  const selectItem: UseFileExplorerSelectionInstance['selectItem'] = (
-    event,
-    id,
-    keepExistingSelection,
-    newValue,
-  ) => {
+  const selectItem: UseFileExplorerSelectionInstance['selectItem'] = (selectItemParams: {
+    event: React.SyntheticEvent, id: string, keepExistingSelection?: boolean, newValue?: boolean,
+  }) => {
+    const {event, id, keepExistingSelection = false, newValue} = selectItemParams;
     if (params.disableSelection) {
       return;
     }

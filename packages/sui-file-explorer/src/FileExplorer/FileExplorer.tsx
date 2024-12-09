@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import composeClasses from '@mui/utils/composeClasses';
 import { useSlotProps } from '@mui/base/utils';
 import { shouldForwardProp } from '@mui/system/createStyled';
-import { IMediaFileEx} from "../internals/models/IMediaFileEx";
+import { FileBase} from "../models";
 import { getFileExplorerUtilityClass } from './fileExplorerClasses';
 import { FileExplorerProps } from './FileExplorer.types';
 import { createUseThemeProps, styled } from '../internals/zero-styled';
@@ -19,7 +19,7 @@ import { FileDropzone } from '../FileDropzone';
 
 const useThemeProps = createUseThemeProps('MuiFileExplorer');
 
-const useUtilityClasses = <R extends IMediaFileEx, Multiple extends boolean | undefined>(
+const useUtilityClasses = <R extends FileBase, Multiple extends boolean | undefined>(
   ownerState: FileExplorerProps<R, Multiple>,
 ) => {
   const { classes } = ownerState;
@@ -74,7 +74,7 @@ export const FileExplorerRoot = styled('ul', {
 }));
 
 type FileExplorerComponent = (<
-  R extends IMediaFileEx,
+  R extends FileBase,
   Multiple extends boolean | undefined = undefined,
 >(
   props: FileExplorerProps<R, Multiple> & React.RefAttributes<HTMLUListElement>,
@@ -97,7 +97,7 @@ const childrenWarning = buildWarning([
  * - [FileExplorer API](https://stoked-ui.github.io/file-explorer/api/)
  */
 const FileExplorer = React.forwardRef(function FileExplorer<
-  R extends IMediaFileEx = IMediaFileEx,
+  R extends FileBase = FileBase,
   Multiple extends boolean | undefined = undefined,
 >(inProps: FileExplorerProps<R, Multiple>, ref: React.Ref<HTMLUListElement>) {
   const props = useThemeProps({ props: inProps, name: 'MuiFileExplorer' });

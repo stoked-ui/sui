@@ -4,17 +4,49 @@ import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import {
+  FileExplorerPropsBase,
   FileExplorerRoot,
   FILE_EXPLORER_PLUGINS,
+  FileExplorerPluginParameters,
+  FileExplorerPluginSlots,
+  FileExplorerPluginSlotProps,
 } from '@stoked-ui/file-explorer/FileExplorer';
 import { FileElement } from '@stoked-ui/file-explorer/FileElement';
 import {
+  UseFileExplorerExpansionSignature,
+  FileExplorerPlugin,
+  FileExplorerPluginSignature,
   useFileExplorer,
   FileExplorerProvider,
+  ConvertPluginsIntoSignatures,
 } from '@stoked-ui/file-explorer/internals';
 import { NestedFiles } from 'docs/src/components/fileExplorer/data';
+import {MediaFile, IMediaFileInput} from "@stoked-ui/media-selector/build";
 
-const useFileExplorerLogExpanded = ({ params, models }) => {
+interface FileExplorerLogExpandedParameters {
+  areLogsEnabled?: boolean;
+  logMessage?: (message: string) => void;
+}
+
+interface FileExplorerLogExpandedDefaultizedParameters {
+  areLogsEnabled: boolean;
+  logMessage?: (message: string) => void;
+}
+
+type FileExplorerLogExpandedSignature = FileExplorerPluginSignature<{
+  // The parameters of this plugin as they are passed to `useFileExplorer`
+  params: FileExplorerLogExpandedParameters;
+  // The parameters of this plugin as they are passed to the plugin after calling `plugin.getDefaultizedParams`
+  defaultizedParams: FileExplorerLogExpandedDefaultizedParameters;
+  // Dependencies of this plugin (we need the expansion plugin to access its model)
+  dependencies: [UseFileExplorerExpansionSignature];
+}>;
+
+
+const useFileExplorerLogExpanded: FileExplorerPlugin<FileExplorerLogExpandedSignature> = ({
+  params,
+  models,
+}) => {
   const expandedStr = JSON.stringify(models.expandedItems.value);
 
   React.useEffect(() => {
@@ -37,17 +69,40 @@ useFileExplorerLogExpanded.params = {
   logMessage: true,
 };
 
-const TREE_VIEW_PLUGINS = [...FILE_EXPLORER_PLUGINS, useFileExplorerLogExpanded];
+export interface FileExplorerProps<R extends any, Multiple extends boolean | undefined>
+  extends FileExplorerPluginParameters<R, Multiple>,
+    FileExplorerLogExpandedParameters,
+    FileExplorerPropsBase {
+  slots?: FileExplorerPluginSlots;
+  slotProps?: FileExplorerPluginSlotProps;
+}
 
-function FileExplorer(props) {
-  const { getRootProps, contextValue, instance } = useFileExplorer({
+const TREE_VIEW_PLUGINS = [
+  ...FILE_EXPLORER_PLUGINS,
+  useFileExplorerLogExpanded,
+] as const;
+
+type FileExplorerPluginSignatures = ConvertPluginsIntoSignatures<
+  typeof TREE_VIEW_PLUGINS
+>;
+
+function FileExplorer<R extends any, Multiple extends boolean | undefined>(
+  props: FileExplorerProps<R, Multiple>,
+) {
+  const { getRootProps, contextValue, instance } = useFileExplorer<
+    FileExplorerPluginSignatures,
+    typeof props
+  >({
     plugins: TREE_VIEW_PLUGINS,
     props,
   });
 
   const itemsToRender = instance.getItemsToRender();
 
-  const renderItem = ({ children: itemChildren, ...itemProps }) => {
+  const renderItem = ({
+    children: itemChildren,
+    ...itemProps
+  }: ReturnType<typeof instance.getItemsToRender>[number]) => {
     return (
       <FileElement key={itemProps.itemId} {...itemProps}>
         {itemChildren?.map(renderItem)}
@@ -65,7 +120,7 @@ function FileExplorer(props) {
 }
 
 export default function LogExpandedItems() {
-  const [logs, setLogs] = React.useState([]);
+  const [logs, setLogs] = React.useState<string[]>([]);
 
   return (
     <Stack spacing={2}>

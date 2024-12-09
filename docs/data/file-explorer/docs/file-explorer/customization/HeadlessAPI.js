@@ -96,11 +96,6 @@ CustomTreeItem.propTypes = {
    * The id attribute of the item. If not provided, it will be generated.
    */
   id: PropTypes.string,
-  /**
-   * The id of the item.
-   * Must be unique.
-   */
-  itemId: PropTypes.string,
   name: PropTypes.string,
 };
 

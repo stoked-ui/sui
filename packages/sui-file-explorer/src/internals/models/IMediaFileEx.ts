@@ -1,5 +1,7 @@
-import { IMediaFile } from "@stoked-ui/media-selector";
+/*
+ import { IMediaFile } from "@stoked-ui/media-selector";
 
-export interface IMediaFileEx extends IMediaFile {
+export interface FileBase extends IMediaFile {
   visibleIndex?: number;
 }
+*/

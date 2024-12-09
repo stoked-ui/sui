@@ -31,7 +31,6 @@ import {
   useFileExplorerDnd,
   UseFileExplorerDndParameters
 } from '../internals/plugins/useFileExplorerDnd';
-import {IMediaFileEx} from "../internals/models/IMediaFileEx";
 
 export const FILE_EXPLORER_PLUGINS = [
   useFileExplorerFiles,

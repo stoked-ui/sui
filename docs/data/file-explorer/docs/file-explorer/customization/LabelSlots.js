@@ -109,11 +109,6 @@ CustomTreeItem.propTypes = {
    * The content of the component.
    */
   children: PropTypes.node,
-  /**
-   * The id of the item.
-   * Must be unique.
-   */
-  itemId: PropTypes.string,
 };
 
 const DEFAULT_EXPANDED_ITEMS = ['Docs'];

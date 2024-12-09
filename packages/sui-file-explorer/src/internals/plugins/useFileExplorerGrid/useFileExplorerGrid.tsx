@@ -1,6 +1,5 @@
 import * as React from 'react'
 import { namedId} from '@stoked-ui/common';
-import { IMediaFileEx} from "../../models/IMediaFileEx";
 import {
   GridColumn,
   GridColumns,
@@ -9,7 +8,7 @@ import {
   UseFileExplorerGridPlugin,
   UseFileExplorerGridState
 } from './useFileExplorerGrid.types';
-import { FileId} from '../../../models';
+import { FileId, FileBase} from '../../../models';
 import {bytesToSize, calcSize, getRelativeTimeString} from "./PropUtils";
 import {ItemMode} from "../useFileExplorerFiles/useFileExplorerFiles.types";
 
@@ -29,7 +28,7 @@ const updateGridState = ({ headers, columns, initializedIndexes, id }: { headers
   };
 };
 
-export const useFileExplorerGrid: UseFileExplorerGridPlugin = <R extends IMediaFileEx>({
+export const useFileExplorerGrid: UseFileExplorerGridPlugin = <R extends FileBase>({
   instance,
   state,
   rootRef,

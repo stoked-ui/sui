@@ -3,7 +3,7 @@ import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { FileExplorer } from '@stoked-ui/file-explorer/FileExplorer';
-import { FileBaseInput } from '@stoked-ui/file-explorer/models';
+import { FileBaseInput, FileBase } from '@stoked-ui/file-explorer/models';
 import { useFileExplorerApiRef } from '@stoked-ui/file-explorer/hooks';
 
 const MUI_X_PRODUCTS: FileBaseInput[] = [
@@ -63,7 +63,7 @@ export default function ApiMethodGetItemOrderedChildrenIds() {
       </Typography>
       <Box sx={{ minHeight: 352, minWidth: 300 }}>
         <FileExplorer
-          items={MUI_X_PRODUCTS}
+          items={MUI_X_PRODUCTS as FileBase[]}
           apiRef={apiRef}
           onSelectedItemsChange={handleSelectedItemsChange}
         />
