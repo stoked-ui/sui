@@ -262,6 +262,17 @@ export default class EditorEngine<
   }
 
   /**
+   * Pause playback
+   * @memberof Engine
+   */
+  pause() {
+    if (this.isRecording) {
+      super.pause();
+    }
+    cancelAnimationFrame(this._timerId);
+  }
+
+  /**
    * Set playback time
    * @param {number} time
    * @param {boolean} [isTick] Whether it is triggered by a tick

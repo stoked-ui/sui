@@ -5,7 +5,7 @@ import ShowcaseContainer from 'docs/src/components/home/ShowcaseContainer';
 import HighlightedCode from 'docs/src/modules/components/HighlightedCode';
 import MarkdownElement from 'docs/src/components/markdown/MarkdownElement';
 
-const code = `
+const code   = `
 import * as React from 'react';
 import Editor from '@stoked-ui/editor';
 import { cloneDeep } from 'lodash';
@@ -15,8 +15,8 @@ const defaultEditorData = cloneDeep(actions);
 
 export default function EditorDemo() {
   return (
-     <EditorProvider id={'editor-hero-demo'} controllers={Controllers} file={EditorExample} >
-      <Editor id='editor-demo' sx={{ borderRadius: '12px 12px 0 0' }} />
+     <EditorProvider id={'editor-hero-demo'} controllers={Controllers} >
+      <Editor id='editor-demo' sx={{ borderRadius: '12px 12px 0 0' }} fileUrl={'/static/editor/stoked-ui.sue'}/>
     </EditorProvider>
   );
 };`

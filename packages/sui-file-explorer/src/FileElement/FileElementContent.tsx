@@ -158,15 +158,16 @@ FileElementContent.propTypes = {
   /**
    * The icon to display next to the tree item's label. Either a parent or end icon.
    */
-  displayIcon: PropTypes.node,
+  displayIcon: PropTypes.any,
   /**
    * The icon to display next to the tree item's label. Either an expansion or collapse icon.
    */
-  expansionIcon: PropTypes.node,
+  expansionIcon: PropTypes.any,
   /**
    * The icon to display next to the tree item's label.
    */
-  icon: PropTypes.node,
+  icon: PropTypes.any
+  ,
   /**
    * The id of the item.
    */
@@ -174,7 +175,7 @@ FileElementContent.propTypes = {
   /**
    * The tree item label.
    */
-  label: PropTypes.node,
+  label: PropTypes.any,
 };
 
 export { FileElementContent };

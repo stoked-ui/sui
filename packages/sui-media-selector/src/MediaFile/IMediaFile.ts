@@ -1,6 +1,6 @@
 import { Settings } from "@stoked-ui/common";
 
-export default interface MediaFile extends File {
+export default interface IMediaFile extends File {
   /**
    * The timestamp when the file was created.
    */
@@ -31,7 +31,7 @@ export default interface MediaFile extends File {
    */
   readonly id: string;
 
-  readonly children?: MediaFile[];
+  readonly children?: IMediaFile[];
 
   /**
    * Retrieves a url for the file if one isn't available it will create one

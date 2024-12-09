@@ -1,4 +1,4 @@
-import Settings, { createSettings } from "./Settings";
+import { Settings, createSettings } from "./Settings";
 
 export interface FlagConfig {
   defaultValue?: boolean;
@@ -15,7 +15,7 @@ export type Flags = Record<string, boolean>;
 
 export type FlagData = {flag: string, config: FlagConfig}
 
-export default interface ProviderState {
+export interface ProviderState {
   flags: Flags;
   flagConfigs: Record<string, FlagConfig>;
   settings: Settings<any>;

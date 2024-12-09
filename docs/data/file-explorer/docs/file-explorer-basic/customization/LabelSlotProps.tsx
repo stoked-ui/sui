@@ -9,8 +9,8 @@ const CustomTreeItem = React.forwardRef(
       ref={ref}
       {...props}
       slotProps={{
-        label: {
-          id: `${props.itemId}-label`,
+        name: {
+          id: `${props.id}-name`,
         },
       }}
     />
@@ -21,20 +21,20 @@ export default function LabelSlotProps() {
   return (
     <Box sx={{ minHeight: 352, minWidth: 250 }}>
       <FileExplorerBasic defaultExpandedItems={['grid']}>
-        <CustomTreeItem itemId="grid" label="Data Grid">
-          <CustomTreeItem itemId="grid-community" label="@mui/x-data-grid" />
-          <CustomTreeItem itemId="grid-pro" label="@mui/x-data-grid-pro" />
-          <CustomTreeItem itemId="grid-premium" label="@mui/x-data-grid-premium" />
+        <CustomTreeItem id="grid" name="Data Grid">
+          <CustomTreeItem id="grid-community" name="@mui/x-data-grid" />
+          <CustomTreeItem id="grid-pro" name="@mui/x-data-grid-pro" />
+          <CustomTreeItem id="grid-premium" name="@mui/x-data-grid-premium" />
         </CustomTreeItem>
-        <CustomTreeItem itemId="pickers" label="Date and Time Pickers">
-          <CustomTreeItem itemId="pickers-community" label="@mui/x-date-pickers" />
-          <CustomTreeItem itemId="pickers-pro" label="@mui/x-date-pickers-pro" />
+        <CustomTreeItem id="pickers" name="Date and Time Pickers">
+          <CustomTreeItem id="pickers-community" name="@mui/x-date-pickers" />
+          <CustomTreeItem id="pickers-pro" name="@mui/x-date-pickers-pro" />
         </CustomTreeItem>
-        <CustomTreeItem itemId="charts" label="Charts">
-          <CustomTreeItem itemId="charts-community" label="@mui/x-charts" />
+        <CustomTreeItem id="charts" name="Charts">
+          <CustomTreeItem id="charts-community" name="@mui/x-charts" />
         </CustomTreeItem>
-        <CustomTreeItem itemId="file-explorer" label="File Explorer">
-          <CustomTreeItem itemId="file-explorer-community" label="@stoked-ui/file-explorer" />
+        <CustomTreeItem id="file-explorer" name="File Explorer">
+          <CustomTreeItem id="file-explorer-community" name="@stoked-ui/file-explorer" />
         </CustomTreeItem>
       </FileExplorerBasic>
     </Box>

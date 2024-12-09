@@ -3,7 +3,7 @@ import { FileExplorer } from '@stoked-ui/file-explorer/FileExplorer';
 import {
   File,
 } from '@stoked-ui/file-explorer/File';
-import { namedId } from '@stoked-ui/media-selector';
+import { namedId } from '@stoked-ui/common';
 import { SxProps } from "@mui/system";
 import { getDynamicFiles } from '../fileExplorer/data';
 

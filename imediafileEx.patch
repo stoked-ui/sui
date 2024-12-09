@@ -1,0 +1,382 @@
+Index: packages/sui-file-explorer/src/models/items.ts
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/packages/sui-file-explorer/src/models/items.ts b/packages/sui-file-explorer/src/models/items.ts
+--- a/packages/sui-file-explorer/src/models/items.ts
++++ b/packages/sui-file-explorer/src/models/items.ts	(date 1733735269977)
+@@ -13,3 +13,5 @@
+   lastModified?: number;
+   type?: MediaType;
+ };
++
++export type IMediaFileExInput = FileBaseInput<IMediaFileEx>;
+Index: packages/sui-file-explorer/src/useFile/useFile.test.tsx
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/packages/sui-file-explorer/src/useFile/useFile.test.tsx b/packages/sui-file-explorer/src/useFile/useFile.test.tsx
+--- a/packages/sui-file-explorer/src/useFile/useFile.test.tsx
++++ b/packages/sui-file-explorer/src/useFile/useFile.test.tsx	(date 1733736235655)
+@@ -144,7 +144,7 @@
+               slotProps={{
+                 item: (ownerState) => ({ 'data-testid': ownerState.id }) as any,
+               }}
+-              getItemLabel={(item) => item.id}
++              getItemName={(item) => item.id}
+             />
+           </React.Fragment>,
+         );
+Index: packages/sui-file-explorer/src/internals/models/index.ts
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/packages/sui-file-explorer/src/internals/models/index.ts b/packages/sui-file-explorer/src/internals/models/index.ts
+--- a/packages/sui-file-explorer/src/internals/models/index.ts
++++ b/packages/sui-file-explorer/src/internals/models/index.ts	(date 1733734600788)
+@@ -2,3 +2,4 @@
+ export * from './plugin';
+ export * from './plugin.types';
+ export * from './fileExplorerView';
++export * from './IMediaFileEx';
+Index: packages/sui-file-explorer/src/internals/plugins/useFileExplorerGrid/useFileExplorerGrid.test.tsx
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/packages/sui-file-explorer/src/internals/plugins/useFileExplorerGrid/useFileExplorerGrid.test.tsx b/packages/sui-file-explorer/src/internals/plugins/useFileExplorerGrid/useFileExplorerGrid.test.tsx
+--- a/packages/sui-file-explorer/src/internals/plugins/useFileExplorerGrid/useFileExplorerGrid.test.tsx
++++ b/packages/sui-file-explorer/src/internals/plugins/useFileExplorerGrid/useFileExplorerGrid.test.tsx	(date 1733736235597)
+@@ -193,7 +193,7 @@
+         });
+
+         expect(response.isItemExpanded('1')).to.equal(false);
+-        fireEvent.click(response.getItemLabel('1'));
++        fireEvent.click(response.getItemName('1'));
+         expect(response.isItemExpanded('1')).to.equal(true);
+       });
+
+Index: packages/sui-file-explorer/src/internals/plugins/useFileExplorerFiles/useFileExplorerFiles.tsx
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/packages/sui-file-explorer/src/internals/plugins/useFileExplorerFiles/useFileExplorerFiles.tsx b/packages/sui-file-explorer/src/internals/plugins/useFileExplorerFiles/useFileExplorerFiles.tsx
+--- a/packages/sui-file-explorer/src/internals/plugins/useFileExplorerFiles/useFileExplorerFiles.tsx
++++ b/packages/sui-file-explorer/src/internals/plugins/useFileExplorerFiles/useFileExplorerFiles.tsx	(date 1733737690101)
+@@ -10,15 +10,15 @@
+   UseFileExplorerFilesState,
+ } from './useFileExplorerFiles.types';
+ import {publishFileExplorerEvent} from '../../utils/publishFileExplorerEvent';
+-import {FileId} from '../../../models';
++import {FileId, IMediaFileExInput} from '../../../models';
+ import {buildSiblingIndexes, FILE_EXPLORER_VIEW_ROOT_PARENT_ID} from './useFileExplorerFiles.utils';
+ import {FileDepthContext} from '../../FileDepthContext';
+ import {DndItemState} from '../useFileExplorerDnd/useFileExplorerDnd.types';
+
+ interface UpdateNodesStateParameters
+   extends Pick<
+-    UseFileExplorerFilesDefaultizedParameters<IMediaFileEx>,
+-    'items' | 'isItemDisabled' | 'getItemLabel' | 'getItemId'
++    UseFileExplorerFilesDefaultizedParameters<IMediaFileExInput>,
++    'items' | 'isItemDisabled' | 'getItemName' | 'getItemId'
+   > {
+   recalcVisibleIndices: (items: IMediaFileEx[], force: boolean, index: number) => void;
+ }
+@@ -28,9 +28,9 @@
+ let visibleIndexCounter = 0;
+
+ const updateItemsState = ({
+-  items,
++  items: inputItems,
+   isItemDisabled,
+-  getItemLabel,
++  getItemName,
+   getItemId,
+   recalcVisibleIndices,
+ }: UpdateNodesStateParameters): UseFileExplorerFilesState<any>['items'] => {
+@@ -40,18 +40,17 @@
+     [FILE_EXPLORER_VIEW_ROOT_PARENT_ID]: [],
+   };
+
+-  const processItem = (item: IMediaFileEx, depth: number, parentId: string | null) => {
++  const processItem = (item: IMediaFileExInput, depth: number, parentId: string | null) => {
+     const id = item?.id ?? item.id ?? namedId({id:'file', length:4});
+     if (itemMetaMap[id]){
+       // TODO: FIX THIS SERIOUSLY
+-      console.warn(`DIRTY HACK: this item id already exists - item: ${JSON.stringify(item, null, 2)}, existing item: ${JSON.stringify(itemMetaMap[id], null, 2)}`)
+-      return;
++      throw new Error(`DIRTY HACK: this item id already exists - item: ${JSON.stringify(item, null, 2)}, existing item: ${JSON.stringify(itemMetaMap[id], null, 2)}`)
+     }
+
+     if (id == null) {
+       throw new Error(
+         [
+-          'Stoked UI: The FileExplorer component requires all items to have a unique `id` property.',
++          'Stoked UI: The FileExplorer component requires all items to have a unique `id` property.',
+           'Alternatively, you can use the `getItemId` prop to specify a custom id for each item.',
+           'An item was provided without id in the `items` prop:',
+           JSON.stringify(item),
+@@ -62,20 +61,20 @@
+     if (itemMetaMap[id] != null) {
+       throw new Error(
+         [
+-          'Stoked UI: The FileExplorer component requires all items to have a unique `id` property.',
++          'Stoked UI: The FileExplorer component requires all items to have a unique `id` property.',
+           'Alternatively, you can use the `getItemId` prop to specify a custom id for each item.',
+           `Two items were provided with the same id in the \`items\` prop: "${id}"`,
+         ].join('\n'),
+       );
+     }
+
+-    const name = getItemLabel ? getItemLabel(item) : (item as { name: string }).name;
++    const name = getItemName ? getItemName(item) : (item as { name: string }).name;
+     if (name == null) {
+       throw new Error(
+         [
+-          'Stoked UI: The FileExplorer component requires all items to have a `label` property.',
+-          'Alternatively, you can use the `getItemLabel` prop to specify a custom label for each item.',
+-          'An item was provided without label in the `items` prop:',
++          'Stoked UI: The FileExplorer component requires all items to have a `name` property.',
++          'Alternatively, you can use the `getItemName` prop to specify a custom name for each item.',
++          'An item was provided without name in the `items` prop:',
+           JSON.stringify(item),
+         ].join('\n'),
+       );
+@@ -102,9 +101,10 @@
+     itemOrderedChildrenIds[parentIdWithDefault].push(id);
+
+     item.children?.forEach((child) => processItem(child, depth + 1, id));
++    return item;
+   };
+
+-  items?.forEach((item) => processItem(item, 0, null));
++  const items: IMediaFileEx[] = inputItems?.map((item) => processItem(item, 0, null));
+
+   const itemChildrenIndexes: State['itemChildrenIndexes'] = {};
+   Object.keys(itemOrderedChildrenIds).forEach((parentId) => {
+@@ -263,7 +263,7 @@
+         items,
+         isItemDisabled: params.isItemDisabled,
+         getItemId: params.getItemId,
+-        getItemLabel: params.getItemLabel,
++        getItemName: params.getItemName,
+         recalcVisibleIndices,
+       });
+
+@@ -292,7 +292,7 @@
+     params.items,
+     params.isItemDisabled,
+     params.getItemId,
+-    params.getItemLabel,
++    params.getItemName,
+     instance]);
+
+   const getVisibleIndex = (id: string) => {
+@@ -379,7 +379,7 @@
+     items: params.items,
+     isItemDisabled: params.isItemDisabled,
+     getItemId: params.getItemId,
+-    getItemLabel: params.getItemLabel,
++    getItemName: params.getItemName,
+     recalcVisibleIndices: () => 0,
+   }),
+ });
+@@ -405,7 +405,7 @@
+   disabledItemsFocusable: true,
+   items: true,
+   isItemDisabled: true,
+-  getItemLabel: true,
++  getItemName: true,
+   getItemId: true,
+   itemChildrenIndentation: true,
+ };
+Index: packages/sui-file-explorer/src/internals/plugins/useFileExplorerFiles/useFileExplorerFiles.test.tsx
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/packages/sui-file-explorer/src/internals/plugins/useFileExplorerFiles/useFileExplorerFiles.test.tsx b/packages/sui-file-explorer/src/internals/plugins/useFileExplorerFiles/useFileExplorerFiles.test.tsx
+--- a/packages/sui-file-explorer/src/internals/plugins/useFileExplorerFiles/useFileExplorerFiles.test.tsx
++++ b/packages/sui-file-explorer/src/internals/plugins/useFileExplorerFiles/useFileExplorerFiles.test.tsx	(date 1733733882959)
+@@ -28,8 +28,9 @@
+         ...(fileExplorerViewComponentName === 'FileExplorerBasic'
+           ? ['Encountered two children with the same key']
+           : []),
+-        'Stoked UI: The FileExplorer component requires all items to have a unique `id` property.',
+-        'Stoked UI: The FileExplorer component requires all items to have a unique `id` property.',
++        'Stoked UI: The FileExplorer component requires all items to have a' +
++        ' unique `id` property.',
++        'Stoked UI: The FileExplorer component requires all items to have a unique `id` property.',
+         `The above error occurred in the <ForwardRef(${fileExplorerViewComponentName})> component`,
+       ]);
+     });
+Index: packages/sui-file-explorer/src/internals/plugins/useFileExplorerFiles/useFileExplorerFiles.types.ts
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/packages/sui-file-explorer/src/internals/plugins/useFileExplorerFiles/useFileExplorerFiles.types.ts b/packages/sui-file-explorer/src/internals/plugins/useFileExplorerFiles/useFileExplorerFiles.types.ts
+--- a/packages/sui-file-explorer/src/internals/plugins/useFileExplorerFiles/useFileExplorerFiles.types.ts
++++ b/packages/sui-file-explorer/src/internals/plugins/useFileExplorerFiles/useFileExplorerFiles.types.ts	(date 1733736235648)
+@@ -1,7 +1,7 @@
+ import {SxProps, Theme} from "@mui/system";
+ import { IMediaFileEx} from "../../models/IMediaFileEx";
+ import {DefaultizedProps, FileExplorerPluginSignature, FileMeta} from '../../models';
+-import { FileId } from '../../../models';
++import {FileId, IMediaFileExInput} from '../../../models';
+ import {
+   DndItemState, UseFileExplorerDndSignature
+ } from "../useFileExplorerDnd/useFileExplorerDnd.types";
+@@ -32,8 +32,8 @@
+
+ export interface UpdateNodesStateParameters
+   extends Pick<
+-    UseFileExplorerFilesDefaultizedParameters<IMediaFileEx>,
+-    'items' | 'isItemDisabled' | 'getItemLabel' | 'getItemId'
++    UseFileExplorerFilesDefaultizedParameters<IMediaFileExInput>,
++    'items' | 'isItemDisabled' | 'getItemName' | 'getItemId'
+   > {
+ }
+
+@@ -107,7 +107,7 @@
+   areItemUpdatesPrevented: () => boolean;
+ }
+
+-export interface UseFileExplorerFilesParameters<R extends IMediaFileEx = IMediaFileEx> {
++export interface UseFileExplorerFilesParameters<R extends IMediaFileExInput = IMediaFileExInput> {
+
+   alternatingRows?: SxProps<Theme> | true;
+
+@@ -133,7 +133,7 @@
+    * @returns {string} The label of the item.
+    * @default (item) => item.label
+    */
+-  getItemLabel?: (item: R) => string;
++  getItemName?: (item: R) => string;
+   /**
+    * Used to determine if a given item should be disabled.
+    * @template R
+@@ -150,7 +150,7 @@
+   items: readonly R[];
+ }
+
+-export type UseFileExplorerFilesDefaultizedParameters<R extends IMediaFileEx> = DefaultizedProps<
++export type UseFileExplorerFilesDefaultizedParameters<R extends IMediaFileExInput> = DefaultizedProps<
+   UseFileExplorerFilesParameters<R>,
+   'disabledItemsFocusable' | 'itemChildrenIndentation'
+ >
+Index: packages/sui-file-explorer/src/internals/plugins/useFileExplorerFocus/useFileExplorerFocus.test.tsx
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/packages/sui-file-explorer/src/internals/plugins/useFileExplorerFocus/useFileExplorerFocus.test.tsx b/packages/sui-file-explorer/src/internals/plugins/useFileExplorerFocus/useFileExplorerFocus.test.tsx
+--- a/packages/sui-file-explorer/src/internals/plugins/useFileExplorerFocus/useFileExplorerFocus.test.tsx
++++ b/packages/sui-file-explorer/src/internals/plugins/useFileExplorerFocus/useFileExplorerFocus.test.tsx	(date 1733736235644)
+@@ -191,7 +191,7 @@
+
+     it('should not error when component state changes', () => {
+       const items = [{ id: '1', children: [{ id: '1.1' }] }];
+-      const getItemLabel = (item) => item.id;
++      const getItemName = (item) => item.id;
+
+       function MyComponent() {
+         const [, setState] = React.useState(1);
+@@ -221,7 +221,7 @@
+             slotProps={{
+               item: (ownerState) => ({ 'data-testid': ownerState.id }) as any,
+             }}
+-            getItemLabel={getItemLabel}
++            getItemName={getItemName}
+           />
+         );
+       }
+Index: packages/sui-file-explorer/src/internals/plugins/useFileExplorerJSXItems/useFileExplorerJSXItems.tsx
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/packages/sui-file-explorer/src/internals/plugins/useFileExplorerJSXItems/useFileExplorerJSXItems.tsx b/packages/sui-file-explorer/src/internals/plugins/useFileExplorerJSXItems/useFileExplorerJSXItems.tsx
+--- a/packages/sui-file-explorer/src/internals/plugins/useFileExplorerJSXItems/useFileExplorerJSXItems.tsx
++++ b/packages/sui-file-explorer/src/internals/plugins/useFileExplorerJSXItems/useFileExplorerJSXItems.tsx	(date 1733733864611)
+@@ -27,7 +27,7 @@
+       if (prevState.items.itemMetaMap[item.id] != null) {
+         throw new Error(
+           [
+-            'Stoked UI: The FileExplorer component requires all items to have a unique `id` property.',
++            'Stoked UI: The FileExplorer component requires all items to have a unique `id` property.',
+             'Alternatively, you can use the `getItemId` prop to specify a custom id for each item.',
+             `Two items were provided with the same id in the \`items\` prop: "${item.id}"`,
+           ].join('\n'),
+Index: packages/sui-file-explorer/src/internals/plugins/useFileExplorerExpansion/useFileExplorerExpansion.test.tsx
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/packages/sui-file-explorer/src/internals/plugins/useFileExplorerExpansion/useFileExplorerExpansion.test.tsx b/packages/sui-file-explorer/src/internals/plugins/useFileExplorerExpansion/useFileExplorerExpansion.test.tsx
+--- a/packages/sui-file-explorer/src/internals/plugins/useFileExplorerExpansion/useFileExplorerExpansion.test.tsx
++++ b/packages/sui-file-explorer/src/internals/plugins/useFileExplorerExpansion/useFileExplorerExpansion.test.tsx	(date 1733736235698)
+@@ -178,7 +178,7 @@
+         });
+
+         expect(response.isItemExpanded('1')).to.equal(false);
+-        fireEvent.click(response.getItemLabel('1'));
++        fireEvent.click(response.getItemName('1'));
+         expect(response.isItemExpanded('1')).to.equal(true);
+       });
+
+Index: packages/sui-file-explorer/src/internals/useFileExplorer/useFileExplorer.test.tsx
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/packages/sui-file-explorer/src/internals/useFileExplorer/useFileExplorer.test.tsx b/packages/sui-file-explorer/src/internals/useFileExplorer/useFileExplorer.test.tsx
+--- a/packages/sui-file-explorer/src/internals/useFileExplorer/useFileExplorer.test.tsx
++++ b/packages/sui-file-explorer/src/internals/useFileExplorer/useFileExplorer.test.tsx	(date 1733736235667)
+@@ -40,7 +40,7 @@
+               slotProps={{
+                 item: (ownerState) => ({ 'data-testid': ownerState.id }) as any,
+               }}
+-              getItemLabel={(item) => item.id}
++              getItemName={(item) => item.id}
+             />
+           </React.Fragment>,
+         );
+Index: packages/sui-file-explorer/src/FileExplorer/FileExplorer.tsx
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/packages/sui-file-explorer/src/FileExplorer/FileExplorer.tsx b/packages/sui-file-explorer/src/FileExplorer/FileExplorer.tsx
+--- a/packages/sui-file-explorer/src/FileExplorer/FileExplorer.tsx
++++ b/packages/sui-file-explorer/src/FileExplorer/FileExplorer.tsx	(date 1733736235635)
+@@ -270,7 +270,7 @@
+    * @returns {string} The label of the item.
+    * @default (item) => item.label
+    */
+-  getItemLabel: PropTypes.func,
++  getItemName: PropTypes.func,
+   grid: PropTypes.bool,
+   gridHeader: PropTypes.bool,
+   headers: PropTypes.object,
+Index: packages/sui-file-explorer/src/FileExplorerBasic/FileExplorerBasic.plugins.ts
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/packages/sui-file-explorer/src/FileExplorerBasic/FileExplorerBasic.plugins.ts b/packages/sui-file-explorer/src/FileExplorerBasic/FileExplorerBasic.plugins.ts
+--- a/packages/sui-file-explorer/src/FileExplorerBasic/FileExplorerBasic.plugins.ts
++++ b/packages/sui-file-explorer/src/FileExplorerBasic/FileExplorerBasic.plugins.ts	(date 1733736235615)
+@@ -61,7 +61,7 @@
+   extends FileExplorerCorePluginParameters,
+     Omit<
+       UseFileExplorerFilesParameters<any>,
+-      'items' | 'isItemDisabled' | 'getItemLabel' | 'getItemId'
++      'items' | 'isItemDisabled' | 'getItemName' | 'getItemId'
+     >,
+     UseFileExplorerExpansionParameters,
+     UseFileExplorerFocusParameters,

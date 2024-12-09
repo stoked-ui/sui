@@ -4,36 +4,36 @@ import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import { FileExplorer } from '@stoked-ui/file-explorer/FileExplorer';
-import { FileBase } from '@stoked-ui/file-explorer/models';
 import { useFileExplorerApiRef } from '@stoked-ui/file-explorer/hooks';
+import { IMediaFileEx } from '@stoked-ui/file-explorer/internals/models/IMediaFileEx';
 
-const MUI_X_PRODUCTS: FileBase[] = [
+const MUI_X_PRODUCTS= [
   {
     id: 'grid',
-    label: 'Data Grid',
+    name: 'Data Grid',
     children: [
-      { id: 'grid-community', label: '@mui/x-data-grid' },
-      { id: 'grid-pro', label: '@mui/x-data-grid-pro' },
-      { id: 'grid-premium', label: '@mui/x-data-grid-premium' },
+      { id: 'grid-community', name: '@mui/x-data-grid' },
+      { id: 'grid-pro', name: '@mui/x-data-grid-pro' },
+      { id: 'grid-premium', name: '@mui/x-data-grid-premium' },
     ],
   },
   {
     id: 'pickers',
-    label: 'Date and Time Pickers',
+    name: 'Date and Time Pickers',
     children: [
-      { id: 'pickers-community', label: '@mui/x-date-pickers' },
-      { id: 'pickers-pro', label: '@mui/x-date-pickers-pro' },
+      { id: 'pickers-community', name: '@mui/x-date-pickers' },
+      { id: 'pickers-pro', name: '@mui/x-date-pickers-pro' },
     ],
   },
   {
     id: 'charts',
-    label: 'Charts',
-    children: [{ id: 'charts-community', label: '@mui/x-charts' }],
+    name: 'Charts',
+    children: [{ id: 'charts-community', name: '@mui/x-charts' }],
   },
   {
     id: 'file-explorer',
-    label: 'File Explorer',
-    children: [{ id: 'file-explorer-community', label: '@stoked-ui/file-explorer' }],
+    name: 'File Explorer',
+    children: [{ id: 'file-explorer-community', name: '@stoked-ui/file-explorer' }],
   },
 ];
 
@@ -41,14 +41,14 @@ export default function ApiMethodGetItemTree() {
   const apiRef = useFileExplorerApiRef();
 
   const [items, setItems] = React.useState(MUI_X_PRODUCTS);
-  const [itemOnTop, setItemOnTop] = React.useState(items[0].label);
+  const [itemOnTop, setItemOnTop] = React.useState(items[0].name);
 
   const handleInvertItems = () => {
     setItems((prevItems) => [...prevItems].reverse());
   };
 
   const handleUpdateItemOnTop = () => {
-    setItemOnTop(apiRef.current!.getItemTree()[0].label);
+    setItemOnTop(apiRef.current!.getItem('pickers').name);
   };
 
   return (
@@ -59,7 +59,7 @@ export default function ApiMethodGetItemTree() {
       </Stack>
       <Typography>Item on top: {itemOnTop}</Typography>
       <Box sx={{ minHeight: 352, minWidth: 300 }}>
-        <FileExplorer apiRef={apiRef} items={items} />
+        <FileExplorer apiRef={apiRef} items={items as IMediaFileEx[]} />
       </Box>
     </Stack>
   );

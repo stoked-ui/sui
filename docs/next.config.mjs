@@ -139,6 +139,15 @@ export default withDocsInfra({
                           ],
                         },
                         {
+                          productId: 'common',
+                          paths: [
+                            path.join(workspaceRoot, 'packages/sui-common/src'),
+                          ],
+                          subPackagePaths: [
+                            path.join(workspaceRoot, 'node_modules/@stoked-ui/common'),
+                          ],
+                        },
+                        {
                           productId: 'editor',
                           paths: [
                             path.join(workspaceRoot, 'packages/sui-editor/src'),
