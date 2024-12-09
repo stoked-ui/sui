@@ -56,7 +56,7 @@ export interface DescribeFileExplorerRendererUtils {
    * @param {string} id The id of the item to retrieve.
    * @returns {HTMLElement} `label` slot of the item with the given id.
    */
-  getItemLabel: (id: string) => HTMLElement;
+  getItemName: (id: string) => HTMLElement;
   /**
    * Returns the `iconContainer` slot of the item with the given id.
    * @param {string} id The id of the item to retrieve.

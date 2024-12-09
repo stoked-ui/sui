@@ -327,7 +327,6 @@ MyDocument.getInitialProps = async (ctx) => {
     if (url[url.length - 1] !== '/') {
       url += '/';
     }
-    console.info('url', url);
 
     return {
       ...finalProps,

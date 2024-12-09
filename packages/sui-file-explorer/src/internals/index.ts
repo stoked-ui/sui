@@ -10,6 +10,7 @@ export type {
   MergeSignaturesProperty,
   FileExplorerPublicAPI,
   FileExplorerExperimentalFeatures,
+  IMediaFileEx
 } from './models';
 
 // Core plugins

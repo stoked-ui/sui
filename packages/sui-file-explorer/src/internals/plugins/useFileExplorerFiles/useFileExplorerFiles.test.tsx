@@ -28,8 +28,8 @@ describeFileExplorer<
         ...(fileExplorerViewComponentName === 'FileExplorerBasic'
           ? ['Encountered two children with the same key']
           : []),
-        'SUI X: The FileExplorer View component requires all items to have a unique `id` property.',
-        'SUI X: The FileExplorer View component requires all items to have a unique `id` property.',
+        'Stoked UI: The FileExplorer component requires all items to have a unique `id` property.',
+        'Stoked UI: The FileExplorer component requires all items to have a unique `id` property.',
         `The above error occurred in the <ForwardRef(${fileExplorerViewComponentName})> component`,
       ]);
     });

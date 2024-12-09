@@ -418,7 +418,7 @@ FileElement.propTypes = {
   /**
    * The content of the component.
    */
-  children: PropTypes.node,
+  children: PropTypes.any,
   /**
    * Override or extend the styles applied to the component.
    */
@@ -445,7 +445,7 @@ FileElement.propTypes = {
   /**
    * The tree item label.
    */
-  label: PropTypes.node,
+  label: PropTypes.any,
   /**
    * The tree item label.
    */

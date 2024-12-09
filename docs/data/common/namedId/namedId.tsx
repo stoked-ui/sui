@@ -2,7 +2,7 @@ import * as React from 'react';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
-import { namedId } from '@stoked-ui/media-selector';
+import { namedId } from '@stoked-ui/common';
 import Stack from '@mui/material/Stack';
 
 
@@ -33,7 +33,7 @@ const cards = [
   createCardData('custom length namedId', `namedId({id: 'long', length: 12})`, namedId({id: 'long', length: 12}), 'id() with using the name and length arguments'),
 ];
 
-export default function IdGeneratorUsage() {
+export default function NamedId() {
   const [isClient, setIsClient] = React.useState(false);
 
   React.useEffect(() => {

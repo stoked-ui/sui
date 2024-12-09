@@ -27,7 +27,7 @@ export const useFileExplorerJSXItems: FileExplorerPlugin<UseFileExplorerJSXItems
       if (prevState.items.itemMetaMap[item.id] != null) {
         throw new Error(
           [
-            'SUI X: The FileExplorer View component requires all items to have a unique `id` property.',
+            'Stoked UI: The FileExplorer component requires all items to have a unique `id` property.',
             'Alternatively, you can use the `getItemId` prop to specify a custom id for each item.',
             `Two items were provided with the same id in the \`items\` prop: "${item.id}"`,
           ].join('\n'),

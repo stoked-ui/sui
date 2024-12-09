@@ -13,7 +13,7 @@ export interface NestedRecord<T = any> {
   [path: string]: T;
 }
 
-export default interface Settings<T = any> extends NestedRecord<T> {}
+export interface Settings<T = any> extends NestedRecord<T> {}
 
 export function createSettings<T = any>(initialData: Record<string, T> = {}): Settings<T> {
   const settings: Settings<T> = {...initialData};

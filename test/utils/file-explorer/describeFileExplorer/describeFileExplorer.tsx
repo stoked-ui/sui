@@ -46,7 +46,7 @@ const innerDescribeFileExplorer = <TSignatures extends FileExplorerAnyPluginSign
     const getItemCheckboxInput = (id: string) =>
       getItemCheckbox(id).querySelector<HTMLInputElement>(`input`)!;
 
-    const getItemLabel = (id: string) =>
+    const getItemName = (id: string) =>
       getItemRoot(id).querySelector<HTMLElement>(`.${fileListItemClasses.label}`)!;
 
     const getItemIconContainer = (id: string) =>
@@ -70,7 +70,7 @@ const innerDescribeFileExplorer = <TSignatures extends FileExplorerAnyPluginSign
       getItemContent,
       getItemCheckbox,
       getItemCheckboxInput,
-      getItemLabel,
+      getItemName,
       getItemIconContainer,
       isItemExpanded,
       isItemSelected,
@@ -109,7 +109,7 @@ const innerDescribeFileExplorer = <TSignatures extends FileExplorerAnyPluginSign
                 'data-testid': ownerState.itemId,
               }) as any,
           }}
-          getItemLabel={(item) => {
+          getItemName={(item) => {
             if (item.label) {
               if (typeof item.label !== 'string') {
                 throw new Error('Only use string labels when testing FileExplorer(Pro)');
