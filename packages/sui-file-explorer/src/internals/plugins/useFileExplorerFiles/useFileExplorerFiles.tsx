@@ -1,7 +1,6 @@
 import * as React from 'react';
 import {SxProps, Theme, useTheme} from "@mui/system";
 import { namedId } from '@stoked-ui/common';
-import { IMediaFileEx } from "../../models/IMediaFileEx";
 import {FileMeta} from '../../models/fileExplorerView';
 import {FileExplorerPlugin} from '../../models/plugin';
 import type {
@@ -10,17 +9,17 @@ import type {
   UseFileExplorerFilesState,
 } from './useFileExplorerFiles.types';
 import {publishFileExplorerEvent} from '../../utils/publishFileExplorerEvent';
-import {FileId} from '../../../models';
+import {FileId, FileBase} from '../../../models';
 import {buildSiblingIndexes, FILE_EXPLORER_VIEW_ROOT_PARENT_ID} from './useFileExplorerFiles.utils';
 import {FileDepthContext} from '../../FileDepthContext';
 import {DndItemState} from '../useFileExplorerDnd/useFileExplorerDnd.types';
 
 interface UpdateNodesStateParameters
   extends Pick<
-    UseFileExplorerFilesDefaultizedParameters<IMediaFileEx>,
+    UseFileExplorerFilesDefaultizedParameters<FileBase>,
     'items' | 'isItemDisabled' | 'getItemLabel' | 'getItemId'
   > {
-  recalcVisibleIndices: (items: IMediaFileEx[], force: boolean, index: number) => void;
+  recalcVisibleIndices: (items: FileBase[], force: boolean, index: number) => void;
 }
 
 type State = UseFileExplorerFilesState<any>['items'];
@@ -40,7 +39,7 @@ const updateItemsState = ({
     [FILE_EXPLORER_VIEW_ROOT_PARENT_ID]: [],
   };
 
-  const processItem = (item: IMediaFileEx, depth: number, parentId: string | null) => {
+  const processItem = (item: FileBase, depth: number, parentId: string | null) => {
     const id = item?.id ?? item.id ?? namedId({id:'file', length:4});
     if (itemMetaMap[id]){
       // TODO: FIX THIS SERIOUSLY
@@ -73,8 +72,8 @@ const updateItemsState = ({
     if (name == null) {
       throw new Error(
         [
-          'Stoked UI: The FileExplorer component requires all items to have a `label` property.',
-          'Alternatively, you can use the `getItemLabel` prop to specify a custom label for each item.',
+          'Stoked UI: The FileExplorer component requires all items to have a `name` property.',
+          'Alternatively, you can use the `getItemLabel` prop to specify a custom name for each item.',
           'An item was provided without label in the `items` prop:',
           JSON.stringify(item),
         ].join('\n'),
@@ -143,9 +142,9 @@ export const useFileExplorerFiles: FileExplorerPlugin<UseFileExplorerFilesSignat
     return state.items.itemOrderedChildrenIds[FILE_EXPLORER_VIEW_ROOT_PARENT_ID].map((id) => state.items.itemMap[id]);
   }
 
-  const recalcVisibleIndices  = (items: IMediaFileEx[] = getFiles(), force: boolean = false, index: number = 0) => {
+  const recalcVisibleIndices  = (items: FileBase[] = getFiles(), force: boolean = false, index: number = 0) => {
     // console.log('recalc items', items);
-    const recalVisibleIndicesBase  = (baseItems: IMediaFileEx[], baseIndex: number = 0) => {
+    const recalVisibleIndicesBase  = (baseItems: FileBase[], baseIndex: number = 0) => {
       for (let i = 0; i < baseItems.length; i += 1){
         const item = baseItems[i];
         if (item) {
@@ -161,7 +160,7 @@ export const useFileExplorerFiles: FileExplorerPlugin<UseFileExplorerFilesSignat
       }
       return baseIndex;
     }
-    const initializeVisibleIndices  = (initItems: IMediaFileEx[]) => {
+    const initializeVisibleIndices  = (initItems: FileBase[]) => {
       for (let i = 0; i < initItems.length; i += 1){
         const item = initItems[i];
         if (item) {
@@ -257,7 +256,7 @@ export const useFileExplorerFiles: FileExplorerPlugin<UseFileExplorerFilesSignat
   }, []);
 
   const areItemUpdatesPrevented = React.useCallback(() => areItemUpdatesPreventedRef.current, []);
-  const updateItems = (items: IMediaFileEx[]) => {
+  const updateItems = (items: FileBase[]) => {
     setState((prevState) => {
       const newState = updateItemsState({
         items,
@@ -346,6 +345,7 @@ export const useFileExplorerFiles: FileExplorerPlugin<UseFileExplorerFilesSignat
     publicAPI: {
       getItem,
       getItemDOMElement,
+      getItemOrderedChildrenIds,
     },
     instance: {
       getItemDOMElement,

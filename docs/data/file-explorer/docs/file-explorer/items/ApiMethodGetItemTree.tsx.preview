@@ -4,5 +4,5 @@
 </Stack>
 <Typography>Item on top: {itemOnTop}</Typography>
 <Box sx={{ minHeight: 352, minWidth: 300 }}>
-  <FileExplorer apiRef={apiRef} items={items} />
+  <FileExplorer apiRef={apiRef} items={items as IMediaFileEx[]} />
 </Box>

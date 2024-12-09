@@ -3,9 +3,8 @@ import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { FileExplorer } from '@stoked-ui/file-explorer/FileExplorer';
-import { FileBaseInput } from '@stoked-ui/file-explorer/models';
+import { FileBaseInput, FileBase } from '@stoked-ui/file-explorer/models';
 import { useFileExplorerApiRef } from '@stoked-ui/file-explorer/hooks';
-import { IMediaFileEx } from '@stoked-ui/file-explorer';
 
 const MUI_X_PRODUCTS = [
   {
@@ -61,7 +60,7 @@ export default function ApiMethodGetItem() {
       </Typography>
       <Box sx={{ minHeight: 352, minWidth: 250 }}>
         <FileExplorer
-          items={MUI_X_PRODUCTS as IMediaFileEx[]}
+          items={MUI_X_PRODUCTS as FileBase[]}
           apiRef={apiRef}
           selectedItems={selectedItem?.id ?? null}
           onSelectedItemsChange={handleSelectedItemsChange}

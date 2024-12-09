@@ -12,12 +12,9 @@ export interface UseFileExplorerSelectionPublicAPI {
    * @param {boolean | undefined} newValue The new selection status of the item. If not defined,
    *   the new state will be the opposite of the current state.
    */
-  selectItem: (
-    event: React.SyntheticEvent,
-    id: string,
-    keepExistingSelection: boolean,
-    newValue?: boolean,
-  ) => void;
+  selectItem: (params: {
+    event: React.SyntheticEvent, id: string, keepExistingSelection?: boolean, newValue?: boolean,
+  }) => void;
 }
 
 export interface UseFileExplorerSelectionInstance {
@@ -35,12 +32,9 @@ export interface UseFileExplorerSelectionInstance {
    * @param {boolean | undefined} newValue The new selection status of the item. If not defined,
    *   the new state will be the opposite of the current state.
    */
-  selectItem: (
-    event: React.SyntheticEvent,
-    id: string,
-    keepExistingSelection: boolean,
-    newValue?: boolean,
-  ) => void;
+  selectItem: (params: {
+    event: React.SyntheticEvent, id: string, keepExistingSelection?: boolean, newValue?: boolean,
+  }) => void;
   /**
    * Select all the navigable items in the fileExplorer.
    * @param {React.SyntheticEvent} event The event source of the callback.

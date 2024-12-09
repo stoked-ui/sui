@@ -1,7 +1,7 @@
 import * as React from 'react';
 import useForkRef from '@mui/utils/useForkRef';
 import {EventHandlers} from '@mui/base/utils';
-import { IMediaFileEx } from '../models/IMediaFileEx';
+import { FileBase } from '../../models';
 
 import {
   ConvertSignaturesIntoPlugins,
@@ -58,7 +58,7 @@ export const useFileExplorer = <
   ] as unknown as ConvertSignaturesIntoPlugins<TSignaturesWithCorePluginSignatures>;
 
   if ('dndInternal' in props && 'dndTrash' in props && 'items' in props) {
-    props.items = [...(props?.items ?? []) as IMediaFileEx[], {
+    props.items = [...(props?.items ?? []) as FileBase[], {
       id: 'trash',
       name: 'Trash',
       type: 'folder',

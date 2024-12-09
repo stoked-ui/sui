@@ -1,18 +1,32 @@
 import { MediaType } from "@stoked-ui/media-selector";
-import { IMediaFileEx } from "../internals";
+import { Settings } from "@stoked-ui/common";
 
 export type FileId = string;
 
 type CommonBase = {
   id?: string;
   name?: string;
-}
-type FileBaseInputEx = Omit<IMediaFileEx, 'id' | 'name' | 'children' | 'size' | 'lastModified' | 'type'> & CommonBase & {
   size?: number;
   lastModified?: number;
-  type?: MediaType;
+  mediaType?: MediaType;
+  media?: Settings;
+  type?: string;
+  created?: number;
+  path?: string;
+  visibleIndex?: number;
+}
+
+export type FileBaseInput<R extends {} = {}> = CommonBase & R & {
+  children?: FileBaseInput<CommonBase & R>[];
 };
 
-export type FileBaseInput<R extends {} = {}> = FileBaseInputEx & R & {
-  children?: FileBaseInput<FileBaseInputEx & R>[];
+type Common = Omit<CommonBase, 'id' | 'name' | 'mediaType' | 'type'> & {
+  id: string;
+  name: string;
+  mediaType: MediaType;
+  type: string;
+}
+
+export type FileBase<R extends {} = {}> = Common & R & {
+  children?: FileBase<Common & R>[];
 };

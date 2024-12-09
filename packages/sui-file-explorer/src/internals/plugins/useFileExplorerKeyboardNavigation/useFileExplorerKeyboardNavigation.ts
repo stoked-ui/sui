@@ -104,9 +104,9 @@ export const useFileExplorerKeyboardNavigation: FileExplorerPlugin<
         if (params.multiSelect && event.shiftKey) {
           instance.expandSelectionRange(event, id);
         } else if (params.multiSelect) {
-          instance.selectItem(event, id, true);
+          instance.selectItem({event, id, keepExistingSelection: true});
         } else {
-          instance.selectItem(event, id, false);
+          instance.selectItem({event, id, keepExistingSelection: false});
         }
         break;
       }
@@ -120,9 +120,9 @@ export const useFileExplorerKeyboardNavigation: FileExplorerPlugin<
         } else if (canToggleItemSelection(id)) {
           if (params.multiSelect) {
             event.preventDefault();
-            instance.selectItem(event, id, true);
+            instance.selectItem({event, id, keepExistingSelection: true});
           } else if (!instance.isItemSelected(id)) {
-            instance.selectItem(event, id, false);
+            instance.selectItem({event, id, keepExistingSelection: false});
             event.preventDefault();
           }
         }

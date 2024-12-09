@@ -6,31 +6,31 @@ import { FileExplorer } from '@stoked-ui/file-explorer/FileExplorer';
 const MUI_X_PRODUCTS = [
   {
     id: 'grid',
-    label: 'Data Grid',
+    name: 'Data Grid',
     children: [
-      { id: 'grid-community', label: '@mui/x-data-grid' },
-      { id: 'grid-pro', label: '@mui/x-data-grid-pro' },
-      { id: 'grid-premium', label: '@mui/x-data-grid-premium' },
+      { id: 'grid-community', name: '@mui/x-data-grid' },
+      { id: 'grid-pro', name: '@mui/x-data-grid-pro' },
+      { id: 'grid-premium', name: '@mui/x-data-grid-premium' },
     ],
   },
   {
     id: 'pickers',
-    label: 'Date and Time Pickers',
+    name: 'Date and Time Pickers',
     children: [
-      { id: 'pickers-community', label: '@mui/x-date-pickers' },
-      { id: 'pickers-pro', label: '@mui/x-date-pickers-pro' },
+      { id: 'pickers-community', name: '@mui/x-date-pickers' },
+      { id: 'pickers-pro', name: '@mui/x-date-pickers-pro' },
     ],
   },
   {
     id: 'charts',
-    label: 'Charts',
-    children: [{ id: 'charts-community', label: '@mui/x-charts', disabled: true }],
+    name: 'Charts',
+    children: [{ id: 'charts-community', name: '@mui/x-charts', disabled: true }],
   },
   {
     id: 'file-explorer',
-    label: 'File Explorer',
+    name: 'File Explorer',
     disabled: true,
-    children: [{ id: 'file-explorer-community', label: '@stoked-ui/file-explorer' }],
+    children: [{ id: 'file-explorer-community', name: '@stoked-ui/file-explorer' }],
   },
 ];
 

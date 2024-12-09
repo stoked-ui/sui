@@ -61,10 +61,10 @@ export function useFileElementState(id: string) {
         if (event.shiftKey) {
           instance.expandSelectionRange(event, id);
         } else {
-          instance.selectItem(event, id, true );
+          instance.selectItem({event, id, keepExistingSelection: true});
         }
       } else {
-        instance.selectItem(event, id, false, true);
+        instance.selectItem({event, id, keepExistingSelection: false, newValue: true});
       }
     }
   };
@@ -78,12 +78,9 @@ export function useFileElementState(id: string) {
     if (multiSelect && hasShift) {
       instance.expandSelectionRange(event, id);
     } else {
-      instance.selectItem(
-        event,
-        id,
-        multiSelect,
-        event.target.checked,
-      );
+      instance.selectItem({
+        event, id, keepExistingSelection: multiSelect, newValue: event.target.checked,
+      });
     }
   };
 
