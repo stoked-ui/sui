@@ -4,8 +4,8 @@ import {alpha, darken, lighten} from "@mui/material/styles";
 import { compositeColors } from "@stoked-ui/common";
 import { type ITimelineAction, type ITimelineFileAction, ITimelineActionHandlers } from '../TimelineAction/TimelineAction.types';
 import { type IController } from "../Controller/Controller.types";
-import type { TimelineControlPropsBase } from "../TimelineControl";
 import { DragLineData } from "../TimelineTrackArea/TimelineTrackAreaDragLines";
+import {TimelineControlPropsBase} from "../Timeline/TimelineControl.types";
 
 export type TimelineTrackProps<
   TrackType extends ITimelineTrack = ITimelineTrack,

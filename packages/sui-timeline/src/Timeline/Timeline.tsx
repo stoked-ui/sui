@@ -172,25 +172,26 @@ const Timeline = React.forwardRef(function Timeline(
   }, [minScaleCount, maxScaleCount, scale]);
 
   React.useEffect(() => {
-    let newScaleSplitCount = scaleSplitCount;
-    if (scaleWidth < 50) {
-      newScaleSplitCount = 2;
-    } else if (scaleWidth < 100) {
-      newScaleSplitCount = 5;
-    } else {
-      newScaleSplitCount = 10;
-    }
-    if (newScaleSplitCount !== scaleSplitCount) {
-      dispatch({ type: 'SET_SETTING', payload: { key: 'scaleSplitCount', value: newScaleSplitCount } });
-    }
+     // let newScaleSplitCount = scaleSplitCount;
+    // if (scaleWidth < 50) {
+      // newScaleSplitCount = 2;
+    // } else if (scaleWidth < 100) {
+      // newScaleSplitCount = 5;
+    // } else {
+      // newScaleSplitCount = 10;
+    // }
+    // if (newScaleSplitCount !== scaleSplitCount) {
+      // dispatch({ type: 'SET_SETTING', payload: { key: 'scaleSplitCount', value: newScaleSplitCount } });
+    // }
     if (file) {
       file.tracks?.forEach((track) =>  {
         if (track?.file?.media?.screenshotStore) {
           track.file.media.screenshotStore.scaleWidth = scaleWidth;
+          track.file.media.screenshotStore.scale = scale;
         }
       })
     }
-  }, [scaleWidth])
+  }, [scaleWidth, scale])
 
 
   const [lastFile, setLastFile] = React.useState<ITimelineFile | undefined>(undefined);
@@ -203,7 +204,6 @@ const Timeline = React.forwardRef(function Timeline(
     if (grid?.clientWidth && !engine.isLoading && file && file.id !== (lastFile?.id ?? 'no-id')) {
       setLastFile(file);
       const scaleData = fitScaleData(context, grid?.clientWidth);
-      console.info('fitScaleData', scaleData.scaleWidth, scaleData);
       if (scaleData) {
         setTimeout(() => {
           dispatch({type: 'SET_SETTING', payload: {value: {...scaleData}}});
@@ -305,12 +305,6 @@ const Timeline = React.forwardRef(function Timeline(
               onContextMenu={inProps.onContextMenuTrack}
               onClick={inProps.onClickLabel}
             />
-            {flags.verticalResizer && !flags.noResizer && components.timelineArea &&
-              <TimelineScrollResizer
-                elementId={'timeline-grid'}
-                type='vertical'
-              />
-            }
           </React.Fragment>
         )}
 
@@ -332,7 +326,6 @@ const Timeline = React.forwardRef(function Timeline(
             <ScrollSync ref={scrollSync}>
               {({ scrollLeft, scrollTop: scrollTopCurrent, onScroll }) => {
                 return (<React.Fragment>
-
                   <TimelineTime
                     {...commonProps}
                     onScroll={onScroll}
@@ -364,13 +357,10 @@ const Timeline = React.forwardRef(function Timeline(
                       areaRef={areaRef}
                       scrollSync={scrollSync}
                     />
-
                   )}
                 </React.Fragment>)
               }}
             </ScrollSync>
-            <TimelineScrollResizer elementId={'timeline-grid'} type='horizontal'/>
-
           </TimelineControlRoot>
         }
 

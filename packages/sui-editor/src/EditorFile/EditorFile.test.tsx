@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { describe, it } from 'node:test';
 import { act } from '@stoked-ui/internal-test-utils';
 import EditorExample from './EditorFile.example';
-import {IEditorFile, EditorFile, SUIEditor, IEditorFileMetadata} from '@stoked-ui/editor';
+import {IEditorFile, EditorFile, IEditorFileMetadata} from '@stoked-ui/editor';
 import {IFileParams, IWebFileProps} from "@stoked-ui/timeline";
 import {IMediaFile} from "@stoked-ui/media-selector";
 
@@ -12,7 +12,7 @@ describe('EditorFile Blob Handling', () => {
     // Write EditorExample into a Blob
     let createdBlob: Blob;
     await act(async () => {
-      createdBlob = await EditorExample.createBlob(true, SUIEditor); // Using `.call` to bind
+      // createdBlob = await EditorExample.createBlob(true); // Using `.call` to bind
     });
 
     // Ensure the Blob has data

@@ -41,7 +41,7 @@ import { EditorControlState, EditorControlsProps } from './EditorControls.types'
 import TimelineView from '../icons/TimelineView';
 import { SUVideoFile } from '../EditorFile/EditorFile';
 
-export const Rates = [-3, -2.5, -2.0, -1.5, -1.0, -0.5, -0.2, 0.2, 0.5, 1.0, 1.5, 2.0, 2.5, 3];
+export const Rates = [-10, -9.5, -9, -8.5, -8, -7.5, 7, -6.5, -6, -6.5, -6, -5.5, -5, -4.5, -4, -3.5, -3, -2.5, -2.0, -1.5, -1.0, -0.5, -0.2, 0.2, 0.5, 1.0, 1.5, 2.0, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10];
 const useThemeProps = createUseThemeProps('MuiEditor');
 
 const ViewGroup = styled(ToggleButtonGroup)(() => ({
@@ -270,6 +270,7 @@ function Controls(inProps: ControlProps) {
     if (!engine || !editorEngine?.renderer || !editorEngine?.stage || !file) {
       return;
     }
+    console.info('finalizeVideo');
     const blob = new Blob(recordedChunks, {
       type: 'video/mp4',
     });
@@ -341,6 +342,7 @@ function Controls(inProps: ControlProps) {
       };
 
       recorder.onstop = () => {
+        console.info('stopped recording');
         if (!engine || !editorEngine.renderer || !editorEngine.stage) {
           console.warn("recording couldn't stop");
           return;
@@ -355,7 +357,7 @@ function Controls(inProps: ControlProps) {
 
   const handleRecordStop = () => {
     if (engine.isPlaying) {
-      engine.record({ autoEnd: true });
+      handlePause();
     }
   };
 
@@ -411,7 +413,7 @@ function Controls(inProps: ControlProps) {
               stateFunc('record', handleRecord, handleRecordStop);
             }}
           >
-            {controls.includes('record') ? <StopIcon /> : <RecordIcon />}
+            <RecordIcon />
           </ToggleButton>
         ) : null}
       </ToggleButtonGroupEx>

@@ -8,10 +8,10 @@ import {
   ITimelineTrack,
   ITimelineFileAction, ITimelineAction
 } from '@stoked-ui/timeline';
-import { FetchBackoff } from '@stoked-ui/common';
+import {Constructor, FetchBackoff} from '@stoked-ui/common';
 
 import {
-  IMediaFile, MediaFile, MimeType, MimeRegistry, IMimeType, AppOutputFile, IAppFile,
+  IMediaFile, MediaFile, MimeType, MimeRegistry, IMimeType, AppOutputFile, IAppFile, AppFile,
 } from '@stoked-ui/media-selector';
 import {
   BlendMode, Fit,
@@ -45,12 +45,6 @@ export interface IEditorFile<
   blendMode: BlendMode;
   fit: Fit;
 }
-
-// @ts-ignore
-export const SUIEditorRefs: IMimeType = MimeRegistry.create('stoked-ui', 'editor', '.suer', 'Stoked UI - Editor Project File w/ Url Refs', false);
-export const SUIEditor: IMimeType = MimeRegistry.create('stoked-ui', 'editor', '.sue', 'Stoked UI - Editor Project File', true);
-export const SUIVideoRefs: IMimeType = MimeRegistry.create('stoked-ui', 'video', '.suvr', 'Stoked UI - Video File w/ Url Refs', false);
-export const SUIVideo: IMimeType = MimeRegistry.create('stoked-ui', 'video', '.suv', 'Stoked UI - Video File', true);
 
 export class SUVideoFile extends AppOutputFile {
 
@@ -150,6 +144,13 @@ export default class EditorFile<
       blendMode: this.blendMode,
       tracks: editorTracks as IEditorTrackData[],
     } as FileDataType;
+  }
+
+
+  static async fromUrl<AppFileType = EditorFile>(url: string, FileConstructor: Constructor<AppFileType> = EditorFile as unknown as Constructor<AppFileType>): Promise<AppFileType> {
+    const file= await AppFile.fromUrl<AppFileType>(url, FileConstructor) as ITimelineFile;
+    await file.preload();
+    return file as AppFileType;
   }
 
   static fileCache: Record<string, EditorFile> = {};

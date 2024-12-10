@@ -76,8 +76,28 @@ export function DetailAction(props: DetailViewProps) {
             onClick={enableEdit}
           />
         </CtrlCell>
-      </CtrlRow>
-      <CtrlRow>
+
+        <CtrlCell width="40%">
+          <ControlledText
+            className={'w-[194px] whitespace-nowrap w-full flex-grow flex'}
+            label={'Start Trim'}
+            prefix={'action'}
+            control={control}
+            disabled={!editMode}
+            onClick={enableEdit}
+          />
+        </CtrlCell>
+        <CtrlCell width="40%">
+          <ControlledText
+            className={'w-[194px] whitespace-nowrap w-full flex-grow flex'}
+            label={'End Trim'}
+            prefix={'action'}
+            control={control}
+            disabled={!editMode}
+            onClick={enableEdit}
+          />
+        </CtrlCell>
+
         <CtrlCell width="40%">
           <ControlledText
             prefix={'action'}
@@ -98,8 +118,7 @@ export function DetailAction(props: DetailViewProps) {
             onClick={enableEdit}
           />
         </CtrlCell>
-      </CtrlRow>
-      <CtrlRow>
+
         <CtrlCell width="40%">
           <ControlledText
             className={'whitespace-nowrap flex-grow flex'}
@@ -118,34 +137,15 @@ export function DetailAction(props: DetailViewProps) {
             onClick={enableEdit}
           />
         </CtrlCell>
-      </CtrlRow>
-      <CtrlRow>
-        <CtrlCell width="40%">
-          <ControlledText
-            className={'w-[194px] whitespace-nowrap w-full flex-grow flex'}
-            label={'Start Trim'}
-            control={control}
-            disabled={!editMode}
-            onClick={enableEdit}
-          />
-        </CtrlCell>
-        <CtrlCell width="40%">
-          <ControlledText
-            className={'w-[194px] whitespace-nowrap w-full flex-grow flex'}
-            label={'End Trim'}
-            control={control}
-            disabled={!editMode}
-            onClick={enableEdit}
-          />
-        </CtrlCell>
-      </CtrlRow>
-      <CtrlRow>
+
+
         <CtrlCell width="40%">
           <ControlledText
             className={'w-[194px] whitespace-nowrap w-full flex-grow flex'}
             label={'Duration'}
             control={control}
             onClick={enableEdit}
+            disabled
           />
         </CtrlCell>
       </CtrlRow>

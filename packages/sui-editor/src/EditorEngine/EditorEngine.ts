@@ -1,12 +1,10 @@
 import {
   Engine,
-  EngineOptions, IController,
+  EngineOptions, EngineState, IController,
 } from '@stoked-ui/timeline';
 import {EditorEvents, EditorEventTypes} from './events';
 import {
-  IEditorEngine,
-  EditorEngineState,
-  DrawData,
+  IEditorEngine, EditorEngineState, DrawData, EngineStateEx,
 } from "./EditorEngine.types";
 import { IEditorTrack } from '../EditorTrack/EditorTrack';
 import {type IEditorAction} from "../EditorAction/EditorAction";
@@ -62,7 +60,7 @@ export default class EditorEngine<
     }
 
     this._controllers = params.controllers || Controllers;
-    this._state = 'LOADING' as State;
+    this._state = EngineState.LOADING as State;
   }
 
   getActionTrack(actionId: string): IEditorTrack {
@@ -124,12 +122,12 @@ export default class EditorEngine<
 
   /** Whether it is playing */
   get isPlaying() {
-    return this._state === 'PLAYING' as State || this.isRecording;
+    return this._state === EngineState.PLAYING as State || this.isRecording;
   }
 
   /** Whether it is playing */
   get isRecording() {
-    return this._state === 'RECORDING' as State;
+    return this._state === EngineStateEx.RECORDING as State;
   }
 
   /**
@@ -151,7 +149,7 @@ export default class EditorEngine<
       return false;
     }
 
-    this._state = 'recording' as State;
+    this._state = EngineStateEx.RECORDING as State;
     // activeIds run start
     this._startOrStop('start');
     // trigger event
@@ -262,17 +260,6 @@ export default class EditorEngine<
   }
 
   /**
-   * Pause playback
-   * @memberof Engine
-   */
-  pause() {
-    if (this.isRecording) {
-      super.pause();
-    }
-    cancelAnimationFrame(this._timerId);
-  }
-
-  /**
    * Set playback time
    * @param {number} time
    * @param {boolean} [isTick] Whether it is triggered by a tick
@@ -284,7 +271,8 @@ export default class EditorEngine<
       return false;
     }
 
-       this._renderCtx?.clearRect(0, 0, this.renderWidth, this.renderHeight)
+    this._renderCtx?.clearRect(0, 0, this.renderWidth, this.renderHeight)
+
     // if (isTick)  {
     //  this._renderCtx?.clearRect(0, 0, this.renderWidth, this.renderHeight)
     // }

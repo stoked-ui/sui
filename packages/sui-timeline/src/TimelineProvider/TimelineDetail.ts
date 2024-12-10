@@ -165,7 +165,6 @@ export function getDetail(props: GetDetailProps & any): SelectionDetail | null {
   const { selectedAction: action, selectedTrack: track, file: project } = props;
   const { type, selected } = getSelected(props);
   if (type === 'track') {
-    console.info('Track Detail', { type, project, track, file: track.file});
     return {
       detail: {
         type,
@@ -176,7 +175,6 @@ export function getDetail(props: GetDetailProps & any): SelectionDetail | null {
     }
   }
   if (type === 'action') {
-    console.info('Track Action', { type, project, track, file: track.file, action });
     return {
       detail: {
         type,
@@ -188,7 +186,6 @@ export function getDetail(props: GetDetailProps & any): SelectionDetail | null {
     }
   }
   if (type === 'settings') {
-    console.info('Track Settings', { type, project });
     return {
       detail: {
         project: getProjectDetail(project),
@@ -197,7 +194,6 @@ export function getDetail(props: GetDetailProps & any): SelectionDetail | null {
     }
   }
   if (type === 'project' && project) {
-    console.info('Track Project', { type: 'project', project });
     return {
       detail: {
         type: 'project',

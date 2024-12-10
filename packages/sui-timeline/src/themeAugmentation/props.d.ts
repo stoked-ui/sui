@@ -1,6 +1,5 @@
 import {TimelineProps} from '../Timeline';
 import {TimelineActionProps} from "../TimelineAction";
-import {TimelineControlProps} from "../TimelineControl";
 import {TimelineCursorProps} from "../TimelineCursor";
 import {TimelineLabelsProps} from "../TimelineLabels";
 import {TimelinePlayerProps} from "../TimelinePlayer";
@@ -12,7 +11,6 @@ import {TimelineTrackAreaProps} from "../TimelineTrackArea";
 export interface TimelineComponentsPropsList {
   MuiTimeline: TimelineProps;
   MuiTimelineAction: TimelineActionProps;
-  MuiTimelineControl: TimelineControlProps;
   MuiTimelineCursor: TimelineCursorProps;
   MuiTimelineLabels: TimelineLabelsProps;
   MuiTimelinePlayer: TimelinePlayerProps;

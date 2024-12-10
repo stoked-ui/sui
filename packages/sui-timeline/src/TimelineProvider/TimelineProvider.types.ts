@@ -386,7 +386,6 @@ function TimelineReducerBase<
       return updateSelection(state)
     }
     case 'SET_TRACKS': {
-      console.info('SET_TRACKS', stateAction.payload);
       const updatedTracks = [...(stateAction.payload ?? [])];
       updatedTracks.forEach((track) => {
         if (track.muted || track.locked) {
@@ -406,7 +405,7 @@ function TimelineReducerBase<
         file.tracks = updatedTracks;
       }
       state.file = file;
-      return TimelineReducer({ ...state, file }, { type: 'SET_SETTING', payload: { key: 'maxScaleCount', value: state.engine.canvasDuration + ADD_SCALE_COUNT } });
+      return TimelineReducer({ ...state, file }, { type: 'SET_SETTING', payload: { key: 'maxScaleCount', value: state.engine.canvasDuration + 2 } });
     }
     case 'TRACK_HOVER': {
       return setSetting('hoverTrack',stateAction.payload, state);
@@ -427,7 +426,6 @@ function TimelineReducerBase<
       return state;
     }
     case 'SET_FILE': {
-      console.info('SET_FILE', stateAction.payload);
       state.file = stateAction.payload;
       // state.file.state = stateAction.payload.state;
       // state.file.lastModified = Date.now();

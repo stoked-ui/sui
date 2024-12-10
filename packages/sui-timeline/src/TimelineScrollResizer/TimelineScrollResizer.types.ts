@@ -2,6 +2,6 @@ import * as React from 'react';
 
 export interface TimelineScrollResizerProps {
   type?: 'horizontal' | 'vertical';
-  elementId: string;
+  elementRef: React.RefObject<HTMLDivElement>;
   adjustScale?: (value: number) => boolean;
 }

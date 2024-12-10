@@ -34,14 +34,19 @@ function EditorHeroGuts({ id, sx }: { id: string, sx?: SxProps}) {
   }
 
   React.useEffect(() => {
-    loadEditorFile().then(() => {});
+    EditorFile.fromUrl('/static/editor/stoked-ui.sue').then((editorFile) => {
+      if (!editorFile) {
+        return;
+      }
+      setLoadedFile(editorFile);
+    })
   }, []);
 
   return (
     <Editor
       id={id}
       sx={sx || { borderRadius: '12px 12px 0 0' }}
-      fileUrl={'/static/editor/stoked-ui.sue'}
+      file={loadedFile}
       viewButtonAppear={10000}
       viewButtonEnter={1000}
       viewButtonExit={100}

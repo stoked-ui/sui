@@ -37,6 +37,7 @@ const EditorViewRoot = styled('div', {
     prop !== 'viewButtonAppear' &&
     prop !== 'viewButtonExit' &&
     prop !== 'viewButtonEnter' &&
+    prop !== 'fileUrl' &&
     prop !== 'fileView'
 })<{ loading: boolean }>(({ loading }) => {
   const spin = keyframes`

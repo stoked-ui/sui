@@ -4,7 +4,7 @@ import { alpha, styled } from '@mui/material/styles';
 import { shouldForwardProp } from '@mui/system/createStyled';
 import { Box, Typography } from '@mui/material';
 import { AutoSizer, Grid, GridCellRenderer } from 'react-virtualized';
-import { type TimelineControlPropsBase } from '../Timeline/TimelineControl.types';
+import { usePinch } from "@use-gesture/react";
 import { prefix } from '../utils/deal_class_prefix';
 import { parserTimeToPixel } from '../utils/deal_data';
 import TimelineTrack from '../TimelineTrack/TimelineTrack';
@@ -29,14 +29,24 @@ const TimelineTrackAreaRoot = styled('div')(() => ({
   overflow: 'hidden',
   position: 'relative',
   minHeight: 'fit-content',
+  touchAction: "none", // Necessary for custom gestures
+  '& #timeline-grid::before': {
+    content: "''",
+    display: 'block',
+    position: 'absolute',
+    height: '100%',
+    width: '101%',
+    top: 0,
+    zIndex: -1,
+  },
   '& .ReactVirtualized__Grid': {
     outline: 'none !important',
     overflow: 'overlay !important',
-    '&::-webkit-scrollbar': {
+    /* '&::-webkit-scrollbar': {
       width: 0,
       height: 0,
       display: 'none',
-    },
+    }, */
   },
 }));
 
@@ -44,7 +54,9 @@ const TrackLabel = styled('label', {
   name: 'MuiTimelineAction',
   slot: 'root',
   overridesResolver: (props, styles) => styles.root,
-  shouldForwardProp: (prop) => shouldForwardProp(prop) && prop !== 'color',
+  shouldForwardProp: (prop) => shouldForwardProp(prop)
+                               && prop !== 'hover'
+                               && prop !== 'color',
 })<{
   hover: boolean;
   color: string;
@@ -86,7 +98,7 @@ const FloatingTracksRoot = styled('div', {
 }));
 
 function FloatingTrackLabels({ tracks }) {
-  const { state} = useTimeline();
+  const { state, dispatch} = useTimeline();
   const { settings, flags } = state;
   const {trackHoverId, selectedTrack, editorMode, trackHeight, selectedTrackIndex} = settings;
   if (!flags.noLabels) {
@@ -98,36 +110,48 @@ function FloatingTrackLabels({ tracks }) {
   const unselectedHeight = flags.detailMode && selectedTrackIndex !== -1 ? settings.trackHeightDetailUnselected : trackHeight;
   const getHeight = (index: number) => (isSelected(index) ? selectedHeight : unselectedHeight);
   return (
-    <FloatingTracksRoot>
+    <FloatingTracksRoot id={'floating-track-labels'}>
       {tracks.map(
         (track: ITimelineTrack, index: number) =>
-          track.id !== 'newTrack' && (
-            <Box
+          <Box
+            sx={{
+              height: getHeight(index),
+              display: 'flex',
+              background: editorModeHidden && selectedTrack?.id !== track.id ? 'transparent' : undefined,
+              transition: 'all 1s ease-in-out'
+          }}
+            key={`${track.name}-${index}`}
+            onMouseEnter={(event) => {
+              dispatch({
+                type: 'SET_SETTING',
+                payload: { key: 'trackHoverId', value: track.id },
+              });
+              event.stopPropagation();
+            }}
+            onMouseLeave={(event) => {
+              dispatch({
+                type: 'SET_SETTING',
+                payload: { key: 'trackHoverId', value: undefined },
+              });
+              event.stopPropagation();
+            }}
+          >
+            <TrackLabel
+              color={track.controller?.color}
+              hover={trackHoverId === track.id ? true : undefined}
               sx={{
-                height: getHeight(index),
                 display: 'flex',
+                alignItems: 'center',
+                height: `${isSelected(index) ? trackHeight : trackHeight - 10}px`,
                 background: editorModeHidden && selectedTrack?.id !== track.id ? 'transparent' : undefined,
                 transition: 'all 1s ease-in-out'
-            }}
-              key={`${track.name}-${index}`}
+              }}
             >
-              <TrackLabel
-                color={track.controller?.color}
-                hover={trackHoverId === track.id ? true : undefined}
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  height: `${isSelected(index) ? trackHeight : trackHeight - 10}px`,
-                  background: editorModeHidden && selectedTrack?.id !== track.id ? 'transparent' : undefined,
-                  transition: 'all 1s ease-in-out'
-                }}
-              >
-                <Typography variant="button" color="text.secondary">
-                  {track.name}
-                </Typography>
-              </TrackLabel>
-            </Box>
-          ),
+              <Typography variant="button" color="text.secondary">
+                {track.name}
+              </Typography>
+            </TrackLabel>
+          </Box>
       )}
     </FloatingTracksRoot>
   );
@@ -145,9 +169,9 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
       scrollTop,
       scale,
       cursorTime,
-      trackHeight,
       selectedTrackIndex,
       getTrackHeight,
+      setScaleWidth,
     } = settings;
 
     const tracks = file?.tracks;
@@ -229,6 +253,35 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
         });
       }
     }, [editAreaRef.current]);
+
+    const [baseScale, setBaseScale] = React.useState(0);
+    const [rawScaleWidth, setRawScaleWidth] = React.useState(0);
+    // noinspection JSVoidFunctionReturnValueUsed
+    usePinch(({ offset: [d], event }) => {
+        // Update scale
+      event.preventDefault();
+
+      const newScale = 1 + d;
+
+      let newRawScaleWidth = rawScaleWidth;
+      if (!newRawScaleWidth) {
+        newRawScaleWidth = scaleWidth / scale;
+        setRawScaleWidth(newRawScaleWidth);
+        console.info('rawScaleWidth', rawScaleWidth);
+      }
+      // Update origin for scaling
+      const scaleWidthPinched = newScale * (scaleWidth / scale);
+      if (scaleWidthPinched >= newRawScaleWidth) {
+        setScaleWidth(scaleWidthPinched);
+        setBaseScale(newScale);
+        console.info('baseScale', newScale, 'scaleWidthPinched', scaleWidthPinched, 'd', d);
+      }
+        // Prevent browser's pinch zoom
+    },
+    {
+        // Set target to the ref of the container
+        target: editAreaRef,
+    });
 
     /** Get the rendering content of each cell */
     const cellRenderer: GridCellRenderer = ({ rowIndex, key, style }) => {
@@ -356,6 +409,7 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
                   ref={tracksRef}
                   style={{
                     overscrollBehaviorX: 'none',
+                    touchAction: 'none'
                   }}
                   cellRenderer={cellRenderer}
                   columnWidth={Math.max(scaleCount * scaleWidth + startLeft, width)}

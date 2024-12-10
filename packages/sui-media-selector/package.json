@@ -36,6 +36,7 @@
   },
   "devDependencies": {
     "@babel/runtime": "^7.24.7",
+    "@stoked-ui/common": "workspace:^",
     "@types/react": "^18.3.1",
     "@types/wicg-file-system-access": "^2023.10.5",
     "@typescript-eslint/eslint-plugin": "^6.21.0",

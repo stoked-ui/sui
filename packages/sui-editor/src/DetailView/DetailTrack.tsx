@@ -95,8 +95,6 @@ export function DetailTrack(props: DetailViewProps) {
             onClick={enableEdit}
           />
         </CtrlCell>
-      </CtrlRow>
-      <CtrlRow>
         <CtrlCell width="40%">
           <BlendModeSelect onClickEdit={enableEdit} editMode={editMode} />
         </CtrlCell>

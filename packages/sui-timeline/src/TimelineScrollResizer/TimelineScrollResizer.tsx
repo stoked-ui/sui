@@ -1,6 +1,6 @@
 import * as React from 'react';
-import {alpha, styled} from '@mui/system';
-import {TimelineScrollResizerProps} from './TimelineScrollResizer.types';
+import { alpha, styled } from '@mui/system';
+import { TimelineScrollResizerProps } from './TimelineScrollResizer.types';
 import { useTimeline } from '../TimelineProvider/TimelineProvider';
 
 const ScrollbarContainer = styled('div')(({ theme }) => ({
@@ -17,8 +17,7 @@ const ScrollbarTrack = styled('div')(({ theme }) => ({
   position: 'relative',
 }));
 
-const ScrollbarThumb = styled('div')
-  <{ width: number, left: number, disabled: boolean }>(({ theme, width, left, disabled }) => ({
+const ScrollbarThumb = styled('div')<{ width: number, left: number, disabled: boolean }>(({ theme, width, left, disabled }) => ({
   height: '100%',
   width: `${width}px`,
   minWidth: '40px',
@@ -28,14 +27,14 @@ const ScrollbarThumb = styled('div')
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
-  cursor: disabled ? 'not-allowed' :'pointer',
+  cursor: disabled ? 'not-allowed' : 'pointer',
 }));
 
 const ResizeHandle = styled('div')<{ disabled: boolean }>(({ theme, disabled }) => ({
   width: '10px',
   height: '100%',
   backgroundColor: disabled ? alpha(theme.palette.action.disabled, 0.1) : theme.palette.grey[700],
-  cursor: disabled ? 'not-allowed' :'ew-resize',
+  cursor: disabled ? 'not-allowed' : 'ew-resize',
 
   '&:first-of-type': {
     borderRadius: '5px 0 0 5px',
@@ -46,153 +45,187 @@ const ResizeHandle = styled('div')<{ disabled: boolean }>(({ theme, disabled }) 
   },
 }));
 
+type MouseState = { dragging: boolean, resizingLeft: boolean, resizingRight: boolean };
+
+const calcBoundaryWidth = (editorId: string, scrollWidth?: number, maxDuration?: number, scaleWidth?: number, scale?: number) => {
+  let width: number | undefined = scrollWidth;
+  if (!width) {
+    const element = document.getElementById(editorId);
+    width = element?.scrollWidth;
+  }
+  if (width && (!maxDuration || !scaleWidth || !scale)) {
+    return width;
+  }
+  return maxDuration * (scaleWidth);
+};
+
 export default function TimelineScrollResizer({
-  elementId,
+  elementRef,
   type = 'horizontal',
 }: TimelineScrollResizerProps) {
   const context = useTimeline();
-  const { state: {engine, settings, flags} } = context;
-  const { fitScaleData } = settings;
+  const { state, dispatch } = context;
+  const { engine, settings, flags } = state;
   const { noResizer } = flags;
-  const [element, setElement] = React.useState<HTMLElement | null>(null);
-  const [isResizingLeft, setIsResizingLeft] = React.useState(false);
-  const [isResizingRight, setIsResizingRight] = React.useState(false);
-  const [isDragging, setIsDragging] = React.useState(false);
+  const { editorId, scale, scaleWidth, fitScaleData } = settings;
+
+  const getBoundaryWidth = () => {
+    return calcBoundaryWidth(editorId, elementRef.current?.scrollWidth, engine?.maxDuration, scaleWidth, scale);
+  };
+
+  const [boundaryWidth, setBoundaryWidth] = React.useState(getBoundaryWidth());
+  const [mouseState, setMouseState] = React.useState<MouseState>({ resizingRight: false, resizingLeft: false, dragging: false });
   const [startX, setStartX] = React.useState(0);
   const [scrollThumbPosition, setScrollThumbPosition] = React.useState(0);
   const [startScrollThumbPosition, setStartScrollThumbPosition] = React.useState(null);
   const [thumbWidth, setThumbWidth] = React.useState(50);
-
-  const resizeElement = document.getElementById(elementId);
-
+  const [resizing, setResizing] = React.useState(false); // Track whether resizing is happening
+  const thumbRef = React.useRef<HTMLDivElement>(null);
+  const leftResizerRef = React.useRef<HTMLDivElement>(null);
+  const rightResizerRef = React.useRef<HTMLDivElement>(null);
   React.useEffect(() => {
-    if (!element || element.id !== elementId) {
-      const el = document.getElementById(elementId);
-      setElement(el);
-    }
-  }, [resizeElement])
+    setBoundaryWidth(getBoundaryWidth());
+  }, [elementRef.current?.scrollWidth, engine?.maxDuration, scaleWidth, scale]);
 
-  const getBoundaryWidth = () => {
-    return engine.maxDuration * settings.scaleWidth;
-  }
-
-  const getThumbnailWidth = (totalWidth = getBoundaryWidth()) => {
-    if (!element) {
+  const getThumbnailWidth = (totalWidth = boundaryWidth) => {
+    if (!elementRef.current) {
       return thumbWidth;
     }
-    const visibleWidth = element?.clientWidth;
-    return visibleWidth / (totalWidth / visibleWidth);
+    const visibleWidth = elementRef.current.clientWidth;
+    const thumbWidthRes = visibleWidth / (totalWidth / visibleWidth);
+    console.info('getThumbnailWidth', thumbWidthRes, visibleWidth, totalWidth, elementRef.current.clientWidth);
+    return thumbWidthRes;
+  };
+
+  const updateThumbSize = () => {
+    const tWidth = getThumbnailWidth();
+    setThumbWidth(tWidth);
   }
+  window.updateThumbSize = updateThumbSize;
 
   React.useEffect(() => {
-    if (!element) {
-      return undefined;
+    if (!elementRef.current || resizing) {
+      return undefined; // Don't set thumb width if resizing is active
     }
 
     const observer = new ResizeObserver(() => {
-      if (!element) {
-        return;
-      }
-
-      const tWidth = getThumbnailWidth();
-      setThumbWidth(tWidth);
-
+      // if (!resizing) { // Only resize the thumb if we aren't manually resizing it
+        const tWidth = getThumbnailWidth();
+        setThumbWidth(tWidth);
+        console.info('tWidth', tWidth);
+      // }
     });
 
-    observer.observe(element);
+    observer.observe(elementRef.current);
 
     return () => {
-      if (observer) {
-        observer.disconnect();
-      }
+      observer.disconnect();
     };
-  }, [element]);
+  }, [elementRef.current, resizing]);
 
-  const handleMouseDownResizeRight = (e: React.MouseEvent) => {
-    if (!element) {
-      return;
+
+  const handleMouseResizingMove = (e: MouseEvent) => {
+    if (!elementRef.current || !resizing) {
+      return
     }
-    e.preventDefault();
-    setIsResizingRight(true);
-    setStartX(e.clientX);
+
+    const deltaX = mouseState.resizingLeft ? e.clientX + startX : e.clientX - startX;
+    console.info('handleMouseResizingMove deltaX:', deltaX, e.clientX, startX, e);
+
+    // Handle resizing
+    if (mouseState.resizingLeft || mouseState.resizingRight) {
+      const newThumbWidth = Math.max(50, thumbWidth + deltaX);
+      const newLeftPosition = mouseState.resizingLeft
+        ? Math.min(scrollThumbPosition + deltaX, scrollThumbPosition)
+        : scrollThumbPosition;
+      if (newThumbWidth <= elementRef.current.clientWidth) {
+        setThumbWidth(Math.min(elementRef.current.clientWidth, newThumbWidth));
+        setScrollThumbPosition(newLeftPosition); // Keep thumb aligned to left during resizing
+        dispatch({type: 'SET_SETTING', payload: {key: 'scaleWidth', value: scaleWidth - deltaX}});
+      }
+    }
   };
 
-  const handleMouseDownResizeLeft = (e: React.MouseEvent) => {
-    if (!element) {
-      return;
+  const handleMouseThumbMove = (e: MouseEvent) => {
+    if (!elementRef.current) {
+      return
     }
-    e.preventDefault();
-    setIsResizingLeft(true);
-    setStartX(e.clientX);
-  };
+    const deltaX = e.clientX - startX;
+    const containerWidth = elementRef.current.clientWidth;
+    const scrollableWidth = getBoundaryWidth() - containerWidth;
 
-  const handleMouseDownDrag = (e: React.MouseEvent) => {
-    if (!element) {
-      return;
-    }
-    e.preventDefault();
-    setIsDragging(true);
-    setStartX(e.clientX);
-    setStartScrollThumbPosition(scrollThumbPosition);
-  };
+    if (mouseState.dragging) {
+      console.info('dragg handleMouseThumbMove deltaX:', deltaX, e.clientX, startX, e);
 
-  const handleMouseMove = (e: MouseEvent) => {
-    if (!element) {
-      return;
-    }
+      const thumbRange = containerWidth - thumbWidth;
+      let newPos = scrollThumbPosition + deltaX;
 
-    if (isResizingLeft || isResizingRight) {
-      const updateThumbSize = (newThumbWidth: number) => {
-        if (element) {
-          setThumbWidth(Math.max(50, newThumbWidth)); // Minimum thumb width is 50px
-        }
-      };
-      const deltaX = (e.clientX - startX);
-      fitScaleData(context, element.clientWidth - deltaX);
-      updateThumbSize(thumbWidth + deltaX);
+      newPos = Math.max(0, Math.min(newPos, thumbRange));
 
-    } else if (isDragging) {
-
-      const deltaX = e.clientX - startX;
-      const containerWidth = element?.clientWidth;
-      const scrollableWidth = getBoundaryWidth() - containerWidth; // Total scrollable area
-      const thumbRange = containerWidth - thumbWidth; // Range the thumb can move
-
-      // Calculate the new thumb position
-      let newPos = startScrollThumbPosition + deltaX;
-      newPos = Math.max(0, Math.min(newPos, thumbRange)); // Clamp position
-
-      // Calculate the scrollLeft based on the thumb position
       const scrollRatio = newPos / thumbRange;
       const newScrollLeft = scrollRatio * scrollableWidth;
 
-      // Apply the new positions
       setScrollThumbPosition(newPos);
-      element.scrollLeft = newScrollLeft;
-
-      console.info('DeltaX:', deltaX, 'ThumbPos:', newPos, 'ScrollLeft:', newScrollLeft);
+      console.info('drag', newScrollLeft, elementRef);
+      elementRef.current.scrollLeft = newScrollLeft;
     }
   };
 
   const handleMouseUp = () => {
-    setIsResizingLeft(false);
-    setIsResizingRight(false);
-    setIsDragging(false);
+    console.info('handleMouseUp', settings)
+    document.removeEventListener('mousemove', handleMouseResizingMove);
+    document.removeEventListener('mousemove', handleMouseThumbMove);
+    document.removeEventListener('mouseup', handleMouseUp);
+    setMouseState({ dragging: false, resizingRight: false, resizingLeft: false });
+    setTimeout(() => {
+      setResizing(false); // Reset resizing flag
+    }, 200);
   };
 
-  React.useEffect(() => {
-      if (isResizingLeft || isResizingRight || isDragging) {
-        window.addEventListener('mousemove', handleMouseMove);
-        window.addEventListener('mouseup', handleMouseUp);
+  const handleMouseDown = (e: React.MouseEvent, actionType: 'resize' | 'drag') => {
+    if (mouseState.dragging || mouseState.resizingLeft || mouseState.resizingRight) {
+      return;
+    }
+
+    e.preventDefault();
+    e.stopPropagation();
+    setStartX(e.clientX);
+
+    if (actionType === 'resize') {
+      setResizing(true); // Set resizing flag
+      console.info('resizing', thumbRef.current, leftResizerRef.current, rightResizerRef.current);
+      if (e.target === leftResizerRef.current) {
+        console.info('resizing left');
+        setMouseState({ ...mouseState, resizingLeft: true });
       } else {
-        window.removeEventListener('mousemove', handleMouseMove);
-        window.removeEventListener('mouseup', handleMouseUp);
+        setMouseState({ ...mouseState, resizingRight: true });
       }
+    } else if (actionType === 'drag') {
+      setMouseState({ ...mouseState, dragging: true });
+      setStartScrollThumbPosition(scrollThumbPosition);
+    }
+  };
+
+
+  React.useEffect(() => {
+    if (mouseState.resizingLeft || mouseState.resizingRight || mouseState.dragging) {
+      if (mouseState.resizingLeft || mouseState.resizingRight) {
+        window.addEventListener('mousemove', handleMouseResizingMove);
+      } else {
+        window.addEventListener('mousemove', handleMouseThumbMove);
+      }
+      window.addEventListener('mouseup', handleMouseUp);
+    } else {
+      window.removeEventListener('mousemove', handleMouseThumbMove);
+      window.removeEventListener('mousemove', handleMouseResizingMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    }
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mousemove', handleMouseThumbMove);
+      window.removeEventListener('mousemove', handleMouseResizingMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isResizingLeft, isResizingRight, isDragging]);
+  }, [mouseState]);
 
   if (noResizer) {
     return null;
@@ -202,16 +235,27 @@ export default function TimelineScrollResizer({
     <ScrollbarContainer className={'SuiScrollbar'}>
       <ScrollbarTrack>
         <ScrollbarThumb
+          id={`${type}-scroll-thumb`}
+          ref={thumbRef}
           width={thumbWidth}
           left={scrollThumbPosition}
-          onMouseDown={handleMouseDownDrag}
+          onMouseDown={(e) => handleMouseDown(e, 'drag')}
           disabled={settings.disabled}
         >
-          <ResizeHandle onMouseDown={handleMouseDownResizeLeft} disabled={settings.disabled} />
-          <ResizeHandle onMouseDown={handleMouseDownResizeRight} disabled={settings.disabled} />
+          <ResizeHandle
+            id={`${type}-resizer-left`}
+            ref={leftResizerRef}
+            onMouseDown={(e) => handleMouseDown(e, 'resize')}
+            disabled={settings.disabled}
+          />
+          <ResizeHandle
+            id={`${type}-resizer-right`}
+            ref={rightResizerRef}
+            onMouseDown={(e) => handleMouseDown(e, 'resize')}
+            disabled={settings.disabled}
+          />
         </ScrollbarThumb>
       </ScrollbarTrack>
     </ScrollbarContainer>
   );
-};
-
+}

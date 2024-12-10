@@ -324,17 +324,19 @@ function TimelineTrack<
       yPercent={calculatePercentage(file?.tracks?.length, index)}
       disabled={track.disabled || detailDisable}
       dim={editorMode !== 'project' && selectedTrack?.id !== track.id}
-      onMouseEnter={() => {
+      onMouseEnter={(event) => {
         dispatch({
           type: 'SET_SETTING',
           payload: { key: 'trackHoverId', value: track.id },
         });
+        event.stopPropagation()
       }}
-      onMouseLeave={() => {
+      onMouseLeave={(event) => {
         dispatch({
           type: 'SET_SETTING',
           payload: { key: 'trackHoverId', value: undefined },
         });
+        event.stopPropagation()
       }}
       trackHeightDetailSelected={settings.trackHeightDetailSelected}
       trackHeightDetailUnselected={settings.trackHeightDetailUnselected}
