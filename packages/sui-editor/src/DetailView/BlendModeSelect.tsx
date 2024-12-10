@@ -5,14 +5,14 @@ import MenuItem from "@mui/material/MenuItem";
 import InputLabel from "@mui/material/InputLabel";
 
 export default function BlendModeSelect({onClickEdit, editMode}) {
-  return <FormControl sx={{m: 1, minWidth: 120}}>
-    <InputLabel id="track-id-blend-mode">Age</InputLabel>
+  return <FormControl>
+    <InputLabel id="track-id-blend-mode">Blend Mode</InputLabel>
     <Select
-      labelId="demo-simple-select-helper-label"
+      labelId="track-id-blend-mode"
       id="demo-simple-select-helper"
       name={'blendMode'}
-      label="Blend Mode"
       onClick={onClickEdit}
+      placeholder={'Blend Mode'}
       disabled={!editMode}
     >
       <MenuItem value="normal">

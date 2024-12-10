@@ -1,5 +1,5 @@
 import { SortedList } from '@stoked-ui/common';
-import ScreenshotQueue from "./ScreenshotQueue";
+import ScreenshotQueue, {ScreenshotTimestamps} from "./ScreenshotQueue";
 import IMediaFile from '../IMediaFile';
 
 export type Screenshot = {
@@ -24,6 +24,8 @@ export default class ScreenshotStore {
   private threshold: number; // Threshold in seconds for considering screenshots as close enough
 
   scaleWidth: number;
+
+  scale: number;
 
   file: IMediaFile;
 
@@ -60,18 +62,17 @@ export default class ScreenshotStore {
     this.trackWidth = this.trackHeight * this.aspectRatio;
     this.threshold = threshold;
     this.scaleWidth = 100;
+    this.scale = 1;
     this.file = file;
   }
 
-  getScreenshotTimespanCount(height: number, scaleWidth: number, fileTimespan: { start: number; end: number }) {
+  getScreenshotTimespanCount(height: number, fileTimespan: { start: number; end: number }) {
     const maxWidth = height * this.aspectRatio;
-    const trackWidth = (fileTimespan.end - fileTimespan.start) * scaleWidth;
-    console.info(this.file.name, 'trackWidth', trackWidth, 'maxWidth', maxWidth, 'start', fileTimespan.start, 'end', fileTimespan.end, trackWidth / maxWidth);
-    return (trackWidth / maxWidth) + 1;
+    const trackWidth = (fileTimespan.end - fileTimespan.start) * (this.scaleWidth / this.scale);
+    return Math.ceil((trackWidth / maxWidth));
   }
 
   captureScreenshot = (time: number, canvas: HTMLCanvasElement, context: CanvasRenderingContext2D, resolution: Resolution, onCapture?: (screen: Screenshot) => void): Promise<Screenshot> => new Promise((resolveCapture) => {
-    console.info('captureScreenshot', time, resolution, time % this.video.duration);
     this.video.currentTime = time % this.video.duration
     const res = this.getDimensions(resolution);
     const { width, height } = res;
@@ -84,6 +85,7 @@ export default class ScreenshotStore {
       // log generated screenshots
       // console.info('data', data);
       const screen = { timestamp: time, data, resolution } as Screenshot;
+      this.screenshots.push(screen);
       onCapture?.(screen);
 
       ScreenshotQueue.getInstance(3).screenshotsUpdate?.(this.file, screen);
@@ -92,8 +94,23 @@ export default class ScreenshotStore {
     };
   });
 
+  async generateTimestampScreenshots(timestamps: number[], resolution: Resolution, onCapture?: (screen: Screenshot) => void): Promise<Screenshot[]> {
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    if (!context) {
+      throw new Error('Failed to create canvas context.');
+    }
+    const screens: Screenshot[] = [];
+    for (let i = 0; i < timestamps.length; i += 1) {
+      // eslint-disable-next-line no-await-in-loop
+      const screen = await this.captureScreenshot(timestamps[i], canvas, context, resolution);
+      screens.push(screen);
+    }
+    return screens;
+  }
+
   // eslint-disable-next-line class-methods-use-this
-  async generateScreenshots(count: number, resolution: Resolution, fileTimespan: {start: number, end: number}, onCapture?: (screen: Screenshot) => void): Promise<Screenshot[]> {
+  async generateTimespanScreenshots(count: number, resolution: Resolution, fileTimespan: {start: number, end: number}, onCapture?: (screen: Screenshot) => void): Promise<Screenshot[]> {
     return new Promise((resolve, reject) => {
       const { start, end } = fileTimespan;
       // Generate screenshots
@@ -106,7 +123,6 @@ export default class ScreenshotStore {
       }
 
       const interval = (end - start) / count;
-      console.info('interval', interval);
 
       (async () => {
         let time = start;
@@ -124,23 +140,24 @@ export default class ScreenshotStore {
   // Query for a specific number of screenshots within a time range
   async queryScreenshots(
     resolution: Resolution,
-    scaleWidth: number,
     range: { start: number; end: number },
     height: number,
-  ): Promise<Screenshot[]> {
+  ): Promise<{ found: Screenshot[], missing: number[] }> {
     const { start, end } = range;
 
     // First, get all the screenshots within the range of start and end
     const allScreenshots = Array.from(this.screenshots.values()).filter((screenshot) => screenshot?.resolution === resolution && screenshot?.timestamp >= start && (screenshot.timestamp % this.video.duration) <= end);
-    const numScreenshots = this.getScreenshotTimespanCount(height, scaleWidth, { start, end });
+    const numScreenshots = this.getScreenshotTimespanCount(height, { start, end });
 
     // If there are enough screenshots in the range, return the closest `numScreenshots` to the specified time range
     const res = this.getClosestScreenshots(allScreenshots, numScreenshots, { start, end });
     if (res.found.length !== numScreenshots) {
       // If not enough screenshots, fetch the missing ones asynchronously
-      await this.fetchMissingScreenshots(res.missing, resolution);
+
+      // console.info('ScreenshotQueue.enqueue', res.missing);
+      ScreenshotQueue.getInstance(3).enqueue({ timestamps: res.missing, resolution, file: this.file } as ScreenshotTimestamps);
     }
-    return res.found;
+    return res;
   }
 
   // Get the closest screenshots to the requested range, while respecting the threshold
@@ -169,27 +186,6 @@ export default class ScreenshotStore {
 
     // Return the closest `numScreenshots` to the range
     return { found: validScreenshots, missing: missingScreens };
-  }
-
-  // Asynchronously fetch missing screenshots if they are not found
-  private async fetchMissingScreenshots(
-    missing: number[],
-    resolution: Resolution,
-  ): Promise<void> {
-    // Example logic for asynchronously fetching missing screenshots
-    // Replace this with your actual fetch logic (e.g., from an API, file system, etc.)
-    console.info(`Fetching missing screenshots for segment: [${missing}]`);
-
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-    if (!context) {
-      throw new Error('Failed to create canvas context.');
-    }
-
-    for (let i = 0; i < missing.length; i += 1) {
-      // eslint-disable-next-line no-await-in-loop
-      await this.captureScreenshot(missing[i], canvas, context, resolution);
-    }
   }
 }
 

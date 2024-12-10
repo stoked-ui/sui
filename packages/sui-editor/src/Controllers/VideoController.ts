@@ -64,7 +64,7 @@ class VideoControl extends Controller<HTMLVideoElement> {
     }
     const item = this.getItem(params);
     const fileTimespan = getActionFileTimespan<IEditorAction>(action);
-    this.screenshotQueue.enqueue?.(file, fileTimespan, 'track');
+    // this.screenshotQueue.enqueue?.(file, fileTimespan, 'track');
 
     if (action.loop === false || action.loop === undefined || action.loop === 0) {
       action.loop = 0;
@@ -92,13 +92,13 @@ class VideoControl extends Controller<HTMLVideoElement> {
           item.style.objectFit = action.fit as string;
           // this.cacheMap[action.id] = item;
           loadedMetaData = true;
-          console.info('action preload: video loadedmetadata', action.name)
+          // console.info('action preload: video loadedmetadata', action.name)
         });
 
         let canPlayThrough = false;
         item.addEventListener('canplaythrough', () => {
           canPlayThrough = true;
-          console.info('action preload: video canplaythrough', action.name)
+          // console.info('action preload: video canplaythrough', action.name)
           // VideoControl.captureScreenshot(item, ((action.end - action.start) / 2) + action.start).then((screenshot) => {
           //  this.screenshots[action.id] = screenshot;
           // })
@@ -155,7 +155,7 @@ class VideoControl extends Controller<HTMLVideoElement> {
         // renderCtx.canvas.height = engine.renderHeight;
       }
 
-      this.log({ time: item.currentTime, action, engine, track }, 'drawImage');
+      // this.log({ time: item.currentTime, action, engine, track }, 'drawImage');
       action.nextFrame = this.getDrawData({ action, engine, time: item.currentTime, track });
 
       if ('requestVideoFrameCallback' in item) {
@@ -186,7 +186,8 @@ class VideoControl extends Controller<HTMLVideoElement> {
   getDrawData(params: EditorControllerParams): DrawData {
     const { engine, action, track } = params;
     const item = this.cacheMap[track.id];
-    this.log(params, `getDrawData[${action.fit} | ${action.width} x ${action.height} @ { x: ${action.x}, y: ${action.y} }`)
+    // this.log(params, `getDrawData[${action.fit} | ${action.width} x ${action.height} @ { x:
+    // ${action.x}, y: ${action.y} }`)
     const data = {
       source: item,
       sx: 0,
@@ -313,7 +314,7 @@ class VideoControl extends Controller<HTMLVideoElement> {
     if (volumeUpdate) {
       item.volume = volumeUpdate.volume;
       action.volumeIndex = volumeUpdate.volumeIndex;
-      console.info(`${action.name} - editorTime: ${params.time}, actionTime: ${Controller.getActionTime(params)}, volume: ${volumeUpdate.volume}`)
+      this.log(params, `${action.name} - editorTime: ${params.time}, actionTime: ${Controller.getActionTime(params)}, volume: ${volumeUpdate.volume}`)
     }
 
     if (!engine.renderCtx) {
@@ -329,7 +330,7 @@ class VideoControl extends Controller<HTMLVideoElement> {
 
     if (engine.isPlaying) {
       if (!action.nextFrame) {
-        console.warn('failed to play a frame because no frame data available');
+        this.log(params,'failed to play a frame because no frame data available');
         action.nextFrame = this.getDrawData({ track, action, engine, time: item.currentTime });
       }
 
@@ -337,8 +338,8 @@ class VideoControl extends Controller<HTMLVideoElement> {
       this.draw(params, fd);
     } else {
       const derp = Controller.getActionTime(params);
-      item.currentTime = derp;
       this.draw(params);
+      item.currentTime = derp;
     }
   }
 

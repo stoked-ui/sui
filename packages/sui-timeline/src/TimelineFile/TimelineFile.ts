@@ -283,7 +283,7 @@ export default class TimelineFile<
     }) as FileType;
   }
 
-  static async fromUrl<AppFileType = TimelineFile>(url: string, FileConstructor: Constructor<AppFileType>): Promise<AppFileType> {
+  static async fromUrl<AppFileType = TimelineFile>(url: string, FileConstructor: Constructor<AppFileType> = TimelineFile as unknown as Constructor<AppFileType>): Promise<AppFileType> {
     const file= await AppFile.fromUrl<AppFileType>(url, FileConstructor) as ITimelineFile;
     await file.preload();
     return file as AppFileType;

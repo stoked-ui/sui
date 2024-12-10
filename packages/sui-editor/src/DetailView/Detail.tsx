@@ -247,8 +247,6 @@ export const RootBox = styled('div')(({theme}) => ({
   },
   '& .MuiFormControl-root legend': {
     background: 'transparent',
-    marginLeft: '5px',
-    paddingRight: '2px',
   },
   '&:hover .MuiOutlinedInput-notchedOutline': {
     borderColor: theme.palette.primary.main,
@@ -318,6 +316,23 @@ const TrackFile = styled(CtrlGroup, {
   shouldForwardProp: (prop) => prop !== 'style'
 })(({theme, style}) => ({
   ...style,
+  position: 'absolute',
+  scale: '0.8!important',
+  transformOrigin: 'center bottom',
+  background:' linear-gradient(168deg, #aebcc9 0%, #dde3e8 100%)',
+  marginBottom: '6px',
+  borderRadius: '8px',
+  bottom: '0px',
+  '& legend': {
+    background: '#aebcc9',
+    borderRadius: '6px'
+  },
+  '& .MuiInputBase-root.MuiOutlinedInput-root': {
+    height: '38px'
+  },
+  '& input': {
+    '-WebKitTextFillColor': 'text.primary',
+  },
   '& .Mui-shrink-full .MuiFormLabel-root.MuiInputLabel-root.MuiInputLabel-shrink': {
     color: theme.palette.text.primary,
     padding: '3px 8px',
@@ -325,7 +340,8 @@ const TrackFile = styled(CtrlGroup, {
     backgroundImage: `linear-gradient(90deg, ${backgroundAlpha(theme)}, ${backgroundAlpha(theme)}), linear-gradient(90deg, ${theme.palette.background.paper}, ${theme.palette.background.paper})`,
     backgroundSize: '100% 12px, 100% 17px',
     backgroundPosition: '0 0, 0 100%',
-    backgroundRepeat: 'no-repeat, no-repeat'
+    backgroundRepeat: 'no-repeat, no-repeat',
+
   },
 }));
 
@@ -346,7 +362,6 @@ export function FileDetailView(): React.ReactNode {
         padding: '8px',
         justifyItems: 'center',
         display: 'grid',
-        bottom: '0px'
       }}>
         <TrackFile
           onMouseEnter={() => {
@@ -355,14 +370,7 @@ export function FileDetailView(): React.ReactNode {
           onMouseLeave={() => {
             dispatch({ type: 'SET_FLAGS', payload: { remove: ['showViewControls'] }});
           }}
-          style={{
-            position: 'absolute',
-            scale: '0.8!important',
-            transformOrigin: 'center bottom',
-            background:' linear-gradient(168deg, #aebcc9 0%, #dde3e8 100%)',
-            marginBottom: '6px',
-            borderRadius: '8px'
-          }}
+
           className={"file-detail-view"}
           label={'Track File'}
           ref={ref}
@@ -375,7 +383,7 @@ export function FileDetailView(): React.ReactNode {
               disabled
             />
           </CtrlCell>
-          <CtrlCell width="15%">
+          <CtrlCell width="5%">
             <UncontrolledText
               className={'whitespace-nowrap flex-grow flex'}
               label={'Size'}
@@ -384,7 +392,7 @@ export function FileDetailView(): React.ReactNode {
               format={humanFileSize}
             />
           </CtrlCell>
-          <CtrlCell width="15%">
+          <CtrlCell width="5%">
             <UncontrolledText
               className={'whitespace-nowrap flex-grow flex'}
               label={'Media Type'}
@@ -392,6 +400,16 @@ export function FileDetailView(): React.ReactNode {
               disabled
             />
           </CtrlCell>
+          {['video', 'audio'].includes(selectedTrack?.file?.mediaType) &&
+           <CtrlCell width="5%">
+             <UncontrolledText
+               className={'whitespace-nowrap flex-grow flex'}
+               label={'Duration'}
+               value={`${selectedTrack?.file?.media.duration.toFixed(2)}s`}
+               disabled
+             />
+           </CtrlCell>
+          }
         </TrackFile>
       </RootBox>
     </Fade>

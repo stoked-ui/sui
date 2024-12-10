@@ -68,12 +68,56 @@ function TimelineProvider<
 
   const [state, dispatch] = React.useReducer(reducer, startState);
 
+  React.useEffect(() => {
+    const setSetting = (key: string, value: any) => {
+      dispatch({
+        type: 'SET_SETTING',
+        payload: {
+          key,
+          value
+        }
+      });
+    }
+    setSetting('setSetting', setSetting);
+    window.setSetting = setSetting;
+
+    const setScaleWidth = (value: number) => setSetting('scaleWidth', value);
+    setSetting('setScaleWidth', setScaleWidth);
+    window.setScaleWidth = setScaleWidth;
+
+    const setScale = (value: number) => setSetting('scale', value);
+    setSetting('setScale', setScale);
+    window.setScale = setScale;
+
+    const setScaleSplitCount = (value: number) => setSetting('scaleSplitCount', value);
+    setSetting('setScaleSplitCount', setScaleSplitCount);
+    window.setScaleSplitCount = setScaleSplitCount;
+
+    const setMinScaleCount = (value: number) => setSetting('minScaleCount', value);
+    setSetting('setMinScaleCount', setMinScaleCount);
+    window.setMinScaleCount = setMinScaleCount;
+
+    const setMaxScaleCount = (value: number) => setSetting('maxScaleCount', value);
+    setSetting('setMaxScaleCount', setMaxScaleCount);
+    window.setMaxScaleCount = setMaxScaleCount;
+
+    const getSettings = () => state.settings;
+    setSetting('getSettings', getSettings);
+    window.getSetting = getSettings;
+
+    const reRender = () => state.engine.reRender();
+    setSetting('reRender', reRender);
+    window.reRender = reRender;
+
+  }, []);
+
   if (!TimelineProvider.dispatch) {
     TimelineProvider.dispatch = dispatch;
   }
   if (!initialized) {
     return null;
   }
+
 
   const screenshotsUpdate = (mediaFile: IMediaFile, screenshot: Screenshot) => {
     const screenshots = mediaFile.media?.screenshotStore?.screenshots;
@@ -111,3 +155,4 @@ function useTimeline(): TimelineContextType {
 }
 
 export { TimelineProvider, useTimeline };
+

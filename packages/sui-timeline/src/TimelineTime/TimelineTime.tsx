@@ -78,21 +78,21 @@ const TimeUnit = styled('div')<{disabled: boolean}>(({ theme, disabled }) => ({
 function TimelineTime(props: TimelineTimeProps) {
   const context = useTimeline();
   const { state, dispatch } = context;
-  const { settings } = state;
   const {
     flags,
     engine,
-    settings: {
-      startLeft,
-      scaleCount,
-      maxScaleCount,
-      scale,
-      scaleWidth,
-      scaleSplitCount,
-      setCursor,
-      getScaleRender,
-    },
+    settings,
   } = state;
+  const {
+    startLeft,
+    scaleCount,
+    maxScaleCount,
+    scale,
+    scaleWidth,
+    scaleSplitCount,
+    setCursor,
+    getScaleRender,
+  } = settings;
 
   const { scrollLeft, onClickTimeArea } = props;
   const gridRef = React.useRef<Grid>();
@@ -114,38 +114,10 @@ function TimelineTime(props: TimelineTimeProps) {
       </TimeUnit>
     );
   };
-  const [customScaleSplitCount, setCustomScaleSplitCount] = React.useState(null);
 
   React.useEffect(() => {
     gridRef.current?.recomputeGridSize();
   }, [scaleWidth, startLeft]);
-
-  React.useLayoutEffect(() => {
-    const unit = gridRef.current;
-
-    if (!unit) {
-      return undefined;
-    }
-
-    const resizeObserver = new ResizeObserver(() => {
-      const timeUnit = document.querySelector('.timeline-time-unit');
-      if (!timeUnit) {
-        return;
-      }
-      if (timeUnit.clientWidth < 10) {
-        setCustomScaleSplitCount(customScaleSplitCount * 2);
-      } else if (timeUnit.clientWidth > 20) {
-        setCustomScaleSplitCount(customScaleSplitCount * 0.5);
-      }
-    });
-    const grid = document.getElementById('time-area-grid');
-    resizeObserver.observe(grid);
-
-    return () => {
-      resizeObserver.unobserve(grid);
-    };
-  }, []);
-
 
   /** Get column width */
   const getColumnWidth = (data: { index: number }) => {
@@ -186,7 +158,6 @@ function TimelineTime(props: TimelineTimeProps) {
     if (!isDragging) {
       setIsDragging(true);
     }
-    engine.reRender();
     setCursor({ time }, context);
   }
 

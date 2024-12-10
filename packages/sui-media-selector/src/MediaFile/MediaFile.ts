@@ -38,7 +38,7 @@ export interface IAudioPreloadExtractResult {
   element: HTMLAudioElement,
   objectUrl: string,
   metadata: IAudioMetadata,
-  waveformImageUrl: string,
+  backgroundImage: string,
 }
 
 export interface IAudioWaveImageOptions {
@@ -268,6 +268,7 @@ export default class MediaFile extends File implements IMediaFile {
   }
 
   async extractMetadata() {
+    console.info('extractMetadata', this.name, this.mediaType);
     const extract = async () => {
       switch (this.mediaType) {
         case 'video':
@@ -279,13 +280,12 @@ export default class MediaFile extends File implements IMediaFile {
       }
     }
 
-    const metadata = await extract();
-    this.media = { ... metadata };
+    await extract();
   }
 
   getBackgroundImage() {
     if (this.mediaType === 'audio') {
-      return this.media.waveformImageUrl;
+      return this.media.backgroundImage;
     }
     return {};
   }
@@ -295,7 +295,7 @@ export default class MediaFile extends File implements IMediaFile {
     if (this.mediaType === 'audio' && this?.media?.duration) {
       const adjustedScale = settings.scaleWidth / settings.scale;
       return {
-        backgroundImage: `url(${this.media.waveformImageUrl})`,
+        backgroundImage: `url(${this.media.backgroundImage})`,
         backgroundPosition: `${-adjustedScale * fileTimespan.start}px 0px`,
         backgroundSize: `${adjustedScale * this.media.duration}px 100%`
       }
@@ -593,14 +593,14 @@ export default class MediaFile extends File implements IMediaFile {
       const screenshotStore = new ScreenshotStore({ threshold: 1, video: videoData.video, file });
 
       if (!screenshots) {
+        file.media = { ...file.media, screenshotStore, ...videoData };
         return { ...videoData, screenshotStore };
       }
       const screenshotCount = typeof screenshots === 'number' ? screenshots : 1;
       const {video} = videoData;
-      await screenshotStore.generateScreenshots(screenshotCount, video, { start: 0, end: video.duration });
-      if ('media' in file) {
+      await screenshotStore.generateTimespanScreenshots(screenshotCount, video, { start: 0, end: video.duration });
+
         file.media = { ...file.media, screenshotStore, ...videoData };
-      }
       return {
         screenshotStore,
         ...videoData
@@ -687,7 +687,7 @@ export default class MediaFile extends File implements IMediaFile {
     return new Promise((resolve) => {
       const element = document.createElement('audio') as HTMLAudioElement;
       element.addEventListener("durationchange", () => {
-        console.info("Audio duration:", element.duration); // Outputs the duration in seconds
+        // console.info("Audio duration:", element.duration); // Outputs the duration in seconds
         const metadata = { duration: element.duration, format: file.type, name: file.name, size: file.size, objectUrl };
         if ('media' in file) {
           file.media = { ...file.media, duration: element.duration };
@@ -885,9 +885,9 @@ export default class MediaFile extends File implements IMediaFile {
       backgroundColor: '#0000',
       waveformColor:  '#2bd797'
     }
-    const waveformImageUrl = await this.getAudioWaveImage(imageOptions);
-    const result = { ...preloadRes, waveformImageUrl };
-    file.media = { ...file.media, ...preloadRes, waveformImageUrl }
+    const backgroundImage = await this.getAudioWaveImage(imageOptions);
+    const result = { ...preloadRes, backgroundImage };
+    file.media = { ...file.media, ...preloadRes, backgroundImage }
     return result;
   }
 }

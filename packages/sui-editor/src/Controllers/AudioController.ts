@@ -11,7 +11,7 @@ import {
 class AudioControl extends Controller<Howl> implements IController {
   cacheMap: Record<string, Howl> = {};
 
-  logging: boolean = true;
+  logging: boolean = false;
 
   listenerMap: Record<
     string,
@@ -45,16 +45,6 @@ class AudioControl extends Controller<Howl> implements IController {
           autoplay: false,
           onload: () => {
             action.duration = item.duration();
-
-            const imageOptions = {
-              width: item.duration() * 100,
-              height: 300,
-              objectUrl: file.getUrl(),
-              duration: item.duration(),
-              backgroundColor: '#0000',
-              waveformColor: this.colorSecondary
-            }
-            action.backgroundImage = file.media.waveformImageUrl;
           }
         });
         this.cacheMap[track.id] = item;

@@ -28,6 +28,7 @@ import {useEditorContext} from "../EditorProvider/EditorContext";
 import {IEditorAction, IEditorFileAction} from "../EditorAction/EditorAction";
 import {IEditorTrack} from "../EditorTrack/EditorTrack";
 import EditorFile, {IEditorFile} from "../EditorFile/EditorFile";
+import ZoomCtrl from './Zoom';
 
 const useThemeProps = createUseThemeProps('MuiEditor');
 

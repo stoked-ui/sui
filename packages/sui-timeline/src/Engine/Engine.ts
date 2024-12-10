@@ -199,10 +199,6 @@ export default class Engine<
    * @memberof Engine
    */
   setPlayRate(rate: number): boolean {
-    if (rate <= -3.0 || rate >= 3.0) {
-      console.error('Error: rate cannot be less than -3 or more than 3!');
-      return false;
-    }
     const result = this.trigger('beforeSetPlayRate' as keyof EmitterEvents, { rate, engine: this as IEngine } as EmitterEvents[keyof EmitterEvents]);
     if (!result) {
       return false;
@@ -212,7 +208,6 @@ export default class Engine<
 
     return true;
   }
-
 
   /**
    * Get playback rate
@@ -227,7 +222,7 @@ export default class Engine<
    * @return {*}
    * @memberof Engine
    */
-  reRender() {
+  reRender(): void {
     if (this.isPlaying) {
       return;
     }
@@ -280,7 +275,7 @@ export default class Engine<
 
 
   rewind(delta: number) {
-    if (this._playRate > 0 || this._playRate <= -3) {
+    if (this._playRate > 0 || this._playRate <= -10) {
       this.setPlayRate(-1);
     } else if (this._playRate > -10) {
       this.setPlayRate(this._playRate - delta);
@@ -289,7 +284,7 @@ export default class Engine<
   }
 
   fastForward(delta: number) {
-    if (this._playRate < 0 || this._playRate === 1 || this._playRate >= 3) {
+    if (this._playRate < 0 || this._playRate === 1 || this._playRate >= 10) {
       this.setPlayRate(1.5);
     } else if (this._playRate < 10) {
       this.setPlayRate(this._playRate + delta);

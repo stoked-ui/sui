@@ -53,9 +53,7 @@ export const setCursor = (param: { left?: number; time?: number; updateTime?: bo
   let result = true;
   if (updateTime) {
     result = engine.setTime(time);
-    if (flags.autoReRender) {
-      engine.reRender();
-    }
+    engine.reRender();
   }
 
   if (result) {
@@ -119,11 +117,13 @@ export const  fitScaleData = (context: TimelineContextType, newWidth?: number)  
   const { scaleWidth, scale } = scaleRes;
   const scaleCount = getScaleCountByRows(tracks || [], { scale })
   const scaleData = {
+    scaleSplitCount: Math.floor(scaleWidth / 20),
     scaleWidth,
+    fullScaleWidth: scaleWidth,
     scaleCount,
-    minScaleCount: Math.min(maxScaleCount, Math.max(minScaleCount, scaleCount)),
     maxScaleCount: Math.max(maxScaleCount, Math.min(scaleCount, minScaleCount)),
     scale,
+    fullScale: scale,
   }
   dispatch({type: 'SET_SETTING', payload: {value: {...scaleData}}});
   return scaleData;

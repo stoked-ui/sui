@@ -11,11 +11,6 @@ export interface TimelineComponents<Theme = unknown> {
     styleOverrides?: ComponentsOverrides<Theme>['MuiTimelineAction'];
     variants?: ComponentsVariants<Theme>['MuiTimelineAction'];
   };
-  MuiTimelineControl?: {
-    defaultProps?: ComponentsProps['MuiTimelineControl'];
-    styleOverrides?: ComponentsOverrides<Theme>['MuiTimelineControl'];
-    variants?: ComponentsVariants<Theme>['MuiTimelineControl'];
-  };
   MuiTimelineCursor?: {
     defaultProps?: ComponentsProps['MuiTimelineCursor'];
     styleOverrides?: ComponentsOverrides<Theme>['MuiTimelineCursor'];

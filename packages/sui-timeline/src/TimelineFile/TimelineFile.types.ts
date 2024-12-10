@@ -21,10 +21,6 @@ export interface ITimelineFile<
   preload(): Promise<void>;
   get data(): FileDataType;
 }
-export const SUITimelineRefs: IMimeType = MimeRegistry.create('stoked-ui', 'timeline', '.sutr', 'Stoked UI - Timeline Project File w/ Url Refs', false);
-export const SUITimeline: IMimeType = MimeRegistry.create('stoked-ui', 'timeline', '.sut', 'Stoked UI - Timeline Project File', true);
-export const SUIAudioRefs: IMimeType = MimeRegistry.create('stoked-ui', 'audio', '.sua', 'Stoked UI - Timeline Audio File w/ Url Refs', false);
-export const SUIAudio: IMimeType = MimeRegistry.create('stoked-ui', 'audio', '.sua', 'Stoked UI - Timeline Audio File', true);
 
 export interface ITimelineFileProps<FileTrackType = ITimelineFileTrack> extends Omit<IAppFileProps, 'mediaFiles'> {
   image?: string;

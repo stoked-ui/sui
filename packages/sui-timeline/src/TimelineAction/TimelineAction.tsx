@@ -486,25 +486,45 @@ function TimelineAction<
         setActionStyle(newActionStyle);
       }
     }
- }, [track.file, action.start, action.end, scaleWidth, scale, trackHeight])
+ }, [track.file, action.start, action.end, scaleWidth, scale, trackHeight, track.file?.media.backgroundImage])
 
-  const dynamicTrackHeight = getTrackHeight(track, state);
+  const currTrackHeight = getTrackHeight(track, state);
+  const [dynamicTrackHeight, setDynamicTrackHeight] = React.useState(currTrackHeight);
+  React.useEffect(() => {
+    if (dynamicTrackHeight !== currTrackHeight) {
+      setDynamicTrackHeight(currTrackHeight);
+    }
+  }, [currTrackHeight])
+
+  const [screenshots, setScreenshots] = React.useState<Screenshot[]>([]);
   const [screenshotData, setScreenshotData] = React.useState<{
     start: number,
     end: number,
-    screens: Screenshot[],
     scaleWidth: number,
-    height: number
-  }>({ start, end, screens: [], scaleWidth, height: dynamicTrackHeight });
+    height: number,
+    scale: number,
+    screensMissing: boolean,
+  }>({ start, end, scaleWidth, height: dynamicTrackHeight, scale, screensMissing: true });
 
   React.useEffect(() => {
-    if ((screenshotData.start !== start || screenshotData.end !== end || track.file.media.screenshotStore?.count !== screenshotData.screens.length) && track.file.media.init) {
-      track.file.media.screenshotStore.queryScreenshots('track', scaleWidth, getActionFileTimespan(action), dynamicTrackHeight).then((screenshots) => {
-        console.info(`${track.file.name} action screenshots retrieved: ${screenshots.length}`);
-        setScreenshotData({end, start, screens: screenshots, scaleWidth, height: dynamicTrackHeight })
+    if ((
+      screenshotData.start !== start ||
+      screenshotData.end !== end ||
+      scaleWidth !== screenshotData.scaleWidth ||
+      screenshotData.height !== dynamicTrackHeight ||
+      scale !== screenshotData.scale ||
+      screenshotData.screensMissing
+    )) {
+      if (track.file.media?.screenshotStore) {
+        track.file.media.screenshotStore.scaleWidth = scaleWidth;
+        track.file.media.screenshotStore.scale = scale;
+      }
+      track.file.media.screenshotStore?.queryScreenshots('track', getActionFileTimespan(action), dynamicTrackHeight).then((queryRes: { found: Screenshot[], missing: number[] }) => {
+        setScreenshotData({end, start, scaleWidth, height: dynamicTrackHeight, scale, screensMissing: queryRes.missing.length > 0 })
+        setScreenshots(queryRes.found);
       })
     }
-  }, [end, start, track.file.media.init, dynamicTrackHeight])
+  }, [end, start, dynamicTrackHeight, scaleWidth, scaleSplitCount, track.file.media.screenshotStore?.count])
 
   const loopCount = !!action?.loop && typeof action.loop === 'number' && action.loop > 0 ? action.loop : undefined;
 
@@ -600,21 +620,14 @@ function TimelineAction<
             type: 'SET_SETTING',
             payload: { key: 'actionHoverId', value: action.id },
           });
-          dispatch({
-            type: 'SET_SETTING',
-            payload: { key: 'trackHoverId', value: track.id },
-          });
           event.stopPropagation();
         }}
-        onMouseLeave={() => {
+        onMouseLeave={(event) => {
           dispatch({
             type: 'SET_SETTING',
             payload: { key: 'actionHoverId', value: undefined },
           });
-          dispatch({
-            type: 'SET_SETTING',
-            payload: { key: 'trackHoverId', value: undefined },
-          });
+          event.stopPropagation();
         }}
         onMouseDown={() => {
           if (track.locked) {
@@ -670,12 +683,15 @@ function TimelineAction<
       >
         <ImageList
           gap={0}
-          cols={screenshotData?.screens?.length}
-          rowHeight={trackHeight}
+          cols={screenshots?.length}
+          sx={{
+            overflow: 'hidden',
+          }}
         >
-          {screenshotData.screens.map((screen, index) => (
+          {screenshots.map((screen, index) => (
             <ImageListItem key={`key-${index}`}>
               <img
+                key={`ss-${screen.timestamp}`}
                 src={screen.data}
                 alt={`ss-${screen.timestamp}`}
                 className={'screen-shot'}

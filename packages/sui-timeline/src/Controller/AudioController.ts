@@ -8,7 +8,7 @@ import {ITimelineTrack} from "../TimelineTrack";
 class AudioControl extends Controller<Howl> implements IController {
   cacheMap: Record<string, Howl> = {};
 
-  logging: boolean = true;
+  logging: boolean = false;
 
   listenerMap: Record<
     string,
