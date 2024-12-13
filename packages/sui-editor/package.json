@@ -61,6 +61,7 @@
     "prop-types": "^15.8.1",
     "react-device-detect": "^2.2.3",
     "react-hook-form": "^7.53.0",
+    "react-json-view": "^1.21.3",
     "react-router-dom": "^6.21.3",
     "react-transition-group": "^4.4.5",
     "sorted-btree": "^1.8.1",
@@ -72,6 +73,7 @@
     "@emotion/styled": "^11.8.1",
     "@mui/icons-material": "^5.15.21",
     "@mui/material": "^5.15.21",
+    "@stoked-ui/common": "workspace:^",
     "@stoked-ui/file-explorer": "workspace:^",
     "@stoked-ui/media-selector": "workspace:^",
     "@stoked-ui/timeline": "workspace:^",
@@ -90,7 +92,8 @@
     "chai": "^4.4.1",
     "jest": "^29.7.0",
     "rimraf": "^5.0.7",
-    "ts-jest": "^29.2.3"
+    "ts-jest": "^29.2.3",
+    "util": "^0.12.5"
   },
   "engines": {
     "node": ">=14.0.0"

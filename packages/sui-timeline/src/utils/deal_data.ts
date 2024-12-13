@@ -81,7 +81,7 @@ export function getScaleCountByRows<
     });
   });
   const count = Math.ceil(max / param.scale);
-  return count + ADD_SCALE_COUNT;
+  return count + 2;
 }
 
 /** Get the current tick number based on time */

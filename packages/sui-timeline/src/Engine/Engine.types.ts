@@ -3,7 +3,6 @@ import type {IController} from '../Controller/Controller.types';
 import type {ITimelineAction } from "../TimelineAction";
 import type { EventTypes } from './events';
 import { Emitter } from "./emitter";
-import { RowRndApi } from "../TimelineTrack/TimelineTrackDnd.types";
 
 export type SetAction<S> = S | ((prevState: S) => S);
 export type Dispatch<A> = (value: A) => void;
@@ -15,25 +14,19 @@ export interface IEngine<EmitterEvents extends EventTypes = EventTypes> extends 
   logging: boolean;
   controllers: Record<string, any>;
   readonly duration: number;
+  maxDuration: number;
+  readonly canvasDuration: number;
   readonly actions: Record<string, ITimelineAction>;
-  control: any;
   state: string;
+  playbackMode: 'media' | 'canvas';
 
-  resetCursor?: () => void;
+  getStartTime(): number;
 
-  cursorData?: () => {
-    dnd?: { current: RowRndApi };
-    dragLeft: { current: number };
-    scrollLeft: { current: number };
-    setCursor: (param: {
-      left?: number,
-      time?: number
-    }) => boolean;
-  }
+  getEndTime(): number;
 
-  cursorDragStart?: (time: number) => void;
-  cursorDragEnd?: () => void;
-  cursorDrag?: (left: number, scroll?: number) => void;
+  setStart(): void;
+
+  setEnd(): void;
 
   setScrollLeft(left: number): void;
   /** Set playback rate */
@@ -48,6 +41,10 @@ export interface IEngine<EmitterEvents extends EventTypes = EventTypes> extends 
   setTime(time: number, isTick?: boolean): boolean;
   /** Get playback time */
   get time(): number;
+  /** Play backwards increasing in speed incrementally */
+  rewind(delta: number): void;
+  /** Play forwards increasing in speed incrementally */
+  fastForward(delta: number): void;
   /** Play */
   play(param: {
     /** By default, it runs from beginning to end, with a priority greater than autoEnd */
@@ -69,7 +66,13 @@ export interface IEngine<EmitterEvents extends EventTypes = EventTypes> extends 
 
 }
 
-export type EngineState = 'loading' | 'playing' | 'paused' | 'ready';
+export enum EngineState {
+  LOADING = 'LOADING',
+  PLAYING = 'PLAYING',
+  PAUSED = 'PAUSED',
+  READY = 'READY',
+  PREVIEW = 'PREVIEW',
+}
 
 export type EngineOptions = {
   viewer?: HTMLElement;

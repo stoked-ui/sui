@@ -1,0 +1,16 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="editor &gt; docs" type="js.build_tools.npm">
+    <package-json value="$PROJECT_DIR$/docs/package.json" />
+    <command value="run" />
+    <scripts>
+      <script value="debug" />
+    </scripts>
+    <node-interpreter value="project" />
+    <package-manager value="$USER_HOME$/Library/pnpm/pnpm" />
+    <envs />
+    <EXTENSION ID="com.intellij.lang.javascript.buildTools.npm.rc.StartBrowserRunConfigurationExtension">
+      <browser start="true" with-js-debugger="true" url="https://127.0.0.1:5199/editor/docs" />
+    </EXTENSION>
+    <method v="2" />
+  </configuration>
+</component>

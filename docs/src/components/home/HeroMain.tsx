@@ -72,7 +72,7 @@ export default function Hero() {
         <React.Fragment>
           {isMdUp && (
             <Stack spacing={3} useFlexGap sx={{ '& > .MuiPaper-root': { maxWidth: 'none' } }}>
-              <EditorHero id={'file-explorer-grid'} grid sx={{ width: '100%' }} />
+              <EditorHero id={'file-explorer-grid'} sx={{ width: '100%' }} />
             </Stack>
           )}
         </React.Fragment>

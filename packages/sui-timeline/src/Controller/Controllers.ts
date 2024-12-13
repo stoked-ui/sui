@@ -1,6 +1,4 @@
-import AudioController from "./AudioController";
-import type { IController } from "./Controller.types";
-import Controller from "./Controller";
+import { IController } from "./Controller.types";
 
-const Controllers:  Record<string, Controller> = { audio: AudioController };
+const Controllers:  Record<string, IController> = {};
 export default Controllers ;

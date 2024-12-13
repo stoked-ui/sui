@@ -1,35 +1,17 @@
 import * as React from 'react';
-import { IMediaFile, MediaFile } from '@stoked-ui/media-selector';
-import { useTimeline, WebFile } from "@stoked-ui/timeline";
-import SettingsIcon from '@mui/icons-material/Settings';
-import SaveIcon from '@mui/icons-material/Save';
-import OpenIcon from '@mui/icons-material/OpenInBrowser';
-import IconButton from '@mui/material/IconButton';
-import composeClasses from "@mui/utils/composeClasses";
-import {useSlotProps} from '@mui/base/utils';
-import {keyframes} from "@emotion/react";
-import InputIcon from '@mui/icons-material/Input';
-import OutputIcon from '@mui/icons-material/Output';
-import {
-  Fab,
-  Popover,
-  SpeedDial,
-  SpeedDialAction,
-  Stack,
-  Tooltip,
-  TooltipProps,
-  Zoom,
-  alpha,
-  tooltipClasses
-} from "@mui/material";
-import useForkRef from "@mui/utils/useForkRef";
-import {createUseThemeProps, styled} from '../internals/zero-styled';
-import {EditorViewProps} from './EditorView.types';
-import {getEditorViewUtilityClass} from "./editorViewClasses";
-import {useEditorContext} from "../EditorProvider/EditorContext";
-import Loader from "../Editor/Loader";
-import EditorFile, { EditorFileType, SUVideoMime } from '../EditorFile/EditorFile';
-import { initEditorAction } from "../EditorAction";
+import PropTypes from 'prop-types';
+import { IMediaFile } from '@stoked-ui/media-selector';
+import composeClasses from '@mui/utils/composeClasses';
+import {Fade} from "@mui/material";
+import { useSlotProps } from '@mui/base/utils';
+import { keyframes } from '@emotion/react';
+import useForkRef from '@mui/utils/useForkRef';
+import { createUseThemeProps, styled } from '../internals/zero-styled';
+import { EditorViewProps } from './EditorView.types';
+import { getEditorViewUtilityClass } from './editorViewClasses';
+import { useEditorContext } from '../EditorProvider/EditorContext';
+import Loader from '../Editor/Loader';
+import EditorViewActions from "./EditorViewActions";
 
 const useThemeProps = createUseThemeProps('MuiEditorView');
 
@@ -41,13 +23,23 @@ const useUtilityClasses = <R extends IMediaFile, Multiple extends boolean | unde
   const slots = {
     root: ['root'],
   };
-
   return composeClasses(slots, getEditorViewUtilityClass, classes);
 };
 
 const EditorViewRoot = styled('div', {
-  name: "MuiEditorView",
-  slot: "root"
+  name: 'MuiEditorView',
+  slot: 'root',
+  shouldForwardProp: (prop) =>
+    prop !== 'ownerState' &&
+    prop !== 'viewButtons' &&
+    prop !== 'fullscreen' &&
+    prop !== 'viewButtonAppear' &&
+    prop !== 'viewButtonExit' &&
+    prop !== 'viewButtonEnter' &&
+    prop !== 'fileUrl' &&
+    prop !== 'fileView' &&
+    prop !== 'detailMode' &&
+    prop !== 'editorId'
 })<{ loading: boolean }>(({ loading }) => {
   const spin = keyframes`
     0% { transform: rotate(0deg); }
@@ -55,26 +47,30 @@ const EditorViewRoot = styled('div', {
   `;
   const anim = `2.5s cubic-bezier(0.35, 0.04, 0.63, 0.95) 0s infinite normal none running ${spin}`;
   return {
-  display: 'flex',
-  flexDirection: 'column',
-  width: '100%',
-  position: 'relative',
-  overflow: 'hidden',
-  aspectRatio: 16 / 9,
-  '& .lottie-canvas': {
-    width: '1920px!important',
-    height: '1080px!important'
-  },
-  '& #settings': {
-    alignSelf: 'bottom'
-  },
-
-}});
+    gridArea: 'viewer',
+    display: 'flex',
+    flexDirection: 'column',
+    width: '100%',
+    position: 'relative',
+    overflow: 'hidden',
+    maxWidth: '100vw',
+    aspectRatio: 16 / 9,
+    '& .lottie-canvas': {
+      width: '1920px!important',
+      height: '1080px!important',
+    },
+    '& #settings': {
+      alignSelf: 'bottom',
+    },
+  };
+});
 
 const Renderer = styled('canvas', {
-  name: "MuiEditorViewRenderer",
-  slot: "renderer",
-  shouldForwardProp: (prop) => prop !== 'viewMode',
+  name: 'MuiEditorViewRenderer',
+  slot: 'renderer',
+  shouldForwardProp: (prop) =>
+    prop !== 'viewMode' &&
+  prop !== 'detailMode',
 })(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
@@ -84,12 +80,13 @@ const Renderer = styled('canvas', {
   aspectRatio: 16 / 9,
   width: '100%',
   height: '100%',
-  backgroundColor: theme.palette.background.default
+  minWidth: '480px',
+  backgroundColor: theme.palette.background.default,
 }));
 
 const Screener = styled('video', {
-  name: "MuiEditorViewScreener",
-  slot: "screener",
+  name: 'MuiEditorViewScreener',
+  slot: 'screener',
   shouldForwardProp: (prop) => prop !== 'viewMode',
 })({
   display: 'none',
@@ -115,230 +112,85 @@ const Stage = styled('div', {
   vIndex: 100,
 }));
 
-function Actions({ visible }: {visible: boolean}) {
 
-  const { dispatch, file } = useEditorContext();
-
-  const [fileIsDirty, setIsDirty] = React.useState<boolean>(false);
-  React.useEffect(() => {
-    const isFileDirty = async () => {
-      const isDirty = await (file as EditorFile)?.isDirty();
-      setIsDirty(isDirty);
-    }
-
-    isFileDirty().catch();
-
-  }, [file])
-
-  const saveHandler = async (embeded: boolean) => {
-    if (!file) {
-      return;
-    }
-    await file.save()
-    console.info('file saved');
-  }
-
-  const saveEmbeddedHandler = async () => {
-    await saveHandler(true);
-  }
-
-  const saveUrlRefsHandler = async () => {
-    await saveHandler(false);
-  }
-
-  const openHandler = async () => {
-    const input = document.createElement('input') as HTMLInputElement;
-    input.type = 'file';
-
-    async function handleFiles() {
-      if (!input.files) {
-        return;
-      }
-      const files = Array.from(input.files);
-      if (files.length) {
-        for (let i = 0; i < files.length; i += 1) {
-          const clientFile = files[i];
-          // eslint-disable-next-line no-await-in-loop
-          const loadedFile = await WebFile.fromBlob<SUVideoMime, EditorFile<EditorFileType>>(clientFile);
-          dispatch({ type: 'SET_FILE', payload: loadedFile });
-        }
-      }
-    }
-    input.addEventListener("change", handleFiles, false);
-
-    input.click();
-  }
-
-  const [open, setOpen] = React.useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
-
-  const actions = [
-    { icon: <InputIcon />, name: 'Embedded', click: saveEmbeddedHandler },
-    { icon: <OutputIcon />, name: 'Urls', click: saveUrlRefsHandler },
-  ];
-
-  return <Stack direction={'row'}>
-    {fileIsDirty && visible &&
-      <SpeedDial
-        ariaLabel="Save"
-        sx={{
-          position: 'absolute',
-          right: '88px',
-          alignContent: 'top',
-          margin: '8px',
-          '& .MuiSpeedDialAction-staticTooltip': {
-            maxWidth: 'none'
-          }
-        }}
-        icon={<SaveIcon />}
-        onClose={handleClose}
-        onOpen={handleOpen}
-        open={open}
-        id={'save'}
-        color={'standard'}
-        direction={'down'}
-        FabProps={{ size: 'small' }}
-      >
-        {actions.map((action) => (
-          <SpeedDialAction
-            key={action.name}
-            icon={action.icon}
-            tooltipTitle={action.name}
-            tooltipOpen
-            onClick={action.click}
-            FabProps={{ size: 'small' }}
-          />
-        ))}
-      </SpeedDial>
-    }
-    <Zoom in={visible} >
-      <Fab
-        id={'open'}
-        aria-label="open"
-        size="small"
-        sx={{
-          position: 'absolute',
-          right: '48px',
-          margin: '8px',
-        }}
-        onClick={openHandler}
-      >
-        <OpenIcon/>
-      </Fab>
-    </Zoom>
-    <Zoom in={visible}>
-      <Fab
-        id={'settings'}
-        aria-label="settings"
-        size="small"
-        sx={(theme) => ({
-          position: 'absolute',
-          right: '0px',
-          margin: '8px',
-        })}
-        onClick={() => {
-          dispatch({ type: 'PROJECT_DETAIL'});
-        }}
-      >
-        <SettingsIcon/>
-      </Fab>
-    </Zoom>
-  </Stack>
-}
-/**
- *
- * Demos:
- *
- * - [FileExplorer View](https://stoked-ui.github.io/editor/docs/)
- *
- * API:
- *
- * - [FileExplorer API](https://stoked-ui.github.io/editor/api/)
- */
 const EditorView = React.forwardRef(function EditorView<
   R extends IMediaFile = IMediaFile,
   Multiple extends boolean | undefined = undefined,
->(
-  inProps: EditorViewProps<R, Multiple>,
-  ref: React.Ref<HTMLDivElement>
-): React.JSX.Element {
-  const editorContext = useEditorContext();
-  const { id, file, engine, flags, dispatch } = editorContext;
-  const isMobile = flags.includes('isMobile');
-
-  const timelineContext = useTimeline();
+>(inProps: EditorViewProps<R, Multiple>, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
+  const {state, dispatch} = useEditorContext();
+  const { settings, file, engine, flags } = state;
   const props = useThemeProps({ props: inProps, name: 'MuiEditorView' });
   const viewRef = React.useRef<HTMLDivElement>(null);
-  const combinedViewRef = useForkRef(ref , viewRef);
+  const combinedViewRef = useForkRef(ref, viewRef);
+  const { editorId } = props;
 
-  const [showActions, setShowSettings] = React.useState<boolean>(false);
-  const [showActionsPanel, setShowSettingsPanel] = React.useState<boolean>(false);
-  const [, setViewerSize] = React.useState<{w: number, h: number}>({w: 0, h: 0});
+  const [, setViewerSize] = React.useState<{ w: number; h: number }>({ w: 0, h: 0 });
   const viewerRef = React.useRef<HTMLDivElement>(null);
   const rendererRef = React.useRef<HTMLCanvasElement>(null);
   const screenerRef = React.useRef<HTMLVideoElement>(null);
   const stageRef = React.useRef<HTMLDivElement>(null);
 
-
   React.useEffect(() => {
     if (engine && viewRef?.current) {
       engine.viewer = viewRef.current;
-      if (viewRef.current.parentElement) {
-        viewRef.current.id = `viewer-${id}`
-        viewRef.current.classList.add(id);
+      if (viewRef.current.parentElement && settings) {
+        viewRef.current.id = `viewer-${editorId}`;
+        viewRef.current.classList.add(editorId);
       }
     }
-  }, [viewRef, engine])
+  }, [viewRef, engine]);
 
   // tie the renderer to the editor
   React.useEffect(() => {
     if (rendererRef.current && viewRef.current) {
-      if (!rendererRef.current.id && viewRef.current.parentElement) {
-        rendererRef.current.id = `renderer-${id}`
-        rendererRef.current.classList.add(id);
+      if (!rendererRef.current.id && viewRef.current.parentElement && settings) {
+        rendererRef.current.id = `renderer-${editorId}`;
+        rendererRef.current.classList.add(editorId);
       }
     }
-  })
+  });
 
   // tie the renderer to the editor
   React.useEffect(() => {
     if (screenerRef.current && viewRef.current) {
-      if (!screenerRef.current.id && viewRef.current.parentElement) {
-        screenerRef.current.id = `screener-${id}`
-        screenerRef.current.classList.add(id);
+      if (!screenerRef.current.id && viewRef.current.parentElement && settings) {
+        screenerRef.current.id = `screener-${editorId}`;
+        screenerRef.current.classList.add(editorId);
       }
     }
-  })
+  });
 
   // tie the renderer to the editor
   React.useEffect(() => {
+    if (stageRef.current) {
+      // ShadowStage.setStage(stageRef.current);
+    }
     if (stageRef.current && viewRef.current) {
-      if (!stageRef.current.id && viewRef.current.parentElement) {
-        stageRef.current.id = `stage-${id}`
-        stageRef.current.classList.add(id);
+      if (!stageRef.current.id && viewRef.current.parentElement && settings) {
+        stageRef.current.id = `stage-${editorId}`;
+        stageRef.current.classList.add(editorId);
       }
     }
-  })
+  }, [stageRef.current]);
 
   const { slots, slotProps } = props;
   const classes = useUtilityClasses(props);
 
   const Root = slots?.root ?? EditorViewRoot;
-  const rootProps = useSlotProps({
+  let rootProps = useSlotProps({
     elementType: Root,
     externalSlotProps: slotProps?.root,
     className: classes.root,
-    ownerState: {...props, ref: viewRef }
+    ownerState: { ...props },
   });
 
   // if the viewer resizes make the renderer match it
   React.useEffect(() => {
     const resizeObserver = new ResizeObserver((entries) => {
-      for (let i = 0; i < entries.length; i += 1){
+      for (let i = 0; i < entries.length; i += 1) {
         const entry = entries[i];
         if (entry.target === viewerRef.current) {
-          setViewerSize({w: entry.contentRect.width, h: entry.contentRect.height});
+          setViewerSize({ w: entry.contentRect.width, h: entry.contentRect.height });
           if (rendererRef.current) {
             rendererRef.current.width = entry.contentRect.width;
             rendererRef.current.height = entry.contentRect.height;
@@ -348,36 +200,94 @@ const EditorView = React.forwardRef(function EditorView<
       }
     });
     return () => {
-      resizeObserver.disconnect()
-    }
+      resizeObserver.disconnect();
+    };
   }, [viewerRef]);
 
-  function handleClose() {
 
-    setShowSettingsPanel(false);
-  }
+  const styles: React.CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+    position: 'absolute',
+    left: 0,
+    overflow: 'hidden',
+    aspectRatio: 16 / 9,
+    width: '100%',
+    height: '100%',
+  };
+
+  rootProps = { ...rootProps, ...rootProps.ownerState };
   return (
-    <Root role={'viewer'}
-                {...rootProps}
-                ref={combinedViewRef}
-                data-preserve-aspect-ratio
-                onMouseEnter={() => {
-                  setShowSettings(true)
-
-                }}
-                onMouseLeave={() => {
-                  setShowSettings(false)
-                }}
+    <Root
+      role={'viewer'}
+      {...rootProps }
+      ref={combinedViewRef}
+      data-preserve-aspect-ratio
+      onMouseEnter={() => {
+        dispatch({ type: 'SET_FLAGS', payload: { add: ['showViewControls'] }});
+      }}
+      onMouseLeave={() => {
+        dispatch({ type: 'SET_FLAGS', payload: { remove: ['showViewControls'] }});
+      }}
     >
-
-      <Renderer role={'renderer'} style={{backgroundColor: file?.backgroundColor}} ref={rendererRef}
-                data-preserve-aspect-ratio/>
+      {inProps.viewButtons?.map((button, index) => {
+        return (
+          <Fade
+            timeout={{
+              appear: inProps.viewButtonAppear,
+              enter: inProps.viewButtonEnter,
+              exit: inProps.viewButtonExit
+            }}
+            in={flags.showViewControls}
+            key={`key-${index}`}
+          >
+            {button}
+          </Fade>
+        )
+      })}
+      {inProps.children}
+      <Renderer
+        role={'renderer'}
+        style={{ backgroundColor: file?.backgroundColor }}
+        ref={rendererRef}
+        data-preserve-aspect-ratio
+      />
       <Screener role={'screener'} ref={screenerRef} />
-      <Loader />
-      <Stage role={'stage'} ref={stageRef}/>
-      <Actions visible={showActions} />
+      <Loader styles={styles} />
+      <Stage role={'stage'} ref={stageRef} />
+      <EditorViewActions visible={flags.showViewControls}/>
     </Root>
-  )
-})
+  );
+});
+
+EditorView.propTypes = {
+  // ----------------------------- Warning --------------------------------
+  // | These PropTypes are generated from the TypeScript type definitions |
+  // | To update them edit the TypeScript types and run "pnpm proptypes"  |
+  // ----------------------------------------------------------------------
+  /**
+   * Override or extend the styles applied to the component.
+   */
+  classes: PropTypes.object,
+  className: PropTypes.string,
+  /**
+   * The props used for each component slot.
+   * @default {}
+   */
+  slotProps: PropTypes.object,
+  /**
+   * Overridable component slots.
+   * @default {}
+   */
+  slots: PropTypes.object,
+  /**
+   * The system prop that allows defining system overrides as well as additional CSS styles.
+   */
+  sx: PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool])),
+    PropTypes.func,
+    PropTypes.object,
+  ]),
+};
 
 export default EditorView;

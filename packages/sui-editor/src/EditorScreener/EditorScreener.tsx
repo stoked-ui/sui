@@ -27,11 +27,9 @@ const VersionSelect = styled(Select)(({ theme }) => ({
 }));
 
 function Versions ({currentVersion, setCurrentVersion }: VersionProps) {
-  const { id, file, versions, engine, dispatch } = useEditorContext();
+  const { state: { file, settings }  } = useEditorContext();
+  const { timeline: { versions }} = settings;
   const handleVersionChange = async (event: SelectChangeEvent<unknown>) => {
-   /*  const outputData = await file!.loadOutput()
-    engine.screenerBlob = screenerBlob;
-    setCurrentVersion(versions.key); */
     console.info('handle version change', event);
   }
 
@@ -60,7 +58,7 @@ function Versions ({currentVersion, setCurrentVersion }: VersionProps) {
         <em>Version</em>
       </MenuItem>
       {versions.map((version: IMediaFile, index: number) => (<MenuItem key={index} value={version.id}>
-        {version.name} v{version.version}
+        {version.name} v{version.media.version}
       </MenuItem>))}
     </VersionSelect>
   </VersionRoot>

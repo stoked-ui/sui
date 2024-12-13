@@ -1,4 +1,4 @@
-export const PREFIX = `timeline-editor`;
+export const PREFIX = `timeline`;
 
 /** The time where the cursor is at the beginning */
 export const START_CURSOR_TIME = 0;
@@ -19,9 +19,10 @@ export const DEFAULT_ADSORPTION_DISTANCE = 8;
 export const DEFAULT_TRACK_HEIGHT = 36;
 /** Default mobile action track height */
 export const DEFAULT_MOBILE_TRACK_HEIGHT = 60;
-
+/** New action initial duration */
+export const NEW_ACTION_DURATION = 2;
 /** Minimum number of scales */
-export const MIN_SCALE_COUNT = 10;
+export const MIN_SCALE_COUNT = 40;
 /** The number of new scales added each time */
 export const ADD_SCALE_COUNT = 5;
 

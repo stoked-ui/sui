@@ -1,11 +1,17 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import Typography from '@mui/material/Typography';
-import {alpha, darken, emphasize, lighten, styled,} from '@mui/material/styles';
-import {shouldForwardProp} from "@mui/system/createStyled";
-import {DEFAULT_ADSORPTION_DISTANCE, DEFAULT_MOVE_GRID} from '../interface/const';
+import { alpha, darken, emphasize, lighten, styled } from '@mui/material/styles';
+import { shouldForwardProp } from '@mui/system/createStyled';
+import LockIcon from '@mui/icons-material/Lock';
+import {Fade, ImageList, ImageListItem} from "@mui/material";
+import Zoom from '@mui/material/Zoom';
+import { Screenshot } from '@stoked-ui/media-selector';
+import { DEFAULT_ADSORPTION_DISTANCE, DEFAULT_MOVE_GRID } from '../interface/const';
 import {
-  getScaleCountByPixel, parserTimeToPixel, parserTimeToTransform, parserTransformToTime,
+  getScaleCountByPixel,
+  parserTimeToPixel,
+  parserTimeToTransform,
+  parserTransformToTime,
 } from '../utils/deal_data';
 import TimelineTrackDnd from '../TimelineTrack/TimelineTrackDnd';
 import {
@@ -19,25 +25,30 @@ import {
 } from '../TimelineTrack/TimelineTrackDnd.types';
 import { prefix } from '../utils/deal_class_prefix';
 import {
+  getActionFileTimespan,
   ITimelineAction,
   type TimelineActionProps
 } from './TimelineAction.types';
 import { getTrackBackgroundColor, type ITimelineTrack } from '../TimelineTrack/TimelineTrack.types';
-import { useTimeline } from "../TimelineProvider";
-import { IController } from "../Controller";
+import { useTimeline } from '../TimelineProvider';
+import TimelineFile from "../TimelineFile";
+import {getTrackHeight} from "../TimelineProvider/TimelineProviderFunctions";
 
 const Action = styled('div', {
   name: 'MuiTimelineAction',
   slot: 'root',
-    shouldForwardProp: prop => shouldForwardProp(prop) &&
-                             prop !== 'selected' &&
-                             prop !== 'color' &&
-                             prop !== 'duration' &&
-                             prop !== 'scaleWidth' &&
-                             prop !== 'loopCount' &&
-                             prop !== 'loop' &&
-      prop !== 'trackHeight'
-
+  shouldForwardProp: (prop) =>
+    shouldForwardProp(prop)
+    && prop !== 'selected'
+    && prop !== 'color'
+    && prop !== 'duration'
+    && prop !== 'scaleWidth'
+    && prop !== 'loop'
+    && prop !== 'loopCount'
+    && prop !== 'hover'
+    && prop !== 'trackHeight'
+    && prop !== 'disabled'
+    && prop !== 'dim',
 })<{
   selected?: boolean;
   color?: string;
@@ -47,27 +58,29 @@ const Action = styled('div', {
   loopCount?: number;
   hover: boolean;
   trackHeight: number;
-}>(({ theme, duration, scaleWidth, color, loop = true, loopCount, selected, hover , trackHeight}) => {
-  /* const base = theme.vars ? `rgba(color(from ${color}) / 1)` : alpha(color, 1);
-  const unselected = emphasize(color, 0.7);
-  const hover = emphasize(color, 0.45);
-  const selectedColor = emphasize(color, 0.3);
-  const background = selected ? selectedColor : unselected; */
-  // console.log('color', color)
+  disabled: boolean;
+  dim?: boolean;
+}>(({
+  theme,
+  duration,
+  scaleWidth,
+  color,
+  loop = true,
+  loopCount,
+  selected,
+  hover,
+  trackHeight,
+  disabled,
+  dim
+}) => {
 
+  const trackBack = getTrackBackgroundColor(color, theme.palette.mode, selected, hover, disabled, dim);
 
-  // if (collapsed) {
-  //   color = theme.palette.mode === 'dark' ? '#ccc' : '#444';
-  // }
-  const trackBack = getTrackBackgroundColor(color, theme.palette.mode, selected, hover);
-
-
-
-  const backgroundColor = emphasize(color, 0.10);
-  const darker = darken(backgroundColor, .6);
-  const lighter = lighten(backgroundColor, .6);
-  const size = (duration && scaleWidth) ? duration * (100 / scaleWidth) : undefined;
-  let background =  `linear-gradient(to right, ${backgroundColor} 1px, ${theme.palette.action.hover} 1px)`
+  const backgroundColor = emphasize(color, 0.1);
+  const darker = darken(backgroundColor, 0.6);
+  const lighter = lighten(backgroundColor, 0.6);
+  const size = duration && scaleWidth ? duration * (100 / scaleWidth) : undefined;
+  let background = `linear-gradient(to right, ${backgroundColor} 1px, ${theme.palette.action.hover} 1px)`;
   let backgroundSize = size ? `${size}px ` : undefined;
   let backgroundRepeat: string | undefined;
   let backgroundPosition: string | undefined;
@@ -81,7 +94,7 @@ const Action = styled('div', {
         newBack.push(background);
         newRepeat.push('no-repeat');
         if (size) {
-          newSize.push(`${total}px top`)
+          newSize.push(`${total}px top`);
           total += size;
         }
       }
@@ -98,11 +111,11 @@ const Action = styled('div', {
   }
 
   let height = '100%';
-  let borderWidth = '1px';
+  const borderWidth = '1px';
   if (selected) {
-    height = `${ trackHeight + 2 }px`;
+    height = `${trackHeight + 2}px`;
   } else if (hover) {
-    height = `${ trackHeight + 4 }px`;
+    height = `${trackHeight + 4}px`;
   }
   return {
     borderRadius: '4px',
@@ -118,7 +131,7 @@ const Action = styled('div', {
     // backgroundColor,
     ...trackBack.action,
     alignContent: 'center',
-    padding: '0 0 0 10px',
+    padding: 0,
     overflow: 'hidden',
     textWrap: 'nowrap',
     height,
@@ -127,29 +140,32 @@ const Action = styled('div', {
     userSelect: 'none',
     justifyContent: 'end',
     display: 'flex',
+    touchAction: 'none',
     '&.volume:hover': {
-      cursor: 'url(\'/static/cursors/volume-pen.svg\') 16 16, auto',
+      cursor: "url('/static/cursors/volume-pen.svg') 16 16, auto",
     },
     '&:hover': {
       // backgroundColor:   `${emphasize(color, 0.15)}`,
       '& .label': {
         opacity: '1',
-      }
+      },
     },
-    variants: [{
-      props: {  selected: true },
-      style: {
-        // backgroundColor: `${color}`,
-        '&:hover': {
-          // backgroundColor: `${emphasize(color, 0.05)}`,
+    variants: [
+      {
+        props: { selected: true },
+        style: {
+          // backgroundColor: `${color}`,
+          '&:hover': {
+            // backgroundColor: `${emphasize(color, 0.05)}`,
+          },
         },
-      }
-    }]
+      },
+    ],
   };
 });
 
-const sizerColor = (theme) => alpha(theme.palette.text.primary, .5);
-const sizerHoverColor = (theme) => alpha(theme.palette.text.primary, .9)
+const sizerColor = (theme) => alpha(theme.palette.text.primary, 0.5);
+const sizerHoverColor = (theme) => alpha(theme.palette.text.primary, 0.9);
 
 const LeftStretch = styled('div')(({ theme }) => ({
   position: 'absolute',
@@ -162,14 +178,14 @@ const LeftStretch = styled('div')(({ theme }) => ({
   '&:hover': {
     '&::after': {
       borderLeftColor: sizerHoverColor(theme),
-    }
+    },
   },
   '&::after': {
     position: 'absolute',
     top: 0,
     bottom: 0,
     margin: 'auto',
-    bordeRadius: '4px',
+    borderRadius: '4px',
     borderTop: '28px solid transparent',
     borderBottom: '28px solid transparent',
     left: 0,
@@ -190,7 +206,7 @@ const RightStretch = styled('div')(({ theme }) => ({
   '&:hover': {
     '&::after': {
       borderRightColor: sizerHoverColor(theme),
-    }
+    },
   },
   '&::after': {
     position: 'absolute',
@@ -208,65 +224,51 @@ const RightStretch = styled('div')(({ theme }) => ({
 }));
 
 
-
-const ActionLabel = styled('div', {
-  name: 'MuiTimelineAction',
-  slot: 'root',
-  overridesResolver: (props, styles) => styles.root,
-  shouldForwardProp: (prop) => shouldForwardProp(prop) && prop !== 'color',
-})<{
-  color: string;
-}>(({ theme }) => {
-
-  const bgColor = alpha(theme.palette.background.default, theme.palette.action.focusOpacity * 4);
-  return {
-    '& p': {
-      color: theme.palette.text.primary,
-    },
-    padding: '3px 6px',
-    display: 'flex',
-    width: 'min-content',
-    borderRadius: '4px',
-    background: bgColor,
-    position: 'sticky',
-    right: 0,
-    marginRight: '8px',
-    alignSelf: 'center',
-    opacity: '0',
-    transition: 'opacity .3s ease-in-out'
-  }
-});
-
 function TimelineAction<
-  ActionType extends ITimelineAction = ITimelineAction,
   TrackType extends ITimelineTrack = ITimelineTrack,
->(props: TimelineActionProps<ActionType, TrackType>) {
-  const {  dispatch, file, settings } = useTimeline();
-  const { action, ...restProps } = props;
-  const { selected, flexible = true, movable = true, disable } = action;
-  const state = { selected, flexible, movable, disable };
-  const ownerStateProps = { ...state, ...restProps, ...action };
-  const { onKeyDown, ...ownerState } = ownerStateProps;
-  const actionEl = React.useRef<HTMLDivElement>(null);
-  const rowRnd = React.useRef<RowRndApi>();
-  const isDragWhenClick = React.useRef(false);
-  const { id, maxEnd, minStart, end, start } = action;
+  ActionType extends ITimelineAction = ITimelineAction,
+>(props: TimelineActionProps<TrackType, ActionType>) {
+  const context = useTimeline();
+  const { state, dispatch} = context;
   const {
-    track,
+    settings,
+    file,
+    flags,
+    engine,
+    selectedTrack,
+    selectedAction
+  } = state;
+  const {
     scaleCount,
-    setScaleCount,
     startLeft,
     scale,
     scaleWidth,
     maxScaleCount,
     scaleSplitCount,
-  } = props;
+    actionHoverId,
+    setScaleCount,
+    trackHeight,
+    editorMode,
+    selected: currentSelection,
+  } = settings;
+
+  const { gridSnap } = flags;
+  const disableDrag = flags.disableDrag || engine.isPlaying;
+  const { action } = props;
+  const { selected, flexible = true, movable = true } = action;
+  const actionEl = React.useRef<HTMLDivElement>(null);
+  const rowRnd = React.useRef<RowRndApi>();
+  const isDragWhenClick = React.useRef(false);
+  const { id, maxEnd, minStart, end, start } = action;
+  const { track } = props;
+
   // get the maximum minimum pixel range
   const leftLimit = parserTimeToPixel(minStart || 0, {
     startLeft,
     scale,
     scaleWidth,
   });
+
   const rightLimit = Math.min(
     maxScaleCount * scaleWidth + startLeft, // 根据maxScaleCount限制移动范围
     parserTimeToPixel(maxEnd || Number.MAX_VALUE, {
@@ -282,7 +284,7 @@ function TimelineAction<
   });
 
   React.useEffect(() => {
-    if (track.lock) {
+    if (track.locked) {
       return;
     }
     setTransform(parserTimeToTransform({ start, end }, { startLeft, scale, scaleWidth }));
@@ -293,10 +295,10 @@ function TimelineAction<
 
   // actionName
   const classNames = ['action'];
-  if (movable && !track.lock) {
+  if (movable && !track.locked) {
     classNames.push('action-movable');
   }
-  if (selected) {
+  if (selectedAction?.id === action.id) {
     classNames.push('action-selected');
   }
   if (flexible) {
@@ -313,21 +315,22 @@ function TimelineAction<
       scaleWidth,
     });
     if (curScaleCount !== scaleCount) {
-      setScaleCount(curScaleCount);
+      setScaleCount(curScaleCount, context, dispatch );
     }
   };
 
   const { onActionMoveStart, onActionMoving } = props;
   const handleDragStart: RndDragStartCallback = () => {
-    if (track.lock) {
+    if (track.locked) {
       return;
     }
     if (onActionMoveStart) {
       onActionMoveStart({ action, track });
     }
   };
+
   const handleDrag: RndDragCallback = ({ left, width }) => {
-    if (track.lock) {
+    if (track.locked) {
       return;
     }
     isDragWhenClick.current = true;
@@ -348,7 +351,7 @@ function TimelineAction<
 
   const { onActionMoveEnd } = props;
   const handleDragEnd: RndDragEndCallback = ({ left, width }) => {
-    if (track.lock) {
+    if (track.locked) {
       return;
     }
     // Computation time
@@ -362,18 +365,23 @@ function TimelineAction<
     const dragEndAction = rowItem.actions.find((item) => item.id === id);
     dragEndAction.start = dragEndStart;
     dragEndAction.end = dragEndEnd;
-    dispatch({ type: 'SET_TRACKS', payload: file.tracks})
+    dispatch({ type: 'SET_TRACKS', payload: file.tracks });
 
     // executeCallback
     if (onActionMoveEnd) {
-      onActionMoveEnd({ action: dragEndAction as ActionType, track, start: dragEndStart, end: dragEndEnd });
+      onActionMoveEnd({
+        action: dragEndAction as ActionType,
+        track,
+        start: dragEndStart,
+        end: dragEndEnd,
+      });
     }
   };
 
   const { onActionResizeStart, onActionResizing, onActionResizeEnd } = props;
 
   const handleResizeStart: RndResizeStartCallback = (dir) => {
-    if (track.lock) {
+    if (track.locked) {
       return;
     }
     if (onActionResizeStart) {
@@ -382,7 +390,7 @@ function TimelineAction<
   };
 
   const handleResizing: RndResizeCallback = (dir, { left, width }) => {
-    if (track.lock) {
+    if (track.locked) {
       return;
     }
     isDragWhenClick.current = true;
@@ -407,7 +415,7 @@ function TimelineAction<
   };
 
   const handleResizeEnd: RndResizeEndCallback = (dir, { left, width }) => {
-    if (track.lock) {
+    if (track.locked) {
       return;
     }
     // calculatingTime
@@ -421,8 +429,7 @@ function TimelineAction<
     const resizeEndAction = rowItem.actions.find((item) => item.id === id);
     resizeEndAction.start = resizeEndStart;
     resizeEndAction.end = resizeEndEnd;
-    dispatch({ type: 'SET_TRACKS', payload: file.tracks})
-
+    dispatch({ type: 'SET_TRACKS', payload: file.tracks });
 
     // triggerCallback
     if (onActionResizeEnd) {
@@ -454,33 +461,90 @@ function TimelineAction<
 
   const {
     areaRef,
-    gridSnap,
     dragLineData,
-    disableDrag,
     deltaScrollLeft,
-    onClickAction,
     handleTime,
+    onClickAction,
     onClickActionOnly,
     onDoubleClickAction,
     onContextMenuAction,
-    trackHeight,
   } = props;
 
+  const [actionStyle, setActionStyle] = React.useState<any | false>(false);
   React.useEffect(() => {
-    const backgroundImageStyle = track.controller.getActionStyle?.(action, scaleWidth, scale, trackHeight)
-    if (backgroundImageStyle) {
-      dispatch({
-        type: 'UPDATE_ACTION_STYLE',
-        payload: {
-          action,
-          backgroundImageStyle,
-        }
+    if (track.file) {
+      const newActionStyle = track.file?.actionStyle(settings, getActionFileTimespan<ITimelineAction>(action))
+      if (JSON.stringify(newActionStyle) !== JSON.stringify(actionStyle)) {
+        setActionStyle(newActionStyle);
+      }
+    }
+ }, [track.file, action.start, action.end, scaleWidth, scale, trackHeight, track.file?.media.backgroundImage])
+
+  const currTrackHeight = getTrackHeight(track, state);
+  const [dynamicTrackHeight, setDynamicTrackHeight] = React.useState(currTrackHeight);
+  React.useEffect(() => {
+    if (dynamicTrackHeight !== currTrackHeight) {
+      setDynamicTrackHeight(currTrackHeight);
+    }
+  }, [currTrackHeight])
+
+  const [screenshots, setScreenshots] = React.useState<Screenshot[]>([]);
+  const [screenshotData, setScreenshotData] = React.useState<{
+    start: number,
+    end: number,
+    scaleWidth: number,
+    height: number,
+    scale: number,
+    screensMissing: boolean,
+  }>({ start, end, scaleWidth, height: dynamicTrackHeight, scale, screensMissing: true });
+
+  React.useEffect(() => {
+    if ((
+      screenshotData.start !== start ||
+      screenshotData.end !== end ||
+      scaleWidth !== screenshotData.scaleWidth ||
+      screenshotData.height !== dynamicTrackHeight ||
+      scale !== screenshotData.scale ||
+      screenshotData.screensMissing
+    )) {
+      if (track.file.media?.screenshotStore) {
+        track.file.media.screenshotStore.scaleWidth = scaleWidth;
+        track.file.media.screenshotStore.scale = scale;
+      }
+      track.file.media.screenshotStore?.queryScreenshots('track', getActionFileTimespan(action), dynamicTrackHeight).then((queryRes: { found: Screenshot[], missing: number[] }) => {
+        setScreenshotData({end, start, scaleWidth, height: dynamicTrackHeight, scale, screensMissing: queryRes.missing.length > 0 })
+        setScreenshots(queryRes.found);
       })
     }
-  },[scaleWidth, scale, trackHeight, action.backgroundImage]);
+  }, [end, start, dynamicTrackHeight, scaleWidth, scaleSplitCount, track.file.media.screenshotStore?.count])
 
-  const loopCount = (!!action?.loop && typeof action.loop === 'number' && action.loop > 0) ? action.loop : undefined;
+  const loopCount = !!action?.loop && typeof action.loop === 'number' && action.loop > 0 ? action.loop : undefined;
 
+  const locked = (right: boolean) => (
+    <Zoom in={track.locked}>
+      <LockIcon
+        sx={(theme) => ({
+          margin: '0 10px',
+          color: alpha(`${theme.palette.text.primary}`, 0.65),
+          position: 'absolute',
+          right: right ? '0' : undefined,
+        })}
+        fontSize={'small'}
+
+      />
+    </Zoom>
+  );
+
+  const locks = track.locked ? (
+    <React.Fragment>
+      {locked(false)}
+      {locked(true)}
+    </React.Fragment>
+  ) : undefined;
+
+
+  // @ts-ignore
+  // @ts-ignore
   return (
     <TimelineTrackDnd
       ref={rowRnd}
@@ -519,21 +583,22 @@ function TimelineAction<
         scaleWidth={100 / scaleWidth}
         loop={!!action?.loop}
         loopCount={loopCount}
+        disabled={action?.disabled}
         id={action.id}
         tabIndex={0}
-        trackHeight={settings.timeline.trackHeight}
+        dim={action?.dim}
+        trackHeight={trackHeight}
         onKeyDown={(event: any) => {
           event.currentTarget = action;
           // eslint-disable-next-line default-case
           switch (event.key) {
             case 'Backspace':
-            case 'Delete':
-            {
+            case 'Delete': {
               track.actions = track.actions.filter((trackAction) => trackAction.id !== action.id);
               const trackIndex = file.tracks.indexOf(track);
-              file.tracks[trackIndex] = {...track};
-              dispatch({ type: 'SET_TRACKS', payload: [...file.tracks]})
-
+              file.tracks[trackIndex] = { ...track };
+              dispatch({ type: 'SET_TRACKS', payload: [...file.tracks] });
+              event.preventDefault();
               break;
             }
             case 'Meta': {
@@ -541,72 +606,107 @@ function TimelineAction<
               break;
             }
           }
-          event.preventDefault();
+
         }}
-        hover={settings['action-hover'] === action.id}
-        onMouseEnter={((event) => {
-          dispatch({ type: 'SET_SETTING', payload: { key: 'action-hover', value: action.id } })
-          dispatch({ type: 'SET_SETTING', payload: { key: 'track-hover', value: track.id } })
+        hover={actionHoverId === action.id ? true : undefined}
+        onMouseEnter={(event) => {
+          dispatch({
+            type: 'SET_SETTING',
+            payload: { key: 'actionHoverId', value: action.id },
+          });
           event.stopPropagation();
-        })}
-        onMouseLeave={(() => {
-          dispatch({ type: 'SET_SETTING', payload: { key: 'action-hover', value: undefined } })
-          dispatch({ type: 'SET_SETTING', payload: { key: 'track-hover', value: undefined} })
-        })}
+        }}
+        onMouseLeave={(event) => {
+          dispatch({
+            type: 'SET_SETTING',
+            payload: { key: 'actionHoverId', value: undefined },
+          });
+          event.stopPropagation();
+        }}
         onMouseDown={() => {
-          if (track.lock) {
+          if (track.locked) {
             return;
           }
           isDragWhenClick.current = false;
         }}
         onClick={(e) => {
-          if (track.lock) {
-            return;
-          }
-          let time: number;
+          e.stopPropagation();
+          e.preventDefault();
+          dispatch({ type: 'SELECT_ACTION', payload: action });
+          const time: number = handleTime(e);
           if (onClickAction) {
-            time = handleTime(e);
-            onClickAction(e, {track, action, time});
+            onClickAction(e, { track, action, time });
           }
           if (!isDragWhenClick.current && onClickActionOnly) {
-            if (!time) {
-              time = handleTime(e);
-            }
-            onClickActionOnly(e, {track, action, time});
+
+            onClickActionOnly(e, { track, action, time });
           }
         }}
         onDoubleClick={(e) => {
-          if (track.lock) {
+          e.stopPropagation();
+          if (track.locked) {
             return;
           }
           if (onDoubleClickAction) {
-            const time = handleTime(e);
-            onDoubleClickAction(e, {track, action, time});
+            e.stopPropagation();
+            e.preventDefault();
+            const time: number = handleTime(e);
+            onDoubleClickAction(e, { track, action, time });
           }
         }}
         onContextMenu={(e) => {
-          if (track.lock) {
+          if (track.locked) {
             return;
           }
           if (onContextMenuAction) {
-            e.stopPropagation();
-            e.preventDefault();
-            const time = handleTime(e);
-            onContextMenuAction(e, {track, action, time});
+            const time: number = handleTime(e);
+            // e.stopPropagation();
+            // e.preventDefault();
+            // onContextMenuAction(e, { track, action, time });
           }
         }}
         className={prefix((classNames || []).join(' '))}
         selected={action.selected !== undefined ? action.selected : false}
         style={{
           height: trackHeight,
-          ...action.backgroundImageStyle
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          ...actionStyle
         }}
-        color={`${track?.controller?.color}`}
+        color={`${TimelineFile.getTrackColor(track)}`}
       >
-        {!disableDrag && flexible && <LeftStretch className={`${prefix('action-left-stretch')}`}/>}
-        {!disableDrag && flexible && (<RightStretch className={`${prefix('action-right-stretch')}`}/>)}
+        <ImageList
+          gap={0}
+          cols={screenshots?.length}
+          sx={{
+            overflow: 'hidden',
+          }}
+        >
+          {screenshots.map((screen, index) => (
+            <ImageListItem key={`key-${index}`}>
+              <img
+                key={`ss-${screen.timestamp}`}
+                src={screen.data}
+                alt={`ss-${screen.timestamp}`}
+                className={'screen-shot'}
+                style={{
+                  aspectRatio: track.file.media.screenshotStore.aspectRatio,
+                  objectFit: 'cover',
+                  height: '100%',
+                  opacity: track.locked ? 0.5 : 0.9,
+                  // @ts-ignore
+                  WebkitUserDrag: 'none',
+                }}
+              />
+            </ImageListItem>
+          ))}
+        </ImageList>
+        {locks}
+        <Fade in={!disableDrag && flexible}><LeftStretch className={`${prefix('action-left-stretch')}`} /></Fade>
+        <Fade in={!disableDrag && flexible}><RightStretch className={`${prefix('action-right-stretch')}`} /></Fade>
       </Action>
-    </TimelineTrackDnd>);
+    </TimelineTrackDnd>
+  );
 }
 
 TimelineAction.propTypes = {
@@ -614,27 +714,7 @@ TimelineAction.propTypes = {
   // | These PropTypes are generated from the TypeScript type definitions |
   // | To update them edit the TypeScript types and run "pnpm proptypes"  |
   // ----------------------------------------------------------------------
-  action: PropTypes.shape({
-    data: PropTypes.shape({
-      src: PropTypes.string,
-      style: PropTypes.object,
-    }),
-    disable: PropTypes.bool,
-    end: PropTypes.number,
-    flexible: PropTypes.bool,
-    id: PropTypes.string,
-    maxEnd: PropTypes.number,
-    minStart: PropTypes.number,
-    movable: PropTypes.bool,
-    name: PropTypes.string,
-    onKeyDown: PropTypes.func,
-    selected: PropTypes.bool,
-    start: PropTypes.number,
-  }),
-  /**
-   * @description timelineControl action actionType map
-   */
-  controllers: PropTypes.object,
+  action: PropTypes.any,
   areaRef: PropTypes.shape({
     current: PropTypes.object,
   }),
@@ -644,44 +724,20 @@ TimelineAction.propTypes = {
   children: PropTypes.node,
   classes: PropTypes.object,
   className: PropTypes.string,
-  /**
-   * Cursor time
-   */
-  cursorTime: PropTypes.number,
   deltaScrollLeft: PropTypes.func,
   /**
    * Whether the action is prohibited from running
    */
-  disable: PropTypes.bool,
-  /**
-   * @description Disable dragging of all action areas
-   * @default false
-   */
-  disableDrag: PropTypes.bool,
-  /**
-   * @description Start dragging auxiliary line adsorption
-   * @default false
-   */
-  dragLine: PropTypes.bool,
+  disabled: PropTypes.bool,
   dragLineData: PropTypes.shape({
     assistPositions: PropTypes.arrayOf(PropTypes.number),
     isMoving: PropTypes.bool,
     movePositions: PropTypes.arrayOf(PropTypes.number),
   }),
   /**
-   * @description timelineControl runner, if not passed, the built-in runner will be used
-   */
-  engine: PropTypes.shape({
-    current: PropTypes.any,
-  }),
-  /**
    * Whether the action is scalable
    */
   flexible: PropTypes.bool,
-  /**
-   * @description Custom action area rendering
-   */
-  getActionRender: PropTypes.func,
   /**
    * @description Get the action id list to prompt the auxiliary line. Calculate it when
    *   move/resize start. By default, get all the action ids except the current move action.
@@ -691,27 +747,15 @@ TimelineAction.propTypes = {
    * @description Custom scale rendering
    */
   getScaleRender: PropTypes.func,
-  /**
-   * @description Whether to enable grid movement adsorption
-   * @default false
-   */
-  gridSnap: PropTypes.bool,
   handleTime: PropTypes.func,
   /**
-   * @description whether to hide the cursor
-   * @default false
+   * Whether the action is hidden from timeline
    */
-  hideCursor: PropTypes.bool,
+  muted: PropTypes.bool,
   /**
-   * @description Maximum number of scales (>=minScaleCount)
-   * @default Infinity
+   * Whether the action is locked on the timeline
    */
-  maxScaleCount: PropTypes.number,
-  /**
-   * @description Minimum number of ticks (>=1)
-   * @default 20
-   */
-  minScaleCount: PropTypes.number,
+  locked: PropTypes.bool,
   /**
    * Whether the action is movable
    */
@@ -749,13 +793,13 @@ TimelineAction.propTypes = {
    */
   onClickActionOnly: PropTypes.func,
   /**
-   * @description Click track callback
-   */
-  onClickTrack: PropTypes.func,
-  /**
    * @description Click time area event, prevent setting time when returning false
    */
   onClickTimeArea: PropTypes.func,
+  /**
+   * @description Click track callback
+   */
+  onClickTrack: PropTypes.func,
   /**
    * @description Right-click action callback
    */
@@ -763,7 +807,7 @@ TimelineAction.propTypes = {
   /**
    * @description Right-click track callback
    */
-  onContextMenuRow: PropTypes.func,
+  onContextMenuTrack: PropTypes.func,
   /**
    * @description cursor drag event
    */
@@ -783,31 +827,8 @@ TimelineAction.propTypes = {
   /**
    * @description Double-click track callback
    */
-  onDoubleClickRow: PropTypes.func,
-  /**
-   * @description Default height of each edit line (>0, unit: px)
-   * @default 32
-   */
-  trackHeight: PropTypes.number,
-  /**
-   * @description Single tick mark category (>0)
-   * @default 1
-   */
-  scale: PropTypes.number,
-  /**
-   * Number of scales
-   */
-  scaleCount: PropTypes.number,
-  /**
-   * @description Number of single scale subdivision units (>0 integer)
-   * @default 10
-   */
-  scaleSplitCount: PropTypes.number,
-  /**
-   * @description Display width of a single scale (>0, unit: px)
-   * @default 160
-   */
-  scaleWidth: PropTypes.number,
+  onDoubleClickTrack: PropTypes.func,
+  onScroll: PropTypes.func,
   /**
    * Whether the action is selected
    */
@@ -817,12 +838,6 @@ TimelineAction.propTypes = {
    */
   setScaleCount: PropTypes.func,
   /**
-   * @description Data change callback, which will be triggered after the operation action end
-   *   changes the data (returning false will prevent automatic engine synchronization to reduce
-   *   performance overhead)
-   */
-  setTracks: PropTypes.func,
-  /**
    * The props used for each component slot.
    */
   slotProps: PropTypes.object,
@@ -831,10 +846,9 @@ TimelineAction.propTypes = {
    */
   slots: PropTypes.object,
   /**
-   * @description The distance from the start of the scale to the left (>=0, unit: px)
-   * @default 20
+   * @description Custom timelineControl style
    */
-  startLeft: PropTypes.number,
+  style: PropTypes.object,
   /**
    * The system prop that allows defining system overrides as well as additional CSS styles.
    */
@@ -845,79 +859,7 @@ TimelineAction.propTypes = {
     PropTypes.func,
     PropTypes.object,
   ]),
-  /**
-   * Current timeline width
-   */
-  timelineWidth: PropTypes.number,
-  track: PropTypes.shape({
-    actions: PropTypes.arrayOf(
-      PropTypes.shape({
-        data: PropTypes.shape({
-          src: PropTypes.string,
-          style: PropTypes.object,
-        }),
-        disable: PropTypes.bool,
-        end: PropTypes.number,
-        flexible: PropTypes.bool,
-        id: PropTypes.string,
-        maxEnd: PropTypes.number,
-        minStart: PropTypes.number,
-        movable: PropTypes.bool,
-        name: PropTypes.string,
-        onKeyDown: PropTypes.func,
-        selected: PropTypes.bool,
-        start: PropTypes.number,
-      }),
-    ),
-    classNames: PropTypes.arrayOf(PropTypes.string),
-    hidden: PropTypes.bool,
-    id: PropTypes.string,
-    lock: PropTypes.bool,
-    name: PropTypes.string,
-    trackHeight: PropTypes.number,
-    selected: PropTypes.bool,
-  }),
-  /**
-   * @description TimelineControl editing data
-   */
-  tracks: PropTypes.arrayOf(
-    PropTypes.shape({
-      actions: PropTypes.arrayOf(
-        PropTypes.shape({
-          data: PropTypes.shape({
-            src: PropTypes.string,
-            style: PropTypes.object,
-          }),
-          disable: PropTypes.bool,
-          end: PropTypes.number,
-          flexible: PropTypes.bool,
-          id: PropTypes.string,
-          maxEnd: PropTypes.number,
-          minStart: PropTypes.number,
-          movable: PropTypes.bool,
-          name: PropTypes.string,
-          onKeyDown: PropTypes.func,
-          selected: PropTypes.bool,
-          start: PropTypes.number,
-        }),
-      ),
-      classNames: PropTypes.arrayOf(PropTypes.string),
-      hidden: PropTypes.bool,
-      id: PropTypes.string,
-      lock: PropTypes.bool,
-      name: PropTypes.string,
-      trackHeight: PropTypes.number,
-      selected: PropTypes.bool,
-    }),
-  ),
-  trackSx: PropTypes.oneOfType([
-    PropTypes.arrayOf(
-      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),
-    ),
-    PropTypes.func,
-    PropTypes.object,
-  ]),
-  viewSelector: PropTypes.string,
+  track: PropTypes.any,
 } as any;
 
 export { TimelineAction };

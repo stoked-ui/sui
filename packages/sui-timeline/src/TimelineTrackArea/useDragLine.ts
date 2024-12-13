@@ -3,23 +3,21 @@ import { ITimelineTrack } from "../TimelineTrack/TimelineTrack.types";
 import {type ITimelineAction} from "../TimelineAction/TimelineAction.types"
 import {parserActionsToPositions, parserTimeToTransform} from "../utils/deal_data";
 import {DragLineData} from "./TimelineTrackAreaDragLines";
+import { useTimeline } from "../TimelineProvider";
 
 export function useDragLine() {
   const [dragLineData, setDragLineData] = React.useState<DragLineData>({ isMoving: false, movePositions: [], assistPositions: [] });
+  const { state: {flags: { hideCursor }, settings: {  scale, scaleWidth, startLeft }} } = useTimeline();
 
   /** get auxiliary lines */
-  const defaultGetAssistPosition = (data: {
+  function defaultGetAssistPosition (data: {
     tracks: ITimelineTrack[];
     assistActionIds?: string[];
     action: ITimelineAction;
     track: ITimelineTrack;
-    startLeft?: number;
-    scale?: number;
-    scaleWidth?: number;
-    hideCursor: boolean;
     cursorLeft: number;
-  }) => {
-    const { tracks, assistActionIds, action, track, scale = 1, scaleWidth = 160, startLeft= 20, cursorLeft, hideCursor } = data;
+  }) {
+    const { tracks, assistActionIds, action, track, cursorLeft } = data;
     const otherActions: ITimelineAction[] = [];
     if (assistActionIds) {
       tracks.forEach((rowItem) => {
@@ -53,11 +51,11 @@ export function useDragLine() {
     }
 
     return positions;
-  };
+  }
 
   /** get the current moving mark */
-  const defaultGetMovePosition = (data: { start: number; end: number; dir?: "right" | "left"; startLeft: number; scale: number; scaleWidth: number }) => {
-    const { start, end, dir, scale, scaleWidth, startLeft } = data;
+  const defaultGetMovePosition = (data: { start: number; end: number; dir?: "right" | "left" }) => {
+    const { start, end, dir } = data;
     const { left, width } = parserTimeToTransform({ start, end }, { startLeft, scaleWidth, scale });
     if (!dir) {
       return [left, left + width];

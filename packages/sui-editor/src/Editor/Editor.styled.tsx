@@ -1,12 +1,10 @@
 import * as React from "react";
-import { Modal, styled, Popover} from "@mui/material";
+import { styled} from "@mui/material";
 import { IMediaFile } from "@stoked-ui/media-selector";
-import CloseIcon from '@mui/icons-material/Close';
+import { type IFileDetail } from "@stoked-ui/timeline";
 import Plyr, {PlyrProps} from "plyr-react";
 import Collapse from "@mui/material/Collapse";
 import AudioPlayer from "./AudioPlayer";
-import { type IDetailFile } from "../DetailView/Detail.types";
-import { EditorStateAction } from "../EditorProvider/EditorProvider.types";
 
 export type PlayerProps = PlyrProps;
 
@@ -98,7 +96,7 @@ export function StyledPlyr(props: PlayerProps) {
   return <Plyr {...props} />
 }
 
-export function VideoPlayer({file}: {file: IMediaFile | IDetailFile}){
+export function VideoPlayer({file}: {file: IMediaFile | IFileDetail}){
   const plyrProps: PlyrProps = {
     source: {
       type: 'video',
@@ -118,7 +116,7 @@ export function VideoPlayer({file}: {file: IMediaFile | IDetailFile}){
   return <StyledPlyr source={plyrProps.source} options={{controls: ['play', 'progress', 'mute', 'volume']}} />
 }
 
-export function MediaScreener(props: { file: IMediaFile | IDetailFile | undefined }) {
+export function MediaScreener(props: { file: IMediaFile | IFileDetail | undefined }) {
   const { file } = props;
   if (!file) {
     return undefined;
@@ -152,6 +150,7 @@ const StyledCollapse = styled(Collapse, {
   };
 });
 
+/*
 type CloseModalDispatchFunc = (params: EditorStateAction) => void;
 export function closeModal(dispatch: CloseModalDispatchFunc, modalName: string) {
   dispatch({
@@ -161,7 +160,7 @@ export function closeModal(dispatch: CloseModalDispatchFunc, modalName: string) 
       values: []
     }
   });
-}
+} */
 
 export function getModalStyle() {
   return {

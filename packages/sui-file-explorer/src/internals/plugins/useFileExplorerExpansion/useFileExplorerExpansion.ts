@@ -24,46 +24,46 @@ export const useFileExplorerExpansion: FileExplorerPlugin<UseFileExplorerExpansi
   };
 
   const isItemExpanded = React.useCallback(
-    (itemId: string) => expandedItemsMap.has(itemId),
+    (id: string) => expandedItemsMap.has(id),
     [expandedItemsMap],
   );
 
   const isItemExpandable = React.useCallback(
-    (itemId: string) => !!instance.getItemMeta(itemId)?.expandable,
+    (id: string) => !!instance.getItemMeta(id)?.expandable,
     [instance],
   );
 
   const toggleItemExpansion = useEventCallback(
-    (event: React.SyntheticEvent, itemId: FileId) => {
-      const isExpandedBefore = instance.isItemExpanded(itemId);
-      instance.setItemExpansion(event, itemId, !isExpandedBefore);
+    (event: React.SyntheticEvent, id: FileId) => {
+      const isExpandedBefore = instance.isItemExpanded(id);
+      instance.setItemExpansion(event, id, !isExpandedBefore);
     },
   );
 
   const setItemExpansion = useEventCallback(
-    (event: React.SyntheticEvent, itemId: FileId, isExpanded: boolean) => {
-      const isExpandedBefore = instance.isItemExpanded(itemId);
+    (event: React.SyntheticEvent, id: FileId, isExpanded: boolean) => {
+      const isExpandedBefore = instance.isItemExpanded(id);
       if (isExpandedBefore === isExpanded) {
         return;
       }
 
       let newExpanded: string[];
       if (isExpanded) {
-        newExpanded = [itemId].concat(models.expandedItems.value);
+        newExpanded = [id].concat(models.expandedItems.value);
       } else {
-        newExpanded = models.expandedItems.value.filter((id) => id !== itemId);
+        newExpanded = models.expandedItems.value.filter((id) => id !== id);
       }
 
       if (params.onItemExpansionToggle) {
-        params.onItemExpansionToggle(event, itemId, isExpanded);
+        params.onItemExpansionToggle(event, id, isExpanded);
       }
 
       setExpandedItems(event, newExpanded);
     },
   );
 
-  const expandAllSiblings = (event: React.KeyboardEvent, itemId: FileId) => {
-    const itemMeta = instance.getItemMeta(itemId);
+  const expandAllSiblings = (event: React.KeyboardEvent, id: FileId) => {
+    const itemMeta = instance.getItemMeta(id);
     const siblings = instance.getItemOrderedChildrenIds(itemMeta.parentId);
 
     const diff = siblings.filter(

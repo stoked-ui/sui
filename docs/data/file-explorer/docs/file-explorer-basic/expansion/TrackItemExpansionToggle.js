@@ -8,8 +8,8 @@ import Typography from '@mui/material/Typography';
 export default function TrackItemExpansionToggle() {
   const [action, setAction] = React.useState(null);
 
-  const handleItemExpansionToggle = (event, itemId, isExpanded) => {
-    setAction({ itemId, isExpanded });
+  const handleItemExpansionToggle = (event, id, isExpanded) => {
+    setAction({ id, isExpanded });
   };
 
   return (
@@ -18,27 +18,27 @@ export default function TrackItemExpansionToggle() {
         <Typography>No action recorded</Typography>
       ) : (
         <Typography>
-          Last action: {action.isExpanded ? 'expand' : 'collapse'} {action.itemId}
+          Last action: {action.isExpanded ? 'expand' : 'collapse'} {action.id}
         </Typography>
       )}
       <Box sx={{ minHeight: 352, minWidth: 250 }}>
         <FileExplorerBasic onItemExpansionToggle={handleItemExpansionToggle}>
-          <FileElement itemId="grid" label="Data Grid">
-            <FileElement itemId="grid-community" label="@mui/x-data-grid" />
-            <FileElement itemId="grid-pro" label="@mui/x-data-grid-pro" />
-            <FileElement itemId="grid-premium" label="@mui/x-data-grid-premium" />
+          <FileElement id="grid" name="Data Grid">
+            <FileElement id="grid-community" name="@mui/x-data-grid" />
+            <FileElement id="grid-pro" name="@mui/x-data-grid-pro" />
+            <FileElement id="grid-premium" name="@mui/x-data-grid-premium" />
           </FileElement>
-          <FileElement itemId="pickers" label="Date and Time Pickers">
-            <FileElement itemId="pickers-community" label="@mui/x-date-pickers" />
-            <FileElement itemId="pickers-pro" label="@mui/x-date-pickers-pro" />
+          <FileElement id="pickers" name="Date and Time Pickers">
+            <FileElement id="pickers-community" name="@mui/x-date-pickers" />
+            <FileElement id="pickers-pro" name="@mui/x-date-pickers-pro" />
           </FileElement>
-          <FileElement itemId="charts" label="Charts">
-            <FileElement itemId="charts-community" label="@mui/x-charts" />
+          <FileElement id="charts" name="Charts">
+            <FileElement id="charts-community" name="@mui/x-charts" />
           </FileElement>
-          <FileElement itemId="file-explorer" label="File Explorer">
+          <FileElement id="file-explorer" name="File Explorer">
             <FileElement
-              itemId="file-explorer-community"
-              label="@stoked-ui/file-explorer"
+              id="file-explorer-community"
+              name="@stoked-ui/file-explorer"
             />
           </FileElement>
         </FileExplorerBasic>

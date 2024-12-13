@@ -13,7 +13,7 @@ export interface TimelineActionClasses {
   /** Whether the action is movable */
   movable: string;
   /** Whether the action is prohibited from running */
-  disable: string;
+  disabled: string;
 }
 
 export type TimelineActionClassKey = keyof TimelineActionClasses;
@@ -29,5 +29,5 @@ export const timelineActionClasses: TimelineActionClasses = generateUtilityClass
   'selected',
   'flexible',
   'movable',
-  'disable'
+  'disabled'
 ]);

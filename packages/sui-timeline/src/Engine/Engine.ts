@@ -3,15 +3,12 @@ import {type ITimelineAction } from '../TimelineAction/TimelineAction.types'
 import {type IController} from '../Controller/Controller.types';
 import {
   type IEngine,
-  type EngineState,
+  EngineState,
   type EngineOptions,
 } from './Engine.types';
 import { type ITimelineTrack} from '../TimelineTrack/TimelineTrack.types';
 import {Events, type EventTypes} from './events'
 import {Emitter} from './emitter';
-import { RowRndApi } from "../TimelineTrack/TimelineTrackDnd.types";
-import TimelineFile from "../TimelineFile/TimelineFile";
-
 
 /**
  * Timeline player
@@ -29,8 +26,7 @@ export default class Engine<
 
   protected _logging: boolean = false;
 
-
-  control: any = {};
+  maxDuration: number = 15;
 
   /** requestAnimationFrame timerId */
   protected _timerId: number = 0;
@@ -39,13 +35,21 @@ export default class Engine<
   protected _playRate = 1;
 
   /** current time */
-  protected _currentTime: number = 0;
+  _currentTime: number = 0;
 
   /** Playback status */
   _state: State;
 
   /** Time frame pre data */
   protected _prev: number = 0;
+
+  playbackMode: 'media' | 'canvas' = 'canvas';
+
+  playbackTimespans: { timespan: { start: number, end: number }, fileTimespan: { start: number, end: number }}[];
+
+  playbackCurrentTimespans: { timespan: { start: number, end: number }, fileTimespan: { start: number, end: number }}[]
+
+  media: HTMLMediaElement | null;
 
   /** Action actionType map */
   protected _controllers: Record<string, IController>;
@@ -72,28 +76,14 @@ export default class Engine<
     if (params?.controllers) {
       this._controllers = params.controllers;
     }
-    this._state = 'loading' as State;
-    this._controllers = TimelineFile.globalControllers;
+    this._state = EngineState.LOADING as State;
+    if (!params?.controllers) {
+      throw new Error('Error: No controllers set!');
+    }
   }
-
-  cursorData?: () => {
-    dnd?: { current: RowRndApi };
-    dragLeft: { current: number };
-    scrollLeft: { current: number };
-    setCursor: (param: {
-      left?: number,
-      time?: number
-    }) => boolean;
-  }
-
-  cursorDragStart?: (time: number) => void;
-
-  cursorDragEnd?: () => void;
-
-  cursorDrag?: (left: number, scroll) => void;
 
   get state() {
-    return this._state as string;
+    return this._state as State;
   }
 
   set state(newState: string) {
@@ -130,8 +120,14 @@ export default class Engine<
     return undefined;
   }
 
-
   get duration() {
+    if (this.playbackMode === 'media' && this.media) {
+      return this.media.duration;
+    }
+    return this.canvasDuration;
+  }
+
+  get canvasDuration() {
     const actions = Object.values(this._actionMap);
     let end = 0;
     for(let i = 0; i < actions.length; i += 1) {
@@ -166,21 +162,21 @@ export default class Engine<
   }
 
   get isReady() {
-    return this._state === 'ready';
+    return this._state === EngineState.READY;
   }
 
   get isLoading() {
-    return this._state === 'loading';
+    return this._state === EngineState.LOADING;
   }
 
   /** Whether it is playing */
   get isPlaying() {
-    return this._state === 'playing' as State;
+    return this._state === EngineState.PLAYING;
   }
 
   /** Whether it is paused */
   get isPaused() {
-    return this._state === 'paused' as State;
+    return this._state === EngineState.PAUSED;
   }
 
   get controllers() {
@@ -196,6 +192,9 @@ export default class Engine<
     this._dealData(tracks);
     this._dealClear();
     this._dealEnter(this._currentTime);
+    if (this.state === EngineState.LOADING) {
+      this.state = EngineState.READY;
+    }
   }
 
   /**
@@ -203,10 +202,6 @@ export default class Engine<
    * @memberof Engine
    */
   setPlayRate(rate: number): boolean {
-    if (rate <= -3.0 || rate >= 3.0) {
-      console.error('Error: rate cannot be less than -3 or more than 3!');
-      return false;
-    }
     const result = this.trigger('beforeSetPlayRate' as keyof EmitterEvents, { rate, engine: this as IEngine } as EmitterEvents[keyof EmitterEvents]);
     if (!result) {
       return false;
@@ -216,7 +211,6 @@ export default class Engine<
 
     return true;
   }
-
 
   /**
    * Get playback rate
@@ -231,11 +225,42 @@ export default class Engine<
    * @return {*}
    * @memberof Engine
    */
-  reRender() {
+  reRender(): void {
     if (this.isPlaying) {
       return;
     }
     this.tickAction(this._currentTime);
+  }
+
+  getStartTime() {
+    if (this.playbackMode === 'media' && this.playbackTimespans.length) {
+      return this.playbackTimespans[0].timespan.start;
+    }
+
+    return 0;
+  }
+
+  getEndTime() {
+    if (this.playbackMode === 'media' && this.playbackTimespans.length) {
+      return this.playbackTimespans[this.playbackTimespans.length - 1].timespan.end;
+    }
+    return this.canvasDuration;
+  }
+
+  setStart() {
+    if (this.playbackMode === 'media' && this.media) {
+      this.playbackCurrentTimespans = JSON.parse(JSON.stringify(this.playbackTimespans));
+      this.media.currentTime = this.playbackCurrentTimespans[0].fileTimespan.start;
+    }
+    const start = this.getStartTime();
+    this.setTime(start, true);
+    this.reRender();
+  }
+
+  setEnd() {
+    const start = this.getStartTime();
+    this.setTime(start, true);
+    this.reRender();
   }
 
   /**
@@ -254,8 +279,13 @@ export default class Engine<
 
     this._currentTime = time;
 
-    this._dealLeave(time);
-    this._dealEnter(time);
+    if (this.playbackMode === 'canvas') {
+      this._dealLeave(time);
+      this._dealEnter(time);
+    } else if (this.media) {
+      console.info('setTime', time)
+      this.media.currentTime = this._currentTime + this.playbackCurrentTimespans[0].fileTimespan.start;
+    }
 
     if (isTick) {
       this.trigger('setTimeByTick' as keyof EmitterEvents, { time, engine: this as IEngine } as EmitterEvents[keyof EmitterEvents]);
@@ -272,7 +302,73 @@ export default class Engine<
    * @memberof Engine
    */
   get time(): number {
+    /* if (this.playbackMode === 'media' && this.media) {
+      return this.media.currentTime;
+    } */
     return this._currentTime;
+  }
+
+
+  rewind(delta: number) {
+    if (this._playRate > 0 || this._playRate <= -10) {
+      this.setPlayRate(-1);
+    } else if (this._playRate > -10) {
+      this.setPlayRate(this._playRate - delta);
+    }
+    this.run({ autoEnd: true });
+  }
+
+  fastForward(delta: number) {
+    if (this._playRate < 0 || this._playRate === 1 || this._playRate >= 10) {
+      this.setPlayRate(1.5);
+    } else if (this._playRate < 10) {
+      this.setPlayRate(this._playRate + delta);
+    }
+    this.run({ autoEnd: true });
+  }
+
+
+  /**
+   * Run: The start time is the current time
+   * @param param
+   * @return {boolean} {boolean}
+   */
+  run(param: {
+    /** By default, it runs from beginning to end, with a priority greater than autoEnd */
+    toTime?: number;
+    /** Whether to automatically end after playing */
+    autoEnd?: boolean;
+  }): boolean {
+    const { toTime, autoEnd } = param;
+
+    const currentTime = this.time;
+    /** The current state is being played or the running end time is less than the start time, return directly */
+    if (this.isPlaying || (toTime && toTime <= currentTime)) {
+      console.info('run return false')
+      return false;
+    }
+
+    // Set running status
+    this._state = EngineState.PLAYING as State;
+
+    // activeIds run start
+    this._startOrStop('start');
+
+    // trigger event
+    if (this._playRate > 1) {
+      this.trigger('fastForward' as keyof EmitterEvents, { engine: this as IEngine } as EmitterEvents[keyof EmitterEvents]);
+    } else if (this._playRate < 0) {
+      this.trigger('rewind' as keyof EmitterEvents, { engine: this as IEngine } as EmitterEvents[keyof EmitterEvents]);
+    } else {
+      this.trigger('play' as keyof EmitterEvents, {engine: this as IEngine} as EmitterEvents[keyof EmitterEvents]);
+    }
+
+    this._timerId = requestAnimationFrame((time: number) => {
+      this._prev = time;
+      this._tick({now: time, autoEnd, to: toTime});
+    });
+
+    return true;
   }
 
   /**
@@ -286,29 +382,12 @@ export default class Engine<
     /** Whether to automatically end after playing */
     autoEnd?: boolean;
   }): boolean {
-    const { toTime, autoEnd } = param;
+    this._playRate = 1;
 
-    const currentTime = this.time;
-    /** The current state is being played or the running end time is less than the start time, return directly */
-    if (this.isPlaying || (toTime && toTime <= currentTime)) {
-      return false;
+    if (this.playbackMode === 'media' && this.media) {
+      this.media.style.display = 'flex';
     }
-
-    // Set running status
-    this._state = 'playing' as State;
-
-    // activeIds run start
-    this._startOrStop('start');
-
-    // trigger event
-    this.trigger('play' as keyof EmitterEvents, { engine: this as IEngine } as EmitterEvents[keyof EmitterEvents]);
-
-    this._timerId = requestAnimationFrame((time: number) => {
-      this._prev = time;
-      this._tick({now: time, autoEnd, to: toTime});
-    });
-
-    return true;
+    return this.run(param);
   }
 
   /**
@@ -318,12 +397,12 @@ export default class Engine<
   pause() {
     if (this.isPlaying) {
       const previousState = this._state;
-      this._state = 'paused' as State;
+      this._state = EngineState.PAUSED as State;
 
       // activeIds run stop
       this._startOrStop('stop');
 
-      this.trigger('paused' as keyof EmitterEvents, { engine: this as IEngine, previousState } as EmitterEvents[keyof EmitterEvents]);
+      this.trigger('pause' as keyof EmitterEvents, { engine: this as IEngine, previousState } as EmitterEvents[keyof EmitterEvents]);
     }
     cancelAnimationFrame(this._timerId);
   }
@@ -331,11 +410,8 @@ export default class Engine<
   /** Playback completed */
   protected _end() {
     this.pause();
-
     // reset the cursor
-    this.setTime(0, true);
-    this.tickAction(0);
-    this.reRender();
+    this.setStart();
 
     this.trigger('ended' as keyof EmitterEvents, { engine: this as IEngine } as EmitterEvents[keyof EmitterEvents]);
   }
@@ -344,15 +420,22 @@ export default class Engine<
     if (this.isLoading) {
       return;
     }
-
+    if (this.playbackMode === 'media' && this.media) {
+      if (type === 'start') {
+        this.media.play();
+      } else if (type === 'stop') {
+        this.media.pause();
+      }
+      return
+    }
     // eslint-disable-next-line no-restricted-syntax
     this._activeIds.forEach((key, ) => {
       const action = this._actionMap[key];
       const track = this._actionTrackMap[action.id];
-      if (type === 'start' && track?.controller?.start && !track.hidden) {
-        track.controller.start({action, time: this.time, engine: this as IEngine });
-      } else if (type === 'stop' && track?.controller?.stop && !track.hidden) {
-        track.controller.stop({action, time: this.time, engine: this as IEngine });
+      if (type === 'start' && track?.controller?.start) {
+        track.controller.start({action, track, time: this.time, engine: this as IEngine });
+      } else if (type === 'stop' && track?.controller?.stop) {
+        track.controller.stop({action, track, time: this.time, engine: this as IEngine });
       }
     });
   }
@@ -381,12 +464,18 @@ export default class Engine<
     const initialTime = this.time;
     // Calculate the current time
     let currentTime = initialTime + (Math.min(1000, now - this._prev) / 1000) * this._playRate;
-    currentTime = Math.max(0, currentTime);
+    const forwards = this._playRate > 0;
+    if (!forwards) {
+      currentTime = Math.min(this.canvasDuration, currentTime);
+    } else if (forwards) {
+      currentTime = Math.max(0, currentTime);
+    }
     this._prev = now;
 
-
     // Set the current time
-    if (to && to <= currentTime) {
+    if (forwards && to && to <= currentTime) {
+      currentTime = to;
+    } else if (!forwards && to && to >= currentTime) {
       currentTime = to;
     }
 
@@ -394,24 +483,48 @@ export default class Engine<
 
     // Execute action
     this.tickAction(currentTime);
+
+    if (this.playbackMode === 'media') {
+      if (this.media && this.media.currentTime >= this.playbackCurrentTimespans[0].fileTimespan.end) {
+        this.playbackCurrentTimespans.shift();
+        if (this.playbackCurrentTimespans.length) {
+          this.media.currentTime = this.playbackCurrentTimespans[0].fileTimespan.start;
+        } else {
+          this._end();
+          return;
+        }
+      }
+    }
     // In the case of automatic stop, determine whether all actions have been executed.
     if (!to && autoEnd && this._next >= this._actionSortIds.length && this._activeIds.length === 0) {
+      console.info('tick() tick autoEnd');
       this._end();
       return;
     }
-    if (initialTime > currentTime && currentTime === 0) {
+    if (forwards && initialTime > this.canvasDuration) {
+      console.info('tick() forwards initialTime > this.canvasDuration');
+      this._end();
+      return;
+    }
+    if (!forwards && initialTime < 0) {
+      console.info('tick() forwards && initialTime < 0');
       this._end();
       return;
     }
 
     // Determine whether to terminate
-    if (to && to <= currentTime) {
+    if (forwards && to && to <= currentTime) {
+      console.info('tick() forwards && to && to <= currentTime');
+      this._end();
+    } else if (!forwards && to && to >= this.canvasDuration) {
+      console.info('tick() !forwards && to && to >= this.canvasDuration');
       this._end();
     }
 
     if (this.isPaused) {
       return;
     }
+
     this._timerId = requestAnimationFrame((time) => {
       this.log('requestAnimationFrame')
       this._tick({ now: time, autoEnd, to });
@@ -435,7 +548,7 @@ export default class Engine<
       const action = this._actionMap[key];
       const track = this._actionTrackMap[action.id];
       if (track.controller && track.controller?.update) {
-        track.controller.update({action, time: this.time, engine: this as IEngine });
+        track.controller.update({action, track, time: this.time, engine: this as IEngine });
       }
     });
 
@@ -461,7 +574,7 @@ export default class Engine<
           const track = this._actionTrackMap[action.id];
           const controller = track.controller;
           if (controller?.leave) {
-            controller.leave({action, time: this.time, engine: this as IEngine});
+            controller.leave({action, track, time: this.time, engine: this as IEngine});
           }
         }
       } else {
@@ -479,7 +592,7 @@ export default class Engine<
       const actionId = this._actionSortIds[this._next];
       const action = this._actionMap[actionId];
 
-      if (!action.disable) {
+      if (!action.disabled) {
         // Determine whether the action start time has arrived
 
         if (action.start > time) {
@@ -487,10 +600,11 @@ export default class Engine<
         }
         const track = this._actionTrackMap[actionId];
         // The action can be executed and started
-        if (action.end > time && active.indexOf(actionId) === -1 && !track.hidden) {
+        if (action.end > time && active.indexOf(actionId) === -1 && !track.dim) {
           const controller = track.controller;
           if (controller && controller?.enter) {
-            controller.enter({action, time: this.time, engine: this as IEngine});
+            console.info('enter', action.name, time);
+            controller.enter({action, track, time: this.time, engine: this as IEngine});
           }
 
           this._activeIds.set(this._next, actionId);
@@ -510,11 +624,11 @@ export default class Engine<
         const track = this._actionTrackMap[action.id];
 
         // Not within the playback area or hidden
-        if (action.start > time || action.end < time || track.hidden) {
+        if (action.start > time || action.end < time) {
           const controller = track.controller;
 
           if (controller && controller?.leave) {
-            controller.leave({action, time: this.time, engine: this as IEngine});
+            controller.leave({action, time: this.time, track, engine: this as IEngine});
           }
 
           this._activeIds.delete(value);

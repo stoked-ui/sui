@@ -1,42 +1,68 @@
 import * as React from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { ControlledTrack, } from '@stoked-ui/timeline';
-import ControlledText from "./ControlledText";
 import {
-  CtrlCell,
-  DetailActions,
-  FormWrap,
-  useEditMode
+  ActionDetail, ITimelineTrackDetail, TrackDetail
+} from '@stoked-ui/timeline';
+import ControlledText, {UncontrolledText} from "./ControlledText";
+import {
+  CtrlCell, CtrlRow, DetailActions, FormWrap, useEditMode
 } from './Detail'
-import { DetailActionProps } from "./DetailAction.types";
-import { actionSchema, DetailDataAction, IDetailAction } from "./Detail.types";
+import {
+  actionDataSchema,
+  actionSchema,
+  DetailViewProps,
+  IEditorActionDetail,
+  IEditorProjectDetail, IEditorTrackDetail
+} from "./Detail.types";
 import { useEditorContext } from "../EditorProvider/EditorContext";
-import { useDetail } from "./DetailProvider";
+import BlendModeSelect from "./BlendModeSelect";
+import ControlledCoordinates from "./ControlledCoordinates";
 
-export function DetailAction(props: DetailActionProps) {
-  const { detail, selected, selectedTrack, selectedAction, dispatch } = useDetail();
-  const editModeData = useEditMode();
-  const { editMode, setEdit, setDisable } = editModeData;
+export function DetailAction(props: DetailViewProps) {
+  const { state: {selectedTrack, engine,  settings, selectedDetail, selectedAction}, dispatch } = useEditorContext();
+  const { editMode, enableEdit, disableEdit } = props;
+  const { trackFiles } = settings;
+  const actionDetail = selectedDetail as ActionDetail;
+  const actionData = actionDetail.action as IEditorActionDetail;
+  const trackData = actionDetail.track as IEditorTrackDetail;
+  const trackFile = trackFiles[trackData.id];
 
-  const data = detail as DetailDataAction;
   const {
     control,
     handleSubmit,
+    watch,
     formState: {
       isDirty,
       errors,
     },
     reset,
-  } = useForm<IDetailAction>({
+  } = useForm<IEditorActionDetail>({
     mode: 'onChange',
-    defaultValues: data.action,
+    defaultValues: actionData,
     // @ts-ignore
-    resolver: yupResolver(actionSchema),
+    resolver: yupResolver(actionDataSchema),
   });
 
+
+  // Watch all form values
+  const formValues = watch();
+
+  // Effect to handle changes in form values
+  React.useEffect(() => {
+    console.log('Form values changed:', formValues);
+    if (engine.screener) {
+      engine.screener.style.mixBlendMode = formValues.blendMode;
+    }
+  }, [formValues]);
+
+  React.useEffect(() => {
+    reset(actionData);
+  }, [actionData, reset]);
+
   // Form submit handler
-  const onSubmitAction: SubmitHandler<IDetailAction> = (submitData: IDetailAction) => {
+  const onSubmitAction: SubmitHandler<IEditorActionDetail> = (submitData: IEditorActionDetail) => {
+    console.info('submitData', submitData);
     dispatch({ type: 'UPDATE_ACTION', payload: submitData });
   };
 
@@ -46,91 +72,99 @@ export function DetailAction(props: DetailActionProps) {
 
   return (
     <FormWrap
-      onSubmit={onSubmitAction}
-      handleSubmit={handleSubmit}
-      title={selected.name}
+      title={selectedAction?.name}
+      titleId={actionData.id}
+      submitHandler={handleSubmit(onSubmitAction)}
     >
-      <CtrlCell width="40%">
-        <ControlledText
-          className={'whitespace-nowrap flex-grow flex'}
-          label={'Start'}
-          name={'selectedAction.start'}
-          control={control}
-          disabled={!editMode}
-          onClick={setEdit}
-        />
-      </CtrlCell>
-      <CtrlCell width="40%">
-        <ControlledText
-          className={'whitespace-nowrap flex-grow flex'}
-          label={'end'}
-          control={control}
-          disabled={!editMode}
-          onClick={setEdit}
-        />
-      </CtrlCell>
-      <CtrlCell width="40%">
-        <ControlledText
-          className={'whitespace-nowrap flex-grow flex'}
-          label={'x'}
-          control={control}
-          disabled={!editMode}
-          onClick={setEdit}
-        />
-      </CtrlCell>
-      <CtrlCell width="40%">
-        <ControlledText
-          className={'whitespace-nowrap flex-grow flex'}
-          label={'y'}
-          control={control}
-          disabled={!editMode}
-          onClick={setEdit}
-        />
-      </CtrlCell>
-      <CtrlCell width="40%">
-        <ControlledText
-          className={'whitespace-nowrap flex-grow flex'}
-          label={'Width'}
-          control={control}
-          disabled={!editMode}
-          onClick={setEdit}
-        />
-      </CtrlCell>
-      <CtrlCell width="40%">
-        <ControlledText
-          className={'whitespace-nowrap flex-grow flex'}
-          label={'Height'}
-          control={control}
-          disabled={!editMode}
-          onClick={setEdit}
-        />
-      </CtrlCell>
-      <CtrlCell width="40%">
-        <ControlledText
-          className={'w-[194px] whitespace-nowrap w-full flex-grow flex'}
-          label={'Start Trim'}
-          control={control}
-          disabled={!editMode}
-          onClick={setEdit}
-        />
-      </CtrlCell>
-      <CtrlCell width="40%">
-        <ControlledText
-          className={'w-[194px] whitespace-nowrap w-full flex-grow flex'}
-          label={'End Trim'}
-          control={control}
-          disabled={!editMode}
-          onClick={setEdit}
-        />
-      </CtrlCell>
-      <CtrlCell width="40%">
-        <ControlledText
-          className={'w-[194px] whitespace-nowrap w-full flex-grow flex'}
-          label={'Duration'}
-          control={control}
-          onClick={setEdit}
-        />
-      </CtrlCell>
-      <DetailActions errors={errors} isDirty={isDirty} reset={reset} editModeData={editModeData} />
+    <div>
+      <CtrlRow>
+        <CtrlCell width="40%">
+          <ControlledText
+            label={'Name'}
+            control={control}
+            disabled={!editMode}
+            onClick={enableEdit}
+          />
+        </CtrlCell>
+        <CtrlCell width="20%">
+          <ControlledText
+            label={'Start'}
+            control={control}
+            disabled={!editMode}
+            onClick={enableEdit}
+          />
+        </CtrlCell>
+        <CtrlCell width="20%">
+          <ControlledText
+            label={'End'}
+            control={control}
+            disabled={!editMode}
+            onClick={enableEdit}
+          />
+        </CtrlCell>
+
+        <CtrlCell width="23%">
+          <ControlledText
+            label={'Trim Start'}
+            name={'trimStart'}
+            control={control}
+            disabled={!editMode}
+            onClick={enableEdit}
+          />
+        </CtrlCell>
+        <CtrlCell width="23%">
+          <ControlledText
+            label={'Trim End'}
+            name={'trimEnd'}
+            control={control}
+            disabled={!editMode}
+            onClick={enableEdit}
+          />
+        </CtrlCell>
+
+        <CtrlCell width="23%">
+          <ControlledCoordinates control={control} />
+        </CtrlCell>
+
+        <CtrlCell width="23%">
+          <BlendModeSelect
+            control={control}
+            disabled={!editMode}
+            onClick={enableEdit}
+          />
+        </CtrlCell>
+        <CtrlCell width="7.5%">
+          <ControlledText
+            label={'Width'}
+            control={control}
+            disabled={!editMode}
+            onClick={props.enableEdit}
+          />
+        </CtrlCell>
+        <CtrlCell width="7.5%">
+          <ControlledText
+            label={'Height'}
+            control={control}
+            disabled={!editMode}
+            onClick={props.enableEdit}
+          />
+        </CtrlCell>
+        <CtrlCell width="15%">
+          <UncontrolledText
+            label={'Source Size'}
+            value={`${trackFile?.media?.width} x ${trackFile?.media?.height}`}
+            disabled
+            onClick={props.enableEdit}
+          />
+        </CtrlCell>
+      </CtrlRow>
+      <DetailActions
+        errors={errors}
+        isDirty={isDirty}
+        reset={reset}
+        disableEdit={disableEdit}
+        editMode={editMode}
+      />
+    </div>
     </FormWrap>)
 }

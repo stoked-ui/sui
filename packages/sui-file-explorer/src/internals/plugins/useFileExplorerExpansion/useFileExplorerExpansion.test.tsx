@@ -205,7 +205,7 @@ describeFileExplorer<[UseFileExplorerExpansionSignature]>(
           ref: React.Ref<HTMLLIElement>,
         ) {
           const { interactions } = useFileUtils({
-            itemId: props.itemId,
+            id: props.id,
             children: props.children,
           });
 

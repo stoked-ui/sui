@@ -1,9 +1,11 @@
-import { GetBackgroundImage, type IController } from "./Controller.types";
-import { ControllerParams, PreloadParams } from './ControllerParams';
-import type { BackgroundImageStyle, ITimelineAction } from "../TimelineAction";
+import {ScreenshotQueue} from "@stoked-ui/media-selector";
+import { type IController } from "./Controller.types";
+import type {ControllerParams, GetItemParams, PreloadParams} from './ControllerParams';
+import type { ITimelineAction } from "../TimelineAction";
 import type { IEngine } from "../Engine";
+import {ITimelineTrack} from "../TimelineTrack";
 
-abstract class Controller implements IController {
+abstract class Controller<ControlType> implements IController {
   id: string;
 
   name: string;
@@ -15,6 +17,8 @@ abstract class Controller implements IController {
   logging: boolean = false;
 
   backgroundImage?: string;
+
+  screenshotQueue: ScreenshotQueue = ScreenshotQueue.getInstance(3);
 
   constructor(options: {
     id: string,
@@ -28,23 +32,21 @@ abstract class Controller implements IController {
     this.colorSecondary = options.colorSecondary;
   }
 
+  abstract getItem(params: GetItemParams): ControlType
+
   viewerUpdate?: (engine: any) => void;
 
   // eslint-disable-next-line class-methods-use-this
   destroy(){ };
 
-  getBackgroundImage?: GetBackgroundImage;
+  // eslint-disable-next-line class-methods-use-this,@typescript-eslint/no-unused-vars
+  getActionStyle(action: ITimelineAction, track: ITimelineTrack, scaleWidth: number, scale: number, trackHeight: number) { return null };
 
   // eslint-disable-next-line class-methods-use-this,@typescript-eslint/no-unused-vars
-  getActionStyle(action: ITimelineAction, scaleWidth: number, scale: number, trackHeight: number) { return null };
+  start(params: ControllerParams) { }
 
-  abstract getElement(actionId: string): any
-
-  // eslint-disable-next-line class-methods-use-this
-  start(params: { action: ITimelineAction, time: number, engine: IEngine }) { }
-
-  // eslint-disable-next-line class-methods-use-this
-  stop(params: { action: ITimelineAction, time: number, engine: IEngine }) { }
+  // eslint-disable-next-line class-methods-use-this,@typescript-eslint/no-unused-vars
+  stop(params: ControllerParams) { }
 
   abstract enter(params: ControllerParams): void;
 
@@ -52,16 +54,27 @@ abstract class Controller implements IController {
 
   abstract update(params: { action: ITimelineAction, time: number, engine: IEngine }): void
 
+  // eslint-disable-next-line class-methods-use-this
   async preload(params: PreloadParams): Promise<ITimelineAction> { return params.action; }
 
   static getVol(volumePart: [volume: number, start?: number, end?: number]) {
     return { volume: volumePart[0], start: volumePart[1], end: volumePart[2] };
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  log(params: { action: ITimelineAction, time: number }, msg: string) {
+    const { action, time } = params;
+    if (this.logging) {
+      console.info(`[${time}] ${action.name} => ${msg} `)
+    }
+  }
+
   static getActionTime(params: ControllerParams) {
     const { action, time } = params;
-    const actionTime = (time - action.start + (action?.trimStart || 0)) % (action?.duration ?? 0);
-    return actionTime;
+    if (action?.duration === undefined) {
+      return action?.trimStart || 0;
+    }
+    return (time - action.start + (action?.trimStart || 0)) % (action?.duration ?? 0);
   }
 
   static getVolumeUpdate(params: ControllerParams, actionTime: number): { volumeIndex: number, volume: number } | undefined {

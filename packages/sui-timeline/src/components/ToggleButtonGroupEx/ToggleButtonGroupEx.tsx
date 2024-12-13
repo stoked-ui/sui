@@ -1,12 +1,13 @@
 import * as React from 'react';
-import { namedId } from "@stoked-ui/media-selector";
-import { styled } from "@mui/material/styles";
+import PropTypes from 'prop-types';
+import { namedId} from '@stoked-ui/common';
+import { styled } from '@mui/material/styles';
 import {
   ToggleButtonGroup as ToggleGroup,
-  ToggleButtonGroupPropsSizeOverrides
-} from "@mui/material";
+  ToggleButtonGroupPropsSizeOverrides,
+} from '@mui/material';
 import { OverridableStringUnion } from '@mui/types';
-import { ToggleButtonGroupExProps } from "./ToggleButtonGroupEx.types";
+import { ToggleButtonGroupExProps } from './ToggleButtonGroupEx.types';
 
 const ToggleButtonGroupStyled = styled(ToggleGroup, {
   shouldForwardProp: (prop) =>
@@ -17,37 +18,43 @@ const ToggleButtonGroupStyled = styled(ToggleGroup, {
     prop !== 'maxHeight' &&
     prop !== 'maxWidth' &&
     prop !== 'height' &&
-    prop !== 'width'
-
-}) <{
-  orientation?: 'horizontal' | 'vertical',
-  minWidth: number,
-  minHeight: number,
-  maxWidth: number,
-  maxHeight: number,
-  buttonCount: number,
-  width: number,
-  height: number
-}>(({ orientation, theme, minWidth, minHeight,
-                                               maxWidth, maxHeight, buttonCount,
-  width, height
+    prop !== 'width',
+})<{
+  orientation?: 'horizontal' | 'vertical';
+  minWidth: number;
+  minHeight: number;
+  maxWidth: number;
+  maxHeight: number;
+  buttonCount: number;
+  width: number;
+  height: number;
+}>(({
+  orientation,
+  theme,
+  minWidth,
+  minHeight,
+  maxWidth,
+  maxHeight,
+  buttonCount,
+  width,
+  height,
 }) => {
-
   let groupHeight = height;
   let groupWidth = width;
   if (orientation === 'vertical') {
-    groupHeight = (buttonCount * height) + 1;
+    groupHeight = buttonCount * height + 1;
   } else {
-    groupWidth =(buttonCount * width) + 1;
+    groupWidth = buttonCount * width + 1;
   }
+
   return {
     height: `${groupHeight}px`,
     width: `${groupWidth}px`,
     backgroundColor: 'transparent!important',
     '& .MuiButtonBase-root': {
       backgroundColor: theme.palette.background.paper,
-      color: theme.palette.text.primary,
-      border: `1px solid ${theme.palette.text.primary}`,
+      // color: theme.palette.text.primary,
+      // border: `1px solid ${theme.palette.text.primary}`,
       width: `${width}px`,
       height: `${height}px`,
       minHeight: `${minHeight}px`,
@@ -64,7 +71,7 @@ const ToggleButtonGroupStyled = styled(ToggleGroup, {
         border: `2px solid ${theme.palette.primary[theme.palette.mode]}`,
         outline: `1px solid ${theme.palette.text.primary}`,
         zIndex: 30,
-      }
+      },
     },
     '& .MuiButtonBase-root.Mui-selected': {
       backgroundColor: theme.palette.primary[100],
@@ -79,7 +86,7 @@ const ToggleButtonGroupStyled = styled(ToggleGroup, {
         backgroundColor: theme.palette.background.default,
         border: `2px solid ${theme.palette.primary.main}!important`,
         zIndex: 20,
-      }
+      },
     },
     '& .MuiButtonBase-root.Mui-focusVisible': {
       minHeight: `${minHeight}px`,
@@ -99,13 +106,15 @@ const ToggleButtonGroupStyled = styled(ToggleGroup, {
   };
 });
 
-function ToggleButtonGroupEx(props: ToggleButtonGroupExProps) {
-  const {
-    id, onChange, value, children, size,
-    minWidth, minHeight, maxWidth, maxHeight
-  } = props;
+function ToggleButtonGroupEx(props: ToggleButtonGroupExProps): React.ReactNode {
+  const { id, onChange, value, children, size, minWidth, minHeight, maxWidth, maxHeight } = props;
 
-  const getSizeBounds = (groupSize: OverridableStringUnion<'small' | 'medium' | 'large',  ToggleButtonGroupPropsSizeOverrides>): [number, number] => {
+  const getSizeBounds = (
+    groupSize: OverridableStringUnion<
+      'small' | 'medium' | 'large',
+      ToggleButtonGroupPropsSizeOverrides
+    >,
+  ): [number, number] => {
     switch (groupSize) {
       case 'small':
         return [10, 30];
@@ -116,29 +125,42 @@ function ToggleButtonGroupEx(props: ToggleButtonGroupExProps) {
       default:
         return [10, 70];
     }
-  }
+  };
 
   const [minSize, maxSize] = getSizeBounds(size);
   const childCount = React.Children.count(children);
-  const minWidthFinal = Math.max(Math.min(maxWidth ?? minWidth ?? minSize, minWidth ?? maxWidth ?? minSize), minSize);
-  const maxWidthFinal = Math.max(Math.min(maxWidth ?? minWidth ?? maxSize, minWidth ?? maxWidth ?? maxSize), maxSize);
-  const minHeightFinal = Math.max(Math.min(maxHeight ?? minHeight ?? minSize, minHeight ?? maxHeight ?? minSize), minSize);
-  const maxHeightFinal = Math.max(Math.min(maxHeight ?? minHeight ?? maxSize, minHeight ?? maxHeight ?? maxSize), maxSize);
+  const minWidthFinal = Math.max(
+    Math.min(maxWidth ?? minWidth ?? minSize, minWidth ?? maxWidth ?? minSize),
+    minSize,
+  );
+  const maxWidthFinal = Math.max(
+    Math.min(maxWidth ?? minWidth ?? maxSize, minWidth ?? maxWidth ?? maxSize),
+    maxSize,
+  );
+  const minHeightFinal = Math.max(
+    Math.min(maxHeight ?? minHeight ?? minSize, minHeight ?? maxHeight ?? minSize),
+    minSize,
+  );
+  const maxHeightFinal = Math.max(
+    Math.min(maxHeight ?? minHeight ?? maxSize, minHeight ?? maxHeight ?? maxSize),
+    maxSize,
+  );
 
-  const defaultWidth = minWidthFinal + ((minWidthFinal % maxHeightFinal) / 2);
-  const width = Math.max(minWidthFinal, Math.min(props.width ?? defaultWidth, maxWidthFinal))
+  const defaultWidth = minWidthFinal + (minWidthFinal % maxHeightFinal) / 2;
+  const width = Math.max(minWidthFinal, Math.min(props.width ?? defaultWidth, maxWidthFinal));
 
-  const defaultHeight = minWidthFinal + ((minWidthFinal % maxHeightFinal) / 2);
-  const height = Math.max(minHeightFinal, Math.min(props.height ?? defaultHeight, maxHeightFinal))
+  const defaultHeight = minWidthFinal + (minWidthFinal % maxHeightFinal) / 2;
+  const height = Math.max(minHeightFinal, Math.min(props.height ?? defaultHeight, maxHeightFinal));
 
   const idFinal = id ?? namedId('buttonGroup');
   React.useEffect(() => {
     const firstElement = document.getElementById(idFinal);
     if (firstElement) {
-      firstElement.querySelector(".MuiButtonBase-root")?.classList.add("first-element");
+      firstElement.querySelector('.MuiButtonBase-root')?.classList.add('first-element');
     }
   });
-  return (<ToggleButtonGroupStyled
+  return (
+    <ToggleButtonGroupStyled
       id={idFinal}
       onChange={onChange}
       value={value}
@@ -153,7 +175,23 @@ function ToggleButtonGroupEx(props: ToggleButtonGroupExProps) {
       height={height}
     >
       {props.children}
-    </ToggleButtonGroupStyled>)
+    </ToggleButtonGroupStyled>
+  );
 }
+
+ToggleButtonGroupEx.propTypes = {
+  // ----------------------------- Warning --------------------------------
+  // | These PropTypes are generated from the TypeScript type definitions |
+  // | To update them edit the TypeScript types and run "pnpm proptypes"  |
+  // ----------------------------------------------------------------------
+  height: PropTypes.number,
+  maxHeight: PropTypes.number,
+  maxWidth: PropTypes.number,
+  minHeight: PropTypes.number,
+  minWidth: PropTypes.number,
+  width: PropTypes.number,
+  children: PropTypes.any,
+  sx: PropTypes.oneOfType([PropTypes.object, PropTypes.array]), // Add this line
+} as any;
 
 export default ToggleButtonGroupEx;

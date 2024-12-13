@@ -8,5 +8,6 @@ const OutlinedStyle = (tag) => {
     },
   }));
 }
+
 export default OutlinedStyle;
 

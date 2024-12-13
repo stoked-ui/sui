@@ -17,11 +17,6 @@ export interface UseFileParameters {
    */
   disabled?: boolean;
   /**
-   * The id of the item.
-   * Must be unique.
-   */
-  itemId?: FileId;
-  /**
    * The label of the item.
    */
   rootRef?: React.Ref<HTMLLIElement>;

@@ -1,5 +1,5 @@
 {
-  "name": "Stoked UI Editor",
+  "name": "Stoked UI - Editor",
   "short_name": "Editor",
   "display": "standalone",
   "start_url": "/editor/pwa/",

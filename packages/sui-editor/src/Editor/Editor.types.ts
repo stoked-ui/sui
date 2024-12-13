@@ -3,12 +3,15 @@ import {Theme} from '@mui/material/styles';
 import {SxProps} from '@mui/system';
 import {SlotComponentProps} from '@mui/base/utils';
 import {IMediaFile} from '@stoked-ui/media-selector';
+import {ITimelineAction, ITimelineTrack, TimelineProps, TimelineControlProps} from '@stoked-ui/timeline';
+import { FileExplorerProps } from "@stoked-ui/file-explorer";
 import {EditorPluginParameters, EditorPluginSignatures, EditorPluginSlotProps, EditorPluginSlots} from './Editor.plugins';
 import {EditorClasses} from './editorClasses';
 import { EditorExperimentalFeatures, EditorPublicAPI } from '../internals/models';
-import { IEditorFileAction } from "../EditorAction";
+import {IEditorAction, IEditorFileAction} from "../EditorAction";
 import EditorFile, { IEditorFile } from "../EditorFile/EditorFile";
 import Controllers from '../Controllers/Controllers';
+import {IEditorTrack} from "../EditorTrack";
 
 
 export interface EditorSlots extends EditorPluginSlots {
@@ -45,8 +48,8 @@ export interface EditorSlotProps<R extends IMediaFile, Multiple extends boolean 
   root?: SlotComponentProps<'div', {}, EditorProps<R, Multiple>>;
   editorView?: SlotComponentProps<'div', {}, {}>;
   controls?: SlotComponentProps<'div', {}, {}>;
-  timeline?: SlotComponentProps<'div', {}, {}>;
-  fileExplorer?: SlotComponentProps<'ul', {}, {}>;
+  timeline?: SlotComponentProps<'div', {}, TimelineProps & TimelineControlProps>;
+  fileExplorer?: SlotComponentProps<'ul', {}, FileExplorerProps<R, Multiple>>;
 }
 
 
@@ -64,28 +67,29 @@ export interface EditorPropsBase extends React.HTMLAttributes<HTMLDivElement> {
   classes?: Partial<EditorClasses>;
   detailMode?: boolean;
   file?: IEditorFile;
-
+  FileExplorerProps?: FileExplorerProps<IMediaFile, undefined>;
   fileUrl?: string,
   fileView?: boolean;
-
-  localDb?: boolean;
-
+  fullscreen?: boolean;
   labels?: boolean;
-
+  localDb?: boolean;
+  minimal?: boolean;
+  newTrack?: boolean;
+  noLabels?: boolean;
   noResizer?: boolean;
-
-  openSaveControls?: boolean;
-
+  noSaveControls?: boolean;
+  noSnapControls?: boolean;
+  noTrackControls?: boolean;
+  noZoom?: boolean;
+  preview?: boolean;
   record?: boolean;
-
-  snapControls?: boolean;
-
+  openSaveControls?: boolean;
   /**
    * The system prop that allows defining system overrides as well as additional CSS styles.
    */
   sx?: SxProps<Theme>;
-
-  trackControls?: boolean;
+  timelineSx?: SxProps<Theme>;
+  filesSx?: SxProps<Theme>;
 }
 
 export interface EditorProps<R extends IMediaFile = IMediaFile, Multiple extends boolean | undefined = true>
@@ -105,6 +109,40 @@ export interface EditorProps<R extends IMediaFile = IMediaFile, Multiple extends
   /**
    * Override or extend the styles applied to the component.
    */
+  mode?: 'project' | 'track' | 'action';
+
+  newTrack?: boolean;
+
+  /**
+   * @description Click label callback
+   */
+  onClickLabel?: (
+    e: React.MouseEvent<HTMLElement, MouseEvent>,
+    track: ITimelineTrack,
+  ) => void;
+
+  /**
+   * @description Click track callback
+   */
+  onClickTrack?: (
+    e: React.MouseEvent<HTMLElement, MouseEvent>,
+    param: {
+      track: ITimelineTrack;
+      time: number;
+    },
+  ) => void;
+
+  /**
+   * @description Click track callback
+   */
+  onClickAction?: (
+    e: React.MouseEvent<HTMLElement, MouseEvent>,
+    param: {
+      action: ITimelineAction;
+      track: ITimelineTrack;
+      time: number;
+    },
+  ) => void;
 
   /**
    * The props used for each component slot.
@@ -116,5 +154,12 @@ export interface EditorProps<R extends IMediaFile = IMediaFile, Multiple extends
    * @default {}
    */
   slots?: EditorSlots;
+
+  children?: React.ReactNode;
+
+  viewButtons?: React.ReactElement[];
+  viewButtonAppear?: number;
+  viewButtonEnter?: number;
+  viewButtonExit?: number;
 }
 

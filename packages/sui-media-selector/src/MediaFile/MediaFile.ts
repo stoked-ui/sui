@@ -1,333 +1,174 @@
-import safeStringify from "safe-stringify";
-import {Howl} from "howler";
-import {MediaType, getMediaType} from './MediaType';
+import {
+  createSettings,
+  namedId,
+  FetchBackoff,
+  Settings,
+  ExtensionMimeTypeMap
+} from "@stoked-ui/common";
 import {
   DropFile,
+  getInputFiles,
   FileArray,
-  FILES_TO_IGNORE,
-  FileSystemFileHandle,
   FileValue,
   FromEventInput,
-  IMediaFile,
+  FILES_TO_IGNORE,
+  isChangeEvt,
+  isDataTransfer,
+  isObject,
   PragmaticDndEvent
-} from './MediaFile.types'
-import {ExtensionMimeTypeMap} from "./MimeType";
-import namedId from "../namedId";
+} from "./MediaFile.types";
+import IMediaFile from "./IMediaFile";
+import WebFile from "../WebFile/WebFile";
+import ScreenshotStore from "./Metadata/ScreenshotStore";
+import {getMediaType, MediaType} from "../MediaType";
 
-export default class MediaFile implements IMediaFile {
-  readonly id: string;
+export interface IAudioMetadata {
+  duration: number;
+  format: string;
+  name: string;
+  size: number;
+  artist?: string;
+  trackTitle?: string;
+}
 
-  readonly path?: string;
+export interface IAudioPreloadResult {
+  element: HTMLAudioElement,
+  objectUrl: string,
+  metadata: IAudioMetadata,
+}
 
+interface WaveformOptions {
+  width?: number;
+  height?: number;
+  backgroundColor?: string;
+  waveformColor?: string;
+  outputType?: 'dataurl' | 'blob';
+}
+
+export interface IAudioPreloadExtractResult {
+  element: HTMLAudioElement,
+  objectUrl: string,
+  metadata: IAudioMetadata,
+  backgroundImage: string,
+}
+
+export interface IAudioWaveImageOptions {
+  width: number;
+  height: number;
+  objectUrl: string;
+  duration: number;
+  waveformColor: string;
+  backgroundColor: string;
+}
+
+export default class MediaFile extends File implements IMediaFile {
   readonly created: number;
-
-
-  readonly lastModified: number;
-
-  readonly name: string;
-
-  readonly size: number;
-
-  get mediaFileSize() {
-    return this.size;
-  }
-
-  readonly type: string;
 
   readonly mediaType: MediaType;
 
-  readonly webkitRelativePath: string;
+  readonly path: string;
 
-  readonly element?: any;
+  readonly url: string;
 
-  readonly duration?: number;
+  media: Settings;
 
-  readonly width?: number;
+  readonly id: string;
 
-  readonly height?: number;
+  children?: MediaFile[];
 
-  readonly aspectRatio?: number;
-
-  readonly version: number;
-
-  children?: IMediaFile[];
-
-  visibleIndex?: number;
-
-  expanded?: boolean;
-
-  selected?: boolean;
-
-  icon: string | null = null;
-
-  thumbnail: string | null = null;
-
-  tags?: any;
-
-  readonly blob: Blob;
-
-  _url?: string;
-
-  image?: string;
-
-  backgroundImage?: string;
-
-  itemId: string;
-
-  static container: HTMLDivElement;
-
-  static renderer: HTMLCanvasElement;
-
-  static renderCtx: CanvasRenderingContext2D;
-
-  arrayBuffer: () => Promise<ArrayBuffer>;
-
-  slice: (start?: number, end?: number, contentType?: string) => Blob;
-
-  stream: () => ReadableStream<Uint8Array>;
-
-  text: () => Promise<string>;
-
-
-  get url() {
-    if (!this._url) {
-      this._url = URL.createObjectURL(this.blob);
+  constructor(
+    fileBits: BlobPart[],
+    fileName: string,
+    options: FilePropertyBag & {
+      created?: number;
+      path?: string;
+      url?: string;
+      media?: Record<string, any>;
+      id?: string;
+      children?: MediaFile[];
     }
-    return this._url;
+  ) {
+    super(fileBits, fileName, options);
+
+    this.created = options.created ?? Date.now();
+    this.mediaType = getMediaType(options.type ?? this.type); // Automatically assign mediaType
+    this.path = options.path ?? '';
+    this.url = options.url ?? '';
+    this.media = createSettings(options.media);
+    this.children = options.children ?? [];
+    this.id = options.id ?? MediaFile.generateId;
   }
 
-  constructor(file: any) {
-
-    if (!file) {
-      throw new Error('Either file or url must be provided');
-    }
-
-    this.id = file.id ? file.id : namedId({id: 'mediaFile', length: 6});
-    this.itemId = file.itemId ?? this.id;
-    this.created = file.created ?? file.lastModified ?? Date.now();
-    this.lastModified = file.lastModified;
-    this.name = file.name;
-    this.size = file.size;
-    this.type = file.type;
-    this.path = file.name;
-    this._url = file._url ?? file.url;
-    this.image = file.image;
-    this.version = file.version ?? 1;
-    if ("webkitRelativePath" in file && file.webkitRelativePath.length > 0) {
-      this.path = file.webkitRelativePath;
-    }
-    this.webkitRelativePath = file.webkitRelativePath;
-    this.mediaType = file.mediaType;
-    if (!this.mediaType && this.type) {
-      this.mediaType = getMediaType(this.type);
-    }
-    this.children = file.children;
-    this.expanded = file.expanded;
-    this.selected = file.selected;
-    this.visibleIndex = file.visibleIndex;
-
-    this.arrayBuffer = file.arrayBuffer.bind(file);
-    this.slice = file.slice.bind(file);
-    this.stream = file.stream.bind(file);
-    this.text = file.text.bind(file);
-
-    this.blob = new Blob([file], { type: file.type });
+  private static get generateId(): string {
+    return namedId('mediafile');
   }
 
-  static ensureStaticHtml() {
-    if (!MediaFile.container) {
-      MediaFile.container = document.createElement('div');
-      MediaFile.renderer = document.createElement('canvas');
-      MediaFile.renderCtx = MediaFile.renderer.getContext('2d') as CanvasRenderingContext2D;
-    }
+  get metadataBlob(): Blob {
+    return new Blob(
+      [JSON.stringify(this.mediaProps)], { type: 'application/json' }
+    );
   }
 
-  static async from(input: FromEventInput | { source?: { items: unknown[] } }): Promise<IMediaFile[]> {
-    this.ensureStaticHtml();
-
-    const fromWrapper = (inputWrapper: FromEventInput | { source?: { items: unknown[] } }) => {
-      if (isObject<DragEvent>(inputWrapper) && isDataTransfer(inputWrapper.dataTransfer)) {
-        return getDataTransferFiles(inputWrapper.dataTransfer, inputWrapper.type);
-      }
-      if (isChangeEvt(inputWrapper)) {
-        return getInputFiles(inputWrapper);
-      }
-      if ('source' in inputWrapper && inputWrapper.source && 'items' in inputWrapper.source && Array.isArray(inputWrapper.source.items) && inputWrapper.source.items.length > 0) {
-        return getDropFiles(input as PragmaticDndEvent);
-      }
-      if ((Array.isArray(inputWrapper) && inputWrapper.every(item => 'getFile' in item && typeof item.getFile === 'function')) || (inputWrapper as FileSystemFileHandle[] !== undefined)) {
-        return getFsHandleFiles(input as FileSystemFileHandle[])
-      }
-      return [];
-    }
-    const files = await fromWrapper(input) as IMediaFile[]
-    const allFiles = noIgnoredFiles(files);
-    const filePromises = allFiles.map((preloadFile) => this.preload(preloadFile, preloadFile.url));
-    return Promise.all(filePromises);
+  async toBlob(): Promise<Blob> {
+    return new Blob([this.metadataBlob, this], { type: this.type });
   }
 
-  static fromFile(file: IMediaFile, path?: string) {
-    const f = this.withMimeType(file);
-    const {webkitRelativePath} = file;
-    let pathValue = file.name;
-    if (typeof path === 'string') {
-      pathValue = path;
-    } else if (webkitRelativePath && webkitRelativePath.length > 0) {
-      pathValue = webkitRelativePath
+  getUrl() {
+    if (this.url.length > 0) {
+      return this.url;
     }
-    if (typeof f.path !== 'string') { // on electron, path is already set to the absolute path
-      Object.defineProperty(f, 'path', {
-        value: pathValue,
-        writable: false,
-        configurable: false,
-        enumerable: true
-      });
-    }
-
-    return new MediaFile(f);
+    return URL.createObjectURL(this);
   }
 
-  static setProperty(o: any, name: string, value: any) {
-    Object.defineProperty(o, name, {
-      value,
-      writable: false,
-      configurable: false,
-      enumerable: true
-    });
+  async arrayBuffer(): Promise<ArrayBuffer> {
+    const blob = await this.toBlob();
+    return blob.arrayBuffer();
   }
 
-  static async fromUrl(url: string, container?: HTMLDivElement): Promise<IMediaFile> {
-    if (!container) {
-      if (!MediaFile.container) {
-        MediaFile.container = document.createElement('div');
-      }
-      container = MediaFile.container;
-    }
-    const response = await fetch(url, {cache: "no-store"});
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-    const contentType = response.headers.get("content-type");
-    const blob = await response.blob()
-    const file = new File([blob], getFileName(url, true) ?? 'url-file', {type: contentType ?? 'application/octet-stream'});
-    const mediaFile = file as IMediaFile;
-    MediaFile.setProperty(mediaFile, '_url', response.url);
-    MediaFile.setProperty(mediaFile, 'id', namedId('mediaFile'));
-
-    const fullMediaFile: MediaFile = MediaFile.fromFile(mediaFile as IMediaFile);
-    return this.preload(fullMediaFile,url);
+  async text(): Promise<string> {
+    const blob = await this.toBlob();
+    return blob.text();
   }
 
-  static async preload(mediaFile: MediaFile, url: string): Promise<MediaFile> {
-    this.ensureStaticHtml();
-    const container = MediaFile.container;
-
-    switch(mediaFile.mediaType) {
-      case 'video':
-      {
-        const item = document.createElement('video') as HTMLVideoElement;
-        item.id = mediaFile.id;
-        item.preload = 'auto';
-        container.appendChild(item);
-        return new Promise((resolve, reject) => {
-          try {
-            let loadedMetaData = false;
-            item.addEventListener('loadedmetadata', () => {
-              MediaFile.setProperty(mediaFile, 'duration', item.duration);
-              MediaFile.setProperty(mediaFile, 'width', item.videoWidth);
-              MediaFile.setProperty(mediaFile, 'height', item.videoHeight);
-              const ratio = item.videoWidth / item.videoHeight;
-              MediaFile.setProperty(mediaFile, 'aspectRatio', ratio);
-              item.style.aspectRatio = `${ratio}`;
-              // item.style.objectFit = action.fit as string;
-              loadedMetaData = true;
-            });
-
-            let canPlayThrough = false;
-            item.addEventListener('canplaythrough', () => {
-              canPlayThrough = true;
-            })
-
-            item.autoplay = false;
-            item.style.display = 'flex';
-            item.src = url;
-            let intervalId;
-            let loadingSeconds = 0;
-
-            const isLoaded = () => {
-              return item.readyState === 4 && loadedMetaData && canPlayThrough;
-            }
-            const waitUntilLoaded = () =>{
-              intervalId = setInterval(() => {
-                loadingSeconds += 1;
-                if (isLoaded()) {
-                  clearInterval(intervalId);
-                  MediaFile.setProperty(mediaFile, 'element', item);
-                  resolve(mediaFile);
-                } else if (loadingSeconds > 20) {
-                  reject(new Error(`didn't load video ${mediaFile.url} within 20 seconds'`));
-                }
-              }, 1000); // Run every 1 second
-            }
-
-            if (!isLoaded()) {
-              waitUntilLoaded();
-            }
-
-          } catch (ex) {
-            reject(ex);
-          }
-        })
-      }
-      case 'audio': {
-        return new Promise((resolve, reject) => {
-          try {
-            const item = new Howl({
-              src: url,
-              loop: false,
-              autoplay: false,
-              onload: () => {
-                MediaFile.setProperty(mediaFile, 'element', item);
-                resolve(mediaFile);
-              }
-            });
-          } catch(ex) {
-            let msg = `Error loading audio file: ${url}`;
-            if (ex as Error) {
-              msg += (ex as Error).message;
-            }
-            reject(new Error(msg));
-          }
-        })
-      }
-      default: {
-        return mediaFile;
-      }
-    }
-    return mediaFile;
+  stream(): ReadableStream<Uint8Array> {
+    const streamBlob = new Blob([JSON.stringify(this.mediaProps), this], { type: this.type });
+    return streamBlob.stream();
   }
 
-  static async writeFiles(files: MediaFile[], controller: ReadableStreamDefaultController<Uint8Array>, chunkSize = 64 * 1024) {
-    for (let i = 0; i < files.length; i += 1){
-      const file = files[i];
-      let position = 0;
-
-      while (position < file.mediaFileSize) {
-        // Read the chunk from the file
-        // eslint-disable-next-line no-await-in-loop
-        const chunk = await file.slice(position, position + chunkSize).arrayBuffer();
-
-        // Write the chunk to the stream
-        controller.enqueue(new Uint8Array(chunk));
-
-        // Move the position for the next chunk
-        position += chunkSize;
-      }
-    }
+  slice(start?: number, end?: number, contentType?: string): Blob {
+    const combinedBlob = new Blob([JSON.stringify(this.mediaProps), this], { type: this.type });
+    return combinedBlob.slice(start, end, contentType);
   }
 
+  private get mediaProps() {
+    return {
+      created: this.created,
+      mediaType: this.mediaType,
+      path: this.path,
+      url: this.url,
+      media: this.media,
+      id: this.id,
+      children: this.children,
+    };
+  }
 
-  static withMimeType(file: IMediaFile) {
+  get metadata() {
+    return {
+      id: this.id,
+      name: this.name,
+      type: this.type,
+      size: this.size,
+      created: this.created,
+      lastModified: this.lastModified,
+      mediaType: this.mediaType,
+      children: this.children,
+      path: this.path,
+      url: this.url,
+      media: this.media,
+    };
+  }
+
+  static withMimeType(file: File) {
     const {name} = file;
     const hasExtension = name && name.lastIndexOf('.') !== -1;
     if (hasExtension) {
@@ -351,213 +192,715 @@ export default class MediaFile implements IMediaFile {
       }
     }
 
-    return file;
+    return file as MediaFile;
   }
-}
 
-async function getDropFiles(input: PragmaticDndEvent): Promise<IMediaFile[]> {
-  if (!input?.source?.items) {
-    return [] as IMediaFile[];
-  }
-  // console.log('input', JSON.stringify(input.source, null, 2));
-  const files = input.source.items;
-  const finalizedFiles = await Promise.all(files.map(async (item: DropFile) =>  {
-    if (item as DataTransferItem) {
-      const dti = item as DataTransferItem;
-      return toFilePromises(dti);
+  static fromFile(file: File, path?: string): MediaFile {
+    const f = this.withMimeType(file);
+    const {webkitRelativePath} = file;
+    let pathValue = file.name;
+    if (typeof path === 'string') {
+      pathValue = path;
+    } else if (webkitRelativePath && webkitRelativePath.length > 0) {
+      pathValue = webkitRelativePath
     }
-    return MediaFile.fromFile(item as IMediaFile);
-  }));
-  return noIgnoredFiles(finalizedFiles.flat() as IMediaFile[]);
-}
+    if (typeof f.path !== 'string') { // on electron, path is already set to the absolute path
+      Object.defineProperty(f, 'path', {
+        value: pathValue,
+        writable: false,
+        configurable: false,
+        enumerable: true
+      });
+    }
+    const mediaFileOptions = {
+      type: file.type,
+      created: file.lastModified, // Using lastModified date as the creation time
+      path: `/files/${file.name}`, // Example path
+      url: URL.createObjectURL(file),
+      media: {
+        description: "Automatically generated file metadata",
+        tags: [],
+      },
+      id: this.generateId, // Generate a unique ID
+      mediaType: getMediaType(file.type),
+    };
 
-export function getFileName(url: string, includeExtension?: boolean) {
-  const matches = url && typeof url.match === "function" && url.match(/\/?([^/.]*)\.?([^/]*)$/);
-  if (!matches) {
-    return null;
+    // Create MediaFile instance
+    return new MediaFile([file], file.name, mediaFileOptions);
   }
-  if (includeExtension && matches.length > 2 && matches[2]) {
-    return matches.slice(1).join(".");
+
+  static async fromUrl(url: string, throwOnError: boolean = false): Promise<MediaFile | null> {
+    // Attempt to fetch the data from the provided URL
+
+    console.info(`MediaFile::fromUrl(${url})`)
+    const response = await FetchBackoff(url, {
+      method: "GET",
+    }, {
+      retries: 5,
+      initialDelay: 1000,
+      backoffFactor: 2,
+      retryCondition: (res: any, error: Error) => {
+        if (error) {
+          return true; // Retry on network errors
+        }
+        return res?.status === 503; // Retry on service unavailable
+      },
+    });
+
+    // Check if the response status is OK (status code 2xx)
+    if (!response.ok) {
+      // Log the response status and potentially the response body for debugging
+      const errorMessage = await response.text();
+      console.error(`Failed to fetch data from URL: ${url} - Status: ${response.status} - Message: ${errorMessage}`);
+      if (throwOnError) {
+        throw new Error(`Network response was not ok. Status: ${response.status}`);
+      }
+      return null;
+    }
+    const blob = await response.blob();
+    const fileName = url.split('/').pop() || 'downloaded-file';
+    const options = {
+      type: blob.type,
+      created: Date.now(),
+      path: url,
+      url,
+      media: {
+        description: "Fetched from URL",
+        tags: [],
+      },
+      id: this.generateId,
+    };
+
+    const mediaFile = new MediaFile([blob], fileName, options);
+    await mediaFile.extractMetadata();
+    return mediaFile;
   }
-  return matches[1];
-}
 
-function isDataTransfer(value: unknown): value is DataTransfer {
-  return isObject(value);
-}
+  async extractMetadata() {
+    console.info('extractMetadata', this.name, this.mediaType);
+    const extract = async () => {
+      switch (this.mediaType) {
+        case 'video':
+          return MediaFile.extractVideoMetadata(this as MediaFile);
+        case 'audio':
+          return MediaFile.preloadExtractAudio(this as MediaFile);
+        default:
+          return {}
+      }
+    }
 
-function isChangeEvt(value: unknown): value is Event {
-  return isObject<Event>(value) && isObject(value.target);
-}
+    await extract();
+  }
 
-function isObject<T>(v: unknown): v is T {
-  return typeof v === 'object' && v !== null
-}
+  getBackgroundImage() {
+    if (this.mediaType === 'audio') {
+      return this.media.backgroundImage;
+    }
+    return {};
+  }
 
-function getInputFiles(evt: Event) {
-  return fromList((evt.target as HTMLInputElement).files).map(file => MediaFile.fromFile(file as IMediaFile));
-}
+  actionStyle(settings: Settings, fileTimespan: { start: number, end: number }) {
+    this.getBackgroundImage();
+    if (this.mediaType === 'audio' && this?.media?.duration) {
+      const adjustedScale = settings.scaleWidth / settings.scale;
+      return {
+        backgroundImage: `url(${this.media.backgroundImage})`,
+        backgroundPosition: `${-adjustedScale * fileTimespan.start}px 0px`,
+        backgroundSize: `${adjustedScale * this.media.duration}px 100%`
+      }
+    }
+    return {};
+  }
 
-// Ee expect each handle to be https://developer.mozilla.org/en-US/docs/Web/API/FileSystemFileHandle
-async function getFsHandleFiles(handles: FileSystemFileHandle[]) {
-  const files = await Promise.all(handles.map(h => h.getFile()));
-  return files.map(file => MediaFile.fromFile(file as IMediaFile));
-}
+  static async fromUrls(urls: string[]) {
+    const mediaFiles = await Promise.all(
+      urls.map(async (url) => {
+        try {
+          return url ? await this.fromUrl(url) : null;
+        } catch (error) {
+          console.error(`Failed to fetch MediaFile from URL: ${url}`, error);
+          return null; // Handle failure by returning null
+        }
+      })
+    );
 
-async function getDataTransferFiles(dt: DataTransfer, type: string) {
-  // IE11 does not support dataTransfer.items
-  // See https://developer.mozilla.org/en-US/docs/Web/API/DataTransfer/items#Browser_compatibility
-  if (dt.items) {
-    const items = fromList(dt.items)
-    .filter(item => (item as DataTransferItem).kind === 'file');
-    // According to https://html.spec.whatwg.org/multipage/dnd.html#dndevents,
-    // only 'dragstart' and 'drop' has access to the data (source node)
-    if (type !== 'drop') {
+    // Filter out any null results caused by failed fetches
+    return mediaFiles.filter((file): file is MediaFile => file !== null);
+  }
+
+  static async  getDropFiles(input: PragmaticDndEvent): Promise<MediaFile[]> {
+    if (!input?.source?.items) {
+      return [] as MediaFile[];
+    }
+    // console.log('input', JSON.stringify(input.source, null, 2));
+    const files = input.source.items;
+    const finalizedFiles = await Promise.all(files.map(async (item: DropFile) =>  {
+      if (item as DataTransferItem) {
+        const dti = item as DataTransferItem;
+        return this.toFilePromises(dti);
+      }
+      return MediaFile.fromFile(item as MediaFile);
+    }));
+    return this.noIgnoredFiles(finalizedFiles.flat() as MediaFile[]);
+  }
+
+  // Ee expect each handle to be https://developer.mozilla.org/en-US/docs/Web/API/FileSystemFileHandle
+  static async getFsHandleFiles(handles: FileSystemFileHandle[]) {
+    const files = await Promise.all(handles.map(h => h.getFile()));
+    return files.map(file => MediaFile.fromFile(file as MediaFile));
+  }
+
+  static isFileArray(obj) {
+    if (!Array.isArray(obj)) {
+      return false;
+    }
+
+    for (let i = 0; i < obj.length; i += 1) {
+      const file = obj[i];
+      if (!(file instanceof File)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  static fromFileArray(files: File[]) {
+    return files.map(file => MediaFile.fromFile(file as MediaFile));
+  }
+
+  static async from(input: FromEventInput | { source?: { items: unknown[] } }): Promise<MediaFile[]> {
+    const fromWrapper = (inputWrapper: FromEventInput | { source?: { items: unknown[] } }) => {
+      if (isObject<DragEvent>(inputWrapper) && isDataTransfer(inputWrapper.dataTransfer)) {
+        return this.fromDataTransfer(inputWrapper.dataTransfer, inputWrapper.type);
+      }
+      if (this.isFileArray(inputWrapper)) {
+        return this.fromFileArray(inputWrapper as File[]);
+      }
+      if (isChangeEvt(inputWrapper)) {
+        return getInputFiles(inputWrapper);
+      }
+      if ('source' in inputWrapper && inputWrapper.source && 'items' in inputWrapper.source && Array.isArray(inputWrapper.source.items) && inputWrapper.source.items.length > 0) {
+        return this.getDropFiles(input as PragmaticDndEvent);
+      }
+      if ((Array.isArray(inputWrapper) && inputWrapper.every(item => 'getFile' in item && typeof item.getFile === 'function')) || (inputWrapper as FileSystemFileHandle[] !== undefined)) {
+        return this.getFsHandleFiles(input as FileSystemFileHandle[])
+      }
       return [];
     }
-    const files = await Promise.all((items as DataTransferItem[]).map(toFilePromises));
-    return noIgnoredFiles(files.flat() as IMediaFile[]);
+    const files = await fromWrapper(input) as MediaFile[]
+    return this.noIgnoredFiles(files);
   }
 
-  return noIgnoredFiles(fromList(dt.files)
-  .map((file) => MediaFile.fromFile(file as IMediaFile)));
-}
-
-function noIgnoredFiles(files: IMediaFile[]) {
-  return files.flat(Infinity).filter(file => {
-    // console.log('ignore name: ', file.name, FILES_TO_IGNORE.indexOf(file.name) );
-    return FILES_TO_IGNORE.indexOf(file.name) === -1
-  });
-}
-
-
-async function loadFileUrl(url: string): Promise<any> {
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error('Network response was not ok');
-  }
-  const contentType = response.headers.get("content-type");
-  const blob = await response.blob()
-  const file = new File([blob], getFileName(url, true) ?? 'url-file', {type: contentType ?? 'application/octet-stream'});
-  return MediaFile.fromFile({...file, url} as IMediaFile);
-}
-
-// IE11 does not support Array.from()
-// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/from#Browser_compatibility
-// https://developer.mozilla.org/en-US/docs/Web/API/FileList
-// https://developer.mozilla.org/en-US/docs/Web/API/DataTransferItemList
-export function fromList(items: DataTransferItemList | FileList | null): (IMediaFile | DataTransferItem)[] {
-  if (items === null) {
-    return [];
+  static noIgnoredFiles(files: MediaFile[]) {
+    return files.flat(Infinity).filter(file => {
+      // console.log('ignore name: ', file.name, FILES_TO_IGNORE.indexOf(file.name) );
+      return FILES_TO_IGNORE.indexOf(file.name) === -1
+    });
   }
 
-  const files : (IMediaFile | DataTransferItem)[] = [];
-
-  // tslint:disable: prefer-for-of
-  for (let i = 0; i < items.length; i += 1) {
-    const file = items[i] as IMediaFile | DataTransferItem
-    files.push(file);
-  }
-  return files as (IMediaFile | DataTransferItem)[];
-}
-
-// https://developer.mozilla.org/en-US/docs/Web/API/DataTransferItem
-function toFilePromises(item: DataTransferItem) {
-  if (typeof item.webkitGetAsEntry !== 'function') {
-    return fromDataTransferItem(item);
+  static fromDataTransferItem(item: DataTransferItem) {
+    const file = item.getAsFile();
+    if (!file) {
+      return Promise.reject(new Error(`${item} is not a File`));
+    }
+    const fwp = MediaFile.fromFile(file as MediaFile);
+    return Promise.resolve(fwp);
   }
 
-  const entry = item.webkitGetAsEntry();
-
-  // Safari supports dropping an image node from a different window and can be retrieved using
-  // the DataTransferItem.getAsFile() API
-  // NOTE: FileSystemEntry.file() throws if trying to get the file
-  if (entry && entry.isDirectory) {
-    return fromDirEntry(entry as FileSystemDirectoryEntry);
-  }
-
-  return fromDataTransferItem(item);
-}
-
-/*
- function flatten<T = []>(items: T): T[] {
- return items.reduce((acc, files) => [
- ...acc,
- ...(Array.isArray(files) ? flatten(files) : [files])
- ], []);
- }
- */
-
-function fromDataTransferItem(item: DataTransferItem) {
-  const file = item.getAsFile();
-  if (!file) {
-    return Promise.reject(new Error(`${item} is not a File`));
-  }
-  const fwp = MediaFile.fromFile(file as IMediaFile);
-  return Promise.resolve(fwp);
-}
-
-// https://developer.mozilla.org/en-US/docs/Web/API/FileSystemEntry
-async function fromEntry(entry: FileSystemEntry) {
-  return entry.isDirectory ? fromDirEntry(entry as FileSystemDirectoryEntry) : fromFileEntry(entry as FileSystemFileEntry);
-}
-
-// https://developer.mozilla.org/en-US/docs/Web/API/FileSystemDirectoryEntry
-function fromDirEntry(entry: FileSystemDirectoryEntry) {
-  const reader = entry.createReader();
-
-  return new Promise<FileArray[]>((resolve, reject) => {
-    const entries: Promise<FileValue[]>[] = [];
-
-    function readEntries() {
-      // https://developer.mozilla.org/en-US/docs/Web/API/FileSystemDirectoryEntry/createReader
-      // https://developer.mozilla.org/en-US/docs/Web/API/FileSystemDirectoryReader/readEntries
-      reader.readEntries(async (batch: unknown[]) => {
-        if (!batch.length) {
-          // Done reading directory
-          try {
-            const files = await Promise.all(entries);
-            resolve(files);
-          } catch (err) {
-            reject(err);
-          }
-        } else {
-          const items = Promise.all((batch as FileSystemEntry[]).map(fromEntry));
-          entries.push(items);
-
-          // Continue reading
-          readEntries();
-        }
-      }, (err: unknown) => {
+  static async fromFileEntry(entry: FileSystemFileEntry) {
+    return new Promise<MediaFile>((resolve, reject) => {
+      entry.file((file: File) => {
+        const fwp = MediaFile.fromFile(file as MediaFile, entry.fullPath);
+        resolve(fwp);
+      },  (err: unknown) => {
         reject(err);
+      });
+    });
+  }
+
+  // https://developer.mozilla.org/en-US/docs/Web/API/FileSystemEntry
+  static async fromEntry(entry: FileSystemEntry) {
+    return entry.isDirectory ? this.fromDirEntry(entry as FileSystemDirectoryEntry) : this.fromFileEntry(entry as FileSystemFileEntry);
+  }
+
+  static fromDirEntry(entry: FileSystemDirectoryEntry) {
+    const reader = entry.createReader();
+
+    return new Promise<FileArray[]>((resolve, reject) => {
+      const entries: Promise<FileValue[]>[] = [];
+
+      function readEntries() {
+        // https://developer.mozilla.org/en-US/docs/Web/API/FileSystemDirectoryEntry/createReader
+        // https://developer.mozilla.org/en-US/docs/Web/API/FileSystemDirectoryReader/readEntries
+        reader.readEntries(async (batch: unknown[]) => {
+          if (!batch.length) {
+            // Done reading directory
+            try {
+              const files = await Promise.all(entries);
+              resolve(files);
+            } catch (err) {
+              reject(err);
+            }
+          } else {
+            const items = Promise.all((batch as FileSystemEntry[]).map(MediaFile.fromEntry));
+            entries.push(items);
+
+            // Continue reading
+            readEntries();
+          }
+        }, (err: unknown) => {
+          reject(err);
+        });
+      }
+
+      readEntries();
+    });
+  }
+
+  static toFilePromises(item: DataTransferItem) {
+    if (typeof item.webkitGetAsEntry !== 'function') {
+      return this.fromDataTransferItem(item);
+    }
+
+    const entry = item.webkitGetAsEntry();
+
+    // Safari supports dropping an image node from a different window and can be retrieved using
+    // the DataTransferItem.getAsFile() API
+    // NOTE: FileSystemEntry.file() throws if trying to get the file
+    if (entry && entry.isDirectory) {
+      return this.fromDirEntry(entry as FileSystemDirectoryEntry);
+    }
+
+    return this.fromDataTransferItem(item);
+  }
+
+  // IE11 does not support Array.from()
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/from#Browser_compatibility
+  // https://developer.mozilla.org/en-US/docs/Web/API/FileList
+  // https://developer.mozilla.org/en-US/docs/Web/API/DataTransferItemList
+  static fromList(items: DataTransferItemList | FileList | null): (MediaFile | DataTransferItem)[] {
+    if (items === null) {
+      return [];
+    }
+
+    const files : (MediaFile | DataTransferItem)[] = [];
+
+    // tslint:disable: prefer-for-of
+    for (let i = 0; i < items.length; i += 1) {
+      const file = items[i] as MediaFile | DataTransferItem
+      files.push(file);
+    }
+    return files as (MediaFile | DataTransferItem)[];
+  }
+
+  static async fromDataTransfer(dt: DataTransfer, type: string) {
+    // IE11 does not support dataTransfer.items
+    // See https://developer.mozilla.org/en-US/docs/Web/API/DataTransfer/items#Browser_compatibility
+    if (dt.items) {
+      const items = this.fromList(dt.items)
+      .filter(item => (item as DataTransferItem).kind === 'file');
+      // According to https://html.spec.whatwg.org/multipage/dnd.html#dndevents,
+      // only 'dragstart' and 'drop' has access to the data (source node)
+      if (type !== 'drop') {
+        return [];
+      }
+      const files = await Promise.all((items as DataTransferItem[]).map(this.toFilePromises));
+      return this.noIgnoredFiles(files.flat() as MediaFile[]);
+    }
+
+    return this.noIgnoredFiles(this.fromList(dt.files).map((file) => MediaFile.fromFile(file as MediaFile)));
+  }
+
+  static async openDialog(): Promise<MediaFile[]> {
+    const options: OpenFilePickerOptions & {multiple?: false | undefined} = {
+      types: [
+        {
+          description: "Video",
+          accept: {
+            "video/*": [] as any,
+          },
+        },{
+          description: "Audio",
+          accept: {
+            "audio/*": [] as any,
+          },
+        },{
+          description: "Images",
+          accept: {
+            "image/*": [] as any,
+          },
+        },
+      ],
+      excludeAcceptAllOption: true,
+      multiple: false,
+    }
+    const files = await WebFile.open(options)
+    return MediaFile.from(files);
+  }
+
+  static async createVideoElement(file: File): Promise<{
+    duration: number; // Video duration in seconds
+    format: string;   // MIME type
+    name: string;     // File name
+    size: number;
+    video: HTMLVideoElement;
+    width: number;
+    height: number;
+  }> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      try {
+        if (!file.type.startsWith('video/')) {
+          reject(new Error('File is not a video file.'));
+          return;
+        }
+        reader.onload = (event) => {
+          if (!event.target?.result) {
+            reject(new Error('Failed to read file.'));
+            return;
+          }
+
+          const video = document.createElement('video');
+          video.src = URL.createObjectURL(new Blob([event.target.result], {type: file.type}));
+          video.preload = 'auto';
+          video.id = `${file.name}-video`;
+          video.onloadedmetadata = () => {
+            resolve( {
+              duration: video.duration, // Duration in seconds
+              format: file.type,        // MIME type
+              name: file.name,          // File name
+              size: file.size,  // File size in bytes
+              video,
+              width: video.videoWidth,
+              height: video.videoHeight
+            });
+          }
+        }
+
+        reader.onerror = () => {
+          reject(new Error('Failed to read file.'));
+        };
+
+        reader.readAsArrayBuffer(file);
+      } catch (ex) {
+        reject(ex);
+      }
+    });
+  }
+
+  static async extractVideoMetadata(
+    file: MediaFile,
+    screenshots: boolean | number = false
+  ): Promise<{
+    duration: number,
+    format: string,
+    name: string,
+    size: number,
+    screenshotStore?: ScreenshotStore,
+    video: HTMLVideoElement
+  }> {
+    try {
+      const { video, ...videoData} = await this.createVideoElement(file);
+      const screenshotStore = new ScreenshotStore({ threshold: 1, video, file });
+      file.media = { ...file.media, screenshotStore, ...videoData, element: video };
+
+      if (!screenshots) {
+        return { ...videoData, screenshotStore, video };
+      }
+      const screenshotCount = typeof screenshots === 'number' ? screenshots : 1;
+      await file.media.screenshotStore.generateTimespanScreenshots(screenshotCount, video, { start: 0, end: videoData.duration });
+
+      return {
+        screenshotStore,
+        ...videoData,
+        video
+      };
+    } catch (ex) {
+      throw new Error('Failed to read file');
+    }
+  }
+
+  static async extractAudioMetadata(file: MediaFile): Promise<IAudioMetadata> {
+    return new Promise((resolve, reject) => {
+      if (!file.type.startsWith('audio/')) {
+        reject(new Error('File is not an audio file.'));
+        return;
+      }
+
+      const audioContext = new AudioContext();
+      const reader = new FileReader();
+
+      reader.onload = async (event) => {
+        try {
+          if (!event.target?.result) {
+            reject(new Error('Failed to read file.'));
+            return;
+          }
+
+          const arrayBuffer = event.target.result as ArrayBuffer;
+
+          // Decode the audio data to extract metadata
+          const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+
+          // Basic metadata extraction
+          const metadata = {
+            duration: audioBuffer.duration, // Duration in seconds
+            format: file.type, // MIME type
+            name: file.name, // File name
+            size: file.size, // File size in bytes
+          };
+
+          // Attempt to extract additional metadata (artist/title from file name or ID3 tags if supported)
+          const additionalMetadata = this.extractMetadataFromAudioFileName(file.name);
+
+          file.media = { ...file.media, ...metadata, ...additionalMetadata };
+          resolve({ ...metadata, ...additionalMetadata });
+        } catch (error) {
+          reject(error);
+        } finally {
+          audioContext.close();
+        }
+      };
+
+      reader.onerror = () => {
+        reject(new Error('Failed to read file.'));
+      };
+
+      reader.readAsArrayBuffer(file);
+    });
+  }
+
+// Helper function to extract basic metadata from file name
+  static extractMetadataFromAudioFileName(fileName: string): {
+    artist?: string;
+    trackTitle?: string;
+  } {
+    const parts = fileName.split('-').map((part) => part.trim());
+    if (parts.length === 2) {
+      return {
+        artist: parts[0],
+        trackTitle: parts[1].replace(/\.\w+$/, ''), // Remove file extension
+      };
+    }
+    return { trackTitle: fileName.replace(/\.\w+$/, '') };
+  }
+
+  static async preloadAudio(file: MediaFile): Promise<IAudioPreloadResult> {
+    if (!file.type.startsWith('audio/')) {
+      throw new Error('File is not an audio file.');
+    }
+
+    // Create a new audio element
+
+    // Create a Blob URL for the file
+    const objectUrl = URL.createObjectURL(file);
+    return new Promise((resolve) => {
+      const element = document.createElement('audio') as HTMLAudioElement;
+      element.addEventListener("durationchange", () => {
+        // console.info("Audio duration:", element.duration); // Outputs the duration in seconds
+        const metadata = { duration: element.duration, format: file.type, name: file.name, size: file.size, objectUrl };
+        if ('media' in file) {
+          file.media = { ...file.media, duration: element.duration };
+        }
+        resolve( { element, objectUrl, metadata});
+      });
+      element.src = objectUrl;
+      // Set up the audio element
+      element.preload = 'metadata'; // Ensures the audio is preloaded
+    })
+  }
+
+  static async  decodeAudioData(context: OfflineAudioContext, arrayBuffer: ArrayBuffer): Promise<AudioBuffer> {
+    return new Promise((resolve, reject) => {
+      context.decodeAudioData(
+        arrayBuffer,
+        buffer => {
+          resolve(buffer);
+        },
+        error => {
+          console.info('Audio data size:', arrayBuffer.byteLength);
+          console.error('Error decoding audio data:', error);
+          reject(new Error(`Error decoding audio data: ${error}`));
+        }
+      );
+    });
+  }
+
+  static async processAudioBuffer(audioBuffer: AudioBuffer, options: WaveformOptions): Promise<string> {
+    const canvas = document.createElement('canvas');
+    const width = options.width || 800;
+    const height = options.height || 400;
+    canvas.width = width;
+    canvas.height = height;
+    const canvasContext = canvas.getContext('2d');
+    if (!canvasContext) {
+      throw new Error('Canvas context not found.');
+    }
+
+    const waveform = audioBuffer.getChannelData(0);
+    const samplesPerPixel = Math.floor(waveform.length / width);
+
+    canvasContext.fillStyle = options.backgroundColor || '#FFFFFF';
+    canvasContext.fillRect(0, 0, width, height);
+
+    canvasContext.strokeStyle = options.waveformColor || '#0000FF';
+    canvasContext.lineWidth = 2;
+    canvasContext.beginPath();
+
+    const halfHeight = height / 2;
+    let maxY = 0;
+    let minY = 0;
+    let total = 0;
+    const plots: [number, number][] = [];
+    for (let i = 0; i < width; i += 1) {
+      const start = i * samplesPerPixel;
+      const end = start + samplesPerPixel;
+      const min = Math.min(...waveform.slice(start, end));
+      const max = Math.max(...waveform.slice(start, end));
+      plots.push([min, max]);
+      if (min < minY) {
+        minY = min;
+      }
+      if (max > maxY) {
+        maxY = max;
+      }
+      const totalMax = (min * halfHeight) + (max * halfHeight);
+      if (totalMax > total) {
+        total = totalMax;
+      }
+    }
+
+    const modifier = (300 / (total) - 1) * .5;
+    for (let i = 0; i < width; i += 1) {
+      const min = plots[i][0];
+      const max = plots[i][1];
+
+
+      const yMin = halfHeight + min * halfHeight * modifier;
+      const yMax = halfHeight + max * halfHeight * modifier;
+
+      canvasContext.moveTo(i, yMin);
+      canvasContext.lineTo(i, yMax);
+    }
+    canvasContext.stroke();
+
+    if (options.outputType === 'blob') {
+      return new Promise<string>((resolve) => {
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const blobUrl = URL.createObjectURL(blob);
+            resolve(blobUrl);
+          }
+        }, 'image/png');
       });
     }
 
-    readEntries();
-  });
-}
+    return Promise.resolve(canvas.toDataURL('image/png'));
+  }
 
-// https://developer.mozilla.org/en-US/docs/Web/API/FileSystemFileEntry
-// type ToMediaFile = (file: MediaFile) => void;
-// type ErrorFunc = (err: unknown) => void;
-// type FileFunc = (toFile: ToMediaFile, errorFunc: ErrorFunc) => void
-// type EntryFile = { fullPath: string, file: FileFunc };
-async function fromFileEntry(entry: FileSystemFileEntry) {
-  return new Promise<IMediaFile>((resolve, reject) => {
-    entry.file((file: File) => {
-      const fwp = MediaFile.fromFile(file as IMediaFile, entry.fullPath);
-      resolve(fwp);
-    },  (err: unknown) => {
-      reject(err);
+  static generateWaveformImage(
+    audioSource: MediaFile | string,
+    options: WaveformOptions = {}
+  ): Promise<string> {
+    const offlineAudioContext = new OfflineAudioContext(1, 44100 * 40, 44100);
+
+    if (typeof audioSource === 'string') {
+      // Fetch the audio file from the URL using XMLHttpRequest
+      return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', audioSource, true);
+        xhr.responseType = 'arraybuffer';
+
+        xhr.onload = async () => {
+          if (xhr.status === 200) {
+            try {
+              if (xhr.response.byteLength === 0) {
+                reject(new Error('Fetched audio data is empty.'));
+              }
+              const contentType = xhr.getResponseHeader('Content-Type');
+              if (!contentType || !contentType.startsWith('audio/')) {
+                reject(new Error(`Invalid audio data type: ${contentType}`));
+              }
+              // console.log('Fetched audio data size:', xhr.response.byteLength);
+              // console.log('Fetched audio data type:', contentType);
+              const decodedData = await this.decodeAudioData(offlineAudioContext, xhr.response);
+              const result = await this.processAudioBuffer(decodedData, options);
+              resolve(result);
+            } catch (error) {
+              // console.log('Error decoding audio data:', error);
+              // console.log('Audio data size:', xhr.response.byteLength);
+              reject(error);
+            }
+          } else {
+            reject(new Error(`HTTP error! status: ${xhr.status}`));
+          }
+        };
+
+        xhr.onerror = function onError() {
+          reject(new Error('Network error occurred'));
+        };
+
+        xhr.send();
+      });
+    }
+
+    // Read the local file as an ArrayBuffer
+    return new Promise<string>((resolve, reject) => {
+      const fileReader = new FileReader();
+      fileReader.onload = async (e: ProgressEvent<FileReader>) => {
+        try {
+          const arrayBuffer = e.target?.result as ArrayBuffer;
+          if (arrayBuffer.byteLength === 0) {
+            reject(new Error('Read audio data is empty.'));
+          }
+          // console.log('Read audio data size:', arrayBuffer.byteLength);
+          const decodedData = await this.decodeAudioData(offlineAudioContext, arrayBuffer);
+          const result = await this.processAudioBuffer(decodedData, options);
+          resolve(result);
+        } catch (error) {
+          console.info('Audio data size:', (e.target?.result as ArrayBuffer).byteLength);
+          console.error('Error decoding audio data:', error);
+          reject(error);
+        }
+      };
+      fileReader.onerror = reject;
+      fileReader.readAsArrayBuffer(audioSource);
     });
-  });
+  }
+
+  static async getAudioWaveImage (imageOptions: IAudioWaveImageOptions) {
+    if (!imageOptions.duration) {
+      throw new Error('attempting to generate a wave image for an audio file and the duration was not supplied')
+    }
+    const width = imageOptions.duration * 100;
+    // return `url(${blobUrl})`;
+    return MediaFile.generateWaveformImage(imageOptions.objectUrl as string, {
+      width,
+      height: 300,
+      backgroundColor: imageOptions.backgroundColor, // Black
+      waveformColor: imageOptions.waveformColor,   // Green waveform
+      outputType: 'dataurl'          // Output a Blob URL
+    })
+  }
+
+  static async preloadExtractAudio(file: MediaFile): Promise<IAudioPreloadExtractResult> {
+    const preloadRes = await this.preloadAudio(file);
+    const { metadata, objectUrl } = preloadRes;
+
+    const imageOptions = {
+      width: metadata.duration * 100,
+      height: 300,
+      objectUrl,
+      duration: metadata.duration,
+      backgroundColor: '#0000',
+      waveformColor:  '#2bd797'
+    }
+    const backgroundImage = await this.getAudioWaveImage(imageOptions);
+    const result = { ...preloadRes, backgroundImage };
+    file.media = { ...file.media, ...preloadRes, backgroundImage }
+    return result;
+  }
 }
 
-export async function base64Encode (file: Blob): Promise<string> {
-  const reader = new FileReader();
-  return new Promise((resolve, reject) => {
-    reader.onloadend = () => resolve(reader.result as string);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}

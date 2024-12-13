@@ -38,7 +38,7 @@ describeEditor<[]>(
               slotProps={{
                 item: (ownerState) => ({ 'data-testid': ownerState.itemId }) as any,
               }}
-              getItemLabel={(item) => item.id}
+              getItemName={(item) => item.id}
             />
           </React.Fragment>,
         );

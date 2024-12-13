@@ -204,8 +204,8 @@ describeFileExplorer<
                 setState(Math.random);
               }}
             >
-              <FileComponent itemId="1" data-testid="1">
-                <FileComponent itemId="1.1" data-testid="1.1" />
+              <FileComponent id="1" data-testid="1">
+                <FileComponent id="1.1" data-testid="1.1" />
               </FileComponent>
             </FileExplorerComponent>
           );
@@ -219,7 +219,7 @@ describeFileExplorer<
               setState(Math.random);
             }}
             slotProps={{
-              item: (ownerState) => ({ 'data-testid': ownerState.itemId }) as any,
+              item: (ownerState) => ({ 'data-testid': ownerState.id }) as any,
             }}
             getItemLabel={getItemLabel}
           />

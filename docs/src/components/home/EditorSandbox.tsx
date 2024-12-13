@@ -1,9 +1,5 @@
 import * as React from 'react';
 import Editor, { Controllers, EditorProvider } from '@stoked-ui/editor';
-import { cloneDeep } from 'lodash';
-import { namedId } from '@stoked-ui/media-selector';
-import {TimelineFile} from "@stoked-ui/timeline";
-import EditorExample from "../showcase/EditorExample";
 
 export const scaleWidth = 160;
 export const scale = 2;
@@ -58,8 +54,8 @@ export const actions = [
 export default function Hero() {
 
   return (
-    <EditorProvider id={'core-demo'} controllers={Controllers} file={EditorExample} >
-      <Editor id='editor-sandbox' sx={{ width: '100%'}} />
+    <EditorProvider id={'core-demo'} controllers={Controllers}>
+      <Editor id='editor-sandbox' sx={{ width: '100%'}} fileUrl={'/static/editor/stoked-ui.sue'}/>
     </EditorProvider>
   );
 }

@@ -1,6 +1,3 @@
-import { DetailTypeProps } from "./DetailView.types";
-import { DetailDataTrack } from "./Detail.types";
-
 /**
  * Format bytes as human-readable text.
  *
@@ -32,8 +29,4 @@ export function humanFileSize(bytes: number, si=false, dp=1) {
 
 
   return `${bytes.toFixed(dp)} ${units[u]}`;
-}
-
-export interface DetailTrackProps extends DetailTypeProps {
-  data: DetailDataTrack;
 }

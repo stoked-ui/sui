@@ -11,8 +11,8 @@ import { IEditorTrack } from '../EditorTrack/EditorTrack';
 import { useEditorContext } from "../EditorProvider/EditorContext";
 
 
-export default function ContextMenu({ type,  context }:{ type: 'TRACK_DETAIL' | 'ACTION_DETAIL' | 'PROJECT_DETAIL',  context: IEditorAction | IEditorTrack | IEditorFile }) {
-  const { settings, dispatch } = useEditorContext();
+export default function ContextMenu({ type,  context }:{ type: 'DETAIL_TRACK' | 'DETAIL_ACTION' | 'DETAIL_PROJECT',  context: IEditorAction | IEditorTrack | IEditorFile }) {
+  const { state: { settings }, dispatch } = useEditorContext();
 
   const handleClose = () => {
     const { contextMenu, ...updatedSettings } = settings;
@@ -20,28 +20,16 @@ export default function ContextMenu({ type,  context }:{ type: 'TRACK_DETAIL' | 
   };
 
   const handleTrackDetail = () => {
-    switch (type) {
-      case 'TRACK_DETAIL':
-      dispatch({ type: 'TRACK_DETAIL', payload: context as IEditorTrack })
-        break;
-      case 'ACTION_DETAIL':
-        dispatch({ type: 'ACTION_DETAIL', payload: context as IEditorAction })
-        break;
-      case 'PROJECT_DETAIL':
-        dispatch({ type: 'PROJECT_DETAIL' })
-        break;
-      default:
-        break
-    }
+    dispatch({ type: 'DETAIL_OPEN' });
   }
 
   const getName = () => {
     switch (type) {
-      case 'TRACK_DETAIL':
+      case 'DETAIL_TRACK':
         return 'Track';
-      case 'ACTION_DETAIL':
+      case 'DETAIL_ACTION':
         return 'Action';
-      case 'PROJECT_DETAIL':
+      case 'DETAIL_PROJECT':
         return 'Project';
       default:
         throw new Error('Invalid type');

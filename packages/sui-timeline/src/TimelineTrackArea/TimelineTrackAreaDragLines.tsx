@@ -14,13 +14,15 @@ const TimelineTrackAreaDragLinesRoot = styled('div')({
   position: 'absolute',
   height: '100%',
   top: 0,
+  zIndex: 9999999,
   left: 0,
 });
 
 const TimelineTrackAreaDragLineRoot = styled('div')({
   width: 0,
   position: 'absolute',
-  top: 0,
+  zIndex: 9999999,
+  top: -200,
   height: '99%',
   borderLeft: '1px dashed rgba(82, 151, 255, 0.6)',
 });

@@ -2,7 +2,6 @@ import * as React from 'react';
 import { Theme } from '@mui/material/styles';
 import { SxProps } from '@mui/system';
 import { SlotComponentProps } from '@mui/base/utils';
-import { IMediaFile } from '@stoked-ui/media-selector';
 import { FileExplorerClasses } from './fileExplorerClasses';
 import {
   FileExplorerPluginParameters,
@@ -11,7 +10,7 @@ import {
   FileExplorerPluginSlots,
 } from './FileExplorer.plugins';
 import { FileProps } from '../File';
-import { FileId } from '../models';
+import { FileId, FileBase } from '../models';
 import {
   FileExplorerExperimentalFeatures,
   FileExplorerPublicAPI,
@@ -19,7 +18,7 @@ import {
 } from '../internals/models';
 
 interface FileExplorerItemSlotOwnerState {
-  itemId: FileId;
+  id: FileId;
   label: string;
 }
 
@@ -36,7 +35,7 @@ export interface FileExplorerSlots extends FileExplorerPluginSlots {
   item?: React.JSXElementConstructor<FileProps> | React.JSXElementConstructor<FileProps>;
 }
 
-export interface FileExplorerSlotProps<R extends IMediaFile, Multiple extends boolean | undefined>
+export interface FileExplorerSlotProps<R extends FileBase, Multiple extends boolean | undefined>
   extends FileExplorerPluginSlotProps {
   root?: SlotComponentProps<'ul', {}, FileExplorerProps<R, Multiple>>;
   item?: SlotComponentPropsFromProps<
@@ -63,11 +62,11 @@ export interface FileExplorerPropsBase extends React.HTMLAttributes<HTMLUListEle
 
   dropzone?: boolean;
 
-  onAddFiles?:  (mediaFile: IMediaFile[]) => void;
+  onAddFiles?:  (mediaFile: FileBase[]) => void;
 }
 
-export interface FileExplorerProps<R extends IMediaFile, Multiple extends boolean | undefined>
-  extends FileExplorerPluginParameters<R, Multiple>,
+export interface FileExplorerProps<R extends FileBase, Multiple extends boolean | undefined>
+  extends FileExplorerPluginParameters<Multiple>,
     FileExplorerPropsBase {
   /**
    * Overridable component slots.

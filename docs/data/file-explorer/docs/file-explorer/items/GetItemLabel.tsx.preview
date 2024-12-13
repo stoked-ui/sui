@@ -1,1 +1,1 @@
-<FileExplorer items={MUI_X_PRODUCTS} getItemLabel={getItemLabel} />
+<FileExplorer items={MUI_X_PRODUCTS as FileBase[]} getItemLabel={getItemLabel} />

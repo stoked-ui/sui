@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useController } from "react-hook-form";
 import { Checkbox, FormControlLabel, Tooltip } from "@mui/material";
-import { namedId } from '@stoked-ui/media-selector';
+import { namedId} from '@stoked-ui/common';
 import OutlinedStyle from "./OutlinedStyle";
 
 const OutlinedCheckbox = OutlinedStyle(Checkbox);
@@ -54,7 +54,6 @@ export default function ControlledCheckbox({ control, name, label, disabled, cla
             disabled={disabled}
             className={className}
             onClick={onClick}
-            error={!!error}
           />
         }
         label={label}

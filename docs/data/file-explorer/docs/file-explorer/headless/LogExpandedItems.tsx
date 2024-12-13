@@ -1,3 +1,4 @@
+/*
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
@@ -20,6 +21,7 @@ import {
   ConvertPluginsIntoSignatures,
 } from '@stoked-ui/file-explorer/internals';
 import { NestedFiles } from 'docs/src/components/fileExplorer/data';
+import {MediaFile, IMediaFileInput} from "@stoked-ui/media-selector/build";
 
 interface FileExplorerLogExpandedParameters {
   areLogsEnabled?: boolean;
@@ -67,7 +69,7 @@ useFileExplorerLogExpanded.params = {
   logMessage: true,
 };
 
-export interface FileExplorerProps<R extends {}, Multiple extends boolean | undefined>
+export interface FileExplorerProps<R extends any, Multiple extends boolean | undefined>
   extends FileExplorerPluginParameters<R, Multiple>,
     FileExplorerLogExpandedParameters,
     FileExplorerPropsBase {
@@ -84,7 +86,7 @@ type FileExplorerPluginSignatures = ConvertPluginsIntoSignatures<
   typeof TREE_VIEW_PLUGINS
 >;
 
-function FileExplorer<R extends {}, Multiple extends boolean | undefined>(
+function FileExplorer<R extends any, Multiple extends boolean | undefined>(
   props: FileExplorerProps<R, Multiple>,
 ) {
   const { getRootProps, contextValue, instance } = useFileExplorer<
@@ -141,3 +143,4 @@ export default function LogExpandedItems() {
     </Stack>
   );
 }
+*/

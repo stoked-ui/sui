@@ -2,7 +2,8 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import Box from '@mui/material/Box';
 import { File, FileLabel } from '@stoked-ui/file-explorer/File';
-import { namedId } from '@stoked-ui/media-selector';
+import { namedId } from '@stoked-ui/common';
+
 import { FileExplorer } from '@stoked-ui/file-explorer/FileExplorer';
 
 import { useFileUtils } from '@stoked-ui/file-explorer/hooks';
@@ -115,11 +116,6 @@ CustomTreeItem.propTypes = {
    * The id attribute of the item. If not provided, it will be generated.
    */
   id: PropTypes.string,
-  /**
-   * The id of the item.
-   * Must be unique.
-   */
-  itemId: PropTypes.string,
 };
 
 const DEFAULT_EXPANDED_ITEMS = ['Docs'];

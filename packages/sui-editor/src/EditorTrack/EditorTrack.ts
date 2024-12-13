@@ -13,9 +13,15 @@ export interface IEditorTrack<
   ActionType extends IEditorAction = IEditorAction,
 > extends ITimelineTrack<ActionType> {
 
+  /** Whether the action is hidden */
+  hidden?: boolean;
+
   blendMode: BlendMode;
 
   fit: Fit;
+
+  image?: string;
+
 }
 
 
@@ -26,10 +32,6 @@ export interface IEditorFileTrack extends Omit<IEditorTrack, 'id' | 'controller'
   name: string;
   /** Row action list */
   actions: IEditorAction[];
-
-  url?: string;
-
-  image?: string;
 
   file?: MediaFile;
 

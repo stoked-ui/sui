@@ -10,6 +10,8 @@ import {TimelineTrackAreaProps} from './TimelineTrackArea.types'
 import {useDragLine} from './useDragLine';
 import {useTimeline} from "../TimelineProvider";
 import TimelineFile from "../TimelineFile";
+import {ITimelineAction, ITimelineActionHandlers} from '../TimelineAction';
+import { ITimelineTrack } from '../TimelineTrack';
 
 /** edit area ref data */
 export interface TimelineTrackAreaState {
@@ -23,28 +25,19 @@ const TimelineTrackAreaRoot = styled('div')(() => ({
   position: 'relative',
   minHeight: 'fit-content',
   '& .ReactVirtualized__Grid': {
-    outline: 'none !important',
-    overflow: 'overlay !important',
-    '&::-webkit-scrollbar': {
-      width: 0,
-      height: 0,
-      display: 'none',
+    outline: 'none !important', overflow: 'overlay !important', '&::-webkit-scrollbar': {
+      width: 0, height: 0, display: 'none',
     },
   },
 }));
 
 const TimelineTrackAreaCollapsed = React.forwardRef<TimelineTrackAreaState, TimelineTrackAreaProps>((props, ref) => {
-  const { file } = useTimeline();
-  const { track, actionTrackMap } = TimelineFile.collapsedTrack(file?.tracks);
+  const { state: {file, settings, flags} } = useTimeline();
+  const { trackHeight, scaleWidth, startLeft, scale, cursorTime } = settings;
+  const {dragLine} = flags;
+
+  const {track, actionTrackMap} = TimelineFile.collapsedTrack(file?.tracks);
   const {
-    trackHeight,
-    scaleWidth,
-    startLeft,
-    scrollLeft,
-    scale,
-    hideCursor,
-    cursorTime,
-    dragLine,
     getAssistDragLineActionIds,
     onActionMoveEnd,
     onActionMoveStart,
@@ -53,7 +46,14 @@ const TimelineTrackAreaCollapsed = React.forwardRef<TimelineTrackAreaState, Time
     onActionResizeStart,
     onActionResizing,
   } = props;
-  const { dragLineData, initDragLine, updateDragLine, disposeDragLine, defaultGetAssistPosition, defaultGetMovePosition } = useDragLine();
+  const {
+    dragLineData,
+    initDragLine,
+    updateDragLine,
+    disposeDragLine,
+    defaultGetAssistPosition,
+    defaultGetMovePosition
+  } = useDragLine();
   const editAreaRef = React.useRef<HTMLDivElement>();
   const tracksElementRef = React.useRef<HTMLDivElement>();
   const heightRef = React.useRef(-1);
@@ -62,93 +62,74 @@ const TimelineTrackAreaCollapsed = React.forwardRef<TimelineTrackAreaState, Time
   React.useImperativeHandle(ref, () => ({
     get domRef() {
       return editAreaRef;
-    },
-    get tracksRef() {
+    }, get tracksRef() {
       return tracksElementRef;
     }
   }));
 
-  const handleInitDragLine: TimelineControlPropsBase['onActionMoveStart'] = (data) => {
+  const handleInitDragLine: ITimelineActionHandlers['onActionMoveStart'] = (data) => {
     if (dragLine) {
-      const assistActionIds =
-        getAssistDragLineActionIds &&
-        getAssistDragLineActionIds({
-          action: data.action,
-          track: data.track,
-          tracks: [track],
-        });
-      const cursorLeft = parserTimeToPixel(cursorTime, { scaleWidth, scale, startLeft });
-      const assistPositions = defaultGetAssistPosition({
-        tracks: [track],
-        assistActionIds,
-        action: data.action,
-        track: data.track,
-        scale,
-        scaleWidth,
-        startLeft,
-        hideCursor,
-        cursorLeft,
+      const assistActionIds = getAssistDragLineActionIds && getAssistDragLineActionIds({
+        action: data.action, track: data.track, tracks: [track],
       });
-      initDragLine({ assistPositions });
+      const cursorLeft = parserTimeToPixel(cursorTime, {scaleWidth, scale, startLeft});
+      const assistPositions = defaultGetAssistPosition({
+        tracks: [track], assistActionIds, action: data.action, track: data.track, cursorLeft,
+      });
+      initDragLine({assistPositions});
     }
   };
 
-  const handleUpdateDragLine: TimelineControlPropsBase['onActionMoving'] = (data) => {
+  const handleUpdateDragLine: ITimelineActionHandlers['onActionMoving'] = (data) => {
     if (dragLine) {
       const movePositions = defaultGetMovePosition({
         ...data,
-        startLeft,
-        scaleWidth,
-        scale,
       });
-      updateDragLine({ movePositions });
+      updateDragLine({movePositions});
     }
   };
 
-  return (
-    <TimelineTrackAreaRoot ref={editAreaRef} className={`SuiTimelineEditArea-root ${prefix('edit-area')}`}>
+  return (<TimelineTrackAreaRoot ref={editAreaRef}
+                                 className={`SuiTimelineEditArea-root ${prefix('edit-area')}`}>
       <AutoSizer className={'auto-sizer'} style={{height: 'fit-content'}}>
-        {({ width, height }) => {
+        {({width}) => {
           heightRef.current = trackHeight;
-          return (
-            <TimelineTrack {...props}
+          return (<TimelineTrack
+              {...props}
               style={{
                 width,
                 height: trackHeight,
-                overscrollBehavior: 'none',
+                overscrollBehaviorX: 'none',
                 backgroundPositionX: `0, ${startLeft}px`,
                 backgroundSize: `${startLeft}px, ${scaleWidth}px`,
               }}
               trackRef={tracksElementRef}
+              scrollLeft={0}
               actionTrackMap={actionTrackMap}
               areaRef={editAreaRef}
-              trackHeight={ trackHeight}
               track={track}
               dragLineData={dragLineData}
-              disableDrag={props.disableDrag}
-
-              onActionMoveStart={(data) => {
+              onActionMoveStart={(data: { action: ITimelineAction; track: ITimelineTrack<ITimelineAction>; }) => {
                 handleInitDragLine(data);
                 return onActionMoveStart && onActionMoveStart(data);
               }}
-              onActionResizeStart={(data) => {
+              onActionResizeStart={(data: { action: ITimelineAction; track: ITimelineTrack<ITimelineAction>; dir: "left" | "right"; }) => {
                 handleInitDragLine(data);
-
                 return onActionResizeStart && onActionResizeStart(data);
               }}
-              onActionMoving={(data) => {
+              onActionMoving={(data: { action: ITimelineAction; track: ITimelineTrack<ITimelineAction>; start: number; end: number; }) => {
                 handleUpdateDragLine(data);
                 return onActionMoving && onActionMoving(data);
               }}
-              onActionResizing={(data) => {
+              onActionResizing={(data: { action: ITimelineAction; track: ITimelineTrack<ITimelineAction>; start: number; end: number; dir: "left" | "right"; }) => {
                 handleUpdateDragLine(data);
                 return onActionResizing && onActionResizing(data);
               }}
-              onActionResizeEnd={(data) => {
+              onActionResizeEnd={(data: { action: ITimelineAction; track: ITimelineTrack<ITimelineAction>; start: number; end: number; dir: "left" | "right"; }) => {
                 disposeDragLine();
                 return onActionResizeEnd && onActionResizeEnd(data);
               }}
-              onActionMoveEnd={(data) => {
+              onActionMoveEnd={(data: { action: ITimelineAction; track: ITimelineTrack<ITimelineAction>; start: number; end: number; }) => {
                 disposeDragLine();
                 return onActionMoveEnd && onActionMoveEnd(data);
               }}
@@ -156,7 +137,7 @@ const TimelineTrackAreaCollapsed = React.forwardRef<TimelineTrackAreaState, Time
           );
         }}
       </AutoSizer>
-      {dragLine && <TimelineTrackAreaDragLines scrollLeft={scrollLeft} {...dragLineData} />}
+      {dragLine && <TimelineTrackAreaDragLines scrollLeft={0} {...dragLineData} />}
     </TimelineTrackAreaRoot>
   );
 });

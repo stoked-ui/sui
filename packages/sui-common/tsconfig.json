@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.x.json",
+  "compilerOptions": {
+    "target": "ES2015",
+    "lib": ["ES2015", "DOM", "DOM.Iterable"],
+    "types": [
+      "chai-dom",
+      "mocha",
+      "node",
+      "wicg-file-system-access"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "noImplicitAny": false
+  },
+  "include": ["src/**/*"],
+  "exclude": ["**/*.test.tsx"]
+}

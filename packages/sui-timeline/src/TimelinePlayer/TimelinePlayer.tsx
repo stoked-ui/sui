@@ -1,15 +1,15 @@
 import * as React from 'react';
-import {styled} from '@mui/material/styles';
+import PropTypes from 'prop-types';
+import { styled } from '@mui/material/styles';
 import PauseIcon from '@mui/icons-material/Pause';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import SkipNextIcon from '@mui/icons-material/SkipNext';
 import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
 import IconButton from '@mui/material/IconButton';
-import Select, {SelectChangeEvent} from '@mui/material/Select';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
-import {TimelineState} from '../Timeline/TimelineState';
 import { ITimelineTrack } from '../TimelineTrack/TimelineTrack.types';
-import { useTimeline } from "../TimelineProvider";
+import { useTimeline } from '../TimelineProvider';
 
 export const Rates = [0.2, 0.5, 1.0, 1.5, 2.0];
 
@@ -55,13 +55,11 @@ function TimelinePlayer({
   scaleWidth?: number;
   startLeft?: number;
 }) {
-  const { engine } = useTimeline();
-  const [isPlaying, setIsPlaying] = React.useState(false);
+  const { state: {engine} } = useTimeline();
+
   const [time, setTime] = React.useState(0);
 
   React.useEffect(() => {
-    engine?.on('play', () => setIsPlaying(true));
-    engine?.on('paused', () => setIsPlaying(false));
     engine?.on('afterSetTime', ({ time: afterSetTime }) => setTime(afterSetTime));
     engine?.on('setTimeByTick', ({ time: setTimeByTickTime }) => {
       setTime(setTimeByTickTime);
@@ -84,7 +82,6 @@ function TimelinePlayer({
 
   // Start or pause
   const handlePlayOrPause = () => {
-
     if (engine.isPlaying) {
       engine.pause();
     } else {
@@ -94,7 +91,6 @@ function TimelinePlayer({
 
   // Set playback rate
   const handleRateChange = (event: SelectChangeEvent<number>) => {
-
     engine.setPlayRate(event.target.value as number);
   };
 
@@ -131,7 +127,7 @@ function TimelinePlayer({
       </IconButtonControlRoot>
 
       <IconButtonControlRoot size={'small'} className="play-control" onClick={handlePlayOrPause}>
-        {isPlaying ? <PauseIcon /> : <PlayArrowIcon />}
+        {engine.isPlaying ? <PauseIcon /> : <PlayArrowIcon />}
       </IconButtonControlRoot>
 
       <IconButtonControlRoot size={'small'} className="play-control" onClick={handleEnd}>
@@ -164,7 +160,126 @@ function TimelinePlayer({
 }
 
 TimelinePlayer.propTypes = {
-
-};
+  // ----------------------------- Warning --------------------------------
+  // | These PropTypes are generated from the TypeScript type definitions |
+  // | To update them edit the TypeScript types and run "pnpm proptypes"  |
+  // ----------------------------------------------------------------------
+  autoScrollWhenPlay: PropTypes.bool,
+  scale: PropTypes.number,
+  scaleWidth: PropTypes.number,
+  startLeft: PropTypes.number,
+  tracks: PropTypes.arrayOf(
+    PropTypes.shape({
+      actions: PropTypes.arrayOf(
+        PropTypes.shape({
+          backgroundImage: PropTypes.string,
+          backgroundImageStyle: PropTypes.oneOfType([
+            PropTypes.object,
+            PropTypes.shape({
+              backgroundImage: PropTypes.string,
+              backgroundPosition: PropTypes.string,
+              backgroundSize: PropTypes.string,
+            }),
+          ]),
+          disabled: PropTypes.bool,
+          duration: PropTypes.number,
+          end: PropTypes.number,
+          flexible: PropTypes.bool,
+          frameSyncId: PropTypes.number,
+          freeze: PropTypes.number,
+          muted: PropTypes.bool,
+          id: PropTypes.string,
+          locked: PropTypes.bool,
+          loop: PropTypes.oneOfType([PropTypes.number, PropTypes.bool]),
+          maxEnd: PropTypes.number,
+          minStart: PropTypes.number,
+          movable: PropTypes.bool,
+          name: PropTypes.string,
+          onKeyDown: PropTypes.func,
+          playbackRate: PropTypes.number,
+          playCount: PropTypes.number,
+          selected: PropTypes.bool,
+          start: PropTypes.number,
+          style: PropTypes.object,
+          trimEnd: PropTypes.number,
+          trimStart: PropTypes.number,
+          volume: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)),
+          volumeIndex: PropTypes.number,
+        }),
+      ),
+      classNames: PropTypes.arrayOf(PropTypes.string),
+      controller: PropTypes.shape({
+        color: PropTypes.string,
+        colorSecondary: PropTypes.string,
+        destroy: PropTypes.func,
+        enter: PropTypes.func,
+        getActionStyle: PropTypes.func,
+        getBackgroundImage: PropTypes.func,
+        leave: PropTypes.func,
+        logging: PropTypes.bool,
+        // preload: PropTypes.func,
+        start: PropTypes.func,
+        stop: PropTypes.func,
+        update: PropTypes.func,
+        viewerUpdate: PropTypes.func,
+      }),
+      controllerName: PropTypes.string,
+      file: PropTypes.shape({
+        _url: PropTypes.string,
+        arrayBuffer: PropTypes.func,
+        aspectRatio: PropTypes.number,
+        blob: PropTypes.shape({
+          arrayBuffer: PropTypes.func,
+          size: PropTypes.number,
+          slice: PropTypes.func,
+          stream: PropTypes.func,
+          text: PropTypes.func,
+          type: PropTypes.string,
+        }),
+        children: PropTypes.arrayOf(PropTypes.object),
+        created: PropTypes.number,
+        duration: PropTypes.number,
+        element: PropTypes.any,
+        expanded: PropTypes.bool,
+        height: PropTypes.number,
+        icon: PropTypes.string,
+        id: PropTypes.string,
+        itemId: PropTypes.string,
+        lastModified: PropTypes.number,
+        mediaFileSize: PropTypes.number,
+        mediaType: PropTypes.oneOf([
+          'audio',
+          'doc',
+          'file',
+          'folder',
+          'image',
+          'lottie',
+          'pdf',
+          'trash',
+          'video',
+        ]),
+        name: PropTypes.string,
+        path: PropTypes.string,
+        selected: PropTypes.bool,
+        size: PropTypes.number,
+        slice: PropTypes.func,
+        stream: PropTypes.func,
+        text: PropTypes.func,
+        thumbnail: PropTypes.string,
+        type: PropTypes.string,
+        url: PropTypes.string,
+        version: PropTypes.number,
+        visibleIndex: PropTypes.number,
+        webkitRelativePath: PropTypes.string,
+        width: PropTypes.number,
+      }),
+      muted: PropTypes.bool,
+      id: PropTypes.string,
+      image: PropTypes.string,
+      locked: PropTypes.bool,
+      name: PropTypes.string,
+    }),
+  ),
+} as any;
 
 export default TimelinePlayer;

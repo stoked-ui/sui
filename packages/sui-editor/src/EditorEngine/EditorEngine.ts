@@ -1,16 +1,14 @@
 import {
   Engine,
-  EngineOptions, IController,
+  EngineOptions, EngineState, IController,
 } from '@stoked-ui/timeline';
 import {EditorEvents, EditorEventTypes} from './events';
 import {
-  IEditorEngine,
-  EditorEngineState,
-  DrawData, IEditorTrack,
+  IEditorEngine, EditorEngineState, DrawData, EngineStateEx,
 } from "./EditorEngine.types";
+import { IEditorTrack } from '../EditorTrack/EditorTrack';
 import {type IEditorAction} from "../EditorAction/EditorAction";
-import Controllers from "../Controllers";
-// import { type IEditorController } from "../Controllers";
+import Controllers from "../Controllers/Controllers";
 
 /**
  * Can be run independently of the editor
@@ -62,7 +60,7 @@ export default class EditorEngine<
     }
 
     this._controllers = params.controllers || Controllers;
-    this._state = 'loading' as State;
+    this._state = EngineState.LOADING as State;
   }
 
   getActionTrack(actionId: string): IEditorTrack {
@@ -108,6 +106,10 @@ export default class EditorEngine<
     return this._viewer;
   }
 
+  get screener(): HTMLVideoElement | null {
+    return this._screener;
+  }
+
   get stage(): HTMLDivElement | null {
     return this._stage;
   }
@@ -120,12 +122,12 @@ export default class EditorEngine<
 
   /** Whether it is playing */
   get isPlaying() {
-    return this._state === 'playing' as State || this.isRecording;
+    return this._state === EngineState.PLAYING as State || this.isRecording;
   }
 
   /** Whether it is playing */
   get isRecording() {
-    return this._state === 'recording' as State;
+    return this._state === EngineStateEx.RECORDING as State;
   }
 
   /**
@@ -147,7 +149,7 @@ export default class EditorEngine<
       return false;
     }
 
-    this._state = 'recording' as State;
+    this._state = EngineStateEx.RECORDING as State;
     // activeIds run start
     this._startOrStop('start');
     // trigger event
@@ -271,10 +273,16 @@ export default class EditorEngine<
 
     this._renderCtx?.clearRect(0, 0, this.renderWidth, this.renderHeight)
 
+    // if (isTick)  {
+    //  this._renderCtx?.clearRect(0, 0, this.renderWidth, this.renderHeight)
+    // }
+
     this._next = 0;
 
     this._currentTime = time;
-
+    if (this.playbackMode === 'media' && this.media && this.media.currentTime) {
+      // this.media.currentTime = time / 1000;
+    }
     this._dealLeave(time);
     this._dealEnter(time);
 
@@ -290,12 +298,13 @@ export default class EditorEngine<
   /** Process action time enter */
   protected _dealEnter(time: number) {
     const active = Array.from(this._activeIds.values())
+    const actionIdIndex = Object.keys(this._actionTrackMap);
     // add to active
     while (this._actionSortIds[this._next]) {
       const actionId = this._actionSortIds[this._next];
       const action = this._actionMap[actionId];
 
-      if (!action.disable) {
+      if (!action.disabled) {
         // Determine whether the action start time has arrived
 
         if (action.start > time) {
@@ -303,13 +312,14 @@ export default class EditorEngine<
         }
         const track = this._actionTrackMap[actionId];
         // The action can be executed and started
-        if (action.end > time && active.indexOf(actionId) === -1 && !track.hidden) {
+        if (action.end > time && active.indexOf(actionId) === -1) {
           const controller = track.controller;
           if (controller && controller?.enter) {
-            controller.enter({action, time: this.time, engine: this as IEditorEngine});
+            controller.enter({action, track, time: this.time, engine: this as IEditorEngine});
           }
 
-          this._activeIds.set(action.z, actionId);
+          const actionIndex = actionIdIndex.indexOf(actionId);
+          this._activeIds.set(action.z ?? actionIndex, actionId);
         }
       }
       this._next += 1;

@@ -1,5 +1,4 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import Box from '@mui/material/Box';
 import { FileExplorer } from '@stoked-ui/file-explorer/FileExplorer';
 import { File } from '@stoked-ui/file-explorer/File';
@@ -16,14 +15,6 @@ const CustomTreeItem = React.forwardRef((props, ref) => (
     }}
   />
 ));
-
-CustomTreeItem.propTypes = {
-  /**
-   * The id of the item.
-   * Must be unique.
-   */
-  itemId: PropTypes.string,
-};
 
 export default function LabelSlotProps() {
   return (

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {EventHandlers} from '@mui/base/utils';
-import {ITimelineTrack} from "@stoked-ui/timeline";
+import {ITimelineTrack, TimelineSlotProps} from "@stoked-ui/timeline";
 import type {EditorContextValue} from '../EditorProvider';
 import {
   ConvertSignaturesIntoPlugins,
@@ -87,7 +87,7 @@ export interface UseEditorReturnValue<TSignatures extends readonly EditorAnyPlug
   ) => UseEditorControlsSlotProps;
   getTimelineProps: <TOther extends EventHandlers = {}>(
     otherHandlers?: TOther,
-  ) => UseTimelineSlotProps;
+  ) => TimelineSlotProps & { className?: string | undefined; style?: React.CSSProperties | undefined; ref?: React.Ref<any> | undefined; };
   getFileExplorerProps: <TOther extends EventHandlers = {}>(
     otherHandlers?: TOther,
   ) => UseFileExplorerSlotProps;

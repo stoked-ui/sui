@@ -1,79 +1,95 @@
 import * as React from 'react';
-import { namedId } from '@stoked-ui/media-selector';
-import {
-  initialTimelineState,
-  ITimelineFile, ITimelineState, LocalDb,
-  TimelineProvider,
-  TimelineReducer,
-  TimelineStateAction,
-  LocalDbProps,
-  getDbProps
-} from '@stoked-ui/timeline';
-import EditorEngine from "../EditorEngine/EditorEngine";
-import { EditorEngineState, IEditorEngine } from "../EditorEngine/EditorEngine.types";
-import { EditorEvents } from "../EditorEngine";
-import Controllers from "../Controllers/Controllers";
-import {
-  EditorProviderProps,
-  EditorReducer,
-  EditorStateAction,
-  IEditorState, IEditorStateUnselected,
-} from "./EditorProvider.types";
-import { setDetail } from "../DetailView/Detail.types";
-import { IDetailStateUnselected } from '../DetailView/DetailProvider.types';
-import EditorFile, { EditorFileType } from "../EditorFile/EditorFile";
+import PropTypes from 'prop-types';
+import { TimelineProvider, getDbProps, TimelineProviderProps, ITimelineStateProps, createTimelineState, TimelineFile } from '@stoked-ui/timeline';
+import Controllers from '../Controllers/Controllers';
+import EditorEngine from '../EditorEngine/EditorEngine';
+import { EditorEngineState, IEditorEngine } from '../EditorEngine/EditorEngine.types';
+import { EditorEvents } from '../EditorEngine';
+import { EditorReducer, EditorStateAction } from './EditorProvider.types';
+import { IEditorFile } from '../EditorFile/EditorFile';
+import EditorState, {refreshActionState, refreshTrackState} from './EditorState';
+import {IEditorAction} from "../EditorAction";
+import {IEditorTrack} from "../EditorTrack";
+import {StokedUiEditorApp} from "../Editor";
+import {getEditorDetail} from "../DetailView/Detail.types";
 
-export default function EditorProvider<
+TimelineFile.Controllers = Controllers;
+function EditorProvider<
   EngineType extends IEditorEngine = IEditorEngine,
-  State extends IEditorState = IEditorState,
+  EngineStateType extends EditorEngineState = EditorEngineState,
+  State extends EditorState = EditorState,
   StateActionType extends EditorStateAction = EditorStateAction,
->(props: EditorProviderProps<EngineType, State, StateActionType>) {
-  const engine = props?.engine ?? new EditorEngine({ events: new EditorEvents(), controllers: props.controllers });
+  FileType extends IEditorFile = IEditorFile,
+  ActionType extends IEditorAction = IEditorAction,
+  TrackType extends IEditorTrack = IEditorTrack,
+  AppType extends StokedUiEditorApp = StokedUiEditorApp
+>(props: TimelineProviderProps<EngineType, State, StateActionType, FileType, TrackType, ActionType, AppType>) {
+
+  const controllers = props.controllers ?? Controllers;
+
+  const engine =
+    props?.engine ??
+    (new EditorEngine({
+      events: new EditorEvents(),
+      controllers,
+    }) as IEditorEngine);
   const getState = () => {
     return engine.state as EditorEngineState;
-  }
-  const setState = (newState: EditorEngineState | string) => {
-    engine.state = newState;
-  }
+  };
 
-  const stateProps = {
-    ...initialTimelineState,
-    editorId: props.id ?? namedId('editor'),
-    engine,
+  const editorStateProps: ITimelineStateProps<EngineType, EngineStateType, FileType, TrackType, ActionType, AppType> = {
+    ...props,
     getState,
-    setState,
-    detailOpen: false,
-  } as IEditorStateUnselected;
+    engine: engine as EngineType,
+    selectedTrack: props.selectedTrack || undefined,
+    selectedAction: props.selectedAction || undefined,
+    app: props.app || new StokedUiEditorApp() as AppType,
+    initialSettings: { refreshActionState, refreshTrackState, getDetail: getEditorDetail }
+  };
 
-  const detailState = setDetail(stateProps);
-  const fileMeta = new EditorFileType();
+  const state = createTimelineState<State, EngineType, EngineStateType, FileType, TrackType, ActionType, AppType>(editorStateProps);
 
-  const editorProps: IEditorState = {
-    ...detailState,
-    id: props.id ?? namedId('timeline'),
-    engine: engine as EditorEngine,
-    getState,
-    setState,
-  }
-/*
-  React.useEffect(() => {
-    if (flags){
-      LocalDb.init({ dbName: EditorFile.fileMeta.mimeSubtype, EditorFile.fileMeta.primaryMimeSubtype).then((initResults) => {
-        console.info('db init results', initResults);
-      });
-    }
-    }, [flags.includes('idb')]);
-    */
-
+  const localDb = getDbProps(state.app.defaultInputFileType, props.localDb);
+  const reducer = EditorReducer as (state: State, stateAction: StateActionType) => State;
   return (
-    <TimelineProvider<IEditorEngine, IEditorState, EditorStateAction>
-      {...props}
-      {...editorProps}
-      controllers={Controllers}
-      reducer={EditorReducer}
-      localDb={getDbProps(fileMeta, props.localDb)}
+    <TimelineProvider<
+        EngineType,
+        EngineStateType,
+        State,
+        StateActionType,
+        FileType,
+        TrackType,
+        ActionType,
+        AppType
+      >
+      state={state}
+      reducer={reducer}
+      localDb={localDb}
     >
       {props.children}
     </TimelineProvider>
   );
 }
+
+EditorProvider.propTypes = {
+  // ----------------------------- Warning --------------------------------
+  // | These PropTypes are generated from the TypeScript type definitions |
+  // | To update them edit the TypeScript types and run "pnpm proptypes"  |
+  // ----------------------------------------------------------------------
+  children: PropTypes.any,
+  controllers: PropTypes.object,
+  engine: PropTypes.object,
+  file: PropTypes.any,
+  localDb: PropTypes.oneOfType([
+    PropTypes.oneOf([false]),
+    PropTypes.shape({
+      dbName: PropTypes.string.isRequired,
+      disabled: PropTypes.bool.isRequired,
+      initializeStores: PropTypes.arrayOf(PropTypes.string).isRequired,
+      stores: PropTypes.arrayOf(PropTypes.string).isRequired,
+    }),
+  ]),
+  reducer: PropTypes.func,
+} as any;
+
+export default EditorProvider;

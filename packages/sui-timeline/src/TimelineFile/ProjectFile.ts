@@ -1,29 +1,34 @@
+/*
 // eslint-disable-next-line @typescript-eslint/no-use-before-define
-import FileTypeMeta from "./FileTypeMeta";
+import {  IMimeType, MimeType } from "@stoked-ui/media-selector";
 import WebFile from "./WebFile";
-import { TimelineOutputFileMeta } from "./TimelineFile.types";
-import { Constructor, IWebFile, IWebFileProps } from "./WebFile.types";
+import { IWebData, IWebFile, IWebFileProps } from "./WebFile.types";
 
-export interface IProjectFileProps extends IWebFileProps {}
+export interface IProjectFileProps extends IWebFileProps {
+}
 
-export interface IProjectFile extends IWebFile {}
+export interface IProjectFile extends Omit<IWebFile, 'mimeType'> {
+}
 
-export default class ProjectFile<
-  MimeType extends FileTypeMeta,
-  OutputMimeType extends FileTypeMeta
-> extends WebFile<MimeType>
-  implements IProjectFile {
+export default abstract class ProjectFile extends WebFile
+  implements Omit<IProjectFile, 'mimeType'> {
 
-  constructor(props: IProjectFileProps) {
-    super(props);
+    outputMimeTypes: IMimeType[];
+
+  async initialize() {
+    await super.initialize();
   }
 
-  protected OutputFileTypeConstructor: Constructor<OutputMimeType> = TimelineOutputFileMeta as Constructor<OutputMimeType>;
+  get fileData(): Omit<IProjectFile, 'save' | 'initialize' | 'fileMeta' | 'createBlob' | 'state' | 'trackFiles' | 'readBlob'> & { mimeType: MimeType } {
+    return {
+      ...super.fileData,
+    };
+  }
 
-  outputFileMeta: OutputMimeType = new this.OutputFileTypeConstructor();
 }
 
 
 
 
 
+*/
