@@ -28,8 +28,8 @@ describeFileExplorer<
         ...(fileExplorerViewComponentName === 'FileExplorerBasic'
           ? ['Encountered two children with the same key']
           : []),
-        'SUI X: The FileExplorer View component requires all items to have a unique `id` property.',
-        'SUI X: The FileExplorer View component requires all items to have a unique `id` property.',
+        'Stoked UI: The FileExplorer component requires all items to have a unique `id` property.',
+        'Stoked UI: The FileExplorer component requires all items to have a unique `id` property.',
         `The above error occurred in the <ForwardRef(${fileExplorerViewComponentName})> component`,
       ]);
     });
@@ -114,7 +114,7 @@ describeFileExplorer<
 
         const response = renderFromJSX(
           <FileExplorerComponent defaultExpandedItems={['1']}>
-            <FileComponent itemId="1" label="1" data-testid="1">
+            <FileComponent id="1" label="1" data-testid="1">
               {[]}
               {[]}
             </FileComponent>
@@ -131,9 +131,9 @@ describeFileExplorer<
 
         const response = renderFromJSX(
           <FileExplorerComponent defaultExpandedItems={['1']}>
-            <FileComponent itemId="1" label="1" data-testid="1">
+            <FileComponent id="1" label="1" data-testid="1">
               {[]}
-              {[<FileComponent key="1.1" itemId="1.1" />]}
+              {[<FileComponent key="1.1" id="1.1" />]}
             </FileComponent>
           </FileExplorerComponent>,
         );
@@ -148,7 +148,7 @@ describeFileExplorer<
 
         const response = renderFromJSX(
           <FileExplorerComponent defaultExpandedItems={['1']}>
-            <FileComponent itemId="1" label="1" data-testid="1">
+            <FileComponent id="1" label="1" data-testid="1">
               {[[]]}
             </FileComponent>
           </FileExplorerComponent>,

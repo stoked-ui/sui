@@ -25,11 +25,11 @@ const getLastNavigableItemInArray = (
 
 export const getPreviousNavigableItem = (
   instance: FileExplorerInstance<[UseFileExplorerFilesSignature, UseFileExplorerExpansionSignature]>,
-  itemId: string,
+  id: string,
 ): string | null => {
-  const itemMeta = instance.getItemMeta(itemId);
+  const itemMeta = instance.getItemMeta(id);
   const siblings = instance.getItemOrderedChildrenIds(itemMeta.parentId);
-  const itemIndex = instance.getItemIndex(itemId);
+  const itemIndex = instance.getItemIndex(id);
 
   // TODO: What should we do if the parent is not navigable?
   if (itemIndex === 0) {
@@ -73,19 +73,19 @@ export const getPreviousNavigableItem = (
 
 export const getNextNavigableItem = (
   instance: FileExplorerInstance<[UseFileExplorerExpansionSignature, UseFileExplorerFilesSignature]>,
-  itemId: string,
+  id: string,
 ) => {
   // If the item is expanded and has some navigable children, return the first of them.
-  if (instance.isItemExpanded(itemId)) {
+  if (instance.isItemExpanded(id)) {
     const firstNavigableChild = instance
-      .getItemOrderedChildrenIds(itemId)
+      .getItemOrderedChildrenIds(id)
       .find(instance.isItemNavigable);
     if (firstNavigableChild != null) {
       return firstNavigableChild;
     }
   }
 
-  let itemMeta = instance.getItemMeta(itemId);
+  let itemMeta = instance.getItemMeta(id);
   while (itemMeta != null) {
     // Try to find the first navigable sibling after the current item.
     const siblings = instance.getItemOrderedChildrenIds(itemMeta.parentId);
@@ -115,20 +115,20 @@ export const getNextNavigableItem = (
 export const getLastNavigableItem = (
   instance: FileExplorerInstance<[UseFileExplorerExpansionSignature, UseFileExplorerFilesSignature]>,
 ) => {
-  let itemId: string | null = null;
-  while (itemId == null || instance.isItemExpanded(itemId)) {
-    const children = instance.getItemOrderedChildrenIds(itemId);
+  let id: string | null = null;
+  while (id == null || instance.isItemExpanded(id)) {
+    const children = instance.getItemOrderedChildrenIds(id);
     const lastNavigableChild = getLastNavigableItemInArray(instance, children);
 
     // The item has no navigable children.
     if (lastNavigableChild == null) {
-      return itemId!;
+      return id!;
     }
 
-    itemId = lastNavigableChild;
+    id = lastNavigableChild;
   }
 
-  return itemId!;
+  return id!;
 };
 
 export const getFirstNavigableItem = (instance: FileExplorerInstance<[UseFileExplorerFilesSignature]>) =>
@@ -214,13 +214,13 @@ export const getNonDisabledItemsInRange = (
   itemAId: string,
   itemBId: string,
 ) => {
-  const getNextItem = (itemId: string) => {
+  const getNextItem = (id: string) => {
     // If the item is expanded and has some children, return the first of them.
-    if (instance.isItemExpandable(itemId) && instance.isItemExpanded(itemId)) {
-      return instance.getItemOrderedChildrenIds(itemId)[0];
+    if (instance.isItemExpandable(id) && instance.isItemExpanded(id)) {
+      return instance.getItemOrderedChildrenIds(id)[0];
     }
 
-    let itemMeta = instance.getItemMeta(itemId);
+    let itemMeta = instance.getItemMeta(id);
     while (itemMeta != null) {
       // Try to find the first navigable sibling after the current item.
       const siblings = instance.getItemOrderedChildrenIds(itemMeta.parentId);

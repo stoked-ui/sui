@@ -10,8 +10,9 @@ import Head from "../src/modules/components/Head";
 import NewsletterToast from "../src/components/home/NewsletterToast";
 import AppHeaderBanner from "../src/components/banner/AppHeaderBanner";
 import AppHeader from "../src/layouts/AppHeader";
-import EditorHero from "../src/components/showcase/EditorHero";
-import Hero from "../src/components/home/HeroEditor";
+
+const EditorHero = dynamic(() => import('../src/components/showcase/EditorHero'), {ssr: false });
+
 
 function randomHome(homePages: string[]) {
   return homePages[Math.floor(Math.random()*homePages.length)];
@@ -56,7 +57,7 @@ export function HomeView({ HomeMain}: { HomeMain: React.ComponentType }){
     <AppHeader/>
     <main id="main-content">
       {isClient ? <Main/> : ''}
-      {PRODUCTS.previews()}
+      {process.env.DEV_DISPLAY !== '1' && PRODUCTS.previews()}
     </main>
     <AppFooter/>
   </BrandingCssVarsProvider>;
@@ -65,10 +66,11 @@ export function HomeView({ HomeMain}: { HomeMain: React.ComponentType }){
 let MainView:  React.ComponentType<{}> = function MainView() {
   if (process.env.DEV_DISPLAY === '1') {
     return <EditorHero id={'editor'} sx={{ width: '1080px' }} />
+    // return <EditorFileTestHero id={'editor'} sx={{ width: '1080px' }} />
   }
   return (
     <React.Fragment>
-      <Hero />
+      <EditorHero id={'editor'} sx={{ width: '1080px' }} />
       <Box sx={{ height: '112px' }}/>
       <Divider/>
     </React.Fragment>

@@ -10,41 +10,41 @@ export interface UseFileExplorerExpansionPublicAPI {
   /**
    * Change the expansion status of a given item.
    * @param {React.SyntheticEvent} event The UI event that triggered the change.
-   * @param {string} itemId The id of the item to modify.
+   * @param {string} id The id of the item to modify.
    * @param {boolean} isExpanded The new expansion status of the given item.
    */
-  setItemExpansion: (event: React.SyntheticEvent, itemId: string, isExpanded: boolean) => void;
+  setItemExpansion: (event: React.SyntheticEvent, id: string, isExpanded: boolean) => void;
 }
 
 export interface UseFileExplorerExpansionInstance extends UseFileExplorerExpansionPublicAPI {
   /**
    * Check if an item is expanded.
-   * @param {FileId} itemId The id of the item to check.
+   * @param {FileId} id The id of the item to check.
    * @returns {boolean} `true` if the item is expanded, `false` otherwise.
    */
-  isItemExpanded: (itemId: FileId) => boolean;
+  isItemExpanded: (id: FileId) => boolean;
   /**
    * Check if an item is expandable.
    * Currently, an item is expandable if it has children.
    * In the future, the user should be able to flag an item as expandable even if it has no loaded
    * children to support children lazy loading.
-   * @param {FileId} itemId The id of the item to check.
+   * @param {FileId} id The id of the item to check.
    * @returns {boolean} `true` if the item can be expanded, `false` otherwise.
    */
-  isItemExpandable: (itemId: FileId) => boolean;
+  isItemExpandable: (id: FileId) => boolean;
   /**
    * Toggle the current expansion of an item.
    * If it is expanded, it will be collapsed, and vice versa.
    * @param {React.SyntheticEvent} event The UI event that triggered the change.
-   * @param {FileId} itemId The id of the item to toggle.
+   * @param {FileId} id The id of the item to toggle.
    */
-  toggleItemExpansion: (event: React.SyntheticEvent, itemId: FileId) => void;
+  toggleItemExpansion: (event: React.SyntheticEvent, id: FileId) => void;
   /**
    * Expand all the siblings (i.e.: the items that have the same parent) of a given item.
    * @param {React.SyntheticEvent} event The UI event that triggered the change.
-   * @param {FileId} itemId The id of the item whose siblings will be expanded.
+   * @param {FileId} id The id of the item whose siblings will be expanded.
    */
-  expandAllSiblings: (event: React.KeyboardEvent, itemId: FileId) => void;
+  expandAllSiblings: (event: React.KeyboardEvent, id: FileId) => void;
 }
 
 export interface UseFileExplorerExpansionParameters {
@@ -62,19 +62,19 @@ export interface UseFileExplorerExpansionParameters {
   /**
    * Callback fired when fileExplorer items are expanded/collapsed.
    * @param {React.SyntheticEvent} event The event source of the callback.
-   * @param {array} itemIds The ids of the expanded items.
+   * @param {array} ids The ids of the expanded items.
    */
-  onExpandedItemsChange?: (event: React.SyntheticEvent, itemIds: string[]) => void;
+  onExpandedItemsChange?: (event: React.SyntheticEvent, ids: string[]) => void;
   /**
    * Callback fired when a fileExplorer item is expanded or collapsed.
    * @param {React.SyntheticEvent} event The event source of the callback.
-   * @param {array} itemId The itemId of the lastModified item.
+   * @param {array} id The id of the lastModified item.
    * @param {array} isExpanded `true` if the item has just been expanded, `false` if it has just
    *   been collapsed.
    */
   onItemExpansionToggle?: (
     event: React.SyntheticEvent,
-    itemId: string,
+    id: string,
     isExpanded: boolean,
   ) => void;
   /**

@@ -327,4 +327,6 @@ type UseCustomPluginSignature = FileExplorerPluginSignature<{
 
 Interact with the file explorer to see the expanded items being logged:
 
-{{"demo": "LogExpandedItems.js"}}
+[//]: <> {{"demo": "LogExpandedItems.js"}}
+ 
+ 

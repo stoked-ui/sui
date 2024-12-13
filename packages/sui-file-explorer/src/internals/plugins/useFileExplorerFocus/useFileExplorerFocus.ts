@@ -17,12 +17,12 @@ const useDefaultFocusableItemId = (
   instance: FileExplorerUsedInstance<UseFileExplorerFocusSignature>,
   selectedItems: string | string[] | null,
 ): string => {
-  let tabbableItemId = convertSelectedItemsToArray(selectedItems).find((itemId) => {
-    if (!instance.isItemNavigable(itemId)) {
+  let tabbableItemId = convertSelectedItemsToArray(selectedItems).find((id) => {
+    if (!instance.isItemNavigable(id)) {
       return false;
     }
 
-    const itemMeta = instance.getItemMeta(itemId);
+    const itemMeta = instance.getItemMeta(id);
     return itemMeta && (itemMeta.parentId == null || instance.isItemExpanded(itemMeta.parentId));
   });
 
@@ -43,8 +43,8 @@ export const useFileExplorerFocus: FileExplorerPlugin<UseFileExplorerFocusSignat
 }) => {
   const defaultFocusableItemId = useDefaultFocusableItemId(instance, models.selectedItems.value);
 
-  const setFocusedItemId = useEventCallback((itemId: React.SetStateAction<string | null>) => {
-    const cleanItemId = typeof itemId === 'function' ? itemId(state.focusedItemId) : itemId;
+  const setFocusedItemId = useEventCallback((id: React.SetStateAction<string | null>) => {
+    const cleanItemId = typeof id === 'function' ? id(state.focusedItemId) : id;
     if (state.focusedItemId !== cleanItemId) {
       setState((prevState) => ({ ...prevState, focusedItemId: cleanItemId }));
     }
@@ -58,34 +58,34 @@ export const useFileExplorerFocus: FileExplorerPlugin<UseFileExplorerFocusSignat
   );
 
   const isItemFocused = React.useCallback(
-    (itemId: string) => state.focusedItemId === itemId && isFileExplorerFocused(),
+    (id: string) => state.focusedItemId === id && isFileExplorerFocused(),
     [state.focusedItemId, isFileExplorerFocused],
   );
 
-  const isItemVisible = (itemId: string) => {
-    const itemMeta = instance.getItemMeta(itemId);
+  const isItemVisible = (id: string) => {
+    const itemMeta = instance.getItemMeta(id);
     return itemMeta && (itemMeta.parentId == null || instance.isItemExpanded(itemMeta.parentId));
   };
 
-  const innerFocusItem = (event: React.SyntheticEvent, itemId: string) => {
-    const itemMeta = instance.getItemMeta(itemId);
+  const innerFocusItem = (event: React.SyntheticEvent, id: string) => {
+    const itemMeta = instance.getItemMeta(id);
     const itemElement = document.getElementById(
-      instance.getFileIdAttribute(itemId, itemMeta.idAttribute),
+      instance.getFileIdAttribute(id),
     );
     if (itemElement) {
       itemElement.focus();
     }
 
-    setFocusedItemId(itemId);
+    setFocusedItemId(id);
     if (params.onItemFocus) {
-      params.onItemFocus(event, itemId);
+      params.onItemFocus(event, id);
     }
   };
 
-  const focusItem = useEventCallback((event: React.SyntheticEvent, itemId: string) => {
-    // If we receive an itemId, and it is visible, the focus will be set to it
-    if (isItemVisible(itemId)) {
-      innerFocusItem(event, itemId);
+  const focusItem = useEventCallback((event: React.SyntheticEvent, id: string) => {
+    // If we receive an id, and it is visible, the focus will be set to it
+    if (isItemVisible(id)) {
+      innerFocusItem(event, id);
     }
   });
 
@@ -97,7 +97,7 @@ export const useFileExplorerFocus: FileExplorerPlugin<UseFileExplorerFocusSignat
     const itemMeta = instance.getItemMeta(state.focusedItemId);
     if (itemMeta) {
       const itemElement = document.getElementById(
-        instance.getFileIdAttribute(state.focusedItemId, itemMeta.idAttribute),
+        instance.getFileIdAttribute(state.focusedItemId),
       );
       if (itemElement) {
         itemElement.blur();
@@ -107,7 +107,7 @@ export const useFileExplorerFocus: FileExplorerPlugin<UseFileExplorerFocusSignat
     setFocusedItemId(null);
   });
 
-  const canItemBeTabbed = (itemId: string) => itemId === defaultFocusableItemId;
+  const canItemBeTabbed = (id: string) => id === defaultFocusableItemId;
 
   useInstanceEventHandler(instance, 'removeItem', ({ id }) => {
     if (state.focusedItemId === id) {

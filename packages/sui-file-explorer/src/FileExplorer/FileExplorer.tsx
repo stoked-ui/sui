@@ -1,9 +1,9 @@
-import * as React from 'react';
+  import * as React from 'react';
 import PropTypes from 'prop-types';
 import composeClasses from '@mui/utils/composeClasses';
 import { useSlotProps } from '@mui/base/utils';
 import { shouldForwardProp } from '@mui/system/createStyled';
-import { IMediaFile } from '@stoked-ui/media-selector';
+import { FileBase} from "../models";
 import { getFileExplorerUtilityClass } from './fileExplorerClasses';
 import { FileExplorerProps } from './FileExplorer.types';
 import { createUseThemeProps, styled } from '../internals/zero-styled';
@@ -19,7 +19,7 @@ import { FileDropzone } from '../FileDropzone';
 
 const useThemeProps = createUseThemeProps('MuiFileExplorer');
 
-const useUtilityClasses = <R extends IMediaFile, Multiple extends boolean | undefined>(
+const useUtilityClasses = <R extends FileBase, Multiple extends boolean | undefined>(
   ownerState: FileExplorerProps<R, Multiple>,
 ) => {
   const { classes } = ownerState;
@@ -74,7 +74,7 @@ export const FileExplorerRoot = styled('ul', {
 }));
 
 type FileExplorerComponent = (<
-  R extends IMediaFile,
+  R extends FileBase,
   Multiple extends boolean | undefined = undefined,
 >(
   props: FileExplorerProps<R, Multiple> & React.RefAttributes<HTMLUListElement>,
@@ -97,7 +97,7 @@ const childrenWarning = buildWarning([
  * - [FileExplorer API](https://stoked-ui.github.io/file-explorer/api/)
  */
 const FileExplorer = React.forwardRef(function FileExplorer<
-  R extends IMediaFile = IMediaFile,
+  R extends FileBase = FileBase,
   Multiple extends boolean | undefined = undefined,
 >(inProps: FileExplorerProps<R, Multiple>, ref: React.Ref<HTMLUListElement>) {
   const props = useThemeProps({ props: inProps, name: 'MuiFileExplorer' });
@@ -132,10 +132,10 @@ const FileExplorer = React.forwardRef(function FileExplorer<
   const itemsToRender = instance.getItemsToRender();
 
   const renderItem = (item: ReturnType<typeof instance.getItemsToRender>[number]) => {
-    const currItem = instance.getItem(item.itemId);
+    const currItem = instance.getItem(item.id);
 
     return (
-      <FileWrapped {...currItem} {...item} slots={slots} key={item.itemId} sx={props.sx}>
+      <FileWrapped {...currItem} {...item} slots={slots} key={item.id} sx={props.sx}>
         {item.children?.map(renderItem)}
       </FileWrapped>
     );
@@ -179,22 +179,24 @@ FileExplorer.propTypes = {
     PropTypes.object,
   ]),
   /**
-   * The ref object that allows FileExplorer View manipulation. Can be instantiated with `useFileExplorerApiRef()`.
+   * The ref object that allows FileExplorer View manipulation. Can be instantiated with
+   * `useFileExplorerApiRef()`.
    */
   apiRef: PropTypes.shape({
     current: PropTypes.shape({
-      focusItem: PropTypes.func,
-      getItem: PropTypes.func,
-      getItemDOMElement: PropTypes.func,
-      gridEnabled: PropTypes.func,
-      selectItem: PropTypes.func,
-      setColumns: PropTypes.func,
-      setItemExpansion: PropTypes.func,
-      setVisibleOrder: PropTypes.func,
+      focusItem: PropTypes.func.isRequired,
+      getItem: PropTypes.func.isRequired,
+      getItemDOMElement: PropTypes.func.isRequired,
+      gridEnabled: PropTypes.func.isRequired,
+      selectItem: PropTypes.func.isRequired,
+      setColumns: PropTypes.func.isRequired,
+      setItemExpansion: PropTypes.func.isRequired,
+      setVisibleOrder: PropTypes.func.isRequired,
     }),
   }),
   /**
-   * If `true`, the fileExplorer view renders a checkbox at the left of its label that allows selecting it.
+   * If `true`, the fileExplorer view renders a checkbox at the left of its label that allows
+   * selecting it.
    * @default false
    */
   checkboxSelection: PropTypes.bool,
@@ -232,11 +234,6 @@ FileExplorer.propTypes = {
   dndFileTypes: PropTypes.arrayOf(PropTypes.string),
   dndInternal: PropTypes.oneOf([true]),
   dndTrash: PropTypes.oneOf([true]),
-
-  /**
-   * If `true` creates a dropzone when no files exist
-   * @default false
-   */
   dropzone: PropTypes.bool,
   /**
    * Expanded item ids.
@@ -296,95 +293,47 @@ FileExplorer.propTypes = {
    * @default 12px
    */
   itemChildrenIndentation: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-  items: PropTypes.arrayOf(
-    PropTypes.shape({
-      children: PropTypes.arrayOf(
-        PropTypes.shape({
-          children: PropTypes.arrayOf(PropTypes.object),
-          expanded: PropTypes.bool,
-          file: PropTypes.shape({
-            arrayBuffer: PropTypes.func,
-            lastModified: PropTypes.number,
-            name: PropTypes.string,
-            path: PropTypes.string,
-            size: PropTypes.number,
-            slice: PropTypes.func,
-            stream: PropTypes.func,
-            text: PropTypes.func,
-            type: PropTypes.string,
-            webkitRelativePath: PropTypes.string,
-          }),
-          id: PropTypes.string,
-          itemId: PropTypes.string,
-          label: PropTypes.string,
-          lastModified: PropTypes.number,
-          name: PropTypes.string,
-          selected: PropTypes.bool,
-          size: PropTypes.number,
-          type: PropTypes.string,
-          visibleIndex: PropTypes.number,
-        }),
-      ),
-      expanded: PropTypes.bool,
-      file: PropTypes.shape({
-        arrayBuffer: PropTypes.func,
-        lastModified: PropTypes.number,
-        name: PropTypes.string,
-        path: PropTypes.string,
-        size: PropTypes.number,
-        slice: PropTypes.func,
-        stream: PropTypes.func,
-        text: PropTypes.func,
-        type: PropTypes.string,
-        webkitRelativePath: PropTypes.string,
-      }),
-      id: PropTypes.string,
-      itemId: PropTypes.string,
-      label: PropTypes.string,
-      lastModified: PropTypes.number,
-      name: PropTypes.string,
-      selected: PropTypes.bool,
-      size: PropTypes.number,
-      type: PropTypes.string,
-      visibleIndex: PropTypes.number,
-    }),
-  ),
+  items: PropTypes.any.isRequired,
   /**
    * If `true`, `ctrl` and `shift` will trigger multiselect.
    * @default false
    */
   multiSelect: PropTypes.bool,
+  onAddFiles: PropTypes.func,
   /**
    * Callback fired when fileExplorer items are expanded/collapsed.
    * @param {React.SyntheticEvent} event The event source of the callback.
-   * @param {array} itemIds The ids of the expanded items.
+   * @param {array} ids The ids of the expanded items.
    */
   onExpandedItemsChange: PropTypes.func,
   /**
    * Callback fired when a fileExplorer item is expanded or collapsed.
    * @param {React.SyntheticEvent} event The event source of the callback.
-   * @param {array} itemId The itemId of the lastModified item.
-   * @param {array} isExpanded `true` if the item has just been expanded, `false` if it has just been collapsed.
+   * @param {array} id The id of the lastModified item.
+   * @param {array} isExpanded `true` if the item has just been expanded, `false` if it has just
+   *   been collapsed.
    */
   onItemExpansionToggle: PropTypes.func,
   /**
    * Callback fired when fileExplorer items are focused.
-   * @param {React.SyntheticEvent} event The event source of the callback **Warning**: This is a generic event not a focus event.
-   * @param {string} itemId The id of the focused item.
+   * @param {React.SyntheticEvent} event The event source of the callback **Warning**: This is a
+   *   generic event not a focus event.
+   * @param {string} id The id of the focused item.
    * @param {string} value of the focused item.
    */
   onItemFocus: PropTypes.func,
   /**
    * Callback fired when a fileExplorer item is selected or deselected.
    * @param {React.SyntheticEvent} event The event source of the callback.
-   * @param {array} itemId The itemId of the lastModified item.
-   * @param {array} isSelected `true` if the item has just been selected, `false` if it has just been deselected.
+   * @param {array} id The id of the lastModified item.
+   * @param {array} isSelected `true` if the item has just been selected, `false` if it has just
+   *   been deselected.
    */
   onItemSelectionToggle: PropTypes.func,
   /**
    * Callback fired when fileExplorer items are selected/deselected.
    * @param {React.SyntheticEvent} event The event source of the callback
-   * @param {string[] | string} itemIds The ids of the selected items.
+   * @param {string[] | string} ids The ids of the selected items.
    * When `multiSelect` is `true`, this is an array of strings; when false (default) a string.
    */
   onSelectedItemsChange: PropTypes.func,
@@ -411,8 +360,6 @@ FileExplorer.propTypes = {
     PropTypes.func,
     PropTypes.object,
   ]),
-
-  trash: PropTypes.bool,
 };
 
 export { FileExplorer };

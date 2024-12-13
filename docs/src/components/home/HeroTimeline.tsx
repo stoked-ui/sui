@@ -28,7 +28,7 @@ function createLoading(sx: BoxProps['sx']) {
   };
 }
 
-const EditorHero = dynamic(() => import('../showcase/TimelineHero'), {
+const TimelineHero = dynamic(() => import('../showcase/TimelineHero'), {
   ssr: false,
   loading: createLoading({ width: '100%', height: 280 }),
 });
@@ -129,7 +129,7 @@ export default function Hero() {
         <React.Fragment>
           {isMdUp && (
             <Stack spacing={3} useFlexGap sx={{ '& > .MuiPaper-root': { maxWidth: 'none' } }}>
-              <EditorHero id={'editor-hero'} sx={{ width: '100%' }} />
+              <TimelineHero id={'editor-hero'} sx={{ width: '100%' }} />
             </Stack>
           )}
         </React.Fragment>

@@ -50,7 +50,7 @@ describeFileExplorer<[]>('FileElement component', ({ render, fileElementComponen
       expect(response.getItemContent('1').textContent).to.equal('ABCDEF');
     });
 
-    it('should render FileElement when itemId prop is escaping characters without throwing an error', function test() {
+    it('should render FileElement when id prop is escaping characters without throwing an error', function test() {
       if (fileElementComponentName === 'FileElement2') {
         this.skip();
       }
@@ -67,7 +67,7 @@ describeFileExplorer<[]>('FileElement component', ({ render, fileElementComponen
 describe('<FileElement />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<FileElement itemId="one" label="one" />, () => ({
+  describeConformance(<FileElement id="one" label="one" />, () => ({
     classes,
     inheritComponent: 'li',
     render: (item) => {
@@ -89,7 +89,7 @@ describe('<FileElement />', () => {
       expect(() => {
         PropTypes.checkPropTypes(
           FileElement.propTypes,
-          { itemId: 'one', onFocus: () => {} },
+          { id: 'one', onFocus: () => {} },
           'prop',
           'FileElement',
         );
@@ -100,7 +100,7 @@ describe('<FileElement />', () => {
       expect(() => {
         PropTypes.checkPropTypes(
           FileElement.propTypes,
-          { itemId: 'one', ContentComponent: () => {} },
+          { id: 'one', ContentComponent: () => {} },
           'prop',
           'FileElement',
         );

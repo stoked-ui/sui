@@ -50,11 +50,11 @@ type UseFileUtilsMinimalPlugins = readonly [
 export type UseFileUtilsOptionalPlugins = readonly [];
 
 export const useFileUtils = ({
-  itemId,
+  id,
   children,
   status,
 }: {
-  itemId: string;
+  id: string;
   children: React.ReactNode;
   status: UseFileStatus | null
 }): UseFileUtilsReturnValue => {
@@ -63,7 +63,7 @@ export const useFileUtils = ({
     selection: { multiSelect }
   } = useFileExplorerContext<UseFileUtilsMinimalPlugins, UseFileUtilsOptionalPlugins>();
 
-  status = status === null ? instance.getItemStatus(itemId, children) : status;
+  status = status === null ? instance.getItemStatus(id, children) : status;
 
   const handleExpansion = (event: React.MouseEvent) => {
     if (status.disabled) {
@@ -71,14 +71,14 @@ export const useFileUtils = ({
     }
 
     if (!status.focused) {
-      instance.focusItem(event, itemId);
+      instance.focusItem(event, id);
     }
 
     const multiple = multiSelect && (event.shiftKey || event.ctrlKey || event.metaKey);
 
     // If already expanded and trying to toggle selection don't close
-    if (status.expandable && !(multiple && instance.isItemExpanded(itemId))) {
-      instance.toggleItemExpansion(event, itemId);
+    if (status.expandable && !(multiple && instance.isItemExpanded(id))) {
+      instance.toggleItemExpansion(event, id);
     }
   };
 
@@ -88,28 +88,28 @@ export const useFileUtils = ({
     }
 
     if (!status.focused) {
-      instance.focusItem(event, itemId);
+      instance.focusItem(event, id);
     }
 
     const multiple = multiSelect && (event.shiftKey || event.ctrlKey || event.metaKey);
 
     if (multiple) {
       if (event.shiftKey) {
-        instance.expandSelectionRange(event, itemId);
+        instance.expandSelectionRange(event, id);
       } else {
-        instance.selectItem(event, itemId, true);
+        instance.selectItem({event, id, keepExistingSelection: true});
       }
     } else {
-      instance.selectItem(event, itemId, false);
+      instance.selectItem({event, id, keepExistingSelection: false});
     }
   };
 
   const handleCheckboxSelection = (event: React.ChangeEvent<HTMLInputElement>) => {
     const hasShift = (event.nativeEvent as PointerEvent).shiftKey;
     if (multiSelect && hasShift) {
-      instance.expandSelectionRange(event, itemId);
+      instance.expandSelectionRange(event, id);
     } else {
-      instance.selectItem(event, itemId, multiSelect, event.target.checked);
+      instance.selectItem({event, id, keepExistingSelection: multiSelect, newValue: event.target.checked});
     }
   };
 

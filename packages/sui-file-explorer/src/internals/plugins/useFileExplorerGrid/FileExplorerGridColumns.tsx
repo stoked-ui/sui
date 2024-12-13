@@ -12,16 +12,16 @@ import {UseFileExplorerDndSignature} from '../useFileExplorerDnd/useFileExplorer
 import {FileLabel} from "../../../File/FileLabel";
 
 function FileExplorerGridCell({
-                                sx, last, id, columnName, content, grow, selected, itemId
+                                sx, last, id, columnName, content, grow, selected
 }: {
   last?: boolean, sx: SystemStyleObject<Theme>, id: string, columnName: string, content: any,
-  grow?: boolean, selected?: boolean, itemId?: string
+  grow?: boolean, selected?: boolean
 }) {
   const theme = useTheme();
   return (
     <FileLabel
       className={`cell column-${columnName}`}
-      sx={ [{  justifyContent: 'end'}, sx]}
+      sx={ [{  justifyContent: 'start'}, sx]}
       last={last}
       meta
       id={id}
@@ -30,7 +30,7 @@ function FileExplorerGridCell({
       cell
       columnName={columnName}
     >
-      {itemId !== 'trash' ? content : null}
+      {id !== 'trash' ? content : null}
     </FileLabel>
   )
 }
@@ -62,7 +62,6 @@ export function FileExplorerGridColumns({ item }: { item: any}) {
       columnName={columnName}
       content={columnData.renderContent(content)}
       selected={item.selected}
-      itemId={item.itemId}
     />;
     columnData.cells.push(cell)
     return cell;

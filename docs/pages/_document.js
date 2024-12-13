@@ -31,10 +31,9 @@ if (process.env.NODE_ENV === 'production') {
   cleanCSS = new CleanCSS();
 }
 
-const PRODUCTION_GA =
-  process.env.DEPLOY_ENV === 'production' || process.env.DEPLOY_ENV === 'staging';
+// const PRODUCTION_GA = process.env.DEPLOY_ENV === 'production' || process.env.DEPLOY_ENV === 'staging';
 
-const GOOGLE_ANALYTICS_ID_V4 = PRODUCTION_GA ? 'G-5NXDQLC2ZK' : 'G-XJ83JQEK7J';
+// const GOOGLE_ANALYTICS_ID_V4 = PRODUCTION_GA ? 'G-5NXDQLC2ZK' : 'G-XJ83JQEK7J';
 
 export default class MyDocument extends Document {
   render() {
@@ -71,10 +70,10 @@ export default class MyDocument extends Document {
                 content="Instantly share images, videos, PDFs, and links with people nearby. Peer2Peer and Open Source. No Setup, No Signup."/>
          Icons
           */}
-          <link rel="icon" sizes="96x96" href="static/icons/96x96.png"/>
-          <link rel="shortcut icon" href="static/icons/96x96.png"/>
+          <link rel="icon" sizes="96x96" href="/static/icons/96x96.png"/>
+          <link rel="shortcut icon" href="/static/icons/96x96.png"/>
           {/* <meta name="msapplication-TileImage" content="images/mstile-150x150.png"/> */}
-          <link rel="fluid-icon" type="image/png" href="images/android-chrome-192x192.png"/>
+          <link rel="fluid-icon" type="image/png" href="/static/icons/192x192.png"/>
         {/*   <meta name="twitter:image" content="https://snapdrop.net/images/twitter-stream.jpg"/>
           <meta property="og:image" content="https://snapdrop.net/images/twitter-stream.jpg"/> */}
           {/*  Resources */}
@@ -94,7 +93,7 @@ export default class MyDocument extends Document {
             content={getMetaThemeColor('dark')}
             media="(prefers-color-scheme: dark)"
           />
-          <link rel="shortcut icon" href="/static/favicon.ico"/>
+          <link rel="shortcut icon" href="/favicon.ico"/>
           {/* iOS Icon */}
           <link rel="apple-touch-icon" sizes="180x180" href="/static/icons/180x180.png"/>
           {/* SEO */}

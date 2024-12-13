@@ -1,25 +1,32 @@
+import { Stage, ScreenshotQueue } from '@stoked-ui/media-selector';
 import {
   Controller,
   ControllerParams,
   ITimelineAction,
+  ITimelineTrack,
+  getActionFileTimespan, GetItemParams
 } from "@stoked-ui/timeline";
 import {EditorControllerParams, EditorPreloadParams} from "./EditorControllerParams";
-import {DrawData, IEditorEngine} from "../EditorEngine";
+import {DrawData, IEditorEngine} from "../EditorEngine/EditorEngine.types";
 import {IEditorAction} from "../EditorAction/EditorAction";
-import ShadowStage from '../ShadowStage';
+import {IEditorTrack} from "../EditorTrack";
 
 interface VideoDrawData extends Omit<DrawData, 'source'> {
   source: HTMLVideoElement
 }
 
-class VideoControl extends Controller {
+class VideoControl extends Controller<HTMLVideoElement> {
   cacheMap: Record<string, HTMLVideoElement> = {};
+
+  screenshots: Record<string, string> = {};
 
   cacheFrameSync: Record<string, number> = {};
 
   _videoItem: HTMLVideoElement | null = null;
 
   logging: boolean = false;
+
+  editorId: string = '';
 
   constructor() {
     super({
@@ -30,6 +37,30 @@ class VideoControl extends Controller {
     });
   }
 
+  getItem: (params: GetItemParams) => HTMLVideoElement = (params: GetItemParams) => {
+    const { track  } = params;
+    let item = this.cacheMap[track.id];
+    if (item) {
+      return item;
+    }
+    const { file } = track;
+    if (!file) {
+      throw new Error('no file found for video controlled item');
+    }
+    if (file.media.element) {
+      this.cacheMap[track.id] = file.media.element;
+      Stage.getStage(this.editorId).appendChild(file.media.element);
+      return file.media.element;
+    }
+    item = document.createElement('video');
+    file.media.element = item;
+    item.id = track.id;
+    this.cacheMap[track.id] = item;
+
+    Stage.getStage(this.editorId).appendChild(item);
+    return item;
+  }
+
   static hasAudio (item: HTMLMediaElement) {
     return item && (("audioTracks" in item && ("mozHasAudio" in item || Boolean((item.audioTracks as any)?.length))) ||
     ("webkitAudioDecodedByteCount" in item && (item.webkitAudioDecodedByteCount as number) > 0))
@@ -37,13 +68,17 @@ class VideoControl extends Controller {
 
   // eslint-disable-next-line class-methods-use-this
   async preload(params: EditorPreloadParams): Promise<ITimelineAction> {
-    const { action, file } = params;
-    const preloaded = !!file.element;
-    const item = document.createElement('video') as HTMLVideoElement;
-    item.id = action.id;
-    this.cacheMap[action.id] = item;
-
-    ShadowStage.getStage().appendChild(item);
+    const { action, track, editorId } = params;
+    const { file } = track;
+    if (this.editorId === '') {
+      this.editorId = editorId;
+    }
+    if (!file) {
+      return action;
+    }
+    const item = this.getItem(params);
+    const fileTimespan = getActionFileTimespan<IEditorAction>(action);
+    // this.screenshotQueue.enqueue?.(file, fileTimespan, 'track');
 
     if (action.loop === false || action.loop === undefined || action.loop === 0) {
       action.loop = 0;
@@ -54,18 +89,11 @@ class VideoControl extends Controller {
       action.playCount = Infinity;
     }
 
-    item.addEventListener('ended', () => {
-
-      if (action.loop && action.playCount) {
-        item.play();
-        action.playCount -= 1;
-      }
-    })
     item.preload = 'auto';
     return new Promise((resolve, reject) => {
       try {
         if (!item) {
-          reject(new Error(`Video not loaded ${action.name} - ${file._url}`))
+          reject(new Error(`Video not loaded ${action.name} - ${file.url}`))
           return;
         }
         let loadedMetaData = false;
@@ -78,11 +106,16 @@ class VideoControl extends Controller {
           item.style.objectFit = action.fit as string;
           // this.cacheMap[action.id] = item;
           loadedMetaData = true;
+          // console.info('action preload: video loadedmetadata', action.name)
         });
 
         let canPlayThrough = false;
         item.addEventListener('canplaythrough', () => {
           canPlayThrough = true;
+          // console.info('action preload: video canplaythrough', action.name)
+          // VideoControl.captureScreenshot(item, ((action.end - action.start) / 2) + action.start).then((screenshot) => {
+          //  this.screenshots[action.id] = screenshot;
+          // })
         })
 
         item.autoplay = false;
@@ -102,7 +135,8 @@ class VideoControl extends Controller {
               clearInterval(intervalId);
               resolve(action as ITimelineAction);
             } else if (loadingSeconds > 20) {
-              reject(action)
+              clearInterval(intervalId);
+              resolve(action)
             }
           }, 1000); // Run every 1 second
         }
@@ -118,7 +152,7 @@ class VideoControl extends Controller {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  canvasSync(engine: IEditorEngine, item: HTMLVideoElement, action: IEditorAction) {
+  canvasSync(engine: IEditorEngine, item: HTMLVideoElement, action: IEditorAction, track: IEditorTrack) {
     const { renderCtx, renderer } = engine;
     if (!renderer || !renderCtx) {
       return;
@@ -134,24 +168,27 @@ class VideoControl extends Controller {
         // renderCtx.canvas.width = engine.renderWidth;
         // renderCtx.canvas.height = engine.renderHeight;
       }
-
-      this.log({ time: item.currentTime, action, engine }, 'drawImage');
-      action.nextFrame = this.getDrawData({ action, engine, time: item.currentTime });
-
-      if ('requestVideoFrameCallback' in item) {
-        action.frameSyncId = item.requestVideoFrameCallback(updateCanvas);
-      } else {
-        action.frameSyncId = requestAnimationFrame(updateCanvas);
+      console.log('updateCanvas', now, item.currentTime);
+      // this.log({ time: item.currentTime, action, engine, track }, 'drawImage');
+      action.nextFrame = this.getDrawData({ action, engine, time: item.currentTime, track });
+      if (engine.isPlaying) {
+        if ('requestVideoFrameCallback' in item) {
+          action.frameSyncId = item.requestVideoFrameCallback(updateCanvas);
+        } else {
+          action.frameSyncId = requestAnimationFrame(updateCanvas);
+        }
       }
     };
 
     if (action.freeze !== undefined) {
       item.currentTime = action.freeze;
-      action.nextFrame = this.getDrawData({ action, engine, time: item.currentTime });
-    } else if ('requestVideoFrameCallback' in item) {
-      action.frameSyncId = item.requestVideoFrameCallback(updateCanvas);
-    } else {
-      action.frameSyncId = requestAnimationFrame(updateCanvas);
+      action.nextFrame = this.getDrawData({ action, track, engine, time: item.currentTime });
+    } else if (engine.isPlaying) {
+      if ('requestVideoFrameCallback' in item) {
+        action.frameSyncId = item.requestVideoFrameCallback(updateCanvas);
+      } else {
+        action.frameSyncId = requestAnimationFrame(updateCanvas);
+      }
     }
   }
 
@@ -164,9 +201,10 @@ class VideoControl extends Controller {
   }
 
   getDrawData(params: EditorControllerParams): DrawData {
-    const { engine, action } = params;
-    const item = this.cacheMap[action.id];
-    this.log({time: item.currentTime, action, engine}, `getDrawData[${action.fit} | ${action.width} x ${action.height} @ { x: ${action.x}, y: ${action.y} }`)
+    const { engine, action, track } = params;
+    const item = this.cacheMap[track.id];
+    // this.log(params, `getDrawData[${action.fit} | ${action.width} x ${action.height} @ { x:
+    // ${action.x}, y: ${action.y} }`)
     const data = {
       source: item,
       sx: 0,
@@ -226,18 +264,38 @@ class VideoControl extends Controller {
     }
   }
 
+  isValid(engine: IEditorEngine, track: IEditorTrack) {
+    const item = this.cacheMap[track.id];
+    if (engine.playbackMode === 'canvas') {
+      return true;
+    }
+    if (item.src === engine.media?.src) {
+      return true;
+    }
+    return false;
+  }
+
   enter(params: EditorControllerParams) {
 
-    const { action, engine } = params;
-
+    const { action, engine, track } = params;
+    if (!this.isValid(engine, track)) {
+      return;
+    }
     const finalizeEnter = (item: HTMLVideoElement) => {
 
-      this.canvasSync(engine, item, action);
+      this.canvasSync(engine, item, action, track);
     }
-    const vidItem = document.getElementById(action.id) as HTMLVideoElement;
+    const vidItem = this.getItem({ action, track })
     if (vidItem) {
       this.log(params, `enter readyState: ${vidItem.readyState}`)
-
+      console.log('enter video', action.name);
+      if (engine.playbackMode === 'media') {
+        if (engine.screener) {
+          engine.screener.style.mixBlendMode = action.blendMode || track.blendMode || 'normal';
+        }
+      } else {
+        vidItem.style.mixBlendMode = action.blendMode || track.blendMode || 'normal';
+      }
       if (engine.isPlaying && vidItem.currentTime === 0) {
         vidItem.currentTime += 0.0001;
       }
@@ -246,7 +304,7 @@ class VideoControl extends Controller {
 
 
     } else {
-       const cachedItem = this.cacheMap[action.id];
+       const cachedItem = this.cacheMap[track.id];
        this.log(params, `cached video readyState: ${cachedItem?.readyState}`)
     }
 
@@ -264,10 +322,13 @@ class VideoControl extends Controller {
 
   start(params: EditorControllerParams) {
     this.log(params, 'start')
-    const { engine, action, time } = params;
+    const { engine, action, time, track } = params;
+    if (!this.isValid(engine, track)) {
+      return;
+    }
     if (engine.isPlaying) {
-      const item = this.cacheMap[action.id];
-      item.currentTime = (time - action.start + (action?.trimStart || 0)) % (action?.duration ?? 0);
+      const item = this.getItem(params);
+      item.currentTime = Controller.getActionTime(params);
       if (action?.playbackRate ?? 1 < 0) {
         (item as HTMLVideoElement).playbackRate = action.playbackRate as number;
       }
@@ -279,21 +340,27 @@ class VideoControl extends Controller {
 
   stop(params: EditorControllerParams) {
     this.log(params, 'stop')
-    const { action } = params;
-    const item = this.cacheMap[action.id];
+    const { engine, track } = params;
+    if (!this.isValid(engine, track)) {
+      return;
+    }
+    const item = this.cacheMap[track.id];
     item.pause();
   }
 
   update(params: EditorControllerParams) {
 
-    const { action, engine, time } = params;
-    const item = this.cacheMap[action.id] as HTMLVideoElement;
-    const volumeUpdate = Controller.getVolumeUpdate(params, item.currentTime)
+    const { action, track, engine, time } = params;
+    if (!this.isValid(engine, track)) {
+      return;
+    }
+    const item = this.getItem(params);
+    const volumeUpdate = Controller.getVolumeUpdate(params, time)
 
     if (volumeUpdate) {
       item.volume = volumeUpdate.volume;
       action.volumeIndex = volumeUpdate.volumeIndex;
-      console.info(`${action.name} - editorTime: ${params.time}, actionTime: ${Controller.getActionTime(params)}, volume: ${volumeUpdate.volume}`)
+      this.log(params, `${action.name} - editorTime: ${params.time}, actionTime: ${Controller.getActionTime(params)}, volume: ${volumeUpdate.volume}`)
     }
 
     if (!engine.renderCtx) {
@@ -309,59 +376,33 @@ class VideoControl extends Controller {
 
     if (engine.isPlaying) {
       if (!action.nextFrame) {
-        console.warn('failed to play a frame because no frame data available');
-        action.nextFrame = this.getDrawData({ action, engine, time: item.currentTime });
+        this.log(params,'failed to play a frame because no frame data available');
+        action.nextFrame = this.getDrawData({ track, action, engine, time: item.currentTime });
       }
 
       const fd = action.nextFrame as VideoDrawData;
       this.draw(params, fd);
     } else {
-      const actionTime = Controller.getActionTime(params);
-      if (Number.isFinite(actionTime)) {
-        item.currentTime = actionTime;
-        this.draw(params);
-      } else {
-        console.error('no time available', actionTime, params);
-      }
+      const derp = Controller.getActionTime(params);
+      this.draw(params);
+      item.currentTime = derp;
     }
-
-    /*
-    // Default velocity and acceleration if not provided
-    let velocity = action.velocity ?? 0;
-
-    // clamp at 16 for chrome
-    try {
-      // TODO: figure out clamps for other browsers
-      if (item.playbackRate + velocity + (action?.acceleration ?? 0) < 16) {
-        const acceleration = action.acceleration ?? 0;
-
-        // Update the velocity based on the acceleration
-        velocity += acceleration;
-
-        // Adjust the playback rate by adding velocity
-        item.playbackRate += velocity;
-
-        // Ensure playbackRate remains positive
-        item.playbackRate = Math.max(0.1, item.playbackRate);
-
-        // Store the updated velocity back into the action object
-        action.velocity = velocity;
-      }
-    } catch(ex) {
-      console.warn(ex);
-    } */
   }
 
   leave(params: EditorControllerParams) {
     this.log(params, 'leave')
-    const { action, time } = params;
-    const item = this.cacheMap[action.id];
+    const { action, engine, time, track } = params;
+    if (!this.isValid(engine, track)) {
+      return;
+    }
+    const item = this.cacheMap[track.id];
 
     if (!item) {
       return;
     }
     if (time > action.end || time < action.start) {
       item.style.display = 'none';
+      action.nextFrame = undefined;
     } else {
       item.style.display = 'flex';
     }
@@ -375,17 +416,39 @@ class VideoControl extends Controller {
     this.stop(params);
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  getActionStyle(action: ITimelineAction, track: ITimelineTrack, scaleWidth: number, scale: number, trackHeight: number) {
+    const { file } = track;
+    if (!file?.media) {
+      return null;
+    }
+    const { screenshotStore } = file.media;
+    if (!action.backgroundImage && screenshotStore.trackScreenshots && screenshotStore.length > 0) {
+      let index = 0;
+      if (screenshotStore.length >= 1) {
+        index = 1;
+      }
+      action.backgroundImage = file.media.screenshots[index];
+    }
+    if (!action.backgroundImage) {
+      return null;
+    }
+    const adjustedScale = scaleWidth / scale;
+    // const images = file.media.screenshotStore.trackScreenshots;
+    return {
+      backgroundImage: `url(${file?.media.screenshots[0]}), url(${file?.media.screenshots[1]}), url(${file?.media.screenshots[2]})`,
+      backgroundSize: 'auto 100%, auto 100%, auto 100%', /* Maintain aspect ratios */
+      backgroundRepeat: 'no-repeat', /* Prevent tiling */
+      backgroundPosition: 'left center, center center, right center',
+    }
+  }
+
   destroy() {
-    process.exit(333);
     Object.values(this.cacheMap).forEach(video => {
       video.remove();
     });
     this.cacheMap = {};
     process.exit(333);
-  }
-
-  getElement(actionId: string) {
-    return this.cacheMap[actionId];
   }
 }
 

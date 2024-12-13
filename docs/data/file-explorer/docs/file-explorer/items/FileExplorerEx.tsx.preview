@@ -1,1 +1,1 @@
-<FileExplorer items={MUI_X_PRODUCTS} />
+<FileExplorer items={MUI_X_PRODUCTS as FileBase[]} />

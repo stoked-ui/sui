@@ -2,7 +2,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import Checkbox from '@mui/material/Checkbox';
-import {useFileElementState} from './useFileElementState';
+import { useFileElementState } from './useFileElementState';
 
 export interface FileElementContentProps extends React.HTMLAttributes<HTMLElement> {
   className?: string;
@@ -34,7 +34,7 @@ export interface FileElementContentProps extends React.HTMLAttributes<HTMLElemen
   /**
    * The id of the item.
    */
-  itemId: string;
+  id: string;
   /**
    * The icon to display next to the tree item's label.
    */
@@ -65,7 +65,7 @@ const FileElementContent = React.forwardRef(function FileElementContent(
     expansionIcon,
     icon: iconProp,
     label,
-    itemId,
+    id,
     onClick,
     onMouseDown,
     ...other
@@ -83,7 +83,7 @@ const FileElementContent = React.forwardRef(function FileElementContent(
     handleCheckboxSelection,
     preventSelection,
     expansionTrigger,
-  } = useFileElementState(itemId);
+  } = useFileElementState(id);
 
   const icon = iconProp || expansionIcon || displayIcon;
   const checkboxRef = React.useRef<HTMLButtonElement>(null);
@@ -158,23 +158,24 @@ FileElementContent.propTypes = {
   /**
    * The icon to display next to the tree item's label. Either a parent or end icon.
    */
-  displayIcon: PropTypes.node,
+  displayIcon: PropTypes.any,
   /**
    * The icon to display next to the tree item's label. Either an expansion or collapse icon.
    */
-  expansionIcon: PropTypes.node,
+  expansionIcon: PropTypes.any,
   /**
    * The icon to display next to the tree item's label.
    */
-  icon: PropTypes.node,
+  icon: PropTypes.any
+  ,
   /**
    * The id of the item.
    */
-  itemId: PropTypes.string.isRequired,
+  id: PropTypes.string.isRequired,
   /**
    * The tree item label.
    */
-  label: PropTypes.node,
+  label: PropTypes.any,
 };
 
 export { FileElementContent };

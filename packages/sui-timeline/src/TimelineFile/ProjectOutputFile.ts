@@ -1,8 +1,7 @@
-import { IMediaFile, MediaFile } from "@stoked-ui/media-selector";
+/*
+import { IMediaFile } from "@stoked-ui/media-selector";
 import WebFile from "./WebFile";
-import { IWebFile, IWebFileProps } from "./WebFile.types";
-import FileTypeMeta from "./FileTypeMeta";
-import { OutputBlob } from "./TimelineFile.types";
+import { IWebFile, IWebFileProps, IFileParams } from "./WebFile.types";
 
 export interface IProjectOutputFileProps extends IWebFileProps {
   sourceId: string;
@@ -14,10 +13,8 @@ export interface IProjectOutputFile extends IWebFile {
   file: IMediaFile;
 }
 
-export default class ProjectOutputFile<
-  MimeType extends FileTypeMeta
->
-  extends WebFile<MimeType>
+export default class ProjectOutputFile
+  extends WebFile
   implements IProjectOutputFile {
 
   sourceId: string;
@@ -29,7 +26,28 @@ export default class ProjectOutputFile<
     this.sourceId = props.sourceId;
     this.file = props.file;
   }
+
+  // eslint-disable-next-line class-methods-use-this
+  async initialize() {
+    await super.initialize();
+  }
+
+  get fileParams(): IFileParams[] {
+    return [{ name: this.file.name, size: this.file.size, type: this.file.type }];
+  }
+
+  protected getDataStreams(): AsyncIterable<ReadableStream<Uint8Array>> {
+    // eslint-disable-next-line consistent-this
+    const instance = this; // Preserve the `this` context
+    return {
+      async *[Symbol.asyncIterator]() {
+        // Create a ReadableStream for each file
+        yield instance.file.stream() as ReadableStream<Uint8Array>;
+      },
+    };
+  }
 }
+/!*
 
 export function MediaFileFromOutputBlob(outputBlob: OutputBlob): IMediaFile {
   const { blob } = outputBlob;
@@ -51,3 +69,5 @@ export function MediaFileFromOutputBlob(outputBlob: OutputBlob): IMediaFile {
   };
   return MediaFile.fromFile(mediaFile);
 }
+*!/
+*/

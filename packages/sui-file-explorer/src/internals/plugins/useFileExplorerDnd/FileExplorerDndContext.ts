@@ -1,10 +1,12 @@
 import * as React from "react";
 import invariant from "tiny-invariant";
-import {IMediaFile, namedId} from "@stoked-ui/media-selector";
+import { namedId } from "@stoked-ui/common";
+import { FileBase } from "../../../models";
 import {FileExplorerDndAction} from "./FileExplorerDndAction";
 
+
 export const fileExplorer = {
-  remove<R extends IMediaFile>(items: R[], id: string): IMediaFile[] {
+  remove<R extends FileBase>(items: R[], id: string): FileBase[] {
     return items
       .filter(item => item?.id !== id)
       .map(item => {
@@ -14,11 +16,10 @@ export const fileExplorer = {
             children: item.children ? fileExplorer.remove(item.children, id) : []
           };
         }
-        item.children = [];
-        return item;
+        return {...item, children: []};
       });
   },
-  insertBefore<R extends IMediaFile>(
+  insertBefore<R extends FileBase>(
     items: R[],
     targetId: string,
     newItem: R,
@@ -36,7 +37,7 @@ export const fileExplorer = {
       return item;
     });
   },
-  insertAfter<R extends IMediaFile>(
+  insertAfter<R extends FileBase>(
     items: R[],
     targetId: string,
     newItem: R,
@@ -56,7 +57,7 @@ export const fileExplorer = {
       return item;
     });
   },
-  insertChild<R extends IMediaFile>(
+  insertChild<R extends FileBase>(
     items: R[],
     targetId: string,
     newItem: R,
@@ -82,16 +83,16 @@ export const fileExplorer = {
       };
     });
   },
-  find<R extends IMediaFile>(items: R[], itemId: string): R | undefined {
+  find<R extends FileBase>(items: R[], id: string): R | undefined {
 
     for (let i = 0; i < items.length; i += 1){
       const item = items[i];
-      if (item.id === itemId) {
+      if (item.id === id) {
         return item;
       }
 
       if (fileExplorer.hasNodes(item)) {
-        const result = fileExplorer.find(item.children ?? [], itemId);
+        const result = fileExplorer.find(item.children ?? [], id);
         if (result) {
           return result as R;
         }
@@ -99,7 +100,7 @@ export const fileExplorer = {
     }
     return undefined;
   },
-  createChild<R extends IMediaFile>(items: R[], newItem: R, targetId: string | null) {
+  createChild<R extends FileBase>(items: R[], newItem: R, targetId: string | null) {
     let target = targetId === null ? null : fileExplorer.find(items, targetId);
     if (targetId === null || target !== undefined) {
       if (newItem.path !== undefined) {
@@ -116,31 +117,27 @@ export const fileExplorer = {
             const newId = namedId({id: 'file', length: 5});
             const newPath = {
               id: newId,
-              itemId: newId,
               label: path,
               type: 'folder',
               children: [] as R[],
               parent: target ?? null
             } as unknown as R;
-            console.log('newItem create child')
             fileExplorer.createChild(items, newPath, target?.id ?? null)
             target = newPath as R;
           }
         });
       }
       if (!target || targetId === null) {
-        console.log('newItem2', newItem)
         items.push(newItem);
         return;
       }
       if (!target.children) {
-        target.children = new Array<R>();
+        target.children = new Array<R>() as R[]
       }
-      console.log('newItem3', newItem)
       target.children?.push(newItem);
     }
   },
-  createChildren(items: IMediaFile[], newChildren: IMediaFile[], targetId: string | null) {
+  createChildren(items: FileBase[], newChildren: FileBase[], targetId: string | null) {
     newChildren.forEach((child) => {
       fileExplorer.createChild(items, child, targetId);
     })
@@ -150,7 +147,7 @@ export const fileExplorer = {
                   targetId,
                   parentIds = [],
                 }: {
-    current: IMediaFile[];
+    current: FileBase[];
     targetId: string;
     parentIds?: string[];
   }): string[] | undefined {
@@ -175,10 +172,10 @@ export const fileExplorer = {
     }
     return undefined;
   },
-  hasNodes(item: IMediaFile): boolean {
+  hasNodes(item: FileBase): boolean {
     return !!(item && item.children && item.children.length > 0);
   },
-  calculateFolderSize(items: IMediaFile[], id: string): number {
+  calculateFolderSize(items: FileBase[], id: string): number {
     const folder = fileExplorer.find(items, id);
     if (folder === undefined || folder.children === undefined) {
       return 0;
@@ -187,7 +184,7 @@ export const fileExplorer = {
       .reduce(
         (accumulator, currentValue) => {
           if (currentValue.type === 'folder') {
-            return fileExplorer.calculateFolderSize(items, currentValue.id! ?? currentValue.itemId) + accumulator;
+            return fileExplorer.calculateFolderSize(items, currentValue.id! ) + accumulator;
           }
           return accumulator + (currentValue?.size || 0)
         },
@@ -196,14 +193,14 @@ export const fileExplorer = {
   },
 };
 
-export function getFileExplorerStateDefault<R extends IMediaFile = IMediaFile>(items: R[] = []): FileExplorerState<R> {
+export function getFileExplorerStateDefault<R extends FileBase = FileBase>(items: R[] = []): FileExplorerState<R> {
   return {
     lastAction: null,
     items,
   }
 }
 
-const dataReducer = <R extends IMediaFile>(items: R[], action: FileExplorerDndAction<R>) => {
+const dataReducer = <R extends FileBase>(items: R[], action: FileExplorerDndAction<R>) => {
 
   if (action.type === 'set-state') {
     return action.items;
@@ -219,15 +216,15 @@ const dataReducer = <R extends IMediaFile>(items: R[], action: FileExplorerDndAc
     return items;
   }
 
-  const item = fileExplorer.find(items, action.itemId);
+  const item = fileExplorer.find(items, action.id);
 
   if (!item) {
-    console.warn(`Task [${action.type}] failed: itemId ${action.itemId} was not found`);
+    console.warn(`Task [${action.type}] failed: id ${action.id} was not found`);
     return items;
   }
 
   if (action.type === 'remove') {
-    const result = fileExplorer.remove(items, action.itemId);
+    const result = fileExplorer.remove(items, action.id);
     return result;
   }
   if (action.type === 'instruction') {
@@ -240,31 +237,31 @@ const dataReducer = <R extends IMediaFile>(items: R[], action: FileExplorerDndAc
       });
       invariant(path);
       const desiredId = path[instruction.desiredLevel];
-      let result = fileExplorer.remove(items, action.itemId);
+      let result = fileExplorer.remove(items, action.id);
 
       result = fileExplorer.insertAfter(result, desiredId, item);
       return result;
     }
 
     // the rest of the actions require you to drop on something else
-    if (action.itemId === action.targetId) {
+    if (action.id === action.targetId) {
       return items;
     }
 
     if (instruction.type === 'reorder-above') {
-      let result = fileExplorer.remove(items, action.itemId);
+      let result = fileExplorer.remove(items, action.id);
       result = fileExplorer.insertBefore(result, action.targetId, item);
       return result;
     }
 
     if (instruction.type === 'reorder-below') {
-      let result = fileExplorer.remove(items, action.itemId);
+      let result = fileExplorer.remove(items, action.id);
       result = fileExplorer.insertAfter(result, action.targetId, item);
       return result;
     }
 
     if (instruction.type === 'make-child') {
-      let result = fileExplorer.remove(items, action.itemId);
+      let result = fileExplorer.remove(items, action.id);
       result = fileExplorer.insertChild(result, action.targetId, item);
       return result;
     }
@@ -276,7 +273,7 @@ const dataReducer = <R extends IMediaFile>(items: R[], action: FileExplorerDndAc
   return items;
 };
 
-export function fileListStateReducer<R extends IMediaFile>(
+export function fileListStateReducer<R extends FileBase>(
   state: FileExplorerState<R>,
   action: FileExplorerDndAction<R>,
 ): FileExplorerState<R> {
@@ -288,24 +285,24 @@ export function fileListStateReducer<R extends IMediaFile>(
 }
 
 
-export type FileExplorerState<R extends IMediaFile = IMediaFile> = {
+export type FileExplorerState<R extends FileBase = FileBase> = {
   lastAction: FileExplorerDndAction<R> | null;
   items: R[];
 };
 
-export type FileExplorerDndContextValue<R extends IMediaFile> = {
+export type FileExplorerDndContextValue<R extends FileBase> = {
   dispatch: (action: FileExplorerDndAction<R>) => void;
   uniqueContextId: Symbol;
-  getPathToItem: (itemId: string) => string[];
-  getMoveTargets: ({ itemId }: { itemId: string }) => IMediaFile[];
-  getNodesOfItem: (itemId: string) => IMediaFile[];
+  getPathToItem: (id: string) => string[];
+  getMoveTargets: ({ id }: { id: string }) => FileBase[];
+  getNodesOfItem: (id: string) => FileBase[];
   registerFile: (args: {
-    itemId: string;
+    id: string;
     element: HTMLElement;
   }) => void;
 };
 
-export const FileExplorerDndContext = React.createContext<FileExplorerDndContextValue<IMediaFile>>({
+export const FileExplorerDndContext = React.createContext<FileExplorerDndContextValue<FileBase>>({
   dispatch: () => {},
   uniqueContextId: Symbol('uniqueId'),
   getPathToItem: () => [],

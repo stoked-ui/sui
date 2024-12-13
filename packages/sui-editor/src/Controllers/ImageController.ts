@@ -1,12 +1,20 @@
-import { Controller, ControllerParams, IEngine, ITimelineAction } from "@stoked-ui/timeline";
+import {
+  Controller, ControllerParams, GetItemParams, IController, IEngine, ITimelineAction, ITimelineTrack
+} from "@stoked-ui/timeline";
 import { IMediaFile } from "@stoked-ui/media-selector";
-import {IEditorEngine} from "../EditorEngine";
-import {EditorControllerParams} from "./EditorControllerParams";
+import {type IEditorEngine} from "../EditorEngine";
+import {
+  EditorControllerParams, EditorGetItemParams,
+  EditorPreloadParams
+} from "./EditorControllerParams";
+import {IEditorTrack} from "../EditorTrack";
 
-class ImageControl extends Controller {
+class ImageControl extends Controller<HTMLImageElement> implements IController {
   cacheMap: Record<string, HTMLImageElement> = {};
 
   logging: boolean = false;
+
+  editorId: string = '';
 
   constructor() {
     super({
@@ -14,26 +22,37 @@ class ImageControl extends Controller {
     });
   }
 
-  enter(params: EditorControllerParams) {
-    const {action, engine} = params;
-    let item: HTMLImageElement;
-    const track = engine.getActionTrack(action.id)
-    if (!track) {
-      return;
-    }
-    if (this.cacheMap[action.id]) {
-      item = this.cacheMap[action.id];
-      ImageControl.toggleDisplay(action, item);
-    } else if (!action.hidden) {
-      item = ImageControl.createNewImage(action, track.file!);
-      this.cacheMap[action.id] = item;
-      ImageControl.attachItemToViewer(item, engine);
-      ImageControl.renderImage(item, engine);
-    }
+  async preload(params: EditorPreloadParams): Promise<ITimelineAction> {
+    const { action, track, editorId } = params;
+    this.editorId = editorId;
+    return action;
   }
 
-  static toggleDisplay(action: ITimelineAction, item: HTMLImageElement) {
-    item.style.display = action.hidden ? 'none' : 'flex';
+  enter(params: EditorControllerParams) {
+    const {action, engine, track} = params;
+    const item: HTMLImageElement = this.getItem(params as EditorGetItemParams);
+    ImageControl.setDisplay(track, item);
+    ImageControl.attachItemToViewer(item, engine);
+    ImageControl.renderImage(item, engine);
+  }
+
+  getItem(params: EditorGetItemParams) {
+    const { action, track } = params;
+    let item = this.cacheMap[track.id];
+    if (item) {
+      return item;
+    }
+    const { file } = track;
+    if (!file) {
+      throw new Error('no file found for image controlled item');
+    }
+    item = ImageControl.createNewImage(action, file);
+    this.cacheMap[track.id] = item;
+    return item;
+  }
+
+  static setDisplay(track: IEditorTrack, item: HTMLImageElement) {
+    item.style.display = track.hidden ? 'none' : 'flex';
   }
 
   static createNewImage(action: ITimelineAction, file: IMediaFile): HTMLImageElement {
@@ -68,13 +87,13 @@ class ImageControl extends Controller {
   }
 
   update(params: EditorControllerParams) {
-    const { action, engine } = params;
+    const { action, engine, track} = params;
 
-    const item = this.cacheMap[action.id];
+    const item = this.cacheMap[track.id];
     if (!item) {
       return;
     }
-    if (action.hidden) {
+    if (track.hidden) {
       item.style.display = 'none';
     } else {
       engine.renderCtx?.drawImage(item, 0, 0,  engine.renderWidth, engine.renderHeight);
@@ -82,8 +101,8 @@ class ImageControl extends Controller {
   }
 
   leave(params: ControllerParams) {
-    const { action, time, engine } = params;
-    const item = this.cacheMap[action.id];
+    const { action, time, engine, track } = params;
+    const item = this.cacheMap[track.id];
     if (!item) {
       return;
     }

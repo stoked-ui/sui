@@ -1,5 +1,7 @@
 import * as React from 'react';
 import { styled, keyframes } from '@mui/material/styles';
+import { SxProps } from '@mui/system';
+import {EngineState, FileState} from '@stoked-ui/timeline';
 import {useEditorContext} from "../EditorProvider/EditorContext";
 
 const scale = keyframes`
@@ -17,27 +19,32 @@ const scale = keyframes`
   }
 `;
 
-const LoadingVideo = styled('video', {
-  name: "MuiEditorViewLoadingVideo",
-  slot: "loading-video",
+const LoopVideo = styled('video', {
+  name: "MuiEditorLoader",
+  slot: "loop-video",
   shouldForwardProp: (prop) => prop !== 'viewMode',
-})({
+})<{ styles: React.CSSProperties }>(({ theme, styles }) => ({
   display: 'flex',
   flexDirection: 'column',
-  width: '100%',
   position: 'absolute',
   left: 0,
   overflow: 'hidden',
   aspectRatio: 16 / 9,
+  width: '100%',
+  height: '100%',
+  backgroundColor: theme.palette.background.default,
   zIndex: 50,
   opacity: 0,
   transition: 'opacity 4s',
   '&.show': {
     opacity: 1,
   },
-});
+}));
 
-const LoaderCircle = styled('div')(({ theme }) => ({
+const LoaderCircle = styled('div', {
+  name: "MuiEditorLoader",
+  slot: "loading-indicator"
+})(({ theme }) => ({
   width: '25px',
   height: '25px',
   display: 'inline-block',
@@ -68,49 +75,72 @@ const LoaderCircle = styled('div')(({ theme }) => ({
     borderColor: theme.palette.primary.main,
   },
 }));
-let count = 0;
-function Loader() {
-  const { editorId,dispatch, engine, components } = useEditorContext();
-  const loadingVideoRef = React.useRef<HTMLVideoElement>(null);
+
+function Loader({styles}: {styles: React.CSSProperties}) {
+  const { state: context, dispatch } = useEditorContext();
+  const { getState, engine, settings, flags, file } = context;
+  const loopVideoRef = React.useRef<HTMLVideoElement>(null);
+  const previewVideoRef = React.useRef<HTMLVideoElement>(null);
 
   React.useEffect(() => {
 
-    if (loadingVideoRef.current) {
-      const element = loadingVideoRef.current as HTMLVideoElement;
+    if (loopVideoRef.current) {
+      const element = loopVideoRef.current as HTMLVideoElement;
       if (element) {
         dispatch({
           type: 'SET_COMPONENT',
-          payload: { key: 'loadingVideo', value: element as HTMLVideoElement }
+          payload: { key: 'loopVideo', value: element as HTMLVideoElement }
         });
       }
-      const loadingVideo = loadingVideoRef.current as HTMLVideoElement;
-      if (loadingVideo) {
+      const loopVideo = loopVideoRef.current as HTMLVideoElement;
+      if (loopVideo) {
 
-        loadingVideo.oncanplay = () => {
-          loadingVideo.muted = true;
-          loadingVideo.loop = true;
-          loadingVideo.style.display = 'flex';
-          loadingVideo.play();
+        loopVideo.oncanplay = () => {
+          loopVideo.muted = true;
+          loopVideo.loop = true;
+          loopVideo.style.display = 'flex';
+          loopVideo.play();
           // Set isVisible to true after a short delay to trigger the animation
           const timeout = setTimeout(() => {
-            loadingVideo.classList.add('show');
+            loopVideo.classList.add('show');
           }, 100);
         }
-        // loadingVideo.src = 'https://assets9.lottiefiles.com/packages/lf20_9yjzqz.json';
-        loadingVideo.src = '/static/editor/stock-loop.mp4';
+        // loopVideo.src = 'https://assets9.lottiefiles.com/packages/lf20_9yjzqz.json';
+        loopVideo.src = '/static/editor/stock-loop.mp4';
       }
     }
-  }, [loadingVideoRef.current]);
+  }, [loopVideoRef.current]);
 
-  if (engine?.isLoading) {
+  const [loadState, setLoadState] = React.useState<{ loading: boolean, preview: boolean }>({ loading: true, preview: false });
+  React.useEffect(() => {
+    const loading = getState() === EngineState.LOADING;
+    setLoadState({
+      preview: settings.disabled,
+      loading
+    });
+  }, [engine.state, file, settings.disabled]);
 
+  if (flags.detailMode) {
+    return null;
+  }
+
+  if (loadState?.loading) {
     return (
       <React.Fragment>
-        <LoadingVideo role={'loading-video'} ref={loadingVideoRef} />
+        <LoopVideo role={'loading-video'} ref={loopVideoRef} styles={styles} />
         <LoaderCircle />
       </React.Fragment>
     )
   }
+
+  if (loadState?.preview) {
+    return (
+      <React.Fragment>
+        <LoopVideo role={'preview-video'} ref={loopVideoRef} styles={styles} />
+      </React.Fragment>
+    )
+  }
+
   return <React.Fragment />
 }
 

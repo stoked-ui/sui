@@ -7,40 +7,34 @@ export interface UseFileExplorerSelectionPublicAPI {
   /**
    * Select or deselect an item.
    * @param {React.SyntheticEvent} event The event source of the callback.
-   * @param {string} itemId The id of the item to select or deselect.
+   * @param {string} id The id of the item to select or deselect.
    * @param {boolean} keepExistingSelection If `true`, don't remove the other selected items.
    * @param {boolean | undefined} newValue The new selection status of the item. If not defined,
    *   the new state will be the opposite of the current state.
    */
-  selectItem: (
-    event: React.SyntheticEvent,
-    itemId: string,
-    keepExistingSelection: boolean,
-    newValue?: boolean,
-  ) => void;
+  selectItem: (params: {
+    event: React.SyntheticEvent, id: string, keepExistingSelection?: boolean, newValue?: boolean,
+  }) => void;
 }
 
 export interface UseFileExplorerSelectionInstance {
   /**
    * Check if an item is selected.
-   * @param {FileId} itemId The id of the item to check.
+   * @param {FileId} id The id of the item to check.
    * @returns {boolean} `true` if the item is selected, `false` otherwise.
    */
-  isItemSelected: (itemId: string) => boolean;
+  isItemSelected: (id: string) => boolean;
   /**
    * Select or deselect an item.
    * @param {React.SyntheticEvent} event The event source of the callback.
-   * @param {string} itemId The id of the item to select or deselect.
+   * @param {string} id The id of the item to select or deselect.
    * @param {boolean} keepExistingSelection If `true`, don't remove the other selected items.
    * @param {boolean | undefined} newValue The new selection status of the item. If not defined,
    *   the new state will be the opposite of the current state.
    */
-  selectItem: (
-    event: React.SyntheticEvent,
-    itemId: string,
-    keepExistingSelection: boolean,
-    newValue?: boolean,
-  ) => void;
+  selectItem: (params: {
+    event: React.SyntheticEvent, id: string, keepExistingSelection?: boolean, newValue?: boolean,
+  }) => void;
   /**
    * Select all the navigable items in the fileExplorer.
    * @param {React.SyntheticEvent} event The event source of the callback.
@@ -49,21 +43,21 @@ export interface UseFileExplorerSelectionInstance {
   /**
    * Expand the current selection range up to the given item.
    * @param {React.SyntheticEvent} event The event source of the callback.
-   * @param {string} itemId The id of the item to expand the selection to.
+   * @param {string} id The id of the item to expand the selection to.
    */
-  expandSelectionRange: (event: React.SyntheticEvent, itemId: string) => void;
+  expandSelectionRange: (event: React.SyntheticEvent, id: string) => void;
   /**
    * Expand the current selection range from the first navigable item to the given item.
    * @param {React.SyntheticEvent} event The event source of the callback.
-   * @param {string} itemId The id of the item up to which the selection range should be expanded.
+   * @param {string} id The id of the item up to which the selection range should be expanded.
    */
-  selectRangeFromStartToItem: (event: React.SyntheticEvent, itemId: string) => void;
+  selectRangeFromStartToItem: (event: React.SyntheticEvent, id: string) => void;
   /**
    * Expand the current selection range from the given item to the last navigable item.
    * @param {React.SyntheticEvent} event The event source of the callback.
-   * @param {string} itemId The id of the item from which the selection range should be expanded.
+   * @param {string} id The id of the item from which the selection range should be expanded.
    */
-  selectRangeFromItemToEnd: (event: React.SyntheticEvent, itemId: string) => void;
+  selectRangeFromItemToEnd: (event: React.SyntheticEvent, id: string) => void;
   /**
    * Update the selection when navigating with ArrowUp / ArrowDown keys.
    * @param {React.SyntheticEvent} event The event source of the callback.
@@ -112,23 +106,23 @@ export interface UseFileExplorerSelectionParameters<Multiple extends boolean | u
   /**
    * Callback fired when fileExplorer items are selected/deselected.
    * @param {React.SyntheticEvent} event The event source of the callback
-   * @param {string[] | string} itemIds The ids of the selected items.
+   * @param {string[] | string} ids The ids of the selected items.
    * When `multiSelect` is `true`, this is an array of strings; when false (default) a string.
    */
   onSelectedItemsChange?: (
     event: React.SyntheticEvent,
-    itemIds: FileExplorerSelectionValue<Multiple>,
+    ids: FileExplorerSelectionValue<Multiple>,
   ) => void;
   /**
    * Callback fired when a fileExplorer item is selected or deselected.
    * @param {React.SyntheticEvent} event The event source of the callback.
-   * @param {array} itemId The itemId of the lastModified item.
+   * @param {array} id The id of the lastModified item.
    * @param {array} isSelected `true` if the item has just been selected, `false` if it has just
    *   been deselected.
    */
   onItemSelectionToggle?: (
     event: React.SyntheticEvent,
-    itemId: string,
+    id: string,
     isSelected: boolean,
   ) => void;
 }

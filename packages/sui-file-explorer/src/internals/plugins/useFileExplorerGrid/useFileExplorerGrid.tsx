@@ -1,5 +1,5 @@
 import * as React from 'react'
-import {namedId, IMediaFile} from "@stoked-ui/media-selector";
+import { namedId} from '@stoked-ui/common';
 import {
   GridColumn,
   GridColumns,
@@ -8,7 +8,7 @@ import {
   UseFileExplorerGridPlugin,
   UseFileExplorerGridState
 } from './useFileExplorerGrid.types';
-import { FileId} from '../../../models';
+import { FileId, FileBase} from '../../../models';
 import {bytesToSize, calcSize, getRelativeTimeString} from "./PropUtils";
 import {ItemMode} from "../useFileExplorerFiles/useFileExplorerFiles.types";
 
@@ -28,17 +28,18 @@ const updateGridState = ({ headers, columns, initializedIndexes, id }: { headers
   };
 };
 
-export const useFileExplorerGrid: UseFileExplorerGridPlugin = <R extends IMediaFile>({
+export const useFileExplorerGrid: UseFileExplorerGridPlugin = <R extends FileBase>({
   instance,
   state,
   rootRef,
   params,
 }) => {
 
-  const getAltRowClass = (itemId: string) => {
-    return state.items.itemMetaMap[itemId]?.visibleIndex ? 'Mui-odd' : 'Mui-even';
+  const getAltRowClass = (id: string) => {
+    console.log('state.items.itemMetaMap[id]?',  state.items.itemMetaMap[id])
+    return state.items.itemMetaMap[id]?.visibleIndex ? 'Mui-odd' : 'Mui-even';
   }
-  const isColumn = (itemId: string) => state.grid.columns.hasOwnProperty(itemId);
+  const isColumn = (id: string) => state.grid.columns.hasOwnProperty(id);
 
   const setVisibleOrder = (value: FileId[]) => {
     state.grid.visibleItems = value;
@@ -165,7 +166,7 @@ export const useFileExplorerGrid: UseFileExplorerGridPlugin = <R extends IMediaF
 
   const getItemMode = React.useCallback((item: any): ItemMode => {
     if (item.expanded === undefined) {
-      const meta = instance.getItemMeta(item.id ?? item.itemId);
+      const meta = instance.getItemMeta(item.id );
       item = {...meta, ...item};
     }
     if (item.children.length && item.expanded) {
@@ -219,7 +220,7 @@ export const useFileExplorerGrid: UseFileExplorerGridPlugin = <R extends IMediaF
     return state.grid.headers[columnName]?.status ?? null;
   }
 
-  const getItemStatus = (itemId: FileId, children: React.ReactNode) => {
+  const getItemStatus = (id: FileId, children: React.ReactNode) => {
     const isItemExpandable = (reactChildren: React.ReactNode) => {
       if (Array.isArray(reactChildren)) {
         return reactChildren.length > 0 && reactChildren.some(isItemExpandable);
@@ -228,15 +229,15 @@ export const useFileExplorerGrid: UseFileExplorerGridPlugin = <R extends IMediaF
     };
     return {
       expandable: isItemExpandable(children),
-      expanded: instance.isItemExpanded(itemId),
-      focused: instance.isItemFocused(itemId),
-      selected: instance.isItemSelected(itemId),
-      disabled: instance.isItemDisabled(itemId),
-      visibleIndex: instance.getVisibleIndex(itemId),
+      expanded: instance.isItemExpanded(id),
+      focused: instance.isItemFocused(id),
+      selected: instance.isItemSelected(id),
+      disabled: instance.isItemDisabled(id),
+      visibleIndex: instance.getVisibleIndex(id),
       grid: params.grid,
-      dndState: state.items.itemMetaMap[itemId]?.dndState ?? 'idle',
-      dndInstruction: state.items.itemMetaMap[itemId]?.dndInstruction ?? null,
-      dndContainer: state.items.itemMetaMap[itemId]?.dndContainer ?? null,
+      dndState: state.items.itemMetaMap[id]?.dndState ?? 'idle',
+      dndInstruction: state.items.itemMetaMap[id]?.dndInstruction ?? null,
+      dndContainer: state.items.itemMetaMap[id]?.dndContainer ?? null,
     }
   }
 
@@ -283,7 +284,7 @@ const DEFAULT_HEADER_DATA = {
     display: 'flex',
     overflow: 'ellipsis',
     alignItems: 'center',
-    justifyContent: 'end',
+    justifyContent: 'start',
     paddingRight: '6px',
     paddingLeft: '6px',
   },
@@ -302,7 +303,7 @@ const DEFAULT_COLUMN_DATA = {
     display: 'flex',
     overflow: 'ellipsis',
     alignItems: 'center',
-    justifyContent: 'end',
+    justifyContent: 'start',
     paddingRight: '8px'
   },
   width: -1,

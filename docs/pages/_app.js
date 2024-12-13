@@ -7,7 +7,6 @@ import PropTypes from 'prop-types';
 import { useRouter } from 'next/router';
 import fileExplorerPkgJson from 'packages/sui-file-explorer/package.json';
 import PageContext from 'docs/src/modules/components/PageContext';
-import GoogleAnalytics from 'docs/src/modules/components/GoogleAnalytics';
 import { CodeCopyProvider } from 'docs/src/modules/utils/CodeCopy';
 import { ThemeProvider } from 'docs/src/modules/components/ThemeContext';
 import { CodeVariantProvider } from 'docs/src/modules/utils/codeVariant';
@@ -244,7 +243,7 @@ function AppWrapper(props) {
               <CodeVariantProvider>
                 <PageContext.Provider value={pageContextValue}>
                   <ThemeProvider>
-                    <DocsStyledEngineProvider cacheLtr={emotionCache}>
+                    <DocsStyledEngineProvider cacheLtr={emotionCache} injectFirst>
                       {children}
                       {/*
                       <GoogleAnalytics />

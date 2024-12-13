@@ -1,0 +1,367 @@
+Index: docs/src/modules/components/AppSearch.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/docs/src/modules/components/AppSearch.js b/docs/src/modules/components/AppSearch.js
+--- a/docs/src/modules/components/AppSearch.js	
++++ b/docs/src/modules/components/AppSearch.js	(date 1733733961158)
+@@ -437,7 +437,7 @@
+         />
+         <SearchLabel id="app-search-label">{t('searchButton')}</SearchLabel>
+         <Shortcut aria-hidden="true">
+-          {/* eslint-disable-next-line material-ui/no-hardcoded-labels */}
++          {/* eslint-disable-next-line stoked-ui/no-hardcoded-labels */}
+           {macOS ? '⌘' : 'Ctrl+'}K
+         </Shortcut>
+       </SearchButton>
+Index: docs/data/file-explorer/docs/file-explorer/items/items.md
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/docs/data/file-explorer/docs/file-explorer/items/items.md b/docs/data/file-explorer/docs/file-explorer/items/items.md
+--- a/docs/data/file-explorer/docs/file-explorer/items/items.md	
++++ b/docs/data/file-explorer/docs/file-explorer/items/items.md	(date 1733736235680)
+@@ -71,24 +71,24 @@
+ <FileExplorer items={ITEMS} />;
+ ```
+ 
+-If the item's label is not called `label`, then you need to use the `getItemLabel` prop to tell the `FileExplorer` component where it's located:
++If the item's label is not called `label`, then you need to use the `getItemName` prop to tell the `FileExplorer` component where it's located:
+ 
+-The following demo shows how to use `getItemLabel` to grab the unique identifier from a property named `name`:
++The following demo shows how to use `getItemName` to grab the unique identifier from a property named `name`:
+ 
+ ```tsx
+ const ITEMS = [{ name: '@stoked-ui/file-explorer' }];
+ 
+-function getItemLabel(item) {
++function getItemName(item) {
+   return item.name;
+ }
+ 
+-<FileExplorer items={ITEMS} getItemLabel={getItemLabel} />;
++<FileExplorer items={ITEMS} getItemName={getItemName} />;
+ ```
+ 
+ {{"demo": "GetItemLabel.js", "defaultCodeOpen": false}}
+ 
+ :::warning
+-Just like the `items` prop, the `getItemLabel` function should keep the same JavaScript reference between two renders.
++Just like the `items` prop, the `getItemName` function should keep the same JavaScript reference between two renders.
+ Otherwise, the File Explorer will re-generate its entire structure.
+ 
+ It could be achieved by either defining the prop outside the component scope or by memoizing using the `React.useCallback` hook if the function reuses something from the component scope.
+Index: docs/data/file-explorer/docs/file-explorer/items/GetItemLabel.tsx
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/docs/data/file-explorer/docs/file-explorer/items/GetItemLabel.tsx b/docs/data/file-explorer/docs/file-explorer/items/GetItemLabel.tsx
+--- a/docs/data/file-explorer/docs/file-explorer/items/GetItemLabel.tsx	
++++ b/docs/data/file-explorer/docs/file-explorer/items/GetItemLabel.tsx	(date 1733736235662)
+@@ -38,12 +38,12 @@
+   },
+ ];
+ 
+-const getItemLabel = (item: MuiXProduct) => item.name;
++const getItemName = (item: MuiXProduct) => item.name;
+ 
+ export default function GetItemLabel() {
+   return (
+     <Box sx={{ minHeight: 352, minWidth: 250 }}>
+-      <FileExplorer items={MUI_X_PRODUCTS} getItemLabel={getItemLabel} />
++      <FileExplorer items={MUI_X_PRODUCTS} getItemName={getItemName} />
+     </Box>
+   );
+ }
+Index: docs/data/file-explorer/docs/file-explorer/items/ApiMethodGetItem.tsx
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/docs/data/file-explorer/docs/file-explorer/items/ApiMethodGetItem.tsx b/docs/data/file-explorer/docs/file-explorer/items/ApiMethodGetItem.tsx
+--- a/docs/data/file-explorer/docs/file-explorer/items/ApiMethodGetItem.tsx	
++++ b/docs/data/file-explorer/docs/file-explorer/items/ApiMethodGetItem.tsx	(date 1733734785119)
+@@ -3,42 +3,42 @@
+ import Stack from '@mui/material/Stack';
+ import Typography from '@mui/material/Typography';
+ import { FileExplorer } from '@stoked-ui/file-explorer/FileExplorer';
+-import { FileBase } from '@stoked-ui/file-explorer/models';
+ import { useFileExplorerApiRef } from '@stoked-ui/file-explorer/hooks';
++import {FileBaseInput} from "@stoked-ui/file-explorer";
+ 
+-const MUI_X_PRODUCTS: FileBase[] = [
++const MUI_X_PRODUCTS: FileBaseInput[] = [
+   {
+     id: 'grid',
+-    label: 'Data Grid',
++    name: 'Data Grid',
+     children: [
+-      { id: 'grid-community', label: '@mui/x-data-grid' },
+-      { id: 'grid-pro', label: '@mui/x-data-grid-pro' },
+-      { id: 'grid-premium', label: '@mui/x-data-grid-premium' },
++      { id: 'grid-community', name: '@mui/x-data-grid' },
++      { id: 'grid-pro', name: '@mui/x-data-grid-pro' },
++      { id: 'grid-premium', name: '@mui/x-data-grid-premium' },
+     ],
+   },
+   {
+     id: 'pickers',
+-    label: 'Date and Time Pickers',
++    name: 'Date and Time Pickers',
+     children: [
+-      { id: 'pickers-community', label: '@mui/x-date-pickers' },
+-      { id: 'pickers-pro', label: '@mui/x-date-pickers-pro' },
++      { id: 'pickers-community', name: '@mui/x-date-pickers' },
++      { id: 'pickers-pro', name: '@mui/x-date-pickers-pro' },
+     ],
+   },
+   {
+     id: 'charts',
+-    label: 'Charts',
+-    children: [{ id: 'charts-community', label: '@mui/x-charts' }],
++    name: 'Charts',
++    children: [{ id: 'charts-community', name: '@mui/x-charts' }],
+   },
+   {
+     id: 'file-explorer',
+-    label: 'File Explorer',
+-    children: [{ id: 'file-explorer-community', label: '@stoked-ui/file-explorer' }],
++    name: 'File Explorer',
++    children: [{ id: 'file-explorer-community', name: '@stoked-ui/file-explorer' }],
+   },
+ ];
+ 
+ export default function ApiMethodGetItem() {
+   const apiRef = useFileExplorerApiRef();
+-  const [selectedItem, setSelectedItem] = React.useState<FileBase | null>(
++  const [selectedItem, setSelectedItem] = React.useState<FileBaseInput | null>(
+     null,
+   );
+ 
+@@ -56,7 +56,7 @@
+   return (
+     <Stack spacing={2}>
+       <Typography sx={{ minWidth: 300 }}>
+-        Selected item: {selectedItem == null ? 'none' : selectedItem.label}
++        Selected item: {selectedItem == null ? 'none' : selectedItem.name}
+       </Typography>
+       <Box sx={{ minHeight: 352, minWidth: 250 }}>
+         <FileExplorer
+Index: docs/data/file-explorer/docs/file-explorer/items/ApiMethodGetItemTree.tsx
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/docs/data/file-explorer/docs/file-explorer/items/ApiMethodGetItemTree.tsx b/docs/data/file-explorer/docs/file-explorer/items/ApiMethodGetItemTree.tsx
+--- a/docs/data/file-explorer/docs/file-explorer/items/ApiMethodGetItemTree.tsx	
++++ b/docs/data/file-explorer/docs/file-explorer/items/ApiMethodGetItemTree.tsx	(date 1733735275477)
+@@ -4,36 +4,36 @@
+ import Button from '@mui/material/Button';
+ import Typography from '@mui/material/Typography';
+ import { FileExplorer } from '@stoked-ui/file-explorer/FileExplorer';
+-import { FileBase } from '@stoked-ui/file-explorer/models';
++import { IMediaFileExInput } from '@stoked-ui/file-explorer/models';
+ import { useFileExplorerApiRef } from '@stoked-ui/file-explorer/hooks';
+ 
+-const MUI_X_PRODUCTS: FileBase[] = [
++const MUI_X_PRODUCTS: IMediaFileExInput[] = [
+   {
+     id: 'grid',
+-    label: 'Data Grid',
++    name: 'Data Grid',
+     children: [
+-      { id: 'grid-community', label: '@mui/x-data-grid' },
+-      { id: 'grid-pro', label: '@mui/x-data-grid-pro' },
+-      { id: 'grid-premium', label: '@mui/x-data-grid-premium' },
++      { id: 'grid-community', name: '@mui/x-data-grid' },
++      { id: 'grid-pro', name: '@mui/x-data-grid-pro' },
++      { id: 'grid-premium', name: '@mui/x-data-grid-premium' },
+     ],
+   },
+   {
+-    id: 'pickers',
++    name: 'pickers',
+     label: 'Date and Time Pickers',
+     children: [
+-      { id: 'pickers-community', label: '@mui/x-date-pickers' },
+-      { id: 'pickers-pro', label: '@mui/x-date-pickers-pro' },
++      { id: 'pickers-community', name: '@mui/x-date-pickers' },
++      { id: 'pickers-pro', name: '@mui/x-date-pickers-pro' },
+     ],
+   },
+   {
+     id: 'charts',
+-    label: 'Charts',
+-    children: [{ id: 'charts-community', label: '@mui/x-charts' }],
++    name: 'Charts',
++    children: [{ id: 'charts-community', name: '@mui/x-charts' }],
+   },
+   {
+     id: 'file-explorer',
+-    label: 'File Explorer',
+-    children: [{ id: 'file-explorer-community', label: '@stoked-ui/file-explorer' }],
++    name: 'File Explorer',
++    children: [{ id: 'file-explorer-community', name: '@stoked-ui/file-explorer' }],
+   },
+ ];
+ 
+@@ -41,14 +41,14 @@
+   const apiRef = useFileExplorerApiRef();
+ 
+   const [items, setItems] = React.useState(MUI_X_PRODUCTS);
+-  const [itemOnTop, setItemOnTop] = React.useState(items[0].label);
++  const [itemOnTop, setItemOnTop] = React.useState(items[0].name);
+ 
+   const handleInvertItems = () => {
+     setItems((prevItems) => [...prevItems].reverse());
+   };
+ 
+   const handleUpdateItemOnTop = () => {
+-    setItemOnTop(apiRef.current!.getItemTree()[0].label);
++    setItemOnTop(apiRef.current!.getItemTree()[0].name);
+   };
+ 
+   return (
+Index: docs/data/file-explorer/docs/file-explorer-basic/selection/ApiMethodSelectItem.tsx
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/docs/data/file-explorer/docs/file-explorer-basic/selection/ApiMethodSelectItem.tsx b/docs/data/file-explorer/docs/file-explorer-basic/selection/ApiMethodSelectItem.tsx
+--- a/docs/data/file-explorer/docs/file-explorer-basic/selection/ApiMethodSelectItem.tsx	
++++ b/docs/data/file-explorer/docs/file-explorer-basic/selection/ApiMethodSelectItem.tsx	(date 1733734767799)
+@@ -9,7 +9,7 @@
+ export default function ApiMethodSelectItem() {
+   const apiRef = useFileExplorerApiRef();
+   const handleSelectGridPro = (event: React.SyntheticEvent) => {
+-    apiRef.current?.selectItem({ event, itemId: 'grid-pro' });
++    apiRef.current?.selectItem({ event, id: 'grid-pro' });
+   };
+ 
+   return (
+@@ -19,20 +19,20 @@
+       </div>
+       <Box sx={{ minHeight: 352, minWidth: 250 }}>
+         <FileExplorerBasic apiRef={apiRef} defaultExpandedItems={['grid']}>
+-          <FileElement itemId="grid" label="Data Grid">
+-            <FileElement itemId="grid-community" label="@mui/x-data-grid" />
+-            <FileElement itemId="grid-pro" label="@mui/x-data-grid-pro" />
+-            <FileElement itemId="grid-premium" label="@mui/x-data-grid-premium" />
++          <FileElement id="grid" name="Data Grid">
++            <FileElement id="grid-community" name="@mui/x-data-grid" />
++            <FileElement id="grid-pro" name="@mui/x-data-grid-pro" />
++            <FileElement id="grid-premium" name="@mui/x-data-grid-premium" />
+           </FileElement>
+-          <FileElement itemId="pickers" label="Date and Time Pickers">
+-            <FileElement itemId="pickers-community" label="@mui/x-date-pickers" />
+-            <FileElement itemId="pickers-pro" label="@mui/x-date-pickers-pro" />
++          <FileElement id="pickers" name="Date and Time Pickers">
++            <FileElement id="pickers-community" name="@mui/x-date-pickers" />
++            <FileElement id="pickers-pro" name="@mui/x-date-pickers-pro" />
+           </FileElement>
+-          <FileElement itemId="charts" label="Charts">
+-            <FileElement itemId="charts-community" label="@mui/x-charts" />
++          <FileElement id="charts" name="Charts">
++            <FileElement id="charts-community" name="@mui/x-charts" />
+           </FileElement>
+-          <FileElement itemId="file-explorer" label="File Explorer">
+-            <FileElement itemId="file-explorer-community" label="@stoked-ui/file-explorer" />
++          <FileElement id="file-explorer" name="File Explorer">
++            <FileElement id="file-explorer-community" name="@stoked-ui/file-explorer" />
+           </FileElement>
+         </FileExplorerBasic>
+       </Box>
+Index: docs/data/file-explorer/docs/file-explorer-basic/customization/LabelSlotProps.tsx
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/docs/data/file-explorer/docs/file-explorer-basic/customization/LabelSlotProps.tsx b/docs/data/file-explorer/docs/file-explorer-basic/customization/LabelSlotProps.tsx
+--- a/docs/data/file-explorer/docs/file-explorer-basic/customization/LabelSlotProps.tsx	
++++ b/docs/data/file-explorer/docs/file-explorer-basic/customization/LabelSlotProps.tsx	(date 1733734251639)
+@@ -21,20 +21,20 @@
+   return (
+     <Box sx={{ minHeight: 352, minWidth: 250 }}>
+       <FileExplorerBasic defaultExpandedItems={['grid']}>
+-        <CustomTreeItem itemId="grid" label="Data Grid">
+-          <CustomTreeItem itemId="grid-community" label="@mui/x-data-grid" />
+-          <CustomTreeItem itemId="grid-pro" label="@mui/x-data-grid-pro" />
+-          <CustomTreeItem itemId="grid-premium" label="@mui/x-data-grid-premium" />
++        <CustomTreeItem id="grid" name="Data Grid">
++          <CustomTreeItem id="grid-community" name="@mui/x-data-grid" />
++          <CustomTreeItem id="grid-pro" name="@mui/x-data-grid-pro" />
++          <CustomTreeItem id="grid-premium" name="@mui/x-data-grid-premium" />
+         </CustomTreeItem>
+-        <CustomTreeItem itemId="pickers" label="Date and Time Pickers">
+-          <CustomTreeItem itemId="pickers-community" label="@mui/x-date-pickers" />
+-          <CustomTreeItem itemId="pickers-pro" label="@mui/x-date-pickers-pro" />
++        <CustomTreeItem id="pickers" name="Date and Time Pickers">
++          <CustomTreeItem id="pickers-community" name="@mui/x-date-pickers" />
++          <CustomTreeItem id="pickers-pro" name="@mui/x-date-pickers-pro" />
+         </CustomTreeItem>
+-        <CustomTreeItem itemId="charts" label="Charts">
+-          <CustomTreeItem itemId="charts-community" label="@mui/x-charts" />
++        <CustomTreeItem id="charts" name="Charts">
++          <CustomTreeItem id="charts-community" name="@mui/x-charts" />
+         </CustomTreeItem>
+-        <CustomTreeItem itemId="file-explorer" label="File Explorer">
+-          <CustomTreeItem itemId="file-explorer-community" label="@stoked-ui/file-explorer" />
++        <CustomTreeItem id="file-explorer" name="File Explorer">
++          <CustomTreeItem id="file-explorer-community" name="@stoked-ui/file-explorer" />
+         </CustomTreeItem>
+       </FileExplorerBasic>
+     </Box>
+Index: docs/pages/file-explorer/api/file-explorer.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/docs/pages/file-explorer/api/file-explorer.json b/docs/pages/file-explorer/api/file-explorer.json
+--- a/docs/pages/file-explorer/api/file-explorer.json	
++++ b/docs/pages/file-explorer/api/file-explorer.json	(date 1733736235602)
+@@ -32,7 +32,7 @@
+         "returned": "string"
+       }
+     },
+-    "getItemLabel": {
++    "getItemName": {
+       "type": { "name": "func" },
+       "default": "(item) => item.label",
+       "signature": {
+Index: docs/public/feed/blog/rss.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/docs/public/feed/blog/rss.xml b/docs/public/feed/blog/rss.xml
+--- a/docs/public/feed/blog/rss.xml	
++++ b/docs/public/feed/blog/rss.xml	(date 1733733600546)
+@@ -4,7 +4,7 @@
+         <title>SUI - Blog</title>
+         <link>https://mui.com/feed/blog</link>
+         <description>Follow the SUI blog to learn about new product features, latest advancements in UI development, and business initiatives.</description>
+-        <lastBuildDate>Mon, 09 Dec 2024 08:36:26 GMT</lastBuildDate>
++        <lastBuildDate>Mon, 09 Dec 2024 08:40:00 GMT</lastBuildDate>
+         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
+         <generator>https://github.com/jpmonette/feed</generator>
+         <language>en</language>
+Index: docs/translations/api-docs/file-explorer/file-explorer/file-explorer.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/docs/translations/api-docs/file-explorer/file-explorer/file-explorer.json b/docs/translations/api-docs/file-explorer/file-explorer/file-explorer.json
+--- a/docs/translations/api-docs/file-explorer/file-explorer/file-explorer.json	
++++ b/docs/translations/api-docs/file-explorer/file-explorer/file-explorer.json	(date 1733736235665)
+@@ -31,7 +31,7 @@
+       "description": "Used to determine the id of a given item.",
+       "typeDescriptions": { "item": "The item to check.", "string": "The id of the item." }
+     },
+-    "getItemLabel": {
++    "getItemName": {
+       "description": "Used to determine the string label for a given item.",
+       "typeDescriptions": { "item": "The item to check.", "string": "The label of the item." }
+     },

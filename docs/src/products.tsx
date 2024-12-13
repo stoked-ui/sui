@@ -29,6 +29,7 @@ import AdvancedShowcase from "./components/home/AdvancedShowcase";
 import FileExplorerShowcase from './components/home/FileExplorerShowcase';
 import TimelineShowcase from "./components/home/TimelineShowcase";
 import EditorShowcase from './components/home/EditorShowcase';
+import NoSsr from "@mui/material/NoSsr";
 
 type RouteType = 'product' | 'doc';
 const routeTypes: RouteType[] = ['product', 'doc'];
@@ -654,7 +655,7 @@ class Products extends IndexObject<Product> {
   }
 
   public previews() {
-    return <ProductsPreviews products={this} />;
+    return <NoSsr><ProductsPreviews products={this} /></NoSsr>;
   }
 
   public switcher(props: ProductStackProps) {

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import useForkRef from '@mui/utils/useForkRef';
 import {EventHandlers} from '@mui/base/utils';
-import useIncId from '@stoked-ui/media-selector/useIncId';
+import useIncId, {namedId} from '@stoked-ui/common';
 import {
   ConvertSignaturesIntoPlugins,
   EditorAnyPluginSignature,
@@ -18,6 +18,7 @@ import {EditorContextValue, VideoPluginsRunner} from '../EditorProvider';
 import {EditorCorePluginSignatures, VIDEO_EDITOR_CORE_PLUGINS} from '../corePlugins';
 import {extractPluginParamsFromProps} from './extractPluginParamsFromProps';
 import Controllers from "../../Controllers";
+import {EditorPropsBase} from "../../Editor";
 
 export function useEditorApiInitialization<T>(
   inputApiRef: React.MutableRefObject<T | undefined> | undefined,
@@ -36,7 +37,7 @@ export function useEditorApiInitialization<T>(
 
 export const useEditor = <
   TSignatures extends readonly EditorAnyPluginSignature[],
-  TProps extends Partial<UseEditorBaseProps<TSignatures> & { id: string | undefined }>,
+  TProps extends Partial<UseEditorBaseProps<TSignatures> & { id: string | undefined } & EditorPropsBase>,
 >({
     plugins: inPlugins,
     rootRef,
@@ -44,9 +45,7 @@ export const useEditor = <
   }: UseEditorParameters<TSignatures, TProps>): UseEditorReturnValue<TSignatures> => {
   type TSignaturesWithCorePluginSignatures = readonly [...EditorCorePluginSignatures, ...TSignatures,];
   const plugins = [...VIDEO_EDITOR_CORE_PLUGINS, ...inPlugins,] as unknown as ConvertSignaturesIntoPlugins<TSignaturesWithCorePluginSignatures>;
-
-  const getActionId = useIncId('action');
-
+  const getActionId = () => namedId('action');
   const {
     pluginParams,
     forwardedProps,
@@ -57,8 +56,8 @@ export const useEditor = <
   } = extractPluginParamsFromProps<TSignatures, TProps>({
     plugins, props, idFunc: getActionId
   });
-  const getEditorId = useIncId('editor');
-  const id = props.id ?? getEditorId();
+  const getEditorId = namedId('editor');
+  const id = props.id ?? getActionId();
   const models = useEditorModels<TSignatures>(plugins, pluginParams);
   const instanceRef = React.useRef({} as EditorInstance<TSignatures>);
   const instance = instanceRef.current as EditorInstance<TSignatures>;
@@ -78,7 +77,7 @@ export const useEditor = <
       });
       return temp;
     } catch (ex) {
-      console.log('ex', ex)
+      console.error('ex', ex)
       throw ex;
     }
 
@@ -160,7 +159,9 @@ export const useEditor = <
   ) => {
     const rootProps: UseEditorRootSlotProps = {
       role: 'editor',
-      ...forwardedProps,
+      ...{
+        ...forwardedProps
+      },
       ...otherHandlers,
       ref: handleRootRef,
     };
@@ -190,15 +191,18 @@ export const useEditor = <
       ...otherHandlers,
     };
   };
-
+  const timelineRef = React.useRef<HTMLDivElement>(null);
   const getTimelineProps = <TOther extends EventHandlers = {}>(
     otherHandlers: TOther = {} as TOther,
   ) => {
+
     return {
       ...forwardedProps,
       ...otherHandlers,
       tracks: contextValue.tracks ?? [],
-      controllers: Controllers
+      controllers: Controllers,
+      ref: timelineRef,
+      sx: props.timelineSx,
     };
   };
 

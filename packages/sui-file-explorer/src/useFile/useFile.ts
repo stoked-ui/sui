@@ -36,16 +36,16 @@ export const useFile = <
   } = useFileExplorerContext<TSignatures, TOptionalSignatures>();
   const depthContext = React.useContext(FileDepthContext);
 
-  const { id, itemId, name, children, rootRef } = parameters;
-  const itemMeta = instance.getItemMeta(itemId!);
-  const initialStatus = instance.getItemStatus(itemId!, children)
+  const { id, name, children, rootRef } = parameters;
+  const itemMeta = instance.getItemMeta(id!);
+  const initialStatus = instance.getItemStatus(id!, children)
   const { rootRef: pluginRootRef, contentRef, status: pluginStatus } = runItemPlugins({...itemMeta, ...parameters, instance, status: initialStatus });
-  const { interactions, status } = useFileUtils({ itemId: itemId!, children, status: pluginStatus });
-  const idAttribute = instance.getFileIdAttribute(itemId!, id);
+  const { interactions, status } = useFileUtils({ id: id!, children, status: pluginStatus });
+  const idAttribute = instance.getFileIdAttribute(id!);
   const handleRootRef = useForkRef(rootRef, pluginRootRef)!;
   const checkboxRef = React.useRef<HTMLButtonElement>(null);
 
-  const depth = typeof depthContext === 'function' ? depthContext(itemId!) : depthContext;
+  const depth = typeof depthContext === 'function' ? depthContext(id!) : depthContext;
 
   const createRootHandleFocus =
     (otherHandlers: EventHandlers) =>
@@ -57,7 +57,7 @@ export const useFile = <
 
       const canBeFocused = !status.disabled || disabledItemsFocusable;
       if (!status.focused && canBeFocused && event.currentTarget === event.target) {
-        instance.focusItem(event, itemId!);
+        instance.focusItem(event, id!);
       }
     };
 
@@ -80,7 +80,7 @@ export const useFile = <
         return;
       }
 
-      instance.handleItemKeyDown(event, itemId!);
+      instance.handleItemKeyDown(event, id!);
     };
 
   const createContentHandleClick =
@@ -163,7 +163,7 @@ export const useFile = <
       ...externalEventHandlers,
       ref: handleRootRef,
       role: 'fileexploreritem',
-      tabIndex: instance.canItemBeTabbed(itemId!) ? 0 : -1,
+      tabIndex: instance.canItemBeTabbed(id!) ? 0 : -1,
       id: idAttribute,
       'aria-expanded': status.expandable ? status.expanded : undefined,
       'aria-selected': ariaSelected,

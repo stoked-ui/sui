@@ -1,5 +1,5 @@
 {
-  "name": "@stoked-ui/monorepo",
+  "name": "@stoked-ui/sui",
   "version": "0.1.0-alpha.5",
   "private": true,
   "scripts": {
@@ -47,6 +47,7 @@
     "docs:deploy": "pnpm --filter stokedui-com run deploy",
     "docs:release": "pnpm --filter stokedui-com run deploy:release",
     "docs:dev": "pnpm --filter stokedui-com dev",
+    "caladan": "pnpm --filter stokedui-com caladan",
     "docs:debug": "pnpm --filter stokedui-com debug",
     "docs:icons": "pnpm --filter stokedui-com icons",
     "docs:size-why": "cross-env DOCS_STATS_ENABLED=true pnpm docs:build",
@@ -74,7 +75,7 @@
     "prettier:all": "prettier --write . --ignore-path .eslintignore",
     "size:snapshot": "node --max-old-space-size=4096 ./scripts/sizeSnapshot/create",
     "size:why": "pnpm size:snapshot --analyze",
-    "start": "pnpm docs:dev",
+    "start": "pnpm docs:debug",
     "test": "node scripts/test.mjs",
     "tc": "node test/cli.js",
     "test:extended": "pnpm eslint && pnpm typescript && pnpm test:coverage",
@@ -107,11 +108,13 @@
   },
   "dependencies": {
     "@googleapis/sheets": "^5.0.5",
+    "@hookform/error-message": "^2.0.1",
     "@netlify/functions": "^2.6.0",
     "@slack/bolt": "^3.17.1",
     "@types/wicg-file-system-access": "^2023.10.5",
     "execa": "^8.0.1",
-    "google-auth-library": "^9.7.0"
+    "google-auth-library": "^9.7.0",
+    "playwright": "1.49"
   },
   "devDependencies": {
     "@argos-ci/core": "^1.5.5",
@@ -141,6 +144,7 @@
     "@octokit/rest": "^20.0.2",
     "@pigment-css/react": "^0.0.3",
     "@playwright/test": "1.42.1",
+    "@stoked-ui/common": "workspace:^",
     "@stoked-ui/docs-markdown": "workspace:^",
     "@stoked-ui/docs-utils": "workspace:^",
     "@stoked-ui/editor": "workspace:^",
@@ -150,6 +154,8 @@
     "@stoked-ui/media-selector": "workspace:^",
     "@stoked-ui/proptypes": "workspace:^",
     "@stoked-ui/timeline": "workspace:^",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.0.0",
     "@types/autosuggest-highlight": "^3.2.3",
     "@types/enzyme": "^3.10.18",
     "@types/fs-extra": "^11.0.4",

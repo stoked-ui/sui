@@ -1,26 +1,26 @@
 import {
   TimelineFile,
-  OutputBlob,
   ITimelineFile,
   ITimelineFileProps,
-  Controller,
-  FileTypeMeta, WebFile, IWebFileProps,
-  ProjectOutputFile, IProjectOutputFileProps, Constructor, saveFileHack, saveFileApi, LocalDb
+  ITimelineFileData,
+  ITimelineTrackData,
 } from '@stoked-ui/timeline';
-import { getFileName, getMimeType, IMediaFile } from '@stoked-ui/media-selector';
-import Controllers from '../Controllers/Controllers';
+import {Constructor } from '@stoked-ui/common';
+
+import {
+  IMediaFile, AppOutputFile, AppFile,
+} from '@stoked-ui/media-selector';
 import {
   BlendMode, Fit,
   IEditorAction,
   IEditorFileAction,
-  initEditorAction
 } from "../EditorAction/EditorAction";
-import { IEditorEngine, IEditorTrack } from "../EditorEngine";
-import { IEditorFileTrack } from "../EditorTrack/EditorTrack";
+import { IEditorFileTrack, IEditorTrack } from "../EditorTrack/EditorTrack";
 
 export const editorFileCache: Record<string, any> = {};
 
-export interface IEditorFileProps<FileTrackType extends IEditorFileTrack = IEditorFileTrack> extends ITimelineFileProps<FileTrackType> {
+export interface IEditorFileProps<FileTrackType extends IEditorFileTrack = IEditorFileTrack>
+  extends ITimelineFileProps<FileTrackType> {
   blendMode?: BlendMode;
   fit?: Fit;
   width?: number;
@@ -30,7 +30,8 @@ export interface IEditorFileProps<FileTrackType extends IEditorFileTrack = IEdit
 
 export interface IEditorFile<
   TrackType extends IEditorTrack = IEditorTrack,
->  extends ITimelineFile< TrackType> {
+  FileDataType extends IEditorFileData = IEditorFileData
+>  extends ITimelineFile< TrackType, FileDataType> {
   image?: string;
   backgroundColor?: string;
   width: number;
@@ -40,80 +41,41 @@ export interface IEditorFile<
   fit: Fit;
 }
 
-export class SUVideoUrlRefMime extends FileTypeMeta {
-  description: string = 'Stoked UI - Timeline Video File';
+export class SUVideoFile extends AppOutputFile {
 
-  ext: `.${string}` = '.suvr'
-
-  name: string = 'editor-video-refs'
 }
 
-export class SUVideoUrlRefFile extends ProjectOutputFile<SUVideoUrlRefMime>  {
-  file: IMediaFile;
-
-  sourceId: string;
-
-  constructor(props: IProjectOutputFileProps) {
-    super(props);
-    this.file = props.file;
-    this.sourceId = props.sourceId;
-  }
+export type IEditorTrackData<TrackType extends IEditorTrack = IEditorTrack> = ITimelineTrackData<TrackType> & {
+  blendMode?: BlendMode;
+  fit?: Fit;
+  actions: IEditorAction[];
 }
 
-export class SUVideoMime extends FileTypeMeta {
-  description: string = 'Stoked UI - Editor Video File';
-
-  ext: `.${string}` = '.suv'
-
-  name: string = 'editor-video'
+export interface IEditorFileData<TrackDataType extends IEditorTrackData = IEditorTrackData> extends ITimelineFileData<TrackDataType> {
+  blendMode?: BlendMode;
+  fit?: Fit;
+  width?: number;
+  height?: number;
+  backgroundColor?: string;
+  tracks: TrackDataType[];
 }
-
-export class SUVideoFile extends ProjectOutputFile<SUVideoMime> {
-  file: IMediaFile;
-
-  sourceId: string;
-
-  constructor(props: IProjectOutputFileProps) {
-    super(props);
-    this.file = props.file;
-    this.sourceId = props.sourceId;
-  }
-}
-
-export class SUAudioFileMeta extends FileTypeMeta {
-  description: string = 'Stoked UI - Timeline Audio File';
-
-  ext: `.${string}` = '.suea'
-
-  name: string = 'editor-audio'
-}
-
-export class EditorFileType extends FileTypeMeta {
-
-  description: string = 'Stoked UI - Editor Project File';
-
-  ext: `.${string}` = '.sue'
-
-  name: string = 'editor'
-}
-
-TimelineFile.globalControllers = Controllers;
 
 export default class EditorFile<
-  MimeType extends FileTypeMeta = EditorFileType,
-  OutputMimeType extends FileTypeMeta = SUVideoMime,
-  FileActionType extends IEditorFileAction = IEditorFileAction,
-  ActionType extends IEditorAction = IEditorAction,
   FileTrackType extends IEditorFileTrack = IEditorFileTrack,
   TrackType extends IEditorTrack = IEditorTrack,
-  EngineType extends IEditorEngine = IEditorEngine,
+  FileActionType extends IEditorFileAction = IEditorFileAction,
+  ActionType extends IEditorAction = IEditorAction,
+  FileDataType extends IEditorFileData = IEditorFileData,
 > extends TimelineFile<
-  MimeType, OutputMimeType, FileTrackType, TrackType
+  FileTrackType,
+  TrackType,
+  FileActionType,
+  ActionType,
+  FileDataType
 > implements IEditorFile<
-  TrackType
+  TrackType,
+  FileDataType
 > {
-
-  protected _tracks?: TrackType[];
 
   blendMode: BlendMode;
 
@@ -128,17 +90,20 @@ export default class EditorFile<
   protected _version: number = 0;
 
   constructor(props: IEditorFileProps<FileTrackType>) {
-    editorFileCache[props.id as string] = JSON.stringify(props);
+    // editorFileCache[props.id as string] = JSON.stringify(props);
     super(props);
 
     this.backgroundColor = props.backgroundColor ?? 'transparent';
     this.width = props.width ?? 1920;
     this.height = props.height ?? 1080;
-
-    props.tracks?.forEach((track) => {
+    this._type = 'application/stoked-ui-editor-project';
+    let baseIndex = 0;
+    this._tracks?.forEach((track, trackIndex) => {
+      baseIndex = trackIndex;
       track.blendMode = track.blendMode ?? 'normal';
       track.fit = track.fit ?? 'none';
-      track.actions?.forEach((action) => {
+      track.actions?.forEach((action, actionIndex) => {
+        action.z = baseIndex;
         action.blendMode = action.blendMode ?? 'normal';
         action.fit = action.fit ?? 'none';
       });
@@ -147,87 +112,44 @@ export default class EditorFile<
     this.blendMode = props.blendMode ?? 'normal';
 
     this.fit = props.fit ?? 'none';
-    const FileTypeConstructor = EditorFileType as unknown as Constructor<MimeType>;
-    this.fileMeta = new FileTypeConstructor();
-
-    const OutputFileTypeConstructor = SUVideoMime as unknown as Constructor<OutputMimeType>;
-    this.outputFileMeta = new OutputFileTypeConstructor();
   }
 
+  get data(): FileDataType {
+    const timelineTracks = super.data.tracks;
+    const editorTracks = (timelineTracks.map((trackData) => {
+      return {
+        ...trackData,
+        blendMode: trackData.blendMode ?? 'normal',
+        fit: trackData.fit ?? 'normal',
+        actions: trackData.actions.map((actionData) => {
+          return {
+            ...actionData,
+            blendMode: actionData.blendMode ?? 'normal',
+            fit: actionData.fit ?? 'normal',
+          }
+        })
+      }
+    }) || []) as IEditorTrackData[];
 
-  get fileProps() {
     return {
-      ...super.fileProps,
-
+      ...super.data,
       backgroundColor: this.backgroundColor,
       width: 1920,
       height: 1080,
-      version: this.version,
-      initialized: false,
-      tracks: this.tracks.map((track) => {
-        const { file, controller, ...trackJson } = track;
-        return {
-          ...trackJson,
-          url: file?._url,
-          controllerName: file?.mediaType,
-        }
-      }),
-    };
+      blendMode: this.blendMode,
+      tracks: editorTracks as IEditorTrackData[],
+    } as FileDataType;
   }
 
 
-  async save(silent: boolean = false, embedded: boolean = true): Promise<void> {
-    await this.initialize();
-
-    const isDirty = await this.isDirty()
-    if (!isDirty) {
-      return;
-    }
-    const fileBlob = await LocalDb.saveFile(this);
-
-    if (!silent) {
-      const saveOptions = this.getSaveApiOptions({ });
-      const options = { ...saveOptions, fileBlob };
-      if ('showSaveFilePicker' in window) {
-        await saveFileApi(options);
-      } else {
-        await saveFileHack(options);
-      }
-    }
-    this._version += 1;
+  static async fromUrl<AppFileType = EditorFile>(url: string, FileConstructor: Constructor<AppFileType> = EditorFile as unknown as Constructor<AppFileType>): Promise<AppFileType> {
+    const file= await AppFile.fromUrl<AppFileType>(url, FileConstructor) as ITimelineFile;
+    await file.loadUrls();
+    return file as AppFileType;
   }
-
-/*
-
-  static async SaveAs<FileType extends TimelineFile = EditorFile>(file: FileType) {
-    return TimelineFile.SaveAs<FileType>(file);
-  }
-
-  static async fromFile<FileType = EditorFile>(file: File): Promise<FileType> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.addEventListener(
-        "load",
-        () => {
-          // this will then display a text file
-          const jsonFile = JSON.parse(reader.result as string);
-          const addedProjectFile = new EditorFile(jsonFile);
-          addedProjectFile.initialize(initEditorAction).then((loadedFile) => {
-            resolve(addedProjectFile as FileType);
-          })
-        },
-        false,
-      );
-      reader.readAsText(file);
-
-    });
-  }
-*/
-
-  static globalControllers: Record<string, Controller> = Controllers;
-
 
   static fileCache: Record<string, EditorFile> = {};
 }
 
 
+0

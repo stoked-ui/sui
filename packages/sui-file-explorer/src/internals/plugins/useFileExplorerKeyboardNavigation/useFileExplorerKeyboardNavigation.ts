@@ -31,7 +31,7 @@ export const useFileExplorerKeyboardNavigation: FileExplorerPlugin<
       return;
     }
 
-    const newFirstCharMap: { [itemId: string]: string } = {};
+    const newFirstCharMap: { [id: string]: string } = {};
 
     const processItem = (item: FileMeta) => {
       newFirstCharMap[item.id] = item.name!.substring(0, 1).toLowerCase();
@@ -41,7 +41,7 @@ export const useFileExplorerKeyboardNavigation: FileExplorerPlugin<
     firstCharMap.current = newFirstCharMap;
   }, [state.items.itemMetaMap, params.getItemId, instance]);
 
-  const getFirstMatchingItem = (itemId: string, query: string) => {
+  const getFirstMatchingItem = (id: string, query: string) => {
     const cleanQuery = query.toLowerCase();
 
     const getNextItem = (itemIdToCheck: string) => {
@@ -55,7 +55,7 @@ export const useFileExplorerKeyboardNavigation: FileExplorerPlugin<
     };
 
     let matchingItemId: string | null = null;
-    let currentItemId: string = getNextItem(itemId);
+    let currentItemId: string = getNextItem(id);
     const checkedItems: Record<string, true> = {};
     // The "!checkedItems[currentItemId]" condition avoids an infinite loop when there is no matching item.
     while (matchingItemId == null && !checkedItems[currentItemId]) {
@@ -70,17 +70,17 @@ export const useFileExplorerKeyboardNavigation: FileExplorerPlugin<
     return matchingItemId;
   };
 
-  const canToggleItemSelection = (itemId: string) =>
-    !params.disableSelection && !instance.isItemDisabled(itemId);
+  const canToggleItemSelection = (id: string) =>
+    !params.disableSelection && !instance.isItemDisabled(id);
 
-  const canToggleItemExpansion = (itemId: string) => {
-    return !instance.isItemDisabled(itemId) && instance.isItemExpandable(itemId);
+  const canToggleItemExpansion = (id: string) => {
+    return !instance.isItemDisabled(id) && instance.isItemExpandable(id);
   };
 
   // ARIA specification: https://www.w3.org/WAI/ARIA/apg/patterns/fileExplorerview/#keyboardinteraction
   const handleItemKeyDown = (
     event: React.KeyboardEvent<HTMLElement> & MuiCancellableEvent,
-    itemId: string,
+    id: string,
   ) => {
     if (event.defaultMuiPrevented) {
       return;
@@ -99,14 +99,14 @@ export const useFileExplorerKeyboardNavigation: FileExplorerPlugin<
     // eslint-disable-next-line default-case
     switch (true) {
       // Select the item when pressing "Space"
-      case key === ' ' && canToggleItemSelection(itemId): {
+      case key === ' ' && canToggleItemSelection(id): {
         event.preventDefault();
         if (params.multiSelect && event.shiftKey) {
-          instance.expandSelectionRange(event, itemId);
+          instance.expandSelectionRange(event, id);
         } else if (params.multiSelect) {
-          instance.selectItem(event, itemId, true);
+          instance.selectItem({event, id, keepExistingSelection: true});
         } else {
-          instance.selectItem(event, itemId, false);
+          instance.selectItem({event, id, keepExistingSelection: false});
         }
         break;
       }
@@ -114,15 +114,15 @@ export const useFileExplorerKeyboardNavigation: FileExplorerPlugin<
       // If the focused item has children, we expand it.
       // If the focused item has no children, we select it.
       case key === 'Enter': {
-        if (canToggleItemExpansion(itemId)) {
-          instance.toggleItemExpansion(event, itemId);
+        if (canToggleItemExpansion(id)) {
+          instance.toggleItemExpansion(event, id);
           event.preventDefault();
-        } else if (canToggleItemSelection(itemId)) {
+        } else if (canToggleItemSelection(id)) {
           if (params.multiSelect) {
             event.preventDefault();
-            instance.selectItem(event, itemId, true);
-          } else if (!instance.isItemSelected(itemId)) {
-            instance.selectItem(event, itemId, false);
+            instance.selectItem({event, id, keepExistingSelection: true});
+          } else if (!instance.isItemSelected(id)) {
+            instance.selectItem({event, id, keepExistingSelection: false});
             event.preventDefault();
           }
         }
@@ -132,7 +132,7 @@ export const useFileExplorerKeyboardNavigation: FileExplorerPlugin<
 
       // Focus the next focusable item
       case key === 'ArrowDown': {
-        const nextItem = getNextNavigableItem(instance, itemId);
+        const nextItem = getNextNavigableItem(instance, id);
         if (nextItem) {
           event.preventDefault();
           instance.focusItem(event, nextItem);
@@ -140,7 +140,7 @@ export const useFileExplorerKeyboardNavigation: FileExplorerPlugin<
           // Multi select behavior when pressing Shift + ArrowDown
           // Toggles the selection state of the next item
           if (params.multiSelect && event.shiftKey && canToggleItemSelection(nextItem)) {
-            instance.selectItemFromArrowNavigation(event, itemId, nextItem);
+            instance.selectItemFromArrowNavigation(event, id, nextItem);
           }
         }
 
@@ -149,7 +149,7 @@ export const useFileExplorerKeyboardNavigation: FileExplorerPlugin<
 
       // Focuses the previous focusable item
       case key === 'ArrowUp': {
-        const previousItem = getPreviousNavigableItem(instance, itemId);
+        const previousItem = getPreviousNavigableItem(instance, id);
         if (previousItem) {
           event.preventDefault();
           instance.focusItem(event, previousItem);
@@ -157,7 +157,7 @@ export const useFileExplorerKeyboardNavigation: FileExplorerPlugin<
           // Multi select behavior when pressing Shift + ArrowUp
           // Toggles the selection state of the previous item
           if (params.multiSelect && event.shiftKey && canToggleItemSelection(previousItem)) {
-            instance.selectItemFromArrowNavigation(event, itemId, previousItem);
+            instance.selectItemFromArrowNavigation(event, id, previousItem);
           }
         }
 
@@ -167,14 +167,14 @@ export const useFileExplorerKeyboardNavigation: FileExplorerPlugin<
       // If the focused item is expanded, we move the focus to its first child
       // If the focused item is collapsed and has children, we expand it
       case (key === 'ArrowRight' && !isRtl) || (key === 'ArrowLeft' && isRtl): {
-        if (instance.isItemExpanded(itemId)) {
-          const nextItemId = getNextNavigableItem(instance, itemId);
+        if (instance.isItemExpanded(id)) {
+          const nextItemId = getNextNavigableItem(instance, id);
           if (nextItemId) {
             instance.focusItem(event, nextItemId);
             event.preventDefault();
           }
-        } else if (canToggleItemExpansion(itemId)) {
-          instance.toggleItemExpansion(event, itemId);
+        } else if (canToggleItemExpansion(id)) {
+          instance.toggleItemExpansion(event, id);
           event.preventDefault();
         }
 
@@ -184,11 +184,11 @@ export const useFileExplorerKeyboardNavigation: FileExplorerPlugin<
       // If the focused item is expanded, we collapse it
       // If the focused item is collapsed and has a parent, we move the focus to this parent
       case (key === 'ArrowLeft' && !isRtl) || (key === 'ArrowRight' && isRtl): {
-        if (canToggleItemExpansion(itemId) && instance.isItemExpanded(itemId)) {
-          instance.toggleItemExpansion(event, itemId);
+        if (canToggleItemExpansion(id) && instance.isItemExpanded(id)) {
+          instance.toggleItemExpansion(event, id);
           event.preventDefault();
         } else {
-          const parent = instance.getItemMeta(itemId).parentId;
+          const parent = instance.getItemMeta(id).parentId;
           if (parent) {
             instance.focusItem(event, parent);
             event.preventDefault();
@@ -202,8 +202,8 @@ export const useFileExplorerKeyboardNavigation: FileExplorerPlugin<
       case key === 'Home': {
         // Multi select behavior when pressing Ctrl + Shift + Home
         // Selects the focused item and all items up to the first item.
-        if (canToggleItemSelection(itemId) && params.multiSelect && ctrlPressed && event.shiftKey) {
-          instance.selectRangeFromStartToItem(event, itemId);
+        if (canToggleItemSelection(id) && params.multiSelect && ctrlPressed && event.shiftKey) {
+          instance.selectRangeFromStartToItem(event, id);
         } else {
           instance.focusItem(event, getFirstNavigableItem(instance));
         }
@@ -216,8 +216,8 @@ export const useFileExplorerKeyboardNavigation: FileExplorerPlugin<
       case key === 'End': {
         // Multi select behavior when pressing Ctrl + Shirt + End
         // Selects the focused item and all the items down to the last item.
-        if (canToggleItemSelection(itemId) && params.multiSelect && ctrlPressed && event.shiftKey) {
-          instance.selectRangeFromItemToEnd(event, itemId);
+        if (canToggleItemSelection(id) && params.multiSelect && ctrlPressed && event.shiftKey) {
+          instance.selectRangeFromItemToEnd(event, id);
         } else {
           instance.focusItem(event, getLastNavigableItem(instance));
         }
@@ -228,7 +228,7 @@ export const useFileExplorerKeyboardNavigation: FileExplorerPlugin<
 
       // Expand all siblings that are at the same level as the focused item
       case key === '*': {
-        instance.expandAllSiblings(event, itemId);
+        instance.expandAllSiblings(event, id);
         event.preventDefault();
         break;
       }
@@ -244,7 +244,7 @@ export const useFileExplorerKeyboardNavigation: FileExplorerPlugin<
       // Type-ahead
       // TODO: Support typing multiple characters
       case !ctrlPressed && !event.shiftKey && isPrintableCharacter(key): {
-        const matchingItem = getFirstMatchingItem(itemId, key);
+        const matchingItem = getFirstMatchingItem(id, key);
         if (matchingItem != null) {
           instance.focusItem(event, matchingItem);
           event.preventDefault();

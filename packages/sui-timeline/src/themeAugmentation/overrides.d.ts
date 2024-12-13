@@ -1,6 +1,5 @@
 import {TimelineClassKey} from '../Timeline/timelineClasses';
 import {TimelineActionClassKey} from "../TimelineAction/timelineActionClasses";
-import {TimelineControlClassKey} from "../TimelineControl/timelineControlClasses";
 import {TimelineCursorClassKey} from "../TimelineCursor/timelineCursorClasses";
 import {TimelineLabelsClassKey} from "../TimelineLabels/timelineLabelsClasses";
 import {TimelinePlayerClassKey} from "../TimelinePlayer/timelinePlayerClasses";
@@ -13,7 +12,6 @@ import {TimelineTrackAreaClassKey} from "../TimelineTrackArea/timelineTrackAreaC
 export interface TimelineComponentNameToClassKey {
   MuiTimeline: TimelineClassKey;
   MuiTimelineAction: TimelineActionClassKey;
-  MuiTimelineControl: TimelineControlClassKey;
   MuiTimelineCursor: TimelineCursorClassKey;
   MuiTimelineLabels: TimelineLabelsClassKey;
   MuiTimelinePlayer: TimelinePlayerClassKey;

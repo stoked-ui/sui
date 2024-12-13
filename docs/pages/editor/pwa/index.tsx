@@ -1,8 +1,8 @@
 import * as React from 'react';
-import {EditorProvider} from "@stoked-ui/editor";
-import Editor, { Controllers } from "@stoked-ui/editor";
-import EditorExample from 'docs/src/components/showcase/EditorExample';
 import BrandingCssVarsProvider from 'docs/src/BrandingCssVarsProvider';
+import dynamic from "next/dynamic";
+
+const EditorComponent = dynamic(() => import('./EditorComponent'), {ssr: false });
 
 export default function Index() {
   React.useEffect(() => {
@@ -13,10 +13,7 @@ export default function Index() {
   }, [])
   return (
     <BrandingCssVarsProvider>
-      <EditorProvider id={'stoked-ui-editor-example'} controllers={Controllers}
-                             file={EditorExample}>
-        <Editor/>
-      </EditorProvider>
+      <EditorComponent />
     </BrandingCssVarsProvider>
   )
 }

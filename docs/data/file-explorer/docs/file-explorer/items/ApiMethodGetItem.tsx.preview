@@ -1,9 +1,9 @@
 <Typography sx={{ minWidth: 300 }}>
-  Selected item: {selectedItem == null ? 'none' : selectedItem.label}
+  Selected item: {selectedItem == null ? 'none' : selectedItem.name}
 </Typography>
 <Box sx={{ minHeight: 352, minWidth: 250 }}>
   <FileExplorer
-    items={MUI_X_PRODUCTS}
+    items={MUI_X_PRODUCTS as FileBase[]}
     apiRef={apiRef}
     selectedItems={selectedItem?.id ?? null}
     onSelectedItemsChange={handleSelectedItemsChange}

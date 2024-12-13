@@ -1,9 +1,9 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
-import { FileBase } from '@stoked-ui/file-explorer/models';
+import { FileBase, FileBaseInput } from '@stoked-ui/file-explorer/models';
 import { FileExplorer } from '@stoked-ui/file-explorer/FileExplorer';
 
-type MuiXProduct = FileBase<{
+type MuiXProduct = FileBaseInput<{
   id: string;
   name: string;
 }>;
@@ -43,7 +43,7 @@ const getItemLabel = (item: MuiXProduct) => item.name;
 export default function GetItemLabel() {
   return (
     <Box sx={{ minHeight: 352, minWidth: 250 }}>
-      <FileExplorer items={MUI_X_PRODUCTS} getItemLabel={getItemLabel} />
+      <FileExplorer items={MUI_X_PRODUCTS as FileBase[]} getItemLabel={getItemLabel} />
     </Box>
   );
 }

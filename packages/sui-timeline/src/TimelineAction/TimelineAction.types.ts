@@ -2,14 +2,11 @@ import * as React from 'react';
 import {SxProps, Theme} from "@mui/material/styles";
 import {SlotComponentProps} from "@mui/material";
 import {CSSProperties} from "@mui/system/CSSProperties";
-import { namedId } from "@stoked-ui/media-selector";
+import { namedId} from '@stoked-ui/common';
 import {TimelineActionClasses} from "./timelineActionClasses";
 import {DragLineData} from "../TimelineTrackArea/TimelineTrackAreaDragLines";
-import {CommonProps} from '../interface/common_prop';
 import {type ITimelineTrack } from "../TimelineTrack/TimelineTrack.types";
-import { GetBackgroundImage, IController } from '../Controller/Controller.types';
 import Controller from "../Controller/Controller";
-import { IEngine } from '../Engine/Engine.types';
 
 export interface TimelineActionState {
   /** Whether the action is selected */
@@ -19,9 +16,9 @@ export interface TimelineActionState {
   /** Whether the action is movable */
   movable?: boolean;
   /** Whether the action is prohibited from running */
-  disable?: boolean;
+  disabled?: boolean;
   /** Whether the action is hidden from timeline */
-  hidden?: boolean;
+  muted?: boolean;
   /** Whether the action is locked on the timeline */
   locked?: boolean;
 }
@@ -90,6 +87,10 @@ export interface ITimelineAction
   playCount?: number;
 
   volumeIndex?: number;
+
+  disabled?: boolean;
+
+  dim?: boolean;
 }
 
 function setVolumeIndex(action: ITimelineFileAction) {
@@ -100,10 +101,10 @@ function setVolumeIndex(action: ITimelineFileAction) {
     const { volume } = Controller.getVol(action.volume![i]);
 
     if (volume < 0 || volume > 1) {
-      console.info(`${action.name} [${action.url}] - specifies a volume of ${volume} which is outside the standard range: 0.0 - 1.0`)
+      console.info(`${action.name} - specifies a volume of ${volume} which is outside the standard range: 0.0 - 1.0`)
     }
   }
-  return -1; // -1: volume part unassigned => volume 1 until assigned
+  return -1;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -118,6 +119,18 @@ export const initTimelineAction = (fileAction: ITimelineFileAction, trackIndex: 
   return newAction;
 }
 
+export function getActionFileTimespan<ActionType extends ITimelineAction = ITimelineAction>(action: ActionType) {
+  return {
+    start: action.trimStart || 0,
+    end: (action.trimStart || 0) + (action.end - action.start) - (action?.trimEnd || 0),
+  }
+}
+
+export function createAction<ActionType extends ITimelineAction = ITimelineAction>(props: Partial<ActionType>): ActionType {
+  return {
+    ...props,
+  } as ActionType;
+}
 
 export interface TimelineActionSlots {
   /**
@@ -137,13 +150,88 @@ export interface TimelineActionSlotProps {
   right?: SlotComponentProps<'div', {}, {}>;
 }
 
-export interface TimelineActionProps<
-  ActionType extends ITimelineAction = ITimelineAction,
+export interface ITimelineActionHandlers<
   TrackType extends ITimelineTrack = ITimelineTrack,
+  ActionType extends ITimelineAction = ITimelineAction,
+> {
+  /**
+   * @description Start moving callback
+   */
+  onActionMoveStart?: (params: { action: ActionType; track: TrackType }) => void;
+  /**
+   * @description Move callback (return false to prevent movement)
+   */
+  onActionMoving?: (params: { action: ActionType; track: TrackType; start: number; end: number }) => void | boolean;
+  /**
+   * @description Move end callback (return false to prevent onChange from triggering)
+   */
+  onActionMoveEnd?: (params: { action: ActionType; track: TrackType; start: number; end: number }) => void;
+  /**
+   * @description Start changing the size callback
+   */
+  onActionResizeStart?: (params: { action: ActionType; track: TrackType; dir: 'right' | 'left' }) => void;
+  /**
+   * @description Start size callback (return false to prevent changes)
+   */
+  onActionResizing?: (params: { action: ActionType; track: TrackType; start: number; end: number; dir: 'right' | 'left' }) => void | boolean;
+  /**
+   * @description size change end callback (return false to prevent onChange from triggering)
+   */
+  onActionResizeEnd?: (params: { action: ActionType; track: TrackType; start: number; end: number; dir: 'right' | 'left' }) => void;
+
+  /**
+   * @description Click track callback
+   */
+  onClickAction?: (
+    e: React.MouseEvent<HTMLElement, MouseEvent>,
+    param: {
+      track: TrackType;
+      action: ActionType;
+      time: number;
+    },
+  ) => void;
+  /**
+   * @description Click track callback
+   */
+  onClickActionOnly?: (
+    e: React.MouseEvent<HTMLElement, MouseEvent>,
+    param: {
+      track: TrackType;
+      action: ActionType;
+      time: number;
+    },
+  ) => void;
+  /**
+   * @description Double-click track callback
+   */
+  onDoubleClickAction?: (
+    e: React.MouseEvent<HTMLElement, MouseEvent>,
+    param: {
+      track: TrackType;
+      action: ActionType;
+      time: number;
+    },
+  ) => void;
+  /**
+   * @description Right-click track callback
+   */
+  onContextMenuAction?: (
+    e: React.MouseEvent<HTMLElement, MouseEvent>,
+    param: {
+      track: TrackType;
+      action: ActionType;
+      time: number;
+    },
+  ) => void;
+}
+
+export interface TimelineActionProps<
+  TrackType extends ITimelineTrack = ITimelineTrack,
+  ActionType extends ITimelineAction = ITimelineAction,
 >
   extends TimelineActionState,
-    CommonProps,
-    Omit<React.HTMLAttributes<HTMLUListElement>, 'id' | 'onScroll'> {
+    Omit<React.HTMLAttributes<HTMLUListElement>, 'id' | 'onScroll'>,
+    ITimelineActionHandlers<TrackType, ActionType> {
   /**
    * The content of the component.
    */
@@ -174,6 +262,7 @@ export interface TimelineActionProps<
   areaRef?: React.MutableRefObject<HTMLDivElement>;
   /* setUp scroll left */
   deltaScrollLeft?: (delta: number) => void;
+
 }
 
 export interface BackgroundImageStyle {

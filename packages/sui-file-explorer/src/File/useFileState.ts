@@ -30,30 +30,30 @@ type UseFileStateMinimalPlugins = readonly [
 
 type UseFileStateOptionalPlugins = readonly [];
 
-export function useFileState(itemId: string) {
+export function useFileState(id: string) {
   const {
     instance,
     selection: { multiSelect, checkboxSelection, disableSelection },
     expansion: { expansionTrigger },
   } = useFileExplorerContext<UseFileStateMinimalPlugins, UseFileStateOptionalPlugins>();
 
-  const expandable = instance.isItemExpandable(itemId);
-  const expanded = instance.isItemExpanded(itemId);
-  const focused = instance.isItemFocused(itemId);
-  const selected = instance.isItemSelected(itemId);
-  const disabled = instance.isItemDisabled(itemId);
-  const visibleIndex = instance.getVisibleIndex(itemId);
+  const expandable = instance.isItemExpandable(id);
+  const expanded = instance.isItemExpanded(id);
+  const focused = instance.isItemFocused(id);
+  const selected = instance.isItemSelected(id);
+  const disabled = instance.isItemDisabled(id);
+  const visibleIndex = instance.getVisibleIndex(id);
   const handleExpansion = (event: React.MouseEvent<HTMLDivElement>) => {
     if (!disabled) {
       if (!focused) {
-        instance.focusItem(event, itemId);
+        instance.focusItem(event, id);
       }
 
       const multiple = multiSelect && (event.shiftKey || event.ctrlKey || event.metaKey);
 
       // If already expanded and trying to toggle selection don't close
-      if (expandable && !(multiple && instance.isItemExpanded(itemId))) {
-        instance.toggleItemExpansion(event, itemId);
+      if (expandable && !(multiple && instance.isItemExpanded(id))) {
+        instance.toggleItemExpansion(event, id);
       }
     }
   };
@@ -61,19 +61,19 @@ export function useFileState(itemId: string) {
   const handleSelection = (event: React.MouseEvent) => {
     if (!disabled) {
       if (!focused) {
-        instance.focusItem(event, itemId);
+        instance.focusItem(event, id);
       }
 
       const multiple = multiSelect && (event.shiftKey || event.ctrlKey || event.metaKey);
 
       if (multiple) {
         if (event.shiftKey) {
-          instance.expandSelectionRange(event, itemId);
+          instance.expandSelectionRange(event, id);
         } else {
-          instance.selectItem(event, itemId, true);
+          instance.selectItem({event, id, keepExistingSelection: true});
         }
       } else {
-        instance.selectItem(event, itemId, false);
+        instance.selectItem({event, id, keepExistingSelection: false});
       }
     }
   };
@@ -85,9 +85,9 @@ export function useFileState(itemId: string) {
 
     const hasShift = (event.nativeEvent as PointerEvent).shiftKey;
     if (multiSelect && hasShift) {
-      instance.expandSelectionRange(event, itemId);
+      instance.expandSelectionRange(event, id);
     } else {
-      instance.selectItem(event, itemId, multiSelect, event.target.checked);
+      instance.selectItem({event, id, keepExistingSelection: multiSelect, newValue: event.target.checked});
     }
   };
 

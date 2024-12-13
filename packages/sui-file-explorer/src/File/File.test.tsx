@@ -9,7 +9,7 @@ import {describeSlotsConformance} from 'test/utils/describeSlotsConformance';
 describe('<File />', () => {
   const { render } = createRenderer();
 
-  describeConformance(<File itemId="one" label="one" />, () => ({
+  describeConformance(<File id="one" label="one" />, () => ({
     classes,
     inheritComponent: 'li',
     render: (item) => {
@@ -28,7 +28,7 @@ describe('<File />', () => {
       <FileListContext.Provider
         value={getFakeContextValue({ checkboxSelection: slotName === 'checkbox' })}
       >
-        <File itemId="one" label="one" {...props} />
+        <File id="one" label="one" {...props} />
       </FileListContext.Provider>
     ),
     slots: {

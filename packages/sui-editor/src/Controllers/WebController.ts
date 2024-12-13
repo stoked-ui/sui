@@ -1,3 +1,4 @@
+/*
 import { Controller, ControllerParams, IEngine, ITimelineAction } from "@stoked-ui/timeline";
 import { IMediaFile } from "@stoked-ui/media-selector";
 import {IEditorEngine} from "../EditorEngine";
@@ -104,3 +105,4 @@ class ImageControl extends Controller {
 export { ImageControl };
 const ImageController = new ImageControl();
 export default ImageController;
+*/
