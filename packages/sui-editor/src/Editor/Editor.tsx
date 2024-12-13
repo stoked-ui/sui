@@ -63,6 +63,7 @@ const EditorRoot = styled('div', {
                                && prop !== 'viewButtonEnter'
                                && prop !== 'viewButtonExit'
                                && prop !== 'viewButtonAppear'
+                               && prop !== 'detailMode'
                                && prop !== 'fullscreen',
 
 })<{ fullscreen: boolean, fileView: boolean }>(({theme, fullscreen, fileView}) => {
@@ -129,7 +130,7 @@ const Editor = React.forwardRef(function Editor<R extends IMediaFile = IMediaFil
   const {
     file, flags, engine, getState, components, settings
   } = context;
-  const {fitScaleData} = settings;
+  const {fitScaleData, editorId } = settings;
 
   const {id: editorIdLocal, ...inProps} = inPropsId;
 
@@ -258,10 +259,7 @@ const Editor = React.forwardRef(function Editor<R extends IMediaFile = IMediaFil
 
   React.useEffect(() => {
     if (settings && !settings.editorMode) {
-      dispatch({
-        type: 'SET_SETTING',
-        payload: {key: 'editorMode', value: noFlagProps.mode ?? 'project'}
-      });
+      dispatch({ type: 'SET_SETTING', payload: {key: 'editorMode', value: noFlagProps.mode ?? 'project'}});
     }
   }, [noFlagProps.mode])
 
@@ -344,9 +342,11 @@ const Editor = React.forwardRef(function Editor<R extends IMediaFile = IMediaFil
     }
     if (!addFile) {
       addFile = new EditorFile({name: 'New Video Project', tracks: newTracks});
+      await addFile.preload(settings.editorId);
+
       dispatch({type: 'SET_FILE', payload: addFile as IEditorFile});
       dispatch({type: 'SET_SETTING', payload: {key: 'disabled', value: false}})
-      fitScaleData(context, components.timelineGrid)
+      fitScaleData(context, false,  components.timelineGrid)
     } else {
       const finalTracks = [...addFile.tracks, ...newTracks];
       dispatch({type: 'SET_TRACKS', payload: finalTracks as IEditorTrack[]});
@@ -366,32 +366,30 @@ const Editor = React.forwardRef(function Editor<R extends IMediaFile = IMediaFil
 
   const {...editorViewPropsNew} = editorViewProps;
   const {file: propsFile = null, fileUrl = '', actions} = noFlagProps;
+  const finalEditorId = editorIdLocal || namedId('editor');
   React.useEffect(() => {
-    if (settings && settings.editorId !== editorIdLocal) {
       dispatch({
         type: 'SET_SETTING',
         payload: {
           key: 'editorId',
-          value: editorIdLocal ?? namedId('editor')
+          value: finalEditorId
         }
       });
-    }
-
-  }, [settings?.editorId, editorIdLocal])
+    }, [])
 
   const [editorFile, setEditorFile] = React.useState<IEditorFile | null>(propsFile);
   React.useEffect(() => {
-    if (editorFile !== propsFile) {
+    if (editorFile !== propsFile && settings.editorId) {
       setEditorFile(propsFile);
-      editorFile?.preload().then(() => {
+      editorFile?.preload(settings.editorId).then(() => {
         console.info(`[${editorIdLocal}]`, '<Editor file::initialize() />', editorFile, editorFile.tracks.length);
         dispatch({type: 'SET_FILE', payload: editorFile});
       });
     }
   }, [propsFile])
   React.useEffect(() => {
-    if (editorFile) {
-      editorFile.preload().then(() => {
+    if (editorFile && settings.editorId) {
+      editorFile.preload(settings.editorId).then(() => {
         console.info(`[${editorIdLocal}]`, '<Editor file::initialize() />', editorFile, editorFile.tracks.length);
         dispatch({type: 'SET_FILE', payload: editorFile});
       });
@@ -407,7 +405,7 @@ const Editor = React.forwardRef(function Editor<R extends IMediaFile = IMediaFil
       setEditorFileUrl(fileUrl);
       EditorFile.fromUrl<EditorFile>(fileUrl, EditorFile)
       .then((urlFile) => {
-        urlFile.preload().then(() => {
+        urlFile.preload(settings.editorId).then(() => {
           dispatch({type: 'SET_FILE', payload: urlFile as IEditorFile})
         })
       })
@@ -457,12 +455,13 @@ const Editor = React.forwardRef(function Editor<R extends IMediaFile = IMediaFil
       role={'editor'}
       {...newRootProps}
       sx={[...(Array.isArray(sx) ? sx : [sx]),]}
-      id={editorIdLocal ?? settings.editorId ?? namedId('invalid-editor')}
+      id={finalEditorId}
       fileView={fileView}
     >
       <EditorViewSlot
         {...editorViewPropsNew}
         ref={viewerRef}
+        editorId={finalEditorId}
         viewButtons={inProps.viewButtons}
         viewButtonAppear={inProps.viewButtonAppear}
         viewButtonEnter={inProps.viewButtonEnter}

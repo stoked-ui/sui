@@ -1,6 +1,10 @@
-import { ShadowStage, ScreenshotQueue } from '@stoked-ui/media-selector';
+import { Stage, ScreenshotQueue } from '@stoked-ui/media-selector';
 import {
-  Controller, ControllerParams, ITimelineAction, ITimelineTrack, getActionFileTimespan
+  Controller,
+  ControllerParams,
+  ITimelineAction,
+  ITimelineTrack,
+  getActionFileTimespan, GetItemParams
 } from "@stoked-ui/timeline";
 import {EditorControllerParams, EditorPreloadParams} from "./EditorControllerParams";
 import {DrawData, IEditorEngine} from "../EditorEngine/EditorEngine.types";
@@ -22,6 +26,8 @@ class VideoControl extends Controller<HTMLVideoElement> {
 
   logging: boolean = false;
 
+  editorId: string = '';
+
   constructor() {
     super({
       id: 'video',
@@ -31,22 +37,27 @@ class VideoControl extends Controller<HTMLVideoElement> {
     });
   }
 
-  getItem: (params: EditorPreloadParams) => HTMLVideoElement = (params: EditorPreloadParams) => {
+  getItem: (params: GetItemParams) => HTMLVideoElement = (params: GetItemParams) => {
     const { track  } = params;
     let item = this.cacheMap[track.id];
     if (item) {
       return item;
     }
-    item = document.createElement('video') as HTMLVideoElement;
     const { file } = track;
     if (!file) {
       throw new Error('no file found for video controlled item');
     }
+    if (file.media.element) {
+      this.cacheMap[track.id] = file.media.element;
+      Stage.getStage(this.editorId).appendChild(file.media.element);
+      return file.media.element;
+    }
+    item = document.createElement('video');
     file.media.element = item;
     item.id = track.id;
     this.cacheMap[track.id] = item;
 
-    ShadowStage.getStage().appendChild(item);
+    Stage.getStage(this.editorId).appendChild(item);
     return item;
   }
 
@@ -57,8 +68,11 @@ class VideoControl extends Controller<HTMLVideoElement> {
 
   // eslint-disable-next-line class-methods-use-this
   async preload(params: EditorPreloadParams): Promise<ITimelineAction> {
-    const { action, track } = params;
+    const { action, track, editorId } = params;
     const { file } = track;
+    if (this.editorId === '') {
+      this.editorId = editorId;
+    }
     if (!file) {
       return action;
     }
@@ -154,24 +168,27 @@ class VideoControl extends Controller<HTMLVideoElement> {
         // renderCtx.canvas.width = engine.renderWidth;
         // renderCtx.canvas.height = engine.renderHeight;
       }
-
+      console.log('updateCanvas', now, item.currentTime);
       // this.log({ time: item.currentTime, action, engine, track }, 'drawImage');
       action.nextFrame = this.getDrawData({ action, engine, time: item.currentTime, track });
-
-      if ('requestVideoFrameCallback' in item) {
-        action.frameSyncId = item.requestVideoFrameCallback(updateCanvas);
-      } else {
-        action.frameSyncId = requestAnimationFrame(updateCanvas);
+      if (engine.isPlaying) {
+        if ('requestVideoFrameCallback' in item) {
+          action.frameSyncId = item.requestVideoFrameCallback(updateCanvas);
+        } else {
+          action.frameSyncId = requestAnimationFrame(updateCanvas);
+        }
       }
     };
 
     if (action.freeze !== undefined) {
       item.currentTime = action.freeze;
       action.nextFrame = this.getDrawData({ action, track, engine, time: item.currentTime });
-    } else if ('requestVideoFrameCallback' in item) {
-      action.frameSyncId = item.requestVideoFrameCallback(updateCanvas);
-    } else {
-      action.frameSyncId = requestAnimationFrame(updateCanvas);
+    } else if (engine.isPlaying) {
+      if ('requestVideoFrameCallback' in item) {
+        action.frameSyncId = item.requestVideoFrameCallback(updateCanvas);
+      } else {
+        action.frameSyncId = requestAnimationFrame(updateCanvas);
+      }
     }
   }
 
@@ -247,18 +264,38 @@ class VideoControl extends Controller<HTMLVideoElement> {
     }
   }
 
+  isValid(engine: IEditorEngine, track: IEditorTrack) {
+    const item = this.cacheMap[track.id];
+    if (engine.playbackMode === 'canvas') {
+      return true;
+    }
+    if (item.src === engine.media?.src) {
+      return true;
+    }
+    return false;
+  }
+
   enter(params: EditorControllerParams) {
 
     const { action, engine, track } = params;
-
+    if (!this.isValid(engine, track)) {
+      return;
+    }
     const finalizeEnter = (item: HTMLVideoElement) => {
 
       this.canvasSync(engine, item, action, track);
     }
-    const vidItem = document.getElementById(action.id) as HTMLVideoElement;
+    const vidItem = this.getItem({ action, track })
     if (vidItem) {
       this.log(params, `enter readyState: ${vidItem.readyState}`)
-
+      console.log('enter video', action.name);
+      if (engine.playbackMode === 'media') {
+        if (engine.screener) {
+          engine.screener.style.mixBlendMode = action.blendMode || track.blendMode || 'normal';
+        }
+      } else {
+        vidItem.style.mixBlendMode = action.blendMode || track.blendMode || 'normal';
+      }
       if (engine.isPlaying && vidItem.currentTime === 0) {
         vidItem.currentTime += 0.0001;
       }
@@ -286,6 +323,9 @@ class VideoControl extends Controller<HTMLVideoElement> {
   start(params: EditorControllerParams) {
     this.log(params, 'start')
     const { engine, action, time, track } = params;
+    if (!this.isValid(engine, track)) {
+      return;
+    }
     if (engine.isPlaying) {
       const item = this.getItem(params);
       item.currentTime = Controller.getActionTime(params);
@@ -300,7 +340,10 @@ class VideoControl extends Controller<HTMLVideoElement> {
 
   stop(params: EditorControllerParams) {
     this.log(params, 'stop')
-    const { action, track } = params;
+    const { engine, track } = params;
+    if (!this.isValid(engine, track)) {
+      return;
+    }
     const item = this.cacheMap[track.id];
     item.pause();
   }
@@ -308,6 +351,9 @@ class VideoControl extends Controller<HTMLVideoElement> {
   update(params: EditorControllerParams) {
 
     const { action, track, engine, time } = params;
+    if (!this.isValid(engine, track)) {
+      return;
+    }
     const item = this.getItem(params);
     const volumeUpdate = Controller.getVolumeUpdate(params, time)
 
@@ -345,7 +391,10 @@ class VideoControl extends Controller<HTMLVideoElement> {
 
   leave(params: EditorControllerParams) {
     this.log(params, 'leave')
-    const { action, time, track } = params;
+    const { action, engine, time, track } = params;
+    if (!this.isValid(engine, track)) {
+      return;
+    }
     const item = this.cacheMap[track.id];
 
     if (!item) {
@@ -353,6 +402,7 @@ class VideoControl extends Controller<HTMLVideoElement> {
     }
     if (time > action.end || time < action.start) {
       item.style.display = 'none';
+      action.nextFrame = undefined;
     } else {
       item.style.display = 'flex';
     }

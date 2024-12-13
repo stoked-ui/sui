@@ -1,4 +1,4 @@
-import { MimeType } from "../WebFile/MimeType";
+import { MimeType } from "@stoked-ui/common";
 
 const  MimeMediaWildcardMap: Map<MimeType | `${string}*` | '*' | 'folder', string> = new Map([
   ['application/msword',                                                      'doc'],

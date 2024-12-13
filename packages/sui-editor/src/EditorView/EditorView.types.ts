@@ -54,4 +54,6 @@ export interface EditorViewProps<R extends IMediaFile, Multiple extends boolean 
   viewButtonAppear?: number;
   viewButtonEnter?: number;
   viewButtonExit?: number;
+
+  editorId: string;
 }

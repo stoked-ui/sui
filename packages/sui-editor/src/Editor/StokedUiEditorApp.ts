@@ -1,11 +1,10 @@
 import {
   App, AppFile,
   AppFileFactory,
-  AppOutputFile, AppOutputFileFactory, IMimeType,
-  SUIMime,
+  AppOutputFile, AppOutputFileFactory,
   IApp
 } from "@stoked-ui/media-selector";
-import { StokedUiTimelineApp } from "@stoked-ui/timeline";
+import { IMimeType, SUIMime } from '@stoked-ui/common';
 
 export default class StokedUiEditorApp extends App implements IApp {
   defaultInputFileType: IMimeType;

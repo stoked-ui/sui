@@ -4,19 +4,16 @@ import { alpha, styled } from '@mui/material/styles';
 import { shouldForwardProp } from '@mui/system/createStyled';
 import { Box, Typography } from '@mui/material';
 import { AutoSizer, Grid, GridCellRenderer } from 'react-virtualized';
-import { usePinch } from "@use-gesture/react";
 import { prefix } from '../utils/deal_class_prefix';
 import { parserTimeToPixel } from '../utils/deal_data';
 import TimelineTrack from '../TimelineTrack/TimelineTrack';
 import { TimelineTrackAreaProps } from './TimelineTrackArea.types';
 import { useDragLine } from './useDragLine';
 import { useTimeline } from '../TimelineProvider';
-import TimelineFile from '../TimelineFile';
 import { EngineState } from '../Engine';
 import {ITimelineAction, ITimelineActionHandlers} from '../TimelineAction';
 import { ITimelineTrack } from '../TimelineTrack';
-import AddIcon from "@mui/icons-material/Add";
-import Fab from "@mui/material/Fab";
+import ZoomControls from './ZoomControls';
 
 /** edit area ref data */
 export interface TimelineTrackAreaState {
@@ -106,8 +103,8 @@ function FloatingTrackLabels({ tracks }) {
   }
   const editorModeHidden = editorMode === 'track' || editorMode === 'action';
   const isSelected = (index: number) => selectedTrackIndex === index ?? false;
-  const selectedHeight = flags.detailMode && selectedTrackIndex !== -1 ? settings.trackHeightDetailSelected: trackHeight;
-  const unselectedHeight = flags.detailMode && selectedTrackIndex !== -1 ? settings.trackHeightDetailUnselected : trackHeight;
+  const selectedHeight = flags.detailMode && selectedTrackIndex !== -1 ? settings.growScale: trackHeight;
+  const unselectedHeight = flags.detailMode && selectedTrackIndex !== -1 ? settings.growUnselectedScale : trackHeight;
   const getHeight = (index: number) => (isSelected(index) ? selectedHeight : unselectedHeight);
   return (
     <FloatingTracksRoot id={'floating-track-labels'}>
@@ -254,34 +251,6 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
       }
     }, [editAreaRef.current]);
 
-    const [baseScale, setBaseScale] = React.useState(0);
-    const [rawScaleWidth, setRawScaleWidth] = React.useState(0);
-    // noinspection JSVoidFunctionReturnValueUsed
-    usePinch(({ offset: [d], event }) => {
-        // Update scale
-      event.preventDefault();
-
-      const newScale = 1 + d;
-
-      let newRawScaleWidth = rawScaleWidth;
-      if (!newRawScaleWidth) {
-        newRawScaleWidth = scaleWidth / scale;
-        setRawScaleWidth(newRawScaleWidth);
-        console.info('rawScaleWidth', rawScaleWidth);
-      }
-      // Update origin for scaling
-      const scaleWidthPinched = newScale * (scaleWidth / scale);
-      if (scaleWidthPinched >= newRawScaleWidth) {
-        setScaleWidth(scaleWidthPinched);
-        setBaseScale(newScale);
-        console.info('baseScale', newScale, 'scaleWidthPinched', scaleWidthPinched, 'd', d);
-      }
-        // Prevent browser's pinch zoom
-    },
-    {
-        // Set target to the ref of the container
-        target: editAreaRef,
-    });
 
     /** Get the rendering content of each cell */
     const cellRenderer: GridCellRenderer = ({ rowIndex, key, style }) => {
@@ -390,6 +359,7 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
           ref={editAreaRef}
           className={`SuiTimelineEditArea-root ${prefix('edit-area')}`}
         >
+
           <AutoSizer className={'auto-sizer'} style={{ height: 'fit-content' }}>
             {({ width,  }) => {
               // Get full height

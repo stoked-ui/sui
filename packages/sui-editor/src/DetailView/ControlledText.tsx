@@ -3,10 +3,11 @@ import { useController } from "react-hook-form";
 import TextField from "@mui/material/TextField";
 import { Tooltip } from "@mui/material";
 import { namedId} from '@stoked-ui/common';
+import { ErrorMessage } from '@hookform/error-message';
 
 // const TextFieldStyle = OutlinedStyle(TextField);
 
-export default function ControlledText({ ref, prefix, value, control, name, label, disabled, className, rules, onFocus, onBlur, multiline, rows, onClick, format, type }: any) {
+export default function ControlledText({ ref, prefix, value, control, name, label, disabled, className, rules, onFocus, onBlur, multiline, rows, onClick, format, type, errors }: any) {
 
   if (!rules) {
     rules = {
@@ -56,34 +57,39 @@ export default function ControlledText({ ref, prefix, value, control, name, labe
     type = 'text';
   }
   return (
-    <Tooltip
-      PopperProps={{
-        disablePortal: true,
-      }}
-      open={!!error}
-      className={'tooltip-error'}
-      disableFocusListener
-      disableHoverListener
-      disableTouchListener
-      title={error?.message}
-    >
-      <TextField
-        {...field}
-        disabled={disabled}
-        id={namedId(field.name)}
-        onClick={onClick}
-        value={format ? format(field.value) : field.value} // input value
-        inputRef={field.ref}
-        multiline={multiline}
-        rows={rows}
-        label={label}
-        fullWidth
-        type={type}
-        variant={'outlined'}
-        className={className}
-        error={!!error}
-      />
-    </Tooltip>
+    <React.Fragment>
+
+      <Tooltip
+        PopperProps={{
+          disablePortal: true,
+        }}
+        open={!!error}
+        className={'tooltip-error'}
+        disableFocusListener
+        disableHoverListener
+        disableTouchListener
+        title={error?.message}
+      >
+
+        <TextField
+          {...field}
+          sx={{ whiteSpace: 'nowrap', flexGrow: 1, display: 'flex', width: '100%'}}
+          disabled={disabled}
+          id={namedId(field.name)}
+          onClick={onClick}
+          value={format ? format(field.value) : field.value} // input value
+          inputRef={field.ref}
+          multiline={multiline}
+          rows={rows}
+          label={label}
+          fullWidth
+          type={type}
+          variant={'outlined'}
+          className={className}
+          error={!!error}
+        />
+      </Tooltip>
+    </React.Fragment>
   );
 }
 

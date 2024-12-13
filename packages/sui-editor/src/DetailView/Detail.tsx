@@ -1,6 +1,5 @@
 import * as React from "react";
-import { IMediaFile } from '@stoked-ui/media-selector';
-import {Button, CardActions, Fade, styled, Typography} from "@mui/material";
+import {Box, Button, CardActions, Fade, styled, Typography} from "@mui/material";
 import { shouldForwardProp } from "@mui/system/createStyled";
 import { alpha, Theme } from "@mui/material/styles";
 import _ from "lodash";
@@ -88,6 +87,14 @@ export interface CtrlGroupProps {
 
 export const CtrlGroup = React.forwardRef(({ style, className, children, label }: CtrlGroupProps & React.HTMLProps<HTMLFieldSetElement>, ref: React.Ref<HTMLFieldSetElement>) => {
   return (
+    <Box sx={{}}>
+      {children}
+    </Box>
+  );
+});
+
+export const CtrlFieldSet = React.forwardRef(({ style, className, children, label }: CtrlGroupProps & React.HTMLProps<HTMLFieldSetElement>, ref: React.Ref<HTMLFieldSetElement>) => {
+  return (
     <CtrlGroupRoot ref={ref} className={className} style={style}>
       <CtrlLabel>{label}</CtrlLabel>
       {children}
@@ -140,12 +147,18 @@ const backgroundAlpha = (theme: Theme) => alpha(theme.palette.background.default
 const wAlpha = (theme: Theme, alphaMultiplier: number = inputDefaultAlpha) => alpha(theme.palette.background.default, alphaMultiplier);
 export const RootBox = styled('div')(({theme}) => ({
   '& .MuiFormControl-root': {
-    '& .MuiFormLabel-root.MuiInputLabel-outlined.Mui-disabled': {
-      color:`${theme.palette.primary[600]}!important`,
+    '& .MuiFormLabel-root.MuiInputLabel-outlined': {
+      color:`${theme.palette.mode === 'dark' ? theme.palette.primary[300] : theme.palette.primary[600]}!important`,
       fontWeight: 'bold',
+      '&:hover .MuiOutlinedInput-notchedOutline': {
+        borderColor: theme.palette.primary.main,
+        '&.Mui-focused': {
+          borderColor: theme.palette.primary.main
+        }
+      },
     },
     '& .MuiOutlinedInput-root.Mui-disabled': {
-      backgroundImage: `linear-gradient(90deg, ${wAlpha(theme, )}, ${backgroundAlpha(theme)})`,
+      color: `${theme.palette.text.primary}!important`,
       '& fieldset': {
         border: 0,
       },
@@ -157,7 +170,9 @@ export const RootBox = styled('div')(({theme}) => ({
       }
     },
   },
-
+  '& .MuiInputBase-input.MuiOutlinedInput-input.Mui-disabled': {
+    WebkitTextFillColor: theme.palette.text.primary,
+  },
   '& .MuiFormControl-root .MuiInputBase-root': {
     backgroundColor: alpha(theme.palette.background.default, inputDefaultAlpha),
     borderRadius: '4px'
@@ -248,12 +263,7 @@ export const RootBox = styled('div')(({theme}) => ({
   '& .MuiFormControl-root legend': {
     background: 'transparent',
   },
-  '&:hover .MuiOutlinedInput-notchedOutline': {
-    borderColor: theme.palette.primary.main,
-    '&.Mui-focused': {
-      borderColor: theme.palette.primary.main
-    }
-  },
+
   /*
   '& .MuiFormLabel-root.MuiInputLabel-root.MuiInputLabel-shrink': {
     color: theme.palette.text.primary,
@@ -275,69 +285,83 @@ export const RootBox = styled('div')(({theme}) => ({
 }));
 
 
-export function DetailActions({ errors, isDirty, reset, disableEdit, editMode }: {
+export function formatTitle(text: string): string {
+  return text
+  .replace(/[-.]+/g, " ") // Replace dashes and periods with spaces
+  .split(" ") // Split the string into words
+  .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()) // Capitalize the first letter of each word
+  .join(" "); // Join the words back into a string
+}
+
+export function DetailActions({ errors, isDirty, reset, disableEdit, editMode}: {
   errors: FieldErrors<any>,
   isDirty: boolean
   reset: UseFormReset<any>,
   editMode: boolean,
-  disableEdit: () => void
+  disableEdit: () => void,
 }) {
-  const { state: {selectedDetail, selectedType} } = useEditorContext();
+  const {state: {selectedDetail, selectedType}} = useEditorContext();
   if (!selectedDetail || !selectedType || !editMode) {
     return undefined;
   }
-  return (
-    <CardActions sx={{ width: '100%', justifyContent: 'right'}}>
-      <Button
-        className=""
-        variant="outlined"
-        color="secondary"
-        disabled={!isDirty && !editMode}
-        onClick={() => {
-          disableEdit();
-          reset(selectedDetail[selectedType]);
-        }}>
-        Cancel
-      </Button>
-      <Button
-        className=""
-        variant="contained"
-        color="secondary"
-        type="submit"
-        disabled={!isDirty || !_.isEmpty(errors)}
-      >
-        Save
-      </Button>
-    </CardActions>
-  )
+
+  return (<CardActions sx={{width: '100%', justifyContent: 'right'}}>
+    <ul>
+      {Object.values(errors).map((error) => (<li>{error?.message?.toString()}</li>))}
+    </ul>
+    <Button
+      className=""
+      variant="outlined"
+      color="secondary"
+      disabled={!isDirty && !editMode}
+      onClick={() => {
+        disableEdit();
+        reset(selectedDetail[selectedType]);
+      }}>
+      Cancel
+    </Button>
+    <Button
+      className=""
+      variant="contained"
+      color="secondary"
+      type={'submit'}
+      disabled={!isDirty || !_.isEmpty(errors)}
+    >
+      Save
+    </Button>
+  </CardActions>)
 }
 
-const TrackFile = styled(CtrlGroup, {
+const TrackFile = styled(CtrlFieldSet, {
   shouldForwardProp: (prop) => prop !== 'style'
 })(({theme, style}) => ({
   ...style,
   position: 'absolute',
   scale: '0.8!important',
   transformOrigin: 'center bottom',
-  background:' linear-gradient(168deg, #aebcc9 0%, #dde3e8 100%)',
+  background: `linear-gradient(168deg, ${theme.palette.mode === 'dark' ? '#285b8a' : '#7bafdf'} 0%,  ${theme.palette.mode === 'dark' ? '#000' : '#FFF'} 100%)`,
   marginBottom: '6px',
   borderRadius: '8px',
   bottom: '0px',
   '& legend': {
-    background: '#aebcc9',
-    borderRadius: '6px'
+    background:  `${theme.palette.mode === 'dark' ? '#235179' : '#83b2de'}`,
+    borderRadius: '6px',
+    color: `${theme.palette.mode === 'dark' ? '#67b7ff' : '#285b8a'}`,
+    padding: '0px 4px',
   },
   '& .MuiInputBase-root.MuiOutlinedInput-root': {
     height: '38px'
   },
   '& input': {
-    '-WebKitTextFillColor': 'text.primary',
+    'WebkitTextFillColor': 'text.primary',
   },
   '& .Mui-shrink-full .MuiFormLabel-root.MuiInputLabel-root.MuiInputLabel-shrink': {
     color: theme.palette.text.primary,
     padding: '3px 8px',
     borderRadius: '6px',
-    backgroundImage: `linear-gradient(90deg, ${backgroundAlpha(theme)}, ${backgroundAlpha(theme)}), linear-gradient(90deg, ${theme.palette.background.paper}, ${theme.palette.background.paper})`,
+    // backgroundImage: `linear-gradient(90deg, ${backgroundAlpha(theme)},
+    // ${backgroundAlpha(theme)}), linear-gradient(90deg, ${theme.palette.background.paper}, ${theme.palette.background.paper})`,
+    backgroundImage: `linear-gradient(168deg, rgba(0, 59, 117, 0.9108018207282913) 0%,  ${theme.palette.mode === 'dark' ? '#000' : '#FFF'} 100%)`,
     backgroundSize: '100% 12px, 100% 17px',
     backgroundPosition: '0 0, 0 100%',
     backgroundRepeat: 'no-repeat, no-repeat',
@@ -444,7 +468,13 @@ const DetailRenderer = styled('canvas', {
   height: '100%'
 }));
 
-export function FormWrap({ title, handleSubmit, onSubmit, children}) {
+const FormRoot = styled('div')(({theme}) => ({
+  '& .MuiFormControl-root .MuiInputBase-root .MuiInputBase-input': {
+    webkitTextFillColor: theme.palette.text.primary
+  }
+}));
+
+export function FormWrap({ title, children, titleId, submitHandler}) {
   const context = useEditorContext();
   const {state, dispatch} = context;
   const {settings, selectedType, file} = state;
@@ -452,7 +482,8 @@ export function FormWrap({ title, handleSubmit, onSubmit, children}) {
   const ref = React.useRef<HTMLDivElement>(null);
   React.useEffect(() => {
     if (ref.current?.clientWidth) {
-      const scaledData = settings.fitScaleData(context, ref.current.clientWidth - 14);
+      console.info('ref.current.clientWidth', ref.current.clientWidth);
+      const scaledData = settings.fitScaleData(context, true, ref.current.clientWidth - 14);
       dispatch({type: 'SET_SETTING', payload: {value: {...scaledData,}}})
     }
   }, [ref.current?.clientWidth]);
@@ -463,7 +494,7 @@ export function FormWrap({ title, handleSubmit, onSubmit, children}) {
     submit = detailHandleSubmit(detailOnSubmit);
   }
   const robustView = (
-    <div style={{overflowY: 'scroll', maxHeight: 'calc(100vh - 40px)'}}>
+    <div style={{}}>
       <Editor
         file={file || undefined}
         id={'detail-editor'}
@@ -478,7 +509,7 @@ export function FormWrap({ title, handleSubmit, onSubmit, children}) {
         <DetailForm
           id={'detailView'}
           className={`SUI-form}`}
-          onSubmit={submit}
+          onSubmit={submitHandler}
         >
           {children}
         </DetailForm>
@@ -486,17 +517,110 @@ export function FormWrap({ title, handleSubmit, onSubmit, children}) {
     </div>)
 
   const baseView = <React.Fragment>{children}</React.Fragment>
-  return <div>
-    <DetailBreadcrumbs/>
-    <Typography variant="h6" sx={{
-      marginTop: '6px'
-    }}>
-      {title}
-    </Typography>
+  return (<FormRoot>
+    <div id={'detail-header'}>
+      <DetailBreadcrumbs/>
+      <Typography variant="h6" sx={{
+        marginTop: '6px'
+      }}>
+        <Typography variant="caption" sx={{  position: 'relative', top: '-0.5em', fontSize: '55%', fontWeight: '300' }}>[{titleId}]</Typography> {title}
+      </Typography>
+    </div>
+
     {selectedType === 'settings' ?
       baseView :
       robustView
     }
-  </div>
+  </FormRoot>)
 }
+/*
 
+const FormRoot = styled('div')(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  height: '100%', // Ensure the container takes full height
+  position: 'relative',
+
+  '& #detail-header': {
+    position: 'sticky',
+    top: 0,
+    zIndex: 10,
+    backgroundColor: '#fff',
+    padding: '10px 0', // Optional: Add some padding for visual separation
+  },
+
+  '& .MuiFormControl-root .MuiInputBase-root .MuiInputBase-input': {
+    webkitTextFillColor: theme.palette.text.primary,
+  },
+
+  // Add styles for the scrollable form content
+  '& .form-content': {
+    overflowY: 'auto', // Make the content scrollable
+    flex: 1, // Allow the content to grow and shrink to fill the available space
+    padding: '10px', // Optional: Add padding around the form content
+  },
+}));
+
+export function FormWrap({ title, children, titleId, submitHandler }) {
+  const context = useEditorContext();
+  const { state, dispatch } = context;
+  const { settings, selectedType, file } = state;
+  const { detailHandleSubmit, detailOnSubmit, selected } = settings;
+  const ref = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (ref.current?.clientWidth) {
+      console.info('ref.current.clientWidth', ref.current.clientWidth);
+      const scaledData = settings.fitScaleData(context, true, ref.current.clientWidth - 14);
+      dispatch({ type: 'SET_SETTING', payload: { value: { ...scaledData } } });
+    }
+  }, [ref.current?.clientWidth]);
+
+  let submit = () => {};
+  if (detailHandleSubmit && detailOnSubmit) {
+    submit = detailHandleSubmit(detailOnSubmit);
+  }
+
+  const robustView = (
+    <div className="form-content">
+      <Editor
+        file={file || undefined}
+        id={'detail-editor'}
+        detailMode
+        ref={ref}
+        sx={(theme) => ({ border: '1px solid #999' })}
+      >
+        <FileDetailView />
+      </Editor>
+
+      <div className={'SUI-form'}>
+        <DetailForm
+          id={'detailView'}
+          className={`SUI-form`}
+          onSubmit={submitHandler}
+        >
+          {children}
+        </DetailForm>
+      </div>
+    </div>
+  );
+
+  const baseView = <React.Fragment>{children}</React.Fragment>;
+
+  return (
+    <FormRoot>
+      <div id={'detail-header'}>
+        <DetailBreadcrumbs />
+        <Typography variant="h6" sx={{ marginTop: '6px' }}>
+          <Typography variant="caption" sx={{ position: 'relative', top: '-0.5em', fontSize: '55%', fontWeight: '300' }}>
+            [{titleId}]
+          </Typography>{' '}
+          {title}
+        </Typography>
+      </div>
+
+      {selectedType === 'settings' ? baseView : robustView}
+    </FormRoot>
+  );
+}
+*/

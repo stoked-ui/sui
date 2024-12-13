@@ -12,7 +12,12 @@ import {
   ProjectDetail,
   getProjectDetail,
   getActionDetail,
-  DetailData, getTrackDetail,
+  DetailData,
+  getTrackDetail,
+  SelectionTypeName,
+  SelectionDetail,
+  getSelected,
+  getFileDetail, SettingsDetail,
 } from "@stoked-ui/timeline";
 import { IEditorAction } from "../EditorAction/EditorAction";
 import { IEditorTrack } from "../EditorTrack/EditorTrack";
@@ -20,7 +25,7 @@ import EditorFile, { IEditorFile } from "../EditorFile/EditorFile";
 
 export type SelectionType = IEditorAction | IEditorTrack | IEditorFile;
 
-export type DetailType = 'project' | 'track' | 'action';
+export type DetailType = 'project' | 'track' | 'action' | 'settings';
 
 export interface IEditorProjectDetail extends IProjectDetail {
   backgroundColor?: string;
@@ -35,6 +40,14 @@ export interface IEditorActionDetail extends ITimelineActionDetail {
   width: number;
   height: number;
   fit?: 'contain' | 'cover' | 'fill' | 'none';
+  blendMode: string;
+}
+
+export type GetDetailProps = {
+  file: IEditorFile,
+  selectedAction: IEditorAction,
+  selectedTrack: IEditorTrack,
+  selectedType: SelectionTypeName
 }
 
 export interface IEditorTrackDetail extends ITimelineTrackDetail {
@@ -45,7 +58,57 @@ export interface IEditorTrackDetail extends ITimelineTrackDetail {
 export type EditorDetailData =
   ActionDetail<IEditorProjectDetail, IEditorTrackDetail, IEditorActionDetail, IFileDetail>
   | TrackDetail<IEditorProjectDetail, IEditorTrackDetail, IFileDetail>
-  | ProjectDetail<IEditorProjectDetail>;
+  | ProjectDetail<IEditorProjectDetail>
+  | SettingsDetail<IEditorProjectDetail>;
+
+export function getEditorDetail(props: GetDetailProps & any): {
+  selected: SelectionType,
+  detail: EditorDetailData,
+  type: SelectionTypeName
+} | null {
+  const { selectedAction: action, selectedTrack: track, file: project } = props;
+  const selectedResult = getSelected(props);
+  const type = selectedResult.type;
+  const selected: any = selectedResult.selected;
+  if (type === 'track') {
+    return {
+      detail: {
+        type,
+        project: getEditorProjectDetail(project),
+        track: getEditorTrackDetail(track),
+        file: getFileDetail(track.file),
+      }, selected, type,
+    }
+  }
+  if (type === 'action') {
+    return {
+      detail: {
+        type,
+        project: getEditorProjectDetail(project),
+        track: getEditorTrackDetail(track),
+        file: getFileDetail(track.file),
+        action: getEditorActionDetail(action)
+      }, selected, type,
+    }
+  }
+  if (type === 'settings') {
+    return {
+      detail: {
+        project: getEditorProjectDetail(project),
+        type: 'settings',
+      }, selected, type,
+    }
+  }
+  if (type === 'project' && project) {
+    return {
+      detail: {
+        type: 'project',
+        project: getEditorProjectDetail(project),
+      }, selected, type,
+    }
+  }
+  return null;
+}
 
 export function getEditorProjectDetail(project: IEditorFile): IEditorProjectDetail {
   if (!project || !project.id) {
@@ -71,12 +134,13 @@ export function getEditorTrackDetail(track: IEditorTrack): IEditorTrackDetail {
 export function getEditorActionDetail(action: IEditorAction): IEditorActionDetail {
   return {
     ...getActionDetail(action),
-    x: action.x,
-    y: action.y,
+    x: action.x || 0,
+    y: action.y || 0,
     z: action.z,
     width: action.width,
     height: action.height,
     fit: action.fit || 'none',
+    blendMode: action.blendMode || 'normal',
   }
 }
 
@@ -93,6 +157,7 @@ export const actionDataSchema = yup.object({
   name: yup.string().required("Name is required"),
   start: yup.number().required("Start time is required"),
   end: yup.number().required("End time is required"),
+  blendMode: yup.string().required("Blend mode is required"),
   x: yup.number().optional(),
   y: yup.number().optional(),
   z: yup.number().required("Z-coordinate is required"),
@@ -172,10 +237,13 @@ export const actionSchema = yup.object({
   track: trackObjectSchema,
   action: actionDataSchema,
   file: fileObjectSchema,
+  type: yup.string().required('Type is required'),
+
 })
 
 export const trackSchema = yup.object({
   project: projectSchema,
   track: trackObjectSchema,
   file: fileObjectSchema,
+  type: yup.string().required('Type is required'),
 })

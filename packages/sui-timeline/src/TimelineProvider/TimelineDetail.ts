@@ -44,6 +44,8 @@ export interface ITimelineActionDetail {
   start: number;
   end: number;
   volume: [volume: number, start?: number, end?: number][] | undefined;
+  trimStart: number;
+  trimEnd: number;
 }
 
 export type ProjectDetail<ProjectType extends IProjectDetail = IProjectDetail> = {
@@ -105,6 +107,9 @@ export function getActionDetail(action: ITimelineAction): ITimelineActionDetail 
     start: action.start,
     end: action.end,
     volume: action.volume as [volume: number, start: number | undefined, end: number | undefined][] | undefined,
+    trimStart: action.trimStart || 0,
+    trimEnd: action.trimEnd || 0,
+
   }
 }
 

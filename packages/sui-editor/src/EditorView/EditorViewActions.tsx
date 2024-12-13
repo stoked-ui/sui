@@ -14,7 +14,8 @@ import EditorFile, {IEditorFile} from '../EditorFile/EditorFile'
 export default function EditorViewActions({ visible }: { visible: boolean }) {
   const context = useEditorContext();
   const { dispatch, state } = context;
-  const { file, flags, components, settings: { fitScaleData, setCursor } } = state;
+  const { file, flags, components, settings } = state;
+  const { editorId, fitScaleData, setCursor } = settings;
   const [fileIsDirty, setIsDirty] = React.useState<boolean>(false);
   React.useEffect(() => {
     const isFileDirty = async () => {
@@ -38,11 +39,11 @@ export default function EditorViewActions({ visible }: { visible: boolean }) {
 
     if (loadedFiles.length) {
       const loadedFile = loadedFiles[0];
-      await loadedFile.preload();
+      await loadedFile.preload(settings.editorId);
       dispatch({type: 'SET_FILE', payload: loadedFile});
       const width = (components.timelineGrid as HTMLDivElement)?.clientWidth;
       if (width) {
-        fitScaleData(context, width);
+        fitScaleData(context, false, width);
         setCursor({ time: 0, updateTime: true}, context);
       }
     }
@@ -122,6 +123,7 @@ export default function EditorViewActions({ visible }: { visible: boolean }) {
               color: theme.palette.text.primary,
             })}
             onClick={() => {
+              dispatch({ type: 'SELECT_PROJECT' });
               dispatch({ type: 'DETAIL_OPEN' });
             }}
           >

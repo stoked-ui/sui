@@ -1,68 +1,74 @@
 import * as React from "react";
-import {Control, SubmitHandler, useForm, Resolver, ResolverOptions} from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import {ControlledTrack, ITimelineTrackDetail, TrackDetail, IFileDetail } from "@stoked-ui/timeline";
+import { TrackDetail } from "@stoked-ui/timeline";
 import ControlledText from "./ControlledText";
 import {
-  CtrlCell,
-  CtrlRow,
-  DetailActions,
-  FormWrap,
-  useEditMode,
+  CtrlCell, CtrlRow, DetailActions, DetailForm, formatTitle, FormWrap, useEditMode,
 } from './Detail'
-import ControlledCheckbox from "./ControlledCheckbox";
 import {
-  DetailViewProps, IEditorActionDetail, IEditorProjectDetail, IEditorTrackDetail, trackSchema
+  DetailViewProps,
+  IEditorTrackDetail, trackObjectSchema,
 } from "./Detail.types";
 import {useEditorContext} from "../EditorProvider";
+import ControlledSelect from "./ControlledSelect";
+import ControlledCheckbox from "./ControlledCheckbox";
 import BlendModeSelect from "./BlendModeSelect";
 
 export function DetailTrack(props: DetailViewProps) {
-  const { state: {selectedTrack, selected}, dispatch } = useEditorContext();
   const {
     editMode,
     enableEdit,
     disableEdit
   } = props;
 
+  const { state, dispatch } = useEditorContext();
+  const { selectedDetail, selected} = state;
+  const track = (selectedDetail as TrackDetail).track as IEditorTrackDetail;
+
+  track.blendMode = track.blendMode ?? 'normal';
+  track.hidden = !!track.hidden;
+  track.locked = !!track.locked;
+  track.muted = !!track.muted;
+
   const {
     control,
-    handleSubmit: detailHandleSubmit,
+    handleSubmit,
     formState: {
-      isDirty,
       errors,
-    },
-    reset,
-  } = useForm<TrackDetail<IEditorProjectDetail, IEditorTrackDetail>>({
-    defaultValues: props.detail as TrackDetail,
-    resolver: yupResolver(trackSchema) as any,
+      isSubmitting,
+      isDirty
+    }, reset,
+    } = useForm<IEditorTrackDetail>({
+    defaultValues: track,
+    resolver: yupResolver(trackObjectSchema) as any,
   });
 
-  const onSubmitTrack: SubmitHandler<ITimelineTrackDetail> = (submitData: ITimelineTrackDetail) => {
-    disableEdit();
-    dispatch({ type: 'UPDATE_TRACK', payload: submitData });
+  const onSubmit: SubmitHandler<IEditorTrackDetail> = (data) => {
+    console.log('data', data);
+    dispatch({ type: 'UPDATE_TRACK', payload: data });
   };
 
-  React.useEffect(() => {
-    dispatch({ type: 'SET_SETTING', payload: {
-        value: {
-          detailSubmit: onSubmitTrack,
-          detailHandleSubmit,
-        }
-      }})
-  }, [])
-
-  if (!selectedTrack) {
-    return undefined;
-  }
-
   return (
+    <FormWrap
+      title={selected?.name}
+      titleId={(props.detail as TrackDetail).track.id}
+      submitHandler={handleSubmit(onSubmit)}
+    >
     <div>
       <CtrlRow>
-        <CtrlCell width="45%">
+        <CtrlCell width="30%">
           <ControlledText
             className={'whitespace-nowrap flex-grow flex'}
             label={'Name'}
+            name={'name'}
+            control={control}
+            disabled={!editMode}
+            onClick={enableEdit}
+          />
+        </CtrlCell>
+        <CtrlCell width="10%">
+          <BlendModeSelect
             control={control}
             disabled={!editMode}
             onClick={enableEdit}
@@ -72,6 +78,7 @@ export function DetailTrack(props: DetailViewProps) {
           <ControlledCheckbox
             className={'whitespace-nowrap flex-grow flex'}
             label={'Hidden'}
+            name={'hidden'}
             control={control}
             disabled={!editMode}
             onClickLabel={enableEdit}
@@ -96,10 +103,40 @@ export function DetailTrack(props: DetailViewProps) {
           />
         </CtrlCell>
         <CtrlCell width="40%">
-          <BlendModeSelect onClickEdit={enableEdit} editMode={editMode} />
+          <ControlledSelect
+            control={control}
+            label={'Fit'}
+            name={'fit'}
+            defaultValue={'cover'}
+            disabled={!editMode}
+            onClick={enableEdit}
+            options={[
+              'none',
+              'contain',
+              'cover',
+              'fill'
+            ].map((option) => { return { value: option, label: formatTitle(option) }})}
+            rules={{ required: "This field is required" }}
+          />
+        </CtrlCell>
+        <CtrlCell width="40%">
+          <ControlledText
+            className={'whitespace-nowrap flex-grow flex'}
+            label={'Url'}
+            control={control}
+            disabled={!editMode}
+            onClick={enableEdit}
+          />
         </CtrlCell>
       </CtrlRow>
-      <DetailActions errors={errors} isDirty={isDirty} reset={reset} disableEdit={disableEdit} editMode={editMode} />
+      <DetailActions
+        errors={errors}
+        isDirty={isDirty}
+        reset={reset}
+        disableEdit={disableEdit}
+        editMode={editMode}
+      />
     </div>
+    </FormWrap>
   )
 }

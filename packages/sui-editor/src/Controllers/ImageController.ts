@@ -1,9 +1,12 @@
 import {
-  Controller, ControllerParams, IController, IEngine, ITimelineAction, ITimelineTrack
+  Controller, ControllerParams, GetItemParams, IController, IEngine, ITimelineAction, ITimelineTrack
 } from "@stoked-ui/timeline";
 import { IMediaFile } from "@stoked-ui/media-selector";
 import {type IEditorEngine} from "../EditorEngine";
-import {EditorControllerParams, EditorPreloadParams} from "./EditorControllerParams";
+import {
+  EditorControllerParams, EditorGetItemParams,
+  EditorPreloadParams
+} from "./EditorControllerParams";
 import {IEditorTrack} from "../EditorTrack";
 
 class ImageControl extends Controller<HTMLImageElement> implements IController {
@@ -11,21 +14,29 @@ class ImageControl extends Controller<HTMLImageElement> implements IController {
 
   logging: boolean = false;
 
+  editorId: string = '';
+
   constructor() {
     super({
       id: 'image', name: 'Image', color: '#6b3514', colorSecondary: '#d76d2b',
     });
   }
 
+  async preload(params: EditorPreloadParams): Promise<ITimelineAction> {
+    const { action, track, editorId } = params;
+    this.editorId = editorId;
+    return action;
+  }
+
   enter(params: EditorControllerParams) {
     const {action, engine, track} = params;
-    const item: HTMLImageElement = this.getItem(params as EditorControllerParams);
+    const item: HTMLImageElement = this.getItem(params as EditorGetItemParams);
     ImageControl.setDisplay(track, item);
     ImageControl.attachItemToViewer(item, engine);
     ImageControl.renderImage(item, engine);
   }
 
-  getItem(params: EditorPreloadParams) {
+  getItem(params: EditorGetItemParams) {
     const { action, track } = params;
     let item = this.cacheMap[track.id];
     if (item) {

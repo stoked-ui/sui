@@ -7,7 +7,7 @@ import OutlinedStyle from "./OutlinedStyle";
 
 const TextFieldStyle = OutlinedStyle(TextField);
 
-export default function ControlledColor({ control, name, label, disabled, className, rules, onFocus, onBlur, multiline, rows, onClick, format, type }: any) {
+export default function ControlledColor({ darkLabel, lightLabel, control, name, label, disabled, className, rules, onFocus, onBlur, multiline, rows, onClick, format, type }: any) {
 
   if (!rules) {
     rules = {
@@ -34,6 +34,7 @@ export default function ControlledColor({ control, name, label, disabled, classN
   if (!type) {
     type = 'text';
   }
+  const labelColor = (theme) => theme.palette.mode ? darkLabel : lightLabel;
   return (
     <Tooltip
       PopperProps={{
@@ -76,7 +77,7 @@ export default function ControlledColor({ control, name, label, disabled, classN
             // backgroundRepeat: 'no-repeat, no-repeat'
           },
           '& label': {
-            backgroundImage: `linear-gradient(90deg, #aebfcf, #aebfcf), linear-gradient(90deg, #aebfcf, #aebfcf)`,
+            backgroundImage: `linear-gradient(90deg, ${labelColor(theme)}, ${labelColor(theme)}), linear-gradient(90deg, ${labelColor(theme)}, ${labelColor(theme)})`,
             backgroundSize: '100% 12px, 100% 17px',
             backgroundPosition: '0 0, 0 100%',
             backgroundRepeat: 'no-repeat, no-repeat'

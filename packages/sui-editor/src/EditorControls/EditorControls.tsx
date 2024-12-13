@@ -95,7 +95,6 @@ const TimeRoot = styled(
   let enabledStyle = {};
   if (!disabled) {
     enabledStyle = {
-      border: `1px solid ${theme.palette.text.primary}!important`,
       '&:hover': {
         color: `${theme.palette.primary.main}!important`,
         backgroundColor: theme.palette.background.paper,
@@ -146,7 +145,6 @@ const RateControlRoot = styled(FormControl)<{ disabled?: boolean }>(({ theme, di
       },
       '& .MuiSelect-select': {
         padding: '8px 32px 7px 14px',
-        border: `1px solid ${theme.palette.text.primary}`,
       },
       '& fieldset': {
         display: 'none',
@@ -182,7 +180,6 @@ const RateControlRoot = styled(FormControl)<{ disabled?: boolean }>(({ theme, di
 const RateControlSelect = styled(Select)<{ disabled?: boolean }>(({ theme, disabled }) => ({
   height: disabled ? 42 : 40,
   background: theme.palette.background.default,
-  border: '0 solid #FFF!important',
   '& .MuiSelect-select': {
     fontFamily: "'Roboto Condensed', sans-serif",
     fontWeight: 600,
@@ -222,6 +219,9 @@ function Controls(inProps: ControlProps) {
   const handlePause = () => {
     if (engine.isPlaying || editorEngine.isRecording) {
       engine.pause();
+      if (mediaRecorder) {
+        mediaRecorder.stop()
+      }
     }
   };
 
@@ -248,15 +248,11 @@ function Controls(inProps: ControlProps) {
   }
 
   const handleStart = () => {
-    engine.setTime(0, true);
-    engine.tickAction(0);
-    engine.reRender();
+    engine.setStart();
   }
 
   const handleEnd = () => {
-    engine.setTime(engine.duration, true);
-    engine.tickAction(engine.duration);
-    engine.reRender();
+    engine.setEnd();
   }
 
   const stateFunc = (value: EditorControlState, upFunc: () => void, downFunc: () => void) => {
@@ -408,6 +404,15 @@ function Controls(inProps: ControlProps) {
         </ToggleButton>
         {flags && flags.record ? (
           <ToggleButton
+            sx={(theme) => ({
+              '&.MuiButtonBase-root.MuiToggleButtonGroup-grouped.MuiToggleButtonGroup-groupedHorizontal.MuiToggleButton-root.MuiToggleButton-sizeMedium.MuiToggleButton-standard.MuiToggleButtonGroup-grouped:hover':{
+                outline: `1px solid red`,
+                border: '2px solid red',
+                'svg': {
+                  color: 'red',
+                }
+              }
+            })}
             value="record"
             onClick={() => {
               stateFunc('record', handleRecord, handleRecordStop);

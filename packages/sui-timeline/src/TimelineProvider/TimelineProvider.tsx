@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {IMediaFile, Screenshot, ScreenshotQueue} from '@stoked-ui/media-selector';
-import { SortedList } from '@stoked-ui/common';
+import { LocalDb } from '@stoked-ui/common';
 import Engine, { EngineState, IEngine } from '../Engine';
 import {
   TimelineProviderProps,
@@ -12,7 +12,6 @@ import {
   TimelineState,
   createTimelineState,
 } from './TimelineProvider.types';
-import LocalDb from '../LocalDb';
 import TimelineFile, { ITimelineFile } from '../TimelineFile';
 import type {ITimelineAction} from "../TimelineAction";
 import type {ITimelineTrack} from "../TimelineTrack";

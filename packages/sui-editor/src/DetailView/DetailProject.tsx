@@ -3,9 +3,7 @@ import {SubmitHandler, useForm} from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import ControlledText, { UncontrolledText } from "./ControlledText";
 import {
-  CtrlCell,
-  CtrlRow,
-  DetailActions,
+  CtrlCell, CtrlRow, DetailActions, FormWrap,
 } from './Detail'
 import ControlledColor from "./ControlledColor";
 import {DetailViewProps, IEditorProjectDetail, projectSchema} from "./Detail.types";
@@ -17,7 +15,7 @@ export function DetailProject(props: DetailViewProps) {
 
   const {
     control,
-    handleSubmit: detailHandleSubmit,
+    handleSubmit,
     formState: {
       isDirty,
       errors,
@@ -33,17 +31,13 @@ export function DetailProject(props: DetailViewProps) {
     dispatch({ type: 'UPDATE_PROJECT', payload: submitData });
   };
 
-  React.useEffect(() => {
-    dispatch({ type: 'SET_SETTING', payload: {
-        value: {
-          detailSubmit,
-          detailHandleSubmit,
-        }
-      }})
-  }, []);
+  return (<FormWrap
+    title={selected?.name}
+    titleId={props.detail.project.id}
+    submitHandler={handleSubmit(detailSubmit)}
+  >
+    <div>
 
-  return (
-   <div>
       <CtrlRow>
         <CtrlCell width="40%">
           <ControlledText
@@ -71,20 +65,20 @@ export function DetailProject(props: DetailViewProps) {
           />
         </CtrlCell>
         <CtrlCell width="15%">
-        <ControlledText
-          className={'whitespace-nowrap flex-grow flex'}
-          label={'Last Modified'}
-          name={'lastModified'}
-          disabled
-          control={control}
-          format={(epoch: number) => {
-            if (epoch) {
-              return new Date(epoch).toDateString();
-            }
-            return '';
-          }}
-          onClick={props.enableEdit}
-        />
+          <ControlledText
+            className={'whitespace-nowrap flex-grow flex'}
+            label={'Last Modified'}
+            name={'lastModified'}
+            disabled
+            control={control}
+            format={(epoch: number) => {
+              if (epoch) {
+                return new Date(epoch).toDateString();
+              }
+              return '';
+            }}
+            onClick={props.enableEdit}
+          />
         </CtrlCell>
         <CtrlCell width="40%">
           <ControlledText
@@ -114,6 +108,8 @@ export function DetailProject(props: DetailViewProps) {
             control={control}
             disabled={!props.editMode}
             onClick={props.enableEdit}
+            darkLabel={'#333'}
+            lightLabel={'#CCC'}
           />
         </CtrlCell>
         <CtrlCell width="40%">
@@ -134,6 +130,7 @@ export function DetailProject(props: DetailViewProps) {
         editMode={props.editMode}
         disableEdit={props.disableEdit}
       />
-   </div>
+    </div>
+  </FormWrap>
   )
 }

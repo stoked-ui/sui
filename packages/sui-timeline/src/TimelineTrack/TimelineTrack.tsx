@@ -1,3 +1,4 @@
+
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { alpha, emphasize, styled } from '@mui/material/styles';
@@ -16,6 +17,13 @@ import { ITimelineAction } from '../TimelineAction';
 import TimelineTrackActions from '../TimelineLabels/TimelineTrackActions';
 import TimelineFile from "../TimelineFile";
 
+/*
+ shrinkScale,
+ growScale,
+ growUnselectedScale,
+ trackHeight
+ */
+
 const TimelineTrackRoot = styled('div', {
   name: 'MuiTimelineTrack',
   slot: 'Root',
@@ -30,8 +38,11 @@ const TimelineTrackRoot = styled('div', {
     prop !== 'trackHeight' &&
     prop !== 'yPercent' &&
     prop !== 'dim' &&
-    prop !== 'trackHeightDetailSelected' &&
-    prop !== 'trackHeightDetailUnselected' &&
+    prop !== 'shrinkScale' &&
+    prop !== 'growScale' &&
+    prop !== 'growUnselectedScale' &&
+    prop !== 'trackHeight' &&
+    prop !== 'growContainerScale' &&
     prop !== 'hover',
 })<{
   locked?: boolean;
@@ -44,45 +55,29 @@ const TimelineTrackRoot = styled('div', {
   disabled: boolean;
   dim?: boolean;
   yPercent?: number;
-  trackHeightDetailSelected: number;
-  trackHeightDetailUnselected: number;
-}>(({ theme, color, selected, hover, collapsed, disabled, dim, yPercent, trackHeight, trackHeightDetailSelected, trackHeightDetailUnselected }) => {
+  shrinkScale: number;
+  growScale: number;
+  growUnselectedScale: number;
+  growContainerScale: number;
+}>(({ theme,
+  color,
+  selected,
+  hover,
+  collapsed,
+  disabled,
+  dim,
+  yPercent,
+  trackHeight,
+  shrinkScale,
+  growScale,
+  growUnselectedScale,
+  growContainerScale
+}) => {
   if (collapsed) {
     color = theme.palette.mode === 'dark' ? '#ccc' : '#444';
   }
   const trackBack = getTrackBackgroundColor(color, theme.palette.mode, selected, hover, disabled, dim);
   return {
-    ...trackBack.row,
-    '&.timeline-track-selected': {
-      zIndex: 210,
-    },
-
-    '&.timeline-detail.timeline-track-selected': {
-      height: `${trackHeightDetailSelected}px!important`,
-      '& .timeline-action': {
-        height: `${trackHeightDetailSelected}px!important`,
-        '& .timeline-action-left-stretch, .timeline-action-right-stretch, .timeline-action-left-stretch::after, .timeline-action-right-stretch::after': {
-          height: `${trackHeightDetailSelected}px!important`,
-        }
-      }
-    },
-    '&.timeline-detail.timeline-track-unselected': {
-      height: `${trackHeightDetailUnselected}px!important`,
-      '& .timeline-action': {
-        height: `${trackHeightDetailUnselected}px!important`,
-        '& .timeline-action-left-stretch, .timeline-action-right-stretch, .timeline-action-left-stretch::after, .timeline-action-right-stretch::after': {
-          height: `${trackHeightDetailUnselected}px!important`,
-        }
-      }
-    },
-    '& .timeline-action': {
-      transformOrigin: `50% ${yPercent}%!important`,
-      transition: `height 1s ease-in-out, top 1s ease-in-out!important`,
-      '& .timeline-action-left-stretch, .timeline-action-right-stretch, .timeline-action-left-stretch::after, .timeline-action-right-stretch::after': {
-        transformOrigin: `50% ${yPercent}%!important`,
-        transition: `height 1s ease-in-out, top 1s ease-in-out!important`,
-      },
-    },
     borderBottom: `1px solid ${theme.palette.background.default}`,
     borderTop: `1px solid ${emphasize(theme.palette.background.default, 0.04)}`,
     position: 'relative',
@@ -92,7 +87,73 @@ const TimelineTrackRoot = styled('div', {
     cursor: 'pointer',
     boxSizing: 'border-box',
     transformOrigin: `50% ${yPercent}%!important`,
-    transition: `height 1s ease-in-out, top 1s ease-in-out!important`,
+    transition: `all .5s ease-in-out,width .2 ease-in-out!important`,
+    '& *': {
+      transformOrigin: `50% ${yPercent}%!important`,
+      transition: `all .5s ease-in-out, width .2 ease-in-out!important`,
+    },
+    ...trackBack.row,
+
+    // DETAIL
+    '&.timeline-detail': {
+
+      // TRACK UNSELECTED
+      '&.timeline-track': {
+        height: `${growUnselectedScale}px!important`,
+
+        // ACTION UNSELECTED
+        '& .timeline-action': {
+          height: `${growUnselectedScale}px!important`,
+
+          // ACTION LEFT / RIGHT AFFORDANCES
+          '& .timeline-action-left-stretch, .timeline-action-right-stretch, .timeline-action-left-stretch::after, .timeline-action-right-stretch::after': {
+            height: `${growUnselectedScale}px!important`,
+          }
+        },
+      },
+
+      // TRACK SELECTED
+      '&.timeline-track-selected': {
+        height: `${growScale}px!important`,
+
+        // ACTION UNSELECTED
+        '& .timeline-action': {
+          height: `${growScale - 16}px!important`,
+          marginTop: '7px!important',
+          // ACTION LEFT / RIGHT AFFORDANCES
+          '& .timeline-action-left-stretch, .timeline-action-right-stretch, .timeline-action-left-stretch::after, .timeline-action-right-stretch::after': {
+            height: `${growScale - 16}px!important`,
+          }
+        },
+
+        // ACTION SELECTED
+        '& .timeline-action.timeline-action-selected': {
+          height: `${growScale}px!important`,
+          marginTop: '0px!important',
+          // ACTION LEFT / RIGHT AFFORDANCES
+          '& .timeline-action-left-stretch, .timeline-action-right-stretch, .timeline-action-left-stretch::after, .timeline-action-right-stretch::after': {
+            height: `${growScale}px!important`,
+          }
+        },
+      },
+    },
+
+    // NORMAL
+    '& .timeline-action-selected': {
+      height: `${trackHeight}px!important`,
+      '& .timeline-action-left-stretch, .timeline-action-right-stretch, .timeline-action-left-stretch::after, .timeline-action-right-stretch::after': {
+        height: `${trackHeight}px!important`,
+      }
+    },
+    '& .timeline-action': {
+      height: `${shrinkScale}px!important`,
+      '& .timeline-action-left-stretch, .timeline-action-right-stretch, .timeline-action-left-stretch::after, .timeline-action-right-stretch::after': {
+        height: `${shrinkScale}px!important`,
+      },
+    },
+    '&.timeline-track': {
+      height: `${trackHeight}px!important`,
+    },
     variants: [
       {
         props: {
@@ -233,7 +294,6 @@ TimelineTrackLabel.propTypes = {
   }),
 } as any;
 
-const selectedScale = 1.65;
 
 export { TimelineTrackLabel };
 function TimelineTrack<
@@ -248,7 +308,7 @@ function TimelineTrack<
     flags,
     file
   } = context;
-  const  { scrollLeft, startLeft, scale, scaleWidth, trackHoverId, trackHeight, editorMode } = settings;
+  const  { scrollLeft, startLeft, scale, scaleWidth, trackHoverId, trackHeight } = settings;
 
   const { track,
     style = {},
@@ -273,23 +333,7 @@ function TimelineTrack<
     return parserPixelToTime(left, { startLeft, scale, scaleWidth });
   };
   const selected = index === context.settings.selectedTrackIndex;
-  React.useEffect(() => {
-    const value = {
-      trackHeightDetailSelected: selectedScale * trackHeight,
-      trackHeightDetailUnselected: (1 - ((selectedScale - 1) / (file.tracks.length - 1))) * trackHeight
-    }
-    if (!settings.trackHeightDetailSelected || settings.trackHeightDetailSelected !== value.trackHeightDetailSelected) {
-      dispatch({ type: 'SET_SETTING', payload: {value} });
-    }
-  }, []);
-/*
-  // TODO: implement reorder tracks
-  const [sizerData, setSizerData] = React.useState<{
-    hover: boolean;
-    down: boolean;
-    startY: number;
-  }>({ hover: false, down: false, startY: 0 });
-*/
+
 
   if (!track) {
     return undefined;
@@ -297,9 +341,6 @@ function TimelineTrack<
 
   if (flags.detailMode) {
     classNames.push('detail')
-    if (track?.id !== selectedTrack?.id) {
-      classNames.push('track-unselected');
-    }
   }
   if (track?.id === selectedTrack?.id || flags.collapsed) {
     classNames.push('track-selected');
@@ -323,7 +364,7 @@ function TimelineTrack<
       locked={track.locked}
       yPercent={calculatePercentage(file?.tracks?.length, index)}
       disabled={track.disabled || detailDisable}
-      dim={editorMode !== 'project' && selectedTrack?.id !== track.id}
+      dim={!!track.dim}
       onMouseEnter={(event) => {
         dispatch({
           type: 'SET_SETTING',
@@ -338,13 +379,15 @@ function TimelineTrack<
         });
         event.stopPropagation()
       }}
-      trackHeightDetailSelected={settings.trackHeightDetailSelected}
-      trackHeightDetailUnselected={settings.trackHeightDetailUnselected}
       hover={trackHoverId === track.id ? true : undefined}
       selected={selected}
       color={TimelineFile.getTrackColor(track)}
       style={{ ...style }}
-      trackHeight={trackHeight}
+      trackHeight={settings.trackHeight}
+      growScale={settings.growScale}
+      growUnselectedScale={settings.growUnselectedScale}
+      growContainerScale={settings.growContainerScale}
+      shrinkScale={settings.shrinkScale}
       sx={{
         opacity: 0,
         transform: 'scaleX(100%):nth-child(3n+1)',
@@ -354,7 +397,6 @@ function TimelineTrack<
         alignItems: 'center',
       }}
       onKeyDown={(e) => {
-        console.info('row root', e);
       }}
       onClick={(e) => {
         if (track.id !== 'newTrack') {
@@ -542,7 +584,7 @@ export default TimelineTrack;
 
 function ControlledTrack({ width, height }: { name?: string; width: number; height?: number }) {
   const context = useTimeline();
-  const { state, dispatch } = context;
+  const { state } = context;
   const {settings, selectedTrack } = state;
   const {
     startLeft, fitScaleData
@@ -554,6 +596,7 @@ function ControlledTrack({ width, height }: { name?: string; width: number; heig
 
   const scaleData = fitScaleData(
     context,
+    false,
     width
   );
   const scaledSettings = { ...settings, width, ...scaleData };

@@ -4,7 +4,9 @@ import {
   PreloadParams,
   ControllerParams,
   ITimelineAction,
-  IController, ITimelineTrack
+  IController,
+  ITimelineTrack,
+  GetItemParams
 } from "@stoked-ui/timeline";
 
 
@@ -68,7 +70,7 @@ class AudioControl extends Controller<Howl> implements IController {
   start(params: ControllerParams) {
     const { action, time , engine, track} = params;
     this.log({ action, time }, 'audio start')
-    const item: Howl = this.getItem(params as PreloadParams);
+    const item: Howl = this.getItem(params as GetItemParams);
     if (item) {
       item.rate(engine.getPlayRate());
       item.seek(Controller.getActionTime(params));
@@ -145,7 +147,7 @@ class AudioControl extends Controller<Howl> implements IController {
     }
   }
 
-  getItem(params: PreloadParams) {
+  getItem(params: GetItemParams) {
     const { track,} = params;
     let item = this.cacheMap[track.id];
     if (item) {

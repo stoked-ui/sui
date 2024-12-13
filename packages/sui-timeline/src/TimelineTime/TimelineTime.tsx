@@ -6,6 +6,7 @@ import { parserPixelToTime } from '../utils/deal_data';
 import { prefix } from '../utils/deal_class_prefix';
 import { useTimeline } from '../TimelineProvider';
 import { TimelineTimeProps } from './TimelineTime.types';
+import ZoomControls from "../TimelineTrackArea/ZoomControls";
 
 const TimeAreaRoot = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -181,10 +182,11 @@ function TimelineTime(props: TimelineTimeProps) {
 
   return (
     <TimeAreaRoot
-      sx={{ marginLeft: `${startLeft - 7}px` }}
+      sx={{ marginLeft: `${startLeft - 7}px`, display: 'grid' }}
       ref={timeAreaRef}
       className={prefix('time-area')}
     >
+      <ZoomControls />
       <AutoSizer>
         {({ width, height }) => {
           return (
