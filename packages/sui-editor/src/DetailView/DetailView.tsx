@@ -171,7 +171,6 @@ function DetailModal () {
   const onClose = () => {
     dispatch({ type: 'CLOSE_DETAIL' });
     setInitialized(false);
-    setCopiedFile(null);
   }
 
   React.useEffect(() => {
