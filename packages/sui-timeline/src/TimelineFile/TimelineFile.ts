@@ -4,7 +4,7 @@ import {
   IMediaFile, MediaFile, AppFile
 } from "@stoked-ui/media-selector";
 import {alpha} from "@mui/material/styles";
-import { Constructor, namedId } from "@stoked-ui/common";
+import { Constructor, compositeColors, namedId } from "@stoked-ui/common";
 import {
   type ITimelineAction,
   type ITimelineFileAction,
@@ -34,12 +34,14 @@ export default class TimelineFile<
   ActionType extends ITimelineAction = ITimelineAction,
   FileDataType extends ITimelineFileData = ITimelineFileData,
 >
-  extends AppFile<FileDataType>
+  extends AppFile
   implements ITimelineFile<TrackType, FileDataType> {
 
   image?: string;
 
   protected _tracks?: TrackType[];
+
+  protected _initialized = false;
 
   protected actionInitializer: (action: FileActionType, index: number) => ActionType;
 
@@ -57,7 +59,7 @@ export default class TimelineFile<
           const { volume } = Controller.getVol(action.volume![i]);
 
           if (volume < 0 || volume > 1) {
-            console.info(`${action.name} [${action.url}] - specifies a volume of ${volume} which is outside the standard range: 0.0 - 1.0`)
+            console.info(`${action.name} - specifies a volume of ${volume} which is outside the standard range: 0.0 - 1.0`)
           }
         }
         return -1; // -1: volume part unassigned => volume 1 until assigned
@@ -115,24 +117,27 @@ export default class TimelineFile<
         // eslint-disable-next-line no-await-in-loop
         trackInput.file = await MediaFile.fromUrl(trackInput.url);
       }
+      trackInput.controller = TimelineFile.Controllers[trackInput.file.mediaType];
     }
     return tracks;
   }
 
-  async preload() {
+  async preload(editorId: string) {
     await this.loadUrls();
 
-    const nestedPreloads = this._tracks.map((track) => {
-      if (track.controller) {
-        track.controller = TimelineFile.Controllers[track.file.mediaType];
-      }
+    if (this._initialized) {
+      return;
+    }
 
+    const nestedPreloads = this._tracks.map((track) => {
       return track.actions?.map(async (action) => {
         // await track.file?.extractMediaMetadata();
-        return track.controller?.preload({ action, track })
+        return track.controller?.preload({ action, editorId, track })
       })
     });
     await Promise.all(nestedPreloads.flat());
+
+    this._initialized = true;
   }
 
   getName(props: ITimelineFileProps<FileTrackType>): string {
@@ -178,17 +183,17 @@ export default class TimelineFile<
   }
 
   get data(): FileDataType {
-    return {
-      ...super.data,
-      tracks: this.tracks?.map((track) => {
-        const { file, controller, ...trackJson } = track;
+    const baseData = super.data;
+    const tracks = this.tracks?.map((track) => {
+        const { file, controller,...trackJson } = track;
         return {
           ...trackJson,
-          url: file?.url,
-          controllerName: file?.mediaType,
-        } as ITimelineTrackData<TrackType>
-      }),
-    };
+        }
+      }) as  Omit<TrackType, "controller" | "file">[];
+    return {
+      ...baseData,
+      tracks
+    } as any
   }
 
   async readObjectFromStream<T>(stream: ReadableStream<Uint8Array>): Promise<T> {
@@ -222,6 +227,9 @@ export default class TimelineFile<
 
   static getTrackColor<TrackType extends ITimelineTrack = ITimelineTrack>(track: TrackType) {
     const trackController = track.controller;
+    if (track.muted) {
+      return compositeColors(trackController?.color, '#FF0000CC');
+    }
     return trackController ? alpha(trackController.color ?? '#666', 0.11) : '#00000011';
   }
 
@@ -284,8 +292,8 @@ export default class TimelineFile<
   }
 
   static async fromUrl<AppFileType = TimelineFile>(url: string, FileConstructor: Constructor<AppFileType> = TimelineFile as unknown as Constructor<AppFileType>): Promise<AppFileType> {
-    const file= await AppFile.fromUrl<AppFileType>(url, FileConstructor) as ITimelineFile;
-    await file.preload();
+    const file= await AppFile.fromUrl(url, FileConstructor) as ITimelineFile;
+    await file.loadUrls();
     return file as AppFileType;
   }
 

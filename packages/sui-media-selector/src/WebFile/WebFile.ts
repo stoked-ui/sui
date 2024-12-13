@@ -1,4 +1,4 @@
-import { namedId, Settings} from "@stoked-ui/common";
+import {namedId, Settings, FileSaveRequest, LocalDb, MimeRegistry} from "@stoked-ui/common";
 import {
   OpenDialogProps,
   openFileApi,
@@ -38,7 +38,7 @@ export interface IWebFileData {
 }
 
 export interface IWebFileApi {
-  getSaveRequest(): Promise<{ blob: Blob; metadata: any }>;
+  getSaveRequest(): Promise<FileSaveRequest>;
   save(silent?: boolean): Promise<void>;
   checksum(): Promise<string>;
   isDirty(): Promise<boolean>;
@@ -75,6 +75,8 @@ export default abstract class WebFile implements IWebFile {
   protected _description = '';
 
   protected _author = '';
+
+  protected _type = '';
 
   constructor(props: IWebFileProps) {
     this._id = props?.id ?? namedId('webapp')
@@ -121,9 +123,27 @@ export default abstract class WebFile implements IWebFile {
     return this._description;
   }
 
+  createSaveRequest() {
+    return {
+      id: this.id,
+      version: this.version,
+      meta: {
+        id: this.id,
+        name: this.name,
+        version: this.version,
+        created: this.created,
+        lastModified: this.lastModified,
+        metadata: this.metadata,
+        description: this.description,
+        author: this.author,
+      },
+      mime: MimeRegistry.types[this._type],
+      metadata: this.data
+    };
+  }
 
   // Abstract method to generate a save request - implement in derived classes
-  abstract getSaveRequest(): Promise<{ blob: Blob; metadata: any }>;
+  abstract getSaveRequest(): Promise<FileSaveRequest>;
 
   async save(silent: boolean = false): Promise<void> {
     const isDirty = await this.isDirty();
@@ -133,11 +153,13 @@ export default abstract class WebFile implements IWebFile {
     }
 
     try {
-      const { blob } = await this.getSaveRequest();
       this._version += 1;
       this._lastChecksum = await this.checksum();
+      const saveRequest = await this.getSaveRequest();
 
+      await LocalDb.saveFile(saveRequest)
       if (!silent) {
+        const { blob } = saveRequest;
         const saveOptions = {
           suggestedName: this.name,
           fileBlob: blob,

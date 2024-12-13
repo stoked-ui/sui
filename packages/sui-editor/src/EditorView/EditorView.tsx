@@ -2,6 +2,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { IMediaFile } from '@stoked-ui/media-selector';
 import composeClasses from '@mui/utils/composeClasses';
+import {Fade} from "@mui/material";
 import { useSlotProps } from '@mui/base/utils';
 import { keyframes } from '@emotion/react';
 import useForkRef from '@mui/utils/useForkRef';
@@ -11,8 +12,6 @@ import { getEditorViewUtilityClass } from './editorViewClasses';
 import { useEditorContext } from '../EditorProvider/EditorContext';
 import Loader from '../Editor/Loader';
 import EditorViewActions from "./EditorViewActions";
-import Zoom from "@mui/material/Zoom";
-import {Fade} from "@mui/material";
 
 const useThemeProps = createUseThemeProps('MuiEditorView');
 
@@ -38,7 +37,9 @@ const EditorViewRoot = styled('div', {
     prop !== 'viewButtonExit' &&
     prop !== 'viewButtonEnter' &&
     prop !== 'fileUrl' &&
-    prop !== 'fileView'
+    prop !== 'fileView' &&
+    prop !== 'detailMode' &&
+    prop !== 'editorId'
 })<{ loading: boolean }>(({ loading }) => {
   const spin = keyframes`
     0% { transform: rotate(0deg); }
@@ -121,6 +122,7 @@ const EditorView = React.forwardRef(function EditorView<
   const props = useThemeProps({ props: inProps, name: 'MuiEditorView' });
   const viewRef = React.useRef<HTMLDivElement>(null);
   const combinedViewRef = useForkRef(ref, viewRef);
+  const { editorId } = props;
 
   const [, setViewerSize] = React.useState<{ w: number; h: number }>({ w: 0, h: 0 });
   const viewerRef = React.useRef<HTMLDivElement>(null);
@@ -132,8 +134,8 @@ const EditorView = React.forwardRef(function EditorView<
     if (engine && viewRef?.current) {
       engine.viewer = viewRef.current;
       if (viewRef.current.parentElement && settings) {
-        viewRef.current.id = `viewer-${settings.editorId}`;
-        viewRef.current.classList.add(settings.editorId);
+        viewRef.current.id = `viewer-${editorId}`;
+        viewRef.current.classList.add(editorId);
       }
     }
   }, [viewRef, engine]);
@@ -142,8 +144,8 @@ const EditorView = React.forwardRef(function EditorView<
   React.useEffect(() => {
     if (rendererRef.current && viewRef.current) {
       if (!rendererRef.current.id && viewRef.current.parentElement && settings) {
-        rendererRef.current.id = `renderer-${settings.editorId}`;
-        rendererRef.current.classList.add(settings.editorId);
+        rendererRef.current.id = `renderer-${editorId}`;
+        rendererRef.current.classList.add(editorId);
       }
     }
   });
@@ -152,8 +154,8 @@ const EditorView = React.forwardRef(function EditorView<
   React.useEffect(() => {
     if (screenerRef.current && viewRef.current) {
       if (!screenerRef.current.id && viewRef.current.parentElement && settings) {
-        screenerRef.current.id = `screener-${settings.editorId}`;
-        screenerRef.current.classList.add(settings.editorId);
+        screenerRef.current.id = `screener-${editorId}`;
+        screenerRef.current.classList.add(editorId);
       }
     }
   });
@@ -165,8 +167,8 @@ const EditorView = React.forwardRef(function EditorView<
     }
     if (stageRef.current && viewRef.current) {
       if (!stageRef.current.id && viewRef.current.parentElement && settings) {
-        stageRef.current.id = `stage-${settings.editorId}`;
-        stageRef.current.classList.add(settings.editorId);
+        stageRef.current.id = `stage-${editorId}`;
+        stageRef.current.classList.add(editorId);
       }
     }
   }, [stageRef.current]);

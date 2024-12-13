@@ -2,14 +2,25 @@ import {
   createSettings,
   namedId,
   FetchBackoff,
-  Settings
+  Settings,
+  ExtensionMimeTypeMap
 } from "@stoked-ui/common";
-import { getMediaType, MediaType } from '../MediaType/MediaType';
-import {DropFile, getInputFiles, FileArray, FileValue, FromEventInput, FILES_TO_IGNORE, isChangeEvt, isDataTransfer, isObject, PragmaticDndEvent} from "./MediaFile.types";
-import {ExtensionMimeTypeMap} from "../WebFile/MimeType";
+import {
+  DropFile,
+  getInputFiles,
+  FileArray,
+  FileValue,
+  FromEventInput,
+  FILES_TO_IGNORE,
+  isChangeEvt,
+  isDataTransfer,
+  isObject,
+  PragmaticDndEvent
+} from "./MediaFile.types";
 import IMediaFile from "./IMediaFile";
 import WebFile from "../WebFile/WebFile";
 import ScreenshotStore from "./Metadata/ScreenshotStore";
+import {getMediaType, MediaType} from "../MediaType";
 
 export interface IAudioMetadata {
   duration: number;
@@ -211,10 +222,8 @@ export default class MediaFile extends File implements IMediaFile {
         tags: [],
       },
       id: this.generateId, // Generate a unique ID
+      mediaType: getMediaType(file.type),
     };
-
-    // Automatically determine mediaType using the file's MIME type
-    mediaFileOptions['mediaType'] = getMediaType(file.type);
 
     // Create MediaFile instance
     return new MediaFile([file], file.name, mediaFileOptions);
@@ -535,7 +544,9 @@ export default class MediaFile extends File implements IMediaFile {
     format: string;   // MIME type
     name: string;     // File name
     size: number;
-    video: HTMLVideoElement
+    video: HTMLVideoElement;
+    width: number;
+    height: number;
   }> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -560,8 +571,10 @@ export default class MediaFile extends File implements IMediaFile {
               duration: video.duration, // Duration in seconds
               format: file.type,        // MIME type
               name: file.name,          // File name
-              size: file.size,
-              video,                    // File size in bytes
+              size: file.size,  // File size in bytes
+              video,
+              width: video.videoWidth,
+              height: video.videoHeight
             });
           }
         }
@@ -589,21 +602,20 @@ export default class MediaFile extends File implements IMediaFile {
     video: HTMLVideoElement
   }> {
     try {
-      const videoData = await this.createVideoElement(file);
-      const screenshotStore = new ScreenshotStore({ threshold: 1, video: videoData.video, file });
+      const { video, ...videoData} = await this.createVideoElement(file);
+      const screenshotStore = new ScreenshotStore({ threshold: 1, video, file });
+      file.media = { ...file.media, screenshotStore, ...videoData, element: video };
 
       if (!screenshots) {
-        file.media = { ...file.media, screenshotStore, ...videoData };
-        return { ...videoData, screenshotStore };
+        return { ...videoData, screenshotStore, video };
       }
       const screenshotCount = typeof screenshots === 'number' ? screenshots : 1;
-      const {video} = videoData;
-      await screenshotStore.generateTimespanScreenshots(screenshotCount, video, { start: 0, end: video.duration });
+      await file.media.screenshotStore.generateTimespanScreenshots(screenshotCount, video, { start: 0, end: videoData.duration });
 
-        file.media = { ...file.media, screenshotStore, ...videoData };
       return {
         screenshotStore,
-        ...videoData
+        ...videoData,
+        video
       };
     } catch (ex) {
       throw new Error('Failed to read file');

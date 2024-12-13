@@ -128,15 +128,15 @@ export const getTrackBackgroundColor = (color: string, mode: 'dark' | 'light', s
   const state = getState(selected, hover);
   const modeState = TrackColorAlpha[mode][state];
   const modeMod = (scalar: number) => mode === 'light' ? scalar : scalar;
-  const firstAlpha = (scalar: number) => mode === 'light' ? scalar * 8 : scalar;
+  const firstAlpha = (scalar: number) => mode === 'light' ? scalar * 2 : scalar;
   const endAlpha = (scalar: number) => mode === 'light' ? scalar : scalar;
   let baseColor = mode === 'light' ? '#fff' : '#000';
   if (disabled) {
     baseColor = mode === 'light' ? '#f5f5f5' : '#424242';
   }
-  const dimMultiplier = dim ? 1 : 1
-  let firstColor = compositeColors(baseColor, alpha(color, Math.max(0, Math.min(1, firstAlpha(modeMod(modeState.label)) * dimMultiplier))));
-    const endColor = compositeColors(baseColor, alpha(color, Math.max(0, Math.min(1, endAlpha(modeMod(modeState.row)) * dimMultiplier))));
+  const dimMultiplier = dim ? 0.5 : 1
+  let firstColor = compositeColors(baseColor, alpha(color, Math.max(0, Math.min(1, firstAlpha(modeMod(modeState.label))))));
+  const endColor = compositeColors(baseColor, alpha(color, Math.max(0, Math.min(1, endAlpha(modeMod(modeState.row))))));
   let opacity = 1;
   if (state === 'normal') {
     opacity = .95;
@@ -149,15 +149,15 @@ export const getTrackBackgroundColor = (color: string, mode: 'dark' | 'light', s
   return {
     label: {
       background: `linear-gradient(to right,${firstColor}, 80%, ${endColor})`,
-      opacity: `${1}!important`
+      opacity: `${dimMultiplier}!important`
     },
     row: {
       background: endColor,
-      opacity: `${opacity}!important`
+      opacity: `${dimMultiplier}!important`
     },
     action: {
-      background: alpha(color, modeMod(modeState.action) * dimMultiplier),
-      opacity: `${opacity}!important`
+      background: alpha(color, modeMod(modeState.action)),
+      opacity: `${dimMultiplier}!important`
     }
   };
 }
@@ -171,10 +171,10 @@ export const getTrackBackgroundColorDetail = (color: string, mode: 'dark' | 'lig
   if (disabled) {
     color = compositeColors(color, alpha(baseColor, .75));
   }
-  const dimMultiplier = dim ? .8 : 1
+  const dimMultiplier = dim ? .5 : 1
   let firstColor = compositeColors(baseColor, alpha(color, firstAlpha(modeMod(modeState.label)) * dimMultiplier));
   const endColor = compositeColors(baseColor, alpha(color, endAlpha(modeMod(modeState.row)) * dimMultiplier));
-  let opacity = 1;
+  // let opacity = 1;
 
   if (mode === 'dark') {
     firstColor = lighten(firstColor, .4)
@@ -184,15 +184,15 @@ export const getTrackBackgroundColorDetail = (color: string, mode: 'dark' | 'lig
   return {
     label: {
       background: `linear-gradient(to right,${firstColor}, 80%, ${endColor})`,
-      opacity: `${opacity}!important`
+      // opacity: `${opacity}!important`
     },
     row: {
       background: endColor,
-      opacity: `${opacity}!important`
+      // opacity: `${opacity}!important`
     },
     action: {
       background: alpha(color, modeMod(modeState.action) * dimMultiplier),
-      opacity: `${opacity}!important`
+      // opacity: `${opacity}!important`
     }
   };
 }
@@ -228,6 +228,8 @@ export interface ITimelineTrack<
   disabled?: boolean;
 
   controller: IController;
+
+  dim?: boolean;
 }
 
 export type ITimelineTrackData<TrackType extends ITimelineTrack = ITimelineTrack> = Omit<TrackType, 'file' | 'controller'> & {}

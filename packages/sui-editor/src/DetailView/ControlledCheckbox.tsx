@@ -54,7 +54,6 @@ export default function ControlledCheckbox({ control, name, label, disabled, cla
             disabled={disabled}
             className={className}
             onClick={onClick}
-            error={!!error}
           />
         }
         label={label}

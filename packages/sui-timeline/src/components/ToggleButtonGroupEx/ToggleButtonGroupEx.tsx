@@ -46,14 +46,15 @@ const ToggleButtonGroupStyled = styled(ToggleGroup, {
   } else {
     groupWidth = buttonCount * width + 1;
   }
+
   return {
     height: `${groupHeight}px`,
     width: `${groupWidth}px`,
     backgroundColor: 'transparent!important',
     '& .MuiButtonBase-root': {
       backgroundColor: theme.palette.background.paper,
-      color: theme.palette.text.primary,
-      border: `1px solid ${theme.palette.text.primary}`,
+      // color: theme.palette.text.primary,
+      // border: `1px solid ${theme.palette.text.primary}`,
       width: `${width}px`,
       height: `${height}px`,
       minHeight: `${minHeight}px`,

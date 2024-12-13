@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { alpha, darken, emphasize, lighten, styled } from '@mui/material/styles';
 import { shouldForwardProp } from '@mui/system/createStyled';
 import LockIcon from '@mui/icons-material/Lock';
-import {ImageList, ImageListItem} from "@mui/material";
+import {Fade, ImageList, ImageListItem} from "@mui/material";
 import Zoom from '@mui/material/Zoom';
 import { Screenshot } from '@stoked-ui/media-selector';
 import { DEFAULT_ADSORPTION_DISTANCE, DEFAULT_MOVE_GRID } from '../interface/const';
@@ -73,16 +73,7 @@ const Action = styled('div', {
   disabled,
   dim
 }) => {
-  /* const base = theme.vars ? `rgba(color(from ${color}) / 1)` : alpha(color, 1);
-  const unselected = emphasize(color, 0.7);
-  const hover = emphasize(color, 0.45);
-  const selectedColor = emphasize(color, 0.3);
-  const background = selected ? selectedColor : unselected; */
-  // console.log('color', color)
 
-  // if (collapsed) {
-  //   color = theme.palette.mode === 'dark' ? '#ccc' : '#444';
-  // }
   const trackBack = getTrackBackgroundColor(color, theme.palette.mode, selected, hover, disabled, dim);
 
   const backgroundColor = emphasize(color, 0.1);
@@ -133,7 +124,6 @@ const Action = styled('div', {
     position: 'absolute',
     left: 0,
     top: 0,
-    opacity: dim ? 0.05 : 1,
     background,
     backgroundSize,
     backgroundRepeat,
@@ -240,26 +230,27 @@ function TimelineAction<
 >(props: TimelineActionProps<TrackType, ActionType>) {
   const context = useTimeline();
   const { state, dispatch} = context;
-  const { settings } = state;
   const {
+    settings,
     file,
     flags,
     engine,
-    settings: {
-      scaleCount,
-      startLeft,
-      scale,
-      scaleWidth,
-      maxScaleCount,
-      scaleSplitCount,
-      actionHoverId,
-      setScaleCount,
-      trackHeight,
-      editorMode,
-      selectedAction,
-      selectedTrack
-    },
+    selectedTrack,
+    selectedAction
   } = state;
+  const {
+    scaleCount,
+    startLeft,
+    scale,
+    scaleWidth,
+    maxScaleCount,
+    scaleSplitCount,
+    actionHoverId,
+    setScaleCount,
+    trackHeight,
+    editorMode,
+    selected: currentSelection,
+  } = settings;
 
   const { gridSnap } = flags;
   const disableDrag = flags.disableDrag || engine.isPlaying;
@@ -307,7 +298,7 @@ function TimelineAction<
   if (movable && !track.locked) {
     classNames.push('action-movable');
   }
-  if (selected) {
+  if (selectedAction?.id === action.id) {
     classNames.push('action-selected');
   }
   if (flexible) {
@@ -337,6 +328,7 @@ function TimelineAction<
       onActionMoveStart({ action, track });
     }
   };
+
   const handleDrag: RndDragCallback = ({ left, width }) => {
     if (track.locked) {
       return;
@@ -528,30 +520,32 @@ function TimelineAction<
 
   const loopCount = !!action?.loop && typeof action.loop === 'number' && action.loop > 0 ? action.loop : undefined;
 
-  const hoverLocks = actionHoverId === action.id && track.locked;
-  const locked = (
-    <Zoom in={hoverLocks}>
+  const locked = (right: boolean) => (
+    <Zoom in={track.locked}>
       <LockIcon
         sx={(theme) => ({
-          marginRight: '10px',
+          margin: '0 10px',
           color: alpha(`${theme.palette.text.primary}`, 0.65),
+          position: 'absolute',
+          right: right ? '0' : undefined,
         })}
         fontSize={'small'}
+
       />
     </Zoom>
   );
 
   const locks = track.locked ? (
     <React.Fragment>
-      {locked}
-      {locked}
+      {locked(false)}
+      {locked(true)}
     </React.Fragment>
   ) : undefined;
 
-  const screenWidth = track?.file?.media?.screenshotStore?.aspectRatio ? dynamicTrackHeight * track.file.media.screenshotStore.aspectRatio : 0;
+
+  // @ts-ignore
+  // @ts-ignore
   return (
-
-
     <TimelineTrackDnd
       ref={rowRnd}
       parentRef={areaRef}
@@ -592,7 +586,7 @@ function TimelineAction<
         disabled={action?.disabled}
         id={action.id}
         tabIndex={0}
-        dim={editorMode !== 'project' && (selectedTrack?.id !== track.id || selectedAction?.id !== action.id)}
+        dim={action?.dim}
         trackHeight={trackHeight}
         onKeyDown={(event: any) => {
           event.currentTarget = action;
@@ -697,18 +691,19 @@ function TimelineAction<
                 className={'screen-shot'}
                 style={{
                   aspectRatio: track.file.media.screenshotStore.aspectRatio,
-                  objectFit: 'none',
+                  objectFit: 'cover',
                   height: '100%',
-                  opacity: 0.9,
-                  width: `${screenWidth}px`,
+                  opacity: track.locked ? 0.5 : 0.9,
+                  // @ts-ignore
+                  WebkitUserDrag: 'none',
                 }}
               />
             </ImageListItem>
           ))}
         </ImageList>
         {locks}
-        {!disableDrag && flexible && <LeftStretch className={`${prefix('action-left-stretch')}`} />}
-        {!disableDrag && flexible && <RightStretch className={`${prefix('action-right-stretch')}`} />}
+        <Fade in={!disableDrag && flexible}><LeftStretch className={`${prefix('action-left-stretch')}`} /></Fade>
+        <Fade in={!disableDrag && flexible}><RightStretch className={`${prefix('action-right-stretch')}`} /></Fade>
       </Action>
     </TimelineTrackDnd>
   );

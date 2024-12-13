@@ -1,5 +1,5 @@
 import WebFile from './index';
-import { IMimeType } from './IMimeType';
+import { IMimeType } from '@stoked-ui/common';
 /*
 
 export default class WebFileFactory {

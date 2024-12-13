@@ -155,7 +155,9 @@ const Timeline = React.forwardRef(function Timeline(
     if (inProps.actions) {
       TimelineFile.fromActions(inProps.actions)
         .then((timelineFile) => {
-          dispatch({ type: 'SET_FILE', payload: timelineFile })
+          timelineFile.preload(settings.editorId).then(() => {
+            dispatch({ type: 'SET_FILE', payload: timelineFile })
+          })
         })
     }
   }, [])
@@ -203,7 +205,7 @@ const Timeline = React.forwardRef(function Timeline(
 
     if (grid?.clientWidth && !engine.isLoading && file && file.id !== (lastFile?.id ?? 'no-id')) {
       setLastFile(file);
-      const scaleData = fitScaleData(context, grid?.clientWidth);
+      const scaleData = fitScaleData(context, false, grid?.clientWidth);
       if (scaleData) {
         setTimeout(() => {
           dispatch({type: 'SET_SETTING', payload: {value: {...scaleData}}});

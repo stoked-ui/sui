@@ -7,9 +7,10 @@ import ZoomInIcon from '@mui/icons-material/ZoomIn';
 import ZoomOutIcon from '@mui/icons-material/ZoomOut';
 import PropTypes from "prop-types";
 
-function ZoomControls({ style }: { style?: React.CSSProperties }) {
-  const { dispatch, state: { flags, settings} } = useTimeline();
-  const { scaleWidth } = settings;
+export default function ZoomControls({ style }: { style?: React.CSSProperties }) {
+  const { dispatch, state} = useTimeline();
+  const { flags, settings} = state;
+  const { scaleWidth, rawScaleWidth, scale } = settings;
 
   const [disabled, setDisabled] = React.useState(!!settings.disabled)
   React.useEffect(() => {
@@ -22,17 +23,6 @@ function ZoomControls({ style }: { style?: React.CSSProperties }) {
     return undefined;
   }
 
-  const handleZoomOptions = (event: React.MouseEvent<HTMLElement>, newOptions: string[]) => {
-    const add: string[] = [];
-    const remove: string[] = [];
-
-    if (newOptions.includes('zoomIn')) {
-      add.push('edgeSnap');
-    }
-
-    dispatch({ type: 'SET_FLAGS', payload: { add, remove } });
-  };
-
   const zoomInHandler = () => {
     dispatch({ type: 'SET_SETTING', payload: { key: 'scaleWidth', value: scaleWidth + 1 }})
   }
@@ -40,36 +30,38 @@ function ZoomControls({ style }: { style?: React.CSSProperties }) {
   const zoomOutHandler = () => {
     dispatch({ type: 'SET_SETTING', payload: { key: 'scaleWidth', value: scaleWidth - 1 }})
   }
-  const onControls = flags.noLabels && !flags.noZoomControls;
-  const width = onControls ? 52 : 40;
-  const height = onControls ? 40 : 32;
-
+  if (flags.detailMode) {
+    return null
+  }
+  const zoomOutDisabled = disabled || (scaleWidth / scale  < rawScaleWidth);
   return (
-    <ToggleButtonGroupEx
-      onChange={handleZoomOptions}
-      value={[]}
-      size={'small'}
-      aria-label="text alignment"
-      maxWidth={width}
-      maxHeight={height}
-      style={style}
-      disabled={disabled}
-    >
-      <Tooltip enterDelay={1000} title={'Zoom In'} key={'zoomIn'}>
-        <span>
-          <ToggleButton value="zoomIn" aria-label="zoom in" key={'zoomIn-key'} onClick={zoomInHandler}>
-            <ZoomInIcon />
-          </ToggleButton>
-        </span>
-      </Tooltip>
-      <Tooltip enterDelay={1000} title={'Zoom Out'} key={'zoomOut'}>
-        <span>
-          <ToggleButton value="zoomOut" aria-label="zoom out" key={'zoomOut-key'} onClick={zoomOutHandler}>
-            <ZoomOutIcon />
-          </ToggleButton>
-        </span>
-      </Tooltip>
-    </ToggleButtonGroupEx>
+    <div style={{ right: 0, justifySelf: 'end', alignSelf: 'center', position: 'absolute', zIndex: 300 }}>
+      <ToggleButtonGroupEx
+        id={'zoom-controls'}
+        value={[]}
+        size={'small'}
+        aria-label="text alignment"
+        maxWidth={30}
+        maxHeight={22}
+        style={{position: 'absolute'}}
+        disabled={disabled}
+      >
+        <Tooltip enterDelay={1000} title={'Zoom In'} key={'zoomIn'}>
+          <span>
+            <ToggleButton value="zoomIn" aria-label="zoom in" key={'zoomIn-key'} onClick={zoomInHandler}>
+              <ZoomInIcon />
+            </ToggleButton>
+          </span>
+        </Tooltip>
+        <Tooltip enterDelay={1000} title={'Zoom Out'} key={'zoomOut'}>
+          <span>
+            <ToggleButton disabled={zoomOutDisabled} value="zoomOut" aria-label="zoom out" key={'zoomOut-key'} onClick={zoomOutHandler}>
+              <ZoomOutIcon />
+            </ToggleButton>
+          </span>
+        </Tooltip>
+      </ToggleButtonGroupEx>
+  </div>
   );
 }
 
@@ -92,4 +84,3 @@ ZoomControls.propTypes = {
   style: PropTypes.object,
 } as any;
 
-export { ZoomControls };

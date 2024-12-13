@@ -5,7 +5,10 @@ import {
   IController,
 } from "@stoked-ui/timeline";
 import { type IEditorEngine } from "../EditorEngine";
-import { EditorControllerParams, EditorPreloadParams } from "./EditorControllerParams";
+import {
+  EditorControllerParams, EditorGetItemParams,
+  EditorPreloadParams
+} from "./EditorControllerParams";
 import { IEditorAction } from '../EditorAction/EditorAction';
 
 class AnimationControl extends Controller<AnimationItem> implements IController {
@@ -128,7 +131,7 @@ class AnimationControl extends Controller<AnimationItem> implements IController 
   }
   */
 
-  getItem(params: EditorPreloadParams) {
+  getItem(params: EditorGetItemParams) {
     const { action, track } = params;
     let item = this.cacheMap[track.id];
     if (item) {

@@ -7,10 +7,11 @@ import { EditorEngineState, IEditorEngine } from '../EditorEngine/EditorEngine.t
 import { EditorEvents } from '../EditorEngine';
 import { EditorReducer, EditorStateAction } from './EditorProvider.types';
 import { IEditorFile } from '../EditorFile/EditorFile';
-import EditorState from './EditorState';
+import EditorState, {refreshActionState, refreshTrackState} from './EditorState';
 import {IEditorAction} from "../EditorAction";
 import {IEditorTrack} from "../EditorTrack";
 import {StokedUiEditorApp} from "../Editor";
+import {getEditorDetail} from "../DetailView/Detail.types";
 
 TimelineFile.Controllers = Controllers;
 function EditorProvider<
@@ -43,7 +44,9 @@ function EditorProvider<
     selectedTrack: props.selectedTrack || undefined,
     selectedAction: props.selectedAction || undefined,
     app: props.app || new StokedUiEditorApp() as AppType,
+    initialSettings: { refreshActionState, refreshTrackState, getDetail: getEditorDetail }
   };
+
   const state = createTimelineState<State, EngineType, EngineStateType, FileType, TrackType, ActionType, AppType>(editorStateProps);
 
   const localDb = getDbProps(state.app.defaultInputFileType, props.localDb);

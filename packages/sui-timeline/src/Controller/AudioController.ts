@@ -2,7 +2,7 @@ import {Howl} from 'howler';
 import Controller from './Controller'
 import { IController } from './Controller.types'
 import {ITimelineAction} from "../TimelineAction";
-import {ControllerParams, PreloadParams} from "./ControllerParams";
+import {ControllerParams, GetItemParams, PreloadParams} from "./ControllerParams";
 import {ITimelineTrack} from "../TimelineTrack";
 
 class AudioControl extends Controller<Howl> implements IController {
@@ -65,7 +65,7 @@ class AudioControl extends Controller<Howl> implements IController {
   start(params: ControllerParams) {
     const { action, time , engine, track} = params;
     this.log({ action, time }, 'audio start')
-    const item: Howl = this.getItem(params as PreloadParams);
+    const item: Howl = this.getItem({ action, track } as GetItemParams);
     if (item) {
       item.rate(engine.getPlayRate());
       item.seek(Controller.getActionTime(params));
@@ -142,7 +142,7 @@ class AudioControl extends Controller<Howl> implements IController {
     }
   }
 
-  getItem(params: PreloadParams) {
+  getItem(params: GetItemParams) {
     const { track,} = params;
     let item = this.cacheMap[track.id];
     if (item) {

@@ -17,6 +17,7 @@ const CursorRoot = styled('div')({
   borderLeft: '1px solid #5297FF',
   borderRight: '1px solid #5297FF',
   transform: 'translateX(-25%) scaleX(0.5)',
+  zIndex: 300,
 });
 
 const CursorTopRoot = styled('svg')({
@@ -77,7 +78,7 @@ function TimelineCursor({
   }, [settings.actionTime]);
 
   React.useEffect(() => {
-    setCursor({ time: 0 }, context);
+    setCursor({ time:  engine.getStartTime() }, context);
   }, []);
 
   if (!file || !file.tracks || !file.tracks.length) {

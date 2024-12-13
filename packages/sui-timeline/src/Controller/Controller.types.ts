@@ -1,5 +1,5 @@
 import { type BackgroundImageStyle, type ITimelineAction } from "../TimelineAction/TimelineAction.types";
-import { PreloadParams, ControllerParams } from "./ControllerParams";
+import {PreloadParams, ControllerParams, GetItemParams} from "./ControllerParams";
 import {ITimelineTrack} from "../TimelineTrack";
 import { IMediaFile } from "@stoked-ui/media-selector";
 
@@ -10,7 +10,7 @@ export interface IController {
   leave(params: ControllerParams): void
   update(params: ControllerParams): void
   preload(params: PreloadParams): Promise<ITimelineAction>;
-  getItem(params: PreloadParams): any;
+  getItem(params: GetItemParams): any;
 
   viewerUpdate?: (engine: any) => void;
   destroy?: () => void;

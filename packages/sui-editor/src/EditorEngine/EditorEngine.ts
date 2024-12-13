@@ -280,7 +280,9 @@ export default class EditorEngine<
     this._next = 0;
 
     this._currentTime = time;
-
+    if (this.playbackMode === 'media' && this.media && this.media.currentTime) {
+      // this.media.currentTime = time / 1000;
+    }
     this._dealLeave(time);
     this._dealEnter(time);
 

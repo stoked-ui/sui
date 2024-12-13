@@ -3,7 +3,6 @@ import type {IController} from '../Controller/Controller.types';
 import type {ITimelineAction } from "../TimelineAction";
 import type { EventTypes } from './events';
 import { Emitter } from "./emitter";
-import { RowRndApi } from "../TimelineTrack/TimelineTrackDnd.types";
 
 export type SetAction<S> = S | ((prevState: S) => S);
 export type Dispatch<A> = (value: A) => void;
@@ -19,8 +18,15 @@ export interface IEngine<EmitterEvents extends EventTypes = EventTypes> extends 
   readonly canvasDuration: number;
   readonly actions: Record<string, ITimelineAction>;
   state: string;
-
   playbackMode: 'media' | 'canvas';
+
+  getStartTime(): number;
+
+  getEndTime(): number;
+
+  setStart(): void;
+
+  setEnd(): void;
 
   setScrollLeft(left: number): void;
   /** Set playback rate */

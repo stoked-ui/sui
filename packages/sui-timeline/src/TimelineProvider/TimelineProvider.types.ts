@@ -1,11 +1,15 @@
 import * as React from 'react';
 import {isMobile} from "react-device-detect";
-import {IMediaFile, IMimeType, App, Screenshot} from '@stoked-ui/media-selector';
+import {IMediaFile, App, Screenshot} from '@stoked-ui/media-selector';
 import {
   Constructor,
   createProviderState,
-  FlagData, namedId,
-  ProviderState, SortedList
+  FlagData,
+  namedId,
+  ProviderState,
+  SortedList,
+  IMimeType,
+  LocalDbProps, Settings
 } from "@stoked-ui/common";
 import {IController} from "../Controller";
 import TimelineFile, { ITimelineFile } from "../TimelineFile";
@@ -25,11 +29,18 @@ import {
   ITimelineAction,
   ITimelineFileAction
 } from "../TimelineAction/TimelineAction.types";
-import { LocalDbProps } from '../LocalDb/LocalDb';
 import {DetailData, getDetail, SelectionTypeName} from "./TimelineDetail";
 // eslint-disable-next-line import/no-cycle
 import {
-  createActionEvent, fitScaleData, getTrackHeight, setCursor, setHorizontalScroll, setScaleCount
+  createActionEvent,
+  fitScaleData,
+  getActionHeight, getHeightScaleData,
+  getTrackHeight,
+  refreshActionState,
+  refreshTrackState,
+  setCursor,
+  setHorizontalScroll,
+  setScaleCount
 } from "./TimelineProviderFunctions";
 import StokedUiTimelineApp from "../Timeline/StokedUiTimelineApp";
 
@@ -86,6 +97,7 @@ export interface ITimelineStateProps<
   selectedTrack?: TrackType,
   selectedAction?: ActionType,
   app?: AppType,
+  initialSettings?: Settings,
 }
 
 function processSelection<State extends TimelineState = TimelineState>(state: State): State {
@@ -114,7 +126,38 @@ function processSelection<State extends TimelineState = TimelineState>(state: St
   return {...state} // setDetailModeFlags({...state});
 }
 
-function updateSelection<State extends TimelineState = TimelineState>(state: State): State {
+function refreshState<State extends TimelineState = TimelineState>(state: State): State {
+  const { file, selected, selectedTrack, selectedAction, flags } = state;
+  let tracks = file?.tracks;
+  if (!tracks) {
+    return state;
+  }
+  tracks = tracks.map((track) => {
+    track = { ...track, ...state.settings.refreshTrackState(track, state) };
+
+    if (selectedTrack?.id === track.id) {
+      state.selectedTrack = track;
+      if (selected?.id === track.id) {
+        state.selected = track;
+      }
+    }
+
+    track.actions = track.actions.map((action) => {
+      const actionNew = { ...action, ...state.settings.refreshActionState(action, track, state) };
+      if (selectedAction?.id === action.id) {
+        state.selectedAction = actionNew;
+        state.selected = actionNew;
+      }
+      return actionNew;
+    });
+
+    return { ...track };
+  });
+  state.file!.tracks = [...tracks];
+  return {...state, selectedAction, selectedTrack};
+}
+
+export function updateSelection<State extends TimelineState = TimelineState>(state: State): State {
   state = processSelection(state);
   if (state.flags.detailMode) {
     state.file.tracks = state.file.tracks.map((track, index) => {
@@ -124,10 +167,10 @@ function updateSelection<State extends TimelineState = TimelineState>(state: Sta
       };
     })
   }
-  const detailData = getDetail(state)
+  const detailData = state.settings.getDetail(state)
   state.selectedDetail = detailData?.detail || null;
   state.selectedType = detailData?.type || null;
-  return {...state};
+  return {...refreshState<State>(state)};
 }
 
 export function createTimelineState<
@@ -208,6 +251,8 @@ export function createTimelineState<
       flags: initialFlags,
       settings: {
         trackHeight: isMobile ? DEFAULT_MOBILE_TRACK_HEIGHT : DEFAULT_TRACK_HEIGHT,
+        shrinkScalar: -.15,
+        growScalar: .6,
         scale: DEFAULT_SCALE,
         scaleSplitCount: DEFAULT_SCALE_SPLIT_COUNT,
         scaleWidth: DEFAULT_SCALE_WIDTH,
@@ -220,12 +265,21 @@ export function createTimelineState<
         versions: [],
         actionTime: 0,
         playbackMode: 'canvas',
+        detailSelectedScale: .6,
+        unselectedActionScale: -.1,
+        trackFiles: {},
         setCursor,
         setHorizontalScroll,
         createAction: createActionEvent,
         setScaleCount,
         fitScaleData,
         getTrackHeight,
+        getActionHeight,
+        getHeightScaleData,
+        refreshActionState,
+        refreshTrackState,
+        getDetail,
+        ...{ ...props.initialSettings ?? {}},
       }}),
     app: props.app ? props.app : new StokedUiTimelineApp(),
     selectedTrack: null as TrackType | null,
@@ -403,9 +457,12 @@ function TimelineReducerBase<
       if (state.file) {
         file = state.file;
         file.tracks = updatedTracks;
+
       }
       state.file = file;
-      return TimelineReducer({ ...state, file }, { type: 'SET_SETTING', payload: { key: 'maxScaleCount', value: state.engine.canvasDuration + 2 } });
+
+      state.settings = { ...getHeightScaleData(state), ...state.settings };
+      return TimelineReducer({ ...refreshState(state), file }, { type: 'SET_SETTING', payload: { key: 'maxScaleCount', value: state.engine.canvasDuration + 2 } });
     }
     case 'TRACK_HOVER': {
       return setSetting('hoverTrack',stateAction.payload, state);
@@ -514,6 +571,24 @@ export function TimelineReducer<
   State extends TimelineState = TimelineState,
   StateActionType extends { type: string, payload?: any } = TimelineStateAction
 >(state: State, stateAction: StateActionType): State {
+  const { settings } = state;
+
+  settings.tracks = state.file?.tracks.reduce((acc, item) => {
+    acc[item.id] = item; // Use the `id` as the key and the item itself as the value
+    return acc;
+  }, {} as Record<string, ITimelineTrack>) || {};
+
+  settings.trackFiles = state.file?.tracks.reduce((acc, item) => {
+    acc[item.id] = item.file; // Use the `id` as the key and the item itself as the value
+    return acc;
+  }, {} as Record<string, IMediaFile>) || {};
+
+  const actions = state.file?.tracks.map((track) => track.actions).flat() || [];
+  settings.actions = actions.reduce((acc, item) => {
+    acc[item.id] = item; // Use the `id` as the key and the item itself as the value
+    return acc;
+  }, {} as Record<string, ITimelineAction>) || {};
+
   return TimelineReducerBase(state, stateAction);
 }
 

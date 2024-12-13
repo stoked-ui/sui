@@ -1,7 +1,7 @@
 import * as React from "react";
 import {type ITimelineTrack} from "../TimelineTrack";
 import {TimelineContextType, type TimelineState, type TimelineStateAction} from "./TimelineProvider.types";
-import { type ITimelineFileAction} from "../TimelineAction";
+import {ITimelineAction, type ITimelineFileAction} from "../TimelineAction";
 import {DEFAULT_SCALE_WIDTH, NEW_ACTION_DURATION} from "../interface/const";
 import {getScaleCountByRows, parserPixelToTime, parserTimeToPixel} from "../utils";
 
@@ -31,7 +31,7 @@ export const setCursor = (param: { left?: number; time?: number; updateTime?: bo
   let { left, time } = param;
   const { updateTime = true } = param;
   const { state, dispatch } = context;
-  const { settings: {startLeft, scale, scaleWidth}, components, flags, engine } = state;
+  const { settings: {startLeft, scale, scaleWidth}, components, engine } = state;
   const scrollSync = components.scrollSync as React.PureComponent & { state: Readonly<any>};
 
   if (typeof left === 'undefined' && typeof time === 'undefined') {
@@ -89,18 +89,24 @@ export const setScaleCount = (value: number, context: TimelineContextType) =>  {
   dispatch({ type: 'SET_SETTING', payload: { key: 'scaleCount', value: newScaleCount } });
 }
 
-export const  fitScaleData = (context: TimelineContextType, newWidth?: number)  => {
+export const fitScaleData = (context: TimelineContextType, detailMode: boolean, newWidth?: number)  => {
   const { state, dispatch } = context;
-  const { settings, engine } = state;
+  const { settings, engine, flags } = state;
+  const { startLeft, maxScaleCount, minScaleCount } = settings;
+
+  if (detailMode && flags.detailMode) {
+    return null;
+  }
+
   if (!newWidth) {
     const timelineGrid = document.getElementById('timeline-grid');
     newWidth = timelineGrid.clientWidth;
   }
+
   const tracks = state.file?.tracks;
   if (!newWidth || !tracks?.length) {
     return null;
   }
-  const { startLeft, maxScaleCount, minScaleCount } = settings;
 
   const getScale = () => {
     const scaleWidth = (newWidth - (startLeft * 2)) / engine.maxDuration;
@@ -119,7 +125,7 @@ export const  fitScaleData = (context: TimelineContextType, newWidth?: number)  
   const scaleData = {
     scaleSplitCount: Math.floor(scaleWidth / 20),
     scaleWidth,
-    fullScaleWidth: scaleWidth,
+    rawScaleWidth: scaleWidth / scale,
     scaleCount,
     maxScaleCount: Math.max(maxScaleCount, Math.min(scaleCount, minScaleCount)),
     scale,
@@ -129,14 +135,113 @@ export const  fitScaleData = (context: TimelineContextType, newWidth?: number)  
   return scaleData;
 }
 
-const selectedScale = 1.6;
-export const getTrackHeight = (track: ITimelineTrack, state: TimelineState): number => {
-  const { flags: { detailMode }, file, selectedTrack, settings: { trackHeight,  } } = state;
+export type TrackHeightScaleData = {
+  shrinkScale: number,
+  growScale: number,
+  growUnselectedScale: number,
+  growContainerScale: number
+}
 
-  if (!detailMode) {
-    return trackHeight;
+export const getHeightScaleData = (state: TimelineState): TrackHeightScaleData => {
+  const { file, settings: { trackHeight, shrinkScalar, growScalar, growContainerScalar } } = state;
+  const shrinkScale = (1 - (shrinkScalar / ((file?.tracks?.length ?? 2) - 1))) * trackHeight
+  const growScale =  (growScalar * trackHeight) + trackHeight;
+  const growContainerScale =  (growScalar * trackHeight) + trackHeight;
+  const growUnselectedScale = (1 - (growScalar / ((file?.tracks?.length ?? 2) - 1))) * trackHeight
+  return {
+    shrinkScale,
+    growScale,
+    growUnselectedScale,
+    growContainerScale
   }
-  const trackHeightDetailSelected =  selectedScale * trackHeight;
-  const trackHeightDetailUnselected = (1 - ((selectedScale - 1) / ((file?.tracks?.length ?? 2) - 1))) * trackHeight
-  return track.id === selectedTrack?.id ? trackHeightDetailSelected : trackHeightDetailUnselected;
+}
+
+export const getTrackHeight = (track: ITimelineTrack, state: TimelineState): number => {
+  const { flags: { detailMode }, selectedTrack, settings } = state;
+  const scaleData = settings.getHeightScaleData(state);
+  if (!detailMode) {
+    return settings.trackHeight;
+  }
+  return track.id === selectedTrack?.id ? scaleData.growScale : scaleData.growUnselectedScale;
+}
+
+export const getActionHeight = (action: ITimelineAction, state: TimelineState): number => {
+  const { flags: { detailMode}, selectedAction, settings} = state;
+  const scaleData = settings.getHeightScaleData(state);
+  const selected = action.id === selectedAction?.id;
+  if (!detailMode) {
+    return selected ? settings.trackHeight : scaleData.shrinkScale;
+  }
+  return selected ? scaleData.growScale : scaleData.growUnselectedScale;
+}
+
+const isActionDim = (action: ITimelineAction, track: ITimelineTrack, state: TimelineState) => {
+  const { flags,  selectedTrack, selectedAction } = state;
+
+  // action is disabled
+  if (action.disabled || track.dim) {
+    return true;
+  }
+
+  // in detail mode
+  if (flags.detailMode) {
+
+    // an action is selected
+    if (selectedAction) {
+
+      // this action is selected
+      if (selectedAction.id !== action.id) {
+        return true;
+      }
+
+      // action unselected
+      return false;
+    }
+
+    // a track is selected
+    if (selectedTrack) {
+
+      // this track is selected
+      if (selectedTrack.id !== track.id) {
+        return true;
+      }
+
+      // track unselected
+      return false;
+    }
+  }
+
+  return false;
+}
+
+export const refreshActionState = (action: ITimelineAction, track: ITimelineTrack, state: TimelineState) => {
+  action.dim = isActionDim(action, track, state);
+  return action;
+}
+
+const isTrackDim = (track: ITimelineTrack, state: TimelineState) => {
+  const { flags, selectedTrack } = state;
+
+  // in detail mode
+  if (flags.detailMode) {
+
+    // a track is selected
+    if (selectedTrack) {
+
+      // this track is selected
+      if (selectedTrack.id !== track.id) {
+        return true;
+      }
+
+      // track unselected
+      return false;
+    }
+  }
+
+  return false;
+}
+
+export const refreshTrackState = (track: ITimelineTrack, state: TimelineState) => {
+  track.dim = isTrackDim(track, state);
+  return track;
 }

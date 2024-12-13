@@ -1,6 +1,5 @@
 import * as React from 'react';
 import Editor, { Controllers, EditorProvider } from '@stoked-ui/editor';
-import { ITimelineFileAction } from '@stoked-ui/timeline'
 
 export const scaleWidth = 160;
 export const scale = 2;

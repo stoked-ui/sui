@@ -40,15 +40,11 @@ export function DetailCombined() {
   const isSettings = selectedType === 'settings';
 
   return (
-    <FormWrap
-      onSubmit={settings.detailSubmit}
-      handleSubmit={settings.detailHandleSubmit}
-      title={selected?.name}
-    >
+    <React.Fragment>
       {isTrack && <DetailTrack detail={selectedDetail!} enableEdit={enableEdit} disableEdit={disableEdit} editMode={editMode} />}
       {isAction &&  <DetailAction detail={selectedDetail!} enableEdit={enableEdit} disableEdit={disableEdit} editMode={editMode} />}
       {isProject && <DetailProject detail={selectedDetail!} enableEdit={enableEdit} disableEdit={disableEdit} editMode={editMode} />}
       {isSettings && <DetailSettings detail={selectedDetail!} enableEdit={enableEdit} disableEdit={disableEdit} editMode={editMode} />}
-    </FormWrap>
+    </React.Fragment>
   )
 }

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import Editor, {
-  Controllers, EditorFile, EditorProvider, IEditorFile, IEditorFileProps
+  Controllers, EditorFile, EditorProvider, IEditorFile, IEditorFileProps,
+  useEditorContext
 } from '@stoked-ui/editor';
 import AudioFileIcon from '@mui/icons-material/AudioFile';
 import VideoFileIcon from '@mui/icons-material/VideoFile';
@@ -21,6 +22,8 @@ export const scale = 2;
 export const startLeft = 20;
 
 function EditorHeroGuts({ id, sx }: { id: string, sx?: SxProps}) {
+  const {state } = useEditorContext();
+  const { settings } = state;
   const [loadedFile, setLoadedFile] = React.useState<IEditorFile | undefined>();
 
   const loadEditorFile = async () => {
@@ -38,7 +41,10 @@ function EditorHeroGuts({ id, sx }: { id: string, sx?: SxProps}) {
       if (!editorFile) {
         return;
       }
-      setLoadedFile(editorFile);
+      editorFile.preload(settings.editorId).then(() => {
+        setLoadedFile(editorFile);
+
+      })
     })
   }, []);
 

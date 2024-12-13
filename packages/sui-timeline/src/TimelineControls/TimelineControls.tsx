@@ -86,7 +86,6 @@ const TimeRoot = styled('div')<{disabled: boolean}>(({ theme }) => ({
     padding: '0 4px',
     borderRadius: '12px',
     border: `1px solid ${theme.palette.text.primary}!important`,
-    background: theme.palette.background.default,
     WebkitTextFillColor: 'unset!important',
     textAlign: 'center',
     webkitUserSelect: 'none',

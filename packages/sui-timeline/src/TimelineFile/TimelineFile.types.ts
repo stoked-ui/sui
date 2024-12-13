@@ -1,4 +1,4 @@
-import {IAppFile, IAppFileProps, IAppFileData,  IMimeType, MimeRegistry} from "@stoked-ui/media-selector";
+import {IAppFile, IAppFileProps, IAppFileData } from "@stoked-ui/media-selector";
 import {
   ITimelineFileTrack, ITimelineTrack, ITimelineTrackData,
 } from "../TimelineTrack/TimelineTrack.types";
@@ -18,7 +18,8 @@ export interface ITimelineFile<
   FileDataType extends ITimelineFileData = ITimelineFileData
 > extends IAppFile {
   tracks: TrackType[];
-  preload(): Promise<void>;
+  preload(editorId: string): Promise<void>;
+  loadUrls(): Promise<void>;
   get data(): FileDataType;
 }
 

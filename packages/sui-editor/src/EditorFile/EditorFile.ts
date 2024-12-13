@@ -4,22 +4,17 @@ import {
   ITimelineFileProps,
   ITimelineFileData,
   ITimelineTrackData,
-  ITimelineFileTrack,
-  ITimelineTrack,
-  ITimelineFileAction, ITimelineAction
 } from '@stoked-ui/timeline';
-import {Constructor, FetchBackoff} from '@stoked-ui/common';
+import {Constructor } from '@stoked-ui/common';
 
 import {
-  IMediaFile, MediaFile, MimeType, MimeRegistry, IMimeType, AppOutputFile, IAppFile, AppFile,
+  IMediaFile, AppOutputFile, AppFile,
 } from '@stoked-ui/media-selector';
 import {
   BlendMode, Fit,
   IEditorAction,
   IEditorFileAction,
-  initEditorAction
 } from "../EditorAction/EditorAction";
-import { IEditorEngine } from "../EditorEngine";
 import { IEditorFileTrack, IEditorTrack } from "../EditorTrack/EditorTrack";
 
 export const editorFileCache: Record<string, any> = {};
@@ -101,7 +96,7 @@ export default class EditorFile<
     this.backgroundColor = props.backgroundColor ?? 'transparent';
     this.width = props.width ?? 1920;
     this.height = props.height ?? 1080;
-
+    this._type = 'application/stoked-ui-editor-project';
     let baseIndex = 0;
     this._tracks?.forEach((track, trackIndex) => {
       baseIndex = trackIndex;
@@ -149,7 +144,7 @@ export default class EditorFile<
 
   static async fromUrl<AppFileType = EditorFile>(url: string, FileConstructor: Constructor<AppFileType> = EditorFile as unknown as Constructor<AppFileType>): Promise<AppFileType> {
     const file= await AppFile.fromUrl<AppFileType>(url, FileConstructor) as ITimelineFile;
-    await file.preload();
+    await file.loadUrls();
     return file as AppFileType;
   }
 

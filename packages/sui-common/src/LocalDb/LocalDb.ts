@@ -1,12 +1,11 @@
 import { openDB } from '@tempfix/idb';
-import {MimeType, IMimeType, IWebFileData} from "@stoked-ui/media-selector";
-
-
+import {MimeType, IMimeType} from "../MimeType";
+import {Settings} from "../ProviderState/Settings";
 
 /**
  * Represents a version of a file stored in IndexedDB.
  */
-export type IDBFileVersion = Omit<IWebFileData, 'mimeType'> & {
+export type IDBFileVersion = Omit<ISaveFileData, 'mimeType'> & {
   data: Blob;
   mimeType: MimeType;
 };
@@ -35,13 +34,23 @@ export interface LocalDbProps {
   disabled: boolean;
 }
 
+
+export interface ISaveFileData {
+  id: string;
+  name: string;
+  version: number;
+  created: number;
+  lastModified: number;
+  metadata: Settings;
+  description: string;
+  author: string;
+}
+
 export interface FileSaveRequest {
   id: string,
   version: number,
-  embedded: boolean,
-  meta: IWebFileData,
-  embeddedBlob: Blob,
-  blob?: Blob,
+  meta: ISaveFileData,
+  blob: Blob,
   mime: IMimeType
 }
 

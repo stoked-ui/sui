@@ -4,6 +4,9 @@ import { Close } from "@mui/icons-material";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Modal from "@mui/material/Modal";
+import { ActionDetail, TrackDetail } from '@stoked-ui/timeline';
+import SettingsIcon from "@mui/icons-material/Settings";
+import Fab from "@mui/material/Fab";
 import Box from "@mui/material/Box";
 import { useEditorContext } from '../EditorProvider/EditorContext';
 import {  getActionSelectionData } from '../EditorProvider/EditorState';
@@ -11,9 +14,7 @@ import { RootBox } from "./Detail";
 import Controllers from "../Controllers";
 import EditorProvider from "../EditorProvider";
 import { DetailCombined } from './DetailCombined';
-import SettingsIcon from "@mui/icons-material/Settings";
-import Fab from "@mui/material/Fab";
-import OpenIcon from "@mui/icons-material/OpenInBrowser";
+import EditorFile, {IEditorFile} from "../EditorFile";
 
 const seen = new WeakSet();
 const replacer = (key, value) => {
@@ -40,37 +41,93 @@ interface DetailState {
 export const DetailView = React.forwardRef(function DetailView(
   { detailState, onClose }: DetailOutterProps, ref: React.Ref<HTMLDivElement>
 ) {
-  const { state: newEditorContext, dispatch } = useEditorContext();
-  const { selected } = newEditorContext
+  const { state , dispatch } = useEditorContext();
+  const { selected, selectedType, selectedAction, selectedTrack, selectedDetail } = state
 
   const { selectedTrackId, selectedActionId, selectedId } = detailState;
+  const [initialized, setInitialized] = React.useState(false);
+  const [currSelectedId, setCurrSelectedId] = React.useState('')
 
   React.useEffect(() => {
-    if (selected?.id !== selectedId) {
+    const getSelectionData = () => {
       if (selectedActionId) {
-        const actionSelectionData = getActionSelectionData(selectedActionId, newEditorContext);
-        if (actionSelectionData.selectedAction) {
-          dispatch({
-            type: 'SELECT_ACTION',
-            payload: actionSelectionData.selectedAction
-          });
+        return getActionSelectionData(selectedActionId, state);
+      }
+      if (selectedTrackId) {
+        const selectedIndex = state.file?.tracks.findIndex((track) => track.id === selectedTrackId);
+        if (selectedIndex !== undefined && selectedIndex !== -1 && state.file?.tracks[selectedIndex]) {
+          return { selectedTrack: state.file?.tracks[selectedIndex] };
         }
-      } else if (selectedTrackId) {
-        const selectedIndex = newEditorContext.file?.tracks.findIndex((track) => track.id === selectedTrackId);
-        if (selectedIndex !== undefined && selectedIndex !== -1 && newEditorContext.file?.tracks[selectedIndex]) {
-          dispatch({
-            type: 'SELECT_TRACK',
-            payload: newEditorContext.file?.tracks[selectedIndex]
-          });
-        }
+      }
+      if (selectedId && state.file && selectedId === state.file.id) {
+        return { selectedFile: state.file };
+      }
+      return {};
+    }
+    const selectionData: any = getSelectionData();
+    if (selected?.id !== selectedId) {
+      if (selectedActionId && 'selectedAction' in selectionData) {
+        dispatch({ type: 'SELECT_ACTION', payload: selectionData.selectedAction });
+        setCurrSelectedId(selectionData.selectedAction.id);
+      } else if (selectedTrackId && 'selectedTrack' in selectionData) {
+        dispatch({
+          type: 'SELECT_TRACK',
+          payload: selectionData.selectedTrack
+        });
+        setCurrSelectedId(selectionData.selectedTrack.id);
+      } else if (selectedId && 'selectedFile' in selectionData) {
+        dispatch({ type: 'SELECT_PROJECT' });
+        setCurrSelectedId(selectionData.selectedFile.id);
       }
     }
   }, [])
+
+  React.useEffect(() => {
+    if (currSelectedId === ''){
+      return;
+    }
+    if (selectedType === 'action' && selectedAction && (selectedDetail as ActionDetail).action.id !== selectedAction.id) {
+      setCurrSelectedId(selectedAction.id);
+      dispatch({ type: 'SELECT_ACTION',  payload: selectedAction });
+    } else if (selectedType === 'track' && selectedTrack && (selectedDetail as TrackDetail).track.id !== selectedTrack.id) {
+      setCurrSelectedId(selectedTrack.id);
+      dispatch({ type: 'SELECT_TRACK',  payload: selectedTrack });
+    } else if (selectedType === 'project' && state.file) {
+      setCurrSelectedId(state.file.id);
+      dispatch({ type: 'SELECT_PROJECT' });
+    }
+  }, [selected])
+
   const settingSwitch = () => {
     dispatch({ type: 'SELECT_SETTINGS' });
   }
    return (
-      <div style={{ position: 'relative',  minHeight: '600px', maxHeight: 'calc(100vh - 40px)', display: 'flex'}}>
+    <Card
+      component={RootBox}
+      sx={(theme) => ({
+        maxWidth: '850px',
+        width: '800px',
+        minWidth: '500px',
+        borderRadius: '12px',
+        position: 'relative',
+        minHeight: '600px',
+        maxHeight: 'calc(100vh - 40px)',
+        display: 'flex',
+        overflowY: 'auto',
+        backgroundImage: `linear-gradient(168deg, rgba(0, 59, 117, 0.4108018207282913) 0%,  ${theme.palette.mode === 'dark' ? '#000' : '#FFF'} 100%)`,
+        backgroundColor: '#c7def5',
+        '& .MuiFormControl-root .MuiInputBase-root .MuiInputBase-input': {
+          webkitTextFillColor: theme.palette.text.primary
+        }
+      })}>
+      <CardContent sx={(theme) => ({
+        gap: '0.8rem',
+        padding: '6px 24px 24px 24px',
+        display: 'flex',
+        flexDirection: 'column',
+        flexWrap: 'wrap',
+
+      })}>
         <Fab
           id={'settings'}
           color={'secondary'}
@@ -97,31 +154,11 @@ export const DetailView = React.forwardRef(function DetailView(
           })}
           onClick={onClose}
         >
-           <Close/>
+          <Close/>
         </Fab>
-        <Card
-          component={RootBox}
-          sx={(theme) => ({
-            maxWidth: '850px',
-            width: '800px',
-            minWidth: '500px',
-            backgroundColor: theme.palette.background.default,
-          })}>
-          <CardContent sx={(theme) => ({
-            gap: '0.8rem',
-            padding: '6px 24px 24px 24px',
-            display: 'flex',
-            flexDirection: 'column',
-            flexWrap: 'wrap',
-            background: `linear-gradient(168deg, rgba(0, 59, 117, 0.4108018207282913) 0%,  ${theme.palette.mode === 'dark' ? '#000' : '#FFF'} 100%)`,
-            '& .MuiFormControl-root .MuiInputBase-root .MuiInputBase-input': {
-              webkitTextFillColor: theme.palette.text.primary
-            }
-          })}>
-            <DetailCombined />
-          </CardContent>
-        </Card>
-      </div>
+        <DetailCombined />
+      </CardContent>
+    </Card>
   );
 });
 
@@ -130,21 +167,28 @@ function DetailModal () {
   const [initialized, setInitialized] = React.useState(false);
   const { state: {flags, file, selected, selectedAction, selectedTrack}, dispatch } = editorState;
   const [detailState, setDetailState] = React.useState<DetailState | null>(null);
-
+  const [copiedFile, setCopiedFile] = React.useState<IEditorFile | null>(null);
   const onClose = () => {
     dispatch({ type: 'CLOSE_DETAIL' });
+    setInitialized(false);
+    setCopiedFile(null);
   }
 
   React.useEffect(() => {
-    if (flags.detailOpen && !initialized) {
-      setDetailState({ selectedTrackId: selectedTrack?.id, selectedActionId: selectedAction?.id, selectedId: selected!.id});
-      setInitialized(true);
+    if (flags.detailOpen && !initialized && file) {
+      const newFile = new EditorFile(file.data);
+      newFile.preload('detail-editor').then(() => {
+        setCopiedFile(newFile)
+        setDetailState({ selectedTrackId: selectedTrack?.id, selectedActionId: selectedAction?.id, selectedId: selected!.id});
+        setInitialized(true);
+      })
     }
   }, [flags.detailOpen]);
 
   if (!detailState) {
     return undefined;
   }
+
 
   return (<Modal
     open={!!flags.detailOpen}
@@ -159,7 +203,7 @@ function DetailModal () {
       },
       outline: 'none',
     }}>
-      <EditorProvider file={file ?? undefined} controllers={Controllers}>
+      <EditorProvider file={copiedFile!} controllers={Controllers}>
           <DetailView onClose={onClose} detailState={detailState} />
       </EditorProvider>
 

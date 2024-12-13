@@ -1,6 +1,10 @@
-import {namedId, Constructor} from '@stoked-ui/common';
+import {namedId, Constructor, FileSaveRequest, } from '@stoked-ui/common';
 import MediaFile from '../../MediaFile';
-import WebFile, {IWebFile, IWebFileData, IWebFileProps} from '../../WebFile';
+import WebFile, {
+  IWebFile,
+  IWebFileData,
+  IWebFileProps,
+} from '../../WebFile';
 
 export type IAppFileProps = IWebFileProps & {
   mediaFiles?: MediaFile[];
@@ -39,8 +43,11 @@ export default class AppFile<FileDataType extends IAppFileData = IAppFileData> e
     return this._mediaFiles;
   }
 
-  async getSaveRequest(): Promise<{ blob: Blob; metadata: any }> {
-    return { blob: await this.toBlob(), metadata: this.data };
+  async getSaveRequest(): Promise<FileSaveRequest> {
+    return {
+      ...this.createSaveRequest(),
+      blob: await this.toBlob(),
+    };
   }
 
   /**
@@ -190,8 +197,9 @@ export default class AppFile<FileDataType extends IAppFileData = IAppFileData> e
    * Gets data for the AppFile.
    */
   get data(): FileDataType {
+    const baseData = super.data;
     return {
-      ...super.data,
+      ...baseData,
       mediaFilesMeta: this.mediaFiles.map((file) => { return { size: file.size, name: file.name, type: file.type }}),
     } as FileDataType
   }

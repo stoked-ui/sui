@@ -9,7 +9,6 @@ import {
 import { type ITimelineTrack} from '../TimelineTrack/TimelineTrack.types';
 import {Events, type EventTypes} from './events'
 import {Emitter} from './emitter';
-import { RowRndApi } from "../TimelineTrack/TimelineTrackDnd.types";
 
 /**
  * Timeline player
@@ -36,7 +35,7 @@ export default class Engine<
   protected _playRate = 1;
 
   /** current time */
-  protected _currentTime: number = 0;
+  _currentTime: number = 0;
 
   /** Playback status */
   _state: State;
@@ -45,6 +44,10 @@ export default class Engine<
   protected _prev: number = 0;
 
   playbackMode: 'media' | 'canvas' = 'canvas';
+
+  playbackTimespans: { timespan: { start: number, end: number }, fileTimespan: { start: number, end: number }}[];
+
+  playbackCurrentTimespans: { timespan: { start: number, end: number }, fileTimespan: { start: number, end: number }}[]
 
   media: HTMLMediaElement | null;
 
@@ -229,6 +232,37 @@ export default class Engine<
     this.tickAction(this._currentTime);
   }
 
+  getStartTime() {
+    if (this.playbackMode === 'media' && this.playbackTimespans.length) {
+      return this.playbackTimespans[0].timespan.start;
+    }
+
+    return 0;
+  }
+
+  getEndTime() {
+    if (this.playbackMode === 'media' && this.playbackTimespans.length) {
+      return this.playbackTimespans[this.playbackTimespans.length - 1].timespan.end;
+    }
+    return this.canvasDuration;
+  }
+
+  setStart() {
+    if (this.playbackMode === 'media' && this.media) {
+      this.playbackCurrentTimespans = JSON.parse(JSON.stringify(this.playbackTimespans));
+      this.media.currentTime = this.playbackCurrentTimespans[0].fileTimespan.start;
+    }
+    const start = this.getStartTime();
+    this.setTime(start, true);
+    this.reRender();
+  }
+
+  setEnd() {
+    const start = this.getStartTime();
+    this.setTime(start, true);
+    this.reRender();
+  }
+
   /**
    * Set playback time
    * @param {number} time
@@ -249,7 +283,8 @@ export default class Engine<
       this._dealLeave(time);
       this._dealEnter(time);
     } else if (this.media) {
-      this.media.currentTime = time;
+      console.info('setTime', time)
+      this.media.currentTime = this._currentTime + this.playbackCurrentTimespans[0].fileTimespan.start;
     }
 
     if (isTick) {
@@ -267,9 +302,9 @@ export default class Engine<
    * @memberof Engine
    */
   get time(): number {
-    if (this.playbackMode === 'media' && this.media) {
+    /* if (this.playbackMode === 'media' && this.media) {
       return this.media.currentTime;
-    }
+    } */
     return this._currentTime;
   }
 
@@ -309,6 +344,7 @@ export default class Engine<
     const currentTime = this.time;
     /** The current state is being played or the running end time is less than the start time, return directly */
     if (this.isPlaying || (toTime && toTime <= currentTime)) {
+      console.info('run return false')
       return false;
     }
 
@@ -348,6 +384,9 @@ export default class Engine<
   }): boolean {
     this._playRate = 1;
 
+    if (this.playbackMode === 'media' && this.media) {
+      this.media.style.display = 'flex';
+    }
     return this.run(param);
   }
 
@@ -372,9 +411,7 @@ export default class Engine<
   protected _end() {
     this.pause();
     // reset the cursor
-    this.setTime(0, true);
-    this.tickAction(0);
-    this.reRender();
+    this.setStart();
 
     this.trigger('ended' as keyof EmitterEvents, { engine: this as IEngine } as EmitterEvents[keyof EmitterEvents]);
   }
@@ -447,24 +484,40 @@ export default class Engine<
     // Execute action
     this.tickAction(currentTime);
 
+    if (this.playbackMode === 'media') {
+      if (this.media && this.media.currentTime >= this.playbackCurrentTimespans[0].fileTimespan.end) {
+        this.playbackCurrentTimespans.shift();
+        if (this.playbackCurrentTimespans.length) {
+          this.media.currentTime = this.playbackCurrentTimespans[0].fileTimespan.start;
+        } else {
+          this._end();
+          return;
+        }
+      }
+    }
     // In the case of automatic stop, determine whether all actions have been executed.
     if (!to && autoEnd && this._next >= this._actionSortIds.length && this._activeIds.length === 0) {
+      console.info('tick() tick autoEnd');
       this._end();
       return;
     }
     if (forwards && initialTime > this.canvasDuration) {
+      console.info('tick() forwards initialTime > this.canvasDuration');
       this._end();
       return;
     }
     if (!forwards && initialTime < 0) {
+      console.info('tick() forwards && initialTime < 0');
       this._end();
       return;
     }
 
     // Determine whether to terminate
     if (forwards && to && to <= currentTime) {
+      console.info('tick() forwards && to && to <= currentTime');
       this._end();
     } else if (!forwards && to && to >= this.canvasDuration) {
+      console.info('tick() !forwards && to && to >= this.canvasDuration');
       this._end();
     }
 
@@ -547,7 +600,7 @@ export default class Engine<
         }
         const track = this._actionTrackMap[actionId];
         // The action can be executed and started
-        if (action.end > time && active.indexOf(actionId) === -1) {
+        if (action.end > time && active.indexOf(actionId) === -1 && !track.dim) {
           const controller = track.controller;
           if (controller && controller?.enter) {
             console.info('enter', action.name, time);

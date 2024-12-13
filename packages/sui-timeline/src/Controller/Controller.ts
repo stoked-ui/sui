@@ -1,6 +1,6 @@
 import {ScreenshotQueue} from "@stoked-ui/media-selector";
 import { type IController } from "./Controller.types";
-import type { ControllerParams, PreloadParams } from './ControllerParams';
+import type {ControllerParams, GetItemParams, PreloadParams} from './ControllerParams';
 import type { ITimelineAction } from "../TimelineAction";
 import type { IEngine } from "../Engine";
 import {ITimelineTrack} from "../TimelineTrack";
@@ -32,7 +32,7 @@ abstract class Controller<ControlType> implements IController {
     this.colorSecondary = options.colorSecondary;
   }
 
-  abstract getItem(params: PreloadParams): ControlType
+  abstract getItem(params: GetItemParams): ControlType
 
   viewerUpdate?: (engine: any) => void;
 

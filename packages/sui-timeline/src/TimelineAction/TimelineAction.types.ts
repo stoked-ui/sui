@@ -90,7 +90,7 @@ export interface ITimelineAction
 
   disabled?: boolean;
 
-
+  dim?: boolean;
 }
 
 function setVolumeIndex(action: ITimelineFileAction) {
@@ -101,10 +101,10 @@ function setVolumeIndex(action: ITimelineFileAction) {
     const { volume } = Controller.getVol(action.volume![i]);
 
     if (volume < 0 || volume > 1) {
-      console.info(`${action.name} [${action.url}] - specifies a volume of ${volume} which is outside the standard range: 0.0 - 1.0`)
+      console.info(`${action.name} - specifies a volume of ${volume} which is outside the standard range: 0.0 - 1.0`)
     }
   }
-  return -1; // -1: volume part unassigned => volume 1 until assigned
+  return -1;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
