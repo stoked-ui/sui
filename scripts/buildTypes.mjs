@@ -19,10 +19,10 @@ function rewriteImportPath(importPath) {
   if (importPath.startsWith(stylesSrcPath)) {
     return importPath.replace(stylesSrcPath, '@stoked-ui/file-explorer');
   }
-  stylesSrcPath = path.posix.join('..', 'sui-media-selector', 'src');
+
+  stylesSrcPath = path.posix.join('..', 'sui-common', 'src');
   if (importPath.startsWith(stylesSrcPath)) {
-    console.info('switch media-selector path:', stylesSrcPath)
-    return importPath.replace(stylesSrcPath, '@stoked-ui/media-selector');
+    return importPath.replace(stylesSrcPath, '@stoked-ui/common');
   }
   throw new Error(`Don't know where to rewrite '${importPath}' to`);
 }
