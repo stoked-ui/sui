@@ -16,6 +16,7 @@ module.exports = function getBabelConfig(api) {
   const useESModules = api.env(['regressions', 'legacy', 'modern', 'stable', 'rollup']);
 
   const defaultAlias = {
+    '@stoked-ui/common': resolveAliasPath('./packages/sui-common'),
     '@stoked-ui/file-explorer': resolveAliasPath('./packages/sui-file-explorer'),
     '@stoked-ui/timeline': resolveAliasPath('./packages/sui-timeline'),
     '@stoked-ui/media-selector': resolveAliasPath('./packages/sui-media-selector'),
