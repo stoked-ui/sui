@@ -217,7 +217,7 @@ export interface ITimelineTrack<
   /** Whether the track is movable */
   locked?: boolean;
 
-  file?: IMediaFile;
+  file?: any;
 
   url?: string;
 
@@ -244,7 +244,7 @@ export interface ITimelineFileTrack extends Omit<ITimelineTrack, 'id' | 'control
 
   image?: string;
 
-  file?: IMediaFile;
+  file?: any;
 
   controllerName?: string;
 
