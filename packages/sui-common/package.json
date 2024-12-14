@@ -44,7 +44,8 @@
     "@mui/system": "^5.15.20",
     "@mui/utils": "^5.15.20",
     "clsx": "^2.1.1",
-    "prop-types": "^15.8.1"
+    "prop-types": "^15.8.1",
+    "@tempfix/idb": "^8.0.3"
   },
   "peerDependencies": {
     "@emotion/react": "^11.9.0",
