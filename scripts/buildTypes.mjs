@@ -13,18 +13,24 @@ const $$ = $({ stdio: 'inherit' });
  * @param {string} importPath - POSIX path
  */
 function rewriteImportPath(importPath) {
-  
 
-  const stylesSrcPath = path.posix.join('..', 'sui-file-explorer', 'src');
+
+  let stylesSrcPath = path.posix.join('..', 'sui-file-explorer', 'src');
   if (importPath.startsWith(stylesSrcPath)) {
     return importPath.replace(stylesSrcPath, '@stoked-ui/file-explorer');
+  }
+  stylesSrcPath = path.posix.join('..', 'sui-media-selector', 'src');
+  if (importPath.startsWith(stylesSrcPath)) {
+    console.info('switch media-selector path:', stylesSrcPath)
+    return importPath.replace(stylesSrcPath, '@stoked-ui/media-selector');
   }
   throw new Error(`Don't know where to rewrite '${importPath}' to`);
 }
 
 async function rewriteImportPaths(declarationFile, publishDir) {
   const code = await fse.readFile(declarationFile, { encoding: 'utf8' });
-  const basename = path.basename(declarationFile);
+  const basename = +
+    path.basename(declarationFile);
 
   if (
     // Only consider React components
@@ -115,6 +121,7 @@ async function main() {
     declarationFiles.map(async (declarationFile) => {
       try {
         const rewrites = await rewriteImportPaths(declarationFile, publishDir);
+        console.info('declarationFile:', declarationFile, 'publishDir:', publishDir)
         if (rewrites.length > 0) {
           // eslint-disable-next-line no-console -- Verbose logging
           console.log(`${chalk.bgYellow`FIXED`} '${declarationFile}':\n${rewrites.join('\n')}`);

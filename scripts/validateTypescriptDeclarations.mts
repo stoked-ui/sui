@@ -12,7 +12,9 @@ function validateFiles() {
   });
   const invalidFiles = declarationFiles.filter((file) => {
     const content = fs.readFileSync(file, 'utf8');
+    console.info(`checking ${file}`)
     const regex = /import\(["']packages\//gm;
+
     return regex.test(content);
   });
 
