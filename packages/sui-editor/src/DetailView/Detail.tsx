@@ -481,10 +481,13 @@ export function FormWrap({ title, children, titleId, submitHandler}) {
   const {detailHandleSubmit, detailOnSubmit, selected} = settings;
   const ref = React.useRef<HTMLDivElement>(null);
   React.useEffect(() => {
-    if (ref.current?.clientWidth) {
+    if (ref.current && ref.current?.clientWidth) {
       console.info('ref.current.clientWidth', ref.current.clientWidth);
-      const scaledData = settings.fitScaleData(context, true, ref.current.clientWidth - 14);
-      dispatch({type: 'SET_SETTING', payload: {value: {...scaledData,}}})
+      setTimeout(() => {
+        const scaledData = settings.fitScaleData(context, true, ref.current!.clientWidth - 14);
+        dispatch({type: 'SET_SETTING', payload: {value: {...scaledData,}}})
+      }, 3000)
+
     }
   }, [ref.current?.clientWidth]);
 
