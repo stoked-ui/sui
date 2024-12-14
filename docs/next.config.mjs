@@ -244,8 +244,8 @@ export default withDocsInfra({
     BUILD_ONLY_ENGLISH_LOCALE: String(buildOnlyEnglishLocale),
     DEV_DISPLAY: `${process.env.DEV_DISPLAY}`,
     // SUI Core related
-    GITHUB_AUTH: process.env.GITHUB_AUTH
-      ? `Basic ${Buffer.from(process.env.GITHUB_AUTH).toString('base64')}`
+    GH_AUTH: process.env.GH_AUTH
+      ? `Basic ${Buffer.from(process.env.GH_AUTH).toString('base64')}`
       : '',
   },
   distDir: 'export',
