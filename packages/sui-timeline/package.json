@@ -55,7 +55,6 @@
     "@emotion/styled": "^11.8.1",
     "@interactjs/types": "^1.10.11",
     "@mui/system": "^5",
-    "@tempfix/idb": "^8.0.3",
     "@types/react-virtualized": "^9.21.14",
     "@use-gesture/react": "^10.3.1",
     "framework-utils": "^1.1.0",
