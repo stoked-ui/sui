@@ -24,7 +24,7 @@ function formatVersion(version) {
 async function getBranches() {
   const result = await fetch('https://api.github.com/repos/stoked-ui/mono/branches', {
     headers: {
-      Authorization: process.env.GITHUB_AUTH,
+      Authorization: process.env.GH_AUTH,
     },
   });
   const text = await result.text();
