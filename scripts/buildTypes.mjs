@@ -29,8 +29,7 @@ function rewriteImportPath(importPath) {
 
 async function rewriteImportPaths(declarationFile, publishDir) {
   const code = await fse.readFile(declarationFile, { encoding: 'utf8' });
-  const basename = +
-    path.basename(declarationFile);
+  const basename = path.basename(declarationFile);
 
   if (
     // Only consider React components
