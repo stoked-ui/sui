@@ -4,13 +4,20 @@
   "node": "18",
   "packages": [
     "packages/docs",
+    "packages/sui-common",
+    "packages/sui-media-selector",
     "packages/sui-file-explorer",
-    "packages/sui-media-selector"
+    "packages/sui-timeline",
+    "packages/sui-editor"
+
   ],
   "publishDirectory": {
     "@stoked-ui/types": "packages/mui-types/build",
-    "@stoked-ui/media-selector": "packages/sui-media-selector",
-    "@stoked-ui/file-explorer": "packages/sui-file-explorer/build"
+    "@stoked-ui/common": "packages/sui-common/build",
+    "@stoked-ui/media-selector": "packages/sui-media-selector/build",
+    "@stoked-ui/file-explorer": "packages/sui-file-explorer/build",
+    "@stoked-ui/timeline": "packages/sui-timeline/build",
+    "@stoked-ui/editor": "packages/sui-editor/build"
   },
   "sandboxes": [
     "/examples/stoked-ui-cra-ts"
