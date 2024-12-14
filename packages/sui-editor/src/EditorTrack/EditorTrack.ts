@@ -1,4 +1,5 @@
-import { IController, ITimelineFileTrack, ITimelineTrack } from "@stoked-ui/timeline";
+import { IController, ITimelineTrack } from "@stoked-ui/timeline";
+import { type MediaFile } from "@stoked-ui/media-selector";
 import {
   BlendMode,
   Fit,
@@ -6,7 +7,6 @@ import {
   type IEditorFileAction
 } from "../EditorAction/EditorAction";
 // import { type IEditorController } from "../Controllers/EditorController.types";
-import { MediaFile } from "@stoked-ui/media-selector";
 
 
 export interface IEditorTrack<
@@ -33,7 +33,7 @@ export interface IEditorFileTrack extends Omit<IEditorTrack, 'id' | 'controller'
   /** Row action list */
   actions: IEditorAction[];
 
-  file?: MediaFile;
+  file?: any;
 
   controllerName?: string;
 
