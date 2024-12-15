@@ -238,7 +238,7 @@ export default withDocsInfra({
   env: {
     // docs-infra
     LIB_VERSION: pkg.version,
-    SOURCE_CODE_REPO: 'https://github.com/stoked-ui/mono',
+    SOURCE_CODE_REPO: 'https://github.com/stoked-ui/sui',
     SOURCE_GITHUB_BRANCH: 'main', // #default-branch-switch
     GITHUB_TEMPLATE_DOCS_FEEDBACK: '4.docs-feedback.yml',
     BUILD_ONLY_ENGLISH_LOCALE: String(buildOnlyEnglishLocale),
