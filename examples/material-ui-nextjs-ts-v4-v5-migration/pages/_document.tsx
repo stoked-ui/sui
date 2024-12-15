@@ -54,7 +54,7 @@ if (process.env.NODE_ENV === 'production') {
   cleanCSS = new CleanCSS();
 }
 
-MyDocument.getInitialProps = async (ctx: DocumentContext) => {
+MyDocument.getStaticProps = async (ctx: DocumentContext) => {
   const jssSheets = new JSSServerStyleSheets();
 
   const finalProps = await documentGetInitialProps(ctx, {

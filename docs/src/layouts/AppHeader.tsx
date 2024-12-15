@@ -46,7 +46,7 @@ const HeaderNavDropdown = dynamic(() => import('docs/src/components/header/Heade
 });
 
 export default function AppHeader(props: AppHeaderProps) {
-  const { gitHubRepository = 'https://github.com/stoked-ui/mono' } = props;
+  const { gitHubRepository = 'https://github.com/stoked-ui/sui' } = props;
   const t = useTranslate();
 
   return (

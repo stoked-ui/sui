@@ -4,7 +4,7 @@ import {
   File,
   FileLabel,
   FileProps,
-} from '@stoked-ui/file-explorer/File';
+} from '@stoked-ui/file-explorer';
 import { FileExplorer } from '@stoked-ui/file-explorer/FileExplorer';
 import { FileBase } from '@stoked-ui/file-explorer/models';
 import { UseFileContentSlotOwnProps } from '@stoked-ui/file-explorer/useFile';

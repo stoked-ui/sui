@@ -3,7 +3,7 @@ productId: core
 title: Stoked UI Editor
 githubLabel: 'component: Editor'
 components: Editor, Timeline, FileExplorer
-packageName: '@stoked-ui/mono'
+packageName: '@stoked-ui/sui'
 ---
 
 # Overview

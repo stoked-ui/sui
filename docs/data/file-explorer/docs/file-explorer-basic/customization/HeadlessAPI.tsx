@@ -14,7 +14,7 @@ import {
   FileLabel,
   FileRoot,
   FileCheckbox,
-} from '@stoked-ui/file-explorer/File';
+} from '@stoked-ui/file-explorer';
 import { FileIcon } from 'packages/sui-file-explorer/src/internals/FileIcon';
 import { FileProvider } from 'packages/sui-file-explorer/src/internals/FileProvider';
 

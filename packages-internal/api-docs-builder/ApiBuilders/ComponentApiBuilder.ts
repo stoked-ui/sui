@@ -445,7 +445,7 @@ const generateApiPage = async (
     return <ApiPage ${layoutConfigPath === '' ? '' : '{...layoutConfig} '}descriptions={descriptions} pageContent={pageContent} />;
   }
 
-  Page.getInitialProps = () => {
+  Page.getStaticProps = () => {
     const req = require.context(
       '${importTranslationPagesDirectory}/${kebabCase(reactApi.name)}',
       false,

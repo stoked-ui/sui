@@ -2,7 +2,7 @@ import * as React from 'react';
 import { FileExplorer } from '@stoked-ui/file-explorer/FileExplorer';
 import {
   File,
-} from '@stoked-ui/file-explorer/File';
+} from '@stoked-ui/file-explorer';
 import { namedId } from '@stoked-ui/common';
 import { SxProps } from "@mui/system";
 import { getDynamicFiles } from '../fileExplorer/data';

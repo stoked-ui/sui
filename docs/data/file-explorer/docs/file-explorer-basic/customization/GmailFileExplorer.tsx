@@ -19,7 +19,7 @@ import {
   FileIconContainer,
   FileRoot,
   FileGroupTransition,
-} from '@stoked-ui/file-explorer/File';
+} from '@stoked-ui/file-explorer';
 import {
   useFile as useTreeItem,
   UseFileParameters,

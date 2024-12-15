@@ -15,14 +15,14 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/stoked-ui/mono.git",
+    "url": "https://github.com/stoked-ui/sui.git",
     "directory": "packages/sui-docs"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/stoked-ui/mono/issues"
+    "url": "https://github.com/stoked-ui/sui/issues"
   },
-  "homepage": "https://github.com/stoked-ui/mono/tree/master/packages/sui-docs",
+  "homepage": "https://github.com/stoked-ui/sui/tree/master/packages/sui-docs",
   "scripts": {
     "build": "pnpm build:legacy && pnpm build:modern && pnpm build:node && pnpm build:stable && pnpm build:types && pnpm build:copy-files",
     "build:legacy": "node ../../scripts/build.mjs legacy",

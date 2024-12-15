@@ -103,6 +103,8 @@ export const fitScaleData = (context: TimelineContextType, detailMode: boolean, 
   }
 
   if (!newWidth) {
+    throw new Error('fitScaleData')
+
     const timelineGrid = document.getElementById('timeline-grid');
     newWidth = timelineGrid.clientWidth;
   }
