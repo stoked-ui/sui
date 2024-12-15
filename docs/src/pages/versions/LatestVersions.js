@@ -28,7 +28,7 @@ function LatestVersions() {
             <TableCell>
               <Link
                 variant="body2"
-                href="https://github.com/stoked-ui/mono/tree/main"
+                href="https://github.com/stoked-ui/sui/tree/main"
               >
                 Source code
               </Link>
@@ -50,7 +50,7 @@ function LatestVersions() {
             <TableCell>
               <Link
                 variant="body2"
-                href="https://github.com/stoked-ui/mono/tree/next"
+                href="https://github.com/stoked-ui/sui/tree/next"
               >
                 Source code
               </Link>

@@ -148,7 +148,6 @@ export default class ScreenshotQueue {
     } else {
       await screenshotStore?.generateTimestampScreenshots(queueItem.timestamps, queueItem.resolution);
     }
-
   }
 
   // Wait for all jobs to finish processing

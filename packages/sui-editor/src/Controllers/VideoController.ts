@@ -50,6 +50,7 @@ class VideoControl extends Controller<HTMLVideoElement> {
       Stage.getStage(this.editorId).appendChild(file.media.element);
       return file.media.element;
     }
+    throw new Error('getItem')
     item = document.createElement('video');
     file.media.element = item;
     item.id = track.id;
@@ -110,10 +111,7 @@ class VideoControl extends Controller<HTMLVideoElement> {
         let canPlayThrough = false;
         item.addEventListener('canplaythrough', () => {
           canPlayThrough = true;
-          // console.info('action preload: video canplaythrough', action.name)
-          // VideoControl.captureScreenshot(item, ((action.end - action.start) / 2) + action.start).then((screenshot) => {
-          //  this.screenshots[action.id] = screenshot;
-          // })
+
         })
 
         item.autoplay = false;
