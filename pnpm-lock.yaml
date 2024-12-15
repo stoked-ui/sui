@@ -1291,9 +1291,6 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
-      idb:
-        specifier: ^8.0.0
-        version: 8.0.0
       prop-types:
         specifier: ^15.8.1
         version: 15.8.1
@@ -1709,9 +1706,6 @@ importers:
       framework-utils:
         specifier: ^1.1.0
         version: 1.1.0
-      idb:
-        specifier: ^8.0.0
-        version: 8.0.0
       interactjs:
         specifier: ^1.10.11
         version: 1.10.27
@@ -8072,9 +8066,6 @@ packages:
     resolution: {integrity: sha512-4fCk79wshMdzMp2rH06qWrJE4iolqLhCUH+OiuIgU++RB0+94NlDL81atO7GX55uUKueo0txHNtvEyI6D7WdMw==}
     engines: {node: '>=0.10.0'}
 
-  idb@8.0.0:
-    resolution: {integrity: sha512-l//qvlAKGmQO31Qn7xdzagVPPaHTxXx199MhrAFuVBTPqydcPYBWjkrbv4Y0ktB+GmWOiwHl237UUOrLmQxLvw==}
-
   ieee754@1.1.13:
     resolution: {integrity: sha512-4vf7I2LYV/HaWerSo3XmlMkp5eZ83i+/CDluXi/IGTs/O1sejBNhTtnxzmRZfvOUqj7lZjqHkeTvpgSFDlWZTg==}
 
@@ -9300,8 +9291,8 @@ packages:
     resolution: {integrity: sha512-4lbtT14A3m0LPX1WS/3d1m7Blg+ZwiLq36WvjQqFGsX3Gik99NV+VXp/PW3n+Q62xyPdbvGOCfjPqjW+/SKMig==}
     engines: {node: '>=18'}
 
-  marked@15.0.3:
-    resolution: {integrity: sha512-Ai0cepvl2NHnTcO9jYDtcOEtVBNVYR31XnEA3BndO7f5As1wzpcOceSUM8FDkNLJNIODcLpDTWay/qQhqbuMvg==}
+  marked@15.0.4:
+    resolution: {integrity: sha512-TCHvDqmb3ZJ4PWG7VEGVgtefA5/euFmsIhxtD0XsBxI39gUSKL81mIRFdt0AiNQozUahd4ke98ZdirExd/vSEw==}
     engines: {node: '>= 18'}
     hasBin: true
 
@@ -14911,7 +14902,7 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.26.0
       lodash: 4.17.21
-      marked: 15.0.3
+      marked: 15.0.4
       prismjs: 1.29.0
 
   '@mui/joy@5.0.0-beta.50(@emotion/react@11.14.0(@types/react@18.3.16)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.3.16)(react@18.3.1))(@types/react@18.3.16)(react@18.3.1))(@types/react@18.3.16)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
@@ -20440,8 +20431,6 @@ snapshots:
     dependencies:
       safer-buffer: 2.1.2
 
-  idb@8.0.0: {}
-
   ieee754@1.1.13: {}
 
   ieee754@1.2.1: {}
@@ -22049,7 +22038,7 @@ snapshots:
       markdown-it: 14.0.0
       markdownlint-micromark: 0.1.8
 
-  marked@15.0.3: {}
+  marked@15.0.4: {}
 
   marked@5.1.2: {}
 
