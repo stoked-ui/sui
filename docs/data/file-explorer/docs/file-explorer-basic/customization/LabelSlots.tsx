@@ -6,7 +6,7 @@ import {
   File,
   FileLabel,
   FileProps,
-} from '@stoked-ui/file-explorer/File';
+} from '@stoked-ui/file-explorer';
 
 interface CustomLabelProps {
   children: React.ReactNode;

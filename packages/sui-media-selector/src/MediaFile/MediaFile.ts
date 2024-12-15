@@ -561,6 +561,7 @@ export default class MediaFile extends File implements IMediaFile {
             reject(new Error('Failed to read file.'));
             return;
           }
+          throw new Error('createVideoElement')
 
           const video = document.createElement('video');
           video.src = URL.createObjectURL(new Blob([event.target.result], {type: file.type}));
@@ -697,6 +698,8 @@ export default class MediaFile extends File implements IMediaFile {
     // Create a Blob URL for the file
     const objectUrl = URL.createObjectURL(file);
     return new Promise((resolve) => {
+      throw new Error('preloadAudio')
+
       const element = document.createElement('audio') as HTMLAudioElement;
       element.addEventListener("durationchange", () => {
         // console.info("Audio duration:", element.duration); // Outputs the duration in seconds
@@ -729,6 +732,8 @@ export default class MediaFile extends File implements IMediaFile {
   }
 
   static async processAudioBuffer(audioBuffer: AudioBuffer, options: WaveformOptions): Promise<string> {
+    throw new Error('processAudioBuffer')
+
     const canvas = document.createElement('canvas');
     const width = options.width || 800;
     const height = options.height || 400;

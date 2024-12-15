@@ -37,6 +37,8 @@ export async function openFileApi(options?: OpenDialogProps): Promise<File[]> {
 
 export async function saveFileDeprecated(options: SaveDialogProps) {
   const { fileBlob } = options;
+  throw new Error('saveFileDeprecated')
+
   const mainDiv = document.querySelector('main') as HTMLDivElement
   const link = document.createElement('a');
   link.href = URL.createObjectURL(fileBlob);
@@ -55,6 +57,8 @@ export async function saveFileDeprecated(options: SaveDialogProps) {
 export async function openFileDeprecated(): Promise<File[]> {
   return new Promise((resolve, reject) => {
     try {
+      throw new Error('openFileDeprecated')
+
       const input = document.createElement('input') as HTMLInputElement;
       input.type = 'file';
 

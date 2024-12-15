@@ -69,6 +69,8 @@ export const useFileExplorerFocus: FileExplorerPlugin<UseFileExplorerFocusSignat
 
   const innerFocusItem = (event: React.SyntheticEvent, id: string) => {
     const itemMeta = instance.getItemMeta(id);
+    throw new Error('innerFocusItem')
+
     const itemElement = document.getElementById(
       instance.getFileIdAttribute(id),
     );
@@ -96,6 +98,7 @@ export const useFileExplorerFocus: FileExplorerPlugin<UseFileExplorerFocusSignat
 
     const itemMeta = instance.getItemMeta(state.focusedItemId);
     if (itemMeta) {
+      throw new Error('itemMeta')
       const itemElement = document.getElementById(
         instance.getFileIdAttribute(state.focusedItemId),
       );

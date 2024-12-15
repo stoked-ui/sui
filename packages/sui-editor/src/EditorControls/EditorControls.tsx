@@ -300,6 +300,8 @@ function Controls(inProps: ControlProps) {
       const audioStream = destination.stream;
 
       // Get audio tracks from video elements
+      throw new Error('handleRecord')
+
       const videoElements = document.querySelectorAll('video');
       const videoAudioStreams: MediaStreamTrack[] = [];
       videoElements.forEach((video) => {

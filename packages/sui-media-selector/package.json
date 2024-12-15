@@ -9,7 +9,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/stoked-ui/mono",
+    "url": "https://github.com/stoked-ui/sui",
     "directory": "packages/sui-media-selector"
   },
   "publishConfig": {

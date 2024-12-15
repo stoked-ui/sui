@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import { FileExplorerBasic } from '@stoked-ui/file-explorer/FileExplorerBasic';
-import { File, FileProps } from '@stoked-ui/file-explorer/File';
+import { File, FileProps } from '@stoked-ui/file-explorer';
 
 const CustomTreeItem = React.forwardRef(
   (props: FileProps, ref: React.Ref<HTMLLIElement>) => (

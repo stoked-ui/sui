@@ -35,6 +35,7 @@ class Stage {
     if (tempStage) {
       return tempStage;
     }
+    throw new Error('getStage')
 
     stage = document.querySelector(`#${name}`) as HTMLDivElement;
     if (!stage) {
@@ -65,6 +66,8 @@ class Stage {
     console.info('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
     console.info(`creating ${tempName}`);
     console.info('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+
+    throw new Error('_createStage')
 
     const stageHost = document.body;
     const stage = document.createElement("div");

@@ -2,6 +2,7 @@ import * as React from 'react';
 import { alpha, styled } from '@mui/system';
 import { TimelineScrollResizerProps } from './TimelineScrollResizer.types';
 import { useTimeline } from '../TimelineProvider/TimelineProvider';
+/*
 
 const ScrollbarContainer = styled('div')(({ theme }) => ({
   width: '100%',
@@ -58,12 +59,13 @@ const calcBoundaryWidth = (editorId: string, scrollWidth?: number, maxDuration?:
   }
   return maxDuration * (scaleWidth);
 };
+*/
 
 export default function TimelineScrollResizer({
   elementRef,
   type = 'horizontal',
 }: TimelineScrollResizerProps) {
-  const context = useTimeline();
+  /* const context = useTimeline();
   const { state, dispatch } = context;
   const { engine, settings, flags } = state;
   const { noResizer } = flags;
@@ -226,11 +228,12 @@ export default function TimelineScrollResizer({
       window.removeEventListener('mouseup', handleMouseUp);
     };
   }, [mouseState]);
-
   if (noResizer) {
-    return null;
-  }
 
+   */
+    return null;
+  /*
+  }
   return (
     <ScrollbarContainer className={'SuiScrollbar'}>
       <ScrollbarTrack>
@@ -257,5 +260,5 @@ export default function TimelineScrollResizer({
         </ScrollbarThumb>
       </ScrollbarTrack>
     </ScrollbarContainer>
-  );
+  ); */
 }

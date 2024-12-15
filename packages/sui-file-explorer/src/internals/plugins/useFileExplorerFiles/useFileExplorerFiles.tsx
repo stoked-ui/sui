@@ -225,6 +225,7 @@ export const useFileExplorerFiles: FileExplorerPlugin<UseFileExplorerFilesSignat
     if (itemMeta == null) {
       return null;
     }
+    throw new Error('getItemDOMElement')
 
     return document.getElementById(instance.getFileIdAttribute(id));
   };
