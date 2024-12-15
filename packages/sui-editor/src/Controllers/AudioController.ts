@@ -62,7 +62,10 @@ class AudioControl extends Controller<Howl> implements IController {
   }
 
   enter(params: ControllerParams) {
-    const { action, time } = params;
+    const { action, engine, track, time } = params;
+    if (!this.isValid(engine, track)) {
+      return;
+    }
     this.log({ action, time }, 'audio enter');
     this.start(params);
   }
@@ -70,6 +73,9 @@ class AudioControl extends Controller<Howl> implements IController {
   start(params: ControllerParams) {
     const { action, time , engine, track} = params;
     this.log({ action, time }, 'audio start')
+    if (!this.isValid(engine, track)) {
+      return;
+    }
     const item: Howl = this.getItem(params as GetItemParams);
     if (item) {
       item.rate(engine.getPlayRate());

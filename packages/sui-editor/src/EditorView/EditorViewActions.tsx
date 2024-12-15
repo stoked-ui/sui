@@ -43,7 +43,7 @@ export default function EditorViewActions({ visible }: { visible: boolean }) {
       dispatch({type: 'SET_FILE', payload: loadedFile});
       const width = (components.timelineGrid as HTMLDivElement)?.clientWidth;
       if (width) {
-        fitScaleData(context, false, width);
+        fitScaleData(context, false, width, 'editorViewActions');
         setCursor({ time: 0, updateTime: true}, context);
       }
     }
