@@ -5,7 +5,7 @@
   "author": "SUI Team",
   "license": "MIT",
   "scripts": {
-    "build": "rimraf docs/export && cross-env NODE_ENV=production NODE_OPTIONS=\"--max_old_space_size=8192 --trace-warnings\" next build --profile && pnpm build-sw",
+    "build": "rimraf docs/export && cross-env NODE_ENV=production NODE_OPTIONS=\"--trace-warnings\" next build --profile && pnpm build-sw",
     "build:copy": "mkdir -p ../../stoked-ui-docs && rimraf ../../stoked-ui-docs/* && cp -R ./export/ ../../stoked-ui-docs",
     "build:serve": "pnpm build && pnpm build:copy && pnpm serve",
     "build:fresh": "pnpm build:clean && pnpm build:copy && pnpm serve",
