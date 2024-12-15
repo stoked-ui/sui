@@ -561,22 +561,20 @@ export default class MediaFile extends File implements IMediaFile {
             reject(new Error('Failed to read file.'));
             return;
           }
-          throw new Error('createVideoElement')
-
-          const video = document.createElement('video');
-          video.src = URL.createObjectURL(new Blob([event.target.result], {type: file.type}));
-          video.preload = 'auto';
-          video.id = `${file.name}-video`;
-          video.onloadedmetadata = () => {
-            resolve( {
-              duration: video.duration, // Duration in seconds
-              format: file.type,        // MIME type
-              name: file.name,          // File name
-              size: file.size,  // File size in bytes
-              video,
-              width: video.videoWidth,
-              height: video.videoHeight
-            });
+          if (window) {
+            const video = document.createElement('video');
+            video.src = URL.createObjectURL(new Blob([event.target.result], {type: file.type}));
+            video.preload = 'auto';
+            video.id = `${file.name}-video`;
+            video.onloadedmetadata = () => {
+              resolve({
+                duration: video.duration, // Duration in seconds
+                format: file.type,        // MIME type
+                name: file.name,          // File name
+                size: file.size,  // File size in bytes
+                video, width: video.videoWidth, height: video.videoHeight
+              });
+            }
           }
         }
 
@@ -698,7 +696,9 @@ export default class MediaFile extends File implements IMediaFile {
     // Create a Blob URL for the file
     const objectUrl = URL.createObjectURL(file);
     return new Promise((resolve) => {
-      throw new Error('preloadAudio')
+      if (!window) {
+        throw new Error('preloadAudio')
+      }
 
       const element = document.createElement('audio') as HTMLAudioElement;
       element.addEventListener("durationchange", () => {
@@ -732,8 +732,9 @@ export default class MediaFile extends File implements IMediaFile {
   }
 
   static async processAudioBuffer(audioBuffer: AudioBuffer, options: WaveformOptions): Promise<string> {
-    throw new Error('processAudioBuffer')
-
+    if (!window) {
+      throw new Error('preloadAudio')
+    }
     const canvas = document.createElement('canvas');
     const width = options.width || 800;
     const height = options.height || 400;
