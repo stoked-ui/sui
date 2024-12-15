@@ -1,5 +1,4 @@
 import * as React from 'react';
-import {SyntheticEvent} from 'react';
 import useEventCallback from '@mui/utils/useEventCallback';
 import {EventHandlers} from '@mui/base/utils';
 import ownerDocument from '@mui/utils/ownerDocument';
@@ -69,8 +68,9 @@ export const useFileExplorerFocus: FileExplorerPlugin<UseFileExplorerFocusSignat
 
   const innerFocusItem = (event: React.SyntheticEvent, id: string) => {
     const itemMeta = instance.getItemMeta(id);
-    throw new Error('innerFocusItem')
-
+    if (!window) {
+      throw new Error('innerFocusItem')
+    }
     const itemElement = document.getElementById(
       instance.getFileIdAttribute(id),
     );
@@ -98,7 +98,9 @@ export const useFileExplorerFocus: FileExplorerPlugin<UseFileExplorerFocusSignat
 
     const itemMeta = instance.getItemMeta(state.focusedItemId);
     if (itemMeta) {
-      throw new Error('itemMeta')
+      if (!window) {
+        throw new Error('itemMeta')
+      }
       const itemElement = document.getElementById(
         instance.getFileIdAttribute(state.focusedItemId),
       );
@@ -114,7 +116,7 @@ export const useFileExplorerFocus: FileExplorerPlugin<UseFileExplorerFocusSignat
 
   useInstanceEventHandler(instance, 'removeItem', ({ id }) => {
     if (state.focusedItemId === id) {
-      innerFocusItem(null as unknown as SyntheticEvent, defaultFocusableItemId);
+      innerFocusItem(null as unknown as React.SyntheticEvent, defaultFocusableItemId);
     }
   });
 
