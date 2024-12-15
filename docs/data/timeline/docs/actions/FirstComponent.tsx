@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Timeline, IController} from '@stoked-ui/timeline';
+import { Timeline, IController, TimelineProvider} from '@stoked-ui/timeline';
 import { useTheme } from '@mui/material/styles';
 
 import { mockData } from '../mock';
@@ -14,7 +14,9 @@ export default function FirstComponent() {
   const theme = useTheme();
   console.log('theme', theme);
   return (
-    <Timeline tracks={mockData} sx={{width:'100%'}} controllers={controllers}/>
+    <TimelineProvider>
+      <Timeline tracks={mockData} sx={{width:'100%'}} controllers={controllers}/>
+    </TimelineProvider>
   );
 };
 

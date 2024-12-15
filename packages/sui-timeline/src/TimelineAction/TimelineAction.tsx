@@ -291,7 +291,7 @@ function TimelineAction<
   }, [end, start, startLeft, scaleWidth, scale]);
 
   // configure drag grid and its properties
-  const gridSize = scaleWidth / scaleSplitCount;
+  const gridSize = scaleWidth / scale;
 
   // actionName
   const classNames = ['action'];
@@ -680,6 +680,7 @@ function TimelineAction<
           cols={screenshots?.length}
           sx={{
             overflow: 'hidden',
+            height: '100%'
           }}
         >
           {screenshots.map((screen, index) => (

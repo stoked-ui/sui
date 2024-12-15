@@ -597,7 +597,8 @@ function ControlledTrack({ width, height }: { name?: string; width: number; heig
   const scaleData = fitScaleData(
     context,
     false,
-    width
+    width,
+    'timelineTrackControlled'
   );
   const scaledSettings = { ...settings, width, ...scaleData };
 

@@ -83,7 +83,7 @@ const pages: MuiPage[] = [
     alpha: true,
     children: [
       { pathname: '/timeline/docs/overview', title: 'Overview' },
-      { pathname: '/timeline/docs/getting-started' },
+      /* { pathname: '/timeline/docs/getting-started' },
       {
         pathname: '/timeline/docs/basics',
         subheader: 'Basics',
@@ -104,7 +104,7 @@ const pages: MuiPage[] = [
           {pathname: '/timeline/docs/drop-add'},
         ]
       },
-      { pathname: `/timeline/docs/roadmap` },
+      { pathname: `/timeline/docs/roadmap` }, */
       {
         pathname: '/timeline/docs/api/timeline-group',
         title: 'API Reference',

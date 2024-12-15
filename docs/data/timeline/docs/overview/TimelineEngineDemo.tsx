@@ -52,7 +52,7 @@ export const demoActions = [
  */
 export default function TimelineEngineDemo() {
 
-  const timelineState = React.useRef<TimelineState>(null);
+  const timelineRef = React.useRef<HTMLDivElement>(null);
   const [scaleWidth, setScaleWidth] = React.useState(160);
 
   const setScaleWidthProxy = (val: number) => {
@@ -63,7 +63,7 @@ export default function TimelineEngineDemo() {
     <TimelineProvider actions={demoActions}>
       <Timeline
         controllers={Controllers}
-        timelineState={timelineState}
+        ref={timelineRef}
         scaleWidth={scaleWidth}
         setScaleWidth={setScaleWidthProxy}
         viewSelector={`.MuiEditorView-root`}

@@ -346,7 +346,7 @@ const Editor = React.forwardRef(function Editor<R extends IMediaFile = IMediaFil
 
       dispatch({type: 'SET_FILE', payload: addFile as IEditorFile});
       dispatch({type: 'SET_SETTING', payload: {key: 'disabled', value: false}})
-      fitScaleData(context, false,  components.timelineGrid)
+      fitScaleData(context, false,  components.timelineGrid, 'editor')
     } else {
       const finalTracks = [...addFile.tracks, ...newTracks];
       dispatch({type: 'SET_TRACKS', payload: finalTracks as IEditorTrack[]});

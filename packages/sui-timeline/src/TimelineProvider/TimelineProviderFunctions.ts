@@ -86,16 +86,20 @@ export const setScaleCount = (value: number, context: TimelineContextType) =>  {
   const { state, dispatch } = context;
   const { settings: { maxScaleCount, minScaleCount } } = state;
   const newScaleCount = Math.min(maxScaleCount, Math.max(minScaleCount, value));
+  console.log('setScaleCount', newScaleCount);
   dispatch({ type: 'SET_SETTING', payload: { key: 'scaleCount', value: newScaleCount } });
 }
 
-export const fitScaleData = (context: TimelineContextType, detailMode: boolean, newWidth?: number)  => {
+export const fitScaleData = (context: TimelineContextType, detailMode: boolean, newWidth?: number, from?: string)  => {
   const { state, dispatch } = context;
   const { settings, engine, flags } = state;
-  const { startLeft, maxScaleCount, minScaleCount } = settings;
+  const { startLeft, minScaleCount, scaleSplitCount, scale } = settings;
 
-  if (detailMode && flags.detailMode) {
+  if (detailMode && !flags.detailMode) {
+    console.info('fitScaleData', from, 'detailMode early exit', detailMode, flags.detailMode);
     return null;
+  } else {
+    console.info('fitScaleData', from, minScaleCount, newWidth);
   }
 
   if (!newWidth) {
@@ -105,32 +109,31 @@ export const fitScaleData = (context: TimelineContextType, detailMode: boolean, 
 
   const tracks = state.file?.tracks;
   if (!newWidth || !tracks?.length) {
+    console.info('fitScaleData', '!newWidth || !tracks?.length');
     return null;
   }
 
   const getScale = () => {
     const scaleWidth = (newWidth - (startLeft * 2)) / engine.maxDuration;
     if (scaleWidth < 40) {
-      const multiplier = Math.ceil(40 / scaleWidth);
-      return { scaleWidth: multiplier * scaleWidth, scale: multiplier };
+      const multiplier = Math.ceil(60 / scaleWidth);
+      const newScale = (multiplier - 1) * 5;
+      return { scaleWidth: scaleWidth * newScale, scaleSplitCount: 5, scale: newScale };
     }
-    return { scaleWidth, scale: 1 };
+    return { scaleWidth, scaleSplitCount, scale };
   }
   const scaleRes = getScale();
   if (scaleRes.scaleWidth === Infinity) {
     scaleRes.scaleWidth = DEFAULT_SCALE_WIDTH;
   }
-  const { scaleWidth, scale } = scaleRes;
-  const scaleCount = getScaleCountByRows(tracks || [], { scale })
+  const maxScaleCount = getScaleCountByRows(tracks || [], { scale });
+
   const scaleData = {
-    scaleSplitCount: Math.floor(scaleWidth / 20),
-    scaleWidth,
-    rawScaleWidth: scaleWidth / scale,
-    scaleCount,
-    maxScaleCount: Math.max(maxScaleCount, Math.min(scaleCount, minScaleCount)),
-    scale,
-    fullScale: scale,
+    scaleSplitCount,
+    maxScaleCount,
+    ...scaleRes,
   }
+  console.info('scaleData', scaleData);
   dispatch({type: 'SET_SETTING', payload: {value: {...scaleData}}});
   return scaleData;
 }

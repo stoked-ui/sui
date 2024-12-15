@@ -477,19 +477,18 @@ const FormRoot = styled('div')(({theme}) => ({
 export function FormWrap({ title, children, titleId, submitHandler}) {
   const context = useEditorContext();
   const {state, dispatch} = context;
-  const {settings, selectedType, file} = state;
+  const {settings, selectedType, file, engine } = state;
   const {detailHandleSubmit, detailOnSubmit, selected} = settings;
   const ref = React.useRef<HTMLDivElement>(null);
+  const [timeoutId, setTimeoutId] = React.useState<NodeJS.Timeout>();
   React.useEffect(() => {
     if (ref.current && ref.current?.clientWidth) {
       console.info('ref.current.clientWidth', ref.current.clientWidth);
-      setTimeout(() => {
-        const scaledData = settings.fitScaleData(context, true, ref.current!.clientWidth - 14);
-        dispatch({type: 'SET_SETTING', payload: {value: {...scaledData,}}})
-      }, 3000)
-
+      const width = ref.current.clientWidth - 14;
+      const scaledData = settings.fitScaleData(context, true, width, 'detailViews');
+      dispatch({ type: 'SET_SETTING', payload: {value: {...scaledData,}} })
     }
-  }, [ref.current?.clientWidth]);
+  }, [file, engine.maxDuration, ref.current?.clientWidth]);
 
   let submit = () => {
   };

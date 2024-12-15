@@ -1,11 +1,11 @@
 import * as React from "react";
-import {useTimeline} from "../TimelineProvider";
-import ToggleButtonGroupEx from "../components/ToggleButtonGroupEx";
 import {Tooltip} from "@mui/material";
 import ToggleButton from "@mui/material/ToggleButton";
 import ZoomInIcon from '@mui/icons-material/ZoomIn';
 import ZoomOutIcon from '@mui/icons-material/ZoomOut';
 import PropTypes from "prop-types";
+import {useTimeline} from "../TimelineProvider";
+import ToggleButtonGroupEx from "../components/ToggleButtonGroupEx";
 
 export default function ZoomControls({ style }: { style?: React.CSSProperties }) {
   const { dispatch, state} = useTimeline();
@@ -30,9 +30,7 @@ export default function ZoomControls({ style }: { style?: React.CSSProperties })
   const zoomOutHandler = () => {
     dispatch({ type: 'SET_SETTING', payload: { key: 'scaleWidth', value: scaleWidth - 1 }})
   }
-  if (flags.detailMode) {
-    return null
-  }
+
   const zoomOutDisabled = disabled || (scaleWidth / scale  < rawScaleWidth);
   return (
     <div style={{ right: 0, justifySelf: 'end', alignSelf: 'center', position: 'absolute', zIndex: 300 }}>
