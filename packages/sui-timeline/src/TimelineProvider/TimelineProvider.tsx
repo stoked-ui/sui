@@ -57,13 +57,10 @@ function TimelineProvider<
   const [initialized, setInitialized] = React.useState<boolean>(false);
   React.useEffect(() => {
     setInitialized(true);
-  }, []);
-
-  if (!LocalDb.initialized) {
     LocalDb.init(props.localDb ? props.localDb : getDbProps(initialState.app.defaultInputFileType, props.localDb)).catch(
       (ex) => console.error(ex),
     );
-  }
+  }, []);
 
   const [state, dispatch] = React.useReducer(reducer, startState);
 
