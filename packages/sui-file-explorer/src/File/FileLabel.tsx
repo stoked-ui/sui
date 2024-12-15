@@ -192,7 +192,6 @@ const HeaderCell = React.forwardRef(function HeaderCell(
       ref,
     });
   const columnProps = getColumnProps();
-  console.log('inProps.columnName', inProps.columnName)
   return (
     <FileLabel
       {...columnProps}
