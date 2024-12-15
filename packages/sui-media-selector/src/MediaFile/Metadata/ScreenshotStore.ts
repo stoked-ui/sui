@@ -95,18 +95,18 @@ export default class ScreenshotStore {
   });
 
   async generateTimestampScreenshots(timestamps: number[], resolution: Resolution, onCapture?: (screen: Screenshot) => void): Promise<Screenshot[]> {
-    throw new Error('generateTimestampScreenshots')
-
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-    if (!context) {
-      throw new Error('Failed to create canvas context.');
-    }
     const screens: Screenshot[] = [];
-    for (let i = 0; i < timestamps.length; i += 1) {
-      // eslint-disable-next-line no-await-in-loop
-      const screen = await this.captureScreenshot(timestamps[i], canvas, context, resolution);
-      screens.push(screen);
+    if (window) {
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      if (!context) {
+        throw new Error('Failed to create canvas context.');
+      }
+      for (let i = 0; i < timestamps.length; i += 1) {
+        // eslint-disable-next-line no-await-in-loop
+        const screen = await this.captureScreenshot(timestamps[i], canvas, context, resolution);
+        screens.push(screen);
+      }
     }
     return screens;
   }
@@ -117,27 +117,31 @@ export default class ScreenshotStore {
       const { start, end } = fileTimespan;
       // Generate screenshots
       const screens: Screenshot[] = [];
-      throw new Error('generateTimespanScreenshots')
+      if (window) {
 
-      const canvas = document.createElement('canvas');
-      const context = canvas.getContext('2d');
-      if (!context) {
-        reject(new Error('Failed to create canvas context.'));
-        return;
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        if (!context) {
+          reject(new Error('Failed to create canvas context.'));
+          return;
+        }
+
+        const interval = (end - start) / count;
+
+        (async () => {
+          let time = start;
+          for (let i = 1; i <= count; i += 1) {
+            // eslint-disable-next-line no-await-in-loop
+            const screen = await this.captureScreenshot(time, canvas, context, resolution, onCapture);
+            screens.push(screen);
+            time += interval;
+          }
+          resolve(screens);
+        })();
+      } else {
+        resolve(screens);
       }
 
-      const interval = (end - start) / count;
-
-      (async () => {
-        let time = start;
-        for (let i = 1; i <= count; i += 1) {
-          // eslint-disable-next-line no-await-in-loop
-          const screen = await this.captureScreenshot(time, canvas, context, resolution, onCapture);
-          screens.push(screen);
-          time += interval;
-        }
-        resolve(screens);
-      })();
     });
   }
 
