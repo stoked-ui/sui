@@ -205,7 +205,7 @@ const Timeline = React.forwardRef(function Timeline(
 
     if (grid?.clientWidth && !engine.isLoading && file && file.id !== (lastFile?.id ?? 'no-id')) {
       setLastFile(file);
-      const scaleData = fitScaleData(context, false, grid?.clientWidth);
+      const scaleData = fitScaleData(context, false, grid?.clientWidth, 'timeline');
       if (scaleData) {
         setTimeout(() => {
           dispatch({type: 'SET_SETTING', payload: {value: {...scaleData}}});

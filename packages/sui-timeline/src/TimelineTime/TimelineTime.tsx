@@ -100,6 +100,7 @@ function TimelineTime(props: TimelineTimeProps) {
   const timeInteract = React.useRef<HTMLDivElement>();
   const timeAreaRef = React.useRef<HTMLDivElement>();
   /** Whether to display subdivision scales */
+
   const showUnit = scaleSplitCount > 0;
   /** Get the rendering content of each cell */
   const cellRenderer: GridCellRenderer = ({ columnIndex, key, style }) => {
@@ -108,6 +109,8 @@ function TimelineTime(props: TimelineTimeProps) {
     if (isShowScale) {
       classNames.push('time-unit-big');
     }
+
+
     const item = (showUnit ? columnIndex / scaleSplitCount : columnIndex) * scale;
     return (
       <TimeUnit key={key} style={style} className={prefix(...classNames)} disabled={settings.disabled}>

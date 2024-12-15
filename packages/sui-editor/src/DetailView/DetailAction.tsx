@@ -136,6 +136,7 @@ export function DetailAction(props: DetailViewProps) {
         <CtrlCell width="7.5%">
           <ControlledText
             label={'Width'}
+            name={'width'}
             control={control}
             disabled={!editMode}
             onClick={props.enableEdit}

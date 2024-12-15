@@ -6,6 +6,8 @@ import type { IEngine } from "../Engine";
 import {ITimelineTrack} from "../TimelineTrack";
 
 abstract class Controller<ControlType> implements IController {
+  cacheMap: Record<string, ControlType> = {};
+
   id: string;
 
   name: string;
@@ -32,7 +34,15 @@ abstract class Controller<ControlType> implements IController {
     this.colorSecondary = options.colorSecondary;
   }
 
-  abstract getItem(params: GetItemParams): ControlType
+  abstract getItem(params: GetItemParams): ControlType;
+
+  // eslint-disable-next-line class-methods-use-this
+  isValid(engine: IEngine, track: ITimelineTrack) {
+    if (engine.playbackMode === 'canvas') {
+      return true;
+    }
+    return !track.dim;
+  }
 
   viewerUpdate?: (engine: any) => void;
 
