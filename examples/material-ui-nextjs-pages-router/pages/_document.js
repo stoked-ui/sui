@@ -21,7 +21,7 @@ export default function MyDocument(props) {
   );
 }
 
-MyDocument.getInitialProps = async (ctx) => {
+MyDocument.getStaticProps = async (ctx) => {
   const finalProps = await documentGetInitialProps(ctx);
   return finalProps;
 };

@@ -56,6 +56,7 @@ class ImageControl extends Controller<HTMLImageElement> implements IController {
   }
 
   static createNewImage(action: ITimelineAction, file: IMediaFile): HTMLImageElement {
+    throw new Error('createNewImage')
     const item = document.createElement('img') as HTMLImageElement;
     item.src = file.url;
     item.style.display = 'flex';

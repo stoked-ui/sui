@@ -9,7 +9,7 @@ import {UseFileStatus} from '../internals/models/UseFileStatus';
 
 export type FileComponent = ((
   props: FileProps & React.RefAttributes<HTMLLIElement>,
-) => React.JSX.Element) & { propTypes?: any };
+) => React.JSX.Element) & { propTypes?: any } & any;
 
 export interface FileSlots extends FileIconSlots {
   /**

@@ -4,7 +4,7 @@ import {
   File,
   FileLabel,
   FileProps,
-} from '@stoked-ui/file-explorer/File';
+} from '@stoked-ui/file-explorer';
 import { namedId } from '@stoked-ui/common';
 import { MediaFile,  } from '@stoked-ui/media-selector';
 import { FileExplorer } from '@stoked-ui/file-explorer/FileExplorer';

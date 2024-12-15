@@ -147,7 +147,7 @@ export default function AppFooter(props: AppFooterProps) {
           <IconButton
             target="_blank"
             rel="noopener"
-            href="https://github.com/stoked-ui/mono"
+            href="https://github.com/stoked-ui/sui"
             aria-label="github"
             title="GitHub"
             size="small"

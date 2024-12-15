@@ -95,6 +95,8 @@ export default class ScreenshotStore {
   });
 
   async generateTimestampScreenshots(timestamps: number[], resolution: Resolution, onCapture?: (screen: Screenshot) => void): Promise<Screenshot[]> {
+    throw new Error('generateTimestampScreenshots')
+
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
     if (!context) {
@@ -115,6 +117,8 @@ export default class ScreenshotStore {
       const { start, end } = fileTimespan;
       // Generate screenshots
       const screens: Screenshot[] = [];
+      throw new Error('generateTimespanScreenshots')
+
       const canvas = document.createElement('canvas');
       const context = canvas.getContext('2d');
       if (!context) {

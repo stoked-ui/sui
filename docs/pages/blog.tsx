@@ -408,7 +408,7 @@ export default function Blog(props: InferGetStaticPropsType<typeof getStaticProp
                   Get up to date with everything SUI-related through our social media:
                 </Typography>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, '* > svg': { mr: 1 } }}>
-                  <Link href="https://github.com/stoked-ui/mono" target="_blank" fontSize={14}>
+                  <Link href="https://github.com/stoked-ui/sui" target="_blank" fontSize={14}>
                     <GitHubIcon fontSize="small" />
                     GitHub
                   </Link>

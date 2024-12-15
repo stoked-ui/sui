@@ -294,6 +294,8 @@ export function EditorReducerBase(state: EditorState, stateAction: EditorStateAc
       if (stateAction.payload !== null) {
         state.engine.renderer = stateAction.payload as HTMLCanvasElement;
       } else {
+        throw new Error('SET_RENDERER')
+
         const canvas = document.getElementById(state.settings.editorId)?.querySelector("canvas[role='renderer']") as HTMLCanvasElement;
         if (!canvas) {
           state.engine.renderer = canvas as HTMLCanvasElement;
