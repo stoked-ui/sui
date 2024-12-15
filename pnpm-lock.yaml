@@ -601,6 +601,9 @@ importers:
       '@stoked-ui/timeline':
         specifier: workspace:^
         version: link:../packages/sui-timeline/build
+      '@tempfix/idb':
+        specifier: ^8.0.3
+        version: 8.0.3
       autoprefixer:
         specifier: ^10.4.18
         version: 10.4.20(postcss@8.4.49)

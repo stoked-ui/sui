@@ -78,6 +78,10 @@ export default class LocalDb {
    * @param props - The properties required to initialize the database.
    */
   static async init({ dbName, stores = [], initializeStores = [], disabled = false }: LocalDbProps) {
+    if (this.initialized) {
+      return;
+    }
+
     this.initialized = true;
 
     this.dbName = dbName;
