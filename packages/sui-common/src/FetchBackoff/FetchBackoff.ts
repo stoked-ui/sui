@@ -53,4 +53,4 @@ const FetchBackoff = async (
   throw new Error("Fetch failed after maximum retries.");
 };
 
-export default FetchBackoff;
+export {FetchBackoff};

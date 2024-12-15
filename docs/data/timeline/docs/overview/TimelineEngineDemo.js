@@ -51,7 +51,7 @@ export const demoActions = [
  * - [FileExplorer API](https://stoked-ui.github.io/editor/api/)
  */
 export default function TimelineEngineDemo() {
-  const timelineState = React.useRef(null);
+  const timelineRef = React.useRef(null);
   const [scaleWidth, setScaleWidth] = React.useState(160);
 
   const setScaleWidthProxy = (val) => {
@@ -62,7 +62,7 @@ export default function TimelineEngineDemo() {
     <TimelineProvider actions={demoActions}>
       <Timeline
         controllers={Controllers}
-        timelineState={timelineState}
+        ref={timelineRef}
         scaleWidth={scaleWidth}
         setScaleWidth={setScaleWidthProxy}
         viewSelector={`.MuiEditorView-root`}

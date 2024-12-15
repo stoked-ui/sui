@@ -16,8 +16,6 @@ interface VideoDrawData extends Omit<DrawData, 'source'> {
 }
 
 class VideoControl extends Controller<HTMLVideoElement> {
-  cacheMap: Record<string, HTMLVideoElement> = {};
-
   screenshots: Record<string, string> = {};
 
   cacheFrameSync: Record<string, number> = {};
@@ -264,16 +262,7 @@ class VideoControl extends Controller<HTMLVideoElement> {
     }
   }
 
-  isValid(engine: IEditorEngine, track: IEditorTrack) {
-    const item = this.cacheMap[track.id];
-    if (engine.playbackMode === 'canvas') {
-      return true;
-    }
-    if (item.src === engine.media?.src) {
-      return true;
-    }
-    return false;
-  }
+
 
   enter(params: EditorControllerParams) {
 

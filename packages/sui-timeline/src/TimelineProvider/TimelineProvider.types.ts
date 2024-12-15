@@ -18,9 +18,9 @@ import { type ITimelineTrack } from "../TimelineTrack";
 import {
   ADD_SCALE_COUNT,
   DEFAULT_MOBILE_TRACK_HEIGHT,
-  DEFAULT_SCALE,
+  DEFAULT_SCALE, DEFAULT_SCALE_COUNT,
   DEFAULT_SCALE_SPLIT_COUNT,
-  DEFAULT_SCALE_WIDTH,
+  DEFAULT_SCALE_WIDTH, DEFAULT_START_LEFT,
   DEFAULT_TRACK_HEIGHT,
   MIN_SCALE_COUNT
 } from "../interface/const";
@@ -259,8 +259,8 @@ export function createTimelineState<
         minScaleCount: MIN_SCALE_COUNT,
         maxScaleCount: Infinity ,
         timelineWidth: Infinity,
-        scaleCount: 40,
-        startLeft: 7,
+        scaleCount: DEFAULT_SCALE_COUNT,
+        startLeft: DEFAULT_START_LEFT,
         cursorTime: 0,
         versions: [],
         actionTime: 0,
@@ -507,9 +507,14 @@ function TimelineReducerBase<
           obj[`${key ? `${key}.` : ''}${nestedKey}`] = value[nestedKey];
           return obj;
         }, {});
+
         Object.entries(result).forEach(([nestedKey, nestedValue]) => {
+          if (nestedKey.indexOf('scale') > -1) {
+            console.info('SET SCALE', key, value);
+          }
           state = setSetting<State>(nestedKey, nestedValue, state);
         });
+
         return state;
       }
       return setSetting(key, value, state);
@@ -588,7 +593,7 @@ export function TimelineReducer<
     acc[item.id] = item; // Use the `id` as the key and the item itself as the value
     return acc;
   }, {} as Record<string, ITimelineAction>) || {};
-
+  console.info('stateAction', stateAction.type, stateAction?.payload);
   return TimelineReducerBase(state, stateAction);
 }
 
