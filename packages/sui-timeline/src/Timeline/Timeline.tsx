@@ -201,8 +201,6 @@ const Timeline = React.forwardRef(function Timeline(
     if (engine.canvasDuration + 2 > engine.maxDuration) {
       engine.maxDuration = engine.canvasDuration + 2;
     }
-    throw new Error('Timeline')
-
     const grid = document.getElementById('timeline-grid');
 
     if (grid?.clientWidth && !engine.isLoading && file && file.id !== (lastFile?.id ?? 'no-id')) {
