@@ -5,7 +5,7 @@ import { FileProps } from '../File';
 
 export interface FileExplorerComponentsPropsList {
   MuiFileExplorerBasic: FileExplorerBasicProps<any>;
-  MuiFileExplorer: FileExplorerProps<any, any>;
+  MuiFileExplorer: FileExplorerProps<any>;
   MuiFile: FileProps;
   MuiFileElement: FileElementProps;
 }

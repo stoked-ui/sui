@@ -35,9 +35,9 @@ export interface FileExplorerSlots extends FileExplorerPluginSlots {
   item?: React.JSXElementConstructor<FileProps> | React.JSXElementConstructor<FileProps>;
 }
 
-export interface FileExplorerSlotProps<R extends FileBase, Multiple extends boolean | undefined>
+export interface FileExplorerSlotProps<Multiple extends boolean | undefined>
   extends FileExplorerPluginSlotProps {
-  root?: SlotComponentProps<'ul', {}, FileExplorerProps<R, Multiple>>;
+  root?: SlotComponentProps<'ul', {}, FileExplorerProps<Multiple>>;
   item?: SlotComponentPropsFromProps<
     FileProps | FileProps,
     {},
@@ -65,7 +65,7 @@ export interface FileExplorerPropsBase extends React.HTMLAttributes<HTMLUListEle
   onAddFiles?:  (mediaFile: FileBase[]) => void;
 }
 
-export interface FileExplorerProps<R extends FileBase, Multiple extends boolean | undefined>
+export interface FileExplorerProps<Multiple extends boolean | undefined>
   extends FileExplorerPluginParameters<Multiple>,
     FileExplorerPropsBase {
   /**
@@ -77,7 +77,7 @@ export interface FileExplorerProps<R extends FileBase, Multiple extends boolean 
    * The props used for each component slot.
    * @default {}
    */
-  slotProps?: FileExplorerSlotProps<R, Multiple>;
+  slotProps?: FileExplorerSlotProps<Multiple>;
   /**
    * The ref object that allows FileExplorer View manipulation. Can be instantiated with
    * `useFileExplorerApiRef()`.

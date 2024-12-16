@@ -19,8 +19,8 @@ import { FileDropzone } from '../FileDropzone';
 
 const useThemeProps = createUseThemeProps('MuiFileExplorer');
 
-const useUtilityClasses = <R extends FileBase, Multiple extends boolean | undefined>(
-  ownerState: FileExplorerProps<R, Multiple>,
+const useUtilityClasses = <Multiple extends boolean | undefined>(
+  ownerState: FileExplorerProps<Multiple>,
 ) => {
   const { classes } = ownerState;
 
@@ -74,10 +74,9 @@ export const FileExplorerRoot = styled('ul', {
 }));
 
 type FileExplorerComponent = (<
-  R extends FileBase,
   Multiple extends boolean | undefined = undefined,
 >(
-  props: FileExplorerProps<R, Multiple> & React.RefAttributes<HTMLUListElement>,
+  props: FileExplorerProps<Multiple> & React.RefAttributes<HTMLUListElement>,
 ) => React.JSX.Element) & { propTypes?: any };
 
 const childrenWarning = buildWarning([
@@ -97,9 +96,8 @@ const childrenWarning = buildWarning([
  * - [FileExplorer API](https://stoked-ui.github.io/file-explorer/api/)
  */
 const FileExplorer = React.forwardRef(function FileExplorer<
-  R extends FileBase = FileBase,
   Multiple extends boolean | undefined = undefined,
->(inProps: FileExplorerProps<R, Multiple>, ref: React.Ref<HTMLUListElement>) {
+>(inProps: FileExplorerProps<Multiple>, ref: React.Ref<HTMLUListElement>) {
   const props = useThemeProps({ props: inProps, name: 'MuiFileExplorer' });
   if (process.env.NODE_ENV !== 'production') {
     if ((props as any).children != null) {
@@ -107,7 +105,7 @@ const FileExplorer = React.forwardRef(function FileExplorer<
     }
   }
 
-  const richProps: FileExplorerProps<R, Multiple> & { id?: string } = { ...props, id: props.id };
+  const richProps: FileExplorerProps<Multiple> & { id?: string } = { ...props, id: props.id };
   const { getRootProps, contextValue, instance } = useFileExplorer<
     FileExplorerPluginSignatures,
     typeof richProps
@@ -126,7 +124,7 @@ const FileExplorer = React.forwardRef(function FileExplorer<
     externalSlotProps: slotProps?.root,
     className: classes.root,
     getSlotProps: getRootProps,
-    ownerState: props as FileExplorerProps<any, any>,
+    ownerState: props as FileExplorerProps<any>,
   });
 
   const itemsToRender = instance.getItemsToRender();

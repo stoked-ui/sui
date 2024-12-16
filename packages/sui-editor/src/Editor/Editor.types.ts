@@ -4,7 +4,7 @@ import {SxProps} from '@mui/system';
 import {SlotComponentProps} from '@mui/base/utils';
 import {IMediaFile} from '@stoked-ui/media-selector';
 import {ITimelineAction, ITimelineTrack, TimelineProps, TimelineControlProps} from '@stoked-ui/timeline';
-import { FileExplorerProps } from "@stoked-ui/file-explorer";
+import {FileExplorerProps} from "@stoked-ui/file-explorer";
 import {EditorPluginParameters, EditorPluginSignatures, EditorPluginSlotProps, EditorPluginSlots} from './Editor.plugins';
 import {EditorClasses} from './editorClasses';
 import { EditorExperimentalFeatures, EditorPublicAPI } from '../internals/models';
@@ -43,13 +43,13 @@ export interface EditorSlots extends EditorPluginSlots {
 
 }
 
-export interface EditorSlotProps<R extends IMediaFile, Multiple extends boolean | undefined>
+export interface EditorSlotProps<R extends any, Multiple extends boolean | undefined>
   extends EditorPluginSlotProps {
   root?: SlotComponentProps<'div', {}, EditorProps<R, Multiple>>;
   editorView?: SlotComponentProps<'div', {}, {}>;
   controls?: SlotComponentProps<'div', {}, {}>;
   timeline?: SlotComponentProps<'div', {}, TimelineProps & TimelineControlProps>;
-  fileExplorer?: SlotComponentProps<'ul', {}, FileExplorerProps<R, Multiple>>;
+  fileExplorer?: SlotComponentProps<'ul', {}, FileExplorerProps<Multiple>>;
 }
 
 
@@ -67,7 +67,7 @@ export interface EditorPropsBase extends React.HTMLAttributes<HTMLDivElement> {
   classes?: Partial<EditorClasses>;
   detailMode?: boolean;
   file?: IEditorFile;
-  FileExplorerProps?: FileExplorerProps<IMediaFile, undefined>;
+  FileExplorerProps?: FileExplorerProps<undefined>;
   fileUrl?: string,
   fileView?: boolean;
   fullscreen?: boolean;
@@ -92,7 +92,7 @@ export interface EditorPropsBase extends React.HTMLAttributes<HTMLDivElement> {
   filesSx?: SxProps<Theme>;
 }
 
-export interface EditorProps<R extends IMediaFile = IMediaFile, Multiple extends boolean | undefined = true>
+export interface EditorProps<R extends any = any, Multiple extends boolean | undefined = true>
   extends Omit<EditorPluginParameters, 'actions' | 'file'>,
     EditorPropsBase {
   /**
