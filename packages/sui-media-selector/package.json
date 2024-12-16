@@ -43,13 +43,14 @@
     "@typescript-eslint/parser": "^6.21.0",
     "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.2",
-    "eslint-plugin-react-refresh": "^0.4.7",
-    "typescript": "5.4.5"
+    "eslint-plugin-react-refresh": "^0.4.7"
   },
   "dependencies": {
     "exifreader": "^4.23.5",
+    "formdata-node": "^6.0.3",
     "jszip": "^3.10.1",
     "music-metadata": "^10.5.0",
-    "safe-stringify": "^1.1.1"
+    "safe-stringify": "^1.1.1",
+    "typescript": "5.4.5"
   }
 }
