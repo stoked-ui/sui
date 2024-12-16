@@ -658,7 +658,7 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
         }
         const files = await MediaFile.from(dropEvent);
          const {self} = dropEvent;
-         instance.createChildren(files, self.data.id as string);
+         instance.createChildren(files as FileBase[], self.data.id as string);
         cancelExpand();
         setState({...state, dndInstruction: null});
       },
