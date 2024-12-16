@@ -31,7 +31,7 @@ export default interface IMediaFile extends File {
    */
   readonly id: string;
 
-  readonly children?: IMediaFile[];
+  children: IMediaFile[];
 
   /**
    * Retrieves a url for the file if one isn't available it will create one
@@ -75,7 +75,7 @@ export default interface IMediaFile extends File {
     type: string;
     size: number;
     created: number;
-    lastModified: number;
+    lastModified?: number;
     mediaType: string;
     path: string;
     url: string;

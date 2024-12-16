@@ -21,6 +21,7 @@ import IMediaFile from "./IMediaFile";
 import WebFile from "../WebFile/WebFile";
 import ScreenshotStore from "./Metadata/ScreenshotStore";
 import {getMediaType, MediaType} from "../MediaType";
+import { File } from './File';
 
 export interface IAudioMetadata {
   duration: number;
@@ -61,7 +62,8 @@ export interface IAudioWaveImageOptions {
   backgroundColor: string;
 }
 
-export default class MediaFile extends File implements IMediaFile {
+
+export default class MediaFile implements IMediaFile {
   readonly created: number;
 
   readonly mediaType: MediaType;
@@ -74,7 +76,19 @@ export default class MediaFile extends File implements IMediaFile {
 
   readonly id: string;
 
-  children?: MediaFile[];
+  children: IMediaFile[];
+
+  lastModified: number;
+
+  name: string;
+
+  webkitRelativePath: string;
+
+  size: number;
+
+  type: string;
+
+  readonly _file: File;
 
   constructor(
     fileBits: BlobPart[],
@@ -88,10 +102,17 @@ export default class MediaFile extends File implements IMediaFile {
       children?: MediaFile[];
     }
   ) {
-    super(fileBits, fileName, options);
+    this._file = new File(fileBits, fileName, options);
 
+    this.size = this._file.size;
+    this.type = this._file.type;
+    this.lastModified = this._file.lastModified;
+    this.name = fileName;
+    this.webkitRelativePath = ''
     this.created = options.created ?? Date.now();
-    this.mediaType = getMediaType(options.type ?? this.type); // Automatically assign mediaType
+    this.mediaType = getMediaType(this.type); // Automatically
+    // assign
+    // mediaType
     this.path = options.path ?? '';
     this.url = options.url ?? '';
     this.media = createSettings(options.media);
