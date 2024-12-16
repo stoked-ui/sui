@@ -5,6 +5,8 @@ import {
   Settings,
   ExtensionMimeTypeMap
 } from "@stoked-ui/common";
+import { File } from 'formdata-node';
+
 import {
   DropFile,
   getInputFiles,
@@ -21,7 +23,6 @@ import IMediaFile from "./IMediaFile";
 import WebFile from "../WebFile/WebFile";
 import ScreenshotStore from "./Metadata/ScreenshotStore";
 import {getMediaType, MediaType} from "../MediaType";
-import { File } from './File';
 
 export interface IAudioMetadata {
   duration: number;
@@ -63,7 +64,7 @@ export interface IAudioWaveImageOptions {
 }
 
 
-export default class MediaFile implements IMediaFile {
+export default class MediaFile extends File implements IMediaFile {
   readonly created: number;
 
   readonly mediaType: MediaType;
@@ -76,19 +77,7 @@ export default class MediaFile implements IMediaFile {
 
   readonly id: string;
 
-  children: IMediaFile[];
-
-  lastModified: number;
-
-  name: string;
-
-  webkitRelativePath: string;
-
-  size: number;
-
-  type: string;
-
-  readonly _file: File;
+  children: MediaFile[];
 
   constructor(
     fileBits: BlobPart[],
@@ -102,17 +91,10 @@ export default class MediaFile implements IMediaFile {
       children?: MediaFile[];
     }
   ) {
-    this._file = new File(fileBits, fileName, options);
+    super(fileBits, fileName, options);
 
-    this.size = this._file.size;
-    this.type = this._file.type;
-    this.lastModified = this._file.lastModified;
-    this.name = fileName;
-    this.webkitRelativePath = ''
     this.created = options.created ?? Date.now();
-    this.mediaType = getMediaType(this.type); // Automatically
-    // assign
-    // mediaType
+    this.mediaType = getMediaType(options.type ?? this.type); // Automatically assign mediaType
     this.path = options.path ?? '';
     this.url = options.url ?? '';
     this.media = createSettings(options.media);
@@ -582,20 +564,21 @@ export default class MediaFile implements IMediaFile {
             reject(new Error('Failed to read file.'));
             return;
           }
-          if (window) {
-            const video = document.createElement('video');
-            video.src = URL.createObjectURL(new Blob([event.target.result], {type: file.type}));
-            video.preload = 'auto';
-            video.id = `${file.name}-video`;
-            video.onloadedmetadata = () => {
-              resolve({
-                duration: video.duration, // Duration in seconds
-                format: file.type,        // MIME type
-                name: file.name,          // File name
-                size: file.size,  // File size in bytes
-                video, width: video.videoWidth, height: video.videoHeight
-              });
-            }
+
+          const video = document.createElement('video');
+          video.src = URL.createObjectURL(new Blob([event.target.result], {type: file.type}));
+          video.preload = 'auto';
+          video.id = `${file.name}-video`;
+          video.onloadedmetadata = () => {
+            resolve( {
+              duration: video.duration, // Duration in seconds
+              format: file.type,        // MIME type
+              name: file.name,          // File name
+              size: file.size,  // File size in bytes
+              video,
+              width: video.videoWidth,
+              height: video.videoHeight
+            });
           }
         }
 
@@ -638,7 +621,7 @@ export default class MediaFile implements IMediaFile {
         video
       };
     } catch (ex) {
-      throw new Error('Failed to read file');
+      throw new Error(`Failed to read file: ${ex}`);
     }
   }
 
@@ -717,10 +700,6 @@ export default class MediaFile implements IMediaFile {
     // Create a Blob URL for the file
     const objectUrl = URL.createObjectURL(file);
     return new Promise((resolve) => {
-      if (!window) {
-        throw new Error('preloadAudio')
-      }
-
       const element = document.createElement('audio') as HTMLAudioElement;
       element.addEventListener("durationchange", () => {
         // console.info("Audio duration:", element.duration); // Outputs the duration in seconds
@@ -753,9 +732,6 @@ export default class MediaFile implements IMediaFile {
   }
 
   static async processAudioBuffer(audioBuffer: AudioBuffer, options: WaveformOptions): Promise<string> {
-    if (!window) {
-      throw new Error('preloadAudio')
-    }
     const canvas = document.createElement('canvas');
     const width = options.width || 800;
     const height = options.height || 400;
