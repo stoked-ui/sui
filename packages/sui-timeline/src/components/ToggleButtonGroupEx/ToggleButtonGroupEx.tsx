@@ -154,8 +154,6 @@ function ToggleButtonGroupEx(props: ToggleButtonGroupExProps): React.ReactNode {
 
   const idFinal = id ?? namedId('buttonGroup');
   React.useEffect(() => {
-    throw new Error('ToggleButtonGroupEx')
-
     const firstElement = document.getElementById(idFinal);
     if (firstElement) {
       firstElement.querySelector('.MuiButtonBase-root')?.classList.add('first-element');

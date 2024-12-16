@@ -35,7 +35,6 @@ class Stage {
     if (tempStage) {
       return tempStage;
     }
-    throw new Error('getStage')
 
     stage = document.querySelector(`#${name}`) as HTMLDivElement;
     if (!stage) {
