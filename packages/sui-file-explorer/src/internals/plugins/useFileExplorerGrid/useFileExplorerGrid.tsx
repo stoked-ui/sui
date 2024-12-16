@@ -81,8 +81,6 @@ export const useFileExplorerGrid: UseFileExplorerGridPlugin = <R extends FileBas
     }
     Object.entries(state.grid.columns).forEach(([name, columnData]) => {
       const data = columnData as GridColumn;
-      throw new Error('processColumns')
-
       const columns = document.querySelectorAll(`#${state.id} .column-${name}`);
       let width = data.width !== -1 ? data.width : 0;
       columns.forEach((column) => {
