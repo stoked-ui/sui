@@ -18,7 +18,7 @@ export interface IEngine<EmitterEvents extends EventTypes = EventTypes> extends 
   readonly canvasDuration: number;
   readonly actions: Record<string, ITimelineAction>;
   state: string;
-  playbackMode: 'media' | 'canvas';
+  playbackMode: PlaybackMode;
 
   getStartTime(): number;
 
@@ -81,3 +81,9 @@ export type EngineOptions = {
 }
 
 export type Version = { id: string, version: number, key: string };
+
+export enum PlaybackMode {
+  TRACK_FILE = 'TRACK_FILE',
+  CANVAS = 'CANVAS',
+  MEDIA = 'MEDIA'
+}

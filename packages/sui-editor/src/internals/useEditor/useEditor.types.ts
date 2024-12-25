@@ -1,6 +1,7 @@
 import * as React from 'react';
 import {EventHandlers} from '@mui/base/utils';
 import {ITimelineTrack, TimelineSlotProps} from "@stoked-ui/timeline";
+import { IMediaFile } from '@stoked-ui/media-selector';
 import type {EditorContextValue} from '../EditorProvider';
 import {
   ConvertSignaturesIntoPlugins,
@@ -10,6 +11,8 @@ import {
   EditorPublicAPI,
   MergeSignaturesProperty,
 } from '../models';
+import { SxProps } from '@mui/system';
+
 
 export interface UseEditorParameters<
   TSignatures extends readonly EditorAnyPluginSignature[],
@@ -59,12 +62,14 @@ export interface UseTimelineSlotProps
   tracks: ITimelineTrack[];
 }
 
-export interface UseFileExplorerSlotProps
+export interface UseFileExplorerTabsSlotProps
   extends Pick<
     React.HTMLAttributes<HTMLDivElement>,
     'onFocus' | 'onBlur' | 'onKeyDown' | 'id' | 'aria-multiselectable' | 'role' | 'tabIndex'
   > {
   ref?: React.Ref<HTMLDivElement>;
+  tabs: Record<string, IMediaFile[]>
+  sx?: SxProps
 }
 
 export interface UseBottomRightSlotProps
@@ -88,9 +93,9 @@ export interface UseEditorReturnValue<TSignatures extends readonly EditorAnyPlug
   getTimelineProps: <TOther extends EventHandlers = {}>(
     otherHandlers?: TOther,
   ) => TimelineSlotProps & { className?: string | undefined; style?: React.CSSProperties | undefined; ref?: React.Ref<any> | undefined; };
-  getFileExplorerProps: <TOther extends EventHandlers = {}>(
+  getFileExplorerTabsProps: <TOther extends EventHandlers = {}>(
     otherHandlers?: TOther,
-  ) => UseFileExplorerSlotProps;
+  ) => UseFileExplorerTabsSlotProps;
   rootRef: React.RefCallback<HTMLDivElement> | null;
   contextValue: EditorContextValue<TSignatures>;
   instance: EditorInstance<TSignatures>;

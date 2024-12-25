@@ -510,7 +510,7 @@ function TimelineReducerBase<
 
         Object.entries(result).forEach(([nestedKey, nestedValue]) => {
           if (nestedKey.indexOf('scale') > -1) {
-            console.info('SET SCALE', key, value);
+            // console.info('SET SCALE', key, value);
           }
           state = setSetting<State>(nestedKey, nestedValue, state);
         });
@@ -593,7 +593,6 @@ export function TimelineReducer<
     acc[item.id] = item; // Use the `id` as the key and the item itself as the value
     return acc;
   }, {} as Record<string, ITimelineAction>) || {};
-  console.info('stateAction', stateAction.type, stateAction?.payload);
   return TimelineReducerBase(state, stateAction);
 }
 
@@ -622,15 +621,17 @@ export function getDbProps(mimeType: IMimeType, localDbProps?: LocalDbProps | fa
   switch (localDbProps) {
     case false:
       return {
+        type: mimeType.type,
         dbName: mimeType.application,
-        stores: [mimeType.name],
+        stores: [{name: mimeType.name, type: mimeType.type }],
         initializeStores: [mimeType.name],
         disabled: true,
       };
     case undefined:
       return {
+        type: mimeType.type,
         dbName: mimeType.application,
-        stores: [mimeType.name],
+        stores: [{ name: mimeType.name, type: mimeType.type }],
         initializeStores: [mimeType.name],
         disabled: false,
       }

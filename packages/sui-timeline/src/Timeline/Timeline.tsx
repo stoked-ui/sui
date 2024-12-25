@@ -24,6 +24,8 @@ import { TimelineControlProps } from "./TimelineControlProps";
 import {fitScaleData} from "../TimelineProvider/TimelineProviderFunctions";
 import TimelineTrackActions from "../TimelineLabels/TimelineTrackActions";
 import AddTrackButton from "./AddTrackButton";
+import {Box, Typography} from "@mui/material";
+import {ControlledTrack} from "../TimelineTrack";
 
 const useUtilityClasses = (ownerState: TimelineProps) => {
   const { classes } = ownerState;
@@ -91,6 +93,13 @@ const TimelineControlRoot = styled('div')(({ theme }) => ({
   overflow: 'hidden',
 }));
 
+function NoTracksNotice({ tracks }) {
+  if (!tracks || !tracks.length) {
+    return <Box sx={{ minHeight: '100px', width: '100%', display: 'grid', justifyContent: 'center', alignItems: 'center', position: 'relative ', height: 'calc(100% - 18px - 37px)' }}>
+      <Typography sx={{justifySelf: 'center'}} color={'action.disabled'}>No tracks</Typography>
+    </Box>;
+  }
+}
 /**
  *
  * Demos:
@@ -145,7 +154,7 @@ const Timeline = React.forwardRef(function Timeline(
     scaleWidth,
     minScaleCount,
     maxScaleCount,
-    scaleSplitCount,
+    recordingTrack,
     scrollTop,
     setScaleCount,
     deltaScrollLeft,
@@ -205,19 +214,11 @@ const Timeline = React.forwardRef(function Timeline(
 
     if (grid?.clientWidth && !engine.isLoading && file && file.id !== (lastFile?.id ?? 'no-id')) {
       setLastFile(file);
-      const scaleData = fitScaleData(context, false, grid?.clientWidth, 'timeline');
-      if (scaleData) {
-        setTimeout(() => {
-          dispatch({type: 'SET_SETTING', payload: {value: {...scaleData}}});
-        }, 500);
-      }
+      fitScaleData(context, false, grid?.clientWidth, 'timeline');
+
     }
-  }, [engine.maxDuration, engine.canvasDuration, engine.isLoading, file])
+  }, [engine.maxDuration, engine.canvasDuration, engine.isLoading, file, recordingTrack])
 
-
-  React.useEffect(() => {
-
-  }, [])
   const commonProps = {
     areaRef,
     tracksRef,
@@ -295,9 +296,10 @@ const Timeline = React.forwardRef(function Timeline(
       sx={[...(Array.isArray(sx) ? sx : [sx]), { height: '100%' }]}
       onScroll={inProps.onScrollVertical}
     >
+      <Box width={'100%'}>
+        <Box width={'100%'} style={{ display: 'flex', flexDirection: 'row' }}>
+        <AddTrackButton onAddFiles={inProps.onAddFiles}/>
         {!flags.collapsed && !flags.noLabels && (
-          <React.Fragment>
-            <AddTrackButton onAddFiles={inProps.onAddFiles}/>
             <Labels
               ref={labelsRef}
               {...labelsProps.ownerState}
@@ -307,7 +309,6 @@ const Timeline = React.forwardRef(function Timeline(
               onContextMenu={inProps.onContextMenuTrack}
               onClick={inProps.onClickLabel}
             />
-          </React.Fragment>
         )}
 
         {engine &&
@@ -329,29 +330,31 @@ const Timeline = React.forwardRef(function Timeline(
               {({ scrollLeft, scrollTop: scrollTopCurrent, onScroll }) => {
                 return (<React.Fragment>
                   <TimelineTime
-                    {...commonProps}
                     onScroll={onScroll}
                     scrollLeft={scrollLeft}
                   />
-                  <TrackArea
-                    {...commonProps}
-                    ref={(editAreaRef: TimelineTrackAreaState) => {
-                      (areaRef.current as any) = editAreaRef?.domRef.current;
-                      (tracksRef.current as any) = editAreaRef?.tracksRef.current;
-                    }}
-                    scrollLeft={scrollLeft}
-                    deltaScrollLeft={flags.autoScroll && deltaScrollLeft}
-                    onClickTrack={inProps.onClickTrack}
-                    onClickAction={inProps.onClickAction}
-                    onScroll={(params) => {
-                      onScroll(params);
-                      if (inProps.onScrollVertical) {
-                        inProps.onScrollVertical(params as any);
-                      }}}
-                    onAddFiles={inProps.onAddFiles}
-                    onContextMenuAction={inProps.onContextMenuAction}
-                    onContextMenuTrack={inProps.onContextMenuTrack}
-                  />
+                    {settings.recordingTrack ?
+                      <ControlledTrack track={settings.recordingTrack} width={domRef.current?.clientWidth} height={100} {...commonProps} /> :
+                      <TrackArea
+                        {...commonProps}
+                        ref={(editAreaRef: TimelineTrackAreaState) => {
+                          (areaRef.current as any) = editAreaRef?.domRef.current;
+                          (tracksRef.current as any) = editAreaRef?.tracksRef.current;
+                        }}
+                        scrollLeft={scrollLeft}
+                        deltaScrollLeft={flags.autoScroll && deltaScrollLeft}
+                        onClickTrack={inProps.onClickTrack}
+                        onClickAction={inProps.onClickAction}
+                        onScroll={(params) => {
+                          onScroll(params);
+                          if (inProps.onScrollVertical) {
+                            inProps.onScrollVertical(params as any);
+                          }}}
+                        onAddFiles={inProps.onAddFiles}
+                        onContextMenuAction={inProps.onContextMenuAction}
+                        onContextMenuTrack={inProps.onContextMenuTrack}
+                      />
+                    }
                   {!flags.hideCursor && (
                     <TimelineCursor
                       {...settings}
@@ -363,9 +366,10 @@ const Timeline = React.forwardRef(function Timeline(
                 </React.Fragment>)
               }}
             </ScrollSync>
-          </TimelineControlRoot>
-        }
-
+          </TimelineControlRoot>}
+          </Box>
+        <NoTracksNotice tracks={file?.tracks}/>
+      </Box>
     </Root>
   );
 }) as TimelineComponent;

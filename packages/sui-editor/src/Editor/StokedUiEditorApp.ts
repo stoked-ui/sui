@@ -7,15 +7,14 @@ import {
 import { IMimeType, SUIMime } from '@stoked-ui/common';
 
 export default class StokedUiEditorApp extends App implements IApp {
+  private static instance: StokedUiEditorApp | null = null;
+
   defaultInputFileType: IMimeType;
-
   defaultOutputFileType: IMimeType;
-
   videoFileType: IMimeType;
-
   audioFileType: IMimeType;
 
-  constructor() {
+  private constructor() {
     super('stoked-ui-editor');
 
     this.defaultInputFileType = SUIMime.make(
@@ -37,10 +36,18 @@ export default class StokedUiEditorApp extends App implements IApp {
     );
 
     // Create factories
-    const inputFactory = new AppFileFactory([ this.defaultInputFileType], AppFile);
-    const outputFactory = new AppOutputFileFactory([this.videoFileType,this.audioFileType], AppOutputFile);
+    const inputFactory = new AppFileFactory([this.defaultInputFileType], AppFile);
+    const outputFactory = new AppOutputFileFactory([this.videoFileType, this.audioFileType], AppOutputFile);
 
     this.registerInputFactory(inputFactory);
     this.registerOutputFactory(outputFactory);
+  }
+
+  // Static method to get the singleton instance
+  static getInstance(): StokedUiEditorApp {
+    if (!StokedUiEditorApp.instance) {
+      StokedUiEditorApp.instance = new StokedUiEditorApp();
+    }
+    return StokedUiEditorApp.instance;
   }
 }

@@ -73,7 +73,7 @@ export const FileExplorerRoot = styled('ul', {
   } */
 }));
 
-type FileExplorerComponent = (<
+export type FileExplorerComponent = (<
   Multiple extends boolean | undefined = undefined,
 >(
   props: FileExplorerProps<Multiple> & React.RefAttributes<HTMLUListElement>,
@@ -105,7 +105,12 @@ const FileExplorer = React.forwardRef(function FileExplorer<
     }
   }
 
-  const richProps: FileExplorerProps<Multiple> & { id?: string } = { ...props, id: props.id };
+  const { items, ...otherProps } = props;
+  const [stateItems, setStateItems] = React.useState<readonly FileBase[]>(items);
+  React.useEffect(() => {
+    setStateItems(items);
+  }, [items])
+  const richProps: FileExplorerProps<Multiple> & { id?: string } = { ...otherProps, items: stateItems, id: props.id };
   const { getRootProps, contextValue, instance } = useFileExplorer<
     FileExplorerPluginSignatures,
     typeof richProps
@@ -133,12 +138,12 @@ const FileExplorer = React.forwardRef(function FileExplorer<
     const currItem = instance.getItem(item.id);
 
     return (
-      <FileWrapped {...currItem} {...item} slots={slots} key={item.id} sx={props.sx}>
+      <FileWrapped onDoubleClick={() => { inProps.onItemDoubleClick?.(currItem); }} {...currItem} {...item} slots={slots} key={item.id} sx={props.sx}>
         {item.children?.map(renderItem)}
       </FileWrapped>
     );
   };
-  if (!props.items?.length && props.dropzone) {
+  if (!stateItems?.length && props.dropzone) {
     return <FileDropzone />;
   }
   const getContent = () => {
@@ -305,6 +310,12 @@ FileExplorer.propTypes = {
    */
   onExpandedItemsChange: PropTypes.func,
   /**
+   * Callback fired when fileExplorer items are double-clicked.
+   * @param {React.SyntheticEvent} event The event source of the callback **Warning**: This is a
+   *   generic event not a focus event.
+   */
+  onItemDoubleClick: PropTypes.func,
+  /**
    * Callback fired when a fileExplorer item is expanded or collapsed.
    * @param {React.SyntheticEvent} event The event source of the callback.
    * @param {array} id The id of the lastModified item.
@@ -328,6 +339,7 @@ FileExplorer.propTypes = {
    *   been deselected.
    */
   onItemSelectionToggle: PropTypes.func,
+
   /**
    * Callback fired when fileExplorer items are selected/deselected.
    * @param {React.SyntheticEvent} event The event source of the callback

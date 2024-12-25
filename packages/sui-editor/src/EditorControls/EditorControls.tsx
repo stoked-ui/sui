@@ -27,12 +27,7 @@ import { alpha, emphasize, Theme } from '@mui/material/styles';
 import { Slider, Stack, Tooltip } from '@mui/material';
 import { MediaFile } from '@stoked-ui/media-selector';
 import {
-  OutputBlob,
-  Version,
-  ToggleButtonGroupEx,
-  FileState,
-  SnapControls,
-  EngineState,
+  OutputBlob, Version, ToggleButtonGroupEx, FileState, SnapControls, EngineState, PlaybackMode,
 } from '@stoked-ui/timeline';
 import { useEditorContext } from '../EditorProvider/EditorContext';
 import { IEditorEngine } from '../EditorEngine/EditorEngine.types';
@@ -40,6 +35,7 @@ import { createUseThemeProps, styled } from '../internals/zero-styled';
 import { EditorControlState, EditorControlsProps } from './EditorControls.types';
 import TimelineView from '../icons/TimelineView';
 import { SUVideoFile } from '../EditorFile/EditorFile';
+  import {getTrackFromMediaFile, getTracksFromMediaFiles} from "../EditorTrack";
 
 export const Rates = [-10, -9.5, -9, -8.5, -8, -7.5, 7, -6.5, -6, -6.5, -6, -5.5, -5, -4.5, -4, -3.5, -3, -2.5, -2.0, -1.5, -1.0, -0.5, -0.2, 0.2, 0.5, 1.0, 1.5, 2.0, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10];
 const useThemeProps = createUseThemeProps('MuiEditor');
@@ -204,10 +200,22 @@ function Controls(inProps: ControlProps) {
 
   useThemeProps({ props: inProps, name: 'MuiControls' });
   const { setVideoURLs, controls, versions, setVersions, setControls } = inProps;
-  const [mediaRecorder, setMediaRecorder] = React.useState<MediaRecorder | null>(null);
-  const [recordedChunks, setRecordedChunks] = React.useState<Blob[]>([]);
+  // const [mediaRecorder, setMediaRecorder] = React.useState<MediaRecorder | null>(null);
+  // const [recordedChunks, setRecordedChunks] = React.useState<Blob[]>([]);
+const [lastRecording, setLastRecording] = React.useState<MediaFile | null>(null);
+  React.useEffect(() => {
+    engine?.on('finishedRecording', ({recording}) => {
+        console.info('recording', recording)
+        setLastRecording(recording);
+    });
+  }, []);
 
-  const playbackMode = flags && flags.detailMode ? settings.playbackMode : 'canvas'
+  React.useEffect(() => {
+    lastRecording?.extractMetadata().then(()=> {
+      console.info('lastRecording', lastRecording)
+      dispatch({ type: 'VIDEO_CREATED', payload: lastRecording });
+    })
+  }, [lastRecording])
 
   const handlePlay = () => {
     if (!engine.isPlaying) {
@@ -219,9 +227,6 @@ function Controls(inProps: ControlProps) {
   const handlePause = () => {
     if (engine.isPlaying || editorEngine.isRecording) {
       engine.pause();
-      if (mediaRecorder) {
-        mediaRecorder.stop()
-      }
     }
   };
 
@@ -262,100 +267,9 @@ function Controls(inProps: ControlProps) {
     return downFunc();
   };
 
-  const finalizeVideo = () => {
-    if (!engine || !editorEngine?.renderer || !editorEngine?.stage || !file) {
-      return;
-    }
-    console.info('finalizeVideo');
-    const blob = new Blob(recordedChunks, {
-      type: 'video/mp4',
-    });
-
-    const videoFile = new MediaFile([blob], `${file.name}.mp4`, { type: 'video/mp4' });
-    const suiVideo = new SUVideoFile({
-      outputData: blob,
-      name: `${file.name}.mp4`,
-    });
-
-    dispatch({ type: 'VIDEO_CREATED', payload: suiVideo });
-
-    const url = URL.createObjectURL(blob);
-    setVideoURLs((prev) => [url, ...prev]);
-    setRecordedChunks([]);
-    handlePause();
-    setMediaRecorder(null);
-  };
-
   const handleRecord = () => {
     if (editorEngine && editorEngine.renderer) {
-      editorEngine.record({ autoEnd: true });
-
-      // Get the video stream from the canvas renderer
-      const videoStream = editorEngine.renderer.captureStream();
-
-      // Get the Howler audio stream
-      const audioContext = Howler.ctx;
-      const destination = audioContext.createMediaStreamDestination();
-      Howler.masterGain.connect(destination);
-      const audioStream = destination.stream;
-
-      // Get audio tracks from video elements
-      throw new Error('handleRecord')
-
-      const videoElements = document.querySelectorAll('video');
-      const videoAudioStreams: MediaStreamTrack[] = [];
-      videoElements.forEach((video) => {
-        const videoElement = video as HTMLVideoElement & { captureStream?: () => MediaStream };
-        if (videoElement.captureStream) {
-          const vidStream = videoElement.captureStream();
-          vidStream.getAudioTracks().forEach((track) => {
-            videoAudioStreams.push(track);
-          });
-        }
-      });
-
-      // Combine Howler and video audio streams
-      const combinedAudioStream = new MediaStream([
-        ...audioStream.getAudioTracks(),
-        ...videoAudioStreams,
-      ]);
-
-      // Combine the video and audio streams
-      const combinedStream = new MediaStream([
-        ...videoStream.getVideoTracks(),
-        ...combinedAudioStream.getAudioTracks(),
-      ]);
-
-      // Create the MediaRecorder with the combined stream
-      const recorder = new MediaRecorder(combinedStream, {
-        mimeType: 'video/mp4',
-      });
-      setMediaRecorder(recorder);
-      setRecordedChunks([]);
-      recorder.ondataavailable = (e) => {
-        if (e.data.size > 0) {
-          recordedChunks.push(e.data);
-          setRecordedChunks([...recordedChunks]);
-        }
-      };
-
-      recorder.onstop = () => {
-        console.info('stopped recording');
-        if (!engine || !editorEngine.renderer || !editorEngine.stage) {
-          console.warn("recording couldn't stop");
-          return;
-        }
-        handlePause();
-        finalizeVideo();
-      };
-
-      recorder.start(100); // Start recording
-    }
-  };
-
-  const handleRecordStop = () => {
-    if (engine.isPlaying) {
-      handlePause();
+      editorEngine.record({ autoEnd: true, name: file?.name });
     }
   };
 
@@ -404,20 +318,39 @@ function Controls(inProps: ControlProps) {
         <ToggleButton onClick={handleEnd} value="end" aria-label="lock">
           <SkipNextIcon />
         </ToggleButton>
-        {flags && flags.record ? (
+        {engine.playbackMode === PlaybackMode.CANVAS ? (
           <ToggleButton
             sx={(theme) => ({
               '&.MuiButtonBase-root.MuiToggleButtonGroup-grouped.MuiToggleButtonGroup-groupedHorizontal.MuiToggleButton-root.MuiToggleButton-sizeMedium.MuiToggleButton-standard.MuiToggleButtonGroup-grouped:hover':{
-                outline: `1px solid red`,
-                border: '2px solid red',
-                'svg': {
-                  color: 'red',
+                outline: `0px solid transparent!important`,
+                border: '0px solid transparent!important',
+                color: 'white',
+                background: 'red!important',
+                '&:hover': {
+                  border: '0px solid transparent!important',
+                  outline: '0px solid transparent!important',
+                  color: 'white',
+                  background: 'red!important',
+                  '& svg': {
+                    fill: 'white'
+                    }
                 }
-              }
+              },
+              ...(controls.includes('record') ? {
+                '&.MuiButtonBase-root': {
+                  color: 'white',
+                  background: 'red!important',
+                  outline: `0px solid transparent!important`,
+                  border: '0px solid transparent!important',
+                  '& svg': {
+                    fill: 'white'
+                  }
+                }
+              } : {})
             })}
             value="record"
             onClick={() => {
-              stateFunc('record', handleRecord, handleRecordStop);
+              stateFunc('record', handleRecord, handlePause);
             }}
           >
             <RecordIcon />

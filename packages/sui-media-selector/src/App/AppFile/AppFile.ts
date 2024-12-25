@@ -1,4 +1,4 @@
-import {namedId, Constructor, FileSaveRequest, } from '@stoked-ui/common';
+import {namedId, Constructor, FileSaveRequest, Versions,} from '@stoked-ui/common';
 import MediaFile from '../../MediaFile';
 import WebFile, {
   IWebFile,
@@ -15,13 +15,14 @@ export interface IAppFileConstructor<AppFileType extends AppFile = AppFile>  {
   fromLocalFile(file: File): Promise<AppFileType>;
 }
 
-export interface IAppFileMeta { size: number, name: string, type: string }
+export interface IAppFileMeta { id: string, size: number, name: string, type: string }
 export interface IAppFileData extends IWebFileData {
   mediaFilesMeta: IAppFileMeta[];
 }
 
 export interface IAppFile extends IWebFile {
   mediaFiles: MediaFile[];
+  versions: Versions;
 
   addMediaFile(mediaFile: MediaFile): void;
   removeMediaFile(id: string): void;
@@ -34,6 +35,8 @@ export default class AppFile<FileDataType extends IAppFileData = IAppFileData> e
 
   protected _mediaFiles: MediaFile[];
 
+  versions: Versions = []
+
   constructor(appFileProps: IAppFileProps) {
     super(appFileProps);
     this._mediaFiles = appFileProps?.mediaFiles ?? [];
@@ -44,8 +47,9 @@ export default class AppFile<FileDataType extends IAppFileData = IAppFileData> e
   }
 
   async getSaveRequest(): Promise<FileSaveRequest> {
+    const saveRequest =  this.createSaveRequest();
     return {
-      ...this.createSaveRequest(),
+      ...saveRequest,
       blob: await this.toBlob(),
     };
   }
@@ -75,10 +79,14 @@ export default class AppFile<FileDataType extends IAppFileData = IAppFileData> e
    * @param url The URL to load the file from.
    * @param FileConstructor
    */
-  static async fromUrl<AppFileType = AppFile>(url: string, FileConstructor: Constructor<AppFileType>): Promise<AppFileType> {
+  static async fromUrl<AppFileType = AppFile>(url: string, FileConstructor: Constructor<AppFileType>): Promise<AppFileType | null> {
     const response = await fetch(url);
-    const blob = await response.blob();
-    return this.fromLocalFile<AppFileType>(blob, FileConstructor);
+    if (response.ok) {
+      const blob = await response.blob();
+      return this.fromLocalFile<AppFileType>(blob, FileConstructor);
+    }
+    console.error(`Failed to fetch file from ${url}`);
+    return null;
   }
 
   /**
@@ -123,7 +131,6 @@ export default class AppFile<FileDataType extends IAppFileData = IAppFileData> e
       return this.fromLocalFile<AppFileType>(file, FileConstructor);
     }));
   }
-
 
   /**
    * Serializes the AppFile to a Blob.

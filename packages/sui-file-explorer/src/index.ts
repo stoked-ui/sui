@@ -2,6 +2,8 @@
 export * from './FileExplorer';
 export * from './FileExplorerBasic';
 
+export * from './FileExplorerTabs';
+
 // FileExplorer Item
 export * from './File';
 export * from './FileElement';

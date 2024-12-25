@@ -55,6 +55,16 @@ export function DetailTrack(props: DetailViewProps) {
       titleId={(props.detail as TrackDetail).track.id}
       submitHandler={handleSubmit(onSubmit)}
     >
+      {/* Display All Errors */}
+      {Object.keys(errors).length > 0 && (
+        <div style={{ color: "red", marginBottom: "1rem" }}>
+          <ul>
+            {Object.entries(errors).map(([key, error]) => (
+              <li key={key}>{error?.message}</li>
+            ))}
+          </ul>
+        </div>
+      )}
     <div>
       <CtrlRow>
         <CtrlCell width="30%">

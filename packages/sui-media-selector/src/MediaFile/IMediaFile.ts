@@ -19,7 +19,7 @@ export default interface IMediaFile extends File {
   /**
    * The URL associated with the file.
    */
-  readonly url: string;
+  url: string;
 
   /**
    * Additional metadata or media-related properties.

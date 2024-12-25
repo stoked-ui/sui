@@ -5,10 +5,10 @@ import {
   ITimelineFileData,
   ITimelineTrackData,
 } from '@stoked-ui/timeline';
-import {Constructor } from '@stoked-ui/common';
+import {Constructor, IMimeType, LocalDb, Versions} from '@stoked-ui/common';
 
 import {
-  IMediaFile, AppOutputFile, AppFile,
+  IMediaFile, AppOutputFile, AppFile, MediaType,
 } from '@stoked-ui/media-selector';
 import {
   BlendMode, Fit,
@@ -16,6 +16,7 @@ import {
   IEditorFileAction,
 } from "../EditorAction/EditorAction";
 import { IEditorFileTrack, IEditorTrack } from "../EditorTrack/EditorTrack";
+import {StokedUiEditorApp} from "../Editor";
 
 export const editorFileCache: Record<string, any> = {};
 
@@ -89,6 +90,7 @@ export default class EditorFile<
 
   protected _version: number = 0;
 
+
   constructor(props: IEditorFileProps<FileTrackType>) {
     // editorFileCache[props.id as string] = JSON.stringify(props);
     super(props);
@@ -141,15 +143,42 @@ export default class EditorFile<
     } as FileDataType;
   }
 
+  static async fromUrl<AppFileType = EditorFile>(url: string, FileConstructor: Constructor<AppFileType> = EditorFile as unknown as Constructor<AppFileType>): Promise<AppFileType | null> {
+    const editor = StokedUiEditorApp.getInstance();
 
-  static async fromUrl<AppFileType = EditorFile>(url: string, FileConstructor: Constructor<AppFileType> = EditorFile as unknown as Constructor<AppFileType>): Promise<AppFileType> {
-    const file= await AppFile.fromUrl<AppFileType>(url, FileConstructor) as ITimelineFile;
-    await file.loadUrls();
+    const urlLookup  = await LocalDb.loadByUrl({store: editor.defaultInputFileType.name, url});
+    if (urlLookup) {
+      const editorFile = await TimelineFile.fromLocalFile<AppFileType>(urlLookup.blob, FileConstructor) as EditorFile;
+      if (editorFile) {
+        editorFile.versions = urlLookup.versions;
+      }
+      return editorFile as AppFileType;
+    }
+    const file = await TimelineFile.fromUrl<AppFileType>(url, FileConstructor) as ITimelineFile;
+    if (!file) {
+      return file;
+    }
+
+    await file.save({ silent: true, url });
     return file as AppFileType;
   }
 
   static fileCache: Record<string, EditorFile> = {};
+
+  static toFileBaseArray(files: IEditorFile[], mime: IMimeType) {
+    return files.map((file, index) => {
+      const editorFile = file as IEditorFile;
+      return {
+        id: editorFile.id,
+        name: editorFile.name,
+        lastModified: editorFile.lastModified,
+        mediaType: 'project',
+        type: mime.type,
+        created: editorFile.created,
+        visibleIndex: index,
+      }
+    })
+  }
+
+  static mimeType: IMimeType
 }
-
-
-0

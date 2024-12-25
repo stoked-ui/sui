@@ -308,7 +308,7 @@ function TimelineTrack<
     flags,
     file
   } = context;
-  const  { scrollLeft, startLeft, scale, scaleWidth, trackHoverId, trackHeight } = settings;
+  const  { scrollLeft, startLeft, scale, scaleWidth, trackHoverId, trackHeight, recordingTrack } = settings;
 
   const { track,
     style = {},
@@ -320,7 +320,7 @@ function TimelineTrack<
     onContextMenuAction,
     areaRef } = props;
 
-  const getIndex = (getIndexTrack: ITimelineTrack) => file?.tracks?.findIndex((fileTrack) => fileTrack.id === getIndexTrack.id);
+  const getIndex = (getIndexTrack: ITimelineTrack) => recordingTrack ? 0 : file?.tracks?.findIndex((fileTrack) => fileTrack.id === getIndexTrack.id);
   const index = getIndex(track);
   const classNames = ['track'];
   const handleTime = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -362,10 +362,13 @@ function TimelineTrack<
       ref={ref}
       className={`${prefix(...classNames)} ${(track?.classNames || []).join(' ')}`}
       locked={track.locked}
-      yPercent={calculatePercentage(file?.tracks?.length, index)}
+      yPercent={calculatePercentage(recordingTrack ? 1 : file?.tracks?.length, index)}
       disabled={track.disabled || detailDisable}
       dim={!!track.dim}
       onMouseEnter={(event) => {
+        if (recordingTrack) {
+          return;
+        }
         dispatch({
           type: 'SET_SETTING',
           payload: { key: 'trackHoverId', value: track.id },
@@ -373,6 +376,9 @@ function TimelineTrack<
         event.stopPropagation()
       }}
       onMouseLeave={(event) => {
+        if (recordingTrack) {
+          return;
+        }
         dispatch({
           type: 'SET_SETTING',
           payload: { key: 'trackHoverId', value: undefined },
@@ -582,39 +588,40 @@ TimelineTrack.propTypes = {
 
 export default TimelineTrack;
 
-function ControlledTrack({ width, height }: { name?: string; width: number; height?: number }) {
+function ControlledTrack({ width, height, track }: { name?: string; width: number; height?: number, track: ITimelineTrack }) {
   const context = useTimeline();
   const { state } = context;
-  const {settings, selectedTrack } = state;
+  const {settings } = state;
   const {
     startLeft, fitScaleData
   } = settings;
 
-  if (!selectedTrack) {
+  if (!width) {
     return undefined;
   }
-
+/*
   const scaleData = fitScaleData(
     context,
     false,
     width,
     'timelineTrackControlled'
   );
-  const scaledSettings = { ...settings, width, ...scaleData };
+  const scaledSettings = { ...settings, width, ...scaleData }; */
+
+
 
   return (
     <div style={{ position: 'relative' }}>
       <TimelineTrack
-        {...scaledSettings}
         timelineWidth={width}
         style={{
           width: '100%',
-          height: height || scaledSettings.trackHeight,
+          height: height || settings.trackHeight,
           overscrollBehaviorX: 'none',
           backgroundPositionX: `0, ${startLeft}px`,
-          backgroundSize: `${startLeft}px, ${scaleData.scaleWidth}px`,
+          backgroundSize: `${startLeft}px, ${settings.scaleWidth}px`,
         }}
-        track={selectedTrack}
+        track={track}
         disableDrag
         dragLineData={{
           isMoving: false,
