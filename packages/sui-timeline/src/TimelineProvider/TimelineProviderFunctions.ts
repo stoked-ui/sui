@@ -27,9 +27,9 @@ export const  setHorizontalScroll = (left: number, state: TimelineState) =>  {
 }
 
 /** handleCursor */
-export const setCursor = (param: { left?: number; time?: number; updateTime?: boolean, move?: boolean }, context: TimelineContextType) => {
+export const setCursor = (param: { left?: number; time?: number; updateTime?: boolean, move?: boolean, focus?: boolean }, context: TimelineContextType) => {
   let { left, time } = param;
-  const { updateTime = true } = param;
+  const { updateTime = true, focus = false } = param;
   const { state, dispatch } = context;
   const { settings: {startLeft, scale, scaleWidth}, components, engine } = state;
   const scrollSync = components.scrollSync as React.PureComponent & { state: Readonly<any>};
@@ -59,6 +59,10 @@ export const setCursor = (param: { left?: number; time?: number; updateTime?: bo
   if (result) {
     dispatch({ type: 'SET_SETTING', payload: { key: 'cursorTime', value: time } });
   }
+
+  // if (focus) {
+    (components.cursor as HTMLDivElement)?.focus();
+  // }
 
   return result;
 }
@@ -90,33 +94,28 @@ export const setScaleCount = (value: number, context: TimelineContextType) =>  {
   dispatch({ type: 'SET_SETTING', payload: { key: 'scaleCount', value: newScaleCount } });
 }
 
-export const fitScaleData = (context: TimelineContextType, detailMode: boolean, newWidth?: number, from?: string)  => {
+export const fitScaleData = (context: TimelineContextType, detailMode: boolean, newWidth: number, from?: string)  => {
+  console.log('from', from)
   const { state, dispatch } = context;
   const { settings, engine, flags } = state;
-  const { startLeft, minScaleCount, scaleSplitCount, scale } = settings;
+  const { startLeft, minScaleCount, scaleSplitCount, scale, recordingTrack } = settings;
 
-  if (detailMode && !flags.detailMode) {
+  if (!detailMode && flags.detailMode) {
     console.info('fitScaleData', from, 'detailMode early exit', detailMode, flags.detailMode);
     return null;
   } else {
     console.info('fitScaleData', from, minScaleCount, newWidth);
   }
 
-  if (!newWidth) {
-    throw new Error('fitScaleData')
-
-    const timelineGrid = document.getElementById('timeline-grid');
-    newWidth = timelineGrid.clientWidth;
-  }
-
   const tracks = state.file?.tracks;
-  if (!newWidth || !tracks?.length) {
+  if (!newWidth || (!tracks?.length && recordingTrack)) {
     console.info('fitScaleData', '!newWidth || !tracks?.length');
     return null;
   }
 
   const getScale = () => {
-    const scaleWidth = (newWidth - (startLeft * 2)) / engine.maxDuration;
+    const duration = recordingTrack ? recordingTrack.file.media.duration : engine.maxDuration;
+    const scaleWidth = (newWidth - (startLeft * 2)) / duration;
     if (scaleWidth < 40) {
       const multiplier = Math.ceil(60 / scaleWidth);
       const newScale = (multiplier - 1) * 5;

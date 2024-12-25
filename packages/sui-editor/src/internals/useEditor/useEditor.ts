@@ -2,6 +2,7 @@ import * as React from 'react';
 import useForkRef from '@mui/utils/useForkRef';
 import {EventHandlers} from '@mui/base/utils';
 import useIncId, {namedId} from '@stoked-ui/common';
+import { IMediaFile } from '@stoked-ui/media-selector';
 import {
   ConvertSignaturesIntoPlugins,
   EditorAnyPluginSignature,
@@ -19,6 +20,7 @@ import {EditorCorePluginSignatures, VIDEO_EDITOR_CORE_PLUGINS} from '../corePlug
 import {extractPluginParamsFromProps} from './extractPluginParamsFromProps';
 import Controllers from "../../Controllers";
 import {EditorPropsBase} from "../../Editor";
+import {useEditorContext} from "../../EditorProvider";
 
 export function useEditorApiInitialization<T>(
   inputApiRef: React.MutableRefObject<T | undefined> | undefined,
@@ -118,6 +120,7 @@ export const useEditor = <
     rootRef: innerRootRef,
   } as EditorContextValue<TSignatures>;
 
+  const {state: { settings }} = useEditorContext();
   const rootPropsGetters: (<TOther extends EventHandlers = {}>(
     otherHandlers: TOther,
   ) => React.HTMLAttributes<HTMLDivElement>)[] = [];
@@ -206,12 +209,17 @@ export const useEditor = <
     };
   };
 
-  const getFileExplorerProps = <TOther extends EventHandlers = {}>(
+  const getFileExplorerTabsProps = <TOther extends EventHandlers = {}>(
     otherHandlers: TOther = {} as TOther,
   ) => {
     return {
       ...forwardedProps,
       ...otherHandlers,
+      tabs: {
+        'Track Files': [] as IMediaFile[],
+        'Saved Videos': [] as IMediaFile[]
+      },
+      sx: { gridArea: 'explorer-tabs'}
     };
   };
 
@@ -220,7 +228,7 @@ export const useEditor = <
     getEditorViewProps,
     getControlsProps,
     getTimelineProps,
-    getFileExplorerProps,
+    getFileExplorerTabsProps,
     rootRef: handleRootRef,
     contextValue,
     instance,

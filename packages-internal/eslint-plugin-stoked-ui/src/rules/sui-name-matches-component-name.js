@@ -115,7 +115,7 @@ const rule = {
                 parent.init.type === 'TSAsExpression'
                   ? parent.init.expression.callee
                   : parent.init.callee;
-              if (callee.name.includes(parent.id.name)) {
+              if (callee.name?.includes(parent.id.name)) {
                 // For component factory, for example const Container = createContainer({ ... })
                 componentName = parent.id.name;
               }

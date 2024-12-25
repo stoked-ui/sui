@@ -128,7 +128,6 @@ const RateControlSelect = styled(Select)(({ theme }) => ({
 }));
 
 type ControlProps =  {
-  setVideoURLs: React.Dispatch<React.SetStateAction<string[]>>;
   controls: ControlState[];
   setControls: React.Dispatch<React.SetStateAction<ControlState[]>>;
   versions: Version[];
@@ -390,7 +389,6 @@ export const TimelineControls = React.forwardRef(
     const { disabled } = inProps;
     const { versions } = props;
     const [time, setTime] = React.useState(0);
-    const [videoUrls, setVideoURLs] = React.useState<string[]>([]);
 
   // Set playback rate
   const handleRateChange = (event: SelectChangeEvent<unknown>) => {
@@ -424,7 +422,7 @@ export const TimelineControls = React.forwardRef(
     };
   }, []);
 
-  const controlProps = { setVideoURLs, setControls, versions};
+  const controlProps = { setControls, versions};
 
 
   return (
@@ -432,7 +430,7 @@ export const TimelineControls = React.forwardRef(
       <div style={{display: 'flex', flexDirection: 'row', alignContent: 'center', width: '100%'}}>
         <div style={{display: 'flex', flexDirection: 'row', alignContent: 'center', height: '100%'}}>
           <Controls {...controlProps} controls={controls} setControls={setControls} versions={versions!} disabled={disabled} />
-          {/* (switchView) && <ViewToggle view={view} setView={setView} disabled={disabled} /> */}
+          {/* {(switchView) && <ViewToggle view={view} setView={setView} disabled={disabled} /> } */}
         </div>
       </div>
       <div style={{display: 'flex', flexDirection: 'row'}}>

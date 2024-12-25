@@ -5,7 +5,7 @@ import {
   Settings,
   ExtensionMimeTypeMap
 } from "@stoked-ui/common";
-import { File } from 'formdata-node';
+import { File, Blob } from 'formdata-node';
 
 import {
   DropFile,
@@ -23,6 +23,8 @@ import IMediaFile from "./IMediaFile";
 import WebFile from "../WebFile/WebFile";
 import ScreenshotStore from "./Metadata/ScreenshotStore";
 import {getMediaType, MediaType} from "../MediaType";
+import { FileSystemFileEntry } from './FileSystem';
+import {saveFileApi, saveFileDeprecated} from "../FileSystemApi";
 
 export interface IAudioMetadata {
   duration: number;
@@ -71,13 +73,13 @@ export default class MediaFile extends File implements IMediaFile {
 
   readonly path: string;
 
-  readonly url: string;
+  url: string;
 
   media: Settings;
 
   readonly id: string;
 
-  children: MediaFile[];
+  children: IMediaFile[];
 
   constructor(
     fileBits: BlobPart[],
@@ -144,12 +146,13 @@ export default class MediaFile extends File implements IMediaFile {
   }
 
   private get mediaProps() {
+    const { screenshotStore, ...mediaProps } = this.media;
     return {
       created: this.created,
       mediaType: this.mediaType,
       path: this.path,
       url: this.url,
-      media: this.media,
+      media: mediaProps,
       id: this.id,
       children: this.children,
     };
@@ -315,6 +318,19 @@ export default class MediaFile extends File implements IMediaFile {
     return {};
   }
 
+  async save() {
+    const saveOptions = {
+      suggestedName: this.name,
+      fileBlob: new Blob([this], { type: this.type })
+    };
+
+    if ('showSaveFilePicker' in window) {
+      await saveFileApi(saveOptions);
+    } else {
+      await saveFileDeprecated(saveOptions);
+    }
+  }
+
   static async fromUrls(urls: string[]) {
     const mediaFiles = await Promise.all(
       urls.map(async (url) => {
@@ -413,9 +429,14 @@ export default class MediaFile extends File implements IMediaFile {
 
   static async fromFileEntry(entry: FileSystemFileEntry) {
     return new Promise<MediaFile>((resolve, reject) => {
-      entry.file((file: File) => {
-        const fwp = MediaFile.fromFile(file as MediaFile, entry.fullPath);
-        resolve(fwp);
+      entry.file((file: any) => {
+        MediaFile.from(file).then((mediaFiles) =>
+        {
+          if (mediaFiles.length === 0) {
+            reject(new Error('Failed to create MediaFile from file entry'));
+          }
+          resolve(mediaFiles[0]);
+        })
       },  (err: unknown) => {
         reject(err);
       });
@@ -904,6 +925,24 @@ export default class MediaFile extends File implements IMediaFile {
     const result = { ...preloadRes, backgroundImage };
     file.media = { ...file.media, ...preloadRes, backgroundImage }
     return result;
+  }
+
+  static toFileBaseArray(files: IMediaFile[]) {
+    return files.map((file, index) => {
+      const mediaFile = file as IMediaFile;
+      return {
+        id: mediaFile.id,
+        name: mediaFile.name,
+        lastModified: mediaFile.lastModified,
+        children: mediaFile.children,
+        mediaType: mediaFile.mediaType as MediaType,
+        type: mediaFile.type,
+        media: mediaFile.media,
+        created: mediaFile.created,
+        path: mediaFile.path,
+        visibleIndex: index,
+      }
+    })
   }
 }
 

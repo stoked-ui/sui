@@ -219,6 +219,8 @@ export interface ITimelineTrack<
 
   file?: any;
 
+  fileId?: string;
+
   url?: string;
 
   image?: string;
@@ -234,7 +236,7 @@ export interface ITimelineTrack<
 
 export type ITimelineTrackData<TrackType extends ITimelineTrack = ITimelineTrack> = Omit<TrackType, 'file' | 'controller'> & {}
 
-export interface ITimelineFileTrack extends Omit<ITimelineTrack, 'id' | 'controller' | 'actions' | 'file'> {
+export interface ITimelineFileTrack extends Omit<ITimelineTrack, 'id' | 'controller' | 'actions'> {
   /** Action track id */
   id?: string;
 
@@ -243,8 +245,6 @@ export interface ITimelineFileTrack extends Omit<ITimelineTrack, 'id' | 'control
   actions: ITimelineFileAction[];
 
   image?: string;
-
-  file?: any;
 
   controllerName?: string;
 

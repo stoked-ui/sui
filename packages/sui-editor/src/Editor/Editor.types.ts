@@ -4,7 +4,7 @@ import {SxProps} from '@mui/system';
 import {SlotComponentProps} from '@mui/base/utils';
 import {IMediaFile} from '@stoked-ui/media-selector';
 import {ITimelineAction, ITimelineTrack, TimelineProps, TimelineControlProps} from '@stoked-ui/timeline';
-import {FileExplorerProps} from "@stoked-ui/file-explorer";
+import {FileExplorerProps, FileExplorerTabsProps} from "@stoked-ui/file-explorer";
 import {EditorPluginParameters, EditorPluginSignatures, EditorPluginSlotProps, EditorPluginSlots} from './Editor.plugins';
 import {EditorClasses} from './editorClasses';
 import { EditorExperimentalFeatures, EditorPublicAPI } from '../internals/models';
@@ -35,6 +35,7 @@ export interface EditorSlots extends EditorPluginSlots {
    * @default Timeline
    */
   timeline?: React.ElementType;
+  fileExplorerTabs?: React.ElementType;
   /**
    * FileExplorer View
    * @default FileExplorer
@@ -49,6 +50,7 @@ export interface EditorSlotProps<R extends any, Multiple extends boolean | undef
   editorView?: SlotComponentProps<'div', {}, {}>;
   controls?: SlotComponentProps<'div', {}, {}>;
   timeline?: SlotComponentProps<'div', {}, TimelineProps & TimelineControlProps>;
+  fileExplorerTabs?: SlotComponentProps<'div', {}, {}>;
   fileExplorer?: SlotComponentProps<'ul', {}, FileExplorerProps<Multiple>>;
 }
 
@@ -67,7 +69,8 @@ export interface EditorPropsBase extends React.HTMLAttributes<HTMLDivElement> {
   classes?: Partial<EditorClasses>;
   detailMode?: boolean;
   file?: IEditorFile;
-  FileExplorerProps?: FileExplorerProps<undefined>;
+  fileExplorerProps?: FileExplorerProps<undefined>;
+  fileExplorerTabsProps?: FileExplorerTabsProps;
   fileUrl?: string,
   fileView?: boolean;
   fullscreen?: boolean;
@@ -89,6 +92,7 @@ export interface EditorPropsBase extends React.HTMLAttributes<HTMLDivElement> {
    */
   sx?: SxProps<Theme>;
   timelineSx?: SxProps<Theme>;
+  fileTabsSx?: SxProps<Theme>;
   filesSx?: SxProps<Theme>;
 }
 
@@ -161,5 +165,6 @@ export interface EditorProps<R extends any = any, Multiple extends boolean | und
   viewButtonAppear?: number;
   viewButtonEnter?: number;
   viewButtonExit?: number;
+  loaded?: boolean;
 }
 

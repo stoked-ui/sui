@@ -63,6 +63,7 @@ export interface FileExplorerPropsBase extends React.HTMLAttributes<HTMLUListEle
   dropzone?: boolean;
 
   onAddFiles?:  (mediaFile: FileBase[]) => void;
+  onItemDoubleClick?: (item: FileBase) => void;
 }
 
 export interface FileExplorerProps<Multiple extends boolean | undefined>

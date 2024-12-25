@@ -2,7 +2,7 @@ import {ScreenshotQueue} from "@stoked-ui/media-selector";
 import { type IController } from "./Controller.types";
 import type {ControllerParams, GetItemParams, PreloadParams} from './ControllerParams';
 import type { ITimelineAction } from "../TimelineAction";
-import type { IEngine } from "../Engine";
+import {IEngine, PlaybackMode} from "../Engine";
 import {ITimelineTrack} from "../TimelineTrack";
 
 abstract class Controller<ControlType> implements IController {
@@ -38,9 +38,6 @@ abstract class Controller<ControlType> implements IController {
 
   // eslint-disable-next-line class-methods-use-this
   isValid(engine: IEngine, track: ITimelineTrack) {
-    if (engine.playbackMode === 'canvas') {
-      return true;
-    }
     return !track.dim;
   }
 

@@ -13,6 +13,7 @@ import {useEditorContext} from "../EditorProvider";
 
 export function DetailSettings(props: DetailViewProps) {
   const { state, dispatch } = useEditorContext();
+  console.info('settings', state.settings);
   const settingsDoc = JSON.parse(JSON.stringify(state.settings));
   const flagsDoc = JSON.parse(JSON.stringify(state.flags));
 

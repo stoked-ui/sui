@@ -43,7 +43,7 @@ function EditorProvider<
     engine: engine as EngineType,
     selectedTrack: props.selectedTrack || undefined,
     selectedAction: props.selectedAction || undefined,
-    app: props.app || new StokedUiEditorApp() as AppType,
+    app: props.app || StokedUiEditorApp.getInstance() as AppType,
     initialSettings: { refreshActionState, refreshTrackState, getDetail: getEditorDetail }
   };
 

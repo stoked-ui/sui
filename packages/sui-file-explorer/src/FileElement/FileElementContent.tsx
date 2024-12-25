@@ -70,7 +70,6 @@ const FileElementContent = React.forwardRef(function FileElementContent(
     onMouseDown,
     ...other
   } = props;
-
   const {
     disabled,
     expanded,

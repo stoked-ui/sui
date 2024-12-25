@@ -9,7 +9,7 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import Fab from "@mui/material/Fab";
 import Box from "@mui/material/Box";
 import { useEditorContext } from '../EditorProvider/EditorContext';
-import {  getActionSelectionData } from '../EditorProvider/EditorState';
+import EditorState, {  getActionSelectionData } from '../EditorProvider/EditorState';
 import { RootBox } from "./Detail";
 import Controllers from "../Controllers";
 import EditorProvider from "../EditorProvider";
@@ -29,7 +29,8 @@ const replacer = (key, value) => {
 
 interface DetailOutterProps {
   detailState: DetailState,
-  onClose: () => void
+  onClose: () => void,
+  setDetailEditorState: React.Dispatch<React.SetStateAction<EditorState | null>>
 }
 
 interface DetailState {
@@ -39,7 +40,7 @@ interface DetailState {
 }
 
 export const DetailView = React.forwardRef(function DetailView(
-  { detailState, onClose }: DetailOutterProps, ref: React.Ref<HTMLDivElement>
+  { detailState, onClose, setDetailEditorState }: DetailOutterProps, ref: React.Ref<HTMLDivElement>
 ) {
   const { state , dispatch } = useEditorContext();
   const { selected, selectedType, selectedAction, selectedTrack, selectedDetail } = state
@@ -47,6 +48,10 @@ export const DetailView = React.forwardRef(function DetailView(
   const { selectedTrackId, selectedActionId, selectedId } = detailState;
   const [initialized, setInitialized] = React.useState(false);
   const [currSelectedId, setCurrSelectedId] = React.useState('')
+
+  React.useEffect(() => {
+    setDetailEditorState(state);
+  }, [state])
 
   React.useEffect(() => {
     const getSelectionData = () => {
@@ -167,9 +172,13 @@ function DetailModal () {
   const [initialized, setInitialized] = React.useState(false);
   const { state: {flags, file, selected, selectedAction, selectedTrack}, dispatch } = editorState;
   const [detailState, setDetailState] = React.useState<DetailState | null>(null);
+  const [detailEditorState, setDetailEditorState] = React.useState<EditorState | null>(null);
   const [copiedFile, setCopiedFile] = React.useState<IEditorFile | null>(null);
   const onClose = () => {
-    dispatch({ type: 'CLOSE_DETAIL' });
+    if (detailEditorState?.file) {
+      dispatch({type: 'SET_FILE', payload: detailEditorState.file})
+    }
+    dispatch({ type: 'CLOSE_DETAIL',  });
     setInitialized(false);
   }
 
@@ -203,7 +212,7 @@ function DetailModal () {
       outline: 'none',
     }}>
       <EditorProvider file={copiedFile!} controllers={Controllers}>
-          <DetailView onClose={onClose} detailState={detailState} />
+          <DetailView onClose={onClose} detailState={detailState} setDetailEditorState={setDetailEditorState} />
       </EditorProvider>
 
 {/*

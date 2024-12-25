@@ -10,7 +10,7 @@ import TimelineTrack from '../TimelineTrack/TimelineTrack';
 import { TimelineTrackAreaProps } from './TimelineTrackArea.types';
 import { useDragLine } from './useDragLine';
 import { useTimeline } from '../TimelineProvider';
-import { EngineState } from '../Engine';
+import {EngineState, PlaybackMode} from '../Engine';
 import {ITimelineAction, ITimelineActionHandlers} from '../TimelineAction';
 import { ITimelineTrack } from '../TimelineTrack';
 import ZoomControls from './ZoomControls';
@@ -157,7 +157,7 @@ function FloatingTrackLabels({ tracks }) {
 const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrackAreaProps>(
   (props, ref) => {
     const { state, dispatch } = useTimeline();
-    const { file, getState, settings, flags,  } = state;
+    const { file, getState, settings, flags, engine} = state;
     const {
       scaleCount,
       scaleWidth,
@@ -171,7 +171,7 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
       setScaleWidth,
     } = settings;
 
-    const tracks = file?.tracks;
+    const tracks = file?.tracks || [];
     const {  dragLine } = flags;
     const {
       onScroll,
@@ -345,11 +345,7 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
     if (getState() === EngineState.LOADING) {
       return undefined;
     }
-    if (!tracks || !tracks.length) {
-      return <Box sx={{ minHeight: '60px', width: '100%', display: 'grid', justifyContent: 'center', alignItems: 'center', position: 'relative', height: 'calc(100% - 18px - 37px)' }}>
-        <Typography sx={{justifySelf: 'center'}} color={'action.disabled'}>No tracks</Typography>
-      </Box>;
-    }
+
    /*  const selectedHeight = flags.detailMode && selectedTrackIndex !== -1 ? trackHeight * 1.65 : trackHeight;
     const unselectedHeight = flags.detailMode && selectedTrackIndex !== -1 ? trackHeight * (1 - (.65 / (tracks.length - 1))) : trackHeight; */
     return (

@@ -1,11 +1,17 @@
-import {namedId, Settings, FileSaveRequest, LocalDb, MimeRegistry} from "@stoked-ui/common";
+import {
+  namedId,
+  Settings,
+  FileSaveRequest,
+  LocalDb,
+  MimeRegistry, Constructor
+} from "@stoked-ui/common";
 import {
   OpenDialogProps,
   openFileApi,
-  openFileDeprecated,
   saveFileApi,
-  saveFileDeprecated
-} from './FileSystemApi';
+  saveFileDeprecated,
+  openFileDeprecated
+} from '../FileSystemApi/FileSystemApi';
 
 export interface Command {
   execute(): void;
@@ -37,9 +43,14 @@ export interface IWebFileData {
   author: string;
 }
 
+export interface IWebFileSaveOptions {
+  silent?: boolean;
+  url?: string;
+}
+
 export interface IWebFileApi {
   getSaveRequest(): Promise<FileSaveRequest>;
-  save(silent?: boolean): Promise<void>;
+  save(options?: IWebFileSaveOptions): Promise<void>;
   checksum(): Promise<string>;
   isDirty(): Promise<boolean>;
 
@@ -125,7 +136,7 @@ export default abstract class WebFile implements IWebFile {
 
   createSaveRequest() {
     return {
-      id: this.id,
+      name: this.name,
       version: this.version,
       meta: {
         id: this.id,
@@ -145,7 +156,8 @@ export default abstract class WebFile implements IWebFile {
   // Abstract method to generate a save request - implement in derived classes
   abstract getSaveRequest(): Promise<FileSaveRequest>;
 
-  async save(silent: boolean = false): Promise<void> {
+  async save(options?: IWebFileSaveOptions): Promise<void> {
+    const { silent, url } = options || { silent: false };
     const isDirty = await this.isDirty();
     if (!isDirty && silent) {
       console.info(`${this.name} has not changed. Save cancelled.`);
@@ -157,7 +169,7 @@ export default abstract class WebFile implements IWebFile {
       this._lastChecksum = await this.checksum();
       const saveRequest = await this.getSaveRequest();
 
-      await LocalDb.saveFile(saveRequest)
+      await LocalDb.saveFile({...saveRequest, url})
       if (!silent) {
         const { blob } = saveRequest;
         const saveOptions = {
@@ -243,5 +255,59 @@ export default abstract class WebFile implements IWebFile {
       description: this.description,
       version: this.version,
     };
+  }
+
+
+  /**
+   * Loads a WebFile instance from a URL.
+   * @param url The URL to load the file from.
+   * @param FileConstructor Constructor of the specific WebFile type.
+   */
+  static async fromUrl<WebFileType = WebFile>(
+    url: string,
+    FileConstructor: Constructor<WebFileType>
+  ): Promise<WebFileType | null> {
+    const response = await fetch(url);
+    if (response.ok) {
+      const blob = await response.blob() as Blob;
+      return this.fromLocalFile<WebFileType>(blob, FileConstructor);
+    }
+    console.error(`Failed to fetch file from ${url}`);
+    return null;
+  }
+
+  /**
+   * Loads a WebFile instance from the local file system.
+   * @param file A File object from an attached drive.
+   * @param FileConstructor Constructor of the specific WebFile type.
+   */
+  static async fromLocalFile<WebFileType = WebFile>(
+    file: Blob,
+    FileConstructor: Constructor<WebFileType>
+  ): Promise<WebFileType> {
+    const arrayBuffer = await file.arrayBuffer();
+    const dataView = new DataView(arrayBuffer);
+
+    // Read the first 4 bytes as the metadata length
+    const metadataLength = dataView.getUint32(0, /* littleEndian= */ true);
+
+    // Extract metadata
+    const metadataStart = 4; // Metadata length occupies the first 4 bytes
+    const metadataEnd = metadataStart + metadataLength;
+    const metadataBuffer = arrayBuffer.slice(metadataStart, metadataEnd);
+    const metadataText = new TextDecoder().decode(metadataBuffer);
+    const metadata = JSON.parse(metadataText);
+
+    return new FileConstructor({ content: file, ...metadata });
+  }
+
+  /**
+   * Opens a file dialog to select multiple files.
+   */
+  static async fromOpenDialog<AppFileType = WebFile>(FileConstructor: Constructor<AppFileType>): Promise<AppFileType[]> {
+    const files = await this.open();
+    return Promise.all(files.map( async (file) => {
+      return this.fromLocalFile<AppFileType>(file, FileConstructor);
+    }));
   }
 }

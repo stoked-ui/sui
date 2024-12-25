@@ -2,9 +2,7 @@ import BTree from "sorted-btree";
 import {type ITimelineAction } from '../TimelineAction/TimelineAction.types'
 import {type IController} from '../Controller/Controller.types';
 import {
-  type IEngine,
-  EngineState,
-  type EngineOptions,
+  type IEngine, EngineState, type EngineOptions, PlaybackMode,
 } from './Engine.types';
 import { type ITimelineTrack} from '../TimelineTrack/TimelineTrack.types';
 import {Events, type EventTypes} from './events'
@@ -43,7 +41,7 @@ export default class Engine<
   /** Time frame pre data */
   protected _prev: number = 0;
 
-  playbackMode: 'media' | 'canvas' = 'canvas';
+  playbackMode: PlaybackMode = PlaybackMode.CANVAS;
 
   playbackTimespans: { timespan: { start: number, end: number }, fileTimespan: { start: number, end: number }}[];
 
@@ -82,6 +80,13 @@ export default class Engine<
     }
   }
 
+  isPlayMode(mode: PlaybackMode | PlaybackMode[]) {
+    if (Array.isArray(mode)) {
+      return mode.includes(this.playbackMode);
+    }
+    return this.playbackMode === mode;
+  }
+
   get state() {
     return this._state as State;
   }
@@ -104,10 +109,6 @@ export default class Engine<
     }
   }
 
-  /* get screener() {
-    return this._screener;
-  } */
-
   get actions() {
     return this._actionMap;
   }
@@ -121,9 +122,10 @@ export default class Engine<
   }
 
   get duration() {
-    if (this.playbackMode === 'media' && this.media) {
+    if (this.isPlayMode([PlaybackMode.TRACK_FILE,PlaybackMode.MEDIA]) && this.media) {
       return this.media.duration;
     }
+
     return this.canvasDuration;
   }
 
@@ -233,7 +235,7 @@ export default class Engine<
   }
 
   getStartTime() {
-    if (this.playbackMode === 'media' && this.playbackTimespans.length) {
+    if (this.isPlayMode([PlaybackMode.TRACK_FILE,PlaybackMode.MEDIA]) && this.playbackTimespans.length) {
       return this.playbackTimespans[0].timespan.start;
     }
 
@@ -241,19 +243,20 @@ export default class Engine<
   }
 
   getEndTime() {
-    if (this.playbackMode === 'media' && this.playbackTimespans.length) {
+    if (this.isPlayMode([PlaybackMode.TRACK_FILE,PlaybackMode.MEDIA]) && this.playbackTimespans.length) {
       return this.playbackTimespans[this.playbackTimespans.length - 1].timespan.end;
     }
     return this.canvasDuration;
   }
 
   setStart() {
-    if (this.playbackMode === 'media' && this.media) {
+    if (this.isPlayMode([PlaybackMode.TRACK_FILE,PlaybackMode.MEDIA]) && this.media) {
       this.playbackCurrentTimespans = JSON.parse(JSON.stringify(this.playbackTimespans));
       this.media.currentTime = this.playbackCurrentTimespans[0].fileTimespan.start;
     }
     const start = this.getStartTime();
     this.setTime(start, true);
+    this.reRender();
     this.reRender();
   }
 
@@ -279,7 +282,7 @@ export default class Engine<
 
     this._currentTime = time;
 
-    if (this.playbackMode === 'canvas') {
+    if (this.playbackMode === PlaybackMode.CANVAS) {
       this._dealLeave(time);
       this._dealEnter(time);
     } else if (this.media) {
@@ -384,7 +387,7 @@ export default class Engine<
   }): boolean {
     this._playRate = 1;
 
-    if (this.playbackMode === 'media' && this.media) {
+    if (this.playbackMode === PlaybackMode.TRACK_FILE && this.media) {
       this.media.style.display = 'flex';
     }
     return this.run(param);
@@ -420,7 +423,7 @@ export default class Engine<
     if (this.isLoading) {
       return;
     }
-    if (this.playbackMode === 'media' && this.media) {
+    if ([PlaybackMode.TRACK_FILE, PlaybackMode.MEDIA].includes(this.playbackMode) && this.media) {
       if (type === 'start') {
         this.media.play();
       } else if (type === 'stop') {
@@ -484,7 +487,7 @@ export default class Engine<
     // Execute action
     this.tickAction(currentTime);
 
-    if (this.playbackMode === 'media') {
+    if (this.playbackMode === PlaybackMode.TRACK_FILE) {
       if (this.media && this.media.currentTime >= this.playbackCurrentTimespans[0].fileTimespan.end) {
         this.playbackCurrentTimespans.shift();
         if (this.playbackCurrentTimespans.length) {
@@ -495,9 +498,9 @@ export default class Engine<
         }
       }
     }
+
     // In the case of automatic stop, determine whether all actions have been executed.
     if (!to && autoEnd && this._next >= this._actionSortIds.length && this._activeIds.length === 0) {
-      console.info('tick() tick autoEnd');
       this._end();
       return;
     }
