@@ -1,5 +1,7 @@
+import { IMediaFile } from '@stoked-ui/media-selector';
 import { Events, EventTypes , IEngine  } from '@stoked-ui/timeline';
 import {EditorEngineState, IEditorEngine} from './EditorEngine.types'
+
 
 export class EditorEvents extends Events  {
   constructor(handlers = {}) {
@@ -16,6 +18,7 @@ export class EditorEvents extends Events  {
       ended: [],
       setScrollLeft: [],
       record: [],
+      finishedRecording: [],
       ...handlers,
     });
   }
@@ -28,6 +31,13 @@ export interface EditorEventTypes extends EventTypes {
    * @memberofEditorEventTypes
    */
   record: { engine: IEditorEngine };
+
+  /**
+   * finishedRecording
+   * @type {{engine: IEngine}}
+   * @memberofEditorEventTypes
+   */
+  finishedRecording: { recording: IMediaFile, engine: IEditorEngine };
 
   /**
    * stop

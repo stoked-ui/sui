@@ -28,9 +28,7 @@ export interface IEditorEngine<
     toTime?: number;
     /** Whether to automatically end after playing */
     autoEnd?: boolean;
-
-
-
+    name?: string;
   }): boolean;
 }
 

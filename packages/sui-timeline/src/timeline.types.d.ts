@@ -10,7 +10,7 @@ declare global {
     getSetting: any;
     reRender: any;
     updateThumbSize: any;
-
+    saveUrl: any;
   }
 }
 

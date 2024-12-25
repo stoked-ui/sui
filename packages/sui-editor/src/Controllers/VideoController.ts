@@ -4,7 +4,8 @@ import {
   ControllerParams,
   ITimelineAction,
   ITimelineTrack,
-  getActionFileTimespan, GetItemParams
+  getActionFileTimespan,
+  GetItemParams, PlaybackMode
 } from "@stoked-ui/timeline";
 import {EditorControllerParams, EditorPreloadParams} from "./EditorControllerParams";
 import {DrawData, IEditorEngine} from "../EditorEngine/EditorEngine.types";
@@ -50,7 +51,6 @@ class VideoControl extends Controller<HTMLVideoElement> {
       Stage.getStage(this.editorId).appendChild(file.media.element);
       return file.media.element;
     }
-    throw new Error('getItem')
     item = document.createElement('video');
     file.media.element = item;
     item.id = track.id;
@@ -164,7 +164,7 @@ class VideoControl extends Controller<HTMLVideoElement> {
         // renderCtx.canvas.width = engine.renderWidth;
         // renderCtx.canvas.height = engine.renderHeight;
       }
-      console.log('updateCanvas', now, item.currentTime);
+      console.log('updateCanvas', item.style.mixBlendMode, now, item.currentTime);
       // this.log({ time: item.currentTime, action, engine, track }, 'drawImage');
       action.nextFrame = this.getDrawData({ action, engine, time: item.currentTime, track });
       if (engine.isPlaying) {
@@ -260,23 +260,26 @@ class VideoControl extends Controller<HTMLVideoElement> {
     }
   }
 
-
+  isValid(engine: IEditorEngine, track: IEditorTrack) {
+    return !track.hidden && super.isValid(engine, track);
+  }
 
   enter(params: EditorControllerParams) {
 
     const { action, engine, track } = params;
     if (!this.isValid(engine, track)) {
+      console.info('valid', 'enter');
       return;
     }
     const finalizeEnter = (item: HTMLVideoElement) => {
-
+      // console.info('finalizeEnter', 'enter', item.src);
       this.canvasSync(engine, item, action, track);
     }
     const vidItem = this.getItem({ action, track })
+    vidItem.playbackRate = engine.getPlayRate();
     if (vidItem) {
       this.log(params, `enter readyState: ${vidItem.readyState}`)
-      console.log('enter video', action.name);
-      if (engine.playbackMode === 'media') {
+      if (engine.playbackMode === PlaybackMode.TRACK_FILE) {
         if (engine.screener) {
           engine.screener.style.mixBlendMode = action.blendMode || track.blendMode || 'normal';
         }
@@ -316,7 +319,10 @@ class VideoControl extends Controller<HTMLVideoElement> {
     if (engine.isPlaying) {
       const item = this.getItem(params);
       item.currentTime = Controller.getActionTime(params);
-      if (action?.playbackRate ?? 1 < 0) {
+      const enginePlayRate = engine.getPlayRate();
+      if  ((item as HTMLVideoElement).playbackRate !== enginePlayRate) {
+        (item as HTMLVideoElement).playbackRate = enginePlayRate;
+      } else if (action?.playbackRate ?? 1 < 0) {
         (item as HTMLVideoElement).playbackRate = action.playbackRate as number;
       }
       if (action.freeze === undefined) {
@@ -341,9 +347,9 @@ class VideoControl extends Controller<HTMLVideoElement> {
     if (!this.isValid(engine, track)) {
       return;
     }
+
     const item = this.getItem(params);
     const volumeUpdate = Controller.getVolumeUpdate(params, time)
-
     if (volumeUpdate) {
       item.volume = volumeUpdate.volume;
       action.volumeIndex = volumeUpdate.volumeIndex;

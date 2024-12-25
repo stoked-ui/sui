@@ -1,7 +1,7 @@
 import { FileSaveRequest } from '@stoked-ui/common';
 import WebFile, { IWebFile } from '../../WebFile';
 
-export interface IAppOutputFileProps { id?: string; name: string; outputData: Blob }
+export interface IAppOutputFileProps { id?: string; name: string; blob: Blob }
 
 export interface IAppOutputFile extends IWebFile {
 
@@ -10,17 +10,17 @@ export interface IAppOutputFile extends IWebFile {
 }
 
 export default class AppOutputFile extends WebFile implements IAppOutputFile {
-  private outputData: Blob;
+  blob: Blob;
 
-  constructor(props: { id?: string; name: string; outputData: Blob }) {
+  constructor(props: { id?: string; name: string; blob: Blob }) {
     super(props);
-    this.outputData = props?.outputData;
+    this.blob = props?.blob;
   }
 
   async getSaveRequest(): Promise<FileSaveRequest> {
     return {
       ...this.createSaveRequest(),
-      blob: this.outputData
+      blob: this.blob
     };
   }
 }

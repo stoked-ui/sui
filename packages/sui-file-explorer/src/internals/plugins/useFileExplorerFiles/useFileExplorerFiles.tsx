@@ -43,7 +43,8 @@ const updateItemsState = ({
     const id = item?.id ?? item.id ?? namedId({id:'file', length:4});
     if (itemMetaMap[id]){
       // TODO: FIX THIS SERIOUSLY
-      console.warn(`DIRTY HACK: this item id already exists - item: ${JSON.stringify(item, null, 2)}, existing item: ${JSON.stringify(itemMetaMap[id], null, 2)}`)
+      const { media, ...restOfItem } = item;
+      console.warn(`DIRTY HACK: this item id already exists - item: ${JSON.stringify(restOfItem, null, 2)}, existing item: ${JSON.stringify(itemMetaMap[id], null, 2)}`)
       return;
     }
 
@@ -102,7 +103,7 @@ const updateItemsState = ({
 
     item.children?.forEach((child) => processItem(child, depth + 1, id));
   };
-
+  console.log('items', items, items.forEach);
   items?.forEach((item) => processItem(item, 0, null));
 
   const itemChildrenIndexes: State['itemChildrenIndexes'] = {};
@@ -320,6 +321,7 @@ export const useFileExplorerFiles: FileExplorerPlugin<UseFileExplorerFilesSignat
 
     return state.items.itemOrderedChildrenIds[FILE_EXPLORER_VIEW_ROOT_PARENT_ID].map(getPropsFromItemId);
   };
+
   const updateDndMeta = (id: string, dnd: DndItemState) => {
     setState((prevState) => {
       // console.log('id', itemId, prevState.items?.itemMetaMap);
@@ -334,6 +336,7 @@ export const useFileExplorerFiles: FileExplorerPlugin<UseFileExplorerFilesSignat
       return { ...prevState };
     });
   }
+
   return {
     getRootProps: () => ({
       style: {
@@ -365,7 +368,7 @@ export const useFileExplorerFiles: FileExplorerPlugin<UseFileExplorerFilesSignat
       updateItems,
       getItemDepthIndex,
       recalcVisibleIndices,
-      getVisibleIndex
+      getVisibleIndex,
     },
     contextValue: {
       disabledItemsFocusable: params.disabledItemsFocusable,

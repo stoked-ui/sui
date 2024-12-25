@@ -23,7 +23,7 @@ export type MimeMediaWildcardType = typeof MimeMediaWildcardMap;
 export type MimeTypeWildcard = MimeMediaWildcardType extends Map<infer K, unknown> ? K : never;
 // export type MediaType = MimeMediaWildcardType extends Map<MimeTypeExtension, infer V> ? V : never;
 
-export type MediaType = 'doc' | 'file' | 'folder' | 'image' | 'pdf' | 'trash' | 'video' | 'lottie' | 'audio';
+export type MediaType = 'doc' | 'file' | 'folder' | 'image' | 'pdf' | 'trash' | 'video' | 'lottie' | 'audio' | string;
 
 export function getMediaType(mimeType?: string): MediaType {
   let mediaType: MediaType = 'file';

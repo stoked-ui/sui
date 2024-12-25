@@ -7,7 +7,7 @@ import ClearIcon from "@mui/icons-material/Clear";
 import SaveIcon from "@mui/icons-material/Save";
 import OpenIcon from "@mui/icons-material/OpenInBrowser";
 import SettingsIcon from '@mui/icons-material/Settings';
-import { AppFile } from '@stoked-ui/media-selector';
+import { AppFile, MediaFile } from '@stoked-ui/media-selector';
 import {useEditorContext} from "../EditorProvider";
 import EditorFile, {IEditorFile} from '../EditorFile/EditorFile'
 
@@ -15,7 +15,7 @@ export default function EditorViewActions({ visible }: { visible: boolean }) {
   const context = useEditorContext();
   const { dispatch, state } = context;
   const { file, flags, components, settings } = state;
-  const { editorId, fitScaleData, setCursor } = settings;
+  const { editorId, fitScaleData, setCursor, recordingTrack } = settings;
   const [fileIsDirty, setIsDirty] = React.useState<boolean>(false);
   React.useEffect(() => {
     const isFileDirty = async () => {
@@ -27,7 +27,12 @@ export default function EditorViewActions({ visible }: { visible: boolean }) {
   }, [file]);
 
   const saveHandler = async () => {
+
     if (!file) {
+      return;
+    }
+    if (recordingTrack) {
+      (recordingTrack.file as MediaFile).save();
       return;
     }
     await file.save();
@@ -48,6 +53,14 @@ export default function EditorViewActions({ visible }: { visible: boolean }) {
       }
     }
   };
+
+  const remove = () => {
+    if (recordingTrack) {
+      dispatch({ type: 'VIDEO_REMOVE', payload: recordingTrack.file.id });
+      return;
+    }
+    dispatch({ type: 'DISCARD_FILE' });
+  }
   if (flags.detailMode) {
     return null;
   }
@@ -66,15 +79,13 @@ export default function EditorViewActions({ visible }: { visible: boolean }) {
             margin: '8px',
             color: theme.palette.text.primary,
           })}
-          onClick={() => {
-            dispatch({ type: 'DISCARD_FILE' });
-          }}
+          onClick={remove}
         >
           <ClearIcon />
         </Fab>
       </Zoom>
       <Stack direction={'row'}>
-        {fileIsDirty && visible && (
+        {(recordingTrack || fileIsDirty) && visible && (
           <Zoom in={visible}>
             <Fab
               id={'save'}
