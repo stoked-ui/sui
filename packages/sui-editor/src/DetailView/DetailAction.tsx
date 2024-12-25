@@ -50,7 +50,6 @@ export function DetailAction(props: DetailViewProps) {
 
   // Effect to handle changes in form values
   React.useEffect(() => {
-    console.log('Form values changed:', formValues);
     if (engine.screener) {
       engine.screener.style.mixBlendMode = formValues.blendMode;
     }
@@ -76,6 +75,16 @@ export function DetailAction(props: DetailViewProps) {
       titleId={actionData.id}
       submitHandler={handleSubmit(onSubmitAction)}
     >
+      {/* Display All Errors */}
+      {Object.keys(errors).length > 0 && (
+        <div style={{ color: "red", marginBottom: "1rem" }}>
+          <ul>
+            {Object.entries(errors).map(([key, error]) => (
+              <li key={key}>{error?.message}</li>
+            ))}
+          </ul>
+        </div>
+      )}
     <div>
       <CtrlRow>
         <CtrlCell width="40%">
@@ -133,31 +142,34 @@ export function DetailAction(props: DetailViewProps) {
             onClick={enableEdit}
           />
         </CtrlCell>
-        <CtrlCell width="7.5%">
-          <ControlledText
-            label={'Width'}
-            name={'width'}
-            control={control}
-            disabled={!editMode}
-            onClick={props.enableEdit}
-          />
-        </CtrlCell>
-        <CtrlCell width="7.5%">
-          <ControlledText
-            label={'Height'}
-            control={control}
-            disabled={!editMode}
-            onClick={props.enableEdit}
-          />
-        </CtrlCell>
-        <CtrlCell width="15%">
-          <UncontrolledText
-            label={'Source Size'}
-            value={`${trackFile?.media?.width} x ${trackFile?.media?.height}`}
-            disabled
-            onClick={props.enableEdit}
-          />
-        </CtrlCell>
+        {trackFile.mediaType !== 'audio' &&
+         <React.Fragment>
+           <CtrlCell width="7.5%">
+            <ControlledText
+              label={'Width'}
+              name={'width'}
+              control={control}
+              disabled={!editMode}
+              onClick={props.enableEdit}
+            />
+          </CtrlCell>
+          <CtrlCell width="7.5%">
+            <ControlledText
+              label={'Height'}
+              control={control}
+              disabled={!editMode}
+              onClick={props.enableEdit}
+            />
+          </CtrlCell>
+          <CtrlCell width="15%">
+            <UncontrolledText
+              label={'Source Size'}
+              value={`${trackFile?.media?.width} x ${trackFile?.media?.height}`}
+              disabled
+              onClick={props.enableEdit}
+            />
+          </CtrlCell>
+         </React.Fragment>}
       </CtrlRow>
       <DetailActions
         errors={errors}

@@ -135,7 +135,7 @@ const TimelineLabels = React.forwardRef(function TimelineLabels(
 ): React.JSX.Element {
   const {state: context,dispatch} = useTimeline();
   const {engine, flags, file, settings} = context;
-  const { trackHeight } = settings;
+  const { trackHeight, recordingTrack } = settings;
   const { slotProps, slots, sx, width } = inProps;
   const finalWidth = width || !flags.noLabels ? '275px' : '0px';
   // const themeProps = useThemeProps({ props: inProps, name: 'MuiTimelineLabels' });
@@ -157,8 +157,10 @@ const TimelineLabels = React.forwardRef(function TimelineLabels(
     }
     inProps.onClickLabel(event, t);
   };
-  const displayTracks = file?.tracks || [];
-
+  let displayTracks = file?.tracks || [];
+  if (recordingTrack) {
+    displayTracks = [recordingTrack];
+  }
   return (
     <Root
       {...rootProps}

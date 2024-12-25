@@ -13,7 +13,7 @@
   ],
   "publishDirectory": {
     "@stoked-ui/types": "packages/mui-types/build",
-    "@stoked-ui/common": "packages/sui-common/build",
+    "@stoked-ui/common": "packages/sui-common",
     "@stoked-ui/media-selector": "packages/sui-media-selector/build",
     "@stoked-ui/file-explorer": "packages/sui-file-explorer/build",
     "@stoked-ui/timeline": "packages/sui-timeline/build",

@@ -36,6 +36,7 @@ export interface ITimelineTrackDetail {
   name: string;
   muted: boolean;
   locked: boolean;
+  url?: string;
 }
 
 export interface ITimelineActionDetail {
@@ -119,6 +120,7 @@ export function getTrackDetail(track: ITimelineTrack): ITimelineTrackDetail {
     name: track?.name || track.file?.name || '',
     muted: track?.muted ?? false,
     locked: track?.locked ?? false,
+    url: track?.url,
   };
 }
 

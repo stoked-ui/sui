@@ -110,7 +110,6 @@ function TimelineTime(props: TimelineTimeProps) {
       classNames.push('time-unit-big');
     }
 
-
     const item = (showUnit ? columnIndex / scaleSplitCount : columnIndex) * scale;
     return (
       <TimeUnit key={key} style={style} className={prefix(...classNames)} disabled={settings.disabled}>
@@ -132,13 +131,6 @@ function TimelineTime(props: TimelineTimeProps) {
         return showUnit ? scaleWidth / scaleSplitCount : scaleWidth;
     }
   };
-/*
-  const [disabled, setDisabled] = React.useState(!!state.settings.disabled)
-  React.useEffect(() => {
-    if (state.settings.disabled !== disabled) {
-      setDisabled(!!state.settings.disabled)
-    }
-  }, [state.settings.disabled]); */
 
   const estColumnWidth = getColumnWidth({index:1});
   const [isDragging, setIsDragging] = React.useState(false);
@@ -214,7 +206,6 @@ function TimelineTime(props: TimelineTimeProps) {
                 ref={timeInteract}
                 style={{ width, height }}
                 disabled={settings.disabled}
-                /* onClick={} */
                 onMouseDown={setTimeToMouse}
                 onMouseMove={handleMouseMove}
                 onMouseUp={() => setIsDragging(false)}

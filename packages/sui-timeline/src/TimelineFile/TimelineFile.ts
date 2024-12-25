@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 /*  eslint-disable @typescript-eslint/naming-convention */
 import {
-  IMediaFile, MediaFile, AppFile
+  IMediaFile, MediaFile, AppFile, WebFile, IAppFileMeta
 } from "@stoked-ui/media-selector";
 import {alpha} from "@mui/material/styles";
 import { Constructor, compositeColors, namedId } from "@stoked-ui/common";
@@ -82,7 +82,6 @@ export default class TimelineFile<
       const track = props.tracks[i];
 
       const trackLabel = track.file ? `.[${track.file.name}]` : `.url['${track.url}']`;
-      console.info(`TimelineFile::tracks[${nameUrl(track.name)}]${trackLabel}`);
       if (!track.controller) {
         if (track.controllerName) {
           track.controller = TimelineFile.Controllers[track.controllerName];
@@ -106,6 +105,11 @@ export default class TimelineFile<
     }
   }
 
+  get mediaFiles(): MediaFile[] {
+    this._mediaFiles = this.tracks.map((track) => track.file);
+    return this._mediaFiles;
+  }
+
   async loadUrls() {
     this._tracks = await TimelineFile.loadUrls<TrackType>(this._tracks);
   }
@@ -117,17 +121,26 @@ export default class TimelineFile<
         // eslint-disable-next-line no-await-in-loop
         trackInput.file = await MediaFile.fromUrl(trackInput.url);
       }
-      trackInput.controller = TimelineFile.Controllers[trackInput.file.mediaType];
+      console.info('TimelineFile::loadUrls', trackInput);
+      if (!trackInput.controller) {
+        let controllerType = trackInput.controllerName;
+        if (!controllerType && trackInput.file.mediaType) {
+          controllerType = trackInput.file.mediaType;
+        }
+        if (controllerType) {
+          trackInput.controller = TimelineFile.Controllers[controllerType];
+        }
+      }
     }
     return tracks;
   }
 
   async preload(editorId: string) {
-    await this.loadUrls();
 
     if (this._initialized) {
       return;
     }
+    await this.loadUrls();
 
     const nestedPreloads = this._tracks.map((track) => {
       return track.actions?.map(async (action) => {
@@ -136,7 +149,7 @@ export default class TimelineFile<
       })
     });
     await Promise.all(nestedPreloads.flat());
-
+    console.info('TimelineFile::preload', this._tracks);
     this._initialized = true;
   }
 
@@ -187,6 +200,7 @@ export default class TimelineFile<
     const tracks = this.tracks?.map((track) => {
         const { file, controller,...trackJson } = track;
         return {
+          fileId: file.id,
           ...trackJson,
         }
       }) as  Omit<TrackType, "controller" | "file">[];
@@ -291,10 +305,33 @@ export default class TimelineFile<
     }) as FileType;
   }
 
-  static async fromUrl<AppFileType = TimelineFile>(url: string, FileConstructor: Constructor<AppFileType> = TimelineFile as unknown as Constructor<AppFileType>): Promise<AppFileType> {
-    const file= await AppFile.fromUrl(url, FileConstructor) as ITimelineFile;
-    await file.loadUrls();
-    return file as AppFileType;
+  static async fromUrl<AppFileType = TimelineFile>(url: string, FileConstructor: Constructor<AppFileType> = TimelineFile as unknown as Constructor<AppFileType>): Promise<AppFileType | null> {
+    const file= await WebFile.fromUrl<AppFileType>(url, FileConstructor) as TimelineFile;
+    if (!file) {
+      return null;
+    }
+    if ("tracks" in file) {
+      const timelineFile = file as unknown as TimelineFile;
+      await timelineFile.loadUrls();
+      return timelineFile as unknown as AppFileType;
+    }
+    throw new Error('cant instantiate AppFile as TimelineFile');
+  }
+
+  /**
+   * Loads a AppFile instance from the local file system.
+   * @param file A File object from an attached drive.
+   * @param FileConstructor
+   */
+  static async fromLocalFile<AppFileType = TimelineFile>(file: Blob, FileConstructor: Constructor<AppFileType>): Promise<AppFileType> {
+    const timelineFile = await AppFile.fromLocalFile<AppFileType>(file, FileConstructor) as TimelineFile;
+
+    timelineFile.tracks = timelineFile.tracks.map((track, index) => {
+      track.file = timelineFile._mediaFiles[index]
+      return track;
+    });
+    await timelineFile.loadUrls();
+    return timelineFile as unknown as AppFileType;
   }
 
   static Controllers: Record<string, IController> = {};

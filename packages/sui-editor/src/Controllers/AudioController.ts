@@ -42,7 +42,7 @@ class AudioControl extends Controller<Howl> implements IController {
     return new Promise((resolve, reject) => {
       try {
         const item = new Howl({
-          src: file.url as string,
+          src: (file.url || track.url) as string,
           loop: false,
           autoplay: false,
           onload: () => {

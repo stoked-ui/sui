@@ -7,10 +7,10 @@ import {
   IProjectDetail,
   ITimelineTrackDetail,
   updateSelection,
-  getActionFileTimespan,
+  getActionFileTimespan, PlaybackMode,
 } from "@stoked-ui/timeline";
 import { namedId} from '@stoked-ui/common';
-import {IMediaFile, Stage} from "@stoked-ui/media-selector";
+import {IMediaFile, MediaFile, Stage} from "@stoked-ui/media-selector";
 import Controllers from "../Controllers";
 import {
   BlendMode, Fit,
@@ -18,7 +18,7 @@ import {
   IEditorFileAction,
   initEditorAction
 } from "../EditorAction/EditorAction";
-import { IEditorTrack } from "../EditorTrack/EditorTrack";
+import {getTrackFromMediaFile, IEditorTrack} from "../EditorTrack/EditorTrack";
 import { IEditorFile, SUVideoFile } from "../EditorFile/EditorFile";
 import EditorState from "./EditorState";
 
@@ -117,10 +117,16 @@ export type EditorStateAction<
   type: 'DISPLAY_CANVAS',
 } | {
   type: 'DISPLAY_SCREENER',
-  payload: IEditorTrack | IEditorAction
+  payload: IEditorTrack | IEditorAction | MediaFile
+} | {
+  type: 'UPDATE_STATE',
+  payload: EditorState,
 } | {
   type: 'VIDEO_CREATED',
-  payload: SUVideoFile,
+  payload: IMediaFile,
+} | {
+  type: 'VIDEO_REMOVE',
+  payload: string,
 } | SetContextActions
 
 const setContext = (key: string, state: EditorState, stateAction: SetContextActions) => {
@@ -166,7 +172,7 @@ export function EditorReducerBase(state: EditorState, stateAction: EditorStateAc
       if (!state.selectedAction) {
         return state;
       }
-      if (state.selectedTrack && state.engine.media?.id !== state.selectedTrack.id) {
+      if (state.flags.detailMode && state.selectedTrack && state.engine.media?.id !== state.selectedTrack.id) {
         return EditorReducer(state, {type: 'DISPLAY_SCREENER', payload: state.selectedAction});
       }
       return {...state};
@@ -176,7 +182,7 @@ export function EditorReducerBase(state: EditorState, stateAction: EditorStateAc
       if (!state.selectedTrack) {
         return state;
       }
-      if (state.selectedTrack && state.engine.media?.id !== state.selectedTrack.id) {
+      if (state.flags.detailMode && state.selectedTrack && state.engine.media?.id !== state.selectedTrack.id) {
         return EditorReducer(state, {type: 'DISPLAY_SCREENER', payload: state.selectedTrack});
       }
       return {...state};
@@ -185,7 +191,10 @@ export function EditorReducerBase(state: EditorState, stateAction: EditorStateAc
       if (!state.selected) {
         return state;
       }
-      return EditorReducer(state, { type: 'DISPLAY_CANVAS' })
+      if (state.flags.detailMode) {
+        return EditorReducer(state, {type: 'DISPLAY_CANVAS'})
+      }
+      return {...state};
     }
     case 'SELECT_SETTINGS':{
       state = EditorTimelineReducer(state, stateAction);
@@ -245,7 +254,10 @@ export function EditorReducerBase(state: EditorState, stateAction: EditorStateAc
             let editorAction = a;
             if (a.id === action.id) {
               editorAction = action;
-              state.selectedAction = action;
+              if (state.selectedAction?.id === action.id) {
+                state.selectedAction = action;
+                state.selected = action;
+              };
               state.selected = action;
             }
             return editorAction;
@@ -314,13 +326,26 @@ export function EditorReducerBase(state: EditorState, stateAction: EditorStateAc
       return setContext('fit', state, stateAction);
     }
     case 'VIDEO_CREATED': {
-      const { file } = state;
+      const { file, settings } = state;
       const { payload: video } = stateAction;
-      if (file) {
-        // file.video = video.file;
+      console.info('VIDEO_CREATED', video);
+      if (!settings.videos) {
+        settings.videos = [];
       }
-      video.save(true).catch(console.warn);
+      settings.videos.push(video);
       state.file = file;
+      settings.recordingTrack = getTrackFromMediaFile(video);
+      return EditorReducerBase({...state}, { type: 'DISPLAY_SCREENER', payload: video });
+    }
+    case 'VIDEO_REMOVE': {
+      const { settings } = state;
+      const { recordingTrack } = settings;
+      const { payload: videoId } = stateAction;
+      console.info('VIDEO_REMOVE', recordingTrack.file);
+      settings.videos = settings.videos.filter((v) => v.id !== videoId);
+      if (recordingTrack.file?.id === videoId) {
+        settings.recordingTrack = undefined;
+      }
       return state;
     }
     case 'DISPLAY_CANVAS': {
@@ -330,44 +355,61 @@ export function EditorReducerBase(state: EditorState, stateAction: EditorStateAc
       }
       state.engine.renderer!.style.display = 'flex';
       state.engine.screener!.style.display = 'none';
-      state.engine.playbackMode = 'canvas';
+      state.engine.playbackMode = PlaybackMode.CANVAS;
       console.info('DISPLAY_CANVAS', state.settings.editorId);
       return {...state};
     }
     case 'DISPLAY_SCREENER': {
-      if (!state.flags.detailMode || !state?.engine?.renderer || !state?.engine?.screener) {
+      if (!state?.engine?.renderer || !state?.engine?.screener) {
         console.info('DISPLAY_SCREENER early exit', state.settings.editorId);
         return state;
       }
 
       state.engine.renderer.style.display = 'none';
-      state.engine.playbackMode = 'media';
-      state.engine.media = state.engine.screener;
+      state.engine.screener.style.display = 'flex';
 
       if ("actions" in stateAction.payload) {
         const track = stateAction.payload as IEditorTrack;
+        state.engine.playbackMode = PlaybackMode.TRACK_FILE;
+
         state.engine.playbackTimespans = track.actions.map((action) => {
           return { timespan: { start: action.start, end: action.end }, fileTimespan: getActionFileTimespan(action)}
         });
         if (track.file) {
-          state.engine.media.src = track.file.url;
+          state.engine.screener.src = track.file.url;
         }
+      } else if ("media" in stateAction.payload) {
+        const mediaFile = stateAction.payload as MediaFile;
+        if (mediaFile.url === '') {
+          mediaFile.url = URL.createObjectURL(mediaFile);
+          console.info('url', mediaFile.url);
+        }
+        state.engine.playbackMode = PlaybackMode.MEDIA;
+        state.engine.screener.src = mediaFile.url;
+        state.engine.playbackTimespans = [{timespan: { start: 0, end: mediaFile.media.duration }, fileTimespan: { start: 0, end: mediaFile.media.duration }}];
+
       } else {
+        state.engine.playbackMode = PlaybackMode.TRACK_FILE;
         const action = stateAction.payload as IEditorAction;
         const track = state.file?.tracks.find((trackFile) => trackFile.actions.find((actionTrack) => actionTrack.id === action.id));
         if (track?.file) {
-          state.engine.media.src = track.file.url;
+          state.engine.screener.src = track.file.url;
         }
         state.engine.playbackTimespans = [{timespan: { start: action.start, end: action.end }, fileTimespan: getActionFileTimespan(action)}];
 
       }
       state.engine.playbackCurrentTimespans = JSON.parse(JSON.stringify(state.engine.playbackTimespans));
-      state.engine.media.currentTime = state.engine.playbackCurrentTimespans[0].fileTimespan.start;
+      state.engine.screener.currentTime = state.engine.playbackCurrentTimespans[0].fileTimespan.start;
       state.engine._currentTime = state.engine.playbackCurrentTimespans[0].timespan.start;
 
+      state.engine.media = state.engine.screener;
       state.engine.setPlayRate(1);
       console.info('DISPLAY_SCREENER', state.settings.editorId);
       return {...state};
+    }
+    case 'UPDATE_STATE': {
+      const {settings, flags} = state;
+      return { ...stateAction.payload, settings, flags };
     }
     default:
       return EditorTimelineReducer(state as EditorState, stateAction as EditorStateAction) as EditorState;

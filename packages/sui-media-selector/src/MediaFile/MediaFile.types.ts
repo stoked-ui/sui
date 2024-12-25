@@ -14,7 +14,7 @@ export function isObject<T>(v: unknown): v is T {
 }
 
 export function getInputFiles(evt: Event) {
-  return MediaFile.fromList((evt.target as HTMLInputElement).files).map(file => MediaFile.fromFile(file as MediaFile));
+  return MediaFile.fromList((evt.target as HTMLInputElement).files)
 }
 
 export type DropFile = (DataTransferItem | File);

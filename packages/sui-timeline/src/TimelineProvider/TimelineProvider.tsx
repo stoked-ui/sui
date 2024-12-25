@@ -1,6 +1,5 @@
 import * as React from 'react';
-import {IMediaFile, Screenshot, ScreenshotQueue} from '@stoked-ui/media-selector';
-import { LocalDb } from '@stoked-ui/common';
+import {createSettings, FileSaveRequest, LocalDb, MimeRegistry, Settings} from '@stoked-ui/common';
 import Engine, { EngineState, IEngine } from '../Engine';
 import {
   TimelineProviderProps,
@@ -56,10 +55,34 @@ function TimelineProvider<
   const [startState, setStartState] = React.useState<any>(initialState);
   const [initialized, setInitialized] = React.useState<boolean>(false);
   React.useEffect(() => {
-    setInitialized(true);
-    LocalDb.init(props.localDb ? props.localDb : getDbProps(initialState.app.defaultInputFileType, props.localDb)).catch(
-      (ex) => console.error(ex),
-    );
+    const initDb = async () => {
+      try {
+        const fileType = initialState.app.defaultInputFileType;
+        const dbProps = props.localDb ? props.localDb : getDbProps(fileType, props.localDb);
+
+        // Initialize the database
+        await LocalDb.init(dbProps);
+
+        // Once the database is initialized, update the state
+        const localDb = LocalDb;
+        const updatedSettings = {
+          ...initialState.settings,
+          projectFiles: localDb.stores[fileType.name]?.files || [],
+        };
+
+        setStartState((prevState: any) => ({
+          ...prevState,
+          settings: updatedSettings,
+        }));
+
+        console.info('LocalDb stores', LocalDb.stores, localDb.stores[fileType.name]?.files);
+        setInitialized(true);
+      } catch (ex) {
+        console.error('Error during database initialization:', ex);
+      }
+    };
+
+    initDb();
   }, []);
 
   const [state, dispatch] = React.useReducer(reducer, startState);
@@ -105,38 +128,52 @@ function TimelineProvider<
     setSetting('reRender', reRender);
     window.reRender = reRender;
 
+    const saveUrl = async () => {
+
+      const fileData: FileSaveRequest = {
+        name: 'example-file',
+        version: 1,
+        meta: {
+          id: '123',
+          name: 'example-file',
+          version: 1,
+          created: Date.now(),
+          lastModified: Date.now(),
+          metadata: createSettings(),
+          description: 'Example file',
+          author: 'Author',
+        },
+        blob: new Blob(['Example content'], { type: 'text/plain' }),
+        mime: MimeRegistry.names['editor-project'],
+        url: 'https://example.com/files/example-file',
+      };
+
+      const success = await LocalDb.saveFile(fileData);
+
+      if (success) {
+        console.info('File saved successfully, and the URL is indexed.');
+      } else {
+        console.error('Failed to save the file.');
+      }
+    }
+    window.saveUrl = saveUrl;
+
   }, []);
+
+  const contextValue = React.useMemo(() => ({
+    state, dispatch,
+  }), [state, dispatch]);
 
   if (!TimelineProvider.dispatch) {
     TimelineProvider.dispatch = dispatch;
   }
   if (!initialized) {
-    return null;
+    return <div>loading</div>;
   }
 
-
-  const screenshotsUpdate = (mediaFile: IMediaFile, screenshot: Screenshot) => {
-    const screenshots = mediaFile.media?.screenshotStore?.screenshots;
-    if (!screenshots) {
-      return;
-    }
-    screenshots.push(screenshot);
-    dispatch({
-      type: 'UPDATE_SCREENSHOTS',
-      payload: {
-        screenshots: [...screenshots],
-        mediaFile
-      }
-    });
-  }
-
-  ScreenshotQueue.getInstance(3).screenshotsUpdate = screenshotsUpdate;
-
-  return (
-    <TimelineContext.Provider value={{state, dispatch}} >
+  return (<TimelineContext.Provider value={contextValue}>
       {children}
-    </TimelineContext.Provider>
-  );
+    </TimelineContext.Provider>);
 }
 
 TimelineProvider.dispatch = null;

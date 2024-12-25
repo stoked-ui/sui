@@ -1,7 +1,10 @@
 import {
   Engine,
-  EngineOptions, EngineState, IController,
+  EngineOptions,
+  EngineState,
+  PlaybackMode,
 } from '@stoked-ui/timeline';
+import {IMediaFile, MediaFile} from "@stoked-ui/media-selector";
 import {EditorEvents, EditorEventTypes} from './events';
 import {
   IEditorEngine, EditorEngineState, DrawData, EngineStateEx,
@@ -94,8 +97,7 @@ export default class EditorEngine<
     }
 
     if (!(this.renderer && this.viewer && this.renderCtx)) {
-      throw new Error('Assigned a viewer but could not locate the renderer, renderCtx, or' +
-        ' preview elements.\n' +
+      throw new Error('Assigned a viewer but could not locate the renderer, renderCtx, or preview elements.\n' +
         'Please ensure that the viewer has the following children:\n' +
         `  - renderer (canvas with working 2d context): ${this.renderer}` +
         `  - viewer: ${this.viewer}`);
@@ -130,6 +132,92 @@ export default class EditorEngine<
     return this._state === EngineStateEx.RECORDING as State;
   }
 
+
+  finalizeRecording(name: string) {
+    console.info('finalizeVideo');
+    const blob = new Blob(this._recordedChunks, {
+      type: 'video/mp4',
+    });
+
+    const recording = new MediaFile([blob], `${name}.mp4`, { type: 'video/mp4' });
+    // dispatch({ type: 'VIDEO_CREATED', payload: videoFile });
+    this.trigger('finishedRecording', { recording: recording as IMediaFile, engine: this as any });
+    // const url = URL.createObjectURL(blob);
+    // setVideoURLs((prev) => [url, ...prev]);
+    this._recordedChunks = [];
+    this.pause();
+    this._recorder = undefined;
+  };
+
+  recordVideo (name: string) {
+    if (this.renderer) {
+
+      // Get the video stream from the canvas renderer
+      const videoStream = this.renderer.captureStream();
+
+      // Get the Howler audio stream
+      const audioContext = Howler.ctx;
+      const destination = audioContext.createMediaStreamDestination();
+      Howler.masterGain.connect(destination);
+      const audioStream = destination.stream;
+
+      // Get audio tracks from video elements
+      const videoElements = document.querySelectorAll('video');
+      const videoAudioStreams: MediaStreamTrack[] = [];
+      videoElements.forEach((video) => {
+        const videoElement = video as HTMLVideoElement & { captureStream?: () => MediaStream };
+        if (videoElement.captureStream) {
+          const vidStream = videoElement.captureStream();
+          vidStream.getAudioTracks().forEach((track) => {
+            videoAudioStreams.push(track);
+          });
+        }
+      });
+
+      // Combine Howler and video audio streams
+      const combinedAudioStream = new MediaStream([
+        ...audioStream.getAudioTracks(),
+        ...videoAudioStreams,
+      ]);
+
+      // Combine the video and audio streams
+      const combinedStream = new MediaStream([
+        ...videoStream.getVideoTracks(),
+        ...combinedAudioStream.getAudioTracks(),
+      ]);
+
+      // Create the MediaRecorder with the combined stream
+      this._recorder = new MediaRecorder(combinedStream, {
+        mimeType: 'video/mp4',
+      });
+      this._recordedChunks = [];
+
+      this._recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) {
+          this._recordedChunks.push(e.data);
+        }
+      };
+
+      this._recorder.onstop = () => {
+        console.info('stopped recording');
+        this.finalizeRecording(name);
+      };
+
+      this._recorder.start(100); // Start recording
+    }
+  };
+
+  /**
+   * Pause playback
+   * @memberof Engine
+   */
+  pause() {
+    if (this.isRecording && this._recorder) {
+      this._recorder.stop();
+    }
+    super.pause();
+  }
+
   /**
    * Run: The start time is the current time
    * @param param
@@ -139,6 +227,7 @@ export default class EditorEngine<
     /** By default, it runs from beginning to end, with a priority greater than autoEnd */
     toTime?: number; /** Whether to automatically end after playing */
     autoEnd?: boolean;
+    name: string;
   }): boolean {
     const {toTime, autoEnd} = param;
 
@@ -161,6 +250,8 @@ export default class EditorEngine<
       this._prev = time;
       this._tick({now: time, autoEnd, to: toTime});
     });
+
+    this.recordVideo(param.name);
 
     return true;
   }
@@ -280,7 +371,7 @@ export default class EditorEngine<
     this._next = 0;
 
     this._currentTime = time;
-    if (this.playbackMode === 'media' && this.media && this.media.currentTime) {
+    if (this.playbackMode === PlaybackMode.TRACK_FILE && this.media && this.media.currentTime) {
       // this.media.currentTime = time / 1000;
     }
     this._dealLeave(time);

@@ -18,6 +18,9 @@ const CursorRoot = styled('div')({
   borderRight: '1px solid #5297FF',
   transform: 'translateX(-25%) scaleX(0.5)',
   zIndex: 300,
+  '&:focus': {
+    outline: '1px solid #5297FF',
+  }
 });
 
 const CursorTopRoot = styled('svg')({
@@ -30,7 +33,7 @@ const CursorTopRoot = styled('svg')({
 
 const CursorAreaRoot = styled('div')({
   width: '16px',
-  height: 'calc(100% - 34px - 18px)',
+  height: 'calc(100%)',
   cursor: 'ew-resize',
   position: 'absolute',
   top: 0,
@@ -45,6 +48,7 @@ function TimelineCursor({
   onCursorDragEnd,
 }: TimelineCursorProps) {
   const rowRnd = React.useRef<RowRndApi>();
+  const cursorRef = React.useRef<HTMLDivElement>();
   const draggingLeft = React.useRef<undefined | number>();
   const context = useTimeline();
   const { state, dispatch} = context;
@@ -61,6 +65,12 @@ function TimelineCursor({
   } = settings;
   const scrollSync = components.scrollSync as React.PureComponent & { state: Readonly<any> };
   // const deltaScrollLeft = flags.autoScroll && deltaScrollLeftFunc;
+
+  React.useEffect(() => {
+    if (cursorRef.current && !components.cursor) {
+      dispatch({ type: 'SET_COMPONENT', payload: { key: 'cursor', value: cursorRef.current } });
+    }
+  }, [cursorRef.current]);
 
   React.useEffect(() => {
     if (typeof draggingLeft.current === 'undefined' && rowRnd.current) {
@@ -132,7 +142,7 @@ function TimelineCursor({
         return false;
       }}
     >
-      <CursorRoot id={'timeline-cursor'}>
+      <CursorRoot id={'timeline-cursor'} ref={cursorRef}>
         <CursorTopRoot width="8" height="12" viewBox="0 0 8 12" fill="none">
           <path
             d="M0 1C0 0.447715 0.447715 0 1 0H7C7.55228 0 8 0.447715 8 1V9.38197C8 9.76074 7.786 10.107 7.44721 10.2764L4.44721 11.7764 C4.16569 11.9172 3.83431 11.9172 3.55279 11.7764L0.552786 10.2764C0.214002 10.107 0 9.76074 0 9.38197V1Z"

@@ -31,6 +31,24 @@ export default function ZoomControls({ style }: { style?: React.CSSProperties })
     dispatch({ type: 'SET_SETTING', payload: { key: 'scaleWidth', value: scaleWidth - 1 }})
   }
 
+  const zoomIn = () => {
+    const timer = setInterval(() => {
+      zoomInHandler();
+    }, 100);
+    document.addEventListener('mouseup', () => {
+      clearInterval(timer);
+    });
+  }
+
+  const zoomOut = () => {
+    const timer = setInterval(() => {
+      zoomOutHandler();
+    }, 100);
+    document.addEventListener('mouseup', () => {
+      clearInterval(timer);
+    });
+  }
+
   const zoomOutDisabled = disabled || (scaleWidth / scale  < rawScaleWidth);
   return (
     <div style={{ right: 0, justifySelf: 'end', alignSelf: 'center', position: 'absolute', zIndex: 300 }}>
@@ -46,14 +64,14 @@ export default function ZoomControls({ style }: { style?: React.CSSProperties })
       >
         <Tooltip enterDelay={1000} title={'Zoom In'} key={'zoomIn'}>
           <span>
-            <ToggleButton value="zoomIn" aria-label="zoom in" key={'zoomIn-key'} onClick={zoomInHandler}>
+            <ToggleButton value="zoomIn" aria-label="zoom in" key={'zoomIn-key'} onClick={zoomInHandler} onMouseDown={zoomIn} >
               <ZoomInIcon />
             </ToggleButton>
           </span>
         </Tooltip>
         <Tooltip enterDelay={1000} title={'Zoom Out'} key={'zoomOut'}>
           <span>
-            <ToggleButton disabled={zoomOutDisabled} value="zoomOut" aria-label="zoom out" key={'zoomOut-key'} onClick={zoomOutHandler}>
+            <ToggleButton disabled={zoomOutDisabled} value="zoomOut" aria-label="zoom out" key={'zoomOut-key'} onClick={zoomOutHandler} onMouseDown={zoomOut}>
               <ZoomOutIcon />
             </ToggleButton>
           </span>

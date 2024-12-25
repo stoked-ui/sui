@@ -250,6 +250,7 @@ function TimelineAction<
     trackHeight,
     editorMode,
     selected: currentSelection,
+    recordingTrack
   } = settings;
 
   const { gridSnap } = flags;
@@ -478,7 +479,7 @@ function TimelineAction<
         setActionStyle(newActionStyle);
       }
     }
- }, [track.file, action.start, action.end, scaleWidth, scale, trackHeight, track.file?.media.backgroundImage])
+ }, [track.file, action.trimEnd, action.trimStart, action.start, action.end, scaleWidth, scale, trackHeight, track.file?.media.backgroundImage])
 
   const currTrackHeight = getTrackHeight(track, state);
   const [dynamicTrackHeight, setDynamicTrackHeight] = React.useState(currTrackHeight);
@@ -703,8 +704,8 @@ function TimelineAction<
           ))}
         </ImageList>
         {locks}
-        <Fade in={!disableDrag && flexible}><LeftStretch className={`${prefix('action-left-stretch')}`} /></Fade>
-        <Fade in={!disableDrag && flexible}><RightStretch className={`${prefix('action-right-stretch')}`} /></Fade>
+        <Fade in={!disableDrag && flexible && recordingTrack}><LeftStretch className={`${prefix('action-left-stretch')}`} /></Fade>
+        <Fade in={!disableDrag && flexible && recordingTrack}><RightStretch className={`${prefix('action-right-stretch')}`} /></Fade>
       </Action>
     </TimelineTrackDnd>
   );
