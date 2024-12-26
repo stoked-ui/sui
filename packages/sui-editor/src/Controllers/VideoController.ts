@@ -52,6 +52,7 @@ class VideoControl extends Controller<HTMLVideoElement> {
       return file.media.element;
     }
     item = document.createElement('video');
+    item.crossOrigin = 'anonymous';
     file.media.element = item;
     item.id = track.id;
     this.cacheMap[track.id] = item;

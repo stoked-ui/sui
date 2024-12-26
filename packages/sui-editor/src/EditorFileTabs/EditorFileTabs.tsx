@@ -24,6 +24,10 @@ export default function EditorFileTabs(inProps: FileExplorerTabsProps) {
     console.info('onProjectsDoubleClick', doubleClickedFile);
     const editor = StokedUiEditorApp.getInstance();
 
+    if (doubleClickedFile.name === file?.name) {
+      return;
+    }
+
     const urlLookup  = await LocalDb.loadByName({store: editor.defaultInputFileType.name, name: doubleClickedFile.name});
     if (urlLookup) {
       const editorFile = await EditorFile.fromLocalFile<EditorFile>(urlLookup.blob, EditorFile) as EditorFile;

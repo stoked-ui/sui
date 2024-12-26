@@ -587,6 +587,7 @@ export default class MediaFile extends File implements IMediaFile {
           }
 
           const video = document.createElement('video');
+          video.crossOrigin = 'anonymous';
           video.src = URL.createObjectURL(new Blob([event.target.result], {type: file.type}));
           video.preload = 'auto';
           video.id = `${file.name}-video`;
