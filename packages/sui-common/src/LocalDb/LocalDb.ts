@@ -282,7 +282,7 @@ class LocalDbStore {
     }
 
     // Return the requested version and the complete list of versions
-    const versionRecord = record[requestedVersion.version] as IDBFileVersion;
+    const versionRecord = record.versions[requestedVersion.version] as IDBFileVersion;
 
     return {
       mimeType: versionRecord.mimeType,
