@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {isMobile} from "react-device-detect";
-import {IMediaFile, App, Screenshot} from '@stoked-ui/media-selector';
+import {IMediaFile, App, Screenshot, Command} from '@stoked-ui/media-selector';
 import {
   Constructor,
   createProviderState,
@@ -57,6 +57,10 @@ export interface TimelineState<
   engine: EngineType;
 
   file: FileType | null;
+
+  commandHistory: Command[];
+
+  undoStack: Command[];
 
   selectedDetail: DetailData | null;
 
@@ -292,6 +296,8 @@ export function createTimelineState<
     components: {},
     controllers: {},
     localDbProps: null,
+    commandHistory: [],
+    undoStack: [],
     createNewFile: () =>{
       return new FileConstructor({ name: 'New Project' });
     },
@@ -394,7 +400,9 @@ export type TimelineStateAction<
     screenshots: SortedList<Screenshot>,
     mediaFile: IMediaFile
   }
-}
+} | { type: 'EXECUTE_COMMAND'; payload: Command }
+  | { type: 'UNDO' }
+  | { type: 'REDO' };
 
 export type TimelineContextType = { state: TimelineState, dispatch: React.Dispatch<TimelineStateAction> };
 export const TimelineContext = React.createContext<TimelineContextType | undefined>(undefined);
@@ -566,6 +574,38 @@ function TimelineReducerBase<
       state.engine.setTracks([]);
       state.file = null;
       return {...state};
+    }
+    case 'EXECUTE_COMMAND': {
+      stateAction.payload.execute(); // Execute the command
+      return {
+        ...state,
+        commandHistory: [...state.commandHistory, stateAction.payload],
+        undoStack: [], // Clear redo stack
+      };
+    }
+    case 'UNDO': {
+      const lastCommand = state.commandHistory.pop();
+      if (lastCommand) {
+        lastCommand.undo(); // Undo the command
+        return {
+          ...state,
+          commandHistory: [...state.commandHistory],
+          undoStack: [lastCommand, ...state.undoStack],
+        };
+      }
+      return state;
+    }
+    case 'REDO': {
+      const lastUndoneCommand = state.undoStack.shift();
+      if (lastUndoneCommand) {
+        lastUndoneCommand.execute(); // Redo the command
+        return {
+          ...state,
+          commandHistory: [...state.commandHistory, lastUndoneCommand],
+          undoStack: [...state.undoStack],
+        };
+      }
+      return state;
     }
     default:
       return state;

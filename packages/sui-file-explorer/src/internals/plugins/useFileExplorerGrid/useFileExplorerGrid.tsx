@@ -12,12 +12,63 @@ import { FileId, FileBase} from '../../../models';
 import {bytesToSize, calcSize, getRelativeTimeString} from "./PropUtils";
 import {ItemMode} from "../useFileExplorerFiles/useFileExplorerFiles.types";
 
-const updateGridState = ({ headers, columns, initializedIndexes, id }: { headers: GridHeaders, columns: GridColumns, initializedIndexes: boolean, id?: string } ): UseFileExplorerGridState => {
+
+const directRender = (content: any) => content;
+
+const DEFAULT_HEADER_DATA = {
+  sx: {
+    display: 'flex',
+    overflow: 'ellipsis',
+    alignItems: 'center',
+    justifyContent: 'start',
+    paddingRight: '6px',
+    paddingLeft: '6px',
+  },
+  width: -1,
+  renderContent: directRender,
+  status: {
+    ascending: true,
+    focused: false,
+    visible: true,
+    sort: false
+  },
+}
+
+const DEFAULT_COLUMN_DATA = {
+  sx: {
+    display: 'flex',
+    overflow: 'ellipsis',
+    alignItems: 'center',
+    justifyContent: 'start',
+    paddingRight: '8px'
+  },
+  renderContent: directRender,
+  width: -1,
+  track: {},
+  waiting: false,
+  cells: [],
+}
+
+const updateGridState = ({ headers, columns, initializedIndexes, id, gridColumns }: { gridColumns?: { [name: string]: (item: any) => any }, headers: GridHeaders, columns: GridColumns, initializedIndexes: boolean, id?: string } ): UseFileExplorerGridState => {
   const { name, size, lastModified } = headers;
   const font = { };
+  if (gridColumns) {
+    Object.keys(gridColumns).forEach((columnName) => {
+      headers[columnName] = DEFAULT_HEADER_DATA as GridHeader;
+      headers[columnName].renderContent = gridColumns[columnName];
+    })
+    Object.keys(gridColumns).forEach((columnName) => {
+      columns[columnName] = {
+        ...DEFAULT_COLUMN_DATA,
+        getContent: gridColumns[columnName],
+        children: [] as any
+      };
+    })
+  }
   name.sx = {...name.sx, flexGrow: 1, display: 'flex', justifyContent: 'start', ...font }
   size.sx = {...name.sx, display: 'flex',  ...font }
   lastModified.sx = {...name.sx, display: 'flex',  ...font }
+  console.info('headers', headers, columns);
   return {
     grid: {
       headers: headers ?? {},
@@ -277,40 +328,6 @@ export const useFileExplorerGrid: UseFileExplorerGridPlugin = <R extends FileBas
   };
 };
 
-const directRender = (content: any) => content;
-
-const DEFAULT_HEADER_DATA = {
-  sx: {
-    display: 'flex',
-    overflow: 'ellipsis',
-    alignItems: 'center',
-    justifyContent: 'start',
-    paddingRight: '6px',
-    paddingLeft: '6px',
-  },
-  width: -1,
-  renderContent: directRender,
-  status: {
-    ascending: true,
-    focused: false,
-    visible: true,
-    sort: false
-  },
-}
-
-const DEFAULT_COLUMN_DATA = {
-  sx: {
-    display: 'flex',
-    overflow: 'ellipsis',
-    alignItems: 'center',
-    justifyContent: 'start',
-    paddingRight: '8px'
-  },
-  width: -1,
-  track: {},
-  waiting: false,
-  cells: [],
-}
 
 const children = (cells: React.ReactElement[]) => {
   return (
@@ -319,6 +336,7 @@ const children = (cells: React.ReactElement[]) => {
     </React.Fragment>
   );
 }
+
 const DEFAULT_HEADERS: GridHeaders = {
   name: {
     ...JSON.parse(JSON.stringify(DEFAULT_HEADER_DATA)),
@@ -351,6 +369,7 @@ const DEFAULT_COLUMNS: GridColumns = {
 }
 
 useFileExplorerGrid.getInitialState = (params) => updateGridState({
+  gridColumns: params.gridColumns,
   columns: params.defaultGridColumns,
   headers: params.defaultGridHeaders,
   initializedIndexes: false,
@@ -364,6 +383,7 @@ useFileExplorerGrid.getDefaultizedParams = (params) => ({
   grid: params.grid ?? false,
   initializedIndexes: params.initializedIndexes ?? false,
   gridHeader: params.gridHeader ?? false,
+  gridColumns: params.gridColumns ?? {},
 });
 
 useFileExplorerGrid.params = {
@@ -374,4 +394,5 @@ useFileExplorerGrid.params = {
   headers: true,
   defaultGridColumns: true,
   defaultGridHeaders: true,
+  gridColumns: true,
 };

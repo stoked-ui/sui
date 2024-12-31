@@ -62,6 +62,7 @@ export const useFileExplorer = <
       id: 'trash',
       name: 'Trash',
       type: 'folder',
+      mediaType: 'folder',
       size: 0,
       lastModified: Date.now(),
     }]

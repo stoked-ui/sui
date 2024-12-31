@@ -108,8 +108,8 @@ export function DetailProject(props: DetailViewProps) {
             control={control}
             disabled={!props.editMode}
             onClick={props.enableEdit}
-            darkLabel={'#333'}
-            lightLabel={'#CCC'}
+            darkLabel={'rgb(0 2 3)'}
+            lightLabel={'#ececec'}
           />
         </CtrlCell>
         <CtrlCell width="40%">

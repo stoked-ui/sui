@@ -1,9 +1,10 @@
 /* eslint-disable class-methods-use-this */
 /*  eslint-disable @typescript-eslint/naming-convention */
 import {
-  IMediaFile, MediaFile, AppFile, WebFile, IAppFileMeta
+  IMediaFile, MediaFile, AppFile, WebFile
 } from "@stoked-ui/media-selector";
 import {alpha} from "@mui/material/styles";
+import { Blob } from 'formdata-node';
 import { Constructor, compositeColors, namedId } from "@stoked-ui/common";
 import {
   type ITimelineAction,
@@ -326,10 +327,11 @@ export default class TimelineFile<
   static async fromLocalFile<AppFileType = TimelineFile>(file: Blob, FileConstructor: Constructor<AppFileType>): Promise<AppFileType> {
     const timelineFile = await AppFile.fromLocalFile<AppFileType>(file, FileConstructor) as TimelineFile;
 
-    timelineFile.tracks = timelineFile.tracks.map((track, index) => {
-      track.file = timelineFile._mediaFiles[index]
-      return track;
-    });
+    for (let index = 0; index < timelineFile.tracks.length; index += 1) {
+      // eslint-disable-next-line no-await-in-loop
+      timelineFile.tracks[index].file = timelineFile._mediaFiles[index]
+    }
+
     await timelineFile.loadUrls();
     return timelineFile as unknown as AppFileType;
   }

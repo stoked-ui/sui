@@ -81,4 +81,6 @@ export default interface IMediaFile extends File {
     url: string;
     media: any;
   };
+
+  extractMetadata(): Promise<void>;
 }

@@ -15,14 +15,7 @@ import {
 import { useTimeline } from '../TimelineProvider';
 import { ITimelineAction } from '../TimelineAction';
 import TimelineTrackActions from '../TimelineLabels/TimelineTrackActions';
-import TimelineFile from "../TimelineFile";
-
-/*
- shrinkScale,
- growScale,
- growUnselectedScale,
- trackHeight
- */
+import TimelineFile, {RemoveTrackCommand} from "../TimelineFile";
 
 const TimelineTrackRoot = styled('div', {
   name: 'MuiTimelineTrack',
@@ -402,7 +395,21 @@ function TimelineTrack<
         transitionTimingFunction: 'ease-in-out',
         alignItems: 'center',
       }}
-      onKeyDown={(e) => {
+      onKeyDown={(event: any) => {
+        event.currentTarget = track;
+        // eslint-disable-next-line default-case
+        console.info('event.key', event.key);
+        switch (event.key) {
+          case 'Backspace':
+          case 'Delete': {
+            const command = new RemoveTrackCommand(file, track.id);
+            dispatch({ type: 'EXECUTE_COMMAND', payload: command });
+
+            event.preventDefault();
+            break;
+          }
+
+        }
       }}
       onClick={(e) => {
         if (track.id !== 'newTrack') {

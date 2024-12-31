@@ -1,4 +1,5 @@
 import {namedId, Constructor, FileSaveRequest, Versions,} from '@stoked-ui/common';
+import { File, Blob } from 'formdata-node';
 import MediaFile from '../../MediaFile';
 import WebFile, {
   IWebFile,
@@ -83,7 +84,7 @@ export default class AppFile<FileDataType extends IAppFileData = IAppFileData> e
     const response = await fetch(url);
     if (response.ok) {
       const blob = await response.blob();
-      return this.fromLocalFile<AppFileType>(blob, FileConstructor);
+      return this.fromLocalFile<AppFileType>(blob as Blob, FileConstructor);
     }
     console.error(`Failed to fetch file from ${url}`);
     return null;
@@ -128,7 +129,7 @@ export default class AppFile<FileDataType extends IAppFileData = IAppFileData> e
   static async fromOpenDialog<AppFileType = AppFile>(FileConstructor: Constructor<AppFileType>): Promise<AppFileType[]> {
     const files = await this.open();
     return Promise.all(files.map( async (file) => {
-      return this.fromLocalFile<AppFileType>(file, FileConstructor);
+      return this.fromLocalFile<AppFileType>(file as File, FileConstructor);
     }));
   }
 

@@ -109,7 +109,7 @@ const Stage = styled('div', {
   left: 0,
   overflow: 'hidden',
   aspectRatio: 16 / 9,
-  vIndex: 100,
+  zIndex: 100,
 }));
 
 

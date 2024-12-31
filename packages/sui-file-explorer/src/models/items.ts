@@ -1,5 +1,4 @@
 import { MediaType } from "@stoked-ui/media-selector";
-import { Settings } from "@stoked-ui/common";
 
 export type FileId = string;
 
@@ -9,10 +8,12 @@ type CommonBase = {
   size?: number;
   lastModified?: number;
   mediaType?: MediaType;
-  media?: Settings;
+  media?: any;
   type?: string;
   created?: number;
   path?: string;
+  expanded?: boolean;
+  selected?: boolean;
   visibleIndex?: number;
 }
 
