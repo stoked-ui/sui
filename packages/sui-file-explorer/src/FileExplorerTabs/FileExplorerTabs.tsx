@@ -166,12 +166,16 @@ const FileExplorerDrawer = React.forwardRef((inProps: FileExplorerTabsProps, ref
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
 
-  const handleDrawerToggle = () => {
-    setOpen((prev) => !prev);
-  };
 
   const {tabNames, currentTab, tabData, setTabName, tabSx, sx} = useThemeProps({ props: inProps, name: 'MuiFileExplorer' });
   const classes = useUtilityClasses(inProps);
+
+  const handleDrawerToggle = () => {
+    setOpen((prev) => !prev);
+    if (!currentTab?.name || currentTab?.name === 'none') {
+      setTabName(tabNames[0])
+    }
+  };
 
   const [tabState, setTabState] = React.useState<Record<string, ExplorerPanelProps>>(tabData);
   React.useEffect(() => {

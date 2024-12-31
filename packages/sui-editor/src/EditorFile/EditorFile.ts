@@ -1,3 +1,4 @@
+import { File, Blob } from 'formdata-node';
 import {
   TimelineFile,
   ITimelineFile,
@@ -146,14 +147,16 @@ export default class EditorFile<
   static async fromUrl<AppFileType = EditorFile>(url: string, FileConstructor: Constructor<AppFileType> = EditorFile as unknown as Constructor<AppFileType>): Promise<AppFileType | null> {
     const editor = StokedUiEditorApp.getInstance();
 
+    /*
     const urlLookup  = await LocalDb.loadByUrl({store: editor.defaultInputFileType.name, url});
     if (urlLookup) {
-      const editorFile = await TimelineFile.fromLocalFile<AppFileType>(urlLookup.blob, FileConstructor) as EditorFile;
+      const editorFile = await TimelineFile.fromLocalFile<AppFileType>(urlLookup.blob as Blob, FileConstructor) as EditorFile;
       if (editorFile) {
         editorFile.versions = urlLookup.versions;
       }
       return editorFile as AppFileType;
     }
+    */
     const file = await TimelineFile.fromUrl<AppFileType>(url, FileConstructor) as ITimelineFile;
     if (!file) {
       return file;

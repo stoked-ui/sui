@@ -8,6 +8,7 @@ declare global {
     setMaxScaleCount: any;
     setSetting: any;
     getSetting: any;
+    getState: any;
     reRender: any;
     updateThumbSize: any;
     saveUrl: any;

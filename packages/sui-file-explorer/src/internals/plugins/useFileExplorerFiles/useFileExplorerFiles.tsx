@@ -103,7 +103,6 @@ const updateItemsState = ({
 
     item.children?.forEach((child) => processItem(child, depth + 1, id));
   };
-  console.log('items', items, items.forEach);
   items?.forEach((item) => processItem(item, 0, null));
 
   const itemChildrenIndexes: State['itemChildrenIndexes'] = {};
@@ -143,19 +142,16 @@ export const useFileExplorerFiles: FileExplorerPlugin<UseFileExplorerFilesSignat
     return state.items.itemOrderedChildrenIds[FILE_EXPLORER_VIEW_ROOT_PARENT_ID].map((id) => state.items.itemMap[id]);
   }
 
-  const recalcVisibleIndices  = (items: FileBase[] = getFiles(), force: boolean = false, index: number = 0) => {
-    // console.log('recalc items', items);
-    const recalVisibleIndicesBase  = (baseItems: FileBase[], baseIndex: number = 0) => {
+  const recalcVisibleIndices  = (items: FileBase[] = getFiles(), force: boolean = false) => {
+    const recalcVisibleIndicesBase = (baseItems: FileBase[], baseIndex: number = 0) => {
       for (let i = 0; i < baseItems.length; i += 1){
         const item = baseItems[i];
         if (item) {
-          if (item.media) {
-            item.media.visibleIndex = baseIndex;
-            baseIndex += 1;
-          }
+          item.visibleIndex = baseIndex;
+          baseIndex += 1;
 
           if (item.children?.length && instance.isItemExpanded(item.id ?? item.id!)) {
-            baseIndex = recalVisibleIndicesBase(item.children, baseIndex);
+            baseIndex = recalcVisibleIndicesBase(item.children, baseIndex);
           }
         }
       }
@@ -178,7 +174,7 @@ export const useFileExplorerFiles: FileExplorerPlugin<UseFileExplorerFilesSignat
     if(state.items.indiciesDirty || force) {
       state.items.indiciesDirty = false;
       initializeVisibleIndices(items);
-      recalVisibleIndicesBase(items);
+      recalcVisibleIndicesBase(items);
     }
   }
 

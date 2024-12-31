@@ -1,4 +1,5 @@
 import * as React from "react";
+import { File, Blob } from 'formdata-node';
 import {
   ExplorerPanelProps,
   FileBase,
@@ -30,7 +31,7 @@ export default function EditorFileTabs(inProps: FileExplorerTabsProps) {
 
     const urlLookup  = await LocalDb.loadByName({store: editor.defaultInputFileType.name, name: doubleClickedFile.name});
     if (urlLookup) {
-      const editorFile = await EditorFile.fromLocalFile<EditorFile>(urlLookup.blob, EditorFile) as EditorFile;
+      const editorFile = await EditorFile.fromLocalFile<EditorFile>(urlLookup.blob as Blob, EditorFile) as EditorFile;
       if (editorFile) {
         editorFile.versions = urlLookup.versions;
       }
@@ -46,7 +47,7 @@ export default function EditorFileTabs(inProps: FileExplorerTabsProps) {
 
     const urlLookup  = await LocalDb.loadByName({store: editor.defaultInputFileType.name, name: doubleClickedFile.name, version: versionFile.version });
     if (urlLookup) {
-      const editorFile = await EditorFile.fromLocalFile<EditorFile>(urlLookup.blob, EditorFile) as EditorFile;
+      const editorFile = await EditorFile.fromLocalFile<EditorFile>(urlLookup.blob as Blob, EditorFile) as EditorFile;
       if (editorFile) {
         editorFile.versions = urlLookup.versions;
       }
@@ -130,7 +131,7 @@ export default function EditorFileTabs(inProps: FileExplorerTabsProps) {
       items: MediaFile.toFileBaseArray(settings.savedVideos?.length ? settings.savedVideos : []),
       onItemDoubleClick: onSavedVideoDoubleClick
     };
-    console.info('newTabData', newTabData)
+    // console.info('newTabData', newTabData)
     setTabData(newTabData);
   }, [settings.trackFiles, settings.savedVideos, settings.projectFiles])
 

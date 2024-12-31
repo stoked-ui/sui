@@ -133,10 +133,11 @@ export const FileLabel = React.forwardRef(function FileExplorer(
   const headerIcon: SxProps<Theme> =
     status && !status.focused
       ? { visibility: 'visible', alignSelf: 'center', color: 'black' }
-      : { alignSelf: 'center', color: 'black' };
+      : { alignSelf: 'center', color: 'black'};
   const sxProp: SxProps = {
     display: header ? 'flex' : undefined,
     overflow: 'hidden',
+    alignItems: 'center',
   };
   showIcon = showIcon || header;
   if (!status && showIcon) {
@@ -165,13 +166,13 @@ export const FileLabel = React.forwardRef(function FileExplorer(
           component={Icon}
           className="labelIcon"
           color="inherit"
-          sx={{ mr: 1, fontSize: '1.2rem' }}
+          sx={{ mr: 1, fontSize: '1.2rem', '& svn': {paddingRight: '20px'} }}
         />
       )}
 
       {actualLabel}
       {showIcon && (
-        <FileIconContainer {...iconProps} sx={(theme) => ({ color: theme.palette.text.primary })}>
+        <FileIconContainer {...iconProps} sx={(theme) => ({ color: theme.palette.text.primary, '& svg': {marginRight: '10px'} })}>
           <FileIcon status={status} sx={headerIcon} iconName={iconProps?.iconName} />
         </FileIconContainer>
       )}

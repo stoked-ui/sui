@@ -135,7 +135,6 @@ const Editor = React.forwardRef(function Editor<R extends IMediaFile = IMediaFil
     file, flags, engine, getState, components, settings
   } = context;
   const {fileView, videos, trackFiles } = settings;
-
   const {id: editorIdLocal, ...inProps} = inPropsId;
 
   const defaultSx = inProps.fullscreen || flags?.fullscreen ? {} : {borderRadius: '6px 6px 0 0'}
@@ -168,7 +167,8 @@ const Editor = React.forwardRef(function Editor<R extends IMediaFile = IMediaFil
       allControls,
       fullscreen,
       detailMode,
-      minimal
+      minimal,
+      externalKeydown: true,
     }
     const values = Object.keys(flagProps).filter((key) => flagProps[key] === true);
     dispatch({type: 'SET_FLAGS', payload: {add: values, remove: []}});
@@ -344,6 +344,13 @@ const Editor = React.forwardRef(function Editor<R extends IMediaFile = IMediaFil
           value: finalEditorId
         }
       });
+      dispatch({
+        type: 'SET_SETTING',
+        payload: {
+          key: 'componentId',
+          value: finalEditorId
+        }
+      });
     }, [])
 
   const [editorFile, setEditorFile] = React.useState<IEditorFile | null>(propsFile);
@@ -423,6 +430,7 @@ const Editor = React.forwardRef(function Editor<R extends IMediaFile = IMediaFil
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
 
+
   const handleDrawerOpen = () => {
     setOpen(true);
   };
@@ -433,12 +441,13 @@ const Editor = React.forwardRef(function Editor<R extends IMediaFile = IMediaFil
 
   const newRootProps = {...rootProps, ...rootProps.ownerState};
   const displayTimeline = getState && getState?.() !== 'LOADING';
+
   return (<Root
       role={'editor'}
       detail={flags.detailMode}
       trackCount={file?.tracks.length || 0}
       {...newRootProps}
-      sx={[{ position: 'relative', overflow:'visible', height: '100%'}, ...(Array.isArray(sx) ? sx : [sx]),]}
+      sx={[{ position: 'relative', overflow:'visible'}, ...(Array.isArray(sx) ? sx : [sx]),]}
       id={finalEditorId}
       fileView={flags.fileView}
     >
@@ -472,6 +481,7 @@ const Editor = React.forwardRef(function Editor<R extends IMediaFile = IMediaFil
         viewSelector={`.MuiEditorView-root`}
         sx={noFlagProps.timelineSx}
         onAddFiles={onAddFiles}
+        internalComponent={true}
         onContextMenuLabel={handleContextMenuLabel}
         onContextMenuTrack={handleContextMenuTrack}
         onContextMenuAction={handleContextMenuAction}
