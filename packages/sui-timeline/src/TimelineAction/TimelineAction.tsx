@@ -31,7 +31,7 @@ import {
 } from './TimelineAction.types';
 import { getTrackBackgroundColor, type ITimelineTrack } from '../TimelineTrack/TimelineTrack.types';
 import { useTimeline } from '../TimelineProvider';
-import TimelineFile from "../TimelineFile";
+import TimelineFile, {RemoveActionCommand} from "../TimelineFile";
 import {getTrackHeight} from "../TimelineProvider/TimelineProviderFunctions";
 
 const Action = styled('div', {
@@ -595,19 +595,18 @@ function TimelineAction<
           switch (event.key) {
             case 'Backspace':
             case 'Delete': {
-              track.actions = track.actions.filter((trackAction) => trackAction.id !== action.id);
-              const trackIndex = file.tracks.indexOf(track);
-              file.tracks[trackIndex] = { ...track };
-              dispatch({ type: 'SET_TRACKS', payload: [...file.tracks] });
+              // track.actions = track.actions.filter((trackAction) => trackAction.id !== action.id);
+              //const trackIndex = file.tracks.indexOf(track);
+              // file.tracks[trackIndex] = { ...track };
+
+              const command = new RemoveActionCommand(file, action.id);
+              dispatch({ type: 'EXECUTE_COMMAND', payload: command });
+
               event.preventDefault();
               break;
             }
-            case 'Meta': {
-              // actionEl.current.classList?.add('volume');
-              break;
-            }
-          }
 
+          }
         }}
         hover={actionHoverId === action.id ? true : undefined}
         onMouseEnter={(event) => {
@@ -704,8 +703,8 @@ function TimelineAction<
           ))}
         </ImageList>
         {locks}
-        <Fade in={!disableDrag && flexible && recordingTrack}><LeftStretch className={`${prefix('action-left-stretch')}`} /></Fade>
-        <Fade in={!disableDrag && flexible && recordingTrack}><RightStretch className={`${prefix('action-right-stretch')}`} /></Fade>
+        <Fade in={!disableDrag && flexible && !recordingTrack}><LeftStretch className={`${prefix('action-left-stretch')}`} /></Fade>
+        <Fade in={!disableDrag && flexible && !recordingTrack}><RightStretch className={`${prefix('action-right-stretch')}`} /></Fade>
       </Action>
     </TimelineTrackDnd>
   );

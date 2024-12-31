@@ -1,4 +1,5 @@
 import { Stage, ScreenshotQueue } from '@stoked-ui/media-selector';
+import { createSettings } from '@stoked-ui/common';
 import {
   Controller,
   ControllerParams,
@@ -46,13 +47,17 @@ class VideoControl extends Controller<HTMLVideoElement> {
     if (!file) {
       throw new Error('no file found for video controlled item');
     }
-    if (file.media.element) {
+    if (file.media?.element) {
       this.cacheMap[track.id] = file.media.element;
       Stage.getStage(this.editorId).appendChild(file.media.element);
       return file.media.element;
     }
     item = document.createElement('video');
-    file.media.element = item;
+    item.crossOrigin = 'anonymous';
+    console.info('file.media', file);
+    if (!file.media) {
+      file.media = createSettings({ element: item });
+    }
     item.id = track.id;
     this.cacheMap[track.id] = item;
 

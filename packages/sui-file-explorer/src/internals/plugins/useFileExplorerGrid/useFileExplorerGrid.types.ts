@@ -33,6 +33,7 @@ export interface UseFileExplorerGridColumnHeaderStatus {
 export type GridColumn = {
   sx: SystemStyleObject,
   renderContent: (content: any) => string,
+  getContent?: (item: any) => any,
   evaluator?: (item: any, columnName: string) => any,
   width: number,
   track: GridColumnRowData,
@@ -79,6 +80,7 @@ export interface UseFileExplorerGridParameters {
   initializedIndexes?: boolean;
   defaultGridColumns?: GridColumns;
   defaultGridHeaders?: GridHeaders;
+  gridColumns?: { [name: string]: (item: any) => string };
 }
 
 export type UseFileExplorerGridDefaultizedParameters = DefaultizedProps<UseFileExplorerGridParameters, 'defaultGridColumns' | 'defaultGridHeaders'>;

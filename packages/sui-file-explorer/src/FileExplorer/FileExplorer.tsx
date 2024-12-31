@@ -138,7 +138,7 @@ const FileExplorer = React.forwardRef(function FileExplorer<
     const currItem = instance.getItem(item.id);
 
     return (
-      <FileWrapped onDoubleClick={() => { inProps.onItemDoubleClick?.(currItem); }} {...currItem} {...item} slots={slots} key={item.id} sx={props.sx}>
+      <FileWrapped  {...currItem} {...item} slots={slots} key={item.id} sx={props.sx}>
         {item.children?.map(renderItem)}
       </FileWrapped>
     );

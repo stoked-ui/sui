@@ -1,6 +1,7 @@
 // eslint-disable-next-line stoked-ui/sui-name-matches-component-name
 import * as React from 'react';
 import PropTypes from 'prop-types';
+import { namedId } from '@stoked-ui/common';
 import composeClasses from '@mui/utils/composeClasses';
 import {useSlotProps} from '@mui/base/utils';
 import {emphasize, styled, useThemeProps} from '@mui/material/styles';
@@ -26,6 +27,7 @@ import TimelineTrackActions from "../TimelineLabels/TimelineTrackActions";
 import AddTrackButton from "./AddTrackButton";
 import {Box, Typography} from "@mui/material";
 import {ControlledTrack} from "../TimelineTrack";
+import KeyDownControls from "./KeyDownControls";
 
 const useUtilityClasses = (ownerState: TimelineProps) => {
   const { classes } = ownerState;
@@ -111,9 +113,10 @@ function NoTracksNotice({ tracks }) {
  * - [Timeline](https://timeline.stoked-ui.com/api/)
  */
 const Timeline = React.forwardRef(function Timeline(
-  inProps: TimelineProps & TimelineControlProps,
+  inPropsId: TimelineProps & TimelineControlProps,
   ref: React.Ref<HTMLDivElement>,
 ): React.JSX.Element {
+  const {id: timelineIdLocal, ...inProps} = inPropsId;
   const { slots, slotProps, onChange, sx } = useThemeProps({
     props: inProps,
     name: 'MuiTimeline',
@@ -277,8 +280,23 @@ const Timeline = React.forwardRef(function Timeline(
   }, [scrollSync.current])
 
   const isDisabled = () => !file || !file.tracks || !file.tracks.length;
+  const finalTimelineId = timelineIdLocal || namedId('timeline');
   React.useEffect(() => {
     dispatch({type: 'SET_SETTING', payload: {key: 'disabled', value: isDisabled()}});
+    dispatch({
+      type: 'SET_SETTING',
+      payload: {
+        key: 'timelineId',
+        value: finalTimelineId
+      }
+    });
+    if (!inProps.internalComponent) {
+      dispatch({
+        type: 'SET_SETTING', payload: {
+          key: 'componentId', value: finalTimelineId
+        }
+      });
+    }
   }, [])
 
   React.useEffect(() => {
@@ -292,10 +310,12 @@ const Timeline = React.forwardRef(function Timeline(
     <Root
       ref={ref}
       {...rootProps}
+      id={finalTimelineId}
       className={rootClasses}
       sx={[...(Array.isArray(sx) ? sx : [sx]), { height: '100%' }]}
       onScroll={inProps.onScrollVertical}
     >
+      <KeyDownControls/>
       <Box width={'100%'}>
         <Box width={'100%'} style={{ display: 'flex', flexDirection: 'row' }}>
         <AddTrackButton onAddFiles={inProps.onAddFiles}/>
@@ -396,7 +416,7 @@ Timeline.propTypes = {
   labels: PropTypes.bool,
   labelsSx: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),), PropTypes.func, PropTypes.object,]),
   labelSx: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),), PropTypes.func, PropTypes.object,]),
-
+  internalComponent: PropTypes.bool,
   setTracks: PropTypes.func,
   /**
    * The props used for each component slot.

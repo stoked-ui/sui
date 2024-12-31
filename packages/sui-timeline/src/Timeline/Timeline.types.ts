@@ -137,4 +137,5 @@ export interface TimelineProps
   trackSx?: SxProps<Theme>;
 
   viewSelector?: string;
+  internalComponent?: boolean;
 }

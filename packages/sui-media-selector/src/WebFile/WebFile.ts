@@ -53,12 +53,6 @@ export interface IWebFileApi {
   save(options?: IWebFileSaveOptions): Promise<void>;
   checksum(): Promise<string>;
   isDirty(): Promise<boolean>;
-
-  // Command pattern operations
-  executeCommand(command: Command): void;
-  undo(): void;
-  redo(): void;
-  getHistory(): Command[];
 }
 
 export interface IWebFile extends IWebFileData, IWebFileApi {}
@@ -72,10 +66,6 @@ export default abstract class WebFile implements IWebFile {
   protected _version: number;
 
   protected _lastChecksum: string | null;
-
-  private _commandHistory: Command[] = [];
-
-  private _undoStack: Command[] = [];
 
   protected _created: number;
 
@@ -173,7 +163,7 @@ export default abstract class WebFile implements IWebFile {
       if (!silent) {
         const { blob } = saveRequest;
         const saveOptions = {
-          suggestedName: this.name,
+          suggestedName: `${this.name}${saveRequest.mime.ext}`,
           fileBlob: blob,
         };
 
@@ -208,37 +198,6 @@ export default abstract class WebFile implements IWebFile {
   async isDirty(): Promise<boolean> {
     const currentChecksum = await this.checksum();
     return this._lastChecksum !== currentChecksum;
-  }
-
-  // Command Pattern: Execute, Undo, and History Management
-  executeCommand(command: Command): void {
-    command.execute();
-    this._commandHistory.push(command);
-    this._undoStack = []; // Clear redo stack on new command
-  }
-
-  undo(): void {
-    const command = this._commandHistory.pop();
-    if (command) {
-      command.undo();
-      this._undoStack.push(command);
-    } else {
-      console.info('No more commands to undo.');
-    }
-  }
-
-  redo(): void {
-    const command = this._undoStack.pop();
-    if (command) {
-      command.execute();
-      this._commandHistory.push(command);
-    } else {
-      console.info('No more commands to redo.');
-    }
-  }
-
-  getHistory(): Command[] {
-    return [...this._commandHistory];
   }
 
   /**

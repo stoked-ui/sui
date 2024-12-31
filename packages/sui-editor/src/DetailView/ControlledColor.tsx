@@ -34,7 +34,7 @@ export default function ControlledColor({ darkLabel, lightLabel, control, name, 
   if (!type) {
     type = 'text';
   }
-  const labelColor = (theme) => theme.palette.mode ? darkLabel : lightLabel;
+  const labelColor = (theme) => theme.palette.mode === 'dark' ? darkLabel : lightLabel;
   return (
     <Tooltip
       PopperProps={{
@@ -68,8 +68,9 @@ export default function ControlledColor({ darkLabel, lightLabel, control, name, 
           '& fieldset': {
             color: theme.palette.text.primary,
             padding: '3px 8px',
-            borderRadius: '6px',
+            borderRadius: '4px',
             outlineOffset: 0,
+
             // backgroundImage: `linear-gradient(90deg, ${theme.palette.background.default},
             // ${theme.palette.background.default}), linear-gradient(90deg, ${theme.palette.background.default}, ${theme.palette.background.default})`,
             // backgroundSize: '100% 12px, 100% 17px',
@@ -80,7 +81,10 @@ export default function ControlledColor({ darkLabel, lightLabel, control, name, 
             backgroundImage: `linear-gradient(90deg, ${labelColor(theme)}, ${labelColor(theme)}), linear-gradient(90deg, ${labelColor(theme)}, ${labelColor(theme)})`,
             backgroundSize: '100% 12px, 100% 17px',
             backgroundPosition: '0 0, 0 100%',
-            backgroundRepeat: 'no-repeat, no-repeat'
+            backgroundRepeat: 'no-repeat, no-repeat',
+            padding: '0px 6px',
+            borderRadius: '4px',
+            transform: 'translate(9px, -9px) scale(0.75)',
           },
           '& ::-webkit-color-swatch-wrapper': {
             padding: '0px',

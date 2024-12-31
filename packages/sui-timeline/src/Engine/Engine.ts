@@ -436,9 +436,9 @@ export default class Engine<
       const action = this._actionMap[key];
       const track = this._actionTrackMap[action.id];
       if (type === 'start' && track?.controller?.start) {
-        track.controller.start({action, track, time: this.time, engine: this as IEngine });
+        track.controller?.start({action, track, time: this.time, engine: this as IEngine });
       } else if (type === 'stop' && track?.controller?.stop) {
-        track.controller.stop({action, track, time: this.time, engine: this as IEngine });
+        track.controller?.stop({action, track, time: this.time, engine: this as IEngine });
       }
     });
   }
