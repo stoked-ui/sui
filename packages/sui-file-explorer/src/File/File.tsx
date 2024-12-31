@@ -215,8 +215,7 @@ export const File = React.forwardRef(function File(
     );
   }
 
-  const { visibledefaultExpandedItems, defaultSelectedItems, expanded, ...rootPropsAllowed } =
-    rootProps;
+  const { visibleIndex, defaultExpandedItems, defaultSelectedItems, expanded, ...rootPropsAllowed } = rootProps;
   return (
     <FileProvider id={item.id}>
       <FileRoot {...rootPropsAllowed}>

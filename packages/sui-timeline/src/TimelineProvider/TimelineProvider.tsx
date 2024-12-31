@@ -124,6 +124,9 @@ function TimelineProvider<
     setSetting('getSettings', getSettings);
     window.getSetting = getSettings;
 
+    const getState = () => state;
+    window.getState = getState;
+
     const reRender = () => state.engine.reRender();
     setSetting('reRender', reRender);
     window.reRender = reRender;

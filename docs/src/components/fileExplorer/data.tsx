@@ -1,4 +1,4 @@
-import {IMediaFileInput} from "@stoked-ui/media-selector";
+import {FileBase} from "@stoked-ui/file-explorer";
 
 const second = 1000;
 const minute = 60 * second;
@@ -37,48 +37,55 @@ export const BasicFiles = [
     children: [{ name: "client-data.xls"}],
   },
 ];
-export const NestedFiles: IMediaFileInput[] = [
+export const NestedFiles: FileBase[] = [
   {
     id: '1',
     name: 'Documents',
     expanded: true,
     selected: true,
     type: 'folder',
+    mediaType: 'folder',
     children: [
       {
         id: '1.1',
         name: 'Company',
         expanded: true,
         type: 'folder',
+        mediaType: 'folder',
         children: [
           {
             id: '1.1.1',
             name: 'Invoice',
-            type: 'pdf',
+            type: 'application/pdf',
+            mediaType: 'pdf',
             size: 234223424,
           },
           {
             id: '1.1.2',
-            name: 'Meeting notes',
-            type: 'doc',
+            name: 'Meeting notes.doc',
+            type: 'application/msword',
+            mediaType: 'doc',
             size: 233423424,
           },
           {
             id: '1.1.3',
-            name: 'Tasks list',
-            type: 'doc',
+            name: 'Tasks list.doc',
+            type: 'application/msword',
+            mediaType: 'doc',
             size: 123423424,
           },
           {
             id: '1.1.4',
             name: 'Equipment',
-            type: 'pdf',
+            type: 'application/pdf',
+            mediaType: 'pdf',
             size: 293424,
           },
           {
             id: '1.1.5',
             name: 'Video conference',
-            type: 'video',
+            type: 'video/mp4',
+            mediaType: 'video',
             size: 423424,
           },
         ],
@@ -87,11 +94,13 @@ export const NestedFiles: IMediaFileInput[] = [
         id: '1.2',
         name: 'Personal',
         type: 'folder',
+        mediaType: 'folder',
       },
       {
         id: '1.3',
-        name: 'Group photo',
-        type: 'image',
+        name: 'Group photo.jpg',
+        type: 'image/jpeg',
+        mediaType: 'image',
         size: 2238424,
       },
     ],
@@ -100,26 +109,31 @@ export const NestedFiles: IMediaFileInput[] = [
     id: '2',
     name: 'Bookmarked',
     type: 'folder',
+    mediaType: 'folder',
     children: [
       {
         id: '2.1',
         name: 'Learning materials',
         type: 'folder',
+        mediaType: 'folder',
       },
       {
         id: '2.2',
         name: 'News',
         type: 'folder',
+        mediaType: 'folder',
       },
       {
         id: '2.3',
         name: 'Forums',
         type: 'folder',
+        mediaType: 'folder',
       },
       {
         id: '2.4',
         name: 'Travel documents',
-        type: 'pdf',
+        type: 'application/pdf',
+        mediaType: 'pdf',
         size: 23424,
       },
     ],
@@ -128,10 +142,11 @@ export const NestedFiles: IMediaFileInput[] = [
     id: '3',
     name: 'History',
     type: 'folder',
+    mediaType: 'folder',
   }
 ];
 
-export function getDynamicFiles (): readonly IMediaFileInput[] {
+export function getDynamicFiles (): readonly FileBase[] {
   return [
     {
       id: '1',
@@ -139,6 +154,7 @@ export function getDynamicFiles (): readonly IMediaFileInput[] {
       expanded: true,
       selected: true,
       type: 'folder',
+      mediaType: 'folder',
       lastModified: createRelativeDate(month),
       children: [
         {
@@ -147,39 +163,48 @@ export function getDynamicFiles (): readonly IMediaFileInput[] {
           expanded: true,
           lastModified: createRelativeDate(3 * week),
           type: 'folder',
+          mediaType: 'folder',
           children: [
             {
               id: '1.1.1',
               name: 'Invoice',
-              type: 'pdf',
+              type: 'application/pdf',
+              mediaType: 'pdf',
               size: 234223424,
               lastModified: createRelativeDate(2 * week),
             },
             {
               id: '1.1.2',
-              name: 'Meeting notes',
-              type: 'doc',
+              name: 'Meeting notes.doc',
+              type: 'application/msword',
+              mediaType: 'doc',
               size: 233423424,
               lastModified: createRelativeDate(2 * week + 3 * day),
             },
             {
               id: '1.1.3',
-              name: 'Tasks list',
-              type: 'doc',
+              name: 'Tasks list.doc',
+              type: 'application/msword',
+              mediaType: 'doc',
               size: 123423424,
               lastModified: createRelativeDate(3 * day),
             },
             {
               id: '1.1.4',
-              name: 'Equipment',
-              type: 'pdf',
+              name: 'Equipment.pdf',
+              type: 'application/pdf',
+              mediaType: 'pdf',
               size: 293424,
               lastModified: createRelativeDate(2 * hour),
             },
             {
               id: '1.1.5',
-              name: 'Video conference',
-              type: 'video',
+              name: 'Video conference.mp4',
+              type: 'video/mp4',
+              mediaType: 'video',
+              media: {
+                duration: 1000 * 60 * 10,
+              },
               size: 423424,
               lastModified: createRelativeDate(2 * week),
             },
@@ -189,12 +214,14 @@ export function getDynamicFiles (): readonly IMediaFileInput[] {
           id: '1.2',
           name: 'Personal',
           type: 'folder',
+          mediaType: 'folder',
           lastModified: createRelativeDate(1 * day),
         },
         {
           id: '1.3',
-          name: 'Group photo',
-          type: 'image',
+          name: 'Group photo.jpg',
+          type: 'image/jpeg',
+          mediaType: 'image',
           size: 2238424,
           lastModified: createRelativeDate(2 * week),
         },
@@ -204,30 +231,35 @@ export function getDynamicFiles (): readonly IMediaFileInput[] {
       id: '2',
       name: 'Bookmarked',
       type: 'folder',
+      mediaType: 'folder',
       lastModified: createRelativeDate(1 * day),
       children: [
         {
           id: '2.1',
           name: 'Learning materials',
           type: 'folder',
+          mediaType: 'folder',
           lastModified: createRelativeDate(1 * hour),
         },
         {
           id: '2.2',
           name: 'News',
           type: 'folder',
+          mediaType: 'folder',
           lastModified: createRelativeDate(5 * hour),
         },
         {
           id: '2.3',
           name: 'Forums',
           type: 'folder',
+          mediaType: 'folder',
           lastModified: createRelativeDate(3 * hour),
         },
         {
           id: '2.4',
           name: 'Travel documents',
-          type: 'pdf',
+          type: 'application/pdf',
+          mediaType: 'pdf',
           size: 23424,
           lastModified: createRelativeDate(23 * hour),
         },
@@ -237,6 +269,7 @@ export function getDynamicFiles (): readonly IMediaFileInput[] {
       id: '3',
       name: 'History',
       type: 'folder',
+      mediaType: 'folder',
       lastModified: createRelativeDate(1 * week),
     }
   ];

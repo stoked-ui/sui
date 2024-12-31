@@ -9,6 +9,7 @@ import { parserTimeToPixel } from '../utils/deal_data';
 import TimelineTrack from '../TimelineTrack/TimelineTrack';
 import { TimelineTrackAreaProps } from './TimelineTrackArea.types';
 import { useDragLine } from './useDragLine';
+import { RemoveTrackCommand } from '../TimelineFile/Commands/RemoveTrackCommand';
 import { useTimeline } from '../TimelineProvider';
 import {EngineState, PlaybackMode} from '../Engine';
 import {ITimelineAction, ITimelineActionHandlers} from '../TimelineAction';
@@ -263,6 +264,22 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
             ...style,
             backgroundPositionX: `0, ${startLeft}px`,
             backgroundSize: `${startLeft}px, ${scaleWidth}px`,
+          }}
+          onKeyDown={(event: any) => {
+            console.info('test', event);
+            event.currentTarget = gridTrack;
+            // eslint-disable-next-line default-case
+            switch (event.key) {
+              case 'Backspace':
+              case 'Delete': {
+                const command = new RemoveTrackCommand(file, gridTrack.id);
+                dispatch({ type: 'EXECUTE_COMMAND', payload: command });
+
+                event.preventDefault();
+                break;
+              }
+
+            }
           }}
           className={className}
           areaRef={editAreaRef}

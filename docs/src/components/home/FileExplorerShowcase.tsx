@@ -25,6 +25,7 @@ export default function FileExplorerShowcase() {
   const sx: SxProps = { height: 'fit-content', flexGrow: 1, width: '100%', overflowY: 'auto', };
   return (
     <ShowcaseContainer
+      id={'file-explorer-showcase'}
       preview={
         <FileExplorer
           items={getDynamicFiles()}

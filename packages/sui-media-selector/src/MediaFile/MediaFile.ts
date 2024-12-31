@@ -25,6 +25,7 @@ import ScreenshotStore from "./Metadata/ScreenshotStore";
 import {getMediaType, MediaType} from "../MediaType";
 import { FileSystemFileEntry } from './FileSystem';
 import {saveFileApi, saveFileDeprecated} from "../FileSystemApi";
+import {IAppFileMeta} from "../App";
 
 export interface IAudioMetadata {
   duration: number;
@@ -152,7 +153,7 @@ export default class MediaFile extends File implements IMediaFile {
       mediaType: this.mediaType,
       path: this.path,
       url: this.url,
-      media: mediaProps,
+      media: {...mediaProps, screenshots: screenshotStore?.screenshots || [] },
       id: this.id,
       children: this.children,
     };
@@ -587,6 +588,7 @@ export default class MediaFile extends File implements IMediaFile {
           }
 
           const video = document.createElement('video');
+          video.crossOrigin = 'anonymous';
           video.src = URL.createObjectURL(new Blob([event.target.result], {type: file.type}));
           video.preload = 'auto';
           video.id = `${file.name}-video`;
