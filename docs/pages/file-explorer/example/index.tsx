@@ -21,7 +21,7 @@ export default function Index() {
           gridColumns={{
             duration: (item: FileBase) => item?.media?.duration || '',
             type: (item: FileBase) => item?.mediaType || '',
-        }}
+          }}
         />
       </NoSsr>
     </BrandingCssVarsProvider>

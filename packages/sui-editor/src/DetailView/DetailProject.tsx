@@ -29,6 +29,7 @@ export function DetailProject(props: DetailViewProps) {
   const detailSubmit: SubmitHandler<IEditorProjectDetail> = (submitData: IEditorProjectDetail) => {
     props.disableEdit();
     dispatch({ type: 'UPDATE_PROJECT', payload: submitData });
+    file?.save({ silent: true })
   };
 
   return (<FormWrap

@@ -23,7 +23,7 @@ export function DetailTrack(props: DetailViewProps) {
   } = props;
 
   const { state, dispatch } = useEditorContext();
-  const { selectedDetail, selected} = state;
+  const { selectedDetail, selected, file} = state;
   const track = (selectedDetail as TrackDetail).track as IEditorTrackDetail;
 
   track.blendMode = track.blendMode ?? 'normal';
@@ -47,6 +47,7 @@ export function DetailTrack(props: DetailViewProps) {
   const onSubmit: SubmitHandler<IEditorTrackDetail> = (data) => {
     console.log('data', data);
     dispatch({ type: 'UPDATE_TRACK', payload: data });
+    file?.save({ silent: true })
   };
 
   return (

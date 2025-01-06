@@ -13,7 +13,10 @@ import {FileBase} from "../models";
 export interface ExplorerPanelProps {
   name: string;
   items: readonly FileBase[];
+  gridColumns?: { [p: string]: (item: any) => string } | undefined,
   onItemDoubleClick?: (item: FileBase) => void;
+  selectedId?: string;
+  expandedItems?: string[];
 }
 
 export interface FileExplorerTabsSlots {

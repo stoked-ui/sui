@@ -1,6 +1,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { namedId} from '@stoked-ui/common';
+import { namedId } from '@stoked-ui/common';
 import { styled } from '@mui/material/styles';
 import {
   ToggleButtonGroup as ToggleGroup,
@@ -184,14 +184,26 @@ ToggleButtonGroupEx.propTypes = {
   // | These PropTypes are generated from the TypeScript type definitions |
   // | To update them edit the TypeScript types and run "pnpm proptypes"  |
   // ----------------------------------------------------------------------
+  /**
+   * The content of the component.
+   */
+  children: PropTypes.arrayOf(PropTypes.node),
   height: PropTypes.number,
   maxHeight: PropTypes.number,
   maxWidth: PropTypes.number,
   minHeight: PropTypes.number,
   minWidth: PropTypes.number,
+  /**
+   * The system prop that allows defining system overrides as well as additional CSS styles.
+   */
+  sx: PropTypes.oneOfType([
+    PropTypes.arrayOf(
+      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),
+    ),
+    PropTypes.func,
+    PropTypes.object,
+  ]),
   width: PropTypes.number,
-  children: PropTypes.any,
-  sx: PropTypes.oneOfType([PropTypes.object, PropTypes.array]), // Add this line
 } as any;
 
 export default ToggleButtonGroupEx;

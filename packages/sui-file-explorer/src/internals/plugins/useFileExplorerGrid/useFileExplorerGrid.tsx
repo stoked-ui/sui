@@ -27,7 +27,6 @@ const DEFAULT_HEADER_DATA = {
   width: -1,
   renderContent: directRender,
   status: {
-    ascending: true,
     focused: false,
     visible: true,
     sort: false
@@ -341,7 +340,7 @@ const DEFAULT_HEADERS: GridHeaders = {
   name: {
     ...JSON.parse(JSON.stringify(DEFAULT_HEADER_DATA)),
     children,
-    ...{ status: { sort: true, ascending: true, focused: true, visible: true }}
+    ...{ status: { sort: true, focused: true, visible: true }}
   },
   size: {
     ...JSON.parse(JSON.stringify(DEFAULT_HEADER_DATA)),

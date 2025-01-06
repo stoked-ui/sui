@@ -24,7 +24,7 @@ export type GridColumnRowData = {
 }
 
 export interface UseFileExplorerGridColumnHeaderStatus {
-  ascending: boolean;
+  ascending?: boolean;
   focused: boolean;
   visible: boolean;
   sort: boolean;

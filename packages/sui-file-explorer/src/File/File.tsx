@@ -12,6 +12,7 @@ import VideoFile from '@mui/icons-material/VideoFile';
 import AudioFile from '@mui/icons-material/AudioFile';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import DeleteIcon from '@mui/icons-material/Delete';
+import StokedUiFile from './StokedUIFile'
 import Box from '@mui/material/Box';
 import { namedId} from '@stoked-ui/common';
 import { MediaType } from '@stoked-ui/media-selector';
@@ -154,6 +155,8 @@ export const File = React.forwardRef(function File(
         return FolderOpenIcon;
       case 'trash':
         return DeleteIcon;
+      case 'project':
+        return StokedUiFile;
       default:
         return ArticleIcon;
     }
@@ -161,7 +164,7 @@ export const File = React.forwardRef(function File(
 
   let icon;
   if (status.expandable) {
-    icon = FolderRounded;
+    icon = item.mediaType === 'project' ? StokedUiFile : FolderRounded;
   } else if (item.mediaType) {
     icon = getIconFromFileType(item.id === 'trash' ? 'trash' : item.mediaType);
   }
@@ -179,7 +182,7 @@ export const File = React.forwardRef(function File(
 
       <FileCheckbox {...getCheckboxProps()} />
       <FileLabel
-        {...getLabelProps({ icon, expandable: status.expandable && status.expanded })}
+        {...getLabelProps({ icon, expandable: status.expandable })}
         grid={status.grid}
         status={status}
         showIcon={!status.grid && status.expandable}
@@ -268,6 +271,7 @@ File.propTypes = {
     'pdf',
     'trash',
     'video',
+    PropTypes.string
   ]),
   name: PropTypes.string,
   /**
