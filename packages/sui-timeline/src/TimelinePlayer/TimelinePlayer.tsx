@@ -55,7 +55,9 @@ function TimelinePlayer({
   scaleWidth?: number;
   startLeft?: number;
 }) {
-  const { state: {engine} } = useTimeline();
+  const {
+    state: { engine },
+  } = useTimeline();
 
   const [time, setTime] = React.useState(0);
 
@@ -201,8 +203,8 @@ TimelinePlayer.propTypes = {
           selected: PropTypes.bool,
           start: PropTypes.number,
           style: PropTypes.object,
-          trimEnd: PropTypes.number,
-          trimStart: PropTypes.number,
+          trimEnd: PropTypes.any,
+          trimStart: PropTypes.any,
           volume: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)),
           volumeIndex: PropTypes.number,
         }),

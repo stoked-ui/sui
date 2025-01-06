@@ -41,12 +41,15 @@ const ToolbarToggle = styled(ToggleButton)(() => ({
 }));
 
 function SnapControls({ style }: { style?: React.CSSProperties }) {
-  const { dispatch, state: { flags, settings} } = useTimeline();
+  const {
+    dispatch,
+    state: { flags, settings },
+  } = useTimeline();
 
-  const [disabled, setDisabled] = React.useState(!!settings.disabled)
+  const [disabled, setDisabled] = React.useState(!!settings.disabled);
   React.useEffect(() => {
     if (settings.disabled !== disabled) {
-      setDisabled(!!settings.disabled)
+      setDisabled(!!settings.disabled);
     }
   }, [settings.disabled]);
 
@@ -68,7 +71,6 @@ function SnapControls({ style }: { style?: React.CSSProperties }) {
     }
     dispatch({ type: 'SET_FLAGS', payload: { add, remove } });
   };
-
 
   const onControls = flags.noLabels && !flags.noSnapControls;
   const width = onControls ? 52 : 40;
@@ -133,8 +135,8 @@ const TimelineLabels = React.forwardRef(function TimelineLabels(
   inProps: TimelineLabelsProps,
   ref: React.Ref<HTMLDivElement>,
 ): React.JSX.Element {
-  const {state: context,dispatch} = useTimeline();
-  const {engine, flags, file, settings} = context;
+  const { state: context, dispatch } = useTimeline();
+  const { engine, flags, file, settings } = context;
   const { trackHeight, recordingTrack } = settings;
   const { slotProps, slots, sx, width } = inProps;
   const finalWidth = width || !flags.noLabels ? '275px' : '0px';

@@ -120,6 +120,7 @@ FileExplorerBasic.propTypes = {
       focusItem: PropTypes.func.isRequired,
       getItem: PropTypes.func.isRequired,
       getItemDOMElement: PropTypes.func.isRequired,
+      getItemOrderedChildrenIds: PropTypes.func.isRequired,
       gridEnabled: PropTypes.func.isRequired,
       selectItem: PropTypes.func.isRequired,
       setColumns: PropTypes.func.isRequired,
@@ -190,6 +191,7 @@ FileExplorerBasic.propTypes = {
     indentationAtItemLevel: PropTypes.bool,
   }),
   grid: PropTypes.bool,
+  gridColumns: PropTypes.object,
   gridHeader: PropTypes.bool,
   headers: PropTypes.object,
   /**

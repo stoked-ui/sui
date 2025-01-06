@@ -4,6 +4,7 @@ import {
   IEditorFileAction,
   VideoController,
   IEditorFileTrack,
+  EditorFile, IEditorFileProps,
 } from "@stoked-ui/editor";
 import {ITimelineFileProps, TimelineFile} from "@stoked-ui/timeline";
 
@@ -28,9 +29,9 @@ export const EditorVideoExampleProps = {
         end: 36,
         trimStart: 29.5,
         volume: [
-          [0, 0, 32],
-          [1, 32, 40.5],
-          [.35, 40.5, ]
+          [0,0,15.2],
+          [1,15.2,22.5],
+          [0,22.5, 36]
         ],
         z: -2,
         fit: 'fill' as 'fill',
@@ -84,9 +85,10 @@ export const EditorVideoExampleProps = {
       controller: AudioController,
       actions: [{
         name: 'funeral',
-        start: 3,
+        start: 2.5,
         end: 37.6,
-        trimStart: .5,
+        trimStart: 7.2,
+        volume: [[2, 2.5, 37.6]],
       }] as IEditorFileAction[]
     },
   ] as IEditorFileTrack[],
@@ -186,12 +188,22 @@ export const EditorAudioExampleProps = {
   ]
 };
 
-export const createFile = async <
+export const createTimelineFile = async <
   FilePropsType extends ITimelineFileProps = ITimelineFileProps,
   FileType extends TimelineFile = TimelineFile,
->(props: FilePropsType, FileConstructor: Constructor<FileType>) => {
+>(props: FilePropsType, FileConstructor: Constructor<FileType>, editorId: string) => {
   const file = new FileConstructor(props);
-  await file.preload();
+  await file.preload(editorId);
+  return file;
+}
+
+
+export const createEditorFile = async <
+  FilePropsType extends IEditorFileProps = IEditorFileProps,
+  FileType extends EditorFile = EditorFile,
+>(props: FilePropsType, FileConstructor: Constructor<FileType>, editorId: string) => {
+  const file = await createTimelineFile(props, FileConstructor, editorId) as EditorFile;
+  await file.updateStore();
   return file;
 }
 

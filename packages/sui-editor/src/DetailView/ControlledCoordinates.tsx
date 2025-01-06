@@ -3,7 +3,7 @@ import { Box, TextField } from '@mui/material';
 import {Control, Controller} from "react-hook-form";
 
 // Functional component definition
-function ThreeSlotComponent({ control }) {
+function ThreeSlotComponent(params: { control: Control<any, any>, disabled?: boolean, onClick?: () => void }) {
   return (
     <Box
       sx={(theme) => ({
@@ -31,7 +31,7 @@ function ThreeSlotComponent({ control }) {
       {/* Slot X */}
       <Controller
         name={'x'}
-        control={control}
+        control={params.control}
         render={({ field }) => (
           <TextField
             {...field}
@@ -39,6 +39,7 @@ function ThreeSlotComponent({ control }) {
             placeholder={'X'}
             variant="outlined"
             fullWidth
+            disabled={params.disabled}
             sx={{
               '& fieldset': {
                 borderRight: 'none',
@@ -52,7 +53,7 @@ function ThreeSlotComponent({ control }) {
       {/* Slot Y */}
       <Controller
         name={'y'}
-        control={control}
+        control={params.control}
         render={({ field }) => (
           <TextField
             {...field}
@@ -60,6 +61,7 @@ function ThreeSlotComponent({ control }) {
             placeholder={'Y'}
             variant="outlined"
             fullWidth
+            disabled={params.disabled}
             sx={{
               '& fieldset': {
                 borderRight: 'none',
@@ -74,7 +76,7 @@ function ThreeSlotComponent({ control }) {
       {/* Slot Z */}
       <Controller
         name={'z'}
-        control={control}
+        control={params.control}
         render={({ field }) => (
           <TextField
             {...field}
@@ -82,6 +84,7 @@ function ThreeSlotComponent({ control }) {
             placeholder={'Z'}
             variant="outlined"
             fullWidth
+            disabled={params.disabled}
             sx={{
               '& fieldset': {
                 borderLeft: 'none',
@@ -95,16 +98,13 @@ function ThreeSlotComponent({ control }) {
   );
 }
 
-
-export { ThreeSlotComponent };
-
 // Usage example
 // import ThreeSlotComponent from './ThreeSlotComponent';
 //
 // function App() {
 //   return (
-function ControlledCoordinates({ control }: { control: Control<any, any> }) {
-  return <ThreeSlotComponent control={control} />
+function ControlledCoordinates(params: { control: Control<any, any>, disabled?: boolean, onClick?: () => void }) {
+  return <ThreeSlotComponent {...params} />
 }
 
 export default ControlledCoordinates;

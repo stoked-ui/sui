@@ -1,15 +1,15 @@
-import * as React from "react";
-import PropTypes from "prop-types";
-import Fab from "@mui/material/Fab";
-import Stack from "@mui/material/Stack";
-import Zoom from "@mui/material/Zoom";
-import ClearIcon from "@mui/icons-material/Clear";
-import SaveIcon from "@mui/icons-material/Save";
-import OpenIcon from "@mui/icons-material/OpenInBrowser";
+import * as React from 'react';
+import PropTypes from 'prop-types';
+import Fab from '@mui/material/Fab';
+import Stack from '@mui/material/Stack';
+import Zoom from '@mui/material/Zoom';
+import ClearIcon from '@mui/icons-material/Clear';
+import SaveIcon from '@mui/icons-material/Save';
+import OpenIcon from '@mui/icons-material/OpenInBrowser';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { AppFile, MediaFile } from '@stoked-ui/media-selector';
-import {useEditorContext} from "../EditorProvider";
-import EditorFile, {IEditorFile} from '../EditorFile/EditorFile'
+import { useEditorContext } from '../EditorProvider';
+import EditorFile, { IEditorFile } from '../EditorFile/EditorFile';
 
 export default function EditorViewActions({ visible }: { visible: boolean }) {
   const context = useEditorContext();
@@ -27,7 +27,6 @@ export default function EditorViewActions({ visible }: { visible: boolean }) {
   }, [file]);
 
   const saveHandler = async () => {
-
     if (!file) {
       return;
     }
@@ -40,27 +39,29 @@ export default function EditorViewActions({ visible }: { visible: boolean }) {
   };
 
   const openHandler = async () => {
-    const loadedFiles: IEditorFile[] = await AppFile.fromOpenDialog<EditorFile>(EditorFile) as IEditorFile[];
+    const loadedFiles: IEditorFile[] = (await AppFile.fromOpenDialog<EditorFile>(
+      EditorFile,
+    )) as IEditorFile[];
 
     if (loadedFiles.length) {
       const loadedFile = loadedFiles[0];
       await loadedFile.preload(settings.editorId);
-      dispatch({type: 'SET_FILE', payload: loadedFile});
+      dispatch({ type: 'SET_FILE', payload: loadedFile });
       const width = (components.timelineGrid as HTMLDivElement)?.clientWidth;
       if (width) {
         fitScaleData(context, false, width, 'editorViewActions');
-        setCursor({ time: 0, updateTime: true}, context);
+        setCursor({ time: 0, updateTime: true }, context);
       }
     }
   };
 
   const remove = () => {
     if (recordingTrack) {
-      dispatch({ type: 'VIDEO_REMOVE', payload: recordingTrack.file.id });
+      dispatch({ type: 'VIDEO_CLOSE', payload: recordingTrack.file.id });
       return;
     }
     dispatch({ type: 'DISCARD_FILE' });
-  }
+  };
   if (flags.detailMode) {
     return null;
   }
@@ -151,5 +152,5 @@ EditorViewActions.propTypes = {
   // | These PropTypes are generated from the TypeScript type definitions |
   // | To update them edit the TypeScript types and run "pnpm proptypes"  |
   // ----------------------------------------------------------------------
-  visible: PropTypes.bool,
-};
+  visible: PropTypes.bool.isRequired,
+} as any;

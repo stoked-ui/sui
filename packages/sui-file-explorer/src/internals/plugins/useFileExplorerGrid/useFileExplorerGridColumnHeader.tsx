@@ -201,12 +201,18 @@ export const useFileExplorerGridColumnHeader =  <
     externalProps: ExternalProps = {} as ExternalProps,
   ): UseFileExplorerGridHeadersIconContainerSlotProps<ExternalProps> => {
     const externalEventHandlers = extractEventHandlers(externalProps);
-
+    console.info('status', status, status.ascending);
+    let iconName: 'collapseIcon' | 'expandIcon' | undefined;
+    if (status.ascending) {
+      iconName = 'collapseIcon';
+    } else if (status.ascending === false) {
+      iconName = 'expandIcon';
+    }
     const response: UseFileExplorerGridHeadersIconContainerSlotProps<ExternalProps> = {
       ...externalEventHandlers,
       ...externalProps,
       ref: iconContainerRef,
-      iconName: status.ascending ? 'collapseIcon' : 'expandIcon',
+      iconName,
       sx: { color: 'black' }
     };
     return response;

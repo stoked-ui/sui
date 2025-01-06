@@ -12,6 +12,7 @@ export interface IController {
   preload(params: PreloadParams): Promise<ITimelineAction>;
   getItem(params: GetItemParams): any;
 
+  id: string;
   viewerUpdate?: (engine: any) => void;
   destroy?: () => void;
   color?: string;
