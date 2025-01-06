@@ -66,8 +66,6 @@ class Stage {
     console.info(`creating ${tempName}`);
     console.info('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
 
-    throw new Error('_createStage')
-
     const stageHost = document.body;
     const stage = document.createElement("div");
     stage.id = tempName;

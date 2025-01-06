@@ -300,7 +300,7 @@ export function DetailActions({ errors, isDirty, reset, disableEdit, editMode}: 
   editMode: boolean,
   disableEdit: () => void,
 }) {
-  const {state: {selectedDetail, selectedType}} = useEditorContext();
+  const {state: {file, selectedDetail, selectedType}} = useEditorContext();
   if (!selectedDetail || !selectedType || !editMode) {
     return undefined;
   }

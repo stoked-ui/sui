@@ -55,7 +55,9 @@ export interface IWebFileApi {
   isDirty(): Promise<boolean>;
 }
 
-export interface IWebFile extends IWebFileData, IWebFileApi {}
+export interface IWebFile extends IWebFileData, IWebFileApi {
+  fullName: string,
+}
 
 export default abstract class WebFile implements IWebFile {
 
@@ -82,7 +84,7 @@ export default abstract class WebFile implements IWebFile {
   constructor(props: IWebFileProps) {
     this._id = props?.id ?? namedId('webapp')
     this._name = props?.name;
-    this._version = props?.version ?? 0;
+    this._version = props?.version ?? 1;
     this._lastChecksum = props?.lastChecksum ?? null;
     this._created = props?.created ?? Date.now();
     this._lastModified = props?.lastModified ?? 0;
@@ -98,6 +100,10 @@ export default abstract class WebFile implements IWebFile {
 
   get name(): string {
     return this._name;
+  }
+
+  get fullName(): string {
+    return `${this.name}${MimeRegistry.types[this._type].ext}`;
   }
 
   get version(): number {
@@ -126,7 +132,7 @@ export default abstract class WebFile implements IWebFile {
 
   createSaveRequest() {
     return {
-      name: this.name,
+      name: this.fullName,
       version: this.version,
       meta: {
         id: this.id,
@@ -156,6 +162,7 @@ export default abstract class WebFile implements IWebFile {
 
     try {
       this._version += 1;
+      this._lastModified = Date.now();
       this._lastChecksum = await this.checksum();
       const saveRequest = await this.getSaveRequest();
 

@@ -37,7 +37,7 @@ export interface EditorEventTypes extends EventTypes {
    * @type {{engine: IEngine}}
    * @memberofEditorEventTypes
    */
-  finishedRecording: { recording: IMediaFile, engine: IEditorEngine };
+  finishedRecording: { blob: Blob, engine: IEditorEngine };
 
   /**
    * stop

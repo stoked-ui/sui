@@ -6,7 +6,7 @@ import { parserPixelToTime } from '../utils/deal_data';
 import { prefix } from '../utils/deal_class_prefix';
 import { useTimeline } from '../TimelineProvider';
 import { TimelineTimeProps } from './TimelineTime.types';
-import ZoomControls from "../TimelineTrackArea/ZoomControls";
+import ZoomControls from '../TimelineTrackArea/ZoomControls';
 
 const TimeAreaRoot = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -33,7 +33,7 @@ const TimeUnitScale = styled('div')(({ theme }) => ({
   lineHeight: '20px',
 })); */
 
-const TimeUnitScale = styled('div')<{disabled: boolean}>(({ theme, disabled }) => ({
+const TimeUnitScale = styled('div')<{ disabled: boolean }>(({ theme, disabled }) => ({
   color: disabled ? theme.palette.action.disabled : theme.palette.text.secondary,
   position: 'absolute',
   right: 0,
@@ -42,14 +42,14 @@ const TimeUnitScale = styled('div')<{disabled: boolean}>(({ theme, disabled }) =
   userSelect: 'none',
 }));
 
-const TimeAreaInteract = styled('div')<{disabled: boolean}>(({ disabled }) => ({
+const TimeAreaInteract = styled('div')<{ disabled: boolean }>(({ disabled }) => ({
   position: 'absolute',
   cursor: disabled ? 'not-allowed' : 'pointer',
   left: 0,
   top: 0,
 }));
 
-const TimeUnit = styled('div')<{disabled: boolean}>(({ theme, disabled }) => ({
+const TimeUnit = styled('div')<{ disabled: boolean }>(({ theme, disabled }) => ({
   borderRight: `1px solid ${disabled ? theme.palette.action.disabled : theme.palette.text.secondary}`,
   position: 'relative',
   boxSizing: 'content-box',
@@ -79,11 +79,7 @@ const TimeUnit = styled('div')<{disabled: boolean}>(({ theme, disabled }) => ({
 function TimelineTime(props: TimelineTimeProps) {
   const context = useTimeline();
   const { state, dispatch } = context;
-  const {
-    flags,
-    engine,
-    settings,
-  } = state;
+  const { flags, engine, settings } = state;
   const {
     startLeft,
     scaleCount,
@@ -112,8 +108,17 @@ function TimelineTime(props: TimelineTimeProps) {
 
     const item = (showUnit ? columnIndex / scaleSplitCount : columnIndex) * scale;
     return (
-      <TimeUnit key={key} style={style} className={prefix(...classNames)} disabled={settings.disabled}>
-        {isShowScale && <TimeUnitScale disabled={settings.disabled} className={prefix('time-unit-scale')}>{getScaleRender ? getScaleRender(item) : item}</TimeUnitScale>}
+      <TimeUnit
+        key={key}
+        style={style}
+        className={prefix(...classNames)}
+        disabled={settings.disabled}
+      >
+        {isShowScale && (
+          <TimeUnitScale disabled={settings.disabled} className={prefix('time-unit-scale')}>
+            {getScaleRender ? getScaleRender(item) : item}
+          </TimeUnitScale>
+        )}
       </TimeUnit>
     );
   };
@@ -132,10 +137,10 @@ function TimelineTime(props: TimelineTimeProps) {
     }
   };
 
-  const estColumnWidth = getColumnWidth({index:1});
+  const estColumnWidth = getColumnWidth({ index: 1 });
   const [isDragging, setIsDragging] = React.useState(false);
 
-  const setTimeToMouse = (e) =>  {
+  const setTimeToMouse = (e) => {
     if (flags.hideCursor || engine.isPlaying) {
       return;
     }
@@ -155,24 +160,23 @@ function TimelineTime(props: TimelineTimeProps) {
       setIsDragging(true);
     }
     setCursor({ time }, context);
-  }
+  };
 
   const handleMouseMove = (e) => {
     if (engine.isPlaying) {
       return;
     }
-      if (e.buttons === 0) {
-        if (isDragging) {
-          setIsDragging(false);
-        }
-        return;
-
+    if (e.buttons === 0) {
+      if (isDragging) {
+        setIsDragging(false);
       }
-      if (!isDragging) {
-        setIsDragging(true);
-      }
-      setTimeToMouse(e);
-      // setPosition({ x: e.clientX, y: e.clientY });
+      return;
+    }
+    if (!isDragging) {
+      setIsDragging(true);
+    }
+    setTimeToMouse(e);
+    // setPosition({ x: e.clientX, y: e.clientY });
   };
 
   return (
@@ -226,98 +230,18 @@ TimelineTime.propTypes = {
   // | To update them edit the TypeScript types and run "pnpm proptypes"  |
   // ----------------------------------------------------------------------
   /**
-   * @description Get the action id list to prompt the auxiliary line. Calculate it when
-   *   move/resize start. By default, get all the action ids except the current move action.
-   */
-  getAssistDragLineActionIds: PropTypes.func,
-  /**
-   * @description Custom scale rendering
+   * Set cursor position
    */
   getScaleRender: PropTypes.func,
-  /**
-   * @description Move end callback (return false to prevent onChange from triggering)
-   */
-  onActionMoveEnd: PropTypes.func,
-  /**
-   * @description Start moving callback
-   */
-  onActionMoveStart: PropTypes.func,
-  /**
-   * @description Move callback (return false to prevent movement)
-   */
-  onActionMoving: PropTypes.func,
-  /**
-   * @description size change end callback (return false to prevent onChange from triggering)
-   */
-  onActionResizeEnd: PropTypes.func,
-  /**
-   * @description Start changing the size callback
-   */
-  onActionResizeStart: PropTypes.func,
-  /**
-   * @description Start size callback (return false to prevent changes)
-   */
-  onActionResizing: PropTypes.func,
-  /**
-   * @description click action callback
-   */
-  onClickAction: PropTypes.func,
-  /**
-   * @description Click action callback (not executed when drag is triggered)
-   */
-  onClickActionOnly: PropTypes.func,
-  /**
-   * @description Click time area event, prevent setting time when returning false
-   */
   onClickTimeArea: PropTypes.func,
   /**
-   * @description Click track callback
+   * Scroll callback, used for synchronous scrolling
    */
-  onClickTrack: PropTypes.func,
-  /**
-   * @description Right-click action callback
-   */
-  onContextMenuAction: PropTypes.func,
-  /**
-   * @description Right-click track callback
-   */
-  onContextMenuTrack: PropTypes.func,
-  /**
-   * @description cursor drag event
-   */
-  onCursorDrag: PropTypes.func,
-  /**
-   * @description cursor ends drag event
-   */
-  onCursorDragEnd: PropTypes.func,
-  /**
-   * @description cursor starts drag event
-   */
-  onCursorDragStart: PropTypes.func,
-  /**
-   * @description Double-click action callback
-   */
-  onDoubleClickAction: PropTypes.func,
-  /**
-   * @description Double-click track callback
-   */
-  onDoubleClickTrack: PropTypes.func,
   onScroll: PropTypes.func,
   /**
-   * Set the number of scales
+   * Left scroll distance
    */
-  setScaleCount: PropTypes.func,
-  /**
-   * @description Custom timelineControl style
-   */
-  style: PropTypes.object,
-  sx: PropTypes.oneOfType([
-    PropTypes.arrayOf(
-      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),
-    ),
-    PropTypes.func,
-    PropTypes.object,
-  ]),
+  scrollLeft: PropTypes.number,
 } as any;
 
 export default TimelineTime;

@@ -1,9 +1,9 @@
-  import * as React from 'react';
+import * as React from 'react';
 import PropTypes from 'prop-types';
 import composeClasses from '@mui/utils/composeClasses';
 import { useSlotProps } from '@mui/base/utils';
 import { shouldForwardProp } from '@mui/system/createStyled';
-import { FileBase} from "../models";
+import { FileBase } from '../models';
 import { getFileExplorerUtilityClass } from './fileExplorerClasses';
 import { FileExplorerProps } from './FileExplorer.types';
 import { createUseThemeProps, styled } from '../internals/zero-styled';
@@ -41,6 +41,7 @@ export const FileExplorerRoot = styled('ul', {
     prop !== 'cell' &&
     prop !== 'last' &&
     prop !== 'header' &&
+    prop !== 'onItemDoubleClick' &&
     prop !== 'first',
 })<{ grow?: boolean; header?: boolean; cell?: boolean; last?: boolean }>(({ theme }) => ({
   padding: 0,
@@ -73,9 +74,7 @@ export const FileExplorerRoot = styled('ul', {
   } */
 }));
 
-export type FileExplorerComponent = (<
-  Multiple extends boolean | undefined = undefined,
->(
+export type FileExplorerComponent = (<Multiple extends boolean | undefined = undefined>(
   props: FileExplorerProps<Multiple> & React.RefAttributes<HTMLUListElement>,
 ) => React.JSX.Element) & { propTypes?: any };
 
@@ -109,8 +108,12 @@ const FileExplorer = React.forwardRef(function FileExplorer<
   const [stateItems, setStateItems] = React.useState<readonly FileBase[]>(items);
   React.useEffect(() => {
     setStateItems(items);
-  }, [items])
-  const richProps: FileExplorerProps<Multiple> & { id?: string } = { ...otherProps, items: stateItems, id: props.id };
+  }, [items]);
+  const richProps: FileExplorerProps<Multiple> & { id?: string } = {
+    ...otherProps,
+    items: stateItems,
+    id: props.id,
+  };
   const { getRootProps, contextValue, instance } = useFileExplorer<
     FileExplorerPluginSignatures,
     typeof richProps
@@ -138,7 +141,16 @@ const FileExplorer = React.forwardRef(function FileExplorer<
     const currItem = instance.getItem(item.id);
 
     return (
-      <FileWrapped  {...currItem} {...item} slots={slots} key={item.id} sx={props.sx}>
+      <FileWrapped
+        onDoubleClick={() => {
+          inProps.onItemDoubleClick?.(currItem);
+        }}
+        {...currItem}
+        {...item}
+        slots={slots}
+        key={item.id}
+        sx={props.sx}
+      >
         {item.children?.map(renderItem)}
       </FileWrapped>
     );
@@ -190,6 +202,7 @@ FileExplorer.propTypes = {
       focusItem: PropTypes.func.isRequired,
       getItem: PropTypes.func.isRequired,
       getItemDOMElement: PropTypes.func.isRequired,
+      getItemOrderedChildrenIds: PropTypes.func.isRequired,
       gridEnabled: PropTypes.func.isRequired,
       selectItem: PropTypes.func.isRequired,
       setColumns: PropTypes.func.isRequired,
@@ -275,6 +288,7 @@ FileExplorer.propTypes = {
    */
   getItemLabel: PropTypes.func,
   grid: PropTypes.bool,
+  gridColumns: PropTypes.object,
   gridHeader: PropTypes.bool,
   headers: PropTypes.object,
   /**
@@ -296,7 +310,39 @@ FileExplorer.propTypes = {
    * @default 12px
    */
   itemChildrenIndentation: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-  items: PropTypes.any.isRequired,
+  items: PropTypes.arrayOf(
+    PropTypes.shape({
+      children: PropTypes.arrayOf(
+        PropTypes.shape({
+          children: PropTypes.arrayOf(PropTypes.object),
+          created: PropTypes.number,
+          expanded: PropTypes.bool,
+          id: PropTypes.string.isRequired,
+          lastModified: PropTypes.number,
+          media: PropTypes.any,
+          mediaType: PropTypes.string.isRequired,
+          name: PropTypes.string.isRequired,
+          path: PropTypes.string,
+          selected: PropTypes.bool,
+          size: PropTypes.number,
+          type: PropTypes.string.isRequired,
+          visibleIndex: PropTypes.number,
+        }),
+      ),
+      created: PropTypes.number,
+      expanded: PropTypes.bool,
+      id: PropTypes.string.isRequired,
+      lastModified: PropTypes.number,
+      media: PropTypes.any,
+      mediaType: PropTypes.string.isRequired,
+      name: PropTypes.string.isRequired,
+      path: PropTypes.string,
+      selected: PropTypes.bool,
+      size: PropTypes.number,
+      type: PropTypes.string.isRequired,
+      visibleIndex: PropTypes.number,
+    }),
+  ).isRequired,
   /**
    * If `true`, `ctrl` and `shift` will trigger multiselect.
    * @default false
@@ -309,11 +355,6 @@ FileExplorer.propTypes = {
    * @param {array} ids The ids of the expanded items.
    */
   onExpandedItemsChange: PropTypes.func,
-  /**
-   * Callback fired when fileExplorer items are double-clicked.
-   * @param {React.SyntheticEvent} event The event source of the callback **Warning**: This is a
-   *   generic event not a focus event.
-   */
   onItemDoubleClick: PropTypes.func,
   /**
    * Callback fired when a fileExplorer item is expanded or collapsed.
@@ -339,7 +380,6 @@ FileExplorer.propTypes = {
    *   been deselected.
    */
   onItemSelectionToggle: PropTypes.func,
-
   /**
    * Callback fired when fileExplorer items are selected/deselected.
    * @param {React.SyntheticEvent} event The event source of the callback

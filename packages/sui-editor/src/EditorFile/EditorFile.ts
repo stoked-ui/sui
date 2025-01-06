@@ -41,6 +41,7 @@ export interface IEditorFile<
   video?: IMediaFile;
   blendMode: BlendMode;
   fit: Fit;
+  updateStore(): Promise<void>;
 }
 
 export class SUVideoFile extends AppOutputFile {
@@ -88,9 +89,6 @@ export default class EditorFile<
   width: number = 1920;
 
   height: number = 1080;
-
-  protected _version: number = 0;
-
 
   constructor(props: IEditorFileProps<FileTrackType>) {
     // editorFileCache[props.id as string] = JSON.stringify(props);
@@ -144,11 +142,17 @@ export default class EditorFile<
     } as FileDataType;
   }
 
-  static async fromUrl<AppFileType = EditorFile>(url: string, FileConstructor: Constructor<AppFileType> = EditorFile as unknown as Constructor<AppFileType>): Promise<AppFileType | null> {
+  async updateStore() {
     const editor = StokedUiEditorApp.getInstance();
+    const nameLookup = await LocalDb.loadByName({store: editor.defaultInputFileType.name, name: this.fullName});
 
+    this.versions = nameLookup?.versions || [];
+    this.videos = nameLookup?.videos || [];
+  }
+
+  static async fromUrl<AppFileType = EditorFile>(url: string, FileConstructor: Constructor<AppFileType> = EditorFile as unknown as Constructor<AppFileType>): Promise<AppFileType | null> {
     /*
-    const urlLookup  = await LocalDb.loadByUrl({store: editor.defaultInputFileType.name, url});
+    TODO: should be able to load from idb instead of fetch
     if (urlLookup) {
       const editorFile = await TimelineFile.fromLocalFile<AppFileType>(urlLookup.blob as Blob, FileConstructor) as EditorFile;
       if (editorFile) {
@@ -157,13 +161,32 @@ export default class EditorFile<
       return editorFile as AppFileType;
     }
     */
-    const file = await TimelineFile.fromUrl<AppFileType>(url, FileConstructor) as ITimelineFile;
+    const file = await TimelineFile.fromUrl<AppFileType>(url, FileConstructor) as IEditorFile;
     if (!file) {
       return file;
     }
 
+    await file.updateStore();
     await file.save({ silent: true, url });
+
     return file as AppFileType;
+  }
+
+  async preload(editorId: string) {
+   await super.preload(editorId);
+   await this.updateStore();
+  }
+
+
+  /**
+   * Loads a AppFile instance from the local file system.
+   * @param file A File object from an attached drive.
+   * @param FileConstructor
+   */
+  static async fromLocalFile<AppFileType = EditorFile>(file: Blob, FileConstructor: Constructor<AppFileType>): Promise<AppFileType> {
+    const editorFile = await TimelineFile.fromLocalFile<AppFileType>(file, FileConstructor) as EditorFile;
+    await editorFile.updateStore();
+    return editorFile as unknown as AppFileType;
   }
 
   static fileCache: Record<string, EditorFile> = {};

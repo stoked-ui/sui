@@ -24,12 +24,17 @@ export const useFileExplorerExpansion: FileExplorerPlugin<UseFileExplorerExpansi
   };
 
   const isItemExpanded = React.useCallback(
-    (id: string) => expandedItemsMap.has(id),
+    (id: string) => {
+      console.info('isItemExpanded instance.id', id);
+      return expandedItemsMap.has(id)
+    },
     [expandedItemsMap],
   );
 
   const isItemExpandable = React.useCallback(
-    (id: string) => !!instance.getItemMeta(id)?.expandable,
+    (id: string) => {
+      return !!instance.getItemMeta(id)?.expandable
+    },
     [instance],
   );
 

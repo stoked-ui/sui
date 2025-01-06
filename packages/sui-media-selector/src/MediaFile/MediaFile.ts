@@ -939,6 +939,7 @@ export default class MediaFile extends File implements IMediaFile {
         children: mediaFile.children,
         mediaType: mediaFile.mediaType as MediaType,
         type: mediaFile.type,
+        size: mediaFile.size,
         media: mediaFile.media,
         created: mediaFile.created,
         path: mediaFile.path,

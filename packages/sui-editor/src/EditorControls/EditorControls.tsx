@@ -1,18 +1,12 @@
-  import * as React from 'react';
+import * as React from 'react';
 import PropTypes from 'prop-types';
 import {
   FastForward,
   FastRewind,
-  VolumeDown,
-  VolumeUp,
-  VolumeMute,
-  VolumeOff,
 } from '@mui/icons-material';
-import { namedId} from '@stoked-ui/common';
 import FormControl from '@mui/material/FormControl';
 import StopIcon from '@mui/icons-material/Stop';
 import SvgIcon from '@mui/material/SvgIcon';
-import PauseIcon from '@mui/icons-material/Pause';
 import RecordIcon from '@mui/icons-material/FiberManualRecord';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import SkipNextIcon from '@mui/icons-material/SkipNext';
@@ -20,7 +14,6 @@ import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import ToggleButton from '@mui/material/ToggleButton';
-import IconButton from '@mui/material/IconButton';
 import Box from '@mui/material/Box';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import { alpha, emphasize, Theme } from '@mui/material/styles';
@@ -29,13 +22,13 @@ import { MediaFile } from '@stoked-ui/media-selector';
 import {
   OutputBlob, Version, ToggleButtonGroupEx, FileState, SnapControls, EngineState, PlaybackMode,
 } from '@stoked-ui/timeline';
+import { VideoSaveRequest, LocalDb } from '@stoked-ui/common';
 import { useEditorContext } from '../EditorProvider/EditorContext';
 import { IEditorEngine } from '../EditorEngine/EditorEngine.types';
 import { createUseThemeProps, styled } from '../internals/zero-styled';
 import { EditorControlState, EditorControlsProps } from './EditorControls.types';
 import TimelineView from '../icons/TimelineView';
-import { SUVideoFile } from '../EditorFile/EditorFile';
-  import {getTrackFromMediaFile, getTracksFromMediaFiles} from "../EditorTrack";
+import Volume from './Volume';
 
 export const Rates = [-10, -9.5, -9, -8.5, -8, -7.5, 7, -6.5, -6, -6.5, -6, -5.5, -5, -4.5, -4, -3.5, -3, -2.5, -2.0, -1.5, -1.0, -0.5, -0.2, 0.2, 0.5, 1.0, 1.5, 2.0, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10];
 const useThemeProps = createUseThemeProps('MuiEditor');
@@ -194,7 +187,7 @@ type ControlProps = {
 };
 
 function Controls(inProps: ControlProps) {
-  const { dispatch, state: { flags, settings, engine, file} } = useEditorContext();
+  const { dispatch, state: { app, settings, engine, file} } = useEditorContext();
   const editorEngine = engine as IEditorEngine;
   const controlsInput: string = '';
 
@@ -202,18 +195,30 @@ function Controls(inProps: ControlProps) {
   const { setVideoURLs, controls, versions, setVersions, setControls } = inProps;
   // const [mediaRecorder, setMediaRecorder] = React.useState<MediaRecorder | null>(null);
   // const [recordedChunks, setRecordedChunks] = React.useState<Blob[]>([]);
-const [lastRecording, setLastRecording] = React.useState<MediaFile | null>(null);
+const [lastRecording, setLastRecording] = React.useState<Blob | null>(null);
   React.useEffect(() => {
-    engine?.on('finishedRecording', ({recording}) => {
-        console.info('recording', recording)
-        setLastRecording(recording);
+    engine?.on('finishedRecording', ({blob}) => {
+        console.info('recording blob', blob)
+        setLastRecording(blob);
     });
   }, []);
 
   React.useEffect(() => {
-    lastRecording?.extractMetadata().then(()=> {
-      console.info('lastRecording', lastRecording)
-      dispatch({ type: 'VIDEO_CREATED', payload: lastRecording });
+    if (!lastRecording || !file) {
+      return;
+    }
+    const recording = new MediaFile([lastRecording], `${file.name}.mp4`, { type: 'video/mp4' });
+
+    recording?.extractMetadata().then(()=> {
+      if (!file) {
+        return;
+      }
+      console.info('lastRecording', recording)
+      dispatch({ type: 'VIDEO_CREATED', payload: recording });
+      const videoRequest: VideoSaveRequest = { storeName: app.defaultInputFileType.name, projectName: file.fullName, name: recording.name, duration: recording.media.duration, created: recording.created, blob: lastRecording, version: file.version, size: recording.size };
+      LocalDb.saveVideo(videoRequest).catch((error) => {
+        console.error('Error saving video', error);
+      });
     })
   }, [lastRecording])
 
@@ -481,97 +486,6 @@ ViewToggle.propTypes = {
 
 export { ViewToggle };
 
-function Volume() {
-  const { state: { engine, settings } } = useEditorContext();
-  const [value, setValue] = React.useState<number>(100);
-  const [mute, setMute] = React.useState<boolean>(false);
-
-  const handleChange = (event: Event, newValue: number | number[]) => {
-    setValue(newValue as number);
-    Howler.volume((newValue as number) / 100);
-    if (mute) {
-      setMute(false);
-    }
-  };
-
-  const toggleMute = () => {
-    Howler.mute(!mute);
-    setMute(!mute);
-  };
-
-  const base = (theme) => {
-    return {
-      mr: '4px!important',
-      fill: settings.disabled ? theme.palette.action.disabled : theme.palette.text.primary,
-      cursor: 'pointer',
-      '&:hover': {
-        fill: `${theme.palette.primary[500]}!important`,
-      },
-    };
-  };
-
-  const getIcon = (isMute: boolean, volume: number) => {
-    let icon = <VolumeUp sx={base} />;
-    if (isMute) {
-      icon = <VolumeOff sx={base} />;
-    } else if (volume === 0) {
-      icon = <VolumeMute sx={{ ...base, left: '-4px', position: 'relative' }} />;
-    } else if (volume < 70) {
-      icon = <VolumeDown sx={{ ...base, left: '-2px', position: 'relative' }} />;
-    }
-    return icon;
-  };
-
-  return (
-    <Stack
-      spacing={1}
-      direction="row"
-      sx={{
-        alignItems: 'center',
-        width: '120px',
-        mr: 2,
-      }}
-    >
-      <IconButton
-        sx={{
-          '&:hover': {
-            background: 'transparent',
-          },
-        }}
-        onClick={toggleMute}
-        disabled={settings.disabled}
-      >
-        {getIcon(mute, value)}
-      </IconButton>
-      <Slider
-        aria-label="Volume"
-        size="small"
-        disabled={settings.disabled}
-        sx={{
-          '& .MuiSlider-thumb::after': {
-            position: 'absolute',
-            content: '""',
-            borderRadius: '50%', // 42px is the hit target
-            width: '10px!important',
-            height: '10px!important',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-          },
-          '& .MuiSlider-thumb:has(> input:focus-visible)': {
-            boxShadow:
-              '0px 0px 0px 4px rgba(var(--muidocs-palette-primary-mainChannel) /' +
-              ' 0.16)!important',
-          },
-        }}
-        value={mute ? 0 : value}
-        onChange={handleChange}
-        min={0}
-        max={100}
-      />
-    </Stack>
-  );
-}
 /**
  *
  * Demos:
@@ -583,13 +497,6 @@ function Volume() {
  * - [EditorControls API](https://stoked-ui.github.io/editor/api/)
  */
 
-Volume.propTypes = {
-  // ----------------------------- Warning --------------------------------
-  // | These PropTypes are generated from the TypeScript type definitions |
-  // |D To update them edit the TypeScript types and run "pnpm proptypes"  |
-  // ----------------------------------------------------------------------
-  disabled: PropTypes.bool,
-} as any;
 
 const EditorControls = React.forwardRef(function EditorControls(
   inProps: EditorControlsProps,

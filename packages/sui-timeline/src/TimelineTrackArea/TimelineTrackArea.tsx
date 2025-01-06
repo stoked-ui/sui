@@ -11,8 +11,8 @@ import { TimelineTrackAreaProps } from './TimelineTrackArea.types';
 import { useDragLine } from './useDragLine';
 import { RemoveTrackCommand } from '../TimelineFile/Commands/RemoveTrackCommand';
 import { useTimeline } from '../TimelineProvider';
-import {EngineState, PlaybackMode} from '../Engine';
-import {ITimelineAction, ITimelineActionHandlers} from '../TimelineAction';
+import { EngineState, PlaybackMode } from '../Engine';
+import { ITimelineAction, ITimelineActionHandlers } from '../TimelineAction';
 import { ITimelineTrack } from '../TimelineTrack';
 import ZoomControls from './ZoomControls';
 
@@ -27,7 +27,7 @@ const TimelineTrackAreaRoot = styled('div')(() => ({
   overflow: 'hidden',
   position: 'relative',
   minHeight: 'fit-content',
-  touchAction: "none", // Necessary for custom gestures
+  touchAction: 'none', // Necessary for custom gestures
   '& #timeline-grid::before': {
     content: "''",
     display: 'block',
@@ -52,9 +52,7 @@ const TrackLabel = styled('label', {
   name: 'MuiTimelineAction',
   slot: 'root',
   overridesResolver: (props, styles) => styles.root,
-  shouldForwardProp: (prop) => shouldForwardProp(prop)
-                               && prop !== 'hover'
-                               && prop !== 'color',
+  shouldForwardProp: (prop) => shouldForwardProp(prop) && prop !== 'hover' && prop !== 'color',
 })<{
   hover: boolean;
   color: string;
@@ -96,61 +94,64 @@ const FloatingTracksRoot = styled('div', {
 }));
 
 function FloatingTrackLabels({ tracks }) {
-  const { state, dispatch} = useTimeline();
+  const { state, dispatch } = useTimeline();
   const { settings, flags } = state;
-  const {trackHoverId, selectedTrack, editorMode, trackHeight, selectedTrackIndex} = settings;
+  const { trackHoverId, selectedTrack, editorMode, trackHeight, selectedTrackIndex } = settings;
   if (!flags.noLabels) {
     return undefined;
   }
   const editorModeHidden = editorMode === 'track' || editorMode === 'action';
   const isSelected = (index: number) => selectedTrackIndex === index ?? false;
-  const selectedHeight = flags.detailMode && selectedTrackIndex !== -1 ? settings.growScale: trackHeight;
-  const unselectedHeight = flags.detailMode && selectedTrackIndex !== -1 ? settings.growUnselectedScale : trackHeight;
+  const selectedHeight =
+    flags.detailMode && selectedTrackIndex !== -1 ? settings.growScale : trackHeight;
+  const unselectedHeight =
+    flags.detailMode && selectedTrackIndex !== -1 ? settings.growUnselectedScale : trackHeight;
   const getHeight = (index: number) => (isSelected(index) ? selectedHeight : unselectedHeight);
   return (
     <FloatingTracksRoot id={'floating-track-labels'}>
-      {tracks.map(
-        (track: ITimelineTrack, index: number) =>
-          <Box
-            sx={{
-              height: getHeight(index),
-              display: 'flex',
-              background: editorModeHidden && selectedTrack?.id !== track.id ? 'transparent' : undefined,
-              transition: 'all 1s ease-in-out'
+      {tracks.map((track: ITimelineTrack, index: number) => (
+        <Box
+          sx={{
+            height: getHeight(index),
+            display: 'flex',
+            background:
+              editorModeHidden && selectedTrack?.id !== track.id ? 'transparent' : undefined,
+            transition: 'all 1s ease-in-out',
           }}
-            key={`${track.name}-${index}`}
-            onMouseEnter={(event) => {
-              dispatch({
-                type: 'SET_SETTING',
-                payload: { key: 'trackHoverId', value: track.id },
-              });
-              event.stopPropagation();
-            }}
-            onMouseLeave={(event) => {
-              dispatch({
-                type: 'SET_SETTING',
-                payload: { key: 'trackHoverId', value: undefined },
-              });
-              event.stopPropagation();
+          key={`${track.name}-${index}`}
+          onMouseEnter={(event) => {
+            dispatch({
+              type: 'SET_SETTING',
+              payload: { key: 'trackHoverId', value: track.id },
+            });
+            event.stopPropagation();
+          }}
+          onMouseLeave={(event) => {
+            dispatch({
+              type: 'SET_SETTING',
+              payload: { key: 'trackHoverId', value: undefined },
+            });
+            event.stopPropagation();
+          }}
+        >
+          <TrackLabel
+            color={track.controller?.color}
+            hover={trackHoverId === track.id ? true : undefined}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              height: `${isSelected(index) ? trackHeight : trackHeight - 10}px`,
+              background:
+                editorModeHidden && selectedTrack?.id !== track.id ? 'transparent' : undefined,
+              transition: 'all 1s ease-in-out',
             }}
           >
-            <TrackLabel
-              color={track.controller?.color}
-              hover={trackHoverId === track.id ? true : undefined}
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                height: `${isSelected(index) ? trackHeight : trackHeight - 10}px`,
-                background: editorModeHidden && selectedTrack?.id !== track.id ? 'transparent' : undefined,
-                transition: 'all 1s ease-in-out'
-              }}
-            >
-              <Typography variant="button" color="text.secondary">
-                {track.name}
-              </Typography>
-            </TrackLabel>
-          </Box>
-      )}
+            <Typography variant="button" color="text.secondary">
+              {track.name}
+            </Typography>
+          </TrackLabel>
+        </Box>
+      ))}
     </FloatingTracksRoot>
   );
 }
@@ -158,7 +159,7 @@ function FloatingTrackLabels({ tracks }) {
 const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrackAreaProps>(
   (props, ref) => {
     const { state, dispatch } = useTimeline();
-    const { file, getState, settings, flags, engine} = state;
+    const { file, getState, settings, flags, engine } = state;
     const {
       scaleCount,
       scaleWidth,
@@ -173,7 +174,7 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
     } = settings;
 
     const tracks = file?.tracks || [];
-    const {  dragLine } = flags;
+    const { dragLine } = flags;
     const {
       onScroll,
       getAssistDragLineActionIds,
@@ -252,7 +253,6 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
       }
     }, [editAreaRef.current]);
 
-
     /** Get the rendering content of each cell */
     const cellRenderer: GridCellRenderer = ({ rowIndex, key, style }) => {
       const gridTrack = tracks[rowIndex]; // track data
@@ -278,7 +278,6 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
                 event.preventDefault();
                 break;
               }
-
             }
           }}
           className={className}
@@ -363,8 +362,8 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
       return undefined;
     }
 
-   /*  const selectedHeight = flags.detailMode && selectedTrackIndex !== -1 ? trackHeight * 1.65 : trackHeight;
-    const unselectedHeight = flags.detailMode && selectedTrackIndex !== -1 ? trackHeight * (1 - (.65 / (tracks.length - 1))) : trackHeight; */
+    /*  const selectedHeight = flags.detailMode && selectedTrackIndex !== -1 ? trackHeight * 1.65 : trackHeight;
+     const unselectedHeight = flags.detailMode && selectedTrackIndex !== -1 ? trackHeight * (1 - (.65 / (tracks.length - 1))) : trackHeight; */
     return (
       <React.Fragment>
         <FloatingTrackLabels tracks={tracks} />
@@ -372,14 +371,13 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
           ref={editAreaRef}
           className={`SuiTimelineEditArea-root ${prefix('edit-area')}`}
         >
-
           <AutoSizer className={'auto-sizer'} style={{ height: 'fit-content' }}>
-            {({ width,  }) => {
+            {({ width }) => {
               // Get full height
               let totalHeight = 0;
               // HEIGHT LIST
               tracks?.forEach((track, index) => {
-                totalHeight += getTrackHeight(track, state)
+                totalHeight += getTrackHeight(track, state);
               });
 
               heightRef.current = totalHeight;
@@ -388,19 +386,18 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
                 <Grid
                   id={'timeline-grid'}
                   columnCount={1}
-                  rowCount={ (tracks?.length ?? 0)}
+                  rowCount={tracks?.length ?? 0}
                   ref={tracksRef}
                   style={{
                     overscrollBehaviorX: 'none',
-                    touchAction: 'none'
+                    touchAction: 'none',
                   }}
                   cellRenderer={cellRenderer}
                   columnWidth={Math.max(scaleCount * scaleWidth + startLeft, width)}
                   width={width}
                   height={totalHeight}
                   rowHeight={({ index }) => {
-
-                    return getTrackHeight(tracks[index], state)
+                    return getTrackHeight(tracks[index], state);
                   }}
                   overscanRowCount={10}
                   overscanColumnCount={0}

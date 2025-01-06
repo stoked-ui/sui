@@ -2,7 +2,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import { IMediaFile } from '@stoked-ui/media-selector';
 import composeClasses from '@mui/utils/composeClasses';
-import {Fade} from "@mui/material";
+import { Fade } from '@mui/material';
 import { useSlotProps } from '@mui/base/utils';
 import { keyframes } from '@emotion/react';
 import useForkRef from '@mui/utils/useForkRef';
@@ -11,7 +11,7 @@ import { EditorViewProps } from './EditorView.types';
 import { getEditorViewUtilityClass } from './editorViewClasses';
 import { useEditorContext } from '../EditorProvider/EditorContext';
 import Loader from '../Editor/Loader';
-import EditorViewActions from "./EditorViewActions";
+import EditorViewActions from './EditorViewActions';
 
 const useThemeProps = createUseThemeProps('MuiEditorView');
 
@@ -39,7 +39,7 @@ const EditorViewRoot = styled('div', {
     prop !== 'fileUrl' &&
     prop !== 'fileView' &&
     prop !== 'detailMode' &&
-    prop !== 'editorId'
+    prop !== 'editorId',
 })<{ loading: boolean }>(({ loading }) => {
   const spin = keyframes`
     0% { transform: rotate(0deg); }
@@ -68,9 +68,7 @@ const EditorViewRoot = styled('div', {
 const Renderer = styled('canvas', {
   name: 'MuiEditorViewRenderer',
   slot: 'renderer',
-  shouldForwardProp: (prop) =>
-    prop !== 'viewMode' &&
-  prop !== 'detailMode',
+  shouldForwardProp: (prop) => prop !== 'viewMode' && prop !== 'detailMode',
 })(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
@@ -112,12 +110,11 @@ const Stage = styled('div', {
   zIndex: 100,
 }));
 
-
 const EditorView = React.forwardRef(function EditorView<
   R extends IMediaFile = IMediaFile,
   Multiple extends boolean | undefined = undefined,
 >(inProps: EditorViewProps<R, Multiple>, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
-  const {state, dispatch} = useEditorContext();
+  const { state, dispatch } = useEditorContext();
   const { settings, file, engine, flags } = state;
   const props = useThemeProps({ props: inProps, name: 'MuiEditorView' });
   const viewRef = React.useRef<HTMLDivElement>(null);
@@ -204,7 +201,6 @@ const EditorView = React.forwardRef(function EditorView<
     };
   }, [viewerRef]);
 
-
   const styles: React.CSSProperties = {
     display: 'flex',
     flexDirection: 'column',
@@ -220,14 +216,14 @@ const EditorView = React.forwardRef(function EditorView<
   return (
     <Root
       role={'viewer'}
-      {...rootProps }
+      {...rootProps}
       ref={combinedViewRef}
       data-preserve-aspect-ratio
       onMouseEnter={() => {
-        dispatch({ type: 'SET_FLAGS', payload: { add: ['showViewControls'] }});
+        dispatch({ type: 'SET_FLAGS', payload: { add: ['showViewControls'] } });
       }}
       onMouseLeave={() => {
-        dispatch({ type: 'SET_FLAGS', payload: { remove: ['showViewControls'] }});
+        dispatch({ type: 'SET_FLAGS', payload: { remove: ['showViewControls'] } });
       }}
     >
       {inProps.viewButtons?.map((button, index) => {
@@ -236,14 +232,14 @@ const EditorView = React.forwardRef(function EditorView<
             timeout={{
               appear: inProps.viewButtonAppear,
               enter: inProps.viewButtonEnter,
-              exit: inProps.viewButtonExit
+              exit: inProps.viewButtonExit,
             }}
             in={flags.showViewControls}
             key={`key-${index}`}
           >
             {button}
           </Fade>
-        )
+        );
       })}
       {inProps.children}
       <Renderer
@@ -255,7 +251,7 @@ const EditorView = React.forwardRef(function EditorView<
       <Screener role={'screener'} ref={screenerRef} />
       <Loader styles={styles} />
       <Stage role={'stage'} ref={stageRef} />
-      <EditorViewActions visible={flags.showViewControls}/>
+      <EditorViewActions visible={flags.showViewControls} />
     </Root>
   );
 });
@@ -288,6 +284,6 @@ EditorView.propTypes = {
     PropTypes.func,
     PropTypes.object,
   ]),
-};
+} as any;
 
 export default EditorView;

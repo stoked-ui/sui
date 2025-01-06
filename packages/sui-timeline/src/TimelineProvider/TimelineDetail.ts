@@ -102,12 +102,15 @@ export function getProjectDetail(project: ITimelineFile): IProjectDetail {
 }
 
 export function getActionDetail(action: ITimelineAction): ITimelineActionDetail {
+  if (!action.volume) {
+    action.volume = [[1, action.start, action.end]]
+  }
   return {
     id: action.id || namedId('action'),
     name: action.name || '',
     start: action.start,
     end: action.end,
-    volume: action.volume as [volume: number, start: number | undefined, end: number | undefined][] | undefined,
+    volume: action.volume as [volume: number, start: number | undefined, end: number | undefined][],
     trimStart: action.trimStart || 0,
     trimEnd: action.trimEnd || 0,
 
