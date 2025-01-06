@@ -139,9 +139,8 @@ export default class EditorEngine<
       type: 'video/mp4',
     });
 
-    const recording = new MediaFile([blob], `${name}.mp4`, { type: 'video/mp4' });
     // dispatch({ type: 'VIDEO_CREATED', payload: videoFile });
-    this.trigger('finishedRecording', { recording: recording as IMediaFile, engine: this as any });
+    this.trigger('finishedRecording', { blob, engine: this as any });
     // const url = URL.createObjectURL(blob);
     // setVideoURLs((prev) => [url, ...prev]);
     this._recordedChunks = [];

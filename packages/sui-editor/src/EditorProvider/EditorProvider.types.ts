@@ -125,7 +125,10 @@ export type EditorStateAction<
   type: 'VIDEO_CREATED',
   payload: IMediaFile,
 } | {
-  type: 'VIDEO_REMOVE',
+  type: 'VIDEO_DISPLAY',
+  payload: IMediaFile,
+} | {
+  type: 'VIDEO_CLOSE',
   payload: string,
 } | SetContextActions
 
@@ -303,16 +306,7 @@ export function EditorReducerBase(state: EditorState, stateAction: EditorStateAc
     case 'SCREENER':
       return state;
     case 'SET_RENDERER':
-      if (stateAction.payload !== null) {
-        state.engine.renderer = stateAction.payload as HTMLCanvasElement;
-      } else {
-        throw new Error('SET_RENDERER')
-
-        const canvas = document.getElementById(state.settings.editorId)?.querySelector("canvas[role='renderer']") as HTMLCanvasElement;
-        if (!canvas) {
-          state.engine.renderer = canvas as HTMLCanvasElement;
-        }
-      }
+      state.engine.renderer = stateAction.payload as HTMLCanvasElement;
       return state;
     case 'CLOSE_DETAIL': {
       state.disableFlags('detailOpen')
@@ -334,25 +328,18 @@ export function EditorReducerBase(state: EditorState, stateAction: EditorStateAc
       }
       settings.videos.push(video);
       state.file = file;
-      settings.recordingTrack = getTrackFromMediaFile(video);
-      return EditorReducerBase({...state}, { type: 'DISPLAY_SCREENER', payload: video });
+      return EditorReducerBase({...state}, { type: 'VIDEO_DISPLAY', payload: video });
     }
-    case 'VIDEO_REMOVE': {
+    case 'VIDEO_DISPLAY': {
+      state.settings.recordingTrack = getTrackFromMediaFile(stateAction.payload);
+      return EditorReducerBase({...state}, { type: 'DISPLAY_SCREENER', payload: stateAction.payload });
+    }
+    case 'VIDEO_CLOSE': {
       const { settings } = state;
-      const { recordingTrack } = settings;
-      const { payload: videoId } = stateAction;
-      console.info('VIDEO_REMOVE', recordingTrack.file);
-      settings.videos = settings.videos.filter((v) => v.id !== videoId);
-      if (recordingTrack.file?.id === videoId) {
-        settings.recordingTrack = undefined;
-      }
-      return state;
+      state.settings.recordingTrack = undefined;
+      return EditorReducerBase({...state}, { type: 'DISPLAY_CANVAS' });
     }
     case 'DISPLAY_CANVAS': {
-      if (!state.flags.detailMode) {
-        console.info('DISPLAY_CANVAS early exit', state.settings.editorId);
-        return state;
-      }
       state.engine.renderer!.style.display = 'flex';
       state.engine.screener!.style.display = 'none';
       state.engine.playbackMode = PlaybackMode.CANVAS;

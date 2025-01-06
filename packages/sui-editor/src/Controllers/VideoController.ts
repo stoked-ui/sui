@@ -169,7 +169,6 @@ class VideoControl extends Controller<HTMLVideoElement> {
         // renderCtx.canvas.width = engine.renderWidth;
         // renderCtx.canvas.height = engine.renderHeight;
       }
-      console.log('updateCanvas', item.style.mixBlendMode, now, item.currentTime);
       // this.log({ time: item.currentTime, action, engine, track }, 'drawImage');
       action.nextFrame = this.getDrawData({ action, engine, time: item.currentTime, track });
       if (engine.isPlaying) {
@@ -358,7 +357,7 @@ class VideoControl extends Controller<HTMLVideoElement> {
     if (volumeUpdate) {
       item.volume = volumeUpdate.volume;
       action.volumeIndex = volumeUpdate.volumeIndex;
-      this.log(params, `${action.name} - editorTime: ${params.time}, actionTime: ${Controller.getActionTime(params)}, volume: ${volumeUpdate.volume}`)
+      console.info(`${action.name} - editorTime: ${params.time}, actionTime: ${Controller.getActionTime(params)}, volume: ${volumeUpdate.volume}`)
     }
 
     if (!engine.renderCtx) {

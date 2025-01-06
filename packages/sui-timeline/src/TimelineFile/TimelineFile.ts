@@ -82,7 +82,6 @@ export default class TimelineFile<
     for (let i = 0; i < props.tracks?.length; i += 1) {
       const track = props.tracks[i];
 
-      const trackLabel = track.file ? `.[${track.file.name}]` : `.url['${track.url}']`;
       if (!track.controller) {
         if (track.controllerName) {
           track.controller = TimelineFile.Controllers[track.controllerName];
@@ -100,8 +99,8 @@ export default class TimelineFile<
 
       this._tracks.push({
         id: track.id ?? namedId('track'),
-        actions,
         ...track,
+        actions,
       } as any);
     }
   }
@@ -201,6 +200,7 @@ export default class TimelineFile<
     const tracks = this.tracks?.map((track) => {
         const { file, controller,...trackJson } = track;
         return {
+          controllerName: controller?.id,
           fileId: file.id,
           ...trackJson,
         }
@@ -333,6 +333,7 @@ export default class TimelineFile<
     }
 
     await timelineFile.loadUrls();
+
     return timelineFile as unknown as AppFileType;
   }
 

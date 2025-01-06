@@ -1,6 +1,7 @@
 import { openDB } from '@tempfix/idb';
 import {MimeType, IMimeType} from "../MimeType";
 import {Settings} from "../ProviderState/Settings";
+import { namedId } from '../Ids';
 
 /**
  * Represents a version of a file stored in IndexedDB.
@@ -8,17 +9,21 @@ import {Settings} from "../ProviderState/Settings";
 export type IDBFileVersion = Omit<ISaveFileData, 'mimeType'> & {
   data: Blob;
   mimeType: MimeType;
+  videos: IDBVideo[];
 };
 
-export type IDBVersionedFile = { versions: Record<number, IDBFileVersion>, name: string, url: string };
+export type IDBVideo = { id: string, name: string, created: number, size: number, duration: number, type: string, mediaType: string, blob: Blob };
+// projectName, name, duration, size, created, version, blob
+export type IDBFile =  { id: string, name: string, url?: string, size?: number, created?: number, lastModified?: number, type: string, mediaType: string, children?: IDBFile[] };
 
 /**
  * Represents a file stored in IndexedDB.
  */
 export type IDBProjectFile = { versions: Record<number, IDBFileVersion>, name: string, url?: string };
 
-export type Version = { version: number, name: string, lastModified: number, size: number, id: string, type: string, mediaType: string };
+export type Version = IDBFile & { version: number };
 export type Versions = Version[];
+export type ProjectValue = { mimeType: MimeType, blob: Blob, versions: Versions, version: number, videos: IDBVideo[] };
 
 /**
  * Properties required to initialize a LocalDbStore.
@@ -61,6 +66,18 @@ export interface FileSaveRequest {
   url?: string,
 }
 
+
+export interface VideoSaveRequest {
+  storeName: string,
+  projectName: string,
+  name: string,
+  version: number,
+  blob: Blob,
+  duration: number,
+  created: number,
+  size?: number,
+}
+
 export type FileLoadRequest = FileLoadRequestByName | FileLoadRequestByUrl;
 
 export interface FileLoadRequestByName {
@@ -78,19 +95,35 @@ export interface FileLoadRequestByUrl {
 export function getRecordVersions(record: IDBProjectFile) {
   const versions: Versions = Object.entries(record.versions).map(([ver, fileVersion]) => {
     const versionNumber = parseInt(ver, 10);
-    const { name, lastModified, data, id, mimeType } = fileVersion as IDBFileVersion;
+    const { name, created, lastModified, data, id, mimeType } = fileVersion as IDBFileVersion;
 
     return {
       version: versionNumber,
       name,
-      lastModified: lastModified || Date.now(),
+      lastModified: lastModified || created || Date.now(),
       size: data.size,
-      id,
+      id: `${id}-${versionNumber}`,
       type: mimeType,
       mediaType: mimeType.includes('project') ? 'project' : 'doc',
     };
   });
   return versions;
+}
+
+export function getVideos(record: IDBProjectFile) {
+  return Object.values(record.versions).map((version: any) => version.videos).flat()
+}
+
+export function createFolder(name: string, children: IDBFile[] = [], created?: number, options: { expanded?: boolean, selected?: boolean } = {}) {
+  return {
+    id: namedId(name),
+    name,
+    created,
+    type: 'folder',
+    mediaType: 'folder',
+    children,
+    ...options,
+  }
 }
 
 /**
@@ -115,7 +148,6 @@ export default class LocalDb {
     if (this.initialized) {
       return;
     }
-
 
     this.dbName = dbName;
 
@@ -163,7 +195,7 @@ export default class LocalDb {
    * @param version - The version requested from idb.
    * @returns A promise that resolves to the file data.
    */
-  static async loadByName({ store, name, version = -1 }: FileLoadRequestByName): Promise<{ mimeType: MimeType, blob: Blob, versions: Versions } | null> {
+  static async loadByName({ store, name, version = -1 }: FileLoadRequestByName): Promise<ProjectValue | null> {
     return this.stores[store].loadByName(name, version);
   }
 
@@ -190,7 +222,7 @@ export default class LocalDb {
    * @param version - The version requested from idb.
    * @returns A promise that resolves to the file data.
    */
-  static async loadByUrl({ store, url }: FileLoadRequestByUrl): Promise<{ mimeType: MimeType, blob: Blob, versions: Versions } | null> {
+  static async loadByUrl({ store, url }: FileLoadRequestByUrl): Promise<ProjectValue | null> {
     console.info('store', store, url, this.stores);
     return this.stores[store].loadByUrl(url);
   }
@@ -212,6 +244,10 @@ export default class LocalDb {
   static async saveFile(fileData: FileSaveRequest): Promise<boolean> {
     return this.stores[fileData.mime.name].saveFile(fileData);
   }
+
+  static async saveVideo(videoRequest: VideoSaveRequest): Promise<boolean> {
+    return this.stores[videoRequest.storeName].saveVideo(videoRequest);
+  }
 }
 
 /**
@@ -224,7 +260,7 @@ class LocalDbStore {
 
   private _keys: Set<string> = new Set<string>();
 
-  private _files: { id: string, name: string, size: number, lastModified: number, type: string, mediaType: string }[] = [];
+  private _files: IDBFile[] = [];
 
   initialized: boolean = false;
 
@@ -246,7 +282,7 @@ class LocalDbStore {
    *   is 1 based so 0 is invalid.
    * @returns A promise that resolves to the file data.
    */
-  async loadByName(name: string, version: number = -1): Promise<{ mimeType: MimeType, blob: Blob, versions: Versions } | null> {
+  async loadByName(name: string, version: number = -1): Promise<ProjectValue | null> {
     if (!this.initialized) {
       await this.init();
     }
@@ -268,7 +304,6 @@ class LocalDbStore {
 
     // Retrieve all versions from the record
     const versions = getRecordVersions(record);
-
     // Sort versions by version number
     versions.sort((a, b) => a.version - b.version);
 
@@ -288,6 +323,8 @@ class LocalDbStore {
       mimeType: versionRecord.mimeType,
       blob: versionRecord.data,
       versions,
+      version: requestedVersion.version,
+      videos: getVideos(record),
     };
   }
 
@@ -296,7 +333,7 @@ class LocalDbStore {
    * @param url - The URL of the file.
    * @returns A promise that resolves to the file data.
    */
-  async loadByUrl(url: string): Promise<{ mimeType: MimeType, blob: Blob, versions: Versions } | null> {
+  async loadByUrl(url: string): Promise<ProjectValue | null> {
     if (!this.initialized) {
       await this.init();
     }
@@ -315,7 +352,6 @@ class LocalDbStore {
 
     // Extract all versions from the record
     const versions = getRecordVersions(record);
-
     // Sort versions by version number
     versions.sort((a, b) => a.version - b.version);
 
@@ -327,6 +363,8 @@ class LocalDbStore {
       mimeType: versionRecord.mimeType,
       blob: versionRecord.data,
       versions,
+      version: latestVersion.version,
+      videos: getVideos(record),
     };
   }
 
@@ -360,6 +398,32 @@ class LocalDbStore {
     return true;
   }
 
+  async saveVideo(request: VideoSaveRequest): Promise<boolean> {
+    try {
+      const db = await openDB(LocalDb.dbName, LocalDb.version);
+      const tx = db.transaction(this.name, 'readwrite');
+      const store = tx.objectStore(this.name);
+      const { projectName, version, ...video } = request;
+      const videoData = {...video, id: namedId('video'), type: 'video/mp4', mediaType: 'video'} as IDBVideo
+
+      const projectFile: IDBProjectFile = await store.get(projectName);
+      if (!projectFile) {
+        console.error('No project found for video', projectName);
+      } else {
+        projectFile.versions[version].videos.push(videoData);
+        await store.put(projectFile, projectName);
+      }
+      await tx.done;
+      await this.retrieveKeys();
+      console.info(`IDB Save Video: [${videoData.name}] ${this.name} - ${LocalDb.dbName}::${this.name} => Complete`);
+      return true;
+    } catch (e) {
+      console.error(`IDB Save Video Error: [${request.name}] ${this.name} - ${LocalDb.dbName}::${this.name}`);
+      // throw new Error(e as string);
+      return false
+    }
+  }
+
   /**
    * Saves a file to the store.
    * @param fileData - The file data to be saved.
@@ -373,25 +437,26 @@ class LocalDbStore {
       const tx = db.transaction(this.name, 'readwrite');
       const store = tx.objectStore(this.name);
 
-      const versionData = { ...meta, data: blob, mimeType: mime.type, url  } as IDBFileVersion
+      const versionData = { ...meta, data: blob, mimeType: mime.type, url, videos: []   } as IDBFileVersion
 
       const dbFile: IDBProjectFile = { versions: { [version]: {...versionData, url} }, name, url };
 
       if (version === 1) {
         await store.put(dbFile, name);
       } else {
-        let versionedFile: IDBProjectFile = await store.get(name);
-        if (!versionedFile) {
-          versionedFile = dbFile;
+        let projectFile: IDBProjectFile = await store.get(name);
+        if (!projectFile) {
+          projectFile = dbFile;
         } else {
-          versionedFile[version] = versionData;
+          projectFile.versions[version] = versionData;
         }
 
-        await store.put(versionedFile, name);
+        await store.put(projectFile, name);
       }
 
       await tx.done;
       console.info(`IDB Save: [${name}] ${this.name} - ${LocalDb.dbName}::${this.name} => Complete`);
+      await this.retrieveKeys();
       return true;
     } catch (e) {
       console.error(`IDB Save Error: [${name}] ${this.name} - ${LocalDb.dbName}::${this.name}`);
@@ -437,18 +502,23 @@ class LocalDbStore {
         const versions = Object.keys(record.versions);
         const lastVersion = versions[versions.length - 1];
         const latest = record.versions[lastVersion];
+        const videos = Object.values(record.versions).map((version: any) => version.videos).flat();
+        const videoFolder = createFolder('Videos', videos, record.created);
+        const versionsFolder = createFolder('Versions', getRecordVersions(record), record.created);
         return {
           id: latest.id,
-          name: latest.name,
+          name: record.name,
+          url: record.url,
           size: latest.data.size,
           lastModified: latest.lastModified || latest.created,
           type: this.type,
           mediaType: this.type?.includes('project') ? 'project' : 'doc',
+          children: [videoFolder, versionsFolder],
         };
       }));
 
       await tx.done;
-      console.info("IDB Keys: ", this._keys, this._files);
+      console.info("IDB Keys: ", this._keys, Array.from(this._files));
     } catch (e) {
       throw new Error(`${LocalDb.dbName} - store: ${this.name} - ${e as string}`);
     }
@@ -473,4 +543,5 @@ class LocalDbStore {
   get files() {
     return this._files;
   }
+
 }

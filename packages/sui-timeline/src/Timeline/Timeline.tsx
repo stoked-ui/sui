@@ -379,8 +379,6 @@ const Timeline = React.forwardRef(function Timeline(
                     <TimelineCursor
                       {...settings}
                       scrollLeft={scrollLeft}
-                      areaRef={areaRef}
-                      scrollSync={scrollSync}
                     />
                   )}
                 </React.Fragment>)

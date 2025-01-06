@@ -8,6 +8,7 @@ type CommonBase = {
   size?: number;
   lastModified?: number;
   mediaType?: MediaType;
+  url?: string;
   media?: any;
   type?: string;
   created?: number;
@@ -15,6 +16,7 @@ type CommonBase = {
   expanded?: boolean;
   selected?: boolean;
   visibleIndex?: number;
+  version?: number;
 }
 
 export type FileBaseInput<R extends {} = {}> = CommonBase & R & {

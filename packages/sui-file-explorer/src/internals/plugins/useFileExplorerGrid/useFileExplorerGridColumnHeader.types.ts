@@ -47,7 +47,7 @@ export type UseFileExplorerGridHeadersLabelSlotProps<ExternalProps = {}> = Exter
 
 export interface UseFileExplorerGridHeadersGroupTransitionSlotOwnProps {
   unmountOnExit: boolean;
-  in: boolean;
+  in?: boolean;
   component: 'div';
   role: 'group';
   children: React.ReactNode;

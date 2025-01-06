@@ -1,5 +1,12 @@
 import * as React from 'react';
-import {createSettings, FileSaveRequest, LocalDb, MimeRegistry, Settings} from '@stoked-ui/common';
+import PropTypes from 'prop-types';
+import {
+  createSettings,
+  FileSaveRequest,
+  LocalDb,
+  MimeRegistry,
+  Settings,
+} from '@stoked-ui/common';
 import Engine, { EngineState, IEngine } from '../Engine';
 import {
   TimelineProviderProps,
@@ -12,9 +19,9 @@ import {
   createTimelineState,
 } from './TimelineProvider.types';
 import TimelineFile, { ITimelineFile } from '../TimelineFile';
-import type {ITimelineAction} from "../TimelineAction";
-import type {ITimelineTrack} from "../TimelineTrack";
-import AudioController from "../Controller/AudioController";
+import type { ITimelineAction } from '../TimelineAction';
+import type { ITimelineTrack } from '../TimelineTrack';
+import AudioController from '../Controller/AudioController';
 import StokedUiTimelineApp from '../Timeline/StokedUiTimelineApp';
 
 function TimelineProvider<
@@ -25,16 +32,25 @@ function TimelineProvider<
   FileType extends ITimelineFile = ITimelineFile,
   TrackType extends ITimelineTrack = ITimelineTrack,
   ActionType extends ITimelineAction = ITimelineAction,
-  AppType extends StokedUiTimelineApp = StokedUiTimelineApp
->(props: TimelineProviderProps<EngineType, StateType, StateActionType, FileType, TrackType, ActionType>) {
-  const { children, engine  } = props;
+  AppType extends StokedUiTimelineApp = StokedUiTimelineApp,
+>(
+  props: TimelineProviderProps<
+    EngineType,
+    StateType,
+    StateActionType,
+    FileType,
+    TrackType,
+    ActionType
+  >,
+) {
+  const { children, engine } = props;
   let { state: initialState } = props;
 
   if (!initialState) {
     const controllers = props.controllers ?? { audio: AudioController };
     TimelineFile.Controllers = controllers;
 
-    const theEngine = (engine ?? new Engine({controllers})) as EngineType;
+    const theEngine = (engine ?? new Engine({ controllers })) as EngineType;
     const getStateBase = () => {
       return theEngine.state as EngineState;
     };
@@ -49,7 +65,15 @@ function TimelineProvider<
       app: (props.app ?? new StokedUiTimelineApp()) as AppType,
     };
 
-    initialState = createTimelineState<StateType, EngineType, EngineStateType, FileType, TrackType, ActionType, AppType>(stateProps);
+    initialState = createTimelineState<
+      StateType,
+      EngineType,
+      EngineStateType,
+      FileType,
+      TrackType,
+      ActionType,
+      AppType
+    >(stateProps);
   }
   const reducer = props.reducer ?? TimelineReducer;
   const [startState, setStartState] = React.useState<any>(initialState);
@@ -93,10 +117,10 @@ function TimelineProvider<
         type: 'SET_SETTING',
         payload: {
           key,
-          value
-        }
+          value,
+        },
       });
-    }
+    };
     setSetting('setSetting', setSetting);
     window.setSetting = setSetting;
 
@@ -132,7 +156,6 @@ function TimelineProvider<
     window.reRender = reRender;
 
     const saveUrl = async () => {
-
       const fileData: FileSaveRequest = {
         name: 'example-file',
         version: 1,
@@ -158,14 +181,17 @@ function TimelineProvider<
       } else {
         console.error('Failed to save the file.');
       }
-    }
+    };
     window.saveUrl = saveUrl;
-
   }, []);
 
-  const contextValue = React.useMemo(() => ({
-    state, dispatch,
-  }), [state, dispatch]);
+  const contextValue = React.useMemo(
+    () => ({
+      state,
+      dispatch,
+    }),
+    [state, dispatch],
+  );
 
   if (!TimelineProvider.dispatch) {
     TimelineProvider.dispatch = dispatch;
@@ -174,9 +200,7 @@ function TimelineProvider<
     return <div>loading</div>;
   }
 
-  return (<TimelineContext.Provider value={contextValue}>
-      {children}
-    </TimelineContext.Provider>);
+  return <TimelineContext.Provider value={contextValue}>{children}</TimelineContext.Provider>;
 }
 
 TimelineProvider.dispatch = null;
@@ -191,4 +215,3 @@ function useTimeline(): TimelineContextType {
 }
 
 export { TimelineProvider, useTimeline };
-

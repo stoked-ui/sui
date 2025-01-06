@@ -18,9 +18,10 @@ import {
 import { useEditorContext } from "../EditorProvider/EditorContext";
 import BlendModeSelect from "./BlendModeSelect";
 import ControlledCoordinates from "./ControlledCoordinates";
+import ControlledVolumeSpan from "./ControlledVolumeSpan";
 
 export function DetailAction(props: DetailViewProps) {
-  const { state: {selectedTrack, engine,  settings, selectedDetail, selectedAction}, dispatch } = useEditorContext();
+  const { state: { file, selectedTrack, engine,  settings, selectedDetail, selectedAction}, dispatch } = useEditorContext();
   const { editMode, enableEdit, disableEdit } = props;
   const { trackFiles } = settings;
   const actionDetail = selectedDetail as ActionDetail;
@@ -32,6 +33,8 @@ export function DetailAction(props: DetailViewProps) {
     control,
     handleSubmit,
     watch,
+    getValues,
+    setValue,
     formState: {
       isDirty,
       errors,
@@ -43,6 +46,8 @@ export function DetailAction(props: DetailViewProps) {
     // @ts-ignore
     resolver: yupResolver(actionDataSchema),
   });
+
+  console.info('actiondata', actionData);
 
 
   // Watch all form values
@@ -63,8 +68,9 @@ export function DetailAction(props: DetailViewProps) {
   const onSubmitAction: SubmitHandler<IEditorActionDetail> = (submitData: IEditorActionDetail) => {
     console.info('submitData', submitData);
     dispatch({ type: 'UPDATE_ACTION', payload: submitData });
+    file?.save({ silent: true })
   };
-
+  console.info('errors', errors);
   if (!selectedAction || !selectedTrack) {
     return undefined;
   }
@@ -132,7 +138,10 @@ export function DetailAction(props: DetailViewProps) {
         </CtrlCell>
 
         <CtrlCell width="23%">
-          <ControlledCoordinates control={control} />
+          <ControlledCoordinates
+            control={control}
+            disabled={!editMode}
+            onClick={props.enableEdit}/>
         </CtrlCell>
 
         <CtrlCell width="23%">
@@ -144,7 +153,7 @@ export function DetailAction(props: DetailViewProps) {
         </CtrlCell>
         {trackFile.mediaType !== 'audio' &&
          <React.Fragment>
-           <CtrlCell width="7.5%">
+           <CtrlCell width="23%">
             <ControlledText
               label={'Width'}
               name={'width'}
@@ -153,7 +162,7 @@ export function DetailAction(props: DetailViewProps) {
               onClick={props.enableEdit}
             />
           </CtrlCell>
-          <CtrlCell width="7.5%">
+          <CtrlCell width="23%">
             <ControlledText
               label={'Height'}
               control={control}
@@ -161,7 +170,7 @@ export function DetailAction(props: DetailViewProps) {
               onClick={props.enableEdit}
             />
           </CtrlCell>
-          <CtrlCell width="15%">
+          <CtrlCell width="46%">
             <UncontrolledText
               label={'Source Size'}
               value={`${trackFile?.media?.width} x ${trackFile?.media?.height}`}
@@ -170,6 +179,20 @@ export function DetailAction(props: DetailViewProps) {
             />
           </CtrlCell>
          </React.Fragment>}
+        <CtrlCell width="96%">
+          <ControlledVolumeSpan
+            control={control}
+            name={'volume'}
+            disabled={!editMode}
+            onClick={props.enableEdit}
+            sliderSx={{ width: '50%' }}
+            sx={{ width: '100%' }}
+            getValues={getValues}
+            setValue={setValue}
+            start={getValues('start')}
+            end={getValues('end')}
+          />
+        </CtrlCell>
       </CtrlRow>
       <DetailActions
         errors={errors}

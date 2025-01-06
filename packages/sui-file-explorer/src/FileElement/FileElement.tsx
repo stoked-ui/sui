@@ -9,7 +9,7 @@ import { alpha, useThemeProps } from '@mui/material/styles';
 import { shouldForwardProp } from '@mui/system/createStyled';
 import { TransitionProps } from '@mui/material/transitions';
 import { unstable_composeClasses as composeClasses } from '@mui/base';
-import { namedId} from '@stoked-ui/common';
+import { namedId } from '@stoked-ui/common';
 import { FileElementContent } from './FileElementContent';
 import { fileElementClasses, getFileElementUtilityClass } from './fileElementClasses';
 import {
@@ -348,7 +348,7 @@ export const FileElement = React.forwardRef(function FileElement(
     instance.handleItemKeyDown(event, id);
   };
 
-  const idAttribute = instance.getFileIdAttribute( id);
+  const idAttribute = instance.getFileIdAttribute(id);
   const tabIndex = instance.canItemBeTabbed(id) ? 0 : -1;
 
   return (
