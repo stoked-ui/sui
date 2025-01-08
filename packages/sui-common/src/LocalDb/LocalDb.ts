@@ -114,15 +114,16 @@ export function getVideos(record: IDBProjectFile) {
   return Object.values(record.versions).map((version: any) => version.videos).flat()
 }
 
-export function createFolder(name: string, children: IDBFile[] = [], created?: number, options: { expanded?: boolean, selected?: boolean } = {}) {
+export function createFolder(name: string, children: IDBFile[] = [], created?: number, options: { id?: string, expanded?: boolean, selected?: boolean } = {}) {
+  const { id, ...remainingOptions } = options;
   return {
-    id: namedId(name),
+    id: id || namedId(name),
     name,
     created,
     type: 'folder',
     mediaType: 'folder',
     children,
-    ...options,
+    ...remainingOptions,
   }
 }
 
@@ -403,8 +404,8 @@ class LocalDbStore {
       const db = await openDB(LocalDb.dbName, LocalDb.version);
       const tx = db.transaction(this.name, 'readwrite');
       const store = tx.objectStore(this.name);
-      const { projectName, version, ...video } = request;
-      const videoData = {...video, id: namedId('video'), type: 'video/mp4', mediaType: 'video'} as IDBVideo
+      const { projectName, version, storeName, ...video } = request;
+      const videoData = {...video, id: namedId('video'), type: 'video/mp4', mediaType: 'video', version } as IDBVideo
 
       const projectFile: IDBProjectFile = await store.get(projectName);
       if (!projectFile) {
@@ -503,8 +504,8 @@ class LocalDbStore {
         const lastVersion = versions[versions.length - 1];
         const latest = record.versions[lastVersion];
         const videos = Object.values(record.versions).map((version: any) => version.videos).flat();
-        const videoFolder = createFolder('Videos', videos, record.created);
-        const versionsFolder = createFolder('Versions', getRecordVersions(record), record.created);
+        const videoFolder = createFolder('Videos', videos, record.created, { id: 'videos' });
+        const versionsFolder = createFolder('Versions', getRecordVersions(record), record.created, { id: 'versions' });
         return {
           id: latest.id,
           name: record.name,

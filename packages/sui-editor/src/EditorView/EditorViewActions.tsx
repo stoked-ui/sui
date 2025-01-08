@@ -15,7 +15,7 @@ export default function EditorViewActions({ visible }: { visible: boolean }) {
   const context = useEditorContext();
   const { dispatch, state } = context;
   const { file, flags, components, settings } = state;
-  const { editorId, fitScaleData, setCursor, recordingTrack } = settings;
+  const { editorId, fitScaleData, setCursor, videoTrack } = settings;
   const [fileIsDirty, setIsDirty] = React.useState<boolean>(false);
   React.useEffect(() => {
     const isFileDirty = async () => {
@@ -30,8 +30,8 @@ export default function EditorViewActions({ visible }: { visible: boolean }) {
     if (!file) {
       return;
     }
-    if (recordingTrack) {
-      (recordingTrack.file as MediaFile).save();
+    if (videoTrack) {
+      (videoTrack.file as MediaFile).save();
       return;
     }
     await file.save();
@@ -56,8 +56,8 @@ export default function EditorViewActions({ visible }: { visible: boolean }) {
   };
 
   const remove = () => {
-    if (recordingTrack) {
-      dispatch({ type: 'VIDEO_CLOSE', payload: recordingTrack.file.id });
+    if (videoTrack) {
+      dispatch({ type: 'VIDEO_CLOSE', payload: videoTrack.file.id });
       return;
     }
     dispatch({ type: 'DISCARD_FILE' });
@@ -86,7 +86,7 @@ export default function EditorViewActions({ visible }: { visible: boolean }) {
         </Fab>
       </Zoom>
       <Stack direction={'row'}>
-        {(recordingTrack || fileIsDirty) && visible && (
+        {(videoTrack || fileIsDirty) && visible && (
           <Zoom in={visible}>
             <Fab
               id={'save'}

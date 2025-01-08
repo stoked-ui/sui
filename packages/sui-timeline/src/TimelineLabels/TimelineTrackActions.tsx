@@ -44,7 +44,7 @@ export function ToggleLock({ track, file, toggleClick, dispatch, hide, children 
       value={track.locked ?? false}
       aria-label="locked"
       size={'small'}
-      sx={{marginRight: '2px'}}
+      sx={{marginRight: '2px' }}
       onChange={(e, ) => {
         const currentTrackIndex = file.tracks.findIndex((currTrack) => currTrack.id === e.currentTarget.id.replace('-locked', ''))
         if (currentTrackIndex === -1) {
@@ -82,7 +82,7 @@ export default function TimelineTrackActions({ track, sx }: TimelineTrackActions
     aria-label="text alignment"
     width={32}
     height={32}
-    sx={[...(Array.isArray(sx) ? sx : [sx]), { marginLeft: '8px', marginRight: '2px' }]}
+    sx={[...(Array.isArray(sx) ? sx : [sx]), { marginLeft: '8px', marginRight: '2px', zIndex: 1 }]}
   >
     <ToggleVolume track={track} dispatch={dispatch} file={file} toggleClick={toggleClick} >{volumeIcon}</ToggleVolume>
     <ToggleLock track={track} dispatch={dispatch} file={file} toggleClick={toggleClick} hide={flags.hideLock} >{lockIcon}</ToggleLock>

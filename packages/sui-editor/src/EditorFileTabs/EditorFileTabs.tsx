@@ -15,6 +15,7 @@ import {StokedUiEditorApp} from "../Editor";
 export default function EditorFileTabs(inProps: FileExplorerTabsProps) {
   const { state, dispatch} = useEditorContext();
   const { flags, file, engine, settings, app } = state;
+  const {editorId} = settings;
   const [tabNames, setTabNames] = React.useState<string[]>(['Projects', 'Track Files',]);
   const [tabName, setTabName] = React.useState<string>('');
   const [currentTab, setCurrentTab] = React.useState<{ name: string, files?: readonly FileBase[]}>({ name: '', files: []});
@@ -34,14 +35,13 @@ export default function EditorFileTabs(inProps: FileExplorerTabsProps) {
       switch(clickedFile.mediaType) {
         case 'project': {
           const editorFile = await EditorFile.fromLocalFile<EditorFile>(urlLookup.blob as Blob, EditorFile) as EditorFile;
-          if (editorFile) {
-            editorFile.versions = urlLookup.versions;
-          }
+          await editorFile.updateStore();
+          await editorFile.preload(editorId);
           dispatch({type: 'SET_FILE', payload: editorFile})
           break;
         }
         case 'video': {
-          const video = urlLookup.videos.find((video) => video.id === clickedFile.id);
+          const video = urlLookup.videos.find((videoLookup) => videoLookup.id === clickedFile.id);
           if (!video) {
             return;
           }
@@ -69,20 +69,18 @@ export default function EditorFileTabs(inProps: FileExplorerTabsProps) {
     if (doubleClickedFile.mediaType === 'folder' || !settings.trackFiles) {
       return;
     }
-    let index = settings.savedVideos.findIndex((video) => video.id === doubleClickedFile.id);
-    console.info('videos', settings.savedVideos, index)
     let payload: IMediaFile | null = null;
-    const trackFiles = Object.values(settings.trackFiles);
-    index = trackFiles.findIndex((trackFile) => (trackFile as IMediaFile).id === doubleClickedFile.id);
-    if (index !== -1) {
-      payload = trackFiles[index] as IMediaFile;
+
+    const index = file?.files.findIndex((trackFile) => (trackFile as IMediaFile).id === doubleClickedFile.id);
+    if (index !== undefined && index !== -1) {
+      payload = file?.files[index] as IMediaFile;
     }
     if (!payload) {
       return;
     }
     await payload.extractMetadata();
 
-    dispatch({ type: 'DISPLAY_SCREENER', payload })
+    dispatch({ type: 'VIDEO_DISPLAY', payload })
     console.info('item clicked', doubleClickedFile);
   }
 
@@ -95,6 +93,9 @@ export default function EditorFileTabs(inProps: FileExplorerTabsProps) {
       selectedItem.children?.forEach((child) => {
         expanded.push(child.id);
       });
+    }
+    if (expanded.length !== 3) {
+      return;
     }
     newTabData.Projects = {
       name: 'Projects',

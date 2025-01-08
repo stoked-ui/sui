@@ -61,6 +61,6 @@ export interface TimelineLabelsProps
   onToggle?: (id: string, property: string) => void;
   setFlags?: (id: string) => string[];
 
-  trackControls?: React.ElementType;
+  trackActions?: React.ElementType;
 
 }

@@ -248,7 +248,7 @@ function TimelineAction<
     trackHeight,
     editorMode,
     selected: currentSelection,
-    recordingTrack,
+    videoTrack,
   } = settings;
 
   const { gridSnap } = flags;
@@ -727,10 +727,10 @@ function TimelineAction<
           ))}
         </ImageList>
         {locks}
-        <Fade in={!disableDrag && flexible && !recordingTrack}>
+        <Fade in={!disableDrag && flexible && !videoTrack}>
           <LeftStretch className={`${prefix('action-left-stretch')}`} />
         </Fade>
-        <Fade in={!disableDrag && flexible && !recordingTrack}>
+        <Fade in={!disableDrag && flexible && !videoTrack}>
           <RightStretch className={`${prefix('action-right-stretch')}`} />
         </Fade>
       </Action>

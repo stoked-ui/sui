@@ -18,6 +18,8 @@ export type TimelineTrackAreaProps<
   deltaScrollLeft: (scrollLeft: number) => void;
 
   onAddFiles?: () => void;
+
+  trackActions?: React.ElementType
 };
 
 /** edit area ref data */

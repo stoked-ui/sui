@@ -331,12 +331,12 @@ export function EditorReducerBase(state: EditorState, stateAction: EditorStateAc
       return EditorReducerBase({...state}, { type: 'VIDEO_DISPLAY', payload: video });
     }
     case 'VIDEO_DISPLAY': {
-      state.settings.recordingTrack = getTrackFromMediaFile(stateAction.payload);
+      state.settings.videoTrack = getTrackFromMediaFile(stateAction.payload);
       return EditorReducerBase({...state}, { type: 'DISPLAY_SCREENER', payload: stateAction.payload });
     }
     case 'VIDEO_CLOSE': {
       const { settings } = state;
-      state.settings.recordingTrack = undefined;
+      state.settings.videoTrack = undefined;
       return EditorReducerBase({...state}, { type: 'DISPLAY_CANVAS' });
     }
     case 'DISPLAY_CANVAS': {
