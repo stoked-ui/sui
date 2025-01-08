@@ -2,19 +2,16 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import composeClasses from '@mui/utils/composeClasses';
 import { useSlotProps } from '@mui/base/utils';
-import { Box, Stack, Tooltip } from '@mui/material';
+import { Box, Stack } from '@mui/material';
 import Slider from '@mui/material/Slider';
-import ToggleButton from '@mui/material/ToggleButton';
 import { styled } from '@mui/material/styles';
-import ToggleButtonGroupEx from '../components/ToggleButtonGroupEx';
 import { type TimelineLabelsProps } from './TimelineLabels.types';
 import { getTimelineLabelsUtilityClass } from './timelineLabelsClasses';
 import { useTimeline } from '../TimelineProvider';
 import { ITimelineTrack } from '../TimelineTrack';
 import TimelineTrackIcon from '../icons/TimelineTrackIcon';
 import TimelineLabel from './TimelineLabel';
-import EdgeSnap from '../icons/EdgeSnap';
-import GridSnap from '../icons/GridSnap';
+import SnapControls from './SnapControls';
 
 const useUtilityClasses = (ownerState: TimelineLabelsProps) => {
   const { classes } = ownerState;
@@ -35,109 +32,15 @@ const TimelineLabelsRoot = styled('div', {
   flex: '0 1 auto',
   overflow: 'overlay',
 }));
-const ToolbarToggle = styled(ToggleButton)(() => ({
-  background: 'unset',
-  backgroundColor: 'unset',
-}));
 
-function SnapControls({ style }: { style?: React.CSSProperties }) {
-  const {
-    dispatch,
-    state: { flags, settings },
-  } = useTimeline();
 
-  const [disabled, setDisabled] = React.useState(!!settings.disabled);
-  React.useEffect(() => {
-    if (settings.disabled !== disabled) {
-      setDisabled(!!settings.disabled);
-    }
-  }, [settings.disabled]);
-
-  if (flags.noSnapControls) {
-    return undefined;
-  }
-  const handleSnapOptions = (event: React.MouseEvent<HTMLElement>, newOptions: string[]) => {
-    const add: string[] = [];
-    const remove: string[] = [];
-    if (newOptions.includes('gridSnap')) {
-      add.push('gridSnap');
-    } else {
-      remove.push('gridSnap');
-    }
-    if (newOptions.includes('edgeSnap')) {
-      add.push('edgeSnap');
-    } else {
-      remove.push('edgeSnap');
-    }
-    dispatch({ type: 'SET_FLAGS', payload: { add, remove } });
-  };
-
-  const onControls = flags.noLabels && !flags.noSnapControls;
-  const width = onControls ? 52 : 40;
-  const height = onControls ? 40 : 32;
-  const controlFlags: string[] = [];
-  if (flags.edgeSnap) {
-    controlFlags.push('edgeSnap');
-  }
-  if (flags.gridSnap) {
-    controlFlags.push('gridSnap');
-  }
-  return (
-    <ToggleButtonGroupEx
-      onChange={handleSnapOptions}
-      value={controlFlags}
-      size={'small'}
-      aria-label="text alignment"
-      maxWidth={width}
-      maxHeight={height}
-      style={style}
-      disabled={disabled}
-    >
-      <Tooltip enterDelay={1000} title={'Edge Snap'} key={'edgeSnap'}>
-        <span>
-          <ToggleButton value="edgeSnap" aria-label="edge snap" key={'edgeSnap-tooltip'}>
-            <EdgeSnap />
-          </ToggleButton>
-        </span>
-      </Tooltip>
-      <Tooltip enterDelay={1000} title={'Grid Snap'} key={'gridSnap'}>
-        <span>
-          <ToolbarToggle value="gridSnap" aria-label="grid snap" key={'gridSnap-tooltip'}>
-            <GridSnap />
-          </ToolbarToggle>
-        </span>
-      </Tooltip>
-    </ToggleButtonGroupEx>
-  );
-}
-
-/**
- *
- * Demos:
- *
- * - [TimelineLabels](https://stoked-ui.github.io/timeline/docs/)
- *
- * API:
- *
- * - [TimelineLabels](https://stoked-ui.github.io/timeline/api/)
- */
-
-SnapControls.propTypes = {
-  // ----------------------------- Warning --------------------------------
-  // | These PropTypes are generated from the TypeScript type definitions |
-  // | To update them edit the TypeScript types and run "pnpm proptypes"  |
-  // ----------------------------------------------------------------------
-  style: PropTypes.object,
-} as any;
-
-export { SnapControls };
 const TimelineLabels = React.forwardRef(function TimelineLabels(
   inProps: TimelineLabelsProps,
   ref: React.Ref<HTMLDivElement>,
 ): React.JSX.Element {
   const { state: context, dispatch } = useTimeline();
   const { engine, flags, file, settings } = context;
-  const { trackHeight, recordingTrack } = settings;
+  const { trackHeight, videoTrack } = settings;
   const { slotProps, slots, sx, width } = inProps;
   const finalWidth = width || !flags.noLabels ? '275px' : '0px';
   // const themeProps = useThemeProps({ props: inProps, name: 'MuiTimelineLabels' });
@@ -160,8 +63,8 @@ const TimelineLabels = React.forwardRef(function TimelineLabels(
     inProps.onClickLabel(event, t);
   };
   let displayTracks = file?.tracks || [];
-  if (recordingTrack) {
-    displayTracks = [recordingTrack];
+  if (videoTrack) {
+    displayTracks = [videoTrack];
   }
   return (
     <Root
@@ -190,7 +93,7 @@ const TimelineLabels = React.forwardRef(function TimelineLabels(
             return (
               <TimelineLabel
                 trackHeight={trackHeight}
-                trackControls={inProps.trackControls}
+                trackActions={inProps.trackActions}
                 track={track}
                 hideLock={inProps.hideLock}
                 classes={classes}

@@ -148,7 +148,7 @@ const Timeline = React.forwardRef(function Timeline(
     elementType: Root,
     externalSlotProps: slotProps?.labels,
     className: classes.labels,
-    ownerState: { ...inProps, sx: inProps.labelsSx, trackControls: inProps.trackControls ?? TimelineTrackActions } as TimelineLabelsProps,
+    ownerState: { ...inProps, sx: inProps.labelsSx, trackActions: inProps.trackActions ?? TimelineTrackActions } as TimelineLabelsProps,
   });
 
   const {
@@ -157,7 +157,7 @@ const Timeline = React.forwardRef(function Timeline(
     scaleWidth,
     minScaleCount,
     maxScaleCount,
-    recordingTrack,
+    videoTrack,
     scrollTop,
     setScaleCount,
     deltaScrollLeft,
@@ -220,7 +220,7 @@ const Timeline = React.forwardRef(function Timeline(
       fitScaleData(context, false, grid?.clientWidth, 'timeline');
 
     }
-  }, [engine.maxDuration, engine.canvasDuration, engine.isLoading, file, recordingTrack])
+  }, [engine.maxDuration, engine.canvasDuration, engine.isLoading, file, videoTrack])
 
   const commonProps = {
     areaRef,
@@ -353,8 +353,8 @@ const Timeline = React.forwardRef(function Timeline(
                     onScroll={onScroll}
                     scrollLeft={scrollLeft}
                   />
-                    {settings.recordingTrack ?
-                      <ControlledTrack track={settings.recordingTrack} width={domRef.current?.clientWidth} height={100} {...commonProps} /> :
+                    {settings.videoTrack ?
+                      <ControlledTrack track={settings.videoTrack} width={domRef.current?.clientWidth} height={100} {...commonProps} /> :
                       <TrackArea
                         {...commonProps}
                         ref={(editAreaRef: TimelineTrackAreaState) => {
@@ -373,6 +373,7 @@ const Timeline = React.forwardRef(function Timeline(
                         onAddFiles={inProps.onAddFiles}
                         onContextMenuAction={inProps.onContextMenuAction}
                         onContextMenuTrack={inProps.onContextMenuTrack}
+                        trackActions={labelsProps.ownerState.trackActions}
                       />
                     }
                   {!flags.hideCursor && (
@@ -430,7 +431,7 @@ Timeline.propTypes = {
    * The system prop that allows defining system overrides as well as additional CSS styles.
    */
   sx: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),), PropTypes.func, PropTypes.object,]),
-  trackControls: PropTypes.any,
+  trackActions: PropTypes.any,
   tracks: PropTypes.any,
   trackSx: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),), PropTypes.func, PropTypes.object,]),
   viewSelector: PropTypes.string,

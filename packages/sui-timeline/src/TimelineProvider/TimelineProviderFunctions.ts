@@ -98,7 +98,7 @@ export const fitScaleData = (context: TimelineContextType, detailMode: boolean, 
   console.log('from', from)
   const { state, dispatch } = context;
   const { settings, engine, flags } = state;
-  const { startLeft, minScaleCount, scaleSplitCount, scale, recordingTrack } = settings;
+  const { startLeft, minScaleCount, scaleSplitCount, scale, videoTrack } = settings;
 
   if (!detailMode && flags.detailMode) {
     console.info('fitScaleData', from, 'detailMode early exit', detailMode, flags.detailMode);
@@ -108,13 +108,13 @@ export const fitScaleData = (context: TimelineContextType, detailMode: boolean, 
   }
 
   const tracks = state.file?.tracks;
-  if (!newWidth || (!tracks?.length && recordingTrack)) {
+  if (!newWidth || (!tracks?.length && videoTrack)) {
     console.info('fitScaleData', '!newWidth || !tracks?.length');
     return null;
   }
 
   const getScale = () => {
-    const duration = recordingTrack ? recordingTrack.file.media.duration : engine.maxDuration;
+    const duration = videoTrack ? videoTrack.file.media.duration : engine.maxDuration;
     const scaleWidth = (newWidth - (startLeft * 2)) / duration;
     if (scaleWidth < 40) {
       const multiplier = Math.ceil(60 / scaleWidth);
