@@ -184,7 +184,7 @@ function DetailModal () {
 
   React.useEffect(() => {
     if (flags.detailOpen && !initialized && file) {
-      const newFile = new EditorFile(file.data);
+      const newFile = new EditorFile({...file.data, files: file.files});
       newFile.preload('detail-editor').then(() => {
         setCopiedFile(newFile)
         setDetailState({ selectedTrackId: selectedTrack?.id, selectedActionId: selectedAction?.id, selectedId: selected!.id});

@@ -106,7 +106,7 @@ const EditorRoot = styled(Box, {
 });
 
 interface TimelineSlotProps {
-  trackControls?: any
+  trackActions?: any
 }
 
 const DrawerHeader = styled('div')(({ theme }) => ({
@@ -221,7 +221,7 @@ const Editor = React.forwardRef(function Editor<R extends IMediaFile = IMediaFil
     externalSlotProps: slotProps?.timeline,
     className: classes.timeline,
     getSlotProps: getTimelineProps,
-    ownerState: {...noFlagProps, trackControls: EditorTrackActions} as any,
+    ownerState: {...noFlagProps, trackActions: EditorTrackActions} as any,
   });
 
   const ExplorerTabs = slots?.fileExplorer ?? EditorFileTabs;
@@ -445,7 +445,7 @@ const Editor = React.forwardRef(function Editor<R extends IMediaFile = IMediaFil
   return (<Root
       role={'editor'}
       detail={flags.detailMode}
-      trackCount={file?.tracks.length || 0}
+      trackCount={file?.tracks?.length || 0}
       {...newRootProps}
       sx={[{ position: 'relative', overflow:'visible'}, ...(Array.isArray(sx) ? sx : [sx]),]}
       id={finalEditorId}
