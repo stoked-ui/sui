@@ -151,17 +151,16 @@ export default class EditorFile<
   }
 
   static async fromUrl<AppFileType = EditorFile>(url: string, FileConstructor: Constructor<AppFileType> = EditorFile as unknown as Constructor<AppFileType>): Promise<AppFileType | null> {
-    /*
-    TODO: should be able to load from idb instead of fetch
+
+    const editor = StokedUiEditorApp.getInstance();
+    const urlLookup = await LocalDb.loadByUrl({store: editor.defaultInputFileType.name, url});
     if (urlLookup) {
-      const editorFile = await TimelineFile.fromLocalFile<AppFileType>(urlLookup.blob as Blob, FileConstructor) as EditorFile;
-      if (editorFile) {
-        editorFile.versions = urlLookup.versions;
-      }
+      const editorFile = await this.fromLocalFile<AppFileType>(urlLookup.blob as Blob, FileConstructor) as EditorFile;
+       await editorFile.updateStore();
       return editorFile as AppFileType;
     }
-    */
     const file = await TimelineFile.fromUrl<AppFileType>(url, FileConstructor) as IEditorFile;
+
     if (!file) {
       return file;
     }

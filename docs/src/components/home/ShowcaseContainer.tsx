@@ -4,17 +4,20 @@ import Fade from '@mui/material/Fade';
 import NoSsr from '@mui/material/NoSsr';
 import Frame from 'docs/src/components/action/Frame';
 import { namedId } from '@stoked-ui/common';
+import {SxProps} from "@mui/system";
 
 export default function ShowcaseContainer({
   preview,
   code,
   sx,
+  demoSx,
   id = null,
 }: {
   id: string | null;
   preview?: React.ReactNode;
   code?: React.ReactNode;
   sx?: BoxProps['sx'];
+  demoSx?: SxProps;
 }) {
   return (
     <Fade in timeout={700}>
@@ -36,14 +39,14 @@ export default function ShowcaseContainer({
       >
         <Frame.Demo
           id={id ? `${id}-preview` : namedId('preview')}
-          sx={{
+          sx={[{
             display: 'flex',
             position: 'relative',
             justifyContent: 'center',
             alignItems: 'center',
             minHeight: 220,
             p: 2,
-          }}
+          }, ...(Array.isArray(demoSx) ? demoSx : [demoSx])]}
         >
           {preview}
         </Frame.Demo>

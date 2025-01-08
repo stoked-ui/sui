@@ -82,6 +82,8 @@ export default class MediaFile extends File implements IMediaFile {
 
   children: IMediaFile[];
 
+  static cache: { [key: string]: IMediaFile} = {};
+
   constructor(
     fileBits: BlobPart[],
     fileName: string,
@@ -116,7 +118,7 @@ export default class MediaFile extends File implements IMediaFile {
   }
 
   async toBlob(): Promise<Blob> {
-    return new Blob([this.metadataBlob, this], { type: this.type });
+    return new Blob([this], { type: this.type });
   }
 
   getUrl() {
@@ -284,19 +286,24 @@ export default class MediaFile extends File implements IMediaFile {
   }
 
   async extractMetadata() {
-    console.info('extractMetadata', this.name, this.mediaType);
-    const extract = async () => {
-      switch (this.mediaType) {
-        case 'video':
-          return MediaFile.extractVideoMetadata(this as MediaFile);
-        case 'audio':
-          return MediaFile.preloadExtractAudio(this as MediaFile);
-        default:
-          return {}
+    try {
+      console.info('extractMetadata', this.name, this.mediaType, typeof window !== 'undefined' );
+      const extract = async () => {
+        switch (this.mediaType) {
+          case 'video':
+            return MediaFile.extractVideoMetadata(this as MediaFile);
+          case 'audio':
+            return MediaFile.preloadExtractAudio(this as MediaFile);
+          default:
+            return {}
+        }
       }
+      if (typeof window !== 'undefined') {
+        await extract();
+      }
+    } catch(ex) {
+      console.error('Failed to extract metadata', ex);
     }
-
-    await extract();
   }
 
   getBackgroundImage() {
@@ -581,6 +588,8 @@ export default class MediaFile extends File implements IMediaFile {
           reject(new Error('File is not a video file.'));
           return;
         }
+
+
         reader.onload = (event) => {
           if (!event.target?.result) {
             reject(new Error('Failed to read file.'));
@@ -588,19 +597,19 @@ export default class MediaFile extends File implements IMediaFile {
           }
 
           const video = document.createElement('video');
+
           video.crossOrigin = 'anonymous';
           video.src = URL.createObjectURL(new Blob([event.target.result], {type: file.type}));
           video.preload = 'auto';
           video.id = `${file.name}-video`;
+          console.info('duration', file.name, video.readyState, video.duration, video);
           video.onloadedmetadata = () => {
-            resolve( {
+            resolve({
               duration: video.duration, // Duration in seconds
               format: file.type,        // MIME type
               name: file.name,          // File name
               size: file.size,  // File size in bytes
-              video,
-              width: video.videoWidth,
-              height: video.videoHeight
+              video, width: video.videoWidth, height: video.videoHeight
             });
           }
         }
@@ -608,7 +617,6 @@ export default class MediaFile extends File implements IMediaFile {
         reader.onerror = () => {
           reject(new Error('Failed to read file.'));
         };
-
         reader.readAsArrayBuffer(file);
       } catch (ex) {
         reject(ex);
@@ -617,38 +625,25 @@ export default class MediaFile extends File implements IMediaFile {
   }
 
   static async extractVideoMetadata(
-    file: MediaFile,
-    screenshots: boolean | number = false
-  ): Promise<{
-    duration: number,
-    format: string,
-    name: string,
-    size: number,
-    screenshotStore?: ScreenshotStore,
-    video: HTMLVideoElement
-  }> {
+    file: MediaFile
+  ): Promise<void> {
     try {
+      const id = `${file.name}-video`;
+      const cached = this.cache[id];
+      if (cached) {
+        file.media = { ...file.media, ...cached };
+        return;
+      }
       const { video, ...videoData} = await this.createVideoElement(file);
       const screenshotStore = new ScreenshotStore({ threshold: 1, video, file });
       file.media = { ...file.media, screenshotStore, ...videoData, element: video };
-
-      if (!screenshots) {
-        return { ...videoData, screenshotStore, video };
-      }
-      const screenshotCount = typeof screenshots === 'number' ? screenshots : 1;
-      await file.media.screenshotStore.generateTimespanScreenshots(screenshotCount, video, { start: 0, end: videoData.duration });
-
-      return {
-        screenshotStore,
-        ...videoData,
-        video
-      };
+      this.cache[id] = file;
     } catch (ex) {
       throw new Error(`Failed to read file: ${ex}`);
     }
   }
 
-  static async extractAudioMetadata(file: MediaFile): Promise<IAudioMetadata> {
+  static async extractAudioMetadata(file: MediaFile): Promise<void> {
     return new Promise((resolve, reject) => {
       if (!file.type.startsWith('audio/')) {
         reject(new Error('File is not an audio file.'));
@@ -682,11 +677,11 @@ export default class MediaFile extends File implements IMediaFile {
           const additionalMetadata = this.extractMetadataFromAudioFileName(file.name);
 
           file.media = { ...file.media, ...metadata, ...additionalMetadata };
-          resolve({ ...metadata, ...additionalMetadata });
+          resolve();
         } catch (error) {
           reject(error);
         } finally {
-          audioContext.close();
+          await audioContext.close();
         }
       };
 
@@ -719,9 +714,10 @@ export default class MediaFile extends File implements IMediaFile {
     }
 
     // Create a new audio element
+    const blob = await file.toBlob();
 
     // Create a Blob URL for the file
-    const objectUrl = URL.createObjectURL(file);
+    const objectUrl = URL.createObjectURL(blob as globalThis.Blob);
     return new Promise((resolve) => {
       const element = document.createElement('audio') as HTMLAudioElement;
       element.addEventListener("durationchange", () => {
@@ -911,7 +907,13 @@ export default class MediaFile extends File implements IMediaFile {
     })
   }
 
-  static async preloadExtractAudio(file: MediaFile): Promise<IAudioPreloadExtractResult> {
+  static async preloadExtractAudio(file: MediaFile): Promise<void> {
+    const id = `${file.name}-audio`;
+    const cached = this.cache[id];
+    if (cached) {
+      file.media = cached.media;
+      return;
+    }
     const preloadRes = await this.preloadAudio(file);
     const { metadata, objectUrl } = preloadRes;
 
@@ -924,9 +926,8 @@ export default class MediaFile extends File implements IMediaFile {
       waveformColor:  '#2bd797'
     }
     const backgroundImage = await this.getAudioWaveImage(imageOptions);
-    const result = { ...preloadRes, backgroundImage };
     file.media = { ...file.media, ...preloadRes, backgroundImage }
-    return result;
+    this.cache[id] = file;
   }
 
   static toFileBaseArray(files: IMediaFile[]) {

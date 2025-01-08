@@ -7,6 +7,7 @@ import { prefix } from '../utils/deal_class_prefix';
 import { useTimeline } from '../TimelineProvider';
 import { TimelineTimeProps } from './TimelineTime.types';
 import ZoomControls from '../TimelineTrackArea/ZoomControls';
+import SnapControls from "../TimelineLabels/SnapControls";
 
 const TimeAreaRoot = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -179,49 +180,55 @@ function TimelineTime(props: TimelineTimeProps) {
     // setPosition({ x: e.clientX, y: e.clientY });
   };
 
-  return (
-    <TimeAreaRoot
-      sx={{ marginLeft: `${startLeft - 7}px`, display: 'grid' }}
-      ref={timeAreaRef}
-      className={prefix('time-area')}
-    >
-      <ZoomControls />
-      <AutoSizer>
-        {({ width, height }) => {
-          return (
-            <React.Fragment>
-              <Grid
-                id={'time-area-grid'}
-                ref={gridRef}
-                columnCount={showUnit ? scaleCount * scaleSplitCount + 1 : scaleCount}
-                columnWidth={getColumnWidth}
-                estimatedColumnSize={estColumnWidth}
-                rowCount={1}
-                style={{ overflowX: 'hidden' }}
-                rowHeight={height}
-                width={width}
-                height={height}
-                overscanRowCount={0}
-                overscanColumnCount={10}
-                cellRenderer={cellRenderer}
-                scrollLeft={scrollLeft}
-              />
-              <TimeAreaInteract
-                ref={timeInteract}
-                style={{ width, height }}
-                disabled={settings.disabled}
-                onMouseDown={setTimeToMouse}
-                onMouseMove={handleMouseMove}
-                onMouseUp={() => setIsDragging(false)}
-                onMouseLeave={() => setIsDragging(false)}
-                className={prefix('time-area-interact')}
-              />
-            </React.Fragment>
-          );
-        }}
-      </AutoSizer>
-    </TimeAreaRoot>
-  );
+  return (<TimeAreaRoot
+    sx={{marginLeft: `${startLeft - 7}px`, display: 'grid'}}
+    ref={timeAreaRef}
+    className={prefix('time-area')}
+  >
+    <div style={{
+      right: 0,
+      justifySelf: 'end',
+      alignSelf: 'center',
+      position: 'absolute',
+      zIndex: 300
+    }}>
+      {flags && flags.noLabels && <SnapControls size={'small'} hover={true} />}
+      <ZoomControls/>
+    </div>
+    <AutoSizer>
+      {({width, height}) => {
+        return (<React.Fragment>
+            <Grid
+              id={'time-area-grid'}
+              ref={gridRef}
+              columnCount={showUnit ? scaleCount * scaleSplitCount + 1 : scaleCount}
+              columnWidth={getColumnWidth}
+              estimatedColumnSize={estColumnWidth}
+              rowCount={1}
+              style={{overflowX: 'hidden'}}
+              rowHeight={height}
+              width={width}
+              height={height}
+              overscanRowCount={0}
+              overscanColumnCount={10}
+              cellRenderer={cellRenderer}
+              scrollLeft={scrollLeft}
+            />
+            <TimeAreaInteract
+              ref={timeInteract}
+              style={{width, height}}
+              disabled={settings.disabled}
+              onMouseDown={setTimeToMouse}
+              onMouseMove={handleMouseMove}
+              onMouseUp={() => setIsDragging(false)}
+              onMouseLeave={() => setIsDragging(false)}
+              className={prefix('time-area-interact')}
+            />
+          </React.Fragment>);
+      }}
+    </AutoSizer>
+  </TimeAreaRoot>
+);
 }
 
 TimelineTime.propTypes = {

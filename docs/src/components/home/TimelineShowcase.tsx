@@ -9,9 +9,8 @@ import Timeline, {
 import ShowcaseContainer from 'docs/src/components/home/ShowcaseContainer';
 import HighlightedCode from 'docs/src/modules/components/HighlightedCode';
 import MarkdownElement from 'docs/src/components/markdown/MarkdownElement';
-import {EditorFile, IEditorFile, IEditorFileProps} from "@stoked-ui/editor";
 import {
-  createFile, EditorAudioExampleProps, EditorVideoExampleProps
+  createTimelineFile, EditorAudioExampleProps
 } from "../showcase/ExampleShowcaseFiles";
 
 
@@ -24,25 +23,23 @@ const code = `
   );
 };`
 
-function TimelineEditorDemo() {
+function TimelineEditorDemo({sx}: {sx: SxProps}) {
   const [loadedFile, setLoadedFile] = React.useState<ITimelineFile | undefined>();
 
-  const loadEditorFile = async () => {
-    const editorFile = await createFile<ITimelineFileProps, TimelineFile>(EditorVideoExampleProps, TimelineFile);
-    setLoadedFile(editorFile);
-  }
+  const id = 'timeline-showcase';
 
   const loadTimelineFile = async () => {
-    const timelineFile = await createFile<ITimelineFileProps, TimelineFile>(EditorAudioExampleProps as ITimelineFileProps, TimelineFile);
+    const timelineFile = await createTimelineFile<ITimelineFileProps, TimelineFile>(EditorAudioExampleProps as ITimelineFileProps, TimelineFile, id);
     setLoadedFile(timelineFile);
   }
 
   React.useEffect(() => {
-    loadEditorFile().then(() => {});
+    loadTimelineFile().then(() => {});
   }, []);
+
   return (
     <TimelineProvider  >
-      <Timeline sx={{width:'100%'}} id={'timeline-showcase'} file={loadedFile} />
+      <Timeline sx={sx} id={id} file={loadedFile} />
     </TimelineProvider>
   );
 };
@@ -53,8 +50,9 @@ export default function TimelineShowcase() {
     <ShowcaseContainer
       id={'timeline-showcase'}
       preview={
-        <TimelineEditorDemo/>
+        <TimelineEditorDemo sx={sx}/>
       }
+      demoSx={{ p: 0 }}
       code={
         <Box
           sx={{

@@ -51,33 +51,31 @@ export default function ZoomControls({ style }: { style?: React.CSSProperties })
 
   const zoomOutDisabled = disabled || (scaleWidth / scale  < rawScaleWidth);
   return (
-    <div style={{ right: 0, justifySelf: 'end', alignSelf: 'center', position: 'absolute', zIndex: 300 }}>
-      <ToggleButtonGroupEx
-        id={'zoom-controls'}
-        value={[]}
-        size={'small'}
-        aria-label="text alignment"
-        maxWidth={30}
-        maxHeight={22}
-        style={{position: 'absolute'}}
-        disabled={disabled}
-      >
-        <Tooltip enterDelay={1000} title={'Zoom In'} key={'zoomIn'}>
-          <span>
-            <ToggleButton value="zoomIn" aria-label="zoom in" key={'zoomIn-key'} onClick={zoomInHandler} onMouseDown={zoomIn} >
-              <ZoomInIcon />
-            </ToggleButton>
-          </span>
-        </Tooltip>
-        <Tooltip enterDelay={1000} title={'Zoom Out'} key={'zoomOut'}>
-          <span>
-            <ToggleButton disabled={zoomOutDisabled} value="zoomOut" aria-label="zoom out" key={'zoomOut-key'} onClick={zoomOutHandler} onMouseDown={zoomOut}>
-              <ZoomOutIcon />
-            </ToggleButton>
-          </span>
-        </Tooltip>
-      </ToggleButtonGroupEx>
-  </div>
+    <ToggleButtonGroupEx
+      id={'zoom-controls'}
+      value={[]}
+      size={'small'}
+      aria-label="text alignment"
+      maxWidth={30}
+      maxHeight={22}
+      style={{position: 'absolute'}}
+      disabled={disabled}
+    >
+      <Tooltip enterDelay={1000} title={'Zoom In'} key={'zoomIn'}>
+        <span>
+          <ToggleButton value="zoomIn" aria-label="zoom in" key={'zoomIn-key'} onClick={zoomInHandler} onMouseDown={zoomIn} sx={{ opacity: .4, '&:hover': { opacity: 1 }}} >
+            <ZoomInIcon />
+          </ToggleButton>
+        </span>
+      </Tooltip>
+      <Tooltip enterDelay={1000} title={'Zoom Out'} key={'zoomOut'}>
+        <span>
+          <ToggleButton disabled={zoomOutDisabled} value="zoomOut" aria-label="zoom out" key={'zoomOut-key'} onClick={zoomOutHandler} onMouseDown={zoomOut} sx={{ opacity: .4, '&:hover': { opacity: 1 }}}>
+            <ZoomOutIcon />
+          </ToggleButton>
+        </span>
+      </Tooltip>
+    </ToggleButtonGroupEx>
   );
 }
 

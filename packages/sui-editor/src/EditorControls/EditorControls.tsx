@@ -522,6 +522,11 @@ const EditorControls = React.forwardRef(function EditorControls(
     const second = `${parseInt(`${renderTime % 60}`, 10)}`.padStart(2, '0');
     return `${min}:${second}.${float.replace('0.', '')}`;
   };
+
+  const containerRef = React.useRef<HTMLElement>();
+
+  const [displayRate, setDisplayRate] = React.useState(true);
+
 /*
   const [disabled, setDisabled] = React.useState(settings.disabled);
   React.useEffect(() => {
@@ -541,6 +546,10 @@ const EditorControls = React.forwardRef(function EditorControls(
       setTime(setTimeProps.time);
     });
 
+    const editor = document.getElementById(settings.editorId);
+    if (editor && editor.parentElement) {
+      containerRef.current = editor.parentElement;
+    }
     return () => {
       if (engine) {
         engine.pause();
@@ -549,6 +558,30 @@ const EditorControls = React.forwardRef(function EditorControls(
       return undefined;
     };
   }, []);
+
+
+  React.useEffect(() => {
+    const observer = new ResizeObserver(() => {
+      if (!containerRef.current) {
+        return;
+      }
+      // const width = baseRef.current?.clientWidth;
+      if (containerRef.current?.clientWidth < 616 && displayRate) {
+        setDisplayRate(false);
+      } else if (containerRef.current?.clientWidth >= 616 && !displayRate) {
+        setDisplayRate(true);
+      }
+    });
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+    return () => {
+      if (observer) {
+        observer.disconnect();
+      }
+    };
+  }, [containerRef?.current])
 
   const controlProps = { setVideoURLs, controls, setControls, versions, setVersions };
 
@@ -574,8 +607,6 @@ const EditorControls = React.forwardRef(function EditorControls(
             setVersions={setVersions!}
             disabled={settings.disabled}
           />
-          {flags && flags.noLabels && <SnapControls />}
-          {/* switchView && <ViewToggle disabled={disabled} /> */}
         </div>
       </div>
       <Box
@@ -610,6 +641,7 @@ const EditorControls = React.forwardRef(function EditorControls(
           sx={{
             minWidth: '84px',
             marginRight: '6px',
+            display: displayRate ? 'flex' : 'none',
           }}
           disabled={settings.disabled}
           className="rate-control"

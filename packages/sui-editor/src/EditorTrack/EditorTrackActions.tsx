@@ -42,14 +42,14 @@ export function ToggleHidden({ track, file, toggleClick, dispatch, hide, childre
 }
 
 export default function EditorTrackActions({ track, sx }: { track: any, sx?: any }) {
-  const { state: { file, settings: { recordingTrack }, engine, flags }, dispatch} = useEditorContext();
+  const { state: { file, settings: { videoTrack }, engine, flags }, dispatch} = useEditorContext();
   const volumeIcon = track.muted ? <VolumeOff fontSize={'small'} /> : <VolumeUp fontSize={'small'} />;
   const visibilityIcon = track.hidden ? <VisibilityOffIcon fontSize={'small'} /> : <VisibilityIcon fontSize={'small'} />;
   const lockIcon = track.locked ? <LockIcon fontSize={'small'}/> : <LockOpenIcon fontSize={'small'}/>;
   const toggleClick = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
     event.stopPropagation();
   }
-  if (!file || flags.noTrackControls || recordingTrack) {
+  if (!file || flags.noTrackControls || videoTrack) {
     return undefined;
   }
   return <ToggleButtonGroupEx
@@ -57,7 +57,7 @@ export default function EditorTrackActions({ track, sx }: { track: any, sx?: any
     aria-label="text alignment"
     width={32}
     height={32}
-    sx={[...(Array.isArray(sx) ? sx : [sx]), { marginLeft: '8px', marginRight: '2px' }]}
+    sx={[...(Array.isArray(sx) ? sx : [sx]), { marginLeft: '8px', marginRight: '2px', zIndex: '1!important' }]}
   >
     <ToggleHidden engine={engine} track={track} dispatch={dispatch} file={file} toggleClick={toggleClick} hide={flags.hideHidden} >{visibilityIcon}</ToggleHidden>
     <ToggleVolume track={track} dispatch={dispatch} file={file} toggleClick={toggleClick} >{volumeIcon}</ToggleVolume>

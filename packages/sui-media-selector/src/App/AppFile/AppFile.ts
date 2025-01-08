@@ -1,14 +1,15 @@
 import {namedId, Constructor, FileSaveRequest, Versions, IDBVideo,} from '@stoked-ui/common';
 import { File, Blob } from 'formdata-node';
-import MediaFile from '../../MediaFile';
 import WebFile, {
   IWebFile,
   IWebFileData,
   IWebFileProps,
 } from '../../WebFile';
+import path from "path";
+import * as fse from "fs-extra";
 
 export type IAppFileProps = IWebFileProps & {
-  mediaFiles?: MediaFile[];
+  files?: File[];
 }
 
 export interface IAppFileConstructor<AppFileType extends AppFile = AppFile>  {
@@ -18,16 +19,16 @@ export interface IAppFileConstructor<AppFileType extends AppFile = AppFile>  {
 
 export interface IAppFileMeta { id: string, size: number, name: string, type: string }
 export interface IAppFileData extends IWebFileData {
-  mediaFilesMeta: IAppFileMeta[];
+  filesMeta: IAppFileMeta[];
 }
 
 export interface IAppFile extends IWebFile {
-  mediaFiles: MediaFile[];
+  files: File[];
   versions: Versions;
   videos: IDBVideo[];
 
-  addMediaFile(mediaFile: MediaFile): void;
-  removeMediaFile(id: string): void;
+  addFile(file: File): void;
+  removeFile(name: string): void;
 
   toBlob(): Promise<Blob>;
   stream(): ReadableStream<Uint8Array>;
@@ -35,7 +36,7 @@ export interface IAppFile extends IWebFile {
 
 export default class AppFile<FileDataType extends IAppFileData = IAppFileData> extends WebFile implements IAppFile {
 
-  protected _mediaFiles: MediaFile[];
+  protected _files: File[];
 
   versions: Versions = [];
 
@@ -43,11 +44,11 @@ export default class AppFile<FileDataType extends IAppFileData = IAppFileData> e
 
   constructor(appFileProps: IAppFileProps) {
     super(appFileProps);
-    this._mediaFiles = appFileProps?.mediaFiles ?? [];
+    this._files = appFileProps?.files ?? [];
   }
 
-  get mediaFiles(): MediaFile[] {
-    return this._mediaFiles;
+  get files(): File[] {
+    return this._files;
   }
 
   async getSaveRequest(): Promise<FileSaveRequest> {
@@ -60,22 +61,22 @@ export default class AppFile<FileDataType extends IAppFileData = IAppFileData> e
 
   /**
    * Adds a MediaFile to the collection.
-   * @param mediaFile MediaFile instance to add.
+   * @param file MediaFile instance to add.
    */
-  addMediaFile(mediaFile: MediaFile | MediaFile[]) {
-    if (Array.isArray(mediaFile)) {
-      this._mediaFiles = this._mediaFiles.concat(mediaFile);
+  addFile(file: File | File[]) {
+    if (Array.isArray(file)) {
+      this._files = this._files.concat(file);
     } else {
-      this._mediaFiles.push(mediaFile);
+      this._files.push(file);
     }
   }
 
   /**
    * Removes a MediaFile by its ID.
-   * @param id The ID of the MediaFile to remove.
+   * @param name The ID of the MediaFile to remove.
    */
-  removeMediaFile(id: string) {
-    this._mediaFiles = this._mediaFiles.filter((file) => file.id !== id);
+  removeFile(name: string) {
+    this._files = this._files.filter((file) => file.name !== name);
   }
 
   /**
@@ -111,17 +112,20 @@ export default class AppFile<FileDataType extends IAppFileData = IAppFileData> e
     const metadataBuffer = arrayBuffer.slice(metadataStart, metadataEnd);
     const metadataText = new TextDecoder().decode(metadataBuffer);
     const jsonData = JSON.parse(metadataText);
-    const { mediaFilesMeta, ...metadata } = jsonData;
+    const { filesMeta, ...metadata } = jsonData;
 
     // Extract binary data for media files
     const binaryData = arrayBuffer.slice(metadataEnd);
-    const mediaFilesInstances = mediaFilesMeta.map((fileMeta: IAppFileMeta, index: number) => {
-      const mediaFileBlob = new Blob([binaryData.slice(index, index + fileMeta.size)], { type: fileMeta.type });
-      return new MediaFile([mediaFileBlob], fileMeta.name, { type: fileMeta.type });
-    });
+    const filesInstances =  await Promise.all(
+      filesMeta.map( async (fileMeta: IAppFileMeta, index: number) => {
+        const fileBlob = new Blob([binaryData.slice(index, index + fileMeta.size)], { type: fileMeta.type });
+        console.info('file url', fileMeta.name, URL.createObjectURL(fileBlob));
+        return new File([fileBlob], fileMeta.name, { type: fileMeta.type });
+      })
+    );
 
     return new FileConstructor({
-      mediaFiles: mediaFilesInstances,
+      files: filesInstances,
       ...metadata
     });
   }
@@ -144,7 +148,7 @@ export default class AppFile<FileDataType extends IAppFileData = IAppFileData> e
     const metadataBlob = new Blob([metadata], { type: 'application/json' });
     const metadataLengthBuffer = new Uint32Array([metadataBlob.size]); // Store metadata size as a 4-byte buffer
 
-    const fileBlobs = await Promise.all(this.mediaFiles.map((file) => file.toBlob()));
+    const fileBlobs = await Promise.all(this.files.map((file) => file as Blob));
 
     // Combine metadata length, metadata, and file blobs
     return new Blob([metadataLengthBuffer.buffer, metadataBlob, ...fileBlobs], { type: 'application/octet-stream' });
@@ -155,7 +159,7 @@ export default class AppFile<FileDataType extends IAppFileData = IAppFileData> e
    */
   stream(): ReadableStream<Uint8Array> {
     const metadataBlob = new Blob([JSON.stringify(this.data)], { type: 'application/json' });
-    const fileStreams = this.mediaFiles.map((file) => file.stream());
+    const fileStreams = this.files.map((file) => file.stream());
     const metadataStream = metadataBlob.stream();
 
     return new ReadableStream({
@@ -211,7 +215,7 @@ export default class AppFile<FileDataType extends IAppFileData = IAppFileData> e
     const baseData = super.data;
     return {
       ...baseData,
-      mediaFilesMeta: this.mediaFiles.map((file) => { return { size: file.size, name: file.name, type: file.type }}),
+      filesMeta: this.files.map((file) => { return { size: file.size, name: file.name, type: file.type }}),
     } as FileDataType
   }
 }

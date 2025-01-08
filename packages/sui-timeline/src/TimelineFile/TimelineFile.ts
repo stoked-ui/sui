@@ -89,8 +89,12 @@ export default class TimelineFile<
           track.controller = TimelineFile.Controllers[track.file.mediaType]
         }
       }
+      const file = props.files?.[i];
+      if (!track.file && file) {
+        track.file = new MediaFile([file], file.name, { type: file.type });
+      }
       if (track.file) {
-        this.addMediaFile(track.file);
+        this.addFile(file);
       }
       const actions = track.actions.map((action: ITimelineFileAction, index) => {
         return this.actionInitializer(action as FileActionType, index);
@@ -106,8 +110,7 @@ export default class TimelineFile<
   }
 
   get mediaFiles(): MediaFile[] {
-    this._mediaFiles = this.tracks.map((track) => track.file);
-    return this._mediaFiles;
+    return this.tracks.map((track) => track.file);
   }
 
   async loadUrls() {
@@ -328,8 +331,9 @@ export default class TimelineFile<
     const timelineFile = await AppFile.fromLocalFile<AppFileType>(file, FileConstructor) as TimelineFile;
 
     for (let index = 0; index < timelineFile.tracks.length; index += 1) {
+      const mediaFile = timelineFile.tracks[index].file
       // eslint-disable-next-line no-await-in-loop
-      timelineFile.tracks[index].file = timelineFile._mediaFiles[index]
+      await mediaFile.extractMetadata();
     }
 
     await timelineFile.loadUrls();

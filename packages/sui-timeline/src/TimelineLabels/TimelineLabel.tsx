@@ -117,14 +117,14 @@ const TimelineLabel = React.forwardRef(
     trackHeight: number,
     collapsed?: boolean,
     last: boolean
-    trackControls?: React.ElementType<any, keyof React.JSX.IntrinsicElements>
+    trackActions?: React.ElementType<any, keyof React.JSX.IntrinsicElements>
   },
   ref: React.Ref<HTMLDivElement>
 ): React.JSX.Element {
   const { state: context, dispatch } = useTimeline();
   const { settings, flags, file, selectedTrack } = context;
   const { editorMode } = settings;
-  const { track, trackHeight, classes,  onClick, trackControls: TrackControls } = inProps;
+  const { track, trackHeight, classes,  onClick, trackActions: TrackControls } = inProps;
   const { trackHoverId } = settings;
 
   const trackIndex = file?.tracks?.findIndex((t) => t.id === track.id);

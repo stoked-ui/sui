@@ -28,7 +28,7 @@ export interface TimelineControlProps extends TimelineControlPropsBase {
    */
   style?: React.CSSProperties;
 
-  trackControls?: React.ComponentType;
+  trackActions?: React.ComponentType;
   /*
   autoReRender?: boolean;
   disabled?: boolean;

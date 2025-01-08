@@ -26,7 +26,7 @@ export type TimelineTrackProps<
   actionTrackMap?: Record<string, TrackType>
   trackRef?: React.RefObject<HTMLDivElement>;
   onAddFiles?: () => void;
-
+  trackActions?: React.ElementType
 };
 
 export const TrackColorAlpha = {

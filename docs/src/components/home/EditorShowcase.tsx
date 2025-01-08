@@ -1,9 +1,12 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
-import Editor, { Controllers, EditorProvider } from '@stoked-ui/editor';
+import Editor, {
+  Controllers, EditorFile, EditorProvider, IEditorFileProps, useEditorContext
+} from '@stoked-ui/editor';
 import ShowcaseContainer from 'docs/src/components/home/ShowcaseContainer';
 import HighlightedCode from 'docs/src/modules/components/HighlightedCode';
 import MarkdownElement from 'docs/src/components/markdown/MarkdownElement';
+import {createEditorFile, EditorVideoExampleProps} from "../showcase/ExampleShowcaseFiles";
 
 const code   = `
 import * as React from 'react';
@@ -25,10 +28,26 @@ export const scaleWidth = 160;
 export const scale = 2;
 export const startLeft = 20;
 
+function EditorWithFile() {
+  const { dispatch } = useEditorContext();
+
+  const id = 'editor-demo';
+  React.useEffect(() => {
+    createEditorFile<IEditorFileProps, EditorFile>(EditorVideoExampleProps, EditorFile, id).then((editorFile) => {
+      dispatch({ type: 'SET_FILE', payload: editorFile })
+    });
+  }, [])
+
+  return <Editor
+    id={id}
+    sx={{ borderRadius: '12px 12px 0 0!important' }}
+    noLabels
+  />
+}
 function EditorDemo() {
   return (
     <EditorProvider id={'editor-hero-demo'} controllers={Controllers} >
-      <Editor id='editor-demo' sx={{ borderRadius: '12px 12px 0 0' }} fileUrl={'/static/editor/stoked-ui.sue'}  />
+      <EditorWithFile  />
     </EditorProvider>
   );
 }
@@ -39,6 +58,7 @@ export default function EditorShowcase() {
       preview={
         <EditorDemo/>
       }
+      demoSx={{ p: 0, borderRadius: '12px 12px 0 0!important', overflow: 'hidden'}}
       code={
         <Box
           id={'editor-showcase-codep'}

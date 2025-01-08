@@ -303,7 +303,7 @@ function TimelineTrack<
   const { state: context, dispatch } = useTimeline();
   const ref = React.useRef<HTMLDivElement>(null);
   const { settings, selectedTrack, flags, file } = context;
-  const { scrollLeft, startLeft, scale, scaleWidth, trackHoverId, trackHeight, recordingTrack } =
+  const { scrollLeft, startLeft, scale, scaleWidth, trackHoverId, trackHeight, videoTrack } =
     settings;
 
   const {
@@ -319,7 +319,7 @@ function TimelineTrack<
   } = props;
 
   const getIndex = (getIndexTrack: ITimelineTrack) =>
-    recordingTrack ? 0 : file?.tracks?.findIndex((fileTrack) => fileTrack.id === getIndexTrack.id);
+    videoTrack ? 0 : file?.tracks?.findIndex((fileTrack) => fileTrack.id === getIndexTrack.id);
   const index = getIndex(track);
   const classNames = ['track'];
   const handleTime = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -355,16 +355,17 @@ function TimelineTrack<
   };
 
   const detailDisable = flags.detailMode && (!selectedTrack || selectedTrack.id !== track.id);
+  const TrackActions = props.trackActions || TimelineTrackActions;
   return (
     <TimelineTrackRoot
       ref={ref}
       className={`${prefix(...classNames)} ${(track?.classNames || []).join(' ')}`}
       locked={track.locked}
-      yPercent={calculatePercentage(recordingTrack ? 1 : file?.tracks?.length, index)}
+      yPercent={calculatePercentage(videoTrack ? 1 : file?.tracks?.length, index)}
       disabled={track.disabled || detailDisable}
       dim={!!track.dim}
       onMouseEnter={(event) => {
-        if (recordingTrack) {
+        if (videoTrack) {
           return;
         }
         dispatch({
@@ -374,7 +375,7 @@ function TimelineTrack<
         event.stopPropagation();
       }}
       onMouseLeave={(event) => {
-        if (recordingTrack) {
+        if (videoTrack) {
           return;
         }
         dispatch({
@@ -413,6 +414,7 @@ function TimelineTrack<
             event.preventDefault();
             break;
           }
+          default:
         }
       }}
       onClick={(e) => {
@@ -445,7 +447,7 @@ function TimelineTrack<
         }
       }}
     >
-      {flags.noLabels && !flags.isMobile && <TimelineTrackActions track={track} />}
+      {flags.noLabels && !flags.isMobile && selectedTrack?.id === track.id && <TrackActions track={track} />}
 
       {/*
         TODO: potentially can use this for drag indicators to rearrange track orders.. not right meow though

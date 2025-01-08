@@ -107,7 +107,7 @@ const ToggleButtonGroupStyled = styled(ToggleGroup, {
 });
 
 function ToggleButtonGroupEx(props: ToggleButtonGroupExProps): React.ReactNode {
-  const { id, onChange, value, children, size, minWidth, minHeight, maxWidth, maxHeight } = props;
+  const { id, sx, onChange, value, children, size, minWidth, minHeight, maxWidth, maxHeight } = props;
 
   const getSizeBounds = (
     groupSize: OverridableStringUnion<
@@ -173,6 +173,7 @@ function ToggleButtonGroupEx(props: ToggleButtonGroupExProps): React.ReactNode {
       maxHeight={maxHeightFinal}
       width={width}
       height={height}
+      sx={sx}
     >
       {props.children}
     </ToggleButtonGroupStyled>
