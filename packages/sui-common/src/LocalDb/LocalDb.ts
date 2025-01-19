@@ -496,7 +496,6 @@ class LocalDbStore {
       const tx = db.transaction(this.name, 'readonly');
       const store = tx.objectStore(this.name);
       const storeKeys = await store.getAllKeys();
-      console.info('keys',storeKeys)
       this._keys = new Set(storeKeys as string[]);
       this._files = await Promise.all(Array.from(this._keys).map(async (key) => {
         const record = await store.get(key);
@@ -519,7 +518,6 @@ class LocalDbStore {
       }));
 
       await tx.done;
-      console.info("IDB Keys: ", this._keys, Array.from(this._files));
     } catch (e) {
       throw new Error(`${LocalDb.dbName} - store: ${this.name} - ${e as string}`);
     }

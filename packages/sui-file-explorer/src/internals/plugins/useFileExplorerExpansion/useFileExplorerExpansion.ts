@@ -25,7 +25,6 @@ export const useFileExplorerExpansion: FileExplorerPlugin<UseFileExplorerExpansi
 
   const isItemExpanded = React.useCallback(
     (id: string) => {
-      console.info('isItemExpanded instance.id', id);
       return expandedItemsMap.has(id)
     },
     [expandedItemsMap],

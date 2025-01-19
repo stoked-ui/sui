@@ -287,7 +287,6 @@ export default class MediaFile extends File implements IMediaFile {
 
   async extractMetadata() {
     try {
-      console.info('extractMetadata', this.name, this.mediaType, typeof window !== 'undefined' );
       const extract = async () => {
         switch (this.mediaType) {
           case 'video':

@@ -110,7 +110,6 @@ export default function EditorFileTabs(inProps: FileExplorerTabsProps) {
     };
 
     const trackFiles = Object.values(settings.trackFiles) as IMediaFile[];
-    console.info('trackFiles', trackFiles);
     newTabData['Track Files'] = {
       name: 'Track Files',
       items: MediaFile.toFileBaseArray(trackFiles?.length ? trackFiles : [] ),

@@ -67,7 +67,6 @@ const updateGridState = ({ headers, columns, initializedIndexes, id, gridColumns
   name.sx = {...name.sx, flexGrow: 1, display: 'flex', justifyContent: 'start', ...font }
   size.sx = {...name.sx, display: 'flex',  ...font }
   lastModified.sx = {...name.sx, display: 'flex',  ...font }
-  console.info('headers', headers, columns);
   return {
     grid: {
       headers: headers ?? {},

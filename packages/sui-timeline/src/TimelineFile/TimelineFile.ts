@@ -124,7 +124,6 @@ export default class TimelineFile<
         // eslint-disable-next-line no-await-in-loop
         trackInput.file = await MediaFile.fromUrl(trackInput.url);
       }
-      console.info('TimelineFile::loadUrls', trackInput);
       if (!trackInput.controller) {
         let controllerType = trackInput.controllerName;
         if (!controllerType && trackInput.file.mediaType) {
@@ -152,7 +151,6 @@ export default class TimelineFile<
       })
     });
     await Promise.all(nestedPreloads.flat());
-    console.info('TimelineFile::preload', this._tracks);
     this._initialized = true;
   }
 

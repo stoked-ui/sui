@@ -429,7 +429,7 @@ export function FileDetailView(): React.ReactNode {
              <UncontrolledText
                className={'whitespace-nowrap flex-grow flex'}
                label={'Duration'}
-               value={`${selectedTrack?.file?.media.duration.toFixed(2)}s`}
+               value={`${selectedTrack?.file?.media?.duration?.toFixed(2)}s`}
                disabled
              />
            </CtrlCell>

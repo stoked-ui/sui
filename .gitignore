@@ -42,3 +42,4 @@ docs/public/static/blog/feed/*
 **.env
 packages-internal/x-tree-view-example
 /.nx/
+/.sst/

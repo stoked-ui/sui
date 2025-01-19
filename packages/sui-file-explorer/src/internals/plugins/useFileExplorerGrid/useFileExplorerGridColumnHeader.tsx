@@ -201,7 +201,6 @@ export const useFileExplorerGridColumnHeader =  <
     externalProps: ExternalProps = {} as ExternalProps,
   ): UseFileExplorerGridHeadersIconContainerSlotProps<ExternalProps> => {
     const externalEventHandlers = extractEventHandlers(externalProps);
-    console.info('status', status, status.ascending);
     let iconName: 'collapseIcon' | 'expandIcon' | undefined;
     if (status.ascending) {
       iconName = 'collapseIcon';

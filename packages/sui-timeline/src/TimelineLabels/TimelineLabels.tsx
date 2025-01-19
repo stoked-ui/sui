@@ -79,11 +79,9 @@ const TimelineLabels = React.forwardRef(function TimelineLabels(
       className={`${classes.root} timeline-list`}
       ref={ref}
     >
-      {!flags.isMobile && (
         <Box sx={{ height: '37.5px', padding: '3px 0px', justifyContent: 'end', display: 'flex' }}>
           <SnapControls style={{ display: 'flex' }} />
         </Box>
-      )}
       <Box sx={{ display: 'flex', flexDirection: 'column' }}>
         {!engine.isLoading &&
           displayTracks.map((track, index) => {

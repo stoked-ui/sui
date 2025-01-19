@@ -95,6 +95,7 @@ const EditorRoot = styled(Box, {
   return {
     display: "grid",
     flexDirection: 'column',
+    containerType: 'inline-size',
     width,
     height,
     ...gridTemplate,

@@ -5,8 +5,14 @@
 
 declare module "sst" {
   export interface Resource {
-    "stoked-ui-com": {
-      "type": "sst.aws.StaticSite"
+    "EditorSubDomain": {
+      "name": string
+      "type": "sst.aws.Function"
+      "url": string
+    }
+    "SubDomains": {
+      "name": string
+      "type": "sst.aws.Function"
       "url": string
     }
   }

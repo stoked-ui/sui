@@ -5,4 +5,4 @@
 
 <h1 align="center">Stoked UI</h1>
 
-<center><a href="https://stoked-ui.github.com">Click here for docs, guides, and live examples</a></center>
+<center><a href="https://stoked-ui.com">Click here for docs, guides, and live examples</a></center>

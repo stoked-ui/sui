@@ -190,6 +190,7 @@ export function createTimelineState<
     flag: 'isMobile',
     config: {
       defaultValue: isMobile,
+      addTriggers: ['noLabels'],
     }
   },{
     flag: 'showViewControls',

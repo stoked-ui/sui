@@ -446,6 +446,7 @@ function TimelineTrack<
           // onContextMenuTrack(e, { track, time });
         }
       }}
+      tabIndex={0}
     >
       {flags.noLabels && !flags.isMobile && selectedTrack?.id === track.id && <TrackActions track={track} />}
 

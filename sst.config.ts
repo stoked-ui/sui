@@ -13,21 +13,35 @@ export default $config({
   },
   async run() {
     // eslint-disable-next-line no-new
-    new sst.aws.StaticSite("stoked-ui-com", {
+    const site = new sst.aws.StaticSite("stoked-ui-com", {
+      path: '.',
       domain: {
         name: domains.pop()!,
         aliases: domains, // Assumes the domain is in Route 53
-        redirects: [
-
-        ]
       },
       environment: {
         runtime: "nodejs20.x", // Match the Node.js runtime
       },
       build: {
-        command: "pnpm docs-build",
+        command: "pnpm docs:build",
         output: 'docs/export'
-      }
+      },
+    });
+
+    const subDomain = new sst.aws.Function("SubDomains", {
+      handler: "docs/src/subdomains.handler",
+      url: true
+    })
+
+    // Step 2: Create a Router to Handle Subdirectory Routing
+    // eslint-disable-next-line no-new
+    new sst.aws.Router("stoked-ui-router", {
+      routes: {
+        "/*": site,
+        "/editor/*": subDomain.url.apply((url) => url),
+        "/file-explorer/*": subDomain.url.apply((url) => url),
+        "/timeline/*": subDomain.url.apply((url) => url),
+      },
     });
   },
 });

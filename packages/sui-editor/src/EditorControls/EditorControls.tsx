@@ -68,13 +68,29 @@ const ViewButton = styled(ToggleButton)(() => ({
 const PlayerRoot = styled('div', {
   shouldForwardProp: (prop) => prop !== 'loading' && prop !== 'viewMode',
 })<{ loading: boolean }>(({ theme, loading }) => ({
-  height: '42px',
   width: '100%',
   display: loading ? 'none' : 'flex',
   flexDirection: 'row',
   alignItems: 'center',
   gridArea: 'controls',
   backgroundColor: emphasize(theme.palette.background.default, 0.2),
+  justifyContent: 'center',
+  "@container (max-width: 674px)": {
+    "& .rate-control": {
+      display: 'none',
+    }
+  },
+  "@container (max-width: 581px)": {
+    height: '84px',
+    flexWrap: 'wrap',
+    '& .controls-container': {
+      justifyContent: 'center'
+    }
+  },
+  "@container (min-width: 582px)": {
+    height: '42px',
+    flexWrap: 'none',
+  }
 }));
 
 const TimeRoot = styled(
@@ -286,6 +302,7 @@ const [lastRecording, setLastRecording] = React.useState<Blob | null>(null);
         marginLeft: '6px',
         alignContent: 'center',
         width: '100%',
+        justifyContent: 'center'
       }}
     >
       <ToggleButtonGroupEx
@@ -595,7 +612,7 @@ const EditorControls = React.forwardRef(function EditorControls(
       ref={ref}
       loading={getState && getState() === EngineState.LOADING}
     >
-      <div style={{ display: 'flex', flexDirection: 'row', alignContent: 'center', width: '100%' }}>
+      <div className={'controls-container'} style={{ display: 'flex', flexDirection: 'row', alignContent: 'center', width: '100%' }}>
         <div
           style={{ display: 'flex', flexDirection: 'row', alignContent: 'center', height: '100%' }}
         >
