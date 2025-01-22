@@ -5,6 +5,10 @@
 
 declare module "sst" {
   export interface Resource {
+    "CertificateLambda": {
+      "name": string
+      "type": "sst.aws.Function"
+    }
   }
 }
 /// <reference path="sst-env.d.ts" />
