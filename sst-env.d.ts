@@ -5,16 +5,6 @@
 
 declare module "sst" {
   export interface Resource {
-    "EditorSubDomain": {
-      "name": string
-      "type": "sst.aws.Function"
-      "url": string
-    }
-    "SubDomains": {
-      "name": string
-      "type": "sst.aws.Function"
-      "url": string
-    }
   }
 }
 /// <reference path="sst-env.d.ts" />
