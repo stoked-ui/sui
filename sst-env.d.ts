@@ -5,9 +5,9 @@
 
 declare module "sst" {
   export interface Resource {
-    "CertificateLambda": {
-      "name": string
-      "type": "sst.aws.Function"
+    "stoked-ui-com": {
+      "type": "sst.aws.StaticSite"
+      "url": string
     }
   }
 }

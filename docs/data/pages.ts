@@ -2,6 +2,28 @@ import type { MuiPage } from '../src/MuiPage';
 import fileExplorerComponentApi from './file-explorer-component-api-pages';
 import timelineComponentApi from './timeline-component-api-pages';
 import editorComponentApi from './editor-component-api-pages';
+
+/*
+let host = '';
+if (typeof window !== 'undefined') {
+  if (!window.location.host.includes('5199')) {
+    const pathname = window.location.pathname;
+    const pathParts = pathname.split('/');
+    pathParts.shift();
+    const subdomain = pathParts.shift();
+    if (subdomain && ['editor','file-explorer','timeline'].includes(subdomain)) {
+      host = `${subdomain}.${window.location.host}`;
+    }
+  }
+}
+
+const getHostPath = (path: string) => {
+  if (host === '') {
+    return `/${path}`;
+  }
+  return `https://${host}`;
+} */
+
 const pages: MuiPage[] = [
   {
     pathname: '/stoked-ui/introduction-group',
@@ -78,11 +100,11 @@ const pages: MuiPage[] = [
     ],
   },
   {
-    pathname: '/timeline/docs/group',
+    pathname: `/timeline/docs/group`,
     title: 'Timeline',
     alpha: true,
     children: [
-      { pathname: '/timeline/docs/overview', title: 'Overview' },
+      { pathname: `/timeline/docs/overview`, title: 'Overview' },
       /* { pathname: '/timeline/docs/getting-started' },
       {
         pathname: '/timeline/docs/basics',
@@ -106,42 +128,42 @@ const pages: MuiPage[] = [
       },
       { pathname: `/timeline/docs/roadmap` }, */
       {
-        pathname: '/timeline/docs/api/timeline-group',
+        pathname: `/timeline/docs/api/timeline-group`,
         title: 'API Reference',
         children: [...timelineComponentApi],
       },
     ],
   },
   {
-    pathname: '/editor/docs/group',
+    pathname: `/editor/docs/group`,
     title: 'Editor',
     alpha: true,
     children: [
-      { pathname: '/editor/docs/overview', title: 'Overview' },
-      { pathname: '/editor/docs/getting-started' },
+      { pathname: `/editor/docs/overview`, title: 'Overview' },
+      { pathname: `/editor/docs/getting-started` },
       {
-        pathname: '/editor/docs/basics',
+        pathname: `/editor/docs/basics`,
         subheader: 'Basics',
         children: [
-          { pathname: '/editor/docs/labels' },
-          { pathname: '/editor/docs/scale' },
-          { pathname: '/editor/docs/actions' },
-          { pathname: '/editor/docs/customize' },
-          { pathname: '/editor/docs/grid' },
+          { pathname: `/editor/docs/labels` },
+          { pathname: `/editor/docs/scale` },
+          { pathname: `/editor/docs/actions` },
+          { pathname: `/editor/docs/customize` },
+          { pathname: `/editor/docs/grid` },
         ],
       },
       {
-        pathname: '/editor/docs/advanced',
+        pathname: `/editor/docs/advanced`,
         subheader: 'In Depth',
         children: [
-          {pathname: '/editor/docs/events-callbacks'},
-          {pathname: '/editor/docs/controls'},
-          {pathname: '/editor/docs/drop-add'},
+          {pathname: `/editor/docs/events-callbacks`},
+          {pathname: `/editor/docs/controls`},
+          {pathname: `/editor/docs/drop-add`},
         ]
       },
       { pathname: `/editor/docs/roadmap` },
       {
-        pathname: '/editor/docs/api/editor-group',
+        pathname: `/editor/docs/api/editor-group`,
         title: 'API Reference',
         children: [...editorComponentApi],
       },

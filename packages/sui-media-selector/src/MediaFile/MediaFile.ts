@@ -240,49 +240,56 @@ export default class MediaFile extends File implements IMediaFile {
 
   static async fromUrl(url: string, throwOnError: boolean = false): Promise<MediaFile | null> {
     // Attempt to fetch the data from the provided URL
+    try {
+      console.info(`MediaFile::fromUrl(${url})`)
+      const response = await FetchBackoff(url, {
+        method: "GET",
+      }, {
+        retries: 5,
+        initialDelay: 1000,
+        backoffFactor: 2,
+        retryCondition: (res: any, error: Error) => {
+          if (error) {
+            return true; // Retry on network errors
+          }
+          return res?.status === 503; // Retry on service unavailable
+        },
+      });
 
-    console.info(`MediaFile::fromUrl(${url})`)
-    const response = await FetchBackoff(url, {
-      method: "GET",
-    }, {
-      retries: 5,
-      initialDelay: 1000,
-      backoffFactor: 2,
-      retryCondition: (res: any, error: Error) => {
-        if (error) {
-          return true; // Retry on network errors
+      // Check if the response status is OK (status code 2xx)
+      if (!response.ok) {
+        // Log the response status and potentially the response body for debugging
+        const errorMessage = await response.text();
+        console.error(`Failed to fetch data from URL: ${url} - Status: ${response.status} - Message: ${errorMessage}`);
+        if (throwOnError) {
+          throw new Error(`Network response was not ok. Status: ${response.status}`);
         }
-        return res?.status === 503; // Retry on service unavailable
-      },
-    });
-
-    // Check if the response status is OK (status code 2xx)
-    if (!response.ok) {
-      // Log the response status and potentially the response body for debugging
-      const errorMessage = await response.text();
-      console.error(`Failed to fetch data from URL: ${url} - Status: ${response.status} - Message: ${errorMessage}`);
-      if (throwOnError) {
-        throw new Error(`Network response was not ok. Status: ${response.status}`);
+        return null;
       }
-      return null;
-    }
-    const blob = await response.blob();
-    const fileName = url.split('/').pop() || 'downloaded-file';
-    const options = {
-      type: blob.type,
-      created: Date.now(),
-      path: url,
-      url,
-      media: {
-        description: "Fetched from URL",
-        tags: [],
-      },
-      id: this.generateId,
-    };
+      const blob = await response.blob();
+      console.info('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+      console.info('blob', blob.type);
+      console.info('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+      const fileName = url.split('/').pop() || 'downloaded-file';
+      const options = {
+        type: blob.type,
+        created: Date.now(),
+        path: url,
+        url,
+        media: {
+          description: "Fetched from URL",
+          tags: [],
+        },
+        id: this.generateId,
+      };
 
-    const mediaFile = new MediaFile([blob], fileName, options);
-    await mediaFile.extractMetadata();
-    return mediaFile;
+      const mediaFile = new MediaFile([blob], fileName, options);
+      await mediaFile.extractMetadata();
+      return mediaFile;
+    } catch (err) {
+      console.error('fromUrl error', err);
+    }
+    return null;
   }
 
   async extractMetadata() {
@@ -298,6 +305,7 @@ export default class MediaFile extends File implements IMediaFile {
         }
       }
       if (typeof window !== 'undefined') {
+        console.info('extract', this.name);
         await extract();
       }
     } catch(ex) {

@@ -507,11 +507,11 @@ export { ViewToggle };
  *
  * Demos:
  *
- * - [EditorControls](https://stoked-ui.github.io/editor/docs/)
+ * - [EditorControls](https://editor.stoked-ui.com/docs/)
  *
  * API:
  *
- * - [EditorControls API](https://stoked-ui.github.io/editor/api/)
+ * - [EditorControls API](https://editor.stoked-ui.com/api/)
  */
 
 

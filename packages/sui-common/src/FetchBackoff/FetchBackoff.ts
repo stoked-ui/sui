@@ -33,9 +33,9 @@ const FetchBackoff = async (
     } catch (error) {
       // If retryCondition is false, throw the error
       if (!retryCondition(null, error)) {
-        console.error(error);
+        console.error('FetchBackoff', error);
       } else if (attempt === retries) {
-        console.error(error); // Rethrow the error after final attempt
+        console.error('FetchBackoff', error, 'retries: ', retries); // Rethrow the error after final attempt
       }
     }
 

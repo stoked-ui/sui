@@ -511,6 +511,13 @@ function TimelineAction<
   }>({ start, end, scaleWidth, height: dynamicTrackHeight, scale, screensMissing: true });
 
   React.useEffect(() => {
+    console.info('screenshot data', screenshotData.start !== start,
+      screenshotData.end !== end,
+      scaleWidth !== screenshotData.scaleWidth,
+      screenshotData.height !== dynamicTrackHeight,
+      scale !== screenshotData.scale ,
+      screenshotData.screensMissing,
+      track.file.media?.screenshotStore)
     if (
       screenshotData.start !== start ||
       screenshotData.end !== end ||
@@ -519,18 +526,19 @@ function TimelineAction<
       scale !== screenshotData.scale ||
       screenshotData.screensMissing
     ) {
-      if (track.file.media?.screenshotStore) {
+      if (track.file?.media && track.file?.media?.screenshotStore) {
         track.file.media.screenshotStore.scaleWidth = scaleWidth;
         track.file.media.screenshotStore.scale = scale;
       }
-      track.file.media.screenshotStore
+      track.file?.media?.screenshotStore
         ?.queryScreenshots('track', getActionFileTimespan(action), dynamicTrackHeight)
         .then((queryRes: { found: Screenshot[]; missing: number[] }) => {
           setScreenshotData({
             end,
             start,
             scaleWidth,
-            height: dynamicTrackHeight,
+
+             height: dynamicTrackHeight,
             scale,
             screensMissing: queryRes.missing.length > 0,
           });
@@ -543,7 +551,7 @@ function TimelineAction<
     dynamicTrackHeight,
     scaleWidth,
     scaleSplitCount,
-    track.file.media.screenshotStore?.count,
+    track.file?.media?.screenshotStore?.count,
   ]);
 
   const loopCount =
