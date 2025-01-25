@@ -72,24 +72,7 @@ jobs:
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
           # ANY OTHER ENVS can go here
         with:
-          path: '/path/to/the/root/of/your/sst/folder'
-          pkg-manager: 'yarn' # required
+          path: ./docs/export
+          pkg-manager: 'pnpm' # required
           stage: 'prod'
-          pre-deploy: 'cd ./path/to/web/app/or/something && yarn'
-        with:
-          args: --follow-symlinks --delete
-        env:
-          AWS_S3_BUCKET: ${{ secrets.AWS_S3_STOKED_UI }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.PROD_SYNC_AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.PROD_SYNC_AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: 'us-west-1'   # optional: defaults to us-east-1
-          SOURCE_DIR: ./docs/export     # optional: defaults to entire repository
-          DEST_DIR: v2
-      - name: Invalidate CloudFront
-        uses: chetan/invalidate-cloudfront-action@v2
-        env:
-          DISTRIBUTION: ${{ secrets.DISTRIBUTION_ID }}
-          PATHS: "/*"
-          AWS_REGION: "us-east-1"
-          AWS_ACCESS_KEY_ID: ${{ secrets.PROD_SYNC_AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.PROD_SYNC_AWS_SECRET_ACCESS_KEY }}
+
