@@ -1,18 +1,21 @@
+/* eslint-disable no-useless-escape */
 /// <reference path="./.sst/platform/config.d.ts" />
 
 const domains = ["stoked-ui.com", "*.stoked-ui.com", "*.stokedconsulting.com", "stokedconsulting.com"];
 
 export default $config({
   app(input) {
+    input.stage
     return {
       name: "stoked-ui",
       home: "aws",
     };
   },
-  async run() {
-
+  async run({ app }) {
+    const stage = app.stage;
     // eslint-disable-next-line no-new
     new sst.aws.StaticSite("stoked-ui-com", {
+      
       path: 'docs/export',
       domain: {
         name: domains[0],
@@ -25,14 +28,16 @@ export default $config({
         viewerResponse: {
           injection: `
             // Add CORS headers for video playback
-            headers['access-control-allow-origin'] = { value: '*' }; // Allow all origins
-            headers['access-control-allow-methods'] = { value: 'GET, HEAD, OPTIONS' };
-            headers['access-control-allow-headers'] = { value: 'Range' };
-            headers['access-control-expose-headers'] = { value: 'Content-Range, Accept-Ranges, Content-Encoding, Content-Length' };
+            event.response.headers['access-control-allow-origin'] = { value: '*' }; // Allow all origins
+            event.response.headers['access-control-allow-methods'] = { value: 'GET, HEAD, OPTIONS' };
+            event.response.headers['access-control-allow-headers'] = { value: 'Range' };
+            event.response.headers['access-control-expose-headers'] = { value: 'Content-Range, Accept-Ranges, Content-Encoding, Content-Length' };
           `
         }
       },
       assets: {
+        textEncoding: "utf-8",
+        bucket: `stoked-ui-com`,
         fileOptions: [
           {
             files: "**/*.mp4",
@@ -60,14 +65,15 @@ export default $config({
             cacheControl: "public,max-age=31536000,immutable",
           },
           {
-            files: "**/*",
-            cacheControl: "public,max-age=31536000,immutable",
+            files: ["**/*.css", "**/*.js"],
+            cacheControl: "max-age=31536000,public,immutable"
           },
+          {
+            files: "**/*.html",
+            cacheControl: "max-age=0,no-cache,no-store,must-revalidate"
+          }
         ],
       }
-
-
-  });
-
+    });
   },
 });

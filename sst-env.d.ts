@@ -5,10 +5,6 @@
 
 declare module "sst" {
   export interface Resource {
-    "stoked-ui-com": {
-      "type": "sst.aws.StaticSite"
-      "url": string
-    }
   }
 }
 /// <reference path="sst-env.d.ts" />
