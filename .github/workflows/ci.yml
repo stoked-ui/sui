@@ -66,6 +66,8 @@ jobs:
           path: ./docs/export
       - name: Set up pnpm
         uses: pnpm/action-setup@v4 # latest
+        with: 
+          version: 9.14.4
       - name: Deploy SST app
         uses: quenginedev/sst-deploy@v.1.3
         env:
