@@ -80,8 +80,8 @@ jobs:
       - name: Configure AWS credentials (Production)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_NUMBER }}:role/stoked-ui-prod-github 
-          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+          role-to-assume: arn:aws:iam::883859713095:role/stoked-ui-prod-github 
+          aws-region: us-east-1
       - name: Deploy
         run: |
           sst install
