@@ -5,6 +5,14 @@ export default $config({
     return {
       name: "stoked-ui",
       home: "aws",
+      providers: {
+        aws: {
+          region: 'us-east-1',
+          profile: process.env.GITHUB_ACTIONS
+            ? undefined
+            : 'default'
+        }
+      }
     };
   },
   async run() {
