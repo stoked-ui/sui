@@ -52,7 +52,7 @@ export const web = new sst.aws.StaticSite("StokedUiComSite", {
         cacheControl: "public,max-age=31536000,immutable",
       },
       {
-        files: ["**/*.css", "**/*.js"],
+        files: ["**/*.css", "**/*.js", "**/*.ico", "**/*.json", "**/*.txt", "**/*.png", "**/*.jpg", "**/*.jpeg", "**/*.gif", "**/*.svg", "**/*.webp", "**/*.woff", "**/*.woff2", "**/*.ttf", "**/*.eot", "**/*.otf"],
         cacheControl: "max-age=31536000,public,immutable"
       },
       {
