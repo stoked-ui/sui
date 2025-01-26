@@ -145,7 +145,7 @@
     "@pigment-css/react": "^0.0.3",
     "@playwright/test": "1.42.1",
     "@pulumi/eslint-plugin": "^0.2.0",
-    "@sst/sst": "^3.5.15",
+    "sst": "^3.5.15",
     "@stoked-ui/common": "workspace:^",
     "@stoked-ui/docs-markdown": "workspace:^",
     "@stoked-ui/docs-utils": "workspace:^",
