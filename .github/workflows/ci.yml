@@ -82,6 +82,8 @@ jobs:
         with:
           role-to-assume: arn:aws:iam::883859713095:role/stoked-ui-prod-github 
           aws-region: us-east-1
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4 # latest
       - run: pnpm build:all
       - name: Deploy
         run: |
