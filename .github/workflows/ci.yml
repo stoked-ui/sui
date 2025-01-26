@@ -82,6 +82,7 @@ jobs:
         with:
           role-to-assume: arn:aws:iam::883859713095:role/stoked-ui-prod-github 
           aws-region: us-east-1
+      - run: pnpm build:all
       - name: Deploy
         run: |
           sst install
