@@ -12,7 +12,8 @@ on:
       - 'docs/**'
       - 'examples/**'
 
-permissions: {}
+permissions: 
+  id-token: write
 
 jobs:
   # Tests dev-only scripts across all supported dev environments
