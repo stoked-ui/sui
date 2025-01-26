@@ -71,10 +71,29 @@ jobs:
         with:
           node-version: 18
           cache: 'pnpm' # https://github.com/actions/setup-node/blob/main/docs/advanced-usage.md#caching-packages-dependencies
-      - run: pnpm install
-      - run: pnpm build:ci
-      - run: pnpm release:site
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.PROD_SYNC_AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.PROD_SYNC_AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+   
+      - uses: actions/setup-node@v3
+        with:
+          node-version: "20"
+   
+      - uses: actions/cache@v2
+        with:
+          path: |
+            .sst
+          key: ${{ runner.os }}-sst
+   
+      - run: "curl -fsSL https://ion.sst.dev/install | bash"
+  
+      - name: Configure AWS credentials (Production)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_NUMBER }}:role/${{ secrets.APP_NAME }}-${{ secrets.APP_STAGE }}-github 
+          aws-region: eu-west-2
+      #
+      - name: Deploy
+        run: |
+          sst install
+          sst deploy --stage production --verbose
