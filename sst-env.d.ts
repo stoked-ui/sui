@@ -5,6 +5,14 @@
 
 declare module "sst" {
   export interface Resource {
+    "Api": {
+      "type": "sst.aws.ApiGatewayV2"
+      "url": string
+    }
+    "MONGODB_URI": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
     "StokedUiComSite": {
       "type": "sst.aws.StaticSite"
       "url": string

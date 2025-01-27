@@ -1,7 +1,13 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import client from "../lib/mongodb";
+import client from "./lib/mongodb";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export async function subscribe(req: NextApiRequest, res: NextApiResponse) {
+  const allowedDomain = `https://api.${domains[0]}`;
+
+  if (req.headers.origin !== allowedDomain) {
+    return res.status(403).json({ message: "Forbidden" });
+  }
+
   if (req.method !== "POST") {
     return res.status(405).json({ message: "Method not allowed" });
   }

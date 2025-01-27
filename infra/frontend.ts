@@ -1,4 +1,4 @@
-import { domains } from 'docs/infra/domains';
+import { domains } from 'infra/domains';
 
 
 console.info('domains', domains);
