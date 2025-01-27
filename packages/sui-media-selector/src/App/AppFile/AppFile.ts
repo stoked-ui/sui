@@ -213,6 +213,7 @@ export default class AppFile<FileDataType extends IAppFileData = IAppFileData> e
    */
   get data(): FileDataType {
     const baseData = super.data;
+    console.info('data', baseData, this.files);
     return {
       ...baseData,
       filesMeta: this.files.map((file) => { return { size: file.size, name: file.name, type: file.type }}),

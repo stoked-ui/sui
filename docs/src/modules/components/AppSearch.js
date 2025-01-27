@@ -101,27 +101,27 @@ function NewStartScreen() {
   const startScreenOptions = [
     {
       category: {
-        name: 'Material UI',
+        name: 'Media Selector',
       },
       items: [
         {
-          name: 'Installation',
-          href: '/material-ui/getting-started/installation/',
+          name: 'Overview',
+          href: '/media-selector/docs/overview/',
           icon: <DownloadRoundedIcon className="DocSearch-NewStartScreenTitleIcon" />,
         },
         {
           name: 'Components',
-          href: '/material-ui/getting-started/supported-components/',
+          href: '/media-selector/getting-started/supported-components/',
           icon: <SmartButtonRoundedIcon className="DocSearch-NewStartScreenTitleIcon" />,
         },
         {
           name: 'Example projects',
-          href: '/material-ui/getting-started/example-projects/',
+          href: '/media-selector/getting-started/example-projects/',
           icon: <LibraryBooksRoundedIcon className="DocSearch-NewStartScreenTitleIcon" />,
         },
         {
-          name: 'Templates',
-          href: '/material-ui/getting-started/templates/',
+          name: 'Roadmap',
+          href: '/media-selector/docs/roadmap/',
           icon: <CollectionsBookmarkRoundedIcon className="DocSearch-NewStartScreenTitleIcon" />,
         },
       ],
@@ -262,9 +262,9 @@ function NewStartScreen() {
 }
 
 const productNameProductId = {
-  'material-ui': 'Material UI',
-  'joy-ui': 'Joy UI',
-  'base-ui': 'Base UI',
+  'media-selector': 'Media Selector',
+  'file-explorer': 'File Explorer',
+  'timeline': 'Timeline',
   x: 'SUI X',
   system: 'SUI System',
   toolpad: 'Toolpad',
@@ -445,9 +445,9 @@ export default function AppSearch(props) {
         ReactDOM.createPortal(
           <DocSearchModal
             initialQuery={initialQuery}
-            appId="TZGZ85B9TB"
-            apiKey="8177dfb3e2be72b241ffb8c5abafa899"
-            indexName="material-ui"
+            appId="ZYBF3WCUQZ"
+            apiKey="913ec420cdff0c980c01a05e9a88f70b"
+            indexName="stoked-ui"
             searchParameters={{
               facetFilters: ['version:master', facetFilterLanguage],
               optionalFilters,

@@ -517,7 +517,7 @@ function TimelineAction<
       screenshotData.height !== dynamicTrackHeight,
       scale !== screenshotData.scale ,
       screenshotData.screensMissing,
-      track.file.media?.screenshotStore)
+      track.file?.media?.screenshotStore)
     if (
       screenshotData.start !== start ||
       screenshotData.end !== end ||
