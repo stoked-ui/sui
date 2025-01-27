@@ -144,7 +144,7 @@ importers:
         version: 0.2.0(eslint@8.57.1)
       '@stoked-ui/common':
         specifier: workspace:^
-        version: link:packages/sui-common/build
+        version: link:packages/sui-common/build/build
       '@stoked-ui/docs-markdown':
         specifier: workspace:^
         version: link:packages-internal/markdown
@@ -153,10 +153,10 @@ importers:
         version: link:packages-internal/docs-utils
       '@stoked-ui/editor':
         specifier: workspace:^
-        version: link:packages/sui-editor/build
+        version: link:packages/sui-editor/build/build
       '@stoked-ui/file-explorer':
         specifier: workspace:^
-        version: link:packages/sui-file-explorer/build
+        version: link:packages/sui-file-explorer/build/build
       '@stoked-ui/internal-api-docs-builder':
         specifier: workspace:^
         version: link:packages-internal/api-docs-builder
@@ -165,13 +165,13 @@ importers:
         version: link:packages-internal/test-utils
       '@stoked-ui/media-selector':
         specifier: workspace:^
-        version: link:packages/sui-media-selector/build
+        version: link:packages/sui-media-selector/build/build
       '@stoked-ui/proptypes':
         specifier: workspace:^
         version: link:packages-internal/proptypes
       '@stoked-ui/timeline':
         specifier: workspace:^
-        version: link:packages/sui-timeline/build
+        version: link:packages/sui-timeline/build/build
       '@testing-library/jest-dom':
         specifier: ^6.6.3
         version: 6.6.3
@@ -371,7 +371,7 @@ importers:
         specifier: ^14.2.1
         version: 14.2.4
       sst:
-        specifier: ^3.5.15
+        specifier: ^3.6.17
         version: 3.6.17
       stylelint:
         specifier: ^15.11.0
@@ -384,7 +384,7 @@ importers:
         version: 1.10.0
       terser-webpack-plugin:
         specifier: ^5.3.10
-        version: 5.3.11(esbuild@0.24.2)(webpack@5.97.1(esbuild@0.24.2)(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.97.1)))
+        version: 5.3.11(esbuild@0.24.2)(webpack@5.97.1)
       tsup:
         specifier: ^8.0.2
         version: 8.3.6(jiti@1.21.7)(postcss@8.5.1)(tsx@4.19.2)(typescript@5.4.5)(yaml@2.7.0)
@@ -396,7 +396,7 @@ importers:
         version: 5.4.5
       webpack:
         specifier: ^5.90.3
-        version: 5.97.1(esbuild@0.24.2)(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.97.1))
+        version: 5.97.1(esbuild@0.24.2)(webpack-cli@5.1.4)
       webpack-bundle-analyzer:
         specifier: ^4.10.1
         version: 4.10.2
@@ -432,7 +432,7 @@ importers:
         version: 5.16.14(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react@18.3.1)
       '@stoked-ui/docs':
         specifier: workspace:^
-        version: link:../packages/sui-docs/build
+        version: link:../packages/sui-docs/build/build
       '@styled-system/css':
         specifier: ^5.1.5
         version: 5.1.5
@@ -486,7 +486,7 @@ importers:
         version: 0.16.2(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(react@18.3.1)
       webpack:
         specifier: ^5.90.3
-        version: 5.97.1(esbuild@0.24.2)(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.97.1))
+        version: 5.97.1(esbuild@0.24.2)(webpack-cli@5.1.4)
 
   docs:
     dependencies:
@@ -594,22 +594,22 @@ importers:
         version: 9.7.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@stoked-ui/common':
         specifier: workspace:^
-        version: link:../packages/sui-common/build
+        version: link:../packages/sui-common/build/build
       '@stoked-ui/docs-markdown':
         specifier: workspace:^
         version: link:../packages-internal/markdown
       '@stoked-ui/editor':
         specifier: workspace:^
-        version: link:../packages/sui-editor/build
+        version: link:../packages/sui-editor/build/build
       '@stoked-ui/file-explorer':
         specifier: workspace:^
-        version: link:../packages/sui-file-explorer/build
+        version: link:../packages/sui-file-explorer/build/build
       '@stoked-ui/media-selector':
         specifier: workspace:^
-        version: link:../packages/sui-media-selector/build
+        version: link:../packages/sui-media-selector/build/build
       '@stoked-ui/timeline':
         specifier: workspace:^
-        version: link:../packages/sui-timeline/build
+        version: link:../packages/sui-timeline/build/build
       '@tempfix/idb':
         specifier: ^8.0.3
         version: 8.0.3
@@ -697,6 +697,9 @@ importers:
       material-ui-popup-state:
         specifier: ^5.0.10
         version: 5.3.3(@mui/material@5.16.14(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.18)(react@18.3.1)
+      mongodb:
+        specifier: ^6.12.0
+        version: 6.12.0(socks@2.8.3)
       next:
         specifier: ^13.5.1
         version: 13.5.8(@babel/core@7.26.7)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -769,6 +772,9 @@ importers:
       rimraf:
         specifier: ^5.0.5
         version: 5.0.7
+      sst:
+        specifier: ^3.6.17
+        version: 3.6.17
       styled-components:
         specifier: ^6.1.8
         version: 6.1.14(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -1316,6 +1322,63 @@ importers:
         version: 29.2.5(@babel/core@7.26.7)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.26.7))(esbuild@0.24.2)(jest@29.7.0(@types/node@18.19.74)(babel-plugin-macros@3.1.0))(typescript@5.4.5)
     publishDirectory: build
 
+  packages/sui-common/build:
+    dependencies:
+      '@babel/runtime':
+        specifier: ^7.23.9
+        version: 7.26.7
+      '@emotion/react':
+        specifier: ^11.9.0
+        version: 11.14.0(@types/react@18.3.18)(react@18.3.1)
+      '@emotion/styled':
+        specifier: ^11.8.1
+        version: 11.14.0(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react@18.3.1)
+      '@mui/base':
+        specifier: ^5.0.0-beta.40
+        version: 5.0.0-beta.69(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@mui/icons-material':
+        specifier: ^5.15.21
+        version: 5.15.21(@mui/material@5.16.14(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.18)(react@18.3.1)
+      '@mui/material':
+        specifier: ^5.15.21
+        version: 5.16.14(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@mui/system':
+        specifier: ^5.15.20
+        version: 5.16.14(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react@18.3.1)
+      '@mui/utils':
+        specifier: ^5.15.20
+        version: 5.16.14(@types/react@18.3.18)(react@18.3.1)
+      '@tempfix/idb':
+        specifier: ^8.0.3
+        version: 8.0.3
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
+      prop-types:
+        specifier: ^15.8.1
+        version: 15.8.1
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
+    publishDirectory: build
+
+  packages/sui-common/build/Colors: {}
+
+  packages/sui-common/build/FetchBackoff: {}
+
+  packages/sui-common/build/Ids: {}
+
+  packages/sui-common/build/LocalDb: {}
+
+  packages/sui-common/build/MimeType: {}
+
+  packages/sui-common/build/ProviderState: {}
+
+  packages/sui-common/build/Types: {}
+
   packages/sui-docs:
     dependencies:
       '@babel/runtime':
@@ -1345,16 +1408,16 @@ importers:
         version: 5.16.14(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@stoked-ui/editor':
         specifier: workspace:^
-        version: link:../sui-editor/build
+        version: link:../sui-editor/build/build
       '@stoked-ui/file-explorer':
         specifier: workspace:^
-        version: link:../sui-file-explorer/build
+        version: link:../sui-file-explorer/build/build
       '@stoked-ui/media-selector':
         specifier: workspace:^
-        version: link:../sui-media-selector/build
+        version: link:../sui-media-selector/build/build
       '@stoked-ui/timeline':
         specifier: workspace:^
-        version: link:../sui-timeline/build
+        version: link:../sui-timeline/build/build
       '@types/node':
         specifier: ^18.19.25
         version: 18.19.74
@@ -1371,6 +1434,59 @@ importers:
         specifier: 18.3.1
         version: 18.3.1
     publishDirectory: build
+
+  packages/sui-docs/build:
+    dependencies:
+      '@babel/runtime':
+        specifier: ^7.23.9
+        version: 7.26.7
+      '@mui/base':
+        specifier: '*'
+        version: 5.0.0-beta.69(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@mui/icons-material':
+        specifier: ^5.0.0
+        version: 5.15.21(@mui/material@5.16.14(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.18)(react@18.3.1)
+      '@mui/material':
+        specifier: ^5.0.0
+        version: 5.16.14(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@mui/system':
+        specifier: ^5.0.0
+        version: 5.16.14(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react@18.3.1)
+      '@types/react':
+        specifier: ^18.3.1
+        version: 18.3.18
+      clsx:
+        specifier: ^2.1.0
+        version: 2.1.1
+      next:
+        specifier: ^13.5.1 || ^14
+        version: 13.5.8(@babel/core@7.26.7)(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      nprogress:
+        specifier: ^0.2.0
+        version: 0.2.0
+      prop-types:
+        specifier: ^15.8.1
+        version: 15.8.1
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+    publishDirectory: build
+
+  packages/sui-docs/build/DocsProvider: {}
+
+  packages/sui-docs/build/InfoCard: {}
+
+  packages/sui-docs/build/Link: {}
+
+  packages/sui-docs/build/NProgressBar: {}
+
+  packages/sui-docs/build/branding: {}
+
+  packages/sui-docs/build/i18n: {}
+
+  packages/sui-docs/build/svgIcons: {}
+
+  packages/sui-docs/build/translations: {}
 
   packages/sui-editor:
     dependencies:
@@ -1418,7 +1534,7 @@ importers:
         version: 9.7.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@stoked-ui/common':
         specifier: workspace:^
-        version: link:../sui-common/build
+        version: link:../sui-common/build/build
       '@types/webpack':
         specifier: ^5.28.5
         version: 5.28.5(esbuild@0.24.2)(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.97.1))
@@ -1473,16 +1589,16 @@ importers:
     devDependencies:
       '@stoked-ui/file-explorer':
         specifier: workspace:^
-        version: link:../sui-file-explorer/build
+        version: link:../sui-file-explorer/build/build
       '@stoked-ui/internal-test-utils':
         specifier: workspace:^
         version: link:../../packages-internal/test-utils
       '@stoked-ui/media-selector':
         specifier: workspace:^
-        version: link:../sui-media-selector/build
+        version: link:../sui-media-selector/build/build
       '@stoked-ui/timeline':
         specifier: workspace:^
-        version: link:../sui-timeline/build
+        version: link:../sui-timeline/build/build
       '@types/chai':
         specifier: ^4.3.17
         version: 4.3.20
@@ -1511,6 +1627,149 @@ importers:
         specifier: ^0.12.5
         version: 0.12.5
     publishDirectory: build
+
+  packages/sui-editor/build:
+    dependencies:
+      '@atlaskit/pragmatic-drag-and-drop':
+        specifier: ^1.2.1
+        version: 1.4.0
+      '@atlaskit/pragmatic-drag-and-drop-flourish':
+        specifier: ^1.1.0
+        version: 1.1.3(@types/react@18.3.18)(react@18.3.1)
+      '@atlaskit/pragmatic-drag-and-drop-hitbox':
+        specifier: ^1.0.3
+        version: 1.0.3
+      '@atlaskit/pragmatic-drag-and-drop-react-drop-indicator':
+        specifier: ^1.1.1
+        version: 1.1.4(@types/react@18.3.18)(react@18.3.1)
+      '@babel/runtime':
+        specifier: ^7.23.9
+        version: 7.26.7
+      '@emotion/react':
+        specifier: ^11.9.0
+        version: 11.14.0(@types/react@18.3.18)(react@18.3.1)
+      '@emotion/styled':
+        specifier: ^11.8.1
+        version: 11.14.0(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react@18.3.1)
+      '@hookform/resolvers':
+        specifier: ^3.9.0
+        version: 3.10.0(react-hook-form@7.54.2(react@18.3.1))
+      '@mui/base':
+        specifier: ^5.0.0-beta.40
+        version: 5.0.0-beta.69(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@mui/icons-material':
+        specifier: ^5.15.21
+        version: 5.15.21(@mui/material@5.16.14(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.18)(react@18.3.1)
+      '@mui/material':
+        specifier: ^5.15.21
+        version: 5.16.14(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@mui/system':
+        specifier: ^5.16.0
+        version: 5.16.14(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react@18.3.1)
+      '@mui/utils':
+        specifier: ^5.16.0
+        version: 5.16.14(@types/react@18.3.18)(react@18.3.1)
+      '@react-spring/web':
+        specifier: ^9.7.3
+        version: 9.7.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@stoked-ui/common':
+        specifier: workspace:^
+        version: link:../../sui-common/build/build
+      '@stoked-ui/file-explorer':
+        specifier: workspace:^
+        version: link:../../sui-file-explorer/build/build
+      '@stoked-ui/media-selector':
+        specifier: workspace:^
+        version: link:../../sui-media-selector/build/build
+      '@stoked-ui/timeline':
+        specifier: workspace:^
+        version: link:../../sui-timeline/build/build
+      '@types/webpack':
+        specifier: ^5.28.5
+        version: 5.28.5(esbuild@0.24.2)(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.97.1))
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
+      lodash:
+        specifier: ^4.17.21
+        version: 4.17.21
+      lottie-web:
+        specifier: ^5.12.2
+        version: 5.12.2
+      memoize-one:
+        specifier: ^6.0.0
+        version: 6.0.0
+      plyr-react:
+        specifier: ^5.3.0
+        version: 5.3.0(plyr@3.7.8)(react@18.3.1)
+      prop-types:
+        specifier: ^15.8.1
+        version: 15.8.1
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-device-detect:
+        specifier: ^2.2.3
+        version: 2.2.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-dom:
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
+      react-hook-form:
+        specifier: ^7.53.0
+        version: 7.54.2(react@18.3.1)
+      react-json-view:
+        specifier: ^1.21.3
+        version: 1.21.3(@types/react@18.3.18)(encoding@0.1.13)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-router-dom:
+        specifier: ^6.21.3
+        version: 6.28.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-transition-group:
+        specifier: ^4.4.5
+        version: 4.4.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      sorted-btree:
+        specifier: ^1.8.1
+        version: 1.8.1
+      tiny-invariant:
+        specifier: ^1.3.3
+        version: 1.3.3
+      yup:
+        specifier: ^1.4.0
+        version: 1.6.1
+    publishDirectory: build
+
+  packages/sui-editor/build/Controllers: {}
+
+  packages/sui-editor/build/DetailView: {}
+
+  packages/sui-editor/build/Editor: {}
+
+  packages/sui-editor/build/EditorAction: {}
+
+  packages/sui-editor/build/EditorControls: {}
+
+  packages/sui-editor/build/EditorEngine: {}
+
+  packages/sui-editor/build/EditorFile: {}
+
+  packages/sui-editor/build/EditorFileTabs: {}
+
+  packages/sui-editor/build/EditorProvider: {}
+
+  packages/sui-editor/build/EditorTrack: {}
+
+  packages/sui-editor/build/EditorView: {}
+
+  packages/sui-editor/build/db: {}
+
+  packages/sui-editor/build/hooks: {}
+
+  packages/sui-editor/build/icons: {}
+
+  packages/sui-editor/build/internals: {}
+
+  packages/sui-editor/build/models: {}
+
+  packages/sui-editor/build/themeAugmentation: {}
 
   packages/sui-file-explorer:
     dependencies:
@@ -1555,7 +1814,7 @@ importers:
         version: 9.7.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@stoked-ui/common':
         specifier: workspace:^
-        version: link:../sui-common/build
+        version: link:../sui-common/build/build
       '@types/chai':
         specifier: ^4.3.17
         version: 4.3.20
@@ -1592,7 +1851,7 @@ importers:
         version: link:../../packages-internal/test-utils
       '@stoked-ui/media-selector':
         specifier: workspace:^
-        version: link:../sui-media-selector/build
+        version: link:../sui-media-selector/build/build
       '@types/prop-types':
         specifier: ^15.7.12
         version: 15.7.14
@@ -1610,11 +1869,114 @@ importers:
         version: 29.2.5(@babel/core@7.26.7)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.26.7))(esbuild@0.24.2)(jest@29.7.0(@types/node@18.19.74)(babel-plugin-macros@3.1.0))(typescript@5.4.5)
     publishDirectory: build
 
+  packages/sui-file-explorer/build:
+    dependencies:
+      '@atlaskit/pragmatic-drag-and-drop':
+        specifier: ^1.2.1
+        version: 1.4.0
+      '@atlaskit/pragmatic-drag-and-drop-flourish':
+        specifier: ^1.1.0
+        version: 1.1.3(@types/react@18.3.18)(react@18.3.1)
+      '@atlaskit/pragmatic-drag-and-drop-hitbox':
+        specifier: ^1.0.3
+        version: 1.0.3
+      '@atlaskit/pragmatic-drag-and-drop-react-drop-indicator':
+        specifier: ^1.1.1
+        version: 1.1.4(@types/react@18.3.18)(react@18.3.1)
+      '@babel/runtime':
+        specifier: ^7.23.9
+        version: 7.26.7
+      '@emotion/react':
+        specifier: ^11.9.0
+        version: 11.14.0(@types/react@18.3.18)(react@18.3.1)
+      '@emotion/styled':
+        specifier: ^11.8.1
+        version: 11.14.0(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react@18.3.1)
+      '@mui/base':
+        specifier: ^5.0.0-beta.40
+        version: 5.0.0-beta.69(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@mui/icons-material':
+        specifier: ^5.15.21
+        version: 5.15.21(@mui/material@5.16.14(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.18)(react@18.3.1)
+      '@mui/material':
+        specifier: ^5.15.21
+        version: 5.16.14(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@mui/system':
+        specifier: ^5.15.20
+        version: 5.16.14(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react@18.3.1)
+      '@mui/utils':
+        specifier: ^5.15.20
+        version: 5.16.14(@types/react@18.3.18)(react@18.3.1)
+      '@react-spring/web':
+        specifier: ^9.7.3
+        version: 9.7.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@stoked-ui/common':
+        specifier: workspace:^
+        version: link:../../sui-common/build/build
+      '@stoked-ui/media-selector':
+        specifier: workspace:^
+        version: link:../../sui-media-selector/build/build
+      '@types/chai':
+        specifier: ^4.3.17
+        version: 4.3.20
+      '@types/react-transition-group':
+        specifier: ^4.4.10
+        version: 4.4.12(@types/react@18.3.18)
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
+      lottie-react:
+        specifier: ^2.4.0
+        version: 2.4.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      memoize-one:
+        specifier: ^6.0.0
+        version: 6.0.0
+      prop-types:
+        specifier: ^15.8.1
+        version: 15.8.1
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
+      react-transition-group:
+        specifier: ^4.4.5
+        version: 4.4.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      tiny-invariant:
+        specifier: ^1.3.3
+        version: 1.3.3
+    publishDirectory: build
+
+  packages/sui-file-explorer/build/File: {}
+
+  packages/sui-file-explorer/build/FileDropzone: {}
+
+  packages/sui-file-explorer/build/FileElement: {}
+
+  packages/sui-file-explorer/build/FileExplorer: {}
+
+  packages/sui-file-explorer/build/FileExplorerBasic: {}
+
+  packages/sui-file-explorer/build/FileExplorerTabs: {}
+
+  packages/sui-file-explorer/build/hooks: {}
+
+  packages/sui-file-explorer/build/icons: {}
+
+  packages/sui-file-explorer/build/internals: {}
+
+  packages/sui-file-explorer/build/models: {}
+
+  packages/sui-file-explorer/build/themeAugmentation: {}
+
+  packages/sui-file-explorer/build/useFile: {}
+
   packages/sui-media-selector:
     dependencies:
       exifreader:
         specifier: ^4.23.5
-        version: 4.26.0
+        version: 4.26.1
       formdata-node:
         specifier: ^6.0.3
         version: 6.0.3
@@ -1639,7 +2001,7 @@ importers:
         version: 7.26.7
       '@stoked-ui/common':
         specifier: workspace:^
-        version: link:../sui-common/build
+        version: link:../sui-common/build/build
       '@types/react':
         specifier: ^18.3.1
         version: 18.3.18
@@ -1663,6 +2025,50 @@ importers:
         version: 0.4.18(eslint@8.57.1)
     publishDirectory: build
 
+  packages/sui-media-selector/build:
+    dependencies:
+      '@stoked-ui/common':
+        specifier: workspace:^
+        version: link:../../sui-common/build/build
+      exifreader:
+        specifier: ^4.23.5
+        version: 4.26.1
+      formdata-node:
+        specifier: ^6.0.3
+        version: 6.0.3
+      jszip:
+        specifier: ^3.10.1
+        version: 3.10.1
+      music-metadata:
+        specifier: ^10.5.0
+        version: 10.7.1
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      safe-stringify:
+        specifier: ^1.1.1
+        version: 1.1.1
+      typescript:
+        specifier: 5.4.5
+        version: 5.4.5
+    publishDirectory: build
+
+  packages/sui-media-selector/build/App: {}
+
+  packages/sui-media-selector/build/FileSystemApi: {}
+
+  packages/sui-media-selector/build/MediaFile: {}
+
+  packages/sui-media-selector/build/MediaType: {}
+
+  packages/sui-media-selector/build/Stage: {}
+
+  packages/sui-media-selector/build/WebFile: {}
+
+  packages/sui-media-selector/build/WebFileFactory: {}
+
+  packages/sui-media-selector/build/zip: {}
+
   packages/sui-timeline:
     dependencies:
       '@emotion/styled':
@@ -1679,13 +2085,13 @@ importers:
         version: 5.16.14(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react@18.3.1)
       '@stoked-ui/common':
         specifier: workspace:^
-        version: link:../sui-common/build
+        version: link:../sui-common/build/build
       '@stoked-ui/file-explorer':
         specifier: workspace:^
-        version: link:../sui-file-explorer/build
+        version: link:../sui-file-explorer/build/build
       '@stoked-ui/media-selector':
         specifier: workspace:^
-        version: link:../sui-media-selector/build
+        version: link:../sui-media-selector/build/build
       '@tempfix/idb':
         specifier: ^8.0.3
         version: 8.0.3
@@ -1766,6 +2172,108 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
     publishDirectory: build
+
+  packages/sui-timeline/build:
+    dependencies:
+      '@emotion/react':
+        specifier: ^11.9.0
+        version: 11.14.0(@types/react@18.3.18)(react@18.3.1)
+      '@emotion/styled':
+        specifier: ^11.8.1
+        version: 11.14.0(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react@18.3.1)
+      '@interactjs/types':
+        specifier: ^1.10.11
+        version: 1.10.27
+      '@mui/icons-material':
+        specifier: ^5.15.21
+        version: 5.15.21(@mui/material@5.16.14(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.18)(react@18.3.1)
+      '@mui/material':
+        specifier: ^5.15.21
+        version: 5.16.14(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@mui/system':
+        specifier: ^5
+        version: 5.16.14(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@emotion/styled@11.14.0(@emotion/react@11.14.0(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react@18.3.1))(@types/react@18.3.18)(react@18.3.1)
+      '@stoked-ui/common':
+        specifier: workspace:^
+        version: link:../../sui-common/build/build
+      '@stoked-ui/file-explorer':
+        specifier: workspace:^
+        version: link:../../sui-file-explorer/build/build
+      '@stoked-ui/media-selector':
+        specifier: workspace:^
+        version: link:../../sui-media-selector/build/build
+      '@tempfix/idb':
+        specifier: ^8.0.3
+        version: 8.0.3
+      '@types/react-virtualized':
+        specifier: ^9.21.14
+        version: 9.22.0
+      '@use-gesture/react':
+        specifier: ^10.3.1
+        version: 10.3.1(react@18.3.1)
+      framework-utils:
+        specifier: ^1.1.0
+        version: 1.1.0
+      interactjs:
+        specifier: ^1.10.11
+        version: 1.10.27
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
+      react-scroll-sync:
+        specifier: ^0.11.2
+        version: 0.11.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-virtualized:
+        specifier: ^9.22.3
+        version: 9.22.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      use-resize-observer:
+        specifier: ^9.1.0
+        version: 9.1.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      wavesurfer:
+        specifier: ^1.3.4
+        version: 1.3.4
+    publishDirectory: build
+
+  packages/sui-timeline/build/Controller: {}
+
+  packages/sui-timeline/build/Engine: {}
+
+  packages/sui-timeline/build/Interactable: {}
+
+  packages/sui-timeline/build/Timeline: {}
+
+  packages/sui-timeline/build/TimelineAction: {}
+
+  packages/sui-timeline/build/TimelineControls: {}
+
+  packages/sui-timeline/build/TimelineCursor: {}
+
+  packages/sui-timeline/build/TimelineFile: {}
+
+  packages/sui-timeline/build/TimelineLabels: {}
+
+  packages/sui-timeline/build/TimelinePlayer: {}
+
+  packages/sui-timeline/build/TimelineProvider: {}
+
+  packages/sui-timeline/build/TimelineScrollResizer: {}
+
+  packages/sui-timeline/build/TimelineTime: {}
+
+  packages/sui-timeline/build/TimelineTrack: {}
+
+  packages/sui-timeline/build/TimelineTrackArea: {}
+
+  packages/sui-timeline/build/components: {}
+
+  packages/sui-timeline/build/icons: {}
+
+  packages/sui-timeline/build/themeAugmentation: {}
+
+  packages/sui-timeline/build/utils: {}
 
   test:
     devDependencies:
@@ -1870,7 +2378,7 @@ importers:
         version: 11.3.0
       html-webpack-plugin:
         specifier: ^5.6.0
-        version: 5.6.3(webpack@5.97.1(esbuild@0.24.2)(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.97.1)))
+        version: 5.6.3(webpack@5.97.1(esbuild@0.24.2)(webpack-cli@5.1.4))
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -1915,7 +2423,7 @@ importers:
         version: 1.6.28
       webpack:
         specifier: ^5.90.3
-        version: 5.97.1(esbuild@0.24.2)(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.97.1))
+        version: 5.97.1(esbuild@0.24.2)(webpack-cli@5.1.4)
       yargs:
         specifier: ^17.7.2
         version: 17.7.2
@@ -3635,9 +4143,13 @@ packages:
       react: 18.3.1
       react-dom: 18.3.1
 
+  '@mongodb-js/saslprep@1.1.9':
+    resolution: {integrity: sha512-tVkljjeEaAhCqTzajSdgbQ6gE6f3oneVwa3iXR6csiEwXXOFsiC6Uh9iAjAhXPtqa/XMDHWjjeNH/77m/Yq2dw==}
+
   '@mui/base@5.0.0-beta.40-0':
     resolution: {integrity: sha512-hG3atoDUxlvEy+0mqdMpWd04wca8HKr2IHjW/fAjlkCHQolSLazhZM46vnHjOf15M4ESu25mV/3PgjczyjVM4w==}
     engines: {node: '>=12.0.0'}
+    deprecated: This package has been replaced by @base-ui-components/react
     peerDependencies:
       '@types/react': ^18.3.1
       react: 18.3.1
@@ -3649,6 +4161,7 @@ packages:
   '@mui/base@5.0.0-beta.69':
     resolution: {integrity: sha512-r2YyGUXpZxj8rLAlbjp1x2BnMERTZ/dMqd9cClKj2OJ7ALAuiv/9X5E9eHfRc9o/dGRuLSMq/WTjREktJVjxVA==}
     engines: {node: '>=14.0.0'}
+    deprecated: This package has been replaced by @base-ui-components/react
     peerDependencies:
       '@types/react': ^18.3.1
       react: 18.3.1
@@ -5356,11 +5869,17 @@ packages:
   '@types/uuid@9.0.8':
     resolution: {integrity: sha512-jg+97EGIcY9AGHJJRaaPVgetKDsrTgbRjQ5Msgjh/DQKEFl0DtyRr/VCOyD1T2R1MNeWPK/u7JoGhlDZnKBAfA==}
 
+  '@types/webidl-conversions@7.0.3':
+    resolution: {integrity: sha512-CiJJvcRtIgzadHCYXw7dqEnMNRjhGZlYK05Mj9OyktqV8uVT8fD2BFOB7S1uwBE3Kj2Z+4UyPmFw/Ixgw/LAlA==}
+
   '@types/webpack@5.28.5':
     resolution: {integrity: sha512-wR87cgvxj3p6D0Crt1r5avwqffqPXUkNlnQ1mjU93G7gCuFjufZR4I6j8cz5g1F1tTYpfOOFvly+cmIQwL9wvw==}
 
   '@types/webxr@0.5.21':
     resolution: {integrity: sha512-geZIAtLzjGmgY2JUi6VxXdCrTb99A7yP49lxLr2Nm/uIK0PkkxcEi4OGhoGDO4pxCf3JwGz2GiJL2Ej4K2bKaA==}
+
+  '@types/whatwg-url@11.0.5':
+    resolution: {integrity: sha512-coYR071JRaHa+xoEvvYqvnIHaVqaYrLPbsufM9BF63HkwI5Lgmy2QR8Q5K/lYDYo5AK82wOvSOS0UsLTpTG7uQ==}
 
   '@types/wicg-file-system-access@2023.10.5':
     resolution: {integrity: sha512-e9kZO9kCdLqT2h9Tw38oGv9UNzBBWaR1MzuAavxPcsV/7FJ3tWbU6RI3uB+yKIDPGLkGVbplS52ub0AcRLvrhA==}
@@ -6134,6 +6653,10 @@ packages:
 
   bser@2.1.1:
     resolution: {integrity: sha512-gQxTNE/GAfIIrmHLUE3oJyp5FO6HRBfhjnw4/wMmA63ZGDJnWBmgY/lyQBpnDUkGmAhbSe39tx2d/iTOAfglwQ==}
+
+  bson@6.10.1:
+    resolution: {integrity: sha512-P92xmHDQjSKPLHqFxefqMxASNq/aWJMEZugpCjf+AF/pgcUpMMQCg7t7+ewko0/u8AapvF3luf/FoehddEK+sA==}
+    engines: {node: '>=16.20.1'}
 
   buffer-crc32@0.2.13:
     resolution: {integrity: sha512-VO9Ht/+p3SN7SKWqcrgEzjGbRSJYTx+Q1pTQC0wrWqHx0vpJraQ6GtHx8tvcg1rlK1byhU5gccxgOgj7B0TDkQ==}
@@ -7616,8 +8139,8 @@ packages:
     resolution: {integrity: sha512-VyhnebXciFV2DESc+p6B+y0LjSm0krU4OgJN44qFAhBY0TJ+1V61tYD2+wHusZ6F9n5K+vl8k0sTy7PEfV4qpg==}
     engines: {node: '>=16.17'}
 
-  exifreader@4.26.0:
-    resolution: {integrity: sha512-nNN9B0oaXTOpArdnIdJBAro2Sa620m7wMjMA5Xy1rcua0EYHVjzGKM5syBOWDqIG2Qay6Pes/5FOdj65hvZ9Vw==}
+  exifreader@4.26.1:
+    resolution: {integrity: sha512-5u7LooUryPAhdQ/Wn5n/P8WsWJ/DxZ5AToc7gTDlzN41QlecGFEt3y+rXpaOe7GhxZ8cD5t8E7yqrq0oZeVHmw==}
 
   exit@0.1.2:
     resolution: {integrity: sha512-Zk/eNKV2zbjpKzrsQ+n1G6poVbErQxJ0LBOJXaKZ1EViLzH+hrLu9cdXI4zw9dBQJslwBEpbQ2P1oS7nDxs6jQ==}
@@ -9675,6 +10198,9 @@ packages:
   memory-fs@0.2.0:
     resolution: {integrity: sha512-+y4mDxU4rvXXu5UDSGCGNiesFmwCHuefGMoPCO1WYucNYj7DsLqrFaa2fXVI0H+NNiPTwwzKwspn9yTZqUGqng==}
 
+  memory-pager@1.5.0:
+    resolution: {integrity: sha512-ZS4Bp4r/Zoeq6+NLJpP+0Zzm0pR8whtGPf1XExKLJBAczGMnSi3It14OiNCStjQjM6NU1okjQGSxgEZN8eBYKg==}
+
   meow@10.1.5:
     resolution: {integrity: sha512-/d+PQ4GKmGvM9Bee/DPa8z3mXs/pkvJE2KEThngVNOqtmljC6K7NMPxtc2JeZYTmpWb9k/TmxjeL18ez3h7vCw==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
@@ -9917,6 +10443,36 @@ packages:
   modify-values@1.0.1:
     resolution: {integrity: sha512-xV2bxeN6F7oYjZWTe/YPAy6MN2M+sL4u/Rlm2AHCIVGfo2p1yGmBHQ6vHehl4bRTZBdHu3TSkWdYgkwpYzAGSw==}
     engines: {node: '>=0.10.0'}
+
+  mongodb-connection-string-url@3.0.2:
+    resolution: {integrity: sha512-rMO7CGo/9BFwyZABcKAWL8UJwH/Kc2x0g72uhDWzG48URRax5TCIcJ7Rc3RZqffZzO/Gwff/jyKwCU9TN8gehA==}
+
+  mongodb@6.12.0:
+    resolution: {integrity: sha512-RM7AHlvYfS7jv7+BXund/kR64DryVI+cHbVAy9P61fnb1RcWZqOW1/Wj2YhqMCx+MuYhqTRGv7AwHBzmsCKBfA==}
+    engines: {node: '>=16.20.1'}
+    peerDependencies:
+      '@aws-sdk/credential-providers': ^3.188.0
+      '@mongodb-js/zstd': ^1.1.0 || ^2.0.0
+      gcp-metadata: ^5.2.0
+      kerberos: ^2.0.1
+      mongodb-client-encryption: '>=6.0.0 <7'
+      snappy: ^7.2.2
+      socks: ^2.7.1
+    peerDependenciesMeta:
+      '@aws-sdk/credential-providers':
+        optional: true
+      '@mongodb-js/zstd':
+        optional: true
+      gcp-metadata:
+        optional: true
+      kerberos:
+        optional: true
+      mongodb-client-encryption:
+        optional: true
+      snappy:
+        optional: true
+      socks:
+        optional: true
 
   moo@0.5.2:
     resolution: {integrity: sha512-iSAJLHYKnX41mKcJKjqvnAN9sf0LMDTXDEvFv+ffuRR9a1MIuXLjMNL6EsnDHSkKLTWNqQQ5uo61P4EbU4NU+Q==}
@@ -11037,8 +11593,8 @@ packages:
       react: 18.3.1
       react-dom: 18.3.1
 
-  react-devtools-core@6.0.1:
-    resolution: {integrity: sha512-II3iSJhnR5nAscYDa9FCgPLq8mO5aEx/EKKtdXYTDnvdFEa3K7gs3jn1SKRXwQf9maOmIilmjnnx7Qy+3annPA==}
+  react-devtools-core@6.1.0:
+    resolution: {integrity: sha512-sA8gF/pUhjoGAN3s1Ya43h+F4Q0z7cv9RgqbUfhP7bJI0MbqeshLYFb6hiHgZorovGr8AXqhLi22eQ7V3pru/Q==}
 
   react-display-name@0.2.5:
     resolution: {integrity: sha512-I+vcaK9t4+kypiSgaiVWAipqHRXYmZIuAiS8vzFvXHHXVigg/sMKwlRgLy6LH2i3rmP+0Vzfl5lFsFRwF1r3pg==}
@@ -11868,6 +12424,9 @@ packages:
   source-map@0.8.0-beta.0:
     resolution: {integrity: sha512-2ymg6oRBpebeZi9UUNsgQ89bhx01TcTkmNTGnNO88imTmbSgy4nfujrgVEFKWpMTEGA11EDkTt7mqObTPdigIA==}
     engines: {node: '>= 8'}
+
+  sparse-bitfield@3.0.3:
+    resolution: {integrity: sha512-kvzhi7vqKTfkh0PZU+2D2PIllw2ymqJKujUcyPMd9Y75Nv4nPbGJZXNhxsgdQab2BmlDct1YnfQCguEvHr7VsQ==}
 
   spawn-command@0.0.2:
     resolution: {integrity: sha512-zC8zGoGkmc8J9ndvml8Xksr1Amk9qBujgbF0JAIWO7kXr43w0h/0GJNM/Vustixu+YE8N/MTrQ7N31FvHUACxQ==}
@@ -15524,6 +16083,10 @@ snapshots:
       react-test-renderer: 18.3.1(react@18.3.1)
       semver: 5.7.2
 
+  '@mongodb-js/saslprep@1.1.9':
+    dependencies:
+      sparse-bitfield: 3.0.3
+
   '@mui/base@5.0.0-beta.40-0(@types/react@18.3.18)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@babel/runtime': 7.26.7
@@ -17653,11 +18216,13 @@ snapshots:
 
   '@types/uuid@9.0.8': {}
 
+  '@types/webidl-conversions@7.0.3': {}
+
   '@types/webpack@5.28.5(esbuild@0.24.2)(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.97.1))':
     dependencies:
       '@types/node': 18.19.74
       tapable: 2.2.1
-      webpack: 5.97.1(esbuild@0.24.2)(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.97.1))
+      webpack: 5.97.1(esbuild@0.24.2)(webpack-cli@5.1.4)
     transitivePeerDependencies:
       - '@swc/core'
       - esbuild
@@ -17665,6 +18230,10 @@ snapshots:
       - webpack-cli
 
   '@types/webxr@0.5.21': {}
+
+  '@types/whatwg-url@11.0.5':
+    dependencies:
+      '@types/webidl-conversions': 7.0.3
 
   '@types/wicg-file-system-access@2023.10.5': {}
 
@@ -17902,19 +18471,19 @@ snapshots:
       '@webassemblyjs/ast': 1.14.1
       '@xtuc/long': 4.2.2
 
-  '@webpack-cli/configtest@2.1.1(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.97.1))(webpack@5.97.1)':
+  '@webpack-cli/configtest@2.1.1(webpack-cli@5.1.4)(webpack@5.97.1)':
     dependencies:
-      webpack: 5.97.1(esbuild@0.24.2)(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.97.1))
+      webpack: 5.97.1(esbuild@0.24.2)(webpack-cli@5.1.4)
       webpack-cli: 5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.97.1)
 
-  '@webpack-cli/info@2.0.2(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.97.1))(webpack@5.97.1)':
+  '@webpack-cli/info@2.0.2(webpack-cli@5.1.4)(webpack@5.97.1)':
     dependencies:
-      webpack: 5.97.1(esbuild@0.24.2)(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.97.1))
+      webpack: 5.97.1(esbuild@0.24.2)(webpack-cli@5.1.4)
       webpack-cli: 5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.97.1)
 
-  '@webpack-cli/serve@2.0.5(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.97.1))(webpack@5.97.1)':
+  '@webpack-cli/serve@2.0.5(webpack-cli@5.1.4)(webpack@5.97.1)':
     dependencies:
-      webpack: 5.97.1(esbuild@0.24.2)(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.97.1))
+      webpack: 5.97.1(esbuild@0.24.2)(webpack-cli@5.1.4)
       webpack-cli: 5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.97.1)
 
   '@wyw-in-js/processor-utils@0.5.5':
@@ -18417,7 +18986,7 @@ snapshots:
       '@babel/core': 7.26.7
       find-cache-dir: 4.0.0
       schema-utils: 4.3.0
-      webpack: 5.97.1(esbuild@0.24.2)(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.97.1))
+      webpack: 5.97.1(esbuild@0.24.2)(webpack-cli@5.1.4)
 
   babel-merge@3.0.0(@babel/core@7.26.7):
     dependencies:
@@ -18685,6 +19254,8 @@ snapshots:
   bser@2.1.1:
     dependencies:
       node-int64: 0.4.0
+
+  bson@6.10.1: {}
 
   buffer-crc32@0.2.13: {}
 
@@ -19164,7 +19735,7 @@ snapshots:
     dependencies:
       schema-utils: 4.3.0
       serialize-javascript: 6.0.2
-      webpack: 5.97.1(esbuild@0.24.2)(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.97.1))
+      webpack: 5.97.1(esbuild@0.24.2)(webpack-cli@5.1.4)
 
   compression@1.7.4:
     dependencies:
@@ -20229,7 +20800,7 @@ snapshots:
       lodash: 4.17.21
       resolve: 2.0.0-next.5
       semver: 5.7.2
-      webpack: 5.97.1(esbuild@0.24.2)(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.97.1))
+      webpack: 5.97.1(esbuild@0.24.2)(webpack-cli@5.1.4)
     transitivePeerDependencies:
       - supports-color
 
@@ -20530,7 +21101,7 @@ snapshots:
       signal-exit: 4.1.0
       strip-final-newline: 3.0.0
 
-  exifreader@4.26.0:
+  exifreader@4.26.1:
     optionalDependencies:
       '@xmldom/xmldom': 0.9.7
 
@@ -21361,7 +21932,7 @@ snapshots:
       readable-stream: 1.0.34
       through2: 0.4.2
 
-  html-webpack-plugin@5.6.3(webpack@5.97.1(esbuild@0.24.2)(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.97.1))):
+  html-webpack-plugin@5.6.3(webpack@5.97.1(esbuild@0.24.2)(webpack-cli@5.1.4)):
     dependencies:
       '@types/html-minifier-terser': 6.1.0
       html-minifier-terser: 6.1.0
@@ -21369,7 +21940,7 @@ snapshots:
       pretty-error: 4.0.0
       tapable: 2.2.1
     optionalDependencies:
-      webpack: 5.97.1(esbuild@0.24.2)(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.97.1))
+      webpack: 5.97.1(esbuild@0.24.2)(webpack-cli@5.1.4)
 
   htmlparser2@6.1.0:
     dependencies:
@@ -22568,7 +23139,7 @@ snapshots:
     dependencies:
       glob: 7.2.3
       minimatch: 9.0.5
-      webpack: 5.97.1(esbuild@0.24.2)(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.97.1))
+      webpack: 5.97.1(esbuild@0.24.2)(webpack-cli@5.1.4)
       webpack-merge: 4.2.2
 
   karma@6.4.4:
@@ -23138,6 +23709,8 @@ snapshots:
 
   memory-fs@0.2.0: {}
 
+  memory-pager@1.5.0: {}
+
   meow@10.1.5:
     dependencies:
       '@types/minimist': 1.2.5
@@ -23508,6 +24081,19 @@ snapshots:
       yargs-unparser: 2.0.0
 
   modify-values@1.0.1: {}
+
+  mongodb-connection-string-url@3.0.2:
+    dependencies:
+      '@types/whatwg-url': 11.0.5
+      whatwg-url: 14.1.0
+
+  mongodb@6.12.0(socks@2.8.3):
+    dependencies:
+      '@mongodb-js/saslprep': 1.1.9
+      bson: 6.10.1
+      mongodb-connection-string-url: 3.0.2
+    optionalDependencies:
+      socks: 2.8.3
 
   moo@0.5.2: {}
 
@@ -24681,7 +25267,7 @@ snapshots:
     dependencies:
       loader-utils: 2.0.4
       schema-utils: 3.3.0
-      webpack: 5.97.1(esbuild@0.24.2)(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.97.1))
+      webpack: 5.97.1(esbuild@0.24.2)(webpack-cli@5.1.4)
 
   rc@1.2.8:
     dependencies:
@@ -24707,7 +25293,7 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
       ua-parser-js: 1.0.40
 
-  react-devtools-core@6.0.1:
+  react-devtools-core@6.1.0:
     dependencies:
       shell-quote: 1.8.2
       ws: 7.5.10
@@ -24856,7 +25442,7 @@ snapshots:
       pretty-format: 29.7.0
       promise: 8.3.0
       react: 18.3.1
-      react-devtools-core: 6.0.1
+      react-devtools-core: 6.1.0
       react-refresh: 0.14.2
       regenerator-runtime: 0.13.11
       scheduler: 0.24.0-canary-efb381bbf-20230505
@@ -25767,6 +26353,10 @@ snapshots:
     dependencies:
       whatwg-url: 7.1.0
 
+  sparse-bitfield@3.0.3:
+    dependencies:
+      memory-pager: 1.5.0
+
   spawn-command@0.0.2: {}
 
   spawn-wrap@2.0.0:
@@ -26276,14 +26866,14 @@ snapshots:
     dependencies:
       rimraf: 2.5.4
 
-  terser-webpack-plugin@5.3.11(esbuild@0.24.2)(webpack@5.97.1(esbuild@0.24.2)(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.97.1))):
+  terser-webpack-plugin@5.3.11(esbuild@0.24.2)(webpack@5.97.1):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.25
       jest-worker: 27.5.1
       schema-utils: 4.3.0
       serialize-javascript: 6.0.2
       terser: 5.37.0
-      webpack: 5.97.1(esbuild@0.24.2)(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.97.1))
+      webpack: 5.97.1(esbuild@0.24.2)(webpack-cli@5.1.4)
     optionalDependencies:
       esbuild: 0.24.2
 
@@ -26878,9 +27468,9 @@ snapshots:
   webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.97.1):
     dependencies:
       '@discoveryjs/json-ext': 0.5.7
-      '@webpack-cli/configtest': 2.1.1(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.97.1))(webpack@5.97.1)
-      '@webpack-cli/info': 2.0.2(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.97.1))(webpack@5.97.1)
-      '@webpack-cli/serve': 2.0.5(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.97.1))(webpack@5.97.1)
+      '@webpack-cli/configtest': 2.1.1(webpack-cli@5.1.4)(webpack@5.97.1)
+      '@webpack-cli/info': 2.0.2(webpack-cli@5.1.4)(webpack@5.97.1)
+      '@webpack-cli/serve': 2.0.5(webpack-cli@5.1.4)(webpack@5.97.1)
       colorette: 2.0.20
       commander: 10.0.1
       cross-spawn: 7.0.6
@@ -26889,7 +27479,7 @@ snapshots:
       import-local: 3.2.0
       interpret: 3.1.1
       rechoir: 0.8.0
-      webpack: 5.97.1(esbuild@0.24.2)(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.97.1))
+      webpack: 5.97.1(esbuild@0.24.2)(webpack-cli@5.1.4)
       webpack-merge: 5.10.0
     optionalDependencies:
       webpack-bundle-analyzer: 4.10.2
@@ -26906,7 +27496,7 @@ snapshots:
 
   webpack-sources@3.2.3: {}
 
-  webpack@5.97.1(esbuild@0.24.2)(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.97.1)):
+  webpack@5.97.1(esbuild@0.24.2)(webpack-cli@5.1.4):
     dependencies:
       '@types/eslint-scope': 3.7.7
       '@types/estree': 1.0.6
@@ -26928,7 +27518,7 @@ snapshots:
       neo-async: 2.6.2
       schema-utils: 3.3.0
       tapable: 2.2.1
-      terser-webpack-plugin: 5.3.11(esbuild@0.24.2)(webpack@5.97.1(esbuild@0.24.2)(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack@5.97.1)))
+      terser-webpack-plugin: 5.3.11(esbuild@0.24.2)(webpack@5.97.1)
       watchpack: 2.4.2
       webpack-sources: 3.2.3
     optionalDependencies:
