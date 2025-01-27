@@ -30,7 +30,6 @@ export default function TopLayoutCareers(props) {
     <BrandingCssVarsProvider>
       <AppHeader />
       <Head title={`${title} - SUI`} description={description}>
-        <meta name="robots" content="noindex,nofollow" />
       </Head>
       <StyledDiv>
         <StyledAppContainer component="main" sx={{ py: { xs: 3, sm: 4, md: 8 } }}>

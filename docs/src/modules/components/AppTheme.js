@@ -8,7 +8,6 @@ export default function AppTheme(props) {
   return (
     <React.Fragment>
       <Head>
-        <meta name="robots" content="noindex,nofollow" />
       </Head>
       {children}
     </React.Fragment>

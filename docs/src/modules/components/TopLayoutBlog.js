@@ -354,7 +354,7 @@ export default function TopLayoutBlog(props) {
                 sameAs: [`https://github.com/${authors[headers.authors[0]].github}`],
               },
               headline: finalTitle,
-              url: `https://mui.com${canonicalAsServer}`,
+              url: `https://stoked-ui.com${canonicalAsServer}`,
               datePublished: headers.date,
               dateModified: headers.date,
               image: {
