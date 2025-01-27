@@ -42,6 +42,8 @@ export default class MyDocument extends Document {
     return (
       <Html lang={userLanguage} data-mui-color-scheme="light" data-joy-color-scheme="light">
         <Head>
+          <meta name="algolia-site-verification"  content="5102D7E9170A3450" />
+
           {/*
           <meta charSet="utf-8"/>
           <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
