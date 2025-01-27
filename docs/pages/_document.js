@@ -101,11 +101,9 @@ export default class MyDocument extends Document {
           {/* SEO */}
           <link
             rel="canonical"
-            href={`https://mui.com${
-              userLanguage === 'en' ? '' : `/${userLanguage}`
-            }${canonicalAsServer}`}
+            href={`https://stoked-ui.com`}
           />
-          <link rel="alternate" href={`https://mui.com${canonicalAsServer}`} hrefLang="x-default"/>
+          <link rel="alternate" href={`https://stokedconsulting.com`} hrefLang="x-default"/>
           {/*
             Preconnect allows the browser to setup early connections before an HTTP request
             is actually sent to the server.
