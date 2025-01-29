@@ -124,7 +124,7 @@
     "react-virtuoso": "^4.7.2",
     "react-window": "^1.8.10",
     "rimraf": "^5.0.5",
-    "sst": "^3.6.18",
+    "sst": "^3.6.19",
     "styled-components": "^6.1.8",
     "stylis": "4.2.0",
     "stylis-plugin-rtl": "^2.1.1",

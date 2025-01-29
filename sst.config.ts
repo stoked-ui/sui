@@ -20,8 +20,7 @@ export default $config({
     const infra = await import('./infra');
     infra.githubAwsConnector('stoked-ui', 'sui');
     return {
-      url: infra.web.url,
+      url: infra.web.url
     };
-  },
-  
+  }
 });

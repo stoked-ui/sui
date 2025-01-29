@@ -101,9 +101,9 @@ export default class MyDocument extends Document {
           {/* SEO */}
           <link
             rel="canonical"
-            href={`https://stoked-ui.com`}
+            href={`https://stoked-ui.com${canonicalAsServer}`}
           />
-          <link rel="alternate" href={`https://stokedconsulting.com`} hrefLang="x-default"/>
+          <link rel="alternate" href={`https://stokedconsulting.com${canonicalAsServer}`} hrefLang="x-default"/>
           {/*
             Preconnect allows the browser to setup early connections before an HTTP request
             is actually sent to the server.
@@ -327,6 +327,7 @@ MyDocument.getInitialProps = async (ctx) => {
     if (url[url.length - 1] !== '/') {
       url += '/';
     }
+    console.info('pathnameToLanguage(url).canonicalAsServer', url, pathnameToLanguage(url).canonicalAsServer);
 
     return {
       ...finalProps,

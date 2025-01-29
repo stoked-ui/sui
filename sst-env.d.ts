@@ -17,6 +17,14 @@ declare module "sst" {
       "type": "sst.aws.StaticSite"
       "url": string
     }
+    "SubscribeFunction": {
+      "name": string
+      "type": "sst.aws.Function"
+    }
+    "VerifyFunction": {
+      "name": string
+      "type": "sst.aws.Function"
+    }
   }
 }
 /// <reference path="sst-env.d.ts" />

@@ -3,34 +3,6 @@ import { domains } from 'infra/domains';
 
 console.info('domains', domains);
 
-const editorOrigin = {
-  // The domain of the new origin
-  domainName: "editor.stoked-ui.com",
-  originId: "editorOrigin",
-  customOriginConfig: {
-    httpPort: 80,
-    httpsPort: 443,
-    originSslProtocols: ["TLSv1.2"],
-    // If HTTPS is supported
-    originProtocolPolicy: "https-only",
-  },
-};
-
-const editorCacheBehavior = {
-  // The path to forward to the new origin
-  pathPattern: "/editor/*",
-  targetOriginId: editorOrigin.originId,
-  viewerProtocolPolicy: "redirect-to-https",
-  allowedMethods: ["GET", "HEAD", "OPTIONS"],
-  cachedMethods: ["GET", "HEAD"],
-  forwardedValues: {
-    queryString: true,
-    cookies: {
-      forward: "all",
-    },
-  },
-};
-
 export const web = new sst.aws.StaticSite("StokedUiComSite", {
   path: 'docs/export',
   domain: {
@@ -89,13 +61,4 @@ export const web = new sst.aws.StaticSite("StokedUiComSite", {
       }
     ],
   },
-  transform: {
-    cdn: (options: sst.aws.CdnArgs) => {
-      options.origins = $resolve(options.origins).apply(val => [...val, editorOrigin]);
-
-      options.orderedCacheBehaviors = $resolve(
-        options.orderedCacheBehaviors || []
-      ).apply(val => [...val, editorCacheBehavior]);
-    },
-  }
-});
+ });

@@ -1,3 +1,5 @@
+/// <reference path="../.sst/platform/config.d.ts" />
+
 export function githubAwsConnector(org: string, repo: string) {
   if ($app.stage !== 'prod') {
     return;

@@ -1,6 +1,6 @@
 {
   "extends": "../tsconfig.json",
-  "include": ["**/*.ts", "../infra/domains.ts"],
+  "include": ["**/*.ts"],
   "compilerOptions": {
     "allowJs": true,
     "isolatedModules": true,

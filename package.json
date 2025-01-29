@@ -107,14 +107,18 @@
     "watch:zero": "nx run-many -t watch --projects=\"@pigmentcss/*\" --parallel"
   },
   "dependencies": {
+    "@aws-sdk/client-sesv2": "^3.731.1",
     "@googleapis/sheets": "^5.0.5",
     "@hookform/error-message": "^2.0.1",
     "@netlify/functions": "^2.6.0",
+    "@pulumi/aws": "^6.67.0",
     "@slack/bolt": "^3.17.1",
     "@types/wicg-file-system-access": "^2023.10.5",
     "execa": "^8.0.1",
     "google-auth-library": "^9.7.0",
-    "playwright": "1.49"
+    "playwright": "1.49",
+    "aws-lambda": "1.0.7",
+    "mongodb": "^6.12.0"
   },
   "devDependencies": {
     "@argos-ci/core": "^1.5.5",
@@ -221,7 +225,6 @@
     "raw-loader": "4.0.2",
     "rimraf": "5.0.7",
     "serve": "^14.2.1",
-    "sst": "^3.6.18",
     "stylelint": "^15.11.0",
     "stylelint-config-standard": "^34.0.0",
     "stylelint-processor-styled-components": "^1.10.0",
@@ -232,7 +235,9 @@
     "webpack": "^5.90.3",
     "webpack-bundle-analyzer": "^4.10.1",
     "webpack-cli": "^5.1.4",
-    "yargs": "^17.7.2"
+    "yargs": "^17.7.2",
+    "next": "^13.5.1",
+    "sst": "3.6.25"
   },
   "packageManager": "pnpm@9.14.4",
   "engines": {
