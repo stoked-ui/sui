@@ -40,6 +40,7 @@ export const useFileExplorerExpansion: FileExplorerPlugin<UseFileExplorerExpansi
   const toggleItemExpansion = useEventCallback(
     (event: React.SyntheticEvent, id: FileId) => {
       const isExpandedBefore = instance.isItemExpanded(id);
+      console.info('toggle expansion', id, `old: ${isExpandedBefore}, new: ${!isExpandedBefore}`);
       instance.setItemExpansion(event, id, !isExpandedBefore);
     },
   );

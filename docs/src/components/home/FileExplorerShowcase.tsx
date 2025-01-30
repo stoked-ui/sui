@@ -26,6 +26,7 @@ export default function FileExplorerShowcase() {
   return (
     <ShowcaseContainer
       id={'file-explorer-showcase'}
+      demoSx={{ alignItems: 'top' }}
       preview={
         <FileExplorer
           items={getDynamicFiles()}

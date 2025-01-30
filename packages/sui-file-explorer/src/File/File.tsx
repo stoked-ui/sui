@@ -177,7 +177,7 @@ export const File = React.forwardRef(function File(
     // console.log('status', status.dndState);
   } // const iconProps = getIconContainerProps();
   const InnerContent: React.ReactNode = (
-    <div className={'target-label'} style={{ overflow: 'hidden' }}>
+    <div className={'target-label'} style={{ overflow: 'hidden', width: '100%' }}>
       {status.dndInstruction ? <DropIndicator instruction={status.dndInstruction} /> : null}
 
       <FileCheckbox {...getCheckboxProps()} />

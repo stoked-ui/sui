@@ -43,7 +43,7 @@ export default function ShowcaseContainer({
             display: 'flex',
             position: 'relative',
             justifyContent: 'center',
-            alignItems: 'center',
+            alignItems: 'top',
             minHeight: 220,
             p: 2,
           }, ...(Array.isArray(demoSx) ? demoSx : [demoSx])]}
