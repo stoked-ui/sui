@@ -17,11 +17,10 @@ export default $config({
   },
   async run() {
     console.info('app name',$app.name);
-    const infra = await import('./docs/infra');
+    const infra = await import('./infra');
     infra.githubAwsConnector('stoked-ui', 'sui');
     return {
-      url: infra.web.url,
+      url: infra.web.url
     };
-  },
-  
+  }
 });
