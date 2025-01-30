@@ -85,7 +85,6 @@ export const useFileExplorerGrid: UseFileExplorerGridPlugin = <R extends FileBas
 }) => {
 
   const getAltRowClass = (id: string) => {
-    console.log('state.items.itemMetaMap[id]?',  state.items.itemMetaMap[id])
     return state.items.itemMetaMap[id]?.visibleIndex ? 'Mui-odd' : 'Mui-even';
   }
   const isColumn = (id: string) => state.grid.columns.hasOwnProperty(id);
@@ -158,7 +157,11 @@ export const useFileExplorerGrid: UseFileExplorerGridPlugin = <R extends FileBas
   }, [params.items])
 
   const isColumnAscending = (columnName: string) => {
-    return state.grid.headers[columnName]?.status.ascending ?? null;
+    if (state.grid.headers[columnName]?.status.ascending === undefined) {
+      state.grid.headers[columnName].status.ascending = false;
+      state.grid.headers[columnName].status.sort = true;
+    }
+    return state.grid.headers[columnName]?.status.ascending;
   }
 
   const isColumnFocused = (columnName: string) => {
@@ -169,32 +172,36 @@ export const useFileExplorerGrid: UseFileExplorerGridPlugin = <R extends FileBas
     return state.grid.headers[columnName]?.status.focused ?? null;
   }
 
-  const sortColumn = (columnName: string, ascending: boolean, items: any[] = [...params.items]) => {
+  const sortColumn = (columnName: string, ascending: boolean, items: any[] = [...params.items], evaluator?: (item: any, columnName: string) => any) => {
+
     items = items.sort((a, b) => {
+      if (evaluator) {
+        a = evaluator(a, columnName);
+        b = evaluator(b, columnName);
+      }
       const valA = ascending ? a[columnName] : b[columnName];
       const valB = ascending ? b[columnName] : a[columnName];
-        if (valA > valB) {
-          return -1;
-        }
-        if (valA < valB) {
-          return 1;
-        }
-        return 0
-      });
+      if (valA > valB) {
+        return 1;
+      }
+      if (valA < valB) {
+        return -1;
+      }
+      return 0
+    });
+
     items.forEach((item) => {
       if (item.children) {
         item.children = sortColumn(columnName, ascending, item.children);
       }
     });
+
     return items;
   }
 
-  const toggleColumnSort = (columnName: string) => {
+  const toggleColumnSort = (columnName: string, evaluator?: (item: any, columnName: string) => any) => {
     const isAscending = isColumnAscending(columnName);
-    if (isAscending === null) {
-      return null;
-    }
-    const isCurrentSort = state.grid.headers[columnName].status.sort;
+      const isCurrentSort = state.grid.headers[columnName].status.sort;
     state.grid.headers[columnName].status.sort = true;
     if (isCurrentSort){
       state.grid.headers[columnName].status.ascending = !isAscending;
@@ -204,7 +211,7 @@ export const useFileExplorerGrid: UseFileExplorerGridPlugin = <R extends FileBas
     if (trash) {
       sortItems = sortItems.filter((item) => item.id !== 'trash');
     }
-    const items =  sortColumn(columnName, state.grid.headers[columnName].status.ascending, sortItems)
+    const items =  sortColumn(columnName, state.grid.headers[columnName].status.ascending, sortItems, evaluator)
     if (trash) {
       items.push(trash);
     }

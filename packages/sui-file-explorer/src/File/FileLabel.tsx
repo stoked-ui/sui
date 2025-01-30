@@ -116,7 +116,7 @@ export const FileLabel = React.forwardRef(function FileExplorer(
   const mx: string | undefined = meta && !last ? '4px' : undefined;
   const mr: string | undefined = meta && last ? '4px' : undefined;
   let actualLabel = (
-    <StyledFileLabelText variant="body2" sx={sx}>
+    <StyledFileLabelText variant="body2" sx={[...(Array.isArray(sx) ? sx : [sx]), {width: '100%'}]}>
       {children}
     </StyledFileLabelText>
   );
@@ -130,6 +130,7 @@ export const FileLabel = React.forwardRef(function FileExplorer(
       </Box>
     );
   }
+
   const headerIcon: SxProps<Theme> =
     status && !status.focused
       ? { visibility: 'visible', alignSelf: 'center', color: 'black' }
@@ -161,22 +162,24 @@ export const FileLabel = React.forwardRef(function FileExplorer(
       selected={selected}
       ref={ref}
     >
-      {Icon && (
-        <Box
-          component={Icon}
-          className="labelIcon"
-          color="inherit"
-          sx={{ mr: 1, fontSize: '1.2rem', '& svn': { paddingRight: '20px' } }}
-        />
-      )}
+      <div style={{ width: '100%', display: 'flex' }}>
+        {Icon && (
+          <Box
+            component={Icon}
+            className="labelIcon"
+            color="inherit"
+            sx={{ mr: 1, fontSize: '1.2rem', '& svn': { paddingRight: '20px' } }}
+          />
+        )}
 
-      {actualLabel}
+        {actualLabel}
+      </div>
       {showIcon && (
         <FileIconContainer
           {...iconProps}
-          sx={(theme) => ({ color: theme.palette.text.primary, '& svg': { marginRight: '10px' } })}
+          sx={(theme) => ({ color: theme.palette.text.primary, '& svg': { marginRight: '10px' }})}
         >
-          <FileIcon status={status} sx={headerIcon} iconName={iconProps?.iconName} />
+          <FileIcon status={status} sx={[headerIcon, (theme) => ({ color: selected ? theme.palette.background.default : theme.palette.text.primary })]} iconName={iconProps?.iconName} />
         </FileIconContainer>
       )}
     </FileLabelRoot>
