@@ -426,16 +426,10 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
     cancelExpandRef.current = null;
   }, []);
 
-
   const getTargetLabel = (element: Element) => {
-    // TODO: optional drop target choice
-    let label = element.querySelector('.target-label');
-    if (!label) {
-      label = element.closest('.target-label');
-    }
-    return label;
-    // return element.closest('.MuiFile-content');
+    return element.closest('.MuiFile-content');
   }
+
   const removeDropTargetAffordance = (element: Element) => {
     if (!element) {
       return;
@@ -455,6 +449,7 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
   }
 
   const addDropTargetAffordance = (canDrop: boolean, element: Element)=> {
+    console.info((element as HTMLDivElement).innerText);
     if (!element) {
       return;
     }
@@ -553,12 +548,15 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
         addDropTargetAffordance(canDrop, element);
         // console.info('getData', props.name, element);
         const data = {id: props.id, type: props.type};
+        const mode = instance.getItemMode(props);
+
+        console.info('getData', props.name, mode)
         const dataInstruction = attachInstruction(data, {
           input,
           element,
           indentPerLevel: 0,
           currentLevel: props.depth ?? 0,
-          mode: instance.getItemMode(props),
+          mode,
           block: !canDrop ? ['make-child'] : [],
         });
 

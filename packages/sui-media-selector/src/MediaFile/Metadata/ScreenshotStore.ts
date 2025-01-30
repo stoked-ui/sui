@@ -152,7 +152,6 @@ export default class ScreenshotStore {
     height: number,
   ): Promise<{ found: Screenshot[], missing: number[] }> {
     const { start, end } = range;
-    console.info('queryScreenshots', this.file.name, resolution, start, end);
     // First, get all the screenshots within the range of start and end
     const allScreenshots = Array.from(this.screenshots.values()).filter((screenshot) => screenshot?.resolution === resolution && screenshot?.timestamp >= start && (screenshot.timestamp % this.video.duration) <= end);
     const numScreenshots = this.getScreenshotTimespanCount(height, { start, end });
