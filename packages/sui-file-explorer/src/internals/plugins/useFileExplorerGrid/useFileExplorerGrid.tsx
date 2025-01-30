@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { namedId} from '@stoked-ui/common';
 import {
-  GridColumn,
+  GridColumn, GridColumnFuncs,
   GridColumns,
   GridHeader,
   GridHeaders,
@@ -15,6 +15,14 @@ import {ItemMode} from "../useFileExplorerFiles/useFileExplorerFiles.types";
 
 const directRender = (content: any) => content;
 
+
+const columnChildren = (cells: React.ReactElement[]) => {
+  return (
+    <React.Fragment>
+      {cells}
+    </React.Fragment>
+  );
+}
 const DEFAULT_HEADER_DATA = {
   sx: {
     display: 'flex',
@@ -32,6 +40,9 @@ const DEFAULT_HEADER_DATA = {
     sort: false
   },
 }
+const getDefaultHeader = () => {
+   return {...JSON.parse(JSON.stringify(DEFAULT_HEADER_DATA))};
+}
 
 const DEFAULT_COLUMN_DATA = {
   sx: {
@@ -48,20 +59,33 @@ const DEFAULT_COLUMN_DATA = {
   cells: [],
 }
 
-const updateGridState = ({ headers, columns, initializedIndexes, id, gridColumns }: { gridColumns?: { [name: string]: (item: any) => any }, headers: GridHeaders, columns: GridColumns, initializedIndexes: boolean, id?: string } ): UseFileExplorerGridState => {
+const getDefaultColumn = () => {
+  return {
+    ...JSON.parse(JSON.stringify(DEFAULT_COLUMN_DATA)),
+    children: columnChildren
+  };
+}
+
+const updateGridState = ({ headers, columns, initializedIndexes, id, gridColumns }: { gridColumns?: GridColumnFuncs, headers: GridHeaders, columns: GridColumns, initializedIndexes: boolean, id?: string } ): UseFileExplorerGridState => {
   const { name, size, lastModified } = headers;
   const font = { };
   if (gridColumns) {
     Object.keys(gridColumns).forEach((columnName) => {
-      headers[columnName] = DEFAULT_HEADER_DATA as GridHeader;
-      headers[columnName].renderContent = gridColumns[columnName];
-    })
-    Object.keys(gridColumns).forEach((columnName) => {
-      columns[columnName] = {
-        ...DEFAULT_COLUMN_DATA,
-        getContent: gridColumns[columnName],
-        children: [] as any
-      };
+      if (!headers[columnName]) {
+        headers[columnName] = getDefaultHeader();
+      }
+      const columnFuncs: any = gridColumns[columnName];
+      if (!columns[columnName]) {
+        columns[columnName] = getDefaultColumn();
+        if (typeof columnFuncs === 'function') {
+          columns[columnName].renderContent = columnFuncs
+        } else {
+          const {renderer, evaluator, ...fileBase} = columnFuncs
+          columns[columnName].renderContent = renderer || ((content: any) => `${content}`);
+          columns[columnName].evaluator = evaluator;
+          columns[columnName] = {...columns[columnName], ...fileBase };
+        }
+      }
     })
   }
   name.sx = {...name.sx, flexGrow: 1, display: 'flex', justifyContent: 'start', ...font }
@@ -324,6 +348,7 @@ export const useFileExplorerGrid: UseFileExplorerGridPlugin = <R extends FileBas
       getColumns,
       getHeaders,
       getItemMode,
+      processColumns
     },
     contextValue: {
       ...state.grid,
@@ -334,42 +359,24 @@ export const useFileExplorerGrid: UseFileExplorerGridPlugin = <R extends FileBas
 };
 
 
-const children = (cells: React.ReactElement[]) => {
-  return (
-    <React.Fragment>
-      {cells}
-    </React.Fragment>
-  );
-}
-
 const DEFAULT_HEADERS: GridHeaders = {
-  name: {
-    ...JSON.parse(JSON.stringify(DEFAULT_HEADER_DATA)),
-    children,
-    ...{ status: { sort: true, focused: true, visible: true }}
-  },
-  size: {
-    ...JSON.parse(JSON.stringify(DEFAULT_HEADER_DATA)),
-    children,
-  },
-  lastModified: {
-    ...JSON.parse(JSON.stringify(DEFAULT_HEADER_DATA)),
-    children
-  }
+  name: getDefaultHeader(),
+  size: getDefaultHeader(),
+  lastModified: getDefaultHeader(),
 }
 
 const DEFAULT_COLUMNS: GridColumns = {
-  name: {
-    ...JSON.parse(JSON.stringify(DEFAULT_COLUMN_DATA)),
-  },
+  name: getDefaultColumn(),
   size: {
-    ...JSON.parse(JSON.stringify(DEFAULT_COLUMN_DATA)),
+    ...getDefaultColumn(),
     renderContent: bytesToSize,
-    evaluator: calcSize
+    evaluator: calcSize,
+
   },
   lastModified: {
     ...JSON.parse(JSON.stringify(DEFAULT_COLUMN_DATA)),
-    renderContent: getRelativeTimeString
+    renderContent: getRelativeTimeString,
+
   }
 }
 

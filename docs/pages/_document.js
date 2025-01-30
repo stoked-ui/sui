@@ -328,7 +328,6 @@ MyDocument.getInitialProps = async (ctx) => {
     if (url[url.length - 1] !== '/') {
       url += '/';
     }
-    console.info('pathnameToLanguage(url).canonicalAsServer', url, pathnameToLanguage(url).canonicalAsServer);
 
     return {
       ...finalProps,

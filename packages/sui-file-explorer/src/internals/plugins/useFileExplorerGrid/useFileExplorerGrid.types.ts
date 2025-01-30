@@ -1,13 +1,12 @@
 import * as React from "react";
 import {SystemStyleObject} from "@mui/system";
 import {DefaultizedProps, FileExplorerPlugin, FileExplorerPluginSignature} from '../../models';
-import {FileId} from '../../../models';
+import {FileBase, FileId} from '../../../models';
 import {UseFileStatus} from "../../models/UseFileStatus";
 import {ItemMode} from "../useFileExplorerFiles/useFileExplorerFiles.types";
 
 export type GridHeader = {
   sx: SystemStyleObject,
-  renderContent: (content: any) => string,
   width: number,
   status: UseFileExplorerGridColumnHeaderStatus
 }
@@ -33,8 +32,7 @@ export interface UseFileExplorerGridColumnHeaderStatus {
 export type GridColumn = {
   sx: SystemStyleObject,
   renderContent: (content: any) => string,
-  getContent?: (item: any) => any,
-  evaluator?: (item: any, columnName: string) => any,
+  evaluator?: (...args: any) => any,
   width: number,
   track: GridColumnRowData,
   waiting: boolean
@@ -70,7 +68,10 @@ export interface UseFileExplorerGridInstance extends UseFileExplorerGridPublicAP
   toggleColumnVisible: (columnName: string) => boolean | null;
   gridEnabled: () => boolean;
   getItemMode: (item: any) => ItemMode;
+  processColumns: () => void;
 }
+
+export type GridColumnFuncs = { [name: string]: ({ renderer?: (item: any) => string, evaluator?: (...args: any) => any } & Partial<FileBase>) | ((item: any) => any)};
 
 export interface UseFileExplorerGridParameters {
   grid?: boolean;
@@ -80,7 +81,7 @@ export interface UseFileExplorerGridParameters {
   initializedIndexes?: boolean;
   defaultGridColumns?: GridColumns;
   defaultGridHeaders?: GridHeaders;
-  gridColumns?: { [name: string]: (item: any) => string };
+  gridColumns?: GridColumnFuncs;
 }
 
 export type UseFileExplorerGridDefaultizedParameters = DefaultizedProps<UseFileExplorerGridParameters, 'defaultGridColumns' | 'defaultGridHeaders'>;

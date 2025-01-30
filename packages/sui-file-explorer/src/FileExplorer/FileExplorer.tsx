@@ -14,8 +14,10 @@ import { buildWarning } from '../internals/utils/warning';
 import { FileExplorerGridHeaders } from '../internals/plugins/useFileExplorerGrid/FileExplorerGridHeaders';
 import { FileWrapped } from './FileWrapped';
 import { FileExplorerDndContext } from '../internals/plugins/useFileExplorerDnd/FileExplorerDndContext';
-
 import { FileDropzone } from '../FileDropzone';
+import {GridColumns} from "../internals/plugins/useFileExplorerGrid/useFileExplorerGrid.types";
+import {SxProps} from "@mui/system";
+
 
 const useThemeProps = createUseThemeProps('MuiFileExplorer');
 
@@ -123,6 +125,25 @@ const FileExplorer = React.forwardRef(function FileExplorer<
     props: richProps,
   });
 
+  const columns = instance.getColumns();
+  const sizes = Object.values(columns).map((column) => column.width);
+  const [_, forceUpdate] = React.useState(0);
+
+  const getHeaderWidths = (widthColumns: GridColumns) => Object.entries(widthColumns).reduce(
+    (acc, [id, column]: any) => {
+      acc[`& .column-${id}`] = { width: column.width };
+      acc[`& .header-${id}`] = { width: column.width };
+      return acc;
+    },
+    {}
+  );
+
+  const [columnWidths, setColumnWidths] = React.useState<SxProps>(getHeaderWidths(columns));
+  React.useEffect(() => {
+    setColumnWidths(getHeaderWidths(instance.getColumns()));
+    forceUpdate((prev) => prev + 1); // Force re-render when column widths update
+  }, [sizes])
+
   const { slots, slotProps } = props;
   const classes = useUtilityClasses(props);
 
@@ -167,7 +188,7 @@ const FileExplorer = React.forwardRef(function FileExplorer<
       );
     }
     return (
-      <Root {...rootProps} sx={props.sx}>
+      <Root {...rootProps} sx={[props.sx, columnWidths]}>
         <FileExplorerGridHeaders id={'file-explorer-headers'} />
         <div>{itemsToRender.map(renderItem)}</div>
       </Root>
