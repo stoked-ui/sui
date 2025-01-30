@@ -56,7 +56,7 @@ export const useFileExplorerExpansion: FileExplorerPlugin<UseFileExplorerExpansi
       if (isExpanded) {
         newExpanded = [id].concat(models.expandedItems.value);
       } else {
-        newExpanded = models.expandedItems.value.filter((id) => id !== id);
+        newExpanded = models.expandedItems.value.filter((expandedId) => expandedId !== id);
       }
 
       if (params.onItemExpansionToggle) {
