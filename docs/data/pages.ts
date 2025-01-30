@@ -41,7 +41,7 @@ const pages: MuiPage[] = [
     ],
   },
   {
-    pathname: '/media-selector/docs/group',
+    pathname: '/media-selector/docs',
     title: 'Media Selector',
     newFeature: true,
     children: [
@@ -53,7 +53,7 @@ const pages: MuiPage[] = [
   },
 
   {
-    pathname: '/file-explorer/docs/group',
+    pathname: '/file-explorer/docs',
     title: 'File Explorer',
     beta: true,
     children: [
@@ -100,7 +100,7 @@ const pages: MuiPage[] = [
     ],
   },
   {
-    pathname: `/timeline/docs/group`,
+    pathname: `/timeline/docs`,
     title: 'Timeline',
     alpha: true,
     children: [
@@ -135,7 +135,7 @@ const pages: MuiPage[] = [
     ],
   },
   {
-    pathname: `/editor/docs/group`,
+    pathname: `/editor/docs`,
     title: 'Editor',
     alpha: true,
     children: [

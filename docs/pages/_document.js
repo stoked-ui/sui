@@ -236,6 +236,7 @@ export default class MyDocument extends Document {
               '.plan-premium': {
                 backgroundImage: 'url(/static/x/premium.svg)',
               },
+              'body .DocSearch-Footer': { display: 'none'}
             }}
           />
 
