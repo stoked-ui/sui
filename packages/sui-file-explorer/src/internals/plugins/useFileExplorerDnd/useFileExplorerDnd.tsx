@@ -243,7 +243,7 @@ export const useFileExplorerDnd: FileExplorerPlugin<UseFileExplorerDndSignature>
     }
 
     const data = getDropInternalData(event);
-    if (!data) {
+    if (!data || data.instruction.type === 'instruction-blocked') {
       return;
     }
 
@@ -429,12 +429,12 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
 
   const getTargetLabel = (element: Element) => {
     // TODO: optional drop target choice
-    /* let label = element.querySelector('.target-label');
+    let label = element.querySelector('.target-label');
     if (!label) {
       label = element.closest('.target-label');
     }
-    return label; */
-    return element.closest('.MuiFile-content');
+    return label;
+    // return element.closest('.MuiFile-content');
   }
   const removeDropTargetAffordance = (element: Element) => {
     if (!element) {
@@ -543,11 +543,15 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
     });
 
     const handleInternalDropTargets = dropTargetForElements({
-      element: pluginContentRef?.current, onDragEnter: () => {
-        setState({...state, dndState: 'parent-of-instruction'});
+      element: pluginContentRef?.current,
+      onDragEnter: () => {
+        setState({
+          ...state,
+          dndState: 'parent-of-instruction'
+        });
       }, getData: ({input, element}) => {
         addDropTargetAffordance(canDrop, element);
-
+        // console.info('getData', props.name, element);
         const data = {id: props.id, type: props.type};
         const dataInstruction = attachInstruction(data, {
           input,

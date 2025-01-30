@@ -78,7 +78,7 @@ export const useFileExplorerGridColumnHeader =  <
       return;
     }
 
-    instance.toggleColumnSort(columnName);
+    instance.toggleColumnSort(columnName, columnData.evaluator);
   };
 
   const handleVisibleToggle = (event: React.MouseEvent) => {
@@ -112,6 +112,7 @@ export const useFileExplorerGridColumnHeader =  <
           if (event.defaultMuiPrevented) {
             return;
           }
+
 
           const canBeFocused = status.visible;
           if (!status.focused && canBeFocused) {
@@ -170,7 +171,7 @@ export const useFileExplorerGridColumnHeader =  <
     };
 
     if (columnData && headerData) {
-      const width = (columnData?.width ?? -1) !== -1 ? {width: `${columnData.width - 8}px`} : undefined;
+      const width = (columnData?.width ?? -1) !== -1 ? {width: `${columnData.width - 8 - 16}px`} : undefined;
       const flexGrow = columnName === 'name' ? { flexGrow: 1 } : undefined;
       const sx: SxProps = {
         ...headerData.sx,

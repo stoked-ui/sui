@@ -66,8 +66,8 @@ export interface UseFileExplorerGridInstance extends UseFileExplorerGridPublicAP
   isColumnVisible: (columnName: string) => boolean | null;
   isSortColumn: (columnName: string) => boolean | null;
   getHeaderStatus: (columnName: string) =>  UseFileExplorerGridColumnHeaderStatus;
-  toggleColumnSort: (colunName: string) => boolean | null;
-  toggleColumnVisible: (colunName: string) => boolean | null;
+  toggleColumnSort: (columnName: string, evaluator?: (item: any, columnName: string) => any) => boolean | null;
+  toggleColumnVisible: (columnName: string) => boolean | null;
   gridEnabled: () => boolean;
   getItemMode: (item: any) => ItemMode;
 }

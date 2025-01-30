@@ -39,6 +39,7 @@ export function useFileState(id: string) {
 
   const expandable = instance.isItemExpandable(id);
   const expanded = instance.isItemExpanded(id);
+  console.info('expanded', id, expanded);
   const focused = instance.isItemFocused(id);
   const selected = instance.isItemSelected(id);
   const disabled = instance.isItemDisabled(id);

@@ -71,9 +71,7 @@ export const useFileExplorerFocus: FileExplorerPlugin<UseFileExplorerFocusSignat
     if (!window) {
       throw new Error('innerFocusItem')
     }
-    const itemElement = document.getElementById(
-      instance.getFileIdAttribute(id),
-    );
+    const itemElement = event.currentTarget as HTMLElement;
     if (itemElement) {
       itemElement.focus();
     }
