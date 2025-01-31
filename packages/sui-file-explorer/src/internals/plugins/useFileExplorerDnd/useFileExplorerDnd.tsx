@@ -427,7 +427,8 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
   }, []);
 
   const getTargetLabel = (element: Element) => {
-    return element.closest('.MuiFile-content');
+    const target = element.closest('.MuiFile-content');
+    return target;
   }
 
   const removeDropTargetAffordance = (element: Element) => {
@@ -550,7 +551,6 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
         const data = {id: props.id, type: props.type};
         const mode = instance.getItemMode(props);
 
-        console.info('getData', props.name, mode)
         const dataInstruction = attachInstruction(data, {
           input,
           element,
@@ -563,7 +563,9 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
         return dataInstruction;
       }, canDrop: (canDropArg) => {
         const {source} = canDropArg;
-        return source.data.type === 'file-element' && source.data.uniqueContextId === uniqueContextId;
+        const canDrop = source.data.type === 'file-element' && source.data.uniqueContextId === uniqueContextId
+        console.info('canDrop', source.element.firstChild?.innerText, canDrop);
+        return canDrop;
       }, getIsSticky: () => true,
 
       onDragLeave: ({self}) => {

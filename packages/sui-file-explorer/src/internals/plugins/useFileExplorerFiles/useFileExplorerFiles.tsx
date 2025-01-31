@@ -76,7 +76,7 @@ const updateItemsState = ({
           'Stoked UI: The FileExplorer component requires all items to have a `name` property.',
           'Alternatively, you can use the `getItemLabel` prop to specify a custom name for each item.',
           'An item was provided without label in the `items` prop:',
-          JSON.stringify(item),
+          item,
         ].join('\n'),
       );
     }

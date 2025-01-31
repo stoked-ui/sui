@@ -117,8 +117,8 @@ export const fileExplorer = {
             const newId = namedId({id: 'file', length: 5});
             const newPath = {
               id: newId,
-              label: path,
-              type: 'folder',
+              name: path,
+              mediaType: 'folder',
               children: [] as R[],
               parent: target ?? null
             } as unknown as R;
