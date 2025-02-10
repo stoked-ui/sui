@@ -24,9 +24,18 @@ or:
 
 <!-- #default-branch-switch -->
 
-[![Edit on StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/mui/material-ui/tree/master/examples/joy-ui-cra-ts)
+## 🌏  Open in the Cloud 
 
-[![Edit on CodeSandbox](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/p/sandbox/github/mui/material-ui/tree/master/examples/joy-ui-cra-ts)
+Click any of the buttons below to start a new development environment to demo or contribute to the codebase without having to install anything on your machine:
+
+[![Open in VS Code](https://img.shields.io/badge/Open%20in-VS%20Code-blue?logo=visualstudiocode)](https://vscode.dev/github/mui/material-ui/tree/master/examples/joy-ui-cra-ts)
+[![Open in Glitch](https://img.shields.io/badge/Open%20in-Glitch-blue?logo=glitch)](https://glitch.com/edit/#!/import/github/mui/material-ui/tree/master/examples/joy-ui-cra-ts)
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/mui/material-ui/tree/master/examples/joy-ui-cra-ts)
+[![Edit in Codesandbox](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/github/mui/material-ui/tree/master/examples/joy-ui-cra-ts)
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/mui/material-ui/tree/master/examples/joy-ui-cra-ts)
+[![Open in Repl.it](https://replit.com/badge/github/withastro/astro)](https://replit.com/github/mui/material-ui/tree/master/examples/joy-ui-cra-ts)
+[![Open in Codeanywhere](https://codeanywhere.com/img/open-in-codeanywhere-btn.svg)](https://app.codeanywhere.com/#https://github.com/mui/material-ui/tree/master/examples/joy-ui-cra-ts)
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/mui/material-ui/tree/master/examples/joy-ui-cra-ts)
 
 ## What's next?
 
