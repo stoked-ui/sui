@@ -35,8 +35,7 @@ export function HomeView({ HomeMain}: { HomeMain: React.ComponentType }){
       description="Stoked UI provides a customizable, and accessible library of React media components."
       card="/static/social-previews/home-preview.jpg"
     >
-      <script
-        type="application/ld+json"
+      <script type="application/ld+json"
         // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({

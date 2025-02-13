@@ -2,7 +2,7 @@ import * as React from "react";
 import { NoSsr } from "@mui/material";
 import {FileBase, FileExplorer} from "@stoked-ui/file-explorer";
 import BrandingCssVarsProvider from "../../../src/BrandingCssVarsProvider";
-import {getDynamicFiles2} from "../../../src/components/fileExplorer/data";
+import {getDynamicFiles} from "../../../src/components/fileExplorer/data";
 
 function evaluateDuration(item: FileBase) {
   if (!item || !item.mediaType || !['video', 'audio'].includes(item.mediaType)) {
@@ -33,7 +33,7 @@ export default function Index() {
     <BrandingCssVarsProvider>
       <NoSsr>
         <FileExplorer
-          items={getDynamicFiles2()}
+          items={getDynamicFiles()}
           defaultExpandedItems={['1', '1.1']}
           defaultSelectedItems="1.1"
           id={'file-explorer-hero'}

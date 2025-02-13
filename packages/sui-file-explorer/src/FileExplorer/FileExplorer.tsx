@@ -127,7 +127,7 @@ const FileExplorer = React.forwardRef(function FileExplorer<
 
   const columns = instance.getColumns();
   const sizes = Object.values(columns).map((column) => column.width);
-  const [_, forceUpdate] = React.useState(0);
+  //const [_, forceUpdate] = React.useState(0);
 
   const getHeaderWidths = (widthColumns: GridColumns) => Object.entries(widthColumns).reduce(
     (acc, [id, column]: any) => {
@@ -141,7 +141,7 @@ const FileExplorer = React.forwardRef(function FileExplorer<
   const [columnWidths, setColumnWidths] = React.useState<SxProps>(getHeaderWidths(columns));
   React.useEffect(() => {
     setColumnWidths(getHeaderWidths(instance.getColumns()));
-    forceUpdate((prev) => prev + 1); // Force re-render when column widths update
+    //forceUpdate((prev) => prev + 1); // Force re-render when column widths update
   }, [sizes])
 
   const { slots, slotProps } = props;
