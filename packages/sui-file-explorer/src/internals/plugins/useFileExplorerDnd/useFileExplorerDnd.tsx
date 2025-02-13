@@ -564,7 +564,6 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
       }, canDrop: (canDropArg) => {
         const {source} = canDropArg;
         const canDrop = source.data.type === 'file-element' && source.data.uniqueContextId === uniqueContextId
-        console.info('canDrop', source.element.firstChild?.innerText, canDrop);
         return canDrop;
       }, getIsSticky: () => true,
 
