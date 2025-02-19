@@ -1,0 +1,20 @@
+{
+    "version": 3,
+    "checkpoint": {
+        "stack": "organization/stoked-ui/local",
+        "latest": {
+            "manifest": {
+                "time": "2025-02-17T09:51:05.010988-06:00",
+                "magic": "77be084e65c763fde87b290a0a6ba5aaacad687cde41d20d76768df34b0db77a",
+                "version": "v3.146.0"
+            },
+            "secrets_providers": {
+                "type": "passphrase",
+                "state": {
+                    "salt": "v1:diZxyccYScI=:v1:hKXZSxDvn2pbI2MI:J07KcqzQx8FX9JtV8O+UBM1TT3csvw=="
+                }
+            }
+            
+        }
+    }
+}
