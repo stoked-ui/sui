@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useTimeline } from '@stoked-ui/timeline';
+import { useTimeline } from '../TimelineProvider';
 
 export default function KeyDownControls() {
   const { state, dispatch } = useTimeline();

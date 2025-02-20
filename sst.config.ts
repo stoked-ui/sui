@@ -1,5 +1,9 @@
 /// <reference path="./.sst/platform/config.d.ts" />
 
+import { verifyEnvVars }  from "./infra/envVars";
+
+verifyEnvVars(['ROOT_DOMAIN', 'MONGODB_URI'], true);
+
 export default $config({
   app() {
     return {
@@ -16,11 +20,15 @@ export default $config({
     };
   },
   async run() {
-    console.info('app name',$app.name);
-    const infra = await import('./infra');
-    infra.githubAwsConnector('stoked-ui', 'sui');
+    const { createSite, createApi, githubAwsConnector, getDomainInfo } = await import('./infra');
+    const githubConnector = githubAwsConnector('stoked-ui', 'sui');
+    const domainInfo = getDomainInfo(process.env.ROOT_DOMAIN!, $app.stage);
+    const web = createSite(domainInfo);
+    const api = createApi(domainInfo);
     return {
-      url: infra.web.url
+      ...githubConnector,
+      ...web,
+      ...api,
     };
   }
 });

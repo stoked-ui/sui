@@ -39,8 +39,9 @@ docs/public/static/blog/feed/*
 # vale downloaded config
 .github/styles/
 .nx/cache
-**.env
+docs/.env.development
 packages-internal/x-tree-view-example
 /.nx/
 **/.sst/
+**/.env*
 **/sst-env.d.ts

@@ -2,7 +2,7 @@
 
 export function githubAwsConnector(org: string, repo: string) {
   if ($app.stage !== 'prod') {
-    return;
+    return {};
   }
   const github = new aws.iam.OpenIdConnectProvider("GithubProvider", {
     url: "https://token.actions.githubusercontent.com",
@@ -32,4 +32,5 @@ export function githubAwsConnector(org: string, repo: string) {
     policyArn: "arn:aws:iam::aws:policy/AdministratorAccess",
     role: githubRole.name,
   });
+  return {...github, ...policy};
 }

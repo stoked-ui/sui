@@ -55,7 +55,7 @@ function findComponents(packages) {
     }
     if (pkg.subPackagePaths) {
       pkg.subPackagePaths.forEach((subPackagePath) => {
-        const packageName = import(`${subPackagePath}/package.json`, { assert: { type: 'json' } }).name;
+        const packageName = import(`${subPackagePath}/package.json`, { with: { type: 'json' } }).name;
 
         const filePaths = readdirSync(subPackagePath);
         filePaths.forEach((folder) => {

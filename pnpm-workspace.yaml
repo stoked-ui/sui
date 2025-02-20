@@ -1,6 +1,7 @@
 packages:
   - 'benchmark'
   - 'packages/**'
+  - '!packages/**/build/**'
   - 'packages-internal/*'
   - 'docs'
   - 'api'

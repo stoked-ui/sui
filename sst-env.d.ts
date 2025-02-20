@@ -13,17 +13,25 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
-    "StokedUiComSite": {
+    "ROOT_DOMAIN": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "SendSms": {
+      "name": string
+      "type": "sst.aws.Function"
+    }
+    "Subscribe": {
+      "name": string
+      "type": "sst.aws.Function"
+    }
+    "Verify": {
+      "name": string
+      "type": "sst.aws.Function"
+    }
+    "stoked-uicomStaticSite": {
       "type": "sst.aws.StaticSite"
       "url": string
-    }
-    "SubscribeFunction": {
-      "name": string
-      "type": "sst.aws.Function"
-    }
-    "VerifyFunction": {
-      "name": string
-      "type": "sst.aws.Function"
     }
   }
 }
