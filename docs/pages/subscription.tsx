@@ -13,7 +13,7 @@ import { Link } from '@stoked-ui/docs/Link';
 import { useSearchParams } from 'next/navigation';
 import AppHeader from '../src/layouts/AppHeader';
 import AppFooter from '../src/layouts/AppFooter';
-import BrandingCssVarsProvider from '../src/BrandingCssVarsProvider';
+import BrandingCssVarsProvider from '@stoked-ui/docs';
 import Section from '../src/layouts/Section';
 import { pageToTitleI18n } from '../src/modules/utils/helpers';
 import type { MuiPage } from '../src/MuiPage';

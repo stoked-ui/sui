@@ -8,7 +8,7 @@ import ValueProposition from 'docs/src/components/home/ValueProposition';
 import TemplateDemo from 'docs/src/components/productTemplate/TemplateDemo';
 import Testimonials from 'docs/src/components/home/Testimonials';
 import HeroEnd from 'docs/src/components/home/HeroEnd';
-import BrandingCssVarsProvider from 'docs/src/BrandingCssVarsProvider';
+import BrandingCssVarsProvider from '@stoked-ui/docs';
 import References, { TEMPLATES_CUSTOMERS } from 'docs/src/components/home/References';
 import AppHeaderBanner from 'docs/src/components/banner/AppHeaderBanner';
 

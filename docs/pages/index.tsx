@@ -3,7 +3,7 @@ import NoSsr from "@mui/material/NoSsr";
 import Box from "@mui/material/Box";
 import Divider from "@mui/material/Divider";
 import { PRODUCTS } from 'docs/src/products';
-import BrandingCssVarsProvider from 'docs/src/BrandingCssVarsProvider';
+import BrandingCssVarsProvider from '@stoked-ui/docs';
 import dynamic from 'next/dynamic';
 import AppFooter from "../src/layouts/AppFooter";
 import Head from "../src/modules/components/Head";

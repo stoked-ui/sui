@@ -1,7 +1,7 @@
 import * as React from "react";
 import { NoSsr } from "@mui/material";
 import {FileBase, FileExplorer} from "@stoked-ui/file-explorer";
-import BrandingCssVarsProvider from "../../../src/BrandingCssVarsProvider";
+import BrandingCssVarsProvider from "@stoked-ui/docs";
 import {getDynamicFiles} from "../../../src/components/fileExplorer/data";
 
 function evaluateDuration(item: FileBase) {

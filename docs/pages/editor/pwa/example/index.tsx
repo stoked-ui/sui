@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {EditorProvider} from "@stoked-ui/editor";
 import Editor, { Controllers } from "@stoked-ui/editor";
-import BrandingCssVarsProvider from 'docs/src/BrandingCssVarsProvider';
+import BrandingCssVarsProvider from '@stoked-ui/docs';
 import Head from 'docs/src/modules/components/Head';
 
 export default function Index() {
