@@ -1,5 +1,5 @@
 import { styled, alpha } from '@mui/material/styles';
-import { brandingDarkTheme as darkTheme } from '@mui/docs/branding';
+import { brandingDarkTheme as darkTheme } from '@stoked-ui/docs/branding';
 
 const StyledTableContainer = styled('div')(
   ({ theme }) => ({

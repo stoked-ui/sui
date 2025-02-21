@@ -9,8 +9,8 @@ import { enUS, zhCN, ptBR } from '@mui/material/locale';
 import { unstable_useEnhancedEffect as useEnhancedEffect } from '@mui/material/utils';
 import { getCookie } from 'docs/src/modules/utils/helpers';
 import useLazyCSS from 'docs/src/modules/utils/useLazyCSS';
-import { useUserLanguage } from '@mui/docs/i18n';
-import { getDesignTokens, getThemedComponents, getMetaThemeColor } from '@mui/docs/branding';
+import { useUserLanguage } from '@stoked-ui/docs/i18n';
+import { getDesignTokens, getThemedComponents, getMetaThemeColor } from '@stoked-ui/docs/branding';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import useLocalStorageState from '@mui/utils/useLocalStorageState';
 
@@ -232,6 +232,11 @@ export function ThemeProvider(props) {
       dense ? highDensity : null,
       {
         components: {
+          styleOverrides: {
+            body: {
+              backgroundColor: calculatedMode === 'dark' ? '#333' : '#fff',
+            }
+          },
           MuiCssBaseline: {
             defaultProps: {
               // TODO: Stoked UI v6, makes this the default

@@ -6,7 +6,7 @@ import ExpandIcon from '@mui/icons-material/ExpandMore';
 import CollapseIcon from '@mui/icons-material/ChevronRight';
 import { TreeView } from '@mui/x-tree-view/TreeView';
 import { FileElement as MuiTreeItem, fileElementClasses } from '@mui/x-tree-view/FileElement';
-import { blue, blueDark } from '@mui/docs/branding';
+import { blue, blueDark } from '@stoked-ui/docs/branding';
 
 function getType(value: any) {
   if (Array.isArray(value)) {

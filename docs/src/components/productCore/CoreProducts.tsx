@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Grid from '@mui/material/Grid';
 import Section from 'docs/src/layouts/Section';
-import { InfoCard } from '@mui/docs/InfoCard';
+import { InfoCard } from '@stoked-ui/docs/InfoCard';
 
 // Note: All of the commented code will be put back in once logos for each Core product are done.
 

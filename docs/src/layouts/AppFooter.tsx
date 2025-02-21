@@ -14,7 +14,7 @@ import SvgSuiLogotype from 'docs/src/icons/SvgSuiLogotype';
 import EmailSubscribe from 'docs/src/components/footer/EmailSubscribe';
 import ROUTES from 'docs/src/route';
 import DiscordIcon from 'docs/src/icons/DiscordIcon';
-import { Link } from '@mui/docs/Link';
+import { Link } from '@stoked-ui/docs/Link';
 import SvgStackOverflow from 'docs/src/icons/SvgStackOverflow';
 import Slack from '../icons/Slack';
 import {ALL_PRODUCTS, PRODUCTS} from "../products";

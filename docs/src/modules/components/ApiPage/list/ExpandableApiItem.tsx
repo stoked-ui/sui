@@ -7,7 +7,7 @@ import { Divider, IconButton, SxProps } from '@mui/material';
 import {
   brandingDarkTheme as darkTheme,
   brandingLightTheme as lightTheme,
-} from '@mui/docs/branding';
+} from '@stoked-ui/docs/branding';
 
 type DescriptionType = 'props' | 'classes' | 'CSS' | 'slots';
 

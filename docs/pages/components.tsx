@@ -12,8 +12,8 @@ import AppFooter from 'docs/src/layouts/AppFooter';
 import BrandingCssVarsProvider from '@stoked-ui/docs';
 import Section from 'docs/src/layouts/Section';
 import { pageToTitleI18n } from 'docs/src/modules/utils/helpers';
-import { useTranslate } from '@mui/docs/i18n';
-import { Link } from '@mui/docs/Link';
+import { useTranslate } from '@stoked-ui/docs/i18n';
+import { Link } from '@stoked-ui/docs/Link';
 import type { MuiPage } from 'docs/src/MuiPage';
 import materialPages from '../data/pages';
 

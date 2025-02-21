@@ -6,9 +6,9 @@ import { styled, alpha, useTheme } from '@mui/material/styles';
 import prism from '@stoked-ui/docs-markdown/prism';
 import MarkdownElement from 'docs/src/modules/components/MarkdownElement';
 import CodeCopyButton from 'docs/src/modules/components/CodeCopyButton';
-import { useTranslate } from '@mui/docs/i18n';
+import { useTranslate } from '@stoked-ui/docs/i18n';
 import { useCodeCopy } from 'docs/src/modules/utils/CodeCopy';
-import { blueDark } from '@mui/docs/branding';
+import { blueDark } from '@stoked-ui/docs/branding';
 
 const StyledMarkdownElement = styled(MarkdownElement)(({ theme }) => [
   {

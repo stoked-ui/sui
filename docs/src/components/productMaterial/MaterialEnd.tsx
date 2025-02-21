@@ -7,12 +7,12 @@ import ListItem from '@mui/material/ListItem';
 import Typography from '@mui/material/Typography';
 import CompareIcon from '@mui/icons-material/Compare';
 import StyleRoundedIcon from '@mui/icons-material/StyleRounded';
-import { GlowingIconContainer } from '@mui/docs/InfoCard';
+import { GlowingIconContainer } from '@stoked-ui/docs/InfoCard';
 import GetStartedButtons from 'docs/src/components/home/GetStartedButtons';
 import Section from 'docs/src/layouts/Section';
 import SectionHeadline from 'docs/src/components/typography/SectionHeadline';
 import GradientText from 'docs/src/components/typography/GradientText';
-import { Link } from '@mui/docs/Link';
+import { Link } from '@stoked-ui/docs/Link';
 import ROUTES from 'docs/src/route';
 
 interface MaterialEndProps {

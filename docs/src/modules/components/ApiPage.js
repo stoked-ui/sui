@@ -8,12 +8,12 @@ import AdGuest from 'docs/src/modules/components/AdGuest';
 import Alert from '@mui/material/Alert';
 import VerifiedRoundedIcon from '@mui/icons-material/VerifiedRounded';
 import { alpha } from '@mui/material/styles';
-import { useTranslate, useUserLanguage } from '@mui/docs/i18n';
+import { useTranslate, useUserLanguage } from '@stoked-ui/docs/i18n';
 import HighlightedCode from 'docs/src/modules/components/HighlightedCode';
 import MarkdownElement from 'docs/src/modules/components/MarkdownElement';
 import AppLayoutDocs from 'docs/src/modules/components/AppLayoutDocs';
 import Ad from 'docs/src/modules/components/Ad';
-import { BrandingProvider } from '@mui/docs/branding';
+import { BrandingProvider } from '@stoked-ui/docs/branding';
 import PropertiesSection, {
   getPropsToC,
 } from 'docs/src/modules/components/ApiPage/sections/PropertiesSection';

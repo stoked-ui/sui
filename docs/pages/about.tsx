@@ -23,6 +23,7 @@ export default function About() {
       <main id="main-content">
         <AboutHero />
         <Divider />
+        <OurValues />
         <Divider />
         <Team />
         <Divider />

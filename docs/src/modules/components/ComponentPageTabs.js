@@ -6,7 +6,7 @@ import Box from '@mui/material/Box';
 import Tabs, { tabsClasses } from '@mui/material/Tabs';
 import Tab, { tabClasses } from '@mui/material/Tab';
 import { useTranslate } from 'docs/src/modules/utils/i18n';
-import { Link } from '@mui/docs/Link';
+import { Link } from '@stoked-ui/docs/Link';
 
 export const HEIGHT = 50;
 

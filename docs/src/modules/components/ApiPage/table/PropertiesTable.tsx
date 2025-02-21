@@ -1,11 +1,11 @@
 /* eslint-disable react/no-danger */
 import * as React from 'react';
 import { styled, alpha } from '@mui/material/styles';
-import { useTranslate } from '@mui/docs/i18n';
+import { useTranslate } from '@stoked-ui/docs/i18n';
 import {
   brandingDarkTheme as darkTheme,
   brandingLightTheme as lightTheme,
-} from '@mui/docs/branding';
+} from '@stoked-ui/docs/branding';
 import { Properties, getHash } from 'docs/src/modules/components/ApiPage/list/PropertiesList';
 import StyledTableContainer from 'docs/src/modules/components/ApiPage/table/StyledTableContainer';
 import ApiWarning from 'docs/src/modules/components/ApiPage/ApiWarning';

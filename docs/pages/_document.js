@@ -9,7 +9,7 @@ import { getInitColorSchemeScript as getMuiInitColorSchemeScript } from '@mui/ma
 import { getInitColorSchemeScript as getJoyInitColorSchemeScript } from '@mui/joy/styles';
 import { pathnameToLanguage } from 'docs/src/modules/utils/helpers';
 import createEmotionCache from 'docs/src/createEmotionCache';
-import { getMetaThemeColor } from '@mui/docs/branding';
+import { getMetaThemeColor } from '@stoked-ui/docs/branding';
 
 // You can find a benchmark of the available CSS minifiers under
 // https://github.com/GoalSmashers/css-minification-benchmark
@@ -236,7 +236,6 @@ export default class MyDocument extends Document {
               '.plan-premium': {
                 backgroundImage: 'url(/static/x/premium.svg)',
               },
-              'body .DocSearch-Footer': { display: 'none'}
             }}
           />
 

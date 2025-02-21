@@ -3,7 +3,7 @@ import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Unstable_Grid2';
 import Palette from '@mui/icons-material/Palette';
 import LibraryBooks from '@mui/icons-material/LibraryBooks';
-import { InfoCard } from '@mui/docs/InfoCard';
+import { InfoCard } from '@stoked-ui/docs/InfoCard';
 import CodeRounded from '@mui/icons-material/CodeRounded';
 import GradientText from 'docs/src/components/typography/GradientText';
 import Section from 'docs/src/layouts/Section';

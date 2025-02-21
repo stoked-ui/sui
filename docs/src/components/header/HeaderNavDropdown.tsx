@@ -8,7 +8,7 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import KeyboardArrowDownRounded from '@mui/icons-material/KeyboardArrowDownRounded';
 import SvgHamburgerMenu from 'docs/src/icons/SvgHamburgerMenu';
-import { Link } from '@mui/docs/Link';
+import { Link } from '@stoked-ui/docs/Link';
 import ROUTES from 'docs/src/route';
 import IconImage from "../icon/IconImage";
 

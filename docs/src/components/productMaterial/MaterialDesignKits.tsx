@@ -17,7 +17,7 @@ import {
   MaterialDesignKitInfo,
   MaterialFigmaComponents,
 } from 'docs/src/components/productDesignKit/DesignKitDemo';
-import { Link } from '@mui/docs/Link';
+import { Link } from '@stoked-ui/docs/Link';
 
 const Image = styled('img')(({ theme }) => ({
   transition: '0.4s',

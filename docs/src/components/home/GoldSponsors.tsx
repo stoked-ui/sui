@@ -6,7 +6,7 @@ import Typography from '@mui/material/Typography';
 import AddRounded from '@mui/icons-material/AddRounded';
 import Grid from '@mui/material/Unstable_Grid2';
 import SponsorCard from 'docs/src/components/home/SponsorCard';
-import { Link } from '@mui/docs/Link';
+import { Link } from '@stoked-ui/docs/Link';
 import ROUTES from 'docs/src/route';
 
 const GOLDs = [

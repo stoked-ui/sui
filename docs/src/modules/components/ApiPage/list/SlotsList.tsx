@@ -4,8 +4,8 @@ import { styled, alpha } from '@mui/material/styles';
 import {
   brandingLightTheme as lightTheme,
   brandingDarkTheme as darkTheme,
-} from '@mui/docs/branding';
-import { useTranslate } from '@mui/docs/i18n';
+} from '@stoked-ui/docs/branding';
+import { useTranslate } from '@stoked-ui/docs/i18n';
 import ExpandableApiItem, {
   ApiItemContaier,
 } from 'docs/src/modules/components/ApiPage/list/ExpandableApiItem';

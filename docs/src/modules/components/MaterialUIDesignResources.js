@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Grid from '@mui/material/Unstable_Grid2';
-import { InfoCard } from '@mui/docs/InfoCard';
+import { InfoCard } from '@stoked-ui/docs/InfoCard';
 
 const content = [
   {

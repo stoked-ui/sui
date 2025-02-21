@@ -13,7 +13,7 @@ import Tooltip from '@mui/material/Tooltip';
 import Box from '@mui/material/Box';
 import SettingsIcon from '@mui/icons-material/SettingsOutlined';
 import GitHubIcon from '@mui/icons-material/GitHub';
-import NProgressBar from '@mui/docs/NProgressBar';
+import NProgressBar from '@stoked-ui/docs/NProgressBar';
 import { debounce } from '@mui/material/utils';
 import NextLink from 'next/link';
 import SvgHamburgerMenu from 'docs/src/icons/SvgHamburgerMenu';
@@ -23,7 +23,7 @@ import Notifications from 'docs/src/modules/components/Notifications';
 import MarkdownLinks from 'docs/src/modules/components/MarkdownLinks';
 import SkipLink from 'docs/src/modules/components/SkipLink';
 import PageContext from 'docs/src/modules/components/PageContext';
-import { useTranslate } from '@mui/docs/i18n';
+import { useTranslate } from '@stoked-ui/docs/i18n';
 import SvgSuiLogomark from 'docs/src/icons/SvgSuiLogomark';
 import AppFrameBanner from 'docs/src/components/banner/AppFrameBanner';
 

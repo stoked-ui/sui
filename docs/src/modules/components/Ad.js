@@ -7,7 +7,7 @@ import AdCarbon from 'docs/src/modules/components/AdCarbon';
 import AdInHouse from 'docs/src/modules/components/AdInHouse';
 import { GA_ADS_DISPLAY_RATIO } from 'docs/src/modules/constants';
 import { AdContext, adShape } from 'docs/src/modules/components/AdManager';
-import { useTranslate } from '@mui/docs/i18n';
+import { useTranslate } from '@stoked-ui/docs/i18n';
 
 function PleaseDisableAdblock(props) {
   const t = useTranslate();

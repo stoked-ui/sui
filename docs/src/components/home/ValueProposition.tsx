@@ -8,7 +8,7 @@ import AccessibilityNewRounded from '@mui/icons-material/AccessibilityNewRounded
 import GradientText from 'docs/src/components/typography/GradientText';
 import Section from 'docs/src/layouts/Section';
 import SectionHeadline from 'docs/src/components/typography/SectionHeadline';
-import { InfoCard } from '@mui/docs/InfoCard';
+import { InfoCard } from '@stoked-ui/docs/InfoCard';
 
 const content = [
   {

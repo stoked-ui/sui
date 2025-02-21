@@ -75,7 +75,7 @@ export default withDocsInfra({
           const { request } = ctx;
           const hasDependencyOnRepoPackages = [
             'notistack',
-            '@mui/docs',
+            '@stoked-ui/docs',
             '@mui/material',
           ].some((dep) => request.startsWith(dep));
 

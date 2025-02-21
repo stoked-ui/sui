@@ -9,10 +9,10 @@ import ForumRoundedIcon from '@mui/icons-material/ForumRounded';
 import PeopleRoundedIcon from '@mui/icons-material/PeopleRounded';
 import LocalAtmRoundedIcon from '@mui/icons-material/LocalAtmRounded';
 import GradientText from 'docs/src/components/typography/GradientText';
-import { Link } from '@mui/docs/Link';
+import { Link } from '@stoked-ui/docs/Link';
 import Section from 'docs/src/layouts/Section';
 import SectionHeadline from 'docs/src/components/typography/SectionHeadline';
-import { GlowingIconContainer } from '@mui/docs/InfoCard';
+import { GlowingIconContainer } from '@stoked-ui/docs/InfoCard';
 
 function Widget({
   children,

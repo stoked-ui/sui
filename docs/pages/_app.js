@@ -5,6 +5,7 @@ import { loadCSS } from 'fg-loadcss/src/loadCSS';
 import NextHead from 'next/head';
 import PropTypes from 'prop-types';
 import { useRouter } from 'next/router';
+import { mapTranslations } from '@stoked-ui/docs/i18n';
 import fileExplorerPkgJson from 'packages/sui-file-explorer/package.json';
 import PageContext from 'docs/src/modules/components/PageContext';
 import { CodeCopyProvider } from 'docs/src/modules/utils/CodeCopy';
@@ -16,9 +17,7 @@ import createEmotionCache from 'docs/src/createEmotionCache';
 import findActivePage from 'docs/src/modules/utils/findActivePage';
 import { pathnameToLanguage } from 'docs/src/modules/utils/helpers';
 import getProductInfoFromUrl from 'docs/src/modules/utils/getProductInfoFromUrl';
-import { DocsProvider } from '@mui/docs/DocsProvider';
 import { DocsProvider as DocsProviderStoked } from '@stoked-ui/docs/DocsProvider';
-import { mapTranslations } from '@mui/docs/i18n';
 import fileExplorerPages from '../data/pages';
 import './global.css';
 import "plyr-react/plyr.css"
@@ -218,7 +217,6 @@ function AppWrapper(props) {
     ];
   }
 
-  console.info('pageContextValue', pageContextValue)
   return (
     <React.Fragment>
       <NextHead>
@@ -235,11 +233,7 @@ function AppWrapper(props) {
         defaultUserLanguage={pageProps.userLanguage}
         translations={pageProps.translations}
       >
-        <DocsProvider
-          config={config}
-          defaultUserLanguage={pageProps.userLanguage}
-          translations={pageProps.translations}
-        >
+
           <CodeCopyProvider>
             <CodeStylingProvider>
               <CodeVariantProvider>
@@ -256,7 +250,6 @@ function AppWrapper(props) {
               </CodeVariantProvider>
             </CodeStylingProvider>
           </CodeCopyProvider>
-        </DocsProvider>
       </DocsProviderStoked>
     </React.Fragment>
   );

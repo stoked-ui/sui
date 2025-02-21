@@ -1,5 +1,5 @@
 // Backwards compatibility for Toolpad and X.
-// TODO: remove when Toolpad and X migrated to `@mui/docs/i18n`
+// TODO: remove when Toolpad and X migrated to `@stoked-ui/docs/i18n`
 
-export * from '@mui/docs/Link';
-export { Link as default } from '@mui/docs/Link';
+export * from '@stoked-ui/docs/Link';
+export { Link as default } from '@stoked-ui/docs/Link';

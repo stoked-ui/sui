@@ -24,11 +24,11 @@ import ArrowOutwardRoundedIcon from '@mui/icons-material/ArrowOutwardRounded';
 import DiscordIcon from 'docs/src/icons/DiscordIcon';
 import Slack from "docs/src/icons/Slack";
 // Other imports
-import { Link } from '@mui/docs/Link';
+import { Link } from '@stoked-ui/docs/Link';
 import PageContext from 'docs/src/modules/components/PageContext';
 import EditPage from 'docs/src/modules/components/EditPage';
 import SvgSuiLogotype from 'docs/src/icons/SvgSuiLogotype';
-import { useUserLanguage, useTranslate } from '@mui/docs/i18n';
+import { useUserLanguage, useTranslate } from '@stoked-ui/docs/i18n';
 import { getCookie, pageToTitleI18n } from 'docs/src/modules/utils/helpers';
 import GitHubIcon from "@mui/icons-material/GitHub";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";

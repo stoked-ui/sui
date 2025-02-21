@@ -18,7 +18,7 @@ import Select from '@mui/joy/Select';
 import Sheet from '@mui/joy/Sheet';
 import Switch from '@mui/joy/Switch';
 import Typography from '@mui/joy/Typography';
-import { BrandingProvider } from '@mui/docs/branding';
+import { BrandingProvider } from '@stoked-ui/docs/branding';
 import HighlightedCode from 'docs/src/modules/components/HighlightedCode';
 
 const shallowEqual = (item1: { [k: string]: any }, item2: { [k: string]: any }) => {

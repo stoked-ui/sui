@@ -19,9 +19,9 @@ import { pathnameToLanguage } from 'docs/src/modules/utils/helpers';
 import { useCodeVariant } from 'docs/src/modules/utils/codeVariant';
 import { useCodeStyling } from 'docs/src/modules/utils/codeStylingSolution';
 import { CODE_VARIANTS, CODE_STYLING } from 'docs/src/modules/constants';
-import { useUserLanguage, useTranslate } from '@mui/docs/i18n';
+import { useUserLanguage, useTranslate } from '@stoked-ui/docs/i18n';
 import stylingSolutionMapping from 'docs/src/modules/utils/stylingSolutionMapping';
-import { BrandingProvider, blue, blueDark, grey } from '@mui/docs/branding';
+import { BrandingProvider, blue, blueDark, grey } from '@stoked-ui/docs/branding';
 import DemoToolbarRoot from 'docs/src/modules/components/DemoToolbarRoot';
 
 /**

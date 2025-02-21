@@ -8,27 +8,30 @@ import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import ThemeModeToggle from 'docs/src/components/header/ThemeModeToggle';
-import { Link } from '@mui/docs/Link';
+import { Link } from '@stoked-ui/docs/Link';
 import { DeferredAppSearch } from 'docs/src/modules/components/AppFrame';
-import { useTranslate } from '@mui/docs/i18n';
+import { useTranslate } from '@stoked-ui/docs/i18n';
 import SvgSuiLogomark from "../icons/SvgSuiLogomark";
 import dynamic from "next/dynamic";
 
-const Header = styled('header')(({ theme }) => [
-  {
-    position: 'sticky',
-    top: 0,
-    transition: theme.transitions.create('top'),
-    zIndex: theme.zIndex.appBar,
-    backdropFilter: 'blur(8px)',
-    boxShadow: `inset 0px -1px 1px ${theme.palette.grey[100]}`,
-    backgroundColor: 'rgba(255,255,255,0.8)',
-  } as const,
-  theme.applyDarkStyles({
-    boxShadow: `inset 0px -1px 1px ${theme.palette.primaryDark[700]}`,
-    backgroundColor: alpha(theme.palette.primaryDark[900], 0.7),
-  }),
-]);
+const Header = styled('header')(({ theme }) => {
+  console.info('header theme', theme);
+  return [
+    {
+      position: 'sticky',
+      top: 0,
+      transition: theme.transitions.create('top'),
+      zIndex: theme.zIndex.appBar,
+      backdropFilter: 'blur(8px)',
+      boxShadow: `inset 0px -1px 1px ${theme.palette.grey[100]}`,
+      backgroundColor: 'rgba(255,255,255,0.8)',
+    } as const,
+    theme.applyDarkStyles({
+      boxShadow: `inset 0px -1px 1px ${theme.palette.primaryDark[700]}`,
+      backgroundColor: alpha(theme.palette.primaryDark[900], 0.7),
+    }),
+  ]
+});
 
 const HEIGHT = 60;
 

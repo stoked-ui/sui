@@ -5,10 +5,10 @@ import { styled, alpha } from '@mui/material/styles';
 import {
   brandingDarkTheme as darkTheme,
   brandingLightTheme as lightTheme,
-} from '@mui/docs/branding';
+} from '@stoked-ui/docs/branding';
 import { getHash } from 'docs/src/modules/components/ApiPage/list/ClassesList';
 import StyledTableContainer from 'docs/src/modules/components/ApiPage/table/StyledTableContainer';
-import { useTranslate } from '@mui/docs/i18n';
+import { useTranslate } from '@stoked-ui/docs/i18n';
 import ApiWarning from 'docs/src/modules/components/ApiPage/ApiWarning';
 
 const StyledTable = styled('table')(

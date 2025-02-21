@@ -10,12 +10,8 @@
     "@emotion/cache": "^11.11.0",
     "@emotion/react": "^11.11.4",
     "@stoked-ui/internal-test-utils": "workspace:^",
-
-
-
     "@mui/base": "^5.0.0-beta.40",
     "@mui/core-downloads-tracker": "^5.15.21",
-    "@mui/docs": "6.0.0-beta.4",
     "@mui/icons-material": "5.15.21",
     "@mui/lab": "^5.0.0-alpha.170",
     "@mui/material": "^5.15.21",

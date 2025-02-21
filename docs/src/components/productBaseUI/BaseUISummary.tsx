@@ -8,7 +8,7 @@ import PhishingRoundedIcon from '@mui/icons-material/PhishingRounded';
 import Section from 'docs/src/layouts/Section';
 import SectionHeadline from 'docs/src/components/typography/SectionHeadline';
 import GradientText from 'docs/src/components/typography/GradientText';
-import { InfoCard } from '@mui/docs/InfoCard';
+import { InfoCard } from '@stoked-ui/docs/InfoCard';
 
 const content = [
   {

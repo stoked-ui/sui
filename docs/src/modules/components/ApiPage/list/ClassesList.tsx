@@ -3,14 +3,14 @@ import * as React from 'react';
 import { styled } from '@mui/material/styles';
 import kebabCase from 'lodash/kebabCase';
 import { ComponentClassDefinition } from '@stoked-ui/docs-utils';
-import { useTranslate } from '@mui/docs/i18n';
+import { useTranslate } from '@stoked-ui/docs/i18n';
 import ExpandableApiItem, {
   ApiItemContaier,
 } from 'docs/src/modules/components/ApiPage/list/ExpandableApiItem';
 import {
   brandingLightTheme as lightTheme,
   brandingDarkTheme as darkTheme,
-} from '@mui/docs/branding';
+} from '@stoked-ui/docs/branding';
 import ApiWarning from 'docs/src/modules/components/ApiPage/ApiWarning';
 
 const StyledApiItem = styled(ExpandableApiItem)(
