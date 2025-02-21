@@ -93,7 +93,7 @@ const theme = extendTheme({
   ...getThemedComponents(),
 });
 
-export default function BrandingCssVarsProvider(props: { children: React.ReactNode }) {
+export function BrandingCssVarsProvider(props: { children: React.ReactNode }) {
   const { children } = props;
   return (
     <CssVarsProvider theme={theme} defaultMode="system" disableTransitionOnChange>

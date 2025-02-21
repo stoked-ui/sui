@@ -5,7 +5,7 @@ import {alpha, emphasize, styled, useTheme} from '@mui/material/styles';
 import Collapse from '@mui/material/Collapse';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
-import { samePageLinkNavigation } from 'docs/src/modules/components/MarkdownLinks';
+import { samePageLinkNavigation } from '@stoked-ui/docs';
 import { Link } from '@stoked-ui/docs/Link';
 import standardNavIcons from './AppNavIcons';
 

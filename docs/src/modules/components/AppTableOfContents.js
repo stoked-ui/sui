@@ -7,7 +7,7 @@ import Typography from '@mui/material/Typography';
 import NoSsr from '@mui/material/NoSsr';
 import { Link } from '@stoked-ui/docs/Link';
 import { useTranslate } from '@stoked-ui/docs/i18n';
-import { samePageLinkNavigation } from 'docs/src/modules/components/MarkdownLinks';
+import { samePageLinkNavigation } from '@stoked-ui/docs';
 import TableOfContentsBanner from 'docs/src/components/banner/TableOfContentsBanner';
 import featureToggle from 'docs/src/featureToggle';
 import DiamondSponsors from 'docs/src/modules/components/DiamondSponsors';

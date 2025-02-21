@@ -21,7 +21,7 @@ import AppNavDrawer from 'docs/src/modules/components/AppNavDrawer';
 import AppSettingsDrawer from 'docs/src/modules/components/AppSettingsDrawer';
 import Notifications from 'docs/src/modules/components/Notifications';
 import MarkdownLinks from 'docs/src/modules/components/MarkdownLinks';
-import SkipLink from 'docs/src/modules/components/SkipLink';
+import { SkipLink } from '@stoked-ui/docs';
 import PageContext from 'docs/src/modules/components/PageContext';
 import { useTranslate } from '@stoked-ui/docs/i18n';
 import SvgSuiLogomark from 'docs/src/icons/SvgSuiLogomark';
