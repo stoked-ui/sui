@@ -6,8 +6,9 @@ import Router from 'next/router';
  * pathname is a reference to Next.js's pathname, the name of page in the filesystem
  * https://nextjs.org/docs/api-reference/next/router
  */
-export function pathnameToLanguage(languages, pathname) {
+export function pathnameToLanguage(languages) {
   let userLanguage;
+  const pathname = typeof window !== "undefined" && window.location?.pathname ? window.location.pathname : '/en';
   const userLanguageCandidate = pathname.substring(1, 3);
 
   if (

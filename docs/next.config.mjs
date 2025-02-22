@@ -75,7 +75,7 @@ export default withDocsInfra({
           const { request } = ctx;
           const hasDependencyOnRepoPackages = [
             'notistack',
-            '@stoked-ui/docs',
+            '@mui/docs',
             '@mui/material',
           ].some((dep) => request.startsWith(dep));
 
@@ -294,7 +294,7 @@ export default withDocsInfra({
     // We want to speed-up the build of pull requests.
     // For this, consider only English language on deploy previews, except for crowdin PRs.
     if (buildOnlyEnglishLocale) {
-      // eslint-disable-next-line no-console
+      // eslint-disable-next-line no-consolezzzzz
       console.log('Considering only English for SSR');
       traverse(pages, 'en');
     } else {
