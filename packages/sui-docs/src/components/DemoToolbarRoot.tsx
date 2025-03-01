@@ -1,11 +1,14 @@
-import { styled, alpha } from '@mui/material/styles';
+import * as React from "react";
+import {styled, alpha, Theme} from '@mui/material/styles';
+import { StyledComponent } from '@emotion/styled';
+import {MUIStyledCommonProps} from "@mui/system";
 
 interface DemoToolbarRootProps {
   demoOptions: any;
   openDemoSource: any;
 }
 
-const DemoToolbarRoot = styled('div', {
+const DemoToolbarRoot:  StyledComponent<MUIStyledCommonProps<Theme> & DemoToolbarRootProps, React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, {}> = styled('div', {
   shouldForwardProp: (prop) => prop !== 'demoOptions' && prop !== 'openDemoSource',
 })<DemoToolbarRootProps>(({ theme, demoOptions, openDemoSource }) => [
   {

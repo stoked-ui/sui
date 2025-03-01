@@ -4,11 +4,11 @@ import Box from '@mui/material/Box';
 import { NoSsr } from '@mui/base/NoSsr';
 import { styled, alpha, useTheme } from '@mui/material/styles';
 import prism from '@stoked-ui/docs-markdown/prism';
-import MarkdownElement from 'docs/src/modules/components/MarkdownElement';
-import CodeCopyButton from 'docs/src/modules/components/CodeCopyButton';
-import { useTranslate } from '@stoked-ui/docs/i18n';
-import { useCodeCopy } from 'docs/src/modules/utils/CodeCopy';
-import { blueDark } from '@stoked-ui/docs/branding';
+import MarkdownElement from './MarkdownElement';
+import CodeCopyButton from './CodeCopyButton';
+import { useTranslate } from '../i18n';
+import { useCodeCopy } from './CodeCopy';
+import { blueDark } from '../branding';
 
 const StyledMarkdownElement = styled(MarkdownElement)(({ theme }) => [
   {

@@ -415,7 +415,7 @@ export const getDesignTokens = (mode: 'light' | 'dark') =>
     },
   }) as ThemeOptions;
 
-export function getThemedComponents(): ThemeOptions {
+export function getThemedComponents(...args: any[]): ThemeOptions {
   return {
     components: {
       MuiAlert: {

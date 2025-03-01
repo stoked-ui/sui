@@ -17,10 +17,10 @@ import {
   ThemeOptions, SimplePaletteColorOptions
 } from '@mui/material/styles';
 import rtl from 'jss-rtl';
-import { useTranslate } from '@stoked-ui/docs/i18n';
-import { getDesignTokens } from '@stoked-ui/docs/branding';
-import { highDensity } from 'docs/src/modules/components/ThemeContext';
 import type {} from '@mui/material/themeCssVarsAugmentation';
+import { useTranslate } from '../i18n';
+import { getDesignTokens } from '../branding';
+import { highDensity } from './ThemeContext';
 
 const iframeDefaultJoyTheme = extendTheme({
   cssVarPrefix: 'demo-iframe',

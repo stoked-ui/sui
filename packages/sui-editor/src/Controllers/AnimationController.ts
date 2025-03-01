@@ -1,3 +1,4 @@
+/*
 import lottie, {AnimationConfigWithPath, AnimationItem} from 'lottie-web';
 import { namedId} from '@stoked-ui/common';
 import {
@@ -48,14 +49,14 @@ class AnimationControl extends Controller<AnimationItem> implements IController 
     if (time > duration) {
       time %= duration;
     }
-    /* if (engine.renderCtx && (action.x || action.y)) {
+    /!* if (engine.renderCtx && (action.x || action.y)) {
       engine.renderCtx.translate(action.x, action.y);
-    } */
+    } *!/
     item.goToAndStop(time);
 
-    /* if (engine.renderCtx) {
+    /!* if (engine.renderCtx) {
       engine.renderCtx.reset();
-    } */
+    } *!/
   }
 
   enter(params: EditorControllerParams) {
@@ -116,7 +117,7 @@ class AnimationControl extends Controller<AnimationItem> implements IController 
     this.cacheMap = {};
   }
 
-  /*
+  /!*
    getBackgroundImage?: GetBackgroundImage = async (action: MediaAction) => {
     const screenShotContainer = document.createElement('div');
     // const animation = AnimationFile.load({action, container: screenShotContainer, mode: 'svg'});
@@ -129,7 +130,7 @@ class AnimationControl extends Controller<AnimationItem> implements IController 
     })
     return `url(${action.src})`;
   }
-  */
+  *!/
 
   getItem(params: EditorGetItemParams) {
     const { action, track } = params;
@@ -202,3 +203,4 @@ class AnimationControl extends Controller<AnimationItem> implements IController 
 export { AnimationControl };
 const AnimationController = new AnimationControl({});
 export default AnimationController;
+*/

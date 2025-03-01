@@ -1,9 +1,9 @@
-import addHiddenInput from 'docs/src/modules/utils/addHiddenInput';
-import { CODE_VARIANTS } from 'docs/src/modules/constants';
-import SandboxDependencies from 'docs/src/modules/sandbox/Dependencies';
-import * as CRA from 'docs/src/modules/sandbox/CreateReactApp';
-import getFileExtension from 'docs/src/modules/sandbox/FileExtension';
-import { DemoData } from 'docs/src/modules/sandbox/types';
+import addHiddenInput from './addHiddenInput';
+import { CODE_VARIANTS } from './constants';
+import SandboxDependencies from './Dependencies';
+import * as CRA from './CreateReactApp';
+import getFileExtension from './FileExtension';
+import { DemoData } from './types';
 
 function createReactApp(demoData: DemoData) {
   const ext = getFileExtension(demoData.codeVariant);

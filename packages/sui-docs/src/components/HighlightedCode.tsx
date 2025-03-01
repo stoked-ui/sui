@@ -1,11 +1,11 @@
 import * as React from 'react';
 import prism from '@stoked-ui/docs-markdown/prism';
 import { NoSsr } from '@mui/base/NoSsr';
-import MarkdownElement from 'docs/src/modules/components/MarkdownElement';
-import CodeCopyButton from 'docs/src/modules/components/CodeCopyButton';
-import { useCodeCopy } from 'docs/src/modules/utils/CodeCopy';
 import {SxProps} from "@mui/system";
 import {Theme} from "@mui/material/styles";
+import MarkdownElement from './MarkdownElement';
+import CodeCopyButton from './CodeCopyButton';
+import { useCodeCopy } from './CodeCopy';
 
 export interface HighlightedCodeProps {
   code: string,

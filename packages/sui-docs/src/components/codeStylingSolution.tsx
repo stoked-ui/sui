@@ -1,11 +1,15 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { getCookie } from 'docs/src/modules/utils/helpers';
-import { CODE_STYLING } from 'docs/src/modules/constants';
+import { getCookie } from '../utils';
+import { CODE_STYLING, CODE_VARIANTS } from './constants';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const setCodeStylingStump:  React.Dispatch<React.SetStateAction<string>> = (_: any) => {
+};
 const CodeStylingContext = React.createContext({
   codeStyling: CODE_STYLING.SYSTEM,
-  setCodeStyling: () => {},
+  setCodeStyling: setCodeStylingStump,
+  noSsrCodeStyling: CODE_VARIANTS.TS,
 });
 if (process.env.NODE_ENV !== 'production') {
   CodeStylingContext.displayName = 'CodeStyling';
@@ -20,7 +24,7 @@ function useFirstRender() {
   return firstRenderRef.current;
 }
 
-export function CodeStylingProvider(props) {
+export function CodeStylingProvider(props: any) {
   const { children } = props;
 
   const [codeStyling, setCodeStyling] = React.useState(CODE_STYLING.SYSTEM);
