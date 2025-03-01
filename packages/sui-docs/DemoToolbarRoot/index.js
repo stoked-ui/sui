@@ -1,1 +1,1 @@
-export { default } from '../src/components/DemoToolbarRoot';
+export { default } from '../components/DemoToolbarRoot';

@@ -1,1 +1,1 @@
-export { default } from '../src/components/useLazyCSS';
+export { default } from '../components/useLazyCSS';

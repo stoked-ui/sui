@@ -1,1 +1,1 @@
-export { default } from '../src/components/Dependencies';
+export { default } from '../components/Dependencies';

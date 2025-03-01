@@ -1,1 +1,1 @@
-export { default } from '../src/components/StackBlitz';
+export { default } from '../components/StackBlitz';

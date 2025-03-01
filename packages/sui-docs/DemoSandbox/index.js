@@ -1,1 +1,1 @@
-export { default } from '../src/components/DemoSandbox';
+export { default } from '../components/DemoSandbox';

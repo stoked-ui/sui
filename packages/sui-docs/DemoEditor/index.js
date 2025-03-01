@@ -1,1 +1,1 @@
-export { default } from '../src/components/DemoEditor';
+export { default } from '../components/DemoEditor';

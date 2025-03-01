@@ -1,1 +1,1 @@
-export { default } from '../src/components/CodeCopyButton';
+export { default } from '../components/CodeCopyButton';

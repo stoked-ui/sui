@@ -1,1 +1,1 @@
-export { default } from '../src/components/addHiddenInput';
+export { default } from '../components/addHiddenInput';

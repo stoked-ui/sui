@@ -1,1 +1,1 @@
-export { default } from '../src/components/MarkdownElement';
+export { default } from '../components/MarkdownElement';

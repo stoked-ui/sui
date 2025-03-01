@@ -1,1 +1,1 @@
-export { default } from '../src/components/HighlightedCodeWithTabs';
+export { default } from '../components/HighlightedCodeWithTabs';

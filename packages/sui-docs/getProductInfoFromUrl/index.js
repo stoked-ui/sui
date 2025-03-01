@@ -1,1 +1,1 @@
-export { default } from '../src/components/getProductInfoFromUrl';
+export { default } from '../components/getProductInfoFromUrl';

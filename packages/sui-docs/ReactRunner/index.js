@@ -1,1 +1,1 @@
-export { default } from '../src/components/ReactRunner';
+export { default } from '../components/ReactRunner';

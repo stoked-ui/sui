@@ -1,1 +1,1 @@
-export { default } from '../src/components/HighlightedCode';
+export { default } from '../components/HighlightedCode';

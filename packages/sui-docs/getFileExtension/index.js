@@ -1,1 +1,1 @@
-export { default } from '../src/components/FileExtension';
+export { default } from '../components/FileExtension';

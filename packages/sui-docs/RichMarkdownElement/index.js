@@ -1,1 +1,1 @@
-export { default } from '../src/components/RichMarkdownElement';
+export { default } from '../components/RichMarkdownElement';

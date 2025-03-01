@@ -1,1 +1,1 @@
-export { default } from '../src/components/CodeSandbox';
+export { default } from '../components/CodeSandbox';
