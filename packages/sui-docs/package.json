@@ -1,6 +1,6 @@
 {
   "name": "@stoked-ui/docs",
-  "version": "0.1.13",
+  "version": "0.1.14",
   "private": false,
   "author": "SUI Team",
   "description": "SUI Docs - Documentation building blocks.",
@@ -28,6 +28,7 @@
     "./addHiddenInput": "./addHiddenInput/index.js",
     "./CodeCopyButton": "./CodeCopyButton/index.js",
     "./CodeSandbox": "./CodeSandbox/index.js",
+    "./components": "./components/index.js",
     "./Demo": "./Demo/index.js",
     "./DemoEditor": "./DemoEditor/index.js",
     "./DemoEditorError": "./DemoEditorError/index.js",

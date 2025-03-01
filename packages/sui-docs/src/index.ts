@@ -2,6 +2,7 @@ import en from './translations';
 
 export * from './branding';
 export * from './brandingCssVars';
+export * from './components';
 export * from './DocsProvider';
 export * from './i18n';
 export * from './InfoCard';
