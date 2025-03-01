@@ -806,7 +806,7 @@ const Root = styled('div')(
 
 const MarkdownElement = React.forwardRef(function MarkdownElement(props: {
   className?: string,
-  renderedMarkdown: string,
+  renderedMarkdown?: string,
 } & React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>, ref) {
   const { className, renderedMarkdown, ...other } = props;
   const more: any = {};

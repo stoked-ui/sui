@@ -12,16 +12,16 @@ function noComponent(moduleID: any) {
 }
 
 interface RichMarkdownElementProps {
-  activeTab: string,
+  activeTab?: string,
   demoComponents: any,
-  demos: any,
+  demos?: any,
   disableAd: boolean,
   localizedDoc: any,
-  renderedMarkdownOrDemo: (string | { component: any, demo: any } & any),
+  renderedMarkdown: (string | { component: any, demo: any } & any),
   srcComponents: any,
   theme: Theme,
   WrapperComponent: React.ElementType,
-  wrapperProps: object,
+  wrapperProps?: object,
 }
 
 export default function RichMarkdownElement(props: RichMarkdownElementProps) {
@@ -30,7 +30,7 @@ export default function RichMarkdownElement(props: RichMarkdownElementProps) {
     demos = {},
     disableAd,
     localizedDoc,
-    renderedMarkdownOrDemo,
+    renderedMarkdown,
     srcComponents,
     theme,
     WrapperComponent: Wrapper,
@@ -39,16 +39,16 @@ export default function RichMarkdownElement(props: RichMarkdownElementProps) {
   const userLanguage = useUserLanguage();
   const t = useTranslate();
 
-  if (typeof renderedMarkdownOrDemo === 'string') {
+  if (typeof renderedMarkdown === 'string') {
     return (
       <Wrapper {...wrapperProps}>
-        <MarkdownElement renderedMarkdown={renderedMarkdownOrDemo} />
+        <MarkdownElement renderedMarkdown={renderedMarkdown} />
       </Wrapper>
     );
   }
 
-  if (renderedMarkdownOrDemo.component) {
-    const name = renderedMarkdownOrDemo.component;
+  if (renderedMarkdown.component) {
+    const name = renderedMarkdown.component;
     const Component = srcComponents?.[name];
 
     if (Component === undefined) {
@@ -57,25 +57,25 @@ export default function RichMarkdownElement(props: RichMarkdownElementProps) {
 
     return (
       <Wrapper {...wrapperProps}>
-        <Component {...renderedMarkdownOrDemo} markdown={localizedDoc} />
+        <Component {...renderedMarkdown} markdown={localizedDoc} />
       </Wrapper>
     );
   }
 
-  if (renderedMarkdownOrDemo.type === 'codeblock') {
+  if (renderedMarkdown.type === 'codeblock') {
     return (
       <Wrapper {...wrapperProps}>
         <HighlightedCodeWithTabs
-          tabs={renderedMarkdownOrDemo.data}
+          tabs={renderedMarkdown.data}
           storageKey={
-            renderedMarkdownOrDemo.storageKey && `codeblock-${renderedMarkdownOrDemo.storageKey}`
+            renderedMarkdown.storageKey && `codeblock-${renderedMarkdown.storageKey}`
           }
         />
       </Wrapper>
     );
   }
 
-  const name = renderedMarkdownOrDemo.demo;
+  const name = renderedMarkdown.demo;
   const demo = demos?.[name];
   if (demo === undefined) {
     const errorMessage = [
@@ -131,7 +131,7 @@ export default function RichMarkdownElement(props: RichMarkdownElementProps) {
         gaLabel: fileNameWithLocation.replace(/^\/docs\/data\//, ''),
       }}
       disableAd={disableAd}
-      demoOptions={renderedMarkdownOrDemo}
+      demoOptions={renderedMarkdown}
       githubLocation={`${process.env.SOURCE_CODE_REPO}/blob/v${process.env.LIB_VERSION}${fileNameWithLocation}`}
     />
   );
