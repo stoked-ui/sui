@@ -23,11 +23,6 @@ const RandomHome = dynamic(() => import((`.${homeUrl}main`)), { ssr: false });
 
 export function HomeView({ HomeMain}: { HomeMain: React.ComponentType }){
   const Main: React.ComponentType = HomeMain || RandomHome;
-  const [isClient, setIsClient] = React.useState(false)
-
-  React.useEffect(() => {
-    setIsClient(true)
-  }, [])
 
   return <BrandingCssVarsProvider>
     <Head
@@ -42,9 +37,9 @@ export function HomeView({ HomeMain}: { HomeMain: React.ComponentType }){
             '@context': 'https://schema.org',
             '@type': 'Organization',
             name: 'Stoked UI',
-            url: 'https://stokedconsulting.com',
-            logo: 'https://stokedconsulting.com/static/logo.png',
-            sameAs: ['https://x.com/MUI_hq', 'https://github.com/mui/', 'https://opencollective.com/mui-org',],
+            url: 'https://stoked-ui.com',
+            logo: 'https://stoked-ui.com/static/logo.png',
+            sameAs: ['https://stokedconsulting.com'],
           }),
         }}
       />
@@ -55,8 +50,7 @@ export function HomeView({ HomeMain}: { HomeMain: React.ComponentType }){
     <AppHeaderBanner/>
     <AppHeader/>
     <main id="main-content">
-      {isClient ? <Main/> : ''}
-      {process.env.DEV_DISPLAY !== '1' && PRODUCTS.previews()}
+      <Main/>
     </main>
     <AppFooter/>
   </BrandingCssVarsProvider>;

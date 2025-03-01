@@ -51,7 +51,7 @@ const faqData = [
         <Link
           target="_blank"
           rel="noopener"
-          href="https://stokedconsulting.com/legal/mui-x-eula/#required-quantity-of-licenses"
+          href="/legal/mui-x-eula/#required-quantity-of-licenses"
         >
           The clause in the EULA.
         </Link>
@@ -115,7 +115,7 @@ const faqData = [
           <li>Commercial solutions deployed for end-users</li>
         </ul>
         Based on the{' '}
-        <Link target="_blank" rel="noopener" href="https://stokedconsulting.com/legal/mui-x-eula/#deployment">
+        <Link target="_blank" rel="noopener" href="/legal/mui-x-eula/#deployment">
           'Deployment' section of the EULA
         </Link>
         , you can sublicense the software if it's made part of a larger work. The new licenses must
@@ -184,7 +184,7 @@ const faqData = [
         <Link
           target="_blank"
           rel="noopener"
-          href="https://stokedconsulting.com/legal/mui-x-eula/#required-quantity-of-licenses"
+          href="/legal/mui-x-eula/#required-quantity-of-licenses"
         >
           The relevant EULA clause.
         </Link>

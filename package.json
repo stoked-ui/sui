@@ -5,17 +5,18 @@
   "scripts": {
     "rebuild": "pnpm clean && pnpm clean && pnpm i && pnpm build && rm -rf docs/.next && pnpm docs:build",
     "build:fresh": "pnpm clean && pnpm i && pnpm build:all",
-    "build:all": "lerna run build --skip-nx-cache",
+    "build:all": "lerna run build --skip-nx-cache --ignore stokedui-com && pnpm docs:build",
     "build:prod": "pnpm build && pnpm docs:prod",
     "build:dev": "pnpm build && pnpm docs:dev",
     "preinstall": "npx only-allow pnpm",
     "build:site": "./scripts/buildSite.sh",
     "envVars": "dotenvx",
-    "deploy:prod": "sst deploy --stage production",
-    "deploy:stage": "sst deploy --stage ",
+    "deploy:prod": "dotenvx --debug run -- sst deploy --stage production",
+    "deploy": "cross-env ROOT_DOMAIN=stoked-ui.com,stokedconsulting.com sst deploy",
+    "deploy:stage": "sst deploy --stage",
     "deploy:local": "dotenvx -- sst deploy  2>&1 | grep \"level=ERROR\"",
-    "release:site": "pnpm sst deploy --stage prod",
-    "release": "pnpm build:site && pnpm release:version && pnpm release:site",
+    "remove": "dotenvx -- sst deploy --stage ",
+    "release": "pnpm build:all && pnpm release:version && pnpm deploy:prod",
     "proptypes": "cross-env BABEL_ENV=development babel-node -i \"/node_modules/(?!@stoked-ui)/\" -x .ts,.tsx,.js ./docs/scripts/generateProptypes.ts",
     "deduplicate": "pnpm dedupe",
     "benchmark:browser": "pnpm --filter benchmark browser",
@@ -245,9 +246,8 @@
     "webpack-cli": "^5.1.4",
     "yargs": "^17.7.2"
   },
-  "packageManager": "pnpm@9.14.4",
   "engines": {
-    "pnpm": "^9.14.4"
+    "pnpm": "^10.5.2"
   },
   "resolutions": {
     "@babel/core": "^7.23.9",

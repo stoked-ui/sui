@@ -85,7 +85,7 @@ const ROUTES: Routes = {
   // External pages
   rssFeed: '/feed/blog/rss.xml',
   handbook: 'https://mui-org.notion.site/Handbook-f086d47e10794d5e839aef9dc67f324b',
-  privacyPolicy: 'https://stokedconsulting.com/legal/privacy/',
+  privacyPolicy: '/legal/privacy/',
   store: 'https://stokedconsulting.com/store/',
 };
 
