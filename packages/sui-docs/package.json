@@ -1,6 +1,6 @@
 {
   "name": "@stoked-ui/docs",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "private": false,
   "author": "SUI Team",
   "description": "SUI Docs - Documentation building blocks.",
@@ -23,6 +23,29 @@
     "url": "https://github.com/stoked-ui/sui/issues"
   },
   "homepage": "https://github.com/stoked-ui/sui/tree/master/packages/sui-docs",
+  "exports": {
+    ".": "./src/index.ts",
+    "./addHiddenInput": "./addHiddenInput/index.js",
+    "./CodeCopyButton": "./CodeCopyButton/index.js",
+    "./CodeSandbox": "./CodeSandbox/index.js",
+    "./Demo": "./Demo/index.js",
+    "./DemoEditor": "./DemoEditor/index.js",
+    "./DemoEditorError": "./DemoEditorError/index.js",
+    "./DemoSandbox": "./DemoSandbox/index.js",
+    "./DemoToolbar": "./DemoToolbar/index.js",
+    "./DemoToolbarRoot": "./DemoToolbarRoot/index.js",
+    "./getFileExtension": "./getFileExtension/index.js",
+    "./getProductInfoFromUrl": "./getProductInfoFromUrl/index.js",
+    "./HighlightedCode": "./HighlightedCode/index.js",
+    "./HighlightedCodeWithTabs": "./HighlightedCodeWithTabs/index.js",
+    "./MarkdownElement": "./MarkdownElement/index.js",
+    "./ReactRunner": "./ReactRunner/index.js",
+    "./RichMarkdownElement": "./RichMarkdownElement/index.js",
+    "./StackBlitz": "./StackBlitz/index.js",
+    "./stylingSolutionMapping": "./stylingSolutionMapping/index.js",
+    "./SandboxDependencies": "./SandboxDependencies/index.js",
+    "./useLazyCSS": "./useLazyCSS/index.js"
+  },
   "scripts": {
     "build": "pnpm build:legacy && pnpm build:modern && pnpm build:node && pnpm build:stable && pnpm build:types && pnpm build:copy-files",
     "build:legacy": "node ../../scripts/build.mjs legacy",
@@ -30,7 +53,7 @@
     "build:node": "node ../../scripts/build.mjs node",
     "build:stable": "node ../../scripts/build.mjs stable",
     "build:types": "node ../../scripts/buildTypes.mjs",
-    "build:copy-files": "node ../../scripts/copyFiles.mjs ./src/translations/translations.json:./translations/translations.json ./src/translations/translations.json:./node/translations/translations.json",
+    "build:copy-files": "node ../../scripts/copyFiles.mjs ./src/translations/translations.json:./translations/translations.json ./src/translations/translations.json:./node/translations/translations.json ./addHiddenInput/index.js:./addHiddenInput/index.js ./CodeCopyButton/index.js:./CodeCopyButton/index.js ./CodeSandbox/index.js:./CodeSandbox/index.js ./Demo/index.js:./Demo/index.js ./DemoEditor/index.js:./DemoEditor/index.js ./DemoEditorError/index.js:./DemoEditorError/index.js ./DemoSandbox/index.js:./DemoSandbox/index.js ./DemoToolbar/index.js:./DemoToolbar/index.js ./DemoToolbarRoot/index.js:./DemoToolbarRoot/index.js ./getFileExtension/index.js:./getFileExtension/index.js ./getProductInfoFromUrl/index.js:./getProductInfoFromUrl/index.js ./HighlightedCode/index.js:./HighlightedCode/index.js ./HighlightedCodeWithTabs/index.js:./HighlightedCodeWithTabs/index.js ./MarkdownElement/index.js:./MarkdownElement/index.js ./ReactRunner/index.js:./ReactRunner/index.js ./RichMarkdownElement/index.js:./RichMarkdownElement/index.js ./StackBlitz/index.js:./StackBlitz/index.js ./stylingSolutionMapping/index.js:./stylingSolutionMapping/index.js ./SandboxDependencies/index.js:./SandboxDependencies/index.js ./useLazyCSS/index.js:./useLazyCSS/index.js",
     "prebuild": "rimraf build",
     "release": "pnpm build && pnpm publish",
     "test": "exit 0"
