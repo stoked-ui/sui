@@ -17,7 +17,7 @@ const FrameDemo = React.forwardRef<HTMLDivElement, BoxProps>(function FrameDemo(
             borderColor: 'primaryDark.700',
           }),
         }),
-        ...(Array.isArray(props.sx) ? props.sx : [props.sx]),
+
       ]}
     />
   );

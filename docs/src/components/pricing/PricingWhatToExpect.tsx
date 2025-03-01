@@ -57,7 +57,7 @@ export default function PricingWhatToExpect() {
             <Link
               target="_blank"
               rel="noopener"
-              href="https://stokedconsulting.com/legal/mui-x-eula/#required-quantity-of-licenses"
+              href="/legal/mui-x-eula/#required-quantity-of-licenses"
             >
               the EULA
             </Link>
@@ -144,7 +144,7 @@ export default function PricingWhatToExpect() {
             <Link
               target="_blank"
               rel="noopener"
-              href="https://stokedconsulting.com/legal/mui-x-eula/#annual-license"
+              href="/legal/mui-x-eula/#annual-license"
             >
               the EULA
             </Link>
