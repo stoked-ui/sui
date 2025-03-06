@@ -24,7 +24,7 @@ import GradientText from 'docs/src/components/typography/GradientText';
 import BrandingCssVarsProvider from '@stoked-ui/docs';
 import { authors as AUTHORS } from 'docs/src/modules/components/TopLayoutBlog';
 import HeroEnd from 'docs/src/components/home/HeroEnd';
-import { Link } from '@stoked-ui/docs/Link';
+import { Link } from '@stoked-ui/docs';
 import generateRssFeed from 'docs/scripts/generateRSSFeed';
 import Section from 'docs/src/layouts/Section';
 import SectionHeadline from 'docs/src/components/typography/SectionHeadline';

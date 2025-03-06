@@ -179,7 +179,7 @@ function getTheme(outerTheme: any) {
 }
 
 // TODO: Let demos decide whether they need JSS
-const insert: InsertionPoint | undefined = document.querySelector('#insertion-point-jss') as HTMLElement;
+const insert: InsertionPoint | undefined = typeof window !== 'undefined' ? document.querySelector('#insertion-point-jss') as HTMLElement : undefined;
 
 const jss = create({
   plugins: [...jssPreset().plugins, rtl()],

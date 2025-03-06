@@ -6,7 +6,7 @@ import KeyboardArrowRightRounded from '@mui/icons-material/KeyboardArrowRightRou
 import GradientText from 'docs/src/components/typography/GradientText';
 import HeroContainer from 'docs/src/layouts/HeroContainer';
 import IconImage from 'docs/src/components/icon/IconImage';
-import { Link } from '@stoked-ui/docs/Link';
+import { Link } from '@stoked-ui/docs';
 import {
   StoreTemplatesSet1,
   StoreTemplatesSet2,

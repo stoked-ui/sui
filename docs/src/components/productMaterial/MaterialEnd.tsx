@@ -12,7 +12,7 @@ import GetStartedButtons from 'docs/src/components/home/GetStartedButtons';
 import Section from 'docs/src/layouts/Section';
 import SectionHeadline from 'docs/src/components/typography/SectionHeadline';
 import GradientText from 'docs/src/components/typography/GradientText';
-import { Link } from '@stoked-ui/docs/Link';
+import { Link } from '@stoked-ui/docs';
 import ROUTES from 'docs/src/route';
 
 interface MaterialEndProps {

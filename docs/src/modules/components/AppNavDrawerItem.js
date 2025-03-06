@@ -6,7 +6,7 @@ import Collapse from '@mui/material/Collapse';
 import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import { samePageLinkNavigation } from '@stoked-ui/docs';
-import { Link } from '@stoked-ui/docs/Link';
+import { Link } from '@stoked-ui/docs';
 import standardNavIcons from './AppNavIcons';
 
 const Item = styled(

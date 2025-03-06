@@ -4,7 +4,7 @@ import { styled, alpha } from '@mui/material/styles';
 import { unstable_debounce as debounce } from '@mui/utils';
 import ROUTES from 'docs/src/route';
 import { PRODUCTS, ALL_PRODUCTS } from 'docs/src/products';
-import { Link } from '@stoked-ui/docs/Link';
+import { Link } from '@stoked-ui/docs';
 
 const Navigation = styled('nav')(({ theme }) => [
   {

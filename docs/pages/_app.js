@@ -23,12 +23,19 @@ import './global.css';
 import "plyr-react/plyr.css"
 import '../public/static/components-gallery/base-theme.css';
 import config from '../config';
+import {styled} from "@mui/material/styles";
+import Head from "../src/modules/components/Head";
 
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
 
 let reloadInterval;
 
+const StyledHead = styled(Head)(({ theme }) => ({
+  '& body': {
+    backgroundColor: theme.palette.mode === 'dark' ? 'hsl(210, 14%, 7%);' : '#fff',
+  }
+}));
 // Avoid infinite loop when "Upload on reload" is set in the Chrome sw dev tools.
 function lazyReload() {
   clearInterval(reloadInterval);

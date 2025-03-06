@@ -56,6 +56,7 @@
     "build:types": "node ../../scripts/buildTypes.mjs",
     "build:copy-files": "node ../../scripts/copyFiles.mjs ./src/translations/translations.json:./translations/translations.json ./src/translations/translations.json:./node/translations/translations.json ./addHiddenInput/index.js:./addHiddenInput/index.js ./CodeCopyButton/index.js:./CodeCopyButton/index.js ./CodeSandbox/index.js:./CodeSandbox/index.js ./Demo/index.js:./Demo/index.js ./DemoEditor/index.js:./DemoEditor/index.js ./DemoEditorError/index.js:./DemoEditorError/index.js ./DemoSandbox/index.js:./DemoSandbox/index.js ./DemoToolbar/index.js:./DemoToolbar/index.js ./DemoToolbarRoot/index.js:./DemoToolbarRoot/index.js ./getFileExtension/index.js:./getFileExtension/index.js ./getProductInfoFromUrl/index.js:./getProductInfoFromUrl/index.js ./HighlightedCode/index.js:./HighlightedCode/index.js ./HighlightedCodeWithTabs/index.js:./HighlightedCodeWithTabs/index.js ./MarkdownElement/index.js:./MarkdownElement/index.js ./ReactRunner/index.js:./ReactRunner/index.js ./RichMarkdownElement/index.js:./RichMarkdownElement/index.js ./StackBlitz/index.js:./StackBlitz/index.js ./stylingSolutionMapping/index.js:./stylingSolutionMapping/index.js ./SandboxDependencies/index.js:./SandboxDependencies/index.js ./useLazyCSS/index.js:./useLazyCSS/index.js ./addHiddenInput/index.d.ts:./addHiddenInput/index.d.ts ./CodeCopyButton/index.d.ts:./CodeCopyButton/index.d.ts ./CodeSandbox/index.d.ts:./CodeSandbox/index.d.ts ./Demo/index.d.ts:./Demo/index.d.ts ./DemoEditor/index.d.ts:./DemoEditor/index.d.ts ./DemoEditorError/index.d.ts:./DemoEditorError/index.d.ts ./DemoSandbox/index.d.ts:./DemoSandbox/index.d.ts ./DemoToolbar/index.d.ts:./DemoToolbar/index.d.ts ./DemoToolbarRoot/index.d.ts:./DemoToolbarRoot/index.d.ts ./getFileExtension/index.d.ts:./getFileExtension/index.d.ts ./getProductInfoFromUrl/index.d.ts:./getProductInfoFromUrl/index.d.ts ./HighlightedCode/index.d.ts:./HighlightedCode/index.d.ts ./HighlightedCodeWithTabs/index.d.ts:./HighlightedCodeWithTabs/index.d.ts ./MarkdownElement/index.d.ts:./MarkdownElement/index.d.ts ./ReactRunner/index.d.ts:./ReactRunner/index.d.ts ./RichMarkdownElement/index.d.ts:./RichMarkdownElement/index.d.ts ./StackBlitz/index.d.ts:./StackBlitz/index.d.ts ./stylingSolutionMapping/index.d.ts:./stylingSolutionMapping/index.d.ts ./SandboxDependencies/index.d.ts:./SandboxDependencies/index.d.ts ./useLazyCSS/index.d.ts:./useLazyCSS/index.d.ts",
     "prebuild": "rimraf build",
+    "postbuild": "./copyTranslations.sh",
     "release": "pnpm build && pnpm publish",
     "test": "exit 0"
   },
@@ -65,7 +66,9 @@
     "clipboard-copy": "^4.0.1",
     "clsx": "^2.1.0",
     "nprogress": "^0.2.0",
-    "prop-types": "^15.8.1"
+    "prop-types": "^15.8.1",
+    "fg-loadcss": "^3.1.0",
+    "react-runner": "^1.0.5"
   },
   "devDependencies": {
     "@mui/icons-material": "^5.15.21",

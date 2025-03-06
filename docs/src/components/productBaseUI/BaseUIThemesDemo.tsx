@@ -42,7 +42,7 @@ import InterestsRoundedIcon from '@mui/icons-material/InterestsRounded';
 import RadioRoundedIcon from '@mui/icons-material/RadioRounded';
 
 import ROUTES from 'docs/src/route';
-import { Link } from '@stoked-ui/docs/Link';
+import { Link } from '@stoked-ui/docs';
 import heroVariables from 'docs/src/components/productBaseUI/heroVariables';
 
 const Panel = styled('div')({

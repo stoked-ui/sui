@@ -9,7 +9,7 @@ import Head from 'docs/src/modules/components/Head';
 import { useTranslate } from '@stoked-ui/docs/i18n';
 import Alert from '@mui/material/Alert';
 import redirect from 'next/router';
-import { Link } from '@stoked-ui/docs/Link';
+import { Link } from '@stoked-ui/docs';
 import { useSearchParams } from 'next/navigation';
 import AppHeader from '../src/layouts/AppHeader';
 import AppFooter from '../src/layouts/AppFooter';

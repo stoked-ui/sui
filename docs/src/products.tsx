@@ -10,7 +10,7 @@ import Fade from "@mui/material/Fade";
 import Paper from "@mui/material/Paper";
 import Popper from "@mui/material/Popper";
 import KeyboardArrowRightRounded from "@mui/material/SvgIcon/SvgIcon";
-import { Link } from "@stoked-ui/docs/Link";
+import { Link } from "@stoked-ui/docs";
 import { alpha, Theme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
 import dynamic from "next/dynamic";

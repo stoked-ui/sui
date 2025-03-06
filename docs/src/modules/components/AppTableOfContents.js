@@ -5,7 +5,7 @@ import throttle from 'lodash/throttle';
 import { styled, alpha } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 import NoSsr from '@mui/material/NoSsr';
-import { Link } from '@stoked-ui/docs/Link';
+import { Link } from '@stoked-ui/docs';
 import { useTranslate } from '@stoked-ui/docs/i18n';
 import { samePageLinkNavigation } from '@stoked-ui/docs';
 import TableOfContentsBanner from 'docs/src/components/banner/TableOfContentsBanner';

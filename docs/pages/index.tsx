@@ -10,6 +10,7 @@ import Head from "../src/modules/components/Head";
 import NewsletterToast from "../src/components/home/NewsletterToast";
 import AppHeaderBanner from "../src/components/banner/AppHeaderBanner";
 import AppHeader from "../src/layouts/AppHeader";
+import { styled } from '@mui/material/styles';
 
 const EditorHero = dynamic(() => import('../src/components/showcase/EditorHero'), {ssr: false });
 
@@ -18,6 +19,12 @@ function randomHome(homePages: string[]) {
   return homePages[Math.floor(Math.random()*homePages.length)];
 }
 
+const StyledHead = styled(Head)(({ theme }) => ({
+  '& body': {
+    backgroundColor: theme.palette.mode === 'dark' ? 'hsl(210, 14%, 7%);' : '#fff',
+  }
+}));
+
 const homeUrl = randomHome(PRODUCTS.pages);
 const RandomHome = dynamic(() => import((`.${homeUrl}main`)), { ssr: false });
 
@@ -25,7 +32,7 @@ export function HomeView({ HomeMain}: { HomeMain: React.ComponentType }){
   const Main: React.ComponentType = HomeMain || RandomHome;
 
   return <BrandingCssVarsProvider>
-    <Head
+    <StyledHead
       title="Stoked UI: React Media Components"
       description="Stoked UI provides a customizable, and accessible library of React media components."
       card="/static/social-previews/home-preview.jpg"
@@ -43,24 +50,22 @@ export function HomeView({ HomeMain}: { HomeMain: React.ComponentType }){
           }),
         }}
       />
-    </Head>
+    </StyledHead>
     <NoSsr>
       <NewsletterToast/>
     </NoSsr>
     <AppHeaderBanner/>
     <AppHeader/>
     <main id="main-content">
-      <Main/>
+     <Main/>
+      {PRODUCTS.previews()}
     </main>
     <AppFooter/>
   </BrandingCssVarsProvider>;
 }
 
 let MainView:  React.ComponentType<{}> = function MainView() {
-  if (process.env.DEV_DISPLAY === '1') {
-    return <EditorHero id={'editor'} sx={{ width: '1080px' }} />
-    // return <EditorFileTestHero id={'editor'} sx={{ width: '1080px' }} />
-  }
+
   return (
     <React.Fragment>
       <EditorHero id={'editor'} sx={{ width: '1080px' }} />
@@ -76,7 +81,8 @@ Home.getInitialProps = async(context: { req: any; query: any; res: any; asPath: 
 
   const { req } = context;
   if (req) {
-    if (req.headers?.host?.indexOf('stoked-ui.com')) {
+    console.info('req.headers.host', req.headers.host);
+    if (['stoked-ui.com', 'stokedconsulting.com'].includes(req.headers?.host)) {
       MainView = RandomHome;
     }
   }

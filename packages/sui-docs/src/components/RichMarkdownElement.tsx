@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Theme } from '@mui/material/styles';
-import { useTranslate, useUserLanguage } from '@stoked-ui/docs/i18n';
+import { useTranslate, useUserLanguage } from '../i18n';
 import MarkdownElement from './MarkdownElement';
 import HighlightedCodeWithTabs from './HighlightedCodeWithTabs';
 import Demo from './Demo';

@@ -60,7 +60,7 @@ import HeroContainer from 'docs/src/layouts/HeroContainer';
 import GetStartedButtons from 'docs/src/components/home/GetStartedButtons';
 import GradientText from 'docs/src/components/typography/GradientText';
 import { getDesignTokens } from '@stoked-ui/docs/branding';
-import { Link } from '@stoked-ui/docs/Link';
+import { Link } from '@stoked-ui/docs';
 import ROUTES from 'docs/src/route';
 
 function Checkboxes() {

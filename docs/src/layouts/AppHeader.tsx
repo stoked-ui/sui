@@ -8,7 +8,7 @@ import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import ThemeModeToggle from 'docs/src/components/header/ThemeModeToggle';
-import { Link } from '@stoked-ui/docs/Link';
+import { Link } from '@stoked-ui/docs';
 import { DeferredAppSearch } from 'docs/src/modules/components/AppFrame';
 import { useTranslate } from '@stoked-ui/docs/i18n';
 import SvgSuiLogomark from "../icons/SvgSuiLogomark";
