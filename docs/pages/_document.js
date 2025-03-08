@@ -39,7 +39,6 @@ if (process.env.NODE_ENV === 'production') {
 export default function MyDocument(props) {
   const { canonicalAsServer, userLanguage } = props;
   const theme = useTheme();
-        console.info(theme.palette.mode);
   return (
     <Html lang={userLanguage} data-mui-color-scheme={theme.palette.mode} >
       <Head>

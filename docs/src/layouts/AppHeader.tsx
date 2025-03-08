@@ -15,7 +15,6 @@ import SvgSuiLogomark from "../icons/SvgSuiLogomark";
 import dynamic from "next/dynamic";
 
 const Header = styled('header')(({ theme }) => {
-  console.info('header theme', theme);
   return [
     {
       position: 'sticky',
