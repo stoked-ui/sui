@@ -1,6 +1,6 @@
 {
   "name": "@stoked-ui/file-explorer",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "File Explorer Component built from the @mui/x-tree-view component with @atlaskit/pragmatic-drag-and-drop built in.",
   "author": "Brian Stoker",
   "main": "src/index.ts",
