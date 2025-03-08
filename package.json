@@ -50,7 +50,7 @@
     "docs:build-color-preview": "babel-node scripts/buildColorTypes",
     "docs:deploy": "pnpm --filter stokedui-com run deploy",
     "docs:release": "pnpm --filter stokedui-com run deploy:release",
-    "dev": "pnpm --filter stokedui-com dev",
+    "dev": "pnpm docs:debug",
     "docs:dev": "pnpm --filter stokedui-com dev",
     "caladan": "pnpm --filter stokedui-com caladan",
     "docs:debug": "pnpm --filter stokedui-com debug",
@@ -81,7 +81,6 @@
     "size:snapshot": "node --max-old-space-size=4096 ./scripts/sizeSnapshot/create",
     "size:why": "pnpm size:snapshot --analyze",
     "start": "pnpm docs:debug",
-    "dev": "pnpm docs:debug",
     "test": "node scripts/test.mjs",
     "tc": "node test/cli.js",
     "test:extended": "pnpm eslint && pnpm typescript && pnpm test:coverage",
@@ -133,6 +132,7 @@
     "@babel/core": "^7.23.9",
     "@babel/node": "^7.23.9",
     "@babel/plugin-proposal-class-properties": "^7.18.6",
+    "@babel/plugin-proposal-export-default-from": "^7.25.9",
     "@babel/plugin-proposal-object-rest-spread": "^7.20.7",
     "@babel/plugin-proposal-private-methods": "^7.18.6",
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
@@ -247,7 +247,7 @@
     "yargs": "^17.7.2"
   },
   "engines": {
-    "pnpm": "^10.5.2"
+    "pnpm": "^10.5.1"
   },
   "resolutions": {
     "@babel/core": "^7.23.9",

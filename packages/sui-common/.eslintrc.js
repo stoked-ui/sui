@@ -4,6 +4,6 @@ module.exports = {
     'react-hooks/exhaustive-deps': 'warn',
     'no-underscore-dangle': 'off',
     'import/no-cycle': 'error',
-    'import/order': 'error',
+    'import/order': 'error'
   },
 };

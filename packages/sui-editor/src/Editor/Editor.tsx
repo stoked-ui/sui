@@ -357,6 +357,7 @@ const Editor = React.forwardRef(function Editor<R extends IMediaFile = IMediaFil
   const [editorFile, setEditorFile] = React.useState<IEditorFile | null>(propsFile);
   React.useEffect(() => {
     if (editorFile !== propsFile && settings.editorId) {
+      alert('3')
       setEditorFile(propsFile);
       console.info('Editor::preload()', propsFile, propsFile?.tracks.length);
       propsFile?.preload(settings.editorId).then(() => {
@@ -368,6 +369,7 @@ const Editor = React.forwardRef(function Editor<R extends IMediaFile = IMediaFil
 
   React.useEffect(() => {
     if (editorFile && settings.editorId) {
+      alert('new file')
       editorFile.preload(settings.editorId).then(() => {
         console.info(`[${editorIdLocal}]`, '<Editor file::preload() />', editorFile, editorFile.tracks.length);
         dispatch({type: 'SET_FILE', payload: editorFile});
@@ -384,6 +386,7 @@ const Editor = React.forwardRef(function Editor<R extends IMediaFile = IMediaFil
   const [editorFileUrl, setEditorFileUrl] = React.useState<string>('');
   React.useEffect(() => {
     if (fileUrl && fileUrl !== editorFileUrl) {
+      alert('new file 2')
       setEditorFileUrl(fileUrl);
       EditorFile.fromUrl<EditorFile>(fileUrl, EditorFile)
       .then((urlFile) => {

@@ -8,7 +8,7 @@ export const createApi = (domainInfo: DomainInfo) => {
   });
 
   const emailMsg = JSON.stringify(`{
-        Subject: { Data: "Subscribed to brianstoker.com" },
+        Subject: { Data: \`Subscribed to ${domainInfo.domains[0]}\` },
         Body: {
           Text: { Data: \`Click the link to verify your email: \${verificationLink}\` },
           Html: { Data: \`<p>Click <a href='\${verificationLink}'>here</a> to verify your email.</p>\` },

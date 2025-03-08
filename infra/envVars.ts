@@ -1,5 +1,5 @@
 
-export function verifyEnvVars(expectedVars: string[], exitOnFailed?: boolean = false) {
+export function verifyEnvVars(expectedVars: string[], exitOnFailed: boolean = false) {
   const missingVars = expectedVars.filter((v) => !process.env[v]);
 
   if (exitOnFailed) {

@@ -16,11 +16,10 @@ export const startLeft = 20;
 
 function EditorRaw({ id, sx}: { id: string, sx?: SxProps }) {
   const { dispatch } = useEditorContext();
-
-  React.useEffect(() => {
+    React.useEffect(() => {
     createEditorFile<IEditorFileProps, EditorFile>(EditorVideoExampleProps, EditorFile, id).then((editorFile) => {
       dispatch({ type: 'SET_FILE', payload: editorFile })
-    });
+        });
   }, [])
 
   return  <Editor

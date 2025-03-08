@@ -56,7 +56,9 @@ module.exports = function getBabelConfig(api) {
           missingError,
         },
       },
+
     ],
+    '@babel/plugin-proposal-export-default-from',
     'babel-plugin-optimize-clsx',
     // Need the following 3 proposals for all targets in .browserslistrc.
     // With our usage the transpiled loose mode is equivalent to spec mode.

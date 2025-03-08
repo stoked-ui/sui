@@ -45,6 +45,7 @@
     "@mui/utils": "^5.15.20",
     "@tempfix/idb": "^8.0.3",
     "clsx": "^2.1.1",
+    "framer-motion": "^12.4.10",
     "prop-types": "^15.8.1"
   },
   "peerDependencies": {
