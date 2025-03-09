@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { DraggableOptions } from "@interactjs/actions/drag/plugin";
-import { ResizableOptions } from "@interactjs/actions/resize/plugin";
-import { DragEvent, Interactable as InteractableBase } from "@interactjs/types";
 import interact from "interactjs";
+import { DraggableOptions, DragEvent } from "@interactjs/actions/drag/plugin";
+import { ResizableOptions } from "@interactjs/actions/resize/plugin";
+import {Interactable as InteractableBase} from "@interactjs/core/Interactable";
 
 export interface InteractableProps {
   children: React.ReactElement;

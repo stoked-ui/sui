@@ -1,8 +1,14 @@
 packages:
-  - 'benchmark'
-  - 'packages/*'
-  - 'packages-internal/*'
-  - 'docs'
-  - 'api'
-  - 'infra'
-  - 'test'
+  - benchmark
+  - packages/*
+  - packages-internal/*
+  - docs
+  - api
+  - infra
+  - test
+onlyBuiltDependencies:
+  - aws-sdk
+  - core-js
+  - esbuild
+  - nx
+  - sharp

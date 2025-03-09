@@ -1,9 +1,15 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "target": "ES2015",
+    "lib": ["ES2015", "DOM", "DOM.Iterable"],
+    "allowJs": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
-    "types": ["react", "node"]
+    "types": ["react", "node"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "noImplicitAny": false
   },
   "include": ["src/**/*", "test/**/*"]
 }

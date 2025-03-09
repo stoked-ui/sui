@@ -20,13 +20,11 @@ export default $config({
     };
   },
   async run() {
-    const { createSite, createApi, githubAwsConnector, getDomainInfo } = await import('./infra');
-    const githubConnector = githubAwsConnector('stoked-ui', 'sui');
+    const { createSite, createApi, getDomainInfo } = await import('./infra');
     const domainInfo = getDomainInfo(process.env.ROOT_DOMAIN!, $app.stage);
     const web = createSite(domainInfo);
     const api = createApi(domainInfo);
     return {
-      ...githubConnector,
       ...web,
       ...api,
     };

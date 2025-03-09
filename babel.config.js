@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require('node:path');
 
 const errorCodesPath = path.resolve(__dirname, './docs/public/static/error-codes.json');
 const missingError = process.env.MUI_EXTRACT_ERROR_CODES === 'true' ? 'write' : 'annotate';
@@ -36,15 +36,16 @@ module.exports = function getBabelConfig(api) {
         debug: process.env.MUI_BUILD_VERBOSE === 'true',
         modules: useESModules ? false : 'commonjs',
         shippedProposals: api.env('modern'),
+        "targets": "> 0.25%, not dead"
       },
     ],
+    '@babel/preset-typescript',
     [
       '@babel/preset-react',
       {
         runtime: 'automatic',
       },
     ],
-    '@babel/preset-typescript',
   ];
 
   const plugins = [

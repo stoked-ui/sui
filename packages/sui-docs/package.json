@@ -73,16 +73,13 @@
   "devDependencies": {
     "@mui/icons-material": "^5.15.21",
     "@mui/material": "^5.15.21",
-    "@stoked-ui/editor": "workspace:^",
-    "@stoked-ui/file-explorer": "workspace:^",
-    "@stoked-ui/media-selector": "workspace:^",
-    "@stoked-ui/timeline": "workspace:^",
     "@types/node": "^18.19.25",
     "@types/nprogress": "^0.2.3",
     "@types/prop-types": "^15.7.11",
     "@types/react": "^18.3.1",
     "next": "^13.5.1",
-    "react": "18.3.1"
+    "react": "18.3.1",
+    "typescript": "^5.4.5"
   },
   "peerDependencies": {
     "@mui/base": "*",

@@ -36,22 +36,15 @@
     "react": "^18.0.0"
   },
   "devDependencies": {
+    "typescript": "5.4.5",
     "@babel/runtime": "^7.24.7",
     "@stoked-ui/common": "workspace:^",
     "@types/react": "^18.3.1",
     "@types/wicg-file-system-access": "^2023.10.5",
-    "@typescript-eslint/eslint-plugin": "^6.21.0",
-    "@typescript-eslint/parser": "^6.21.0",
-    "eslint": "^8.57.0",
-    "eslint-plugin-react-hooks": "^4.6.2",
-    "eslint-plugin-react-refresh": "^0.4.7"
+    "eslint": "^8.57.0"
   },
   "dependencies": {
-    "exifreader": "^4.23.5",
     "formdata-node": "^6.0.3",
-    "jszip": "^3.10.1",
-    "music-metadata": "^10.5.0",
-    "safe-stringify": "^1.1.1",
-    "typescript": "5.4.5"
+    "jszip": "^3.10.1"
   }
 }
