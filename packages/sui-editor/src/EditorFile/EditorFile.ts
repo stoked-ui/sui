@@ -18,6 +18,8 @@ import {
 } from "../EditorAction/EditorAction";
 import { IEditorFileTrack, IEditorTrack } from "../EditorTrack/EditorTrack";
 import {StokedUiEditorApp} from "../Editor";
+import * as React from 'react';
+import { openDB, getOrFetchVideo } from '@stoked-ui/common';
 
 export const editorFileCache: Record<string, any> = {};
 
@@ -63,6 +65,19 @@ export interface IEditorFileData<TrackDataType extends IEditorTrackData = IEdito
   tracks: TrackDataType[];
 }
 
+// Define a type guard for checking track source
+function hasValidSource(track: any): track is { source: { url: string, cachedUrl?: string }, id: string } {
+  return track
+    && typeof track === 'object'
+    && 'source' in track
+    && track.source
+    && typeof track.source === 'object'
+    && 'url' in track.source
+    && typeof track.source.url === 'string'
+    && 'id' in track
+    && typeof track.id === 'string';
+}
+
 export default class EditorFile<
   FileTrackType extends IEditorFileTrack = IEditorFileTrack,
   TrackType extends IEditorTrack = IEditorTrack,
@@ -89,6 +104,9 @@ export default class EditorFile<
   width: number = 1920;
 
   height: number = 1080;
+
+  private _videoSources: Record<string, string> = {};
+  private _isVideoLoaded: boolean = false;
 
   constructor(props: IEditorFileProps<FileTrackType>) {
     // editorFileCache[props.id as string] = JSON.stringify(props);
@@ -172,10 +190,74 @@ export default class EditorFile<
   }
 
   async preload(editorId: string) {
-   await super.preload(editorId);
-   await this.updateStore();
+    // Call parent preload first
+    await super.preload(editorId);
+
+    // Show loader while we're loading videos
+    this._isVideoLoaded = false;
+
+    try {
+      // Open IndexedDB
+      const db = await openDB();
+
+      // Collect all video sources from tracks that have a source URL
+      const videoSourcesToLoad: { url: string; id: string }[] = [];
+
+      this.tracks.forEach(track => {
+        // Use the type guard to check for valid source
+        if (hasValidSource(track)) {
+          videoSourcesToLoad.push({
+            url: track.source.url,
+            id: `${editorId}_${track.id}`
+          });
+        }
+      });
+
+      // Load all videos into IndexedDB and create object URLs
+      await Promise.all(
+        videoSourcesToLoad.map(async ({ url, id }) => {
+          const blob = await getOrFetchVideo(db, url, id);
+          this._videoSources[id] = URL.createObjectURL(blob);
+        })
+      );
+
+      // Update tracks with object URLs
+      this.tracks.forEach(track => {
+        // Use the type guard again for updating the tracks
+        if (hasValidSource(track)) {
+          const videoId = `${editorId}_${track.id}`;
+          if (this._videoSources[videoId]) {
+            // Now we can safely assign to cachedUrl
+            track.source.cachedUrl = this._videoSources[videoId];
+          }
+        }
+      });
+
+      this._isVideoLoaded = true;
+
+      // Update store after modifying tracks
+      await this.updateStore();
+    } catch (error) {
+      console.error("Error preloading videos:", error);
+      // Still mark as loaded even on error so the UI doesn't get stuck
+      this._isVideoLoaded = true;
+    }
   }
 
+  // Add cleanup method to be called when editor file is disposed
+  cleanup(): void {
+    // Revoke all object URLs to prevent memory leaks
+    Object.values(this._videoSources).forEach(url => URL.revokeObjectURL(url));
+    this._videoSources = {};
+
+    // Since super.cleanup() doesn't exist, don't call it
+    // The error showed that TimelineFile doesn't have a cleanup method
+  }
+
+  // Method to check if videos are loaded
+  isVideoLoaded(): boolean {
+    return this._isVideoLoaded;
+  }
 
   /**
    * Loads a AppFile instance from the local file system.

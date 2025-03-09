@@ -1,5 +1,6 @@
 import { Interactable as InteractableBase } from '@interactjs/core/Interactable';
-import { DragEvent, ResizeEvent } from "@interactjs/types";
+import { DragEvent } from "@interactjs/actions/drag/plugin";
+import { ResizeEvent } from "@interactjs/actions/resize/plugin";
 import * as React from 'react';
 import { DEFAULT_ADSORPTION_DISTANCE, DEFAULT_MOVE_GRID, DEFAULT_START_LEFT } from "../interface/const";
 import { useAutoScroll } from './useAutoScroll';

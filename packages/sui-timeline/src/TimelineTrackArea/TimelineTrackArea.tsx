@@ -101,7 +101,7 @@ function FloatingTrackLabels({ tracks }) {
     return undefined;
   }
   const editorModeHidden = editorMode === 'track' || editorMode === 'action';
-  const isSelected = (index: number) => selectedTrackIndex === index ?? false;
+  const isSelected = (index: number) => selectedTrackIndex === index;
   const selectedHeight =
     flags.detailMode && selectedTrackIndex !== -1 ? settings.growScale : trackHeight;
   const unselectedHeight =

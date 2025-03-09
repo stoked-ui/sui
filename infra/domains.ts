@@ -6,7 +6,7 @@ export const getDomains = (rootDomain: string, stage: string) => {
   return [`${stage}.${rootDomain}`, `*.${stage}.${rootDomain}`];
 }
 
-export const getDomainInfo = (rootDomains: string, stage: string) => {
+export const getDomainInfo = (rootDomains: string, stage: string): DomainInfo => {
   const rootDomainParts = rootDomains.split(',');
   let domains:any = rootDomainParts.map((domain) => getDomains(domain, stage)).flat();
   domains = domains.flat(Infinity);
@@ -28,4 +28,5 @@ export interface DomainInfo {
   appName: string;
   domains: string[];
   dbName: string;
+  apiDomain: string;
 }

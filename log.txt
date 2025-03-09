@@ -1,0 +1,12 @@
+undefined
+/Users/stoked/work/stoked-ui/packages-internal/docs-utils:
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command failed with exit code 126: sh pwd
+undefined
+undefined
+undefined
+undefined
+undefined
+undefined
+undefined
+undefined
+undefined

@@ -10,7 +10,16 @@
     "outDir": "build",
     "rootDir": "./src",
     "types": [ "wicg-file-system-access", "node", "@mui/material/themeCssVarsAugmentation"],
+    "skipLibCheck": true,
+    "isolatedModules": true
   },
   "include": ["src/**/*"],
-  "exclude": ["src/**/*.spec.ts*", "src/**/*.test.ts*", "src/tests/**/*", "build/**/*"]
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "src/tests/**/*",
+    "build/**/*"
+  ]
 }
