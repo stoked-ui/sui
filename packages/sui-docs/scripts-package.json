@@ -1,0 +1,6 @@
+{
+  "name": "sui-docs-scripts",
+  "private": true,
+  "type": "module",
+  "description": "Helper scripts for @stoked-ui/docs package"
+} 

@@ -6,14 +6,14 @@ import {
   PaletteColorOptions,
 } from '@mui/material/styles';
 
-import {debounce} from "@mui/material/utils";
+import { debounce } from "@mui/material/utils";
 import NProgress from "nprogress";
-import {useRouter} from "next/router";
+import { useRouter } from 'next/router.js';
 import CssBaseline from '@mui/material/CssBaseline';
-import { getDesignTokens, getThemedComponents } from '../branding';
-import NProgressBar from "../NProgressBar";
-import SkipLink from './SkipLink';
-import MarkdownLinks from './MarkdownLinks';
+import { getDesignTokens, getThemedComponents } from '../../components/../components/../components/../src/branding.js';
+import NProgressBar from '../../components/../components/../components/../src/NProgressBar/NProgressBar.js';
+import SkipLink from '@stoked-ui/docs/BrandingCssVarsProvider/SkipLink.js';
+import MarkdownLinks from '@stoked-ui/docs/BrandingCssVarsProvider/MarkdownLinks.js';
 
 declare module '@mui/material/styles' {
   interface PaletteOptions {
@@ -93,7 +93,7 @@ const theme = extendTheme({
   ...getThemedComponents(),
 });
 
-export function BrandingCssVarsProvider(props: { children: React.ReactNode }) {
+function BrandingCssVarsProvider(props: { children: React.ReactNode }) {
   const { children } = props;
   return (
     <CssVarsProvider theme={theme} defaultMode="system" disableTransitionOnChange>
@@ -105,3 +105,5 @@ export function BrandingCssVarsProvider(props: { children: React.ReactNode }) {
     </CssVarsProvider>
   );
 }
+
+export default BrandingCssVarsProvider;
