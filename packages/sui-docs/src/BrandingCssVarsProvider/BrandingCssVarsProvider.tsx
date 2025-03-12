@@ -10,8 +10,8 @@ import {debounce} from "@mui/material/utils";
 import NProgress from "nprogress";
 import {useRouter} from "next/router";
 import CssBaseline from '@mui/material/CssBaseline';
-import { getDesignTokens, getThemedComponents } from '@stoked-ui/docs/branding';
-import NProgressBar from "@stoked-ui/docs/NProgressBar";
+import { getDesignTokens, getThemedComponents } from '../branding';
+import NProgressBar from "../NProgressBar";
 import SkipLink from './SkipLink';
 import MarkdownLinks from './MarkdownLinks';
 

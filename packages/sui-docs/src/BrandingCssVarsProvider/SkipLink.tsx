@@ -1,7 +1,7 @@
 import * as React from 'react';
 import MuiLink from '@mui/material/Link';
 import { styled } from '@mui/material/styles';
-import { useTranslate } from '@stoked-ui/docs/i18n';
+import { useTranslate } from '../i18n';
 
 const StyledLink = styled(MuiLink)(({ theme }) => ({
   position: 'fixed',
