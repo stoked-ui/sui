@@ -2,7 +2,7 @@ import * as React from 'react';
 import { deepmerge } from '@mui/utils';
 import {
   Experimental_CssVarsProvider as CssVarsProvider,
-  experimental_extendTheme as extendTheme,
+  extendTheme as extendTheme,
   PaletteColorOptions,
 } from '@mui/material/styles';
 
