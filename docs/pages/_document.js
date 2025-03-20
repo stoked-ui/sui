@@ -44,6 +44,26 @@ export default function MyDocument(props) {
       <Head>
         <meta name="algolia-site-verification"  content="5102D7E9170A3450" />
 
+        {/* Fix for navigation issues */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              document.addEventListener('DOMContentLoaded', function() {
+                document.addEventListener('click', function(event) {
+                  const link = event.target.closest('a');
+                  if (link && link.getAttribute('href') &&
+                      link.getAttribute('href').startsWith('/') &&
+                      !link.getAttribute('target') &&
+                      !event.ctrlKey && !event.metaKey && !event.shiftKey) {
+                      event.preventDefault();
+                      window.location.href = link.getAttribute('href');
+                  }
+                });
+              });
+            `,
+          }}
+        />
+
         {/*
         <meta charSet="utf-8"/>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>

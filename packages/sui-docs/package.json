@@ -73,6 +73,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.23.9",
+    "@emotion/react": "^11.14.0",
     "@types/fg-loadcss": "^3.1.3",
     "clipboard-copy": "^4.0.1",
     "clsx": "^2.1.0",
@@ -82,8 +83,8 @@
     "react-runner": "^1.0.5"
   },
   "devDependencies": {
-    "@mui/icons-material": "^6.1.10",
-    "@mui/material": "^6.1.10",
+    "@mui/icons-material": "^5.15.21",
+    "@mui/material": "^5.17.1",
     "@types/node": "^18.19.25",
     "@types/nprogress": "^0.2.3",
     "@types/prop-types": "^15.7.11",
@@ -93,10 +94,10 @@
     "typescript": "^5.4.5"
   },
   "peerDependencies": {
-    "@mui/base": "*",
-    "@mui/icons-material": "^6",
-    "@mui/material": "^6",
-    "@mui/system": "^6",
+    "@mui/base": "^5.0.0-beta.70",
+    "@mui/icons-material": "^5.15.21",
+    "@mui/material": "^5.17.1",
+    "@mui/system": "^5.17.1",
     "@types/react": "^18.3.1",
     "next": "^13.5.1 || ^14",
     "react": "18.3.1"
