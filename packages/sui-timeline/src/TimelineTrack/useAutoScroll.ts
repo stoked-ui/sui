@@ -23,35 +23,45 @@ export function useAutoScroll(target: React.MutableRefObject<HTMLDivElement>) {
   const dealDragAutoScroll = (e: DragEvent, deltaScroll?: (delta: number) => void) => {
     // 超出
     if (e.clientX >= rightBoundRef.current || e.clientX <= leftBoundRef.current) {
-      cancelAnimationFrame(frame.current);
+      if (frame.current !== undefined) {
+        cancelAnimationFrame(frame.current);
+      }
       const over = Math.abs(e.clientX >= rightBoundRef.current ? e.clientX - rightBoundRef.current : e.clientX - leftBoundRef.current);
       speed.current = Math.min(Number((over / CRITICAL_SIZE).toFixed(0)) * DEFAULT_SPEED, MAX_SPEED);
 
       const dir = e.clientX >= rightBoundRef.current ? 1 : -1;
       const delta = dir * speed.current;
       const loop = () => {
-        deltaScroll?.(delta);
+        if (deltaScroll) {
+          deltaScroll(delta);
+        }
         frame.current = requestAnimationFrame(loop);
       };
 
       frame.current = requestAnimationFrame(loop);
       return false;
     }
-    cancelAnimationFrame(frame.current);
+    if (frame.current !== undefined) {
+      cancelAnimationFrame(frame.current);
+    }
 
     return true;
   };
 
   const dealResizeAutoScroll = (e: ResizeEvent, dir: 'left' | 'right', deltaScroll?: (delta: number) => void) => {
     if (e.clientX >= rightBoundRef.current || e.clientX < leftBoundRef.current) {
-      cancelAnimationFrame(frame.current);
+      if (frame.current !== undefined) {
+        cancelAnimationFrame(frame.current);
+      }
       const over = Math.abs(e.clientX >= rightBoundRef.current ? e.clientX - rightBoundRef.current : e.clientX - leftBoundRef.current);
       speed.current = Math.min(Number((over / CRITICAL_SIZE).toFixed(0)) * DEFAULT_SPEED, MAX_SPEED);
 
       const direction = e.clientX >= rightBoundRef.current ? 1 : -1;
       const delta = direction * speed.current;
       const loop = () => {
-        deltaScroll?.(delta);
+        if (deltaScroll) {
+          deltaScroll(delta);
+        }
         frame.current = requestAnimationFrame(loop);
       };
 
@@ -59,7 +69,9 @@ export function useAutoScroll(target: React.MutableRefObject<HTMLDivElement>) {
 
       return false;
     }
-    cancelAnimationFrame(frame.current);
+    if (frame.current !== undefined) {
+      cancelAnimationFrame(frame.current);
+    }
     return true;
   };
 
@@ -67,7 +79,9 @@ export function useAutoScroll(target: React.MutableRefObject<HTMLDivElement>) {
     leftBoundRef.current = Number.MIN_SAFE_INTEGER;
     rightBoundRef.current = Number.MAX_SAFE_INTEGER;
     speed.current = DEFAULT_SPEED;
-    cancelAnimationFrame(frame.current);
+    if (frame.current !== undefined) {
+      cancelAnimationFrame(frame.current);
+    }
   };
 
   return {

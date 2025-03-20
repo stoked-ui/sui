@@ -52,8 +52,17 @@ function handleClick(event) {
 
   event.preventDefault();
   const as = activeElement.getAttribute('href');
-  const canonicalPathname = pathnameToLanguage(as).canonicalPathname;
-  Router.push(canonicalPathname, as);
+
+  try {
+    // Try pathnameToLanguage, but fall back to direct navigation if it fails
+    const result = pathnameToLanguage(as);
+    const canonicalPathname = result.canonicalPathname;
+    Router.push(canonicalPathname, as);
+  } catch (error) {
+    // If pathnameToLanguage fails, just use direct navigation
+    console.warn('Navigation error, using direct navigation instead', error);
+    window.location.href = as;
+  }
 }
 
 /**
@@ -66,19 +75,27 @@ function handleMouseOver(event) {
   }
 
   const as = activeElement.getAttribute('href');
-  const canonicalPathname = pathnameToLanguage(as).canonicalPathname;
 
-  const prefetchPromise = Router.prefetch(canonicalPathname, as, { priority: true });
-  // Prefetch the JSON page if asked (only in the client)
-  // We need to handle a prefetch error here since we may be
-  // loading with priority which can reject but we don't
-  // want to force navigation since this is only a prefetch
-  Promise.resolve(prefetchPromise).catch((err) => {
-    if (process.env.NODE_ENV !== 'production') {
-      // rethrow to show invalid URL errors
-      throw err;
-    }
-  });
+  try {
+    // Try pathnameToLanguage, but fall back to direct navigation if it fails
+    const result = pathnameToLanguage(as);
+    const canonicalPathname = result.canonicalPathname;
+
+    const prefetchPromise = Router.prefetch(canonicalPathname, as, { priority: true });
+    // Prefetch the JSON page if asked (only in the client)
+    // We need to handle a prefetch error here since we may be
+    // loading with priority which can reject but we don't
+    // want to force navigation since this is only a prefetch
+    Promise.resolve(prefetchPromise).catch((err) => {
+      if (process.env.NODE_ENV !== 'production') {
+        // rethrow to show invalid URL errors
+        throw err;
+      }
+    });
+  } catch (error) {
+    // If pathnameToLanguage fails, skip prefetching
+    console.warn('Prefetching error, skipping prefetch', error);
+  }
 }
 
 export default function MarkdownLinks() {

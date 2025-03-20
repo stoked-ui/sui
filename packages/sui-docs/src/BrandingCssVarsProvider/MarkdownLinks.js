@@ -90,7 +90,9 @@ function handleClick(event) {
 
   event.preventDefault();
   const as = activeElement.getAttribute('href');
-  const canonicalPathname = pathnameToLanguage(as).canonicalPathname;
+  // Fix: Pass the languages array to pathnameToLanguage function
+  // We're using an empty array for now as we'll rely on the default 'en' language behavior
+  const { canonicalPathname } = pathnameToLanguage([], as);
   Router.push(canonicalPathname, as);
 }
 
@@ -104,7 +106,9 @@ function handleMouseOver(event) {
   }
 
   const as = activeElement.getAttribute('href');
-  const canonicalPathname = pathnameToLanguage(as).canonicalPathname;
+  // Fix: Pass the languages array to pathnameToLanguage function
+  // We're using an empty array for now as we'll rely on the default 'en' language behavior
+  const { canonicalPathname } = pathnameToLanguage([], as);
 
   const prefetchPromise = Router.prefetch(canonicalPathname, as, { priority: true });
   // Prefetch the JSON page if asked (only in the client)

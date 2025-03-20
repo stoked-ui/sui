@@ -131,7 +131,7 @@ export const FileLabel = React.forwardRef(function FileExplorer(
     );
   }
 
-  const headerIcon: SxProps<Theme> =
+  const headerIcon = 
     status && !status.focused
       ? { visibility: 'visible', alignSelf: 'center', color: 'black' }
       : { alignSelf: 'center', color: 'black' };

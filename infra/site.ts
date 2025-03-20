@@ -28,6 +28,32 @@ export const createSite = (domainInfo: DomainInfo) => {
           event.response.headers['access-control-allow-methods'] = { value: 'GET, HEAD, OPTIONS' };
           event.response.headers['access-control-allow-headers'] = { value: 'Range' };
           event.response.headers['access-control-expose-headers'] = { value: 'Content-Range, Accept-Ranges, Content-Encoding, Content-Length' };
+          
+          // Fix for navigation issues - inject a script to handle navigation properly
+          if (event.response.headers['content-type'] && 
+              event.response.headers['content-type'].value && 
+              event.response.headers['content-type'].value.includes('text/html')) {
+            const originalBody = event.response.body.toString();
+            const navigationFix = '<script>' +
+              '// Fix for navigation issues - replace client-side router functionality\\n' +
+              'document.addEventListener("DOMContentLoaded", function() {\\n' +
+              '  document.addEventListener("click", function(event) {\\n' +
+              '    const link = event.target.closest("a");\\n' +
+              '    if (link && link.getAttribute("href") && \\n' +
+              '        link.getAttribute("href").startsWith("/") && \\n' +
+              '        !link.getAttribute("target") && \\n' +
+              '        !event.ctrlKey && !event.metaKey && !event.shiftKey) {\\n' +
+              '        event.preventDefault();\\n' +
+              '        window.location.href = link.getAttribute("href");\\n' +
+              '    }\\n' +
+              '  });\\n' +
+              '});\\n' +
+              '</script>';
+            
+            // Add script before closing body tag
+            const newBody = originalBody.replace('</body>', navigationFix + '</body>');
+            event.response.body = newBody;
+          }
         `
       }
     },
