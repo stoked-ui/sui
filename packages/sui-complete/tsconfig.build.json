@@ -1,0 +1,31 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "noEmit": false,
+    "emitDeclarationOnly": true,
+    "outDir": "build",
+    "rootDir": "./src",
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "noImplicitAny": false,
+    "noImplicitThis": false,
+    "strictNullChecks": false,
+    "paths": {
+      "@stoked-ui/common": ["../sui-common/src"],
+      "@stoked-ui/editor": ["../sui-editor/src"],
+      "@stoked-ui/file-explorer": ["../sui-file-explorer/src"],
+      "@stoked-ui/media-selector": ["../sui-media-selector/src"],
+      "@stoked-ui/timeline": ["../sui-timeline/src"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "build/**/*"
+  ]
+} 

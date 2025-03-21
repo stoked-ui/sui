@@ -1,6 +1,6 @@
 {
   "name": "@stoked-ui/timeline",
-  "version": "0.1.3",
+  "version": "0.1.4-a.0",
   "author": "xzdarcy (updated dependencies by Brian Stoker)",
   "license": "MIT",
   "keywords": [
@@ -36,8 +36,7 @@
     "docs:build": "dumi build",
     "docs:deploy": "",
     "build-old": "father-build",
-    "deploy": "npm run docs:build && npm run docs:deploy",
-    "prepublishOnly": "npm run build"
+    "deploy": "npm run docs:build && npm run docs:deploy"
   },
   "main": "src/index.ts",
   "peerDependencies": {
