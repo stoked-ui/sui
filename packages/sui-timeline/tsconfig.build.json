@@ -11,15 +11,30 @@
     "rootDir": "./src",
     "types": [ "wicg-file-system-access", "node", "@mui/material/themeCssVarsAugmentation"],
     "skipLibCheck": true,
-    "isolatedModules": true
+    "skipDefaultLibCheck": true,
+    "isolatedModules": true,
+    "preserveSymlinks": true,
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "noEmitOnError": false,
+    "noImplicitAny": false,
+    "noImplicitThis": false,
+    "strictNullChecks": false,
+    "paths": {
+      "@stoked-ui/media-selector": ["../sui-timeline/src/types/media-selector.d.ts"],
+      "@stoked-ui/common": ["../sui-timeline/src/types/common.d.ts"]
+    }
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "src/types/**/*.d.ts"],
   "exclude": [
     "**/*.test.ts",
     "**/*.test.tsx",
     "**/*.spec.ts",
     "**/*.spec.tsx",
     "src/tests/**/*",
-    "build/**/*"
+    "build/**/*",
+    "../sui-media-selector/**/*",
+    "../sui-common/**/*"
   ]
 }

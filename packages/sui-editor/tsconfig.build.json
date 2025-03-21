@@ -5,12 +5,44 @@
   "compilerOptions": {
     "composite": true,
     "declaration": true,
-    "noEmit": false,
     "emitDeclarationOnly": true,
     "outDir": "build",
-    "rootDir": "./src",
-    "types": ["wicg-file-system-access", "node", "@mui/material/themeCssVarsAugmentation", "@emotion/styled"]
+    "rootDir": "src",
+    "types": [
+      "wicg-file-system-access",
+      "node",
+      "@mui/material/themeCssVarsAugmentation"
+    ],
+    "preserveSymlinks": true,
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": false,
+    "noImplicitAny": false,
+    "noImplicitThis": false,
+    "strictNullChecks": false,
+    "allowSyntheticDefaultImports": true,
+    "paths": {
+      "@stoked-ui/media-selector": ["./src/types/media-selector.d.ts"],
+      "@stoked-ui/timeline": ["../sui-timeline/src/types/index.d.ts"],
+      "@stoked-ui/file-explorer": ["../sui-file-explorer/src/types/index.d.ts"]
+    }
   },
-  "include": ["src/**/*.ts*"],
-  "exclude": ["src/**/*.spec.ts*", "src/**/*.test.ts*", "src/tests/**/*", "build/**/*"],
+  "include": [
+    "src",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.d.ts",
+    "src/types/**/*.d.ts"
+  ],
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "**/*.stories.ts",
+    "**/*.stories.tsx",
+    "build"
+  ]
 }

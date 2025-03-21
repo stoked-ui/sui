@@ -11,5 +11,11 @@
     "moduleResolution": "bundler",
     "noImplicitAny": false
   },
-  "include": ["src/**/*", "test/**/*"]
+  "include": ["src/**/*", "test/**/*"],
+  "references": [
+    { "path": "../sui-file-explorer/tsconfig.build.json" },
+    { "path": "../sui-editor/tsconfig.build.json" },
+    { "path": "../sui-timeline/tsconfig.build.json" },
+    { "path": "../sui-media-selector/tsconfig.build.json" }
+  ]
 }

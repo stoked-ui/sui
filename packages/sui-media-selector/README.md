@@ -1,3 +1,66 @@
+# @stoked-ui/media-selector
+
+Media handling utilities for modern web applications.
+
+## Installation
+
+```bash
+npm install @stoked-ui/media-selector
+# or
+yarn add @stoked-ui/media-selector
+# or
+pnpm add @stoked-ui/media-selector
+```
+
+## Usage with Next.js
+
+This package is compatible with Next.js but requires some configuration to work with Server Components. There are a few approaches for using it in a Next.js application:
+
+### Method 1: Use the client entrypoint
+
+For client components, you can import directly from the client entrypoint:
+
+```tsx
+'use client';
+import { App, Stage, WebFile, MediaFile } from '@stoked-ui/media-selector/client';
+```
+
+### Method 2: Use the Next.js configuration helper
+
+Add the provided helper to your Next.js configuration:
+
+```js
+// next.config.js
+const withStokedUI = require('@stoked-ui/media-selector/next.config.js');
+
+/** @type {import('next').NextConfig} */
+const nextConfig = {};
+
+module.exports = withStokedUI(nextConfig);
+```
+
+This will add the necessary configuration to transpile the package correctly.
+
+### Method 3: Mark components with 'use client'
+
+If you need to use these components in your own client components, make sure to mark them with 'use client':
+
+```tsx
+'use client';
+import { App, Stage, MediaFile } from '@stoked-ui/media-selector';
+```
+
+## API Documentation
+
+This package provides utilities for handling media files including:
+
+- MediaFile - Base class for media file handling
+- App - Base application class
+- Stage - DOM manipulation utilities
+- WebFile - File handling utilities
+
+For complete API documentation, see the generated docs or source files.
+
 # file-selector
 
 > A small package for converting a [DragEvent](https://developer.mozilla.org/en-US/docs/Web/API/DragEvent) or [file input](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/file) to a list of File objects.

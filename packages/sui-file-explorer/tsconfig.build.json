@@ -9,8 +9,25 @@
     "emitDeclarationOnly": true,
     "outDir": "build",
     "rootDir": "./src",
-    "types": ["node", "@mui/material/themeCssVarsAugmentation", "@emotion/styled"]
+    "types": ["node", "@mui/material/themeCssVarsAugmentation", "@emotion/styled"],
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "preserveSymlinks": true,
+    "isolatedModules": true,
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "paths": {
+      "@stoked-ui/media-selector": ["../sui-file-explorer/src/types/media-selector.d.ts"],
+      "@stoked-ui/common": ["../sui-file-explorer/src/types/common.d.ts"]
+    }
   },
-  "include": ["src/**/*.ts*"],
-  "exclude": ["src/**/*.spec.ts*", "src/**/*.test.ts*", "src/tests/**/*", "build/**/*"]
+  "include": ["src/**/*.ts*", "src/types/**/*.d.ts"],
+  "exclude": [
+    "src/**/*.spec.ts*", 
+    "src/**/*.test.ts*", 
+    "src/tests/**/*", 
+    "build/**/*", 
+    "../sui-media-selector/**/*",
+    "../sui-common/**/*"
+  ]
 }
