@@ -1,6 +1,6 @@
 {
   "name": "@stoked-ui/docs-markdown",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "author": "SUI Team",
   "description": "SUI markdown parser. This is an internal package not meant for general use.",
   "main": "./index.js",
