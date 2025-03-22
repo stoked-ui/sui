@@ -142,6 +142,13 @@ const pages: MuiPage[] = [
       { pathname: `/editor/docs/overview`, title: 'Overview' },
       { pathname: `/editor/docs/getting-started` },
       {
+        pathname: `/editor/components`,
+        subheader: 'Components',
+        children: [
+          { pathname: `/editor/components/editor`, title: 'Editor' },
+        ],
+      },
+      {
         pathname: `/editor/docs/basics`,
         subheader: 'Basics',
         children: [
