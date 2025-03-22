@@ -12,21 +12,23 @@
   },
   "scripts": {
     "typescript": "tsc -p tsconfig.json",
-    "build": "pnpm build:modern && pnpm build:node && pnpm build:stable && pnpm build:copy-files",
+    "build": "pnpm build:webpack",
     "build:modern": "node scripts/build.mjs modern",
     "build:node": "node scripts/build.mjs node",
     "build:stable": "node scripts/build.mjs stable",
     "build:copy-files": "node scripts/customCopyFiles.mjs",
     "build:no-typesafety": "node scripts/build.mjs modern && node scripts/build.mjs node && node scripts/build.mjs stable && node scripts/customCopyFiles.mjs",
-    "build:types": "node ../../scripts/buildTypes.mjs",
-    "prebuild": "rimraf build tsconfig.build.tsbuildinfo"
+    "build:webpack": "rimraf build && webpack --config webpack.config.js && node scripts/customCopyFiles.mjs",
+    "build:types": "tsc --emitDeclarationOnly",
+    "prebuild": "rimraf build tsconfig.build.tsbuildinfo",
+    "clean": "rimraf build"
   },
   "peerDependencies": {
     "@emotion/react": "^11.9.0",
     "@emotion/styled": "^11.8.1",
     "@mui/icons-material": "^5.15.21",
     "@mui/material": "^5.17.1",
-    "react": "18.3.1",
+    "react": "^17.0.0 || ^18.0.0",
     "react-dom": "^17.0.0 || ^18.0.0"
   },
   "dependencies": {
@@ -38,11 +40,15 @@
     "@stoked-ui/timeline": "workspace:^"
   },
   "devDependencies": {
-    "@stoked-ui/common": "workspace:^",
-    "@stoked-ui/editor": "workspace:^",
-    "@stoked-ui/file-explorer": "workspace:^",
-    "@stoked-ui/media-selector": "workspace:^",
-    "@stoked-ui/timeline": "workspace:^",
-    "@types/react": "^18.3.1"
+    "@types/node": "^14.0.0",
+    "@types/react": "^18.0.0",
+    "css-loader": "^6.11.0",
+    "file-loader": "^6.2.0",
+    "rimraf": "^3.0.2",
+    "style-loader": "^3.3.4",
+    "ts-loader": "^9.5.2",
+    "typescript": "^4.7.4",
+    "webpack": "^5.98.0",
+    "webpack-cli": "^5.1.4"
   }
-} 
+}

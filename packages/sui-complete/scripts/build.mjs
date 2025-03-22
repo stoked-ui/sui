@@ -9,6 +9,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const packagePath = path.resolve(__dirname, '..');
 const buildPath = path.join(packagePath, 'build');
+const workspacePath = path.resolve(packagePath, '../..');
 
 // Get build type from args
 const buildType = process.argv[2] || 'modern'; // modern, node, stable
@@ -28,6 +29,40 @@ if (!fs.existsSync(targetDir)) {
   fs.mkdirSync(targetDir, { recursive: true });
 }
 
+// Copy all assets from component packages
+function copyAssets() {
+  const assetsDirs = [
+    { src: path.join(workspacePath, 'packages/sui-editor/assets'), dest: path.join(buildPath, 'assets/editor') },
+    { src: path.join(workspacePath, 'packages/sui-media-selector/assets'), dest: path.join(buildPath, 'assets/media-selector') },
+    { src: path.join(workspacePath, 'packages/sui-file-explorer/assets'), dest: path.join(buildPath, 'assets/file-explorer') },
+    { src: path.join(workspacePath, 'packages/sui-timeline/assets'), dest: path.join(buildPath, 'assets/timeline') },
+    { src: path.join(workspacePath, 'packages/sui-common/assets'), dest: path.join(buildPath, 'assets/common') }
+  ];
+
+  assetsDirs.forEach(({ src, dest }) => {
+    if (fs.existsSync(src)) {
+      console.log(`Copying assets from ${src} to ${dest}`);
+      fs.mkdirSync(dest, { recursive: true });
+      
+      const files = fs.readdirSync(src);
+      files.forEach(file => {
+        const srcFile = path.join(src, file);
+        const destFile = path.join(dest, file);
+        
+        if (fs.statSync(srcFile).isDirectory()) {
+          // Skip directories for simplicity
+          console.log(`Skipping directory: ${srcFile}`);
+        } else {
+          fs.copyFileSync(srcFile, destFile);
+          console.log(`Copied asset: ${srcFile} -> ${destFile}`);
+        }
+      });
+    } else {
+      console.log(`No assets directory found at ${src}`);
+    }
+  });
+}
+
 // Transpile using esbuild directly
 function esbuildTranspile() {
   try {
@@ -45,13 +80,11 @@ function esbuildTranspile() {
       buildType === 'node' ? 'node14' : 
       'es2015';
     
-    // Keep all stoked-ui packages as external to avoid resolution issues
-    // This creates a re-export package instead of a fully bundled one
+    // We need to mark React and React DOM as external, but include all our packages
+    // This creates a more robust bundled version
     const esbuildCmd = `esbuild ${entryPoint} --bundle --format=${format} --target=${target} --outfile=${outfile} \
       --external:react --external:react-dom \
-      --external:@stoked-ui/common --external:@stoked-ui/editor \
-      --external:@stoked-ui/file-explorer --external:@stoked-ui/media-selector \
-      --external:@stoked-ui/timeline --platform=browser`;
+      --platform=browser`;
     
     console.log(`Running: ${esbuildCmd}`);
     execSync(esbuildCmd, { stdio: 'inherit' });
@@ -72,4 +105,8 @@ function esbuildTranspile() {
   }
 }
 
-esbuildTranspile(); 
+esbuildTranspile();
+
+if (buildType === 'modern') {
+  copyAssets();
+} 

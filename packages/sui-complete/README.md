@@ -119,35 +119,68 @@ This is useful during development when you need to quickly test changes without 
 
 ### Bundle Approach
 
-The package is structured as a "unified access point" for all Stoked UI components:
+This package provides a truly portable solution for using Stoked UI components:
 
-- It re-exports components from all underlying packages (`@stoked-ui/editor`, `@stoked-ui/file-explorer`, etc.)
-- The build process creates a bundled re-export file that preserves the original package references
-- Consuming projects still need to install the peer dependencies, but only need to import from this one package
+- It includes all Stoked UI editor-related packages as dependencies
+- When you publish this package, it automatically resolves workspace references to actual version numbers
+- In your projects, you only need to install this one package - no need to install each component separately
 
-This approach has several benefits:
-- Simplified imports (one import location instead of many)
-- Consistent versioning (all components come from the same package version)
-- Flexibility (allows you to use just the components you need without unnecessary code)
-- Compatibility (maintains the same structure as the original packages)
+This approach offers several key benefits:
+- **Simplified dependency management** - install just one package instead of five or more
+- **Version consistency** - all components are guaranteed to work together
+- **Portability** - make changes in one place, build, publish, and use anywhere
+- **Streamlined workflow** - only need to manage one package instead of multiple packages
 
-For a true single-file bundle without external dependencies (except React), you would need a more complex build setup that:
-1. Resolves all dependencies correctly
-2. Handles different module formats and paths
-3. Properly bundles CSS and other assets
+### Quick Workflow for Updates
 
-### Installation in Projects
+When you need to make changes and publish a new version:
 
-When using this package in your projects, make sure to install all peer dependencies:
+1. Make your changes to the component packages
+2. Run the build process for the modified packages
+3. Update the complete package:
+   ```bash
+   cd packages/sui-complete
+   pnpm build:no-typesafety
+   ```
+4. Publish the complete package:
+   ```bash
+   cd build
+   npm publish
+   ```
+
+This creates a self-contained package that you can easily install in other projects with:
 
 ```bash
-# Install the complete package
-pnpm add @stoked-ui/complete
-
-# Install peer dependencies
-pnpm add @stoked-ui/common @stoked-ui/editor @stoked-ui/file-explorer @stoked-ui/media-selector @stoked-ui/timeline
+npm install @stoked-ui/complete
 ```
 
 ## License
 
 MIT 
+
+## Troubleshooting
+
+### React Loading Issues
+
+If you encounter errors like `Cannot read properties of undefined (reading 'ReactCurrentOwner')`, follow these steps:
+
+1. **Make sure React is loaded before importing Stoked UI**: This package requires React to be loaded and initialized before it's used.
+
+   ```js
+   // Bad - may cause React loading issues
+   import StokedUI from '@stoked-ui/complete';
+   import React from 'react';
+   
+   // Good - React is loaded first
+   import React from 'react';
+   import ReactDOM from 'react-dom';
+   import StokedUI from '@stoked-ui/complete';
+   ```
+
+2. **Check for multiple React versions**: Ensure you don't have multiple versions of React in your application.
+   
+   Run `npm ls react` or `yarn why react` to check if multiple versions exist.
+
+3. **Add error boundary**: Wrap your Stoked UI components in an error boundary for better error handling.
+
+4. **Update to the latest React version**: This package is tested with React 17.x and 18.x.
