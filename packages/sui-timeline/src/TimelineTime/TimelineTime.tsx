@@ -1,7 +1,8 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { emphasize, styled } from '@mui/material/styles';
-import { AutoSizer, Grid, GridCellRenderer } from 'react-virtualized';
+import { VariableSizeGrid } from 'react-window';
+import { useResizeDetector } from 'react-resize-detector';
 import { parserPixelToTime } from '../utils/deal_data';
 import { prefix } from '../utils/deal_class_prefix';
 import { useTimeline } from '../TimelineProvider';
@@ -14,13 +15,12 @@ const TimeAreaRoot = styled('div')(({ theme }) => ({
   height: '37px !important',
   flex: '0 0 auto',
   backgroundColor: emphasize(theme.palette.background.default, 0.04),
-  '& .ReactVirtualized__Grid': {
+  '& .timeline-grid': {
     outline: 'none',
     '&::-webkit-scrollbar': {
       display: 'none',
     },
   },
-  '& #time-area-grid': {},
 }));
 /*
 const TimeUnitScale = styled('div')(({ theme }) => ({
@@ -93,14 +93,14 @@ function TimelineTime(props: TimelineTimeProps) {
   } = settings;
 
   const { scrollLeft, onClickTimeArea } = props;
-  const gridRef = React.useRef<Grid>();
+  const gridRef = React.useRef<VariableSizeGrid>();
   const timeInteract = React.useRef<HTMLDivElement>();
   const timeAreaRef = React.useRef<HTMLDivElement>();
   /** Whether to display subdivision scales */
 
   const showUnit = scaleSplitCount > 0;
   /** Get the rendering content of each cell */
-  const cellRenderer: GridCellRenderer = ({ columnIndex, key, style }) => {
+  const Cell = React.useCallback(({ columnIndex, rowIndex, style }) => {
     const isShowScale = showUnit ? columnIndex % scaleSplitCount === 0 : true;
     const classNames = ['time-unit'];
     if (isShowScale) {
@@ -110,7 +110,6 @@ function TimelineTime(props: TimelineTimeProps) {
     const item = (showUnit ? columnIndex / scaleSplitCount : columnIndex) * scale;
     return (
       <TimeUnit
-        key={key}
         style={style}
         className={prefix(...classNames)}
         disabled={settings.disabled}
@@ -122,23 +121,31 @@ function TimelineTime(props: TimelineTimeProps) {
         )}
       </TimeUnit>
     );
-  };
+  }, [showUnit, scaleSplitCount, scale, getScaleRender, settings.disabled]);
+
+  // Use resize detector instead of AutoSizer
+  const { width = 0, height = 37, ref: resizeRef } = useResizeDetector({
+    refreshMode: 'debounce',
+    refreshRate: 100,
+  });
 
   React.useEffect(() => {
-    gridRef.current?.recomputeGridSize();
+    if (gridRef.current) {
+      gridRef.current.resetAfterColumnIndex(0);
+    }
   }, [scaleWidth, startLeft]);
 
   /** Get column width */
-  const getColumnWidth = (data: { index: number }) => {
-    switch (data.index) {
+  const getColumnWidth = React.useCallback((index) => {
+    switch (index) {
       case 0:
         return startLeft;
       default:
         return showUnit ? scaleWidth / scaleSplitCount : scaleWidth;
     }
-  };
+  }, [startLeft, showUnit, scaleWidth, scaleSplitCount]);
 
-  const estColumnWidth = getColumnWidth({ index: 1 });
+  const estColumnWidth = getColumnWidth(1);
   const [isDragging, setIsDragging] = React.useState(false);
 
   const setTimeToMouse = (e) => {
@@ -182,7 +189,10 @@ function TimelineTime(props: TimelineTimeProps) {
 
   return (<TimeAreaRoot
     sx={{marginLeft: `${startLeft - 7}px`, display: 'grid'}}
-    ref={timeAreaRef}
+    ref={(el) => {
+      timeAreaRef.current = el;
+      resizeRef(el);
+    }}
     className={prefix('time-area')}
   >
     <div style={{
@@ -195,38 +205,40 @@ function TimelineTime(props: TimelineTimeProps) {
       {flags && flags.noLabels && <SnapControls size={'small'} hover={true} />}
       <ZoomControls/>
     </div>
-    <AutoSizer>
-      {({width, height}) => {
-        return (<React.Fragment>
-            <Grid
-              id={'time-area-grid'}
-              ref={gridRef}
-              columnCount={showUnit ? scaleCount * scaleSplitCount + 1 : scaleCount}
-              columnWidth={getColumnWidth}
-              estimatedColumnSize={estColumnWidth}
-              rowCount={1}
-              style={{overflowX: 'hidden'}}
-              rowHeight={height}
-              width={width}
-              height={height}
-              overscanRowCount={0}
-              overscanColumnCount={10}
-              cellRenderer={cellRenderer}
-              scrollLeft={scrollLeft}
-            />
-            <TimeAreaInteract
-              ref={timeInteract}
-              style={{width, height}}
-              disabled={settings.disabled}
-              onMouseDown={setTimeToMouse}
-              onMouseMove={handleMouseMove}
-              onMouseUp={() => setIsDragging(false)}
-              onMouseLeave={() => setIsDragging(false)}
-              className={prefix('time-area-interact')}
-            />
-          </React.Fragment>);
-      }}
-    </AutoSizer>
+    {width > 0 && (
+      <React.Fragment>
+        <VariableSizeGrid
+          ref={gridRef}
+          className="timeline-grid"
+          id="time-area-grid"
+          columnCount={showUnit ? scaleCount * scaleSplitCount + 1 : scaleCount}
+          columnWidth={getColumnWidth}
+          estimatedColumnWidth={estColumnWidth}
+          rowCount={1}
+          rowHeight={() => height}
+          width={width}
+          height={height}
+          overscanRowCount={0}
+          overscanColumnCount={10}
+          style={{
+            overflowX: 'hidden'
+          }}
+          scrollLeft={scrollLeft}
+        >
+          {Cell}
+        </VariableSizeGrid>
+        <TimeAreaInteract
+          ref={timeInteract}
+          style={{width, height}}
+          disabled={settings.disabled}
+          onMouseDown={setTimeToMouse}
+          onMouseMove={handleMouseMove}
+          onMouseUp={() => setIsDragging(false)}
+          onMouseLeave={() => setIsDragging(false)}
+          className={prefix('time-area-interact')}
+        />
+      </React.Fragment>
+    )}
   </TimeAreaRoot>
 );
 }

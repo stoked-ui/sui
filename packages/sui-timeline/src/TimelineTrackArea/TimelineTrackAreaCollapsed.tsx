@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {styled} from "@mui/material/styles";
-import { AutoSizer } from 'react-virtualized';
+import { useResizeDetector } from 'react-resize-detector';
 import {type TimelineControlPropsBase} from '../Timeline/TimelineControl.types';
 import {prefix} from '../utils/deal_class_prefix';
 import {parserTimeToPixel} from '../utils/deal_data';
@@ -36,6 +36,11 @@ const TimelineTrackAreaCollapsed = React.forwardRef<TimelineTrackAreaState, Time
   const { trackHeight, scaleWidth, startLeft, scale, cursorTime } = settings;
   const {dragLine} = flags;
 
+  const { width = 0, ref: resizeRef } = useResizeDetector({
+    refreshMode: 'debounce',
+    refreshRate: 100,
+  });
+
   const {track, actionTrackMap} = TimelineFile.collapsedTrack(file?.tracks);
   const {
     getAssistDragLineActionIds,
@@ -58,7 +63,7 @@ const TimelineTrackAreaCollapsed = React.forwardRef<TimelineTrackAreaState, Time
   const tracksElementRef = React.useRef<HTMLDivElement>();
   const heightRef = React.useRef(-1);
 
-  // ref 数据
+  // ref data
   React.useImperativeHandle(ref, () => ({
     get domRef() {
       return editAreaRef;
@@ -89,54 +94,56 @@ const TimelineTrackAreaCollapsed = React.forwardRef<TimelineTrackAreaState, Time
     }
   };
 
-  return (<TimelineTrackAreaRoot ref={editAreaRef}
-                                 className={`SuiTimelineEditArea-root ${prefix('edit-area')}`}>
-      <AutoSizer className={'auto-sizer'} style={{height: 'fit-content'}}>
-        {({width}) => {
-          heightRef.current = trackHeight;
-          return (<TimelineTrack
-              {...props}
-              style={{
-                width,
-                height: trackHeight,
-                overscrollBehaviorX: 'none',
-                backgroundPositionX: `0, ${startLeft}px`,
-                backgroundSize: `${startLeft}px, ${scaleWidth}px`,
-              }}
-              trackRef={tracksElementRef}
-              scrollLeft={0}
-              actionTrackMap={actionTrackMap}
-              areaRef={editAreaRef}
-              track={track}
-              dragLineData={dragLineData}
-              onActionMoveStart={(data: { action: ITimelineAction; track: ITimelineTrack<ITimelineAction>; }) => {
-                handleInitDragLine(data);
-                return onActionMoveStart && onActionMoveStart(data);
-              }}
-              onActionResizeStart={(data: { action: ITimelineAction; track: ITimelineTrack<ITimelineAction>; dir: "left" | "right"; }) => {
-                handleInitDragLine(data);
-                return onActionResizeStart && onActionResizeStart(data);
-              }}
-              onActionMoving={(data: { action: ITimelineAction; track: ITimelineTrack<ITimelineAction>; start: number; end: number; }) => {
-                handleUpdateDragLine(data);
-                return onActionMoving && onActionMoving(data);
-              }}
-              onActionResizing={(data: { action: ITimelineAction; track: ITimelineTrack<ITimelineAction>; start: number; end: number; dir: "left" | "right"; }) => {
-                handleUpdateDragLine(data);
-                return onActionResizing && onActionResizing(data);
-              }}
-              onActionResizeEnd={(data: { action: ITimelineAction; track: ITimelineTrack<ITimelineAction>; start: number; end: number; dir: "left" | "right"; }) => {
-                disposeDragLine();
-                return onActionResizeEnd && onActionResizeEnd(data);
-              }}
-              onActionMoveEnd={(data: { action: ITimelineAction; track: ITimelineTrack<ITimelineAction>; start: number; end: number; }) => {
-                disposeDragLine();
-                return onActionMoveEnd && onActionMoveEnd(data);
-              }}
-            />
-          );
-        }}
-      </AutoSizer>
+  return (
+    <TimelineTrackAreaRoot 
+      ref={(el) => {
+        editAreaRef.current = el;
+        resizeRef(el);
+      }}
+      className={`SuiTimelineEditArea-root ${prefix('edit-area')}`}
+    >
+      {width > 0 && (
+        <TimelineTrack
+          {...props}
+          style={{
+            width,
+            height: trackHeight,
+            overscrollBehaviorX: 'none',
+            backgroundPositionX: `0, ${startLeft}px`,
+            backgroundSize: `${startLeft}px, ${scaleWidth}px`,
+          }}
+          trackRef={tracksElementRef}
+          scrollLeft={0}
+          actionTrackMap={actionTrackMap}
+          areaRef={editAreaRef}
+          track={track}
+          dragLineData={dragLineData}
+          onActionMoveStart={(data: { action: ITimelineAction; track: ITimelineTrack<ITimelineAction>; }) => {
+            handleInitDragLine(data);
+            return onActionMoveStart && onActionMoveStart(data);
+          }}
+          onActionResizeStart={(data: { action: ITimelineAction; track: ITimelineTrack<ITimelineAction>; dir: "left" | "right"; }) => {
+            handleInitDragLine(data);
+            return onActionResizeStart && onActionResizeStart(data);
+          }}
+          onActionMoving={(data: { action: ITimelineAction; track: ITimelineTrack<ITimelineAction>; start: number; end: number; }) => {
+            handleUpdateDragLine(data);
+            return onActionMoving && onActionMoving(data);
+          }}
+          onActionResizing={(data: { action: ITimelineAction; track: ITimelineTrack<ITimelineAction>; start: number; end: number; dir: "left" | "right"; }) => {
+            handleUpdateDragLine(data);
+            return onActionResizing && onActionResizing(data);
+          }}
+          onActionResizeEnd={(data: { action: ITimelineAction; track: ITimelineTrack<ITimelineAction>; start: number; end: number; dir: "left" | "right"; }) => {
+            disposeDragLine();
+            return onActionResizeEnd && onActionResizeEnd(data);
+          }}
+          onActionMoveEnd={(data: { action: ITimelineAction; track: ITimelineTrack<ITimelineAction>; start: number; end: number; }) => {
+            disposeDragLine();
+            return onActionMoveEnd && onActionMoveEnd(data);
+          }}
+        />
+      )}
       {dragLine && <TimelineTrackAreaDragLines scrollLeft={0} {...dragLineData} />}
     </TimelineTrackAreaRoot>
   );

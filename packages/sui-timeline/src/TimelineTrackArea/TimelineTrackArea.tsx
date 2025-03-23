@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import { alpha, styled } from '@mui/material/styles';
 import { shouldForwardProp } from '@mui/system/createStyled';
 import { Box, Typography } from '@mui/material';
-import { AutoSizer, Grid, GridCellRenderer } from 'react-virtualized';
+import { VariableSizeList, ListChildComponentProps } from 'react-window';
+import { useResizeDetector } from 'react-resize-detector';
 import { prefix } from '../utils/deal_class_prefix';
 import { parserTimeToPixel } from '../utils/deal_data';
 import TimelineTrack from '../TimelineTrack/TimelineTrack';
@@ -37,14 +38,9 @@ const TimelineTrackAreaRoot = styled('div')(() => ({
     top: 0,
     zIndex: -1,
   },
-  '& .ReactVirtualized__Grid': {
+  '& .timeline-list': {
     outline: 'none !important',
     overflow: 'overlay !important',
-    /* '&::-webkit-scrollbar': {
-      width: 0,
-      height: 0,
-      display: 'none',
-    }, */
   },
 }));
 
@@ -200,11 +196,17 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
       defaultGetMovePosition,
     } = useDragLine();
     const editAreaRef = React.useRef<HTMLDivElement>();
-    const tracksRef = React.useRef<Grid>();
+    const listRef = React.useRef<VariableSizeList>();
     const tracksElementRef = React.useRef<HTMLDivElement>();
     const heightRef = React.useRef(-1);
+    
+    // Use resize detector instead of AutoSizer
+    const { width = 0, height = 0, ref: resizeRef } = useResizeDetector({
+      refreshMode: 'debounce',
+      refreshRate: 100,
+    });
 
-    // ref 数据
+    // ref data
     React.useImperativeHandle(ref, () => ({
       get domRef() {
         return editAreaRef;
@@ -253,162 +255,176 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
       }
     }, [editAreaRef.current]);
 
-    /** Get the rendering content of each cell */
-    const cellRenderer: GridCellRenderer = ({ rowIndex, key, style }) => {
-      const gridTrack = tracks[rowIndex]; // track data
-      const className = rowIndex === selectedTrackIndex ? 'selected' : '';
-      return (
-        <TimelineTrack
-          {...props}
-          style={{
-            ...style,
-            backgroundPositionX: `0, ${startLeft}px`,
-            backgroundSize: `${startLeft}px, ${scaleWidth}px`,
-          }}
-          onKeyDown={(event: any) => {
-            console.info('test', event);
-            event.currentTarget = gridTrack;
-            // eslint-disable-next-line default-case
-            switch (event.key) {
-              case 'Backspace':
-              case 'Delete': {
-                const command = new RemoveTrackCommand(file, gridTrack.id);
-                dispatch({ type: 'EXECUTE_COMMAND', payload: command });
+    // Item renderer for VariableSizeList
+    const Row = React.useCallback(
+      ({ index, style }: ListChildComponentProps) => {
+        const gridTrack = tracks[index]; // track data
+        const className = index === selectedTrackIndex ? 'selected' : '';
+        return (
+          <TimelineTrack
+            {...props}
+            style={{
+              ...style,
+              backgroundPositionX: `0, ${startLeft}px`,
+              backgroundSize: `${startLeft}px, ${scaleWidth}px`,
+            }}
+            onKeyDown={(event: any) => {
+              console.info('test', event);
+              event.currentTarget = gridTrack;
+              // eslint-disable-next-line default-case
+              switch (event.key) {
+                case 'Backspace':
+                case 'Delete': {
+                  const command = new RemoveTrackCommand(file, gridTrack.id);
+                  dispatch({ type: 'EXECUTE_COMMAND', payload: command });
 
-                event.preventDefault();
-                break;
+                  event.preventDefault();
+                  break;
+                }
               }
-            }
-          }}
-          className={className}
-          areaRef={editAreaRef}
-          key={key}
-          scrollLeft={scrollLeft}
-          track={gridTrack}
-          dragLineData={dragLineData}
-          onAddFiles={props.onAddFiles}
-          onActionMoveStart={(data: {
-            action: ITimelineAction;
-            track: ITimelineTrack<ITimelineAction>;
-          }) => {
-            handleInitDragLine(data);
-            return onActionMoveStart && onActionMoveStart(data);
-          }}
-          onActionResizeStart={(data: {
-            action: ITimelineAction;
-            track: ITimelineTrack<ITimelineAction>;
-            dir: 'left' | 'right';
-          }) => {
-            handleInitDragLine(data);
-            return onActionResizeStart && onActionResizeStart(data);
-          }}
-          onActionMoving={(data: {
-            action: ITimelineAction;
-            track: ITimelineTrack<ITimelineAction>;
-            start: number;
-            end: number;
-          }) => {
-            handleUpdateDragLine(data);
-            return onActionMoving && onActionMoving(data);
-          }}
-          onActionResizing={(data: {
-            action: ITimelineAction;
-            track: ITimelineTrack<ITimelineAction>;
-            start: number;
-            end: number;
-            dir: 'left' | 'right';
-          }) => {
-            handleUpdateDragLine(data);
-            return onActionResizing && onActionResizing(data);
-          }}
-          onActionResizeEnd={(data: {
-            action: ITimelineAction;
-            track: ITimelineTrack<ITimelineAction>;
-            start: number;
-            end: number;
-            dir: 'left' | 'right';
-          }) => {
-            disposeDragLine();
-            return onActionResizeEnd && onActionResizeEnd(data);
-          }}
-          onActionMoveEnd={(data: {
-            action: ITimelineAction;
-            track: ITimelineTrack<ITimelineAction>;
-            start: number;
-            end: number;
-          }) => {
-            disposeDragLine();
-            return onActionMoveEnd && onActionMoveEnd(data);
-          }}
-          onClickTrack={onClickTrack}
-          onDoubleClickTrack={onDoubleClickTrack}
-          onContextMenuTrack={onContextMenuTrack}
-          onClickAction={onClickAction}
-          onDoubleClickAction={onDoubleClickAction}
-          oncontextMenuAction={onContextMenuAction}
-        />
-      );
-    };
+            }}
+            className={className}
+            areaRef={editAreaRef}
+            scrollLeft={scrollLeft}
+            track={gridTrack}
+            dragLineData={dragLineData}
+            onAddFiles={props.onAddFiles}
+            onActionMoveStart={(data: {
+              action: ITimelineAction;
+              track: ITimelineTrack<ITimelineAction>;
+            }) => {
+              handleInitDragLine(data);
+              return onActionMoveStart && onActionMoveStart(data);
+            }}
+            onActionResizeStart={(data: {
+              action: ITimelineAction;
+              track: ITimelineTrack<ITimelineAction>;
+              dir: 'left' | 'right';
+            }) => {
+              handleInitDragLine(data);
+              return onActionResizeStart && onActionResizeStart(data);
+            }}
+            onActionMoving={(data: {
+              action: ITimelineAction;
+              track: ITimelineTrack<ITimelineAction>;
+              start: number;
+              end: number;
+            }) => {
+              handleUpdateDragLine(data);
+              return onActionMoving && onActionMoving(data);
+            }}
+            onActionResizing={(data: {
+              action: ITimelineAction;
+              track: ITimelineTrack<ITimelineAction>;
+              start: number;
+              end: number;
+              dir: 'left' | 'right';
+            }) => {
+              handleUpdateDragLine(data);
+              return onActionResizing && onActionResizing(data);
+            }}
+            onActionResizeEnd={(data: {
+              action: ITimelineAction;
+              track: ITimelineTrack<ITimelineAction>;
+              start: number;
+              end: number;
+              dir: 'left' | 'right';
+            }) => {
+              disposeDragLine();
+              return onActionResizeEnd && onActionResizeEnd(data);
+            }}
+            onActionMoveEnd={(data: {
+              action: ITimelineAction;
+              track: ITimelineTrack<ITimelineAction>;
+              start: number;
+              end: number;
+            }) => {
+              disposeDragLine();
+              return onActionMoveEnd && onActionMoveEnd(data);
+            }}
+            onClickTrack={onClickTrack}
+            onDoubleClickTrack={onDoubleClickTrack}
+            onContextMenuTrack={onContextMenuTrack}
+            onClickAction={onClickAction}
+            onDoubleClickAction={onDoubleClickAction}
+            oncontextMenuAction={onContextMenuAction}
+          />
+        );
+      },
+      [tracks, selectedTrackIndex, scrollLeft, dragLineData, startLeft, scaleWidth]
+    );
 
-    React.useEffect(() => {
-      tracksRef.current?.scrollToPosition({ scrollTop, scrollLeft });
-    }, [scrollTop, scrollLeft]);
+    // Get item height for VariableSizeList
+    const getItemHeight = React.useCallback((index) => {
+      return getTrackHeight(tracks[index], state);
+    }, [getTrackHeight, tracks, state]);
 
+    // Sync scroll position
     React.useEffect(() => {
-      tracksRef.current?.recomputeGridSize();
+      if (listRef.current) {
+        // Scroll to position when scrollTop or scrollLeft changes
+        listRef.current.scrollTo(scrollTop);
+      }
+    }, [scrollTop]);
+
+    // Recompute sizes when tracks change
+    React.useEffect(() => {
+      if (listRef.current && tracks.length > 0) {
+        listRef.current.resetAfterIndex(0);
+      }
     }, [tracks]);
 
     if (getState() === EngineState.LOADING) {
       return undefined;
     }
 
-    /*  const selectedHeight = flags.detailMode && selectedTrackIndex !== -1 ? trackHeight * 1.65 : trackHeight;
-     const unselectedHeight = flags.detailMode && selectedTrackIndex !== -1 ? trackHeight * (1 - (.65 / (tracks.length - 1))) : trackHeight; */
+    // Calculate total height
+    let totalHeight = 0;
+    tracks?.forEach((track, index) => {
+      totalHeight += getTrackHeight(track, state);
+    });
+    heightRef.current = totalHeight;
+
     return (
       <React.Fragment>
         <FloatingTrackLabels tracks={tracks} />
         <TimelineTrackAreaRoot
-          ref={editAreaRef}
+          ref={(el) => {
+            // Set both refs
+            editAreaRef.current = el;
+            resizeRef(el);
+          }}
           className={`SuiTimelineEditArea-root ${prefix('edit-area')}`}
         >
-          <AutoSizer className={'auto-sizer'} style={{ height: 'fit-content' }}>
-            {({ width }) => {
-              // Get full height
-              let totalHeight = 0;
-              // HEIGHT LIST
-              tracks?.forEach((track, index) => {
-                totalHeight += getTrackHeight(track, state);
-              });
-
-              heightRef.current = totalHeight;
-
-              return (
-                <Grid
-                  id={'timeline-grid'}
-                  columnCount={1}
-                  rowCount={tracks?.length ?? 0}
-                  ref={tracksRef}
-                  style={{
-                    overscrollBehaviorX: 'none',
-                    touchAction: 'none',
-                  }}
-                  cellRenderer={cellRenderer}
-                  columnWidth={Math.max(scaleCount * scaleWidth + startLeft, width)}
-                  width={width}
-                  height={totalHeight}
-                  rowHeight={({ index }) => {
-                    return getTrackHeight(tracks[index], state);
-                  }}
-                  overscanRowCount={10}
-                  overscanColumnCount={0}
-                  onScroll={(param) => {
-                    onScroll(param);
-                  }}
-                />
-              );
-            }}
-          </AutoSizer>
-          {/* {dragLine && <TimelineTrackAreaDragLines scrollLeft={scrollLeft} {...dragLineData} />} */}
+          {width > 0 && (
+            <VariableSizeList
+              ref={listRef}
+              className="timeline-list"
+              id="timeline-grid"
+              height={totalHeight}
+              width={width}
+              itemCount={tracks?.length || 0}
+              itemSize={getItemHeight}
+              overscanCount={10}
+              style={{
+                overscrollBehaviorX: 'none',
+                touchAction: 'none',
+                width: Math.max(scaleCount * scaleWidth + startLeft, width),
+              }}
+              onScroll={(scrollInfo) => {
+                onScroll({
+                  scrollTop: scrollInfo.scrollOffset,
+                  scrollLeft,
+                  clientHeight: totalHeight,
+                  clientWidth: width,
+                  scrollHeight: totalHeight,
+                  scrollWidth: Math.max(scaleCount * scaleWidth + startLeft, width)
+                });
+              }}
+            >
+              {Row}
+            </VariableSizeList>
+          )}
         </TimelineTrackAreaRoot>
       </React.Fragment>
     );

@@ -61,7 +61,8 @@
     "framework-utils": "^1.1.0",
     "interactjs": "^1.10.11",
     "react-device-detect": "^2.2.3",
-    "react-virtualized": "^9.22.3",
+    "react-resize-detector": "^9.1.1",
+    "react-window": "^1.8.10",
     "sorted-btree": "^1.8.1"
   },
   "devDependencies": {
@@ -70,6 +71,7 @@
     "@mui/icons-material": "^5.15.21",
     "@types/howler": "^2.2.4",
     "@types/react": "^18.3.1",
+    "@types/react-window": "^1.8.8",
     "@types/wicg-file-system-access": "^2023.10.5",
     "howler": "^2.2.3",
     "typescript": "^5.4.5"

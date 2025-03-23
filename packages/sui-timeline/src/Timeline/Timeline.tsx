@@ -5,7 +5,6 @@ import { namedId } from '@stoked-ui/common';
 import composeClasses from '@mui/utils/composeClasses';
 import {useSlotProps} from '@mui/base/utils';
 import {emphasize, styled, useThemeProps} from '@mui/material/styles';
-import { ScrollSync } from "react-virtualized";
 import {type TimelineComponent, type TimelineProps} from './Timeline.types';
 import {getTimelineUtilityClass} from './timelineClasses';
 import TimelineLabels from '../TimelineLabels/TimelineLabels';
@@ -177,8 +176,29 @@ const Timeline = React.forwardRef(function Timeline(
   const domRef = React.useRef<HTMLDivElement>(null);
   const areaRef = React.useRef<HTMLDivElement>(null);
   const tracksRef = React.useRef<HTMLDivElement>(null);
-  const scrollSync = React.useRef<ScrollSync>();
-  // Is it running?
+  
+  // Custom scroll sync state
+  const [scrollLeft, setScrollLeft] = React.useState(0);
+  
+  // Handle scroll events for synchronization
+  const handleScroll = React.useCallback((scrollInfo) => {
+    if (scrollInfo.scrollLeft !== undefined) {
+      setScrollLeft(scrollInfo.scrollLeft);
+      
+      // Update any components that need to be synchronized with horizontal scrolling
+      dispatch({ 
+        type: 'SET_SETTING', 
+        payload: { key: 'scrollLeft', value: scrollInfo.scrollLeft } 
+      });
+    }
+    
+    if (scrollInfo.scrollTop !== undefined) {
+      dispatch({ 
+        type: 'SET_SETTING', 
+        payload: { key: 'scrollTop', value: scrollInfo.scrollTop } 
+      });
+    }
+  }, [dispatch]);
 
   /** Monitor data changes */
   React.useEffect(() => {
@@ -186,17 +206,6 @@ const Timeline = React.forwardRef(function Timeline(
   }, [minScaleCount, maxScaleCount, scale]);
 
   React.useEffect(() => {
-     // let newScaleSplitCount = scaleSplitCount;
-    // if (scaleWidth < 50) {
-      // newScaleSplitCount = 2;
-    // } else if (scaleWidth < 100) {
-      // newScaleSplitCount = 5;
-    // } else {
-      // newScaleSplitCount = 10;
-    // }
-    // if (newScaleSplitCount !== scaleSplitCount) {
-      // dispatch({ type: 'SET_SETTING', payload: { key: 'scaleSplitCount', value: newScaleSplitCount } });
-    // }
     if (file) {
       file.tracks?.forEach((track) =>  {
         if (track?.file?.media?.screenshotStore) {
@@ -250,34 +259,30 @@ const Timeline = React.forwardRef(function Timeline(
   const rootClasses = `${rootProps.className} ${!engine.isLoading ? 'MuiTimeline-loaded' : ''}`
   const TrackArea = inProps.collapsed ? TimelineTrackAreaCollapsed : TimelineTrackArea;
 
-  // deprecated
-  React.useEffect(() => {
-    if (scrollSync.current) {
-      scrollSync.current.setState({ scrollTop });
-    }
-  }, [scrollTop]);
-
   // process runner related data
   React.useEffect(() => {
     const handleTime = ({ time }) => {
       settings.setCursor({ time, updateTime: false }, context);
     };
     const handleScrollLeft = (({ left }) => {
-      if (scrollSync?.current) {
+      if (scrollLeft !== undefined) {
         console.info('timeline handleScrollLeft', Math.max(left, 0))
-        scrollSync?.current?.setState({scrollLeft: Math.max(left, 0)});
+        handleScroll({ scrollLeft: Math.max(left, 0) });
       }
     })
 
     engine.on('setTimeByTick', handleTime);
     engine.on('setScrollLeft', handleScrollLeft);
-  }, [engine]);
+  }, [engine, handleScroll, scrollLeft]);
 
   React.useEffect(() => {
-    if (scrollSync.current) {
-      dispatch({ type: 'SET_COMPONENT', payload: { key: 'scrollSync', value: scrollSync.current }});
+    if (scrollLeft !== undefined) {
+      dispatch({ 
+        type: 'SET_SETTING', 
+        payload: { key: 'horizontalScrollPosition', value: scrollLeft }
+      });
     }
-  }, [scrollSync.current])
+  }, [scrollLeft])
 
   const isDisabled = () => !file || !file.tracks || !file.tracks.length;
   const finalTimelineId = timelineIdLocal || namedId('timeline');
@@ -346,45 +351,41 @@ const Timeline = React.forwardRef(function Timeline(
               }, backgroundColor: 'unset'}}
             ref={domRef}
             className={`${PREFIX} ${inProps.locked ? `${PREFIX}-disabled` : ''} ${engine.isLoading ? `${PREFIX}-loaded` : ''}`}>
-            <ScrollSync ref={scrollSync}>
-              {({ scrollLeft, scrollTop: scrollTopCurrent, onScroll }) => {
-                return (<React.Fragment>
-                  <TimelineTime
-                    onScroll={onScroll}
+            <React.Fragment>
+              <TimelineTime
+                onScroll={handleScroll}
+                scrollLeft={scrollLeft}
+              />
+                {settings.videoTrack ?
+                  <ControlledTrack track={settings.videoTrack} width={domRef.current?.clientWidth} height={100} {...commonProps} /> :
+                  <TrackArea
+                    {...commonProps}
+                    ref={(editAreaRef: TimelineTrackAreaState) => {
+                      (areaRef.current as any) = editAreaRef?.domRef.current;
+                      (tracksRef.current as any) = editAreaRef?.tracksRef.current;
+                    }}
                     scrollLeft={scrollLeft}
+                    deltaScrollLeft={flags.autoScroll && deltaScrollLeft}
+                    onClickTrack={inProps.onClickTrack}
+                    onClickAction={inProps.onClickAction}
+                    onScroll={(params) => {
+                      handleScroll(params);
+                      if (inProps.onScrollVertical) {
+                        inProps.onScrollVertical(params as any);
+                      }}}
+                    onAddFiles={inProps.onAddFiles}
+                    onContextMenuAction={inProps.onContextMenuAction}
+                    onContextMenuTrack={inProps.onContextMenuTrack}
+                    trackActions={labelsProps.ownerState.trackActions}
                   />
-                    {settings.videoTrack ?
-                      <ControlledTrack track={settings.videoTrack} width={domRef.current?.clientWidth} height={100} {...commonProps} /> :
-                      <TrackArea
-                        {...commonProps}
-                        ref={(editAreaRef: TimelineTrackAreaState) => {
-                          (areaRef.current as any) = editAreaRef?.domRef.current;
-                          (tracksRef.current as any) = editAreaRef?.tracksRef.current;
-                        }}
-                        scrollLeft={scrollLeft}
-                        deltaScrollLeft={flags.autoScroll && deltaScrollLeft}
-                        onClickTrack={inProps.onClickTrack}
-                        onClickAction={inProps.onClickAction}
-                        onScroll={(params) => {
-                          onScroll(params);
-                          if (inProps.onScrollVertical) {
-                            inProps.onScrollVertical(params as any);
-                          }}}
-                        onAddFiles={inProps.onAddFiles}
-                        onContextMenuAction={inProps.onContextMenuAction}
-                        onContextMenuTrack={inProps.onContextMenuTrack}
-                        trackActions={labelsProps.ownerState.trackActions}
-                      />
-                    }
-                  {!flags.hideCursor && (
-                    <TimelineCursor
-                      {...settings}
-                      scrollLeft={scrollLeft}
-                    />
-                  )}
-                </React.Fragment>)
-              }}
-            </ScrollSync>
+                }
+              {!flags.hideCursor && (
+                <TimelineCursor
+                  {...settings}
+                  scrollLeft={scrollLeft}
+                />
+              )}
+            </React.Fragment>
           </TimelineControlRoot>}
           </Box>
         <NoTracksNotice tracks={file?.tracks}/>
