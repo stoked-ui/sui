@@ -1,6 +1,6 @@
 {
   "name": "@stoked-ui/docs",
-  "version": "0.1.22",
+  "version": "0.1.21",
   "private": false,
   "author": "SUI Team",
   "description": "SUI Docs - Documentation building blocks.",
@@ -73,7 +73,6 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.23.9",
-    "@emotion/react": "^11.14.0",
     "@types/fg-loadcss": "^3.1.3",
     "clipboard-copy": "^4.0.1",
     "clsx": "^2.1.0",
@@ -84,20 +83,23 @@
   },
   "devDependencies": {
     "@mui/icons-material": "^5.15.21",
-    "@mui/material": "^5.17.1",
+    "@mui/material": "^5.15.21",
+    "@stoked-ui/editor": "workspace:^",
+    "@stoked-ui/file-explorer": "workspace:^",
+    "@stoked-ui/media-selector": "workspace:^",
+    "@stoked-ui/timeline": "workspace:^",
     "@types/node": "^18.19.25",
     "@types/nprogress": "^0.2.3",
     "@types/prop-types": "^15.7.11",
     "@types/react": "^18.3.1",
     "next": "^13.5.1",
-    "react": "18.3.1",
-    "typescript": "^5.4.5"
+    "react": "18.3.1"
   },
   "peerDependencies": {
-    "@mui/base": "^5.0.0-beta.70",
+    "@mui/base": "5.0.0-beta.40",
     "@mui/icons-material": "^5.15.21",
-    "@mui/material": "^5.17.1",
-    "@mui/system": "^5.17.1",
+    "@mui/material": "^5.15.21",
+    "@mui/system": "^5.15.20",
     "@types/react": "^18.3.1",
     "next": "^13.5.1 || ^14",
     "react": "18.3.1"

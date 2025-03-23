@@ -9,7 +9,7 @@
     "emitDeclarationOnly": true,
     "outDir": "build",
     "rootDir": "./src",
-    "types": [ "wicg-file-system-access", "node", "@mui/material/themeCssVarsAugmentation"],
+    "types": [ "wicg-file-system-access", "node"],
     "skipLibCheck": true,
     "isolatedModules": true
   },

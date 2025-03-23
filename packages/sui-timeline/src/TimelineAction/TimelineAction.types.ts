@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {SxProps, Theme} from "@mui/material/styles";
-import {SlotComponentProps} from "@mui/material";
+import {SlotComponentProps} from "@mui/base";
 import {CSSProperties} from "@mui/system/CSSProperties";
 import { namedId} from '@stoked-ui/common';
 import {TimelineActionClasses} from "./timelineActionClasses";
