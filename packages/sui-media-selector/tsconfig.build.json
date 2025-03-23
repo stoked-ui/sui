@@ -9,7 +9,10 @@
     "noEmit": false,
     "emitDeclarationOnly": true,
     "outDir": "build",
-    "rootDir": "./src"
+    "rootDir": "./src",
+    "types": ["node", "@mui/material/themeCssVarsAugmentation", "@emotion/styled", "react", "react-dom", "wicg-file-system-access"],
+    "paths": {},
+    "declarationMap": true
   },
   "include": ["src/**/*.ts*"],
   "exclude": ["src/**/*.spec.ts*", "src/**/*.test.ts*", "src/tests/**/*", "build/**/*"]

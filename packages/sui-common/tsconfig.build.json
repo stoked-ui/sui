@@ -9,7 +9,9 @@
     "emitDeclarationOnly": true,
     "outDir": "build",
     "rootDir": "./src",
-    "types": ["node", "@mui/material/themeCssVarsAugmentation", "@emotion/styled"]
+    "types": ["node", "@mui/material/themeCssVarsAugmentation", "@emotion/styled"],
+    "paths": {},
+    "declarationMap": true
   },
   "include": ["src/**/*.ts*"],
   "exclude": ["src/**/*.spec.ts*", "src/**/*.test.ts*", "src/tests/**/*", "build/**/*"]

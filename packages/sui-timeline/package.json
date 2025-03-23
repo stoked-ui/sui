@@ -19,10 +19,23 @@
     "url": "git+https://github.com/stoked-ui/timeline.git"
   },
   "sideEffects": false,
+  "type": "module",
   "publishConfig": {
     "access": "public",
     "directory": "build"
   },
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./modern/index.js",
+      "require": "./node/index.js",
+      "default": "./modern/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "main": "./node/index.js",
+  "module": "./modern/index.js",
+  "types": "./index.d.ts",
   "scripts": {
     "typescript": "tsc -p tsconfig.json",
     "build": "pnpm build:modern && pnpm build:node && pnpm build:stable && pnpm build:types && pnpm build:copy-files ",
@@ -39,7 +52,6 @@
     "deploy": "npm run docs:build && npm run docs:deploy",
     "prepublishOnly": "npm run build"
   },
-  "main": "src/index.ts",
   "peerDependencies": {
     "@emotion/react": "^11.9.0",
     "@emotion/styled": "^11.8.1",
@@ -57,7 +69,6 @@
     "@interactjs/core": "^1.10.27",
     "@interactjs/types": "^1.10.11",
     "@mui/system": "^5.17.1",
-    "@types/react-virtualized": "^9.21.14",
     "framework-utils": "^1.1.0",
     "interactjs": "^1.10.11",
     "react-device-detect": "^2.2.3",

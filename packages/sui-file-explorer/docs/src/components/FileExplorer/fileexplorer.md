@@ -222,6 +222,167 @@ export default function CustomizedFileExplorer() {
 }
 ```
 
+## Advanced Usage: Comprehensive File Explorer
+
+For more complex use cases, the `FileExplorer` component can be combined with other UI elements to create a comprehensive file management interface.
+
+```jsx
+import { ComprehensiveFileExplorer } from './index.ts';
+
+<ComprehensiveFileExplorer />
+```
+
+The comprehensive example demonstrates:
+
+- Displaying file metadata (size, type, last modified date)
+- Handling file and folder selection
+- Implementing file actions (download, edit, delete)
+- Creating a details panel for selected items
+- Adding new folder and upload buttons
+
+This example can be customized to fit your specific application needs.
+
+## Accessibility
+
+The `FileExplorer` component can be enhanced with keyboard navigation to ensure better accessibility for all users. This example demonstrates how to implement keyboard navigation and screen reader friendly interactions.
+
+```jsx
+import { AccessibleFileExplorer } from './index.ts';
+
+<AccessibleFileExplorer />
+```
+
+Key accessibility features implemented in this example:
+
+- **Tab Navigation**: Users can tab through items in the file explorer
+- **Keyboard Shortcuts**: 
+  - Enter: Open files or toggle folders
+  - Arrow Right: Expand folders
+  - Arrow Left: Collapse folders
+- **ARIA attributes**: The component uses appropriate `role` and `aria-label` attributes
+- **Feedback notifications**: Visual and screen-reader friendly notifications of actions
+
+### Implementing Keyboard Navigation
+
+To enhance keyboard accessibility in your file explorer:
+
+```jsx
+// Set up keyboard event handling
+const handleKeyDown = (event) => {
+  if (!selectedItemId) return;
+    
+  const selectedItem = findItem(selectedItemId, items);
+  if (!selectedItem) return;
+    
+  switch (event.key) {
+    case 'Enter':
+      // Toggle folder expansion or open file
+      break;
+    case 'ArrowRight':
+      // Expand folder
+      break;
+    case 'ArrowLeft':
+      // Collapse folder
+      break;
+  }
+};
+
+// Wrap your FileExplorer in a keyboard-accessible container
+<Box 
+  tabIndex={0}
+  onKeyDown={handleKeyDown}
+  role="tree" 
+  aria-label="File explorer"
+>
+  <FileExplorer 
+    items={items}
+    onClickItem={handleItemClick}
+    // other props
+  />
+</Box>
+```
+
+## Mobile Responsiveness
+
+The `FileExplorer` component can be adapted for mobile use through responsive design techniques. When implementing for mobile:
+
+1. **Adjust sizes**: Use relative sizing units or media queries to adjust item sizes on smaller screens
+2. **Touch interactions**: Ensure touch targets are large enough (at least 44x44px)
+3. **Simplified views**: Consider hiding less important information on small screens
+4. **Swipe gestures**: Implement swipe gestures for common actions like selection or expansion
+
+## Props API
+
+| Name | Type | Default | Description |
+|------|------|---------|-------------|
+| `items` | `FileBase[]` | `[]` | Array of file and folder items to display |
+| `defaultExpandedItems` | `string[]` | `[]` | Array of item IDs that should be expanded by default |
+| `onClickItem` | `(id: string) => void` | - | Callback when an item is clicked |
+| `onDoubleClickItem` | `(id: string) => void` | - | Callback when an item is double-clicked |
+| `onExpandItem` | `(ids: string[]) => void` | - | Callback when an item is expanded or collapsed |
+| `onMoveItem` | `(dragId: string, dropId: string) => void` | - | Callback when an item is moved (drag and drop) |
+| `renderIcon` | `(item: FileBase) => React.ReactNode` | - | Custom renderer for item icons |
+| `renderName` | `(item: FileBase) => React.ReactNode` | - | Custom renderer for item names |
+| `iconSx` | `SxProps` | - | Style overrides for the icon container |
+| `sx` | `SxProps` | - | Style overrides for the component |
+
+## Item Types
+
+The `FileExplorer` component uses the following type definitions for items:
+
+```typescript
+// Base file or folder properties
+interface FileBase {
+  id: string;          // Unique identifier
+  name: string;        // Display name
+  mediaType: MediaType; // Type of media (folder, image, document, etc.)
+  type: string;        // 'file' or 'folder'
+  size?: number;       // File size in bytes (optional)
+  lastModified?: Date; // Last modified date (optional)
+  children?: FileBase[]; // For folders, array of child items
+}
+```
+
+## Styling
+
+The `FileExplorer` component can be styled using the `sx` prop, which follows the Material-UI styling convention. Additionally, you can use the `iconSx` prop to specifically target the icon containers.
+
+```jsx
+<FileExplorer
+  items={items}
+  sx={{
+    maxHeight: 400,
+    border: '1px solid #e0e0e0',
+    borderRadius: 1,
+    p: 1
+  }}
+  iconSx={{
+    backgroundColor: 'primary.light',
+    borderRadius: '50%',
+    p: 0.5
+  }}
+/>
+```
+
+## Best Practices
+
+1. **Performance**: For large file structures, consider lazy loading child items or implementing virtualization for better performance.
+
+2. **Accessibility**: Ensure that the file explorer is accessible by providing clear focus states and keyboard navigation.
+
+3. **Feedback**: Provide visual feedback for user actions such as selection, drag and drop, and item expansion.
+
+4. **Error Handling**: Implement proper error handling for failed operations like file uploads or deletions.
+
+5. **Responsive Design**: Ensure that the file explorer works well on different screen sizes by adjusting layouts and spacing.
+
+## Common Use Cases
+
+- **Document Management**: Organize and navigate through a collection of documents.
+- **Media Library**: Browse and manage media files like images and videos.
+- **Project Structure**: Visualize the structure of a project or codebase.
+- **File Upload Interface**: Provide a familiar interface for selecting upload locations.
+
 ## API
 
 ### Import

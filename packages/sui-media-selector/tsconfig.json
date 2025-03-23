@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.x.json",
   "compilerOptions": {
     "target": "ES2015",
-    "lib": ["ES2015", "DOM"],
+    "lib": ["ES2015", "DOM", "DOM.Iterable"],
     "types": [
       "@stoked-ui/internal-test-utils/initMatchers",
       "@mui/material/themeCssVarsAugmentation",
@@ -11,8 +11,14 @@
       "node",
       "wicg-file-system-access"
     ],
-    "noImplicitAny": false
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noImplicitAny": false,
+    "jsx": "react-jsx"
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "src/custom.d.ts"],
   "exclude": ["**/*.test.tsx"]
 }

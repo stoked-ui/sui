@@ -1,0 +1,16 @@
+# Modern browsers for the modern build
+[modern]
+last 3 chrome versions
+last 3 edge versions
+last 3 firefox versions
+last 3 safari versions
+node 16
+
+# Stable browsers for the stable build
+[stable]
+>0.5%
+last 2 versions
+Firefox ESR
+not dead
+not IE 11
+node 14 

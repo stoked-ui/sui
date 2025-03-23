@@ -1,110 +1,255 @@
-# file-selector
+# @stoked-ui/media-selector
 
-> A small package for converting a [DragEvent](https://developer.mozilla.org/en-US/docs/Web/API/DragEvent) or [file input](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/file) to a list of File objects.
+A versatile media selection component for the Stoked UI ecosystem that simplifies file handling, media selection, and file system interactions in web applications.
 
-[![npm](https://img.shields.io/npm/v/file-selector.svg?style=flat-square)](https://www.npmjs.com/package/file-selector)
-[![Tests](https://img.shields.io/github/workflow/status/react-dropzone/file-selector/Test?label=tests&style=flat-square)](https://github.com/react-dropzone/file-selector/actions?query=workflow%3ATest)
-[![codecov](https://img.shields.io/coveralls/github/react-dropzone/file-selector/master?style=flat-square)](https://coveralls.io/github/react-dropzone/file-selector?branch=master)
-[![Open Collective Backers](https://img.shields.io/opencollective/backers/react-dropzone.svg?style=flat-square)](#backers)
-[![Open Collective Sponsors](https://img.shields.io/opencollective/sponsors/react-dropzone.svg?style=flat-square)](#sponsors)
-[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg?style=flat-square)](https://github.com/react-dropzone/.github/blob/main/CODE_OF_CONDUCT.md)
+## Features
 
-# Table of Contents
-
-* [Installation](#installation)
-* [Usage](#usage)
-* [Browser Support](#browser-support)
-* [Contribute](#contribute)
-* [Credits](#credits)
-* [Support](#support)
-* [License](#license)
-
+- 📁 Easy file and media selection with customizable filters
+- 📦 Zip file creation and extraction utilities
+- 🌐 Modern Web File System API support
+- 🔄 Type-safe abstract classes for consistent file handling
+- 📱 Responsive design that integrates with MUI components
 
 ## Installation
-To install this package:
 
 ```bash
-npm add @stoked-ui/media-selector
-yarn add @stoked-ui/media-selector
-pnpm add @stoked-ui/media-selector
+npm install @stoked-ui/media-selector @stoked-ui/common
+
+# or with yarn
+yarn add @stoked-ui/media-selector @stoked-ui/common
+
+# or with pnpm
+pnpm add @stoked-ui/media-selector @stoked-ui/common
 ```
 
 ## Usage
 
-### ES6
-Convert a [DragEvent](https://developer.mozilla.org/en-US/docs/Web/API/DragEvent) to File objects:
-```ts
-import FileWithPath from '@stoked-ui/media-selector/FileWithPath';
-document.addEventListener('drop', async evt => {
-    const files = await FileWithPath.from(evt);
-    console.log(files);
-});
+### Basic Example
+
+```tsx
+import * as React from 'react';
+import { useState } from 'react';
+import { Box, Button, Typography } from '@mui/material';
+import { MediaFile } from '@stoked-ui/media-selector';
+
+function BasicExample() {
+  const [selectedFiles, setSelectedFiles] = useState<MediaFile[]>([]);
+  
+  const handleFileSelection = () => {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.multiple = true;
+    fileInput.accept = 'image/*,video/*,audio/*';
+    
+    fileInput.onchange = (e) => {
+      const target = e.target as HTMLInputElement;
+      if (target.files) {
+        const mediaFiles = Array.from(target.files).map(file => {
+          return new MediaFile({
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            lastModified: file.lastModified,
+            file
+          });
+        });
+        
+        setSelectedFiles(mediaFiles);
+      }
+    };
+    
+    fileInput.click();
+  };
+  
+  return (
+    <Box>
+      <Button onClick={handleFileSelection}>
+        Select Files
+      </Button>
+      
+      {selectedFiles.length > 0 && (
+        <Typography>
+          Selected {selectedFiles.length} files
+        </Typography>
+      )}
+    </Box>
+  );
+}
 ```
 
-Convert a [change event](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/change_event) for an input type file to File objects:
-```ts
-import FileWithPath from '@stoked-ui/media-selector/FileWithPath';
-const input = document.getElementById('myInput');
-input.addEventListener('change', async evt => {
-    const files = await FileWithPath.from(evt);
-    console.log(files);
-});
+### Advanced File System API Usage
+
+```tsx
+import * as React from 'react';
+import { useState, useEffect } from 'react';
+import { Button, Alert } from '@mui/material';
+import { MediaFile } from '@stoked-ui/media-selector';
+
+function FileSystemAPIExample() {
+  const [fsApiSupported, setFsApiSupported] = useState(false);
+  
+  useEffect(() => {
+    setFsApiSupported('showOpenFilePicker' in window);
+  }, []);
+  
+  const selectFilesUsingFsAPI = async () => {
+    if (!fsApiSupported) {
+      return;
+    }
+    
+    try {
+      // @ts-ignore - TypeScript might not recognize showOpenFilePicker
+      const fileHandles = await window.showOpenFilePicker({
+        multiple: true,
+        types: [
+          {
+            description: 'Images',
+            accept: {
+              'image/*': ['.png', '.jpg', '.jpeg', '.gif']
+            }
+          }
+        ]
+      });
+      
+      // Process the file handles
+      const files = await Promise.all(
+        fileHandles.map(handle => handle.getFile())
+      );
+      
+      console.log('Selected files:', files);
+    } catch (error) {
+      console.error('Error selecting files:', error);
+    }
+  };
+  
+  return (
+    <div>
+      {!fsApiSupported && (
+        <Alert severity="warning">
+          File System API not supported in this browser
+        </Alert>
+      )}
+      
+      <Button 
+        onClick={selectFilesUsingFsAPI}
+        disabled={!fsApiSupported}
+      >
+        Select Files (File System API)
+      </Button>
+    </div>
+  );
+}
 ```
 
-Convert [FileSystemFileHandle](https://developer.mozilla.org/en-US/docs/Web/API/FileSystemFileHandle) items to File objects:
-```ts
-import FileWithPath from '@stoked-ui/media-selector/FileWithPath';
+### Using the Zip Functionality
 
-// Open file picker
-const handles = await window.showOpenFilePicker({multiple: true});
-// Get the files
-const files = await FileWithPath.from(handles);
-console.log(files);
+```tsx
+import * as React from 'react';
+import { Button } from '@mui/material';
+import { zipFiles, unzipFiles } from '@stoked-ui/media-selector/zip';
+
+async function handleZipCreation(files: File[]) {
+  try {
+    // Create zip file from array of Files
+    const zipBlob = await zipFiles(files);
+    
+    // Create download link
+    const url = URL.createObjectURL(zipBlob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'archive.zip';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error('Error creating zip:', error);
+  }
+}
+
+async function handleUnzip(zipFile: File) {
+  try {
+    // Extract files from zip
+    const extractedFiles = await unzipFiles(zipFile);
+    console.log('Extracted files:', extractedFiles);
+    
+    // Do something with the extracted files...
+  } catch (error) {
+    console.error('Error extracting zip:', error);
+  }
+}
 ```
-**NOTE** The above is experimental and subject to change.
 
-### CommonJS
-Convert a `DragEvent` to File objects:
-```ts
-const {fromEvent} = require('@stoked-ui/media-selector');
-document.addEventListener('drop', async evt => {
-    const files = await fromEvent(evt);
-    console.log(files);
-});
+## API Reference
+
+### MediaFile
+
+The `MediaFile` class represents a media file with metadata and content.
+
+```tsx
+interface MediaFileOptions {
+  name: string;
+  type: string;
+  size: number;
+  lastModified: number;
+  file: File;
+}
+
+const mediaFile = new MediaFile(options);
 ```
 
+### WebFile
 
-## Browser Support
-Most browser support basic File selection with drag 'n' drop or file input:
-* [File API](https://developer.mozilla.org/en-US/docs/Web/API/File#Browser_compatibility)
-* [Drag Event](https://developer.mozilla.org/en-US/docs/Web/API/DragEvent#Browser_compatibility)
-* [DataTransfer](https://developer.mozilla.org/en-US/docs/Web/API/DataTransfer#Browser_compatibility)
-* [`<input type="file">`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/file#Browser_compatibility)
+Abstract base class for file objects.
 
-For folder drop we use the [FileSystem API](https://developer.mozilla.org/en-US/docs/Web/API/FileSystem) which has very limited support:
-* [DataTransferItem.getAsFile()](https://developer.mozilla.org/en-US/docs/Web/API/DataTransferItem/getAsFile#Browser_compatibility)
-* [DataTransferItem.webkitGetAsEntry()](https://developer.mozilla.org/en-US/docs/Web/API/DataTransferItem/webkitGetAsEntry#Browser_compatibility)
-* [FileSystemEntry](https://developer.mozilla.org/en-US/docs/Web/API/FileSystemEntry#Browser_compatibility)
-* [FileSystemFileEntry.file()](https://developer.mozilla.org/en-US/docs/Web/API/FileSystemFileEntry/file#Browser_compatibility)
-* [FileSystemDirectoryEntry.createReader()](https://developer.mozilla.org/en-US/docs/Web/API/FileSystemDirectoryEntry/createReader#Browser_compatibility)
-* [FileSystemDirectoryReader.readEntries()](https://developer.mozilla.org/en-US/docs/Web/API/FileSystemDirectoryReader/readEntries#Browser_compatibility)
+```tsx
+abstract class WebFile {
+  readonly name: string;
+  readonly type: string;
+  readonly size: number;
+  readonly lastModified: number;
+  readonly file: File;
+  
+  constructor(options: WebFileOptions);
+  
+  // Methods to implement
+  abstract toJSON(): any;
+}
+```
 
+### App
 
-## Contribute
-If you wish to contribute, please use the following guidelines:
-* Use [Conventional Commits](https://conventionalcommits.org)
-* Use `[ci skip]` in commit messages to skip a build
+Abstract class for creating apps that handle files.
 
-## Credits
-* [file-selector](https://github.com/react-dropzone/file-selector)
+```tsx
+abstract class App {
+  readonly name: string;
+  
+  constructor(name: string);
+  
+  registerInputFactory(factory: AppFileFactory, isDefault?: boolean): void;
+  registerOutputFactory(factory: AppOutputFileFactory, isDefault?: boolean): void;
+  supportsInputMimeType(mimeType: IMimeType): boolean;
+  supportsOutputMimeType(mimeType: IMimeType): boolean;
+  createInputFile(data?: any, mimeType?: IMimeType): AppFile | null;
+  createOutputFile(data?: any, mimeType?: IMimeType): AppOutputFile | null;
+}
+```
 
-## Support
+### Zip Utilities
 
-### Backers
-Support us with a monthly donation and help us continue our activities. [[Become a backer](https://opencollective.com/react-dropzone#backer)]
+```tsx
+// Create a zip file from an array of File objects
+zipFiles(files: File[]): Promise<Blob>;
 
-### Sponsors
-Become a sponsor and get your logo on our README on Github with a link to your site. [[Become a sponsor](https://opencollective.com/react-dropzone#sponsor)]
+// Extract files from a zip file
+unzipFiles(zipFile: File): Promise<File[]>;
+```
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
-MIT
+
+This project is licensed under the MIT License - see the LICENSE file for details.

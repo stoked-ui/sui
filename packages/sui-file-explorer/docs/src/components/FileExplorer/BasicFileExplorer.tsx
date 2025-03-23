@@ -1,31 +1,63 @@
 import * as React from 'react';
-import { FileExplorer } from '../../../../src';
+import { FileExplorer, FileBase, MediaTypeEnum } from '@stoked-ui/file-explorer';
+import Box from '@mui/material/Box';
+import Paper from '@mui/material/Paper';
+import Typography from '@mui/material/Typography';
 
+/**
+ * Basic File Explorer example demonstrating the core functionality.
+ */
 export default function BasicFileExplorer() {
-  const [items] = React.useState([
+  // Sample file structure
+  const items: FileBase[] = [
     {
-      id: 'folder-1',
+      id: 'documents',
       name: 'Documents',
       type: 'folder',
+      mediaType: MediaTypeEnum.FOLDER,
       children: [
-        { id: 'file-1', name: 'Resume.pdf', type: 'file' },
-        { id: 'file-2', name: 'Cover Letter.docx', type: 'file' }
+        { 
+          id: 'resume', 
+          name: 'Resume.pdf', 
+          type: 'file',
+          mediaType: MediaTypeEnum.PDF,
+        },
+        { 
+          id: 'cover-letter', 
+          name: 'Cover Letter.docx', 
+          type: 'file',
+          mediaType: MediaTypeEnum.DOCUMENT,
+        }
       ]
     },
     {
-      id: 'folder-2',
+      id: 'images',
       name: 'Images',
       type: 'folder',
+      mediaType: MediaTypeEnum.FOLDER,
       children: [
-        { id: 'file-3', name: 'Profile Picture.jpg', type: 'file' }
+        { 
+          id: 'profile-pic', 
+          name: 'Profile Picture.jpg', 
+          type: 'file',
+          mediaType: MediaTypeEnum.IMAGE,
+        }
       ]
     }
-  ]);
+  ];
 
   return (
-    <FileExplorer 
-      items={items}
-      defaultExpandedItems={['folder-1']}
-    />
+    <Paper sx={{ p: 2, maxWidth: 600 }}>
+      <Typography variant="h6" gutterBottom>
+        Simple File Explorer
+      </Typography>
+      
+      <Box sx={{ mt: 2 }}>
+        <FileExplorer 
+          items={items}
+          defaultExpandedItems={['documents']}
+        />
+      </Box>
+    </Paper>
   );
 } 

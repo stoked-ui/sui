@@ -1,9 +1,20 @@
 import * as React from 'react';
-import {OnScrollParams} from 'react-virtualized';
+// Removing this import
+// import {OnScrollParams} from 'react-virtualized';
 import {ITimelineTrack, ITimelineTrackHandlers} from "../TimelineTrack";
 import {ITimelineAction, ITimelineActionHandlers} from "../TimelineAction";
 import {TimelineTimeProps} from "../TimelineTime";
 import {TimelineCursorProps} from "../TimelineCursor";
+
+// Custom interface to replace react-virtualized dependency
+export interface OnScrollParams {
+  scrollTop: number;
+  scrollLeft: number;
+  clientHeight: number;
+  clientWidth: number;
+  scrollHeight: number;
+  scrollWidth: number;
+}
 
 export type TimelineTrackAreaProps<
   TrackType extends ITimelineTrack = ITimelineTrack,

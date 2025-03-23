@@ -10,8 +10,11 @@
       "wicg-file-system-access"],
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "src/custom.d.ts"],
   "exclude": ["**/*.test.tsx"]
 }

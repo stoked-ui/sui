@@ -3,13 +3,24 @@
   "version": "0.1.2",
   "description": "Common utilities and components for Stoked UI",
   "author": "Brian Stoker",
-  "main": "src/index.ts",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/stoked-ui/common/issues"
   },
   "homepage": "https://common.stoked-ui.com",
   "sideEffects": false,
+  "main": "./node/index.js",
+  "module": "./esm/index.js",
+  "types": "./index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./esm/index.js",
+      "require": "./node/index.js",
+      "default": "./esm/index.js"
+    },
+    "./package.json": "./package.json"
+  },
   "publishConfig": {
     "access": "public",
     "directory": "build"

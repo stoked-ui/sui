@@ -12,6 +12,7 @@ export type TimelineCursorProps = {
   /** Set scroll left */
   // deltaScrollLeft: (delta: number) => void;
   /** Scroll synchronization ref (TODO: This data is used to temporarily solve the problem of out-of-synchronization when scrollLeft is dragged) */
+  // Removing reference to ScrollSync
   // scrollSync: React.MutableRefObject<ScrollSync>;
 
   rowRnd?: React.RefObject<RowRndApi>;

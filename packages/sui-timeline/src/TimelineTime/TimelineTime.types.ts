@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {OnScrollParams} from 'react-virtualized';
+import { OnScrollParams } from '../TimelineTrackArea/TimelineTrackArea.types';
 
 /** Animation timeline component parameters */
 export type TimelineTimeProps = {
