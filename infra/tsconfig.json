@@ -10,7 +10,7 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
-    "types": ["react"],
+    "types": ["react", "sst", "node", "@serverless-stack/cli"],
     "incremental": true,
     "target": "ES2019"
   },

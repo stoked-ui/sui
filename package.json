@@ -7,7 +7,7 @@
     "build:fresh": "pnpm clean && pnpm i && pnpm build",
     "build:fresh:all": "pnpm clean && pnpm i && pnpm build:all",
     "build:all": "lerna run build --skip-nx-cache --ignore stokedui-com && pnpm docs:build",
-    "build:prod": "pnpm build && pnpm docs:prod",
+    "build:prod": "pnpm build && pnpm docs:build",
     "build:dev": "pnpm build && pnpm docs:dev",
     "preinstall": "npx only-allow pnpm",
     "build:site": "./scripts/buildSite.sh",

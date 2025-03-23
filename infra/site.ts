@@ -3,8 +3,9 @@ import { DomainInfo } from 'infra/domains';
 
 export const createSite = (domainInfo: DomainInfo) => {
   const doBuild = !!process.env.SST_BUILD;
+  console.info('DO_BUILD = ', process.env.SST_BUILD)
   const buildData = doBuild ?
-    {path:  '.', build: { command: `pnpm build:${$app.stage}`, output: `docs/export` }} :
+    {path:  '.', build: { command: `pnpm build:prod`, output: `docs/export` }} :
     {path:  'docs/export'}
 
   const invalidationPaths = process.env.INVALIDATION_PATHS;
@@ -28,7 +29,7 @@ export const createSite = (domainInfo: DomainInfo) => {
           event.response.headers['access-control-allow-methods'] = { value: 'GET, HEAD, OPTIONS' };
           event.response.headers['access-control-allow-headers'] = { value: 'Range' };
           event.response.headers['access-control-expose-headers'] = { value: 'Content-Range, Accept-Ranges, Content-Encoding, Content-Length' };
-          
+          /* 
           // Fix for navigation issues - inject a script to handle navigation properly
           if (event.response.headers['content-type'] && 
               event.response.headers['content-type'].value && 
@@ -54,6 +55,8 @@ export const createSite = (domainInfo: DomainInfo) => {
             const newBody = originalBody.replace('</body>', navigationFix + '</body>');
             event.response.body = newBody;
           }
+          
+           */
         `
       }
     },
