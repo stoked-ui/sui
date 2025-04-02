@@ -1,3 +1,8 @@
+/**
+ * Implementation of namedId.
+ * @file sui/packages/sui-common/src/Ids/namedId/namedId.ts
+ */
+
 export function randomBytes(length: number): string {
   const bytes = new Uint8Array(length);
   for (let i = 0; i < length; i += 1) {

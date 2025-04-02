@@ -14,6 +14,9 @@ export const openDB = (): Promise<IDBDatabase> => {
     const request = indexedDB.open("VideoEditorDB", 1);
     request.onupgradeneeded = () => {
       const db = request.result;
+      /**
+       * Create a new object store for storing videos.
+       */
       db.createObjectStore("videos", { keyPath: "id" });
     };
     request.onsuccess = () => resolve(request.result);
@@ -30,11 +33,16 @@ export const openDB = (): Promise<IDBDatabase> => {
  * @returns A promise that resolves to the stored video blob.
  */
 export const storeVideo = async (db: IDBDatabase, videoUrl: string, videoId: string): Promise<Blob> => {
+  /**
+   * Fetch the video from the URL.
+   */
   const response = await fetch(videoUrl);
   const blob = await response.blob();
+  
   const tx = db.transaction("videos", "readwrite");
   const store = tx.objectStore("videos");
   store.put({ id: videoId, data: blob });
+  
   // eslint-disable-next-line no-return-assign
   await new Promise((resolve) => {(tx.oncomplete = resolve)});
   return blob;

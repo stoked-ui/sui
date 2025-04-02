@@ -1,39 +1,27 @@
 /**
  * Options for fetch with backoff functionality.
+ *
+ * @typedef {Object} FetchWithBackoffOptions
+ * @property {number} [retries=3] Maximum number of retries before giving up.
+ * @property {number} [backoffFactor=2] Multiplier for backoff delay.
+ * @property {number} [initialDelay=500] Initial delay in milliseconds before making the first request.
+ * @property {(response: Response | null, error: any) => boolean} [retryCondition] Function to determine whether to retry after an error or a successful response.
  */
 type FetchWithBackoffOptions = {
-  /**
-   * Maximum number of retries before giving up.
-   */
   retries?: number;
-
-  /**
-   * Multiplier for backoff delay.
-   */
   backoffFactor?: number;
-
-  /**
-   * Initial delay in milliseconds before making the first request.
-   */
   initialDelay?: number;
-
-  /**
-   * Function to determine whether to retry after an error or a successful response.
-   *
-   * @param response The HTTP response from the server.
-   * @param error The error that occurred during the request.
-   * @returns True if the request should be retried, false otherwise.
-   */
   retryCondition?: (response: Response | null, error: any) => boolean;
 };
 
 /**
  * Fetches a resource with backoff functionality to handle retries and delays between requests.
  *
- * @param input The URL or request information for the fetch operation.
- * @param init Optional initial settings for the fetch request.
- * @param options Options for fetch with backoff functionality. See FetchWithBackoffOptions.
- * @returns A promise resolving to the HTTP response from the server, or an error if all retries fail.
+ * @async
+ * @param {RequestInfo} input The URL or request information for the fetch operation.
+ * @param {RequestInit} [init] Optional initial settings for the fetch request.
+ * @param {FetchWithBackoffOptions | object} [options] Options for fetch with backoff functionality.
+ * @returns {Promise<Response>} A promise resolving to the HTTP response from the server, or an error if all retries fail.
  */
 const FetchBackoff = async (
   input: RequestInfo,

@@ -1,3 +1,6 @@
+/**
+ * Type alias for a key that can be used to merge two objects of type T.
+ */
 type MergeKey<T> = keyof T;
 
 /**
@@ -16,6 +19,15 @@ declare global {
   }
 }
 
+/**
+ * Merges two arrays into one, overwriting duplicates based on a common key.
+ *
+ * @template T
+ * @param {T[]} this The current instance of an array type, used to access the filter method.
+ * @param {any[]} otherArray The array to merge with this array.
+ * @param {keyof (T | U)} mergeKey The key to use for merging items between the two arrays.
+ * @returns {Array<T | U>} A new array containing all unique items from both input arrays.
+ */
 function mergeWith<T, U>(
   /**
    * The current instance of an array type, used to access the filter method.

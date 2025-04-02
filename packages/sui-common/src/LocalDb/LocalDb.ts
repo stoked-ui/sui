@@ -1,3 +1,8 @@
+/**
+ * Implementation of LocalDb.
+ * @file sui/packages/sui-common/src/LocalDb/LocalDb.ts
+ */
+
 import { openDB } from '@tempfix/idb';
 import {MimeType, IMimeType} from "../MimeType";
 import {Settings} from "../ProviderState/Settings";

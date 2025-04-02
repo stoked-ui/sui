@@ -1,3 +1,8 @@
+/**
+ * Implementation of ProviderState.
+ * @file sui/packages/sui-common/src/ProviderState/ProviderState.ts
+ */
+
 import { Settings, createSettings } from "./Settings";
 
 export interface FlagConfig {

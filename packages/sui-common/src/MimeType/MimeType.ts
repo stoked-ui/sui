@@ -1,3 +1,8 @@
+/**
+ * Implementation of MimeType.
+ * @file sui/packages/sui-common/src/MimeType/MimeType.ts
+ */
+
 const ExtensionMimeTypeMap = new Map([
   // https://github.com/guzzle/psr7/blob/2d9260799e713f1c475d3c5fdc3d6561ff7441b2/src/MimeType.php
   ['1km', 'application/vnd.1000minds.decision-model+xml'],

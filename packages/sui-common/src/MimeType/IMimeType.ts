@@ -1,6 +1,9 @@
 /**
  * Type definitions for mime types.
  */
+/**
+ * Type definitions for mime types.
+ */
 export type MimeSubtype = `${string}-${string}`;
 export type SUIMimeType = `${string}/${string}`;
 export type Ext = `.${string}`;
@@ -9,7 +12,15 @@ export type AcceptType =  { MimeType: Ext };
 /**
  * Interface representing a mime type.
  */
+/**
+ * Interface representing a mime type.
+ */
 export interface IMimeType {
+  /**
+   * Gets the MIME type of this object.
+   *
+   * @returns The MIME type as an SUIMimeType.
+   */
   /**
    * Gets the MIME type of this object.
    *
@@ -22,8 +33,18 @@ export interface IMimeType {
    *
    * @returns The subtype as a MimeSubtype.
    */
+  /**
+   * Gets the subtype of this object.
+   *
+   * @returns The subtype as a MimeSubtype.
+   */
   get subType(): MimeSubtype;
 
+  /**
+   * Gets the name of this object.
+   *
+   * @returns The name as a string.
+   */
   /**
    * Gets the name of this object.
    *
@@ -36,8 +57,18 @@ export interface IMimeType {
    *
    * @returns The application as a string.
    */
+  /**
+   * Gets the application associated with this object.
+   *
+   * @returns The application as a string.
+   */
   get application(): string;
 
+  /**
+   * Gets the extension of this object.
+   *
+   * @returns The extension as an Ext.
+   */
   /**
    * Gets the extension of this object.
    *
@@ -50,8 +81,18 @@ export interface IMimeType {
    *
    * @returns The description as a string.
    */
+  /**
+   * Gets the description of this object.
+   *
+   * @returns The description as a string.
+   */
   get description(): string;
 
+  /**
+   * Gets whether this object is embedded or not.
+   *
+   * @returns True if embedded, false otherwise.
+   */
   /**
    * Gets whether this object is embedded or not.
    *
@@ -64,8 +105,18 @@ export interface IMimeType {
    *
    * @returns The accept type as an AcceptType.
    */
+  /**
+   * Gets the accept type of this object.
+   *
+   * @returns The accept type as an AcceptType.
+   */
   get accept(): AcceptType;
 
+  /**
+   * Gets the type object of this mime type.
+   *
+   * @returns The type object with type property set to SUIMimeType.
+   */
   /**
    * Gets the type object of this mime type.
    *
@@ -77,7 +128,15 @@ export interface IMimeType {
 /**
  * Class representing a registry for mime types.
  */
+/**
+ * Class representing a registry for mime types.
+ */
 export class MimeRegistry {
+  /**
+   * Gets an array of all extensions in the registry.
+   *
+   * @returns An array of Ext values.
+   */
   /**
    * Gets an array of all extensions in the registry.
    *
@@ -94,12 +153,22 @@ export class MimeRegistry {
    *
    * @returns An array of string values representing the mime type names.
    */
+  /**
+   * Gets an array of names for mime types in the registry.
+   *
+   * @returns An array of string values representing the mime type names.
+   */
   static names() {
     return this._names;
   }
 
   private static _names: Record<string, IMimeType> = {};
 
+  /**
+   * Gets an object mapping MimeSubtype to its corresponding IMimeType.
+   *
+   * @returns An object with MimeSubtype as keys and IMimeType as values.
+   */
   /**
    * Gets an object mapping MimeSubtype to its corresponding IMimeType.
    *
@@ -116,12 +185,29 @@ export class MimeRegistry {
    *
    * @returns An object with SUIMimeType as keys and IMimeType as values.
    */
+  /**
+   * Gets an object mapping SUIMimeType to its corresponding IMimeType.
+   *
+   * @returns An object with SUIMimeType as keys and IMimeType as values.
+   */
   static types() {
     return this._types;
   }
 
   private static _types: Record<SUIMimeType, IMimeType> = {};
 
+  /**
+   * Creates a new mime type in the registry.
+   *
+   * @param application The application associated with the mime type.
+   * @param name The name of the mime type.
+   * @param ext The extension of the mime type.
+   * @param description The description of the mime type.
+   * @param embedded Whether the mime type is embedded or not. Defaults to true.
+   * @param type The type of the mime type. Defaults to 'application'.
+   *
+   * @returns The created IMimeType.
+   */
   /**
    * Creates a new mime type in the registry.
    *
@@ -174,6 +260,13 @@ export class MimeRegistry {
   }
 }
 
+/**
+ * Function to extract the extension from a URL.
+ *
+ * @param url The URL from which to extract the extension.
+ *
+ * @returns The extracted extension. If no extension is found, an empty string is returned.
+ */
 /**
  * Function to extract the extension from a URL.
  *

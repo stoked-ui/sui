@@ -18,6 +18,8 @@ module.exports = {
     'import/no-cycle': 'off',
     /**
      * Import order configuration.
+     *
+     * Determines the import order in the project, using the eslint-plugin-import.
      * 
      * @see https://github.com/benmosher/eslint-plugin-import#order
      */

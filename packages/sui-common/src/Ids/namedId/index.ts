@@ -1,17 +1,22 @@
-/**
- * Exports a module that provides the namedId functionality.
- * 
- * This module is imported by other modules and can be re-exported for convenience.
- */
-
 import namedId from './namedId';
 
 /**
- * Export the namedId function as the default export of this module.
+ * Exports a module that provides the namedId functionality, allowing other modules to access it directly.
+ * 
+ * This module can be imported by other modules and re-exported for convenience.
+ */
+
+/**
+ * @interface NamedIdFunction
+ * @description The function responsible for prefixing names with unique identifiers.
+ * 
+ * @param {Object} obj - An object containing a 'name' property.
+ * @returns {string} The name prefixed with the unique identifier.
  */
 export default namedId;
 
 /**
- * Re-export the namedId function for convenience, allowing other modules to access it directly.
+ * Re-exports the namedId function, allowing other modules to access it directly without an alias.
+ * 
+ * This re-exports can be useful when working in environments where aliasing is not allowed or preferred.
  */
-export * from './namedId';

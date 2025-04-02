@@ -1,3 +1,8 @@
+/**
+ * Implementation of Types.
+ * @file sui/packages/sui-common/src/Types/Types.ts
+ */
+
 
 export type NoArgsConstructor<T> = new () => T;
 
