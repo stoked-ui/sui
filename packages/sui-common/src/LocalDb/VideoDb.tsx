@@ -1,7 +1,14 @@
+/**
+ * Import required modules.
+ */
 import * as React from "react";
 import GrokLoader from "../GrokLoader/GrokLoader";
 
-// IndexedDB setup
+/**
+ * IndexedDB setup function.
+ *
+ * @returns A promise that resolves to the opened database object.
+ */
 export const openDB = (): Promise<IDBDatabase> => {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open("VideoEditorDB", 1);
@@ -14,7 +21,14 @@ export const openDB = (): Promise<IDBDatabase> => {
   });
 };
 
-// Store video in IndexedDB
+/**
+ * Store video in IndexedDB function.
+ *
+ * @param db The database object to store the video in.
+ * @param videoUrl The URL of the video file.
+ * @param videoId The ID of the video.
+ * @returns A promise that resolves to the stored video blob.
+ */
 export const storeVideo = async (db: IDBDatabase, videoUrl: string, videoId: string): Promise<Blob> => {
   const response = await fetch(videoUrl);
   const blob = await response.blob();
@@ -26,7 +40,14 @@ export const storeVideo = async (db: IDBDatabase, videoUrl: string, videoId: str
   return blob;
 };
 
-// Check if video exists and fetch if not
+/**
+ * Check if video exists and fetch if not function.
+ *
+ * @param db The database object to check for the video in.
+ * @param videoUrl The URL of the video file.
+ * @param videoId The ID of the video.
+ * @returns A promise that resolves to the fetched video blob.
+ */
 export const getOrFetchVideo = async (db: IDBDatabase, videoUrl: string, videoId: string):Promise<Blob> => {
   const tx = db.transaction("videos", "readonly");
   const store = tx.objectStore("videos");
@@ -42,11 +63,21 @@ export const getOrFetchVideo = async (db: IDBDatabase, videoUrl: string, videoId
   return storeVideo(db, videoUrl, videoId); // Fetch and store
 };
 
-// Video Editor Component
+/**
+ * Video Editor Component.
+ *
+ * @param props The component props.
+ */
 export default function VideoDb({ sceneVideos }) {
+  /**
+   * State variables to store the video sources and loading status.
+   */
   const [videoSources, setVideoSources] = React.useState<Record<string, string>>({});
   const [isLoaded, setIsLoaded] = React.useState(false);
 
+  /**
+   * Effect hook to load all videos for the scene when the component mounts or props change.
+   */
   React.useEffect(() => {
     const loadVideos = async () => {
       const db = await openDB();
