@@ -5,3 +5,4 @@ import * as pageProps from 'docs/pages/careers/technical-recruiter.md?muiMarkdow
 export default function Page() {
   return <TopLayoutCareers {...pageProps} />;
 }
+

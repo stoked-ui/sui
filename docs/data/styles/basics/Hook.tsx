@@ -18,3 +18,4 @@ export default function Hook() {
   const classes = useStyles();
   return <Button className={classes.root}>Styled with Hook API</Button>;
 }
+

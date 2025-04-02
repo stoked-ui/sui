@@ -8,3 +8,4 @@ const FeatureSnap = createSvgIcon(
   </React.Fragment>, 'FeatureSnapIcon',);
 
 export default FeatureSnap;
+

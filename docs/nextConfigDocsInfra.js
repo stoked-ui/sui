@@ -90,3 +90,4 @@ function withDocsInfra(nextConfig) {
 }
 
 module.exports = withDocsInfra;
+

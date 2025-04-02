@@ -89,3 +89,4 @@ export default function NextAppDirEmotionCacheProvider(props: NextAppDirEmotionC
 
   return <CacheProvider value={registry.cache}>{children}</CacheProvider>;
 }
+

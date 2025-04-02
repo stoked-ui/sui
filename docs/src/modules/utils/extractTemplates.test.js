@@ -42,3 +42,4 @@ describe('extractTemplates', () => {
     expect(result.email.codeVariant).to.equal('TS');
   });
 });
+

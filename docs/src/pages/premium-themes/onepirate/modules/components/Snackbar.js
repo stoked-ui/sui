@@ -84,3 +84,4 @@ Snackbar.propTypes = {
 };
 
 export default styled(Snackbar)(styles);
+

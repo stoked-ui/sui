@@ -161,3 +161,4 @@ export default class ScreenshotQueue {
     return { queueLength: this.queue.length, activeJobs: this.activeJobs };
   }
 }
+

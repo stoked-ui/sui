@@ -507,3 +507,4 @@ AppNavDrawer.propTypes = {
   onClose: PropTypes.func.isRequired,
   onOpen: PropTypes.func.isRequired,
 };
+

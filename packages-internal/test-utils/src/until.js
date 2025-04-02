@@ -26,3 +26,4 @@ function shallowRecursively(wrapper, selector, { context, ...other }) {
 export default function until(selector, options = {}) {
   return this.single('until', () => shallowRecursively(this, selector, options));
 }
+

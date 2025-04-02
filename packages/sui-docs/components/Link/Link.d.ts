@@ -6,3 +6,4 @@ export interface LinkProps {
 
 declare const Link: React.FunctionComponent<LinkProps>;
 export default Link;
+

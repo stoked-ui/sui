@@ -34,3 +34,4 @@ export default function SvgMuiLogomark(props: RootSvgProps) {
     </RootSvg>
   );
 }
+

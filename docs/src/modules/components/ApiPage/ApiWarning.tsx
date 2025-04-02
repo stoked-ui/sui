@@ -77,3 +77,4 @@ export default function ApiWarning({ children, className }: DeprecationAlertProp
     </StyledAlert>
   );
 }
+

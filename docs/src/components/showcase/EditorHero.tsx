@@ -61,3 +61,4 @@ export default function EditorHero({ id, sx }: { id: string, sx?: SxProps}) {
 }
 
 
+

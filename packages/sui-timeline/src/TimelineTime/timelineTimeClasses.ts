@@ -15,3 +15,4 @@ export function getTimelineTimeUtilityClass(slot: string): string {
 export const timelineTimeClasses: TimelineTimeClasses = generateUtilityClasses('MuiTimelineTime', [
   'root',
 ]);
+

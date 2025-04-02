@@ -45,3 +45,4 @@ export default function generateRssFeed(allBlogPosts: Array<BlogPost>) {
   fs.mkdirSync(`public${ROUTES.rssFeed.replace('rss.xml', '')}`, { recursive: true });
   fs.writeFileSync(`public${ROUTES.rssFeed}`, feed.rss2());
 }
+

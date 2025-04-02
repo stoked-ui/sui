@@ -9,3 +9,4 @@ export default createSvgIcon(
   </g>,
   'MaterialDesign',
 );
+

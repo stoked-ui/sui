@@ -356,3 +356,4 @@ export function getPropsFromComponentNode({
 
   return parsedComponent;
 }
+

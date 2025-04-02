@@ -62,3 +62,4 @@ export class Emitter<EmitterEvents> {
     this.events = Object.fromEntries(Object.keys(this.events).map((name) => [name, []]));
   }
 }
+

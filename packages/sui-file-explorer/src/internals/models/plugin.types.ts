@@ -124,3 +124,4 @@ export type FileExplorerPluginSignature<
     ? T['optionalDependencies']
     : [];
 };
+

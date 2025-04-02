@@ -135,3 +135,4 @@ export function DetailProject(props: DetailViewProps) {
   </FormWrap>
   )
 }
+

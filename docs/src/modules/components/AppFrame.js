@@ -231,3 +231,4 @@ AppFrame.propTypes = {
   className: PropTypes.string,
   disableDrawer: PropTypes.bool,
 };
+

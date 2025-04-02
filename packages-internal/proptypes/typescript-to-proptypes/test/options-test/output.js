@@ -11,3 +11,4 @@ Foo.propTypes = {
 };
 
 export default Foo;
+

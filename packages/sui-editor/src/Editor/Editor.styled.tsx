@@ -169,3 +169,4 @@ export function getModalStyle() {
     transform: 'translate(-50%, -50%)',
   };
 }
+

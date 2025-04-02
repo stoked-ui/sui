@@ -87,3 +87,4 @@ Home.getInitialProps = async(context: { req: any; query: any; res: any; asPath: 
     }
   }
 }
+

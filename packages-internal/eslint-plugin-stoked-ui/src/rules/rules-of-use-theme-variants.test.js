@@ -121,3 +121,4 @@ ruleTester.run('rules-of-use-theme-variants', rule, {
     },
   ],
 });
+

@@ -51,3 +51,4 @@ export default function MulticoloredButton() {
     </React.Fragment>
   );
 }
+

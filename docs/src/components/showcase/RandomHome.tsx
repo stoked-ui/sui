@@ -9,3 +9,4 @@ const homeUrl = randomHome(PRODUCTS.pages);
 const RandomHome = dynamic(() => import((`.${homeUrl}main`)), { ssr: false });
 
 export default RandomHome;
+

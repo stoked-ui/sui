@@ -13,3 +13,4 @@ export default function FadeDelay({ delay, ...props }: { delay: number } & FadeP
   }, [delay]);
   return <Fade in={fadeIn} timeout={1000} {...props} />;
 }
+

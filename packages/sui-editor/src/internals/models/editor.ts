@@ -42,3 +42,4 @@ export type EditorExperimentalFeatures<
   TSignatures extends readonly EditorAnyPluginSignature[],
   TOptionalSignatures extends readonly EditorAnyPluginSignature[] = [],
 > = MergeSignaturesProperty<[...TSignatures, ...TOptionalSignatures], 'experimentalFeatures'>;
+

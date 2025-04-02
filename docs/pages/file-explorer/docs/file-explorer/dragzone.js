@@ -5,3 +5,4 @@ import * as pageProps from 'docs/data/file-explorer/docs/file-explorer/dropzone/
 export default function Page() {
   return <MarkdownDocs {...pageProps} />;
 }
+

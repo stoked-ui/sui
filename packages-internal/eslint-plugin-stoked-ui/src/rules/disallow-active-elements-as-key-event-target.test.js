@@ -65,3 +65,4 @@ ruleTester.run('disallow-active-element-as-key-event-target', rule, {
     },
   ],
 });
+

@@ -54,3 +54,4 @@ export function DetailSettings(props: DetailViewProps) {
    </div>
   )
 }
+

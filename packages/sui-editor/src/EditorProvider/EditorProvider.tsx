@@ -93,3 +93,4 @@ EditorProvider.propTypes = {
 } as any;
 
 export default EditorProvider;
+

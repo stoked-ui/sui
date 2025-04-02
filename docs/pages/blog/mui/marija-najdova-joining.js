@@ -5,3 +5,4 @@ import { docs } from './marija-najdova-joining.md?muiMarkdown';
 export default function Page() {
   return <TopLayoutBlog docs={docs} />;
 }
+

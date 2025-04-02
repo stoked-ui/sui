@@ -44,3 +44,4 @@ export const useEditorInstanceEvents: EditorPlugin<UseEditorInstanceEventsSignat
 };
 
 useEditorInstanceEvents.params = {};
+

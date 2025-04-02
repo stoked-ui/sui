@@ -39,3 +39,4 @@ declare module '@interactjs/types' {
     interactions: any;
   }
 } 
+

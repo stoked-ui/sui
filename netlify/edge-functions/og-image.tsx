@@ -266,3 +266,4 @@ export const config = {
   cache: 'manual',
   path: '/edge-functions/og-image',
 };
+

@@ -84,3 +84,4 @@ export default interface IMediaFile extends File {
 
   extractMetadata(): Promise<void>;
 }
+

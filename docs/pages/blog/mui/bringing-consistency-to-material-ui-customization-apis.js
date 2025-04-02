@@ -5,3 +5,4 @@ import { docs } from './bringing-consistency-to-material-ui-customization-apis.m
 export default function Page() {
   return <TopLayoutBlog docs={docs} />;
 }
+

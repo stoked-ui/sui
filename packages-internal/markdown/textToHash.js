@@ -34,3 +34,4 @@ function textToHash(text, unique = {}) {
 }
 
 module.exports = textToHash;
+

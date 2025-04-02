@@ -6,3 +6,4 @@ export default function loadScript(src, position) {
 
   return script;
 }
+

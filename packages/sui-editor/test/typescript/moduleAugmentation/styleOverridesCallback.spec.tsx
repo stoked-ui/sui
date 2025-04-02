@@ -46,3 +46,4 @@ const finalTheme = createTheme({
 
 // @ts-expect-error The contained variant was disabled
 <Chip variant="outlined" color="primary" label="Content" />;
+

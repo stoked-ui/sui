@@ -5,3 +5,4 @@ import * as pageProps from '../../../data/media-selector/usage/usage.md?muiMarkd
 export default function Page() {
   return <MarkdownDocs {...pageProps} />;
 }
+

@@ -22,3 +22,4 @@ export default function getTypeHash(type: PropType): string {
       return type.type;
   }
 }
+

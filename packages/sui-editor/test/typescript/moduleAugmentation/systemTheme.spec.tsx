@@ -5,3 +5,4 @@ import Box from '@mui/material/Box';
 
 // @ts-expect-error unknown color
 <Box sx={{ borderColor: (theme) => theme.palette.invalid }} />;
+

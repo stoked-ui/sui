@@ -84,3 +84,4 @@ const pages: readonly MuiPage[] = [
 ];
 
 export default pages;
+

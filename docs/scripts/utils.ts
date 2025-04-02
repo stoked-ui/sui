@@ -14,3 +14,4 @@ export const getComponentFilesInFolder = (folderPath: string): string[] => {
     return acc;
   }, [] as string[]);
 };
+

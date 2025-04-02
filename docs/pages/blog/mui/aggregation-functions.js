@@ -5,3 +5,4 @@ import { docs } from './aggregation-functions.md?muiMarkdown';
 export default function Page() {
   return <TopLayoutBlog docs={docs} />;
 }
+

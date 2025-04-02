@@ -48,3 +48,4 @@ describe('HighlightedCode', () => {
     ).not.to.throw();
   });
 });
+

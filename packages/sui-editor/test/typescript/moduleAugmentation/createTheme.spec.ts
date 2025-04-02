@@ -12,3 +12,4 @@ const theme = createTheme({ mixins: { customMixin: { paddingLeft: 2 } } });
 
 // ensure Mixins work
 const Example = styled('div')(({ theme: t }) => t.mixins.customMixin);
+

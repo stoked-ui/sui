@@ -11,3 +11,4 @@ export function verifyEnvVars(expectedVars: string[], exitOnFailed: boolean = fa
 
   return missingVars
 }
+

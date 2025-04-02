@@ -5,3 +5,4 @@ export default function Hidden(props) {
 
   return <div color={color} hidden={only !== 'xs'} />;
 }
+

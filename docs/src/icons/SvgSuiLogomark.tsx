@@ -14,3 +14,4 @@ export default function SvgSuiLogomark(props: RootSvgProps) {
     <path d="m.05,30.03s0,0,0,.02H.04s-.01.02-.02.02c0,0-.02,0-.02.01v8.18c0,.55.3,1.06.78,1.34l14.33,8.2c.23.13.62.2.88.2v-1.99s0-4.41-.03-7.11c-.29.02-.59-.05-.85-.2l-4.83-2.75" fill="#00b0ff"/>
   </RootSvg>);
 }
+

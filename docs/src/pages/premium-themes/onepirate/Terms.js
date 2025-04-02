@@ -26,3 +26,4 @@ function Terms() {
 }
 
 export default withRoot(Terms);
+

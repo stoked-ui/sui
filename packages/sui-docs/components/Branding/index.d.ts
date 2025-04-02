@@ -6,3 +6,4 @@ export interface brandingProps {
 
 declare const branding: React.FunctionComponent<brandingProps>;
 export default branding;
+

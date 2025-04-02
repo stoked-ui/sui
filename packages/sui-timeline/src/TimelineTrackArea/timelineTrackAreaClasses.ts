@@ -15,3 +15,4 @@ export function getTimelineTrackAreaUtilityClass(slot: string): string {
 export const timelineTrackAreaClasses: TimelineTrackAreaClasses = generateUtilityClasses('MuiTimelineTrackArea', [
   'root',
 ]);
+

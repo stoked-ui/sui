@@ -7,3 +7,4 @@ const EdgeSnap = createSvgIcon(<React.Fragment>
 </React.Fragment>, 'FeatureSnapIcon',);
 
 export default EdgeSnap;
+

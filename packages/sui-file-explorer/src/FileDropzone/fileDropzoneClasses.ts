@@ -16,3 +16,4 @@ export const fileDropzoneClasses: FileDropzoneClasses = generateUtilityClasses(
   'MuiFileDropzone',
   ['root'],
 );
+

@@ -24,3 +24,4 @@ export default class AppOutputFile extends WebFile implements IAppOutputFile {
     };
   }
 }
+

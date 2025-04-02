@@ -7,3 +7,4 @@ export interface ClientStyleContextData {
 export default React.createContext<ClientStyleContextData>({
   reset: () => {},
 });
+

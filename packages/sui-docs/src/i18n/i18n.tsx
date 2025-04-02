@@ -138,3 +138,4 @@ export function mapTranslations(req: RequireContext): Translations {
   });
   return result;
 }
+

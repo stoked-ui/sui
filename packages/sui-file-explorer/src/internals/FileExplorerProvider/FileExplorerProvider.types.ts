@@ -30,3 +30,4 @@ export interface FileExplorerProviderProps<TSignatures extends readonly FileExpl
   value: FileExplorerContextValue<TSignatures>;
   children: React.ReactNode;
 }
+

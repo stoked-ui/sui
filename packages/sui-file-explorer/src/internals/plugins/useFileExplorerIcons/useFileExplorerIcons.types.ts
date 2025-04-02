@@ -50,3 +50,4 @@ export type UseFileExplorerIconsSignature = FileExplorerPluginSignature<{
   slotProps: UseFileExplorerIconsSlotProps;
   dependencies: [UseFileExplorerFilesSignature, UseFileExplorerSelectionSignature, UseFileExplorerDndSignature];
 }>;
+

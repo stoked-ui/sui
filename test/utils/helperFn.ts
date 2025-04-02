@@ -191,3 +191,4 @@ export const getSelectInput = (combobox: Element) => {
 export function getSelectByName(name: string) {
   return getSelectInput(screen.getByRole('combobox', { name }))!;
 }
+

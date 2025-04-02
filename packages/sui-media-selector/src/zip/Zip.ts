@@ -83,3 +83,4 @@ export type getMimeTypeProps = { type: string, subTypePrefix: string, subType: s
 export function getMimeType({ subType, type = 'application', subTypePrefix = 'stoked-ui-timeline' }: getMimeTypeProps): JSONMimeType {
   return { type: `${type}/${subTypePrefix ? `${subTypePrefix}-` : ''}${subType}` };
 }
+

@@ -66,3 +66,4 @@ describe('findOutermostIntrinsic', () => {
     expectIntrinsic(<Headless>{false && <Headless />}</Headless>, null);
   });
 });
+

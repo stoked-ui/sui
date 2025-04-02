@@ -88,3 +88,4 @@ export default function TimelineTrackActions({ track, sx }: TimelineTrackActions
     <ToggleLock track={track} dispatch={dispatch} file={file} toggleClick={toggleClick} hide={flags.hideLock} >{lockIcon}</ToggleLock>
   </ToggleButtonGroupEx>
 }
+

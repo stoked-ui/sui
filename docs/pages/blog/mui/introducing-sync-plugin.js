@@ -5,3 +5,4 @@ import { docs } from './introducing-sync-plugin.md?muiMarkdown';
 export default function Page() {
   return <TopLayoutBlog docs={docs} />;
 }
+

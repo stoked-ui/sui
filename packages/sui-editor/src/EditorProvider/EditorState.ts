@@ -54,3 +54,4 @@ export const refreshTrackState = (track: IEditorTrack, state: EditorState) => {
   });
   return { ...track, actions }
 }
+

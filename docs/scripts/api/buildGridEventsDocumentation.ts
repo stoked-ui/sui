@@ -134,3 +134,4 @@ export default async function buildGridEventsDocumentation(
   // eslint-disable-next-line no-console
   console.log('Built events file');
 }
+

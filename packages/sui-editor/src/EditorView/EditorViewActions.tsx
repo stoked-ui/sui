@@ -154,3 +154,4 @@ EditorViewActions.propTypes = {
   // ----------------------------------------------------------------------
   visible: PropTypes.bool.isRequired,
 } as any;
+

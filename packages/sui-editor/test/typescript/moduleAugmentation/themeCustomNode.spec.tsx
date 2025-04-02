@@ -35,3 +35,4 @@ const StyledComponent = styled('div')(({ theme }) => ({
     color: theme.customNode.color,
   })}
 />;
+

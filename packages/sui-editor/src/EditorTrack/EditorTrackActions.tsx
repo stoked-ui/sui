@@ -64,3 +64,4 @@ export default function EditorTrackActions({ track, sx }: { track: any, sx?: any
     <ToggleLock track={track} dispatch={dispatch} file={file} toggleClick={toggleClick} hide={flags.hideLock} >{lockIcon}</ToggleLock>
   </ToggleButtonGroupEx>
 }
+

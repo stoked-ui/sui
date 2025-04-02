@@ -111,3 +111,4 @@ export default function SlotsList(props: SlotsListProps) {
     </ApiItemContaier>
   );
 }
+

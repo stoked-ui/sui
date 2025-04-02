@@ -1615,3 +1615,4 @@ export default function PricingTable({
     </Box>
   );
 }
+

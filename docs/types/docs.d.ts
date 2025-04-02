@@ -27,3 +27,4 @@ declare module 'docs/src/modules/components/HighlightedCode' {
 }
 
 declare module 'react-imask';
+

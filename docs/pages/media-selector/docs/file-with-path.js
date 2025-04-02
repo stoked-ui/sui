@@ -5,3 +5,4 @@ import * as pageProps from '../../../data/media-selector/file-with-path.md?muiMa
 export default function Page() {
   return <MarkdownDocs {...pageProps} />;
 }
+

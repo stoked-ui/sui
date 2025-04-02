@@ -225,3 +225,4 @@ function DetailModal () {
 DetailModal.flag = 'detailPopover';
 
 export default DetailModal;
+

@@ -62,3 +62,4 @@ const names = new Set(process.argv.slice(2));
 
   await browser.close();
 })();
+

@@ -22,3 +22,4 @@ export const getLookupFromArray = (array: string[]) => {
   });
   return lookup;
 };
+

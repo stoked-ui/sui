@@ -157,3 +157,4 @@ export default function ProductCategories() {
     </Container>
   );
 }
+

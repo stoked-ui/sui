@@ -15,3 +15,4 @@ export function getFileDetailUtilityClass(slot: string): string {
 export const fileDetailClasses: DetailViewClasses = generateUtilityClasses('MuiFileDetail', [
   'root',
 ]);
+

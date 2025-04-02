@@ -172,3 +172,4 @@ export function createUnionType(init: {
     types: flatTypes,
   });
 }
+

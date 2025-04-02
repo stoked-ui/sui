@@ -22,3 +22,4 @@ function Main() {
 }
 
 ReactDOM.hydrateRoot(document.querySelector('#root'), <Main />);
+

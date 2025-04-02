@@ -11,3 +11,4 @@ export interface EditorComponents<Theme = unknown> {
 declare module '@mui/material/styles' {
   interface Components<Theme = unknown> extends EditorComponents<Theme> {}
 }
+

@@ -46,3 +46,4 @@ export type FileExplorerExperimentalFeatures<
   TSignatures extends readonly FileExplorerAnyPluginSignature[],
   TOptionalSignatures extends readonly FileExplorerAnyPluginSignature[] = [],
 > = MergeSignaturesProperty<[...TSignatures, ...TOptionalSignatures], 'experimentalFeatures'>;
+

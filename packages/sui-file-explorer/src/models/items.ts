@@ -33,3 +33,4 @@ type Common = Omit<CommonBase, 'id' | 'name' | 'mediaType' | 'type'> & {
 export type FileBase<R extends {} = {}> = Common & R & {
   children?: FileBase<Common & R>[];
 };
+

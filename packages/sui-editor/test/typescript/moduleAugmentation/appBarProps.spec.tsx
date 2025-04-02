@@ -11,3 +11,4 @@ declare module '@mui/material/AppBar' {
 
 // @ts-expect-error unknown color
 <AppBar color="foo" />;
+

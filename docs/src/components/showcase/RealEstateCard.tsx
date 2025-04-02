@@ -67,3 +67,4 @@ export default function RealEstateCard({ sx, ...props }: CardProps) {
     </Card>
   );
 }
+

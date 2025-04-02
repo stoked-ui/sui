@@ -242,3 +242,4 @@ export async function stringifySymbol(symbol: ts.Symbol, project: TypeScriptProj
 export function toGitHubPath(filepath: string): string {
   return `/${path.relative(process.cwd(), filepath).replace(/\\/g, '/')}`;
 }
+

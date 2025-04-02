@@ -45,3 +45,4 @@ export default function Slack(props: { variant: "default" | "monochrome" | 'hove
     </NoSsr>
   );
 }
+

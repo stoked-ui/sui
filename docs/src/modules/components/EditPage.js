@@ -44,3 +44,4 @@ export default function EditPage(props) {
 EditPage.propTypes = {
   sourceLocation: PropTypes.string.isRequired,
 };
+

@@ -9,3 +9,4 @@ const Toolbar = styled(MuiToolbar)(({ theme }) => ({
 }));
 
 export default Toolbar;
+

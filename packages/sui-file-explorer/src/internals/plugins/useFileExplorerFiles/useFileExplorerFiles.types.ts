@@ -194,3 +194,4 @@ export type UseFileExplorerFilesSignature = FileExplorerPluginSignature<{
 export type FileMetaMap = { [id: string]: FileMeta };
 
 export type FileMap<R extends {}> = { [id: string]: R };
+

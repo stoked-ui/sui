@@ -89,3 +89,4 @@ describe('<NestedMenu> integration', () => {
     expect(within(getByRole('menu')).getAllByRole('menuitem')[0]).toHaveFocus();
   });
 });
+

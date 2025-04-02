@@ -285,3 +285,4 @@ TimelinePlayer.propTypes = {
 } as any;
 
 export default TimelinePlayer;
+

@@ -9,3 +9,4 @@ export const useFileExplorerApiRef = <
   TSignatures extends readonly FileExplorerAnyPluginSignature[] = FileExplorerPluginSignatures,
 >() =>
   React.useRef(undefined) as React.MutableRefObject<FileExplorerPublicAPI<TSignatures> | undefined>;
+

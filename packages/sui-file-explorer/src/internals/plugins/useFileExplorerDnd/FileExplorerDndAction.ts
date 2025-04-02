@@ -24,3 +24,4 @@ export type FileExplorerDndAction<R extends FileBase> =
   type: 'remove';
   id: string;
 }
+

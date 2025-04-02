@@ -12,3 +12,4 @@ export interface UseFileStatus {
   dndContainer: any;
   dndInstruction: any;
 }
+

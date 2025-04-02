@@ -48,3 +48,4 @@ export interface TimelinePlayerProps
 }
 
 export interface TimelinePlayerOwnerState extends Omit<TimelinePlayerProps, 'onKeyDown'>  {}
+

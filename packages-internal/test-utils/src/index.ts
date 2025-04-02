@@ -22,3 +22,4 @@ export { default as flushMicrotasks } from './flushMicrotasks';
  * Useful for asserting on `console.warn` or `console.error` via `toErrorDev()`.
  */
 export const strictModeDoubleLoggingSuppressed = React.version.startsWith('17');
+

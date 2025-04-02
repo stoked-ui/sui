@@ -15,3 +15,4 @@ export { Snackbar };
 export function SomeOtherComponent(props) {
   return <div {...props} />;
 }
+

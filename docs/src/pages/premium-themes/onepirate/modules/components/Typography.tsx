@@ -95,3 +95,4 @@ function Typography<C extends React.ElementType>(
 }
 
 export default styled(Typography)(styles);
+

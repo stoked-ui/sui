@@ -43,3 +43,4 @@ export type UseFileExplorerJSXItemsSignature = FileExplorerPluginSignature<{
   instance: UseFileExplorerFilesInstance;
   dependencies: UseFileExplorerJSXItemsDependencies;
 }>;
+

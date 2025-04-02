@@ -39,3 +39,4 @@ module.exports = {
   // See https://github.com/webpack/webpack/issues/14203
   target: 'web',
 };
+

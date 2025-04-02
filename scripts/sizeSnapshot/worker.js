@@ -60,3 +60,4 @@ async function getSizes({ entry, webpackEnvironment, index, total }) {
 }
 
 module.exports = getSizes;
+

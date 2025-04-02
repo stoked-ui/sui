@@ -18,3 +18,4 @@ export function BrandingProvider(props: BrandingProviderProps) {
   const theme = mode === 'dark' ? brandingDarkTheme : brandingLightTheme;
   return <ThemeProvider theme={modeProp ? () => theme : theme}>{children}</ThemeProvider>;
 }
+

@@ -15,3 +15,4 @@ describe('ee<FileDropzone />', function () {
         skip: ['componentProp', 'componentsProp', 'themeVariants'],
     }); });
 });
+

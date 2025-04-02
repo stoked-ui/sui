@@ -7,3 +7,4 @@ export interface BrandingCssVarsProviderProps {
 export function NextNProgressBar(): JSX.Element;
 
 export default function BrandingCssVarsProvider(props: BrandingCssVarsProviderProps): JSX.Element; 
+

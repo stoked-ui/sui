@@ -67,3 +67,4 @@ if (fs.existsSync(COMPONENTS_DIR)) {
 } else {
   console.error('Components directory not found. Run restructure-components.js first.');
 }
+

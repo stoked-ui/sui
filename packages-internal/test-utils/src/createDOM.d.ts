@@ -7,3 +7,4 @@ interface Window {
   HTMLButtonElement: HTMLButtonElement;
   HTMLParagraphElement: HTMLParagraphElement;
 }
+

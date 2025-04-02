@@ -116,3 +116,4 @@ export function pathnameToLanguage(pathname: string): {
     canonicalPathname,
   };
 }
+

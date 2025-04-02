@@ -16,3 +16,4 @@ export default function CssVarsBasic() {
     </CssVarsProvider>
   );
 }
+

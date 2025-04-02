@@ -37,3 +37,4 @@ const theme = extendTheme({
     });
   });
 });
+

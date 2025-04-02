@@ -59,3 +59,4 @@ function highlight(code, language) {
 }
 
 module.exports = highlight;
+

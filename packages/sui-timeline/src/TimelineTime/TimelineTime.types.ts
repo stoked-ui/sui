@@ -12,3 +12,4 @@ export type TimelineTimeProps = {
   onClickTimeArea?: (time: number, e: React.MouseEvent<HTMLDivElement, MouseEvent>) => boolean | undefined;
 
 };
+

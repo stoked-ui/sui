@@ -100,3 +100,4 @@ export interface UnionType extends BasePropType {
   type: 'UnionNode';
   types: readonly PropType[];
 }
+

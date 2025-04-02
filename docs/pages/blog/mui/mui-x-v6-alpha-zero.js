@@ -5,3 +5,4 @@ import { docs } from './mui-x-v6-alpha-zero.md?muiMarkdown';
 export default function Page() {
   return <TopLayoutBlog docs={docs} />;
 }
+

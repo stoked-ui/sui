@@ -249,3 +249,4 @@ export const refreshTrackState = (track: ITimelineTrack, state: TimelineState) =
   track.dim = isTrackDim(track, state);
   return track;
 }
+

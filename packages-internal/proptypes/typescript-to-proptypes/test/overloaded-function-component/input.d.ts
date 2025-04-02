@@ -11,3 +11,4 @@ interface Component<C extends React.ElementType = 'div'> {
 
 // a component using overloading and intersection of function signature
 declare const ButtonBase: Component & ((props: { href: string } & ButtonProps) => JSX.Element);
+

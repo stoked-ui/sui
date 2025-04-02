@@ -66,3 +66,4 @@ export function getRelativeTimeString(timeMs?: number): string | undefined {
     throw new Error(`relative time format err: ${ex} - ${timeMs} ${deltaSeconds} ${lang} ${new Date(timeMs)} ${new Date()}`);
   }
 }
+

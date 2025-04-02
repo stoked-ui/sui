@@ -46,3 +46,4 @@ export default function mapApiPageTranslations(req) {
 
   return translations;
 }
+

@@ -142,3 +142,4 @@ export function getCookie(name: string): string | undefined {
 
   return undefined;
 }
+

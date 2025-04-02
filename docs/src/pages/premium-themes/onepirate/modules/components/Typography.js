@@ -116,3 +116,4 @@ Typography.propTypes = {
 };
 
 export default styled(Typography)(styles);
+

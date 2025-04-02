@@ -43,3 +43,4 @@ export default function literalToObject(literal: string | null | undefined) {
 
   return result;
 }
+

@@ -77,3 +77,4 @@ export interface FileExplorerGridHeadersProps
   sx?: SxProps<Theme>;
 }
 export interface FileExplorerGridHeadersOwnerState extends Omit<FileExplorerGridHeadersProps, 'disabled'> {}
+

@@ -18,3 +18,4 @@ export default function extractTemplates(record: Record<string, string>) {
   });
   return result;
 }
+

@@ -197,3 +197,4 @@ async function buildSingleProject(
   await projectSettings.onCompleted?.();
   return builds;
 }
+

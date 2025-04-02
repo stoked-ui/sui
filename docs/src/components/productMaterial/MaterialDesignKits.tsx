@@ -205,3 +205,4 @@ export default function MaterialDesignKits({ gradient }: MaterialDesignKitsProps
     </Section>
   );
 }
+

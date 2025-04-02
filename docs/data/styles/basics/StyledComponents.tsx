@@ -15,3 +15,4 @@ const MyButton = styled(Button)({
 export default function StyledComponents() {
   return <MyButton>Styled with styled-components API</MyButton>;
 }
+

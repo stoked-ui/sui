@@ -4,3 +4,4 @@ export function Foo(props: {
   htmlElement: HTMLElement;
   bothTypes: Element | HTMLElement;
 }): JSX.Element;
+

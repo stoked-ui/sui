@@ -11,3 +11,4 @@ export interface DemoData {
   productId?: Exclude<MuiProductId, 'null'>;
   codeStyling: CodeStyling;
 }
+

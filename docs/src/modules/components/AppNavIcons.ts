@@ -14,3 +14,4 @@ const standardNavIcons = {
 };
 
 export default standardNavIcons;
+

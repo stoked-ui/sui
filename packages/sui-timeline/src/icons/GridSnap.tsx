@@ -8,3 +8,4 @@ const GridSnap = createSvgIcon(
   </React.Fragment>, 'GridSnapIcon',);
 
 export default GridSnap;
+

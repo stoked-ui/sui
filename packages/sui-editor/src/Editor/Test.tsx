@@ -47,3 +47,4 @@ function GridComponent({ rows = 5 }) { // Default number of rows is 5
 }
 
 export default GridComponent;
+

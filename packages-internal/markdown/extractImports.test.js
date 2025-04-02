@@ -37,3 +37,4 @@ import \${importName} from 'module11/\${importName}';
     expect(imports[12]).to.equal(undefined); // It's not a valid import
   });
 });
+

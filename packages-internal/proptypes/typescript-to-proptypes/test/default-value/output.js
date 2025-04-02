@@ -5,3 +5,4 @@ Foo.propTypes = {
    */
   type: PropTypes.oneOf(['button', 'reset', 'submit']),
 };
+

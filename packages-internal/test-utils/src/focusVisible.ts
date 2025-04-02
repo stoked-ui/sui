@@ -26,3 +26,4 @@ export function programmaticFocusTriggersFocusVisible(): boolean {
     return false;
   }
 }
+

@@ -146,3 +146,4 @@ export default function generatePropTypeDescription(type: PropTypeDescriptor): s
       return type.name;
   }
 }
+

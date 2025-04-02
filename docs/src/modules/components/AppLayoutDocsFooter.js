@@ -610,3 +610,4 @@ AppLayoutDocsFooter.propTypes = {
   location: PropTypes.string.isRequired,
   tableOfContents: PropTypes.array,
 };
+

@@ -25,3 +25,4 @@ MyDocument.getStaticProps = async (ctx) => {
   const finalProps = await documentGetInitialProps(ctx);
   return finalProps;
 };
+

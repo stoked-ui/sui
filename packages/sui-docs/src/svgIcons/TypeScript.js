@@ -12,3 +12,4 @@ function TypeScript(props) {
 TypeScript.muiName = 'SvgIcon';
 
 export default TypeScript;
+

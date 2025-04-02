@@ -20,3 +20,4 @@ function UnstyledComponent(props: WithStyles<typeof styles>) {
 }
 
 export default withStyles(styles)(UnstyledComponent);
+

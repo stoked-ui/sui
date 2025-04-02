@@ -13,3 +13,4 @@ export default function defer<P>(Component: React.ComponentType<P>) {
 
   return Defer;
 }
+

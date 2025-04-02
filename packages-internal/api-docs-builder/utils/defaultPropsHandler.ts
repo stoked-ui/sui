@@ -169,3 +169,4 @@ const defaultPropsHandler: Handler = (documentation, componentDefinition, import
 };
 
 export default defaultPropsHandler;
+

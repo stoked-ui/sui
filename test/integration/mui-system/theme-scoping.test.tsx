@@ -152,3 +152,4 @@ describe('Multiple nested theme providers', () => {
     expect(getByText('Joy')).to.have.class(joy.buttonClasses.variantOutlined);
   });
 });
+

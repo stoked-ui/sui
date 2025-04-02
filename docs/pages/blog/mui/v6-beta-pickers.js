@@ -5,3 +5,4 @@ import { docs } from './v6-beta-pickers.md?muiMarkdown';
 export default function Page() {
   return <TopLayoutBlog docs={docs} />;
 }
+

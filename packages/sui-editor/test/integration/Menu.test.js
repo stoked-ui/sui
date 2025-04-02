@@ -340,3 +340,4 @@ describe('<Menu /> integration', () => {
     expect(getByRole('menu', { hidden: true })).toBeInaccessible();
   });
 });
+

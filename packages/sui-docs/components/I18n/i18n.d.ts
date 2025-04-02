@@ -6,3 +6,4 @@ export interface i18nProps {
 
 declare const i18n: React.FunctionComponent<i18nProps>;
 export default i18n;
+

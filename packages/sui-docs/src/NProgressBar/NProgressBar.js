@@ -64,3 +64,4 @@ const NProgressBar = (props) => {
 // No PropTypes to avoid TypeScript issues
 
 export default NProgressBar;
+

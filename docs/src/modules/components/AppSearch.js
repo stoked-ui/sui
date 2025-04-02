@@ -827,3 +827,4 @@ export default function AppSearch(props) {
     </React.Fragment>
   );
 }
+

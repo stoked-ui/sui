@@ -143,3 +143,4 @@ const TimelineTrackAreaCollapsed = React.forwardRef<TimelineTrackAreaState, Time
 });
 
 export { TimelineTrackAreaCollapsed };
+

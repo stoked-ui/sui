@@ -5,3 +5,4 @@ import * as pageProps from 'docs/pages/careers/staff-ui-engineer-base-ui.md?muiM
 export default function Page() {
   return <TopLayoutCareers {...pageProps} />;
 }
+

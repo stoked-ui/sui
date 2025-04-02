@@ -438,3 +438,4 @@ Timeline.propTypes = {
 };
 
 export default Timeline;
+

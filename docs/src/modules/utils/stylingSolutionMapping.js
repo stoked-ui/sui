@@ -7,3 +7,4 @@ const stylingSolutionMapping = {
 };
 
 export default stylingSolutionMapping;
+

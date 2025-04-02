@@ -12,3 +12,4 @@ function FileDownload(props) {
 FileDownload.muiName = 'SvgIcon';
 
 export default FileDownload;
+

@@ -52,3 +52,4 @@ export default async function generateApiTranslations<ReactApi extends MinimalRe
     }),
   );
 }
+

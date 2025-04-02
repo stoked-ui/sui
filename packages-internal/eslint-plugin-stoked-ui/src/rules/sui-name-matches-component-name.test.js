@@ -179,3 +179,4 @@ ruleTester.run('sui-name-matches-component-name', rule, {
     },
   ],
 });
+

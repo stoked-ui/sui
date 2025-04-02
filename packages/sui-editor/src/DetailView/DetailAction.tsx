@@ -204,3 +204,4 @@ export function DetailAction(props: DetailViewProps) {
     </div>
     </FormWrap>)
 }
+

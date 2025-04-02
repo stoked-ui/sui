@@ -205,3 +205,4 @@ export default function CompaniesGrid({ data }: { data: Array<IconImageProps> })
     </Grid>
   );
 }
+

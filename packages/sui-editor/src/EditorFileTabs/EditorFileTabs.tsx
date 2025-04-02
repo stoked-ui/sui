@@ -142,3 +142,4 @@ export default function EditorFileTabs(inProps: FileExplorerTabsProps) {
     variant={'drawer'}
   />
 }
+

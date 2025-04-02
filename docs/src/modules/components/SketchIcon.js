@@ -14,3 +14,4 @@ export default createSvgIcon(
   </g>,
   'Sketch',
 );
+

@@ -87,3 +87,4 @@ export enum PlaybackMode {
   CANVAS = 'CANVAS',
   MEDIA = 'MEDIA'
 }
+

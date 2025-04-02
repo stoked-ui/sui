@@ -5,3 +5,4 @@ import * as pageProps from 'docs/data/docs-lib/docs/overview/overview.md?muiMark
 export default function Page() {
   return <MarkdownDocs {...pageProps} />;
 }
+

@@ -50,3 +50,4 @@ HighlightedCode.propTypes = {
 };
 
 export default HighlightedCode;
+

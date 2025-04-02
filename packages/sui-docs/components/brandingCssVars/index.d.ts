@@ -6,3 +6,4 @@ export interface brandingCssVarsProps {
 
 declare const brandingCssVars: React.FunctionComponent<brandingCssVarsProps>;
 export default brandingCssVars;
+

@@ -41,3 +41,4 @@ const theme = createTheme({
 
 // @ts-expect-error typo
 <Badge color="Success" />;
+

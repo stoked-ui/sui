@@ -60,3 +60,4 @@ export default function SkipLink() {
 
   return <StyledLink href="#main-content">{t('appFrame.skipToContent')}</StyledLink>;
 }
+

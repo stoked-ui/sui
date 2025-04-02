@@ -16,3 +16,4 @@ export default function SandboxDependencies(
   dependencies: Record<string, string>;
   devDependencies: Record<string, string>;
 }; 
+

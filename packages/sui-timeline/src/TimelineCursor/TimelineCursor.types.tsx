@@ -30,3 +30,4 @@ export type TimelineCursorProps = {
 
   draggingLeft?: React.RefObject<undefined | number>;
 }
+

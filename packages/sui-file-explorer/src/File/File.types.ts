@@ -90,3 +90,4 @@ export interface FileProps
   sx?: SxProps<Theme>;
 }
 export interface FileOwnerState extends Omit<FileProps, 'disabled'>, UseFileStatus {}
+

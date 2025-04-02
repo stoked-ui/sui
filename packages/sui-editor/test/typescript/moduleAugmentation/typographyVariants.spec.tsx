@@ -37,3 +37,4 @@ const theme = createTheme({
 /* This variant is no longer supported */
 // @ts-expect-error
 <Typography variant="h3">h3</Typography>;
+

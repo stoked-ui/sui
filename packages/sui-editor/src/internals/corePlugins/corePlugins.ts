@@ -12,3 +12,4 @@ export type EditorCorePluginSignatures = ConvertPluginsIntoSignatures<
 >;
 
 export interface EditorCorePluginParameters {}
+

@@ -119,3 +119,4 @@ ComponentLinkHeader.propTypes = {
     headers: PropTypes.object.isRequired,
   }).isRequired,
 };
+

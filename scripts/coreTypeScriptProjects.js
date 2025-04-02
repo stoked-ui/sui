@@ -26,3 +26,4 @@ export default {
     tsConfigPath: 'tsconfig.json',
   },
 };
+

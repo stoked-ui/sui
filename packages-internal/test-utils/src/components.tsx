@@ -59,3 +59,4 @@ export const RenderCounter = React.forwardRef<() => number, { children: React.Re
     );
   },
 );
+

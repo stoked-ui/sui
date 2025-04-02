@@ -74,3 +74,4 @@ export function mouseUp(...args: Parameters<(typeof fireEvent)['mouseUp']>) {
     fireEvent.mouseUp(...args);
   });
 }
+

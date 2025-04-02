@@ -285,3 +285,4 @@ export default function PropertiesTable(props: PropertiesTableProps) {
     </StyledTableContainer>
   );
 }
+

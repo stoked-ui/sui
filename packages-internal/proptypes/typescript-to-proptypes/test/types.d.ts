@@ -9,3 +9,4 @@ export type TestOptions = {
   generator?: GeneratePropTypesOptions;
   injector?: InjectPropTypesInFileOptions;
 };
+

@@ -186,3 +186,4 @@ declare module 'react-docgen' {
     export function resolveToValue(path: NodePath, importer: Importer): NodePath;
   }
 }
+

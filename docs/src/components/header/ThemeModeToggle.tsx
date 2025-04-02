@@ -68,3 +68,4 @@ export default function ThemeModeToggle() {
 
   return <CssVarsModeToggle onChange={setMode} />;
 }
+

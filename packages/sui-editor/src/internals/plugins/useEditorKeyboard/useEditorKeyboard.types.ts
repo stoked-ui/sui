@@ -33,3 +33,4 @@ export type UseEditorKeyboardSignature = EditorPluginSignature<{
 }>;
 
 export type EditorFirstCharMap = { [itemId: string]: string };
+

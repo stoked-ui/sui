@@ -13,3 +13,4 @@ export interface HighlightedCodeWithTabsProps {
 }
 
 export default function HighlightedCodeWithTabs(props: HighlightedCodeWithTabsProps): JSX.Element; 
+

@@ -22,3 +22,4 @@ SomeOtherComponent.propTypes = {
 };
 
 export { SomeOtherComponent };
+

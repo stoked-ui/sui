@@ -18,3 +18,4 @@ export default function withRoot<P extends JSX.IntrinsicAttributes>(
 
   return WithRoot;
 }
+

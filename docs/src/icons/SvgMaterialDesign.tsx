@@ -19,3 +19,4 @@ function SvgMaterialDesign(props: RootSvgProps) {
 }
 
 export default SvgMaterialDesign;
+

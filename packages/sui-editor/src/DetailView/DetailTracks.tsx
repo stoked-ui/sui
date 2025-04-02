@@ -33,3 +33,4 @@ export default function DetailTracks({  disabled, size, sx, onClick }: { onClick
     }}
   />
 }
+

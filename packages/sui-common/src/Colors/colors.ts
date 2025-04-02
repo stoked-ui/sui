@@ -59,3 +59,4 @@ const resultColor = compositeColors('#3498db', 'rgba(255, 255, 255, 0.53)');
 console.log(resultColor); // Output: blended color as a hex string
 
 */
+

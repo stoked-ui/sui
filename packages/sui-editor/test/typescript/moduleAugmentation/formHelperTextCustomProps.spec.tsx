@@ -34,3 +34,4 @@ const theme = createTheme({
   {/* @ts-expect-error unknown variant */}
   <FormHelperText variant="checked">This is example helper text</FormHelperText>
 </FormControl>;
+

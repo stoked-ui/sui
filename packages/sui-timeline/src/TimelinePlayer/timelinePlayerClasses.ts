@@ -24,3 +24,4 @@ export const timelinePlayerClasses: TimelinePlayerClasses = generateUtilityClass
   'time',
   'rate',
 ]);
+

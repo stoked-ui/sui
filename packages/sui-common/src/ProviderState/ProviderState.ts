@@ -151,3 +151,4 @@ console.log(providerState.flags); // Output: { isDarkMode: false, isAdmin: true 
 providerState.toggleFlags("isDarkMode");
 console.log(providerState.flags); // Output: { isDarkMode: true, isAdmin: true }
 */
+

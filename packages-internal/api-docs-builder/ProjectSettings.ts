@@ -96,3 +96,4 @@ export interface ProjectSettings {
    */
   isGlobalClassName: (slotOrState: string) => boolean;
 }
+

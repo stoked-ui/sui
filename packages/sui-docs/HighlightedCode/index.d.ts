@@ -16,3 +16,4 @@ declare const HighlightedCode: React.ForwardRefExoticComponent<
 >;
 
 export default HighlightedCode; 
+

@@ -85,3 +85,4 @@ export function getComponentImports(name: string, filename: string) {
     ...reExportPackage.map((importPath) => `import { ${name} } from '${importPath}';`),
   ];
 }
+

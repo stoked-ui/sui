@@ -41,3 +41,4 @@ export interface TimelineControlProps extends TimelineControlPropsBase {
 }
 
 export type TimelineControlComponent = ((props: TimelineControlProps) => React.JSX.Element) & { propTypes?: any };
+

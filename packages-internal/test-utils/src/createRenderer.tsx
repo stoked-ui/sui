@@ -735,3 +735,4 @@ function act<T>(callback: () => void | T | Promise<T>) {
 export * from '@testing-library/react/pure';
 export { act, cleanup, fireEvent };
 export const screen = within(document.body, { ...queries, ...customQueries });
+

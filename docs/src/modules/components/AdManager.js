@@ -28,3 +28,4 @@ AdManager.propTypes = {
   children: PropTypes.node,
   classSelector: PropTypes.string,
 };
+

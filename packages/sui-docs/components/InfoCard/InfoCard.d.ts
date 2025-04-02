@@ -6,3 +6,4 @@ export interface InfoCardProps {
 
 declare const InfoCard: React.FunctionComponent<InfoCardProps>;
 export default InfoCard;
+

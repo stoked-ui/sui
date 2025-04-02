@@ -35,3 +35,4 @@ const theme = createTheme({
   <Tab label="Item One" />
   <Tab label="Item Two" />
 </Tabs>;
+

@@ -17,3 +17,4 @@ export function wrapsIntrinsicElement(reactWrapper: ReactWrapper): boolean {
 export default function findOutermostIntrinsic(reactWrapper: ReactWrapper): ReactWrapper {
   return reactWrapper.findWhere((n) => n.exists() && wrapsIntrinsicElement(n)).first();
 }
+

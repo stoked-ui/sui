@@ -29,3 +29,4 @@ EditorProvider.propTypes = {
 } as any;
 
 export { EditorProvider };
+

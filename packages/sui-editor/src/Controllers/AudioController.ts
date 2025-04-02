@@ -168,3 +168,4 @@ class AudioControl extends Controller<Howl> implements IController {
 const AudioController = new AudioControl();
 export { AudioControl };
 export default AudioController
+

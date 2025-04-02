@@ -16,3 +16,4 @@ export default function AddTrackButton({ onAddFiles }: { onAddFiles?: () => void
       <AddIcon fontSize={'large'}/>
     </Fab>)
 }
+

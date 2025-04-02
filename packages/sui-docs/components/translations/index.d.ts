@@ -6,3 +6,4 @@ export interface translationsProps {
 
 declare const translations: React.FunctionComponent<translationsProps>;
 export default translations;
+

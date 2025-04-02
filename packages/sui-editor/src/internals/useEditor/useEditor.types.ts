@@ -101,3 +101,4 @@ export interface UseEditorReturnValue<TSignatures extends readonly EditorAnyPlug
   instance: EditorInstance<TSignatures>;
   id: string;
 }
+

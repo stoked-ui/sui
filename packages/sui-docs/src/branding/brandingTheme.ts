@@ -1290,3 +1290,4 @@ export const brandingLightTheme = createTheme({
   ...getDesignTokens('light'),
   ...getThemedComponents(),
 });
+

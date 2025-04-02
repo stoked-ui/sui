@@ -74,3 +74,4 @@ export default function Head(props: HeadProps) {
       {children}
     </NextHead>);
 }
+

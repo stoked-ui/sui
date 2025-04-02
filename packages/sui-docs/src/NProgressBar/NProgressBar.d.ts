@@ -6,3 +6,4 @@ export interface NProgressBarProps {
 
 declare const NProgressBar: React.FunctionComponent<NProgressBarProps>;
 export default NProgressBar;
+

@@ -620,3 +620,4 @@ Demo.propTypes = {
   githubLocation: PropTypes.string.isRequired,
   mode: PropTypes.string, // temporary, just to make Joy docs work.
 };
+

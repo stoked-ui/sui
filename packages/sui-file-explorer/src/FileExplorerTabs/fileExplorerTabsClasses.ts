@@ -19,3 +19,4 @@ export const fileExplorerTabsClasses: FileExplorerTabsClasses = generateUtilityC
   'label',
   'folder',
 ]);
+

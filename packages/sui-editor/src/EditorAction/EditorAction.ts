@@ -96,3 +96,4 @@ export function initEditorAction(fileAction: ITimelineFileAction, trackIndex: nu
 
   return newAction as ITimelineAction;
 }
+

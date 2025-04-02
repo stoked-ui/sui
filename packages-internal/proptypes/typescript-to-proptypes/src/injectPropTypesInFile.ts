@@ -490,3 +490,4 @@ export function injectPropTypesInFile({
 
   return code;
 }
+

@@ -16,3 +16,4 @@ if (!global._mongoClientPromise) {
 }
 
 export default client;
+

@@ -15,3 +15,4 @@ export function getEditorControlsUtilityClass(slot: string): string {
 export const editorControlsClasses: TimelineControlsClasses = generateUtilityClasses('MuiEditorControls', [
   'root',
 ]);
+

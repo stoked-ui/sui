@@ -230,3 +230,4 @@ export default function AudioPlayer({ file }) {
     </Box>
   );
 }
+

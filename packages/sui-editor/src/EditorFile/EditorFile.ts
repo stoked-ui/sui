@@ -289,3 +289,4 @@ export default class EditorFile<
 
   static mimeType: IMimeType
 }
+

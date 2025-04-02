@@ -90,3 +90,4 @@ export default function replaceUrl(url: string, asPath: string) {
   }
   return url;
 }
+

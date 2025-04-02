@@ -239,3 +239,4 @@ function removeUndefinedFromType(type: ts.Type) {
 
   return type;
 }
+

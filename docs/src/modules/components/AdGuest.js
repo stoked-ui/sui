@@ -34,3 +34,4 @@ AdGuest.propTypes = {
   children: PropTypes.node,
   classSelector: PropTypes.string,
 };
+

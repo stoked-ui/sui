@@ -21,3 +21,4 @@ declare module '@mui/material/LinearProgress' {
 
 // @ts-expect-error unknown color
 <LinearProgress color="foo" />;
+

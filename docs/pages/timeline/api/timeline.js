@@ -21,3 +21,4 @@ Page.getInitialProps = () => {
     pageContent: jsonPageContent,
   };
 };
+

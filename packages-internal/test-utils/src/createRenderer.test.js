@@ -29,3 +29,4 @@ describe('createRenderer', () => {
     expect(descriptions[2]).to.have.property('id', 'r:3');
   });
 });
+

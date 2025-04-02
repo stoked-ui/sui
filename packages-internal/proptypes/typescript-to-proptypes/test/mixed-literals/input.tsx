@@ -6,3 +6,4 @@ export default function Grid(props: GridProps) {
   const { spacing } = props;
   return <div>spacing: {spacing}</div>;
 }
+

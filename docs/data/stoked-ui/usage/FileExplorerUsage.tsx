@@ -5,3 +5,4 @@ import { NestedFiles } from '../../../src/components/fileExplorer/data';
 export default function FileExplorerUsage() {
   return <FileExplorer sx={{ width: '100%' }} items={NestedFiles} grid alternatingRows />;
 }
+

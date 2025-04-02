@@ -37,3 +37,4 @@ function ProductSmokingHero() {
 }
 
 export default ProductSmokingHero;
+

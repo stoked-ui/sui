@@ -12,3 +12,4 @@ Component.propTypes /* remove-proptypes */ = {
 };
 
 export default Component;
+

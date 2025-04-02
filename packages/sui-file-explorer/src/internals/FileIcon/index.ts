@@ -4,3 +4,4 @@ export type {
   FileIconSlots,
   FileIconSlotProps,
 } from './FileIcon.types';
+

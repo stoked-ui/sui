@@ -9,3 +9,4 @@ export default function DeterminateLinearProgress() {
     </div>
   );
 }
+

@@ -22,3 +22,4 @@ export interface UseEditorInstanceEventsInstance {
 export type UseEditorInstanceEventsSignature = EditorPluginSignature<{
   instance: UseEditorInstanceEventsInstance;
 }>;
+

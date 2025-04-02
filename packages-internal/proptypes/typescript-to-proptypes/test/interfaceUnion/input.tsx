@@ -30,3 +30,4 @@ export default function Grid(props: Props) {
   const { series, pieSeries } = props;
   return <div>{series.type}</div>;
 }
+

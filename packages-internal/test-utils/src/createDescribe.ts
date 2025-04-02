@@ -29,3 +29,4 @@ export default <P extends any[]>(
 
   return muiDescribe;
 };
+

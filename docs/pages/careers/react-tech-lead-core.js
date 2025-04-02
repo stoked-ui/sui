@@ -5,3 +5,4 @@ import * as pageProps from 'docs/pages/careers/react-tech-lead-core.md?muiMarkdo
 export default function Page() {
   return <TopLayoutCareers {...pageProps} />;
 }
+

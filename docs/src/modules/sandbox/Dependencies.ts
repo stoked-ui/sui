@@ -160,3 +160,4 @@ export default function SandboxDependencies(
 
   return { dependencies, devDependencies };
 }
+

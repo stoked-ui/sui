@@ -94,3 +94,4 @@ MyDocument.getStaticProps = async (ctx: DocumentContext) => {
 
   return finalProps;
 };
+

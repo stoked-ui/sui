@@ -415,3 +415,4 @@ Use "bash" instead.
     }).to.throw(`docs-infra: Duplicated trailing slashes.`);
   });
 });
+

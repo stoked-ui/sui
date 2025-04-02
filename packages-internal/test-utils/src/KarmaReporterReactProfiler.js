@@ -79,3 +79,4 @@ KarmaReporterReactProfiler.$inject = ['config'];
 module.exports = {
   'reporter:profiler': ['type', KarmaReporterReactProfiler],
 };
+

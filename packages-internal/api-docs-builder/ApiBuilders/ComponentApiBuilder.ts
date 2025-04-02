@@ -846,3 +846,4 @@ export default async function generateComponentApi(
 
   return reactApi;
 }
+

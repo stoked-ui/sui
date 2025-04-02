@@ -623,3 +623,4 @@ interface PropTypesProject extends TypeScriptProject {
   shouldInclude: NonNullable<GetPropTypesFromFileOptions['shouldInclude']>;
   createPropTypeId: (sigil: ts.Symbol | ts.Type) => number;
 }
+

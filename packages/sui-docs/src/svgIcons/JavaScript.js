@@ -12,3 +12,4 @@ function JavaScript(props) {
 JavaScript.muiName = 'SvgIcon';
 
 export default JavaScript;
+

@@ -470,3 +470,4 @@ export default function Blog(props: InferGetStaticPropsType<typeof getStaticProp
     </BrandingCssVarsProvider>
   );
 }
+

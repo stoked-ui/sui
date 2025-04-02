@@ -55,3 +55,4 @@ export interface RowRndProps {
   adsorptionPositions?: number[];
   adsorptionDistance?: number;
 }
+

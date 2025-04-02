@@ -36,3 +36,4 @@ export const FILES_TO_IGNORE = [
   '.DS_Store', // macOs
   'Thumbs.db'  // Windows
 ];
+

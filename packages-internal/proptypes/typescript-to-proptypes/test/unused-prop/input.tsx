@@ -15,3 +15,4 @@ export default function Foo(props: Props) {
     </div>
   );
 }
+

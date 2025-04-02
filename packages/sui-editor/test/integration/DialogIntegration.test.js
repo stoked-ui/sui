@@ -29,3 +29,4 @@ describe('<Dialog /> integration', () => {
     expect(dialog).to.have.attr('aria-labelledby', 'dialog-title');
   });
 });
+

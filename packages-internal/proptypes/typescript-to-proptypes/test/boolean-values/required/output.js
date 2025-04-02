@@ -3,3 +3,4 @@ Foo.propTypes = {
   baz: PropTypes.oneOf([false]).isRequired,
   foo: PropTypes.bool.isRequired,
 };
+

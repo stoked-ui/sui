@@ -46,3 +46,4 @@ export function createSettings<T = any>(initialData: Record<string, T> = {}): Se
     }
   });
 }
+

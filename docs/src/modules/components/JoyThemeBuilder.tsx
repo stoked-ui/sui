@@ -1740,3 +1740,4 @@ export default function JoyThemeBuilder() {
     </CssVarsProvider>
   );
 }
+

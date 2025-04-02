@@ -51,3 +51,4 @@ export default class StokedUiEditorApp extends App implements IApp {
     return StokedUiEditorApp.instance;
   }
 }
+

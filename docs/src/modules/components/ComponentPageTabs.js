@@ -115,3 +115,4 @@ ComponentPageTabs.propTypes = {
     }),
   }),
 };
+

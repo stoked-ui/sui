@@ -24,3 +24,4 @@ export interface IController {
 
 export type VolumeSection = [volume: number, start?: number, end?: number];
 export type VolumeSections = VolumeSection[];
+

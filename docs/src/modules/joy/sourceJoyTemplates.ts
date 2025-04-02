@@ -32,3 +32,4 @@ export default function sourceJoyTemplates() {
     map: new Map(templateMap),
   };
 }
+

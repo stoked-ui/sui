@@ -3,3 +3,4 @@ module.exports = {
   ignore: ['**/node_modules/**'],
   require: [require.resolve('./testSetup')],
 };
+

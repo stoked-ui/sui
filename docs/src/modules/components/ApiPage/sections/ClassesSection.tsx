@@ -143,3 +143,4 @@ export default function ClassesSection(props: ClassesSectionProps) {
     </React.Fragment>
   );
 }
+

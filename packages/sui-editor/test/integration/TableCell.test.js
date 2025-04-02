@@ -107,3 +107,4 @@ describe('<TableRow> integration', () => {
     expect(getByTestId('cell')).not.to.have.attribute('role');
   });
 });
+

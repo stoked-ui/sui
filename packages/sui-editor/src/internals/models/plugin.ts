@@ -166,3 +166,4 @@ export type EditorPlugin<TSignature extends EditorAnyPluginSignature> = {
   params: Record<keyof TSignature['params'], true>;
   itemPlugin?: VideoPlugin<any>;
 };
+

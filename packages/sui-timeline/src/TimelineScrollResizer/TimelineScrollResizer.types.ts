@@ -5,3 +5,4 @@ export interface TimelineScrollResizerProps {
   elementRef: React.RefObject<HTMLDivElement>;
   adjustScale?: (value: number) => boolean;
 }
+

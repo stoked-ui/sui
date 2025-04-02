@@ -27,3 +27,4 @@ test.describe('Joy docs', () => {
     await expect(headline).toHaveText('Button');
   });
 });
+

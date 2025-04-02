@@ -452,3 +452,4 @@ class VideoControl extends Controller<HTMLVideoElement> {
 export { VideoControl };
 const VideoController = new VideoControl();
 export default VideoController;
+

@@ -11,3 +11,4 @@ const GradientText = styled('span')<{
 }));
 
 export default GradientText;
+

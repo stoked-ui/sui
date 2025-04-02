@@ -38,3 +38,4 @@ function StringTemplates() {
 }
 
 export default StringTemplates;
+

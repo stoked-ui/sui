@@ -23,3 +23,4 @@ export interface UseFileExplorerInstanceEventsInstance {
 export type UseFileExplorerInstanceEventsSignature = FileExplorerPluginSignature<{
   instance: UseFileExplorerInstanceEventsInstance;
 }>;
+

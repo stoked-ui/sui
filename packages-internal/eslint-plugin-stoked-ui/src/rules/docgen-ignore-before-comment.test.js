@@ -36,3 +36,4 @@ ruleTester.run('ignore-before-comment', rule, {
     },
   ],
 });
+

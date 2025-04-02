@@ -164,3 +164,4 @@ PropertiesSection.propTypes = {
   title: PropTypes.string,
   titleHash: PropTypes.string,
 };
+

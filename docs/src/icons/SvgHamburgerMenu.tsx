@@ -16,3 +16,4 @@ export default function SvgHamburgerMenu(props: RootSvgProps) {
     </RootSvg>
   );
 }
+

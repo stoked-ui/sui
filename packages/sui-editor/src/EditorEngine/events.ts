@@ -46,3 +46,4 @@ export interface EditorEventTypes extends EventTypes {
    */
   paused: { engine: IEditorEngine, previousState: string | EditorEngineState };
 }
+

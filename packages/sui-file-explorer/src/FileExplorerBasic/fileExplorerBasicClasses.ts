@@ -16,3 +16,4 @@ export const fileExplorerBasicClasses: FileExplorerBasicClasses = generateUtilit
   'MuiFileExplorerBasic',
   ['root'],
 );
+

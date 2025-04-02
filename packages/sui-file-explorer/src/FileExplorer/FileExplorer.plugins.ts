@@ -68,3 +68,4 @@ export interface FileExplorerPluginParameters<Multiple extends boolean | undefin
     UseFileExplorerIconsParameters,
     UseFileExplorerGridParameters,
     UseFileExplorerDndParameters {}
+

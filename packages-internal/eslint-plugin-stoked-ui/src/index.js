@@ -9,3 +9,4 @@ module.exports.rules = {
   'no-styled-box': require('./rules/no-styled-box'),
   'straight-quotes': require('./rules/straight-quotes'),
 };
+

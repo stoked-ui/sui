@@ -138,3 +138,4 @@ export async function verify(event: APIGatewayProxyEvent): Promise<APIGatewayPro
     return { statusCode: 500, body: JSON.stringify({ message: "Internal server error" }) };
   }
 }
+

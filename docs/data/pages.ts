@@ -179,3 +179,4 @@ const pages: MuiPage[] = [
 ];
 
 export default pages;
+

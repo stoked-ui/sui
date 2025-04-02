@@ -73,3 +73,4 @@ Frame.Demo = FrameDemo;
 Frame.Info = FrameInfo;
 
 export default Frame;
+

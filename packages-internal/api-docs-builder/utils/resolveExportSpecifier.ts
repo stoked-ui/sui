@@ -59,3 +59,4 @@ export default function resolveExportSpecifier(symbol: ts.Symbol, project: TypeS
 
   return resolvedSymbol;
 }
+

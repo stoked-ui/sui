@@ -5,3 +5,4 @@ import * as pageProps from '../../../data/file-explorer/docs/file-customizaton/f
 export default function Page() {
   return <MarkdownDocs {...pageProps} />;
 }
+

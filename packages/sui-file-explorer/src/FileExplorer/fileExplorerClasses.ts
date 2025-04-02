@@ -15,3 +15,4 @@ export function getFileExplorerUtilityClass(slot: string): string {
 export const fileExplorerClasses: FileExplorerClasses = generateUtilityClasses('MuiFileExplorer', [
   'root',
 ]);
+

@@ -7,3 +7,4 @@ export default function FileExplorerUsage() {
     <FileExplorer sx={{ width: '100%' }} items={NestedFiles} grid alternatingRows />
   );
 }
+

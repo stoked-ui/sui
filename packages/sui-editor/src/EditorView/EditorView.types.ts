@@ -57,3 +57,4 @@ export interface EditorViewProps<R extends IMediaFile, Multiple extends boolean 
 
   editorId: string;
 }
+

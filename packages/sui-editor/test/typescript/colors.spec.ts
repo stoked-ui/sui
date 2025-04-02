@@ -48,3 +48,4 @@ const colorList: Color[] = [
 const { black, white } = common;
 
 [black, white].forEach((color: string) => color);
+

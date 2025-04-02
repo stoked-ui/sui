@@ -9,3 +9,4 @@ test('should see legacy styles inside system', async ({ page }) => {
 
   await expect(page.locator('h1:has-text("@mui/styles")')).toBeVisible();
 });
+

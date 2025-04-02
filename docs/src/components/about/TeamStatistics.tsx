@@ -35,3 +35,4 @@ export default function TeamStatistics() {
     </Box>
   );
 }
+

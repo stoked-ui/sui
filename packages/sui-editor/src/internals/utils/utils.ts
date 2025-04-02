@@ -18,3 +18,4 @@ export const getActiveElement = (root: Document | ShadowRoot = document): Elemen
 export function escapeOperandAttributeSelector(operand: string): string {
   return operand.replace(/["\\]/g, '\\$&');
 }
+

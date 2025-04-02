@@ -10,3 +10,4 @@ declare module '@mui/material/styles' {
 const theme = extendTheme();
 
 theme.getCssVar('custom-color');
+

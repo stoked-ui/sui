@@ -21,3 +21,4 @@ export default function FirstComponent() {
     <Timeline tracks={mockData} sx={{ width: '100%' }} controllers={controllers} />
   );
 }
+

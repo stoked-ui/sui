@@ -13,3 +13,4 @@ const config: PlaywrightTestConfig<TestFixture> = {
 };
 
 export default config;
+

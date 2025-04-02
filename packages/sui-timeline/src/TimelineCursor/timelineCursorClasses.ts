@@ -15,3 +15,4 @@ export function getTimelineCursorUtilityClass(slot: string): string {
 export const timelineCursorClasses: TimelineCursorClasses = generateUtilityClasses('MuiTimelineCursor', [
   'root',
 ]);
+

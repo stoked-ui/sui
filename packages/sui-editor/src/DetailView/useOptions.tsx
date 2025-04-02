@@ -4,3 +4,4 @@ export function useOption(option: string) {
   let [searchParams, setSearchParams] = useSearchParams();
   return searchParams;
 }
+

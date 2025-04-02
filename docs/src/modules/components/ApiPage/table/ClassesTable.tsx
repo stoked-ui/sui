@@ -117,3 +117,4 @@ export default function ClassesTable(props: ClassesTableProps) {
     </StyledTableContainer>
   );
 }
+

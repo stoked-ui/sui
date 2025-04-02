@@ -70,3 +70,4 @@ export interface MuiPage {
 export interface OrderedMuiPage extends MuiPage {
   ordered?: true;
 }
+

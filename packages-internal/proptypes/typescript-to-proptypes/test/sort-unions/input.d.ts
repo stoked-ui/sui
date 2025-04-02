@@ -12,3 +12,4 @@ export interface Props {
 }
 
 export default function Hidden(props: Props): JSX.Element;
+

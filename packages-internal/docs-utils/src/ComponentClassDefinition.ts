@@ -6,3 +6,4 @@ export interface ComponentClassDefinition {
   isDeprecated?: boolean;
   deprecationInfo?: string;
 }
+

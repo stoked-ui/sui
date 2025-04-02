@@ -24,3 +24,4 @@ export default function SxPropBoxMaterialUI() {
     </React.Fragment>
   );
 }
+

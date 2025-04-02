@@ -208,3 +208,4 @@ ToggleButtonGroupEx.propTypes = {
 } as any;
 
 export default ToggleButtonGroupEx;
+

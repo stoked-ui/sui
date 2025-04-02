@@ -18,3 +18,4 @@ export const timelineLabelsClasses: TimelineLabelsClasses = generateUtilityClass
   'label',
   'actions',
 ]);
+

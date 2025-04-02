@@ -70,3 +70,4 @@ const foo = styled('div', {})({
     },
   ],
 });
+

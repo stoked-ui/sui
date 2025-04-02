@@ -15,3 +15,4 @@ export const publishEditorEvent = <
 ) => {
   instance.$$publishEvent(eventName as string, params);
 };
+

@@ -268,3 +268,4 @@ console.log('\nNext steps:');
 console.log('1. Run "pnpm build" to verify the build process');
 console.log('2. Test importing components directly:');
 console.log('   import Component from "@stoked-ui/docs/Component"');
+

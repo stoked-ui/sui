@@ -6,3 +6,4 @@ function extractImports(code) {
 }
 
 module.exports = extractImports;
+

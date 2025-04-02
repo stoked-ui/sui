@@ -134,3 +134,4 @@ export default function createMount(options: CreateMountOptions = {}) {
 
   return mountWithContext;
 }
+

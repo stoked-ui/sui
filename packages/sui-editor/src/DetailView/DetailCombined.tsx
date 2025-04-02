@@ -48,3 +48,4 @@ export function DetailCombined() {
     </React.Fragment>
   )
 }
+

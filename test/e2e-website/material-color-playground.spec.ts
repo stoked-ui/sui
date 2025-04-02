@@ -19,3 +19,4 @@ test('should be able to change color without crash', async ({ page }) => {
 
   await expect(page.locator('#mui-version-menu')).toBeVisible();
 });
+

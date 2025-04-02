@@ -192,3 +192,4 @@ export default async function parseTest(componentFilename: string): Promise<Pars
 
   return result;
 }
+

@@ -6,3 +6,4 @@ export interface svgIconsProps {
 
 declare const svgIcons: React.FunctionComponent<svgIconsProps>;
 export default svgIcons;
+

@@ -5,3 +5,4 @@ import * as pageProps from '../../../data/stoked-ui/example-projects/example-pro
 export default function Page() {
   return <MarkdownDocs {...pageProps} disableAd />;
 }
+

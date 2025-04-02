@@ -18,3 +18,4 @@ export function Snackbar(props: SnackBarProps) {
 export function SomeOtherComponent(props: { id?: string }) {
   return <div {...props} />;
 }
+

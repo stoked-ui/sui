@@ -46,3 +46,4 @@ export interface FileIconProps {
 
   sx?: SxProps<Theme>;
 }
+

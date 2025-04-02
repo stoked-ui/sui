@@ -61,3 +61,4 @@ export default function ControlledCheckbox({ control, name, label, disabled, cla
     </Tooltip>
   );
 }
+

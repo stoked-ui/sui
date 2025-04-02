@@ -30,3 +30,4 @@ export default function DetailActions({ disabled, size, sx, onClick }: { onClick
     }}
   />
 }
+

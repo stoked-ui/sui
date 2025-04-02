@@ -39,3 +39,4 @@ const DemoToolbarRoot:  StyledComponent<MUIStyledCommonProps<Theme> & DemoToolba
 ]);
 
 export default DemoToolbarRoot;
+

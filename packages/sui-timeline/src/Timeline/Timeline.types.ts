@@ -139,3 +139,4 @@ export interface TimelineProps
   viewSelector?: string;
   internalComponent?: boolean;
 }
+

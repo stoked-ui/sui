@@ -27,3 +27,4 @@ module.exports = {
   LANGUAGES_SSR,
   LANGUAGES_IGNORE_PAGES,
 };
+

@@ -7,3 +7,4 @@ interface Props {
 }
 
 export function Foo(props: Props): JSX.Element;
+

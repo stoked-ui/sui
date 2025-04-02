@@ -33,3 +33,4 @@ theme = responsiveFontSizes(theme, {
   // custom variants
   variants: ['poster'],
 });
+

@@ -33,3 +33,4 @@ export default class StokedUiTimelineApp extends App implements IApp {
     this.registerOutputFactory(outputFactory);
   }
 }
+

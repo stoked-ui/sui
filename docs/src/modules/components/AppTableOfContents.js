@@ -336,3 +336,4 @@ export default function AppTableOfContents(props) {
 AppTableOfContents.propTypes = {
   toc: PropTypes.array.isRequired,
 };
+

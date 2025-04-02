@@ -51,3 +51,4 @@ export type UseFileExplorerKeyboardNavigationSignature = FileExplorerPluginSigna
 }>;
 
 export type FileExplorerFirstCharMap = { [id: string]: string };
+

@@ -82,3 +82,4 @@ export function useNoSsrCodeVariant() {
 export function useSetCodeVariant() {
   return React.useContext(CodeVariantContext).setCodeVariant;
 }
+

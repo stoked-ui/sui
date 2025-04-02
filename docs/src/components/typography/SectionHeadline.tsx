@@ -100,3 +100,4 @@ export default function SectionHeadline(props: SectionHeadlineProps) {
     </Box>
   );
 }
+

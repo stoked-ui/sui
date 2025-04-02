@@ -132,3 +132,4 @@ export const resolveExportSpecifier = (symbol: ts.Symbol, project: XTypeScriptPr
 
   return resolvedSymbol;
 };
+

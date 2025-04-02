@@ -5,3 +5,4 @@ type Props = {
 };
 
 export default function Foo(props: Props): JSX.Element;
+

@@ -45,3 +45,4 @@ describe('@stoked-ui/envinfo', () => {
     expect(envinfo).to.have.nested.property('npmPackages.@emotion/styled');
   });
 });
+

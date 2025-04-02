@@ -86,3 +86,4 @@ export type UseFileExplorerDndSignature = FileExplorerPluginSignature<{
   dependencies: [UseFileExplorerFilesSignature];
   contextValue: UseFileExplorerDndContextValue;
 }>;
+

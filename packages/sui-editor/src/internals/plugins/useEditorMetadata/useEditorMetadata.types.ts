@@ -25,3 +25,4 @@ export type UseEditorMetadataSignature = EditorPluginSignature<{
   contextValue: UseEditorMetadataDefaultizedParameters;
   dependencies: [UseEditorKeyboardSignature];
 }>;
+

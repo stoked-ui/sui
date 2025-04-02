@@ -55,3 +55,4 @@ export async function handler() {
     throw new Error("Error managing certificates");
   }
 }
+

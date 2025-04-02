@@ -6,3 +6,4 @@ module.exports = {
   reporter: 'dot',
   require: ['@stoked-ui/internal-test-utils/setupBabelPlaywright'],
 };
+

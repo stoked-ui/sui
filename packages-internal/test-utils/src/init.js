@@ -13,3 +13,4 @@ const defaultHidden = !process.env.CI;
 // adds verbosity for something that might be confusing
 console.warn(`${defaultHidden ? 'including' : 'excluding'} inaccessible elements by default`);
 testingLibrary.configure({ defaultHidden });
+

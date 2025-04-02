@@ -15,3 +15,4 @@ export function getTimelineScrollResizerUtilityClass(slot: string): string {
 export const timelineScrollResizerClasses: TimelineScrollResizerClasses = generateUtilityClasses('MuiTimelineScrollResizer', [
   'root',
 ]);
+

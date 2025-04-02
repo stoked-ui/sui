@@ -12,3 +12,4 @@ export interface Classes {
 const classes: Classes = { root: 'root', slot: 'slot' };
 
 export default classes;
+

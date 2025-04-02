@@ -8,3 +8,4 @@ const apiPages: MuiPage[] = [
 
 ];
 export default apiPages;
+

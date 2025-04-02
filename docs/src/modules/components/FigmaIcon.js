@@ -11,3 +11,4 @@ export default createSvgIcon(
   </g>,
   'Figma',
 );
+

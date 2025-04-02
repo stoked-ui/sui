@@ -3,3 +3,4 @@ export type MuiCancellableEvent = {
 };
 
 export type MuiCancellableEventHandler<Event> = (event: Event & MuiCancellableEvent) => void;
+

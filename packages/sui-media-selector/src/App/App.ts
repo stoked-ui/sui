@@ -106,3 +106,4 @@ export default abstract class App {
     return factory ? factory.createFile(data) : null;
   }
 }
+

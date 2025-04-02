@@ -21,3 +21,4 @@ export interface DetailViewProps {
   slots?: DetailViewSlots;
   slotProps?: DetailViewSlotProps;
 }
+

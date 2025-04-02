@@ -27,3 +27,4 @@ export interface FileExplorerComponents<Theme = unknown> {
 declare module '@mui/material/styles' {
   interface Components<Theme = unknown> extends FileExplorerComponents<Theme> {}
 }
+

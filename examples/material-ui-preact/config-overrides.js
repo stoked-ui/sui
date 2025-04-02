@@ -6,3 +6,4 @@ module.exports = override(
     'react-dom': 'preact/compat',
   }),
 );
+

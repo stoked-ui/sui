@@ -21,3 +21,4 @@ export default function getIndexFile(directory: string) {
     indexFilename: indexFile ? path.join(directory, indexFile) : null,
   };
 }
+

@@ -253,3 +253,4 @@ module.exports = function setKarmaConfig(config) {
 
   config.set(newConfig);
 };
+

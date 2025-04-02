@@ -151,3 +151,4 @@ export function DetailTrack(props: DetailViewProps) {
     </FormWrap>
   )
 }
+

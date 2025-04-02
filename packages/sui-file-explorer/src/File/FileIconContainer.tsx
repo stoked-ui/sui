@@ -17,3 +17,4 @@ export const FileIconContainer = styled('div', {
     fontSize: 18,
   },
 });
+

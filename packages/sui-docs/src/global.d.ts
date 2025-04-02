@@ -5,3 +5,4 @@ declare module '@emotion/react' {
     applyDarkStyles: (styles: any) => any;
   }
 }
+

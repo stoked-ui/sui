@@ -9,3 +9,4 @@ module.exports = {
   // check it https://github.com/mui/material-ui/issues/30671
   serverModuleFormat: 'cjs',
 };
+

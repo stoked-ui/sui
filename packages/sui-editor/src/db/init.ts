@@ -9,3 +9,4 @@ const initDb = async (storeName) => {
 }
 
 export default initDb;
+

@@ -44,3 +44,4 @@ export default class WebFileFactory<T extends WebFile> implements IWebFileFactor
 
 // Register the AppFile class for its MIME type
 // WebFileFactory.registerMimeType(AppFile.MimeClass.type, AppFile);
+

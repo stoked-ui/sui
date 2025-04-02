@@ -56,3 +56,4 @@ export default function getProductInfoFromUrl(languages: string[], asPath: strin
     productId,
   } as MuiProductInfo;
 }
+

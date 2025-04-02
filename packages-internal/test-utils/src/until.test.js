@@ -118,3 +118,4 @@ describe('until', () => {
     expect(wrapper.contains(<Div />)).to.equal(true);
   });
 });
+

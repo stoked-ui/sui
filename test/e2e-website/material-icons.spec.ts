@@ -8,3 +8,4 @@ test('should see the selected icon popup that match the query', async ({ page })
 
   await expect(page.locator('.MuiDialog-container h2:has-text("AcUnit")')).toBeVisible();
 });
+

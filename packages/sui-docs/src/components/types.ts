@@ -45,3 +45,4 @@ export interface DemoComponentProps {
   githubLocation?: string;
   mode?: 'light' | 'dark';
 }
+

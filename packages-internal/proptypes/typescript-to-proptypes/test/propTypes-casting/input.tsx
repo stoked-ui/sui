@@ -10,3 +10,4 @@ export default function Component(props: {}): JSX.Element {
 Component.propTypes = {
   foo: PropTypes.string.isRequired,
 } as any;
+

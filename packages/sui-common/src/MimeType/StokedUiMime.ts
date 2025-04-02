@@ -43,3 +43,4 @@ console.log(singleton1 === singleton2); // true
 singleton1.doSomething();
 
 */
+

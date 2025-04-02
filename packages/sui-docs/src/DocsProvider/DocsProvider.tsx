@@ -41,3 +41,4 @@ export function useDocsConfig() {
   }
   return config;
 }
+

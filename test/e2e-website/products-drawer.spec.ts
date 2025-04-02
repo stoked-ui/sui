@@ -27,3 +27,4 @@ test('able to navigate between products', async ({ page }) => {
     page.locator('#mui-product-menu a[href^="/base-ui/getting-started/"]'),
   ).toBeVisible();
 });
+

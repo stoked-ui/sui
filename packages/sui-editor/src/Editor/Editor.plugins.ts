@@ -27,3 +27,4 @@ export type EditorPluginSlotProps = MergeSignaturesProperty<
 // We can't infer this type from the plugin, otherwise we would lose the generics.
 export interface EditorPluginParameters
   extends UseEditorMetadataParameters {}
+

@@ -21,3 +21,4 @@ export async function getKeysStartingWithPrefix(dbName: string, storeName: strin
   await tx.done;
   return keys;
 }
+

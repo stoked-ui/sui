@@ -219,3 +219,4 @@ export default class AppFile<FileDataType extends IAppFileData = IAppFileData> e
     } as FileDataType
   }
 }
+

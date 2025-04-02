@@ -13,3 +13,4 @@ export type FileExplorerCorePluginSignatures = ConvertPluginsIntoSignatures<
 >;
 
 export interface FileExplorerCorePluginParameters extends UseFileExplorerIdParameters {}
+

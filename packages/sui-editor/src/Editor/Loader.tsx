@@ -145,3 +145,4 @@ function Loader({styles}: {styles: React.CSSProperties}) {
 }
 
 export default Loader;
+

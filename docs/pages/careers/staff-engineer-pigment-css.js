@@ -5,3 +5,4 @@ import * as pageProps from 'docs/pages/careers/staff-engineer-pigment-css.md?mui
 export default function Page() {
   return <TopLayoutCareers {...pageProps} />;
 }
+

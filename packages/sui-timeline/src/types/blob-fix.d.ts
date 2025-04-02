@@ -7,3 +7,4 @@ declare interface Blob {
 declare interface File extends Blob {
   // Add any missing properties that might be expected
 } 
+

@@ -11,3 +11,4 @@ export default function AdInHouse(props) {
 AdInHouse.propTypes = {
   ad: PropTypes.object.isRequired,
 };
+

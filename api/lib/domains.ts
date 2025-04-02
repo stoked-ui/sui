@@ -9,3 +9,4 @@ const getSubdomains = () => {
 }
 
 export const domains = getSubdomains();
+

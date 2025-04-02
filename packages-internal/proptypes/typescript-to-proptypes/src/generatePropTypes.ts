@@ -375,3 +375,4 @@ export function generatePropTypes(
 
   return `${component.name}.propTypes ${propTypesMemberTrailingComment}= {\n${propTypesBanner}${generated}\n}${propTypesCasting}`;
 }
+

@@ -169,3 +169,4 @@ type BarProps<D extends React.ElementType = BarTypeMap['defaultComponent'], P = 
 const Header = React.forwardRef<HTMLElement, BarProps>((props, ref) => (
   <Bar ref={ref} component="header" {...props} />
 ));
+

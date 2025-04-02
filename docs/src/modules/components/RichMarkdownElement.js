@@ -146,3 +146,4 @@ RichMarkdownElement.propTypes = {
   WrapperComponent: PropTypes.elementType,
   wrapperProps: PropTypes.object,
 };
+

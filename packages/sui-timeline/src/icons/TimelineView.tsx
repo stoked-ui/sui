@@ -6,3 +6,4 @@ const TimelineView = createSvgIcon(<React.Fragment>
 </React.Fragment>,  'FeatureSnapIcon' );
 
 export default TimelineView;
+

@@ -18,3 +18,4 @@ describe('ee<FileDropzone />', () => {
     skip: ['componentProp', 'componentsProp', 'themeVariants'],
   }));
 });
+

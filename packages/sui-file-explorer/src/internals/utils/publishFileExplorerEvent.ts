@@ -15,3 +15,4 @@ export const publishFileExplorerEvent = <
 ) => {
   instance.$$publishEvent(eventName as string, params);
 };
+

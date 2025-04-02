@@ -270,3 +270,4 @@ export interface BackgroundImageStyle {
   backgroundPosition: string,
   backgroundSize: string
 }
+

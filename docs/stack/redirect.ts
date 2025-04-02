@@ -43,3 +43,4 @@ export function handler(event: any) {
   // If no redirect is needed, return the original request
   return request;
 }
+

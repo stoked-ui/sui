@@ -370,3 +370,4 @@ const container = document.getElementById('react-root');
 const children = <App fixtures={regressionFixtures.concat(demoFixtures)} />;
 const reactRoot = ReactDOMClient.createRoot(container);
 reactRoot.render(children);
+

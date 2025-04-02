@@ -138,3 +138,4 @@ export type FileExplorerPlugin<TSignature extends FileExplorerAnyPluginSignature
    */
   wrapRoot?: FileExplorerRootWrapper<[TSignature, ...TSignature['dependencies']]>;
 };
+

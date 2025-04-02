@@ -54,3 +54,4 @@ const theme = createTheme({
   {/* @ts-expect-error unknown variant */}
   <TableCell variant="tableHeading">Bar</TableCell>;
 </Table>;
+

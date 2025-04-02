@@ -61,3 +61,4 @@ export const createApi = (domainInfo: DomainInfo) => {
 
   return api;
 }
+

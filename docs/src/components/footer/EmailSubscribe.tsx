@@ -162,3 +162,4 @@ export default function EmailSubscribe({ sx }: { sx?: SxProps<Theme> }) {
     </Form>
   );
 }
+

@@ -84,3 +84,4 @@ export function getTracksFromMediaFiles(mediaFiles: IMediaFile[], currentTime: n
   }
   return newTracks;
 }
+

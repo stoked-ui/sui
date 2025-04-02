@@ -12,3 +12,4 @@ const DemoCodeViewer = styled(HighlightedCode)(() => ({
 }));
 
 export default DemoCodeViewer;
+

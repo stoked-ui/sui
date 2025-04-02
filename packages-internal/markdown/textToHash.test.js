@@ -30,3 +30,4 @@ describe('textToHash', () => {
     expect(textToHash('Styling solution', unique)).to.equal('styling-solution-2');
   });
 });
+

@@ -271,3 +271,4 @@ export function TransitionComponent(props: TransitionProps) {
 
   return <AnimatedCollapse style={style} {...props} />;
 }
+

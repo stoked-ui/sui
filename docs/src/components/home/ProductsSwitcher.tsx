@@ -19,3 +19,4 @@ export default function ProductsSwitcher(props: ProductStackProps) {
     </React.Fragment>
   );
 }
+

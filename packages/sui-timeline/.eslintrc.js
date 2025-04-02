@@ -7,3 +7,4 @@ module.exports = {
     'import/order': 'error',
   },
 };
+

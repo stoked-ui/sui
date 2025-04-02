@@ -123,3 +123,4 @@ describe('typescript-to-proptypes', () => {
     });
   });
 });
+

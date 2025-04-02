@@ -6,3 +6,4 @@ import descriptions from './data-grid-premium-translation.json';
 export default function Page() {
   return <ApiPage descriptions={{ en: descriptions }} pageContent={jsonPageContent} />;
 }
+

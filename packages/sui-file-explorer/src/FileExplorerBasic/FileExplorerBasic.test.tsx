@@ -18,3 +18,4 @@ describe('<FileExplorerBasic />', () => {
     skip: ['componentProp', 'componentsProp', 'themeVariants'],
   }));
 });
+

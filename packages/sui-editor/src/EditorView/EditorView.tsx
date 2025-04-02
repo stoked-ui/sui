@@ -287,3 +287,4 @@ EditorView.propTypes = {
 } as any;
 
 export default EditorView;
+

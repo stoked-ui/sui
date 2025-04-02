@@ -14,3 +14,4 @@ export default function Foo(props: Options) {
   const { PropA, TestProps } = props;
   return <div></div>;
 }
+

@@ -31,3 +31,4 @@ ruleTester.run('no-hardcoded-labels', rule, {
     { code: '<label>{`< Back to blog`}</label>', errors: [{ messageId: 'literal-label' }] },
   ],
 });
+

@@ -37,3 +37,4 @@ ruleTester.run('no-empty-box', rule, {
     },
   ],
 });
+

@@ -16,3 +16,4 @@ window.getComputedStyle = function getComputedStyleMock() {
 };
 
 module.exports = { ...coreExports, mochaHooks };
+

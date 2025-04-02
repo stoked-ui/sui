@@ -18,3 +18,4 @@ export function Snackbar(props: SnackBarProps) {
 export function SomeOtherComponent(props: { children?: React.ReactNode }) {
   return <div>{props.children}</div>;
 }
+

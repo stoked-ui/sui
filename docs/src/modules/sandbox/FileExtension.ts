@@ -7,3 +7,4 @@ export default function getFileExtension(codeVariant: 'TS' | 'JS') {
   }
   throw new Error(`Unsupported codeVariant: ${codeVariant}`);
 }
+

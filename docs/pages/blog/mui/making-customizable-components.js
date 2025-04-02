@@ -5,3 +5,4 @@ import { docs } from './making-customizable-components.md?muiMarkdown';
 export default function Page() {
   return <TopLayoutBlog docs={docs} />;
 }
+

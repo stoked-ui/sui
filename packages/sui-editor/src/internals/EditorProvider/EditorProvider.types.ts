@@ -26,3 +26,4 @@ export interface EditorProviderProps<TSignatures extends readonly EditorAnyPlugi
   value: EditorContextValue<TSignatures>;
   children: React.ReactNode;
 }
+

@@ -161,3 +161,4 @@ export const Slider = React.forwardRef(function Slider(
     />
   );
 });
+

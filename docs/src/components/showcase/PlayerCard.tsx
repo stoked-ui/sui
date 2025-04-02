@@ -124,3 +124,4 @@ export default function PlayerCard({ disableTheming }: { disableTheming?: boolea
     </Fade>
   );
 }
+

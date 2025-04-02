@@ -367,3 +367,4 @@ export function getDynamicFiles2 (): readonly FileBase[] {
     }
   ]
 }
+

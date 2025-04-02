@@ -7,3 +7,4 @@ module.exports = {
     'jsx-a11y/aria-role': 'off',
   },
 };
+

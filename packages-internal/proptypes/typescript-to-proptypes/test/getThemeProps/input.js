@@ -10,3 +10,4 @@ export default function Modal(inProps) {
 
   return <div onKeyDown={handleKeyDown} {...other} />;
 }
+

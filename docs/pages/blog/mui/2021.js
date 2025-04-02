@@ -5,3 +5,4 @@ import { docs } from './2021.md?muiMarkdown';
 export default function Page() {
   return <TopLayoutBlog docs={docs} />;
 }
+

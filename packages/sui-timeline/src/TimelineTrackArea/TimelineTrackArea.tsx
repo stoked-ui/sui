@@ -494,3 +494,4 @@ TimelineTrackArea.propTypes = {
 };
 
 export default TimelineTrackArea;
+

@@ -26,3 +26,4 @@ function Privacy() {
 }
 
 export default withRoot(Privacy);
+

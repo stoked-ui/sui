@@ -71,3 +71,4 @@ AdDisplay.propTypes = {
   className: PropTypes.string,
   shape: PropTypes.oneOf(['inline', 'auto']),
 };
+

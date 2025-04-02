@@ -40,3 +40,4 @@ export interface FileDropzoneProps
    */
   sx?: SxProps<Theme>;
 }
+

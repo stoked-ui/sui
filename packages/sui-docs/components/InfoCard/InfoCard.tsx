@@ -109,3 +109,4 @@ export function InfoCard(props: InfoCardProps) {
     </Paper>
   );
 }
+

@@ -5,3 +5,4 @@ export default function addHiddenInput(form: HTMLFormElement, name: string, valu
   input.value = value;
   form.appendChild(input);
 }
+

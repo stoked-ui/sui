@@ -87,3 +87,4 @@ ProductHeroLayout.propTypes = {
 };
 
 export default ProductHeroLayout;
+

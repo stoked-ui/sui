@@ -59,3 +59,4 @@ FileIcon.propTypes = {
 };
 
 export { FileIcon };
+

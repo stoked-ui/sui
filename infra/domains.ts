@@ -30,3 +30,4 @@ export interface DomainInfo {
   dbName: string;
   apiDomain: string;
 }
+

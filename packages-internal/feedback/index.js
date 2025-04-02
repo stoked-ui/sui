@@ -147,3 +147,4 @@ api.addPostDeployConfig('devTableName', 'DynamoDB Development Table Name:', 'con
 api.addPostDeployConfig('prodTableName', 'DynamoDB Production Table Name:', 'configure-table-prod');
 
 module.exports = api;
+

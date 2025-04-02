@@ -22,3 +22,4 @@ const apiPages = [
 ];
 
 export default apiPages;
+

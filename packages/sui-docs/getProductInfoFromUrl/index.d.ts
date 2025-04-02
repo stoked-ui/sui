@@ -19,3 +19,4 @@ interface MuiProductInfo {
 }
 
 export default function getProductInfoFromUrl(languages: string[], asPath: string): MuiProductInfo; 
+

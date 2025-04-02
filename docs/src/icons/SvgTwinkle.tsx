@@ -20,3 +20,4 @@ function SvgTwinkle(props: RootSvgProps) {
 }
 
 export default SvgTwinkle;
+

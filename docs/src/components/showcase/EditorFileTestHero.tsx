@@ -144,3 +144,4 @@ function EditorFileTestHero({ id, sx }: { id: string, sx?: SxProps}) {
 export default EditorFileTestHero;
 // file={EditorExample}
 
+

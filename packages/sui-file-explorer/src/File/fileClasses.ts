@@ -46,3 +46,4 @@ export const fileClasses: FileClasses = generateUtilityClasses('MuiFile', [
   'name',
   'checkbox',
 ]);
+

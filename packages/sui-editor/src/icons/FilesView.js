@@ -13,3 +13,4 @@ var _default = exports.default = (0, _createSvgIcon.default)((0, _jsxRuntime.jsx
   opacity: '1'
 }), 'FilesView');
 
+

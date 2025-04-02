@@ -29,3 +29,4 @@ export default function Grid(props: Props) {
   const { series } = props;
   return <div>{series.type}</div>;
 }
+

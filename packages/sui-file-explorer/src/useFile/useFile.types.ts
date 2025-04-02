@@ -176,3 +176,4 @@ export interface UseFileReturnValue<
    */
   publicAPI: FileExplorerPublicAPI<TSignatures, TOptionalSignatures>;
 }
+

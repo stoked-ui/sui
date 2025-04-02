@@ -261,3 +261,4 @@ export const trackObjectSchema = yup.object({
   muted: yup.boolean().required("Hidden flag is required"),
   locked: yup.boolean().required("Lock flag is required"),
 });
+

@@ -1087,3 +1087,4 @@ function describeConformance(
 }
 
 export default createDescribe('MUI component API', describeConformance);
+

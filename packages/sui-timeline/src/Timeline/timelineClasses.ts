@@ -22,3 +22,4 @@ export const timelineClasses: TimelineClasses = generateUtilityClasses('MuiTimel
   'trackArea',
   'resizer',
 ]);
+

@@ -31,3 +31,4 @@ describe('Theme scoping', () => {
     ).not.to.throw();
   });
 });
+

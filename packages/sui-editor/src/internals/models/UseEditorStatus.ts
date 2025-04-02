@@ -12,3 +12,4 @@ export interface UseEditorStatus {
   dndContainer: any;
   dndInstruction: any;
 }
+

@@ -60,3 +60,4 @@ export default function useIncId(props?: IncIdProps | string): () => string {
   // Return a function that generates a new ID each time it is called
   return incrementFunc
 }
+

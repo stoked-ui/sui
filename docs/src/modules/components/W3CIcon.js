@@ -13,3 +13,4 @@ export default createSvgIcon(
   </g>,
   'W3C',
 );
+

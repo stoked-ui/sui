@@ -38,3 +38,4 @@ export default function BlendModeSelect({control, disabled, onClick, rules = und
     rules={{ required: "This field is required" }}
   />
 }
+

@@ -32,3 +32,4 @@ describe('<TableRow> integration', () => {
     expect(getByRole('row')).to.have.class(classes.footer);
   });
 });
+

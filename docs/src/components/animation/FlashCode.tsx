@@ -25,3 +25,4 @@ const FlashCode = styled('div', {
 );
 
 export default FlashCode;
+

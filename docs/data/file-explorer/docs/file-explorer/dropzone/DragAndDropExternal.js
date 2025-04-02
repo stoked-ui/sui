@@ -14,3 +14,4 @@ export default function DragAndDropExternal() {
     </Box>
   );
 }
+

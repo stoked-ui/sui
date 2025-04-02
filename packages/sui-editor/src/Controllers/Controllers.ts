@@ -16,3 +16,4 @@ const Controllers: Record<string, IController> = {
 };
 
 export default Controllers;
+

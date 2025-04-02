@@ -575,3 +575,4 @@ const TimelineControls = React.forwardRef(function TimelineControls(
     </PlayerRoot>
   );
 });
+

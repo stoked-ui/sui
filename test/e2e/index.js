@@ -125,3 +125,4 @@ window.elementToString = function elementToString(element) {
   }
   return String(element);
 };
+

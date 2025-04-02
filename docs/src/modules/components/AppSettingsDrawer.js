@@ -183,3 +183,4 @@ AppSettingsDrawer.propTypes = {
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool,
 };
+

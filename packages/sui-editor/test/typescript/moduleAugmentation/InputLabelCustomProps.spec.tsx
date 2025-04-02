@@ -11,3 +11,4 @@ declare module '@mui/material/InputLabel' {
 
 // @ts-expect-error unknown size
 <InputLabel size="foo" />;
+

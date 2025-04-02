@@ -24,3 +24,4 @@ describe('docs getDependencies helpers', () => {
     expect(pageToTitle({ pathname: '/docs/pages/material/react-buttons.js' })).to.equal('Buttons');
   });
 });
+

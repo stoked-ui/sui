@@ -23,3 +23,4 @@ export const HeaderCell = React.forwardRef(
       <FileLabel {...columnProps} labelProps={labelProps} status={status} iconProps={getIconContainerProps()} />
     )
   });
+

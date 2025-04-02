@@ -680,3 +680,4 @@ export function getDbProps(mimeType: IMimeType, localDbProps?: LocalDbProps | fa
       return localDbProps;
   }
 }
+

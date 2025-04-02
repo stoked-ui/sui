@@ -156,3 +156,4 @@ AppLayoutDocs.propTypes = {
 if (process.env.NODE_ENV !== 'production') {
   AppLayoutDocs.propTypes = exactProp(AppLayoutDocs.propTypes);
 }
+

@@ -3,3 +3,4 @@ type Props = {
 };
 
 export default function Foo(props: Partial<Props>): JSX.Element;
+

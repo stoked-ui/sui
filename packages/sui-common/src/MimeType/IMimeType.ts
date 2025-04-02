@@ -99,3 +99,4 @@ export function getExtension(url) {
   }
   return pathname.substring(lastIndex);
 }
+

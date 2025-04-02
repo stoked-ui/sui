@@ -17,3 +17,4 @@ export type MuiBaseEvent =
 export type MuiEvent<E extends MuiBaseEvent = MuiBaseEvent> = E & {
   defaultMuiPrevented?: boolean;
 };
+
