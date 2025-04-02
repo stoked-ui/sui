@@ -8,9 +8,32 @@
  * @property {(response: Response | null, error: any) => boolean} [retryCondition] Function to determine whether to retry after an error or a successful response.
  */
 type FetchWithBackoffOptions = {
+  /**
+   * Maximum number of retries before giving up.
+   *
+   * Defaults to 3.
+   */
   retries?: number;
+  
+  /**
+   * Multiplier for backoff delay.
+   *
+   * Defaults to 2.
+   */
   backoffFactor?: number;
+  
+  /**
+   * Initial delay in milliseconds before making the first request.
+   *
+   * Defaults to 500ms.
+   */
   initialDelay?: number;
+  
+  /**
+   * Function to determine whether to retry after an error or a successful response.
+   *
+   * If null, will use a default condition where only errors are retried and responses with a non-OK status code are never retried.
+   */
   retryCondition?: (response: Response | null, error: any) => boolean;
 };
 
@@ -28,17 +51,21 @@ const FetchBackoff = async (
   init?: RequestInit,
   options?: FetchWithBackoffOptions
 ): Promise<Response> => {
-  const {
-    retries = 3,
-    backoffFactor = 2,
-    initialDelay = 500,
+  // Extract and default values for options
+  const { 
+    retries = 3, // maximum number of retries before giving up
+    backoffFactor = 2, // multiplier for backoff delay
+    initialDelay = 500, // initial delay in milliseconds before making the first request
     retryCondition = (response, error) =>
-      !!error || (response ? !response.ok : false),
+      !!error || (response ? !response.ok : false), // function to determine whether to retry after an error or a successful response
   } = options || {};
 
-  let attempt = 0;
-  let delay = initialDelay;
+  let attempt = 0; // current attempt number
+  let delay = initialDelay; // backoff delay in milliseconds
 
+  /**
+   * Fetches the resource with backoff functionality.
+   */
   while (attempt <= retries) {
     try {
       // eslint-disable-next-line no-await-in-loop

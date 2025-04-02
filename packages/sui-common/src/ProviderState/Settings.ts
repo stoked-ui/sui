@@ -41,12 +41,10 @@ export function createSettings<T = any>(initialData: Record<string, T> = {}): Se
      * @param {string | symbol} [path=''] - The path to the desired property.
      * @returns {*} The value of the property at the specified path.
      */
-    get: (target, path: string | symbol) => {
+    get: (target: Settings<T>, path: string | symbol) => {
       if (typeof path === 'string' && path.includes('.')) {
         const keys = path.split('.');
-        return keys.reduce((acc: any, key: string) => {
-          return acc && acc[key] !== undefined ? acc[key] : undefined;
-        }, target);
+        return keys.reduce((acc: any, key: string) => acc && acc[key] !== undefined ? acc[key] : undefined, target);
       }
       return target[path as keyof typeof target];
     },
@@ -57,17 +55,11 @@ export function createSettings<T = any>(initialData: Record<string, T> = {}): Se
      * @param {*} [value] - The new value for the property at the specified path.
      * @returns {boolean} True if the operation was successful, false otherwise.
      */
-    set: (target, path: string | symbol, value) => {
+    set: (target: Settings<T>, path: string | symbol, value) => {
       if (typeof path === 'string' && path.includes('.')) {
         const keys = path.split('.');
-        keys.reduce((acc: any, key: string, index: number) => {
-          if (index === keys.length - 1) {
-            acc[key] = value;
-          } else {
-            acc[key] = acc[key] || {};
-          }
-          return acc[key];
-        }, target);
+        keys.reduce((acc: any, key: string, index: number) => acc[key] = acc[key] || {}, target);
+        acc[keys[keys.length - 1]] = value;
         return true;
       }
       target[path as keyof typeof target] = value;

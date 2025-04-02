@@ -14,4 +14,3 @@ export * from './Types';
  * @description Exports all merge functions defined in the ./mergeWith module.
  * @see ./mergeWith
  */
-export * from './mergeWith';

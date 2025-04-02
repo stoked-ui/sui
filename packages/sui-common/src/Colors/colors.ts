@@ -1,18 +1,16 @@
-import { hexToRgb, hslToRgb, rgbToHex } from '@mui/material/styles';
-
 /**
  * Utility function to extract RGB and alpha from a color string.
  * 
  * @param {string} color - The input color string
  * @returns {{ r: number; g: number; b: number; alpha?: number }} An object containing the extracted RGB values and optional alpha value
  */
-function parseColorWithAlpha(color: string): { r: number; g: number; b: number; alpha?: number } {
-  let rgbColor: string;
-  let alpha: number | undefined;
-
+function parseColorWithAlpha(color) {
   /**
    * Determine the color type based on its format.
    */
+  let rgbColor;
+  let alpha;
+
   if (color.startsWith('#')) {
     rgbColor = hexToRgb(color);
   } else if (color.startsWith('hsl')) {
@@ -57,21 +55,22 @@ function parseColorWithAlpha(color: string): { r: number; g: number; b: number; 
  * @param {string} overlay - The overlay color string
  * @returns {string} A hex color string representing the blended result
  */
-export function compositeColors(baseColor: string, overlay: string): string {
-  const rgb1 = parseColorWithAlpha(baseColor);
-  const rgb2 = parseColorWithAlpha(overlay);
-
-  // Use alpha from the second color if present, else return color2 directly
+export function compositeColors(baseColor, overlay) {
   /**
    * Use alpha from the second color if present, else return color2 directly.
    */
+  const rgb1 = parseColorWithAlpha(baseColor);
+  const rgb2 = parseColorWithAlpha(overlay);
+
   const alpha = rgb2.alpha ?? 1;
 
   if (alpha === 1) {
+    /**
+     * Return the result as a hex color.
+     */
     return rgbToHex(`rgb(${rgb2.r}, ${rgb2.g}, ${rgb2.b})`);
   }
 
-  // Composite each channel disregarding alpha from color1
   /**
    * Composite each channel disregarding alpha from color1.
    */
@@ -79,7 +78,6 @@ export function compositeColors(baseColor: string, overlay: string): string {
   const g = Math.round(rgb1.g * (1 - alpha) + rgb2.g * alpha);
   const b = Math.round(rgb1.b * (1 - alpha) + rgb2.b * alpha);
 
-  // Return the result as a hex color
   /**
    * Return the result as a hex color.
    */

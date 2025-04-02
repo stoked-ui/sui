@@ -22,6 +22,8 @@ export class SUIMime extends MimeRegistry {
   /**
    * Public static method to access the singleton instance.
    * Returns the instance of SUIMime if it doesn't exist, otherwise returns the existing instance.
+   *
+   * @returns The instance of SUIMime
    */
   public static getInstance(): SUIMime {
     if (!SUIMime.instance) {
@@ -32,6 +34,8 @@ export class SUIMime extends MimeRegistry {
 
   /**
    * Creates standard MIME types for images, videos, and audio files.
+   *
+   * @private
    */
   createStandardTypes() {
     MimeRegistry.create('image', 'png', '.png', 'PNG Image');
@@ -41,6 +45,7 @@ export class SUIMime extends MimeRegistry {
 
   /**
    * Creates a new MIME type with the specified application, extension, and description.
+   *
    * @param application The application associated with the MIME type.
    * @param ext The file extension of the MIME type.
    * @param description A brief description of the MIME type.

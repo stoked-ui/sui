@@ -1,5 +1,3 @@
-Let's assume we have a simple JavaScript/TypeScript class that handles user authentication. Here is an example with added JSDoc comments:
-
 /**
  * Handles user authentication.
  */
@@ -27,5 +25,3 @@ class AuthHandler {
 }
 
 export default AuthHandler;
-
-In this example, we have added JSDoc comments to the `AuthHandler` class and its methods. We've included information about the class's purpose, method parameters and return types, as well as any relevant complex logic or business rules (in this case, the attemptLogin method).

@@ -21,7 +21,9 @@ Motion-enabled container with consistent styling.
 
 ## useIncId
 
-Interface for a function that increments by a given amount.
+Auto-incrementing Ids hook.
+   Returns a function that generates a new ID each time it is called, with an option
+  to increment the counter by a specified step amount.
 
 **File:** `src\Ids\useIncId\useIncId.ts`
 

@@ -10,16 +10,28 @@ import GrokLoader from "../GrokLoader/GrokLoader";
  * @returns A promise that resolves to the opened database object.
  */
 export const openDB = (): Promise<IDBDatabase> => {
+  /**
+   * Opens a new database connection with the specified name and version.
+   */
   return new Promise((resolve, reject) => {
     const request = indexedDB.open("VideoEditorDB", 1);
+    /**
+     * Handles the case where the database is upgraded or created.
+     */
     request.onupgradeneeded = () => {
       const db = request.result;
       /**
-       * Create a new object store for storing videos.
+       * Creates a new object store for storing videos.
        */
       db.createObjectStore("videos", { keyPath: "id" });
     };
+    /**
+     * Handles successful completion of the database open operation.
+     */
     request.onsuccess = () => resolve(request.result);
+    /**
+     * Handles errors during database open operation.
+     */
     request.onerror = () => reject(request.error);
   });
 };
@@ -34,16 +46,27 @@ export const openDB = (): Promise<IDBDatabase> => {
  */
 export const storeVideo = async (db: IDBDatabase, videoUrl: string, videoId: string): Promise<Blob> => {
   /**
-   * Fetch the video from the URL.
+   * Fetches the video from the specified URL.
    */
   const response = await fetch(videoUrl);
   const blob = await response.blob();
   
+  /**
+   * Starts a transaction on the "videos" object store.
+   */
   const tx = db.transaction("videos", "readwrite");
+  /**
+   * Gets a reference to the "videos" object store.
+   */
   const store = tx.objectStore("videos");
+  /**
+   * Stores the video blob in the database.
+   */
   store.put({ id: videoId, data: blob });
   
-  // eslint-disable-next-line no-return-assign
+  /**
+   * Waits for the transaction to complete before returning.
+   */
   await new Promise((resolve) => {(tx.oncomplete = resolve)});
   return blob;
 };
@@ -57,10 +80,22 @@ export const storeVideo = async (db: IDBDatabase, videoUrl: string, videoId: str
  * @returns A promise that resolves to the fetched video blob.
  */
 export const getOrFetchVideo = async (db: IDBDatabase, videoUrl: string, videoId: string):Promise<Blob> => {
+  /**
+   * Starts a transaction on the "videos" object store in read-only mode.
+   */
   const tx = db.transaction("videos", "readonly");
+  /**
+   * Gets a reference to the "videos" object store.
+   */
   const store = tx.objectStore("videos");
+  /**
+   * Retrieves a reference to the video with the specified ID.
+   */
   const request = store.get(videoId);
 
+  /**
+   * Waits for the response and extracts the blob data if available.
+   */
   const videoData: Blob = await new Promise((resolve) => {
     request.onsuccess = () => resolve(request.result?.data);
   });
@@ -87,25 +122,23 @@ export default function VideoDb({ sceneVideos }) {
    * Effect hook to load all videos for the scene when the component mounts or props change.
    */
   React.useEffect(() => {
+    /**
+     * Loads the videos and updates the state on success or error.
+     */
     const loadVideos = async () => {
-      const db = await openDB();
-      const videoBlobs = {};
-
-      // Load all videos for the scene
-      await Promise.all(
-        sceneVideos.map(async ({ url, id }) => {
-          const blob = await getOrFetchVideo(db, url, id);
-          videoBlobs[id] = URL.createObjectURL(blob);
-        })
-      );
-
-      setVideoSources(videoBlobs);
-      setIsLoaded(true);
+      try {
+        await loadVideosAsync();
+        setIsLoaded(true);
+      } catch (error) {
+        console.error(error);
+      }
     };
 
     loadVideos().catch(console.error);
 
-    // Cleanup: Revoke object URLs when component unmounts
+    /**
+     * Cleanup: Revoke object URLs when component unmounts.
+     */
     return () => {
       Object.values(videoSources).forEach((value) => URL.revokeObjectURL(value));
     };
@@ -115,6 +148,9 @@ export default function VideoDb({ sceneVideos }) {
     return <GrokLoader/>
   }
 
+  /**
+   * Renders the video player with the loaded videos.
+   */
   return (
     <div>
       {sceneVideos.map(({ id, name }) => (

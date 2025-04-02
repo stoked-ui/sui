@@ -1,7 +1,3 @@
-import * as React from 'react';
-import { motion, useAnimationControls, useMotionValue, useTransform, AnimatePresence, animate } from 'framer-motion';
-import { styled } from "@mui/material/styles";
-
 /**
  * Motion-enabled container with consistent styling.
  */
