@@ -1,4 +1,6 @@
-import namedId from './namedId';
+/**
+ * Exports a named ID and all its exports.
+ */
+export default import.namedId;
 
-export default namedId;
 export * from './namedId';
