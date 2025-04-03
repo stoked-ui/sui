@@ -53,6 +53,9 @@ export interface IncIdProps {
 /**
  * A hook that generates unique IDs for use in cases where deterministic outcomes are required,
  * such as hydration. The base ID can be optionally provided or automatically generated.
+ *
+ * @param {IncIdProps | string} props - An optional set of props, which defaults to an empty object if not provided.
+ * @returns {function} A function that generates a new unique ID each time it is called.
  */
 export default function useIncId(props?: IncIdProps | string): () => string {
   const defaultProps = { length: 3 };

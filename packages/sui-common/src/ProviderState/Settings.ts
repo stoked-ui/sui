@@ -23,6 +23,11 @@
  * const nestedData: NestedRecord<string> = { [data.foo]: data.bar };
  */
 export interface NestedRecord<T = any> {
+  /**
+   * The path to a nested value in the settings object.
+   *
+   * @type {string | symbol}
+   */
   [path: string]: T;
 }
 
@@ -34,7 +39,14 @@ export interface NestedRecord<T = any> {
  * @example
  * const settings: Settings<string> = { foo: 'bar', baz: { qux: 'quux' } };
  */
-export interface Settings<T = any> extends NestedRecord<T> {}
+export interface Settings<T = any> extends NestedRecord<T> {
+  /**
+   * The initial data for the settings object (defaults to an empty record).
+   *
+   * @type {Record<string, T>}
+   */
+  [path: string]: T;
+}
 
 /**
  * Creates a settings object with nested properties.

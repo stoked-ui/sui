@@ -1,6 +1,3 @@
-import * as React from "react";
-import GrokLoader from "../GrokLoader/GrokLoader";
-
 /**
  * Opens a connection to the IndexedDB database.
  *

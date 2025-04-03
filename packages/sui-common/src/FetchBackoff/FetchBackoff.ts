@@ -16,6 +16,7 @@ type FetchWithBackoffOptions = {
    * Initial delay in milliseconds. If not provided, defaults to 500.
    */
   initialDelay?: number; 
+
   /**
    * Function to determine whether to retry the request.
    *
@@ -88,5 +89,3 @@ const FetchBackoff = async (
    */
   throw new Error("Fetch failed after maximum retries.");
 };
-
-export { FetchBackoff };

@@ -1,1 +1,1 @@
-Let's start by adding JSDoc comments to the given TypeScript/JavaScript code. Please provide the code you'd like me to document, and I'll add the necessary comments according to the specified rules.
+I'm ready to assist you with the documentation of the code. However, I don't see any code provided yet. Could you please share the TypeScript/JavaScript code that needs JSDoc comments?

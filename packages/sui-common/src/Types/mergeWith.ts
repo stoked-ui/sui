@@ -11,6 +11,16 @@ type MergeKey<T> = keyof T;
  * This extension allows arrays to be merged with other arrays using the mergeWith method.
  */
 declare global {
+  /**
+   * Merges two arrays together, combining their properties based on a common key.
+   *
+   * The first array is iterated over and its items are added to the map. Then, the second array is iterated over,
+   * and any duplicate items are overwritten in the map. Finally, the values of the map are returned as an array.
+   *
+   * @param otherArray - The second array to merge with.
+   * @param mergeKey - The key function to determine which items to combine.
+   * @returns A new array containing all combined properties.
+   */
   interface Array<T> {
     /**
      * Merges two arrays together, combining their properties based on a common key.
@@ -51,11 +61,23 @@ function mergeWith<T, U>(
    */
   mergeKey: MergeKey<T & U>
 ): Array<T | U> {
+  /**
+   * Creates a new map to store combined items, keyed by their common keys.
+   */
   const mergedMap = new Map<any, T | U>();
+
+  /**
+   * Filters out any null or undefined values from the current array.
+   */
   const instance = this.filter(Boolean);
+
   if (!Array.isArray(otherArray)) {
     return instance;
   }
+
+  /**
+   * Filters out any null or undefined values from the second array.
+   */
   otherArray = otherArray.filter(Boolean);
 
   // Add items from the first array
@@ -70,6 +92,9 @@ function mergeWith<T, U>(
     mergedMap.set(key, item);
   });
 
+  /**
+   * Converts the map values to an array and returns it.
+   */
   return Array.from(mergedMap.values());
 }
 

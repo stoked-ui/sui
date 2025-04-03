@@ -151,19 +151,19 @@ export class MimeRegistry {
     this.types[mimeType.type] = mimeType;
     return mimeType as IMimeType;
   }
-}
 
-/**
- * Gets the extension from a URL.
- * 
- * @param url The URL to get the extension from.
- */
-export function getExtension(url) {
-  const urlObj = new URL(url);
-  const pathname = urlObj.pathname;
-  const lastIndex = pathname.lastIndexOf(".");
-  if (lastIndex === -1) {
-    return ""; // No extension found
+  /**
+   * Gets the extension from a URL.
+   * 
+   * @param url The URL to get the extension from.
+   */
+  static getExtension(url) {
+    const urlObj = new URL(url);
+    const pathname = urlObj.pathname;
+    const lastIndex = pathname.lastIndexOf(".");
+    if (lastIndex === -1) {
+      return ""; // No extension found
+    }
+    return pathname.substring(lastIndex);
   }
-  return pathname.substring(lastIndex);
 }

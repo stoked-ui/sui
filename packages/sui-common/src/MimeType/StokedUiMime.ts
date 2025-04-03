@@ -4,10 +4,18 @@ import { Ext, IMimeType, MimeRegistry } from "./IMimeType";
  * Singleton instance of SUIMime class.
  */
 export class SUIMime extends MimeRegistry {
+  /**
+   * Private static instance variable to hold the singleton instance of SUIMime class.
+   *
+   * @private
+   */
   private static instance: SUIMime;
 
   /**
-   * Private constructor to prevent direct instantiation.
+   * Private constructor to prevent direct instantiation of the SUIMime class.
+   * This ensures that only one instance is created and maintains the singleton pattern.
+   *
+   * @private
    */
   private constructor() {
     super();
@@ -16,7 +24,8 @@ export class SUIMime extends MimeRegistry {
   }
 
   /**
-   * Public static method to access the singleton instance.
+   * Public static method to access the singleton instance of SUIMime class.
+   * This method returns the existing instance if it has been created, or creates a new one if not.
    *
    * @returns {SUIMime} The singleton instance of SUIMime class.
    */
@@ -29,6 +38,7 @@ export class SUIMime extends MimeRegistry {
 
   /**
    * Creates standard types for the SUIMime registry.
+   * This method populates the mime registry with common image, video, and audio MIME types.
    */
   createStandardTypes() {
     MimeRegistry.create('image', 'png', '.png', 'PNG Image');
@@ -57,5 +67,3 @@ export class SUIMime extends MimeRegistry {
  *
  * This class demonstrates the singleton pattern implementation using a static instance.
  */
-
-// Note: Accessibility notes have been omitted as they do not add significant value to this documentation block.
