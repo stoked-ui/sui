@@ -1,21 +1,22 @@
 /**
- * Options for fetching data with backoff.
+ * @packageDocumentation
  *
- * @interface FetchWithBackoffOptions
+ * Backoff-based data fetching library. This module provides a fetch function with support for backoff delay.
  */
-type FetchWithBackoffOptions = {
+
+interface FetchWithBackoffOptions {
   /**
    * Maximum number of retries. If not provided, defaults to 3.
    */
-  retries?: number; 
+  retries?: number;
   /**
    * Multiplier for backoff delay. If not provided, defaults to 2.
    */
-  backoffFactor?: number; 
+  backoffFactor?: number;
   /**
    * Initial delay in milliseconds. If not provided, defaults to 500.
    */
-  initialDelay?: number; 
+  initialDelay?: number;
 
   /**
    * Function to determine whether to retry the request.
@@ -24,8 +25,8 @@ type FetchWithBackoffOptions = {
    * @param error Error object
    * @returns True if the request should be retried, false otherwise
    */
-  retryCondition?: (response: Response | null, error: any) => boolean; 
-};
+  retryCondition?: (response: Response | null, error: any) => boolean;
+}
 
 /**
  * Fetches data with backoff.
@@ -77,7 +78,7 @@ const FetchBackoff = async (
 
     // Wait for the backoff delay before retrying
     await new Promise((resolve) => {
-      setTimeout(resolve, delay)
+      setTimeout(resolve, delay);
     });
     delay *= backoffFactor;
     // Increment the attempt counter

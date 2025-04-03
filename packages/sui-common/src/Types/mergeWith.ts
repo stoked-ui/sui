@@ -1,13 +1,16 @@
+Here is the documented code:
+
 /**
  * Type alias for the merge key type.
+ * The merge key type is a union of two types, T and U,
+ * where both types have the same keys as specified by the MergeKey function.
  *
- * The merge key type is a union of two types, T and U, where both types have the same keys as specified by the MergeKey function.
+ * @typedef {Function} MergeKey
  */
 type MergeKey<T> = keyof T;
 
 /**
  * Global interface to extend the Array prototype with the mergeWith method.
- *
  * This extension allows arrays to be merged with other arrays using the mergeWith method.
  */
 declare global {
@@ -17,9 +20,9 @@ declare global {
    * The first array is iterated over and its items are added to the map. Then, the second array is iterated over,
    * and any duplicate items are overwritten in the map. Finally, the values of the map are returned as an array.
    *
-   * @param otherArray - The second array to merge with.
-   * @param mergeKey - The key function to determine which items to combine.
-   * @returns A new array containing all combined properties.
+   * @param {Array<U>} otherArray - The second array to merge with.
+   * @param {Function} mergeKey - The key function to determine which items to combine.
+   * @returns {Array<T | U>} A new array containing all combined properties.
    */
   interface Array<T> {
     /**
@@ -28,9 +31,9 @@ declare global {
      * The first array is iterated over and its items are added to the map. Then, the second array is iterated over,
      * and any duplicate items are overwritten in the map. Finally, the values of the map are returned as an array.
      *
-     * @param otherArray - The second array to merge with.
-     * @param mergeKey - The key function to determine which items to combine.
-     * @returns A new array containing all combined properties.
+     * @param {Array<U>} otherArray - The second array to merge with.
+     * @param {Function} mergeKey - The key function to determine which items to combine.
+     * @returns {Array<T | U>} A new array containing all combined properties.
      */
     mergeWith<U>(otherArray: U[], mergeKey: MergeKey<T & U>): Array<T | U>;
   }
@@ -39,12 +42,13 @@ declare global {
 /**
  * Merges two arrays together, combining their properties based on a common key.
  *
- * This function takes three arguments: the current array (this), the second array to merge with, and the merge key.
+ * This function takes three arguments:
+ * - The current array (this), the second array to merge with, and the merge key.
  *
- * @param this - The current array to merge into.
- * @param otherArray - The second array to merge with.
- * @param mergeKey - The key function to determine which items to combine.
- * @returns A new array containing all combined properties.
+ * @param {T[]} this - The current array to merge into.
+ * @param {U[]} otherArray - The second array to merge with.
+ * @param {Function} mergeKey - The key function to determine which items to combine.
+ * @returns {Array<T | U>} A new array containing all combined properties.
  */
 function mergeWith<T, U>(
   /**

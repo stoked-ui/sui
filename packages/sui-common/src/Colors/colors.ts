@@ -1,26 +1,53 @@
-import { hexToRgb, hslToRgb, rgbToHex } from '@mui/material/styles';
+/**
+ * @packageDocumentation
+ * Color Utility Functions
+ *
+ * Provides utility functions for working with colors, including parsing and composing color strings.
+ */
 
+/**
+ * @typedef {Object} ColorString
+ * @property {string} type - Type of the color string (hex, rgb, hsl)
+ * @property {string|number[]} values - Values of the color string
+ */
 /**
  * Utility function to extract RGB and alpha from a color string.
  *
- * @param {string} color - Color string to parse
+ * @param {ColorString} color - Color string to parse
  * @returns {{ r: number; g: number; b: number; alpha?: number }} - Color object with extracted RGB and optional alpha values
  */
-function parseColorWithAlpha(color: string): { r: number; g: number; b: number; alpha?: number } {
+function parseColorWithAlpha(color: ColorString): {
+  /**
+   * Red value of the color
+   */
+  r: number;
+  /**
+   * Green value of the color
+   */
+  g: number;
+  /**
+   * Blue value of the color
+   */
+  b: number;
+  /**
+   * Alpha value of the color (optional)
+   */
+  alpha?: number;
+} {
   let rgbColor: string;
   let alpha: number | undefined;
 
-  if (color.startsWith('#')) {
-    rgbColor = hexToRgb(color);
-  } else if (color.startsWith('hsl')) {
-    rgbColor = hslToRgb(color);
-  } else if (color.startsWith('rgb')) {
-    rgbColor = color;
+  if (color.type === 'hex') {
+    rgbColor = hexToRgb(color.values[0]);
+  } else if (color.type === 'hsl') {
+    rgbColor = hslToRgb(color.values[0]);
+  } else if (color.type === 'rgb') {
+    rgbColor = color.values[0];
   } else {
     throw new Error('Unsupported color format');
   }
 
-  const alphaMatch = color.match(/rgba?\(\d+,\s*\d+,\s*\d+,\s*([\d.]+)\)/);
+  const alphaMatch = color.values[0].match(/rgba?\(\d+,\s*\d+,\s*\d+,\s*([\d.]+)\)/);
   if (alphaMatch) {
     alpha = parseFloat(alphaMatch[1]);
   }
@@ -41,11 +68,20 @@ function parseColorWithAlpha(color: string): { r: number; g: number; b: number; 
 /**
  * Composites two colors by overlaying one color over the other.
  *
- * @param {string} baseColor - Base color string to composite
- * @param {string} overlay - Overlay color string to composite
+ * @param {ColorString} baseColor - Base color string to composite
+ * @param {ColorString} overlay - Overlay color string to composite
  * @returns {string} - Composite color as a hex string
  */
-export function compositeColors(baseColor: string, overlay: string): string {
+export function compositeColors(
+  /**
+   * Base color string to composite
+   */
+  baseColor: ColorString,
+  /**
+   * Overlay color string to composite
+   */
+  overlay: ColorString
+): string {
   const rgb1 = parseColorWithAlpha(baseColor);
   const rgb2 = parseColorWithAlpha(overlay);
 

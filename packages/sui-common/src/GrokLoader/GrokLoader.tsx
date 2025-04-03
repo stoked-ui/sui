@@ -1,8 +1,21 @@
+/**
+ * @packageDocumentation
+ * Grok Loader Component
+ *
+ * A motion-enabled container with consistent styling, featuring a rotating triangle of dots.
+ */
+
 import * as React from 'react';
 import { motion, useAnimationControls, useMotionValue, useTransform, AnimatePresence, animate } from 'framer-motion';
 import { styled } from "@mui/material/styles";
 
-// Motion-enabled container with consistent styling
+/**
+ * @typedef { import('@mui/material/styles').StyledComponent } StyledComponent
+ */
+
+/**
+ * A motion-enabled container with consistent styling.
+ */
 const TriangleWrapper = styled('div')({
   position: 'absolute',
   display: 'flex',
@@ -12,24 +25,38 @@ const TriangleWrapper = styled('div')({
   // border: '1px dashed #ccc',
 });
 
-// Dot component for consistent styling
+/**
+ * A dot component for consistent styling.
+ */
 const Dot = styled(motion.div)(({ theme }) => ({
   position: 'absolute',
-  width: '4px', // Increased size to make more visible
+  width: '4px', 
   height: '4px',
   borderRadius: '50%',
   backgroundColor: theme.palette.success.main,
   top: '50%',
   left: '50%',
-  marginTop: '-2px', // Half height for centering
-  marginLeft: '-2px', // Half width for centering
+  marginTop: '-2px', 
+  marginLeft: '-2px', 
 }));
 
+/**
+ * The Grok Loader component.
+ */
 function GrokLoader() {
+  /**
+   * Animation controls for the component.
+   */
   const controls = useAnimationControls();
+
+  /**
+   * Motion value for progress.
+   */
   const progress = useMotionValue(0);
 
-  // Create separate radius and rotation values for better control
+  /**
+   * Create separate radius and rotation values for better control.
+   */
   const radius = useMotionValue(120);
   const rotation = useMotionValue(0);
 
@@ -40,7 +67,7 @@ function GrokLoader() {
     // Setup the animation cycles
     const radiusAnimation = animate(
       radius,
-      [25, 5, 25, 25], // Make min radius larger (30 instead of 20)ad of 20)
+      [25, 5, 25, 25], 
       {
         duration: 2,
         repeat: Infinity,
@@ -67,21 +94,17 @@ function GrokLoader() {
 
     // Scale animation for the dots
     controls.start({
-      scale: [1, 4, 1, 1]
-    }, {
-      duration: 2,
-      repeat: Infinity,
-      repeatType: "loop",
+      scale: [1, 0.9, 0.8, 0.7],
     });
 
     return () => {
-      radiusAnimation.stop();
-      rotationAnimation.stop();
-      controls.stop();
+      controls.reset();
     };
   }, []);
 
-  // Calculate dot positions based on angle and current radius
+  /**
+   * Calculate dot positions based on angle and current radius.
+   */
   const getPosition = (angle: number) => {
     const currentRadius = radius.get();
     const angleInRadians = (angle * Math.PI) / 180;
@@ -91,10 +114,12 @@ function GrokLoader() {
     };
   };
 
-  // Define angles for each corner of the triangle
-  const topAngle = 270; // Top (0 degrees is to the right, so 270 is straight up)
-  const bottomLeftAngle = 30; // Bottom left
-  const bottomRightAngle = 150; // Bottom right
+  /**
+   * Define angles for each corner of the triangle.
+   */
+  const topAngle = 270; 
+  const bottomLeftAngle = 30; 
+  const bottomRightAngle = 150; 
 
   return (
     <TriangleWrapper>
@@ -149,4 +174,3 @@ function GrokLoader() {
 }
 
 export default GrokLoader;
-

@@ -1,3 +1,10 @@
+/**
+ * @packageDocumentation SUIMime Class
+ *
+ * The SUIMime class implements the Singleton design pattern to manage MIME types.
+ * It provides methods for creating standard types and making new IMimeType instances.
+ */
+
 import { Ext, IMimeType, MimeRegistry } from "./IMimeType";
 
 /**
@@ -61,9 +68,13 @@ export class SUIMime extends MimeRegistry {
   }
 }
 
-/*
+/**
+ * @typedef {object} SUIMimeInstance
+ * @property {SUIMime} instance The singleton instance of SUIMime class.
+ */
+
+/**
+ * Example usage:
  *
- * Usage
- *
- * This class demonstrates the singleton pattern implementation using a static instance.
+ * const suimime = SUIMime.getInstance();
  */
