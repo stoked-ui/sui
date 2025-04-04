@@ -1,0 +1,32 @@
+{
+  "batchId": "batch_67f05a67b6b48190bf2b0c2bc1265e00",
+  "packagePath": "C:\\Users\\brian\\work\\stoked\\.workspace\\stoked-ui\\sui\\packages\\sui-file-explorer",
+  "timestamp": "2025-04-04T22:17:12.787Z",
+  "items": [
+    {
+      "requestId": 1743805031909,
+      "filePath": "C:\\Users\\brian\\work\\stoked\\.workspace\\stoked-ui\\sui\\packages\\sui-file-explorer\\.eslintrc.js",
+      "isEntryPoint": false
+    },
+    {
+      "requestId": 1743805032733,
+      "filePath": "C:\\Users\\brian\\work\\stoked\\.workspace\\stoked-ui\\sui\\packages\\sui-file-explorer\\docs\\src\\components\\FileExplorer\\BasicFileExplorer.tsx",
+      "isEntryPoint": false
+    },
+    {
+      "requestId": 1743805032601,
+      "filePath": "C:\\Users\\brian\\work\\stoked\\.workspace\\stoked-ui\\sui\\packages\\sui-file-explorer\\docs\\src\\components\\FileExplorer\\index.ts",
+      "isEntryPoint": false
+    },
+    {
+      "requestId": 1743805032324,
+      "filePath": "C:\\Users\\brian\\work\\stoked\\.workspace\\stoked-ui\\sui\\packages\\sui-file-explorer\\src\\File\\constants.ts",
+      "isEntryPoint": false
+    },
+    {
+      "requestId": 1743805032054,
+      "filePath": "C:\\Users\\brian\\work\\stoked\\.workspace\\stoked-ui\\sui\\packages\\sui-file-explorer\\src\\File\\File.test.tsx",
+      "isEntryPoint": false
+    }
+  ]
+}
