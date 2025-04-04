@@ -1,9 +1,11 @@
-import { hexToRgb, hslToRgb, rgbToHex } from '@mui/material/styles';
-
-// Utility function to extract RGB and alpha from a color string
-function parseColorWithAlpha(color: string): { r: number; g: number; b: number; alpha?: number } {
-  let rgbColor: string;
-  let alpha: number | undefined;
+/**
+ * Utility function to extract RGB and alpha from a color string.
+ * @param {string} color - The color string to parse.
+ * @returns {{ r: number; g: number; b: number; alpha?: number }} An object containing the RGB values and optional alpha channel value.
+ */
+function parseColorWithAlpha(color) {
+  let rgbColor;
+  let alpha;
 
   if (color.startsWith('#')) {
     rgbColor = hexToRgb(color);
@@ -33,7 +35,13 @@ function parseColorWithAlpha(color: string): { r: number; g: number; b: number; 
   };
 }
 
-export function compositeColors(baseColor: string, overlay: string): string {
+/**
+ * Compose two colors by overlaying one over the other.
+ * @param {string} baseColor - The base color string to composite.
+ * @param {string} overlay - The overlay color string to composite.
+ * @returns {string} A hex color string representing the blended result.
+ */
+export function compositeColors(baseColor, overlay) {
   const rgb1 = parseColorWithAlpha(baseColor);
   const rgb2 = parseColorWithAlpha(overlay);
 
@@ -52,10 +60,3 @@ export function compositeColors(baseColor: string, overlay: string): string {
   // Return the result as a hex color
   return rgbToHex(`rgb(${r}, ${g}, ${b})`);
 }
-/*
-
-// Example usage
-const resultColor = compositeColors('#3498db', 'rgba(255, 255, 255, 0.53)');
-console.log(resultColor); // Output: blended color as a hex string
-
-*/

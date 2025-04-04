@@ -1,3 +1,8 @@
+/**
+ * @file FileExplorerBasic.ts
+ * @description Provides a basic implementation of the File Explorer component.
+ */
+
 import * as React from 'react';
 import { Theme } from '@mui/material/styles';
 import { SlotComponentProps } from '@mui/base/utils';
@@ -11,6 +16,10 @@ import {
 } from './FileExplorerBasic.plugins';
 import { FileExplorerExperimentalFeatures, FileExplorerPublicAPI } from '../internals/models';
 
+/**
+ * @interface FileExplorerBasicSlots
+ * @description Extends the plugin slots with a root prop for the main element.
+ */
 export interface FileExplorerBasicSlots extends FileExplorerBasicPluginSlots {
   /**
    * Element rendered at the root.
@@ -19,14 +28,27 @@ export interface FileExplorerBasicSlots extends FileExplorerBasicPluginSlots {
   root?: React.ElementType;
 }
 
+/**
+ * @interface FileExplorerBasicSlotProps
+ * @description Extends the plugin slot props with a root prop for the main element.
+ */
 export interface FileExplorerBasicSlotProps extends FileExplorerBasicPluginSlotProps {
   root?: SlotComponentProps<'ul', {}, {}>;
 }
 
+/**
+ * @type {React.MutableRefObject<FileExplorerPublicAPI<FileExplorerBasicPluginSignatures> | undefined>}
+ * @description A ref object that allows FileExplorer View manipulation.
+ */
 export type FileExplorerBasicApiRef = React.MutableRefObject<
   FileExplorerPublicAPI<FileExplorerBasicPluginSignatures> | undefined
 >;
 
+/**
+ * @interface FileExplorerBasicProps<Multiple extends boolean | undefined>
+ * @description Extends the plugin parameters with HTML attributes for the list element.
+ * @extends {FileExplorerBasicPluginParameters<Multiple>}
+ */
 export interface FileExplorerBasicProps<Multiple extends boolean | undefined>
   extends FileExplorerBasicPluginParameters<Multiple>,
     React.HTMLAttributes<HTMLUListElement> {

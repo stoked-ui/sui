@@ -1,24 +1,36 @@
 import * as React from 'react';
-import {CleanupTracking, UnregisterToken} from '../utils/cleanupTracking/CleanupTracking';
-import {TimerBasedCleanupTracking} from '../utils/cleanupTracking/TimerBasedCleanupTracking';
+import { CleanupTracking, UnregisterToken } from '../utils/cleanupTracking/CleanupTracking';
+import { TimerBasedCleanupTracking } from '../utils/cleanupTracking/TimerBasedCleanupTracking';
 import {
   FinalizationRegistryBasedCleanupTracking
 } from '../utils/cleanupTracking/FinalizationRegistryBasedCleanupTracking';
-import {FileExplorerAnyPluginSignature, FileExplorerUsedEvents} from '../models';
-import {FileExplorerEventListener} from '../models/events';
+import { FileExplorerAnyPluginSignature, FileExplorerUsedEvents } from '../models';
+import { FileExplorerEventListener } from '../models/events';
 import {
   UseFileExplorerInstanceEventsInstance
 } from '../corePlugins/useFileExplorerInstanceEvents/useFileExplorerInstanceEvents.types';
 
+/**
+ * A container for registry-related data.
+ */
 interface RegistryContainer {
+  /**
+   * The cleanup tracking registry.
+   */
   registry: CleanupTracking | null;
 }
 
-// We use class to make it easier to detect in heap snapshots by name
+/**
+ * This class is used to make it easier to detect in heap snapshots by name.
+ */
 class ObjectToBeRetainedByReact {}
 
-// Based on https://github.com/Bnaya/use-dispose-uncommitted/blob/main/src/finalization-registry-based-impl.ts
-// Check https://github.com/facebook/react/issues/15317 to get more information
+/**
+ * Creates a useInstanceEventHandler function for the given registry container.
+ * 
+ * @param registryContainer - The registry container to be used.
+ * @returns A function that returns a useInstanceEventHandler function.
+ */
 export function createUseInstanceEventHandler(registryContainer: RegistryContainer) {
   let cleanupTokensCounter = 0;
 
@@ -50,6 +62,9 @@ export function createUseInstanceEventHandler(registryContainer: RegistryContain
     const cleanupTokenRef = React.useRef<UnregisterToken | null>(null);
 
     if (!subscription.current && handlerRef.current) {
+      /**
+       * The enhanced event handler that wraps the original handler and removes it after use.
+       */
       const enhancedHandler: FileExplorerEventListener<FileExplorerUsedEvents<Signature>[E]> = (
         params,
         event,
@@ -74,6 +89,9 @@ export function createUseInstanceEventHandler(registryContainer: RegistryContain
         cleanupTokenRef.current,
       );
     } else if (!handlerRef.current && subscription.current) {
+      /**
+       * Removes the event listener and unregisters the cleanup token.
+       */
       subscription.current();
       subscription.current = null;
 
@@ -84,6 +102,9 @@ export function createUseInstanceEventHandler(registryContainer: RegistryContain
     }
 
     React.useEffect(() => {
+      /**
+       * This effect is called when the useInstanceEventHandler function is used.
+       */
       if (!subscription.current && handlerRef.current) {
         const enhancedHandler: FileExplorerEventListener<FileExplorerUsedEvents<Signature>[E]> = (
           params,
@@ -97,9 +118,10 @@ export function createUseInstanceEventHandler(registryContainer: RegistryContain
         subscription.current = instance.$$subscribeEvent(eventName as string, enhancedHandler);
       }
 
+      /**
+       * Unregisters the cleanup token when the effect is unmounted.
+       */
       if (cleanupTokenRef.current && registryContainer.registry) {
-        // If the effect was called, it means that this render was committed
-        // so we can trust the cleanup function to remove the listener.
         registryContainer.registry.unregister(cleanupTokenRef.current);
         cleanupTokenRef.current = null;
       }
@@ -112,12 +134,20 @@ export function createUseInstanceEventHandler(registryContainer: RegistryContain
   };
 }
 
+/**
+ * The registry container used by the useInstanceEventHandler function.
+ */
 const registryContainer: RegistryContainer = { registry: null };
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
+/**
+ * Resets the cleanup tracking for the given registry container.
+ */
 export const unstable_resetCleanupTracking = () => {
   registryContainer.registry?.reset();
   registryContainer.registry = null;
 };
 
+/**
+ * Returns a useInstanceEventHandler function for the given registry container.
+ */
 export const useInstanceEventHandler = createUseInstanceEventHandler(registryContainer);

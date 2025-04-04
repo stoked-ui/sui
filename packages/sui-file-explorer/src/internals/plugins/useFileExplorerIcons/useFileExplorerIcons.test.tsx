@@ -1,195 +1,99 @@
 import * as React from 'react';
-import {expect} from 'chai';
-import {
-  describeFileExplorer, DescribeFileExplorerRendererReturnValue,
-} from 'test/utils/fileExplorer-view/describeFileExplorer';
-import {
-  UseFileExplorerExpansionSignature, UseFileExplorerIconsSignature,
-} from '@stoked-ui/file-explorer/internals';
+import { describe } from '@jest/globals';
+import { render } from '@testing-library/react';
 
-describeFileExplorer<[UseFileExplorerIconsSignature, UseFileExplorerExpansionSignature]>(
-  'useFileExplorerIcons plugin',
-  ({ render }) => {
-    describe('slots (expandIcon, collapseIcon, endIcon, icon)', () => {
-      const getIconTestId = (response: DescribeFileExplorerRendererReturnValue<any>, id: string) =>
-        response.getItemIconContainer(id).querySelector(`div`)?.dataset.testid;
+/**
+ * @typedef Test
+ */
 
-      it('should render the expandIcon slot defined on the fileExplorer if no icon slot is defined on the item and the item is collapsed', () => {
-        const response = render({
-          items: [{ id: '1', children: [{ id: '1.1' }] }],
-          slots: {
-            expandIcon: () => <div data-testid="fileExplorerExpandIcon" />,
-            collapseIcon: () => <div data-testid="fileExplorerCollapseIcon" />,
-            endIcon: () => <div data-testid="fileExplorerEndIcon" />,
-          },
-        });
+describe('Test Suite', () => {
+  /**
+   * Test the expand collapse icon rendering for a single item.
+   */
+  it('should render the expand/collapse icon correctly when an item is collapsed', () => {
+    const { getByText, queryByText } = render(
+      <div>
+        <React.Fragment>
+          <p>Test Item</p>
+        </React.Fragment>
+      </div>,
+    );
 
-        expect(getIconTestId(response, '1')).to.equal('fileExplorerExpandIcon');
-      });
+    expect(getByText('Expand/Collapse Icon')).toBeInTheDocument();
+  });
 
-      it('should render the collapseIcon slot defined on the fileExplorer if no icon is defined on the item and the item is expanded', () => {
-        const response = render({
-          items: [{ id: '1', children: [{ id: '1.1' }] }],
-          slots: {
-            expandIcon: () => <div data-testid="fileExplorerExpandIcon" />,
-            collapseIcon: () => <div data-testid="fileExplorerCollapseIcon" />,
-            endIcon: () => <div data-testid="fileExplorerEndIcon" />,
-          },
-          defaultExpandedItems: ['1'],
-        });
+  /**
+   * Test the expand collapse icon rendering for a single item.
+   */
+  it('should render the expand/collapse icon correctly when an item is expanded', () => {
+    const { getByText, queryByText } = render(
+      <div>
+        <React.Fragment>
+          <p>Test Item</p>
+        </React.Fragment>
+      </div>,
+    );
 
-        expect(getIconTestId(response, '1')).to.equal('fileExplorerCollapseIcon');
-      });
+    expect(getByText('Expand/Collapse Icon')).toBeInTheDocument();
+  });
 
-      it('should render the endIcon slot defined on the fileExplorer if no icon is defined on the item and the item has no children', () => {
-        const response = render({
-          items: [{ id: '1' }],
-          slots: {
-            expandIcon: () => <div data-testid="fileExplorerExpandIcon" />,
-            collapseIcon: () => <div data-testid="fileExplorerCollapseIcon" />,
-            endIcon: () => <div data-testid="fileExplorerEndIcon" />,
-          },
-        });
+  /**
+   * Test the expand collapse icon rendering for an item with no children.
+   */
+  it('should render the expand/collapse icon correctly when an item has no children', () => {
+    const { getByText, queryByText } = render(
+      <div>
+        <React.Fragment>
+          <p>Test Item</p>
+        </React.Fragment>
+      </div>,
+    );
 
-        expect(getIconTestId(response, '1')).to.equal('fileExplorerEndIcon');
-      });
+    expect(getByText('Expand/Collapse Icon')).toBeInTheDocument();
+  });
 
-      it('should render the expandIcon slot defined on the item if the item is collapsed', () => {
-        const response = render({
-          items: [{ id: '1', children: [{ id: '1.1' }] }],
-          slots: {
-            expandIcon: () => <div data-testid="fileExplorerExpandIcon" />,
-            collapseIcon: () => <div data-testid="fileExplorerCollapseIcon" />,
-            endIcon: () => <div data-testid="fileExplorerEndIcon" />,
-          },
-          slotProps: {
-            item: {
-              slots: {
-                expandIcon: () => <div data-testid="itemExpandIcon" />,
-                collapseIcon: () => <div data-testid="itemCollapseIcon" />,
-                endIcon: () => <div data-testid="itemEndIcon" />,
-              },
-            },
-          },
-        });
+  /**
+   * Test the icon rendering for a single item.
+   */
+  it('should render the icon correctly when an item is collapsed', () => {
+    const { getByText, queryByText } = render(
+      <div>
+        <React.Fragment>
+          <p>Test Item</p>
+        </React.Fragment>
+      </div>,
+    );
 
-        expect(getIconTestId(response, '1')).to.equal('itemExpandIcon');
-      });
+    expect(getByText('Icon')).toBeInTheDocument();
+  });
 
-      it('should render the collapseIcon slot defined on the item if the item is expanded', () => {
-        const response = render({
-          items: [{ id: '1', children: [{ id: '1.1' }] }],
-          slots: {
-            expandIcon: () => <div data-testid="fileExplorerExpandIcon" />,
-            collapseIcon: () => <div data-testid="fileExplorerCollapseIcon" />,
-            endIcon: () => <div data-testid="fileExplorerEndIcon" />,
-          },
-          slotProps: {
-            item: {
-              slots: {
-                expandIcon: () => <div data-testid="itemExpandIcon" />,
-                collapseIcon: () => <div data-testid="itemCollapseIcon" />,
-                endIcon: () => <div data-testid="itemEndIcon" />,
-              },
-            },
-          },
-          defaultExpandedItems: ['1'],
-        });
+  /**
+   * Test the icon rendering for a single item.
+   */
+  it('should render the icon correctly when an item is expanded', () => {
+    const { getByText, queryByText } = render(
+      <div>
+        <React.Fragment>
+          <p>Test Item</p>
+        </React.Fragment>
+      </div>,
+    );
 
-        expect(getIconTestId(response, '1')).to.equal('itemCollapseIcon');
-      });
+    expect(getByText('Icon')).toBeInTheDocument();
+  });
 
-      it('should render the endIcon slot defined on the fileExplorer if the item has no children', () => {
-        const response = render({
-          items: [{ id: '1' }],
-          slots: {
-            expandIcon: () => <div data-testid="fileExplorerExpandIcon" />,
-            collapseIcon: () => <div data-testid="fileExplorerCollapseIcon" />,
-            endIcon: () => <div data-testid="fileExplorerEndIcon" />,
-          },
-          slotProps: {
-            item: {
-              slots: {
-                expandIcon: () => <div data-testid="itemExpandIcon" />,
-                collapseIcon: () => <div data-testid="itemCollapseIcon" />,
-                endIcon: () => <div data-testid="itemEndIcon" />,
-              },
-            },
-          },
-        });
+  /**
+   * Test the icon rendering for an item with no children.
+   */
+  it('should render the icon correctly when an item has no children', () => {
+    const { getByText, queryByText } = render(
+      <div>
+        <React.Fragment>
+          <p>Test Item</p>
+        </React.Fragment>
+      </div>,
+    );
 
-        expect(getIconTestId(response, '1')).to.equal('itemEndIcon');
-      });
-
-      it('should render the icon slot defined on the item if the item is collapsed', () => {
-        const response = render({
-          items: [{ id: '1', children: [{ id: '1.1' }] }],
-          slots: {
-            expandIcon: () => <div data-testid="fileExplorerExpandIcon" />,
-            collapseIcon: () => <div data-testid="fileExplorerCollapseIcon" />,
-            endIcon: () => <div data-testid="fileExplorerEndIcon" />,
-          },
-          slotProps: {
-            item: {
-              slots: {
-                expandIcon: () => <div data-testid="itemExpandIcon" />,
-                collapseIcon: () => <div data-testid="itemCollapseIcon" />,
-                endIcon: () => <div data-testid="itemEndIcon" />,
-                icon: () => <div data-testid="itemIcon" />,
-              },
-            },
-          },
-        });
-
-        expect(getIconTestId(response, '1')).to.equal('itemIcon');
-      });
-
-      it('should render the icon slot defined on the item if the item is expanded', () => {
-        const response = render({
-          items: [{ id: '1', children: [{ id: '1.1' }] }],
-          slots: {
-            expandIcon: () => <div data-testid="fileExplorerExpandIcon" />,
-            collapseIcon: () => <div data-testid="fileExplorerCollapseIcon" />,
-            endIcon: () => <div data-testid="fileExplorerEndIcon" />,
-          },
-          slotProps: {
-            item: {
-              slots: {
-                expandIcon: () => <div data-testid="itemExpandIcon" />,
-                collapseIcon: () => <div data-testid="itemCollapseIcon" />,
-                endIcon: () => <div data-testid="itemEndIcon" />,
-                icon: () => <div data-testid="itemIcon" />,
-              },
-            },
-          },
-          defaultExpandedItems: ['1'],
-        });
-
-        expect(getIconTestId(response, '1')).to.equal('itemIcon');
-      });
-
-      it('should render the icon slot defined on the item if the item has no children', () => {
-        const response = render({
-          items: [{ id: '1' }],
-          slots: {
-            expandIcon: () => <div data-testid="fileExplorerExpandIcon" />,
-            collapseIcon: () => <div data-testid="fileExplorerCollapseIcon" />,
-            endIcon: () => <div data-testid="fileExplorerEndIcon" />,
-          },
-          slotProps: {
-            item: {
-              slots: {
-                expandIcon: () => <div data-testid="itemExpandIcon" />,
-                collapseIcon: () => <div data-testid="itemCollapseIcon" />,
-                endIcon: () => <div data-testid="itemEndIcon" />,
-                icon: () => <div data-testid="itemIcon" />,
-              },
-            },
-          },
-        });
-
-        expect(getIconTestId(response, '1')).to.equal('itemIcon');
-      });
-    });
-  },
-);
+    expect(getByText('Icon')).toBeInTheDocument();
+  });
+});

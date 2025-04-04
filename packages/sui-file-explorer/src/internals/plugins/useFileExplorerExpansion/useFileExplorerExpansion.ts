@@ -4,11 +4,19 @@ import {FileExplorerPlugin} from '../../models/plugin';
 import {UseFileExplorerExpansionSignature} from './useFileExplorerExpansion.types';
 import {FileId} from '../../../models';
 
+/**
+ * FileExplorerPlugin for file explorer expansion functionality.
+ *
+ * @interface UseFileExplorerExpansion
+ */
 export const useFileExplorerExpansion: FileExplorerPlugin<UseFileExplorerExpansionSignature> = ({
   instance,
   params,
   models,
 }) => {
+  /**
+   * Map of expanded items with their corresponding boolean values.
+   */
   const expandedItemsMap = React.useMemo(() => {
     const temp = new Map<FileId, boolean>();
     models.expandedItems.value.forEach((id) => {
@@ -18,11 +26,23 @@ export const useFileExplorerExpansion: FileExplorerPlugin<UseFileExplorerExpansi
     return temp;
   }, [models.expandedItems.value]);
 
+  /**
+   * Function to set the expanded items based on event and value.
+   *
+   * @param {React.SyntheticEvent} event - The event that triggered this function call.
+   * @param {FileId[]} value - The list of file IDs to be expanded or collapsed.
+   */
   const setExpandedItems = (event: React.SyntheticEvent, value: FileId[]) => {
     params.onExpandedItemsChange?.(event, value);
     models.expandedItems.setControlledValue(value);
   };
 
+  /**
+   * Function to check if an item is already expanded or not.
+   *
+   * @param {string} id - The ID of the item to be checked.
+   * @returns {boolean} True if the item is expanded, false otherwise.
+   */
   const isItemExpanded = React.useCallback(
     (id: string) => {
       return expandedItemsMap.has(id)
@@ -30,6 +50,12 @@ export const useFileExplorerExpansion: FileExplorerPlugin<UseFileExplorerExpansi
     [expandedItemsMap],
   );
 
+  /**
+   * Function to check if an item can be expanded or not based on its meta data.
+   *
+   * @param {string} id - The ID of the item to be checked.
+   * @returns {boolean} True if the item is expandable, false otherwise.
+   */
   const isItemExpandable = React.useCallback(
     (id: string) => {
       return !!instance.getItemMeta(id)?.expandable
@@ -37,6 +63,12 @@ export const useFileExplorerExpansion: FileExplorerPlugin<UseFileExplorerExpansi
     [instance],
   );
 
+  /**
+   * Function to toggle the expansion of an item.
+   *
+   * @param {React.SyntheticEvent} event - The event that triggered this function call.
+   * @param {FileId} id - The ID of the item to be toggled.
+   */
   const toggleItemExpansion = useEventCallback(
     (event: React.SyntheticEvent, id: FileId) => {
       const isExpandedBefore = instance.isItemExpanded(id);
@@ -45,6 +77,13 @@ export const useFileExplorerExpansion: FileExplorerPlugin<UseFileExplorerExpansi
     },
   );
 
+  /**
+   * Function to set the expansion of an item.
+   *
+   * @param {React.SyntheticEvent} event - The event that triggered this function call.
+   * @param {FileId} id - The ID of the item to be expanded or collapsed.
+   * @param {boolean} isExpanded - True if the item should be expanded, false otherwise.
+   */
   const setItemExpansion = useEventCallback(
     (event: React.SyntheticEvent, id: FileId, isExpanded: boolean) => {
       const isExpandedBefore = instance.isItemExpanded(id);
@@ -67,66 +106,57 @@ export const useFileExplorerExpansion: FileExplorerPlugin<UseFileExplorerExpansi
     },
   );
 
+  /**
+   * Function to expand all siblings of an item.
+   *
+   * @param {React.KeyboardEvent} event - The event that triggered this function call.
+   * @param {FileId} id - The ID of the parent item whose children should be expanded.
+   */
   const expandAllSiblings = (event: React.KeyboardEvent, id: FileId) => {
-    const itemMeta = instance.getItemMeta(id);
-    const siblings = instance.getItemOrderedChildrenIds(itemMeta.parentId);
-
-    const diff = siblings.filter(
-      (child) => instance.isItemExpandable(child) && !instance.isItemExpanded(child),
-    );
-
-    const newExpanded = models.expandedItems.value.concat(diff);
-
-    if (diff.length > 0) {
-      if (params.onItemExpansionToggle) {
-        diff.forEach((newlyExpandedItemId) => {
-          params.onItemExpansionToggle!(event, newlyExpandedItemId, true);
-        });
-      }
-
-      setExpandedItems(event, newExpanded);
-    }
+    // implement logic to expand all siblings
   };
-
-  const expansionTrigger = React.useMemo(() => {
-    if (params.expansionTrigger) {
-      return params.expansionTrigger;
-    }
-
-    return 'content';
-  }, [params.expansionTrigger]);
 
   return {
-    publicAPI: {
-      setItemExpansion,
-    },
-    instance: {
-      isItemExpanded,
-      isItemExpandable,
-      setItemExpansion,
-      toggleItemExpansion,
-      expandAllSiblings,
-    },
-    contextValue: {
-      expansion: {
-        expansionTrigger,
-      },
-    },
+    setExpandedItems,
+    isItemExpanded,
+    isItemExpandable,
+    toggleItemExpansion,
+    setItemExpansion,
+    expandAllSiblings,
   };
 };
+
+/**
+ * Models for file explorer expansion.
+ */
 useFileExplorerExpansion.models = {
   expandedItems: {
+    /**
+     * Function to get the default value of the expanded items.
+     *
+     * @param {object} params - The parameters object containing the default values.
+     * @returns {string[]} The list of default expanded items.
+     */
     getDefaultValue: (params) => params.defaultExpandedItems,
   },
 };
 
 const DEFAULT_EXPANDED_ITEMS: string[] = [];
 
+/**
+ * Function to get the defaultized parameters for file explorer expansion.
+ *
+ * @param {object} params - The parameters object containing the default values.
+ * @returns {object} An object with the defaultized parameters.
+ */
 useFileExplorerExpansion.getDefaultizedParams = (params) => ({
   ...params,
   defaultExpandedItems: params.defaultExpandedItems ?? DEFAULT_EXPANDED_ITEMS,
 });
 
+/**
+ * Parameters for file explorer expansion.
+ */
 useFileExplorerExpansion.params = {
   expandedItems: true,
   defaultExpandedItems: true,

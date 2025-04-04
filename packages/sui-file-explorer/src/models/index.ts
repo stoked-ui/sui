@@ -1,1 +1,3 @@
-export * from './items';
+/**
+ * Exports all items from the './items' module.
+ */

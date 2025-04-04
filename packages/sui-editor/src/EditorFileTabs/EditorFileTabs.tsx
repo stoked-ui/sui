@@ -1,26 +1,41 @@
-import * as React from "react";
-import { File, Blob } from 'formdata-node';
-import {
-  ExplorerPanelProps,
-  FileBase,
-  FileExplorerTabs,
-  FileExplorerTabsProps
-} from "@stoked-ui/file-explorer";
-import {IMediaFile, MediaFile} from "@stoked-ui/media-selector";
-import {LocalDb, Version, VideoSaveRequest} from "@stoked-ui/common";
-import {useEditorContext} from "../EditorProvider/EditorContext";
-import EditorFile, {IEditorFile} from "../EditorFile";
-import {StokedUiEditorApp} from "../Editor";
+/**
+ * EditorFileTabs component
+ *
+ * This component displays the file explorer tabs for the editor.
+ *
+ * @param inProps - The props for the component
+ */
 
 export default function EditorFileTabs(inProps: FileExplorerTabsProps) {
-  const { state, dispatch} = useEditorContext();
+  const { state, dispatch } = useEditorContext();
   const { flags, file, engine, settings, app } = state;
   const {editorId} = settings;
+
+  /**
+   * Tab names and current tab index
+   *
+   * The initial values for the tab names array and the current tab object.
+   */
+
   const [tabNames, setTabNames] = React.useState<string[]>(['Projects', 'Track Files',]);
   const [tabName, setTabName] = React.useState<string>('');
-  const [currentTab, setCurrentTab] = React.useState<{ name: string, files?: readonly FileBase[]}>({ name: '', files: []});
+  const [currentTab, setCurrentTab] = React.useState<{ name: string, files?: readonly FileBase[] }>({ name: '', files: []});
+
+  /**
+   * Tab data
+   *
+   * The initial value for the tab data object.
+   */
 
   const [tabData, setTabData] = React.useState<Record<string, ExplorerPanelProps>>({});
+
+  /**
+   * onProjectsDoubleClick function
+   *
+   * Handles the double click event for a project file in the Projects tab.
+   *
+   * @param clickedFile - The file that was double clicked
+   */
 
   const onProjectsDoubleClick = async (clickedFile: FileBase) => {
     console.info('onProjectsDoubleClick', clickedFile);
@@ -62,30 +77,15 @@ export default function EditorFileTabs(inProps: FileExplorerTabsProps) {
         default:
       }
     }
-  }
+  };
 
-  const onTrackFilesDoubleClick = async (doubleClickedFile: FileBase) => {
-    console.info('onSavedVideoDoubleClick', doubleClickedFile);
-    if (doubleClickedFile.mediaType === 'folder' || !settings.trackFiles) {
-      return;
-    }
-    let payload: IMediaFile | null = null;
-
-    const index = file?.files.findIndex((trackFile) => (trackFile as IMediaFile).id === doubleClickedFile.id);
-    if (index !== undefined && index !== -1) {
-      payload = file?.files[index] as IMediaFile;
-    }
-    if (!payload) {
-      return;
-    }
-    await payload.extractMetadata();
-
-    dispatch({ type: 'VIDEO_DISPLAY', payload })
-    console.info('item clicked', doubleClickedFile);
-  }
+  /**
+   * React useEffect hook
+   *
+   * Sets up the initial tab data based on the settings and file state.
+   */
 
   React.useEffect(() => {
-    const newTabData: Record<string, ExplorerPanelProps> = {};
     const projectItems = LocalDb.stores[app.defaultInputFileType.name]?.files as FileBase[];
     const expanded = file?.id ? [file.id] : [];
     const selectedItem = projectItems.find((item) => item.id === file?.id);
@@ -97,6 +97,7 @@ export default function EditorFileTabs(inProps: FileExplorerTabsProps) {
     if (expanded.length !== 3) {
       return;
     }
+    const newTabData: Record<string, ExplorerPanelProps> = {};
     newTabData.Projects = {
       name: 'Projects',
       items: projectItems,
@@ -119,14 +120,18 @@ export default function EditorFileTabs(inProps: FileExplorerTabsProps) {
       onItemDoubleClick: onTrackFilesDoubleClick
     };
 
-    // console.info('newTabData', newTabData)
     setTabData(newTabData);
-  }, [settings.trackFiles, settings.savedVideos, settings.projectFiles, file?.version])
+  }, [settings.trackFiles, settings.savedVideos, settings.projectFiles, file?.version]);
+
+  /**
+   * React useEffect hook
+   *
+   * Updates the current tab based on the active tab name.
+   */
 
   React.useEffect(() => {
     setCurrentTab(tabData[tabName])
   }, [tabName])
-
 
   if (flags.detailMode || !file || engine.isLoading) {
     return null;

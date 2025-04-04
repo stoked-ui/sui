@@ -1,28 +1,45 @@
-import * as React from 'react';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
-import Typography from '@mui/material/Typography';
-import Select, { SelectChangeEvent } from "@mui/material/Select";
-import FormControl from "@mui/material/FormControl";
-import InputLabel from "@mui/material/InputLabel";
-import { BlendMode, Fit, IEditorAction } from '../EditorAction/EditorAction';
-import { IEditorFile } from '../EditorFile/EditorFile';
-import { IEditorTrack } from '../EditorTrack/EditorTrack';
-import { useEditorContext } from "../EditorProvider/EditorContext";
+/**
+ * Context Menu component
+ *
+ * This component provides a context menu for the editor, allowing users to view track details,
+ * set blend modes and fit options, and send an email.
+ */
 
-
-export default function ContextMenu({ type,  context }:{ type: 'DETAIL_TRACK' | 'DETAIL_ACTION' | 'DETAIL_PROJECT',  context: IEditorAction | IEditorTrack | IEditorFile }) {
+export default function ContextMenu({
+  /**
+   * The type of context menu item (track, action, or project)
+   */
+  type: 'DETAIL_TRACK' | 'DETAIL_ACTION' | 'DETAIL_PROJECT',
+  /**
+   * The current editor context
+   */
+  context: IEditorAction | IEditorTrack | IEditorFile,
+}) {
+  /**
+   * Get the current editor settings and dispatch function from the context provider
+   */
   const { state: { settings }, dispatch } = useEditorContext();
 
+  /**
+   * Handle close event for the context menu
+   */
   const handleClose = () => {
     const { contextMenu, ...updatedSettings } = settings;
-    dispatch({ type: 'SET_SETTING', payload: { key: 'contextMenu', value: updatedSettings }})
+    dispatch({ type: 'SET_SETTING', payload: { key: 'contextMenu', value: updatedSettings } })
   };
 
+  /**
+   * Handle track detail click event
+   */
   const handleTrackDetail = () => {
     dispatch({ type: 'DETAIL_OPEN' });
   }
 
+  /**
+   * Get the name of the context menu item based on its type
+   *
+   * @returns {string} The name of the context menu item (track, action, or project)
+   */
   const getName = () => {
     switch (type) {
       case 'DETAIL_TRACK':
@@ -36,13 +53,26 @@ export default function ContextMenu({ type,  context }:{ type: 'DETAIL_TRACK' | 
     }
   }
 
+  /**
+   * Handle blend mode change event
+   *
+   * @param {SelectChangeEvent<BlendMode>} event The select change event
+   * @param {React.ReactNode} child The child component
+   */
   const handleBlendMode = (event: SelectChangeEvent<BlendMode>, child: React.ReactNode) => {
-    dispatch({ type: 'SET_BLEND_MODE', payload: { contextId: context.id, value: event.target.value as BlendMode }})
+    dispatch({ type: 'SET_BLEND_MODE', payload: { contextId: context.id, value: event.target.value as BlendMode } })
   }
 
+  /**
+   * Handle fit change event
+   *
+   * @param {SelectChangeEvent<Fit>} event The select change event
+   * @param {React.ReactNode} child The child component
+   */
   const handleFit = (event: SelectChangeEvent<Fit>, child: React.ReactNode) => {
-    dispatch({ type: 'SET_FIT', payload: { contextId: context.id, value: event.target.value as Fit }})
+    dispatch({ type: 'SET_FIT', payload: { contextId: context.id, value: event.target.value as Fit } })
   }
+
   return (
     <Menu
       open={settings.contextMenu}
@@ -77,12 +107,6 @@ export default function ContextMenu({ type,  context }:{ type: 'DETAIL_TRACK' | 
             <MenuItem value={'soft-light'}>soft-light</MenuItem>
             <MenuItem value={'difference'}>difference</MenuItem>
             <MenuItem value={'exclusion'}>exclusion</MenuItem>
-            <MenuItem value={'hue'}>hue</MenuItem>
-            <MenuItem value={'saturation'}>saturation</MenuItem>
-            <MenuItem value={'color'}>color</MenuItem>
-            <MenuItem value={'luminosity'}>luminosity</MenuItem>
-            <MenuItem value={'plus-darker'}>plus-darker</MenuItem>
-            <MenuItem value={'plus-lighter'}>plus-lighter</MenuItem>
           </Select>
         </FormControl>
       </MenuItem>
@@ -100,6 +124,8 @@ export default function ContextMenu({ type,  context }:{ type: 'DETAIL_TRACK' | 
             <MenuItem value={'contain'}>contain</MenuItem>
             <MenuItem value={'cover'}>cover</MenuItem>
             <MenuItem value={'fill'}>fill</MenuItem>
+            <MenuItem value={'inside'}>inside</MenuItem>
+            <MenuItem value={'outside'}>outside</MenuItem>
           </Select>
         </FormControl>
       </MenuItem>

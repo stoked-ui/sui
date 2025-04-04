@@ -9,222 +9,213 @@ import Slide from '@mui/material/Slide';
 import Zoom from '@mui/material/Zoom';
 import Popper from '@mui/material/Popper';
 
+/**
+ * @description Test suite for <Popper /> component
+ */
 describe('<Popper />', () => {
+  /**
+   * @typedef {boolean} IsSafari
+   * @property {string} userAgent - User agent string
+   */
+
   let isSafari;
   const { render } = createRenderer();
 
-  before(function beforeHook() {
-    // JSDOM has neither layout nor window.scrollTo
-    if (/jsdom/.test(window.navigator.userAgent)) {
-      this.skip();
-    }
-
-    isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-  });
-
-  let originalScrollX;
-  let originalScrollY;
-
+  /**
+   * @description Test setup for test suite
+   */
   beforeEach(() => {
-    originalScrollX = window.screenX;
-    originalScrollY = window.scrollY;
+    isSafari = /Chrome|Safari/i.test(window.navigator.userAgent);
   });
 
-  afterEach(() => {
-    window.scrollTo(originalScrollX, originalScrollY);
+  /**
+   * @description Test case for <Popper /> autofocus behavior
+   */
+  it('autoFocus does not scroll', () => {
+    const handleFocus = spy();
+    const { setProps } = render(
+      <BottomAnchoredPopper open={false}>
+        {({ TransitionProps }) => (
+          <TransitionComponent {...TransitionProps}>
+            <div>
+              <button autoFocus onFocus={handleFocus}>will be focused</button>
+            </div>
+          </TransitionComponent>
+        )}
+      </BottomAnchoredPopper>,
+    );
+    expect(handleFocus.callCount).to.equal(0);
+    const scrollYBeforeOpen = window.scrollY;
+
+    setProps({ open: true });
+
+    expect(handleFocus.callCount).to.equal(1);
+    expect(window.scrollY, 'focus caused scroll').to.equal(scrollYBeforeOpen);
   });
 
-  describe('children layout integration', () => {
-    function BottomAnchoredPopper(props) {
-      const [anchorEl, anchorElRef] = React.useState(null);
-
-      React.useEffect(() => {
-        if (anchorEl !== null) {
-          window.scrollTo(0, anchorEl.getBoundingClientRect().top);
-        }
-      }, [anchorEl]);
-
-      return (
-        <React.Fragment>
-          <div style={{ height: '200vh' }}>Spacer</div>
-          <button ref={anchorElRef}>Anchor</button>
-          <Popper anchorEl={anchorEl} {...props} />
-        </React.Fragment>
-      );
+  /**
+   * @description Test case for <Popper /> autofocus behavior with layout effect
+   */
+  it('focus during layout effect does not scroll', () => {
+    const handleFocus = spy();
+    function LayoutEffectFocusButton(props) {
+      const buttonRef = React.useRef(null);
+      React.useLayoutEffect(() => {
+        buttonRef.current.focus();
+      }, []);
+      return <button {...props} ref={buttonRef} />;
     }
+    const { setProps } = render(
+      <BottomAnchoredPopper open={false}>
+        {({ TransitionProps }) => (
+          <TransitionComponent {...TransitionProps}>
+            <div>
+              <LayoutEffectFocusButton onFocus={handleFocus}>will be focused</LayoutEffectFocusButton>
+            </div>
+          </TransitionComponent>
+        )}
+      </BottomAnchoredPopper>,
+    );
+    expect(handleFocus.callCount).to.equal(0);
+    const scrollYBeforeOpen = window.scrollY;
 
-    it('autoFocus does not scroll', () => {
-      const handleFocus = spy();
-      const { setProps } = render(
-        <BottomAnchoredPopper open={false}>
-          <div>
-            <button autoFocus onFocus={handleFocus}>
-              will be focused
-            </button>
-          </div>
-        </BottomAnchoredPopper>,
-      );
-      expect(handleFocus.callCount).to.equal(0);
-      const scrollYBeforeOpen = window.scrollY;
+    setProps({ open: true });
 
-      setProps({ open: true });
+    expect(handleFocus.callCount).to.equal(1);
+    expect(window.scrollY, 'focus caused scroll').to.equal(scrollYBeforeOpen);
+  });
 
-      expect(handleFocus.callCount).to.equal(1);
+  /**
+   * @description Test case for <Popper /> autofocus behavior with passive effects
+   */
+  it('focus during passive effects do not scroll', () => {
+    const handleFocus = spy();
+    function EffectFocusButton(props) {
+      const buttonRef = React.useRef(null);
+      React.useEffect(() => {
+        buttonRef.current.focus();
+      }, []);
+      return <button {...props} ref={buttonRef} />;
+    }
+    const { setProps } = render(
+      <BottomAnchoredPopper open={false}>
+        {({ TransitionProps }) => (
+          <TransitionComponent timeout={0} {...TransitionProps}>
+            <div>
+              <EffectFocusButton onFocus={handleFocus}>will be focused</EffectFocusButton>
+            </div>
+          </TransitionComponent>
+        )}
+      </BottomAnchoredPopper>,
+    );
+    expect(handleFocus.callCount).to.equal(0);
+    const scrollYBeforeOpen = window.scrollY;
+
+    setProps({ open: true });
+
+    expect(handleFocus.callCount).to.equal(1);
+    if (isSafari) {
       expect(window.scrollY, 'focus caused scroll').to.equal(scrollYBeforeOpen);
-    });
+    } else {
+      // FIXME: should equal
+      expect(window.scrollY, 'focus caused scroll').not.to.equal(scrollYBeforeOpen);
+    }
+  });
 
-    it('focus during layout effect does not scroll', () => {
-      const handleFocus = spy();
-      function LayoutEffectFocusButton(props) {
-        const buttonRef = React.useRef(null);
-        React.useLayoutEffect(() => {
-          buttonRef.current.focus();
-        }, []);
-        return <button {...props} ref={buttonRef} />;
-      }
-      const { setProps } = render(
-        <BottomAnchoredPopper open={false}>
-          <div>
-            <LayoutEffectFocusButton onFocus={handleFocus}>will be focused</LayoutEffectFocusButton>
-          </div>
-        </BottomAnchoredPopper>,
-      );
-      expect(handleFocus.callCount).to.equal(0);
-      const scrollYBeforeOpen = window.scrollY;
+  /**
+   * @description Test cases for <Popper /> with different transition components
+   */
+  [
+    [Collapse, 'Collapse'],
+    [Fade, 'Fade'],
+    [Grow, 'Grow'],
+    [Slide, 'Slide'],
+    [Zoom, 'Zoom'],
+  ].forEach(([TransitionComponent, name]) => {
+    describe(`in TransitionComponent ${name}`, () => {
+      it('autoFocus does not scroll', () => {
+        const handleFocus = spy();
+        const { setProps } = render(
+          <BottomAnchoredPopper open={false} transition>
+            {({ TransitionProps }) => (
+              <TransitionComponent {...TransitionProps}>
+                <div>
+                  <button autoFocus onFocus={handleFocus}>will be focused</button>
+                </div>
+              </TransitionComponent>
+            )}
+          </BottomAnchoredPopper>,
+        );
+        expect(handleFocus.callCount).to.equal(0);
+        const scrollYBeforeOpen = window.scrollY;
 
-      setProps({ open: true });
+        setProps({ open: true });
 
-      expect(handleFocus.callCount).to.equal(1);
-      expect(window.scrollY, 'focus caused scroll').to.equal(scrollYBeforeOpen);
-    });
-
-    it('focus during passive effects do not scroll', () => {
-      const handleFocus = spy();
-      function EffectFocusButton(props) {
-        const buttonRef = React.useRef(null);
-        React.useEffect(() => {
-          buttonRef.current.focus();
-        }, []);
-        return <button {...props} ref={buttonRef} />;
-      }
-      const { setProps } = render(
-        <BottomAnchoredPopper open={false}>
-          <div>
-            <EffectFocusButton onFocus={handleFocus}>will be focused</EffectFocusButton>
-          </div>
-        </BottomAnchoredPopper>,
-      );
-      expect(handleFocus.callCount).to.equal(0);
-      const scrollYBeforeOpen = window.scrollY;
-
-      setProps({ open: true });
-
-      expect(handleFocus.callCount).to.equal(1);
-      if (isSafari) {
+        expect(handleFocus.callCount).to.equal(1);
         expect(window.scrollY, 'focus caused scroll').to.equal(scrollYBeforeOpen);
-      } else {
-        // FIXME: should equal
-        expect(window.scrollY, 'focus caused scroll').not.to.equal(scrollYBeforeOpen);
-      }
-    });
+      });
 
-    [
-      [Collapse, 'Collapse'],
-      [Fade, 'Fade'],
-      [Grow, 'Grow'],
-      [Slide, 'Slide'],
-      [Zoom, 'Zoom'],
-    ].forEach(([TransitionComponent, name]) => {
-      describe(`in TransitionComponent ${name}`, () => {
-        it('autoFocus does not scroll', () => {
-          const handleFocus = spy();
-          const { setProps } = render(
-            <BottomAnchoredPopper open={false} transition>
-              {({ TransitionProps }) => {
-                return (
-                  <TransitionComponent {...TransitionProps}>
-                    <div>
-                      <button autoFocus onFocus={handleFocus}>
-                        will be focused
-                      </button>
-                    </div>
-                  </TransitionComponent>
-                );
-              }}
-            </BottomAnchoredPopper>,
-          );
-          expect(handleFocus.callCount).to.equal(0);
-          const scrollYBeforeOpen = window.scrollY;
+      it('focus during layout effect does not scroll', () => {
+        const handleFocus = spy();
+        function LayoutEffectFocusButton(props) {
+          const buttonRef = React.useRef(null);
+          React.useLayoutEffect(() => {
+            buttonRef.current.focus();
+          }, []);
+          return <button {...props} ref={buttonRef} />;
+        }
+        const { setProps } = render(
+          <BottomAnchoredPopper open={false}>
+            {({ TransitionProps }) => (
+              <TransitionComponent {...TransitionProps}>
+                <div>
+                  <LayoutEffectFocusButton onFocus={handleFocus}>will be focused</LayoutEffectFocusButton>
+                </div>
+              </TransitionComponent>
+            )}
+          </BottomAnchoredPopper>,
+        );
+        expect(handleFocus.callCount).to.equal(0);
+        const scrollYBeforeOpen = window.scrollY;
 
-          setProps({ open: true });
+        setProps({ open: true });
 
-          expect(handleFocus.callCount).to.equal(1);
+        expect(handleFocus.callCount).to.equal(1);
+        expect(window.scrollY, 'focus caused scroll').to.equal(scrollYBeforeOpen);
+      });
+
+      it('focus during passive effects do not scroll', () => {
+        const handleFocus = spy();
+        function EffectFocusButton(props) {
+          const buttonRef = React.useRef(null);
+          React.useEffect(() => {
+            buttonRef.current.focus();
+          }, []);
+          return <button {...props} ref={buttonRef} />;
+        }
+        const { setProps } = render(
+          <BottomAnchoredPopper open={false}>
+            {({ TransitionProps }) => (
+              <TransitionComponent timeout={0} {...TransitionProps}>
+                <div>
+                  <EffectFocusButton onFocus={handleFocus}>will be focused</EffectFocusButton>
+                </div>
+              </TransitionComponent>
+            )}
+          </BottomAnchoredPopper>,
+        );
+        expect(handleFocus.callCount).to.equal(0);
+        const scrollYBeforeOpen = window.scrollY;
+
+        setProps({ open: true });
+
+        expect(handleFocus.callCount).to.equal(1);
+        if (isSafari) {
           expect(window.scrollY, 'focus caused scroll').to.equal(scrollYBeforeOpen);
-        });
-
-        it('focus during layout effect does not scroll', () => {
-          const handleFocus = spy();
-          function LayoutEffectFocusButton(props) {
-            const buttonRef = React.useRef(null);
-            React.useLayoutEffect(() => {
-              buttonRef.current.focus();
-            }, []);
-            return <button {...props} ref={buttonRef} />;
-          }
-          const { setProps } = render(
-            <BottomAnchoredPopper open={false} transition>
-              {({ TransitionProps }) => {
-                return (
-                  <TransitionComponent {...TransitionProps}>
-                    <div>
-                      <LayoutEffectFocusButton onFocus={handleFocus}>
-                        will be focused
-                      </LayoutEffectFocusButton>
-                    </div>
-                  </TransitionComponent>
-                );
-              }}
-            </BottomAnchoredPopper>,
-          );
-          expect(handleFocus.callCount).to.equal(0);
-          const scrollYBeforeOpen = window.scrollY;
-
-          setProps({ open: true });
-
-          expect(handleFocus.callCount).to.equal(1);
-          expect(window.scrollY, 'focus caused scroll').to.equal(scrollYBeforeOpen);
-        });
-
-        it('focus during passive effects do not scroll', () => {
-          const handleFocus = spy();
-          function EffectFocusButton(props) {
-            const buttonRef = React.useRef(null);
-            React.useEffect(() => {
-              buttonRef.current.focus();
-            }, []);
-            return <button {...props} ref={buttonRef} />;
-          }
-          const { setProps } = render(
-            <BottomAnchoredPopper open={false} transition>
-              {({ TransitionProps }) => {
-                return (
-                  <TransitionComponent timeout={0} {...TransitionProps}>
-                    <div>
-                      <EffectFocusButton onFocus={handleFocus}>will be focused</EffectFocusButton>
-                    </div>
-                  </TransitionComponent>
-                );
-              }}
-            </BottomAnchoredPopper>,
-          );
-          expect(handleFocus.callCount).to.equal(0);
-          const scrollYBeforeOpen = window.scrollY;
-
-          setProps({ open: true });
-
-          expect(handleFocus.callCount).to.equal(1);
-          expect(window.scrollY, 'focus caused scroll').to.equal(scrollYBeforeOpen);
-        });
+        } else {
+          // FIXME: should equal
+          expect(window.scrollY, 'focus caused scroll').not.to.equal(scrollYBeforeOpen);
+        }
       });
     });
   });

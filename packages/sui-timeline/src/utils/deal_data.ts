@@ -3,7 +3,12 @@ import {type ITimelineAction} from "../TimelineAction/TimelineAction.types";
 import {ADD_SCALE_COUNT} from "../interface/const";
 import { IController } from "../Controller";
 
-/** time to pixel */
+/**
+ * Calculates the time to pixel based on the data and parameter.
+ * @param data - The data to convert to pixel
+ * @param param - An object containing startLeft, scale, and scaleWidth properties
+ * @returns The calculated pixel value
+ */
 export function parserTimeToPixel(
   data: number,
   param: {
@@ -16,7 +21,12 @@ export function parserTimeToPixel(
   return startLeft + (data / scale) * scaleWidth;
 }
 
-/** pixel to time */
+/**
+ * Calculates the pixel to time based on the data and parameter.
+ * @param data - The data to convert to time
+ * @param param - An object containing startLeft, scale, and scaleWidth properties
+ * @returns The calculated time value
+ */
 export function parserPixelToTime(
   data: number,
   param: {
@@ -29,7 +39,12 @@ export function parserPixelToTime(
   return ((data - startLeft) / scaleWidth) * scale;
 }
 
-/** position width turn start end */
+/**
+ * Calculates the position width turn start end based on the data and parameter.
+ * @param data - An object containing left and width properties
+ * @param param - An object containing startLeft, scale, and scaleWidth properties
+ * @returns An object containing the start and end time values
+ */
 export function parserTransformToTime(
   data: {
     left: number;
@@ -50,7 +65,12 @@ export function parserTransformToTime(
   };
 }
 
-/** start end to position width */
+/**
+ * Calculates the start end to position width based on the data and parameter.
+ * @param data - An object containing start and end properties
+ * @param param - An object containing startLeft, scale, and scaleWidth properties
+ * @returns An object containing the left and width values
+ */
 export function parserTimeToTransform(
   data: {
     start: number;
@@ -70,7 +90,13 @@ export function parserTimeToTransform(
     width,
   };
 }
-/** Get the number of scales based on data */
+
+/**
+ * Gets the number of scales based on the data and parameter.
+ * @param tracks - An array of timeline track objects
+ * @param param - An object containing scale property
+ * @returns The calculated scale count
+ */
 export function getScaleCountByRows<
   ActionType extends ITimelineAction = ITimelineAction,
 >(tracks: ITimelineTrack<ActionType>[], param: { scale: number }) {
@@ -84,7 +110,12 @@ export function getScaleCountByRows<
   return count + 2;
 }
 
-/** Get the current tick number based on time */
+/**
+ * Gets the current tick number based on time.
+ * @param data - The pixel value to convert
+ * @param param - An object containing startLeft, scaleWidth, and scaleCount properties
+ * @returns The calculated tick number
+ */
 export function getScaleCountByPixel(
   data: number,
   param: {
@@ -98,7 +129,12 @@ export function getScaleCountByPixel(
   return Math.max(count + ADD_SCALE_COUNT, param.scaleCount);
 }
 
-/** Get the position collection of the entire time of the action */
+/**
+ * Gets the position collection of the entire time of the action.
+ * @param actions - An array of timeline action objects
+ * @param param - An object containing startLeft, scale, and scaleWidth properties
+ * @returns An array of position values
+ */
 export function parserActionsToPositions<
   ActionType extends ITimelineAction = ITimelineAction,
 >(
@@ -115,4 +151,3 @@ export function parserActionsToPositions<
     positions.push(parserTimeToPixel(item.end, param));
   });
   return positions;
-}

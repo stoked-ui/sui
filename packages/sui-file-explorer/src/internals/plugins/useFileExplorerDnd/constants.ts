@@ -1,1 +1,4 @@
-export const indentPerLevel = 32;
+/**
+ * Constant representing the indentation per level.
+ */
+export const indentPerLevel: number = 32;

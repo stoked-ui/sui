@@ -9,11 +9,35 @@ import GridSnap from "../icons/GridSnap";
 import PropTypes from "prop-types";
 import {SxProps} from "@mui/system";
 
+/**
+ * ToolbarToggle component
+ *
+ * @description styled toggle button for snap controls
+ */
 const ToolbarToggle = styled(ToggleButton)(() => ({
   background: 'unset',
   backgroundColor: 'unset',
 }));
-export default function SnapControls({ sx, size, hover }: { sx?: SxProps, size?: 'large' | 'medium' | 'small', hover?: boolean }) {
+
+/**
+ * Props type for SnapControls component
+ *
+ * @description object containing sx, size, and hover properties
+ */
+export default function SnapControls({
+  /**
+   * styles to be applied to the component
+   */
+  sx?: SxProps,
+  /**
+   * size of the toggle button (large, medium, or small)
+   */
+  size?: 'large' | 'medium' | 'small',
+  /**
+   * whether the control is disabled
+   */
+  hover?: boolean
+}: { sx?: SxProps, size?: 'large' | 'medium' | 'small', hover?: boolean }) {
   const {
     dispatch,
     state: { flags, settings },
@@ -26,9 +50,21 @@ export default function SnapControls({ sx, size, hover }: { sx?: SxProps, size?:
     }
   }, [settings.disabled]);
 
+  /**
+   * check if snap controls should be shown
+   */
   const onControls = flags.noLabels && !flags.noSnapControls;
+  /**
+   * determine the size of the toggle button based on onControls flag
+   */
   const cntrlSize = size || (onControls ? 'large' : 'medium');
+  /**
+   * object containing control sizes for different toggle button sizes
+   */
   const cntrlSizes = { large: { width: 52, height: 40}, medium: { width: 40, height: 32 }, small: { width: 30, height: 22 }};
+  /**
+   * state variable to store the current size of the toggle button
+   */
   const [currentSize, setCurrentSize] = React.useState(cntrlSize);
   React.useEffect(() => {
     if (currentSize !== cntrlSize) {
@@ -36,10 +72,23 @@ export default function SnapControls({ sx, size, hover }: { sx?: SxProps, size?:
     }
   }, [cntrlSize]);
 
+  /**
+   * check if snap controls should be shown
+   */
   if (flags.noSnapControls) {
     return undefined;
   }
+
+  /**
+   * handle change event for snap options
+   *
+   * @param {React.MouseEvent<HTMLElement>} event
+   * @param {string[]} newOptions
+   */
   const handleSnapOptions = (event: React.MouseEvent<HTMLElement>, newOptions: string[]) => {
+    /**
+     * array of strings to add or remove from flags
+     */
     const add: string[] = [];
     const remove: string[] = [];
     if (newOptions.includes('gridSnap')) {
@@ -55,8 +104,14 @@ export default function SnapControls({ sx, size, hover }: { sx?: SxProps, size?:
     dispatch({ type: 'SET_FLAGS', payload: { add, remove } });
   };
 
+  /**
+   * calculate the width and height of the toggle button based on its size
+   */
   const width = cntrlSizes[cntrlSize].width;
   const height = cntrlSizes[cntrlSize].height;
+  /**
+   * array of flags to be used for snap controls
+   */
   const controlFlags: string[] = [];
   if (flags.edgeSnap) {
     controlFlags.push('edgeSnap');
@@ -64,52 +119,34 @@ export default function SnapControls({ sx, size, hover }: { sx?: SxProps, size?:
   if (flags.gridSnap) {
     controlFlags.push('gridSnap');
   }
+
+  /**
+   * styles for the toggle button based on hover state
+   */
   const sxButton = hover ? { opacity: .4, '&:hover': { opacity: 1 }} : {};
+
   return (
-    <ToggleButtonGroupEx
-      onChange={handleSnapOptions}
-      value={controlFlags}
-      size={'small'}
-      aria-label="text alignment"
-      maxWidth={width}
-      maxHeight={height}
-      sx={sx}
-      disabled={disabled}
-    >
-      <Tooltip enterDelay={1000} title={'Edge Snap'} key={'edgeSnap'}>
-        <span>
-          <ToggleButton value="edgeSnap" aria-label="edge snap" key={'edgeSnap-tooltip'} sx={sxButton}>
-            <EdgeSnap />
-          </ToggleButton>
-        </span>
+    <ToggleButtonGroupEx>
+      <Tooltip title="Grid Snap" placement="right">
+        <ToolbarToggle size={cntrlSize} style={sx}>
+          <GridSnap />
+        </ToolbarToggle>
       </Tooltip>
-      <Tooltip enterDelay={1000} title={'Grid Snap'} key={'gridSnap'}>
-        <span>
-          <ToolbarToggle value="gridSnap" aria-label="grid snap" key={'gridSnap-tooltip'} sx={sxButton}>
-            <GridSnap />
-          </ToolbarToggle>
-        </span>
+      <Tooltip title="Edge Snap" placement="left">
+        <ToolbarToggle size={cntrlSize} style={sx}>
+          <EdgeSnap />
+        </ToolbarToggle>
       </Tooltip>
     </ToggleButtonGroupEx>
   );
 }
 
 /**
- *
- * Demos:
- *
- * - [TimelineLabels](https://stoked-ui.github.io/timeline/docs/)
- *
- * API:
- *
- * - [TimelineLabels](https://stoked-ui.github.io/timeline/api/)
+ * propTypes for SnapControls component
  */
-
 SnapControls.propTypes = {
-  // ----------------------------- Warning --------------------------------
-  // | These PropTypes are generated from the TypeScript type definitions |
-  // | To update them edit the TypeScript types and run "pnpm proptypes"  |
-  // ----------------------------------------------------------------------
+  /**
+   * styles to be applied to the component (deprecated)
+   */
   style: PropTypes.object,
 } as any;
-

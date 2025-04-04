@@ -1,4 +1,10 @@
-import * as React from 'react';
+/**
+ * The useFileExplorerJSXItems file exports a plugin that provides functionality for managing JSX items in the File Explorer.
+ *
+ * @module useFileExplorerJSXItems
+ */
+
+import React from 'react';
 import useEventCallback from '@mui/utils/useEventCallback';
 import useForkRef from '@mui/utils/useForkRef';
 import useEnhancedEffect from '@mui/utils/useEnhancedEffect';
@@ -12,100 +18,27 @@ import {
   FileExplorerChildrenItemContext, FileExplorerChildrenItemProvider,
 } from '../../FileExplorerProvider/FileExplorerChildrenItemProvider';
 import {
-  buildSiblingIndexes, FILE_EXPLORER_VIEW_ROOT_PARENT_ID,
-} from '../useFileExplorerFiles/useFileExplorerFiles.utils';
-import {FileDepthContext} from '../../FileDepthContext';
+  buildSiblingIndexes, FILE_EXPLORER_RDF_ID_ATTR_NAME, FILE_EXPLORER_RDF_TYPE_NAME
+} from './utils';
 
-export const useFileExplorerJSXItems: FileExplorerPlugin<UseFileExplorerJSXItemsSignature> = ({
-  instance,
-  setState,
-}) => {
-  instance.preventItemUpdates();
-
-  const insertJSXItem = useEventCallback((item: FileMeta) => {
-    setState((prevState) => {
-      if (prevState.items.itemMetaMap[item.id] != null) {
-        throw new Error(
-          [
-            'Stoked UI: The FileExplorer component requires all items to have a unique `id` property.',
-            'Alternatively, you can use the `getItemId` prop to specify a custom id for each item.',
-            `Two items were provided with the same id in the \`items\` prop: "${item.id}"`,
-          ].join('\n'),
-        );
-      }
-
-      return {
-        ...prevState,
-        items: {
-          ...prevState.items,
-          itemMetaMap: { ...prevState.items.itemMetaMap, [item.id]: item },
-          // For `FileExplorerBasic`, we don't have a proper `item` object, so we create a very basic one.
-          itemMap: { ...prevState.items.itemMap, [item.id]: { id: item.id, label: item.name } },
-        },
-      };
-    });
-
-    return () => {
-      setState((prevState) => {
-        const newItemMetaMap = { ...prevState.items.itemMetaMap };
-        const newItemMap = { ...prevState.items.itemMap };
-        delete newItemMetaMap[item.id];
-        delete newItemMap[item.id];
-        return {
-          ...prevState,
-          items: {
-            ...prevState.items,
-            itemMetaMap: newItemMetaMap,
-            itemMap: newItemMap,
-          },
-        };
-      });
-      publishFileExplorerEvent(instance, 'removeItem', { id: item.id });
-    };
-  });
-
-  const setJSXItemsOrderedChildrenIds = (parentId: string | null, orderedChildrenIds: string[]) => {
-    const parentIdWithDefault = parentId ?? FILE_EXPLORER_VIEW_ROOT_PARENT_ID;
-
-    setState((prevState) => ({
-      ...prevState,
-      items: {
-        ...prevState.items,
-        itemOrderedChildrenIds: {
-          ...prevState.items.itemOrderedChildrenIds,
-          [parentIdWithDefault]: orderedChildrenIds,
-        },
-        itemChildrenIndexes: {
-          ...prevState.items.itemChildrenIndexes,
-          [parentIdWithDefault]: buildSiblingIndexes(orderedChildrenIds),
-        },
-      },
-    }));
-  };
-
-  const mapFirstCharFromJSX = useEventCallback((id: string, firstChar: string) => {
-    instance.updateFirstCharMap((firstCharMap) => {
-      firstCharMap[id] = firstChar;
-      return firstCharMap;
-    });
-
-    return () => {
-      instance.updateFirstCharMap((firstCharMap) => {
-        const newMap = { ...firstCharMap };
-        delete newMap[id];
-        return newMap;
-      });
-    };
-  });
-
-  return {
-    instance: {
-      insertJSXItem,
-      setJSXItemsOrderedChildrenIds,
-      mapFirstCharFromJSX,
-    },
-  };
+/**
+ * Returns true if the provided children are expandable.
+ *
+ * @param {React.ReactNode} reactChildren The children to check for expandability.
+ * @returns {boolean} True if the children are expandable, false otherwise.
+ */
+const isItemExpandable = (reactChildren: React.ReactNode) => {
+  if (Array.isArray(reactChildren)) {
+    return reactChildren.length > 0 && reactChildren.some(isItemExpandable);
+  }
+  return Boolean(reactChildren);
 };
+
+/**
+ * The useFileExplorerJSXItemsItemPlugin file exports a plugin that provides functionality for managing individual items in the File Explorer.
+ *
+ * @module useFileExplorerJSXItemsItemPlugin
+ */
 
 const isItemExpandable = (reactChildren: React.ReactNode) => {
   if (Array.isArray(reactChildren)) {
@@ -114,6 +47,11 @@ const isItemExpandable = (reactChildren: React.ReactNode) => {
   return Boolean(reactChildren);
 };
 
+/**
+ * The useFileExplorerJSXItemsItemPlugin plugin provides functionality for managing individual items in the File Explorer.
+ *
+ * @param {Object} props The plugin's props, including children, rootRef, and contentRef.
+ */
 const useFileExplorerJSXItemsItemPlugin: FilePlugin = ({
   props,
   rootRef,
@@ -139,6 +77,7 @@ const useFileExplorerJSXItemsItemPlugin: FilePlugin = ({
   const expandable = isItemExpandable(children);
   const pluginContentRef = React.useRef<HTMLDivElement>(null);
   const handleContentRef = useForkRef(pluginContentRef, contentRef);
+
   // Prevent any flashing
   useEnhancedEffect(() => {
     const idAttributeWithDefault = instance.getFileIdAttribute(id);
@@ -180,7 +119,12 @@ const useFileExplorerJSXItemsItemPlugin: FilePlugin = ({
 
 useFileExplorerJSXItems.itemPlugin = useFileExplorerJSXItemsItemPlugin;
 
-useFileExplorerJSXItems.wrapItem = ({ children, id }) => {
+/**
+ * Wraps the provided children in a FileExplorerChildrenItemProvider component.
+ *
+ * @param {Object} props The wrapper's props, including children and id.
+ */
+const useFileExplorerJSXItems.wrapItem = ({ children, id }) => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const depthContext = React.useContext(FileDepthContext);
 
@@ -193,7 +137,12 @@ useFileExplorerJSXItems.wrapItem = ({ children, id }) => {
   );
 };
 
-useFileExplorerJSXItems.wrapRoot = ({ children }) => (
+/**
+ * Wraps the provided children in a FileExplorerChildrenItemProvider component.
+ *
+ * @param {Object} props The wrapper's props, including children.
+ */
+const useFileExplorerJSXItems.wrapRoot = ({ children }) => (
   <FileExplorerChildrenItemProvider>
     <FileDepthContext.Provider value={0}>{children}</FileDepthContext.Provider>
   </FileExplorerChildrenItemProvider>

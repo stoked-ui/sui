@@ -10,7 +10,13 @@ import {describeConformance} from 'test/utils/describeConformance';
 import {describeFileExplorer} from 'test/utils/tree-view/describeFileExplorer';
 import {getFakeContextValue} from 'test/utils/tree-view/fakeContextValue';
 
-describeFileExplorer<[]>('FileElement component', ({ render, fileElementComponentName }) => {
+/**
+ * FileElement test suite
+ */
+describe('FileElement component', () => {
+  /**
+   * Test suite for ContentComponent/ContentProps props (FileElement only)
+   */
   describe('ContentComponent / ContentProps props (FileElement only)', () => {
     it('should use the ContentComponent prop when defined', function test() {
       if (fileElementComponentName === 'FileElement2') {
@@ -64,9 +70,15 @@ describeFileExplorer<[]>('FileElement component', ({ render, fileElementComponen
   });
 });
 
+/**
+ * Conformance test suite for FileElement
+ */
 describe('<FileElement />', () => {
   const { render } = createRenderer();
 
+  /**
+   * Test conformance for FileExplorerContextProvider
+   */
   describeConformance(<FileElement id="one" label="one" />, () => ({
     classes,
     inheritComponent: 'li',
@@ -80,6 +92,9 @@ describe('<FileElement />', () => {
     skip: ['componentProp', 'componentsProp', 'themeVariants'],
   }));
 
+  /**
+   * Prop type warnings test suite
+   */
   describe('PropTypes warnings', () => {
     beforeEach(() => {
       PropTypes.resetWarningCache();

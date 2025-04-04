@@ -1,32 +1,52 @@
-export type EventListener = (...args: any[]) => void;
-
-export interface EventListenerOptions {
-  isFirst?: boolean;
-}
-
-interface EventListenerCollection {
-  /**
-   * List of listeners to run before the others
-   * They are run in the opposite order of the registration order
-   */
+/**
+ * List of listeners to run before the others. They are run in the opposite order of the registration order.
+ */
+export interface EventListenerCollection {
   highPriority: Map<EventListener, true>;
   /**
-   * List of events to run after the high priority listeners
-   * They are run in the registration order
+   * List of events to run after the high priority listeners. They are run in the registration order.
    */
   regular: Map<EventListener, true>;
 }
 
-// Used https://gist.github.com/mudge/5830382 as a starting point.
-// See https://github.com/browserify/events/blob/master/events.js for
-// the Node.js (https://nodejs.org/api/events.html) polyfill used by webpack.
+/**
+ * Event manager for handling events with listeners.
+ *
+ * The event manager maintains a list of registered listeners for each event, and
+ * provides methods for adding and removing listeners, as well as emitting events.
+ *
+ * @class EventManager
+ */
 export class EventManager {
+  /**
+   * Maximum number of listeners that can be registered for an event.
+   * @type {number}
+   */
   maxListeners = 20;
 
+  /**
+   * Flag indicating whether a warning should be logged when the maximum number of listeners is reached.
+   * @type {boolean}
+   */
   warnOnce = false;
 
+  /**
+   * Map of events to listener collections.
+   * @type {{ [eventName: string]: EventListenerCollection }}
+   */
   events: { [eventName: string]: EventListenerCollection } = {};
 
+  /**
+   * Adds a listener for an event. The listener can be either high-priority or regular.
+   *
+   * If the listener is high-priority, it will be run before all other listeners
+   * in the opposite order of registration. If the listener is regular, it will
+   * be run after all high-priority listeners in the order of registration.
+   *
+   * @param {string} eventName - The name of the event to add a listener for.
+   * @param {EventListener} listener - The function to call when the event is emitted.
+   * @param {EventListenerOptions} [options={}] - Options for the listener (e.g. isFirst).
+   */
   on(eventName: string, listener: EventListener, options: EventListenerOptions = {}): void {
     let collection = this.events[eventName];
 
@@ -57,6 +77,12 @@ export class EventManager {
     }
   }
 
+  /**
+   * Removes a listener for an event.
+   *
+   * @param {string} eventName - The name of the event to remove a listener from.
+   * @param {EventListener} listener - The function to remove from the event.
+   */
   removeListener(eventName: string, listener: EventListener): void {
     if (this.events[eventName]) {
       this.events[eventName].regular.delete(listener);
@@ -64,10 +90,21 @@ export class EventManager {
     }
   }
 
+  /**
+   * Removes all listeners for an event.
+   *
+   * @param {string} eventName - The name of the event to remove all listeners from.
+   */
   removeAllListeners(): void {
     this.events = {};
   }
 
+  /**
+   * Emits an event and calls all registered listeners.
+   *
+   * @param {string} eventName - The name of the event to emit.
+   * @param {...any[]} args - Arguments to pass to the listener functions.
+   */
   emit(eventName: string, ...args: any[]): void {
     const collection = this.events[eventName];
     if (!collection) {
@@ -92,6 +129,13 @@ export class EventManager {
     }
   }
 
+  /**
+   * Adds a one-time listener for an event. The listener will only be called once,
+   * after which it will be removed.
+   *
+   * @param {string} eventName - The name of the event to add a one-time listener for.
+   * @param {EventListener} listener - The function to call when the event is emitted.
+   */
   once(eventName: string, listener: EventListener): void {
     // eslint-disable-next-line consistent-this
     const that = this;

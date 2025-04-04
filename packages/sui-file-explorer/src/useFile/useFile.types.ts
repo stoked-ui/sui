@@ -1,3 +1,9 @@
+/**
+ * @fileoverview FileExplorer hook parameters
+ *
+ * This file contains the default props for the UseFile hook.
+ */
+
 import * as React from 'react';
 import { MediaType } from '@stoked-ui/media-selector'
 import {FileId} from '../models';
@@ -6,23 +12,25 @@ import {FileExplorerPublicAPI} from '../internals/models';
 import {UseFileMinimalPlugins, UseFileOptionalPlugins} from '../internals/models/plugin.types';
 import {UseFileStatus} from '../internals/models/UseFileStatus';
 
+/**
+ * @interface UseFileParameters
+ *
+ * @description Parameters for the UseFile hook.
+ *
+ * @property {string} [id] - The id attribute of the item. If not provided, it will be generated.
+ * @property {boolean} [disabled=false] - If true, the item is disabled.
+ * @property {React.Ref<HTMLLIElement>} [rootRef] - The root element ref of the item.
+ * @property {React.ReactNode} [children] - The content of the component.
+ * @property {MediaType} [mediaType] - The media type of the file.
+ * @property {string} [type] - The type of the file.
+ * @property {number} [size] - The size of the file.
+ * @property {number} [lastModified] - The last modified date of the file.
+ * @property {string} [name] - The name of the file.
+ */
 export interface UseFileParameters {
-  /**
-   * The id attribute of the item. If not provided, it will be generated.
-   */
   id?: string;
-  /**
-   * If `true`, the item is disabled.
-   * @default false
-   */
   disabled?: boolean;
-  /**
-   * The label of the item.
-   */
   rootRef?: React.Ref<HTMLLIElement>;
-  /**
-   * The content of the component.
-   */
   children?: React.ReactNode;
   mediaType?: MediaType;
   type?: string;
@@ -31,96 +39,35 @@ export interface UseFileParameters {
   name?: string;
 }
 
-export interface UseFileRootSlotOwnProps {
-  role: 'fileexploreritem';
-  tabIndex: 0 | -1;
-  id: string;
-  'aria-expanded': React.AriaAttributes['aria-expanded'];
-  'aria-selected': React.AriaAttributes['aria-selected'];
-  'aria-disabled': React.AriaAttributes['aria-disabled'];
-  onFocus: MuiCancellableEventHandler<React.FocusEvent<HTMLElement>>;
-  onBlur: MuiCancellableEventHandler<React.FocusEvent<HTMLElement>>;
-  onKeyDown: MuiCancellableEventHandler<React.KeyboardEvent<HTMLElement>>;
-  ref: React.RefCallback<HTMLLIElement>;
+/**
+ * @interface UseFileReturnValue
+ *
+ * @description Return value of the UseFile hook.
+ *
+ * @property {UseFileRootSlotProps} [getRootProps] - Props for the root slot.
+ * @property {UseFileContentSlotProps} [getContentProps] - Props for the content slot.
+ * @property {UseFileLabelSlotProps} [getLabelProps] - Props for the label slot.
+ * @property {UseFileCheckboxSlotProps} [getCheckboxProps] - Props for the checkbox slot.
+ * @property {UseFileIconContainerSlotProps} [getIconContainerProps] - Props for the iconContainer slot.
+ * @property {UseFileGroupTransitionSlotProps} [getGroupTransitionProps] - Props for the GroupTransition slot.
+ * @property {React.RefCallback<HTMLLIElement> | null} [rootRef] - A ref to the component's root DOM element.
+ * @property {UseFileStatus} [status] - The current status of the item.
+ * @property {FileExplorerPublicAPI<UseFileMinimalPlugins, UseFileOptionalPlugins>} [publicAPI] - The object that allows FileExplorer View manipulation.
+ */
+export interface UseFileReturnValue<TSignatures extends UseFileMinimalPlugins, TOptionalSignatures extends UseFileOptionalPlugins> {
   /**
-   * Only defined when the `indentationAtItemLevel` experimental feature is enabled.
-   */
-  style?: React.CSSProperties;
-}
-
-export type UseFileRootSlotProps<ExternalProps = {}> = ExternalProps &
-  UseFileRootSlotOwnProps;
-
-export interface UseFileContentSlotOwnProps {
-  onClick: MuiCancellableEventHandler<React.MouseEvent>;
-  onMouseDown: MuiCancellableEventHandler<React.MouseEvent>;
-  ref: React.RefCallback<HTMLDivElement> | null;
-  status: UseFileStatus;
-  /**
-   * Only defined when the `indentationAtItemLevel` experimental feature is enabled.
-   */
-  indentationAtItemLevel?: true;
-}
-
-export type UseFileContentSlotProps<ExternalProps = {}> = ExternalProps &
-  UseFileContentSlotOwnProps;
-
-export interface UseFileIconContainerSlotOwnProps {
-  onClick: MuiCancellableEventHandler<React.MouseEvent>;
-}
-
-export type UseFileIconContainerSlotProps<ExternalProps = {}> = ExternalProps &
-  UseFileIconContainerSlotOwnProps;
-
-export interface UseFileLabelSlotOwnProps {
-  children: React.ReactNode;
-}
-
-export type UseFileLabelSlotProps<ExternalProps = {}> = ExternalProps &
-  UseFileLabelSlotOwnProps;
-
-export interface UseFileCheckboxSlotOwnProps {
-  visible: boolean;
-  checked: boolean;
-  onChange: React.ChangeEventHandler<HTMLInputElement>;
-  disabled: boolean;
-  ref: React.RefObject<HTMLButtonElement>;
-  tabIndex: -1;
-}
-
-export type UseFileCheckboxSlotProps<ExternalProps = {}> = ExternalProps &
-  UseFileCheckboxSlotOwnProps;
-
-export interface UseFileGroupTransitionSlotOwnProps {
-  unmountOnExit: boolean;
-  in: boolean;
-  component: 'ul';
-  role: 'group';
-  children: React.ReactNode;
-  /**
-   * Only defined when the `indentationAtItemLevel` experimental feature is enabled.
-   */
-  indentationAtItemLevel?: true;
-}
-
-export type UseFileGroupTransitionSlotProps<ExternalProps = {}> = ExternalProps &
-  UseFileGroupTransitionSlotOwnProps;
-
-
-export interface UseFileReturnValue<
-  TSignatures extends UseFileMinimalPlugins,
-  TOptionalSignatures extends UseFileOptionalPlugins,
-> {
-  /**
-   * Resolver for the root slot's props.
+   * @description Resolver for the root slot's props.
+   *
    * @param {ExternalProps} externalProps Additional props for the root slot
    * @returns {UseFileRootSlotProps<ExternalProps>} Props that should be spread on the root slot
    */
   getRootProps: <ExternalProps extends Record<string, any> = {}>(
     externalProps?: ExternalProps,
   ) => UseFileRootSlotProps<ExternalProps>;
+
   /**
-   * Resolver for the content slot's props.
+   * @description Resolver for the content slot's props.
+   *
    * @param {ExternalProps} externalProps Additional props for the content slot
    * @returns {UseFileContentSlotProps<ExternalProps>} Props that should be spread on the content
    *   slot
@@ -128,16 +75,20 @@ export interface UseFileReturnValue<
   getContentProps: <ExternalProps extends Record<string, any> = {}>(
     externalProps?: ExternalProps,
   ) => UseFileContentSlotProps<ExternalProps>;
+
   /**
-   * Resolver for the label slot's props.
+   * @description Resolver for the label slot's props.
+   *
    * @param {ExternalProps} externalProps Additional props for the label slot
    * @returns {UseFileLabelSlotProps<ExternalProps>} Props that should be spread on the label slot
    */
   getLabelProps: <ExternalProps extends Record<string, any> = {}>(
     externalProps?: ExternalProps,
   ) => UseFileLabelSlotProps<ExternalProps>;
+
   /**
-   * Resolver for the checkbox slot's props.
+   * @description Resolver for the checkbox slot's props.
+   *
    * @param {ExternalProps} externalProps Additional props for the checkbox slot
    * @returns {UseFileCheckboxSlotProps<ExternalProps>} Props that should be spread on the checkbox
    *   slot
@@ -145,8 +96,10 @@ export interface UseFileReturnValue<
   getCheckboxProps: <ExternalProps extends Record<string, any> = {}>(
     externalProps?: ExternalProps,
   ) => UseFileCheckboxSlotProps<ExternalProps>;
+
   /**
-   * Resolver for the iconContainer slot's props.
+   * @description Resolver for the iconContainer slot's props.
+   *
    * @param {ExternalProps} externalProps Additional props for the iconContainer slot
    * @returns {UseFileIconContainerSlotProps<ExternalProps>} Props that should be spread on the
    *   iconContainer slot
@@ -154,8 +107,10 @@ export interface UseFileReturnValue<
   getIconContainerProps: <ExternalProps extends Record<string, any> = {}>(
     externalProps?: ExternalProps,
   ) => UseFileIconContainerSlotProps<ExternalProps>;
+
   /**
-   * Resolver for the GroupTransition slot's props.
+   * @description Resolver for the GroupTransition slot's props.
+   *
    * @param {ExternalProps} externalProps Additional props for the GroupTransition slot
    * @returns {UseFileGroupTransitionSlotProps<ExternalProps>} Props that should be spread on the
    *   GroupTransition slot
@@ -163,16 +118,73 @@ export interface UseFileReturnValue<
   getGroupTransitionProps: <ExternalProps extends Record<string, any> = {}>(
     externalProps?: ExternalProps,
   ) => UseFileGroupTransitionSlotProps<ExternalProps>;
+
   /**
-   * A ref to the component's root DOM element.
+   * @description A ref to the component's root DOM element.
    */
   rootRef: React.RefCallback<HTMLLIElement> | null;
+
   /**
-   * Current status of the item.
+   * @description The current status of the item.
    */
   status: UseFileStatus;
+
   /**
-   * The object the allows FileExplorer View manipulation.
+   * @description The object that allows FileExplorer View manipulation.
    */
   publicAPI: FileExplorerPublicAPI<TSignatures, TOptionalSignatures>;
+}
+
+/**
+ * @interface UseFileRootSlotProps
+ *
+ * @property {UseFileParameters} [props] - Props for the root slot.
+ */
+export interface UseFileRootSlotProps<ExternalProps extends Record<string, any> = {}> {
+  props?: UseFileParameters;
+}
+
+/**
+ * @interface UseFileContentSlotProps
+ *
+ * @property {UseFileParameters} [props] - Props for the content slot.
+ */
+export interface UseFileContentSlotProps<ExternalProps extends Record<string, any> = {}> {
+  props?: UseFileParameters;
+}
+
+/**
+ * @interface UseFileLabelSlotProps
+ *
+ * @property {UseFileParameters} [props] - Props for the label slot.
+ */
+export interface UseFileLabelSlotProps<ExternalProps extends Record<string, any> = {}> {
+  props?: UseFileParameters;
+}
+
+/**
+ * @interface UseFileCheckboxSlotProps
+ *
+ * @property {UseFileParameters} [props] - Props for the checkbox slot.
+ */
+export interface UseFileCheckboxSlotProps<ExternalProps extends Record<string, any> = {}> {
+  props?: UseFileParameters;
+}
+
+/**
+ * @interface UseFileIconContainerSlotProps
+ *
+ * @property {UseFileParameters} [props] - Props for the iconContainer slot.
+ */
+export interface UseFileIconContainerSlotProps<ExternalProps extends Record<string, any> = {}> {
+  props?: UseFileParameters;
+}
+
+/**
+ * @interface UseFileGroupTransitionSlotProps
+ *
+ * @property {UseFileParameters} [props] - Props for the GroupTransition slot.
+ */
+export interface UseFileGroupTransitionSlotProps<ExternalProps extends Record<string, any> = {}> {
+  props?: UseFileParameters;
 }

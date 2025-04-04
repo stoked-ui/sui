@@ -1,16 +1,15 @@
-import * as React from 'react';
-import {
-  ConvertSignaturesIntoPlugins,
-  FileExplorerAnyPluginSignature,
-  FileExplorerPlugin,
-  MergeSignaturesProperty,
-} from '../models';
-import {FileExplorerCorePluginSignatures} from '../corePlugins';
-
 /**
  * Implements the same behavior as `useControlled` but for several models.
  * The controlled models are never stored in the state, and the state is only updated if the model
  * is not controlled.
+ *
+ * @param {ConvertSignaturesIntoPlugins<readonly [...FileExplorerCorePluginSignatures, ...TSignatures]>} plugins
+ *   An object containing plugin signatures to be merged into default parameters
+ * @param {MergeSignaturesProperty<TSignatures, 'defaultizedParams'>} props
+ *   An object containing properties used for merging plugin signatures into default parameters
+ *
+ * @returns {MergeSignaturesProperty<TSignatures, 'models>}
+ *   A function that returns an array of objects with model names as keys and their corresponding values
  */
 export const useFileExplorerModels = <TSignatures extends readonly FileExplorerAnyPluginSignature[]>(
   plugins: ConvertSignaturesIntoPlugins<readonly [...FileExplorerCorePluginSignatures, ...TSignatures]>,
@@ -18,6 +17,9 @@ export const useFileExplorerModels = <TSignatures extends readonly FileExplorerA
 ) => {
   type DefaultizedParams = MergeSignaturesProperty<TSignatures, 'defaultizedParams'>;
 
+  /**
+   * A reference to models with their initial state
+   */
   const modelsRef = React.useRef<{
     [modelName: string]: {
       getDefaultValue: (params: DefaultizedParams) => any;
@@ -25,6 +27,9 @@ export const useFileExplorerModels = <TSignatures extends readonly FileExplorerA
     };
   }>({});
 
+  /**
+   * The current state of the models
+   */
   const [modelsState, setModelsState] = React.useState<{ [modelName: string]: any }>(() => {
     const initialState: { [modelName: string]: any } = {};
 
@@ -43,6 +48,9 @@ export const useFileExplorerModels = <TSignatures extends readonly FileExplorerA
     return initialState;
   });
 
+  /**
+   * The models with their corresponding values
+   */
   const models = Object.fromEntries(
     Object.entries(modelsRef.current).map(([modelName, model]) => {
       const value = props[modelName as keyof DefaultizedParams] ?? modelsState[modelName];
@@ -64,7 +72,9 @@ export const useFileExplorerModels = <TSignatures extends readonly FileExplorerA
     }),
   ) as MergeSignaturesProperty<TSignatures, 'models'>;
 
-  // We know that `modelsRef` do not vary across renders.
+  /**
+   * We know that `modelsRef` do not vary across renders.
+   */
   /* eslint-disable react-hooks/rules-of-hooks, react-hooks/exhaustive-deps */
   if (process.env.NODE_ENV !== 'production') {
     Object.entries(modelsRef.current).forEach(([modelName, model]) => {

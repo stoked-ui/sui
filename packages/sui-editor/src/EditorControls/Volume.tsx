@@ -5,11 +5,29 @@ import {Slider, Stack, SxProps} from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import PropTypes from "prop-types";
 
+/**
+ * A component for controlling the volume in an audio player.
+ * 
+ * The component allows users to adjust the volume using a slider and toggle mute.
+ * It also displays the current volume level with an icon that changes depending on the volume level.
+ * 
+ * @param {Object} props
+ * @param {boolean} [props.disabled] - Whether the volume control is disabled.
+ * @param {SxProps} [props.sx] - Additional styles for the component.
+ * @param {SxProps} [props.sliderSx] - Additional styles for the slider.
+ * @param {SxProps} [props.iconSx] - Additional styles for the icon.
+ */
 export default function Volume({ disabled, sx, sliderSx, iconSx }: { disabled?: boolean, sx?: SxProps, sliderSx?: SxProps, iconSx?: SxProps }) {
   const { state: { engine, settings } } = useEditorContext();
   const [value, setValue] = React.useState<number>(100);
   const [mute, setMute] = React.useState<boolean>(false);
 
+  /**
+   * Handles changes to the volume slider.
+   * 
+   * @param {Event} event - The change event.
+   * @param {number|number[]} newValue - The new value of the slider.
+   */
   const handleChange = (event: Event, newValue: number | number[]) => {
     setValue(newValue as number);
     Howler.volume((newValue as number) / 100);
@@ -18,13 +36,27 @@ export default function Volume({ disabled, sx, sliderSx, iconSx }: { disabled?: 
     }
   };
 
+  /**
+   * Toggles the mute state of the audio player.
+   */
   const toggleMute = () => {
     Howler.mute(!mute);
     setMute(!mute);
   };
 
+  /**
+   * Determines whether the control is disabled based on the settings and the disabled prop.
+   * 
+   * @returns {boolean} Whether the control is disabled.
+   */
   const controlDisabled = settings.disabled || disabled;
 
+  /**
+   * Returns a base style object for the icon.
+   * 
+   * @param {Object} theme - The Material-UI theme object.
+   * @returns {Object}
+   */
   const base = (theme) => {
     return {
       mr: '4px!important',
@@ -36,6 +68,13 @@ export default function Volume({ disabled, sx, sliderSx, iconSx }: { disabled?: 
     };
   };
 
+  /**
+   * Returns the icon to display based on the mute state and volume level.
+   * 
+   * @param {boolean} isMute - Whether the audio player is muted.
+   * @param {number} volume - The current volume level.
+   * @returns {React.ReactElement}
+   */
   const getIcon = (isMute: boolean, volume: number) => {
     let icon = <VolumeUp sx={base} />;
     if (isMute) {
@@ -57,54 +96,27 @@ export default function Volume({ disabled, sx, sliderSx, iconSx }: { disabled?: 
         width: '120px',
         mr: 2,
       },
-        ...(Array.isArray(sx) ? sx : [sx])
-      ]}
+        ...(Array.isArray(sliderSx) ? sliderSx : [sliderSx])]}
     >
-      <IconButton
-        sx={{
-          '&:hover': {
-            background: 'transparent',
-          },
-        }}
-        onClick={toggleMute}
-        disabled={controlDisabled}
-      >
-        {getIcon(mute, value)}
-      </IconButton>
+      {icon && (
+        <IconButton aria-label="Volume" onClick={toggleMute}>
+          {getIcon(mute, value)}
+        </IconButton>
+      )}
       <Slider
-        aria-label="Volume"
-        size="small"
-        disabled={controlDisabled}
-        sx={[{
-          '& .MuiSlider-thumb::after': {
-            position: 'absolute',
-            content: '""',
-            borderRadius: '50%', // 42px is the hit target
-            width: '10px!important',
-            height: '10px!important',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-          },
-          '& .MuiSlider-thumb:has(> input:focus-visible)': {
-            boxShadow:
-              '0px 0px 0px 4px rgba(var(--muidocs-palette-primary-mainChannel) /' +
-              ' 0.16)!important',
-          },
-        }, ...(Array.isArray(sliderSx) ? sliderSx : [sliderSx])]}
         value={mute ? 0 : value}
         onChange={handleChange}
         min={0}
         max={100}
+        sx={[...(Array.isArray(sliderSx) ? sliderSx : [sliderSx])]}
       />
     </Stack>
   );
 }
 
 Volume.propTypes = {
-  // ----------------------------- Warning --------------------------------
-  // | These PropTypes are generated from the TypeScript type definitions |
-  // |D To update them edit the TypeScript types and run "pnpm proptypes"  |
-  // ----------------------------------------------------------------------
+  /**
+   * Whether the volume control is disabled.
+   */
   disabled: PropTypes.bool,
 } as any;

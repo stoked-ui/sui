@@ -9,13 +9,38 @@ import { Tooltip } from "@mui/material";
 import { useController } from "react-hook-form";
 import OutlinedStyle from "./OutlinedStyle";
 
-const DesSelectType = OutlinedStyle(Select);
+/**
+ * A customizable dropdown select component.
+ *
+ * @param {Object} props
+ * @param {Boolean} props.multiple Whether the dropdown can be used with multiple selection.
+ * @param {React.FormEvent<HTMLElement>} props.control The React Hook Form control instance.
+ * @param {String} props.name The name of the form field.
+ * @param {Boolean} props.disabled Whether the dropdown is disabled.
+ * @param {String|Object} props.label The label for the dropdown.
+ * @param {Array<Object>} props.options The options to display in the dropdown.
+ * @param {Number} props.width The minimum width of the dropdown component.
+ * @param {String} props.key The key to use when generating unique keys for options.
+ * @param {String} props.value The value to use as a default option.
+ * @param {Function|String} props.format A function or string used to format the option text.
+ * @param {Function} props.onClick The click event handler for the dropdown.
+ * @param {Function} props.onChange The change event handler for the dropdown.
+ * @param {String} props.size The size of the dropdown component.
+ * @param {Object} props.sx Additional styles to apply to the dropdown component.
+ */
 function DesSelect({ multiple, control, name, disabled, label, options, width, key, value, format, onClick, onChange, size, placeholder, sx}: any) {
+  /**
+   * Generate a default name for the form field based on the label if no explicit name is provided.
+   */
   if (!name && label) {
     name = label.split(' ').map((optionNamePart: string) => {
       return optionNamePart.charAt(0).toLowerCase() + optionNamePart.slice(1)
     }).join('.')
   }
+
+  /**
+   * Get the form field instance from the React Hook Form control.
+   */
   const {
     field,
     fieldState: { invalid, isTouched, isDirty, error },
@@ -25,6 +50,9 @@ function DesSelect({ multiple, control, name, disabled, label, options, width, k
     control
   });
 
+  /**
+   * Set default width and size for the dropdown component if not explicitly provided.
+   */
   if (!width) {
     width = 120;
   }
@@ -33,6 +61,10 @@ function DesSelect({ multiple, control, name, disabled, label, options, width, k
     size = 'medium';
   }
 
+  /**
+   * Check if the field value is not empty but does not match any option in the dropdown.
+   * If so, generate a new options array by mapping over the field value and creating new options with unique keys.
+   */
   if (field.value !== '' && !options?.includes(field.value)) {
     if (!options) {
       if (Array.isArray(field.value)) {
@@ -47,6 +79,9 @@ function DesSelect({ multiple, control, name, disabled, label, options, width, k
     }
   }
 
+  /**
+   * Render the dropdown component.
+   */
   return (
     <Box sx={[{ minWidth: width }, ...(Array.isArray(sx) ? sx : [sx]),]}>
       <Tooltip

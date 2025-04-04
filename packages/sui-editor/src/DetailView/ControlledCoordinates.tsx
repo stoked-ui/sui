@@ -2,7 +2,14 @@ import * as React from 'react';
 import { Box, TextField } from '@mui/material';
 import {Control, Controller} from "react-hook-form";
 
-// Functional component definition
+/**
+ * A functional component that renders three text fields for controlled coordinates.
+ *
+ * @param params
+ *   - control: The control instance from react-hook-form.
+ *   - disabled: Whether the fields are disabled or not. Defaults to false.
+ *   - onClick: An optional function to be called when the field is clicked.
+ */
 function ThreeSlotComponent(params: { control: Control<any, any>, disabled?: boolean, onClick?: () => void }) {
   return (
     <Box
@@ -98,15 +105,16 @@ function ThreeSlotComponent(params: { control: Control<any, any>, disabled?: boo
   );
 }
 
-// Usage example
-// import ThreeSlotComponent from './ThreeSlotComponent';
-//
-// function App() {
-//   return (
+/**
+ * A controlled version of the ThreeSlotComponent.
+ *
+ * @param params
+ *   - control: The control instance from react-hook-form.
+ *   - disabled: Whether the fields are disabled or not. Defaults to false.
+ *   - onClick: An optional function to be called when the field is clicked.
+ */
 function ControlledCoordinates(params: { control: Control<any, any>, disabled?: boolean, onClick?: () => void }) {
   return <ThreeSlotComponent {...params} />
 }
 
 export default ControlledCoordinates;
-//   );
-// }

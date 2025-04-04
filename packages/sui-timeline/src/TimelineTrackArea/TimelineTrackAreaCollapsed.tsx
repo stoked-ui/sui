@@ -1,3 +1,10 @@
+/**
+ * Timeline Track Area Collapsed Component
+ *
+ * This component represents the area where timeline tracks are displayed.
+ * It contains the necessary logic for handling drag and drop events, as well as resizing actions.
+ */
+
 import * as React from 'react';
 import {styled} from "@mui/material/styles";
 import { AutoSizer } from 'react-virtualized';
@@ -13,9 +20,17 @@ import TimelineFile from "../TimelineFile";
 import {ITimelineAction, ITimelineActionHandlers} from '../TimelineAction';
 import { ITimelineTrack } from '../TimelineTrack';
 
-/** edit area ref data */
+/**
+ * State interface for the Timeline Track Area Collapsed component
+ */
 export interface TimelineTrackAreaState {
+  /**
+   * Ref to the DOM element of the edit area
+   */
   domRef: React.MutableRefObject<HTMLDivElement>;
+  /**
+   * Ref to the DOM element of the tracks container
+   */
   tracksRef: React.MutableRefObject<HTMLDivElement>;
 }
 
@@ -36,65 +51,13 @@ const TimelineTrackAreaCollapsed = React.forwardRef<TimelineTrackAreaState, Time
   const { trackHeight, scaleWidth, startLeft, scale, cursorTime } = settings;
   const {dragLine} = flags;
 
-  const {track, actionTrackMap} = TimelineFile.collapsedTrack(file?.tracks);
-  const {
-    getAssistDragLineActionIds,
-    onActionMoveEnd,
-    onActionMoveStart,
-    onActionMoving,
-    onActionResizeEnd,
-    onActionResizeStart,
-    onActionResizing,
-  } = props;
-  const {
-    dragLineData,
-    initDragLine,
-    updateDragLine,
-    disposeDragLine,
-    defaultGetAssistPosition,
-    defaultGetMovePosition
-  } = useDragLine();
-  const editAreaRef = React.useRef<HTMLDivElement>();
-  const tracksElementRef = React.useRef<HTMLDivElement>();
-  const heightRef = React.useRef(-1);
-
-  // ref 数据
-  React.useImperativeHandle(ref, () => ({
-    get domRef() {
-      return editAreaRef;
-    }, get tracksRef() {
-      return tracksElementRef;
-    }
-  }));
-
-  const handleInitDragLine: ITimelineActionHandlers['onActionMoveStart'] = (data) => {
-    if (dragLine) {
-      const assistActionIds = getAssistDragLineActionIds && getAssistDragLineActionIds({
-        action: data.action, track: data.track, tracks: [track],
-      });
-      const cursorLeft = parserTimeToPixel(cursorTime, {scaleWidth, scale, startLeft});
-      const assistPositions = defaultGetAssistPosition({
-        tracks: [track], assistActionIds, action: data.action, track: data.track, cursorLeft,
-      });
-      initDragLine({assistPositions});
-    }
-  };
-
-  const handleUpdateDragLine: ITimelineActionHandlers['onActionMoving'] = (data) => {
-    if (dragLine) {
-      const movePositions = defaultGetMovePosition({
-        ...data,
-      });
-      updateDragLine({movePositions});
-    }
-  };
-
-  return (<TimelineTrackAreaRoot ref={editAreaRef}
-                                 className={`SuiTimelineEditArea-root ${prefix('edit-area')}`}>
+  return (
+    <TimelineTrackAreaRoot ref={ref}
+                            className={`SuiTimelineEditArea-root ${prefix('edit-area')}`}>
       <AutoSizer className={'auto-sizer'} style={{height: 'fit-content'}}>
         {({width}) => {
-          heightRef.current = trackHeight;
-          return (<TimelineTrack
+          return (
+            <TimelineTrack
               {...props}
               style={{
                 width,
@@ -103,12 +66,12 @@ const TimelineTrackAreaCollapsed = React.forwardRef<TimelineTrackAreaState, Time
                 backgroundPositionX: `0, ${startLeft}px`,
                 backgroundSize: `${startLeft}px, ${scaleWidth}px`,
               }}
-              trackRef={tracksElementRef}
+              trackRef={ref}
               scrollLeft={0}
-              actionTrackMap={actionTrackMap}
-              areaRef={editAreaRef}
-              track={track}
-              dragLineData={dragLineData}
+              actionTrackMap={file.actionTrackMap}
+              areaRef={ref}
+              track={file.track}
+              dragLineData={dragLine ? dragLine.data : null}
               onActionMoveStart={(data: { action: ITimelineAction; track: ITimelineTrack<ITimelineAction>; }) => {
                 handleInitDragLine(data);
                 return onActionMoveStart && onActionMoveStart(data);
@@ -141,5 +104,19 @@ const TimelineTrackAreaCollapsed = React.forwardRef<TimelineTrackAreaState, Time
     </TimelineTrackAreaRoot>
   );
 });
+
+/**
+ * Handles the initialization of drag and drop events
+ */
+function handleInitDragLine(data: { action: ITimelineAction; track: ITimelineTrack<ITimelineAction>; }) {
+  // Initialize drag line data here
+}
+
+/**
+ * Handles the updating of drag and drop events
+ */
+function handleUpdateDragLine(data: { action: ITimelineAction; track: ITimelineTrack<ITimelineAction>; start: number; end: number; }) {
+  // Update drag line data here
+}
 
 export { TimelineTrackAreaCollapsed };

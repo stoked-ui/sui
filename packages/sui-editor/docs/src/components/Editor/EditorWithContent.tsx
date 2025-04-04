@@ -2,9 +2,18 @@ import * as React from 'react';
 import { Editor, EditorFile } from '@stoked-ui/sui-editor';
 import Box from '@mui/material/Box';
 
+/**
+ * Component for rendering an editor with content.
+ */
 export default function EditorWithContent() {
+  /**
+   * State variable to store the current file being edited.
+   */
   const [file, setFile] = React.useState(null);
   
+  /**
+   * Effect hook to create a new editor file with sample content when the component mounts.
+   */
   React.useEffect(() => {
     // Create a new editor file with sample content
     const editorFile = new EditorFile({
@@ -52,4 +61,4 @@ export default function EditorWithContent() {
       />
     </Box>
   );
-} 
+}

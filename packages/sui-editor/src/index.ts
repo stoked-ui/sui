@@ -1,12 +1,29 @@
-import Editor from './Editor';
-import Controllers from './Controllers';
-import EditorEngine from './EditorEngine';
-import EditorView from './EditorView';
-import EditorProvider from './EditorProvider';
-import EditorFile from './EditorFile';
-
+/**
+ * Default export for the Editor component.
+ * 
+ * @example
+ * import { Editor } from './Editor';
+ */
 export default Editor;
+
+/**
+ * Export of additional components and models.
+ * 
+ * @see {@link EditorFile}
+ * @see {@link Controllers}
+ * @see {@link EditorEngine}
+ * @see {@link EditorView}
+ * @see {@link EditorProvider}
+ */
 export { EditorFile, Controllers, EditorEngine, EditorView, EditorProvider };
+
+/**
+ * Export of additional components.
+ * 
+ * @see {@link EditorControls}
+ * @see {@link models}
+ * @see {@link hooks}
+ */
 export * from './EditorFile';
 export * from './EditorProvider';
 export * from './EditorView';

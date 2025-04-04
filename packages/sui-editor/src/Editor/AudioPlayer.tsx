@@ -1,108 +1,60 @@
-import * as React from 'react';
-import { styled } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import Typography from '@mui/material/Typography';
-import Slider from '@mui/material/Slider';
-import IconButton from '@mui/material/IconButton';
-import Stack from '@mui/material/Stack';
-import PauseRounded from '@mui/icons-material/PauseRounded';
-import PlayArrowRounded from '@mui/icons-material/PlayArrowRounded';
-import FastForwardRounded from '@mui/icons-material/FastForwardRounded';
-import FastRewindRounded from '@mui/icons-material/FastRewindRounded';
-import VolumeUpRounded from '@mui/icons-material/VolumeUpRounded';
-import VolumeDownRounded from '@mui/icons-material/VolumeDownRounded';
-import Plyr from "plyr-react";
-
-
-const Widget = styled('div')(({ theme }) => ({
-  padding: 16,
-  borderRadius: 16,
-  width: 343,
-  maxWidth: '100%',
-  margin: 'auto',
-  position: 'relative',
-  zIndex: 1,
-  backgroundColor: 'rgba(255,255,255,0.4)',
-  backdropFilter: 'blur(40px)',
-  ...theme.applyStyles('dark', {
-    backgroundColor: 'rgba(0,0,0,0.6)',
-  }),
-}));
-
-const CoverImage = styled('div')({
-  width: 100,
-  height: 100,
-  objectFit: 'cover',
-  overflow: 'hidden',
-  flexShrink: 0,
-  borderRadius: 8,
-  backgroundColor: 'rgba(0,0,0,0.08)',
-  '& > img': {
-    width: '100%',
-  },
-});
-
-const TinyText = styled(Typography)({
-  fontSize: '0.75rem',
-  opacity: 0.38,
-  fontWeight: 500,
-  letterSpacing: 0.2,
-});
-
+/**
+ * AudioPlayer component that plays an audio file.
+ *
+ * @param {Object} props - Component props.
+ * @param {Object} props.file - The audio file object with URL, type, and image.
+ * @returns {JSX.Element} The rendered AudioPlayer component.
+ */
 export default function AudioPlayer({ file }) {
-  const duration = 200; // seconds
-  const [position, setPosition] = React.useState(32);
-  const [paused, setPaused] = React.useState(false);
-  function formatDuration(value: number) {
-    const minute = Math.floor(value / 60);
-    const secondLeft = value - minute * 60;
-    return `${minute}:${secondLeft < 10 ? `0${secondLeft}` : secondLeft}`;
-  }
-  React.useEffect(() => {
-    const audio: Howl = file.element as Howl;
-    audio?.on('seek', (params) => {
-      console.log('audio seek', params)
-    })
-  }, [])
+  /**
+   * The duration of the audio in seconds.
+   *
+   * @type {number}
+   */
+  const duration = 200;
 
-  const audioSource:  Plyr.SourceInfo = {
-    type: 'audio',
-    sources: [
-      {
-        src: file.url, // Replace with your audio selectedFile URL
-        type: file.type,
-      },
-    ],
+  /**
+   * The current position of the audio playback in seconds.
+   *
+   * @type {number}
+   */
+  const [position, setPosition] = React.useState(0);
+
+  /**
+   * Handles the change event for the slider component.
+   *
+   * @param {Object} event - The change event object.
+   * @param {number} event.value - The new value of the slider.
+   */
+  const handleChange = (event) => {
+    setPosition(event.target.value as number);
+  };
+
+  /**
+   * Handles the click event for the play/pause button.
+   *
+   * @param {Event} event - The click event object.
+   */
+  const handlePlayPause = () => {
+    // Set the paused state
+    const isPaused = !paused;
+    setPaused(isPaused);
+  };
+
+  /**
+   * The audio source for the Plyr component.
+   *
+   * @type {Object}
+   */
+  const audioSource = {
+    type: 'audio/mpeg',
+    src: file.url,
   };
 
   return (
-    <Box sx={{ width: '100%', overflow: 'hidden', position: 'relative', p: 3 }}>
-      <Widget>
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          {file?.image &&
-            <CoverImage>
-              <img
-                src={file.image}
-                alt="Funeral - Adam Rodgers"
-              />
-            </CoverImage>
-          }
-          <Box sx={{ ml: 1.5, minWidth: 0 }} textAlign={'center'} width={'100%'}>
-            <Typography
-              variant="caption"
-              align={'center'}
-              sx={{ color: 'text.secondary', fontWeight: 500 }}
-            >
-              Adam Rodgers
-            </Typography>
-            <Typography noWrap>
-              <b>Funeral</b>
-            </Typography>
-            <Typography noWrap sx={{ letterSpacing: -0.25 }}>
-              Hidalgo Street Recordings
-            </Typography>
-          </Box>
-        </Box>
+    <Box>
+      {/* Audio controls */}
+      <Box>
         <Slider
           aria-label="time-indicator"
           size="small"
@@ -110,7 +62,7 @@ export default function AudioPlayer({ file }) {
           min={0}
           step={1}
           max={duration}
-          onChange={(_, value) => setPosition(value as number)}
+          onChange={handleChange}
           sx={(t) => ({
             color: 'rgba(0,0,0,0.87)',
             height: 4,
@@ -140,93 +92,97 @@ export default function AudioPlayer({ file }) {
             }),
           })}
         />
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            mt: -2,
-          }}
+      </Box>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          mt: -2,
+        }}
+      >
+        <TinyText>{formatDuration(position)}</TinyText>
+        <TinyText>-{formatDuration(duration - position)}</TinyText>
+      </Box>
+      <Box
+        sx={(theme) => ({
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          mt: -1,
+          '& svg': {
+            color: '#000',
+            ...theme.applyStyles('dark', {
+              color: '#fff',
+            }),
+          },
+        })}
+      >
+        <IconButton aria-label="previous song">
+          <FastRewindRounded fontSize="large" />
+        </IconButton>
+        <IconButton
+          aria-label={paused ? 'play' : 'pause'}
+          onClick={handlePlayPause}
         >
-          <TinyText>{formatDuration(position)}</TinyText>
-          <TinyText>-{formatDuration(duration - position)}</TinyText>
-        </Box>
-        <Box
-          sx={(theme) => ({
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            mt: -1,
-            '& svg': {
-              color: '#000',
-              ...theme.applyStyles('dark', {
-                color: '#fff',
-              }),
+          {paused ? (
+            <PlayArrowRounded sx={{ fontSize: '3rem' }} />
+          ) : (
+            <PauseRounded sx={{ fontSize: '3rem' }} />
+          )}
+        </IconButton>
+        <IconButton aria-label="next song">
+          <FastForwardRounded fontSize="large" />
+        </IconButton>
+      </Box>
+      <Stack
+        spacing={2}
+        direction="row"
+        sx={(theme) => ({
+          mb: 1,
+          px: 1,
+          '& > svg': {
+            color: 'rgba(0,0,0,0.4)',
+            ...theme.applyStyles('dark', {
+              color: 'rgba(255,255,255,0.4)',
+            }),
+          },
+        })}
+        alignItems="center"
+      >
+        <VolumeDownRounded />
+        <Slider
+          aria-label="Volume"
+          defaultValue={30}
+          sx={(t) => ({
+            color: 'rgba(0,0,0,0.87)',
+            '& .MuiSlider-track': {
+              border: 'none',
             },
-          })}
-        >
-          <IconButton aria-label="previous song">
-            <FastRewindRounded fontSize="large" />
-          </IconButton>
-          <IconButton
-            aria-label={paused ? 'play' : 'pause'}
-            onClick={() => setPaused(!paused)}
-          >
-            {paused ? (
-              <PlayArrowRounded sx={{ fontSize: '3rem' }} />
-            ) : (
-              <PauseRounded sx={{ fontSize: '3rem' }} />
-            )}
-          </IconButton>
-          <IconButton aria-label="next song">
-            <FastForwardRounded fontSize="large" />
-          </IconButton>
-        </Box>
-        <Stack
-          spacing={2}
-          direction="row"
-          sx={(theme) => ({
-            mb: 1,
-            px: 1,
-            '& > svg': {
-              color: 'rgba(0,0,0,0.4)',
-              ...theme.applyStyles('dark', {
-                color: 'rgba(255,255,255,0.4)',
-              }),
+            '& .MuiSlider-thumb': {
+              width: 24,
+              height: 24,
+              backgroundColor: '#fff',
+              '&::before': {
+                boxShadow: '0 4px 8px rgba(0,0,0,0.4)',
+              },
+              '&:hover, &.Mui-focusVisible, &.Mui-active': {
+                boxShadow: 'none',
+              },
             },
+            ...t.applyStyles('dark', {
+              color: '#fff',
+            }),
           })}
-          alignItems="center"
-        >
-          <VolumeDownRounded />
-          <Slider
-            aria-label="Volume"
-            defaultValue={30}
-            sx={(t) => ({
-              color: 'rgba(0,0,0,0.87)',
-              '& .MuiSlider-track': {
-                border: 'none',
-              },
-              '& .MuiSlider-thumb': {
-                width: 24,
-                height: 24,
-                backgroundColor: '#fff',
-                '&::before': {
-                  boxShadow: '0 4px 8px rgba(0,0,0,0.4)',
-                },
-                '&:hover, &.Mui-focusVisible, &.Mui-active': {
-                  boxShadow: 'none',
-                },
-              },
-              ...t.applyStyles('dark', {
-                color: '#fff',
-              }),
-            })}
-          />
-          <VolumeUpRounded />
-        </Stack>
-
-        <Plyr source={audioSource} />
-      </Widget>
+        />
+      </Stack>
+      {/* Plyr component */}
+      <Plyr
+        url={audioSource.src}
+        type={audioSource.type}
+        onInit={(player) => console.log(player)}
+        onError={(error) => console.error(error)}
+      />
     </Box>
   );
-}
+);

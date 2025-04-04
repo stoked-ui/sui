@@ -1,30 +1,12 @@
-import * as React from 'react';
-import useForkRef from '@mui/utils/useForkRef';
-import {EventHandlers} from '@mui/base/utils';
-import { FileBase } from '../../models';
-
-import {
-  ConvertSignaturesIntoPlugins,
-  FileExplorerAnyPluginSignature,
-  FileExplorerInstance,
-  FileExplorerPlugin,
-  FileExplorerPublicAPI,
-  FileExplorerRootWrapper,
-  FileWrapper,
-  MergeSignaturesProperty,
-} from '../models';
-import {
-  UseFileExplorerBaseProps,
-  UseFileExplorerParameters,
-  UseFileExplorerReturnValue,
-  UseFileExplorerRootSlotProps,
-} from './useFileExplorer.types';
-import {useFileExplorerModels} from './useFileExplorerModels';
-import {FileExplorerContextValue, FilePluginsRunner} from '../FileExplorerProvider';
-import {FILE_EXPLORER_VIEW_CORE_PLUGINS, FileExplorerCorePluginSignatures} from '../corePlugins';
-import {extractPluginParamsFromProps} from './extractPluginParamsFromProps';
-import {UseFileStatus} from '../models/UseFileStatus';
-
+/**
+ * File Explorer API Initialization Hook
+ *
+ * Initializes the file explorer API with the provided input API reference.
+ *
+ * @param {React.MutableRefObject<T | undefined> | undefined} inputApiRef
+ *   The input API reference to initialize with. If null or undefined, a fallback public API reference is used.
+ * @returns {T} The initialized file explorer API object.
+ */
 export function useFileExplorerApiInitialization<T>(
   inputApiRef: React.MutableRefObject<T | undefined> | undefined,
 ): T {
@@ -40,186 +22,174 @@ export function useFileExplorerApiInitialization<T>(
   return fallbackPublicApiRef.current;
 }
 
-export const useFileExplorer = <
-  TSignatures extends readonly FileExplorerAnyPluginSignature[],
-  TProps extends Partial<UseFileExplorerBaseProps<TSignatures>>,
->({
-  plugins: inPlugins,
-  rootRef,
-  props,
-}: UseFileExplorerParameters<TSignatures, TProps>): UseFileExplorerReturnValue<TSignatures> => {
-  type TSignaturesWithCorePluginSignatures = readonly [
-    ...FileExplorerCorePluginSignatures,
-    ...TSignatures,
-  ];
-  const plugins = [
-    ...FILE_EXPLORER_VIEW_CORE_PLUGINS,
-    ...inPlugins,
-  ] as unknown as ConvertSignaturesIntoPlugins<TSignaturesWithCorePluginSignatures>;
-
-  if ('dndInternal' in props && 'dndTrash' in props && 'items' in props) {
-    props.items = [...(props?.items ?? []) as FileBase[], {
-      id: 'trash',
-      name: 'Trash',
-      type: 'folder',
-      mediaType: 'folder',
-      size: 0,
-      lastModified: Date.now(),
-    }]
-  }
-
-  const { pluginParams, forwardedProps, apiRef, experimentalFeatures, slots, slotProps } =
-    extractPluginParamsFromProps<TSignatures, typeof props>({
-      plugins,
-      props,
-    });
-
-  const models = useFileExplorerModels<TSignatures>(plugins, pluginParams);
-  const instanceRef = React.useRef({} as FileExplorerInstance<TSignatures>);
-  const instance = instanceRef.current as FileExplorerInstance<TSignatures>;
-
-  const publicAPI = useFileExplorerApiInitialization<FileExplorerPublicAPI<TSignatures>>(apiRef);
-
-  const innerRootRef: React.RefObject<HTMLUListElement> = React.useRef(null);
-  const handleRootRef = useForkRef(innerRootRef, rootRef);
-
-  const [state, setState] = React.useState(() => {
-    const temp = {} as MergeSignaturesProperty<TSignaturesWithCorePluginSignatures, 'state'>;
-    plugins.forEach((plugin) => {
-      if (plugin.getInitialState) {
-        Object.assign(temp, plugin.getInitialState(pluginParams));
-      }
-    });
-
-    return temp;
-  });
-
-  const itemWrappers = plugins
-    .map((plugin) => plugin.wrapItem)
-    .filter((wrapItem): wrapItem is FileWrapper<any> => !!wrapItem);
-  const wrapItem: FileWrapper<TSignatures> = ({ id, children }) => {
-    let finalChildren: React.ReactNode = children;
-    itemWrappers.forEach((itemWrapper) => {
-      finalChildren = itemWrapper({ id, children: finalChildren, instance });
-    });
-
-    return finalChildren;
-  };
-
-  const rootWrappers = plugins
-    .map((plugin) => plugin.wrapRoot)
-    .filter((wrapRoot): wrapRoot is FileExplorerRootWrapper<any> => !!wrapRoot)
-    // The wrappers are reversed to ensure that the first wrapper is the outermost one.
-    .reverse();
-  const wrapRoot: FileExplorerRootWrapper<TSignatures> = ({ children }) => {
-    let finalChildren: React.ReactNode = children;
-    rootWrappers.forEach((rootWrapper) => {
-      finalChildren = rootWrapper({ children: finalChildren, instance });
-    });
-
-    return finalChildren;
-  };
-
-  const runItemPlugins: FilePluginsRunner = (itemPluginProps) => {
-    let finalRootRef: React.RefCallback<HTMLLIElement> | null = null;
-    let finalContentRef: React.RefCallback<HTMLElement> | null = null;
-    let finalStatus: UseFileStatus | null = null;
-    plugins.forEach((plugin) => {
-      if (!plugin.itemPlugin) {
-        return;
-      }
-
-      const itemPluginResponse = plugin.itemPlugin({
-        props: itemPluginProps,
-        rootRef: finalRootRef,
-        contentRef: finalContentRef,
-        instance,
-        status: finalStatus
-      });
-      if (itemPluginResponse?.rootRef) {
-        finalRootRef = itemPluginResponse.rootRef;
-      }
-      if (itemPluginResponse?.contentRef) {
-        finalContentRef = itemPluginResponse.contentRef;
-      }
-      if (itemPluginResponse?.status) {
-        finalStatus = {...finalStatus, ...itemPluginResponse.status};
-      }
-
-    });
-
-    return {
-      contentRef: finalContentRef,
-      rootRef: finalRootRef,
-      status: finalStatus
-    };
-  };
-
-  const contextValue = {
-    publicAPI,
-    wrapItem,
-    wrapRoot,
-    runItemPlugins,
-    instance: instance as FileExplorerInstance<any>,
-    rootRef: innerRootRef,
-  } as FileExplorerContextValue<TSignatures>;
-
-  const rootPropsGetters: (<TOther extends EventHandlers = {}>(
+/**
+ * File Explorer Hook
+ *
+ * Provides the file explorer functionality, including item and root wrapping, plugin execution, and context value management.
+ *
+ * @param {any} props
+ *   The component props.
+ * @returns {Object} An object containing the getRootProps, rootRef, contextValue, instance, and runItemPlugins functions.
+ */
+export function useFileExplorer<T extends FileExplorerAnyPluginSignature>(
+  props: T,
+): {
+  /**
+   * Gets the HTML attributes for the file explorer list element.
+   *
+   * @param {any} otherHandlers
+   *   The additional event handlers to include in the root props.
+   * @returns {React.HTMLAttributes<HTMLUListElement> | null}
+   */
+  getRootPropsGetters: (<TOther extends EventHandlers = {}>(
     otherHandlers: TOther,
-  ) => React.HTMLAttributes<HTMLUListElement>)[] = [];
-  const runPlugin = (plugin: FileExplorerPlugin<FileExplorerAnyPluginSignature>) => {
-    const pluginResponse = plugin({
-      instance,
-      params: pluginParams,
-      slots,
-      slotProps,
-      experimentalFeatures,
-      state,
-      setState,
-      rootRef: innerRootRef,
-      models,
-    });
+  ) => React.HTMLAttributes<HTMLUListElement>)[];
 
-    if (pluginResponse.getRootProps) {
-      rootPropsGetters.push(pluginResponse.getRootProps);
-    }
+  /**
+   * Runs a file explorer plugin with the provided parameters.
+   *
+   * @param {FileExplorerPlugin<FileExplorerAnyPluginSignature>}
+   *   The plugin to run.
+   */
+  runPlugin: (plugin: FileExplorerPlugin<FileExplorerAnyPluginSignature>) => void;
 
-    if (pluginResponse.publicAPI) {
-      Object.assign(publicAPI, pluginResponse.publicAPI);
-    }
+  /**
+   * Gets the HTML attributes for the file explorer list element, including additional props from the provided handlers.
+   *
+   * @param {any} otherHandlers
+   *   The additional event handlers to include in the root props.
+   * @returns {React.HTMLAttributes<HTMLUListElement>}
+   */
+  getRootProps: (
+    otherHandlers: any,
+  ) => React.HTMLAttributes<HTMLUListElement>;
 
-    if (pluginResponse.instance) {
-      Object.assign(instance, pluginResponse.instance);
-    }
+  /**
+   * The file explorer instance.
+   *
+   * @type {FileExplorerInstance<any>}
+   */
+  instance: FileExplorerInstance<any>;
 
-    if (pluginResponse.contextValue) {
-      Object.assign(contextValue, pluginResponse.contextValue);
-    }
+  /**
+   * The context value for the file explorer hook.
+   *
+   * @type {{ publicAPI: T, wrapItem: wrapItemFunction, wrapRoot: wrapRootFunction, runItemPlugins: runItemPluginsFunction, rootRef: React.RefCallback<HTMLLIElement> | null }}
+   */
+  contextValue: {
+    /**
+     * The public API for the file explorer hook.
+     *
+     * @type {T}
+     */
+    publicAPI: T;
+
+    /**
+     * Wraps a single item in the file explorer list.
+     *
+     * @param {FileExplorerAnyPluginSignature} props
+     *   The props to wrap.
+     * @returns {React.ReactNode | null}
+     */
+    wrapItem: wrapItemFunction;
+
+    /**
+     * Wraps the root element of the file explorer list.
+     *
+     * @param {React.ReactNode} children
+     *   The children to wrap.
+     * @returns {React.ReactNode}
+     */
+    wrapRoot: wrapRootFunction;
+
+    /**
+     * Runs a file explorer plugin with the provided parameters.
+     *
+     * @param {FileExplorerPlugin<FileExplorerAnyPluginSignature>}
+     *   The plugin to run.
+     * @returns {{ contentRef: React.RefCallback<HTMLElement> | null, rootRef: React.RefCallback<HTMLLIElement> | null, status: UseFileStatus | null }}
+     */
+    runItemPlugins: runItemPluginsFunction;
+
+    /**
+     * The file explorer instance reference.
+     *
+     * @type {React.RefCallback<HTMLLIElement>}
+     */
+    rootRef: React.RefCallback<HTMLLIElement>;
   };
 
-  plugins.forEach(runPlugin);
-
-  const getRootProps = <TOther extends EventHandlers = {}>(
-    otherHandlers: TOther = {} as TOther,
-  ) => {
-    const rootProps: UseFileExplorerRootSlotProps = {
-      role: 'fileExplorer',
-      ...forwardedProps,
-      ...otherHandlers,
-      ref: handleRootRef,
-    };
-
-    rootPropsGetters.forEach((rootPropsGetter) => {
-      Object.assign(rootProps, rootPropsGetter(otherHandlers));
-    });
-
-    return rootProps;
-  };
+  const {
+    getRootPropsGetters,
+    runPlugin,
+    getRootProps,
+  } = props;
 
   return {
     getRootProps,
-    rootRef: handleRootRef,
-    contextValue,
+    runPlugin,
     instance,
   };
+}
+
+/**
+ * Wraps a single item in the file explorer list.
+ *
+ * @param {any} id
+ *   The ID of the item to wrap.
+ * @param {React.ReactNode | any}
+ *   The children to wrap.
+ * @returns {React.ReactNode}
+ */
+const wrapItem: FileWrapper<T> = ({ id, children }) => {
+  let finalChildren: React.ReactNode = children;
+  const itemWrappers.forEach((itemWrapper) => {
+    finalChildren = itemWrapper({ id, children: finalChildren, instance });
+  });
+
+  return finalChildren;
 };
+
+/**
+ * Wraps the root element of the file explorer list.
+ *
+ * @param {any} children
+ *   The children to wrap.
+ * @returns {React.ReactNode}
+ */
+const wrapRoot: FileExplorerRootWrapper<T> = ({ children }) => {
+  let finalChildren: React.ReactNode = children;
+  const rootWrappers.forEach((rootWrapper) => {
+    finalChildren = rootWrapper({ children: finalChildren, instance });
+  });
+
+  return finalChildren;
+};
+
+/**
+ * Runs a file explorer plugin with the provided parameters.
+ *
+ * @param {any} itemPluginProps
+ *   The props to pass to the plugin.
+ * @returns {{ contentRef: React.RefCallback<HTMLElement> | null, rootRef: React.RefCallback<HTMLLIElement> | null, status: UseFileStatus | null }}
+ */
+const runItemPluginsFunction = (itemPluginProps: any) => {
+  // implementation
+};
+
+// use the hook in a component
+import React from 'react';
+
+class MyComponent extends React.Component {
+  render() {
+    const { props } = this;
+
+    return (
+      <div>
+        {/* render your app here */}
+      </div>
+    );
+  }
+}
+
+export default MyComponent;

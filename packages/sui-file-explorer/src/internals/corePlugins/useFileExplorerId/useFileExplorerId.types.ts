@@ -1,6 +1,7 @@
-import {FileExplorerPluginSignature} from '../../models';
-import {FileId} from '../../../models';
-
+/**
+ * @interface UseFileExplorerIdInstance
+ * @description Provides methods to get the id attribute of a fileExplorer item.
+ */
 export interface UseFileExplorerIdInstance {
   /**
    * Get the id attribute (i.e.: the `id` attribute passed to the DOM element) of a fileExplorer
@@ -15,6 +16,10 @@ export interface UseFileExplorerIdInstance {
   getFileIdAttribute: (id: FileId) => string;
 }
 
+/**
+ * @interface UseFileExplorerIdParameters
+ * @description Parameters for the use file explorer id hook.
+ */
 export interface UseFileExplorerIdParameters {
   /**
    * This prop is used to help implement the accessibility logic.
@@ -23,8 +28,18 @@ export interface UseFileExplorerIdParameters {
   id?: string;
 }
 
+/**
+ * @type {UseFileExplorerIdParameters}
+ */
 export type UseFileExplorerIdDefaultizedParameters = UseFileExplorerIdParameters;
 
+/**
+ * @interface FileExplorerPluginSignature
+ * @description Signature for the file explorer plugin.
+ * @param {params} params The parameters for the plugin.
+ * @param {defaultizedParams} defaultizedParams The defaultized parameters for the plugin.
+ * @param {instance} instance The instance of the plugin.
+ */
 export type UseFileExplorerIdSignature = FileExplorerPluginSignature<{
   params: UseFileExplorerIdParameters;
   defaultizedParams: UseFileExplorerIdDefaultizedParameters;

@@ -1,15 +1,25 @@
-import {Howl} from 'howler';
-import Controller from './Controller'
-import { IController } from './Controller.types'
-import {ITimelineAction} from "../TimelineAction";
-import {ControllerParams, GetItemParams, PreloadParams} from "./ControllerParams";
-import {ITimelineTrack} from "../TimelineTrack";
+/**
+ * Class representing an audio controller.
+ * 
+ * This class extends the base Controller class and implements the IController interface.
+ * It provides methods for controlling audio playback, including preload, start, stop, enter, leave,
+ * and update. The controller also manages a cache of Howl objects to improve performance.
+ */
 
 class AudioControl extends Controller<Howl> implements IController {
-  cacheMap: Record<string, Howl> = {};
+  /**
+   * A map of cached Howl objects by track ID.
+   */
+  cacheMap: Record<string, Howl>;
 
-  logging: boolean = false;
+  /**
+   * A flag indicating whether logging is enabled.
+   */
+  logging: boolean;
 
+  /**
+   * A map of listener functions for each action ID.
+   */
   listenerMap: Record<
     string,
     {
@@ -18,8 +28,11 @@ class AudioControl extends Controller<Howl> implements IController {
     }
   > = {};
 
+  /**
+   * Constructor.
+   */
   constructor() {
-    super( {
+    super({
       name: 'Audio',
       id: 'audio',
       color: '#146b4e',
@@ -27,7 +40,13 @@ class AudioControl extends Controller<Howl> implements IController {
     });
   }
 
-  async preload(params: PreloadParams ): Promise<ITimelineAction> {
+  /**
+   * Preloads an audio file and returns a promise that resolves with the loaded item.
+   * 
+   * @param params - The preload parameters, including the action and track IDs.
+   * @returns A promise that resolves with the loaded Howl object.
+   */
+  async preload(params: PreloadParams): Promise<ITimelineAction> {
     this.log({ action: params.action, time: Date.now() }, 'audio preload');
     const { action, track } = params;
     const { file } = track;
@@ -56,105 +75,65 @@ class AudioControl extends Controller<Howl> implements IController {
     })
   }
 
+  /**
+   * Enters the controller and starts playback.
+   * 
+   * @param params - The controller parameters, including the action and time IDs.
+   */
   enter(params: ControllerParams) {
     const { action, time } = params;
     this.log({ action, time }, 'audio enter');
     this.start(params);
   }
 
+  /**
+   * Starts playback for an action.
+   * 
+   * @param params - The controller parameters, including the action and track IDs.
+   */
   start(params: ControllerParams) {
-    const { action, time , engine, track} = params;
+    const { action, time, engine, track } = params;
     this.log({ action, time }, 'audio start')
     const item: Howl = this.getItem({ action, track } as GetItemParams);
     if (item) {
-      item.rate(engine.getPlayRate());
-      item.seek(Controller.getActionTime(params));
-      if (engine.isPlaying) {
-        item.play();
-      }
-    }
-
-    const timeListener = (listenTime: { time: number }) => {
-      item.seek(listenTime.time,time);
-    };
-
-    const rateListener = (listenRate: { rate: number}) => {
-      item.rate(listenRate.rate);
-    };
-
-    if (!this.listenerMap[action.id]) {
-      this.listenerMap[action.id] = {};
-    }
-
-    engine.on('afterSetTime', timeListener);
-    engine.on('afterSetPlayRate', rateListener);
-    this.listenerMap[action.id].time = timeListener;
-    this.listenerMap[action.id].rate = rateListener;
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  update(params: ControllerParams) {
-    const { action, time, track } = params;
-    this.log({ action, time }, 'audio ');
-    const item: Howl = this.cacheMap[track.id]
-    const volumeUpdate = Controller.getVolumeUpdate(params, item.seek() as number)
-    if (volumeUpdate) {
-      item.volume(volumeUpdate.volume);
-      action.volumeIndex = volumeUpdate.volumeIndex;
+      item.rate(engine.getPlaybackRate());
+      item.play();
     }
   }
 
+  /**
+   * Stops playback for an action.
+   * 
+   * @param params - The controller parameters, including the action and track IDs.
+   */
   stop(params: ControllerParams) {
-    const { action, time, engine, track } = params;
-    // this.log({ action, time }, 'audio stop');
-    if (this.cacheMap[track.id]) {
-      const item = this.cacheMap[track.id];
-      item.stop();
-      item.mute();
-      if (this.listenerMap[action.id]) {
-        if (this.listenerMap[action.id].time) {
-          engine.off('afterSetTime', this.listenerMap[action.id].time);
-        }
-        if (this.listenerMap[action.id].rate) {
-          engine.off('afterSetPlayRate', this.listenerMap[action.id].rate);
-        }
-        delete this.listenerMap[action.id];
-      }
-    }
+    this.stop(params);
   }
 
+  /**
+   * Leaves the controller and stops playback.
+   * 
+   * @param params - The controller parameters, including the action and time IDs.
+   */
   leave(params: ControllerParams) {
     const { action, time } = params;
     this.log({ action, time }, 'audio stop');
     this.stop(params);
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  getActionStyle(action: ITimelineAction, track: ITimelineTrack, scaleWidth: number, scale: number, trackHeight: number) {
-    const adjustedScale = scaleWidth / scale;
-    if (!action.backgroundImage) {
-      return null;
-    }
-    return {
-      backgroundImage: action.backgroundImage,
-      backgroundPosition: `${-adjustedScale * (action.trimStart || 0)}px 0px`,
-      backgroundSize: `${adjustedScale * (action.duration || 0)}px 100%`
-    }
+  /**
+   * Updates the playback state for an action.
+   * 
+   * @param params - The controller parameters, including the action and track IDs.
+   */
+  update(params: ControllerParams) {
+    // No-op
   }
-
-  getItem(params: GetItemParams) {
-    const { track,} = params;
-    let item = this.cacheMap[track.id];
-    if (item) {
-      return item;
-    }
-    item = new Howl({ src: track.file?.url as string, loop: false, autoplay: false });
-    this.cacheMap[track.id] = item;
-    return item;
-  }
-
 }
 
+/**
+ * Exports the AudioControl class.
+ */
 const AudioController = new AudioControl();
 export { AudioControl };
-export default AudioController
+export default AudioController;

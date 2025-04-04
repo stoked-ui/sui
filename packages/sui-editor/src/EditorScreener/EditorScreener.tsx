@@ -1,6 +1,9 @@
 import * as React from "react";
 import { IMediaFile } from "@stoked-ui/media-selector";
 
+/**
+ * Importing required components and libraries
+ */
 import Select, {SelectChangeEvent} from "@mui/material/Select";
 import FormControl from "@mui/material/FormControl";
 import MenuItem from "@mui/material/MenuItem";
@@ -9,12 +12,18 @@ import {VersionProps} from "./EditorScreener.types";
 import {MediaScreener} from "../Editor/Editor.styled";
 import {styled} from "../internals/zero-styled";
 
+/**
+ * Styled component for VersionRoot
+ */
 const VersionRoot = styled(FormControl)({
   justifySelf: 'flex-end',
   alignContent: 'center',
   marginRight: '2px',
 });
 
+/**
+ * Styled component for VersionSelect
+ */
 const VersionSelect = styled(Select)(({ theme }) => ({
   height: 40,
   background: theme.palette.background.default,
@@ -26,20 +35,39 @@ const VersionSelect = styled(Select)(({ theme }) => ({
   },
 }));
 
+/**
+ * Function component for rendering the version select
+ * @param {VersionProps} props - Props for the Version component
+ * @returns {JSX.Element | undefined} - The rendered JSX element or undefined if no versions are available
+ */
 function Versions ({currentVersion, setCurrentVersion }: VersionProps) {
+  /**
+   * Getting file and settings from EditorContext
+   */
   const { state: { file, settings }  } = useEditorContext();
   const { timeline: { versions }} = settings;
+
+  /**
+   * Handling version change event
+   * @param {SelectChangeEvent<unknown>} event - The select change event
+   */
   const handleVersionChange = async (event: SelectChangeEvent<unknown>) => {
     console.info('handle version change', event);
   }
 
+  /**
+   * Effect hook to load versions when file is available
+   */
   React.useEffect(() => {
     if (file) {
-     // file.loadOutput()
-     //   .then((idbVersions) => dispatch({ type: 'LOAD_VERSIONS', payload: idbVersions ?? [] }))
+      // file.loadOutput()
+      //   .then((idbVersions) => dispatch({ type: 'LOAD_VERSIONS', payload: idbVersions ?? [] }))
     }
   }, [])
 
+  /**
+   * Effect hook to update versions when settings change
+   */
   React.useEffect(() => {
 
   }, [versions])
@@ -63,3 +91,5 @@ function Versions ({currentVersion, setCurrentVersion }: VersionProps) {
     </VersionSelect>
   </VersionRoot>
 }
+
+export default Versions;

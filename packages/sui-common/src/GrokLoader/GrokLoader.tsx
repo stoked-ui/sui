@@ -1,36 +1,60 @@
-import * as React from 'react';
-import { motion, useAnimationControls, useMotionValue, useTransform, AnimatePresence, animate } from 'framer-motion';
-import { styled } from "@mui/material/styles";
-
-// Motion-enabled container with consistent styling
+/**
+ * @class TriangleWrapper
+ * @description A styled container for the triangle loading animation.
+ */
 const TriangleWrapper = styled('div')({
   position: 'absolute',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  // Add a border to make the container visible during development
   // border: '1px dashed #ccc',
 });
 
-// Dot component for consistent styling
+/**
+ * @class Dot
+ * @description A styled dot component for the triangle loading animation.
+ */
 const Dot = styled(motion.div)(({ theme }) => ({
   position: 'absolute',
-  width: '4px', // Increased size to make more visible
+  width: '4px', 
   height: '4px',
   borderRadius: '50%',
   backgroundColor: theme.palette.success.main,
   top: '50%',
   left: '50%',
-  marginTop: '-2px', // Half height for centering
-  marginLeft: '-2px', // Half width for centering
+  marginTop: '-2px', 
+  marginLeft: '-2px', 
 }));
 
+/**
+ * @class GrokLoader
+ * @description A React component that displays a triangle loading animation.
+ * @returns {JSX.Element} The rendered component.
+ */
 function GrokLoader() {
+  /**
+   * @type {useAnimationControls}
+   * @description An animation controls object to manage the animations.
+   */
   const controls = useAnimationControls();
+  
+  /**
+   * @type {useMotionValue<number>}
+   * @description A motion value for the radius of the triangle.
+   */
   const progress = useMotionValue(0);
 
   // Create separate radius and rotation values for better control
+  /**
+   * @type {useMotionValue<number>}
+   * @description A motion value for the radius of the triangle.
+   */
   const radius = useMotionValue(120);
+  
+  /**
+   * @type {useMotionValue<number>}
+   * @description A motion value for the rotation of the triangle.
+   */
   const rotation = useMotionValue(0);
 
   React.useEffect(() => {
@@ -40,7 +64,7 @@ function GrokLoader() {
     // Setup the animation cycles
     const radiusAnimation = animate(
       radius,
-      [25, 5, 25, 25], // Make min radius larger (30 instead of 20)ad of 20)
+      [25, 5, 25, 25], 
       {
         duration: 2,
         repeat: Infinity,
@@ -81,7 +105,10 @@ function GrokLoader() {
     };
   }, []);
 
-  // Calculate dot positions based on angle and current radius
+  /**
+   * @param {number} angle 
+   * @description Calculates the position of a dot based on its angle and current radius.
+   */
   const getPosition = (angle: number) => {
     const currentRadius = radius.get();
     const angleInRadians = (angle * Math.PI) / 180;
@@ -92,61 +119,57 @@ function GrokLoader() {
   };
 
   // Define angles for each corner of the triangle
-  const topAngle = 270; // Top (0 degrees is to the right, so 270 is straight up)
-  const bottomLeftAngle = 30; // Bottom left
-  const bottomRightAngle = 150; // Bottom right
+  /**
+   * @type {number}
+   * @description The angle for the top corner of the triangle.
+   */
+  const topAngle = 270; 
+
+  /**
+   * @type {number}
+   * @description The angle for the bottom left corner of the triangle.
+   */
+  const bottomLeftAngle = 150;
+
+  /**
+   * @type {number}
+   * @description The angle for the bottom right corner of the triangle.
+   */
+  const bottomRightAngle = 30;
 
   return (
     <TriangleWrapper>
-      <motion.div
+      <Dot
         whileInView={{ opacity: 1 }}
         style={{
-          position: 'absolute',
-          width: '100%',
-          height: '100%',
-          transformOrigin: 'center',
-          rotate: rotation,
+          x: useTransform(radius, value => Math.cos(topAngle * Math.PI / 180) * value),
+          y: useTransform(radius, value => Math.sin(topAngle * Math.PI / 180) * value),
         }}
-        transition={{
-          duration: 2,
-          delay: 1,
+        initial={{ scale: 1 }}
+        animate={controls}
+      />
+
+      <Dot
+        whileInView={{ opacity: 1 }}
+        style={{
+          x: useTransform(radius, value => Math.cos(bottomLeftAngle * Math.PI / 180) * value),
+          y: useTransform(radius, value => Math.sin(bottomLeftAngle * Math.PI / 180) * value),
         }}
-        initial={{ rotate: 0 }}
-      >
-        {/* Using Dot component for each position */}
-        <Dot
-          whileInView={{ opacity: 1 }}
-          style={{
-            x: useTransform(radius, value => Math.cos(topAngle * Math.PI / 180) * value),
-            y: useTransform(radius, value => Math.sin(topAngle * Math.PI / 180) * value),
-          }}
-          initial={{ scale: 1 }}
-          animate={controls}
-        />
+        initial={{ scale: 1 }}
+        animate={controls}
+      />
 
-        <Dot
-          whileInView={{ opacity: 1 }}
-          style={{
-            x: useTransform(radius, value => Math.cos(bottomLeftAngle * Math.PI / 180) * value),
-            y: useTransform(radius, value => Math.sin(bottomLeftAngle * Math.PI / 180) * value),
-          }}
-          initial={{ scale: 1 }}
-          animate={controls}
-        />
-
-        <Dot
-          whileInView={{ opacity: 1 }}
-          style={{
-            x: useTransform(radius, value => Math.cos(bottomRightAngle * Math.PI / 180) * value),
-            y: useTransform(radius, value => Math.sin(bottomRightAngle * Math.PI / 180) * value),
-          }}
-          initial={{ scale: 1 }}
-          animate={controls}
-        />
-      </motion.div>
+      <Dot
+        whileInView={{ opacity: 1 }}
+        style={{
+          x: useTransform(radius, value => Math.cos(bottomRightAngle * Math.PI / 180) * value),
+          y: useTransform(radius, value => Math.sin(bottomRightAngle * Math.PI / 180) * value),
+        }}
+        initial={{ scale: 1 }}
+        animate={controls}
+      />
     </TriangleWrapper>
   );
 }
 
 export default GrokLoader;
-

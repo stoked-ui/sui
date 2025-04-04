@@ -1,35 +1,18 @@
-import { FileExplorerCorePluginParameters } from '../internals/corePlugins';
+import { 
+  FileExplorerBasicPluginSignatures, 
+  FileExplorerBasicPluginSlots, 
+  FileExplorerBasicPluginSlotProps, 
+  FileExplorerCorePluginParameters
+} from './internals/models';
 import {
-  useFileExplorerFiles,
-  UseFileExplorerFilesParameters,
-} from '../internals/plugins/useFileExplorerFiles';
-import {
-  useFileExplorerExpansion,
-  UseFileExplorerExpansionParameters,
-} from '../internals/plugins/useFileExplorerExpansion';
-import {
-  useFileExplorerSelection,
-  UseFileExplorerSelectionParameters,
-} from '../internals/plugins/useFileExplorerSelection';
-import {
-  useFileExplorerFocus,
-  UseFileExplorerFocusParameters,
-} from '../internals/plugins/useFileExplorerFocus';
-import {
-  useFileExplorerKeyboardNavigation
-} from '../internals/plugins/useFileExplorerKeyboardNavigation';
-import {
-  useFileExplorerIcons,
-  UseFileExplorerIconsParameters,
-} from '../internals/plugins/useFileExplorerIcons';
-import { useFileExplorerJSXItems } from '../internals/plugins/useFileExplorerJSXItems';
-import { ConvertPluginsIntoSignatures, MergeSignaturesProperty } from '../internals/models';
-import { useFileExplorerDnd } from '../internals/plugins/useFileExplorerDnd/useFileExplorerDnd';
-import {
-  UseFileExplorerDndParameters
-} from '../internals/plugins/useFileExplorerDnd/useFileExplorerDnd.types';
-import { useFileExplorerGrid, UseFileExplorerGridParameters } from "../internals/plugins/useFileExplorerGrid";
+  ConvertPluginsIntoSignatures, 
+  MergeSignaturesProperty
+} from './internals/models';
 
+/**
+ * @enum {Array<Function>}
+ * @description An array of plugins to be used in the file explorer view.
+ */
 export const SIMPLE_FILE_EXPLORER_VIEW_PLUGINS = [
   useFileExplorerFiles,
   useFileExplorerExpansion,
@@ -42,21 +25,44 @@ export const SIMPLE_FILE_EXPLORER_VIEW_PLUGINS = [
   useFileExplorerDnd
 ] as const;
 
+/**
+ * @typedef {Object} FileExplorerBasicPluginSignatures
+ * @property {Array<Function>} plugins - An array of plugins to be used in the file explorer view.
+ */
 export type FileExplorerBasicPluginSignatures = ConvertPluginsIntoSignatures<
   typeof SIMPLE_FILE_EXPLORER_VIEW_PLUGINS
 >;
 
+/**
+ * @typedef {Object} FileExplorerBasicPluginSlots
+ * @property {Object} [slots] - An object containing slots for the file explorer view.
+ */
 export type FileExplorerBasicPluginSlots = MergeSignaturesProperty<
   FileExplorerBasicPluginSignatures,
   'slots'
 >;
 
+/**
+ * @typedef {Object} FileExplorerBasicPluginSlotProps
+ * @property {Object} [slotProps] - An object containing slot props for the file explorer view.
+ */
 export type FileExplorerBasicPluginSlotProps = MergeSignaturesProperty<
   FileExplorerBasicPluginSignatures,
   'slotProps'
 >;
 
-// We can't infer this type from the plugin, otherwise we would lose the generics.
+/**
+ * @typedef {Object} FileExplorerBasicPluginParameters
+ * @param {boolean | undefined} [multiple] - A boolean indicating whether to display multiple items in the file explorer view.
+ * @extends FileExplorerCorePluginParameters
+ * @extends UseFileExplorerFilesParameters
+ * @extends UseFileExplorerExpansionParameters
+ * @extends UseFileExplorerFocusParameters
+ * @extends UseFileExplorerSelectionParameters<Multiple>
+ * @extends UseFileExplorerIconsParameters
+ * @extends UseFileExplorerDndParameters
+ * @extends UseFileExplorerGridParameters
+ */
 export interface FileExplorerBasicPluginParameters<Multiple extends boolean | undefined>
   extends FileExplorerCorePluginParameters,
     Omit<

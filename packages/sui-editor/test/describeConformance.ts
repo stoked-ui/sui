@@ -1,13 +1,18 @@
-import {
-  describeConformance as baseDescribeConformance,
-  ConformanceOptions,
-} from '@mui-internal/test-utils';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
-
+/**
+ * Describes the conformance of a given React element.
+ *
+ * @param {React.ReactElement} minimalElement - The minimal React element to test for conformance.
+ * @param {function} getOptions - A function that returns an object with options for testing conformance.
+ */
 export default function describeConformance(
   minimalElement: React.ReactElement,
   getOptions: () => ConformanceOptions,
 ) {
+  /**
+   * Returns the options with defaults, including ThemeProvider and createTheme.
+   *
+   * @returns {object} The options with defaults.
+   */
   function getOptionsWithDefaults() {
     return {
       ThemeProvider,
@@ -18,3 +23,9 @@ export default function describeConformance(
 
   return baseDescribeConformance(minimalElement, getOptionsWithDefaults);
 }
+
+/**
+ * Options for testing conformance.
+ *
+ * @typedef {object} ConformanceOptions
+ */

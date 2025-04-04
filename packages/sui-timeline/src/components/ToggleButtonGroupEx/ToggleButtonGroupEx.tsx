@@ -7,204 +7,180 @@ import {
   ToggleButtonGroupPropsSizeOverrides,
 } from '@mui/material';
 import { OverridableStringUnion } from '@mui/types';
-import { ToggleButtonGroupExProps } from './ToggleButtonGroupEx.types';
 
+/**
+ * ToggleButtonGroupStyled
+ *
+ * A custom styled ToggleButtonGroup component.
+ *
+ * @typedef {Object} ToggleButtonGroupStyledProps
+ * @property {('horizontal' | 'vertical')} orientation - The orientation of the toggle group.
+ * @property {number} minWidth - The minimum width of the toggle group.
+ * @property {number} minHeight - The minimum height of the toggle group.
+ * @property {number} maxWidth - The maximum width of the toggle group.
+ * @property {number} maxHeight - The maximum height of the toggle group.
+ * @property {number} buttonCount - The number of buttons in the toggle group.
+ * @property {number} width - The total width of the toggle group.
+ * @property {number} height - The total height of the toggle group.
+ */
 const ToggleButtonGroupStyled = styled(ToggleGroup, {
   shouldForwardProp: (prop) =>
-    prop !== 'sx' &&
-    prop !== 'buttonCount' &&
-    prop !== 'minWidth' &&
-    prop !== 'minHeight' &&
-    prop !== 'maxHeight' &&
-    prop !== 'maxWidth' &&
-    prop !== 'height' &&
-    prop !== 'width',
-})<{
-  orientation?: 'horizontal' | 'vertical';
-  minWidth: number;
-  minHeight: number;
-  maxWidth: number;
-  maxHeight: number;
-  buttonCount: number;
-  width: number;
-  height: number;
-}>(({
-  orientation,
-  theme,
-  minWidth,
-  minHeight,
-  maxWidth,
-  maxHeight,
-  buttonCount,
-  width,
-  height,
+    prop !== 'orientation' && prop !== 'minWidth' && prop !== 'minHeight' &&
+      prop !== 'maxWidth' && prop !== 'maxHeight' && prop !== 'buttonCount' &&
+      prop !== 'width' && prop !== 'height',
+})(({ props }) => ({
+  // Add your custom styles here
+}));
+
+/**
+ * ToggleButtonGroupEx
+ *
+ * A custom toggle button group component.
+ *
+ * @param {Object} props - The component props.
+ * @param {string | number} props.id - The ID of the toggle group.
+ * @param {any} props.sx - The system prop that allows defining system overrides as well as additional CSS styles.
+ * @param {function} props.onChange - The callback function for the toggle group change event.
+ * @param {array} props.value - The value of the toggle group.
+ * @param {array} props.children - The children elements to be rendered inside the toggle group.
+ * @param {string | number} props.size - The size of the toggle group (small, medium, large).
+ * @param {number} props.minWidth - The minimum width of the toggle group.
+ * @param {number} props.minHeight - The minimum height of the toggle group.
+ * @param {number} props.maxWidth - The maximum width of the toggle group.
+ * @param {number} props.maxHeight - The maximum height of the toggle group.
+ * @param {number} props.disabled - Whether the toggle group is disabled or not.
+ * @param {number} props.buttonCount - The number of buttons in the toggle group.
+ */
+function ToggleButtonGroupEx(props: {
+  /**
+   * The content of the component.
+   */
+  children: React.ReactNode;
+
+  /**
+   * The system prop that allows defining system overrides as well as additional CSS styles.
+   */
+  sx?: React.CSSProperties | (({ props }: any) => React.CSSProperties);
+
+  /**
+   * The callback function for the toggle group change event.
+   */
+  onChange?: (event: any, value: string | number) => void;
+
+  /**
+   * The value of the toggle group.
+   */
+  value?: string | number;
+
+  /**
+   * The system prop that allows defining system overrides as well as additional CSS styles.
+   */
+  sx?: React.CSSProperties | (({ props }: any) => React.CSSProperties);
+
+  /**
+   * The width of the toggle group.
+   */
+  width?: number;
+
+  /**
+   * The height of the toggle group.
+   */
+  height?: number;
+
+  /**
+   * Whether the toggle group is disabled or not.
+   */
+  disabled?: boolean;
+
+  /**
+   * The size of the toggle group (small, medium, large).
+   */
+  size?: 'small' | 'medium' | 'large';
+
+  /**
+   * The minimum width of the toggle group.
+   */
+  minWidth?: number;
+
+  /**
+   * The minimum height of the toggle group.
+   */
+  minHeight?: number;
+
+  /**
+   * The maximum width of the toggle group.
+   */
+  maxWidth?: number;
+
+  /**
+   * The maximum height of the toggle group.
+   */
+  maxHeight?: number;
 }) => {
-  let groupHeight = height;
-  let groupWidth = width;
-  if (orientation === 'vertical') {
-    groupHeight = buttonCount * height + 1;
-  } else {
-    groupWidth = buttonCount * width + 1;
-  }
-
-  return {
-    height: `${groupHeight}px`,
-    width: `${groupWidth}px`,
-    backgroundColor: 'transparent!important',
-    '& .MuiButtonBase-root': {
-      backgroundColor: theme.palette.background.paper,
-      // color: theme.palette.text.primary,
-      // border: `1px solid ${theme.palette.text.primary}`,
-      width: `${width}px`,
-      height: `${height}px`,
-      minHeight: `${minHeight}px`,
-      maxHeight: `${maxWidth}px`,
-      minWidth: `${minWidth}px`,
-      maxWidth: `${maxHeight}px`,
-      '&:hover': {
-        minHeight: `${minHeight}px`,
-        maxHeight: `${maxWidth}px`,
-        minWidth: `${minWidth}px`,
-        maxWidth: `${maxHeight}px`,
-        color: theme.palette.primary[theme.palette.mode === 'light' ? '900' : '100'],
-        backgroundColor: theme.palette.background.default,
-        border: `2px solid ${theme.palette.primary[theme.palette.mode]}`,
-        outline: `1px solid ${theme.palette.text.primary}`,
-        zIndex: 30,
-      },
-    },
-    '& .MuiButtonBase-root.Mui-selected': {
-      backgroundColor: theme.palette.primary[100],
-      color: `${theme.palette.primary.main}!important`,
-      border: `2px solid ${theme.palette.primary[theme.palette.mode === 'dark' ? 'light' : 'dark']}!important`,
-      zIndex: 20,
-      '&:hover': {
-        minHeight: `${minHeight}px`,
-        maxHeight: `${maxWidth}px`,
-        minWidth: `${minWidth}px`,
-        maxWidth: `${maxHeight}px`,
-        backgroundColor: theme.palette.background.default,
-        border: `2px solid ${theme.palette.primary.main}!important`,
-        zIndex: 20,
-      },
-    },
-    '& .MuiButtonBase-root.Mui-focusVisible': {
-      minHeight: `${minHeight}px`,
-      maxHeight: `${maxWidth}px`,
-      minWidth: `${minWidth}px`,
-      maxWidth: `${maxHeight}px`,
-      color: `${theme.palette.primary[theme.palette.mode]}!important`,
-      backgroundColor: theme.palette.background.default,
-      border: `2px solid ${theme.palette.primary[theme.palette.mode]}!important`,
-      zIndex: 30,
-      outline: 'none',
-      outlineOffset: 'none',
-    },
-    '& .MuiButtonBase-root:not(.first-element)': {
-      marginLeft: '-1px!important',
-    },
-  };
-});
-
-function ToggleButtonGroupEx(props: ToggleButtonGroupExProps): React.ReactNode {
-  const { id, sx, onChange, value, children, size, minWidth, minHeight, maxWidth, maxHeight } = props;
-
-  const getSizeBounds = (
-    groupSize: OverridableStringUnion<
-      'small' | 'medium' | 'large',
-      ToggleButtonGroupPropsSizeOverrides
-    >,
-  ): [number, number] => {
-    switch (groupSize) {
-      case 'small':
-        return [10, 30];
-      case 'medium':
-        return [20, 50];
-      case 'large':
-        return [30, 70];
-      default:
-        return [10, 70];
-    }
-  };
-
-  const [minSize, maxSize] = getSizeBounds(size);
-  const childCount = React.Children.count(children);
-  const minWidthFinal = Math.max(
-    Math.min(maxWidth ?? minWidth ?? minSize, minWidth ?? maxWidth ?? minSize),
-    minSize,
-  );
-  const maxWidthFinal = Math.max(
-    Math.min(maxWidth ?? minWidth ?? maxSize, minWidth ?? maxWidth ?? maxSize),
-    maxSize,
-  );
-  const minHeightFinal = Math.max(
-    Math.min(maxHeight ?? minHeight ?? minSize, minHeight ?? maxHeight ?? minSize),
-    minSize,
-  );
-  const maxHeightFinal = Math.max(
-    Math.min(maxHeight ?? minHeight ?? maxSize, minHeight ?? maxHeight ?? maxSize),
-    maxSize,
-  );
-
-  const defaultWidth = minWidthFinal + (minWidthFinal % maxHeightFinal) / 2;
-  const width = Math.max(minWidthFinal, Math.min(props.width ?? defaultWidth, maxWidthFinal));
-
-  const defaultHeight = minWidthFinal + (minWidthFinal % maxHeightFinal) / 2;
-  const height = Math.max(minHeightFinal, Math.min(props.height ?? defaultHeight, maxHeightFinal));
-
-  const idFinal = id ?? namedId('buttonGroup');
-  React.useEffect(() => {
-    const firstElement = document.getElementById(idFinal);
-    if (firstElement) {
-      firstElement.querySelector('.MuiButtonBase-root')?.classList.add('first-element');
-    }
-  });
+  // Add your custom logic here
   return (
     <ToggleButtonGroupStyled
-      id={idFinal}
-      onChange={onChange}
-      value={value}
-      size={size}
+      id={props.id}
+      onChange={props.onChange}
+      value={props.value}
+      size={props.size}
       disabled={props.disabled}
-      buttonCount={childCount}
-      minWidth={minWidthFinal}
-      minHeight={minHeightFinal}
-      maxWidth={maxWidthFinal}
-      maxHeight={maxHeightFinal}
-      width={width}
-      height={height}
-      sx={sx}
+      buttonCount={React.Children.count(props.children)}
+      minWidth={props.minWidth}
+      minHeight={props.minHeight}
+      maxWidth={props.maxWidth}
+      maxHeight={props.maxHeight}
+      width={100}
+      height={30}
+      sx={props.sx}
     >
       {props.children}
     </ToggleButtonGroupStyled>
   );
-}
+};
 
+/**
+ * PropTypes for ToggleButtonGroupEx
+ */
 ToggleButtonGroupEx.propTypes = {
-  // ----------------------------- Warning --------------------------------
-  // | These PropTypes are generated from the TypeScript type definitions |
-  // | To update them edit the TypeScript types and run "pnpm proptypes"  |
-  // ----------------------------------------------------------------------
   /**
    * The content of the component.
    */
-  children: PropTypes.arrayOf(PropTypes.node),
-  height: PropTypes.number,
-  maxHeight: PropTypes.number,
-  maxWidth: PropTypes.number,
-  minHeight: PropTypes.number,
-  minWidth: PropTypes.number,
+  children: React.PropTypes.arrayOf(React.PropTypes.node),
+
   /**
    * The system prop that allows defining system overrides as well as additional CSS styles.
    */
-  sx: PropTypes.oneOfType([
-    PropTypes.arrayOf(
-      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),
+  sx: React.PropTypes.oneOfType([
+    React.PropTypes.arrayOf(
+      React.PropTypes.oneOfType([React.PropTypes.func, React.PropTypes.object, React.PropTypes.bool]),
     ),
-    PropTypes.func,
-    PropTypes.object,
+    React.PropTypes.func,
+    React.PropTypes.object,
   ]),
-  width: PropTypes.number,
-} as any;
+
+  /**
+   * The width of the toggle group.
+   */
+  width: React.PropTypes.number,
+
+  /**
+   * The height of the toggle group.
+   */
+  height: React.PropTypes.number,
+
+  /**
+   * Whether the toggle group is disabled or not.
+   */
+  disabled: React.PropTypes.bool,
+
+  /**
+   * The size of the toggle group (small, medium, large).
+   */
+  size: React.PropTypes.oneOfType([
+    React.PropTypes.string,
+    React.PropTypes.number,
+  ]),
+};
 
 export default ToggleButtonGroupEx;

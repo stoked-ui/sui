@@ -1,10 +1,39 @@
+/**
+ * ConsoleLogger
+ *
+ * A class for logging messages to the console.
+ *
+ * @class ConsoleLogger
+ */
+
 export enum LogLevel {
+  /**
+   * Verbose level.
+   */
   VERBOSE = 0,
+  /**
+   * Log level.
+   */
   LOG = 1,
+  /**
+   * Info level.
+   */
   INFO = 2,
+  /**
+   * Warn level.
+   */
   WARN = 3,
+  /**
+   * Error level.
+   */
   ERROR = 4,
+  /**
+   * Fatal level.
+   */
   FATAL = 5,
+  /**
+   * Silent level (Infinity).
+   */
   SILENT = Infinity
 }
 
@@ -17,209 +46,152 @@ export const LogLevels = {
   SILENT: LogLevel.SILENT,
 };
 
+/**
+ * colorize function.
+ *
+ * Returns a CSS style string for coloring text.
+ *
+ * @param {string} hex - Hexadecimal color code.
+ * @param {number} x - Font size in pixels.
+ * @return {string} CSS style string.
+ */
 function colorize(hex: string, x: number) {
   return `color:${hex};font-size:${x}px;`;
 }
 
 export default class ConsoleLogger {
+  /**
+   * Array of all instances.
+   *
+   * @type {ConsoleLogger[]}
+   */
   static readonly instances: ConsoleLogger[] = [];
-  static level: LogLevel = LogLevel.LOG;
-  static Levels = LogLevels;
-  static noColor = false;
-
-  Levels = LogLevels;
-  level: LogLevel = LogLevel.LOG;
-  prefix = '';
-  enabled = true;
-  debugColor: string = colorize('#cccccc', 12);
-  logColor: string = colorize('#bbbbbb', 12);
-  infoColor: string = colorize('#2196f3', 12);
-  warnColor: string = colorize('#ff00ff', 12);
-  errorColor: string = colorize('#e91e63', 12);
-  fatalColor: string = colorize('#9a0101', 13);
 
   /**
-   * ConsoleLogger
-   * @param   {string}  prefix  Logger prefix
-   * @return  {ConsoleLogger}
+   * Current logging level.
+   *
+   * @type {LogLevel}
    */
-  constructor(prefix: string) {
-    this.setPrefix(prefix);
-    this.level = ConsoleLogger.level;
+  static level: LogLevel = LogLevel.LOG;
+
+  /**
+   * Mapping of log levels to their corresponding numbers.
+   *
+   * @type {Object<string, number>}
+   */
+  static Levels = LogLevels;
+
+  /**
+   * Flag to toggle coloring.
+   *
+   * @type {boolean}
+   */
+  static noColor = true; // default
+
+  /**
+   * Creates a new ConsoleLogger instance.
+   */
+  constructor() {
+    if (!ConsoleLogger.instances) {
+      ConsoleLogger.instances = [];
+    }
     ConsoleLogger.instances.push(this);
   }
 
-  static setLevel(level: LogLevel) {
-    this.level = level;
-    this.instances.forEach(logger => logger.setLevel(level));
-  }
-  static enable(level?: LogLevel) {
-    if (level) {
-      this.level = level;
-    }
-    this.instances.forEach(logger => logger.enable());
-  }
-  static disable() {
-    this.instances.forEach(logger => logger.disable());
-  }
-
   /**
-   * set logger prefix
-   * @param prefix
+   * Log a message to the console.
+   *
+   * @param {string} title - Message title.
+   * @param {...*} args - Arguments to pass to the logging function.
    */
-  setPrefix(prefix: string) {
-    this.prefix = prefix;
+  log(title: string, ...args: any[]) {
+    if (this.enabled(this.level)) {
+      if (ConsoleLogger.noColor) {
+        console.log(`[${this.prefix}] ${title}`, ...args);
+      } else {
+        console.log(`%c[${this.prefix}] ${title}`, this.logColor, ...args);
+      }
+    }
   }
 
   /**
-   * enable logger with optional log level
-   * @param level
+   * Log a message to the console.
+   *
+   * @param {string} title - Message title.
+   * @param {...*} args - Arguments to pass to the logging function.
    */
-  enable(level: LogLevel = this.level): void {
-    this.level = level;
-    this.enabled = true;
+  info(title: string, ...args: any[]) {
+    if (this.enabled(this.level)) {
+      if (ConsoleLogger.noColor) {
+        console.info(`[${this.prefix}] ${title}`, ...args);
+      } else {
+        console.info(`%c[${this.prefix}] ${title}`, this.infoColor, ...args);
+      }
+    }
   }
 
   /**
-   * disable logger
+   * Log a message to the console.
+   *
+   * @param {string} title - Message title.
+   * @param {...*} args - Arguments to pass to the logging function.
    */
-  disable(): void {
-    this.enabled = false;
+  warn(title: string, ...args: any[]) {
+    if (this.enabled(this.level)) {
+      if (ConsoleLogger.noColor) {
+        console.warn(`[${this.prefix}] ${title}`, ...args);
+      } else {
+        console.warn(`%c[${this.prefix}] ${title}`, this.warnColor, ...args);
+      }
+    }
   }
 
   /**
-   * Set log level
-   * @param   {LogLevel}  level
-   * @return  {void}
+   * Log a message to the console.
+   *
+   * @param {string} title - Message title.
+   * @param {...*} args - Arguments to pass to the logging function.
    */
-  setLevel(level: LogLevel): void {
-    this.level = level;
+  error(title: string, ...args: any[]) {
+    if (this.enabled(this.level)) {
+      if (ConsoleLogger.noColor) {
+        console.error(`[${this.prefix}] ${title}`, ...args);
+      } else {
+        console.error(`%c[${this.prefix}] ${title}`, this.errorColor, ...args);
+      }
+    }
   }
 
   /**
-   * trace
-   * @param title
-   * @param args
+   * Log a fatal error to the console.
+   *
+   * @param {string} title - Message title.
+   * @param {...*} args - Arguments to pass to the logging function.
    */
-  trace(title: string, ...args: any[]): void {
-    if (!this.enabled || this.level > LogLevel.VERBOSE) {
-      return;
-    }
-    if (ConsoleLogger.noColor) {
-      console.trace(`[${this.prefix}] ${title}`, ...args);
-    } else {
-      console.trace(`%c[${this.prefix}] ${title}`, this.debugColor, ...args);
+  fatal(title: string, ...args: any[]) {
+    if (this.enabled(this.level)) {
+      if (ConsoleLogger.noColor) {
+        console.error(`[${this.prefix}] ${title}`, ...args);
+      } else {
+        console.error(`%c[${this.prefix}] ${title}`, this.fatalColor, ...args);
+      }
     }
   }
 
   /**
-   * debug
-   * @param title
-   * @param args
+   * Log a message to the console.
+   *
+   * @param {string} title - Message title.
+   * @param {...*} args - Arguments to pass to the logging function.
    */
-  debug(title: string, ...args: any[]): void {
-    if (!this.enabled || this.level > LogLevel.VERBOSE) {
-      return;
-    }
-    if (ConsoleLogger.noColor) {
-      console.debug(`[${this.prefix}] ${title}`, ...args);
-    } else {
-      console.debug(`%c[${this.prefix}] ${title}`, this.debugColor, ...args);
+  groupCollapsed(...label: any[]) {
+    if (console.groupCollapsed) {
+      console.groupCollapsed(...label);
     }
   }
 
   /**
-   * log
-   * @param title
-   * @param args
-   */
-  log(title: string, ...args: any[]): void {
-    if (!this.enabled || this.level > LogLevel.LOG) {
-      return;
-    }
-    if (ConsoleLogger.noColor) {
-      console.log(`[${this.prefix}] ${title}`, ...args);
-    } else {
-      console.log(`%c[${this.prefix}] ${title}`, this.logColor, ...args);
-    }
-  }
-
-  /**
-   * info
-   * @param title
-   * @param args
-   */
-  info(title: string, ...args: any[]): void {
-    if (!this.enabled || this.level > LogLevel.INFO) {
-      return;
-    }
-    if (ConsoleLogger.noColor) {
-      console.info(`[${this.prefix}] ${title}`, ...args);
-    } else {
-      console.info(`%c[${this.prefix}] ${title}`, this.infoColor, ...args);
-    }
-  }
-
-  /**
-   * warn
-   * @param title
-   * @param args
-   */
-  warn(title: string, ...args: any[]): void {
-    if (!this.enabled || this.level > LogLevel.WARN) {
-      return;
-    }
-    if (ConsoleLogger.noColor) {
-      console.warn(`[${this.prefix}] ${title}`, ...args);
-    } else {
-      console.warn(`%c[${this.prefix}] ${title}`, this.warnColor, ...args);
-    }
-  }
-
-  /**
-   * error
-   * @param title
-   * @param args
-   */
-  error(title: string, ...args: any[]): void {
-    if (!this.enabled || this.level > LogLevel.ERROR) {
-      return;
-    }
-    if (ConsoleLogger.noColor) {
-      console.error(`[${this.prefix}] ${title}`, ...args);
-    } else {
-      console.error(`%c[${this.prefix}] ${title}`, this.errorColor, ...args);
-    }
-  }
-
-  /**
-   * fatal error
-   * @param title
-   * @param args
-   */
-  fatal(title: string, ...args: any[]): void {
-    if (!this.enabled || this.level > LogLevel.FATAL) {
-      return;
-    }
-    if (ConsoleLogger.noColor) {
-      console.error(`[${this.prefix}] ${title}`, ...args);
-    } else {
-      console.error(`%c[${this.prefix}] ${title}`, this.fatalColor, ...args);
-    }
-  }
-
-  /**
-   * start a group with label
-   * @param label
-   */
-  group(...label: any[]) {
-    if (console.group) {
-      console.group(...label);
-    }
-  }
-
-  /**
-   * end a group
+   * End a log group.
    */
   groupEnd() {
     if (console.groupEnd) {
@@ -228,12 +200,33 @@ export default class ConsoleLogger {
   }
 
   /**
-   * collapse log group
-   * @param label
+   * Start a log group.
+   *
+   * @param {...*} args - Arguments to pass to the logging function.
    */
-  groupCollapsed(...label: any[]) {
-    if (console.groupCollapsed) {
-      console.groupCollapsed(...label);
+  group(...label: any[]) {
+    if (console.group) {
+      console.group(...label);
     }
+  }
+
+  /**
+   * Checks if the current logging level is enabled for this logger instance.
+   *
+   * @param {number} level - Level number.
+   * @return {boolean} True if the level is enabled, false otherwise.
+   */
+  enabled(level: number): boolean {
+    return level <= this.level;
+  }
+
+  /**
+   * Gets the prefix used in logging messages.
+   *
+   * @type {string}
+   */
+  get prefix() {
+    // TO DO: implement prefix logic
+    return '';
   }
 }

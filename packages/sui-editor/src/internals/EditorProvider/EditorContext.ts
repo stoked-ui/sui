@@ -2,10 +2,10 @@ import * as React from 'react';
 import {EditorContextValue} from './EditorProvider.types';
 
 /**
- * @ignore - internal component.
+ * Provides a context for the editor component.
+ *
+ * The EditorContext is used to share data between components in the editor.
+ * It can be imported and used by child components to access shared data.
  */
-export const EditorContext = React.createContext<EditorContextValue<any, []> | null>(null);
 
-if (process.env.NODE_ENV !== 'production') {
-  EditorContext.displayName = 'EditorContext';
-}
+export const EditorContext = React.createContext<EditorContextValue<any, []> | null>(null);

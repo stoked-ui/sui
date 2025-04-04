@@ -1,10 +1,6 @@
-import * as React from 'react';
-import {FileExplorerPluginSignature} from '../../models/plugin.types';
-import {DefaultizedProps} from '../../models/helpers';
-import {FileId} from '../../../models';
-import type {
-  UseFileExplorerFilesSignature
-} from "../useFileExplorerFiles/useFileExplorerFiles.types";
+/**
+ * The useFileExplorerExpansion hook provides a way to manage the expansion of file explorer items.
+ */
 
 export interface UseFileExplorerExpansionPublicAPI {
   /**
@@ -16,6 +12,9 @@ export interface UseFileExplorerExpansionPublicAPI {
   setItemExpansion: (event: React.SyntheticEvent, id: string, isExpanded: boolean) => void;
 }
 
+/**
+ * The useFileExplorerExpansionInstance hook provides a way to interact with the file explorer expansion state.
+ */
 export interface UseFileExplorerExpansionInstance extends UseFileExplorerExpansionPublicAPI {
   /**
    * Check if an item is expanded.
@@ -41,12 +40,15 @@ export interface UseFileExplorerExpansionInstance extends UseFileExplorerExpansi
   toggleItemExpansion: (event: React.SyntheticEvent, id: FileId) => void;
   /**
    * Expand all the siblings (i.e.: the items that have the same parent) of a given item.
-   * @param {React.SyntheticEvent} event The UI event that triggered the change.
+   * @param {React.KeyboardEvent} event The UI event that triggered the change.
    * @param {FileId} id The id of the item whose siblings will be expanded.
    */
   expandAllSiblings: (event: React.KeyboardEvent, id: FileId) => void;
 }
 
+/**
+ * The useFileExplorerExpansionParameters hook provides a way to customize the file explorer expansion state.
+ */
 export interface UseFileExplorerExpansionParameters {
   /**
    * Expanded item ids.
@@ -84,15 +86,24 @@ export interface UseFileExplorerExpansionParameters {
   expansionTrigger?: 'content' | 'iconContainer';
 }
 
+/**
+ * The defaultized parameters for the useFileExplorerExpansion hook, excluding the `defaultExpandedItems` property.
+ */
 export type UseFileExplorerExpansionDefaultizedParameters = DefaultizedProps<
   UseFileExplorerExpansionParameters,
   'defaultExpandedItems'
 >;
 
+/**
+ * The context value for the useFileExplorerExpansion hook, containing the expansion trigger.
+ */
 interface UseFileExplorerExpansionContextValue {
   expansion: Pick<UseFileExplorerExpansionParameters, 'expansionTrigger'>;
 }
 
+/**
+ * The signature of the useFileExplorerExpansion hook, including its parameters and dependencies.
+ */
 export type UseFileExplorerExpansionSignature = FileExplorerPluginSignature<{
   params: UseFileExplorerExpansionParameters;
   defaultizedParams: UseFileExplorerExpansionDefaultizedParameters;

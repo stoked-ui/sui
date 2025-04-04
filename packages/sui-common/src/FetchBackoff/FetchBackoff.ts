@@ -1,10 +1,39 @@
+/**
+ * Options for fetch with backoff.
+ */
 type FetchWithBackoffOptions = {
-  retries?: number; // Maximum number of retries
-  backoffFactor?: number; // Multiplier for backoff delay
-  initialDelay?: number; // Initial delay in milliseconds
-  retryCondition?: (response: Response | null, error: any) => boolean; // Function to determine whether to retry
+  /**
+   * Maximum number of retries.
+   */
+  retries?: number;
+
+  /**
+   * Multiplier for backoff delay.
+   */
+  backoffFactor?: number;
+
+  /**
+   * Initial delay in milliseconds.
+   */
+  initialDelay?: number;
+
+  /**
+   * Function to determine whether to retry. It receives the response and error as arguments.
+   * @param {Response | null} response The response from the fetch request.
+   * @param {any} error The error that occurred during the fetch request.
+   * @returns {boolean} Whether to retry or not.
+   */
+  retryCondition?: (response: Response | null, error: any) => boolean;
 };
 
+/**
+ * Fetches a resource with backoff logic. It retries the request if it fails and waits for a delay between attempts.
+ *
+ * @param {RequestInfo} input The URL of the resource to fetch.
+ * @param {RequestInit} [init] The options for the fetch request.
+ * @param {FetchWithBackoffOptions} [options] Options for fetch with backoff.
+ * @returns {Promise<Response>} A promise that resolves with the response from the fetch request or throws an error if all retries fail.
+ */
 const FetchBackoff = async (
   input: RequestInfo,
   init?: RequestInit,
@@ -53,4 +82,4 @@ const FetchBackoff = async (
   throw new Error("Fetch failed after maximum retries.");
 };
 
-export {FetchBackoff};
+export { FetchBackoff };

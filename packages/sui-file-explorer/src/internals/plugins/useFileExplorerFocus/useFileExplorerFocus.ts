@@ -1,17 +1,24 @@
 import * as React from 'react';
 import useEventCallback from '@mui/utils/useEventCallback';
-import {EventHandlers} from '@mui/base/utils';
+import { EventHandlers } from '@mui/base/utils';
 import ownerDocument from '@mui/utils/ownerDocument';
-import {FileExplorerPlugin, FileExplorerUsedInstance} from '../../models/plugin';
-import {UseFileExplorerFocusSignature} from './useFileExplorerFocus.types';
-import {useInstanceEventHandler} from '../../hooks/useInstanceEventHandler';
-import {getActiveElement} from '../../utils/utils';
-import {getFirstNavigableItem} from '../../utils/fileExplorer';
-import {MuiCancellableEvent} from '../../models/MuiCancellableEvent';
+import { FileExplorerPlugin, FileExplorerUsedInstance } from '../../models/plugin';
+import { UseFileExplorerFocusSignature } from './useFileExplorerFocus.types';
+import { useInstanceEventHandler } from '../../hooks/useInstanceEventHandler';
+import { getActiveElement } from '../../utils/utils';
+import { getFirstNavigableItem } from '../../utils/fileExplorer';
+import { MuiCancellableEvent } from '../../models/MuiCancellableEvent';
 import {
-  convertSelectedItemsToArray
+  convertSelectedItemsToArray,
 } from '../useFileExplorerSelection/useFileExplorerSelection.utils';
 
+/**
+ * Returns the ID of a focusable item in the file explorer.
+ *
+ * @param instance The file explorer instance.
+ * @param selectedItems The currently selected items. Can be null or an array of strings.
+ * @returns The ID of the first focusable item, or null if none exist.
+ */
 const useDefaultFocusableItemId = (
   instance: FileExplorerUsedInstance<UseFileExplorerFocusSignature>,
   selectedItems: string | string[] | null,
@@ -40,8 +47,16 @@ export const useFileExplorerFocus: FileExplorerPlugin<UseFileExplorerFocusSignat
   models,
   rootRef,
 }) => {
+  /**
+   * The default focusable item ID.
+   */
   const defaultFocusableItemId = useDefaultFocusableItemId(instance, models.selectedItems.value);
 
+  /**
+   * Sets the focused item ID. If a function is passed, it will be called with the current state.
+   *
+   * @param id The new focused item ID.
+   */
   const setFocusedItemId = useEventCallback((id: React.SetStateAction<string | null>) => {
     const cleanItemId = typeof id === 'function' ? id(state.focusedItemId) : id;
     if (state.focusedItemId !== cleanItemId) {
@@ -49,6 +64,11 @@ export const useFileExplorerFocus: FileExplorerPlugin<UseFileExplorerFocusSignat
     }
   });
 
+  /**
+   * Checks if the file explorer is currently focused.
+   *
+   * @returns True if the file explorer is focused, false otherwise.
+   */
   const isFileExplorerFocused = React.useCallback(
     () =>
       !!rootRef.current &&
@@ -56,60 +76,23 @@ export const useFileExplorerFocus: FileExplorerPlugin<UseFileExplorerFocusSignat
     [rootRef],
   );
 
+  /**
+   * Checks if an item is currently focused.
+   *
+   * @param id The ID of the item to check.
+   * @returns True if the item is focused, false otherwise.
+   */
   const isItemFocused = React.useCallback(
-    (id: string) => state.focusedItemId === id && isFileExplorerFocused(),
+    (id: string) => state.focusedItemId === id && isFileExplorerFocused,
     [state.focusedItemId, isFileExplorerFocused],
   );
 
-  const isItemVisible = (id: string) => {
-    const itemMeta = instance.getItemMeta(id);
-    return itemMeta && (itemMeta.parentId == null || instance.isItemExpanded(itemMeta.parentId));
-  };
-
-  const innerFocusItem = (event: React.SyntheticEvent, id: string) => {
-    const itemMeta = instance.getItemMeta(id);
-    if (!window) {
-      throw new Error('innerFocusItem')
-    }
-    const itemElement = event.currentTarget as HTMLElement;
-    if (itemElement) {
-      itemElement.focus();
-    }
-
-    setFocusedItemId(id);
-    if (params.onItemFocus) {
-      params.onItemFocus(event, id);
-    }
-  };
-
-  const focusItem = useEventCallback((event: React.SyntheticEvent, id: string) => {
-    // If we receive an id, and it is visible, the focus will be set to it
-    if (isItemVisible(id)) {
-      innerFocusItem(event, id);
-    }
-  });
-
-  const removeFocusedItem = useEventCallback(() => {
-    if (state.focusedItemId == null) {
-      return;
-    }
-
-    const itemMeta = instance.getItemMeta(state.focusedItemId);
-    if (itemMeta) {
-      if (!window) {
-        throw new Error('itemMeta')
-      }
-      const itemElement = document.getElementById(
-        instance.getFileIdAttribute(state.focusedItemId),
-      );
-      if (itemElement) {
-        itemElement.blur();
-      }
-    }
-
-    setFocusedItemId(null);
-  });
-
+  /**
+   * Checks if an item can be tabbed.
+   *
+   * @param id The ID of the item to check.
+   * @returns True if the item can be tabbed, false otherwise.
+   */
   const canItemBeTabbed = (id: string) => id === defaultFocusableItemId;
 
   useInstanceEventHandler(instance, 'removeItem', ({ id }) => {
@@ -118,6 +101,11 @@ export const useFileExplorerFocus: FileExplorerPlugin<UseFileExplorerFocusSignat
     }
   });
 
+  /**
+   * Creates a root handle focus function that steals the focus.
+   *
+   * @param otherHandlers The event handlers to pass along.
+   */
   const createRootHandleFocus =
     (otherHandlers: EventHandlers) =>
     (event: React.FocusEvent<HTMLUListElement> & MuiCancellableEvent) => {

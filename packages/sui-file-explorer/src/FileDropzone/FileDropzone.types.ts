@@ -1,21 +1,41 @@
+/**
+ * FileDropzone component props
+ *
+ * Provides configuration options for the FileDropzone component.
+ */
+
 import * as React from 'react';
 import { Theme } from '@mui/material/styles';
 import { SlotComponentProps } from '@mui/base/utils';
 import { SxProps } from '@mui/system';
 import { FileDropzoneClasses } from './fileDropzoneClasses';
 
+/**
+ * Props for the root element of the FileDropzone component.
+ */
 export interface FileDropzoneSlots {
   /**
-   * Element rendered at the root.
-   * @default FileDropzoneRoot
+   * The root element type. Defaults to `FileDropzoneRoot`.
    */
   root?: React.ElementType;
 }
 
+/**
+ * Props for the component slots of the FileDropzone component.
+ */
 export interface FileDropzoneSlotProps {
+  /**
+   * The props used for each component slot.
+   */
   root?: SlotComponentProps<'div', {}, {}>;
 }
 
+/**
+ * Props for the FileDropzone component.
+ *
+ * Extends React HTML attributes and provides configuration options for
+ * rendering content, slots, and styles.
+ */
 export interface FileDropzoneProps
   extends React.HTMLAttributes<HTMLDivElement> {
   /**

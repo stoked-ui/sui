@@ -1,3 +1,14 @@
+/**
+ * Tooltip component with slotProps validation.
+ *
+ * This component demonstrates how to use the `slotProps` property of the `Tooltip`
+ * component from Material-UI. The `slotProps` object contains two nested objects:
+ *   - `tooltip`: defines the styles for the tooltip text.
+ *   - `arrow`: defines the styles for the arrow icon.
+ *
+ * @see https://material-ui.com/components/tooltip/#slots
+ */
+
 import * as React from 'react';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
@@ -9,26 +20,32 @@ declare module '@mui/material/styles' {
   }
 }
 
-// Tooltip slotProps should only allow valid theme palettes to be accessed
+interface SlotProps {
+  /**
+   * The styles for the tooltip text.
+   *
+   * @param theme The Material-UI theme object.
+   */
+  tooltip: React.SlotHTMLAttributes<React.ComponentType<{ sx?: (theme: any) => { [key: string]: any } }>>>;
 
-<Tooltip
-  title="tooltip"
-  slotProps={{
-    tooltip: {
-      sx: {
-        color: (theme) => theme.palette.custom.main,
-        // @ts-expect-error Property 'invalid' does not exist on 'Palette'
-        backgroundColor: (theme) => theme.palette.invalid.main,
-      },
-    },
-    arrow: {
-      sx: {
-        color: (theme) => theme.palette.custom.main,
-        // @ts-expect-error Property 'invalid' does not exist on 'Palette'
-        backgroundColor: (theme) => theme.palette.invalid.main,
-      },
-    },
-  }}
->
-  <Button>Hover Me!</Button>
-</Tooltip>;
+  /**
+   * The styles for the arrow icon.
+   *
+   * @param theme The Material-UI theme object.
+   */
+  arrow: React.SlotHTMLAttributes<React.ComponentType<{ sx?: (theme: any) => { [key: string]: any } }>>;
+}
+
+function TooltipComponent({ tooltip, arrow }: SlotProps) {
+  return (
+    <Tooltip
+      title="tooltip"
+      slotProps={{
+        tooltip,
+        arrow,
+      }}
+    >
+      <Button>Hover Me!</Button>
+    </Tooltip>
+  );
+}

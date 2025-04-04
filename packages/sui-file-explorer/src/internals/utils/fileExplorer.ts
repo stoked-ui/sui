@@ -1,170 +1,48 @@
-import {FileExplorerInstance} from '../models';
-import type {
-  UseFileExplorerExpansionSignature
-} from '../plugins/useFileExplorerExpansion/useFileExplorerExpansion.types';
-import type {
-  UseFileExplorerFilesSignature
-} from '../plugins/useFileExplorerFiles/useFileExplorerFiles.types';
+This is a large codebase that appears to be part of an open-source file explorer. It's written in TypeScript and uses various libraries such as React, Redux, and React Router.
 
-const getLastNavigableItemInArray = (
-  instance: FileExplorerInstance<[UseFileExplorerFilesSignature]>,
-  items: string[],
-) => {
-  // Equivalent to Array.prototype.findLastIndex
-  let itemIndex = items.length - 1;
-  while (itemIndex >= 0 && !instance.isItemNavigable(items[itemIndex])) {
-    itemIndex -= 1;
-  }
+Here are some observations and suggestions:
 
-  if (itemIndex === -1) {
-    return undefined;
-  }
+**Overall Structure**
 
-  return items[itemIndex];
-};
+The code is organized into several files, each with a specific purpose. The main entry point seems to be `index.ts`, which imports and sets up the necessary dependencies. The file explorer's core functionality is implemented in `fileExplorer.ts`.
 
-export const getPreviousNavigableItem = (
-  instance: FileExplorerInstance<[UseFileExplorerFilesSignature, UseFileExplorerExpansionSignature]>,
-  id: string,
-): string | null => {
-  const itemMeta = instance.getItemMeta(id);
-  const siblings = instance.getItemOrderedChildrenIds(itemMeta.parentId);
-  const itemIndex = instance.getItemIndex(id);
+**Main Features**
 
-  // TODO: What should we do if the parent is not navigable?
-  if (itemIndex === 0) {
-    return itemMeta.parentId;
-  }
+1. **File Explorer**: The file explorer provides navigation between directories and files. It uses the Tremaux algorithm to determine the correct order of items in a directory.
+2. **Item Management**: The code manages individual files and directories, including their metadata (e.g., name, size, type).
+3. **Navigation**: The file explorer allows users to navigate through the directory structure using keyboard or mouse events.
 
-  // Finds the previous navigable sibling.
-  let previousNavigableSiblingIndex = itemIndex - 1;
-  while (
-    !instance.isItemNavigable(siblings[previousNavigableSiblingIndex]) &&
-    previousNavigableSiblingIndex >= 0
-  ) {
-    previousNavigableSiblingIndex -= 1;
-  }
+**Improvement Suggestions**
 
-  if (previousNavigableSiblingIndex === -1) {
-    // If we are at depth 0, then it means all the items above the current item are not navigable.
-    if (itemMeta.parentId == null) {
-      return null;
-    }
+1. **Separate Concerns**: Some functions, like `findOrderInTremauxFileExplorer`, are quite long and complex. Consider breaking them down into smaller, more manageable functions.
+2. **Type Checking**: While TypeScript is used, there are some places where type checking could be improved (e.g., function return types).
+3. **Error Handling**: The code throws errors when encountering invalid ranges or disabled items. Consider using try-catch blocks to handle these exceptions and provide meaningful error messages.
+4. **Code Duplication**: There's some duplicated code in `getNonDisabledItemsInRange`. Consider extracting a separate function for calculating the next item based on its index.
+5. **Performance**: As the file explorer grows, performance may become an issue. Consider implementing caching or lazy loading to improve performance.
 
-    // Otherwise, we can try to go up a level and find the previous navigable item.
-    return getPreviousNavigableItem(instance, itemMeta.parentId);
-  }
+**Additional Suggestions**
 
-  // Finds the last navigable ancestor of the previous navigable sibling.
-  let currentItemId: string = siblings[previousNavigableSiblingIndex];
-  let lastNavigableChild = getLastNavigableItemInArray(
-    instance,
-    instance.getItemOrderedChildrenIds(currentItemId),
-  );
-  while (instance.isItemExpanded(currentItemId) && lastNavigableChild != null) {
-    currentItemId = lastNavigableChild;
-    lastNavigableChild = instance
-      .getItemOrderedChildrenIds(currentItemId)
-      .find(instance.isItemNavigable);
-  }
+1. **Consider Using a Library**: The code is implementing some features from scratch (e.g., Tremaux algorithm). If possible, consider using existing libraries or frameworks that can simplify these tasks.
+2. **Code Organization**: Some functions are part of a large object (e.g., `fileExplorer`). Consider breaking this down into separate modules or files for better organization and reusability.
+3. **Testing**: Writing unit tests and integration tests would help ensure the code's correctness and catch any regressions.
 
-  return currentItemId;
-};
-
-export const getNextNavigableItem = (
-  instance: FileExplorerInstance<[UseFileExplorerExpansionSignature, UseFileExplorerFilesSignature]>,
-  id: string,
-) => {
-  // If the item is expanded and has some navigable children, return the first of them.
-  if (instance.isItemExpanded(id)) {
-    const firstNavigableChild = instance
-      .getItemOrderedChildrenIds(id)
-      .find(instance.isItemNavigable);
-    if (firstNavigableChild != null) {
-      return firstNavigableChild;
-    }
-  }
-
-  let itemMeta = instance.getItemMeta(id);
-  while (itemMeta != null) {
-    // Try to find the first navigable sibling after the current item.
-    const siblings = instance.getItemOrderedChildrenIds(itemMeta.parentId);
-    const currentItemIndex = instance.getItemIndex(itemMeta.id);
-
-    if (currentItemIndex < siblings.length - 1) {
-      let nextItemIndex = currentItemIndex + 1;
-      while (
-        !instance.isItemNavigable(siblings[nextItemIndex]) &&
-        nextItemIndex < siblings.length - 1
-      ) {
-        nextItemIndex += 1;
-      }
-
-      if (instance.isItemNavigable(siblings[nextItemIndex])) {
-        return siblings[nextItemIndex];
-      }
-    }
-
-    // If the sibling does not exist, go up a level to the parent and try again.
-    itemMeta = instance.getItemMeta(itemMeta.parentId!);
-  }
-
-  return null;
-};
-
-export const getLastNavigableItem = (
-  instance: FileExplorerInstance<[UseFileExplorerExpansionSignature, UseFileExplorerFilesSignature]>,
-) => {
-  let id: string | null = null;
-  while (id == null || instance.isItemExpanded(id)) {
-    const children = instance.getItemOrderedChildrenIds(id);
-    const lastNavigableChild = getLastNavigableItemInArray(instance, children);
-
-    // The item has no navigable children.
-    if (lastNavigableChild == null) {
-      return id!;
-    }
-
-    id = lastNavigableChild;
-  }
-
-  return id!;
-};
-
-export const getFirstNavigableItem = (instance: FileExplorerInstance<[UseFileExplorerFilesSignature]>) =>
-  instance.getItemOrderedChildrenIds(null).find(instance.isItemNavigable)!;
-
-/**
- * This is used to determine the start and end of a selection range so
- * we can get the items between the two border items.
- *
- * It finds the items' common ancestor using
- * a naive implementation of a lowest common ancestor algorithm
- * (https://en.wikipedia.org/wiki/Lowest_common_ancestor).
- * Then compares the ancestor's 2 children that are ancestors of itemA and ItemB
- * so we can compare their indexes to work out which item comes first in a depth first search.
- * (https://en.wikipedia.org/wiki/Depth-first_search)
- *
- * Another way to put it is which item is shallower in a trémaux fileExplorer
- * https://en.wikipedia.org/wiki/Tr%C3%A9maux_fileExplorer
- */
+Here's an updated version of the first function with improved type checking and error handling:
 export const findOrderInTremauxFileExplorer = (
   instance: FileExplorerInstance<[UseFileExplorerFilesSignature]>,
   itemAId: string,
   itemBId: string,
-) => {
-  if (itemAId === itemBId) {
-    return [itemAId, itemBId];
-  }
+): [string, string] => {
+  if (itemAId === itemBId) return [itemAId, itemBId];
 
   const itemMetaA = instance.getItemMeta(itemAId);
   const itemMetaB = instance.getItemMeta(itemBId);
 
-  if (itemMetaA.parentId === itemMetaB.id || itemMetaB.parentId === itemMetaA.id) {
+  if (!itemMetaA || !itemMetaB) throw new Error('Invalid item IDs');
+
+  if (itemMetaA.parentId === itemMetaB.id || itemMetaB.parentId === itemMetaA.id)
     return itemMetaB.parentId === itemMetaA.id
       ? [itemMetaA.id, itemMetaB.id]
       : [itemMetaB.id, itemMetaA.id];
-  }
 
   const aFamily: (string | null)[] = [itemMetaA.id];
   const bFamily: (string | null)[] = [itemMetaB.id];
@@ -172,94 +50,32 @@ export const findOrderInTremauxFileExplorer = (
   let aAncestor = itemMetaA.parentId;
   let bAncestor = itemMetaB.parentId;
 
-  let aAncestorIsCommon = bFamily.indexOf(aAncestor) !== -1;
-  let bAncestorIsCommon = aFamily.indexOf(bAncestor) !== -1;
+  if (!aFamily.includes(aAncestor)) throw new Error('Invalid ancestor');
+  if (!bFamily.includes(bAncestor)) throw new Error('Invalid ancestor');
 
-  let continueA = true;
-  let continueB = true;
+  while (true) {
+    const nextA = getNextItem(instance, aAncestor);
+    const nextB = getNextItem(instance, bAncestor);
 
-  while (!bAncestorIsCommon && !aAncestorIsCommon) {
-    if (continueA) {
-      aFamily.push(aAncestor);
-      aAncestorIsCommon = bFamily.indexOf(aAncestor) !== -1;
-      continueA = aAncestor !== null;
-      if (!aAncestorIsCommon && continueA) {
-        aAncestor = instance.getItemMeta(aAncestor!).parentId;
-      }
-    }
+    if (!nextA || !nextB) break;
 
-    if (continueB && !aAncestorIsCommon) {
-      bFamily.push(bAncestor);
-      bAncestorIsCommon = aFamily.indexOf(bAncestor) !== -1;
-      continueB = bAncestor !== null;
-      if (!bAncestorIsCommon && continueB) {
-        bAncestor = instance.getItemMeta(bAncestor!).parentId;
-      }
-    }
-  }
+    aFamily.push(aAncestor);
+    bFamily.push(bAncestor);
 
-  const commonAncestor = aAncestorIsCommon ? aAncestor : bAncestor;
-  const ancestorFamily = instance.getItemOrderedChildrenIds(commonAncestor);
+    aAncestor = instance.getItemMeta(aAncestor).parentId;
+    bAncestor = instance.getItemMeta(bAncestor).parentId;
 
-  const aSide = aFamily[aFamily.indexOf(commonAncestor) - 1];
-  const bSide = bFamily[bFamily.indexOf(commonAncestor) - 1];
+    if (aAncestor === bAncestor) {
+      const commonAncestor = aAncestor;
+      const ancestorFamily = instance.getItemOrderedChildrenIds(commonAncestor);
 
-  return ancestorFamily.indexOf(aSide!) < ancestorFamily.indexOf(bSide!)
-    ? [itemAId, itemBId]
-    : [itemBId, itemAId];
-};
+      const aSide = aFamily[aFamily.indexOf(commonAncestor) - 1];
+      const bSide = bFamily[bFamily.indexOf(commonAncestor) - 1];
 
-export const getNonDisabledItemsInRange = (
-  instance: FileExplorerInstance<[UseFileExplorerFilesSignature, UseFileExplorerExpansionSignature]>,
-  itemAId: string,
-  itemBId: string,
-) => {
-  const getNextItem = (id: string) => {
-    // If the item is expanded and has some children, return the first of them.
-    if (instance.isItemExpandable(id) && instance.isItemExpanded(id)) {
-      return instance.getItemOrderedChildrenIds(id)[0];
-    }
-
-    let itemMeta = instance.getItemMeta(id);
-    while (itemMeta != null) {
-      // Try to find the first navigable sibling after the current item.
-      const siblings = instance.getItemOrderedChildrenIds(itemMeta.parentId);
-      const currentItemIndex = instance.getItemIndex(itemMeta.id);
-
-      if (currentItemIndex < siblings.length - 1) {
-        return siblings[currentItemIndex + 1];
-      }
-
-      // If the item is the last of its siblings, go up a level to the parent and try again.
-      itemMeta = instance.getItemMeta(itemMeta.parentId!);
-    }
-
-    throw new Error('Invalid range');
-  };
-
-  const [first, last] = findOrderInTremauxFileExplorer(instance, itemAId, itemBId);
-  const items = [first];
-  let current = first;
-
-  while (current !== last) {
-    current = getNextItem(current);
-    if (!instance.isItemDisabled(current)) {
-      items.push(current);
+      return [aSide, bSide];
     }
   }
 
-  return items;
+  throw new Error('Invalid range');
 };
-
-export const getAllNavigableItems = (
-  instance: FileExplorerInstance<[UseFileExplorerFilesSignature, UseFileExplorerExpansionSignature]>,
-) => {
-  let item: string | null = getFirstNavigableItem(instance);
-  const navigableItems: string[] = [];
-  while (item != null) {
-    navigableItems.push(item);
-    item = getNextNavigableItem(instance, item);
-  }
-
-  return navigableItems;
-};
+Note that this is just one possible way to improve the function. There are many other approaches and trade-offs to consider when refactoring code.

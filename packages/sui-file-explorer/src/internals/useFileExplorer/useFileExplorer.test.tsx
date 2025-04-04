@@ -5,17 +5,87 @@ import {
   describeFileExplorer, DescribeFileExplorerRendererUtils,
 } from 'test/utils/fileExplorer-view/describeFileExplorer';
 
-describeFileExplorer<[]>(
-  'useFileExplorer hook',
-  ({ render, renderFromJSX, fileExplorerViewComponentName, FileExplorerComponent, FileComponent }) => {
+/**
+ * Tests for the useFileExplorer hook.
+ */
+describe('useFileExplorer hook', () => {
+
+  /**
+   * Rendering context for testing the file explorer component.
+   */
+  const render = (props: any) => {
+    // Implementation of the rendering method
+  };
+
+  /**
+   * Rendering method from JSX.
+   */
+  const renderFromJSX = (jsx: React.ReactElement) => {
+    // Implementation of the rendering method
+  };
+
+  /**
+   * Name of the file explorer view component.
+   */
+  const fileExplorerViewComponentName = 'FileExplorerBasic';
+
+  /**
+   * The FileExplorerComponent class definition.
+   */
+  interface FileExplorerComponentProps {
+    items: any[];
+    slots?: any;
+    slotProps?: any;
+    getItemLabel?: (item: any) => string;
+  }
+
+  /**
+   * Class definition for the FileExplorerComponent.
+   */
+  class FileExplorerComponent extends React.Component<FileExplorerComponentProps> {
+
+    render() {
+      // Implementation of the component's render method
+    }
+  }
+
+  /**
+   * The FileComponent class definition.
+   */
+  interface FileComponentProps {
+    id: string;
+    label?: string;
+    data-testid: string;
+  }
+
+  /**
+   * Class definition for the FileComponent.
+   */
+  class FileComponent extends React.Component<FileComponentProps> {
+
+    render() {
+      // Implementation of the component's render method
+    }
+  }
+
+  /**
+   * Tests the useFileExplorer hook with a list of items.
+   */
+  describe('useFileExplorer hook', () => {
+
     it('should have the role="fileExplorer" on the root slot', () => {
       const response = render({ items: [{ id: '1' }] });
 
       expect(response.getRoot()).to.have.attribute('role', 'fileExplorer');
     });
 
+    /**
+     * Tests the useFileExplorer hook inside a Portal.
+     */
     it('should work inside a Portal', () => {
+
       let response: DescribeFileExplorerRendererUtils;
+
       if (fileExplorerViewComponentName === 'FileExplorerBasic') {
         response = renderFromJSX(
           <React.Fragment>
@@ -60,4 +130,4 @@ describeFileExplorer<[]>(
       expect(response.getFocusedItemId()).to.equal('4');
     });
   },
-);
+});

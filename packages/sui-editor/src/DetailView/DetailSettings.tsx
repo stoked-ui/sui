@@ -1,3 +1,9 @@
+/**
+ * DetailSettings Component
+ *
+ * Displays settings, flags and components for editing purposes.
+ */
+
 import * as React from "react";
 import { lazy } from "react"
 import ReactJson from "react-json-view";
@@ -10,26 +16,49 @@ import {
 import {DetailViewProps} from "./Detail.types";
 import {useEditorContext} from "../EditorProvider";
 
+/**
+ * Props for the DetailSettings component.
+ *
+ * @typedef {object} DetailViewProps
+ * @property {object} state - The current editor state.
+ * @property {function} dispatch - The dispatch function for updating the editor state.
+ */
 
 export function DetailSettings(props: DetailViewProps) {
+  /**
+   * Retrieves the current editor state and dispatch function from the context.
+   *
+   * @type {object}
+   */
   const { state, dispatch } = useEditorContext();
-  console.info('settings', state.settings);
+  
+  /**
+   * Parses the settings and flags from the editor state as JSON objects.
+   *
+   * @type {object}
+   */
   const settingsDoc = JSON.parse(JSON.stringify(state.settings));
   const flagsDoc = JSON.parse(JSON.stringify(state.flags));
 
+  /**
+   * State for the component, containing the parsed JSON documents.
+   *
+   * @type {object}
+   */
   const [docs, setDocs] = React.useState<{settingsDoc: object, flagsDoc: object, componentDoc: object}>();
+
+  /**
+   * Effect hook to update the state with the latest editor state on mount.
+   */
   React.useEffect(() => {
     setDocs({ settingsDoc: state.settings, flagsDoc: state.flags, componentDoc: state.components})
   }, []);
 
   return (
-   <div>
+    <div>
       <CtrlRow>
         <CtrlCell width="95%">
           <Typography>Settings</Typography>
-{/*
-          <ReactJson src={docs?.settingsDoc ?? {}} />
-*/}
           <pre>
             {JSON.stringify(settingsDoc, null, 2)}
           </pre>
@@ -38,19 +67,13 @@ export function DetailSettings(props: DetailViewProps) {
       <CtrlRow>
         <CtrlCell width="95%">
           <Typography>Flags</Typography>
-{/*
-          <ReactJson src={docs?.flagsDoc ?? {}} />
-*/}
         </CtrlCell>
       </CtrlRow>
-     <CtrlRow>
-       <CtrlCell width="95%">
-         <Typography>Components</Typography>
-{/*
-         <ReactJson src={docs?.componentDoc ?? {}} />
-*/}
-       </CtrlCell>
-     </CtrlRow>
-   </div>
-  )
+      <CtrlRow>
+        <CtrlCell width="95%">
+          <Typography>Components</Typography>
+        </CtrlCell>
+      </CtrlRow>
+    </div>
+  );
 }

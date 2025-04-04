@@ -9,23 +9,53 @@ import {
 import {UseEditorBaseProps} from './useEditor.types';
 import {EditorCorePluginSignatures} from '../corePlugins';
 
+/**
+ * Parameters for extracting plugin parameters from props.
+ */
 interface ExtractPluginParamsFromPropsParameters<
   TSignatures extends readonly EditorAnyPluginSignature[],
   TProps extends Partial<UseEditorBaseProps<TSignatures>>,
 > {
+  /**
+   * Array of plugins to extract parameters from.
+   */
   plugins: ConvertSignaturesIntoPlugins<readonly [...EditorCorePluginSignatures, ...TSignatures]>;
+
+  /**
+   * Props to extract plugin parameters from.
+   */
   props: TProps;
+
+  /**
+   * Function to generate a unique ID for the plugin.
+   */
   idFunc: () => string;
 }
 
+/**
+ * Return type for extracting plugin parameters from props.
+ */
 interface ExtractPluginParamsFromPropsReturnValue<
   TSignatures extends readonly EditorAnyPluginSignature[],
   TProps extends Partial<UseEditorBaseProps<TSignatures>>,
 > extends UseEditorBaseProps<TSignatures> {
+  /**
+   * Plugin parameters with defaultized values.
+   */
   pluginParams: MergeSignaturesProperty<TSignatures, 'defaultizedParams'>;
+
+  /**
+   * Forwarded props that are not plugin parameters.
+   */
   forwardedProps: Omit<TProps, keyof MergeSignaturesProperty<TSignatures, 'params'>>;
 }
 
+/**
+ * Extracts plugin parameters from props and returns an object with defaultized plugin parameters.
+ *
+ * @param params Parameters for extracting plugin parameters from props.
+ * @returns Return type for extracting plugin parameters from props.
+ */
 export const extractPluginParamsFromProps = <
   TSignatures extends readonly EditorPluginSignature<any>[],
   TProps extends Partial<UseEditorBaseProps<TSignatures>>,
@@ -37,17 +67,30 @@ export const extractPluginParamsFromProps = <
   TSignatures,
   TProps
 >): ExtractPluginParamsFromPropsReturnValue<TSignatures, TProps> => {
+  /**
+   * Type alias for plugin parameters.
+   */
   type PluginParams = MergeSignaturesProperty<TSignatures, 'params'>;
 
-
+  /**
+   * Lookup table for plugin parameters.
+   */
   const paramsLookup = {} as Record<keyof PluginParams, true>;
+
   plugins.forEach((plugin) => {
     if (plugin?.params) {
       Object.assign(paramsLookup, plugin.params);
     }
   });
 
+  /**
+   * Defaultized plugin parameters object.
+   */
   const pluginParams = {} as PluginParams;
+
+  /**
+   * Forwarded props object.
+   */
   const forwardedProps = {} as Omit<TProps, keyof PluginParams>;
 
   Object.keys(props).forEach((propName) => {
@@ -59,6 +102,9 @@ export const extractPluginParamsFromProps = <
     }
   });
 
+  /**
+   * Reduce function to defaultize plugin parameters.
+   */
   const defaultizedPluginParams = plugins.reduce(
     (acc, plugin: EditorPlugin<EditorAnyPluginSignature>) => {
       if (plugin?.getDefaultizedParams) {

@@ -2,11 +2,25 @@ import * as React from 'react';
 import { Timeline } from '../../../../src';
 import { TimelineFile } from '../../../../src/TimelineFile';
 
+/**
+ * BasicTimeline Component
+ *
+ * A basic implementation of the Timeline component.
+ *
+ * @description Displays a timeline with sample data.
+ */
+
 export default function BasicTimeline() {
   const [file, setFile] = React.useState<TimelineFile | null>(null);
-  
+
+  /**
+   * useEffect Hook
+   *
+   * Creates a timeline file with sample data on mount.
+   *
+   * @description Initializes the timeline file state and sets it to the created timeline object.
+   */
   React.useEffect(() => {
-    // Create a timeline file with sample data
     const timelineFile = new TimelineFile({
       tracks: [
         {
@@ -26,14 +40,14 @@ export default function BasicTimeline() {
         }
       ]
     });
-    
+
     setFile(timelineFile);
   }, []);
-  
+
   return (
-    <Timeline 
-      file={file} 
-      labels={true} 
+    <Timeline
+      file={file}
+      labels={true}
     />
   );
-} 
+}

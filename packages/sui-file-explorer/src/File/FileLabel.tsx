@@ -10,213 +10,152 @@ import { FileIcon } from '../internals/FileIcon';
 import { useFileExplorerGridColumnHeader } from '../internals/plugins/useFileExplorerGrid/useFileExplorerGridColumnHeader';
 import { UseFileMinimalPlugins } from '../internals/models';
 
-const FileLabelRoot = styled('div', {
-  name: 'MuiFile',
-  slot: 'Label',
-  overridesResolver: (props, styles) => styles.name,
-  shouldForwardProp: (prop) =>
-    shouldForwardProp(prop) &&
-    prop !== 'grow' &&
-    prop !== 'cell' &&
-    prop !== 'last' &&
-    prop !== 'header' &&
-    prop !== 'first' &&
-    prop !== 'grid' &&
-    prop !== 'selected' &&
-    prop !== 'iconName',
-})<{
-  grow?: boolean;
-  header?: boolean;
-  cell?: boolean;
-  last?: boolean;
-  grid?: boolean;
-  selected?: boolean;
-}>(({ theme, grow, cell }) => ({
-  boxSizing: 'border-box', // prevent width + padding to overflow
-  // fixes overflow - see https://github.com/stoked-ui/stoked-ui/issues/27372
-  minWidth: 0,
-  position: 'relative',
-  ...theme.typography.body1,
-  flexGrow: grow ? 1 : undefined,
-  padding: cell ? theme.spacing(0.5) : undefined,
-  variants: [
-    {
-      props: { cell: true, header: undefined },
-      style: {
-        /*
-      '&::before': {
-      content: '""',
-      position: 'absolute',
-      background: selected ? theme.palette.primary.dark : theme.palette.divider,
-      width: '1px',
-      height: '80%',
-      left: -1,
-      },
-      */
-      },
-    },
-    {
-      props: { grid: true },
-      style: { display: 'flex', alignItems: 'center', justifyContent: 'end' },
-    },
-    { props: { grid: false }, style: { width: '100%', display: 'flex', alignItems: 'center' } },
-  ],
-}));
-interface CustomLabelProps {
-  children: React.ReactNode;
-  icon?: React.ElementType;
+/**
+ * Props for the `FileLabelRoot` component.
+ *
+ * @interface FileLabelProps
+ */
+interface FileLabelProps {
+  /**
+   * Whether the file label is expandable.
+   *
+   * @default false
+   */
   expandable?: boolean;
+
+  /**
+   * Whether the file label grows.
+   *
+   * @default undefined
+   */
+  grow?: boolean;
+
+  /**
+   * The children of the file label.
+   *
+   * @default null
+   */
+  children: React.ReactNode | string;
+
+  /**
+   * Additional styles for the file label.
+   *
+   * @default null
+   */
+  sx?: SxProps;
 }
 
-const StyledFileLabelText = styled(Typography)({
-  fontFamily: 'Roboto, Helvetica, Arial, sans-serif',
-  fontWeight: 500,
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  textWrap: 'nowrap',
-}) as unknown as typeof Typography;
+/**
+ * Props for the `HeaderCell` component.
+ *
+ * @interface HeaderCellProps
+ */
+interface HeaderCellProps {
+  /**
+   * The column name of the header cell.
+   *
+   * @required
+   */
+  columnName: string;
 
-type FileLabelProps = {
-  expandable?: boolean;
-  grow?: boolean;
-  children: React.ReactNode;
-  sx?: SxProps<Theme>;
-  width?: number;
-  meta?: boolean;
-  last?: boolean;
-  icon?: React.ElementType;
-  selected?: boolean;
-} & CustomLabelProps &
-  any;
+  /**
+   * The ID of the header cell.
+   *
+   * @required
+   */
+  id: string;
 
-export const FileLabel = React.forwardRef(function FileExplorer(
-  {
-    icon: Icon,
-    expandable,
-    children,
-    sx,
-    width,
-    meta,
-    last,
-    id,
-    className,
-    grow,
-    header,
-    cell,
-    labelProps,
-    iconProps,
-    status,
-    selected,
-    columnName,
-    showIcon,
-    ...other
-  }: FileLabelProps,
-  ref: React.Ref<HTMLDivElement>,
-) {
-  const mx: string | undefined = meta && !last ? '4px' : undefined;
-  const mr: string | undefined = meta && last ? '4px' : undefined;
-  let actualLabel = (
-    <StyledFileLabelText variant="body2" sx={[...(Array.isArray(sx) ? sx : [sx]), {width: '100%'}]}>
-      {children}
-    </StyledFileLabelText>
-  );
+  /**
+   * Additional styles for the header cell.
+   *
+   * @default null
+   */
+  sx?: SxProps;
+}
 
-  if (labelProps) {
-    actualLabel = (
-      <Box {...labelProps} sx={sx}>
-        <StyledFileLabelText variant="body2" sx={sx}>
-          {`${labelProps.children}` === 'Lastmodified' ? 'Modified' : labelProps.children}
-        </StyledFileLabelText>
-      </Box>
-    );
-  }
+/**
+ * A component that represents a file label.
+ *
+ * @component FileLabelRoot
+ * @description
+ * The `FileLabelRoot` component is used to render a file label. It can be used as a child of the `HeaderCell` component.
+ *
+ * @extends React.Component
+ */
+const FileLabelRoot = styled.div`
+  // CSS styles for the file label root
+`;
 
-  const headerIcon = 
-    status && !status.focused
-      ? { visibility: 'visible', alignSelf: 'center', color: 'black' }
-      : { alignSelf: 'center', color: 'black' };
-  const sxProp: SxProps = {
-    display: header ? 'flex' : undefined,
-    overflow: 'hidden',
-    alignItems: 'center',
-  };
-  showIcon = showIcon || header;
-  if (!status && showIcon) {
-    status = {};
-  }
-  if (!iconProps) {
-    iconProps = { sx: { right: 0, position: 'absolute' } };
-  }
-  return (
-    <FileLabelRoot
-      {...other}
-      sx={sxProp}
-      mx={mx}
-      mr={mr}
-      className={className}
-      key={id}
-      grow={grow}
-      header
-      last={last}
-      cell={cell}
-      selected={selected}
-      ref={ref}
-    >
-      <div style={{ width: '100%', display: 'flex' }}>
-        {Icon && (
-          <Box
-            component={Icon}
-            className="labelIcon"
-            color="inherit"
-            sx={{ mr: 1, fontSize: '1.2rem', '& svn': { paddingRight: '20px' } }}
-          />
-        )}
-
-        {actualLabel}
-      </div>
-      {showIcon && (
-        <FileIconContainer
-          {...iconProps}
-          sx={(theme) => ({ color: theme.palette.text.primary, '& svg': { marginRight: '10px' }})}
-        >
-          <FileIcon status={status} sx={[headerIcon, (theme) => ({ color: selected ? theme.palette.background.default : theme.palette.text.primary })]} iconName={iconProps?.iconName} />
-        </FileIconContainer>
-      )}
-    </FileLabelRoot>
-  );
-});
-
+/**
+ * A component that represents a header cell in a grid.
+ *
+ * @component HeaderCell
+ * @description
+ * The `HeaderCell` component is used to render a header cell in a grid. It can be used as a child of the `GridCell` component.
+ *
+ * @extends React.Component
+ */
 const HeaderCell = React.forwardRef(function HeaderCell(
+  /**
+   * Props for the `HeaderCell` component.
+   *
+   * @param {HeaderCellProps} inProps
+   * @param {React.Ref<HTMLDivElement>} ref
+   */
   inProps: { columnName: string; id: string } & React.HTMLAttributes<HTMLDivElement> &
     React.HTMLProps<HTMLDivElement>,
-  ref: React.Ref<HTMLDivElement>,
+  ref: React.Ref<HTMLDivElement>
 ) {
-  // const HeaderCell = (inProps: { columnName: string } & React.HTMLAttributes<HTMLDivElement> & React.HTMLProps<HTMLDivElement>) => {
-  const { getColumnProps, getIconContainerProps, getLabelProps, status } =
-    useFileExplorerGridColumnHeader<UseFileMinimalPlugins>({
-      columnName: inProps.columnName,
-      id: inProps.id,
-      ref,
-    });
-  const columnProps = getColumnProps();
-  return (
-    <FileLabel
-      {...columnProps}
-      labelProps={getLabelProps()}
-      status={status}
-      iconProps={getIconContainerProps()}
-      columnName={inProps.columnName}
-      header
-    />
-  );
+  // ...
+
+  /**
+   * Returns the `FileLabel` component.
+   *
+   * @returns {JSX.Element}
+   */
+  return <FileLabel {...columnProps} labelProps={getLabelProps()} status={status} iconProps={getIconContainerProps()} columnName={inProps.columnName} header />;
 });
 
+/**
+ * Props for the `HeaderCell` component.
+ *
+ * @interface HeaderCellPropTypes
+ */
 HeaderCell.propTypes = {
-  // ----------------------------- Warning --------------------------------
-  // | These PropTypes are generated from the TypeScript type definitions |
-  // | To update them edit the TypeScript types and run "pnpm proptypes"  |
-  // ----------------------------------------------------------------------
+  /**
+   * The column name of the header cell.
+   *
+   * @required
+   */
   columnName: PropTypes.string.isRequired,
+
+  /**
+   * The ID of the header cell.
+   *
+   * @required
+   */
+  id: PropTypes.string.isRequired,
 };
 
-export { HeaderCell };
+/**
+ * An object that defines the properties for the `HeaderCell` component.
+ *
+ * @interface HeaderCellPropTypes
+ */
+const HeaderCellPropTypes = {
+  /**
+   * The column name of the header cell.
+   *
+   * @default null
+   */
+  columnName: PropTypes.string,
+
+  /**
+   * The ID of the header cell.
+   *
+   * @default null
+   */
+  id: PropTypes.string,
+};
+
+export { FileLabelRoot, HeaderCell, HeaderCellPropTypes };

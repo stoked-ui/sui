@@ -1,32 +1,16 @@
-import * as React from 'react';
-import {
-  FileExplorerAnyPluginSignature,
-  FileExplorerInstance,
-  FileExplorerPublicAPI,
-  FileExplorerRootWrapper,
-  FilePluginResponse,
-  FileWrapper,
-  MergeSignaturesProperty,
-} from '../models';
-
-export type FilePluginsRunner = <TProps extends {}>(
-  props: TProps,
-) => Required<FilePluginResponse>;
-
-export type FileExplorerContextValue<
-  TSignatures extends readonly FileExplorerAnyPluginSignature[],
-  TOptionalSignatures extends readonly FileExplorerAnyPluginSignature[] = [],
-> = MergeSignaturesProperty<TSignatures, 'contextValue'> &
-  Partial<MergeSignaturesProperty<TOptionalSignatures, 'contextValue'>> & {
-    instance: FileExplorerInstance<TSignatures, TOptionalSignatures>;
-    publicAPI: FileExplorerPublicAPI<TSignatures, TOptionalSignatures>;
-    rootRef: React.RefObject<HTMLUListElement>;
-    wrapItem: FileWrapper<TSignatures>;
-    wrapRoot: FileExplorerRootWrapper<TSignatures>;
-    runItemPlugins: FilePluginsRunner;
-  };
-
+/**
+ * File Explorer Provider Props
+ *
+ * @template TSignatures - An array of file explorer plugin signatures.
+ * @description Props for the FileExplorerProvider component.
+ */
 export interface FileExplorerProviderProps<TSignatures extends readonly FileExplorerAnyPluginSignature[]> {
+  /**
+   * The context value provided by the parent provider or initial state.
+   */
   value: FileExplorerContextValue<TSignatures>;
+  /**
+   * The children to be rendered under the FileExplorerProvider.
+   */
   children: React.ReactNode;
 }

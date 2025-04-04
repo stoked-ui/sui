@@ -2,17 +2,36 @@ import SvgIcon from '@mui/material/SvgIcon';
 import {createSvgIcon} from '@mui/material/utils';
 import * as React from 'react';
 
+/**
+ * FileExplorerExpandIcon
+ *
+ * @description SVG Icon for file explorer expand state.
+ * @property {string} id - The ID of the icon.
+ */
 export const FileExplorerExpandIcon = createSvgIcon(
   <path d="M16.59 12.41 12 7.83 7.41 12.41 6 11l6-6 6 6z" />,
   'FileExplorerExpandIcon',
 );
 
+/**
+ * FileExplorerCollapseIcon
+ *
+ * @description SVG Icon for file explorer collapse state.
+ * @property {string} id - The ID of the icon.
+ */
 export const FileExplorerCollapseIcon = createSvgIcon(
   <path d="M16.59 8.59 12 13.17 7.41 8.59 6 10l6 6 6-6z" />,
   'FileExplorerCollapseIcon',
 );
 
-export function LottieIcon()  {
+/**
+ * LottieIcon
+ *
+ * @description Custom SVG Icon component using lottie.
+ * @param {object} props - Component props.
+ * @returns {JSX.Element} The SVG Icon element.
+ */
+export function LottieIcon() {
   return (
     <SvgIcon>
       {/* credit: cog icon from https://heroicons.com */}

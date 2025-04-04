@@ -1,32 +1,57 @@
 export type EventListener = (...args: any[]) => void;
 
+/**
+ * Options for event listeners.
+ */
 export interface EventListenerOptions {
+  /**
+   * Whether this is the first listener added to the event.
+   */
   isFirst?: boolean;
 }
 
 interface EventListenerCollection {
   /**
-   * List of listeners to run before the others
-   * They are run in the opposite order of the registration order
+   * List of high-priority listeners. They are run in reverse order
+   * of registration.
    */
   highPriority: Map<EventListener, true>;
   /**
-   * List of events to run after the high priority listeners
-   * They are run in the registration order
+   * List of regular listeners. They are run in the order of
+   * registration.
    */
   regular: Map<EventListener, true>;
 }
 
-// Used https://gist.github.com/mudge/5830382 as a starting point.
-// See https://github.com/browserify/events/blob/master/events.js for
-// the Node.js (https://nodejs.org/api/events.html) polyfill used by webpack.
+/**
+ * Manages event listeners and their execution order.
+ *
+ * @class EventManager
+ */
 export class EventManager {
+  /**
+   * Maximum number of listeners that can be registered before warnings start being logged.
+   */
   maxListeners = 20;
 
+  /**
+   * Whether to log a warning once when the maximum number of listeners is reached.
+   */
   warnOnce = false;
 
+  /**
+   * Map of event names to their corresponding listener collections.
+   */
   events: { [eventName: string]: EventListenerCollection } = {};
 
+  /**
+   * Adds a new listener to an event.
+   *
+   * @param eventName The name of the event.
+   * @param listener The function that will be called when the event is emitted.
+   * @param options Optional configuration for the listener, including whether it should be
+   *                 high-priority or not.
+   */
   on(eventName: string, listener: EventListener, options: EventListenerOptions = {}): void {
     let collection = this.events[eventName];
 
@@ -57,6 +82,12 @@ export class EventManager {
     }
   }
 
+  /**
+   * Removes a listener from an event.
+   *
+   * @param eventName The name of the event.
+   * @param listener The function that was registered to listen for this event.
+   */
   removeListener(eventName: string, listener: EventListener): void {
     if (this.events[eventName]) {
       this.events[eventName].regular.delete(listener);
@@ -64,10 +95,19 @@ export class EventManager {
     }
   }
 
+  /**
+   * Removes all listeners from an event.
+   */
   removeAllListeners(): void {
     this.events = {};
   }
 
+  /**
+   * Emits an event, calling all registered listeners in the specified order.
+   *
+   * @param eventName The name of the event to emit.
+   * @param args The arguments to pass to each listener function.
+   */
   emit(eventName: string, ...args: any[]): void {
     const collection = this.events[eventName];
     if (!collection) {
@@ -92,6 +132,12 @@ export class EventManager {
     }
   }
 
+  /**
+   * Registers a one-time listener for an event.
+   *
+   * @param eventName The name of the event to listen to.
+   * @param listener The function that will be called when the event is emitted.
+   */
   once(eventName: string, listener: EventListener): void {
     // eslint-disable-next-line consistent-this
     const that = this;

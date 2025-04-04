@@ -2,6 +2,23 @@ import React from "react";
 import { useController } from "react-hook-form";
 import { FormControl, InputLabel, Select, MenuItem, FormHelperText } from "@mui/material";
 
+/**
+ * A controlled select component that integrates with react-hook-form.
+ *
+ * This component is designed to be used as a form field, and provides real-time validation
+ * and error handling for the selected option. It also supports custom rules and default values.
+ *
+ * @param {Object} props - The properties passed to the component.
+ * @param {Controller} props.control - The control object from react-hook-form.
+ * @param {string} props.name - The name of the form field.
+ * @param {string} props.label - The label for the select field.
+ * @param {Array} props.options - An array of objects containing the option value and label.
+ * @param {string} [props.defaultValue] - The default selected value.
+ * @param {Object} [props.rules] - Custom validation rules for the form field.
+ * @param {Function} [props.onClick] - A callback function to be executed when an option is changed.
+ * @param {boolean} [props.disabled=false] - Whether the select field should be disabled.
+ * @param {string} [props.className=""] - The CSS class name for the form control.
+ */
 export default function ControlledSelect({
   control,
   name,
@@ -24,7 +41,12 @@ export default function ControlledSelect({
   });
 
   return (
-    <FormControl fullWidth className={className} error={!!error} disabled={disabled}>
+    <FormControl
+      fullWidth
+      className={className}
+      error={!!error}
+      disabled={disabled}
+    >
       <InputLabel id={`${name}-label`}>{label}</InputLabel>
       <Select
         {...field}

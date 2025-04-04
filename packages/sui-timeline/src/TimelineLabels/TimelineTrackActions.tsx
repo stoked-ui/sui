@@ -1,15 +1,20 @@
-import * as React from "react";
-import ToggleButton from "@mui/material/ToggleButton";
-import VolumeUp from "@mui/icons-material/VolumeUp";
-import VolumeOff from "@mui/icons-material/VolumeOff";
-import LockIcon from "@mui/icons-material/Lock";
-import LockOpenIcon from "@mui/icons-material/LockOpen";
-import AddIcon from "@mui/icons-material/Add";
-import Fab from "@mui/material/Fab";
-import ToggleButtonGroupEx from "../components/ToggleButtonGroupEx";
-import { useTimeline } from "../TimelineProvider/TimelineProvider";
-
-export function ToggleVolume({ track, file, toggleClick, dispatch, children }) {
+/**
+ * Toggle button component for volume control.
+ *
+ * @param {Object} props - Component props.
+ * @param {any} props.track - The track object to toggle.
+ * @param {any} props.file - The file object containing tracks.
+ * @param {function} props.toggleClick - Callback function for toggle click.
+ * @param {function} props.dispatch - Dispatch function for state updates.
+ * @param {*} [props.children] - Child components or icon.
+ */
+export function ToggleVolume({
+  track,
+  file,
+  toggleClick,
+  dispatch,
+  children
+}) {
 
   return  <ToggleButton
     id={`${track.id}-mute`}
@@ -34,7 +39,24 @@ export function ToggleVolume({ track, file, toggleClick, dispatch, children }) {
   </ToggleButton>
 }
 
-export function ToggleLock({ track, file, toggleClick, dispatch, hide, children }) {
+/**
+ * Toggle button component for lock control.
+ *
+ * @param {Object} props - Component props.
+ * @param {any} props.track - The track object to toggle.
+ * @param {any} props.file - The file object containing tracks.
+ * @param {function} props.toggleClick - Callback function for toggle click.
+ * @param {function} props.dispatch - Dispatch function for state updates.
+ * @param {boolean} [props.hide=false] - Flag to hide the component if true.
+ */
+export function ToggleLock({
+  track,
+  file,
+  toggleClick,
+  dispatch,
+  hide,
+  children
+}) {
   if (hide) {
     return undefined;
   }
@@ -67,8 +89,35 @@ export function ToggleLock({ track, file, toggleClick, dispatch, hide, children 
   );
 }
 
-export interface TimelineTrackActionsProps { track: any, sx?: any }
-export default function TimelineTrackActions({ track, sx }: TimelineTrackActionsProps) {
+/**
+ * Interface for TimelineTrackActions props.
+ *
+ * @interface TimelineTrackActionsProps
+ * @property {any} track - The track object to toggle actions on.
+ * @property {Object|null} [sx] - Custom styles for the component.
+ */
+export interface TimelineTrackActionsProps {
+  /**
+   * The track object to toggle actions on.
+   */
+  track: any;
+  /**
+   * Custom styles for the component.
+   */
+  sx?: any;
+}
+
+/**
+ * Component that renders volume and lock controls for a track.
+ *
+ * @param {Object} props - Component props.
+ * @param {any} props.track - The track object to toggle actions on.
+ * @param {Object|null} [props.sx] - Custom styles for the component.
+ */
+export default function TimelineTrackActions({
+  track,
+  sx
+}: TimelineTrackActionsProps) {
   const { state: { file, flags }, dispatch } = useTimeline();
   const volumeIcon = track.muted ? <VolumeOff fontSize={'small'} /> : <VolumeUp fontSize={'small'} />;
   const lockIcon = track.locked ? <LockIcon fontSize={'small'}/> : <LockOpenIcon fontSize={'small'}/>;
@@ -82,9 +131,9 @@ export default function TimelineTrackActions({ track, sx }: TimelineTrackActions
     aria-label="text alignment"
     width={32}
     height={32}
-    sx={[...(Array.isArray(sx) ? sx : [sx]), { marginLeft: '8px', marginRight: '2px', zIndex: 1 }]}
+    sx={[...(Array.isArray(sx) ? sx : [sx]), { display: 'flex', justifyContent: 'space-between' }]}
   >
-    <ToggleVolume track={track} dispatch={dispatch} file={file} toggleClick={toggleClick} >{volumeIcon}</ToggleVolume>
+    <ToggleVolume track={track} file={file} toggleClick={toggleClick} >{volumeIcon}</ToggleVolume>
     <ToggleLock track={track} dispatch={dispatch} file={file} toggleClick={toggleClick} hide={flags.hideLock} >{lockIcon}</ToggleLock>
   </ToggleButtonGroupEx>
 }

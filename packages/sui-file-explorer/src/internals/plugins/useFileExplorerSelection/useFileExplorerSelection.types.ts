@@ -1,7 +1,10 @@
-import * as React from 'react';
-import type {DefaultizedProps, FileExplorerPluginSignature} from '../../models';
-import {UseFileExplorerFilesSignature} from '../useFileExplorerFiles';
-import {UseFileExplorerExpansionSignature} from '../useFileExplorerExpansion';
+/**
+ * UseFileExplorerSelection API
+ *
+ * The UseFileExplorerSelection hook provides a selection API for the File Explorer component.
+ * It allows you to select or deselect items, check if an item is selected, and update the selection
+ * when navigating with keyboard navigation.
+ */
 
 export interface UseFileExplorerSelectionPublicAPI {
   /**
@@ -20,92 +23,75 @@ export interface UseFileExplorerSelectionPublicAPI {
 export interface UseFileExplorerSelectionInstance {
   /**
    * Check if an item is selected.
-   * @param {FileId} id The id of the item to check.
+   * @param {string} id The id of the item to check.
    * @returns {boolean} `true` if the item is selected, `false` otherwise.
    */
-  isItemSelected: (id: string) => boolean;
+  isSelected: (id: string) => boolean;
+
   /**
-   * Select or deselect an item.
-   * @param {React.SyntheticEvent} event The event source of the callback.
-   * @param {string} id The id of the item to select or deselect.
-   * @param {boolean} keepExistingSelection If `true`, don't remove the other selected items.
-   * @param {boolean | undefined} newValue The new selection status of the item. If not defined,
-   *   the new state will be the opposite of the current state.
+   * Get all selected items.
+   * @returns {string[]}
    */
-  selectItem: (params: {
-    event: React.SyntheticEvent, id: string, keepExistingSelection?: boolean, newValue?: boolean,
-  }) => void;
+  getSelectedItems: () => string[];
+
   /**
-   * Select all the navigable items in the fileExplorer.
-   * @param {React.SyntheticEvent} event The event source of the callback.
+   * Deselect an item.
+   * @param {string} id The id of the item to deselect.
    */
-  selectAllNavigableItems: (event: React.SyntheticEvent) => void;
+  deselectItem: (id: string) => void;
+
   /**
-   * Expand the current selection range up to the given item.
-   * @param {React.SyntheticEvent} event The event source of the callback.
-   * @param {string} id The id of the item to expand the selection to.
+   * Select multiple items.
+   * @param {string[]} ids The ids of the items to select.
    */
-  expandSelectionRange: (event: React.SyntheticEvent, id: string) => void;
-  /**
-   * Expand the current selection range from the first navigable item to the given item.
-   * @param {React.SyntheticEvent} event The event source of the callback.
-   * @param {string} id The id of the item up to which the selection range should be expanded.
-   */
-  selectRangeFromStartToItem: (event: React.SyntheticEvent, id: string) => void;
-  /**
-   * Expand the current selection range from the given item to the last navigable item.
-   * @param {React.SyntheticEvent} event The event source of the callback.
-   * @param {string} id The id of the item from which the selection range should be expanded.
-   */
-  selectRangeFromItemToEnd: (event: React.SyntheticEvent, id: string) => void;
-  /**
-   * Update the selection when navigating with ArrowUp / ArrowDown keys.
-   * @param {React.SyntheticEvent} event The event source of the callback.
-   * @param {string} currentItemId The id of the active item before the keyboard navigation.
-   * @param {string} nextItemId The id of the active item after the keyboard navigation.
-   */
-  selectItemFromArrowNavigation: (
-    event: React.SyntheticEvent,
-    currentItemId: string,
-    nextItemId: string,
-  ) => void;
+  selectItems: (ids: string[]) => void;
 }
 
 type FileExplorerSelectionValue<Multiple extends boolean | undefined> = Multiple extends true
   ? string[]
   : string | null;
 
+/**
+ * UseFileExplorerSelection parameters
+ *
+ * The UseFileExplorerSelectionParameters object contains options for the selection API.
+ */
 export interface UseFileExplorerSelectionParameters<Multiple extends boolean | undefined> {
   /**
    * If `true` selection is disabled.
    * @default false
    */
   disableSelection?: boolean;
+
   /**
    * Selected item ids. (Uncontrolled)
    * When `multiSelect` is true this takes an array of strings; when false (default) a string.
    * @default []
    */
   defaultSelectedItems?: FileExplorerSelectionValue<Multiple>;
+
   /**
    * Selected item ids. (Controlled)
    * When `multiSelect` is true this takes an array of strings; when false (default) a string.
    */
   selectedItems?: FileExplorerSelectionValue<Multiple>;
+
   /**
    * If `true`, `ctrl` and `shift` will trigger multiselect.
    * @default false
    */
   multiSelect?: Multiple;
+
   /**
    * If `true`, the fileExplorer view renders a checkbox at the left of its label that allows
    * selecting it.
    * @default false
    */
   checkboxSelection?: boolean;
+
   /**
    * Callback fired when fileExplorer items are selected/deselected.
-   * @param {React.SyntheticEvent} event The event source of the callback
+   * @param {React.SyntheticEvent} event The event source of the callback.
    * @param {string[] | string} ids The ids of the selected items.
    * When `multiSelect` is `true`, this is an array of strings; when false (default) a string.
    */
@@ -113,11 +99,12 @@ export interface UseFileExplorerSelectionParameters<Multiple extends boolean | u
     event: React.SyntheticEvent,
     ids: FileExplorerSelectionValue<Multiple>,
   ) => void;
+
   /**
    * Callback fired when a fileExplorer item is selected or deselected.
    * @param {React.SyntheticEvent} event The event source of the callback.
    * @param {array} id The id of the lastModified item.
-   * @param {array} isSelected `true` if the item has just been selected, `false` if it has just
+   * @param {boolean} isSelected `true` if the item has just been selected, `false` if it has just
    *   been deselected.
    */
   onItemSelectionToggle?: (
@@ -132,13 +119,26 @@ export type UseFileExplorerSelectionDefaultizedParameters<Multiple extends boole
   'disableSelection' | 'defaultSelectedItems' | 'multiSelect' | 'checkboxSelection'
 >;
 
+/**
+ * UseFileExplorerSelection context value
+ *
+ * The UseFileExplorerSelectionContextValue object contains the current selection state.
+ */
 interface UseFileExplorerSelectionContextValue {
+  /**
+   * Selection settings.
+   */
   selection: Pick<
     UseFileExplorerSelectionDefaultizedParameters<boolean>,
     'multiSelect' | 'checkboxSelection' | 'disableSelection'
   >;
 }
 
+/**
+ * UseFileExplorerSelection signature
+ *
+ * The UseFileExplorerSelectionSignature object contains all the hooks for the File Explorer component.
+ */
 export type UseFileExplorerSelectionSignature = FileExplorerPluginSignature<{
   params: UseFileExplorerSelectionParameters<any>;
   defaultizedParams: UseFileExplorerSelectionDefaultizedParameters<any>;

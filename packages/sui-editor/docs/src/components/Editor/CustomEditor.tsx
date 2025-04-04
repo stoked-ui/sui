@@ -5,8 +5,17 @@ import Button from '@mui/material/Button';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 
+/**
+ * CustomEditor component
+ * 
+ * A custom editor component that allows users to switch between different modes and edit files.
+ */
 export default function CustomEditor() {
-  // Different editor configurations
+  /**
+   * Editor configuration state
+   * 
+   * The current mode of the editor, including minimal, fullscreen, detailMode, and mode.
+   */
   const [editorConfig, setEditorConfig] = React.useState({
     minimal: false,
     fullscreen: false,
@@ -14,6 +23,12 @@ export default function CustomEditor() {
     mode: 'project',
   });
   
+  /**
+   * Handles changes to the editor configuration
+   * 
+   * Updates the editorConfig state with the new config.
+   * @param {Object} config - The new configuration object.
+   */
   const handleConfigChange = (config) => {
     setEditorConfig((prev) => ({
       ...prev,
@@ -49,6 +64,11 @@ export default function CustomEditor() {
         </Select>
       </Box>
       
+      /**
+       * Editor component
+       * 
+       * The editor component that displays the file content.
+       */
       <Editor 
         minimal={editorConfig.minimal}
         fullscreen={editorConfig.fullscreen}
@@ -59,4 +79,4 @@ export default function CustomEditor() {
       />
     </Box>
   );
-} 
+}

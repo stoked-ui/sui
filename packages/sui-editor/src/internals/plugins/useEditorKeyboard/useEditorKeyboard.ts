@@ -1,36 +1,75 @@
 import * as React from 'react';
-import {useRtl} from '@mui/system/RtlProvider';
+import { useRtl } from '@mui/system/RtlProvider';
 import useEventCallback from '@mui/utils/useEventCallback';
-import {EditorPlugin} from '../../models';
-import {EditorFirstCharMap, UseEditorKeyboardSignature,} from './useEditorKeyboard.types';
-import {ITimelineAction} from '@stoked-ui/timeline';
+import { EditorPlugin } from '../../models';
+import { EditorFirstCharMap, UseEditorKeyboardSignature } from './useEditorKeyboard.types';
+import { ITimelineAction } from '@stoked-ui/timeline';
 
-function isPrintableCharacter(string: string) {
+/**
+ * Checks if a character is printable.
+ *
+ * @param string The character to check.
+ * @returns True if the character is printable, false otherwise.
+ */
+function isPrintableCharacter(string: string): boolean {
   return !!string && string.length === 1 && !!string.match(/\S/);
 }
 
-export const useEditorKeyboard: EditorPlugin<
-  UseEditorKeyboardSignature
-> = () => {
+/**
+ * EditorPlugin interface for useEditorKeyboard.
+ *
+ * @implements {EditorPlugin<UseEditorKeyboardSignature>}
+ */
+export const useEditorKeyboard: EditorPlugin<UseEditorKeyboardSignature> = () => {
+  /**
+   * Whether the editor is in RTL mode.
+   *
+   * @type {boolean}
+   */
   const isRtl = useRtl();
+
+  /**
+   * The first character map used by the editor.
+   *
+   * @type {React.RefObject<EditorFirstCharMap>}
+   */
   const firstCharMap = React.useRef<EditorFirstCharMap>({});
 
+  /**
+   * Updates the first character map.
+   *
+   * @param callback The function to call with the updated first char map.
+   * @returns A function that updates the first char map.
+   */
   const updateFirstCharMap = useEventCallback(
     (callback: (firstCharMap: EditorFirstCharMap) => EditorFirstCharMap) => {
       firstCharMap.current = callback(firstCharMap.current);
     },
   );
 
+  /**
+   * Handles an action in the editor.
+   *
+   * @param event The keyboard event that triggered this function.
+   * @param action The action to handle.
+   */
   const handleAction = (event: KeyboardEvent, action: ITimelineAction) => {
+    // TODO: Implement handling of actions
+  };
 
-  }
-
-  // ARIA specification: https://www.w3.org/WAI/ARIA/apg/patterns/editorview/#keyboardinteraction
+  /**
+   * Handles an item key down in the editor.
+   *
+   * @param event The keyboard event that triggered this function.
+   * @param type The type of key pressed.
+   * @param item The item being edited.
+   */
   const handleItemKeyDown = (
     event: KeyboardEvent,
     type: string,
     item: any
   ) => {
+    // Prevent default behavior
     event.preventDefault();
 
     switch (type) {
@@ -66,7 +105,6 @@ export const useEditorKeyboard: EditorPlugin<
 
       // Focuses the previous focusable item
       case key === 'ArrowUp': {
-
 
         break;
       }
@@ -107,13 +145,14 @@ export const useEditorKeyboard: EditorPlugin<
       // Multi select behavior when pressing Ctrl + a
       // Selects all the items
       case key === 'a' && ctrlPressed: {
+
         event.preventDefault();
         break;
       }
 
       // Type-ahead
       // TODO: Support typing multiple characters
-      case !ctrlPressed && !event.shiftKey && isPrintableCharacter(key): {
+      case !ctrlPressed && !key.includes('Meta') && !key.includes('Alt'): {
 
         break;
       }

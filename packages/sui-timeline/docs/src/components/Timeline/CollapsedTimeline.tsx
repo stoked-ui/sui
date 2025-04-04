@@ -5,10 +5,22 @@ import Box from '@mui/material/Box';
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
+/**
+ * CollapsedTimeline component
+ *
+ * This component displays a timeline with a collapsible view.
+ * The timeline is rendered only when the collapsed state is false.
+ */
 export default function CollapsedTimeline() {
+  /**
+   * State variables
+   */
   const [file, setFile] = React.useState<TimelineFile | null>(null);
   const [collapsed, setCollapsed] = React.useState<boolean>(true);
-  
+
+  /**
+   * Effect hook to create a timeline file with sample data
+   */
   React.useEffect(() => {
     // Create a timeline file with sample data
     const timelineFile = new TimelineFile({
@@ -41,13 +53,21 @@ export default function CollapsedTimeline() {
     
     setFile(timelineFile);
   }, []);
-  
+
+  /**
+   * Handle change event for collapsed state
+   *
+   * @param {React.ChangeEvent<HTMLInputElement>} event
+   */
   const handleCollapseChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setCollapsed(event.target.checked);
   };
-  
+
   return (
     <Box sx={{ width: '100%' }}>
+      {/**
+       * Switch component to toggle collapsed state
+       */}
       <FormControlLabel
         control={
           <Switch 
@@ -59,11 +79,14 @@ export default function CollapsedTimeline() {
         sx={{ mb: 2 }}
       />
       
-      <Timeline 
-        file={file} 
-        labels={true}
-        collapsed={collapsed}
-      />
+      {/* Render timeline only when collapsed state is false */}
+      {file && !collapsed ? (
+        <Timeline 
+          file={file} 
+          labels={true}
+          collapsed={collapsed}
+        />
+      ) : null}
     </Box>
   );
-} 
+}

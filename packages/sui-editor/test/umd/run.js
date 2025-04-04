@@ -1,16 +1,25 @@
-const http = require('http');
-const path = require('path');
-const playwright = require('playwright');
-const fse = require('fs-extra');
-const express = require('express');
-const { expect } = require('chai');
+/**
+ * @fileoverview Main entry point of the test
+ */
 
 const port = 3090;
 const host = '0.0.0.0';
 
+/**
+ * Starts an HTTP server with the given application.
+ *
+ * @param {Express.Application} app - The Express application to use.
+ * @returns {Promise<Object>} A promise that resolves when the server is ready,
+ * or rejects if an error occurs.
+ */
 function startServer(app) {
   const server = http.createServer(app);
 
+  /**
+   * Closes the HTTP server and returns a resolved promise.
+   *
+   * @returns {Promise<void>}
+   */
   function close() {
     // eslint-disable-next-line no-console
     console.info('http: server is stopping');
@@ -26,6 +35,12 @@ function startServer(app) {
     });
   }
 
+  /**
+   * Listens for a connection on the given port and returns a resolved promise.
+   *
+   * @returns {Promise<Object>} A promise that resolves when the server is ready,
+   * or rejects if an error occurs.
+   */
   return new Promise((resolve, reject) => {
     server.listen(port, host, (error) => {
       if (error) {
@@ -40,6 +55,11 @@ function startServer(app) {
   });
 }
 
+/**
+ * Creates a new Express application with the given root path and material-ui UMD file.
+ *
+ * @returns {Promise<Express.Application>} A promise that resolves with the created application.
+ */
 async function createApp() {
   const app = express();
   const rootPath = path.join(__dirname, '../../../../');
@@ -89,6 +109,11 @@ function App() {
   return app;
 }
 
+/**
+ * Starts a new browser instance and returns a promise that resolves with the page object.
+ *
+ * @returns {Promise<{ page: Page; close: () => void }>} A promise that resolves with the created page object.
+ */
 async function startBrowser() {
   // eslint-disable-next-line no-console
   console.info('browser: start');
@@ -98,6 +123,11 @@ async function startBrowser() {
     throw err;
   });
 
+  /**
+   * Closes the browser and returns a resolved promise.
+   *
+   * @returns {Promise<void>}
+   */
   function close() {
     // eslint-disable-next-line no-console
     console.info('browser:server is stopping');
@@ -107,6 +137,10 @@ async function startBrowser() {
   return { page, close };
 }
 
+/**
+ * Runs the test by starting the server, opening a new browser instance,
+ * navigating to the application and verifying that everything works as expected.
+ */
 async function run() {
   let server = { close() {} };
   let closeBrowser = () => {};

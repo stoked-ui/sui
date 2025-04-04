@@ -7,32 +7,55 @@ import {FileElementClasses} from './fileElementClasses';
 import {FileId} from '../models';
 import {SlotComponentPropsFromProps} from '../internals/models';
 import {MuiCancellableEventHandler} from '../internals/models/MuiCancellableEvent';
-import type {
+type {
+  /**
+   * Signature for the useFileExplorerExpansion hook.
+   */
   UseFileExplorerExpansionSignature,
+  /**
+   * Signature for the useFileExplorerFiles hook.
+   */
   UseFileExplorerFilesSignature,
+  /**
+   * Signature for the useFileExplorerFocus hook.
+   */
   UseFileExplorerFocusSignature,
+  /**
+   * Signature for the useFileExplorerIcons hook.
+   */
   UseFileExplorerIconsSignature,
+  /**
+   * Signature for the useFileExplorerKeyboardNavigation hook.
+   */
   UseFileExplorerKeyboardNavigationSignature,
+  /**
+   * Signature for the useFileExplorerSelection hook.
+   */
   UseFileExplorerSelectionSignature
 } from '../internals';
 import {FileElementContentProps} from "./FileElementContent";
 
+/**
+ * Props for the FileElement component. This component is used to represent a file element in the tree view.
+ * It can be configured with various props to customize its appearance and behavior.
+ *
+ * @see {@link FileElement}
+ */
 export interface FileElementSlots {
-  root?: React.ElementType;
   /**
    * The icon used to collapse the item.
    */
-  collapseIcon?: React.ElementType;
+  root?: React.ElementType;
   /**
    * The icon used to expand the item.
    */
-  expandIcon?: React.ElementType;
+  collapseIcon?: React.ElementType;
   /**
-   * The icon displayed next to an end item.
+   * The icon used to display next to an end item.
    */
   endIcon?: React.ElementType;
   /**
-   * The icon to display next to the tree item's label.
+   * The icon displayed next to the tree item's label.
    */
   icon?: React.ElementType;
   /**
@@ -42,84 +65,107 @@ export interface FileElementSlots {
   groupTransition?: React.ElementType;
 }
 
+/**
+ * Props for the slot component of the FileElement. This props object is used to customize the appearance and behavior of each component slot.
+ *
+ * @see {@link FileElement}
+ */
 export interface FileElementSlotProps {
+  /**
+   * The root element of the file element.
+   */
   root?: SlotComponentProps<'div', {}, {}>;
+  /**
+   * The icon used for collapsing the item.
+   */
   collapseIcon?: SlotComponentProps<'svg', {}, {}>;
+  /**
+   * The icon used for expanding the item.
+   */
   expandIcon?: SlotComponentProps<'svg', {}, {}>;
+  /**
+   * The icon displayed next to an end item.
+   */
   endIcon?: SlotComponentProps<'svg', {}, {}>;
+  /**
+   * The icon displayed next to the tree item's label.
+   */
   icon?: SlotComponentProps<'svg', {}, {}>;
+  /**
+   * The component that animates the appearance / disappearance of the item's children.
+   */
   groupTransition?: SlotComponentPropsFromProps<TransitionProps, {}, {}>;
 }
 
+/**
+ * Props for the FileElement component. This object extends React.HTMLAttributes<HTMLLIElement> to provide additional props specific to the file element.
+ *
+ * @see {@link FileElement}
+ */
 export interface FileElementProps
   extends Omit<React.HTMLAttributes<HTMLLIElement>, 'onFocus'> {
   /**
-   * The content of the component.
+   * The content of the file element.
    */
   children?: React.ReactNode;
-  className?: string;
   /**
    * Override or extend the styles applied to the component.
    */
   classes?: Partial<FileElementClasses>;
   /**
-   * Overridable component slots.
-   * @default {}
+   * Overridable component slots for the file element.
    */
   slots?: FileElementSlots;
   /**
-   * The props used for each component slot.
-   * @default {}
+   * Props used for each component slot in the file element.
    */
   slotProps?: FileElementSlotProps;
   /**
-   * The component used to render the content of the item.
-   * @default TreeItemContent
+   * The content component that renders the item's label and other metadata.
    */
   ContentComponent?: React.JSXElementConstructor<FileElementContentProps>;
   /**
-   * Props applied to ContentComponent.
+   * Props applied to the content component.
    */
   ContentProps?: React.HTMLAttributes<HTMLElement> & { ref?: React.Ref<HTMLElement> };
   /**
-   * If `true`, the item is disabled.
-   * @default false
+   * Flag indicating whether the file element is disabled.
    */
-  disabled?: boolean;
-  /**
-   * The tree item label.
-   */
-  name?: string;
-  /**
-   * The tree item label.
-   */
-  label?: React.ReactNode;
-  /**
-   * The id of the item.
-   */
-  id?: FileId;
-
-  onFocus?: null;
-  /**
-   * The system prop that allows defining system overrides as well as additional CSS styles.
-   */
-  sx?: SxProps<Theme>;
-  /**
-   * Callback fired when a key of the keyboard is pressed on the item.
-   */
-  onKeyDown?: MuiCancellableEventHandler<React.KeyboardEvent<HTMLLIElement>>;
-}
-
-export interface FileElementOwnerState extends FileElementProps {
-  expanded: boolean;
-  focused: boolean;
-  selected: boolean;
   disabled: boolean;
-  indentationAtItemLevel: boolean;
+  /**
+   * Flag indicating whether the file element is focused.
+   */
+  focused: boolean;
+  /**
+   * Flag indicating whether the file element is selected.
+   */
+  selected: boolean;
 }
 
 /**
- * Plugins that need to be present in the Tree View in order for `FileElement` to work correctly.
+ * Internal state of the FileElement component. This object provides information about the current state of the file element, such as its focus and selection status.
+ *
+ * @see {@link FileElement}
+ */
+export type FileElementState = {
+  /**
+   * Flag indicating whether the file element is disabled.
+   */
+  disabled: boolean;
+  /**
+   * Flag indicating whether the file element is focused.
+   */
+  focused: boolean;
+  /**
+   * Flag indicating whether the file element is selected.
+   */
+  selected: boolean;
+};
+
+/**
+ * Types of plugins that are required for the FileElement component to function correctly.
+ *
+ * @see {@link FileElement}
  */
 export type FileElementMinimalPlugins = readonly [
   UseFileExplorerIconsSignature,
@@ -131,6 +177,8 @@ export type FileElementMinimalPlugins = readonly [
 ];
 
 /**
- * Plugins that `FileElement` can use if they are present, but are not required.
+ * Types of plugins that are optional for the FileElement component.
+ *
+ * @see {@link FileElement}
  */
 export type FileElementOptionalPlugins = readonly [];

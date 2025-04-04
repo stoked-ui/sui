@@ -1,14 +1,21 @@
 import * as React from "react";
-import { styled} from "@mui/material";
+import { styled } from "@mui/material";
 import { IMediaFile } from "@stoked-ui/media-selector";
 import { type IFileDetail } from "@stoked-ui/timeline";
 import Plyr, {PlyrProps} from "plyr-react";
 import Collapse from "@mui/material/Collapse";
 import AudioPlayer from "./AudioPlayer";
 
+/**
+ * Props for the Player component.
+ */
 export type PlayerProps = PlyrProps;
 
-
+/**
+ * Styled base component for the Plyr player.
+ *
+ * @param theme - The Material UI theme object.
+ */
 const StyledPlyrBase = styled(Plyr)(({theme}) => ({
   '& .MuiInputBase-root': {
     backgroundColor: theme.palette.background.default,
@@ -65,38 +72,28 @@ const StyledPlyrBase = styled(Plyr)(({theme}) => ({
   },
   '& .plyr--audio .plyr__control:hover': {
     background: theme.palette.primary.main,
-    color: theme.palette.secondary.main
+    color: theme.palette.primary[700],
   },
-  '&  .plyr--video .plyr__control.plyr__tab-focus, .plyr--video.plyr__control[aria-expanded=true]': {
-    background: theme.palette.secondary.main,
-  },
-  '& .plyr__control .plyr__tab-focus': {
-    boxShadow: '0 0 0 5px #FFF',
-  },
-  '& .plyr__menu__container': {
-    background: 'hsl(210, 14%, 7%)',
-  },
-  '& .plyr--audio .plyr__controls': {
-    background: 'hsl(210, 14%, 7%)',
-    borderRadius: '6px'
-  },
-  '& .plyr__controls__item.plyr__time--current, .plyr__controls__item.plyr__time--duration.plyr__time': {
-    color: '#FFF'
-  },
-  '& .MuiFormLabel-root.MuiInputLabel-root': {
-    color: theme.palette.text.primary,
-    padding: '3px 8px',
-    borderRadius: '6px',
-    background: theme.palette.background.default
-  }
 }));
 
+/**
+ * The Player component.
+ *
+ * @param props - The component props.
+ */
 export function StyledPlyr(props: PlayerProps) {
-
   return <Plyr {...props} />
 }
 
-export function VideoPlayer({file}: {file: IMediaFile | IFileDetail}){
+/**
+ * A video player component that uses the Plyr library.
+ *
+ * @param {IMediaFile | IFileDetail} file - The media file or detail object.
+ */
+export function VideoPlayer({file}: {file: IMediaFile | IFileDetail}) {
+  /**
+   * Props for the Plyr source component.
+   */
   const plyrProps: PlyrProps = {
     source: {
       type: 'video',
@@ -116,6 +113,11 @@ export function VideoPlayer({file}: {file: IMediaFile | IFileDetail}){
   return <StyledPlyr source={plyrProps.source} options={{controls: ['play', 'progress', 'mute', 'volume']}} />
 }
 
+/**
+ * A media screener component that displays different types of media.
+ *
+ * @param {IMediaFile | IFileDetail | undefined} props - The component props.
+ */
 export function MediaScreener(props: { file: IMediaFile | IFileDetail | undefined }) {
   const { file } = props;
   if (!file) {
@@ -123,7 +125,7 @@ export function MediaScreener(props: { file: IMediaFile | IFileDetail | undefine
   }
   switch (file?.mediaType) {
     case 'video':
-      return<VideoPlayer file={file}/>
+      return <VideoPlayer file={file}/>
     case 'audio':
       return <AudioPlayer file={file}/>
     case 'image':
@@ -133,7 +135,11 @@ export function MediaScreener(props: { file: IMediaFile | IFileDetail | undefine
   }
 }
 
-
+/**
+ * A styled collapse component.
+ *
+ * @param theme - The Material UI theme object.
+ */
 const StyledCollapse = styled(Collapse, {
   name: 'MuiSlider',
   slot: 'Track',
@@ -150,18 +156,11 @@ const StyledCollapse = styled(Collapse, {
   };
 });
 
-/*
-type CloseModalDispatchFunc = (params: EditorStateAction) => void;
-export function closeModal(dispatch: CloseModalDispatchFunc, modalName: string) {
-  dispatch({
-    type: 'SET_FLAGS',
-    payload: {
-      set: [modalName],
-      values: []
-    }
-  });
-} */
-
+/**
+ * Returns the modal style.
+ *
+ * @returns The modal style object.
+ */
 export function getModalStyle() {
   return {
     top: '50%',

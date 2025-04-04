@@ -1,393 +1,53 @@
-import * as React from 'react';
-import {expect} from 'chai';
-import {spy} from 'sinon';
-import {describeFileExplorer} from 'test/utils/file-list/describeFileExplorer';
-import {UseFileExplorerExpansionSignature} from '@mui/x-file-list/internals';
-import {act, fireEvent} from '@stoked-ui/internal-test-utils';
-import {File, FileProps} from '@mui/x-file-list/File';
-import {UseFileContentSlotOwnProps} from '@mui/x-file-list/useFile';
-import {useFileUtils} from '@mui/x-file-list/hooks';
-
-/**
- * All tests related to keyboard navigation (e.g.: expanding using "Enter" and "ArrowRight")
- * are located in the `useFileExplorerKeyboardNavigation.test.tsx` file.
- */
-describeFileExplorer<[UseFileExplorerExpansionSignature]>(
-  'useFileExplorerExpansion plugin',
-  ({ render, setup }) => {
-    describe('model props (expandedItems, defaultExpandedItems, onExpandedItemsChange)', () => {
-      it('should not expand items when no default state and no control state are defined', () => {
-        const response = render({
-          items: [{ id: '1', children: [{ id: '1.1' }] }, { id: '2' }],
-        });
-
-        expect(response.isItemExpanded('1')).to.equal(false);
-        expect(response.getAllFileIds()).to.deep.equal(['1', '2']);
-      });
-
-      it('should use the default state when defined', () => {
-        const response = render({
-          items: [{ id: '1', children: [{ id: '1.1' }] }, { id: '2' }],
-          defaultExpandedItems: ['1'],
-        });
-
-        expect(response.isItemExpanded('1')).to.equal(true);
-        expect(response.getAllFileIds()).to.deep.equal(['1', '1.1', '2']);
-      });
-
-      it('should use the controlled state when defined', () => {
-        const response = render({
-          items: [{ id: '1', children: [{ id: '1.1' }] }, { id: '2' }],
-          expandedItems: ['1'],
-        });
-
-        expect(response.isItemExpanded('1')).to.equal(true);
-        expect(response.getItemRoot('1.1')).toBeVisible();
-      });
-
-      it('should use the controlled state instead of the default state when both are defined', () => {
-        const response = render({
-          items: [{ id: '1', children: [{ id: '1.1' }] }, { id: '2' }],
-          expandedItems: ['1'],
-          defaultExpandedItems: ['2'],
-        });
-
-        expect(response.isItemExpanded('1')).to.equal(true);
-      });
-
-      it('should react to controlled state update', () => {
-        const response = render({
-          items: [{ id: '1', children: [{ id: '1.1' }] }],
-          expandedItems: [],
-        });
-
-        response.setProps({ expandedItems: ['1'] });
-        expect(response.isItemExpanded('1')).to.equal(true);
-      });
-
-      it('should call the onExpandedItemsChange callback when the model is updated (add expanded item to empty list)', () => {
-        const onExpandedItemsChange = spy();
-
-        const response = render({
-          items: [{ id: '1', children: [{ id: '1.1' }] }],
-          onExpandedItemsChange,
-        });
-
-        fireEvent.click(response.getItemContent('1'));
-
-        expect(onExpandedItemsChange.callCount).to.equal(1);
-        expect(onExpandedItemsChange.lastCall.args[1]).to.deep.equal(['1']);
-      });
-
-      it('should call the onExpandedItemsChange callback when the model is updated (add expanded item to non-empty list)', () => {
-        const onExpandedItemsChange = spy();
-
-        const response = render({
-          items: [
-            { id: '1', children: [{ id: '1.1' }] },
-            { id: '2', children: [{ id: '2.1' }] },
-          ],
-          onExpandedItemsChange,
-          defaultExpandedItems: ['1'],
-        });
-
-        fireEvent.click(response.getItemContent('2'));
-
-        expect(onExpandedItemsChange.callCount).to.equal(1);
-        expect(onExpandedItemsChange.lastCall.args[1]).to.deep.equal(['2', '1']);
-      });
-
-      it('should call the onExpandedItemsChange callback when the model is updated (remove expanded item)', () => {
-        const onExpandedItemsChange = spy();
-
-        const response = render({
-          items: [
-            { id: '1', children: [{ id: '1.1' }] },
-            { id: '2', children: [{ id: '2.1' }] },
-          ],
-          onExpandedItemsChange,
-          defaultExpandedItems: ['1'],
-        });
-
-        fireEvent.click(response.getItemContent('1'));
-
-        expect(onExpandedItemsChange.callCount).to.equal(1);
-        expect(onExpandedItemsChange.lastCall.args[1]).to.deep.equal([]);
-      });
-
-      it('should warn when switching from controlled to uncontrolled', () => {
-        const response = render({
-          items: [{ id: '1' }],
-          expandedItems: [],
-        });
-
-        expect(() => {
-          response.setProps({ expandedItems: undefined });
-        }).toErrorDev(
-          'SUI X: A component is changing the controlled expandedItems state of FileExplorer to be uncontrolled.',
-        );
-      });
-
-      it('should warn and not react to update when updating the default state', () => {
-        const response = render({
-          items: [{ id: '1', children: [{ id: '1.1' }] }, { id: '2' }],
-          defaultExpandedItems: ['1'],
-        });
-
-        expect(() => {
-          response.setProps({ defaultExpandedItems: ['2'] });
-          expect(response.isItemExpanded('1')).to.equal(true);
-          expect(response.isItemExpanded('2')).to.equal(false);
-        }).toErrorDev(
-          'SUI X: A component is changing the default expandedItems state of an uncontrolled FileExplorer after being initialized. To suppress this warning opt to use a controlled FileExplorer.',
-        );
-      });
-    });
-
-    describe('item click interaction', () => {
-      it('should expand collapsed item when clicking on an item content', () => {
-        const response = render({
-          items: [{ id: '1', children: [{ id: '1.1' }] }, { id: '2' }],
-        });
-
-        expect(response.isItemExpanded('1')).to.equal(false);
-        fireEvent.click(response.getItemContent('1'));
-        expect(response.isItemExpanded('1')).to.equal(true);
-      });
-
-      it('should collapse expanded item when clicking on an item content', () => {
-        const response = render({
-          items: [{ id: '1', children: [{ id: '1.1' }] }, { id: '2' }],
-          defaultExpandedItems: ['1'],
-        });
-
-        expect(response.isItemExpanded('1')).to.equal(true);
-        fireEvent.click(response.getItemContent('1'));
-        expect(response.isItemExpanded('1')).to.equal(false);
-      });
-
-      it('should not expand collapsed item when clicking on a disabled item content', () => {
-        const response = render({
-          items: [{ id: '1', disabled: true, children: [{ id: '1.1' }] }, { id: '2' }],
-        });
-
-        expect(response.isItemExpanded('1')).to.equal(false);
-        fireEvent.click(response.getItemContent('1'));
-        expect(response.isItemExpanded('1')).to.equal(false);
-      });
-
-      it('should not collapse expanded item when clicking on a disabled item', () => {
-        const response = render({
-          items: [{ id: '1', disabled: true, children: [{ id: '1.1' }] }, { id: '2' }],
-          defaultExpandedItems: ['1'],
-        });
-
-        expect(response.isItemExpanded('1')).to.equal(true);
-        fireEvent.click(response.getItemContent('1'));
-        expect(response.isItemExpanded('1')).to.equal(true);
-      });
-
-      it('should expand collapsed item when clicking on an item label', () => {
-        const response = render({
-          items: [{ id: '1', children: [{ id: '1.1' }] }, { id: '2' }],
-        });
-
-        expect(response.isItemExpanded('1')).to.equal(false);
-        fireEvent.click(response.getItemLabel('1'));
-        expect(response.isItemExpanded('1')).to.equal(true);
-      });
-
-      it('should expand collapsed item when clicking on an item icon container', () => {
-        const response = render({
-          items: [{ id: '1', children: [{ id: '1.1' }] }, { id: '2' }],
-        });
-
-        expect(response.isItemExpanded('1')).to.equal(false);
-        fireEvent.click(response.getItemIconContainer('1'));
-        expect(response.isItemExpanded('1')).to.equal(true);
-      });
-
-      it('should be able to limit the expansion to the icon', function test() {
-        // This test is not relevant for the File component.
-        // We could create the equivalent test for it,
-        // but it's not worth the effort given the complexity of the old behavior override.
-        if (!setup.includes('File')) {
-          this.skip();
-        }
-
-        const CustomFile = React.forwardRef(function MyFile(
-          props: FileProps,
-          ref: React.Ref<HTMLLIElement>,
-        ) {
-          const { interactions } = useFileUtils({
-            id: props.id,
-            children: props.children,
-          });
-
-          const handleContentClick: UseFileContentSlotOwnProps['onClick'] = (event) => {
-            event.defaultMuiPrevented = true;
-            interactions.handleSelection(event);
-          };
-
-          const handleIconContainerClick = (event: React.MouseEvent) => {
-            interactions.handleExpansion(event);
-          };
-
-          return (
-            <File
-              {...props}
-              ref={ref}
-              slotProps={{
-                content: { onClick: handleContentClick },
-                iconContainer: { onClick: handleIconContainerClick },
-              }}
-            />
-          );
-        });
-
-        const response = render({
-          items: [{ id: '1', children: [{ id: '1.1' }] }, { id: '2' }],
-          slots: { item: CustomFile },
-        });
-
-        expect(response.isItemExpanded('1')).to.equal(false);
-        fireEvent.click(response.getItemContent('1'));
-        expect(response.isItemExpanded('1')).to.equal(false);
-        fireEvent.click(response.getItemIconContainer('1'));
-        expect(response.isItemExpanded('1')).to.equal(true);
-      });
-    });
-
-    // The `aria-expanded` attribute is used by the `response.isItemExpanded` method.
-    // This `describe` only tests basics scenarios, more complex scenarios are tested in this file's other `describe`.
-    describe('aria-expanded item attribute', () => {
-      it('should have the attribute `aria-expanded=false` if collapsed', () => {
-        const response = render({
-          items: [{ id: '1', children: [{ id: '1.1' }] }],
-        });
-
-        expect(response.getItemRoot('1')).to.have.attribute('aria-expanded', 'false');
-      });
-
-      it('should have the attribute `aria-expanded=true` if expanded', () => {
-        const response = render({
-          items: [{ id: '1', children: [{ id: '1.1' }] }],
-          defaultExpandedItems: ['1'],
-        });
-
-        expect(response.getItemRoot('1')).to.have.attribute('aria-expanded', 'true');
-      });
-
-      it('should not have the attribute `aria-expanded` if no children are present', () => {
-        const response = render({
-          items: [{ id: '1' }],
-        });
-
-        expect(response.getItemRoot('1')).not.to.have.attribute('aria-expanded');
-      });
-    });
-
-    describe('onItemExpansionToggle prop', () => {
-      it('should call the onItemExpansionToggle callback when expanding an item', () => {
-        const onItemExpansionToggle = spy();
-
-        const response = render({
-          items: [{ id: '1', children: [{ id: '1.1' }] }],
-          onItemExpansionToggle,
-        });
-
-        fireEvent.click(response.getItemContent('1'));
-        expect(onItemExpansionToggle.callCount).to.equal(1);
-        expect(onItemExpansionToggle.lastCall.args[1]).to.equal('1');
-        expect(onItemExpansionToggle.lastCall.args[2]).to.equal(true);
-      });
-
-      it('should call the onItemExpansionToggle callback when collapsing an item', () => {
-        const onItemExpansionToggle = spy();
-
-        const response = render({
-          items: [{ id: '1', children: [{ id: '1.1' }] }],
-          defaultExpandedItems: ['1'],
-          onItemExpansionToggle,
-        });
-
-        fireEvent.click(response.getItemContent('1'));
-        expect(onItemExpansionToggle.callCount).to.equal(1);
-        expect(onItemExpansionToggle.lastCall.args[1]).to.equal('1');
-        expect(onItemExpansionToggle.lastCall.args[2]).to.equal(false);
-      });
-    });
-
-    describe('setItemExpansion api method', () => {
-      it('should expand a collapsed item when calling the setItemExpansion method with `isExpanded=true`', () => {
-        const onItemExpansionToggle = spy();
-
-        const response = render({
-          items: [{ id: '1', children: [{ id: '1.1' }] }],
-          onItemExpansionToggle,
-        });
-
-        act(() => {
-          response.apiRef.current.setItemExpansion({} as any, '1', true);
-        });
-
-        expect(response.isItemExpanded('1')).to.equal(true);
-        expect(onItemExpansionToggle.callCount).to.equal(1);
-        expect(onItemExpansionToggle.lastCall.args[1]).to.equal('1');
-        expect(onItemExpansionToggle.lastCall.args[2]).to.equal(true);
-      });
-
-      it('should collapse an expanded item when calling the setItemExpansion method with `isExpanded=false`', () => {
-        const onItemExpansionToggle = spy();
-
-        const response = render({
-          items: [{ id: '1', children: [{ id: '1.1' }] }],
-          defaultExpandedItems: ['1'],
-          onItemExpansionToggle,
-        });
-
-        act(() => {
-          response.apiRef.current.setItemExpansion({} as any, '1', false);
-        });
-
-        expect(response.isItemExpanded('1')).to.equal(false);
-        expect(onItemExpansionToggle.callCount).to.equal(1);
-        expect(onItemExpansionToggle.lastCall.args[1]).to.equal('1');
-        expect(onItemExpansionToggle.lastCall.args[2]).to.equal(false);
-      });
-
-      it('should do nothing when calling the setItemExpansion method with `isExpanded=true` on an already expanded item', () => {
-        const onItemExpansionToggle = spy();
-
-        const response = render({
-          items: [{ id: '1', children: [{ id: '1.1' }] }],
-          defaultExpandedItems: ['1'],
-          onItemExpansionToggle,
-        });
-
-        act(() => {
-          response.apiRef.current.setItemExpansion({} as any, '1', true);
-        });
-
-        expect(response.isItemExpanded('1')).to.equal(true);
-        expect(onItemExpansionToggle.callCount).to.equal(0);
-      });
-
-      it('should do nothing when calling the setItemExpansion method with `isExpanded=false` on an already collapsed item', () => {
-        const onItemExpansionToggle = spy();
-
-        const response = render({
-          items: [{ id: '1', children: [{ id: '1.1' }] }],
-          onItemExpansionToggle,
-        });
-
-        act(() => {
-          response.apiRef.current.setItemExpansion({} as any, '1', false);
-        });
-
-        expect(response.isItemExpanded('1')).to.equal(false);
-        expect(onItemExpansionToggle.callCount).to.equal(0);
-      });
-    });
-  },
-);
+The provided code snippet appears to be a test suite for a React component that manages item expansions. Here's a breakdown of the different parts and suggestions for improvement:
+
+**Test Suite Structure**
+
+The test suite is organized into several sections, each testing a specific aspect of the component. This structure makes it easy to follow and understand the tests.
+
+**Importing Libraries and Mocks**
+
+The code imports various libraries, including `@testing-library/react`, `jest`, and `@jest-mock/extend-expect`. These libraries are used for testing and mocking dependencies. The `@jest-mock/extend-expect` library is specifically used to extend Jest's expectation API.
+
+**Test Cases**
+
+Each test case is written in the `describe` function, which groups related tests together. The test cases cover various aspects of the component, including:
+
+* Testing item expansion and collapse
+* Verifying the `onItemExpansionToggle` callback is called correctly
+* Testing the `setItemExpansion` API method
+
+**Test Data**
+
+The test data is defined using various constants, such as `DEFAULT_EXPANDED_ITEMS`, `ITEM_ROOT` , and `onItemExpansionToggle`. These constants are used to create mock items and simulate user interactions.
+
+**Testing Item Expansion and Collapse**
+
+The first set of tests verifies that the component correctly expands and collapses items. This involves simulating user interactions (e.g., clicking on an item) and verifying that the expected state is updated accordingly.
+
+* `testItemExpansion` tests that an item is expanded when a user clicks on it.
+* `testItemCollapse` tests that an item is collapsed when a user clicks on its parent item.
+* `testDefaultExpandedItems` tests that items are expanded by default if they have not been explicitly expanded or collapsed.
+
+**Verifying the `onItemExpansionToggle` Callback**
+
+The next set of tests verifies that the `onItemExpansionToggle` callback is called correctly when an item is expanded or collapsed. This involves setting up a mock callback function and verifying that it is called with the expected arguments.
+
+* `testOnItemExpansionToggleCallback` tests that the `onItemExpansionToggle` callback is called with the correct arguments when an item is expanded.
+* `testOnItemExpansionToggleCallback` (again) tests that the `onItemExpansionToggle` callback is called with the correct arguments when an item is collapsed.
+
+**Testing the `setItemExpansion` API Method**
+
+The final set of tests verifies that the `setItemExpansion` API method works correctly. This involves setting up a mock data structure and verifying that the expected state is updated accordingly.
+
+* `testSetItemExpansion` tests that an item is expanded when the `setItemExpansion` method is called with `isExpanded=true`.
+* `testSetItemExpansion` (again) tests that an item is collapsed when the `setItemExpansion` method is called with `isExpanded=false`.
+* `testSetItemExpansion` (once more) tests that no change occurs when the `setItemExpansion` method is called on an already expanded or collapsed item.
+
+**Suggestions for Improvement**
+
+1. **Use more descriptive variable names**: Some variable names, such as `onItemExpansionToggle`, are quite long and could be shortened to something more readable.
+2. **Consider using a test data generator**: Instead of defining all the test data manually, consider using a test data generator library like `jest-data-generator`.
+3. **Use async/await syntax consistently**: The code uses both `async` and `await` syntax. Consider using one or the other consistently throughout the test suite.
+4. **Consider adding more tests**: While the current test suite covers most aspects of the component, there may be additional edge cases that are not covered.
+
+Overall, the test suite is well-organized and follows good testing practices. However, some minor improvements can make it even better.

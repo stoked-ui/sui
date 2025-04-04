@@ -1,4 +1,9 @@
+/**
+ * @fileoverview This file exports interfaces and types related to the use of a keyboard navigation instance in a file explorer.
+ */
+
 import * as React from 'react';
+
 import type {FileExplorerPluginSignature} from '../../models';
 import type {
   UseFileExplorerFilesSignature
@@ -12,10 +17,13 @@ import type {
 import type {
   UseFileExplorerExpansionSignature
 } from '../useFileExplorerExpansion/useFileExplorerExpansion.types';
-import {MuiCancellableEvent} from '../../models/MuiCancellableEvent';
-import {FileId} from '../../../models';
-import type {UseFileExplorerDndSignature} from '../useFileExplorerDnd/useFileExplorerDnd.types';
+import type {
+  UseFileExplorerDndSignature
+} from '../useFileExplorerDnd/useFileExplorerDnd.types';
 
+/**
+ * Interface for a keyboard navigation instance.
+ */
 export interface UseFileExplorerKeyboardNavigationInstance {
   /**
    * Updates the `firstCharMap` to add/remove the first character of some item's labels.
@@ -26,6 +34,7 @@ export interface UseFileExplorerKeyboardNavigationInstance {
    *   update the map.
    */
   updateFirstCharMap: (updater: (map: FileExplorerFirstCharMap) => FileExplorerFirstCharMap) => void;
+
   /**
    * Callback fired when a key is pressed on an item.
    * Handles all the keyboard navigation logic.
@@ -39,8 +48,18 @@ export interface UseFileExplorerKeyboardNavigationInstance {
   ) => void;
 }
 
+/**
+ * Type for a keyboard navigation signature, which includes an instance and dependencies.
+ */
 export type UseFileExplorerKeyboardNavigationSignature = FileExplorerPluginSignature<{
+  /**
+   * The instance of the keyboard navigation.
+   */
   instance: UseFileExplorerKeyboardNavigationInstance;
+
+  /**
+   * Dependencies required by the keyboard navigation.
+   */
   dependencies: [
     UseFileExplorerFilesSignature,
     UseFileExplorerSelectionSignature,
@@ -50,4 +69,7 @@ export type UseFileExplorerKeyboardNavigationSignature = FileExplorerPluginSigna
   ];
 }>;
 
+/**
+ * Type for a first char map, which maps item IDs to their first characters.
+ */
 export type FileExplorerFirstCharMap = { [id: string]: string };

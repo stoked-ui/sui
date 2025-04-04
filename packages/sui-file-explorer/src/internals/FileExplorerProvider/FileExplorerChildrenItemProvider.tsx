@@ -1,3 +1,8 @@
+/**
+ * @module FileExplorerChildrenItemProvider
+ * @description Provides context for file explorer children items.
+ */
+
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import {useFileExplorerContext} from './useFileExplorerContext';
@@ -10,6 +15,9 @@ import type {
 } from '../plugins/useFileExplorerFiles/useFileExplorerFiles.types';
 import {UseFileExplorerDndSignature} from '../plugins/useFileExplorerDnd/useFileExplorerDnd.types';
 
+/**
+ * Context for file explorer children items.
+ */
 export const FileExplorerChildrenItemContext =
   React.createContext<FileExplorerChildrenItemContextValue | null>(null);
 
@@ -17,11 +25,29 @@ if (process.env.NODE_ENV !== 'production') {
   FileExplorerChildrenItemContext.displayName = 'FileExplorerChildrenItemContext';
 }
 
+/**
+ * Props for the FileExplorerChildrenItemProvider component.
+ *
+ * @interface FileExplorerChildrenItemProviderProps
+ */
 interface FileExplorerChildrenItemProviderProps {
+  /**
+   * Unique identifier for the provider instance.
+   */
   id?: string;
+  /**
+   * Child elements to be wrapped by the provider context.
+   */
   children: React.ReactNode;
 }
 
+/**
+ * Provides context for file explorer children items and updates the instance accordingly.
+ *
+ * @function FileExplorerChildrenItemProvider
+ * @param {FileExplorerChildrenItemProviderProps} props - Component props.
+ * @returns {JSX.Element} Wrapped child elements with provider context.
+ */
 export function FileExplorerChildrenItemProvider(props: FileExplorerChildrenItemProviderProps) {
   const { children, id = null } = props;
 
@@ -29,6 +55,9 @@ export function FileExplorerChildrenItemProvider(props: FileExplorerChildrenItem
     useFileExplorerContext<[UseFileExplorerJSXItemsSignature, UseFileExplorerFilesSignature, UseFileExplorerDndSignature]>();
   const childrenIdAttrToIdRef = React.useRef<Map<string, string>>(new Map());
 
+  /**
+   * Effect hook to update the instance when child elements change.
+   */
   React.useEffect(() => {
     if (!rootRef.current) {
       return;
@@ -64,8 +93,11 @@ export function FileExplorerChildrenItemProvider(props: FileExplorerChildrenItem
     if (hasChanged) {
       instance.setJSXItemsOrderedChildrenIds(id ?? null, childrenIds);
     }
-  });
+  }, [id]);
 
+  /**
+   * Memoized value of the provider context.
+   */
   const value = React.useMemo<FileExplorerChildrenItemContextValue>(
     () => ({
       registerChild: (childIdAttribute, childItemId) =>
@@ -83,13 +115,36 @@ export function FileExplorerChildrenItemProvider(props: FileExplorerChildrenItem
   );
 }
 
+/**
+ * Prop types for the FileExplorerChildrenItemProvider component.
+ */
 FileExplorerChildrenItemProvider.propTypes = {
+  /**
+   * Child elements to be wrapped by the provider context.
+   */
   children: PropTypes.node,
+  /**
+   * Unique identifier for the provider instance.
+   */
   id: PropTypes.string,
 } as any;
 
+/**
+ * Context value provided by the FileExplorerChildrenItemProvider component.
+ *
+ * @interface FileExplorerChildrenItemContextValue
+ */
 interface FileExplorerChildrenItemContextValue {
+  /**
+   * Registers a child element with the given ID attribute and ID.
+   */
   registerChild: (idAttribute: string, id: string) => void;
+  /**
+   * Unregisters a child element by its ID attribute.
+   */
   unregisterChild: (idAttribute: string) => void;
-  parentId: string | null;
+  /**
+   * Parent ID of the provider instance.
+   */
+  parentId: string;
 }

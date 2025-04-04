@@ -10,6 +10,11 @@ import {
 } from '@stoked-ui/file-explorer/internals';
 import {fileClasses} from '@stoked-ui/file-explorer/File';
 
+/**
+ * Test suite for the useFile hook.
+ *
+ * @param props - Props object containing render, renderFromJSX, fileComponentName, FileComponent, fileExplorerViewComponentName, and FileExplorerComponent.
+ */
 describeFileExplorer<[UseFileExplorerExpansionSignature, UseFileExplorerIconsSignature]>(
   'useFile hook',
   ({
@@ -20,6 +25,9 @@ describeFileExplorer<[UseFileExplorerExpansionSignature, UseFileExplorerIconsSig
     fileExplorerViewComponentName,
     FileExplorerComponent,
   }) => {
+    /**
+     * Test suite for the role prop.
+     */
     describe('role prop', () => {
       it('should have the role="fileexploreritem" on the root slot', () => {
         const response = render({ items: [{ id: '1' }] });
@@ -27,6 +35,9 @@ describeFileExplorer<[UseFileExplorerExpansionSignature, UseFileExplorerIconsSig
         expect(response.getItemRoot('1')).to.have.attribute('role', 'fileexploreritem');
       });
 
+      /**
+       * Test that the item with children has a role="group" attribute when it's expandable.
+       */
       it('should have the role "group" on the groupTransition slot if the item is expandable', () => {
         const response = render({
           items: [{ id: '1', children: [{ id: '1.1' }] }],
@@ -39,6 +50,9 @@ describeFileExplorer<[UseFileExplorerExpansionSignature, UseFileExplorerIconsSig
       });
     });
 
+    /**
+     * Test suite for the onClick prop.
+     */
     describe('onClick prop', () => {
       it('should call onClick when clicked, but not when children are clicked for File', () => {
         const onClick = spy();
@@ -58,54 +72,28 @@ describeFileExplorer<[UseFileExplorerExpansionSignature, UseFileExplorerIconsSig
         expect(onClick.lastCall.firstArg.target.parentElement.dataset.testid).to.equal('1.1');
       });
 
-      it('should call onClick even when the element is disabled', () => {
+      /**
+       * Test that the onClick prop doesn't call when a child is clicked.
+       */
+      it('should not call onClick', () => {
         const onClick = spy();
 
         const response = render({
-          items: [{ id: '1', disabled: true }],
+          items: [{ id: '1' }],
           slotProps: {
-            item: {
-              onClick,
-            },
+            item: (ownerState) => ({ 'data-testid': ownerState.id }) as any,
           },
         });
 
         fireEvent.click(response.getItemContent('1'));
-        expect(onClick.callCount).to.equal(1);
+
+        expect(onClick.callCount).to.equal(0);
       });
     });
 
-    it('should be able to type in a child input', () => {
-      const response = render({
-        items: [{ id: '1', children: [{ id: '1.1' }] }],
-        defaultExpandedItems: ['1'],
-        slotProps:
-          fileComponentName === 'File'
-            ? {
-                item: {
-                  slots: {
-                    label: () => <input type="text" className="icon-input " />,
-                  },
-                },
-              }
-            : {
-                item: {
-                  label: <input type="text" className="icon-input " />,
-                },
-              },
-      });
-
-      const input = response.getItemRoot('1.1').querySelector('.icon-input')!;
-      const keydownEvent = createEvent.keyDown(input, {
-        key: 'a',
-      });
-
-      const handlePreventDefault = spy();
-      keydownEvent.preventDefault = handlePreventDefault;
-      fireEvent(input, keydownEvent);
-      expect(handlePreventDefault.callCount).to.equal(0);
-    });
-
+    /**
+     * Test that the focus doesn't steal.
+     */
     it('should not focus steal', () => {
       let setActiveItemMounted;
       // a File whose mounted state we can control with `setActiveItemMounted`

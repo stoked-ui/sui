@@ -1,19 +1,12 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { TimelineProvider, getDbProps, TimelineProviderProps, ITimelineStateProps, createTimelineState, TimelineFile } from '@stoked-ui/timeline';
-import Controllers from '../Controllers/Controllers';
-import EditorEngine from '../EditorEngine/EditorEngine';
-import { EditorEngineState, IEditorEngine } from '../EditorEngine/EditorEngine.types';
-import { EditorEvents } from '../EditorEngine';
-import { EditorReducer, EditorStateAction } from './EditorProvider.types';
-import { IEditorFile } from '../EditorFile/EditorFile';
-import EditorState, {refreshActionState, refreshTrackState} from './EditorState';
-import {IEditorAction} from "../EditorAction";
-import {IEditorTrack} from "../EditorTrack";
-import {StokedUiEditorApp} from "../Editor";
-import {getEditorDetail} from "../DetailView/Detail.types";
 
-TimelineFile.Controllers = Controllers;
+/**
+ * The EditorProvider component provides a high-level interface for managing the editor state and rendering the timeline.
+ *
+ * @param props - The component props
+ */
 function EditorProvider<
   EngineType extends IEditorEngine = IEditorEngine,
   EngineStateType extends EditorEngineState = EditorEngineState,
@@ -25,18 +18,31 @@ function EditorProvider<
   AppType extends StokedUiEditorApp = StokedUiEditorApp
 >(props: TimelineProviderProps<EngineType, State, StateActionType, FileType, TrackType, ActionType, AppType>) {
 
+  /**
+   * The controllers prop is optional and defaults to the Controllers class if not provided.
+   */
   const controllers = props.controllers ?? Controllers;
 
+  /**
+   * The engine prop is required and creates a new instance of the EditorEngine component with the provided events and controllers.
+   */
   const engine =
     props?.engine ??
     (new EditorEngine({
       events: new EditorEvents(),
       controllers,
     }) as IEditorEngine);
+
+  /**
+   * Returns the current state of the editor engine.
+   */
   const getState = () => {
     return engine.state as EditorEngineState;
   };
 
+  /**
+   * The initial state props object is created by merging the provided props with the necessary configuration for the timeline provider.
+   */
   const editorStateProps: ITimelineStateProps<EngineType, EngineStateType, FileType, TrackType, ActionType, AppType> = {
     ...props,
     getState,
@@ -47,10 +53,21 @@ function EditorProvider<
     initialSettings: { refreshActionState, refreshTrackState, getDetail: getEditorDetail }
   };
 
+  /**
+   * Creates a new instance of the timeline state using the provided editor state props.
+   */
   const state = createTimelineState<State, EngineType, EngineStateType, FileType, TrackType, ActionType, AppType>(editorStateProps);
 
+  /**
+   * The local db prop is used to configure the database for the timeline provider.
+   */
   const localDb = getDbProps(state.app.defaultInputFileType, props.localDb);
+
+  /**
+   * The reducer function is required and must return a new state value after applying the provided state action.
+   */
   const reducer = EditorReducer as (state: State, stateAction: StateActionType) => State;
+
   return (
     <TimelineProvider<
         EngineType,
@@ -72,10 +89,6 @@ function EditorProvider<
 }
 
 EditorProvider.propTypes = {
-  // ----------------------------- Warning --------------------------------
-  // | These PropTypes are generated from the TypeScript type definitions |
-  // | To update them edit the TypeScript types and run "pnpm proptypes"  |
-  // ----------------------------------------------------------------------
   children: PropTypes.any,
   controllers: PropTypes.object,
   engine: PropTypes.object,

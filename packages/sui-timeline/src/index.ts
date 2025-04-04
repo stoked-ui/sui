@@ -1,5 +1,10 @@
 import Timeline from './Timeline';
 
+/**
+ * @typedef {Object} ExportedModule
+ * @property {string} namespace - The module's namespace.
+ */
+
 export default Timeline;
 export { default as TimelineFile } from './TimelineFile';
 export { default as TimelineCursor } from './TimelineCursor';
@@ -9,7 +14,7 @@ export { default as TimelineScrollResizer } from './TimelineScrollResizer';
 export { default as TimelineTime } from './TimelineTime';
 export { default as TimelineTrack } from './TimelineTrack';
 export { default as TimelineTrackArea } from './TimelineTrackArea';
-export { default as Engine} from './Engine';
+export { default as Engine } from './Engine';
 export { default as Controller } from './Controller';
 export * from './Controller';
 export * from './TimelineControls';

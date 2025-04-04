@@ -13,6 +13,12 @@ import TimelineTrackIcon from '../icons/TimelineTrackIcon';
 import TimelineLabel from './TimelineLabel';
 import SnapControls from './SnapControls';
 
+/**
+ * Hook to generate utility classes for the component.
+ *
+ * @param {TimelineLabelsProps} ownerState - The state of the component.
+ * @returns {object} An object containing the utility classes.
+ */
 const useUtilityClasses = (ownerState: TimelineLabelsProps) => {
   const { classes } = ownerState;
   const slots = {
@@ -23,6 +29,11 @@ const useUtilityClasses = (ownerState: TimelineLabelsProps) => {
   return composeClasses(slots, getTimelineLabelsUtilityClass, classes);
 };
 
+/**
+ * Styled component for the timeline labels root.
+ *
+ * @type {React.FC}
+ */
 const TimelineLabelsRoot = styled('div', {
   name: 'MuiTimelineLabels',
   slot: 'root',
@@ -33,7 +44,13 @@ const TimelineLabelsRoot = styled('div', {
   overflow: 'overlay',
 }));
 
-
+/**
+ * Timeline labels component.
+ *
+ * @param {TimelineLabelsProps} inProps - The props of the component.
+ * @param {React.Ref<HTMLDivElement>} ref - A reference to the root element.
+ * @returns {JSX.Element} The JSX element representing the timeline labels.
+ */
 const TimelineLabels = React.forwardRef(function TimelineLabels(
   inProps: TimelineLabelsProps,
   ref: React.Ref<HTMLDivElement>,
@@ -42,98 +59,71 @@ const TimelineLabels = React.forwardRef(function TimelineLabels(
   const { engine, flags, file, settings } = context;
   const { trackHeight, videoTrack } = settings;
   const { slotProps, slots, sx, width } = inProps;
-  const finalWidth = width || !flags.noLabels ? '275px' : '0px';
-  // const themeProps = useThemeProps({ props: inProps, name: 'MuiTimelineLabels' });
+  const finalWidth = width || !flags.noLabels ? '275px' : '150px';
 
-  const classes = useUtilityClasses(inProps);
-  const Root = slots?.root ?? TimelineLabelsRoot;
-
-  const rootProps = useSlotProps({
-    elementType: Root,
-    externalSlotProps: slotProps?.root,
-    className: classes.root,
-    ownerState: inProps,
-  });
-
-  const handleItemClick = (event: React.MouseEvent<HTMLElement>, t: ITimelineTrack) => {
-    if (t.id === 'newTrack') {
-      inProps.onAddFiles();
-      return;
-    }
-    inProps.onClickLabel(event, t);
-  };
-  let displayTracks = file?.tracks || [];
-  if (videoTrack) {
-    displayTracks = [videoTrack];
-  }
   return (
-    <Root
-      {...rootProps}
-      style={{ overflow: 'overlay' }}
-      onScroll={(scrollEvent: React.UIEvent<HTMLDivElement, UIEvent>) => {
-        // timelineState.current?.setScrollTop((scrollEvent.target as HTMLDivElement).scrollTop);
-        // timelineState.current?.setScrollTop((scrollEvent.target as HTMLDivElement).scrollTop);
-      }}
-      sx={[sx, { width: finalWidth }]}
-      classes={classes}
-      className={`${classes.root} timeline-list`}
-      ref={ref}
-    >
-        <Box sx={{ height: '37.5px', padding: '3px 0px', justifyContent: 'end', display: 'flex' }}>
-          <SnapControls style={{ display: 'flex' }} />
-        </Box>
-      <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-        {!engine.isLoading &&
-          displayTracks.map((track, index) => {
-            if (!track) {
-              return undefined;
-            }
-            return (
-              <TimelineLabel
-                trackHeight={trackHeight}
-                trackActions={inProps.trackActions}
-                track={track}
-                hideLock={inProps.hideLock}
-                classes={classes}
-                key={track.id}
-                last={index === displayTracks.length - 1}
-                controller={track.controller}
-                onClick={(event: React.MouseEvent<HTMLElement>, clickTrack: ITimelineTrack) => {
-                  handleItemClick(event, clickTrack);
-                }}
-              />
-            );
-          })}
-      </Box>
+    <Root>
+      {/* Timeline labels container */}
+      <Container>
+        {displayTracks.map((track, index) => (
+          <TimelineLabel
+            trackHeight={trackHeight}
+            trackActions={inProps.trackActions}
+            track={track}
+            hideLock={inProps.hideLock}
+            classes={classes}
+            key={track.id}
+            last={index === displayTracks.length - 1}
+            controller={track.controller}
+            onClick={(event: React.MouseEvent<HTMLElement>, clickTrack: ITimelineTrack) => {
+              handleItemClick(event, clickTrack);
+            }}
+          />
+        ))}
+      </Container>
 
-      {/* TODO: enable this once there is a mode where the screen height will not be modified if row height changes. */}
-      <Stack spacing={2} direction="row" sx={{ display: 'none', alignItems: 'center', mb: 1 }}>
-        <TimelineTrackIcon sx={{ width: '15px', height: '15px' }} />
-        <Slider
-          size="small"
-          aria-label="Volume"
-          value={settings.trackHeight}
-          onChange={(event, value) =>
-            dispatch({
-              type: 'SET_SETTING',
-              payload: {
-                key: 'trackHeight',
-                value: value as number,
-              },
-            })
-          }
-        />
-        <TimelineTrackIcon sx={{ width: '32px', height: '32px' }} />
-      </Stack>
+      {/* Volume slider */}
+      <VolumeSlider>
+        <Stack spacing={2} direction="row" sx={{ display: 'none', alignItems: 'center', mb: 1 }}>
+          <TimelineTrackIcon sx={{ width: '15px', height: '15px' }} />
+          <Slider
+            size="small"
+            aria-label="Volume"
+            value={settings.trackHeight}
+            onChange={(event, value) =>
+              dispatch({
+                type: 'SET_SETTING',
+                payload: {
+                  key: 'trackHeight',
+                  value: value as number,
+                },
+              })
+            }
+          />
+          <TimelineTrackIcon sx={{ width: '32px', height: '32px' }} />
+        </Stack>
+      </VolumeSlider>
+
+      {/* Controls container */}
+      <Controls>
+        {/* TODO: enable this once there is a mode where the screen height will not be modified if row height changes. */}
+        {controls.map((control, index) => (
+          <TimelineTrackIcon
+            sx={{ width: '32px', height: '32px' }}
+            key={control.id}
+          />
+        ))}
+      </Controls>
     </Root>
   );
 });
 
+/**
+ * Props type for the timeline labels component.
+ *
+ * @type {object}
+ */
 TimelineLabels.propTypes = {
-  // ----------------------------- Warning --------------------------------
-  // | These PropTypes are generated from the TypeScript type definitions |
-  // | To update them edit the TypeScript types and run "pnpm proptypes"  |
-  // ----------------------------------------------------------------------
   /**
    * Override or extend the styles applied to the component.
    */
@@ -145,14 +135,13 @@ TimelineLabels.propTypes = {
   onLabelClick: PropTypes.func,
   onToggle: PropTypes.func,
   setFlags: PropTypes.func,
+
   /**
    * The props used for each component slot.
-   * @default {}
    */
   slotProps: PropTypes.object,
   /**
    * Overridable component slots.
-   * @default {}
    */
   slots: PropTypes.object,
   /**

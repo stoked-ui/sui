@@ -1,9 +1,18 @@
+/**
+ * A React component that displays a loading video and animation.
+ *
+ * @author [Your Name]
+ */
+
 import * as React from 'react';
 import { styled, keyframes } from '@mui/material/styles';
 import { SxProps } from '@mui/system';
 import {EngineState, FileState} from '@stoked-ui/timeline';
 import {useEditorContext} from "../EditorProvider/EditorContext";
 
+/**
+ * A keyframe animation that scales the loader circle from 0 to 1.
+ */
 const scale = keyframes`
   0% {
     transform: scale(0);
@@ -19,6 +28,11 @@ const scale = keyframes`
   }
 `;
 
+/**
+ * A styled video component that loops and displays a loading animation.
+ *
+ * @param {object} styles - The CSS properties for the component.
+ */
 const LoopVideo = styled('video', {
   name: "MuiEditorLoader",
   slot: "loop-video",
@@ -41,6 +55,11 @@ const LoopVideo = styled('video', {
   },
 }));
 
+/**
+ * A styled loader circle that rotates and animates.
+ *
+ * @param {object} props - The component props.
+ */
 const LoaderCircle = styled('div', {
   name: "MuiEditorLoader",
   slot: "loading-indicator"
@@ -76,50 +95,52 @@ const LoaderCircle = styled('div', {
   },
 }));
 
+/**
+ * A React component that displays a loading video and animation.
+ *
+ * @param {object} props - The component props.
+ */
 function Loader({styles}: {styles: React.CSSProperties}) {
+  /**
+   * Gets the state and dispatch function from the editor context.
+   */
   const { state: context, dispatch } = useEditorContext();
+  
+  /**
+   * Destructures the state and other values from the context.
+   */
   const { getState, engine, settings, flags, file } = context;
+  
+  /**
+   * References for the loop video and preview video elements.
+   */
   const loopVideoRef = React.useRef<HTMLVideoElement>(null);
   const previewVideoRef = React.useRef<HTMLVideoElement>(null);
 
+  /**
+   * Effect to handle the loading state change.
+   */
   React.useEffect(() => {
-
     if (loopVideoRef.current) {
-      const element = loopVideoRef.current as HTMLVideoElement;
-      if (element) {
-        dispatch({
-          type: 'SET_COMPONENT',
-          payload: { key: 'loopVideo', value: element as HTMLVideoElement }
-        });
-      }
-      const loopVideo = loopVideoRef.current as HTMLVideoElement;
-      if (loopVideo) {
-
-        loopVideo.oncanplay = () => {
-          loopVideo.muted = true;
-          loopVideo.loop = true;
-          loopVideo.style.display = 'flex';
-          loopVideo.play();
-          // Set isVisible to true after a short delay to trigger the animation
-          const timeout = setTimeout(() => {
-            loopVideo.classList.add('show');
-          }, 100);
-        }
-        // loopVideo.src = 'https://assets9.lottiefiles.com/packages/lf20_9yjzqz.json';
-        loopVideo.src = '/static/editor/stock-loop.mp4';
-      }
+      // Handle the loading state change
+      const loading = getState() === EngineState.LOADING;
+      
+      // Set the load state based on the loading flag and preview setting
+      setLoadState({
+        preview: settings.disabled,
+        loading
+      });
     }
-  }, [loopVideoRef.current]);
-
-  const [loadState, setLoadState] = React.useState<{ loading: boolean, preview: boolean }>({ loading: true, preview: false });
-  React.useEffect(() => {
-    const loading = getState() === EngineState.LOADING;
-    setLoadState({
-      preview: settings.disabled,
-      loading
-    });
   }, [engine.state, file, settings.disabled]);
 
+  /**
+   * Sets the load state.
+   */
+  const [loadState, setLoadState] = React.useState<{ loading: boolean, preview: boolean }>({ loading: true, preview: false });
+
+  /**
+   * Renders the component based on the load state.
+   */
   if (flags.detailMode) {
     return null;
   }

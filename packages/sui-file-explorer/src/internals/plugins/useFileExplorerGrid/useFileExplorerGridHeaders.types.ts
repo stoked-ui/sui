@@ -1,7 +1,7 @@
-import * as React from 'react';
-import {
-  FileExplorerAnyPluginSignature, FileExplorerInstance, FileExplorerPublicAPI, UseFileMinimalPlugins
-} from '../../models';
+/**
+ * @namespace UseFileExplorerGridHeaders
+ * @description Provides functionality for creating a grid headers component in a file explorer.
+ */
 
 export interface UseFileExplorerGridHeadersParameters {
   /**
@@ -34,6 +34,9 @@ export interface UseFileExplorerGridHeadersRootSlotOwnProps {
 export type UseFileExplorerGridHeadersRootSlotProps<ExternalProps = {}> = ExternalProps &
   UseFileExplorerGridHeadersRootSlotOwnProps;
 
+/**
+ * @description Options for the group transition slot props.
+ */
 export interface UseFileExplorerGridHeadersGroupTransitionSlotOwnProps {
   unmountOnExit: boolean;
   in: boolean;
@@ -49,7 +52,11 @@ export interface UseFileExplorerGridHeadersGroupTransitionSlotOwnProps {
 export type UseFileExplorerGridHeadersGroupTransitionSlotProps<ExternalProps = {}> = ExternalProps &
   UseFileExplorerGridHeadersGroupTransitionSlotOwnProps;
 
-
+/**
+ * @description Props returned by the useFileExplorerGridHeaders hook.
+ * @param TSignatures The types of signatures to expect from plugins.
+ * @param TOptionalSignatures Optional signatures for plugin options.
+ */
 export interface UseFileExplorerGridHeadersReturnValue<
   TSignatures extends UseFileMinimalPlugins = UseFileMinimalPlugins,
   TOptionalSignatures extends FileExplorerAnyPluginSignature[] = [],
@@ -64,11 +71,13 @@ export interface UseFileExplorerGridHeadersReturnValue<
     externalProps?: ExternalProps,
   ) => UseFileExplorerGridHeadersRootSlotProps<ExternalProps>;
 
+  /**
+   * The instance of FileExplorer.
+   */
   instance: FileExplorerInstance<TSignatures, TOptionalSignatures>;
 
   /**
-   * The object the allows FileExplorer View manipulation.
+   * The public API for the file explorer view manipulation.
    */
   publicAPI: FileExplorerPublicAPI<TSignatures, TOptionalSignatures>;
 }
-

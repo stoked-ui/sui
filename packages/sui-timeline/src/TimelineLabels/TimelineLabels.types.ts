@@ -7,6 +7,9 @@ import {TimelineLabelsClasses} from './timelineLabelsClasses';
 import { ITimelineTrack } from "../TimelineTrack";
 import {TimelineTrackActionsProps} from "./TimelineTrackActions";
 
+/**
+ * Interface representing the possible slots for TimelineLabels component.
+ */
 export interface TimelineLabelsSlots {
   /**
    * Element rendered at the root.
@@ -17,17 +20,23 @@ export interface TimelineLabelsSlots {
   actions?: React.ElementType;
 }
 
+/**
+ * Interface representing the props for each slot in TimelineLabels component.
+ */
 export interface TimelineLabelsSlotProps {
   root?: SlotComponentProps<'div', {}, TimelineLabelsProps>;
   label?: SlotComponentProps<'div', {}, TimelineLabelsProps>;
   actions?: SlotComponentProps<'div', {}, TimelineTrackActionsProps>;
 }
 
+/**
+ * Interface representing the base props for TimelineLabels component.
+ */
 export interface TimelineLabelsPropsBase extends React.HTMLAttributes<HTMLDivElement> {
-  className?: string;
   /**
    * Override or extend the styles applied to the component.
    */
+  className?: string;
   classes?: Partial<TimelineLabelsClasses>;
   /**
    * The system prop that allows defining system overrides as well as additional CSS styles.
@@ -45,6 +54,9 @@ export interface TimelineLabelsPropsBase extends React.HTMLAttributes<HTMLDivEle
   onClickLabel?: (event: React.MouseEvent<HTMLElement, MouseEvent>, track: ITimelineTrack) => void;
 }
 
+/**
+ * Interface representing the full props for TimelineLabels component.
+ */
 export interface TimelineLabelsProps
   extends Omit<TimelineLabelsPropsBase, 'onToggle'> {
   /**
@@ -60,7 +72,6 @@ export interface TimelineLabelsProps
 
   onToggle?: (id: string, property: string) => void;
   setFlags?: (id: string) => string[];
-
+  
   trackActions?: React.ElementType;
-
 }

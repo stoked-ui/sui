@@ -2,22 +2,46 @@ import * as React from 'react';
 import Button from '@mui/material/Button';
 import { createTheme } from '@mui/material/styles';
 
-// Update the Button's extendable props options
+/**
+ * Updates the Button's extendable props options.
+ * 
+ * This module declaration extends the ButtonPropsVariantOverrides,
+ * ButtonPropsColorOverrides, and ButtonPropsSizeOverrides interfaces to add new variants.
+ */
 declare module '@mui/material/Button' {
   interface ButtonPropsVariantOverrides {
+    /**
+     * Override the variant prop to create a dashed button.
+     */
     dashed: true;
+    /**
+     * Disable the contained variant.
+     */
     contained: false;
   }
   interface ButtonPropsColorOverrides {
+    /**
+     * Override the color prop to display success buttons.
+     */
     success: true;
   }
   interface ButtonPropsSizeOverrides {
+    /**
+     * Override the size prop to create an extra large button.
+     */
     extraLarge: true;
   }
 }
 
-// theme typings should work as expected
+/**
+ * Creates a custom theme for Material UI components.
+ * 
+ * This theme extends the default theme with custom variants and styles for the MuiButton component.
+ */
 const theme = createTheme({
+  /**
+   * Customize the MuiButton component's variants.
+   */
   components: {
     MuiButton: {
       variants: [
@@ -38,10 +62,16 @@ const theme = createTheme({
   },
 });
 
+/**
+ * Renders a custom button with the new variant.
+ */
 <Button variant="dashed" color="success" size="extraLarge">
   Custom
 </Button>;
 
+/**
+ * Demonstrates that the contained variant was disabled due to the previous declaration.
+ */
 // @ts-expect-error The contained variant was disabled
 <Button variant="contained" color="primary">
   Invalid

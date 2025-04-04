@@ -1,19 +1,31 @@
+/**
+ * Import necessary dependencies
+ */
 import * as React from 'react';
-import {Theme} from '@mui/material/styles';
-import {SxProps} from '@mui/system';
-import {SlotComponentProps} from '@mui/base/utils';
+import { Theme } from '@mui/material/styles';
+import { SxProps } from '@mui/system';
+import { SlotComponentProps } from '@mui/base/utils';
 import { type IController } from '../Controller/Controller.types';
-import {TimelineClasses} from './timelineClasses';
-import {type ITimelineTrack} from "../TimelineTrack/TimelineTrack.types";
-import {type TimelineLabelsProps} from "../TimelineLabels/TimelineLabels.types";
-import {TimelineControlProps} from "./TimelineControlProps";
+import { TimelineClasses } from './timelineClasses';
+import { type ITimelineTrack } from "../TimelineTrack/TimelineTrack.types";
+import { type TimelineLabelsProps } from "../TimelineLabels/TimelineLabels.types";
+import { TimelineControlProps } from "./TimelineControlProps";
 import { ITimelineAction, ITimelineFileAction } from "../TimelineAction";
 import { ITimelineFile } from "../TimelineFile";
 
+/**
+ * Define the TimelineComponent interface
+ */
 export type TimelineComponent = ((
+  /**
+   * Props for the component.
+   */
   props: TimelineProps & React.RefAttributes<HTMLDivElement>,
 ) => React.JSX.Element) & { propTypes?: any };
 
+/**
+ * Define the TimelineSlots interface
+ */
 export interface TimelineSlots {
   /**
    * Element rendered at the root.
@@ -26,7 +38,13 @@ export interface TimelineSlots {
   resizer?: React.ElementType;
 }
 
+/**
+ * Define the TimelineSlotProps interface
+ */
 export interface TimelineSlotProps {
+  /**
+   * Props for each slot.
+   */
   root?: SlotComponentProps<'div', {}, TimelineProps>;
   labels?: SlotComponentProps<'div', {}, TimelineLabelsProps>;
   time?: SlotComponentProps<'div', {}, TimelineControlProps>;
@@ -34,9 +52,15 @@ export interface TimelineSlotProps {
   resizer?: SlotComponentProps<'div', {}, TimelineControlProps>;
 }
 
+/**
+ * Define the TimelineProps interface
+ */
 export interface TimelineProps
   extends React.HTMLAttributes<HTMLDivElement> {
-  actions?: ITimelineFileAction[],
+  /**
+   * Actions for the timeline.
+   */
+  actions?: ITimelineFileAction[];
   children?: React.ReactNode;
   className?: string;
   onScrollVertical?: React.UIEventHandler<HTMLDivElement>;
@@ -53,13 +77,15 @@ export interface TimelineProps
   labelSx?: SxProps<Theme>;
   labels?: boolean;
 
+  /**
+   * Styles for the labels.
+   */
   labelsSx?: SxProps<Theme>;
   locked?: boolean;
   onAddFiles?: () => void;
 
-
   /**
-   * @description Right-click action callback
+   * Right-click action callback.
    */
   onContextMenuAction?: (
     e: React.MouseEvent<HTMLElement, MouseEvent>,
@@ -71,7 +97,7 @@ export interface TimelineProps
   ) => void;
 
   /**
-   * @description Right-click track callback
+   * Right-click track callback.
    */
   onContextMenuTrack?: (
     e: React.MouseEvent<HTMLElement, MouseEvent>,
@@ -82,7 +108,7 @@ export interface TimelineProps
   ) => void;
 
   /**
-   * @description Click label callback
+   * Click label callback.
    */
   onClickLabel?: (
     e: React.MouseEvent<HTMLElement, MouseEvent>,
@@ -90,7 +116,7 @@ export interface TimelineProps
   ) => void;
 
   /**
-   * @description Click track callback
+   * Click track callback.
    */
   onClickTrack?: (
     e: React.MouseEvent<HTMLElement, MouseEvent>,
@@ -101,7 +127,7 @@ export interface TimelineProps
   ) => void;
 
   /**
-   * @description Click track callback
+   * Click action callback.
    */
   onClickAction?: (
     e: React.MouseEvent<HTMLElement, MouseEvent>,
@@ -112,30 +138,39 @@ export interface TimelineProps
     },
   ) => void;
 
-
+  /**
+   * Scale width for the timeline.
+   */
   scaleWidth?: number;
 
+  /**
+   * Set the scale width for the timeline.
+   */
   setScaleWidth?: (scaleWidth: number) => void;
 
   /**
-   * The props used for each component slot.
-   * @default {}
+   * Props used for each component slot.
    */
   slotProps?: TimelineSlotProps;
 
   /**
    * Overridable component slots.
-   * @default {}
    */
   slots?: TimelineSlots;
 
   /**
-   * The system prop that allows defining system overrides as well as additional CSS styles.
+   * System prop that allows defining system overrides as well as additional CSS styles.
    */
   sx?: SxProps<Theme>;
 
+  /**
+   * Styles for the track.
+   */
   trackSx?: SxProps<Theme>;
 
+  /**
+   * View selector for the timeline.
+   */
   viewSelector?: string;
   internalComponent?: boolean;
 }

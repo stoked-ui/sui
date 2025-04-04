@@ -1,3 +1,9 @@
+/**
+ * Converts a number of bytes to a human-readable size string.
+ *
+ * @param {number} bytes The number of bytes to convert.
+ * @returns {string} A string representing the size in human-readable format (e.g. "1.2 KB").
+ */
 export function bytesToSize(bytes: number): string {
   const sizes: string[] = ['Bytes', 'KB', 'MB', 'GB', 'TB']
   if ((bytes ?? 0) === 0) {
@@ -10,6 +16,14 @@ export function bytesToSize(bytes: number): string {
   return `${(bytes / 1024**i).toFixed(1)} ${sizes[i]}`
 }
 
+/**
+ * Calculates the total size of an item's children.
+ *
+ * @param {any & { children: any[]}} item The item to calculate the size for.
+ * @param {string} propName The property name to use as a fallback if the 'size' property is missing.
+ * @param {number} [current=0] The current total size. Defaults to 0.
+ * @returns {number} The total size of the item's children.
+ */
 export function calcSize(item: any & { children: any[]}, propName: string, current: number = 0): number {
   if (item === undefined) {
     return current;
@@ -30,9 +44,10 @@ export function calcSize(item: any & { children: any[]}, propName: string, curre
 }
 
 /**
- * Convert a date to a relative time string, such as
- * "a minute ago", "in 2 hours", "yesterday", "3 months ago", etc.
- * using Intl.RelativeTimeFormat
+ * Converts a date to a relative time string using Intl.RelativeTimeFormat.
+ *
+ * @param {number} [timeMs] The number of milliseconds since the epoch. If missing, returns undefined.
+ * @returns {string | undefined} A string representing the relative time.
  */
 export function getRelativeTimeString(timeMs?: number): string | undefined {
   if (!timeMs) {
@@ -42,10 +57,11 @@ export function getRelativeTimeString(timeMs?: number): string | undefined {
   if (typeof window !== "undefined") {
     lang = navigator.language;
   }
+  
   // Get the amount of seconds between the given date and now
   const deltaSeconds = Math.round((timeMs - Date.now()) / 1000);
 
-  // Array reprsenting one minute, hour, day, week, month, etc in seconds
+  // Array representing one minute, hour, day, week, month, etc in seconds
   const cutoffs = [60, 3600, 86400, 86400 * 7, 86400 * 30, 86400 * 365, Infinity];
 
   // Array equivalent to the above but in the string representation of the units
