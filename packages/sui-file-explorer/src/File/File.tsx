@@ -14,7 +14,7 @@ import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import DeleteIcon from '@mui/icons-material/Delete';
 import StokedUiFile from './StokedUIFile'
 import Box from '@mui/material/Box';
-import { namedId} from '@stoked-ui/common';
+import { namedId } from '@stoked-ui/common';
 import { MediaType } from '@stoked-ui/media-selector';
 import LottieIcon from '../icons/LottieIcon';
 import { FileLabel } from './FileLabel';
@@ -36,14 +36,20 @@ import {
 const useThemeProps = createUseThemeProps('MuiFile');
 
 /**
+ * @description
+ * The File component represents a file entity within a file explorer interface. It provides functionality for rendering file details, handling interactions, and displaying various file types with corresponding icons.
  *
- * Demos:
+ * @param {Object} inProps - The props for the component.
+ * @param {React.Ref<HTMLLIElement>} forwardedRef - The ref to be forwarded to the root element.
  *
- * - [File](https://stoked-ui.github.io/x/react-file-list-view/)
+ * @returns {JSX.Element} The rendered File component.
  *
- * API:
- *
- * - [File API](https://stoked-ui.github.io/x/api/file-list-view/file-element-2/)
+ * @example
+ * <File id="file1" name="Document" mediaType="doc" />
+ * 
+ * @fires SomeEvent - Description of the event
+ * 
+ * @see {@link FileLabel} for related component
  */
 export const File = React.forwardRef(function File(
   inProps: FileProps & any,
@@ -135,6 +141,13 @@ export const File = React.forwardRef(function File(
     className: classes.root,
   });
 
+  /**
+   * Returns the appropriate icon component based on the file type.
+   * 
+   * @param {MediaType | string} fileType - The type of file to get the icon for.
+   * 
+   * @returns {React.ElementType} The icon component corresponding to the file type.
+   */
   const getIconFromFileType = (fileType: MediaType | string) => {
     switch (fileType) {
       case 'image':
