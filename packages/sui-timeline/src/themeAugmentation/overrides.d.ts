@@ -1,26 +1,21 @@
-import {TimelineClassKey} from '../Timeline/timelineClasses';
-import {TimelineActionClassKey} from "../TimelineAction/timelineActionClasses";
-import {TimelineCursorClassKey} from "../TimelineCursor/timelineCursorClasses";
-import {TimelineLabelsClassKey} from "../TimelineLabels/timelineLabelsClasses";
-import {TimelinePlayerClassKey} from "../TimelinePlayer/timelinePlayerClasses";
-import {TimelineScrollResizerClassKey} from "../TimelineScrollResizer/timelineScrollResizerClasses";
-import {TimelineTimeClassKey} from "../TimelineTime/timelineTimeClasses";
-import {TimelineTrackClassKey} from "../TimelineTrack/timelineTrackClasses";
-import {TimelineTrackAreaClassKey} from "../TimelineTrackArea/timelineTrackAreaClasses";
+/**
+ * Interface mapping component names to their respective class keys for Timeline components.
+ * Defines the mapping between MUI component names and their corresponding class keys.
+ * @typedef {Object} TimelineComponentNameToClassKey
+ * @property {TimelineClassKey} MuiTimeline - Class key for MuiTimeline component
+ * @property {TimelineActionClassKey} MuiTimelineAction - Class key for MuiTimelineAction component
+ * @property {TimelineCursorClassKey} MuiTimelineCursor - Class key for MuiTimelineCursor component
+ * @property {TimelineLabelsClassKey} MuiTimelineLabels - Class key for MuiTimelineLabels component
+ * @property {TimelinePlayerClassKey} MuiTimelinePlayer - Class key for MuiTimelinePlayer component
+ * @property {TimelineScrollResizerClassKey} [MuiTimelineScrollResizer] - Optional class key for MuiTimelineScrollResizer component
+ * @property {TimelineTimeClassKey} MuiTimelineTime - Class key for MuiTimelineTime component
+ * @property {TimelineTrackClassKey} MuiTimelineTrack - Class key for MuiTimelineTrack component
+ * @property {TimelineTrackAreaClassKey} MuiTimelineTrackArea - Class key for MuiTimelineTrackArea component
+ */
 
-// prettier-ignore
-export interface TimelineComponentNameToClassKey {
-  MuiTimeline: TimelineClassKey;
-  MuiTimelineAction: TimelineActionClassKey;
-  MuiTimelineCursor: TimelineCursorClassKey;
-  MuiTimelineLabels: TimelineLabelsClassKey;
-  MuiTimelinePlayer: TimelinePlayerClassKey;
-  MuiTimelineScrollResizer?: TimelineScrollResizerClassKey;
-  MuiTimelineTime: TimelineTimeClassKey;
-  MuiTimelineTrack: TimelineTrackClassKey;
-  MuiTimelineTrackArea: TimelineTrackAreaClassKey;
-}
-
+/**
+ * Extends the ComponentNameToClassKey interface from @mui/material/styles with TimelineComponentNameToClassKey.
+ */
 declare module '@mui/material/styles' {
   interface ComponentNameToClassKey extends TimelineComponentNameToClassKey {}
 }

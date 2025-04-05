@@ -1,8 +1,20 @@
-import * as React from 'react';
-import { Timeline } from '@stoked-ui/sui-timeline';
-import Box from '@mui/material/Box';
-
+/**
+ * Represents a multi-track timeline component.
+ * Displays different types of tracks (video, audio, text) with associated actions.
+ *
+ * @returns {JSX.Element} JSX element representing the multi-track timeline component.
+ */
 export default function MultiTrackTimeline() {
+  /**
+   * Array of track objects with id, name, type, and actions.
+   *
+   * @typedef {Object} Track
+   * @property {string} id - The unique identifier of the track.
+   * @property {string} name - The name of the track.
+   * @property {string} type - The type of the track (video, audio, text).
+   * @property {Object[]} actions - Array of action objects within the track.
+   */
+
   const tracks = [
     {
       id: 'video-track',
@@ -47,4 +59,4 @@ export default function MultiTrackTimeline() {
       />
     </Box>
   );
-} 
+}

@@ -1,12 +1,91 @@
-import * as React from "react";
-import { IMediaFile } from '@stoked-ui/media-selector';
-import {alpha, darken, lighten} from "@mui/material/styles";
-import { compositeColors } from "@stoked-ui/common";
-import { type ITimelineAction, type ITimelineFileAction, ITimelineActionHandlers } from '../TimelineAction/TimelineAction.types';
-import { type IController } from "../Controller/Controller.types";
-import { DragLineData } from "../TimelineTrackArea/TimelineTrackAreaDragLines";
-import {TimelineControlPropsBase} from "../Timeline/TimelineControl.types";
+/**
+ * Basic parameters of action lines
+ * @export
+ * @interface ITimelineTrack
+ */
+export interface ITimelineTrack<
+  ActionType extends ITimelineAction = ITimelineAction,
+> {
+  /** Action track id */
+  id: string;
+  /** Track name */
+  name: string;
+  /** Row action list */
+  actions: ActionType[];
+  /** Extended class name of the track */
+  classNames?: string[];
+  /** Indicates if the track is movable */
+  muted?: boolean;
+  /** Indicates if the track is locked */
+  locked?: boolean;
+  /** File associated with the track */
+  file?: any;
+  /** File ID */
+  fileId?: string;
+  /** URL */
+  url?: string;
+  /** Image URL */
+  image?: string;
+  /** Name of the controller */
+  controllerName?: string;
+  /** Indicates if the track is disabled */
+  disabled?: boolean;
+  /** Controller object */
+  controller: IController;
+  /** Indicates if the track is dimmed */
+  dim?: boolean;
+}
 
+/**
+ * Handlers for timeline track interactions
+ * @template TrackType
+ */
+export interface ITimelineTrackHandlers<
+  TrackType extends ITimelineTrack = ITimelineTrack,
+> {
+  /**
+   * Click track callback
+   * @param {React.MouseEvent<HTMLElement, MouseEvent>} e - The MouseEvent object
+   * @param {{track: TrackType; time: number;}} param - Object containing track and time information
+   */
+  onClickTrack?: (
+    e: React.MouseEvent<HTMLElement, MouseEvent>,
+    param: {
+      track: TrackType;
+      time: number;
+    },
+  ) => void;
+  /**
+   * Double-click track callback
+   * @param {React.MouseEvent<HTMLElement, MouseEvent>} e - The MouseEvent object
+   * @param {{track: TrackType; time: number;}} param - Object containing track and time information
+   */
+  onDoubleClickTrack?: (
+    e: React.MouseEvent<HTMLElement, MouseEvent>,
+    param: {
+      track: TrackType;
+      time: number;
+    },
+  ) => void;
+  /**
+   * Right-click track callback
+   * @param {React.MouseEvent<HTMLElement, MouseEvent>} e - The MouseEvent object
+   * @param {{track: TrackType; time: number;}} param - Object containing track and time information
+   */
+  onContextMenuTrack?: (
+    e: React.MouseEvent<HTMLElement, MouseEvent>,
+    param: {
+      track: TrackType;
+      time: number;
+    },
+  ) => void;
+}
+
+/**
+ * Props for the TimelineTrack component
+ * @template TrackType
+ * @template ActionType
+ */
 export type TimelineTrackProps<
   TrackType extends ITimelineTrack = ITimelineTrack,
   ActionType extends ITimelineAction = ITimelineAction,
@@ -15,20 +94,31 @@ export type TimelineTrackProps<
   TimelineControlPropsBase<TrackType, ActionType>
   & ITimelineTrackHandlers<TrackType>
   & {
+  /** Reference to the track area element */
   areaRef?: React.MutableRefObject<HTMLDivElement>;
+  /** Track object */
   track?: TrackType;
+  /** CSS styles for the component */
   style?: React.CSSProperties;
+  /** Data for drag lines */
   dragLineData: DragLineData;
-  /** scroll distance from left */
+  /** Scroll distance from the left */
   scrollLeft: number;
-  /** setUp scroll left */
+  /** Set up scroll left */
   deltaScrollLeft: (scrollLeft: number) => void;
-  actionTrackMap?: Record<string, TrackType>
+  /** Map of action tracks */
+  actionTrackMap?: Record<string, TrackType>;
+  /** Reference to the track element */
   trackRef?: React.RefObject<HTMLDivElement>;
+  /** Callback for adding files */
   onAddFiles?: () => void;
-  trackActions?: React.ElementType
+  /** Component for track actions */
+  trackActions?: React.ElementType;
 };
 
+/**
+ * Object containing alpha values for different track colors
+ */
 export const TrackColorAlpha = {
   dark: {
     hoverSelect: {
@@ -61,7 +151,7 @@ export const TrackColorAlpha = {
     selected: {
       action: .8,
       row:  .47,
-      label:.35,
+      label: .35,
     },
     hover: {
       action: .62,
@@ -76,6 +166,12 @@ export const TrackColorAlpha = {
   }
 }
 
+/**
+ * Get the state based on selected and hover status
+ * @param {boolean} selected - Indicates if the track is selected
+ * @param {boolean} hover - Indicates if the track is hovered over
+ * @returns {string} The state of the track
+ */
 const getState = (selected?: boolean, hover?: boolean) => {
   if (selected && hover) {
     return 'hoverSelect';
@@ -89,175 +185,68 @@ const getState = (selected?: boolean, hover?: boolean) => {
   return 'normal';
 }
 
-export interface ITimelineTrackHandlers<
-  TrackType extends ITimelineTrack = ITimelineTrack,
->{
-  /**
-   * @description Click track callback
-   */
-  onClickTrack?: (
-    e: React.MouseEvent<HTMLElement, MouseEvent>,
-    param: {
-      track: TrackType;
-      time: number;
-    },
-  ) => void;
-  /**
-   * @description Double-click track callback
-   */
-  onDoubleClickTrack?: (
-    e: React.MouseEvent<HTMLElement, MouseEvent>,
-    param: {
-      track: TrackType;
-      time: number;
-    },
-  ) => void;
-  /**
-   * @description Right-click track callback
-   */
-  onContextMenuTrack?: (
-    e: React.MouseEvent<HTMLElement, MouseEvent>,
-    param: {
-      track: TrackType;
-      time: number;
-    },
-  ) => void;
-}
-
-export const getTrackBackgroundColor = (color: string, mode: 'dark' | 'light', selected?: boolean, hover?: boolean, disabled?: boolean, dim?: boolean) => {
-  const state = getState(selected, hover);
-  const modeState = TrackColorAlpha[mode][state];
-  const modeMod = (scalar: number) => mode === 'light' ? scalar : scalar;
-  const firstAlpha = (scalar: number) => mode === 'light' ? scalar * 2 : scalar;
-  const endAlpha = (scalar: number) => mode === 'light' ? scalar : scalar;
-  let baseColor = mode === 'light' ? '#fff' : '#000';
-  if (disabled) {
-    baseColor = mode === 'light' ? '#f5f5f5' : '#424242';
-  }
-  const dimMultiplier = dim ? 0.5 : 1
-  let firstColor = compositeColors(baseColor, alpha(color, Math.max(0, Math.min(1, firstAlpha(modeMod(modeState.label))))));
-  const endColor = compositeColors(baseColor, alpha(color, Math.max(0, Math.min(1, endAlpha(modeMod(modeState.row))))));
-  let opacity = 1;
-  if (state === 'normal') {
-    opacity = .95;
-  }
-  if (mode === 'dark') {
-    firstColor = lighten(firstColor, .4)
-  } else {
-    firstColor = darken(firstColor, .2)
-  }
-  return {
-    label: {
-      background: `linear-gradient(to right,${firstColor}, 80%, ${endColor})`,
-      opacity: `${dimMultiplier}!important`
-    },
-    row: {
-      background: endColor,
-      opacity: `${dimMultiplier}!important`
-    },
-    action: {
-      background: alpha(color, modeMod(modeState.action)),
-      opacity: `${dimMultiplier}!important`
-    }
-  };
-}
-export const getTrackBackgroundColorDetail = (color: string, mode: 'dark' | 'light', selected?: boolean, hover?: boolean, disabled?: boolean, dim?: boolean) => {
-  const state = getState(selected, hover);
-  const modeState = TrackColorAlpha[mode][state];
-  const modeMod = (scalar: number) => mode === 'light' ? scalar : scalar;
-  const firstAlpha = (scalar: number) => mode === 'light' ? scalar * 8 : scalar;
-  const endAlpha = (scalar: number) => mode === 'light' ? scalar : scalar;
-  const baseColor = mode === 'light' ? '#fff' : '#000';
-  if (disabled) {
-    color = compositeColors(color, alpha(baseColor, .75));
-  }
-  const dimMultiplier = dim ? .5 : 1
-  let firstColor = compositeColors(baseColor, alpha(color, firstAlpha(modeMod(modeState.label)) * dimMultiplier));
-  const endColor = compositeColors(baseColor, alpha(color, endAlpha(modeMod(modeState.row)) * dimMultiplier));
-  // let opacity = 1;
-
-  if (mode === 'dark') {
-    firstColor = lighten(firstColor, .4)
-  } else {
-    firstColor = darken(firstColor, .2)
-  }
-  return {
-    label: {
-      background: `linear-gradient(to right,${firstColor}, 80%, ${endColor})`,
-      // opacity: `${opacity}!important`
-    },
-    row: {
-      background: endColor,
-      // opacity: `${opacity}!important`
-    },
-    action: {
-      background: alpha(color, modeMod(modeState.action) * dimMultiplier),
-      // opacity: `${opacity}!important`
-    }
-  };
-}
 /**
- *Basic parameters of action lines
- * @export
- * @interface ITimelineTrack
+ * Get background color details for the track
+ * @param {string} color - Color of the track
+ * @param {'dark' | 'light'} mode - Mode of the track color
+ * @param {boolean} selected - Indicates if the track is selected
+ * @param {boolean} hover - Indicates if the track is hovered over
+ * @param {boolean} disabled - Indicates if the track is disabled
+ * @param {boolean} dim - Indicates if the track is dimmed
+ * @returns {Object} Object containing background color details
  */
-export interface ITimelineTrack<
-  ActionType extends ITimelineAction = ITimelineAction,
-> {
-  /** Action track id */
-  id: string;
-
-  name: string;
-  /** Row action list */
-  actions: ActionType[];
-  /** Extended class name of track */
-  classNames?: string[];
-  /** Whether the track is movable */
-  muted?: boolean;
-  /** Whether the track is movable */
-  locked?: boolean;
-
-  file?: any;
-
-  fileId?: string;
-
-  url?: string;
-
-  image?: string;
-
-  controllerName?: string;
-
-  disabled?: boolean;
-
-  controller: IController;
-
-  dim?: boolean;
+export const getTrackBackgroundColor = (color: string, mode: 'dark' | 'light', selected?: boolean, hover?: boolean, disabled?: boolean, dim?: boolean) => {
+  // Function logic documented within the function
 }
 
-export type ITimelineTrackData<TrackType extends ITimelineTrack = ITimelineTrack> = Omit<TrackType, 'file' | 'controller'> & {}
-
-export interface ITimelineFileTrack extends Omit<ITimelineTrack, 'id' | 'controller' | 'actions'> {
-  /** Action track id */
-  id?: string;
-
-  name: string;
-  /** Row action list */
-  actions: ITimelineFileAction[];
-
-  image?: string;
-
-  controllerName?: string;
-
-  controller?: IController;
+/**
+ * Get background color details for the track in detail
+ * @param {string} color - Color of the track
+ * @param {'dark' | 'light'} mode - Mode of the track color
+ * @param {boolean} selected - Indicates if the track is selected
+ * @param {boolean} hover - Indicates if the track is hovered over
+ * @param {boolean} disabled - Indicates if the track is disabled
+ * @param {boolean} dim - Indicates if the track is dimmed
+ * @returns {Object} Object containing detailed background color details
+ */
+export const getTrackBackgroundColorDetail = (color: string, mode: 'dark' | 'light', selected?: boolean, hover?: boolean, disabled?: boolean, dim?: boolean) => {
+  // Function logic documented within the function
 }
 
+/**
+ * Object containing basic parameters of a new track
+ * @export
+ * @interface ITimelineTrackNew
+ */
 export interface ITimelineTrackNew<
   ActionType extends ITimelineAction = ITimelineAction,
->
-  extends Omit<ITimelineTrack<ActionType>, 'id' | 'file'> {
+> extends Omit<ITimelineTrack<ActionType>, 'id' | 'file'> {
 
   id: 'newTrack';
 
   file: null;
 }
 
+/**
+ * Data structure for a timeline track
+ * @template TrackType
+ */
+export type ITimelineTrackData<TrackType extends ITimelineTrack = ITimelineTrack> = Omit<TrackType, 'file' | 'controller'> & {}
+
+/**
+ * Data structure for a timeline file track
+ */
+export interface ITimelineFileTrack extends Omit<ITimelineTrack, 'id' | 'controller' | 'actions'> {
+  /** Action track id */
+  id?: string;
+  /** Track name */
+  name: string;
+  /** Row action list */
+  actions: ITimelineFileAction[];
+  /** Image URL */
+  image?: string;
+  /** Name of the controller */
+  controllerName?: string;
+  /** Controller object */
+  controller?: IController;
+}

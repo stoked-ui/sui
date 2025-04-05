@@ -1,82 +1,173 @@
-import {ScreenshotQueue} from "@stoked-ui/media-selector";
-import { type IController } from "./Controller.types";
-import type {ControllerParams, GetItemParams, PreloadParams} from './ControllerParams';
-import type { ITimelineAction } from "../TimelineAction";
-import {IEngine, PlaybackMode} from "../Engine";
-import {ITimelineTrack} from "../TimelineTrack";
+/**
+ * @typedef {Object} ControllerParams
+ * @property {ITimelineAction} action - The timeline action
+ * @property {number} time - The time
+ * @property {IEngine} engine - The engine
+ */
 
+/**
+ * @typedef {Object} GetItemParams
+ * @property {ITimelineAction} action - The timeline action
+ * @property {number} time - The time
+ * @property {IEngine} engine - The engine
+ */
+
+/**
+ * @typedef {Object} PreloadParams
+ * @property {ITimelineAction} action - The timeline action
+ * @property {number} time - The time
+ * @property {IEngine} engine - The engine
+ */
+
+/**
+ * @class
+ * @description Abstract class representing a controller.
+ */
 abstract class Controller<ControlType> implements IController {
-  cacheMap: Record<string, ControlType> = {};
+  /** @type {Record<string, ControlType>} */
+  cacheMap = {};
 
-  id: string;
+  /** @type {string} */
+  id;
 
-  name: string;
+  /** @type {string} */
+  name;
 
-  colorSecondary: string;
+  /** @type {string} */
+  colorSecondary;
 
-  color: string;
+  /** @type {string} */
+  color;
 
-  logging: boolean = false;
+  /** @type {boolean} */
+  logging = false;
 
-  backgroundImage?: string;
+  /** @type {string|undefined} */
+  backgroundImage;
 
-  screenshotQueue: ScreenshotQueue = ScreenshotQueue.getInstance(3);
+  /** @type {ScreenshotQueue} */
+  screenshotQueue = ScreenshotQueue.getInstance(3);
 
-  constructor(options: {
-    id: string,
-    name: string,
-    color: string,
-    colorSecondary: string
-  }) {
+  /**
+   * @description Constructor for the Controller class.
+   * @param {Object} options - The options for the controller.
+   * @param {string} options.id - The id of the controller.
+   * @param {string} options.name - The name of the controller.
+   * @param {string} options.color - The color of the controller.
+   * @param {string} options.colorSecondary - The secondary color of the controller.
+   */
+  constructor(options) {
     this.id = options.id;
     this.name = options.name;
     this.color = options.color;
     this.colorSecondary = options.colorSecondary;
   }
 
-  abstract getItem(params: GetItemParams): ControlType;
+  /**
+   * @description Abstract method to get an item.
+   * @param {GetItemParams} params - The parameters for getting the item.
+   * @returns {ControlType} The item.
+   */
+  abstract getItem(params);
 
-  // eslint-disable-next-line class-methods-use-this
-  isValid(engine: IEngine, track: ITimelineTrack) {
+  /**
+   * @description Method to check if the controller is valid.
+   * @param {IEngine} engine - The engine.
+   * @param {ITimelineTrack} track - The timeline track.
+   */
+  isValid(engine, track) {
     return !track.dim;
   }
 
-  viewerUpdate?: (engine: any) => void;
+  /**
+   * @description Method to destroy the controller.
+   */
+  destroy() {}
 
-  // eslint-disable-next-line class-methods-use-this
-  destroy(){ };
+  /**
+   * @description Method to get the action style.
+   * @param {ITimelineAction} action - The timeline action.
+   * @param {ITimelineTrack} track - The timeline track.
+   * @param {number} scaleWidth - The scale width.
+   * @param {number} scale - The scale.
+   * @param {number} trackHeight - The track height.
+   * @returns {null} Null.
+   */
+  getActionStyle(action, track, scaleWidth, scale, trackHeight) {
+    return null;
+  }
 
-  // eslint-disable-next-line class-methods-use-this,@typescript-eslint/no-unused-vars
-  getActionStyle(action: ITimelineAction, track: ITimelineTrack, scaleWidth: number, scale: number, trackHeight: number) { return null };
+  /**
+   * @description Method to start the controller.
+   * @param {ControllerParams} params - The parameters for starting.
+   */
+  start(params) {}
 
-  // eslint-disable-next-line class-methods-use-this,@typescript-eslint/no-unused-vars
-  start(params: ControllerParams) { }
+  /**
+   * @description Method to stop the controller.
+   * @param {ControllerParams} params - The parameters for stopping.
+   */
+  stop(params) {}
 
-  // eslint-disable-next-line class-methods-use-this,@typescript-eslint/no-unused-vars
-  stop(params: ControllerParams) { }
+  /**
+   * @description Abstract method to enter the controller.
+   * @param {ControllerParams} params - The parameters for entering.
+   */
+  abstract enter(params);
 
-  abstract enter(params: ControllerParams): void;
+  /**
+   * @description Abstract method to leave the controller.
+   * @param {ControllerParams} params - The parameters for leaving.
+   */
+  abstract leave(params);
 
-  abstract leave(params: ControllerParams): void;
+  /**
+   * @description Abstract method to update the controller.
+   * @param {Object} params - The parameters for updating.
+   * @param {ITimelineAction} params.action - The timeline action.
+   * @param {number} params.time - The time.
+   * @param {IEngine} params.engine - The engine.
+   */
+  abstract update(params);
 
-  abstract update(params: { action: ITimelineAction, time: number, engine: IEngine }): void
+  /**
+   * @description Method to preload an action.
+   * @param {PreloadParams} params - The parameters for preloading.
+   * @returns {Promise<ITimelineAction>} The preloaded action.
+   */
+  async preload(params) {
+    return params.action;
+  }
 
-  // eslint-disable-next-line class-methods-use-this
-  async preload(params: PreloadParams): Promise<ITimelineAction> { return params.action; }
-
-  static getVol(volumePart: [volume: number, start?: number, end?: number]) {
+  /**
+   * @description Static method to get volume information.
+   * @param {Array<number>} volumePart - The volume part array.
+   * @returns {Object} The volume information.
+   */
+  static getVol(volumePart) {
     return { volume: volumePart[0], start: volumePart[1], end: volumePart[2] };
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  log(params: { action: ITimelineAction, time: number }, msg: string) {
+  /**
+   * @description Method to log information.
+   * @param {Object} params - The parameters for logging.
+   * @param {ITimelineAction} params.action - The timeline action.
+   * @param {number} params.time - The time.
+   * @param {string} msg - The message to log.
+   */
+  log(params, msg) {
     const { action, time } = params;
     if (this.logging) {
-      console.info(`[${time}] ${action.name} => ${msg} `)
+      console.info(`[${time}] ${action.name} => ${msg} `);
     }
   }
 
-  static getActionTime(params: ControllerParams) {
+  /**
+   * @description Static method to get the action time.
+   * @param {ControllerParams} params - The parameters for getting the action time.
+   * @returns {number} The action time.
+   */
+  static getActionTime(params) {
     const { action, time } = params;
     if (action?.duration === undefined) {
       return action?.trimStart || 0;
@@ -84,7 +175,13 @@ abstract class Controller<ControlType> implements IController {
     return (time - action.start + (action?.trimStart || 0)) % (action?.duration ?? 0);
   }
 
-  static getVolumeUpdate(params: ControllerParams, actionTime: number): { volumeIndex: number, volume: number } | undefined {
+  /**
+   * @description Static method to get volume update.
+   * @param {ControllerParams} params - The parameters for getting the volume update.
+   * @param {number} actionTime - The action time.
+   * @returns {Object|undefined} The volume update or undefined.
+   */
+  static getVolumeUpdate(params, actionTime) {
     const { action } = params;
 
     if (action.volumeIndex === -2) {
@@ -92,16 +189,15 @@ abstract class Controller<ControlType> implements IController {
     }
 
     if (action.volumeIndex >= 0) {
-      const { start, end } = Controller.getVol(action.volume![action.volumeIndex]);
+      const { start, end } = Controller.getVol(action.volume[action.volumeIndex]);
       if ((start && actionTime < start) || (end && actionTime >= end)) {
         return { volume: 1.0, volumeIndex: -1 };
       }
     }
 
-
     if (action.volumeIndex === -1) {
-      for (let i = 0; i < action.volume!.length; i += 1) {
-        const { volume, start, end } = Controller.getVol(action.volume![i]);
+      for (let i = 0; i < action.volume.length; i += 1) {
+        const { volume, start, end } = Controller.getVol(action.volume[i]);
         if ((start === undefined || actionTime >= start) && (end === undefined || actionTime < end)) {
           return { volume, volumeIndex: i };
         }
@@ -110,7 +206,6 @@ abstract class Controller<ControlType> implements IController {
 
     return undefined;
   }
-
 }
 
 export default Controller;

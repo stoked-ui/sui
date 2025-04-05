@@ -4,7 +4,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Slider from '@mui/material/Slider';
 import IconButton from '@mui/material/IconButton';
-import Stack from '@mui/material/Stack';
+import Stack from '@mui/material/Stack;
 import PauseRounded from '@mui/icons-material/PauseRounded';
 import PlayArrowRounded from '@mui/icons-material/PlayArrowRounded';
 import FastForwardRounded from '@mui/icons-material/FastForwardRounded';
@@ -13,7 +13,9 @@ import VolumeUpRounded from '@mui/icons-material/VolumeUpRounded';
 import VolumeDownRounded from '@mui/icons-material/VolumeDownRounded';
 import Plyr from "plyr-react";
 
-
+/**
+ * Widget styled component for audio player
+ */
 const Widget = styled('div')(({ theme }) => ({
   padding: 16,
   borderRadius: 16,
@@ -29,6 +31,9 @@ const Widget = styled('div')(({ theme }) => ({
   }),
 }));
 
+/**
+ * CoverImage styled component for displaying cover image
+ */
 const CoverImage = styled('div')({
   width: 100,
   height: 100,
@@ -42,6 +47,9 @@ const CoverImage = styled('div')({
   },
 });
 
+/**
+ * TinyText styled component for displaying small text
+ */
 const TinyText = styled(Typography)({
   fontSize: '0.75rem',
   opacity: 0.38,
@@ -49,15 +57,28 @@ const TinyText = styled(Typography)({
   letterSpacing: 0.2,
 });
 
+/**
+ * AudioPlayer component for playing audio files
+ * @param {object} props - Component props
+ * @param {object} props.file - Audio file details
+ * @returns {JSX.Element} React component
+ */
 export default function AudioPlayer({ file }) {
   const duration = 200; // seconds
   const [position, setPosition] = React.useState(32);
   const [paused, setPaused] = React.useState(false);
-  function formatDuration(value: number) {
+
+  /**
+   * Formats the duration in MM:SS format
+   * @param {number} value - Duration value in seconds
+   * @returns {string} Formatted duration string
+   */
+  function formatDuration(value: number): string {
     const minute = Math.floor(value / 60);
     const secondLeft = value - minute * 60;
     return `${minute}:${secondLeft < 10 ? `0${secondLeft}` : secondLeft}`;
   }
+
   React.useEffect(() => {
     const audio: Howl = file.element as Howl;
     audio?.on('seek', (params) => {
@@ -65,7 +86,14 @@ export default function AudioPlayer({ file }) {
     })
   }, [])
 
-  const audioSource:  Plyr.SourceInfo = {
+  /**
+   * Audio source information for Plyr component
+   * @typedef {object} Plyr.SourceInfo
+   * @property {string} type - Type of source (audio)
+   * @property {object[]} sources - Array of audio sources
+   */
+
+  const audioSource: Plyr.SourceInfo = {
     type: 'audio',
     sources: [
       {

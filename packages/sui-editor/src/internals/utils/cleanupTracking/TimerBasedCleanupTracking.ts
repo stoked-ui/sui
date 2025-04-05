@@ -1,17 +1,31 @@
-import {CleanupTracking, UnregisterToken, UnsubscribeFn} from './CleanupTracking';
-
-// If no effect ran after this amount of time, we assume that the render was not committed by React
-const CLEANUP_TIMER_LOOP_MILLIS = 1000;
-
+/**
+ * TimerBasedCleanupTracking class implements the CleanupTracking interface
+ */
 export class TimerBasedCleanupTracking implements CleanupTracking {
+  /**
+   * Map to store timeouts
+   */
   timeouts? = new Map<number, ReturnType<typeof setTimeout>>();
 
+  /**
+   * Time interval for cleanup
+   */
   cleanupTimeout = CLEANUP_TIMER_LOOP_MILLIS;
 
+  /**
+   * Creates an instance of TimerBasedCleanupTracking.
+   * @param {number} timeout - Timeout value for cleanup
+   */
   constructor(timeout = CLEANUP_TIMER_LOOP_MILLIS) {
     this.cleanupTimeout = timeout;
   }
 
+  /**
+   * Register an object for cleanup
+   * @param {any} object - Object to register
+   * @param {UnsubscribeFn} unsubscribe - Function to unsubscribe
+   * @param {UnregisterToken} unregisterToken - Token for unregistering
+   */
   register(object: any, unsubscribe: UnsubscribeFn, unregisterToken: UnregisterToken): void {
     if (!this.timeouts) {
       this.timeouts = new Map<number, ReturnType<typeof setTimeout>>();
@@ -27,6 +41,10 @@ export class TimerBasedCleanupTracking implements CleanupTracking {
     this.timeouts!.set(unregisterToken!.cleanupToken, timeout);
   }
 
+  /**
+   * Unregister an object from cleanup
+   * @param {UnregisterToken} unregisterToken - Token for unregistering
+   */
   unregister(unregisterToken: UnregisterToken): void {
     const timeout = this.timeouts!.get(unregisterToken.cleanupToken);
     if (timeout) {
@@ -35,6 +53,9 @@ export class TimerBasedCleanupTracking implements CleanupTracking {
     }
   }
 
+  /**
+   * Reset all timeouts and unregister all objects
+   */
   reset() {
     if (this.timeouts) {
       this.timeouts.forEach((value, key) => {

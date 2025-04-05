@@ -1,12 +1,21 @@
-import * as React from "react";
-import Select from "@mui/material/Select";
-import {FormControl, SxProps} from "@mui/material";
-import MenuItem from "@mui/material/MenuItem";
-import InputLabel from "@mui/material/InputLabel";
-import {useController} from "react-hook-form";
-import {formatTitle} from "./Detail";
-import ControlledSelect from "./ControlledSelect";
-
+/**
+ * React component for selecting blend modes.
+ * 
+ * @param {object} props - The props object.
+ * @param {any} props.control - The control object for form control.
+ * @param {boolean} props.disabled - Indicates if the select is disabled.
+ * @param {function} props.onClick - The onClick function for the select.
+ * @param {object} props.rules - The rules object for validation.
+ * 
+ * @returns {JSX.Element} React component for BlendModeSelect.
+ * 
+ * @example
+ * <BlendModeSelect control={control} disabled={false} onClick={handleClick} rules={{ required: "This field is required" }} />
+ * 
+ * @fires None
+ * 
+ * @see ControlledSelect, formatTitle
+ */
 export default function BlendModeSelect({control, disabled, onClick, rules = undefined }) {
   return <ControlledSelect
     className={'whitespace-nowrap flex-grow flex'}

@@ -1,17 +1,28 @@
-import * as React from 'react';
-import {expect} from 'chai';
-import {act, fireEvent} from '@stoked-ui/internal-test-utils';
-import {describeEditor, DescribeEditorRendererUtils,} from 'test/utils/editor-view/describeEditor';
-
+/**
+ * Test suite for the useEditor hook.
+ */
 describeEditor<[]>(
   'useEditor hook',
+  /**
+   * Test cases for the useEditor hook functionality.
+   * @param {function} render - Function to render editor
+   * @param {function} renderFromJSX - Function to render editor from JSX
+   * @param {string} editorViewComponentName - Name of the editor view component
+   * @param {React.Component} EditorComponent - Editor component
+   */
   ({ render, renderFromJSX, editorViewComponentName, EditorComponent, EditorComponent }) => {
+    /**
+     * Test case to check if the root slot has the role="editor".
+     */
     it('should have the role="editor" on the root slot', () => {
       const response = render({ items: [{ id: '1' }] });
 
       expect(response.getRoot()).to.have.attribute('role', 'editor');
     });
 
+    /**
+     * Test case to check if the editor works inside a Portal.
+     */
     it('should work inside a Portal', () => {
       let response: DescribeEditorRendererUtils;
       if (editorViewComponentName === 'EditorBasic') {

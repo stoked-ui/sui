@@ -1,8 +1,22 @@
+/**
+ * Custom Slider with perspective on the track
+ * @typedef PerspectiveSliderProps
+ * @property {number} value - The current value of the slider
+ * @property {function} onChange - Function to handle slider value change
+ * @property {number} min - The minimum value of the slider
+ * @property {number} max - The maximum value of the slider
+ * @property {string} valueLabelDisplay - Display option for the value label
+ * @property {object} componentsProps - Custom styles for thumb and track components
+ */
+
 import { styled } from '@mui/material/styles';
 import Slider from '@mui/material/Slider';
 import { useState } from 'react';
 
-// Custom Slider with perspective on the track
+/**
+ * Custom Slider component with perspective effect on the track
+ * @returns {JSX.Element} JSX element representing the GrowingPerspectiveSlider component
+ */
 const PerspectiveSlider = styled(Slider)(({ theme }) => ({
   height: 7,
   position: 'relative',
@@ -28,9 +42,18 @@ const PerspectiveSlider = styled(Slider)(({ theme }) => ({
   },
 }));
 
+/**
+ * Functional component representing a GrowingPerspectiveSlider
+ * @returns {JSX.Element} JSX element representing the GrowingPerspectiveSlider component
+ */
 export default function GrowingPerspectiveSlider() {
   const [sliderValue, setSliderValue] = useState(0);
 
+  /**
+   * Event handler for slider value change
+   * @param {object} event - The event object
+   * @param {number} newValue - The new value of the slider
+   */
   const handleSliderChange = (event, newValue) => {
     setSliderValue(newValue);
   };

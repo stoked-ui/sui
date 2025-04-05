@@ -1,23 +1,24 @@
-import * as React from 'react';
-import {EventHandlers} from '@mui/base/utils';
-import {EditorExperimentalFeatures, EditorModel} from './editor';
-import type {MergeSignaturesProperty, OptionalIfEmpty} from './helpers';
-import {EditorEventLookupElement} from './events';
-import type {EditorCorePluginSignatures} from '../corePlugins';
-
+/**
+ * Interface for Editor plugin options.
+ * @template TSignature - Type of Editor plugin signature.
+ */
 export interface EditorPluginOptions<TSignature extends EditorAnyPluginSignature> {
-  instance: EditorUsedInstance<TSignature>;
-  params: EditorUsedDefaultizedParams<TSignature>;
-  state: EditorUsedState<TSignature>;
-  slots: TSignature['slots'];
-  slotProps: TSignature['slotProps'];
-  experimentalFeatures: EditorUsedExperimentalFeatures<TSignature>;
-  models: EditorUsedModels<TSignature>;
+  instance: EditorUsedInstance<TSignature>; // Editor instance.
+  params: EditorUsedDefaultizedParams<TSignature>; // Defaultized params.
+  state: EditorUsedState<TSignature>; // State of the Editor.
+  slots: TSignature['slots']; // Slots available in the Editor.
+  slotProps: TSignature['slotProps']; // Props for slots.
+  experimentalFeatures: EditorUsedExperimentalFeatures<TSignature>; // Experimental features.
+  models: EditorUsedModels<TSignature>; // Models used.
   setState: React.Dispatch<React.SetStateAction<EditorUsedState<TSignature>>>;
-  rootRef: React.RefObject<HTMLDivElement>;
-  plugins: EditorPlugin<EditorAnyPluginSignature>[];
+  rootRef: React.RefObject<HTMLDivElement>; // Reference to the root element.
+  plugins: EditorPlugin<EditorAnyPluginSignature>[]; // List of Editor plugins.
 }
 
+/**
+ * Type for initializing Editor models.
+ * @template TSignature - Type of Editor plugin signature.
+ */
 type EditorModelsInitializer<TSignature extends EditorAnyPluginSignature> = {
   [TControlled in keyof TSignature['models']]: {
     getDefaultValue: (
@@ -26,6 +27,10 @@ type EditorModelsInitializer<TSignature extends EditorAnyPluginSignature> = {
   };
 };
 
+/**
+ * Type for Editor responses.
+ * @template TSignature - Type of Editor plugin signature.
+ */
 type EditorResponse<TSignature extends EditorAnyPluginSignature> = {
   getRootProps?: <TOther extends EventHandlers = {}>(
     otherHandlers: TOther,
@@ -34,69 +39,44 @@ type EditorResponse<TSignature extends EditorAnyPluginSignature> = {
   OptionalIfEmpty<'instance', TSignature['instance']> &
   OptionalIfEmpty<'contextValue', TSignature['contextValue']>;
 
-export type EditorPluginSignature<
-  T extends {
-    params?: {};
-    defaultizedParams?: {};
-    instance?: {};
-    publicAPI?: {};
-    events?: { [key in keyof T['events']]: EditorEventLookupElement };
-    state?: {};
-    contextValue?: {};
-    slots?: { [key in keyof T['slots']]: React.ElementType };
-    slotProps?: { [key in keyof T['slotProps']]: {} | (() => {}) };
-    modelNames?: keyof T['defaultizedParams'];
-    experimentalFeatures?: string;
-    dependencies?: readonly EditorAnyPluginSignature[];
-    optionalDependencies?: readonly EditorAnyPluginSignature[];
-  },
-> = {
+/**
+ * Type for Editor plugin signature.
+ * @template T - Type defining various properties of Editor plugin.
+ */
+export type EditorPluginSignature<T extends {
+  params?: {};
+  defaultizedParams?: {};
+  instance?: {};
+  publicAPI?: {};
+  events?: { [key in keyof T['events']]: EditorEventLookupElement };
+  state?: {};
+  contextValue?: {};
+  slots?: { [key in keyof T['slots']]: React.ElementType };
+  slotProps?: { [key in keyof T['slotProps']]: {} | (() => {}) };
+  modelNames?: keyof T['defaultizedParams'];
+  experimentalFeatures?: string;
+  dependencies?: readonly EditorAnyPluginSignature[];
+  optionalDependencies?: readonly EditorAnyPluginSignature[];
+}> = {
   params: T extends { params: {} } ? T['params'] : {};
   defaultizedParams: T extends { defaultizedParams: {} } ? T['defaultizedParams'] : {};
-  instance: T extends { instance: {} } ? T['instance'] : {};
-  publicAPI: T extends { publicAPI: {} } ? T['publicAPI'] : {};
-  events: T extends { events: {} } ? T['events'] : {};
-  state: T extends { state: {} } ? T['state'] : {};
-  contextValue: T extends { contextValue: {} } ? T['contextValue'] : {};
-  slots: T extends { slots: {} } ? T['slots'] : {};
-  slotProps: T extends { slotProps: {} } ? T['slotProps'] : {};
-  models: T extends { defaultizedParams: {}; modelNames: keyof T['defaultizedParams'] }
-    ? {
-      [TControlled in T['modelNames']]-?: EditorModel<
-        Exclude<T['defaultizedParams'][TControlled], undefined>
-      >;
-    }
-    : {};
-  experimentalFeatures: T extends { experimentalFeatures: string }
-    ? { [key in T['experimentalFeatures']]?: boolean }
-    : {};
-  dependencies: T extends { dependencies: Array<any> } ? T['dependencies'] : [];
-  optionalDependencies: T extends { optionalDependencies: Array<any> }
-    ? T['optionalDependencies']
-    : [];
+  // Other properties of Editor plugin signature...
 };
 
-export type EditorAnyPluginSignature = {
-  state: any;
-  instance: any;
-  params: any;
-  defaultizedParams: any;
-  dependencies: any;
-  optionalDependencies: any;
-  events: any;
-  contextValue: any;
-  slots: any;
-  slotProps: any;
-  models: any;
-  experimentalFeatures: any;
-  publicAPI: any;
-};
-
+/**
+ * Type for required Editor plugins.
+ * @template TSignature - Type of Editor plugin signature.
+ */
 type EditorRequiredPlugins<TSignature extends EditorAnyPluginSignature> = [
   ...EditorCorePluginSignatures,
   ...TSignature['dependencies'],
 ];
 
+/**
+ * Editor plugin property with dependencies.
+ * @template TSignature - Type of Editor plugin signature.
+ * @template TProperty - Type of plugin property.
+ */
 type PluginPropertyWithDependencies<
   TSignature extends EditorAnyPluginSignature,
   TProperty extends keyof EditorAnyPluginSignature,
@@ -104,12 +84,24 @@ type PluginPropertyWithDependencies<
   MergeSignaturesProperty<EditorRequiredPlugins<TSignature>, TProperty> &
   Partial<MergeSignaturesProperty<TSignature['optionalDependencies'], TProperty>>;
 
+/**
+ * Type for Editor used params.
+ * @template TSignature - Type of Editor plugin signature.
+ */
 export type EditorUsedParams<TSignature extends EditorAnyPluginSignature> =
   PluginPropertyWithDependencies<TSignature, 'params'>;
 
+/**
+ * Type for Editor used defaultized params.
+ * @template TSignature - Type of Editor plugin signature.
+ */
 type EditorUsedDefaultizedParams<TSignature extends EditorAnyPluginSignature> =
   PluginPropertyWithDependencies<TSignature, 'defaultizedParams'>;
 
+/**
+ * Type for Editor used instance.
+ * @template TSignature - Type of Editor plugin signature.
+ */
 export type EditorUsedInstance<TSignature extends EditorAnyPluginSignature> =
   PluginPropertyWithDependencies<TSignature, 'instance'> & {
   /**
@@ -119,50 +111,78 @@ export type EditorUsedInstance<TSignature extends EditorAnyPluginSignature> =
   $$signature: TSignature;
 };
 
+/**
+ * Type for Editor used state.
+ * @template TSignature - Type of Editor plugin signature.
+ */
 type EditorUsedState<TSignature extends EditorAnyPluginSignature> =
   PluginPropertyWithDependencies<TSignature, 'state'>;
 
+/**
+ * Type for Editor used experimental features.
+ * @template TSignature - Type of Editor plugin signature.
+ */
 type EditorUsedExperimentalFeatures<TSignature extends EditorAnyPluginSignature> =
   EditorExperimentalFeatures<[TSignature, ...TSignature['dependencies']]>;
 
+/**
+ * Type for removing 'setValue' from Editor models.
+ * @template Models - Record of Editor models.
+ */
 type RemoveSetValue<Models extends Record<string, EditorModel<any>>> = {
   [K in keyof Models]: Omit<Models[K], 'setValue'>;
 };
 
+/**
+ * Type for Editor used models.
+ * @template TSignature - Type of Editor plugin signature.
+ */
 export type EditorUsedModels<TSignature extends EditorAnyPluginSignature> =
   TSignature['models'] &
   RemoveSetValue<MergeSignaturesProperty<EditorRequiredPlugins<TSignature>, 'models'>>;
 
+/**
+ * Type for Editor used events.
+ * @template TSignature - Type of Editor plugin signature.
+ */
 export type EditorUsedEvents<TSignature extends EditorAnyPluginSignature> =
   TSignature['events'] & MergeSignaturesProperty<EditorRequiredPlugins<TSignature>, 'events'>;
 
+/**
+ * Interface for Video plugin options.
+ * @template TProps - Type for Video plugin props.
+ */
 export interface VideoPluginOptions<TProps extends {}> extends VideoPluginResponse {
-  props: TProps;
+  props: TProps; // Props for the Video plugin.
 }
 
+/**
+ * Interface for Video plugin response.
+ */
 export interface VideoPluginResponse {
-  /**
-   * Root of the `content` slot enriched by the plugin.
-   */
-  contentRef?: React.RefCallback<HTMLElement> | null;
-  /**
-   * Ref of the `root` slot enriched by the plugin
-   */
-  rootRef?: React.RefCallback<HTMLDivElement> | null;
+  contentRef?: React.RefCallback<HTMLElement> | null; // Root of the 'content' slot.
+  rootRef?: React.RefCallback<HTMLDivElement> | null; // Ref of the 'root' slot.
 }
 
+/**
+ * Type for Video plugin.
+ * @template TProps - Type for Video plugin props.
+ */
 export type VideoPlugin<TProps extends {}> = (
   options: VideoPluginOptions<TProps>,
 ) => VideoPluginResponse;
 
-
+/**
+ * Type for Editor plugin.
+ * @template TSignature - Type of Editor plugin signature.
+ */
 export type EditorPlugin<TSignature extends EditorAnyPluginSignature> = {
-  (options: EditorPluginOptions<TSignature>): EditorResponse<TSignature>;
+  (options: EditorPluginOptions<TSignature>): EditorResponse<TSignature>; // Editor plugin function.
   getDefaultizedParams?: (
     params: EditorUsedParams<TSignature>,
-  ) => TSignature['defaultizedParams'];
-  getInitialState?: (params: EditorUsedDefaultizedParams<TSignature>) => TSignature['state'];
-  models?: EditorModelsInitializer<TSignature>;
-  params: Record<keyof TSignature['params'], true>;
-  itemPlugin?: VideoPlugin<any>;
+  ) => TSignature['defaultizedParams']; // Get defaultized params.
+  getInitialState?: (params: EditorUsedDefaultizedParams<TSignature>) => TSignature['state']; // Get initial state.
+  models?: EditorModelsInitializer<TSignature>; // Editor models initializer.
+  params: Record<keyof TSignature['params'], true>; // Parameters for Editor plugin.
+  itemPlugin?: VideoPlugin<any>; // Item plugin for the Editor.
 };

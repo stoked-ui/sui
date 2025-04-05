@@ -1,44 +1,22 @@
-import * as React from 'react';
-import IconButton from "@mui/material/IconButton";
-import { Close } from "@mui/icons-material";
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
-import Modal from "@mui/material/Modal";
-import { ActionDetail, TrackDetail } from '@stoked-ui/timeline';
-import SettingsIcon from "@mui/icons-material/Settings";
-import Fab from "@mui/material/Fab";
-import Box from "@mui/material/Box";
-import { useEditorContext } from '../EditorProvider/EditorContext';
-import EditorState, {  getActionSelectionData } from '../EditorProvider/EditorState';
-import { RootBox } from "./Detail";
-import Controllers from "../Controllers";
-import EditorProvider from "../EditorProvider";
-import { DetailCombined } from './DetailCombined';
-import EditorFile, {IEditorFile} from "../EditorFile";
+/**
+ * @typedef {Object} DetailOutterProps
+ * @property {DetailState} detailState - The state of the detail view
+ * @property {function} onClose - Callback function to close the detail view
+ * @property {React.Dispatch<React.SetStateAction<EditorState | null>>} setDetailEditorState - Setter function for editor state
+ */
 
-const seen = new WeakSet();
-const replacer = (key, value) => {
-  if (typeof value === 'object' && value !== null) {
-    if (seen.has(value)) {
-      return '[Circular]';
-    }
-    seen.add(value);
-  }
-  return value;
-};
+/**
+ * @typedef {Object} DetailState
+ * @property {string | undefined} selectedTrackId - The ID of the selected track
+ * @property {string | undefined} selectedActionId - The ID of the selected action
+ * @property {string} selectedId - The selected ID
+ */
 
-interface DetailOutterProps {
-  detailState: DetailState,
-  onClose: () => void,
-  setDetailEditorState: React.Dispatch<React.SetStateAction<EditorState | null>>
-}
-
-interface DetailState {
-  selectedTrackId: string | undefined,
-  selectedActionId: string | undefined,
-  selectedId: string
-}
-
+/**
+ * Detail view component
+ * @param {DetailOutterProps} props - Props for the DetailView component
+ * @returns {JSX.Element} JSX element representing the detail view
+ */
 export const DetailView = React.forwardRef(function DetailView(
   { detailState, onClose, setDetailEditorState }: DetailOutterProps, ref: React.Ref<HTMLDivElement>
 ) {
@@ -103,10 +81,14 @@ export const DetailView = React.forwardRef(function DetailView(
     }
   }, [selected])
 
+  /**
+   * Handles the setting switch action
+   */
   const settingSwitch = () => {
     dispatch({ type: 'SELECT_SETTINGS' });
   }
-   return (
+
+  return (
     <Card
       component={RootBox}
       sx={(theme) => ({
@@ -167,6 +149,10 @@ export const DetailView = React.forwardRef(function DetailView(
   );
 });
 
+/**
+ * Detail modal component
+ * @returns {JSX.Element} JSX element representing the detail modal
+ */
 function DetailModal () {
   const editorState = useEditorContext();
   const [initialized, setInitialized] = React.useState(false);
@@ -174,6 +160,10 @@ function DetailModal () {
   const [detailState, setDetailState] = React.useState<DetailState | null>(null);
   const [detailEditorState, setDetailEditorState] = React.useState<EditorState | null>(null);
   const [copiedFile, setCopiedFile] = React.useState<IEditorFile | null>(null);
+  
+  /**
+   * Closes the detail modal
+   */
   const onClose = () => {
     if (detailEditorState?.file) {
       dispatch({type: 'SET_FILE', payload: detailEditorState.file})
@@ -197,7 +187,6 @@ function DetailModal () {
     return undefined;
   }
 
-
   return (<Modal
     open={!!flags.detailOpen}
     onClose={onClose}
@@ -214,10 +203,6 @@ function DetailModal () {
       <EditorProvider file={copiedFile!} controllers={Controllers}>
           <DetailView onClose={onClose} detailState={detailState} setDetailEditorState={setDetailEditorState} />
       </EditorProvider>
-
-{/*
-      </DetailProvider>
-*/}
     </Box>
   </Modal>)
 }

@@ -1,19 +1,8 @@
-import * as React from 'react';
-import {EventHandlers} from '@mui/base/utils';
-import {ITimelineTrack, TimelineSlotProps} from "@stoked-ui/timeline";
-import { IMediaFile } from '@stoked-ui/media-selector';
-import type {EditorContextValue} from '../EditorProvider';
-import {
-  ConvertSignaturesIntoPlugins,
-  EditorAnyPluginSignature,
-  EditorExperimentalFeatures,
-  EditorInstance,
-  EditorPublicAPI,
-  MergeSignaturesProperty,
-} from '../models';
-import { SxProps } from '@mui/system';
-
-
+/**
+ * Interface for defining parameters used in the UseEditor function.
+ * @template TSignatures - The type of editor plugin signatures.
+ * @template TProps - The type of additional properties to be passed.
+ */
 export interface UseEditorParameters<
   TSignatures extends readonly EditorAnyPluginSignature[],
   TProps extends Partial<UseEditorBaseProps<TSignatures>>,
@@ -23,6 +12,10 @@ export interface UseEditorParameters<
   props: TProps; // Omit<MergeSignaturesProperty<TSignatures, 'params'>, keyof UseEditorBaseParameters<any>>
 }
 
+/**
+ * Interface defining the base properties used in the UseEditor function.
+ * @template TSignatures - The type of editor plugin signatures.
+ */
 export interface UseEditorBaseProps<TSignatures extends readonly EditorAnyPluginSignature[]> {
   apiRef: React.MutableRefObject<EditorPublicAPI<TSignatures> | undefined> | undefined;
   slots: MergeSignaturesProperty<TSignatures, 'slots'>;
@@ -30,6 +23,9 @@ export interface UseEditorBaseProps<TSignatures extends readonly EditorAnyPlugin
   experimentalFeatures: EditorExperimentalFeatures<TSignatures>;
 }
 
+/**
+ * Interface for defining the properties of the root slot in the editor.
+ */
 export interface UseEditorRootSlotProps
   extends Pick<
     React.HTMLAttributes<HTMLDivElement>,
@@ -38,6 +34,9 @@ export interface UseEditorRootSlotProps
   ref: React.Ref<HTMLDivElement>;
 }
 
+/**
+ * Interface for defining the properties of the editor view slot.
+ */
 export interface UseEditorViewSlotProps
   extends Pick<
     React.HTMLAttributes<HTMLDivElement>,
@@ -46,6 +45,9 @@ export interface UseEditorViewSlotProps
   ref?: React.RefObject<HTMLDivElement>;
 }
 
+/**
+ * Interface for defining the properties of the editor controls slot.
+ */
 export interface UseEditorControlsSlotProps
   extends Pick<
     React.HTMLAttributes<HTMLDivElement>,
@@ -54,6 +56,9 @@ export interface UseEditorControlsSlotProps
   ref?: React.Ref<HTMLDivElement>;
 }
 
+/**
+ * Interface for defining the properties of the timeline slot.
+ */
 export interface UseTimelineSlotProps
   extends Pick<
     React.HTMLAttributes<HTMLDivElement>,
@@ -62,6 +67,9 @@ export interface UseTimelineSlotProps
   tracks: ITimelineTrack[];
 }
 
+/**
+ * Interface for defining the properties of the file explorer tabs slot.
+ */
 export interface UseFileExplorerTabsSlotProps
   extends Pick<
     React.HTMLAttributes<HTMLDivElement>,
@@ -72,6 +80,9 @@ export interface UseFileExplorerTabsSlotProps
   sx?: SxProps
 }
 
+/**
+ * Interface for defining the properties of the bottom right slot.
+ */
 export interface UseBottomRightSlotProps
   extends Pick<
     React.HTMLAttributes<HTMLDivElement>,
@@ -80,6 +91,10 @@ export interface UseBottomRightSlotProps
   ref?: React.Ref<HTMLDivElement>;
 }
 
+/**
+ * Interface for defining the return value of the UseEditor function.
+ * @template TSignatures - The type of editor plugin signatures.
+ */
 export interface UseEditorReturnValue<TSignatures extends readonly EditorAnyPluginSignature[]> {
   getRootProps: <TOther extends EventHandlers = {}>(
     otherHandlers?: TOther,
@@ -101,3 +116,4 @@ export interface UseEditorReturnValue<TSignatures extends readonly EditorAnyPlug
   instance: EditorInstance<TSignatures>;
   id: string;
 }
+**/

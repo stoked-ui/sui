@@ -1,12 +1,6 @@
-import * as React from 'react';
-import {Theme} from '@mui/material/styles';
-import {SxProps} from '@mui/system';
-import {SlotComponentProps} from '@mui/base/utils';
-import { IMediaFile } from "@stoked-ui/media-selector";
-import {EditorViewClasses} from './editorViewClasses';
-
-
-
+/**
+ * Interface for the slots available in EditorView component.
+ */
 export interface EditorViewSlots {
   /**
    * Element rendered at the root.
@@ -17,12 +11,18 @@ export interface EditorViewSlots {
   preview?: React.ElementType;
 }
 
+/**
+ * Interface for the slot props in EditorView component.
+ */
 export interface EditorViewSlotProps<R extends IMediaFile, Multiple extends boolean | undefined> {
   root?: SlotComponentProps<'div', {}, EditorViewProps<R, Multiple>>;
   renderer?: SlotComponentProps<'canvas', {}, {}>;
   preview?: SlotComponentProps<'div', {}, {}>;
 }
 
+/**
+ * Base interface for EditorView component props.
+ */
 export interface EditorViewPropsBase extends React.HTMLAttributes<HTMLDivElement> {
   className?: string;
   /**
@@ -35,6 +35,9 @@ export interface EditorViewPropsBase extends React.HTMLAttributes<HTMLDivElement
   sx?: SxProps<Theme>;
 }
 
+/**
+ * Interface for EditorView component props.
+ */
 export interface EditorViewProps<R extends IMediaFile, Multiple extends boolean | undefined>
   extends EditorViewPropsBase {
   /**

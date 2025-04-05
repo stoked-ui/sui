@@ -1,3 +1,14 @@
+/**
+ * React component for zoom controls.
+ * Allows users to zoom in and out on a timeline.
+ *
+ * @param {Object} props - The props for the ZoomControls component.
+ * @property {React.CSSProperties} [props.style] - Optional styling for the component.
+ * @returns {JSX.Element} ZoomControls component
+ *
+ * @example
+ * <ZoomControls style={{ color: 'red' }} />
+ */
 import * as React from "react";
 import {Tooltip} from "@mui/material";
 import ToggleButton from "@mui/material/ToggleButton";
@@ -8,8 +19,8 @@ import {useTimeline} from "../TimelineProvider";
 import ToggleButtonGroupEx from "../components/ToggleButtonGroupEx";
 
 export default function ZoomControls({ style }: { style?: React.CSSProperties }) {
-  const { dispatch, state} = useTimeline();
-  const { flags, settings} = state;
+  const { dispatch, state } = useTimeline();
+  const { flags, settings } = state;
   const { scaleWidth, rawScaleWidth, scale } = settings;
 
   const [disabled, setDisabled] = React.useState(!!settings.disabled)
@@ -23,14 +34,23 @@ export default function ZoomControls({ style }: { style?: React.CSSProperties })
     return undefined;
   }
 
+  /**
+   * Increases the scale width.
+   */
   const zoomInHandler = () => {
     dispatch({ type: 'SET_SETTING', payload: { key: 'scaleWidth', value: scaleWidth + 1 }})
   }
 
+  /**
+   * Decreases the scale width.
+   */
   const zoomOutHandler = () => {
     dispatch({ type: 'SET_SETTING', payload: { key: 'scaleWidth', value: scaleWidth - 1 }})
   }
 
+  /**
+   * Initiates zoom in functionality.
+   */
   const zoomIn = () => {
     const timer = setInterval(() => {
       zoomInHandler();
@@ -40,6 +60,9 @@ export default function ZoomControls({ style }: { style?: React.CSSProperties })
     });
   }
 
+  /**
+   * Initiates zoom out functionality.
+   */
   const zoomOut = () => {
     const timer = setInterval(() => {
       zoomOutHandler();
@@ -49,7 +72,11 @@ export default function ZoomControls({ style }: { style?: React.CSSProperties })
     });
   }
 
+  /**
+   * Checks if zoom out is disabled.
+   */
   const zoomOutDisabled = disabled || (scaleWidth / scale  < rawScaleWidth);
+  
   return (
     <ToggleButtonGroupEx
       id={'zoom-controls'}
@@ -80,21 +107,8 @@ export default function ZoomControls({ style }: { style?: React.CSSProperties })
 }
 
 /**
- *
- * Demos:
- *
- * - [TimelineLabels](https://stoked-ui.github.io/timeline/docs/)
- *
- * API:
- *
- * - [TimelineLabels](https://stoked-ui.github.io/timeline/api/)
+ * PropTypes generated from TypeScript type definitions.
  */
-
 ZoomControls.propTypes = {
-  // ----------------------------- Warning --------------------------------
-  // | These PropTypes are generated from the TypeScript type definitions |
-  // | To update them edit the TypeScript types and run "pnpm proptypes"  |
-  // ----------------------------------------------------------------------
   style: PropTypes.object,
 } as any;
-

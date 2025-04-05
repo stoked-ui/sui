@@ -1,12 +1,12 @@
-import * as React from 'react';
-import { expect } from 'chai';
-import { createRenderer, screen } from '@mui-internal/test-utils';
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-
+/**
+ * Integration tests for the Dialog component.
+ */
 describe('<Dialog /> integration', () => {
   const { render } = createRenderer();
 
+  /**
+   * Test case: Dialog is automatically labelled by its DialogTitle.
+   */
   it('is automatically labelled by its DialogTitle', () => {
     render(
       <Dialog open>
@@ -17,6 +17,9 @@ describe('<Dialog /> integration', () => {
     expect(screen.getByRole('dialog')).toHaveAccessibleName('Set backup account');
   });
 
+  /**
+   * Test case: Dialog can be manually labelled.
+   */
   it('can be manually labelled', () => {
     render(
       <Dialog open aria-labelledby="dialog-title">

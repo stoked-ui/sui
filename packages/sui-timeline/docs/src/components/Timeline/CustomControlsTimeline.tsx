@@ -1,13 +1,9 @@
-import * as React from 'react';
-import { Timeline } from '../../../../src';
-import { TimelineFile } from '../../../../src/TimelineFile';
-import { ITimelineTrack } from '../../../../src/TimelineTrack/TimelineTrack.types';
-import { ITimelineAction } from '../../../../src/TimelineAction';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
-import Stack from '@mui/material/Stack';
-
+/**
+ * React component for displaying a custom controls timeline.
+ * Allows users to interact with tracks and actions on a timeline.
+ *
+ * @returns {JSX.Element} The custom controls timeline component.
+ */
 export default function CustomControlsTimeline() {
   const [file, setFile] = React.useState<TimelineFile | null>(null);
   const [lastEvent, setLastEvent] = React.useState<string>('No events yet');
@@ -38,6 +34,12 @@ export default function CustomControlsTimeline() {
     setFile(timelineFile);
   }, []);
   
+  /**
+   * Handles the click event on a timeline track.
+   *
+   * @param {React.MouseEvent<HTMLElement>} e - The click event object.
+   * @param {{ track: ITimelineTrack; time: number }} param1 - Object containing track and time information.
+   */
   const handleClickTrack = (
     e: React.MouseEvent<HTMLElement>, 
     { track, time }: { track: ITimelineTrack; time: number }
@@ -45,6 +47,12 @@ export default function CustomControlsTimeline() {
     setLastEvent(`Clicked on track "${track.name}" at time ${time.toFixed(2)}`);
   };
   
+  /**
+   * Handles the click event on a timeline action.
+   *
+   * @param {React.MouseEvent<HTMLElement>} e - The click event object.
+   * @param {{ action: ITimelineAction; track: ITimelineTrack; time: number }} param1 - Object containing action, track, and time information.
+   */
   const handleClickAction = (
     e: React.MouseEvent<HTMLElement>, 
     { action, track, time }: { action: ITimelineAction; track: ITimelineTrack; time: number }
@@ -52,10 +60,16 @@ export default function CustomControlsTimeline() {
     setLastEvent(`Clicked on action "${action.name}" on track "${track.name}" at time ${time.toFixed(2)}`);
   };
 
+  /**
+   * Increases the zoom level of the timeline.
+   */
   const handleZoomIn = () => {
     setZoom((prev) => Math.min(prev + 20, 200));
   };
 
+  /**
+   * Decreases the zoom level of the timeline.
+   */
   const handleZoomOut = () => {
     setZoom((prev) => Math.max(prev - 20, 40));
   };
@@ -84,4 +98,4 @@ export default function CustomControlsTimeline() {
       </Typography>
     </Box>
   );
-} 
+}

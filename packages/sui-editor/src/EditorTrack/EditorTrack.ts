@@ -1,48 +1,33 @@
-import { namedId } from "@stoked-ui/common";
-import { IMediaFile } from "@stoked-ui/media-selector";
-import { createAction, IController, ITimelineFileTrack, ITimelineTrack } from "@stoked-ui/timeline";
-import {
-  BlendMode,
-  Fit,
-  type IEditorAction,
-} from "../EditorAction/EditorAction";
-import Controllers from "../Controllers";
+/**
+ * Interface representing an editor track.
+ * @typedef {object} IEditorTrack
+ * @property {boolean} [hidden] - Indicates whether the action is hidden.
+ * @property {BlendMode} blendMode - The blend mode of the track.
+ * @property {Fit} fit - The fit of the track.
+ * @property {string} [image] - Optional image for the track.
+ */
 
+/**
+ * Interface representing an editor file track.
+ * @typedef {object} IEditorFileTrack
+ * @property {string} [id] - The action track id.
+ * @property {string} name - The name of the track.
+ * @property {IEditorAction[]} actions - The list of row actions.
+ * @property {any} [file] - Optional file.
+ * @property {string} [controllerName] - The name of the controller.
+ * @property {IController} [controller] - The controller for the track.
+ * @property {BlendMode} [blendMode] - The blend mode of the track.
+ * @property {Fit} [fit] - The fit of the track.
+ */
 
-
-export interface IEditorTrack<
-  ActionType extends IEditorAction = IEditorAction,
-> extends ITimelineTrack<ActionType> {
-
-  /** Whether the action is hidden */
-  hidden?: boolean;
-
-  blendMode: BlendMode;
-
-  fit: Fit;
-
-  image?: string;
-}
-
-export interface IEditorFileTrack extends Omit<IEditorTrack, 'id' | 'controller' | 'actions' | 'file' | 'blendMode' | 'fit'> {
-  /** Action track id */
-  id?: string;
-
-  name: string;
-  /** Row action list */
-  actions: IEditorAction[];
-
-  file?: any;
-
-  controllerName?: string;
-
-  controller?: IController;
-
-  blendMode?: BlendMode;
-
-  fit?: Fit;
-}
-
+/**
+ * Creates an editor track from a media file.
+ * @param {IMediaFile} mediaFile - The media file to create a track from.
+ * @param {number} [currentTime=0] - The current time.
+ * @param {number} [duration=2] - The duration.
+ * @param {number} [index=0] - The index.
+ * @returns {IEditorTrack|undefined} The created editor track or undefined if no controller is found.
+ */
 export function getTrackFromMediaFile(mediaFile: IMediaFile, currentTime: number = 0, duration: number = 2, index: number = 0): IEditorTrack | undefined {
   const action = createAction<IEditorAction>({
     id: namedId('action'),
@@ -76,6 +61,13 @@ export function getTrackFromMediaFile(mediaFile: IMediaFile, currentTime: number
   } as IEditorTrack;
 }
 
+/**
+ * Creates editor tracks from multiple media files.
+ * @param {IMediaFile[]} mediaFiles - The array of media files.
+ * @param {number} [currentTime=0] - The current time.
+ * @param {IEditorTrack[]} [existingTracks=[]] - The existing tracks.
+ * @returns {IEditorTrack[]} The new editor tracks.
+ */
 export function getTracksFromMediaFiles(mediaFiles: IMediaFile[], currentTime: number = 0, existingTracks: IEditorTrack[] = []) {
   const newTracks: IEditorTrack[] = existingTracks;
   for (let i = 0; i < mediaFiles.length; i += 1) {

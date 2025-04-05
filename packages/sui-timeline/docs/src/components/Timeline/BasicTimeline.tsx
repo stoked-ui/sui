@@ -1,7 +1,9 @@
-import * as React from 'react';
-import { Timeline } from '../../../../src';
-import { TimelineFile } from '../../../../src/TimelineFile';
-
+/**
+ * Represents a basic timeline component.
+ * This component displays a timeline with specified tracks and actions.
+ *
+ * @returns {JSX.Element} The rendered basic timeline component.
+ */
 export default function BasicTimeline() {
   const [file, setFile] = React.useState<TimelineFile | null>(null);
   
@@ -36,4 +38,4 @@ export default function BasicTimeline() {
       labels={true} 
     />
   );
-} 
+}

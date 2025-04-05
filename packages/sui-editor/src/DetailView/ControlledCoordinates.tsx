@@ -1,8 +1,24 @@
-import * as React from 'react';
-import { Box, TextField } from '@mui/material';
-import {Control, Controller} from "react-hook-form";
-
-// Functional component definition
+/**
+ * Functional component for a three-slot input component.
+ * Allows input of X, Y, and Z coordinates.
+ *
+ * @param {Object} params - Component props
+ * @param {Control<any, any>} params.control - React Hook Form control object
+ * @param {boolean} [params.disabled] - Flag indicating if component is disabled
+ * @param {function} [params.onClick] - Click event handler
+ * 
+ * @returns {JSX.Element} ThreeSlotComponent
+ * 
+ * @example
+ * // Usage example:
+ * // import ThreeSlotComponent from './ThreeSlotComponent';
+ * //
+ * // function App() {
+ * //   return (
+ * //     <ControlledCoordinates control={control} disabled={false} onClick={handleClick} />
+ * //   );
+ * // }
+ */
 function ThreeSlotComponent(params: { control: Control<any, any>, disabled?: boolean, onClick?: () => void }) {
   return (
     <Box
@@ -98,15 +114,18 @@ function ThreeSlotComponent(params: { control: Control<any, any>, disabled?: boo
   );
 }
 
-// Usage example
-// import ThreeSlotComponent from './ThreeSlotComponent';
-//
-// function App() {
-//   return (
+/**
+ * Component that wraps ThreeSlotComponent with additional props.
+ *
+ * @param {Object} params - Component props
+ * @param {Control<any, any>} params.control - React Hook Form control object
+ * @param {boolean} [params.disabled] - Flag indicating if component is disabled
+ * @param {function} [params.onClick] - Click event handler
+ * 
+ * @returns {JSX.Element} ControlledCoordinates
+ */
 function ControlledCoordinates(params: { control: Control<any, any>, disabled?: boolean, onClick?: () => void }) {
   return <ThreeSlotComponent {...params} />
 }
 
 export default ControlledCoordinates;
-//   );
-// }

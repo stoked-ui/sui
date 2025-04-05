@@ -9,6 +9,17 @@ import Fab from "@mui/material/Fab";
 import ToggleButtonGroupEx from "../components/ToggleButtonGroupEx";
 import { useTimeline } from "../TimelineProvider/TimelineProvider";
 
+/**
+ * ToggleVolume component for muting/unmuting a track.
+ *
+ * @param {Object} props - Component props.
+ * @param {Object} props.track - The track object to be muted/unmuted.
+ * @param {Object} props.file - The file containing the track.
+ * @param {Function} props.toggleClick - Function to handle toggle click event.
+ * @param {Function} props.dispatch - Function to dispatch actions.
+ * @param {React.ReactNode} props.children - Child elements.
+ * @returns {JSX.Element} JSX element representing the ToggleVolume component.
+ */
 export function ToggleVolume({ track, file, toggleClick, dispatch, children }) {
 
   return  <ToggleButton
@@ -34,6 +45,18 @@ export function ToggleVolume({ track, file, toggleClick, dispatch, children }) {
   </ToggleButton>
 }
 
+/**
+ * ToggleLock component for locking/unlocking a track.
+ *
+ * @param {Object} props - Component props.
+ * @param {Object} props.track - The track object to be locked/unlocked.
+ * @param {Object} props.file - The file containing the track.
+ * @param {Function} props.toggleClick - Function to handle toggle click event.
+ * @param {Function} props.dispatch - Function to dispatch actions.
+ * @param {boolean} props.hide - Indicates if the component should be hidden.
+ * @param {React.ReactNode} props.children - Child elements.
+ * @returns {JSX.Element} JSX element representing the ToggleLock component.
+ */
 export function ToggleLock({ track, file, toggleClick, dispatch, hide, children }) {
   if (hide) {
     return undefined;
@@ -67,8 +90,21 @@ export function ToggleLock({ track, file, toggleClick, dispatch, hide, children 
   );
 }
 
-export interface TimelineTrackActionsProps { track: any, sx?: any }
-export default function TimelineTrackActions({ track, sx }: TimelineTrackActionsProps) {
+/**
+ * Props for TimelineTrackActions component.
+ *
+ * @typedef {Object} TimelineTrackActionsProps
+ * @property {any} track - The track object.
+ * @property {any} sx - Additional styles for the component.
+ */
+
+/**
+ * TimelineTrackActions component for handling track actions.
+ *
+ * @param {TimelineTrackActionsProps} props - Component props.
+ * @returns {JSX.Element} JSX element representing the TimelineTrackActions component.
+ */
+export default function TimelineTrackActions({ track, sx }) {
   const { state: { file, flags }, dispatch } = useTimeline();
   const volumeIcon = track.muted ? <VolumeOff fontSize={'small'} /> : <VolumeUp fontSize={'small'} />;
   const lockIcon = track.locked ? <LockIcon fontSize={'small'}/> : <LockOpenIcon fontSize={'small'}/>;

@@ -2,11 +2,10 @@ export const PREFIX = `timeline`;
 
 /** The time where the cursor is at the beginning */
 export const START_CURSOR_TIME = 0;
-/**Default scale */
+/** Default scale */
 export const DEFAULT_SCALE = 1;
 /** Default number of scale divisions */
 export const DEFAULT_SCALE_SPLIT_COUNT = 10;
-
 export const DEFAULT_SCALE_COUNT = 10;
 
 /** Default scale display width */

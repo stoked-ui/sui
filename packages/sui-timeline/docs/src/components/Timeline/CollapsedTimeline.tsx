@@ -1,14 +1,13 @@
-import * as React from 'react';
-import { Timeline } from '../../../../src';
-import { TimelineFile } from '../../../../src/TimelineFile';
-import Box from '@mui/material/Box';
-import Switch from '@mui/material/Switch';
-import FormControlLabel from '@mui/material/FormControlLabel';
-
+/**
+ * React component for displaying a collapsed timeline with a switch for toggling view.
+ *
+ * @returns {JSX.Element} The collapsed timeline component
+ */
 export default function CollapsedTimeline() {
+
   const [file, setFile] = React.useState<TimelineFile | null>(null);
   const [collapsed, setCollapsed] = React.useState<boolean>(true);
-  
+
   React.useEffect(() => {
     // Create a timeline file with sample data
     const timelineFile = new TimelineFile({
@@ -38,32 +37,37 @@ export default function CollapsedTimeline() {
         }
       ]
     });
-    
+
     setFile(timelineFile);
   }, []);
-  
+
+  /**
+   * Handles the change event when collapsing the timeline view.
+   *
+   * @param {React.ChangeEvent<HTMLInputElement>} event - The change event
+   */
   const handleCollapseChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setCollapsed(event.target.checked);
   };
-  
+
   return (
     <Box sx={{ width: '100%' }}>
       <FormControlLabel
         control={
-          <Switch 
-            checked={collapsed} 
-            onChange={handleCollapseChange} 
+          <Switch
+            checked={collapsed}
+            onChange={handleCollapseChange}
           />
         }
         label="Collapsed view"
         sx={{ mb: 2 }}
       />
-      
-      <Timeline 
-        file={file} 
+
+      <Timeline
+        file={file}
         labels={true}
         collapsed={collapsed}
       />
     </Box>
   );
-} 
+}

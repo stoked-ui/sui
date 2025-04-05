@@ -1,17 +1,27 @@
-import generateUtilityClass from '@mui/utils/generateUtilityClass';
-import generateUtilityClasses from '@mui/utils/generateUtilityClasses';
+/**
+ * Interface for TimelineScrollResizer classes.
+ * @typedef {Object} TimelineScrollResizerClasses
+ * @property {string} root - Styles applied to the root element.
+ */
 
-export interface TimelineScrollResizerClasses {
-  /** Styles applied to the root element. */
-  root: string;
-}
+/**
+ * Key of TimelineScrollResizer classes.
+ * @typedef {('root')} TimelineScrollResizerClassKey
+ */
 
-export type TimelineScrollResizerClassKey = keyof TimelineScrollResizerClasses;
-
-export function getTimelineScrollResizerUtilityClass(slot: string): string {
+/**
+ * Returns the utility class name for TimelineScrollResizer.
+ * @param {string} slot - The slot for the utility class.
+ * @returns {string} The generated utility class name.
+ */
+export function getTimelineScrollResizerUtilityClass(slot) {
   return generateUtilityClass('MuiTimelineScrollResizer', slot);
 }
 
-export const timelineScrollResizerClasses: TimelineScrollResizerClasses = generateUtilityClasses('MuiTimelineScrollResizer', [
+/**
+ * TimelineScrollResizer classes with generated utility classes.
+ * @type {TimelineScrollResizerClasses}
+ */
+export const timelineScrollResizerClasses = generateUtilityClasses('MuiTimelineScrollResizer', [
   'root',
 ]);

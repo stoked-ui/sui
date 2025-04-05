@@ -1,47 +1,82 @@
-import * as React from 'react';
-import ToggleButton from '@mui/material/ToggleButton';
-import Tooltip from '@mui/material/Tooltip';
-import { styled } from '@mui/material/styles';
-import {useTimeline} from "../TimelineProvider";
-import ToggleButtonGroupEx from "../components/ToggleButtonGroupEx";
-import EdgeSnap from "../icons/EdgeSnap";
-import GridSnap from "../icons/GridSnap";
-import PropTypes from "prop-types";
-import {SxProps} from "@mui/system";
-
-const ToolbarToggle = styled(ToggleButton)(() => ({
-  background: 'unset',
-  backgroundColor: 'unset',
-}));
-export default function SnapControls({ sx, size, hover }: { sx?: SxProps, size?: 'large' | 'medium' | 'small', hover?: boolean }) {
+/**
+ * SnapControls component for managing snap options in the timeline.
+ * @param {Object} props - The component props.
+ * @param {SxProps} [props.sx] - Custom styling using the MUI system.
+ * @param {'large' | 'medium' | 'small'} [props.size] - Size of the snap controls.
+ * @param {boolean} [props.hover] - Indicates if hover effect should be applied.
+ * @returns {JSX.Element} - The SnapControls component.
+ * @fires SnapControls#handleSnapOptions
+ * @see ToggleButtonGroupEx
+ * @see EdgeSnap
+ * @see GridSnap
+ */
+export default function SnapControls({ sx, size, hover }) {
+  /**
+   * State and dispatch obtained from the TimelineProvider.
+   */
   const {
     dispatch,
     state: { flags, settings },
   } = useTimeline();
 
+  /**
+   * State to manage the disabled state.
+   */
   const [disabled, setDisabled] = React.useState(!!settings.disabled);
+
+  /**
+   * Effect to update disabled state based on settings.
+   */
   React.useEffect(() => {
     if (settings.disabled !== disabled) {
       setDisabled(!!settings.disabled);
     }
   }, [settings.disabled]);
 
+  /**
+   * Check if snap controls are displayed.
+   */
   const onControls = flags.noLabels && !flags.noSnapControls;
+
+  /**
+   * Determine control size based on flags or provided size prop.
+   */
   const cntrlSize = size || (onControls ? 'large' : 'medium');
-  const cntrlSizes = { large: { width: 52, height: 40}, medium: { width: 40, height: 32 }, small: { width: 30, height: 22 }};
+
+  /**
+   * Object containing width and height values for different control sizes.
+   */
+  const cntrlSizes = { large: { width: 52, height: 40 }, medium: { width: 40, height: 32 }, small: { width: 30, height: 22 } };
+
+  /**
+   * State to manage the current control size.
+   */
   const [currentSize, setCurrentSize] = React.useState(cntrlSize);
+
+  /**
+   * Effect to update current control size.
+   */
   React.useEffect(() => {
     if (currentSize !== cntrlSize) {
       setCurrentSize(cntrlSize);
     }
   }, [cntrlSize]);
 
+  /**
+   * Return undefined if snap controls are disabled.
+   */
   if (flags.noSnapControls) {
     return undefined;
   }
-  const handleSnapOptions = (event: React.MouseEvent<HTMLElement>, newOptions: string[]) => {
-    const add: string[] = [];
-    const remove: string[] = [];
+
+  /**
+   * Event handler for snap options changes.
+   * @param {React.MouseEvent<HTMLElement>} event - The event that triggered the change.
+   * @param {string[]} newOptions - The new snap options selected.
+   */
+  const handleSnapOptions = (event, newOptions) => {
+    const add = [];
+    const remove = [];
     if (newOptions.includes('gridSnap')) {
       add.push('gridSnap');
     } else {
@@ -55,16 +90,28 @@ export default function SnapControls({ sx, size, hover }: { sx?: SxProps, size?:
     dispatch({ type: 'SET_FLAGS', payload: { add, remove } });
   };
 
+  /**
+   * Retrieve width and height based on current control size.
+   */
   const width = cntrlSizes[cntrlSize].width;
   const height = cntrlSizes[cntrlSize].height;
-  const controlFlags: string[] = [];
+
+  /**
+   * Array to store active control flags.
+   */
+  const controlFlags = [];
   if (flags.edgeSnap) {
     controlFlags.push('edgeSnap');
   }
   if (flags.gridSnap) {
     controlFlags.push('gridSnap');
   }
-  const sxButton = hover ? { opacity: .4, '&:hover': { opacity: 1 }} : {};
+
+  /**
+   * Style object for button hover effect.
+   */
+  const sxButton = hover ? { opacity: .4, '&:hover': { opacity: 1 } } : {};
+
   return (
     <ToggleButtonGroupEx
       onChange={handleSnapOptions}
@@ -76,6 +123,7 @@ export default function SnapControls({ sx, size, hover }: { sx?: SxProps, size?:
       sx={sx}
       disabled={disabled}
     >
+      {/* Tooltip for Edge Snap */}
       <Tooltip enterDelay={1000} title={'Edge Snap'} key={'edgeSnap'}>
         <span>
           <ToggleButton value="edgeSnap" aria-label="edge snap" key={'edgeSnap-tooltip'} sx={sxButton}>
@@ -83,6 +131,7 @@ export default function SnapControls({ sx, size, hover }: { sx?: SxProps, size?:
           </ToggleButton>
         </span>
       </Tooltip>
+      {/* Tooltip for Grid Snap */}
       <Tooltip enterDelay={1000} title={'Grid Snap'} key={'gridSnap'}>
         <span>
           <ToolbarToggle value="gridSnap" aria-label="grid snap" key={'gridSnap-tooltip'} sx={sxButton}>
@@ -95,21 +144,9 @@ export default function SnapControls({ sx, size, hover }: { sx?: SxProps, size?:
 }
 
 /**
- *
- * Demos:
- *
- * - [TimelineLabels](https://stoked-ui.github.io/timeline/docs/)
- *
- * API:
- *
- * - [TimelineLabels](https://stoked-ui.github.io/timeline/api/)
+ * SnapControls prop types generated from TypeScript types.
+ * @property {object} style - Custom style object.
  */
-
 SnapControls.propTypes = {
-  // ----------------------------- Warning --------------------------------
-  // | These PropTypes are generated from the TypeScript type definitions |
-  // | To update them edit the TypeScript types and run "pnpm proptypes"  |
-  // ----------------------------------------------------------------------
   style: PropTypes.object,
-} as any;
-
+};

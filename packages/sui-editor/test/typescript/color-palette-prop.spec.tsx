@@ -1,47 +1,30 @@
-import * as React from 'react';
-import {
-  Badge,
-  Button,
-  Checkbox,
-  Chip,
-  CircularProgress,
-  FormControl,
-  FormLabel,
-  FilledInput,
-  OutlinedInput,
-  IconButton,
-  Input,
-  InputLabel,
-  LinearProgress,
-  Radio,
-  TextField,
-  SvgIcon,
-  Switch,
-} from '@mui/material';
-
+/**
+ * Renders components with different color palettes based on a predefined set of colors.
+ * @returns {JSX.Element} Components with different color palettes.
+ */
 function TestBaseColorPaletteProp() {
   const baseColorPalette = ['primary', 'secondary', 'error', 'info', 'success', 'warning'] as const;
   return (
     <div>
       {baseColorPalette.map((color) => (
         <div key={color}>
-          <Badge color={color} />
-          <Button color={color} />
-          <Checkbox color={color} />
-          <Chip color={color} />
-          <CircularProgress color={color} />
-          <FormControl color={color} />
-          <FilledInput color={color} />
-          <FormLabel color={color} />
-          <OutlinedInput color={color} />
-          <IconButton color={color} />
-          <Input color={color} />
-          <InputLabel color={color} />
-          <LinearProgress color={color} />
-          <TextField color={color} />
-          <Radio color={color} />
-          <SvgIcon color={color} />
-          <Switch color={color} />
+          <Badge color={color} /> // @property {string} color - The color of the badge.
+          <Button color={color} /> // @property {string} color - The color of the button.
+          <Checkbox color={color} /> // @property {string} color - The color of the checkbox.
+          <Chip color={color} /> // @property {string} color - The color of the chip.
+          <CircularProgress color={color} /> // @property {string} color - The color of the circular progress.
+          <FormControl color={color} /> // @property {string} color - The color of the form control.
+          <FilledInput color={color} /> // @property {string} color - The color of the filled input.
+          <FormLabel color={color} /> // @property {string} color - The color of the form label.
+          <OutlinedInput color={color} /> // @property {string} color - The color of the outlined input.
+          <IconButton color={color} /> // @property {string} color - The color of the icon button.
+          <Input color={color} /> // @property {string} color - The color of the input.
+          <InputLabel color={color} /> // @property {string} color - The color of the input label.
+          <LinearProgress color={color} /> // @property {string} color - The color of the linear progress.
+          <TextField color={color} /> // @property {string} color - The color of the text field.
+          <Radio color={color} /> // @property {string} color - The color of the radio button.
+          <SvgIcon color={color} /> // @property {string} color - The color of the SVG icon.
+          <Switch color={color} /> // @property {string} color - The color of the switch.
         </div>
       ))}
     </div>

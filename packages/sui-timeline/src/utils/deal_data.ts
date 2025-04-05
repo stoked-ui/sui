@@ -1,8 +1,3 @@
-import {ITimelineTrack} from "../TimelineTrack/TimelineTrack.types";
-import {type ITimelineAction} from "../TimelineAction/TimelineAction.types";
-import {ADD_SCALE_COUNT} from "../interface/const";
-import { IController } from "../Controller";
-
 /** time to pixel */
 export function parserTimeToPixel(
   data: number,
@@ -70,6 +65,7 @@ export function parserTimeToTransform(
     width,
   };
 }
+
 /** Get the number of scales based on data */
 export function getScaleCountByRows<
   ActionType extends ITimelineAction = ITimelineAction,

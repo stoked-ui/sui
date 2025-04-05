@@ -1,3 +1,6 @@
+/**
+ * Required modules
+ */
 const http = require('http');
 const path = require('path');
 const playwright = require('playwright');
@@ -8,11 +11,19 @@ const { expect } = require('chai');
 const port = 3090;
 const host = '0.0.0.0';
 
+/**
+ * Starts a server
+ * @param {express.Express} app - The Express app instance
+ * @returns {Promise<{ close: Function }>} A promise that resolves with a function to close the server
+ */
 function startServer(app) {
   const server = http.createServer(app);
 
+  /**
+   * Closes the server
+   * @returns {Promise<void>}
+   */
   function close() {
-    // eslint-disable-next-line no-console
     console.info('http: server is stopping');
 
     return new Promise((resolve, reject) => {
@@ -31,15 +42,17 @@ function startServer(app) {
       if (error) {
         reject(error);
       } else {
-        // eslint-disable-next-line no-console
         console.info(`http: ready on http://${server.address().address}:${server.address().port}`);
-
         resolve({ close });
       }
     });
   });
 }
 
+/**
+ * Creates an Express app
+ * @returns {Promise<express.Express>} A promise that resolves with the Express app instance
+ */
 async function createApp() {
   const app = express();
   const rootPath = path.join(__dirname, '../../../../');
@@ -89,8 +102,11 @@ function App() {
   return app;
 }
 
+/**
+ * Starts a browser
+ * @returns {Promise<{ page: playwright.Page, close: Function }>} A promise that resolves with the browser page and a function to close the browser
+ */
 async function startBrowser() {
-  // eslint-disable-next-line no-console
   console.info('browser: start');
   const browser = await playwright.chromium.launch();
   const page = await browser.newPage();
@@ -98,8 +114,11 @@ async function startBrowser() {
     throw err;
   });
 
+  /**
+   * Closes the browser
+   * @returns {Promise<void>}
+   */
   function close() {
-    // eslint-disable-next-line no-console
     console.info('browser:server is stopping');
     return browser.close();
   }
@@ -107,6 +126,9 @@ async function startBrowser() {
   return { page, close };
 }
 
+/**
+ * Runs the application
+ */
 async function run() {
   let server = { close() {} };
   let closeBrowser = () => {};

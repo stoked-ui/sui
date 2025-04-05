@@ -1,13 +1,22 @@
-// testing docs/src/pages/customization/theme-components/theme-components.md
+/**
+ * Theme customization for button components.
+ */
+
 import { blue, red } from '@mui/material/colors';
 import { createTheme } from '@mui/material/styles';
 
+/**
+ * Extends the ButtonPropsVariantOverrides interface to include a 'dashed' variant.
+ */
 declare module '@mui/material/Button' {
   interface ButtonPropsVariantOverrides {
     dashed: true;
   }
 }
 
+/**
+ * Custom theme configuration for button components.
+ */
 const theme = createTheme({
   components: {
     MuiButton: {

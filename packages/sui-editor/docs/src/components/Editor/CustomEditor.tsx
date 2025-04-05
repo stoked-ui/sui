@@ -1,12 +1,18 @@
-import * as React from 'react';
-import { Editor } from '@stoked-ui/sui-editor';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
-
+/**
+ * CustomEditor component for rendering a customized editor with various configurations.
+ * 
+ * @returns {JSX.Element} React component
+ */
 export default function CustomEditor() {
-  // Different editor configurations
+  /**
+   * Editor configuration state.
+   * 
+   * @typedef {Object} EditorConfig
+   * @property {boolean} minimal - Flag for minimal mode
+   * @property {boolean} fullscreen - Flag for fullscreen mode
+   * @property {boolean} detailMode - Flag for detail mode
+   * @property {string} mode - Editor mode ('project', 'track', 'action')
+   */
   const [editorConfig, setEditorConfig] = React.useState({
     minimal: false,
     fullscreen: false,
@@ -14,6 +20,11 @@ export default function CustomEditor() {
     mode: 'project',
   });
   
+  /**
+   * Handles the change in editor configuration.
+   * 
+   * @param {EditorConfig} config - New editor configuration
+   */
   const handleConfigChange = (config) => {
     setEditorConfig((prev) => ({
       ...prev,
@@ -25,6 +36,12 @@ export default function CustomEditor() {
     <Box sx={{ height: '600px', width: '100%', border: '1px solid #e0e0e0' }}>
       <Box sx={{ mb: 2, display: 'flex', gap: 2 }}>
         <Button 
+          /**
+           * Button to toggle between minimal and standard mode.
+           * 
+           * @property {string} variant - Button variant ('contained' or 'outlined')
+           * @fires CustomEditor#handleConfigChange
+           */
           variant={editorConfig.minimal ? 'contained' : 'outlined'} 
           onClick={() => handleConfigChange({ minimal: !editorConfig.minimal })}
         >
@@ -32,6 +49,12 @@ export default function CustomEditor() {
         </Button>
         
         <Button 
+          /**
+           * Button to toggle between fullscreen and exit fullscreen.
+           * 
+           * @property {string} variant - Button variant ('contained' or 'outlined')
+           * @fires CustomEditor#handleConfigChange
+           */
           variant={editorConfig.fullscreen ? 'contained' : 'outlined'} 
           onClick={() => handleConfigChange({ fullscreen: !editorConfig.fullscreen })}
         >
@@ -39,6 +62,12 @@ export default function CustomEditor() {
         </Button>
         
         <Select
+          /**
+           * Select dropdown for changing editor mode.
+           * 
+           * @property {string} value - Selected mode value
+           * @fires CustomEditor#handleConfigChange
+           */
           value={editorConfig.mode}
           onChange={(e) => handleConfigChange({ mode: e.target.value })}
           sx={{ minWidth: 120 }}
@@ -50,6 +79,16 @@ export default function CustomEditor() {
       </Box>
       
       <Editor 
+        /**
+         * Editor component with custom configurations.
+         * 
+         * @property {boolean} minimal - Flag for minimal mode
+         * @property {boolean} fullscreen - Flag for fullscreen mode
+         * @property {boolean} detailMode - Flag for detail mode
+         * @property {string} mode - Editor mode ('project', 'track', 'action')
+         * @property {boolean} fileView - Flag for file view
+         * @property {boolean} labels - Flag for labels
+         */
         minimal={editorConfig.minimal}
         fullscreen={editorConfig.fullscreen}
         detailMode={editorConfig.detailMode}
@@ -59,4 +98,4 @@ export default function CustomEditor() {
       />
     </Box>
   );
-} 
+}

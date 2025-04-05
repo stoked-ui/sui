@@ -1,3 +1,11 @@
+/**
+ * @typedef {Object} TimelineTimeProps - Props for the TimelineTime component
+ * @property {Function} getScaleRender - Function to render scale
+ * @property {Function} onClickTimeArea - Callback function for clicking on the time area
+ * @property {Function} onScroll - Callback function for scrolling
+ * @property {number} scrollLeft - Left scroll distance
+ */
+
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { emphasize, styled } from '@mui/material/styles';
@@ -9,6 +17,9 @@ import { TimelineTimeProps } from './TimelineTime.types';
 import ZoomControls from '../TimelineTrackArea/ZoomControls';
 import SnapControls from "../TimelineLabels/SnapControls";
 
+/**
+ * Root styled component for the Time Area
+ */
 const TimeAreaRoot = styled('div')(({ theme }) => ({
   position: 'relative',
   height: '37px !important',
@@ -22,18 +33,10 @@ const TimeAreaRoot = styled('div')(({ theme }) => ({
   },
   '& #time-area-grid': {},
 }));
-/*
-const TimeUnitScale = styled('div')(({ theme }) => ({
-  color: theme.palette.text.secondary,
-  position: 'absolute',
-  right: 0,
-  top: 0,
-  transform: 'translate(50%, -100%)',
-  userSelect: 'none',
-  paddingInlineStart: '0px',
-  lineHeight: '20px',
-})); */
 
+/**
+ * Scale of a time unit styled component
+ */
 const TimeUnitScale = styled('div')<{ disabled: boolean }>(({ theme, disabled }) => ({
   color: disabled ? theme.palette.action.disabled : theme.palette.text.secondary,
   position: 'absolute',
@@ -43,6 +46,9 @@ const TimeUnitScale = styled('div')<{ disabled: boolean }>(({ theme, disabled })
   userSelect: 'none',
 }));
 
+/**
+ * Interact component for the Time Area
+ */
 const TimeAreaInteract = styled('div')<{ disabled: boolean }>(({ disabled }) => ({
   position: 'absolute',
   cursor: disabled ? 'not-allowed' : 'pointer',
@@ -50,6 +56,9 @@ const TimeAreaInteract = styled('div')<{ disabled: boolean }>(({ disabled }) => 
   top: 0,
 }));
 
+/**
+ * Time unit styled component
+ */
 const TimeUnit = styled('div')<{ disabled: boolean }>(({ theme, disabled }) => ({
   borderRight: `1px solid ${disabled ? theme.palette.action.disabled : theme.palette.text.secondary}`,
   position: 'relative',
@@ -61,22 +70,12 @@ const TimeUnit = styled('div')<{ disabled: boolean }>(({ theme, disabled }) => (
     height: '8px !important',
   },
 }));
-/*
 
- const TimeUnit = styled('div')(({ theme }) => ({
- borderRight: `1px solid ${theme.palette.text.primary}`,
- position: 'relative',
- boxSizing: 'content-box',
- height: '4px !important',
- bottom: '0 !important',
- top: '31px !important',
- '&.timeline-time-unit-big': {
- height: '8px !important',
- }
- }));
+/**
+ * Animation timeline component
+ * @param {TimelineTimeProps} props - Props for the TimelineTime component
+ * @returns {JSX.Element} Animation timeline component
  */
-
-/** Animation timeline component */
 function TimelineTime(props: TimelineTimeProps) {
   const context = useTimeline();
   const { state, dispatch } = context;
@@ -96,10 +95,9 @@ function TimelineTime(props: TimelineTimeProps) {
   const gridRef = React.useRef<Grid>();
   const timeInteract = React.useRef<HTMLDivElement>();
   const timeAreaRef = React.useRef<HTMLDivElement>();
-  /** Whether to display subdivision scales */
 
   const showUnit = scaleSplitCount > 0;
-  /** Get the rendering content of each cell */
+
   const cellRenderer: GridCellRenderer = ({ columnIndex, key, style }) => {
     const isShowScale = showUnit ? columnIndex % scaleSplitCount === 0 : true;
     const classNames = ['time-unit'];
@@ -128,7 +126,6 @@ function TimelineTime(props: TimelineTimeProps) {
     gridRef.current?.recomputeGridSize();
   }, [scaleWidth, startLeft]);
 
-  /** Get column width */
   const getColumnWidth = (data: { index: number }) => {
     switch (data.index) {
       case 0:
@@ -155,7 +152,7 @@ function TimelineTime(props: TimelineTimeProps) {
     const time = parserPixelToTime(left, { startLeft, scale, scaleWidth });
     const result = onClickTimeArea && onClickTimeArea(time, e);
     if (result === false) {
-      return; // Prevent setting time when returning false}
+      return;
     }
     if (!isDragging) {
       setIsDragging(true);
@@ -177,7 +174,6 @@ function TimelineTime(props: TimelineTimeProps) {
       setIsDragging(true);
     }
     setTimeToMouse(e);
-    // setPosition({ x: e.clientX, y: e.clientY });
   };
 
   return (<TimeAreaRoot
@@ -232,22 +228,9 @@ function TimelineTime(props: TimelineTimeProps) {
 }
 
 TimelineTime.propTypes = {
-  // ----------------------------- Warning --------------------------------
-  // | These PropTypes are generated from the TypeScript type definitions |
-  // | To update them edit the TypeScript types and run "pnpm proptypes"  |
-  // ----------------------------------------------------------------------
-  /**
-   * Set cursor position
-   */
   getScaleRender: PropTypes.func,
   onClickTimeArea: PropTypes.func,
-  /**
-   * Scroll callback, used for synchronous scrolling
-   */
   onScroll: PropTypes.func,
-  /**
-   * Left scroll distance
-   */
   scrollLeft: PropTypes.number,
 } as any;
 

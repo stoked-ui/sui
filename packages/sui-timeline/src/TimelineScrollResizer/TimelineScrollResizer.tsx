@@ -1,94 +1,55 @@
-import * as React from 'react';
-import { alpha, styled } from '@mui/system';
-import { TimelineScrollResizerProps } from './TimelineScrollResizer.types';
-import { useTimeline } from '../TimelineProvider/TimelineProvider';
-/*
-
-const ScrollbarContainer = styled('div')(({ theme }) => ({
-  width: '100%',
-  height: '0px',
-  backgroundColor: theme.palette.action.divider,
-  position: 'relative',
-}));
-
-const ScrollbarTrack = styled('div')(({ theme }) => ({
-  height: '100%',
-  width: '100%',
-  backgroundColor: theme.palette.action.hover,
-  position: 'relative',
-}));
-
-const ScrollbarThumb = styled('div')<{ width: number, left: number, disabled: boolean }>(({ theme, width, left, disabled }) => ({
-  height: '100%',
-  width: `${width}px`,
-  minWidth: '40px',
-  backgroundColor: disabled ? alpha(theme.palette.action.disabled, 0.1) : '#55555599',
-  position: 'absolute',
-  left: `${left}px`,
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  cursor: disabled ? 'not-allowed' : 'pointer',
-}));
-
-const ResizeHandle = styled('div')<{ disabled: boolean }>(({ theme, disabled }) => ({
-  width: '10px',
-  height: '100%',
-  backgroundColor: disabled ? alpha(theme.palette.action.disabled, 0.1) : theme.palette.grey[700],
-  cursor: disabled ? 'not-allowed' : 'ew-resize',
-
-  '&:first-of-type': {
-    borderRadius: '5px 0 0 5px',
-  },
-
-  '&:last-of-type': {
-    borderRadius: '0 5px 5px 0',
-  },
-}));
-
-type MouseState = { dragging: boolean, resizingLeft: boolean, resizingRight: boolean };
-
-const calcBoundaryWidth = (editorId: string, scrollWidth?: number, maxDuration?: number, scaleWidth?: number, scale?: number) => {
-  let width: number | undefined = scrollWidth;
-  if (!width) {
-    const element = document.getElementById(editorId);
-    width = element?.scrollWidth;
-  }
-  if (width && (!maxDuration || !scaleWidth || !scale)) {
-    return width;
-  }
-  return maxDuration * (scaleWidth);
-};
-*/
-
+/**
+ * React component for resizing the timeline scroll area.
+ * @param {TimelineScrollResizerProps} props - The props for the TimelineScrollResizer component.
+ * @returns {JSX.Element} The rendered TimelineScrollResizer component.
+ */
 export default function TimelineScrollResizer({
   elementRef,
   type = 'horizontal',
 }: TimelineScrollResizerProps) {
-  /* const context = useTimeline();
-  const { state, dispatch } = context;
-  const { engine, settings, flags } = state;
-  const { noResizer } = flags;
-  const { editorId, scale, scaleWidth, fitScaleData } = settings;
+  const [mouseState, setMouseState] = React.useState<MouseState>({ resizingRight: false, resizingLeft: false, dragging: false });
+  const [startX, setStartX] = React.useState(0);
+  const [scrollThumbPosition, setScrollThumbPosition] = React.useState(0);
+  const thumbRef = React.useRef<HTMLDivElement>(null);
+  const leftResizerRef = React.useRef<HTMLDivElement>(null);
+  const rightResizerRef = React.useRef<HTMLDivElement>(null);
+  const [thumbWidth, setThumbWidth] = React.useState(50);
+  const [resizing, setResizing] = React.useState(false); // Track whether resizing is happening
 
+  /**
+   * Calculates the boundary width based on provided parameters.
+   * @param {string} editorId - The id of the editor element.
+   * @param {number} scrollWidth - The width of the scroll area.
+   * @param {number} maxDuration - The maximum duration.
+   * @param {number} scaleWidth - The width of the scale.
+   * @param {number} scale - The scale value.
+   * @returns {number} The calculated boundary width.
+   */
+  const calcBoundaryWidth = (editorId: string, scrollWidth?: number, maxDuration?: number, scaleWidth?: number, scale?: number) => {
+    let width: number | undefined = scrollWidth;
+    if (!width) {
+      const element = document.getElementById(editorId);
+      width = element?.scrollWidth;
+    }
+    if (width && (!maxDuration || !scaleWidth || !scale)) {
+      return width;
+    }
+    return maxDuration * (scaleWidth);
+  };
+
+  /**
+   * Retrieves the boundary width based on the editor id and settings.
+   * @returns {number} The boundary width.
+   */
   const getBoundaryWidth = () => {
     return calcBoundaryWidth(editorId, elementRef.current?.scrollWidth, engine?.maxDuration, scaleWidth, scale);
   };
 
-  const [boundaryWidth, setBoundaryWidth] = React.useState(getBoundaryWidth());
-  const [mouseState, setMouseState] = React.useState<MouseState>({ resizingRight: false, resizingLeft: false, dragging: false });
-  const [startX, setStartX] = React.useState(0);
-  const [scrollThumbPosition, setScrollThumbPosition] = React.useState(0);
-  const [startScrollThumbPosition, setStartScrollThumbPosition] = React.useState(null);
-  const [thumbWidth, setThumbWidth] = React.useState(50);
-  const [resizing, setResizing] = React.useState(false); // Track whether resizing is happening
-  const thumbRef = React.useRef<HTMLDivElement>(null);
-  const leftResizerRef = React.useRef<HTMLDivElement>(null);
-  const rightResizerRef = React.useRef<HTMLDivElement>(null);
-  React.useEffect(() => {
-    setBoundaryWidth(getBoundaryWidth());
-  }, [elementRef.current?.scrollWidth, engine?.maxDuration, scaleWidth, scale]);
-
+  /**
+   * Retrieves the thumbnail width based on the total width.
+   * @param {number} totalWidth - The total width for calculation.
+   * @returns {number} The calculated thumbnail width.
+   */
   const getThumbnailWidth = (totalWidth = boundaryWidth) => {
     if (!elementRef.current) {
       return thumbWidth;
@@ -99,36 +60,22 @@ export default function TimelineScrollResizer({
     return thumbWidthRes;
   };
 
+  /**
+   * Updates the thumb size based on the calculated width.
+   */
   const updateThumbSize = () => {
     const tWidth = getThumbnailWidth();
     setThumbWidth(tWidth);
-  }
+  };
   window.updateThumbSize = updateThumbSize;
 
-  React.useEffect(() => {
-    if (!elementRef.current || resizing) {
-      return undefined; // Don't set thumb width if resizing is active
-    }
-
-    const observer = new ResizeObserver(() => {
-      // if (!resizing) { // Only resize the thumb if we aren't manually resizing it
-        const tWidth = getThumbnailWidth();
-        setThumbWidth(tWidth);
-        console.info('tWidth', tWidth);
-      // }
-    });
-
-    observer.observe(elementRef.current);
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [elementRef.current, resizing]);
-
-
+  /**
+   * Handles the mouse movement during resizing.
+   * @param {MouseEvent} e - The mouse event.
+   */
   const handleMouseResizingMove = (e: MouseEvent) => {
     if (!elementRef.current || !resizing) {
-      return
+      return;
     }
 
     const deltaX = mouseState.resizingLeft ? e.clientX + startX : e.clientX - startX;
@@ -143,14 +90,18 @@ export default function TimelineScrollResizer({
       if (newThumbWidth <= elementRef.current.clientWidth) {
         setThumbWidth(Math.min(elementRef.current.clientWidth, newThumbWidth));
         setScrollThumbPosition(newLeftPosition); // Keep thumb aligned to left during resizing
-        dispatch({type: 'SET_SETTING', payload: {key: 'scaleWidth', value: scaleWidth - deltaX}});
+        dispatch({ type: 'SET_SETTING', payload: { key: 'scaleWidth', value: scaleWidth - deltaX } });
       }
     }
   };
 
+  /**
+   * Handles the mouse movement for dragging the thumb.
+   * @param {MouseEvent} e - The mouse event.
+   */
   const handleMouseThumbMove = (e: MouseEvent) => {
     if (!elementRef.current) {
-      return
+      return;
     }
     const deltaX = e.clientX - startX;
     const containerWidth = elementRef.current.clientWidth;
@@ -173,8 +124,11 @@ export default function TimelineScrollResizer({
     }
   };
 
+  /**
+   * Handles the mouse up event.
+   */
   const handleMouseUp = () => {
-    console.info('handleMouseUp', settings)
+    console.info('handleMouseUp', settings);
     document.removeEventListener('mousemove', handleMouseResizingMove);
     document.removeEventListener('mousemove', handleMouseThumbMove);
     document.removeEventListener('mouseup', handleMouseUp);
@@ -184,6 +138,11 @@ export default function TimelineScrollResizer({
     }, 200);
   };
 
+  /**
+   * Handles the mouse down event for resizing or dragging.
+   * @param {React.MouseEvent} e - The mouse event.
+   * @param {'resize' | 'drag'} actionType - The type of action (resize or drag).
+   */
   const handleMouseDown = (e: React.MouseEvent, actionType: 'resize' | 'drag') => {
     if (mouseState.dragging || mouseState.resizingLeft || mouseState.resizingRight) {
       return;
@@ -208,7 +167,6 @@ export default function TimelineScrollResizer({
     }
   };
 
-
   React.useEffect(() => {
     if (mouseState.resizingLeft || mouseState.resizingRight || mouseState.dragging) {
       if (mouseState.resizingLeft || mouseState.resizingRight) {
@@ -228,12 +186,11 @@ export default function TimelineScrollResizer({
       window.removeEventListener('mouseup', handleMouseUp);
     };
   }, [mouseState]);
-  if (noResizer) {
 
-   */
+  if (noResizer) {
     return null;
-  /*
   }
+
   return (
     <ScrollbarContainer className={'SuiScrollbar'}>
       <ScrollbarTrack>
@@ -260,5 +217,6 @@ export default function TimelineScrollResizer({
         </ScrollbarThumb>
       </ScrollbarTrack>
     </ScrollbarContainer>
-  ); */
+  );
 }
+*/

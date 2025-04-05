@@ -1,22 +1,20 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import Fab from '@mui/material/Fab';
-import Stack from '@mui/material/Stack';
-import Zoom from '@mui/material/Zoom';
-import ClearIcon from '@mui/icons-material/Clear';
-import SaveIcon from '@mui/icons-material/Save';
-import OpenIcon from '@mui/icons-material/OpenInBrowser';
-import SettingsIcon from '@mui/icons-material/Settings';
-import { AppFile, MediaFile } from '@stoked-ui/media-selector';
-import { useEditorContext } from '../EditorProvider';
-import EditorFile, { IEditorFile } from '../EditorFile/EditorFile';
-
+/**
+ * React component for rendering editor view actions.
+ * Provides buttons for clearing, saving, opening files, and accessing settings.
+ *
+ * @param {Object} props - The props of the component.
+ * @param {boolean} props.visible - Flag indicating if the component is visible.
+ * @returns {JSX.Element} React component
+ */
 export default function EditorViewActions({ visible }: { visible: boolean }) {
   const context = useEditorContext();
   const { dispatch, state } = context;
   const { file, flags, components, settings } = state;
   const { editorId, fitScaleData, setCursor, videoTrack } = settings;
-  const [fileIsDirty, setIsDirty] = React.useState<boolean>(false);
+  
+  /**
+   * Checks if the file is dirty and updates the state.
+   */
   React.useEffect(() => {
     const isFileDirty = async () => {
       const isDirty = await (file as EditorFile)?.isDirty();
@@ -26,6 +24,9 @@ export default function EditorViewActions({ visible }: { visible: boolean }) {
     isFileDirty().catch();
   }, [file]);
 
+  /**
+   * Handles saving the current file.
+   */
   const saveHandler = async () => {
     if (!file) {
       return;
@@ -38,6 +39,9 @@ export default function EditorViewActions({ visible }: { visible: boolean }) {
     console.info('file saved');
   };
 
+  /**
+   * Handles opening a new file.
+   */
   const openHandler = async () => {
     const loadedFiles: IEditorFile[] = (await AppFile.fromOpenDialog<EditorFile>(
       EditorFile,
@@ -55,6 +59,9 @@ export default function EditorViewActions({ visible }: { visible: boolean }) {
     }
   };
 
+  /**
+   * Handles removing the current file or video track.
+   */
   const remove = () => {
     if (videoTrack) {
       dispatch({ type: 'VIDEO_CLOSE', payload: videoTrack.file.id });
@@ -62,6 +69,8 @@ export default function EditorViewActions({ visible }: { visible: boolean }) {
     }
     dispatch({ type: 'DISCARD_FILE' });
   };
+
+  // Render null if in detail mode
   if (flags.detailMode) {
     return null;
   }
@@ -147,10 +156,11 @@ export default function EditorViewActions({ visible }: { visible: boolean }) {
   );
 }
 
+/**
+ * PropTypes for EditorViewActions component.
+ * These PropTypes are generated from the TypeScript type definitions.
+ * To update them, edit the TypeScript types and run "pnpm proptypes".
+ */
 EditorViewActions.propTypes = {
-  // ----------------------------- Warning --------------------------------
-  // | These PropTypes are generated from the TypeScript type definitions |
-  // | To update them edit the TypeScript types and run "pnpm proptypes"  |
-  // ----------------------------------------------------------------------
   visible: PropTypes.bool.isRequired,
 } as any;

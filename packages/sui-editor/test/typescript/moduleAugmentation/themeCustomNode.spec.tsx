@@ -1,7 +1,13 @@
-import * as React from 'react';
-import { createTheme, styled } from '@mui/material/styles';
-import Box from '@mui/material/Box';
+/**
+ * CustomNode interface for defining custom node properties.
+ * @typedef {object} CustomNode
+ * @property {string} background - The background color of the custom node.
+ * @property {string} color - The text color of the custom node.
+ */
 
+/**
+ * Extends ThemeOptions and Theme interfaces to include customNode property.
+ */
 interface CustomNode {
   background: string;
   color: string;
@@ -17,6 +23,9 @@ declare module '@mui/material/styles' {
   }
 }
 
+/**
+ * Custom theme with customNode properties.
+ */
 const customTheme = createTheme({
   customNode: {
     background: '#000',
@@ -24,11 +33,27 @@ const customTheme = createTheme({
   },
 });
 
+/**
+ * StyledComponent functional component that styles a div based on theme customNode properties.
+ * @param {object} props - The component props.
+ * @param {object} props.theme - The theme object containing customNode properties.
+ * @returns {JSX.Element} A styled div element.
+ */
 const StyledComponent = styled('div')(({ theme }) => ({
   background: theme.customNode.background,
   color: theme.customNode.color,
 }));
 
+/**
+ * Box component styled using theme customNode properties.
+ * @example
+ * <Box
+ *   sx={(theme) => ({
+ *     background: theme.customNode.background,
+ *     color: theme.customNode.color,
+ *   })}
+ * />;
+ */
 <Box
   sx={(theme) => ({
     background: theme.customNode.background,

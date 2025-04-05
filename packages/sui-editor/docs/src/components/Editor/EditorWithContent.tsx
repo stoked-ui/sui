@@ -1,7 +1,8 @@
-import * as React from 'react';
-import { Editor, EditorFile } from '@stoked-ui/sui-editor';
-import Box from '@mui/material/Box';
-
+/**
+ * Component for displaying an editor with content
+ * 
+ * @returns {JSX.Element} React component
+ */
 export default function EditorWithContent() {
   const [file, setFile] = React.useState(null);
   

@@ -1,3 +1,8 @@
+/**
+ * Package documentation for Timeline package.
+ * This package includes components and utilities for creating and interacting with timeline interfaces.
+ */
+
 import Timeline from './Timeline';
 
 export default Timeline;
@@ -9,7 +14,7 @@ export { default as TimelineScrollResizer } from './TimelineScrollResizer';
 export { default as TimelineTime } from './TimelineTime';
 export { default as TimelineTrack } from './TimelineTrack';
 export { default as TimelineTrackArea } from './TimelineTrackArea';
-export { default as Engine} from './Engine';
+export { default as Engine } from './Engine';
 export { default as Controller } from './Controller';
 export * from './Controller';
 export * from './TimelineControls';
@@ -23,7 +28,7 @@ export * from './TimelinePlayer';
 export * from './TimelineScrollResizer';
 export * from './components';
 export * from './TimelineTrack';
-export * from './TimelineProvider'
+export * from './TimelineProvider';
 export * from './TimelineTrackArea';
 export * from './Engine';
 export * from './interface/const';

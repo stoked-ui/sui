@@ -1,12 +1,7 @@
-import * as React from 'react';
-import {Theme} from '@mui/material/styles';
-import {SxProps} from '@mui/system';
-import {SlotComponentProps} from '@mui/base/utils';
-import { IController } from '../Controller/Controller.types';
-import {TimelineLabelsClasses} from './timelineLabelsClasses';
-import { ITimelineTrack } from "../TimelineTrack";
-import {TimelineTrackActionsProps} from "./TimelineTrackActions";
-
+/**
+ * Interface for custom slots in TimelineLabels component.
+ * Slots include root, label, and actions elements.
+ */
 export interface TimelineLabelsSlots {
   /**
    * Element rendered at the root.
@@ -17,12 +12,18 @@ export interface TimelineLabelsSlots {
   actions?: React.ElementType;
 }
 
+/**
+ * Props for custom slot components in TimelineLabels component.
+ */
 export interface TimelineLabelsSlotProps {
   root?: SlotComponentProps<'div', {}, TimelineLabelsProps>;
   label?: SlotComponentProps<'div', {}, TimelineLabelsProps>;
   actions?: SlotComponentProps<'div', {}, TimelineTrackActionsProps>;
 }
 
+/**
+ * Base props for TimelineLabels component.
+ */
 export interface TimelineLabelsPropsBase extends React.HTMLAttributes<HTMLDivElement> {
   className?: string;
   /**
@@ -42,9 +43,17 @@ export interface TimelineLabelsPropsBase extends React.HTMLAttributes<HTMLDivEle
 
   width?: number | string;
 
+  /**
+   * Click event handler for label.
+   * @param event - The React mouse event.
+   * @param track - The timeline track associated with the label.
+   */
   onClickLabel?: (event: React.MouseEvent<HTMLElement, MouseEvent>, track: ITimelineTrack) => void;
 }
 
+/**
+ * Props for TimelineLabels component.
+ */
 export interface TimelineLabelsProps
   extends Omit<TimelineLabelsPropsBase, 'onToggle'> {
   /**
@@ -58,9 +67,19 @@ export interface TimelineLabelsProps
    */
   slotProps?: TimelineLabelsSlotProps;
 
+  /**
+   * Toggle event handler for specific id and property.
+   * @param id - The id of the timeline track.
+   * @param property - The property to toggle.
+   */
   onToggle?: (id: string, property: string) => void;
+
+  /**
+   * Set flags for a specific id.
+   * @param id - The id of the timeline track.
+   * @returns Array of flags.
+   */
   setFlags?: (id: string) => string[];
 
   trackActions?: React.ElementType;
-
 }

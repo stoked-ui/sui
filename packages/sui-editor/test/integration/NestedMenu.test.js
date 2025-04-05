@@ -4,6 +4,13 @@ import { createRenderer, within } from '@mui-internal/test-utils';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 
+/**
+ * React component that renders children without any transition effect.
+ * @param {object} props - Component props
+ * @param {boolean} props.in - Whether the component is in the transition state
+ * @param {React.Ref} ref - Reference to the DOM element
+ * @returns {JSX.Element} React element
+ */
 const NoTransition = React.forwardRef(function NoTransition(props, ref) {
   const { children, in: inProp } = props;
   if (!inProp) {
@@ -12,6 +19,13 @@ const NoTransition = React.forwardRef(function NoTransition(props, ref) {
   return <div ref={ref}>{children}</div>;
 });
 
+/**
+ * React component that represents a nested menu structure.
+ * @param {object} props - Component props
+ * @param {boolean} props.firstMenuOpen - Whether the first menu is open
+ * @param {boolean} props.secondMenuOpen - Whether the second menu is open
+ * @returns {JSX.Element} React element
+ */
 function NestedMenu(props) {
   const { firstMenuOpen, secondMenuOpen } = props;
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -46,6 +60,9 @@ function NestedMenu(props) {
   );
 }
 
+/**
+ * Integration tests for the <NestedMenu> component.
+ */
 describe('<NestedMenu> integration', () => {
   const { render } = createRenderer();
 

@@ -7,7 +7,13 @@ import {IEditorFile, EditorFile, IEditorFileMetadata} from '@stoked-ui/editor';
 import {IFileParams, IWebFileProps} from "@stoked-ui/timeline";
 import {IMediaFile} from "@stoked-ui/media-selector";
 
+/**
+ * Test suite for handling Blob in EditorFile.
+ */
 describe('EditorFile Blob Handling', () => {
+  /**
+   * Test writing and reading an EditorFile from Blob.
+   */
   it('should write and read back an EditorFile correctly', async () => {
     // Write EditorExample into a Blob
     let createdBlob: Blob;
