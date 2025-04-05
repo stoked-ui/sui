@@ -20,12 +20,18 @@ import type {
   UseFileExplorerDndSignature
 } from '../../internals/plugins/useFileExplorerDnd/useFileExplorerDnd.types';
 
+/**
+ * Represents the interactions available for file utilities.
+ */
 interface UseFileInteractions {
   handleExpansion: (event: React.MouseEvent) => void;
   handleSelection: (event: React.MouseEvent) => void;
   handleCheckboxSelection: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
+/**
+ * Represents the return value of file utilities.
+ */
 interface UseFileUtilsReturnValue {
   interactions: UseFileInteractions;
   status: UseFileStatus;
@@ -45,10 +51,17 @@ type UseFileUtilsMinimalPlugins = readonly [
 ];
 
 /**
- * Plugins that `useFileUtils` can use if they are present, but are not required.
+ * Represents optional plugins that `useFileUtils` can use if they are present, but are not required.
  */
 export type UseFileUtilsOptionalPlugins = readonly [];
 
+/**
+ * Custom hook that provides file utilities for a specific file.
+ * @param {string} id - The unique identifier of the file.
+ * @param {React.ReactNode} children - The children elements associated with the file.
+ * @param {UseFileStatus | null} status - The status of the file.
+ * @returns {UseFileUtilsReturnValue} The file utilities interactions and status.
+ */
 export const useFileUtils = ({
   id,
   children,
@@ -65,6 +78,10 @@ export const useFileUtils = ({
 
   status = status === null ? instance.getItemStatus(id, children) : status;
 
+  /**
+   * Handles the expansion of the file.
+   * @param {React.MouseEvent} event - The mouse event triggering the expansion.
+   */
   const handleExpansion = (event: React.MouseEvent) => {
     if (status.disabled) {
       return;
@@ -82,6 +99,10 @@ export const useFileUtils = ({
     }
   };
 
+  /**
+   * Handles the selection of the file.
+   * @param {React.MouseEvent} event - The mouse event triggering the selection.
+   */
   const handleSelection = (event: React.MouseEvent) => {
     if (status.disabled) {
       return;
@@ -104,6 +125,10 @@ export const useFileUtils = ({
     }
   };
 
+  /**
+   * Handles the checkbox selection of the file.
+   * @param {React.ChangeEvent<HTMLInputElement>} event - The change event triggering the checkbox selection.
+   */
   const handleCheckboxSelection = (event: React.ChangeEvent<HTMLInputElement>) => {
     const hasShift = (event.nativeEvent as PointerEvent).shiftKey;
     if (multiSelect && hasShift) {

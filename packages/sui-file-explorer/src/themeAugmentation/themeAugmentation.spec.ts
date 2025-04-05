@@ -1,11 +1,11 @@
-import { createTheme } from '@mui/material/styles';
-import { fileClasses } from '../File';
-import { fileExplorerClasses } from '../FileExplorer';
-import { fileExplorerBasicClasses } from '../FileExplorerBasic';
-import { fileElementClasses } from '../FileElement';
-
+/**
+ * Theme configuration for file explorer components
+ */
 createTheme({
   components: {
+    /**
+     * Overrides for MuiFileExplorerBasic component
+     */
     MuiFileExplorerBasic: {
       defaultProps: {
         defaultExpandedItems: ['root'],
@@ -19,6 +19,9 @@ createTheme({
         },
       },
     },
+    /**
+     * Overrides for MuiFileExplorer component
+     */
     MuiFileExplorer: {
       defaultProps: {
         defaultExpandedItems: ['root'],
@@ -32,6 +35,9 @@ createTheme({
         },
       },
     },
+    /**
+     * Overrides for MuiFileElement component
+     */
     MuiFileElement: {
       defaultProps: {
         id: '1',
@@ -45,6 +51,9 @@ createTheme({
         },
       },
     },
+    /**
+     * Overrides for MuiFile component
+     */
     MuiFile: {
       defaultProps: {
         id: '1',

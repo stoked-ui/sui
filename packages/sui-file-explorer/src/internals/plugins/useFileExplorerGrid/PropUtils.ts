@@ -1,3 +1,8 @@
+/**
+ * Convert bytes to a human-readable size string.
+ * @param {number} bytes - The number of bytes to convert.
+ * @returns {string} A human-readable size string.
+ */
 export function bytesToSize(bytes: number): string {
   const sizes: string[] = ['Bytes', 'KB', 'MB', 'GB', 'TB']
   if ((bytes ?? 0) === 0) {
@@ -10,6 +15,13 @@ export function bytesToSize(bytes: number): string {
   return `${(bytes / 1024**i).toFixed(1)} ${sizes[i]}`
 }
 
+/**
+ * Calculate total size recursively from items with children.
+ * @param {any & { children: any[] }} item - The item to calculate size for.
+ * @param {string} propName - The property name to access size values.
+ * @param {number} current - The current total size (default: 0).
+ * @returns {number} The total calculated size.
+ */
 export function calcSize(item: any & { children: any[]}, propName: string, current: number = 0): number {
   if (item === undefined) {
     return current;
@@ -30,9 +42,9 @@ export function calcSize(item: any & { children: any[]}, propName: string, curre
 }
 
 /**
- * Convert a date to a relative time string, such as
- * "a minute ago", "in 2 hours", "yesterday", "3 months ago", etc.
- * using Intl.RelativeTimeFormat
+ * Convert a given timestamp to a relative time string.
+ * @param {number} timeMs - The timestamp in milliseconds.
+ * @returns {string | undefined} A relative time string or undefined if timeMs is not provided.
  */
 export function getRelativeTimeString(timeMs?: number): string | undefined {
   if (!timeMs) {
@@ -42,23 +54,12 @@ export function getRelativeTimeString(timeMs?: number): string | undefined {
   if (typeof window !== "undefined") {
     lang = navigator.language;
   }
-  // Get the amount of seconds between the given date and now
   const deltaSeconds = Math.round((timeMs - Date.now()) / 1000);
 
-  // Array reprsenting one minute, hour, day, week, month, etc in seconds
   const cutoffs = [60, 3600, 86400, 86400 * 7, 86400 * 30, 86400 * 365, Infinity];
-
-  // Array equivalent to the above but in the string representation of the units
   const units: Intl.RelativeTimeFormatUnit[] = ["second", "minute", "hour", "day", "week", "month", "year"];
-
-  // Grab the ideal cutoff unit
   const unitIndex = cutoffs.findIndex(cutoff => cutoff > Math.abs(deltaSeconds));
-
-  // Get the divisor to divide from the seconds. E.g. if our unit is "day" our divisor
-  // is one day in seconds, so we can divide our seconds by this to get the # of days
   const divisor = unitIndex ? cutoffs[unitIndex - 1] : 1;
-
-  // Intl.RelativeTimeFormat do its magic
   const rtf = new Intl.RelativeTimeFormat(lang, { numeric: "auto" });
   try {
     return rtf.format(Math.floor(deltaSeconds / divisor), units[unitIndex]);

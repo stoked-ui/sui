@@ -1,16 +1,20 @@
-import {FileExplorerInstance} from '../models';
+import { FileExplorerInstance } from '../models';
 import type {
-  UseFileExplorerExpansionSignature
+  UseFileExplorerExpansionSignature,
+  UseFileExplorerFilesSignature,
 } from '../plugins/useFileExplorerExpansion/useFileExplorerExpansion.types';
-import type {
-  UseFileExplorerFilesSignature
-} from '../plugins/useFileExplorerFiles/useFileExplorerFiles.types';
 
+/**
+ * Finds the last navigable item in an array of items.
+ *
+ * @param {FileExplorerInstance<[UseFileExplorerFilesSignature]>} instance - The file explorer instance.
+ * @param {string[]} items - The array of items to search.
+ * @returns {string | undefined} The last navigable item or undefined if none found.
+ */
 const getLastNavigableItemInArray = (
   instance: FileExplorerInstance<[UseFileExplorerFilesSignature]>,
   items: string[],
 ) => {
-  // Equivalent to Array.prototype.findLastIndex
   let itemIndex = items.length - 1;
   while (itemIndex >= 0 && !instance.isItemNavigable(items[itemIndex])) {
     itemIndex -= 1;
@@ -23,6 +27,13 @@ const getLastNavigableItemInArray = (
   return items[itemIndex];
 };
 
+/**
+ * Gets the previous navigable item in the file explorer.
+ *
+ * @param {FileExplorerInstance<[UseFileExplorerFilesSignature, UseFileExplorerExpansionSignature]>} instance - The file explorer instance.
+ * @param {string} id - The id of the current item.
+ * @returns {string | null} The previous navigable item id or null if none found.
+ */
 export const getPreviousNavigableItem = (
   instance: FileExplorerInstance<[UseFileExplorerFilesSignature, UseFileExplorerExpansionSignature]>,
   id: string,
@@ -31,12 +42,10 @@ export const getPreviousNavigableItem = (
   const siblings = instance.getItemOrderedChildrenIds(itemMeta.parentId);
   const itemIndex = instance.getItemIndex(id);
 
-  // TODO: What should we do if the parent is not navigable?
   if (itemIndex === 0) {
     return itemMeta.parentId;
   }
 
-  // Finds the previous navigable sibling.
   let previousNavigableSiblingIndex = itemIndex - 1;
   while (
     !instance.isItemNavigable(siblings[previousNavigableSiblingIndex]) &&
@@ -46,16 +55,13 @@ export const getPreviousNavigableItem = (
   }
 
   if (previousNavigableSiblingIndex === -1) {
-    // If we are at depth 0, then it means all the items above the current item are not navigable.
     if (itemMeta.parentId == null) {
       return null;
     }
 
-    // Otherwise, we can try to go up a level and find the previous navigable item.
     return getPreviousNavigableItem(instance, itemMeta.parentId);
   }
 
-  // Finds the last navigable ancestor of the previous navigable sibling.
   let currentItemId: string = siblings[previousNavigableSiblingIndex];
   let lastNavigableChild = getLastNavigableItemInArray(
     instance,
@@ -71,11 +77,17 @@ export const getPreviousNavigableItem = (
   return currentItemId;
 };
 
+/**
+ * Gets the next navigable item in the file explorer.
+ *
+ * @param {FileExplorerInstance<[UseFileExplorerExpansionSignature, UseFileExplorerFilesSignature]>} instance - The file explorer instance.
+ * @param {string} id - The id of the current item.
+ * @returns {string | null} The next navigable item id or null if none found.
+ */
 export const getNextNavigableItem = (
   instance: FileExplorerInstance<[UseFileExplorerExpansionSignature, UseFileExplorerFilesSignature]>,
   id: string,
 ) => {
-  // If the item is expanded and has some navigable children, return the first of them.
   if (instance.isItemExpanded(id)) {
     const firstNavigableChild = instance
       .getItemOrderedChildrenIds(id)
@@ -87,7 +99,6 @@ export const getNextNavigableItem = (
 
   let itemMeta = instance.getItemMeta(id);
   while (itemMeta != null) {
-    // Try to find the first navigable sibling after the current item.
     const siblings = instance.getItemOrderedChildrenIds(itemMeta.parentId);
     const currentItemIndex = instance.getItemIndex(itemMeta.id);
 
@@ -105,13 +116,18 @@ export const getNextNavigableItem = (
       }
     }
 
-    // If the sibling does not exist, go up a level to the parent and try again.
     itemMeta = instance.getItemMeta(itemMeta.parentId!);
   }
 
   return null;
 };
 
+/**
+ * Gets the last navigable item in the file explorer.
+ *
+ * @param {FileExplorerInstance<[UseFileExplorerExpansionSignature, UseFileExplorerFilesSignature]>} instance - The file explorer instance.
+ * @returns {string} The last navigable item id.
+ */
 export const getLastNavigableItem = (
   instance: FileExplorerInstance<[UseFileExplorerExpansionSignature, UseFileExplorerFilesSignature]>,
 ) => {
@@ -120,7 +136,6 @@ export const getLastNavigableItem = (
     const children = instance.getItemOrderedChildrenIds(id);
     const lastNavigableChild = getLastNavigableItemInArray(instance, children);
 
-    // The item has no navigable children.
     if (lastNavigableChild == null) {
       return id!;
     }
@@ -131,22 +146,23 @@ export const getLastNavigableItem = (
   return id!;
 };
 
-export const getFirstNavigableItem = (instance: FileExplorerInstance<[UseFileExplorerFilesSignature]>) =>
-  instance.getItemOrderedChildrenIds(null).find(instance.isItemNavigable)!;
+/**
+ * Gets the first navigable item in the file explorer.
+ *
+ * @param {FileExplorerInstance<[UseFileExplorerFilesSignature]>} instance - The file explorer instance.
+ * @returns {string} The first navigable item id.
+ */
+export const getFirstNavigableItem = (
+  instance: FileExplorerInstance<[UseFileExplorerFilesSignature]>,
+) => instance.getItemOrderedChildrenIds(null).find(instance.isItemNavigable)!;
 
 /**
- * This is used to determine the start and end of a selection range so
- * we can get the items between the two border items.
+ * Finds the common ancestor and order of two items in a file explorer.
  *
- * It finds the items' common ancestor using
- * a naive implementation of a lowest common ancestor algorithm
- * (https://en.wikipedia.org/wiki/Lowest_common_ancestor).
- * Then compares the ancestor's 2 children that are ancestors of itemA and ItemB
- * so we can compare their indexes to work out which item comes first in a depth first search.
- * (https://en.wikipedia.org/wiki/Depth-first_search)
- *
- * Another way to put it is which item is shallower in a trémaux fileExplorer
- * https://en.wikipedia.org/wiki/Tr%C3%A9maux_fileExplorer
+ * @param {FileExplorerInstance<[UseFileExplorerFilesSignature]>} instance - The file explorer instance.
+ * @param {string} itemAId - The id of the first item.
+ * @param {string} itemBId - The id of the second item.
+ * @returns {string[]} An array containing the ordered ids of the two items.
  */
 export const findOrderInTremauxFileExplorer = (
   instance: FileExplorerInstance<[UseFileExplorerFilesSignature]>,
@@ -209,20 +225,26 @@ export const findOrderInTremauxFileExplorer = (
     : [itemBId, itemAId];
 };
 
+/**
+ * Gets the non-disabled items in a range between two items in the file explorer.
+ *
+ * @param {FileExplorerInstance<[UseFileExplorerFilesSignature, UseFileExplorerExpansionSignature]>} instance - The file explorer instance.
+ * @param {string} itemAId - The id of the first item in the range.
+ * @param {string} itemBId - The id of the last item in the range.
+ * @returns {string[]} An array of non-disabled item ids in the range.
+ */
 export const getNonDisabledItemsInRange = (
   instance: FileExplorerInstance<[UseFileExplorerFilesSignature, UseFileExplorerExpansionSignature]>,
   itemAId: string,
   itemBId: string,
 ) => {
   const getNextItem = (id: string) => {
-    // If the item is expanded and has some children, return the first of them.
     if (instance.isItemExpandable(id) && instance.isItemExpanded(id)) {
       return instance.getItemOrderedChildrenIds(id)[0];
     }
 
     let itemMeta = instance.getItemMeta(id);
     while (itemMeta != null) {
-      // Try to find the first navigable sibling after the current item.
       const siblings = instance.getItemOrderedChildrenIds(itemMeta.parentId);
       const currentItemIndex = instance.getItemIndex(itemMeta.id);
 
@@ -230,7 +252,6 @@ export const getNonDisabledItemsInRange = (
         return siblings[currentItemIndex + 1];
       }
 
-      // If the item is the last of its siblings, go up a level to the parent and try again.
       itemMeta = instance.getItemMeta(itemMeta.parentId!);
     }
 
@@ -251,6 +272,12 @@ export const getNonDisabledItemsInRange = (
   return items;
 };
 
+/**
+ * Gets all navigable items in the file explorer.
+ *
+ * @param {FileExplorerInstance<[UseFileExplorerFilesSignature, UseFileExplorerExpansionSignature]>} instance - The file explorer instance.
+ * @returns {string[]} An array of all navigable item ids.
+ */
 export const getAllNavigableItems = (
   instance: FileExplorerInstance<[UseFileExplorerFilesSignature, UseFileExplorerExpansionSignature]>,
 ) => {

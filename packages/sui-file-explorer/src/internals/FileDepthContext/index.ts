@@ -1,1 +1,3 @@
-export { FileDepthContext } from './FileDepthContext';
+/**
+ * Exported FileDepthContext from FileDepthContext module.
+ */

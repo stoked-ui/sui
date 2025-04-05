@@ -1,25 +1,31 @@
-import generateUtilityClass from '@mui/utils/generateUtilityClass';
-import generateUtilityClasses from '@mui/utils/generateUtilityClasses';
+/**
+ * Interface for defining the classes used in FileExplorerGridHeaders component.
+ * @typedef {object} FileExplorerGridHeadersClasses
+ * @property {string} root - Styles applied to the root element.
+ * @property {string} column - Styles applied to the column element.
+ * @property {string} groupTransition - Styles applied to the transition component.
+ * @property {string} iconContainer - Styles applied to the content element.
+ * @property {string} name - Styles applied to the label element.
+ */
 
-export interface FileExplorerGridHeadersClasses {
-  /** Styles applied to the root element. */
-  root: string;
-  /** Styles applied to the column element. */
-  column: string;
-  /** Styles applied to the transition component. */
-  groupTransition: string;
-  /** Styles applied to the content element. */
-  iconContainer: string;
-  /** Styles applied to the label element. */
-  name: string;
-}
+/**
+ * Key of FileExplorerGridHeadersClasses.
+ * @typedef {string} FileExplorerGridHeadersClassKey
+ */
 
-export type FileExplorerGridHeadersClassKey = keyof FileExplorerGridHeadersClasses;
-
+/**
+ * Returns a utility class based on the slot provided.
+ * @param {string} slot - Slot value for utility class generation.
+ * @returns {string} The generated utility class.
+ */
 export function getFileUtilityClass(slot: string): string {
   return generateUtilityClass('MuiFileExplorerGridHeaders', slot);
 }
 
+/**
+ * Utility classes for FileExplorerGridHeaders component.
+ * @type {FileExplorerGridHeadersClasses}
+ */
 export const fileExplorerViewGridHeadersClasses: FileExplorerGridHeadersClasses = generateUtilityClasses('MuiFileExplorerGridHeaders', [
   'root',
   'column',

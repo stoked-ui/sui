@@ -1,19 +1,26 @@
-import * as React from 'react';
-import {expect} from 'chai';
-import {act, fireEvent} from '@stoked-ui/internal-test-utils';
-import {
-  describeFileExplorer, DescribeFileExplorerRendererUtils,
-} from 'test/utils/fileExplorer-view/describeFileExplorer';
-
+/**
+ * Test suite for the useFileExplorer hook functionality.
+ * @param {object} props - The properties for the file explorer.
+ * @param {string} props.items - The items to render in the file explorer.
+ * @returns {void}
+ */
 describeFileExplorer<[]>(
   'useFileExplorer hook',
   ({ render, renderFromJSX, fileExplorerViewComponentName, FileExplorerComponent, FileComponent }) => {
+    /**
+     * Test to check if the root slot has the role="fileExplorer".
+     * @returns {void}
+     */
     it('should have the role="fileExplorer" on the root slot', () => {
       const response = render({ items: [{ id: '1' }] });
 
       expect(response.getRoot()).to.have.attribute('role', 'fileExplorer');
     });
 
+    /**
+     * Test to check if the file explorer works inside a Portal.
+     * @returns {void}
+     */
     it('should work inside a Portal', () => {
       let response: DescribeFileExplorerRendererUtils;
       if (fileExplorerViewComponentName === 'FileExplorerBasic') {

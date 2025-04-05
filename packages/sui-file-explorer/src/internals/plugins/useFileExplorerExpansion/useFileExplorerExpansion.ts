@@ -1,14 +1,20 @@
-import * as React from 'react';
-import useEventCallback from '@mui/utils/useEventCallback';
-import {FileExplorerPlugin} from '../../models/plugin';
-import {UseFileExplorerExpansionSignature} from './useFileExplorerExpansion.types';
-import {FileId} from '../../../models';
-
-export const useFileExplorerExpansion: FileExplorerPlugin<UseFileExplorerExpansionSignature> = ({
+/**
+ * Custom hook for handling file explorer expansion functionality.
+ * 
+ * @param {object} props - The properties object.
+ * @param {object} props.instance - The instance object.
+ * @param {object} props.params - The params object.
+ * @param {object} props.models - The models object.
+ * @returns {object} Object containing public API, instance, and contextValue for file explorer expansion.
+ */
+export const useFileExplorerExpansion = ({
   instance,
   params,
   models,
 }) => {
+  /**
+   * Map of expanded items.
+   */
   const expandedItemsMap = React.useMemo(() => {
     const temp = new Map<FileId, boolean>();
     models.expandedItems.value.forEach((id) => {
@@ -18,25 +24,49 @@ export const useFileExplorerExpansion: FileExplorerPlugin<UseFileExplorerExpansi
     return temp;
   }, [models.expandedItems.value]);
 
+  /**
+   * Set expanded items.
+   * 
+   * @param {React.SyntheticEvent} event - The event.
+   * @param {FileId[]} value - The value of expanded items.
+   */
   const setExpandedItems = (event: React.SyntheticEvent, value: FileId[]) => {
     params.onExpandedItemsChange?.(event, value);
     models.expandedItems.setControlledValue(value);
   };
 
+  /**
+   * Check if an item is expanded.
+   * 
+   * @param {string} id - The item id.
+   * @returns {boolean} Whether the item is expanded.
+   */
   const isItemExpanded = React.useCallback(
     (id: string) => {
-      return expandedItemsMap.has(id)
+      return expandedItemsMap.has(id);
     },
     [expandedItemsMap],
   );
 
+  /**
+   * Check if an item is expandable.
+   * 
+   * @param {string} id - The item id.
+   * @returns {boolean} Whether the item is expandable.
+   */
   const isItemExpandable = React.useCallback(
     (id: string) => {
-      return !!instance.getItemMeta(id)?.expandable
+      return !!instance.getItemMeta(id)?.expandable;
     },
     [instance],
   );
 
+  /**
+   * Toggle item expansion.
+   * 
+   * @param {React.SyntheticEvent} event - The event.
+   * @param {FileId} id - The item id.
+   */
   const toggleItemExpansion = useEventCallback(
     (event: React.SyntheticEvent, id: FileId) => {
       const isExpandedBefore = instance.isItemExpanded(id);
@@ -45,6 +75,13 @@ export const useFileExplorerExpansion: FileExplorerPlugin<UseFileExplorerExpansi
     },
   );
 
+  /**
+   * Set item expansion.
+   * 
+   * @param {React.SyntheticEvent} event - The event.
+   * @param {FileId} id - The item id.
+   * @param {boolean} isExpanded - Whether the item is expanded.
+   */
   const setItemExpansion = useEventCallback(
     (event: React.SyntheticEvent, id: FileId, isExpanded: boolean) => {
       const isExpandedBefore = instance.isItemExpanded(id);
@@ -67,6 +104,12 @@ export const useFileExplorerExpansion: FileExplorerPlugin<UseFileExplorerExpansi
     },
   );
 
+  /**
+   * Expand all siblings of an item.
+   * 
+   * @param {React.KeyboardEvent} event - The keyboard event.
+   * @param {FileId} id - The item id.
+   */
   const expandAllSiblings = (event: React.KeyboardEvent, id: FileId) => {
     const itemMeta = instance.getItemMeta(id);
     const siblings = instance.getItemOrderedChildrenIds(itemMeta.parentId);
@@ -88,6 +131,9 @@ export const useFileExplorerExpansion: FileExplorerPlugin<UseFileExplorerExpansi
     }
   };
 
+  /**
+   * Memoized expansion trigger value.
+   */
   const expansionTrigger = React.useMemo(() => {
     if (params.expansionTrigger) {
       return params.expansionTrigger;
@@ -113,24 +159,4 @@ export const useFileExplorerExpansion: FileExplorerPlugin<UseFileExplorerExpansi
       },
     },
   };
-};
-useFileExplorerExpansion.models = {
-  expandedItems: {
-    getDefaultValue: (params) => params.defaultExpandedItems,
-  },
-};
-
-const DEFAULT_EXPANDED_ITEMS: string[] = [];
-
-useFileExplorerExpansion.getDefaultizedParams = (params) => ({
-  ...params,
-  defaultExpandedItems: params.defaultExpandedItems ?? DEFAULT_EXPANDED_ITEMS,
-});
-
-useFileExplorerExpansion.params = {
-  expandedItems: true,
-  defaultExpandedItems: true,
-  onExpandedItemsChange: true,
-  onItemExpansionToggle: true,
-  expansionTrigger: true,
 };

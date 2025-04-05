@@ -15,6 +15,11 @@ export const convertSelectedItemsToArray = (model: string[] | string | null): st
   return [];
 };
 
+/**
+ * Creates a lookup object from an array of strings.
+ * @param {string[]} array The array of strings.
+ * @returns {{ [id: string]: boolean }} The lookup object.
+ */
 export const getLookupFromArray = (array: string[]) => {
   const lookup: { [id: string]: boolean } = {};
   array.forEach((id) => {

@@ -1,37 +1,6 @@
-import { FileExplorerCorePluginParameters } from '../internals/corePlugins';
-import {
-  useFileExplorerFiles,
-  UseFileExplorerFilesParameters,
-} from '../internals/plugins/useFileExplorerFiles';
-import {
-  useFileExplorerExpansion,
-  UseFileExplorerExpansionParameters,
-} from '../internals/plugins/useFileExplorerExpansion';
-import {
-  useFileExplorerSelection,
-  UseFileExplorerSelectionParameters,
-} from '../internals/plugins/useFileExplorerSelection';
-import {
-  useFileExplorerFocus,
-  UseFileExplorerFocusParameters,
-} from '../internals/plugins/useFileExplorerFocus';
-import {
-  useFileExplorerKeyboardNavigation
-} from '../internals/plugins/useFileExplorerKeyboardNavigation';
-import {
-  useFileExplorerIcons,
-  UseFileExplorerIconsParameters,
-} from '../internals/plugins/useFileExplorerIcons';
-import { ConvertPluginsIntoSignatures, MergeSignaturesProperty } from '../internals/models';
-import {
-  useFileExplorerGrid,
-  UseFileExplorerGridParameters
-} from "../internals/plugins/useFileExplorerGrid";
-import {
-  useFileExplorerDnd,
-  UseFileExplorerDndParameters
-} from '../internals/plugins/useFileExplorerDnd';
-
+/**
+ * Represents the file explorer plugins used in the file explorer component.
+ */
 export const FILE_EXPLORER_PLUGINS = [
   useFileExplorerFiles,
   useFileExplorerExpansion,
@@ -41,24 +10,36 @@ export const FILE_EXPLORER_PLUGINS = [
   useFileExplorerIcons,
   useFileExplorerGrid,
   useFileExplorerDnd,
-
 ] as const;
 
-export type FileExplorerPluginSignatures = ConvertPluginsIntoSignatures<
-  typeof FILE_EXPLORER_PLUGINS
->;
+/**
+ * Type representing the signatures of file explorer plugins.
+ * @typedef {ConvertPluginsIntoSignatures<typeof FILE_EXPLORER_PLUGINS>} FileExplorerPluginSignatures
+ */
 
-export type FileExplorerPluginSlots = MergeSignaturesProperty<
-  FileExplorerPluginSignatures,
-  'slots'
->;
+/**
+ * Type representing the slots of file explorer plugins.
+ * @typedef {MergeSignaturesProperty<FileExplorerPluginSignatures, 'slots'>} FileExplorerPluginSlots
+ */
 
-export type FileExplorerPluginSlotProps = MergeSignaturesProperty<
-  FileExplorerPluginSignatures,
-  'slotProps'
->;
+/**
+ * Type representing the slot props of file explorer plugins.
+ * @typedef {MergeSignaturesProperty<FileExplorerPluginSignatures, 'slotProps'>} FileExplorerPluginSlotProps
+ */
 
-// We can't infer this type from the plugin, otherwise we would lose the generics.
+/**
+ * Interface defining the parameters for file explorer plugins.
+ * @interface FileExplorerPluginParameters
+ * @extends {FileExplorerCorePluginParameters}
+ * @extends {UseFileExplorerFilesParameters}
+ * @extends {UseFileExplorerExpansionParameters}
+ * @extends {UseFileExplorerSelectionParameters<Multiple>}
+ * @extends {UseFileExplorerFocusParameters}
+ * @extends {UseFileExplorerIconsParameters}
+ * @extends {UseFileExplorerGridParameters}
+ * @extends {UseFileExplorerDndParameters}
+ * @template Multiple - Represents whether multiple selections are allowed.
+ */
 export interface FileExplorerPluginParameters<Multiple extends boolean | undefined>
   extends FileExplorerCorePluginParameters,
     UseFileExplorerFilesParameters,

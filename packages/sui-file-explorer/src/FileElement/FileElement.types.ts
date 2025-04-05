@@ -1,22 +1,6 @@
-import * as React from 'react';
-import {Theme} from '@mui/material/styles';
-import {SlotComponentProps} from '@mui/base/utils';
-import {TransitionProps} from '@mui/material/transitions';
-import {SxProps} from '@mui/system';
-import {FileElementClasses} from './fileElementClasses';
-import {FileId} from '../models';
-import {SlotComponentPropsFromProps} from '../internals/models';
-import {MuiCancellableEventHandler} from '../internals/models/MuiCancellableEvent';
-import type {
-  UseFileExplorerExpansionSignature,
-  UseFileExplorerFilesSignature,
-  UseFileExplorerFocusSignature,
-  UseFileExplorerIconsSignature,
-  UseFileExplorerKeyboardNavigationSignature,
-  UseFileExplorerSelectionSignature
-} from '../internals';
-import {FileElementContentProps} from "./FileElementContent";
-
+/**
+ * Interface defining the slots available for FileElement component.
+ */
 export interface FileElementSlots {
   root?: React.ElementType;
   /**
@@ -42,6 +26,9 @@ export interface FileElementSlots {
   groupTransition?: React.ElementType;
 }
 
+/**
+ * Type defining the props for each slot in FileElement component.
+ */
 export interface FileElementSlotProps {
   root?: SlotComponentProps<'div', {}, {}>;
   collapseIcon?: SlotComponentProps<'svg', {}, {}>;
@@ -51,6 +38,9 @@ export interface FileElementSlotProps {
   groupTransition?: SlotComponentPropsFromProps<TransitionProps, {}, {}>;
 }
 
+/**
+ * Props for the FileElement component.
+ */
 export interface FileElementProps
   extends Omit<React.HTMLAttributes<HTMLLIElement>, 'onFocus'> {
   /**
@@ -110,6 +100,9 @@ export interface FileElementProps
   onKeyDown?: MuiCancellableEventHandler<React.KeyboardEvent<HTMLLIElement>>;
 }
 
+/**
+ * State interface for FileElement component.
+ */
 export interface FileElementOwnerState extends FileElementProps {
   expanded: boolean;
   focused: boolean;
@@ -119,7 +112,7 @@ export interface FileElementOwnerState extends FileElementProps {
 }
 
 /**
- * Plugins that need to be present in the Tree View in order for `FileElement` to work correctly.
+ * Plugins required for FileElement component to work correctly.
  */
 export type FileElementMinimalPlugins = readonly [
   UseFileExplorerIconsSignature,
@@ -131,6 +124,7 @@ export type FileElementMinimalPlugins = readonly [
 ];
 
 /**
- * Plugins that `FileElement` can use if they are present, but are not required.
+ * Optional plugins that FileElement component can use if present.
  */
 export type FileElementOptionalPlugins = readonly [];
+*/
