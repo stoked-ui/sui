@@ -1,28 +1,39 @@
-import * as React from 'react';
-import { DragEvent, Interactable as InteractableBase, ResizableOptions, DraggableOptions } from "@interactjs/actions";
-import interact from "interactjs";
-
-export interface InteractableProps {
-  children: React.ReactElement;
-  interactRef?: React.MutableRefObject<InteractableBase>;
-  draggable: boolean;
-  draggableOptions: DraggableOptions;
-  resizable: boolean;
-  resizableOptions: ResizableOptions;
-}
-
+/**
+ * Component for creating interactable elements using interactjs library.
+ * Interactable elements can be draggable and resizable.
+ *
+ * @param {InteractableProps} props - The props for the Interactable component.
+ * @property {React.ReactElement} props.children - The child element to make interactable.
+ * @property {React.MutableRefObject<InteractableBase>} [props.interactRef] - Ref to the interactable element.
+ * @property {boolean} props.draggable - Flag to enable draggable functionality.
+ * @property {DraggableOptions} props.draggableOptions - Options for draggable functionality.
+ * @property {boolean} props.resizable - Flag to enable resizable functionality.
+ * @property {ResizableOptions} props.resizableOptions - Options for resizable functionality.
+ *
+ * @returns {React.ReactElement} - The rendered Interactable component.
+ *
+ * @example
+ * <Interactable draggable resizable draggableOptions={{}} resizableOptions={{}}>
+ *   <div>Interactable Element</div>
+ * </Interactable>
+ */
 function Interactable({ children, interactRef, draggable, resizable, draggableOptions, resizableOptions }: InteractableProps) {
   const nodeRef = React.useRef<HTMLElement>();
   const interactable = React.useRef<InteractableBase>();
   const draggableOptionsRef = React.useRef<DraggableOptions>();
   const resizableOptionsRef = React.useRef<ResizableOptions>();
 
+  /**
+   * Update draggable and resizable options on props change.
+   */
   React.useEffect(() => {
     draggableOptionsRef.current = { ...draggableOptions };
     resizableOptionsRef.current = { ...resizableOptions };
   }, [draggableOptions, resizableOptions]);
 
-
+  /**
+   * Set up interactions based on draggable and resizable flags.
+   */
   const setInteractions = () => {
     if (draggable) {
       interactable.current.draggable({
@@ -42,6 +53,9 @@ function Interactable({ children, interactRef, draggable, resizable, draggableOp
     }
   };
 
+  /**
+   * Initialize interactable element and set interactions on draggable and resizable changes.
+   */
   React.useEffect(() => {
     interactable.current?.unset();
     interactable.current = interact(nodeRef.current);

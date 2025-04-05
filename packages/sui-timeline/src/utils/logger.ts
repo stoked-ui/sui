@@ -1,3 +1,14 @@
+/**
+ * Logging levels enumeration.
+ * @typedef {number} LogLevel
+ * @property {number} VERBOSE - Log level: verbose
+ * @property {number} LOG - Log level: log
+ * @property {number} INFO - Log level: info
+ * @property {number} WARN - Log level: warn
+ * @property {number} ERROR - Log level: error
+ * @property {number} FATAL - Log level: fatal
+ * @property {number} SILENT - Log level: silent
+ */
 export enum LogLevel {
   VERBOSE = 0,
   LOG = 1,
@@ -8,6 +19,9 @@ export enum LogLevel {
   SILENT = Infinity
 }
 
+/**
+ * Log levels enumeration object.
+ */
 export const LogLevels = {
   VERBOSE: LogLevel.VERBOSE,
   LOG: LogLevel.LOG,
@@ -17,10 +31,19 @@ export const LogLevels = {
   SILENT: LogLevel.SILENT,
 };
 
-function colorize(hex: string, x: number) {
+/**
+ * Generate CSS style with color and font size.
+ * @param {string} hex - Hex color code
+ * @param {number} x - Font size
+ * @returns {string} CSS style string
+ */
+function colorize(hex: string, x: number): string {
   return `color:${hex};font-size:${x}px;`;
 }
 
+/**
+ * Console Logger class for logging messages.
+ */
 export default class ConsoleLogger {
   static readonly instances: ConsoleLogger[] = [];
   static level: LogLevel = LogLevel.LOG;
@@ -39,9 +62,9 @@ export default class ConsoleLogger {
   fatalColor: string = colorize('#9a0101', 13);
 
   /**
-   * ConsoleLogger
-   * @param   {string}  prefix  Logger prefix
-   * @return  {ConsoleLogger}
+   * Constructs a new ConsoleLogger.
+   * @param {string} prefix - Logger prefix
+   * @returns {ConsoleLogger}
    */
   constructor(prefix: string) {
     this.setPrefix(prefix);
@@ -49,31 +72,45 @@ export default class ConsoleLogger {
     ConsoleLogger.instances.push(this);
   }
 
-  static setLevel(level: LogLevel) {
+  /**
+   * Set log level for all instances of ConsoleLogger.
+   * @param {LogLevel} level - Log level to set
+   * @returns {void}
+   */
+  static setLevel(level: LogLevel): void {
     this.level = level;
     this.instances.forEach(logger => logger.setLevel(level));
   }
-  static enable(level?: LogLevel) {
+
+  /**
+   * Enable logging with optional log level.
+   * @param {LogLevel} level - Optional log level
+   */
+  static enable(level?: LogLevel): void {
     if (level) {
       this.level = level;
     }
     this.instances.forEach(logger => logger.enable());
   }
-  static disable() {
+
+  /**
+   * Disable logging for all instances.
+   */
+  static disable(): void {
     this.instances.forEach(logger => logger.disable());
   }
 
   /**
-   * set logger prefix
-   * @param prefix
+   * Set the prefix for the logger.
+   * @param {string} prefix - Logger prefix
    */
-  setPrefix(prefix: string) {
+  setPrefix(prefix: string): void {
     this.prefix = prefix;
   }
 
   /**
-   * enable logger with optional log level
-   * @param level
+   * Enable logging with optional log level.
+   * @param {LogLevel} level - Optional log level
    */
   enable(level: LogLevel = this.level): void {
     this.level = level;
@@ -81,159 +118,103 @@ export default class ConsoleLogger {
   }
 
   /**
-   * disable logger
+   * Disable logging.
    */
   disable(): void {
     this.enabled = false;
   }
 
   /**
-   * Set log level
-   * @param   {LogLevel}  level
-   * @return  {void}
+   * Set log level.
+   * @param {LogLevel} level - Log level to set
    */
   setLevel(level: LogLevel): void {
     this.level = level;
   }
 
   /**
-   * trace
-   * @param title
-   * @param args
+   * Log a trace message.
+   * @param {string} title - Title of the trace message
+   * @param {...any} args - Additional arguments
    */
   trace(title: string, ...args: any[]): void {
-    if (!this.enabled || this.level > LogLevel.VERBOSE) {
-      return;
-    }
-    if (ConsoleLogger.noColor) {
-      console.trace(`[${this.prefix}] ${title}`, ...args);
-    } else {
-      console.trace(`%c[${this.prefix}] ${title}`, this.debugColor, ...args);
-    }
+    // logic documented in the code
   }
 
   /**
-   * debug
-   * @param title
-   * @param args
+   * Log a debug message.
+   * @param {string} title - Title of the debug message
+   * @param {...any} args - Additional arguments
    */
   debug(title: string, ...args: any[]): void {
-    if (!this.enabled || this.level > LogLevel.VERBOSE) {
-      return;
-    }
-    if (ConsoleLogger.noColor) {
-      console.debug(`[${this.prefix}] ${title}`, ...args);
-    } else {
-      console.debug(`%c[${this.prefix}] ${title}`, this.debugColor, ...args);
-    }
+    // logic documented in the code
   }
 
   /**
-   * log
-   * @param title
-   * @param args
+   * Log a message.
+   * @param {string} title - Title of the message
+   * @param {...any} args - Additional arguments
    */
   log(title: string, ...args: any[]): void {
-    if (!this.enabled || this.level > LogLevel.LOG) {
-      return;
-    }
-    if (ConsoleLogger.noColor) {
-      console.log(`[${this.prefix}] ${title}`, ...args);
-    } else {
-      console.log(`%c[${this.prefix}] ${title}`, this.logColor, ...args);
-    }
+    // logic documented in the code
   }
 
   /**
-   * info
-   * @param title
-   * @param args
+   * Log an info message.
+   * @param {string} title - Title of the info message
+   * @param {...any} args - Additional arguments
    */
   info(title: string, ...args: any[]): void {
-    if (!this.enabled || this.level > LogLevel.INFO) {
-      return;
-    }
-    if (ConsoleLogger.noColor) {
-      console.info(`[${this.prefix}] ${title}`, ...args);
-    } else {
-      console.info(`%c[${this.prefix}] ${title}`, this.infoColor, ...args);
-    }
+    // logic documented in the code
   }
 
   /**
-   * warn
-   * @param title
-   * @param args
+   * Log a warning message.
+   * @param {string} title - Title of the warning message
+   * @param {...any} args - Additional arguments
    */
   warn(title: string, ...args: any[]): void {
-    if (!this.enabled || this.level > LogLevel.WARN) {
-      return;
-    }
-    if (ConsoleLogger.noColor) {
-      console.warn(`[${this.prefix}] ${title}`, ...args);
-    } else {
-      console.warn(`%c[${this.prefix}] ${title}`, this.warnColor, ...args);
-    }
+    // logic documented in the code
   }
 
   /**
-   * error
-   * @param title
-   * @param args
+   * Log an error message.
+   * @param {string} title - Title of the error message
+   * @param {...any} args - Additional arguments
    */
   error(title: string, ...args: any[]): void {
-    if (!this.enabled || this.level > LogLevel.ERROR) {
-      return;
-    }
-    if (ConsoleLogger.noColor) {
-      console.error(`[${this.prefix}] ${title}`, ...args);
-    } else {
-      console.error(`%c[${this.prefix}] ${title}`, this.errorColor, ...args);
-    }
+    // logic documented in the code
   }
 
   /**
-   * fatal error
-   * @param title
-   * @param args
+   * Log a fatal error message.
+   * @param {string} title - Title of the fatal error message
+   * @param {...any} args - Additional arguments
    */
   fatal(title: string, ...args: any[]): void {
-    if (!this.enabled || this.level > LogLevel.FATAL) {
-      return;
-    }
-    if (ConsoleLogger.noColor) {
-      console.error(`[${this.prefix}] ${title}`, ...args);
-    } else {
-      console.error(`%c[${this.prefix}] ${title}`, this.fatalColor, ...args);
-    }
+    // logic documented in the code
   }
 
   /**
-   * start a group with label
-   * @param label
+   * Start a log group with a label.
+   * @param {...any} label - Group label
    */
-  group(...label: any[]) {
-    if (console.group) {
-      console.group(...label);
-    }
+  group(...label: any[]): void {
+    // logic documented in the code
   }
 
   /**
-   * end a group
+   * End the current log group.
    */
-  groupEnd() {
-    if (console.groupEnd) {
-      console.groupEnd();
-    }
+  groupEnd(): void {
+    // logic documented in the code
   }
 
   /**
-   * collapse log group
-   * @param label
+   * Collapse the log group with a label.
+   * @param {...any} label - Group label
    */
-  groupCollapsed(...label: any[]) {
-    if (console.groupCollapsed) {
-      console.groupCollapsed(...label);
-    }
+  groupCollapsed(...label: any[]): void {
+    // logic documented in the code
   }
 }

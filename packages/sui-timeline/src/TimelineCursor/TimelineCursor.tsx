@@ -1,46 +1,25 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { styled } from '@mui/material/styles';
-import { TimelineCursorProps } from './TimelineCursor.types';
-import { prefix } from '../utils/deal_class_prefix';
-import { parserPixelToTime, parserTimeToPixel } from '../utils/deal_data';
-import TimelineTrackDnd from '../TimelineTrack/TimelineTrackDnd';
-import { RowRndApi } from '../TimelineTrack/TimelineTrackDnd.types';
-import { useTimeline } from '../TimelineProvider';
-
-const CursorRoot = styled('div')({
-  cursor: 'ew-resize',
-  position: 'absolute',
-  top: '34px',
-  height: 'calc(100% - 34px )',
-  boxSizing: 'border-box',
-  borderLeft: '1px solid #5297FF',
-  borderRight: '1px solid #5297FF',
-  transform: 'translateX(-25%) scaleX(0.5)',
-  zIndex: 300,
-  '&:focus': {
-    outline: '1px solid #5297FF',
-  },
-});
-
-const CursorTopRoot = styled('svg')({
-  position: 'absolute',
-  top: '0px',
-  left: '50%',
-  transform: 'translate(-50%, 0) scaleX(2)',
-  margin: 'auto',
-});
-
-const CursorAreaRoot = styled('div')({
-  width: '16px',
-  height: 'calc(100%)',
-  cursor: 'ew-resize',
-  position: 'absolute',
-  top: 0,
-  left: '50%',
-  transform: 'translateX(-50%)',
-});
-
+/**
+ * React component representing a draggable cursor on a timeline.
+ * @description This cursor allows users to interact with the timeline by dragging it.
+ * @param {object} props - The props object containing event handlers and scroll information.
+ * @property {number} props.scrollLeft - Scroll distance from the left.
+ * @property {function} props.onCursorDragStart - Cursor drag start event handler.
+ * @property {function} props.onCursorDrag - Cursor drag event handler.
+ * @property {function} props.onCursorDragEnd - Cursor drag end event handler.
+ * @property {object} props.rowRnd - Reference object for scroll synchronization.
+ * @returns {JSX.Element} Rendered JSX element of the TimelineCursor component.
+ * @fires onCursorDrag
+ * @fires onCursorDragEnd
+ * @fires onCursorDragStart
+ * @example
+ * <TimelineCursor
+ *   scrollLeft={200}
+ *   onCursorDragStart={handleCursorDragStart}
+ *   onCursorDrag={handleCursorDrag}
+ *   onCursorDragEnd={handleCursorDragEnd}
+ *   rowRnd={rowRndRef}
+ * />
+ */
 function TimelineCursor({
   scrollLeft,
   onCursorDragStart,
@@ -61,10 +40,8 @@ function TimelineCursor({
     scaleWidth,
     scale,
     maxScaleCount,
-    // deltaScrollLeft: deltaScrollLeftFunc
   } = settings;
   const scrollSync = components.scrollSync as React.PureComponent & { state: Readonly<any> };
-  // const deltaScrollLeft = flags.autoScroll && deltaScrollLeftFunc;
 
   React.useEffect(() => {
     if (cursorRef.current && !components.cursor) {
@@ -123,7 +100,6 @@ function TimelineCursor({
         const scrollLeftDrag = scrollSync.state.scrollLeft;
 
         if (!scroll || scrollLeftDrag === 0) {
-          // When dragging, if the current left < left min, set the value to left min
           if (left < startLeft - scrollLeftDrag) {
             draggingLeft.current = startLeft - scrollLeftDrag;
           } else {
@@ -157,28 +133,12 @@ function TimelineCursor({
 }
 
 TimelineCursor.propTypes = {
-  // ----------------------------- Warning --------------------------------
-  // | These PropTypes are generated from the TypeScript type definitions |
-  // | To update them edit the TypeScript types and run "pnpm proptypes"  |
-  // ----------------------------------------------------------------------
   draggingLeft: PropTypes.shape({
     current: PropTypes.number,
   }),
-  /**
-   * @description cursor drag event
-   */
   onCursorDrag: PropTypes.func,
-  /**
-   * @description cursor ends drag event
-   */
   onCursorDragEnd: PropTypes.func,
-  /**
-   * @description cursor starts drag event
-   */
   onCursorDragStart: PropTypes.func,
-  /**
-   * Scroll synchronization ref (TODO: This data is used to temporarily solve the problem of out-of-synchronization when scrollLeft is dragged)
-   */
   rowRnd: PropTypes.shape({
     current: PropTypes.shape({
       getLeft: PropTypes.func,
@@ -187,10 +147,8 @@ TimelineCursor.propTypes = {
       updateWidth: PropTypes.func,
     }),
   }),
-  /**
-   * Scroll distance from the left
-   */
   scrollLeft: PropTypes.number,
 } as any;
 
 export default TimelineCursor;
+**/

@@ -11,8 +11,14 @@ import MenuItem from '@mui/material/MenuItem';
 import { ITimelineTrack } from '../TimelineTrack/TimelineTrack.types';
 import { useTimeline } from '../TimelineProvider';
 
+/**
+ * Array of playback rates for the player.
+ */
 export const Rates = [0.2, 0.5, 1.0, 1.5, 2.0];
 
+/**
+ * Root styled component for the player.
+ */
 const PlayerRoot = styled('div')(() => ({
   height: '32px',
   width: '100%',
@@ -22,6 +28,9 @@ const PlayerRoot = styled('div')(() => ({
   alignItems: 'center',
 }));
 
+/**
+ * Styled component for IconButton control.
+ */
 const IconButtonControlRoot = styled(IconButton)({
   width: '24px',
   height: '24px',
@@ -31,17 +40,33 @@ const IconButtonControlRoot = styled(IconButton)({
   alignItems: 'center',
 });
 
+/**
+ * Styled component for displaying time.
+ */
 const TimeRoot = styled('div')({
   fontSize: '12px',
   margin: '0 20px',
   width: '70px',
 });
 
+/**
+ * Styled component for rate control.
+ */
 const RateControlRoot = styled('div')({
   justifySelf: 'flex-end',
   fontSize: '12px',
 });
 
+/**
+ * Functional component for the Timeline Player.
+ * @param {Object} props - Props for the Timeline Player.
+ * @param {ITimelineTrack[]} props.tracks - Timeline tracks.
+ * @param {boolean} props.autoScrollWhenPlay - Auto scroll flag.
+ * @param {number} [props.scale=1] - Scale factor.
+ * @param {number} [props.scaleWidth=160] - Scale width.
+ * @param {number} [props.startLeft=20] - Start left position.
+ * @returns {JSX.Element} React component representing the Timeline Player.
+ */
 function TimelinePlayer({
   tracks,
   autoScrollWhenPlay,
@@ -82,7 +107,9 @@ function TimelinePlayer({
     };
   }, []);
 
-  // Start or pause
+  /**
+   * Handler for play/pause functionality.
+   */
   const handlePlayOrPause = () => {
     if (engine.isPlaying) {
       engine.pause();
@@ -91,12 +118,19 @@ function TimelinePlayer({
     }
   };
 
-  // Set playback rate
+  /**
+   * Handler for changing playback rate.
+   * @param {SelectChangeEvent<number>} event - Select change event.
+   */
   const handleRateChange = (event: SelectChangeEvent<number>) => {
     engine.setPlayRate(event.target.value as number);
   };
 
-  // Time display
+  /**
+   * Render the time in the format 'mm:ss.ms'.
+   * @param {number} renderTime - Time to render.
+   * @returns {React.ReactNode} Rendered time element.
+   */
   const timeRender = (renderTime: number) => {
     const float = `${parseInt(`${(renderTime % 1) * 100}`, 10)}`.padStart(2, '0');
     const min = `${parseInt(`${renderTime / 60}`, 10)}`.padStart(2, '0');
@@ -104,10 +138,16 @@ function TimelinePlayer({
     return <React.Fragment>{`${min}:${second}.${float.replace('0.', '')}`}</React.Fragment>;
   };
 
+  /**
+   * Handler for setting the time to the beginning.
+   */
   const handleStart = () => {
     engine.setTime(0);
   };
 
+  /**
+   * Handler for setting the time to the end based on tracks.
+   */
   const handleEnd = () => {
     if (tracks) {
       let furthest = 0;
@@ -162,10 +202,6 @@ function TimelinePlayer({
 }
 
 TimelinePlayer.propTypes = {
-  // ----------------------------- Warning --------------------------------
-  // | These PropTypes are generated from the TypeScript type definitions |
-  // | To update them edit the TypeScript types and run "pnpm proptypes"  |
-  // ----------------------------------------------------------------------
   autoScrollWhenPlay: PropTypes.bool,
   scale: PropTypes.number,
   scaleWidth: PropTypes.number,
@@ -219,7 +255,6 @@ TimelinePlayer.propTypes = {
         getBackgroundImage: PropTypes.func,
         leave: PropTypes.func,
         logging: PropTypes.bool,
-        // preload: PropTypes.func,
         start: PropTypes.func,
         stop: PropTypes.func,
         update: PropTypes.func,

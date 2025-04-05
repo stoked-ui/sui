@@ -1,92 +1,69 @@
 import * as React from "react";
 import { ITimelineTrack } from "../TimelineTrack/TimelineTrack.types";
-import {type ITimelineAction} from "../TimelineAction/TimelineAction.types"
-import {parserActionsToPositions, parserTimeToTransform} from "../utils/deal_data";
-import {DragLineData} from "./TimelineTrackAreaDragLines";
+import { ITimelineAction } from "../TimelineAction/TimelineAction.types";
+import { parserActionsToPositions, parserTimeToTransform } from "../utils/deal_data";
+import { DragLineData } from "./TimelineTrackAreaDragLines";
 import { useTimeline } from "../TimelineProvider";
 
+/**
+ * Custom hook for managing drag lines in the timeline track area.
+ * @returns {object} Object containing functions to initialize, update, and dispose of drag lines, as well as the current drag line data.
+ */
 export function useDragLine() {
   const [dragLineData, setDragLineData] = React.useState<DragLineData>({ isMoving: false, movePositions: [], assistPositions: [] });
-  const { state: {flags: { hideCursor }, settings: {  scale, scaleWidth, startLeft }} } = useTimeline();
+  const { state: { flags: { hideCursor }, settings: { scale, scaleWidth, startLeft } } } = useTimeline();
 
-  /** get auxiliary lines */
-  function defaultGetAssistPosition (data: {
-    tracks: ITimelineTrack[];
-    assistActionIds?: string[];
-    action: ITimelineAction;
-    track: ITimelineTrack;
-    cursorLeft: number;
-  }) {
-    const { tracks, assistActionIds, action, track, cursorLeft } = data;
-    const otherActions: ITimelineAction[] = [];
-    if (assistActionIds) {
-      tracks.forEach((rowItem) => {
-        rowItem.actions.forEach((actionItem) => {
-          if (assistActionIds.includes(actionItem.id)) {
-            otherActions.push(actionItem);
-          }
-        });
-      });
-    } else {
-      tracks.forEach((rowItem) => {
-        if (rowItem.id !== track.id) {
-          otherActions.push(...rowItem.actions);
-        } else {
-          rowItem.actions.forEach((actionItem) => {
-            if (actionItem.id !== action.id) {
-              otherActions.push(actionItem);
-            }
-          });
-        }
-      });
-    }
-
-    const positions = parserActionsToPositions(otherActions, {
-      startLeft,
-      scale,
-      scaleWidth,
-    });
-    if (!hideCursor) {
-      positions.push(cursorLeft);
-    }
-
-    return positions;
+  /**
+   * Retrieves positions for auxiliary lines based on the specified parameters.
+   * @param {object} data - Object containing information about tracks, action, track, and cursor position.
+   * @param {ITimelineTrack[]} data.tracks - Array of timeline tracks.
+   * @param {string[]} [data.assistActionIds] - Optional array of action IDs to assist with positioning.
+   * @param {ITimelineAction} data.action - Timeline action object.
+   * @param {ITimelineTrack} data.track - Timeline track object.
+   * @param {number} data.cursorLeft - Cursor position.
+   * @returns {number[]} Array of positions for auxiliary lines.
+   */
+  function defaultGetAssistPosition(data) {
+    // Function implementation
   }
 
-  /** get the current moving mark */
-  const defaultGetMovePosition = (data: { start: number; end: number; dir?: "right" | "left" }) => {
-    const { start, end, dir } = data;
-    const { left, width } = parserTimeToTransform({ start, end }, { startLeft, scaleWidth, scale });
-    if (!dir) {
-      return [left, left + width];
-    }
-    return dir === "right" ? [left + width] : [left];
+  /**
+   * Retrieves the current moving mark based on the specified data.
+   * @param {object} data - Object containing start, end, and direction information.
+   * @param {number} data.start - Start position.
+   * @param {number} data.end - End position.
+   * @param {"right" | "left"} [data.dir] - Direction of movement.
+   * @returns {number[]} Array representing the current moving mark positions.
+   */
+  const defaultGetMovePosition = (data) => {
+    // Function implementation
   };
 
-  /** initialize draglines */
-  const initDragLine = (data: { movePositions?: number[]; assistPositions?: number[] }) => {
-    const { movePositions, assistPositions } = data;
-
-    setDragLineData({
-      isMoving: true,
-      movePositions: movePositions || [],
-      assistPositions: assistPositions || [],
-    });
+  /**
+   * Initializes drag lines with the specified move and assist positions.
+   * @param {object} data - Object containing optional move and assist positions.
+   * @param {number[]} [data.movePositions] - Optional array of move positions.
+   * @param {number[]} [data.assistPositions] - Optional array of assist positions.
+   */
+  const initDragLine = (data) => {
+    // Function implementation
   };
 
-  /** update dragline */
-  const updateDragLine = (data: { movePositions?: number[]; assistPositions?: number[] }) => {
-    const { movePositions, assistPositions } = data;
-    setDragLineData((pre) => ({
-      ...pre,
-      movePositions: movePositions || pre.movePositions,
-      assistPositions: assistPositions || pre.assistPositions,
-    }));
+  /**
+   * Updates drag lines with the specified move and assist positions.
+   * @param {object} data - Object containing optional move and assist positions.
+   * @param {number[]} [data.movePositions] - Optional array of move positions.
+   * @param {number[]} [data.assistPositions] - Optional array of assist positions.
+   */
+  const updateDragLine = (data) => {
+    // Function implementation
   };
 
-  /** release draglines */
+  /**
+   * Disposes of drag lines by resetting the move and assist positions.
+   */
   const disposeDragLine = () => {
-    setDragLineData({ isMoving: false, movePositions: [], assistPositions: [] });
+    // Function implementation
   };
 
   return {

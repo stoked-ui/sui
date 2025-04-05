@@ -1,17 +1,26 @@
-import { DragEvent, ResizeEvent } from '@interactjs/types/index';
-import * as React from 'react';
-
-const DEFAULT_SPEED = 1;
-const MAX_SPEED = 3;
-const CRITICAL_SIZE = 10;
-
-export function useAutoScroll(target: React.MutableRefObject<HTMLDivElement>) {
+/**
+ * Custom hook for auto-scroll functionality
+ * 
+ * @param {React.MutableRefObject<HTMLDivElement>} target - Ref for the target HTML element
+ * 
+ * @typedef {Object} AutoScrollObject
+ * @property {Function} initAutoScroll - Function to initialize auto-scroll
+ * @property {Function} dealDragAutoScroll - Function to handle auto-scroll during drag events
+ * @property {Function} dealResizeAutoScroll - Function to handle auto-scroll during resize events
+ * @property {Function} stopAutoScroll - Function to stop auto-scroll
+ * 
+ * @returns {AutoScrollObject}
+ */
+export function useAutoScroll(target) {
   const leftBoundRef = React.useRef(Number.MIN_SAFE_INTEGER);
   const rightBoundRef = React.useRef(Number.MAX_SAFE_INTEGER);
 
   const speed = React.useRef(DEFAULT_SPEED);
-  const frame = React.useRef<number>();
+  const frame = React.useRef();
 
+  /**
+   * Initializes auto-scroll boundaries based on the target element's position
+   */
   const initAutoScroll = () => {
     if (target?.current) {
       const { left, width } = target.current.getBoundingClientRect();
@@ -20,8 +29,15 @@ export function useAutoScroll(target: React.MutableRefObject<HTMLDivElement>) {
     }
   };
 
-  const dealDragAutoScroll = (e: DragEvent, deltaScroll?: (delta: number) => void) => {
-    // 超出
+  /**
+   * Handles auto-scroll during drag events
+   * 
+   * @param {DragEvent} e - Drag event object
+   * @param {Function} deltaScroll - Callback function to update scroll position
+   * 
+   * @returns {boolean} Returns true if auto-scroll is not triggered, false otherwise
+   */
+  const dealDragAutoScroll = (e, deltaScroll) => {
     if (e.clientX >= rightBoundRef.current || e.clientX <= leftBoundRef.current) {
       if (frame.current !== undefined) {
         cancelAnimationFrame(frame.current);
@@ -48,7 +64,16 @@ export function useAutoScroll(target: React.MutableRefObject<HTMLDivElement>) {
     return true;
   };
 
-  const dealResizeAutoScroll = (e: ResizeEvent, dir: 'left' | 'right', deltaScroll?: (delta: number) => void) => {
+  /**
+   * Handles auto-scroll during resize events
+   * 
+   * @param {ResizeEvent} e - Resize event object
+   * @param {'left' | 'right'} dir - Direction of resize
+   * @param {Function} deltaScroll - Callback function to update scroll position
+   * 
+   * @returns {boolean} Returns true if auto-scroll is not triggered, false otherwise
+   */
+  const dealResizeAutoScroll = (e, dir, deltaScroll) => {
     if (e.clientX >= rightBoundRef.current || e.clientX < leftBoundRef.current) {
       if (frame.current !== undefined) {
         cancelAnimationFrame(frame.current);
@@ -75,6 +100,9 @@ export function useAutoScroll(target: React.MutableRefObject<HTMLDivElement>) {
     return true;
   };
 
+  /**
+   * Stops auto-scroll and resets values
+   */
   const stopAutoScroll = () => {
     leftBoundRef.current = Number.MIN_SAFE_INTEGER;
     rightBoundRef.current = Number.MAX_SAFE_INTEGER;

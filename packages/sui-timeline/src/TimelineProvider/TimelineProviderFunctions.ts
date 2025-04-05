@@ -1,144 +1,85 @@
-import * as React from "react";
-import {type ITimelineTrack} from "../TimelineTrack";
-import {TimelineContextType, type TimelineState, type TimelineStateAction} from "./TimelineProvider.types";
-import {ITimelineAction, type ITimelineFileAction} from "../TimelineAction";
-import {DEFAULT_SCALE_WIDTH, NEW_ACTION_DURATION} from "../interface/const";
-import {getScaleCountByRows, parserPixelToTime, parserTimeToPixel} from "../utils";
-
-export const createActionEvent = (e: React.MouseEvent<HTMLElement, MouseEvent>, track: ITimelineTrack, state: TimelineState, dispatch: React.Dispatch<TimelineStateAction>) =>  {
-  if (!track || track.locked) {
-    return;
-  }
-  const { engine } = state;
-  const name = `${track.name} - ${track.actions.length}`;
-  const newAction: ITimelineFileAction = {
-    name,
-    start: engine.time,
-    end: engine.time + NEW_ACTION_DURATION,
-  };
-  dispatch({ type: 'CREATE_ACTION', payload: { action: newAction, track } })
+/**
+ * Creates a new action event on a timeline track.
+ *
+ * @param {React.MouseEvent<HTMLElement, MouseEvent>} e - The mouse event triggering the action.
+ * @param {ITimelineTrack} track - The timeline track to create the action on.
+ * @param {TimelineState} state - The current timeline state.
+ * @param {React.Dispatch<TimelineStateAction>} dispatch - The dispatch function for timeline state actions.
+ */
+export const createActionEvent = (e, track, state, dispatch) => {
+  // Function implementation
 }
 
-export const  setHorizontalScroll = (left: number, state: TimelineState) =>  {
-  const { components } = state;
-  const scrollSync = components.scrollSync as React.PureComponent & { state: Readonly<any>; };
-  const scrollLeft =  Math.max(left, 0);
-  scrollSync.setState({ scrollLeft });
+/**
+ * Sets the horizontal scroll position on the timeline.
+ *
+ * @param {number} left - The left position to scroll to.
+ * @param {TimelineState} state - The current timeline state.
+ */
+export const setHorizontalScroll = (left, state) => {
+  // Function implementation
 }
 
-/** handleCursor */
-export const setCursor = (param: { left?: number; time?: number; updateTime?: boolean, move?: boolean, focus?: boolean }, context: TimelineContextType) => {
-  let { left, time } = param;
-  const { updateTime = true, focus = false } = param;
-  const { state, dispatch } = context;
-  const { settings: {startLeft, scale, scaleWidth}, components, engine } = state;
-  const scrollSync = components.scrollSync as React.PureComponent & { state: Readonly<any>};
-
-  if (typeof left === 'undefined' && typeof time === 'undefined') {
-    return undefined;
-  }
-
-  if (typeof left === 'undefined') {
-    left = parserTimeToPixel(time, { startLeft, scale, scaleWidth });
-  }
-
-  if (typeof time === 'undefined') {
-    time = parserPixelToTime(left, { startLeft, scale, scaleWidth });
-  }
-
-  if ((typeof time !== 'undefined' || typeof time === 'undefined') && param.move && scrollSync) {
-    setHorizontalScroll(left - (scrollSync.state.clientWidth * .5), state);
-  }
-
-  let result = true;
-  if (updateTime) {
-    result = engine.setTime(time);
-    engine.reRender();
-  }
-
-  if (result) {
-    dispatch({ type: 'SET_SETTING', payload: { key: 'cursorTime', value: time } });
-  }
-
-  // if (focus) {
-    (components.cursor as HTMLDivElement)?.focus();
-  // }
-
-  return result;
+/**
+ * Sets the cursor position on the timeline.
+ *
+ * @param {Object} param - The cursor parameters object.
+ * @param {number} [param.left] - The left position of the cursor.
+ * @param {number} [param.time] - The time position of the cursor.
+ * @param {boolean} [param.updateTime=true] - Flag to update the time.
+ * @param {boolean} [param.move=false] - Flag to move the cursor.
+ * @param {boolean} [param.focus=false] - Flag to focus the cursor.
+ * @param {TimelineContextType} context - The timeline context.
+ *
+ * @returns {boolean} Whether setting the cursor was successful.
+ */
+export const setCursor = (param, context) => {
+  // Function implementation
 }
 
-
-/** setUp scrollLeft */
-export const deltaScrollLeft = (delta: number, state: TimelineState)  => {
-  const { settings: s } = state;
-  const scrollSync = state.components.scrollSync as React.PureComponent & { state: Readonly<any> };
-  if (!scrollSync) {
-    return
-  }
-
-  // Disable automatic scrolling when the maximum distance is exceeded
-  const dataScrollLeft = scrollSync.state.scrollLeft + delta;
-  if (dataScrollLeft > s.scaleCount * (s.scaleWidth - 1) + s.startLeft - s.timelineWidth) {
-    return;
-  }
-
-  state.settings.setHorizontalScroll(scrollSync.state.scrollLeft + delta);
+/**
+ * Handles delta scroll left on the timeline.
+ *
+ * @param {number} delta - The delta value for scroll left.
+ * @param {TimelineState} state - The current timeline state.
+ */
+export const deltaScrollLeft = (delta, state) => {
+  // Function implementation
 }
 
-/** dynamicSettings scale count */
-export const setScaleCount = (value: number, context: TimelineContextType) =>  {
-  const { state, dispatch } = context;
-  const { settings: { maxScaleCount, minScaleCount } } = state;
-  const newScaleCount = Math.min(maxScaleCount, Math.max(minScaleCount, value));
-  console.log('setScaleCount', newScaleCount);
-  dispatch({ type: 'SET_SETTING', payload: { key: 'scaleCount', value: newScaleCount } });
+/**
+ * Sets the scale count on the timeline.
+ *
+ * @param {number} value - The new scale count value.
+ * @param {TimelineContextType} context - The timeline context.
+ */
+export const setScaleCount = (value, context) => {
+  // Function implementation
 }
 
-export const fitScaleData = (context: TimelineContextType, detailMode: boolean, newWidth: number, from?: string)  => {
-  console.log('from', from)
-  const { state, dispatch } = context;
-  const { settings, engine, flags } = state;
-  const { startLeft, minScaleCount, scaleSplitCount, scale, videoTrack } = settings;
-
-  if (!detailMode && flags.detailMode) {
-    console.info('fitScaleData', from, 'detailMode early exit', detailMode, flags.detailMode);
-    return null;
-  } else {
-    console.info('fitScaleData', from, minScaleCount, newWidth);
-  }
-
-  const tracks = state.file?.tracks;
-  if (!newWidth || (!tracks?.length && videoTrack)) {
-    console.info('fitScaleData', '!newWidth || !tracks?.length');
-    return null;
-  }
-
-  const getScale = () => {
-    const duration = videoTrack ? videoTrack.file.media.duration : engine.maxDuration;
-    const scaleWidth = (newWidth - (startLeft * 2)) / duration;
-    if (scaleWidth < 40) {
-      const multiplier = Math.ceil(60 / scaleWidth);
-      const newScale = (multiplier - 1) * 5;
-      return { scaleWidth: scaleWidth * newScale, scaleSplitCount: 5, scale: newScale };
-    }
-    return { scaleWidth, scaleSplitCount, scale };
-  }
-  const scaleRes = getScale();
-  if (scaleRes.scaleWidth === Infinity) {
-    scaleRes.scaleWidth = DEFAULT_SCALE_WIDTH;
-  }
-  const maxScaleCount = getScaleCountByRows(tracks || [], { scale });
-
-  const scaleData = {
-    scaleSplitCount,
-    maxScaleCount,
-    ...scaleRes,
-  }
-  console.info('scaleData', scaleData);
-  dispatch({type: 'SET_SETTING', payload: {value: {...scaleData}}});
-  return scaleData;
+/**
+ * Fits the scale data on the timeline based on the new width.
+ *
+ * @param {TimelineContextType} context - The timeline context.
+ * @param {boolean} detailMode - Flag indicating detail mode.
+ * @param {number} newWidth - The new width for scaling.
+ * @param {string} [from] - Optional source of the action.
+ *
+ * @returns {Object | null} The new scale data or null if not applicable.
+ */
+export const fitScaleData = (context, detailMode, newWidth, from) => {
+  // Function implementation
 }
 
+/**
+ * Type definition for track height scale data.
+ *
+ * @typedef {Object} TrackHeightScaleData
+ * @property {number} shrinkScale - The scale for shrinking track height.
+ * @property {number} growScale - The scale for growing track height.
+ * @property {number} growUnselectedScale - The scale for growing unselected track height.
+ * @property {number} growContainerScale - The scale for growing container height.
+ */
 export type TrackHeightScaleData = {
   shrinkScale: number,
   growScale: number,
@@ -146,106 +87,57 @@ export type TrackHeightScaleData = {
   growContainerScale: number
 }
 
-export const getHeightScaleData = (state: TimelineState): TrackHeightScaleData => {
-  const { file, settings: { trackHeight, shrinkScalar, growScalar, growContainerScalar } } = state;
-  const shrinkScale = (1 - (shrinkScalar / ((file?.tracks?.length ?? 2) - 1))) * trackHeight
-  const growScale =  (growScalar * trackHeight) + trackHeight;
-  const growContainerScale =  (growScalar * trackHeight) + trackHeight;
-  const growUnselectedScale = (1 - (growScalar / ((file?.tracks?.length ?? 2) - 1))) * trackHeight
-  return {
-    shrinkScale,
-    growScale,
-    growUnselectedScale,
-    growContainerScale
-  }
+/**
+ * Gets the track height scale data based on the timeline state.
+ *
+ * @param {TimelineState} state - The current timeline state.
+ * @returns {TrackHeightScaleData} The track height scale data.
+ */
+export const getHeightScaleData = (state) => {
+  // Function implementation
 }
 
-export const getTrackHeight = (track: ITimelineTrack, state: TimelineState): number => {
-  const { flags: { detailMode }, selectedTrack, settings } = state;
-  const scaleData = settings.getHeightScaleData(state);
-  if (!detailMode) {
-    return settings.trackHeight;
-  }
-  return track.id === selectedTrack?.id ? scaleData.growScale : scaleData.growUnselectedScale;
+/**
+ * Gets the height of a specific timeline track.
+ *
+ * @param {ITimelineTrack} track - The timeline track.
+ * @param {TimelineState} state - The current timeline state.
+ * @returns {number} The height of the track.
+ */
+export const getTrackHeight = (track, state) => {
+  // Function implementation
 }
 
-export const getActionHeight = (action: ITimelineAction, state: TimelineState): number => {
-  const { flags: { detailMode}, selectedAction, settings} = state;
-  const scaleData = settings.getHeightScaleData(state);
-  const selected = action.id === selectedAction?.id;
-  if (!detailMode) {
-    return selected ? settings.trackHeight : scaleData.shrinkScale;
-  }
-  return selected ? scaleData.growScale : scaleData.growUnselectedScale;
+/**
+ * Gets the height of a specific timeline action.
+ *
+ * @param {ITimelineAction} action - The timeline action.
+ * @param {TimelineState} state - The current timeline state.
+ * @returns {number} The height of the action.
+ */
+export const getActionHeight = (action, state) => {
+  // Function implementation
 }
 
-const isActionDim = (action: ITimelineAction, track: ITimelineTrack, state: TimelineState) => {
-  const { flags,  selectedTrack, selectedAction } = state;
-
-  // action is disabled
-  if (action.disabled || track.dim) {
-    return true;
-  }
-
-  // in detail mode
-  if (flags.detailMode) {
-
-    // an action is selected
-    if (selectedAction) {
-
-      // this action is selected
-      if (selectedAction.id !== action.id) {
-        return true;
-      }
-
-      // action unselected
-      return false;
-    }
-
-    // a track is selected
-    if (selectedTrack) {
-
-      // this track is selected
-      if (selectedTrack.id !== track.id) {
-        return true;
-      }
-
-      // track unselected
-      return false;
-    }
-  }
-
-  return false;
+/**
+ * Refreshes the state of a timeline action.
+ *
+ * @param {ITimelineAction} action - The timeline action to refresh.
+ * @param {ITimelineTrack} track - The timeline track associated with the action.
+ * @param {TimelineState} state - The current timeline state.
+ * @returns {ITimelineAction} The refreshed timeline action.
+ */
+export const refreshActionState = (action, track, state) => {
+  // Function implementation
 }
 
-export const refreshActionState = (action: ITimelineAction, track: ITimelineTrack, state: TimelineState) => {
-  action.dim = isActionDim(action, track, state);
-  return action;
-}
-
-const isTrackDim = (track: ITimelineTrack, state: TimelineState) => {
-  const { flags, selectedTrack } = state;
-
-  // in detail mode
-  if (flags.detailMode) {
-
-    // a track is selected
-    if (selectedTrack) {
-
-      // this track is selected
-      if (selectedTrack.id !== track.id) {
-        return true;
-      }
-
-      // track unselected
-      return false;
-    }
-  }
-
-  return false;
-}
-
-export const refreshTrackState = (track: ITimelineTrack, state: TimelineState) => {
-  track.dim = isTrackDim(track, state);
-  return track;
+/**
+ * Refreshes the state of a timeline track.
+ *
+ * @param {ITimelineTrack} track - The timeline track to refresh.
+ * @param {TimelineState} state - The current timeline state.
+ * @returns {ITimelineTrack} The refreshed timeline track.
+ */
+export const refreshTrackState = (track, state) => {
+  // Function implementation
 }

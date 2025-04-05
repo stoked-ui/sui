@@ -5,6 +5,9 @@ import {SlotComponentProps} from '@mui/base/utils';
 import {Version} from '../Engine/Engine.types';
 import {TimelineControlsClasses} from './timelineControlsClasses';
 
+/**
+ * Interface defining the slots available for TimelineControls component.
+ */
 export interface TimelineControlsSlots {
   /**
    * Element rendered at the root.
@@ -13,10 +16,16 @@ export interface TimelineControlsSlots {
   root?: React.ElementType;
 }
 
+/**
+ * Props for defining slot components in TimelineControls.
+ */
 export interface TimelineControlsSlotProps {
   root?: SlotComponentProps<'div', {}, TimelineControlsSlots>;
 }
 
+/**
+ * Base props for TimelineControls component.
+ */
 export interface TimelineControlsPropsBase extends React.HTMLAttributes<HTMLDivElement> {
   className?: string;
   /**
@@ -27,21 +36,21 @@ export interface TimelineControlsPropsBase extends React.HTMLAttributes<HTMLDivE
    * The system prop that allows defining system overrides as well as additional CSS styles.
    */
   sx?: SxProps<Theme>;
-  /*
-  * The scale of the video
-  * @default 1
-  */
+  /**
+   * The scale of the video.
+   * @default 1
+   */
   scale?: number;
   setScaleWidth: (scaleWidth: number) => void;
-  /*
-  * The width of the scale
-  * @default 160
-  */
+  /**
+   * The width of the scale.
+   * @default 160
+   */
   scaleWidth?: number;
-  /*
-  * How many ticks to the left of the view at start
-  * @default 20
-  */
+  /**
+   * How many ticks to the left of the view at start.
+   * @default 20
+   */
   startLeft?: number;
   autoScroll: boolean;
   view: 'timeline' | 'files',
@@ -55,8 +64,10 @@ export interface TimelineControlsPropsBase extends React.HTMLAttributes<HTMLDivE
   disabled?: boolean;
 }
 
-export interface TimelineControlsProps
-  extends TimelineControlsPropsBase {
+/**
+ * Props for TimelineControls component including slots and slotProps.
+ */
+export interface TimelineControlsProps extends TimelineControlsPropsBase {
   /**
    * Overridable component slots.
    * @default {}
@@ -69,9 +80,17 @@ export interface TimelineControlsProps
   slotProps?: TimelineControlsSlotProps
 }
 
+/**
+ * Represents the control state of the video.
+ */
 export type ControlState = 'pause' | 'play' | 'rewind' | 'fastForward';
 
-export const VideoVersionFromKey = (key) => {
+/**
+ * Function to extract video version details from a key.
+ * @param {string} key - The key containing version details.
+ * @returns {Version} - Object containing id, version, and key.
+ */
+export const VideoVersionFromKey = (key: string): Version => {
   const parts = key.split('|');
-  return { id: parts[0], version: Number(parts[1]), key} as Version;
+  return { id: parts[0], version: Number(parts[1]), key } as Version;
 }

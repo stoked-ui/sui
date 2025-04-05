@@ -1,3 +1,36 @@
+/**
+ * React component for rendering timeline labels.
+ * @description Displays labels for timeline tracks and provides functionality for interacting with them.
+ * @param {Object} props - The props for the TimelineLabels component.
+ * @param {Object} props.classes - Override or extend the styles applied to the component.
+ * @param {string} props.className - Additional CSS class for styling.
+ * @param {any} props.controllers - Controller objects for managing timeline tracks.
+ * @param {boolean} props.hideLock - Flag to hide lock icon.
+ * @param {function} props.onAddFiles - Callback function for adding files.
+ * @param {function} props.onLabelClick - Callback function for clicking on a label.
+ * @param {function} props.onToggle - Callback function for toggling.
+ * @param {function} props.setFlags - Setter function for flags.
+ * @param {Object} props.slotProps - The props used for each component slot. Default is an empty object.
+ * @param {Object} props.slots - Overridable component slots. Default is an empty object.
+ * @param {Array|function|Object} props.sx - The system prop for defining system overrides and additional CSS styles.
+ * @param {number|string} props.width - The width of the component.
+ * @returns {JSX.Element} Rendered React component for timeline labels.
+ * @example
+ * <TimelineLabels
+ *   classes={classes}
+ *   className="timeline-labels"
+ *   controllers={controllers}
+ *   hideLock={false}
+ *   onAddFiles={handleAddFiles}
+ *   onLabelClick={handleLabelClick}
+ *   onToggle={handleToggle}
+ *   setFlags={setFlags}
+ *   slotProps={slotProps}
+ *   slots={slots}
+ *   sx={[sx1, sx2]}
+ *   width={200}
+ * />
+ */
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import composeClasses from '@mui/utils/composeClasses';
@@ -33,7 +66,6 @@ const TimelineLabelsRoot = styled('div', {
   overflow: 'overlay',
 }));
 
-
 const TimelineLabels = React.forwardRef(function TimelineLabels(
   inProps: TimelineLabelsProps,
   ref: React.Ref<HTMLDivElement>,
@@ -43,7 +75,6 @@ const TimelineLabels = React.forwardRef(function TimelineLabels(
   const { trackHeight, videoTrack } = settings;
   const { slotProps, slots, sx, width } = inProps;
   const finalWidth = width || !flags.noLabels ? '275px' : '0px';
-  // const themeProps = useThemeProps({ props: inProps, name: 'MuiTimelineLabels' });
 
   const classes = useUtilityClasses(inProps);
   const Root = slots?.root ?? TimelineLabelsRoot;
@@ -79,9 +110,9 @@ const TimelineLabels = React.forwardRef(function TimelineLabels(
       className={`${classes.root} timeline-list`}
       ref={ref}
     >
-        <Box sx={{ height: '37.5px', padding: '3px 0px', justifyContent: 'end', display: 'flex' }}>
-          <SnapControls style={{ display: 'flex' }} />
-        </Box>
+      <Box sx={{ height: '37.5px', padding: '3px 0px', justifyContent: 'end', display: 'flex' }}>
+        <SnapControls style={{ display: 'flex' }} />
+      </Box>
       <Box sx={{ display: 'flex', flexDirection: 'column' }}>
         {!engine.isLoading &&
           displayTracks.map((track, index) => {
@@ -105,8 +136,6 @@ const TimelineLabels = React.forwardRef(function TimelineLabels(
             );
           })}
       </Box>
-
-      {/* TODO: enable this once there is a mode where the screen height will not be modified if row height changes. */}
       <Stack spacing={2} direction="row" sx={{ display: 'none', alignItems: 'center', mb: 1 }}>
         <TimelineTrackIcon sx={{ width: '15px', height: '15px' }} />
         <Slider
@@ -130,13 +159,6 @@ const TimelineLabels = React.forwardRef(function TimelineLabels(
 });
 
 TimelineLabels.propTypes = {
-  // ----------------------------- Warning --------------------------------
-  // | These PropTypes are generated from the TypeScript type definitions |
-  // | To update them edit the TypeScript types and run "pnpm proptypes"  |
-  // ----------------------------------------------------------------------
-  /**
-   * Override or extend the styles applied to the component.
-   */
   classes: PropTypes.object,
   className: PropTypes.string,
   controllers: PropTypes.any,
@@ -145,19 +167,8 @@ TimelineLabels.propTypes = {
   onLabelClick: PropTypes.func,
   onToggle: PropTypes.func,
   setFlags: PropTypes.func,
-  /**
-   * The props used for each component slot.
-   * @default {}
-   */
   slotProps: PropTypes.object,
-  /**
-   * Overridable component slots.
-   * @default {}
-   */
   slots: PropTypes.object,
-  /**
-   * The system prop that allows defining system overrides as well as additional CSS styles.
-   */
   sx: PropTypes.oneOfType([
     PropTypes.arrayOf(
       PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),
@@ -169,3 +180,4 @@ TimelineLabels.propTypes = {
 } as any;
 
 export default TimelineLabels;
+**/

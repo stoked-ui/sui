@@ -1,18 +1,26 @@
-// Override for interactjs types
+/**
+ * Override for interactjs types to fix type errors and prevent duplicate declarations
+ */
 declare module '@interactjs/types' {
-  // Just enough to satisfy the compiler
+  /**
+   * Just enough to satisfy the compiler
+   */
   export default interface InteractStatic {
     // Add minimal interface definition
   }
 
-  // Fix for duplicate property declarations errors
-  // TS2717: Subsequent property declarations must have the same type
+  /**
+   * Fix for duplicate property declarations errors
+   * TS2717: Subsequent property declarations must have the same type
+   */
   export interface ActionProps {
     // Override these properties to fix type errors
   }
 
+  /**
+   * Overriding event types to prevent duplicate declarations
+   */
   export interface EventTypes {
-    // Overriding event types to prevent duplicate declarations
     'interactions:new': any;
     'interactions:down': any;
     'interactions:move': any;
@@ -33,9 +41,11 @@ declare module '@interactjs/types' {
     'interactions:find': any;
   }
 
-  // Override Interaction to fix type errors
+  /**
+   * Override Interaction to fix type errors
+   */
   export interface Scope {
     Interaction: any;
     interactions: any;
   }
-} 
+}

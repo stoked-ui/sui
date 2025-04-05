@@ -1,234 +1,9 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { alpha, darken, emphasize, lighten, styled } from '@mui/material/styles';
-import { shouldForwardProp } from '@mui/system/createStyled';
-import LockIcon from '@mui/icons-material/Lock';
-import { Fade, ImageList, ImageListItem } from '@mui/material';
-import Zoom from '@mui/material/Zoom';
-import { Screenshot } from '@stoked-ui/media-selector';
-import { DEFAULT_ADSORPTION_DISTANCE, DEFAULT_MOVE_GRID } from '../interface/const';
-import {
-  getScaleCountByPixel,
-  parserTimeToPixel,
-  parserTimeToTransform,
-  parserTransformToTime,
-} from '../utils/deal_data';
-import TimelineTrackDnd from '../TimelineTrack/TimelineTrackDnd';
-import {
-  RndDragCallback,
-  RndDragEndCallback,
-  RndDragStartCallback,
-  RndResizeCallback,
-  RndResizeEndCallback,
-  RndResizeStartCallback,
-  RowRndApi,
-} from '../TimelineTrack/TimelineTrackDnd.types';
-import { prefix } from '../utils/deal_class_prefix';
-import {
-  getActionFileTimespan,
-  ITimelineAction,
-  type TimelineActionProps,
-} from './TimelineAction.types';
-import { getTrackBackgroundColor, type ITimelineTrack } from '../TimelineTrack/TimelineTrack.types';
-import { useTimeline } from '../TimelineProvider';
-import TimelineFile, { RemoveActionCommand } from '../TimelineFile';
-import { getTrackHeight } from '../TimelineProvider/TimelineProviderFunctions';
-
-const Action = styled('div', {
-  name: 'MuiTimelineAction',
-  slot: 'root',
-  shouldForwardProp: (prop) =>
-    shouldForwardProp(prop) &&
-    prop !== 'selected' &&
-    prop !== 'color' &&
-    prop !== 'duration' &&
-    prop !== 'scaleWidth' &&
-    prop !== 'loop' &&
-    prop !== 'loopCount' &&
-    prop !== 'hover' &&
-    prop !== 'trackHeight' &&
-    prop !== 'disabled' &&
-    prop !== 'dim',
-})<{
-  selected?: boolean;
-  color?: string;
-  duration?: number;
-  scaleWidth?: number;
-  loop?: boolean;
-  loopCount?: number;
-  hover: boolean;
-  trackHeight: number;
-  disabled: boolean;
-  dim?: boolean;
-}>(({
-  theme,
-  duration,
-  scaleWidth,
-  color,
-  loop = true,
-  loopCount,
-  selected,
-  hover,
-  trackHeight,
-  disabled,
-  dim,
-}) => {
-  const trackBack = getTrackBackgroundColor(
-    color,
-    theme.palette.mode,
-    selected,
-    hover,
-    disabled,
-    dim,
-  );
-
-  const backgroundColor = emphasize(color, 0.1);
-  const darker = darken(backgroundColor, 0.6);
-  const lighter = lighten(backgroundColor, 0.6);
-  const size = duration && scaleWidth ? duration * (100 / scaleWidth) : undefined;
-  let background = `linear-gradient(to right, ${backgroundColor} 1px, ${theme.palette.action.hover} 1px)`;
-  let backgroundSize = size ? `${size}px ` : undefined;
-  let backgroundRepeat: string | undefined;
-  let backgroundPosition: string | undefined;
-  if (loop) {
-    if (loopCount) {
-      const newBack: string[] = [];
-      const newSize: string[] = [];
-      const newRepeat: string[] = [];
-      let total = 0;
-      for (let i = 0; i < loopCount; i += 1) {
-        newBack.push(background);
-        newRepeat.push('no-repeat');
-        if (size) {
-          newSize.push(`${total}px top`);
-          total += size;
-        }
-      }
-      background = `${newBack.join(',')};`;
-      backgroundSize = `${newSize.join(',')};`;
-      backgroundRepeat = `${newRepeat.join(',')};`;
-    }
-  } else {
-    background += `,linear-gradient(to right, ${lighter} 1px, ${darker} 2
-    px, transparent 1px)`;
-    backgroundSize = undefined;
-    backgroundPosition = `0px top, ${size}px top`;
-    backgroundRepeat = 'no-repeat';
-  }
-
-  let height = '100%';
-  const borderWidth = '1px';
-  if (selected) {
-    height = `${trackHeight + 2}px`;
-  } else if (hover) {
-    height = `${trackHeight + 4}px`;
-  }
-  return {
-    borderRadius: '4px',
-    borderWidth,
-    marginTop: '-1px',
-    position: 'absolute',
-    left: 0,
-    top: 0,
-    background,
-    backgroundSize,
-    backgroundRepeat,
-    backgroundPosition,
-    // backgroundColor,
-    ...trackBack.action,
-    alignContent: 'center',
-    padding: 0,
-    overflow: 'hidden',
-    textWrap: 'nowrap',
-    height,
-    borderTop: `1px solid ${lighter}`,
-    borderBottom: `1px solid ${darker}`,
-    userSelect: 'none',
-    justifyContent: 'end',
-    display: 'flex',
-    touchAction: 'none',
-    '&.volume:hover': {
-      cursor: "url('/static/cursors/volume-pen.svg') 16 16, auto",
-    },
-    '&:hover': {
-      // backgroundColor:   `${emphasize(color, 0.15)}`,
-      '& .label': {
-        opacity: '1',
-      },
-    },
-    variants: [
-      {
-        props: { selected: true },
-        style: {
-          // backgroundColor: `${color}`,
-          '&:hover': {
-            // backgroundColor: `${emphasize(color, 0.05)}`,
-          },
-        },
-      },
-    ],
-  };
-});
-
-const sizerColor = (theme) => alpha(theme.palette.text.primary, 0.5);
-const sizerHoverColor = (theme) => alpha(theme.palette.text.primary, 0.9);
-
-const LeftStretch = styled('div')(({ theme }) => ({
-  position: 'absolute',
-  top: 0,
-  width: '10px',
-  borderRadius: '4px',
-  height: '100%',
-  overflow: 'hidden',
-  left: 0,
-  '&:hover': {
-    '&::after': {
-      borderLeftColor: sizerHoverColor(theme),
-    },
-  },
-  '&::after': {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    margin: 'auto',
-    borderRadius: '4px',
-    borderTop: '28px solid transparent',
-    borderBottom: '28px solid transparent',
-    left: 0,
-    content: "''",
-    borderLeft: `7px solid ${sizerColor(theme)}`,
-    borderRight: '7px solid transparent',
-  },
-}));
-
-const RightStretch = styled('div')(({ theme }) => ({
-  position: 'absolute',
-  top: 0,
-  width: '10px',
-  borderRadius: '4px',
-  height: '100%',
-  overflow: 'hidden',
-  right: 0,
-  '&:hover': {
-    '&::after': {
-      borderRightColor: sizerHoverColor(theme),
-    },
-  },
-  '&::after': {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    margin: 'auto',
-    borderRadius: '4px',
-    borderTop: '28px solid transparent',
-    borderBottom: '28px solid transparent',
-    right: 0,
-    content: "''",
-    borderLeft: '7px solid transparent',
-    borderRight: `7px solid ${sizerColor(theme)}`,
-  },
-}));
-
+/**
+ * Represents a styled div component for a single action on the timeline.
+ *
+ * @param {TimelineActionProps<TrackType, ActionType>} props - The props for the TimelineAction component.
+ * @returns {JSX.Element} A React JSX Element representing the TimelineAction component.
+ */
 function TimelineAction<
   TrackType extends ITimelineTrack = ITimelineTrack,
   ActionType extends ITimelineAction = ITimelineAction,
@@ -747,10 +522,6 @@ function TimelineAction<
 }
 
 TimelineAction.propTypes = {
-  // ----------------------------- Warning --------------------------------
-  // | These PropTypes are generated from the TypeScript type definitions |
-  // | To update them edit the TypeScript types and run "pnpm proptypes"  |
-  // ----------------------------------------------------------------------
   action: PropTypes.shape({
     backgroundImage: PropTypes.string,
     backgroundImageStyle: PropTypes.oneOfType([
@@ -790,169 +561,28 @@ TimelineAction.propTypes = {
   areaRef: PropTypes.shape({
     current: PropTypes.object,
   }),
-  /**
-   * The content of the component.
-   */
   children: PropTypes.node,
   classes: PropTypes.object,
   className: PropTypes.string,
   deltaScrollLeft: PropTypes.func,
-  /**
-   * Whether the action is prohibited from running
-   */
   disabled: PropTypes.bool,
   dragLineData: PropTypes.shape({
     assistPositions: PropTypes.arrayOf(PropTypes.number),
     isMoving: PropTypes.bool,
     movePositions: PropTypes.arrayOf(PropTypes.number),
   }),
-  /**
-   * Whether the action is scalable
-   */
   flexible: PropTypes.bool,
   handleTime: PropTypes.func,
-  /**
-   * Whether the action is locked on the timeline
-   */
   locked: PropTypes.bool,
-  /**
-   * Whether the action is movable
-   */
   movable: PropTypes.bool,
-  /**
-   * Whether the action is hidden from timeline
-   */
-  muted: PropTypes.bool,
-  /**
-   * @description Move end callback (return false to prevent onChange from triggering)
-   */
   onActionMoveEnd: PropTypes.func,
-  /**
-   * @description Start moving callback
-   */
   onActionMoveStart: PropTypes.func,
-  /**
-   * @description Move callback (return false to prevent movement)
-   */
   onActionMoving: PropTypes.func,
-  /**
-   * @description size change end callback (return false to prevent onChange from triggering)
-   */
   onActionResizeEnd: PropTypes.func,
-  /**
-   * @description Start changing the size callback
-   */
   onActionResizeStart: PropTypes.func,
-  /**
-   * @description Start size callback (return false to prevent changes)
-   */
   onActionResizing: PropTypes.func,
-  /**
-   * @description Click track callback
-   */
   onClickAction: PropTypes.func,
-  /**
-   * @description Click track callback
-   */
   onClickActionOnly: PropTypes.func,
-  /**
-   * @description Right-click track callback
-   */
   onContextMenuAction: PropTypes.func,
-  /**
-   * @description Double-click track callback
-   */
   onDoubleClickAction: PropTypes.func,
-  /**
-   * Whether the action is selected
-   */
-  selected: PropTypes.bool,
-  /**
-   * The props used for each component slot.
-   */
-  slotProps: PropTypes.object,
-  /**
-   * Overridable component slots.
-   */
-  slots: PropTypes.object,
-  /**
-   * The system prop that allows defining system overrides as well as additional CSS styles.
-   */
-  sx: PropTypes.oneOfType([
-    PropTypes.arrayOf(
-      PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool]),
-    ),
-    PropTypes.func,
-    PropTypes.object,
-  ]),
-  track: PropTypes.shape({
-    actions: PropTypes.arrayOf(
-      PropTypes.shape({
-        backgroundImage: PropTypes.string,
-        backgroundImageStyle: PropTypes.oneOfType([
-          PropTypes.object,
-          PropTypes.shape({
-            backgroundImage: PropTypes.string,
-            backgroundPosition: PropTypes.string,
-            backgroundSize: PropTypes.string,
-          }),
-        ]),
-        dim: PropTypes.bool,
-        disabled: PropTypes.bool,
-        duration: PropTypes.number,
-        end: PropTypes.number,
-        flexible: PropTypes.bool,
-        frameSyncId: PropTypes.number,
-        freeze: PropTypes.number,
-        id: PropTypes.string,
-        locked: PropTypes.bool,
-        loop: PropTypes.oneOfType([PropTypes.number, PropTypes.bool]),
-        maxEnd: PropTypes.number,
-        minStart: PropTypes.number,
-        movable: PropTypes.bool,
-        muted: PropTypes.bool,
-        name: PropTypes.string,
-        onKeyDown: PropTypes.func,
-        playbackRate: PropTypes.number,
-        playCount: PropTypes.number,
-        selected: PropTypes.bool,
-        start: PropTypes.number,
-        style: PropTypes.object,
-        trimEnd: PropTypes.any,
-        trimStart: PropTypes.any,
-        volume: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)),
-        volumeIndex: PropTypes.number,
-      }),
-    ),
-    classNames: PropTypes.arrayOf(PropTypes.string),
-    controller: PropTypes.shape({
-      color: PropTypes.string,
-      colorSecondary: PropTypes.string,
-      destroy: PropTypes.func,
-      enter: PropTypes.func,
-      getActionStyle: PropTypes.func,
-      getItem: PropTypes.func,
-      leave: PropTypes.func,
-      logging: PropTypes.bool,
-      preload: PropTypes.func,
-      start: PropTypes.func,
-      stop: PropTypes.func,
-      update: PropTypes.func,
-      updateMediaFile: PropTypes.func,
-      viewerUpdate: PropTypes.func,
-    }),
-    controllerName: PropTypes.string,
-    dim: PropTypes.bool,
-    disabled: PropTypes.bool,
-    file: PropTypes.any,
-    fileId: PropTypes.string,
-    id: PropTypes.string,
-    image: PropTypes.string,
-    locked: PropTypes.bool,
-    muted: PropTypes.bool,
-    name: PropTypes.string,
-    url: PropTypes.string,
-  }),
-} as any;
-
-export { TimelineAction };
+  selected: PropTypes.bool

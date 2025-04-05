@@ -1,7 +1,18 @@
-import * as React from "react";
-import Fab from "@mui/material/Fab";
-import AddIcon from "@mui/icons-material/Add";
-
+/**
+ * Functional component for an "Add Track" button.
+ * 
+ * @param {Object} props - The props object.
+ * @param {Function} props.onAddFiles - Callback function to trigger when files are added.
+ * 
+ * @returns {JSX.Element} React component rendering the "Add Track" button.
+ * 
+ * @example
+ * <AddTrackButton onAddFiles={handleAddFiles} />
+ * 
+ * @fires onClick
+ * 
+ * @see Fab, AddIcon
+ */
 export default function AddTrackButton({ onAddFiles }: { onAddFiles?: () => void }) {
   // {(!file?.tracks || !file?.tracks.length) &&
    return (

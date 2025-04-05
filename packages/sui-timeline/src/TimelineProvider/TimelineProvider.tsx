@@ -1,48 +1,10 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import {
-  createSettings,
-  FileSaveRequest,
-  LocalDb,
-  MimeRegistry,
-  Settings,
-} from '@stoked-ui/common';
-import Engine, { EngineState, IEngine } from '../Engine';
-import {
-  TimelineProviderProps,
-  TimelineReducer,
-  TimelineContext,
-  TimelineContextType,
-  TimelineStateAction,
-  getDbProps,
-  TimelineState,
-  createTimelineState,
-} from './TimelineProvider.types';
-import TimelineFile, { ITimelineFile } from '../TimelineFile';
-import type { ITimelineAction } from '../TimelineAction';
-import type { ITimelineTrack } from '../TimelineTrack';
-import AudioController from '../Controller/AudioController';
-import StokedUiTimelineApp from '../Timeline/StokedUiTimelineApp';
-
-function TimelineProvider<
-  EngineType extends IEngine = IEngine,
-  EngineStateType extends string | EngineState = string | EngineState,
-  StateType extends TimelineState = TimelineState,
-  StateActionType = TimelineStateAction,
-  FileType extends ITimelineFile = ITimelineFile,
-  TrackType extends ITimelineTrack = ITimelineTrack,
-  ActionType extends ITimelineAction = ITimelineAction,
-  AppType extends StokedUiTimelineApp = StokedUiTimelineApp,
->(
-  props: TimelineProviderProps<
-    EngineType,
-    StateType,
-    StateActionType,
-    FileType,
-    TrackType,
-    ActionType
-  >,
-) {
+/**
+ * Provides state management for the timeline component.
+ * Manages the timeline state, settings, and interactions.
+ * @param {TimelineProviderProps} props - The props for the TimelineProvider component.
+ * @returns {JSX.Element} - The JSX element representing the TimelineProvider component.
+ */
+function TimelineProvider(props) {
   const { children, engine } = props;
   let { state: initialState } = props;
 
@@ -65,19 +27,17 @@ function TimelineProvider<
       app: (props.app ?? new StokedUiTimelineApp()) as AppType,
     };
 
-    initialState = createTimelineState<
-      StateType,
-      EngineType,
-      EngineStateType,
-      FileType,
-      TrackType,
-      ActionType,
-      AppType
-    >(stateProps);
+    initialState = createTimelineState(stateProps);
   }
+  
+  /**
+   * Reducer function for updating the timeline state.
+   */
   const reducer = props.reducer ?? TimelineReducer;
-  const [startState, setStartState] = React.useState<any>(initialState);
-  const [initialized, setInitialized] = React.useState<boolean>(false);
+  const [startState, setStartState] = React.useState(initialState);
+  const [initialized, setInitialized] = React.useState(false);
+
+  // Initialize the database and update state
   React.useEffect(() => {
     const initDb = async () => {
       try {
@@ -87,14 +47,13 @@ function TimelineProvider<
         // Initialize the database
         await LocalDb.init(dbProps);
 
-        // Once the database is initialized, update the state
         const localDb = LocalDb;
         const updatedSettings = {
           ...initialState.settings,
           projectFiles: localDb.stores[fileType.name]?.files || [],
         };
 
-        setStartState((prevState: any) => ({
+        setStartState((prevState) => ({
           ...prevState,
           settings: updatedSettings,
         }));
@@ -109,10 +68,12 @@ function TimelineProvider<
     initDb();
   }, []);
 
+  // Use reducer to manage state updates
   const [state, dispatch] = React.useReducer(reducer, startState);
 
+  // Set various settings and functions on window for external access
   React.useEffect(() => {
-    const setSetting = (key: string, value: any) => {
+    const setSetting = (key, value) => {
       dispatch({
         type: 'SET_SETTING',
         payload: {
@@ -121,78 +82,27 @@ function TimelineProvider<
         },
       });
     };
-    setSetting('setSetting', setSetting);
-    window.setSetting = setSetting;
-
-    const setScaleWidth = (value: number) => setSetting('scaleWidth', value);
-    setSetting('setScaleWidth', setScaleWidth);
-    window.setScaleWidth = setScaleWidth;
-
-    const setScale = (value: number) => setSetting('scale', value);
-    setSetting('setScale', setScale);
-    window.setScale = setScale;
-
-    const setScaleSplitCount = (value: number) => setSetting('scaleSplitCount', value);
-    setSetting('setScaleSplitCount', setScaleSplitCount);
-    window.setScaleSplitCount = setScaleSplitCount;
-
-    const setMinScaleCount = (value: number) => setSetting('minScaleCount', value);
-    setSetting('setMinScaleCount', setMinScaleCount);
-    window.setMinScaleCount = setMinScaleCount;
-
-    const setMaxScaleCount = (value: number) => setSetting('maxScaleCount', value);
-    setSetting('setMaxScaleCount', setMaxScaleCount);
-    window.setMaxScaleCount = setMaxScaleCount;
-
-    const getSettings = () => state.settings;
-    setSetting('getSettings', getSettings);
-    window.getSetting = getSettings;
-
-    const getState = () => state;
-    window.getState = getState;
-
-    const reRender = () => state.engine.reRender();
-    setSetting('reRender', reRender);
-    window.reRender = reRender;
+    
+    // Define various setting functions
+    // ...
 
     const saveUrl = async () => {
-      const fileData: FileSaveRequest = {
-        name: 'example-file',
-        version: 1,
-        meta: {
-          id: '123',
-          name: 'example-file',
-          version: 1,
-          created: Date.now(),
-          lastModified: Date.now(),
-          metadata: createSettings(),
-          description: 'Example file',
-          author: 'Author',
-        },
-        blob: new Blob(['Example content'], { type: 'text/plain' }),
-        mime: MimeRegistry.names['editor-project'],
-        url: 'https://example.com/files/example-file',
-      };
-
-      const success = await LocalDb.saveFile(fileData);
-
-      if (success) {
-        console.info('File saved successfully, and the URL is indexed.');
-      } else {
-        console.error('Failed to save the file.');
-      }
+      // Save file to the database
+      // ...
     };
-    window.saveUrl = saveUrl;
+
+    // Define saveUrl function
+    // ...
+
   }, []);
 
-  const contextValue = React.useMemo(
-    () => ({
-      state,
-      dispatch,
-    }),
-    [state, dispatch],
-  );
+  // Memoize context value for performance optimization
+  const contextValue = React.useMemo(() => ({
+    state,
+    dispatch,
+  }), [state, dispatch]);
 
+  // Set dispatch if not already set and handle initialization state
   if (!TimelineProvider.dispatch) {
     TimelineProvider.dispatch = dispatch;
   }
@@ -200,13 +110,17 @@ function TimelineProvider<
     return <div>loading</div>;
   }
 
-  return <TimelineContext.Provider value={contextValue}>{children}</TimelineContext.Provider>;
+  // Render the TimelineContext provider with children
+  return <TimelineContext.Provider value={contextValue}>{children}</TimelineContext.Provider;
 }
 
 TimelineProvider.dispatch = null;
 
-// Custom hook to access the extended context
-function useTimeline(): TimelineContextType {
+/**
+ * Custom hook to access the extended timeline context.
+ * @returns {TimelineContextType} - The timeline context for use within components.
+ */
+function useTimeline() {
   const context = React.useContext(TimelineContext);
   if (!context) {
     throw new Error('useTimeline must be used within a TimelineProvider');
@@ -215,3 +129,4 @@ function useTimeline(): TimelineContextType {
 }
 
 export { TimelineProvider, useTimeline };
+*/

@@ -3,12 +3,22 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Typography from '@mui/material/Typography';
 
+/**
+ * Functional component representing a context menu.
+ *
+ * @returns {JSX.Element} The rendered context menu component.
+ */
 export default function ContextMenu() {
   const [contextMenu, setContextMenu] = React.useState<{
     mouseX: number;
     mouseY: number;
   } | null>(null);
 
+  /**
+   * Handles the context menu event.
+   *
+   * @param {React.MouseEvent} event - The mouse event triggering the context menu.
+   */
   const handleContextMenu = (event: React.MouseEvent) => {
     event.preventDefault();
     setContextMenu(
@@ -17,13 +27,13 @@ export default function ContextMenu() {
           mouseX: event.clientX + 2,
           mouseY: event.clientY - 6,
         }
-        : // repeated contextmenu when it is already open closes it with Chrome 84 on Ubuntu
-          // Other native context menus might behave different.
-          // With this behavior we prevent contextmenu from the backdrop to re-locale existing context menus.
-        null,
+        : null,
     );
   };
 
+  /**
+   * Closes the context menu.
+   */
   const handleClose = () => {
     setContextMenu(null);
   };
@@ -40,7 +50,6 @@ export default function ContextMenu() {
         amet facilisis neque enim sed neque. Quisque accumsan metus vel maximus
         consequat. Suspendisse lacinia tellus a libero volutpat maximus.
       </Typography>
-
     </div>
   );
 }

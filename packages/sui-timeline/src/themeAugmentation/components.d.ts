@@ -1,11 +1,14 @@
-import {ComponentsOverrides, ComponentsProps, ComponentsVariants} from '@mui/material/styles';
-
+/**
+ * Interface defining the components that can be styled in a timeline.
+ *
+ * @template Theme - The theme type for the components
+ */
 export interface TimelineComponents<Theme = unknown> {
   MuiTimeline?: {
     defaultProps?: ComponentsProps['MuiTimeline'];
     styleOverrides?: ComponentsOverrides<Theme>['MuiTimeline'];
     variants?: ComponentsVariants<Theme>['MuiTimeline'];
-  },
+  };
   MuiTimelineAction?: {
     defaultProps?: ComponentsProps['MuiTimelineAction'];
     styleOverrides?: ComponentsOverrides<Theme>['MuiTimelineAction'];
@@ -46,9 +49,11 @@ export interface TimelineComponents<Theme = unknown> {
     styleOverrides?: ComponentsOverrides<Theme>['MuiTimelineTrackArea'];
     variants?: ComponentsVariants<Theme>['MuiTimelineTrackArea'];
   };
-
 }
 
+/**
+ * Extend the Components interface from the Material-UI styles to include TimelineComponents.
+ */
 declare module '@mui/material/styles' {
   interface Components<Theme = unknown> extends TimelineComponents<Theme> {}
 }

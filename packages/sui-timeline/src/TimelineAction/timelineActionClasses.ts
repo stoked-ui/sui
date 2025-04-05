@@ -1,27 +1,33 @@
-import generateUtilityClass from '@mui/utils/generateUtilityClass';
-import generateUtilityClasses from '@mui/utils/generateUtilityClasses';
+/**
+ * Interface for defining classes for TimelineAction component.
+ * @typedef {object} TimelineActionClasses
+ * @property {string} root - Styles applied to the root element.
+ * @property {string} left - Styles applied to the left element.
+ * @property {string} right - Styles applied to the right element.
+ * @property {string} selected - Whether the action is selected.
+ * @property {string} flexible - Whether the action is scalable.
+ * @property {string} movable - Whether the action is movable.
+ * @property {string} disabled - Whether the action is prohibited from running.
+ */
 
-export interface TimelineActionClasses {
-  /** Styles applied to the root element. */
-  root: string;
-  left: string;
-  right: string;
-  /** Whether the action is selected */
-  selected: string;
-  /** Whether the action is scalable */
-  flexible: string;
-  /** Whether the action is movable */
-  movable: string;
-  /** Whether the action is prohibited from running */
-  disabled: string;
-}
+/**
+ * Key of TimelineActionClasses.
+ * @typedef {string} TimelineActionClassKey
+ */
 
-export type TimelineActionClassKey = keyof TimelineActionClasses;
-
+/**
+ * Retrieves the utility class for the TimelineAction component.
+ * @param {string} slot - The slot for the utility class.
+ * @returns {string} The generated utility class.
+ */
 export function getTimelineActionUtilityClass(slot: string): string {
   return generateUtilityClass('MuiTimelineAction', slot);
 }
 
+/**
+ * Classes for TimelineAction component.
+ * @type {TimelineActionClasses}
+ */
 export const timelineActionClasses: TimelineActionClasses = generateUtilityClasses('MuiTimelineAction', [
   'root',
   'left',

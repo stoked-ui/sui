@@ -1,263 +1,183 @@
-import { IMediaFile  } from "@stoked-ui/media-selector";
-import { namedId} from '@stoked-ui/common';
-import * as yup from "yup";
-import { ITimelineAction } from "../TimelineAction/TimelineAction.types";
-import { ITimelineTrack } from "../TimelineTrack/TimelineTrack.types";
-import TimelineFile, { ITimelineFile } from "../TimelineFile";
+/**
+ * Interface for a media file.
+ * @typedef {Object} IMediaFile
+ * @property {string} id - The ID of the media file.
+ * @property {string} name - The name of the media file.
+ * @property {string} url - The URL of the media file.
+ * @property {string} mediaType - The type of media.
+ */
 
-export type SelectionType = ITimelineAction | ITimelineTrack | ITimelineFile;
+/**
+ * Interface for a named ID.
+ * @typedef {Function} namedId
+ */
 
+/**
+ * Interface for a timeline action.
+ * @typedef {Object} ITimelineAction
+ */
 
-export interface IProjectDetail {
-  id: string;
-  name: string;
-  description?: string;
-  author?: string;
-  created: number;
-  lastModified?: number;
-}
+/**
+ * Interface for a timeline track.
+ * @typedef {Object} ITimelineTrack
+ */
 
-export interface IFileDetail {
-  id: string;
-  name: string;
-  url: string;
-  mediaType: string;
-  path?: string;
-  webkitRelativePath: string;
-  created: number;
-  lastModified?: number;
-  size: number;
-  type: string;
-  duration?: number;
-}
+/**
+ * Interface for a timeline file.
+ * @typedef {Object} ITimelineFile
+ */
 
-export interface ITimelineTrackDetail {
-  id: string;
-  name: string;
-  muted: boolean;
-  locked: boolean;
-  url?: string;
-}
+/**
+ * Type representing different types of selections.
+ * @typedef {ITimelineAction | ITimelineTrack | ITimelineFile} SelectionType
+ */
 
-export interface ITimelineActionDetail {
-  id: string;
-  name: string;
-  start: number;
-  end: number;
-  volume: [volume: number, start?: number, end?: number][] | undefined;
-  trimStart: number;
-  trimEnd: number;
-}
+/**
+ * Interface for project details.
+ * @typedef {Object} IProjectDetail
+ * @property {string} id - The ID of the project.
+ * @property {string} name - The name of the project.
+ * @property {string} [description] - The description of the project.
+ * @property {string} [author] - The author of the project.
+ * @property {number} created - The creation timestamp.
+ * @property {number} [lastModified] - The last modified timestamp.
+ */
 
-export type ProjectDetail<ProjectType extends IProjectDetail = IProjectDetail> = {
-  project: ProjectType,
-  type: 'project'
-}
+/**
+ * Interface for file details.
+ * @typedef {Object} IFileDetail
+ * @property {string} id - The ID of the file.
+ * @property {string} name - The name of the file.
+ * @property {string} url - The URL of the file.
+ * @property {string} mediaType - The type of media.
+ * @property {string} [path] - The path of the file.
+ * @property {string} webkitRelativePath - The webkitRelativePath.
+ * @property {number} created - The creation timestamp.
+ * @property {number} [lastModified] - The last modified timestamp.
+ * @property {number} size - The size of the file.
+ * @property {string} type - The type of the file.
+ * @property {number} [duration] - The duration of the file.
+ */
 
-export type TrackDetail<
-  ProjectType extends IProjectDetail = IProjectDetail,
-  TrackType extends ITimelineTrackDetail = ITimelineTrackDetail,
-  FileType extends IFileDetail = IFileDetail
-> = {
-  track: TrackType,
-  file: FileType,
-  project: ProjectType,
-  type: 'track',
-};
+/**
+ * Interface for timeline track details.
+ * @typedef {Object} ITimelineTrackDetail
+ * @property {string} id - The ID of the timeline track.
+ * @property {string} name - The name of the timeline track.
+ * @property {boolean} muted - Flag indicating if the track is muted.
+ * @property {boolean} locked - Flag indicating if the track is locked.
+ * @property {string} [url] - The URL of the track.
+ */
 
-export type ActionDetail<
-  ProjectType extends IProjectDetail = IProjectDetail,
-  TrackType extends ITimelineTrackDetail = ITimelineTrackDetail,
-  ActionType extends ITimelineActionDetail = ITimelineActionDetail,
-  FileType extends IFileDetail = IFileDetail
-> = {
-  action: ActionType,
-  track: TrackType,
-  file: FileType,
-  project: ProjectType,
-  type: 'action',
-}
+/**
+ * Interface for timeline action details.
+ * @typedef {Object} ITimelineActionDetail
+ * @property {string} id - The ID of the timeline action.
+ * @property {string} name - The name of the timeline action.
+ * @property {number} start - The start time of the action.
+ * @property {number} end - The end time of the action.
+ * @property {Array} volume - The volume settings of the action.
+ * @property {number} trimStart - The start time for trimming.
+ * @property {number} trimEnd - The end time for trimming.
+ */
 
-export type SettingsDetail<
-  ProjectType extends IProjectDetail = IProjectDetail,
-> = {
-  project: ProjectType,
-  type: 'settings',
-}
+/**
+ * Type representing project details.
+ * @typedef {Object} ProjectDetail
+ */
 
-export type DetailData = ActionDetail | TrackDetail | ProjectDetail | SettingsDetail;
+/**
+ * Type representing track details.
+ * @typedef {Object} TrackDetail
+ */
 
-export function getProjectDetail(project: ITimelineFile): IProjectDetail {
-  if (!project || !project.id) {
-    return new TimelineFile({name: 'new project'});
-  }
-  return {
-    id: project.id ?? namedId('project'),
-    name: project.name ?? '',
-    description: project.description ?? '',
-    author: project.author ?? '',
-    created: project.created,
-    lastModified: project.lastModified ?? 0,
-  }
-}
+/**
+ * Type representing action details.
+ * @typedef {Object} ActionDetail
+ */
 
-export function getActionDetail(action: ITimelineAction): ITimelineActionDetail {
-  if (!action.volume) {
-    action.volume = [[1, action.start, action.end]]
-  }
-  return {
-    id: action.id || namedId('action'),
-    name: action.name || '',
-    start: action.start,
-    end: action.end,
-    volume: action.volume as [volume: number, start: number | undefined, end: number | undefined][],
-    trimStart: action.trimStart || 0,
-    trimEnd: action.trimEnd || 0,
+/**
+ * Type representing settings details.
+ * @typedef {Object} SettingsDetail
+ */
 
-  }
-}
+/**
+ * Type representing detail data.
+ * @typedef {ActionDetail | TrackDetail | ProjectDetail | SettingsDetail} DetailData
+ */
 
-export function getTrackDetail(track: ITimelineTrack): ITimelineTrackDetail {
-  return {
-    id: track?.id || namedId('track'),
-    name: track?.name || track.file?.name || '',
-    muted: track?.muted ?? false,
-    locked: track?.locked ?? false,
-    url: track?.url,
-  };
-}
+/**
+ * Function to get project details.
+ * @param {ITimelineFile} project - The project information.
+ * @returns {IProjectDetail} - The project details.
+ */
+export function getProjectDetail(project: ITimelineFile): IProjectDetail {}
 
-export function getFileDetail(file: IMediaFile): IFileDetail {
-  return {
-    id: file.id,
-    name: file.name,
-    url: file.url,
-    mediaType: file.mediaType as string,
-    path: file.path,
-    webkitRelativePath: file.webkitRelativePath,
-    created: file.created,
-    lastModified: file.lastModified,
-    size: file.size,
-    type: file.type,
-    duration: file.media.duration,
-  };
-}
+/**
+ * Function to get action details.
+ * @param {ITimelineAction} action - The action information.
+ * @returns {ITimelineActionDetail} - The action details.
+ */
+export function getActionDetail(action: ITimelineAction): ITimelineActionDetail {}
 
-export type GetDetailProps = {
-  file: ITimelineFile,
-  selectedAction: ITimelineAction,
-  selectedTrack: ITimelineTrack,
-  selectedType: SelectionTypeName
-}
-export type SelectionTypeName = 'project' | 'track' | 'action' | 'settings';
+/**
+ * Function to get track details.
+ * @param {ITimelineTrack} track - The track information.
+ * @returns {ITimelineTrackDetail} - The track details.
+ */
+export function getTrackDetail(track: ITimelineTrack): ITimelineTrackDetail {}
 
-export type SelectionResult<Selection = SelectionType> = { selected: Selection, type: SelectionTypeName }
-export type SelectionDetail<Selection = SelectionType, Detail = DetailData> = { selected: Selection, detail: Detail, type: SelectionTypeName }
+/**
+ * Function to get file details.
+ * @param {IMediaFile} file - The file information.
+ * @returns {IFileDetail} - The file details.
+ */
+export function getFileDetail(file: IMediaFile): IFileDetail {}
 
-export function getSelected(props: { selectedAction: any, selectedTrack: any, file: any, selectedType: SelectionTypeName }): SelectionResult {
-  const { selectedAction, selectedTrack, file, selectedType } = props;
-  if (selectedAction && !selectedTrack) {
-    throw new Error('Selected Action should not be set without a Selected Track');
-  }
-  if(selectedAction && selectedTrack.actions.indexOf(selectedAction) !== -1) {
-    throw new Error('Selected Action not found in Selected Track');
-  }
-  if (selectedAction) {
-    return { selected: selectedAction, type: 'action' };
-  }
-  if (selectedTrack) {
-    return { selected: selectedTrack, type: 'track' };
-  }
-  return{ selected: file, type: selectedType === 'settings' ? 'settings' : 'project' };
-}
+/**
+ * Type representing props for getting detail.
+ * @typedef {Object} GetDetailProps
+ * @property {ITimelineFile} file - The timeline file.
+ * @property {ITimelineAction} selectedAction - The selected action.
+ * @property {ITimelineTrack} selectedTrack - The selected track.
+ * @property {SelectionTypeName} selectedType - The selected type.
+ */
 
-export function getDetail(props: GetDetailProps & any): SelectionDetail | null {
-  const { selectedAction: action, selectedTrack: track, file: project } = props;
-  const { type, selected } = getSelected(props);
-  if (type === 'track') {
-    return {
-      detail: {
-        type,
-        project: getProjectDetail(project),
-        track: getTrackDetail(track),
-        file: getFileDetail(track.file),
-      }, selected, type,
-    }
-  }
-  if (type === 'action') {
-    return {
-      detail: {
-        type,
-        project: getProjectDetail(project),
-        track: getTrackDetail(track),
-        file: getFileDetail(track.file),
-        action: getActionDetail(action)
-      }, selected, type,
-    }
-  }
-  if (type === 'settings') {
-    return {
-      detail: {
-        project: getProjectDetail(project),
-        type: 'settings',
-      }, selected, type,
-    }
-  }
-  if (type === 'project' && project) {
-    return {
-      detail: {
-        type: 'project',
-        project: getProjectDetail(project),
-      }, selected, type,
-    }
-  }
-  return null;
-}
+/**
+ * Type representing the result of a selection.
+ * @typedef {Object} SelectionResult
+ */
 
-// Define Yup schema for ITimelineActionDetail
-export const actionObjectSchema = yup.object({
-  id: yup.string().required("ID is required"),
-  name: yup.string().required("Name is required"),
-  start: yup.number().required("Start time is required"),
-  end: yup.number().required("End time is required"),
-  blendMode: yup.string().optional(),
-  volume: yup
-  .array()
-  .of(
-    yup
-    .array()
-    .of(yup.number().nullable()) // Allowing number or null
-    .length(3) // Ensure the array is exactly of length 3
-    .test('valid-volume', 'Invalid volume structure', (value) => {
-      if (!value) {
-        return false;
-      }
-      const [volume, start, end] = value;
-      return (
-        typeof volume === 'number' &&
-        (start === undefined || typeof start === 'number') &&
-        (end === undefined || typeof end === 'number')
-      );
-    })
-  )
-  .optional(),
-});
+/**
+ * Type representing the detail of a selection.
+ * @typedef {Object} SelectionDetail
+ */
 
+/**
+ * Function to get selected item.
+ * @param {Object} props - The props object.
+ * @returns {SelectionResult} - The selected item result.
+ */
+export function getSelected(props: { selectedAction: any, selectedTrack: any, file: any, selectedType: SelectionTypeName }): SelectionResult {}
 
-// Validator for IDetailVideo
-export const projectObjectSchema = yup.object({
-  id: yup.string().required("ID is required"),
-  name: yup.string().required("Name is required"),
-  description: yup.string().optional(),
-  author: yup.string().optional(),
-  created: yup.number().required("Creation timestamp is required"),
-  lastModified: yup.number().optional(),
- });
+/**
+ * Function to get detail information.
+ * @param {GetDetailProps} props - The props object.
+ * @returns {SelectionDetail | null} - The detail information.
+ */
+export function getDetail(props: GetDetailProps & any): SelectionDetail | null {}
 
-// Validator for ITimelineTrackDetail
-export const trackObjectSchema = yup.object({
-  id: yup.string().required("ID is required"),
-  name: yup.string().required("Name is required"),
-  muted: yup.boolean().required("Hidden flag is required"),
-  locked: yup.boolean().required("Lock flag is required"),
-});
+/**
+ * Yup schema for ITimelineActionDetail.
+ */
+export const actionObjectSchema = yup.object({});
+
+/**
+ * Yup schema for project details.
+ */
+export const projectObjectSchema = yup.object({});
+
+/**
+ * Yup schema for ITimelineTrackDetail.
+ */
+export const trackObjectSchema = yup.object({});

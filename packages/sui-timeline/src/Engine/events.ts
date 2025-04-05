@@ -1,8 +1,19 @@
 import type { EngineState, IEngine } from "./Engine.types";
 
+/**
+ * Class representing event handlers.
+ */
 export class Events {
+  /**
+   * Object containing event handlers.
+   * @type {Object<string, any>}
+   */
   handlers = {};
 
+  /**
+   * Create an instance of Events.
+   * @param {Object<string, any>} handlers - Custom event handlers.
+   */
   constructor(handlers = {}) {
     this.handlers = {
       beforeSetTime: [],
@@ -22,68 +33,76 @@ export class Events {
   }
 }
 
+/**
+ * Interface defining event types.
+ */
 export interface EventTypes {
   /**
    * Before setting time (manual)
    * @type {{ time: number, engine: IEngine }}
-   * @memberofEventTypes
+   * @memberof EventTypes
    */
   beforeSetTime: { time: number; engine: IEngine };
   /**
    * After setting time (manual)
    * @type {{ time: number, engine: IEngine }}
-   * @memberofEventTypes
+   * @memberof EventTypes
    */
   afterSetTime: { time: number; engine: IEngine };
   /**
    * After tick setting time
    * @type {{ time: number, engine: IEngine }}
-   * @memberofEventTypes
+   * @memberof EventTypes
    */
   setTimeByTick: { time: number; engine: IEngine };
   /**
    * Before setting the running speed
    * return false will prevent setting rate
-   * @type {{ speed: number, engine: IEngine }}
-   * @memberofEventTypes
+   * @type {{ rate: number, engine: IEngine }}
+   * @memberof EventTypes
    */
   beforeSetPlayRate: { rate: number; engine: IEngine };
   /**
    * After setting the running rate
-   * @type {{ speed: number, engine: IEngine }}
-   * @memberofEventTypes
+   * @type {{ rate: number, engine: IEngine }}
+   * @memberof EventTypes
    */
   afterSetPlayRate: { rate: number; engine: IEngine };
   /**
-   * run
-   * @type {{engine: IEngine}}
-   * @memberofEventTypes
+   * Run
+   * @type {{ engine: IEngine }}
+   * @memberof EventTypes
    */
   rewind: { engine: IEngine };
   /**
-   * run
-   * @type {{engine: IEngine}}
-   * @memberofEventTypes
+   * Run
+   * @type {{ engine: IEngine }}
+   * @memberof EventTypes
    */
   fastForward: { engine: IEngine };
   /**
-   * run
-   * @type {{engine: IEngine}}
-   * @memberofEventTypes
+   * Run
+   * @type {{ engine: IEngine }}
+   * @memberof EventTypes
    */
   play: { engine: IEngine };
   /**
-   * stop
-   * @type {{ engine: IEngine }}
-   * @memberofEventTypes
+   * Stop
+   * @type {{ engine: IEngine, previousState: string | EngineState }}
+   * @memberof EventTypes
    */
   pause: { engine: IEngine, previousState: string | EngineState };
   /**
    * End of operation
    * @type {{ engine: IEngine }}
-   * @memberofEventTypes
+   * @memberof EventTypes
    */
   ended: { engine: IEngine };
 
+  /**
+   * Set scroll left
+   * @type {{ left: number, engine: IEngine }}
+   * @memberof EventTypes
+   */
   setScrollLeft: { left: number, engine: IEngine }
 }
