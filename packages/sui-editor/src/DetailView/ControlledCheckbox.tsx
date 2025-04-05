@@ -1,11 +1,22 @@
-import * as React from 'react';
-import { useController } from "react-hook-form";
-import { Checkbox, FormControlLabel, Tooltip } from "@mui/material";
-import { namedId} from '@stoked-ui/common';
-import OutlinedStyle from "./OutlinedStyle";
-
-const OutlinedCheckbox = OutlinedStyle(Checkbox);
-
+/**
+ * Represents a controlled checkbox component with custom styling.
+ * @param {object} props - The props for the ControlledCheckbox component.
+ * @property {object} control - The control object for form management.
+ * @property {string} name - The name of the checkbox.
+ * @property {string} label - The label for the checkbox.
+ * @property {boolean} disabled - Flag to disable the checkbox.
+ * @property {string} className - Additional CSS class for styling.
+ * @property {object} rules - Validation rules for the checkbox.
+ * @property {function} onClickLabel - Click event handler for the label.
+ * @property {function} onFocus - Focus event handler.
+ * @property {function} onBlur - Blur event handler.
+ * @property {boolean} multiline - Flag to enable multiline input.
+ * @property {number} rows - Number of rows for multiline input.
+ * @property {function} onClick - Click event handler.
+ * @property {string} format - Format type for the checkbox.
+ * @property {string} type - Type of the checkbox.
+ * @returns {JSX.Element} - The rendered ControlledCheckbox component.
+ */
 export default function ControlledCheckbox({ control, name, label, disabled, className, rules, onClickLabel, onFocus, onBlur, multiline, rows, onClick, format, type }: any) {
 
   if (!rules) {

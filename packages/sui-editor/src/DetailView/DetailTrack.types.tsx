@@ -1,14 +1,12 @@
 /**
  * Format bytes as human-readable text.
  *
- * @param bytes Number of bytes.
- * @param si True to use metric (SI) units, aka powers of 1000. False to use
- *           binary (IEC), aka powers of 1024.
- * @param dp Number of decimal places to display.
- *
- * @return Formatted string.
+ * @param {number} bytes Number of bytes.
+ * @param {boolean} [si=false] True to use metric (SI) units, aka powers of 1000. False to use binary (IEC), aka powers of 1024.
+ * @param {number} [dp=1] Number of decimal places to display.
+ * @returns {string} Formatted string.
  */
-export function humanFileSize(bytes: number, si=false, dp=1) {
+export function humanFileSize(bytes, si = false, dp = 1) {
   const thresh = si ? 1000 : 1024;
 
   if (Math.abs(bytes) < thresh) {
@@ -19,14 +17,13 @@ export function humanFileSize(bytes: number, si=false, dp=1) {
     ? ['kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
     : ['KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
   let u = -1;
-  const r = 10**dp;
+  const r = 10 ** dp;
 
   do {
     bytes /= thresh;
     // eslint-disable-next-line no-plusplus
     ++u;
   } while (Math.round(Math.abs(bytes) * r) / r >= thresh && u < units.length - 1);
-
 
   return `${bytes.toFixed(dp)} ${units[u]}`;
 }

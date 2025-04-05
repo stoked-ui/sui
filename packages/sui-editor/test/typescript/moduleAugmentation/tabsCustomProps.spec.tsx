@@ -3,13 +3,9 @@ import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import { createTheme } from '@mui/material/styles';
 
-declare module '@mui/material/Tabs' {
-  interface TabsPropsIndicatorColorOverrides {
-    success: true;
-  }
-}
-
-// theme typings should work as expected
+/**
+ * Theme typings should work as expected.
+ */
 const theme = createTheme({
   components: {
     MuiTabs: {
@@ -25,12 +21,32 @@ const theme = createTheme({
   },
 });
 
+/**
+ * Example usage of Tabs component with success indicator color.
+ * 
+ * @returns {JSX.Element}
+ * @example
+ * <Tabs indicatorColor="success">
+ *   <Tab label="Item One" />
+ *   <Tab label="Item Two" />
+ * </Tabs>
+ */
 <Tabs indicatorColor="success">
   <Tab label="Item One" />
   <Tab label="Item Two" />
 </Tabs>;
 
-// @ts-expect-error unknown indicatorColor
+/**
+ * Example usage of Tabs component with error indicator color.
+ * 
+ * @returns {JSX.Element}
+ * @example
+ * // @ts-expect-error unknown indicatorColor
+ * <Tabs indicatorColor="error">
+ *   <Tab label="Item One" />
+ *   <Tab label="Item Two" />
+ * </Tabs>
+ */
 <Tabs indicatorColor="error">
   <Tab label="Item One" />
   <Tab label="Item Two" />

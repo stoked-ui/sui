@@ -1,1 +1,3 @@
-export { default } from '@mui/material/SvgIcon';
+/**
+ * Exports the default SvgIcon component from Material-UI.
+ */

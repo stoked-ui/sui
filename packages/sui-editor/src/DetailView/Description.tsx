@@ -4,9 +4,16 @@ import { Tooltip } from "@mui/material";
 import { useController } from "react-hook-form";
 import OutlinedStyle from "./OutlinedStyle";
 
-
-const TextFieldStyle = OutlinedStyle(TextField);
-
+/**
+ * Component for rendering a text field with error tooltip.
+ * @param {Object} props - The component props.
+ * @param {string} props.className - The class name for styling.
+ * @param {any} props.control - The control object from react-hook-form.
+ * @param {string} props.name - The name of the field.
+ * @param {string} props.label - The label for the text field.
+ * @param {boolean} props.disabled - Indicates if the field is disabled.
+ * @returns {JSX.Element} React component.
+ */
 export default function Description({ className, control, name, label, disabled }: any) {
 
   const {

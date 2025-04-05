@@ -1,14 +1,17 @@
-import * as React from "react";
-import ToggleButton from "@mui/material/ToggleButton";
-import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import LockIcon from "@mui/icons-material/Lock";
-import LockOpenIcon from "@mui/icons-material/LockOpen";
-import {ToggleButtonGroupEx, ToggleVolume, ToggleLock } from "@stoked-ui/timeline";
-import { useEditorContext } from "../EditorProvider/EditorContext";
-import VolumeOff from "@mui/icons-material/VolumeOff";
-import VolumeUp from "@mui/icons-material/VolumeUp";
-
+/**
+ * React component for toggling visibility of a track.
+ * @param {Object} props - Component props
+ * @param {Object} props.track - The track object
+ * @param {Object} props.file - The file object
+ * @param {Function} props.toggleClick - Click event handler
+ * @param {Function} props.dispatch - Dispatcher function
+ * @param {boolean} props.hide - Flag to hide the component
+ * @param {Object} props.children - Child components
+ * @param {Object} props.engine - The engine object
+ * @returns {JSX.Element} React component
+ * @example
+ * <ToggleHidden track={track} file={file} toggleClick={handleClick} dispatch={dispatch} hide={false} engine={engine}>VisibilityIcon</ToggleHidden>
+ */
 export function ToggleHidden({ track, file, toggleClick, dispatch, hide, children, engine }) {
   if (hide) {
     return undefined;
@@ -41,11 +44,20 @@ export function ToggleHidden({ track, file, toggleClick, dispatch, hide, childre
   );
 }
 
+/**
+ * Default editor track actions component.
+ * @param {Object} props - Component props
+ * @param {Object} props.track - The track object
+ * @param {Object} props.sx - Custom styles
+ * @returns {JSX.Element} React component
+ * @example
+ * <EditorTrackActions track={track} sx={customStyles} />
+ */
 export default function EditorTrackActions({ track, sx }: { track: any, sx?: any }) {
   const { state: { file, settings: { videoTrack }, engine, flags }, dispatch} = useEditorContext();
   const volumeIcon = track.muted ? <VolumeOff fontSize={'small'} /> : <VolumeUp fontSize={'small'} />;
   const visibilityIcon = track.hidden ? <VisibilityOffIcon fontSize={'small'} /> : <VisibilityIcon fontSize={'small'} />;
-  const lockIcon = track.locked ? <LockIcon fontSize={'small'}/> : <LockOpenIcon fontSize={'small'}/>;
+  const lockIcon = track.locked ? <LockIcon fontSize={'small'} /> : <LockOpenIcon fontSize={'small'} />;
   const toggleClick = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
     event.stopPropagation();
   }
@@ -59,8 +71,8 @@ export default function EditorTrackActions({ track, sx }: { track: any, sx?: any
     height={32}
     sx={[...(Array.isArray(sx) ? sx : [sx]), { marginLeft: '8px', marginRight: '2px', zIndex: '1!important' }]}
   >
-    <ToggleHidden engine={engine} track={track} dispatch={dispatch} file={file} toggleClick={toggleClick} hide={flags.hideHidden} >{visibilityIcon}</ToggleHidden>
-    <ToggleVolume track={track} dispatch={dispatch} file={file} toggleClick={toggleClick} >{volumeIcon}</ToggleVolume>
-    <ToggleLock track={track} dispatch={dispatch} file={file} toggleClick={toggleClick} hide={flags.hideLock} >{lockIcon}</ToggleLock>
-  </ToggleButtonGroupEx>
+    <ToggleHidden engine={engine} track={track} dispatch={dispatch} file={file} toggleClick={toggleClick} hide={flags.hideHidden}>{visibilityIcon}</ToggleHidden>
+    <ToggleVolume track={track} dispatch={dispatch} file={file} toggleClick={toggleClick}>{volumeIcon}</ToggleVolume>
+    <ToggleLock track={track} dispatch={dispatch} file={file} toggleClick={toggleClick} hide={flags.hideLock}>{lockIcon}</ToggleLock>
+  </ToggleButtonGroupEx>;
 }

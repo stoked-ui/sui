@@ -3,12 +3,19 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 
-// Define validation schema
-const schema = yup.object().shape({
-  name: yup.string().required('Name is required'),
-  email: yup.string().email('Email must be a valid email').required('Email is required'),
-});
+/**
+ * @typedef {Object} FormData
+ * @property {string} name - The name input value
+ * @property {string} email - The email input value
+ */
 
+/**
+ * Component for an example form with name and email inputs.
+ * @param {Object} props - Component props
+ * @param {FormData} props.initialData - The initial form data
+ * @param {Function} props.onSubmit - Function to handle form submission
+ * @returns {JSX.Element} JSX element representing the form
+ */
 const ExampleForm = ({ initialData, onSubmit }) => {
   const {
     register,
@@ -20,14 +27,19 @@ const ExampleForm = ({ initialData, onSubmit }) => {
     resolver: yupResolver(schema),
   });
 
-  // Handle form submission
+  /**
+   * Handles the form submission by calling the onSubmit prop function.
+   * @param {FormData} data - The form data to submit
+   */
   const submitHandler = (data) => {
-    onSubmit(data); // Call the onSubmit prop to update data
+    onSubmit(data);
   };
 
-  // Reset the form fields to the initial data
+  /**
+   * Resets the form fields to the initial data.
+   */
   const cancelHandler = () => {
-    reset(initialData); // Resets form to initialData
+    reset(initialData);
   };
 
   return (

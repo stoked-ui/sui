@@ -1,14 +1,18 @@
-import * as React from 'react';
-import { styled } from '@mui/material';
-import Modal from '@mui/material/Modal';
-import Button from '@mui/material/Button';
-import Box from "@mui/material/Box";
-
-// Functional component using traditional function declaration
+/**
+ * Functional component representing a simple modal dialog.
+ * @returns {JSX.Element} React component
+ */
 function SimpleModal() {
   const [open, setOpen] = React.useState(false);
 
+  /**
+   * Opens the modal dialog.
+   */
   const handleOpen = () => setOpen(true);
+
+  /**
+   * Closes the modal dialog.
+   */
   const handleClose = () => setOpen(false);
 
   return (

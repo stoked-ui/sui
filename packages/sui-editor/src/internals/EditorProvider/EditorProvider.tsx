@@ -1,13 +1,19 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { EditorProviderProps } from './EditorProvider.types';
-import { EditorContext } from './EditorContext';
-import { EditorAnyPluginSignature } from '../models';
-
 /**
  * Sets up the contexts for the underlying File components.
  *
- * @ignore - do not document.
+ * @param {EditorProviderProps<TSignatures>} props - The props for the EditorProvider component.
+ * @returns {JSX.Element} The EditorProvider component.
+ *
+ * @property {PropTypes.node} children - The children nodes to be rendered within EditorProvider.
+ * @property {PropTypes.any} value - The value required for EditorProvider functionality.
+ *
+ * @example
+ * <EditorProvider value={editorValue}>
+ *    <ChildComponent />
+ * </EditorProvider>
+ *
+ * @fires EditorContext.Provider
+ * @see EditorContext
  */
 function EditorProvider<TSignatures extends readonly EditorAnyPluginSignature[]>(
   props: EditorProviderProps<TSignatures>,
@@ -20,10 +26,6 @@ function EditorProvider<TSignatures extends readonly EditorAnyPluginSignature[]>
 }
 
 EditorProvider.propTypes = {
-  // ----------------------------- Warning --------------------------------
-  // | These PropTypes are generated from the TypeScript type definitions |
-  // | To update them edit the TypeScript types and run "pnpm proptypes"  |
-  // ----------------------------------------------------------------------
   children: PropTypes.node,
   value: PropTypes.any.isRequired,
 } as any;

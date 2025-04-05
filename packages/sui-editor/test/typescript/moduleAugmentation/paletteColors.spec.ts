@@ -1,39 +1,45 @@
-// testing docs/src/pages/customization/palette/palette.md
-import { createTheme } from '@mui/material/styles';
+/**
+ * Extends the default MUI theme to include custom palette colors and overrides.
+ */
 
-declare module '@mui/material/styles' {
-  interface Theme {
-    status: {
-      danger: React.CSSProperties['color'];
-    };
-  }
+/**
+ * Defines additional properties for the status object in the MUI theme.
+ * @typedef {Object} StatusProperties
+ * @property {string} danger - Color for indicating danger status.
+ */
 
-  interface Palette {
-    neutral: Palette['primary'];
-  }
-  interface PaletteOptions {
-    neutral: PaletteOptions['primary'];
-  }
+/**
+ * Defines a custom neutral color palette based on the primary color palette.
+ * @typedef {Palette['primary']} NeutralPalette
+ */
 
-  interface PaletteColor {
-    darker?: string;
-  }
-  interface SimplePaletteColorOptions {
-    darker?: string;
-  }
-  interface ThemeOptions {
-    status: {
-      danger: React.CSSProperties['color'];
-    };
-  }
-}
+/**
+ * Defines additional properties for the PaletteColor object.
+ * @typedef {Object} CustomPaletteColor
+ * @property {string} darker - Darker shade of the color.
+ */
 
-declare module '@mui/material/Button' {
-  interface ButtonPropsColorOverrides {
-    neutral: true;
-  }
-}
+/**
+ * Defines additional properties for the SimplePaletteColorOptions object.
+ * @typedef {Object} CustomSimplePaletteColorOptions
+ * @property {string} darker - Darker shade option for the color.
+ */
 
+/**
+ * Defines additional properties for the ThemeOptions object related to status.
+ * @typedef {Object} CustomThemeStatusOptions
+ * @property {string} danger - Color for indicating danger status.
+ */
+
+/**
+ * Extends the ButtonPropsColorOverrides interface in the MUI Button component.
+ * @typedef {Object} CustomButtonColorOverrides
+ * @property {boolean} neutral - Flag to override button color with neutral palette.
+ */
+
+/**
+ * Custom MUI theme configuration with custom status colors and palette options.
+ */
 const theme = createTheme({
   status: {
     danger: '#e53e3e',

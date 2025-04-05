@@ -1,10 +1,8 @@
-import * as React from 'react';
-import Container from '@mui/material/Container';
-import Dialog from '@mui/material/Dialog';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+/**
+ * @description Customizes breakpoints in the Material-UI theme for responsive design.
+ */
 
-// testing docs/src/pages/customization/breakpoints/breakpoints.md
-
+// Extending BreakpointOverrides interface to add custom breakpoints
 declare module '@mui/material/styles' {
   interface BreakpointOverrides {
     xs: false; // removes the `xs` breakpoint
@@ -19,6 +17,7 @@ declare module '@mui/material/styles' {
   }
 }
 
+// Custom theme with specified breakpoints and default component styles
 const theme = createTheme({
   breakpoints: {
     values: {
@@ -37,6 +36,10 @@ const theme = createTheme({
   },
 });
 
+/**
+ * @description Functional component rendering themed content
+ * @returns {JSX.Element} Rendered themed content
+ */
 function MyContainer() {
   return (
     <ThemeProvider theme={theme}>

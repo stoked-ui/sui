@@ -1,3 +1,47 @@
+/**
+ * Custom select component with tooltip error display.
+ *
+ * @param {boolean} multiple - Indicates if multiple items can be selected.
+ * @param {any} control - Control object from react-hook-form.
+ * @param {string} name - Name of the select input.
+ * @param {boolean} disabled - Indicates if the select input is disabled.
+ * @param {string} label - Label for the select input.
+ * @param {Array} options - Array of options for the select input.
+ * @param {number} width - Width of the select input.
+ * @param {string} key - Key property for options.
+ * @param {string} value - Value property for options.
+ * @param {Function} format - Format function for options.
+ * @param {Function} onClick - Click event handler.
+ * @param {Function} onChange - Change event handler.
+ * @param {string} size - Size of the select input.
+ * @param {string} placeholder - Placeholder text for the select input.
+ * @param {any} sx - Additional styles for the select input.
+ * 
+ * @returns {JSX.Element} JSX element representing the custom select component.
+ *
+ * @example
+ * <DesSelect
+ *   multiple={true}
+ *   control={control}
+ *   name="selectInput"
+ *   disabled={false}
+ *   label="Select an option"
+ *   options={[{ key: 1, value: 'value1', label: 'Option 1' }]}
+ *   width={200}
+ *   key="key"
+ *   value="value"
+ *   format={(opt) => opt.label.toUpperCase()}
+ *   onClick={handleClick}
+ *   onChange={handleChange}
+ *   size="small"
+ *   placeholder="Select"
+ *   sx={{ marginTop: 10 }}
+ * />
+ *
+ * @fires DesSelect#onChange
+ * @see Tooltip
+ * @see OutlinedStyle
+ */
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import InputLabel from '@mui/material/InputLabel';
@@ -9,7 +53,16 @@ import { Tooltip } from "@mui/material";
 import { useController } from "react-hook-form";
 import OutlinedStyle from "./OutlinedStyle";
 
+/**
+ * HOC function to apply outlined style to Select component.
+ */
 const DesSelectType = OutlinedStyle(Select);
+
+/**
+ * Custom select component with error tooltip.
+ * 
+ * @param {Object} props - Component props.
+ */
 function DesSelect({ multiple, control, name, disabled, label, options, width, key, value, format, onClick, onChange, size, placeholder, sx}: any) {
   if (!name && label) {
     name = label.split(' ').map((optionNamePart: string) => {
@@ -40,7 +93,7 @@ function DesSelect({ multiple, control, name, disabled, label, options, width, k
           return {
             key: key ? opt[key] : opt,
             value: value ? opt[value] : opt,
-            text: format ? format(opt) : opt
+            label: format ? format(opt) : opt
           }
         });
       }
@@ -84,5 +137,6 @@ function DesSelect({ multiple, control, name, disabled, label, options, width, k
     </Box>
   );
 }
+
 DesSelect.muiSkipListHighlight = false;
 export default DesSelect;

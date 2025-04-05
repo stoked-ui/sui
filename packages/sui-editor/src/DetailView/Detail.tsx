@@ -16,6 +16,11 @@ import { humanFileSize } from "./DetailTrack.types";
 import Editor from "../Editor/Editor";
 import {useEditorContext} from '../EditorProvider/EditorContext';
 
+/**
+ * Styled component for cell in a control group.
+ * @param {string} width - Width of the cell.
+ * @returns {object} - Styled component for cell.
+ */
 export const CtrlCell = styled('div', {
   name: 'MuiFileDetail',
   slot: 'Cell',
@@ -35,6 +40,10 @@ export const CtrlCell = styled('div', {
   }
 });
 
+/**
+ * Styled component for a row in a control group.
+ * @returns {object} - Styled component for a row.
+ */
 export const CtrlRow = styled('div', {
   name: 'MuiFileDetail',
   slot: 'row',
@@ -47,6 +56,10 @@ export const CtrlRow = styled('div', {
   borderColor: `${alpha(theme.palette.primary[600], 0.3)}`
 }))
 
+/**
+ * Styled component for a column in a control group.
+ * @returns {object} - Styled component for a column.
+ */
 export const CtrlColumn = styled('div', {
   name: 'MuiFileDetail',
   slot: 'column',
@@ -58,6 +71,10 @@ export const CtrlColumn = styled('div', {
   borderColor: `${alpha(theme.palette.primary[600], 0.3)}`
 }))
 
+/**
+ * Styled component for a fieldset in a control group.
+ * @returns {object} - Styled component for a fieldset.
+ */
 const CtrlGroupRoot = styled('fieldset', {
   name: 'MuiFileDetail',
   slot: 'row',
@@ -71,6 +88,10 @@ const CtrlGroupRoot = styled('fieldset', {
   borderColor: `${alpha(theme.palette.primary[600], 1)}`
 }))
 
+/**
+ * Styled component for a label in a control group.
+ * @returns {object} - Styled component for a label.
+ */
 export const CtrlLabel = styled('legend')(({theme}) => ({
   position: 'relative',
   display: 'flex',
@@ -81,10 +102,17 @@ export const CtrlLabel = styled('legend')(({theme}) => ({
   color: theme.palette.primary[900]
 }))
 
-export interface CtrlGroupProps {
-  label: string,
-}
+/**
+ * Props for a control group.
+ * @typedef {object} CtrlGroupProps
+ * @property {string} label - The label for the control group.
+ */
 
+/**
+ * Functional component for a control group.
+ * @param {CtrlGroupProps & React.HTMLProps<HTMLFieldSetElement>} props - Props for the control group.
+ * @returns {JSX.Element} - Control group component.
+ */
 export const CtrlGroup = React.forwardRef(({ style, className, children, label }: CtrlGroupProps & React.HTMLProps<HTMLFieldSetElement>, ref: React.Ref<HTMLFieldSetElement>) => {
   return (
     <Box sx={{}}>
@@ -93,6 +121,11 @@ export const CtrlGroup = React.forwardRef(({ style, className, children, label }
   );
 });
 
+/**
+ * Functional component for a fieldset in a control group.
+ * @param {CtrlGroupProps & React.HTMLProps<HTMLFieldSetElement>} props - Props for the fieldset.
+ * @returns {JSX.Element} - Fieldset component.
+ */
 export const CtrlFieldSet = React.forwardRef(({ style, className, children, label }: CtrlGroupProps & React.HTMLProps<HTMLFieldSetElement>, ref: React.Ref<HTMLFieldSetElement>) => {
   return (
     <CtrlGroupRoot ref={ref} className={className} style={style}>
@@ -102,11 +135,18 @@ export const CtrlFieldSet = React.forwardRef(({ style, className, children, labe
   );
 });
 
+/**
+ * Signature for form submit function.
+ */
 export interface SubmitSignature {
   form: UseFormHandleSubmit<any, any> | undefined,
   onSubmit: SubmitHandler<any>
 }
 
+/**
+ * Styled form component for detail view.
+ * @returns {object} - Styled form component.
+ */
 export const DetailForm = styled('form', {
   name: 'MuiDetail',
   slot: 'Cell',
@@ -142,9 +182,31 @@ export const DetailForm = styled('form', {
   }
 });
 
+/**
+ * Default alpha value for inputs.
+ */
 const inputDefaultAlpha = .4;
+
+/**
+ * Function to calculate background alpha based on theme.
+ * @param {Theme} theme - The theme object.
+ * @param {number} alphaMultiplier - The alpha multiplier.
+ * @returns {string} - Background alpha value.
+ */
 const backgroundAlpha = (theme: Theme) => alpha(theme.palette.background.default, inputDefaultAlpha);
+
+/**
+ * Function to calculate alpha based on theme.
+ * @param {Theme} theme - The theme object.
+ * @param {number} alphaMultiplier - The alpha multiplier.
+ * @returns {string} - Alpha value.
+ */
 const wAlpha = (theme: Theme, alphaMultiplier: number = inputDefaultAlpha) => alpha(theme.palette.background.default, alphaMultiplier);
+
+/**
+ * Styled component for root box.
+ * @returns {object} - Styled component for root box.
+ */
 export const RootBox = styled('div')(({theme}) => ({
   '& .MuiFormControl-root': {
     '& .MuiFormLabel-root.MuiInputLabel-outlined': {
@@ -179,17 +241,10 @@ export const RootBox = styled('div')(({theme}) => ({
   },
   '& input[type="color"]': {
     '-webkit-appearance': 'none',
-      // border: 'none',
     '&::-webkit-color-swatch-wrapper': {
-      // padding: '0px',
-    },
-    '&::-webkit-color-swatch': {
       border: 'none',
       borderRadius: '4px',
     },
-  },
-  '& input[type="color"]::-webkit-color-swatch-wrapper': {
-    // padding: '0px',
   },
   '& video, audio': {
     borderRadius: '6px'
@@ -222,12 +277,6 @@ export const RootBox = styled('div')(({theme}) => ({
   '& textarea[disabled]': {
     pointerEvents: 'none'
   },
-  /*
-   background-color: hsl(210, 14%, 22%);
-   border-color: hsl(210, 14%, 36%);
-   color: hsl(215, 15%, 92%);
-   outline-color: hsl(210, 100%, 45%);
-   */
   '& .plyr.plyr--full-ui.plyr--video': {
     borderRadius: '6px'
   },
@@ -262,29 +311,14 @@ export const RootBox = styled('div')(({theme}) => ({
   },
   '& .MuiFormControl-root legend': {
     background: 'transparent',
-  },
-
-  /*
-  '& .MuiFormLabel-root.MuiInputLabel-root.MuiInputLabel-shrink': {
-    color: theme.palette.text.primary,
-    padding: '3px 8px',
-    borderRadius: '6px',
-    backgroundImage: `linear-gradient(90deg, ${backgroundAlpha(theme)}, ${backgroundAlpha(theme)})`,
-    backgroundSize: '100% 12px',
-    backgroundRepeat: 'no-repeat'
-  },
- '& .Mui-shrink-full .MuiFormLabel-root.MuiInputLabel-root.MuiInputLabel-shrink': {
-    color: theme.palette.text.primary,
-    padding: '3px 8px',
-    borderRadius: '6px',
-    backgroundImage: `linear-gradient(90deg, ${backgroundAlpha(theme)}, ${backgroundAlpha(theme)}), linear-gradient(90deg, ${theme.palette.background.paper}, ${theme.palette.background.paper})`,
-    backgroundSize: '100% 12px, 100% 17px',
-    backgroundPosition: '0 0, 0 100%',
-    backgroundRepeat: 'no-repeat, no-repeat'
-  }, */
+  }
 }));
 
-
+/**
+ * Format a title text.
+ * @param {string} text - The text to format.
+ * @returns {string} - Formatted title text.
+ */
 export function formatTitle(text: string): string {
   return text
   .replace(/[-.]+/g, " ") // Replace dashes and periods with spaces
@@ -293,6 +327,11 @@ export function formatTitle(text: string): string {
   .join(" "); // Join the words back into a string
 }
 
+/**
+ * Component for detailing actions.
+ * @param {object} props - Props for detailing actions.
+ * @returns {JSX.Element} - Detailing actions component.
+ */
 export function DetailActions({ errors, isDirty, reset, disableEdit, editMode}: {
   errors: FieldErrors<any>,
   isDirty: boolean
@@ -332,6 +371,10 @@ export function DetailActions({ errors, isDirty, reset, disableEdit, editMode}: 
   </CardActions>)
 }
 
+/**
+ * Styled fieldset component for a track file.
+ * @returns {object} - Styled fieldset component for a track file.
+ */
 const TrackFile = styled(CtrlFieldSet, {
   shouldForwardProp: (prop) => prop !== 'style'
 })(({theme, style}) => ({
@@ -369,6 +412,10 @@ const TrackFile = styled(CtrlFieldSet, {
   },
 }));
 
+/**
+ * Component for the file detail view.
+ * @returns {React.ReactNode} - File detail view component.
+ */
 export function FileDetailView(): React.ReactNode {
   const { state: { selectedTrack, flags, engine}, dispatch } = useEditorContext();
   const ref = React.useRef<HTMLFieldSetElement>(null);
@@ -440,6 +487,10 @@ export function FileDetailView(): React.ReactNode {
   )
 }
 
+/**
+ * Hook for enabling and disabling edit mode.
+ * @returns {object} - Edit mode hook.
+ */
 export function useEditMode() {
   const [editMode, setEditMode] = React.useState(false);
   const setEdit = () => {
@@ -453,6 +504,9 @@ export function useEditMode() {
   return { editMode, setEdit, setDisable };
 }
 
+/**
+ * Styled canvas component for detail renderer.
+ */
 const DetailRenderer = styled('canvas', {
   name: "MuiEditorViewRenderer",
   slot: "renderer",
@@ -468,161 +522,21 @@ const DetailRenderer = styled('canvas', {
   height: '100%'
 }));
 
+/**
+ * Styled root component for a form.
+ */
 const FormRoot = styled('div')(({theme}) => ({
   '& .MuiFormControl-root .MuiInputBase-root .MuiInputBase-input': {
     webkitTextFillColor: theme.palette.text.primary
   }
 }));
 
-export function FormWrap({ title, children, titleId, submitHandler}) {
-  const context = useEditorContext();
-  const {state, dispatch} = context;
-  const {settings, selectedType, file, engine } = state;
-  const {detailHandleSubmit, detailOnSubmit, selected} = settings;
-  const ref = React.useRef<HTMLDivElement>(null);
-  const [timeoutId, setTimeoutId] = React.useState<NodeJS.Timeout>();
-  React.useEffect(() => {
-    if (ref.current && ref.current?.clientWidth) {
-      console.info('ref.current.clientWidth', ref.current.clientWidth);
-      const width = ref.current.clientWidth - 14;
-      const scaledData = settings.fitScaleData(context, true, width, 'detailViews');
-      dispatch({ type: 'SET_SETTING', payload: {value: {...scaledData,}} })
-    }
-  }, [file, engine.maxDuration, ref.current?.clientWidth]);
-
-  let submit = () => {
-  };
-  if (detailHandleSubmit && detailOnSubmit) {
-    submit = detailHandleSubmit(detailOnSubmit);
-  }
-  const robustView = (
-    <div style={{}}>
-      <Editor
-        file={file || undefined}
-        id={'detail-editor'}
-        detailMode
-        ref={ref}
-        sx={(theme) => ({border: '1px solid #999'})}
-      >
-        <FileDetailView/>
-      </Editor>
-
-      <div className={'SUI-form'}>
-        <DetailForm
-          id={'detailView'}
-          className={`SUI-form}`}
-          onSubmit={submitHandler}
-        >
-          {children}
-        </DetailForm>
-      </div>
-    </div>)
-
-  const baseView = <React.Fragment>{children}</React.Fragment>
-  return (<FormRoot>
-    <div id={'detail-header'}>
-      <DetailBreadcrumbs/>
-      <Typography variant="h6" sx={{
-        marginTop: '6px'
-      }}>
-        <Typography variant="caption" sx={{  position: 'relative', top: '-0.5em', fontSize: '55%', fontWeight: '300' }}>[{titleId}]</Typography> {title}
-      </Typography>
-    </div>
-
-    {selectedType === 'settings' ?
-      baseView :
-      robustView
-    }
-  </FormRoot>)
-}
-/*
-
-const FormRoot = styled('div')(({ theme }) => ({
-  display: 'flex',
-  flexDirection: 'column',
-  height: '100%', // Ensure the container takes full height
-  position: 'relative',
-
-  '& #detail-header': {
-    position: 'sticky',
-    top: 0,
-    zIndex: 10,
-    backgroundColor: '#fff',
-    padding: '10px 0', // Optional: Add some padding for visual separation
-  },
-
-  '& .MuiFormControl-root .MuiInputBase-root .MuiInputBase-input': {
-    webkitTextFillColor: theme.palette.text.primary,
-  },
-
-  // Add styles for the scrollable form content
-  '& .form-content': {
-    overflowY: 'auto', // Make the content scrollable
-    flex: 1, // Allow the content to grow and shrink to fill the available space
-    padding: '10px', // Optional: Add padding around the form content
-  },
-}));
-
-export function FormWrap({ title, children, titleId, submitHandler }) {
-  const context = useEditorContext();
-  const { state, dispatch } = context;
-  const { settings, selectedType, file } = state;
-  const { detailHandleSubmit, detailOnSubmit, selected } = settings;
-  const ref = React.useRef<HTMLDivElement>(null);
-
-  React.useEffect(() => {
-    if (ref.current?.clientWidth) {
-      console.info('ref.current.clientWidth', ref.current.clientWidth);
-      const scaledData = settings.fitScaleData(context, true, ref.current.clientWidth - 14);
-      dispatch({ type: 'SET_SETTING', payload: { value: { ...scaledData } } });
-    }
-  }, [ref.current?.clientWidth]);
-
-  let submit = () => {};
-  if (detailHandleSubmit && detailOnSubmit) {
-    submit = detailHandleSubmit(detailOnSubmit);
-  }
-
-  const robustView = (
-    <div className="form-content">
-      <Editor
-        file={file || undefined}
-        id={'detail-editor'}
-        detailMode
-        ref={ref}
-        sx={(theme) => ({ border: '1px solid #999' })}
-      >
-        <FileDetailView />
-      </Editor>
-
-      <div className={'SUI-form'}>
-        <DetailForm
-          id={'detailView'}
-          className={`SUI-form`}
-          onSubmit={submitHandler}
-        >
-          {children}
-        </DetailForm>
-      </div>
-    </div>
-  );
-
-  const baseView = <React.Fragment>{children}</React.Fragment>;
-
-  return (
-    <FormRoot>
-      <div id={'detail-header'}>
-        <DetailBreadcrumbs />
-        <Typography variant="h6" sx={{ marginTop: '6px' }}>
-          <Typography variant="caption" sx={{ position: 'relative', top: '-0.5em', fontSize: '55%', fontWeight: '300' }}>
-            [{titleId}]
-          </Typography>{' '}
-          {title}
-        </Typography>
-      </div>
-
-      {selectedType === 'settings' ? baseView : robustView}
-    </FormRoot>
-  );
-}
-*/
+/**
+ * Component for wrapping a form with title and children.
+ * @param {string} title - The title of the form.
+ * @param {React.ReactNode} children - The form's children.
+ * @param {string} titleId - The title ID.
+ * @param {Function} submitHandler - The form submit handler.
+ * @returns {JSX.Element} - Form wrapper component.
+ */
+export function FormWrap({ title, children, title

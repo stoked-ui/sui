@@ -1,15 +1,15 @@
-import * as React from 'react';
-import { expect } from 'chai';
-import { createRenderer } from '@mui-internal/test-utils';
-import TableCell, { tableCellClasses as classes } from '@mui/material/TableCell';
-import Table from '@mui/material/Table';
-import TableFooter from '@mui/material/TableFooter';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import TableBody from '@mui/material/TableBody';
-
+/**
+ * Integration tests for <TableRow> component.
+ */
 describe('<TableRow> integration', () => {
   const { render } = createRenderer();
+
+  /**
+   * Renders a node within a table variant.
+   * @param {JSX.Element} node - The node to render within the table.
+   * @param {Variant} Variant - The variant of the table (TableHead, TableFooter).
+   * @returns {React.ReactNode} The rendered node within the table variant.
+   */
   function renderInTable(node, Variant) {
     return render(
       <Table>
@@ -20,6 +20,9 @@ describe('<TableRow> integration', () => {
     );
   }
 
+  /**
+   * Test case: Should render a th with the head class when in the context of a table head.
+   */
   it('should render a th with the head class when in the context of a table head', () => {
     const { getByTestId } = renderInTable(<TableCell data-testid="cell" />, TableHead);
     expect(getByTestId('cell')).to.have.tagName('th');
@@ -28,11 +31,17 @@ describe('<TableRow> integration', () => {
     expect(getByTestId('cell')).to.have.attribute('scope', 'col');
   });
 
+  /**
+   * Test case: Should render specified scope attribute even when in the context of a table head.
+   */
   it('should render specified scope attribute even when in the context of a table head', () => {
     const { getByTestId } = renderInTable(<TableCell scope="row" data-testid="cell" />, TableHead);
     expect(getByTestId('cell')).to.have.attribute('scope', 'row');
   });
 
+  /**
+   * Test case: Should render a th with the footer class when in the context of a table footer.
+   */
   it('should render a th with the footer class when in the context of a table footer', () => {
     const { getByTestId } = renderInTable(<TableCell data-testid="cell" />, TableFooter);
     expect(getByTestId('cell')).to.have.tagName('td');
@@ -40,12 +49,18 @@ describe('<TableRow> integration', () => {
     expect(getByTestId('cell')).to.have.class(classes.footer);
   });
 
+  /**
+   * Test case: Should render with the footer class when in the context of a table footer.
+   */
   it('should render with the footer class when in the context of a table footer', () => {
     const { getByTestId } = renderInTable(<TableCell data-testid="cell" />, TableFooter);
     expect(getByTestId('cell')).to.have.class(classes.root);
     expect(getByTestId('cell')).to.have.class(classes.footer);
   });
 
+  /**
+   * Test case: Should render with the head class when variant is head, overriding context.
+   */
   it('should render with the head class when variant is head, overriding context', () => {
     const { getByTestId } = renderInTable(
       <TableCell variant="head" data-testid="cell" />,
@@ -55,6 +70,9 @@ describe('<TableRow> integration', () => {
     expect(getByTestId('cell')).not.to.have.attribute('scope');
   });
 
+  /**
+   * Test case: Should render without head class when variant is body, overriding context.
+   */
   it('should render without head class when variant is body, overriding context', () => {
     const { getByTestId } = renderInTable(
       <TableCell variant="body" data-testid="cell" />,
@@ -63,6 +81,9 @@ describe('<TableRow> integration', () => {
     expect(getByTestId('cell')).not.to.have.class(classes.head);
   });
 
+  /**
+   * Test case: Should render without footer class when variant is body, overriding context.
+   */
   it('should render without footer class when variant is body, overriding context', () => {
     const { getByTestId } = renderInTable(
       <TableCell variant="body" data-testid="cell" />,
@@ -71,6 +92,9 @@ describe('<TableRow> integration', () => {
     expect(getByTestId('cell')).not.to.have.class(classes.footer);
   });
 
+  /**
+   * Test case: Should render with the footer class when variant is footer, overriding context.
+   */
   it('should render with the footer class when variant is footer, overriding context', () => {
     const { getByTestId } = renderInTable(
       <TableCell variant="footer" data-testid="cell" />,
@@ -80,6 +104,9 @@ describe('<TableRow> integration', () => {
     expect(getByTestId('cell')).to.have.class(classes.footer);
   });
 
+  /**
+   * Test case: Does not set `role` when `component` prop is set and used in the context of table head.
+   */
   it('does not set `role` when `component` prop is set and used in the context of table head', () => {
     const { getByTestId } = render(
       <TableHead component="div">
@@ -89,6 +116,9 @@ describe('<TableRow> integration', () => {
     expect(getByTestId('cell')).not.to.have.attribute('role');
   });
 
+  /**
+   * Test case: Does not set `role` when `component` prop is set and used in the context of table body.
+   */
   it('does not set `role` when `component` prop is set and used in the context of table body ', () => {
     const { getByTestId } = render(
       <TableBody component="div">
@@ -98,6 +128,9 @@ describe('<TableRow> integration', () => {
     expect(getByTestId('cell')).not.to.have.attribute('role');
   });
 
+  /**
+   * Test case: Does not set `role` when `component` prop is set and used in the context of table footer.
+   */
   it('does not set `role` when `component` prop is set and used in the context of table footer ', () => {
     const { getByTestId } = render(
       <TableFooter component="div">

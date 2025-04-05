@@ -1,23 +1,32 @@
-import {useEditorContext} from "../EditorProvider";
-import * as React from "react";
-import {VolumeDown, VolumeMute, VolumeOff, VolumeUp} from "@mui/icons-material";
-import {Slider, Stack, SxProps} from "@mui/material";
-import IconButton from "@mui/material/IconButton";
-import PropTypes from "prop-types";
-
-export default function Volume({ disabled, sx, sliderSx, iconSx }: { disabled?: boolean, sx?: SxProps, sliderSx?: SxProps, iconSx?: SxProps }) {
+/**
+ * Volume component for controlling audio volume.
+ * @param {boolean} [disabled] - Indicates if the volume control is disabled.
+ * @param {SxProps} [sx] - Additional styles for the main container.
+ * @param {SxProps} [sliderSx] - Additional styles for the volume slider.
+ * @param {SxProps} [iconSx] - Additional styles for the volume icons.
+ * @returns {JSX.Element} - The Volume component JSX element.
+ */
+export default function Volume({ disabled, sx, sliderSx, iconSx }) {
   const { state: { engine, settings } } = useEditorContext();
-  const [value, setValue] = React.useState<number>(100);
-  const [mute, setMute] = React.useState<boolean>(false);
+  const [value, setValue] = React.useState(100);
+  const [mute, setMute] = React.useState(false);
 
-  const handleChange = (event: Event, newValue: number | number[]) => {
-    setValue(newValue as number);
-    Howler.volume((newValue as number) / 100);
+  /**
+   * Handles the change in volume.
+   * @param {Event} event - The event that triggered the change.
+   * @param {number | number[]} newValue - The new volume value.
+   */
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
+    Howler.volume(newValue / 100);
     if (mute) {
       setMute(false);
     }
   };
 
+  /**
+   * Toggles the mute state.
+   */
   const toggleMute = () => {
     Howler.mute(!mute);
     setMute(!mute);
@@ -25,6 +34,11 @@ export default function Volume({ disabled, sx, sliderSx, iconSx }: { disabled?: 
 
   const controlDisabled = settings.disabled || disabled;
 
+  /**
+   * Defines base styles for volume icons.
+   * @param {any} theme - The current theme object.
+   * @returns {SxProps} - The base styles for volume icons.
+   */
   const base = (theme) => {
     return {
       mr: '4px!important',
@@ -36,7 +50,13 @@ export default function Volume({ disabled, sx, sliderSx, iconSx }: { disabled?: 
     };
   };
 
-  const getIcon = (isMute: boolean, volume: number) => {
+  /**
+   * Retrieves the appropriate volume icon based on mute state and volume level.
+   * @param {boolean} isMute - Indicates if the volume is muted.
+   * @param {number} volume - The current volume level.
+   * @returns {JSX.Element} - The volume icon JSX element.
+   */
+  const getIcon = (isMute, volume) => {
     let icon = <VolumeUp sx={base} />;
     if (isMute) {
       icon = <VolumeOff sx={[base, ...(Array.isArray(iconSx) ? iconSx : [iconSx])]} />;
@@ -102,9 +122,5 @@ export default function Volume({ disabled, sx, sliderSx, iconSx }: { disabled?: 
 }
 
 Volume.propTypes = {
-  // ----------------------------- Warning --------------------------------
-  // | These PropTypes are generated from the TypeScript type definitions |
-  // |D To update them edit the TypeScript types and run "pnpm proptypes"  |
-  // ----------------------------------------------------------------------
   disabled: PropTypes.bool,
 } as any;

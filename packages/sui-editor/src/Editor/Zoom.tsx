@@ -1,15 +1,26 @@
-import * as React from 'react';
-
+/**
+ * ZoomCtrl component for handling zoom functionality.
+ * 
+ * @returns {JSX.Element} React component for zoom control.
+ */
 const ZoomCtrl = () => {
   const [zoomLevel, setZoomLevel] = React.useState(1); // Current zoom level
   const containerRef = React.useRef<HTMLDivElement>(null); // Reference to the zoomable div
 
-  // Handle zoom changes
+  /**
+   * Handle zoom changes based on the delta value.
+   * 
+   * @param {number} delta - Zoom level change value.
+   */
   const handleZoom = (delta: number) => {
     setZoomLevel(prevZoom => Math.min(Math.max(prevZoom + delta, 0.5), 3)); // Limit zoom level between 0.5 and 3
   };
 
-  // Wheel event handler
+  /**
+   * Wheel event handler for mouse wheel zoom.
+   * 
+   * @param {React.WheelEvent} event - Wheel event object.
+   */
   const handleWheel = (event: React.WheelEvent) => {
     if (event.ctrlKey) { // Zoom only when Ctrl is pressed
       event.preventDefault();
@@ -18,7 +29,12 @@ const ZoomCtrl = () => {
     }
   };
 
-  // Pinch gesture for touch devices
+  /**
+   * Pinch gesture handler for touch devices.
+   * 
+   * @fires handleZoom
+   * @param {React.TouchEvent} event - Touch event object.
+   */
   const handleTouch = (() => {
     let initialDistance: number | null = null;
 

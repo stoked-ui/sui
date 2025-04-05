@@ -1,11 +1,7 @@
-import {
-  App, AppFile,
-  AppFileFactory,
-  AppOutputFile, AppOutputFileFactory,
-  IApp
-} from "@stoked-ui/media-selector";
-import { IMimeType, SUIMime } from '@stoked-ui/common';
-
+/**
+ * StokedUiEditorApp class representing the Stoked UI Editor application.
+ * Extends App and implements IApp interface.
+ */
 export default class StokedUiEditorApp extends App implements IApp {
   private static instance: StokedUiEditorApp | null = null;
 
@@ -14,6 +10,10 @@ export default class StokedUiEditorApp extends App implements IApp {
   videoFileType: IMimeType;
   audioFileType: IMimeType;
 
+  /**
+   * Constructor for StokedUiEditorApp class.
+   * Initializes default input/output file types.
+   */
   private constructor() {
     super('stoked-ui-editor');
 
@@ -43,7 +43,10 @@ export default class StokedUiEditorApp extends App implements IApp {
     this.registerOutputFactory(outputFactory);
   }
 
-  // Static method to get the singleton instance
+  /**
+   * Get the singleton instance of StokedUiEditorApp.
+   * @returns {StokedUiEditorApp} The singleton instance of StokedUiEditorApp.
+   */
   static getInstance(): StokedUiEditorApp {
     if (!StokedUiEditorApp.instance) {
       StokedUiEditorApp.instance = new StokedUiEditorApp();

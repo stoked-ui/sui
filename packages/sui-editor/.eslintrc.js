@@ -1,3 +1,6 @@
+/**
+ * Configuration rules for ESLint and TypeScript.
+ */
 module.exports = {
   rules: {
     'import/prefer-default-export': 'off',

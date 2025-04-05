@@ -1,15 +1,6 @@
-import * as React from 'react';
-import FormHelperText from '@mui/material/FormHelperText';
-import FormControl from '@mui/material/FormControl';
-import { createTheme } from '@mui/material/styles';
-
-declare module '@mui/material/FormHelperText' {
-  interface FormHelperTextPropsVariantOverrides {
-    warning: true;
-  }
-}
-
-// theme typings should work as expected
+/**
+ * Theme typings should work as expected.
+ */
 const theme = createTheme({
   components: {
     MuiFormHelperText: {
@@ -26,6 +17,19 @@ const theme = createTheme({
   },
 });
 
+/**
+ * Represents a form control with helper text in a warning variant.
+ * @returns {JSX.Element}
+ * @example
+ * <FormControl>
+ *    <FormHelperText variant="warning">This is warning helper text</FormHelperText>
+ * </FormControl>
+ * @example
+ * <FormControl>
+ *    {/* @ts-expect-error unknown variant */}
+ *    <FormHelperText variant="checked">This is example helper text</FormHelperText>
+ * </FormControl>
+ */
 <FormControl>
   <FormHelperText variant="warning">This is warning helper text</FormHelperText>
 </FormControl>;

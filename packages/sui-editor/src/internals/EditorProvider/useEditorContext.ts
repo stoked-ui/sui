@@ -1,8 +1,9 @@
-import * as React from 'react';
-import {EditorAnyPluginSignature} from '../models';
-import {EditorContext} from './EditorContext';
-import {EditorContextValue} from './EditorProvider.types';
-
+/**
+ * Custom hook to access the EditorContextValue in a component.
+ * @template TSignatures - The required EditorAnyPluginSignature array.
+ * @template TOptionalSignatures - The optional EditorAnyPluginSignature array.
+ * @returns {EditorContextValue<TSignatures, TOptionalSignatures>} The EditorContextValue containing the required and optional signatures.
+ */
 export const useTimeline = <
   TSignatures extends readonly EditorAnyPluginSignature[],
   TOptionalSignatures extends readonly EditorAnyPluginSignature[] = [],

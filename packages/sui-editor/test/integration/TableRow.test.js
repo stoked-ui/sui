@@ -1,3 +1,6 @@
+/**
+ * Integration tests for the <TableRow> component.
+ */
 import * as React from 'react';
 import { expect } from 'chai';
 import { createRenderer } from '@mui-internal/test-utils';
@@ -8,6 +11,9 @@ import TableRow, { tableRowClasses as classes } from '@mui/material/TableRow';
 describe('<TableRow> integration', () => {
   const { render } = createRenderer();
 
+  /**
+   * Test to render <TableRow> within a <TableHead> context.
+   */
   it('should render with the head class when in the context of a table head', () => {
     const { getByRole } = render(
       <table>
@@ -20,6 +26,9 @@ describe('<TableRow> integration', () => {
     expect(getByRole('row')).to.have.class(classes.head);
   });
 
+  /**
+   * Test to render <TableRow> within a <TableFooter> context.
+   */
   it('should render with the footer class when in the context of a table footer', () => {
     const { getByRole } = render(
       <table>
