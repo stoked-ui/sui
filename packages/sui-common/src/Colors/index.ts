@@ -1,1 +1,3 @@
-export * from './colors';
+/**
+ * Module for exporting color-related utilities
+ */
