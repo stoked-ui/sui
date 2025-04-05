@@ -1,27 +1,16 @@
-import * as React from "react";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import {
-  ActionDetail, ITimelineTrackDetail, TrackDetail
-} from '@stoked-ui/timeline';
-import ControlledText, {UncontrolledText} from "./ControlledText";
-import {
-  CtrlCell, CtrlRow, DetailActions, FormWrap, useEditMode
-} from './Detail'
-import {
-  actionDataSchema,
-  actionSchema,
-  DetailViewProps,
-  IEditorActionDetail,
-  IEditorProjectDetail, IEditorTrackDetail
-} from "./Detail.types";
-import { useEditorContext } from "../EditorProvider/EditorContext";
-import BlendModeSelect from "./BlendModeSelect";
-import ControlledCoordinates from "./ControlledCoordinates";
-import ControlledVolumeSpan from "./ControlledVolumeSpan";
-
+/**
+ * React Component for displaying detailed information about an action.
+ *
+ * @param {DetailViewProps} props - The props for the DetailAction component.
+ * @property {boolean} props.editMode - Flag indicating if the component is in edit mode.
+ * @property {function} props.enableEdit - Function to enable edit mode.
+ * @property {function} props.disableEdit - Function to disable edit mode.
+ * @returns {JSX.Element} - The rendered DetailAction component.
+ * @example
+ * <DetailAction editMode={true} enableEdit={handleEnableEdit} disableEdit={handleDisableEdit} />
+ */
 export function DetailAction(props: DetailViewProps) {
-  const { state: { file, selectedTrack, engine,  settings, selectedDetail, selectedAction}, dispatch } = useEditorContext();
+  const { state: { file, selectedTrack, engine, settings, selectedDetail, selectedAction }, dispatch } = useEditorContext();
   const { editMode, enableEdit, disableEdit } = props;
   const { trackFiles } = settings;
   const actionDetail = selectedDetail as ActionDetail;
@@ -43,12 +32,10 @@ export function DetailAction(props: DetailViewProps) {
   } = useForm<IEditorActionDetail>({
     mode: 'onChange',
     defaultValues: actionData,
-    // @ts-ignore
     resolver: yupResolver(actionDataSchema),
   });
 
   console.info('actiondata', actionData);
-
 
   // Watch all form values
   const formValues = watch();
@@ -64,11 +51,15 @@ export function DetailAction(props: DetailViewProps) {
     reset(actionData);
   }, [actionData, reset]);
 
-  // Form submit handler
+  /**
+   * Form submit handler for action data.
+   *
+   * @param {IEditorActionDetail} submitData - The data to be submitted.
+   */
   const onSubmitAction: SubmitHandler<IEditorActionDetail> = (submitData: IEditorActionDetail) => {
     console.info('submitData', submitData);
     dispatch({ type: 'UPDATE_ACTION', payload: submitData });
-    file?.save({ silent: true })
+    file?.save({ silent: true });
   };
   console.info('errors', errors);
   if (!selectedAction || !selectedTrack) {
@@ -87,120 +78,120 @@ export function DetailAction(props: DetailViewProps) {
           <ul>
             {Object.entries(errors).map(([key, error]) => (
               <li key={key}>{error?.message}</li>
-            ))}
+            )}
           </ul>
         </div>
       )}
-    <div>
-      <CtrlRow>
-        <CtrlCell width="40%">
-          <ControlledText
-            label={'Name'}
-            control={control}
-            disabled={!editMode}
-            onClick={enableEdit}
-          />
-        </CtrlCell>
-        <CtrlCell width="20%">
-          <ControlledText
-            label={'Start'}
-            control={control}
-            disabled={!editMode}
-            onClick={enableEdit}
-          />
-        </CtrlCell>
-        <CtrlCell width="20%">
-          <ControlledText
-            label={'End'}
-            control={control}
-            disabled={!editMode}
-            onClick={enableEdit}
-          />
-        </CtrlCell>
-
-        <CtrlCell width="23%">
-          <ControlledText
-            label={'Trim Start'}
-            name={'trimStart'}
-            control={control}
-            disabled={!editMode}
-            onClick={enableEdit}
-          />
-        </CtrlCell>
-        <CtrlCell width="23%">
-          <ControlledText
-            label={'Trim End'}
-            name={'trimEnd'}
-            control={control}
-            disabled={!editMode}
-            onClick={enableEdit}
-          />
-        </CtrlCell>
-
-        <CtrlCell width="23%">
-          <ControlledCoordinates
-            control={control}
-            disabled={!editMode}
-            onClick={props.enableEdit}/>
-        </CtrlCell>
-
-        <CtrlCell width="23%">
-          <BlendModeSelect
-            control={control}
-            disabled={!editMode}
-            onClick={enableEdit}
-          />
-        </CtrlCell>
-        {trackFile.mediaType !== 'audio' &&
-         <React.Fragment>
-           <CtrlCell width="23%">
+      <div>
+        <CtrlRow>
+          <CtrlCell width="40%">
             <ControlledText
-              label={'Width'}
-              name={'width'}
+              label={'Name'}
+              control={control}
+              disabled={!editMode}
+              onClick={enableEdit}
+            />
+          </CtrlCell>
+          <CtrlCell width="20%">
+            <ControlledText
+              label={'Start'}
+              control={control}
+              disabled={!editMode}
+              onClick={enableEdit}
+            />
+          </CtrlCell>
+          <CtrlCell width="20%">
+            <ControlledText
+              label={'End'}
+              control={control}
+              disabled={!editMode}
+              onClick={enableEdit}
+            />
+          </CtrlCell>
+          <CtrlCell width="23%">
+            <ControlledText
+              label={'Trim Start'}
+              name={'trimStart'}
+              control={control}
+              disabled={!editMode}
+              onClick={enableEdit}
+            />
+          </CtrlCell>
+          <CtrlCell width="23%">
+            <ControlledText
+              label={'Trim End'}
+              name={'trimEnd'}
+              control={control}
+              disabled={!editMode}
+              onClick={enableEdit}
+            />
+          </CtrlCell>
+          <CtrlCell width="23%">
+            <ControlledCoordinates
               control={control}
               disabled={!editMode}
               onClick={props.enableEdit}
             />
           </CtrlCell>
           <CtrlCell width="23%">
-            <ControlledText
-              label={'Height'}
+            <BlendModeSelect
               control={control}
               disabled={!editMode}
-              onClick={props.enableEdit}
+              onClick={enableEdit}
             />
           </CtrlCell>
-          <CtrlCell width="46%">
-            <UncontrolledText
-              label={'Source Size'}
-              value={`${trackFile?.media?.width} x ${trackFile?.media?.height}`}
-              disabled
+          {trackFile.mediaType !== 'audio' && (
+            <React.Fragment>
+              <CtrlCell width="23%">
+                <ControlledText
+                  label={'Width'}
+                  name={'width'}
+                  control={control}
+                  disabled={!editMode}
+                  onClick={props.enableEdit}
+                />
+              </CtrlCell>
+              <CtrlCell width="23%">
+                <ControlledText
+                  label={'Height'}
+                  control={control}
+                  disabled={!editMode}
+                  onClick={props.enableEdit}
+                />
+              </CtrlCell>
+              <CtrlCell width="46%">
+                <UncontrolledText
+                  label={'Source Size'}
+                  value={`${trackFile?.media?.width} x ${trackFile?.media?.height}`}
+                  disabled
+                  onClick={props.enableEdit}
+                />
+              </CtrlCell>
+            </React.Fragment>
+          )}
+          <CtrlCell width="96%">
+            <ControlledVolumeSpan
+              control={control}
+              name={'volume'}
+              disabled={!editMode}
               onClick={props.enableEdit}
+              sliderSx={{ width: '50%' }}
+              sx={{ width: '100%' }}
+              getValues={getValues}
+              setValue={setValue}
+              start={getValues('start')}
+              end={getValues('end')}
             />
           </CtrlCell>
-         </React.Fragment>}
-        <CtrlCell width="96%">
-          <ControlledVolumeSpan
-            control={control}
-            name={'volume'}
-            disabled={!editMode}
-            onClick={props.enableEdit}
-            sliderSx={{ width: '50%' }}
-            sx={{ width: '100%' }}
-            getValues={getValues}
-            setValue={setValue}
-            start={getValues('start')}
-            end={getValues('end')}
-          />
-        </CtrlCell>
-      </CtrlRow>
-      <DetailActions
-        errors={errors}
-        isDirty={isDirty}
-        reset={reset}
-        disableEdit={disableEdit}
-        editMode={editMode}
-      />
-    </div>
-    </FormWrap>)
+        </CtrlRow>
+        <DetailActions
+          errors={errors}
+          isDirty={isDirty}
+          reset={reset}
+          disableEdit={disableEdit}
+          editMode={editMode}
+        />
+      </div>
+    </FormWrap>
+  );
 }

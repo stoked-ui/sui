@@ -1,11 +1,19 @@
-import { namedId} from '@stoked-ui/common';
+/**
+ * Represents an example editor file for Stoked UI.
+ * This file demonstrates various @stoked-ui/editor features.
+ */
+import { namedId } from '@stoked-ui/common';
 import EditorFile, { IEditorFile } from "./EditorFile";
 import VideoController from "../Controllers/VideoController";
 import AudioController from "../Controllers/AudioController";
-import {IEditorAction, IEditorFileAction} from "../EditorAction";
-import {IEditorFileTrack} from "../EditorTrack";
+import { IEditorAction, IEditorFileAction } from "../EditorAction";
+import { IEditorFileTrack } from "../EditorTrack";
 import { createAction } from '@stoked-ui/timeline';
 
+/**
+ * Generates a unique ID for each track.
+ * @returns {string} - A unique track ID.
+ */
 const idFunc = () => namedId('track');
 
 const EditorExample: IEditorFile = new EditorFile({
@@ -33,7 +41,6 @@ const EditorExample: IEditorFile = new EditorFile({
         ],
         z: -2,
         fit: 'fill' as 'fill',
-
       })]
     },
     {

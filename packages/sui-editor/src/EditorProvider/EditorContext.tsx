@@ -1,7 +1,7 @@
-import * as React from "react";
-import { TimelineContext } from "@stoked-ui/timeline";
-import { type EditorContextType } from "./EditorProvider.types";
-
+/**
+ * Custom hook to access the editor context values.
+ * @returns {EditorContextType} The editor context values.
+ */
 export function useEditorContext(): EditorContextType {
   const context = React.useContext(TimelineContext);
   if (!context) {
@@ -9,4 +9,3 @@ export function useEditorContext(): EditorContextType {
   }
   return context as EditorContextType;
 }
-

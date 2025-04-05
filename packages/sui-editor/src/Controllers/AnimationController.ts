@@ -12,12 +12,25 @@ import {
 } from "./EditorControllerParams";
 import { IEditorAction } from '../EditorAction/EditorAction';
 
+/**
+ * Controller class for managing animations.
+ */
 class AnimationControl extends Controller<AnimationItem> implements IController {
 
+  /**
+   * Map to cache AnimationItem instances.
+   */
   cacheMap: Record<string, AnimationItem> = {};
 
+  /**
+   * Flag to enable/disable logging.
+   */
   logging: boolean = false;
 
+  /**
+   * Constructor for AnimationControl.
+   * @param {object} param0 - Object containing color and colorSecondary properties.
+   */
   constructor({color = '#1a0378', colorSecondary = '#cd6bff'}: { color?: string, colorSecondary?: string }) {
     super({
       id: 'animation',
@@ -27,6 +40,11 @@ class AnimationControl extends Controller<AnimationItem> implements IController 
     });
   }
 
+  /**
+   * Preload method to load animation data.
+   * @param {EditorPreloadParams} params - Parameters for preloading animation.
+   * @returns {Promise<IEditorAction>} - Promise with updated action.
+   */
   async preload(params: EditorPreloadParams) {
     const { action, track } = params;
     const { file } = track;
@@ -37,7 +55,6 @@ class AnimationControl extends Controller<AnimationItem> implements IController 
     action.duration = item.getDuration();
     return action;
   }
-
 
   // eslint-disable-next-line class-methods-use-this
   private _goToAndStop(engine: IEditorEngine, action: IEditorAction, item: AnimationItem, time: number) {
@@ -59,6 +76,10 @@ class AnimationControl extends Controller<AnimationItem> implements IController 
     } *!/
   }
 
+  /**
+   * Method to enter controller state.
+   * @param {EditorControllerParams} params - Parameters for entering controller state.
+   */
   enter(params: EditorControllerParams) {
     const { action, engine, time, track } = params;
     let item: AnimationItem;
@@ -88,6 +109,10 @@ class AnimationControl extends Controller<AnimationItem> implements IController 
     }
   }
 
+  /**
+   * Method to update controller state.
+   * @param {EditorControllerParams} params - Parameters for updating controller state.
+   */
   update(params: EditorControllerParams) {
     const { action, time, engine, track } = params;
     const item = this.cacheMap[track.id];
@@ -100,6 +125,10 @@ class AnimationControl extends Controller<AnimationItem> implements IController 
     this._goToAndStop(engine, action, item, Controller.getActionTime(params));
   }
 
+  /**
+   * Method to leave controller state.
+   * @param {EditorControllerParams} params - Parameters for leaving controller state.
+   */
   leave(params: EditorControllerParams) {
     const { action, time, engine, track } = params;
     const item = this.cacheMap[track.id];
@@ -112,26 +141,32 @@ class AnimationControl extends Controller<AnimationItem> implements IController 
     this._goToAndStop(engine, action, item, Controller.getActionTime(params));
   }
 
+  /**
+   * Method to destroy the AnimationControl instance.
+   */
   destroy() {
     lottie.destroy();
     this.cacheMap = {};
   }
 
-  /!*
-   getBackgroundImage?: GetBackgroundImage = async (action: MediaAction) => {
-    const screenShotContainer = document.createElement('div');
-    // const animation = AnimationFile.load({action, container: screenShotContainer, mode: 'svg'});
-    console.log('animation', screenShotContainer, action.file);
+  // !* getBackgroundImage?: GetBackgroundImage = async (action: MediaAction) => {
+  //   const screenShotContainer = document.createElement('div');
+  //   // const animation = AnimationFile.load({action, container: screenShotContainer, mode: 'svg'});
+  //   console.log('animation', screenShotContainer, action.file);
 
-    screenShotContainer.childNodes.forEach(child => {
-      if (child instanceof HTMLElement) {
-        console.log(child.id, child);
-      }
-    })
-    return `url(${action.src})`;
-  }
-  *!/
+  //   screenShotContainer.childNodes.forEach(child => {
+  //     if (child instanceof HTMLElement) {
+  //       console.log(child.id, child);
+  //     }
+  //   })
+  //   return `url(${action.src})`;
+  // }
 
+  /**
+   * Method to get the AnimationItem for a given action.
+   * @param {EditorGetItemParams} params - Parameters for getting the AnimationItem.
+   * @returns {AnimationItem} - AnimationItem associated with the action.
+   */
   getItem(params: EditorGetItemParams) {
     const { action, track } = params;
     let item = this.cacheMap[track.id];
@@ -147,10 +182,21 @@ class AnimationControl extends Controller<AnimationItem> implements IController 
     return item;
   }
 
+  /**
+   * Static global cache map for AnimationItem instances.
+   */
   static globalCache: Record<string, AnimationItem> = {};
 
+  /**
+   * Flag to enable/disable global cache.
+   */
   static globalCacheEnabled = false;
 
+  /**
+   * Method to load an animation.
+   * @param {object} params - Object containing id, src, container, mode, and className properties.
+   * @returns {AnimationItem} - Loaded AnimationItem.
+   */
   static load (params: { id?: string, src: string, container?: HTMLElement, mode?: 'canvas' | 'svg',  className?: string }) {
     const { container, src, mode = 'canvas', className } = params;
     // TODO: FIX THIS FOR LOTTIE TO WORK AGAIN
@@ -200,6 +246,7 @@ class AnimationControl extends Controller<AnimationItem> implements IController 
     return anim;
   }
 }
+
 export { AnimationControl };
 const AnimationController = new AnimationControl({});
 export default AnimationController;

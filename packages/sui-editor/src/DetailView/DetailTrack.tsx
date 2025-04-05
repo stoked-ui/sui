@@ -1,20 +1,14 @@
-import * as React from "react";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { TrackDetail } from "@stoked-ui/timeline";
-import ControlledText from "./ControlledText";
-import {
-  CtrlCell, CtrlRow, DetailActions, DetailForm, formatTitle, FormWrap, useEditMode,
-} from './Detail'
-import {
-  DetailViewProps,
-  IEditorTrackDetail, trackObjectSchema,
-} from "./Detail.types";
-import {useEditorContext} from "../EditorProvider";
-import ControlledSelect from "./ControlledSelect";
-import ControlledCheckbox from "./ControlledCheckbox";
-import BlendModeSelect from "./BlendModeSelect";
-
+/**
+ * React component for displaying and editing details of a track.
+ * @description This component allows users to view and modify track details.
+ * @param {DetailViewProps} props - The props for the DetailTrack component.
+ * @property {boolean} props.editMode - Flag indicating if the component is in edit mode.
+ * @property {function} props.enableEdit - Function to enable editing mode.
+ * @property {function} props.disableEdit - Function to disable editing mode.
+ * @returns {JSX.Element} Returns the JSX element for the DetailTrack component.
+ * @example
+ * <DetailTrack editMode={true} enableEdit={handleEnableEdit} disableEdit={handleDisableEdit} />
+ */
 export function DetailTrack(props: DetailViewProps) {
   const {
     editMode,
@@ -44,10 +38,14 @@ export function DetailTrack(props: DetailViewProps) {
     resolver: yupResolver(trackObjectSchema) as any,
   });
 
+  /**
+   * Submit handler for the form.
+   * @param {IEditorTrackDetail} data - The form data to submit.
+   */
   const onSubmit: SubmitHandler<IEditorTrackDetail> = (data) => {
     console.log('data', data);
     dispatch({ type: 'UPDATE_TRACK', payload: data });
-    file?.save({ silent: true })
+    file?.save({ silent: true });
   };
 
   return (

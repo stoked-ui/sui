@@ -6,6 +6,9 @@ import { IEditorTrack } from "../EditorTrack/EditorTrack";
 import { IEditorAction } from "../EditorAction";
 import DetailActions from "./DetailActions";
 
+/**
+ * Styled Breadcrumbs component for displaying detailed navigation paths.
+ */
 const Root = styled(Breadcrumbs, {
 })(({ theme }) => ({
   '& p.MuiFormHelperText-root.MuiFormHelperText-sizeSmall.MuiFormHelperText-contained': {
@@ -20,11 +23,25 @@ const Root = styled(Breadcrumbs, {
     }
   }
 }))
+
+/**
+ * Detail breadcrumbs component for displaying project and track details.
+ * @returns {JSX.Element} React component
+ */
 export function DetailBreadcrumbs(){
+  /**
+   * Styles for selected label.
+   * @param {Object} theme - Theme object
+   * @returns {Object} Styles object
+   */
   const sxSelectedLabel = (theme) => ({ color: theme.palette.text.primary, padding: '0 10px', borderRadius: '6px' });
+  
   const context = useEditorContext();
   const { state: { file, selectedType, selectedAction, selectedTrack, selectedDetail, settings}, dispatch } = context;
 
+  /**
+   * Select project action.
+   */
   const selectProject = () => {
     dispatch({ type: 'SELECT_PROJECT' });
   }
@@ -42,6 +59,5 @@ export function DetailBreadcrumbs(){
         sx={{background: 'transparent'}}
       />}
     {selectedTrack && <Typography sx={sxSelectedLabel}>{selectedTrack?.name}</Typography>}
-
   </Root>
 }

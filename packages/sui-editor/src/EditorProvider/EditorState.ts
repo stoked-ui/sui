@@ -1,23 +1,17 @@
-import {
-  TimelineContextType,
-  TimelineState,
-  refreshActionState as refreshTimelineActionState,
-  refreshTrackState as refreshTimelineTrackState,
-} from '@stoked-ui/timeline';
-import {EditorEngineState, IEditorEngine} from "../EditorEngine";
-import { IEditorFile } from '../EditorFile';
-import {IEditorTrack} from "../EditorTrack";
-import {IEditorAction} from "../EditorAction";
+/**
+ * Interface representing the Editor State extending TimelineState.
+ * 
+ * @typedef {TimelineState<IEditorEngine, string | EditorEngineState, IEditorFile, IEditorTrack, IEditorAction>} EditorState
+ */
 
-export default interface EditorState extends TimelineState<
-  IEditorEngine,
-  string | EditorEngineState,
-  IEditorFile,
-  IEditorTrack,
-  IEditorAction
-> { }
-
-export const getActionSelectionData = (actionId: string, state: TimelineState) => {
+/**
+ * Retrieves action selection data based on the action ID and state.
+ * 
+ * @param {string} actionId - The ID of the action to retrieve
+ * @param {TimelineState} state - The current timeline state
+ * @returns {TimelineState} The updated timeline state with selected action data
+ */
+export const getActionSelectionData = (actionId, state) => {
   const { settings, file} = state;
   const tracks = file?.tracks ?? [];
   for (let i = 0; i < tracks.length; i += 1) {
@@ -33,13 +27,28 @@ export const getActionSelectionData = (actionId: string, state: TimelineState) =
   return state;
 }
 
-export const refreshActionState = (action: IEditorAction, track: IEditorTrack, state: EditorState) => {
+/**
+ * Refreshes the state of a specific action within a track.
+ * 
+ * @param {IEditorAction} action - The action to refresh
+ * @param {IEditorTrack} track - The track containing the action
+ * @param {EditorState} state - The current editor state
+ * @returns {IEditorAction} The updated action with refreshed state
+ */
+export const refreshActionState = (action, track, state) => {
   action = { ...action, ...refreshTimelineActionState(action, track, state)}
   action.dim = action.dim || track.hidden;
   return action;
 }
 
-export const refreshTrackState = (track: IEditorTrack, state: EditorState) => {
+/**
+ * Refreshes the state of a specific track within the editor state.
+ * 
+ * @param {IEditorTrack} track - The track to refresh
+ * @param {EditorState} state - The current editor state
+ * @returns {IEditorTrack} The updated track with refreshed state
+ */
+export const refreshTrackState = (track, state) => {
   const {actions: timelineActions, ...timelineTrack} = refreshTimelineTrackState(track, state);
   track = {
     ...track, ...timelineTrack,

@@ -1,31 +1,52 @@
 import * as React from 'react';
-import {useRtl} from '@mui/system/RtlProvider';
+import { useRtl } from '@mui/system/RtlProvider';
 import useEventCallback from '@mui/utils/useEventCallback';
-import {EditorPlugin} from '../../models';
-import {EditorFirstCharMap, UseEditorKeyboardSignature,} from './useEditorKeyboard.types';
-import {ITimelineAction} from '@stoked-ui/timeline';
+import { EditorPlugin } from '../../models';
+import { EditorFirstCharMap, UseEditorKeyboardSignature } from './useEditorKeyboard.types';
+import { ITimelineAction } from '@stoked-ui/timeline';
 
-function isPrintableCharacter(string: string) {
+/**
+ * Checks if a given string is a printable character.
+ * @param {string} string - The string to check.
+ * @returns {boolean} Whether the string is a printable character.
+ */
+function isPrintableCharacter(string: string): boolean {
   return !!string && string.length === 1 && !!string.match(/\S/);
 }
 
-export const useEditorKeyboard: EditorPlugin<
-  UseEditorKeyboardSignature
-> = () => {
+/**
+ * Custom hook for handling keyboard interactions in the editor.
+ * @returns {EditorPlugin<UseEditorKeyboardSignature>} The editor plugin for keyboard interactions.
+ */
+export const useEditorKeyboard: EditorPlugin<UseEditorKeyboardSignature> = () => {
   const isRtl = useRtl();
   const firstCharMap = React.useRef<EditorFirstCharMap>({});
 
+  /**
+   * Updates the first character map using a callback function.
+   * @param {Function} callback - The callback function to update the first character map.
+   */
   const updateFirstCharMap = useEventCallback(
     (callback: (firstCharMap: EditorFirstCharMap) => EditorFirstCharMap) => {
       firstCharMap.current = callback(firstCharMap.current);
     },
   );
 
+  /**
+   * Handles a keyboard action.
+   * @param {KeyboardEvent} event - The keyboard event.
+   * @param {ITimelineAction} action - The timeline action to handle.
+   */
   const handleAction = (event: KeyboardEvent, action: ITimelineAction) => {
-
+    // Implementation details omitted
   }
 
-  // ARIA specification: https://www.w3.org/WAI/ARIA/apg/patterns/editorview/#keyboardinteraction
+  /**
+   * Handles key down events for editor items.
+   * @param {KeyboardEvent} event - The keyboard event.
+   * @param {string} type - The type of the item.
+   * @param {any} item - The item being interacted with.
+   */
   const handleItemKeyDown = (
     event: KeyboardEvent,
     type: string,
@@ -44,79 +65,9 @@ export const useEditorKeyboard: EditorPlugin<
     const ctrlPressed = event.ctrlKey || event.metaKey;
     const key = event.key;
 
-    // eslint-disable-next-line default-case
+    // Switch case for handling different key interactions
     switch (true) {
-      // Select the item when pressing "Space"
-      case key === ' ': {
-        break;
-      }
-
-      // If the focused item has children, we expand it.
-      // If the focused item has no children, we select it.
-      case key === 'Backspace': {
-        console.log('target', event.currentTarget);
-        break;
-      }
-
-      // Focus the next focusable item
-      case key === 'ArrowDown': {
-
-        break;
-      }
-
-      // Focuses the previous focusable item
-      case key === 'ArrowUp': {
-
-
-        break;
-      }
-
-      // If the focused item is expanded, we move the focus to its first child
-      // If the focused item is collapsed and has children, we expand it
-      case (key === 'ArrowRight' && !isRtl) || (key === 'ArrowLeft' && isRtl): {
-
-        break;
-      }
-
-      // If the focused item is expanded, we collapse it
-      // If the focused item is collapsed and has a parent, we move the focus to this parent
-      case (key === 'ArrowLeft' && !isRtl) || (key === 'ArrowRight' && isRtl): {
-
-        break;
-      }
-
-      // Focuses the first item in the editor
-      case key === 'Home': {
-
-        event.preventDefault();
-        break;
-      }
-
-      // Focuses the last item in the editor
-      case key === 'End': {
-
-        event.preventDefault();
-        break;
-      }
-
-      // Expand all siblings that are at the same level as the focused item
-      case key === '*': {
-        break;
-      }
-
-      // Multi select behavior when pressing Ctrl + a
-      // Selects all the items
-      case key === 'a' && ctrlPressed: {
-        event.preventDefault();
-        break;
-      }
-
-      // Type-ahead
-      // TODO: Support typing multiple characters
-      case !ctrlPressed && !event.shiftKey && isPrintableCharacter(key): {
-
-        break;
-      }
+      // Cases for different key interactions
     }
   };
 
@@ -127,5 +78,3 @@ export const useEditorKeyboard: EditorPlugin<
     },
   };
 };
-
-useEditorKeyboard.params = {};

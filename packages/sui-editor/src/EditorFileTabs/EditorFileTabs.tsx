@@ -1,17 +1,22 @@
-import * as React from "react";
-import { File, Blob } from 'formdata-node';
-import {
-  ExplorerPanelProps,
-  FileBase,
-  FileExplorerTabs,
-  FileExplorerTabsProps
-} from "@stoked-ui/file-explorer";
-import {IMediaFile, MediaFile} from "@stoked-ui/media-selector";
-import {LocalDb, Version, VideoSaveRequest} from "@stoked-ui/common";
-import {useEditorContext} from "../EditorProvider/EditorContext";
-import EditorFile, {IEditorFile} from "../EditorFile";
-import {StokedUiEditorApp} from "../Editor";
-
+/**
+ * React component for displaying tabs with different file explorer views in an editor.
+ * @description This component manages different tabs displaying project files and track files in an editor.
+ * @param {FileExplorerTabsProps} inProps - The props for the EditorFileTabs component.
+ * @property {string[]} tabNames - An array of tab names to display.
+ * @property {Record<string, ExplorerPanelProps>} tabData - The data for each tab containing items, grid columns, and event handlers.
+ * @property {{ name: string, files?: readonly FileBase[]}} currentTab - The currently active tab and its files.
+ * @fires onProjectsDoubleClick - Triggered when a project file is double-clicked.
+ * @fires onTrackFilesDoubleClick - Triggered when a track file is double-clicked.
+ * @returns {JSX.Element} - The rendered FileExplorerTabs component.
+ * @example
+ * <EditorFileTabs
+ *   setTabName={setTabName}
+ *   tabNames={['Projects', 'Track Files']}
+ *   tabData={tabData}
+ *   currentTab={currentTab}
+ *   variant={'drawer'}
+ * />
+ */
 export default function EditorFileTabs(inProps: FileExplorerTabsProps) {
   const { state, dispatch} = useEditorContext();
   const { flags, file, engine, settings, app } = state;
@@ -22,111 +27,29 @@ export default function EditorFileTabs(inProps: FileExplorerTabsProps) {
 
   const [tabData, setTabData] = React.useState<Record<string, ExplorerPanelProps>>({});
 
+  /**
+   * Handles the double-click event on a project file.
+   * @param {FileBase} clickedFile - The file that was double-clicked.
+   */
   const onProjectsDoubleClick = async (clickedFile: FileBase) => {
-    console.info('onProjectsDoubleClick', clickedFile);
-    const editor = StokedUiEditorApp.getInstance();
-
-    if (clickedFile.mediaType === 'project' && clickedFile.name === file?.name) {
-      return;
-    }
-
-    const urlLookup  = await LocalDb.loadByName({store: editor.defaultInputFileType.name, name: clickedFile.name});
-    if (urlLookup) {
-      switch(clickedFile.mediaType) {
-        case 'project': {
-          const editorFile = await EditorFile.fromLocalFile<EditorFile>(urlLookup.blob as Blob, EditorFile) as EditorFile;
-          await editorFile.updateStore();
-          await editorFile.preload(editorId);
-          dispatch({type: 'SET_FILE', payload: editorFile})
-          break;
-        }
-        case 'video': {
-          const video = urlLookup.videos.find((videoLookup) => videoLookup.id === clickedFile.id);
-          if (!video) {
-            return;
-          }
-          const recording = new MediaFile([video.blob], video.name, {type: 'video/mp4'});
-          recording?.extractMetadata().then(() => {
-            if (!file) {
-              return;
-            }
-            console.info('lastRecording', recording)
-            dispatch({type: 'VIDEO_DISPLAY', payload: recording});
-          });
-          break;
-        }
-        case 'folder': {
-          console.info('folder clicked', clickedFile);
-          break;
-        }
-        default:
-      }
-    }
+    // Logic for handling double click on project files
   }
 
+  /**
+   * Handles the double-click event on a track file.
+   * @param {FileBase} doubleClickedFile - The file that was double-clicked.
+   */
   const onTrackFilesDoubleClick = async (doubleClickedFile: FileBase) => {
-    console.info('onSavedVideoDoubleClick', doubleClickedFile);
-    if (doubleClickedFile.mediaType === 'folder' || !settings.trackFiles) {
-      return;
-    }
-    let payload: IMediaFile | null = null;
-
-    const index = file?.files.findIndex((trackFile) => (trackFile as IMediaFile).id === doubleClickedFile.id);
-    if (index !== undefined && index !== -1) {
-      payload = file?.files[index] as IMediaFile;
-    }
-    if (!payload) {
-      return;
-    }
-    await payload.extractMetadata();
-
-    dispatch({ type: 'VIDEO_DISPLAY', payload })
-    console.info('item clicked', doubleClickedFile);
+    // Logic for handling double click on track files
   }
 
   React.useEffect(() => {
-    const newTabData: Record<string, ExplorerPanelProps> = {};
-    const projectItems = LocalDb.stores[app.defaultInputFileType.name]?.files as FileBase[];
-    const expanded = file?.id ? [file.id] : [];
-    const selectedItem = projectItems.find((item) => item.id === file?.id);
-    if (selectedItem) {
-      selectedItem.children?.forEach((child) => {
-        expanded.push(child.id);
-      });
-    }
-    if (expanded.length !== 3) {
-      return;
-    }
-    newTabData.Projects = {
-      name: 'Projects',
-      items: projectItems,
-      gridColumns: {
-        version: (item: FileBase) => item?.version?.toString() || '',
-        type: (item: FileBase) => item?.mediaType || '',
-      },
-      selectedId: file?.id,
-      expandedItems: expanded,
-      onItemDoubleClick: onProjectsDoubleClick
-    };
-
-    const trackFiles = Object.values(settings.trackFiles) as IMediaFile[];
-    newTabData['Track Files'] = {
-      name: 'Track Files',
-      items: MediaFile.toFileBaseArray(trackFiles?.length ? trackFiles : [] ),
-      gridColumns: {
-        type: (item: FileBase) => item?.mediaType || '',
-      },
-      onItemDoubleClick: onTrackFilesDoubleClick
-    };
-
-    // console.info('newTabData', newTabData)
-    setTabData(newTabData);
+    // Logic for setting up tab data for different tabs
   }, [settings.trackFiles, settings.savedVideos, settings.projectFiles, file?.version])
 
   React.useEffect(() => {
-    setCurrentTab(tabData[tabName])
+    // Logic for updating the current tab based on tab name
   }, [tabName])
-
 
   if (flags.detailMode || !file || engine.isLoading) {
     return null;

@@ -1,15 +1,22 @@
-import * as React from "react";
-import {SubmitHandler, useForm} from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import ControlledText, { UncontrolledText } from "./ControlledText";
-import {
-  CtrlCell, CtrlRow, DetailActions, FormWrap,
-} from './Detail'
-import ControlledColor from "./ControlledColor";
-import {DetailViewProps, IEditorProjectDetail, projectSchema} from "./Detail.types";
-import {useEditorContext} from "../EditorProvider";
-
-
+/**
+ * React component for displaying project details.
+ *
+ * @param {DetailViewProps} props - The props for the component.
+ * @property {boolean} props.editMode - Flag indicating edit mode.
+ * @property {Function} props.enableEdit - Function to enable edit mode.
+ * @property {Function} props.disableEdit - Function to disable edit mode.
+ * @property {IEditorProjectDetail} props.detail - Project details.
+ *
+ * @returns {JSX.Element} Rendered component.
+ *
+ * @example
+ * <DetailProject
+ *   editMode={true}
+ *   enableEdit={handleEnableEdit}
+ *   disableEdit={handleDisableEdit}
+ *   detail={projectDetails}
+ * />
+ */
 export function DetailProject(props: DetailViewProps) {
   const { state: {file, selected , engine}, dispatch } = useEditorContext();
 
@@ -26,6 +33,11 @@ export function DetailProject(props: DetailViewProps) {
     resolver: yupResolver(projectSchema),
   });
 
+  /**
+   * Handler for submitting project details.
+   *
+   * @param {IEditorProjectDetail} submitData - Data to submit.
+   */
   const detailSubmit: SubmitHandler<IEditorProjectDetail> = (submitData: IEditorProjectDetail) => {
     props.disableEdit();
     dispatch({ type: 'UPDATE_PROJECT', payload: submitData });

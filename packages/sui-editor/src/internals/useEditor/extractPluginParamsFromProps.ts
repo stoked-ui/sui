@@ -1,31 +1,13 @@
-import * as React from 'react';
-import {
-  ConvertSignaturesIntoPlugins,
-  EditorAnyPluginSignature,
-  EditorPlugin,
-  EditorPluginSignature,
-  MergeSignaturesProperty,
-} from '../models';
-import {UseEditorBaseProps} from './useEditor.types';
-import {EditorCorePluginSignatures} from '../corePlugins';
-
-interface ExtractPluginParamsFromPropsParameters<
-  TSignatures extends readonly EditorAnyPluginSignature[],
-  TProps extends Partial<UseEditorBaseProps<TSignatures>>,
-> {
-  plugins: ConvertSignaturesIntoPlugins<readonly [...EditorCorePluginSignatures, ...TSignatures]>;
-  props: TProps;
-  idFunc: () => string;
-}
-
-interface ExtractPluginParamsFromPropsReturnValue<
-  TSignatures extends readonly EditorAnyPluginSignature[],
-  TProps extends Partial<UseEditorBaseProps<TSignatures>>,
-> extends UseEditorBaseProps<TSignatures> {
-  pluginParams: MergeSignaturesProperty<TSignatures, 'defaultizedParams'>;
-  forwardedProps: Omit<TProps, keyof MergeSignaturesProperty<TSignatures, 'params'>>;
-}
-
+/**
+ * Extracts plugin parameters from props based on plugin signatures.
+ * @template TSignatures - Type of editor plugin signatures.
+ * @template TProps - Type of editor base props.
+ * @param {Object} params - Parameters for extracting plugin params.
+ * @param {ConvertSignaturesIntoPlugins<readonly [...EditorCorePluginSignatures, ...TSignatures]>} params.plugins - Converted editor plugins.
+ * @param {TProps} params.props - Editor base props.
+ * @param {() => string} params.idFunc - Function to generate unique IDs.
+ * @returns {ExtractPluginParamsFromPropsReturnValue<TSignatures, TProps>} Extracted plugin parameters and forwarded props.
+ */
 export const extractPluginParamsFromProps = <
   TSignatures extends readonly EditorPluginSignature<any>[],
   TProps extends Partial<UseEditorBaseProps<TSignatures>>,

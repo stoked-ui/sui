@@ -1,13 +1,28 @@
-import { Control, FieldValues, Path, PathValue, useController } from 'react-hook-form';
-import { TextField, TextFieldProps } from '@mui/material';
+/**
+ * @typedef {object} CSSPropertiesFormFieldProps
+ * @property {Path<T>} name - The name/path for the field value
+ * @property {string} label - The label for the field
+ * @property {Control<T>} control - The react-hook-form control object
+ * @property {React.CSSProperties} [defaultValue] - The default CSSProperties value
+ * @property {TextFieldProps} textFieldProps - Additional TextField props
+ */
 
-type CSSPropertiesFormFieldProps<T extends FieldValues> = {
-  name: Path<T>;
-  label: string;
-  control: Control<T>;
-  defaultValue?: React.CSSProperties;
-} & Omit<TextFieldProps, 'name' | 'label' | 'defaultValue' | 'onChange'>;
-
+/**
+ * A controlled input field for CSSProperties values.
+ * @param {CSSPropertiesFormFieldProps<T>} props - The component props
+ * @returns {JSX.Element} A TextField component for CSSProperties input
+ * @example
+ * <ControlledCss
+ *   name="example"
+ *   label="Example"
+ *   control={control}
+ *   defaultValue={{}}
+ *   className="custom-class"
+ *   // additional TextField props
+ *   multiline
+ *   fullWidth
+ * />
+ */
 function ControlledCss <T extends FieldValues>({
                                                          name,
                                                          label,
@@ -16,26 +31,20 @@ function ControlledCss <T extends FieldValues>({
                                                  className,
                                                  ...textFieldProps
                                                        }: CSSPropertiesFormFieldProps<T>) {
-  const {
-    field: { onChange, onBlur, value },
-    fieldState: { error },
-  } = useController({
-    name,
-    control,
-    defaultValue: JSON.stringify(defaultValue) as PathValue<T, Path<T>>
-  });
-
+  /**
+   * Handles the change event for the input field.
+   * Parses the input as JSON for valid CSSProperties structure.
+   * @param {React.ChangeEvent<HTMLInputElement>} event - The change event object
+   */
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = event.target.value;
 
     try {
-      // Parse the input as JSON for valid CSSProperties structure
       const parsedValue = JSON.parse(inputValue);
       if (typeof parsedValue === 'object' && parsedValue !== null) {
-        onChange(inputValue); // Pass JSON string to `react-hook-form`
+        onChange(inputValue);
       }
     } catch (e) {
-      // Ignore JSON parsing errors, keep existing value
       console.error("Invalid CSSProperties JSON format.");
     }
   };

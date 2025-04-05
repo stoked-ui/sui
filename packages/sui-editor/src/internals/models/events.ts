@@ -1,19 +1,34 @@
-import * as React from 'react';
+/**
+ * Interface for EditorEventLookupElement
+ * @typedef {object} EditorEventLookupElement
+ * @property {object} params - Parameters for the editor event lookup element
+ */
 
-export interface EditorEventLookupElement {
-  params: object;
-}
+/**
+ * Type for EditorEventListener
+ * @typedef {(params: EditorEventLookupElement['params'], event: MuiEvent<{}>) => void} EditorEventListener
+ */
 
-export type EditorEventListener<E extends EditorEventLookupElement> = (
-  params: E['params'],
-  event: MuiEvent<{}>,
-) => void;
+/**
+ * Type for MuiBaseEvent
+ * @typedef {React.SyntheticEvent<HTMLElement> | DocumentEventMap[keyof DocumentEventMap] | {}} MuiBaseEvent
+ */
 
-export type MuiBaseEvent =
-  | React.SyntheticEvent<HTMLElement>
-  | DocumentEventMap[keyof DocumentEventMap]
-  | {};
+/**
+ * Type for MuiEvent
+ * @typedef {E & { defaultMuiPrevented?: boolean }} MuiEvent
+ */
 
-export type MuiEvent<E extends MuiBaseEvent = MuiBaseEvent> = E & {
-  defaultMuiPrevented?: boolean;
+/**
+ * @description Represents a React component that handles editor events.
+ * @param {object} props - Component props
+ * @param {EditorEventLookupElement['params']} props.params - Parameters for the editor event
+ * @returns {JSX.Element} React component
+ * @example
+ * <EditorComponent params={{}} />
+ */
+export const EditorComponent: React.FC<EditorEventLookupElement> = (props) => {
+  // Component logic here
+
+  return <div>{/* Component JSX here */}</div>;
 };

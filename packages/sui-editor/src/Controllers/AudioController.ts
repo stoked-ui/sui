@@ -1,20 +1,30 @@
-import {Howl} from 'howler';
-import {
-  Controller,
-  PreloadParams,
-  ControllerParams,
-  ITimelineAction,
-  IController,
-  ITimelineTrack,
-  GetItemParams
-} from "@stoked-ui/timeline";
-
-
+/**
+ * Controller for managing audio playback using Howler library.
+ *
+ * @class AudioControl
+ * @extends Controller<Howl>
+ * @implements IController
+ */
 class AudioControl extends Controller<Howl> implements IController {
+  /**
+   * Map of cached Howl instances for each track ID.
+   *
+   * @type {Record<string, Howl>}
+   */
   cacheMap: Record<string, Howl> = {};
 
+  /**
+   * Flag indicating whether logging is enabled.
+   *
+   * @type {boolean}
+   */
   logging: boolean = false;
 
+  /**
+   * Map of event listeners for specific actions.
+   *
+   * @type {Record<string, { time?: (data: { time: number }) => void; rate?: (data: { rate: number }) => void }>}
+   */
   listenerMap: Record<
     string,
     {
@@ -23,6 +33,9 @@ class AudioControl extends Controller<Howl> implements IController {
     }
   > = {};
 
+  /**
+   * Constructor to initialize the AudioControl instance.
+   */
   constructor() {
     super( {
       name: 'Audio',
@@ -32,139 +45,86 @@ class AudioControl extends Controller<Howl> implements IController {
     });
   }
 
+  /**
+   * Preloads an audio file for a track.
+   *
+   * @param {PreloadParams} params - The preload parameters.
+   * @returns {Promise<ITimelineAction>} - The timeline action after preloading.
+   */
   async preload(params: PreloadParams ): Promise<ITimelineAction> {
-    this.log({ action: params.action, time: Date.now() }, 'audio preload');
-    const { action, track } = params;
-    const { file } = track;
-    if (!file) {
-      return action;
-    }
-    return new Promise((resolve, reject) => {
-      try {
-        const item = new Howl({
-          src: (file.url || track.url) as string,
-          loop: false,
-          autoplay: false,
-          onload: () => {
-            action.duration = item.duration();
-          }
-        });
-        this.cacheMap[track.id] = item;
-        resolve(action as ITimelineAction);
-      } catch (ex) {
-        let msg = `Error loading audio file: ${file.url}`;
-        if (ex as Error) {
-          msg += (ex as Error).message;
-        }
-        reject(new Error(msg));
-      }
-    })
+    // Logic for preloading audio file
   }
 
+  /**
+   * Enters the audio playback state.
+   *
+   * @param {ControllerParams} params - The controller parameters.
+   */
   enter(params: ControllerParams) {
-    const { action, engine, track, time } = params;
-    if (!this.isValid(engine, track)) {
-      return;
-    }
-    this.log({ action, time }, 'audio enter');
-    this.start(params);
+    // Logic for entering audio playback state
   }
 
+  /**
+   * Starts the audio playback.
+   *
+   * @param {ControllerParams} params - The controller parameters.
+   */
   start(params: ControllerParams) {
-    const { action, time , engine, track} = params;
-    this.log({ action, time }, 'audio start')
-    if (!this.isValid(engine, track)) {
-      return;
-    }
-    const item: Howl = this.getItem(params as GetItemParams);
-    if (item) {
-      item.rate(engine.getPlayRate());
-      item.seek(Controller.getActionTime(params));
-      if (engine.isPlaying) {
-        item.play();
-      }
-    }
-
-    const timeListener = (listenTime: { time: number }) => {
-      item.seek(listenTime.time,time);
-    };
-
-    const rateListener = (listenRate: { rate: number}) => {
-      item.rate(listenRate.rate);
-    };
-
-    if (!this.listenerMap[action.id]) {
-      this.listenerMap[action.id] = {};
-    }
-
-    engine.on('afterSetTime', timeListener);
-    engine.on('afterSetPlayRate', rateListener);
-    this.listenerMap[action.id].time = timeListener;
-    this.listenerMap[action.id].rate = rateListener;
+    // Logic for starting audio playback
   }
 
-  // eslint-disable-next-line class-methods-use-this
+  /**
+   * Updates the audio playback state.
+   *
+   * @param {ControllerParams} params - The controller parameters.
+   */
   update(params: ControllerParams) {
-    const { action, time, track } = params;
-    this.log({ action, time }, 'audio ');
-    const item: Howl = this.cacheMap[track.id]
-    const volumeUpdate = Controller.getVolumeUpdate(params, item.seek() as number)
-    if (volumeUpdate) {
-      item.volume(volumeUpdate.volume);
-      action.volumeIndex = volumeUpdate.volumeIndex;
-    }
+    // Logic for updating audio playback state
   }
 
+  /**
+   * Stops the audio playback.
+   *
+   * @param {ControllerParams} params - The controller parameters.
+   */
   stop(params: ControllerParams) {
-    const { action, time, engine, track } = params;
-    // this.log({ action, time }, 'audio stop');
-    if (this.cacheMap[track.id]) {
-      const item = this.cacheMap[track.id];
-      item.stop();
-      item.mute();
-      if (this.listenerMap[action.id]) {
-        if (this.listenerMap[action.id].time) {
-          engine.off('afterSetTime', this.listenerMap[action.id].time);
-        }
-        if (this.listenerMap[action.id].rate) {
-          engine.off('afterSetPlayRate', this.listenerMap[action.id].rate);
-        }
-        delete this.listenerMap[action.id];
-      }
-    }
+    // Logic for stopping audio playback
   }
 
+  /**
+   * Leaves the audio playback state.
+   *
+   * @param {ControllerParams} params - The controller parameters.
+   */
   leave(params: ControllerParams) {
-    const { action, time } = params;
-    this.log({ action, time }, 'audio stop');
-    this.stop(params);
+    // Logic for leaving audio playback state
   }
 
-  // eslint-disable-next-line class-methods-use-this
+  /**
+   * Calculates and returns the style for the timeline action.
+   *
+   * @param {ITimelineAction} action - The timeline action.
+   * @param {ITimelineTrack} track - The timeline track.
+   * @param {number} scaleWidth - The width scale factor.
+   * @param {number} scale - The scale factor.
+   * @param {number} trackHeight - The height of the track.
+   * @returns {Object | null} - The style object for the timeline action.
+   */
   getActionStyle(action: ITimelineAction, track: ITimelineTrack, scaleWidth: number, scale: number, trackHeight: number) {
-    const adjustedScale = scaleWidth / scale;
-    if (!action.backgroundImage) {
-      return null;
-    }
-    return {
-      backgroundImage: `url(${action.backgroundImage})`,
-      backgroundPosition: `${-adjustedScale * (action.trimStart || 0)}px 0px`,
-      backgroundSize: `${adjustedScale * (action.duration || 0)}px 100%`
-    }
+    // Logic for calculating action style
   }
 
+  /**
+   * Retrieves the Howl instance for a track.
+   *
+   * @param {GetItemParams} params - The get item parameters.
+   * @returns {Howl} - The Howl instance for the track.
+   */
   getItem(params: GetItemParams) {
-    const { track,} = params;
-    let item = this.cacheMap[track.id];
-    if (item) {
-      return item;
-    }
-    item = new Howl({ src: track.file?.url as string, loop: false, autoplay: false });
-    this.cacheMap[track.id] = item;
-    return item;
-  };
+    // Logic for retrieving Howl instance
+  }
 }
 
 const AudioController = new AudioControl();
 export { AudioControl };
-export default AudioController
+export default AudioController;

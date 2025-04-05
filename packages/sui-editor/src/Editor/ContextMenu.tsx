@@ -1,28 +1,40 @@
-import * as React from 'react';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
-import Typography from '@mui/material/Typography';
-import Select, { SelectChangeEvent } from "@mui/material/Select";
-import FormControl from "@mui/material/FormControl";
-import InputLabel from "@mui/material/InputLabel";
-import { BlendMode, Fit, IEditorAction } from '../EditorAction/EditorAction';
-import { IEditorFile } from '../EditorFile/EditorFile';
-import { IEditorTrack } from '../EditorTrack/EditorTrack';
-import { useEditorContext } from "../EditorProvider/EditorContext";
-
-
-export default function ContextMenu({ type,  context }:{ type: 'DETAIL_TRACK' | 'DETAIL_ACTION' | 'DETAIL_PROJECT',  context: IEditorAction | IEditorTrack | IEditorFile }) {
+/**
+ * ContextMenu component for displaying context menu options.
+ *
+ * @param {Object} props - The props object.
+ * @param {string} props.type - The type of context menu ('DETAIL_TRACK' | 'DETAIL_ACTION' | 'DETAIL_PROJECT').
+ * @param {Object} props.context - The context object (IEditorAction | IEditorTrack | IEditorFile).
+ * 
+ * @returns {JSX.Element} The rendered ContextMenu component.
+ * 
+ * @example
+ * <ContextMenu type='DETAIL_TRACK' context={trackData} />
+ * <ContextMenu type='DETAIL_ACTION' context={actionData} />
+ * <ContextMenu type='DETAIL_PROJECT' context={projectData} />
+ */
+export default function ContextMenu({ type, context }:{ type: 'DETAIL_TRACK' | 'DETAIL_ACTION' | 'DETAIL_PROJECT', context: IEditorAction | IEditorTrack | IEditorFile }) {
   const { state: { settings }, dispatch } = useEditorContext();
 
+  /**
+   * Handles closing the context menu.
+   */
   const handleClose = () => {
     const { contextMenu, ...updatedSettings } = settings;
     dispatch({ type: 'SET_SETTING', payload: { key: 'contextMenu', value: updatedSettings }})
   };
 
+  /**
+   * Handles opening the detail view for a track.
+   */
   const handleTrackDetail = () => {
     dispatch({ type: 'DETAIL_OPEN' });
   }
 
+  /**
+   * Gets the name based on the context type.
+   * 
+   * @returns {string} The name based on the context type.
+   */
   const getName = () => {
     switch (type) {
       case 'DETAIL_TRACK':
@@ -36,13 +48,26 @@ export default function ContextMenu({ type,  context }:{ type: 'DETAIL_TRACK' | 
     }
   }
 
+  /**
+   * Handles setting the blend mode.
+   * 
+   * @param {SelectChangeEvent<BlendMode>} event - The select change event.
+   * @param {React.ReactNode} child - The child element.
+   */
   const handleBlendMode = (event: SelectChangeEvent<BlendMode>, child: React.ReactNode) => {
     dispatch({ type: 'SET_BLEND_MODE', payload: { contextId: context.id, value: event.target.value as BlendMode }})
   }
 
+  /**
+   * Handles setting the fit.
+   * 
+   * @param {SelectChangeEvent<Fit>} event - The select change event.
+   * @param {React.ReactNode} child - The child element.
+   */
   const handleFit = (event: SelectChangeEvent<Fit>, child: React.ReactNode) => {
     dispatch({ type: 'SET_FIT', payload: { contextId: context.id, value: event.target.value as Fit }})
   }
+
   return (
     <Menu
       open={settings.contextMenu}

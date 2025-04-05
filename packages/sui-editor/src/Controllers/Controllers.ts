@@ -1,18 +1,22 @@
-import { IController } from '@stoked-ui/timeline';
-/*
-import AnimationController from "./AnimationController";
-*/
-import AudioController from "./AudioController";
-import VideoController from "./VideoController";
-import ImageController from "./ImageController";
-
+/**
+ * Object mapping controller names to corresponding controller instances.
+ */
 const Controllers: Record<string, IController> = {
+  /**
+   * Audio controller instance.
+   */
   audio: AudioController,
-/*
-  animation: AnimationController,
-*/
+
+  /**
+   * Video controller instance.
+   */
   video: VideoController,
+
+  /**
+   * Image controller instance.
+   */
   image: ImageController,
 };
 
 export default Controllers;
+*/

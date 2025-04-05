@@ -1,34 +1,22 @@
-import * as React from "react";
-import {
-  FormWrap, useEditMode,
-} from './Detail'
-import {
-} from "./Detail.types";
-import {useEditorContext} from "../EditorProvider";
-import BlendModeSelect from "./BlendModeSelect";
-import {DetailTrack} from "./DetailTrack";
-import {DetailAction} from "./DetailAction";
-import {DetailProject} from "./DetailProject";
-import {DetailSettings} from "./DetailSettings";
-
-const seen = new WeakSet();
-const replacer = (key, value) => {
-  if (typeof value === 'object' && value !== null) {
-    if (seen.has(value)) {
-      return '[Circular]';
-    }
-    seen.add(value);
-  }
-  return value;
-};
-
+/**
+ * Main component for displaying and editing details.
+ * @returns {JSX.Element} React component representing the combined detail view
+ */
 export function DetailCombined() {
   const { state: {selectedType, selectedDetail, settings, selected} } = useEditorContext();
   const [editMode, setEditMode] = React.useState(false);
+
+  /**
+   * Enable edit mode for the detail view.
+   */
   const enableEdit = () => {
     console.info('edit mode: enabled');
     setEditMode(true);
   }
+
+  /**
+   * Disable edit mode for the detail view.
+   */
   const disableEdit = () => {
     console.info('edit mode: disabled');
     setEditMode(false);

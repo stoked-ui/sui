@@ -1,10 +1,12 @@
+/**
+ * @typedef {import('@stoked-ui/timeline').ITimelineTrack} ITimelineTrack
+ * @typedef {import('@stoked-ui/timeline').ITimelineAction} ITimelineAction
+ * @typedef {import('@stoked-ui/timeline').EngineState} EngineState
+ */
+
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import Timeline, {
-  ITimelineTrack,
-  ITimelineAction,
-  EngineState,
-} from '@stoked-ui/timeline';
+import Timeline from '@stoked-ui/timeline';
 import Box from "@mui/material/Box";
 import {namedId} from '@stoked-ui/common';
 import {IMediaFile, MediaFile} from '@stoked-ui/media-selector';
@@ -27,110 +29,20 @@ import {getTracksFromMediaFiles, IEditorTrack} from "../EditorTrack/EditorTrack"
 import EditorFile, {IEditorFile} from "../EditorFile/EditorFile";
 import EditorFileTabs from '../EditorFileTabs';
 
-const useThemeProps = createUseThemeProps('MuiEditor');
-
-const useUtilityClasses = <R extends IMediaFile, Multiple extends boolean | undefined>(ownerState: EditorProps<R, Multiple>,) => {
-  const {classes} = ownerState;
-
-  const slots = {
-    root: ['root'],
-    editorView: ['editorView'],
-    controls: ['controls'],
-    timeline: ['timeline'],
-    fileExplorerTabs: ['fileExplorerTabs'],
-    fileExplorer: ['fileExplorer'],
-    loaded: ['loaded'],
-  };
-
-  return composeClasses(slots, getEditorUtilityClass, classes);
-};
-
-const EditorRoot = styled(Box, {
-  name: 'MuiEditor',
-  slot: 'root',
-  shouldForwardProp: (prop) => prop !== 'allControls'
-                               && prop !== 'ownerState'
-                               && prop !== 'fileUrl'
-                               && prop !== 'noSaveControls'
-                               && prop !== 'record'
-                               && prop !== 'noSnapControls'
-                               && prop !== 'noTrackControls'
-                               && prop !== 'noTrackControls'
-                               && prop !== 'file'
-                               && prop !== 'fileView'
-                               && prop !== 'viewButtons'
-                               && prop !== 'viewButtonEnter'
-                               && prop !== 'viewButtonExit'
-                               && prop !== 'viewButtonAppear'
-                               && prop !== 'detailMode'
-                               && prop !== 'trackCount'
-                               && prop !== 'detail'
-                               && prop !== 'fullscreen',
-})<{ fullscreen: boolean, fileView: boolean, trackCount: number, detail: boolean }>(({theme, fullscreen, fileView, trackCount, detail}) => {
-  const width = fullscreen ? '100vw' : '100%';
-  const height = fullscreen ? '100vh' : '100%';
-  const timelineHeight = 37 + (36 * trackCount);
-  const gridTemplate = detail ? {
-    gridTemplateAreas: `
-      "viewer"
-      "controls"
-      "timeline"`,
-    gridTemplateRows: `min-content min-content auto`,
-  } : {
-    gridTemplateAreas: `
-      "viewer"
-      "controls"
-      "timeline"
-      "explorer-tabs"`,
-    gridTemplateRows: `min-content min-content auto 0px`,
-    '&.MuiEditor-loaded': {
-      gridTemplateAreas: `
-      "viewer"
-      "controls"
-      "timeline"
-      "explorer-tabs"`,
-      gridTemplateRows: `min-content min-content ${timelineHeight}px 49px`,
-    },
-  }
-  return {
-    display: "grid",
-    flexDirection: 'column',
-    containerType: 'inline-size',
-    width,
-    height,
-    ...gridTemplate,
-    '& .MuiEditorView-root': {
-      overflow: 'hidden',
-    },
-    overflow: 'hidden',
-  }
-});
-
-interface TimelineSlotProps {
-  trackActions?: any
-}
-
-const DrawerHeader = styled('div')(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  padding: theme.spacing(0, 1),
-  // necessary for content to be below app bar
-  ...theme.mixins.toolbar,
-  justifyContent: 'flex-end',
-}));
-
 /**
- *
- * Demos:
- *
- * - [Editor](https://stoked-ui.github.io/editor/docs/)
- *
- * API:
- *
- * - [Editor API](https://stoked-ui.github.io/editor/api/)
+ * @typedef {Object} TimelineSlotProps
+ * @property {any} [trackActions]
  */
 
-const Editor = React.forwardRef(function Editor<R extends IMediaFile = IMediaFile, Multiple extends boolean | undefined = undefined, >(inPropsId: EditorProps<R, Multiple>, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
+/**
+ * @description Component for editing videos with a timeline and controls.
+ * @param {EditorProps<IMediaFile, boolean | undefined>} inPropsId - Props for the editor component.
+ * @param {React.Ref<HTMLDivElement>} ref - Reference object for editor component manipulation.
+ * @returns {JSX.Element} Rendered editor component.
+ * @example
+ * <Editor {...props} />
+ */
+const Editor = React.forwardRef(function Editor(inPropsId, ref) {
   const {state: context, dispatch} = useEditorContext();
   const {
     file, flags, engine, getState, components, settings
@@ -183,7 +95,7 @@ const Editor = React.forwardRef(function Editor<R extends IMediaFile = IMediaFil
     getTimelineProps,
     getFileExplorerTabsProps,
     instance
-  } = useEditor<EditorPluginSignatures, EditorProps<R, Multiple>>({
+  } = useEditor({
     plugins: VIDEO_EDITOR_PLUGINS, rootRef: ref, props,
   });
 
@@ -234,7 +146,7 @@ const Editor = React.forwardRef(function Editor<R extends IMediaFile = IMediaFil
     ownerState: inProps.fileExplorerTabsProps as any,
   });
 
-  const viewerRef = React.useRef<HTMLDivElement>(null);
+  const viewerRef = React.useRef(null);
   const [startIt, setStartIt] = React.useState(false);
   React.useEffect(() => {
     if (!startIt && engine && engine.isLoading && viewerRef.current) {
@@ -247,7 +159,7 @@ const Editor = React.forwardRef(function Editor<R extends IMediaFile = IMediaFil
     }
   }, [viewerRef.current, engine, engine?.isLoading]);
 
-  const [currentVersion, setCurrentVersion] = React.useState<string>()
+  const [currentVersion, setCurrentVersion] = React.useState(null);
 
   React.useEffect(() => {
     if (settings && !settings.editorMode) {
@@ -255,35 +167,24 @@ const Editor = React.forwardRef(function Editor<R extends IMediaFile = IMediaFil
     }
   }, [noFlagProps.mode])
 
-  const timelineRef = React.useRef<HTMLDivElement>(null);
-  const [contextMenu, setContextMenu] = React.useState<{
-    mouseX: number;
-    mouseY: number;
-    context: ITimelineTrack | ITimelineAction;
-    type: 'action' | 'track' | 'label'
-  } | null>(null);
+  const timelineRef = React.useRef(null);
+  const [contextMenu, setContextMenu] = React.useState(null);
 
-  const handleContextMenuAction = (event: React.MouseEvent<HTMLElement, MouseEvent>, param: {
-    action: ITimelineAction; track: ITimelineTrack; time: number;
-  }) => {
+  const handleContextMenuAction = (event, param) => {
     event.preventDefault();
     setContextMenu({
       mouseX: event.clientX + 2, mouseY: event.clientY - 6, context: param.action, type: 'action'
     });
   };
 
-  const handleContextMenuTrack = (event: React.MouseEvent<HTMLElement, MouseEvent>, param: {
-    track: ITimelineTrack; time: number;
-  }) => {
+  const handleContextMenuTrack = (event, param) => {
     event.preventDefault();
     setContextMenu({
       mouseX: event.clientX + 2, mouseY: event.clientY - 6, context: param.track, type: 'track'
     });
   };
 
-  const handleContextMenuLabel = (event: React.MouseEvent<HTMLElement, MouseEvent>, param: {
-    track: ITimelineTrack; time: number;
-  }) => {
+  const handleContextMenuLabel = (event, param) => {
     event.preventDefault();
     setContextMenu({
       mouseX: event.clientX + 2, mouseY: event.clientY - 6, context: param.track, type: 'label'
@@ -301,17 +202,10 @@ const Editor = React.forwardRef(function Editor<R extends IMediaFile = IMediaFil
     const extractedFiles = await Promise.all(newMediaFiles.map(async (mediaFile) => {
       await mediaFile.extractMetadata();
       return mediaFile;
-    }));
+    });
 
     const newTracks = getTracksFromMediaFiles(extractedFiles, engine.time, addFile?.tracks);
-    // if (!addFile) {
-    //  addFile = new EditorFile({name: 'New Video Project', tracks: newTracks});
-    //  await addFile.preload(settings.editorId);
 
-    //  dispatch({type: 'SET_FILE', payload: addFile as IEditorFile});
-    //  dispatch({type: 'SET_SETTING', payload: {key: 'disabled', value: false}})
-    //  fitScaleData(context, false,  components.timelineGrid, 'editor')
-   // } else {
     if (addFile) {
       dispatch({type: 'SET_TRACKS', payload: newTracks as IEditorTrack[]});
     } else {
@@ -323,7 +217,7 @@ const Editor = React.forwardRef(function Editor<R extends IMediaFile = IMediaFil
     }
   };
 
-  const handleClickLabel = (event: React.MouseEvent<HTMLElement, MouseEvent>, track: IEditorTrack) => {
+  const handleClickLabel = (event, track) => {
     noFlagProps.onClickLabel?.(event, track);
     if (!flags.detailMode) {
       dispatch({type: 'SELECT_TRACK', payload: track});
@@ -331,7 +225,7 @@ const Editor = React.forwardRef(function Editor<R extends IMediaFile = IMediaFil
     }
   }
 
-  const baseRef = React.useRef<HTMLDivElement>()
+  const baseRef = React.useRef(null)
   const handleRef = useForkRef(baseRef, ref)
 
   const {...editorViewPropsNew} = editorViewProps;
@@ -354,10 +248,9 @@ const Editor = React.forwardRef(function Editor<R extends IMediaFile = IMediaFil
       });
     }, [])
 
-  const [editorFile, setEditorFile] = React.useState<IEditorFile | null>(propsFile);
+  const [editorFile, setEditorFile] = React.useState(null);
   React.useEffect(() => {
     if (editorFile !== propsFile && settings.editorId) {
-      alert('3')
       setEditorFile(propsFile);
       console.info('Editor::preload()', propsFile, propsFile?.tracks.length);
       propsFile?.preload(settings.editorId).then(() => {
@@ -382,11 +275,11 @@ const Editor = React.forwardRef(function Editor<R extends IMediaFile = IMediaFil
     }
   }, [])
 
-  const [editorFileUrl, setEditorFileUrl] = React.useState<string>('');
+  const [editorFileUrl, setEditorFileUrl] = React.useState('');
   React.useEffect(() => {
     if (fileUrl && fileUrl !== editorFileUrl) {
       setEditorFileUrl(fileUrl);
-      EditorFile.fromUrl<EditorFile>(fileUrl, EditorFile)
+      EditorFile.fromUrl(fileUrl, EditorFile)
       .then((urlFile) => {
         if (urlFile) {
           urlFile.preload(settings.editorId).then(() => {
@@ -399,7 +292,7 @@ const Editor = React.forwardRef(function Editor<R extends IMediaFile = IMediaFil
     }
   }, [fileUrl])
 
-  const [view, setView] = React.useState<'timeline' | 'files'>('timeline')
+  const [view, setView] = React.useState('timeline')
 
   React.useEffect(() => {
     if (!baseRef?.current) {
@@ -412,7 +305,6 @@ const Editor = React.forwardRef(function Editor<R extends IMediaFile = IMediaFil
       if (!rootRef) {
         return;
       }
-      // const width = baseRef.current?.clientWidth;
       const settingKey = flags.detailMode ? 'detail' : undefined;
       const value = {
         width: baseRef.current?.clientWidth, height: baseRef.current?.clientHeight,
@@ -506,94 +398,40 @@ const Editor = React.forwardRef(function Editor<R extends IMediaFile = IMediaFil
   </Root>)
 });
 
-// FileExplorerProps: PropTypes.any,
 Editor.propTypes = {
-
   actions: PropTypes.array,
   allControls: PropTypes.bool,
-  /**
-   * The ref object that allows Editor View manipulation. Can be instantiated with
-   * `useEditorApiRef()`.
-   */
   apiRef: PropTypes.any,
-  /**
-   * Override or extend the styles applied to the component.
-   */
   classes: PropTypes.object,
   className: PropTypes.string,
-
   detailMode: PropTypes.bool,
-
-  /**
-   * Unstable features, breaking changes might be introduced.
-   * For each feature, if the flag is not explicitly set to `true`,
-   * the feature will be fully disabled and any property / method call will not have any effect.
-   */
   experimentalFeatures: PropTypes.object,
-
   file: PropTypes.any,
-
   filesSx: PropTypes.object,
-
   fileTabsSx: PropTypes.object,
-
   fileUrl: PropTypes.string,
-
   fileView: PropTypes.bool,
-
   fullscreen: PropTypes.bool,
-
   localDb: PropTypes.bool,
-
   minimal: PropTypes.bool,
-
   mode: PropTypes.oneOf(["project", "track", "action"]),
-
   newTrack: PropTypes.bool,
-
   noLabels: PropTypes.bool,
-
   noResizer: PropTypes.bool,
-
   noSaveControls: PropTypes.bool,
-
   noSnapControls: PropTypes.bool,
-
   noTrackControls: PropTypes.bool,
-
   noZoom: PropTypes.bool,
-
   openSaveControls: PropTypes.bool,
-
   preview: PropTypes.bool,
-
   record: PropTypes.bool,
-
-  /**
-   * The props used for each component slot.
-   * @default {}
-   */
   slotProps: PropTypes.object,
-
-
-  /**
-   * Overridable component slots.
-   * @default {}
-   */
   slots: PropTypes.object,
-
-  /**
-   * The system prop that allows defining system overrides as well as additional CSS styles.
-   */
   sx: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool])), PropTypes.func, PropTypes.object,]),
-
-
   viewButtonAppear: PropTypes.number,
   viewButtonEnter: PropTypes.number,
-
   viewButtonExit: PropTypes.number,
   viewButtons: PropTypes.any,
-
 };
 
 export default Editor;

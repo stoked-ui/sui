@@ -1,8 +1,6 @@
-import * as React from 'react';
-import Button from '@mui/material/Button';
-import { createTheme } from '@mui/material/styles';
-
-// Update the Button's extendable props options
+/**
+ * Update the Button's extendable props options
+ */
 declare module '@mui/material/Button' {
   interface ButtonPropsVariantOverrides {
     dashed: true;
@@ -16,7 +14,9 @@ declare module '@mui/material/Button' {
   }
 }
 
-// theme typings should work as expected
+/**
+ * Theme typings should work as expected
+ */
 const theme = createTheme({
   components: {
     MuiButton: {
@@ -38,11 +38,23 @@ const theme = createTheme({
   },
 });
 
+/**
+ * Example usage:
+ * <Button variant="dashed" color="success" size="extraLarge">
+ *    Custom
+ * </Button>;
+ */
 <Button variant="dashed" color="success" size="extraLarge">
   Custom
 </Button>;
 
 // @ts-expect-error The contained variant was disabled
+/**
+ * Example usage:
+ * <Button variant="contained" color="primary">
+ *    Invalid
+ * </Button>;
+ */
 <Button variant="contained" color="primary">
   Invalid
 </Button>;

@@ -1,19 +1,29 @@
-import generateUtilityClass from '@mui/utils/generateUtilityClass';
-import generateUtilityClasses from '@mui/utils/generateUtilityClasses';
+/**
+ * EditorViewClasses interface defines the styling classes for EditorView component.
+ * @typedef {object} EditorViewClasses
+ * @property {string} root - Styles applied to the root element.
+ * @property {string} [renderer] - Optional styling for the renderer.
+ * @property {string} [preview] - Optional styling for the preview.
+ */
 
-export interface EditorViewClasses {
-  /** Styles applied to the root element. */
-  root: string;
-  renderer?: string;
-  preview?: string;
-}
+/**
+ * EditorViewClassKey type represents the keys of EditorViewClasses.
+ * @typedef {keyof EditorViewClasses} EditorViewClassKey
+ */
 
-export type EditorViewClassKey = keyof EditorViewClasses;
-
+/**
+ * Returns the utility class for the EditorView component based on the slot provided.
+ * @param {string} slot - The slot for which the utility class is generated.
+ * @returns {string} The utility class for the EditorView component.
+ */
 export function getEditorViewUtilityClass(slot: string): string {
   return generateUtilityClass('MuiEditorView', slot);
 }
 
+/**
+ * editorViewClasses object contains all the utility classes for the EditorView component.
+ * @type {EditorViewClasses}
+ */
 export const editorViewClasses: EditorViewClasses = generateUtilityClasses('MuiEditorView', [
   'root',
   'renderer',

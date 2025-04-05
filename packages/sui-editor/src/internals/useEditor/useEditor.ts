@@ -1,27 +1,9 @@
-import * as React from 'react';
-import useForkRef from '@mui/utils/useForkRef';
-import {EventHandlers} from '@mui/base/utils';
-import useIncId, {namedId} from '@stoked-ui/common';
-import { IMediaFile } from '@stoked-ui/media-selector';
-import {
-  ConvertSignaturesIntoPlugins,
-  EditorAnyPluginSignature,
-  EditorInstance,
-  EditorPlugin,
-  EditorPublicAPI,
-  MergeSignaturesProperty,
-} from '../models';
-import {
-  UseEditorBaseProps, UseEditorParameters, UseEditorReturnValue, UseEditorRootSlotProps,
-} from './useEditor.types';
-import {useEditorModels} from './useEditorModels';
-import {EditorContextValue, VideoPluginsRunner} from '../EditorProvider';
-import {EditorCorePluginSignatures, VIDEO_EDITOR_CORE_PLUGINS} from '../corePlugins';
-import {extractPluginParamsFromProps} from './extractPluginParamsFromProps';
-import Controllers from "../../Controllers";
-import {EditorPropsBase} from "../../Editor";
-import {useEditorContext} from "../../EditorProvider";
-
+/**
+ * Hook for initializing the editor API.
+ * @template T
+ * @param {React.MutableRefObject<T | undefined> | undefined} inputApiRef - Reference to the editor API object.
+ * @returns {T} The initialized editor API.
+ */
 export function useEditorApiInitialization<T>(
   inputApiRef: React.MutableRefObject<T | undefined> | undefined,
 ): T {
@@ -37,6 +19,13 @@ export function useEditorApiInitialization<T>(
   return fallbackPublicApiRef.current;
 }
 
+/**
+ * Hook for managing the editor state and functionality.
+ * @template TSignatures
+ * @template TProps
+ * @param {UseEditorParameters<TSignatures, TProps>} params - Parameters for the editor hook.
+ * @returns {UseEditorReturnValue<TSignatures>} Object containing editor hook functions and data.
+ */
 export const useEditor = <
   TSignatures extends readonly EditorAnyPluginSignature[],
   TProps extends Partial<UseEditorBaseProps<TSignatures> & { id: string | undefined } & EditorPropsBase>,
