@@ -1,21 +1,6 @@
-import * as React from 'react';
-import type {FileExplorerPluginSignature} from '../../models';
-import type {
-  UseFileExplorerFilesSignature
-} from '../useFileExplorerFiles/useFileExplorerFiles.types';
-import type {
-  UseFileExplorerSelectionSignature
-} from '../useFileExplorerSelection/useFileExplorerSelection.types';
-import type {
-  UseFileExplorerFocusSignature
-} from '../useFileExplorerFocus/useFileExplorerFocus.types';
-import type {
-  UseFileExplorerExpansionSignature
-} from '../useFileExplorerExpansion/useFileExplorerExpansion.types';
-import {MuiCancellableEvent} from '../../models/MuiCancellableEvent';
-import {FileId} from '../../../models';
-import type {UseFileExplorerDndSignature} from '../useFileExplorerDnd/useFileExplorerDnd.types';
-
+/**
+ * Interface for the instance of the keyboard navigation functionality in a file explorer.
+ */
 export interface UseFileExplorerKeyboardNavigationInstance {
   /**
    * Updates the `firstCharMap` to add/remove the first character of some item's labels.
@@ -39,6 +24,9 @@ export interface UseFileExplorerKeyboardNavigationInstance {
   ) => void;
 }
 
+/**
+ * Signature for the keyboard navigation functionality in a file explorer.
+ */
 export type UseFileExplorerKeyboardNavigationSignature = FileExplorerPluginSignature<{
   instance: UseFileExplorerKeyboardNavigationInstance;
   dependencies: [
@@ -50,4 +38,7 @@ export type UseFileExplorerKeyboardNavigationSignature = FileExplorerPluginSigna
   ];
 }>;
 
+/**
+ * Represents the mapping of first characters of item labels in a file explorer.
+ */
 export type FileExplorerFirstCharMap = { [id: string]: string };

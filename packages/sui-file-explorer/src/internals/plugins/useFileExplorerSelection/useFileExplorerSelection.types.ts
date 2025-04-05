@@ -1,8 +1,8 @@
 import * as React from 'react';
-import type {DefaultizedProps, FileExplorerPluginSignature} from '../../models';
-import {UseFileExplorerFilesSignature} from '../useFileExplorerFiles';
-import {UseFileExplorerExpansionSignature} from '../useFileExplorerExpansion';
 
+/**
+ * Public API for managing file selection in a file explorer component.
+ */
 export interface UseFileExplorerSelectionPublicAPI {
   /**
    * Select or deselect an item.
@@ -10,13 +10,16 @@ export interface UseFileExplorerSelectionPublicAPI {
    * @param {string} id The id of the item to select or deselect.
    * @param {boolean} keepExistingSelection If `true`, don't remove the other selected items.
    * @param {boolean | undefined} newValue The new selection status of the item. If not defined,
-   *   the new state will be the opposite of the current state.
+   * the new state will be the opposite of the current state.
    */
   selectItem: (params: {
     event: React.SyntheticEvent, id: string, keepExistingSelection?: boolean, newValue?: boolean,
   }) => void;
 }
 
+/**
+ * Instance methods for managing file selection in a file explorer component.
+ */
 export interface UseFileExplorerSelectionInstance {
   /**
    * Check if an item is selected.
@@ -30,7 +33,7 @@ export interface UseFileExplorerSelectionInstance {
    * @param {string} id The id of the item to select or deselect.
    * @param {boolean} keepExistingSelection If `true`, don't remove the other selected items.
    * @param {boolean | undefined} newValue The new selection status of the item. If not defined,
-   *   the new state will be the opposite of the current state.
+   * the new state will be the opposite of the current state.
    */
   selectItem: (params: {
     event: React.SyntheticEvent, id: string, keepExistingSelection?: boolean, newValue?: boolean,
@@ -71,10 +74,16 @@ export interface UseFileExplorerSelectionInstance {
   ) => void;
 }
 
+/**
+ * Represents the value type of selected items in the file explorer based on multiple selection settings.
+ */
 type FileExplorerSelectionValue<Multiple extends boolean | undefined> = Multiple extends true
   ? string[]
   : string | null;
 
+/**
+ * Parameters for managing file selection in a file explorer component.
+ */
 export interface UseFileExplorerSelectionParameters<Multiple extends boolean | undefined> {
   /**
    * If `true` selection is disabled.
@@ -127,11 +136,17 @@ export interface UseFileExplorerSelectionParameters<Multiple extends boolean | u
   ) => void;
 }
 
+/**
+ * Defaultized parameters for managing file selection in a file explorer component.
+ */
 export type UseFileExplorerSelectionDefaultizedParameters<Multiple extends boolean> = DefaultizedProps<
   UseFileExplorerSelectionParameters<Multiple>,
   'disableSelection' | 'defaultSelectedItems' | 'multiSelect' | 'checkboxSelection'
 >;
 
+/**
+ * Represents the context value for file selection in a file explorer component.
+ */
 interface UseFileExplorerSelectionContextValue {
   selection: Pick<
     UseFileExplorerSelectionDefaultizedParameters<boolean>,
@@ -139,6 +154,9 @@ interface UseFileExplorerSelectionContextValue {
   >;
 }
 
+/**
+ * Signature for the file explorer selection plugin.
+ */
 export type UseFileExplorerSelectionSignature = FileExplorerPluginSignature<{
   params: UseFileExplorerSelectionParameters<any>;
   defaultizedParams: UseFileExplorerSelectionDefaultizedParameters<any>;

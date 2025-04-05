@@ -1,117 +1,149 @@
-import * as React from "react";
-import {SystemStyleObject} from "@mui/system";
-import {DefaultizedProps, FileExplorerPlugin, FileExplorerPluginSignature} from '../../models';
-import {FileBase, FileId} from '../../../models';
-import {UseFileStatus} from "../../models/UseFileStatus";
-import {ItemMode} from "../useFileExplorerFiles/useFileExplorerFiles.types";
+/**
+ * Grid Header object type.
+ * @typedef {Object} GridHeader
+ * @property {SystemStyleObject} sx - Style object for the grid header.
+ * @property {number} width - Width of the grid header.
+ * @property {UseFileExplorerGridColumnHeaderStatus} status - Status of the grid header.
+ */
 
-export type GridHeader = {
-  sx: SystemStyleObject,
-  width: number,
-  status: UseFileExplorerGridColumnHeaderStatus
-}
+/**
+ * Object type for multiple grid headers.
+ * @typedef {Object.<string, GridHeader>} GridHeaders
+ */
 
-export type GridHeaders = {
-  [id: string]: GridHeader;
-};
+/**
+ * Row data object for grid columns.
+ * @typedef {Object.<string, { width: number, waiting?: boolean }>} GridColumnRowData
+ */
 
-export type GridColumnRowData = {
-  [key: string]: {
-    width: number,
-    waiting?: boolean
-  }
-}
+/**
+ * Status interface for grid column headers.
+ * @interface UseFileExplorerGridColumnHeaderStatus
+ * @property {boolean} [ascending] - Flag for ascending order.
+ * @property {boolean} focused - Flag for focus state.
+ * @property {boolean} visible - Flag for visibility state.
+ * @property {boolean} sort - Flag for sorting state.
+ */
 
-export interface UseFileExplorerGridColumnHeaderStatus {
-  ascending?: boolean;
-  focused: boolean;
-  visible: boolean;
-  sort: boolean;
-}
+/**
+ * Grid Column object type.
+ * @typedef {Object} GridColumn
+ * @property {SystemStyleObject} sx - Style object for the grid column.
+ * @property {(content: any) => string} renderContent - Function to render column content.
+ * @property {(...args: any) => any} [evaluator] - Function to evaluate column data.
+ * @property {number} width - Width of the grid column.
+ * @property {GridColumnRowData} track - Row data for the column.
+ * @property {boolean} waiting - Flag for waiting state.
+ * @property {React.ReactElement[]} cells - Array of React elements for cells.
+ * @property {(cells: React.ReactElement[]) => React.ReactNode} children - Function to render children.
+ */
 
-export type GridColumn = {
-  sx: SystemStyleObject,
-  renderContent: (content: any) => string,
-  evaluator?: (...args: any) => any,
-  width: number,
-  track: GridColumnRowData,
-  waiting: boolean
-  cells: React.ReactElement[];
-  children: (cells: React.ReactElement[]) => React.ReactNode;
-}
+/**
+ * Object type for multiple grid columns.
+ * @typedef {Object.<string, GridColumn>} GridColumns
+ */
 
-export type GridColumns = {
-  [id: string]: GridColumn;
-};
+/**
+ * Public API for File Explorer Grid.
+ * @interface UseFileExplorerGridPublicAPI
+ * @property {(value: FileId[]) => void} setVisibleOrder - Function to set visible order.
+ * @property {(value: GridColumns) => void} setColumns - Function to set columns.
+ * @property {() => boolean} gridEnabled - Function to check grid enabled status.
+ */
 
-export interface UseFileExplorerGridPublicAPI {
-  setVisibleOrder: (value: FileId[]) => void;
-  setColumns: (value: GridColumns) => void;
-  gridEnabled: () => boolean;
-}
+/**
+ * Plugin type for File Explorer Grid.
+ * @typedef {FileExplorerPlugin<UseFileExplorerGridSignature>} UseFileExplorerGridPlugin
+ */
 
-export type UseFileExplorerGridPlugin = FileExplorerPlugin<UseFileExplorerGridSignature>;
+/**
+ * Instance interface for File Explorer Grid.
+ * @interface UseFileExplorerGridInstance
+ * @extends {UseFileExplorerGridPublicAPI}
+ * @property {(id: FileId, children: React.ReactNode) => UseFileStatus} getItemStatus - Function to get item status.
+ * @property {(id: FileId) => string} getAltRowClass - Function to get alternate row class.
+ * @property {() => GridColumns} getColumns - Function to get columns.
+ * @property {() => GridHeaders} getHeaders - Function to get headers.
+ * @property {(event: React.FocusEvent | React.MouseEvent | null, columnName: string) => void} focusHeader - Function to focus on header.
+ * @property {(event: React.FocusEvent | null, columnName: string) => void} blurHeader - Function to blur header.
+ * @property {(columnName: string) => boolean | null} isColumnAscending - Function to check if column is ascending.
+ * @property {(columnName: string) => boolean | null} isColumnFocused - Function to check if column is focused.
+ * @property {(columnName: string) => boolean | null} isColumnVisible - Function to check if column is visible.
+ * @property {(columnName: string) => boolean | null} isSortColumn - Function to check if column is for sorting.
+ * @property {(columnName: string) => UseFileExplorerGridColumnHeaderStatus} getHeaderStatus - Function to get header status.
+ * @property {(columnName: string, evaluator?: (item: any, columnName: string) => any) => boolean | null} toggleColumnSort - Function to toggle column sorting.
+ * @property {(columnName: string) => boolean | null} toggleColumnVisible - Function to toggle column visibility.
+ * @property {() => boolean} gridEnabled - Function to check grid enabled status.
+ * @property {(item: any) => ItemMode} getItemMode - Function to get item mode.
+ * @property {() => void} processColumns - Function to process columns.
+ */
 
-export interface UseFileExplorerGridInstance extends UseFileExplorerGridPublicAPI {
-  getItemStatus: (id: FileId, children: React.ReactNode) => UseFileStatus
-  getAltRowClass: (id: FileId) => string;
-  getColumns: () => GridColumns;
-  getHeaders: () => GridHeaders;
-  focusHeader: (event: React.FocusEvent | React.MouseEvent | null, columnName: string) => void;
-  blurHeader: (event: React.FocusEvent | null, columnName: string) => void;
-  isColumnAscending: (columnName: string) => boolean | null;
-  isColumnFocused: (columnName: string) => boolean | null;
-  isColumnVisible: (columnName: string) => boolean | null;
-  isSortColumn: (columnName: string) => boolean | null;
-  getHeaderStatus: (columnName: string) =>  UseFileExplorerGridColumnHeaderStatus;
-  toggleColumnSort: (columnName: string, evaluator?: (item: any, columnName: string) => any) => boolean | null;
-  toggleColumnVisible: (columnName: string) => boolean | null;
-  gridEnabled: () => boolean;
-  getItemMode: (item: any) => ItemMode;
-  processColumns: () => void;
-}
+/**
+ * Functions object type for grid columns.
+ * @typedef {Object.<string, ({ renderer?: (item: any) => string, evaluator?: (...args: any) => any } & Partial<FileBase>) | ((item: any) => any)} GridColumnFuncs
+ */
 
-export type GridColumnFuncs = { [name: string]: ({ renderer?: (item: any) => string, evaluator?: (...args: any) => any } & Partial<FileBase>) | ((item: any) => any)};
+/**
+ * Parameters interface for File Explorer Grid.
+ * @interface UseFileExplorerGridParameters
+ * @property {boolean} [grid] - Flag for grid.
+ * @property {boolean} [gridHeader] - Flag for grid header.
+ * @property {GridColumns} [columns] - Columns for the grid.
+ * @property {GridHeaders} [headers] - Headers for the grid.
+ * @property {boolean} [initializedIndexes] - Flag for initialized indexes.
+ * @property {GridColumns} [defaultGridColumns] - Default columns for the grid.
+ * @property {GridHeaders} [defaultGridHeaders] - Default headers for the grid.
+ * @property {GridColumnFuncs} [gridColumns] - Functions for grid columns.
+ */
 
-export interface UseFileExplorerGridParameters {
-  grid?: boolean;
-  gridHeader?: boolean;
-  columns?: GridColumns;
-  headers?: GridHeaders;
-  initializedIndexes?: boolean;
-  defaultGridColumns?: GridColumns;
-  defaultGridHeaders?: GridHeaders;
-  gridColumns?: GridColumnFuncs;
-}
+/**
+ * Defaultized parameters interface for File Explorer Grid.
+ * @interface UseFileExplorerGridDefaultizedParameters
+ * @extends {DefaultizedProps<UseFileExplorerGridParameters, 'defaultGridColumns' | 'defaultGridHeaders'>}
+ */
 
-export type UseFileExplorerGridDefaultizedParameters = DefaultizedProps<UseFileExplorerGridParameters, 'defaultGridColumns' | 'defaultGridHeaders'>;
+/**
+ * State guts interface for File Explorer Grid.
+ * @interface UseFileExplorerGridStateGuts
+ * @property {GridColumns} columns - Columns for the grid.
+ * @property {GridHeaders} headers - Headers for the grid.
+ * @property {boolean} initializedIndexes - Flag for initialized indexes.
+ */
 
-export interface UseFileExplorerGridStateGuts {
-  columns: GridColumns;
-  headers: GridHeaders;
-  initializedIndexes: boolean;
-}
+/**
+ * State interface for File Explorer Grid.
+ * @interface UseFileExplorerGridState
+ * @property {UseFileExplorerGridStateGuts} grid - Grid state guts.
+ * @property {string} id - ID for the grid.
+ */
 
-export interface UseFileExplorerGridState {
-  grid: UseFileExplorerGridStateGuts;
-  id: string;
-}
+/**
+ * Context value interface for File Explorer Grid.
+ * @typedef {Object} ContextValue
+ * @property {GridColumns} columns - Columns for the grid.
+ * @property {GridHeaders} headers - Headers for the grid.
+ * @property {boolean} grid - Flag for grid.
+ * @property {boolean} gridHeader - Flag for grid header.
+ */
 
-type ContextValue = Pick<UseFileExplorerGridParameters, 'columns' | 'headers' | 'grid' | 'gridHeader'>;
-interface UseFileExplorerGridContextValue extends ContextValue {
-  grid: boolean;
-  gridHeader: boolean;
-  id: string;
-}
+/**
+ * Context value interface for File Explorer Grid.
+ * @interface UseFileExplorerGridContextValue
+ * @extends {ContextValue}
+ * @property {boolean} grid - Flag for grid.
+ * @property {boolean} gridHeader - Flag for grid header.
+ * @property {string} id - ID for the grid.
+ */
 
-export type UseFileExplorerGridSignature = FileExplorerPluginSignature<{
-  params: UseFileExplorerGridParameters;
-  defaultizedParams: UseFileExplorerGridDefaultizedParameters;
-  instance: UseFileExplorerGridInstance;
-  publicAPI: UseFileExplorerGridPublicAPI;
-  state: UseFileExplorerGridState;
-  contextValue: UseFileExplorerGridContextValue;
-  dependencies:  [
-
-  ];
-}>;
+/**
+ * Signature for File Explorer Grid plugin.
+ * @typedef {FileExplorerPluginSignature<{
+ *   params: UseFileExplorerGridParameters;
+ *   defaultizedParams: UseFileExplorerGridDefaultizedParameters;
+ *   instance: UseFileExplorerGridInstance;
+ *   publicAPI: UseFileExplorerGridPublicAPI;
+ *   state: UseFileExplorerGridState;
+ *   contextValue: UseFileExplorerGridContextValue;
+ *   dependencies: [];
+ * }>} UseFileExplorerGridSignature
+ */

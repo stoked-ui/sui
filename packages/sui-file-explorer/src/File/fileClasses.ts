@@ -1,38 +1,37 @@
-import generateUtilityClass from '@mui/utils/generateUtilityClass';
-import generateUtilityClasses from '@mui/utils/generateUtilityClasses';
+/**
+ * Interface for defining classes related to a file component.
+ * @typedef {Object} FileClasses
+ * @property {string} root - Styles applied to the root element.
+ * @property {string} grid - Styles applied to the grid element.
+ * @property {string} groupTransition - Styles applied to the transition component.
+ * @property {string} content - Styles applied to the content element.
+ * @property {string} expanded - State class applied to the content element when expanded.
+ * @property {string} selected - State class applied to the content element when selected.
+ * @property {string} focused - State class applied to the content element when focused.
+ * @property {string} disabled - State class applied to the element when disabled.
+ * @property {string} iconContainer - Styles applied to the tree item icon.
+ * @property {string} name - Styles applied to the label element.
+ * @property {string} checkbox - Styles applied to the checkbox element.
+ */
 
-export interface FileClasses {
-  /** Styles applied to the root element. */
-  root: string;
+/**
+ * Type representing the keys of FileClasses.
+ * @typedef {keyof FileClasses} FileClassKey
+ */
 
-  grid: string;
-  /** Styles applied to the transition component. */
-  /** Styles applied to the transition component. */
-  groupTransition: string;
-  /** Styles applied to the content element. */
-  content: string;
-  /** State class applied to the content element when expanded. */
-  expanded: string;
-  /** State class applied to the content element when selected. */
-  selected: string;
-  /** State class applied to the content element when focused. */
-  focused: string;
-  /** State class applied to the element when disabled. */
-  disabled: string;
-  /** Styles applied to the tree item icon. */
-  iconContainer: string;
-  /** Styles applied to the label element. */
-  name: string;
-  /** Styles applied to the checkbox element. */
-  checkbox: string;
-}
-
-export type FileClassKey = keyof FileClasses;
-
+/**
+ * Generates a utility class name for the file component.
+ * @param {string} slot - The slot to generate the utility class for.
+ * @returns {string} The generated utility class name.
+ */
 export function getFileUtilityClass(slot: string): string {
   return generateUtilityClass('MuiFile', slot);
 }
 
+/**
+ * Object containing utility classes for the file component.
+ * @type {FileClasses}
+ */
 export const fileClasses: FileClasses = generateUtilityClasses('MuiFile', [
   'root',
   'grid',

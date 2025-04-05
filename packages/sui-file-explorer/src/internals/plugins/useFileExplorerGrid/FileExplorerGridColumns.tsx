@@ -1,19 +1,14 @@
-import * as React from 'react';
-import {SystemStyleObject, Theme, useTheme} from "@mui/system";
-import {useFileExplorerContext} from "../../FileExplorerProvider/useFileExplorerContext";
-import type {
-  UseFileExplorerFilesSignature
-} from "../useFileExplorerFiles/useFileExplorerFiles.types";
-import type {
-  UseFileExplorerExpansionSignature
-} from "../useFileExplorerExpansion/useFileExplorerExpansion.types";
-import type {GridColumns, UseFileExplorerGridSignature} from "./useFileExplorerGrid.types";
-import {UseFileExplorerDndSignature} from '../useFileExplorerDnd/useFileExplorerDnd.types';
-import {FileLabel} from "../../../File/FileLabel";
-import {SxProps, styled} from "@mui/material/styles";
-import {shouldForwardProp} from "@mui/system/createStyled";
-import {UseFileStatus} from "../../models/UseFileStatus";
-
+/**
+ * FileExplorerGridCell component for displaying a cell in the file explorer grid.
+ * @param {boolean} [last] - Indicates if it is the last cell in the row.
+ * @param {SystemStyleObject<Theme>} sx - System style object for styling the cell.
+ * @param {string} id - Unique identifier for the cell.
+ * @param {string} columnName - Name of the column the cell belongs to.
+ * @param {any} content - Content to display in the cell.
+ * @param {boolean} [grow] - Indicates if the cell should grow.
+ * @param {boolean} [selected] - Indicates if the cell is selected.
+ * @returns {JSX.Element} - Rendered cell component.
+ */
 function FileExplorerGridCell({
                                 sx, last, id, columnName, content, grow, selected
 }: {
@@ -37,6 +32,10 @@ function FileExplorerGridCell({
     </FileLabel>
   )
 }
+
+/**
+ * Styled component for FileExplorerGridCell with additional styling options.
+ */
 const FileExplorerGridCellStyled = styled(FileExplorerGridCell, {
   name: 'MuiFileExplorerGridCell',
   slot: 'Cell',
@@ -48,6 +47,11 @@ const FileExplorerGridCellStyled = styled(FileExplorerGridCell, {
   }
 });
 
+/**
+ * FileExplorerGridColumns component for displaying columns in the file explorer grid.
+ * @param {any} item - Item to display in the columns.
+ * @returns {JSX.Element} - Rendered columns component.
+ */
 export function FileExplorerGridColumns({ item }: { item: any}) {
   const {
     columns: gridColumns = {},
@@ -61,6 +65,7 @@ export function FileExplorerGridColumns({ item }: { item: any}) {
     }
     return columnData.renderContent(content);
   })
+  
   const getColumns = () => {
     return columnsEntries.map(([columnName, columnData], index) => {
       const columnWidthAndHasBeenSet = columnData.track[`grid-${item.id}-row`] !== null && columnData.width !== -1;
@@ -80,7 +85,9 @@ export function FileExplorerGridColumns({ item }: { item: any}) {
       return cell;
     });
   }
+
   const [columns, setColumns] = React.useState<React.ReactElement[]>(getColumns());
+  
   React.useCallback(() => {
     setColumns(getColumns);
   },[columnContent])

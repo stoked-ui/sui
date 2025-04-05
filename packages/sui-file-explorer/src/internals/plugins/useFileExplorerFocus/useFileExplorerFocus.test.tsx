@@ -17,7 +17,13 @@ describeFileExplorer<
 >(
   'useFileExplorerFocus plugin',
   ({ render, renderFromJSX, FileComponent, fileExplorerViewComponentName, FileExplorerComponent }) => {
+    /**
+     * @description Tests for the basic behavior of focusing items in the file explorer.
+     */
     describe('basic behavior', () => {
+      /**
+       * @description Should allow focusing an item.
+       */
       it('should allow to focus an item', () => {
         const response = render({
           items: [{ id: '1' }, { id: '2' }],
@@ -30,6 +36,9 @@ describeFileExplorer<
         expect(response.getFocusedItemId()).to.equal('1');
       });
 
+      /**
+       * @description Should move the focus when the focused item is removed.
+       */
       it('should move the focus when the focused item is removed', () => {
         const response = render({
           items: [{ id: '1' }, { id: '2' }],
@@ -43,7 +52,13 @@ describeFileExplorer<
       });
     });
 
+    /**
+     * @description Tests for the tabIndex HTML attribute behavior.
+     */
     describe('tabIndex HTML attribute', () => {
+      /**
+       * @description Should set tabIndex={0} on the first item if none are selected.
+       */
       it('should set tabIndex={0} on the first item if none are selected', () => {
         const response = render({
           items: [{ id: '1' }, { id: '2' }],
@@ -53,6 +68,9 @@ describeFileExplorer<
         expect(response.getItemRoot('2').tabIndex).to.equal(-1);
       });
 
+      /**
+       * @description Should set tabIndex={0} on the selected item (single selection).
+       */
       it('should set tabIndex={0} on the selected item (single selection)', () => {
         const response = render({
           items: [{ id: '1' }, { id: '2' }],
@@ -63,6 +81,9 @@ describeFileExplorer<
         expect(response.getItemRoot('2').tabIndex).to.equal(0);
       });
 
+      /**
+       * @description Should set tabIndex={0} on the first selected item (multi selection).
+       */
       it('should set tabIndex={0} on the first selected item (multi selection)', () => {
         const response = render({
           items: [{ id: '1' }, { id: '2' }, { id: '3' }],
@@ -75,6 +96,9 @@ describeFileExplorer<
         expect(response.getItemRoot('3').tabIndex).to.equal(-1);
       });
 
+      /**
+       * @description Should set tabIndex={0} on the first item if the selected item is not visible.
+       */
       it('should set tabIndex={0} on the first item if the selected item is not visible', () => {
         const response = render({
           items: [{ id: '1' }, { id: '2', children: [{ id: '2.1' }] }],
@@ -85,7 +109,10 @@ describeFileExplorer<
         expect(response.getItemRoot('2').tabIndex).to.equal(-1);
       });
 
-      it('should set tabIndex={0} on the first item if the no selected item is visible', () => {
+      /**
+       * @description Should set tabIndex={0} on the first item if no selected item is visible.
+       */
+      it('should set tabIndex={0} on the first item if no selected item is visible', () => {
         const response = render({
           items: [{ id: '1' }, { id: '2', children: [{ id: '2.1' }, { id: '2.2' }] }],
           selectedItems: ['2.1', '2.2'],
@@ -97,7 +124,13 @@ describeFileExplorer<
       });
     });
 
+    /**
+     * @description Tests for the focusItem API method.
+     */
     describe('focusItem api method', () => {
+      /**
+       * @description Should focus the item.
+       */
       it('should focus the item', () => {
         const response = render({
           items: [{ id: '1' }, { id: '2' }],
@@ -110,6 +143,9 @@ describeFileExplorer<
         expect(response.getFocusedItemId()).to.equal('2');
       });
 
+      /**
+       * @description Should not focus item if parent is collapsed.
+       */
       it('should not focus item if parent is collapsed', () => {
         const response = render({
           items: [{ id: '1' }, { id: '2', children: [{ id: '2.1' }] }],
@@ -123,7 +159,13 @@ describeFileExplorer<
       });
     });
 
+    /**
+     * @description Tests for the onItemFocus prop.
+     */
     describe('onItemFocus prop', () => {
+      /**
+       * @description Should be called when an item is focused.
+       */
       it('should be called when an item is focused', () => {
         const onItemFocus = spy();
 
@@ -141,8 +183,17 @@ describeFileExplorer<
       });
     });
 
+    /**
+     * @description Tests for the disabledItemsFocusable prop.
+     */
     describe('disabledItemsFocusable prop', () => {
+      /**
+       * @description Sub-tests for disabledItemFocusable={false}.
+       */
       describe('disabledItemFocusable={false}', () => {
+        /**
+         * @description Should prevent focus by mouse.
+         */
         it('should prevent focus by mouse', () => {
           const response = render({
             items: [{ id: '1', disabled: true }],
@@ -153,6 +204,9 @@ describeFileExplorer<
           expect(response.getFocusedItemId()).to.equal(null);
         });
 
+        /**
+         * @description Should set tabIndex={-1} on the disabled item and tabIndex={0} on the first non-disabled item.
+         */
         it('should tab tabIndex={-1} on the disabled item and tabIndex={0} on the first non-disabled item', () => {
           const response = render({
             items: [{ id: '1', disabled: true }, { id: '2' }, { id: '3' }],
@@ -165,7 +219,13 @@ describeFileExplorer<
         });
       });
 
+      /**
+       * @description Sub-tests for disabledItemFocusable={true}.
+       */
       describe('disabledItemFocusable={true}', () => {
+        /**
+         * @description Should prevent focus by mouse.
+         */
         it('should prevent focus by mouse', () => {
           const response = render({
             items: [{ id: '1', disabled: true }],
@@ -176,6 +236,9 @@ describeFileExplorer<
           expect(response.getFocusedItemId()).to.equal(null);
         });
 
+        /**
+         * @description Should set tabIndex={0} on the disabled item and tabIndex={-1} on the other items.
+         */
         it('should tab tabIndex={0} on the disabled item and tabIndex={-1} on the other items', () => {
           const response = render({
             items: [{ id: '1', disabled: true }, { id: '2' }, { id: '3' }],
@@ -189,6 +252,9 @@ describeFileExplorer<
       });
     });
 
+    /**
+     * @description Should not error when component state changes.
+     */
     it('should not error when component state changes', () => {
       const items = [{ id: '1', children: [{ id: '1.1' }] }];
       const getItemLabel = (item) => item.id;

@@ -1,29 +1,12 @@
-import {
-  ConvertSignaturesIntoPlugins,
-  FileExplorerAnyPluginSignature,
-  FileExplorerPlugin,
-  FileExplorerPluginSignature,
-  MergeSignaturesProperty,
-} from '../models';
-import {UseFileExplorerBaseProps} from './useFileExplorer.types';
-import {FileExplorerCorePluginSignatures} from '../corePlugins';
-
-interface ExtractPluginParamsFromPropsParameters<
-  TSignatures extends readonly FileExplorerAnyPluginSignature[],
-  TProps extends Partial<UseFileExplorerBaseProps<TSignatures>>,
-> {
-  plugins: ConvertSignaturesIntoPlugins<readonly [...FileExplorerCorePluginSignatures, ...TSignatures]>;
-  props: TProps;
-}
-
-interface ExtractPluginParamsFromPropsReturnValue<
-  TSignatures extends readonly FileExplorerAnyPluginSignature[],
-  TProps extends Partial<UseFileExplorerBaseProps<TSignatures>>,
-> extends UseFileExplorerBaseProps<TSignatures> {
-  pluginParams: MergeSignaturesProperty<TSignatures, 'defaultizedParams'>;
-  forwardedProps: Omit<TProps, keyof MergeSignaturesProperty<TSignatures, 'params'>>;
-}
-
+/**
+ * Extracts plugin parameters from the props object based on the provided plugins and props.
+ *
+ * @template TSignatures - An array of FileExplorerPluginSignature objects.
+ * @template TProps - Partial object of UseFileExplorerBaseProps with TSignatures.
+ *
+ * @param {ExtractPluginParamsFromPropsParameters<TSignatures, TProps>} parameters - The parameters object containing plugins and props.
+ * @returns {ExtractPluginParamsFromPropsReturnValue<TSignatures, TProps>} - The extracted plugin parameters and forwarded props.
+ */
 export const extractPluginParamsFromProps = <
   TSignatures extends readonly FileExplorerPluginSignature<any>[],
   TProps extends Partial<UseFileExplorerBaseProps<TSignatures>>,

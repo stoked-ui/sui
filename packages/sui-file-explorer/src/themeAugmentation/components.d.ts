@@ -1,3 +1,15 @@
+/**
+ * Defines custom components for File Explorer.
+ * 
+ * @typedef {Object} FileExplorerComponents
+ * @property {Object} MuiFileExplorerBasic - Custom component for basic file explorer.
+ * @property {Object} MuiFileExplorer - Custom component for file explorer.
+ * @property {Object} MuiFileElement - Custom component for file element.
+ * @property {Object} MuiFile - Custom component for file.
+ * 
+ * @param {Theme} Theme - The theme type for the components.
+ */
+
 import { ComponentsOverrides, ComponentsProps, ComponentsVariants } from '@mui/material/styles';
 
 export interface FileExplorerComponents<Theme = unknown> {
@@ -25,5 +37,10 @@ export interface FileExplorerComponents<Theme = unknown> {
 }
 
 declare module '@mui/material/styles' {
+  /**
+   * Extends the Components interface with custom File Explorer components.
+   * 
+   * @template Theme
+   */
   interface Components<Theme = unknown> extends FileExplorerComponents<Theme> {}
 }

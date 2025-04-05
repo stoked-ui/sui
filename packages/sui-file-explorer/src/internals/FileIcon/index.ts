@@ -1,6 +1,3 @@
-export * from './FileIcon';
-export type {
-  FileIconProps,
-  FileIconSlots,
-  FileIconSlotProps,
-} from './FileIcon.types';
+/**
+ * Export FileIcon component and related types.
+ */

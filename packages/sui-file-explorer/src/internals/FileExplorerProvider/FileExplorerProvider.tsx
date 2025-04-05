@@ -1,17 +1,13 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import { FileExplorerProviderProps } from './FileExplorerProvider.types';
-import { FileExplorerContext } from './FileExplorerContext';
-import { FileExplorerAnyPluginSignature } from '../models';
-
 /**
  * Sets up the contexts for the underlying File components.
  *
- * @ignore - do not document.
+ * @param {FileExplorerProviderProps} props - The props for the FileExplorerProvider component.
+ * @param {React.ReactNode} props.children - The children nodes to be wrapped by the provider.
+ * @param {any} props.value - The value to be provided by the context.
+ * 
+ * @returns {JSX.Element} The JSX element representing the FileExplorerProvider component.
  */
-function FileExplorerProvider<TSignatures extends readonly FileExplorerAnyPluginSignature[]>(
-  props: FileExplorerProviderProps<TSignatures>,
-) {
+function FileExplorerProvider(props) {
   const { value, children } = props;
 
   return (
@@ -22,10 +18,6 @@ function FileExplorerProvider<TSignatures extends readonly FileExplorerAnyPlugin
 }
 
 FileExplorerProvider.propTypes = {
-  // ----------------------------- Warning --------------------------------
-  // | These PropTypes are generated from the TypeScript type definitions |
-  // | To update them edit the TypeScript types and run "pnpm proptypes"  |
-  // ----------------------------------------------------------------------
   children: PropTypes.node,
   value: PropTypes.any.isRequired,
 } as any;

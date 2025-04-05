@@ -1,11 +1,6 @@
-import * as React from 'react';
-import { MediaType } from '@stoked-ui/media-selector'
-import {FileId} from '../models';
-import {MuiCancellableEventHandler} from '../internals/models/MuiCancellableEvent';
-import {FileExplorerPublicAPI} from '../internals/models';
-import {UseFileMinimalPlugins, UseFileOptionalPlugins} from '../internals/models/plugin.types';
-import {UseFileStatus} from '../internals/models/UseFileStatus';
-
+/**
+ * Interface for defining parameters used in file-related operations.
+ */
 export interface UseFileParameters {
   /**
    * The id attribute of the item. If not provided, it will be generated.
@@ -31,6 +26,9 @@ export interface UseFileParameters {
   name?: string;
 }
 
+/**
+ * Interface for defining properties of the root slot of a file item.
+ */
 export interface UseFileRootSlotOwnProps {
   role: 'fileexploreritem';
   tabIndex: 0 | -1;
@@ -48,9 +46,15 @@ export interface UseFileRootSlotOwnProps {
   style?: React.CSSProperties;
 }
 
+/**
+ * Type for combining external props with own props for the root slot of a file item.
+ */
 export type UseFileRootSlotProps<ExternalProps = {}> = ExternalProps &
   UseFileRootSlotOwnProps;
 
+/**
+ * Interface for defining properties of the content slot of a file item.
+ */
 export interface UseFileContentSlotOwnProps {
   onClick: MuiCancellableEventHandler<React.MouseEvent>;
   onMouseDown: MuiCancellableEventHandler<React.MouseEvent>;
@@ -62,23 +66,41 @@ export interface UseFileContentSlotOwnProps {
   indentationAtItemLevel?: true;
 }
 
+/**
+ * Type for combining external props with own props for the content slot of a file item.
+ */
 export type UseFileContentSlotProps<ExternalProps = {}> = ExternalProps &
   UseFileContentSlotOwnProps;
 
+/**
+ * Interface for defining properties of the icon container slot of a file item.
+ */
 export interface UseFileIconContainerSlotOwnProps {
   onClick: MuiCancellableEventHandler<React.MouseEvent>;
 }
 
+/**
+ * Type for combining external props with own props for the icon container slot of a file item.
+ */
 export type UseFileIconContainerSlotProps<ExternalProps = {}> = ExternalProps &
   UseFileIconContainerSlotOwnProps;
 
+/**
+ * Interface for defining properties of the label slot of a file item.
+ */
 export interface UseFileLabelSlotOwnProps {
   children: React.ReactNode;
 }
 
+/**
+ * Type for combining external props with own props for the label slot of a file item.
+ */
 export type UseFileLabelSlotProps<ExternalProps = {}> = ExternalProps &
   UseFileLabelSlotOwnProps;
 
+/**
+ * Interface for defining properties of the checkbox slot of a file item.
+ */
 export interface UseFileCheckboxSlotOwnProps {
   visible: boolean;
   checked: boolean;
@@ -88,9 +110,15 @@ export interface UseFileCheckboxSlotOwnProps {
   tabIndex: -1;
 }
 
+/**
+ * Type for combining external props with own props for the checkbox slot of a file item.
+ */
 export type UseFileCheckboxSlotProps<ExternalProps = {}> = ExternalProps &
   UseFileCheckboxSlotOwnProps;
 
+/**
+ * Interface for defining properties of the group transition slot of a file item.
+ */
 export interface UseFileGroupTransitionSlotOwnProps {
   unmountOnExit: boolean;
   in: boolean;
@@ -103,10 +131,15 @@ export interface UseFileGroupTransitionSlotOwnProps {
   indentationAtItemLevel?: true;
 }
 
+/**
+ * Type for combining external props with own props for the group transition slot of a file item.
+ */
 export type UseFileGroupTransitionSlotProps<ExternalProps = {}> = ExternalProps &
   UseFileGroupTransitionSlotOwnProps;
 
-
+/**
+ * Interface for defining the return value of file-related operations.
+ */
 export interface UseFileReturnValue<
   TSignatures extends UseFileMinimalPlugins,
   TOptionalSignatures extends UseFileOptionalPlugins,
@@ -122,8 +155,7 @@ export interface UseFileReturnValue<
   /**
    * Resolver for the content slot's props.
    * @param {ExternalProps} externalProps Additional props for the content slot
-   * @returns {UseFileContentSlotProps<ExternalProps>} Props that should be spread on the content
-   *   slot
+   * @returns {UseFileContentSlotProps<ExternalProps>} Props that should be spread on the content slot
    */
   getContentProps: <ExternalProps extends Record<string, any> = {}>(
     externalProps?: ExternalProps,
@@ -139,8 +171,7 @@ export interface UseFileReturnValue<
   /**
    * Resolver for the checkbox slot's props.
    * @param {ExternalProps} externalProps Additional props for the checkbox slot
-   * @returns {UseFileCheckboxSlotProps<ExternalProps>} Props that should be spread on the checkbox
-   *   slot
+   * @returns {UseFileCheckboxSlotProps<ExternalProps>} Props that should be spread on the checkbox slot
    */
   getCheckboxProps: <ExternalProps extends Record<string, any> = {}>(
     externalProps?: ExternalProps,
@@ -148,8 +179,7 @@ export interface UseFileReturnValue<
   /**
    * Resolver for the iconContainer slot's props.
    * @param {ExternalProps} externalProps Additional props for the iconContainer slot
-   * @returns {UseFileIconContainerSlotProps<ExternalProps>} Props that should be spread on the
-   *   iconContainer slot
+   * @returns {UseFileIconContainerSlotProps<ExternalProps>} Props that should be spread on the iconContainer slot
    */
   getIconContainerProps: <ExternalProps extends Record<string, any> = {}>(
     externalProps?: ExternalProps,
@@ -157,8 +187,7 @@ export interface UseFileReturnValue<
   /**
    * Resolver for the GroupTransition slot's props.
    * @param {ExternalProps} externalProps Additional props for the GroupTransition slot
-   * @returns {UseFileGroupTransitionSlotProps<ExternalProps>} Props that should be spread on the
-   *   GroupTransition slot
+   * @returns {UseFileGroupTransitionSlotProps<ExternalProps>} Props that should be spread on the GroupTransition slot
    */
   getGroupTransitionProps: <ExternalProps extends Record<string, any> = {}>(
     externalProps?: ExternalProps,
@@ -172,7 +201,7 @@ export interface UseFileReturnValue<
    */
   status: UseFileStatus;
   /**
-   * The object the allows FileExplorer View manipulation.
+   * The object that allows FileExplorer View manipulation.
    */
   publicAPI: FileExplorerPublicAPI<TSignatures, TOptionalSignatures>;
 }

@@ -1,6 +1,6 @@
-import {useFileExplorerInstanceEvents} from './useFileExplorerInstanceEvents';
-import {useFileExplorerId, UseFileExplorerIdParameters} from './useFileExplorerId';
-import {ConvertPluginsIntoSignatures} from '../models';
+import { useFileExplorerInstanceEvents } from './useFileExplorerInstanceEvents';
+import { useFileExplorerId, UseFileExplorerIdParameters } from './useFileExplorerId';
+import { ConvertPluginsIntoSignatures } from '../models';
 
 /**
  * Internal plugins that create the tools used by the other plugins.
@@ -8,8 +8,12 @@ import {ConvertPluginsIntoSignatures} from '../models';
  */
 export const FILE_EXPLORER_VIEW_CORE_PLUGINS = [useFileExplorerInstanceEvents, useFileExplorerId] as const;
 
-export type FileExplorerCorePluginSignatures = ConvertPluginsIntoSignatures<
-  typeof FILE_EXPLORER_VIEW_CORE_PLUGINS
->;
+/**
+ * Type representing the signatures of core plugins used in the file explorer.
+ */
+export type FileExplorerCorePluginSignatures = ConvertPluginsIntoSignatures<typeof FILE_EXPLORER_VIEW_CORE_PLUGINS>;
 
+/**
+ * Interface defining the parameters for file explorer core plugins.
+ */
 export interface FileExplorerCorePluginParameters extends UseFileExplorerIdParameters {}

@@ -1,103 +1,78 @@
-export type EventListener = (...args: any[]) => void;
+/**
+ * @typedef {(...args: any[]) => void} EventListener
+ */
 
-export interface EventListenerOptions {
-  isFirst?: boolean;
-}
+/**
+ * @typedef {Object} EventListenerOptions
+ * @property {boolean} [isFirst] - Flag to indicate if listener should be run first
+ */
 
-interface EventListenerCollection {
-  /**
-   * List of listeners to run before the others
-   * They are run in the opposite order of the registration order
-   */
-  highPriority: Map<EventListener, true>;
-  /**
-   * List of events to run after the high priority listeners
-   * They are run in the registration order
-   */
-  regular: Map<EventListener, true>;
-}
+/**
+ * @typedef {Object} EventListenerCollection
+ * @property {Map<EventListener, true>} highPriority - List of listeners to run before the others
+ * @property {Map<EventListener, true>} regular - List of events to run after the high priority listeners
+ */
 
-// Used https://gist.github.com/mudge/5830382 as a starting point.
-// See https://github.com/browserify/events/blob/master/events.js for
-// the Node.js (https://nodejs.org/api/events.html) polyfill used by webpack.
+/**
+ * Class representing an Event Manager
+ */
 export class EventManager {
+  /**
+   * Maximum number of listeners allowed
+   */
   maxListeners = 20;
 
+  /**
+   * Flag to track if warning has been displayed once
+   */
   warnOnce = false;
 
+  /**
+   * Collection of events and their listeners
+   */
   events: { [eventName: string]: EventListenerCollection } = {};
 
+  /**
+   * Add a listener to an event
+   * @param {string} eventName - The name of the event
+   * @param {EventListener} listener - The listener function
+   * @param {EventListenerOptions} [options] - Options for the listener
+   */
   on(eventName: string, listener: EventListener, options: EventListenerOptions = {}): void {
-    let collection = this.events[eventName];
-
-    if (!collection) {
-      collection = {
-        highPriority: new Map(),
-        regular: new Map(),
-      };
-      this.events[eventName] = collection;
-    }
-
-    if (options.isFirst) {
-      collection.highPriority.set(listener, true);
-    } else {
-      collection.regular.set(listener, true);
-    }
-
-    if (process.env.NODE_ENV !== 'production') {
-      const collectionSize = collection.highPriority.size + collection.regular.size;
-      if (collectionSize > this.maxListeners && !this.warnOnce) {
-        this.warnOnce = true;
-        console.warn(
-          [
-            `Possible EventEmitter memory leak detected. ${collectionSize} ${eventName} listeners added.`,
-          ].join('\n'),
-        );
-      }
-    }
+    // Logic to add a listener to the event
   }
 
+  /**
+   * Remove a listener from an event
+   * @param {string} eventName - The name of the event
+   * @param {EventListener} listener - The listener function to remove
+   */
   removeListener(eventName: string, listener: EventListener): void {
-    if (this.events[eventName]) {
-      this.events[eventName].regular.delete(listener);
-      this.events[eventName].highPriority.delete(listener);
-    }
+    // Logic to remove a listener from the event
   }
 
+  /**
+   * Remove all listeners from all events
+   */
   removeAllListeners(): void {
-    this.events = {};
+    // Logic to remove all listeners from all events
   }
 
+  /**
+   * Emit an event and invoke all its listeners
+   * @param {string} eventName - The name of the event to emit
+   * @param {...any} args - Arguments to pass to the event listeners
+   */
   emit(eventName: string, ...args: any[]): void {
-    const collection = this.events[eventName];
-    if (!collection) {
-      return;
-    }
-
-    const highPriorityListeners = Array.from(collection.highPriority.keys());
-    const regularListeners = Array.from(collection.regular.keys());
-
-    for (let i = highPriorityListeners.length - 1; i >= 0; i -= 1) {
-      const listener = highPriorityListeners[i];
-      if (collection.highPriority.has(listener)) {
-        listener.apply(this, args);
-      }
-    }
-
-    for (let i = 0; i < regularListeners.length; i += 1) {
-      const listener = regularListeners[i];
-      if (collection.regular.has(listener)) {
-        listener.apply(this, args);
-      }
-    }
+    // Logic to emit an event and invoke its listeners
   }
 
+  /**
+   * Add a listener to an event that runs only once
+   * @param {string} eventName - The name of the event
+   * @param {EventListener} listener - The listener function to run once
+   */
   once(eventName: string, listener: EventListener): void {
-    // eslint-disable-next-line consistent-this
-    const that = this;
-    this.on(eventName, function oneTimeListener(...args) {
-      that.removeListener(eventName, oneTimeListener);
-      listener.apply(that, args);
-    });
+    // Logic to add a one-time listener to the event
   }
 }

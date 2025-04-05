@@ -1,15 +1,32 @@
+/**
+ * Utility functions for testing file explorer components.
+ * @typedef {Object} DescribeFileExplorerRendererUtils
+ * @property {Function} render - Function to render file explorer component.
+ * @property {Function} renderFromJSX - Function to render file explorer component from JSX.
+ * @property {string} fileComponentName - Name of the file component.
+ * @property {React.ComponentType} FileComponent - File component.
+ * @property {string} fileExplorerViewComponentName - Name of the file explorer view component.
+ * @property {React.ComponentType} FileExplorerComponent - File explorer component.
+ */
+
 import * as React from 'react';
-import {expect} from 'chai';
-import {spy} from 'sinon';
-import {act, createEvent, fireEvent, screen} from '@stoked-ui/internal-test-utils';
+import { expect } from 'chai';
+import { spy } from 'sinon';
+import { act, createEvent, fireEvent, screen } from '@stoked-ui/internal-test-utils';
 import {
-  describeFileExplorer, DescribeFileExplorerRendererUtils,
+  describeFileExplorer,
+  DescribeFileExplorerRendererUtils,
 } from 'test/utils/fileExplorer-view/describeFileExplorer';
 import {
-  UseFileExplorerExpansionSignature, UseFileExplorerIconsSignature,
+  UseFileExplorerExpansionSignature,
+  UseFileExplorerIconsSignature,
 } from '@stoked-ui/file-explorer/internals';
-import {fileClasses} from '@stoked-ui/file-explorer/File';
+import { fileClasses } from '@stoked-ui/file-explorer/File';
 
+/**
+ * Describes the useFile hook functionality.
+ * @param {Array<UseFileExplorerExpansionSignature | UseFileExplorerIconsSignature>} types - Array of hook types.
+ */
 describeFileExplorer<[UseFileExplorerExpansionSignature, UseFileExplorerIconsSignature]>(
   'useFile hook',
   ({
@@ -20,13 +37,22 @@ describeFileExplorer<[UseFileExplorerExpansionSignature, UseFileExplorerIconsSig
     fileExplorerViewComponentName,
     FileExplorerComponent,
   }) => {
+    /**
+     * Describes the role prop behavior.
+     */
     describe('role prop', () => {
+      /**
+       * Test to check role attribute on the root slot.
+       */
       it('should have the role="fileexploreritem" on the root slot', () => {
         const response = render({ items: [{ id: '1' }] });
 
         expect(response.getItemRoot('1')).to.have.attribute('role', 'fileexploreritem');
       });
 
+      /**
+       * Test to check role attribute on the groupTransition slot.
+       */
       it('should have the role "group" on the groupTransition slot if the item is expandable', () => {
         const response = render({
           items: [{ id: '1', children: [{ id: '1.1' }] }],
@@ -39,7 +65,13 @@ describeFileExplorer<[UseFileExplorerExpansionSignature, UseFileExplorerIconsSig
       });
     });
 
+    /**
+     * Describes the onClick prop behavior.
+     */
     describe('onClick prop', () => {
+      /**
+       * Test to check onClick behavior for File component.
+       */
       it('should call onClick when clicked, but not when children are clicked for File', () => {
         const onClick = spy();
 
@@ -58,6 +90,9 @@ describeFileExplorer<[UseFileExplorerExpansionSignature, UseFileExplorerIconsSig
         expect(onClick.lastCall.firstArg.target.parentElement.dataset.testid).to.equal('1.1');
       });
 
+      /**
+       * Test to check onClick behavior even when the element is disabled.
+       */
       it('should call onClick even when the element is disabled', () => {
         const onClick = spy();
 
@@ -75,6 +110,9 @@ describeFileExplorer<[UseFileExplorerExpansionSignature, UseFileExplorerIconsSig
       });
     });
 
+    /**
+     * Test to check typing in a child input.
+     */
     it('should be able to type in a child input', () => {
       const response = render({
         items: [{ id: '1', children: [{ id: '1.1' }] }],
@@ -106,11 +144,19 @@ describeFileExplorer<[UseFileExplorerExpansionSignature, UseFileExplorerIconsSig
       expect(handlePreventDefault.callCount).to.equal(0);
     });
 
+    /**
+     * Test to check focus behavior.
+     */
     it('should not focus steal', () => {
       let setActiveItemMounted;
-      // a File whose mounted state we can control with `setActiveItemMounted`
+      
+      /**
+       * File component with controlled mounted state.
+       * @param {Object} props - Component props.
+       */
       function ConditionallyMountedItem(props) {
         const [mounted, setMounted] = React.useState(true);
+        
         if (props.id === '2') {
           setActiveItemMounted = setMounted;
         }
@@ -118,10 +164,12 @@ describeFileExplorer<[UseFileExplorerExpansionSignature, UseFileExplorerIconsSig
         if (!mounted) {
           return null;
         }
+        
         return <FileComponent {...props} />;
       }
 
       let response: DescribeFileExplorerRendererUtils;
+      
       if (fileExplorerViewComponentName === 'FileExplorerBasic') {
         response = renderFromJSX(
           <React.Fragment>

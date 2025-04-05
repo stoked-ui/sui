@@ -1,38 +1,29 @@
-import * as React from 'react';
-import {CleanupTracking, UnregisterToken} from '../utils/cleanupTracking/CleanupTracking';
-import {TimerBasedCleanupTracking} from '../utils/cleanupTracking/TimerBasedCleanupTracking';
-import {
-  FinalizationRegistryBasedCleanupTracking
-} from '../utils/cleanupTracking/FinalizationRegistryBasedCleanupTracking';
-import {FileExplorerAnyPluginSignature, FileExplorerUsedEvents} from '../models';
-import {FileExplorerEventListener} from '../models/events';
-import {
-  UseFileExplorerInstanceEventsInstance
-} from '../corePlugins/useFileExplorerInstanceEvents/useFileExplorerInstanceEvents.types';
+/**
+ * Interface for the Registry Container object.
+ * @typedef {object} RegistryContainer
+ * @property {CleanupTracking | null} registry - The cleanup tracking registry object or null.
+ */
 
-interface RegistryContainer {
-  registry: CleanupTracking | null;
-}
-
-// We use class to make it easier to detect in heap snapshots by name
+/**
+ * Class representing an object to be retained by React.
+ */
 class ObjectToBeRetainedByReact {}
 
-// Based on https://github.com/Bnaya/use-dispose-uncommitted/blob/main/src/finalization-registry-based-impl.ts
-// Check https://github.com/facebook/react/issues/15317 to get more information
-export function createUseInstanceEventHandler(registryContainer: RegistryContainer) {
+/**
+ * Creates a use instance event handler function.
+ * Based on https://github.com/Bnaya/use-dispose-uncommitted/blob/main/src/finalization-registry-based-impl.ts.
+ * Check https://github.com/facebook/react/issues/15317 for more information.
+ * @param {RegistryContainer} registryContainer - The container holding the cleanup tracking registry.
+ * @returns {function} The use instance event handler function.
+ */
+export function createUseInstanceEventHandler(registryContainer) {
   let cleanupTokensCounter = 0;
 
-  return function useInstanceEventHandler<
-    Instance extends UseFileExplorerInstanceEventsInstance & {
-      $$signature: FileExplorerAnyPluginSignature;
-    },
-    E extends keyof FileExplorerUsedEvents<Instance['$$signature']>,
-  >(
-    instance: Instance,
-    eventName: E,
-    handler: FileExplorerEventListener<FileExplorerUsedEvents<Instance['$$signature']>[E]>,
-  ) {
-    type Signature = Instance['$$signature'];
+  return function useInstanceEventHandler(instance, eventName, handler) {
+    /**
+     * Represents the signature of the instance.
+     * @typedef {object} Signature
+     */
 
     if (registryContainer.registry === null) {
       registryContainer.registry =
@@ -42,30 +33,30 @@ export function createUseInstanceEventHandler(registryContainer: RegistryContain
     }
 
     const [objectRetainedByReact] = React.useState(new ObjectToBeRetainedByReact());
-    const subscription = React.useRef<(() => void) | null>(null);
-    const handlerRef = React.useRef<
-      FileExplorerEventListener<FileExplorerUsedEvents<Signature>[E]> | undefined
-    >();
+    const subscription = React.useRef(null);
+    const handlerRef = React.useRef();
     handlerRef.current = handler;
-    const cleanupTokenRef = React.useRef<UnregisterToken | null>(null);
+    const cleanupTokenRef = React.useRef(null);
 
     if (!subscription.current && handlerRef.current) {
-      const enhancedHandler: FileExplorerEventListener<FileExplorerUsedEvents<Signature>[E]> = (
-        params,
-        event,
-      ) => {
+      /**
+       * Enhanced event handler that prevents default MUI behavior.
+       * @param {any} params - The event parameters.
+       * @param {any} event - The event object.
+       */
+      const enhancedHandler = (params, event) => {
         if (!event.defaultMuiPrevented) {
           handlerRef.current?.(params, event);
         }
       };
 
-      subscription.current = instance.$$subscribeEvent(eventName as string, enhancedHandler);
+      subscription.current = instance.$$subscribeEvent(eventName, enhancedHandler);
 
       cleanupTokensCounter += 1;
       cleanupTokenRef.current = { cleanupToken: cleanupTokensCounter };
 
       registryContainer.registry.register(
-        objectRetainedByReact, // The callback below will be called once this reference stops being retained
+        objectRetainedByReact,
         () => {
           subscription.current?.();
           subscription.current = null;
@@ -85,21 +76,16 @@ export function createUseInstanceEventHandler(registryContainer: RegistryContain
 
     React.useEffect(() => {
       if (!subscription.current && handlerRef.current) {
-        const enhancedHandler: FileExplorerEventListener<FileExplorerUsedEvents<Signature>[E]> = (
-          params,
-          event,
-        ) => {
+        const enhancedHandler = (params, event) => {
           if (!event.defaultMuiPrevented) {
             handlerRef.current?.(params, event);
           }
         };
 
-        subscription.current = instance.$$subscribeEvent(eventName as string, enhancedHandler);
+        subscription.current = instance.$$subscribeEvent(eventName, enhancedHandler);
       }
 
       if (cleanupTokenRef.current && registryContainer.registry) {
-        // If the effect was called, it means that this render was committed
-        // so we can trust the cleanup function to remove the listener.
         registryContainer.registry.unregister(cleanupTokenRef.current);
         cleanupTokenRef.current = null;
       }
@@ -112,12 +98,17 @@ export function createUseInstanceEventHandler(registryContainer: RegistryContain
   };
 }
 
-const registryContainer: RegistryContainer = { registry: null };
+const registryContainer = { registry: null };
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
+/**
+ * Resets the cleanup tracking registry.
+ */
 export const unstable_resetCleanupTracking = () => {
   registryContainer.registry?.reset();
   registryContainer.registry = null;
 };
 
+/**
+ * Exports the use instance event handler function.
+ */
 export const useInstanceEventHandler = createUseInstanceEventHandler(registryContainer);

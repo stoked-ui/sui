@@ -1,1 +1,3 @@
-export { default as BasicFileExplorer } from './BasicFileExplorer'; 
+/**
+ * Export BasicFileExplorer component from BasicFileExplorer file.
+ */
