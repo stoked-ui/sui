@@ -1,3 +1,5 @@
+/** Export ScreenshotStore and ScreenshotQueue modules */
+
 import ScreenshotStore from './ScreenshotStore';
 import ScreenshotQueue from './ScreenshotQueue';
 

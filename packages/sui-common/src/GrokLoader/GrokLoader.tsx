@@ -2,7 +2,9 @@ import * as React from 'react';
 import { motion, useAnimationControls, useMotionValue, useTransform, AnimatePresence, animate } from 'framer-motion';
 import { styled } from "@mui/material/styles";
 
-// Motion-enabled container with consistent styling
+/**
+ * Motion-enabled container with consistent styling
+ */
 const TriangleWrapper = styled('div')({
   position: 'absolute',
   display: 'flex',
@@ -12,7 +14,11 @@ const TriangleWrapper = styled('div')({
   // border: '1px dashed #ccc',
 });
 
-// Dot component for consistent styling
+/**
+ * Dot component for consistent styling
+ * @param {Object} props - Component props
+ * @returns {JSX.Element} JSX element
+ */
 const Dot = styled(motion.div)(({ theme }) => ({
   position: 'absolute',
   width: '4px', // Increased size to make more visible
@@ -25,6 +31,10 @@ const Dot = styled(motion.div)(({ theme }) => ({
   marginLeft: '-2px', // Half width for centering
 }));
 
+/**
+ * React component for GrokLoader animation
+ * @returns {JSX.Element} JSX element
+ */
 function GrokLoader() {
   const controls = useAnimationControls();
   const progress = useMotionValue(0);
@@ -81,7 +91,11 @@ function GrokLoader() {
     };
   }, []);
 
-  // Calculate dot positions based on angle and current radius
+  /**
+   * Calculate dot positions based on angle and current radius
+   * @param {number} angle - Angle value in degrees
+   * @returns {Object} Object containing x and y coordinates
+   */
   const getPosition = (angle: number) => {
     const currentRadius = radius.get();
     const angleInRadians = (angle * Math.PI) / 180;
@@ -149,4 +163,3 @@ function GrokLoader() {
 }
 
 export default GrokLoader;
-

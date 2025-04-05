@@ -1,15 +1,36 @@
+/**
+ * Represents a stage element used for rendering components.
+ */
 class Stage {
+  /**
+   * Object storing the stage elements by name.
+   */
   private static _stages: Record<string, HTMLDivElement> = {};
 
+  /**
+   * Generates the name for a stage element based on the host.
+   * @param {string} host - The host identifier.
+   * @returns {string} The generated stage name.
+   */
   private static getName(host: string) {
     return `stage-${host}`;
   }
 
+  /**
+   * Generates a temporary stage name based on the host.
+   * @param {string} host - The host identifier.
+   * @returns {string} The generated temporary stage name.
+   */
   private static getTempName(host: string) {
     return `temp-stage-${host}`;
   }
 
-  static getStage(host: string) : HTMLDivElement {
+  /**
+   * Retrieves or creates a stage element for the specified host.
+   * @param {string} host - The host identifier.
+   * @returns {HTMLDivElement} The stage element.
+   */
+  static getStage(host: string): HTMLDivElement {
 
     const name = this.getName(host);
     const tempName = this.getTempName(host);
@@ -17,18 +38,16 @@ class Stage {
     let tempStage = Stage._stages[tempName];
 
     if (stage) {
-      // do we have a temp stage
       if (tempStage) {
-        // transfer everything from temp stage if it exists
         const stageChildren = Array.from(tempStage.children);
         for (let i = 0; i < stageChildren.length; i += 1) {
           const child = stageChildren[i];
-          console.info('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+          console.info('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
           console.info(`moving from ${tempName} to ${name}`);
-          console.info('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+          console.info('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
           stage.appendChild(child);
         }
-        delete Stage._stages[tempName] ;
+        delete Stage._stages[tempName];
       }
       return stage;
     }
@@ -47,8 +66,12 @@ class Stage {
     return stage;
   }
 
-  static getElementById(id: string)
-  {
+  /**
+   * Retrieves an element by its id from the existing stages.
+   * @param {string} id - The element id to search for.
+   * @returns {HTMLElement | null} The found element or null if not found.
+   */
+  static getElementById(id: string) {
     const stages = Object.values(Stage._stages);
     for (let i = 0; i < stages.length; i += 1) {
       const stageDiv = stages[i];
@@ -60,11 +83,16 @@ class Stage {
     return null;
   }
 
-  static _createStage(host: string) : HTMLDivElement {
+  /**
+   * Creates a new stage element for the specified host.
+   * @param {string} host - The host identifier.
+   * @returns {HTMLDivElement} The newly created stage element.
+   */
+  static _createStage(host: string): HTMLDivElement {
     const tempName = this.getTempName(host);
-    console.info('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+    console.info('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
     console.info(`creating ${tempName}`);
-    console.info('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+    console.info('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
 
     const stageHost = document.body;
     const stage = document.createElement("div");
@@ -81,4 +109,5 @@ class Stage {
     return stage;
   }
 }
+
 export default Stage;

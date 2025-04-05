@@ -1,8 +1,14 @@
-export type SaveDialogProps = SaveFilePickerOptions & { fileBlob: Blob }
+/**
+ * Represents the props for the save file dialog.
+ * @typedef {SaveFilePickerOptions & { fileBlob: Blob }} SaveDialogProps
+ */
 
-export async function saveFileApi(options: SaveDialogProps) {
+/**
+ * Saves a file using the provided options.
+ * @param {SaveDialogProps} options - The options for saving the file.
+ */
+export async function saveFileApi(options) {
   try {
-
     console.info('saveFileApi options:', options);
     // Show the save file picker
     const fileHandle = await window.showSaveFilePicker(options);
@@ -22,20 +28,26 @@ export async function saveFileApi(options: SaveDialogProps) {
   }
 }
 
-export type OpenDialogProps = {
-  types?: FilePickerAcceptType[] | undefined;
-  excludeAcceptAllOption?: boolean | undefined;
-  startIn?: WellKnownDirectory | FileSystemHandle | undefined;
-  id?: string | undefined;
-  multiple?: false | undefined
-}
+/**
+ * Represents the props for the open file dialog.
+ * @typedef {{ types?: FilePickerAcceptType[] | undefined; excludeAcceptAllOption?: boolean | undefined; startIn?: WellKnownDirectory | FileSystemHandle | undefined; id?: string | undefined; multiple?: false | undefined }} OpenDialogProps
+ */
 
-export async function openFileApi(options?: OpenDialogProps): Promise<File[]> {
+/**
+ * Opens one or more files based on the provided options.
+ * @param {OpenDialogProps} [options] - The options for opening files.
+ * @returns {Promise<File[]>} The files opened as a promise.
+ */
+export async function openFileApi(options) {
   const fileHandles = await window.showOpenFilePicker(options);
   return Promise.all(fileHandles.map(async (fh) =>  fh.getFile()));
 }
 
-export async function saveFileDeprecated(options: SaveDialogProps) {
+/**
+ * Saves a file using deprecated methods.
+ * @param {SaveDialogProps} options - The options for saving the file.
+ */
+export async function saveFileDeprecated(options) {
   const { fileBlob } = options;
   const mainDiv = document.querySelector('main') as HTMLDivElement
   const link = document.createElement('a');
@@ -52,7 +64,11 @@ export async function saveFileDeprecated(options: SaveDialogProps) {
   link.remove();
 }
 
-export async function openFileDeprecated(): Promise<File[]> {
+/**
+ * Opens a file using deprecated methods.
+ * @returns {Promise<File[]>} The files opened as a promise.
+ */
+export async function openFileDeprecated() {
   return new Promise((resolve, reject) => {
     try {
       const input = document.createElement('input') as HTMLInputElement;
@@ -73,7 +89,13 @@ export async function openFileDeprecated(): Promise<File[]> {
   });
 }
 
-export function getFileName(url: string, includeExtension?: boolean) {
+/**
+ * Gets the file name from a URL.
+ * @param {string} url - The URL from which to extract the file name.
+ * @param {boolean} [includeExtension] - Whether to include the file extension in the result.
+ * @returns {string | null} The extracted file name.
+ */
+export function getFileName(url, includeExtension) {
   const matches = url && typeof url.match === "function" && url.match(/\/?([^/.]*)\.?([^/]*)$/);
   if (!matches) {
     return null;

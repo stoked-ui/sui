@@ -1,3 +1,7 @@
+/** 
+ * WebFile module provides functionality related to web files.
+ */
+
 import WebFile from './WebFile';
 import WebFileFactory from "./WebFileFactory";
 

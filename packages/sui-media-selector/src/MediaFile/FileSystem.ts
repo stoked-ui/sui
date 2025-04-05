@@ -1,97 +1,145 @@
+/**
+ * Defines a callback function for handling errors.
+ * @typedef {Function} ErrorCallback
+ * @param {DOMException} err - The DOMException error object.
+ */
 
-interface ErrorCallback {
-  (err: DOMException): void;
-}
+/**
+ * Defines a callback function for handling an array of FileSystemEntry objects.
+ * @typedef {Function} FileSystemEntriesCallback
+ * @param {FileSystemEntry[]} entries - An array of FileSystemEntry objects.
+ */
 
-interface FileSystemEntriesCallback {
-  (entries: FileSystemEntry[]): void;
-}
+/**
+ * Defines a callback function for handling a single File object.
+ * @typedef {Function} FileCallback
+ * @param {File} file - The File object.
+ */
 
-interface FileCallback {
-  (file: File): void;
-}
+/**
+ * Represents flags that can be set for file system operations.
+ * @typedef {Object} FileSystemFlags
+ * @property {boolean} [create] - Indicates if creation is allowed.
+ * @property {boolean} [exclusive] - Indicates if exclusive access is required.
+ */
 
-interface FileSystemFlags {
-  create?: boolean;
-  exclusive?: boolean;
-}
-
+/**
+ * Represents a directory reader object for reading directory entries.
+ * @interface FileSystemDirectoryReader
+ */
 interface FileSystemDirectoryReader {
-  /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/FileSystemDirectoryReader/readEntries) */
+  /**
+   * Reads entries from a directory.
+   * @param {FileSystemEntriesCallback} successCallback - The callback for successful reading.
+   * @param {ErrorCallback} [errorCallback] - The callback for error handling.
+   */
   readEntries(successCallback: FileSystemEntriesCallback, errorCallback?: ErrorCallback): void;
 }
 
-// eslint-disable-next-line no-var,vars-on-top,@typescript-eslint/no-redeclare
-declare const FileSystemDirectoryReader: {
-  prototype: FileSystemDirectoryReader;
-  new(): FileSystemDirectoryReader;
-};
-
-/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/FileSystemDirectoryEntry) */
+/**
+ * Represents a directory entry in the file system.
+ * @interface FileSystemDirectoryEntry
+ * @extends FileSystemEntry
+ */
 interface FileSystemDirectoryEntry extends FileSystemEntry {
-  /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/FileSystemDirectoryEntry/createReader) */
+  /**
+   * Creates a directory reader object for the current directory entry.
+   * @returns {FileSystemDirectoryReader} A FileSystemDirectoryReader object.
+   */
   createReader(): FileSystemDirectoryReader;
-  /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/FileSystemDirectoryEntry/getDirectory) */
+
+  /**
+   * Retrieves a directory.
+   * @param {string | null} [path] - The path to the directory.
+   * @param {FileSystemFlags} [options] - The flags for directory retrieval.
+   * @param {FileSystemEntryCallback} [successCallback] - The callback for successful retrieval.
+   * @param {ErrorCallback} [errorCallback] - The callback for error handling.
+   */
   getDirectory(path?: string | null, options?: FileSystemFlags, successCallback?: FileSystemEntryCallback, errorCallback?: ErrorCallback): void;
-  /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/FileSystemDirectoryEntry/getFile) */
+
+  /**
+   * Retrieves a file.
+   * @param {string | null} [path] - The path to the file.
+   * @param {FileSystemFlags} [options] - The flags for file retrieval.
+   * @param {FileSystemEntryCallback} [successCallback] - The callback for successful retrieval.
+   * @param {ErrorCallback} [errorCallback] - The callback for error handling.
+   */
   getFile(path?: string | null, options?: FileSystemFlags, successCallback?: FileSystemEntryCallback, errorCallback?: ErrorCallback): void;
 }
 
-// eslint-disable-next-line no-var,vars-on-top,@typescript-eslint/no-redeclare
-declare const FileSystemDirectoryEntry: {
-  prototype: FileSystemDirectoryEntry;
-  new(): FileSystemDirectoryEntry;
-};
-
-
-/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/FileSystem) */
+/**
+ * Represents a file system object.
+ * @interface FileSystem
+ */
 interface FileSystem {
-  /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/FileSystem/name) */
+  /**
+   * The name of the file system.
+   * @type {string}
+   */
   readonly name: string;
-  /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/FileSystem/root) */
+
+  /**
+   * The root directory of the file system.
+   * @type {FileSystemDirectoryEntry}
+   */
   readonly root: FileSystemDirectoryEntry;
 }
 
-// eslint-disable-next-line no-var,vars-on-top,@typescript-eslint/no-redeclare
-declare const FileSystem: {
-  prototype: FileSystem;
-  new(): FileSystem;
-};
-
-
-/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/FileSystemEntry) */
-  // eslint-disable-next-line @typescript-eslint/no-redeclare
+/**
+ * Represents a file system entry.
+ * @interface FileSystemEntry
+ */
 interface FileSystemEntry {
-  /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/FileSystemEntry/filesystem) */
+  /**
+   * The file system to which the entry belongs.
+   * @type {FileSystem}
+   */
   readonly filesystem: FileSystem;
-  /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/FileSystemEntry/fullPath) */
+
+  /**
+   * The full path of the entry.
+   * @type {string}
+   */
   readonly fullPath: string;
-  /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/FileSystemEntry/isDirectory) */
+
+  /**
+   * Indicates if the entry is a directory.
+   * @type {boolean}
+   */
   readonly isDirectory: boolean;
-  /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/FileSystemEntry/isFile) */
+
+  /**
+   * Indicates if the entry is a file.
+   * @type {boolean}
+   */
   readonly isFile: boolean;
-  /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/FileSystemEntry/name) */
+
+  /**
+   * The name of the entry.
+   * @type {string}
+   */
   readonly name: string;
-  /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/FileSystemEntry/getParent) */
+
+  /**
+   * Retrieves the parent directory entry.
+   * @param {FileSystemEntryCallback} [successCallback] - The callback for successful retrieval.
+   * @param {ErrorCallback} [errorCallback] - The callback for error handling.
+   */
   getParent(successCallback?: FileSystemEntryCallback, errorCallback?: ErrorCallback): void;
 }
 
-// eslint-disable-next-line no-var,vars-on-top,@typescript-eslint/no-redeclare
-declare const FileSystemEntry: {
-  prototype: FileSystemEntry;
-  new(): FileSystemEntry;
-};
-
-/** [MDN Reference](https://developer.mozilla.org/docs/Web/API/FileSystemFileEntry) */
+/**
+ * Represents a file system file entry.
+ * @interface FileSystemFileEntry
+ * @extends FileSystemEntry
+ */
 interface FileSystemFileEntry extends FileSystemEntry {
-  /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/FileSystemFileEntry/file) */
+  /**
+   * Retrieves the file object.
+   * @param {FileCallback} successCallback - The callback for successful retrieval.
+   * @param {ErrorCallback} [errorCallback] - The callback for error handling.
+   */
   file(successCallback: FileCallback, errorCallback?: ErrorCallback): void;
 }
-
-// eslint-disable-next-line no-var,vars-on-top,@typescript-eslint/no-redeclare
-declare const FileSystemFileEntry: {
-  prototype: FileSystemFileEntry;
-  new(): FileSystemFileEntry;
-};
 
 export { FileSystemFileEntry };

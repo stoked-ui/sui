@@ -3,7 +3,8 @@ import {
   Settings,
   FileSaveRequest,
   LocalDb,
-  MimeRegistry, Constructor
+  MimeRegistry,
+  Constructor
 } from "@stoked-ui/common";
 import {
   OpenDialogProps,
@@ -13,11 +14,17 @@ import {
   openFileDeprecated
 } from '../FileSystemApi/FileSystemApi';
 
+/**
+ * Represents a command with execute and undo operations.
+ */
 export interface Command {
   execute(): void;
   undo(): void;
 }
 
+/**
+ * Props for a web file component.
+ */
 export interface IWebFileProps {
   id?: string,
   name: string,
@@ -32,6 +39,9 @@ export interface IWebFileProps {
   author?: string
 }
 
+/**
+ * Data for a web file.
+ */
 export interface IWebFileData {
   id: string;
   name: string;
@@ -43,11 +53,17 @@ export interface IWebFileData {
   author: string;
 }
 
+/**
+ * Options for saving a web file.
+ */
 export interface IWebFileSaveOptions {
   silent?: boolean;
   url?: string;
 }
 
+/**
+ * API interface for a web file.
+ */
 export interface IWebFileApi {
   getSaveRequest(): Promise<FileSaveRequest>;
   save(options?: IWebFileSaveOptions): Promise<void>;
@@ -55,10 +71,16 @@ export interface IWebFileApi {
   isDirty(): Promise<boolean>;
 }
 
+/**
+ * Represents a web file with data and API functionality.
+ */
 export interface IWebFile extends IWebFileData, IWebFileApi {
   fullName: string,
 }
 
+/**
+ * Abstract class for a web file.
+ */
 export default abstract class WebFile implements IWebFile {
 
   protected _id: string;
@@ -81,6 +103,10 @@ export default abstract class WebFile implements IWebFile {
 
   protected _type = '';
 
+  /**
+   * Creates a new WebFile instance.
+   * @param props Props for the WebFile.
+   */
   constructor(props: IWebFileProps) {
     this._id = props?.id ?? namedId('webapp')
     this._name = props?.name;
@@ -94,42 +120,82 @@ export default abstract class WebFile implements IWebFile {
     console.info(`WebFile(${this.name})`);
   }
 
+  /**
+   * Gets the ID of the web file.
+   * @returns {string} The ID of the web file.
+   */
   get id(): string {
     return this._id;
   }
 
+  /**
+   * Gets the name of the web file.
+   * @returns {string} The name of the web file.
+   */
   get name(): string {
     return this._name;
   }
 
+  /**
+   * Gets the full name of the web file.
+   * @returns {string} The full name of the web file.
+   */
   get fullName(): string {
     return `${this.name}${MimeRegistry.types[this._type].ext}`;
   }
 
+  /**
+   * Gets the version of the web file.
+   * @returns {number} The version of the web file.
+   */
   get version(): number {
     return this._version;
   }
 
+  /**
+   * Gets the created timestamp of the web file.
+   * @returns {number} The created timestamp of the web file.
+   */
   get created(): number {
     return this._created;
   }
 
+  /**
+   * Gets the last modified timestamp of the web file.
+   * @returns {number} The last modified timestamp of the web file.
+   */
   get lastModified(): number {
     return this._lastModified;
   }
 
+  /**
+   * Gets the metadata of the web file.
+   * @returns {Settings} The metadata of the web file.
+   */
   get metadata(): Settings {
     return this._metadata;
   }
 
+  /**
+   * Gets the author of the web file.
+   * @returns {string} The author of the web file.
+   */
   get author(): string {
     return this._author;
   }
 
+  /**
+   * Gets the description of the web file.
+   * @returns {string} The description of the web file.
+   */
   get description(): string {
     return this._description;
   }
 
+  /**
+   * Creates a save request for the web file.
+   * @returns {FileSaveRequest} The save request for the web file.
+   */
   createSaveRequest() {
     return {
       name: this.fullName,
@@ -152,7 +218,12 @@ export default abstract class WebFile implements IWebFile {
   // Abstract method to generate a save request - implement in derived classes
   abstract getSaveRequest(): Promise<FileSaveRequest>;
 
-  async save(options?: IWebFileSaveOptions): Promise<void> {
+  /**
+   * Saves the web file.
+   * @param options Save options.
+   * @returns {Promise<void>} A promise that resolves when the file is saved.
+   */
+  async save(options?: IWebFileSaveOptions): Promise<void {
     const { silent, url } = options || { silent: false };
     const isDirty = await this.isDirty();
     if (!isDirty && silent) {
@@ -186,6 +257,11 @@ export default abstract class WebFile implements IWebFile {
     }
   }
 
+  /**
+   * Opens multiple files using a file dialog.
+   * @param options Options for opening files.
+   * @returns {Promise<File[]>} A promise that resolves to an array of files.
+   */
   static async open(options?: OpenDialogProps): Promise<File[]> {
     if ('showOpenFilePicker' in window) {
       return openFileApi(options);
@@ -193,6 +269,10 @@ export default abstract class WebFile implements IWebFile {
     return openFileDeprecated();
   }
 
+  /**
+   * Calculates the checksum of the web file.
+   * @returns {Promise<string>} A promise that resolves to the checksum of the web file.
+   */
   async checksum(): Promise<string> {
     const { blob } = await this.getSaveRequest();
     const buffer = await blob.arrayBuffer();
@@ -202,13 +282,18 @@ export default abstract class WebFile implements IWebFile {
     .join('');
   }
 
+  /**
+   * Checks if the web file has been modified.
+   * @returns {Promise<boolean>} A promise that resolves to a boolean indicating if the file is dirty.
+   */
   async isDirty(): Promise<boolean> {
     const currentChecksum = await this.checksum();
     return this._lastChecksum !== currentChecksum;
   }
 
   /**
-   * Gets data for the WebFile.
+   * Gets the data for the web file.
+   * @returns {IWebFileData} The data of the web file.
    */
   get data(): IWebFileData {
     return {
@@ -223,11 +308,11 @@ export default abstract class WebFile implements IWebFile {
     };
   }
 
-
   /**
    * Loads a WebFile instance from a URL.
    * @param url The URL to load the file from.
    * @param FileConstructor Constructor of the specific WebFile type.
+   * @returns {Promise<WebFileType | null>} A promise that resolves to the loaded WebFile instance.
    */
   static async fromUrl<WebFileType = WebFile>(
     url: string,
@@ -246,6 +331,7 @@ export default abstract class WebFile implements IWebFile {
    * Loads a WebFile instance from the local file system.
    * @param file A File object from an attached drive.
    * @param FileConstructor Constructor of the specific WebFile type.
+   * @returns {Promise<WebFileType>} A promise that resolves to the loaded WebFile instance.
    */
   static async fromLocalFile<WebFileType = WebFile>(
     file: Blob,
@@ -269,6 +355,8 @@ export default abstract class WebFile implements IWebFile {
 
   /**
    * Opens a file dialog to select multiple files.
+   * @param FileConstructor Constructor of the specific WebFile type.
+   * @returns {Promise<AppFileType[]>} A promise that resolves to an array of loaded WebFile instances.
    */
   static async fromOpenDialog<AppFileType = WebFile>(FileConstructor: Constructor<AppFileType>): Promise<AppFileType[]> {
     const files = await this.open();
