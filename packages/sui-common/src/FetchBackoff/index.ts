@@ -1,1 +1,4 @@
-export * from './FetchBackoff'
+/**
+ * Re-exports the FetchBackoff module.
+ */ 
+export * from './FetchBackoff';

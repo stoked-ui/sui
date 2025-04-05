@@ -1,7 +1,10 @@
 import * as React from "react";
 import GrokLoader from "../GrokLoader/GrokLoader";
 
-// IndexedDB setup
+/**
+ * Open IndexedDB database.
+ * @returns {Promise<IDBDatabase>} Promise that resolves with the opened database.
+ */
 export const openDB = (): Promise<IDBDatabase> => {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open("VideoEditorDB", 1);
@@ -14,20 +17,31 @@ export const openDB = (): Promise<IDBDatabase> => {
   });
 };
 
-// Store video in IndexedDB
+/**
+ * Store video in IndexedDB.
+ * @param {IDBDatabase} db - The IndexedDB database.
+ * @param {string} videoUrl - The URL of the video to store.
+ * @param {string} videoId - The ID of the video.
+ * @returns {Promise<Blob>} Promise that resolves with the stored Blob.
+ */
 export const storeVideo = async (db: IDBDatabase, videoUrl: string, videoId: string): Promise<Blob> => {
   const response = await fetch(videoUrl);
   const blob = await response.blob();
   const tx = db.transaction("videos", "readwrite");
   const store = tx.objectStore("videos");
   store.put({ id: videoId, data: blob });
-  // eslint-disable-next-line no-return-assign
-  await new Promise((resolve) => {(tx.oncomplete = resolve)});
+  await new Promise((resolve) => { (tx.oncomplete = resolve) });
   return blob;
 };
 
-// Check if video exists and fetch if not
-export const getOrFetchVideo = async (db: IDBDatabase, videoUrl: string, videoId: string):Promise<Blob> => {
+/**
+ * Check if video exists in IndexedDB, fetch if not.
+ * @param {IDBDatabase} db - The IndexedDB database.
+ * @param {string} videoUrl - The URL of the video to check/fetch.
+ * @param {string} videoId - The ID of the video.
+ * @returns {Promise<Blob>} Promise that resolves with the video Blob.
+ */
+export const getOrFetchVideo = async (db: IDBDatabase, videoUrl: string, videoId: string): Promise<Blob> => {
   const tx = db.transaction("videos", "readonly");
   const store = tx.objectStore("videos");
   const request = store.get(videoId);
@@ -42,7 +56,12 @@ export const getOrFetchVideo = async (db: IDBDatabase, videoUrl: string, videoId
   return storeVideo(db, videoUrl, videoId); // Fetch and store
 };
 
-// Video Editor Component
+/**
+ * Video Editor Component.
+ * @param {Object} props - Component props.
+ * @param {Object[]} props.sceneVideos - Array of scene videos.
+ * @returns {JSX.Element} Rendered VideoDb component.
+ */
 export default function VideoDb({ sceneVideos }) {
   const [videoSources, setVideoSources] = React.useState<Record<string, string>>({});
   const [isLoaded, setIsLoaded] = React.useState(false);
