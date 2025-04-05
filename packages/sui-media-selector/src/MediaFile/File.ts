@@ -1,48 +1,66 @@
 export interface Blob {
-  /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/Blob/size) */
-  readonly size: number;
-  /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/Blob/type) */
-  readonly type: string;
-  /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/Blob/arrayBuffer) */
+  /** Represents a Blob object that can be used to store binary data. */
+  readonly size: number; // The size of the Blob in bytes.
+  readonly type: string; // The MIME type of the Blob.
+  
+  /**
+   * Returns a promise that resolves with an ArrayBuffer containing the entire contents of the Blob.
+   * @returns {Promise<ArrayBuffer>} The ArrayBuffer containing the Blob's data.
+   */
   arrayBuffer(): Promise<ArrayBuffer>;
-  /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/Blob/slice) */
+  
+  /**
+   * Creates a new Blob object containing the specified range of data from the original Blob.
+   * @param {number} start - The start index of the data to include in the new Blob.
+   * @param {number} end - The end index of the data to include in the new Blob.
+   * @param {string} contentType - The MIME type to assign to the new Blob.
+   * @returns {Blob} The new Blob containing the specified data range.
+   */
   slice(start?: number, end?: number, contentType?: string): Blob;
-  /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/Blob/stream) */
+  
+  /**
+   * Returns a ReadableStream for reading the contents of the Blob as bytes.
+   * @returns {ReadableStream<Uint8Array>} The ReadableStream for the Blob's data.
+   */
   stream(): ReadableStream<Uint8Array>;
-  /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/Blob/text) */
+  
+  /**
+   * Returns a promise that resolves with a string containing the entire contents of the Blob interpreted as text.
+   * @returns {Promise<string>} The text content of the Blob.
+   */
   text(): Promise<string>;
 }
 
 interface File extends Blob {
-  /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/File/lastModified) */
-  readonly lastModified: number;
-  /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/File/name) */
-  readonly name: string;
-  /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/File/webkitRelativePath) */
-  readonly webkitRelativePath: string;
+  /** Represents a File object that extends Blob and provides additional properties specific to files. */
+  readonly lastModified: number; // The last modified timestamp of the File.
+  readonly name: string; // The name of the File.
+  readonly webkitRelativePath: string; // The relative path of the File in the file system.
+
 }
 
-// @ts-ignore
-type EndingType = "native" | "transparent";
+/**
+ * Represents the type of line endings to use in a Blob.
+ * @typedef {'native' | 'transparent'} EndingType
+ */
 
 export interface BlobPropertyBag {
-  endings?: EndingType;
-  type?: string;
+  endings?: EndingType; // The type of line endings to use in the Blob.
+  type?: string; // The MIME type of the Blob.
 }
 
 export interface FilePropertyBag extends BlobPropertyBag {
-  lastModified?: number;
+  lastModified?: number; // The last modified timestamp of the File.
 }
 
-// @ts-ignore
-type BlobPart = BufferSource | Blob | string;
+/**
+ * Represents a part that can be used in a Blob.
+ * @typedef {BufferSource | Blob | string} BlobPart
+ */
 
-// eslint-disable-next-line @typescript-eslint/no-redeclare,no-var,vars-on-top
 declare const File: {
   prototype: File;
   new(fileBits: BlobPart[], fileName: string, options?: FilePropertyBag): File;
 };
 
 export { File };
-
-

@@ -1,4 +1,3 @@
-import AppFile from './AppFile';
-
-export default AppFile;
-export * from './AppFile';
+/**
+ * Re-exports the default export and named exports from './AppFile'.
+ */
