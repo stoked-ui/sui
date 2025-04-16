@@ -29,6 +29,8 @@
       "@stoked-ui/timeline/*": ["./packages/sui-timeline/*"],
       "@stoked-ui/editor": ["./packages/sui-editor"],
       "@stoked-ui/editor/*": ["./packages/sui-editor/*"],
+      "@stoked-ui/github": ["./packages/sui-github"],
+      "@stoked-ui/github/*": ["./packages/sui-github/*"],
       "@stoked-ui/internal-test-utils": ["./packages/test-utils"],
       "@stoked-ui/internal-test-utils/*": ["./packages/test-utils/*"]
     },

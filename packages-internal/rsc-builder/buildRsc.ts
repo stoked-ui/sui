@@ -34,6 +34,10 @@ const PROJECTS: Project[] = [
     name: 'editor',
     rootPath: path.join(process.cwd(), 'packages/sui-editor'),
   },
+  {
+    name: 'github',
+    rootPath: path.join(process.cwd(), 'packages/sui-github'),
+  },
 ];
 
 async function processFile(

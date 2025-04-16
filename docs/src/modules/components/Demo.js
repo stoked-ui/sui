@@ -245,6 +245,9 @@ const DemoRootMaterial = styled('div', {
   ...(bg === 'noMargin' && {
     border: `1px solid ${theme.palette.divider}`,
   }),
+   ...(bg === 'noBorder' && {
+    border: `0px solid ${theme.palette.divider}`,
+  }),
   /* Mostly meant for introduction demos. */
   ...(bg === 'gradient' && {
     overflow: 'auto',

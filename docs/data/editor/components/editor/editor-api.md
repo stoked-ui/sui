@@ -100,4 +100,4 @@ The Editor component uses a slot system that allows overriding different parts o
 
 ## Demos
 
-- [Editor](/material-ui/react-editor/) 
+- [Editor](/stoked-ui/sui/) 

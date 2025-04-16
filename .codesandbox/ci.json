@@ -8,7 +8,8 @@
     "packages/sui-media-selector",
     "packages/sui-file-explorer",
     "packages/sui-timeline",
-    "packages/sui-editor"
+    "packages/sui-editor",
+    "packages/sui-github"
 
   ],
   "publishDirectory": {
@@ -17,7 +18,8 @@
     "@stoked-ui/media-selector": "packages/sui-media-selector/build",
     "@stoked-ui/file-explorer": "packages/sui-file-explorer/build",
     "@stoked-ui/timeline": "packages/sui-timeline/build",
-    "@stoked-ui/editor": "packages/sui-editor/build"
+    "@stoked-ui/editor": "packages/sui-editor/build",
+    "@stoked-ui/github": "packages/sui-github/build"
   },
   "sandboxes": [
     "/examples/stoked-ui-cra-ts"

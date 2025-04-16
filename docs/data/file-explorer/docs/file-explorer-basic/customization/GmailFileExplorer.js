@@ -20,7 +20,7 @@ import {
   FileIconContainer,
   FileRoot,
   FileGroupTransition,
-} from '@stoked-ui/file-explorer/File';
+} from '@stoked-ui/file-explorer';
 import { useFile as useTreeItem } from '@stoked-ui/file-explorer/useFile';
 import { FileProvider } from 'packages/sui-file-explorer/src/internals/FileProvider';
 import { FileIcon } from 'packages/sui-file-explorer/src/internals/FileIcon';

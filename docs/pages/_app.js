@@ -145,6 +145,9 @@ function AppWrapper(props) {
   // if not present
   const { productId, productCategoryId } = getProductInfoFromUrl(router.asPath);
 
+  console.log('productId', productId, router.asPath);
+  console.log('productCategoryId', productCategoryId);
+
   React.useEffect(() => {
     loadDependencies();
     registerServiceWorker().catch(console.error);
@@ -160,6 +163,10 @@ function AppWrapper(props) {
     const languagePrefix = pageProps.userLanguage === 'en' ? '' : `/${pageProps.userLanguage}`;
 
     const productMap = {
+      'github': {
+        metadata: 'Stoked UI',
+        name: 'Github',
+      },
       'editor': {
         metadata: 'Stoked UI',
         name: 'Editor',

@@ -9,16 +9,6 @@
     "baseUrl": "./",
     "allowJs": true,
     "paths": {
-      /*"@stoked-ui/common": ["./packages/sui-common/src"],
-      "@stoked-ui/common*//*": ["./packages/sui-common/src*//*"],
-      "@stoked-ui/file-explorer": ["./packages/sui-file-explorer/src"],
-      "@stoked-ui/file-explorer*//*": ["./packages/sui-file-explorer/src*//*"],
-      "@stoked-ui/media-selector": ["./packages/sui-media-selector/src"],
-      "@stoked-ui/media-selector*//*": ["./packages/sui-media-selector/src*//*"],
-      "@stoked-ui/timeline": ["./packages/sui-timeline/src"],
-      "@stoked-ui/timeline*//*": ["./packages/sui-timeline/src*//*"],
-      "@stoked-ui/editor": ["./packages/sui-editor/src"],
-      "@stoked-ui/editor*//*": ["./packages/sui-editor/src*//*"],*/
       "test/*": ["./test/*"],
     }
   },

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import {
   ActionDetail, ITimelineTrackDetail, TrackDetail
@@ -70,6 +70,7 @@ export function DetailAction(props: DetailViewProps) {
     dispatch({ type: 'UPDATE_ACTION', payload: submitData });
     file?.save({ silent: true })
   };
+
   console.info('errors', errors);
   if (!selectedAction || !selectedTrack) {
     return undefined;
@@ -79,7 +80,7 @@ export function DetailAction(props: DetailViewProps) {
     <FormWrap
       title={selectedAction?.name}
       titleId={actionData.id}
-      submitHandler={handleSubmit(onSubmitAction)}
+      submitHandler={handleSubmit(onSubmitAction as SubmitHandler<FieldValues>)}
     >
       {/* Display All Errors */}
       {Object.keys(errors).length > 0 && (

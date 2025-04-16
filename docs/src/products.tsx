@@ -309,27 +309,6 @@ export class Product {
         >
           {this.description}
         </Typography>
-        <Link
-          href={this.route(linkType) ?? ''}
-          color="primary"
-          variant="body2"
-          fontWeight="bold"
-          sx={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            '& > svg': { transition: '0.2s' },
-            '&:hover > svg': { transform: 'translateX(2px)' },
-          }}
-          onClick={(event: React.MouseEvent<HTMLAnchorElement>) => {
-            event.stopPropagation();
-          }}
-        >
-          <span>Learn more</span>{' '}
-          <Box component="span" sx={visuallyHidden}>
-            by going to the {this.name} page
-          </Box>
-          <KeyboardArrowRightRounded fontSize="small" sx={{ mt: '1px', ml: '2px' }} />
-        </Link>
       </span>
       </Box>
     );
@@ -741,8 +720,9 @@ const stokedUiData: TProduct = {
   hideProductFeatures: true,
   live: true,
   features: [{
-    name: 'Introduction',
-    description: 'Overview, installation, lions, tigers, and bears oh mai!',
+    name: 'Github',
+    description: 'Github data components',
+    productId: 'github',
     id: 'overview',
   }, {
     name: 'File Explorer',

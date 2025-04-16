@@ -12,6 +12,7 @@ module.exports = {
       '@stoked-ui/timeline': path.resolve(__dirname, './packages/sui-timeline/src'),
       '@stoked-ui/file-explorer': path.resolve(__dirname, './packages/sui-file-explorer/src'),
       '@stoked-ui/editor': path.resolve(__dirname, './packages/sui-editor/src'),
+      '@stoked-ui/github': path.resolve(__dirname, './packages/sui-github/src'),
       '@stoked-ui/docs-utils': path.resolve(__dirname, './packages-internal/docs-utils/src'),
       '@stoked-ui/proptypes/typescript-to-proptypes': path.resolve(
         __dirname,

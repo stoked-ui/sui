@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import Box from '@mui/material/Box';
 import Tooltip from '@mui/material/Tooltip';
 import { FileExplorerBasic } from '@stoked-ui/file-explorer/FileExplorerBasic';
-import { File, FileLabel } from '@stoked-ui/file-explorer/File';
+import { File, FileLabel } from '@stoked-ui/file-explorer';
 
 function CustomLabel(props) {
   const { tooltip, ...other } = props;

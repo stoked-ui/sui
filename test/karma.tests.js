@@ -14,3 +14,18 @@ const editorUnitContext = require.context(
   /\.test\.(js|ts|tsx)$/,
 );
 editorUnitContext.keys().forEach(editorUnitContext);
+
+
+const githubIntegrationContext = require.context(
+  '../packages/sui-github/test/integration',
+  true,
+  /\.test\.(js|ts|tsx)$/,
+);
+githubIntegrationContext.keys().forEach(githubIntegrationContext);
+
+const githubUnitContext = require.context(
+  '../packages/sui-github/src/',
+  true,
+  /\.test\.(js|ts|tsx)$/,
+);
+githubUnitContext.keys().forEach(githubUnitContext);

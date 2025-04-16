@@ -16,7 +16,6 @@ export default function FirstComponent() {
     },
   };
   const theme = useTheme();
-  console.log('theme', theme);
   return (
     <TimelineProvider>
       <Timeline tracks={mockData} sx={{ width: '100%' }} controllers={controllers} />

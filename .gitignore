@@ -45,3 +45,5 @@ packages-internal/x-tree-view-example
 **/.sst/
 **/.env*
 **/sst-env.d.ts
+.history
+**/.env

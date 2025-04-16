@@ -198,7 +198,7 @@ export default class TimelineFile<
 
   get data(): FileDataType {
     const baseData = super.data;
-    const tracks = this.tracks?.map((track) => {
+    const tracks = this.tracks?.filter((track) => track.file).map((track) => {
         const { file, controller,...trackJson } = track;
         return {
           controllerName: controller?.id,

@@ -47,7 +47,7 @@ export default function Hero() {
       left={
         <Box sx={{ textAlign: { xs: 'center', md: 'left' }, maxWidth: 500 }}>
           <Typography variant="h1" mb={1}>
-            Full stack<br/>
+            Full Stack<br/>
             <GradientText>Consulting</GradientText>
           </Typography>
           <Typography color="text.secondary" mb={3}>

@@ -155,6 +155,7 @@ module.exports = function setKarmaConfig(config) {
                         '@stoked-ui/file-editor': './packages/sui-file-editor/lib',
                         '@stoked-ui/timeline': './packages/sui-timeline/src',
                         '@stoked-ui/editor': './packages/sui-editor/src',
+                        '@stoked-ui/github': './packages/sui-github/src',
                       },
                       transformFunctions: ['require'],
                     },

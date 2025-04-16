@@ -3,27 +3,6 @@ import fileExplorerComponentApi from './file-explorer-component-api-pages';
 import timelineComponentApi from './timeline-component-api-pages';
 import editorComponentApi from './editor-component-api-pages';
 
-/*
-let host = '';
-if (typeof window !== 'undefined') {
-  if (!window.location.host.includes('5199')) {
-    const pathname = window.location.pathname;
-    const pathParts = pathname.split('/');
-    pathParts.shift();
-    const subdomain = pathParts.shift();
-    if (subdomain && ['editor','file-explorer','timeline'].includes(subdomain)) {
-      host = `${subdomain}.${window.location.host}`;
-    }
-  }
-}
-
-const getHostPath = (path: string) => {
-  if (host === '') {
-    return `/${path}`;
-  }
-  return `https://${host}`;
-} */
-
 const pages: MuiPage[] = [
   {
     pathname: '/stoked-ui/introduction-group',
@@ -132,6 +111,17 @@ const pages: MuiPage[] = [
         title: 'API Reference',
         children: [...timelineComponentApi],
       },
+    ],
+  },
+  {
+    pathname: '/github/docs',
+    title: 'Github',
+    newFeature: true,
+    children: [
+      { pathname: '/github/docs/overview', title: 'Overview' },
+      { pathname: '/github/docs/github-calendar', title: ' Calendar' },
+      { pathname: '/github/docs/github-events', title: 'Events' },
+      { pathname: `/github/docs/roadmap`, title: 'Roadmap' },
     ],
   },
   {

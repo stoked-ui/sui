@@ -1,7 +1,7 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import Box from '@mui/material/Box';
-import { File, FileLabel } from '@stoked-ui/file-explorer/File';
+import { File, FileLabel } from '@stoked-ui/file-explorer';
 import { namedId } from '@stoked-ui/common';
 
 import { FileExplorer } from '@stoked-ui/file-explorer/FileExplorer';

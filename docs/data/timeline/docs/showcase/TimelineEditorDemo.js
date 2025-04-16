@@ -1,5 +1,5 @@
 import * as React from 'react';
-import BrandingCssVarsProvider from 'docs/src/BrandingCssVarsProvider';
+import BrandingCssVarsProvider from '@stoked-ui/docs';
 import TimelineShowcase from '../../../../src/components/home/TimelineShowcase';
 
 export default function TimelineEditorDemo() {

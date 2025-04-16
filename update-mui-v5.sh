@@ -54,6 +54,12 @@ sed -i '' 's/"@mui\/utils": "\^5[^"]*"/"@mui\/utils": "^'"$MUI_UTILS"'"/g' packa
 sed -i '' 's/"@mui\/icons-material": "\^5[^"]*"/"@mui\/icons-material": "^'"$MUI_ICONS_MATERIAL"'"/g' packages/sui-editor/package.json
 sed -i '' 's/"@mui\/material": "\^5[^"]*"/"@mui\/material": "^'"$MUI_MATERIAL"'"/g' packages/sui-editor/package.json
 
+# Update packages/sui-github/package.json
+echo "Updating packages/sui-github/package.json..."
+sed -i '' 's/"@mui\/base": "\^5[^"]*"/"@mui\/base": "^'"$MUI_BASE"'"/g' packages/sui-github/package.json
+sed -i '' 's/"@mui\/icons-material": "\^5[^"]*"/"@mui\/icons-material": "^'"$MUI_ICONS_MATERIAL"'"/g' packages/sui-github/package.json
+sed -i '' 's/"@mui\/material": "\^5[^"]*"/"@mui\/material": "^'"$MUI_MATERIAL"'"/g' packages/sui-github/package.json
+
 # Update docs/package.json
 echo "Updating docs/package.json..."
 sed -i '' 's/"@mui\/base": "\^5[^"]*"/"@mui\/base": "^'"$MUI_BASE"'"/g' docs/package.json

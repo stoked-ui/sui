@@ -38,7 +38,8 @@ export default function findActivePage(
   traverse({ pathname: '/', children: currentPages });
 
   const activePage = map[pathname] || null;
-
+  console.log('activePage', activePage);
+  
   const activePageParents = [];
   let traversePage = activePage;
   while (traversePage && traversePage.pathname !== '/') {

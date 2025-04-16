@@ -16,7 +16,6 @@ export default function TimelineEditorDemo() {
     },
   };
   const theme = useTheme();
-  console.log('theme', theme);
   return (
     <Timeline tracks={mockData} sx={{ width: '100%' }} controllers={controllers} />
   );

@@ -51,6 +51,7 @@
     "@stoked-ui/docs": "workspace:^",
     "@stoked-ui/docs-markdown": "workspace:^",
     "@stoked-ui/editor": "workspace:^",
+    "@stoked-ui/github": "workspace:^",
     "@stoked-ui/file-explorer": "workspace:^",
     "@stoked-ui/media-selector": "workspace:^",
     "@stoked-ui/timeline": "workspace:^",

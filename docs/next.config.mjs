@@ -148,6 +148,16 @@ export default withDocsInfra({
                           ],
                         },
                         {
+                          productId: 'github',
+                          paths: [
+                            path.join(workspaceRoot, 'packages/sui-github/src'),
+                          ],
+                          subPackagePaths: [
+                            path.join(workspaceRoot, 'node_modules/@mui/base'),
+                            path.join(workspaceRoot, 'node_modules/@stoked-ui/common'),
+                          ],
+                        },
+                        {
                           productId: 'editor',
                           paths: [
                             path.join(workspaceRoot, 'packages/sui-editor/src'),
