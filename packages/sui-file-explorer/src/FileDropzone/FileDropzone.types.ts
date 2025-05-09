@@ -4,6 +4,9 @@ import { SlotComponentProps } from '@mui/base/utils';
 import { SxProps } from '@mui/system';
 import { FileDropzoneClasses } from './fileDropzoneClasses';
 
+/**
+ * Represents the slots available for customization in the FileDropzone component.
+ */
 export interface FileDropzoneSlots {
   /**
    * Element rendered at the root.
@@ -12,10 +15,16 @@ export interface FileDropzoneSlots {
   root?: React.ElementType;
 }
 
+/**
+ * Represents the props for customizing the slots in the FileDropzone component.
+ */
 export interface FileDropzoneSlotProps {
   root?: SlotComponentProps<'div', {}, {}>;
 }
 
+/**
+ * Represents the props for the FileDropzone component.
+ */
 export interface FileDropzoneProps
   extends React.HTMLAttributes<HTMLDivElement> {
   /**

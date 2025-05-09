@@ -1,3 +1,18 @@
+/**
+ * Component for a basic file explorer.
+ * 
+ * @param {Object} props - The props for the FileExplorerBasic component.
+ * @param {string} props.classes - The CSS classes for the component.
+ * 
+ * @returns {JSX.Element} React component
+ * 
+ * @example
+ * <FileExplorerBasic classes="custom-classes" />
+ * 
+ * @fires FileExplorerBasic
+ * 
+ * @see describeConformance
+ */
 import * as React from 'react';
 import { createRenderer } from '@stoked-ui/internal-test-utils';
 import {

@@ -1,7 +1,17 @@
-import PropTypes from 'prop-types';
-import { FileProviderProps } from './FileProvider.types';
-import { useFileExplorerContext } from '../FileExplorerProvider/useFileExplorerContext';
-
+/**
+ * Component that provides file-related functionality to its children.
+ * @description This component wraps the children with file-related context.
+ * @param {Object} props - The props for the FileProvider component.
+ * @property {React.ReactNode} props.children - The children components to be wrapped.
+ * @property {string} props.id - The unique identifier for the file.
+ * @returns {JSX.Element} The wrapped children with file-related context.
+ * @example
+ * <FileProvider id="123">
+ *    <FileExplorer />
+ * </FileProvider>
+ * @fires {wrapItem} Emits the wrapped children with file-related context.
+ * @see useFileExplorerContext
+ */
 function FileProvider(props: FileProviderProps) {
   const { children, id } = props;
   const { wrapItem, instance } = useFileExplorerContext<[]>();

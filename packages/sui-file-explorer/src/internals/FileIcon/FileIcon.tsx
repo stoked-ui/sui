@@ -1,12 +1,12 @@
-import * as React from 'react';
-import {resolveComponentProps, useSlotProps} from '@mui/base/utils';
-import {FileIconProps} from './FileIcon.types';
-import {useFileExplorerContext} from '../FileExplorerProvider/useFileExplorerContext';
-import {
-  UseFileExplorerIconsSignature
-} from '../plugins/useFileExplorerIcons/useFileExplorerIcons.types';
-import {FileExplorerCollapseIcon, FileExplorerExpandIcon} from '../../icons';
-
+/**
+ * Represents a file icon component that displays different icons based on the file status.
+ * @param {FileIconProps} props - The props for the FileIcon component.
+ * @returns {JSX.Element | undefined} - The rendered FileIcon component.
+ * @fires {React.MouseEvent} onClick - Event fired when the file icon is clicked.
+ * @see FileIconProps
+ * @see useFileExplorerContext
+ * @see UseFileExplorerIconsSignature
+ */
 function FileIcon(props: FileIconProps): React.JSX.Element | undefined {
   const { slots, slotProps, status } = props;
   let { iconName } = props;
@@ -20,6 +20,7 @@ function FileIcon(props: FileIconProps): React.JSX.Element | undefined {
   };
 
   const contextIconProps = context.icons.slotProps;
+
   if (!iconName) {
     if (slots?.icon) {
       iconName = 'icon';
@@ -53,9 +54,3 @@ function FileIcon(props: FileIconProps): React.JSX.Element | undefined {
   }
   return <Icon ownerState={iconProps.ownerState} />;
 }
-
-FileIcon.propTypes = {
-
-};
-
-export { FileIcon };

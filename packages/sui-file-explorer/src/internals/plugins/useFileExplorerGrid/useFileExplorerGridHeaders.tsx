@@ -1,14 +1,9 @@
-import * as React from 'react';
-import {extractEventHandlers} from '@mui/base/utils';
-import useForkRef from '@mui/utils/useForkRef';
-import {
-  UseFileExplorerGridHeadersParameters,
-  UseFileExplorerGridHeadersReturnValue,
-  UseFileExplorerGridHeadersRootSlotProps,
-} from './useFileExplorerGridHeaders.types';
-import {useFileExplorerContext} from '../../FileExplorerProvider/useFileExplorerContext';
-import {FileExplorerAnyPluginSignature, UseFileMinimalPlugins,} from "../../models";
-
+/**
+ * Custom hook for managing file explorer grid headers.
+ * @description This hook provides functionality to manage grid headers in a file explorer.
+ * @param {UseFileExplorerGridHeadersParameters} parameters - The parameters for the hook.
+ * @returns {UseFileExplorerGridHeadersReturnValue<TSignatures, TOptionalSignatures>} The return object containing functions and values related to grid headers.
+ */
 export const useFileExplorerGridHeaders = <
   TSignatures extends UseFileMinimalPlugins,
   TOptionalSignatures extends FileExplorerAnyPluginSignature[] = [],
@@ -24,6 +19,11 @@ export const useFileExplorerGridHeaders = <
   const hookRootRef = React.useRef<HTMLDivElement>(null);
   const handleRootRef = useForkRef(rootRef, hookRootRef)!;
 
+  /**
+   * Gets the root props for the grid headers.
+   * @param {Record<string, any>} externalProps - External props for the grid headers.
+   * @returns {UseFileExplorerGridHeadersRootSlotProps<ExternalProps>} The root slot props for the grid headers.
+   */
   const getRootProps = <ExternalProps extends Record<string, any> = {}>(
     externalProps: ExternalProps = {} as ExternalProps,
   ): UseFileExplorerGridHeadersRootSlotProps<ExternalProps> => {

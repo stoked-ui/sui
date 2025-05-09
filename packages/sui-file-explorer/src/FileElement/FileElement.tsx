@@ -25,6 +25,12 @@ import { FileDepthContext } from '../internals/FileDepthContext';
 import { useFileElementState } from './useFileElementState';
 import { styled } from '../internals/zero-styled';
 
+/**
+ * Utility classes for FileElement component.
+ *
+ * @param {FileElementOwnerState} ownerState - The owner state of the FileElement.
+ * @returns {object} The utility classes.
+ */
 const useUtilityClasses = (ownerState: FileElementOwnerState) => {
   const { classes } = ownerState;
 
@@ -44,6 +50,9 @@ const useUtilityClasses = (ownerState: FileElementOwnerState) => {
   return composeClasses(slots, getFileElementUtilityClass, classes);
 };
 
+/**
+ * Root element of the FileElement component.
+ */
 const FileElementRoot = styled('li', {
   name: 'MuiFileElement',
   slot: 'Root',
@@ -56,6 +65,9 @@ const FileElementRoot = styled('li', {
   outline: 0,
 });
 
+/**
+ * Styled component for FileElementContent.
+ */
 const StyledFileElementContent = styled(FileElementContent, {
   name: 'MuiFileElement',
   slot: 'Content',
@@ -75,7 +87,7 @@ const StyledFileElementContent = styled(FileElementContent, {
   padding: theme.spacing(0.5, 1),
   borderRadius: theme.shape.borderRadius,
   width: '100%',
-  boxSizing: 'border-box', // prevent width + padding to overflow
+  boxSizing: 'border-box',
   display: 'flex',
   alignItems: 'center',
   gap: theme.spacing(1),
@@ -83,7 +95,6 @@ const StyledFileElementContent = styled(FileElementContent, {
   WebkitTapHighlightColor: 'transparent',
   '&:hover': {
     backgroundColor: theme.palette.action.hover,
-    // Reset on touch devices, it doesn't add specificity
     '@media (hover: none)': {
       backgroundColor: 'transparent',
     },
@@ -106,7 +117,6 @@ const StyledFileElementContent = styled(FileElementContent, {
             theme.palette.primary.main,
             theme.palette.action.selectedOpacity + theme.palette.action.hoverOpacity,
           ),
-      // Reset on touch devices, it doesn't add specificity
       '@media (hover: none)': {
         backgroundColor: theme?.vars
           ? `rgba(${theme.vars.palette.primary.mainChannel} / ${theme.vars.palette.action.selectedOpacity})`
@@ -133,8 +143,7 @@ const StyledFileElementContent = styled(FileElementContent, {
   },
   [`& .${fileElementClasses.label}`]: {
     width: '100%',
-    boxSizing: 'border-box', // prevent width + padding to overflow
-    // fixes overflow - see https://github.com/mui/material-ui/issues/27372
+    boxSizing: 'border-box',
     minWidth: 0,
     position: 'relative',
     ...theme.typography.body1,
@@ -152,6 +161,9 @@ const StyledFileElementContent = styled(FileElementContent, {
   ],
 }));
 
+/**
+ * Group transition element of the FileElement component.
+ */
 const FileElementGroup = styled(Collapse, {
   name: 'MuiFileElement',
   slot: 'GroupTransition',
@@ -170,14 +182,15 @@ const FileElementGroup = styled(Collapse, {
 });
 
 /**
- *
+ * FileElement component.
+ * 
  * Demos:
- *
  * - [Tree View](https://mui.com/x/react-tree-view/)
- *
+ * 
  * API:
- *
  * - [FileElement API](https://mui.com/x/api/tree-view/file-element/)
+ * 
+ * @returns {JSX.Element} The rendered FileElement component.
  */
 export const FileElement = React.forwardRef(function FileElement(
   inProps: FileElementProps,
@@ -322,12 +335,6 @@ export const FileElement = React.forwardRef(function FileElement(
   if (multiSelect) {
     ariaSelected = selected;
   } else if (selected) {
-    /* single-selection trees unset aria-selected on un-selected items.
-     *
-     * If the tree does not support multiple selection, aria-selected
-     * is set to true for the selected item and it is not present on any other item in the tree.
-     * Source: https://www.w3.org/WAI/ARIA/apg/patterns/treeview/
-     */
     ariaSelected = true;
   }
 
@@ -410,64 +417,23 @@ export const FileElement = React.forwardRef(function FileElement(
   );
 });
 
+/**
+ * PropTypes for the FileElement component.
+ */
 FileElement.propTypes = {
-  // ----------------------------- Warning --------------------------------
-  // | These PropTypes are generated from the TypeScript type definitions |
-  // | To update them edit the TypeScript types and run "pnpm proptypes"  |
-  // ----------------------------------------------------------------------
-  /**
-   * The content of the component.
-   */
   children: PropTypes.any,
-  /**
-   * Override or extend the styles applied to the component.
-   */
   classes: PropTypes.object,
   className: PropTypes.string,
-  /**
-   * The component used to render the content of the item.
-   * @default TreeItemContent
-   */
   ContentComponent: PropTypes.any,
-  /**
-   * Props applied to ContentComponent.
-   */
   ContentProps: PropTypes.object,
-  /**
-   * If `true`, the item is disabled.
-   * @default false
-   */
   disabled: PropTypes.bool,
-  /**
-   * The id of the item.
-   */
   id: PropTypes.string,
-  /**
-   * The tree item label.
-   */
   label: PropTypes.any,
-  /**
-   * The tree item label.
-   */
   name: PropTypes.string,
   onFocus: unsupportedProp,
-  /**
-   * Callback fired when a key of the keyboard is pressed on the item.
-   */
   onKeyDown: PropTypes.func,
-  /**
-   * The props used for each component slot.
-   * @default {}
-   */
   slotProps: PropTypes.object,
-  /**
-   * Overridable component slots.
-   * @default {}
-   */
   slots: PropTypes.object,
-  /**
-   * The system prop that allows defining system overrides as well as additional CSS styles.
-   */
   sx: PropTypes.oneOfType([
     PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.func, PropTypes.object, PropTypes.bool])),
     PropTypes.func,

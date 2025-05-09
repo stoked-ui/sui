@@ -1,42 +1,4 @@
-import * as React from 'react';
-import * as ReactDOM from 'react-dom';
-import { useSlotProps } from '@mui/base/utils';
-import unsupportedProp from '@mui/utils/unsupportedProp';
-import PropTypes from 'prop-types';
-import clsx from 'clsx';
-import FolderRounded from '@mui/icons-material/FolderRounded';
-import ImageIcon from '@mui/icons-material/Image';
-import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
-import ArticleIcon from '@mui/icons-material/Article';
-import VideoFile from '@mui/icons-material/VideoFile';
-import AudioFile from '@mui/icons-material/AudioFile';
-import FolderOpenIcon from '@mui/icons-material/FolderOpen';
-import DeleteIcon from '@mui/icons-material/Delete';
-import StokedUiFile from './StokedUIFile'
-import Box from '@mui/material/Box';
-import { namedId} from '@stoked-ui/common';
-import { MediaType } from '@stoked-ui/media-selector';
-import LottieIcon from '../icons/LottieIcon';
-import { FileLabel } from './FileLabel';
-import { createUseThemeProps } from '../internals/zero-styled';
-import { FileProvider } from '../internals/FileProvider';
-import { FileComponent, FileOwnerState, FileProps } from './File.types';
-import { useFile } from '../useFile';
-import { FileExplorerGridColumns } from '../internals/plugins/useFileExplorerGrid/FileExplorerGridColumns';
-import { FileExplorerDndItemContext } from '../internals/plugins/useFileExplorerDnd/FileExplorerDndItemContext';
-
-import {
-  FileCheckbox,
-  FileContent,
-  FileRoot,
-  TransitionComponent,
-  useUtilityClasses,
-} from './FileExtras';
-
-const useThemeProps = createUseThemeProps('MuiFile');
-
 /**
- *
  * Demos:
  *
  * - [File](https://stoked-ui.github.io/x/react-file-list-view/)
@@ -252,14 +214,10 @@ File.propTypes = {
    */
   disabled: PropTypes.bool,
   /**
-   * The id attribute of the item. If not provided, it will be generated.
-   */
-  /**
    * The id of the item.
    * Must be unique.
    */
   id: PropTypes.string,
-
   lastModified: PropTypes.number,
   mediaType: PropTypes.oneOf([
     'audio',

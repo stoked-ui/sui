@@ -11,6 +11,9 @@ import {
 } from './FileExplorerBasic.plugins';
 import { FileExplorerExperimentalFeatures, FileExplorerPublicAPI } from '../internals/models';
 
+/**
+ * Interface for custom slots in FileExplorerBasic component.
+ */
 export interface FileExplorerBasicSlots extends FileExplorerBasicPluginSlots {
   /**
    * Element rendered at the root.
@@ -19,14 +22,23 @@ export interface FileExplorerBasicSlots extends FileExplorerBasicPluginSlots {
   root?: React.ElementType;
 }
 
+/**
+ * Props for custom slot components in FileExplorerBasic.
+ */
 export interface FileExplorerBasicSlotProps extends FileExplorerBasicPluginSlotProps {
   root?: SlotComponentProps<'ul', {}, {}>;
 }
 
+/**
+ * Mutable ref object for FileExplorerBasic public API.
+ */
 export type FileExplorerBasicApiRef = React.MutableRefObject<
   FileExplorerPublicAPI<FileExplorerBasicPluginSignatures> | undefined
 >;
 
+/**
+ * Props for the FileExplorerBasic component.
+ */
 export interface FileExplorerBasicProps<Multiple extends boolean | undefined>
   extends FileExplorerBasicPluginParameters<Multiple>,
     React.HTMLAttributes<HTMLUListElement> {

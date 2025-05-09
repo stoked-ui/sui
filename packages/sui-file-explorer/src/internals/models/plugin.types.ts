@@ -1,28 +1,13 @@
-import * as React from "react";
-import type {
-  UseFileExplorerExpansionSignature
-} from "../plugins/useFileExplorerExpansion/useFileExplorerExpansion.types";
-import type {
-  UseFileExplorerFocusSignature
-} from "../plugins/useFileExplorerFocus/useFileExplorerFocus.types";
-import type {
-  UseFileExplorerFilesSignature
-} from "../plugins/useFileExplorerFiles/useFileExplorerFiles.types";
-import type {
-  UseFileExplorerKeyboardNavigationSignature
-} from "../plugins/useFileExplorerKeyboardNavigation/useFileExplorerKeyboardNavigation.types";
-import type {
-  UseFileExplorerSelectionSignature
-} from "../plugins/useFileExplorerSelection/useFileExplorerSelection.types";
-import type {
-  UseFileExplorerGridSignature
-} from "../plugins/useFileExplorerGrid/useFileExplorerGrid.types";
-import type {
-  UseFileExplorerDndSignature
-} from "../plugins/useFileExplorerDnd/useFileExplorerDnd.types";
-import {FileExplorerEventLookupElement} from "./events";
-import {FileExplorerModel} from "./fileExplorerView";
+/**
+ * Typescript/JavaScript file for defining various plugin signatures for File Explorer.
+ * Contains types for plugin signatures, minimal plugins, optional plugins, and events.
+ */
 
+import * as React from "react";
+
+/**
+ * Signature for a plugin in File Explorer with any properties.
+ */
 export type FileExplorerAnyPluginSignature = {
   state: any;
   instance: any;
@@ -39,10 +24,13 @@ export type FileExplorerAnyPluginSignature = {
   publicAPI: any;
 };
 
-export type UseMinimalPlus<TSignatures extends FileExplorerAnyPluginSignature> = [...UseMinimalPlugins, TSignatures]
 /**
- * Plugins that need to be present in the FileExplorer View in order for `useFile` to work
- * correctly.
+ * Type for a minimal plugin that `useFile` requires in File Explorer view.
+ */
+export type UseMinimalPlus<TSignatures extends FileExplorerAnyPluginSignature> = [...UseMinimalPlugins, TSignatures]
+
+/**
+ * Array type for minimal plugins required by `useFile` in File Explorer view.
  */
 export type UseMinimalPlugins = [
   UseFileExplorerSelectionSignature,
@@ -55,13 +43,12 @@ export type UseMinimalPlugins = [
 ];
 
 /**
- * Plugins that `useFile` can use if they are present, but are not required.
+ * Array type for optional plugins that `useFile` can use if present but not required.
  */
 export type UseMinimalOptionalPlugins = [];
 
 /**
- * Plugins that need to be present in the FileExplorer View in order for `useFile` to work
- * correctly.
+ * Array type for minimal plugins required by `useFile` in File Explorer view.
  */
 export type UseFileMinimalPlugins = readonly [
   UseFileExplorerSelectionSignature,
@@ -74,15 +61,20 @@ export type UseFileMinimalPlugins = readonly [
 ];
 
 /**
- * Plugins that `useFile` can use if they are present, but are not required.
+ * Array type for optional plugins that `useFile` can use if present but not required.
  */
 export type UseFileOptionalPlugins = readonly [];
 
+/**
+ * Signature for events that plugins in File Explorer can emit.
+ */
 export type UseFileExplorerPluginEvents = {
   [eventName: string]: Record<string, any>;
 };
 
-
+/**
+ * Signature for a specific type of plugin in File Explorer with customizable properties.
+ */
 export type FileExplorerPluginSignature<
   T extends {
     params?: {};
@@ -109,12 +101,15 @@ export type FileExplorerPluginSignature<
   contextValue: T extends { contextValue: {} } ? T['contextValue'] : {};
   slots: T extends { slots: {} } ? T['slots'] : {};
   slotProps: T extends { slotProps: {} } ? T['slotProps'] : {};
-  models: T extends { defaultizedParams: {}; modelNames: keyof T['defaultizedParams'] }
+  models: T extends {
+    defaultizedParams: {};
+    modelNames: keyof T['defaultizedParams'];
+  }
     ? {
-      [TControlled in T['modelNames']]-?: FileExplorerModel<
-        Exclude<T['defaultizedParams'][TControlled], undefined>
-      >;
-    }
+        [TControlled in T['modelNames']]-?: FileExplorerModel<
+          Exclude<T['defaultizedParams'][TControlled], undefined>
+        >;
+      }
     : {};
   experimentalFeatures: T extends { experimentalFeatures: string }
     ? { [key in T['experimentalFeatures']]?: boolean }

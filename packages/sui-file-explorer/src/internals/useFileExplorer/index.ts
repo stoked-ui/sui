@@ -1,1 +1,3 @@
-export { useFileExplorer } from './useFileExplorer';
+/**
+ * Module with utility hook for file exploration.
+ */

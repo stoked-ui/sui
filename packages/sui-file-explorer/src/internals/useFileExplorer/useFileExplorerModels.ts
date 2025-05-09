@@ -1,16 +1,11 @@
-import * as React from 'react';
-import {
-  ConvertSignaturesIntoPlugins,
-  FileExplorerAnyPluginSignature,
-  FileExplorerPlugin,
-  MergeSignaturesProperty,
-} from '../models';
-import {FileExplorerCorePluginSignatures} from '../corePlugins';
-
 /**
  * Implements the same behavior as `useControlled` but for several models.
  * The controlled models are never stored in the state, and the state is only updated if the model
  * is not controlled.
+ * @template TSignatures - The type of the signatures for the file explorer plugins.
+ * @param {ConvertSignaturesIntoPlugins<readonly [...FileExplorerCorePluginSignatures, ...TSignatures]>} plugins - The file explorer plugins.
+ * @param {MergeSignaturesProperty<TSignatures, 'defaultizedParams'>} props - The defaultized parameters for the plugins.
+ * @returns {MergeSignaturesProperty<TSignatures, 'models'>} - The models for the file explorer.
  */
 export const useFileExplorerModels = <TSignatures extends readonly FileExplorerAnyPluginSignature[]>(
   plugins: ConvertSignaturesIntoPlugins<readonly [...FileExplorerCorePluginSignatures, ...TSignatures]>,

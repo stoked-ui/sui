@@ -10,85 +10,38 @@ import { FileIcon } from '../internals/FileIcon';
 import { useFileExplorerGridColumnHeader } from '../internals/plugins/useFileExplorerGrid/useFileExplorerGridColumnHeader';
 import { UseFileMinimalPlugins } from '../internals/models';
 
-const FileLabelRoot = styled('div', {
-  name: 'MuiFile',
-  slot: 'Label',
-  overridesResolver: (props, styles) => styles.name,
-  shouldForwardProp: (prop) =>
-    shouldForwardProp(prop) &&
-    prop !== 'grow' &&
-    prop !== 'cell' &&
-    prop !== 'last' &&
-    prop !== 'header' &&
-    prop !== 'first' &&
-    prop !== 'grid' &&
-    prop !== 'selected' &&
-    prop !== 'iconName',
-})<{
-  grow?: boolean;
-  header?: boolean;
-  cell?: boolean;
-  last?: boolean;
-  grid?: boolean;
-  selected?: boolean;
-}>(({ theme, grow, cell }) => ({
-  boxSizing: 'border-box', // prevent width + padding to overflow
-  // fixes overflow - see https://github.com/stoked-ui/stoked-ui/issues/27372
-  minWidth: 0,
-  position: 'relative',
-  ...theme.typography.body1,
-  flexGrow: grow ? 1 : undefined,
-  padding: cell ? theme.spacing(0.5) : undefined,
-  variants: [
-    {
-      props: { cell: true, header: undefined },
-      style: {
-        /*
-      '&::before': {
-      content: '""',
-      position: 'absolute',
-      background: selected ? theme.palette.primary.dark : theme.palette.divider,
-      width: '1px',
-      height: '80%',
-      left: -1,
-      },
-      */
-      },
-    },
-    {
-      props: { grid: true },
-      style: { display: 'flex', alignItems: 'center', justifyContent: 'end' },
-    },
-    { props: { grid: false }, style: { width: '100%', display: 'flex', alignItems: 'center' } },
-  ],
-}));
-interface CustomLabelProps {
-  children: React.ReactNode;
-  icon?: React.ElementType;
-  expandable?: boolean;
-}
+/**
+ * Custom label props for FileLabel component
+ * @typedef {object} CustomLabelProps
+ * @property {React.ReactNode} children - The content of the label
+ * @property {React.ElementType} icon - The icon component
+ * @property {boolean} expandable - Indicates if the label is expandable
+ */
 
-const StyledFileLabelText = styled(Typography)({
-  fontFamily: 'Roboto, Helvetica, Arial, sans-serif',
-  fontWeight: 500,
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  textWrap: 'nowrap',
-}) as unknown as typeof Typography;
+/**
+ * Props for FileLabel component
+ * @typedef {object} FileLabelProps
+ * @property {React.ReactNode} children - The content of the label
+ * @property {boolean} [expandable] - Indicates if the label is expandable
+ * @property {boolean} [grow] - Indicates if the label should grow
+ * @property {SxProps<Theme>} [sx] - The style props
+ * @property {number} [width] - The width of the label
+ * @property {boolean} [meta] - Indicates if the label is metadata
+ * @property {boolean} [last] - Indicates if it is the last label
+ * @property {React.ElementType} [icon] - The icon component
+ * @property {boolean} [selected] - Indicates if the label is selected
+ * @property {object} labelProps - Props for the label
+ * @property {object} iconProps - Props for the icon
+ * @property {object} status - The status of the label
+ * @property {string} columnName - The column name
+ * @property {boolean} showIcon - Indicates if the icon should be displayed
+ */
 
-type FileLabelProps = {
-  expandable?: boolean;
-  grow?: boolean;
-  children: React.ReactNode;
-  sx?: SxProps<Theme>;
-  width?: number;
-  meta?: boolean;
-  last?: boolean;
-  icon?: React.ElementType;
-  selected?: boolean;
-} & CustomLabelProps &
-  any;
-
+/**
+ * Represents a file label component
+ * @param {FileLabelProps} props - The props for the component
+ * @returns {JSX.Element} A React JSX Element representing the file label
+ */
 export const FileLabel = React.forwardRef(function FileExplorer(
   {
     icon: Icon,
@@ -186,12 +139,18 @@ export const FileLabel = React.forwardRef(function FileExplorer(
   );
 });
 
+/**
+ * Represents a header cell component
+ * @param {object} inProps - The props for the component
+ * @param {string} inProps.columnName - The name of the column
+ * @param {string} inProps.id - The id of the column
+ * @returns {JSX.Element} A React JSX Element representing the header cell
+ */
 const HeaderCell = React.forwardRef(function HeaderCell(
   inProps: { columnName: string; id: string } & React.HTMLAttributes<HTMLDivElement> &
     React.HTMLProps<HTMLDivElement>,
   ref: React.Ref<HTMLDivElement>,
 ) {
-  // const HeaderCell = (inProps: { columnName: string } & React.HTMLAttributes<HTMLDivElement> & React.HTMLProps<HTMLDivElement>) => {
   const { getColumnProps, getIconContainerProps, getLabelProps, status } =
     useFileExplorerGridColumnHeader<UseFileMinimalPlugins>({
       columnName: inProps.columnName,

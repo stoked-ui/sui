@@ -1,6 +1,9 @@
-import * as React from 'react';
-import { FileExplorer } from '../../../../src';
-
+/**
+ * Functional component representing a basic file explorer.
+ * Displays a list of folders and files.
+ *
+ * @returns {JSX.Element} React component
+ */
 export default function BasicFileExplorer() {
   const [items] = React.useState([
     {
@@ -28,4 +31,4 @@ export default function BasicFileExplorer() {
       defaultExpandedItems={['folder-1']}
     />
   );
-} 
+}

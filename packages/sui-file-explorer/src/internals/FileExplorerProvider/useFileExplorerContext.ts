@@ -1,8 +1,9 @@
-import * as React from 'react';
-import {FileExplorerAnyPluginSignature} from '../models';
-import {FileExplorerContext} from './FileExplorerContext';
-import {FileExplorerContextValue} from './FileExplorerProvider.types';
-
+/**
+ * Custom hook to access the FileExplorer context values.
+ * @template TSignatures - Readonly array of FileExplorerAnyPluginSignature
+ * @template TOptionalSignatures - Readonly array of FileExplorerAnyPluginSignature, optional
+ * @returns {FileExplorerContextValue<TSignatures, TOptionalSignatures>} - FileExplorer context values
+ */
 export const useFileExplorerContext = <
   TSignatures extends readonly FileExplorerAnyPluginSignature[],
   TOptionalSignatures extends readonly FileExplorerAnyPluginSignature[] = [],

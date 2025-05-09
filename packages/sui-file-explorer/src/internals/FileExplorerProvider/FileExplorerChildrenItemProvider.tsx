@@ -1,15 +1,18 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import {useFileExplorerContext} from './useFileExplorerContext';
-import {escapeOperandAttributeSelector} from '../utils/utils';
+import { useFileExplorerContext } from './useFileExplorerContext';
+import { escapeOperandAttributeSelector } from '../utils/utils';
 import type {
   UseFileExplorerJSXItemsSignature
 } from '../plugins/useFileExplorerJSXItems/useFileExplorerJSXItems.types';
 import type {
   UseFileExplorerFilesSignature
 } from '../plugins/useFileExplorerFiles/useFileExplorerFiles.types';
-import {UseFileExplorerDndSignature} from '../plugins/useFileExplorerDnd/useFileExplorerDnd.types';
+import { UseFileExplorerDndSignature } from '../plugins/useFileExplorerDnd/useFileExplorerDnd.types';
 
+/**
+ * Context for children items within the file explorer.
+ */
 export const FileExplorerChildrenItemContext =
   React.createContext<FileExplorerChildrenItemContextValue | null>(null);
 
@@ -17,11 +20,19 @@ if (process.env.NODE_ENV !== 'production') {
   FileExplorerChildrenItemContext.displayName = 'FileExplorerChildrenItemContext';
 }
 
+/**
+ * Props for the FileExplorerChildrenItemProvider component.
+ */
 interface FileExplorerChildrenItemProviderProps {
   id?: string;
   children: React.ReactNode;
 }
 
+/**
+ * Provides a context for children items within the file explorer.
+ * @param {FileExplorerChildrenItemProviderProps} props - The component props.
+ * @returns {JSX.Element} The rendered component.
+ */
 export function FileExplorerChildrenItemProvider(props: FileExplorerChildrenItemProviderProps) {
   const { children, id = null } = props;
 
@@ -83,11 +94,17 @@ export function FileExplorerChildrenItemProvider(props: FileExplorerChildrenItem
   );
 }
 
+/**
+ * PropTypes for the FileExplorerChildrenItemProvider component.
+ */
 FileExplorerChildrenItemProvider.propTypes = {
   children: PropTypes.node,
   id: PropTypes.string,
 } as any;
 
+/**
+ * The context value for children items within the file explorer.
+ */
 interface FileExplorerChildrenItemContextValue {
   registerChild: (idAttribute: string, id: string) => void;
   unregisterChild: (idAttribute: string) => void;

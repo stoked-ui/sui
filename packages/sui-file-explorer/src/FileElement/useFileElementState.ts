@@ -1,27 +1,8 @@
-import * as React from 'react';
-import {useFileExplorerContext} from '../internals/FileExplorerProvider/useFileExplorerContext';
-import {
-  UseFileExplorerSelectionSignature
-} from '../internals/plugins/useFileExplorerSelection/useFileExplorerSelection.types';
-import {
-  UseFileExplorerExpansionSignature
-} from '../internals/plugins/useFileExplorerExpansion/useFileExplorerExpansion.types';
-import {
-  UseFileExplorerFocusSignature
-} from '../internals/plugins/useFileExplorerFocus/useFileExplorerFocus.types';
-import {
-  UseFileExplorerFilesSignature
-} from '../internals/plugins/useFileExplorerFiles/useFileExplorerFiles.types';
-
-type UseFileElementStateMinimalPlugins = readonly [
-  UseFileExplorerSelectionSignature,
-  UseFileExplorerExpansionSignature,
-  UseFileExplorerFocusSignature,
-  UseFileExplorerFilesSignature,
-];
-
-type UseFileElementStateOptionalPlugins = readonly [];
-
+/**
+ * Custom hook to manage state and behavior for a file element in a file explorer.
+ * @param {string} id - The unique identifier of the file element.
+ * @returns {Object} Object containing various states and event handlers for the file element.
+ */
 export function useFileElementState(id: string) {
   const {
     instance,
@@ -35,6 +16,10 @@ export function useFileElementState(id: string) {
   const selected = instance.isItemSelected(id);
   const disabled = instance.isItemDisabled(id);
 
+  /**
+   * Handles the expansion of the file element.
+   * @param {React.MouseEvent<HTMLDivElement>} event - The mouse event triggering the expansion.
+   */
   const handleExpansion = (event: React.MouseEvent<HTMLDivElement>) => {
     if (!disabled) {
       if (!focused) {
@@ -50,6 +35,10 @@ export function useFileElementState(id: string) {
     }
   };
 
+  /**
+   * Handles the selection of the file element.
+   * @param {React.MouseEvent} event - The mouse event triggering the selection.
+   */
   const handleSelection = (event: React.MouseEvent) => {
     if (!disabled) {
       if (!focused) {
@@ -61,14 +50,18 @@ export function useFileElementState(id: string) {
         if (event.shiftKey) {
           instance.expandSelectionRange(event, id);
         } else {
-          instance.selectItem({event, id, keepExistingSelection: true});
+          instance.selectItem({ event, id, keepExistingSelection: true });
         }
       } else {
-        instance.selectItem({event, id, keepExistingSelection: false, newValue: true});
+        instance.selectItem({ event, id, keepExistingSelection: false, newValue: true });
       }
     }
   };
 
+  /**
+   * Handles the checkbox selection of the file element.
+   * @param {React.ChangeEvent<HTMLInputElement>} event - The change event of the checkbox.
+   */
   const handleCheckboxSelection = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (disableSelection || disabled) {
       return;
@@ -84,6 +77,10 @@ export function useFileElementState(id: string) {
     }
   };
 
+  /**
+   * Prevents text selection on the file element.
+   * @param {React.MouseEvent<HTMLDivElement>} event - The mouse event triggering the prevention of selection.
+   */
   const preventSelection = (event: React.MouseEvent<HTMLDivElement>) => {
     if (event.shiftKey || event.ctrlKey || event.metaKey || disabled) {
       // Prevent text selection

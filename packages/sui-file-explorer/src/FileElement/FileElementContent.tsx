@@ -1,55 +1,21 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import clsx from 'clsx';
-import Checkbox from '@mui/material/Checkbox';
-import { useFileElementState } from './useFileElementState';
-
-export interface FileElementContentProps extends React.HTMLAttributes<HTMLElement> {
-  className?: string;
-  /**
-   * Override or extend the styles applied to the component.
-   */
-  classes: {
-    /** Styles applied to the root element. */
-    root: string;
-    /** State class applied to the content element when expanded. */
-    expanded: string;
-    /** State class applied to the content element when selected. */
-    selected: string;
-    /** State class applied to the content element when focused. */
-    focused: string;
-    /** State class applied to the element when disabled. */
-    disabled: string;
-    /** Styles applied to the tree item icon and collapse/expand icon. */
-    iconContainer: string;
-    /** Styles applied to the label element. */
-    label: string;
-    /** Styles applied to the checkbox element. */
-    checkbox: string;
-  };
-  /**
-   * The tree item label.
-   */
-  label?: React.ReactNode;
-  /**
-   * The id of the item.
-   */
-  id: string;
-  /**
-   * The icon to display next to the tree item's label.
-   */
-  icon?: React.ReactNode;
-  /**
-   * The icon to display next to the tree item's label. Either an expansion or collapse icon.
-   */
-  expansionIcon?: React.ReactNode;
-  /**
-   * The icon to display next to the tree item's label. Either a parent or end icon.
-   */
-  displayIcon?: React.ReactNode;
-}
-
-export type FileElementContentClassKey = keyof NonNullable<FileElementContentProps['classes']>;
+/**
+ * @typedef {Object} FileElementContentProps
+ * @property {string} className - Additional class name for styling.
+ * @property {Object} classes - CSS classes to override or extend styling.
+ * @property {string} classes.root - Styles applied to the root element.
+ * @property {string} classes.expanded - State class applied to the content element when expanded.
+ * @property {string} classes.selected - State class applied to the content element when selected.
+ * @property {string} classes.focused - State class applied to the content element when focused.
+ * @property {string} classes.disabled - State class applied to the element when disabled.
+ * @property {string} classes.iconContainer - Styles applied to the tree item icon and collapse/expand icon.
+ * @property {string} classes.label - Styles applied to the label element.
+ * @property {string} classes.checkbox - Styles applied to the checkbox element.
+ * @property {React.ReactNode} label - The tree item label.
+ * @property {string} id - The id of the item.
+ * @property {React.ReactNode} icon - The icon to display next to the tree item's label.
+ * @property {React.ReactNode} expansionIcon - The icon to display next to the tree item's label. Either an expansion or collapse icon.
+ * @property {React.ReactNode} displayIcon - The icon to display next to the tree item's label. Either a parent or end icon.
+ */
 
 /**
  * @ignore - internal component.
@@ -58,35 +24,10 @@ const FileElementContent = React.forwardRef(function FileElementContent(
   props: FileElementContentProps,
   ref: React.Ref<HTMLDivElement>,
 ) {
-  const {
-    classes,
-    className,
-    displayIcon,
-    expansionIcon,
-    icon: iconProp,
-    label,
-    id,
-    onClick,
-    onMouseDown,
-    ...other
-  } = props;
-  const {
-    disabled,
-    expanded,
-    selected,
-    focused,
-    disableSelection,
-    checkboxSelection,
-    handleExpansion,
-    handleSelection,
-    handleCheckboxSelection,
-    preventSelection,
-    expansionTrigger,
-  } = useFileElementState(id);
-
-  const icon = iconProp || expansionIcon || displayIcon;
-  const checkboxRef = React.useRef<HTMLButtonElement>(null);
-
+  /**
+   * Handles mouse down event.
+   * @param {React.MouseEvent<HTMLDivElement>} event - The mouse down event.
+   */
   const handleMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
     preventSelection(event);
 
@@ -95,6 +36,10 @@ const FileElementContent = React.forwardRef(function FileElementContent(
     }
   };
 
+  /**
+   * Handles click event.
+   * @param {React.MouseEvent<HTMLDivElement>} event - The click event.
+   */
   const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
     if (checkboxRef.current?.contains(event.target as HTMLElement)) {
       return;
@@ -144,36 +89,18 @@ const FileElementContent = React.forwardRef(function FileElementContent(
   );
 });
 
+/**
+ * PropTypes for FileElementContent component.
+ */
 FileElementContent.propTypes = {
-  // ----------------------------- Warning --------------------------------
-  // | These PropTypes are generated from the TypeScript type definitions |
-  // | To update them edit the TypeScript types and run "pnpm proptypes"  |
-  // ----------------------------------------------------------------------
-  /**
-   * Override or extend the styles applied to the component.
-   */
   classes: PropTypes.any,
   className: PropTypes.string,
-  /**
-   * The icon to display next to the tree item's label. Either a parent or end icon.
-   */
   displayIcon: PropTypes.any,
-  /**
-   * The icon to display next to the tree item's label. Either an expansion or collapse icon.
-   */
   expansionIcon: PropTypes.any,
-  /**
-   * The icon to display next to the tree item's label.
-   */
   icon: PropTypes.any,
-  /**
-   * The id of the item.
-   */
   id: PropTypes.string.isRequired,
-  /**
-   * The tree item label.
-   */
   label: PropTypes.any,
 };
 
 export { FileElementContent };
+**/
