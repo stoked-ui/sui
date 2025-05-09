@@ -1,15 +1,20 @@
-type FetchWithBackoffOptions = {
-  retries?: number; // Maximum number of retries
-  backoffFactor?: number; // Multiplier for backoff delay
-  initialDelay?: number; // Initial delay in milliseconds
-  retryCondition?: (response: Response | null, error: any) => boolean; // Function to determine whether to retry
-};
+/**
+ * Options for FetchBackoff function.
+ * @typedef {Object} FetchWithBackoffOptions
+ * @property {number} [retries] - Maximum number of retries
+ * @property {number} [backoffFactor] - Multiplier for backoff delay
+ * @property {number} [initialDelay] - Initial delay in milliseconds
+ * @property {(response: Response | null, error: any) => boolean} [retryCondition] - Function to determine whether to retry
+ */
 
-const FetchBackoff = async (
-  input: RequestInfo,
-  init?: RequestInit,
-  options?: FetchWithBackoffOptions
-): Promise<Response> => {
+/**
+ * Fetch data with backoff strategy for retries.
+ * @param {RequestInfo} input - Request URL or object
+ * @param {RequestInit} [init] - Request options
+ * @param {FetchWithBackoffOptions} [options] - Options for fetch with backoff
+ * @returns {Promise<Response>} - Promise resolving to a Response object
+ */
+const FetchBackoff = async (input, init, options) => {
   const {
     retries = 3,
     backoffFactor = 2,
@@ -23,33 +28,26 @@ const FetchBackoff = async (
 
   while (attempt <= retries) {
     try {
-      // eslint-disable-next-line no-await-in-loop
       const response = await fetch(input, init);
 
-      // If response is OK or retryCondition is false, return the response
       if (!retryCondition(response, null)) {
         return response;
       }
     } catch (error) {
-      // If retryCondition is false, throw the error
       if (!retryCondition(null, error)) {
         console.error('FetchBackoff', error);
       } else if (attempt === retries) {
-        console.error('FetchBackoff', error, 'retries: ', retries); // Rethrow the error after final attempt
+        console.error('FetchBackoff', error, 'retries: ', retries);
       }
     }
 
-    // Wait for the backoff delay before retrying
-    // eslint-disable-next-line no-await-in-loop,@typescript-eslint/no-loop-func
     await new Promise((resolve) => {
-      setTimeout(resolve, delay)
+      setTimeout(resolve, delay);
     });
     delay *= backoffFactor;
-    // eslint-disable-next-line no-plusplus
     attempt++;
   }
 
-  // If the loop exits without returning, throw an error
   throw new Error("Fetch failed after maximum retries.");
 };
 

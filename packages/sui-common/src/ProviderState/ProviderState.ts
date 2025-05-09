@@ -1,153 +1,59 @@
-import { Settings, createSettings } from "./Settings";
+/**
+ * @typedef {Object} NestedRecord
+ * @property {string} path - The path within the nested record
+ */
 
-export interface FlagConfig {
-  defaultValue?: boolean;
-  removeTriggers?: Array<string | string[] | {[key: string]: any } >; // Array of flag or setting paths
-  addTriggers?: Array<string | string[] | {[key: string]: any } >;    // Array of flag or setting paths
-}
+/**
+ * @typedef {Object} Settings
+ * @property {string} path - The path within the settings
+ */
 
-export interface IProviderStateProps {
-  settings: Record<string, any>;
-  flags: FlagData[];
-}
+/**
+ * Creates settings with nested structure
+ * @param {Record<string, T>} initialData - The initial data for settings
+ * @returns {Settings<T>} The settings object with nested capabilities
+ */
+export function createSettings<T = any>(initialData: Record<string, T> = {}): Settings<T> {
+  const settings: Settings<T> = {...initialData};
 
-export type Flags = Record<string, boolean>;
-
-export type FlagData = {flag: string, config: FlagConfig}
-
-export interface ProviderState {
-  flags: Flags;
-  flagConfigs: Record<string, FlagConfig>;
-  settings: Settings<any>;
-
-  toggleFlags(flags: string | string[]): void;
-  enableFlags(flags: string | string[]): void;
-  disableFlags(flags: string | string[]): void;
-  removeFlags(flags: string | string[]): void;
-  createFlags(flags: FlagData[]): void;
-  checkTriggers(flagName: string, value: boolean): void;
-}
-
-export function createProviderState({
-  flags = [],
-  settings = {},
-}: IProviderStateProps): ProviderState {
-  const instance: ProviderState = {
-    flags: {}, flagConfigs: {}, settings: createSettings(settings),
-
-    toggleFlags(flagNames: string | string[]): void {
-      if (!Array.isArray(flagNames)) {
-        flagNames = [flagNames];
+  return new Proxy(settings, {
+    /**
+     * Retrieves value based on nested path
+     * @param {Settings<T>} target - The target settings object
+     * @param {string | symbol} path - The path to retrieve value from
+     * @returns {any} The value at the specified path
+     */
+    get: (target, path: string | symbol) => {
+      if (typeof path === 'string' && path.includes('.')) {
+        const keys = path.split('.');
+        return keys.reduce((acc: any, key: string) => {
+          return acc && acc[key] !== undefined ? acc[key] : undefined;
+        }, target);
       }
-      flagNames.forEach((flag) => {
-        this.flags[flag] = !this.flags[flag];
-        this.checkTriggers(flag, this.flags[flag]);
-      });
+      return target[path as keyof typeof target];
     },
-
-    enableFlags(flagNames: string | string[]): void {
-      if (!Array.isArray(flagNames)) {
-        flagNames = [flagNames];
-      }
-      flagNames.forEach((flag) => {
-        if (process.env.FLAG_DEBUGGING) {
-          console.info('ENABLE FLAG', flag, 'config', this.flagConfigs[flag]);
-        }
-        this.flags[flag] = true;
-        this.checkTriggers(flag, true);
-      });
-    },
-
-    disableFlags(flagNames: string | string[]): void {
-      if (!Array.isArray(flagNames)) {
-        flagNames = [flagNames];
-      }
-      flagNames.forEach((flag) => {
-        if (process.env.FLAG_DEBUGGING) {
-          console.info('DISABLE FLAG', flag, 'config', this.flagConfigs[flag]);
-        }
-        this.flags[flag] = false;
-        this.checkTriggers(flag, false);
-      });
-    },
-
-    removeFlags(flagNames: string | string[]): void {
-      if (!Array.isArray(flagNames)) {
-        flagNames = [flagNames];
-      }
-      flagNames.forEach((flag) => {
-        if (flag in this.flags) {
-          delete this.flags[flag];
-          delete this.flagConfigs[flag];
-        } else {
-          throw new Error(`Flag "${flag}" does not exist.`);
-        }
-      });
-    },
-
-    createFlags(flagDataList: FlagData[]): void {
-      flagDataList.forEach((flagData) => {
-        this.flags[flagData.flag] = flagData.config.defaultValue ?? false;
-        this.flagConfigs[flagData.flag] = flagData.config;
-      });
-    },
-
-    checkTriggers(flagName: string, value: boolean): void {
-      const config = this.flagConfigs[flagName];
-      if (!config) {
-        return;
-      }
-
-      // Handle remove triggers
-      if (value && config.removeTriggers) {
-        for (let i = 0; i < config.removeTriggers.length; i += 1) {
-          const trigger = config.removeTriggers[i];
-          const isString = typeof trigger === 'string';
-          if (isString || Array.isArray(trigger)) {
-            const arrayTriggers = isString ? [trigger] : trigger;
-            this.disableFlags(arrayTriggers);
+    /**
+     * Sets value based on nested path
+     * @param {Settings<T>} target - The target settings object
+     * @param {string | symbol} path - The path to set value for
+     * @param {any} value - The value to set
+     * @returns {boolean} Indicates if the value was successfully set
+     */
+    set: (target, path: string | symbol, value) => {
+      if (typeof path === 'string' && path.includes('.')) {
+        const keys = path.split('.');
+        keys.reduce((acc: any, key: string, index: number) => {
+          if (index === keys.length - 1) {
+            acc[key] = value;
           } else {
-            Object.entries(trigger).forEach(([key, val]: [string, any]) => {
-              settings[key] = val
-            })
+            acc[key] = acc[key] || {};
           }
-        }
+          return acc[key];
+        }, target);
+        return true;
       }
-
-      if (value && config.addTriggers) {
-        for (let i = 0; i < config.addTriggers.length; i += 1) {
-          const trigger = config.addTriggers[i];
-          const isString = typeof trigger === 'string';
-          if (isString || Array.isArray(trigger)) {
-            const arrayTriggers = isString ? [trigger] : trigger;
-            this.enableFlags(arrayTriggers);
-          } else {
-            Object.entries(trigger).forEach(([key, val]: [string, any]) => {
-              settings[key] = val
-            })
-          }
-        }
-      }
+      target[path as keyof typeof target] = value;
+      return true;
     }
-  };
-
-  instance.createFlags(flags);
-  return instance;
+  });
 }
-/*
-
-// Usage
-import { createProviderState } from "./ProviderState";
-
-const providerState = createProviderState({
-  flags: [
-    { flag: "isDarkMode", config: { defaultValue: false } },
-    { flag: "isAdmin", config: { defaultValue: true } },
-  ],
-  settings: { theme: "light" },
-});
-
-console.log(providerState.flags); // Output: { isDarkMode: false, isAdmin: true }
-providerState.toggleFlags("isDarkMode");
-console.log(providerState.flags); // Output: { isDarkMode: true, isAdmin: true }
-*/

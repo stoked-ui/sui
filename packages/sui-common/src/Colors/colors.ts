@@ -1,6 +1,10 @@
 import { hexToRgb, hslToRgb, rgbToHex } from '@mui/material/styles';
 
-// Utility function to extract RGB and alpha from a color string
+/**
+ * Utility function to extract RGB and alpha from a color string
+ * @param {string} color - The input color string
+ * @returns {{ r: number; g: number; b: number; alpha?: number }} The extracted RGB values and optional alpha channel
+ */
 function parseColorWithAlpha(color: string): { r: number; g: number; b: number; alpha?: number } {
   let rgbColor: string;
   let alpha: number | undefined;
@@ -33,6 +37,12 @@ function parseColorWithAlpha(color: string): { r: number; g: number; b: number; 
   };
 }
 
+/**
+ * Composite two colors based on alpha channel blending
+ * @param {string} baseColor - The base color to blend
+ * @param {string} overlay - The overlay color to blend on top
+ * @returns {string} The resulting blended color as a hex string
+ */
 export function compositeColors(baseColor: string, overlay: string): string {
   const rgb1 = parseColorWithAlpha(baseColor);
   const rgb2 = parseColorWithAlpha(overlay);
@@ -52,6 +62,7 @@ export function compositeColors(baseColor: string, overlay: string): string {
   // Return the result as a hex color
   return rgbToHex(`rgb(${r}, ${g}, ${b})`);
 }
+
 /*
 
 // Example usage
