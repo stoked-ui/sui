@@ -1,10 +1,6 @@
-import {FileExplorerPluginSignature, FileMeta} from '../../models';
-import {UseFileExplorerFilesSignature} from '../useFileExplorerFiles';
-import {UseFileExplorerKeyboardNavigationSignature} from '../useFileExplorerKeyboardNavigation';
-import {FileId} from '../../../models';
-import {UseFileExplorerGridSignature} from "../useFileExplorerGrid";
-import {UseFileExplorerDndSignature} from '../useFileExplorerDnd/useFileExplorerDnd.types';
-
+/**
+ * Interface for the instance of the file explorer files handling.
+ */
 export interface UseFileExplorerFilesInstance {
   /**
    * Insert a new item in the state from a FileExplorer Item component.
@@ -32,11 +28,24 @@ export interface UseFileExplorerFilesInstance {
   ) => void;
 }
 
+/**
+ * Interface for the parameters of the JSX items in the file explorer.
+ */
 export interface UseFileExplorerJSXItemsParameters {}
 
+/**
+ * Interface for the defaultized parameters of the file explorer files handling.
+ */
 export interface UseFileExplorerFilesDefaultizedParameters {}
 
+/**
+ * Type alias for the dependencies required by UseFileExplorerJSXItems.
+ */
 export type UseFileExplorerJSXItemsDependencies = [UseFileExplorerFilesSignature, UseFileExplorerDndSignature, UseFileExplorerKeyboardNavigationSignature, UseFileExplorerGridSignature];
+
+/**
+ * Type alias for the signature of UseFileExplorerJSXItems.
+ */
 export type UseFileExplorerJSXItemsSignature = FileExplorerPluginSignature<{
   params: UseFileExplorerJSXItemsParameters;
   defaultizedParams: UseFileExplorerFilesDefaultizedParameters;

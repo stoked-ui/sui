@@ -17,11 +17,17 @@ import {
   SlotComponentPropsFromProps,
 } from '../internals/models';
 
+/**
+ * Represents the state of a file explorer item slot owner.
+ */
 interface FileExplorerItemSlotOwnerState {
   id: FileId;
   label: string;
 }
 
+/**
+ * Represents the available slots for a file explorer component.
+ */
 export interface FileExplorerSlots extends FileExplorerPluginSlots {
   /**
    * Element rendered at the root.
@@ -30,11 +36,14 @@ export interface FileExplorerSlots extends FileExplorerPluginSlots {
   root?: React.ElementType;
   /**
    * Custom component for the item.
-   * @default CCV F ileExplorerItem.
+   * @default CCV FileExplorerItem.
    */
   item?: React.JSXElementConstructor<FileProps> | React.JSXElementConstructor<FileProps>;
 }
 
+/**
+ * Represents the props for the file explorer slots.
+ */
 export interface FileExplorerSlotProps<Multiple extends boolean | undefined>
   extends FileExplorerPluginSlotProps {
   root?: SlotComponentProps<'ul', {}, FileExplorerProps<Multiple>>;
@@ -45,10 +54,16 @@ export interface FileExplorerSlotProps<Multiple extends boolean | undefined>
   >;
 }
 
+/**
+ * Represents the reference object for the file explorer public API.
+ */
 export type FileExplorerApiRef = React.MutableRefObject<
   FileExplorerPublicAPI<FileExplorerPluginSignatures> | undefined
 >;
 
+/**
+ * Represents the base props for the file explorer component.
+ */
 export interface FileExplorerPropsBase extends React.HTMLAttributes<HTMLUListElement> {
   className?: string;
   /**
@@ -62,10 +77,21 @@ export interface FileExplorerPropsBase extends React.HTMLAttributes<HTMLUListEle
 
   dropzone?: boolean;
 
-  onAddFiles?:  (mediaFile: FileBase[]) => void;
+  /**
+   * Callback function triggered when new files are added.
+   * @param {FileBase[]} mediaFile - The array of files being added.
+   */
+  onAddFiles?: (mediaFile: FileBase[]) => void;
+  /**
+   * Callback function triggered when an item is double-clicked.
+   * @param {FileBase} item - The file item being double-clicked.
+   */
   onItemDoubleClick?: (item: FileBase) => void;
 }
 
+/**
+ * Represents the props for the file explorer component.
+ */
 export interface FileExplorerProps<Multiple extends boolean | undefined>
   extends FileExplorerPluginParameters<Multiple>,
     FileExplorerPropsBase {

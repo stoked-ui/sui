@@ -5,6 +5,9 @@ import {UseFileExplorerGridHeadersParameters} from './useFileExplorerGridHeaders
 import {FileExplorerGridHeadersClasses} from './fileExplorerViewGridHeadersClasses';
 import {MuiCancellableEventHandler} from '../../models/MuiCancellableEvent';
 
+/**
+ * Represents the available slots for the FileExplorerGridHeaders component.
+ */
 export interface FileExplorerGridHeadersSlots {
   /**
    * The component that renders the root.
@@ -34,6 +37,9 @@ export interface FileExplorerGridHeadersSlots {
   name?: React.ElementType;
 }
 
+/**
+ * Represents the props for each slot in the FileExplorerGridHeaders component.
+ */
 export interface FileExplorerGridHeadersSlotProps {
   root?: SlotComponentProps<'div', {}, {}>;
   column?: SlotComponentProps<'div', {}, {}>;
@@ -42,6 +48,9 @@ export interface FileExplorerGridHeadersSlotProps {
   name?: SlotComponentProps<'div', {}, {}>;
 }
 
+/**
+ * Represents the props for the FileExplorerGridHeaders component.
+ */
 export interface FileExplorerGridHeadersProps
   extends Omit<UseFileExplorerGridHeadersParameters, 'rootRef'>,
     Omit<React.HTMLAttributes<HTMLDivElement>, 'onFocus' | 'id'> {
@@ -76,4 +85,8 @@ export interface FileExplorerGridHeadersProps
 
   sx?: SxProps<Theme>;
 }
+
+/**
+ * Represents the state of the FileExplorerGridHeaders component.
+ */
 export interface FileExplorerGridHeadersOwnerState extends Omit<FileExplorerGridHeadersProps, 'disabled'> {}

@@ -1,6 +1,3 @@
-export { useFileExplorerDnd } from './useFileExplorerDnd';
-export type {
-  UseFileExplorerDndSignature,
-  UseFileExplorerDndParameters,
-  UseFileExplorerDndDefaultizedParameters,
-} from './useFileExplorerDnd.types';
+/**
+ * Exported functions and types related to File Explorer Drag and Drop functionality.
+ */

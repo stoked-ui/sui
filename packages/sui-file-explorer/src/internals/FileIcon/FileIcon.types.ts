@@ -1,8 +1,11 @@
 import * as React from 'react';
-import {SlotComponentProps} from '@mui/base/utils';
-import {SxProps, Theme} from '@mui/material/styles'
-import {UseFileStatus} from '../models/UseFileStatus';
+import { SlotComponentProps } from '@mui/base/utils';
+import { SxProps, Theme } from '@mui/material/styles';
+import { UseFileStatus } from '../models/UseFileStatus';
 
+/**
+ * Represents the available icon slots for the FileIcon component.
+ */
 export interface FileIconSlots {
   /**
    * The icon used to collapse the item.
@@ -22,6 +25,9 @@ export interface FileIconSlots {
   icon?: React.ElementType;
 }
 
+/**
+ * Represents the props for each slot component of the FileIcon component.
+ */
 export interface FileIconSlotProps {
   collapseIcon?: SlotComponentProps<'svg', {}, {}>;
   expandIcon?: SlotComponentProps<'svg', {}, {}>;
@@ -29,6 +35,9 @@ export interface FileIconSlotProps {
   icon?: SlotComponentProps<'svg', {}, {}>;
 }
 
+/**
+ * Represents the props for the FileIcon component.
+ */
 export interface FileIconProps {
   status: UseFileStatus;
   /**
@@ -40,9 +49,15 @@ export interface FileIconProps {
    * The props used for each component slot.
    * @default {}
    */
-  slotProps?: FileIconSlotProps
+  slotProps?: FileIconSlotProps;
 
+  /**
+   * Specifies the name of the icon to be used.
+   */
   iconName?: 'collapseIcon' | 'expandIcon' | 'endIcon' | 'icon';
 
+  /**
+   * Custom styling for the component.
+   */
   sx?: SxProps<Theme>;
 }

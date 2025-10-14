@@ -1,66 +1,26 @@
-import * as React from "react";
-import composeClasses from "@mui/utils/composeClasses";
-import {animated, useSpring} from "@react-spring/web";
-import {TransitionProps} from "@mui/material/transitions";
-import Collapse from "@mui/material/Collapse";
-import MuiCheckbox, {CheckboxProps} from "@mui/material/Checkbox";
-import {fileClasses, getFileUtilityClass} from "./fileClasses";
-import {shouldForwardProp} from '@mui/system/createStyled';
-import {alpha, styled, SxProps, Theme} from '@mui/material/styles';
-import {UseFileStatus} from "../internals/models/UseFileStatus";
-import {FileOwnerState} from "./File.types";
+/**
+ * @typedef {object} FileOwnerState
+ * @property {string} classes - CSS classes for the file owner
+ */
 
-export const FileRoot = styled('li', {
-  name: 'MuiFile',
-  slot: 'Root',
-  overridesResolver: (props, styles) => styles.root,
-  shouldForwardProp: (prop) =>
-    shouldForwardProp(prop) &&
-    prop !== 'parentId' &&
-    prop !== 'idAttribute' &&
-    prop !== 'dndInstruction' &&
-    prop !== 'dndState' &&
-    prop !== 'dndContainer' &&
-    prop !== 'expanded' &&
-    prop !== 'selected' &&
-    prop !== 'focused' &&
-    prop !== 'disabled' &&
-    prop !== 'visibleIndex' &&
-    prop !== 'visible' &&
-    prop !== 'grid' &&
-    prop !== 'dnd' &&
-    prop !== 'arrayBuffer' &&
-    prop !== 'slice' &&
-    prop !== 'stream' &&
-    prop !== 'backgroundImage' &&
-    prop !== 'aspectRatio' &&
-    prop !== 'webkitRelativePath' &&
-    prop !== 'mediaType' &&
-    prop !== 'type' &&
-    prop !== 'mediaType' &&
-    prop !== 'text' &&
-    prop !== '_aspectRatio' &&
-    prop !== '_width' &&
-    prop !== '_height' &&
-    prop !== '_duration' &&
-    prop !== 'icon',
-})(({ theme }) => ({
-  listStyle: 'none',
-  margin: 0,
-  padding: 0,
-  outline: 0,
-  unicodeBidi: 'unset',
-  color: theme.palette.mode === 'light' ? theme.palette.grey[800] : theme.palette.grey[400],
-  position: 'relative',
-  [`& .${fileClasses.groupTransition}`]: {
-    marginLeft: theme.spacing(3.5),
-  },
-  '& .Mui-even, .Mui-odd': {
-    height: '28.02px',
-  },
-  '& .Mui-odd': {},
-}));
+/**
+ * @typedef {object} FileContentProps
+ * @property {UseFileStatus} status - Status of the file
+ * @property {SxProps<Theme> | true} [alternatingRows] - Alternating row styles
+ * @property {true} [indentationAtItemLevel] - Indentation at item level
+ * @property {true} [first] - First item indicator
+ * @property {boolean} [grid] - Grid layout indicator
+ * @property {number} [visibleIndex] - Index of the visible file
+ * @property {string} [id] - Unique identifier of the file
+ */
 
+/**
+ * @description Root component for a file item.
+ * @param {FileContentProps} props - Component props
+ * @returns {JSX.Element}
+ * @example
+ * <FileContent status={fileStatus} alternatingRows={true} indentationAtItemLevel={true} />
+ */
 export const FileContent = styled('div', {
   name: 'MuiFile',
   slot: 'Content',
@@ -201,23 +161,11 @@ export const FileContent = styled('div', {
   };
 });
 
-export const FileGroupTransition = styled(Collapse, {
-  name: 'MuiFile',
-  slot: 'GroupTransition',
-  overridesResolver: (props, styles) => styles.groupTransition,
-  shouldForwardProp: (prop) => shouldForwardProp(prop) && prop !== 'indentationAtItemLevel',
-})<{ indentationAtItemLevel?: true }>({
-  margin: 0,
-  padding: 0,
-  paddingLeft: 'var(--FileExplorer-itemChildrenIndentation)',
-  variants: [
-    {
-      props: { indentationAtItemLevel: true },
-      style: { paddingLeft: 0 },
-    },
-  ],
-});
-
+/**
+ * @description Component for file item root.
+ * @param {CheckboxProps & { visible: boolean }} props - Component props
+ * @returns {JSX.Element}
+ */
 export const FileCheckbox = styled(
   React.forwardRef(
     (props: CheckboxProps & { visible: boolean }, ref: React.Ref<HTMLButtonElement>) => {
@@ -238,6 +186,11 @@ export const FileCheckbox = styled(
   padding: 0,
 });
 
+/**
+ * @description Hook for utility classes related to the file component.
+ * @param {FileOwnerState} ownerState - State of the file owner
+ * @returns {string[]} - Array of utility classes
+ */
 export const useUtilityClasses = (ownerState: FileOwnerState) => {
   const { classes } = ownerState;
 
@@ -258,9 +211,33 @@ export const useUtilityClasses = (ownerState: FileOwnerState) => {
   return composeClasses(slots, getFileUtilityClass, classes);
 };
 
+/**
+ * @description Component for file group transition.
+ * @param {{ indentationAtItemLevel?: true }} props - Component props
+ * @returns {JSX.Element}
+ */
+export const FileGroupTransition = styled(Collapse, {
+  name: 'MuiFile',
+  slot: 'GroupTransition',
+  overridesResolver: (props, styles) => styles.groupTransition,
+  shouldForwardProp: (prop) => shouldForwardProp(prop) && prop !== 'indentationAtItemLevel',
+})<{ indentationAtItemLevel?: true }>({
+  margin: 0,
+  padding: 0,
+  paddingLeft: 'var(--FileExplorer-itemChildrenIndentation)',
+  variants: [
+    {
+      props: { indentationAtItemLevel: true },
+      style: { paddingLeft: 0 },
+    },
+  ],
+});
 
-const AnimatedCollapse = animated(Collapse);
-
+/**
+ * @description Component for transitions in the file component.
+ * @param {TransitionProps} props - Transition component props
+ * @returns {JSX.Element}
+ */
 export function TransitionComponent(props: TransitionProps) {
   const style = useSpring({
     to: {
@@ -271,3 +248,4 @@ export function TransitionComponent(props: TransitionProps) {
 
   return <AnimatedCollapse style={style} {...props} />;
 }
+*/

@@ -1,8 +1,6 @@
-import * as React from 'react';
-import {
-  FileExplorerAnyPluginSignature, FileExplorerInstance, FileExplorerPublicAPI, UseFileMinimalPlugins
-} from '../../models';
-
+/**
+ * Interface for defining parameters used in the UseFileExplorerGridHeaders hook.
+ */
 export interface UseFileExplorerGridHeadersParameters {
   /**
    * The id attribute of the item. If not provided, it will be generated.
@@ -21,6 +19,9 @@ export interface UseFileExplorerGridHeadersParameters {
   children?: React.ReactNode;
 }
 
+/**
+ * Interface for defining props specific to the root slot in UseFileExplorerGridHeaders.
+ */
 export interface UseFileExplorerGridHeadersRootSlotOwnProps {
   role: 'file-explorer-view-grid-headers';
   id: string;
@@ -31,9 +32,15 @@ export interface UseFileExplorerGridHeadersRootSlotOwnProps {
   style?: React.CSSProperties;
 }
 
+/**
+ * Type for combining external props with UseFileExplorerGridHeadersRootSlotOwnProps.
+ */
 export type UseFileExplorerGridHeadersRootSlotProps<ExternalProps = {}> = ExternalProps &
   UseFileExplorerGridHeadersRootSlotOwnProps;
 
+/**
+ * Interface for defining props specific to the group transition slot in UseFileExplorerGridHeaders.
+ */
 export interface UseFileExplorerGridHeadersGroupTransitionSlotOwnProps {
   unmountOnExit: boolean;
   in: boolean;
@@ -46,10 +53,15 @@ export interface UseFileExplorerGridHeadersGroupTransitionSlotOwnProps {
   indentationAtItemLevel?: true;
 }
 
+/**
+ * Type for combining external props with UseFileExplorerGridHeadersGroupTransitionSlotOwnProps.
+ */
 export type UseFileExplorerGridHeadersGroupTransitionSlotProps<ExternalProps = {}> = ExternalProps &
   UseFileExplorerGridHeadersGroupTransitionSlotOwnProps;
 
-
+/**
+ * Interface for defining the return value of UseFileExplorerGridHeaders hook.
+ */
 export interface UseFileExplorerGridHeadersReturnValue<
   TSignatures extends UseFileMinimalPlugins = UseFileMinimalPlugins,
   TOptionalSignatures extends FileExplorerAnyPluginSignature[] = [],
@@ -67,8 +79,7 @@ export interface UseFileExplorerGridHeadersReturnValue<
   instance: FileExplorerInstance<TSignatures, TOptionalSignatures>;
 
   /**
-   * The object the allows FileExplorer View manipulation.
+   * The object that allows FileExplorer View manipulation.
    */
   publicAPI: FileExplorerPublicAPI<TSignatures, TOptionalSignatures>;
 }
-

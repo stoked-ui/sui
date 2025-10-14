@@ -34,16 +34,20 @@ const useUtilityClasses = (ownerState: FileExplorerTabsProps) => {
 };
 
 /**
- *
+ * File Explorer Standard Component
+ * 
  * Demos:
- *
  * - [FileExplorerTabs](https://stoked-ui.github.io/file-explorer/docs/)
- *
+ * 
  * API:
- *
  * - [FileExplorerTabs API](https://stoked-ui.github.io/file-explorer/api/)
  */
 const FileExplorerStandard = React.forwardRef(
+  /**
+   * @param {FileExplorerTabsProps} inProps - The props for the FileExplorerStandard component
+   * @param {React.Ref<HTMLDivElement>} ref - Reference to the HTMLDivElement
+   * @returns {JSX.Element}
+   */
   (inProps: FileExplorerTabsProps, ref: React.Ref<HTMLDivElement>) => {
     const { tabNames, currentTab, drawerOpen, setTabName, tabSx, sx } = useThemeProps({
       props: inProps,
@@ -51,6 +55,11 @@ const FileExplorerStandard = React.forwardRef(
     });
     const classes = useUtilityClasses(inProps);
 
+    /**
+     * Handle change event for TabList
+     * @param {React.SyntheticEvent} event - The event object
+     * @param {string} tabName - The name of the tab to switch to
+     */
     const handleChange = (event: React.SyntheticEvent, tabName: string) => {
       setTabName(tabName);
     };
@@ -185,6 +194,11 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
   }),
 );
 
+/**
+ * Explorer Panel Component
+ * @param {ExplorerPanelProps} params - The props for the ExplorerPanel component
+ * @returns {JSX.Element}
+ */
 function ExplorerPanel(params: ExplorerPanelProps) {
   const { name, items, onItemDoubleClick, gridColumns, expandedItems, selectedId } = params;
   console.info('@@@@@@@@@@@@@@@@@@@', params);
@@ -251,6 +265,11 @@ ExplorerPanel.propTypes = {
 } as any;
 
 const FileExplorerDrawer = React.forwardRef(
+  /**
+   * @param {FileExplorerTabsProps} inProps - The props for the FileExplorerDrawer component
+   * @param {React.Ref<HTMLDivElement>} ref - Reference to the HTMLDivElement
+   * @returns {JSX.Element}
+   */
   (inProps: FileExplorerTabsProps, ref: React.Ref<HTMLDivElement>) => {
     const theme = useTheme();
     const [open, setOpen] = React.useState(false);
@@ -261,6 +280,9 @@ const FileExplorerDrawer = React.forwardRef(
     });
     const classes = useUtilityClasses(inProps);
 
+    /**
+     * Toggle the drawer open/close state
+     */
     const handleDrawerToggle = () => {
       setOpen((prev) => !prev);
       if (!currentTab?.name || currentTab?.name === 'none') {
@@ -273,6 +295,11 @@ const FileExplorerDrawer = React.forwardRef(
       setTabState(tabData);
     }, [tabData]);
 
+    /**
+     * Handle change event for TabList
+     * @param {React.SyntheticEvent} event - The event object
+     * @param {string} tabName - The name of the tab to switch to
+     */
     const handleChange = (event: React.SyntheticEvent, tabName: string) => {
       setTabName(tabName);
       if (!open) {
@@ -377,6 +404,11 @@ FileExplorerDrawer.propTypes = {
 } as any;
 
 const FileExplorerTabs = React.forwardRef(
+  /**
+   * @param {FileExplorerTabsProps} inProps - The props for the FileExplorerTabs component
+   * @param {React.Ref<HTMLDivElement>} ref - Reference to the HTMLDivElement
+   * @returns {JSX.Element}
+   */
   (inProps: FileExplorerTabsProps, ref: React.Ref<HTMLDivElement>) => {
     if (inProps.variant === 'standard' || !inProps.variant) {
       return <FileExplorerStandard {...inProps} ref={ref} />;
