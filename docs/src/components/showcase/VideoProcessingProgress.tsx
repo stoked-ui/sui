@@ -55,18 +55,22 @@ const stageConfig = {
   },
 };
 
-export default function VideoProcessingProgress({
-  stage,
-  progress,
-  currentStage,
-  statusMessage,
-  error,
-  onRetry,
-  complete = false,
-}: VideoProcessingProgressProps) {
-  const stages: ProcessingStage[] = ['upload', 'processing', 's3', 'download'];
-  const config = stageConfig[stage];
-  const StageIcon = config.icon;
+const VideoProcessingProgress = React.memo<VideoProcessingProgressProps>(
+  function VideoProcessingProgress({
+    stage,
+    progress,
+    currentStage,
+    statusMessage,
+    error,
+    onRetry,
+    complete = false,
+  }) {
+    const stages: ProcessingStage[] = React.useMemo(
+      () => ['upload', 'processing', 's3', 'download'],
+      [],
+    );
+    const config = React.useMemo(() => stageConfig[stage], [stage]);
+    const StageIcon = config.icon;
 
   return (
     <Card
@@ -123,7 +127,8 @@ export default function VideoProcessingProgress({
                         : 'background.paper',
                     border: 2,
                     borderColor: isComplete || isActive ? stageColor : 'divider',
-                    transition: 'all 0.3s',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    willChange: 'background-color, border-color',
                     zIndex: 1,
                   }}
                 >
@@ -188,7 +193,8 @@ export default function VideoProcessingProgress({
                 '& .MuiLinearProgress-bar': {
                   bgcolor: config.color,
                   borderRadius: 4,
-                  transition: 'transform 0.4s ease',
+                  transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                  willChange: 'transform',
                 },
               }}
             />
@@ -259,4 +265,7 @@ export default function VideoProcessingProgress({
       </CardContent>
     </Card>
   );
-}
+  },
+);
+
+export default VideoProcessingProgress;
