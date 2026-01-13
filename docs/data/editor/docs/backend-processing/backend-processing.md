@@ -20,6 +20,16 @@ Backend video processing offers several advantages over client-side processing: 
 
 This documentation covers the complete integration architecture from the editor's export functionality through cloud processing to final delivery. You'll learn how to design a four-stage workflow (Upload → Processing → Storage → Download), implement real-time progress tracking, handle errors gracefully, and optimize costs. The patterns shown here are framework-agnostic and can be adapted to other cloud providers like Google Cloud Run or Azure Container Instances, though we focus on AWS for its mature video processing ecosystem.
 
+## Interactive Demo
+
+The demo below shows a complete backend processing workflow integrated with the Stoked UI Editor. Click the "Process Video" button to simulate sending a video through the four processing stages: Upload → Processing → Storage → Download. The progress modal displays real-time status updates, stage indicators, and completion notifications.
+
+This simulation demonstrates the user experience your application should provide when processing videos on the backend. The actual implementation would connect to your API endpoints and ECS tasks, but the UI patterns and state management shown here apply directly to production systems.
+
+{{"demo": "EditorBackendProcessingDemo.js", "defaultCodeOpen": false, "bg": "gradient"}}
+
+The demo illustrates key integration points: exporting editor state, tracking multi-stage progress, handling async operations, and displaying completion status. Use this as a reference when building your own backend processing integration.
+
 ## Architecture Overview
 
 The backend video processing architecture consists of four main components working together to transform editor output into production-ready video files:
