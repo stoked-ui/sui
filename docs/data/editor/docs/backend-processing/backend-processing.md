@@ -53,6 +53,130 @@ The backend video processing architecture consists of four main components worki
 
 This architecture scales horizontally (multiple concurrent ECS tasks), provides fault tolerance (task retries, dead letter queues), and separates concerns (API handles business logic, ECS handles compute-intensive work). For more details on AWS ECS, see [AWS ECS Documentation](https://docs.aws.amazon.com/ecs/), and for S3 integration, see [AWS S3 Documentation](https://docs.aws.amazon.com/s3/).
 
+### Processing Workflow Sequence
+
+The following sequence diagram shows the detailed interaction between components during video processing:
+
+```
+Client              API Gateway         ECS Task            S3              Client UI
+  │                     │                  │                 │                  │
+  │──1. Export State───>│                  │                 │                  │
+  │                     │                  │                 │                  │
+  │<──2. Job ID────────┤                  │                 │                  │
+  │                     │                  │                 │                  │
+  │──3. Upload Media───>│──4. Start Task──>│                 │                  │
+  │                     │                  │                 │                  │
+  │                     │<──5. Progress────┤                 │                  │
+  │<──6. Progress%─────┤                  │                 │   [Stage 1: Upload - 0-100%]
+  │                     │                  │                 │                  │
+  │                     │                  │──7. Download────>│                  │
+  │                     │                  │    Source       │                  │
+  │                     │<──8. Progress────┤                 │                  │
+  │<──9. Progress%─────┤                  │                 │   [Stage 2: Processing - 0-100%]
+  │                     │                  │                 │                  │
+  │                     │                  │──10. Render─────┤                  │
+  │                     │                  │     & Upload    │                  │
+  │                     │<──11. Progress───┤                 │                  │
+  │<──12. Progress%────┤                  │                 │   [Stage 3: S3 Storage - 0-100%]
+  │                     │                  │                 │                  │
+  │                     │<──13. Complete───┤                 │                  │
+  │                     │──14. Sign URL───>│                 │                  │
+  │<──15. Download URL─┤                  │                 │                  │
+  │                     │                  │                 │                  │
+  │──────────────────────16. Download Video────────────────>│   [Stage 4: Download - 0-100%]
+  │                     │                  │                 │                  │
+```
+
+**Key Interactions:**
+
+1-2. Client exports editor state and receives unique job ID for tracking
+3-4. Media upload triggers ECS task creation with processing parameters
+5-6. Progress updates flow from ECS → API → Client every 100-500ms
+7-8. ECS task downloads source files and reports processing progress
+9-10. Video rendering with FFmpeg, progress tracked via frame count
+11-12. Final video uploaded to S3, progress tracked via multipart upload
+13-15. Job completion generates signed URL with 1-24 hour expiration
+16. Client downloads processed video directly from S3/CloudFront
+
+### State Transition Diagram
+
+The client-side state machine manages the four processing stages with transitions based on progress updates:
+
+```
+                    ┌─────────────┐
+                    │   Initial   │
+                    └──────┬──────┘
+                           │ startProcessing()
+                           ▼
+                    ┌─────────────┐
+              ┌────>│   Upload    │────┐
+              │     │  Stage 1    │    │ progress: 0→100%
+              │     └──────┬──────┘    │
+              │            │ 100%      │
+              │            ▼           │
+              │     ┌─────────────┐   │
+    retry()   │     │ Processing  │   │ error
+    ┌─────────┤     │  Stage 2    │───┤
+    │         │     └──────┬──────┘   │
+    │         │            │ 100%     │
+    │         │            ▼          │
+    │         │     ┌─────────────┐  │
+    │         │     │     S3      │  │
+    │         └────>│  Stage 3    │──┘
+    │               └──────┬──────┘
+    │                      │ 100%
+    │                      ▼
+    │               ┌─────────────┐
+    │               │  Download   │
+    └───────────────│  Stage 4    │
+                    └──────┬──────┘
+                           │ 100%
+                           ▼
+                    ┌─────────────┐
+                    │  Complete   │
+                    └─────────────┘
+```
+
+**State Properties:**
+- Each state tracks: `stage`, `progress`, `currentStage`, `statusMessage`
+- Progress resets to 0% at each stage transition
+- Errors pause state machine and enable retry from failed stage
+- Complete state includes download URL and success confirmation
+
+### Error Handling Flow
+
+The system handles errors at multiple levels with automatic retries and user notifications:
+
+```
+Processing Error
+       │
+       ├─ Network Timeout (Upload/Download)
+       │  └─> Auto-retry with exponential backoff (1s, 2s, 4s, 8s)
+       │     └─> Max 3 retries → User notification with manual retry
+       │
+       ├─ API Validation Error (4xx)
+       │  └─> Immediate user notification (invalid format, missing data)
+       │     └─> No auto-retry (requires user input correction)
+       │
+       ├─ Processing Failure (FFmpeg, codec, memory)
+       │  └─> ECS task retry policy (max 2 attempts)
+       │     └─> Failed → DLQ → CloudWatch alert → User notification
+       │
+       ├─ S3 Upload Failure (quota, permissions)
+       │  └─> Multipart resume from last completed part
+       │     └─> Max 3 retries → User notification
+       │
+       └─ Infrastructure Error (5xx, ECS unavailable)
+          └─> Circuit breaker pattern (fast fail after 3 consecutive errors)
+             └─> User notification with estimated recovery time
+```
+
+All errors include:
+- Clear error messages explaining what failed
+- Suggested actions (retry, check settings, contact support)
+- Retry button that resumes from failed stage
+- Error tracking for debugging (Sentry, CloudWatch, etc.)
+
 ## Processing Stages
 
 ### Stage 1: Upload
