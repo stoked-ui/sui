@@ -14,40 +14,28 @@ import {
   createEditorFile,
   EditorVideoExampleProps,
 } from '@stoked-ui/editor';
-import VideoProcessingProgress, {
-  ProcessingStage,
-} from './VideoProcessingProgress';
+import VideoProcessingProgress from './VideoProcessingProgress';
+import {
+  VideoProcessingSimulator,
+  ProcessingProgress,
+} from '../../services/VideoProcessingSimulator';
 
 interface EditorBackendProcessingDemoProps {
   id: string;
   sx?: SxProps;
 }
 
-interface ProcessingState {
+interface DemoState extends ProcessingProgress {
   isProcessing: boolean;
-  stage: ProcessingStage;
-  progress: number;
-  currentStage: number;
-  statusMessage: string;
-  error?: string;
-  complete: boolean;
 }
 
-const initialState: ProcessingState = {
+const initialState: DemoState = {
   isProcessing: false,
   stage: 'upload',
   progress: 0,
   currentStage: 1,
   statusMessage: '',
-  error: undefined,
   complete: false,
-};
-
-const stageMessages = {
-  upload: 'Uploading video to backend server...',
-  processing: 'Processing video with FFmpeg on AWS ECS...',
-  s3: 'Storing processed video in S3...',
-  download: 'Preparing download link...',
 };
 
 function EditorRaw({ id }: { id: string }) {
@@ -76,107 +64,59 @@ export default function EditorBackendProcessingDemo({
   id,
   sx,
 }: EditorBackendProcessingDemoProps) {
-  const [state, setState] = React.useState<ProcessingState>(initialState);
+  const [state, setState] = React.useState<DemoState>(initialState);
+  const simulatorRef = React.useRef<VideoProcessingSimulator | null>(null);
 
-  const startProcessing = () => {
+  const handleProgressUpdate = React.useCallback((progress: ProcessingProgress) => {
+    setState((prev) => ({
+      ...prev,
+      ...progress,
+    }));
+  }, []);
+
+  const startProcessing = React.useCallback(() => {
+    // Cancel any existing simulation
+    if (simulatorRef.current) {
+      simulatorRef.current.cancel();
+    }
+
+    // Reset state
     setState({
+      ...initialState,
       isProcessing: true,
-      stage: 'upload',
-      progress: 0,
-      currentStage: 1,
-      statusMessage: stageMessages.upload,
-      error: undefined,
-      complete: false,
     });
 
-    // Simulate upload stage (2 seconds)
-    let currentProgress = 0;
-    const uploadInterval = setInterval(() => {
-      currentProgress += 10;
-      if (currentProgress <= 100) {
-        setState((prev) => ({ ...prev, progress: currentProgress }));
-      } else {
-        clearInterval(uploadInterval);
-        // Move to processing stage
-        setState({
-          isProcessing: true,
-          stage: 'processing',
-          progress: 0,
-          currentStage: 2,
-          statusMessage: stageMessages.processing,
-          error: undefined,
-          complete: false,
-        });
+    // Create and start new simulation
+    const simulator = new VideoProcessingSimulator(handleProgressUpdate, {
+      uploadDuration: 2000,
+      processingDuration: 4000,
+      s3Duration: 1000,
+      downloadDuration: 2000,
+    });
+    simulatorRef.current = simulator;
+    simulator.start();
+  }, [handleProgressUpdate]);
 
-        // Simulate processing stage (4 seconds)
-        let processProgress = 0;
-        const processInterval = setInterval(() => {
-          processProgress += 5;
-          if (processProgress <= 100) {
-            setState((prev) => ({ ...prev, progress: processProgress }));
-          } else {
-            clearInterval(processInterval);
-            // Move to S3 stage
-            setState({
-              isProcessing: true,
-              stage: 's3',
-              progress: 0,
-              currentStage: 3,
-              statusMessage: stageMessages.s3,
-              error: undefined,
-              complete: false,
-            });
-
-            // Simulate S3 stage (1 second)
-            let s3Progress = 0;
-            const s3Interval = setInterval(() => {
-              s3Progress += 20;
-              if (s3Progress <= 100) {
-                setState((prev) => ({ ...prev, progress: s3Progress }));
-              } else {
-                clearInterval(s3Interval);
-                // Move to download stage
-                setState({
-                  isProcessing: true,
-                  stage: 'download',
-                  progress: 0,
-                  currentStage: 4,
-                  statusMessage: stageMessages.download,
-                  error: undefined,
-                  complete: false,
-                });
-
-                // Simulate download stage (2 seconds)
-                let downloadProgress = 0;
-                const downloadInterval = setInterval(() => {
-                  downloadProgress += 10;
-                  if (downloadProgress <= 100) {
-                    setState((prev) => ({ ...prev, progress: downloadProgress }));
-                  } else {
-                    clearInterval(downloadInterval);
-                    // Complete
-                    setState((prev) => ({
-                      ...prev,
-                      complete: true,
-                      progress: 100,
-                    }));
-                  }
-                }, 200);
-              }
-            }, 100);
-          }
-        }, 200);
-      }
-    }, 200);
-  };
-
-  const handleClose = () => {
+  const handleClose = React.useCallback(() => {
+    if (simulatorRef.current) {
+      simulatorRef.current.cancel();
+      simulatorRef.current = null;
+    }
     setState(initialState);
-  };
+  }, []);
 
-  const handleRetry = () => {
+  const handleRetry = React.useCallback(() => {
     startProcessing();
-  };
+  }, [startProcessing]);
+
+  // Cleanup on unmount
+  React.useEffect(() => {
+    return () => {
+      if (simulatorRef.current) {
+        simulatorRef.current.cancel();
+      }
+    };
+  }, []);
 
   return (
     <Box sx={sx}>
