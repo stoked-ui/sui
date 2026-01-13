@@ -156,6 +156,7 @@ const pages: MuiPage[] = [
           {pathname: `/editor/docs/events-callbacks`},
           {pathname: `/editor/docs/controls`},
           {pathname: `/editor/docs/drop-add`},
+          {pathname: `/editor/docs/backend-processing`},
         ]
       },
       { pathname: `/editor/docs/roadmap` },
