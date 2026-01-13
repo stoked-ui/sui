@@ -24,8 +24,8 @@
 
 ## 🎯 GitHub Project
 
-- **Project URL:** https://github.com/orgs/stokedconsulting/projects/62
-- **Project Number:** 62
+- **Project URL:** https://github.com/orgs/stoked-ui/projects/6
+- **Project Number:** 6
 
 ---
 
