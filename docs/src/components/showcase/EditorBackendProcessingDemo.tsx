@@ -236,6 +236,8 @@ export default function EditorBackendProcessingDemo({
         open={state.isProcessing}
         onClose={state.complete ? handleClose : undefined}
         closeAfterTransition
+        aria-labelledby="processing-modal-title"
+        aria-describedby="processing-modal-description"
         sx={{
           display: 'flex',
           alignItems: 'center',

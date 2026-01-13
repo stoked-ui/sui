@@ -80,6 +80,8 @@ const VideoProcessingProgress = React.memo<VideoProcessingProgressProps>(
         mt: 2,
         boxShadow: (theme) => theme.shadows[8],
       }}
+      role="region"
+      aria-label="Video processing progress"
     >
       <CardContent>
         {/* Stage Indicators */}
@@ -160,11 +162,11 @@ const VideoProcessingProgress = React.memo<VideoProcessingProgressProps>(
         </Box>
 
         {/* Current Stage Info */}
-        <Box sx={{ mb: 3 }}>
+        <Box sx={{ mb: 3 }} role="status" aria-live="polite" aria-atomic="true">
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-            <StageIcon sx={{ color: config.color, fontSize: 24 }} />
+            <StageIcon sx={{ color: config.color, fontSize: 24 }} aria-hidden="true" />
             <Typography variant="h6" sx={{ color: config.color, fontWeight: 600 }}>
-              Stage {currentStage}/4
+              Stage {currentStage} of 4
             </Typography>
           </Box>
           <Typography variant="body2" color="text.secondary">
@@ -186,6 +188,10 @@ const VideoProcessingProgress = React.memo<VideoProcessingProgressProps>(
             <LinearProgress
               variant="determinate"
               value={progress}
+              aria-label={`${config.label} progress: ${Math.round(progress)}%`}
+              aria-valuenow={Math.round(progress)}
+              aria-valuemin={0}
+              aria-valuemax={100}
               sx={{
                 height: 8,
                 borderRadius: 4,
@@ -204,6 +210,8 @@ const VideoProcessingProgress = React.memo<VideoProcessingProgressProps>(
         {/* Error State */}
         {error && (
           <Box
+            role="alert"
+            aria-live="assertive"
             sx={{
               mt: 2,
               p: 2,
@@ -239,6 +247,8 @@ const VideoProcessingProgress = React.memo<VideoProcessingProgressProps>(
         {/* Success State */}
         {complete && !error && (
           <Box
+            role="status"
+            aria-live="polite"
             sx={{
               mt: 2,
               p: 2,
