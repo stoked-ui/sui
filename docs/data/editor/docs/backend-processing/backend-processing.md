@@ -525,3 +525,21 @@ Use distributed tracing (AWS X-Ray or Datadog APM) to track requests across API 
 Implement structured logging with consistent fields (jobId, userId, stage, duration, errorCode) across all services. Use CloudWatch Logs Insights to query logs and identify patterns. Set up log-based metrics to track business KPIs like daily active users, total videos processed, and revenue per processed minute.
 
 For further reading on infrastructure as code and serverless deployments, see [SST Documentation](https://docs.sst.dev/). For production-grade video processing pipelines, consult [AWS Media Services](https://aws.amazon.com/media-services/) including MediaConvert for advanced transcoding workflows.
+
+## Next Steps
+
+Now that you understand backend video processing integration, you can:
+
+1. **Try the Demo** - Use the interactive demo above to see the complete workflow in action. Toggle error simulation to explore error handling strategies.
+
+2. **Set Up Your Infrastructure** - Deploy an ECS cluster, configure S3 buckets, and implement the API endpoints shown in the code examples. Use infrastructure as code tools like SST, CDK, or Terraform for reproducible deployments.
+
+3. **Implement Progress Tracking** - Add the polling hook or WebSocket implementation to your application. Ensure progress updates provide clear feedback to users during all four stages.
+
+4. **Test Error Scenarios** - Simulate network failures, processing errors, and timeout conditions. Verify your error handling provides actionable feedback and recovery options.
+
+5. **Optimize for Production** - Profile your processing pipeline, right-size ECS tasks, implement caching strategies, and monitor costs. Start with the smallest infrastructure that works, then scale based on real usage patterns.
+
+6. **Monitor and Iterate** - Set up CloudWatch dashboards, configure alarms, and implement distributed tracing. Use production data to identify bottlenecks and optimize the critical path.
+
+For questions and support, visit the [Stoked UI GitHub Discussions](https://github.com/stoked-ui/sui/discussions) or join our community on [Discord](https://discord.gg/stoked-ui).
