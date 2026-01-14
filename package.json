@@ -52,9 +52,12 @@
     "docs:deploy": "pnpm --filter stokedui-com run deploy",
     "docs:release": "pnpm --filter stokedui-com run deploy:release",
     "dev": "turbo run dev:prepare --filter=@stoked-ui/common --filter=stokedui-com && turbo watch dev --filter=@stoked-ui/common --filter=stokedui-com",
+    "dev:legacy": "concurrently \"pnpm docs:debug\" \"pnpm video-renderer:dev\"",
     "docs:dev": "pnpm --filter stokedui-com dev",
     "caladan": "pnpm --filter stokedui-com caladan",
     "docs:debug": "pnpm --filter stokedui-com debug",
+    "video-renderer:dev": "pnpm --filter @stoked-ui/video-renderer dev",
+    "video-renderer:build": "pnpm --filter @stoked-ui/video-renderer build",
     "docs:icons": "pnpm --filter stokedui-com icons",
     "docs:size-why": "cross-env DOCS_STATS_ENABLED=true pnpm docs:build",
     "docs:start": "pnpm --filter stokedui-com start",
@@ -121,8 +124,7 @@
     "aws-lambda": "1.0.7",
     "execa": "^8.0.1",
     "google-auth-library": "^9.7.0",
-    "mongodb": "^6.12.0",
-    "playwright": "1.49"
+    "mongodb": "^6.12.0"
   },
   "devDependencies": {
     "@argos-ci/core": "^1.5.5",
