@@ -1,0 +1,125 @@
+{
+  "id": "demo-project-001",
+  "name": "Sample Video Composition",
+  "version": 2,
+  "filesMeta": [
+    {
+      "size": 25678432,
+      "name": "main-video.mp4",
+      "type": "video/mp4"
+    },
+    {
+      "size": 8765432,
+      "name": "overlay-video.mp4",
+      "type": "video/mp4"
+    },
+    {
+      "size": 4321098,
+      "name": "background-music.mp3",
+      "type": "audio/mp3"
+    },
+    {
+      "size": 2109876,
+      "name": "intro-logo.png",
+      "type": "image/png"
+    }
+  ],
+  "tracks": [
+    {
+      "controllerName": "video",
+      "fileId": "mediafile-001",
+      "id": "track-background",
+      "name": "Background Video",
+      "url": "/path/to/main-video.mp4",
+      "actions": [
+        {
+          "name": "bg-clip-1",
+          "start": 0,
+          "end": 30,
+          "trimStart": 5.5,
+          "z": 0,
+          "fit": "cover",
+          "blendMode": "normal",
+          "loop": 0,
+          "duration": 60.5,
+          "width": 1920,
+          "height": 1080
+        }
+      ]
+    },
+    {
+      "controllerName": "image",
+      "fileId": "mediafile-004",
+      "id": "track-logo",
+      "name": "Logo Overlay",
+      "url": "/path/to/intro-logo.png",
+      "actions": [
+        {
+          "name": "logo-intro",
+          "start": 0,
+          "end": 3,
+          "trimStart": 0,
+          "z": 2,
+          "fit": "contain",
+          "blendMode": "normal",
+          "loop": 0,
+          "width": 400,
+          "height": 200,
+          "x": 760,
+          "y": 100
+        }
+      ]
+    },
+    {
+      "controllerName": "video",
+      "fileId": "mediafile-002",
+      "id": "track-overlay",
+      "name": "Picture-in-Picture",
+      "url": "/path/to/overlay-video.mp4",
+      "actions": [
+        {
+          "name": "pip-clip-1",
+          "start": 10,
+          "end": 25,
+          "trimStart": 2,
+          "z": 1,
+          "fit": "contain",
+          "blendMode": "normal",
+          "loop": 0,
+          "duration": 20,
+          "width": 480,
+          "height": 270,
+          "x": 1400,
+          "y": 780
+        }
+      ]
+    },
+    {
+      "controllerName": "audio",
+      "fileId": "mediafile-003",
+      "id": "track-music",
+      "name": "Background Music",
+      "url": "/path/to/background-music.mp3",
+      "actions": [
+        {
+          "name": "music-main",
+          "start": 0,
+          "end": 30,
+          "trimStart": 10,
+          "volume": [
+            [0, 0],
+            [0.6, 2],
+            [0.6, 25],
+            [0, 30]
+          ],
+          "z": 0
+        }
+      ]
+    }
+  ],
+  "backgroundColor": "#1a1a2e",
+  "width": 1920,
+  "height": 1080,
+  "frameRate": 30,
+  "duration": 30
+}

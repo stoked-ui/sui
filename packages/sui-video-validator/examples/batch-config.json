@@ -1,0 +1,27 @@
+{
+  "validations": [
+    {
+      "name": "Project 1 - Home Page",
+      "reference": "./test-videos/reference/home-page.mp4",
+      "output": "./test-videos/output/home-page-rendered.mp4"
+    },
+    {
+      "name": "Project 2 - Product Demo",
+      "reference": "./test-videos/reference/product-demo.mp4",
+      "output": "./test-videos/output/product-demo-rendered.mp4"
+    },
+    {
+      "name": "Project 3 - Tutorial",
+      "reference": "./test-videos/reference/tutorial.mp4",
+      "output": "./test-videos/output/tutorial-rendered.mp4"
+    }
+  ],
+  "config": {
+    "frameCount": 8,
+    "passThreshold": 0.9,
+    "generateDiffs": true,
+    "outputDir": "./validation-results",
+    "verbose": true
+  },
+  "concurrency": 3
+}

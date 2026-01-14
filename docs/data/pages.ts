@@ -167,6 +167,31 @@ const pages: MuiPage[] = [
       },
     ],
   },
+  {
+    pathname: '/video-renderer/docs',
+    title: 'Video Renderer',
+    newFeature: true,
+    children: [
+      { pathname: '/video-renderer/docs/overview', title: 'Overview' },
+      { pathname: '/video-renderer/docs/quick-start', title: 'Quick Start' },
+      {
+        pathname: '/video-renderer/docs/backend',
+        subheader: 'Backend',
+        children: [
+          { pathname: '/video-renderer/docs/rust-backend', title: 'Rust Backend' },
+          { pathname: '/video-renderer/docs/nodejs-integration', title: 'Node.js Integration' },
+        ],
+      },
+      {
+        pathname: '/video-renderer/docs/frontend',
+        subheader: 'Frontend',
+        children: [
+          { pathname: '/video-renderer/docs/wasm-frontend', title: 'WASM Frontend' },
+        ],
+      },
+      { pathname: '/video-renderer/docs/api-reference', title: 'API Reference' },
+    ],
+  },
 ];
 
 export default pages;
