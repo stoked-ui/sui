@@ -9,6 +9,7 @@
     "emitDeclarationOnly": true,
     "outDir": "build",
     "rootDir": "./src",
+    "skipLibCheck": true,
     "types": ["wicg-file-system-access", "node", "@mui/material/themeCssVarsAugmentation", "@emotion/styled"]
   },
   "include": ["src/**/*.ts*"],

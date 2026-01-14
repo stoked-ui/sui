@@ -1,8 +1,8 @@
 {
   "extends": "../../tsconfig.x.json",
   "compilerOptions": {
-    "target": "ES2015",
-    "lib": ["ES2015", "DOM"],
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "types": [
       "@stoked-ui/internal-test-utils/initMatchers",
       "@mui/material/themeCssVarsAugmentation",

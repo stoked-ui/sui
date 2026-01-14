@@ -1,7 +1,8 @@
 {
   "extends": "../../tsconfig.x.json",
   "compilerOptions": {
-    "target": "ES2015",
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "types": [
       "@stoked-ui/internal-test-utils/initMatchers",
       "chai-dom",
@@ -16,7 +17,8 @@
     "baseUrl": "./",
     "strict": false,
     "noImplicitAny": false,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true
   },
   "include": ["src/**/*"],
   "exclude": ["**/*.test.tsx"]
