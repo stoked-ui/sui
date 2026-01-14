@@ -51,7 +51,7 @@
     "docs:build-color-preview": "babel-node scripts/buildColorTypes",
     "docs:deploy": "pnpm --filter stokedui-com run deploy",
     "docs:release": "pnpm --filter stokedui-com run deploy:release",
-    "dev": "turbo run dev:prepare --filter=@stoked-ui/common --filter=@stoked-ui/video-renderer --filter=stokedui-com && turbo watch dev --filter=@stoked-ui/common --filter=@stoked-ui/video-renderer --filter=stokedui-com",
+    "dev": "turbo run dev:prepare --filter=@stoked-ui/common --filter=stokedui-com && turbo watch dev --filter=@stoked-ui/common --filter=stokedui-com",
     "docs:dev": "pnpm --filter stokedui-com dev",
     "caladan": "pnpm --filter stokedui-com caladan",
     "docs:debug": "pnpm --filter stokedui-com debug",

@@ -1,0 +1,17 @@
+2026-01-14T06:46:16.095419Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".DS_Store")}
+2026-01-14T06:46:16.096204Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }: FileChanged { file: AnchoredSystemPathBuf(".DS_Store") }}))
+2026-01-14T06:46:21.195595Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".DS_Store")}
+2026-01-14T06:46:21.195618Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }: FileChanged { file: AnchoredSystemPathBuf(".DS_Store") }}))
+2026-01-14T06:46:40.895925Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("packages/sui-common/package.json"), AnchoredSystemPathBuf("packages/sui-common/package.json.tmp.8739.1768373200850")}
+2026-01-14T06:46:40.895937Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("@stoked-ui/common"), path: AnchoredSystemPathBuf("packages/sui-common") }: FileChanged { file: AnchoredSystemPathBuf("packages/sui-common/package.json.tmp.8739.1768373200850") }}))
+2026-01-14T06:46:41.496261Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".DS_Store")}
+2026-01-14T06:46:41.496272Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }: FileChanged { file: AnchoredSystemPathBuf(".DS_Store") }}))
+2026-01-14T06:46:48.895828Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("docs/package.json"), AnchoredSystemPathBuf("docs/package.json.tmp.8739.1768373208883")}
+2026-01-14T06:46:48.895840Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("stokedui-com"), path: AnchoredSystemPathBuf("docs") }: FileChanged { file: AnchoredSystemPathBuf("docs/package.json") }}))
+2026-01-14T06:46:50.195585Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf("docs/.turbo")}
+2026-01-14T06:46:50.195600Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Other("stokedui-com"), path: AnchoredSystemPathBuf("docs") }: FileChanged { file: AnchoredSystemPathBuf("docs/.turbo") }}))
+2026-01-14T06:46:50.196220Z  WARN turborepo_lib::package_changes_watcher: hashes are the same, no need to rerun
+2026-01-14T06:46:51.896089Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".DS_Store")}
+2026-01-14T06:46:51.896100Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }: FileChanged { file: AnchoredSystemPathBuf(".DS_Store") }}))
+2026-01-14T06:46:56.896177Z  WARN turborepo_lib::package_changes_watcher: changed_files: {AnchoredSystemPathBuf(".DS_Store")}
+2026-01-14T06:46:56.896186Z  WARN turborepo_lib::package_changes_watcher: changed_packages: Ok(Some({WorkspacePackage { name: Root, path: AnchoredSystemPathBuf("") }: FileChanged { file: AnchoredSystemPathBuf(".DS_Store") }}))

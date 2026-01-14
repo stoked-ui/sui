@@ -31,7 +31,11 @@
     "build:stable": "node ../../scripts/build.mjs stable",
     "build:copy-files": "node ../../scripts/copyFiles.mjs",
     "build:types": "node ../../scripts/buildTypes.mjs",
-    "prebuild": "rimraf build tsconfig.build.tsbuildinfo"
+    "prebuild": "rimraf build tsconfig.build.tsbuildinfo",
+    "watch": "pnpm babel --config-file ../../babel.config.js --extensions '.js,.ts,.tsx' ./src --out-dir ./build/modern --watch --ignore '**/*.test.js','**/*.test.ts','**/*.test.tsx','**/*.spec.ts','**/*.spec.tsx','**/*.d.ts'",
+    "watch:types": "tsc -b tsconfig.build.json --watch",
+    "dev:prepare": "pnpm build:modern && pnpm build:types",
+    "dev": "pnpm watch"
   },
   "repository": {
     "type": "git",

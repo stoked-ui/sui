@@ -12,6 +12,7 @@
     "build:clean": "rimraf .next && pnpm build",
     "build-sw": "node ./scripts/buildServiceWorker.js",
     "dev": "next dev -p 5199 --experimental-https",
+    "dev:prepare": "echo 'Next.js dev server - no build needed'",
     "debug": "DEV_DISPLAY=1 FLAG_DEBUGGING=1 next dev -p 5199 --experimental-https",
     "caladan": "next dev -p 5198 --experimental-https",
     "dev:clean": "rm -rf .next && next dev",
