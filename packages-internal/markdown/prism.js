@@ -8,15 +8,18 @@ require('prismjs/components/prism-jsx');
 require('prismjs/components/prism-markup');
 require('prismjs/components/prism-yaml');
 require('prismjs/components/prism-tsx');
+require('prismjs/components/prism-rust');
 
 function highlight(code, language) {
   let prismLanguage;
   switch (language) {
     case 'ts':
+    case 'typescript':
       prismLanguage = prism.languages.tsx;
       break;
 
     case 'js':
+    case 'javascript':
       prismLanguage = prism.languages.jsx;
       break;
 

@@ -10,6 +10,19 @@
       "cache": true,
       "dependsOn": ["copy-license", "^build"],
       "outputs": ["{projectRoot}/build"]
+    },
+    "dev": {
+      "cache": false,
+      "dependsOn": ["^build"]
+    },
+    "dev:prepare": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "outputs": ["{projectRoot}/build", "{projectRoot}/dist"]
+    },
+    "watch": {
+      "cache": false,
+      "dependsOn": ["^build"]
     }
   }
 }

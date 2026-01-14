@@ -67,25 +67,30 @@ export default withDocsInfra({
       // We only care about Node runtime at this point.
       (options.nextRuntime === undefined || options.nextRuntime === 'nodejs')
     ) {
-      const [nextExternals, ...externals] = config.externals;
+      // Handle both array and function externals configurations
+      const externalsArray = Array.isArray(config.externals) ? config.externals : [config.externals];
+      const [nextExternals, ...restExternals] = externalsArray;
 
-      config.externals = [
-        // @ts-ignore
-        (ctx, callback) => {
-          const { request } = ctx;
-          const hasDependencyOnRepoPackages = [
-            'notistack',
-            '@mui/docs',
-            '@mui/material',
-          ].some((dep) => request.startsWith(dep));
+      // Only wrap if nextExternals is a function
+      if (typeof nextExternals === 'function') {
+        config.externals = [
+          // @ts-ignore
+          (ctx, callback) => {
+            const { request } = ctx;
+            const hasDependencyOnRepoPackages = [
+              'notistack',
+              '@mui/docs',
+              '@mui/material',
+            ].some((dep) => request.startsWith(dep));
 
-          if (hasDependencyOnRepoPackages) {
-            return callback(null);
-          }
-          return nextExternals(ctx, callback);
-        },
-        ...externals,
-      ];
+            if (hasDependencyOnRepoPackages) {
+              return callback(null);
+            }
+            return nextExternals(ctx, callback);
+          },
+          ...restExternals,
+        ];
+      }
     }
 
     // @ts-ignore

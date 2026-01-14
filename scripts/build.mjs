@@ -93,8 +93,13 @@ async function run(argv) {
   }
 
   const { stderr, stdout } = await exec(command, { env: { ...process.env, ...env } });
-  if (stderr) {
-    throw new Error(`'${command}' failed with \n${stderr}`);
+  // Note: exec() throws on non-zero exit code, so if we reach here, command succeeded
+  // stderr may contain warnings (like browserslist) which are non-fatal
+
+  // Log stderr warnings if present (like browserslist warnings)
+  if (stderr && verbose) {
+    // eslint-disable-next-line no-console
+    console.warn('Warnings:', stderr);
   }
 
   if (verbose) {
