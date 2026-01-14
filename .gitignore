@@ -47,3 +47,14 @@ packages-internal/x-tree-view-example
 **/sst-env.d.ts
 .history
 **/.env
+
+# Claude AI directories
+.claude/
+.claude-sessions/
+.serena/
+.autonomous/
+claudedocs/
+
+# Turbo build artifacts
+.turbo/cache/
+.turbo/cookies/
