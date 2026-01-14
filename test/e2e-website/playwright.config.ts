@@ -9,6 +9,7 @@ const config: PlaywrightTestConfig<TestFixture> = {
   },
   use: {
     baseURL: process.env.PLAYWRIGHT_TEST_BASE_URL || 'https://stoked-ui.com',
+    ignoreHTTPSErrors: true, // Allow self-signed certificates for local development
   },
 };
 
