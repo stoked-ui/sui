@@ -13,7 +13,7 @@ export default function FullscreenEditor() {
   };
 
   return (
-    <Box sx={{ height: '400px', width: '100%', border: '1px solid #e0e0e0' }}>
+    <Box sx={{ width: '100%' }}>
       <Box sx={{ mb: 2 }}>
         <Button
           variant="outlined"
@@ -24,12 +24,21 @@ export default function FullscreenEditor() {
         </Button>
       </Box>
 
-      <EditorProvider controllers={Controllers}>
-        <Editor
-          fullscreen={isFullscreen}
-          labels={true}
-        />
-      </EditorProvider>
+      <Box sx={{
+        height: '500px',
+        width: '100%',
+        border: '1px solid #e0e0e0',
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+      }}>
+        <EditorProvider controllers={Controllers}>
+          <Editor
+            fullscreen={isFullscreen}
+            labels={true}
+          />
+        </EditorProvider>
+      </Box>
     </Box>
   );
 } 

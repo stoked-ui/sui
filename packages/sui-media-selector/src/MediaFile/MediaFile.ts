@@ -961,7 +961,8 @@ export default class MediaFile extends File implements IMediaFile {
   }
 
   static toFileBaseArray(files: IMediaFile[]) {
-    return files.map((file, index) => {
+    // Filter out null/undefined values before mapping
+    return files.filter(file => file != null).map((file, index) => {
       const mediaFile = file as IMediaFile;
       return {
         id: mediaFile.id,

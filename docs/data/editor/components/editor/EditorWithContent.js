@@ -42,7 +42,14 @@ export default function EditorWithContent() {
   }, []);
   
   return (
-    <Box sx={{ height: '400px', width: '100%', border: '1px solid #e0e0e0' }}>
+    <Box sx={{
+      height: '500px',
+      width: '100%',
+      border: '1px solid #e0e0e0',
+      overflow: 'hidden',
+      display: 'flex',
+      flexDirection: 'column',
+    }}>
       <EditorProvider controllers={Controllers}>
         <Editor
           file={file}

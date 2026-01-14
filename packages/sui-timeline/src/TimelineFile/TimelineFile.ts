@@ -81,17 +81,21 @@ export default class TimelineFile<
     for (let i = 0; i < props.tracks?.length; i += 1) {
       const track = props.tracks[i];
 
-      if (!track.controller) {
-        if (track.controllerName) {
-          track.controller = TimelineFile.Controllers[track.controllerName];
-        } else if (track.file.mediaType) {
-          track.controller = TimelineFile.Controllers[track.file.mediaType]
-        }
-      }
+      // First, ensure track.file exists before accessing its properties
       const file = props.files?.[i];
       if (!track.file && file) {
         track.file = new MediaFile([file], file.name, { type: file.type });
       }
+
+      // Now we can safely check track.controller
+      if (!track.controller) {
+        if (track.controllerName) {
+          track.controller = TimelineFile.Controllers[track.controllerName];
+        } else if (track.file?.mediaType) {
+          track.controller = TimelineFile.Controllers[track.file.mediaType]
+        }
+      }
+
       if (track.file) {
         this.addFile(file);
       }

@@ -7,8 +7,12 @@ packages:
   - infra
   - test
 onlyBuiltDependencies:
+  - '@nestjs/core'
   - aws-sdk
   - core-js
   - esbuild
+  - mongodb-memory-server
+  - msgpackr-extract
   - nx
+  - puppeteer
   - sharp
