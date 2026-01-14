@@ -34,7 +34,7 @@ export default function EditorFileTabs(inProps: FileExplorerTabsProps) {
     if (urlLookup) {
       switch(clickedFile.mediaType) {
         case 'project': {
-          const editorFile = await EditorFile.fromLocalFile<EditorFile>(urlLookup.blob as Blob, EditorFile) as EditorFile;
+          const editorFile = await EditorFile.fromLocalFile<EditorFile>(urlLookup.blob as any, EditorFile) as EditorFile;
           await editorFile.updateStore();
           await editorFile.preload(editorId);
           dispatch({type: 'SET_FILE', payload: editorFile})

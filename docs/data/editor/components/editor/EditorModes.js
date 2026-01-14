@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Editor } from '@stoked-ui/sui-editor';
+import { Editor, EditorProvider, Controllers } from '@stoked-ui/editor';
 import Box from '@mui/material/Box';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
@@ -33,11 +33,13 @@ export default function EditorModes() {
       </Box>
       
       <Box sx={{ height: '400px', width: '100%', border: '1px solid #e0e0e0' }}>
-        <Editor 
-          mode={mode}
-          labels={true}
-          fileView={true}
-        />
+        <EditorProvider controllers={Controllers}>
+          <Editor
+            mode={mode}
+            labels={true}
+            fileView={true}
+          />
+        </EditorProvider>
       </Box>
     </Box>
   );

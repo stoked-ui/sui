@@ -3,12 +3,12 @@ productId: editor
 title: Editor React component
 components: Editor
 githubLabel: 'component: editor'
-packageName: '@stoked-ui/sui-editor'
+packageName: '@stoked-ui/editor'
 ---
 
 # Editor
 
-<p class="description">The Editor component is a powerful media editing interface that combines a timeline, file explorer, and preview area to provide a complete video and media editing experience.</p>
+<p class="description">A powerful media editing interface combining timeline, file explorer, and preview for complete video editing.</p>
 
 {{"component": "modules/components/ComponentLinkHeader"}}
 
@@ -26,8 +26,8 @@ The Editor component is the core of the Stoked UI media editing system. It provi
 ## Basics
 
 ```jsx
-import { Editor } from '@stoked-ui/sui-editor';
-import { EditorFile } from '@stoked-ui/sui-editor';
+import { Editor } from '@stoked-ui/editor';
+import { EditorFile } from '@stoked-ui/editor';
 ```
 
 ### Basic Editor
