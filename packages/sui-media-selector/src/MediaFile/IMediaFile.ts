@@ -1,6 +1,6 @@
 import { Settings } from "@stoked-ui/common";
 
-export default interface IMediaFile extends File {
+export default interface IMediaFile extends Omit<File, 'stream'> {
   /**
    * The timestamp when the file was created.
    */
@@ -56,7 +56,7 @@ export default interface IMediaFile extends File {
   /**
    * Streams the file and metadata as a `ReadableStream`.
    */
-  stream(): ReadableStream<Uint8Array>;
+  stream(): ReturnType<Blob['stream']>;
 
   /**
    * Creates a new `Blob` containing the specified portion of the file and metadata.

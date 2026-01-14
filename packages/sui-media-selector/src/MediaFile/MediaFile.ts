@@ -5,7 +5,6 @@ import {
   Settings,
   ExtensionMimeTypeMap
 } from "@stoked-ui/common";
-import { File, Blob } from 'formdata-node';
 
 import {
   DropFile,
@@ -138,7 +137,8 @@ export default class MediaFile extends File implements IMediaFile {
     return blob.text();
   }
 
-  stream(): ReadableStream<Uint8Array> {
+  // Override File.stream() to include metadata
+  stream() {
     const streamBlob = new Blob([JSON.stringify(this.mediaProps), this], { type: this.type });
     return streamBlob.stream();
   }
@@ -236,6 +236,29 @@ export default class MediaFile extends File implements IMediaFile {
 
     // Create MediaFile instance
     return new MediaFile([file], file.name, mediaFileOptions);
+  }
+
+  /**
+   * Creates a MediaFile from a Blob (for embedded media extraction)
+   */
+  static async fromBlob(blob: Blob, fileName: string): Promise<MediaFile> {
+    const objectUrl = URL.createObjectURL(blob);
+    const options = {
+      type: blob.type,
+      created: Date.now(),
+      path: fileName,
+      url: objectUrl,
+      media: {
+        description: "Extracted from embedded media",
+        tags: [],
+      },
+      id: this.generateId,
+      mediaType: getMediaType(blob.type),
+    };
+
+    const mediaFile = new MediaFile([blob], fileName, options);
+    await mediaFile.extractMetadata();
+    return mediaFile;
   }
 
   static async fromUrl(url: string, throwOnError: boolean = false): Promise<MediaFile | null> {

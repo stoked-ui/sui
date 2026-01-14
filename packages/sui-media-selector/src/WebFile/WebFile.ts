@@ -264,7 +264,32 @@ export default abstract class WebFile implements IWebFile {
     const metadataText = new TextDecoder().decode(metadataBuffer);
     const metadata = JSON.parse(metadataText);
 
-    return new FileConstructor({ content: file, ...metadata });
+    // Extract embedded media files if they exist
+    const embeddedMediaBlobs: Record<string, Blob> = {};
+    if (metadata.filesMeta && Array.isArray(metadata.filesMeta)) {
+      let currentOffset = metadataEnd;
+
+      for (const fileMeta of metadata.filesMeta) {
+        const fileSize = fileMeta.size;
+        const fileName = fileMeta.name;
+        const fileType = fileMeta.type;
+
+        // Extract this file's data
+        const fileData = arrayBuffer.slice(currentOffset, currentOffset + fileSize);
+        const blob = new Blob([fileData], { type: fileType });
+
+        // Store with filename as key
+        embeddedMediaBlobs[fileName] = blob;
+
+        currentOffset += fileSize;
+      }
+    }
+
+    return new FileConstructor({
+      content: file,
+      ...metadata,
+      embeddedMedia: embeddedMediaBlobs  // Pass extracted media blobs
+    });
   }
 
   /**

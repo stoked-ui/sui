@@ -4,7 +4,6 @@ import {
   IMediaFile, MediaFile, AppFile, WebFile
 } from "@stoked-ui/media-selector";
 import {alpha} from "@mui/material/styles";
-import { Blob } from 'formdata-node';
 import { Constructor, compositeColors, namedId } from "@stoked-ui/common";
 import {
   type ITimelineAction,
@@ -328,12 +327,34 @@ export default class TimelineFile<
   static async fromLocalFile<AppFileType = TimelineFile>(file: Blob, FileConstructor: Constructor<AppFileType>): Promise<AppFileType> {
     const timelineFile = await AppFile.fromLocalFile<AppFileType>(file, FileConstructor) as TimelineFile;
 
+    // Check if this file has embedded media (binary .sue format)
+    const embeddedMedia = (timelineFile as any).embeddedMedia as Record<string, Blob> | undefined;
+
     for (let index = 0; index < timelineFile.tracks.length; index += 1) {
-      const mediaFile = timelineFile.tracks[index].file
-      // eslint-disable-next-line no-await-in-loop
-      await mediaFile.extractMetadata();
+      const track = timelineFile.tracks[index];
+
+      // If we have embedded media, try to match it to this track
+      if (embeddedMedia && track.url) {
+        // Try to find matching embedded media by filename
+        for (const [fileName, blob] of Object.entries(embeddedMedia)) {
+          const nameWithoutExt = fileName.replace(/\.[^/.]+$/, '');
+          if (track.url.includes(nameWithoutExt)) {
+            // Found matching embedded media - create MediaFile from blob
+            // eslint-disable-next-line no-await-in-loop
+            track.file = await MediaFile.fromBlob(blob, fileName);
+            break;
+          }
+        }
+      }
+
+      const mediaFile = track.file;
+      if (mediaFile) {
+        // eslint-disable-next-line no-await-in-loop
+        await mediaFile.extractMetadata();
+      }
     }
 
+    // Only load URLs for tracks that don't have files yet (external references)
     await timelineFile.loadUrls();
 
     return timelineFile as unknown as AppFileType;

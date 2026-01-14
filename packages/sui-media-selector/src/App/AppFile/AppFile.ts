@@ -1,10 +1,10 @@
 import {namedId, Constructor, FileSaveRequest, Versions, IDBVideo,} from '@stoked-ui/common';
-import { File, Blob } from 'formdata-node';
 import WebFile, {
   IWebFile,
   IWebFileData,
   IWebFileProps,
 } from '../../WebFile';
+import type IMediaFile from '../../MediaFile/IMediaFile';
 import path from "path";
 import * as fse from "fs-extra";
 
@@ -23,7 +23,7 @@ export interface IAppFileData extends IWebFileData {
 }
 
 export interface IAppFile extends IWebFile {
-  files: File[];
+  files: (File | IMediaFile)[];
   versions: Versions;
   videos: IDBVideo[];
 
@@ -36,7 +36,7 @@ export interface IAppFile extends IWebFile {
 
 export default class AppFile<FileDataType extends IAppFileData = IAppFileData> extends WebFile implements IAppFile {
 
-  protected _files: File[];
+  protected _files: (File | IMediaFile)[];
 
   versions: Versions = [];
 
@@ -47,7 +47,7 @@ export default class AppFile<FileDataType extends IAppFileData = IAppFileData> e
     this._files = appFileProps?.files ?? [];
   }
 
-  get files(): File[] {
+  get files(): (File | IMediaFile)[] {
     return this._files;
   }
 

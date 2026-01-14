@@ -173,7 +173,7 @@ export default class EditorFile<
     const editor = StokedUiEditorApp.getInstance();
     const urlLookup = await LocalDb.loadByUrl({store: editor.defaultInputFileType.name, url});
     if (urlLookup) {
-      const editorFile = await this.fromLocalFile<AppFileType>(urlLookup.blob as Blob, FileConstructor) as EditorFile;
+      const editorFile = await this.fromLocalFile<AppFileType>(urlLookup.blob as any, FileConstructor) as EditorFile;
        await editorFile.updateStore();
       return editorFile as AppFileType;
     }
@@ -264,8 +264,8 @@ export default class EditorFile<
    * @param file A File object from an attached drive.
    * @param FileConstructor
    */
-  static async fromLocalFile<AppFileType = EditorFile>(file: Blob, FileConstructor: Constructor<AppFileType>): Promise<AppFileType> {
-    const editorFile = await TimelineFile.fromLocalFile<AppFileType>(file, FileConstructor) as EditorFile;
+  static async fromLocalFile<AppFileType = EditorFile>(file: any, FileConstructor: Constructor<AppFileType>): Promise<AppFileType> {
+    const editorFile = await TimelineFile.fromLocalFile<AppFileType>(file as any, FileConstructor) as EditorFile;
     await editorFile.updateStore();
     return editorFile as unknown as AppFileType;
   }
