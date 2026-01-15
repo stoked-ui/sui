@@ -15,6 +15,7 @@ import { FileExplorerProvider } from '../internals/FileExplorerProvider';
 import { FILE_EXPLORER_PLUGINS, FileExplorerPluginSignatures } from './FileExplorer.plugins';
 import { buildWarning } from '../internals/utils/warning';
 import { FileExplorerGridHeaders } from '../internals/plugins/useFileExplorerGrid/FileExplorerGridHeaders';
+import { FileExplorerGridWrapper } from '../internals/plugins/useFileExplorerGrid/FileExplorerGridWrapper';
 import { FileWrapped } from './FileWrapped';
 import { FileExplorerDndContext } from '../internals/plugins/useFileExplorerDnd/FileExplorerDndContext';
 import { FileDropzone } from '../FileDropzone';
@@ -238,6 +239,7 @@ const FileExplorer = React.forwardRef(function FileExplorer<
 
   // AC-2.1.a: Render MUI X RichTreeView while preserving FileExplorerProps interface
   // AC-2.1.b: Map props to RichTreeView or document adapter layer needs
+  // AC-3.1.a: Tree items render in grid with columns aligned to headers
   const getContent = () => {
     // Phase 2.2: Maintain legacy rendering while plugin adapters are implemented
     // MUI X RichTreeView rendering will be activated once all plugins (2.2-2.5) are adapted
@@ -248,10 +250,19 @@ const FileExplorer = React.forwardRef(function FileExplorer<
         </Root>
       );
     }
+
+    // AC-3.1: Grid View Plugin Adapter Integration
+    // Use FileExplorerGridWrapper for grid layout with synchronized headers
     return (
-      <Root {...rootProps} sx={[props.sx, columnWidths]}>
-        <FileExplorerGridHeaders id={'file-explorer-headers'} />
-        <div>{itemsToRender.map(renderItem)}</div>
+      <Root {...rootProps}>
+        <FileExplorerGridWrapper
+          columns={columns}
+          headers={instance.getHeaders()}
+          id={props.id || 'file-explorer'}
+          columnWidths={columnWidths}
+        >
+          {itemsToRender.map(renderItem)}
+        </FileExplorerGridWrapper>
       </Root>
     );
   };

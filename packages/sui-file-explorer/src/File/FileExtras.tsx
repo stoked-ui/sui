@@ -95,6 +95,31 @@ export const FileContent = styled('div', {
     // paddingRight: theme.spacing(1),
     fontWeight: 500,
 
+    /**
+     * AC-3.2.e: Visual feedback styles for drag and drop operations
+     * Drop target affordances provide visual cues during drag operations
+     */
+    '& .can-drop': {
+      border: `2px solid ${theme.palette.success.main}`,
+      backgroundColor: alpha(theme.palette.success.main, 0.1),
+      borderRadius: theme.spacing(0.7),
+    },
+    '& .can-drop-selected': {
+      border: `2px solid ${theme.palette.success.light}`,
+      backgroundColor: alpha(theme.palette.success.light, 0.15),
+      borderRadius: theme.spacing(0.7),
+    },
+    '& .can-not-drop': {
+      border: `2px solid ${theme.palette.error.main}`,
+      backgroundColor: alpha(theme.palette.error.main, 0.1),
+      borderRadius: theme.spacing(0.7),
+    },
+    '& .can-not-drop-selected': {
+      border: `2px solid ${theme.palette.error.light}`,
+      backgroundColor: alpha(theme.palette.error.light, 0.15),
+      borderRadius: theme.spacing(0.7),
+    },
+
     [`&.Mui-expanded `]: {
       '&:not(.Mui-focused, .Mui-selected, .Mui-selected.Mui-focused) .labelIcon': {
         color:

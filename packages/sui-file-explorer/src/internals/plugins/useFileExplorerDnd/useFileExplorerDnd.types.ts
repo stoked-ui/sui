@@ -66,6 +66,7 @@ export interface UseFileExplorerDndParameters {
   dndFileTypes?: string[];
   dndTrash?: true;
   onAddFiles?: (files: FileBase[]) => void;
+  onRemoveItems?: (items: FileBase[]) => void;
 }
 
 export type UseFileExplorerDndDefaultizedParameters = UseFileExplorerDndParameters;
