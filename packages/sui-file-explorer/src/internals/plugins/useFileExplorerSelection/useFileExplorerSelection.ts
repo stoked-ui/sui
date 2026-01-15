@@ -186,6 +186,14 @@ export const useFileExplorerSelection: FileExplorerPlugin<UseFileExplorerSelecti
     setSelectedItems(event, newSelectedItems);
   };
 
+  // AC-1.2.a: Adapter method for MUI X RichTreeView integration
+  const getSelectedItemsForMuiX = React.useCallback(() => {
+    if (params.multiSelect) {
+      return convertSelectedItemsToArray(models.selectedItems.value);
+    }
+    return models.selectedItems.value;
+  }, [models.selectedItems.value, params.multiSelect]);
+
   return {
     getRootProps: () => ({
       'aria-multiselectable': params.multiSelect,
@@ -201,6 +209,7 @@ export const useFileExplorerSelection: FileExplorerPlugin<UseFileExplorerSelecti
       selectRangeFromStartToItem,
       selectRangeFromItemToEnd,
       selectItemFromArrowNavigation,
+      getSelectedItemsForMuiX,
     },
     contextValue: {
       selection: {

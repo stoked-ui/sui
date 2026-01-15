@@ -18,10 +18,10 @@ export const useFileExplorerExpansion: FileExplorerPlugin<UseFileExplorerExpansi
     return temp;
   }, [models.expandedItems.value]);
 
-  const setExpandedItems = (event: React.SyntheticEvent, value: FileId[]) => {
+  const setExpandedItems = React.useCallback((event: React.SyntheticEvent, value: FileId[]) => {
     params.onExpandedItemsChange?.(event, value);
     models.expandedItems.setControlledValue(value);
-  };
+  }, [params, models.expandedItems]);
 
   const isItemExpanded = React.useCallback(
     (id: string) => {
@@ -96,6 +96,11 @@ export const useFileExplorerExpansion: FileExplorerPlugin<UseFileExplorerExpansi
     return 'content';
   }, [params.expansionTrigger]);
 
+  // AC-1.2.b: Adapter methods for MUI X RichTreeView integration
+  const getExpandedItems = React.useCallback(() => {
+    return models.expandedItems.value;
+  }, [models.expandedItems.value]);
+
   return {
     publicAPI: {
       setItemExpansion,
@@ -106,6 +111,8 @@ export const useFileExplorerExpansion: FileExplorerPlugin<UseFileExplorerExpansi
       setItemExpansion,
       toggleItemExpansion,
       expandAllSiblings,
+      getExpandedItems,
+      setExpandedItems,
     },
     contextValue: {
       expansion: {

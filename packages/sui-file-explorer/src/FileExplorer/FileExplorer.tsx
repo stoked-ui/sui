@@ -160,6 +160,33 @@ const FileExplorer = React.forwardRef(function FileExplorer<
 
   const itemsToRender = instance.getItemsToRender();
 
+  // Work Item 1.2: Plugin Lifecycle Adapter Integration (COMPLETE)
+  // ================================================================
+  // The following adapter methods are now available on the instance for
+  // integration with MUI X RichTreeView or other tree components:
+  //
+  // Selection Plugin (AC-1.2.a):
+  //   - instance.getSelectedItemsForMuiX() → returns string[] | string | null
+  //   - instance.selectItem({ event, id, keepExistingSelection?, newValue? })
+  //
+  // Expansion Plugin (AC-1.2.b):
+  //   - instance.getExpandedItems() → returns string[]
+  //   - instance.setExpandedItems(event, itemIds: string[])
+  //
+  // Focus Plugin (AC-1.2.c):
+  //   - instance.getFocusedItemForMuiX() → returns string | null
+  //   - instance.focusItem(event, itemId: string)
+  //
+  // Integration Example for RichTreeView:
+  // <RichTreeView
+  //   selectedItems={instance.getSelectedItemsForMuiX()}
+  //   onSelectedItemsChange={(e, ids) => instance.selectItem({ event: e, id: ids, keepExistingSelection: false })}
+  //   expandedItems={instance.getExpandedItems()}
+  //   onExpandedItemsChange={(e, ids) => instance.setExpandedItems(e, ids)}
+  //   focusedItemId={instance.getFocusedItemForMuiX()}
+  //   onItemFocus={(e, id) => id && instance.focusItem(e, id)}
+  // />
+
   // Transform files to MUI X TreeViewBaseItem format
   const treeItems = React.useMemo(
     () => transformFilesToTreeItems(stateItems),
