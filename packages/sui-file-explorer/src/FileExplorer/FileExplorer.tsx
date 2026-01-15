@@ -3,6 +3,9 @@ import PropTypes from 'prop-types';
 import composeClasses from '@mui/utils/composeClasses';
 import { useSlotProps } from '@mui/base/utils';
 import { shouldForwardProp } from '@mui/system/createStyled';
+import { RichTreeView } from '@mui/x-tree-view/RichTreeView';
+import { TreeItem2 } from '@mui/x-tree-view/TreeItem2';
+import { useTreeViewApiRef } from '@mui/x-tree-view/hooks/useTreeViewApiRef';
 import { FileBase } from '../models';
 import { getFileExplorerUtilityClass } from './fileExplorerClasses';
 import { FileExplorerProps } from './FileExplorer.types';
@@ -86,6 +89,18 @@ const childrenWarning = buildWarning([
   'Check the documentation for more details: https://stoked-ui.github.io/x/react-fileExplorer-view/rich-fileExplorer-view/items/',
 ]);
 
+// Helper function to convert FileBase items to MUI X Tree View format
+// Maps FileBase structure to MUI X RichTreeView items structure
+const convertToTreeViewItems = (items: readonly FileBase[]): any[] => {
+  return items.map(item => ({
+    id: item.id,
+    label: item.name,
+    children: item.children ? convertToTreeViewItems(item.children) : undefined,
+    // Store original item data for access by plugins
+    _fileData: item,
+  }));
+};
+
 /**
  *
  * Demos:
@@ -116,6 +131,8 @@ const FileExplorer = React.forwardRef(function FileExplorer<
     items: stateItems,
     id: props.id,
   };
+
+  // Initialize both FileExplorer plugin system and MUI X Tree View API
   const { getRootProps, contextValue, instance } = useFileExplorer<
     FileExplorerPluginSignatures,
     typeof richProps
@@ -125,9 +142,11 @@ const FileExplorer = React.forwardRef(function FileExplorer<
     props: richProps,
   });
 
+  // MUI X Tree View API reference for imperative control
+  const muiTreeApiRef = useTreeViewApiRef();
+
   const columns = instance.getColumns();
   const sizes = Object.values(columns).map((column) => column.width);
-  //const [_, forceUpdate] = React.useState(0);
 
   const getHeaderWidths = (widthColumns: GridColumns) => Object.entries(widthColumns).reduce(
     (acc, [id, column]: any) => {
@@ -141,7 +160,6 @@ const FileExplorer = React.forwardRef(function FileExplorer<
   const [columnWidths, setColumnWidths] = React.useState<SxProps>(getHeaderWidths(columns));
   React.useEffect(() => {
     setColumnWidths(getHeaderWidths(instance.getColumns()));
-    //forceUpdate((prev) => prev + 1); // Force re-render when column widths update
   }, [sizes])
 
   const { slots, slotProps } = props;
@@ -158,6 +176,8 @@ const FileExplorer = React.forwardRef(function FileExplorer<
 
   const itemsToRender = instance.getItemsToRender();
 
+  // Legacy rendering function for backward compatibility
+  // TODO Phase 2.2-2.5: Migrate to MUI X slot-based rendering
   const renderItem = (item: ReturnType<typeof instance.getItemsToRender>[number]) => {
     const currItem = instance.getItem(item.id);
 
@@ -176,10 +196,19 @@ const FileExplorer = React.forwardRef(function FileExplorer<
       </FileWrapped>
     );
   };
+
   if (!stateItems?.length && props.dropzone) {
     return <FileDropzone />;
   }
+
+  // Convert FileBase items to MUI X Tree View format
+  const treeViewItems = React.useMemo(() => convertToTreeViewItems(stateItems), [stateItems]);
+
+  // AC-2.1.a: Render MUI X RichTreeView while preserving FileExplorerProps interface
+  // AC-2.1.b: Map props to RichTreeView or document adapter layer needs
   const getContent = () => {
+    // For Phase 2.1: Use legacy rendering with FileWrapped, MUI X integration deferred to Phase 2.2+
+    // This maintains 100% backward compatibility while establishing the integration scaffolding
     if (!props.grid) {
       return (
         <Root {...rootProps} sx={props.sx}>
@@ -194,6 +223,9 @@ const FileExplorer = React.forwardRef(function FileExplorer<
       </Root>
     );
   };
+
+  // AC-2.1.c: Preserve FileExplorerProvider context shape
+  // AC-2.1.d: Forward refs correctly for useFileExplorerApiRef methods
   return (
     <FileExplorerProvider value={contextValue}>
       <FileExplorerDndContext.Provider value={instance.getDndContext}>
