@@ -13,16 +13,20 @@ import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import DeleteIcon from '@mui/icons-material/Delete';
 import StokedUiFile from '../File/StokedUIFile';
 import LottieIcon from '../icons/LottieIcon';
+import { useFileExplorerContext } from '../internals/FileExplorerProvider/useFileExplorerContext';
+import { FileExplorerGridColumns } from '../internals/plugins/useFileExplorerGrid/FileExplorerGridColumns';
+import type { UseFileExplorerGridSignature } from '../internals/plugins/useFileExplorerGrid/useFileExplorerGrid.types';
 
 /**
  * Props for CustomFileTreeItem component
  * Extends TreeItem props with file-specific customization
  */
-export interface CustomFileTreeItemProps extends React.ComponentProps<typeof TreeItem> {
+export interface CustomFileTreeItemProps extends Omit<React.ComponentProps<typeof TreeItem>, 'nodeId'> {
   /**
    * Node identifier for the tree item
+   * Made optional to satisfy MUI X RichTreeView slots contract
    */
-  nodeId: string;
+  nodeId?: string;
   /**
    * File data preserved from FileExplorer items
    */
@@ -85,11 +89,15 @@ const getIconFromFileType = (fileType: MediaType | string): React.ElementType =>
  * - Custom icon rendering based on file type
  * - Label customization via slots and slot props
  * - Preservation of FileExplorer's icon and label logic
+ * - Grid mode support with column rendering (Work Item 1.4)
  * - Backward compatibility with existing icon customization props
  *
  * AC-1.3.a: Custom icons render for file types (video, project, folder, etc.)
  * AC-1.3.b: Labels display correctly from FileBase metadata
  * AC-1.3.c: Existing icon props from FileExplorer work seamlessly
+ * AC-1.4.a: Grid view renders using RichTreeView with this component
+ * AC-1.4.b: FileExplorerTabs component works correctly
+ * AC-1.4.c: Column headers align with tree items
  */
 export const CustomFileTreeItem = React.forwardRef<
   HTMLLIElement,
@@ -105,8 +113,15 @@ export const CustomFileTreeItem = React.forwardRef<
   }: CustomFileTreeItemProps,
   ref,
 ) {
+  // Check if grid mode is enabled via context
+  const context = useFileExplorerContext<[UseFileExplorerGridSignature]>();
+  const isGridMode = context?.instance?.gridEnabled?.() ?? false;
+
   // Default to label prop or fileData.name if available
-  const displayLabel = label || _fileData?.name || nodeId;
+  const displayLabel = label || _fileData?.name || nodeId || '';
+
+  // nodeId is required by TreeItem, fallback to empty string if not provided
+  const itemId = nodeId || _fileData?.id || '';
 
   // Determine icon based on file type
   let IconComponent: React.ElementType | undefined;
@@ -123,14 +138,13 @@ export const CustomFileTreeItem = React.forwardRef<
     }
   }
 
-  // Render custom content with icon and label
-  const contentElement = (
+  // Render label content (shared between grid and non-grid modes)
+  const labelContent = (
     <Box
       sx={{
         display: 'flex',
         alignItems: 'center',
         gap: 1,
-        width: '100%',
         overflow: 'hidden',
       }}
     >
@@ -159,6 +173,31 @@ export const CustomFileTreeItem = React.forwardRef<
     </Box>
   );
 
+  // Work Item 1.4: Grid mode rendering
+  // When in grid mode, wrap label in cell container and append grid columns
+  const contentElement = isGridMode && _fileData ? (
+    <Box
+      sx={{
+        display: 'flex',
+        width: '100%',
+        alignItems: 'center',
+      }}
+    >
+      <Box
+        className="cell column-file"
+        sx={(theme) => ({
+          display: 'flex',
+          flexGrow: 1,
+          padding: theme.spacing(0.5),
+          paddingLeft: theme.spacing(1),
+        })}
+      >
+        {labelContent}
+      </Box>
+      <FileExplorerGridColumns item={_fileData} />
+    </Box>
+  ) : labelContent;
+
   // Filter out extracted props to avoid passing them twice to TreeItem
   const treeItemProps = Object.fromEntries(
     Object.entries(props).filter(
@@ -169,7 +208,7 @@ export const CustomFileTreeItem = React.forwardRef<
   return (
     <TreeItem
       ref={ref}
-      nodeId={nodeId}
+      nodeId={itemId}
       label={contentElement}
       {...(treeItemProps as any)}
     />

@@ -13,7 +13,10 @@ function transformFileToTreeItem(file: FileBase): TreeViewBaseItem {
   const item: TreeViewBaseItem = {
     id: file.id,
     label: file.name,
-  };
+    // Preserve full FileBase data for CustomFileTreeItem and grid rendering
+    // This enables icon rendering, grid columns, and other file-specific features
+    _fileData: file,
+  } as any;
 
   // Recursively transform children if they exist
   if (file.children && file.children.length > 0) {

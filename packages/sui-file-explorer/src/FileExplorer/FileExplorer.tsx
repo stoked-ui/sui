@@ -19,6 +19,7 @@ import { FileDropzone } from '../FileDropzone';
 import {GridColumns} from "../internals/plugins/useFileExplorerGrid/useFileExplorerGrid.types";
 import {SxProps} from "@mui/system";
 import { transformFilesToTreeItems } from '../internals/utils/transformFilesToTreeItems';
+import { CustomFileTreeItem } from './CustomFileTreeItem';
 
 
 const useThemeProps = createUseThemeProps('MuiFileExplorer');
@@ -243,22 +244,30 @@ const FileExplorer = React.forwardRef(function FileExplorer<
   const getContent = () => {
     if (!props.grid) {
       // Work Item 1.1: Basic RichTreeView rendering switch (MVP)
+      // Work Item 1.3: CustomFileTreeItem integration for icon/label rendering
       // Uses MUI X RichTreeView instead of custom renderItem logic
-      // Note: Full plugin integration (selection, expansion, focus) is Work Item 1.2
       return (
         <Root {...rootProps} sx={props.sx}>
           <RichTreeView
             items={treeItems}
+            slots={{ item: CustomFileTreeItem }}
             onItemClick={handleItemClick}
           />
         </Root>
       );
     }
-    // Grid mode: Keep existing custom rendering for now
+    // Work Item 1.4: Grid view integration with RichTreeView (MVP CRITICAL)
+    // Replaces custom renderItem with RichTreeView while preserving grid layout
+    // Uses CustomFileTreeItem for consistent icon/label rendering across modes
+    // This enables FileExplorerTabs (used by sui-editor) to work correctly
     return (
       <Root {...rootProps} sx={[props.sx, columnWidths]}>
         <FileExplorerGridHeaders id={'file-explorer-headers'} />
-        <div>{itemsToRender.map(renderItem)}</div>
+        <RichTreeView
+          items={treeItems}
+          slots={{ item: CustomFileTreeItem }}
+          onItemClick={handleItemClick}
+        />
       </Root>
     );
   };
