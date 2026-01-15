@@ -243,14 +243,13 @@ const FileExplorer = React.forwardRef(function FileExplorer<
   const getContent = () => {
     if (!props.grid) {
       // Work Item 1.1: Basic RichTreeView rendering switch (MVP)
+      // Uses MUI X RichTreeView instead of custom renderItem logic
       // Note: Full plugin integration (selection, expansion, focus) is Work Item 1.2
       return (
         <Root {...rootProps} sx={props.sx}>
           <RichTreeView
             items={treeItems}
             onItemClick={handleItemClick}
-            slots={slots?.item ? { item: slots.item } : undefined}
-            slotProps={slotProps?.item ? { item: slotProps.item } : undefined}
           />
         </Root>
       );
