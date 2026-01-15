@@ -20,6 +20,10 @@ import LottieIcon from '../icons/LottieIcon';
  */
 export interface CustomFileTreeItemProps extends React.ComponentProps<typeof TreeItem> {
   /**
+   * Node identifier for the tree item
+   */
+  nodeId: string;
+  /**
    * File data preserved from FileExplorer items
    */
   _fileData?: FileBase;
@@ -88,7 +92,7 @@ const getIconFromFileType = (fileType: MediaType | string): React.ElementType =>
  * AC-1.3.c: Existing icon props from FileExplorer work seamlessly
  */
 export const CustomFileTreeItem = React.forwardRef<
-  HTMLElement,
+  HTMLLIElement,
   CustomFileTreeItemProps
 >(function CustomFileTreeItem(
   {
@@ -155,12 +159,19 @@ export const CustomFileTreeItem = React.forwardRef<
     </Box>
   );
 
+  // Filter out extracted props to avoid passing them twice to TreeItem
+  const treeItemProps = Object.fromEntries(
+    Object.entries(props).filter(
+      ([key]) => !['_fileData', 'slots', 'slotProps', 'label'].includes(key)
+    )
+  );
+
   return (
     <TreeItem
       ref={ref}
       nodeId={nodeId}
       label={contentElement}
-      {...props}
+      {...(treeItemProps as any)}
     />
   );
 });
