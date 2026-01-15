@@ -89,15 +89,32 @@ const childrenWarning = buildWarning([
   'Check the documentation for more details: https://stoked-ui.github.io/x/react-fileExplorer-view/rich-fileExplorer-view/items/',
 ]);
 
-// Helper function to convert FileBase items to MUI X Tree View format
+// AC-2.2.a: Transform file data to MUI X RichTreeView items format preserving all metadata
 // Maps FileBase structure to MUI X RichTreeView items structure
+// Preserves: id, name, type, size, lastModified, mediaType, url, media, created, path, expanded, selected, visibleIndex, version, children
 const convertToTreeViewItems = (items: readonly FileBase[]): any[] => {
   return items.map(item => ({
     id: item.id,
     label: item.name,
     children: item.children ? convertToTreeViewItems(item.children) : undefined,
-    // Store original item data for access by plugins
-    _fileData: item,
+    // Preserve all FileBase metadata for plugin access
+    _fileData: {
+      id: item.id,
+      name: item.name,
+      type: item.type,
+      size: item.size,
+      lastModified: item.lastModified,
+      mediaType: item.mediaType,
+      url: item.url,
+      media: item.media,
+      created: item.created,
+      path: item.path,
+      expanded: item.expanded,
+      selected: item.selected,
+      visibleIndex: item.visibleIndex,
+      version: item.version,
+      children: item.children,
+    } as FileBase,
   }));
 };
 
@@ -201,14 +218,29 @@ const FileExplorer = React.forwardRef(function FileExplorer<
     return <FileDropzone />;
   }
 
-  // Convert FileBase items to MUI X Tree View format
+  // AC-2.2.a: Convert FileBase items to MUI X Tree View format with metadata preservation
+  // Prepared for future MUI X RichTreeView rendering (Phase 2.3+)
   const treeViewItems = React.useMemo(() => convertToTreeViewItems(stateItems), [stateItems]);
+
+  // AC-2.3: Expansion Plugin Adapter - Prepare MUI X coordination layer
+  // Expansion state is managed by useFileExplorerExpansion plugin and exposed via instance methods
+  // When MUI X rendering activates (Phase 2.4+), these props will be passed to RichTreeView:
+  //   <RichTreeView
+  //     expandedItems={instance.getExpandedItems()}
+  //     onExpandedItemsChange={instance.setExpandedItems}
+  //     ...
+  //   />
+  // This ensures bidirectional state sync between FileExplorer plugin and MUI X without loops
+  const muiXExpansionProps = React.useMemo(() => ({
+    expandedItems: instance.getExpandedItems(),
+    onExpandedItemsChange: instance.setExpandedItems,
+  }), [instance]);
 
   // AC-2.1.a: Render MUI X RichTreeView while preserving FileExplorerProps interface
   // AC-2.1.b: Map props to RichTreeView or document adapter layer needs
   const getContent = () => {
-    // For Phase 2.1: Use legacy rendering with FileWrapped, MUI X integration deferred to Phase 2.2+
-    // This maintains 100% backward compatibility while establishing the integration scaffolding
+    // Phase 2.2: Maintain legacy rendering while plugin adapters are implemented
+    // MUI X RichTreeView rendering will be activated once all plugins (2.2-2.5) are adapted
     if (!props.grid) {
       return (
         <Root {...rootProps} sx={props.sx}>
