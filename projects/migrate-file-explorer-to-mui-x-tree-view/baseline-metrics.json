@@ -1,0 +1,84 @@
+{
+  "timestamp": "2026-01-15T14:21:21.496Z",
+  "environment": "v23.11.0",
+  "measurements": {
+    "100 files": {
+      "fileCount": 100,
+      "renderTimes": {
+        "mean": 0.1252,
+        "median": 0.0733,
+        "p95": 0.3089,
+        "p99": 0.3089,
+        "min": 0.0641,
+        "max": 0.3089,
+        "stdDev": 0.0912,
+        "unit": "milliseconds"
+      },
+      "memory": {
+        "avgDelta": 0,
+        "maxDelta": 0,
+        "peakHeap": 5.55,
+        "unit": "MB"
+      },
+      "runsCount": 10
+    },
+    "1,000 files": {
+      "fileCount": 1000,
+      "renderTimes": {
+        "mean": 0.5849,
+        "median": 0.5591,
+        "p95": 1.0136,
+        "p99": 1.0136,
+        "min": 0.4723,
+        "max": 1.0136,
+        "stdDev": 0.1497,
+        "unit": "milliseconds"
+      },
+      "memory": {
+        "avgDelta": -0.21,
+        "maxDelta": 0.17,
+        "peakHeap": 5.97,
+        "unit": "MB"
+      },
+      "runsCount": 10
+    },
+    "5,000 files": {
+      "fileCount": 5000,
+      "renderTimes": {
+        "mean": 3.2902,
+        "median": 3.322,
+        "p95": 4.7421,
+        "p99": 4.7421,
+        "min": 2.3535,
+        "max": 4.7421,
+        "stdDev": 0.8613,
+        "unit": "milliseconds"
+      },
+      "memory": {
+        "avgDelta": -0.93,
+        "maxDelta": 0.69,
+        "peakHeap": 8.16,
+        "unit": "MB"
+      },
+      "runsCount": 10
+    },
+    "100 items (nested)": {
+      "itemCount": 100,
+      "renderTimes": {
+        "mean": 0.0491,
+        "p95": 0.0517,
+        "unit": "milliseconds"
+      },
+      "runsCount": 5
+    },
+    "1,000 items (nested)": {
+      "itemCount": 1000,
+      "renderTimes": {
+        "mean": 0.6203,
+        "p95": 0.864,
+        "unit": "milliseconds"
+      },
+      "runsCount": 5
+    }
+  }
+}
