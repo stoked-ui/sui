@@ -69,6 +69,11 @@ export interface UseFileExplorerSelectionInstance {
     currentItemId: string,
     nextItemId: string,
   ) => void;
+  /**
+   * Get the current selected items for MUI X RichTreeView integration.
+   * @returns {string[] | string | null} Selected item IDs in format compatible with multiSelect setting.
+   */
+  getSelectedItemsForMuiX: () => string[] | string | null;
 }
 
 type FileExplorerSelectionValue<Multiple extends boolean | undefined> = Multiple extends true

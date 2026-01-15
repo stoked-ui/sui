@@ -1259,6 +1259,9 @@ importers:
       '@mui/utils':
         specifier: 5.17.1
         version: 5.17.1(@types/react@18.3.27)(react@18.3.1)
+      '@mui/x-tree-view':
+        specifier: ^6.17.0
+        version: 6.17.0(@emotion/react@11.14.0(@types/react@18.3.27)(react@18.3.1))(@emotion/styled@11.8.1(@babel/core@7.28.6)(@emotion/react@11.14.0(@types/react@18.3.27)(react@18.3.1))(@types/react@18.3.27)(react@18.3.1))(@mui/material@5.17.1(@emotion/react@11.14.0(@types/react@18.3.27)(react@18.3.1))(@emotion/styled@11.8.1(@babel/core@7.28.6)(@emotion/react@11.14.0(@types/react@18.3.27)(react@18.3.1))(@types/react@18.3.27)(react@18.3.1))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@mui/system@5.17.1(@emotion/react@11.14.0(@types/react@18.3.27)(react@18.3.1))(@emotion/styled@11.8.1(@babel/core@7.28.6)(@emotion/react@11.14.0(@types/react@18.3.27)(react@18.3.1))(@types/react@18.3.27)(react@18.3.1))(@types/react@18.3.27)(react@18.3.1))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@react-spring/web':
         specifier: ^9.7.3
         version: 9.7.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)

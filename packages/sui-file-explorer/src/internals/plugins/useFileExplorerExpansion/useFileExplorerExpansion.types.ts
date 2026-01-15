@@ -45,6 +45,17 @@ export interface UseFileExplorerExpansionInstance extends UseFileExplorerExpansi
    * @param {FileId} id The id of the item whose siblings will be expanded.
    */
   expandAllSiblings: (event: React.KeyboardEvent, id: FileId) => void;
+  /**
+   * Get the current expanded items for MUI X RichTreeView integration.
+   * @returns {string[]} Array of expanded item IDs.
+   */
+  getExpandedItems: () => string[];
+  /**
+   * Set expanded items from MUI X RichTreeView callback.
+   * @param {React.SyntheticEvent} event The UI event that triggered the change.
+   * @param {string[]} value Array of item IDs to expand.
+   */
+  setExpandedItems: (event: React.SyntheticEvent, value: string[]) => void;
 }
 
 export interface UseFileExplorerExpansionParameters {

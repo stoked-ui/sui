@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import composeClasses from '@mui/utils/composeClasses';
 import { useSlotProps } from '@mui/base/utils';
 import { shouldForwardProp } from '@mui/system/createStyled';
+import { RichTreeView } from '@mui/x-tree-view';
 import { FileBase } from '../models';
 import { getFileExplorerUtilityClass } from './fileExplorerClasses';
 import { FileExplorerProps } from './FileExplorer.types';
@@ -17,6 +18,7 @@ import { FileExplorerDndContext } from '../internals/plugins/useFileExplorerDnd/
 import { FileDropzone } from '../FileDropzone';
 import {GridColumns} from "../internals/plugins/useFileExplorerGrid/useFileExplorerGrid.types";
 import {SxProps} from "@mui/system";
+import { transformFilesToTreeItems } from '../internals/utils/transformFilesToTreeItems';
 
 
 const useThemeProps = createUseThemeProps('MuiFileExplorer');
@@ -158,6 +160,36 @@ const FileExplorer = React.forwardRef(function FileExplorer<
 
   const itemsToRender = instance.getItemsToRender();
 
+  // Transform files to MUI X TreeViewBaseItem format
+  const treeItems = React.useMemo(
+    () => transformFilesToTreeItems(stateItems),
+    [stateItems]
+  );
+
+  // Handle item click events
+  const handleItemClick = React.useCallback(
+    (event: React.SyntheticEvent, itemId: string) => {
+      const item = instance.getItem(itemId);
+      if (item) {
+        // Single click handling through existing plugin system
+        // The instance already manages selection/focus
+      }
+    },
+    [instance]
+  );
+
+  // Handle double click events
+  const handleItemDoubleClick = React.useCallback(
+    (itemId: string) => {
+      const item = instance.getItem(itemId);
+      if (item && inProps.onItemDoubleClick) {
+        inProps.onItemDoubleClick(item);
+      }
+    },
+    [instance, inProps.onItemDoubleClick]
+  );
+
+  // Legacy renderItem for grid mode (unchanged)
   const renderItem = (item: ReturnType<typeof instance.getItemsToRender>[number]) => {
     const currItem = instance.getItem(item.id);
 
@@ -176,17 +208,27 @@ const FileExplorer = React.forwardRef(function FileExplorer<
       </FileWrapped>
     );
   };
+
   if (!stateItems?.length && props.dropzone) {
     return <FileDropzone />;
   }
+
   const getContent = () => {
     if (!props.grid) {
+      // Work Item 1.1: Basic RichTreeView rendering switch (MVP)
+      // Note: Full plugin integration (selection, expansion, focus) is Work Item 1.2
       return (
         <Root {...rootProps} sx={props.sx}>
-          {itemsToRender.map(renderItem)}
+          <RichTreeView
+            items={treeItems}
+            onItemClick={handleItemClick}
+            slots={slots?.item ? { item: slots.item } : undefined}
+            slotProps={slotProps?.item ? { item: slotProps.item } : undefined}
+          />
         </Root>
       );
     }
+    // Grid mode: Keep existing custom rendering for now
     return (
       <Root {...rootProps} sx={[props.sx, columnWidths]}>
         <FileExplorerGridHeaders id={'file-explorer-headers'} />

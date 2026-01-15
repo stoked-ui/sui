@@ -1,5 +1,6 @@
 export * from './FileExplorer';
 export * from './fileExplorerClasses';
+export * from './CustomFileTreeItem';
 export type {
   FileExplorerProps,
   FileExplorerPropsBase,
