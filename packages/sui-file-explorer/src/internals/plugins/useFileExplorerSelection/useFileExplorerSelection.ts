@@ -21,6 +21,8 @@ export const useFileExplorerSelection: FileExplorerPlugin<UseFileExplorerSelecti
   const lastSelectedItem = React.useRef<string | null>(null);
   const lastSelectedRange = React.useRef<{ [id: string]: boolean }>({});
 
+  // AC-2.4.a: Map selection state with Multiple generic type safety
+  // Convert FileExplorer selection model to format compatible with MUI X RichTreeView
   const selectedItemsMap = React.useMemo(() => {
     const temp = new Map<FileId, boolean>();
     if (Array.isArray(models.selectedItems.value)) {
@@ -33,6 +35,15 @@ export const useFileExplorerSelection: FileExplorerPlugin<UseFileExplorerSelecti
 
     return temp;
   }, [models.selectedItems.value]);
+
+  // AC-2.4.e: Expose selection state in format suitable for MUI X selectedItems prop
+  // This allows the adapter layer to pass selection state to RichTreeView
+  const getSelectedItemsForMuiX = React.useCallback(() => {
+    if (params.multiSelect) {
+      return convertSelectedItemsToArray(models.selectedItems.value);
+    }
+    return models.selectedItems.value;
+  }, [models.selectedItems.value, params.multiSelect]);
 
   const setSelectedItems = (
     event: React.SyntheticEvent,
@@ -188,9 +199,11 @@ export const useFileExplorerSelection: FileExplorerPlugin<UseFileExplorerSelecti
 
   return {
     getRootProps: () => ({
+      // AC-2.4.d: Maintain ARIA attributes for WCAG 2.1 AA compliance
       'aria-multiselectable': params.multiSelect,
     }),
     publicAPI: {
+      // AC-2.4.e: Preserve programmatic selection API
       selectItem
     },
     instance: {
@@ -201,9 +214,12 @@ export const useFileExplorerSelection: FileExplorerPlugin<UseFileExplorerSelecti
       selectRangeFromStartToItem,
       selectRangeFromItemToEnd,
       selectItemFromArrowNavigation,
+      // AC-2.4.a: Expose method for MUI X adapter to get selection in correct format
+      getSelectedItemsForMuiX,
     },
     contextValue: {
       selection: {
+        // AC-2.4.b: Provide checkbox rendering config through context
         multiSelect: params.multiSelect,
         checkboxSelection: params.checkboxSelection,
         disableSelection: params.disableSelection,

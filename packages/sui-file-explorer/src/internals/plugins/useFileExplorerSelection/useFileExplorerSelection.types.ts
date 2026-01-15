@@ -69,6 +69,12 @@ export interface UseFileExplorerSelectionInstance {
     currentItemId: string,
     nextItemId: string,
   ) => void;
+  /**
+   * Get selected items in MUI X RichTreeView format.
+   * Phase 2.4: Adapter method to convert FileExplorer selection state to MUI X format.
+   * @returns {string[] | string | null} Selected items in MUI X compatible format
+   */
+  getSelectedItemsForMuiX: () => string[] | string | null;
 }
 
 type FileExplorerSelectionValue<Multiple extends boolean | undefined> = Multiple extends true

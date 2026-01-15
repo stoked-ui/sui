@@ -132,11 +132,18 @@ export const useFileExplorerFocus: FileExplorerPlugin<UseFileExplorerFocusSignat
       }
     };
 
+  // AC-2.4.c: Expose focus state for MUI X integration
+  const getFocusedItemForMuiX = React.useCallback(() => {
+    return state.focusedItemId;
+  }, [state.focusedItemId]);
+
   return {
     getRootProps: (otherHandlers) => ({
+      // AC-2.4.d: Maintain ARIA attributes for keyboard navigation
       onFocus: createRootHandleFocus(otherHandlers),
     }),
     publicAPI: {
+      // AC-2.4.e: Preserve programmatic focus API
       focusItem,
     },
     instance: {
@@ -144,6 +151,8 @@ export const useFileExplorerFocus: FileExplorerPlugin<UseFileExplorerFocusSignat
       canItemBeTabbed,
       focusItem,
       removeFocusedItem,
+      // AC-2.4.c: Adapter method for MUI X focus integration
+      getFocusedItemForMuiX,
     },
   };
 };
