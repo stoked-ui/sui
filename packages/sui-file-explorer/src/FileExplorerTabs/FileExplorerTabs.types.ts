@@ -54,7 +54,7 @@ export interface FileExplorerTabsPropsBase extends React.HTMLAttributes<HTMLDivE
   tabData: Record<string, ExplorerPanelProps>;
   setTabName: (tabName: string) => void;
   tabNames: string[];
-  drawerOpen: () => void;
+  drawerOpen?: () => void;
   variant?: 'standard' | 'drawer';
   onItemDoubleClick?: (item: FileBase) => void;
 }

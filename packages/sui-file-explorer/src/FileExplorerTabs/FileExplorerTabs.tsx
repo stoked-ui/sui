@@ -62,7 +62,7 @@ const FileExplorerStandard = React.forwardRef(
           <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
             <TabList onChange={handleChange} aria-label="editor file tabs">
               {tabNames?.map((name, index) => (
-                <Tab key={index} label={name} value={name} onClick={drawerOpen} />
+                <Tab key={index} label={name} value={name} onClick={drawerOpen || undefined} />
               ))}
             </TabList>
           </Box>
