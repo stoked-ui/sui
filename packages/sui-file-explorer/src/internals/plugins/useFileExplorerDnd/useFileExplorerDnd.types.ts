@@ -7,6 +7,7 @@ import {FileExplorerDndContextValue} from "./FileExplorerDndContext";
 import type {
   UseFileExplorerFilesSignature
 } from "../useFileExplorerFiles/useFileExplorerFiles.types";
+import type { ItemPositionChangeParams } from './muiXDndAdapters';
 
 
 export type DndItemState = {
@@ -54,7 +55,8 @@ export interface UseFileListItemsInstance {
   dndExternalFileTypes: () =>  string[];
   dndTrash: () => true | undefined;
   getDndContext: FileExplorerDndContextValue<FileBase>
-  dropInternal: (event: BaseEventPayload<ElementDragType>) => void;
+  // Work Item 2.1: Support both legacy Atlaskit DnD and MUI X DnD
+  dropInternal: ((event: BaseEventPayload<ElementDragType>) => void) | ((params: ItemPositionChangeParams) => void);
   createChildren: (files: FileBase[], targetId: string | null) => void;
   createChild: (item: FileBase, targetId: string | null) => void;
   removeItem: (id: string) => void;

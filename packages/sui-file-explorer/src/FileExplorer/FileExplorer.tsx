@@ -20,6 +20,11 @@ import {GridColumns} from "../internals/plugins/useFileExplorerGrid/useFileExplo
 import {SxProps} from "@mui/system";
 import { transformFilesToTreeItems } from '../internals/utils/transformFilesToTreeItems';
 import { CustomFileTreeItem } from './CustomFileTreeItem';
+import {
+  createOnItemPositionChangeHandler,
+  createIsItemReorderableHandler,
+  createCanMoveItemToNewPositionHandler,
+} from '../internals/plugins/useFileExplorerDnd/muiXDndAdapters';
 
 
 const useThemeProps = createUseThemeProps('MuiFileExplorer');
@@ -217,6 +222,21 @@ const FileExplorer = React.forwardRef(function FileExplorer<
     [instance, inProps.onItemDoubleClick]
   );
 
+  // Work Item 2.1: MUI X itemsReordering Integration
+  // Create MUI X DnD handlers that bridge to FileExplorer plugin system
+  const handleItemPositionChange = React.useMemo(
+    () => createOnItemPositionChangeHandler(instance),
+    [instance]
+  );
+  const handleIsItemReorderable = React.useMemo(
+    () => createIsItemReorderableHandler(instance),
+    [instance]
+  );
+  const handleCanMoveItemToNewPosition = React.useMemo(
+    () => createCanMoveItemToNewPositionHandler(instance),
+    [instance]
+  );
+
   // Legacy renderItem for grid mode (unchanged)
   const renderItem = (item: ReturnType<typeof instance.getItemsToRender>[number]) => {
     const currItem = instance.getItem(item.id);
@@ -245,6 +265,9 @@ const FileExplorer = React.forwardRef(function FileExplorer<
     if (!props.grid) {
       // Work Item 1.1: Basic RichTreeView rendering switch (MVP)
       // Work Item 1.3: CustomFileTreeItem integration for icon/label rendering
+      // Work Item 2.1: MUI X itemsReordering integration for drag-and-drop
+      // NOTE: itemsReordering API requires RichTreeViewPro or future MUI X version
+      // The adapter infrastructure is ready; props will be enabled when API is available
       // Uses MUI X RichTreeView instead of custom renderItem logic
       return (
         <Root {...rootProps} sx={props.sx}>
@@ -257,6 +280,9 @@ const FileExplorer = React.forwardRef(function FileExplorer<
       );
     }
     // Work Item 1.4: Grid view integration with RichTreeView (MVP CRITICAL)
+    // Work Item 2.1: MUI X itemsReordering integration for drag-and-drop
+    // NOTE: itemsReordering API requires RichTreeViewPro or future MUI X version
+    // The adapter infrastructure is ready; props will be enabled when API is available
     // Replaces custom renderItem with RichTreeView while preserving grid layout
     // Uses CustomFileTreeItem for consistent icon/label rendering across modes
     // This enables FileExplorerTabs (used by sui-editor) to work correctly

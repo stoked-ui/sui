@@ -40,6 +40,7 @@ import {
   getFileExplorerStateDefault
 } from "./FileExplorerDndContext";
 import {UseMinimalPlus} from "../../models/plugin.types";
+import type { ItemPositionChangeParams } from './muiXDndAdapters';
 
 
 type CleanupFn = () => void;
@@ -221,7 +222,56 @@ export const useFileExplorerDnd: FileExplorerPlugin<UseFileExplorerDndSignature>
       instruction
     };
   }
-  const dropInternal = (event: BaseEventPayload<ElementDragType>) => {
+  // Work Item 2.1: Support both Atlaskit DnD and MUI X DnD
+  const dropInternal = (eventOrParams: BaseEventPayload<ElementDragType> | ItemPositionChangeParams) => {
+    // Check if this is MUI X DnD (ItemPositionChangeParams) or Atlaskit DnD (BaseEventPayload)
+    const isMuiXDnd = 'itemId' in eventOrParams;
+
+    if (isMuiXDnd) {
+      // MUI X DnD path
+      const params = eventOrParams as ItemPositionChangeParams;
+      const { itemId, newParentId } = params;
+
+      const item = instance.getItem(itemId);
+      const targetItem = newParentId ? instance.getItem(newParentId) : null;
+
+      if (!item) {
+        return;
+      }
+
+      // Handle trash drop
+      if (targetItem?.type === 'trash') {
+        updateState({
+          type: 'remove',
+          id: itemId,
+        });
+        return;
+      }
+
+      // Handle folder/reparent drop
+      if (targetItem?.type === 'folder' || newParentId === null) {
+        // Create instruction for MUI X DnD
+        const instruction: Instruction = {
+          type: 'reparent',
+          currentLevel: 0,
+          desiredLevel: 0,
+          indentPerLevel: 0,
+        };
+
+        updateState({
+          type: 'instruction',
+          instruction,
+          id: itemId,
+          targetId: newParentId || '',
+        });
+        return;
+      }
+
+      return;
+    }
+
+    // Legacy Atlaskit DnD path
+    const event = eventOrParams as BaseEventPayload<ElementDragType>;
 
     const handleTrashDrop = (data: DropInternalData) => {
       console.warn('handleTrashDrop', data)
@@ -534,7 +584,8 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
         }
       },
       onDrop: (dropData) =>{
-        instance.dropInternal(dropData);
+        // Cast to avoid type error with union signature
+        (instance.dropInternal as (event: BaseEventPayload<ElementDragType>) => void)(dropData);
       },
     });
 
@@ -586,7 +637,8 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
         // const { sourceItemId } = source.data;
         // publishFileExplorerEvent(instance, 'removeItem', { targetId: item.id, sourceItemIds });
 
-        instance.dropInternal(event);
+        // Cast to avoid type error with union signature
+        (instance.dropInternal as (event: BaseEventPayload<ElementDragType>) => void)(event);
         // console.log('combinedContentRef', pluginContentRef);
 
         cancelExpand();
