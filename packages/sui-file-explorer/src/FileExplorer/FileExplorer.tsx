@@ -4,6 +4,8 @@ import composeClasses from '@mui/utils/composeClasses';
 import { useSlotProps } from '@mui/base/utils';
 import { shouldForwardProp } from '@mui/system/createStyled';
 import { RichTreeView } from '@mui/x-tree-view';
+// RichTreeViewPro will be imported when @mui/x-tree-view-pro is available
+// import { RichTreeViewPro } from '@mui/x-tree-view-pro/RichTreeViewPro';
 import { FileBase } from '../models';
 import { getFileExplorerUtilityClass } from './fileExplorerClasses';
 import { FileExplorerProps } from './FileExplorer.types';
@@ -25,6 +27,9 @@ import {
   createIsItemReorderableHandler,
   createCanMoveItemToNewPositionHandler,
 } from '../internals/plugins/useFileExplorerDnd/muiXDndAdapters';
+
+// Feature flag: Enable when @mui/x-tree-view-pro is available
+const HAS_RICH_TREE_VIEW_PRO = false;
 
 
 const useThemeProps = createUseThemeProps('MuiFileExplorer');
@@ -262,38 +267,49 @@ const FileExplorer = React.forwardRef(function FileExplorer<
   }
 
   const getContent = () => {
+    // Work Item 2.1: Determine which TreeView component to use
+    // When RichTreeViewPro is available AND dndInternal is enabled, use Pro version with itemsReordering
+    // Otherwise, use standard RichTreeView (Atlaskit DnD continues to work via plugin)
+    const usePro = HAS_RICH_TREE_VIEW_PRO && props.dndInternal;
+
+    // Common tree view props
+    const baseTreeViewProps = {
+      items: treeItems,
+      slots: { item: CustomFileTreeItem },
+      onItemClick: handleItemClick,
+    };
+
+    // Work Item 2.1, 2.3, 2.4: Pro-specific props for MUI X native drag-and-drop
+    const proTreeViewProps = usePro ? {
+      ...baseTreeViewProps,
+      // itemsReordering: true,  // Uncomment when RichTreeViewPro is available
+      // onItemPositionChange: handleItemPositionChange,  // WI 2.4: State sync
+      // isItemReorderable: handleIsItemReorderable,  // WI 2.1: Drag control
+      // canMoveItemToNewPosition: handleCanMoveItemToNewPosition,  // WI 2.3: Drop validation
+    } : baseTreeViewProps;
+
     if (!props.grid) {
       // Work Item 1.1: Basic RichTreeView rendering switch (MVP)
       // Work Item 1.3: CustomFileTreeItem integration for icon/label rendering
-      // Work Item 2.1: MUI X itemsReordering integration for drag-and-drop
-      // NOTE: itemsReordering API requires RichTreeViewPro or future MUI X version
-      // The adapter infrastructure is ready; props will be enabled when API is available
-      // Uses MUI X RichTreeView instead of custom renderItem logic
+      // Work Item 2.2: CustomFileTreeItem now uses TreeItem2 with DragAndDropOverlay when dndInternal=true
+      // Work Item 2.1: Ready for RichTreeViewPro when available
       return (
         <Root {...rootProps} sx={props.sx}>
-          <RichTreeView
-            items={treeItems}
-            slots={{ item: CustomFileTreeItem }}
-            onItemClick={handleItemClick}
-          />
+          <RichTreeView {...proTreeViewProps} />
         </Root>
       );
     }
+
     // Work Item 1.4: Grid view integration with RichTreeView (MVP CRITICAL)
-    // Work Item 2.1: MUI X itemsReordering integration for drag-and-drop
-    // NOTE: itemsReordering API requires RichTreeViewPro or future MUI X version
-    // The adapter infrastructure is ready; props will be enabled when API is available
+    // Work Item 2.2: CustomFileTreeItem adapts overlay for grid mode
+    // Work Item 2.5: Grid columns aligned with drag-and-drop overlay
     // Replaces custom renderItem with RichTreeView while preserving grid layout
     // Uses CustomFileTreeItem for consistent icon/label rendering across modes
     // This enables FileExplorerTabs (used by sui-editor) to work correctly
     return (
       <Root {...rootProps} sx={[props.sx, columnWidths]}>
         <FileExplorerGridHeaders id={'file-explorer-headers'} />
-        <RichTreeView
-          items={treeItems}
-          slots={{ item: CustomFileTreeItem }}
-          onItemClick={handleItemClick}
-        />
+        <RichTreeView {...proTreeViewProps} />
       </Root>
     );
   };
