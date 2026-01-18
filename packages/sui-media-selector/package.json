@@ -3,6 +3,8 @@
   "author": "Brian Stoker",
   "private": false,
   "version": "0.1.3",
+  "deprecated": "This package is deprecated. Please migrate to @stoked-ui/media. See the migration guide in the package README.",
+  "description": "[DEPRECATED] A small package for converting DragEvent or file input to File objects. Use @stoked-ui/media instead.",
   "main": "src/index.ts",
   "files": [
     "build"

@@ -1,5 +1,7 @@
 # file-selector
 
+> **⚠️ DEPRECATED: This package is deprecated and will no longer receive updates. Please migrate to [`@stoked-ui/media`](https://www.npmjs.com/package/@stoked-ui/media) for ongoing support and new features. See the [migration guide](./MIGRATION_GUIDE.md) for detailed instructions.**
+
 > A small package for converting a [DragEvent](https://developer.mozilla.org/en-US/docs/Web/API/DragEvent) or [file input](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/file) to a list of File objects.
 
 [![npm](https://img.shields.io/npm/v/file-selector.svg?style=flat-square)](https://www.npmjs.com/package/file-selector)
