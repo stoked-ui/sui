@@ -1,0 +1,50 @@
+{
+  "name": "@stoked-ui/media",
+  "author": "Brian Stoker",
+  "private": false,
+  "version": "0.1.0",
+  "main": "src/index.ts",
+  "files": [
+    "build"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stoked-ui/sui",
+    "directory": "packages/sui-media"
+  },
+  "publishConfig": {
+    "access": "public",
+    "directory": "build"
+  },
+  "sideEffects": false,
+  "scripts": {
+    "build": "pnpm build:all",
+    "typescript": "pnpm build",
+    "copyToDocs": "cp -r ./dist/assets ../../docs/",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "build:all": "pnpm build:modern && pnpm build:node && pnpm build:stable && pnpm build:types && pnpm build:copy-files",
+    "build:modern": "node ../../scripts/build.mjs modern",
+    "build:node": "node ../../scripts/build.mjs node",
+    "build:stable": "node ../../scripts/build.mjs stable",
+    "build:copy-files": "node ../../scripts/copyFiles.mjs",
+    "build:types": "node ../../scripts/buildTypes.mjs",
+    "prebuild": "rimraf build tsconfig.build.tsbuildinfo",
+    "release": "pnpm build && pnpm publish"
+  },
+  "peerDependencies": {
+    "@stoked-ui/common": "workspace:^",
+    "react": "^18.0.0"
+  },
+  "devDependencies": {
+    "@babel/runtime": "^7.24.7",
+    "@stoked-ui/common": "workspace:^",
+    "@types/react": "^18.3.1",
+    "@types/wicg-file-system-access": "^2023.10.5",
+    "eslint": "^8.57.0",
+    "typescript": "5.4.5"
+  },
+  "dependencies": {
+    "formdata-node": "^6.0.3",
+    "jszip": "^3.10.1"
+  }
+}

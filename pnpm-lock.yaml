@@ -1414,6 +1414,38 @@ importers:
         version: 5.9.3
     publishDirectory: build
 
+  packages/sui-media:
+    dependencies:
+      formdata-node:
+        specifier: ^6.0.3
+        version: 6.0.3
+      jszip:
+        specifier: ^3.10.1
+        version: 3.10.1
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+    devDependencies:
+      '@babel/runtime':
+        specifier: ^7.23.9
+        version: 7.28.6
+      '@stoked-ui/common':
+        specifier: workspace:^
+        version: link:../sui-common/build
+      '@types/react':
+        specifier: ^18.3.1
+        version: 18.3.27
+      '@types/wicg-file-system-access':
+        specifier: ^2023.10.5
+        version: 2023.10.7
+      eslint:
+        specifier: ^8.57.0
+        version: 8.57.1
+      typescript:
+        specifier: 5.4.5
+        version: 5.4.5
+    publishDirectory: build
+
   packages/sui-media-selector:
     dependencies:
       formdata-node:
@@ -22212,7 +22244,7 @@ snapshots:
 
   jest-diff@29.7.0:
     dependencies:
-      chalk: 4.1.0
+      chalk: 4.1.2
       diff-sequences: 29.6.3
       jest-get-type: 29.6.3
       pretty-format: 29.7.0
@@ -23520,7 +23552,7 @@ snapshots:
       array-differ: 3.0.0
       array-union: 2.1.0
       arrify: 2.0.1
-      minimatch: 3.0.5
+      minimatch: 3.1.2
 
   multipipe@1.0.2:
     dependencies:
