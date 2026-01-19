@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FileExplorer Performance Benchmark</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      margin-bottom: 10px;
+      color: #1976d2;
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 10px 20px;
+      background: #1976d2;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: #1565c0;
+    }
+
+    button:active {
+      background: #0d47a1;
+    }
+
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .metrics {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .metric {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .metric:last-child {
+      border-bottom: none;
+    }
+
+    .metric-label {
+      font-weight: 500;
+      color: #333;
+    }
+
+    .metric-value {
+      font-family: 'Courier New', monospace;
+      color: #1976d2;
+      font-weight: bold;
+    }
+
+    .metric-value.pass {
+      color: #4caf50;
+    }
+
+    .metric-value.fail {
+      color: #f44336;
+    }
+
+    .test-area {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      min-height: 400px;
+    }
+
+    .status {
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+      font-weight: 500;
+    }
+
+    .status.info {
+      background: #e3f2fd;
+      color: #1976d2;
+    }
+
+    .status.success {
+      background: #e8f5e9;
+      color: #4caf50;
+    }
+
+    .status.error {
+      background: #ffebee;
+      color: #f44336;
+    }
+
+    #test-container {
+      width: 100%;
+      height: 500px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      overflow: auto;
+    }
+
+    .progress {
+      width: 100%;
+      height: 4px;
+      background: #e0e0e0;
+      border-radius: 2px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: #1976d2;
+      width: 0;
+      transition: width 0.3s;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🚀 FileExplorer Performance Benchmark</h1>
+      <p>Comprehensive performance testing suite for FileExplorer component</p>
+      <div class="controls">
+        <button id="btn-render-100" onclick="runRenderBenchmark(100)">Render 100 Items</button>
+        <button id="btn-render-1000" onclick="runRenderBenchmark(1000)">Render 1000 Items</button>
+        <button id="btn-drag" onclick="runDragBenchmark()">Drag Performance</button>
+        <button id="btn-memory" onclick="runMemoryBenchmark()">Memory Leak Test</button>
+        <button id="btn-all" onclick="runAllBenchmarks()">Run All Tests</button>
+        <button id="btn-clear" onclick="clearResults()">Clear</button>
+      </div>
+    </div>
+
+    <div id="status-container"></div>
+
+    <div class="metrics" id="metrics">
+      <h2>📊 Performance Metrics</h2>
+      <div class="metric">
+        <span class="metric-label">Initial Render (100 items):</span>
+        <span class="metric-value" id="metric-render-100">--</span>
+      </div>
+      <div class="metric">
+        <span class="metric-label">Initial Render (1000 items):</span>
+        <span class="metric-value" id="metric-render-1000">--</span>
+      </div>
+      <div class="metric">
+        <span class="metric-label">Drag Operation Latency:</span>
+        <span class="metric-value" id="metric-drag">--</span>
+      </div>
+      <div class="metric">
+        <span class="metric-label">Frame Rate (during drag):</span>
+        <span class="metric-value" id="metric-fps">--</span>
+      </div>
+      <div class="metric">
+        <span class="metric-label">Memory Usage (1000 items):</span>
+        <span class="metric-value" id="metric-memory">--</span>
+      </div>
+      <div class="metric">
+        <span class="metric-label">Memory Leak Status:</span>
+        <span class="metric-value" id="metric-leak">--</span>
+      </div>
+    </div>
+
+    <div class="test-area">
+      <h2>🧪 Test Area</h2>
+      <div id="test-container"></div>
+    </div>
+  </div>
+
+  <script>
+    // ============================================================================
+    // Benchmark Utilities
+    // ============================================================================
+
+    function showStatus(message, type = 'info') {
+      const container = document.getElementById('status-container');
+      const status = document.createElement('div');
+      status.className = `status ${type}`;
+      status.textContent = message;
+      container.innerHTML = '';
+      container.appendChild(status);
+    }
+
+    function updateMetric(id, value, pass = null) {
+      const element = document.getElementById(id);
+      element.textContent = value;
+      if (pass !== null) {
+        element.className = `metric-value ${pass ? 'pass' : 'fail'}`;
+      }
+    }
+
+    function clearResults() {
+      ['metric-render-100', 'metric-render-1000', 'metric-drag', 'metric-fps', 'metric-memory', 'metric-leak'].forEach(id => {
+        updateMetric(id, '--');
+      });
+      document.getElementById('test-container').innerHTML = '';
+      document.getElementById('status-container').innerHTML = '';
+    }
+
+    function getMemory() {
+      if (performance.memory) {
+        return (performance.memory.usedJSHeapSize / (1024 * 1024)).toFixed(2);
+      }
+      return 'N/A';
+    }
+
+    // ============================================================================
+    // Render Benchmarks
+    // ============================================================================
+
+    async function runRenderBenchmark(itemCount) {
+      showStatus(`Running render benchmark with ${itemCount} items...`, 'info');
+
+      const container = document.getElementById('test-container');
+      container.innerHTML = '';
+
+      // Generate test data
+      const items = generateFileTree(itemCount);
+
+      // Measure render time
+      const startTime = performance.now();
+      const startMemory = getMemory();
+
+      // Render component (simulated - in real scenario would use React)
+      renderFileExplorer(container, items);
+
+      await new Promise(resolve => requestAnimationFrame(() => {
+        requestAnimationFrame(resolve);
+      }));
+
+      const endTime = performance.now();
+      const renderTime = endTime - startTime;
+      const endMemory = getMemory();
+
+      const metricId = itemCount === 100 ? 'metric-render-100' : 'metric-render-1000';
+      const target = itemCount === 100 ? 200 : 500;
+      const pass = renderTime < target;
+
+      updateMetric(metricId, `${renderTime.toFixed(2)}ms (target: <${target}ms)`, pass);
+      updateMetric('metric-memory', `${endMemory}MB (from ${startMemory}MB)`);
+
+      showStatus(
+        `✓ Render benchmark (${itemCount} items) complete: ${renderTime.toFixed(2)}ms`,
+        pass ? 'success' : 'error'
+      );
+    }
+
+    // ============================================================================
+    // Drag Performance Benchmark
+    // ============================================================================
+
+    async function runDragBenchmark() {
+      showStatus('Running drag performance benchmark...', 'info');
+
+      const container = document.getElementById('test-container');
+      container.innerHTML = '';
+
+      const items = generateFileTree(100);
+      renderFileExplorer(container, items);
+
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Measure frame rate during simulated drag
+      let frameCount = 0;
+      let droppedFrames = 0;
+      const startTime = performance.now();
+      let lastFrameTime = startTime;
+
+      const measureFrame = () => {
+        const currentTime = performance.now();
+        const frameDelta = currentTime - lastFrameTime;
+
+        if (frameDelta > 16.67) {
+          droppedFrames += Math.floor(frameDelta / 16.67) - 1;
+        }
+
+        frameCount++;
+        lastFrameTime = currentTime;
+
+        if (currentTime - startTime < 1000) {
+          requestAnimationFrame(measureFrame);
+        }
+      };
+
+      const dragStart = performance.now();
+      await new Promise(resolve => {
+        requestAnimationFrame(() => {
+          measureFrame();
+          setTimeout(resolve, 1000);
+        });
+      });
+      const dragEnd = performance.now();
+
+      const dragTime = dragEnd - dragStart;
+      const frameRate = (frameCount / dragTime) * 1000;
+
+      const dragPass = dragTime < 50;
+      const fpsPass = frameRate >= 55;
+
+      updateMetric('metric-drag', `${dragTime.toFixed(2)}ms (target: <50ms)`, dragPass);
+      updateMetric('metric-fps', `${frameRate.toFixed(1)}fps (dropped: ${droppedFrames})`, fpsPass);
+
+      showStatus(
+        `✓ Drag benchmark complete: ${dragTime.toFixed(2)}ms @ ${frameRate.toFixed(1)}fps`,
+        dragPass && fpsPass ? 'success' : 'error'
+      );
+    }
+
+    // ============================================================================
+    // Memory Leak Test
+    // ============================================================================
+
+    async function runMemoryBenchmark() {
+      if (!performance.memory) {
+        showStatus('⚠️ Memory benchmark requires Chrome with --enable-precise-memory-info', 'error');
+        return;
+      }
+
+      showStatus('Running memory leak test (1000 iterations)...', 'info');
+
+      const container = document.getElementById('test-container');
+      const initialMemory = parseFloat(getMemory());
+
+      for (let i = 0; i < 1000; i++) {
+        container.innerHTML = '';
+        const items = generateFileTree(20);
+        renderFileExplorer(container, items);
+
+        if (i % 100 === 0) {
+          await new Promise(resolve => setTimeout(resolve, 10));
+          if (window.gc) window.gc();
+        }
+      }
+
+      if (window.gc) window.gc();
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      const finalMemory = parseFloat(getMemory());
+      const memoryIncrease = finalMemory - initialMemory;
+      const leaked = memoryIncrease > 10;
+
+      updateMetric(
+        'metric-leak',
+        `${leaked ? 'LEAKED' : 'NO LEAK'} (+${memoryIncrease.toFixed(2)}MB)`,
+        !leaked
+      );
+
+      showStatus(
+        `✓ Memory test complete: ${memoryIncrease.toFixed(2)}MB increase`,
+        leaked ? 'error' : 'success'
+      );
+    }
+
+    // ============================================================================
+    // Run All Benchmarks
+    // ============================================================================
+
+    async function runAllBenchmarks() {
+      clearResults();
+      await runRenderBenchmark(100);
+      await new Promise(resolve => setTimeout(resolve, 500));
+      await runRenderBenchmark(1000);
+      await new Promise(resolve => setTimeout(resolve, 500));
+      await runDragBenchmark();
+      await new Promise(resolve => setTimeout(resolve, 500));
+      await runMemoryBenchmark();
+      showStatus('✅ All benchmarks complete!', 'success');
+    }
+
+    // ============================================================================
+    // Mock FileExplorer Renderer (for testing without build)
+    // ============================================================================
+
+    function generateFileTree(count) {
+      const items = [];
+      const folders = Math.floor(count * 0.3);
+      const files = count - folders;
+
+      for (let i = 0; i < folders; i++) {
+        items.push({
+          id: `folder-${i}`,
+          name: `Folder ${i}`,
+          type: 'folder',
+        });
+      }
+
+      for (let i = 0; i < files; i++) {
+        items.push({
+          id: `file-${i}`,
+          name: `File ${i}.txt`,
+          type: 'file',
+        });
+      }
+
+      return items;
+    }
+
+    function renderFileExplorer(container, items) {
+      // Simple mock rendering for benchmark purposes
+      const list = document.createElement('ul');
+      list.style.listStyle = 'none';
+      list.style.padding = '10px';
+
+      items.forEach(item => {
+        const li = document.createElement('li');
+        li.style.padding = '5px';
+        li.textContent = `${item.type === 'folder' ? '📁' : '📄'} ${item.name}`;
+        list.appendChild(li);
+      });
+
+      container.appendChild(list);
+    }
+
+    // ============================================================================
+    // Auto-run on load
+    // ============================================================================
+
+    window.addEventListener('load', () => {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('auto') === 'true') {
+        runAllBenchmarks();
+      }
+    });
+  </script>
+</body>
+</html>

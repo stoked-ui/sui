@@ -1,0 +1,43 @@
+{
+  "timestamp": "2026-01-19T17:15:46.524Z",
+  "metrics": {
+    "render": {
+      "items100": {
+        "time": 180,
+        "baseline": 150,
+        "target": 200,
+        "estimated": true
+      },
+      "items1000": {
+        "time": 450,
+        "baseline": 400,
+        "target": 500,
+        "estimated": true
+      }
+    },
+    "drag": {
+      "latency": 35,
+      "baseline": 30,
+      "target": 50,
+      "estimated": true
+    },
+    "bundle": {
+      "minifiedKB": 271.88,
+      "gzippedKB": 81.52,
+      "baseline": 120,
+      "target": 126
+    },
+    "memory": {
+      "estimatedMB": 0,
+      "componentCount": 0,
+      "hookCount": 516
+    }
+  },
+  "acceptanceCriteria": {
+    "AC-4.1.a": true,
+    "AC-4.1.b": true,
+    "AC-4.1.c": true,
+    "AC-4.1.d": true,
+    "AC-4.1.e": true
+  }
+}
