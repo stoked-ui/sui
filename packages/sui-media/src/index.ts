@@ -139,3 +139,60 @@ export * from './zip';
  * } from '@stoked-ui/media';
  */
 export * from './abstractions';
+
+// ============================================================================
+// Components - Media Viewer and UI Components
+// ============================================================================
+
+/**
+ * MediaViewer component for full-screen media viewing
+ * Framework-agnostic viewer with queue management, keyboard shortcuts,
+ * and multiple display modes (NORMAL, THEATER, FULLSCREEN)
+ * @example
+ * import { MediaViewer, MediaViewerProps, MediaItem } from '@stoked-ui/media';
+ * <MediaViewer
+ *   item={mediaItem}
+ *   open={true}
+ *   onClose={handleClose}
+ *   router={myRouter}
+ *   auth={myAuth}
+ *   queue={myQueue}
+ * />
+ */
+export { MediaViewer, MediaViewerHeader, MediaViewerPrimary, NextUpHeader, NowPlayingIndicator } from './components/MediaViewer';
+export type { MediaViewerProps, MediaItem, MediaViewerMode } from './components/MediaViewer';
+
+/**
+ * MediaViewer custom hooks
+ * Includes useMediaViewerState, useMediaViewerLayout, and useMediaClassPlayback
+ * @example
+ * import { useMediaViewerState, MediaViewerMode } from '@stoked-ui/media';
+ * const { mode, transition } = useMediaViewerState(MediaViewerMode.NORMAL);
+ */
+export { useMediaViewerState, useMediaViewerLayout } from './components/MediaViewer/hooks';
+
+/**
+ * MediaCard component for displaying media items with interactive controls
+ * Supports images and videos with thumbnails, progress tracking, selection mode,
+ * payment integration, and queue management
+ * @example
+ * import { MediaCard, MediaCardProps, ExtendedMediaItem } from '@stoked-ui/media';
+ * <MediaCard
+ *   item={mediaItem}
+ *   modeState={{ mode: 'view' }}
+ *   setModeState={setModeState}
+ *   router={myRouter}
+ *   auth={myAuth}
+ *   payment={myPayment}
+ *   queue={myQueue}
+ *   onViewClick={handleView}
+ * />
+ */
+export { MediaCard, ThumbnailStrip, VideoProgressBar } from './components/MediaCard';
+export type {
+  MediaCardProps,
+  ExtendedMediaItem,
+  MediaCardDisplayMode,
+  MediaCardModeState,
+  SpriteConfig,
+} from './components/MediaCard';
