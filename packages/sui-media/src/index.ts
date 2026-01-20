@@ -123,3 +123,19 @@ export * from './FileSystemApi';
  * const zipped = await createZip(file);
  */
 export * from './zip';
+
+// ============================================================================
+// Abstractions - Framework-Agnostic Interfaces
+// ============================================================================
+
+/**
+ * Framework-agnostic abstractions for external dependencies
+ * Allows media components to integrate with various routing, auth, payment,
+ * queue management, and keyboard shortcut systems
+ * @example
+ * import {
+ *   IRouter, IAuth, IPayment, IQueue, IKeyboardShortcuts,
+ *   noOpRouter, noOpAuth, createMockPayment, createInMemoryQueue
+ * } from '@stoked-ui/media';
+ */
+export * from './abstractions';
