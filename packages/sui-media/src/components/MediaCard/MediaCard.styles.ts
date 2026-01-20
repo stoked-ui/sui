@@ -28,7 +28,7 @@ export const MediaCardRoot = styled(Card)(({ theme }) => ({
   '&.editing-active': {
     // This class is toggled via global state
   }
-}));
+})) as any;
 
 /**
  * Container for the media thumbnail/video
@@ -42,7 +42,7 @@ export const MediaContainer = styled(Box, {
   overflow: 'hidden',
   opacity: loading ? 0.7 : 1,
   transition: 'opacity 0.3s ease'
-}));
+})) as any;
 
 /**
  * Styled image element for the media thumbnail
@@ -59,7 +59,7 @@ export const StyledImage = styled('div')({
   backgroundRepeat: 'no-repeat',
   willChange: 'transform',
   transition: 'transform 0.1s ease-out'
-});
+}) as any;
 
 /**
  * Skeleton placeholder while image is loading
@@ -71,7 +71,7 @@ export const ImageSkeleton = styled(Skeleton)({
   width: '100%',
   height: '100%',
   transform: 'none'
-});
+}) as any;
 
 /**
  * Video element for preview playback
@@ -91,7 +91,7 @@ export const StyledVideo = styled('video')({
   '&.visible': {
     display: 'block'
   }
-});
+}) as any;
 
 /**
  * Overlay container for controls and actions
@@ -111,7 +111,7 @@ export const MediaOverlay = styled('div')<{ mediaTouch: boolean }>(({ theme, med
   justifyContent: 'space-between',
   padding: theme.spacing(1),
   zIndex: 2
-}));
+})) as any;
 
 /**
  * Overlay for selection mode
@@ -132,7 +132,7 @@ export const SelectOverlay = styled('div')({
   '& .MuiCheckbox-root': {
     pointerEvents: 'auto'
   }
-});
+}) as any;
 
 /**
  * Title overlay at bottom of card
@@ -146,7 +146,7 @@ export const TitleOverlay = styled('div')({
   padding: '8px',
   background: 'linear-gradient(transparent, rgba(0,0,0,0.8))',
   transition: 'opacity 0.2s ease-in-out'
-});
+}) as any;
 
 /**
  * Duration badge in bottom-right corner
@@ -165,7 +165,7 @@ export const DurationOverlay = styled('div')({
   display: 'flex',
   alignItems: 'center',
   gap: 4
-});
+}) as any;
 
 /**
  * Upload progress container
@@ -182,7 +182,7 @@ export const UploadProgressContainer = styled('div')({
   background: 'rgba(0, 0, 0, 0.8)',
   borderRadius: 4,
   zIndex: 4
-});
+}) as any;
 
 /**
  * Upload progress text
@@ -191,7 +191,7 @@ export const UploadProgressText = styled('span')({
   fontSize: '12px',
   fontWeight: 500,
   color: '#fff'
-});
+}) as any;
 
 /**
  * Container for overlapping avatars (tagged users)
@@ -212,7 +212,7 @@ export const AvatarsContainer = styled('div')(({ theme }) => ({
       marginLeft: 0
     }
   }
-}));
+})) as any;
 
 /**
  * Individual overlapping avatar
@@ -224,7 +224,7 @@ export const OverlappingAvatar = styled(Avatar)<{ index: number }>(({ theme, ind
   marginLeft: index > 0 ? -8 : 0,
   zIndex: 10 - index, // First avatar on top
   fontSize: '0.75rem'
-}));
+})) as any;
 
 /**
  * Views and date overlay in top-left
@@ -242,7 +242,7 @@ export const ViewsDateOverlay = styled('div')({
   display: 'flex',
   alignItems: 'center',
   gap: 8
-});
+}) as any;
 
 /**
  * Container for FAB action buttons
@@ -260,7 +260,7 @@ export const FabButtonsContainer = styled('div')({
     height: 36,
     minHeight: 36
   }
-});
+}) as any;
 
 /**
  * Container for delete button
@@ -275,7 +275,7 @@ export const DeleteButtonContainer = styled('div')({
     height: 32,
     minHeight: 32
   }
-});
+}) as any;
 
 /**
  * Card content section below the media
@@ -289,7 +289,7 @@ export const StyledCardContent = styled(CardContent)({
   '&:last-child': {
     paddingBottom: '8px !important'
   }
-});
+}) as any;
 
 /**
  * Container for the media thumbnail wrapper
@@ -299,7 +299,7 @@ export const MediaThumbnail = styled('div')({
   position: 'relative',
   width: '100%',
   overflow: 'hidden'
-});
+}) as any;
 
 /**
  * Price tag overlay for paid content
@@ -321,7 +321,7 @@ export const PriceTag = styled('div')(({ theme }) => ({
   '& svg': {
     fontSize: '16px'
   }
-}));
+})) as any;
 
 /**
  * Processing overlay for thumbnail generation
@@ -339,7 +339,7 @@ export const ProcessingOverlay = styled('div')({
   justifyContent: 'center',
   zIndex: 4,
   gap: 8
-});
+}) as any;
 
 /**
  * Error overlay for playback issues
@@ -359,4 +359,4 @@ export const ErrorOverlay = styled('div')(({ theme }) => ({
   padding: theme.spacing(2),
   gap: theme.spacing(1),
   color: theme.palette.error.main
-}));
+})) as any;
