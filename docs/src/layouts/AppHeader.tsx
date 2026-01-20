@@ -7,11 +7,13 @@ import Container from '@mui/material/Container';
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import GitHubIcon from '@mui/icons-material/GitHub';
+import { useRouter } from 'next/router';
 import ThemeModeToggle from 'docs/src/components/header/ThemeModeToggle';
 import { Link } from '@stoked-ui/docs';
 import { DeferredAppSearch } from 'docs/src/modules/components/AppFrame';
 import { useTranslate } from '@stoked-ui/docs/i18n';
-import SvgSuiLogomark from "../icons/SvgSuiLogomark";
+import SvgSuiLogomark from "docs/src/icons/SvgSuiLogomark";
+import SvgScLogo from "docs/src/icons/SvgScLogo"
 import dynamic from "next/dynamic";
 
 const Header = styled('header')(({ theme }) => {
@@ -50,6 +52,9 @@ const HeaderNavDropdown = dynamic(() => import('docs/src/components/header/Heade
 export default function AppHeader(props: AppHeaderProps) {
   const { gitHubRepository = 'https://github.com/stoked-ui/sui' } = props;
   const t = useTranslate();
+  const router = useRouter();
+
+  const isConsultingPage = router.pathname.startsWith('/consulting');
 
   return (
     <Header>
@@ -62,7 +67,7 @@ export default function AppHeader(props: AppHeaderProps) {
       />
       <Container sx={{ display: 'flex', alignItems: 'center', minHeight: HEIGHT }}>
         <Box component={Link} href="/" aria-label="Go to homepage" sx={{ lineHeight: 0, mr: 2 }}>
-          <SvgSuiLogomark width={30} />
+          {isConsultingPage ? <SvgScLogo width={30} /> : <SvgSuiLogomark width={30} />}
         </Box>
         <Box sx={{ display: { xs: 'none', md: 'initial' } }}>
           <HeaderNavBar />

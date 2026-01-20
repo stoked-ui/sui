@@ -271,6 +271,13 @@ export function getDynamicFiles (): readonly FileBase[] {
       type: 'folder',
       mediaType: 'folder',
       lastModified: createRelativeDate(1 * week),
+    },
+    {
+      id: 'trash',
+      name: 'Trash',
+      type: 'folder',
+      mediaType: 'trash',
+      lastModified: createRelativeDate(1 * second),
     }
   ];
 }

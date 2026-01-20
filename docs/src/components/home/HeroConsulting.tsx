@@ -46,14 +46,13 @@ export default function Hero() {
       linearGradient
       left={
         <Box sx={{ textAlign: { xs: 'center', md: 'left' }, maxWidth: 500 }}>
-          <Typography variant="h1" mb={1}>
+          <Typography variant="h1" mb={1} color="text.primary">
             Full Stack<br/>
             <GradientText>Consulting</GradientText>
           </Typography>
           <Typography color="text.secondary" mb={3}>
-            SUI is building an open source web based Video Editor and just released the first component. The File Explorer will play a critical role managing files in the Video Editor. It&apos;s built with <a href={'https://mui.com/material-ui/getting-started/'}>MUI</a> through and through and leverages Atlassian&apos;s new <a href={'https://atlassian.design/components/pragmatic-drag-and-drop/'}>Pragmatic Drag and Drop Library</a>. PR&apos;s welcome.
+            Expert software engineering consulting for greenfield solutions, legacy modernization, and cloud infrastructure. Specializing in full stack development with React, Next.js, Angular, Node.js, Python, and C#. Building production-ready applications with AWS, GCP, and modern IaC tools since 2010.
           </Typography>
-          <GetStartedButtons primaryLabel="Checkout the roadmap to see whats next" primaryUrl="/sui/components" />
         </Box>
       }
       rightSx={{
@@ -80,7 +79,16 @@ export default function Hero() {
           {isMdUp && (
             <Stack spacing={3} useFlexGap sx={{ '& > .MuiPaper-root': { maxWidth: 'none' } }}>
               <FileExplorerGrid id={'file-explorer-grid'} grid sx={{ width: '100%' }} />
-              <FileExplorerDnd id={'file-explorer-dnd'} sx={{width: 360}}/>
+              <FileExplorerDnd
+                id={'file-explorer-dnd'}
+                sx={{
+                  width: 360,
+                  '& .MuiFile-content': {
+                    marginBottom: '2px',
+                    marginTop: '2px',
+                  }
+                }}
+              />
             </Stack>
           )}
         </React.Fragment>

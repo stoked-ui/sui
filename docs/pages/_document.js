@@ -92,10 +92,10 @@ export default function MyDocument(props) {
               content="Instantly share images, videos, PDFs, and links with people nearby. Peer2Peer and Open Source. No Setup, No Signup."/>
        Icons
         */}
-        <link rel="icon" sizes="96x96" href="/static/icons/96x96.png"/>
-        <link rel="shortcut icon" href="/static/icons/96x96.png"/>
-        {/* <meta name="msapplication-TileImage" content="images/mstile-150x150.png"/> */}
-        <link rel="fluid-icon" type="image/png" href="/static/icons/192x192.png"/>
+        <link rel="icon" type="image/svg+xml" href="/static/logo.svg"/>
+        <link rel="shortcut icon" type="image/svg+xml" href="/static/logo.svg"/>
+        <link rel="alternate icon" href="/favicon.ico"/>
+        <link rel="fluid-icon" type="image/svg+xml" href="/static/logo.svg"/>
       {/*   <meta name="twitter:image" content="https://snapdrop.net/images/twitter-stream.jpg"/>
         <meta property="og:image" content="https://snapdrop.net/images/twitter-stream.jpg"/> */}
         {/*  Resources */}
@@ -115,9 +115,8 @@ export default function MyDocument(props) {
           content={getMetaThemeColor('dark')}
           media="(prefers-color-scheme: dark)"
         />
-        <link rel="shortcut icon" href="/favicon.ico"/>
         {/* iOS Icon */}
-        <link rel="apple-touch-icon" sizes="180x180" href="/static/icons/180x180.png"/>
+        <link rel="apple-touch-icon" href="/static/logo.svg"/>
         {/* SEO */}
         <link
           rel="canonical"
@@ -221,9 +220,11 @@ export default function MyDocument(props) {
           styles={{
             '[data-mui-color-scheme="light"] body': {
               background: 'white',
+              color: '#000',
             },
             '[data-mui-color-scheme="dark"] body': {
               background: 'hsl(210, 14%, 7%)',
+              color: '#fff',
             },
             // First SSR paint
             '.only-light-mode': {

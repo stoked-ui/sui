@@ -8,13 +8,20 @@ import { SxProps } from "@mui/system";
 import { getDynamicFiles } from '../fileExplorer/data';
 
 export default function FileExplorerHero(props: { id: string, sx?: SxProps, grid?: boolean, alternatingRows?: boolean, trash?: boolean, defaultData?: boolean}) {
-  const sx: SxProps = { height: 'fit-content', flexGrow: 1, width: '100%', overflowY: 'auto', ...props.sx };
+  const baseSx: SxProps = {
+    height: 'fit-content',
+    flexGrow: 1,
+    width: '100%',
+    overflowY: 'auto',
+    ...props.sx
+  };
+
   return (
     <FileExplorer
       items={getDynamicFiles()}
       defaultExpandedItems={['1', '1.1']}
-      defaultSelectedItems="1.1"
-      sx={sx}
+      defaultSelectedItems="1.2"
+      sx={baseSx}
       slots={{ item: File }}
       {...props}
       id={props.id}
