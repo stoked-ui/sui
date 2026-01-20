@@ -132,6 +132,11 @@ export const useFileExplorerFocus: FileExplorerPlugin<UseFileExplorerFocusSignat
       }
     };
 
+  // AC-1.2.c: Adapter method for MUI X RichTreeView integration
+  const getFocusedItemForMuiX = React.useCallback(() => {
+    return state.focusedItemId;
+  }, [state.focusedItemId]);
+
   return {
     getRootProps: (otherHandlers) => ({
       onFocus: createRootHandleFocus(otherHandlers),
@@ -144,6 +149,7 @@ export const useFileExplorerFocus: FileExplorerPlugin<UseFileExplorerFocusSignat
       canItemBeTabbed,
       focusItem,
       removeFocusedItem,
+      getFocusedItemForMuiX,
     },
   };
 };

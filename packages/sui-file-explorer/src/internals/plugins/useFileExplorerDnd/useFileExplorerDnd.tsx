@@ -40,6 +40,11 @@ import {
   getFileExplorerStateDefault
 } from "./FileExplorerDndContext";
 import {UseMinimalPlus} from "../../models/plugin.types";
+import type { ItemPositionChangeParams } from './muiXDndAdapters';
+import {
+  validateFiles,
+  getRejectionReason,
+} from "./fileValidation";
 
 
 type CleanupFn = () => void;
@@ -221,7 +226,56 @@ export const useFileExplorerDnd: FileExplorerPlugin<UseFileExplorerDndSignature>
       instruction
     };
   }
-  const dropInternal = (event: BaseEventPayload<ElementDragType>) => {
+  // Work Item 2.1: Support both Atlaskit DnD and MUI X DnD
+  const dropInternal = (eventOrParams: BaseEventPayload<ElementDragType> | ItemPositionChangeParams) => {
+    // Check if this is MUI X DnD (ItemPositionChangeParams) or Atlaskit DnD (BaseEventPayload)
+    const isMuiXDnd = 'itemId' in eventOrParams;
+
+    if (isMuiXDnd) {
+      // MUI X DnD path
+      const params = eventOrParams as ItemPositionChangeParams;
+      const { itemId, newParentId } = params;
+
+      const item = instance.getItem(itemId);
+      const targetItem = newParentId ? instance.getItem(newParentId) : null;
+
+      if (!item) {
+        return;
+      }
+
+      // Handle trash drop
+      if (targetItem?.type === 'trash') {
+        updateState({
+          type: 'remove',
+          id: itemId,
+        });
+        return;
+      }
+
+      // Handle folder/reparent drop
+      if (targetItem?.type === 'folder' || newParentId === null) {
+        // Create instruction for MUI X DnD
+        const instruction: Instruction = {
+          type: 'reparent',
+          currentLevel: 0,
+          desiredLevel: 0,
+          indentPerLevel: 0,
+        };
+
+        updateState({
+          type: 'instruction',
+          instruction,
+          id: itemId,
+          targetId: newParentId || '',
+        });
+        return;
+      }
+
+      return;
+    }
+
+    // Legacy Atlaskit DnD path
+    const event = eventOrParams as BaseEventPayload<ElementDragType>;
 
     const handleTrashDrop = (data: DropInternalData) => {
       console.warn('handleTrashDrop', data)
@@ -534,7 +588,8 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
         }
       },
       onDrop: (dropData) =>{
-        instance.dropInternal(dropData);
+        // Cast to avoid type error with union signature
+        (instance.dropInternal as (event: BaseEventPayload<ElementDragType>) => void)(dropData);
       },
     });
 
@@ -586,7 +641,8 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
         // const { sourceItemId } = source.data;
         // publishFileExplorerEvent(instance, 'removeItem', { targetId: item.id, sourceItemIds });
 
-        instance.dropInternal(event);
+        // Cast to avoid type error with union signature
+        (instance.dropInternal as (event: BaseEventPayload<ElementDragType>) => void)(event);
         // console.log('combinedContentRef', pluginContentRef);
 
         cancelExpand();
@@ -604,9 +660,10 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
 
     const handleExternalDropTargets = dropTargetForExternal({
       element: pluginContentRef?.current,
-      canDrop: (/* {input, source, element} */) => {
-
-        return true;
+      canDrop: () => {
+        // Work Item 3.4: Allow external drops only if dndExternal is enabled and target is a folder
+        // AC-3.4.a, AC-3.4.b, AC-3.4.c: Validation happens in onDrop handler
+        return !!(dndConfig?.dndExternal && canDrop);
       }, getData: ({input, element}) => {
         const data = {id: props.id, type: props.type};
         addDropTargetAffordance(canDrop, element);
@@ -660,8 +717,41 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
           instance.toggleItemExpansion(null as unknown as React.SyntheticEvent, props.id!);
         }
         const files = await MediaFile.from(dropEvent);
-         const {self} = dropEvent;
-         instance.createChildren(files as FileBase[], self.data.id as string);
+        const {self} = dropEvent;
+
+        // Work Item 3.4: Validate files before creating children
+        // Implements AC-3.4.a, AC-3.4.b, AC-3.4.c
+        const fileMetadata = files.map(file => ({
+          filename: file.name,
+          mimeType: file.type,
+          size: file.size,
+        }));
+
+        const allowedMimeTypes = instance.dndExternalFileTypes();
+        const validationResult = validateFiles(fileMetadata, {
+          allowedMimeTypes: allowedMimeTypes.length > 0 ? allowedMimeTypes : undefined,
+        });
+
+        // Log rejected files for audit trail
+        if (validationResult.rejectedFiles.length > 0) {
+          console.warn(
+            'File drop validation rejected files:',
+            validationResult.rejectedFiles.map(f => ({
+              filename: f.filename,
+              reason: getRejectionReason(f.errors),
+            }))
+          );
+        }
+
+        // Create children with only valid files
+        const validFiles = files.filter(file =>
+          validationResult.validFiles.some(vf => vf.filename === file.name)
+        );
+
+        if (validFiles.length > 0) {
+          instance.createChildren(validFiles as FileBase[], self.data.id as string);
+        }
+
         cancelExpand();
         setState({...state, dndInstruction: null});
       },

@@ -1,7 +1,8 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import { TreeView, TreeItem } from '@mui/x-tree-view';
+import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView';
+import { TreeItem } from '@mui/x-tree-view/TreeItem';
 import { styled } from '@mui/material/styles';
 import FolderIcon from '@mui/icons-material/Folder';
 import FileIcon from '@mui/icons-material/InsertDriveFile';
@@ -138,21 +139,23 @@ export default function FileChanges({ files }: FileChangesProps): React.JSX.Elem
 
   return (
     <Box>
-      <TreeView
-        defaultCollapseIcon={<ExpandMoreIcon />}
-        defaultExpandIcon={<ChevronRightIcon />}
-        expanded={expanded}
-        selected={selected}
-        onNodeToggle={handleToggle}
-        onNodeSelect={handleSelect}
+      <SimpleTreeView
+        slots={{
+          collapseIcon: ExpandMoreIcon,
+          expandIcon: ChevronRightIcon,
+        }}
+        expandedItems={expanded}
+        selectedItems={selected}
+        onExpandedItemsChange={handleToggle}
+        onSelectedItemsChange={handleSelect}
         multiSelect
       >
         {files.map((file, index) => {
-          const nodeId = `file-${index}-${file.path.replace(/[^a-zA-Z0-9]/g, '-')}`;
+          const itemId = `file-${index}-${file.path.replace(/[^a-zA-Z0-9]/g, '-')}`;
           return (
             <TreeItem
-              key={nodeId}
-              nodeId={nodeId}
+              key={itemId}
+              itemId={itemId}
               label={
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   {getFileIcon(file.type)}
@@ -166,7 +169,7 @@ export default function FileChanges({ files }: FileChangesProps): React.JSX.Elem
               <Box sx={{ p: '16px' }}>
                 <DiffView>
                   {file.diff.map((line, index) => (
-                    <DiffLine key={`${nodeId}-line-${index}`} type={line.type}>
+                    <DiffLine key={`${itemId}-line-${index}`} type={line.type}>
                       {line.content}
                     </DiffLine>
                   ))}
@@ -175,7 +178,7 @@ export default function FileChanges({ files }: FileChangesProps): React.JSX.Elem
             </TreeItem>
           );
         })}
-      </TreeView>
+      </SimpleTreeView>
     </Box>
   );
 } 

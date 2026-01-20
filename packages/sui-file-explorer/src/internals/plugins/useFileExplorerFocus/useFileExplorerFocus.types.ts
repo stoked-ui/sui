@@ -45,6 +45,11 @@ export interface UseFileExplorerFocusInstance extends UseFileExplorerFocusPublic
    * Remove the focus from the currently focused item (both from the internal state and the DOM).
    */
   removeFocusedItem: () => void;
+  /**
+   * Get the currently focused item ID for MUI X RichTreeView integration.
+   * @returns {string | null} The focused item ID or null if no item is focused.
+   */
+  getFocusedItemForMuiX: () => string | null;
 }
 
 export interface UseFileExplorerFocusParameters {
