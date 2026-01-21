@@ -82,6 +82,9 @@ importers:
       '@babel/plugin-proposal-class-properties':
         specifier: ^7.18.6
         version: 7.18.6(@babel/core@7.28.6)
+      '@babel/plugin-proposal-decorators':
+        specifier: ^7.28.6
+        version: 7.28.6(@babel/core@7.28.6)
       '@babel/plugin-proposal-export-default-from':
         specifier: ^7.25.9
         version: 7.27.1(@babel/core@7.28.6)

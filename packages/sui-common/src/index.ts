@@ -13,3 +13,9 @@ export * from './LocalDb';
 export * from './MimeType';
 export { GrokLoader };
 
+// Backend/Database models, decorators, DTOs, and interfaces
+export * from './models';
+export * from './dtos';
+export * from './interfaces';
+export * from './decorators';
+
