@@ -10,11 +10,13 @@
     "sourceMap": true,
     "outDir": "./dist",
     "rootDir": "./src",
-    "baseUrl": "./src",
+    "baseUrl": ".",
+    "paths": {},
     "esModuleInterop": true,
     "moduleResolution": "node16",
     "incremental": true,
     "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
     "strictNullChecks": false,
     "noImplicitAny": false,
     "strictBindCallApply": false,
@@ -31,9 +33,11 @@
     "src/**/*.ts"
   ],
   "exclude": [
+    "node_modules",
     "test/**/*",
     "jest*.ts",
     "**/*.spec.ts",
-    "**/*.test.ts"
+    "**/*.test.ts",
+    "../**/*"
   ]
 }
