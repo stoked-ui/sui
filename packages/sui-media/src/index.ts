@@ -196,3 +196,57 @@ export type {
   MediaCardModeState,
   SpriteConfig,
 } from './components/MediaCard';
+
+// ============================================================================
+// API Client - Media API Integration
+// ============================================================================
+
+/**
+ * Media API Client for consuming NestJS Media API endpoints
+ * Provides type-safe CRUD operations, upload management, and React hooks
+ * @example
+ * import {
+ *   createMediaApiClient,
+ *   createUploadClient,
+ *   MediaApiProvider,
+ *   useMediaList,
+ *   useMediaUpload
+ * } from '@stoked-ui/media';
+ *
+ * // Create API clients
+ * const mediaClient = createMediaApiClient({
+ *   baseUrl: 'https://api.example.com',
+ *   authToken: 'your-token'
+ * });
+ *
+ * // Or use with React
+ * <MediaApiProvider config={{ baseUrl: 'https://api.example.com' }}>
+ *   <App />
+ * </MediaApiProvider>
+ */
+export * from './api';
+
+// ============================================================================
+// React Hooks - Media API Integration
+// ============================================================================
+
+/**
+ * React hooks for Media API integration
+ * Provides hooks for uploading, listing, updating, and deleting media
+ * Built on @tanstack/react-query for optimal caching and state management
+ * @example
+ * import {
+ *   useMediaUpload,
+ *   useMediaList,
+ *   useMediaItem,
+ *   useMediaUpdate,
+ *   useMediaDelete
+ * } from '@stoked-ui/media';
+ *
+ * function MyComponent() {
+ *   const { upload, isUploading, progress } = useMediaUpload();
+ *   const { data: mediaList } = useMediaList({ page: 1, limit: 20 });
+ *   return <div>...</div>;
+ * }
+ */
+export * from './hooks';
