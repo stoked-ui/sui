@@ -715,3 +715,164 @@ export const CompleteIntegration: Story = {
     );
   },
 };
+
+// ============================================================================
+// API Integration Stories (Work Item 4.2)
+// ============================================================================
+
+/**
+ * MediaCard with API client integration for server-side features
+ * Demonstrates:
+ * - Server-generated thumbnails
+ * - Server-side metadata extraction
+ * - Hybrid metadata strategy
+ * - Loading and error states
+ */
+export const WithAPIIntegration: Story = {
+  render: () => {
+    const [modeState, setModeState] = useState<MediaCardModeState>({ mode: 'view' });
+    const [logs, setLogs] = useState<string[]>([]);
+
+    const addLog = (msg: string) => {
+      setLogs((prev) => [...prev.slice(-5), `[${new Date().toLocaleTimeString()}] ${msg}`]);
+    };
+
+    // Mock API client for demonstration
+    const mockApiClient = {
+      extractMetadata: async (id: string) => {
+        addLog(`📊 Extracting metadata for ${id}...`);
+        // Simulate API delay
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        addLog(`✓ Metadata extraction complete`);
+        return {
+          duration: 305,
+          width: 1920,
+          height: 1080,
+          codec: 'h264',
+          bitrate: 5000,
+        };
+      },
+      generateThumbnail: async (id: string, timestamp: number) => {
+        addLog(`🖼 Generating thumbnail at ${timestamp}s...`);
+        await new Promise((resolve) => setTimeout(resolve, 800));
+        addLog(`✓ Thumbnail generated`);
+        return {
+          thumbnailUrl: '/images/server-generated-thumb.jpg',
+          thumbnailKey: 's3://thumbnails/video-1-thumb.jpg',
+          timestamp,
+          width: 320,
+          height: 180,
+        };
+      },
+    } as any;
+
+    // Video item without thumbnail or dimensions (needs server processing)
+    const videoNeedingProcessing: ExtendedMediaItem = {
+      _id: 'video-api-1',
+      title: 'Video Requiring Server Processing',
+      description: 'Demonstrates API integration for metadata and thumbnails',
+      mediaType: 'video',
+      file: '/videos/sample.mp4',
+      // No thumbnail or duration - will be fetched from API
+      publicity: 'public',
+      views: 42,
+      author: 'content-creator-1',
+      url: 'https://example.com/videos/sample.mp4',
+    };
+
+    return (
+      <Box sx={{ width: 500 }}>
+        <MediaCard
+          item={videoNeedingProcessing}
+          modeState={modeState}
+          setModeState={setModeState}
+          apiClient={mockApiClient}
+          enableServerFeatures={true}
+          info={true}
+          onMetadataLoaded={(metadata) => {
+            addLog(
+              `📥 Metadata loaded: ${metadata.width}x${metadata.height}, ${metadata.duration}s`,
+            );
+          }}
+          metadataStrategy={{
+            preferServer: true,
+            fallbackToClient: true,
+            serverTimeout: 5000,
+          }}
+        />
+        <Box
+          sx={{
+            fontSize: '0.875rem',
+            color: '#666',
+            mt: 2,
+            p: 1,
+            backgroundColor: '#f5f5f5',
+            borderRadius: '4px',
+            fontFamily: 'monospace',
+            minHeight: '120px',
+            maxHeight: '180px',
+            overflowY: 'auto',
+          }}
+        >
+          <strong>API Integration Log:</strong>
+          {logs.length === 0 ? (
+            <p>Loading server features...</p>
+          ) : (
+            logs.map((log, i) => (
+              <div key={i}>{log}</div>
+            ))
+          )}
+        </Box>
+        <Box sx={{ fontSize: '0.75rem', color: '#999', mt: 1 }}>
+          <p>
+            • Server thumbnail generation kicks in when no thumbnail is available
+            <br />
+            • Metadata extraction runs automatically for accurate duration/dimensions
+            <br />
+            • Hybrid strategy: client-side for preview, server-side for accuracy
+            <br />• Loading states and error handling with retry built-in
+          </p>
+        </Box>
+      </Box>
+    );
+  },
+};
+
+/**
+ * Backward compatibility - MediaCard works without API client
+ */
+export const BackwardCompatibility: Story = {
+  render: () => {
+    const [modeState, setModeState] = useState<MediaCardModeState>({ mode: 'view' });
+
+    return (
+      <Box sx={{ display: 'flex', gap: 2 }}>
+        <Box sx={{ width: 320 }}>
+          <MediaCard
+            item={sampleVideoItem}
+            modeState={modeState}
+            setModeState={setModeState}
+            info={true}
+            // No apiClient prop - works in client-only mode
+          />
+          <Box sx={{ fontSize: '0.75rem', color: '#666', mt: 1, textAlign: 'center' }}>
+            Without API client (client-only mode)
+          </Box>
+        </Box>
+        <Box sx={{ width: 320 }}>
+          <MediaCard
+            item={sampleVideoItem}
+            modeState={modeState}
+            setModeState={setModeState}
+            info={true}
+            apiClient={undefined}
+            enableServerFeatures={false}
+          />
+          <Box sx={{ fontSize: '0.75rem', color: '#666', mt: 1, textAlign: 'center' }}>
+            With server features explicitly disabled
+          </Box>
+        </Box>
+      </Box>
+    );
+  },
+};

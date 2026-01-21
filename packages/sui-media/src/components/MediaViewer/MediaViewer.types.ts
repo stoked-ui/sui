@@ -11,6 +11,7 @@ import type { IAuth } from '../../abstractions/Auth';
 import type { IQueue } from '../../abstractions/Queue';
 import type { IKeyboardShortcuts } from '../../abstractions/KeyboardShortcuts';
 import type { IPayment } from '../../abstractions/Payment';
+import type { MediaApiClient } from '../../api';
 
 // ============================================================================
 // Media Item Types
@@ -212,6 +213,16 @@ export interface MediaViewerProps {
   enableOwnerControls?: boolean;
   /** Whether to enable MediaClass playback sequences */
   enableMediaClass?: boolean;
+
+  // API Integration (Work Item 4.2)
+  /** API client for server-side operations */
+  apiClient?: MediaApiClient;
+  /** Enable server-side features (metadata, thumbnails) - default: true */
+  enableServerFeatures?: boolean;
+  /** Callback when media is loaded from API */
+  onMediaLoaded?: (media: MediaItem) => void;
+  /** Callback when metadata is loaded from server */
+  onMetadataLoaded?: (metadata: { duration?: number; width?: number; height?: number }) => void;
 }
 
 /**

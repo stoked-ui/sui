@@ -9,8 +9,8 @@
  */
 
 import * as React from 'react';
-import { Dialog, Box, styled } from '@mui/material';
-import type { MediaViewerProps } from './MediaViewer.types';
+import { Dialog, Box, styled, CircularProgress, Alert, AlertTitle } from '@mui/material';
+import type { MediaViewerProps, MediaItem } from './MediaViewer.types';
 import { MediaViewerHeader } from './MediaViewerHeader';
 import { MediaViewerPrimary } from './MediaViewerPrimary';
 import { NextUpHeader } from './NextUpHeader';
@@ -62,7 +62,7 @@ const ViewerContainer = styled(Box)({
  * - Responsive layout
  */
 export function MediaViewer({
-  item,
+  item: initialItem,
   mediaItems = [],
   currentIndex = 0,
   open,
@@ -79,10 +79,21 @@ export function MediaViewer({
   initialMuted = false,
   enableQueue,
   enableKeyboardShortcuts,
+  // API Integration (Work Item 4.2)
+  apiClient,
+  enableServerFeatures = true,
+  onMediaLoaded,
+  onMetadataLoaded,
 }: MediaViewerProps) {
   // Set default values for optional booleans
   const _enableQueue = enableQueue ?? true;
   const _enableKeyboardShortcuts = enableKeyboardShortcuts ?? true;
+
+  // API state management
+  const [item, setItem] = React.useState<MediaItem>(initialItem);
+  const [isLoadingMedia, setIsLoadingMedia] = React.useState(false);
+  const [mediaLoadError, setMediaLoadError] = React.useState<string | undefined>();
+
   // State management
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const [videoLoaded, setVideoLoaded] = React.useState(false);
@@ -158,6 +169,78 @@ export function MediaViewer({
     return `/api/media/${type}/${id}`;
   }, []);
 
+  // Load media from API when item changes (if API client is available)
+  React.useEffect(() => {
+    // Reset item to initialItem when it changes
+    setItem(initialItem);
+
+    // Skip if no API client or server features disabled
+    if (!apiClient || !enableServerFeatures || !initialItem.id) {
+      setMediaLoadError(undefined);
+      setIsLoadingMedia(false);
+      return;
+    }
+
+    // Load full media details from API
+    let cancelled = false;
+    setIsLoadingMedia(true);
+    setMediaLoadError(undefined);
+
+    const loadMedia = async () => {
+      try {
+        const mediaData = await apiClient.getMedia(initialItem.id);
+
+        if (cancelled) return;
+
+        // Map API response to MediaItem interface
+        const loadedItem: MediaItem = {
+          id: mediaData._id || initialItem.id,
+          title: mediaData.title,
+          description: mediaData.description,
+          url: mediaData.file,
+          file: mediaData.file,
+          thumbnail: mediaData.thumbnail,
+          width: mediaData.width,
+          height: mediaData.height,
+          duration: mediaData.duration,
+          views: mediaData.views,
+          publicity: mediaData.publicity,
+          mediaType: mediaData.mediaType,
+          ...initialItem,
+        };
+
+        setItem(loadedItem);
+        setIsLoadingMedia(false);
+
+        // Notify parent
+        if (onMediaLoaded) {
+          onMediaLoaded(loadedItem);
+        }
+
+        // Notify metadata callback if metadata is available
+        if (onMetadataLoaded && (mediaData.duration || mediaData.width || mediaData.height)) {
+          onMetadataLoaded({
+            duration: mediaData.duration,
+            width: mediaData.width,
+            height: mediaData.height,
+          });
+        }
+      } catch (error) {
+        if (cancelled) return;
+
+        console.error('Failed to load media from API:', error);
+        setMediaLoadError(error instanceof Error ? error.message : 'Failed to load media');
+        setIsLoadingMedia(false);
+      }
+    };
+
+    loadMedia();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [initialItem, apiClient, enableServerFeatures, onMediaLoaded, onMetadataLoaded]);
+
   // Reset loaded state when item changes
   React.useEffect(() => {
     setVideoLoaded(false);
@@ -201,7 +284,50 @@ export function MediaViewer({
       }}
     >
       <ViewerContainer onMouseMove={showControlsWithTimeout}>
-        <MediaViewerHeader
+        {/* Loading state */}
+        {isLoadingMedia && (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '100%',
+              gap: 2,
+            }}
+          >
+            <CircularProgress size={60} sx={{ color: '#fff' }} />
+            <Box sx={{ color: '#fff', opacity: 0.7 }}>
+              Loading media from server...
+            </Box>
+          </Box>
+        )}
+
+        {/* Error state */}
+        {mediaLoadError && !isLoadingMedia && (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '100%',
+              padding: 3,
+            }}
+          >
+            <Alert severity="error" sx={{ maxWidth: 600 }}>
+              <AlertTitle>Failed to Load Media</AlertTitle>
+              {mediaLoadError}
+              <br />
+              <br />
+              Displaying cached data. Some features may be unavailable.
+            </Alert>
+          </Box>
+        )}
+
+        {/* Main content (show if not loading or if error with fallback) */}
+        {!isLoadingMedia && (
+          <>
+            <MediaViewerHeader
           item={item}
           isVideo={isVideo}
           showControls={showControls}
@@ -240,6 +366,8 @@ export function MediaViewer({
           <Box sx={{ position: 'absolute', bottom: 16, width: '90%', maxWidth: '1200px' }}>
             <NextUpHeader queueCount={queueCount} show={true} />
           </Box>
+        )}
+          </>
         )}
       </ViewerContainer>
     </ViewerDialog>

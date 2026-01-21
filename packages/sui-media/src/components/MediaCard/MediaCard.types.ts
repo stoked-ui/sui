@@ -3,6 +3,7 @@ import type { IRouter } from '../../abstractions/Router';
 import type { IAuth } from '../../abstractions/Auth';
 import type { IPayment } from '../../abstractions/Payment';
 import type { IQueue } from '../../abstractions/Queue';
+import type { MediaApiClient } from '../../api';
 
 /**
  * Sprite configuration for video scrubber thumbnails
@@ -299,4 +300,39 @@ export interface MediaCardProps {
 
   /** Enable keyboard shortcuts for media controls */
   enableKeyboardShortcuts?: boolean;
+
+  // API Integration (Work Item 4.2)
+  /** API client for server-side operations */
+  apiClient?: MediaApiClient;
+
+  /** Enable server-side features (thumbnails, metadata) - default: true */
+  enableServerFeatures?: boolean;
+
+  /** Callback for upload progress tracking */
+  onUploadProgress?: (progress: {
+    loaded: number;
+    total: number;
+    percentage: number;
+  }) => void;
+
+  /** Callback when server metadata is loaded */
+  onMetadataLoaded?: (metadata: {
+    duration?: number;
+    width?: number;
+    height?: number;
+    codec?: string;
+    bitrate?: number;
+  }) => void;
+
+  /** Hybrid metadata options */
+  metadataStrategy?: {
+    /** Prefer server-side extraction (default: true for files >10MB) */
+    preferServer?: boolean;
+    /** Timeout for client-side extraction (ms) */
+    clientTimeout?: number;
+    /** Timeout for server-side extraction (ms) */
+    serverTimeout?: number;
+    /** Fallback to client if server fails */
+    fallbackToClient?: boolean;
+  };
 }

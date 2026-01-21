@@ -1,14 +1,29 @@
 import * as React from 'react';
-import { Card, CardMedia, CardContent, Typography, Box, IconButton, Checkbox } from '@mui/material';
+import {
+  Card,
+  CardMedia,
+  CardContent,
+  Typography,
+  Box,
+  IconButton,
+  Checkbox,
+  CircularProgress,
+  Skeleton,
+  Alert,
+  Button,
+} from '@mui/material';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PublicIcon from '@mui/icons-material/Public';
 import LockIcon from '@mui/icons-material/Lock';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import { noOpRouter, noOpAuth, noOpPayment, noOpQueue } from '../../abstractions';
 import type { MediaCardProps } from './MediaCard.types';
 import { VideoProgressBar } from './VideoProgressBar';
 import { calculateAspectRatio, formatDuration } from './MediaCard.utils';
+import { useHybridMetadata } from './useHybridMetadata';
+import { useServerThumbnail } from './useServerThumbnail';
 import './MediaCard.animations.css';
 
 /**
@@ -86,10 +101,33 @@ export const MediaCard: React.FC<MediaCardProps> = ({
   mediaBaseUrl = '',
   thumbnailBaseUrl = '',
   enableKeyboardShortcuts = false,
+  // API Integration (Work Item 4.2)
+  apiClient,
+  enableServerFeatures = true,
+  onUploadProgress,
+  onMetadataLoaded,
+  metadataStrategy,
 }) => {
   const [currentTime, setCurrentTime] = React.useState(0);
   const [isHovering, setIsHovering] = React.useState(false);
   const videoRef = React.useRef<HTMLVideoElement>(null);
+
+  // Hybrid metadata extraction (client + server)
+  const metadata = useHybridMetadata(
+    item,
+    enableServerFeatures ? apiClient : undefined,
+    metadataStrategy,
+    onMetadataLoaded,
+  );
+
+  // Server thumbnail generation
+  const serverThumbnail = useServerThumbnail(
+    item,
+    enableServerFeatures ? apiClient : undefined,
+    {
+      autoGenerate: !item.thumbnail && !item.paidThumbnail,
+    },
+  );
 
   // Determine if current user owns this media
   const currentUser = auth.getCurrentUser();
@@ -98,18 +136,25 @@ export const MediaCard: React.FC<MediaCardProps> = ({
   // Check if media requires payment
   const requiresPayment = item.publicity === 'paid' && item.price && item.price > 0;
 
-  // Build thumbnail URL
-  const thumbnailUrl = item.thumbnail
-    ? `${thumbnailBaseUrl || ''}${item.thumbnail}`
-    : item.paidThumbnail
-      ? `${thumbnailBaseUrl || ''}${item.paidThumbnail}`
-      : undefined;
+  // Build thumbnail URL (prefer server thumbnail from API)
+  const thumbnailUrl = serverThumbnail.thumbnailUrl
+    ? serverThumbnail.thumbnailUrl
+    : item.thumbnail
+      ? `${thumbnailBaseUrl || ''}${item.thumbnail}`
+      : item.paidThumbnail
+        ? `${thumbnailBaseUrl || ''}${item.paidThumbnail}`
+        : undefined;
 
   // Build media URL
   const mediaUrl = item.file ? `${mediaBaseUrl || ''}${item.file}` : item.url;
 
-  // Calculate aspect ratio for card
-  const aspectRatio = squareMode ? 100 : calculateAspectRatio(item.width, item.height);
+  // Calculate aspect ratio for card (use server metadata if available)
+  const aspectRatio = squareMode
+    ? 100
+    : calculateAspectRatio(
+        metadata.width ?? item.width,
+        metadata.height ?? item.height,
+      );
 
   // Handle selection toggle
   const handleSelectionToggle = () => {
@@ -223,6 +268,55 @@ export const MediaCard: React.FC<MediaCardProps> = ({
           overflow: 'hidden',
         }}
       >
+        {/* Loading state for thumbnail generation */}
+        {serverThumbnail.isLoading && (
+          <Box
+            sx={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              zIndex: 8,
+            }}
+          >
+            <CircularProgress size={40} sx={{ color: '#fff' }} />
+          </Box>
+        )}
+
+        {/* Error state for thumbnail generation */}
+        {serverThumbnail.error && serverThumbnail.canRetry && (
+          <Box
+            sx={{
+              position: 'absolute',
+              top: 8,
+              right: 8,
+              zIndex: 9,
+            }}
+          >
+            <Alert
+              severity="error"
+              sx={{ backgroundColor: 'rgba(211, 47, 47, 0.9)' }}
+              action={
+                <Button
+                  color="inherit"
+                  size="small"
+                  onClick={serverThumbnail.retry}
+                  startIcon={<RefreshIcon />}
+                >
+                  Retry
+                </Button>
+              }
+            >
+              Thumbnail failed
+            </Alert>
+          </Box>
+        )}
+
         {item.mediaType === 'video' && isVisible && !requiresPayment ? (
           <video
             ref={videoRef}
@@ -370,14 +464,29 @@ export const MediaCard: React.FC<MediaCardProps> = ({
           <Typography variant="body2" noWrap>
             {item.title || 'Untitled'}
           </Typography>
-          {item.mediaType === 'video' && item.duration && (
+          {item.mediaType === 'video' && (metadata.duration ?? item.duration) && (
             <Typography variant="caption" color="text.secondary">
-              {formatDuration(item.duration)}
+              {formatDuration(metadata.duration ?? item.duration!)}
+              {metadata.source === 'server' && (
+                <Typography
+                  component="span"
+                  variant="caption"
+                  sx={{ ml: 0.5, color: 'success.main' }}
+                  title="Server-verified duration"
+                >
+                  ✓
+                </Typography>
+              )}
             </Typography>
           )}
           {item.views !== undefined && (
             <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>
               {item.views} views
+            </Typography>
+          )}
+          {metadata.isLoading && (
+            <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>
+              (loading metadata...)
             </Typography>
           )}
         </CardContent>
