@@ -1,19 +1,23 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import * as dotenv from 'dotenv';
+import { Server } from './app';
+
+dotenv.config();
+
+// Disable noisy console output in production (keep warn/error)
+if (
+  process.env.NODE_ENV === 'production' ||
+  process.env.SST_STAGE === 'production' ||
+  process.env.SST_STAGE === 'prod'
+) {
+  console.log = () => {};
+  console.info = () => {};
+  console.debug = () => {};
+  console.trace = () => {};
+}
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-
-  // Enable CORS for development
-  app.enableCors({
-    origin: true,
-    credentials: true,
-  });
-
-  const port = process.env.PORT || 3001;
-  await app.listen(port);
-
-  console.log(`🚀 Media API is running on: http://localhost:${port}`);
+  const server = new Server();
+  return await server.start();
 }
 
 bootstrap();
