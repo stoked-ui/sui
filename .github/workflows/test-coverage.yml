@@ -1,0 +1,133 @@
+name: Test Coverage
+
+on:
+  push:
+    branches: [main, develop, 'project/*']
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  test-backend:
+    name: Backend API Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/sui-media-api
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run unit tests
+        run: pnpm test:ci
+
+      - name: Run E2E tests
+        run: pnpm test:e2e
+        env:
+          AWS_REGION: us-east-1
+          NEXT_PUBLIC_VIDEO_BUCKET: test-bucket
+          VIDEO_BUCKET_REGION: us-east-1
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./packages/sui-media-api/coverage/lcov.info
+          flags: backend
+          name: backend-coverage
+
+      - name: Check coverage thresholds
+        run: |
+          COVERAGE=$(cat coverage/coverage-summary.json | jq '.total.lines.pct')
+          echo "Line coverage: $COVERAGE%"
+          if (( $(echo "$COVERAGE < 80" | bc -l) )); then
+            echo "Coverage $COVERAGE% is below threshold of 80%"
+            exit 1
+          fi
+
+  test-frontend:
+    name: Frontend Component Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/sui-media
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run tests
+        run: pnpm test:ci
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./packages/sui-media/coverage/lcov.info
+          flags: frontend
+          name: frontend-coverage
+
+      - name: Check coverage thresholds
+        run: |
+          COVERAGE=$(cat coverage/coverage-summary.json | jq '.total.lines.pct')
+          echo "Line coverage: $COVERAGE%"
+          if (( $(echo "$COVERAGE < 80" | bc -l) )); then
+            echo "Coverage $COVERAGE% is below threshold of 80%"
+            exit 1
+          fi
+
+  coverage-report:
+    name: Combined Coverage Report
+    needs: [test-backend, test-frontend]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download backend coverage
+        uses: actions/download-artifact@v3
+        with:
+          name: backend-coverage
+
+      - name: Download frontend coverage
+        uses: actions/download-artifact@v3
+        with:
+          name: frontend-coverage
+
+      - name: Generate combined report
+        run: |
+          echo "# Test Coverage Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Backend API" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          cat backend-coverage.txt >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Frontend Components" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          cat frontend-coverage.txt >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
