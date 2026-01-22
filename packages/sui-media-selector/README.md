@@ -1,4 +1,55 @@
-# file-selector
+# @stoked-ui/media-selector
+
+> ## 🚨 PACKAGE DEPRECATED - MIGRATE TO @stoked-ui/media v1.0.0+
+>
+> **This package has been completely replaced by [`@stoked-ui/media`](https://www.npmjs.com/package/@stoked-ui/media) v1.0.0+ and is no longer maintained.**
+>
+> ### Why Migrate?
+>
+> The new `@stoked-ui/media` package includes:
+> - ✅ All functionality from `@stoked-ui/media-selector`
+> - ✅ Complete React components (MediaCard, MediaViewer)
+> - ✅ API client integration with TanStack Query hooks
+> - ✅ Advanced media file management (MediaFile, WebFile classes)
+> - ✅ Framework-agnostic abstractions (Router, Auth, Payment, Queue)
+> - ✅ Server-side processing support via @stoked-ui/media-api
+> - ✅ Full TypeScript support with comprehensive types
+> - ✅ Modern File System Access API integration
+> - ✅ Active development and support
+>
+> ### Quick Migration
+>
+> **Before (media-selector):**
+> ```typescript
+> import FileWithPath from '@stoked-ui/media-selector/FileWithPath';
+> const files = await FileWithPath.from(evt);
+> ```
+>
+> **After (@stoked-ui/media):**
+> ```typescript
+> import { MediaFile } from '@stoked-ui/media';
+> const mediaFiles = files.map(file => new MediaFile(file));
+> ```
+>
+> ### Installation
+>
+> ```bash
+> # Remove old package
+> npm uninstall @stoked-ui/media-selector
+>
+> # Install new package
+> npm install @stoked-ui/media @tanstack/react-query react
+> ```
+>
+> ### Full Documentation
+>
+> See the complete migration guide and documentation at:
+> - [Migration Guide](https://github.com/stoked-ui/sui/tree/main/packages/sui-media#migration-from-stoked-uimedia-selector)
+> - [@stoked-ui/media README](https://github.com/stoked-ui/sui/tree/main/packages/sui-media)
+>
+> ---
+>
+> ## Legacy Documentation (No Longer Maintained)
 
 > A small package for converting a [DragEvent](https://developer.mozilla.org/en-US/docs/Web/API/DragEvent) or [file input](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/file) to a list of File objects.
 

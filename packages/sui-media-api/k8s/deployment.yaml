@@ -1,0 +1,198 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: media-api
+  namespace: stoked
+  labels:
+    app: media-api
+    version: "0.1.0"
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: media-api
+  template:
+    metadata:
+      labels:
+        app: media-api
+        version: "0.1.0"
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "3001"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: media-api
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+
+      # Pod Disruption Budget for high availability
+      # This prevents too many pods from being disrupted at once during rolling updates
+      podDisruptionBudget:
+        minAvailable: 1
+
+      containers:
+      - name: media-api
+        image: stoked-ui/media-api:0.1.0
+        imagePullPolicy: IfNotPresent
+
+        # Environment variables from ConfigMap
+        envFrom:
+        - configMapRef:
+            name: media-api-config
+        - secretRef:
+            name: media-api-secrets
+
+        # Additional environment variables
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+
+        # Container port
+        ports:
+        - name: http
+          containerPort: 3001
+          protocol: TCP
+
+        # Resource requests and limits
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+            ephemeral-storage: "1Gi"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+            ephemeral-storage: "2Gi"
+
+        # Startup probe (only checks once at start)
+        # Allows extra time for application to start
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 3001
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 30
+
+        # Liveness probe (restarts container if unhealthy)
+        # Detects if application has crashed or become unresponsive
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3001
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+
+        # Readiness probe (removes from service if unhealthy)
+        # Detects if application is ready to serve requests
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3001
+            scheme: HTTP
+          initialDelaySeconds: 15
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 2
+
+        # Volume mounts
+        volumeMounts:
+        - name: logs
+          mountPath: /app/logs
+        - name: temp
+          mountPath: /tmp
+
+        # Security context for container
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+            add:
+            - NET_BIND_SERVICE
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1000
+
+        # Lifecycle hooks
+        lifecycle:
+          preStop:
+            exec:
+              # Give connection time to drain gracefully
+              command: ["/bin/sh", "-c", "sleep 15"]
+
+      # Volumes
+      volumes:
+      - name: logs
+        emptyDir: {}
+      - name: temp
+        emptyDir: {}
+
+      # Pod affinity for distribution across nodes
+      affinity:
+        podAntiAffinity:
+          # Prefer spreading pods across nodes
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - media-api
+              topologyKey: kubernetes.io/hostname
+
+        # Can also specify node affinity if needed
+        # nodeAffinity:
+        #   requiredDuringSchedulingIgnoredDuringExecution:
+        #     nodeSelectorTerms:
+        #     - matchExpressions:
+        #       - key: node-type
+        #         operator: In
+        #         values:
+        #         - api-servers
+
+      # Node selector (optional - select specific nodes)
+      # nodeSelector:
+      #   node-type: api-servers
+
+      # Tolerations (optional - allow scheduling on tainted nodes)
+      # tolerations:
+      # - key: "dedicated"
+      #   operator: "Equal"
+      #   value: "api"
+      #   effect: "NoSchedule"
+
+      # Restart policy
+      restartPolicy: Always
+
+      # Termination grace period (time to gracefully shut down)
+      terminationGracePeriodSeconds: 30
+
+      # DNS policy
+      dnsPolicy: ClusterFirst

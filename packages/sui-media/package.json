@@ -1,0 +1,87 @@
+{
+  "name": "@stoked-ui/media",
+  "author": "Brian Stoker",
+  "private": false,
+  "version": "1.0.0",
+  "description": "Comprehensive media management and component library for React with framework-agnostic abstractions, modern file handling APIs, and reactive media UI components",
+  "keywords": [
+    "react",
+    "media",
+    "video",
+    "image",
+    "upload",
+    "player",
+    "gallery",
+    "mui",
+    "material-ui",
+    "components",
+    "file-handling",
+    "tanstack-query",
+    "api-client",
+    "metadata",
+    "thumbnails"
+  ],
+  "license": "MIT",
+  "main": "src/index.ts",
+  "bin": {
+    "sui-media": "scripts/cli.js"
+  },
+  "files": [
+    "build",
+    "scripts"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stoked-ui/sui",
+    "directory": "packages/sui-media"
+  },
+  "publishConfig": {
+    "access": "public",
+    "directory": "build"
+  },
+  "sideEffects": false,
+  "scripts": {
+    "build": "pnpm build:all",
+    "typescript": "pnpm build",
+    "copyToDocs": "cp -r ./dist/assets ../../docs/",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "build:all": "pnpm build:modern && pnpm build:node && pnpm build:stable && pnpm build:types && pnpm build:copy-files",
+    "build:modern": "node ../../scripts/build.mjs modern",
+    "build:node": "node ../../scripts/build.mjs node",
+    "build:stable": "node ../../scripts/build.mjs stable",
+    "build:copy-files": "node ../../scripts/copyFiles.mjs",
+    "build:types": "node ../../scripts/buildTypes.mjs",
+    "prebuild": "rimraf build tsconfig.build.tsbuildinfo",
+    "release": "pnpm build && pnpm publish",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:ci": "jest --ci --coverage --maxWorkers=2"
+  },
+  "peerDependencies": {
+    "@stoked-ui/common": "workspace:^",
+    "@tanstack/react-query": "^5.0.0",
+    "react": "^18.0.0"
+  },
+  "dependencies": {
+    "formdata-node": "^6.0.3",
+    "jszip": "^3.10.1",
+    "@tanstack/react-query": "^5.0.0"
+  },
+  "devDependencies": {
+    "@babel/runtime": "^7.24.7",
+    "@stoked-ui/common": "workspace:^",
+    "@testing-library/jest-dom": "^6.1.5",
+    "@testing-library/react": "^14.1.2",
+    "@testing-library/user-event": "^14.5.1",
+    "@types/jest": "^29.5.11",
+    "@types/react": "^18.3.1",
+    "@types/wicg-file-system-access": "^2023.10.5",
+    "eslint": "^8.57.0",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "ts-jest": "^29.1.2",
+    "typescript": "5.4.5"
+  }
+}

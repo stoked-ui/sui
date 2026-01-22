@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: media-api
+  namespace: stoked
+  labels:
+    app: media-api
+    component: service
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 80
+    targetPort: 3001
+    protocol: TCP
+  selector:
+    app: media-api
+  sessionAffinity: None
+  # Optional: Enable session affinity if needed
+  # sessionAffinity: ClientIP
+  # sessionAffinityConfig:
+  #   clientIP:
+  #     timeoutSeconds: 10800
+---
+# Service for external access (if using LoadBalancer)
+apiVersion: v1
+kind: Service
+metadata:
+  name: media-api-lb
+  namespace: stoked
+  labels:
+    app: media-api
+    component: service
+spec:
+  type: LoadBalancer
+  ports:
+  - name: http
+    port: 80
+    targetPort: 3001
+    protocol: TCP
+  selector:
+    app: media-api
+  # Optional: Restrict to specific IPs
+  # loadBalancerSourceRanges:
+  # - "203.0.113.0/24"

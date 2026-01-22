@@ -1,0 +1,2145 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/media/api/info": {
+      "get": {
+        "operationId": "MediaController_getInfo",
+        "summary": "Get API information",
+        "description": "Get API version, statistics, and general information. Does not require authentication.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "API information retrieved successfully"
+          }
+        },
+        "tags": [
+          "Media"
+        ]
+      }
+    },
+    "/media": {
+      "get": {
+        "operationId": "MediaController_findAll",
+        "summary": "List media",
+        "description": "List media with filtering, search, sorting, and pagination. Supports both offset and cursor-based pagination.",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Number of items per page",
+            "schema": {
+              "minimum": 0,
+              "default": 20,
+              "example": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Number of items to skip",
+            "schema": {
+              "minimum": 0,
+              "default": 0,
+              "example": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": false,
+            "in": "query",
+            "description": "Cursor for cursor-based pagination",
+            "schema": {
+              "example": "eyJpZCI6Im1lZGlhXzEyMyJ9",
+              "type": "string"
+            }
+          },
+          {
+            "name": "mediaType",
+            "required": false,
+            "in": "query",
+            "description": "Filter by media type",
+            "schema": {
+              "example": "video",
+              "enum": [
+                "image",
+                "video",
+                "album"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "mime",
+            "required": false,
+            "in": "query",
+            "description": "Filter by specific MIME type",
+            "schema": {
+              "example": "video/mp4",
+              "type": "string"
+            }
+          },
+          {
+            "name": "uploadedBy",
+            "required": false,
+            "in": "query",
+            "description": "Filter by author user ID",
+            "schema": {
+              "example": "user_123",
+              "type": "string"
+            }
+          },
+          {
+            "name": "publicity",
+            "required": false,
+            "in": "query",
+            "description": "Filter by publicity level",
+            "schema": {
+              "example": "public",
+              "enum": [
+                "public",
+                "private",
+                "paid",
+                "subscription"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "rating",
+            "required": false,
+            "in": "query",
+            "description": "Filter by content rating",
+            "schema": {
+              "example": "ga",
+              "enum": [
+                "ga",
+                "nc17"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "dateFrom",
+            "required": false,
+            "in": "query",
+            "description": "Filter by date range start (ISO date)",
+            "schema": {
+              "example": "2024-01-01T00:00:00.000Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "dateTo",
+            "required": false,
+            "in": "query",
+            "description": "Filter by date range end (ISO date)",
+            "schema": {
+              "example": "2024-12-31T23:59:59.999Z",
+              "type": "string"
+            }
+          },
+          {
+            "name": "mediaClass",
+            "required": false,
+            "in": "query",
+            "description": "Filter by MediaClass ID",
+            "schema": {
+              "example": "class_123",
+              "type": "string"
+            }
+          },
+          {
+            "name": "uploadSessionId",
+            "required": false,
+            "in": "query",
+            "description": "Filter by upload session",
+            "schema": {
+              "example": "507f1f77bcf86cd799439011",
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Search in filename, title, description, tags",
+            "schema": {
+              "example": "sunset beach",
+              "type": "string"
+            }
+          },
+          {
+            "name": "tags",
+            "required": false,
+            "in": "query",
+            "description": "Comma-separated tag search",
+            "schema": {
+              "example": "nature,ocean,sunset",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "description": "Sort field (prefix with - for descending)",
+            "schema": {
+              "default": "-createdAt",
+              "example": "-createdAt",
+              "enum": [
+                "createdAt",
+                "updatedAt",
+                "size",
+                "title",
+                "views",
+                "-createdAt",
+                "-updatedAt",
+                "-size",
+                "-title",
+                "-views"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "includeDeleted",
+            "required": false,
+            "in": "query",
+            "description": "Include soft-deleted items",
+            "schema": {
+              "default": false,
+              "example": false,
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Media list retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedMediaResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required"
+          }
+        },
+        "tags": [
+          "Media"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "MediaController_create",
+        "summary": "Create media entry",
+        "description": "Create a new media entry in the database. Used after file upload to create the metadata record.",
+        "parameters": [
+          {
+            "schema": {}
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Media creation data",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateMediaDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Media created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request data"
+          },
+          "401": {
+            "description": "Unauthorized - authentication required"
+          }
+        },
+        "tags": [
+          "Media"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/media/{id}": {
+      "get": {
+        "operationId": "MediaController_findOne",
+        "summary": "Get media by ID",
+        "description": "Get a single media item by ID. Increments view count on each access.",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Media ID",
+            "schema": {
+              "example": "media_1",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Media item retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required"
+          },
+          "404": {
+            "description": "Media not found"
+          }
+        },
+        "tags": [
+          "Media"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "MediaController_update",
+        "summary": "Update media",
+        "description": "Update media metadata. Only the owner can update their media.",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Media ID",
+            "schema": {
+              "example": "media_1",
+              "type": "string"
+            }
+          },
+          {
+            "schema": {}
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Fields to update",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMediaDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Media updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required"
+          },
+          "403": {
+            "description": "Forbidden - user is not the owner"
+          },
+          "404": {
+            "description": "Media not found"
+          }
+        },
+        "tags": [
+          "Media"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "MediaController_remove",
+        "summary": "Delete media",
+        "description": "Delete media (file + database). Default is soft delete. Use hardDelete=true query parameter for permanent deletion.",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Media ID",
+            "schema": {
+              "example": "media_1",
+              "type": "string"
+            }
+          },
+          {
+            "name": "hardDelete",
+            "required": false,
+            "in": "query",
+            "description": "Whether to permanently delete (default: false)",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Media deleted successfully"
+          },
+          "401": {
+            "description": "Unauthorized - authentication required"
+          },
+          "403": {
+            "description": "Forbidden - user is not the owner"
+          },
+          "404": {
+            "description": "Media not found"
+          }
+        },
+        "tags": [
+          "Media"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/media/{id}/restore": {
+      "post": {
+        "operationId": "MediaController_restore",
+        "summary": "Restore deleted media",
+        "description": "Restore a soft-deleted media item. Only the owner can restore their media.",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Media ID",
+            "schema": {
+              "example": "media_1",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Media restored successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - authentication required"
+          },
+          "403": {
+            "description": "Forbidden - user is not the owner"
+          },
+          "404": {
+            "description": "Media not found"
+          }
+        },
+        "tags": [
+          "Media"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/media/{id}/extract-metadata": {
+      "post": {
+        "operationId": "MediaController_extractMetadata",
+        "summary": "Extract media metadata",
+        "description": "Extract metadata from a media file (video/audio/image properties).",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Media ID",
+            "schema": {
+              "example": "media_1",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Metadata extracted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExtractMetadataResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unable to extract metadata"
+          },
+          "404": {
+            "description": "Media not found"
+          }
+        },
+        "tags": [
+          "Media"
+        ]
+      }
+    },
+    "/media/{id}/generate-thumbnail": {
+      "post": {
+        "operationId": "MediaController_generateThumbnail",
+        "summary": "Generate video thumbnail",
+        "description": "Generate a thumbnail for a video at a specific timestamp.",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Media ID",
+            "schema": {
+              "example": "media_1",
+              "type": "string"
+            }
+          },
+          {
+            "schema": {}
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Thumbnail generation parameters",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateThumbnailDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Thumbnail generated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ThumbnailResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or media type"
+          },
+          "404": {
+            "description": "Media not found"
+          }
+        },
+        "tags": [
+          "Media"
+        ]
+      }
+    },
+    "/media/{id}/generate-sprites": {
+      "post": {
+        "operationId": "MediaController_generateSpriteSheet",
+        "summary": "Generate video sprite sheet",
+        "description": "Generate a sprite sheet for video scrubbing with VTT file.",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Media ID",
+            "schema": {
+              "example": "media_1",
+              "type": "string"
+            }
+          },
+          {
+            "schema": {}
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Sprite sheet generation parameters",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateSpriteSheetDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sprite sheet generated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SpriteSheetResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request or media type"
+          },
+          "404": {
+            "description": "Media not found"
+          }
+        },
+        "tags": [
+          "Media"
+        ]
+      }
+    },
+    "/health": {
+      "get": {
+        "operationId": "HealthController_check",
+        "summary": "Health check",
+        "description": "Check if the API is running and healthy.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "API is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "example": "2024-01-15T00:00:00.000Z"
+                    },
+                    "service": {
+                      "type": "string",
+                      "example": "@stoked-ui/media-api"
+                    },
+                    "version": {
+                      "type": "string",
+                      "example": "0.1.0"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Health"
+        ]
+      }
+    },
+    "/uploads/initiate": {
+      "post": {
+        "operationId": "UploadsController_initiateUpload",
+        "summary": "Initiate multipart upload",
+        "description": "Start a new resumable multipart upload. Returns presigned URLs for the first batch of parts.",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InitiateUploadDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Upload initiated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InitiateUploadResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request parameters"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "tags": [
+          "Uploads"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/uploads/{sessionId}/status": {
+      "get": {
+        "operationId": "UploadsController_getUploadStatus",
+        "summary": "Get upload status",
+        "description": "Get the current status of an upload session, including pending parts and fresh presigned URLs for resume.",
+        "parameters": [
+          {
+            "name": "sessionId",
+            "required": true,
+            "in": "path",
+            "description": "Upload session ID",
+            "schema": {
+              "example": "507f1f77bcf86cd799439011",
+              "type": "string"
+            }
+          },
+          {
+            "name": "includeUrls",
+            "required": false,
+            "in": "query",
+            "description": "Include fresh presigned URLs for pending parts (default: true)",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Upload status retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadStatusResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized to access this session"
+          },
+          "404": {
+            "description": "Upload session not found"
+          }
+        },
+        "tags": [
+          "Uploads"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/uploads/{sessionId}/sync": {
+      "post": {
+        "operationId": "UploadsController_syncUpload",
+        "summary": "Sync upload with S3",
+        "description": "Synchronize the upload session with actual S3 state. Use this when resuming an upload to ensure consistency.",
+        "parameters": [
+          {
+            "name": "sessionId",
+            "required": true,
+            "in": "path",
+            "description": "Upload session ID",
+            "schema": {
+              "example": "507f1f77bcf86cd799439011",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Upload synced and status retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadStatusResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Upload session not found"
+          },
+          "409": {
+            "description": "Upload session expired or already completed"
+          }
+        },
+        "tags": [
+          "Uploads"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/uploads/{sessionId}/urls": {
+      "post": {
+        "operationId": "UploadsController_getMoreUrls",
+        "summary": "Get more presigned URLs",
+        "description": "Request additional presigned URLs for specific parts (max 50 per request).",
+        "parameters": [
+          {
+            "name": "sessionId",
+            "required": true,
+            "in": "path",
+            "description": "Upload session ID",
+            "schema": {
+              "example": "507f1f77bcf86cd799439011",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetMoreUrlsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Presigned URLs generated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PresignedUrlDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid part numbers or too many requested"
+          },
+          "409": {
+            "description": "Upload session is not active"
+          }
+        },
+        "tags": [
+          "Uploads"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/uploads/{sessionId}/parts/{partNumber}/complete": {
+      "post": {
+        "operationId": "UploadsController_markPartCompleted",
+        "summary": "Mark part as completed",
+        "description": "Confirm that a part has been successfully uploaded to S3 with its ETag.",
+        "parameters": [
+          {
+            "name": "sessionId",
+            "required": true,
+            "in": "path",
+            "description": "Upload session ID",
+            "schema": {
+              "example": "507f1f77bcf86cd799439011",
+              "type": "string"
+            }
+          },
+          {
+            "name": "partNumber",
+            "required": true,
+            "in": "path",
+            "description": "Part number (1-based)",
+            "schema": {
+              "example": "1",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PartCompletionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Part marked as completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartCompletionResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid part number or ETag"
+          },
+          "409": {
+            "description": "Upload session is not active"
+          }
+        },
+        "tags": [
+          "Uploads"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/uploads/{sessionId}/complete": {
+      "post": {
+        "operationId": "UploadsController_completeUpload",
+        "summary": "Complete upload",
+        "description": "Finalize the multipart upload after all parts have been uploaded. Creates the media document.",
+        "parameters": [
+          {
+            "name": "sessionId",
+            "required": true,
+            "in": "path",
+            "description": "Upload session ID",
+            "schema": {
+              "example": "507f1f77bcf86cd799439011",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Upload completed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompleteUploadResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Not all parts have been uploaded"
+          },
+          "409": {
+            "description": "Upload already completed or aborted"
+          }
+        },
+        "tags": [
+          "Uploads"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/uploads/{sessionId}": {
+      "delete": {
+        "operationId": "UploadsController_abortUpload",
+        "summary": "Abort upload",
+        "description": "Cancel an in-progress upload and clean up S3 resources.",
+        "parameters": [
+          {
+            "name": "sessionId",
+            "required": true,
+            "in": "path",
+            "description": "Upload session ID",
+            "schema": {
+              "example": "507f1f77bcf86cd799439011",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Upload aborted successfully"
+          },
+          "404": {
+            "description": "Upload session not found"
+          },
+          "409": {
+            "description": "Cannot abort a completed upload"
+          }
+        },
+        "tags": [
+          "Uploads"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    },
+    "/uploads/active": {
+      "get": {
+        "operationId": "UploadsController_getActiveUploads",
+        "summary": "List active uploads",
+        "description": "Get all active (resumable) uploads for the current user.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Active uploads retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActiveUploadsResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Uploads"
+        ],
+        "security": [
+          {
+            "JWT-auth": []
+          }
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Stoked UI Media API",
+    "description": "REST API for Stoked UI Media Components - Upload, manage, and process media files with support for images, videos, and albums. Features include multipart uploads, metadata extraction, thumbnail generation, and comprehensive media management.",
+    "version": "0.1.0",
+    "contact": {
+      "name": "Brian Stoker",
+      "url": "https://github.com/stoked-ui/sui",
+      "email": "brian@stoked-ui.com"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "tags": [
+    {
+      "name": "Health",
+      "description": "Health check endpoints"
+    },
+    {
+      "name": "Media",
+      "description": "Media CRUD operations and metadata management"
+    },
+    {
+      "name": "Uploads",
+      "description": "Multipart file upload operations"
+    }
+  ],
+  "servers": [
+    {
+      "url": "http://localhost:3001",
+      "description": "Local development server"
+    },
+    {
+      "url": "https://api.stoked-ui.com",
+      "description": "Production server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "JWT-auth": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http",
+        "name": "JWT",
+        "description": "Enter JWT token",
+        "in": "header"
+      }
+    },
+    "schemas": {
+      "MediaResponseDto": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "Media ID",
+            "example": "media_123"
+          },
+          "author": {
+            "type": "string",
+            "description": "User ID of the owner",
+            "example": "user_123"
+          },
+          "title": {
+            "type": "string",
+            "description": "Media title",
+            "example": "My Video"
+          },
+          "description": {
+            "type": "string",
+            "description": "Media description",
+            "example": "A great video about nature"
+          },
+          "mediaType": {
+            "type": "string",
+            "description": "Media type",
+            "enum": [
+              "image",
+              "video",
+              "album"
+            ],
+            "example": "video"
+          },
+          "mime": {
+            "type": "string",
+            "description": "MIME type",
+            "example": "video/mp4"
+          },
+          "file": {
+            "type": "string",
+            "description": "S3 key or URL",
+            "example": "s3://bucket/uploads/video.mp4"
+          },
+          "bucket": {
+            "type": "string",
+            "description": "S3 bucket name",
+            "example": "my-media-bucket"
+          },
+          "width": {
+            "type": "number",
+            "description": "Width in pixels",
+            "example": 1920
+          },
+          "height": {
+            "type": "number",
+            "description": "Height in pixels",
+            "example": 1080
+          },
+          "duration": {
+            "type": "number",
+            "description": "Duration in seconds",
+            "example": 120.5
+          },
+          "size": {
+            "type": "number",
+            "description": "File size in bytes",
+            "example": 104857600
+          },
+          "thumbnail": {
+            "type": "string",
+            "description": "Thumbnail URL",
+            "example": "https://cdn.example.com/thumbnails/thumb.jpg"
+          },
+          "paidThumbnail": {
+            "type": "string",
+            "description": "Paid content thumbnail URL",
+            "example": "https://cdn.example.com/thumbnails/paid-thumb.jpg"
+          },
+          "publicity": {
+            "type": "string",
+            "description": "Publicity level",
+            "enum": [
+              "public",
+              "private",
+              "paid",
+              "subscription"
+            ],
+            "example": "public"
+          },
+          "rating": {
+            "type": "string",
+            "description": "Content rating",
+            "enum": [
+              "ga",
+              "nc17"
+            ],
+            "example": "ga"
+          },
+          "price": {
+            "type": "number",
+            "description": "Price for paid content",
+            "example": 9.99
+          },
+          "starring": {
+            "description": "List of performers/actors",
+            "example": [
+              "John Doe",
+              "Jane Smith"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "views": {
+            "type": "number",
+            "description": "View count",
+            "example": 1234
+          },
+          "tags": {
+            "description": "Media tags",
+            "example": [
+              "nature",
+              "landscape",
+              "sunset"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "mediaClass": {
+            "type": "string",
+            "description": "Media class ID",
+            "example": "class_123"
+          },
+          "videoBug": {
+            "type": "string",
+            "description": "Video bug/watermark identifier",
+            "example": "bug_logo_1"
+          },
+          "processingStatus": {
+            "type": "string",
+            "description": "Processing status",
+            "enum": [
+              "pending",
+              "processing",
+              "complete",
+              "failed"
+            ],
+            "example": "complete"
+          },
+          "processingTasks": {
+            "type": "object",
+            "description": "Processing tasks status",
+            "example": {
+              "thumbnails": true,
+              "duration": true,
+              "dimensions": true,
+              "blurredThumbnail": false,
+              "sprites": false
+            }
+          },
+          "uploadSessionId": {
+            "type": "string",
+            "description": "Upload session ID",
+            "example": "507f1f77bcf86cd799439011"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Creation timestamp",
+            "example": "2024-01-15T00:00:00.000Z"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "Last update timestamp",
+            "example": "2024-01-15T12:00:00.000Z"
+          }
+        },
+        "required": [
+          "_id",
+          "author",
+          "mediaType",
+          "mime",
+          "file",
+          "publicity",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "PaginatedMediaResponseDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "description": "Array of media items",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MediaResponseDto"
+            }
+          },
+          "total": {
+            "type": "number",
+            "description": "Total number of items",
+            "example": 100
+          },
+          "limit": {
+            "type": "number",
+            "description": "Number of items per page",
+            "example": 20
+          },
+          "offset": {
+            "type": "number",
+            "description": "Number of items skipped",
+            "example": 0
+          },
+          "hasMore": {
+            "type": "boolean",
+            "description": "Whether there are more items",
+            "example": true
+          },
+          "cursor": {
+            "type": "string",
+            "description": "Next cursor for cursor-based pagination",
+            "example": "eyJpZCI6Im1lZGlhXzEyMyJ9"
+          }
+        },
+        "required": [
+          "data",
+          "total",
+          "limit",
+          "offset",
+          "hasMore"
+        ]
+      },
+      "CreateMediaDto": {
+        "type": "object",
+        "properties": {
+          "author": {
+            "type": "string",
+            "description": "User ID of the owner",
+            "example": "user_123"
+          },
+          "title": {
+            "type": "string",
+            "description": "Media title",
+            "example": "My Video"
+          },
+          "description": {
+            "type": "string",
+            "description": "Media description",
+            "example": "A great video about nature"
+          },
+          "mediaType": {
+            "type": "string",
+            "description": "Media type",
+            "enum": [
+              "image",
+              "video",
+              "album"
+            ],
+            "example": "video"
+          },
+          "mime": {
+            "type": "string",
+            "description": "MIME type",
+            "example": "video/mp4"
+          },
+          "file": {
+            "type": "string",
+            "description": "S3 key or URL",
+            "example": "s3://bucket/uploads/video.mp4"
+          },
+          "bucket": {
+            "type": "string",
+            "description": "S3 bucket name",
+            "example": "my-media-bucket"
+          },
+          "width": {
+            "type": "number",
+            "description": "Width in pixels",
+            "example": 1920,
+            "minimum": 0
+          },
+          "height": {
+            "type": "number",
+            "description": "Height in pixels",
+            "example": 1080,
+            "minimum": 0
+          },
+          "duration": {
+            "type": "number",
+            "description": "Duration in seconds",
+            "example": 120.5,
+            "minimum": 0
+          },
+          "size": {
+            "type": "number",
+            "description": "File size in bytes",
+            "example": 104857600,
+            "minimum": 0
+          },
+          "thumbnail": {
+            "type": "string",
+            "description": "Thumbnail URL",
+            "example": "https://cdn.example.com/thumbnails/thumb.jpg"
+          },
+          "paidThumbnail": {
+            "type": "string",
+            "description": "Paid content thumbnail URL",
+            "example": "https://cdn.example.com/thumbnails/paid-thumb.jpg"
+          },
+          "thumbnailKeys": {
+            "description": "S3 keys for thumbnail files",
+            "example": [
+              "thumbnails/thumb1.jpg",
+              "thumbnails/thumb2.jpg"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "publicity": {
+            "type": "string",
+            "description": "Publicity level",
+            "enum": [
+              "public",
+              "private",
+              "paid",
+              "subscription"
+            ],
+            "example": "public"
+          },
+          "rating": {
+            "type": "string",
+            "description": "Content rating",
+            "enum": [
+              "ga",
+              "nc17"
+            ],
+            "example": "ga"
+          },
+          "price": {
+            "type": "number",
+            "description": "Price for paid content",
+            "example": 9.99,
+            "minimum": 0
+          },
+          "starring": {
+            "description": "List of performers/actors",
+            "example": [
+              "John Doe",
+              "Jane Smith"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "tags": {
+            "description": "Media tags",
+            "example": [
+              "nature",
+              "landscape",
+              "sunset"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "mediaClass": {
+            "type": "string",
+            "description": "Media class ID",
+            "example": "class_123"
+          },
+          "videoBug": {
+            "type": "string",
+            "description": "Video bug/watermark identifier",
+            "example": "bug_logo_1"
+          },
+          "uploadSessionId": {
+            "type": "string",
+            "description": "Upload session ID",
+            "example": "507f1f77bcf86cd799439011"
+          },
+          "processingStatus": {
+            "type": "string",
+            "description": "Processing status",
+            "enum": [
+              "pending",
+              "processing",
+              "complete",
+              "failed"
+            ],
+            "example": "pending"
+          }
+        },
+        "required": [
+          "author",
+          "mediaType",
+          "mime",
+          "file"
+        ]
+      },
+      "UpdateMediaDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Media title",
+            "example": "Updated Title"
+          },
+          "description": {
+            "type": "string",
+            "description": "Media description",
+            "example": "Updated description"
+          },
+          "width": {
+            "type": "number",
+            "description": "Width in pixels",
+            "example": 1920,
+            "minimum": 0
+          },
+          "height": {
+            "type": "number",
+            "description": "Height in pixels",
+            "example": 1080,
+            "minimum": 0
+          },
+          "duration": {
+            "type": "number",
+            "description": "Duration in seconds",
+            "example": 120.5,
+            "minimum": 0
+          },
+          "thumbnail": {
+            "type": "string",
+            "description": "Thumbnail URL",
+            "example": "https://cdn.example.com/thumbnails/thumb.jpg"
+          },
+          "paidThumbnail": {
+            "type": "string",
+            "description": "Paid content thumbnail URL",
+            "example": "https://cdn.example.com/thumbnails/paid-thumb.jpg"
+          },
+          "thumbnailKeys": {
+            "description": "S3 keys for thumbnail files",
+            "example": [
+              "thumbnails/thumb1.jpg",
+              "thumbnails/thumb2.jpg"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "publicity": {
+            "type": "string",
+            "description": "Publicity level",
+            "enum": [
+              "public",
+              "private",
+              "paid",
+              "subscription"
+            ],
+            "example": "public"
+          },
+          "rating": {
+            "type": "string",
+            "description": "Content rating",
+            "enum": [
+              "ga",
+              "nc17"
+            ],
+            "example": "ga"
+          },
+          "price": {
+            "type": "number",
+            "description": "Price for paid content",
+            "example": 9.99,
+            "minimum": 0
+          },
+          "starring": {
+            "description": "List of performers/actors",
+            "example": [
+              "John Doe",
+              "Jane Smith"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "tags": {
+            "description": "Media tags",
+            "example": [
+              "nature",
+              "landscape",
+              "sunset"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "mediaClass": {
+            "type": "string",
+            "description": "Media class ID",
+            "example": "class_123"
+          },
+          "videoBug": {
+            "type": "string",
+            "description": "Video bug/watermark identifier",
+            "example": "bug_logo_1"
+          },
+          "processingStatus": {
+            "type": "string",
+            "description": "Processing status",
+            "enum": [
+              "pending",
+              "processing",
+              "complete",
+              "failed"
+            ],
+            "example": "complete"
+          }
+        }
+      },
+      "ExtractMetadataResponseDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Whether extraction was successful",
+            "example": true
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Extracted metadata",
+            "example": {
+              "type": "video",
+              "video": {
+                "codec": "h264",
+                "container": "mp4",
+                "bitrate": 5000000,
+                "duration": 120.5,
+                "width": 1920,
+                "height": 1080,
+                "framerate": 30,
+                "moovAtomPosition": "start"
+              },
+              "extractedAt": "2024-01-15T00:00:00.000Z"
+            }
+          },
+          "error": {
+            "type": "string",
+            "description": "Error message if extraction failed",
+            "example": "File not found"
+          }
+        },
+        "required": [
+          "success"
+        ]
+      },
+      "GenerateThumbnailDto": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "number",
+            "description": "Timestamp in seconds where to capture the thumbnail",
+            "example": 60.5,
+            "minimum": 0
+          },
+          "size": {
+            "type": "string",
+            "description": "Thumbnail size preset",
+            "enum": [
+              "small",
+              "medium",
+              "large"
+            ],
+            "example": "medium",
+            "default": "medium"
+          }
+        },
+        "required": [
+          "timestamp"
+        ]
+      },
+      "ThumbnailResponseDto": {
+        "type": "object",
+        "properties": {
+          "thumbnailUrl": {
+            "type": "string",
+            "description": "Thumbnail URL",
+            "example": "https://cdn.example.com/thumbnails/thumb.jpg"
+          },
+          "thumbnailKey": {
+            "type": "string",
+            "description": "S3 key for thumbnail",
+            "example": "media/123/thumbnails/thumb.jpg"
+          },
+          "width": {
+            "type": "number",
+            "description": "Thumbnail width in pixels",
+            "example": 320
+          },
+          "height": {
+            "type": "number",
+            "description": "Thumbnail height in pixels",
+            "example": 180
+          }
+        },
+        "required": [
+          "thumbnailUrl",
+          "thumbnailKey",
+          "width",
+          "height"
+        ]
+      },
+      "GenerateSpriteSheetDto": {
+        "type": "object",
+        "properties": {
+          "frameWidth": {
+            "type": "number",
+            "description": "Width of each frame in pixels",
+            "example": 160,
+            "minimum": 1
+          },
+          "frameHeight": {
+            "type": "number",
+            "description": "Height of each frame in pixels",
+            "example": 90,
+            "minimum": 1
+          },
+          "framesPerRow": {
+            "type": "number",
+            "description": "Number of frames per row in sprite sheet",
+            "example": 10,
+            "minimum": 1
+          },
+          "interval": {
+            "type": "number",
+            "description": "Interval between frames in seconds",
+            "example": 5,
+            "minimum": 1
+          }
+        }
+      },
+      "SpriteSheetResponseDto": {
+        "type": "object",
+        "properties": {
+          "spriteSheetUrl": {
+            "type": "string",
+            "description": "Sprite sheet URL",
+            "example": "https://cdn.example.com/sprites/sprite.jpg"
+          },
+          "spriteSheetKey": {
+            "type": "string",
+            "description": "S3 key for sprite sheet",
+            "example": "media/123/sprites/sprite.jpg"
+          },
+          "vttUrl": {
+            "type": "string",
+            "description": "VTT file URL",
+            "example": "https://cdn.example.com/sprites/sprite.vtt"
+          },
+          "vttKey": {
+            "type": "string",
+            "description": "S3 key for VTT file",
+            "example": "media/123/sprites/sprite.vtt"
+          },
+          "spriteConfig": {
+            "type": "object",
+            "description": "Sprite sheet configuration",
+            "example": {
+              "totalFrames": 24,
+              "framesPerRow": 10,
+              "frameWidth": 160,
+              "frameHeight": 90,
+              "spriteSheetWidth": 1600,
+              "spriteSheetHeight": 270,
+              "interval": 5
+            }
+          }
+        },
+        "required": [
+          "spriteSheetUrl",
+          "spriteSheetKey",
+          "vttUrl",
+          "vttKey",
+          "spriteConfig"
+        ]
+      },
+      "InitiateUploadDto": {
+        "type": "object",
+        "properties": {
+          "filename": {
+            "type": "string",
+            "description": "Original filename of the file being uploaded",
+            "example": "my-video.mp4"
+          },
+          "mimeType": {
+            "type": "string",
+            "description": "MIME type of the file",
+            "example": "video/mp4"
+          },
+          "totalSize": {
+            "type": "number",
+            "description": "Total file size in bytes",
+            "example": 104857600,
+            "minimum": 1
+          },
+          "hash": {
+            "type": "string",
+            "description": "SHA-256 hash of the file content for deduplication (base64 encoded)",
+            "example": "Uonfc331cyb83SJZevsfrA=="
+          },
+          "chunkSize": {
+            "type": "number",
+            "description": "Chunk size in bytes (default: 10MB, min: 5MB, max: 100MB)",
+            "example": 10485760,
+            "minimum": 5242880,
+            "maximum": 104857600
+          }
+        },
+        "required": [
+          "filename",
+          "mimeType",
+          "totalSize"
+        ]
+      },
+      "PresignedUrlDto": {
+        "type": "object",
+        "properties": {
+          "partNumber": {
+            "type": "number",
+            "description": "Part number (1-based)",
+            "example": 1
+          },
+          "url": {
+            "type": "string",
+            "description": "Presigned PUT URL for uploading the part directly to S3",
+            "example": "https://bucket.s3.amazonaws.com/key?X-Amz-..."
+          }
+        },
+        "required": [
+          "partNumber",
+          "url"
+        ]
+      },
+      "InitiateUploadResponseDto": {
+        "type": "object",
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "description": "Upload session ID (use this for all subsequent operations)",
+            "example": "507f1f77bcf86cd799439011"
+          },
+          "uploadId": {
+            "type": "string",
+            "description": "S3 multipart upload ID",
+            "example": "2~..."
+          },
+          "presignedUrls": {
+            "description": "Presigned URLs for the first batch of parts",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PresignedUrlDto"
+            }
+          },
+          "totalParts": {
+            "type": "number",
+            "description": "Total number of parts to upload",
+            "example": 10
+          },
+          "chunkSize": {
+            "type": "number",
+            "description": "Chunk size in bytes",
+            "example": 10485760
+          },
+          "expiresAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When the upload session expires",
+            "example": "2024-01-15T00:00:00.000Z"
+          },
+          "existingMedia": {
+            "type": "object",
+            "description": "If set, a duplicate file was found and no upload is needed"
+          }
+        },
+        "required": [
+          "sessionId",
+          "uploadId",
+          "presignedUrls",
+          "totalParts",
+          "chunkSize",
+          "expiresAt"
+        ]
+      },
+      "UploadStatusResponseDto": {
+        "type": "object",
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "description": "Upload session ID",
+            "example": "507f1f77bcf86cd799439011"
+          },
+          "status": {
+            "type": "string",
+            "description": "Current status of the upload",
+            "enum": [
+              "pending",
+              "in_progress",
+              "completed",
+              "aborted",
+              "expired"
+            ],
+            "example": "in_progress"
+          },
+          "filename": {
+            "type": "string",
+            "description": "Original filename",
+            "example": "my-video.mp4"
+          },
+          "totalSize": {
+            "type": "number",
+            "description": "Total file size in bytes",
+            "example": 104857600
+          },
+          "totalParts": {
+            "type": "number",
+            "description": "Total number of parts",
+            "example": 10
+          },
+          "completedParts": {
+            "type": "number",
+            "description": "Number of completed parts",
+            "example": 5
+          },
+          "progress": {
+            "type": "number",
+            "description": "Upload progress percentage (0-100)",
+            "example": 50
+          },
+          "pendingPartNumbers": {
+            "description": "Part numbers that still need to be uploaded",
+            "example": [
+              6,
+              7,
+              8,
+              9,
+              10
+            ],
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "presignedUrls": {
+            "description": "Fresh presigned URLs for pending parts (up to 50)",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PresignedUrlDto"
+            }
+          },
+          "expiresAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When the upload session expires",
+            "example": "2024-01-15T00:00:00.000Z"
+          }
+        },
+        "required": [
+          "sessionId",
+          "status",
+          "filename",
+          "totalSize",
+          "totalParts",
+          "completedParts",
+          "progress",
+          "pendingPartNumbers",
+          "expiresAt"
+        ]
+      },
+      "GetMoreUrlsDto": {
+        "type": "object",
+        "properties": {
+          "partNumbers": {
+            "description": "Array of part numbers to get presigned URLs for (1-based)",
+            "example": [
+              5,
+              6,
+              7,
+              8,
+              9,
+              10
+            ],
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "required": [
+          "partNumbers"
+        ]
+      },
+      "PartCompletionDto": {
+        "type": "object",
+        "properties": {
+          "etag": {
+            "type": "string",
+            "description": "ETag returned by S3 after uploading the part",
+            "example": "\"d41d8cd98f00b204e9800998ecf8427e\""
+          }
+        },
+        "required": [
+          "etag"
+        ]
+      },
+      "PartCompletionResponseDto": {
+        "type": "object",
+        "properties": {
+          "completedParts": {
+            "type": "number",
+            "description": "Number of completed parts",
+            "example": 5
+          },
+          "totalParts": {
+            "type": "number",
+            "description": "Total number of parts",
+            "example": 10
+          },
+          "progress": {
+            "type": "number",
+            "description": "Upload progress percentage (0-100)",
+            "example": 50
+          }
+        },
+        "required": [
+          "completedParts",
+          "totalParts",
+          "progress"
+        ]
+      },
+      "CompleteUploadResponseDto": {
+        "type": "object",
+        "properties": {
+          "mediaId": {
+            "type": "string",
+            "description": "ID of the created media document",
+            "example": "507f1f77bcf86cd799439011"
+          },
+          "mediaType": {
+            "type": "string",
+            "description": "Type of media created",
+            "enum": [
+              "video",
+              "image"
+            ],
+            "example": "video"
+          }
+        },
+        "required": [
+          "mediaId",
+          "mediaType"
+        ]
+      },
+      "ActiveUploadDto": {
+        "type": "object",
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "description": "Upload session ID",
+            "example": "507f1f77bcf86cd799439011"
+          },
+          "filename": {
+            "type": "string",
+            "description": "Original filename",
+            "example": "my-video.mp4"
+          },
+          "totalSize": {
+            "type": "number",
+            "description": "Total file size in bytes",
+            "example": 104857600
+          },
+          "progress": {
+            "type": "number",
+            "description": "Upload progress percentage (0-100)",
+            "example": 50
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When the upload was started",
+            "example": "2024-01-08T00:00:00.000Z"
+          },
+          "expiresAt": {
+            "format": "date-time",
+            "type": "string",
+            "description": "When the upload session expires",
+            "example": "2024-01-15T00:00:00.000Z"
+          }
+        },
+        "required": [
+          "sessionId",
+          "filename",
+          "totalSize",
+          "progress",
+          "createdAt",
+          "expiresAt"
+        ]
+      },
+      "ActiveUploadsResponseDto": {
+        "type": "object",
+        "properties": {
+          "uploads": {
+            "description": "List of active uploads that can be resumed",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ActiveUploadDto"
+            }
+          }
+        },
+        "required": [
+          "uploads"
+        ]
+      }
+    }
+  }
+}

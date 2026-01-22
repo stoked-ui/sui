@@ -62,6 +62,8 @@ module.exports = function getBabelConfig(api) {
     ],
     '@babel/plugin-proposal-export-default-from',
     'babel-plugin-optimize-clsx',
+    // Decorators must come before class properties
+    ['@babel/plugin-proposal-decorators', { version: 'legacy' }],
     // Need the following 3 proposals for all targets in .browserslistrc.
     // With our usage the transpiled loose mode is equivalent to spec mode.
     ['@babel/plugin-proposal-class-properties', { loose: true }],

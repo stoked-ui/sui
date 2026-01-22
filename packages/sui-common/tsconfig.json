@@ -10,7 +10,10 @@
       "wicg-file-system-access"],
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "strictPropertyInitialization": false
   },
   "include": ["src/**/*"],
   "exclude": ["**/*.test.tsx"]
