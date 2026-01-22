@@ -18,7 +18,16 @@ export type {
 } from '@stoked-ui/common';
 
 // Re-export models from common package
-export type { Media, MediaDocument } from '@stoked-ui/common';
+import type { Media as MediaClass } from '@stoked-ui/common';
+import type { Document } from 'mongoose';
+
+export type { Media } from '@stoked-ui/common';
+export type MediaDocument = MediaClass & Document & {
+  createdAt: Date;
+  updatedAt: Date;
+  _id: string;
+};
+
 export type {
   UploadSession,
   UploadSessionDocument,

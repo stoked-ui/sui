@@ -194,7 +194,8 @@ export function MediaViewer({
 
         // Map API response to MediaItem interface
         const loadedItem: MediaItem = {
-          id: mediaData._id || initialItem.id,
+          ...initialItem,
+          id: String(mediaData._id || initialItem.id),
           title: mediaData.title,
           description: mediaData.description,
           url: mediaData.file,
@@ -205,8 +206,7 @@ export function MediaViewer({
           duration: mediaData.duration,
           views: mediaData.views,
           publicity: mediaData.publicity,
-          mediaType: mediaData.mediaType,
-          ...initialItem,
+          mediaType: (mediaData.mediaType === 'video' || mediaData.mediaType === 'image') ? mediaData.mediaType : undefined,
         };
 
         setItem(loadedItem);

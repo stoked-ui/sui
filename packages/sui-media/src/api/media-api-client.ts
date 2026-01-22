@@ -63,9 +63,9 @@ export class MediaApiClient {
     const url = `${this.baseUrl}${endpoint}`;
 
     // Merge headers
-    const headers = {
+    const headers: Record<string, string> = {
       ...this.headers,
-      ...options.headers,
+      ...(options.headers as Record<string, string> || {}),
     };
 
     // Add auth token if available

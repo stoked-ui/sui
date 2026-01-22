@@ -31,8 +31,8 @@
  */
 
 import React, { lazy, ComponentType } from 'react';
-import type { MediaViewerProps } from './MediaViewer/MediaViewer';
-import type { MediaCardProps } from './MediaCard/MediaCard';
+import type { MediaViewerProps } from './MediaViewer/MediaViewer.types';
+import type { MediaCardProps } from './MediaCard/MediaCard.types';
 
 /**
  * Lazy-loaded MediaViewer component
@@ -97,8 +97,10 @@ export function usePrefetchComponent<T extends ComponentType<any>>(
   return React.useCallback(() => {
     // Trigger the lazy component's module loading
     // This will start downloading the chunk in the background
-    if (component._payload) {
-      component._result?.();
+    // Note: This is accessing internal React properties which may change
+    const lazyComponent = component as any;
+    if (lazyComponent._payload && typeof lazyComponent._result === 'function') {
+      lazyComponent._result();
     }
   }, [component]);
 }

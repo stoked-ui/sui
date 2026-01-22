@@ -63,10 +63,14 @@
     "@tanstack/react-query": "^5.0.0",
     "react": "^18.0.0"
   },
+  "dependencies": {
+    "formdata-node": "^6.0.3",
+    "jszip": "^3.10.1",
+    "@tanstack/react-query": "^5.0.0"
+  },
   "devDependencies": {
     "@babel/runtime": "^7.24.7",
     "@stoked-ui/common": "workspace:^",
-    "@tanstack/react-query": "^5.0.0",
     "@testing-library/jest-dom": "^6.1.5",
     "@testing-library/react": "^14.1.2",
     "@testing-library/user-event": "^14.5.1",
@@ -79,9 +83,5 @@
     "jest-environment-jsdom": "^29.7.0",
     "ts-jest": "^29.1.2",
     "typescript": "5.4.5"
-  },
-  "dependencies": {
-    "formdata-node": "^6.0.3",
-    "jszip": "^3.10.1"
   }
 }

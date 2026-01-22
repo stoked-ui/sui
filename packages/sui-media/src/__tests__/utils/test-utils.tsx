@@ -17,11 +17,6 @@ export function createTestQueryClient() {
         retry: false,
       },
     },
-    logger: {
-      log: () => {},
-      warn: () => {},
-      error: () => {},
-    },
   });
 }
 
@@ -162,4 +157,4 @@ export function createMockUploadStatus(overrides = {}) {
 
 // Re-export everything from @testing-library/react
 export * from '@testing-library/react';
-export { default as userEvent } from '@testing-library/user-event';
+// Note: userEvent export removed - import directly from @testing-library/user-event in tests

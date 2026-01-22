@@ -231,7 +231,12 @@ export class BenchmarkSuite {
 
     // Check budget
     let passed = true;
-    let budget = undefined;
+    let budget: {
+      target: number;
+      threshold: number;
+      value: number;
+      exceeded: boolean;
+    } | undefined = undefined;
 
     if (test.budget) {
       const exceeded = avgDuration > test.budget.threshold;

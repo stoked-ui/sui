@@ -1,9 +1,14 @@
 import '@testing-library/jest-dom';
 
+// Define jest types for setup file
+declare const jest: {
+  fn: (implementation?: (...args: any[]) => any) => any;
+};
+
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: jest.fn().mockImplementation((query) => ({
+  value: jest.fn().mockImplementation((query: string) => ({
     matches: false,
     media: query,
     onchange: null,
@@ -51,11 +56,11 @@ window.HTMLVideoElement.prototype.requestFullscreen = () => {
 };
 
 // Mock console methods to reduce noise in tests
-global.console = {
+(global as any).console = {
   ...console,
   error: jest.fn(),
   warn: jest.fn(),
 };
 
 // Set up default fetch mock
-global.fetch = jest.fn();
+(global as any).fetch = jest.fn();

@@ -58,9 +58,9 @@ export function useMediaDelete(
       }
       return client.deleteMedia(mediaId);
     },
-    onSuccess: (data, mediaId, context) => {
+    onSuccess: (data, variables) => {
       // Remove from cache
-      queryClient.removeQueries({ queryKey: ['media', mediaId] });
+      queryClient.removeQueries({ queryKey: ['media', variables] });
 
       // Invalidate list queries to refetch
       if (invalidateQueries) {
@@ -69,9 +69,14 @@ export function useMediaDelete(
 
       // Call user-provided onSuccess
       if (options.onSuccess) {
-        options.onSuccess(mediaId);
+        options.onSuccess(variables);
       }
     },
-    ...mutationOptions,
+    onError: (error, variables) => {
+      // Call user-provided onError
+      if (options.onError) {
+        options.onError(error, variables);
+      }
+    },
   });
 }

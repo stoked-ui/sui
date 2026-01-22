@@ -133,9 +133,9 @@ export class UploadClient {
     signal?: AbortSignal,
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
-    const headers = {
+    const headers: Record<string, string> = {
       ...this.headers,
-      ...options.headers,
+      ...(options.headers as Record<string, string> || {}),
     };
 
     if (this.authToken) {

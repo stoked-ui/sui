@@ -2,6 +2,7 @@
  * useMediaList - Fetch paginated media list with filters
  */
 
+import * as React from 'react';
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import { useMediaClient } from './MediaApiProvider';
 import type { MediaListParams, MediaListResponse } from '../api/types';
@@ -63,12 +64,25 @@ export function useMediaList(
     ...params
   } = options;
 
-  return useQuery({
+  const query = useQuery({
     queryKey: ['media', 'list', params],
     queryFn: async ({ signal }) => client.listMedia(params, signal),
     enabled,
     placeholderData: keepPreviousData ? (prev) => prev : undefined,
-    onSuccess,
-    onError,
   });
+
+  // Handle success/error callbacks via useEffect since they're removed in v5
+  React.useEffect(() => {
+    if (query.isSuccess && onSuccess) {
+      onSuccess(query.data);
+    }
+  }, [query.isSuccess, query.data, onSuccess]);
+
+  React.useEffect(() => {
+    if (query.isError && onError) {
+      onError(query.error);
+    }
+  }, [query.isError, query.error, onError]);
+
+  return query as UseQueryResult<MediaListResponse, Error>;
 }
