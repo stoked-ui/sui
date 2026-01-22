@@ -1,21 +1,41 @@
 # @stoked-ui/media
 
-A framework-agnostic media component library featuring reactive media cards and viewers with abstraction layers for routing, authentication, payments, and queue management.
+A comprehensive media management and component library for React with framework-agnostic abstractions, modern file handling APIs, and reactive media UI components.
 
 ## Overview
 
-The `@stoked-ui/media` package provides high-quality, reusable media components for displaying images and videos in web applications. The components are designed to be framework-agnostic through the use of abstraction layers, allowing them to work seamlessly with any routing system, authentication provider, payment processor, and queue management system.
+The `@stoked-ui/media` package provides production-ready media handling capabilities including:
+
+- **Media File Management**: Comprehensive file handling with upload, download, and metadata extraction
+- **React Components**: MediaCard and MediaViewer for displaying and managing media
+- **Modern APIs**: File System Access API integration, Zip compression, and streaming support
+- **Framework-Agnostic Abstractions**: Decouple from routing, authentication, payments, and queue systems
+- **API Client**: Type-safe client for consuming the @stoked-ui/media-api backend
+- **React Hooks**: TanStack Query-based hooks for media CRUD operations
 
 ## Table of Contents
 
 - [Installation](#installation)
 - [Quick Start](#quick-start)
+- [Core Concepts](#core-concepts)
 - [Components](#components)
   - [MediaCard](#mediacard)
   - [MediaViewer](#mediaviewer)
+- [Media File Management](#media-file-management)
+  - [MediaFile Class](#mediafile-class)
+  - [WebFile Class](#webfile-class)
+  - [File System Access API](#file-system-access-api)
+- [API Client Integration](#api-client-integration)
+- [React Hooks](#react-hooks)
 - [Abstraction Layers](#abstraction-layers)
-- [TypeScript Support](#typescript-support)
-- [Examples](#examples)
+- [Advanced Features](#advanced-features)
+  - [Metadata Extraction](#metadata-extraction)
+  - [Hybrid Metadata Processing](#hybrid-metadata-processing)
+  - [Video Sprite Sheet Generation](#video-sprite-sheet-generation)
+  - [Performance Optimization](#performance-optimization)
+- [Troubleshooting](#troubleshooting)
+- [FAQ](#faq)
+- [API Reference](#api-reference)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -31,15 +51,55 @@ yarn add @stoked-ui/media
 pnpm add @stoked-ui/media
 ```
 
-The package requires React 18+ as a peer dependency:
+### Peer Dependencies
+
+The package requires React 18+ and TanStack Query 5+ as peer dependencies:
 
 ```bash
-npm install react@^18.0.0
+npm install react@^18.0.0 @tanstack/react-query@^5.0.0
 ```
+
+### Optional Dependencies
+
+Some features require additional packages:
+
+- **@stoked-ui/common**: Common utilities and components (workspace dependency)
+- **sharp**: For server-side image optimization (optional, for media-api integration)
+- **fluent-ffmpeg**: For video processing (optional, for media-api integration)
 
 ## Quick Start
 
-### Basic MediaCard
+### 1. Basic Setup with API Client (5 minutes)
+
+```tsx
+import { MediaApiProvider, useMediaList } from '@stoked-ui/media';
+
+export function App() {
+  return (
+    <MediaApiProvider config={{
+      baseUrl: 'https://api.example.com',
+    }}>
+      <MediaGallery />
+    </MediaApiProvider>
+  );
+}
+
+function MediaGallery() {
+  const { data: mediaList, isLoading } = useMediaList();
+
+  if (isLoading) return <div>Loading...</div>;
+
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+      {mediaList?.items.map((item) => (
+        <MediaCard key={item._id} item={item} />
+      ))}
+    </div>
+  );
+}
+```
+
+### 2. MediaCard with Controls
 
 ```tsx
 import { MediaCard } from '@stoked-ui/media';
@@ -64,12 +124,14 @@ export function MyMediaCard() {
       modeState={modeState}
       setModeState={setModeState}
       info={true}
+      onViewClick={(item) => console.log('View:', item._id)}
+      onDeleteClick={(item) => console.log('Delete:', item._id)}
     />
   );
 }
 ```
 
-### Basic MediaViewer
+### 3. MediaViewer with Queue Navigation
 
 ```tsx
 import { MediaViewer } from '@stoked-ui/media';
@@ -77,115 +139,521 @@ import { useState } from 'react';
 
 export function MyMediaViewer() {
   const [open, setOpen] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-  const item = {
-    id: '123',
-    title: 'My Video',
-    mediaType: 'video',
-    file: '/videos/sample.mp4',
-    thumbnail: '/thumbnails/sample.jpg',
-  };
+  const items = [
+    { id: '1', title: 'Video 1', mediaType: 'video' as const, file: '/videos/1.mp4' },
+    { id: '2', title: 'Video 2', mediaType: 'video' as const, file: '/videos/2.mp4' },
+  ];
 
   return (
     <>
       <button onClick={() => setOpen(true)}>Open Viewer</button>
       <MediaViewer
-        item={item}
+        item={items[currentIndex]}
+        mediaItems={items}
+        currentIndex={currentIndex}
         open={open}
         onClose={() => setOpen(false)}
+        onNavigate={(_, index) => setCurrentIndex(index)}
+        enableKeyboardShortcuts
+        enableQueue
       />
     </>
   );
 }
 ```
 
+## Core Concepts
+
+### Media Items
+
+Media items are objects that represent images, videos, or albums. They contain metadata like title, description, file URL, thumbnail, and optional server-side metadata.
+
+```typescript
+interface ExtendedMediaItem {
+  _id?: string;
+  title?: string;
+  description?: string;
+  mediaType?: 'image' | 'video' | 'album';
+  file?: string;
+  url?: string;
+  thumbnail?: string;
+  duration?: number;
+  views?: number;
+  publicity?: 'public' | 'private' | 'paid';
+  [key: string]: any;
+}
+```
+
+### Server vs. Client Metadata
+
+The package supports hybrid metadata processing where metadata can come from:
+
+1. **Client-side**: Extracted directly from files using browsers APIs
+2. **Server-side**: Provided by @stoked-ui/media-api for optimized processing
+3. **Hybrid**: Cached and updated dynamically
+
+See [Hybrid Metadata Processing](#hybrid-metadata-processing) for details.
+
 ## Components
 
 ### MediaCard
 
-An interactive card component for displaying media items in galleries or lists.
+An interactive card component for displaying media items in galleries or lists with thumbnail previews, progress tracking, and action controls.
 
 **Key Features:**
-- Display images and videos with thumbnails
-- Video progress tracking with scrubber sprite support
-- Interactive controls (play, edit, delete)
-- Selection mode for batch operations
-- Payment integration for paid content
-- Queue management
-- Owner vs. viewer modes
-- Responsive design with grid support
+- Display images and videos with responsive thumbnails
+- Video progress bar with frame-accurate scrubber sprite support
+- Interactive controls (play, edit, delete, toggle public)
+- Selection mode for batch operations and multi-select
+- Payment integration with price display for paid content
+- Queue management with playback tracking
+- Owner vs. viewer mode detection
+- Grid-responsive design with flexible aspect ratios
+- Lazy loading support for performance
+- MediaClass branding support
 
-**Basic Props:**
+**Complete Props Reference:**
 ```typescript
 interface MediaCardProps {
-  item: ExtendedMediaItem;           // Media to display
-  modeState: MediaCardModeState;     // Selection mode state
-  setModeState: (state) => void;     // Mode state setter
-  info?: boolean;                     // Show info overlay
-  minimalMode?: boolean;              // Compact mode
-  squareMode?: boolean;               // 1:1 aspect ratio
-  displayMode?: MediaCardDisplayMode; // Owner vs. viewer
+  // Required
+  item: ExtendedMediaItem;              // Media item to display
+  modeState: MediaCardModeState;        // Current selection mode state
+  setModeState: (state) => void;        // Update selection mode
+
+  // Display options
+  info?: boolean;                       // Show info overlay on hover
+  minimalMode?: boolean;                // Compact display without metadata
+  squareMode?: boolean;                 // Force 1:1 aspect ratio
+  displayMode?: MediaCardDisplayMode;   // 'owner' or 'viewer'
+  isVisible?: boolean;                  // For lazy loading optimization
 
   // Callbacks
-  onViewClick?: (item) => void;
-  onEditClick?: (item) => void;
-  onDeleteClick?: (item) => void;
-  onTogglePublic?: (item) => void;
+  onViewClick?: (item: ExtendedMediaItem) => void;
+  onEditClick?: (item: ExtendedMediaItem) => void;
+  onDeleteClick?: (item: ExtendedMediaItem) => void;
+  onTogglePublic?: (item: ExtendedMediaItem) => void;
+  onThumbnailLoaded?: () => void;
+  onMediaLoaded?: () => void;
 
-  // Abstractions
+  // Abstraction layers (framework integration)
   router?: IRouter;
   auth?: IAuth;
   payment?: IPayment;
   queue?: IQueue;
+
+  // API integration
+  apiClient?: MediaApiClient;
+  enableServerThumbnails?: boolean;     // Use server-generated thumbnails
+
+  // Styling
+  sx?: SxProps<Theme>;                  // MUI styling
+  imageAlt?: string;                    // Image alt text
 }
+```
+
+**Usage Examples:**
+```tsx
+// Basic display
+<MediaCard item={media} modeState={modeState} setModeState={setModeState} />
+
+// With callbacks
+<MediaCard
+  item={media}
+  modeState={modeState}
+  setModeState={setModeState}
+  onViewClick={(item) => navigate(`/media/${item._id}`)}
+  onDeleteClick={(item) => deleteMedia(item._id)}
+/>
+
+// Owner-specific features
+<MediaCard
+  item={media}
+  displayMode="owner"
+  onEditClick={(item) => navigate(`/edit/${item._id}`)}
+  onTogglePublic={(item) => updateMedia(item._id, { publicity: togglePublicity(item.publicity) })}
+/>
+
+// With server thumbnails
+<MediaCard
+  item={media}
+  enableServerThumbnails
+  apiClient={apiClient}
+/>
 ```
 
 **Documentation:** [MediaCard README](./src/components/MediaCard/README.md)
 
 ### MediaViewer
 
-A full-screen media viewer component with multiple view modes and navigation.
+A full-screen media viewer component with multiple view modes, playlist navigation, keyboard shortcuts, and adaptive layout.
 
 **Key Features:**
 - Multiple view modes (NORMAL, THEATER, FULLSCREEN)
-- Navigation between media items
-- Queue integration for playlist management
-- Keyboard shortcuts
-- Responsive layout
-- Preview grid
-- MediaClass branding support
-- Owner controls
+- Smooth navigation between media items with prev/next controls
+- Queue integration for playlist management with next-up indicators
+- Keyboard shortcuts for accessibility and power users
+- Responsive layout that adapts to viewport and content
+- Preview grid showing upcoming items
+- MediaClass branding with before/after idents
+- Owner controls for editing and deletion
+- API integration for loading full media details
+- Error handling with fallback display
 
-**Basic Props:**
+**Complete Props Reference:**
 ```typescript
 interface MediaViewerProps {
-  item: MediaItem;                    // Current item
-  mediaItems?: MediaItem[];           // All items
-  currentIndex?: number;              // Current position
-  open: boolean;                      // Viewer open state
+  // Required
+  item: MediaItem;                      // Current media item
+  open: boolean;                        // Viewer visibility
+  onClose: () => void;                  // Close handler
+
+  // Navigation
+  mediaItems?: MediaItem[];             // Array of all items
+  currentIndex?: number;                // Current position in array
+  onNavigate?: (item: MediaItem, index: number) => void;
 
   // Callbacks
-  onClose: () => void;
-  onNavigate?: (item, index) => void;
-  onEdit?: (item) => void;
-  onDelete?: (item) => void;
+  onEdit?: (item: MediaItem) => void;
+  onDelete?: (item: MediaItem) => void;
+  onMediaLoaded?: (item: MediaItem) => void;
+  onMetadataLoaded?: (metadata: Metadata) => void;
 
-  // Abstractions
+  // Display options
+  hideNavbar?: boolean;                 // Hide toolbar
+  showPreviewCards?: boolean;           // Show next items preview
+  initialMode?: MediaViewerMode;        // Starting view mode
+  autoplay?: boolean;                   // Auto-play videos
+  initialMuted?: boolean;               // Muted on start
+
+  // Feature toggles
+  enableQueue?: boolean;                // Enable playlist features
+  enableKeyboardShortcuts?: boolean;    // Enable keyboard controls
+  enableOwnerControls?: boolean;        // Show edit/delete buttons
+
+  // Abstraction layers
   router?: IRouter;
   auth?: IAuth;
   queue?: IQueue;
   keyboard?: IKeyboardShortcuts;
   payment?: IPayment;
 
-  // Configuration
-  showPreviewCards?: boolean;
-  enableQueue?: boolean;
-  enableKeyboardShortcuts?: boolean;
-  enableOwnerControls?: boolean;
+  // API integration
+  apiClient?: MediaApiClient;
+  enableServerFeatures?: boolean;       // Load full details from API
 }
 ```
 
+**Usage Examples:**
+```tsx
+// Basic viewer
+<MediaViewer
+  item={currentItem}
+  open={isOpen}
+  onClose={() => setIsOpen(false)}
+/>
+
+// With navigation and playlist
+<MediaViewer
+  item={items[currentIndex]}
+  mediaItems={items}
+  currentIndex={currentIndex}
+  open={isOpen}
+  onClose={() => setIsOpen(false)}
+  onNavigate={(item, index) => setCurrentIndex(index)}
+  enableQueue
+  showPreviewCards
+/>
+
+// With all features enabled
+<MediaViewer
+  item={currentItem}
+  mediaItems={allItems}
+  currentIndex={currentIndex}
+  open={isOpen}
+  onClose={() => setIsOpen(false)}
+  onNavigate={(item, index) => setCurrentIndex(index)}
+  router={useRouter()}
+  auth={useAuth()}
+  keyboard={useKeyboard()}
+  enableQueue
+  enableKeyboardShortcuts
+  enableOwnerControls
+  apiClient={apiClient}
+/>
+```
+
+**Keyboard Shortcuts:**
+- `ArrowLeft`: Previous item
+- `ArrowRight`: Next item
+- `f`: Toggle fullscreen
+- `Escape`: Exit fullscreen/close viewer
+- `Space`: Play/pause (video only)
+
 **Documentation:** [MediaViewer README](./src/components/MediaViewer/README.md)
+
+## Media File Management
+
+### MediaFile Class
+
+The core `MediaFile` class handles file uploads, downloads, and provides a unified interface for working with files.
+
+```typescript
+import { MediaFile, type IMediaFile } from '@stoked-ui/media';
+
+// Create from File object
+const mediaFile = new MediaFile(fileInput);
+
+// Get file metadata
+console.log(mediaFile.name);
+console.log(mediaFile.size);
+console.log(mediaFile.type);
+
+// Check media type
+if (mediaFile.isVideo()) {
+  console.log('Video file');
+}
+
+// Upload to server
+const response = await mediaFile.upload({
+  endpoint: '/api/upload',
+  headers: { 'Authorization': 'Bearer token' },
+  onProgress: (progress) => console.log(`${progress}%`),
+});
+```
+
+**API Reference:**
+```typescript
+class MediaFile {
+  // Properties
+  file: File;
+  name: string;
+  size: number;
+  type: string;
+  lastModified: number;
+
+  // Methods
+  isImage(): boolean;
+  isVideo(): boolean;
+  isAudio(): boolean;
+  isDocument(): boolean;
+  getMediaType(): MediaType;
+
+  async upload(options: UploadOptions): Promise<UploadResponse>;
+  async download(filename?: string): Promise<void>;
+
+  // File system operations
+  async readAsArrayBuffer(): Promise<ArrayBuffer>;
+  async readAsDataURL(): Promise<string>;
+  async readAsText(): Promise<string>;
+}
+```
+
+### WebFile Class
+
+The `WebFile` class extends `MediaFile` with web-persistent storage capabilities.
+
+```typescript
+import { WebFile } from '@stoked-ui/media';
+
+// Save file to IndexedDB
+const webFile = new WebFile(fileObject);
+const savedId = await webFile.save();
+
+// Retrieve file later
+const retrieved = await WebFile.load(savedId);
+
+// List all saved files
+const allFiles = await WebFile.listAll();
+
+// Delete file from storage
+await webFile.delete();
+```
+
+### File System Access API
+
+Access the modern File System Access API for native file picker and save dialogs:
+
+```typescript
+import { openFileApi, saveFileApi } from '@stoked-ui/media';
+
+// Open file picker
+const files = await openFileApi({
+  types: [
+    {
+      description: 'Images',
+      accept: { 'image/*': ['.png', '.jpg', '.gif'] }
+    },
+    {
+      description: 'Videos',
+      accept: { 'video/*': ['.mp4', '.webm'] }
+    }
+  ],
+  multiple: true
+});
+
+// Save file
+const fileHandle = await saveFileApi({
+  suggestedName: 'export.json',
+  types: [{
+    description: 'JSON',
+    accept: { 'application/json': ['.json'] }
+  }]
+});
+```
+
+**Browser Support:**
+- Chrome/Edge: Yes
+- Firefox: Partial (behind flag)
+- Safari: Limited support
+- Mobile: Limited support
+
+Fallback to standard file input if not available.
+
+## API Client Integration
+
+### Creating an API Client
+
+```typescript
+import { createMediaApiClient } from '@stoked-ui/media';
+
+const client = createMediaApiClient({
+  baseUrl: 'https://api.example.com/v1',
+  authToken: 'your-jwt-token',
+  timeout: 30000,
+});
+
+// Update token dynamically
+client.setAuthToken(newToken);
+```
+
+### Client Methods
+
+```typescript
+// Get single media item
+const media = await client.getMedia(mediaId);
+
+// List media with filters
+const list = await client.listMedia({
+  limit: 20,
+  offset: 0,
+  mediaType: 'video',
+  search: 'sunset',
+  sortBy: '-createdAt',
+});
+
+// Create media entry
+const newMedia = await client.createMedia({
+  title: 'My Video',
+  description: 'A beautiful sunset',
+  mediaType: 'video',
+  file: 'https://example.com/sunset.mp4',
+  thumbnail: 'https://example.com/sunset.jpg',
+});
+
+// Update media
+const updated = await client.updateMedia(mediaId, {
+  title: 'Updated Title',
+  publicity: 'public',
+});
+
+// Delete media
+await client.deleteMedia(mediaId);
+```
+
+## React Hooks
+
+### useMediaApiProvider
+
+Set up the API client context:
+
+```tsx
+import { MediaApiProvider } from '@stoked-ui/media';
+
+export function App() {
+  return (
+    <MediaApiProvider config={{
+      baseUrl: 'https://api.example.com',
+      authToken: localStorage.getItem('token'),
+    }}>
+      <YourApp />
+    </MediaApiProvider>
+  );
+}
+```
+
+### useMediaList
+
+Fetch paginated media with caching:
+
+```tsx
+import { useMediaList } from '@stoked-ui/media';
+
+function MediaGallery() {
+  const { data, isLoading, error, hasNextPage, fetchNextPage } = useMediaList({
+    limit: 20,
+    mediaType: 'image',
+  });
+
+  return (
+    <div>
+      {data?.items.map((item) => (
+        <MediaCard key={item._id} item={item} />
+      ))}
+      {hasNextPage && <button onClick={() => fetchNextPage()}>Load More</button>}
+    </div>
+  );
+}
+```
+
+### useMediaItem
+
+Fetch a single media item with caching:
+
+```tsx
+const { data: media, isLoading, error } = useMediaItem(mediaId);
+```
+
+### useMediaUpload
+
+Handle file uploads with progress tracking:
+
+```tsx
+const { upload, isUploading, progress, error } = useMediaUpload();
+
+const handleUpload = async (file: File) => {
+  const result = await upload(file, {
+    title: file.name,
+    description: 'Auto-uploaded',
+  });
+  console.log('Uploaded:', result._id);
+};
+```
+
+### useMediaUpdate
+
+Update media metadata:
+
+```tsx
+const { update, isUpdating } = useMediaUpdate();
+
+const handleUpdate = async (mediaId: string, updates: Partial<MediaItem>) => {
+  await update(mediaId, updates);
+};
+```
+
+### useMediaDelete
+
+Delete media:
+
+```tsx
+const { delete: deleteMedia, isDeleting } = useMediaDelete();
+
+const handleDelete = async (mediaId: string) => {
+  await deleteMedia(mediaId);
+};
+```
 
 ## Abstraction Layers
 
@@ -409,103 +877,312 @@ export function MyMediaCard({ item }) {
 }
 ```
 
-## Storybook Stories
+## Advanced Features
 
-The package includes comprehensive Storybook stories demonstrating all component features and configurations.
+### Metadata Extraction
 
-**MediaCard Stories:**
-- BasicVideo
-- BasicImage
-- SquareMode
-- OwnerContent
-- ViewerContent
-- PaidContent
-- WithPaymentIntegration
-- WithQueueIntegration
-- SelectionMode
-- GridLayout
-- CompleteIntegration
+Extract metadata directly from files in the browser:
 
-**MediaViewer Stories:**
-- BasicVideo
-- MediaCollection
-- NormalMode
-- TheaterMode
-- FullscreenMode
-- WithOwnerControls
-- WithQueueIntegration
-- WithKeyboardShortcuts
-- CompleteIntegration
+```tsx
+import { MediaFile } from '@stoked-ui/media';
 
-## API Documentation
+const file = new MediaFile(inputFile);
 
-### Extended Media Item
+// For videos
+if (file.isVideo()) {
+  const video = document.createElement('video');
+  video.src = URL.createObjectURL(file.file);
 
-The `ExtendedMediaItem` type includes comprehensive fields for media metadata:
+  video.onloadedmetadata = () => {
+    console.log('Duration:', video.duration);
+    console.log('Width:', video.videoWidth);
+    console.log('Height:', video.videoHeight);
+  };
+}
 
-```typescript
-interface ExtendedMediaItem {
-  _id?: string;
-  title?: string;
-  description?: string;
-  mediaType?: 'image' | 'video' | 'album';
-  file?: string;
-  url?: string;
-  thumbnail?: string;
-  paidThumbnail?: string;
-  duration?: number;
-  views?: number;
-  publicity?: 'public' | 'private' | 'paid' | 'subscription' | 'deleted';
-  price?: number;
-  author?: string;
-  owners?: string[];
-  likes?: string[];
-  dislikes?: string[];
-  tags?: string[];
+// For images
+if (file.isImage()) {
+  const img = new Image();
+  img.src = URL.createObjectURL(file.file);
 
-  // Video features
-  scrubberGenerated?: boolean;
-  scrubberSprite?: string;
-  scrubberSpriteConfig?: SpriteConfig;
-
-  // MediaClass branding
-  mediaClass?: MediaClass;
-
-  // Stream recording metadata
-  isStreamRecording?: boolean;
-  streamRecordedAt?: Date | string;
-  streamPeakViewers?: number;
-  [key: string]: any;
+  img.onload = () => {
+    console.log('Width:', img.width);
+    console.log('Height:', img.height);
+  };
 }
 ```
 
-## Performance Optimization
+### Hybrid Metadata Processing
 
-The components include several optimization techniques:
+The package supports hybrid metadata processing where metadata is fetched from both client and server:
 
-- **Lazy Loading**: Use `isVisible` prop for rendering optimization in long lists
-- **Selection Optimization**: Use `globalSelectionMode` for batch operations
-- **Layout Memoization**: Layout calculations are memoized
-- **Responsive Images**: Automatic responsive image sizing
-- **Video Optimization**: Efficient video loading with preview sprites
+```tsx
+import { useMediaItem, useMediaMetadataCache } from '@stoked-ui/media';
 
-## Accessibility
+function MediaDisplay({ mediaId }) {
+  // Fetch from server (with caching)
+  const { data: media } = useMediaItem(mediaId);
 
-All components include:
+  // Use cached metadata or extract from file
+  const metadata = useMediaMetadataCache({
+    mediaId,
+    serverMetadata: media,
+    onMetadataExtracted: (extracted) => {
+      console.log('Client-extracted metadata:', extracted);
+    },
+  });
 
-- Semantic HTML structure
-- ARIA labels and roles
-- Keyboard navigation support
-- Focus management
-- Proper contrast ratios
-- Screen reader support
+  return (
+    <div>
+      <h2>{media?.title}</h2>
+      <p>Duration: {metadata?.duration || media?.duration}</p>
+    </div>
+  );
+}
+```
 
-## Browser Support
+**Benefits:**
+- **Faster initial load**: Client metadata extracted immediately
+- **Accurate data**: Server metadata used when available
+- **Offline support**: Falls back to client extraction
+- **Progressive enhancement**: Updates as server data loads
 
-- Chrome/Edge: Latest 2 versions
-- Firefox: Latest 2 versions
-- Safari: Latest 2 versions
-- Mobile browsers: iOS Safari 12+, Chrome Android Latest
+### Video Sprite Sheet Generation
+
+For better scrubbing experience, video thumbnails are generated as sprite sheets:
+
+```typescript
+interface SpriteConfig {
+  totalFrames: number;        // Total frames in sprite
+  framesPerRow: number;       // Frames per row
+  frameWidth: number;         // Width of each frame
+  frameHeight: number;        // Height of each frame
+  spriteSheetWidth: number;   // Total width
+  spriteSheetHeight: number;  // Total height
+  interval: number;           // Seconds between frames
+}
+```
+
+The server generates these automatically. Access via:
+
+```tsx
+<MediaCard
+  item={{
+    ...media,
+    scrubberGenerated: true,
+    scrubberSprite: 'https://api.example.com/sprites/123.jpg',
+    scrubberSpriteConfig: {
+      totalFrames: 100,
+      framesPerRow: 10,
+      frameWidth: 160,
+      frameHeight: 90,
+      // ...
+    }
+  }}
+/>
+```
+
+### Performance Optimization
+
+**Lazy Loading:**
+```tsx
+const isVisible = useInView(ref);
+
+<MediaCard
+  item={media}
+  isVisible={isVisible}
+  // Only loads thumbnail when visible
+/>
+```
+
+**Memoization:**
+```tsx
+import { useMemo } from 'react';
+import { useMediaViewerLayout } from '@stoked-ui/media';
+
+const layout = useMediaViewerLayout({
+  item,
+  mediaItems,
+  currentIndex,
+  // Memoized and recalculated only when deps change
+});
+```
+
+**Image Optimization:**
+- Use server-generated thumbnails when possible
+- Set appropriate responsive image sizes
+- Enable AVIF/WebP format support via picture element
+
+## Troubleshooting
+
+### Common Issues
+
+**Issue: "MediaApiProvider not found" error**
+
+Make sure to wrap your app with `MediaApiProvider`:
+
+```tsx
+import { MediaApiProvider } from '@stoked-ui/media';
+
+export function App() {
+  return (
+    <MediaApiProvider config={{ baseUrl: 'https://api.example.com' }}>
+      <YourApp />
+    </MediaApiProvider>
+  );
+}
+```
+
+**Issue: Component renders but media doesn't load**
+
+Check that:
+1. The media file URL is accessible (CORS headers correct)
+2. The file format is supported by the browser
+3. The `mediaType` is set correctly (`'image'` or `'video'`)
+4. Network request is successful (check DevTools Network tab)
+
+**Issue: Thumbnails not showing**
+
+Solutions:
+1. Ensure thumbnail URL is correct
+2. Check CORS headers on image server
+3. Verify image format is supported (JPEG, PNG, WebP)
+4. Use server-side thumbnail generation for consistency
+
+**Issue: Video won't play**
+
+Check:
+1. Video format is supported (MP4/H.264, WebM/VP9)
+2. Video codec is compatible
+3. Server supports range requests for scrubbing
+4. CORS headers allow video access
+
+**Issue: Performance degradation with large galleries**
+
+Solutions:
+1. Use `isVisible` prop with virtualization
+2. Implement pagination instead of infinite scroll
+3. Use server-side thumbnail generation
+4. Enable browser caching headers
+
+### Debug Mode
+
+Enable debug logging:
+
+```tsx
+import { MediaApiProvider } from '@stoked-ui/media';
+
+<MediaApiProvider
+  config={{ baseUrl: 'https://api.example.com' }}
+  debug={true}
+>
+  <App />
+</MediaApiProvider>
+```
+
+## FAQ
+
+**Q: Does this work without the @stoked-ui/media-api backend?**
+
+A: Yes! The components work standalone. Just provide URLs for files and thumbnails. The API client is optional for managing media metadata.
+
+**Q: Can I use this with a different backend?**
+
+A: Yes! Implement the `MediaApiClient` interface or use the generic client with your own endpoints.
+
+**Q: How do I handle authentication?**
+
+A: Use the `IAuth` abstraction:
+
+```tsx
+const auth: IAuth = {
+  getCurrentUser: () => ({ id: 'user-1', email: 'user@example.com' }),
+  isAuthenticated: () => !!localStorage.getItem('token'),
+  login: () => redirectToLogin(),
+  logout: () => clearToken(),
+  hasPermission: (resource, action) => true,
+  isOwner: (authorId) => authorId === currentUserId,
+};
+
+<MediaCard item={media} auth={auth} />
+```
+
+**Q: How do I implement payment integration?**
+
+A: Use the `IPayment` abstraction:
+
+```tsx
+const payment: IPayment = {
+  initiatePayment: async (options) => {
+    // Call your payment processor (Stripe, PayPal, etc.)
+    return { status: 'completed', transactionId: '...' };
+  },
+  verifyPayment: async (transactionId) => true,
+};
+
+<MediaCard item={paidMedia} payment={payment} />
+```
+
+**Q: Can I customize the UI?**
+
+A: Use MUI's `sx` prop for styling:
+
+```tsx
+<MediaCard
+  item={media}
+  sx={{
+    '& .media-card': { backgroundColor: '#f5f5f5' },
+    '& .media-title': { fontSize: '1.25rem' },
+  }}
+/>
+```
+
+**Q: How do I implement queue management?**
+
+A: Use the `IQueue` abstraction:
+
+```tsx
+const queue: IQueue = {
+  items: mediaList,
+  add: (item) => { /* add to queue */ },
+  remove: (itemId) => { /* remove from queue */ },
+  clear: () => { /* clear queue */ },
+  next: () => currentItem,
+  previous: () => previousItem,
+};
+
+<MediaViewer item={current} queue={queue} enableQueue />
+```
+
+## API Reference
+
+### Type Definitions
+
+**ExtendedMediaItem** - Represents a media file with metadata
+
+**MediaCardProps** - Props for MediaCard component
+
+**MediaViewerProps** - Props for MediaViewer component
+
+**IRouter** - Abstract router interface
+
+**IAuth** - Abstract auth interface
+
+**IPayment** - Abstract payment interface
+
+**IQueue** - Abstract queue interface
+
+**IKeyboardShortcuts** - Abstract keyboard shortcuts interface
+
+See [src/components/MediaCard/README.md](./src/components/MediaCard/README.md) and [src/components/MediaViewer/README.md](./src/components/MediaViewer/README.md) for comprehensive documentation.
+
+## Storybook
+
+The package includes comprehensive Storybook stories demonstrating all features. Run:
+
+```bash
+npm run storybook
+```
 
 ## Contributing
 
@@ -514,10 +1191,3 @@ Contributions are welcome! Please follow the [Conventional Commits](https://conv
 ## License
 
 MIT - See LICENSE file for details
-
----
-
-**For detailed component documentation, see:**
-- [MediaCard Documentation](./src/components/MediaCard/README.md)
-- [MediaViewer Documentation](./src/components/MediaViewer/README.md)
-- [Abstraction Layers Guide](./src/abstractions/README.md)
