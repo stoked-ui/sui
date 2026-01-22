@@ -12,6 +12,8 @@ module.exports = {
         jsx: 'react',
         esModuleInterop: true,
         allowSyntheticDefaultImports: true,
+        module: 'commonjs',
+        moduleResolution: 'node',
       },
     }],
   },
@@ -30,7 +32,7 @@ module.exports = {
   ],
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html'],
-  coverageThresholds: {
+  coverageThreshold: {
     global: {
       branches: 80,
       functions: 80,
@@ -39,6 +41,9 @@ module.exports = {
     },
   },
   testPathIgnorePatterns: ['/node_modules/', '/build/', '/dist/'],
+  transformIgnorePatterns: [
+    'node_modules/(?!(bson|mongodb|mongoose|@nestjs/mongoose)/)',
+  ],
   globals: {
     'ts-jest': {
       isolatedModules: true,
