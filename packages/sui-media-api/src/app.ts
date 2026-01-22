@@ -73,8 +73,16 @@ export class Server {
     // Configure Swagger OpenAPI documentation
     const swaggerConfig = new DocumentBuilder()
       .setTitle('Stoked UI Media API')
-      .setDescription('REST API for Stoked UI Media Components')
+      .setDescription('REST API for Stoked UI Media Components - Upload, manage, and process media files with support for images, videos, and albums. Features include multipart uploads, metadata extraction, thumbnail generation, and comprehensive media management.')
       .setVersion('0.1.0')
+      .setContact(
+        'Brian Stoker',
+        'https://github.com/stoked-ui/sui',
+        'brian@stoked-ui.com',
+      )
+      .setLicense('MIT', 'https://opensource.org/licenses/MIT')
+      .addServer('http://localhost:3001', 'Local development server')
+      .addServer('https://api.stoked-ui.com', 'Production server')
       .addBearerAuth(
         {
           type: 'http',
@@ -86,12 +94,19 @@ export class Server {
         },
         'JWT-auth',
       )
+      .addTag('Health', 'Health check endpoints')
+      .addTag('Media', 'Media CRUD operations and metadata management')
+      .addTag('Uploads', 'Multipart file upload operations')
       .build();
 
     const document = SwaggerModule.createDocument(app, swaggerConfig);
-    SwaggerModule.setup('api', app, document);
+    SwaggerModule.setup('api/docs', app, document, {
+      customSiteTitle: 'Stoked UI Media API Documentation',
+      customfavIcon: 'https://stoked-ui.com/favicon.ico',
+      customCss: '.swagger-ui .topbar { display: none }',
+    });
 
-    this.logger.log('Swagger API docs enabled at /api');
+    this.logger.log('Swagger API docs enabled at /api/docs');
 
     const port = process.env.PORT || 3001;
     const host = '0.0.0.0';

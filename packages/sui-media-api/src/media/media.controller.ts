@@ -14,6 +14,15 @@ import {
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiParam,
+  ApiQuery,
+  ApiBody,
+} from '@nestjs/swagger';
 import { MediaService } from './media.service';
 import { ThumbnailGenerationService } from './thumbnail-generation.service';
 import {
@@ -37,6 +46,7 @@ import { UserId } from './decorators/current-user.decorator';
  * All endpoints require authentication except /api/info
  */
 @Controller('media')
+@ApiTags('Media')
 export class MediaController {
   constructor(
     private readonly mediaService: MediaService,
@@ -49,6 +59,14 @@ export class MediaController {
    * Does not require authentication
    */
   @Get('api/info')
+  @ApiOperation({
+    summary: 'Get API information',
+    description: 'Get API version, statistics, and general information. Does not require authentication.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'API information retrieved successfully',
+  })
   getInfo() {
     return this.mediaService.getInfo();
   }
@@ -80,6 +98,20 @@ export class MediaController {
    */
   @Get()
   @UseGuards(AuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    summary: 'List media',
+    description: 'List media with filtering, search, sorting, and pagination. Supports both offset and cursor-based pagination.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Media list retrieved successfully',
+    type: PaginatedMediaResponseDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - authentication required',
+  })
   async findAll(@Query(ValidationPipe) query: QueryMediaDto): Promise<PaginatedMediaResponseDto> {
     return this.mediaService.findAll(query);
   }
@@ -99,6 +131,29 @@ export class MediaController {
    */
   @Get(':id')
   @UseGuards(AuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    summary: 'Get media by ID',
+    description: 'Get a single media item by ID. Increments view count on each access.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Media ID',
+    example: 'media_1',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Media item retrieved successfully',
+    type: MediaResponseDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Media not found',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - authentication required',
+  })
   async findOne(@Param('id') id: string): Promise<MediaResponseDto> {
     return this.mediaService.findOne(id);
   }
@@ -131,6 +186,28 @@ export class MediaController {
    */
   @Post()
   @UseGuards(AuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    summary: 'Create media entry',
+    description: 'Create a new media entry in the database. Used after file upload to create the metadata record.',
+  })
+  @ApiBody({
+    type: CreateMediaDto,
+    description: 'Media creation data',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Media created successfully',
+    type: MediaResponseDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid request data',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - authentication required',
+  })
   async create(@Body(ValidationPipe) createMediaDto: CreateMediaDto): Promise<MediaResponseDto> {
     return this.mediaService.create(createMediaDto);
   }
@@ -161,6 +238,37 @@ export class MediaController {
    */
   @Patch(':id')
   @UseGuards(AuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    summary: 'Update media',
+    description: 'Update media metadata. Only the owner can update their media.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Media ID',
+    example: 'media_1',
+  })
+  @ApiBody({
+    type: UpdateMediaDto,
+    description: 'Fields to update',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Media updated successfully',
+    type: MediaResponseDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Media not found',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - user is not the owner',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - authentication required',
+  })
   async update(
     @Param('id') id: string,
     @Body(ValidationPipe) updateMediaDto: UpdateMediaDto,
@@ -201,7 +309,39 @@ export class MediaController {
    */
   @Delete(':id')
   @UseGuards(AuthGuard)
+  @ApiBearerAuth('JWT-auth')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: 'Delete media',
+    description: 'Delete media (file + database). Default is soft delete. Use hardDelete=true query parameter for permanent deletion.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Media ID',
+    example: 'media_1',
+  })
+  @ApiQuery({
+    name: 'hardDelete',
+    required: false,
+    type: Boolean,
+    description: 'Whether to permanently delete (default: false)',
+  })
+  @ApiResponse({
+    status: 204,
+    description: 'Media deleted successfully',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Media not found',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - user is not the owner',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - authentication required',
+  })
   async remove(
     @Param('id') id: string,
     @UserId() userId: string,
@@ -225,6 +365,33 @@ export class MediaController {
    */
   @Post(':id/restore')
   @UseGuards(AuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  @ApiOperation({
+    summary: 'Restore deleted media',
+    description: 'Restore a soft-deleted media item. Only the owner can restore their media.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Media ID',
+    example: 'media_1',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Media restored successfully',
+    type: MediaResponseDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Media not found',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - user is not the owner',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - authentication required',
+  })
   async restore(@Param('id') id: string, @UserId() userId: string): Promise<MediaResponseDto> {
     return this.mediaService.restore(id, userId);
   }
@@ -235,6 +402,28 @@ export class MediaController {
    */
   @Post(':id/extract-metadata')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Extract media metadata',
+    description: 'Extract metadata from a media file (video/audio/image properties).',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Media ID',
+    example: 'media_1',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Metadata extracted successfully',
+    type: ExtractMetadataResponseDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Media not found',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Unable to extract metadata',
+  })
   async extractMetadata(
     @Param('id') id: string,
   ): Promise<ExtractMetadataResponseDto> {
@@ -247,6 +436,32 @@ export class MediaController {
    */
   @Post(':id/generate-thumbnail')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Generate video thumbnail',
+    description: 'Generate a thumbnail for a video at a specific timestamp.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Media ID',
+    example: 'media_1',
+  })
+  @ApiBody({
+    type: GenerateThumbnailDto,
+    description: 'Thumbnail generation parameters',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Thumbnail generated successfully',
+    type: ThumbnailResponseDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Media not found',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid request or media type',
+  })
   async generateThumbnail(
     @Param('id') id: string,
     @Body() dto: GenerateThumbnailDto,
@@ -298,6 +513,32 @@ export class MediaController {
    */
   @Post(':id/generate-sprites')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Generate video sprite sheet',
+    description: 'Generate a sprite sheet for video scrubbing with VTT file.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Media ID',
+    example: 'media_1',
+  })
+  @ApiBody({
+    type: GenerateSpriteSheetDto,
+    description: 'Sprite sheet generation parameters',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Sprite sheet generated successfully',
+    type: SpriteSheetResponseDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Media not found',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid request or media type',
+  })
   async generateSpriteSheet(
     @Param('id') id: string,
     @Body() dto: GenerateSpriteSheetDto,
