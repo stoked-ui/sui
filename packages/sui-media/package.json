@@ -2,7 +2,26 @@
   "name": "@stoked-ui/media",
   "author": "Brian Stoker",
   "private": false,
-  "version": "0.1.0",
+  "version": "1.0.0",
+  "description": "Comprehensive media management and component library for React with framework-agnostic abstractions, modern file handling APIs, and reactive media UI components",
+  "keywords": [
+    "react",
+    "media",
+    "video",
+    "image",
+    "upload",
+    "player",
+    "gallery",
+    "mui",
+    "material-ui",
+    "components",
+    "file-handling",
+    "tanstack-query",
+    "api-client",
+    "metadata",
+    "thumbnails"
+  ],
+  "license": "MIT",
   "main": "src/index.ts",
   "bin": {
     "sui-media": "scripts/cli.js"
