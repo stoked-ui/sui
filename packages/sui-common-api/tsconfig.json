@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.x.json",
+  "compilerOptions": {
+    "target": "ES2015",
+    "lib": ["ES2015", "DOM", "DOM.Iterable"],
+    "types": ["node"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "noImplicitAny": false,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "strictPropertyInitialization": false
+  },
+  "include": ["src/**/*"],
+  "exclude": ["**/*.test.tsx"]
+}

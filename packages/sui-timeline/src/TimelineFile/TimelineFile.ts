@@ -2,7 +2,7 @@
 /*  eslint-disable @typescript-eslint/naming-convention */
 import {
   IMediaFile, MediaFile, AppFile, WebFile
-} from "@stoked-ui/media-selector";
+} from "@stoked-ui/media";
 import {alpha} from "@mui/material/styles";
 import { Constructor, compositeColors, namedId } from "@stoked-ui/common";
 import {

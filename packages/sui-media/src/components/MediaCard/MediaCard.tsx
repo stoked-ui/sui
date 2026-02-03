@@ -24,7 +24,7 @@ import { VideoProgressBar } from './VideoProgressBar';
 import { calculateAspectRatio, formatDuration } from './MediaCard.utils';
 import { useHybridMetadata } from './useHybridMetadata';
 import { useServerThumbnail } from './useServerThumbnail';
-import './MediaCard.animations.css';
+import styles from './MediaCard.module.css';
 
 /**
  * MediaCard Component

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { SlotComponentProps } from '@mui/base/utils';
-import { IMediaFile, MediaFile } from '@stoked-ui/media-selector';
+import { IMediaFile, MediaFile } from '@stoked-ui/media';
 import { SlotComponentPropsFromProps, } from '../internals/models';
 import {IEditorTrack} from "../EditorTrack";
 import {IEditorAction} from "../EditorAction";

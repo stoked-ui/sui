@@ -34,7 +34,11 @@
     "build:stable": "node ../../scripts/build.mjs stable",
     "build:copy-files": "node ../../scripts/copyFiles.mjs",
     "build:types": "node ../../scripts/buildTypes.mjs",
-    "prebuild": "rimraf build tsconfig.build.tsbuildinfo"
+    "prebuild": "rimraf build tsconfig.build.tsbuildinfo",
+    "watch": "pnpm babel --config-file ../../babel.config.js --extensions '.js,.ts,.tsx' ./src --out-dir ./build/modern --watch --ignore '**/*.test.js','**/*.test.ts','**/*.test.tsx','**/*.spec.ts','**/*.spec.tsx','**/*.d.ts'",
+    "watch:types": "tsc -b tsconfig.build.json --watch",
+    "dev:prepare": "pnpm build:modern && pnpm build:types",
+    "dev": "pnpm watch"
   },
   "repository": {
     "type": "git",
@@ -64,13 +68,13 @@
     "@mui/icons-material": "^5.15.21",
     "@mui/material": "^5.15.21",
     "@stoked-ui/common": "workspace:^",
-    "@stoked-ui/media-selector": "workspace:^",
+    "@stoked-ui/media": "workspace:^",
     "react": "18.3.1",
     "react-dom": "^17.0.0 || ^18.0.0"
   },
   "devDependencies": {
     "@stoked-ui/internal-test-utils": "workspace:^",
-    "@stoked-ui/media-selector": "workspace:^",
+    "@stoked-ui/media": "workspace:^",
     "@types/prop-types": "^15.7.12",
     "chai": "^4.4.1",
     "typescript": "^5.4.5"

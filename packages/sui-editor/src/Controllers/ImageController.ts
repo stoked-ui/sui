@@ -1,7 +1,7 @@
 import {
   Controller, ControllerParams, GetItemParams, IController, IEngine, ITimelineAction, ITimelineTrack
 } from "@stoked-ui/timeline";
-import { IMediaFile } from "@stoked-ui/media-selector";
+import { IMediaFile } from "@stoked-ui/media";
 import {type IEditorEngine} from "../EditorEngine";
 import {
   EditorControllerParams, EditorGetItemParams,

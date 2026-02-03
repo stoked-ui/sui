@@ -1,7 +1,7 @@
 import { type BackgroundImageStyle, type ITimelineAction } from "../TimelineAction/TimelineAction.types";
 import {PreloadParams, ControllerParams, GetItemParams} from "./ControllerParams";
 import {ITimelineTrack} from "../TimelineTrack";
-import { IMediaFile } from "@stoked-ui/media-selector";
+import { IMediaFile } from "@stoked-ui/media";
 
 export interface IController {
   start(params: ControllerParams): void

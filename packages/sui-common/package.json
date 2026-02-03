@@ -46,14 +46,6 @@
     "@tempfix/idb": "^8.0.3",
     "framer-motion": "^12.4.10"
   },
-  "optionalDependencies": {
-    "@nestjs/common": "^10.3.0",
-    "@nestjs/mongoose": "^10.0.0",
-    "@nestjs/swagger": "^7.0.0",
-    "class-validator": "^0.14.0",
-    "lodash.clonedeep": "^4.5.0",
-    "mongoose": "^8.0.0"
-  },
   "peerDependencies": {
     "@emotion/react": "^11.9.0",
     "@emotion/styled": "^11.8.1",

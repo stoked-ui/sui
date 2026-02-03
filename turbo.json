@@ -7,7 +7,8 @@
     },
     "dev:prepare": {
       "cache": true,
-      "outputs": ["dist/**", "build/**"]
+      "dependsOn": ["^dev:prepare"],
+      "outputs": ["dist/**", "build/**", "build/modern/**", "build/esm/**"]
     },
     "build": {
       "cache": true,

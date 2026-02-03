@@ -18,7 +18,7 @@ import {
 import {containsFiles} from "@atlaskit/pragmatic-drag-and-drop/external/file";
 import {preventUnhandled} from "@atlaskit/pragmatic-drag-and-drop/prevent-unhandled";
 import type {Instruction} from "@atlaskit/pragmatic-drag-and-drop-hitbox/tree-item";
-import {MediaFile} from "@stoked-ui/media-selector";
+import {MediaFile} from "@stoked-ui/media";
 import { FileBase} from "../../../models";
 import memoizeOne from "memoize-one";
 import {

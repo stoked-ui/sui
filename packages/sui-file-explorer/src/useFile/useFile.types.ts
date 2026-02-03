@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { MediaType } from '@stoked-ui/media-selector'
+import { MediaType } from '@stoked-ui/media'
 import {FileId} from '../models';
 import {MuiCancellableEventHandler} from '../internals/models/MuiCancellableEvent';
 import {FileExplorerPublicAPI} from '../internals/models';

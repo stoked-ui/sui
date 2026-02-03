@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {isMobile} from "react-device-detect";
-import {IMediaFile, App, Screenshot, Command} from '@stoked-ui/media-selector';
+import {IMediaFile, App, Screenshot, Command} from '@stoked-ui/media';
 import {
   Constructor,
   createProviderState,

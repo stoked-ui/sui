@@ -10,7 +10,7 @@ import {Constructor, IMimeType, LocalDb, Versions} from '@stoked-ui/common';
 
 import {
   IMediaFile, AppOutputFile, AppFile, MediaType,
-} from '@stoked-ui/media-selector';
+} from '@stoked-ui/media';
 import {
   BlendMode, Fit,
   IEditorAction,

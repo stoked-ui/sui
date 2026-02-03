@@ -151,7 +151,7 @@ module.exports = function setKarmaConfig(config) {
                       alias: {
                         // all packages in this monorepo
                         '@stoked-ui/common': './packages/sui-common/src',
-                        '@stoked-ui/media-selector': './packages/sui-media-selector/src',
+                        '@stoked-ui/media': './packages/sui-media/src',
                         '@stoked-ui/file-editor': './packages/sui-file-editor/lib',
                         '@stoked-ui/timeline': './packages/sui-timeline/src',
                         '@stoked-ui/editor': './packages/sui-editor/src',

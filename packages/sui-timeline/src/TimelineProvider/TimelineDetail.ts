@@ -1,4 +1,4 @@
-import { IMediaFile  } from "@stoked-ui/media-selector";
+import { IMediaFile  } from "@stoked-ui/media";
 import { namedId} from '@stoked-ui/common';
 import * as yup from "yup";
 import { ITimelineAction } from "../TimelineAction/TimelineAction.types";

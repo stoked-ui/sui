@@ -1,5 +1,5 @@
 import { ITimelineAction } from '@stoked-ui/timeline';
-import { getFileName } from '@stoked-ui/media-selector';
+import { getFileName } from '@stoked-ui/media';
 import {
   UseEditorMetadataDefaultizedParameters, UseEditorMetadataParameters, UseEditorMetadataSignature,
 } from './useEditorMetadata.types';

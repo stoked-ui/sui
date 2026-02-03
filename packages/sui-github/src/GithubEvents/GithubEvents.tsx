@@ -116,7 +116,7 @@ export async function githubEventsQuery({ query, githubUser, githubToken }: { qu
         },
       };
       if (githubToken) {
-        fetchOptions.headers.Authoriation = `token ${githubToken}`;
+        fetchOptions.headers.Authorization = `token ${githubToken}`;
       }
       const response = await fetch(`https://api.github.com/users/${githubUser}/events?${queryParams}`, fetchOptions);
       

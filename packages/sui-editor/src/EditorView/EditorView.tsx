@@ -1,6 +1,6 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { IMediaFile } from '@stoked-ui/media-selector';
+import { IMediaFile } from '@stoked-ui/media';
 import composeClasses from '@mui/utils/composeClasses';
 import { Fade } from '@mui/material';
 import { useSlotProps } from '@mui/base/utils';

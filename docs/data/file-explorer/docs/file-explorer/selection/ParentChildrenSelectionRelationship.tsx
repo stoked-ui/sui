@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
-import {MediaFile} from "@stoked-ui/media-selector";
+import {MediaFile} from "@stoked-ui/media";
 import { FileExplorer } from '@stoked-ui/file-explorer/FileExplorer';
 import { useFileExplorerApiRef } from '@stoked-ui/file-explorer/hooks';
 import { NestedFiles } from 'docs/src/components/fileExplorer/data';

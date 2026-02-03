@@ -22,6 +22,27 @@ export const createSite = (domainInfo: DomainInfo) => {
     }, environment: {
       runtime: "nodejs20.x", // Match the Node.js runtime
     }, edge: {
+      viewerRequest: {
+        injection: `
+          // Domain-based routing: stokedconsulting.com → /consulting/
+          var host = event.request.headers.host ? event.request.headers.host.value : '';
+          var uri = event.request.uri;
+
+          // Check if this is a stokedconsulting.com request
+          var isConsultingDomain = host === 'stokedconsulting.com' || host === 'www.stokedconsulting.com';
+
+          if (isConsultingDomain) {
+            // Rewrite root path to consulting
+            if (uri === '/' || uri === '') {
+              event.request.uri = '/consulting/';
+            }
+            // Rewrite /index.html to consulting
+            else if (uri === '/index.html') {
+              event.request.uri = '/consulting/index.html';
+            }
+          }
+        `
+      },
       viewerResponse: {
         injection: `
           // Add CORS headers for video playback

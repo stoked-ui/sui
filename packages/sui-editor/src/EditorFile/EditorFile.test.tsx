@@ -5,7 +5,7 @@ import { act } from '@stoked-ui/internal-test-utils';
 import EditorExample from './EditorFile.example';
 import {IEditorFile, EditorFile, IEditorFileMetadata} from '@stoked-ui/editor';
 import {IFileParams, IWebFileProps} from "@stoked-ui/timeline";
-import {IMediaFile} from "@stoked-ui/media-selector";
+import {IMediaFile} from "@stoked-ui/media";
 
 describe('EditorFile Blob Handling', () => {
   it('should write and read back an EditorFile correctly', async () => {

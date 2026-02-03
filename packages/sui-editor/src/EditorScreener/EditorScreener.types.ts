@@ -1,4 +1,4 @@
-import { IMediaFile } from "@stoked-ui/media-selector";
+import { IMediaFile } from "@stoked-ui/media";
 import { OutputBlob } from "@stoked-ui/timeline";
 import * as React from "react";
 import {

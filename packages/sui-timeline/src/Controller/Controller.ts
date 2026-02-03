@@ -1,4 +1,4 @@
-import {ScreenshotQueue} from "@stoked-ui/media-selector";
+import {ScreenshotQueue} from "@stoked-ui/media";
 import { type IController } from "./Controller.types";
 import type {ControllerParams, GetItemParams, PreloadParams} from './ControllerParams';
 import type { ITimelineAction } from "../TimelineAction";

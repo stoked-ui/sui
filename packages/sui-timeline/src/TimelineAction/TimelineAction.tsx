@@ -5,7 +5,7 @@ import { shouldForwardProp } from '@mui/system/createStyled';
 import LockIcon from '@mui/icons-material/Lock';
 import { Fade, ImageList, ImageListItem } from '@mui/material';
 import Zoom from '@mui/material/Zoom';
-import { Screenshot } from '@stoked-ui/media-selector';
+import { Screenshot } from '@stoked-ui/media';
 import { DEFAULT_ADSORPTION_DISTANCE, DEFAULT_MOVE_GRID } from '../interface/const';
 import {
   getScaleCountByPixel,

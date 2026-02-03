@@ -18,7 +18,7 @@ import Box from '@mui/material/Box';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import { alpha, emphasize, Theme } from '@mui/material/styles';
 import { Slider, Stack, Tooltip } from '@mui/material';
-import { MediaFile } from '@stoked-ui/media-selector';
+import { MediaFile } from '@stoked-ui/media';
 import {
   OutputBlob, Version, ToggleButtonGroupEx, FileState, SnapControls, EngineState, PlaybackMode,
 } from '@stoked-ui/timeline';

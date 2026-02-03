@@ -1,5 +1,5 @@
 import { namedId } from "@stoked-ui/common";
-import { IMediaFile } from "@stoked-ui/media-selector";
+import { IMediaFile } from "@stoked-ui/media";
 import { createAction, IController, ITimelineFileTrack, ITimelineTrack } from "@stoked-ui/timeline";
 import {
   BlendMode,

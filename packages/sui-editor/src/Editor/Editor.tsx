@@ -7,7 +7,7 @@ import Timeline, {
 } from '@stoked-ui/timeline';
 import Box from "@mui/material/Box";
 import {namedId} from '@stoked-ui/common';
-import {IMediaFile, MediaFile} from '@stoked-ui/media-selector';
+import {IMediaFile, MediaFile} from '@stoked-ui/media';
 import {useSlotProps} from '@mui/base/utils';
 import {useTheme} from "@mui/material";
 import composeClasses from '@mui/utils/composeClasses';

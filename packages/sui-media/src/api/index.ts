@@ -7,4 +7,4 @@
 
 export { MediaApiClient, createMediaApiClient } from './media-api-client';
 export { UploadClient, createUploadClient, UploadError } from './upload-client';
-export type * from './types';
+export * from './types';

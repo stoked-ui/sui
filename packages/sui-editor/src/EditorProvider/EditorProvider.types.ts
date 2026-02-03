@@ -10,7 +10,7 @@ import {
   getActionFileTimespan, PlaybackMode,
 } from "@stoked-ui/timeline";
 import { namedId} from '@stoked-ui/common';
-import {IMediaFile, MediaFile, Stage} from "@stoked-ui/media-selector";
+import {IMediaFile, MediaFile, Stage} from "@stoked-ui/media";
 import Controllers from "../Controllers";
 import {
   BlendMode, Fit,

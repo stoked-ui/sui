@@ -135,7 +135,7 @@ export default withDocsInfra({
                         {
                           productId: 'stoked-ui',
                           paths: [
-                            path.join(workspaceRoot, 'packages/sui-media-selector/src'),
+                            path.join(workspaceRoot, 'packages/sui-media/src'),
                           ],
                           subPackagePaths: [
                             path.join(workspaceRoot, 'node_modules/@mui/base'),
@@ -198,24 +198,24 @@ export default withDocsInfra({
                           productId: 'docs',
                           paths: [
                             path.join(workspaceRoot, 'packages/sui-file-explorer/src'),
-                            path.join(workspaceRoot, 'packages/sui-media-selector/src'),
+                            path.join(workspaceRoot, 'packages/sui-media/src'),
                           ],
                           subPackagePaths: [
                             path.join(workspaceRoot, 'node_modules/@mui/base'),
                             path.join(workspaceRoot, 'node_modules/@mui/lab'),
-                            path.join(workspaceRoot, 'packages/sui-media-selector'),
+                            path.join(workspaceRoot, 'packages/sui-media'),
                           ],
                         },
                         {
                           productId: 'docs-infra',
                           paths: [
                             path.join(workspaceRoot, 'packages/sui-file-explorer/src'),
-                            path.join(workspaceRoot, 'packages/sui-media-selector/src'),
+                            path.join(workspaceRoot, 'packages/sui-media/src'),
                           ],
                           subPackagePaths: [
                             path.join(workspaceRoot, 'node_modules/@mui/base'),
                             path.join(workspaceRoot, 'node_modules/@mui/lab'),
-                            path.join(workspaceRoot, 'packages/sui-media-selector'),
+                            path.join(workspaceRoot, 'packages/sui-media'),
                           ],
                         },
                       ],

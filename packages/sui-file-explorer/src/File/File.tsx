@@ -15,7 +15,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import StokedUiFile from './StokedUIFile'
 import Box from '@mui/material/Box';
 import { namedId} from '@stoked-ui/common';
-import { MediaType } from '@stoked-ui/media-selector';
+import { MediaType } from '@stoked-ui/media';
 import LottieIcon from '../icons/LottieIcon';
 import { FileLabel } from './FileLabel';
 import { createUseThemeProps } from '../internals/zero-styled';

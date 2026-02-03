@@ -1,4 +1,4 @@
-import { Stage, ScreenshotQueue } from '@stoked-ui/media-selector';
+import { Stage, ScreenshotQueue } from '@stoked-ui/media';
 import { createSettings } from '@stoked-ui/common';
 import {
   Controller,

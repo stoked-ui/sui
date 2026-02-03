@@ -2,7 +2,7 @@ import * as React from 'react';
 import {Theme} from '@mui/material/styles';
 import {SxProps} from '@mui/system';
 import {SlotComponentProps} from '@mui/base/utils';
-import {IMediaFile} from '@stoked-ui/media-selector';
+import {IMediaFile} from '@stoked-ui/media';
 import {ITimelineAction, ITimelineTrack, TimelineProps, TimelineControlProps} from '@stoked-ui/timeline';
 import {FileExplorerProps, FileExplorerTabsProps} from "@stoked-ui/file-explorer";
 import {EditorPluginParameters, EditorPluginSignatures, EditorPluginSlotProps, EditorPluginSlots} from './Editor.plugins';

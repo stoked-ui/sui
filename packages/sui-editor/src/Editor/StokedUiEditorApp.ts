@@ -3,7 +3,7 @@ import {
   AppFileFactory,
   AppOutputFile, AppOutputFileFactory,
   IApp
-} from "@stoked-ui/media-selector";
+} from "@stoked-ui/media";
 import { IMimeType, SUIMime } from '@stoked-ui/common';
 
 export default class StokedUiEditorApp extends App implements IApp {

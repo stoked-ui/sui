@@ -9,7 +9,7 @@ import {
   WebFileFactory,
   SUIMime,
   MediaFile
-} from "@stoked-ui/media-selector";
+} from "@stoked-ui/media";
 import {Controllers, EditorProvider, IEditorFile} from '@stoked-ui/editor';
 import Stack from '@mui/material/Stack';
 import Fade from "@mui/material/Fade";

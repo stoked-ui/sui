@@ -6,7 +6,7 @@ module.exports = {
     modules: [__dirname, 'node_modules'],
     alias: {
       '@stoked-ui/docs-markdown': path.resolve(__dirname, './packages-internal/markdown'),
-      '@stoked-ui/media-selector': path.resolve(__dirname, './packages/sui-media-selector/src'),
+      '@stoked-ui/media': path.resolve(__dirname, './packages/sui-media/src'),
       '@stoked-ui/docs': path.resolve(__dirname, './packages/sui-docs/src'),
       '@stoked-ui/common': path.resolve(__dirname, './packages/sui-common/src'),
       '@stoked-ui/timeline': path.resolve(__dirname, './packages/sui-timeline/src'),

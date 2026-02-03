@@ -1,7 +1,7 @@
 import { IMimeType, SUIMime } from '@stoked-ui/common';
 import {
   App, IApp, AppFile, AppFileFactory, AppOutputFile, AppOutputFileFactory,
-} from "@stoked-ui/media-selector";
+} from "@stoked-ui/media";
 
 export default class StokedUiTimelineApp extends App implements IApp {
 

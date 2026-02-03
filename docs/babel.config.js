@@ -23,6 +23,9 @@ module.exports = {
     ],
   ],
   plugins: [
+    // Enable decorator support for NestJS DTOs in sui-common
+    ['@babel/plugin-proposal-decorators', { legacy: true }],
+    ['@babel/plugin-proposal-class-properties', { loose: true }],
     [
       'babel-plugin-macros',
       {

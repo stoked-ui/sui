@@ -4,7 +4,7 @@ import {
   EngineState,
   PlaybackMode,
 } from '@stoked-ui/timeline';
-import {IMediaFile, MediaFile} from "@stoked-ui/media-selector";
+import {IMediaFile, MediaFile} from "@stoked-ui/media";
 import {EditorEvents, EditorEventTypes} from './events';
 import {
   IEditorEngine, EditorEngineState, DrawData, EngineStateEx,

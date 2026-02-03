@@ -472,9 +472,9 @@ importers:
       '@stoked-ui/github':
         specifier: workspace:^
         version: link:../packages/sui-github/build
-      '@stoked-ui/media-selector':
+      '@stoked-ui/media':
         specifier: workspace:^
-        version: link:../packages/sui-media-selector/build
+        version: link:../packages/sui-media/build
       '@stoked-ui/timeline':
         specifier: workspace:^
         version: link:../packages/sui-timeline/build
@@ -1059,7 +1059,10 @@ importers:
       '@babel/runtime':
         specifier: ^7.23.9
         version: 7.28.6
-    optionalDependencies:
+    publishDirectory: build
+
+  packages/sui-common-api:
+    dependencies:
       '@nestjs/common':
         specifier: ^10.3.0
         version: 10.4.22(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2)
@@ -1069,6 +1072,9 @@ importers:
       '@nestjs/swagger':
         specifier: ^7.0.0
         version: 7.4.2(@nestjs/common@10.4.22(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.0.21)(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)
+      '@stoked-ui/common':
+        specifier: workspace:*
+        version: link:../sui-common/build
       class-validator:
         specifier: ^0.14.0
         version: 0.14.3
@@ -1078,6 +1084,28 @@ importers:
       mongoose:
         specifier: ^8.0.0
         version: 8.21.0(socks@2.8.7)
+    devDependencies:
+      '@babel/core':
+        specifier: ^7.23.9
+        version: 7.28.6
+      '@babel/plugin-proposal-decorators':
+        specifier: ^7.28.6
+        version: 7.28.6(@babel/core@7.28.6)
+      '@babel/plugin-transform-runtime':
+        specifier: ^7.23.9
+        version: 7.28.5(@babel/core@7.28.6)
+      '@babel/plugin-transform-typescript':
+        specifier: ^7.26.8
+        version: 7.28.6(@babel/core@7.28.6)
+      '@babel/preset-env':
+        specifier: ^7.23.9
+        version: 7.28.6(@babel/core@7.28.6)
+      '@babel/preset-typescript':
+        specifier: ^7.23.3
+        version: 7.28.5(@babel/core@7.28.6)
+      '@babel/runtime':
+        specifier: ^7.23.9
+        version: 7.28.6
     publishDirectory: build
 
   packages/sui-docs:
@@ -1125,9 +1153,9 @@ importers:
       '@stoked-ui/file-explorer':
         specifier: workspace:^
         version: link:../sui-file-explorer/build
-      '@stoked-ui/media-selector':
+      '@stoked-ui/media':
         specifier: workspace:^
-        version: link:../sui-media-selector/build
+        version: link:../sui-media/build
       '@stoked-ui/timeline':
         specifier: workspace:^
         version: link:../sui-timeline/build
@@ -1220,9 +1248,9 @@ importers:
       '@stoked-ui/internal-test-utils':
         specifier: workspace:^
         version: link:../../packages-internal/test-utils
-      '@stoked-ui/media-selector':
+      '@stoked-ui/media':
         specifier: workspace:^
-        version: link:../sui-media-selector/build
+        version: link:../sui-media/build
       '@stoked-ui/timeline':
         specifier: workspace:^
         version: link:../sui-timeline/build
@@ -1318,9 +1346,9 @@ importers:
       '@stoked-ui/internal-test-utils':
         specifier: workspace:^
         version: link:../../packages-internal/test-utils
-      '@stoked-ui/media-selector':
+      '@stoked-ui/media':
         specifier: workspace:^
-        version: link:../sui-media-selector/build
+        version: link:../sui-media/build
       '@types/prop-types':
         specifier: ^15.7.12
         version: 15.7.15
@@ -1373,9 +1401,9 @@ importers:
       '@stoked-ui/file-explorer':
         specifier: workspace:^
         version: link:../sui-file-explorer/build
-      '@stoked-ui/media-selector':
+      '@stoked-ui/media':
         specifier: workspace:^
-        version: link:../sui-media-selector/build
+        version: link:../sui-media/build
       '@stoked-ui/timeline':
         specifier: workspace:^
         version: link:../sui-timeline/build
@@ -1533,6 +1561,9 @@ importers:
       '@stoked-ui/common':
         specifier: workspace:*
         version: link:../sui-common/build
+      '@stoked-ui/common-api':
+        specifier: workspace:*
+        version: link:../sui-common-api/build
       class-transformer:
         specifier: ^0.5.1
         version: 0.5.1
@@ -1641,38 +1672,6 @@ importers:
         version: 5.9.3
     publishDirectory: dist
 
-  packages/sui-media-selector:
-    dependencies:
-      formdata-node:
-        specifier: ^6.0.3
-        version: 6.0.3
-      jszip:
-        specifier: ^3.10.1
-        version: 3.10.1
-      react:
-        specifier: 18.3.1
-        version: 18.3.1
-    devDependencies:
-      '@babel/runtime':
-        specifier: ^7.23.9
-        version: 7.28.6
-      '@stoked-ui/common':
-        specifier: workspace:^
-        version: link:../sui-common/build
-      '@types/react':
-        specifier: ^18.3.1
-        version: 18.3.27
-      '@types/wicg-file-system-access':
-        specifier: ^2023.10.5
-        version: 2023.10.7
-      eslint:
-        specifier: ^8.57.0
-        version: 8.57.1
-      typescript:
-        specifier: 5.4.5
-        version: 5.4.5
-    publishDirectory: build
-
   packages/sui-timeline:
     dependencies:
       '@emotion/styled':
@@ -1699,9 +1698,9 @@ importers:
       '@stoked-ui/file-explorer':
         specifier: workspace:^
         version: link:../sui-file-explorer/build
-      '@stoked-ui/media-selector':
+      '@stoked-ui/media':
         specifier: workspace:^
-        version: link:../sui-media-selector/build
+        version: link:../sui-media/build
       '@types/react-virtualized':
         specifier: ^9.21.14
         version: 9.22.3
@@ -17139,7 +17138,6 @@ snapshots:
       uid: 2.0.2
     optionalDependencies:
       '@nestjs/platform-express': 11.0.21(@nestjs/common@10.4.22(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.0.21)
-    optional: true
 
   '@nestjs/core@11.0.21(@nestjs/common@11.0.21(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.1.14)(rxjs@7.8.2))(@nestjs/platform-express@11.0.21)(reflect-metadata@0.1.14)(rxjs@7.8.2)':
     dependencies:
@@ -17184,7 +17182,6 @@ snapshots:
       '@nestjs/core': 11.0.21(@nestjs/common@10.4.22(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/platform-express@11.0.21)(reflect-metadata@0.2.2)(rxjs@7.8.2)
       mongoose: 8.21.0(socks@2.8.7)
       rxjs: 7.8.2
-    optional: true
 
   '@nestjs/mongoose@11.0.4(@nestjs/common@11.0.21(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.1.14)(rxjs@7.8.2))(@nestjs/core@11.0.21)(mongoose@8.21.0(socks@2.8.7))(rxjs@7.8.2)':
     dependencies:
@@ -17298,7 +17295,6 @@ snapshots:
     optionalDependencies:
       class-transformer: 0.5.1
       class-validator: 0.14.3
-    optional: true
 
   '@nestjs/swagger@7.4.2(@nestjs/common@11.0.21(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.1.14)(rxjs@7.8.2))(@nestjs/core@11.0.21)(class-transformer@0.5.1)(class-validator@0.14.3)(reflect-metadata@0.1.14)':
     dependencies:

@@ -1,4 +1,4 @@
-import { Command } from "@stoked-ui/media-selector";
+import { Command } from "@stoked-ui/media";
 import { ITimelineFile } from "../TimelineFile.types";
 import {ITimelineTrack} from "../../TimelineTrack";
 

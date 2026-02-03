@@ -6,7 +6,7 @@ import {
   FileExplorerTabs,
   FileExplorerTabsProps
 } from "@stoked-ui/file-explorer";
-import {IMediaFile, MediaFile} from "@stoked-ui/media-selector";
+import {IMediaFile, MediaFile} from "@stoked-ui/media";
 import {LocalDb, Version, VideoSaveRequest} from "@stoked-ui/common";
 import {useEditorContext} from "../EditorProvider/EditorContext";
 import EditorFile, {IEditorFile} from "../EditorFile";

@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
 /**
- * Migration Tool: @stoked-ui/media-selector to @stoked-ui/media
+ * Migration Tool: @stoked-ui/media to @stoked-ui/media
  *
  * This tool helps developers automatically migrate from the deprecated
- * @stoked-ui/media-selector package to the new @stoked-ui/media package.
+ * @stoked-ui/media package to the new @stoked-ui/media package.
  *
  * Features:
  * - Updates import statements
@@ -24,26 +24,26 @@ const { execSync } = require('child_process');
 // Configuration and Constants
 // ============================================================================
 
-const DEPRECATED_PACKAGE = '@stoked-ui/media-selector';
+const DEPRECATED_PACKAGE = '@stoked-ui/media';
 const NEW_PACKAGE = '@stoked-ui/media';
 
 const IMPORT_PATTERNS = [
-  // Named imports: import { X, Y } from '@stoked-ui/media-selector'
+  // Named imports: import { X, Y } from '@stoked-ui/media'
   {
     regex: /import\s*\{\s*([^}]+)\s*\}\s*from\s*['"]@stoked-ui\/media-selector['"]/g,
     type: 'named',
   },
-  // Default imports: import X from '@stoked-ui/media-selector'
+  // Default imports: import X from '@stoked-ui/media'
   {
     regex: /import\s+(\w+)\s+from\s*['"]@stoked-ui\/media-selector['"]/g,
     type: 'default',
   },
-  // Type imports: import type { X, Y } from '@stoked-ui/media-selector'
+  // Type imports: import type { X, Y } from '@stoked-ui/media'
   {
     regex: /import\s+type\s*\{\s*([^}]+)\s*\}\s*from\s*['"]@stoked-ui\/media-selector['"]/g,
     type: 'type',
   },
-  // Subpath imports: import X from '@stoked-ui/media-selector/something'
+  // Subpath imports: import X from '@stoked-ui/media/something'
   {
     regex: /from\s*['"]@stoked-ui\/media-selector\/([^'"]+)['"]/g,
     type: 'subpath',
@@ -185,7 +185,7 @@ class ImportTransformer {
     );
 
     // Handle subpath imports - convert to main package exports
-    // This addresses the pattern: import X from '@stoked-ui/media-selector/FileWithPath'
+    // This addresses the pattern: import X from '@stoked-ui/media/FileWithPath'
     // Should become: import { FileWithPath } from '@stoked-ui/media'
     transformed = this.handleSubpathImports(transformed);
 
@@ -198,9 +198,9 @@ class ImportTransformer {
   static handleSubpathImports(content) {
     // Patterns for common subpath imports from media-selector
     const subpathMappings = {
-      "require('@stoked-ui/media-selector/FileWithPath')": "require('@stoked-ui/media')",
-      "from '@stoked-ui/media-selector/FileWithPath'": "from '@stoked-ui/media'",
-      "import FileWithPath from '@stoked-ui/media-selector/FileWithPath'":
+      "require('@stoked-ui/media/FileWithPath')": "require('@stoked-ui/media')",
+      "from '@stoked-ui/media/FileWithPath'": "from '@stoked-ui/media'",
+      "import FileWithPath from '@stoked-ui/media/FileWithPath'":
         "import { FileWithPath } from '@stoked-ui/media'",
     };
 

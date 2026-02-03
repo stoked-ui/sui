@@ -6,7 +6,7 @@ import {
   ImageFeature,
   FileFeature,
   UploadSessionFeature,
-} from '@stoked-ui/common';
+} from '@stoked-ui/common-api';
 
 @Module({
   imports: [

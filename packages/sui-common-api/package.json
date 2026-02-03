@@ -1,0 +1,66 @@
+{
+  "name": "@stoked-ui/common-api",
+  "version": "0.1.0",
+  "description": "Server-side common utilities for Stoked UI API packages (NestJS, Mongoose models, DTOs)",
+  "author": "Brian Stoker",
+  "main": "src/index.ts",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/stoked-ui/sui/issues"
+  },
+  "homepage": "https://stoked-ui.com",
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public",
+    "directory": "build"
+  },
+  "keywords": [
+    "nestjs",
+    "mongoose",
+    "api",
+    "stoked-ui",
+    "backend"
+  ],
+  "scripts": {
+    "typescript": "tsc -p tsconfig.json",
+    "build": "pnpm build:modern && pnpm build:node && pnpm build:stable && pnpm build:types && pnpm build:copy-files",
+    "build:modern": "node ../../scripts/build.mjs modern",
+    "build:node": "node ../../scripts/build.mjs node",
+    "build:stable": "node ../../scripts/build.mjs stable",
+    "build:copy-files": "node ../../scripts/copyFiles.mjs",
+    "build:types": "node ../../scripts/buildTypes.mjs",
+    "prebuild": "rimraf build tsconfig.build.tsbuildinfo",
+    "watch": "pnpm babel --config-file ../../babel.config.js --extensions '.js,.ts,.tsx' ./src --out-dir ./build/modern --watch --ignore '**/*.test.js','**/*.test.ts','**/*.test.tsx','**/*.spec.ts','**/*.spec.tsx','**/*.d.ts'",
+    "watch:types": "tsc -b tsconfig.build.json --watch",
+    "dev:prepare": "pnpm build:modern && pnpm build:types",
+    "dev": "pnpm watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stoked-ui/sui.git",
+    "directory": "packages/sui-common-api"
+  },
+  "dependencies": {
+    "@nestjs/common": "^10.3.0",
+    "@nestjs/mongoose": "^10.0.0",
+    "@nestjs/swagger": "^7.0.0",
+    "class-validator": "^0.14.0",
+    "lodash.clonedeep": "^4.5.0",
+    "mongoose": "^8.0.0"
+  },
+  "peerDependencies": {
+    "@stoked-ui/common": "workspace:*"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.23.9",
+    "@babel/plugin-proposal-decorators": "^7.28.6",
+    "@babel/plugin-transform-runtime": "^7.23.9",
+    "@babel/plugin-transform-typescript": "^7.26.8",
+    "@babel/preset-env": "^7.26.9",
+    "@babel/preset-typescript": "^7.26.0",
+    "@babel/runtime": "^7.24.7"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

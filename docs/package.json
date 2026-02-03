@@ -54,7 +54,7 @@
     "@stoked-ui/editor": "workspace:^",
     "@stoked-ui/github": "workspace:^",
     "@stoked-ui/file-explorer": "workspace:^",
-    "@stoked-ui/media-selector": "workspace:^",
+    "@stoked-ui/media": "workspace:^",
     "@stoked-ui/timeline": "workspace:^",
     "autoprefixer": "^10.4.18",
     "babel-plugin-optimize-clsx": "^2.6.2",

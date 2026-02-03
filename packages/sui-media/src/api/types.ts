@@ -3,7 +3,7 @@
  * Re-exports and extends types from @stoked-ui/common
  */
 
-// Re-export DTOs from common package
+// Re-export DTOs from common package (client-safe interfaces)
 export type {
   InitiateUploadDto,
   GetMoreUrlsDto,
@@ -15,26 +15,23 @@ export type {
   CompleteUploadResponseDto,
   ActiveUploadDto,
   ActiveUploadsResponseDto,
-} from '@stoked-ui/common';
-
-// Re-export models from common package
-import type { Media as MediaClass } from '@stoked-ui/common';
-import type { Document } from 'mongoose';
-
-export type { Media } from '@stoked-ui/common';
-export type MediaDocument = MediaClass & Document & {
-  createdAt: Date;
-  updatedAt: Date;
-  _id: string;
-};
-
-export type {
+  // Re-export models from common package
+  Media,
   UploadSession,
   UploadSessionDocument,
   UploadPart,
   UploadPartStatus,
   UploadSessionStatus,
 } from '@stoked-ui/common';
+
+// MediaDocument type (client-safe version without Mongoose dependency)
+import type { Media as MediaClass } from '@stoked-ui/common';
+
+export type MediaDocument = MediaClass & {
+  createdAt: Date;
+  updatedAt: Date;
+  _id: string;
+};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Client-specific types

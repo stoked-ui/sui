@@ -7,7 +7,7 @@ import ClearIcon from '@mui/icons-material/Clear';
 import SaveIcon from '@mui/icons-material/Save';
 import OpenIcon from '@mui/icons-material/OpenInBrowser';
 import SettingsIcon from '@mui/icons-material/Settings';
-import { AppFile, MediaFile } from '@stoked-ui/media-selector';
+import { AppFile, MediaFile } from '@stoked-ui/media';
 import { useEditorContext } from '../EditorProvider';
 import EditorFile, { IEditorFile } from '../EditorFile/EditorFile';
 

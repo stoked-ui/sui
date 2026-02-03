@@ -1,5 +1,5 @@
 import * as React from "react";
-import { IMediaFile } from "@stoked-ui/media-selector";
+import { IMediaFile } from "@stoked-ui/media";
 
 import Select, {SelectChangeEvent} from "@mui/material/Select";
 import FormControl from "@mui/material/FormControl";

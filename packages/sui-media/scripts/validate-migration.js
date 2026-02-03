@@ -3,7 +3,7 @@
 /**
  * Validation Script: Verify Migration Completeness
  *
- * This script validates that the migration from @stoked-ui/media-selector
+ * This script validates that the migration from @stoked-ui/media
  * to @stoked-ui/media has been completed successfully.
  *
  * Checks:
@@ -21,7 +21,7 @@ const path = require('path');
 // Configuration
 // ============================================================================
 
-const DEPRECATED_PACKAGE = '@stoked-ui/media-selector';
+const DEPRECATED_PACKAGE = '@stoked-ui/media';
 const NEW_PACKAGE = '@stoked-ui/media';
 
 const SUPPORTED_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx'];

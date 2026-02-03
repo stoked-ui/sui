@@ -19,7 +19,7 @@ module.exports = function getBabelConfig(api) {
     '@stoked-ui/common': resolveAliasPath('./packages/sui-common'),
     '@stoked-ui/file-explorer': resolveAliasPath('./packages/sui-file-explorer'),
     '@stoked-ui/timeline': resolveAliasPath('./packages/sui-timeline'),
-    '@stoked-ui/media-selector': resolveAliasPath('./packages/sui-media-selector'),
+    '@stoked-ui/media': resolveAliasPath('./packages/sui-media'),
     '@stoked-ui/github': resolveAliasPath('./packages/sui-github'),
     '@stoked-ui/editor': resolveAliasPath('./packages/sui-editor'),
     '@stoked-ui/docs-markdown': resolveAliasPath('./packages-internal/markdown'),

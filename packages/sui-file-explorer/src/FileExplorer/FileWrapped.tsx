@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useSlotProps } from "@mui/base/utils";
-import { MediaType } from '@stoked-ui/media-selector'
+import { MediaType } from '@stoked-ui/media'
 import { FileExplorerProps } from "./FileExplorer.types";
 import { File, FileProps } from "../File";
 import {

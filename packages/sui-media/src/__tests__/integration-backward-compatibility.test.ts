@@ -2,7 +2,7 @@
  * Integration Test: Backward Compatibility with media-selector
  *
  * This test verifies that the new @stoked-ui/media package maintains
- * backward compatibility with the legacy @stoked-ui/media-selector package.
+ * backward compatibility with the legacy @stoked-ui/media package.
  *
  * Tests verify:
  * - All exports from media-selector are available in media
@@ -10,7 +10,7 @@
  * - No breaking changes in the API
  */
 
-describe('Integration: Backward Compatibility - @stoked-ui/media-selector to @stoked-ui/media', () => {
+describe('Integration: Backward Compatibility - @stoked-ui/media to @stoked-ui/media', () => {
   it('should export all main classes from media package', () => {
     // Import from the new media package
     const {

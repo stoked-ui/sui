@@ -5,7 +5,7 @@ import { useTreeItem2 } from '@mui/x-tree-view/useTreeItem2';
 import { TreeItem2DragAndDropOverlay } from '@mui/x-tree-view/TreeItem2DragAndDropOverlay';
 import Box from '@mui/material/Box';
 import { FileBase } from '../models';
-import { MediaType } from '@stoked-ui/media-selector';
+import { MediaType } from '@stoked-ui/media';
 import FolderRounded from '@mui/icons-material/FolderRounded';
 import ImageIcon from '@mui/icons-material/Image';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';

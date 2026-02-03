@@ -18,6 +18,6 @@
     { "path": "../sui-file-explorer/tsconfig.build.json" },
     { "path": "../sui-editor/tsconfig.build.json" },
     { "path": "../sui-timeline/tsconfig.build.json" },
-    { "path": "../sui-media-selector/tsconfig.build.json" }
+    { "path": "../sui-media/tsconfig.build.json" }
   ]
 }

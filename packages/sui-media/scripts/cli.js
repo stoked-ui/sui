@@ -4,7 +4,7 @@
  * CLI Entry Point: @stoked-ui/media Migration Tools
  *
  * This provides a convenient command-line interface for:
- * - migrate: Automated migration from @stoked-ui/media-selector
+ * - migrate: Automated migration from @stoked-ui/media
  * - validate-migration: Validate migration completeness
  * - rollback: Revert migration changes
  *
@@ -30,7 +30,7 @@ USAGE:
   npx @stoked-ui/media <command> [options]
 
 COMMANDS:
-  migrate               Migrate from @stoked-ui/media-selector
+  migrate               Migrate from @stoked-ui/media
   validate-migration    Validate migration completeness
   rollback              Revert migration changes
   help                  Show this help message

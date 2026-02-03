@@ -2,7 +2,7 @@ import * as React from 'react';
 import useForkRef from '@mui/utils/useForkRef';
 import {EventHandlers} from '@mui/base/utils';
 import useIncId, {namedId} from '@stoked-ui/common';
-import { IMediaFile } from '@stoked-ui/media-selector';
+import { IMediaFile } from '@stoked-ui/media';
 import {
   ConvertSignaturesIntoPlugins,
   EditorAnyPluginSignature,

@@ -21,7 +21,7 @@ const { execSync } = require('child_process');
 // Configuration
 // ============================================================================
 
-const DEPRECATED_PACKAGE = '@stoked-ui/media-selector';
+const DEPRECATED_PACKAGE = '@stoked-ui/media';
 const NEW_PACKAGE = '@stoked-ui/media';
 
 // ============================================================================

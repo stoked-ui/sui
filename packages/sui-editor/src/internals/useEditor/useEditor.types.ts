@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {EventHandlers} from '@mui/base/utils';
 import {ITimelineTrack, TimelineSlotProps} from "@stoked-ui/timeline";
-import { IMediaFile } from '@stoked-ui/media-selector';
+import { IMediaFile } from '@stoked-ui/media';
 import type {EditorContextValue} from '../EditorProvider';
 import {
   ConvertSignaturesIntoPlugins,

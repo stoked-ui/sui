@@ -1,4 +1,4 @@
-import {IAppFile, IAppFileProps, IAppFileData } from "@stoked-ui/media-selector";
+import {IAppFile, IAppFileProps, IAppFileData } from "@stoked-ui/media";
 import {
   ITimelineFileTrack, ITimelineTrack, ITimelineTrackData,
 } from "../TimelineTrack/TimelineTrack.types";

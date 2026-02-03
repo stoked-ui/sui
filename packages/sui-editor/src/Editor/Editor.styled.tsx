@@ -1,6 +1,6 @@
 import * as React from "react";
 import { styled} from "@mui/material";
-import { IMediaFile } from "@stoked-ui/media-selector";
+import { IMediaFile } from "@stoked-ui/media";
 import { type IFileDetail } from "@stoked-ui/timeline";
 import Plyr, {PlyrProps} from "plyr-react";
 import Collapse from "@mui/material/Collapse";

@@ -19,8 +19,8 @@ const PROJECTS: Project[] = [
     rootPath: path.join(process.cwd(), 'packages/sui-common'),
   },
   {
-    name: 'media-selector',
-    rootPath: path.join(process.cwd(), 'packages/sui-media-selector'),
+    name: 'media',
+    rootPath: path.join(process.cwd(), 'packages/sui-media'),
   },
   {
     name: 'file-explorer',

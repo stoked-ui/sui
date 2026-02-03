@@ -1,5 +1,5 @@
 import * as React from "react";
-import { IMediaFile } from '@stoked-ui/media-selector';
+import { IMediaFile } from '@stoked-ui/media';
 import {alpha, darken, lighten} from "@mui/material/styles";
 import { compositeColors } from "@stoked-ui/common";
 import { type ITimelineAction, type ITimelineFileAction, ITimelineActionHandlers } from '../TimelineAction/TimelineAction.types';
