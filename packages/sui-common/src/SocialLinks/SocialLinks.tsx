@@ -1,6 +1,8 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import type { SxProps, Theme } from '@mui/material/styles';
+import SocialLinkField from './SocialLinkField';
+import { PLATFORM_REGISTRY } from './platformRegistry';
 import type { SocialPlatformKey, SocialLinkValues } from './types';
 
 /**
@@ -34,12 +36,60 @@ export interface SocialLinksProps {
 
 /**
  * SocialLinks component - displays social media platform input fields.
- * This is a Phase 1 shell that renders a placeholder container.
+ * Supports both controlled (value + onChange) and uncontrolled (defaultValue) patterns.
  */
 function SocialLinks(props: SocialLinksProps) {
-  const { sx } = props;
+  const { platforms, value, defaultValue, onChange, disabled, readOnly, sx } = props;
+
+  // Track whether component is controlled (determined on first render)
+  const isControlled = React.useRef(value !== undefined).current;
+
+  // Internal state for uncontrolled mode
+  const [internalValues, setInternalValues] = React.useState<SocialLinkValues>(
+    defaultValue ?? {}
+  );
+
+  // Source of truth depends on mode
+  const currentValues = isControlled ? (value ?? {}) : internalValues;
+
+  // Determine active platforms
+  const activePlatforms = React.useMemo(() => {
+    if (platforms && platforms.length > 0) {
+      return platforms
+        .map((key) => PLATFORM_REGISTRY.find((p) => p.key === key))
+        .filter((p): p is typeof PLATFORM_REGISTRY[number] => p !== undefined);
+    }
+    return PLATFORM_REGISTRY;
+  }, [platforms]);
+
+  const handleFieldChange = React.useCallback(
+    (key: SocialPlatformKey, fieldValue: string) => {
+      const next = { ...currentValues, [key]: fieldValue };
+      // Remove key if value is empty string (keep object clean)
+      if (fieldValue === '') {
+        delete next[key];
+      }
+      if (!isControlled) {
+        setInternalValues(next);
+      }
+      onChange?.(next);
+    },
+    [currentValues, isControlled, onChange]
+  );
+
   return (
-    <Box data-testid="social-links-root" sx={sx} />
+    <Box data-testid="social-links-root" sx={sx}>
+      {activePlatforms.map((platform) => (
+        <SocialLinkField
+          key={platform.key}
+          platform={platform}
+          value={currentValues[platform.key] ?? ''}
+          onChange={handleFieldChange}
+          disabled={disabled}
+          readOnly={readOnly}
+        />
+      ))}
+    </Box>
   );
 }
 
