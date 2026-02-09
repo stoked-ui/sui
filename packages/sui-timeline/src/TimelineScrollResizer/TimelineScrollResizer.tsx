@@ -1,7 +1,4 @@
-import * as React from 'react';
-import { alpha, styled } from '@mui/system';
 import { TimelineScrollResizerProps } from './TimelineScrollResizer.types';
-import { useTimeline } from '../TimelineProvider/TimelineProvider';
 /*
 
 const ScrollbarContainer = styled('div')(({ theme }) => ({

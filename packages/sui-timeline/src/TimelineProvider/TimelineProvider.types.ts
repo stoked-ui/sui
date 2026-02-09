@@ -316,7 +316,7 @@ export const onAddFiles = <
 >(state: TimelineState<EngineType, State, FileType, TrackType, ActionType>, newTracks: TrackType[]) => {
   const { file } = state;
 
-  state.file.tracks = file?.tracks.concat(newTracks);
+  state.file!.tracks = (file?.tracks ?? []).concat(newTracks);
   return {...state};
 }
 export type SelectAction<ActionType extends ITimelineAction = ITimelineAction> = {
@@ -455,7 +455,7 @@ function TimelineReducerBase<
           console.info(`${track.id} ${track.name} muted: ${track.muted} locked: ${track.locked}`);
         }
         track.id = track.id || namedId('track');
-        track.actions = track.actions.map((action) => {
+        track.actions = track.actions.map((action: ITimelineAction) => {
           action.id = action.id || namedId('action');
           return action;
         });
@@ -499,8 +499,8 @@ function TimelineReducerBase<
         state.engine.state = EngineState.READY;
       }
       const detailData = getDetail(state)
-      state.selectedDetail = detailData.detail;
-      state.selectedType = detailData.type;
+      state.selectedDetail = detailData?.detail ?? null;
+      state.selectedType = detailData?.type ?? null;
 
       return TimelineReducerBase({...state}, {
         type: 'SET_TRACKS',
@@ -512,10 +512,10 @@ function TimelineReducerBase<
 
       if (isObject(value)) {
         const keys = Object.keys(value);
-        const result = keys.reduce((obj, nestedKey) => {
+        const result = keys.reduce((obj: Record<string, any>, nestedKey) => {
           obj[`${key ? `${key}.` : ''}${nestedKey}`] = value[nestedKey];
           return obj;
-        }, {});
+        }, {} as Record<string, any>);
 
         Object.entries(result).forEach(([nestedKey, nestedValue]) => {
           if (nestedKey.indexOf('scale') > -1) {
@@ -552,7 +552,7 @@ function TimelineReducerBase<
       let file = null;
       if (state.file) {
         file = state.file;
-        file.tracks = updatedTracks;
+        file.tracks = updatedTracks ?? [];
       }
       state.file = file;
       return state;

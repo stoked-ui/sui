@@ -29,7 +29,7 @@ export const  setHorizontalScroll = (left: number, state: TimelineState) =>  {
 /** handleCursor */
 export const setCursor = (param: { left?: number; time?: number; updateTime?: boolean, move?: boolean, focus?: boolean }, context: TimelineContextType) => {
   let { left, time } = param;
-  const { updateTime = true, focus = false } = param;
+  const { updateTime = true } = param;
   const { state, dispatch } = context;
   const { settings: {startLeft, scale, scaleWidth}, components, engine } = state;
   const scrollSync = components.scrollSync as React.PureComponent & { state: Readonly<any>};
@@ -39,7 +39,7 @@ export const setCursor = (param: { left?: number; time?: number; updateTime?: bo
   }
 
   if (typeof left === 'undefined') {
-    left = parserTimeToPixel(time, { startLeft, scale, scaleWidth });
+    left = parserTimeToPixel(time!, { startLeft, scale, scaleWidth });
   }
 
   if (typeof time === 'undefined') {
@@ -130,7 +130,6 @@ export const fitScaleData = (context: TimelineContextType, detailMode: boolean, 
   const maxScaleCount = getScaleCountByRows(tracks || [], { scale });
 
   const scaleData = {
-    scaleSplitCount,
     maxScaleCount,
     ...scaleRes,
   }
@@ -147,7 +146,7 @@ export type TrackHeightScaleData = {
 }
 
 export const getHeightScaleData = (state: TimelineState): TrackHeightScaleData => {
-  const { file, settings: { trackHeight, shrinkScalar, growScalar, growContainerScalar } } = state;
+  const { file, settings: { trackHeight, shrinkScalar, growScalar } } = state;
   const shrinkScale = (1 - (shrinkScalar / ((file?.tracks?.length ?? 2) - 1))) * trackHeight
   const growScale =  (growScalar * trackHeight) + trackHeight;
   const growContainerScale =  (growScalar * trackHeight) + trackHeight;

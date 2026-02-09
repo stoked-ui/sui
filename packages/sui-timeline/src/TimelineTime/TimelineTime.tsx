@@ -79,7 +79,7 @@ const TimeUnit = styled('div')<{ disabled: boolean }>(({ theme, disabled }) => (
 /** Animation timeline component */
 function TimelineTime(props: TimelineTimeProps) {
   const context = useTimeline();
-  const { state, dispatch } = context;
+  const { state } = context;
   const { flags, engine, settings } = state;
   const {
     startLeft,
@@ -141,7 +141,7 @@ function TimelineTime(props: TimelineTimeProps) {
   const estColumnWidth = getColumnWidth({ index: 1 });
   const [isDragging, setIsDragging] = React.useState(false);
 
-  const setTimeToMouse = (e) => {
+  const setTimeToMouse = (e: React.MouseEvent<HTMLElement>) => {
     if (flags.hideCursor || engine.isPlaying) {
       return;
     }
@@ -163,7 +163,7 @@ function TimelineTime(props: TimelineTimeProps) {
     setCursor({ time }, context);
   };
 
-  const handleMouseMove = (e) => {
+  const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
     if (engine.isPlaying) {
       return;
     }
