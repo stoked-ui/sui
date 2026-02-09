@@ -1,8 +1,8 @@
 import * as React from 'react';
-import Box from '@mui/material/Box';
 import type { SxProps, Theme } from '@mui/material/styles';
 import SocialLinkField from './SocialLinkField';
 import { PLATFORM_REGISTRY } from './platformRegistry';
+import { SocialLinksRoot } from './SocialLinks.styles';
 import type { SocialPlatformKey, SocialLinkValues } from './types';
 
 /**
@@ -65,7 +65,6 @@ function SocialLinks(props: SocialLinksProps) {
   const handleFieldChange = React.useCallback(
     (key: SocialPlatformKey, fieldValue: string) => {
       const next = { ...currentValues, [key]: fieldValue };
-      // Remove key if value is empty string (keep object clean)
       if (fieldValue === '') {
         delete next[key];
       }
@@ -78,7 +77,7 @@ function SocialLinks(props: SocialLinksProps) {
   );
 
   return (
-    <Box data-testid="social-links-root" sx={sx}>
+    <SocialLinksRoot data-testid="social-links-root" sx={sx}>
       {activePlatforms.map((platform) => (
         <SocialLinkField
           key={platform.key}
@@ -89,7 +88,7 @@ function SocialLinks(props: SocialLinksProps) {
           readOnly={readOnly}
         />
       ))}
-    </Box>
+    </SocialLinksRoot>
   );
 }
 

@@ -1,8 +1,6 @@
 import * as React from 'react';
-import Box from '@mui/material/Box';
-import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
 import InputAdornment from '@mui/material/InputAdornment';
+import { SocialLinkFieldRow, PlatformIcon, PlatformLabel, PlatformInput } from './SocialLinks.styles';
 import type { SocialPlatform, SocialPlatformKey } from './types';
 
 export interface SocialLinkFieldProps {
@@ -18,15 +16,14 @@ function SocialLinkField(props: SocialLinkFieldProps) {
   const Icon = platform.icon;
 
   return (
-    <Box
-      data-testid={`social-link-field-${platform.key}`}
-      sx={{ display: 'flex', alignItems: 'center', gap: 2 }}
-    >
-      <Icon fontSize="small" />
-      <Typography variant="body2" sx={{ width: 120, flexShrink: 0 }}>
+    <SocialLinkFieldRow data-testid={`social-link-field-${platform.key}`}>
+      <PlatformIcon>
+        <Icon fontSize="small" />
+      </PlatformIcon>
+      <PlatformLabel variant="body2">
         {platform.label}
-      </Typography>
-      <TextField
+      </PlatformLabel>
+      <PlatformInput
         variant="outlined"
         size="small"
         fullWidth
@@ -47,7 +44,7 @@ function SocialLinkField(props: SocialLinkFieldProps) {
             : undefined
         }
       />
-    </Box>
+    </SocialLinkFieldRow>
   );
 }
 
