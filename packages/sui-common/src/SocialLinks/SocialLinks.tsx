@@ -54,7 +54,7 @@ function SocialLinks(props: SocialLinksProps) {
 
   // Determine active platforms
   const activePlatforms = React.useMemo(() => {
-    if (platforms && platforms.length > 0) {
+    if (platforms !== undefined) {
       return platforms
         .map((key) => PLATFORM_REGISTRY.find((p) => p.key === key))
         .filter((p): p is typeof PLATFORM_REGISTRY[number] => p !== undefined);

@@ -16,3 +16,6 @@ export { GrokLoader };
 // Client-safe interfaces (TypeScript types only, no NestJS dependencies)
 export * from './interfaces';
 
+// Social Links component
+export * from './SocialLinks';
+

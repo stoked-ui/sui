@@ -5,9 +5,9 @@
     "lib": ["ES2015", "DOM", "DOM.Iterable"],
     "types": [
       "chai-dom",
-      "mocha",
       "node",
       "wicg-file-system-access"],
+    "skipLibCheck": true,
     "module": "ESNext",
     "moduleResolution": "bundler",
     "noImplicitAny": false,
