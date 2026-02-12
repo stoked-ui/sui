@@ -11,15 +11,14 @@ import { TimelineTrackAreaProps } from './TimelineTrackArea.types';
 import { useDragLine } from './useDragLine';
 import { RemoveTrackCommand } from '../TimelineFile/Commands/RemoveTrackCommand';
 import { useTimeline } from '../TimelineProvider';
-import { EngineState, PlaybackMode } from '../Engine';
+import { EngineState } from '../Engine';
 import { ITimelineAction, ITimelineActionHandlers } from '../TimelineAction';
 import { ITimelineTrack } from '../TimelineTrack';
-import ZoomControls from './ZoomControls';
 
 /** edit area ref data */
 export interface TimelineTrackAreaState {
-  domRef: React.MutableRefObject<HTMLDivElement>;
-  tracksRef: React.MutableRefObject<HTMLDivElement>;
+  domRef: React.RefObject<HTMLDivElement>;
+  tracksRef: React.RefObject<HTMLDivElement>;
 }
 
 const TimelineTrackAreaRoot = styled('div')(() => ({
@@ -93,7 +92,7 @@ const FloatingTracksRoot = styled('div', {
   paddingTop: '37px',
 }));
 
-function FloatingTrackLabels({ tracks }) {
+function FloatingTrackLabels({ tracks }: { tracks: ITimelineTrack[] }) {
   const { state, dispatch } = useTimeline();
   const { settings, flags } = state;
   const { trackHoverId, selectedTrack, editorMode, trackHeight, selectedTrackIndex } = settings;
@@ -135,8 +134,8 @@ function FloatingTrackLabels({ tracks }) {
           }}
         >
           <TrackLabel
-            color={track.controller?.color}
-            hover={trackHoverId === track.id ? true : undefined}
+            color={track.controller?.color ?? ''}
+            hover={trackHoverId === track.id}
             sx={{
               display: 'flex',
               alignItems: 'center',
@@ -159,7 +158,7 @@ function FloatingTrackLabels({ tracks }) {
 const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrackAreaProps>(
   (props, ref) => {
     const { state, dispatch } = useTimeline();
-    const { file, getState, settings, flags, engine } = state;
+    const { file, getState, settings, flags } = state;
     const {
       scaleCount,
       scaleWidth,
@@ -170,7 +169,6 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
       cursorTime,
       selectedTrackIndex,
       getTrackHeight,
-      setScaleWidth,
     } = settings;
 
     const tracks = file?.tracks || [];
@@ -199,9 +197,9 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
       defaultGetAssistPosition,
       defaultGetMovePosition,
     } = useDragLine();
-    const editAreaRef = React.useRef<HTMLDivElement>();
-    const tracksRef = React.useRef<Grid>();
-    const tracksElementRef = React.useRef<HTMLDivElement>();
+    const editAreaRef = React.useRef<HTMLDivElement>(null);
+    const tracksRef = React.useRef<Grid>(null);
+    const tracksElementRef = React.useRef<HTMLDivElement>(null);
     const heightRef = React.useRef(-1);
 
     // ref 数据
@@ -272,8 +270,10 @@ const TimelineTrackArea = React.forwardRef<TimelineTrackAreaState, TimelineTrack
             switch (event.key) {
               case 'Backspace':
               case 'Delete': {
-                const command = new RemoveTrackCommand(file, gridTrack.id);
-                dispatch({ type: 'EXECUTE_COMMAND', payload: command });
+                if (file) {
+                  const command = new RemoveTrackCommand(file, gridTrack.id);
+                  dispatch({ type: 'EXECUTE_COMMAND', payload: command });
+                }
 
                 event.preventDefault();
                 break;
@@ -423,7 +423,7 @@ TimelineTrackArea.propTypes = {
   /**
    * Set scroll left
    */
-  deltaScrollLeft: PropTypes.func,
+  deltaScrollLeft: PropTypes.func as any,
   /**
    * @description Get the action id list to prompt the auxiliary line. Calculate it when
    *   move/resize start. By default, get all the action ids except the current move action.
@@ -477,7 +477,7 @@ TimelineTrackArea.propTypes = {
   /**
    * Scroll callback, used for synchronous scrolling
    */
-  onScroll: PropTypes.func,
+  onScroll: PropTypes.func as any,
   /**
    * Set the number of scales
    */

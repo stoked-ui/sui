@@ -71,7 +71,9 @@ const StyledFileElementContent = styled(FileElementContent, {
     ];
   },
   shouldForwardProp: (prop) => shouldForwardProp(prop) && prop !== 'indentationAtItemLevel',
-})<{ ownerState: FileElementOwnerState }>(({ theme }) => ({
+})<{ ownerState: FileElementOwnerState }>(({ theme: _theme }) => {
+  const theme = _theme as typeof _theme & { vars?: any };
+  return ({
   padding: theme.spacing(0.5, 1),
   borderRadius: theme.shape.borderRadius,
   width: '100%',
@@ -150,7 +152,7 @@ const StyledFileElementContent = styled(FileElementContent, {
       },
     },
   ],
-}));
+})});
 
 const FileElementGroup = styled(Collapse, {
   name: 'MuiFileElement',

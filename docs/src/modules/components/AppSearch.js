@@ -101,27 +101,27 @@ function NewStartScreen() {
   const startScreenOptions = [
     {
       category: {
-        name: 'Media Selector',
+        name: 'Media',
       },
       items: [
         {
           name: 'Overview',
-          href: '/media-selector/docs/overview/',
+          href: '/media/docs/overview/',
           icon: <DownloadRoundedIcon className="DocSearch-NewStartScreenTitleIcon" />,
         },
         {
-          name: 'Components',
-          href: '/media-selector/getting-started/supported-components/',
+          name: 'MediaViewer',
+          href: '/media/docs/media-viewer/',
           icon: <SmartButtonRoundedIcon className="DocSearch-NewStartScreenTitleIcon" />,
         },
         {
-          name: 'Example projects',
-          href: '/media-selector/getting-started/example-projects/',
+          name: 'MediaCard',
+          href: '/media/docs/media-card/',
           icon: <LibraryBooksRoundedIcon className="DocSearch-NewStartScreenTitleIcon" />,
         },
         {
           name: 'Roadmap',
-          href: '/media-selector/docs/roadmap/',
+          href: '/media/docs/roadmap/',
           icon: <CollectionsBookmarkRoundedIcon className="DocSearch-NewStartScreenTitleIcon" />,
         },
       ],
@@ -262,7 +262,7 @@ function NewStartScreen() {
 }
 
 const productNameProductId = {
-  'media-selector': 'Media Selector',
+  'media': 'Media',
   'file-explorer': 'File Explorer',
   'timeline': 'Timeline',
   x: 'SUI X',

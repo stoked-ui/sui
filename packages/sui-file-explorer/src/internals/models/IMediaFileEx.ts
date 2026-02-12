@@ -1,7 +1,4 @@
-/*
- import { IMediaFile } from "@stoked-ui/media";
+// Re-export FileBase as IMediaFileEx for backward compatibility
+import { FileBase } from '../../models';
 
-export interface FileBase extends IMediaFile {
-  visibleIndex?: number;
-}
-*/
+export type IMediaFileEx = FileBase;

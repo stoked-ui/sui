@@ -4,12 +4,20 @@ import VolumeUp from "@mui/icons-material/VolumeUp";
 import VolumeOff from "@mui/icons-material/VolumeOff";
 import LockIcon from "@mui/icons-material/Lock";
 import LockOpenIcon from "@mui/icons-material/LockOpen";
-import AddIcon from "@mui/icons-material/Add";
-import Fab from "@mui/material/Fab";
 import ToggleButtonGroupEx from "../components/ToggleButtonGroupEx";
 import { useTimeline } from "../TimelineProvider/TimelineProvider";
+import { ITimelineTrack } from "../TimelineTrack";
+import { TimelineStateAction } from "../TimelineProvider/TimelineProvider.types";
 
-export function ToggleVolume({ track, file, toggleClick, dispatch, children }) {
+interface ToggleVolumeProps {
+  track: ITimelineTrack;
+  file: { tracks: ITimelineTrack[] };
+  toggleClick: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
+  dispatch: React.Dispatch<TimelineStateAction>;
+  children: React.ReactNode;
+}
+
+export function ToggleVolume({ track, file, toggleClick, dispatch, children }: ToggleVolumeProps) {
 
   return  <ToggleButton
     id={`${track.id}-mute`}
@@ -34,7 +42,16 @@ export function ToggleVolume({ track, file, toggleClick, dispatch, children }) {
   </ToggleButton>
 }
 
-export function ToggleLock({ track, file, toggleClick, dispatch, hide, children }) {
+interface ToggleLockProps {
+  track: ITimelineTrack;
+  file: { tracks: ITimelineTrack[] };
+  toggleClick: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
+  dispatch: React.Dispatch<TimelineStateAction>;
+  hide?: boolean;
+  children: React.ReactNode;
+}
+
+export function ToggleLock({ track, file, toggleClick, dispatch, hide, children }: ToggleLockProps) {
   if (hide) {
     return undefined;
   }

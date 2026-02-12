@@ -4,7 +4,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { TrackDetail } from "@stoked-ui/timeline";
 import ControlledText from "./ControlledText";
 import {
-  CtrlCell, CtrlRow, DetailActions, DetailForm, formatTitle, FormWrap, useEditMode,
+  CtrlCell, CtrlRow, DetailActions, formatTitle, FormWrap,
 } from './Detail'
 import {
   DetailViewProps,
@@ -36,7 +36,6 @@ export function DetailTrack(props: DetailViewProps) {
     handleSubmit,
     formState: {
       errors,
-      isSubmitting,
       isDirty
     }, reset,
     } = useForm<IEditorTrackDetail>({

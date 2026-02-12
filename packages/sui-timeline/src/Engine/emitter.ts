@@ -1,4 +1,4 @@
-import {Events, type EventTypes} from './events';
+import {Events} from './events';
 
 /**
  * eventDispatcher

@@ -1,26 +1,23 @@
 import * as React from "react";
-import { lazy } from "react"
-import ReactJson from "react-json-view";
 import Typography from "@mui/material/Typography";
 import {
   CtrlCell,
   CtrlRow,
-  DetailActions,
 } from './Detail'
 import {DetailViewProps} from "./Detail.types";
 import {useEditorContext} from "../EditorProvider";
 
 
 export function DetailSettings(props: DetailViewProps) {
-  const { state, dispatch } = useEditorContext();
+  const { state } = useEditorContext();
   console.info('settings', state.settings);
   const settingsDoc = JSON.parse(JSON.stringify(state.settings));
-  const flagsDoc = JSON.parse(JSON.stringify(state.flags));
+  // const flagsDoc = JSON.parse(JSON.stringify(state.flags));
 
-  const [docs, setDocs] = React.useState<{settingsDoc: object, flagsDoc: object, componentDoc: object}>();
-  React.useEffect(() => {
-    setDocs({ settingsDoc: state.settings, flagsDoc: state.flags, componentDoc: state.components})
-  }, []);
+  // const [docs, setDocs] = React.useState<{settingsDoc: object, flagsDoc: object, componentDoc: object}>();
+  // React.useEffect(() => {
+  //   setDocs({ settingsDoc: state.settings, flagsDoc: state.flags, componentDoc: state.components})
+  // }, []);
 
   return (
    <div>

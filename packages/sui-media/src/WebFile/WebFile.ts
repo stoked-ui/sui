@@ -103,7 +103,7 @@ export default abstract class WebFile implements IWebFile {
   }
 
   get fullName(): string {
-    return `${this.name}${MimeRegistry.types[this._type].ext}`;
+    return `${this.name}${(MimeRegistry.types as any)[this._type].ext}`;
   }
 
   get version(): number {
@@ -144,7 +144,7 @@ export default abstract class WebFile implements IWebFile {
         description: this.description,
         author: this.author,
       },
-      mime: MimeRegistry.types[this._type],
+      mime: (MimeRegistry.types as any)[this._type],
       metadata: this.data
     };
   }

@@ -6,7 +6,7 @@ import IconButton from "@mui/material/IconButton";
 import PropTypes from "prop-types";
 
 export default function Volume({ disabled, sx, sliderSx, iconSx }: { disabled?: boolean, sx?: SxProps, sliderSx?: SxProps, iconSx?: SxProps }) {
-  const { state: { engine, settings } } = useEditorContext();
+  const { state: { settings } } = useEditorContext();
   const [value, setValue] = React.useState<number>(100);
   const [mute, setMute] = React.useState<boolean>(false);
 
@@ -25,7 +25,7 @@ export default function Volume({ disabled, sx, sliderSx, iconSx }: { disabled?: 
 
   const controlDisabled = settings.disabled || disabled;
 
-  const base = (theme) => {
+  const base = (theme: any) => {
     return {
       mr: '4px!important',
       fill: controlDisabled ? theme.palette.action.disabled : theme.palette.text.primary,

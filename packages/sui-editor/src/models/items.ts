@@ -1,4 +1,4 @@
-import { MediaFile, MediaType } from "@stoked-ui/media";
+import { MediaType } from "@stoked-ui/media";
 
 export type FileId = string;
 

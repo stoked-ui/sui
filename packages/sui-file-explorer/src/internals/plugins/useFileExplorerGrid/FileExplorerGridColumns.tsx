@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {SystemStyleObject, Theme, useTheme} from "@mui/system";
+import {SystemStyleObject, Theme} from "@mui/system";
 import {useFileExplorerContext} from "../../FileExplorerProvider/useFileExplorerContext";
 import type {
   UseFileExplorerFilesSignature
@@ -10,9 +10,8 @@ import type {
 import type {GridColumns, UseFileExplorerGridSignature} from "./useFileExplorerGrid.types";
 import {UseFileExplorerDndSignature} from '../useFileExplorerDnd/useFileExplorerDnd.types';
 import {FileLabel} from "../../../File/FileLabel";
-import {SxProps, styled} from "@mui/material/styles";
+import {styled} from "@mui/material/styles";
 import {shouldForwardProp} from "@mui/system/createStyled";
-import {UseFileStatus} from "../../models/UseFileStatus";
 
 function FileExplorerGridCell({
                                 sx, last, id, columnName, content, grow, selected
@@ -20,7 +19,7 @@ function FileExplorerGridCell({
   last?: boolean, sx: SystemStyleObject<Theme>, id: string, columnName: string, content: any,
   grow?: boolean, selected?: boolean
 }) {
-  const theme = useTheme();
+  // const theme = useTheme();
   return (
     <FileLabel
       className={`cell column-${columnName}`}

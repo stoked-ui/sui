@@ -11,6 +11,8 @@
   "homepage": "https://stoked-ui.com",
   "sideEffects": false,
   "publishConfig": {
+
+    
     "access": "public",
     "directory": "build"
   },
@@ -32,7 +34,7 @@
     "prebuild": "rimraf build tsconfig.build.tsbuildinfo",
     "watch": "pnpm babel --config-file ../../babel.config.js --extensions '.js,.ts,.tsx' ./src --out-dir ./build/modern --watch --ignore '**/*.test.js','**/*.test.ts','**/*.test.tsx','**/*.spec.ts','**/*.spec.tsx','**/*.d.ts'",
     "watch:types": "tsc -b tsconfig.build.json --watch",
-    "dev:prepare": "pnpm build:modern && pnpm build:types",
+    "dev:prepare": "pnpm build:modern && pnpm build:types && node -e \"const p=require('./package.json');const fs=require('fs');const bp={name:p.name,version:p.version,main:'./modern/index.js',module:'./modern/index.js',types:'./index.d.ts',dependencies:p.dependencies,peerDependencies:p.peerDependencies};fs.writeFileSync('./build/package.json',JSON.stringify(bp,null,2))\"",
     "dev": "pnpm watch"
   },
   "repository": {

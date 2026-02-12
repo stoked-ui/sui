@@ -1,5 +1,5 @@
 import {
-  Controller, ControllerParams, GetItemParams, IController, IEngine, ITimelineAction, ITimelineTrack
+  Controller, ControllerParams, IController, ITimelineAction,
 } from "@stoked-ui/timeline";
 import { IMediaFile } from "@stoked-ui/media";
 import {type IEditorEngine} from "../EditorEngine";
@@ -23,13 +23,13 @@ class ImageControl extends Controller<HTMLImageElement> implements IController {
   }
 
   async preload(params: EditorPreloadParams): Promise<ITimelineAction> {
-    const { action, track, editorId } = params;
+    const { action, track: _track, editorId } = params;
     this.editorId = editorId;
     return action;
   }
 
   enter(params: EditorControllerParams) {
-    const {action, engine, track} = params;
+    const {action: _action, engine, track} = params;
     const item: HTMLImageElement = this.getItem(params as EditorGetItemParams);
     ImageControl.setDisplay(track, item);
     ImageControl.attachItemToViewer(item, engine);
@@ -37,7 +37,7 @@ class ImageControl extends Controller<HTMLImageElement> implements IController {
   }
 
   getItem(params: EditorGetItemParams) {
-    const { action, track } = params;
+    const { action: _action, track } = params;
     let item = this.cacheMap[track.id];
     if (item) {
       return item;
@@ -46,7 +46,7 @@ class ImageControl extends Controller<HTMLImageElement> implements IController {
     if (!file) {
       throw new Error('no file found for image controlled item');
     }
-    item = ImageControl.createNewImage(action, file);
+    item = ImageControl.createNewImage(_action, file);
     this.cacheMap[track.id] = item;
     return item;
   }
@@ -70,7 +70,7 @@ class ImageControl extends Controller<HTMLImageElement> implements IController {
       const keys = Object.keys(action.style);
       for (let i = 0; i <  keys.length; i += 1) {
         const prop = keys[i];
-        item.style[prop] = action.style[prop];
+        (item.style as any)[prop] = (action.style as any)[prop];
       }
     }
   }
@@ -88,7 +88,7 @@ class ImageControl extends Controller<HTMLImageElement> implements IController {
   }
 
   update(params: EditorControllerParams) {
-    const { action, engine, track} = params;
+    const { action: _action, engine, track} = params;
 
     const item = this.cacheMap[track.id];
     if (!item) {
@@ -102,7 +102,7 @@ class ImageControl extends Controller<HTMLImageElement> implements IController {
   }
 
   leave(params: ControllerParams) {
-    const { action, time, engine, track } = params;
+    const { action, time, track } = params;
     const item = this.cacheMap[track.id];
     if (!item) {
       return;

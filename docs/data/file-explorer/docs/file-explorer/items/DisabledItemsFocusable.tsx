@@ -67,8 +67,8 @@ export default function DisabledItemsFocusable() {
         label="Allow focusing disabled items"
       />
       <Box sx={{ minHeight: 352, minWidth: 250 }}>
-        <FileExplorer<MuiXProduct>
-          items={MUI_X_PRODUCTS as MuiXProduct[]}
+        <FileExplorer
+          items={MUI_X_PRODUCTS as any[]}
           isItemDisabled={isItemDisabled}
           disabledItemsFocusable={disabledItemsFocusable}
         />

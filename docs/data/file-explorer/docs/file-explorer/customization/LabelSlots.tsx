@@ -75,14 +75,15 @@ const TreeItemContext = React.createContext<{
 const CustomTreeItem = React.forwardRef(
   (props: FileProps, ref: React.Ref<HTMLLIElement>) => {
     const { interactions } = useFileUtils({
-      itemId: props.itemId,
+      id: props.id!,
       children: props.children,
+      status: null,
     });
 
     const { onLabelValueChange } = React.useContext(TreeItemContext);
 
     const handleLabelValueChange = (newLabel: string) => {
-      onLabelValueChange(props.itemId, newLabel);
+      onLabelValueChange(props.id!, newLabel);
     };
 
     const handleContentClick: UseFileContentSlotOwnProps['onClick'] = (
@@ -127,7 +128,7 @@ export default function LabelSlots() {
         setProducts((prev) => {
           const walkTree = (item: FileBase): FileBase => {
             if (item.id === itemId) {
-              return { ...item, label };
+              return { ...item, name: label };
             }
             if (item.children) {
               return { ...item, children: item.children.map(walkTree) };

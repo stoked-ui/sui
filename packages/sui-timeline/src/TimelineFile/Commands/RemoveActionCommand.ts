@@ -40,7 +40,7 @@ export class RemoveActionCommand implements Command {
   // Undo the command: Add the media file back to the list
   undo(): void {
     if (this.removedAction) {
-      this.timelineFile.tracks[this.trackIndex].actions.splice(this.removedActionIndex, 0, this.removedAction)
+      this.timelineFile.tracks[this.trackIndex!].actions.splice(this.removedActionIndex!, 0, this.removedAction)
       console.info(`Restored action: ${this.removedAction.name}`);
     } else {
       console.warn('No action to restore.');

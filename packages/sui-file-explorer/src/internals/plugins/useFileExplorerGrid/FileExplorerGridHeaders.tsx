@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {useFileExplorerContext} from "../../FileExplorerProvider/useFileExplorerContext";
-import {GridColumns, UseFileExplorerGridSignature} from "./useFileExplorerGrid.types";
+import {UseFileExplorerGridSignature} from "./useFileExplorerGrid.types";
 import type {
   UseFileExplorerFilesSignature
 } from "../useFileExplorerFiles/useFileExplorerFiles.types";

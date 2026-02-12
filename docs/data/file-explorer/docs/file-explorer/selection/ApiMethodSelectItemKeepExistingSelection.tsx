@@ -2,7 +2,6 @@ import * as React from 'react';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
-import { FileBase } from '@stoked-ui/file-explorer/models';
 import { FileExplorer } from '@stoked-ui/file-explorer/FileExplorer';
 import { useFileExplorerApiRef } from '@stoked-ui/file-explorer/hooks/useFileExplorerApiRef';
 import { NestedFiles } from 'docs/src/components/fileExplorer/data';
@@ -12,7 +11,7 @@ export default function ApiMethodSelectItemKeepExistingSelection() {
   const handleSelectGridPro = (event: React.SyntheticEvent) => {
     apiRef.current?.selectItem({
       event,
-      itemId: 'grid-pro',
+      id: 'grid-pro',
       keepExistingSelection: true,
     });
   };

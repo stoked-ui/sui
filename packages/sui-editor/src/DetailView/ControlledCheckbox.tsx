@@ -22,8 +22,8 @@ export default function ControlledCheckbox({ control, name, label, disabled, cla
 
   const {
     field,
-    fieldState: { invalid, isTouched, isDirty, error },
-    formState: { touchedFields, dirtyFields }
+    fieldState: { error },
+    formState: { }
   } = useController({
     name,
     control,

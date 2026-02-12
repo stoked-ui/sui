@@ -5,10 +5,8 @@ import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
-import Chip from '@mui/material/Chip';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
-import YouTubeIcon from '@mui/icons-material/YouTube';
 import RssFeedIcon from '@mui/icons-material/RssFeed';
 import SvgSuiLogotype from 'docs/src/icons/SvgSuiLogotype';
 import EmailSubscribe from 'docs/src/components/footer/EmailSubscribe';
@@ -86,8 +84,8 @@ export default function AppFooter(props: AppFooterProps) {
             <Link prefetch={false} href={PRODUCTS.index['editor'].url('product')}>
               Editor
             </Link>
-            <Link prefetch={false} href={PRODUCTS.index['media-selector'].url('product')}>
-              Media Selector
+            <Link prefetch={false} href={PRODUCTS.index['media'].url('product')}>
+              Media
             </Link>
             <Link prefetch={false} href={PRODUCTS.index['stoked-consulting'].url('product')}>
               Consulting

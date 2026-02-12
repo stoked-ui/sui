@@ -6,7 +6,8 @@ import {
   ITimelineAction,
   IController,
   ITimelineTrack,
-  GetItemParams
+  GetItemParams,
+  BackgroundImageStyle
 } from "@stoked-ui/timeline";
 
 
@@ -116,7 +117,7 @@ class AudioControl extends Controller<Howl> implements IController {
   }
 
   stop(params: ControllerParams) {
-    const { action, time, engine, track } = params;
+    const { action, time: _time, engine, track } = params;
     // this.log({ action, time }, 'audio stop');
     if (this.cacheMap[track.id]) {
       const item = this.cacheMap[track.id];
@@ -141,7 +142,7 @@ class AudioControl extends Controller<Howl> implements IController {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  getActionStyle(action: ITimelineAction, track: ITimelineTrack, scaleWidth: number, scale: number, trackHeight: number) {
+  getActionStyle(action: ITimelineAction, track: ITimelineTrack, scaleWidth: number, scale: number, trackHeight: number): null | BackgroundImageStyle {
     const adjustedScale = scaleWidth / scale;
     if (!action.backgroundImage) {
       return null;

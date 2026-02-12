@@ -3,7 +3,6 @@ import Box from '@mui/material/Box';
 import { styled, alpha } from '@mui/material/styles';
 import { FileExplorer } from '@stoked-ui/file-explorer/FileExplorer';
 import { FileElement, fileElementClasses } from '@stoked-ui/file-explorer/FileElement';
-import { FileBase } from '@stoked-ui/file-explorer/models';
 import { NestedFiles } from 'docs/src/components/fileExplorer/data';
 
 const CustomTreeItem = styled(FileElement)(({ theme }) => ({
@@ -42,7 +41,7 @@ export default function CustomStyling() {
     <Box sx={{ minHeight: 352, minWidth: 250 }}>
       <FileExplorer
         defaultExpandedItems={['Notes']}
-        slots={{ item: CustomTreeItem }}
+        slots={{ item: CustomTreeItem as any }}
         items={NestedFiles}
       />
     </Box>

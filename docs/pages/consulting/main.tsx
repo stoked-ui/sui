@@ -54,25 +54,6 @@ export default function Main() {
     },
   ];
 
-  const technologies = [
-    {
-      category: 'Frontend',
-      items: ['React', 'Next.js', 'Angular', 'TypeScript', 'Material-UI', 'Blazor']
-    },
-    {
-      category: 'Backend',
-      items: ['Node.js', 'Nest.js', 'Python', 'C#', '.NET', 'Express']
-    },
-    {
-      category: 'Cloud & DevOps',
-      items: ['AWS', 'GCP', 'Terraform', 'CDK', 'SST', 'Docker']
-    },
-    {
-      category: 'Databases',
-      items: ['PostgreSQL', 'MongoDB', 'MSSQL', 'Entity Framework']
-    },
-  ];
-
   const industries = [
     {
       name: 'Healthcare',
@@ -97,29 +78,6 @@ export default function Main() {
     {
       name: 'Education & Public Safety',
       detail: 'Active shooter notification systems for public schools'
-    },
-  ];
-
-  const projects = [
-    {
-      title: 'Stoked UI',
-      description: 'Open source React video editor suite built on the MUI framework. Modern component library for video editing applications with drag-and-drop file management.',
-      tech: 'React, TypeScript, MUI, WebAssembly',
-    },
-    {
-      title: 'Enterprise Data Integration',
-      description: 'Custom web application for automotive dealership chain merging diverse data sources. Provided holistic operational insights driving organizational transformation in product lines and compensation.',
-      tech: 'Custom Web Stack, Data Pipelines, Analytics',
-    },
-    {
-      title: 'CENV',
-      description: 'Open source CLI tool for managing applications, infrastructure, and configuration on AWS with CDK. Streamlines DevOps workflows and deployment processes.',
-      tech: 'TypeScript, AWS CDK, CLI Development',
-    },
-    {
-      title: '911 Inform',
-      description: 'Active shooter notification system for public schools. Critical safety infrastructure enabling rapid response during emergencies.',
-      tech: 'Real-time Systems, Emergency Response',
     },
   ];
 

@@ -34,12 +34,17 @@ export interface ITimelineFileData<TrackDataType extends ITimelineTrackData = IT
 
 export type SaveOptions = {
   id?: string,
-  types?: FilePickerAcceptType[],
+  types?: { description?: string; accept: Record<string, string[]> }[],
   suggestedName?: string,
-  suggestedExt?: FileExtension,
+  suggestedExt?: string,
 };
 
-export type SaveDialogProps = SaveFilePickerOptions & { fileBlob: Blob }
+export type SaveDialogProps = {
+  excludeAcceptAllOption?: boolean;
+  suggestedName?: string;
+  types?: { description?: string; accept: Record<string, string[]> }[];
+  fileBlob: Blob;
+}
 
 export enum FileState {
   NONE = -1,

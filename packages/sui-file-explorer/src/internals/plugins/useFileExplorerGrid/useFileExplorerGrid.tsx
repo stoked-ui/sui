@@ -106,7 +106,7 @@ export const useFileExplorerGrid: UseFileExplorerGridPlugin = <R extends FileBas
   state,
   rootRef,
   params,
-}) => {
+}: any) => {
 
   const getAltRowClass = (id: string) => {
     return state.items.itemMetaMap[id]?.visibleIndex ? 'Mui-odd' : 'Mui-even';
@@ -231,9 +231,9 @@ export const useFileExplorerGrid: UseFileExplorerGridPlugin = <R extends FileBas
       state.grid.headers[columnName].status.ascending = !isAscending;
     }
     let sortItems = instance.getFiles();
-    const trash = sortItems.find((item) => item.id === 'trash');
+    const trash = sortItems.find((item: any) => item.id === 'trash');
     if (trash) {
-      sortItems = sortItems.filter((item) => item.id !== 'trash');
+      sortItems = sortItems.filter((item: any) => item.id !== 'trash');
     }
     const items =  sortColumn(columnName, state.grid.headers[columnName].status.ascending, sortItems, evaluator)
     if (trash) {

@@ -8,7 +8,6 @@ import {
   IconButton,
   Checkbox,
   CircularProgress,
-  Skeleton,
   Alert,
   Button,
 } from '@mui/material';
@@ -24,7 +23,6 @@ import { VideoProgressBar } from './VideoProgressBar';
 import { calculateAspectRatio, formatDuration } from './MediaCard.utils';
 import { useHybridMetadata } from './useHybridMetadata';
 import { useServerThumbnail } from './useServerThumbnail';
-import styles from './MediaCard.module.css';
 
 /**
  * MediaCard Component
@@ -210,19 +208,18 @@ export const MediaCard: React.FC<MediaCardProps> = ({
   };
 
   // Handle add to queue
-  const handleAddToQueue = () => {
-    if (!item._id) return;
-
-    queue.addItem({
-      id: item._id,
-      type: item.mediaType,
-      title: item.title,
-      src: mediaUrl,
-      thumbnail: thumbnailUrl,
-      duration: item.duration,
-      metadata: item,
-    });
-  };
+  // const handleAddToQueue = () => {
+  //   if (!item._id) return;
+  //   queue.addItem({
+  //     id: item._id,
+  //     type: item.mediaType,
+  //     title: item.title,
+  //     src: mediaUrl,
+  //     thumbnail: thumbnailUrl,
+  //     duration: item.duration,
+  //     metadata: item,
+  //   });
+  // };
 
   // Handle video time update
   const handleTimeUpdate = () => {

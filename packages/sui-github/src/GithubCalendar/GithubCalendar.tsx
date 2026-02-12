@@ -19,7 +19,7 @@ interface ActivityData {
 }
 
 const defaultActivityData = { total: {}, contributions: [], countLabel: 'Loading...' };  
-function sleep(duration) {
+function sleep(duration: number) {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve(void 0);
@@ -95,7 +95,7 @@ export default function GithubCalendar({ windowMode = false, containerMode = fal
       }
       
       const data: ActivityData = await response.json();
-      function compare( a, b ) {
+      function compare( a: { date: string; count: number; level: number }, b: { date: string; count: number; level: number } ) {
         if ( a.date < b.date ){
           return -1;
         }

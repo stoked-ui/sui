@@ -49,19 +49,19 @@ export default function BorderedFileExplorer() {
       }}
       sx={{ overflowX: 'hidden', minHeight: 270, flexGrow: 1, maxWidth: 300 }}
     >
-      <CustomTreeItem itemId="1" label="Main">
-        <CustomTreeItem itemId="2" label="Hello" />
-        <CustomTreeItem itemId="3" label="Subtree with children">
-          <CustomTreeItem itemId="6" label="Hello" />
-          <CustomTreeItem itemId="7" label="Sub-subtree with children">
-            <CustomTreeItem itemId="9" label="Child 1" />
-            <CustomTreeItem itemId="10" label="Child 2" />
-            <CustomTreeItem itemId="11" label="Child 3" />
+      <CustomTreeItem id="1" label="Main">
+        <CustomTreeItem id="2" label="Hello" />
+        <CustomTreeItem id="3" label="Subtree with children">
+          <CustomTreeItem id="6" label="Hello" />
+          <CustomTreeItem id="7" label="Sub-subtree with children">
+            <CustomTreeItem id="9" label="Child 1" />
+            <CustomTreeItem id="10" label="Child 2" />
+            <CustomTreeItem id="11" label="Child 3" />
           </CustomTreeItem>
-          <CustomTreeItem itemId="8" label="Hello" />
+          <CustomTreeItem id="8" label="Hello" />
         </CustomTreeItem>
-        <CustomTreeItem itemId="4" label="World" />
-        <CustomTreeItem itemId="5" label="Something something" />
+        <CustomTreeItem id="4" label="World" />
+        <CustomTreeItem id="5" label="Something something" />
       </CustomTreeItem>
     </FileExplorerBasic>
   );

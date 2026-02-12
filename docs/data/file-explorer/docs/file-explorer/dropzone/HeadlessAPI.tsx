@@ -22,22 +22,22 @@ import { FileProvider } from 'packages/sui-file-explorer/src/internals/FileProvi
 const ITEMS: FileBase[] = [
   {
     id: '1',
-    label: 'Amelia Hart',
-    children: [{ id: '2', label: 'Jane Fisher' }],
+    name: 'Amelia Hart',
+    children: [{ id: '2', name: 'Jane Fisher' }],
   },
   {
     id: '3',
-    label: 'Bailey Monroe',
+    name: 'Bailey Monroe',
     children: [
-      { id: '4', label: 'Freddie Reed' },
+      { id: '4', name: 'Freddie Reed' },
       {
         id: '5',
-        label: 'Georgia Johnson',
-        children: [{ id: '6', label: 'Samantha Malone' }],
+        name: 'Georgia Johnson',
+        children: [{ id: '6', name: 'Samantha Malone' }],
       },
     ],
   },
-];
+] as any;
 
 const CustomTreeItemContent = styled(FileContent)(({ theme }) => ({
   padding: theme.spacing(0.5, 1),
@@ -45,7 +45,10 @@ const CustomTreeItemContent = styled(FileContent)(({ theme }) => ({
 
 interface CustomTreeItemProps
   extends Omit<UseFileParameters, 'rootRef'>,
-    Omit<React.HTMLAttributes<HTMLLIElement>, 'onFocus'> {}
+    Omit<React.HTMLAttributes<HTMLLIElement>, 'onFocus'> {
+  itemId?: string;
+  label?: React.ReactNode;
+}
 
 const CustomTreeItem = React.forwardRef(function CustomTreeItem(
   props: CustomTreeItemProps,
@@ -61,10 +64,10 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(
     getLabelProps,
     getGroupTransitionProps,
     status,
-  } = useFile({ id, itemId, children, label, disabled, rootRef: ref });
+  } = useFile({ id: id ?? itemId, children, disabled, rootRef: ref });
 
   return (
-    <FileProvider itemId={itemId}>
+    <FileProvider id={id ?? itemId!}>
       <FileRoot {...getRootProps(other)}>
         <CustomTreeItemContent {...getContentProps()}>
           <FileIconContainer {...getIconContainerProps()}>

@@ -1,8 +1,8 @@
 import {ScreenshotQueue} from "@stoked-ui/media";
 import { type IController } from "./Controller.types";
 import type {ControllerParams, GetItemParams, PreloadParams} from './ControllerParams';
-import type { ITimelineAction } from "../TimelineAction";
-import {IEngine, PlaybackMode} from "../Engine";
+import type { ITimelineAction, BackgroundImageStyle } from "../TimelineAction";
+import {IEngine} from "../Engine";
 import {ITimelineTrack} from "../TimelineTrack";
 
 abstract class Controller<ControlType> implements IController {
@@ -47,7 +47,7 @@ abstract class Controller<ControlType> implements IController {
   destroy(){ };
 
   // eslint-disable-next-line class-methods-use-this,@typescript-eslint/no-unused-vars
-  getActionStyle(action: ITimelineAction, track: ITimelineTrack, scaleWidth: number, scale: number, trackHeight: number) { return null };
+  getActionStyle(action: ITimelineAction, track: ITimelineTrack, scaleWidth: number, scale: number, trackHeight: number): null | BackgroundImageStyle { return null };
 
   // eslint-disable-next-line class-methods-use-this,@typescript-eslint/no-unused-vars
   start(params: ControllerParams) { }
@@ -91,8 +91,8 @@ abstract class Controller<ControlType> implements IController {
       return undefined;
     }
 
-    if (action.volumeIndex >= 0) {
-      const { start, end } = Controller.getVol(action.volume![action.volumeIndex]);
+    if (action.volumeIndex !== undefined && action.volumeIndex >= 0) {
+      const { start, end } = Controller.getVol(action.volume![action.volumeIndex!]);
       if ((start && actionTime < start) || (end && actionTime >= end)) {
         return { volume: 1.0, volumeIndex: -1 };
       }

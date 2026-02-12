@@ -2,9 +2,6 @@ import * as React from "react";
 import { Breadcrumbs, Link, styled, Typography } from "@mui/material";
 import DetailTracks from "./DetailTracks";
 import { useEditorContext } from "../EditorProvider/EditorContext";
-import { IEditorTrack } from "../EditorTrack/EditorTrack";
-import { IEditorAction } from "../EditorAction";
-import DetailActions from "./DetailActions";
 
 const Root = styled(Breadcrumbs, {
 })(({ theme }) => ({
@@ -21,9 +18,9 @@ const Root = styled(Breadcrumbs, {
   }
 }))
 export function DetailBreadcrumbs(){
-  const sxSelectedLabel = (theme) => ({ color: theme.palette.text.primary, padding: '0 10px', borderRadius: '6px' });
+  const sxSelectedLabel = (theme: any) => ({ color: theme.palette.text.primary, padding: '0 10px', borderRadius: '6px' });
   const context = useEditorContext();
-  const { state: { file, selectedType, selectedAction, selectedTrack, selectedDetail, settings}, dispatch } = context;
+  const { state: { file, selectedTrack, selectedDetail}, dispatch } = context;
 
   const selectProject = () => {
     dispatch({ type: 'SELECT_PROJECT' });

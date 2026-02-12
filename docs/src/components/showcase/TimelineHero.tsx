@@ -3,7 +3,7 @@ import Fade from "@mui/material/Fade";
 import {Card} from "@mui/material";
 import {alpha} from "@mui/material/styles";
 import {SxProps} from "@mui/system";
-import Timeline, { IController } from "@stoked-ui/timeline";
+import Timeline from "@stoked-ui/timeline";
 
 export default function TimelineHero(props: { id: string, sx?: SxProps}) {
   const actions = [
@@ -48,15 +48,6 @@ export default function TimelineHero(props: { id: string, sx?: SxProps}) {
       trimStart: 7.2,
     },
   ];
-  const controllers: Record<string, IController> = {
-    effect: {
-      enter: params => { console.log(params); },
-      leave: params => { console.log(params); },
-      color: '#FF0000',
-      colorSecondary: '#f1abab'
-    }
-  };
-
   return (
     <Fade in timeout={700}>
       <Card
@@ -69,10 +60,10 @@ export default function TimelineHero(props: { id: string, sx?: SxProps}) {
           p: 0,
           border: '1px solid',
           borderColor: 'grey.200',
-          boxShadow: (theme) => `0px 4px 8px ${alpha(theme.palette.grey[200], 0.6)}`,
+          boxShadow: (theme: any) => `0px 4px 8px ${alpha(theme.palette.grey[200], 0.6)}`,
         }}
       >
-        <Timeline id={props.id} actionData={actions} sx={{width:'100%'}} controllers={controllers}/>
+        <Timeline id={props.id} actions={actions as any} sx={{width:'100%'}}/>
       </Card>
     </Fade>
   );

@@ -8,7 +8,7 @@ export default function FileExplorerDynamic() {
   const [files, setFiles] = React.useState<null | FileBase[]>(null )
 
   React.useEffect(() => {
-    setFiles(getDynamicFiles());
+    setFiles(getDynamicFiles() as FileBase[]);
   }, [])
 
   if (!files){

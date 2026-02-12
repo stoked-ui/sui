@@ -13,7 +13,7 @@ export default function ShowcaseContainer({
   demoSx,
   id = null,
 }: {
-  id: string | null;
+  id?: string | null;
   preview?: React.ReactNode;
   code?: React.ReactNode;
   sx?: BoxProps['sx'];

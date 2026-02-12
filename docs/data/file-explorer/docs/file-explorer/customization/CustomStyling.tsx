@@ -41,7 +41,7 @@ export default function CustomStyling() {
     <Box sx={{ minHeight: 352, minWidth: 250 }}>
       <FileExplorer
         defaultExpandedItems={['Notes']}
-        slots={{ item: CustomTreeItem }}
+        slots={{ item: CustomTreeItem as any }}
         items={NestedFiles}
       />
     </Box>

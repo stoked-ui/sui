@@ -5,7 +5,7 @@ import Link from '@mui/material/Link';
 import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
 import Avatar from '@mui/material/Avatar';
-import Stack from '@mui/material/Stack';
+// import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import CheckoutIcon from '@mui/icons-material/CallMade';
 import { EventDetails } from '../../../types/github';
@@ -323,28 +323,28 @@ export default function PullRequestEvent({ event, apiUrl }: PullRequestEventProp
 }
 
 // Helper function to parse diff content into line objects
-function parseDiff(patch: string): Array<{ type: 'addition' | 'deletion' | 'context'; content: string; lineNumber: number }> {
-  if (!patch) return [];
-  
-  return patch.split('\n').map((line, index) => {
-    if (line.startsWith('+')) {
-      return {
-        type: 'addition',
-        content: line,
-        lineNumber: index + 1,
-      };
-    } else if (line.startsWith('-')) {
-      return {
-        type: 'deletion',
-        content: line,
-        lineNumber: index + 1,
-      };
-    } else {
-      return {
-        type: 'context',
-        content: line,
-        lineNumber: index + 1,
-      };
-    }
-  });
-} 
+// function parseDiff(patch: string): Array<{ type: 'addition' | 'deletion' | 'context'; content: string; lineNumber: number }> {
+//   if (!patch) return [];
+//
+//   return patch.split('\n').map((line, index) => {
+//     if (line.startsWith('+')) {
+//       return {
+//         type: 'addition',
+//         content: line,
+//         lineNumber: index + 1,
+//       };
+//     } else if (line.startsWith('-')) {
+//       return {
+//         type: 'deletion',
+//         content: line,
+//         lineNumber: index + 1,
+//       };
+//     } else {
+//       return {
+//         type: 'context',
+//         content: line,
+//         lineNumber: index + 1,
+//       };
+//     }
+//   });
+// } 

@@ -102,11 +102,11 @@ export const FileExplorerLegacy = React.forwardRef(function FileExplorerLegacy<
   const sizes = Object.values(columns).map((column) => column.width);
 
   const getHeaderWidths = (widthColumns: GridColumns) =>
-    Object.entries(widthColumns).reduce((acc, [id, column]: any) => {
+    Object.entries(widthColumns).reduce((acc: Record<string, any>, [id, column]: any) => {
       acc[`& .column-${id}`] = { width: column.width };
       acc[`& .header-${id}`] = { width: column.width };
       return acc;
-    }, {});
+    }, {} as Record<string, any>);
 
   const [columnWidths, setColumnWidths] = React.useState<SxProps>(getHeaderWidths(columns));
   React.useEffect(() => {

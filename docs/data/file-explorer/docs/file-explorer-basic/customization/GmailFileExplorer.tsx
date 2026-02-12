@@ -37,6 +37,8 @@ declare module 'react' {
 interface StyledTreeItemProps
   extends Omit<UseFileParameters, 'rootRef'>,
     React.HTMLAttributes<HTMLLIElement> {
+  itemId?: string;
+  label?: React.ReactNode;
   bgColor?: string;
   bgColorForDarkMode?: string;
   color?: string;
@@ -107,7 +109,7 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(
     getLabelProps,
     getGroupTransitionProps,
     status,
-  } = useTreeItem({ id, itemId, children, label, disabled, rootRef: ref });
+  } = useTreeItem({ id: id ?? itemId, children, disabled, rootRef: ref });
 
   const style = {
     '--file-explorer-color': theme.palette.mode !== 'dark' ? color : colorForDarkMode,
@@ -116,7 +118,7 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(
   };
 
   return (
-    <FileProvider itemId={itemId}>
+    <FileProvider id={id ?? itemId!}>
       <CustomTreeItemRoot {...getRootProps({ ...other, style })}>
         <CustomTreeItemContent
           {...getContentProps({

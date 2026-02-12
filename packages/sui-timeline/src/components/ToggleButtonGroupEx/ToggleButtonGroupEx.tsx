@@ -127,7 +127,7 @@ function ToggleButtonGroupEx(props: ToggleButtonGroupExProps): React.ReactNode {
     }
   };
 
-  const [minSize, maxSize] = getSizeBounds(size);
+  const [minSize, maxSize] = getSizeBounds(size ?? 'medium');
   const childCount = React.Children.count(children);
   const minWidthFinal = Math.max(
     Math.min(maxWidth ?? minWidth ?? minSize, minWidth ?? maxWidth ?? minSize),

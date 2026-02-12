@@ -1,7 +1,7 @@
 import * as React from "react";
 import {Box, Button, CardActions, Fade, styled, Typography} from "@mui/material";
 import { shouldForwardProp } from "@mui/system/createStyled";
-import { alpha, Theme } from "@mui/material/styles";
+import { alpha } from "@mui/material/styles";
 import _ from "lodash";
 
 import {
@@ -143,8 +143,8 @@ export const DetailForm = styled('form', {
 });
 
 const inputDefaultAlpha = .4;
-const backgroundAlpha = (theme: Theme) => alpha(theme.palette.background.default, inputDefaultAlpha);
-const wAlpha = (theme: Theme, alphaMultiplier: number = inputDefaultAlpha) => alpha(theme.palette.background.default, alphaMultiplier);
+// const _backgroundAlpha = (theme: Theme) => alpha(theme.palette.background.default, inputDefaultAlpha);
+// const _wAlpha = (theme: Theme, alphaMultiplier: number = inputDefaultAlpha) => alpha(theme.palette.background.default, alphaMultiplier);
 export const RootBox = styled('div')(({theme}) => ({
   '& .MuiFormControl-root': {
     '& .MuiFormLabel-root.MuiInputLabel-outlined': {
@@ -300,7 +300,7 @@ export function DetailActions({ errors, isDirty, reset, disableEdit, editMode}: 
   editMode: boolean,
   disableEdit: () => void,
 }) {
-  const {state: {file, selectedDetail, selectedType}} = useEditorContext();
+  const {state: {selectedDetail, selectedType}} = useEditorContext();
   if (!selectedDetail || !selectedType || !editMode) {
     return undefined;
   }
@@ -316,7 +316,7 @@ export function DetailActions({ errors, isDirty, reset, disableEdit, editMode}: 
       disabled={!isDirty && !editMode}
       onClick={() => {
         disableEdit();
-        reset(selectedDetail[selectedType]);
+        reset((selectedDetail as any)[selectedType]);
       }}>
       Cancel
     </Button>
@@ -370,7 +370,7 @@ const TrackFile = styled(CtrlFieldSet, {
 }));
 
 export function FileDetailView(): React.ReactNode {
-  const { state: { selectedTrack, flags, engine}, dispatch } = useEditorContext();
+  const { state: { selectedTrack, flags}, dispatch } = useEditorContext();
   const ref = React.useRef<HTMLFieldSetElement>(null);
 
   if (!selectedTrack?.file) {
@@ -453,6 +453,7 @@ export function useEditMode() {
   return { editMode, setEdit, setDisable };
 }
 
+/*
 const DetailRenderer = styled('canvas', {
   name: "MuiEditorViewRenderer",
   slot: "renderer",
@@ -467,6 +468,7 @@ const DetailRenderer = styled('canvas', {
   width: '100%',
   height: '100%'
 }));
+*/
 
 const FormRoot = styled('div')(({theme}) => ({
   '& .MuiFormControl-root .MuiInputBase-root .MuiInputBase-input': {
@@ -474,13 +476,13 @@ const FormRoot = styled('div')(({theme}) => ({
   }
 }));
 
-export function FormWrap({ title, children, titleId, submitHandler}) {
+export function FormWrap({ title, children, titleId, submitHandler}: { title: any, children: any, titleId: any, submitHandler: any }) {
   const context = useEditorContext();
   const {state, dispatch} = context;
   const {settings, selectedType, file, engine } = state;
-  const {detailHandleSubmit, detailOnSubmit, selected} = settings;
+  // const {detailHandleSubmit, detailOnSubmit} = settings;
   const ref = React.useRef<HTMLDivElement>(null);
-  const [timeoutId, setTimeoutId] = React.useState<NodeJS.Timeout>();
+  // const [_timeoutId, _setTimeoutId] = React.useState<NodeJS.Timeout>();
   React.useEffect(() => {
     if (ref.current && ref.current?.clientWidth) {
       console.info('ref.current.clientWidth', ref.current.clientWidth);
@@ -490,11 +492,10 @@ export function FormWrap({ title, children, titleId, submitHandler}) {
     }
   }, [file, engine.maxDuration, ref.current?.clientWidth]);
 
-  let submit = () => {
-  };
-  if (detailHandleSubmit && detailOnSubmit) {
-    submit = detailHandleSubmit(detailOnSubmit);
-  }
+  // let submit = () => {};
+  // if (detailHandleSubmit && detailOnSubmit) {
+  //   submit = detailHandleSubmit(detailOnSubmit);
+  // }
   const robustView = (
     <div style={{}}>
       <Editor

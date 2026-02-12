@@ -105,7 +105,7 @@ class AudioControl extends Controller<Howl> implements IController {
   }
 
   stop(params: ControllerParams) {
-    const { action, time, engine, track } = params;
+    const { action, engine, track } = params;
     // this.log({ action, time }, 'audio stop');
     if (this.cacheMap[track.id]) {
       const item = this.cacheMap[track.id];

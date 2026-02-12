@@ -9,7 +9,7 @@ import { useFileExplorerApiRef } from '@stoked-ui/file-explorer/hooks/useFileExp
 export default function ApiMethodSelectItem() {
   const apiRef = useFileExplorerApiRef();
   const handleSelectGridPro = (event: React.SyntheticEvent) => {
-    apiRef.current?.selectItem( event, 'grid-pro', false, true);
+    apiRef.current?.selectItem({ event, id: 'grid-pro', keepExistingSelection: false, newValue: true });
   };
 
   return (

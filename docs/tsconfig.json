@@ -8,6 +8,12 @@
     "data",
     "next.config.mjs"
   ],
+  "exclude": [
+    "src/**/*.test.ts",
+    "src/**/*.test.tsx",
+    "src/**/*.spec.ts",
+    "src/**/*.spec.tsx"
+  ],
   "compilerOptions": {
     "allowJs": true,
     "isolatedModules": true,

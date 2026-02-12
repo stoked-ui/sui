@@ -1,6 +1,10 @@
 # Media Selector Overview
 
-<p class="description">The Media Selector library is responsible for extracting file data from input controls or drop targets and then converting them to FileWithPath objects.</p>
+:::error
+**Deprecated:** `@stoked-ui/media-selector` has been replaced by [`@stoked-ui/media`](/media/docs/overview/). Please see the [Migration Guide](/media/docs/migration/) for upgrade instructions.
+:::
+
+<p class="description">The Media Selector library is responsible for extracting file data from input controls or drop targets and then converting them to FileWithPath objects.</p>
 
 :::info
 [FileWithPath](/stoked-ui/docs/media-selector/file-with-path/) objects are derived from the standard File object with the additional path data as well as other generic and type specific properties and functions.

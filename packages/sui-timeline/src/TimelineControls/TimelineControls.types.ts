@@ -71,7 +71,7 @@ export interface TimelineControlsProps
 
 export type ControlState = 'pause' | 'play' | 'rewind' | 'fastForward';
 
-export const VideoVersionFromKey = (key) => {
+export const VideoVersionFromKey = (key: string) => {
   const parts = key.split('|');
   return { id: parts[0], version: Number(parts[1]), key} as Version;
 }

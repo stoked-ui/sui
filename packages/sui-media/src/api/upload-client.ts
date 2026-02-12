@@ -21,9 +21,7 @@ import type {
   ActiveUploadsResponseDto,
   UploadOptions,
   ResumeUploadOptions,
-  UploadProgress,
   UploadResult,
-  UploadError as UploadErrorType,
   MediaApiClientConfig,
 } from './types';
 

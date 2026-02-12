@@ -74,7 +74,7 @@ const Action = styled('div', {
   dim,
 }) => {
   const trackBack = getTrackBackgroundColor(
-    color,
+    color ?? '#666',
     theme.palette.mode,
     selected,
     hover,
@@ -82,7 +82,7 @@ const Action = styled('div', {
     dim,
   );
 
-  const backgroundColor = emphasize(color, 0.1);
+  const backgroundColor = emphasize(color ?? '#666', 0.1);
   const darker = darken(backgroundColor, 0.6);
   const lighter = lighten(backgroundColor, 0.6);
   const size = duration && scaleWidth ? duration * (100 / scaleWidth) : undefined;
@@ -130,12 +130,11 @@ const Action = styled('div', {
     position: 'absolute',
     left: 0,
     top: 0,
+    ...trackBack.action,
     background,
     backgroundSize,
     backgroundRepeat,
     backgroundPosition,
-    // backgroundColor,
-    ...trackBack.action,
     alignContent: 'center',
     padding: 0,
     overflow: 'hidden',
@@ -170,8 +169,8 @@ const Action = styled('div', {
   };
 });
 
-const sizerColor = (theme) => alpha(theme.palette.text.primary, 0.5);
-const sizerHoverColor = (theme) => alpha(theme.palette.text.primary, 0.9);
+const sizerColor = (theme: any) => alpha(theme.palette.text.primary, 0.5);
+const sizerHoverColor = (theme: any) => alpha(theme.palette.text.primary, 0.9);
 
 const LeftStretch = styled('div')(({ theme }) => ({
   position: 'absolute',
@@ -235,7 +234,7 @@ function TimelineAction<
 >(props: TimelineActionProps<TrackType, ActionType>) {
   const context = useTimeline();
   const { state, dispatch } = context;
-  const { settings, file, flags, engine, selectedTrack, selectedAction } = state;
+  const { settings, file, flags, engine, selectedAction } = state;
   const {
     scaleCount,
     startLeft,
@@ -246,17 +245,15 @@ function TimelineAction<
     actionHoverId,
     setScaleCount,
     trackHeight,
-    editorMode,
-    selected: currentSelection,
     videoTrack,
   } = settings;
 
   const { gridSnap } = flags;
   const disableDrag = flags.disableDrag || engine.isPlaying;
   const { action } = props;
-  const { selected, flexible = true, movable = true } = action;
+  const { flexible = true, movable = true } = action;
   const actionEl = React.useRef<HTMLDivElement>(null);
-  const rowRnd = React.useRef<RowRndApi>();
+  const rowRnd = React.useRef<RowRndApi>(null);
   const isDragWhenClick = React.useRef(false);
   const { id, maxEnd, minStart, end, start } = action;
   const { track } = props;
@@ -360,11 +357,15 @@ function TimelineAction<
     );
 
     // setData
-    const rowItem = file.tracks.find((item) => item.id === track.id);
-    const dragEndAction = rowItem.actions.find((item) => item.id === id);
-    dragEndAction.start = dragEndStart;
-    dragEndAction.end = dragEndEnd;
-    dispatch({ type: 'SET_TRACKS', payload: file.tracks });
+    const rowItem = file?.tracks.find((item) => item.id === track.id);
+    const dragEndAction = rowItem?.actions.find((item) => item.id === id);
+    if (dragEndAction) {
+      dragEndAction.start = dragEndStart;
+      dragEndAction.end = dragEndEnd;
+    }
+    if (file) {
+      dispatch({ type: 'SET_TRACKS', payload: file.tracks });
+    }
 
     // executeCallback
     if (onActionMoveEnd) {
@@ -424,11 +425,15 @@ function TimelineAction<
     );
 
     // Set data
-    const rowItem = file.tracks.find((item) => item.id === track.id);
-    const resizeEndAction = rowItem.actions.find((item) => item.id === id);
-    resizeEndAction.start = resizeEndStart;
-    resizeEndAction.end = resizeEndEnd;
-    dispatch({ type: 'SET_TRACKS', payload: file.tracks });
+    const rowItem = file?.tracks.find((item) => item.id === track.id);
+    const resizeEndAction = rowItem?.actions.find((item) => item.id === id);
+    if (resizeEndAction) {
+      resizeEndAction.start = resizeEndStart;
+      resizeEndAction.end = resizeEndEnd;
+    }
+    if (file) {
+      dispatch({ type: 'SET_TRACKS', payload: file.tracks });
+    }
 
     // triggerCallback
     if (onActionResizeEnd) {
@@ -618,7 +623,7 @@ function TimelineAction<
         scaleWidth={100 / scaleWidth}
         loop={!!action?.loop}
         loopCount={loopCount}
-        disabled={action?.disabled}
+        disabled={action?.disabled ?? false}
         id={action.id}
         tabIndex={0}
         dim={action?.dim}
@@ -633,15 +638,17 @@ function TimelineAction<
               //const trackIndex = file.tracks.indexOf(track);
               // file.tracks[trackIndex] = { ...track };
 
-              const command = new RemoveActionCommand(file, action.id);
-              dispatch({ type: 'EXECUTE_COMMAND', payload: command });
+              if (file) {
+                const command = new RemoveActionCommand(file, action.id);
+                dispatch({ type: 'EXECUTE_COMMAND', payload: command });
+              }
 
               event.preventDefault();
               break;
             }
           }
         }}
-        hover={actionHoverId === action.id ? true : undefined}
+        hover={actionHoverId === action.id}
         onMouseEnter={(event) => {
           dispatch({
             type: 'SET_SETTING',
@@ -691,7 +698,7 @@ function TimelineAction<
             return;
           }
           if (onContextMenuAction) {
-            const time: number = handleTime(e);
+            // const time: number = handleTime(e);
             // e.stopPropagation();
             // e.preventDefault();
             // onContextMenuAction(e, { track, action, time });

@@ -1,11 +1,9 @@
 import * as React from 'react';
-import PropTypes from 'prop-types';
 import {
   createSettings,
   FileSaveRequest,
   LocalDb,
   MimeRegistry,
-  Settings,
 } from '@stoked-ui/common';
 import Engine, { EngineState, IEngine } from '../Engine';
 import {
@@ -23,6 +21,21 @@ import type { ITimelineAction } from '../TimelineAction';
 import type { ITimelineTrack } from '../TimelineTrack';
 import AudioController from '../Controller/AudioController';
 import StokedUiTimelineApp from '../Timeline/StokedUiTimelineApp';
+
+declare global {
+  interface Window {
+    setSetting: (key: string, value: any) => void;
+    setScaleWidth: (value: number) => void;
+    setScale: (value: number) => void;
+    setScaleSplitCount: (value: number) => void;
+    setMinScaleCount: (value: number) => void;
+    setMaxScaleCount: (value: number) => void;
+    getSetting: () => any;
+    getState: () => any;
+    reRender: () => void;
+    saveUrl: () => Promise<void>;
+  }
+}
 
 function TimelineProvider<
   EngineType extends IEngine = IEngine,
@@ -170,7 +183,7 @@ function TimelineProvider<
           author: 'Author',
         },
         blob: new Blob(['Example content'], { type: 'text/plain' }),
-        mime: MimeRegistry.names['editor-project'],
+        mime: MimeRegistry.names()['editor-project'],
         url: 'https://example.com/files/example-file',
       };
 
@@ -203,7 +216,7 @@ function TimelineProvider<
   return <TimelineContext.Provider value={contextValue}>{children}</TimelineContext.Provider>;
 }
 
-TimelineProvider.dispatch = null;
+TimelineProvider.dispatch = null as React.Dispatch<any> | null;
 
 // Custom hook to access the extended context
 function useTimeline(): TimelineContextType {

@@ -1,5 +1,4 @@
-import { IMediaFile } from '@stoked-ui/media';
-import { Events, EventTypes , IEngine  } from '@stoked-ui/timeline';
+import { Events, EventTypes } from '@stoked-ui/timeline';
 import {EditorEngineState, IEditorEngine} from './EditorEngine.types'
 
 

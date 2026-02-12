@@ -252,7 +252,7 @@ export function createInMemoryKeyboardShortcuts(): IKeyboardShortcuts {
   const shortcuts = new Map<string, ShortcutDefinition>();
   const overlayCallbacks = new Set<OverlayCallback>();
   let overlayVisible = false;
-  let enabled = true;
+  const state = { enabled: true };
 
   return {
     register(key, handler, description = '', category = 'General') {
@@ -302,7 +302,7 @@ export function createInMemoryKeyboardShortcuts(): IKeyboardShortcuts {
     },
 
     setEnabled(isEnabled) {
-      enabled = isEnabled;
+      state.enabled = isEnabled;
     },
   };
 }

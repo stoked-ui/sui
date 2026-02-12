@@ -4,26 +4,26 @@ import Typography from '@mui/material/Typography';
 import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView';
 import { TreeItem } from '@mui/x-tree-view/TreeItem';
 import { styled } from '@mui/material/styles';
-import FolderIcon from '@mui/icons-material/Folder';
+// import FolderIcon from '@mui/icons-material/Folder';
 import FileIcon from '@mui/icons-material/InsertDriveFile';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Chip from '@mui/material/Chip';
 
-const StyledTreeItem = styled(TreeItem)((props) => ({
-  '& .MuiTreeItem-content': {
-    padding: props.theme.spacing(1),
-    borderRadius: props.theme.shape.borderRadius,
-    '&:hover': {
-      backgroundColor: props.theme.palette.action.hover,
-    },
-    '& .MuiTreeItem-label': {
-      display: 'flex',
-      alignItems: 'center',
-      gap: props.theme.spacing(1),
-    },
-  },
-}));
+// const StyledTreeItem = styled(TreeItem)((props) => ({
+//   '& .MuiTreeItem-content': {
+//     padding: props.theme.spacing(1),
+//     borderRadius: props.theme.shape.borderRadius,
+//     '&:hover': {
+//       backgroundColor: props.theme.palette.action.hover,
+//     },
+//     '& .MuiTreeItem-label': {
+//       display: 'flex',
+//       alignItems: 'center',
+//       gap: props.theme.spacing(1),
+//     },
+//   },
+// }));
 
 const DiffView = styled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
@@ -70,15 +70,15 @@ interface FileChangesProps {
   files: FileChange[];
 }
 
-interface TreeNode {
-  id: string;
-  name: string;
-  type: FileChange['type'];
-  additions: number;
-  deletions: number;
-  diff: FileChange['diff'];
-  children?: TreeNode[];
-}
+// interface TreeNode {
+//   id: string;
+//   name: string;
+//   type: FileChange['type'];
+//   additions: number;
+//   deletions: number;
+//   diff: FileChange['diff'];
+//   children?: TreeNode[];
+// }
 
 export default function FileChanges({ files }: FileChangesProps): React.JSX.Element {
   const [expanded, setExpanded] = React.useState<string[]>([]);
@@ -106,36 +106,36 @@ export default function FileChanges({ files }: FileChangesProps): React.JSX.Elem
   };
 
   // Transform files into tree nodes
-  const items: TreeNode[] = files.map((file, index) => ({
-    id: `file-${index}-${file.path.replace(/[^a-zA-Z0-9]/g, '-')}`,
-    name: file.path,
-    type: file.type,
-    additions: file.additions,
-    deletions: file.deletions,
-    diff: file.diff
-  }));
+  // const items: TreeNode[] = files.map((file, index) => ({
+  //   id: `file-${index}-${file.path.replace(/[^a-zA-Z0-9]/g, '-')}`,
+  //   name: file.path,
+  //   type: file.type,
+  //   additions: file.additions,
+  //   deletions: file.deletions,
+  //   diff: file.diff
+  // }));
 
-  const renderLabel = (node: TreeNode) => (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-      {getFileIcon(node.type)}
-      <Typography variant="body2">{node.name}</Typography>
-      <Typography variant="caption" color="text.secondary">
-        +{node.additions} -{node.deletions}
-      </Typography>
-    </Box>
-  );
+  // const renderLabel = (node: TreeNode) => (
+  //   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+  //     {getFileIcon(node.type)}
+  //     <Typography variant="body2">{node.name}</Typography>
+  //     <Typography variant="caption" color="text.secondary">
+  //       +{node.additions} -{node.deletions}
+  //     </Typography>
+  //   </Box>
+  // );
 
-  const renderContent = (node: TreeNode) => (
-    <Box sx={{ p: '16px' }}>
-      <DiffView>
-        {node.diff.map((line, index) => (
-          <DiffLine key={`${node.id}-line-${index}`} type={line.type}>
-            {line.content}
-          </DiffLine>
-        ))}
-      </DiffView>
-    </Box>
-  );
+  // const renderContent = (node: TreeNode) => (
+  //   <Box sx={{ p: '16px' }}>
+  //     <DiffView>
+  //       {node.diff.map((line, index) => (
+  //         <DiffLine key={`${node.id}-line-${index}`} type={line.type}>
+  //           {line.content}
+  //         </DiffLine>
+  //       ))}
+  //     </DiffView>
+  //   </Box>
+  // );
 
   return (
     <Box>

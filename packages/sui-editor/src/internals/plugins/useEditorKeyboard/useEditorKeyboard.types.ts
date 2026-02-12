@@ -1,6 +1,6 @@
 import type {EditorPluginSignature} from '../../models';
 import type {UseEditorMetadataSignature} from '../useEditorMetadata/useEditorMetadata.types';
-import {MuiCancellableEvent} from '../../models/MuiCancellableEvent';
+// import {MuiCancellableEvent} from '../../models/MuiCancellableEvent';
 
 export interface UseEditorKeyboardInstance {
   /**

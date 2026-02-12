@@ -46,7 +46,7 @@ const getItemId = (item: FileBase) => (item as MuiXProduct).internalId;
 export default function GetItemId() {
   return (
     <Box sx={{ minHeight: 352, minWidth: 250 }}>
-      <FileExplorer<MuiXProduct> items={MUI_X_PRODUCTS as FileBase[]} getItemId={getItemId} />
+      <FileExplorer items={MUI_X_PRODUCTS as any[]} getItemId={getItemId} />
     </Box>
   );
 }

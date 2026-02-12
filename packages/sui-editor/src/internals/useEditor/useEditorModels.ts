@@ -1,4 +1,3 @@
-import * as React from 'react';
 import {
   ConvertSignaturesIntoPlugins, EditorAnyPluginSignature, MergeSignaturesProperty,
 } from '../models';
@@ -13,14 +12,14 @@ export const useEditorModels = <TSignatures extends readonly EditorAnyPluginSign
   plugins: ConvertSignaturesIntoPlugins<readonly [...EditorCorePluginSignatures, ...TSignatures]>,
   props: MergeSignaturesProperty<TSignatures, 'defaultizedParams'>,
 ) => {
-  type DefaultizedParams = MergeSignaturesProperty<TSignatures, 'defaultizedParams'>;
+  // type DefaultizedParams = MergeSignaturesProperty<TSignatures, 'defaultizedParams'>;
 
-  const modelsRef = React.useRef<{
-    [modelName: string]: {
-      getDefaultValue: (params: DefaultizedParams) => any;
-      isControlled: boolean;
-    };
-  }>({});
+  // const modelsRef = React.useRef<{
+  //   [modelName: string]: {
+  //     getDefaultValue: (params: DefaultizedParams) => any;
+  //     isControlled: boolean;
+  //   };
+  // }>({});
 
   return {};
 };

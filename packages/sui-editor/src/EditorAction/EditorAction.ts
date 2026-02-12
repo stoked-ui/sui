@@ -1,6 +1,6 @@
-import { ITimelineFileAction, ITimelineAction, initTimelineAction, IEngine } from '@stoked-ui/timeline';
+import { ITimelineFileAction, ITimelineAction, initTimelineAction } from '@stoked-ui/timeline';
 import * as React from "react";
-import { type DrawData, type IEditorEngine } from "../EditorEngine";
+import { type DrawData } from "../EditorEngine";
 
 export type BlendMode =
   'normal'         |

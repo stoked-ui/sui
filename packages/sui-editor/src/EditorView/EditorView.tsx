@@ -4,7 +4,6 @@ import { IMediaFile } from '@stoked-ui/media';
 import composeClasses from '@mui/utils/composeClasses';
 import { Fade } from '@mui/material';
 import { useSlotProps } from '@mui/base/utils';
-import { keyframes } from '@emotion/react';
 import useForkRef from '@mui/utils/useForkRef';
 import { createUseThemeProps, styled } from '../internals/zero-styled';
 import { EditorViewProps } from './EditorView.types';
@@ -41,11 +40,11 @@ const EditorViewRoot = styled('div', {
     prop !== 'detailMode' &&
     prop !== 'editorId',
 })<{ loading: boolean }>(({ loading }) => {
-  const spin = keyframes`
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  `;
-  const anim = `2.5s cubic-bezier(0.35, 0.04, 0.63, 0.95) 0s infinite normal none running ${spin}`;
+  // const spin = keyframes`
+  //   0% { transform: rotate(0deg); }
+  //   100% { transform: rotate(360deg); }
+  // `;
+  // const anim = `2.5s cubic-bezier(0.35, 0.04, 0.63, 0.95) 0s infinite normal none running ${spin}`;
   return {
     gridArea: 'viewer',
     display: 'flex',

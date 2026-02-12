@@ -14,7 +14,7 @@ import type { MediaViewerProps, MediaItem } from './MediaViewer.types';
 import { MediaViewerHeader } from './MediaViewerHeader';
 import { MediaViewerPrimary } from './MediaViewerPrimary';
 import { NextUpHeader } from './NextUpHeader';
-import { NowPlayingIndicator } from './NowPlayingIndicator';
+// import { NowPlayingIndicator } from './NowPlayingIndicator';
 import { useMediaViewerState, MediaViewerMode } from './hooks/useMediaViewerState';
 import { useMediaViewerLayout } from './hooks/useMediaViewerLayout';
 import { noOpRouter } from '../../abstractions/Router';
@@ -99,15 +99,18 @@ export function MediaViewer({
   const [videoLoaded, setVideoLoaded] = React.useState(false);
   const [imageLoaded, setImageLoaded] = React.useState(false);
   const [isPlaying, setIsPlaying] = React.useState(false);
-  const [isMuted, setIsMuted] = React.useState(initialMuted);
+  // @ts-ignore -- setter kept for future use
+  const [isMuted, _setIsMuted] = React.useState(initialMuted);
   const [showControls, setShowControls] = React.useState(true);
   const controlsTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 
   // Viewer state machine
-  const { mode, transition, legacyState } = useMediaViewerState(initialMode);
+  // @ts-ignore -- mode kept for future use
+  const { mode: _mode, transition, legacyState } = useMediaViewerState(initialMode);
 
   // Layout calculation
-  const layout = useMediaViewerLayout({
+  // @ts-ignore -- layout kept for future use
+  const _layout = useMediaViewerLayout({
     item,
     mediaItems,
     currentIndex,

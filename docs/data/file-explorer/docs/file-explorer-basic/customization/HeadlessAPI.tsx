@@ -24,7 +24,10 @@ const CustomTreeItemContent = styled(FileContent)(({ theme }) => ({
 
 interface CustomTreeItemProps
   extends Omit<UseFileParameters, 'rootRef'>,
-    Omit<React.HTMLAttributes<HTMLLIElement>, 'onFocus'> {}
+    Omit<React.HTMLAttributes<HTMLLIElement>, 'onFocus'> {
+  itemId?: string;
+  label?: React.ReactNode;
+}
 
 const CustomTreeItem = React.forwardRef(function CustomTreeItem(
   props: CustomTreeItemProps,
@@ -40,10 +43,10 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(
     getLabelProps,
     getGroupTransitionProps,
     status,
-  } = useFile({ id, itemId, children, label, disabled, rootRef: ref });
+  } = useFile({ id: id ?? itemId, children, disabled, rootRef: ref });
 
   return (
-    <FileProvider itemId={itemId}>
+    <FileProvider id={id ?? itemId!}>
       <FileRoot {...getRootProps(other)}>
         <CustomTreeItemContent {...getContentProps()}>
           <FileIconContainer {...getIconContainerProps()}>

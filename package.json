@@ -51,7 +51,7 @@
     "docs:build-color-preview": "babel-node scripts/buildColorTypes",
     "docs:deploy": "pnpm --filter stokedui-com run deploy",
     "docs:release": "pnpm --filter stokedui-com run deploy:release",
-    "dev": "./scripts/kill-dev-services.sh && turbo run dev:prepare && turbo run dev --parallel --concurrency 15",
+    "dev": "./scripts/kill-dev-services.sh && turbo run dev:prepare && turbo run dev --parallel --concurrency 15 --ui tui",
     "docs:dev": "pnpm --filter stokedui-com dev",
     "caladan": "pnpm --filter stokedui-com caladan",
     "docs:debug": "pnpm --filter stokedui-com debug",

@@ -1,4 +1,4 @@
-import { File, Blob } from 'formdata-node';
+// import { File, Blob } from 'formdata-node';
 import {
   TimelineFile,
   ITimelineFile,
@@ -6,10 +6,10 @@ import {
   ITimelineFileData,
   ITimelineTrackData,
 } from '@stoked-ui/timeline';
-import {Constructor, IMimeType, LocalDb, Versions} from '@stoked-ui/common';
+import {Constructor, IMimeType, LocalDb} from '@stoked-ui/common';
 
 import {
-  IMediaFile, AppOutputFile, AppFile, MediaType,
+  IMediaFile, AppOutputFile,
 } from '@stoked-ui/media';
 import {
   BlendMode, Fit,
@@ -18,7 +18,6 @@ import {
 } from "../EditorAction/EditorAction";
 import { IEditorFileTrack, IEditorTrack } from "../EditorTrack/EditorTrack";
 import {StokedUiEditorApp} from "../Editor";
-import * as React from 'react';
 import { openDB, getOrFetchVideo } from '@stoked-ui/common';
 
 export const editorFileCache: Record<string, any> = {};

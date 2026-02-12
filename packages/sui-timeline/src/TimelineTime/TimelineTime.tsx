@@ -93,9 +93,9 @@ function TimelineTime(props: TimelineTimeProps) {
   } = settings;
 
   const { scrollLeft, onClickTimeArea } = props;
-  const gridRef = React.useRef<Grid>();
-  const timeInteract = React.useRef<HTMLDivElement>();
-  const timeAreaRef = React.useRef<HTMLDivElement>();
+  const gridRef = React.useRef<Grid>(null);
+  const timeInteract = React.useRef<HTMLDivElement>(null);
+  const timeAreaRef = React.useRef<HTMLDivElement>(null);
   /** Whether to display subdivision scales */
 
   const showUnit = scaleSplitCount > 0;
@@ -141,7 +141,7 @@ function TimelineTime(props: TimelineTimeProps) {
   const estColumnWidth = getColumnWidth({ index: 1 });
   const [isDragging, setIsDragging] = React.useState(false);
 
-  const setTimeToMouse = (e: React.MouseEvent<HTMLElement>) => {
+  const setTimeToMouse = (e: React.MouseEvent<HTMLDivElement>) => {
     if (flags.hideCursor || engine.isPlaying) {
       return;
     }
@@ -163,7 +163,7 @@ function TimelineTime(props: TimelineTimeProps) {
     setCursor({ time }, context);
   };
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (engine.isPlaying) {
       return;
     }

@@ -11,7 +11,7 @@ import { UseFileMinimalPlugins } from "@stoked-ui/file-explorer/internals/models
 export default function ApiMethodSelectItem() {
   const apiRef = useFileExplorerApiRef<UseFileMinimalPlugins>();
   const handleSelectGridPro = (event: React.SyntheticEvent) => {
-    apiRef.current?.selectItem( event, 'Notes', false );
+    apiRef.current?.selectItem({ event, id: 'Notes', keepExistingSelection: false });
   };
 
   return (

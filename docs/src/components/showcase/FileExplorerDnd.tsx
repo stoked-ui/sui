@@ -1,8 +1,4 @@
 import * as React from 'react';
-import { FileExplorer } from '@stoked-ui/file-explorer/FileExplorer';
-import {
-  FileElement,
-} from '@stoked-ui/file-explorer/FileElement';
 import Box from "@mui/material/Box";
 import { alpha } from "@mui/material/styles";
 import { iconButtonClasses } from "@mui/material";
@@ -21,7 +17,7 @@ const createRelativeDate = (diff: number) => {
   return diffDate.getTime();
 };
 
-const ITEMS = [
+export const ITEMS = [
   {
     id: '1',
     label: 'Documents',

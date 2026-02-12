@@ -8,7 +8,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import GradientText from 'docs/src/components/typography/GradientText';
 import GetStartedButtons from 'docs/src/components/home/GetStartedButtons';
 import HeroContainer from 'docs/src/layouts/HeroContainer';
-import Link from "@mui/material/Link";
+// import Link from "@mui/material/Link";
 
 function createLoading(sx: BoxProps['sx']) {
   return function Loading() {

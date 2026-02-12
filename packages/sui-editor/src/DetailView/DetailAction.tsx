@@ -2,18 +2,17 @@ import * as React from "react";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import {
-  ActionDetail, ITimelineTrackDetail, TrackDetail
+  ActionDetail,
 } from '@stoked-ui/timeline';
 import ControlledText, {UncontrolledText} from "./ControlledText";
 import {
-  CtrlCell, CtrlRow, DetailActions, FormWrap, useEditMode
+  CtrlCell, CtrlRow, DetailActions, FormWrap,
 } from './Detail'
 import {
   actionDataSchema,
-  actionSchema,
   DetailViewProps,
   IEditorActionDetail,
-  IEditorProjectDetail, IEditorTrackDetail
+  IEditorTrackDetail
 } from "./Detail.types";
 import { useEditorContext } from "../EditorProvider/EditorContext";
 import BlendModeSelect from "./BlendModeSelect";

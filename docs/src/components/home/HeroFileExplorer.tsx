@@ -34,10 +34,11 @@ const FileExplorerGrid = dynamic(() => import('../showcase/FileExplorerCard'), {
   loading: createLoading({ width: '100%', height: 280 }),
 });
 
+/* Kept for potential future use:
 const FileExplorerDrop = dynamic(() => import('../showcase/FileExplorerCard'), {
   ssr: false,
   loading: createLoading({ width: 360, height: 280 }),
-});
+}); */
 
 export default function Hero() {
   const globalTheme = useTheme();

@@ -9,9 +9,7 @@ import Box from "@mui/material/Box";
 import {namedId} from '@stoked-ui/common';
 import {IMediaFile, MediaFile} from '@stoked-ui/media';
 import {useSlotProps} from '@mui/base/utils';
-import {useTheme} from "@mui/material";
 import composeClasses from '@mui/utils/composeClasses';
-import useForkRef from "@mui/utils/useForkRef";
 import {createUseThemeProps, styled} from '../internals/zero-styled';
 import {useEditor} from '../internals/useEditor';
 import EditorTrackActions from '../EditorTrack/EditorTrackActions';
@@ -106,10 +104,11 @@ const EditorRoot = styled(Box, {
   }
 });
 
-interface TimelineSlotProps {
-  trackActions?: any
-}
+// interface _TimelineSlotProps {
+//   trackActions?: any
+// }
 
+/*
 const DrawerHeader = styled('div')(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
@@ -118,6 +117,7 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   ...theme.mixins.toolbar,
   justifyContent: 'flex-end',
 }));
+*/
 
 /**
  *
@@ -133,9 +133,9 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 const Editor = React.forwardRef(function Editor<R extends IMediaFile = IMediaFile, Multiple extends boolean | undefined = undefined, >(inPropsId: EditorProps<R, Multiple>, ref: React.Ref<HTMLDivElement>): React.JSX.Element {
   const {state: context, dispatch} = useEditorContext();
   const {
-    file, flags, engine, getState, components, settings
+    file, flags, engine, getState, settings
   } = context;
-  const {fileView, videos, trackFiles } = settings;
+  const {fileView} = settings;
   const {id: editorIdLocal, ...inProps} = inPropsId;
 
   const defaultSx = inProps.fullscreen || flags?.fullscreen ? {} : {borderRadius: '6px 6px 0 0'}
@@ -155,7 +155,7 @@ const Editor = React.forwardRef(function Editor<R extends IMediaFile = IMediaFil
     ...noFlagProps
   } = inProps;
   React.useEffect(() => {
-    const set = ['noLabels', 'fileView', 'noTrackControls', 'noSnapControls', 'localDb', 'openSaveControls', 'record', 'noResizer', 'allControls', 'fullscreen', 'detailMode', 'minimal'];
+    // const flagSet = ['noLabels', 'fileView', 'noTrackControls', 'noSnapControls', 'localDb', 'openSaveControls', 'record', 'noResizer', 'allControls', 'fullscreen', 'detailMode', 'minimal'];
     const flagProps = {
       noLabels,
       fileView,
@@ -171,7 +171,7 @@ const Editor = React.forwardRef(function Editor<R extends IMediaFile = IMediaFil
       minimal,
       externalKeydown: true,
     }
-    const values = Object.keys(flagProps).filter((key) => flagProps[key] === true);
+    const values = Object.keys(flagProps).filter((key) => (flagProps as any)[key] === true);
     dispatch({type: 'SET_FLAGS', payload: {add: values, remove: []}});
   }, []);
 
@@ -256,7 +256,7 @@ const Editor = React.forwardRef(function Editor<R extends IMediaFile = IMediaFil
   }, [noFlagProps.mode])
 
   const timelineRef = React.useRef<HTMLDivElement>(null);
-  const [contextMenu, setContextMenu] = React.useState<{
+  const [_contextMenu, setContextMenu] = React.useState<{
     mouseX: number;
     mouseY: number;
     context: ITimelineTrack | ITimelineAction;
@@ -332,10 +332,10 @@ const Editor = React.forwardRef(function Editor<R extends IMediaFile = IMediaFil
   }
 
   const baseRef = React.useRef<HTMLDivElement>()
-  const handleRef = useForkRef(baseRef, ref)
+  // const handleRef = useForkRef(baseRef, ref)
 
   const {...editorViewPropsNew} = editorViewProps;
-  const {file: propsFile = null, fileUrl = '', actions} = noFlagProps;
+  const {file: propsFile = null, fileUrl = ''} = noFlagProps;
   const finalEditorId = editorIdLocal || namedId('editor');
   React.useEffect(() => {
       dispatch({
@@ -428,18 +428,17 @@ const Editor = React.forwardRef(function Editor<R extends IMediaFile = IMediaFil
       }
     };
   }, [baseRef?.current])
-  const drawerHeight = 240;
-  const theme = useTheme();
-  const [open, setOpen] = React.useState(false);
-
-
-  const handleDrawerOpen = () => {
-    setOpen(true);
-  };
-
-  const handleDrawerClose = () => {
-    setOpen(false);
-  };
+  // const drawerHeight = 240;
+  // const theme = useTheme();
+  // const [open, setOpen] = React.useState(false);
+  //
+  // const handleDrawerOpen = () => {
+  //   setOpen(true);
+  // };
+  //
+  // const handleDrawerClose = () => {
+  //   setOpen(false);
+  // };
 
   const newRootProps = {...rootProps, ...rootProps.ownerState};
   const displayTimeline = getState && getState?.() !== 'LOADING';

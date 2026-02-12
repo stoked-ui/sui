@@ -112,6 +112,7 @@ export default function MaterialShowcase() {
   }
   return (
     <ShowcaseContainer
+      id={null}
       preview={
         <ThemeProvider theme={theme}>
           <PointerContainer

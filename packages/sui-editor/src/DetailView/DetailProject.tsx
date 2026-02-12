@@ -11,7 +11,7 @@ import {useEditorContext} from "../EditorProvider";
 
 
 export function DetailProject(props: DetailViewProps) {
-  const { state: {file, selected , engine}, dispatch } = useEditorContext();
+  const { state: {file, selected}, dispatch } = useEditorContext();
 
   const {
     control,

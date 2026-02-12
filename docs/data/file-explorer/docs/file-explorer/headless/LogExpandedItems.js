@@ -21,7 +21,7 @@ import {
   ConvertPluginsIntoSignatures,
 } from '@stoked-ui/file-explorer/internals';
 import { NestedFiles } from 'docs/src/components/fileExplorer/data';
-import {MediaFile, IMediaFileInput} from "@stoked-ui/media/build";
+import {MediaFile, IMediaFileInput} from "@stoked-ui/media";
 
 interface FileExplorerLogExpandedParameters {
   areLogsEnabled?: boolean;

@@ -9,15 +9,15 @@ Run one of the following commands to add Material UI to your project:
 <codeblock storageKey="package-manager">
 
 ```bash npm
-npm install @stoked-ui/file-explorer @stoked-ui/media-selector
+npm install @stoked-ui/file-explorer @stoked-ui/media
 ```
 
 ```bash yarn
-yarn add @stoked-ui/file-explorer @stoked-ui/media-selector
+yarn add @stoked-ui/file-explorer @stoked-ui/media
 ```
 
 ```bash pnpm
-pnpm add @stoked-ui/file-explorer @stoked-ui/media-selector
+pnpm add @stoked-ui/file-explorer @stoked-ui/media
 ```
 
 </codeblock>

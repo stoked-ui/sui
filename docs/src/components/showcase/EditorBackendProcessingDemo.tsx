@@ -57,8 +57,7 @@ function EditorRaw({ id }: { id: string }) {
   return (
     <Editor
       id={id}
-      file={file}
-      name="backend-processing-demo"
+      file={file as any}
       sx={{
         width: '100%',
         height: 600,

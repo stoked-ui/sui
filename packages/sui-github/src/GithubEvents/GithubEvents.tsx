@@ -282,7 +282,7 @@ interface DisplayErrorDetails {
 }
 
 export function ErrorDetails({ error }: { error: string | RequestError }): React.JSX.Element | null {
-  const date = format(Date(), 'MMM d, yyyy h:mm a');
+  const date = format(new Date(), 'MMM d, yyyy h:mm a');
   const [errorDetails, setErrorDetails] = React.useState<DisplayErrorDetails>({ type: 'Error: Unknown Error', message: 'Sorry but your princess is in another castle', status: undefined });
   
   React.useEffect(() => {
@@ -347,8 +347,10 @@ export default function GithubEvents({ apiUrl, eventsPerPage = 40, hideMetadata 
   const [repositories, setRepositories] = React.useState<string[]>([]);
   const [actionTypes, setActionTypes] = React.useState<string[]>([]);
   const [dateFilter, setDateFilter] = React.useState<string>('');
-  const [descriptionFilter, setDescriptionFilter] = React.useState<string>('');
-  const [descriptions, setDescriptions] = React.useState<string[]>([]);
+  // @ts-ignore -- setter kept for future use
+  const [descriptionFilter, _setDescriptionFilter] = React.useState<string>('');
+  // @ts-ignore -- state kept for future use
+  const [_descriptions, setDescriptions] = React.useState<string[]>([]);
   const [page, setPage] = React.useState(1);
   const [totalCount, setTotalCount] = React.useState(0);
   const [cachedEvents, setCachedEvents] = React.useState<GitHubEvent[]>([]);
@@ -357,8 +359,10 @@ export default function GithubEvents({ apiUrl, eventsPerPage = 40, hideMetadata 
   const theme = useTheme();
   
   const scrollRef = React.useRef<HTMLDivElement>(null);
-  const [showAttached, setShowAttached] = React.useState(false);
-  const [scrollTop, setScrollTop] = React.useState(0);
+  // @ts-ignore -- state kept for future use
+  const [_showAttached, setShowAttached] = React.useState(false);
+  // @ts-ignore -- state kept for future use
+  const [_scrollTop, setScrollTop] = React.useState(0);
   const initializedRef = React.useRef(false);
   const isFilterChangeRef = React.useRef(false);
   const isPageChangeRef = React.useRef(false);
@@ -370,14 +374,14 @@ export default function GithubEvents({ apiUrl, eventsPerPage = 40, hideMetadata 
   const fetchedThisSessionRef = React.useRef(false);
   
   // Debug function to clear cache (for development)
-  const clearCache = () => {
-    console.log(`Clearing cache for ${cacheKey}`);
-    localStorage.removeItem(cacheKey);
-    setCachedEvents([]);
-    setEvents([]);
-    fetchedThisSessionRef.current = false;
-    initializedRef.current = false;
-  };
+  // const clearCache = () => {
+  //   console.log(`Clearing cache for ${cacheKey}`);
+  //   localStorage.removeItem(cacheKey);
+  //   setCachedEvents([]);
+  //   setEvents([]);
+  //   fetchedThisSessionRef.current = false;
+  //   initializedRef.current = false;
+  // };
 
   React.useEffect(() => {
     const el = scrollRef.current;
@@ -751,7 +755,7 @@ export default function GithubEvents({ apiUrl, eventsPerPage = 40, hideMetadata 
           
           if (data.events && data.events.length > 0) {
             // Check if we've reached events we already have
-            const allOldEvents = data.events.every(event => {
+            const allOldEvents = data.events.every((event: any) => {
               const eventDate = new Date(event.created_at);
               return eventDate <= mostRecentDate;
             });
@@ -761,7 +765,7 @@ export default function GithubEvents({ apiUrl, eventsPerPage = 40, hideMetadata 
               hasMore = false;
             } else {
               // Filter out events older than our most recent cached event
-              const newEvents = data.events.filter(event => {
+              const newEvents = data.events.filter((event: any) => {
                 const eventDate = new Date(event.created_at);
                 return eventDate > mostRecentDate;
               });

@@ -11,7 +11,7 @@ const CustomTreeItem = React.forwardRef(
       {...props}
       slotProps={{
         label: {
-          id: `${props.itemId}-label`,
+          id: `${props.id}-label`,
         },
       }}
     />

@@ -1,10 +1,8 @@
 import { ITimelineAction } from '@stoked-ui/timeline';
-import { getFileName } from '@stoked-ui/media';
 import {
-  UseEditorMetadataDefaultizedParameters, UseEditorMetadataParameters, UseEditorMetadataSignature,
+  UseEditorMetadataDefaultizedParameters, UseEditorMetadataSignature,
 } from './useEditorMetadata.types';
 import {EditorPlugin} from '../../models';
-import EditorFile from '../../../EditorFile/EditorFile';
 
 export const useEditorMetadata: EditorPlugin<UseEditorMetadataSignature> = ({
   params,

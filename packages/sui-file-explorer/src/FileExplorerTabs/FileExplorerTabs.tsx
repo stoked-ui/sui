@@ -6,7 +6,7 @@ import composeClasses from '@mui/utils/composeClasses';
 import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { styled, useTheme, Theme, CSSObject } from '@mui/material/styles';
 import MuiDrawer from '@mui/material/Drawer';
-import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
+// import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import CssBaseline from '@mui/material/CssBaseline';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
@@ -45,11 +45,11 @@ const useUtilityClasses = (ownerState: FileExplorerTabsProps) => {
  */
 const FileExplorerStandard = React.forwardRef(
   (inProps: FileExplorerTabsProps, ref: React.Ref<HTMLDivElement>) => {
-    const { tabNames, currentTab, drawerOpen, setTabName, tabSx, sx } = useThemeProps({
+    const { tabNames, currentTab, drawerOpen, setTabName, tabSx: _tabSx, sx: _sx } = useThemeProps({
       props: inProps,
       name: 'MuiFileExplorer',
     });
-    const classes = useUtilityClasses(inProps);
+    useUtilityClasses(inProps);
 
     const handleChange = (event: React.SyntheticEvent, tabName: string) => {
       setTabName(tabName);
@@ -159,13 +159,13 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   padding: theme.spacing(1, 0),
 }));
 
-interface AppBarProps extends MuiAppBarProps {
-  open?: boolean;
-}
+// interface AppBarProps extends MuiAppBarProps {
+//   open?: boolean;
+// }
 
-const AppBar = styled(MuiAppBar)<AppBarProps>(({ theme }) => ({
-  zIndex: theme.zIndex.drawer + 1,
-}));
+// const AppBar = styled(MuiAppBar)<AppBarProps>(({ theme }) => ({
+//   zIndex: theme.zIndex.drawer + 1,
+// }));
 
 const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
   ({ theme, open }: { theme: Theme; open: boolean }) => ({
@@ -255,11 +255,11 @@ const FileExplorerDrawer = React.forwardRef(
     const theme = useTheme();
     const [open, setOpen] = React.useState(false);
 
-    const { tabNames, currentTab, tabData, setTabName, tabSx, sx } = useThemeProps({
+    const { tabNames, currentTab, tabData, setTabName, tabSx: _tabSx2, sx: _sx2 } = useThemeProps({
       props: inProps,
       name: 'MuiFileExplorer',
     });
-    const classes = useUtilityClasses(inProps);
+    useUtilityClasses(inProps);
 
     const handleDrawerToggle = () => {
       setOpen((prev) => !prev);

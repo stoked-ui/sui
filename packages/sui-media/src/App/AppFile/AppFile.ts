@@ -1,12 +1,12 @@
-import {namedId, Constructor, FileSaveRequest, Versions, IDBVideo,} from '@stoked-ui/common';
+import {Constructor, FileSaveRequest, Versions, IDBVideo,} from '@stoked-ui/common';
 import WebFile, {
   IWebFile,
   IWebFileData,
   IWebFileProps,
 } from '../../WebFile';
 import type IMediaFile from '../../MediaFile/IMediaFile';
-import path from "path";
-import * as fse from "fs-extra";
+// import path from "path";
+// import * as fse from "fs-extra";
 
 export type IAppFileProps = IWebFileProps & {
   files?: File[];
@@ -200,13 +200,13 @@ export default class AppFile<FileDataType extends IAppFileData = IAppFileData> e
     });
   }
 
-  /**
-   * Generates a unique ID for the instance.
-   */
-  // eslint-disable-next-line class-methods-use-this
-  private generateId(): string {
-    return namedId(this.name);
-  }
+  // /**
+  //  * Generates a unique ID for the instance.
+  //  */
+  // // eslint-disable-next-line class-methods-use-this
+  // private generateId(): string {
+  //   return namedId(this.name);
+  // }
 
   /**
    * Gets data for the AppFile.

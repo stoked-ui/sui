@@ -1,13 +1,9 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import Grid from '@mui/material/Unstable_Grid2';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
-import KeyboardArrowRightRounded from '@mui/icons-material/KeyboardArrowRightRounded';
-import { Link } from '@mui/docs';
 import GradientText from 'docs/src/components/typography/GradientText';
-import ROUTES from 'docs/src/route';
 import Section from 'docs/src/layouts/Section';
 import SectionHeadline from 'docs/src/components/typography/SectionHeadline';
 

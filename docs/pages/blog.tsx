@@ -15,7 +15,6 @@ import Chip from '@mui/material/Chip';
 import Slack from 'docs/src/icons/Slack';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
-import YouTubeIcon from '@mui/icons-material/YouTube';
 import DiscordIcon from 'docs/src/icons/DiscordIcon';
 import Head from 'docs/src/modules/components/Head';
 import AppHeader from 'docs/src/layouts/AppHeader';

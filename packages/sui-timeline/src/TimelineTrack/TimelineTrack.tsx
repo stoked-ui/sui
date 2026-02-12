@@ -6,6 +6,7 @@ import { Box, Typography } from '@mui/material';
 import { prefix } from '../utils/deal_class_prefix';
 import { parserPixelToTime } from '../utils/deal_data';
 import { TimelineAction } from '../TimelineAction/TimelineAction';
+import { type TimelineActionProps } from '../TimelineAction/TimelineAction.types';
 import {
   getTrackBackgroundColor,
   type ITimelineTrack,
@@ -303,7 +304,7 @@ function TimelineTrack<
   const { state: context, dispatch } = useTimeline();
   const ref = React.useRef<HTMLDivElement>(null);
   const { settings, selectedTrack, flags, file } = context;
-  const { scrollLeft, startLeft, scale, scaleWidth, trackHoverId, trackHeight, videoTrack } =
+  const { scrollLeft, startLeft, scale, scaleWidth, trackHoverId, videoTrack } =
     settings;
 
   const {
@@ -320,11 +321,11 @@ function TimelineTrack<
 
   const getIndex = (getIndexTrack: ITimelineTrack) =>
     videoTrack ? 0 : file?.tracks?.findIndex((fileTrack) => fileTrack.id === getIndexTrack.id);
-  const index = getIndex(track);
+  const index = getIndex(track!) ?? 0;
   const classNames = ['track'];
-  const handleTime = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    if (!areaRef.current) {
-      return undefined;
+  const handleTime = (e: React.MouseEvent<HTMLDivElement, MouseEvent>): number => {
+    if (!areaRef?.current) {
+      return 0;
     }
     const rect = areaRef.current.getBoundingClientRect();
     const position = e.clientX - rect.x;
@@ -361,7 +362,7 @@ function TimelineTrack<
       ref={ref}
       className={`${prefix(...classNames)} ${(track?.classNames || []).join(' ')}`}
       locked={track.locked}
-      yPercent={calculatePercentage(videoTrack ? 1 : file?.tracks?.length, index)}
+      yPercent={calculatePercentage(videoTrack ? 1 : file?.tracks?.length ?? 0, index)}
       disabled={track.disabled || detailDisable}
       dim={!!track.dim}
       onMouseEnter={(event) => {
@@ -408,7 +409,7 @@ function TimelineTrack<
         switch (event.key) {
           case 'Backspace':
           case 'Delete': {
-            const command = new RemoveTrackCommand(file, track.id);
+            const command = new RemoveTrackCommand(file!, track.id);
             dispatch({ type: 'EXECUTE_COMMAND', payload: command });
 
             event.preventDefault();
@@ -421,13 +422,13 @@ function TimelineTrack<
         if (track.id !== 'newTrack') {
           dispatch({ type: 'SELECT_TRACK', payload: track });
         } else {
-          props.onAddFiles();
+          props.onAddFiles?.();
         }
         if (track && onClickTrack) {
           e.stopPropagation();
           e.preventDefault();
           const time = handleTime(e);
-          onClickTrack(e, { track, time });
+          onClickTrack(e, { track, time } as any);
         }
       }}
       onDoubleClick={(e) => {
@@ -435,7 +436,7 @@ function TimelineTrack<
           e.stopPropagation();
           e.preventDefault();
           const time = handleTime(e);
-          onDoubleClickTrack(e, { track, time });
+          onDoubleClickTrack(e, { track, time } as any);
         }
       }}
       onContextMenu={(e) => {
@@ -464,13 +465,13 @@ function TimelineTrack<
         return (
           <TimelineAction
             key={action.id}
-            {...props}
+            {...(props as any)}
             handleTime={handleTime}
-            track={flags.collapsed ? props.actionTrackMap[action.id] : track}
+            track={(flags.collapsed ? props.actionTrackMap?.[action.id] : track)!}
             action={action}
-            onClickAction={onClickAction}
-            onDoubleClickAction={onDoubleClickAction}
-            onContextMenuAction={onContextMenuAction}
+            onClickAction={onClickAction as TimelineActionProps['onClickAction']}
+            onDoubleClickAction={onDoubleClickAction as TimelineActionProps['onDoubleClickAction']}
+            onContextMenuAction={onContextMenuAction as TimelineActionProps['onContextMenuAction']}
           />
         );
       })}
@@ -615,7 +616,7 @@ function ControlledTrack({
   const context = useTimeline();
   const { state } = context;
   const { settings } = state;
-  const { startLeft, fitScaleData } = settings;
+  const { startLeft } = settings;
 
   if (!width) {
     return undefined;

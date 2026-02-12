@@ -1,62 +1,23 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
-import KeyboardArrowRightRounded from '@mui/icons-material/KeyboardArrowRightRounded';
 import Head from 'docs/src/modules/components/Head';
-import { useTranslate } from '@stoked-ui/docs/i18n';
 import Alert from '@mui/material/Alert';
-import redirect from 'next/router';
-import { Link } from '@stoked-ui/docs';
+import { useRouter } from 'next/router';
 import { useSearchParams } from 'next/navigation';
 import AppHeader from '../src/layouts/AppHeader';
 import AppFooter from '../src/layouts/AppFooter';
 import BrandingCssVarsProvider from '@stoked-ui/docs';
 import Section from '../src/layouts/Section';
-import { pageToTitleI18n } from '../src/modules/utils/helpers';
-import type { MuiPage } from '../src/MuiPage';
-import materialPages from '../data/pages';
 
 export default function Components() {
-  const t = useTranslate();
-  const pages = materialPages;
-  const componentPageData = pages.find(({ title }) => title === 'Components');
-  function renderItem(aPage: MuiPage) {
-    return (
-      <ListItem key={aPage.pathname} disablePadding>
-        <ListItemButton
-          component={Link}
-          noLinkStyle
-          href={aPage.pathname}
-          sx={{
-            px: 1,
-            py: 0.5,
-            fontSize: '0.84375rem',
-            fontWeight: 500,
-            '&:hover, &:focus': { '& svg': { opacity: 1 } },
-          }}
-        >
-          {pageToTitleI18n(aPage, t) || ''}
-          <KeyboardArrowRightRounded
-            sx={{
-              ml: 'auto',
-              fontSize: '1.125rem',
-              opacity: 0,
-              color: 'primary.main',
-            }}
-          />
-        </ListItemButton>
-      </ListItem>
-    );
-  }
+  const router = useRouter();
   const [alert, setAlert] = React.useState<React.JSX.Element | null>(null);
 
   const query = useSearchParams()
   const code = query.get('code');
-  const token = query.get('token');
-  const email = decodeURIComponent(query.get('email'));
+  const email = decodeURIComponent(query.get('email') ?? '');
 
   React.useEffect(() => {
 
@@ -166,7 +127,7 @@ export default function Components() {
       }
     }
     if (!code) {
-      redirect('/404');
+      router.push('/404');
       return;
     }
     setAlert(getCodeStatus(code));

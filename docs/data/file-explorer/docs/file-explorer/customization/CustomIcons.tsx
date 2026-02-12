@@ -39,7 +39,7 @@ export default function CustomIcons() {
           expandIcon: AddBoxIcon,
           collapseIcon: IndeterminateCheckBoxIcon,
           endIcon: CloseSquare,
-          item: CustomTreeItem,
+          item: CustomTreeItem as any,
         }}
         items={NestedFiles}
       />

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {styled} from "@mui/material/styles";
 import { AutoSizer } from 'react-virtualized';
-import {type TimelineControlPropsBase} from '../Timeline/TimelineControl.types';
+
 import {prefix} from '../utils/deal_class_prefix';
 import {parserTimeToPixel} from '../utils/deal_data';
 import TimelineTrackAreaDragLines from './TimelineTrackAreaDragLines';
@@ -15,8 +15,8 @@ import { ITimelineTrack } from '../TimelineTrack';
 
 /** edit area ref data */
 export interface TimelineTrackAreaState {
-  domRef: React.MutableRefObject<HTMLDivElement>;
-  tracksRef: React.MutableRefObject<HTMLDivElement>;
+  domRef: React.RefObject<HTMLDivElement>;
+  tracksRef: React.RefObject<HTMLDivElement>;
 }
 
 const TimelineTrackAreaRoot = styled('div')(() => ({
@@ -54,8 +54,8 @@ const TimelineTrackAreaCollapsed = React.forwardRef<TimelineTrackAreaState, Time
     defaultGetAssistPosition,
     defaultGetMovePosition
   } = useDragLine();
-  const editAreaRef = React.useRef<HTMLDivElement>();
-  const tracksElementRef = React.useRef<HTMLDivElement>();
+  const editAreaRef = React.useRef<HTMLDivElement>(null);
+  const tracksElementRef = React.useRef<HTMLDivElement>(null);
   const heightRef = React.useRef(-1);
 
   // ref 数据

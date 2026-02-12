@@ -141,7 +141,7 @@ const TimelineLabel = React.forwardRef(
           hover={trackHover ? true : undefined}
           track={track}
           locked={track.locked}
-          disabled={track.disabled}
+          disabled={track.disabled ?? false}
           selected={track.id === selectedTrack?.id}
           dim={editorMode !== 'project' && selectedTrack?.id !== track.id && newTrackSim}
           sx={(theme) => ({
@@ -178,7 +178,7 @@ const TimelineLabel = React.forwardRef(
           <TimelineLabelText trackHeight={trackHeight}>
             <Typography variant="button" color="text.secondary" sx={(theme) => ({ color: `${theme.palette.background.default}!important` })} >{track.name}</Typography>
           </TimelineLabelText>
-          {(file && !newTrackSim) && <TrackControls track={track} />}
+          {(file && !newTrackSim && TrackControls) && <TrackControls track={track} />}
         </TimelineLabelContainer>
       </TimelineLabelRoot>}
     </React.Fragment>);

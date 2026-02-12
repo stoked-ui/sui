@@ -47,9 +47,9 @@ function TimelineCursor({
   onCursorDrag,
   onCursorDragEnd,
 }: TimelineCursorProps) {
-  const rowRnd = React.useRef<RowRndApi>();
-  const cursorRef = React.useRef<HTMLDivElement>();
-  const draggingLeft = React.useRef<undefined | number>();
+  const rowRnd = React.useRef<RowRndApi>(null);
+  const cursorRef = React.useRef<HTMLDivElement>(null);
+  const draggingLeft = React.useRef<number | null>(null);
   const context = useTimeline();
   const { state, dispatch } = context;
   const { engine, components, settings, flags, file } = state;
@@ -73,7 +73,7 @@ function TimelineCursor({
   }, [cursorRef.current]);
 
   React.useEffect(() => {
-    if (typeof draggingLeft.current === 'undefined' && rowRnd.current) {
+    if (draggingLeft.current === null && rowRnd.current) {
       // When not dragging, update the cursor scale based on the dragging parameters.
       rowRnd.current.updateLeft(
         parserTimeToPixel(cursorTime, { startLeft, scaleWidth, scale }) - scrollLeft,
@@ -107,17 +107,17 @@ function TimelineCursor({
         onCursorDragStart?.(cursorTime);
         draggingLeft.current =
           parserTimeToPixel(cursorTime, { startLeft, scaleWidth, scale }) - scrollLeft;
-        rowRnd.current.updateLeft(draggingLeft.current);
+        rowRnd.current!.updateLeft(draggingLeft.current!);
       }}
       onDragEnd={() => {
-        const time = parserPixelToTime(draggingLeft.current + scrollLeft, {
+        const time = parserPixelToTime(draggingLeft.current! + scrollLeft, {
           startLeft,
           scale,
           scaleWidth,
         });
         setCursor({ time }, context);
         onCursorDragEnd?.(time);
-        draggingLeft.current = undefined;
+        draggingLeft.current = null;
       }}
       onDrag={({ left }, scroll = 0) => {
         const scrollLeftDrag = scrollSync.state.scrollLeft;
@@ -129,11 +129,11 @@ function TimelineCursor({
           } else {
             draggingLeft.current = left;
           }
-        } else if (draggingLeft.current < startLeft - scrollLeftDrag - scroll) {
+        } else if (draggingLeft.current! < startLeft - scrollLeftDrag - scroll) {
           draggingLeft.current = startLeft - scrollLeftDrag - scroll;
         }
-        rowRnd.current.updateLeft(draggingLeft.current);
-        const time = parserPixelToTime(draggingLeft.current + scrollLeftDrag, {
+        rowRnd.current!.updateLeft(draggingLeft.current!);
+        const time = parserPixelToTime(draggingLeft.current! + scrollLeftDrag, {
           startLeft,
           scale,
           scaleWidth,

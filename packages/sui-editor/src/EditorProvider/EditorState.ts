@@ -1,5 +1,4 @@
 import {
-  TimelineContextType,
   TimelineState,
   refreshActionState as refreshTimelineActionState,
   refreshTrackState as refreshTimelineTrackState,

@@ -3,7 +3,7 @@ import { useController } from "react-hook-form";
 import TextField from "@mui/material/TextField";
 import { Tooltip } from "@mui/material";
 import { namedId} from '@stoked-ui/common';
-import { ErrorMessage } from '@hookform/error-message';
+// import { ErrorMessage } from '@hookform/error-message';
 
 // const TextFieldStyle = OutlinedStyle(TextField);
 
@@ -45,8 +45,8 @@ export default function ControlledText({ ref, prefix, value, control, name, labe
 
   const {
     field,
-    fieldState: { invalid, isTouched, isDirty, error },
-    formState: { touchedFields, dirtyFields }
+    fieldState: { error },
+    formState: { }
   } = useController({
     name,
     control,
@@ -94,7 +94,7 @@ export default function ControlledText({ ref, prefix, value, control, name, labe
 }
 
 export function UncontrolledText(props: any) {
-  const { label, onClick, format, value, multiline, control, ref, rows, type, className, disabled } = props;
+  const { label, onClick, format, value, multiline, ref, rows, type, className, disabled } = props;
   let { name } = props;
   if (!name && label) {
     name = label.split(' ').map((optionNamePart: string) => {

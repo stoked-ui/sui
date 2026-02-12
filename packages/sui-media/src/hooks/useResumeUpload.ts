@@ -4,7 +4,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useUploadClient } from './MediaApiProvider';
-import type { ActiveUploadsResponseDto } from '../api/types';
+// import type { ActiveUploadsResponseDto } from '../api/types';
 
 /**
  * Hook to fetch active uploads that can be resumed

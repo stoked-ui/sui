@@ -22,11 +22,11 @@ import {GridColumns} from "../internals/plugins/useFileExplorerGrid/useFileExplo
 import {SxProps} from "@mui/system";
 import { transformFilesToTreeItems } from '../internals/utils/transformFilesToTreeItems';
 import { CustomFileTreeItem } from './CustomFileTreeItem';
-import {
-  createOnItemPositionChangeHandler,
-  createIsItemReorderableHandler,
-  createCanMoveItemToNewPositionHandler,
-} from '../internals/plugins/useFileExplorerDnd/muiXDndAdapters';
+// import {
+//   createOnItemPositionChangeHandler,
+//   createIsItemReorderableHandler,
+//   createCanMoveItemToNewPositionHandler,
+// } from '../internals/plugins/useFileExplorerDnd/muiXDndAdapters';
 
 // Feature flag: Enable when @mui/x-tree-view-pro is available
 const HAS_RICH_TREE_VIEW_PRO = false;
@@ -143,12 +143,12 @@ const FileExplorer = React.forwardRef(function FileExplorer<
   //const [_, forceUpdate] = React.useState(0);
 
   const getHeaderWidths = (widthColumns: GridColumns) => Object.entries(widthColumns).reduce(
-    (acc, [id, column]: any) => {
+    (acc: Record<string, any>, [id, column]: any) => {
       acc[`& .column-${id}`] = { width: column.width };
       acc[`& .header-${id}`] = { width: column.width };
       return acc;
     },
-    {}
+    {} as Record<string, any>
   );
 
   const [columnWidths, setColumnWidths] = React.useState<SxProps>(getHeaderWidths(columns));
@@ -169,7 +169,7 @@ const FileExplorer = React.forwardRef(function FileExplorer<
     ownerState: props as FileExplorerProps<any>,
   });
 
-  const itemsToRender = instance.getItemsToRender();
+  // const itemsToRender = instance.getItemsToRender();
 
   // Work Item 1.2: Plugin Lifecycle Adapter Integration (COMPLETE)
   // ================================================================
@@ -217,30 +217,30 @@ const FileExplorer = React.forwardRef(function FileExplorer<
   );
 
   // Handle double click events
-  const handleItemDoubleClick = React.useCallback(
-    (itemId: string) => {
-      const item = instance.getItem(itemId);
-      if (item && inProps.onItemDoubleClick) {
-        inProps.onItemDoubleClick(item);
-      }
-    },
-    [instance, inProps.onItemDoubleClick]
-  );
+  // const handleItemDoubleClick = React.useCallback(
+  //   (itemId: string) => {
+  //     const item = instance.getItem(itemId);
+  //     if (item && inProps.onItemDoubleClick) {
+  //       inProps.onItemDoubleClick(item);
+  //     }
+  //   },
+  //   [instance, inProps.onItemDoubleClick]
+  // );
 
   // Work Item 2.1: MUI X itemsReordering Integration
   // Create MUI X DnD handlers that bridge to FileExplorer plugin system
-  const handleItemPositionChange = React.useMemo(
-    () => createOnItemPositionChangeHandler(instance),
-    [instance]
-  );
-  const handleIsItemReorderable = React.useMemo(
-    () => createIsItemReorderableHandler(instance),
-    [instance]
-  );
-  const handleCanMoveItemToNewPosition = React.useMemo(
-    () => createCanMoveItemToNewPositionHandler(instance),
-    [instance]
-  );
+  // const handleItemPositionChange = React.useMemo(
+  //   () => createOnItemPositionChangeHandler(instance),
+  //   [instance]
+  // );
+  // const handleIsItemReorderable = React.useMemo(
+  //   () => createIsItemReorderableHandler(instance),
+  //   [instance]
+  // );
+  // const handleCanMoveItemToNewPosition = React.useMemo(
+  //   () => createCanMoveItemToNewPositionHandler(instance),
+  //   [instance]
+  // );
 
   // Legacy renderItem for grid mode (unchanged)
   const renderItem = (item: ReturnType<typeof instance.getItemsToRender>[number]) => {

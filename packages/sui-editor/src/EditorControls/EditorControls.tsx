@@ -16,11 +16,11 @@ import MenuItem from '@mui/material/MenuItem';
 import ToggleButton from '@mui/material/ToggleButton';
 import Box from '@mui/material/Box';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-import { alpha, emphasize, Theme } from '@mui/material/styles';
-import { Slider, Stack, Tooltip } from '@mui/material';
+import { emphasize } from '@mui/material/styles';
+import { Tooltip } from '@mui/material';
 import { MediaFile } from '@stoked-ui/media';
 import {
-  OutputBlob, Version, ToggleButtonGroupEx, FileState, SnapControls, EngineState, PlaybackMode,
+  Version, ToggleButtonGroupEx, EngineState, PlaybackMode,
 } from '@stoked-ui/timeline';
 import { VideoSaveRequest, LocalDb } from '@stoked-ui/common';
 import { useEditorContext } from '../EditorProvider/EditorContext';
@@ -205,10 +205,10 @@ type ControlProps = {
 function Controls(inProps: ControlProps) {
   const { dispatch, state: { app, settings, engine, file} } = useEditorContext();
   const editorEngine = engine as IEditorEngine;
-  const controlsInput: string = '';
+  // const controlsInput: string = '';
 
   useThemeProps({ props: inProps, name: 'MuiControls' });
-  const { setVideoURLs, controls, versions, setVersions, setControls } = inProps;
+  const { setVideoURLs: _setVideoURLs, controls, versions: _versions, setVersions: _setVersions, setControls: _setControls } = inProps;
   // const [mediaRecorder, setMediaRecorder] = React.useState<MediaRecorder | null>(null);
   // const [recordedChunks, setRecordedChunks] = React.useState<Blob[]>([]);
 const [lastRecording, setLastRecording] = React.useState<Blob | null>(null);
@@ -398,7 +398,7 @@ Controls.propTypes = {
 
 function ViewToggle() {
   const { state: { flags, settings }, dispatch } = useEditorContext();
-  const set = ['timelineView', 'fileView'];
+  // const viewOptions = ['timelineView', 'fileView'];
 
   const handleOptions = (event: React.MouseEvent<HTMLElement>, newOptions: string[]) => {
     dispatch({ type: 'SET_FLAGS', payload: { add: newOptions, remove: [] } });
@@ -520,12 +520,12 @@ const EditorControls = React.forwardRef(function EditorControls(
   ref: React.Ref<HTMLDivElement>,
 ): React.JSX.Element {
   const [controls, setControls] = React.useState<EditorControlState[]>(['pause']);
-  const { state: { engine, settings, flags, file, getState } } = useEditorContext();
+  const { state: { engine, settings, getState } } = useEditorContext();
   const props = useThemeProps({ props: inProps, name: 'MuiEditorControls' });
 
-  const { versions, setVersions, currentVersion, setCurrentVersion } = props;
+  const { versions, setVersions } = props;
   const [time, setTime] = React.useState(0);
-  const [videoURLs, setVideoURLs] = React.useState<string[]>([]);
+  const [, setVideoURLs] = React.useState<string[]>([]);
 
   // Set playback rate
   const handleRateChange = (event: SelectChangeEvent<unknown>) => {
@@ -602,8 +602,8 @@ const EditorControls = React.forwardRef(function EditorControls(
 
   const controlProps = { setVideoURLs, controls, setControls, versions, setVersions };
 
-  const showVersions = !!versions && !!currentVersion && !!setCurrentVersion && !!setVersions;
-  const versionProps = { versions, setVersions, currentVersion, setCurrentVersion };
+  // const showVersions = !!versions && !!currentVersion && !!setCurrentVersion && !!setVersions;
+  // const versionProps = { versions, setVersions, currentVersion, setCurrentVersion };
 
   return (
     <PlayerRoot

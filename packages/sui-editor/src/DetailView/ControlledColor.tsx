@@ -23,8 +23,8 @@ export default function ControlledColor({ darkLabel, lightLabel, control, name, 
 
   const {
     field,
-    fieldState: { invalid, isTouched, isDirty, error },
-    formState: { touchedFields, dirtyFields }
+    fieldState: { error },
+    formState: { }
   } = useController({
     name,
     control,
@@ -34,7 +34,7 @@ export default function ControlledColor({ darkLabel, lightLabel, control, name, 
   if (!type) {
     type = 'text';
   }
-  const labelColor = (theme) => theme.palette.mode === 'dark' ? darkLabel : lightLabel;
+  const labelColor = (theme: any) => theme.palette.mode === 'dark' ? darkLabel : lightLabel;
   return (
     <Tooltip
       PopperProps={{
@@ -50,7 +50,7 @@ export default function ControlledColor({ darkLabel, lightLabel, control, name, 
       <TextFieldStyle
         {...field}
         id={namedId(field.name)}
-        onClick={(ev) => {
+        onClick={(ev: any) => {
           onClick?.(ev);
         }}
         inputRef={field.ref}
@@ -63,7 +63,7 @@ export default function ControlledColor({ darkLabel, lightLabel, control, name, 
         disabled={disabled}
         className={className}
         error={!!error}
-        sx={(theme) => ({
+        sx={(theme: any) => ({
           '& input': {blockSize: '56px', padding: 0},
           '& fieldset': {
             color: theme.palette.text.primary,

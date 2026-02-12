@@ -16,7 +16,6 @@ import TimelineFile, { ITimelineFile } from "../TimelineFile";
 import { EngineState, IEngine } from "../Engine";
 import { type ITimelineTrack } from "../TimelineTrack";
 import {
-  ADD_SCALE_COUNT,
   DEFAULT_MOBILE_TRACK_HEIGHT,
   DEFAULT_SCALE, DEFAULT_SCALE_COUNT,
   DEFAULT_SCALE_SPLIT_COUNT,
@@ -98,8 +97,8 @@ export interface ITimelineStateProps<
   engine: EngineType,
   file?: FileType,
   getState:() => string | EngineStateType
-  selectedTrack?: TrackType,
-  selectedAction?: ActionType,
+  selectedTrack?: TrackType | null,
+  selectedAction?: ActionType | null,
   app?: AppType,
   initialSettings?: Settings,
 }
@@ -131,7 +130,7 @@ function processSelection<State extends TimelineState = TimelineState>(state: St
 }
 
 function refreshState<State extends TimelineState = TimelineState>(state: State): State {
-  const { file, selected, selectedTrack, selectedAction, flags } = state;
+  const { file, selected, selectedTrack, selectedAction } = state;
   let tracks = file?.tracks;
   if (!tracks) {
     return state;
@@ -163,7 +162,7 @@ function refreshState<State extends TimelineState = TimelineState>(state: State)
 
 export function updateSelection<State extends TimelineState = TimelineState>(state: State): State {
   state = processSelection(state);
-  if (state.flags.detailMode) {
+  if (state.flags.detailMode && state.file) {
     state.file.tracks = state.file.tracks.map((track, index) => {
       return {
         ...track,

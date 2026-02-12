@@ -3,7 +3,6 @@ import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Avatar from '@mui/material/Avatar';
 import { FileExplorer } from '@stoked-ui/file-explorer/FileExplorer';
-import { IMediaFileInput } from '@stoked-ui/media';
 import {
   useFile,
   UseFileParameters,
@@ -19,7 +18,7 @@ import {
   FileProvider
 } from '@stoked-ui/file-explorer';
 
-const ITEMS: IMediaFileInput[] = [
+const ITEMS: any[] = [
   {
     id: '1',
     name: 'Amelia Hart',
@@ -45,7 +44,9 @@ const CustomTreeItemContent = styled(FileContent)(({ theme }) => ({
 
 interface CustomTreeItemProps
   extends Omit<UseFileParameters, 'rootRef'>,
-    Omit<React.HTMLAttributes<HTMLLIElement>, 'onFocus'> {}
+    Omit<React.HTMLAttributes<HTMLLIElement>, 'onFocus'> {
+  itemId?: string;
+}
 
 const CustomTreeItem = React.forwardRef(function CustomTreeItem(
   props: CustomTreeItemProps,
@@ -61,10 +62,10 @@ const CustomTreeItem = React.forwardRef(function CustomTreeItem(
     getLabelProps,
     getGroupTransitionProps,
     status,
-  } = useFile({ id, itemId, children, name, disabled, rootRef: ref });
+  } = useFile({ id: id ?? itemId, children, name, disabled, rootRef: ref });
 
   return (
-    <FileProvider itemId={itemId}>
+    <FileProvider id={id ?? itemId!}>
       <FileRoot {...getRootProps(other)}>
         <CustomTreeItemContent {...getContentProps()}>
           <FileIconContainer {...getIconContainerProps()}>

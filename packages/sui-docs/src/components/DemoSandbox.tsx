@@ -18,7 +18,7 @@ import {
 } from '@mui/material/styles';
 import rtl from 'jss-rtl';
 import type {} from '@mui/material/themeCssVarsAugmentation';
-import { useTranslate } from '../i18n';
+// import { useTranslate } from '../i18n';
 import { getDesignTokens } from '../branding';
 import { highDensity } from './ThemeContext';
 
@@ -204,7 +204,7 @@ function DemoSandbox(props: any) {
   const sandboxProps = iframe ? { name, productId, ...other } : {};
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const t = useTranslate();
+  // const t = useTranslate();
 
   // `childrenProp` needs to be a child of `Sandbox` since the iframe implementation rely on `cloneElement`.
   const children = <Sandbox {...sandboxProps}>{childrenProp}</Sandbox>;

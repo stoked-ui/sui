@@ -1,3 +1,27 @@
+// File System Access API type declarations
+// These types are not yet in the standard TypeScript lib
+type FilePickerAcceptType = {
+  description?: string;
+  accept: Record<string, string[]>;
+};
+
+type WellKnownDirectory = 'desktop' | 'documents' | 'downloads' | 'music' | 'pictures' | 'videos';
+
+interface SaveFilePickerOptions {
+  excludeAcceptAllOption?: boolean;
+  suggestedName?: string;
+  types?: FilePickerAcceptType[];
+  startIn?: WellKnownDirectory | FileSystemHandle;
+  id?: string;
+}
+
+declare global {
+  interface Window {
+    showSaveFilePicker(options?: SaveFilePickerOptions): Promise<FileSystemFileHandle>;
+    showOpenFilePicker(options?: any): Promise<FileSystemFileHandle[]>;
+  }
+}
+
 export type SaveDialogProps = SaveFilePickerOptions & { fileBlob: Blob }
 
 export async function saveFileApi(options: SaveDialogProps) {
@@ -32,7 +56,7 @@ export type OpenDialogProps = {
 
 export async function openFileApi(options?: OpenDialogProps): Promise<File[]> {
   const fileHandles = await window.showOpenFilePicker(options);
-  return Promise.all(fileHandles.map(async (fh) =>  fh.getFile()));
+  return Promise.all(fileHandles.map(async (fh: any) =>  fh.getFile()));
 }
 
 export async function saveFileDeprecated(options: SaveDialogProps) {

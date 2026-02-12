@@ -43,14 +43,14 @@ export default class Engine<
 
   playbackMode: PlaybackMode = PlaybackMode.CANVAS;
 
-  playbackTimespans: { timespan: { start: number, end: number }, fileTimespan: { start: number, end: number }}[];
+  playbackTimespans!: { timespan: { start: number, end: number }, fileTimespan: { start: number, end: number }}[];
 
-  playbackCurrentTimespans: { timespan: { start: number, end: number }, fileTimespan: { start: number, end: number }}[]
+  playbackCurrentTimespans!: { timespan: { start: number, end: number }, fileTimespan: { start: number, end: number }}[]
 
-  media: HTMLMediaElement | null;
+  media!: HTMLMediaElement | null;
 
   /** Action actionType map */
-  protected _controllers: Record<string, IController>;
+  protected _controllers!: Record<string, IController>;
 
   /** Action map that needs to be run */
   protected _actionMap: Record<string, ActionType> = {};

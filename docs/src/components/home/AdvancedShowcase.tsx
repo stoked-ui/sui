@@ -1681,6 +1681,7 @@ const rows = [
 export default function DataTable() {
   return (
     <ShowcaseContainer
+      id={null}
       preview={
         <Paper
           variant="outlined"

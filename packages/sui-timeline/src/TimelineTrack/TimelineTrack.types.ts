@@ -1,5 +1,4 @@
 import * as React from "react";
-import { IMediaFile } from '@stoked-ui/media';
 import {alpha, darken, lighten} from "@mui/material/styles";
 import { compositeColors } from "@stoked-ui/common";
 import { type ITimelineAction, type ITimelineFileAction, ITimelineActionHandlers } from '../TimelineAction/TimelineAction.types';
@@ -15,7 +14,7 @@ export type TimelineTrackProps<
   TimelineControlPropsBase<TrackType, ActionType>
   & ITimelineTrackHandlers<TrackType>
   & {
-  areaRef?: React.MutableRefObject<HTMLDivElement>;
+  areaRef?: React.RefObject<HTMLDivElement>;
   track?: TrackType;
   style?: React.CSSProperties;
   dragLineData: DragLineData;
@@ -137,9 +136,8 @@ export const getTrackBackgroundColor = (color: string, mode: 'dark' | 'light', s
   const dimMultiplier = dim ? 0.5 : 1
   let firstColor = compositeColors(baseColor, alpha(color, Math.max(0, Math.min(1, firstAlpha(modeMod(modeState.label))))));
   const endColor = compositeColors(baseColor, alpha(color, Math.max(0, Math.min(1, endAlpha(modeMod(modeState.row))))));
-  let opacity = 1;
   if (state === 'normal') {
-    opacity = .95;
+    // normal state
   }
   if (mode === 'dark') {
     firstColor = lighten(firstColor, .4)

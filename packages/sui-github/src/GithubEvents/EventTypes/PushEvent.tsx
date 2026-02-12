@@ -19,7 +19,7 @@ export default function PushEvent({ event }: PushEventProps): React.JSX.Element 
   const branchName = event.ref?.replace('refs/heads/', '') || 'main';
   const commits = event.payload?.commits || [];
   const commitCount = commits.length;
-  const firstCommit = commits[0];
+  // const firstCommit = commits[0];
 
   return (
     <Box sx={{ p: '16px' }}>

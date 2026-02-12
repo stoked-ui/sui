@@ -1,5 +1,4 @@
 import * as React from 'react';
-import IconButton from "@mui/material/IconButton";
 import { Close } from "@mui/icons-material";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
@@ -16,16 +15,7 @@ import EditorProvider from "../EditorProvider";
 import { DetailCombined } from './DetailCombined';
 import EditorFile, {IEditorFile} from "../EditorFile";
 
-const seen = new WeakSet();
-const replacer = (key, value) => {
-  if (typeof value === 'object' && value !== null) {
-    if (seen.has(value)) {
-      return '[Circular]';
-    }
-    seen.add(value);
-  }
-  return value;
-};
+// Circular reference replacer removed (was unused)
 
 interface DetailOutterProps {
   detailState: DetailState,
@@ -46,7 +36,7 @@ export const DetailView = React.forwardRef(function DetailView(
   const { selected, selectedType, selectedAction, selectedTrack, selectedDetail } = state
 
   const { selectedTrackId, selectedActionId, selectedId } = detailState;
-  const [initialized, setInitialized] = React.useState(false);
+  const [_initialized, _setInitialized] = React.useState(false);
   const [currSelectedId, setCurrSelectedId] = React.useState('')
 
   React.useEffect(() => {

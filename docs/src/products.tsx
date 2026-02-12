@@ -2,14 +2,14 @@ import * as React from "react";
 import ButtonBase from "@mui/material/ButtonBase";
 import { Cancelable } from "@mui/utils/debounce";
 import { SxProps } from "@mui/system";
-import { visuallyHidden } from "@mui/utils";
+// import { visuallyHidden } from "@mui/utils";
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Chip from "@mui/material/Chip";
 import Fade from "@mui/material/Fade";
 import Paper from "@mui/material/Paper";
 import Popper from "@mui/material/Popper";
-import KeyboardArrowRightRounded from "@mui/material/SvgIcon/SvgIcon";
+// import KeyboardArrowRightRounded from "@mui/material/SvgIcon/SvgIcon";
 import { Link } from "@stoked-ui/docs";
 import { alpha, Theme } from "@mui/material/styles";
 import Typography from "@mui/material/Typography";
@@ -58,7 +58,7 @@ type TProduct = {
   hideProductFeatures?: boolean;
   live?: boolean;
   showcaseType: React.ComponentType;
-  showcaseContent: any;
+  showcaseContent?: any;
 }
 
 type LinkType = 'product' | 'doc';
@@ -430,7 +430,7 @@ function titleCase(str: string) {
 function SwipeableProducts(props: ProductSwipeableProps) {
   const swipeableProducts = React.useMemo(() => {
     const { show, products, productIndex, setProductIndex } = props;
-    const blocked = products.products[productIndex].id === 'media-selector';
+    const blocked = false;
     return (
       <Box sx={{
         display: { md: 'none' },
@@ -573,7 +573,7 @@ function ProductsPreviews({ products }: { products: Products } ) {
   });
   const Showcase = products.live[productIndex].showcaseType;
 
-  const showcaseProps = { showcaseContent: products.products?.[productIndex]?.data?.showcaseContent};
+  // const showcaseProps = { showcaseContent: products.products?.[productIndex]?.data?.showcaseContent};
   return (
     <Section bg="gradient" ref={ref}>
       <Grid container spacing={0}>
@@ -674,9 +674,7 @@ class Products extends IndexObject<Product> {
     const { productIndex, setProductIndex } = props;
     return (<Stack spacing={1} sx={{ display: { xs: 'none', md: 'flex' }, maxWidth: 500 }}>
       {this.live.map((product, index) => {
-        if (product.id !== 'media-selector') {
-          return product.highlightedItem(productIndex, setProductIndex, index);
-        }
+        return product.highlightedItem(productIndex, setProductIndex, index);
       })}
     </Stack>)
   }
@@ -773,13 +771,13 @@ const fileExplorerData: TProduct = {
 };
 const fileExplorer = new Product(fileExplorerData);
 
-const coreData: TProduct = {
+/* const coreData: TProduct = {
   id: 'core',
   name: "Core",
   fullName: "Stoked UI: Core",
   description: "Stoked UI is an open-source React component library that implements Google's Material Design. It's comprehensive and can be used in production out of the box.",
   icon: "product-advanced",
-  url: "/media-selector",
+  url: "/core",
   hideProductFeatures: true,
   live: true,
   showcaseType: AdvancedShowcase,
@@ -801,21 +799,129 @@ const coreData: TProduct = {
     id: 'roadmap',
   }],
 };
-const core = new Product(coreData);
+const core = new Product(coreData); */
 
-const mediaSelectorData: TProduct = {
-  id: 'media-selector',
-  name: "Media Selector",
-  fullName: "Stoked UI: Media Selector",
-  description: "Library used to select and gather type specific meta data from client side files",
+const mediaData: TProduct = {
+  id: 'media',
+  name: "Media",
+  fullName: "Stoked UI: Media",
+  description: "Comprehensive media management and component library for React",
   icon: "product-advanced",
-  url: "/media-selector",
+  url: "/media",
   hideProductFeatures: true,
   live: true,
   showcaseType: AdvancedShowcase,
   features: [{
     name: 'Overview',
-    description: 'Overview, installation, lions, tigers, and bears oh mai!',
+    description: 'Overview, installation, and getting started',
+    id: 'overview',
+  }, {
+    name: 'MediaViewer',
+    description: 'Full-screen media viewing component with playback controls',
+    id: 'media-viewer',
+  }, {
+    name: 'MediaCard',
+    description: 'Card component for displaying media items with thumbnails',
+    id: 'media-card',
+  }, {
+    name: 'Roadmap',
+    description: 'What\'s next',
+    id: 'roadmap',
+  }],
+};
+const media = new Product(mediaData);
+
+const commonData: TProduct = {
+  id: 'common',
+  name: "Common",
+  fullName: "Stoked UI: Common",
+  description: "Shared utilities, hooks, and components for Stoked UI",
+  icon: "product-core",
+  url: "/common",
+  hideProductFeatures: true,
+  live: false,
+  showcaseType: AdvancedShowcase,
+  features: [{
+    name: 'Overview',
+    description: 'Overview of shared utilities',
+    id: 'overview',
+  }, {
+    name: 'Usage',
+    description: 'How to use common utilities',
+    id: 'usage',
+  }, {
+    name: 'Roadmap',
+    description: 'What\'s next',
+    id: 'roadmap',
+  }],
+};
+const common = new Product(commonData);
+
+const mediaApiData: TProduct = {
+  id: 'media-api',
+  name: "Media API",
+  fullName: "Stoked UI: Media API",
+  description: "Production-ready NestJS API for media management",
+  icon: "product-advanced",
+  url: "/media-api",
+  hideProductFeatures: true,
+  live: false,
+  showcaseType: AdvancedShowcase,
+  features: [{
+    name: 'Overview',
+    description: 'Architecture and features',
+    id: 'overview',
+  }, {
+    name: 'Quick Start',
+    description: 'Setup and first request',
+    id: 'quick-start',
+  }, {
+    name: 'Roadmap',
+    description: 'What\'s next',
+    id: 'roadmap',
+  }],
+};
+const mediaApi = new Product(mediaApiData);
+
+const videoValidatorData: TProduct = {
+  id: 'video-validator',
+  name: "Video Validator",
+  fullName: "Stoked UI: Video Validator",
+  description: "Video rendering validation test harness with frame-by-frame comparison",
+  icon: "product-advanced",
+  url: "/video-validator",
+  hideProductFeatures: true,
+  live: false,
+  showcaseType: AdvancedShowcase,
+  features: [{
+    name: 'Overview',
+    description: 'Purpose and features',
+    id: 'overview',
+  }, {
+    name: 'CLI Usage',
+    description: 'Command-line usage and options',
+    id: 'cli-usage',
+  }, {
+    name: 'Roadmap',
+    description: 'What\'s next',
+    id: 'roadmap',
+  }],
+};
+const videoValidator = new Product(videoValidatorData);
+
+const mediaSelectorData: TProduct = {
+  id: 'media-selector',
+  name: "Media Selector (Deprecated)",
+  fullName: "Stoked UI: Media Selector",
+  description: "Deprecated — use @stoked-ui/media instead",
+  icon: "product-advanced",
+  url: "/media-selector",
+  hideProductFeatures: true,
+  live: false,
+  showcaseType: AdvancedShowcase,
+  features: [{
+    name: 'Overview',
+    description: 'Overview (deprecated)',
     id: 'overview',
   }, {
     name: 'MediaFile',
@@ -900,13 +1006,14 @@ const videoEditorData: TProduct = {
 
 const videoEditor = new Product(videoEditorData);
 
-const PRODUCTS: Products = new Products([fileExplorer, mediaSelector, timeline, videoEditor, stokedConsulting]);
+const PRODUCTS: Products = new Products([fileExplorer, media, timeline, videoEditor, stokedConsulting]);
 const ALL_PRODUCTS: Products = new Products([sui, stokedConsulting]);
+const ALL_PACKAGES: Products = new Products([fileExplorer, media, common, mediaApi, videoValidator, mediaSelector, timeline, videoEditor, stokedConsulting]);
 
 export type MenuProps = {
   linkType: LinkType,
   sx?: SxProps<Theme>,
 };
 
-export { PRODUCTS, ALL_PRODUCTS }
+export { PRODUCTS, ALL_PRODUCTS, ALL_PACKAGES }
 

@@ -9,7 +9,7 @@ import { useEditorContext } from "../EditorProvider/EditorContext";
 import VolumeOff from "@mui/icons-material/VolumeOff";
 import VolumeUp from "@mui/icons-material/VolumeUp";
 
-export function ToggleHidden({ track, file, toggleClick, dispatch, hide, children, engine }) {
+export function ToggleHidden({ track, file, toggleClick, dispatch, hide, children, engine }: { track: any, file: any, toggleClick: any, dispatch: any, hide: any, children: any, engine: any }) {
   if (hide) {
     return undefined;
   }
@@ -19,7 +19,7 @@ export function ToggleHidden({ track, file, toggleClick, dispatch, hide, childre
       value={!!track.hidden}
       onChange={(e, value) => {
 
-        const currentTrackIndex = file.tracks.findIndex((currTrack) =>
+        const currentTrackIndex = file.tracks.findIndex((currTrack: any) =>
           currTrack.id === e.currentTarget.id.replace('-hidden', ''))
         if (currentTrackIndex === -1) {
           return
@@ -59,8 +59,8 @@ export default function EditorTrackActions({ track, sx }: { track: any, sx?: any
     height={32}
     sx={[...(Array.isArray(sx) ? sx : [sx]), { marginLeft: '8px', marginRight: '2px', zIndex: '1!important' }]}
   >
-    <ToggleHidden engine={engine} track={track} dispatch={dispatch} file={file} toggleClick={toggleClick} hide={flags.hideHidden} >{visibilityIcon}</ToggleHidden>
-    <ToggleVolume track={track} dispatch={dispatch} file={file} toggleClick={toggleClick} >{volumeIcon}</ToggleVolume>
-    <ToggleLock track={track} dispatch={dispatch} file={file} toggleClick={toggleClick} hide={flags.hideLock} >{lockIcon}</ToggleLock>
+    <ToggleHidden engine={engine} track={track} dispatch={dispatch as any} file={file} toggleClick={toggleClick} hide={flags.hideHidden} >{visibilityIcon}</ToggleHidden>
+    <ToggleVolume track={track} dispatch={dispatch as any} file={file} toggleClick={toggleClick} >{volumeIcon}</ToggleVolume>
+    <ToggleLock track={track} dispatch={dispatch as any} file={file} toggleClick={toggleClick} hide={flags.hideLock} >{lockIcon}</ToggleLock>
   </ToggleButtonGroupEx>
 }

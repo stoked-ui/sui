@@ -1,12 +1,12 @@
 import * as React from 'react';
 import {Box, Stack, SxProps, TextField} from '@mui/material';
-import {Control, Controller, FieldArray, FieldArrayMethodProps, useFieldArray,
+import {Control, Controller, useFieldArray,
   UseFormSetValue, UseFormGetValues} from "react-hook-form";
 import Volume from '../EditorControls/Volume';
 import AddIcon from "@mui/icons-material/Add";
 import SubtractIcon from "@mui/icons-material/Remove";
 import Fab from "@mui/material/Fab";
-import { IEditorActionDetail } from './Detail.types';
+// import { IEditorActionDetail } from './Detail.types';
 
 function ControlledVolumeInstance(params: {
   index: number;
@@ -22,20 +22,17 @@ function ControlledVolumeInstance(params: {
   disabled?: boolean;
   sliderSx: SxProps;
 }) {
-  const { index, name, control, getValues, remove, insert, startBound, endBound } = params;
+  const { index, startBound, endBound } = params;
+  /*
   const handleStartChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
   ) => {
     const newStart = parseFloat(e.target.value);
-    const currentValues = getValues(name); // Get the latest array values
+    const currentValues = getValues(name);
     const current = currentValues[index];
     const currentStart = current[1];
     const currentEnd = current[2];
-    const next = currentValues[index + 1];
-    const nextStart = next ? next[1] : undefined;
-    const nextEnd = next ? next[2] : undefined;
-
 
     // Case 1: Prevent invalid changes
     if (newStart < startBound || newStart >= currentEnd) {
@@ -62,6 +59,7 @@ function ControlledVolumeInstance(params: {
     }
     console.log('volume', getValues(name));
   };
+  */
 
 
   const first = index === 0;

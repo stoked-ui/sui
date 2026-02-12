@@ -1,12 +1,12 @@
-import { Stage, ScreenshotQueue } from '@stoked-ui/media';
+import { Stage } from '@stoked-ui/media';
 import { createSettings } from '@stoked-ui/common';
 import {
   Controller,
   ControllerParams,
   ITimelineAction,
   ITimelineTrack,
-  getActionFileTimespan,
-  GetItemParams, PlaybackMode
+  GetItemParams, PlaybackMode,
+  BackgroundImageStyle
 } from "@stoked-ui/timeline";
 import {EditorControllerParams, EditorPreloadParams} from "./EditorControllerParams";
 import {DrawData, IEditorEngine} from "../EditorEngine/EditorEngine.types";
@@ -81,7 +81,7 @@ class VideoControl extends Controller<HTMLVideoElement> {
       return action;
     }
     const item = this.getItem(params);
-    const fileTimespan = getActionFileTimespan<IEditorAction>(action);
+    // const _fileTimespan = getActionFileTimespan<IEditorAction>(action);
     // this.screenshotQueue.enqueue?.(file, fileTimespan, 'track');
 
     if (action.loop === false || action.loop === undefined || action.loop === 0) {
@@ -123,7 +123,7 @@ class VideoControl extends Controller<HTMLVideoElement> {
 
         item.style.display = 'flex';
         item.src = file.url;
-        let intervalId;
+        let intervalId: ReturnType<typeof setInterval> | undefined;
         let loadingSeconds = 0;
 
         const isLoaded = () => {
@@ -316,7 +316,7 @@ class VideoControl extends Controller<HTMLVideoElement> {
 
   start(params: EditorControllerParams) {
     this.log(params, 'start')
-    const { engine, action, time, track } = params;
+    const { engine, action, time: _time, track } = params;
     if (!this.isValid(engine, track)) {
       return;
     }
@@ -414,7 +414,7 @@ class VideoControl extends Controller<HTMLVideoElement> {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  getActionStyle(action: ITimelineAction, track: ITimelineTrack, scaleWidth: number, scale: number, trackHeight: number) {
+  getActionStyle(action: ITimelineAction, track: ITimelineTrack, scaleWidth: number, scale: number, trackHeight: number): null | BackgroundImageStyle {
     const { file } = track;
     if (!file?.media) {
       return null;
@@ -430,14 +430,14 @@ class VideoControl extends Controller<HTMLVideoElement> {
     if (!action.backgroundImage) {
       return null;
     }
-    const adjustedScale = scaleWidth / scale;
+    // const _adjustedScale = scaleWidth / scale;
     // const images = file.media.screenshotStore.trackScreenshots;
     return {
       backgroundImage: `url(${file?.media.screenshots[0]}), url(${file?.media.screenshots[1]}), url(${file?.media.screenshots[2]})`,
       backgroundSize: 'auto 100%, auto 100%, auto 100%', /* Maintain aspect ratios */
       backgroundRepeat: 'no-repeat', /* Prevent tiling */
       backgroundPosition: 'left center, center center, right center',
-    }
+    } as BackgroundImageStyle
   }
 
   destroy() {

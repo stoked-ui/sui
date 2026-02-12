@@ -39,7 +39,7 @@ const TimelineRowDnd = React.forwardRef<RowRndApi, RowRndProps>(
     const interactable = React.useRef<InteractableBase>();
     const deltaX = React.useRef(0);
     const isAdsorption = React.useRef(false);
-    const { initAutoScroll, dealDragAutoScroll, dealResizeAutoScroll, stopAutoScroll } = useAutoScroll(parentRef);
+    const { initAutoScroll, dealDragAutoScroll, dealResizeAutoScroll, stopAutoScroll } = useAutoScroll(parentRef as React.MutableRefObject<HTMLDivElement>);
 
     React.useEffect(() => {
       return () => {
@@ -73,12 +73,12 @@ const TimelineRowDnd = React.forwardRef<RowRndApi, RowRndProps>(
     };
 
     const handleGetLeft = () => {
-      const target = interactable.current.target as HTMLElement;
+      const target = interactable.current?.target as HTMLElement;
       return parseFloat(target?.dataset?.left || '0');
     };
 
     const handleGetWidth = () => {
-      const target = interactable.current.target as HTMLElement;
+      const target = interactable.current?.target as HTMLElement;
       return parseFloat(target?.dataset?.width || '0');
     };
 
@@ -90,8 +90,8 @@ const TimelineRowDnd = React.forwardRef<RowRndApi, RowRndProps>(
       getWidth: handleGetWidth,
     }));
     React.useEffect(() => {
-      const target = interactable.current.target as HTMLElement;
-      handleUpdateWidth(typeof width === 'undefined' ? target.offsetWidth : width, false);
+      const target = interactable.current?.target as HTMLElement;
+      handleUpdateWidth(typeof width === 'undefined' ? target?.offsetWidth ?? 0 : width, false);
     }, [width]);
     React.useEffect(() => {
       handleUpdateLeft(left || 0, false);
@@ -169,8 +169,8 @@ const TimelineRowDnd = React.forwardRef<RowRndApi, RowRndProps>(
     const handleMove = (e: DragEvent) => {
       const target = e.target;
       const { left: leftMove, width: widthMove } = target.dataset;
-      const preLeft = parseFloat(leftMove);
-      const preWidth = parseFloat(widthMove);
+      const preLeft = parseFloat(leftMove ?? '0');
+      const preWidth = parseFloat(widthMove ?? '0');
       if (deltaScrollLeft && parentRef?.current) {
         const result = dealDragAutoScroll(e, (delta) => {
           deltaScrollLeft(delta);
@@ -195,7 +195,7 @@ const TimelineRowDnd = React.forwardRef<RowRndApi, RowRndProps>(
 
       const target = e.target;
       const { left: leftMoveStop, width: widthMoveStop } = target.dataset;
-      onDragEnd?.({ left: parseFloat(leftMoveStop), width: parseFloat(widthMoveStop) });
+      onDragEnd?.({ left: parseFloat(leftMoveStop ?? '0'), width: parseFloat(widthMoveStop ?? '0') });
     };
 
     const handleResizeStart = (e: ResizeEvent) => {
@@ -324,8 +324,8 @@ const TimelineRowDnd = React.forwardRef<RowRndApi, RowRndProps>(
           deltaScrollLeft(delta);
 
           const { left: leftResize, width: widthResize } = target.dataset;
-          const preLeft = parseFloat(leftResize);
-          const preWidth = parseFloat(widthResize);
+          const preLeft = parseFloat(leftResize ?? '0');
+          const preWidth = parseFloat(widthResize ?? '0');
           deltaX.current += delta;
           resize({ left: preLeft, width: preWidth, dir });
         });
@@ -335,10 +335,10 @@ const TimelineRowDnd = React.forwardRef<RowRndApi, RowRndProps>(
       }
 
       const { left: leftResize, width: widthResize } = target.dataset;
-      const preLeft = parseFloat(leftResize);
-      const preWidth = parseFloat(widthResize);
+      const preLeft = parseFloat(leftResize ?? '0');
+      const preWidth = parseFloat(widthResize ?? '0');
 
-      deltaX.current += dir === 'left' ? e.deltaRect.left : e.deltaRect.right;
+      deltaX.current += dir === 'left' ? e.deltaRect!.left : e.deltaRect!.right;
       resize({ left: preLeft, width: preWidth, dir });
     };
 
@@ -350,7 +350,7 @@ const TimelineRowDnd = React.forwardRef<RowRndApi, RowRndProps>(
       const target = e.target;
       const { left: leftResizeStop, width: widthResizeStop } = target.dataset;
       const dir: Direction = e.edges?.right ? 'right' : 'left';
-      onResizeEnd?.(dir, {left: parseFloat(leftResizeStop), width: parseFloat(widthResizeStop),});
+      onResizeEnd?.(dir, {left: parseFloat(leftResizeStop ?? '0'), width: parseFloat(widthResizeStop ?? '0'),});
     };
 
     return (

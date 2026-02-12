@@ -15,7 +15,7 @@ export default function EditorViewActions({ visible }: { visible: boolean }) {
   const context = useEditorContext();
   const { dispatch, state } = context;
   const { file, flags, components, settings } = state;
-  const { editorId, fitScaleData, setCursor, videoTrack } = settings;
+  const { fitScaleData, setCursor, videoTrack } = settings;
   const [fileIsDirty, setIsDirty] = React.useState<boolean>(false);
   React.useEffect(() => {
     const isFileDirty = async () => {

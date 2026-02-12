@@ -11,12 +11,6 @@ import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 
 const Form = styled('form')({});
 
-function searchParams(params: any) {
-  return Object.keys(params)
-    .filter((key) => params[key] != null)
-    .map((key) => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
-    .join('&');
-}
 
 export default function EmailSubscribe({ sx }: { sx?: SxProps<Theme> }) {
   const [form, setForm] = React.useState<{

@@ -10,6 +10,13 @@ import {
   UseFileExplorerInstanceEventsInstance
 } from '../corePlugins/useFileExplorerInstanceEvents/useFileExplorerInstanceEvents.types';
 
+// FinalizationRegistry is available in modern JS runtimes but not in ES2020 lib typings.
+declare class FinalizationRegistry<T> {
+  constructor(callback: (heldValue: T) => void);
+  register(target: object, heldValue: T, unregisterToken?: object): void;
+  unregister(unregisterToken: object): void;
+}
+
 interface RegistryContainer {
   registry: CleanupTracking | null;
 }

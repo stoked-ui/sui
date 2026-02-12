@@ -6,7 +6,7 @@ import { FileElement } from '@stoked-ui/file-explorer/FileElement';
 export default function FirstComponent() {
   return (
     <Box sx={{ minHeight: 352, minWidth: 250 }}>
-      <FileExplorerBasic getItemId>
+      <FileExplorerBasic>
           <FileElement name={"Notes"}>
             <FileElement name="doc.pdf" />
             <FileElement name="notes.txt" />

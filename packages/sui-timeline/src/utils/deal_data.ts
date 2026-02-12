@@ -1,7 +1,7 @@
 import {ITimelineTrack} from "../TimelineTrack/TimelineTrack.types";
 import {type ITimelineAction} from "../TimelineAction/TimelineAction.types";
 import {ADD_SCALE_COUNT} from "../interface/const";
-import { IController } from "../Controller";
+
 
 /** time to pixel */
 export function parserTimeToPixel(

@@ -23,9 +23,6 @@ import type {
 import { type IController } from "../Controller";
 import Controller from '../Controller';
 
-function nameUrl(name: string) {
-  return name.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
-}
 
 export default class TimelineFile<
   FileTrackType extends ITimelineFileTrack = ITimelineFileTrack,
@@ -78,7 +75,10 @@ export default class TimelineFile<
     // const filePromises = this._fileTracks.map((fileTrack) => MediaFile.fromUrl(fileTrack.url));
     // const mediaFiles: MediaFile[] = await Promise.all(filePromises);
     this._tracks = [];
-    for (let i = 0; i < props.tracks?.length; i += 1) {
+    if (!props.tracks) {
+      return;
+    }
+    for (let i = 0; i < props.tracks.length; i += 1) {
       const track = props.tracks[i];
 
       // First, ensure track.file exists before accessing its properties
@@ -96,7 +96,7 @@ export default class TimelineFile<
         }
       }
 
-      if (track.file) {
+      if (track.file && file) {
         this.addFile(file);
       }
       const actions = track.actions.map((action: ITimelineFileAction, index) => {
@@ -117,7 +117,7 @@ export default class TimelineFile<
   }
 
   async loadUrls() {
-    this._tracks = await TimelineFile.loadUrls<TrackType>(this._tracks);
+    this._tracks = await TimelineFile.loadUrls<TrackType>(this._tracks ?? []);
   }
 
   static async loadUrls<TrackType extends ITimelineTrack = ITimelineTrack>(tracks: TrackType[]): Promise<TrackType[]> {
@@ -147,7 +147,7 @@ export default class TimelineFile<
     }
     await this.loadUrls();
 
-    const nestedPreloads = this._tracks.map((track) => {
+    const nestedPreloads = (this._tracks ?? []).map((track) => {
       return track.actions?.map(async (action) => {
         // await track.file?.extractMediaMetadata();
         return track.controller?.preload({ action, editorId, track })
@@ -241,20 +241,20 @@ export default class TimelineFile<
       file: null,
       muted: false,
       locked: false
-    } as TrackType];
+    } as unknown as TrackType];
   }
 
   static getTrackColor<TrackType extends ITimelineTrack = ITimelineTrack>(track: TrackType) {
     const trackController = track.controller;
     if (track.muted) {
-      return compositeColors(trackController?.color, '#FF0000CC');
+      return compositeColors(trackController?.color ?? '#666', '#FF0000CC');
     }
     return trackController ? alpha(trackController.color ?? '#666', 0.11) : '#00000011';
   }
 
   static collapsedTrack<TrackType extends ITimelineTrack = ITimelineTrack>(tracks?: TrackType[]) {
-    const actionTrackMap = {};
-    tracks.forEach((track) => track.actions.forEach((action) => {
+    const actionTrackMap: Record<string, TrackType> = {};
+    (tracks ?? []).forEach((track) => track.actions.forEach((action) => {
       actionTrackMap[action.id] = track;
     }));
     return {
@@ -262,7 +262,7 @@ export default class TimelineFile<
       track: {
         id: 'collapsedTrack',
         name: 'collapsed track',
-        actions: tracks.map((track) => track.actions.map((action) => action)).flat(2),
+        actions: (tracks ?? []).map((track) => track.actions.map((action) => action)).flat(2),
         file: null,
         muted: false,
         locked: false
@@ -275,9 +275,10 @@ export default class TimelineFile<
     ActionType extends ITimelineAction = ITimelineAction,
     FileType extends TimelineFile = TimelineFile
   >(actions: FileActionType[]): Promise<FileType> {
-    const filePromises = actions.map((action) => MediaFile.fromUrl(action.url));
-    const allFiles = await Promise.all(filePromises.filter(Boolean));
-    const fileActions: ({ file: IMediaFile, action: FileActionType } | null)[] = allFiles.map((mediaFile)=> {
+    const filePromises = actions.filter((action) => action.url).map((action) => MediaFile.fromUrl(action.url!));
+    const allFiles = await Promise.all(filePromises);
+    const resolvedFiles = allFiles.filter((f): f is MediaFile => f !== null);
+    const fileActions: ({ file: IMediaFile, action: FileActionType } | null)[] = resolvedFiles.map((mediaFile)=> {
       const actionIndex = actions.findIndex((fileAction) => fileAction.url === mediaFile.url);
       if(actionIndex !== -1) {
         return { file: mediaFile, action: actions[actionIndex] }
@@ -285,7 +286,7 @@ export default class TimelineFile<
       return null
     });
     const fileActionsClean = fileActions.filter((fileAction) => fileAction !== null) as { file: IMediaFile, action: FileActionType }[];
-    const tracks = fileActionsClean.map((fileAction)=> {
+    const tracks: ReturnType<typeof fileActionsClean.map> = fileActionsClean.map((fileAction)=> {
       return {
         id: namedId('timelineFile'),
         name: 'new video',

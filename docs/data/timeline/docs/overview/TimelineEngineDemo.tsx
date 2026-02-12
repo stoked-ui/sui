@@ -1,5 +1,5 @@
 import * as React from 'react';
-import Timeline, {TimelineProvider, TimelineState, Controllers} from '@stoked-ui/timeline';
+import Timeline, {TimelineProvider, Controllers} from '@stoked-ui/timeline';
 
 export const demoActions = [
   {
@@ -60,7 +60,7 @@ export default function TimelineEngineDemo() {
   };
 
   return (
-    <TimelineProvider actions={demoActions}>
+    <TimelineProvider>
       <Timeline
         controllers={Controllers}
         ref={timelineRef}

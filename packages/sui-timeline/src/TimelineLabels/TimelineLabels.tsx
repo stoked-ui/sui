@@ -57,10 +57,10 @@ const TimelineLabels = React.forwardRef(function TimelineLabels(
 
   const handleItemClick = (event: React.MouseEvent<HTMLElement>, t: ITimelineTrack) => {
     if (t.id === 'newTrack') {
-      inProps.onAddFiles();
+      inProps.onAddFiles?.();
       return;
     }
-    inProps.onClickLabel(event, t);
+    inProps.onClickLabel?.(event, t);
   };
   let displayTracks = file?.tracks || [];
   if (videoTrack) {

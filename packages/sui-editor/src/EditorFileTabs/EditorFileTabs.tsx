@@ -1,5 +1,5 @@
 import * as React from "react";
-import { File, Blob } from 'formdata-node';
+// import { File, Blob } from 'formdata-node';
 import {
   ExplorerPanelProps,
   FileBase,
@@ -7,16 +7,16 @@ import {
   FileExplorerTabsProps
 } from "@stoked-ui/file-explorer";
 import {IMediaFile, MediaFile} from "@stoked-ui/media";
-import {LocalDb, Version, VideoSaveRequest} from "@stoked-ui/common";
+import {LocalDb} from "@stoked-ui/common";
 import {useEditorContext} from "../EditorProvider/EditorContext";
-import EditorFile, {IEditorFile} from "../EditorFile";
+import EditorFile from "../EditorFile";
 import {StokedUiEditorApp} from "../Editor";
 
 export default function EditorFileTabs(inProps: FileExplorerTabsProps) {
   const { state, dispatch} = useEditorContext();
   const { flags, file, engine, settings, app } = state;
   const {editorId} = settings;
-  const [tabNames, setTabNames] = React.useState<string[]>(['Projects', 'Track Files',]);
+  const [tabNames, _setTabNames] = React.useState<string[]>(['Projects', 'Track Files',]);
   const [tabName, setTabName] = React.useState<string>('');
   const [currentTab, setCurrentTab] = React.useState<{ name: string, files?: readonly FileBase[]}>({ name: '', files: []});
 

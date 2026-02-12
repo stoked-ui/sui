@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { TreeItem } from '@mui/x-tree-view/TreeItem';
 import { TreeItem2 } from '@mui/x-tree-view/TreeItem2';
-import { useTreeItem2 } from '@mui/x-tree-view/useTreeItem2';
+
 import { TreeItem2DragAndDropOverlay } from '@mui/x-tree-view/TreeItem2DragAndDropOverlay';
 import Box from '@mui/material/Box';
 import { FileBase } from '../models';

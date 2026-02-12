@@ -13,7 +13,7 @@ import { Dropdown } from '@mui/base/Dropdown';
 import { Popper } from '@mui/base/Popper';
 import { Unstable_Popup as Popup } from '@mui/base/Unstable_Popup';
 import { Unstable_NumberInput as NumberInput } from '@mui/base/Unstable_NumberInput';
-import { Select, SelectRootSlotProps } from '@mui/base/Select';
+import { Select } from '@mui/base/Select';
 import { Option } from '@mui/base/Option';
 import { Slider } from '@mui/base/Slider';
 import { Snackbar } from '@mui/base/Snackbar';
@@ -46,10 +46,7 @@ const positioningStyles = {
   unmounted: 'translateX(500px)',
 };
 
-const SelectButton = React.forwardRef(function SelectButton<
-  TValue extends {},
-  Multiple extends boolean,
->(props: SelectRootSlotProps<TValue, Multiple>, ref: React.ForwardedRef<HTMLButtonElement>) {
+const SelectButton = React.forwardRef(function SelectButton(props: any, ref: React.ForwardedRef<HTMLButtonElement>) {
   const { ownerState, ...other } = props;
   return (
     <button type="button" {...other} ref={ref}>

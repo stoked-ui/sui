@@ -5,7 +5,7 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import { FileExplorer } from '@stoked-ui/file-explorer/FileExplorer';
 import { useFileExplorerApiRef } from '@stoked-ui/file-explorer/hooks';
-import { IMediaFileEx } from '@stoked-ui/file-explorer/internals/models/IMediaFileEx';
+import { FileBase } from '@stoked-ui/file-explorer/models';
 
 const MUI_X_PRODUCTS= [
   {
@@ -59,7 +59,7 @@ export default function ApiMethodGetItemTree() {
       </Stack>
       <Typography>Item on top: {itemOnTop}</Typography>
       <Box sx={{ minHeight: 352, minWidth: 300 }}>
-        <FileExplorer apiRef={apiRef} items={items as IMediaFileEx[]} />
+        <FileExplorer apiRef={apiRef} items={items as FileBase[]} />
       </Box>
     </Stack>
   );

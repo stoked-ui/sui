@@ -1,8 +1,6 @@
 import * as yup from "yup";
 
 import {
-  TimelineState,
-  getDetail,
   IFileDetail,
   ITimelineActionDetail,
   ITimelineTrackDetail,
@@ -15,7 +13,6 @@ import {
   DetailData,
   getTrackDetail,
   SelectionTypeName,
-  SelectionDetail,
   getSelected,
   getFileDetail, SettingsDetail,
 } from "@stoked-ui/timeline";

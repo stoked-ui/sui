@@ -2,7 +2,6 @@ import * as React from 'react';
 import {
   FeatureFlag,
   FeatureFlagConfiguration,
-  FeatureFlagState,
   DEFAULT_FEATURE_FLAGS,
   ENVIRONMENT_CONFIGS,
   FEATURE_FLAG_DEPENDENCIES,

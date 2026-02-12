@@ -24,5 +24,5 @@ export type TimelineTrackAreaProps<
 
 /** edit area ref data */
 export interface TimelineTrackAreaState {
-  domRef: React.MutableRefObject<HTMLDivElement>;
+  domRef: React.RefObject<HTMLDivElement>;
 }

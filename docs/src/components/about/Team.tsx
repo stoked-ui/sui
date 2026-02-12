@@ -1,20 +1,16 @@
 import * as React from 'react';
 import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Container from '@mui/material/Container';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import Grid from '@mui/material/Unstable_Grid2';
 import Paper, { PaperProps } from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import Tooltip from '@mui/material/Tooltip';
-import KeyboardArrowRightRounded from '@mui/icons-material/KeyboardArrowRightRounded';
 import XIcon from '@mui/icons-material/X';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import { Link } from '@stoked-ui/docs';
-import ROUTES from 'docs/src/route';
 import Section from 'docs/src/layouts/Section';
 import SectionHeadline from 'docs/src/components/typography/SectionHeadline';
 import GradientText from 'docs/src/components/typography/GradientText';
@@ -193,7 +189,7 @@ function Person(props: Profile & { sx?: PaperProps['sx'] }) {
   );
 }
 
-const contributors = [
+export const _contributors = [
   {
     name: 'Sebastian Silbermann',
     github: 'eps1lon',
@@ -237,7 +233,7 @@ const contributors = [
   },
 ];
 
-const emeriti = [
+export const _emeriti = [
   {
     name: 'Hai Nguyen',
     github: 'hai-cea',

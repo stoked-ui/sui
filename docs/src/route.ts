@@ -6,7 +6,14 @@ type Routes = {
 const ROUTES: Routes = {
   stokedUi: '/stoked-ui/',
   fileExplorer: '/stoked-ui/file-explorer/',
-  mediaSelector: '/stoked-ui/media-selector/',
+  media: '/media/',
+  mediaDocs: '/media/docs/overview/',
+  common: '/common/',
+  commonDocs: '/common/docs/overview/',
+  mediaApi: '/media-api/',
+  mediaApiDocs: '/media-api/docs/overview/',
+  videoValidator: '/video-validator/',
+  videoValidatorDocs: '/video-validator/docs/overview/',
   suiFileExplorerOverviewDoc: '/material-ui/overview',
   // Marketing pagesHeaderNavBar
   productCore: '/core/',

@@ -3,11 +3,11 @@ import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import { FileExplorer } from '@stoked-ui/file-explorer/FileExplorer';
-import { FileBase, FileExplorerItemId } from '@stoked-ui/file-explorer/models';
+import { FileBase, FileId } from '@stoked-ui/file-explorer/models';
 import { NestedFiles } from 'docs/src/components/fileExplorer/data';
 
 const getAllItemsWithChildrenItemIds = () => {
-  const itemIds: FileExplorerItemId[] = [];
+  const itemIds: FileId[] = [];
   const registerItemId = (item: FileBase) => {
     if (item.children?.length) {
       itemIds.push(item.id);

@@ -1,28 +1,11 @@
 import * as React from 'react';
 import SvgIcon, { SvgIconProps } from '@mui/material/SvgIcon';
 import PropTypes from "prop-types";
-import {styled, alpha} from "@mui/material/styles";
-import { shouldForwardProp } from '@mui/system';
 import {NoSsr} from "@mui/base/NoSsr";
 
 Slack.propTypes = {
   variant: PropTypes.oneOf(["default","monochrome", "hover-color"])
 };
-
-const StyledPath = styled(SvgIcon, {
-  shouldForwardProp: (prop) =>
-    shouldForwardProp(prop) &&
-    prop !== 'grow' &&
-    prop !== 'cell' &&
-    prop !== 'last' &&
-    prop !== 'header' &&
-    prop !== 'first',
-})<{ hoverColors: string, colors: string }>(({ hoverColor, color, theme }) => ({
-  fill: color,
-  '&:hover': {
-    fill: hoverColor,
-  }
-}));
 export default function Slack(props: { variant: "default" | "monochrome" | 'hover-color' } & SvgIconProps) {
   const [hover, setHover] = React.useState(false);
   const monochrome = (props.variant === "monochrome" || props.variant === 'hover-color') ? 'currentColor' : undefined;

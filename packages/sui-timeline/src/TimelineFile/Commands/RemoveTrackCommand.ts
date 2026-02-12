@@ -32,7 +32,7 @@ export class RemoveTrackCommand implements Command {
   // Undo the command: Add the media file back to the list
   undo(): void {
     if (this.removedTrack) {
-      this.timelineFile.tracks.splice(this.removedTrackIndex, 0, this.removedTrack)
+      this.timelineFile.tracks.splice(this.removedTrackIndex!, 0, this.removedTrack)
       console.info(`Restored track: ${this.removedTrack.name}`);
     } else {
       console.warn('No track to restore.');

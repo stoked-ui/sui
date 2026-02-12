@@ -77,8 +77,8 @@ export const useFileExplorerDnd: FileExplorerPlugin<UseFileExplorerDndSignature>
     instance.updateItems(reducedState.items);
     instance.recalcVisibleIndices(reducedState.items, true, 0)
     if (params !== undefined && action.type === 'create-children') {
-      const initialFiles = action.items.map((item) => item)
-      const files: FileBase[] = initialFiles.filter((item) => item !== undefined) as FileBase[]
+      // const initialFiles = action.items.map((item) => item)
+      // const files: FileBase[] = initialFiles.filter((item) => item !== undefined) as FileBase[]
     }
     return reducedState;
   }

@@ -12,7 +12,7 @@ import TimelineLabels from '../TimelineLabels/TimelineLabels';
 import {TimelineLabelsProps} from '../TimelineLabels/TimelineLabels.types';
 import { useTimeline } from "../TimelineProvider";
 import TimelineFile, { ITimelineFile } from "../TimelineFile";
-import TimelineScrollResizer from "../TimelineScrollResizer";
+// import TimelineScrollResizer from "../TimelineScrollResizer";
 import {
   PREFIX,
 } from "../interface/const";
@@ -95,7 +95,7 @@ const TimelineControlRoot = styled('div')(({ theme }) => ({
   overflow: 'hidden',
 }));
 
-function NoTracksNotice({ tracks }) {
+function NoTracksNotice({ tracks }: { tracks: any }) {
   if (!tracks || !tracks.length) {
     return <Box sx={{ minHeight: '100px', width: '100%', display: 'grid', justifyContent: 'center', alignItems: 'center', position: 'relative ', height: 'calc(100% - 18px - 37px)' }}>
       <Typography sx={{justifySelf: 'center'}} color={'action.disabled'}>No tracks</Typography>
@@ -127,7 +127,6 @@ const Timeline = React.forwardRef(function Timeline(
   const {
     file,
     flags,
-    components,
     settings,
     engine,
   } = state;
@@ -259,10 +258,10 @@ const Timeline = React.forwardRef(function Timeline(
 
   // process runner related data
   React.useEffect(() => {
-    const handleTime = ({ time }) => {
+    const handleTime = ({ time }: { time: number }) => {
       settings.setCursor({ time, updateTime: false }, context);
     };
-    const handleScrollLeft = (({ left }) => {
+    const handleScrollLeft = (({ left }: { left: number }) => {
       if (scrollSync?.current) {
         console.info('timeline handleScrollLeft', Math.max(left, 0))
         scrollSync?.current?.setState({scrollLeft: Math.max(left, 0)});
@@ -308,8 +307,8 @@ const Timeline = React.forwardRef(function Timeline(
 
   return (
     <Root
-      ref={ref}
       {...rootProps}
+      ref={ref}
       id={finalTimelineId}
       className={rootClasses}
       sx={[...(Array.isArray(sx) ? sx : [sx]), { height: '100%' }]}
@@ -346,7 +345,7 @@ const Timeline = React.forwardRef(function Timeline(
               }, backgroundColor: 'unset'}}
             ref={domRef}
             className={`${PREFIX} ${inProps.locked ? `${PREFIX}-disabled` : ''} ${engine.isLoading ? `${PREFIX}-loaded` : ''}`}>
-            <ScrollSync ref={scrollSync}>
+            <ScrollSync ref={scrollSync as any}>
               {({ scrollLeft, scrollTop: scrollTopCurrent, onScroll }) => {
                 return (<React.Fragment>
                   <TimelineTime
@@ -354,7 +353,7 @@ const Timeline = React.forwardRef(function Timeline(
                     scrollLeft={scrollLeft}
                   />
                     {settings.videoTrack ?
-                      <ControlledTrack track={settings.videoTrack} width={domRef.current?.clientWidth} height={100} {...commonProps} /> :
+                      <ControlledTrack track={settings.videoTrack} width={domRef.current?.clientWidth ?? 0} height={100} {...commonProps} /> :
                       <TrackArea
                         {...commonProps}
                         ref={(editAreaRef: TimelineTrackAreaState) => {
@@ -373,7 +372,7 @@ const Timeline = React.forwardRef(function Timeline(
                         onAddFiles={inProps.onAddFiles}
                         onContextMenuAction={inProps.onContextMenuAction}
                         onContextMenuTrack={inProps.onContextMenuTrack}
-                        trackActions={labelsProps.ownerState.trackActions}
+                        trackActions={labelsProps.ownerState?.trackActions}
                       />
                     }
                   {!flags.hideCursor && (

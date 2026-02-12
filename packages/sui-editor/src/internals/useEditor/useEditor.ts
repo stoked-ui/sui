@@ -1,7 +1,7 @@
 import * as React from 'react';
 import useForkRef from '@mui/utils/useForkRef';
 import {EventHandlers} from '@mui/base/utils';
-import useIncId, {namedId} from '@stoked-ui/common';
+import {namedId} from '@stoked-ui/common';
 import { IMediaFile } from '@stoked-ui/media';
 import {
   ConvertSignaturesIntoPlugins,
@@ -58,7 +58,7 @@ export const useEditor = <
   } = extractPluginParamsFromProps<TSignatures, TProps>({
     plugins, props, idFunc: getActionId
   });
-  const getEditorId = namedId('editor');
+  // const getEditorId = namedId('editor');
   const id = props.id ?? getActionId();
   const models = useEditorModels<TSignatures>(plugins, pluginParams);
   const instanceRef = React.useRef({} as EditorInstance<TSignatures>);
@@ -120,7 +120,7 @@ export const useEditor = <
     rootRef: innerRootRef,
   } as EditorContextValue<TSignatures>;
 
-  const {state: { settings }} = useEditorContext();
+  useEditorContext();
   const rootPropsGetters: (<TOther extends EventHandlers = {}>(
     otherHandlers: TOther,
   ) => React.HTMLAttributes<HTMLDivElement>)[] = [];

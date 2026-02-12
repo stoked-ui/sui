@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { MediaType } from '@stoked-ui/media'
-import {FileId} from '../models';
+// FileId was imported but is not used directly in this file
 import {MuiCancellableEventHandler} from '../internals/models/MuiCancellableEvent';
 import {FileExplorerPublicAPI} from '../internals/models';
 import {UseFileMinimalPlugins, UseFileOptionalPlugins} from '../internals/models/plugin.types';

@@ -20,17 +20,53 @@ const pages: MuiPage[] = [
     ],
   },
   {
-    pathname: '/media-selector/docs',
-    title: 'Media Selector',
-    newFeature: true,
+    pathname: '/common/docs',
+    title: 'Common',
     children: [
-      { pathname: '/media-selector/docs/overview', title: 'Overview' },
-      { pathname: '/media-selector/docs/file-with-path', title: 'MediaFile' },
-      { pathname: '/media-selector/docs/id-generator', title: 'IdGenerator' },
-      { pathname: `/media-selector/docs/roadmap` },
+      { pathname: '/common/docs/overview', title: 'Overview' },
+      { pathname: '/common/docs/usage', title: 'Usage' },
+      { pathname: '/common/docs/namedId', title: 'NamedId' },
+      { pathname: '/common/docs/roadmap' },
     ],
   },
-
+  {
+    pathname: '/github/docs',
+    title: 'Github',
+    newFeature: true,
+    children: [
+      { pathname: '/github/docs/overview', title: 'Overview' },
+      { pathname: '/github/docs/github-calendar', title: ' Calendar' },
+      { pathname: '/github/docs/github-events', title: 'Events' },
+      { pathname: `/github/docs/roadmap`, title: 'Roadmap' },
+    ],
+  },
+  {
+    pathname: '/media/docs',
+    title: 'Media',
+    newFeature: true,
+    children: [
+      { pathname: '/media/docs/overview', title: 'Overview' },
+      { pathname: '/media/docs/media-file', title: 'MediaFile' },
+      { pathname: '/media/docs/media-viewer', title: 'MediaViewer' },
+      { pathname: '/media/docs/media-card', title: 'MediaCard' },
+      { pathname: '/media/docs/api-client', title: 'API Client' },
+      { pathname: '/media/docs/hooks', title: 'Hooks' },
+      { pathname: '/media/docs/migration', title: 'Migration Guide' },
+      { pathname: '/media/docs/roadmap' },
+    ],
+  },
+  {
+    pathname: '/media-api/docs',
+    title: 'Media API',
+    newFeature: true,
+    children: [
+      { pathname: '/media-api/docs/overview', title: 'Overview' },
+      { pathname: '/media-api/docs/quick-start', title: 'Quick Start' },
+      { pathname: '/media-api/docs/endpoints', title: 'Endpoints' },
+      { pathname: '/media-api/docs/upload-api', title: 'Upload API' },
+      { pathname: '/media-api/docs/roadmap' },
+    ],
+  },
   {
     pathname: '/file-explorer/docs',
     title: 'File Explorer',
@@ -114,14 +150,38 @@ const pages: MuiPage[] = [
     ],
   },
   {
-    pathname: '/github/docs',
-    title: 'Github',
+    pathname: '/video-validator/docs',
+    title: 'Video Validator',
     newFeature: true,
     children: [
-      { pathname: '/github/docs/overview', title: 'Overview' },
-      { pathname: '/github/docs/github-calendar', title: ' Calendar' },
-      { pathname: '/github/docs/github-events', title: 'Events' },
-      { pathname: `/github/docs/roadmap`, title: 'Roadmap' },
+      { pathname: '/video-validator/docs/overview', title: 'Overview' },
+      { pathname: '/video-validator/docs/cli-usage', title: 'CLI Usage' },
+      { pathname: '/video-validator/docs/roadmap' },
+    ],
+  },
+  {
+    pathname: '/video-renderer/docs',
+    title: 'Video Renderer',
+    newFeature: true,
+    children: [
+      { pathname: '/video-renderer/docs/overview', title: 'Overview' },
+      { pathname: '/video-renderer/docs/quick-start', title: 'Quick Start' },
+      {
+        pathname: '/video-renderer/docs/backend',
+        subheader: 'Backend',
+        children: [
+          { pathname: '/video-renderer/docs/rust-backend', title: 'Rust Backend' },
+          { pathname: '/video-renderer/docs/nodejs-integration', title: 'Node.js Integration' },
+        ],
+      },
+      {
+        pathname: '/video-renderer/docs/frontend',
+        subheader: 'Frontend',
+        children: [
+          { pathname: '/video-renderer/docs/wasm-frontend', title: 'WASM Frontend' },
+        ],
+      },
+      { pathname: '/video-renderer/docs/api-reference', title: 'API Reference' },
     ],
   },
   {
@@ -165,31 +225,6 @@ const pages: MuiPage[] = [
         title: 'API Reference',
         children: [...editorComponentApi],
       },
-    ],
-  },
-  {
-    pathname: '/video-renderer/docs',
-    title: 'Video Renderer',
-    newFeature: true,
-    children: [
-      { pathname: '/video-renderer/docs/overview', title: 'Overview' },
-      { pathname: '/video-renderer/docs/quick-start', title: 'Quick Start' },
-      {
-        pathname: '/video-renderer/docs/backend',
-        subheader: 'Backend',
-        children: [
-          { pathname: '/video-renderer/docs/rust-backend', title: 'Rust Backend' },
-          { pathname: '/video-renderer/docs/nodejs-integration', title: 'Node.js Integration' },
-        ],
-      },
-      {
-        pathname: '/video-renderer/docs/frontend',
-        subheader: 'Frontend',
-        children: [
-          { pathname: '/video-renderer/docs/wasm-frontend', title: 'WASM Frontend' },
-        ],
-      },
-      { pathname: '/video-renderer/docs/api-reference', title: 'API Reference' },
     ],
   },
 ];

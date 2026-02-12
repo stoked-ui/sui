@@ -10,7 +10,7 @@ import {
   getActionFileTimespan, PlaybackMode,
 } from "@stoked-ui/timeline";
 import { namedId} from '@stoked-ui/common';
-import {IMediaFile, MediaFile, Stage} from "@stoked-ui/media";
+import {IMediaFile, MediaFile} from "@stoked-ui/media";
 import Controllers from "../Controllers";
 import {
   BlendMode, Fit,
@@ -19,7 +19,7 @@ import {
   initEditorAction
 } from "../EditorAction/EditorAction";
 import {getTrackFromMediaFile, IEditorTrack} from "../EditorTrack/EditorTrack";
-import { IEditorFile, SUVideoFile } from "../EditorFile/EditorFile";
+import { IEditorFile } from "../EditorFile/EditorFile";
 import EditorState from "./EditorState";
 
 
@@ -140,7 +140,7 @@ const setContext = (key: string, state: EditorState, stateAction: SetContextActi
   const { tracks } = file;
   const { contextId, value } = stateAction.payload;
   if (!tracks && file?.id === contextId) {
-    file[key] = value;
+    (file as any)[key] = value;
     return {
       ...state,
       file,
@@ -151,11 +151,11 @@ const setContext = (key: string, state: EditorState, stateAction: SetContextActi
   }
   tracks.forEach((track) => {
     if (track.id === contextId) {
-      track[key] = value;
+      (track as any)[key] = value;
     }
     track.actions.forEach((action) => {
       if (action.id === contextId) {
-        action[key] = value;
+        (action as any)[key] = value;
       }
     });
   })
@@ -335,7 +335,7 @@ export function EditorReducerBase(state: EditorState, stateAction: EditorStateAc
       return EditorReducerBase({...state}, { type: 'DISPLAY_SCREENER', payload: stateAction.payload });
     }
     case 'VIDEO_CLOSE': {
-      const { settings } = state;
+      const { settings: _settings } = state;
       state.settings.videoTrack = undefined;
       return EditorReducerBase({...state}, { type: 'DISPLAY_CANVAS' });
     }

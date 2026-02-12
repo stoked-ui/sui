@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { styled, keyframes } from '@mui/material/styles';
-import { SxProps } from '@mui/system';
-import {EngineState, FileState} from '@stoked-ui/timeline';
+import {EngineState} from '@stoked-ui/timeline';
 import {useEditorContext} from "../EditorProvider/EditorContext";
 
 const scale = keyframes`
@@ -80,7 +79,7 @@ function Loader({styles}: {styles: React.CSSProperties}) {
   const { state: context, dispatch } = useEditorContext();
   const { getState, engine, settings, flags, file } = context;
   const loopVideoRef = React.useRef<HTMLVideoElement>(null);
-  const previewVideoRef = React.useRef<HTMLVideoElement>(null);
+  // const _previewVideoRef = React.useRef<HTMLVideoElement>(null);
 
   React.useEffect(() => {
 
@@ -101,7 +100,7 @@ function Loader({styles}: {styles: React.CSSProperties}) {
           loopVideo.style.display = 'flex';
           loopVideo.play();
           // Set isVisible to true after a short delay to trigger the animation
-          const timeout = setTimeout(() => {
+          setTimeout(() => {
             loopVideo.classList.add('show');
           }, 100);
         }

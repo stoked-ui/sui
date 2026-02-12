@@ -75,7 +75,7 @@ export default class ScreenshotQueue {
         return item;
       }).filter(Boolean) as ScreenshotSeries[]; // Remove null items from the queue
     } else {
-      const { file, timestamps, resolution } = queueItem;
+      const { file, timestamps: _timestamps, resolution } = queueItem;
       this.queue = this.queue.map((item) => {
         if (item.file.id === file.id && item.resolution === resolution && "timestamps" in item) {
           // If there's a full overlap with an existing item's timestamps, remove the existing item

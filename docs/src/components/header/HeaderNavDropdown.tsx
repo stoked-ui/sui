@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { alpha, styled } from '@mui/material/styles';
+import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Collapse from '@mui/material/Collapse';
 import Chip from '@mui/material/Chip';
@@ -10,7 +10,7 @@ import KeyboardArrowDownRounded from '@mui/icons-material/KeyboardArrowDownRound
 import SvgHamburgerMenu from 'docs/src/icons/SvgHamburgerMenu';
 import { Link } from '@stoked-ui/docs';
 import ROUTES from 'docs/src/route';
-import IconImage from "../icon/IconImage";
+// import IconImage from "../icon/IconImage";
 
 const Anchor = styled('a')<{ component?: React.ElementType; noLinkStyle?: boolean }>(
   ({ theme }) => [
@@ -55,7 +55,7 @@ const UList = styled('ul')({
   margin: 0,
 });
 
-const PRODUCTS = [
+const PRODUCTS: Array<{ name: string; description: string; href: string; chip?: string }> = [
   {
     name: 'Stoked UI Core',
     description: 'Ready-to-use foundational React components, free forever.',
@@ -73,7 +73,7 @@ const PRODUCTS = [
   }
 ];
 
-const DOCS = [
+const DOCS: Array<{ name: string; description: string; href: string; chip?: string }> = [
   {
     name: 'Material UI',
     description: "Component library that implements Google's Material Design.",

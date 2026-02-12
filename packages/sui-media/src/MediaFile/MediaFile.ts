@@ -24,7 +24,7 @@ import ScreenshotStore from "./Metadata/ScreenshotStore";
 import {getMediaType, MediaType} from "../MediaType";
 import { FileSystemFileEntry } from './FileSystem';
 import {saveFileApi, saveFileDeprecated} from "../FileSystemApi";
-import {IAppFileMeta} from "../App";
+// import {IAppFileMeta} from "../App";
 
 export interface IAudioMetadata {
   duration: number;
@@ -407,7 +407,7 @@ export default class MediaFile extends File implements IMediaFile {
     return files.map(file => MediaFile.fromFile(file as MediaFile));
   }
 
-  static isFileArray(obj) {
+  static isFileArray(obj: any) {
     if (!Array.isArray(obj)) {
       return false;
     }
@@ -575,7 +575,7 @@ export default class MediaFile extends File implements IMediaFile {
   }
 
   static async openDialog(): Promise<MediaFile[]> {
-    const options: OpenFilePickerOptions & {multiple?: false | undefined} = {
+    const options: any = {
       types: [
         {
           description: "Video",

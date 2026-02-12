@@ -6,7 +6,6 @@ import {
   FileProps,
 } from '@stoked-ui/file-explorer';
 import { namedId } from '@stoked-ui/common';
-import { MediaFile} from "@stoked-ui/media";
 import { FileExplorer } from '@stoked-ui/file-explorer/FileExplorer';
 import { UseFileContentSlotOwnProps } from '@stoked-ui/file-explorer/useFile';
 import { useFileUtils } from '@stoked-ui/file-explorer/hooks';
@@ -75,7 +74,7 @@ const TreeItemContext = React.createContext<{
 
 const CustomTreeItem = React.forwardRef((props: FileProps, ref: React.Ref<HTMLLIElement>) => {
     const { interactions } = useFileUtils({
-      itemId: props.itemId ?? props.id ?? namedId('treeItem'),
+      id: props.id ?? namedId('treeItem'),
       children: props.children,
       status: null
     });
@@ -83,7 +82,7 @@ const CustomTreeItem = React.forwardRef((props: FileProps, ref: React.Ref<HTMLLI
     const { onLabelValueChange } = React.useContext(TreeItemContext);
 
     const handleLabelValueChange = (newLabel: string) => {
-      onLabelValueChange(props.itemId ?? props.id ?? namedId('treeItem'), newLabel);
+      onLabelValueChange(props.id ?? namedId('treeItem'), newLabel);
     };
 
     const handleContentClick: UseFileContentSlotOwnProps['onClick'] = (
@@ -126,7 +125,7 @@ export default function LabelSlots() {
     () => ({
       onLabelValueChange: (itemId: string, name: string) =>
         setProducts((prev) => {
-          const walkTree = (item: MediaFile): MediaFile => {
+          const walkTree = (item: any): any => {
             if (item.id === itemId) {
               return { ...item, name};
             }

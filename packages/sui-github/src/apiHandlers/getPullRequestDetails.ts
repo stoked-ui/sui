@@ -70,7 +70,7 @@ export default async function getPullRequestDetails(params:  { owner: string, re
     );
 
     // Fetch file changes
-    const { data: filesData, rateLimit } = await fetchWithRateLimit(
+    const { data: filesData } = await fetchWithRateLimit(
       `https://api.github.com/repos/${owner}/${repo}/pulls/${pull_number}/files`
     );
 

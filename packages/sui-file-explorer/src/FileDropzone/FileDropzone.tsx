@@ -37,7 +37,7 @@ type FileDropzoneComponent = ((
   props: FileDropzoneProps,
 ) => React.JSX.Element) & { propTypes?: any };
 
-const EMPTY_ITEMS: any[] = [];
+// const EMPTY_ITEMS: any[] = [];
 
 const itemsPropWarning = buildWarning([
   'SUI X: The `FileDropzone` component does not support the `items` prop.',

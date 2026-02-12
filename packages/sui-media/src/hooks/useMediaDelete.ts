@@ -49,7 +49,7 @@ export function useMediaDelete(
 ): UseMutationResult<void, Error, string> {
   const client = useMediaClient();
   const queryClient = useQueryClient();
-  const { invalidateQueries = true, permanent = false, ...mutationOptions } = options;
+  const { invalidateQueries = true, permanent = false } = options;
 
   return useMutation({
     mutationFn: async (mediaId: string) => {

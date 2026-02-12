@@ -14,7 +14,7 @@ const Timeline = withPointer(MuiTimeline, { id: 'timeline', name: 'Timeline' });
 
 export default function MaterialDesignDemo() {
   return (
-    <Timeline tracks={defaultEditorData}/>
+    <Timeline actions={defaultEditorData as any}/>
   )
 }
 

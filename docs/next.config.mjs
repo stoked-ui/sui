@@ -140,7 +140,7 @@ export default withDocsInfra({
                           subPackagePaths: [
                             path.join(workspaceRoot, 'node_modules/@mui/base'),
                             path.join(workspaceRoot, 'node_modules/@mui/lab'),
-                            path.join(workspaceRoot, 'node_modules/@stoked-ui/media-selector'),
+                            path.join(workspaceRoot, 'node_modules/@stoked-ui/media'),
                           ],
                         },
                         {
@@ -169,7 +169,7 @@ export default withDocsInfra({
                           ],
                           subPackagePaths: [
                             path.join(workspaceRoot, 'node_modules/@mui/base'),
-                            path.join(workspaceRoot, 'node_modules/@stoked-ui/media-selector'),
+                            path.join(workspaceRoot, 'node_modules/@stoked-ui/media'),
                           ],
                         },
                         {
@@ -180,7 +180,7 @@ export default withDocsInfra({
                           subPackagePaths: [
                             path.join(workspaceRoot, 'node_modules/@mui/base'),
                             path.join(workspaceRoot, 'node_modules/@mui/lab'),
-                            path.join(workspaceRoot, 'node_modules/@stoked-ui/media-selector'),
+                            path.join(workspaceRoot, 'node_modules/@stoked-ui/media'),
                           ],
                         },
                         {
@@ -191,7 +191,7 @@ export default withDocsInfra({
                           subPackagePaths: [
                             path.join(workspaceRoot, 'node_modules/@mui/base'),
                             path.join(workspaceRoot, 'node_modules/@mui/lab'),
-                            path.join(workspaceRoot, 'node_modules/@stoked-ui/media-selector'),
+                            path.join(workspaceRoot, 'node_modules/@stoked-ui/media'),
                           ],
                         },
                         {

@@ -302,7 +302,7 @@ function ViewToggle({
 
   return (
     <ViewGroup
-      sx={(theme) => ({
+      sx={(theme: any) => ({
         backgroundColor: theme.palette.text.primary,
         alignItems: 'center',
         margin: '0px 6px',
@@ -377,7 +377,7 @@ ViewToggle.propTypes = {
 
 export { ViewToggle };
 
-function Volume({ disabled }) {
+function Volume({ disabled }: { disabled: boolean }) {
   const [value, setValue] = React.useState<number>(100);
   const [mute, setMute] = React.useState<boolean>(false);
 
@@ -531,7 +531,7 @@ const TimelineControls = React.forwardRef(function TimelineControls(
         </div>
       </div>
       <div style={{ display: 'flex', flexDirection: 'row' }}>
-        <Volume disabled={disabled} />
+        <Volume disabled={!!disabled} />
         {/* {hasDownload() && <Button onClick={() => download()} variant={'text'}>Download</Button>} */}
         <TimeRoot
           disabled={!!disabled}
@@ -575,3 +575,5 @@ const TimelineControls = React.forwardRef(function TimelineControls(
     </PlayerRoot>
   );
 });
+
+export default TimelineControls;

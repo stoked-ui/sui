@@ -5,7 +5,6 @@ import {
   DndItemState, UseFileExplorerDndSignature
 } from "../useFileExplorerDnd/useFileExplorerDnd.types";
 import {UseFileExplorerExpansionSignature} from "../useFileExplorerExpansion";
-import * as React from "react";
 
 interface FileProps {
   name: string;

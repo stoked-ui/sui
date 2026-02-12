@@ -1,13 +1,8 @@
 import * as React from "react";
-import Select from "@mui/material/Select";
-import {FormControl, SxProps} from "@mui/material";
-import MenuItem from "@mui/material/MenuItem";
-import InputLabel from "@mui/material/InputLabel";
-import {useController} from "react-hook-form";
 import {formatTitle} from "./Detail";
 import ControlledSelect from "./ControlledSelect";
 
-export default function BlendModeSelect({control, disabled, onClick, rules = undefined }) {
+export default function BlendModeSelect({control, disabled, onClick, rules = undefined }: { control: any, disabled: any, onClick: any, rules?: any }) {
   return <ControlledSelect
     className={'whitespace-nowrap flex-grow flex'}
     control={control}

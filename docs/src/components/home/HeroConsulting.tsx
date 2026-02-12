@@ -6,7 +6,7 @@ import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import GradientText from 'docs/src/components/typography/GradientText';
-import GetStartedButtons from 'docs/src/components/home/GetStartedButtons';
+// import GetStartedButtons from 'docs/src/components/home/GetStartedButtons';
 import HeroContainer from 'docs/src/layouts/HeroContainer';
 
 function createLoading(sx: BoxProps['sx']) {

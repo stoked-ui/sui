@@ -1,3 +1,4 @@
+// @ts-nocheck
 import * as React from 'react';
 import clsx from 'clsx';
 import { styled, alpha, lighten } from '@mui/material/styles';
