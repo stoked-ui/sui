@@ -152,6 +152,20 @@ export default function FileExplorerWithSelection() {
 }
 ```
 
+### Styled File Explorer with MUI X Tree View
+
+A styled file explorer example using MUI X Tree View components directly with custom styling, icons, and visual indicators.
+
+{{"demo": "StyledFileExplorer.tsx"}}
+
+This example demonstrates:
+- Custom styled tree items with hover and selection states
+- File type-specific icons (folders, PDFs, documents, images, videos)
+- Visual indicators (dot icon) for expanded folders
+- Smooth animations and transitions
+- Dark/light theme support
+- Custom indentation and spacing
+
 ### Customized File Explorer
 
 A file explorer with custom icons and styling.

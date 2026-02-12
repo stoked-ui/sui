@@ -200,8 +200,8 @@ const FileExplorer = React.forwardRef(function FileExplorer<
 
   // Transform files to MUI X TreeViewBaseItem format
   const treeItems = React.useMemo(
-    () => transformFilesToTreeItems(stateItems),
-    [stateItems]
+    () => transformFilesToTreeItems(stateItems, props.getItemId, props.getItemLabel),
+    [stateItems, props.getItemId, props.getItemLabel]
   );
 
   // Handle item click events
@@ -273,6 +273,7 @@ const FileExplorer = React.forwardRef(function FileExplorer<
     const usePro = HAS_RICH_TREE_VIEW_PRO && props.dndInternal;
 
     // Common tree view props
+    // Note: getItemId and getItemLabel are already applied during transformation
     const baseTreeViewProps = {
       items: treeItems,
       slots: { item: CustomFileTreeItem },
