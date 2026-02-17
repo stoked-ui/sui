@@ -16,10 +16,10 @@
 //! ```no_run
 //! use video_compositor::{Compositor, Layer, Transform, BlendMode};
 //!
-//! let compositor = Compositor::new(1920, 1080);
+//! let compositor = Compositor::new(1920, 1080)?;
 //! let layers = vec![
 //!     Layer::image("background.png", Transform::default()),
-//!     Layer::image("overlay.png", Transform::new(100, 100, 0.8)),
+//!     Layer::image("overlay.png", Transform::new().with_position(100.0, 100.0).with_opacity(0.8)),
 //! ];
 //! let frame = compositor.compose(&layers)?;
 //! frame.save("output.png")?;
