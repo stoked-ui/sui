@@ -1,0 +1,10 @@
+{
+  "codec": "H264",
+  "format": "Mp4",
+  "fps": 30.0,
+  "height": 1080,
+  "note": "FFmpeg integration pending (Phase 7.2)",
+  "quality": "High",
+  "total_frames": 90,
+  "width": 1920
+}
