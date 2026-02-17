@@ -3,8 +3,8 @@ import {
   useWasmRenderer,
   createSolidColorLayer,
   type WasmLayer,
-  type RenderMetrics,
 } from './useWasmRenderer';
+import type { RenderMetrics } from './types';
 
 interface WasmPreviewDemoProps {
   width?: number;
