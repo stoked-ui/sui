@@ -57,6 +57,7 @@
     "docs:debug": "pnpm --filter stokedui-com debug",
     "video-renderer:build": "cd packages/sui-video-renderer && cargo build --release",
     "video-renderer:build-wasm": "cd packages/sui-video-renderer/wasm-preview && wasm-pack build --target web --out-dir ../pkg",
+    "build:wasm": "cd packages/sui-video-renderer && ./scripts/build-wasm.sh",
     "video-renderer:test": "cd packages/sui-video-renderer && cargo test --workspace",
     "video-renderer:bench": "cd packages/sui-video-renderer && cargo bench",
     "docs:icons": "pnpm --filter stokedui-com icons",

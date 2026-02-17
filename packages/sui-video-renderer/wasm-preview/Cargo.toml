@@ -7,7 +7,7 @@ license.workspace = true
 repository.workspace = true
 
 [lib]
-crate-type = ["cdylib", "rlib"]
+crate-type = ["cdylib"]
 
 [dependencies]
 wasm-bindgen.workspace = true
@@ -30,7 +30,7 @@ video-compositor = { path = "../compositor" }
 wasm-bindgen-test = "0.3"
 
 [profile.release]
-# Optimize for small WASM bundle size
-opt-level = "z"
+# Optimize for small WASM bundle size with good performance balance
+opt-level = "s"
 lto = true
 codegen-units = 1

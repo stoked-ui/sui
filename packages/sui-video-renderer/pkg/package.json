@@ -1,0 +1,30 @@
+{
+  "name": "@stoked-ui/video-renderer-wasm",
+  "version": "0.1.0",
+  "description": "WebAssembly video renderer for StOKed UI - High-performance video composition and rendering",
+  "type": "module",
+  "main": "wasm_preview.js",
+  "module": "wasm_preview.js",
+  "types": "wasm_preview.d.ts",
+  "files": [
+    "*.js",
+    "*.wasm",
+    "*.d.ts"
+  ],
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stoked-ui/sui.git",
+    "directory": "packages/sui-video-renderer"
+  },
+  "keywords": [
+    "wasm",
+    "webassembly",
+    "video",
+    "renderer",
+    "composition",
+    "stoked-ui"
+  ],
+  "author": "StOKed UI",
+  "license": "MIT"
+}
