@@ -1,7 +1,17 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
+import type {
+  RenderMetrics,
+  BlendMode,
+  LayerType,
+  CompositorLayer,
+  LayerTransform,
+} from './types';
 
 /**
  * Layer transform interface matching WASM bindings
+ * @deprecated Use LayerTransform from './types' instead. This is kept for backwards compatibility.
+ *
+ * Note: WASM bindings use snake_case (Rust convention), while TypeScript types use camelCase.
  */
 export interface WasmTransform {
   x: number;
@@ -14,6 +24,9 @@ export interface WasmTransform {
 
 /**
  * Layer interface matching WASM bindings
+ * @deprecated Use CompositorLayer from './types' instead. This is kept for backwards compatibility.
+ *
+ * Note: WASM bindings use snake_case (Rust convention), while TypeScript types use camelCase.
  */
 export interface WasmLayer {
   id: string;
@@ -48,17 +61,6 @@ interface PreviewRendererConstructor {
 interface WasmModule {
   PreviewRenderer: PreviewRendererConstructor;
   benchmark_composition(width: number, height: number, layerCount: number): number;
-}
-
-/**
- * Performance metrics from WASM renderer
- */
-export interface RenderMetrics {
-  width: number;
-  height: number;
-  ready: boolean;
-  lastFrameTime?: number;
-  fps?: number;
 }
 
 /**
