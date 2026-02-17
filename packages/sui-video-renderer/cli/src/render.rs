@@ -5,12 +5,12 @@
 
 use anyhow::{Context, Result};
 use indicatif::{ProgressBar, ProgressStyle};
-use std::path::Path;
 use std::time::Instant;
-use tracing::{debug, info, warn};
+use tracing::{debug, info};
 
+use crate::encoder::{EncoderConfig, VideoEncoder};
 use crate::project::Project;
-use crate::{QualityPreset, VideoCodec, VideoFormat, ProgressMode};
+use crate::{ProgressMode, QualityPreset, VideoCodec, VideoFormat};
 
 /// Render command execution
 pub struct RenderCommand {
@@ -134,10 +134,9 @@ impl RenderCommand {
             avg_fps
         );
 
-        // Encode video (stub for now - Phase 7.2 will add FFmpeg integration)
+        // Encode video
         info!("Encoding video to: {}", self.output);
-        self.encode_video(&rendered_frames, width, height, fps)
-            .await?;
+        self.encode_video(&rendered_frames, width, height, fps)?;
 
         let total_elapsed = start_time.elapsed();
         info!(
@@ -148,75 +147,68 @@ impl RenderCommand {
         Ok(())
     }
 
-    /// Encode rendered frames to video
-    ///
-    /// NOTE: This is currently a stub that writes raw frames to disk.
-    /// Phase 7.2 will implement actual FFmpeg integration for proper video encoding.
-    async fn encode_video(
+    /// Encode rendered frames to video using FFmpeg
+    fn encode_video(
         &self,
         frames: &[video_compositor::Frame],
         width: u32,
         height: u32,
         fps: f64,
     ) -> Result<()> {
-        info!(
-            "Encoding with codec {:?}, quality {:?}, format {:?}",
-            self.codec, self.quality, self.format
-        );
-
-        warn!("FFmpeg integration not yet implemented (Phase 7.2)");
-        warn!("Writing raw frame data as placeholder");
-
-        // For now, just save the first and last frames as images to verify rendering works
-        let output_path = Path::new(&self.output);
-        let output_dir = output_path.parent().unwrap_or(Path::new("."));
-        let output_stem = output_path
-            .file_stem()
-            .and_then(|s| s.to_str())
-            .unwrap_or("output");
-
-        if !frames.is_empty() {
-            // Save first frame
-            let first_frame_path = output_dir.join(format!("{}_frame_0000.png", output_stem));
-            frames[0]
-                .save(&first_frame_path)
-                .with_context(|| format!("Failed to save first frame to {:?}", first_frame_path))?;
-            info!("Saved first frame to: {:?}", first_frame_path);
-
-            // Save last frame
-            let last_idx = frames.len() - 1;
-            let last_frame_path = output_dir.join(format!("{}_frame_{:04}.png", output_stem, last_idx));
-            frames[last_idx]
-                .save(&last_frame_path)
-                .with_context(|| format!("Failed to save last frame to {:?}", last_frame_path))?;
-            info!("Saved last frame to: {:?}", last_frame_path);
-
-            // Write metadata file
-            let meta_path = output_dir.join(format!("{}_metadata.json", output_stem));
-            let metadata = serde_json::json!({
-                "total_frames": frames.len(),
-                "width": width,
-                "height": height,
-                "fps": fps,
-                "codec": format!("{:?}", self.codec),
-                "quality": format!("{:?}", self.quality),
-                "format": format!("{:?}", self.format),
-                "note": "FFmpeg integration pending (Phase 7.2)"
-            });
-            std::fs::write(&meta_path, serde_json::to_string_pretty(&metadata)?)
-                .with_context(|| format!("Failed to write metadata to {:?}", meta_path))?;
-            info!("Saved metadata to: {:?}", meta_path);
+        if frames.is_empty() {
+            anyhow::bail!("No frames to encode");
         }
 
-        info!(
-            "Placeholder output created. Actual video encoding will be implemented in Phase 7.2"
-        );
+        // Create encoder configuration
+        let config = EncoderConfig::new(
+            width,
+            height,
+            fps,
+            self.codec,
+            self.quality,
+            self.format,
+            self.output.clone(),
+        )
+        .with_threads(num_cpus::get());
+
+        // Create encoder (this checks for FFmpeg availability)
+        let mut encoder = VideoEncoder::new(config)
+            .context("Failed to create video encoder")?;
+
+        // Setup progress reporting for encoding
+        let encode_progress = match self.progress_mode {
+            ProgressMode::Text => Some(create_encoding_progress(frames.len())),
+            ProgressMode::Json => None,
+        };
+
+        // Encode each frame
+        for (idx, frame) in frames.iter().enumerate() {
+            encoder
+                .encode_frame(frame)
+                .with_context(|| format!("Failed to encode frame {}", idx))?;
+
+            // Update progress
+            if let Some(ref pb) = encode_progress {
+                pb.inc(1);
+            }
+
+            debug!("Encoded frame {}/{}", idx + 1, frames.len());
+        }
+
+        if let Some(ref pb) = encode_progress {
+            pb.finish_with_message("Encoding complete");
+        }
+
+        // Finish encoding (close pipe, wait for FFmpeg)
+        encoder
+            .finish()
+            .context("Failed to finalize video encoding")?;
 
         Ok(())
     }
 }
 
-/// Create a text-based progress bar
+/// Create a text-based progress bar for rendering
 fn create_text_progress(total_frames: usize) -> ProgressBar {
     let pb = ProgressBar::new(total_frames as u64);
     pb.set_style(
@@ -226,6 +218,20 @@ fn create_text_progress(total_frames: usize) -> ProgressBar {
             )
             .expect("Invalid progress bar template")
             .progress_chars("=>-"),
+    );
+    pb
+}
+
+/// Create a text-based progress bar for encoding
+fn create_encoding_progress(total_frames: usize) -> ProgressBar {
+    let pb = ProgressBar::new(total_frames as u64);
+    pb.set_style(
+        ProgressStyle::default_bar()
+            .template(
+                "{spinner:.yellow} [{elapsed_precise}] [{bar:40.yellow/blue}] {pos}/{len} frames ({percent}%) Encoding ETA: {eta}"
+            )
+            .expect("Invalid progress bar template")
+            .progress_chars("#>-"),
     );
     pb
 }
