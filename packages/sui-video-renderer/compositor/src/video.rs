@@ -30,6 +30,7 @@ use crate::Result;
 /// ```
 #[derive(Debug)]
 pub struct VideoSource {
+    #[allow(dead_code)]
     path: PathBuf,
     fps: f64,
     duration_ms: u64,
