@@ -5,6 +5,7 @@ use imageproc::geometric_transformations::{rotate_about_center, warp, Interpolat
 use rayon::prelude::*;
 
 use crate::{
+    animated::AnimatedLayer,
     blend::BlendMode,
     effects::Effect,
     frame::Frame,
@@ -74,6 +75,30 @@ impl Compositor {
             .par_iter()
             .map(|layers| self.compose(layers))
             .collect()
+    }
+
+    /// Compose a frame from animated layers at a specific time
+    ///
+    /// This method resolves all animated properties at the given time,
+    /// then composes them into a frame using the standard compose pipeline.
+    ///
+    /// # Arguments
+    ///
+    /// * `layers` - Slice of animated layers to compose
+    /// * `time_ms` - Time in milliseconds to resolve animations
+    ///
+    /// # Returns
+    ///
+    /// A composed frame with all animations resolved at the given time
+    pub fn compose_at_time(&self, layers: &[AnimatedLayer], time_ms: f64) -> Result<Frame> {
+        // Resolve all animated layers at the given time
+        let resolved_layers: Vec<Layer> = layers
+            .iter()
+            .map(|animated_layer| animated_layer.resolve_at(time_ms))
+            .collect();
+
+        // Compose the resolved static layers
+        self.compose(&resolved_layers)
     }
 
     /// Create background frame
@@ -715,5 +740,107 @@ mod tests {
             }
         }
         assert!(has_text, "Text should be visible on blue background");
+    }
+
+    // Integration tests for compose_at_time
+    use crate::{AnimatedLayer, keyframe::{Keyframe, EasingFunction}};
+
+    #[test]
+    fn test_compose_at_time_with_position_animation() {
+        let compositor = Compositor::new(200, 200).unwrap();
+
+        let layer = Layer::solid_color(Color::red(), Transform::default());
+        let animated = AnimatedLayer::new(layer)
+            .with_position_x_keyframes(vec![
+                Keyframe::new(0.0, 0.0, EasingFunction::Linear),
+                Keyframe::new(1000.0, 100.0, EasingFunction::Linear),
+            ]);
+
+        let layers = vec![animated];
+
+        // Compose at t=500ms
+        let frame = compositor.compose_at_time(&layers, 500.0).unwrap();
+        assert_eq!(frame.size().width, 200);
+        assert_eq!(frame.size().height, 200);
+    }
+
+    #[test]
+    fn test_compose_at_time_with_opacity_animation() {
+        let compositor = Compositor::new(100, 100).unwrap();
+
+        let layer = Layer::solid_color(Color::red(), Transform::default());
+        let animated = AnimatedLayer::new(layer)
+            .with_opacity_keyframes(vec![
+                Keyframe::new(0.0, 1.0, EasingFunction::Linear),
+                Keyframe::new(1000.0, 0.0, EasingFunction::Linear),
+            ]);
+
+        let layers = vec![animated];
+
+        // Compose at t=0ms (full opacity)
+        let frame_start = compositor.compose_at_time(&layers, 0.0).unwrap();
+        // At t=0, opacity should be 1.0
+        let pixel_start = frame_start.get_pixel(50, 50);
+        assert_eq!(pixel_start[3], 255, "Should be fully opaque at t=0");
+
+        // Compose at t=1000ms (zero opacity)
+        let frame_end = compositor.compose_at_time(&layers, 1000.0).unwrap();
+        // At t=1000, opacity should be 0.0
+        let pixel_end = frame_end.get_pixel(50, 50);
+        assert_eq!(pixel_end[3], 0, "Should be fully transparent at t=1000");
+
+        // Compose at t=500ms (50% opacity)
+        let frame_mid = compositor.compose_at_time(&layers, 500.0).unwrap();
+        let pixel_mid = frame_mid.get_pixel(50, 50);
+        // 50% opacity * 255 = 127.5, should be ~127-128
+        assert!((pixel_mid[3] as i32 - 128).abs() <= 1,
+            "Should be ~50% opaque at t=500, got alpha={}", pixel_mid[3]);
+    }
+
+    #[test]
+    fn test_compose_at_time_multiple_animated_layers() {
+        let compositor = Compositor::new(300, 300).unwrap();
+
+        // First layer animates position
+        let layer1 = Layer::solid_color(Color::red(), Transform::default());
+        let animated1 = AnimatedLayer::new(layer1)
+            .with_position_x_keyframes(vec![
+                Keyframe::new(0.0, 0.0, EasingFunction::Linear),
+                Keyframe::new(1000.0, 100.0, EasingFunction::Linear),
+            ]);
+
+        // Second layer animates scale
+        let layer2 = Layer::solid_color(Color::blue(), Transform::default());
+        let animated2 = AnimatedLayer::new(layer2)
+            .with_scale_x_keyframes(vec![
+                Keyframe::new(0.0, 1.0, EasingFunction::Linear),
+                Keyframe::new(1000.0, 2.0, EasingFunction::Linear),
+            ]);
+
+        let layers = vec![animated1, animated2];
+
+        let frame = compositor.compose_at_time(&layers, 500.0).unwrap();
+        assert_eq!(frame.size().width, 300);
+        assert_eq!(frame.size().height, 300);
+    }
+
+    #[test]
+    fn test_compose_at_time_static_layers() {
+        let compositor = Compositor::new(100, 100).unwrap();
+
+        // Create a static animated layer (no additional keyframes)
+        let layer = Layer::solid_color(Color::green(), Transform::default());
+        let animated = AnimatedLayer::new(layer);
+
+        let layers = vec![animated];
+
+        // Compose at different times - should all be identical
+        let frame0 = compositor.compose_at_time(&layers, 0.0).unwrap();
+        let frame500 = compositor.compose_at_time(&layers, 500.0).unwrap();
+        let frame1000 = compositor.compose_at_time(&layers, 1000.0).unwrap();
+
+        // All frames should have the same green color
+        assert_eq!(frame0.get_pixel(50, 50), frame500.get_pixel(50, 50));
+        assert_eq!(frame0.get_pixel(50, 50), frame1000.get_pixel(50, 50));
     }
 }

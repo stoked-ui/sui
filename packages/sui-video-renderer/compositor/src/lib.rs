@@ -26,6 +26,7 @@
 //! # Ok::<(), Box<dyn std::error::Error>>(())
 //! ```
 
+pub mod animated;
 pub mod blend;
 pub mod cache;
 pub mod compositor;
@@ -40,6 +41,7 @@ pub mod types;
 #[cfg(not(target_arch = "wasm32"))]
 pub mod video;
 
+pub use animated::{AnimatedLayer, AnimatedTransform};
 pub use compositor::Compositor;
 pub use blend::BlendMode;
 pub use cache::{FrameCache, CacheKey};
