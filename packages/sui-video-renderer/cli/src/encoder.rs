@@ -182,6 +182,7 @@ impl VideoEncoder {
     }
 
     /// Get the number of frames encoded so far
+    #[allow(dead_code)]
     pub fn frames_encoded(&self) -> usize {
         self.frames_encoded
     }

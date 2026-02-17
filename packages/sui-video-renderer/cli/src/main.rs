@@ -17,6 +17,7 @@ use clap::{Parser, Subcommand, ValueEnum};
 use tracing::info;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
 
+mod audio;
 mod encoder;
 mod ffmpeg;
 mod project;

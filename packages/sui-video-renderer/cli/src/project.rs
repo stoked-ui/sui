@@ -340,7 +340,6 @@ impl Project {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::io::Write;
     use tempfile::NamedTempFile;
 
     #[test]
@@ -413,7 +412,7 @@ mod tests {
             metadata: ProjectMetadata::default(),
         };
 
-        let mut temp_file = NamedTempFile::new().unwrap();
+        let temp_file = NamedTempFile::new().unwrap();
         let temp_path = temp_file.path().to_path_buf();
 
         // Save

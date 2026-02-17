@@ -8,8 +8,9 @@ use indicatif::{ProgressBar, ProgressStyle};
 use std::time::Instant;
 use tracing::{debug, info};
 
+use crate::audio::{mux_audio_with_video, AudioMixer};
 use crate::encoder::{EncoderConfig, VideoEncoder};
-use crate::project::Project;
+use crate::project::{Project, TrackType};
 use crate::{ProgressMode, QualityPreset, VideoCodec, VideoFormat};
 
 /// Render command execution
@@ -134,9 +135,66 @@ impl RenderCommand {
             avg_fps
         );
 
-        // Encode video
-        info!("Encoding video to: {}", self.output);
-        self.encode_video(&rendered_frames, width, height, fps)?;
+        // Encode video (potentially to temporary file if audio mixing is needed)
+        let audio_tracks: Vec<_> = project
+            .tracks
+            .iter()
+            .filter(|t| t.track_type == TrackType::Audio)
+            .collect();
+
+        let has_audio = !audio_tracks.is_empty();
+        let temp_video_path;
+        let final_output_path;
+
+        if has_audio {
+            // Encode to temporary video file first
+            temp_video_path = format!("{}.tmp.mp4", self.output);
+            final_output_path = self.output.clone();
+            info!("Encoding video to temporary file: {}", temp_video_path);
+            self.encode_video(&rendered_frames, width, height, fps, &temp_video_path)?;
+        } else {
+            // No audio, encode directly to final output
+            info!("Encoding video to: {}", self.output);
+            self.encode_video(&rendered_frames, width, height, fps, &self.output)?;
+            final_output_path = String::new(); // Not used
+            temp_video_path = String::new(); // Not used
+        }
+
+        // Process audio if present
+        if has_audio {
+            info!("Processing {} audio tracks", audio_tracks.len());
+
+            // Create audio mixer
+            let mut mixer = AudioMixer::new(48000, 2); // Standard 48kHz stereo
+
+            // Add all audio tracks to mixer
+            for track in audio_tracks {
+                if let Some(ref file_path) = track.file_path {
+                    // Default volume to 1.0 if not specified in transform
+                    let volume = track.transform.opacity;
+                    mixer.add_track(file_path, track.start_ms, track.end_ms, volume);
+                } else {
+                    info!("Skipping audio track '{}' - no file path", track.name);
+                }
+            }
+
+            // Mix audio to temporary file
+            let temp_audio_path = format!("{}.tmp.wav", final_output_path);
+            info!("Mixing audio to: {}", temp_audio_path);
+            mixer
+                .mix_to_file(&temp_audio_path)
+                .context("Failed to mix audio tracks")?;
+
+            // Mux audio with video
+            info!("Muxing audio with video to: {}", final_output_path);
+            mux_audio_with_video(&temp_video_path, &temp_audio_path, &final_output_path)
+                .context("Failed to mux audio with video")?;
+
+            // Clean up temporary files
+            info!("Cleaning up temporary files");
+            let _ = std::fs::remove_file(&temp_video_path);
+            let _ = std::fs::remove_file(&temp_audio_path);
+        }
 
         let total_elapsed = start_time.elapsed();
         info!(
@@ -154,6 +212,7 @@ impl RenderCommand {
         width: u32,
         height: u32,
         fps: f64,
+        output_path: &str,
     ) -> Result<()> {
         if frames.is_empty() {
             anyhow::bail!("No frames to encode");
@@ -167,7 +226,7 @@ impl RenderCommand {
             self.codec,
             self.quality,
             self.format,
-            self.output.clone(),
+            output_path.to_string(),
         )
         .with_threads(num_cpus::get());
 
