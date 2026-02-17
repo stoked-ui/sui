@@ -21,6 +21,9 @@ pub struct Transform {
 
     /// Anchor point for transforms (0.0-1.0, relative to layer size)
     pub anchor: Point,
+
+    /// Skew in degrees (x = horizontal, y = vertical)
+    pub skew: Point,
 }
 
 impl Transform {
@@ -82,6 +85,12 @@ impl Transform {
         self
     }
 
+    /// Set skew in degrees
+    pub fn with_skew(mut self, x: f32, y: f32) -> Self {
+        self.skew = Point::new(x, y);
+        self
+    }
+
     /// Check if transform is identity (no changes)
     pub fn is_identity(&self) -> bool {
         self.position.x == 0.0
@@ -90,6 +99,8 @@ impl Transform {
             && self.scale.y == 1.0
             && self.rotation == 0.0
             && self.opacity == 1.0
+            && self.skew.x == 0.0
+            && self.skew.y == 0.0
     }
 }
 
@@ -101,6 +112,7 @@ impl Default for Transform {
             rotation: 0.0,
             opacity: 1.0,
             anchor: Point::new(0.5, 0.5), // Center
+            skew: Point::zero(),
         }
     }
 }
@@ -136,5 +148,21 @@ mod tests {
 
         let t = Transform::new().with_opacity(-0.5);
         assert_eq!(t.opacity, 0.0);
+    }
+
+    #[test]
+    fn test_skew() {
+        let t = Transform::new().with_skew(10.0, 5.0);
+        assert_eq!(t.skew, Point::new(10.0, 5.0));
+        assert!(!t.is_identity());
+    }
+
+    #[test]
+    fn test_identity_with_skew() {
+        let t = Transform::default();
+        assert!(t.is_identity());
+
+        let t = Transform::new().with_skew(10.0, 0.0);
+        assert!(!t.is_identity());
     }
 }

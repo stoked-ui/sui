@@ -31,14 +31,16 @@ pub mod compositor;
 pub mod effects;
 pub mod frame;
 pub mod layer;
+pub mod text;
 pub mod transform;
 pub mod types;
 
 pub use compositor::Compositor;
 pub use blend::BlendMode;
-pub use effects::Effect;
+pub use effects::{Effect, GradientStop};
 pub use frame::Frame;
 pub use layer::Layer;
+pub use text::{TextAlignment, TextRenderer, TextShadow, TextStyle, Stroke};
 pub use transform::Transform;
 pub use types::{Color, Point, Rect, Size};
 
@@ -65,4 +67,7 @@ pub enum Error {
 
     #[error("Render error: {0}")]
     Render(String),
+
+    #[error("Invalid transform: {0}")]
+    InvalidTransform(String),
 }
