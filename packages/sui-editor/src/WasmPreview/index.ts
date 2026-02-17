@@ -38,6 +38,9 @@ export {
 // Export hook
 export { useWasmRenderer } from './useWasmRenderer';
 
+// Export action mapper
+export { actionToWasmLayer, calculateFitTransform } from './actionMapper';
+
 // Export deprecated types (for backwards compatibility)
 export type { WasmTransform, WasmLayer } from './useWasmRenderer';
 
