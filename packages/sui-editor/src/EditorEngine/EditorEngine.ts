@@ -1,17 +1,17 @@
 import {
   Engine,
-  EngineOptions,
   EngineState,
   PlaybackMode,
 } from '@stoked-ui/timeline';
 // import {IMediaFile, MediaFile} from "@stoked-ui/media";
 import {EditorEvents, EditorEventTypes} from './events';
 import {
-  IEditorEngine, EditorEngineState, DrawData, EngineStateEx,
+  IEditorEngine, EditorEngineState, DrawData, EngineStateEx, EditorEngineOptions, WasmRendererConfig,
 } from "./EditorEngine.types";
 import { IEditorTrack } from '../EditorTrack/EditorTrack';
 import {type IEditorAction} from "../EditorAction/EditorAction";
 import Controllers from "../Controllers/Controllers";
+import CompositorController, { CompositorControl } from "../Controllers/CompositorController";
 
 /**
  * Can be run independently of the editor
@@ -19,6 +19,16 @@ import Controllers from "../Controllers/Controllers";
  * @class EditorEngine
  * @extends {EditorEngine}
  */
+/**
+ * PreviewRenderer instance interface from WASM
+ */
+interface PreviewRendererInstance {
+  render_frame(layersJson: string): void;
+  clear(): void;
+  get_metrics(): string;
+  free(): void;
+}
+
 export default class EditorEngine<
   State extends string = EditorEngineState,
   EmitterEvents extends EditorEventTypes = EditorEventTypes
@@ -53,7 +63,14 @@ export default class EditorEngine<
 
   protected _actionTrackMap: Record<string, IEditorTrack> = {};
 
-  constructor(params: EngineOptions ) {
+  /** WASM renderer state */
+  protected _useWasm: boolean = false;
+
+  protected _compositorController: CompositorControl | null = null;
+
+  protected _wasmRendererConfig: WasmRendererConfig;
+
+  constructor(params: EditorEngineOptions ) {
     if (!params.events) {
       params.events = new EditorEvents()
     }
@@ -64,6 +81,20 @@ export default class EditorEngine<
 
     this._controllers = params.controllers || Controllers;
     this._state = EngineState.LOADING as State;
+
+    // Initialize WASM renderer if requested
+    this._wasmRendererConfig = params.wasmRendererConfig || {
+      enabled: false,
+      maxMemoryMB: 200,
+      fallbackToCanvas: true,
+      debugMode: false,
+    };
+
+    if (params.useWasmRenderer && this._wasmRendererConfig.enabled !== false) {
+      this._useWasm = true;
+      this._compositorController = CompositorController;
+      this._compositorController.logging = this._wasmRendererConfig.debugMode || false;
+    }
   }
 
   getActionTrack(actionId: string): IEditorTrack {
@@ -76,6 +107,62 @@ export default class EditorEngine<
 
   set state(newState: State) {
     this._state = newState;
+  }
+
+  get useWasm(): boolean {
+    return this._useWasm;
+  }
+
+  /**
+   * Initialize the WASM renderer module
+   * Dynamically imports and initializes the WASM module, creates PreviewRenderer,
+   * and connects it to CompositorController
+   */
+  async initWasmRenderer(): Promise<boolean> {
+    if (!this._useWasm || !this._compositorController) {
+      return false;
+    }
+
+    try {
+      // Dynamically import the WASM module
+      const { default: init, PreviewRenderer } = await import('../WasmPreview/wasm_preview');
+
+      // Initialize the WASM module
+      await init();
+
+      // Create PreviewRenderer instance with canvas context
+      if (!this.renderer || !this.renderCtx) {
+        throw new Error('Canvas renderer not initialized');
+      }
+
+      const renderer = new PreviewRenderer(
+        this.renderCtx,
+        this.renderWidth,
+        this.renderHeight,
+        this._wasmRendererConfig.maxMemoryMB || 200
+      ) as unknown as PreviewRendererInstance;
+
+      // Connect renderer to CompositorController
+      this._compositorController.setRenderer(renderer);
+
+      if (this._wasmRendererConfig.debugMode) {
+        console.info('[EditorEngine] WASM renderer initialized successfully');
+      }
+
+      return true;
+    } catch (error) {
+      console.error('[EditorEngine] Failed to initialize WASM renderer:', error);
+
+      // Fallback to Canvas if enabled
+      if (this._wasmRendererConfig.fallbackToCanvas !== false) {
+        console.warn('[EditorEngine] Falling back to Canvas rendering mode');
+        this._useWasm = false;
+        this._compositorController = null;
+        return false;
+      }
+
+      throw error;
+    }
   }
 
   set viewer(viewer: HTMLElement) {
@@ -101,6 +188,13 @@ export default class EditorEngine<
         'Please ensure that the viewer has the following children:\n' +
         `  - renderer (canvas with working 2d context): ${this.renderer}` +
         `  - viewer: ${this.viewer}`);
+    }
+
+    // Initialize WASM renderer if enabled (async, non-blocking)
+    if (this._useWasm) {
+      this.initWasmRenderer().catch((error) => {
+        console.error('[EditorEngine] WASM initialization failed:', error);
+      });
     }
   }
 
@@ -361,6 +455,7 @@ export default class EditorEngine<
       return false;
     }
 
+    // Clear canvas for both Canvas and WASM modes
     this._renderCtx?.clearRect(0, 0, this.renderWidth, this.renderHeight)
 
     // if (isTick)  {
@@ -375,6 +470,9 @@ export default class EditorEngine<
     }
     this._dealLeave(time);
     this._dealEnter(time);
+
+    // When WASM enabled, CompositorController handles rendering through the existing
+    // controller lifecycle (enter/update/leave). No special handling needed here.
 
     if (isTick) {
       this.trigger('setTimeByTick' as keyof EmitterEvents, { time, engine: this as IEditorEngine } as EmitterEvents[keyof EmitterEvents]);
