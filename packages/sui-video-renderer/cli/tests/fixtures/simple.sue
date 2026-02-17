@@ -1,0 +1,16 @@
+{
+  "name": "Simple Project",
+  "duration_ms": 3000.0,
+  "fps": 30.0,
+  "width": 1920,
+  "height": 1080,
+  "tracks": [
+    {
+      "name": "Background",
+      "type": "solidcolor",
+      "start_ms": 0.0,
+      "end_ms": 3000.0,
+      "color": [0, 0, 128, 255]
+    }
+  ]
+}
