@@ -202,8 +202,19 @@ impl PreviewRenderer {
                 "screen" => Some(BlendMode::Screen),
                 "overlay" => Some(BlendMode::Overlay),
                 "add" => Some(BlendMode::Add),
+                "subtract" => Some(BlendMode::Subtract),
                 "lighten" => Some(BlendMode::Lighten),
                 "darken" => Some(BlendMode::Darken),
+                "softLight" => Some(BlendMode::SoftLight),
+                "hardLight" => Some(BlendMode::HardLight),
+                "colorDodge" => Some(BlendMode::ColorDodge),
+                "colorBurn" => Some(BlendMode::ColorBurn),
+                "difference" => Some(BlendMode::Difference),
+                "exclusion" => Some(BlendMode::Exclusion),
+                "hue" => Some(BlendMode::Hue),
+                "saturation" => Some(BlendMode::Saturation),
+                "color" => Some(BlendMode::Color),
+                "luminosity" => Some(BlendMode::Luminosity),
                 _ => Some(BlendMode::Normal),
             })
             .unwrap_or(BlendMode::Normal);
@@ -234,9 +245,12 @@ impl PreviewRenderer {
 
         // Convert RGBA image to ImageData
         let data = image_data.as_raw();
-        let data_array = js_sys::Uint8ClampedArray::from(data);
 
-        let image_data = ImageData::new_with_u8_clamped_array(data_array, width)?;
+        let image_data = ImageData::new_with_u8_clamped_array_and_sh(
+            wasm_bindgen::Clamped(data.as_slice()),
+            width,
+            height
+        )?;
 
         // Draw to canvas
         self.ctx.put_image_data(&image_data, 0.0, 0.0)?;

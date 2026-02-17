@@ -38,6 +38,16 @@ impl Frame {
         self.size
     }
 
+    /// Get frame width
+    pub fn width(&self) -> u32 {
+        self.size.width
+    }
+
+    /// Get frame height
+    pub fn height(&self) -> u32 {
+        self.size.height
+    }
+
     /// Get reference to underlying image
     pub fn image(&self) -> &RgbaImage {
         &self.image
@@ -67,7 +77,6 @@ impl Frame {
 
     /// Set pixel at position (x, y)
     pub fn set_pixel(&mut self, x: u32, y: u32, color: [u8; 4]) {
-        use image::Pixel;
         let pixel = image::Rgba(color);
         self.image.put_pixel(x, y, pixel);
     }

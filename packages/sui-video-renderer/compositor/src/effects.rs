@@ -1,10 +1,19 @@
 //! Image effects and filters
 
-use image::RgbaImage;
+use image::{Rgba, RgbaImage};
 use imageproc::filter::gaussian_blur_f32;
 use serde::{Deserialize, Serialize};
 
-use crate::Result;
+use crate::{types::{Color, Point}, Result};
+
+/// Gradient stop for gradient effects
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct GradientStop {
+    /// Position along the gradient (0.0 to 1.0)
+    pub position: f32,
+    /// Color at this stop
+    pub color: Color,
+}
 
 /// Effects that can be applied to layers
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -31,6 +40,34 @@ pub enum Effect {
         blur: f32,
         color: [u8; 4],
     },
+
+    /// Linear gradient
+    LinearGradient {
+        angle: f32,
+        stops: Vec<GradientStop>
+    },
+
+    /// Radial gradient
+    RadialGradient {
+        center: Point,
+        radius: f32,
+        stops: Vec<GradientStop>
+    },
+
+    /// Invert colors
+    Invert,
+
+    /// Convert to grayscale
+    Grayscale,
+
+    /// Apply sepia tone
+    Sepia { intensity: f32 },
+
+    /// Apply 4x5 color matrix
+    ColorMatrix { matrix: [f32; 20] },
+
+    /// Chromatic aberration effect
+    ChromaticAberration { intensity: f32 },
 }
 
 impl Effect {
@@ -46,7 +83,36 @@ impl Effect {
                 // Shadow requires special handling in compositor
                 Ok(image.clone())
             }
+            Effect::LinearGradient { angle, stops } => Ok(Self::apply_linear_gradient(image, *angle, stops)),
+            Effect::RadialGradient { center, radius, stops } => Ok(Self::apply_radial_gradient(image, *center, *radius, stops)),
+            Effect::Invert => Ok(Self::apply_invert(image)),
+            Effect::Grayscale => Ok(Self::apply_grayscale(image)),
+            Effect::Sepia { intensity } => Ok(Self::apply_sepia(image, *intensity)),
+            Effect::ColorMatrix { matrix } => Ok(Self::apply_color_matrix(image, matrix)),
+            Effect::ChromaticAberration { intensity } => Ok(Self::apply_chromatic_aberration(image, *intensity)),
         }
+    }
+
+    /// Create a shadow image from the source
+    pub fn create_shadow(image: &RgbaImage, blur: f32, color: [u8; 4]) -> RgbaImage {
+        let (width, height) = image.dimensions();
+        let mut shadow = RgbaImage::new(width, height);
+
+        // Extract alpha channel and fill with shadow color
+        for y in 0..height {
+            for x in 0..width {
+                let pixel = image.get_pixel(x, y);
+                let alpha = pixel[3];
+                shadow.put_pixel(x, y, Rgba([color[0], color[1], color[2], alpha]));
+            }
+        }
+
+        // Apply blur
+        if blur > 0.0 {
+            shadow = gaussian_blur_f32(&shadow, blur);
+        }
+
+        shadow
     }
 
     fn apply_blur(image: &RgbaImage, radius: f32) -> RgbaImage {
@@ -200,6 +266,264 @@ impl Effect {
         }
         p
     }
+
+    fn apply_linear_gradient(image: &RgbaImage, angle: f32, stops: &[GradientStop]) -> RgbaImage {
+        let (width, height) = image.dimensions();
+        let mut result = image.clone();
+
+        if stops.is_empty() {
+            return result;
+        }
+
+        // Convert angle to radians
+        let radians = angle.to_radians();
+        let cos = radians.cos();
+        let sin = radians.sin();
+
+        // Calculate gradient line length
+        let w = width as f32;
+        let h = height as f32;
+        let gradient_length = (w * cos.abs() + h * sin.abs()).max(1.0);
+
+        for y in 0..height {
+            for x in 0..width {
+                // Calculate position along gradient (0.0 to 1.0)
+                let dx = x as f32 - w / 2.0;
+                let dy = y as f32 - h / 2.0;
+                let t = ((dx * cos + dy * sin) / gradient_length + 0.5).clamp(0.0, 1.0);
+
+                // Interpolate color from gradient stops
+                let gradient_color = Self::interpolate_gradient(t, stops);
+
+                // Blend gradient color with source pixel
+                let src_pixel = image.get_pixel(x, y);
+                let blended = Self::blend_colors(
+                    [src_pixel[0], src_pixel[1], src_pixel[2], src_pixel[3]],
+                    [gradient_color.r, gradient_color.g, gradient_color.b, gradient_color.a],
+                );
+
+                result.put_pixel(x, y, Rgba(blended));
+            }
+        }
+
+        result
+    }
+
+    fn apply_radial_gradient(image: &RgbaImage, center: Point, radius: f32, stops: &[GradientStop]) -> RgbaImage {
+        let (width, height) = image.dimensions();
+        let mut result = image.clone();
+
+        if stops.is_empty() || radius <= 0.0 {
+            return result;
+        }
+
+        for y in 0..height {
+            for x in 0..width {
+                // Calculate distance from center
+                let dx = x as f32 - center.x;
+                let dy = y as f32 - center.y;
+                let distance = (dx * dx + dy * dy).sqrt();
+                let t = (distance / radius).clamp(0.0, 1.0);
+
+                // Interpolate color from gradient stops
+                let gradient_color = Self::interpolate_gradient(t, stops);
+
+                // Blend gradient color with source pixel
+                let src_pixel = image.get_pixel(x, y);
+                let blended = Self::blend_colors(
+                    [src_pixel[0], src_pixel[1], src_pixel[2], src_pixel[3]],
+                    [gradient_color.r, gradient_color.g, gradient_color.b, gradient_color.a],
+                );
+
+                result.put_pixel(x, y, Rgba(blended));
+            }
+        }
+
+        result
+    }
+
+    fn interpolate_gradient(t: f32, stops: &[GradientStop]) -> Color {
+        if stops.is_empty() {
+            return Color::transparent();
+        }
+        if stops.len() == 1 {
+            return stops[0].color;
+        }
+
+        // Find the two stops to interpolate between
+        let mut prev_stop = &stops[0];
+        let mut next_stop = &stops[stops.len() - 1];
+
+        for i in 0..stops.len() - 1 {
+            if t >= stops[i].position && t <= stops[i + 1].position {
+                prev_stop = &stops[i];
+                next_stop = &stops[i + 1];
+                break;
+            }
+        }
+
+        // Handle edge cases
+        if t <= prev_stop.position {
+            return prev_stop.color;
+        }
+        if t >= next_stop.position {
+            return next_stop.color;
+        }
+
+        // Linear interpolation between stops
+        let range = next_stop.position - prev_stop.position;
+        let local_t = if range > 0.0 {
+            (t - prev_stop.position) / range
+        } else {
+            0.0
+        };
+
+        Color::new(
+            Self::lerp(prev_stop.color.r, next_stop.color.r, local_t),
+            Self::lerp(prev_stop.color.g, next_stop.color.g, local_t),
+            Self::lerp(prev_stop.color.b, next_stop.color.b, local_t),
+            Self::lerp(prev_stop.color.a, next_stop.color.a, local_t),
+        )
+    }
+
+    fn lerp(a: u8, b: u8, t: f32) -> u8 {
+        let a = a as f32;
+        let b = b as f32;
+        (a + (b - a) * t).clamp(0.0, 255.0) as u8
+    }
+
+    fn blend_colors(bottom: [u8; 4], top: [u8; 4]) -> [u8; 4] {
+        let alpha_top = top[3] as f32 / 255.0;
+        let alpha_bottom = bottom[3] as f32 / 255.0;
+        let alpha_out = alpha_top + alpha_bottom * (1.0 - alpha_top);
+
+        if alpha_out == 0.0 {
+            return [0, 0, 0, 0];
+        }
+
+        let r = ((top[0] as f32 * alpha_top + bottom[0] as f32 * alpha_bottom * (1.0 - alpha_top)) / alpha_out) as u8;
+        let g = ((top[1] as f32 * alpha_top + bottom[1] as f32 * alpha_bottom * (1.0 - alpha_top)) / alpha_out) as u8;
+        let b = ((top[2] as f32 * alpha_top + bottom[2] as f32 * alpha_bottom * (1.0 - alpha_top)) / alpha_out) as u8;
+        let a = (alpha_out * 255.0) as u8;
+
+        [r, g, b, a]
+    }
+
+    fn apply_invert(image: &RgbaImage) -> RgbaImage {
+        let mut result = image.clone();
+
+        for pixel in result.pixels_mut() {
+            pixel[0] = 255 - pixel[0]; // Invert R
+            pixel[1] = 255 - pixel[1]; // Invert G
+            pixel[2] = 255 - pixel[2]; // Invert B
+            // Keep alpha unchanged
+        }
+
+        result
+    }
+
+    fn apply_grayscale(image: &RgbaImage) -> RgbaImage {
+        let mut result = image.clone();
+
+        for pixel in result.pixels_mut() {
+            let r = pixel[0] as f32 / 255.0;
+            let g = pixel[1] as f32 / 255.0;
+            let b = pixel[2] as f32 / 255.0;
+
+            // Standard luminance formula
+            let gray = (0.299 * r + 0.587 * g + 0.114 * b) * 255.0;
+            let gray_u8 = gray as u8;
+
+            pixel[0] = gray_u8;
+            pixel[1] = gray_u8;
+            pixel[2] = gray_u8;
+            // Keep alpha unchanged
+        }
+
+        result
+    }
+
+    fn apply_sepia(image: &RgbaImage, intensity: f32) -> RgbaImage {
+        let mut result = image.clone();
+        let intensity = intensity.clamp(0.0, 1.0);
+
+        for pixel in result.pixels_mut() {
+            let r = pixel[0] as f32 / 255.0;
+            let g = pixel[1] as f32 / 255.0;
+            let b = pixel[2] as f32 / 255.0;
+
+            // Sepia tone matrix
+            let tr = (0.393 * r + 0.769 * g + 0.189 * b).min(1.0);
+            let tg = (0.349 * r + 0.686 * g + 0.168 * b).min(1.0);
+            let tb = (0.272 * r + 0.534 * g + 0.131 * b).min(1.0);
+
+            // Blend with original based on intensity
+            let r_new = (r + (tr - r) * intensity) * 255.0;
+            let g_new = (g + (tg - g) * intensity) * 255.0;
+            let b_new = (b + (tb - b) * intensity) * 255.0;
+
+            pixel[0] = r_new as u8;
+            pixel[1] = g_new as u8;
+            pixel[2] = b_new as u8;
+            // Keep alpha unchanged
+        }
+
+        result
+    }
+
+    fn apply_color_matrix(image: &RgbaImage, matrix: &[f32; 20]) -> RgbaImage {
+        let mut result = image.clone();
+
+        for pixel in result.pixels_mut() {
+            let r = pixel[0] as f32 / 255.0;
+            let g = pixel[1] as f32 / 255.0;
+            let b = pixel[2] as f32 / 255.0;
+            let a = pixel[3] as f32 / 255.0;
+
+            // Apply 4x5 color matrix (RGBA + offset)
+            let r_new = (matrix[0] * r + matrix[1] * g + matrix[2] * b + matrix[3] * a + matrix[4]).clamp(0.0, 1.0);
+            let g_new = (matrix[5] * r + matrix[6] * g + matrix[7] * b + matrix[8] * a + matrix[9]).clamp(0.0, 1.0);
+            let b_new = (matrix[10] * r + matrix[11] * g + matrix[12] * b + matrix[13] * a + matrix[14]).clamp(0.0, 1.0);
+            let a_new = (matrix[15] * r + matrix[16] * g + matrix[17] * b + matrix[18] * a + matrix[19]).clamp(0.0, 1.0);
+
+            pixel[0] = (r_new * 255.0) as u8;
+            pixel[1] = (g_new * 255.0) as u8;
+            pixel[2] = (b_new * 255.0) as u8;
+            pixel[3] = (a_new * 255.0) as u8;
+        }
+
+        result
+    }
+
+    fn apply_chromatic_aberration(image: &RgbaImage, intensity: f32) -> RgbaImage {
+        let (width, height) = image.dimensions();
+        let mut result = image.clone();
+        let offset = intensity.round() as i32;
+
+        for y in 0..height {
+            for x in 0..width {
+                let pixel = image.get_pixel(x, y);
+
+                // Red channel offset to the right
+                let r_x = (x as i32 + offset).clamp(0, width as i32 - 1) as u32;
+                let r_pixel = image.get_pixel(r_x, y);
+
+                // Blue channel offset to the left
+                let b_x = (x as i32 - offset).clamp(0, width as i32 - 1) as u32;
+                let b_pixel = image.get_pixel(b_x, y);
+
+                // Combine: R from offset right, G from original, B from offset left
+                result.put_pixel(x, y, Rgba([
+                    r_pixel[0],  // Red from right offset
+                    pixel[1],    // Green from original
+                    b_pixel[2],  // Blue from left offset
+                    pixel[3],    // Alpha from original
+                ]));
+            }
+        }
+
+        result
+    }
 }
 
 #[cfg(test)]
@@ -240,5 +564,193 @@ mod tests {
         // Edge should be blurred
         let edge_pixel = result.get_pixel(50, 50);
         assert!(edge_pixel[0] > 0 && edge_pixel[0] < 255);
+    }
+
+    #[test]
+    fn test_shadow_creation() {
+        // Create a 50x50 white square with full alpha
+        let mut image = RgbaImage::new(50, 50);
+        for pixel in image.pixels_mut() {
+            *pixel = Rgba([255, 255, 255, 255]);
+        }
+
+        // Create shadow with black color and blur
+        let shadow = Effect::create_shadow(&image, 5.0, [0, 0, 0, 255]);
+
+        // Shadow should be blurred, so edge pixels should have lower opacity
+        let center = shadow.get_pixel(25, 25);
+        assert_eq!(center[0], 0); // Black
+        assert_eq!(center[1], 0);
+        assert_eq!(center[2], 0);
+        // Alpha should be preserved (around 255, might be slightly less due to blur)
+        assert!(center[3] > 200);
+    }
+
+    #[test]
+    fn test_linear_gradient() {
+        // Create a 100x100 image
+        let mut image = RgbaImage::new(100, 100);
+        for pixel in image.pixels_mut() {
+            *pixel = Rgba([255, 255, 255, 255]);
+        }
+
+        // Create a gradient from red to blue
+        let stops = vec![
+            GradientStop { position: 0.0, color: Color::red() },
+            GradientStop { position: 1.0, color: Color::blue() },
+        ];
+
+        let effect = Effect::LinearGradient { angle: 0.0, stops };
+        let result = effect.apply(&image).unwrap();
+
+        // Left side should be more red, right side more blue
+        let left = result.get_pixel(10, 50);
+        let right = result.get_pixel(90, 50);
+
+        // Left should have more red
+        assert!(left[0] > left[2]);
+        // Right should have more blue
+        assert!(right[2] > right[0]);
+    }
+
+    #[test]
+    fn test_invert() {
+        let mut image = RgbaImage::new(10, 10);
+        // Red pixel
+        for pixel in image.pixels_mut() {
+            *pixel = Rgba([255, 0, 0, 255]);
+        }
+
+        let effect = Effect::Invert;
+        let result = effect.apply(&image).unwrap();
+
+        let pixel = result.get_pixel(0, 0);
+        // Red inverts to cyan (0, 255, 255)
+        assert_eq!(pixel[0], 0);
+        assert_eq!(pixel[1], 255);
+        assert_eq!(pixel[2], 255);
+        assert_eq!(pixel[3], 255); // Alpha unchanged
+    }
+
+    #[test]
+    fn test_grayscale() {
+        let mut image = RgbaImage::new(10, 10);
+        // Red pixel
+        for pixel in image.pixels_mut() {
+            *pixel = Rgba([255, 100, 50, 255]);
+        }
+
+        let effect = Effect::Grayscale;
+        let result = effect.apply(&image).unwrap();
+
+        let pixel = result.get_pixel(0, 0);
+        // All RGB channels should be equal (±1 for rounding)
+        assert!((pixel[0] as i32 - pixel[1] as i32).abs() <= 1);
+        assert!((pixel[1] as i32 - pixel[2] as i32).abs() <= 1);
+        assert_eq!(pixel[3], 255); // Alpha unchanged
+    }
+
+    #[test]
+    fn test_sepia() {
+        let mut image = RgbaImage::new(10, 10);
+        // White pixel
+        for pixel in image.pixels_mut() {
+            *pixel = Rgba([200, 200, 200, 255]);
+        }
+
+        let effect = Effect::Sepia { intensity: 1.0 };
+        let result = effect.apply(&image).unwrap();
+
+        let pixel = result.get_pixel(0, 0);
+        // Sepia tone: red > green > blue for non-black pixels
+        assert!(pixel[0] > pixel[1]);
+        assert!(pixel[1] > pixel[2]);
+        assert_eq!(pixel[3], 255); // Alpha unchanged
+    }
+
+    #[test]
+    fn test_chromatic_aberration() {
+        let mut image = RgbaImage::new(100, 100);
+        // Create a vertical white line in the middle
+        for y in 0..100 {
+            for x in 0..100 {
+                if x >= 45 && x <= 55 {
+                    image.put_pixel(x, y, Rgba([255, 255, 255, 255]));
+                } else {
+                    image.put_pixel(x, y, Rgba([0, 0, 0, 255]));
+                }
+            }
+        }
+
+        let effect = Effect::ChromaticAberration { intensity: 5.0 };
+        let result = effect.apply(&image).unwrap();
+
+        // Chromatic aberration shifts R right and B left
+        // At x=40 (left of white bar): R comes from x=45 (white), so R should be 255
+        let left_fringe = result.get_pixel(40, 50);
+        assert_eq!(left_fringe[0], 255, "Left fringe should have red from shifted white area");
+        assert_eq!(left_fringe[1], 0, "Left fringe green should be from black area");
+        assert_eq!(left_fringe[2], 0, "Left fringe blue should be from black area");
+
+        // At x=60 (right of white bar): B comes from x=55 (white), so B should be 255
+        let right_fringe = result.get_pixel(60, 50);
+        assert_eq!(right_fringe[0], 0, "Right fringe red should be from black area");
+        assert_eq!(right_fringe[1], 0, "Right fringe green should be from black area");
+        assert_eq!(right_fringe[2], 255, "Right fringe should have blue from shifted white area");
+    }
+
+    #[test]
+    fn test_radial_gradient() {
+        let mut image = RgbaImage::new(100, 100);
+        for pixel in image.pixels_mut() {
+            *pixel = Rgba([255, 255, 255, 255]);
+        }
+
+        let stops = vec![
+            GradientStop { position: 0.0, color: Color::red() },
+            GradientStop { position: 1.0, color: Color::blue() },
+        ];
+
+        let effect = Effect::RadialGradient {
+            center: Point::new(50.0, 50.0),
+            radius: 50.0,
+            stops,
+        };
+        let result = effect.apply(&image).unwrap();
+
+        // Center should be more red
+        let center = result.get_pixel(50, 50);
+        assert!(center[0] > center[2]);
+
+        // Edge should be more blue
+        let edge = result.get_pixel(5, 50);
+        assert!(edge[2] > edge[0]);
+    }
+
+    #[test]
+    fn test_color_matrix_identity() {
+        let mut image = RgbaImage::new(10, 10);
+        for pixel in image.pixels_mut() {
+            *pixel = Rgba([128, 64, 192, 255]);
+        }
+
+        // Identity matrix
+        #[allow(clippy::excessive_precision)]
+        let matrix = [
+            1.0, 0.0, 0.0, 0.0, 0.0,  // R
+            0.0, 1.0, 0.0, 0.0, 0.0,  // G
+            0.0, 0.0, 1.0, 0.0, 0.0,  // B
+            0.0, 0.0, 0.0, 1.0, 0.0,  // A
+        ];
+
+        let effect = Effect::ColorMatrix { matrix };
+        let result = effect.apply(&image).unwrap();
+
+        let pixel = result.get_pixel(0, 0);
+        // Should be unchanged
+        assert_eq!(pixel[0], 128);
+        assert_eq!(pixel[1], 64);
+        assert_eq!(pixel[2], 192);
+        assert_eq!(pixel[3], 255);
     }
 }
