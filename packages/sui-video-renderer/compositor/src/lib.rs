@@ -35,6 +35,7 @@ pub mod frame;
 pub mod keyframe;
 pub mod layer;
 pub mod text;
+pub mod timeline;
 pub mod transform;
 pub mod types;
 
@@ -50,6 +51,7 @@ pub use frame::Frame;
 pub use keyframe::{AnimatedProperty, EasingFunction, Interpolate, Keyframe, StepPosition};
 pub use layer::Layer;
 pub use text::{TextAlignment, TextRenderer, TextShadow, TextStyle, Stroke};
+pub use timeline::{Timeline, TimelineLayer};
 pub use transform::Transform;
 pub use types::{Color, Point, Rect, Size};
 
