@@ -3,6 +3,7 @@
 use image::{Rgba, RgbaImage};
 use imageproc::geometric_transformations::{rotate_about_center, warp, Interpolation, Projection};
 use rayon::prelude::*;
+use std::sync::{Arc, Mutex};
 
 use crate::{
     animated::AnimatedLayer,
@@ -12,9 +13,80 @@ use crate::{
     layer::{Layer, LayerContent},
     text::{TextRenderer, TextStyle},
     transform::Transform,
-    types::Color,
+    types::{Color, Rect},
     Error, Result,
 };
+
+/// Buffer pool for efficient frame allocation
+pub struct BufferPool {
+    /// Pre-allocated buffers
+    buffers: Arc<Mutex<Vec<RgbaImage>>>,
+    /// Buffer dimensions
+    width: u32,
+    height: u32,
+    /// Maximum pool capacity
+    capacity: usize,
+}
+
+impl BufferPool {
+    /// Create a new buffer pool with given capacity and dimensions
+    pub fn new(capacity: usize, width: u32, height: u32) -> Self {
+        let mut buffers = Vec::with_capacity(capacity);
+        // Pre-allocate buffers
+        for _ in 0..capacity {
+            buffers.push(RgbaImage::new(width, height));
+        }
+
+        Self {
+            buffers: Arc::new(Mutex::new(buffers)),
+            width,
+            height,
+            capacity,
+        }
+    }
+
+    /// Acquire a buffer from the pool (or create new if pool empty)
+    pub fn acquire(&self) -> RgbaImage {
+        let mut buffers = self.buffers.lock().unwrap();
+
+        if let Some(mut buffer) = buffers.pop() {
+            // Clear the buffer for reuse
+            for pixel in buffer.pixels_mut() {
+                *pixel = Rgba([0, 0, 0, 0]);
+            }
+            buffer
+        } else {
+            // Pool exhausted, create new buffer
+            RgbaImage::new(self.width, self.height)
+        }
+    }
+
+    /// Release a buffer back to the pool
+    pub fn release(&self, buffer: RgbaImage) {
+        // Only return to pool if dimensions match and we haven't exceeded capacity
+        if buffer.width() == self.width && buffer.height() == self.height {
+            let mut buffers = self.buffers.lock().unwrap();
+            if buffers.len() < self.capacity {
+                buffers.push(buffer);
+            }
+            // Otherwise drop the buffer (exceeds capacity)
+        }
+    }
+
+    /// Get number of buffers currently in pool
+    pub fn available(&self) -> usize {
+        self.buffers.lock().unwrap().len()
+    }
+}
+
+/// Tile information for tile-based rendering
+#[derive(Debug, Clone, Copy)]
+pub struct Tile {
+    /// Tile bounds in output image
+    pub bounds: Rect,
+    /// Tile index
+    pub index: usize,
+}
 
 /// High-performance frame compositor
 pub struct Compositor {
@@ -29,6 +101,12 @@ pub struct Compositor {
 
     /// Text renderer for text layers
     text_renderer: TextRenderer,
+
+    /// Optional buffer pool for efficient frame allocation
+    buffer_pool: Option<BufferPool>,
+
+    /// Tile size for tile-based rendering (0 = disabled)
+    tile_size: u32,
 }
 
 impl Compositor {
@@ -43,12 +121,26 @@ impl Compositor {
             height,
             background: Color::transparent(),
             text_renderer: TextRenderer::new(),
+            buffer_pool: None,
+            tile_size: 0,
         })
     }
 
     /// Set background color
     pub fn with_background(mut self, background: Color) -> Self {
         self.background = background;
+        self
+    }
+
+    /// Enable buffer pooling with specified capacity
+    pub fn with_buffer_pool(mut self, capacity: usize) -> Self {
+        self.buffer_pool = Some(BufferPool::new(capacity, self.width, self.height));
+        self
+    }
+
+    /// Enable tile-based rendering with specified tile size
+    pub fn with_tile_rendering(mut self, tile_size: u32) -> Self {
+        self.tile_size = tile_size;
         self
     }
 
@@ -101,9 +193,62 @@ impl Compositor {
         self.compose(&resolved_layers)
     }
 
+    /// Compose a frame with resolution scaling for performance.
+    ///
+    /// This method composes at a reduced resolution (scale < 1.0) then
+    /// upscales the result. Useful during timeline scrubbing when high
+    /// frame rates are more important than maximum quality.
+    ///
+    /// # Arguments
+    ///
+    /// * `layers` - Layers to compose
+    /// * `scale` - Resolution scale factor (0.1-1.0). Use 0.5 for 50% resolution.
+    ///
+    /// # Returns
+    ///
+    /// A composed frame at full resolution (scaled up if needed)
+    pub fn compose_with_resolution_scale(&self, layers: &[Layer], scale: f32) -> Result<Frame> {
+        let scale = scale.clamp(0.1, 1.0);
+
+        if (scale - 1.0).abs() < 0.01 {
+            // Full resolution, use normal compose
+            return self.compose(layers);
+        }
+
+        // Create temporary compositor at scaled resolution
+        let scaled_width = (self.width as f32 * scale).max(1.0) as u32;
+        let scaled_height = (self.height as f32 * scale).max(1.0) as u32;
+
+        let scaled_compositor = Compositor {
+            width: scaled_width,
+            height: scaled_height,
+            background: self.background,
+            text_renderer: TextRenderer::new(),
+            buffer_pool: None,
+            tile_size: 0,
+        };
+
+        // Compose at lower resolution
+        let scaled_frame = scaled_compositor.compose(layers)?;
+
+        // Upscale to target resolution
+        let upscaled = image::imageops::resize(
+            scaled_frame.image(),
+            self.width,
+            self.height,
+            image::imageops::FilterType::Triangle, // Fast bilinear-like filter
+        );
+
+        Ok(Frame::from_image(upscaled))
+    }
+
     /// Create background frame
     fn create_background(&self) -> RgbaImage {
-        let mut image = RgbaImage::new(self.width, self.height);
+        let mut image = if let Some(ref pool) = self.buffer_pool {
+            pool.acquire()
+        } else {
+            RgbaImage::new(self.width, self.height)
+        };
 
         if self.background.a > 0 {
             for pixel in image.pixels_mut() {
@@ -283,6 +428,90 @@ impl Compositor {
         y: i64,
         blend_mode: BlendMode,
     ) {
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            self.blend_image_at_parallel(dest, source, x, y, blend_mode);
+        }
+
+        #[cfg(target_arch = "wasm32")]
+        {
+            self.blend_image_at_sequential(dest, source, x, y, blend_mode);
+        }
+    }
+
+    /// Parallel blending using rayon (native only)
+    #[cfg(not(target_arch = "wasm32"))]
+    fn blend_image_at_parallel(
+        &self,
+        dest: &mut RgbaImage,
+        source: &RgbaImage,
+        x: i64,
+        y: i64,
+        blend_mode: BlendMode,
+    ) {
+        let (dest_width, dest_height) = dest.dimensions();
+        let (src_width, src_height) = source.dimensions();
+
+        // Calculate the overlapping region
+        let start_x = x.max(0) as u32;
+        let start_y = y.max(0) as u32;
+        let end_x = (x + src_width as i64).min(dest_width as i64) as u32;
+        let end_y = (y + src_height as i64).min(dest_height as i64) as u32;
+
+        // If no overlap, return early
+        if start_x >= end_x || start_y >= end_y {
+            return;
+        }
+
+        // Get raw bytes for parallel processing
+        let dest_bytes = dest.as_mut();
+        let dest_stride = dest_width as usize * 4;
+
+        // Process rows in parallel using par_chunks_mut
+        let start_offset = (start_y as usize * dest_stride) as usize;
+        let end_offset = (end_y as usize * dest_stride) as usize;
+
+        dest_bytes[start_offset..end_offset]
+            .par_chunks_mut(dest_stride)
+            .enumerate()
+            .for_each(|(row_idx, row_data)| {
+                let dest_y = start_y + row_idx as u32;
+                let src_y = (dest_y as i64 - y) as u32;
+
+                for dest_x in start_x..end_x {
+                    let src_x = (dest_x as i64 - x) as u32;
+                    let pixel_offset = (dest_x as usize * 4) as usize;
+
+                    let bottom = [
+                        row_data[pixel_offset],
+                        row_data[pixel_offset + 1],
+                        row_data[pixel_offset + 2],
+                        row_data[pixel_offset + 3],
+                    ];
+
+                    let src_pixel = source.get_pixel(src_x, src_y);
+                    let top = [src_pixel[0], src_pixel[1], src_pixel[2], src_pixel[3]];
+
+                    let blended = blend_mode.blend(bottom, top);
+
+                    row_data[pixel_offset] = blended[0];
+                    row_data[pixel_offset + 1] = blended[1];
+                    row_data[pixel_offset + 2] = blended[2];
+                    row_data[pixel_offset + 3] = blended[3];
+                }
+            });
+    }
+
+    /// Sequential blending (WASM or fallback)
+    #[cfg(target_arch = "wasm32")]
+    fn blend_image_at_sequential(
+        &self,
+        dest: &mut RgbaImage,
+        source: &RgbaImage,
+        x: i64,
+        y: i64,
+        blend_mode: BlendMode,
+    ) {
         let (dest_width, dest_height) = dest.dimensions();
         let (src_width, src_height) = source.dimensions();
 
@@ -443,6 +672,115 @@ impl Compositor {
         );
 
         Ok(skewed)
+    }
+
+    /// Compose a frame using tile-based rendering
+    pub fn compose_tiled(&self, layers: &[Layer]) -> Result<Frame> {
+        if self.tile_size == 0 {
+            // Tile rendering disabled, use standard compose
+            return self.compose(layers);
+        }
+
+        // Create tiles
+        let tiles = self.create_tiles();
+
+        // Create output frame with background
+        let mut output = self.create_background();
+
+        // Sort layers by z-index
+        let mut sorted_layers: Vec<&Layer> = layers.iter().filter(|l| l.visible).collect();
+        sorted_layers.sort_by_key(|l| l.z_index);
+
+        // Process each tile
+        for tile in tiles {
+            self.render_tile(&mut output, &sorted_layers, &tile)?;
+        }
+
+        Ok(Frame::from_image(output))
+    }
+
+    /// Create tiles for the output frame
+    fn create_tiles(&self) -> Vec<Tile> {
+        let mut tiles = Vec::new();
+        let mut index = 0;
+
+        let tile_size = self.tile_size;
+
+        for y in (0..self.height).step_by(tile_size as usize) {
+            for x in (0..self.width).step_by(tile_size as usize) {
+                let width = tile_size.min(self.width - x);
+                let height = tile_size.min(self.height - y);
+
+                tiles.push(Tile {
+                    bounds: Rect {
+                        x: x as f32,
+                        y: y as f32,
+                        width: width as f32,
+                        height: height as f32,
+                    },
+                    index,
+                });
+
+                index += 1;
+            }
+        }
+
+        tiles
+    }
+
+    /// Render a single tile
+    fn render_tile(
+        &self,
+        output: &mut RgbaImage,
+        layers: &[&Layer],
+        tile: &Tile,
+    ) -> Result<()> {
+        // Only render layers that intersect this tile
+        for layer in layers {
+            if self.layer_intersects_tile(layer, tile) {
+                self.render_layer(output, layer)?;
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Check if a layer intersects with a tile
+    fn layer_intersects_tile(&self, layer: &Layer, tile: &Tile) -> bool {
+        // Calculate layer bounds
+        let layer_x = layer.transform.position.x;
+        let layer_y = layer.transform.position.y;
+
+        // Estimate layer size (simplified - doesn't account for all transforms)
+        let layer_width = match &layer.content {
+            LayerContent::Image { .. } | LayerContent::ImageData { .. } => {
+                // We'd need to load the image to know its size
+                // For now, assume it could intersect
+                return true;
+            }
+            LayerContent::SolidColor { .. } => {
+                self.width as f32 * layer.transform.scale.x
+            }
+            LayerContent::Text { .. } => {
+                // Text size is complex to calculate without rendering
+                // Assume it could intersect
+                return true;
+            }
+            LayerContent::Video { .. } => return true,
+        };
+
+        let layer_height = self.height as f32 * layer.transform.scale.y;
+
+        // Check for intersection
+        let layer_right = layer_x + layer_width;
+        let layer_bottom = layer_y + layer_height;
+        let tile_right = tile.bounds.x + tile.bounds.width;
+        let tile_bottom = tile.bounds.y + tile.bounds.height;
+
+        !(layer_x >= tile_right
+            || layer_right <= tile.bounds.x
+            || layer_y >= tile_bottom
+            || layer_bottom <= tile.bounds.y)
     }
 }
 
@@ -842,5 +1180,402 @@ mod tests {
         // All frames should have the same green color
         assert_eq!(frame0.get_pixel(50, 50), frame500.get_pixel(50, 50));
         assert_eq!(frame0.get_pixel(50, 50), frame1000.get_pixel(50, 50));
+    }
+
+    // Buffer Pool Tests
+
+    #[test]
+    fn test_buffer_pool_acquire_release() {
+        let pool = BufferPool::new(3, 100, 100);
+
+        // Initially should have 3 buffers
+        assert_eq!(pool.available(), 3);
+
+        // Acquire a buffer
+        let buffer1 = pool.acquire();
+        assert_eq!(pool.available(), 2);
+
+        let buffer2 = pool.acquire();
+        assert_eq!(pool.available(), 1);
+
+        // Release buffers back
+        pool.release(buffer1);
+        assert_eq!(pool.available(), 2);
+
+        pool.release(buffer2);
+        assert_eq!(pool.available(), 3);
+    }
+
+    #[test]
+    fn test_buffer_pool_acquire_all() {
+        let pool = BufferPool::new(2, 50, 50);
+
+        let buffer1 = pool.acquire();
+        let buffer2 = pool.acquire();
+
+        // Pool exhausted, should create new buffer
+        assert_eq!(pool.available(), 0);
+        let buffer3 = pool.acquire();
+        assert_eq!(buffer3.dimensions(), (50, 50));
+
+        // Release all
+        pool.release(buffer1);
+        pool.release(buffer2);
+        pool.release(buffer3); // This should not exceed capacity
+
+        assert_eq!(pool.available(), 2); // Only stores up to capacity
+    }
+
+    #[test]
+    fn test_buffer_pool_clears_on_acquire() {
+        let pool = BufferPool::new(1, 10, 10);
+
+        let mut buffer = pool.acquire();
+        // Modify the buffer
+        for pixel in buffer.pixels_mut() {
+            *pixel = Rgba([255, 0, 0, 255]);
+        }
+
+        // Return to pool
+        pool.release(buffer);
+
+        // Acquire again - should be cleared
+        let buffer2 = pool.acquire();
+        let pixel = buffer2.get_pixel(5, 5);
+        assert_eq!(pixel, &Rgba([0, 0, 0, 0]), "Buffer should be cleared on acquire");
+    }
+
+    #[test]
+    fn test_compositor_with_buffer_pool() {
+        let compositor = Compositor::new(100, 100)
+            .unwrap()
+            .with_buffer_pool(5);
+
+        let layers = vec![Layer::solid_color(
+            Color::red(),
+            Transform::new().with_scale(1.0),
+        )];
+
+        let frame = compositor.compose(&layers).unwrap();
+
+        // Should work correctly with buffer pool
+        let pixel = frame.get_pixel(50, 50);
+        assert_eq!(pixel[0], 255); // Red
+    }
+
+    #[test]
+    fn test_buffer_pool_wrong_dimensions() {
+        let pool = BufferPool::new(2, 100, 100);
+
+        // Create buffer with different dimensions
+        let wrong_buffer = RgbaImage::new(50, 50);
+
+        // Release it - should be rejected
+        pool.release(wrong_buffer);
+        assert_eq!(pool.available(), 2); // Should not be added to pool
+    }
+
+    // Parallel Rendering Tests
+
+    #[cfg(not(target_arch = "wasm32"))]
+    #[test]
+    fn test_parallel_blend_correctness() {
+        let compositor = Compositor::new(200, 200).unwrap();
+
+        // Create two layers to blend
+        let layers = vec![
+            Layer::solid_color(Color::red(), Transform::default()),
+            Layer::solid_color(
+                Color::new(0, 255, 0, 128), // Semi-transparent green
+                Transform::new().with_position(50.0, 50.0).with_scale(0.5),
+            ),
+        ];
+
+        let frame = compositor.compose(&layers).unwrap();
+
+        // Verify blending occurred correctly
+        // Red background
+        let bg_pixel = frame.get_pixel(10, 10);
+        assert_eq!(bg_pixel[0], 255);
+        assert_eq!(bg_pixel[1], 0);
+
+        // Blended area should have both red and green
+        let blend_pixel = frame.get_pixel(75, 75);
+        assert!(blend_pixel[0] > 0); // Has red
+        assert!(blend_pixel[1] > 0); // Has green
+    }
+
+    #[cfg(not(target_arch = "wasm32"))]
+    #[test]
+    fn test_parallel_blend_with_multiple_layers() {
+        let compositor = Compositor::new(300, 300).unwrap();
+
+        let mut layers = Vec::new();
+        for i in 0..10 {
+            layers.push(Layer::solid_color(
+                Color::new(255, 0, 0, 25), // Very transparent red
+                Transform::new()
+                    .with_position(i as f32 * 10.0, i as f32 * 10.0)
+                    .with_scale(0.3),
+            ));
+        }
+
+        let frame = compositor.compose(&layers).unwrap();
+
+        // Should complete without errors
+        assert_eq!(frame.width(), 300);
+        assert_eq!(frame.height(), 300);
+    }
+
+    // Tile-based Rendering Tests
+
+    #[test]
+    fn test_create_tiles() {
+        let compositor = Compositor::new(512, 512)
+            .unwrap()
+            .with_tile_rendering(256);
+
+        let tiles = compositor.create_tiles();
+
+        // Should create 4 tiles (2x2)
+        assert_eq!(tiles.len(), 4);
+
+        // Verify tile dimensions
+        assert_eq!(tiles[0].bounds.width, 256.0);
+        assert_eq!(tiles[0].bounds.height, 256.0);
+    }
+
+    #[test]
+    fn test_create_tiles_non_divisible() {
+        let compositor = Compositor::new(500, 400)
+            .unwrap()
+            .with_tile_rendering(256);
+
+        let tiles = compositor.create_tiles();
+
+        // Should create 4 tiles with edge tiles being smaller
+        assert_eq!(tiles.len(), 4);
+
+        // Check last tile dimensions (should be partial)
+        let last_tile = &tiles[3];
+        assert!(last_tile.bounds.width <= 256.0);
+        assert!(last_tile.bounds.height <= 256.0);
+    }
+
+    #[test]
+    fn test_tiled_composition_produces_correct_output() {
+        let compositor = Compositor::new(400, 400)
+            .unwrap()
+            .with_background(Color::blue())
+            .with_tile_rendering(200);
+
+        let layers = vec![Layer::solid_color(
+            Color::red(),
+            Transform::new().with_position(100.0, 100.0).with_scale(0.5),
+        )];
+
+        let frame = compositor.compose_tiled(&layers).unwrap();
+
+        // Background should be blue
+        let bg_pixel = frame.get_pixel(10, 10);
+        assert_eq!(bg_pixel[2], 255);
+
+        // Red layer should be visible
+        let layer_pixel = frame.get_pixel(150, 150);
+        assert_eq!(layer_pixel[0], 255);
+    }
+
+    #[test]
+    fn test_tiled_vs_standard_composition() {
+        // Compare tiled and standard composition outputs
+        let layers = vec![
+            Layer::solid_color(Color::blue(), Transform::default()),
+            Layer::solid_color(
+                Color::red(),
+                Transform::new().with_position(50.0, 50.0).with_scale(0.5),
+            ),
+        ];
+
+        let standard_compositor = Compositor::new(200, 200).unwrap();
+        let standard_frame = standard_compositor.compose(&layers).unwrap();
+
+        let tiled_compositor = Compositor::new(200, 200)
+            .unwrap()
+            .with_tile_rendering(100);
+        let tiled_frame = tiled_compositor.compose_tiled(&layers).unwrap();
+
+        // Sample some pixels - should be identical
+        for y in [0, 50, 100, 150, 199] {
+            for x in [0, 50, 100, 150, 199] {
+                assert_eq!(
+                    standard_frame.get_pixel(x, y),
+                    tiled_frame.get_pixel(x, y),
+                    "Pixel mismatch at ({}, {})",
+                    x,
+                    y
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn test_layer_intersects_tile() {
+        let compositor = Compositor::new(400, 400)
+            .unwrap()
+            .with_tile_rendering(200);
+
+        // SolidColor layer with known bounds
+        let layer1 = Layer::solid_color(
+            Color::red(),
+            Transform::new().with_position(50.0, 50.0).with_scale(0.2),
+        );
+
+        // Tile in top-left
+        let tile1 = Tile {
+            bounds: Rect {
+                x: 0.0,
+                y: 0.0,
+                width: 200.0,
+                height: 200.0,
+            },
+            index: 0,
+        };
+
+        // Layer is at (50, 50) with size 400*0.2 = 80x80, so it's in the range [50, 130]
+        // This should intersect with tile1 [0, 200]
+        assert!(compositor.layer_intersects_tile(&layer1, &tile1));
+
+        // Tile in bottom-right
+        let tile2 = Tile {
+            bounds: Rect {
+                x: 200.0,
+                y: 200.0,
+                width: 200.0,
+                height: 200.0,
+            },
+            index: 3,
+        };
+
+        // Layer ends at 130, tile starts at 200 - should NOT intersect
+        assert!(!compositor.layer_intersects_tile(&layer1, &tile2));
+
+        // Test with an image layer (returns true conservatively)
+        let layer2 = Layer::image(
+            "test.png",
+            Transform::new().with_position(50.0, 50.0),
+        );
+        // Image layers always return true (conservative)
+        assert!(compositor.layer_intersects_tile(&layer2, &tile2));
+    }
+
+    #[test]
+    fn test_compose_tiled_with_disabled_tiles() {
+        let compositor = Compositor::new(200, 200).unwrap(); // No tile_size set
+
+        let layers = vec![Layer::solid_color(Color::green(), Transform::default())];
+
+        // Should fall back to standard compose
+        let frame = compositor.compose_tiled(&layers).unwrap();
+
+        let pixel = frame.get_pixel(100, 100);
+        assert_eq!(pixel[1], 255); // Green
+    }
+
+    // Integration test combining all optimizations
+
+    #[test]
+    fn test_all_optimizations_together() {
+        let compositor = Compositor::new(512, 512)
+            .unwrap()
+            .with_background(Color::white())
+            .with_buffer_pool(10)
+            .with_tile_rendering(256);
+
+        let layers = vec![
+            Layer::solid_color(
+                Color::red(),
+                Transform::new().with_position(100.0, 100.0).with_scale(0.3),
+            ),
+            Layer::solid_color(
+                Color::blue(),
+                Transform::new().with_position(300.0, 300.0).with_scale(0.3),
+            ),
+        ];
+
+        // Should work with all optimizations enabled
+        let frame = compositor.compose_tiled(&layers).unwrap();
+        assert_eq!(frame.width(), 512);
+        assert_eq!(frame.height(), 512);
+
+        // Verify background
+        let bg_pixel = frame.get_pixel(10, 10);
+        assert_eq!(bg_pixel[0], 255);
+        assert_eq!(bg_pixel[1], 255);
+        assert_eq!(bg_pixel[2], 255);
+    }
+
+    // Resolution scaling tests
+
+    #[test]
+    fn test_compose_with_full_resolution_scale() {
+        let compositor = Compositor::new(100, 100).unwrap();
+        let layers = vec![Layer::solid_color(Color::red(), Transform::default())];
+
+        // Scale = 1.0 should produce same result as normal compose
+        let frame = compositor.compose_with_resolution_scale(&layers, 1.0).unwrap();
+
+        assert_eq!(frame.width(), 100);
+        assert_eq!(frame.height(), 100);
+
+        let pixel = frame.get_pixel(50, 50);
+        assert_eq!(pixel[0], 255); // Red
+    }
+
+    #[test]
+    fn test_compose_with_half_resolution_scale() {
+        let compositor = Compositor::new(200, 200).unwrap();
+        let layers = vec![Layer::solid_color(Color::blue(), Transform::default())];
+
+        // Render at 50% resolution, then upscale
+        let frame = compositor.compose_with_resolution_scale(&layers, 0.5).unwrap();
+
+        // Output should still be full resolution
+        assert_eq!(frame.width(), 200);
+        assert_eq!(frame.height(), 200);
+
+        // Should have blue content (may be slightly different due to scaling)
+        let pixel = frame.get_pixel(100, 100);
+        assert!(pixel[2] > 200, "Should be mostly blue"); // Blue channel
+    }
+
+    #[test]
+    fn test_compose_with_minimum_resolution_scale() {
+        let compositor = Compositor::new(100, 100).unwrap();
+        let layers = vec![Layer::solid_color(Color::green(), Transform::default())];
+
+        // Very low scale factor
+        let frame = compositor.compose_with_resolution_scale(&layers, 0.1).unwrap();
+
+        // Output should still be full resolution
+        assert_eq!(frame.width(), 100);
+        assert_eq!(frame.height(), 100);
+
+        // Should have green content
+        let pixel = frame.get_pixel(50, 50);
+        assert!(pixel[1] > 200, "Should be mostly green");
+    }
+
+    #[test]
+    fn test_resolution_scale_clamping() {
+        let compositor = Compositor::new(100, 100).unwrap();
+        let layers = vec![Layer::solid_color(Color::red(), Transform::default())];
+
+        // Test values outside valid range get clamped
+        let frame1 = compositor.compose_with_resolution_scale(&layers, 2.0).unwrap(); // > 1.0
+        let frame2 = compositor.compose_with_resolution_scale(&layers, 0.01).unwrap(); // < 0.1
+
+        // Both should succeed
+        assert_eq!(frame1.width(), 100);
+        assert_eq!(frame2.width(), 100);
     }
 }

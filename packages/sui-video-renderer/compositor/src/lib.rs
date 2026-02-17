@@ -45,7 +45,10 @@ pub mod video;
 pub use animated::{AnimatedLayer, AnimatedTransform};
 pub use compositor::Compositor;
 pub use blend::BlendMode;
-pub use cache::{FrameCache, CacheKey};
+pub use cache::{
+    FrameCache, CacheKey, ComposedFrameCache, ComposedFrameCacheKey,
+    Prefetcher, PlaybackDirection, ScrubbingDetector
+};
 pub use effects::{Effect, GradientStop};
 pub use frame::Frame;
 pub use keyframe::{AnimatedProperty, EasingFunction, Interpolate, Keyframe, StepPosition};
