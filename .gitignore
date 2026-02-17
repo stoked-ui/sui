@@ -58,3 +58,7 @@ claudedocs/
 # Turbo build artifacts
 .turbo/cache/
 .turbo/cookies/
+
+# Rust/Cargo build artifacts
+**/target/
+Cargo.lock
