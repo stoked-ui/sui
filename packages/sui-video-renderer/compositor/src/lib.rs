@@ -27,6 +27,7 @@
 //! ```
 
 pub mod blend;
+pub mod cache;
 pub mod compositor;
 pub mod effects;
 pub mod frame;
@@ -35,8 +36,12 @@ pub mod text;
 pub mod transform;
 pub mod types;
 
+#[cfg(not(target_arch = "wasm32"))]
+pub mod video;
+
 pub use compositor::Compositor;
 pub use blend::BlendMode;
+pub use cache::{FrameCache, CacheKey};
 pub use effects::{Effect, GradientStop};
 pub use frame::Frame;
 pub use layer::Layer;

@@ -11,6 +11,9 @@ use video_compositor::{Compositor, Layer, Transform, BlendMode, Color as Composi
 // Re-export types for TypeScript bindings
 use serde::{Deserialize, Serialize};
 
+mod video;
+use video::BrowserMediaLoader;
+
 #[wasm_bindgen]
 extern "C" {
     #[wasm_bindgen(js_namespace = console)]
@@ -94,8 +97,10 @@ impl From<&WasmTransform> for Transform {
 pub struct WasmLayer {
     pub id: String,
     #[serde(rename = "type")]
-    pub layer_type: String, // "solidColor" | "image" | "text"
+    pub layer_type: String, // "solidColor" | "image" | "video" | "text"
     pub color: Option<[u8; 4]>,
+    pub video_element_id: Option<String>, // For "video" type
+    pub image_url: Option<String>,         // For "image" type
     pub transform: WasmTransform,
     pub blend_mode: Option<String>,
     pub visible: bool,
@@ -110,6 +115,7 @@ pub struct PreviewRenderer {
     ctx: CanvasRenderingContext2d,
     width: u32,
     height: u32,
+    media_loader: BrowserMediaLoader,
 }
 
 #[wasm_bindgen]
@@ -142,6 +148,7 @@ impl PreviewRenderer {
             ctx,
             width,
             height,
+            media_loader: BrowserMediaLoader::new(),
         })
     }
 
@@ -179,9 +186,34 @@ impl PreviewRenderer {
         serde_json::json!({
             "width": self.width,
             "height": self.height,
-            "ready": true
+            "ready": true,
+            "cached_images": self.media_loader.cache_size()
         })
         .to_string()
+    }
+
+    /// Cache an image for use in image layers
+    ///
+    /// This method should be called from JavaScript after loading an image.
+    /// The pixel data must be in RGBA format.
+    ///
+    /// # Arguments
+    /// * `url` - The URL of the image
+    /// * `data` - RGBA pixel data (Uint8Array from JavaScript)
+    /// * `width` - Image width in pixels
+    /// * `height` - Image height in pixels
+    pub fn cache_image(&mut self, url: String, data: Vec<u8>, width: u32, height: u32) {
+        self.media_loader.cache_image(url, data, width, height);
+    }
+
+    /// Clear the image cache
+    pub fn clear_image_cache(&mut self) {
+        self.media_loader.clear_cache();
+    }
+
+    /// Check if an image URL is cached
+    pub fn is_image_cached(&self, url: &str) -> bool {
+        self.media_loader.is_cached(url)
     }
 }
 
@@ -228,6 +260,54 @@ impl PreviewRenderer {
                             .with_z_index(wasm_layer.z_index),
                     )
                 } else {
+                    None
+                }
+            }
+            "video" => {
+                // Capture video frame from HTMLVideoElement
+                if let Some(video_id) = &wasm_layer.video_element_id {
+                    match BrowserMediaLoader::capture_video_frame(video_id) {
+                        Ok((pixel_data, width, height)) => {
+                            Some(
+                                Layer::image_data(pixel_data, width, height, transform)
+                                    .with_blend_mode(blend_mode)
+                                    .with_z_index(wasm_layer.z_index),
+                            )
+                        }
+                        Err(e) => {
+                            error(&format!(
+                                "Failed to capture video frame from '{}': {:?}",
+                                video_id, e
+                            ));
+                            None
+                        }
+                    }
+                } else {
+                    error("Video layer missing video_element_id");
+                    None
+                }
+            }
+            "image" => {
+                // Load image from cache (must be pre-loaded by JavaScript)
+                if let Some(url) = &wasm_layer.image_url {
+                    match self.media_loader.get_cached_image(url) {
+                        Some((pixel_data, width, height)) => {
+                            Some(
+                                Layer::image_data(pixel_data.to_vec(), width, height, transform)
+                                    .with_blend_mode(blend_mode)
+                                    .with_z_index(wasm_layer.z_index),
+                            )
+                        }
+                        None => {
+                            error(&format!(
+                                "Image not found in cache: '{}'. Use cache_image() to pre-load images.",
+                                url
+                            ));
+                            None
+                        }
+                    }
+                } else {
+                    error("Image layer missing image_url");
                     None
                 }
             }

@@ -139,6 +139,12 @@ impl Compositor {
                 // Composite text image onto output with effects
                 self.composite_image_with_effects(output, &mut text_image, &layer.transform, layer.blend_mode, &layer.effects)?;
             }
+            LayerContent::Video { .. } => {
+                // Video frames are decoded externally and passed as ImageData
+                // This variant is handled by the video module
+                // For now, video rendering is a no-op in the compositor
+                // The video decoder should convert frames to ImageData before compositing
+            }
         }
 
         Ok(())

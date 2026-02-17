@@ -41,6 +41,10 @@ pub enum LayerContent {
 
     /// Pre-loaded image data
     ImageData { data: Vec<u8>, width: u32, height: u32 },
+
+    /// Video frame at specific timestamp (native builds only)
+    #[cfg(not(target_arch = "wasm32"))]
+    Video { path: PathBuf, timestamp_ms: u64 },
 }
 
 /// A single compositable layer
@@ -96,6 +100,19 @@ impl Layer {
         }
     }
 
+    /// Create a layer from pre-loaded RGBA image data
+    pub fn image_data(data: Vec<u8>, width: u32, height: u32, transform: Transform) -> Self {
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            content: LayerContent::ImageData { data, width, height },
+            transform,
+            blend_mode: BlendMode::Normal,
+            visible: true,
+            z_index: 0,
+            effects: Vec::new(),
+        }
+    }
+
     /// Create a text layer
     pub fn text(text: String, font_size: f32, color: Color, transform: Transform) -> Self {
         Self {
@@ -112,6 +129,23 @@ impl Layer {
                 stroke: None,
                 shadow: None,
                 font_weight: None,
+            },
+            transform,
+            blend_mode: BlendMode::Normal,
+            visible: true,
+            z_index: 0,
+            effects: Vec::new(),
+        }
+    }
+
+    /// Create a video layer (native builds only)
+    #[cfg(not(target_arch = "wasm32"))]
+    pub fn video<P: Into<PathBuf>>(path: P, timestamp_ms: u64, transform: Transform) -> Self {
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            content: LayerContent::Video {
+                path: path.into(),
+                timestamp_ms,
             },
             transform,
             blend_mode: BlendMode::Normal,
@@ -174,6 +208,23 @@ impl Layer {
             LayerContent::Text { .. } => {
                 // Text is rendered differently
                 Ok(None)
+            }
+            #[cfg(not(target_arch = "wasm32"))]
+            LayerContent::Video { path, timestamp_ms } => {
+                #[cfg(feature = "native-video")]
+                {
+                    use crate::video::VideoSource;
+                    let mut video = VideoSource::open(path)?;
+                    let frame = video.get_frame(*timestamp_ms)?;
+                    Ok(Some(frame))
+                }
+                #[cfg(not(feature = "native-video"))]
+                {
+                    let _ = (path, timestamp_ms); // Suppress unused warnings
+                    Err(crate::Error::Render(
+                        "Video support requires native-video feature".to_string()
+                    ))
+                }
             }
         }
     }
