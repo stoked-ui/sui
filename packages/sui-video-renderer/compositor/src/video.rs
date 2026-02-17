@@ -82,9 +82,6 @@ impl VideoSource {
             .ok_or_else(|| crate::Error::Render("No video stream found".to_string()))?;
 
         let video_stream_index = video_stream.index();
-
-        // Get stream parameters
-        let codec_params = video_stream.parameters();
         let time_base = video_stream.time_base();
 
         // Extract video metadata
@@ -100,8 +97,15 @@ impl VideoSource {
             ((format_duration * 1000) / ffmpeg::ffi::AV_TIME_BASE as i64) as u64
         };
 
-        let width = codec_params.width();
-        let height = codec_params.height();
+        // Create decoder to get dimensions
+        let codec_params = video_stream.parameters();
+        let context = ffmpeg::codec::context::Context::from_parameters(codec_params)
+            .map_err(|e| crate::Error::Render(format!("Failed to create codec context: {}", e)))?;
+        let decoder = context.decoder().video()
+            .map_err(|e| crate::Error::Render(format!("Failed to create decoder: {}", e)))?;
+
+        let width = decoder.width();
+        let height = decoder.height();
 
         if width == 0 || height == 0 {
             return Err(crate::Error::InvalidDimensions(width, height));
@@ -145,8 +149,6 @@ impl VideoSource {
     /// - May return the closest keyframe if exact seeking is not possible
     #[cfg(all(not(target_arch = "wasm32"), feature = "native-video"))]
     pub fn get_frame(&mut self, timestamp_ms: u64) -> Result<RgbaImage> {
-        use ffmpeg::format::context::Input;
-        use ffmpeg::codec::decoder::Video as VideoDecoder;
         use ffmpeg::software::scaling::{context::Context as ScalingContext, flag::Flags};
         use ffmpeg::util::frame::video::Video as VideoFrame;
 
