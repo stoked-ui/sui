@@ -7,7 +7,7 @@ export default function generateRssFeed(allBlogPosts: Array<BlogPost>) {
   if (process.env.NODE_ENV !== 'production') {
     return;
   }
-  const siteUrl = 'https://mui.com/feed';
+  const siteUrl = 'https://stoked-ui.com';
 
   const feed = new Feed({
     title: 'SUI - Blog',

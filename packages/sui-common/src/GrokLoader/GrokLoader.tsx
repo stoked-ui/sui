@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { motion, useAnimationControls, useMotionValue, useTransform, AnimatePresence, animate } from 'framer-motion';
+import { motion, useAnimationControls, useMotionValue, useTransform, animate } from 'framer-motion';
 import { styled } from "@mui/material/styles";
 
 // Motion-enabled container with consistent styling
@@ -27,8 +27,6 @@ const Dot = styled(motion.div)(({ theme }) => ({
 
 function GrokLoader() {
   const controls = useAnimationControls();
-  const progress = useMotionValue(0);
-
   // Create separate radius and rotation values for better control
   const radius = useMotionValue(120);
   const rotation = useMotionValue(0);
@@ -80,16 +78,6 @@ function GrokLoader() {
       controls.stop();
     };
   }, []);
-
-  // Calculate dot positions based on angle and current radius
-  const getPosition = (angle: number) => {
-    const currentRadius = radius.get();
-    const angleInRadians = (angle * Math.PI) / 180;
-    return {
-      x: Math.cos(angleInRadians) * currentRadius,
-      y: Math.sin(angleInRadians) * currentRadius
-    };
-  };
 
   // Define angles for each corner of the triangle
   const topAngle = 270; // Top (0 degrees is to the right, so 270 is straight up)

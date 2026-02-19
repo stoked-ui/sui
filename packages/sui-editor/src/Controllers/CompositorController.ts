@@ -166,7 +166,7 @@ class CompositorControl extends Controller<CompositorLayer> implements IControll
    * Converts action/track to a compositor layer, adds to active layers, and renders
    */
   enter(params: EditorControllerParams): void {
-    const { action, track, engine } = params;
+    const { track, engine } = params;
 
     if (!this.isValid(engine, track)) {
       return;

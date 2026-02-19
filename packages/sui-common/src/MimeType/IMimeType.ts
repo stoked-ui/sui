@@ -32,31 +32,33 @@ export class MimeRegistry {
 
   private static _exts: Record<Ext, IMimeType> = {};
 
-  static names() {
+  static get names() {
     return this._names;
   }
 
   private static _names: Record<string, IMimeType> = {};
 
-  static subtypes() {
+  static get subtypes() {
     return this._subtypes;
   }
 
   private static _subtypes: Record<MimeSubtype, IMimeType> = {};
 
-  static types() {
+  static get types() {
     return this._types;
   }
 
   private static _types: Record<SUIMimeType, IMimeType> = {};
 
   static create(application: string, name: string, ext: Ext, description: string, embedded: boolean = true, type: string = 'application'): IMimeType {
-    const mimeType = {
+    const subType = `${application}-${name}` as MimeSubtype;
+    const fullType = `${type}/${subType}` as SUIMimeType;
+    const mimeType: IMimeType = {
       get type() {
-        return `${type}/${this.subType}` as SUIMimeType;
+        return fullType;
       },
       get subType() {
-        return `${application}-${name}` as MimeSubtype;
+        return subType;
       },
       get application() {
         return application;
@@ -75,22 +77,22 @@ export class MimeRegistry {
       },
       get accept() {
         return {
-          [this.type]: this.ext
+          [fullType]: ext
         } as AcceptType;
       },
       get typeObj() {
-        return { type: this.type };
+        return { type: fullType };
       }
-    }
-    this.exts[ext] = mimeType;
-    this.names[name] = mimeType;
-    this.subtypes[mimeType.subType] = mimeType;
-    this.types[mimeType.type] = mimeType;
-    return mimeType as IMimeType;
+    };
+    (this.exts as Record<string, IMimeType>)[ext] = mimeType;
+    (this.names as Record<string, IMimeType>)[name] = mimeType;
+    (this.subtypes as Record<string, IMimeType>)[subType] = mimeType;
+    (this.types as Record<string, IMimeType>)[fullType] = mimeType;
+    return mimeType;
   }
 }
 
-export function getExtension(url) {
+export function getExtension(url: string) {
   const urlObj = new URL(url);
   const pathname = urlObj.pathname;
   const lastIndex = pathname.lastIndexOf(".");
