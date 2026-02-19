@@ -28,9 +28,22 @@ export class Server {
       process.env.SST_STAGE !== 'production' &&
       process.env.SST_STAGE !== 'prod';
 
+    // Parse allowed origins from environment variable (comma-separated list).
+    // Default includes localhost for development, stoked-ui.com, and brianstoker.com.
+    const defaultOrigins = 'http://localhost:3000,https://stoked-ui.com,https://brianstoker.com';
+    const allowedOriginsEnv = process.env.ALLOWED_ORIGINS ?? defaultOrigins;
+    const allowedOrigins = new Set(
+      allowedOriginsEnv
+        .split(',')
+        .map((o) => o.trim())
+        .filter(Boolean),
+    );
+
+    this.logger.log(`CORS allowed origins: ${[...allowedOrigins].join(', ')}`);
+
     const corsOptions = {
-      origin: (origin: string, callback: (err: Error | null, allow?: boolean) => void) => {
-        // Allow requests with no origin (like mobile apps, Postman, etc.)
+      origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+        // Allow requests with no origin (like mobile apps, Postman, server-to-server, etc.)
         if (!origin) {
           return callback(null, true);
         }
@@ -40,13 +53,12 @@ export class Server {
           return callback(null, true);
         }
 
-        // In production, you would check against allowed origins
-        // For now, allow all in development
-        if (isDevelopment) {
+        // Check against the configured allowed origins list
+        if (allowedOrigins.has(origin)) {
           return callback(null, true);
         }
 
-        callback(new Error('Not allowed by CORS'));
+        callback(new Error(`Origin "${origin}" not allowed by CORS`));
       },
       methods: ['GET', 'POST', 'OPTIONS', 'PUT', 'PATCH', 'DELETE', 'HEAD'],
       allowedHeaders: [

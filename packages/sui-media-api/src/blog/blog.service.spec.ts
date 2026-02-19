@@ -46,8 +46,9 @@ describe('BlogService', () => {
     withExec(mockModel.aggregate);
 
     // find() returns a chainable builder used as:
-    //   .find(filter).sort(...).skip(...).limit(...).exec()
+    //   .find(filter).select(...).sort(...).skip(...).limit(...).exec()
     const chainable = {
+      select: jest.fn().mockReturnThis(),
       sort: jest.fn().mockReturnThis(),
       skip: jest.fn().mockReturnThis(),
       limit: jest.fn().mockReturnThis(),
@@ -242,8 +243,9 @@ describe('BlogService', () => {
         }),
       ];
 
-      // Chain mock: .find().sort().skip().limit().exec()
+      // Chain mock: .find().select().sort().skip().limit().exec()
       const chainable = {
+        select: jest.fn().mockReturnThis(),
         sort: jest.fn().mockReturnThis(),
         skip: jest.fn().mockReturnThis(),
         limit: jest.fn().mockReturnThis(),
@@ -263,6 +265,7 @@ describe('BlogService', () => {
 
     it('calculates correct skip for page > 1', async () => {
       const chainable = {
+        select: jest.fn().mockReturnThis(),
         sort: jest.fn().mockReturnThis(),
         skip: jest.fn().mockReturnThis(),
         limit: jest.fn().mockReturnThis(),
@@ -274,6 +277,199 @@ describe('BlogService', () => {
       await service.findAll({ page: 3, limit: 10 });
 
       expect(chainable.skip).toHaveBeenCalledWith(20); // (3-1) * 10
+    });
+  });
+
+  // -----------------------------------------------------------------------
+  // findPublic()
+  // -----------------------------------------------------------------------
+
+  describe('findPublic()', () => {
+    /** Helper: build a chainable mock that resolves `docs` from .exec() */
+    function makeChainable(docs: ReturnType<typeof makeMockDoc>[]) {
+      return {
+        select: jest.fn().mockReturnThis(),
+        sort: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockReturnThis(),
+        exec: jest.fn().mockResolvedValue(docs),
+      };
+    }
+
+    it('returns posts for the matching site (brianstoker.com)', async () => {
+      const brianPost = makeMockDoc({
+        _id: 'b1',
+        slug: 'brian-post',
+        title: 'Brian Post',
+        body: 'body',
+        description: 'desc',
+        tags: [],
+        authors: [],
+        targetSites: ['brianstoker.com'],
+        status: 'published',
+        source: 'native',
+        date: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      const chainable = makeChainable([brianPost]);
+      mockModel.find.mockReturnValue(chainable);
+      mockModel.countDocuments.mockReturnValue({ exec: jest.fn().mockResolvedValue(1) });
+
+      const result = await service.findPublic('brianstoker.com', {});
+
+      // Verify the filter passed to .find() contains the site
+      const [filter] = mockModel.find.mock.calls[0];
+      expect(filter).toMatchObject({ targetSites: 'brianstoker.com', status: 'published' });
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0].slug).toBe('brian-post');
+    });
+
+    it('does NOT return brianstoker.com posts when querying stoked-ui.com', async () => {
+      // Simulate MongoDB returning no docs when the site filter does not match
+      const chainable = makeChainable([]);
+      mockModel.find.mockReturnValue(chainable);
+      mockModel.countDocuments.mockReturnValue({ exec: jest.fn().mockResolvedValue(0) });
+
+      const result = await service.findPublic('stoked-ui.com', {});
+
+      const [filter] = mockModel.find.mock.calls[0];
+      expect(filter).toMatchObject({ targetSites: 'stoked-ui.com', status: 'published' });
+      expect(result.data).toHaveLength(0);
+      expect(result.total).toBe(0);
+    });
+
+    it('returns a post listed in both sites for either site query', async () => {
+      const multiSitePost = makeMockDoc({
+        _id: 'm1',
+        slug: 'multi-site-post',
+        title: 'Multi Site Post',
+        body: 'body',
+        description: 'desc',
+        tags: [],
+        authors: [],
+        targetSites: ['stoked-ui.com', 'brianstoker.com'],
+        status: 'published',
+        source: 'native',
+        date: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      // First call: query for stoked-ui.com
+      const chainable1 = makeChainable([multiSitePost]);
+      mockModel.find.mockReturnValueOnce(chainable1);
+      mockModel.countDocuments.mockReturnValueOnce({ exec: jest.fn().mockResolvedValue(1) });
+
+      const result1 = await service.findPublic('stoked-ui.com', {});
+      expect(result1.data).toHaveLength(1);
+      expect(result1.data[0].slug).toBe('multi-site-post');
+
+      // Second call: query for brianstoker.com
+      const chainable2 = makeChainable([multiSitePost]);
+      mockModel.find.mockReturnValueOnce(chainable2);
+      mockModel.countDocuments.mockReturnValueOnce({ exec: jest.fn().mockResolvedValue(1) });
+
+      const result2 = await service.findPublic('brianstoker.com', {});
+      expect(result2.data).toHaveLength(1);
+      expect(result2.data[0].slug).toBe('multi-site-post');
+    });
+
+    it('never returns draft posts regardless of targetSites', async () => {
+      // Service always sets status: 'published' in the filter; simulate MongoDB returning nothing
+      const chainable = makeChainable([]);
+      mockModel.find.mockReturnValue(chainable);
+      mockModel.countDocuments.mockReturnValue({ exec: jest.fn().mockResolvedValue(0) });
+
+      const result = await service.findPublic('brianstoker.com', {});
+
+      const [filter] = mockModel.find.mock.calls[0];
+      // Confirm the filter always enforces published status
+      expect(filter['status']).toBe('published');
+      expect(result.data).toHaveLength(0);
+    });
+
+    it('response does not contain internal fields (denyAccess, canAccess, canEdit)', async () => {
+      const docWithInternals = makeMockDoc({
+        _id: 'i1',
+        slug: 'internal-test',
+        title: 'Internal Test',
+        body: 'body',
+        description: 'desc',
+        tags: [],
+        authors: [],
+        targetSites: ['stoked-ui.com'],
+        status: 'published',
+        source: 'native',
+        date: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        // These internal fields should never appear in the public response DTO
+        denyAccess: ['user-x'],
+        canAccess: ['user-y'],
+        canEdit: ['user-z'],
+        __v: 0,
+        tokens: ['secret-token'],
+      });
+
+      const chainable = makeChainable([docWithInternals]);
+      mockModel.find.mockReturnValue(chainable);
+      mockModel.countDocuments.mockReturnValue({ exec: jest.fn().mockResolvedValue(1) });
+
+      const result = await service.findPublic('stoked-ui.com', {});
+
+      expect(result.data).toHaveLength(1);
+      const post = result.data[0];
+
+      // BlogPostResponseDto only maps safe fields - internal fields must be absent
+      expect(post).not.toHaveProperty('denyAccess');
+      expect(post).not.toHaveProperty('canAccess');
+      expect(post).not.toHaveProperty('canEdit');
+      expect(post).not.toHaveProperty('__v');
+      expect(post).not.toHaveProperty('tokens');
+      expect(post).not.toHaveProperty('deleted');
+      expect(post).not.toHaveProperty('deletedAt');
+
+      // Confirm .select() was called with exclusion string
+      expect(chainable.select).toHaveBeenCalledWith(
+        '-__v -denyAccess -canAccess -canEdit -deleted -deletedAt -tokens',
+      );
+    });
+
+    it('supports pagination with page and limit params', async () => {
+      const chainable = makeChainable([]);
+      mockModel.find.mockReturnValue(chainable);
+      mockModel.countDocuments.mockReturnValue({ exec: jest.fn().mockResolvedValue(100) });
+
+      const result = await service.findPublic('stoked-ui.com', { page: 3, limit: 15 });
+
+      expect(chainable.skip).toHaveBeenCalledWith(30); // (3-1) * 15
+      expect(chainable.limit).toHaveBeenCalledWith(15);
+      expect(result.page).toBe(3);
+      expect(result.limit).toBe(15);
+      expect(result.total).toBe(100);
+      expect(result.hasMore).toBe(true); // 3 * 15 = 45 < 100
+    });
+
+    it('sorts by date descending by default', async () => {
+      const chainable = makeChainable([]);
+      mockModel.find.mockReturnValue(chainable);
+      mockModel.countDocuments.mockReturnValue({ exec: jest.fn().mockResolvedValue(0) });
+
+      await service.findPublic('stoked-ui.com', {});
+
+      expect(chainable.sort).toHaveBeenCalledWith({ date: -1 });
+    });
+
+    it('sorts by title ascending when sortBy=title', async () => {
+      const chainable = makeChainable([]);
+      mockModel.find.mockReturnValue(chainable);
+      mockModel.countDocuments.mockReturnValue({ exec: jest.fn().mockResolvedValue(0) });
+
+      await service.findPublic('stoked-ui.com', { sortBy: 'title' });
+
+      expect(chainable.sort).toHaveBeenCalledWith({ title: 1 });
     });
   });
 

@@ -136,11 +136,13 @@ export class BlogService {
 
   /**
    * List published posts for a specific site (public endpoint).
+   * Excludes internal/sensitive fields from the response.
    */
   async findPublic(site: string, query: QueryBlogPostsDto): Promise<PaginatedBlogPostsResponseDto> {
     const page = query.page ?? 1;
     const limit = query.limit ?? 20;
     const skip = (page - 1) * limit;
+    const sortBy = query.sortBy ?? 'date';
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const filter: Record<string, any> = {
@@ -161,10 +163,17 @@ export class BlogService {
       filter['$text'] = { $search: query.search };
     }
 
+    // Exclude internal/sensitive fields from public responses
+    const excludedFields = '-__v -denyAccess -canAccess -canEdit -deleted -deletedAt -tokens';
+
+    // Build sort: for string fields like 'title' sort ascending, for date fields sort descending
+    const sortOrder: Record<string, 1 | -1> = sortBy === 'title' ? { title: 1 } : { [sortBy]: -1 };
+
     const [docs, total] = await Promise.all([
       this.blogPostModel
         .find(filter)
-        .sort({ date: -1 })
+        .select(excludedFields)
+        .sort(sortOrder)
         .skip(skip)
         .limit(limit)
         .exec(),

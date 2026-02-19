@@ -70,4 +70,14 @@ export class QueryBlogPostsDto {
   @IsOptional()
   @IsString()
   site?: string;
+
+  @ApiPropertyOptional({
+    description: 'Sort posts by field',
+    enum: ['date', 'title', 'createdAt'],
+    example: 'date',
+    default: 'date',
+  })
+  @IsOptional()
+  @IsEnum(['date', 'title', 'createdAt'])
+  sortBy?: 'date' | 'title' | 'createdAt' = 'date';
 }

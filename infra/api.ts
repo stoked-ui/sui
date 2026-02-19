@@ -7,6 +7,40 @@ export const createApi = (domainInfo: DomainInfo) => {
     domain: domainInfo.apiDomain
   });
 
+  // ---------------------------------------------------------------------------
+  // Media API Lambda (NestJS / lambda.bootstrap.ts)
+  // Handles all /v1/* routes including /v1/blog, /v1/auth, /v1/media, etc.
+  // ---------------------------------------------------------------------------
+  const jwtSecret = new sst.Secret("JWT_SECRET");
+  const blogApiToken = new sst.Secret("BLOG_API_TOKEN");
+
+  const mediaApiFunction = new sst.aws.Function("MediaApi", {
+    handler: "packages/sui-media-api/dist/lambda.bootstrap.handler",
+    runtime: "nodejs20.x",
+    timeout: "29 seconds",
+    memory: "1024 MB",
+    link: [mongoDbUri, jwtSecret, blogApiToken],
+    environment: {
+      // Core
+      NODE_ENV: "production",
+      API_PATH_PREFIX: "/v1",
+
+      // Auth
+      AUTH_AUTO_DOMAINS: process.env.AUTH_AUTO_DOMAINS ?? "stokedconsulting.com,stoked-ui.com,brianstoker.com",
+
+      // Nostr integration
+      NOSTR_RELAYS: process.env.NOSTR_RELAYS ?? "",
+      NOSTR_NPUBS: process.env.NOSTR_NPUBS ?? "",
+      NOSTR_POLL_INTERVAL: process.env.NOSTR_POLL_INTERVAL ?? "15",
+
+      // CORS
+      ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS ?? `https://${domainInfo.domains[0]},https://www.${domainInfo.domains[0]}`,
+    },
+  });
+
+  // Route all /v1/* requests to the Media API Lambda
+  api.route("$default", mediaApiFunction.arn);
+
   const emailMsg = JSON.stringify(`{
         Subject: { Data: \`Subscribed to ${domainInfo.domains[0]}\` },
         Body: {
