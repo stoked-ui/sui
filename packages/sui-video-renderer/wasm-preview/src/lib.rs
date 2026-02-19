@@ -176,6 +176,18 @@ impl PreviewRenderer {
         Ok(())
     }
 
+    /// Render a frame at a specific time (for timeline scrubbing)
+    ///
+    /// This accepts a time in milliseconds and layer data as JSON.
+    /// The time can be used by the caller to set video element positions
+    /// before calling this method.
+    pub fn render_frame_at_time(&self, layers_json: &str, _time_ms: f64) -> Result<(), JsValue> {
+        // Time is used by the JavaScript caller to seek video elements
+        // before passing the layer data here. The compositor itself is
+        // stateless with respect to time.
+        self.render_frame(layers_json)
+    }
+
     /// Clear the canvas
     pub fn clear(&self) {
         self.ctx.clear_rect(0.0, 0.0, self.width as f64, self.height as f64);

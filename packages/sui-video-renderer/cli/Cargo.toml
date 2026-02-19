@@ -11,7 +11,7 @@ name = "video-render"
 path = "src/main.rs"
 
 [dependencies]
-video-compositor = { path = "../compositor" }
+video-compositor = { path = "../compositor", features = ["native"] }
 serde.workspace = true
 serde_json.workspace = true
 tokio.workspace = true

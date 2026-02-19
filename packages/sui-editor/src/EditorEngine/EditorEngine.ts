@@ -125,21 +125,20 @@ export default class EditorEngine<
 
     try {
       // Dynamically import the WASM module
-      const { default: init, PreviewRenderer } = await import('../WasmPreview/wasm_preview');
+      const { default: init, PreviewRenderer } = await import('@stoked-ui/video-renderer-wasm');
 
       // Initialize the WASM module
       await init();
 
-      // Create PreviewRenderer instance with canvas context
-      if (!this.renderer || !this.renderCtx) {
+      // Create PreviewRenderer instance with canvas element
+      if (!this.renderer) {
         throw new Error('Canvas renderer not initialized');
       }
 
       const renderer = new PreviewRenderer(
-        this.renderCtx,
+        this.renderer,
         this.renderWidth,
         this.renderHeight,
-        this._wasmRendererConfig.maxMemoryMB || 200
       ) as unknown as PreviewRendererInstance;
 
       // Connect renderer to CompositorController

@@ -2,6 +2,7 @@
 
 use image::{Rgba, RgbaImage};
 use imageproc::geometric_transformations::{rotate_about_center, warp, Interpolation, Projection};
+#[cfg(feature = "rayon")]
 use rayon::prelude::*;
 use std::sync::{Arc, Mutex};
 
@@ -161,12 +162,22 @@ impl Compositor {
         Ok(Frame::from_image(output))
     }
 
-    /// Compose multiple frames in parallel
+    /// Compose multiple frames in parallel (with rayon) or sequentially (WASM)
     pub fn compose_batch(&self, frames: Vec<Vec<Layer>>) -> Result<Vec<Frame>> {
-        frames
-            .par_iter()
-            .map(|layers| self.compose(layers))
-            .collect()
+        #[cfg(feature = "rayon")]
+        {
+            frames
+                .par_iter()
+                .map(|layers| self.compose(layers))
+                .collect()
+        }
+        #[cfg(not(feature = "rayon"))]
+        {
+            frames
+                .iter()
+                .map(|layers| self.compose(layers))
+                .collect()
+        }
     }
 
     /// Compose a frame from animated layers at a specific time
@@ -309,6 +320,7 @@ impl Compositor {
                 // Composite text image onto output with effects
                 self.composite_image_with_effects(output, &mut text_image, &layer.transform, layer.blend_mode, &layer.effects)?;
             }
+            #[cfg(not(target_arch = "wasm32"))]
             LayerContent::Video { .. } => {
                 // Video frames are decoded externally and passed as ImageData
                 // This variant is handled by the video module
@@ -766,6 +778,7 @@ impl Compositor {
                 // Assume it could intersect
                 return true;
             }
+            #[cfg(not(target_arch = "wasm32"))]
             LayerContent::Video { .. } => return true,
         };
 

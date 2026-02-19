@@ -49,4 +49,4 @@ export { createTransform, createSolidColorLayer } from './useWasmRenderer';
 
 // Export demo component
 export { WasmPreviewDemo } from './WasmPreviewDemo';
-export default WasmPreviewDemo;
+export { WasmPreviewDemo as default } from './WasmPreviewDemo';

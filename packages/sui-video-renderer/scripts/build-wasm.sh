@@ -46,8 +46,13 @@ echo -e "${YELLOW}Step 3/3: Optimizing WASM binary...${NC}"
 if command -v wasm-opt &> /dev/null; then
     WASM_FILE="${OUTPUT_DIR}/wasm_preview_bg.wasm"
     if [ -f "${WASM_FILE}" ]; then
-        echo "Running wasm-opt -O3..."
-        wasm-opt -O3 "${WASM_FILE}" -o "${WASM_FILE}.opt"
+        echo "Running wasm-opt -Oz with WASM feature flags..."
+        wasm-opt -Oz \
+            --enable-bulk-memory \
+            --enable-nontrapping-float-to-int \
+            --enable-sign-ext \
+            --enable-mutable-globals \
+            "${WASM_FILE}" -o "${WASM_FILE}.opt"
         mv "${WASM_FILE}.opt" "${WASM_FILE}"
         echo -e "${GREEN}Optimization complete!${NC}"
     else
@@ -55,6 +60,13 @@ if command -v wasm-opt &> /dev/null; then
     fi
 else
     echo -e "${YELLOW}wasm-opt not found, skipping optimization (install binaryen for smaller builds)${NC}"
+fi
+
+# Fix package name for workspace resolution
+echo -e "${YELLOW}Fixing package name...${NC}"
+if [ -f "${OUTPUT_DIR}/package.json" ]; then
+    sed -i '' 's/"name": "wasm-preview"/"name": "@stoked-ui\/video-renderer-wasm"/' "${OUTPUT_DIR}/package.json"
+    echo -e "${GREEN}Package name set to @stoked-ui/video-renderer-wasm${NC}"
 fi
 
 # Display build info

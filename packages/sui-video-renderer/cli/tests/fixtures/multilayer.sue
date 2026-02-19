@@ -15,7 +15,7 @@
     {
       "name": "Image Layer",
       "type": "image",
-      "file_path": "tests/fixtures/test_image.png",
+      "file_path": "cli/tests/fixtures/test_image.png",
       "start_ms": 1000.0,
       "end_ms": 4000.0,
       "transform": {
