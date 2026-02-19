@@ -4,11 +4,14 @@ import { DatabaseModule } from './database/database.module';
 import { MediaModule } from './media/media.module';
 import { HealthModule } from './health/health.module';
 import { UploadsModule } from './uploads/uploads.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
     // ConfigModule must be first AND global so all modules can inject ConfigService
     ConfigModule.forRoot({ isGlobal: true }),
+    // AuthModule provides JWT authentication and user management
+    AuthModule,
     // DatabaseModule provides MongoDB connection and schemas
     DatabaseModule,
     MediaModule,
