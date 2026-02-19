@@ -29,11 +29,59 @@ import Section from 'docs/src/layouts/Section';
 import SectionHeadline from 'docs/src/components/typography/SectionHeadline';
 import { getAllBlogPosts, BlogPost } from 'docs/lib/sourcing';
 
-export const getStaticProps = () => {
+export const getStaticProps = async () => {
   const data = getAllBlogPosts();
-  generateRssFeed(data.allBlogPosts);
+
+  let apiPosts: BlogPost[] = [];
+  try {
+    const apiUrl = process.env.BLOG_API_URL || 'http://localhost:3001';
+    const res = await fetch(`${apiUrl}/blog/public?site=stoked-ui.com`);
+    if (res.ok) {
+      const json = await res.json();
+      apiPosts = (json.data || []).map((post: any) => ({
+        slug: post.slug,
+        title: post.title,
+        description: post.description,
+        image: post.image,
+        tags: post.tags || [],
+        authors: post.authors,
+        date: post.date,
+        sui: true,
+      }));
+    }
+  } catch (e) {
+    // API unreachable at build time - fallback to markdown-only
+    console.warn('Blog API unreachable, using markdown posts only');
+  }
+
+  // Merge API posts with markdown posts, deduplicate by slug (markdown takes precedence)
+  const markdownSlugs = new Set(data.allBlogPosts.map((p) => p.slug));
+  const newApiPosts = apiPosts.filter((p) => !markdownSlugs.has(p.slug));
+  const mergedPosts = [...data.allBlogPosts, ...newApiPosts].sort((post1, post2) => {
+    if (post1.date && post2.date) {
+      return new Date(post1.date) > new Date(post2.date) ? -1 : 1;
+    }
+    if (post1.date && !post2.date) {
+      return 1;
+    }
+    return -1;
+  });
+
+  // Rebuild tagInfo for merged posts
+  const mergedTagInfo: Record<string, number | undefined> = { ...data.tagInfo };
+  newApiPosts.forEach((post) => {
+    post.tags.forEach((tag) => {
+      mergedTagInfo[tag] = (mergedTagInfo[tag] || 0) + 1;
+    });
+  });
+
+  generateRssFeed(mergedPosts);
   return {
-    props: data,
+    props: {
+      allBlogPosts: mergedPosts,
+      tagInfo: mergedTagInfo,
+    },
+    revalidate: 60,
   };
 };
 
@@ -309,24 +357,41 @@ export default function Blog(props: InferGetStaticPropsType<typeof getStaticProp
             columnGap: 8,
           }}
         >
-          <Typography
-            component="h2"
-            variant="h6"
-            fontWeight="semiBold"
-            sx={{ mb: { xs: 1, sm: 2 }, mt: 8 }} // margin-top makes the title appear when scroll into view
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              mb: { xs: 1, sm: 2 },
+              mt: 8,
+            }}
           >
-            Posts{' '}
-            {Object.keys(selectedTags).length ? (
-              <span>
-                tagged as{' '}
-                <Typography component="span" variant="inherit" color="primary" noWrap>
-                  &quot;{Object.keys(selectedTags)[0]}&quot;
-                </Typography>
-              </span>
-            ) : (
-              ''
-            )}
-          </Typography>
+            <Typography
+              component="h2"
+              variant="h6"
+              fontWeight="semiBold"
+            >
+              Posts{' '}
+              {Object.keys(selectedTags).length ? (
+                <span>
+                  tagged as{' '}
+                  <Typography component="span" variant="inherit" color="primary" noWrap>
+                    &quot;{Object.keys(selectedTags)[0]}&quot;
+                  </Typography>
+                </span>
+              ) : (
+                ''
+              )}
+            </Typography>
+            <Button
+              variant="contained"
+              size="small"
+              href="/blog/editor"
+              component={Link}
+            >
+              New Post
+            </Button>
+          </Box>
           <Box sx={{ gridRow: 'span 2' }}>
             <Box
               sx={{
