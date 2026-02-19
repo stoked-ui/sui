@@ -5,6 +5,7 @@ import { MediaModule } from './media/media.module';
 import { HealthModule } from './health/health.module';
 import { UploadsModule } from './uploads/uploads.module';
 import { AuthModule } from './auth/auth.module';
+import { BlogModule } from './blog/blog.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { AuthModule } from './auth/auth.module';
     MediaModule,
     HealthModule,
     UploadsModule,
+    BlogModule,
   ],
   controllers: [],
   providers: [],
