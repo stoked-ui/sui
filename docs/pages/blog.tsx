@@ -75,7 +75,7 @@ export const getStaticProps = async () => {
     });
   });
 
-  generateRssFeed(mergedPosts);
+  await generateRssFeed(mergedPosts);
   return {
     props: {
       allBlogPosts: mergedPosts,
