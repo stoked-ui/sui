@@ -8,9 +8,11 @@ export { default as AnimationController } from './AnimationController';
 export { default as AudioController } from './AudioController';
 export { default as ImageController } from './ImageController';
 export { default as VideoController } from './VideoController';
+export { default as CompositorController } from './CompositorController';
 /*
 export * from './AnimationController';
 */
 export * from './AudioController';
 export * from './ImageController';
 export * from './VideoController';
+export * from './CompositorController';

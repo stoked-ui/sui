@@ -16,29 +16,45 @@
 //! ```no_run
 //! use video_compositor::{Compositor, Layer, Transform, BlendMode};
 //!
-//! let compositor = Compositor::new(1920, 1080);
+//! let compositor = Compositor::new(1920, 1080)?;
 //! let layers = vec![
 //!     Layer::image("background.png", Transform::default()),
-//!     Layer::image("overlay.png", Transform::new(100, 100, 0.8)),
+//!     Layer::image("overlay.png", Transform::new().with_position(100.0, 100.0).with_opacity(0.8)),
 //! ];
 //! let frame = compositor.compose(&layers)?;
 //! frame.save("output.png")?;
 //! # Ok::<(), Box<dyn std::error::Error>>(())
 //! ```
 
+pub mod animated;
 pub mod blend;
+pub mod cache;
 pub mod compositor;
 pub mod effects;
 pub mod frame;
+pub mod keyframe;
 pub mod layer;
+pub mod text;
+pub mod timeline;
 pub mod transform;
 pub mod types;
 
+#[cfg(not(target_arch = "wasm32"))]
+pub mod video;
+
+pub use animated::{AnimatedLayer, AnimatedTransform};
 pub use compositor::Compositor;
 pub use blend::BlendMode;
-pub use effects::Effect;
+pub use cache::{
+    FrameCache, CacheKey, ComposedFrameCache, ComposedFrameCacheKey,
+    Prefetcher, PlaybackDirection, ScrubbingDetector
+};
+pub use effects::{Effect, GradientStop};
 pub use frame::Frame;
+pub use keyframe::{AnimatedProperty, EasingFunction, Interpolate, Keyframe, StepPosition};
 pub use layer::Layer;
+pub use text::{TextAlignment, TextRenderer, TextShadow, TextStyle, Stroke};
+pub use timeline::{Timeline, TimelineLayer};
 pub use transform::Transform;
 pub use types::{Color, Point, Rect, Size};
 
@@ -65,4 +81,7 @@ pub enum Error {
 
     #[error("Render error: {0}")]
     Render(String),
+
+    #[error("Invalid transform: {0}")]
+    InvalidTransform(String),
 }

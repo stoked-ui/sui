@@ -1,7 +1,27 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
+import type {
+  RenderMetrics,
+  BlendMode,
+  LayerType,
+  CompositorLayer,
+  LayerTransform,
+} from './types';
+
+/**
+ * Extended render metrics with additional tracking
+ */
+interface ExtendedRenderMetrics extends RenderMetrics {
+  droppedFrames?: number;
+  totalFramesRendered?: number;
+  averageFrameTime?: number;
+  wasmAvailable?: boolean;
+}
 
 /**
  * Layer transform interface matching WASM bindings
+ * @deprecated Use LayerTransform from './types' instead. This is kept for backwards compatibility.
+ *
+ * Note: WASM bindings use snake_case (Rust convention), while TypeScript types use camelCase.
  */
 export interface WasmTransform {
   x: number;
@@ -14,6 +34,9 @@ export interface WasmTransform {
 
 /**
  * Layer interface matching WASM bindings
+ * @deprecated Use CompositorLayer from './types' instead. This is kept for backwards compatibility.
+ *
+ * Note: WASM bindings use snake_case (Rust convention), while TypeScript types use camelCase.
  */
 export interface WasmLayer {
   id: string;
@@ -43,22 +66,20 @@ interface PreviewRendererConstructor {
 }
 
 /**
- * WASM module interface
+ * Color constructor interface (from WASM)
  */
-interface WasmModule {
-  PreviewRenderer: PreviewRendererConstructor;
-  benchmark_composition(width: number, height: number, layerCount: number): number;
+interface ColorConstructor {
+  new (r: number, g: number, b: number, a: number): any;
 }
 
 /**
- * Performance metrics from WASM renderer
+ * WASM module interface
  */
-export interface RenderMetrics {
-  width: number;
-  height: number;
-  ready: boolean;
-  lastFrameTime?: number;
-  fps?: number;
+interface WasmModule {
+  default?: () => Promise<void>; // Init function from wasm-pack
+  PreviewRenderer: PreviewRendererConstructor;
+  benchmark_composition(width: number, height: number, layerCount: number): number;
+  Color?: ColorConstructor;
 }
 
 /**
@@ -67,11 +88,43 @@ export interface RenderMetrics {
 export function useWasmRenderer(width: number, height: number) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-  const [metrics, setMetrics] = useState<RenderMetrics | null>(null);
+  const [metrics, setMetrics] = useState<ExtendedRenderMetrics | null>(null);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rendererRef = useRef<PreviewRendererInstance | null>(null);
   const wasmModuleRef = useRef<WasmModule | null>(null);
+
+  // Render loop state
+  const renderingRef = useRef<boolean>(false);
+  const animationFrameRef = useRef<number | null>(null);
+  const isRenderLoopActiveRef = useRef<boolean>(false);
+
+  // Frame tracking for metrics
+  const frameCountRef = useRef<number>(0);
+  const droppedFramesRef = useRef<number>(0);
+  const frameTimesRef = useRef<number[]>([]);
+  const lastFrameTimeRef = useRef<number>(0);
+
+  /**
+   * Create mock WASM module for development when real WASM isn't built
+   */
+  const createMockModule = (): WasmModule => ({
+    PreviewRenderer: class MockPreviewRenderer implements PreviewRendererInstance {
+      constructor(_canvas: HTMLCanvasElement, _width: number, _height: number) {}
+      render_frame(_layersJson: string): void {}
+      clear(): void {}
+      get_metrics(): string {
+        return JSON.stringify({
+          width,
+          height,
+          ready: true,
+          cachedImages: 0,
+        });
+      }
+      free(): void {}
+    } as PreviewRendererConstructor,
+    benchmark_composition: (_width: number, _height: number, _layerCount: number) => 0,
+  });
 
   /**
    * Load WASM module
@@ -84,23 +137,34 @@ export function useWasmRenderer(width: number, height: number) {
         setIsLoading(true);
         setError(null);
 
-        // In production, this would be the actual wasm-pack output
-        // For POC, we'll create a mock that shows the interface
-        // TODO: Replace with actual wasm-pack output when available
-        const wasmModule: WasmModule = {
-          PreviewRenderer: class MockPreviewRenderer implements PreviewRendererInstance {
-            constructor(_canvas: HTMLCanvasElement, _width: number, _height: number) {}
-            render_frame(_layersJson: string): void {}
-            clear(): void {}
-            get_metrics(): string { return JSON.stringify({}); }
-            free(): void {}
-          } as PreviewRendererConstructor,
-          benchmark_composition: (_width: number, _height: number, _layerCount: number) => 0,
-        };
+        let wasmModule: WasmModule;
+        let wasmAvailable = false;
+
+        // Try to load real WASM module, fall back to mock
+        try {
+          // @ts-ignore - Dynamic import may not be available during development
+          const wasm = await import('@stoked-ui/video-renderer-wasm');
+
+          // Initialize WASM (calls init())
+          if (wasm.default) {
+            await wasm.default();
+          }
+
+          wasmModule = wasm as unknown as WasmModule;
+          wasmAvailable = true;
+          console.log('✓ WASM module loaded successfully');
+        } catch (err) {
+          console.warn(
+            'WASM module not available, using mock renderer. Build with `pnpm build:wasm` to enable.',
+            err
+          );
+          wasmModule = createMockModule();
+          wasmAvailable = false;
+        }
 
         if (cancelled) return;
 
-        wasmModuleRef.current = wasmModule as unknown as WasmModule;
+        wasmModuleRef.current = wasmModule;
 
         // Initialize renderer if canvas is available
         if (canvasRef.current && wasmModule.PreviewRenderer) {
@@ -108,7 +172,14 @@ export function useWasmRenderer(width: number, height: number) {
           rendererRef.current = renderer;
 
           const metricsStr = renderer.get_metrics();
-          setMetrics(JSON.parse(metricsStr));
+          const baseMetrics = JSON.parse(metricsStr);
+          setMetrics({
+            ...baseMetrics,
+            wasmAvailable,
+            droppedFrames: 0,
+            totalFramesRendered: 0,
+            averageFrameTime: 0,
+          });
         }
 
         setIsLoading(false);
@@ -125,12 +196,47 @@ export function useWasmRenderer(width: number, height: number) {
 
     return () => {
       cancelled = true;
+
+      // Stop render loop
+      if (animationFrameRef.current !== null) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
+      }
+      isRenderLoopActiveRef.current = false;
+
+      // Cleanup renderer
       if (rendererRef.current) {
         rendererRef.current.free();
         rendererRef.current = null;
       }
     };
   }, [width, height]);
+
+  /**
+   * Update metrics with frame timing
+   */
+  const updateMetrics = useCallback((frameTime: number) => {
+    frameCountRef.current += 1;
+    frameTimesRef.current.push(frameTime);
+
+    // Keep only last 60 frame times for average
+    if (frameTimesRef.current.length > 60) {
+      frameTimesRef.current.shift();
+    }
+
+    const averageFrameTime =
+      frameTimesRef.current.reduce((a, b) => a + b, 0) / frameTimesRef.current.length;
+    const fps = 1000 / frameTime;
+
+    setMetrics((prev) => ({
+      ...prev!,
+      lastFrameTime: frameTime,
+      fps: Math.round(fps),
+      totalFramesRendered: frameCountRef.current,
+      droppedFrames: droppedFramesRef.current,
+      averageFrameTime: Math.round(averageFrameTime * 100) / 100,
+    }));
+  }, []);
 
   /**
    * Render a frame with given layers
@@ -142,27 +248,90 @@ export function useWasmRenderer(width: number, height: number) {
         return;
       }
 
+      // Frame dropping: if already rendering, skip this frame
+      if (renderingRef.current) {
+        droppedFramesRef.current += 1;
+        return;
+      }
+
       try {
+        renderingRef.current = true;
         const startTime = performance.now();
         const layersJson = JSON.stringify(layers);
         rendererRef.current.render_frame(layersJson);
         const endTime = performance.now();
 
         const frameTime = endTime - startTime;
-        const fps = 1000 / frameTime;
-
-        setMetrics((prev) => ({
-          ...prev!,
-          lastFrameTime: frameTime,
-          fps: Math.round(fps),
-        }));
+        updateMetrics(frameTime);
+        lastFrameTimeRef.current = startTime;
       } catch (err) {
         console.error('Render failed:', err);
         setError(err instanceof Error ? err : new Error(String(err)));
+      } finally {
+        renderingRef.current = false;
       }
     },
-    []
+    [updateMetrics]
   );
+
+  /**
+   * Render a frame at a specific time (for timeline integration)
+   * This is for timeline-controlled rendering where the editor controls the time
+   */
+  const renderFrameAtTime = useCallback(
+    (timeMs: number, layers: WasmLayer[]) => {
+      if (!rendererRef.current) {
+        console.warn('Renderer not initialized');
+        return;
+      }
+
+      // For now, this is the same as renderFrame
+      // In the future, this could handle animated layers by interpolating keyframes at timeMs
+      // TODO: Add keyframe interpolation when animated layers are supported
+      renderFrame(layers);
+    },
+    [renderFrame]
+  );
+
+  /**
+   * Start the render loop with requestAnimationFrame
+   * Renders continuously until stopped
+   */
+  const startRenderLoop = useCallback(
+    (getLayers: () => WasmLayer[]) => {
+      if (isRenderLoopActiveRef.current) {
+        console.warn('Render loop already active');
+        return;
+      }
+
+      isRenderLoopActiveRef.current = true;
+
+      const loop = () => {
+        if (!isRenderLoopActiveRef.current) {
+          return;
+        }
+
+        const layers = getLayers();
+        renderFrame(layers);
+
+        animationFrameRef.current = requestAnimationFrame(loop);
+      };
+
+      animationFrameRef.current = requestAnimationFrame(loop);
+    },
+    [renderFrame]
+  );
+
+  /**
+   * Stop the render loop
+   */
+  const stopRenderLoop = useCallback(() => {
+    isRenderLoopActiveRef.current = false;
+    if (animationFrameRef.current !== null) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
+    }
+  }, []);
 
   /**
    * Clear the canvas
@@ -172,6 +341,24 @@ export function useWasmRenderer(width: number, height: number) {
       rendererRef.current.clear();
     }
   }, []);
+
+  /**
+   * Cleanup function to explicitly free WASM resources
+   */
+  const cleanup = useCallback(() => {
+    stopRenderLoop();
+
+    if (rendererRef.current) {
+      rendererRef.current.free();
+      rendererRef.current = null;
+    }
+
+    // Reset metrics
+    frameCountRef.current = 0;
+    droppedFramesRef.current = 0;
+    frameTimesRef.current = [];
+    lastFrameTimeRef.current = 0;
+  }, [stopRenderLoop]);
 
   /**
    * Run a benchmark test
@@ -190,7 +377,11 @@ export function useWasmRenderer(width: number, height: number) {
   return {
     canvasRef,
     renderFrame,
+    renderFrameAtTime,
+    startRenderLoop,
+    stopRenderLoop,
     clear,
+    cleanup,
     benchmark,
     isLoading,
     error,

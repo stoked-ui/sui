@@ -2,10 +2,10 @@
 
 use std::path::PathBuf;
 
-use image::{DynamicImage, RgbaImage};
+use image::RgbaImage;
 use serde::{Deserialize, Serialize};
 
-use crate::{blend::BlendMode, transform::Transform, types::Color, Result};
+use crate::{blend::BlendMode, effects::Effect, text::{TextAlignment, Stroke, TextShadow}, transform::Transform, types::Color, Result};
 
 /// Layer content type
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -22,10 +22,29 @@ pub enum LayerContent {
         font_size: f32,
         color: Color,
         font_family: String,
+        // Optional extended properties for backward compatibility
+        #[serde(default)]
+        alignment: Option<TextAlignment>,
+        #[serde(default)]
+        line_height: Option<f32>,
+        #[serde(default)]
+        letter_spacing: Option<f32>,
+        #[serde(default)]
+        wrap_width: Option<f32>,
+        #[serde(default)]
+        stroke: Option<Stroke>,
+        #[serde(default)]
+        shadow: Option<TextShadow>,
+        #[serde(default)]
+        font_weight: Option<u16>,
     },
 
     /// Pre-loaded image data
     ImageData { data: Vec<u8>, width: u32, height: u32 },
+
+    /// Video frame at specific timestamp (native builds only)
+    #[cfg(not(target_arch = "wasm32"))]
+    Video { path: PathBuf, timestamp_ms: u64 },
 }
 
 /// A single compositable layer
@@ -48,6 +67,10 @@ pub struct Layer {
 
     /// Z-index for sorting (higher = on top)
     pub z_index: i32,
+
+    /// Effects applied to this layer
+    #[serde(default)]
+    pub effects: Vec<Effect>,
 }
 
 impl Layer {
@@ -60,6 +83,7 @@ impl Layer {
             blend_mode: BlendMode::Normal,
             visible: true,
             z_index: 0,
+            effects: Vec::new(),
         }
     }
 
@@ -72,6 +96,20 @@ impl Layer {
             blend_mode: BlendMode::Normal,
             visible: true,
             z_index: 0,
+            effects: Vec::new(),
+        }
+    }
+
+    /// Create a layer from pre-loaded RGBA image data
+    pub fn image_data(data: Vec<u8>, width: u32, height: u32, transform: Transform) -> Self {
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            content: LayerContent::ImageData { data, width, height },
+            transform,
+            blend_mode: BlendMode::Normal,
+            visible: true,
+            z_index: 0,
+            effects: Vec::new(),
         }
     }
 
@@ -84,11 +122,36 @@ impl Layer {
                 font_size,
                 color,
                 font_family: "Arial".to_string(),
+                alignment: None,
+                line_height: None,
+                letter_spacing: None,
+                wrap_width: None,
+                stroke: None,
+                shadow: None,
+                font_weight: None,
             },
             transform,
             blend_mode: BlendMode::Normal,
             visible: true,
             z_index: 0,
+            effects: Vec::new(),
+        }
+    }
+
+    /// Create a video layer (native builds only)
+    #[cfg(not(target_arch = "wasm32"))]
+    pub fn video<P: Into<PathBuf>>(path: P, timestamp_ms: u64, transform: Transform) -> Self {
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            content: LayerContent::Video {
+                path: path.into(),
+                timestamp_ms,
+            },
+            transform,
+            blend_mode: BlendMode::Normal,
+            visible: true,
+            z_index: 0,
+            effects: Vec::new(),
         }
     }
 
@@ -107,6 +170,18 @@ impl Layer {
     /// Set visibility
     pub fn with_visible(mut self, visible: bool) -> Self {
         self.visible = visible;
+        self
+    }
+
+    /// Set effects
+    pub fn with_effects(mut self, effects: Vec<Effect>) -> Self {
+        self.effects = effects;
+        self
+    }
+
+    /// Add a single effect
+    pub fn with_effect(mut self, effect: Effect) -> Self {
+        self.effects.push(effect);
         self
     }
 
@@ -134,12 +209,26 @@ impl Layer {
                 // Text is rendered differently
                 Ok(None)
             }
+            #[cfg(not(target_arch = "wasm32"))]
+            LayerContent::Video { path, timestamp_ms } => {
+                #[cfg(feature = "native-video")]
+                {
+                    use crate::video::VideoSource;
+                    let mut video = VideoSource::open(path)?;
+                    let frame = video.get_frame(*timestamp_ms)?;
+                    Ok(Some(frame))
+                }
+                #[cfg(not(feature = "native-video"))]
+                {
+                    let _ = (path, timestamp_ms); // Suppress unused warnings
+                    Err(crate::Error::Render(
+                        "Video support requires native-video feature".to_string()
+                    ))
+                }
+            }
         }
     }
 }
-
-// Add uuid dependency
-use uuid::Uuid;
 
 #[cfg(test)]
 mod tests {

@@ -72,6 +72,9 @@
     "react": "18.3.1",
     "react-dom": "^17.0.0 || ^18.0.0"
   },
+  "optionalDependencies": {
+    "@stoked-ui/video-renderer-wasm": "file:../sui-video-renderer/pkg"
+  },
   "devDependencies": {
     "@stoked-ui/file-explorer": "workspace:^",
     "@stoked-ui/internal-test-utils": "workspace:^",

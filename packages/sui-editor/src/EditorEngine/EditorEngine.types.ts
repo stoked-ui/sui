@@ -1,8 +1,21 @@
 import {
   Engine,
   EngineState,
+  EngineOptions,
 } from '@stoked-ui/timeline';
 import { type EditorEventTypes} from "./events";
+
+export interface WasmRendererConfig {
+  enabled: boolean;
+  maxMemoryMB?: number;     // default 200
+  fallbackToCanvas?: boolean; // default true
+  debugMode?: boolean;
+}
+
+export interface EditorEngineOptions extends EngineOptions {
+  useWasmRenderer?: boolean;
+  wasmRendererConfig?: WasmRendererConfig;
+}
 
 export interface IEditorEngine<
   State extends string = EditorEngineState,
@@ -18,6 +31,7 @@ export interface IEditorEngine<
   readonly renderCtx: CanvasRenderingContext2D | null;
   readonly renderWidth: number;
   readonly renderHeight: number;
+  readonly useWasm: boolean;
 
   drawImage(dd: DrawData): void;
 

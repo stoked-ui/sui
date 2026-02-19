@@ -1,0 +1,23 @@
+{
+  "name": "wasm-preview",
+  "type": "module",
+  "collaborators": [
+    "Stoked Consulting"
+  ],
+  "version": "0.1.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stokedconsulting/stoked-ui"
+  },
+  "files": [
+    "wasm_preview_bg.wasm",
+    "wasm_preview.js",
+    "wasm_preview.d.ts"
+  ],
+  "main": "wasm_preview.js",
+  "types": "wasm_preview.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

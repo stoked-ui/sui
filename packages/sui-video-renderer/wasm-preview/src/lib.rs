@@ -11,6 +11,9 @@ use video_compositor::{Compositor, Layer, Transform, BlendMode, Color as Composi
 // Re-export types for TypeScript bindings
 use serde::{Deserialize, Serialize};
 
+mod video;
+use video::BrowserMediaLoader;
+
 #[wasm_bindgen]
 extern "C" {
     #[wasm_bindgen(js_namespace = console)]
@@ -94,8 +97,10 @@ impl From<&WasmTransform> for Transform {
 pub struct WasmLayer {
     pub id: String,
     #[serde(rename = "type")]
-    pub layer_type: String, // "solidColor" | "image" | "text"
+    pub layer_type: String, // "solidColor" | "image" | "video" | "text"
     pub color: Option<[u8; 4]>,
+    pub video_element_id: Option<String>, // For "video" type
+    pub image_url: Option<String>,         // For "image" type
     pub transform: WasmTransform,
     pub blend_mode: Option<String>,
     pub visible: bool,
@@ -110,6 +115,7 @@ pub struct PreviewRenderer {
     ctx: CanvasRenderingContext2d,
     width: u32,
     height: u32,
+    media_loader: BrowserMediaLoader,
 }
 
 #[wasm_bindgen]
@@ -142,6 +148,7 @@ impl PreviewRenderer {
             ctx,
             width,
             height,
+            media_loader: BrowserMediaLoader::new(),
         })
     }
 
@@ -169,6 +176,18 @@ impl PreviewRenderer {
         Ok(())
     }
 
+    /// Render a frame at a specific time (for timeline scrubbing)
+    ///
+    /// This accepts a time in milliseconds and layer data as JSON.
+    /// The time can be used by the caller to set video element positions
+    /// before calling this method.
+    pub fn render_frame_at_time(&self, layers_json: &str, _time_ms: f64) -> Result<(), JsValue> {
+        // Time is used by the JavaScript caller to seek video elements
+        // before passing the layer data here. The compositor itself is
+        // stateless with respect to time.
+        self.render_frame(layers_json)
+    }
+
     /// Clear the canvas
     pub fn clear(&self) {
         self.ctx.clear_rect(0.0, 0.0, self.width as f64, self.height as f64);
@@ -179,9 +198,34 @@ impl PreviewRenderer {
         serde_json::json!({
             "width": self.width,
             "height": self.height,
-            "ready": true
+            "ready": true,
+            "cached_images": self.media_loader.cache_size()
         })
         .to_string()
+    }
+
+    /// Cache an image for use in image layers
+    ///
+    /// This method should be called from JavaScript after loading an image.
+    /// The pixel data must be in RGBA format.
+    ///
+    /// # Arguments
+    /// * `url` - The URL of the image
+    /// * `data` - RGBA pixel data (Uint8Array from JavaScript)
+    /// * `width` - Image width in pixels
+    /// * `height` - Image height in pixels
+    pub fn cache_image(&mut self, url: String, data: Vec<u8>, width: u32, height: u32) {
+        self.media_loader.cache_image(url, data, width, height);
+    }
+
+    /// Clear the image cache
+    pub fn clear_image_cache(&mut self) {
+        self.media_loader.clear_cache();
+    }
+
+    /// Check if an image URL is cached
+    pub fn is_image_cached(&self, url: &str) -> bool {
+        self.media_loader.is_cached(url)
     }
 }
 
@@ -202,8 +246,19 @@ impl PreviewRenderer {
                 "screen" => Some(BlendMode::Screen),
                 "overlay" => Some(BlendMode::Overlay),
                 "add" => Some(BlendMode::Add),
+                "subtract" => Some(BlendMode::Subtract),
                 "lighten" => Some(BlendMode::Lighten),
                 "darken" => Some(BlendMode::Darken),
+                "softLight" => Some(BlendMode::SoftLight),
+                "hardLight" => Some(BlendMode::HardLight),
+                "colorDodge" => Some(BlendMode::ColorDodge),
+                "colorBurn" => Some(BlendMode::ColorBurn),
+                "difference" => Some(BlendMode::Difference),
+                "exclusion" => Some(BlendMode::Exclusion),
+                "hue" => Some(BlendMode::Hue),
+                "saturation" => Some(BlendMode::Saturation),
+                "color" => Some(BlendMode::Color),
+                "luminosity" => Some(BlendMode::Luminosity),
                 _ => Some(BlendMode::Normal),
             })
             .unwrap_or(BlendMode::Normal);
@@ -217,6 +272,54 @@ impl PreviewRenderer {
                             .with_z_index(wasm_layer.z_index),
                     )
                 } else {
+                    None
+                }
+            }
+            "video" => {
+                // Capture video frame from HTMLVideoElement
+                if let Some(video_id) = &wasm_layer.video_element_id {
+                    match BrowserMediaLoader::capture_video_frame(video_id) {
+                        Ok((pixel_data, width, height)) => {
+                            Some(
+                                Layer::image_data(pixel_data, width, height, transform)
+                                    .with_blend_mode(blend_mode)
+                                    .with_z_index(wasm_layer.z_index),
+                            )
+                        }
+                        Err(e) => {
+                            error(&format!(
+                                "Failed to capture video frame from '{}': {:?}",
+                                video_id, e
+                            ));
+                            None
+                        }
+                    }
+                } else {
+                    error("Video layer missing video_element_id");
+                    None
+                }
+            }
+            "image" => {
+                // Load image from cache (must be pre-loaded by JavaScript)
+                if let Some(url) = &wasm_layer.image_url {
+                    match self.media_loader.get_cached_image(url) {
+                        Some((pixel_data, width, height)) => {
+                            Some(
+                                Layer::image_data(pixel_data.to_vec(), width, height, transform)
+                                    .with_blend_mode(blend_mode)
+                                    .with_z_index(wasm_layer.z_index),
+                            )
+                        }
+                        None => {
+                            error(&format!(
+                                "Image not found in cache: '{}'. Use cache_image() to pre-load images.",
+                                url
+                            ));
+                            None
+                        }
+                    }
+                } else {
+                    error("Image layer missing image_url");
                     None
                 }
             }
@@ -234,9 +337,12 @@ impl PreviewRenderer {
 
         // Convert RGBA image to ImageData
         let data = image_data.as_raw();
-        let data_array = js_sys::Uint8ClampedArray::from(data);
 
-        let image_data = ImageData::new_with_u8_clamped_array(data_array, width)?;
+        let image_data = ImageData::new_with_u8_clamped_array_and_sh(
+            wasm_bindgen::Clamped(data.as_slice()),
+            width,
+            height
+        )?;
 
         // Draw to canvas
         self.ctx.put_image_data(&image_data, 0.0, 0.0)?;
