@@ -20,7 +20,7 @@
       "@stoked-ui/docs-utils": ["./packages-internal/docs-utils/src"],
       "@stoked-ui/docs-markdown": ["./packages/sui-internal-markdown/src"],
       "@stoked-ui/docs-markdown/*": ["./packages/sui-internal-markdown/src/*"],
-      "@stoked-ui/proptypes/typescript-to-proptypes": ["./packages-internal/scripts/typescript-to-proptypes/src"],
+      "@stoked-ui/proptypes/typescript-to-proptypes": ["./packages-internal/proptypes/typescript-to-proptypes/src"],
       "@stoked-ui/file-explorer": ["./packages/sui-file-explorer/src"],
       "@stoked-ui/file-explorer/*": ["./packages/sui-file-explorer/src/*"],
       "@stoked-ui/media": ["./packages/sui-media"],
@@ -32,7 +32,8 @@
       "@stoked-ui/github": ["./packages/sui-github"],
       "@stoked-ui/github/*": ["./packages/sui-github/*"],
       "@stoked-ui/internal-test-utils": ["./packages/test-utils"],
-      "@stoked-ui/internal-test-utils/*": ["./packages/test-utils/*"]
+      "@stoked-ui/internal-test-utils/*": ["./packages/test-utils/*"],
+      "@stoked-ui/video-renderer-wasm": ["./packages/sui-editor/src/WasmPreview/wasm-module.d.ts"]
     },
     // Otherwise we get react-native typings which conflict with dom.lib.
     "types": ["node", "react"]

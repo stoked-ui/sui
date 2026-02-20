@@ -42,15 +42,21 @@ export const getOrFetchVideo = async (db: IDBDatabase, videoUrl: string, videoId
   return storeVideo(db, videoUrl, videoId); // Fetch and store
 };
 
+interface SceneVideo {
+  url: string;
+  id: string;
+  name: string;
+}
+
 // Video Editor Component
-export default function VideoDb({ sceneVideos }) {
+export default function VideoDb({ sceneVideos }: { sceneVideos: SceneVideo[] }) {
   const [videoSources, setVideoSources] = React.useState<Record<string, string>>({});
   const [isLoaded, setIsLoaded] = React.useState(false);
 
   React.useEffect(() => {
     const loadVideos = async () => {
       const db = await openDB();
-      const videoBlobs = {};
+      const videoBlobs: Record<string, string> = {};
 
       // Load all videos for the scene
       await Promise.all(

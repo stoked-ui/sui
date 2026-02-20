@@ -3,13 +3,18 @@ import path from 'path';
 import { getHeaders } from '@stoked-ui/docs-markdown';
 
 const blogMuiDir = path.join(process.cwd(), 'pages/blog/mui');
-const blogDir = path.join(process.cwd(), 'pages/blog/mui');
+const blogDir = path.join(process.cwd(), 'pages/blog/sui');
 
 
 export const getBlogFilePaths = (ext = '.md') => {
   const muiBlogPaths = fs.readdirSync(blogMuiDir).filter((file) => file.endsWith(ext));
-  const suiBlogPaths = fs.readdirSync(blogDir).filter((file) => file.endsWith(ext));
-  return muiBlogPaths.concat(suiBlogPaths);
+  const suiBlogPaths = fs.existsSync(blogDir)
+    ? fs.readdirSync(blogDir).filter((file) => file.endsWith(ext))
+    : [];
+  // Deduplicate: SUI posts take precedence over MUI posts with the same filename
+  const suiSet = new Set(suiBlogPaths);
+  const filteredMuiPaths = muiBlogPaths.filter((p) => !suiSet.has(p));
+  return filteredMuiPaths.concat(suiBlogPaths);
 };
 
 export interface BlogPost {
@@ -25,13 +30,21 @@ export interface BlogPost {
 
 export function getBlogPost(filePath: string): BlogPost {
   const slug = filePath.replace(/\.md$/, '');
-  const content = fs.readFileSync(path.join(blogDir, filePath), 'utf-8');
+
+  // Determine which directory the file lives in.
+  // SUI directory takes precedence; fall back to MUI directory.
+  const suiFilePath = path.join(blogDir, filePath);
+  const isSui = fs.existsSync(blogDir) && fs.existsSync(suiFilePath);
+  const resolvedDir = isSui ? blogDir : blogMuiDir;
+
+  const content = fs.readFileSync(path.join(resolvedDir, filePath), 'utf-8');
 
   const headers = getHeaders(content) as unknown as BlogPost;
 
   return {
     ...headers,
     slug,
+    ...(isSui ? { sui: true } : {}),
   };
 }
 
@@ -60,10 +73,21 @@ const SUI_TAGS = [
   'File Explorer',
   'Media Selector',
   'Video Editor',
-  'Timeline'
+  'Timeline',
 ];
 
-const ALL_TAGS = SUI_TAGS.concat(ALLOWED_TAGS);
+const BLOG_TAGS = [
+  'Consulting',
+  'Announcement',
+  'Tutorial',
+  'Release',
+  'Personal',
+  'Nostr',
+  'Editor',
+];
+
+// Union of all tag arrays with no duplicates
+const ALL_TAGS = Array.from(new Set([...ALLOWED_TAGS, ...SUI_TAGS, ...BLOG_TAGS]));
 
 export const getAllBlogPosts = () => {
   const filePaths = getBlogFilePaths();

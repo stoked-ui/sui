@@ -282,8 +282,14 @@ export class S3Service {
 
       // S3 direct URL - extract key from path
       if (url.hostname.includes('s3') || url.hostname.includes('amazonaws.com')) {
-        // Format: https://bucket.s3.region.amazonaws.com/key or https://s3.region.amazonaws.com/bucket/key
         const pathParts = url.pathname.split('/').filter(Boolean);
+        // Virtual-hosted style: bucket.s3[.region].amazonaws.com/key
+        // The bucket is in the hostname so the full path is the key.
+        if (/^[^.]+\.s3(\.[a-z0-9-]+)?\.amazonaws\.com$/.test(url.hostname)) {
+          return pathParts.join('/');
+        }
+        // Path style: s3[.region].amazonaws.com/bucket/key
+        // Strip the first path segment (bucket name) to get the key.
         return pathParts.length > 1 ? pathParts.slice(1).join('/') : pathParts[0];
       }
 

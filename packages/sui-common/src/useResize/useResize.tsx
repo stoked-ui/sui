@@ -1,7 +1,12 @@
-import {useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 
-const useResize = (elementRef) => {
-  const [size, setSize] = useState({
+interface Size {
+  width: number | undefined;
+  height: number | undefined;
+}
+
+const useResize = (elementRef: React.RefObject<HTMLElement> | null | undefined): Size => {
+  const [size, setSize] = useState<Size>({
     width: undefined,
     height: undefined,
   });
@@ -9,8 +14,8 @@ const useResize = (elementRef) => {
   useEffect(() => {
     const handleResize = () => {
       setSize({
-        width: elementRef ? elementRef.current.offsetWidth : window.innerWidth,
-        height: elementRef ? elementRef.current.offsetHeight : window.innerHeight,
+        width: elementRef ? (elementRef.current?.offsetWidth ?? undefined) : window.innerWidth,
+        height: elementRef ? (elementRef.current?.offsetHeight ?? undefined) : window.innerHeight,
       });
     };
 

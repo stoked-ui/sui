@@ -7,6 +7,7 @@ import {
   getPropTypesFromFile,
   injectPropTypesInFile,
 } from '@stoked-ui/proptypes/typescript-to-proptypes';
+import type { PropTypeDefinition, PropTypesComponent } from '@stoked-ui/proptypes/typescript-to-proptypes';
 import { fixBabelGeneratorIssues, fixLineEndings } from '@stoked-ui/docs-utils';
 import { createXTypeScriptProjects, XTypeScriptProject } from './createXTypeScriptProjects';
 
@@ -17,7 +18,7 @@ async function generateProptypes(project: XTypeScriptProject, sourceFile: string
     filePath: sourceFile,
     project,
     checkDeclarations: true,
-    shouldResolveObject: ({ name }) => {
+    shouldResolveObject: ({ name }: { name: string; propertyCount: number; depth: number }) => {
       const propsToNotResolve = [
         'classes',
         'slots',
@@ -57,7 +58,7 @@ async function generateProptypes(project: XTypeScriptProject, sourceFile: string
 
       return undefined;
     },
-    shouldUseObjectForDate: ({ name }) => true,
+    shouldUseObjectForDate: (_data: { name: string }) => true,
   });
 
   if (components.length === 0) {
@@ -76,14 +77,14 @@ async function generateProptypes(project: XTypeScriptProject, sourceFile: string
         '| To update them edit the TypeScript types and run "pnpm proptypes"  |',
         '----------------------------------------------------------------------',
       ].join('\n'),
-      reconcilePropTypes: (prop, previous, generated) => {
+      reconcilePropTypes: (prop: PropTypeDefinition, previous: string | undefined, generated: string) => {
         const usedCustomValidator = previous !== undefined && !previous.startsWith('PropTypes');
         const ignoreGenerated =
           previous !== undefined &&
           previous.startsWith('PropTypes /* @typescript-to-proptypes-ignore */');
         return usedCustomValidator || ignoreGenerated ? previous! : generated;
       },
-      shouldInclude: ({ component, prop }) => {
+      shouldInclude: ({ component, prop }: { component: PropTypesComponent; prop: PropTypeDefinition; usedProps: readonly string[] }) => {
         if (['children', 'state'].includes(prop.name) && component.name.startsWith('DataGrid')) {
           return false;
         }

@@ -2,25 +2,29 @@ import { styled, alpha } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
+import type { BoxProps } from '@mui/material/Box';
+import type { TypographyProps } from '@mui/material/Typography';
+import type { TextFieldProps } from '@mui/material/TextField';
+import type { FC } from 'react';
 
 /**
  * Root container for the SocialLinks component.
  * Dark background with rounded corners and vertical flex layout.
  */
-export const SocialLinksRoot = styled(Box)(({ theme }) => ({
+export const SocialLinksRoot: FC<BoxProps> = styled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
   borderRadius: theme.shape.borderRadius,
   padding: theme.spacing(2),
   display: 'flex',
   flexDirection: 'column',
   gap: theme.spacing(1),
-}));
+})) as FC<BoxProps>;
 
 /**
  * Row container for a single social link field.
  * Horizontal flex with consistent spacing and hover highlight.
  */
-export const SocialLinkFieldRow = styled(Box)(({ theme }) => ({
+export const SocialLinkFieldRow: FC<BoxProps> = styled(Box)(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   gap: theme.spacing(2),
@@ -32,25 +36,25 @@ export const SocialLinkFieldRow = styled(Box)(({ theme }) => ({
   '&:hover': {
     backgroundColor: alpha(theme.palette.action.hover, 0.04),
   },
-}));
+})) as FC<BoxProps>;
 
 /**
  * Wrapper for platform icon with fixed width for alignment.
  */
-export const PlatformIcon = styled(Box)(({ theme }) => ({
+export const PlatformIcon: FC<BoxProps> = styled(Box)(({ theme }) => ({
   width: 40,
   flexShrink: 0,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
   color: theme.palette.text.secondary,
-}));
+})) as FC<BoxProps>;
 
 /**
  * Platform label with fixed width for vertical alignment of inputs.
  * Hidden at xs breakpoint for responsive design.
  */
-export const PlatformLabel = styled(Typography)(({ theme }) => ({
+export const PlatformLabel: FC<TypographyProps> = styled(Typography)(({ theme }) => ({
   width: 120,
   flexShrink: 0,
   color: theme.palette.text.primary,
@@ -58,13 +62,13 @@ export const PlatformLabel = styled(Typography)(({ theme }) => ({
   [theme.breakpoints.down('sm')]: {
     display: 'none',
   },
-}));
+})) as FC<TypographyProps>;
 
 /**
  * Styled text field for platform input.
  * Flex-grow to fill remaining space.
  */
-export const PlatformInput = styled(TextField)(({ theme }) => ({
+export const PlatformInput: FC<TextFieldProps> = styled(TextField)(({ theme }) => ({
   flex: 1,
   minWidth: 0,
   '& .MuiInputBase-root': {
@@ -74,4 +78,4 @@ export const PlatformInput = styled(TextField)(({ theme }) => ({
   '& .MuiInputAdornment-root': {
     color: theme.palette.text.secondary,
   },
-}));
+})) as FC<TextFieldProps>;

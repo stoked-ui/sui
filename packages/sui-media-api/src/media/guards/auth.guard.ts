@@ -1,54 +1,77 @@
-import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
-import { Observable } from 'rxjs';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 
 /**
  * Authentication Guard
- * Validates that the request has a valid user session
- * Currently uses mock authentication - will be replaced with real auth in future phases
+ *
+ * Supports two authentication modes (tried in order):
+ *
+ * 1. JWT Bearer token  – Authorization: Bearer <token>
+ *    Decodes and validates the token using the configured JWT_SECRET.
+ *    Sets request.user = { id, email, role, name } from the token payload.
+ *
+ * 2. x-user-id header fallback (development only)
+ *    When NODE_ENV !== 'production', the legacy x-user-id header is still
+ *    accepted so that existing development tooling and tests continue to work.
+ *    In production this fallback is disabled and requests without a valid JWT
+ *    are rejected.
  */
 @Injectable()
 export class AuthGuard implements CanActivate {
-  canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
+  ) {}
+
+  canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest();
 
-    // Extract user from request
-    // In production, this would validate JWT tokens or session cookies
-    const userId = this.extractUserId(request);
-
-    if (!userId) {
-      throw new UnauthorizedException('Authentication required');
+    // --- 1. Try JWT Bearer token ---
+    const authHeader: string | undefined = request.headers['authorization'];
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.slice(7);
+      try {
+        const secret = this.configService.get<string>('JWT_SECRET', 'dev-secret-change-me');
+        const payload = this.jwtService.verify(token, { secret }) as {
+          sub: string;
+          email: string;
+          role: string;
+          name: string;
+        };
+        request.user = {
+          id: payload.sub,
+          email: payload.email,
+          role: payload.role,
+          name: payload.name,
+        };
+        return true;
+      } catch {
+        throw new UnauthorizedException('Invalid or expired token');
+      }
     }
 
-    // Attach user to request for use in controllers
-    request.user = { id: userId };
+    // --- 2. x-user-id header fallback (dev mode only) ---
+    if (process.env.NODE_ENV !== 'production') {
+      const headerUserId = request.headers['x-user-id'];
+      if (headerUserId) {
+        request.user = { id: headerUserId };
+        return true;
+      }
 
-    return true;
-  }
-
-  /**
-   * Extract user ID from request
-   * Priority: x-user-id header > query param > mock fallback
-   */
-  private extractUserId(request: any): string | null {
-    // Check x-user-id header (for development/testing)
-    const headerUserId = request.headers['x-user-id'];
-    if (headerUserId) {
-      return headerUserId;
+      // Also accept query param userId (for backwards compatibility in dev/test)
+      const queryUserId = request.query?.userId;
+      if (queryUserId) {
+        request.user = { id: queryUserId };
+        return true;
+      }
     }
 
-    // Check query parameter (for development/testing)
-    const queryUserId = request.query.userId;
-    if (queryUserId) {
-      return queryUserId;
-    }
-
-    // TODO: In production, extract from JWT token or session
-    // const token = request.headers.authorization?.replace('Bearer ', '');
-    // if (token) {
-    //   const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    //   return decoded.userId;
-    // }
-
-    return null;
+    throw new UnauthorizedException('Authentication required');
   }
 }

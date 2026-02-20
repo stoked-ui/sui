@@ -183,7 +183,7 @@ function TimelineProvider<
           author: 'Author',
         },
         blob: new Blob(['Example content'], { type: 'text/plain' }),
-        mime: MimeRegistry.names()['editor-project'],
+        mime: MimeRegistry.names['editor-project'],
         url: 'https://example.com/files/example-file',
       };
 
