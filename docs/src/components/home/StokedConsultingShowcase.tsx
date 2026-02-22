@@ -73,7 +73,24 @@ const StoreTemplateLink = React.forwardRef<
       href={`${linkMapping[brand].url}`}
       target="_blank"
       {...props}
-      style={{backgroundColor: 'white', borderRadius: '16px', display: 'grid', alignContent: 'center', border: '4px solid hsl(215, 15%, 22%)', boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.6)', minHeight: 150, height:'max-content'}}
+      sx={[
+        {
+          backgroundColor: '#fff',
+          borderRadius: '16px',
+          display: 'grid',
+          alignContent: 'center',
+          border: '4px solid',
+          borderColor: 'grey.300',
+          boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.15)',
+          minHeight: 150,
+          height: 'max-content',
+        },
+        (theme) => theme.applyDarkStyles({
+          backgroundColor: 'primaryDark.800',
+          borderColor: 'primaryDark.600',
+          boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.6)',
+        }),
+      ]}
     >
         {props.children}
         <Box

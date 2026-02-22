@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Editor, {
   Controllers, EditorFile, EditorProvider, IEditorFileProps,
-  useEditorContext,
+  useEditorContext, EditorEngine,
 } from '@stoked-ui/editor';
 import Fade from "@mui/material/Fade";
 import { Card } from "@mui/material";
@@ -43,14 +43,25 @@ export default function EditorHero({ id, sx }: { id: string, sx?: SxProps}) {
           flexDirection: 'column',
           p: 0,
           border: '1px solid',
-          borderColor: '#BBB',
+          borderColor: 'grey.300',
           boxShadow: `0px 4px 8px ${alpha(theme.palette.grey[200], 0.6)}`,
         }),
+          (theme) => theme.applyDarkStyles({
+            borderColor: 'primaryDark.700',
+            boxShadow: `0px 4px 8px ${alpha(theme.palette.common.black, 0.4)}`,
+          }),
           ...(Array.isArray(sx) ? sx : [sx]),
         ]}
       >
         <NoSsr>
-          <EditorProvider controllers={Controllers}>
+          <EditorProvider
+            controllers={Controllers}
+            engine={new EditorEngine({
+              controllers: Controllers,
+              useWasmRenderer: true,
+              wasmRendererConfig: { enabled: true, debugMode: true, fallbackToCanvas: true },
+            })}
+          >
             <EditorRaw id={id} />
           </EditorProvider>
         </NoSsr>

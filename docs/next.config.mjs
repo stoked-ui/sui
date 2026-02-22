@@ -108,6 +108,9 @@ export default withDocsInfra({
           ...config.resolve.alias,
           // for 3rd party packages with dependencies in this repository
           '@stoked-ui/docs': path.resolve(workspaceRoot, 'packages/sui-docs/src'),
+          // WASM package is optional — built from Rust via wasm-pack. Resolve to
+          // false so webpack doesn't fail when pkg/ hasn't been compiled yet.
+          '@stoked-ui/video-renderer-wasm': false,
          },
         extensions: [
           '.tsx',
@@ -333,7 +336,7 @@ export default withDocsInfra({
           return [
             { source: `/:lang(${LANGUAGES.join('|')})?/:rest*`, destination: '/:rest*' },
             // Make sure to include the trailing slash if `trailingSlash` option is set
-            { source: '/api/:rest*/', destination: '/api-docs/:rest*/' },
+            { source: '/api/:path((?!auth|clients|users|deliverables).*)/', destination: '/api-docs/:path/' },
             { source: `/static/x/:rest*`, destination: 'http://0.0.0.0:3001/static/x/:rest*' },
           ];
         },

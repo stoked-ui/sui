@@ -5,18 +5,17 @@ import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
 import Alert from '@mui/material/Alert';
 import CircularProgress from '@mui/material/CircularProgress';
-import TextField from '@mui/material/TextField';
-import Paper from '@mui/material/Paper';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import SaveIcon from '@mui/icons-material/Save';
 import PublishIcon from '@mui/icons-material/Publish';
 import UnpublishedIcon from '@mui/icons-material/Unpublished';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { useRouter } from 'next/router';
 import BlogEditorForm, { BlogPostFormData } from 'docs/src/modules/components/BlogEditorForm';
 import BlogMarkdownEditor from 'docs/src/modules/components/BlogMarkdownEditor';
 
-const BLOG_API_URL = process.env.NEXT_PUBLIC_BLOG_API_URL || 'http://localhost:3001';
+const BLOG_API_URL = process.env.NEXT_PUBLIC_BLOG_API_URL || 'http://localhost:3001/v1';
 
 export interface BlogEditorProps {
   initialSlug?: string;
@@ -24,8 +23,8 @@ export interface BlogEditorProps {
 
 interface AuthState {
   token: string | null;
+  role: string | null;
   loading: boolean;
-  error: string | null;
 }
 
 const DEFAULT_FORM_DATA: BlogPostFormData = {
@@ -38,112 +37,12 @@ const DEFAULT_FORM_DATA: BlogPostFormData = {
   image: '',
 };
 
-function LoginForm({ onLogin }: { onLogin: (token: string) => void }) {
-  const [email, setEmail] = React.useState('');
-  const [password, setPassword] = React.useState('');
-  const [loading, setLoading] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch(`${BLOG_API_URL}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-      if (!res.ok) {
-        const json = await res.json().catch(() => ({}));
-        throw new Error((json as { message?: string }).message || `Login failed (${res.status})`);
-      }
-      const json = await res.json() as { access_token?: string; token?: string };
-      const token = json.access_token || json.token;
-      if (!token) {
-        throw new Error('No token returned from login endpoint');
-      }
-      try {
-        localStorage.setItem('blog_jwt', token);
-      } catch {
-        // localStorage may be unavailable in some environments
-      }
-      onLogin(token);
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Login failed';
-      setError(message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <Box
-      sx={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '60vh',
-      }}
-    >
-      <Paper
-        variant="outlined"
-        sx={{ p: 4, width: '100%', maxWidth: 400 }}
-        component="form"
-        onSubmit={handleSubmit}
-      >
-        <Typography variant="h5" fontWeight="bold" gutterBottom>
-          Blog Editor Login
-        </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-          Sign in to create and edit blog posts.
-        </Typography>
-        {error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {error}
-          </Alert>
-        )}
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <TextField
-            label="Email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            fullWidth
-            size="small"
-            autoComplete="email"
-          />
-          <TextField
-            label="Password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            fullWidth
-            size="small"
-            autoComplete="current-password"
-          />
-          <Button
-            type="submit"
-            variant="contained"
-            fullWidth
-            disabled={loading}
-            startIcon={loading ? <CircularProgress size={16} color="inherit" /> : undefined}
-          >
-            {loading ? 'Signing in...' : 'Sign In'}
-          </Button>
-        </Box>
-      </Paper>
-    </Box>
-  );
-}
-
 export default function BlogEditor({ initialSlug }: BlogEditorProps) {
   const isEditing = Boolean(initialSlug);
+  const router = useRouter();
 
   // Auth state
-  const [auth, setAuth] = React.useState<AuthState>({ token: null, loading: true, error: null });
+  const [auth, setAuth] = React.useState<AuthState>({ token: null, role: null, loading: true });
 
   // Editor state
   const [formData, setFormData] = React.useState<BlogPostFormData>(DEFAULT_FORM_DATA);
@@ -163,16 +62,34 @@ export default function BlogEditor({ initialSlug }: BlogEditorProps) {
   const autoSaveTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const isDirty = React.useRef(false);
 
-  // Load token from localStorage on mount
+  // Check auth on mount — redirect if unauthenticated or client role
   React.useEffect(() => {
     let token: string | null = null;
+    let role: string | null = null;
     try {
-      token = localStorage.getItem('blog_jwt');
+      const stored = localStorage.getItem('auth');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        token = parsed.access_token || null;
+        role = parsed.user?.role || null;
+      }
+      if (!token) {
+        token = localStorage.getItem('blog_jwt');
+      }
     } catch {
       // localStorage unavailable
     }
-    setAuth({ token, loading: false, error: null });
-  }, []);
+
+    if (!token) {
+      router.replace('/consulting/login');
+      return;
+    }
+    if (role === 'client') {
+      router.replace('/consulting/login');
+      return;
+    }
+    setAuth({ token, role, loading: false });
+  }, [router]);
 
   // Load existing post when editing
   React.useEffect(() => {
@@ -366,15 +283,6 @@ export default function BlogEditor({ initialSlug }: BlogEditorProps) {
     }
   };
 
-  const handleLogout = () => {
-    try {
-      localStorage.removeItem('blog_jwt');
-    } catch {
-      // localStorage unavailable
-    }
-    setAuth({ token: null, loading: false, error: null });
-  };
-
   const handleFormChange = (data: BlogPostFormData) => {
     isDirty.current = true;
     setFormData(data);
@@ -385,7 +293,7 @@ export default function BlogEditor({ initialSlug }: BlogEditorProps) {
     setBody(value);
   };
 
-  // Loading auth
+  // Loading auth or redirecting
   if (auth.loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
@@ -394,13 +302,9 @@ export default function BlogEditor({ initialSlug }: BlogEditorProps) {
     );
   }
 
-  // Not authenticated
+  // Not authenticated (should have redirected, but just in case)
   if (!auth.token) {
-    return (
-      <LoginForm
-        onLogin={(token) => setAuth({ token, loading: false, error: null })}
-      />
-    );
+    return null;
   }
 
   return (
@@ -480,9 +384,6 @@ export default function BlogEditor({ initialSlug }: BlogEditorProps) {
             {/* eslint-disable-next-line no-nested-ternary */}
             {publishing ? 'Processing...' : status === 'published' ? 'Unpublish' : 'Publish'}
           </Button>
-          <Button size="small" variant="text" color="inherit" onClick={handleLogout} sx={{ color: 'text.secondary' }}>
-            Logout
-          </Button>
         </Box>
       </Box>
 
@@ -544,6 +445,7 @@ export default function BlogEditor({ initialSlug }: BlogEditorProps) {
                 formData={formData}
                 onChange={handleFormChange}
                 isEditing={isEditing}
+                authToken={auth.token}
               />
             </Box>
 

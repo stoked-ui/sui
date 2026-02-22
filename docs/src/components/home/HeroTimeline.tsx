@@ -36,22 +36,6 @@ const TimelineHero = dynamic(() => import('../showcase/TimelineHero'), {
 export default function Hero() {
   const globalTheme = useTheme();
   const isMdUp = useMediaQuery(globalTheme.breakpoints.up('md'));
-  /* React.useEffect(() => {
-   var velocity = 0.2;
-   if (window) {
-   const mainContent = document.getElementById('main-content');
-   const textBg = document.getElementById('text-bg');
-   textBg?.addEventListener("scroll", (event, second) => {
-   console.log('111', event, second)
-   if (textBg?.style && mainContent) {
-   const height = mainContent.clientHeight;
-   const pos = document.body.scrollTop - 18;
-   console.log('(height - pos) * velocity)', (height - pos) * velocity, height, pos, event.target.scrollTop);
-   textBg.style.backgroundPositionY = `${Math.round((height - pos) * velocity)}px`
-   }
-   });
-   }
-   }, []) */
 
   return (
     <HeroContainer
@@ -62,18 +46,22 @@ export default function Hero() {
           <Typography variant="h2" mb={1}>
             Make
           </Typography>
-          <Typography id='text-bg' variant="h1" mb={1} sx={(theme) => ({
-            backgroundRepeat: 'repeat',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            WebkitFontSmoothing: "antialiased",
-            backgroundImage: 'url("/static/images/editor/them-thangs-0.png")',
-            backgroundAttachment: 'fixed',
-            filter: theme.palette.mode === 'dark' ? 'invert(100%)' : undefined,
-            backgroundPosition: 'center',
-            backgroundSize: 'cover',
-            lineHeight: '1.17'
-          })}>
+          <Typography id='text-bg' variant="h1" mb={1} sx={[
+            {
+              backgroundRepeat: 'repeat',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              WebkitFontSmoothing: "antialiased",
+              backgroundImage: 'url("/static/images/editor/them-thangs-0.png")',
+              backgroundAttachment: 'fixed',
+              backgroundPosition: 'center',
+              backgroundSize: 'cover',
+              lineHeight: '1.17',
+            },
+            (theme) => theme.applyDarkStyles({
+              filter: 'invert(100%)',
+            }),
+          ]}>
             them thangs
           </Typography>
           <Box sx={{
@@ -87,19 +75,25 @@ export default function Hero() {
             marginBottom: '8px',
             display: 'flex',
           }}>
-            <div style={{
+            <Box component="span" sx={{
               fontSize: 'clamp(1.5rem, 0.9643rem + 1.4286vw, 2.25rem)',
               lineHeight: '1.2222222222222223',
-              alignSelf: 'center'
-            }}>w/</div>
-            <div style={{
-              background: 'linear-gradient(90deg, hsl(210, 100%, 60%) 5%, hsl(210, 100%, 45%) 90%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              fontSize: 'clamp(2.5rem, 1.125rem + 3.5vw, 3.5em)',
-              lineHeight: '1.1142857142857143',
-              // eslint-disable-next-line no-irregular-whitespace
-            }}> Editor</div>
+              alignSelf: 'center',
+            }}>w/</Box>
+            <Box component="span" sx={[
+              {
+                background: 'linear-gradient(90deg, hsl(210, 100%, 60%) 5%, hsl(210, 100%, 45%) 90%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                fontSize: 'clamp(2.5rem, 1.125rem + 3.5vw, 3.5em)',
+                lineHeight: '1.1142857142857143',
+              },
+              (theme) => theme.applyDarkStyles({
+                background: 'linear-gradient(90deg, hsl(210, 100%, 70%) 5%, hsl(210, 100%, 55%) 90%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+              }),
+            ]}> Editor</Box>
           </Box>
           <Typography color="text.secondary" mb={3}>
             Stoked UI: Editor. An advanced MUI based component that allows you to quickly and easily make things, that make things.. PR&apos;s welcome!

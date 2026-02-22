@@ -58,7 +58,8 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "type-check": "tsc --noEmit",
     "typescript": "tsc --noEmit",
-    "openapi:export": "ts-node scripts/export-openapi.ts",
+    "openapi:export": "nest build && tsx scripts/export-openapi.ts",
+    "openapi:validate": "nest build && tsx scripts/validate-openapi.ts",
     "db:init": "ts-node scripts/init-db.ts"
   },
   "dependencies": {

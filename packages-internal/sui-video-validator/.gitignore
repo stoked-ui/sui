@@ -1,0 +1,10 @@
+node_modules/
+dist/
+*.log
+.DS_Store
+validation-output/
+tests/output/
+*.mp4
+*.mov
+*.webm
+!tests/fixtures/*.mp4

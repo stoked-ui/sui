@@ -45,6 +45,37 @@ export interface MediaItem {
   starring?: string[];
   tags?: string[];
   mediaType?: 'image' | 'video';
+  tracks?: ResolutionTrack[];
+}
+
+/**
+ * A single resolution variant of a video for adaptive bitrate switching
+ */
+export interface ResolutionTrack {
+  url: string;
+  width: number;
+  height: number;
+  /** Bits per second */
+  bitrate: number;
+  /** Display label, e.g. "480p", "720p", "1080p", "4K" */
+  label: string;
+}
+
+/**
+ * Whether quality selection is automatic or manually overridden
+ */
+export type QualityMode = 'auto' | 'manual';
+
+/**
+ * Current state of the adaptive bitrate quality system
+ */
+export interface QualityState {
+  mode: QualityMode;
+  activeTrack: ResolutionTrack;
+  activeTrackIndex: number;
+  availableTracks: ResolutionTrack[];
+  estimatedBandwidth: number;
+  isSwitching: boolean;
 }
 
 // ============================================================================

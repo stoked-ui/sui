@@ -18,7 +18,7 @@ import { z } from 'zod';
 // Configuration
 // ---------------------------------------------------------------------------
 
-const BLOG_API_URL = (process.env.BLOG_API_URL ?? 'http://localhost:3001').replace(/\/$/, '');
+const BLOG_API_URL = (process.env.BLOG_API_URL ?? 'http://localhost:3001/v1').replace(/\/$/, '');
 const BLOG_API_TOKEN = process.env.BLOG_API_TOKEN ?? '';
 
 if (!BLOG_API_TOKEN) {

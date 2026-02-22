@@ -13,13 +13,14 @@ export const createApi = (domainInfo: DomainInfo) => {
   // ---------------------------------------------------------------------------
   const jwtSecret = new sst.Secret("JWT_SECRET");
   const blogApiToken = new sst.Secret("BLOG_API_TOKEN");
+  const invoiceApiKey = new sst.Secret("INVOICE_API_KEY");
 
   const mediaApiFunction = new sst.aws.Function("MediaApi", {
     handler: "packages/sui-media-api/dist/lambda.bootstrap.handler",
     runtime: "nodejs20.x",
     timeout: "29 seconds",
     memory: "1024 MB",
-    link: [mongoDbUri, jwtSecret, blogApiToken],
+    link: [mongoDbUri, jwtSecret, blogApiToken, invoiceApiKey],
     environment: {
       // Core
       NODE_ENV: "production",

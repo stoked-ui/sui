@@ -15,3 +15,9 @@ export type {
   UseMediaClassPlaybackOptions,
   UseMediaClassPlaybackReturn,
 } from './useMediaClassPlayback';
+
+export { useAdaptiveBitrate } from './useAdaptiveBitrate';
+export type {
+  UseAdaptiveBitrateOptions,
+  UseAdaptiveBitrateReturn,
+} from './useAdaptiveBitrate';

@@ -161,6 +161,7 @@ export * from './abstractions';
  */
 export { MediaViewer, MediaViewerHeader, MediaViewerPrimary, NextUpHeader, NowPlayingIndicator } from './components/MediaViewer';
 export type { MediaViewerProps, MediaItem, MediaViewerMode } from './components/MediaViewer';
+export type { ResolutionTrack, QualityState, QualityMode } from './components/MediaViewer/MediaViewer.types';
 
 /**
  * MediaViewer custom hooks
@@ -169,7 +170,7 @@ export type { MediaViewerProps, MediaItem, MediaViewerMode } from './components/
  * import { useMediaViewerState, MediaViewerMode } from '@stoked-ui/media';
  * const { mode, transition } = useMediaViewerState(MediaViewerMode.NORMAL);
  */
-export { useMediaViewerState, useMediaViewerLayout } from './components/MediaViewer/hooks';
+export { useMediaViewerState, useMediaViewerLayout, useAdaptiveBitrate } from './components/MediaViewer/hooks';
 
 /**
  * MediaCard component for displaying media items with interactive controls

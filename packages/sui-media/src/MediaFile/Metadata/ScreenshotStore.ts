@@ -35,7 +35,7 @@ export default class ScreenshotStore {
 
   private trackWidth: number;
 
-  private aspectRatio: number;
+  aspectRatio: number;
 
   get count(): number {
     return this.screenshots.length;
@@ -89,6 +89,12 @@ export default class ScreenshotStore {
       onCapture?.(screen);
 
       ScreenshotQueue.getInstance(3).screenshotsUpdate?.(this.file, screen);
+
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('sui-screenshot-update', {
+          detail: { fileId: this.file.id }
+        }));
+      }
 
       resolveCapture(screen);
     };
@@ -165,6 +171,41 @@ export default class ScreenshotStore {
       ScreenshotQueue.getInstance(3).enqueue({ timestamps: res.missing, resolution, file: this.file } as ScreenshotTimestamps);
     }
     return res;
+  }
+
+  static saveToLocalStorage(fileId: string, screenshots: Screenshot[]) {
+    try {
+      const trackScreenshots = screenshots
+        .filter((s) => s.resolution === 'track')
+        .map(({ timestamp, data, resolution }) => ({ timestamp, data, resolution }));
+      if (trackScreenshots.length > 0) {
+        localStorage.setItem(
+          `sui-screenshots-${fileId}`,
+          JSON.stringify(trackScreenshots),
+        );
+      }
+    } catch {
+      // localStorage quota exceeded — silently ignore
+    }
+  }
+
+  static loadFromLocalStorage(fileId: string): Screenshot[] | null {
+    try {
+      const raw = localStorage.getItem(`sui-screenshots-${fileId}`);
+      if (!raw) return null;
+      return JSON.parse(raw) as Screenshot[];
+    } catch {
+      return null;
+    }
+  }
+
+  loadCachedScreenshots(): boolean {
+    const cached = ScreenshotStore.loadFromLocalStorage(this.file.id);
+    if (!cached || cached.length === 0) return false;
+    for (const screen of cached) {
+      this.screenshots.push(screen);
+    }
+    return true;
   }
 
   // Get the closest screenshots to the requested range, while respecting the threshold

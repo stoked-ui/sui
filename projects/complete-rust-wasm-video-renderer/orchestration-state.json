@@ -1,0 +1,72 @@
+{
+  "title": "Complete Rust/WASM Video Renderer",
+  "slug": "complete-rust-wasm-video-renderer",
+  "problem_description_word_count": 170,
+  "using_summary": false,
+  "created_at": "2026-02-16T22:00:00Z",
+  "stages_completed": ["stage-1", "stage-2", "stage-3", "stage-4", "stage-5"],
+  "phase_9_completed": "2026-02-19T05:35:00Z",
+  "phase_9_results": {
+    "native_rust_tests": 335,
+    "wasm_browser_tests": 12,
+    "cli_tests": 46,
+    "wasm_bundle_size_kb": 884,
+    "wasm_gzipped_size_kb": 414,
+    "all_ac_pass": true
+  },
+  "github_project": {
+    "number": 11,
+    "id": "PVT_kwDOClYAc84BPY_9",
+    "url": "https://github.com/orgs/stoked-ui/projects/11"
+  },
+  "master_issues": {
+    "phase_1": { "number": 229, "title": "(Phase 1) - Core Compositor Completion - MASTER" },
+    "phase_2": { "number": 230, "title": "(Phase 2) - Video Frame Support - MASTER" },
+    "phase_3": { "number": 231, "title": "(Phase 3) - Animation & Keyframes - MASTER" },
+    "phase_4": { "number": 232, "title": "(Phase 4) - WASM Build & Integration - MASTER" },
+    "phase_5": { "number": 233, "title": "(Phase 5) - EditorEngine Integration - MASTER" },
+    "phase_6": { "number": 234, "title": "(Phase 6) - Performance Optimization - MASTER" },
+    "phase_7": { "number": 235, "title": "(Phase 7) - Export Pipeline - MASTER" },
+    "phase_8": { "number": 236, "title": "(Phase 8) - Testing & Documentation - MASTER" },
+    "phase_9": { "number": 262, "title": "(Phase 9) - End-to-End Validation - MASTER" }
+  },
+  "work_items": {
+    "1.1": { "number": 237, "title": "Rotation & Transform Completion", "parent": 229 },
+    "1.2": { "number": 238, "title": "Text Rendering", "parent": 229 },
+    "1.3": { "number": 239, "title": "Advanced Blend Modes", "parent": 229 },
+    "1.4": { "number": 240, "title": "Enhanced Effects", "parent": 229 },
+    "2.1": { "number": 241, "title": "FFmpeg Integration", "parent": 230 },
+    "2.2": { "number": 242, "title": "Frame Caching System", "parent": 230 },
+    "2.3": { "number": 243, "title": "Browser Video Integration", "parent": 230 },
+    "3.1": { "number": 244, "title": "Keyframe Data Structure & Interpolation Engine", "parent": 231 },
+    "3.2": { "number": 245, "title": "Property Animation Support", "parent": 231 },
+    "3.3": { "number": 246, "title": "Timeline Integration", "parent": 231 },
+    "4.1": { "number": 247, "title": "WASM Build Pipeline", "parent": 232 },
+    "4.2": { "number": 248, "title": "TypeScript Bindings", "parent": 232 },
+    "4.3": { "number": 249, "title": "React Hook Updates", "parent": 232 },
+    "5.1": { "number": 250, "title": "CompositorController", "parent": 233 },
+    "5.2": { "number": 251, "title": "EditorEngine Modifications", "parent": 233 },
+    "5.3": { "number": 252, "title": "Track Type Mapping", "parent": 233 },
+    "6.1": { "number": 253, "title": "Parallel Rendering & Memory", "parent": 234 },
+    "6.2": { "number": 254, "title": "Caching Strategy", "parent": 234 },
+    "6.3": { "number": 255, "title": "Benchmarking Suite", "parent": 234 },
+    "7.1": { "number": 256, "title": "CLI Implementation", "parent": 235 },
+    "7.2": { "number": 257, "title": "FFmpeg Video Encoding", "parent": 235 },
+    "7.3": { "number": 258, "title": "Audio Handling", "parent": 235 },
+    "8.1": { "number": 259, "title": "Unit & Integration Tests", "parent": 236 },
+    "8.2": { "number": 260, "title": "End-to-End Tests", "parent": 236 },
+    "8.3": { "number": 261, "title": "API Documentation & Guides", "parent": 236 },
+    "9.1": { "number": 263, "title": "WASM Toolchain & Build Verification", "parent": 262 },
+    "9.2": { "number": 264, "title": "TypeScript Compilation Fixes", "parent": 262 },
+    "9.3": { "number": 265, "title": "WASM Browser Integration E2E", "parent": 262 },
+    "9.4": { "number": 266, "title": "CLI Video Export E2E", "parent": 262 },
+    "9.5": { "number": 267, "title": "Full Pipeline Integration", "parent": 262 }
+  },
+  "integration": {
+    "integrated_at": "2026-02-19T07:02:14Z",
+    "pr_number": 268,
+    "pr_url": "https://github.com/stoked-ui/sui/pull/268",
+    "merge_commit_sha": "417824abcaf01c02bfa7d84362efc2fc42990894",
+    "integrated_by": "project-integrate"
+  }
+}

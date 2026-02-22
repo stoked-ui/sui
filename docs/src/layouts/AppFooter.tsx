@@ -55,7 +55,20 @@ export default function AppFooter(props: AppFooterProps) {
         <div>
           <Link prefetch={false} href="/" aria-label="Go to homepage" sx={{ mb: 2 }}>
             {isConsultingPage ? (
-              <SvgStokedConsultingLogotype height={28} width={200} />
+              <React.Fragment>
+                <SvgStokedConsultingLogotype
+                  layout="inline"
+                  height={28}
+                  width={210}
+                  sx={{ display: { xs: 'none', md: 'block' } }}
+                />
+                <SvgStokedConsultingLogotype
+                  layout="stacked"
+                  height={28}
+                  width={105}
+                  sx={{ display: { xs: 'block', md: 'none' } }}
+                />
+              </React.Fragment>
             ) : (
               <SvgSuiLogotype height={28} width={91} />
             )}
@@ -95,7 +108,7 @@ export default function AppFooter(props: AppFooterProps) {
             <Link prefetch={false} href={PRODUCTS.index.media.url('product')}>
               Media
             </Link>
-            <Link prefetch={false} href={PRODUCTS.index.flux.url('product')}>
+            <Link prefetch={false} href={ALL_PRODUCTS.index.flux.url('product')}>
               Flux
             </Link>
           </Box>
@@ -198,7 +211,7 @@ export default function AppFooter(props: AppFooterProps) {
             title="Slack"
             size="small"
           >
-            <Slack sx={(theme) => ({ color: theme.palette.mode === 'light' ? 'grey' : '#FFF', ...theme.applyDarkStyles({ color: '#FFF' }) })} variant={'hover-color'} fontSize="small" />
+            <Slack sx={[(theme) => ({ color: 'grey' }), (theme) => theme.applyDarkStyles({ color: '#FFF' })]} variant={'hover-color'} fontSize="small" />
           </IconButton>
           <IconButton
             target="_blank"

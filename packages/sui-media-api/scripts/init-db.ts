@@ -66,50 +66,71 @@ async function ensureBlogPostCollection(db: Connection['db']) {
 
   const col = db.collection(collectionName);
 
+  // Helper: create an index, handling "already exists with different name" by
+  // dropping the conflicting index first and retrying.
+  async function safeCreateIndex(
+    keys: any,
+    options: any,
+  ) {
+    try {
+      await col.createIndex(keys, options);
+    } catch (err: any) {
+      if (err?.code === 85) {
+        // IndexOptionsConflict — an index on the same keys exists with a
+        // different name. Drop it and retry.
+        const existing = await col.indexes();
+        const keyStr = JSON.stringify(keys);
+        for (const idx of existing) {
+          if (JSON.stringify(idx.key) === keyStr && idx.name !== options.name) {
+            log(`  dropping conflicting index "${idx.name}" for ${options.name}`);
+            await col.dropIndex(idx.name);
+            break;
+          }
+        }
+        await col.createIndex(keys, options);
+      } else {
+        throw err;
+      }
+    }
+    log(`  index: ${options.name}`);
+  }
+
   // Ensure every index defined in BlogPostSchema is present.
-  // createIndex is idempotent – if the index already exists with the same
-  // options, MongoDB returns its name without recreating it.
 
   // 1. Unique index on slug (critical – prevents duplicates)
-  await col.createIndex(
+  await safeCreateIndex(
     { slug: 1 },
     { unique: true, name: 'blogpost_slug_unique', background: true },
   );
-  log('  index: blogpost_slug_unique');
 
   // 2. Status field index
-  await col.createIndex(
+  await safeCreateIndex(
     { status: 1 },
     { name: 'blogpost_status', background: true },
   );
-  log('  index: blogpost_status');
 
   // 3. Compound: status + date (listing by status chronologically)
-  await col.createIndex(
+  await safeCreateIndex(
     { status: 1, date: -1 },
     { name: 'blogpost_status_date', background: true },
   );
-  log('  index: blogpost_status_date');
 
   // 4. Compound: targetSites + status + date (site-specific listing)
-  await col.createIndex(
+  await safeCreateIndex(
     { targetSites: 1, status: 1, date: -1 },
     { name: 'blogpost_targetsites_status_date', background: true },
   );
-  log('  index: blogpost_targetsites_status_date');
 
   // 5. Sparse index on nostrEventId (only on documents that have the field)
-  await col.createIndex(
+  await safeCreateIndex(
     { nostrEventId: 1 },
     { sparse: true, name: 'blogpost_nostr_event_id', background: true },
   );
-  log('  index: blogpost_nostr_event_id');
 
   // 6. Full-text search index on title, description, tags
   //    NOTE: MongoDB allows only one text index per collection.
-  //    createIndex is a no-op if the identical index already exists.
   try {
-    await col.createIndex(
+    await safeCreateIndex(
       { title: 'text', description: 'text', tags: 'text' },
       {
         weights: { title: 10, tags: 5, description: 1 },
@@ -117,7 +138,6 @@ async function ensureBlogPostCollection(db: Connection['db']) {
         background: true,
       },
     );
-    log('  index: blogpost_text_search');
   } catch (err: unknown) {
     // If a conflicting text index already exists, warn but don't abort.
     const msg = err instanceof Error ? err.message : String(err);

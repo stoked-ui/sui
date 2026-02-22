@@ -138,7 +138,7 @@ export default class MediaFile extends File implements IMediaFile {
   }
 
   // Override File.stream() to include metadata
-  stream() {
+  stream(): ReadableStream<Uint8Array> {
     const streamBlob = new Blob([JSON.stringify(this.mediaProps), this], { type: this.type });
     return streamBlob.stream();
   }
@@ -352,6 +352,14 @@ export default class MediaFile extends File implements IMediaFile {
         backgroundPosition: `${-adjustedScale * fileTimespan.start}px 0px`,
         backgroundSize: `${adjustedScale * this.media.duration}px 100%`
       }
+    }
+    if (this.mediaType === 'video' && this.media?.screenshots?.length >= 3) {
+      return {
+        backgroundImage: `url(${this.media.screenshots[0]}), url(${this.media.screenshots[1]}), url(${this.media.screenshots[2]})`,
+        backgroundSize: 'auto 100%, auto 100%, auto 100%',
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: 'left center, center center, right center',
+      };
     }
     return {};
   }

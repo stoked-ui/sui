@@ -19,11 +19,18 @@ function randomHome(homePages: string[]) {
   return homePages[Math.floor(Math.random()*homePages.length)];
 }
 
-const StyledHead = styled(Head)(({ theme }) => ({
-  '& body': {
-    backgroundColor: theme.palette.mode === 'dark' ? 'hsl(210, 14%, 7%);' : '#fff',
-  }
-}));
+const StyledHead = styled(Head)(({ theme }) => [
+  {
+    '& body': {
+      backgroundColor: '#fff',
+    },
+  },
+  theme.applyDarkStyles({
+    '& body': {
+      backgroundColor: 'hsl(210, 14%, 7%)',
+    },
+  }),
+]);
 
 const homeUrl = randomHome(PRODUCTS.pages);
 const RandomHome = dynamic(() => import(`.${homeUrl}main`), { ssr: false });
@@ -68,7 +75,7 @@ let MainView:  React.ComponentType<{}> = function MainView() {
 
   return (
     <React.Fragment>
-      <EditorHero id={'editor'} sx={{ width: '1080px' }} />
+      <EditorHero id={'editor'} sx={{ width: '1080px', mt: '12px' }} />
       <Box sx={{ height: '112px' }}/>
       <Divider/>
     </React.Fragment>

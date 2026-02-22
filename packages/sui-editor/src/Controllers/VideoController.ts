@@ -1,4 +1,4 @@
-import { Stage } from '@stoked-ui/media';
+import { Stage, ScreenshotStore } from '@stoked-ui/media';
 import { createSettings } from '@stoked-ui/common';
 import {
   Controller,
@@ -100,7 +100,13 @@ class VideoControl extends Controller<HTMLVideoElement> {
           reject(new Error(`Video not loaded ${action.name} - ${file.url}`))
           return;
         }
-        let loadedMetaData = false;
+
+        item.addEventListener('error', () => {
+          reject(new Error(`Video failed to load: ${action.name} - ${file.url}`));
+        }, { once: true });
+
+        // Wait for metadata, then generate track thumbnails before resolving.
+        // Screenshots require the video to be seekable (readyState >= 2).
         item.addEventListener('loadedmetadata', () => {
           action.duration = item.duration;
           action.width = item.videoWidth;
@@ -108,43 +114,52 @@ class VideoControl extends Controller<HTMLVideoElement> {
           const ratio = action.width / action.height;
           item.style.aspectRatio = `${ratio}`;
           item.style.objectFit = action.fit as string;
-          // this.cacheMap[action.id] = item;
-          loadedMetaData = true;
-          // console.info('action preload: video loadedmetadata', action.name)
-        });
 
-        let canPlayThrough = false;
-        item.addEventListener('canplaythrough', () => {
-          canPlayThrough = true;
+          // Generate track thumbnails once the video is seekable
+          const generateAndResolve = () => {
+            if (!file.media?.screenshotStore && item.videoWidth > 0) {
+              const screenshotStore = new ScreenshotStore({ threshold: 1, video: item, file });
+              file.media = { ...file.media, screenshotStore, element: item };
 
-        })
+              // Try loading cached screenshots from localStorage first
+              const hasCached = screenshotStore.loadCachedScreenshots();
+              if (hasCached) {
+                const trackScreens = screenshotStore.trackScreenshots;
+                if (trackScreens.length > 0) {
+                  file.media.screenshots = trackScreens.map((s) => s.data);
+                }
+                resolve(action as ITimelineAction);
+                return;
+              }
+
+              const fileTimespan = { start: action.trimStart || 0, end: action.duration || item.duration };
+              const trackHeight = 36 * 1.6;
+              const count = screenshotStore.getScreenshotTimespanCount(trackHeight, fileTimespan);
+              screenshotStore.generateTimespanScreenshots(count, 'track', fileTimespan).then((screens) => {
+                if (screens.length > 0) {
+                  file.media.screenshots = screens.map((s) => s.data);
+                  ScreenshotStore.saveToLocalStorage(file.id, screens);
+                }
+                resolve(action as ITimelineAction);
+              }).catch(() => {
+                // Still resolve even if screenshots fail — playback shouldn't be blocked
+                resolve(action as ITimelineAction);
+              });
+            } else {
+              resolve(action as ITimelineAction);
+            }
+          };
+
+          if (item.readyState >= 2) {
+            generateAndResolve();
+          } else {
+            item.addEventListener('canplay', generateAndResolve, { once: true });
+          }
+        }, { once: true });
 
         item.autoplay = false;
-
         item.style.display = 'flex';
         item.src = file.url;
-        let intervalId: ReturnType<typeof setInterval> | undefined;
-        let loadingSeconds = 0;
-
-        const isLoaded = () => {
-          return item.readyState === 4 && loadedMetaData && canPlayThrough;
-        }
-        const waitUntilLoaded = () =>{
-          intervalId = setInterval(() => {
-            loadingSeconds += 1;
-            if (isLoaded()) {
-              clearInterval(intervalId);
-              resolve(action as ITimelineAction);
-            } else if (loadingSeconds > 20) {
-              clearInterval(intervalId);
-              resolve(action)
-            }
-          }, 1000); // Run every 1 second
-        }
-
-        if (!isLoaded()) {
-          waitUntilLoaded();
-        }
 
       } catch (ex) {
         reject(ex);

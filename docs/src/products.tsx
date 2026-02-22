@@ -1035,7 +1035,7 @@ const fluxData: TProduct = {
 };
 const flux = new Product(fluxData);
 
-const PRODUCTS: Products = new Products([fileExplorer, media, timeline, videoEditor, flux]);
+const PRODUCTS: Products = new Products([fileExplorer, media, timeline, videoEditor]);
 const ALL_PRODUCTS: Products = new Products([sui, flux]);
 const CONSULTING: Products = new Products([consultingFrontEnd, consultingBackEnd, consultingDevops, consultingAi]);
 const ALL_PACKAGES: Products = new Products([fileExplorer, media, common, mediaApi, mediaSelector, timeline, videoEditor, flux, consultingFrontEnd, consultingBackEnd, consultingDevops, consultingAi]);

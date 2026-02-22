@@ -8,28 +8,33 @@ interface BlogMarkdownEditorProps {
   onChange: (value: string) => void;
 }
 
-const EditorTextarea = styled('textarea')(({ theme }) => ({
-  width: '100%',
-  height: '100%',
-  minHeight: 400,
-  padding: theme.spacing(2),
-  fontFamily: '"Fira Code", "Consolas", "Monaco", monospace',
-  fontSize: 14,
-  lineHeight: 1.6,
-  border: `1px solid ${theme.palette.divider}`,
-  borderRadius: theme.shape.borderRadius,
-  resize: 'vertical',
-  backgroundColor: theme.palette.mode === 'dark' ? theme.palette.primaryDark[900] : theme.palette.grey[50],
-  color: theme.palette.text.primary,
-  outline: 'none',
-  boxSizing: 'border-box',
-  '&:focus': {
-    borderColor: theme.palette.primary.main,
-    boxShadow: `0 0 0 2px ${theme.palette.primary.main}33`,
+const EditorTextarea = styled('textarea')(({ theme }) => [
+  {
+    width: '100%',
+    height: '100%',
+    minHeight: 400,
+    padding: theme.spacing(2),
+    fontFamily: '"Fira Code", "Consolas", "Monaco", monospace',
+    fontSize: 14,
+    lineHeight: 1.6,
+    border: `1px solid ${theme.palette.divider}`,
+    borderRadius: theme.shape.borderRadius,
+    resize: 'vertical',
+    backgroundColor: theme.palette.grey[50],
+    color: theme.palette.text.primary,
+    outline: 'none',
+    boxSizing: 'border-box',
+    '&:focus': {
+      borderColor: theme.palette.primary.main,
+      boxShadow: `0 0 0 2px ${theme.palette.primary.main}33`,
+    },
   },
-}));
+  theme.applyDarkStyles({
+    backgroundColor: theme.palette.primaryDark[900],
+  }),
+]);
 
-const PreviewPane = styled(Box)(({ theme }) => ({
+const PreviewPane = styled(Box)(({ theme }) => [{
   width: '100%',
   height: '100%',
   minHeight: 400,
@@ -56,12 +61,12 @@ const PreviewPane = styled(Box)(({ theme }) => ({
   '& code': {
     fontFamily: '"Fira Code", "Consolas", monospace',
     fontSize: '0.875em',
-    backgroundColor: theme.palette.mode === 'dark' ? theme.palette.primaryDark[800] : theme.palette.grey[100],
+    backgroundColor: theme.palette.grey[100],
     padding: '2px 4px',
     borderRadius: 4,
   },
   '& pre': {
-    backgroundColor: theme.palette.mode === 'dark' ? theme.palette.primaryDark[800] : theme.palette.grey[100],
+    backgroundColor: theme.palette.grey[100],
     padding: theme.spacing(2),
     borderRadius: theme.shape.borderRadius,
     overflowX: 'auto',
@@ -107,10 +112,22 @@ const PreviewPane = styled(Box)(({ theme }) => ({
     textAlign: 'left',
   },
   '& th': {
-    backgroundColor: theme.palette.mode === 'dark' ? theme.palette.primaryDark[800] : theme.palette.grey[100],
+    backgroundColor: theme.palette.grey[100],
     fontWeight: 600,
   },
-}));
+},
+  theme.applyDarkStyles({
+    '& code': {
+      backgroundColor: theme.palette.primaryDark[800],
+    },
+    '& pre': {
+      backgroundColor: theme.palette.primaryDark[800],
+    },
+    '& th': {
+      backgroundColor: theme.palette.primaryDark[800],
+    },
+  }),
+]);
 
 /**
  * Minimal markdown-to-HTML converter for preview purposes.

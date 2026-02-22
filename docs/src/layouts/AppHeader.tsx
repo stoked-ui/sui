@@ -7,14 +7,42 @@ import Container from '@mui/material/Container';
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import GitHubIcon from '@mui/icons-material/GitHub';
+import LoginIcon from '@mui/icons-material/LoginOutlined';
 import { useRouter } from 'next/router';
 import ThemeModeToggle from 'docs/src/components/header/ThemeModeToggle';
 import { Link } from '@stoked-ui/docs';
 import { DeferredAppSearch } from 'docs/src/modules/components/AppFrame';
 import { useTranslate } from '@stoked-ui/docs/i18n';
+import { UserMenu } from '@stoked-ui/common';
 import SvgSuiLogomark from "docs/src/icons/SvgSuiLogomark";
 import SvgScLogo from "docs/src/icons/SvgScLogo"
 import dynamic from "next/dynamic";
+
+export interface AuthUser {
+  id: string;
+  email: string;
+  name: string;
+  role: 'admin' | 'client';
+  clientId?: string;
+  avatarUrl?: string;
+}
+
+interface AuthData {
+  access_token: string;
+  user: AuthUser;
+}
+
+export interface ManagedProduct {
+  _id: string;
+  productId: string;
+  name: string;
+  description: string;
+  url: string;
+  features?: Array<{ name: string; description: string; id: string }>;
+  icon?: string;
+  hideProductFeatures?: boolean;
+  prerelease?: 'alpha' | 'beta' | 'none';
+}
 
 const Header = styled('header')(({ theme }) => {
   return [
@@ -53,6 +81,49 @@ export default function AppHeader(props: AppHeaderProps) {
   const { gitHubRepository = 'https://github.com/stoked-ui/sui' } = props;
   const t = useTranslate();
   const router = useRouter();
+  const [authUser, setAuthUser] = React.useState<AuthUser | null>(null);
+  const [managedProducts, setManagedProducts] = React.useState<ManagedProduct[]>([]);
+
+  React.useEffect(() => {
+    fetch('/api/products/public')
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => { if (Array.isArray(data)) setManagedProducts(data); })
+      .catch(() => {});
+  }, []);
+
+  React.useEffect(() => {
+    try {
+      const stored = localStorage.getItem('auth');
+      if (stored) {
+        const parsed = JSON.parse(stored) as AuthData;
+        setAuthUser(parsed.user);
+      }
+    } catch { /* ignore */ }
+
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === 'auth') {
+        if (e.newValue) {
+          try {
+            const parsed = JSON.parse(e.newValue) as AuthData;
+            setAuthUser(parsed.user);
+          } catch { /* ignore */ }
+        } else {
+          setAuthUser(null);
+        }
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
+
+  const handleLogout = () => {
+    try {
+      localStorage.removeItem('auth');
+      localStorage.removeItem('blog_jwt');
+    } catch { /* ignore */ }
+    setAuthUser(null);
+    router.push('/');
+  };
 
   const isConsultingPage = router.pathname.startsWith('/consulting');
 
@@ -70,10 +141,10 @@ export default function AppHeader(props: AppHeaderProps) {
           {isConsultingPage ? <SvgScLogo width={30} /> : <SvgSuiLogomark width={30} />}
         </Box>
         <Box sx={{ display: { xs: 'none', md: 'initial' } }}>
-          <HeaderNavBar />
+          <HeaderNavBar auth={authUser} managedProducts={managedProducts} />
         </Box>
         <Box sx={{ ml: 'auto' }} />
-        <Stack direction="row" spacing={1}>
+        <Stack direction="row" spacing={1} alignItems="center">
           <DeferredAppSearch />
           <Tooltip title={t('appFrame.github')} enterDelay={300}>
             <IconButton
@@ -89,9 +160,29 @@ export default function AppHeader(props: AppHeaderProps) {
             </IconButton>
           </Tooltip>
           <ThemeModeToggle />
+          {authUser ? (
+            <UserMenu
+              name={authUser.name}
+              role={authUser.role}
+              avatarUrl={authUser.avatarUrl}
+              onSignOut={handleLogout}
+            />
+          ) : (
+            <Tooltip title="Login" enterDelay={300}>
+              <IconButton
+                component={Link}
+                href="/consulting/login"
+                color="primary"
+                data-ga-event-category="header"
+                data-ga-event-action="login"
+              >
+                <LoginIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          )}
         </Stack>
         <Box sx={{ display: { md: 'none' }, ml: 1 }}>
-          <HeaderNavDropdown />
+          <HeaderNavDropdown auth={authUser} managedProducts={managedProducts} />
         </Box>
       </Container>
     </Header>

@@ -204,6 +204,10 @@ export function ThemeProvider(props) {
       document.body.classList.add('mode-light');
     }
 
+    // Update the color scheme attribute so body background and
+    // other [data-mui-color-scheme] selectors respond to the toggle
+    document.documentElement.setAttribute('data-mui-color-scheme', paletteMode);
+
     const metas = document.querySelectorAll('meta[name="theme-color"]');
     metas.forEach((meta) => {
       meta.setAttribute('content', getMetaThemeColor(paletteMode));
@@ -232,11 +236,6 @@ export function ThemeProvider(props) {
       dense ? highDensity : null,
       {
         components: {
-          styleOverrides: {
-            body: {
-              backgroundColor: calculatedMode === 'dark' ? '#333' : '#fff',
-            }
-          },
           MuiCssBaseline: {
             defaultProps: {
               // TODO: Stoked UI v6, makes this the default

@@ -97,6 +97,9 @@ export default function ThemeDatePicker() {
                   bgcolor: 'primaryDark.900',
                   boxShadow: '0px 4px 6px rgba(0, 0, 0, 0.2)',
                 },
+                '& .MuiPickerStaticWrapper-root': {
+                  bgcolor: 'primaryDark.900',
+                },
                 [`& .${iconButtonClasses.root}`]: {
                   color: 'primary.300',
                 },

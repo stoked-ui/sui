@@ -1,0 +1,35 @@
+{
+  "project_number": 12,
+  "slug": "build-multi-platform-blog-system",
+  "merge_only": false,
+  "started_at": "2026-02-19T00:00:00Z",
+  "current_phase": "integration",
+  "phases_completed": ["preflight", "validation", "sync"],
+  "worktree_path": "/Users/stoked/work/stoked-ui-project-12",
+  "branch": "project/12",
+  "ahead_of_main": 14,
+  "behind_main": 0,
+  "conflicts_resolved": [],
+  "conflict_log": [],
+  "validation_results": {
+    "all_items_done": true,
+    "review_status": "pass_with_concerns",
+    "review_concerns": [
+      "New Post button not auth-gated in UI",
+      "BlogPost model missing required:true at Mongoose level for title/description",
+      "Blog post body rendered as raw <pre> instead of markdown",
+      "Custom markdown renderer with XSS risk in preview",
+      "In-memory user store (lost on restart)",
+      "Route ordering fragility",
+      "Weak default JWT_SECRET",
+      "ALLOWED_ORIGINS config gap for brianstoker.com"
+    ],
+    "builds_passed": true,
+    "tests_passed": true,
+    "toolchain_verified": true
+  },
+  "pr_number": null,
+  "pr_url": null,
+  "merge_commit": null,
+  "completed_at": null
+}

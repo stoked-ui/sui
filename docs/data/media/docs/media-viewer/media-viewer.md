@@ -15,25 +15,8 @@ packageName: '@stoked-ui/media'
 
 The `MediaViewer` component provides a complete media viewing experience. It supports images, video, and audio files with automatic format detection, playback controls, and playlist navigation.
 
-## Usage
+{{"demo": "MediaViewerBasic.js"}}
 
-```tsx
-import { MediaViewer } from '@stoked-ui/media';
-
-function MyMediaPage() {
-  const mediaItems = [
-    { id: '1', name: 'Video.mp4', url: '/media/video.mp4', type: 'video/mp4' },
-    { id: '2', name: 'Image.jpg', url: '/media/image.jpg', type: 'image/jpeg' },
-  ];
-
-  return (
-    <MediaViewer
-      items={mediaItems}
-      initialIndex={0}
-    />
-  );
-}
-```
 
 ## Components
 

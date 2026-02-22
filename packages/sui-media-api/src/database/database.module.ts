@@ -7,6 +7,7 @@ import {
   FileFeature,
   UploadSessionFeature,
   BlogPostFeature,
+  InvoiceFeature,
 } from '@stoked-ui/common-api';
 
 @Module({
@@ -26,6 +27,7 @@ import {
       FileFeature,
       UploadSessionFeature,
       BlogPostFeature,
+      InvoiceFeature,
     ]),
   ],
   exports: [MongooseModule],

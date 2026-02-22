@@ -12,10 +12,11 @@
 
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
-import { Box, IconButton, Skeleton } from '@mui/material';
+import { Box, CircularProgress, IconButton, Skeleton } from '@mui/material';
 import { styled } from '@mui/system';
 import * as React from 'react';
-import type { MediaItem } from './MediaViewer.types';
+import type { MediaItem, QualityState } from './MediaViewer.types';
+import { QualitySelector } from './QualitySelector';
 
 // ============================================================================
 // Styled Components
@@ -180,6 +181,18 @@ export interface MediaViewerPrimaryProps {
   showControlsWithTimeout: () => void;
   /** Function to get media URL */
   getMediaUrl: (type: 'videos' | 'images', id: string) => string;
+
+  // Adaptive bitrate props
+  /** Overridden source URL from adaptive bitrate hook */
+  adaptiveSrc?: string;
+  /** Current quality state for the QualitySelector */
+  qualityState?: QualityState;
+  /** Callback to manually select a quality track */
+  onSelectTrack?: (index: number) => void;
+  /** Callback to re-enable automatic quality mode */
+  onEnableAutoMode?: () => void;
+  /** Whether adaptive bitrate is active (2+ tracks) */
+  isAdaptiveActive?: boolean;
 }
 
 // ============================================================================
@@ -207,6 +220,11 @@ export function MediaViewerPrimary({
   onFullscreenClick,
   showControlsWithTimeout,
   getMediaUrl,
+  adaptiveSrc,
+  qualityState,
+  onSelectTrack,
+  onEnableAutoMode,
+  isAdaptiveActive,
 }: MediaViewerPrimaryProps) {
   const handleVideoClick = (e: React.MouseEvent<HTMLVideoElement>) => {
     e.preventDefault();
@@ -301,8 +319,33 @@ export function MediaViewerPrimary({
                 onFullscreenClick(e as React.MouseEvent);
               }}
             >
-              <source src={item.id ? getMediaUrl('videos', item.id) : item.url || item.file} type="video/mp4" />
+              <source src={adaptiveSrc ?? (item.id ? getMediaUrl('videos', item.id) : item.url || item.file)} type="video/mp4" />
             </StyledVideo>
+
+            {/* Quality switching overlay */}
+            {qualityState?.isSwitching && (
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  zIndex: 15,
+                }}
+              >
+                <CircularProgress size={40} sx={{ color: 'rgba(255,255,255,0.8)' }} />
+              </Box>
+            )}
+
+            {/* Quality selector gear icon */}
+            {isAdaptiveActive && qualityState && onSelectTrack && onEnableAutoMode && (
+              <QualitySelector
+                qualityState={qualityState}
+                onSelectTrack={onSelectTrack}
+                onEnableAutoMode={onEnableAutoMode}
+                showControls={showControls}
+              />
+            )}
           </Box>
         </>
       ) : (

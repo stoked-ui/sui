@@ -17,6 +17,7 @@ import { NextUpHeader } from './NextUpHeader';
 // import { NowPlayingIndicator } from './NowPlayingIndicator';
 import { useMediaViewerState, MediaViewerMode } from './hooks/useMediaViewerState';
 import { useMediaViewerLayout } from './hooks/useMediaViewerLayout';
+import { useAdaptiveBitrate } from './hooks/useAdaptiveBitrate';
 import { noOpRouter } from '../../abstractions/Router';
 import { noOpAuth } from '../../abstractions/Auth';
 import { noOpQueue } from '../../abstractions/Queue';
@@ -120,7 +121,7 @@ export function MediaViewer({
   });
 
   // Determine if current item is video
-  const isVideo = Boolean(item.mediaType === 'video' || item.url?.includes('.mp4') || item.file?.includes('.mp4'));
+  const isVideo = Boolean(item?.mediaType === 'video' || item?.url?.includes('.mp4') || item?.file?.includes('.mp4'));
 
   // Navigation
   const canGoPrev = currentIndex > 0;
@@ -171,6 +172,21 @@ export function MediaViewer({
     // Default implementation - consumers should provide their own
     return `/api/media/${type}/${id}`;
   }, []);
+
+  // Adaptive bitrate
+  const fallbackUrl = item.id ? getMediaUrl('videos', item.id) : item.url || item.file;
+  const {
+    currentSrc: adaptiveSrc,
+    qualityState,
+    selectTrack,
+    enableAutoMode,
+    isActive: isAdaptiveActive,
+  } = useAdaptiveBitrate({
+    tracks: item.tracks,
+    videoRef: videoRef as React.RefObject<HTMLVideoElement | null>,
+    enabled: isVideo,
+    fallbackUrl: fallbackUrl || undefined,
+  });
 
   // Load media from API when item changes (if API client is available)
   React.useEffect(() => {
@@ -248,7 +264,7 @@ export function MediaViewer({
   React.useEffect(() => {
     setVideoLoaded(false);
     setImageLoaded(false);
-  }, [item.id]);
+  }, [item?.id]);
 
   // Keyboard shortcuts (if enabled)
   React.useEffect(() => {
@@ -259,6 +275,21 @@ export function MediaViewer({
       'ArrowRight': () => { handleNext(); return true; },
       'Escape': () => { transition('EXIT_TO_NORMAL'); return true; },
       'f': () => { transition('CYCLE'); return true; },
+      'q': () => {
+        if (!isAdaptiveActive) return true;
+        if (qualityState.mode === 'auto') {
+          // Switch to first track (manual)
+          selectTrack(0);
+        } else {
+          const next = qualityState.activeTrackIndex + 1;
+          if (next >= qualityState.availableTracks.length) {
+            enableAutoMode();
+          } else {
+            selectTrack(next);
+          }
+        }
+        return true;
+      },
     };
 
     const cleanup: (() => void)[] = [];
@@ -272,7 +303,7 @@ export function MediaViewer({
     return () => {
       cleanup.forEach(fn => fn());
     };
-  }, [_enableKeyboardShortcuts, open, handlePrev, handleNext, transition, keyboard]);
+  }, [_enableKeyboardShortcuts, open, handlePrev, handleNext, transition, keyboard, isAdaptiveActive, qualityState, selectTrack, enableAutoMode]);
 
   return (
     <ViewerDialog
@@ -331,45 +362,50 @@ export function MediaViewer({
         {!isLoadingMedia && (
           <>
             <MediaViewerHeader
-          item={item}
-          isVideo={isVideo}
-          showControls={showControls}
-          showMetadata={!isVideo}
-          fullscreenState={legacyState}
-          onClose={onClose}
-          onExitTheaterMode={handleExitTheaterMode}
-          videoRef={videoRef}
-        />
+              item={item}
+              isVideo={isVideo}
+              showControls={showControls}
+              showMetadata={!isVideo}
+              fullscreenState={legacyState}
+              onClose={onClose}
+              onExitTheaterMode={handleExitTheaterMode}
+              videoRef={videoRef}
+            />
 
-        <MediaViewerPrimary
-          item={item}
-          isVideo={isVideo}
-          showPreviewCards={showPreviewCards && legacyState === 0}
-          showControls={showControls}
-          fullscreenState={legacyState}
-          canGoPrev={canGoPrev}
-          canGoNext={canGoNext}
-          videoLoaded={videoLoaded}
-          setVideoLoaded={setVideoLoaded}
-          isPlaying={isPlaying}
-          setIsPlaying={setIsPlaying}
-          isMuted={isMuted}
-          imageLoaded={imageLoaded}
-          setImageLoaded={setImageLoaded}
-          videoRef={videoRef}
-          onPrev={handlePrev}
-          onNext={handleNext}
-          onFullscreenClick={handleFullscreenClick}
-          showControlsWithTimeout={showControlsWithTimeout}
-          getMediaUrl={getMediaUrl}
-        />
+            <MediaViewerPrimary
+              item={item}
+              isVideo={isVideo}
+              showPreviewCards={showPreviewCards && legacyState === 0}
+              showControls={showControls}
+              fullscreenState={legacyState}
+              canGoPrev={canGoPrev}
+              canGoNext={canGoNext}
+              videoLoaded={videoLoaded}
+              setVideoLoaded={setVideoLoaded}
+              isPlaying={isPlaying}
+              setIsPlaying={setIsPlaying}
+              isMuted={isMuted}
+              imageLoaded={imageLoaded}
+              setImageLoaded={setImageLoaded}
+              videoRef={videoRef}
+              onPrev={handlePrev}
+              onNext={handleNext}
+              onFullscreenClick={handleFullscreenClick}
+              showControlsWithTimeout={showControlsWithTimeout}
+              getMediaUrl={getMediaUrl}
+              adaptiveSrc={adaptiveSrc}
+              qualityState={qualityState}
+              onSelectTrack={selectTrack}
+              onEnableAutoMode={enableAutoMode}
+              isAdaptiveActive={isAdaptiveActive}
+            />
 
-        {/* Queue integration */}
-        {_enableQueue && showPreviewCards && legacyState === 0 && mediaItems.length > 1 && (
-          <Box sx={{ position: 'absolute', bottom: 16, width: '90%', maxWidth: '1200px' }}>
-            <NextUpHeader queueCount={queueCount} show={true} />
-          </Box>
-        )}
+            {/* Queue integration */}
+            {_enableQueue && showPreviewCards && legacyState === 0 && mediaItems.length > 1 && (
+              <Box sx={{ position: 'absolute', bottom: 16, width: '90%', maxWidth: '1200px' }}>
+                <NextUpHeader queueCount={queueCount} show={true} />
+              </Box>
+            )}
           </>
         )}
       </ViewerContainer>
@@ -384,5 +420,6 @@ export { MediaViewerHeader } from './MediaViewerHeader';
 export { MediaViewerPrimary } from './MediaViewerPrimary';
 export { NextUpHeader } from './NextUpHeader';
 export { NowPlayingIndicator } from './NowPlayingIndicator';
+export { QualitySelector } from './QualitySelector';
 
 export default MediaViewer;

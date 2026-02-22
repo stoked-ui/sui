@@ -505,6 +505,20 @@ function TimelineAction<
     }
   }, [currTrackHeight]);
 
+  const [screenshotVersion, setScreenshotVersion] = React.useState(0);
+  React.useEffect(() => {
+    const fileId = track.file?.id;
+    if (!fileId) return undefined;
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail?.fileId === fileId) {
+        setScreenshotVersion((v) => v + 1);
+      }
+    };
+    window.addEventListener('sui-screenshot-update', handler);
+    return () => window.removeEventListener('sui-screenshot-update', handler);
+  }, [track.file?.id]);
+
   const [screenshots, setScreenshots] = React.useState<Screenshot[]>([]);
   const [screenshotData, setScreenshotData] = React.useState<{
     start: number;
@@ -516,13 +530,6 @@ function TimelineAction<
   }>({ start, end, scaleWidth, height: dynamicTrackHeight, scale, screensMissing: true });
 
   React.useEffect(() => {
-    console.info('screenshot data', screenshotData.start !== start,
-      screenshotData.end !== end,
-      scaleWidth !== screenshotData.scaleWidth,
-      screenshotData.height !== dynamicTrackHeight,
-      scale !== screenshotData.scale ,
-      screenshotData.screensMissing &&
-      track.file?.media?.screenshotStore)
     if (
       screenshotData.start !== start ||
       screenshotData.end !== end ||
@@ -556,6 +563,7 @@ function TimelineAction<
     dynamicTrackHeight,
     scaleWidth,
     scaleSplitCount,
+    screenshotVersion,
     track.file?.media?.screenshotStore?.count,
   ]);
 

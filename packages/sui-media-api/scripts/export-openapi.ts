@@ -1,53 +1,29 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { AppModule } from '../src/app.module';
+
+// Import from compiled dist/ to avoid transitive module resolution issues
+// with workspace dependencies and to ensure decorator metadata is present.
+const { OpenApiModule } = require(path.resolve('dist/openapi.module'));
+const { createSwaggerDocument } = require(path.resolve('dist/swagger.config'));
 
 /**
- * Script to export OpenAPI specification to JSON and YAML files
- * Also generates a Postman collection
+ * Script to export OpenAPI specification to JSON and YAML files.
+ * Also generates a Postman collection.
+ *
+ * Uses the lightweight OpenApiModule (no DB / S3 / Nostr required).
+ * Requires `nest build` to have been run first.
  */
 async function exportOpenApi() {
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create(OpenApiModule, {
     logger: ['error', 'warn'],
   });
 
-  // Configure Swagger
-  const config = new DocumentBuilder()
-    .setTitle('Stoked UI Media API')
-    .setDescription(
-      'REST API for Stoked UI Media Components - Upload, manage, and process media files with support for images, videos, and albums. Features include multipart uploads, metadata extraction, thumbnail generation, and comprehensive media management.',
-    )
-    .setVersion('0.1.0')
-    .setContact(
-      'Brian Stoker',
-      'https://github.com/stoked-ui/sui',
-      'brian@stoked-ui.com',
-    )
-    .setLicense('MIT', 'https://opensource.org/licenses/MIT')
-    .addServer('http://localhost:3001', 'Local development server')
-    .addServer('https://api.stoked-ui.com', 'Production server')
-    .addBearerAuth(
-      {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT',
-        name: 'JWT',
-        description: 'Enter JWT token',
-        in: 'header',
-      },
-      'JWT-auth',
-    )
-    .addTag('Health', 'Health check endpoints')
-    .addTag('Media', 'Media CRUD operations and metadata management')
-    .addTag('Uploads', 'Multipart file upload operations')
-    .build();
-
-  const document = SwaggerModule.createDocument(app, config);
+  const document = createSwaggerDocument(app);
 
   // Create docs directory if it doesn't exist
-  const docsDir = path.join(__dirname, '..', 'docs');
+  const docsDir = path.resolve('docs');
   if (!fs.existsSync(docsDir)) {
     fs.mkdirSync(docsDir, { recursive: true });
   }
@@ -55,22 +31,21 @@ async function exportOpenApi() {
   // Export OpenAPI spec as JSON
   const jsonPath = path.join(docsDir, 'openapi.json');
   fs.writeFileSync(jsonPath, JSON.stringify(document, null, 2));
-  console.log(`✅ OpenAPI spec exported to: ${jsonPath}`);
+  console.log(`OpenAPI spec exported to: ${jsonPath}`);
 
-  // Export OpenAPI spec as YAML (using JSON.stringify for simplicity)
-  // Note: For proper YAML, you would need a YAML library
+  // Export OpenAPI spec as YAML
   const yamlContent = generateYaml(document);
   const yamlPath = path.join(docsDir, 'openapi.yaml');
   fs.writeFileSync(yamlPath, yamlContent);
-  console.log(`✅ OpenAPI spec exported to: ${yamlPath}`);
+  console.log(`OpenAPI spec exported to: ${yamlPath}`);
 
   // Generate Postman collection
   const postmanCollection = convertToPostman(document);
   const postmanPath = path.join(docsDir, 'postman-collection.json');
   fs.writeFileSync(postmanPath, JSON.stringify(postmanCollection, null, 2));
-  console.log(`✅ Postman collection exported to: ${postmanPath}`);
+  console.log(`Postman collection exported to: ${postmanPath}`);
 
-  console.log('\n📚 Documentation files created:');
+  console.log('\nDocumentation files created:');
   console.log(`   - ${jsonPath}`);
   console.log(`   - ${yamlPath}`);
   console.log(`   - ${postmanPath}`);
@@ -79,16 +54,14 @@ async function exportOpenApi() {
 }
 
 /**
- * Simple YAML generator (basic implementation)
- * For production, use a proper YAML library like js-yaml
+ * Convert OpenAPI document to YAML using js-yaml.
  */
 function generateYaml(doc: any): string {
-  const yaml = require('js-yaml');
   try {
+    const yaml = require('js-yaml');
     return yaml.dump(doc);
-  } catch (error) {
-    // Fallback to JSON if YAML library not available
-    console.warn('⚠️  js-yaml not available, using JSON format for YAML file');
+  } catch {
+    console.warn('js-yaml not available, using JSON format for YAML file');
     return JSON.stringify(doc, null, 2);
   }
 }
@@ -133,7 +106,7 @@ function convertToPostman(openApiSpec: any): any {
   // Group endpoints by tags
   const tags = new Map<string, any[]>();
 
-  for (const [path, methods] of Object.entries(openApiSpec.paths)) {
+  for (const [pathKey, methods] of Object.entries(openApiSpec.paths)) {
     for (const [method, spec] of Object.entries(methods as any)) {
       if (method === 'parameters') continue;
 
@@ -143,7 +116,7 @@ function convertToPostman(openApiSpec: any): any {
       }
 
       const request: any = {
-        name: (spec as any).summary || `${method.toUpperCase()} ${path}`,
+        name: (spec as any).summary || `${method.toUpperCase()} ${pathKey}`,
         request: {
           method: method.toUpperCase(),
           header: [
@@ -154,9 +127,9 @@ function convertToPostman(openApiSpec: any): any {
             },
           ],
           url: {
-            raw: `{{baseUrl}}${path}`,
+            raw: `{{baseUrl}}${pathKey}`,
             host: ['{{baseUrl}}'],
-            path: path.split('/').filter((p) => p),
+            path: pathKey.split('/').filter((p: string) => p),
           },
           description: (spec as any).description,
         },
@@ -178,7 +151,7 @@ function convertToPostman(openApiSpec: any): any {
 
       // Add request body if present
       if ((spec as any).requestBody) {
-        const content = (spec as any).requestBody.content['application/json'];
+        const content = (spec as any).requestBody.content?.['application/json'];
         if (content?.schema) {
           request.request.body = {
             mode: 'raw',
@@ -223,7 +196,8 @@ function generateExampleFromSchema(schema: any): any {
     const example: any = {};
     for (const [key, prop] of Object.entries(schema.properties)) {
       const propSchema = prop as any;
-      example[key] = propSchema?.example || generateExampleFromSchema(propSchema);
+      example[key] =
+        propSchema?.example || generateExampleFromSchema(propSchema);
     }
     return example;
   }
@@ -246,6 +220,6 @@ function generateExampleFromSchema(schema: any): any {
 }
 
 exportOpenApi().catch((error) => {
-  console.error('❌ Error exporting OpenAPI spec:', error);
+  console.error('Error exporting OpenAPI spec:', error);
   process.exit(1);
 });

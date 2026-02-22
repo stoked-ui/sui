@@ -23,6 +23,7 @@ import createEmotionCache from 'docs/src/createEmotionCache';
 import findActivePage from 'docs/src/modules/utils/findActivePage';
 import { pathnameToLanguage } from 'docs/src/modules/utils/helpers';
 import getProductInfoFromUrl from 'docs/src/modules/utils/getProductInfoFromUrl';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import { DocsProvider as DocsProviderStoked } from '@stoked-ui/docs/DocsProvider';
 import allPages from '../data/pages';
 import fluxPages from '../data/fluxPages';
@@ -38,11 +39,18 @@ const clientSideEmotionCache = createEmotionCache();
 
 let reloadInterval;
 
-const StyledHead = styled(Head)(({ theme }) => ({
-  '& body': {
-    backgroundColor: theme.palette.mode === 'dark' ? 'hsl(210, 14%, 7%);' : '#fff',
-  }
-}));
+const StyledHead = styled(Head)(({ theme }) => [
+  {
+    '& body': {
+      backgroundColor: '#fff',
+    },
+  },
+  theme.applyDarkStyles({
+    '& body': {
+      backgroundColor: 'hsl(210, 14%, 7%)',
+    },
+  }),
+]);
 // Avoid infinite loop when "Upload on reload" is set in the Chrome sw dev tools.
 function lazyReload() {
   clearInterval(reloadInterval);
@@ -262,7 +270,9 @@ function AppWrapper(props) {
     ];
   }
 
-  return (
+  const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+
+  const content = (
     <React.Fragment>
       <NextHead>
         <meta name="viewport" content="initial-scale=1, width=device-width" />
@@ -301,6 +311,16 @@ function AppWrapper(props) {
       </DocsProviderStoked>
     </React.Fragment>
   );
+
+  if (googleClientId) {
+    return (
+      <GoogleOAuthProvider clientId={googleClientId}>
+        {content}
+      </GoogleOAuthProvider>
+    );
+  }
+
+  return content;
 }
 
 AppWrapper.propTypes = {

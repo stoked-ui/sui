@@ -57,7 +57,7 @@ export interface UseMediaViewerLayoutProps {
  * Get media aspect ratio from item dimensions
  */
 function getMediaAspectRatio(item: MediaItem): number {
-  if (item.width && item.height && item.width > 0 && item.height > 0) {
+  if (item?.width && item?.height && item?.width > 0 && item?.height > 0) {
     return item.width / item.height;
   }
   return 16 / 9; // Default aspect ratio
@@ -343,9 +343,9 @@ export function useMediaViewerLayout(
   useEffect(() => {
     setLayout(calculateLayout(props));
   }, [
-    props.item.id,
-    props.item.width,
-    props.item.height,
+    props.item?.id,
+    props.item?.width,
+    props.item?.height,
     props.currentIndex,
     props.mediaItems.length,
     props.hideNavbar,

@@ -19,12 +19,19 @@ function randomHome(homePages: string[]) {
   return homePages[Math.floor(Math.random()*homePages.length)];
 }
 
-const StyledHead = styled(Head)(({ theme }) => ({
-  '& body': {
-    backgroundColor: theme.palette.mode === 'dark' ? 'hsl(210, 14%, 7%)' : '#fff',
-    color: theme.palette.text.primary,
-  }
-}));
+const StyledHead = styled(Head)(({ theme }) => [
+  {
+    '& body': {
+      backgroundColor: '#fff',
+      color: theme.palette.text.primary,
+    },
+  },
+  theme.applyDarkStyles({
+    '& body': {
+      backgroundColor: 'hsl(210, 14%, 7%)',
+    },
+  }),
+]);
 
 const homeUrl = randomHome(PRODUCTS.pages);
 const RandomHome = dynamic(() => import((`.${homeUrl}main`)), { ssr: false });
