@@ -1,5 +1,5 @@
 import { Prop, SchemaFactory } from "@nestjs/mongoose";
-import { StdSchema } from "../decorators/stdschema.decorator";
+import { StdSchema } from "../decorators/stdschema.decorator.js";
 import mongoose from "mongoose";
 import type { PublicityType } from "@stoked-ui/common";
 

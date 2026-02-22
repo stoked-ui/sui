@@ -23,12 +23,8 @@
   ],
   "license": "MIT",
   "main": "src/index.ts",
-  "bin": {
-    "sui-media": "scripts/cli.js"
-  },
   "files": [
-    "build",
-    "scripts"
+    "build"
   ],
   "repository": {
     "type": "git",

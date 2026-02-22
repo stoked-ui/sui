@@ -461,7 +461,7 @@ function TimelineReducerBase<
       });
       state.engine.setTracks(updatedTracks);
 
-      let file = null;
+      let file: typeof state.file = null;
       if (state.file) {
         file = state.file;
         file.tracks = updatedTracks;
@@ -482,7 +482,7 @@ function TimelineReducerBase<
       const updatedTracks = state.file?.tracks?.map((t, index) =>
         t.id === track.id ? { ...t, actions: [...t.actions, initTimelineAction( action, index)] } : t
       ) ?? [];
-      let file = null;
+      let file: typeof state.file = null;
       if (state.file) {
         file = state.file;
         file.tracks = updatedTracks;
@@ -548,7 +548,7 @@ function TimelineReducerBase<
         })
         return t;
       });
-      let file = null;
+      let file: typeof state.file = null;
       if (state.file) {
         file = state.file;
         file.tracks = updatedTracks ?? [];

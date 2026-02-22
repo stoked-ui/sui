@@ -29,7 +29,7 @@ Authorization: Bearer <token>
 
 ### List media
 
-```http
+```bash
 GET /media?page=1&limit=20&sort=createdAt&order=desc
 ```
 
@@ -44,13 +44,13 @@ GET /media?page=1&limit=20&sort=createdAt&order=desc
 
 ### Get media item
 
-```http
+```bash
 GET /media/:id
 ```
 
 ### Create media item
 
-```http
+```bash
 POST /media
 Content-Type: application/json
 
@@ -63,7 +63,7 @@ Content-Type: application/json
 
 ### Update media item
 
-```http
+```bash
 PATCH /media/:id
 Content-Type: application/json
 
@@ -74,7 +74,7 @@ Content-Type: application/json
 
 ### Delete media item
 
-```http
+```bash
 DELETE /media/:id
 ```
 
@@ -82,7 +82,7 @@ DELETE /media/:id
 
 ### Full-text search
 
-```http
+```bash
 GET /media/search?q=tutorial&type=video&tags=demo
 ```
 
@@ -96,7 +96,7 @@ GET /media/search?q=tutorial&type=video&tags=demo
 
 ### Get media metadata
 
-```http
+```bash
 GET /media/:id/metadata
 ```
 
@@ -106,19 +106,19 @@ Returns extracted metadata including dimensions, duration, codec, bitrate, and m
 
 ### Like a media item
 
-```http
+```bash
 POST /media/:id/like
 ```
 
 ### Get comments
 
-```http
+```bash
 GET /media/:id/comments
 ```
 
 ### Add comment
 
-```http
+```bash
 POST /media/:id/comments
 Content-Type: application/json
 

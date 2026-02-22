@@ -92,10 +92,8 @@ export default function MyDocument(props) {
               content="Instantly share images, videos, PDFs, and links with people nearby. Peer2Peer and Open Source. No Setup, No Signup."/>
        Icons
         */}
+        <link rel="icon" href="/favicon.ico" sizes="48x48"/>
         <link rel="icon" type="image/svg+xml" href="/static/logo.svg"/>
-        <link rel="shortcut icon" type="image/svg+xml" href="/static/logo.svg"/>
-        <link rel="alternate icon" href="/favicon.ico"/>
-        <link rel="fluid-icon" type="image/svg+xml" href="/static/logo.svg"/>
       {/*   <meta name="twitter:image" content="https://snapdrop.net/images/twitter-stream.jpg"/>
         <meta property="og:image" content="https://snapdrop.net/images/twitter-stream.jpg"/> */}
         {/*  Resources */}
@@ -123,6 +121,7 @@ export default function MyDocument(props) {
           href={`https://stoked-ui.com${canonicalAsServer}`}
         />
         <link rel="alternate" href={`https://stokedconsulting.com${canonicalAsServer}`} hrefLang="x-default"/>
+        <link rel="alternate" href={`https://stokedui.com${canonicalAsServer}`} hrefLang="x-default"/>
         {/*
           Preconnect allows the browser to setup early connections before an HTTP request
           is actually sent to the server.

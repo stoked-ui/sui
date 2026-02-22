@@ -17,7 +17,7 @@
     "doctrine": "^3.0.0",
     "fast-glob": "^3.3.2",
     "fs-extra": "^11.2.0",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "prettier": "^3.2.5",
     "react-docgen": "^5.4.3",
     "recast": "^0.23.6",

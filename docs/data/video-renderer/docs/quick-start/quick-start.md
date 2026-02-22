@@ -65,7 +65,7 @@ cd my-video-app
 
 Add to `Cargo.toml`:
 
-```text
+```bash
 [dependencies]
 video-compositor = { path = "../sui-video-renderer-rust/compositor" }
 ```

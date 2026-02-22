@@ -150,16 +150,6 @@ const pages: MuiPage[] = [
     ],
   },
   {
-    pathname: '/video-validator/docs',
-    title: 'Video Validator',
-    newFeature: true,
-    children: [
-      { pathname: '/video-validator/docs/overview', title: 'Overview' },
-      { pathname: '/video-validator/docs/cli-usage', title: 'CLI Usage' },
-      { pathname: '/video-validator/docs/roadmap' },
-    ],
-  },
-  {
     pathname: '/video-renderer/docs',
     title: 'Video Renderer',
     newFeature: true,

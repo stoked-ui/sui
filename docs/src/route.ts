@@ -27,11 +27,16 @@ const ROUTES: Routes = {
   pricing: '/pricing/',
   about: '/about/',
   blog: '/blog/',
-  // Stoked Consulting
+  // Flux
+  flux: '/flux/',
+  fluxDocs: '/flux/docs/overview/',
+  // Consulting
   home: '/file-explorer/',
-  servicesUI: '/services/ui/',
-  servicesBackend: '/services/backend/',
-  servicesFullstack: '/services/fullstack/',
+  consulting: '/consulting/',
+  consultingFrontEnd: '/consulting/front-end/',
+  consultingBackEnd: '/consulting/back-end/',
+  consultingDevops: '/consulting/devops/',
+  consultingAi: '/consulting/ai/',
   // SUI doc pages
   suiCoreDocs: '/sui/',
   suiXDocs: '/sui-x/',

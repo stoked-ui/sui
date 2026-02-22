@@ -1,2 +1,2 @@
-export * from './defaultSchemaOptions';
-export * from './stdschema.decorator';
+export * from './defaultSchemaOptions.js';
+export * from './stdschema.decorator.js';

@@ -182,6 +182,4 @@ Your feedback shapes our roadmap! Let us know what features matter most to you:
 - [Feature Request Form](#)
 - [Community Chat](https://discord.gg/stokedui)
 
----
-
 *This roadmap is subject to change based on community feedback and project priorities.*

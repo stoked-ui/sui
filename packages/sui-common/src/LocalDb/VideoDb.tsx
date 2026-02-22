@@ -48,8 +48,12 @@ interface SceneVideo {
   name: string;
 }
 
+interface VideoDbProps {
+  sceneVideos: SceneVideo[];
+}
+
 // Video Editor Component
-export default function VideoDb({ sceneVideos }: { sceneVideos: SceneVideo[] }) {
+export default function VideoDb({ sceneVideos }: VideoDbProps) {
   const [videoSources, setVideoSources] = React.useState<Record<string, string>>({});
   const [isLoaded, setIsLoaded] = React.useState(false);
 
@@ -60,7 +64,7 @@ export default function VideoDb({ sceneVideos }: { sceneVideos: SceneVideo[] }) 
 
       // Load all videos for the scene
       await Promise.all(
-        sceneVideos.map(async ({ url, id }) => {
+        sceneVideos.map(async ({ url, id }: SceneVideo) => {
           const blob = await getOrFetchVideo(db, url, id);
           videoBlobs[id] = URL.createObjectURL(blob);
         })
@@ -84,7 +88,7 @@ export default function VideoDb({ sceneVideos }: { sceneVideos: SceneVideo[] }) 
 
   return (
     <div>
-      {sceneVideos.map(({ id, name }) => (
+      {sceneVideos.map(({ id, name }: SceneVideo) => (
         <div key={id}>
           <h3>{name}</h3>
           <video

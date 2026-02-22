@@ -1,7 +1,7 @@
-import { TypeMetadataStorage } from "@nestjs/mongoose/dist/storages/type-metadata.storage";
+import { TypeMetadataStorage } from "@nestjs/mongoose/dist/storages/type-metadata.storage.js";
 import cloneDeep from "lodash.clonedeep";
 import { SchemaOptions } from "mongoose";
-import { DefaultSchemaOptions } from "./defaultSchemaOptions";
+import { DefaultSchemaOptions } from "./defaultSchemaOptions.js";
 
 function mergeOptions(
   parentOptions: SchemaOptions,

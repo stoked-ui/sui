@@ -27,6 +27,7 @@ const Dot = styled(motion.div)(({ theme }) => ({
 
 function GrokLoader() {
   const controls = useAnimationControls();
+
   // Create separate radius and rotation values for better control
   const radius = useMotionValue(120);
   const rotation = useMotionValue(0);
@@ -137,4 +138,3 @@ function GrokLoader() {
 }
 
 export default GrokLoader;
-

@@ -14,7 +14,7 @@ const FetchBackoff = async (
     retries = 3,
     backoffFactor = 2,
     initialDelay = 500,
-    retryCondition = (response: Response | null, error: unknown) =>
+    retryCondition = (response: Response | null, error: any) =>
       !!error || (response ? !response.ok : false),
   } = options || {};
 

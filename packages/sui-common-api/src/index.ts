@@ -1,9 +1,9 @@
 // Server-side NestJS/Mongoose models, decorators, and DTOs
 // This package should only be used in backend/API packages
 
-export * from './models';
-export * from './dtos';
-export * from './decorators';
+export * from './models/index.js';
+export * from './dtos/index.js';
+export * from './decorators/index.js';
 
 // Re-export interfaces from @stoked-ui/common for convenience
 export {

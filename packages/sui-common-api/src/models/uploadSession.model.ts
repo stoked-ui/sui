@@ -1,7 +1,7 @@
 import { ModelDefinition, Prop, SchemaFactory } from "@nestjs/mongoose";
 import mongoose, { HydratedDocument } from "mongoose";
-import { DefaultSchemaOptions } from "../decorators/defaultSchemaOptions";
-import { StdSchema } from "../decorators/stdschema.decorator";
+import { DefaultSchemaOptions } from "../decorators/defaultSchemaOptions.js";
+import { StdSchema } from "../decorators/stdschema.decorator.js";
 
 /**
  * Status of a part within a multipart upload

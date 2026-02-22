@@ -3,7 +3,7 @@
   "version": "0.1.2",
   "description": "Common utilities and components for Stoked UI",
   "author": "Brian Stoker",
-  "main": "src/index.ts",
+  "main": "src/index.tsx",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/stoked-ui/common/issues"
@@ -54,6 +54,7 @@
     "@emotion/styled": "^11.8.1",
     "@mui/icons-material": "^5.15.21",
     "@mui/material": "^5.15.21",
+    "@mui/system": "^5.15.21",
     "react": "18.3.1",
     "react-dom": "^17.0.0 || ^18.0.0"
   },

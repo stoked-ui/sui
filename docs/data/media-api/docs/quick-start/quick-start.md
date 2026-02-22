@@ -30,7 +30,7 @@ pnpm install
 
 Create a `.env` file in the package root:
 
-```env
+```bash
 # MongoDB
 MONGODB_URI=mongodb://localhost:27017/stoked-media
 

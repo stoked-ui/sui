@@ -1,7 +1,7 @@
 import { ModelDefinition, Prop, SchemaFactory } from "@nestjs/mongoose";
-import { DefaultSchemaOptions } from "../decorators/defaultSchemaOptions";
-import { StdSchema } from "../decorators/stdschema.decorator";
-import { File } from "./file.model";
+import { DefaultSchemaOptions } from "../decorators/defaultSchemaOptions.js";
+import { StdSchema } from "../decorators/stdschema.decorator.js";
+import { File } from "./file.model.js";
 
 @StdSchema(DefaultSchemaOptions)
 export class Image extends File {

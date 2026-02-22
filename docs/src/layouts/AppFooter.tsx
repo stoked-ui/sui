@@ -8,14 +8,16 @@ import Stack from '@mui/material/Stack';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import RssFeedIcon from '@mui/icons-material/RssFeed';
+import { useRouter } from 'next/router';
 import SvgSuiLogotype from 'docs/src/icons/SvgSuiLogotype';
+import SvgStokedConsultingLogotype from 'docs/src/icons/SvgStokedConsultingLogotype';
 import EmailSubscribe from 'docs/src/components/footer/EmailSubscribe';
 import ROUTES from 'docs/src/route';
 import DiscordIcon from 'docs/src/icons/DiscordIcon';
 import { Link } from '@stoked-ui/docs';
 import SvgStackOverflow from 'docs/src/icons/SvgStackOverflow';
 import Slack from '../icons/Slack';
-import {ALL_PRODUCTS, PRODUCTS} from "../products";
+import { ALL_PRODUCTS, PRODUCTS } from "../products";
 
 interface AppFooterProps {
   stackOverflowUrl?: string;
@@ -23,6 +25,8 @@ interface AppFooterProps {
 
 export default function AppFooter(props: AppFooterProps) {
   const { stackOverflowUrl } = props;
+  const router = useRouter();
+  const isConsultingPage = router.pathname.startsWith('/consulting');
 
   return (
     <Container component="footer">
@@ -50,7 +54,11 @@ export default function AppFooter(props: AppFooterProps) {
       >
         <div>
           <Link prefetch={false} href="/" aria-label="Go to homepage" sx={{ mb: 2 }}>
-            <SvgSuiLogotype height={28} width={91} />
+            {isConsultingPage ? (
+              <SvgStokedConsultingLogotype height={28} width={200} />
+            ) : (
+              <SvgSuiLogotype height={28} width={91} />
+            )}
           </Link>
           <Typography variant="body2" fontWeight="semiBold" gutterBottom>
             Keep up to date
@@ -63,7 +71,7 @@ export default function AppFooter(props: AppFooterProps) {
         <Box
           sx={{
             display: 'grid',
-            gridTemplateColumns: { xs: '1fr 1fr', md: '1fr 1fr 1fr 1fr' },
+            gridTemplateColumns: { xs: '1fr 1fr', md: '1fr 1fr 1fr 1fr 1fr' },
             gridAutoColumns: '1fr',
             gap: 2,
           }}
@@ -78,17 +86,37 @@ export default function AppFooter(props: AppFooterProps) {
             <Link prefetch={false} href={PRODUCTS.index['file-explorer'].url('product')}>
               File Explorer
             </Link>
-            <Link prefetch={false} href={PRODUCTS.index['timeline'].url('product')}>
+            <Link prefetch={false} href={PRODUCTS.index.timeline.url('product')}>
               Timeline
             </Link>
-            <Link prefetch={false} href={PRODUCTS.index['editor'].url('product')}>
+            <Link prefetch={false} href={PRODUCTS.index.editor.url('product')}>
               Editor
             </Link>
-            <Link prefetch={false} href={PRODUCTS.index['media'].url('product')}>
+            <Link prefetch={false} href={PRODUCTS.index.media.url('product')}>
               Media
             </Link>
-            <Link prefetch={false} href={PRODUCTS.index['stoked-consulting'].url('product')}>
+            <Link prefetch={false} href={PRODUCTS.index.flux.url('product')}>
+              Flux
+            </Link>
+          </Box>
+          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+            <Typography fontWeight="semiBold" variant="body2" sx={{ mb: 0.5 }}>
               Consulting
+            </Typography>
+            <Link prefetch={false} href="/consulting/">
+              Overview
+            </Link>
+            <Link prefetch={false} href="/consulting/front-end/">
+              Front End
+            </Link>
+            <Link prefetch={false} href="/consulting/back-end/">
+              Back End
+            </Link>
+            <Link prefetch={false} href="/consulting/devops/">
+              Devops
+            </Link>
+            <Link prefetch={false} href="/consulting/ai/">
+              AI
             </Link>
           </Box>
           <Box sx={{ display: 'flex', flexDirection: 'column' }}>
@@ -101,7 +129,7 @@ export default function AppFooter(props: AppFooterProps) {
             <Link prefetch={false} href={ROUTES.blog}>
               Blog
             </Link>
-          {/*   <Link prefetch={false} href={ROUTES.showcase}>
+            {/*   <Link prefetch={false} href={ROUTES.showcase}>
               Showcase
             </Link> */}
             <Link prefetch={false} href={ROUTES.coreRoadmap}>
@@ -170,7 +198,7 @@ export default function AppFooter(props: AppFooterProps) {
             title="Slack"
             size="small"
           >
-            <Slack sx={(theme) => ({ color: theme.palette.mode === 'light' ? 'grey' : '#FFF' ,...theme.applyDarkStyles({color: '#FFF'}) })} variant={'hover-color'} fontSize="small" />
+            <Slack sx={(theme) => ({ color: theme.palette.mode === 'light' ? 'grey' : '#FFF', ...theme.applyDarkStyles({ color: '#FFF' }) })} variant={'hover-color'} fontSize="small" />
           </IconButton>
           <IconButton
             target="_blank"

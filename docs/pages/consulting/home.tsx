@@ -42,7 +42,7 @@ export function HomeView({ HomeMain}: { HomeMain: React.ComponentType }){
         // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
-            '@context': 'https://Keep up to date',
+            '@context': 'https://schema.org',
             '@type': 'Organization',
             name: 'Stoked Consulting',
             url: 'https://stokedconsulting.com',
@@ -83,7 +83,7 @@ Home.getInitialProps = async(context: { req: any; query: any; res: any; asPath: 
   const { req } = context;
   if (req) {
     console.info('req.headers.host', req.headers.host);
-    if (['stoked-ui.com', 'stokedconsulting.com'].includes(req.headers?.host)) {
+    if (['stoked-ui.com', 'stokedconsulting.com', 'stokedui.com'].includes(req.headers?.host)) {
       MainView = RandomHome;
     }
   }

@@ -1,7 +1,7 @@
 import { ModelDefinition, Prop, SchemaFactory } from "@nestjs/mongoose";
 import mongoose, { HydratedDocument } from "mongoose";
-import { StdSchema } from "../decorators/stdschema.decorator";
-import { BaseModel } from "./base.model";
+import { StdSchema } from "../decorators/stdschema.decorator.js";
+import { BaseModel } from "./base.model.js";
 
 export type FileDocument = HydratedDocument<File>;
 

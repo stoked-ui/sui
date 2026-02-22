@@ -1,12 +1,7 @@
 import React, {useEffect, useState} from 'react';
 
-interface Size {
-  width: number | undefined;
-  height: number | undefined;
-}
-
-const useResize = (elementRef: React.RefObject<HTMLElement> | null | undefined): Size => {
-  const [size, setSize] = useState<Size>({
+const useResize = (elementRef: React.RefObject<HTMLElement> | null) => {
+  const [size, setSize] = useState<{ width: number | undefined; height: number | undefined }>({
     width: undefined,
     height: undefined,
   });
@@ -14,8 +9,8 @@ const useResize = (elementRef: React.RefObject<HTMLElement> | null | undefined):
   useEffect(() => {
     const handleResize = () => {
       setSize({
-        width: elementRef ? (elementRef.current?.offsetWidth ?? undefined) : window.innerWidth,
-        height: elementRef ? (elementRef.current?.offsetHeight ?? undefined) : window.innerHeight,
+        width: elementRef?.current ? elementRef.current.offsetWidth : window.innerWidth,
+        height: elementRef?.current ? elementRef.current.offsetHeight : window.innerHeight,
       });
     };
 

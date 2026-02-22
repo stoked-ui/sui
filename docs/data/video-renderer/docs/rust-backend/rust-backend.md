@@ -9,7 +9,7 @@ productId: video-renderer
 
 ## Installation
 
-```text
+```bash
 # Cargo.toml
 [dependencies]
 video-compositor = "0.1"

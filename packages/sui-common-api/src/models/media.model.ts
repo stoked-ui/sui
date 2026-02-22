@@ -1,9 +1,9 @@
 import { ModelDefinition, Prop, SchemaFactory } from "@nestjs/mongoose";
 import mongoose, { Document, Types } from "mongoose";
-import { DefaultSchemaOptions } from "../decorators/defaultSchemaOptions";
-import { StdSchema } from "../decorators/stdschema.decorator";
-import { File } from "./file.model";
-import { BaseModelSchema } from "./base.model";
+import { DefaultSchemaOptions } from "../decorators/defaultSchemaOptions.js";
+import { StdSchema } from "../decorators/stdschema.decorator.js";
+import { File } from "./file.model.js";
+import { BaseModelSchema } from "./base.model.js";
 import type { EmbedVisibilityType } from "@stoked-ui/common";
 
 // Interface for playback issue reports

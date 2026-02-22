@@ -19,7 +19,7 @@ The Upload API supports resumable multipart uploads, allowing large files to be 
 
 ### 1. Initialize upload
 
-```http
+```bash
 POST /media/upload/init
 Content-Type: application/json
 
@@ -49,7 +49,7 @@ Content-Type: application/json
 
 Upload each chunk to its presigned URL:
 
-```http
+```bash
 PUT <presignedUrl>
 Content-Type: application/octet-stream
 
@@ -58,7 +58,7 @@ Content-Type: application/octet-stream
 
 ### 3. Report chunk completion
 
-```http
+```bash
 POST /media/upload/:uploadId/chunk
 Content-Type: application/json
 
@@ -70,7 +70,7 @@ Content-Type: application/json
 
 ### 4. Complete upload
 
-```http
+```bash
 POST /media/upload/:uploadId/complete
 Content-Type: application/json
 
@@ -82,7 +82,7 @@ Content-Type: application/json
 
 ### 5. Check upload status
 
-```http
+```bash
 GET /media/upload/:uploadId/status
 ```
 

@@ -57,20 +57,33 @@ const UList = styled('ul')({
 
 const PRODUCTS: Array<{ name: string; description: string; href: string; chip?: string }> = [
   {
-    name: 'Stoked UI Core',
-    description: 'Ready-to-use foundational React components, free forever.',
-    href: ROUTES.productCore,
-  },
-  {
-    name: 'Stoked UI X',
-    description: 'Advanced and powerful components for complex use cases.',
-    href: ROUTES.productAdvanced,
-  },
-  {
-    name: 'Stoked Consulting Services',
-    description: 'Full stack consulting services.',
-    href: ROUTES.productTemplates,
+    name: 'Flux',
+    description: 'Make any website your Mac desktop wallpaper.',
+    href: ROUTES.flux,
   }
+];
+
+const CONSULTING_ITEMS: Array<{ name: string; description: string; href: string }> = [
+  {
+    name: 'Front End',
+    description: 'React, Next.js, Angular, and TypeScript development.',
+    href: ROUTES.consultingFrontEnd,
+  },
+  {
+    name: 'Back End',
+    description: 'Node.js, NestJS, Python, and cloud-native APIs.',
+    href: ROUTES.consultingBackEnd,
+  },
+  {
+    name: 'Devops',
+    description: 'AWS, GCP, Terraform, and CI/CD pipelines.',
+    href: ROUTES.consultingDevops,
+  },
+  {
+    name: 'AI',
+    description: 'AI integration, ML pipelines, and LLM applications.',
+    href: ROUTES.consultingAi,
+  },
 ];
 
 const DOCS: Array<{ name: string; description: string; href: string; chip?: string }> = [
@@ -111,6 +124,7 @@ export default function HeaderNavDropdown() {
   const [open, setOpen] = React.useState(false);
   const [productsOpen, setProductsOpen] = React.useState(true);
   const [docsOpen, setDocsOpen] = React.useState(false);
+  const [consultingOpen, setConsultingOpen] = React.useState(false);
   const hambugerRef = React.useRef<HTMLButtonElement>(null);
   return (
     <React.Fragment>
@@ -272,6 +286,49 @@ export default function HeaderNavDropdown() {
                                 variant="outlined"
                               />
                             ) : null}
+                          </Box>
+                          <Typography variant="body2" color="text.secondary">
+                            {item.description}
+                          </Typography>
+                        </Anchor>
+                      </li>
+                    ))}
+                  </UList>
+                </Collapse>
+              </li>
+              <li>
+                <Anchor
+                  as="button"
+                  onClick={() => setConsultingOpen((bool) => !bool)}
+                  sx={{ justifyContent: 'space-between' }}
+                >
+                  Consulting
+                  <KeyboardArrowDownRounded
+                    color="primary"
+                    sx={{
+                      transition: '0.3s',
+                      transform: consultingOpen ? 'rotate(-180deg)' : 'rotate(0)',
+                    }}
+                  />
+                </Anchor>
+                <Collapse in={consultingOpen}>
+                  <UList>
+                    {CONSULTING_ITEMS.map((item) => (
+                      <li key={item.name}>
+                        <Anchor
+                          href={item.href}
+                          as={Link}
+                          noLinkStyle
+                          sx={{ flexDirection: 'column', alignItems: 'initial' }}
+                        >
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              flexDirection: 'row',
+                              justifyContent: 'space-between',
+                            }}
+                          >
+                            {item.name}
                           </Box>
                           <Typography variant="body2" color="text.secondary">
                             {item.description}

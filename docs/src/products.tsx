@@ -62,7 +62,7 @@ type TProduct = {
 }
 
 type LinkType = 'product' | 'doc';
-type SubMenuType = 'products' | 'docs' | null
+type SubMenuType = 'products' | 'docs' | 'consulting' | null
 
 export type ProductMenuTitleProps = {
   icon: React.ReactElement;
@@ -486,12 +486,12 @@ function ProductMenu(props: ProductMenuProps) {
         aria-haspopup
         aria-expanded={subMenuOpen === type ? 'true' : 'false'}
         onClick={handleClickMenu?.(type)}
-        aria-controls={subMenuOpen === type ? 'products-popper' : undefined}
+        aria-controls={subMenuOpen === type ? `${type}-popper` : undefined}
       >
         {titleCase(type)}
       </ButtonBase>
       <Popper
-        id="products-popper"
+        id={`${type}-popper`}
         key={type}
         open={props.subMenuOpen === type}
         anchorEl={props.menuRef?.current}
@@ -680,33 +680,57 @@ class Products extends IndexObject<Product> {
   }
 }
 
-const stokedConsultingData: TProduct = {
-  id: 'stoked-consulting',
-  name: "Stoked Consulting",
-  fullName: "Stoked Consulting Services",
-  description: "Full stack consulting services.",
-  icon: "product-designkits",
-  url: "/consulting",
+const consultingFrontEndData: TProduct = {
+  id: 'consulting-front-end',
+  name: "Front End",
+  fullName: "Front End Consulting",
+  description: "Modern UI design and development with React, Next.js, Angular, and TypeScript.",
+  icon: "product-core",
+  url: "/consulting/front-end",
   live: true,
   showcaseType: StokedConsultingShowcase,
-  features: [
-    {
-      name: 'Front End',
-      description: 'UI design and development services.',
-      id: 'front-end',
-    }, {
-      name: 'Backend',
-      description: 'Backend architecture and development services.',
-      id: 'backend',
-    }, {
-      name: 'Fullstack',
-      description: 'Full stack development services.',
-      id: 'fullstack',
-    }
-  ],
+  features: [],
 };
+const consultingFrontEnd = new Product(consultingFrontEndData);
 
-const stokedConsulting = new Product(stokedConsultingData);
+const consultingBackEndData: TProduct = {
+  id: 'consulting-back-end',
+  name: "Back End",
+  fullName: "Back End Consulting",
+  description: "Scalable server architecture with Node.js, NestJS, Python, and cloud-native APIs.",
+  icon: "product-advanced",
+  url: "/consulting/back-end",
+  live: true,
+  showcaseType: StokedConsultingShowcase,
+  features: [],
+};
+const consultingBackEnd = new Product(consultingBackEndData);
+
+const consultingDevopsData: TProduct = {
+  id: 'consulting-devops',
+  name: "Devops",
+  fullName: "Devops Consulting",
+  description: "Cloud infrastructure with AWS, GCP, Terraform, and modern CI/CD pipelines.",
+  icon: "product-toolpad",
+  url: "/consulting/devops",
+  live: true,
+  showcaseType: StokedConsultingShowcase,
+  features: [],
+};
+const consultingDevops = new Product(consultingDevopsData);
+
+const consultingAiData: TProduct = {
+  id: 'consulting-ai',
+  name: "AI",
+  fullName: "AI Consulting",
+  description: "AI integration, ML pipelines, and LLM-powered applications for your business.",
+  icon: "product-templates",
+  url: "/consulting/ai",
+  live: true,
+  showcaseType: StokedConsultingShowcase,
+  features: [],
+};
+const consultingAi = new Product(consultingAiData);
 const stokedUiData: TProduct = {
   id: 'stoked-ui',
   name: "Stoked UI",
@@ -883,31 +907,6 @@ const mediaApiData: TProduct = {
 };
 const mediaApi = new Product(mediaApiData);
 
-const videoValidatorData: TProduct = {
-  id: 'video-validator',
-  name: "Video Validator",
-  fullName: "Stoked UI: Video Validator",
-  description: "Video rendering validation test harness with frame-by-frame comparison",
-  icon: "product-advanced",
-  url: "/video-validator",
-  hideProductFeatures: true,
-  live: false,
-  showcaseType: AdvancedShowcase,
-  features: [{
-    name: 'Overview',
-    description: 'Purpose and features',
-    id: 'overview',
-  }, {
-    name: 'CLI Usage',
-    description: 'Command-line usage and options',
-    id: 'cli-usage',
-  }, {
-    name: 'Roadmap',
-    description: 'What\'s next',
-    id: 'roadmap',
-  }],
-};
-const videoValidator = new Product(videoValidatorData);
 
 const mediaSelectorData: TProduct = {
   id: 'media-selector',
@@ -1006,14 +1005,45 @@ const videoEditorData: TProduct = {
 
 const videoEditor = new Product(videoEditorData);
 
-const PRODUCTS: Products = new Products([fileExplorer, media, timeline, videoEditor, stokedConsulting]);
-const ALL_PRODUCTS: Products = new Products([sui, stokedConsulting]);
-const ALL_PACKAGES: Products = new Products([fileExplorer, media, common, mediaApi, videoValidator, mediaSelector, timeline, videoEditor, stokedConsulting]);
+const fluxData: TProduct = {
+  id: 'flux',
+  name: "Flux",
+  fullName: "Flux",
+  description: "Make any website your Mac desktop wallpaper",
+  icon: "product-toolpad",
+  url: "/flux",
+  hideProductFeatures: true,
+  live: true,
+  showcaseType: AdvancedShowcase,
+  features: [{
+    name: 'Overview',
+    description: 'Features and getting started',
+    id: 'overview',
+  }, {
+    name: 'Websites',
+    description: 'Managing websites, multi-monitor, browsing mode, and customization',
+    id: 'websites',
+  }, {
+    name: 'Scripting',
+    description: 'URL schemes, Shortcuts, and JavaScript API',
+    id: 'scripting',
+  }, {
+    name: 'Roadmap',
+    description: 'What\'s next',
+    id: 'roadmap',
+  }],
+};
+const flux = new Product(fluxData);
+
+const PRODUCTS: Products = new Products([fileExplorer, media, timeline, videoEditor, flux]);
+const ALL_PRODUCTS: Products = new Products([sui, flux]);
+const CONSULTING: Products = new Products([consultingFrontEnd, consultingBackEnd, consultingDevops, consultingAi]);
+const ALL_PACKAGES: Products = new Products([fileExplorer, media, common, mediaApi, mediaSelector, timeline, videoEditor, flux, consultingFrontEnd, consultingBackEnd, consultingDevops, consultingAi]);
 
 export type MenuProps = {
   linkType: LinkType,
   sx?: SxProps<Theme>,
 };
 
-export { PRODUCTS, ALL_PRODUCTS, ALL_PACKAGES }
+export { PRODUCTS, ALL_PRODUCTS, ALL_PACKAGES, CONSULTING }
 

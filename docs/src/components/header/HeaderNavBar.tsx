@@ -3,7 +3,7 @@ import * as React from 'react';
 import { styled, alpha } from '@mui/material/styles';
 import { unstable_debounce as debounce } from '@mui/utils';
 import ROUTES from 'docs/src/route';
-import { PRODUCTS, ALL_PRODUCTS } from 'docs/src/products';
+import { PRODUCTS, ALL_PRODUCTS, CONSULTING } from 'docs/src/products';
 import { Link } from '@stoked-ui/docs';
 
 const Navigation = styled('nav')(({ theme }) => [
@@ -62,11 +62,12 @@ const Navigation = styled('nav')(({ theme }) => [
 const PRODUCT_IDS = Object.keys(PRODUCTS);
 
 export default function HeaderNavBar() {
-  const [subMenuOpen, setSubMenuOpen] = React.useState<null | 'products' | 'docs'>(null);
+  const [subMenuOpen, setSubMenuOpen] = React.useState<null | 'products' | 'docs' | 'consulting'>(null);
   const [subMenuIndex, setSubMenuIndex] = React.useState<number | null>(null);
   const navRef = React.useRef<HTMLUListElement | null>(null);
   const productsMenuRef = React.useRef<HTMLButtonElement>(null);
   const docsMenuRef = React.useRef<HTMLButtonElement>(null);
+  const consultingMenuRef = React.useRef<HTMLButtonElement>(null);
   React.useEffect(() => {
     if (typeof subMenuIndex === 'number') {
       document.getElementById(PRODUCT_IDS[subMenuIndex])?.focus();
@@ -80,6 +81,8 @@ export default function HeaderNavBar() {
       menuItem = productsMenuRef.current!;
     } else if (subMenuOpen === 'docs') {
       menuItem = docsMenuRef.current!;
+    } else if (subMenuOpen === 'consulting') {
+      menuItem = consultingMenuRef.current!;
     } else {
       return;
     }
@@ -156,6 +159,7 @@ export default function HeaderNavBar() {
       <ul ref={navRef} onKeyDown={handleKeyDown}>
         {ALL_PRODUCTS.menu({ type: 'products', ...menuProps, menuRef: productsMenuRef})}
         {ALL_PRODUCTS.menu({ type: 'docs', ...menuProps, menuRef: docsMenuRef})}
+        {CONSULTING.menu({ type: 'consulting', ...menuProps, menuRef: consultingMenuRef})}
         <li>
           <Link href={ROUTES.about}>About us</Link>
         </li>

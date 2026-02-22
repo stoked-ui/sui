@@ -67,7 +67,7 @@ The demo below shows how to add an avatar and custom typography elements.
 This example demonstrates a fully styled file explorer using MUI X Tree View components directly.
 It showcases custom styling with file type-specific icons, hover and selection states, visual indicators for expanded folders, and smooth animations.
 
-{{"demo": "StyledFileExplorer.tsx", "defaultCodeOpen": false}}
+<!-- demo temporarily disabled: StyledFileExplorer requires @mui/x-tree-view APIs not available in current version -->
 
 ## Common examples
 

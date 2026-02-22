@@ -1,9 +1,9 @@
 import { ModelDefinition, Prop, SchemaFactory } from "@nestjs/mongoose";
 import mongoose from "mongoose";
-import { DefaultSchemaOptions } from "../decorators/defaultSchemaOptions";
-import { StdSchema } from "../decorators/stdschema.decorator";
-import { File } from "./file.model";
-import { PlaybackIssue } from "./media.model";
+import { DefaultSchemaOptions } from "../decorators/defaultSchemaOptions.js";
+import { StdSchema } from "../decorators/stdschema.decorator.js";
+import { File } from "./file.model.js";
+import { PlaybackIssue } from "./media.model.js";
 
 @StdSchema(DefaultSchemaOptions)
 export class Video extends File {
