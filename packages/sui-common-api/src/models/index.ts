@@ -6,3 +6,5 @@ export * from './media.model.js';
 export * from './uploadSession.model.js';
 export * from './blogPost.model.js';
 export * from './invoice.model.js';
+export * from './license.model.js';
+export * from './product.model.js';

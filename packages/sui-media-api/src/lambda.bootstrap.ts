@@ -31,6 +31,7 @@ async function bootstrap() {
       AppModule,
       new ExpressAdapter(expressApp),
       {
+        rawBody: true,
         logger: ['error', 'warn', 'debug', 'log', 'verbose'],
         cors: {
           origin: true,

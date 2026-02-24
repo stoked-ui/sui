@@ -8,6 +8,8 @@ import {
   UploadSessionFeature,
   BlogPostFeature,
   InvoiceFeature,
+  LicenseFeature,
+  ProductFeature,
 } from '@stoked-ui/common-api';
 
 @Module({
@@ -28,6 +30,8 @@ import {
       UploadSessionFeature,
       BlogPostFeature,
       InvoiceFeature,
+      LicenseFeature,
+      ProductFeature,
     ]),
   ],
   exports: [MongooseModule],
