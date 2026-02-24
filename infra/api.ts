@@ -1,4 +1,4 @@
-import { mongoDbUri } from 'infra/secrets'
+import { mongoDbUri, stripeSecretKey, stripeWebhookSecret } from 'infra/secrets'
 import { DomainInfo } from 'infra/domains'
 
 export const createApi = (domainInfo: DomainInfo) => {
@@ -20,7 +20,11 @@ export const createApi = (domainInfo: DomainInfo) => {
     runtime: "nodejs20.x",
     timeout: "29 seconds",
     memory: "1024 MB",
-    link: [mongoDbUri, jwtSecret, blogApiToken, invoiceApiKey],
+    link: [mongoDbUri, jwtSecret, blogApiToken, invoiceApiKey, stripeSecretKey, stripeWebhookSecret],
+    permissions: [{
+      actions: ["ses:SendEmail"],
+      resources: ["arn:aws:ses:us-east-1:883859713095:identity/*"],
+    }],
     environment: {
       // Core
       NODE_ENV: "production",
@@ -36,6 +40,10 @@ export const createApi = (domainInfo: DomainInfo) => {
 
       // CORS
       ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS ?? `https://${domainInfo.domains[0]},https://www.${domainInfo.domains[0]}`,
+
+      // Stripe license key system
+      STRIPE_SECRET_KEY: stripeSecretKey.value,
+      STRIPE_WEBHOOK_SECRET: stripeWebhookSecret.value,
     },
   });
 
