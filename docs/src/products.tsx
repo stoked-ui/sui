@@ -1035,10 +1035,106 @@ const fluxData: TProduct = {
 };
 const flux = new Product(fluxData);
 
+const macMixerData: TProduct = {
+  id: 'mac-mixer',
+  name: "Mac Mixer",
+  fullName: "Mac Mixer",
+  description: "macOS audio utility with per-app volume control, auto-pause, and system audio recording",
+  icon: "product-advanced",
+  url: "/mac-mixer",
+  hideProductFeatures: true,
+  live: true,
+  showcaseType: AdvancedShowcase,
+  features: [{
+    name: 'Overview',
+    description: 'Features, system requirements, and getting started',
+    id: 'overview',
+  }, {
+    name: 'App Volumes',
+    description: 'Per-application volume control with boost',
+    id: 'app-volumes',
+  }, {
+    name: 'Auto-Pause',
+    description: 'Automatically pause music when other audio plays',
+    id: 'auto-pause',
+  }, {
+    name: 'Roadmap',
+    description: 'Current status and future plans',
+    id: 'roadmap',
+  }],
+};
+const macMixer = new Product(macMixerData);
+
+const alwaysListeningData: TProduct = {
+  id: 'always-listening',
+  name: "Always Listening",
+  fullName: "Always Listening",
+  description: "Cross-platform voice pipeline tray app with Voice-to-Claude, Dictation, and Combined modes",
+  icon: "product-templates",
+  url: "/always-listening",
+  hideProductFeatures: true,
+  live: true,
+  showcaseType: AdvancedShowcase,
+  features: [{
+    name: 'Overview',
+    description: 'Voice pipeline overview and tech stack',
+    id: 'overview',
+  }, {
+    name: 'Voice Modes',
+    description: 'Voice-to-Claude, Dictation, and Combined mode details',
+    id: 'voice-modes',
+  }, {
+    name: 'Preferences',
+    description: 'Configuration, hotkeys, and TTS settings',
+    id: 'preferences',
+  }, {
+    name: 'Roadmap',
+    description: 'Development status and planned features',
+    id: 'roadmap',
+  }],
+};
+const alwaysListening = new Product(alwaysListeningData);
+
+const stokdCloudData: TProduct = {
+  id: 'stokd-cloud',
+  name: "Stokd Cloud",
+  fullName: "Stokd Cloud",
+  description: "AI-powered project orchestration with VSCode extension, NestJS API, and MCP server",
+  icon: "product-toolpad",
+  url: "/stokd-cloud",
+  hideProductFeatures: true,
+  live: true,
+  showcaseType: AdvancedShowcase,
+  features: [{
+    name: 'Overview',
+    description: 'Platform overview and architecture',
+    id: 'overview',
+  }, {
+    name: 'VSCode Extension',
+    description: 'Project management and Claude AI integration',
+    id: 'vscode-extension',
+  }, {
+    name: 'State API',
+    description: 'NestJS session and task tracking API',
+    id: 'state-api',
+  }, {
+    name: 'Roadmap',
+    description: 'Development status and plans',
+    id: 'roadmap',
+  }],
+};
+const stokdCloud = new Product(stokdCloudData);
+
 const PRODUCTS: Products = new Products([fileExplorer, media, timeline, videoEditor]);
-const ALL_PRODUCTS: Products = new Products([sui, flux]);
+const ALL_PRODUCTS: Products = new Products([
+  sui, fileExplorer, media, timeline, videoEditor, flux, macMixer, alwaysListening, stokdCloud
+]);
 const CONSULTING: Products = new Products([consultingFrontEnd, consultingBackEnd, consultingDevops, consultingAi]);
-const ALL_PACKAGES: Products = new Products([fileExplorer, media, common, mediaApi, mediaSelector, timeline, videoEditor, flux, consultingFrontEnd, consultingBackEnd, consultingDevops, consultingAi]);
+const ALL_PACKAGES: Products = new Products([
+  fileExplorer, media, common, mediaApi, mediaSelector, timeline, videoEditor, flux,
+  macMixer, alwaysListening, stokdCloud,
+  consultingFrontEnd, consultingBackEnd, consultingDevops, consultingAi
+]);
 
 export type MenuProps = {
   linkType: LinkType,

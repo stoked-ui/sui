@@ -30,6 +30,15 @@ const ROUTES: Routes = {
   // Flux
   flux: '/flux/',
   fluxDocs: '/flux/docs/overview/',
+  // Mac Mixer
+  macMixer: '/mac-mixer/',
+  macMixerDocs: '/mac-mixer/docs/overview/',
+  // Always Listening
+  alwaysListening: '/always-listening/',
+  alwaysListeningDocs: '/always-listening/docs/overview/',
+  // Stokd Cloud
+  stokdCloud: '/stokd-cloud/',
+  stokdCloudDocs: '/stokd-cloud/docs/overview/',
   // Consulting
   home: '/file-explorer/',
   consulting: '/consulting/',

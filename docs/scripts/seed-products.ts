@@ -1,7 +1,7 @@
 /**
  * Seed Products Script
  *
- * Seeds the Flux product and its documentation pages into MongoDB.
+ * Seeds all managed products and their documentation pages into MongoDB.
  *
  * Usage:
  *   npx ts-node --project docs/tsconfig.json docs/scripts/seed-products.ts
@@ -16,12 +16,105 @@ import * as path from 'path';
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/stoked-consulting';
 
-interface FluxPage {
+interface ProductPage {
   slug: string;
   title: string;
   content: string;
   order: number;
 }
+
+interface ProductConfig {
+  productId: string;
+  name: string;
+  fullName: string;
+  description: string;
+  icon: string;
+  url: string;
+  live: boolean;
+  managed: boolean;
+  hideProductFeatures: boolean;
+  prerelease?: 'alpha' | 'beta' | 'none';
+  features: Array<{ name: string; description: string; id: string }>;
+  slugOrder: string[];
+}
+
+const products: ProductConfig[] = [
+  {
+    productId: 'flux',
+    name: 'Flux',
+    fullName: 'Flux',
+    description: 'Make any website your Mac desktop wallpaper',
+    icon: 'product-toolpad',
+    url: '/flux',
+    live: true,
+    managed: true,
+    hideProductFeatures: true,
+    features: [
+      { name: 'Overview', description: 'Features and getting started', id: 'overview' },
+      { name: 'Websites', description: 'Managing websites, multi-monitor, browsing mode, and customization', id: 'websites' },
+      { name: 'Scripting', description: 'URL schemes, Shortcuts, and JavaScript API', id: 'scripting' },
+      { name: 'Roadmap', description: "What's next", id: 'roadmap' },
+    ],
+    slugOrder: ['overview', 'websites', 'scripting', 'download', 'roadmap'],
+  },
+  {
+    productId: 'mac-mixer',
+    name: 'Mac Mixer',
+    fullName: 'Mac Mixer',
+    description: 'macOS audio utility with per-app volume control, auto-pause, and system audio recording',
+    icon: 'product-advanced',
+    url: '/mac-mixer',
+    live: true,
+    managed: true,
+    hideProductFeatures: true,
+    prerelease: 'alpha',
+    features: [
+      { name: 'Overview', description: 'Features, system requirements, and getting started', id: 'overview' },
+      { name: 'App Volumes', description: 'Per-application volume control with boost', id: 'app-volumes' },
+      { name: 'Auto-Pause', description: 'Automatically pause music when other audio plays', id: 'auto-pause' },
+      { name: 'Roadmap', description: 'Current status and future plans', id: 'roadmap' },
+    ],
+    slugOrder: ['overview', 'app-volumes', 'auto-pause', 'recording', 'download', 'roadmap'],
+  },
+  {
+    productId: 'always-listening',
+    name: 'Always Listening',
+    fullName: 'Always Listening',
+    description: 'Cross-platform voice pipeline tray app with Voice-to-Claude, Dictation, and Combined modes',
+    icon: 'product-templates',
+    url: '/always-listening',
+    live: true,
+    managed: true,
+    hideProductFeatures: true,
+    prerelease: 'alpha',
+    features: [
+      { name: 'Overview', description: 'Voice pipeline overview and tech stack', id: 'overview' },
+      { name: 'Voice Modes', description: 'Voice-to-Claude, Dictation, and Combined mode details', id: 'voice-modes' },
+      { name: 'Preferences', description: 'Configuration, hotkeys, and TTS settings', id: 'preferences' },
+      { name: 'Roadmap', description: 'Development status and planned features', id: 'roadmap' },
+    ],
+    slugOrder: ['overview', 'voice-modes', 'preferences', 'roadmap'],
+  },
+  {
+    productId: 'stokd-cloud',
+    name: 'Stokd Cloud',
+    fullName: 'Stokd Cloud',
+    description: 'AI-powered project orchestration with VSCode extension, NestJS API, and MCP server',
+    icon: 'product-toolpad',
+    url: '/stokd-cloud',
+    live: true,
+    managed: true,
+    hideProductFeatures: true,
+    prerelease: 'alpha',
+    features: [
+      { name: 'Overview', description: 'Platform overview and architecture', id: 'overview' },
+      { name: 'VSCode Extension', description: 'Project management and Claude AI integration', id: 'vscode-extension' },
+      { name: 'State API', description: 'NestJS session and task tracking API', id: 'state-api' },
+      { name: 'Roadmap', description: 'Development status and plans', id: 'roadmap' },
+    ],
+    slugOrder: ['overview', 'vscode-extension', 'state-api', 'review-commands', 'roadmap'],
+  },
+];
 
 function parseFrontMatter(raw: string): { title: string; content: string } {
   const fmMatch = raw.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
@@ -37,10 +130,14 @@ function parseFrontMatter(raw: string): { title: string; content: string } {
   };
 }
 
-function readFluxPages(): FluxPage[] {
-  const docsDir = path.resolve(__dirname, '../data/flux/docs');
-  const slugOrder = ['overview', 'websites', 'scripting', 'download', 'roadmap'];
-  const pages: FluxPage[] = [];
+function readProductPages(productId: string, slugOrder: string[]): ProductPage[] {
+  const docsDir = path.resolve(__dirname, `../data/${productId}/docs`);
+  const pages: ProductPage[] = [];
+
+  if (!fs.existsSync(docsDir)) {
+    console.warn(`  Warning: docs directory not found at ${docsDir}`);
+    return pages;
+  }
 
   for (const dir of fs.readdirSync(docsDir)) {
     const dirPath = path.join(docsDir, dir);
@@ -77,64 +174,54 @@ async function seed() {
       { unique: true },
     );
 
-    // Upsert Flux product
     const now = new Date();
-    const fluxProduct = {
-      productId: 'flux',
-      name: 'Flux',
-      fullName: 'Flux',
-      description: 'Make any website your Mac desktop wallpaper',
-      icon: 'product-toolpad',
-      url: '/flux',
-      live: true,
-      managed: true,
-      hideProductFeatures: true,
-      features: [
-        { name: 'Overview', description: 'Features and getting started', id: 'overview' },
-        { name: 'Websites', description: 'Managing websites, multi-monitor, browsing mode, and customization', id: 'websites' },
-        { name: 'Scripting', description: 'URL schemes, Shortcuts, and JavaScript API', id: 'scripting' },
-        { name: 'Roadmap', description: "What's next", id: 'roadmap' },
-      ],
-      updatedAt: now,
-    };
+    let totalPages = 0;
 
-    const productResult = await db.collection('products').updateOne(
-      { productId: 'flux' },
-      { $set: fluxProduct, $setOnInsert: { createdAt: now } },
-      { upsert: true },
-    );
+    for (const config of products) {
+      const { productId, slugOrder, ...productData } = config;
 
-    const productDoc = await db.collection('products').findOne({ productId: 'flux' });
-    const productMongoId = productDoc!._id.toString();
-
-    console.log(
-      productResult.upsertedCount > 0
-        ? `Created Flux product (${productMongoId})`
-        : `Updated Flux product (${productMongoId})`,
-    );
-
-    // Upsert doc pages
-    const pages = readFluxPages();
-    for (const page of pages) {
-      const pageResult = await db.collection('product_pages').updateOne(
-        { productId: productMongoId, slug: page.slug },
-        {
-          $set: {
-            title: page.title,
-            content: page.content,
-            order: page.order,
-            published: true,
-            updatedAt: now,
-          },
-          $setOnInsert: { createdAt: now },
-        },
+      // Upsert product
+      const productResult = await db.collection('products').updateOne(
+        { productId },
+        { $set: { productId, ...productData, updatedAt: now }, $setOnInsert: { createdAt: now } },
         { upsert: true },
       );
-      const action = pageResult.upsertedCount > 0 ? 'Created' : 'Updated';
-      console.log(`  ${action} page: ${page.title} (/${page.slug})`);
+
+      const productDoc = await db.collection('products').findOne({ productId });
+      const productMongoId = productDoc!._id.toString();
+
+      console.log(
+        productResult.upsertedCount > 0
+          ? `Created ${config.name} product (${productMongoId})`
+          : `Updated ${config.name} product (${productMongoId})`,
+      );
+
+      // Upsert doc pages
+      const pages = readProductPages(productId, slugOrder);
+      for (const page of pages) {
+        const pageResult = await db.collection('product_pages').updateOne(
+          { productId: productMongoId, slug: page.slug },
+          {
+            $set: {
+              title: page.title,
+              content: page.content,
+              order: page.order,
+              published: true,
+              updatedAt: now,
+            },
+            $setOnInsert: { createdAt: now },
+          },
+          { upsert: true },
+        );
+        const action = pageResult.upsertedCount > 0 ? 'Created' : 'Updated';
+        console.log(`  ${action} page: ${page.title} (/${page.slug})`);
+      }
+
+      totalPages += pages.length;
+      console.log(`  Seeded ${pages.length} pages for ${config.name}.\n`);
     }
 
-    console.log(`\nDone! Seeded ${pages.length} pages for Flux.`);
+    console.log(`Done! Seeded ${products.length} products with ${totalPages} total pages.`);
   } finally {
     await client.close();
   }

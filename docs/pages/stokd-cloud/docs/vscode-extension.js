@@ -1,0 +1,7 @@
+import * as React from 'react';
+import MarkdownDocs from 'docs/src/modules/components/MarkdownDocs';
+import * as pageProps from 'docs/data/stokd-cloud/docs/vscode-extension/vscode-extension.md?muiMarkdown';
+
+export default function Page() {
+  return <MarkdownDocs {...pageProps} />;
+}
