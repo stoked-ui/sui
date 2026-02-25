@@ -27,6 +27,9 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import { DocsProvider as DocsProviderStoked } from '@stoked-ui/docs/DocsProvider';
 import allPages from '../data/pages';
 import fluxPages from '../data/fluxPages';
+import macMixerPages from '../data/macMixerPages';
+import alwaysListeningPages from '../data/alwaysListeningPages';
+import stokdCloudPages from '../data/stokdCloudPages';
 import './global.css';
 import "plyr-react/plyr.css"
 import '../public/static/components-gallery/base-theme.css';
@@ -203,6 +206,21 @@ const productMap = {
     name: 'Flux',
     version: null,
   },
+  'mac-mixer': {
+    metadata: 'Mac Mixer',
+    name: 'Mac Mixer',
+    version: null,
+  },
+  'always-listening': {
+    metadata: 'Always Listening',
+    name: 'Always Listening',
+    version: null,
+  },
+  'stokd-cloud': {
+    metadata: 'Stokd Cloud',
+    name: 'Stokd Cloud',
+    version: null,
+  },
   'stoked-ui': {
     metadata: 'Stoked UI',
     name: 'Stoked UI',
@@ -250,7 +268,13 @@ function AppWrapper(props) {
 
 
   const pageContextValue = React.useMemo(() => {
-    const pages = productId === 'flux' ? fluxPages : allPages;
+    const productPageMap = {
+      'flux': fluxPages,
+      'mac-mixer': macMixerPages,
+      'always-listening': alwaysListeningPages,
+      'stokd-cloud': stokdCloudPages,
+    };
+    const pages = productPageMap[productId] || allPages;
     const { activePage, activePageParents } = findActivePage(pages, router.pathname);
 
     return {
