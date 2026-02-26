@@ -66,7 +66,7 @@ export function NextNProgressBar() {
 
 const sx = { minWidth: { sm: 160 } };
 
-const AppSearch = React.lazy(() => import('docs/src/modules/components/AppSearch'));
+const PagefindSearch = React.lazy(() => import('docs/src/modules/components/PagefindSearch'));
 
 export function DeferredAppSearch() {
   const [mounted, setMounted] = React.useState(false);
@@ -79,7 +79,7 @@ export function DeferredAppSearch() {
       {/* Suspense isn't supported for SSR yet */}
       {mounted ? (
         <React.Suspense fallback={<Box sx={sx} />}>
-          <AppSearch sx={sx} />
+          <PagefindSearch sx={sx} />
         </React.Suspense>
       ) : (
         <Box sx={sx} />

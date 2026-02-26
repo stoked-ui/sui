@@ -2,7 +2,7 @@ import * as React from 'react';
 import NextHead from 'next/head';
 import { useRouter } from 'next/router';
 import { LANGUAGES_SSR } from 'docs/config';
-import { useUserLanguage, useTranslate } from '@stoked-ui/docs/i18n';
+import { useTranslate } from '@stoked-ui/docs/i18n';
 import { pathnameToLanguage } from 'docs/src/modules/utils/helpers';
 
 // #major-version-switch
@@ -31,7 +31,6 @@ export default function Head(props: HeadProps) {
     title = t('headTitle'),
     type = 'website',
   } = props;
-  const userLanguage = useUserLanguage();
   const router = useRouter();
   const { canonicalAs } = pathnameToLanguage(router.asPath);
   const preview = card.startsWith('http') ? card : `${HOST}${card}`;
@@ -60,10 +59,6 @@ export default function Head(props: HeadProps) {
       <meta property="og:description" content={description}/>
       <meta property="og:image" content={preview}/>
       <meta property="og:ttl" content="604800"/>
-      {/* Algolia */}
-      <meta name="docsearch:language" content={userLanguage}/>
-      {/* #major-version-switch */}
-      <meta name="docsearch:version" content="master"/>
       <style>{logoCss}</style>
       {disableAlternateLocale ? null : LANGUAGES_SSR.map((userLanguage2) => (<link
           key={userLanguage2}
