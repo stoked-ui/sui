@@ -5,7 +5,7 @@
   "author": "SUI Team",
   "license": "MIT",
   "scripts": {
-    "build": "rimraf docs/export && cross-env NODE_ENV=production NODE_OPTIONS=\"--trace-warnings\" next build --profile && pnpm build-sw",
+    "build": "rimraf docs/export && cross-env NODE_ENV=production NODE_OPTIONS=\"--trace-warnings\" next build --profile && pnpm build-sw && pnpm build:index",
     "build:export": "bash scripts/build-export.sh",
     "build:index": "pagefind --site export --output-subdir pagefind",
     "build:full": "pnpm build:export",
