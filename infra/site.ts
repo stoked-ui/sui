@@ -113,6 +113,12 @@ export const createSite = (domainInfo: DomainInfo) => {
         contentType: "audio/m4a",
         cacheControl: "public,max-age=31536000,immutable",
       }, {
+        // Pagefind WASM: explicit content-type required for browsers to
+        // instantiate WebAssembly without a MIME type mismatch error.
+        files: "**/*.wasm",
+        contentType: "application/wasm",
+        cacheControl: "public,max-age=31536000,immutable",
+      }, {
         files: ["**/*.css", "**/*.js", "**/*.ico", "**/*.json", "**/*.txt", "**/*.png", "**/*.jpg", "**/*.jpeg", "**/*.gif", "**/*.svg", "**/*.webp", "**/*.woff", "**/*.woff2", "**/*.ttf", "**/*.eot", "**/*.otf"],
         cacheControl: "max-age=31536000,public,immutable"
       }, {
