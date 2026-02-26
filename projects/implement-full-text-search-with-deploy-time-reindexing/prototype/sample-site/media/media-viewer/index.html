@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediaViewer - Stoked UI Media</title>
+</head>
+<body>
+  <main data-pagefind-body data-pagefind-meta="category:Media">
+    <h1>MediaViewer</h1>
+    <p class="description">A full-screen media viewing component with header, playback controls, and playlist support.</p>
+
+    <h2>Introduction</h2>
+    <p>The MediaViewer component provides a complete media viewing experience. It supports images, video, and audio files with automatic format detection, playback controls, and playlist navigation.</p>
+
+    <h2>Components</h2>
+
+    <h3>MediaViewerHeader</h3>
+    <p>Displays the current media item title and navigation controls.</p>
+    <pre><code>import { MediaViewerHeader } from '@stoked-ui/media';</code></pre>
+
+    <h3>MediaViewerPrimary</h3>
+    <p>The main content area that renders the appropriate media player based on file type.</p>
+    <pre><code>import { MediaViewerPrimary } from '@stoked-ui/media';</code></pre>
+
+    <h3>NowPlayingIndicator</h3>
+    <p>Shows the currently playing item in a playlist context.</p>
+    <pre><code>import { NowPlayingIndicator } from '@stoked-ui/media';</code></pre>
+
+    <h3>NextUpHeader</h3>
+    <p>Displays information about the next item in the playlist.</p>
+    <pre><code>import { NextUpHeader } from '@stoked-ui/media';</code></pre>
+
+    <h2>Hooks</h2>
+
+    <h3>useMediaViewerState</h3>
+    <p>Manages the state of the media viewer including current item, playback status, and playlist navigation.</p>
+    <pre><code>import { useMediaViewerState } from '@stoked-ui/media';
+
+function CustomViewer({ items }) {
+  const { currentItem, next, previous, isPlaying } = useMediaViewerState(items);
+
+  return (
+    &lt;div&gt;
+      &lt;p&gt;Now playing: {currentItem.name}&lt;/p&gt;
+      &lt;button onClick={previous}&gt;Previous&lt;/button&gt;
+      &lt;button onClick={next}&gt;Next&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+    <h3>useMediaViewerLayout</h3>
+    <p>Controls the layout and sizing of the media viewer.</p>
+    <pre><code>import { useMediaViewerLayout } from '@stoked-ui/media';</code></pre>
+
+    <h2>Props</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Prop</th><th>Type</th><th>Default</th><th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>items</td><td>MediaItem[]</td><td>[]</td><td>Array of media items to display</td></tr>
+        <tr><td>initialIndex</td><td>number</td><td>0</td><td>Starting index in the items array</td></tr>
+        <tr><td>autoPlay</td><td>boolean</td><td>false</td><td>Auto-play video/audio items</td></tr>
+        <tr><td>onItemChange</td><td>(item: MediaItem) =&gt; void</td><td>—</td><td>Callback when the current item changes</td></tr>
+      </tbody>
+    </table>
+  </main>
+</body>
+</html>

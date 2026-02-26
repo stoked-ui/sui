@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Media Hooks - Stoked UI Media</title>
+</head>
+<body>
+  <main data-pagefind-body data-pagefind-meta="category:Media">
+    <h1>Hooks</h1>
+    <p class="description">React hooks provided by the @stoked-ui/media package.</p>
+
+    <h2>UI Hooks</h2>
+
+    <h3>useMediaViewerState</h3>
+    <p>Manages the state of the MediaViewer component including current item, playback, and playlist navigation.</p>
+    <pre><code>import { useMediaViewerState } from '@stoked-ui/media';
+
+const {
+  currentItem,
+  currentIndex,
+  isPlaying,
+  next,
+  previous,
+  setIndex,
+  play,
+  pause,
+  toggle,
+} = useMediaViewerState(items, { initialIndex: 0 });</code></pre>
+
+    <h3>useMediaViewerLayout</h3>
+    <p>Controls the layout dimensions and responsive behavior of the MediaViewer.</p>
+    <pre><code>import { useMediaViewerLayout } from '@stoked-ui/media';
+
+const { containerRef, dimensions, isFullscreen, toggleFullscreen } =
+  useMediaViewerLayout();</code></pre>
+
+    <h2>API Hooks</h2>
+    <p>TanStack Query-based hooks for API communication:</p>
+    <ul>
+      <li><strong>useMediaUpload</strong> — Upload files with progress tracking</li>
+      <li><strong>useMediaList</strong> — Fetch paginated media lists</li>
+      <li><strong>useMediaItem</strong> — Fetch a single media item</li>
+      <li><strong>useMediaUpdate</strong> — Update media metadata</li>
+      <li><strong>useMediaDelete</strong> — Delete media items</li>
+    </ul>
+  </main>
+</body>
+</html>

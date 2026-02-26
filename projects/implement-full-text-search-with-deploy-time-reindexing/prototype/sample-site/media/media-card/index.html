@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediaCard - Stoked UI Media</title>
+</head>
+<body>
+  <main data-pagefind-body data-pagefind-meta="category:Media">
+    <h1>MediaCard</h1>
+    <p class="description">A card component for displaying media items with thumbnail strips and video progress bars.</p>
+
+    <h2>Introduction</h2>
+    <p>The MediaCard component displays a media item as a card with a thumbnail preview, metadata, and interactive controls. For video files, it includes a thumbnail strip and progress bar.</p>
+
+    <h2>Usage</h2>
+    <pre><code>import { MediaCard } from '@stoked-ui/media';
+
+function MediaGallery() {
+  return (
+    &lt;MediaCard
+      title="My Video"
+      src="/media/video.mp4"
+      type="video/mp4"
+      thumbnail="/thumbnails/video-thumb.jpg"
+    /&gt;
+  );
+}</code></pre>
+
+    <h2>Sub-components</h2>
+
+    <h3>ThumbnailStrip</h3>
+    <p>Displays a strip of thumbnail frames extracted from a video.</p>
+    <pre><code>import { ThumbnailStrip } from '@stoked-ui/media';
+
+&lt;ThumbnailStrip
+  src="/media/video.mp4"
+  count={8}
+  width={120}
+/&gt;</code></pre>
+
+    <h3>VideoProgressBar</h3>
+    <p>A progress bar overlay for video playback with seek support.</p>
+    <pre><code>import { VideoProgressBar } from '@stoked-ui/media';
+
+&lt;VideoProgressBar
+  duration={120}
+  currentTime={45}
+  onSeek={(time) =&gt; console.log('Seek to', time)}
+/&gt;</code></pre>
+
+    <h2>Props</h2>
+    <h3>MediaCard</h3>
+    <table>
+      <thead>
+        <tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>title</td><td>string</td><td>—</td><td>Display title for the media item</td></tr>
+        <tr><td>src</td><td>string</td><td>—</td><td>Source URL of the media file</td></tr>
+        <tr><td>type</td><td>string</td><td>—</td><td>MIME type of the media file</td></tr>
+        <tr><td>thumbnail</td><td>string</td><td>—</td><td>Thumbnail image URL</td></tr>
+        <tr><td>onClick</td><td>() =&gt; void</td><td>—</td><td>Click handler for the card</td></tr>
+        <tr><td>showThumbnailStrip</td><td>boolean</td><td>true</td><td>Show thumbnail strip for videos</td></tr>
+      </tbody>
+    </table>
+  </main>
+</body>
+</html>

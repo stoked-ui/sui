@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>File Explorer - Stoked UI</title>
+</head>
+<body>
+  <main data-pagefind-body data-pagefind-meta="category:FileExplorer">
+    <h1>File Explorer</h1>
+    <p class="description">A tree-based file browser component for React with drag-and-drop, multi-select, and virtual file system support.</p>
+
+    <h2>Installation</h2>
+    <pre><code>npm install @stoked-ui/file-explorer</code></pre>
+
+    <h2>Overview</h2>
+    <p>The File Explorer component renders a hierarchical file tree with support for expanding and collapsing directories, drag-and-drop reordering, multi-select with keyboard modifiers, and custom icons per file type. Built on top of MUI X Tree View.</p>
+
+    <h2>Key Features</h2>
+    <ul>
+      <li>Hierarchical tree rendering with lazy loading</li>
+      <li>Drag-and-drop file and folder reordering</li>
+      <li>Multi-select with Shift+Click and Cmd+Click</li>
+      <li>Custom icons per file type (image, video, audio, document)</li>
+      <li>Context menu with cut, copy, paste, rename, delete actions</li>
+      <li>Keyboard navigation (arrow keys, Enter to open, Delete to remove)</li>
+      <li>Virtual file system adapter for non-native environments</li>
+    </ul>
+
+    <h2>Basic Usage</h2>
+    <pre><code>import { FileExplorer } from '@stoked-ui/file-explorer';
+
+const files = [
+  { id: '1', name: 'Documents', type: 'folder', children: [
+    { id: '2', name: 'report.pdf', type: 'document' },
+    { id: '3', name: 'photo.jpg', type: 'image' },
+  ]},
+  { id: '4', name: 'video.mp4', type: 'video' },
+];
+
+function App() {
+  return (
+    &lt;FileExplorer
+      items={files}
+      onNodeSelect={(node) =&gt; console.log('Selected:', node)}
+    /&gt;
+  );
+}</code></pre>
+  </main>
+</body>
+</html>

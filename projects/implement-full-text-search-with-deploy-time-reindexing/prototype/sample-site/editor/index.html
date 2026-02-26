@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editor - Stoked UI</title>
+</head>
+<body>
+  <main data-pagefind-body data-pagefind-meta="category:Editor">
+    <h1>Editor</h1>
+    <p class="description">A rich media editing suite combining the Timeline, File Explorer, and Media components into a professional non-linear video editor.</p>
+
+    <h2>Installation</h2>
+    <pre><code>npm install @stoked-ui/editor</code></pre>
+
+    <h2>Overview</h2>
+    <p>The Editor package provides a complete non-linear video editing experience in the browser. It combines the Timeline for sequencing, the File Explorer for asset management, and Media components for playback into a unified editing interface.</p>
+
+    <h2>Architecture</h2>
+    <p>The editor is composed of three main panels:</p>
+    <ul>
+      <li><strong>Asset Panel</strong> — File Explorer for managing media assets (powered by @stoked-ui/file-explorer)</li>
+      <li><strong>Preview Panel</strong> — MediaViewer for real-time preview of the current timeline composition</li>
+      <li><strong>Timeline Panel</strong> — Multi-track timeline for sequencing clips (powered by @stoked-ui/timeline)</li>
+    </ul>
+
+    <h2>Key Features</h2>
+    <ul>
+      <li>Non-linear video editing with multi-track support</li>
+      <li>Real-time preview during timeline scrubbing</li>
+      <li>Asset management with drag-and-drop onto timeline</li>
+      <li>Export to video using WebCodecs API or WASM renderer</li>
+      <li>Project save/load with JSON serialization</li>
+      <li>Keyboard shortcuts for all common operations</li>
+    </ul>
+
+    <h2>Basic Usage</h2>
+    <pre><code>import { Editor } from '@stoked-ui/editor';
+
+function VideoEditorApp() {
+  return (
+    &lt;Editor
+      project={myProject}
+      onExport={(output) =&gt; downloadFile(output)}
+    /&gt;
+  );
+}</code></pre>
+  </main>
+</body>
+</html>

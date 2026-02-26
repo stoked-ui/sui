@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Timeline - Stoked UI</title>
+</head>
+<body>
+  <main data-pagefind-body data-pagefind-meta="category:Timeline">
+    <h1>Timeline</h1>
+    <p class="description">A visual timeline editor component for React with support for tracks, keyframes, and media playback.</p>
+
+    <h2>Installation</h2>
+    <pre><code>npm install @stoked-ui/timeline</code></pre>
+
+    <h2>Overview</h2>
+    <p>The Timeline component provides a professional video-editor-style timeline interface. Drag tracks, add keyframes, and synchronize media playback. Built for complex animation and video editing workflows.</p>
+
+    <h2>Key Features</h2>
+    <ul>
+      <li>Multi-track timeline with drag-and-drop support</li>
+      <li>Keyframe editing with bezier curve interpolation</li>
+      <li>Frame-accurate playback scrubbing</li>
+      <li>Zoom and pan controls</li>
+      <li>Track locking and visibility toggles</li>
+      <li>Undo/redo history stack</li>
+    </ul>
+
+    <h2>Basic Usage</h2>
+    <pre><code>import { Timeline, TimelineTrack } from '@stoked-ui/timeline';
+
+function VideoEditor() {
+  return (
+    &lt;Timeline duration={60} fps={30}&gt;
+      &lt;TimelineTrack name="Video Layer 1" src="/assets/clip1.mp4" /&gt;
+      &lt;TimelineTrack name="Audio Track" src="/assets/audio.mp3" /&gt;
+    &lt;/Timeline&gt;
+  );
+}</code></pre>
+
+    <h2>Props</h2>
+    <table>
+      <thead>
+        <tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>duration</td><td>number</td><td>30</td><td>Total timeline duration in seconds</td></tr>
+        <tr><td>fps</td><td>number</td><td>24</td><td>Frames per second</td></tr>
+        <tr><td>currentTime</td><td>number</td><td>0</td><td>Current playhead position</td></tr>
+        <tr><td>onTimeChange</td><td>(time: number) =&gt; void</td><td>—</td><td>Callback when playhead moves</td></tr>
+        <tr><td>zoom</td><td>number</td><td>1</td><td>Zoom level (1 = fit to container)</td></tr>
+      </tbody>
+    </table>
+  </main>
+</body>
+</html>
