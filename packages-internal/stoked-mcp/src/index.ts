@@ -1,13 +1,18 @@
 #!/usr/bin/env node
 /**
- * @stoked-ui/blog-mcp
+ * @stoked-ui/stoked-mcp
  *
- * MCP (Model Context Protocol) server that exposes blog CRUD operations as tools,
- * enabling AI agents to author and manage blog posts programmatically.
+ * Unified MCP (Model Context Protocol) server for Stoked Next API tools:
+ * - Blog CRUD/publish workflows
+ * - License + Stripe checkout workflows
  *
  * Configuration (environment variables):
- *   BLOG_API_URL   - Base URL of the Blog API (e.g. http://localhost:3001)
- *   BLOG_API_TOKEN - Bearer token for API authentication
+ *   STOKED_API_URL   - Base URL of the Next API (e.g. http://localhost:3000/api)
+ *   STOKED_API_TOKEN - Bearer token for blog authenticated operations
+ *
+ * Compatibility fallbacks:
+ *   NEXT_API_URL, BLOG_API_URL
+ *   BLOG_API_TOKEN
  */
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
@@ -18,12 +23,22 @@ import { z } from 'zod';
 // Configuration
 // ---------------------------------------------------------------------------
 
-const BLOG_API_URL = (process.env.BLOG_API_URL ?? 'http://localhost:3001/v1').replace(/\/$/, '');
-const BLOG_API_TOKEN = process.env.BLOG_API_TOKEN ?? '';
+const STOKED_API_URL = (
+  process.env.STOKED_API_URL
+  ?? process.env.NEXT_API_URL
+  ?? process.env.BLOG_API_URL
+  ?? 'http://localhost:3000/api'
+).replace(/\/$/, '');
 
-if (!BLOG_API_TOKEN) {
+const STOKED_API_TOKEN = (
+  process.env.STOKED_API_TOKEN
+  ?? process.env.BLOG_API_TOKEN
+  ?? ''
+).trim();
+
+if (!STOKED_API_TOKEN) {
   process.stderr.write(
-    '[blog-mcp] WARNING: BLOG_API_TOKEN is not set. Authenticated requests will fail.\n',
+    '[stoked-mcp] WARNING: STOKED_API_TOKEN is not set. Blog write/draft operations will fail.\n',
   );
 }
 
@@ -42,14 +57,14 @@ async function apiRequest<T = unknown>(
   path: string,
   body?: unknown,
 ): Promise<ApiResponse<T>> {
-  const url = `${BLOG_API_URL}${path}`;
+  const url = `${STOKED_API_URL}${path}`;
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     Accept: 'application/json',
   };
 
-  if (BLOG_API_TOKEN) {
-    headers['Authorization'] = `Bearer ${BLOG_API_TOKEN}`;
+  if (STOKED_API_TOKEN) {
+    headers.Authorization = `Bearer ${STOKED_API_TOKEN}`;
   }
 
   const init: RequestInit = { method, headers };
@@ -59,7 +74,6 @@ async function apiRequest<T = unknown>(
 
   const response = await fetch(url, init);
 
-  // 204 No Content has no body
   if (response.status === 204) {
     return { ok: true, status: 204, data: null as T };
   }
@@ -92,26 +106,47 @@ function errorResult(message: string, status?: number) {
   };
 }
 
-async function callApi<T = unknown>(
-  method: string,
-  path: string,
-  body?: unknown,
-) {
+async function callApi<T = unknown>(method: string, path: string, body?: unknown) {
   try {
     const res = await apiRequest<T>(method, path, body);
     if (!res.ok) {
       const errMsg =
-        (res.data as { message?: string })?.message ??
-        `Request failed with status ${res.status}`;
+        (res.data as { message?: string })?.message
+        ?? `Request failed with status ${res.status}`;
       return errorResult(errMsg, res.status);
     }
     return successResult(res.data);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     return errorResult(
-      `Network error: ${message}. Please check that BLOG_API_URL is reachable and retry.`,
+      `Network error: ${message}. Please check that STOKED_API_URL is reachable and retry.`,
     );
   }
+}
+
+function buildBlogQuery(args: {
+  page?: number;
+  limit?: number;
+  status?: 'draft' | 'published' | 'archived';
+  tag?: string;
+  author?: string;
+  search?: string;
+  site?: string;
+  sortBy?: 'date' | 'title' | 'createdAt';
+}) {
+  const params = new URLSearchParams();
+
+  if (args.page !== undefined) params.set('page', String(args.page));
+  if (args.limit !== undefined) params.set('limit', String(args.limit));
+  if (args.status !== undefined) params.set('status', args.status);
+  if (args.tag !== undefined) params.set('tag', args.tag);
+  if (args.author !== undefined) params.set('author', args.author);
+  if (args.search !== undefined) params.set('search', args.search);
+  if (args.site !== undefined) params.set('site', args.site);
+  if (args.sortBy !== undefined) params.set('sortBy', args.sortBy);
+
+  const query = params.toString();
+  return query ? `?${query}` : '';
 }
 
 // ---------------------------------------------------------------------------
@@ -119,7 +154,7 @@ async function callApi<T = unknown>(
 // ---------------------------------------------------------------------------
 
 const server = new McpServer(
-  { name: 'blog-mcp', version: '1.0.0' },
+  { name: 'stoked-mcp', version: '1.0.0' },
   {
     capabilities: {
       tools: {},
@@ -128,7 +163,7 @@ const server = new McpServer(
 );
 
 // ---------------------------------------------------------------------------
-// Tool 1: create_blog_post
+// Blog tools
 // ---------------------------------------------------------------------------
 
 server.registerTool(
@@ -157,17 +192,11 @@ server.registerTool(
       date: z
         .string()
         .optional()
-        .describe('Publication date in ISO 8601 format (e.g. 2026-02-19T00:00:00.000Z)'),
+        .describe('Publication date in ISO 8601 format'),
     }),
   },
-  async (args) => {
-    return callApi('POST', '/blog', args);
-  },
+  async (args) => callApi('POST', '/blog', args),
 );
-
-// ---------------------------------------------------------------------------
-// Tool 2: update_blog_post
-// ---------------------------------------------------------------------------
 
 server.registerTool(
   'update_blog_post',
@@ -186,52 +215,32 @@ server.registerTool(
       date: z.string().optional().describe('New publication date (ISO 8601)'),
     }),
   },
-  async ({ slug, ...fields }) => {
-    return callApi('PATCH', `/blog/${encodeURIComponent(slug)}`, fields);
-  },
+  async ({ slug, ...fields }) => callApi('PATCH', `/blog/${encodeURIComponent(slug)}`, fields),
 );
-
-// ---------------------------------------------------------------------------
-// Tool 3: get_blog_post
-// ---------------------------------------------------------------------------
 
 server.registerTool(
   'get_blog_post',
   {
     title: 'Get Blog Post',
     description:
-      'Retrieve a single blog post by its URL slug. Draft posts require authentication (BLOG_API_TOKEN).',
+      'Retrieve a single blog post by its URL slug. Draft posts require STOKED_API_TOKEN.',
     inputSchema: z.object({
       slug: z.string().describe('URL slug of the post to retrieve'),
     }),
   },
-  async ({ slug }) => {
-    return callApi('GET', `/blog/${encodeURIComponent(slug)}`);
-  },
+  async ({ slug }) => callApi('GET', `/blog/${encodeURIComponent(slug)}`),
 );
-
-// ---------------------------------------------------------------------------
-// Tool 4: list_blog_posts
-// ---------------------------------------------------------------------------
 
 server.registerTool(
   'list_blog_posts',
   {
     title: 'List Blog Posts',
     description:
-      'List and filter blog posts with pagination. Returns paginated results with total count.',
+      'List and filter blog posts with pagination. Public listing is default; set includeDrafts=true to query authenticated /blog.',
     inputSchema: z.object({
       page: z.number().int().min(1).optional().describe('Page number (1-based, default: 1)'),
-      limit: z
-        .number()
-        .int()
-        .min(1)
-        .optional()
-        .describe('Posts per page (default: 20)'),
-      status: z
-        .enum(['draft', 'published', 'archived'])
-        .optional()
-        .describe('Filter by post status'),
+      limit: z.number().int().min(1).optional().describe('Posts per page (default: 20)'),
+      status: z.enum(['draft', 'published', 'archived']).optional().describe('Filter by post status'),
       tag: z.string().optional().describe('Filter by a specific tag'),
       author: z.string().optional().describe('Filter by author identifier'),
       search: z
@@ -239,26 +248,19 @@ server.registerTool(
         .optional()
         .describe('Full-text search across title, description, and tags'),
       site: z.string().optional().describe('Filter by target site'),
+      sortBy: z.enum(['date', 'title', 'createdAt']).optional().describe('Sort field'),
+      includeDrafts: z
+        .boolean()
+        .optional()
+        .describe('When true, uses /blog endpoint (requires STOKED_API_TOKEN)'),
     }),
   },
-  async (args) => {
-    const params = new URLSearchParams();
-    if (args.page !== undefined) params.set('page', String(args.page));
-    if (args.limit !== undefined) params.set('limit', String(args.limit));
-    if (args.status !== undefined) params.set('status', args.status);
-    if (args.tag !== undefined) params.set('tag', args.tag);
-    if (args.author !== undefined) params.set('author', args.author);
-    if (args.search !== undefined) params.set('search', args.search);
-    if (args.site !== undefined) params.set('site', args.site);
-
-    const qs = params.toString();
-    return callApi('GET', qs ? `/blog?${qs}` : '/blog');
+  async ({ includeDrafts, ...queryArgs }) => {
+    const query = buildBlogQuery(queryArgs);
+    const path = includeDrafts ? '/blog' : '/blog/public';
+    return callApi('GET', `${path}${query}`);
   },
 );
-
-// ---------------------------------------------------------------------------
-// Tool 5: publish_blog_post
-// ---------------------------------------------------------------------------
 
 server.registerTool(
   'publish_blog_post',
@@ -270,14 +272,8 @@ server.registerTool(
       slug: z.string().describe('URL slug of the post to publish'),
     }),
   },
-  async ({ slug }) => {
-    return callApi('POST', `/blog/${encodeURIComponent(slug)}/publish`);
-  },
+  async ({ slug }) => callApi('POST', `/blog/${encodeURIComponent(slug)}/publish`),
 );
-
-// ---------------------------------------------------------------------------
-// Tool 6: unpublish_blog_post
-// ---------------------------------------------------------------------------
 
 server.registerTool(
   'unpublish_blog_post',
@@ -288,14 +284,8 @@ server.registerTool(
       slug: z.string().describe('URL slug of the post to unpublish'),
     }),
   },
-  async ({ slug }) => {
-    return callApi('POST', `/blog/${encodeURIComponent(slug)}/unpublish`);
-  },
+  async ({ slug }) => callApi('POST', `/blog/${encodeURIComponent(slug)}/unpublish`),
 );
-
-// ---------------------------------------------------------------------------
-// Tool 7: delete_blog_post
-// ---------------------------------------------------------------------------
 
 server.registerTool(
   'delete_blog_post',
@@ -306,43 +296,96 @@ server.registerTool(
       slug: z.string().describe('URL slug of the post to delete'),
     }),
   },
-  async ({ slug }) => {
-    return callApi('DELETE', `/blog/${encodeURIComponent(slug)}`);
-  },
+  async ({ slug }) => callApi('DELETE', `/blog/${encodeURIComponent(slug)}`),
 );
-
-// ---------------------------------------------------------------------------
-// Tool 8: list_tags
-// ---------------------------------------------------------------------------
 
 server.registerTool(
   'list_tags',
   {
     title: 'List Tags',
-    description:
-      'Get all tags used in published posts, along with the count of posts for each tag.',
+    description: 'Get all tags used in published posts with per-tag post counts.',
     inputSchema: z.object({}),
   },
-  async () => {
-    return callApi('GET', '/blog/tags');
-  },
+  async () => callApi('GET', '/blog/tags'),
 );
-
-// ---------------------------------------------------------------------------
-// Tool 9: list_authors
-// ---------------------------------------------------------------------------
 
 server.registerTool(
   'list_authors',
   {
     title: 'List Authors',
-    description:
-      'Get all authors who have published posts, along with the count of posts for each author.',
+    description: 'Get all authors who have published posts with per-author post counts.',
     inputSchema: z.object({}),
   },
-  async () => {
-    return callApi('GET', '/blog/authors');
+  async () => callApi('GET', '/blog/authors'),
+);
+
+// ---------------------------------------------------------------------------
+// License and product tools
+// ---------------------------------------------------------------------------
+
+server.registerTool(
+  'list_license_products',
+  {
+    title: 'List License Products',
+    description: 'List products available for license checkout.',
+    inputSchema: z.object({}),
   },
+  async () => callApi('GET', '/licenses/products'),
+);
+
+server.registerTool(
+  'create_license_checkout',
+  {
+    title: 'Create License Checkout',
+    description: 'Create a Stripe checkout session URL for a license product.',
+    inputSchema: z.object({
+      productId: z.string().describe('License product identifier'),
+      email: z.string().email().describe('Customer email address'),
+      successUrl: z.string().url().describe('Redirect URL after successful checkout'),
+      cancelUrl: z.string().url().describe('Redirect URL after canceled checkout'),
+    }),
+  },
+  async (args) => callApi('POST', '/licenses/checkout', args),
+);
+
+server.registerTool(
+  'activate_license',
+  {
+    title: 'Activate License',
+    description: 'Activate a license key on a specific hardware ID.',
+    inputSchema: z.object({
+      key: z.string().describe('License key'),
+      hardwareId: z.string().describe('Hardware identifier for activation'),
+      machineName: z.string().optional().describe('Optional machine name'),
+    }),
+  },
+  async (args) => callApi('POST', '/licenses/activate', args),
+);
+
+server.registerTool(
+  'validate_license',
+  {
+    title: 'Validate License',
+    description: 'Validate a license key and hardware ID pair.',
+    inputSchema: z.object({
+      key: z.string().describe('License key'),
+      hardwareId: z.string().describe('Hardware identifier to validate'),
+    }),
+  },
+  async (args) => callApi('POST', '/licenses/validate', args),
+);
+
+server.registerTool(
+  'deactivate_license',
+  {
+    title: 'Deactivate License',
+    description: 'Deactivate an active license from a hardware ID.',
+    inputSchema: z.object({
+      key: z.string().describe('License key'),
+      hardwareId: z.string().describe('Hardware identifier currently bound to the key'),
+    }),
+  },
+  async (args) => callApi('POST', '/licenses/deactivate', args),
 );
 
 // ---------------------------------------------------------------------------
@@ -352,12 +395,14 @@ server.registerTool(
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  process.stderr.write('[blog-mcp] Server started on stdio transport\n');
+  process.stderr.write('[stoked-mcp] Server started on stdio transport\n');
 }
 
-main().catch((err) => {
-  process.stderr.write(`[blog-mcp] Fatal error: ${String(err)}\n`);
-  process.exit(1);
-});
+if (require.main === module) {
+  main().catch((err) => {
+    process.stderr.write(`[stoked-mcp] Fatal error: ${String(err)}\n`);
+    process.exit(1);
+  });
+}
 
 export { server, apiRequest, callApi };

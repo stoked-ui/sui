@@ -1,14 +1,16 @@
 {
-  "name": "@stoked-ui/blog-mcp",
+  "name": "@stoked-ui/stoked-mcp",
   "author": "Brian Stoker",
   "private": false,
   "version": "1.0.0",
-  "description": "MCP (Model Context Protocol) server that exposes blog CRUD operations as tools, enabling AI agents to author and manage blog posts programmatically",
+  "description": "Unified MCP (Model Context Protocol) server for Stoked Next API blog and license/product workflows",
   "keywords": [
     "mcp",
     "model-context-protocol",
     "blog",
-    "cms",
+    "license",
+    "stripe",
+    "products",
     "ai",
     "claude",
     "rest-api"
@@ -20,12 +22,12 @@
     "dist"
   ],
   "bin": {
-    "sui-blog-mcp": "dist/index.js"
+    "stoked-mcp": "dist/index.js"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/stoked-ui/sui",
-    "directory": "packages/sui-blog-mcp"
+    "directory": "packages-internal/stoked-mcp"
   },
   "publishConfig": {
     "access": "public",
