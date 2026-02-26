@@ -1,0 +1,31 @@
+# Pagefind configuration for Stoked UI docs
+# https://pagefind.app/docs/config-options/
+#
+# NOTE: This version of pagefind (v1.4.0) uses CLI flags rather than --config.
+# The build:index script passes these as arguments:
+#   pagefind --site export --output-subdir pagefind
+#
+# This file documents the intended configuration for reference and future
+# versions that may support config file loading.
+
+# The directory containing the built static site
+site: export
+
+# Output subdirectory for the search index (relative to site)
+# This places the index at export/pagefind/ so it deploys alongside the site
+output_subdir: pagefind
+
+# Content areas are marked with data-pagefind-body in the layout components:
+#   - docs/src/modules/components/AppLayoutDocs.js (StyledAppContainer)
+#
+# Navigation, header, footer, and TOC are excluded with data-pagefind-ignore:
+#   - AppFrame.js (StyledAppBar header)
+#   - AppNavDrawer.js (nav sidebar)
+#   - AppTableOfContents.js (TOC nav)
+#   - AppLayoutDocsFooter.js (docs page footer)
+#   - src/layouts/AppHeader.tsx (site header)
+#   - src/layouts/AppFooter.tsx (site footer)
+#   - pages/404.tsx (error page)
+#
+# Product filter is applied via data-pagefind-filter in AppLayoutDocs.js:
+#   - product: Media, Timeline, File Explorer, Editor, Flux, Blog, Consulting, Stoked UI

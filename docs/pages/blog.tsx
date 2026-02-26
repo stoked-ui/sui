@@ -81,7 +81,6 @@ export const getStaticProps = async () => {
       allBlogPosts: mergedPosts,
       tagInfo: mergedTagInfo,
     },
-    revalidate: 60,
   };
 };
 
@@ -223,7 +222,7 @@ export default function Blog(props: InferGetStaticPropsType<typeof getStaticProp
   const { allBlogPosts, tagInfo: rawTagInfo } = props;
   const [firstPost, secondPost, ...otherPosts] = allBlogPosts;
   const tagInfo = { ...rawTagInfo };
-  [firstPost, secondPost].forEach((post) => {
+  [firstPost, secondPost].filter(Boolean).forEach((post) => {
     post.tags.forEach((tag) => {
       if (tagInfo[tag]) {
         tagInfo[tag]! -= 1;
@@ -311,7 +310,7 @@ export default function Blog(props: InferGetStaticPropsType<typeof getStaticProp
               gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
             }}
           >
-            {[firstPost, secondPost].map((post) => (
+            {[firstPost, secondPost].filter(Boolean).map((post) => (
               <Paper
                 key={post.slug}
                 component="li"

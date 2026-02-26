@@ -105,6 +105,20 @@ export default function AppLayoutDocs(props) {
     productName = 'SUI Toolpad';
   } else if (canonicalAs.startsWith('/joy-ui/')) {
     productName = 'Joy UI';
+  } else if (canonicalAs.startsWith('/media/')) {
+    productName = 'Media';
+  } else if (canonicalAs.startsWith('/timeline/')) {
+    productName = 'Timeline';
+  } else if (canonicalAs.startsWith('/file-explorer/')) {
+    productName = 'File Explorer';
+  } else if (canonicalAs.startsWith('/editor/')) {
+    productName = 'Editor';
+  } else if (canonicalAs.startsWith('/flux/')) {
+    productName = 'Flux';
+  } else if (canonicalAs.startsWith('/blog/')) {
+    productName = 'Blog';
+  } else if (canonicalAs.startsWith('/consulting/')) {
+    productName = 'Consulting';
   }
 
   const Layout = disableLayout ? React.Fragment : AppFrame;
@@ -125,7 +139,13 @@ export default function AppLayoutDocs(props) {
             Render the TOCs first to avoid layout shift when the HTML is streamed.
             See https://jakearchibald.com/2014/dont-use-flexbox-for-page-layout/ for more details.
           */}
-          <StyledAppContainer disableAd={disableAd} hasTabs={hasTabs} disableToc={disableToc}>
+          <StyledAppContainer
+            disableAd={disableAd}
+            hasTabs={hasTabs}
+            disableToc={disableToc}
+            data-pagefind-body
+            data-pagefind-filter={`product:${productName}`}
+          >
             {children}
             <AppLayoutDocsFooter tableOfContents={toc} location={location} />
           </StyledAppContainer>

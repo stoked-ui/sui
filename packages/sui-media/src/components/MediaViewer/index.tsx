@@ -174,7 +174,7 @@ export function MediaViewer({
   }, []);
 
   // Adaptive bitrate
-  const fallbackUrl = item.id ? getMediaUrl('videos', item.id) : item.url || item.file;
+  const fallbackUrl = item?.id ? getMediaUrl('videos', item.id) : item?.url || item?.file;
   const {
     currentSrc: adaptiveSrc,
     qualityState,
@@ -182,7 +182,7 @@ export function MediaViewer({
     enableAutoMode,
     isActive: isAdaptiveActive,
   } = useAdaptiveBitrate({
-    tracks: item.tracks,
+    tracks: item?.tracks,
     videoRef: videoRef as React.RefObject<HTMLVideoElement | null>,
     enabled: isVideo,
     fallbackUrl: fallbackUrl || undefined,

@@ -29,7 +29,7 @@ export default function AppFooter(props: AppFooterProps) {
   const isConsultingPage = router.pathname.startsWith('/consulting');
 
   return (
-    <Container component="footer">
+    <Container component="footer" data-pagefind-ignore>
       <Box
         sx={{
           py: { xs: 4, sm: 8 },

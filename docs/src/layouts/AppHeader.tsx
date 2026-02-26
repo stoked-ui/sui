@@ -128,7 +128,7 @@ export default function AppHeader(props: AppHeaderProps) {
   const isConsultingPage = router.pathname.startsWith('/consulting');
 
   return (
-    <Header>
+    <Header data-pagefind-ignore>
       <GlobalStyles
         styles={{
           ':root': {

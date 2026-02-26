@@ -5,7 +5,7 @@ title: Preferences
 
 # Preferences
 
-<p class="description">The Preferences window provides full control over Always Listening's behavior, audio settings, agent configurations, and third-party integrations -- all from a tabbed GUI instead of manual config file edits.</p>
+<p class="description">Configure Always Listening behavior, audio settings, agent configurations, and third-party integrations from a tabbed GUI instead of manual config file edits.</p>
 
 ## Opening Preferences
 

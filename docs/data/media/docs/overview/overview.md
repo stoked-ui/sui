@@ -7,7 +7,7 @@ packageName: '@stoked-ui/media'
 
 # Overview
 
-<p class="description">Comprehensive media management and component library for React with framework-agnostic abstractions, modern file handling APIs, and reactive media UI components.</p>
+<p class="description">Comprehensive media management library for React with framework-agnostic abstractions, modern file handling APIs, and reactive UI components.</p>
 
 {{"component": "modules/components/ComponentLinkHeader"}}
 

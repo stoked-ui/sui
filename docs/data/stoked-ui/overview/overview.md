@@ -4,7 +4,7 @@ title: Overview
 
 # Overview
 
-<p class="description">Stoked UI's goal is to provide a collection of advanced React UI components for complex use cases. Built exactly the same way as MUI Core the experience will be familiar.</p>
+<p class="description">Stoked UI provides advanced React UI components for complex use cases, built the same way as MUI Core for a familiar developer experience.</p>
 
 ## Introduction
 

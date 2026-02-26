@@ -266,7 +266,7 @@ export default withDocsInfra({
       ? `Basic ${Buffer.from(process.env.GH_AUTH).toString('base64')}`
       : '',
   },
-  distDir: 'export',
+  distDir: process.env.NEXT_DIST_DIR || 'export',
   // Next.js provides a `defaultPathMap` argument, we could simplify the logic.
   // However, we don't in order to prevent any regression in the `findPages()` method.
   // @ts-ignore

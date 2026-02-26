@@ -468,7 +468,7 @@ export default function AppNavDrawer(props) {
 
   return (
     <ThemeProvider theme={transitionTheme}>
-      <nav className={className} aria-label={t('mainNavigation')}>
+      <nav className={className} aria-label={t('mainNavigation')} data-pagefind-ignore>
         {swipeableDrawer ? (
           <SwipeableDrawer
             disableBackdropTransition={!iOS}

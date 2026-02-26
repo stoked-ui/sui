@@ -390,7 +390,7 @@ export default function AppLayoutDocsFooter(props) {
 
   return (
     <React.Fragment>
-      <Stack component="footer" direction="column" spacing={2.5} sx={{ my: 6 }}>
+      <Stack component="footer" direction="column" spacing={2.5} sx={{ my: 6 }} data-pagefind-ignore>
         <Stack
           direction={{ xs: 'column', sm: 'row' }}
           alignItems="center"

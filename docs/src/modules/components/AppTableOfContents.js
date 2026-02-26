@@ -247,7 +247,7 @@ export default function AppTableOfContents(props) {
   );
 
   return (
-    <Nav aria-label={t('pageTOC')}>
+    <Nav aria-label={t('pageTOC')} data-pagefind-ignore>
       <TableOfContentsBanner />
       <NoSsr>
         {showJobAd && (

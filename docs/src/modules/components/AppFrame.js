@@ -178,7 +178,7 @@ export default function AppFrame(props) {
       <CssBaseline />
       <SkipLink />
       <MarkdownLinks />
-      <StyledAppBar disablePermanent={disablePermanent}>
+      <StyledAppBar disablePermanent={disablePermanent} data-pagefind-ignore>
         <GlobalStyles
           styles={{
             ':root': {
