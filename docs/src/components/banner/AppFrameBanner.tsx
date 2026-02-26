@@ -3,7 +3,7 @@ import { alpha } from '@mui/material/styles';
 import { Link } from '@stoked-ui/docs';
 import FEATURE_TOGGLE from 'docs/src/featureToggle';
 import PageContext from 'docs/src/modules/components/PageContext';
-import { convertProductIdToName } from 'docs/src/modules/components/AppSearch';
+import { convertProductIdToName } from 'docs/src/modules/utils/productNames';
 
 export default function AppFrameBanner() {
   if (!FEATURE_TOGGLE.enable_docsnav_banner) {

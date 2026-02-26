@@ -81,13 +81,13 @@ export default function ClassesTable(props: ClassesTableProps) {
 
             return (
               <tr key={className} id={getHash({ componentName, className: key })}>
-                <td className="algolia-lvl3">
+                <td>
                   <span className="class-name">.{className}</span>
                 </td>
                 {displayClassKeys && (
                   <td>{!isGlobal && <span className="class-key">{key}</span>}</td>
                 )}
-                <td className="algolia-content">
+                <td>
                   <span
                     dangerouslySetInnerHTML={{
                       __html: description || '',

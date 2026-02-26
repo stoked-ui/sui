@@ -324,7 +324,7 @@ export default function AppNavDrawerItem(props) {
         subheader={subheader}
         expandable={expandable}
         activeClassName={initiallyExpanded ? null : 'app-drawer-active'}
-        className={topLevel ? 'algolia-lvl0' : null}
+        className={null}
         onClick={handleClick}
         {...linkProps}
       >

@@ -83,7 +83,6 @@ export default function ComponentPageTabs(props) {
         <StyledTab component={Link} href={demosHref} label={t('api-docs.demos')} value="" />
         {headers.components?.length > 0 && (
           <StyledTab
-            className="skip-algolia-crawler" // For more details, see https://github.com/mui/material-ui/pull/37539.
             component={Link}
             href={componentsHref}
             label={t('api-docs.componentsApi')}
@@ -92,7 +91,6 @@ export default function ComponentPageTabs(props) {
         )}
         {headers.hooks && headers.hooks.length > 0 && (
           <StyledTab
-            className="skip-algolia-crawler" // For more details, see https://github.com/mui/material-ui/pull/37539.
             component={Link}
             href={hooksHref}
             label={t('api-docs.hooksApi')}

@@ -101,7 +101,7 @@ function PropDescription(props: { description: string }) {
 
   return (
     <ComponentToRender
-      className="prop-list-description algolia-content" // This className is used by Algolia
+      className="prop-list-description"
       dangerouslySetInnerHTML={{
         __html: description,
       }}

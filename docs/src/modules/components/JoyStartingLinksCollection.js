@@ -47,8 +47,6 @@ export default function JoyStartingLinksCollection() {
       {content.map(({ icon, title, description, link }) => (
         <Grid key={title} xs={12} sm={6}>
           <InfoCard
-            classNameTitle="algolia-lvl3"
-            classNameDescription="algolia-content"
             link={link}
             title={title}
             icon={icon}

@@ -195,7 +195,7 @@ export default function ExpandableApiItem(props: ExpandableApiItemProps) {
           </svg>
         </a>
         <span
-          className="MuiApi-item-title algolia-lvl3" // This className is used by Algolia
+          className="MuiApi-item-title"
         >
           {title}
         </span>
