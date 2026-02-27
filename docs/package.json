@@ -29,6 +29,7 @@
   "dependencies": {
     "@aws-sdk/client-acm": "^3.731.1",
     "@aws-sdk/client-s3": "^3.731.1",
+    "@aws-sdk/client-ses": "^3.731.1",
     "@babel/core": "^7.23.9",
     "@babel/plugin-transform-object-assign": "^7.23.3",
     "@babel/runtime-corejs2": "^7.23.9",
@@ -94,6 +95,7 @@
     "react-simple-code-editor": "^0.13.1",
     "react-swipeable-views": "^0.14.0",
     "react-transition-group": "^4.4.5",
+    "stripe": "^17.0.0",
     "sst": "^3.6.19",
     "styled-components": "^6.1.8",
     "stylis": "4.2.0",

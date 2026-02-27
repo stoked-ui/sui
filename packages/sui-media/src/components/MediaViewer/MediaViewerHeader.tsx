@@ -19,10 +19,12 @@ import type { MediaItem } from './MediaViewer.types';
 // Styled Components
 // ============================================================================
 
-const TopRightControls = styled(Box)(({ theme }) => ({
+const TopRightControls = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'fullscreenState',
+})<{ fullscreenState?: 0 | 1 | 2 }>(({ theme, fullscreenState = 0 }) => ({
   position: 'absolute',
-  top: '12px',
-  right: '12px',
+  top: fullscreenState >= 1 ? '8px' : '12px',
+  right: fullscreenState >= 1 ? '12px' : 'calc(2.5vw + 12px)',
   display: 'flex',
   alignItems: 'center',
   gap: '8px',
@@ -48,19 +50,23 @@ const TopRightButton = styled(IconButton)({
   },
 });
 
-const VideoTitleBar = styled(Box)(({ theme }) => ({
+const VideoTitleBar = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'fullscreenState',
+})<{ fullscreenState?: 0 | 1 | 2 }>(({ theme, fullscreenState = 0 }) => ({
   position: 'absolute',
   top: 0,
-  left: 0,
-  right: 0,
-  padding: '0.75rem',
-  background: 'rgba(0, 0, 0, 0.7)',
+  left: '50%',
+  transform: 'translateX(-50%)',
+  padding: '1rem 1rem 2rem 1rem',
+  background: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.6), transparent)',
   color: 'white',
   display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'flex-start',
   alignItems: 'flex-start',
-  width: '100%',
-  borderTopLeftRadius: '8px',
-  borderTopRightRadius: '8px',
+  width: fullscreenState >= 1 ? '100vw' : '95vw',
+  maxWidth: '100%',
+  borderRadius: fullscreenState >= 1 ? '0' : '8px 8px 0 0',
   boxSizing: 'border-box',
   opacity: 1,
   transition: 'opacity 0.3s ease-in-out',
@@ -71,28 +77,40 @@ const VideoTitleBar = styled(Box)(({ theme }) => ({
     pointerEvents: 'none',
   },
   [theme.breakpoints.down('sm')]: {
-    padding: '0.5rem',
+    padding: '0.75rem 0.75rem 1.5rem 0.75rem',
+    width: fullscreenState >= 1 ? '100vw' : '98vw',
   },
 }));
 
-const MediaInfo = styled(Box)(({ theme }) => ({
-  position: 'relative',
-  width: '100%',
-  maxWidth: '90vw',
-  backgroundColor: '#121212',
+const MediaInfo = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'fullscreenState',
+})<{ fullscreenState?: 0 | 1 | 2 }>(({ theme, fullscreenState = 0 }) => ({
+  position: 'absolute',
+  top: 0,
+  left: '50%',
+  transform: 'translateX(-50%)',
+  width: fullscreenState >= 1 ? '100vw' : '95vw',
+  maxWidth: '100%',
+  background: 'linear-gradient(to bottom, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.6), transparent)',
   color: 'white',
-  padding: '1rem',
+  padding: '1rem 1rem 2rem 1rem',
   display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  borderRadius: '8px',
-  marginTop: '8px',
+  flexDirection: 'column',
+  justifyContent: 'flex-start',
+  alignItems: 'flex-start',
+  borderRadius: fullscreenState >= 1 ? '0' : '8px 8px 0 0',
   boxSizing: 'border-box',
+  zIndex: 5,
+  pointerEvents: 'none',
+  opacity: 1,
+  transition: 'opacity 0.3s ease-in-out',
+  '&.controls-hidden': {
+    opacity: 0,
+  },
   [theme.breakpoints.down('sm')]: {
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    gap: '0.5rem',
-    padding: '0.75rem',
+    padding: '0.75rem 0.75rem 1.5rem 0.75rem',
+    width: fullscreenState >= 1 ? '100vw' : '98vw',
+    gap: '0.25rem',
   },
 }));
 
@@ -157,7 +175,7 @@ export function MediaViewerHeader({
   return (
     <>
       {/* Close button - always visible */}
-      <TopRightControls>
+      <TopRightControls fullscreenState={fullscreenState}>
         {fullscreenState >= 1 && (
           <TopRightButton onClick={onExitTheaterMode} aria-label="Exit Theater Mode" sx={{ mr: 1 }}>
             <Typography variant="caption" sx={{ fontSize: '10px', fontWeight: 'bold' }}>
@@ -172,7 +190,10 @@ export function MediaViewerHeader({
 
       {/* Video title bar - only for videos */}
       {isVideo && (
-        <VideoTitleBar className={!showControls ? 'controls-hidden' : ''}>
+        <VideoTitleBar
+          className={!showControls ? 'controls-hidden' : ''}
+          fullscreenState={fullscreenState}
+        >
           <Box sx={{ width: '100%' }}>
             <Typography variant="h6" sx={{ mb: 0.5, textAlign: 'left' }}>
               {item.title || 'Untitled'}
@@ -202,19 +223,32 @@ export function MediaViewerHeader({
 
       {/* Media info - only for images */}
       {!isVideo && showMetadata && (
-        <MediaInfo className="media-info">
-          <Box>
-            <Typography variant="h6">{item.title || 'Untitled'}</Typography>
-            {item.description && <Typography variant="body2">{item.description}</Typography>}
-          </Box>
-          <Box display="flex" alignItems="center" gap={1}>
-            {item.views !== undefined && (
-              <Typography variant="body2">
-                {item.views} {item.views === 1 ? 'view' : 'views'}
+        <MediaInfo
+          className={!showControls ? 'controls-hidden' : ''}
+          fullscreenState={fullscreenState}
+        >
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, width: '100%' }}>
+            <Typography variant="h6" sx={{ textAlign: 'left' }}>{item.title || 'Untitled'}</Typography>
+            {(item.views !== undefined || item.createdAt) && (
+              <Typography
+                variant="body2"
+                sx={{ fontSize: '0.875rem', opacity: 0.8, textAlign: 'left' }}
+              >
+                {item.views !== undefined && item.createdAt
+                  ? `${item.views} views · ${formatDate(item.createdAt)}`
+                  : item.views !== undefined
+                    ? `${item.views} views`
+                    : item.createdAt
+                      ? formatDate(item.createdAt)
+                      : null}
               </Typography>
             )}
-            {item.createdAt && <Typography variant="body2">{formatDate(item.createdAt)}</Typography>}
           </Box>
+          {item.description && (
+            <Typography variant="body2" sx={{ mt: 0.5, textAlign: 'left' }}>
+              {item.description}
+            </Typography>
+          )}
         </MediaInfo>
       )}
     </>

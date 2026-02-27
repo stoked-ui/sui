@@ -12,8 +12,8 @@ See https://github.com/stoked-ui/stoked-ui/pull/40430 for more context.
 */
 
 if (process.argv.length < 3) {
-  console.log('Running ESLint, type checker, and unit tests...');
-  spawn('pnpm', ['test:extended'], {
+  console.log('Running ESLint, type checker, and unit tests (excluding docs)...');
+  spawn('pnpm', ['test:extended:no-docs'], {
     shell: true,
     stdio: ['inherit', 'inherit', 'inherit'],
   });

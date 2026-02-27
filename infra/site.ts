@@ -18,7 +18,9 @@ export const createSite = (domainInfo: DomainInfo) => {
   return new sst.aws.StaticSite(domainInfo.resourceName, {
     ...buildData,
     domain: {
-      name: domainInfo.domains[0], aliases: domainInfo.domains.slice(1),
+      name: domainInfo.domains[0],
+      aliases: domainInfo.domains.slice(1),
+      dns: sst.aws.dns({ zone: domainInfo.primaryZoneId }),
     }, environment: {
       runtime: "nodejs20.x", // Match the Node.js runtime
     }, edge: {

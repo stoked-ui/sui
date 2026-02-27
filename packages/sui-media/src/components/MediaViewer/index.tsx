@@ -28,25 +28,56 @@ import { noOpKeyboardShortcuts } from '../../abstractions/KeyboardShortcuts';
 // ============================================================================
 
 const ViewerDialog = styled(Dialog)({
+  '& .MuiBackdrop-root': {
+    backgroundColor: 'rgba(0, 0, 0, 0.925)',
+  },
   '& .MuiDialog-paper': {
     maxWidth: 'none',
     maxHeight: 'none',
     margin: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.95)',
+    backgroundColor: 'rgba(0, 0, 0, 0.925)',
+    boxShadow: 'none',
     overflow: 'hidden',
   },
 });
 
-const ViewerContainer = styled(Box)({
+const ViewerContainer = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'fullscreenState' && prop !== 'hideNavbar',
+})<{ fullscreenState?: 0 | 1 | 2; hideNavbar?: boolean }>(({ fullscreenState = 0, hideNavbar = false }) => ({
+  width: '100%',
+  height: '100vh',
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  justifyContent: 'center',
-  width: '100vw',
-  height: '100vh',
+  justifyContent: 'flex-start',
   position: 'relative',
+  backgroundColor: 'rgba(0, 0, 0, 0.925)',
+  paddingTop: hideNavbar ? (fullscreenState >= 1 ? 8 : 16) : 64 + (fullscreenState >= 1 ? 8 : 16),
+  paddingLeft: fullscreenState >= 1 ? 8 : 16,
+  paddingRight: fullscreenState >= 1 ? 8 : 16,
+  paddingBottom: fullscreenState >= 1 ? 8 : 16,
+  boxSizing: 'border-box',
+  WebkitOverflowScrolling: 'touch',
   overflow: 'hidden',
-});
+}));
+
+const MediaContainer = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'fullscreenState',
+})<{ fullscreenState?: 0 | 1 | 2 }>(({ theme, fullscreenState = 0 }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'flex-start',
+  width: '100%',
+  maxWidth: fullscreenState >= 1 ? '100vw' : '95vw',
+  minHeight: 0,
+  flex: '1 1 auto',
+  boxSizing: 'border-box',
+  position: 'relative',
+  [theme.breakpoints.down('sm')]: {
+    maxWidth: fullscreenState >= 1 ? '100vw' : '98vw',
+  },
+}));
 
 // ============================================================================
 // Component
@@ -90,8 +121,11 @@ export function MediaViewer({
   const _enableQueue = enableQueue ?? true;
   const _enableKeyboardShortcuts = enableKeyboardShortcuts ?? true;
 
+  // Fallback for missing item prop
+  const safeInitialItem = initialItem ?? { id: '', mediaType: 'image' as const };
+
   // API state management
-  const [item, setItem] = React.useState<MediaItem>(initialItem);
+  const [item, setItem] = React.useState<MediaItem>(safeInitialItem);
   const [isLoadingMedia, setIsLoadingMedia] = React.useState(false);
   const [mediaLoadError, setMediaLoadError] = React.useState<string | undefined>();
 
@@ -190,11 +224,11 @@ export function MediaViewer({
 
   // Load media from API when item changes (if API client is available)
   React.useEffect(() => {
-    // Reset item to initialItem when it changes
-    setItem(initialItem);
+    // Reset item to safeInitialItem when it changes
+    setItem(safeInitialItem);
 
     // Skip if no API client or server features disabled
-    if (!apiClient || !enableServerFeatures || !initialItem.id) {
+    if (!apiClient || !enableServerFeatures || !safeInitialItem.id) {
       setMediaLoadError(undefined);
       setIsLoadingMedia(false);
       return;
@@ -207,14 +241,14 @@ export function MediaViewer({
 
     const loadMedia = async () => {
       try {
-        const mediaData = await apiClient.getMedia(initialItem.id);
+        const mediaData = await apiClient.getMedia(safeInitialItem.id);
 
         if (cancelled) return;
 
         // Map API response to MediaItem interface
         const loadedItem: MediaItem = {
-          ...initialItem,
-          id: String(mediaData._id || initialItem.id),
+          ...safeInitialItem,
+          id: String(mediaData._id || safeInitialItem.id),
           title: mediaData.title,
           description: mediaData.description,
           url: mediaData.file,
@@ -258,7 +292,7 @@ export function MediaViewer({
     return () => {
       cancelled = true;
     };
-  }, [initialItem, apiClient, enableServerFeatures, onMediaLoaded, onMetadataLoaded]);
+  }, [safeInitialItem, apiClient, enableServerFeatures, onMediaLoaded, onMetadataLoaded]);
 
   // Reset loaded state when item changes
   React.useEffect(() => {
@@ -313,11 +347,15 @@ export function MediaViewer({
       fullScreen
       PaperProps={{
         sx: {
-          backgroundColor: 'rgba(0, 0, 0, 0.95)',
+          backgroundColor: 'rgba(0, 0, 0, 0.925)',
         },
       }}
     >
-      <ViewerContainer onMouseMove={showControlsWithTimeout}>
+      <ViewerContainer
+        onMouseMove={showControlsWithTimeout}
+        fullscreenState={legacyState}
+        hideNavbar={hideNavbar}
+      >
         {/* Loading state */}
         {isLoadingMedia && (
           <Box
@@ -360,7 +398,7 @@ export function MediaViewer({
 
         {/* Main content (show if not loading or if error with fallback) */}
         {!isLoadingMedia && (
-          <>
+          <MediaContainer fullscreenState={legacyState}>
             <MediaViewerHeader
               item={item}
               isVideo={isVideo}
@@ -406,7 +444,7 @@ export function MediaViewer({
                 <NextUpHeader queueCount={queueCount} show={true} />
               </Box>
             )}
-          </>
+          </MediaContainer>
         )}
       </ViewerContainer>
     </ViewerDialog>

@@ -34,7 +34,7 @@ export const getStaticProps = async () => {
 
   let apiPosts: BlogPost[] = [];
   try {
-    const apiUrl = process.env.BLOG_API_URL || 'http://localhost:3001/v1';
+    const apiUrl = (process.env.BLOG_API_URL || process.env.NEXT_PUBLIC_BLOG_API_URL || 'http://localhost:3000/api').replace(/\/$/, '');
     const res = await fetch(`${apiUrl}/blog/public?site=stoked-ui.com`);
     if (res.ok) {
       const json = await res.json();
@@ -81,7 +81,6 @@ export const getStaticProps = async () => {
       allBlogPosts: mergedPosts,
       tagInfo: mergedTagInfo,
     },
-    revalidate: 60,
   };
 };
 

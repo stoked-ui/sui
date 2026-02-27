@@ -193,7 +193,7 @@ export default function HeaderNavBar({ auth, managedProducts = [] }: HeaderNavBa
 
   // Admin: fetch all products (including non-live)
   const [adminProducts, setAdminProducts] = React.useState<ManagedProduct[]>([]);
-  const adminProductsMenuRef = React.useRef<HTMLButtonElement>(null);
+  const adminProductsMenuRef = React.useRef<HTMLAnchorElement>(null);
   const clientProductsMenuRef = React.useRef<HTMLButtonElement>(null);
   const [adminMenuOpen, setAdminMenuOpen] = React.useState(false);
   const [clientMenuOpen, setClientMenuOpen] = React.useState(false);

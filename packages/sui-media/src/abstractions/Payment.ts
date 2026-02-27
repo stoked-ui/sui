@@ -231,11 +231,12 @@ export function createMockPayment(options?: {
 }): IPayment {
   const callbacks: PaymentCompleteCallback[] = [];
   const payments = new Map<string, PaymentRequest>();
+  let paymentSequence = 0;
 
   return {
     requestPayment: async (opts) => {
       const payment: PaymentRequest = {
-        paymentId: `mock-${Date.now()}`,
+        paymentId: `mock-${Date.now()}-${paymentSequence++}`,
         paymentRequest: `mock-payment-request-${opts.resourceId}`,
         expiresAt: new Date(Date.now() + 3600000),
         metadata: opts.metadata,

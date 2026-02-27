@@ -37,7 +37,15 @@ export const formatDuration = (seconds: number): string => {
  * @returns Total seconds
  */
 export const timeCodeToSeconds = (timecode: string): number => {
+  if (!timecode) {
+    return 0;
+  }
+
   const parts = timecode.split(':').map(Number);
+  if (parts.some((part) => Number.isNaN(part))) {
+    return Number.NaN;
+  }
+
   if (parts.length === 3) {
     return parts[0] * 3600 + parts[1] * 60 + parts[2];
   }

@@ -88,7 +88,13 @@ jobs:
         uses: pnpm/action-setup@v4 # latest
       - run: pnpm i
       - run: pnpm build:all
+      - run: pnpm --filter @stoked-ui/media-api build
       - name: Deploy
+        env:
+          ROOT_DOMAIN: stoked-ui.com,stokedconsulting.com,stokedui.com
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
         run: |
           sst install
-          sst deploy --stage prod --verbose
+          sst deploy --stage production --verbose

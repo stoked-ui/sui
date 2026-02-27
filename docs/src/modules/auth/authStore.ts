@@ -142,7 +142,8 @@ export async function loginWithGooglePayload(email: string, name: string, pictur
   }
 
   const now = new Date();
-  const newUser: Omit<User, '_id'> = {
+  const newUser: User = {
+    _id: new ObjectId(),
     email: normalizedEmail,
     name,
     role: determineRole(normalizedEmail),
@@ -151,8 +152,8 @@ export async function loginWithGooglePayload(email: string, name: string, pictur
     createdAt: now,
     updatedAt: now,
   };
-  const result = await users.insertOne(newUser);
-  return generateAuthResult({ ...newUser, _id: result.insertedId } as User, picture);
+  await users.insertOne(newUser);
+  return generateAuthResult(newUser, picture);
 }
 
 export function verifyToken(token: string): { sub: string; email: string; role: UserRole; name: string; clientId?: string } {

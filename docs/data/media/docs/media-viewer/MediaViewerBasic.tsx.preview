@@ -1,4 +1,1 @@
-<MediaViewerBasic
-  items={mediaItems}
-  initialIndex={0}
-/>
+<MediaViewerBasic />

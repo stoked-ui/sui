@@ -423,7 +423,7 @@ describe('KeyboardShortcuts Abstraction', () => {
 
       expect(def.key).toBe('Space');
       expect(def.description).toBe('Play/Pause');
-      expect(def.handler).toBeInstanceOf(Function);
+      expect(typeof def.handler).toBe('function');
     });
 
     it('should define shortcut with category', () => {

@@ -22,25 +22,31 @@ import { QualitySelector } from './QualitySelector';
 // Styled Components
 // ============================================================================
 
-const VideoWithTitleContainer = styled(Box)({
+const VideoWithTitleContainer = styled(Box, {
+  shouldForwardProp: (prop) => prop !== 'fullscreenState',
+})<{ fullscreenState?: 0 | 1 | 2 }>(({ fullscreenState = 0 }) => ({
   display: 'flex',
   flexDirection: 'column',
   position: 'relative',
   alignItems: 'center',
+  justifyContent: 'center',
   width: '100%',
   maxWidth: '100%',
-  height: 'auto',
-  minHeight: '400px',
+  height: '100%',
+  maxHeight: '100%',
+  minHeight: '300px',
   flex: '1 1 auto',
   boxSizing: 'border-box',
-});
+  borderRadius: fullscreenState >= 1 ? '0' : '8px',
+  overflow: 'hidden',
+}));
 
 const StyledVideo = styled('video', {
   shouldForwardProp: (prop) => prop !== 'fullscreenState' && prop !== 'noPreview',
 })<{ fullscreenState?: 0 | 1 | 2; noPreview?: boolean }>(({ fullscreenState, noPreview }) => ({
-  width: fullscreenState === 1 ? '100vw' : '100%',
-  maxWidth: fullscreenState === 1 ? '100vw' : '100%',
-  height: 'auto',
+  width: '100%',
+  maxWidth: '100%',
+  height: '100%',
   maxHeight:
     (fullscreenState ?? 0) === 2
       ? '100vh'
@@ -49,7 +55,7 @@ const StyledVideo = styled('video', {
         : noPreview
           ? '90vh'
           : '80vh',
-  minHeight: '300px',
+  minHeight: '200px',
   borderRadius: (fullscreenState ?? 0) >= 1 ? '0' : '8px',
   objectFit: 'contain',
   backgroundColor: 'black',
@@ -61,7 +67,7 @@ const StyledImage = styled('img', {
 })<{ fullscreenState?: 0 | 1 | 2; noPreview?: boolean }>(({ fullscreenState, noPreview }) => ({
   width: '100%',
   maxWidth: '100%',
-  height: 'auto',
+  height: '100%',
   maxHeight:
     (fullscreenState ?? 0) === 2
       ? '100vh'
@@ -70,8 +76,8 @@ const StyledImage = styled('img', {
         : noPreview
           ? '90vh'
           : '80vh',
-  minHeight: '300px',
-  borderRadius: (fullscreenState ?? 0) >= 1 ? '0' : '0 0 8px 8px',
+  minHeight: '200px',
+  borderRadius: (fullscreenState ?? 0) >= 1 ? '0' : '8px',
   objectFit: 'contain',
   backgroundColor: 'black',
   display: 'block',
@@ -82,10 +88,10 @@ const VideoSkeleton = styled(Skeleton, {
 })<{ fullscreenState?: 0 | 1 | 2; noPreview?: boolean }>(({ theme, fullscreenState, noPreview }) => ({
   width: '100%',
   maxWidth: '100%',
-  height: 'auto',
+  height: '100%',
   maxHeight:
     fullscreenState === 2 ? '100vh' : (fullscreenState ?? 0) === 1 ? '95vh' : noPreview ? '90vh' : '80vh',
-  minHeight: '300px',
+  minHeight: '200px',
   aspectRatio: '16/9',
   borderRadius: (fullscreenState ?? 0) >= 1 ? '0' : '8px',
   transform: 'none',
@@ -107,6 +113,8 @@ const NavigationButton = styled(IconButton)(({ theme }) => ({
   color: 'white',
   backgroundColor: 'rgba(0, 0, 0, 0.5)',
   zIndex: 10,
+  width: 36,
+  height: 36,
   opacity: 1,
   transition: 'opacity 0.3s ease-in-out',
   '&.controls-hidden': {
@@ -122,18 +130,24 @@ const NavigationButton = styled(IconButton)(({ theme }) => ({
 }));
 
 const PrevButton = styled(NavigationButton)({
-  left: -56,
+  left: 12,
   justifyContent: 'center',
   alignItems: 'center',
   '& svg': {
-    transform: 'translateX(4px)',
+    width: 18,
+    height: 18,
+    transform: 'translateX(1px)',
   },
 });
 
 const NextButton = styled(NavigationButton)({
-  right: -56,
+  right: 12,
   justifyContent: 'center',
   alignItems: 'center',
+  '& svg': {
+    width: 18,
+    height: 18,
+  },
 });
 
 // ============================================================================
@@ -232,7 +246,7 @@ export function MediaViewerPrimary({
   };
 
   return (
-    <VideoWithTitleContainer>
+    <VideoWithTitleContainer fullscreenState={fullscreenState}>
       {/* Navigation buttons */}
       {canGoPrev && (
         <PrevButton
@@ -281,11 +295,25 @@ export function MediaViewerPrimary({
           <Box
             sx={{
               position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
               width: '100%',
-              height: 'auto',
+              height:
+                fullscreenState === 2
+                  ? '100%'
+                  : fullscreenState === 1
+                    ? '95vh'
+                    : showPreviewCards
+                      ? '80vh'
+                      : '90vh',
+              maxHeight: '100%',
               opacity: videoLoaded ? 1 : 0,
               transition: 'opacity 0.3s ease-in-out',
               pointerEvents: videoLoaded ? 'auto' : 'none',
+              borderRadius: fullscreenState >= 1 ? '0' : '8px',
+              overflow: 'hidden',
+              backgroundColor: 'black',
             }}
             onDoubleClick={(e) => {
               e.preventDefault();

@@ -5,9 +5,7 @@ import { MediaModule } from './media/media.module';
 import { HealthModule } from './health/health.module';
 import { UploadsModule } from './uploads/uploads.module';
 import { AuthModule } from './auth/auth.module';
-import { BlogModule } from './blog/blog.module';
 import { InvoicesModule } from './invoices/invoices.module';
-import { LicenseModule } from './license/license.module';
 import { NostrModule } from './nostr/nostr.module';
 
 @Module({
@@ -21,10 +19,7 @@ import { NostrModule } from './nostr/nostr.module';
     MediaModule,
     HealthModule,
     UploadsModule,
-    BlogModule,
     InvoicesModule,
-    // LicenseModule provides Stripe-powered license key management
-    LicenseModule,
     // NostrModule polls Nostr relays for NIP-23 long-form content (background service)
     NostrModule,
   ],

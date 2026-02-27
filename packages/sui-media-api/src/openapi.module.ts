@@ -10,8 +10,6 @@ import { UploadsController } from './uploads/uploads.controller';
 import { UploadsService } from './uploads/uploads.service';
 import { AuthController } from './auth/auth.controller';
 import { AuthService } from './auth/auth.service';
-import { BlogController } from './blog/blog.controller';
-import { BlogService } from './blog/blog.service';
 import { InvoicesController } from './invoices/invoices.controller';
 import { InvoicesService } from './invoices/invoices.service';
 import { AuthGuard } from './media/guards/auth.guard';
@@ -42,7 +40,6 @@ function createNoopStub(): any {
     MediaController,
     UploadsController,
     AuthController,
-    BlogController,
     InvoicesController,
   ],
   providers: [
@@ -50,7 +47,6 @@ function createNoopStub(): any {
     { provide: ThumbnailGenerationService, useValue: createNoopStub() },
     { provide: UploadsService, useValue: createNoopStub() },
     { provide: AuthService, useValue: createNoopStub() },
-    { provide: BlogService, useValue: createNoopStub() },
     { provide: InvoicesService, useValue: createNoopStub() },
     AuthGuard,
     ApiKeyGuard,

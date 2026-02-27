@@ -15,7 +15,7 @@ import { useRouter } from 'next/router';
 import BlogEditorForm, { BlogPostFormData } from 'docs/src/modules/components/BlogEditorForm';
 import BlogMarkdownEditor from 'docs/src/modules/components/BlogMarkdownEditor';
 
-const BLOG_API_URL = process.env.NEXT_PUBLIC_BLOG_API_URL || 'http://localhost:3001/v1';
+const BLOG_API_URL = (process.env.NEXT_PUBLIC_BLOG_API_URL || '/api').replace(/\/$/, '');
 
 export interface BlogEditorProps {
   initialSlug?: string;

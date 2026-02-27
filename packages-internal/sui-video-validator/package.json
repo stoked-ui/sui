@@ -11,7 +11,7 @@
     "build": "tsup src/index.ts --format cjs,esm --dts --clean",
     "dev:prepare": "pnpm build",
     "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
-    "test": "node --loader ts-node/esm tests/validator.test.ts",
+    "test": "tsx tests/validator.test.ts",
     "validate": "node bin/cli.js"
   },
   "keywords": [

@@ -735,16 +735,15 @@ const stokedUiData: TProduct = {
   id: 'stoked-ui',
   name: "Stoked UI",
   fullName: "Stoked UI",
-  description: "Advanced media components MIT",
+  description: "Advanced media components",
   icon: "product-designkits",
   url: "/stoked-ui",
   showcaseType: StokedConsultingShowcase,
-  hideProductFeatures: true,
   live: true,
   features: [{
-    name: 'Github',
-    description: 'Github data components',
-    productId: 'github',
+    name: 'Media',
+    description: 'Comprehensive media management and component library for React.',
+    productId: 'media',
     id: 'overview',
   }, {
     name: 'File Explorer',
@@ -1142,4 +1141,3 @@ export type MenuProps = {
 };
 
 export { PRODUCTS, ALL_PRODUCTS, ALL_PACKAGES, CONSULTING }
-

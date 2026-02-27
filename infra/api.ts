@@ -1,15 +1,18 @@
-import { mongoDbUri, stripeSecretKey, stripeWebhookSecret } from 'infra/secrets'
+import { mongoDbUri } from 'infra/secrets'
 import { DomainInfo } from 'infra/domains'
 
 export const createApi = (domainInfo: DomainInfo) => {
 
   const api = new sst.aws.ApiGatewayV2("Api", {
-    domain: domainInfo.apiDomain
+    domain: {
+      name: domainInfo.apiDomain,
+      dns: sst.aws.dns({ zone: domainInfo.primaryZoneId }),
+    }
   });
 
   // ---------------------------------------------------------------------------
   // Media API Lambda (NestJS / lambda.bootstrap.ts)
-  // Handles all /v1/* routes including /v1/blog, /v1/auth, /v1/media, etc.
+  // Handles media/auth/invoice routes under /v1/*
   // ---------------------------------------------------------------------------
   const jwtSecret = new sst.Secret("JWT_SECRET");
   const blogApiToken = new sst.Secret("BLOG_API_TOKEN");
@@ -20,7 +23,7 @@ export const createApi = (domainInfo: DomainInfo) => {
     runtime: "nodejs20.x",
     timeout: "29 seconds",
     memory: "1024 MB",
-    link: [mongoDbUri, jwtSecret, blogApiToken, invoiceApiKey, stripeSecretKey, stripeWebhookSecret],
+    link: [mongoDbUri, jwtSecret, blogApiToken, invoiceApiKey],
     permissions: [{
       actions: ["ses:SendEmail"],
       resources: ["arn:aws:ses:us-east-1:883859713095:identity/*"],
@@ -41,9 +44,6 @@ export const createApi = (domainInfo: DomainInfo) => {
       // CORS
       ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS ?? `https://${domainInfo.domains[0]},https://www.${domainInfo.domains[0]}`,
 
-      // Stripe license key system
-      STRIPE_SECRET_KEY: stripeSecretKey.value,
-      STRIPE_WEBHOOK_SECRET: stripeWebhookSecret.value,
     },
   });
 

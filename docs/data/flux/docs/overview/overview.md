@@ -11,6 +11,7 @@ title: Flux - Dynamic Desktop Wallpapers
 
 Flux is a macOS application that renders any website -- remote or local -- as your desktop wallpaper. Whether it is an animated WebGL demo, a live data dashboard, a news feed, or the built-in fluid simulation, Flux places it behind your windows so your desktop is never static again.
 
+{{"demo": "FluxPreviewVideo.js", "hideToolbar": true, "bg": "inline"}}
 ## Key Features
 
 - **Any Website as Wallpaper** -- Display remote URLs or local HTML files directly on your desktop.
