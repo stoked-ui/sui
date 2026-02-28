@@ -11,7 +11,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     .collection('products')
     .find(
       { live: true, productId: { $ne: 'stoked-ui' } },
-      { projection: { _id: 1, productId: 1, name: 1, description: 1, url: 1, features: 1, icon: 1, hideProductFeatures: 1, prerelease: 1 } },
+      { projection: { _id: 1, productId: 1, name: 1, description: 1, url: 1, features: 1, icon: 1, hideProductFeatures: 1, prerelease: 1, logoUrl: 1, githubRepo: 1, 'pricing.monthlyPriceCents': 1, 'pricing.currency': 1 } },
     )
     .sort({ name: 1 })
     .toArray();
