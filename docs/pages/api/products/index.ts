@@ -21,9 +21,9 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
     if (req.user.role !== 'admin') {
       return res.status(403).json({ message: 'Admin access required' });
     }
-    const { productId, name, description } = req.body || {};
-    if (!productId || !name || !description) {
-      return res.status(400).json({ message: 'productId, name, and description are required' });
+    const { productId, name, description, logoUrl } = req.body || {};
+    if (!productId || !name || !description || !logoUrl) {
+      return res.status(400).json({ message: 'productId, name, description, and logoUrl are required' });
     }
     const existing = await collection.findOne({ productId });
     if (existing) {
@@ -34,14 +34,18 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
       productId,
       name,
       description,
+      logoUrl,
       fullName: req.body.fullName || name,
       icon: req.body.icon || '',
       url: req.body.url || `/${productId}`,
+      githubRepo: req.body.githubRepo || null,
+      pricing: req.body.pricing || null,
       live: false,
       managed: true,
       hideProductFeatures: false,
       prerelease: 'alpha',
       features: [],
+      promos: [],
       createdAt: now,
       updatedAt: now,
     };
