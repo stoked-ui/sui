@@ -26,7 +26,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
   }
 
   if (req.method === 'PATCH') {
-    const { name, fullName, description, icon, url, live, hideProductFeatures, prerelease, features } = req.body || {};
+    const { name, fullName, description, icon, url, live, hideProductFeatures, prerelease, features, logoUrl, githubRepo, pricing } = req.body || {};
     const update: Record<string, unknown> = { updatedAt: new Date() };
     if (name !== undefined) update.name = name;
     if (fullName !== undefined) update.fullName = fullName;
@@ -37,6 +37,16 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
     if (hideProductFeatures !== undefined) update.hideProductFeatures = hideProductFeatures;
     if (prerelease !== undefined) update.prerelease = prerelease;
     if (features !== undefined) update.features = features;
+    if (logoUrl !== undefined) update.logoUrl = logoUrl;
+    if (githubRepo !== undefined) update.githubRepo = githubRepo;
+    if (pricing !== undefined) {
+      if (pricing === null) {
+        update.pricing = null;
+      } else {
+        if (pricing.monthlyPriceCents !== undefined) update['pricing.monthlyPriceCents'] = pricing.monthlyPriceCents;
+        if (pricing.currency !== undefined) update['pricing.currency'] = pricing.currency;
+      }
+    }
 
     const result = await collection.findOneAndUpdate(
       { _id: objectId },
