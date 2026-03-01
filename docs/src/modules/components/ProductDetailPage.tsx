@@ -52,6 +52,13 @@ interface ProductData {
   features: Feature[];
   logoUrl?: string;
   githubRepo?: string;
+  pricing?: {
+    monthlyPriceCents?: number;
+    currency?: string;
+    squareCatalogItemId?: string;
+    squareCatalogVariationId?: string;
+    syncedAt?: string;
+  };
 }
 
 interface DocPage {
@@ -106,6 +113,12 @@ export default function ProductDetailPage({ productId }: { productId: string }) 
   const [featureName, setFeatureName] = React.useState('');
   const [featureDescription, setFeatureDescription] = React.useState('');
   const [featureId, setFeatureId] = React.useState('');
+
+  // Pricing editor state
+  const [editingPrice, setEditingPrice] = React.useState(false);
+  const [priceValue, setPriceValue] = React.useState('');
+  const [priceCurrency, setPriceCurrency] = React.useState('USD');
+  const [syncing, setSyncing] = React.useState(false);
 
   // Page editor state
   const [pageDialogOpen, setPageDialogOpen] = React.useState(false);
@@ -429,6 +442,94 @@ export default function ProductDetailPage({ productId }: { productId: string }) 
           </Paper>
         )}
       </Box>
+
+      {/* Pricing Section */}
+      <Paper variant="outlined" sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h5" mb={2}>Pricing</Typography>
+
+        {/* Current price display or edit */}
+        <Stack direction="row" spacing={2} alignItems="center" mb={2}>
+          {editingPrice ? (
+            <React.Fragment>
+              <TextField
+                label="Price (cents)"
+                type="number"
+                size="small"
+                value={priceValue}
+                onChange={(e) => setPriceValue(e.target.value)}
+                sx={{ width: 150 }}
+              />
+              <Select size="small" value={priceCurrency} onChange={(e) => setPriceCurrency(e.target.value)} sx={{ width: 100 }}>
+                <MenuItem value="USD">USD</MenuItem>
+                <MenuItem value="EUR">EUR</MenuItem>
+                <MenuItem value="GBP">GBP</MenuItem>
+              </Select>
+              <Button size="small" variant="contained" onClick={async () => {
+                try {
+                  await apiFetch(`/api/products/${productId}`, {
+                    method: 'PATCH',
+                    body: JSON.stringify({ pricing: { monthlyPriceCents: parseInt(priceValue, 10), currency: priceCurrency } }),
+                  });
+                  setEditingPrice(false);
+                  fetchData();
+                } catch (err: unknown) {
+                  setError(err instanceof Error ? err.message : 'Failed to update pricing');
+                }
+              }}>Save</Button>
+              <Button size="small" onClick={() => setEditingPrice(false)}>Cancel</Button>
+            </React.Fragment>
+          ) : (
+            <React.Fragment>
+              <Typography>
+                {product.pricing?.monthlyPriceCents
+                  ? `$${(product.pricing.monthlyPriceCents / 100).toFixed(2)}/${product.pricing.currency || 'USD'}/month`
+                  : 'Not set'}
+              </Typography>
+              <IconButton size="small" onClick={() => {
+                setPriceValue(String(product.pricing?.monthlyPriceCents || ''));
+                setPriceCurrency(product.pricing?.currency || 'USD');
+                setEditingPrice(true);
+              }}>
+                <EditIcon fontSize="small" />
+              </IconButton>
+            </React.Fragment>
+          )}
+        </Stack>
+
+        {/* Square catalog IDs */}
+        <Typography variant="body2" color="text.secondary">
+          Square Catalog Item: {product.pricing?.squareCatalogItemId || 'Not synced'}
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          Square Variation: {product.pricing?.squareCatalogVariationId || 'Not synced'}
+        </Typography>
+        {product.pricing?.syncedAt && (
+          <Typography variant="body2" color="text.secondary">
+            Last synced: {new Date(product.pricing.syncedAt).toLocaleString()}
+          </Typography>
+        )}
+
+        {/* Sync button */}
+        <Button
+          variant="outlined"
+          size="small"
+          sx={{ mt: 2 }}
+          disabled={syncing || !product.pricing?.monthlyPriceCents}
+          onClick={async () => {
+            setSyncing(true);
+            try {
+              await apiFetch(`/api/products/${productId}/pricing/sync`, { method: 'POST' });
+              fetchData();
+            } catch (err: unknown) {
+              setError(err instanceof Error ? err.message : 'Failed to sync with Square');
+            } finally {
+              setSyncing(false);
+            }
+          }}
+        >
+          {syncing ? 'Syncing...' : 'Sync to Square'}
+        </Button>
+      </Paper>
 
       {/* Section 2: Doc Pages */}
       <Box>
