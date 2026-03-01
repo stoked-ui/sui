@@ -8,6 +8,7 @@ import Switch from '@mui/material/Switch';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
+import Avatar from '@mui/material/Avatar';
 import EditIcon from '@mui/icons-material/EditOutlined';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import DescriptionIcon from '@mui/icons-material/DescriptionOutlined';
@@ -21,6 +22,7 @@ interface ProductCardProps {
     description: string;
     live: boolean;
     icon: string;
+    logoUrl?: string;
   };
   pageCount: number;
   onClick: () => void;
@@ -43,6 +45,14 @@ export default function ProductCard({ product, pageCount, onClick, onToggleLive,
       })}
     >
       <CardContent onClick={onClick}>
+        <Avatar
+          src={product.logoUrl}
+          alt={product.name}
+          variant="rounded"
+          sx={{ width: 40, height: 40, mb: 1 }}
+        >
+          {!product.logoUrl && product.name.charAt(0)}
+        </Avatar>
         <Stack direction="row" justifyContent="space-between" alignItems="flex-start" mb={1}>
           <Typography variant="h6" component="div" noWrap sx={{ flex: 1, mr: 1 }}>
             {product.name}
