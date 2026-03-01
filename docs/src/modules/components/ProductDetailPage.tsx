@@ -24,12 +24,20 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
 import AddIcon from '@mui/icons-material/AddOutlined';
 import EditIcon from '@mui/icons-material/EditOutlined';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import ArrowBackIcon from '@mui/icons-material/ArrowBackOutlined';
 import { useRouter } from 'next/router';
 import LogoUpload from './LogoUpload';
+import PromoCodeDialog from './PromoCodeDialog';
+import type { PromoCodeFormData } from './PromoCodeDialog';
 
 interface Feature {
   name: string;
@@ -129,6 +137,12 @@ export default function ProductDetailPage({ productId }: { productId: string }) 
   const [pageOrder, setPageOrder] = React.useState(0);
   const [pagePublished, setPagePublished] = React.useState(true);
 
+  // Promo code state
+  const [promoCodes, setPromoCodes] = React.useState<any[]>([]);
+  const [promoDialogOpen, setPromoDialogOpen] = React.useState(false);
+  const [promoDialogMode, setPromoDialogMode] = React.useState<'create' | 'edit'>('create');
+  const [editingPromo, setEditingPromo] = React.useState<Partial<PromoCodeFormData> | undefined>(undefined);
+
   const fetchData = React.useCallback(async () => {
     try {
       setLoading(true);
@@ -138,6 +152,10 @@ export default function ProductDetailPage({ productId }: { productId: string }) 
       ]);
       setProduct(productData);
       setPages(pagesData);
+      try {
+        const promos = await apiFetch(`/api/promo-codes?productId=${productData.productId}`);
+        setPromoCodes(promos);
+      } catch { setPromoCodes([]); }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to load data');
     } finally {
@@ -531,6 +549,82 @@ export default function ProductDetailPage({ productId }: { productId: string }) 
         </Button>
       </Paper>
 
+      {/* Promo Codes Section */}
+      <Paper variant="outlined" sx={{ p: 3, mb: 3 }}>
+        <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
+          <Typography variant="h5">Promo Codes</Typography>
+          <Button size="small" startIcon={<AddIcon />} onClick={() => {
+            setEditingPromo(undefined);
+            setPromoDialogMode('create');
+            setPromoDialogOpen(true);
+          }}>Add Promo Code</Button>
+        </Stack>
+
+        {promoCodes.length === 0 ? (
+          <Typography color="text.secondary">No promo codes for this product.</Typography>
+        ) : (
+          <TableContainer>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Code</TableCell>
+                  <TableCell>Type</TableCell>
+                  <TableCell>Value</TableCell>
+                  <TableCell>Expires</TableCell>
+                  <TableCell>Max Uses</TableCell>
+                  <TableCell>Used</TableCell>
+                  <TableCell>Active</TableCell>
+                  <TableCell>Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {promoCodes.map((promo) => (
+                  <TableRow key={promo.code}>
+                    <TableCell><strong>{promo.code}</strong></TableCell>
+                    <TableCell>{promo.discountType}</TableCell>
+                    <TableCell>{promo.discountValue}</TableCell>
+                    <TableCell>{promo.expiresAt ? new Date(promo.expiresAt).toLocaleDateString() : '—'}</TableCell>
+                    <TableCell>{promo.maxUses ?? '∞'}</TableCell>
+                    <TableCell>{promo.usedCount}</TableCell>
+                    <TableCell>
+                      <Switch size="small" checked={promo.active} onChange={async () => {
+                        try {
+                          await apiFetch(`/api/promo-codes/${promo.code}`, {
+                            method: 'PATCH', body: JSON.stringify({ active: !promo.active }),
+                          });
+                          // Refresh promos
+                          const promos = await apiFetch(`/api/promo-codes?productId=${product.productId}`);
+                          setPromoCodes(promos);
+                        } catch (err: unknown) { setError(err instanceof Error ? err.message : 'Failed to toggle promo'); }
+                      }} />
+                    </TableCell>
+                    <TableCell>
+                      <IconButton size="small" onClick={() => {
+                        setEditingPromo({
+                          code: promo.code, discountType: promo.discountType, discountValue: promo.discountValue,
+                          expiresAt: promo.expiresAt, maxUses: promo.maxUses, active: promo.active,
+                          applicableProductIds: promo.applicableProductIds || [],
+                        });
+                        setPromoDialogMode('edit');
+                        setPromoDialogOpen(true);
+                      }}><EditIcon fontSize="small" /></IconButton>
+                      <IconButton size="small" color="error" onClick={async () => {
+                        if (!window.confirm(`Delete promo code ${promo.code}?`)) return;
+                        try {
+                          await apiFetch(`/api/promo-codes/${promo.code}`, { method: 'DELETE' });
+                          const promos = await apiFetch(`/api/promo-codes?productId=${product.productId}`);
+                          setPromoCodes(promos);
+                        } catch (err: unknown) { setError(err instanceof Error ? err.message : 'Delete failed'); }
+                      }}><DeleteIcon fontSize="small" /></IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
+      </Paper>
+
       {/* Section 2: Doc Pages */}
       <Box>
         <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
@@ -586,6 +680,33 @@ export default function ProductDetailPage({ productId }: { productId: string }) 
           </Paper>
         )}
       </Box>
+
+      <PromoCodeDialog
+        open={promoDialogOpen}
+        onClose={() => setPromoDialogOpen(false)}
+        mode={promoDialogMode}
+        initialData={editingPromo}
+        onSave={async (data) => {
+          try {
+            if (promoDialogMode === 'create') {
+              await apiFetch('/api/promo-codes', {
+                method: 'POST',
+                body: JSON.stringify({ ...data, applicableProductIds: [product.productId] }),
+              });
+            } else {
+              await apiFetch(`/api/promo-codes/${data.code}`, {
+                method: 'PATCH',
+                body: JSON.stringify(data),
+              });
+            }
+            setPromoDialogOpen(false);
+            const promos = await apiFetch(`/api/promo-codes?productId=${product.productId}`);
+            setPromoCodes(promos);
+          } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Failed to save promo code');
+          }
+        }}
+      />
 
       {/* Feature Dialog */}
       <Dialog open={featureDialogOpen} onClose={() => setFeatureDialogOpen(false)} maxWidth="sm" fullWidth>
