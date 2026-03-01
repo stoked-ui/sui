@@ -13,6 +13,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
 import { useRouter } from 'next/router';
 import ProductCard from './ProductCard';
+import LogoUpload from './LogoUpload';
 
 interface Product {
   _id: string;
@@ -63,6 +64,8 @@ export default function ProductsPage() {
   const [formName, setFormName] = React.useState('');
   const [formDescription, setFormDescription] = React.useState('');
   const [formUrl, setFormUrl] = React.useState('');
+  const [formLogoUrl, setFormLogoUrl] = React.useState('');
+  const [formGithubRepo, setFormGithubRepo] = React.useState('');
 
   const fetchProducts = React.useCallback(async () => {
     try {
@@ -102,7 +105,14 @@ export default function ProductsPage() {
       } else {
         await apiFetch('/api/products', {
           method: 'POST',
-          body: JSON.stringify({ productId: formProductId, name: formName, description: formDescription, url: formUrl }),
+          body: JSON.stringify({
+            productId: formProductId,
+            name: formName,
+            description: formDescription,
+            url: formUrl,
+            logoUrl: formLogoUrl,
+            ...(formGithubRepo ? { githubRepo: formGithubRepo } : {}),
+          }),
         });
       }
       setDialogOpen(false);
@@ -111,6 +121,8 @@ export default function ProductsPage() {
       setFormName('');
       setFormDescription('');
       setFormUrl('');
+      setFormLogoUrl('');
+      setFormGithubRepo('');
       fetchProducts();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Save failed');
@@ -172,6 +184,8 @@ export default function ProductsPage() {
             setFormName('');
             setFormDescription('');
             setFormUrl('');
+            setFormLogoUrl('');
+            setFormGithubRepo('');
             setDialogOpen(true);
           }}
         >
@@ -243,13 +257,30 @@ export default function ProductsPage() {
             onChange={(e) => setFormUrl(e.target.value)}
             helperText='e.g. "/flux"'
           />
+          {!editingId && (
+            <React.Fragment>
+              <LogoUpload
+                value={formLogoUrl || null}
+                onChange={(url) => setFormLogoUrl(url)}
+                label="Product Logo"
+              />
+              <TextField
+                label="GitHub Repository"
+                fullWidth
+                margin="normal"
+                value={formGithubRepo}
+                onChange={(e) => setFormGithubRepo(e.target.value)}
+                helperText='e.g. "https://github.com/stoked-ui/flux"'
+              />
+            </React.Fragment>
+          )}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setDialogOpen(false)}>Cancel</Button>
           <Button
             variant="contained"
             onClick={handleSave}
-            disabled={!formName || !formDescription || (!editingId && !formProductId)}
+            disabled={!formName || !formDescription || (!editingId && (!formProductId || !formLogoUrl))}
           >
             {editingId ? 'Save' : 'Create'}
           </Button>
