@@ -29,6 +29,7 @@ import EditIcon from '@mui/icons-material/EditOutlined';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import ArrowBackIcon from '@mui/icons-material/ArrowBackOutlined';
 import { useRouter } from 'next/router';
+import LogoUpload from './LogoUpload';
 
 interface Feature {
   name: string;
@@ -49,6 +50,8 @@ interface ProductData {
   hideProductFeatures: boolean;
   prerelease?: 'alpha' | 'beta' | 'none';
   features: Feature[];
+  logoUrl?: string;
+  githubRepo?: string;
 }
 
 interface DocPage {
@@ -94,6 +97,9 @@ export default function ProductDetailPage({ productId }: { productId: string }) 
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState('');
 
+  // GitHub repo editing state
+  const [editGithubRepo, setEditGithubRepo] = React.useState('');
+
   // Feature editor state
   const [featureDialogOpen, setFeatureDialogOpen] = React.useState(false);
   const [editingFeatureIndex, setEditingFeatureIndex] = React.useState<number | null>(null);
@@ -129,6 +135,10 @@ export default function ProductDetailPage({ productId }: { productId: string }) 
   React.useEffect(() => {
     if (productId) fetchData();
   }, [productId, fetchData]);
+
+  React.useEffect(() => {
+    setEditGithubRepo(product?.githubRepo || '');
+  }, [product]);
 
   // --- Feature handlers ---
   const handleSaveFeature = async () => {
@@ -307,6 +317,53 @@ export default function ProductDetailPage({ productId }: { productId: string }) 
                 <MenuItem value="none">None</MenuItem>
               </Select>
             </FormControl>
+          </Stack>
+        </Stack>
+        <Divider sx={{ my: 2 }} />
+        <Typography variant="subtitle1" fontWeight={600} mb={1}>Identity</Typography>
+        <Stack direction="row" spacing={3} alignItems="flex-start">
+          <LogoUpload
+            value={product.logoUrl || null}
+            onChange={async (url) => {
+              try {
+                await apiFetch(`/api/products/${productId}`, {
+                  method: 'PATCH',
+                  body: JSON.stringify({ logoUrl: url }),
+                });
+                fetchData();
+              } catch (err: unknown) {
+                setError(err instanceof Error ? err.message : 'Failed to update logo');
+              }
+            }}
+            label="Product Logo"
+          />
+          <Stack spacing={1} sx={{ flex: 1 }}>
+            <TextField
+              label="GitHub Repository"
+              fullWidth
+              size="small"
+              value={editGithubRepo}
+              onChange={(e) => setEditGithubRepo(e.target.value)}
+              helperText='e.g. "https://github.com/stoked-ui/flux"'
+            />
+            <Button
+              size="small"
+              variant="outlined"
+              disabled={editGithubRepo === (product.githubRepo || '')}
+              onClick={async () => {
+                try {
+                  await apiFetch(`/api/products/${productId}`, {
+                    method: 'PATCH',
+                    body: JSON.stringify({ githubRepo: editGithubRepo || null }),
+                  });
+                  fetchData();
+                } catch (err: unknown) {
+                  setError(err instanceof Error ? err.message : 'Failed to update GitHub repo');
+                }
+              }}
+            >
+              Save
+            </Button>
           </Stack>
         </Stack>
       </Paper>
