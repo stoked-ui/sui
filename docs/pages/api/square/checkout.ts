@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getDb } from 'docs/src/modules/db/mongodb';
 import { createSquareCheckoutLink, SquareClientError } from 'docs/src/modules/square/squareClient';
+import { validatePromoCode, applyPromoCode, PromoError } from 'docs/src/modules/promo/promoStore';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -37,12 +38,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ message: 'Product has not been synced to Square yet' });
   }
 
-  // Phase 3.4: Promo code validation will be integrated here.
-  // For now this is a stub — discount is always zero.
-  let discountAmountCents = 0;
+  let discountAmountCents: number | undefined;
+  let appliedPromoCode: string | undefined;
   if (promoCode) {
-    // TODO (Phase 3.4): Look up promoCode, validate it, and compute discountAmountCents.
-    discountAmountCents = 0;
+    try {
+      const promo = await validatePromoCode(promoCode, productId);
+      if (promo.discountType === 'percentage') {
+        discountAmountCents = Math.round(
+          product.pricing.monthlyPriceCents * (promo.discountValue / 100),
+        );
+      } else if (promo.discountType === 'fixed_amount') {
+        discountAmountCents = promo.discountValue;
+      } else {
+        // free_trial_days: trial handled at Square subscription level, no monetary discount
+        discountAmountCents = 0;
+      }
+      appliedPromoCode = promoCode;
+    } catch (error: unknown) {
+      if (error instanceof PromoError) {
+        return res.status(error.status).json({ message: error.message });
+      }
+      throw error;
+    }
   }
 
   const priceCents: number = product.pricing?.monthlyPriceCents ?? 0;
@@ -59,6 +76,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       cancelUrl,
       discountAmountCents,
     });
+
+    if (appliedPromoCode) {
+      await applyPromoCode(appliedPromoCode);
+    }
 
     return res.status(200).json({ checkoutUrl });
   } catch (error: unknown) {
