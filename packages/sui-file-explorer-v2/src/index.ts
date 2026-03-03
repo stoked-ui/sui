@@ -16,3 +16,7 @@ export type {
 
 // Utilities
 export { getIconFromFileType, DotIcon } from './icons';
+
+// Adapters (v1 ↔ v2 conversion)
+export { fileBaseToFileItem, fileItemToFileBase } from './adapters';
+export type { FileBaseCompat } from './adapters';
