@@ -17,7 +17,7 @@ PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 # Set paths
 WASM_CRATE_DIR="${PROJECT_ROOT}/wasm-preview"
-OUTPUT_DIR="${PROJECT_ROOT}/pkg"
+OUTPUT_DIR="${WASM_CRATE_DIR}/pkg"
 
 # Check if wasm-pack is installed
 if ! command -v wasm-pack &> /dev/null; then
@@ -32,7 +32,7 @@ rm -rf "${OUTPUT_DIR}"
 echo -e "${YELLOW}Step 2/3: Building WASM with wasm-pack...${NC}"
 cd "${WASM_CRATE_DIR}"
 wasm-pack build \
-    --target web \
+    --target bundler \
     --out-dir "${OUTPUT_DIR}" \
     --release
 
