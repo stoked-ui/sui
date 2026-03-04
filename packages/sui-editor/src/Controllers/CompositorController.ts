@@ -21,6 +21,8 @@ interface PreviewRendererInstance {
   clear(): void;
   get_metrics(): string;
   free(): void;
+  cache_image?(url: string, data: Uint8Array, width: number, height: number): void;
+  is_image_cached?(url: string): boolean;
 }
 
 /**
@@ -162,8 +164,56 @@ class CompositorControl extends Controller<CompositorLayer> implements IControll
   }
 
   /**
+   * Cache an image URL into the WASM renderer by drawing it through a canvas.
+   * Called automatically on enter for image-type layers.
+   */
+  private async cacheImageForRenderer(url: string): Promise<void> {
+    if (!this.renderer || !this.renderer.cache_image) {
+      return;
+    }
+
+    // Skip if already cached
+    if (this.renderer.is_image_cached && this.renderer.is_image_cached(url)) {
+      return;
+    }
+
+    try {
+      // Load the image in the browser
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+
+      await new Promise<void>((resolve, reject) => {
+        img.onload = () => resolve();
+        img.onerror = (e) => reject(new Error(`Failed to load image: ${url} (${e})`));
+        img.src = url;
+      });
+
+      // Draw to an offscreen canvas to extract RGBA pixel data
+      const canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        console.warn('[compositor] Failed to get 2d context for image caching:', url);
+        return;
+      }
+
+      ctx.drawImage(img, 0, 0);
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+      // Pass RGBA pixel data to WASM renderer
+      this.renderer.cache_image(url, imageData.data as unknown as Uint8Array, canvas.width, canvas.height);
+      this.log({ action: { id: 'compositor', name: 'compositor' } as any, time: 0 }, `cached image: ${url} (${canvas.width}x${canvas.height})`);
+    } catch (err) {
+      console.warn('[compositor] Failed to cache image:', url, err);
+    }
+  }
+
+  /**
    * Enter lifecycle - called when an action enters the timeline view
-   * Converts action/track to a compositor layer, adds to active layers, and renders
+   * Converts action/track to a compositor layer, adds to active layers, and renders.
+   * For image-type layers, pre-caches the image in the WASM renderer.
    */
   enter(params: EditorControllerParams): void {
     const { track, engine } = params;
@@ -177,6 +227,15 @@ class CompositorControl extends Controller<CompositorLayer> implements IControll
 
     // Add to active layers
     this.activeLayers.set(layer.id, layer);
+
+    // Pre-cache image data for image-type layers
+    if (layer.type === 'image' && layer.content.type === 'image' && layer.content.url) {
+      const url = layer.content.url;
+      // Fire-and-forget async caching; renderer will warn+skip on first frames if not yet cached
+      this.cacheImageForRenderer(url).catch((err) => {
+        console.warn('[compositor] cacheImageForRenderer error:', err);
+      });
+    }
 
     // Render the composite
     this.renderComposite();

@@ -59,7 +59,12 @@ impl From<Color> for CompositorColor {
 }
 
 /// Transform parameters for WASM
+///
+/// Uses `#[serde(rename_all = "camelCase")]` so that JSON field names from
+/// TypeScript (camelCase) map to Rust field names (snake_case) automatically.
+/// For example: JSON `"scaleX"` → Rust `scale_x`.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct WasmTransform {
     pub x: f32,
     pub y: f32,
@@ -67,6 +72,20 @@ pub struct WasmTransform {
     pub scale_y: f32,
     pub rotation: f32,
     pub opacity: f32,
+    /// Anchor point X (0.0–1.0). TypeScript sends this; ignored by compositor
+    /// but must be accepted to avoid serde errors.
+    #[serde(default)]
+    pub anchor_x: f32,
+    /// Anchor point Y (0.0–1.0). TypeScript sends this; ignored by compositor
+    /// but must be accepted to avoid serde errors.
+    #[serde(default)]
+    pub anchor_y: f32,
+    /// Skew X in radians. TypeScript sends this; ignored by compositor for now.
+    #[serde(default)]
+    pub skew_x: f32,
+    /// Skew Y in radians. TypeScript sends this; ignored by compositor for now.
+    #[serde(default)]
+    pub skew_y: f32,
 }
 
 impl Default for WasmTransform {
@@ -78,6 +97,10 @@ impl Default for WasmTransform {
             scale_y: 1.0,
             rotation: 0.0,
             opacity: 1.0,
+            anchor_x: 0.5,
+            anchor_y: 0.5,
+            skew_x: 0.0,
+            skew_y: 0.0,
         }
     }
 }
@@ -92,16 +115,62 @@ impl From<&WasmTransform> for Transform {
     }
 }
 
-/// Layer data for WASM
+/// Layer content — discriminated union matching the TypeScript `LayerContent` type.
+///
+/// TypeScript sends a `content` object with a `type` discriminant:
+///   - `{ type: "solidColor", color: [r, g, b, a] }`
+///   - `{ type: "image", url: "..." }`
+///   - `{ type: "video", elementId: "..." }`
+///   - `{ type: "text", text: "...", fontFamily?: "...", fontSize?: 16, color?: [r,g,b,a] }`
+///
+/// `#[serde(tag = "type", rename_all = "camelCase")]` matches the `type` field value.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(tag = "type", rename_all = "camelCase")]
+pub enum WasmLayerContent {
+    SolidColor {
+        color: [u8; 4],
+    },
+    Image {
+        url: String,
+    },
+    Video {
+        /// HTML video element ID for frame capture. TypeScript field is `elementId`.
+        #[serde(rename = "elementId")]
+        element_id: String,
+    },
+    Text {
+        text: String,
+        #[serde(default, rename = "fontFamily")]
+        font_family: Option<String>,
+        #[serde(default, rename = "fontSize")]
+        font_size: Option<f32>,
+        #[serde(default)]
+        color: Option<[u8; 4]>,
+    },
+}
+
+/// Layer data for WASM
+///
+/// Uses `#[serde(rename_all = "camelCase")]` to accept the camelCase JSON that
+/// TypeScript's `JSON.stringify()` produces from `CompositorLayer`:
+///   - `"blendMode"` → `blend_mode`
+///   - `"zIndex"` → `z_index`
+///
+/// The `content` field is a nested object matching the TypeScript `LayerContent`
+/// discriminated union (rather than the old flat fields).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct WasmLayer {
     pub id: String,
+    /// Layer type discriminant: "solidColor" | "image" | "video" | "text".
+    /// The `type` JSON field is also present inside `content`; this top-level
+    /// field is kept for quick access and tagged with `rename = "type"`.
     #[serde(rename = "type")]
-    pub layer_type: String, // "solidColor" | "image" | "video" | "text"
-    pub color: Option<[u8; 4]>,
-    pub video_element_id: Option<String>, // For "video" type
-    pub image_url: Option<String>,         // For "image" type
+    pub layer_type: String,
+    /// Nested content object from TypeScript `LayerContent`.
+    pub content: WasmLayerContent,
     pub transform: WasmTransform,
+    #[serde(default)]
     pub blend_mode: Option<String>,
     pub visible: bool,
     pub z_index: i32,
@@ -263,68 +332,57 @@ impl PreviewRenderer {
             })
             .unwrap_or(BlendMode::Normal);
 
-        match wasm_layer.layer_type.as_str() {
-            "solidColor" => {
-                if let Some([r, g, b, a]) = wasm_layer.color {
-                    Some(
-                        Layer::solid_color(CompositorColor::new(r, g, b, a), transform)
-                            .with_blend_mode(blend_mode)
-                            .with_z_index(wasm_layer.z_index),
-                    )
-                } else {
-                    None
-                }
+        match &wasm_layer.content {
+            WasmLayerContent::SolidColor { color: [r, g, b, a] } => {
+                Some(
+                    Layer::solid_color(CompositorColor::new(*r, *g, *b, *a), transform)
+                        .with_blend_mode(blend_mode)
+                        .with_z_index(wasm_layer.z_index),
+                )
             }
-            "video" => {
+            WasmLayerContent::Video { element_id } => {
                 // Capture video frame from HTMLVideoElement
-                if let Some(video_id) = &wasm_layer.video_element_id {
-                    match BrowserMediaLoader::capture_video_frame(video_id) {
-                        Ok((pixel_data, width, height)) => {
-                            Some(
-                                Layer::image_data(pixel_data, width, height, transform)
-                                    .with_blend_mode(blend_mode)
-                                    .with_z_index(wasm_layer.z_index),
-                            )
-                        }
-                        Err(e) => {
-                            error(&format!(
-                                "Failed to capture video frame from '{}': {:?}",
-                                video_id, e
-                            ));
-                            None
-                        }
+                match BrowserMediaLoader::capture_video_frame(element_id) {
+                    Ok((pixel_data, width, height)) => {
+                        Some(
+                            Layer::image_data(pixel_data, width, height, transform)
+                                .with_blend_mode(blend_mode)
+                                .with_z_index(wasm_layer.z_index),
+                        )
                     }
-                } else {
-                    error("Video layer missing video_element_id");
-                    None
+                    Err(e) => {
+                        error(&format!(
+                            "Failed to capture video frame from '{}': {:?}",
+                            element_id, e
+                        ));
+                        None
+                    }
                 }
             }
-            "image" => {
+            WasmLayerContent::Image { url } => {
                 // Load image from cache (must be pre-loaded by JavaScript)
-                if let Some(url) = &wasm_layer.image_url {
-                    match self.media_loader.get_cached_image(url) {
-                        Some((pixel_data, width, height)) => {
-                            Some(
-                                Layer::image_data(pixel_data.to_vec(), width, height, transform)
-                                    .with_blend_mode(blend_mode)
-                                    .with_z_index(wasm_layer.z_index),
-                            )
-                        }
-                        None => {
-                            error(&format!(
-                                "Image not found in cache: '{}'. Use cache_image() to pre-load images.",
-                                url
-                            ));
-                            None
-                        }
+                match self.media_loader.get_cached_image(url) {
+                    Some((pixel_data, width, height)) => {
+                        Some(
+                            Layer::image_data(pixel_data.to_vec(), width, height, transform)
+                                .with_blend_mode(blend_mode)
+                                .with_z_index(wasm_layer.z_index),
+                        )
                     }
-                } else {
-                    error("Image layer missing image_url");
-                    None
+                    None => {
+                        // Warn and skip rather than throwing — image may not be cached yet.
+                        // CompositorController should call cache_image() on layer enter.
+                        web_sys::console::warn_1(&JsValue::from_str(&format!(
+                            "[compositor] Image not found in cache: '{}'. Call cache_image() before rendering. Skipping layer.",
+                            url
+                        )));
+                        None
+                    }
                 }
             }
-            _ => {
-                error(&format!("Unsupported layer type: {}", wasm_layer.layer_type));
+            WasmLayerContent::Text { .. } => {
+                // Text rendering is not yet supported in the WASM compositor preview
+                error("Text layers are not yet supported in WASM preview renderer");
                 None
             }
         }
