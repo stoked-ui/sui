@@ -114,12 +114,66 @@ export default class EditorEngine<
   }
 
   /**
+   * Check whether the canvas renderer is ready: non-null, attached to the DOM,
+   * and has valid (non-zero) layout dimensions.
+   */
+  private _isRendererReady(): boolean {
+    const canvas = this._renderer;
+    if (!canvas) {
+      return false;
+    }
+    if (!canvas.isConnected) {
+      return false;
+    }
+    const { width, height } = canvas.getBoundingClientRect();
+    if (width <= 0 || height <= 0) {
+      return false;
+    }
+    return true;
+  }
+
+  /**
    * Initialize the WASM renderer module
    * Dynamically imports and initializes the WASM module, creates PreviewRenderer,
-   * and connects it to CompositorController
+   * and connects it to CompositorController.
+   *
+   * Guards: canvas must be non-null, attached to the DOM, and have valid dimensions
+   * before the WASM PreviewRenderer is constructed. If the canvas is not yet ready
+   * the call is deferred via requestAnimationFrame until it becomes ready.
    */
   async initWasmRenderer(): Promise<boolean> {
     if (!this._useWasm || !this._compositorController) {
+      return false;
+    }
+
+    // If the canvas is not yet in the DOM or has zero dimensions, defer using rAF.
+    if (!this._isRendererReady()) {
+      return new Promise<boolean>((resolve) => {
+        const attemptInit = () => {
+          if (this._isRendererReady()) {
+            resolve(this.initWasmRenderer());
+          } else {
+            requestAnimationFrame(attemptInit);
+          }
+        };
+        requestAnimationFrame(attemptInit);
+      });
+    }
+
+    // At this point canvas is guaranteed to be in DOM with valid dimensions.
+    const canvas = this._renderer!;
+    const width = this.renderWidth;
+    const height = this.renderHeight;
+
+    if (width <= 0 || height <= 0) {
+      console.error(
+        `[EditorEngine] Cannot initialize WASM renderer: invalid dimensions ${width}x${height}`
+      );
+      if (this._wasmRendererConfig.fallbackToCanvas !== false) {
+        console.warn('[EditorEngine] Falling back to Canvas rendering mode');
+        this._useWasm = false;
+        this._compositorController = null;
+      }
       return false;
     }
 
@@ -130,23 +184,21 @@ export default class EditorEngine<
       // Initialize the WASM module
       await init();
 
-      // Create PreviewRenderer instance with canvas element
-      if (!this.renderer) {
-        throw new Error('Canvas renderer not initialized');
+      // Re-check canvas is still valid after the async WASM load
+      if (!this._renderer || !this._renderer.isConnected) {
+        throw new Error('Canvas renderer was removed from DOM during WASM module load');
       }
 
       const renderer = new PreviewRenderer(
-        this.renderer,
-        this.renderWidth,
-        this.renderHeight,
+        canvas,
+        width,
+        height,
       ) as unknown as PreviewRendererInstance;
 
       // Connect renderer to CompositorController
       this._compositorController.setRenderer(renderer);
 
-      if (this._wasmRendererConfig.debugMode) {
-        console.info('[EditorEngine] WASM renderer initialized successfully');
-      }
+      console.log('[EditorEngine] WASM renderer initialized successfully');
 
       return true;
     } catch (error) {
@@ -189,8 +241,16 @@ export default class EditorEngine<
         `  - viewer: ${this.viewer}`);
     }
 
-    // Initialize WASM renderer if enabled (async, non-blocking)
+    // Initialize WASM renderer if enabled (async, non-blocking).
+    // initWasmRenderer() will defer via requestAnimationFrame if the canvas is
+    // not yet attached to the DOM or has zero layout dimensions.
     if (this._useWasm) {
+      if (!this._isRendererReady()) {
+        console.warn(
+          '[EditorEngine] Canvas not yet in DOM or has zero dimensions; ' +
+          'WASM init will be deferred via requestAnimationFrame'
+        );
+      }
       this.initWasmRenderer().catch((error) => {
         console.error('[EditorEngine] WASM initialization failed:', error);
       });
