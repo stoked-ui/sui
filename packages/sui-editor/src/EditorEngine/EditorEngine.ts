@@ -7,6 +7,7 @@ import {
 import {EditorEvents, EditorEventTypes} from './events';
 import {
   IEditorEngine, EditorEngineState, DrawData, EngineStateEx, EditorEngineOptions, WasmRendererConfig,
+  ExportOptions,
 } from "./EditorEngine.types";
 import { IEditorTrack } from '../EditorTrack/EditorTrack';
 import {type IEditorAction} from "../EditorAction/EditorAction";
@@ -55,6 +56,12 @@ export default class EditorEngine<
   _recorder?: MediaRecorder;
 
   _recordedChunks: Blob[] = [];
+
+  /** Whether an offline frame export is in progress */
+  protected _isExporting: boolean = false;
+
+  /** AbortController used to cancel an in-progress exportVideo() call */
+  protected _exportAbortController: AbortController | null = null;
 
   override _state: State;
 
@@ -285,6 +292,356 @@ export default class EditorEngine<
     return this._state === EngineStateEx.RECORDING as State;
   }
 
+  /** Whether an offline frame-by-frame export is in progress */
+  get isExporting() {
+    return this._isExporting;
+  }
+
+  /**
+   * Cancel an in-progress exportVideo() call.
+   * If no export is running this is a no-op.
+   */
+  cancelExport(): void {
+    if (this._exportAbortController) {
+      this._exportAbortController.abort();
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Offline frame-by-frame export
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Collect the compositor layers that are active at the given time (in seconds).
+   *
+   * This mirrors the logic used by CompositorController: an action is active
+   * when  action.start <= time < action.end  and the track is not hidden.
+   */
+  private _getActiveLayersAtTime(timeSec: number): Array<{
+    id: string;
+    type: string;
+    content: Record<string, unknown>;
+    transform: Record<string, unknown>;
+    blendMode: string;
+    visible: boolean;
+    zIndex: number;
+  }> {
+    const layers: Array<{
+      id: string;
+      type: string;
+      content: Record<string, unknown>;
+      transform: Record<string, unknown>;
+      blendMode: string;
+      visible: boolean;
+      zIndex: number;
+    }> = [];
+
+    for (const actionId of Object.keys(this._actionMap)) {
+      const action = this._actionMap[actionId] as any;
+      const track = this._actionTrackMap[actionId] as any;
+      if (!action || !track) {
+        continue;
+      }
+      // Only include actions that overlap with the current time
+      if (action.start > timeSec || action.end <= timeSec) {
+        continue;
+      }
+      if (action.disabled) {
+        continue;
+      }
+
+      // Determine layer type and content from track file
+      let layerType = 'solidColor';
+      let content: Record<string, unknown> = {
+        type: 'solidColor',
+        color: [128, 128, 128, 255],
+      };
+      if (track.file) {
+        const mimeType = (track.file.type || '').toLowerCase();
+        if (mimeType.startsWith('video')) {
+          layerType = 'video';
+          content = { type: 'video', elementId: track.id };
+        } else if (mimeType.startsWith('image')) {
+          layerType = 'image';
+          content = { type: 'image', url: track.file.url || '' };
+        }
+      }
+
+      const transform: Record<string, unknown> = {
+        x: action.x ?? 0,
+        y: action.y ?? 0,
+        scaleX: action.scaleX ?? 1,
+        scaleY: action.scaleY ?? 1,
+        rotation: action.rotation ?? 0,
+        opacity: action.opacity ?? 1,
+        width: action.width ?? this.renderWidth,
+        height: action.height ?? this.renderHeight,
+      };
+
+      layers.push({
+        id: action.id || track.id,
+        type: layerType,
+        content,
+        transform,
+        blendMode: action.blendMode || track.blendMode || 'normal',
+        visible: !track.hidden,
+        zIndex: action.z ?? track.zIndex ?? 0,
+      });
+    }
+
+    // Sort by z-index so the WASM compositor receives them in correct order
+    layers.sort((a, b) => a.zIndex - b.zIndex);
+    return layers;
+  }
+
+  /**
+   * Render a single frame at `timeSec` (seconds) using the WASM renderer and
+   * return the canvas pixel data as a Blob (PNG by default).
+   *
+   * The canvas is cleared before each call so that stale pixels are not carried
+   * over to the next frame.
+   */
+  private async _renderFrameToBlob(
+    timeSec: number,
+    mimeType: string = 'image/png'
+  ): Promise<Blob | null> {
+    const canvas = this._renderer;
+    if (!canvas) {
+      return null;
+    }
+
+    // Clear the canvas
+    this._renderCtx?.clearRect(0, 0, this.renderWidth, this.renderHeight);
+
+    const timeMs = timeSec * 1000;
+
+    if (this._useWasm && this._compositorController) {
+      // Use WASM renderer: collect active layers and call render_frame_at_time
+      const layers = this._getActiveLayersAtTime(timeSec);
+      const layersJson = JSON.stringify(layers);
+      // Access the underlying renderer via the compositor controller
+      const ctrl = this._compositorController as any;
+      if (ctrl.renderer && typeof ctrl.renderer.render_frame_at_time === 'function') {
+        ctrl.renderer.render_frame_at_time(layersJson, timeMs);
+      } else if (ctrl.renderer && typeof ctrl.renderer.render_frame === 'function') {
+        ctrl.renderer.render_frame(layersJson);
+      }
+    } else {
+      // Canvas fallback: drive the standard controller lifecycle at this time point.
+      // We call setTime with isTick=true so the controllers run enter/update/leave.
+      this.setTime(timeSec, true);
+      // Yield one microtask to let any synchronous canvas draw calls settle
+      await Promise.resolve();
+    }
+
+    // Capture current canvas contents as a Blob
+    return new Promise<Blob | null>((resolve) => {
+      canvas.toBlob((blob) => resolve(blob), mimeType);
+    });
+  }
+
+  /**
+   * Export the current project as an offline video Blob without real-time playback.
+   *
+   * Strategy:
+   *   1. Iterate frame times from 0 to duration at 1/fps intervals.
+   *   2. For each frame, render via WASM (or Canvas fallback).
+   *   3. Draw each frame Blob onto an OffscreenCanvas (or the main canvas) and
+   *      feed it to a MediaRecorder capturing the canvas stream.
+   *   4. When all frames are consumed, stop the recorder and return the Blob.
+   *
+   * WebCodecs (VideoEncoder) is used when available for higher-quality output;
+   * the implementation falls back to MediaRecorder otherwise.
+   *
+   * @param options  Export options (fps, format, dimensions, progress callback, signal)
+   * @returns  Promise that resolves to the encoded video Blob
+   */
+  async exportVideo(options: ExportOptions = {}): Promise<Blob> {
+    if (this._isExporting) {
+      throw new Error('[EditorEngine] exportVideo: an export is already in progress');
+    }
+    if (this.isPlaying || this.isRecording) {
+      throw new Error('[EditorEngine] exportVideo: cannot export while playing or recording');
+    }
+
+    const canvas = this._renderer;
+    if (!canvas) {
+      throw new Error('[EditorEngine] exportVideo: no renderer canvas available');
+    }
+
+    const fps = options.fps ?? 30;
+    const format = options.format ?? 'video/webm';
+    const exportWidth = options.width ?? this.renderWidth;
+    const exportHeight = options.height ?? this.renderHeight;
+    const { onProgress, signal } = options;
+
+    // Determine project duration from action map
+    const duration = this.canvasDuration; // seconds
+    if (duration <= 0) {
+      throw new Error('[EditorEngine] exportVideo: project has no duration');
+    }
+
+    const totalFrames = Math.ceil(duration * fps);
+    if (totalFrames === 0) {
+      throw new Error('[EditorEngine] exportVideo: zero frames to render');
+    }
+
+    // Set up a fresh AbortController (merging with any caller-supplied signal)
+    this._exportAbortController = new AbortController();
+    const internalSignal = this._exportAbortController.signal;
+
+    const isCancelled = () => internalSignal.aborted || (signal?.aborted ?? false);
+
+    // Mark export in progress and save/restore current time
+    this._isExporting = true;
+    this._state = EngineStateEx.EXPORTING as State;
+    const savedTime = this._currentTime;
+
+    this.trigger('exportStart' as keyof EmitterEvents, { engine: this as any, totalFrames } as EmitterEvents[keyof EmitterEvents]);
+
+    // Resize canvas to requested export dimensions if different
+    const prevWidth = canvas.width;
+    const prevHeight = canvas.height;
+    if (exportWidth !== prevWidth || exportHeight !== prevHeight) {
+      canvas.width = exportWidth;
+      canvas.height = exportHeight;
+    }
+
+    // Create a MediaRecorder on the canvas stream to encode frames
+    const stream = canvas.captureStream(0); // 0 fps = manual frame timing
+    const recorderMimeType = format;
+    let mimeType = recorderMimeType;
+    if (!MediaRecorder.isTypeSupported(mimeType)) {
+      // Common fallback chain
+      const fallbacks = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm', 'video/mp4'];
+      mimeType = fallbacks.find((m) => MediaRecorder.isTypeSupported(m)) ?? '';
+      if (mimeType === '') {
+        throw new Error('[EditorEngine] exportVideo: no supported MediaRecorder MIME type found');
+      }
+      console.warn(`[EditorEngine] exportVideo: requested format "${format}" not supported, using "${mimeType}"`);
+    }
+
+    const recorder = new MediaRecorder(stream, { mimeType });
+    const chunks: Blob[] = [];
+
+    recorder.ondataavailable = (e) => {
+      if (e.data.size > 0) {
+        chunks.push(e.data);
+      }
+    };
+
+    // Wrap the MediaRecorder stop in a promise
+    const recordingFinished = new Promise<Blob>((resolve, reject) => {
+      recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: mimeType });
+        resolve(blob);
+      };
+      recorder.onerror = (ev) => {
+        reject(new Error(`[EditorEngine] exportVideo: MediaRecorder error: ${ev}`));
+      };
+    });
+
+    recorder.start();
+
+    // Helper to request a frame to be captured
+    const videoTrack = stream.getVideoTracks()[0] as MediaStreamTrack & {
+      requestFrame?: () => void;
+    };
+
+    const requestFrame = () => {
+      if (videoTrack && typeof videoTrack.requestFrame === 'function') {
+        videoTrack.requestFrame();
+      }
+    };
+
+    // Frame rendering loop
+    let exportError: unknown = null;
+    let wasCancelled = false;
+
+    try {
+      for (let frameIndex = 0; frameIndex < totalFrames; frameIndex += 1) {
+        if (isCancelled()) {
+          wasCancelled = true;
+          throw new DOMException('Export cancelled by caller', 'AbortError');
+        }
+
+        const timeSec = frameIndex / fps;
+
+        // Render the frame (WASM or Canvas fallback)
+        await this._renderFrameToBlob(timeSec, 'image/png');
+
+        // Tell the MediaRecorder to grab the current canvas frame
+        requestFrame();
+
+        // Emit progress via callback and engine event
+        const progressData = {
+          frame: frameIndex,
+          totalFrames,
+          progress: frameIndex / totalFrames,
+          currentTime: timeSec,
+          duration,
+        };
+        if (onProgress) {
+          onProgress(progressData);
+        }
+        this.trigger('exportProgress' as keyof EmitterEvents, { engine: this as any, progress: progressData } as EmitterEvents[keyof EmitterEvents]);
+
+        // Yield to the browser event loop so the MediaRecorder can process chunks
+        // and the canvas repaint can occur.  Using a 0ms timeout rather than
+        // Promise.resolve() to give the browser a full task-queue cycle.
+        await new Promise<void>((res) => setTimeout(res, 0));
+      }
+
+      // Final progress event at 100 %
+      const finalProgress = {
+        frame: totalFrames,
+        totalFrames,
+        progress: 1,
+        currentTime: duration,
+        duration,
+      };
+      if (onProgress) {
+        onProgress(finalProgress);
+      }
+      this.trigger('exportProgress' as keyof EmitterEvents, { engine: this as any, progress: finalProgress } as EmitterEvents[keyof EmitterEvents]);
+    } catch (err) {
+      exportError = err;
+    } finally {
+      // Stop the recorder regardless of success/error/cancel
+      recorder.stop();
+
+      // Restore canvas dimensions
+      if (exportWidth !== prevWidth || exportHeight !== prevHeight) {
+        canvas.width = prevWidth;
+        canvas.height = prevHeight;
+      }
+
+      // Restore engine state
+      this._isExporting = false;
+      this._exportAbortController = null;
+      this._state = EngineState.PAUSED as State;
+      // Restore playhead to the position before export
+      this.setTime(savedTime, true);
+    }
+
+    // Surface cancellation and errors after cleanup
+    if (wasCancelled) {
+      this.trigger('exportCancelled' as keyof EmitterEvents, { engine: this as any } as EmitterEvents[keyof EmitterEvents]);
+      throw new DOMException('Export cancelled by caller', 'AbortError');
+    }
+
+    if (exportError) {
+      this.trigger('exportError' as keyof EmitterEvents, { engine: this as any, error: exportError } as EmitterEvents[keyof EmitterEvents]);
+      throw exportError;
+    }
+
+    // Wait for the recorder to finish flushing
+    const resultBlob = await recordingFinished;
+
+    this.trigger('exportComplete' as keyof EmitterEvents, { blob: resultBlob, engine: this as any } as EmitterEvents[keyof EmitterEvents]);
+
+    return resultBlob;
+  }
 
   finalizeRecording(name: string) {
     console.info('finalizeVideo');

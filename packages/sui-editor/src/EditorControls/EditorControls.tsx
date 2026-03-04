@@ -11,12 +11,17 @@ import RecordIcon from '@mui/icons-material/FiberManualRecord';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import SkipNextIcon from '@mui/icons-material/SkipNext';
 import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
+import DownloadIcon from '@mui/icons-material/Download';
+import CancelIcon from '@mui/icons-material/Cancel';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import ToggleButton from '@mui/material/ToggleButton';
 import Box from '@mui/material/Box';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-import { emphasize } from '@mui/material/styles';
+import LinearProgress from '@mui/material/LinearProgress';
+import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
+import { emphasize, alpha } from '@mui/material/styles';
 import { Tooltip } from '@mui/material';
 import { MediaFile } from '@stoked-ui/media';
 import {
@@ -24,7 +29,7 @@ import {
 } from '@stoked-ui/timeline';
 import { VideoSaveRequest, LocalDb } from '@stoked-ui/common';
 import { useEditorContext } from '../EditorProvider/EditorContext';
-import { IEditorEngine } from '../EditorEngine/EditorEngine.types';
+import { IEditorEngine, ExportProgress } from '../EditorEngine/EditorEngine.types';
 import { createUseThemeProps, styled } from '../internals/zero-styled';
 import { EditorControlState, EditorControlsProps } from './EditorControls.types';
 import TimelineView from '../icons/TimelineView';
@@ -304,17 +309,110 @@ const [lastRecording, setLastRecording] = React.useState<Blob | null>(null);
     }
   };
 
+  // ── Export state ──────────────────────────────────────────────────────────
+  const [exportProgress, setExportProgress] = React.useState<ExportProgress | null>(null);
+  const abortControllerRef = React.useRef<AbortController | null>(null);
+
+  const handleExport = async () => {
+    if (!editorEngine || typeof (editorEngine as any).exportVideo !== 'function') {
+      console.warn('[EditorControls] exportVideo is not available on this engine version');
+      return;
+    }
+
+    abortControllerRef.current = new AbortController();
+
+    try {
+      const blob = await (editorEngine as any).exportVideo({
+        fps: 30,
+        format: 'video/mp4',
+        onProgress: (progress: ExportProgress) => {
+          setExportProgress(progress);
+        },
+        signal: abortControllerRef.current.signal,
+      });
+
+      // Trigger browser download
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = file?.name ? `${file.name}.mp4` : 'export.mp4';
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name === 'AbortError') {
+        console.info('[EditorControls] Export cancelled by user');
+      } else {
+        console.error('[EditorControls] Export failed:', err);
+      }
+    } finally {
+      setExportProgress(null);
+      abortControllerRef.current = null;
+    }
+  };
+
+  const handleCancelExport = () => {
+    // Try engine-level cancel first (preferred)
+    if (editorEngine && typeof (editorEngine as any).cancelExport === 'function') {
+      (editorEngine as any).cancelExport();
+    }
+    // Also abort via AbortController in case exportVideo respects the signal
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+  };
+
+  const isExporting = exportProgress !== null ||
+    (editorEngine && typeof (editorEngine as any).isExporting === 'boolean'
+      ? (editorEngine as any).isExporting
+      : false);
+  // ─────────────────────────────────────────────────────────────────────────
+
+  const exportPct = exportProgress ? Math.round(exportProgress.progress * 100) : 0;
+
   return (
     <div
       style={{
         display: 'flex',
-        flexDirection: 'row',
+        flexDirection: 'column',
         marginLeft: '6px',
         alignContent: 'center',
         width: '100%',
         justifyContent: 'center'
       }}
     >
+      {isExporting && exportProgress && (
+        <Box
+          sx={(theme) => ({
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 1,
+            px: 1,
+            py: 0.5,
+            backgroundColor: alpha(theme.palette.background.paper, 0.92),
+            borderRadius: '6px',
+            width: '100%',
+          })}
+        >
+          <LinearProgress
+            variant="determinate"
+            value={exportPct}
+            sx={{ flex: 1, borderRadius: 4 }}
+          />
+          <Typography variant="caption" sx={{ minWidth: 38, textAlign: 'right', fontFamily: 'monospace' }}>
+            {`${exportPct}%`}
+          </Typography>
+          <Typography variant="caption" sx={{ minWidth: 80, textAlign: 'right', color: 'text.secondary' }}>
+            {`${exportProgress.frame}/${exportProgress.totalFrames}`}
+          </Typography>
+          <Tooltip title="Cancel export">
+            <IconButton size="small" onClick={handleCancelExport} color="error" sx={{ p: 0.25 }}>
+              <CancelIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        </Box>
+      )}
+      <div style={{ display: 'flex', flexDirection: 'row', width: '100%', justifyContent: 'center' }}>
       <ToggleButtonGroupEx
         width={52}
         height={40}
@@ -388,7 +486,31 @@ const [lastRecording, setLastRecording] = React.useState<Blob | null>(null);
             <RecordIcon />
           </ToggleButton>
         ) : null}
+        {engine.playbackMode === PlaybackMode.CANVAS ? (
+          <Tooltip enterDelay={600} title={isExporting ? 'Exporting…' : 'Export video to file'}>
+            <span>
+              <ToggleButton
+                sx={(theme) => ({
+                  ...(isExporting ? {
+                    '&.MuiButtonBase-root': {
+                      color: theme.palette.primary.contrastText,
+                      background: `${theme.palette.primary.main}!important`,
+                      '& svg': { fill: theme.palette.primary.contrastText },
+                    },
+                  } : {}),
+                })}
+                value="export"
+                disabled={settings.disabled || controls.includes('record')}
+                onClick={handleExport}
+                selected={isExporting}
+              >
+                <DownloadIcon fontSize={'small'} />
+              </ToggleButton>
+            </span>
+          </Tooltip>
+        ) : null}
       </ToggleButtonGroupEx>
+      </div>
     </div>
   );
 }
