@@ -27,6 +27,10 @@ export function DetailAction(props: DetailViewProps) {
   const actionData = actionDetail.action as IEditorActionDetail;
   const trackData = actionDetail.track as IEditorTrackDetail;
   const trackFile = trackFiles[trackData.id];
+  const videoEl = (trackFile?.media?.element as HTMLVideoElement | undefined)
+    ?? (trackFile?.name ? document.getElementById(`${trackFile.name}-video`) as HTMLVideoElement | null : null);
+  const sourceWidth = trackFile?.media?.width ?? videoEl?.videoWidth;
+  const sourceHeight = trackFile?.media?.height ?? videoEl?.videoHeight;
 
   const {
     control,
@@ -79,7 +83,7 @@ export function DetailAction(props: DetailViewProps) {
     <FormWrap
       title={selectedAction?.name}
       titleId={actionData.id}
-      submitHandler={handleSubmit(onSubmitAction as SubmitHandler<FieldValues>)}
+      submitHandler={handleSubmit(onSubmitAction as SubmitHandler<FieldValues>, (validationErrors) => console.error('[DetailAction] validation errors:', validationErrors))}
     >
       {/* Display All Errors */}
       {Object.keys(errors).length > 0 && (
@@ -173,7 +177,7 @@ export function DetailAction(props: DetailViewProps) {
           <CtrlCell width="46%">
             <UncontrolledText
               label={'Source Size'}
-              value={`${trackFile?.media?.width} x ${trackFile?.media?.height}`}
+              value={`${sourceWidth} x ${sourceHeight}`}
               disabled
               onClick={props.enableEdit}
             />

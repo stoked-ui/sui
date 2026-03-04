@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse, NextApiHandler } from 'next';
 import { verifyToken, UserRole } from './authStore';
+import { validateApiKey } from './apiKeyStore';
 
 export interface AuthenticatedRequest extends NextApiRequest {
   user: {
@@ -23,12 +24,26 @@ export function withAuth(handler: (req: AuthenticatedRequest, res: NextApiRespon
     }
 
     const token = authHeader.slice(7);
+
     try {
-      const decoded = verifyToken(token);
-      if (options?.roles && !options.roles.includes(decoded.role)) {
+      let user: AuthenticatedRequest['user'];
+
+      if (token.startsWith('sk_')) {
+        // API key authentication
+        const apiKeyUser = await validateApiKey(token);
+        if (!apiKeyUser) {
+          return res.status(401).json({ message: 'Invalid or revoked API key' });
+        }
+        user = apiKeyUser;
+      } else {
+        // JWT authentication
+        user = verifyToken(token);
+      }
+
+      if (options?.roles && !options.roles.includes(user.role)) {
         return res.status(403).json({ message: 'Insufficient permissions' });
       }
-      (req as AuthenticatedRequest).user = decoded;
+      (req as AuthenticatedRequest).user = user;
       return handler(req as AuthenticatedRequest, res);
     } catch {
       return res.status(401).json({ message: 'Invalid or expired token' });

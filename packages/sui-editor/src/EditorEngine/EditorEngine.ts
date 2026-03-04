@@ -247,35 +247,35 @@ export default class EditorEngine<
       // Get the video stream from the canvas renderer
       const videoStream = this.renderer.captureStream();
 
-      // Get the Howler audio stream
+      // Use a single AudioContext to mix all audio sources into one track.
+      // MediaRecorder only records one audio track, so we must mix before recording.
       const audioContext = Howler.ctx;
-      const destination = audioContext.createMediaStreamDestination();
-      Howler.masterGain.connect(destination);
-      const audioStream = destination.stream;
+      const mixedDestination = audioContext.createMediaStreamDestination();
 
-      // Get audio tracks from video elements
+      // Connect the Howler master gain (mp3 / audio tracks) to the mix
+      Howler.masterGain.connect(mixedDestination);
+
+      // Connect each video element's audio to the same mix destination
       const videoElements = document.querySelectorAll('video');
-      const videoAudioStreams: MediaStreamTrack[] = [];
       videoElements.forEach((video) => {
         const videoElement = video as HTMLVideoElement & { captureStream?: () => MediaStream };
         if (videoElement.captureStream) {
-          const vidStream = videoElement.captureStream();
-          vidStream.getAudioTracks().forEach((track) => {
-            videoAudioStreams.push(track);
-          });
+          try {
+            const source = audioContext.createMediaElementSource(videoElement);
+            source.connect(mixedDestination);
+            // Also keep the video audible during recording
+            source.connect(audioContext.destination);
+          } catch {
+            // createMediaElementSource can only be called once per element;
+            // if already connected, the audio is already routed through the context
+          }
         }
       });
 
-      // Combine Howler and video audio streams
-      const combinedAudioStream = new MediaStream([
-        ...audioStream.getAudioTracks(),
-        ...videoAudioStreams,
-      ]);
-
-      // Combine the video and audio streams
+      // Combine the canvas video track with the single mixed audio track
       const combinedStream = new MediaStream([
         ...videoStream.getVideoTracks(),
-        ...combinedAudioStream.getAudioTracks(),
+        ...mixedDestination.stream.getAudioTracks(),
       ]);
 
       // Create the MediaRecorder with the combined stream

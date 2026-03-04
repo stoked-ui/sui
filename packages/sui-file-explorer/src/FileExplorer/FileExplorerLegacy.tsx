@@ -99,7 +99,7 @@ export const FileExplorerLegacy = React.forwardRef(function FileExplorerLegacy<
   });
 
   const columns = instance.getColumns();
-  const sizes = Object.values(columns).map((column) => column.width);
+  const sizesKey = Object.values(columns).map((column) => column.width).join(',');
 
   const getHeaderWidths = (widthColumns: GridColumns) =>
     Object.entries(widthColumns).reduce((acc: Record<string, any>, [id, column]: any) => {
@@ -111,7 +111,7 @@ export const FileExplorerLegacy = React.forwardRef(function FileExplorerLegacy<
   const [columnWidths, setColumnWidths] = React.useState<SxProps>(getHeaderWidths(columns));
   React.useEffect(() => {
     setColumnWidths(getHeaderWidths(instance.getColumns()));
-  }, [sizes]);
+  }, [sizesKey]);
 
   const { slots, slotProps } = props;
   const classes = useUtilityClasses(props);

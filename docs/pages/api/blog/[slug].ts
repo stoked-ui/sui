@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { verifyToken } from 'docs/src/modules/auth/authStore';
+import { validateApiKey } from 'docs/src/modules/auth/apiKeyStore';
 import {
   getBlogPostBySlug,
   softDeleteBlogPost,
@@ -10,12 +11,13 @@ import { handleBlogApiError } from 'docs/src/modules/blog/blogApiUtils';
 type AuthUser = {
   sub: string;
   email: string;
-  role: 'admin' | 'client';
+  role: 'admin' | 'client' | 'agent';
   name: string;
   clientId?: string;
+  impersonatedId?: string;
 };
 
-function getOptionalAuthUser(req: NextApiRequest): AuthUser | null {
+async function getOptionalAuthUser(req: NextApiRequest): Promise<AuthUser | null> {
   const header = req.headers.authorization;
   if (!header?.startsWith('Bearer ')) {
     return null;
@@ -23,6 +25,9 @@ function getOptionalAuthUser(req: NextApiRequest): AuthUser | null {
 
   const token = header.slice(7);
   try {
+    if (token.startsWith('sk_')) {
+      return await validateApiKey(token);
+    }
     return verifyToken(token);
   } catch {
     return null;
@@ -43,7 +48,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (req.method === 'GET') {
       const post = await getBlogPostBySlug(slug) as { status?: string };
       if (post.status !== 'published') {
-        const user = getOptionalAuthUser(req);
+        const user = await getOptionalAuthUser(req);
         if (!user) {
           return res.status(401).json({ message: 'Authentication required to view draft posts' });
         }
@@ -51,7 +56,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(200).json(post);
     }
 
-    const user = getOptionalAuthUser(req);
+    const user = await getOptionalAuthUser(req);
     if (!user) {
       return res.status(401).json({ message: 'Missing or invalid authorization header' });
     }

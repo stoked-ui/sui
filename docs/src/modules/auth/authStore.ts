@@ -4,7 +4,7 @@ import * as jwt from 'jsonwebtoken';
 import { ObjectId } from 'mongodb';
 import { getDb } from 'docs/src/modules/db/mongodb';
 
-export type UserRole = 'admin' | 'client';
+export type UserRole = 'admin' | 'client' | 'agent';
 
 export interface User {
   _id: ObjectId;
@@ -13,6 +13,7 @@ export interface User {
   name: string;
   role: UserRole;
   clientId?: ObjectId;
+  agentIds?: ObjectId[];
   aliases?: string[];
   avatarUrl?: string;
   active: boolean;
@@ -29,6 +30,7 @@ export interface AuthResult {
     role: UserRole;
     clientId?: string;
     avatarUrl: string;
+    impersonatedId?: string;
   };
 }
 
@@ -52,13 +54,14 @@ function gravatarUrl(email: string): string {
   return `https://www.gravatar.com/avatar/${hash}?d=mp&s=64`;
 }
 
-function generateAuthResult(user: User, pictureUrl?: string): AuthResult {
+function generateAuthResult(user: User, pictureUrl?: string, impersonatedId?: string): AuthResult {
   const payload = {
     sub: user._id.toString(),
     email: user.email,
     role: user.role,
     name: user.name,
     clientId: user.clientId?.toString(),
+    impersonatedId,
   };
   const access_token = jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN as jwt.SignOptions['expiresIn'] });
   return {
@@ -70,6 +73,7 @@ function generateAuthResult(user: User, pictureUrl?: string): AuthResult {
       role: user.role,
       clientId: user.clientId?.toString(),
       avatarUrl: pictureUrl || user.avatarUrl || gravatarUrl(user.email),
+      impersonatedId,
     },
   };
 }
@@ -156,6 +160,32 @@ export async function loginWithGooglePayload(email: string, name: string, pictur
   return generateAuthResult(newUser, picture);
 }
 
-export function verifyToken(token: string): { sub: string; email: string; role: UserRole; name: string; clientId?: string } {
-  return jwt.verify(token, JWT_SECRET) as { sub: string; email: string; role: UserRole; name: string; clientId?: string };
+export async function impersonateUser(actorId: string, targetId: string): Promise<AuthResult> {
+  const db = await getDb();
+  const actor = await db.collection<User>('users').findOne({ _id: new ObjectId(actorId) });
+  if (!actor || (actor.role !== 'admin' && actor.role !== 'agent')) {
+    throw new Error('Not authorized to impersonate');
+  }
+
+  const target = await db.collection<User>('users').findOne({ _id: new ObjectId(targetId) });
+  if (!target) {
+    throw new Error('Target user not found');
+  }
+
+  // If agent, they can only impersonate if they are listed as an agent for that user
+  if (actor.role === 'agent') {
+    const isAgent = await db.collection('users').findOne({
+      _id: new ObjectId(targetId),
+      agentIds: new ObjectId(actorId)
+    });
+    if (!isAgent) {
+      throw new Error('Not authorized as an agent for this user');
+    }
+  }
+
+  return generateAuthResult(actor, actor.avatarUrl, targetId);
+}
+
+export function verifyToken(token: string): { sub: string; email: string; role: UserRole; name: string; clientId?: string; impersonatedId?: string } {
+  return jwt.verify(token, JWT_SECRET) as { sub: string; email: string; role: UserRole; name: string; clientId?: string; impersonatedId?: string };
 }

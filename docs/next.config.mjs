@@ -108,9 +108,8 @@ export default withDocsInfra({
           ...config.resolve.alias,
           // for 3rd party packages with dependencies in this repository
           '@stoked-ui/docs': path.resolve(workspaceRoot, 'packages/sui-docs/src'),
-          // WASM package is optional — built from Rust via wasm-pack. Resolve to
-          // false so webpack doesn't fail when pkg/ hasn't been compiled yet.
-          '@stoked-ui/video-renderer-wasm': false,
+          // WASM package — built from Rust via wasm-pack
+          '@stoked-ui/video-renderer-wasm': path.resolve(workspaceRoot, 'packages/sui-video-renderer/wasm-preview/pkg'),
          },
         extensions: [
           '.tsx',

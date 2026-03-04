@@ -411,15 +411,26 @@ class LocalDbStore {
       if (!projectFile) {
         console.error('No project found for video', projectName);
       } else {
+        // Ensure the version entry exists and has a videos array
+        if (!projectFile.versions[version]) {
+          projectFile.versions[version] = { videos: [] } as any;
+        }
+        if (!projectFile.versions[version].videos) {
+          projectFile.versions[version].videos = [];
+        }
         projectFile.versions[version].videos.push(videoData);
-        await store.put(projectFile, projectName);
+        try {
+          await store.put(projectFile, projectName);
+        } catch (putError) {
+          console.error('IDB put failed:', putError);
+        }
       }
       await tx.done;
       await this.retrieveKeys();
       console.info(`IDB Save Video: [${videoData.name}] ${this.name} - ${LocalDb.dbName}::${this.name} => Complete`);
       return true;
     } catch (e) {
-      console.error(`IDB Save Video Error: [${request.name}] ${this.name} - ${LocalDb.dbName}::${this.name}`);
+      console.error(`IDB Save Video Error: [${request.name}] ${this.name} - ${LocalDb.dbName}::${this.name}`, e);
       // throw new Error(e as string);
       return false
     }

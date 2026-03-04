@@ -16,19 +16,22 @@ export const startLeft = 20;
 
 function EditorRaw({ id, sx}: { id: string, sx?: SxProps }) {
   const { dispatch } = useEditorContext();
-    React.useEffect(() => {
-    createEditorFile<IEditorFileProps, EditorFile>(EditorVideoExampleProps, EditorFile, id).then((editorFile) => {
-      dispatch({ type: 'SET_FILE', payload: editorFile })
-        });
-  }, [])
 
-  return  <Editor
-    id={id}
-    sx={sx || { borderRadius: '12px 12px 0 0' }}
-    viewButtonAppear={10000}
-    viewButtonEnter={1000}
-    viewButtonExit={100}
-  />
+  React.useEffect(() => {
+    createEditorFile<IEditorFileProps, EditorFile>(EditorVideoExampleProps, EditorFile, id).then((editorFile) => {
+      dispatch({ type: 'SET_FILE', payload: editorFile });
+    });
+  }, []);
+
+  return (
+    <Editor
+      id={id}
+      sx={sx || { borderRadius: '12px 12px 0 0' }}
+      viewButtonAppear={10000}
+      viewButtonEnter={1000}
+      viewButtonExit={100}
+    />
+  );
 }
 export default function EditorHero({ id, sx }: { id: string, sx?: SxProps}) {
   return (
@@ -70,5 +73,6 @@ export default function EditorHero({ id, sx }: { id: string, sx?: SxProps}) {
     </Fade>
   );
 }
+
 
 

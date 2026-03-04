@@ -64,5 +64,12 @@
       "packages/sui-file-explorer-v2/build/node/index.js",
       "packages/sui-file-explorer-v2/build/index.d.ts"
     ]
+  },
+  "integration": {
+    "integrated_at": "2026-03-03T15:18:00Z",
+    "pr_number": 368,
+    "pr_url": "https://github.com/stoked-ui/sui/pull/368",
+    "merge_commit_sha": "6d27b51698bc32b5e70574a63c43885987a89ac6",
+    "integrated_by": "project-integrate"
   }
 }

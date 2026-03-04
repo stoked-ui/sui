@@ -17,7 +17,7 @@ import DiscordIcon from 'docs/src/icons/DiscordIcon';
 import { Link } from '@stoked-ui/docs';
 import SvgStackOverflow from 'docs/src/icons/SvgStackOverflow';
 import Slack from '../icons/Slack';
-import { ALL_PRODUCTS, PRODUCTS } from "../products";
+import { useAllProducts } from "../products";
 
 interface AppFooterProps {
   stackOverflowUrl?: string;
@@ -25,6 +25,7 @@ interface AppFooterProps {
 
 export default function AppFooter(props: AppFooterProps) {
   const { stackOverflowUrl } = props;
+  const allProducts = useAllProducts();
   const router = useRouter();
   const isConsultingPage = router.pathname.startsWith('/consulting');
 
@@ -93,24 +94,16 @@ export default function AppFooter(props: AppFooterProps) {
             <Typography fontWeight="semiBold" variant="body2" sx={{ mb: 0.5 }}>
               Products
             </Typography>
-            <Link prefetch={false} href={ALL_PRODUCTS.index['stoked-ui'].url('product')}>
-              Stoked UI
-            </Link>
-            <Link prefetch={false} href={PRODUCTS.index['file-explorer'].url('product')}>
-              File Explorer
-            </Link>
-            <Link prefetch={false} href={PRODUCTS.index.timeline.url('product')}>
-              Timeline
-            </Link>
-            <Link prefetch={false} href={PRODUCTS.index.editor.url('product')}>
-              Editor
-            </Link>
-            <Link prefetch={false} href={PRODUCTS.index.media.url('product')}>
-              Media
-            </Link>
-            <Link prefetch={false} href={ALL_PRODUCTS.index.flux.url('product')}>
-              Flux
-            </Link>
+            {allProducts.live.map((product) => (
+              <Link key={product.id} prefetch={false} href={product.url('product')}>
+                {product.name}
+              </Link>
+            ))}
+            {/* {PRODUCTS.live.map((product) => (
+              <Link key={product.id} prefetch={false} href={product.url('product')}>
+                {product.name}
+              </Link>
+            ))} */}
           </Box>
           <Box sx={{ display: 'flex', flexDirection: 'column' }}>
             <Typography fontWeight="semiBold" variant="body2" sx={{ mb: 0.5 }}>

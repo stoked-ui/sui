@@ -310,9 +310,8 @@ export function DetailActions({ errors, isDirty, reset, disableEdit, editMode}: 
       {Object.values(errors).map((error) => (<li>{error?.message?.toString()}</li>))}
     </ul>
     <Button
-      className=""
       variant="outlined"
-      color="secondary"
+      color="primary"
       disabled={!isDirty && !editMode}
       onClick={() => {
         disableEdit();
@@ -321,9 +320,8 @@ export function DetailActions({ errors, isDirty, reset, disableEdit, editMode}: 
       Cancel
     </Button>
     <Button
-      className=""
       variant="contained"
-      color="secondary"
+      color="primary"
       type={'submit'}
       disabled={!isDirty || !_.isEmpty(errors)}
     >
@@ -429,7 +427,15 @@ export function FileDetailView(): React.ReactNode {
              <UncontrolledText
                className={'whitespace-nowrap flex-grow flex'}
                label={'Duration'}
-               value={`${selectedTrack?.file?.media?.duration?.toFixed(2)}s`}
+               value={(() => {
+                 const media = selectedTrack?.file?.media;
+                 let dur = media?.duration;
+                 if (dur === undefined && selectedTrack?.file?.name) {
+                   const el = document.getElementById(`${selectedTrack.file.name}-video`) as HTMLVideoElement | null;
+                   dur = el?.duration;
+                 }
+                 return dur !== undefined && !Number.isNaN(dur) ? `${dur.toFixed(2)}s` : '';
+               })()}
                disabled
              />
            </CtrlCell>

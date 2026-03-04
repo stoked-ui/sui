@@ -157,10 +157,15 @@ export type SelectionDetail<Selection = SelectionType, Detail = DetailData> = { 
 export function getSelected(props: { selectedAction: any, selectedTrack: any, file: any, selectedType: SelectionTypeName }): SelectionResult {
   const { selectedAction, selectedTrack, file, selectedType } = props;
   if (selectedAction && !selectedTrack) {
-    throw new Error('Selected Action should not be set without a Selected Track');
+    console.warn('Selected Action set without a Selected Track — falling back to project');
+    if (file) {
+      return { selected: file, type: 'project' };
+    }
+    return { selected: selectedAction, type: 'action' };
   }
-  if(selectedAction && selectedTrack.actions.indexOf(selectedAction) !== -1) {
-    throw new Error('Selected Action not found in Selected Track');
+  if(selectedAction && selectedTrack && selectedTrack.actions.indexOf(selectedAction) !== -1) {
+    console.warn('Selected Action not found in Selected Track — clearing action selection');
+    return { selected: selectedTrack, type: 'track' };
   }
   if (selectedAction) {
     return { selected: selectedAction, type: 'action' };

@@ -363,7 +363,7 @@ export function EditorReducerBase(state: EditorState, stateAction: EditorStateAc
           return { timespan: { start: action.start, end: action.end }, fileTimespan: getActionFileTimespan(action)}
         });
         if (track.file) {
-          state.engine.screener.src = track.file.url;
+          state.engine.screener.src = track.file.getUrl();
         }
       } else if ("media" in stateAction.payload) {
         const mediaFile = stateAction.payload as MediaFile;
@@ -372,7 +372,7 @@ export function EditorReducerBase(state: EditorState, stateAction: EditorStateAc
           console.info('url', mediaFile.url);
         }
         state.engine.playbackMode = PlaybackMode.MEDIA;
-        state.engine.screener.src = mediaFile.url;
+        state.engine.screener.src = mediaFile.getUrl();
         state.engine.playbackTimespans = [{timespan: { start: 0, end: mediaFile.media.duration }, fileTimespan: { start: 0, end: mediaFile.media.duration }}];
 
       } else {
@@ -380,7 +380,7 @@ export function EditorReducerBase(state: EditorState, stateAction: EditorStateAc
         const action = stateAction.payload as IEditorAction;
         const track = state.file?.tracks.find((trackFile) => trackFile.actions.find((actionTrack) => actionTrack.id === action.id));
         if (track?.file) {
-          state.engine.screener.src = track.file.url;
+          state.engine.screener.src = track.file.getUrl();
         }
         state.engine.playbackTimespans = [{timespan: { start: action.start, end: action.end }, fileTimespan: getActionFileTimespan(action)}];
 

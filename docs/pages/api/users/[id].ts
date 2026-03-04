@@ -31,12 +31,13 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
     if (req.user.role !== 'admin' && req.user.sub !== id) {
       return res.status(403).json({ message: 'Access denied' });
     }
-    const { name, email, password, role, active, clientId, aliases } = req.body || {};
+    const { name, email, password, role, active, clientId, aliases, agentIds, avatarUrl } = req.body || {};
     const update: Record<string, unknown> = { updatedAt: new Date() };
     if (name !== undefined) update.name = name;
     if (email !== undefined) update.email = email.toLowerCase();
     if (password) update.passwordHash = await bcrypt.hash(password, 10);
-    // Only admins can change role, active status, clientId, and aliases
+    if (avatarUrl !== undefined) update.avatarUrl = avatarUrl;
+    // Only admins can change role, active status, clientId, aliases, and agentIds
     if (req.user.role === 'admin') {
       if (role !== undefined) update.role = role;
       if (active !== undefined) update.active = active;
@@ -44,6 +45,11 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
       if (aliases !== undefined) {
         update.aliases = Array.isArray(aliases)
           ? aliases.map((a: string) => a.toLowerCase().trim()).filter(Boolean)
+          : [];
+      }
+      if (agentIds !== undefined) {
+        update.agentIds = Array.isArray(agentIds)
+          ? agentIds.map((aid: string) => new ObjectId(aid))
           : [];
       }
     }

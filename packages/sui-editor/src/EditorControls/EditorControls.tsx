@@ -235,6 +235,16 @@ const [lastRecording, setLastRecording] = React.useState<Blob | null>(null);
       LocalDb.saveVideo(videoRequest).catch((error) => {
         console.error('Error saving video', error);
       });
+    }).catch((error) => {
+      console.error('[Recording] extractMetadata failed, saving without metadata:', error);
+      if (!file) {
+        return;
+      }
+      dispatch({ type: 'VIDEO_CREATED', payload: recording });
+      const videoRequest: VideoSaveRequest = { storeName: app.defaultInputFileType.name, projectName: file.fullName, name: recording.name, duration: 0, created: recording.created, blob: lastRecording, version: file.version, size: recording.size };
+      LocalDb.saveVideo(videoRequest).catch((saveError) => {
+        console.error('Error saving video', saveError);
+      });
     })
   }, [lastRecording])
 

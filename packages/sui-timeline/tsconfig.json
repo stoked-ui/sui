@@ -4,9 +4,6 @@
     "target": "ES2022",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "types": [
-      "@stoked-ui/internal-test-utils/initMatchers",
-      "chai-dom",
-      "mocha",
       "node",
       "wicg-file-system-access"
     ],

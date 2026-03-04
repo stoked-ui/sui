@@ -20,7 +20,7 @@ import {preventUnhandled} from "@atlaskit/pragmatic-drag-and-drop/prevent-unhand
 import type {Instruction} from "@atlaskit/pragmatic-drag-and-drop-hitbox/tree-item";
 import {MediaFile} from "@stoked-ui/media";
 import { FileBase} from "../../../models";
-import memoizeOne from "memoize-one";
+
 import {
   triggerPostMoveFlash
 } from "@atlaskit/pragmatic-drag-and-drop-flourish/trigger-post-move-flash";
@@ -175,16 +175,19 @@ export const useFileExplorerDnd: FileExplorerPlugin<UseFileExplorerDndSignature>
     return item?.children ?? [];
   }, [items]);
 
-  const getPathToItem = memoizeOne((targetId: string) =>
-    fileExplorer.getPathToItem({ current: items as FileBase[], targetId }) ?? [],);
+  const getPathToItem = React.useCallback((targetId: string) =>
+    fileExplorer.getPathToItem({ current: items as FileBase[], targetId }) ?? [], [items]);
+
+  // Stable identity for the lifetime of this FileExplorer instance.
+  // Must NOT live inside useMemo — otherwise it changes every time deps change
+  // and items that mounted in different render cycles get different Symbols,
+  // causing the canDrop check to silently reject cross-level drops.
+  const uniqueContextIdRef = React.useRef(Symbol('unique-id'));
 
   const context = React.useMemo<FileExplorerDndContextValue<FileBase>>(
     () => ({
       dispatch: updateState,
-      uniqueContextId: Symbol('unique-id'),
-      // memoizing this function as it is called by all explorer items repeatedly
-      // An ideal refactor would be to update our data shape
-      // to allow quick lookups of parents
+      uniqueContextId: uniqueContextIdRef.current,
       getPathToItem,
       getMoveTargets,
       getNodesOfItem,
@@ -609,7 +612,7 @@ const useFileExplorerDndItemPlugin: FilePlugin<UseMinimalPlus<UseFileExplorerDnd
         const dataInstruction = attachInstruction(data, {
           input,
           element,
-          indentPerLevel: 0,
+          indentPerLevel,
           currentLevel: props.depth ?? 0,
           mode,
           block: !canDrop ? ['make-child'] : [],

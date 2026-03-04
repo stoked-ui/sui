@@ -27,6 +27,7 @@ import GradientText from "./components/typography/GradientText";
 import StokedConsultingShowcase from "./components/home/StokedConsultingShowcase";
 import AdvancedShowcase from "./components/home/AdvancedShowcase";
 import FileExplorerShowcase from './components/home/FileExplorerShowcase';
+
 import TimelineShowcase from "./components/home/TimelineShowcase";
 import EditorShowcase from './components/home/EditorShowcase';
 import NoSsr from "@mui/material/NoSsr";
@@ -47,7 +48,7 @@ type FEATURE = TFeature & {
   route: (type: RouteType) => string;
 }
 
-type TProduct = {
+export type TProduct = {
   id: string,
   name: string;
   fullName: string;
@@ -794,6 +795,7 @@ const fileExplorerData: TProduct = {
 };
 const fileExplorer = new Product(fileExplorerData);
 
+
 /* const coreData: TProduct = {
   id: 'core',
   name: "Core",
@@ -1125,9 +1127,7 @@ const stokdCloudData: TProduct = {
 const stokdCloud = new Product(stokdCloudData);
 
 const PRODUCTS: Products = new Products([fileExplorer, media, timeline, videoEditor]);
-const ALL_PRODUCTS: Products = new Products([
-  sui, fileExplorer, media, timeline, videoEditor, flux, macMixer, alwaysListening, stokdCloud
-]);
+const ALL_PRODUCTS: Products = new Products([sui]);
 const CONSULTING: Products = new Products([consultingFrontEnd, consultingBackEnd, consultingDevops, consultingAi]);
 const ALL_PACKAGES: Products = new Products([
   fileExplorer, media, common, mediaApi, mediaSelector, timeline, videoEditor, flux,
@@ -1140,4 +1140,35 @@ export type MenuProps = {
   sx?: SxProps<Theme>,
 };
 
-export { PRODUCTS, ALL_PRODUCTS, ALL_PACKAGES, CONSULTING }
+function useAllProducts(): Products {
+  const [products, setProducts] = React.useState<Products>(ALL_PRODUCTS);
+
+  React.useEffect(() => {
+    fetch('/api/products/public')
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => {
+        if (!Array.isArray(data) || data.length === 0) return;
+        const apiProducts = data.map(
+          (p: any) =>
+            new Product({
+              id: p.productId,
+              name: p.name,
+              fullName: p.name,
+              description: p.description,
+              icon: p.icon || 'product-core',
+              url: p.url,
+              features: p.features || [],
+              hideProductFeatures: p.hideProductFeatures,
+              live: true,
+              showcaseType: AdvancedShowcase,
+            }),
+        );
+        setProducts(new Products([sui, ...apiProducts]));
+      })
+      .catch(() => {});
+  }, []);
+
+  return products;
+}
+
+export { PRODUCTS, ALL_PRODUCTS, ALL_PACKAGES, CONSULTING, useAllProducts }

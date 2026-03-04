@@ -10,7 +10,7 @@ import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import Chip from '@mui/material/Chip';
 import ROUTES from 'docs/src/route';
-import { PRODUCTS, ALL_PRODUCTS, CONSULTING } from 'docs/src/products';
+import { PRODUCTS, CONSULTING, useAllProducts } from 'docs/src/products';
 import { Link } from '@stoked-ui/docs';
 import type { AuthUser, ManagedProduct } from 'docs/src/layouts/AppHeader';
 
@@ -77,6 +77,7 @@ interface HeaderNavBarProps {
 }
 
 export default function HeaderNavBar({ auth, managedProducts = [] }: HeaderNavBarProps) {
+  const allProducts = useAllProducts();
   const [subMenuOpen, setSubMenuOpen] = React.useState<SubMenuType>(null);
   const [subMenuIndex, setSubMenuIndex] = React.useState<number | null>(null);
   const navRef = React.useRef<HTMLUListElement | null>(null);
@@ -390,7 +391,7 @@ export default function HeaderNavBar({ auth, managedProducts = [] }: HeaderNavBa
   return (
     <Navigation>
       <ul ref={navRef} onKeyDown={handleKeyDown}>
-        {ALL_PRODUCTS.menu({ type: 'products', ...menuProps, menuRef: productsMenuRef})}
+        {allProducts.menu({ type: 'products', ...menuProps, menuRef: productsMenuRef})}
         {CONSULTING.menu({ type: 'consulting', ...menuProps, menuRef: consultingMenuRef})}
         <li>
           <Link href={ROUTES.about}>About us</Link>
@@ -398,7 +399,7 @@ export default function HeaderNavBar({ auth, managedProducts = [] }: HeaderNavBa
         <li>
           <Link href={ROUTES.blog}>Blog</Link>
         </li>
-        {ALL_PRODUCTS.menu({ type: 'docs', ...menuProps, menuRef: docsMenuRef})}
+        {allProducts.menu({ type: 'docs', ...menuProps, menuRef: docsMenuRef})}
       </ul>
     </Navigation>
   );

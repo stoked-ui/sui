@@ -1,7 +1,9 @@
 import * as React from 'react';
 import NoSsr from "@mui/material/NoSsr";
 import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
+import GradientText from 'docs/src/components/typography/GradientText';
 import { PRODUCTS } from 'docs/src/products';
 import BrandingCssVarsProvider from '@stoked-ui/docs';
 import dynamic from 'next/dynamic';
@@ -76,7 +78,24 @@ let MainView:  React.ComponentType<{}> = function MainView() {
   return (
     <React.Fragment>
       <EditorHero id={'editor'} sx={{ width: '1080px', mt: '12px' }} />
-      <Box sx={{ height: '112px' }}/>
+      <Box sx={{ maxWidth: 500, mx: 'auto', textAlign: 'center', mt: 6, mb: 2 }}>
+        <Typography
+          component="h2"
+          variant="body2"
+          fontWeight="bold"
+          color="primary.main"
+          sx={{ mb: 1 }}
+        >
+          Rust Video Renderer
+        </Typography>
+        <Typography variant="h2" sx={{ mb: 1 }}>
+          <GradientText>WebAssembly-powered</GradientText> compositing engine built in Rust.
+        </Typography>
+        <Typography color="text.secondary">
+          Hardware-accelerated rendering with zero-copy frame pipelines, real-time blend modes, and layer compositing — all running natively in the browser.
+        </Typography>
+      </Box>
+      <Box sx={{ height: '64px' }}/>
       <Divider/>
     </React.Fragment>
   )

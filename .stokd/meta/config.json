@@ -1,0 +1,16 @@
+{
+  "lastUpdate": 1772555853042,
+  "lastValidate": 1772555853042,
+  "packages": [
+    "packages/sui-common",
+    "packages/sui-common-api",
+    "packages/sui-docs",
+    "packages/sui-editor",
+    "packages/sui-file-explorer",
+    "packages/sui-file-explorer-v2",
+    "packages/sui-github",
+    "packages/sui-media",
+    "packages/sui-media-api",
+    "packages/sui-timeline"
+  ]
+}

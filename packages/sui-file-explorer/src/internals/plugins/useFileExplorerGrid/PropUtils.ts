@@ -23,7 +23,9 @@ export function calcSize(item: any & { children: any[]}, propName: string, curre
   }
 
   item.children.forEach((child: any) => {
-    current += calcSize(child.props, propName);
+    // Support both React element children (child.props) and raw FileBase children
+    const childData = child.props ?? child;
+    current += calcSize(childData, propName);
   });
 
   return current;

@@ -4,7 +4,7 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Modal from "@mui/material/Modal";
 import { ActionDetail, TrackDetail } from '@stoked-ui/timeline';
-import SettingsIcon from "@mui/icons-material/Settings";
+// import SettingsIcon from "@mui/icons-material/Settings";
 import Fab from "@mui/material/Fab";
 import Box from "@mui/material/Box";
 import { useEditorContext } from '../EditorProvider/EditorContext';
@@ -93,9 +93,9 @@ export const DetailView = React.forwardRef(function DetailView(
     }
   }, [selected])
 
-  const settingSwitch = () => {
-    dispatch({ type: 'SELECT_SETTINGS' });
-  }
+  // const settingSwitch = () => {
+  //   dispatch({ type: 'SELECT_SETTINGS' });
+  // }
    return (
     <Card
       component={RootBox}
@@ -123,7 +123,7 @@ export const DetailView = React.forwardRef(function DetailView(
         flexWrap: 'wrap',
 
       })}>
-        <Fab
+        {/* <Fab
           id={'settings'}
           color={'secondary'}
           aria-label="settings"
@@ -136,7 +136,7 @@ export const DetailView = React.forwardRef(function DetailView(
           onClick={settingSwitch}
         >
           <SettingsIcon />
-        </Fab>
+        </Fab> */}
         <Fab
           id={'close'}
           color={'info'}

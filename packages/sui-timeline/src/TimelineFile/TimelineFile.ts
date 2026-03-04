@@ -141,7 +141,6 @@ export default class TimelineFile<
   }
 
   async preload(editorId: string) {
-    console.info(new Error().stack);
     if (this._initialized) {
       return;
     }

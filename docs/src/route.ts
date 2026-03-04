@@ -6,6 +6,7 @@ type Routes = {
 const ROUTES: Routes = {
   stokedUi: '/stoked-ui/',
   fileExplorer: '/stoked-ui/file-explorer/',
+
   media: '/media/',
   mediaDocs: '/media/docs/overview/',
   common: '/common/',

@@ -110,6 +110,20 @@ export default class MediaFile extends File implements IMediaFile {
     return namedId('mediafile');
   }
 
+  /**
+   * Creates a deterministic ID from a URL so the same resource always
+   * gets the same file ID.  This makes caches keyed on file.id
+   * (e.g. screenshot localStorage) survive across page loads.
+   */
+  static stableIdFromUrl(url: string): string {
+    let hash = 5381;
+    for (let i = 0; i < url.length; i += 1) {
+      hash = ((hash << 5) + hash) + url.charCodeAt(i);
+      hash |= 0; // 32-bit integer
+    }
+    return `mediafile-${Math.abs(hash).toString(36)}`;
+  }
+
   get metadataBlob(): Blob {
     return new Blob(
       [JSON.stringify(this.mediaProps)], { type: 'application/json' }
@@ -303,7 +317,7 @@ export default class MediaFile extends File implements IMediaFile {
           description: "Fetched from URL",
           tags: [],
         },
-        id: this.generateId,
+        id: this.stableIdFromUrl(url),
       };
 
       const mediaFile = new MediaFile([blob], fileName, options);
@@ -674,7 +688,7 @@ export default class MediaFile extends File implements IMediaFile {
       }
       const { video, ...videoData} = await this.createVideoElement(file);
       const screenshotStore = new ScreenshotStore({ threshold: 1, video, file });
-      file.media = { ...file.media, screenshotStore, ...videoData, element: video };
+      Object.assign(file.media, { screenshotStore, ...videoData, element: video });
       this.cache[id] = file;
     } catch (ex) {
       throw new Error(`Failed to read file: ${ex}`);

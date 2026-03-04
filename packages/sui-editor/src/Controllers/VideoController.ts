@@ -1,4 +1,4 @@
-import { Stage, ScreenshotStore } from '@stoked-ui/media';
+import { Stage, ScreenshotStore, Screenshot } from '@stoked-ui/media';
 import { createSettings } from '@stoked-ui/common';
 import {
   Controller,
@@ -101,8 +101,18 @@ class VideoControl extends Controller<HTMLVideoElement> {
           return;
         }
 
+        // If the video element already has a valid source loaded, skip re-preloading
+        if (item.src && item.readyState >= 2) {
+          action.duration = action.duration || item.duration;
+          action.width = action.width || item.videoWidth;
+          action.height = action.height || item.videoHeight;
+          resolve(action as ITimelineAction);
+          return;
+        }
+
         item.addEventListener('error', () => {
-          reject(new Error(`Video failed to load: ${action.name} - ${file.url}`));
+          console.warn(`Video failed to load: ${action.name} - ${item.src}`);
+          resolve(action as ITimelineAction);
         }, { once: true });
 
         // Wait for metadata, then generate track thumbnails before resolving.
@@ -117,16 +127,23 @@ class VideoControl extends Controller<HTMLVideoElement> {
 
           // Generate track thumbnails once the video is seekable
           const generateAndResolve = () => {
-            if (!file.media?.screenshotStore && item.videoWidth > 0) {
-              const screenshotStore = new ScreenshotStore({ threshold: 1, video: item, file });
-              file.media = { ...file.media, screenshotStore, element: item };
+            const t0 = performance.now();
+            const existingStore = file.media?.screenshotStore;
+            const hasScreenshots = existingStore && existingStore.count > 0;
+            console.info(`[screenshots] ${action.name}: generateAndResolve called, hasStore=${!!existingStore}, storeCount=${existingStore?.count ?? 0}, videoWidth=${item.videoWidth}`);
+            if (!hasScreenshots && item.videoWidth > 0) {
+              const screenshotStore = existingStore || new ScreenshotStore({ threshold: 1, video: item, file });
+              Object.assign(file.media, { screenshotStore, element: item });
 
               // Try loading cached screenshots from localStorage first
               const hasCached = screenshotStore.loadCachedScreenshots();
+              const t1 = performance.now();
+              console.info(`[screenshots] ${action.name}: cache-check took ${(t1 - t0).toFixed(1)}ms, hasCached=${hasCached}`);
               if (hasCached) {
                 const trackScreens = screenshotStore.trackScreenshots;
+                console.info(`[screenshots] ${action.name}: loaded ${trackScreens.length} from localStorage in ${(t1 - t0).toFixed(1)}ms`);
                 if (trackScreens.length > 0) {
-                  file.media.screenshots = trackScreens.map((s) => s.data);
+                  file.media.screenshots = trackScreens.map((s: Screenshot) => s.data);
                 }
                 resolve(action as ITimelineAction);
                 return;
@@ -135,17 +152,22 @@ class VideoControl extends Controller<HTMLVideoElement> {
               const fileTimespan = { start: action.trimStart || 0, end: action.duration || item.duration };
               const trackHeight = 36 * 1.6;
               const count = screenshotStore.getScreenshotTimespanCount(trackHeight, fileTimespan);
-              screenshotStore.generateTimespanScreenshots(count, 'track', fileTimespan).then((screens) => {
+              console.info(`[screenshots] ${action.name}: generating ${count} screenshots (no cache)`);
+              screenshotStore.generateTimespanScreenshots(count, 'track', fileTimespan).then((screens: Screenshot[]) => {
+                const t2 = performance.now();
+                console.info(`[screenshots] ${action.name}: generated ${screens.length} screenshots in ${(t2 - t0).toFixed(1)}ms`);
                 if (screens.length > 0) {
-                  file.media.screenshots = screens.map((s) => s.data);
+                  file.media.screenshots = screens.map((s: Screenshot) => s.data);
                   ScreenshotStore.saveToLocalStorage(file.id, screens);
                 }
                 resolve(action as ITimelineAction);
               }).catch(() => {
                 // Still resolve even if screenshots fail — playback shouldn't be blocked
+                console.info(`[screenshots] ${action.name}: generation failed after ${(performance.now() - t0).toFixed(1)}ms`);
                 resolve(action as ITimelineAction);
               });
             } else {
+              console.info(`[screenshots] ${action.name}: skipped (${hasScreenshots ? `already has ${existingStore?.count} screenshots` : `videoWidth=${item.videoWidth}`})`);
               resolve(action as ITimelineAction);
             }
           };
@@ -159,7 +181,7 @@ class VideoControl extends Controller<HTMLVideoElement> {
 
         item.autoplay = false;
         item.style.display = 'flex';
-        item.src = file.url;
+        item.src = file.url || file.getUrl();
 
       } catch (ex) {
         reject(ex);
@@ -295,7 +317,10 @@ class VideoControl extends Controller<HTMLVideoElement> {
       this.canvasSync(engine, item, action, track);
     }
     const vidItem = this.getItem({ action, track })
-    vidItem.playbackRate = engine.getPlayRate();
+    const enterPlayRate = engine.getPlayRate();
+    if (enterPlayRate > 0) {
+      vidItem.playbackRate = enterPlayRate;
+    }
     if (vidItem) {
       this.log(params, `enter readyState: ${vidItem.readyState}`)
       if (engine.playbackMode === PlaybackMode.TRACK_FILE) {
@@ -339,10 +364,19 @@ class VideoControl extends Controller<HTMLVideoElement> {
       const item = this.getItem(params);
       item.currentTime = Controller.getActionTime(params);
       const enginePlayRate = engine.getPlayRate();
-      if  ((item as HTMLVideoElement).playbackRate !== enginePlayRate) {
+      // Negative playback rates (rewind) are not supported by HTMLMediaElement.
+      // During rewind the engine handles seeking frame-by-frame via update(),
+      // so we pause the video instead of playing it.
+      if (enginePlayRate < 0) {
+        item.pause();
+        return;
+      }
+      if ((item as HTMLVideoElement).playbackRate !== enginePlayRate) {
         (item as HTMLVideoElement).playbackRate = enginePlayRate;
-      } else if (action?.playbackRate ?? 1 < 0) {
-        (item as HTMLVideoElement).playbackRate = action.playbackRate as number;
+      } else if ((action?.playbackRate ?? 1) < 0) {
+        // action-level playbackRate < 0 is also unsupported; skip
+      } else if (action?.playbackRate && action.playbackRate > 0) {
+        (item as HTMLVideoElement).playbackRate = action.playbackRate;
       }
       if (action.freeze === undefined) {
         item.play().catch((err) => console.error(err))

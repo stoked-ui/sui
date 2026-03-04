@@ -372,6 +372,7 @@ const Editor = React.forwardRef(function Editor<R extends IMediaFile = IMediaFil
       editorFile.preload(settings.editorId).then(() => {
         console.info(`[${editorIdLocal}]`, '<Editor file::preload() />', editorFile, editorFile.tracks.length);
         dispatch({type: 'SET_FILE', payload: editorFile});
+        editorFile.save({ silent: true }).catch((e) => console.warn('Auto-save to IDB failed:', e));
       }).catch((error) => {
         engine.state = EngineState.READY;
         console.error(`[${editorIdLocal}]`, '<Editor file::preload() />', error);

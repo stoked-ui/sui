@@ -1,7 +1,12 @@
 #!/bin/bash
 
-# Kill all development services to free up ports
-echo "🔄 Killing existing development services..."
+# Kill development services for THIS project only
+# Scoped by project directory to avoid killing other projects' processes
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
+
+echo "🔄 Killing development services for: $PROJECT_DIR"
 
 # Function to kill processes on specific ports with graceful shutdown
 kill_port() {
@@ -39,42 +44,45 @@ kill_port() {
     fi
 }
 
-# Kill processes by port (based on your app configuration)
+# Function to kill processes matching a pattern, but ONLY if their command line
+# also contains this project's directory path
+kill_project_processes() {
+    local pattern=$1
+    local label=$2
+    local pids=$(pgrep -f "$pattern" 2>/dev/null)
+
+    if [ -z "$pids" ]; then
+        return
+    fi
+
+    for pid in $pids; do
+        # Check if this process belongs to our project by inspecting its command line
+        local cmdline=$(ps -p "$pid" -o args= 2>/dev/null)
+        if echo "$cmdline" | grep -q "$PROJECT_DIR"; then
+            echo "🔴 Killing $label (pid $pid)"
+            kill -TERM "$pid" 2>/dev/null || true
+        fi
+    done
+}
+
+# Kill processes by port (these ports are specific to this project)
 kill_port 5199 "Next.js Docs Site"
 kill_port 3001 "Video Renderer Service"
 
-# Kill processes by name patterns
-echo "🔄 Killing processes by name..."
+# Kill processes by name, scoped to this project's directory
+echo "🔄 Killing project-scoped processes..."
 
-# Kill Next.js processes
-pkill -f "next dev" 2>/dev/null || true
-
-# Kill NestJS processes
-pkill -f "nest start" 2>/dev/null || true
-
-# Kill specific package dev processes
-pkill -f "packages/sui-video-renderer" 2>/dev/null || true
-
-# Kill any pnpm dev processes
-pkill -f "pnpm.*dev" 2>/dev/null || true
-
-# Kill concurrently processes
-pkill -f "concurrently" 2>/dev/null || true
-
-# Kill Turbo daemon/processes to avoid stale sessions
-pkill -f "turbo.*daemon" 2>/dev/null || true
-pkill -f "turbod" 2>/dev/null || true
-pkill -f "turbo dev" 2>/dev/null || true
-
-# Kill babel watch processes
-pkill -f "babel.*--watch" 2>/dev/null || true
-
-# Kill TypeScript watch processes
-pkill -f "tsc.*--watch" 2>/dev/null || true
+kill_project_processes "next dev" "Next.js"
+kill_project_processes "nest start" "NestJS"
+kill_project_processes "packages/sui-video-renderer" "Video Renderer"
+kill_project_processes "pnpm.*dev" "pnpm dev"
+kill_project_processes "concurrently" "concurrently"
+kill_project_processes "turbo.*dev" "turbo dev"
+kill_project_processes "babel.*--watch" "babel watch"
+kill_project_processes "tsc.*--watch" "tsc watch"
 
 # Give processes time to fully terminate and release ports
 sleep 2
 
 echo "✅ Development services cleanup complete!"
 echo "💡 Ports 5199, 3001 should now be available"
-echo "🧹 All background processes terminated"

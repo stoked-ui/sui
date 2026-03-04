@@ -24,12 +24,15 @@ export function DetailTrack(props: DetailViewProps) {
 
   const { state, dispatch } = useEditorContext();
   const { selectedDetail, selected, file} = state;
-  const track = (selectedDetail as TrackDetail).track as IEditorTrackDetail;
+  const rawTrack = (selectedDetail as TrackDetail).track as IEditorTrackDetail;
 
-  track.blendMode = track.blendMode ?? 'normal';
-  track.hidden = !!track.hidden;
-  track.locked = !!track.locked;
-  track.muted = !!track.muted;
+  const track = React.useMemo(() => ({
+    ...rawTrack,
+    blendMode: rawTrack.blendMode ?? 'normal',
+    hidden: !!rawTrack.hidden,
+    locked: !!rawTrack.locked,
+    muted: !!rawTrack.muted,
+  }), [rawTrack.id]);
 
   const {
     control,
@@ -53,7 +56,7 @@ export function DetailTrack(props: DetailViewProps) {
     <FormWrap
       title={selected?.name}
       titleId={(props.detail as TrackDetail).track.id}
-      submitHandler={handleSubmit(onSubmit)}
+      submitHandler={handleSubmit(onSubmit, (validationErrors) => console.error('[DetailTrack] validation errors:', validationErrors))}
     >
       {/* Display All Errors */}
       {Object.keys(errors).length > 0 && (

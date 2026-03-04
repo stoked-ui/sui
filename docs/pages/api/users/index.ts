@@ -13,9 +13,12 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
       return res.status(403).json({ message: 'Admin access required' });
     }
     const filter: Record<string, unknown> = {};
-    const { clientId } = req.query;
+    const { clientId, role: roleQuery } = req.query;
     if (clientId && typeof clientId === 'string' && ObjectId.isValid(clientId)) {
       filter.clientId = new ObjectId(clientId);
+    }
+    if (roleQuery && typeof roleQuery === 'string') {
+      filter.role = roleQuery;
     }
     const users = await collection
       .find(filter)
@@ -26,15 +29,15 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
   }
 
   if (req.method === 'POST') {
-    const { email, password, name, role, clientId } = req.body || {};
+    const { email, password, name, role, clientId, agentIds, avatarUrl } = req.body || {};
     if (!email || !name) {
       return res.status(400).json({ message: 'Email and name are required' });
     }
 
     // Client-role users can only create users for their own org
     if (req.user.role === 'client') {
-      if (role === 'admin') {
-        return res.status(403).json({ message: 'Cannot create admin users' });
+      if (role === 'admin' || role === 'agent') {
+        return res.status(403).json({ message: 'Cannot create admin or agent users' });
       }
       if (clientId && clientId !== req.user.clientId) {
         return res.status(403).json({ message: 'Can only create users for your own organization' });
@@ -56,12 +59,18 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
       createdAt: now,
       updatedAt: now,
     };
+    if (avatarUrl) {
+      doc.avatarUrl = avatarUrl;
+    }
     if (password) {
       doc.passwordHash = await bcrypt.hash(password, 10);
     }
     const resolvedClientId = clientId || (req.user.role === 'client' ? req.user.clientId : undefined);
     if (resolvedClientId) {
       doc.clientId = new ObjectId(resolvedClientId);
+    }
+    if (agentIds && Array.isArray(agentIds)) {
+      doc.agentIds = agentIds.map((id: string) => new ObjectId(id));
     }
 
     const result = await collection.insertOne(doc);

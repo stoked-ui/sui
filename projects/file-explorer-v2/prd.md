@@ -462,3 +462,4 @@ type FileBase<R extends {} = {}> = {
 1. **MUI X Pro License:** Does the project have an active MUI X Pro license? `RichTreeViewPro` and `itemsReordering` require it. If not, Phase 2 is blocked until a license is obtained.
 2. **`@stoked-ui/common` peer dependency:** Should v2 take a peer dependency on `@stoked-ui/common` (like v1 does)? Currently not needed since v2 has no common utility usage, but the adapter in Phase 3 may benefit from shared types.
 3. **Publishing timeline:** When should v2 be published to npm? It can be workspace-only initially and published when stable.
+can
