@@ -36,7 +36,7 @@ async function getBranches() {
   return JSON.parse(text);
 }
 
-Page.getInitialProps = async () => {
+export const getStaticProps = async () => {
   try {
     const FILTERED_BRANCHES = ['main', 'l10n', 'next', 'migration', 'material-ui.com'];
 
@@ -78,9 +78,17 @@ Page.getInitialProps = async () => {
       });
     }
 
-    return {versions: sortedUniqBy(versions, 'version')};
+    return {
+      props: {
+        versions: sortedUniqBy(versions, 'version'),
+      },
+    };
   } catch (ex) {
     console.error(`VERSIONS Error: ${ex.message}`);
   }
-  return {versions: []};
+  return {
+    props: {
+      versions: [],
+    },
+  };
 };

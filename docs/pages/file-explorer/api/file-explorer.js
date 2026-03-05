@@ -8,7 +8,7 @@ export default function Page(props) {
   return <ApiPage descriptions={descriptions} pageContent={pageContent} />;
 }
 
-Page.getInitialProps = () => {
+export const getStaticProps = () => {
   const req = require.context(
     'docs/translations/api-docs/file-explorer/file-explorer',
     false,
@@ -16,8 +16,8 @@ Page.getInitialProps = () => {
   );
   const descriptions = mapApiPageTranslations(req);
 
-  return {
+  return { props: {
     descriptions,
     pageContent: jsonPageContent,
-  };
+  }, };
 };

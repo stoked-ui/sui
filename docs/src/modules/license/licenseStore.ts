@@ -14,7 +14,10 @@ export interface LicenseProduct {
   productId: string;
   name: string;
   keyPrefix: string;
-  stripePriceId: string;
+  stripeProductId?: string;
+  stripePriceId?: string;
+  price: number;
+  currency: string;
   licenseDurationDays: number;
   gracePeriodDays: number;
   trialDurationDays: number;
@@ -81,7 +84,10 @@ function normalizeLicenseProduct(doc: Record<string, unknown>): LicenseProduct {
     productId: String(doc.productId || ''),
     name: String(doc.name || ''),
     keyPrefix: String(doc.keyPrefix || ''),
-    stripePriceId: String(doc.stripePriceId || ''),
+    stripeProductId: typeof doc.stripeProductId === 'string' ? doc.stripeProductId : undefined,
+    stripePriceId: typeof doc.stripePriceId === 'string' ? doc.stripePriceId : undefined,
+    price: Number(doc.price || 0),
+    currency: String(doc.currency || 'usd'),
     licenseDurationDays: Number(doc.licenseDurationDays || 365),
     gracePeriodDays: Number(doc.gracePeriodDays || 14),
     trialDurationDays: Number(doc.trialDurationDays || 30),

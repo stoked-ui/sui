@@ -98,6 +98,12 @@ export default withDocsInfra({
       rule.resourceQuery = { not: [/raw/] };
     });
 
+    // Enable WASM support
+    config.experiments = {
+      ...config.experiments,
+      asyncWebAssembly: true,
+    };
+
     return {
       ...config,
 

@@ -10,7 +10,22 @@ import AppHeader from 'docs/src/layouts/AppHeader';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 
+import { GetStaticPaths, GetStaticProps } from 'next';
+
 const ClientDetailPage = dynamic(() => import('docs/src/modules/components/ClientDetailPage'), { ssr: false });
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  return {
+    paths: [],
+    fallback: false,
+  };
+};
+
+export const getStaticProps: GetStaticProps = async () => {
+  return {
+    props: {},
+  };
+};
 
 function useAuth() {
   const [user, setUser] = React.useState<{ name: string; role: 'admin' | 'client'; id: string; clientId?: string } | null>(null);

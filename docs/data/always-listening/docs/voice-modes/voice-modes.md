@@ -5,7 +5,7 @@ title: Voice Modes
 
 # Voice Modes
 
-<p class="description">Always Listening supports multiple voice modes that run as independent pipelines -- Dictation for typing speech into any app, configurable AI agents for conversational interaction, and seamless switching between them via trigger words or hotkeys.</p>
+<p class="description">Always Listening supports multiple voice modes that run as independent pipelines -- Dictation for typing speech into any app, configurable </p>
 
 ## How Modes Work
 

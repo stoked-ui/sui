@@ -122,7 +122,6 @@ ProductDrawerButton.propTypes = {
 };
 
 function ProductIdentifier(props) {
-  console.log('ProductIdentifier', props);
   const { name, metadata, versionSelector } = props;
   return (
     <Box sx={{ flexGrow: 1 }}>

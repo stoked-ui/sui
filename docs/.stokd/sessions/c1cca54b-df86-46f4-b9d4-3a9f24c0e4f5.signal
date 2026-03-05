@@ -1,0 +1,7 @@
+{
+  "state": "responding",
+  "timestamp": "2026-02-26T22:09:05Z",
+  "session_id": "c1cca54b-df86-46f4-b9d4-3a9f24c0e4f5",
+  "event": "Bash",
+  "provider": "claude-code"
+}

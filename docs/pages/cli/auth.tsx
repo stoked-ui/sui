@@ -7,6 +7,7 @@ import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
 import Alert from '@mui/material/Alert';
 import CircularProgress from '@mui/material/CircularProgress';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { GoogleLogin } from '@react-oauth/google';
 import { useRouter } from 'next/router';
 import BrandingCssVarsProvider from '@stoked-ui/docs';
@@ -20,30 +21,22 @@ interface AuthData {
     id: string;
     email: string;
     name: string;
-    role: 'admin' | 'client';
-    clientId?: string;
-    avatarUrl?: string;
+    role: string;
   };
 }
 
-function LoginForm({ onLogin }: { onLogin: (data: AuthData) => void }) {
+function CliLoginForm({ onLogin }: { onLogin: (data: AuthData) => void }) {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
-
-  const getApiUrl = (path: string) => {
-    if (typeof window === 'undefined') return path;
-    if (window.location.hostname === 'localhost') return path;
-    return `https://api.${window.location.host}${path}`;
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(getApiUrl('/api/auth/login'), {
+      const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -70,7 +63,7 @@ function LoginForm({ onLogin }: { onLogin: (data: AuthData) => void }) {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(getApiUrl('/api/auth/google'), {
+      const res = await fetch('/api/auth/google', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token: idToken }),
@@ -101,10 +94,10 @@ function LoginForm({ onLogin }: { onLogin: (data: AuthData) => void }) {
     >
       <Paper variant="outlined" sx={{ p: 4, width: '100%', maxWidth: 400 }}>
         <Typography variant="h5" fontWeight="bold" gutterBottom>
-          Sign In
+          Authorize bstoked CLI
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-          Sign in to access the consulting portal.
+          Sign in to authorize the bstoked CLI tool on your machine.
         </Typography>
         {error && (
           <Alert severity="error" sx={{ mb: 2 }}>
@@ -143,7 +136,7 @@ function LoginForm({ onLogin }: { onLogin: (data: AuthData) => void }) {
             disabled={loading}
             startIcon={loading ? <CircularProgress size={16} color="inherit" /> : undefined}
           >
-            {loading ? 'Signing in...' : 'Sign In'}
+            {loading ? 'Authorizing...' : 'Authorize CLI'}
           </Button>
         </Box>
         {showGoogleLogin && (
@@ -164,61 +157,83 @@ function LoginForm({ onLogin }: { onLogin: (data: AuthData) => void }) {
   );
 }
 
-export default function ConsultingLoginPage() {
+export default function CliAuthPage() {
   const router = useRouter();
-  const [auth, setAuth] = React.useState<AuthData | null>(null);
-  const [loading, setLoading] = React.useState(true);
+  const [status, setStatus] = React.useState<'login' | 'authorizing' | 'success' | 'error'>('login');
+  const [error, setError] = React.useState<string | null>(null);
+  const [userEmail, setUserEmail] = React.useState<string>('');
 
-  React.useEffect(() => {
+  const handleLogin = async (data: AuthData) => {
+    const { port, state } = router.query;
+    if (!port || !state) {
+      setError('Missing CLI callback parameters (port, state). Please retry from the CLI.');
+      setStatus('error');
+      return;
+    }
+
+    setStatus('authorizing');
+
     try {
-      const stored = localStorage.getItem('auth');
-      if (stored) {
-        const parsed = JSON.parse(stored) as AuthData;
-        setAuth(parsed);
-        // Already logged in — redirect to appropriate page
-        if (parsed.user.role === 'admin') {
-          router.replace('/consulting/clients');
-        } else {
-          router.replace(`/consulting/clients/${parsed.user.clientId}`);
-        }
-        return;
+      // Exchange the JWT for a persistent API key
+      const res = await fetch('/api/auth/cli/authorize', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${data.access_token}`,
+        },
+        body: JSON.stringify({
+          port: Number(port),
+          state: String(state),
+        }),
+      });
+
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({}));
+        throw new Error((json as { message?: string }).message || `Authorization failed (${res.status})`);
       }
-    } catch { /* ignore */ }
-    setLoading(false);
-  }, [router]);
 
-  const handleLogin = (data: AuthData) => {
-    try {
-      localStorage.setItem('auth', JSON.stringify(data));
-      localStorage.setItem('blog_jwt', data.access_token);
-    } catch { /* ignore */ }
-    setAuth(data);
-    // Redirect after login
-    if (data.user.role === 'admin') {
-      router.push('/consulting/clients');
-    } else {
-      router.push(`/consulting/clients/${data.user.clientId}`);
+      const result = await res.json() as { key: string; state: string; user: { email: string } };
+
+      // Redirect to the CLI's local callback server
+      setUserEmail(result.user.email);
+      window.location.href = `http://127.0.0.1:${port}/callback?key=${encodeURIComponent(result.key)}&state=${encodeURIComponent(String(state))}&email=${encodeURIComponent(result.user.email)}`;
+      setStatus('success');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Authorization failed');
+      setStatus('error');
     }
   };
 
-  if (loading || auth) {
-    return (
-      <BrandingCssVarsProvider>
-        <Head title="Login - Stoked Consulting" description="Sign in to the consulting portal" />
-        <AppHeader />
-        <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-          <CircularProgress />
-        </Box>
-      </BrandingCssVarsProvider>
-    );
-  }
-
   return (
     <BrandingCssVarsProvider>
-      <Head title="Login - Stoked Consulting" description="Sign in to the consulting portal" />
+      <Head title="Authorize CLI - Stoked UI" description="Authorize the bstoked CLI tool" />
       <AppHeader />
       <main id="main-content">
-        <LoginForm onLogin={handleLogin} />
+        {status === 'login' && <CliLoginForm onLogin={handleLogin} />}
+
+        {status === 'authorizing' && (
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 8, gap: 2 }}>
+            <CircularProgress />
+            <Typography>Generating API key...</Typography>
+          </Box>
+        )}
+
+        {status === 'success' && (
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 8, gap: 2 }}>
+            <CheckCircleOutlineIcon sx={{ fontSize: 64, color: 'success.main' }} />
+            <Typography variant="h5" fontWeight="bold">CLI Authorized</Typography>
+            <Typography color="text.secondary">
+              {userEmail ? `Authenticated as ${userEmail}. ` : ''}
+              You can close this tab and return to your terminal.
+            </Typography>
+          </Box>
+        )}
+
+        {status === 'error' && (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
+            <Alert severity="error" sx={{ maxWidth: 400 }}>{error}</Alert>
+          </Box>
+        )}
       </main>
       <Divider />
       <AppFooter />

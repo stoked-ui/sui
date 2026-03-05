@@ -5,7 +5,7 @@ title: Always Listening - Voice Pipeline Tray App
 
 # Overview
 
-<p class="description">Always Listening is a cross-platform system tray application that turns your voice into actions -- talk to AI agents, dictate text, and control your smart home, all from a lightweight menu bar app.</p>
+<p class="description">Always Listening is a cross-platform system tray application that turns your voice into actions -- talk to AI agents, </p>
 
 ## What is Always Listening?
 

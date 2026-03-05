@@ -83,15 +83,19 @@ let MainView:  React.ComponentType<{}> = function MainView() {
   )
 }
 export default function Home({ HomeMain }: { HomeMain: React.ComponentType }) {
-  return <HomeView HomeMain={ HomeMain || MainView } />;
-}
-Home.getInitialProps = async(context: { req: any; query: any; res: any; asPath: any; pathname: any; }) => {
+  const [currentMain, setCurrentMain] = React.useState<React.ComponentType | null>(null);
 
-  const { req } = context;
-  if (req) {
-    console.info('req.headers.host', req.headers.host);
-    if (['stoked-ui.com', 'stokedconsulting.com', 'stokedui.com'].includes(req.headers?.host)) {
-      MainView = RandomHome;
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const host = window.location.hostname;
+      if (['stoked-ui.com', 'stokedconsulting.com'].includes(host)) {
+        setCurrentMain(() => RandomHome);
+      } else {
+        setCurrentMain(() => MainView);
+      }
     }
-  }
+  }, []);
+
+  return <HomeView HomeMain={ HomeMain || currentMain || MainView } />;
 }
+

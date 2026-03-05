@@ -124,7 +124,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
       const posts: ApiPost[] = json.data || [];
       return {
         paths: posts.map((post) => ({ params: { slug: post.slug } })),
-        fallback: 'blocking',
+        fallback: false,
       };
     }
   } catch (e) {
@@ -133,7 +133,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
   }
   return {
     paths: [],
-    fallback: 'blocking',
+    fallback: false,
   };
 };
 
