@@ -9,7 +9,7 @@ export type LicenseStatus = 'pending' | 'active' | 'expired' | 'revoked';
 
 @StdSchema(DefaultSchemaOptions)
 export class License {
-  @Prop({ type: String, unique: true, index: true })
+  @Prop({ type: String, unique: true })
   key: string;
 
   @Prop({ type: String, required: true, index: true })
@@ -44,7 +44,7 @@ export class License {
   @Prop({ type: String, required: true, index: true })
   stripeCustomerId: string;
 
-  @Prop({ type: String, required: true, index: true })
+  @Prop({ type: String, required: true })
   stripeSubscriptionId: string;
 
   @Prop({ type: Number, default: 0 })

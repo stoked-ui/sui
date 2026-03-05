@@ -13,11 +13,23 @@ export class Product {
   @Prop({ type: String, required: true })
   name: string;
 
+  @Prop({ type: String })
+  description?: string;
+
   @Prop({ type: String, required: true })
   keyPrefix: string;
 
-  @Prop({ type: String, required: true })
-  stripePriceId: string;
+  @Prop({ type: String })
+  stripeProductId?: string;
+
+  @Prop({ type: String })
+  stripePriceId?: string;
+
+  @Prop({ type: Number, default: 0 })
+  price: number;
+
+  @Prop({ type: String, default: 'usd' })
+  currency: string;
 
   @Prop({ type: Number, default: 365 })
   licenseDurationDays: number;

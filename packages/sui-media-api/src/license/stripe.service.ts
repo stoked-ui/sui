@@ -25,11 +25,49 @@ export class StripeService {
     this.webhookSecret = this.configService.get<string>('STRIPE_WEBHOOK_SECRET') || '';
   }
 
+  async createProduct(params: {
+    productId: string;
+    name: string;
+    description?: string;
+  }): Promise<Stripe.Product> {
+    return this.stripe.products.create({
+      id: params.productId,
+      name: params.name,
+      description: params.description,
+      metadata: {
+        productId: params.productId,
+      },
+    });
+  }
+
+  async createPrice(params: {
+    productId: string;
+    stripeProductId: string;
+    price: number;
+    currency: string;
+  }): Promise<Stripe.Price> {
+    return this.stripe.prices.create({
+      product: params.stripeProductId,
+      unit_amount: Math.round(params.price * 100),
+      currency: params.currency.toLowerCase(),
+      recurring: {
+        interval: 'year',
+      },
+      metadata: {
+        productId: params.productId,
+      },
+    });
+  }
+
   async createCheckoutSession(
     dto: CreateCheckoutDto,
     product: ProductDocument,
   ): Promise<string> {
     try {
+      if (!product.stripePriceId) {
+        throw new BadRequestException(`Product ${dto.productId} is not configured for purchase (missing Stripe Price ID)`);
+      }
+
       const session = await this.stripe.checkout.sessions.create({
         mode: 'subscription',
         line_items: [

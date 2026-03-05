@@ -8,6 +8,7 @@
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
+    "isolatedModules": true,
     "outDir": "./dist",
     "rootDir": "./src",
     "baseUrl": ".",

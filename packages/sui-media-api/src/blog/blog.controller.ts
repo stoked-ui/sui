@@ -22,7 +22,7 @@ import {
   ApiParam,
   ApiQuery,
 } from '@nestjs/swagger';
-import { Request } from 'express';
+import type { Request } from 'express';
 import { BlogService } from './blog.service';
 import {
   CreateBlogPostDto,

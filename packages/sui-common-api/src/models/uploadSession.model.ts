@@ -127,7 +127,7 @@ export class UploadSession {
    * When this upload session expires
    * S3 multipart uploads expire after 7 days, so we match that
    */
-  @Prop({ type: Date, required: true, index: true })
+  @Prop({ type: Date, required: true })
   expiresAt: Date;
 
   /** Error message if the upload failed */
