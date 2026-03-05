@@ -62,3 +62,4 @@ claudedocs/
 # Rust/Cargo build artifacts
 **/target/
 Cargo.lock
+.stokd/sessions/*.telemetry.jsonl
