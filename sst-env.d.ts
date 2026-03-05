@@ -5,6 +5,10 @@
 
 declare module "sst" {
   export interface Resource {
+    "Api": {
+      "type": "sst.aws.ApiGatewayV2"
+      "url": string
+    }
     "MONGODB_URI": {
       "type": "sst.sst.Secret"
       "value": string
@@ -12,6 +16,30 @@ declare module "sst" {
     "ROOT_DOMAIN": {
       "type": "sst.sst.Secret"
       "value": string
+    }
+    "STRIPE_SECRET_KEY": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "STRIPE_WEBHOOK_SECRET": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "SendSms": {
+      "name": string
+      "type": "sst.aws.Function"
+    }
+    "Subscribe": {
+      "name": string
+      "type": "sst.aws.Function"
+    }
+    "Verify": {
+      "name": string
+      "type": "sst.aws.Function"
+    }
+    "stoked-uicomStaticSite": {
+      "type": "sst.aws.StaticSite"
+      "url": string
     }
   }
 }

@@ -2,7 +2,6 @@
 const ZONE_IDS: Record<string, string> = {
   'stoked-ui.com': 'Z007684515CR7EDIISGDG',
   'stokedconsulting.com': 'Z2CYVWQGVIX8W6',
-  'stokedui.com': 'Z01533641XDJN0XULMW1A',
 };
 
 export const getDomains = (rootDomain: string, stage: string) => {
@@ -27,7 +26,7 @@ export const getDomainInfo = (rootDomains: string, stage: string): DomainInfo =>
   const primaryZoneId = ZONE_IDS[rootDomainParts[0]] ?? '';
 
   const retVal = { resourceName, apiDomain, appName, domains: $dev ? [process.env.LOCAL_DOMAIN!]: domains, dbName, primaryZoneId };
-  console.info('domainInfo', retVal);
+  // console.info('domainInfo', retVal);
   return retVal;
 }
 

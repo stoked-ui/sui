@@ -47,6 +47,16 @@ export const createApi = (domainInfo: DomainInfo) => {
     },
   });
 
+  // Google Auth Lambda
+  const googleAuthFunction = new sst.aws.Function("GoogleAuth", {
+    handler: "api/auth/google.handler",
+    link: [mongoDbUri, jwtSecret],
+    environment: {
+      NEXT_PUBLIC_GOOGLE_CLIENT_ID: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? "",
+      AUTH_AUTO_DOMAINS: process.env.AUTH_AUTO_DOMAINS ?? "stokedconsulting.com,stoked-ui.com,brianstoker.com",
+    },
+  });
+
   // Route all /v1/* requests to the Media API Lambda
   api.route("$default", mediaApiFunction.arn);
 
@@ -101,6 +111,7 @@ export const createApi = (domainInfo: DomainInfo) => {
   api.route("POST /subscribe", subscribeFunction.arn);
   api.route("GET /verify", verifyFunction.arn);
   api.route("POST /smss", sendSms.arn);
+  api.route("POST /api/auth/google", googleAuthFunction.arn);
 
   return api;
 }
