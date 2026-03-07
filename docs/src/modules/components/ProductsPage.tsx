@@ -12,6 +12,7 @@ import AddIcon from '@mui/icons-material/AddOutlined';
 import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
 import { useRouter } from 'next/router';
+import { getApiUrl } from 'docs/src/modules/utils/getApiUrl';
 import ProductCard from './ProductCard';
 
 interface Product {
@@ -23,6 +24,12 @@ interface Product {
   icon: string;
   url: string;
   live: boolean;
+  keyPrefix?: string;
+  price?: number;
+  currency?: string;
+  licenseDurationDays?: number;
+  gracePeriodDays?: number;
+  trialDurationDays?: number;
 }
 
 function getToken(): string | null {
@@ -43,7 +50,7 @@ async function apiFetch(url: string, options: RequestInit = {}) {
     ...(options.headers as Record<string, string> || {}),
   };
   if (token) headers.Authorization = `Bearer ${token}`;
-  const res = await fetch(url, { ...options, headers });
+  const res = await fetch(getApiUrl(url), { ...options, headers });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     throw new Error(body.message || `Request failed with status ${res.status}`);
@@ -63,6 +70,12 @@ export default function ProductsPage() {
   const [formName, setFormName] = React.useState('');
   const [formDescription, setFormDescription] = React.useState('');
   const [formUrl, setFormUrl] = React.useState('');
+  const [formKeyPrefix, setFormKeyPrefix] = React.useState('');
+  const [formPrice, setFormPrice] = React.useState('');
+  const [formCurrency, setFormCurrency] = React.useState('usd');
+  const [formLicenseDays, setFormLicenseDays] = React.useState('365');
+  const [formGraceDays, setFormGraceDays] = React.useState('14');
+  const [formTrialDays, setFormTrialDays] = React.useState('30');
 
   const fetchProducts = React.useCallback(async () => {
     try {
@@ -102,7 +115,18 @@ export default function ProductsPage() {
       } else {
         await apiFetch('/api/products', {
           method: 'POST',
-          body: JSON.stringify({ productId: formProductId, name: formName, description: formDescription, url: formUrl }),
+          body: JSON.stringify({
+            productId: formProductId,
+            name: formName,
+            description: formDescription,
+            url: formUrl,
+            keyPrefix: formKeyPrefix,
+            price: Number(formPrice),
+            currency: formCurrency,
+            licenseDurationDays: Number(formLicenseDays),
+            gracePeriodDays: Number(formGraceDays),
+            trialDurationDays: Number(formTrialDays),
+          }),
         });
       }
       setDialogOpen(false);
@@ -111,6 +135,12 @@ export default function ProductsPage() {
       setFormName('');
       setFormDescription('');
       setFormUrl('');
+      setFormKeyPrefix('');
+      setFormPrice('');
+      setFormCurrency('usd');
+      setFormLicenseDays('365');
+      setFormGraceDays('14');
+      setFormTrialDays('30');
       fetchProducts();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Save failed');
@@ -124,7 +154,13 @@ export default function ProductsPage() {
       setFormProductId(product.productId);
       setFormName(product.name);
       setFormDescription(product.description);
-      setFormUrl(product.url);
+      setFormUrl(product.url || '');
+      setFormKeyPrefix(product.keyPrefix || '');
+      setFormPrice(product.price !== undefined ? String(product.price) : '');
+      setFormCurrency(product.currency || 'usd');
+      setFormLicenseDays(String(product.licenseDurationDays || 365));
+      setFormGraceDays(String(product.gracePeriodDays || 14));
+      setFormTrialDays(String(product.trialDurationDays || 30));
       setDialogOpen(true);
     }
   };
@@ -172,6 +208,12 @@ export default function ProductsPage() {
             setFormName('');
             setFormDescription('');
             setFormUrl('');
+            setFormKeyPrefix('');
+            setFormPrice('');
+            setFormCurrency('usd');
+            setFormLicenseDays('365');
+            setFormGraceDays('14');
+            setFormTrialDays('30');
             setDialogOpen(true);
           }}
         >
@@ -236,6 +278,14 @@ export default function ProductsPage() {
             onChange={(e) => setFormDescription(e.target.value)}
           />
           <TextField
+            label="Key Prefix"
+            fullWidth
+            margin="normal"
+            value={formKeyPrefix}
+            onChange={(e) => setFormKeyPrefix(e.target.value.toUpperCase())}
+            helperText='e.g. "FLUX" — prefix for license keys'
+          />
+          <TextField
             label="URL"
             fullWidth
             margin="normal"
@@ -243,13 +293,61 @@ export default function ProductsPage() {
             onChange={(e) => setFormUrl(e.target.value)}
             helperText='e.g. "/flux"'
           />
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <TextField
+              label="Price"
+              type="number"
+              margin="normal"
+              value={formPrice}
+              onChange={(e) => setFormPrice(e.target.value)}
+              helperText="Amount in cents (e.g. 4999 = $49.99)"
+              sx={{ flex: 2 }}
+            />
+            <TextField
+              label="Currency"
+              margin="normal"
+              value={formCurrency}
+              onChange={(e) => setFormCurrency(e.target.value.toLowerCase())}
+              helperText="e.g. usd"
+              sx={{ flex: 1 }}
+            />
+          </Box>
+          <Typography variant="subtitle2" sx={{ mt: 2, mb: 1 }}>
+            Subscription Settings
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <TextField
+              label="License (days)"
+              type="number"
+              margin="normal"
+              value={formLicenseDays}
+              onChange={(e) => setFormLicenseDays(e.target.value)}
+              fullWidth
+            />
+            <TextField
+              label="Grace Period (days)"
+              type="number"
+              margin="normal"
+              value={formGraceDays}
+              onChange={(e) => setFormGraceDays(e.target.value)}
+              fullWidth
+            />
+            <TextField
+              label="Trial (days)"
+              type="number"
+              margin="normal"
+              value={formTrialDays}
+              onChange={(e) => setFormTrialDays(e.target.value)}
+              fullWidth
+            />
+          </Box>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setDialogOpen(false)}>Cancel</Button>
           <Button
             variant="contained"
             onClick={handleSave}
-            disabled={!formName || !formDescription || (!editingId && !formProductId)}
+            disabled={!formName || !formDescription || (!editingId && (!formProductId || !formKeyPrefix || !formPrice))}
           >
             {editingId ? 'Save' : 'Create'}
           </Button>

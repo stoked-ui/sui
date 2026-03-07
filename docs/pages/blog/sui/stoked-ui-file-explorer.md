@@ -2,7 +2,7 @@
 title: Announcing the Stoked UI File Explorer
 description: A deep dive into the File Explorer component — a fully featured, tree-based file browser for React applications built for media-centric workflows.
 date: 2026-02-19T00:00:00.000Z
-authors: ['brianstoker']
+authors: ['brian-stoker']
 tags: ['Stoked UI', 'File Explorer', 'Announcement', 'Product']
 manualCard: false
 ---

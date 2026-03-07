@@ -1,9 +1,14 @@
-import { mongoDbUri } from 'infra/secrets'
+import { mongoDbUri, jwtSecret, blogApiToken, invoiceApiKey, stripeSecretKey, stripeWebhookSecret } from 'infra/secrets'
 import { DomainInfo } from 'infra/domains'
 
 export const createApi = (domainInfo: DomainInfo) => {
 
   const api = new sst.aws.ApiGatewayV2("Api", {
+    cors: {
+      allowOrigins: ["*"],
+      allowMethods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+      allowHeaders: ["Content-Type", "Authorization"],
+    },
     domain: {
       name: domainInfo.apiDomain,
       dns: sst.aws.dns({ zone: domainInfo.primaryZoneId }),
@@ -11,27 +16,31 @@ export const createApi = (domainInfo: DomainInfo) => {
   });
 
   // ---------------------------------------------------------------------------
-  // Media API Lambda (NestJS / lambda.bootstrap.ts)
+  // Media API Lambda (NestJS / lambda.ts -> lambda.bootstrap.ts)
   // Handles media/auth/invoice routes under /v1/*
   // ---------------------------------------------------------------------------
-  const jwtSecret = new sst.Secret("JWT_SECRET");
-  const blogApiToken = new sst.Secret("BLOG_API_TOKEN");
-  const invoiceApiKey = new sst.Secret("INVOICE_API_KEY");
 
   const mediaApiFunction = new sst.aws.Function("MediaApi", {
-    handler: "packages/sui-media-api/dist/lambda.bootstrap.handler",
+    // Use an ESM wrapper around the compiled NestJS lambda entry so Lambda can resolve `handler`.
+    handler: "packages/sui-media-api/lambda.entry.handler",
     runtime: "nodejs20.x",
-    timeout: "29 seconds",
-    memory: "1024 MB",
-    link: [mongoDbUri, jwtSecret, blogApiToken, invoiceApiKey],
+    timeout: "60 seconds",
+    memory: "2048 MB",
+    link: [mongoDbUri, jwtSecret, blogApiToken, invoiceApiKey, stripeSecretKey, stripeWebhookSecret],
     permissions: [{
       actions: ["ses:SendEmail"],
       resources: ["arn:aws:ses:us-east-1:883859713095:identity/*"],
     }],
     environment: {
+      MONGODB_URI: mongoDbUri.value,
+      JWT_SECRET: jwtSecret.value,
+      STRIPE_SECRET_KEY: stripeSecretKey.value,
+      STRIPE_WEBHOOK_SECRET: stripeWebhookSecret.value,
+      AWS_S3_BUCKET: "stoked-ui-media",
+      NEXT_PUBLIC_VIDEO_BUCKET: "stoked-ui-media",
       // Core
       NODE_ENV: "production",
-      API_PATH_PREFIX: "/v1",
+      API_PATH_PREFIX: "/api",
 
       // Auth
       AUTH_AUTO_DOMAINS: process.env.AUTH_AUTO_DOMAINS ?? "stokedconsulting.com,stoked-ui.com,brianstoker.com",
@@ -45,6 +54,12 @@ export const createApi = (domainInfo: DomainInfo) => {
       ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS ?? `https://${domainInfo.domains[0]},https://www.${domainInfo.domains[0]}`,
 
     },
+    nodejs: {
+      install: ["mongodb", "sharp"],
+      esbuild: {
+        external: ["@nestjs/websockets/socket-module", "@nestjs/microservices/microservices-module", "@nestjs/microservices", "class-transformer/storage"],
+      }
+    }
   });
 
   // Google Auth Lambda
@@ -52,9 +67,17 @@ export const createApi = (domainInfo: DomainInfo) => {
     handler: "api/auth/google.handler",
     link: [mongoDbUri, jwtSecret],
     environment: {
+      MONGODB_URI: mongoDbUri.value,
+      JWT_SECRET: jwtSecret.value,
       NEXT_PUBLIC_GOOGLE_CLIENT_ID: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? "",
       AUTH_AUTO_DOMAINS: process.env.AUTH_AUTO_DOMAINS ?? "stokedconsulting.com,stoked-ui.com,brianstoker.com",
     },
+    nodejs: {
+      install: ["mongodb"],
+      esbuild: {
+        external: ["@nestjs/websockets/socket-module", "@nestjs/microservices/microservices-module", "@nestjs/microservices", "class-transformer/storage"],
+      }
+    }
   });
 
   // Route all /v1/* requests to the Media API Lambda
@@ -111,7 +134,7 @@ export const createApi = (domainInfo: DomainInfo) => {
   api.route("POST /subscribe", subscribeFunction.arn);
   api.route("GET /verify", verifyFunction.arn);
   api.route("POST /smss", sendSms.arn);
-  api.route("POST /api/auth/google", googleAuthFunction.arn);
+  api.route("ANY /api/auth/google", googleAuthFunction.arn);
 
   return api;
 }

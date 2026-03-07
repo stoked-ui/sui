@@ -8,7 +8,8 @@
       "wicg-file-system-access",
       "jest"
     ],
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    "skipLibCheck": true
   },
   "include": ["src/**/*"],
   "exclude": ["**/*.test.ts", "**/*.test.tsx", "**/__tests__/**"]

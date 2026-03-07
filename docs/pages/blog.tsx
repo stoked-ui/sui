@@ -81,6 +81,7 @@ export const getStaticProps = async () => {
       allBlogPosts: mergedPosts,
       tagInfo: mergedTagInfo,
     },
+    revalidate: 60,
   };
 };
 
@@ -151,16 +152,22 @@ function PostPreview(props: BlogPost) {
               }),
           ]}
         >
-          {(props.authors as Array<keyof typeof AUTHORS>).map((author) => (
-            <Avatar
-              key={author}
-              alt=""
-              src={`${AUTHORS[author].avatar}?s=${28}`}
-              srcSet={`${AUTHORS[author].avatar}?s=${28 * 2} 2x, ${AUTHORS[author].avatar}?s=${
-                28 * 3
-              } 3x`}
-            />
-          ))}
+          {(props.authors as Array<keyof typeof AUTHORS>).map((author) => {
+            const authorData = AUTHORS[author];
+            if (!authorData) {
+              return <Avatar key={author} alt={author} sx={{ width: 28, height: 28 }} />;
+            }
+            return (
+              <Avatar
+                key={author}
+                alt=""
+                src={`${authorData.avatar}?s=${28}`}
+                srcSet={`${authorData.avatar}?s=${28 * 2} 2x, ${authorData.avatar}?s=${
+                  28 * 3
+                } 3x`}
+              />
+            );
+          })}
         </AvatarGroup>
       )}
       <Box
@@ -385,7 +392,7 @@ export default function Blog(props: InferGetStaticPropsType<typeof getStaticProp
             <Button
               variant="contained"
               size="small"
-              href="/blog/editor"
+              href="/blog/editor/new"
               component={Link}
             >
               New Post

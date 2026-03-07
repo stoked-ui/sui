@@ -17,6 +17,7 @@ import dynamic from "next/dynamic";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useInView } from "react-intersection-observer";
 import Grid from "@mui/material/Grid";
+import { getApiUrl } from "./modules/utils/getApiUrl";
 import PageContext from "./modules/components/PageContext";
 import IconImage from "./components/icon/IconImage";
 import ROUTES from './route';
@@ -1144,7 +1145,7 @@ function useAllProducts(): Products {
   const [products, setProducts] = React.useState<Products>(ALL_PRODUCTS);
 
   React.useEffect(() => {
-    fetch('/api/products/public')
+    fetch(getApiUrl('/api/products/public'))
       .then((res) => (res.ok ? res.json() : []))
       .then((data) => {
         if (!Array.isArray(data) || data.length === 0) return;

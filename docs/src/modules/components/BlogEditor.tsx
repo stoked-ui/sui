@@ -24,6 +24,7 @@ export interface BlogEditorProps {
 interface AuthState {
   token: string | null;
   role: string | null;
+  name: string | null;
   loading: boolean;
 }
 
@@ -42,7 +43,7 @@ export default function BlogEditor({ initialSlug }: BlogEditorProps) {
   const router = useRouter();
 
   // Auth state
-  const [auth, setAuth] = React.useState<AuthState>({ token: null, role: null, loading: true });
+  const [auth, setAuth] = React.useState<AuthState>({ token: null, role: null, name: null, loading: true });
 
   // Editor state
   const [formData, setFormData] = React.useState<BlogPostFormData>(DEFAULT_FORM_DATA);
@@ -66,12 +67,14 @@ export default function BlogEditor({ initialSlug }: BlogEditorProps) {
   React.useEffect(() => {
     let token: string | null = null;
     let role: string | null = null;
+    let name: string | null = null;
     try {
       const stored = localStorage.getItem('auth');
       if (stored) {
         const parsed = JSON.parse(stored);
         token = parsed.access_token || null;
         role = parsed.user?.role || null;
+        name = parsed.user?.name || null;
       }
       if (!token) {
         token = localStorage.getItem('blog_jwt');
@@ -88,8 +91,13 @@ export default function BlogEditor({ initialSlug }: BlogEditorProps) {
       router.replace('/consulting/login');
       return;
     }
-    setAuth({ token, role, loading: false });
-  }, [router]);
+    setAuth({ token, role, name, loading: false });
+
+    // Auto-populate authors for new posts from logged-in user
+    if (!isEditing && name) {
+      setFormData((prev) => prev.authors ? prev : { ...prev, authors: name });
+    }
+  }, [router, isEditing]);
 
   // Load existing post when editing
   React.useEffect(() => {
@@ -325,12 +333,12 @@ export default function BlogEditor({ initialSlug }: BlogEditorProps) {
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <Button
-            href="/blog"
+            href="/blog/editor"
             size="small"
             startIcon={<ArrowBackIcon />}
             sx={{ color: 'text.secondary' }}
           >
-            Blog
+            All Posts
           </Button>
           <Divider orientation="vertical" flexItem />
           <Typography variant="subtitle1" fontWeight="semiBold">

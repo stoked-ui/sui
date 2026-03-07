@@ -4,19 +4,19 @@ import BrandingCssVarsProvider from '@stoked-ui/docs';
 import Head from 'docs/src/modules/components/Head';
 import AppHeader from 'docs/src/layouts/AppHeader';
 import AppFooter from 'docs/src/layouts/AppFooter';
-import BlogEditor from 'docs/src/modules/components/BlogEditor';
+import BlogPostList from 'docs/src/modules/components/BlogPostList';
 
 export default function BlogEditorPage() {
   return (
     <BrandingCssVarsProvider>
       <Head
-        title="New Blog Post - SUI"
-        description="Create a new blog post"
+        title="Manage Blog Posts - SUI"
+        description="Manage your blog posts"
         disableAlternateLocale
       />
       <AppHeader />
       <main id="main-content">
-        <BlogEditor />
+        <BlogPostList />
       </main>
       <Divider />
       <AppFooter />

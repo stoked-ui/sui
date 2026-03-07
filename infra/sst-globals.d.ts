@@ -13,6 +13,9 @@ declare namespace sst {
     class StaticSite {
       constructor(name: string, args?: any);
     }
+    class Nextjs {
+      constructor(name: string, args?: any);
+    }
     class Function {
       constructor(name: string, args?: any);
       readonly arn: string;

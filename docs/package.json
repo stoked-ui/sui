@@ -63,6 +63,7 @@
     "google-auth-library": "^9.14.1",
     "jsonwebtoken": "^9.0.2",
     "autoprefixer": "^10.4.18",
+    "caniuse-lite": "^1.0.30001776",
     "babel-plugin-optimize-clsx": "^2.6.2",
     "babel-plugin-react-remove-properties": "^0.3.0",
     "babel-plugin-transform-react-remove-prop-types": "^0.4.24",

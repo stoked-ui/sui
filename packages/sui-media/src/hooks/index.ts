@@ -9,6 +9,7 @@ export { useMediaUpdate } from './useMediaUpdate';
 export { useMediaDelete } from './useMediaDelete';
 export { useMediaUpload } from './useMediaUpload';
 export { useActiveUploads } from './useResumeUpload';
+export { useMediaGallery } from './useMediaGallery';
 
 export type { MediaApiProviderProps } from './MediaApiProvider';
 export type { UseMediaItemOptions } from './useMediaItem';

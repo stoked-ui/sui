@@ -2,7 +2,7 @@
 title: Announcing the Stoked UI Timeline and Editor
 description: Introducing the Timeline and Editor components — a frame-accurate multi-track timeline and a fully embeddable browser-based media editor for React.
 date: 2026-02-19T00:00:00.000Z
-authors: ['brianstoker']
+authors: ['brian-stoker']
 tags: ['Stoked UI', 'Timeline', 'Video Editor', 'Editor', 'Announcement', 'Product']
 manualCard: false
 ---

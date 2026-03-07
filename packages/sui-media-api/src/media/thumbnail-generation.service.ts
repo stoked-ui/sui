@@ -451,7 +451,7 @@ export class ThumbnailGenerationService {
    * Build S3 URL from bucket and key
    */
   private buildS3Url(bucket: string, key: string): string {
-    const region = this.configService.get<string>('AWS_REGION', 'us-east-1');
+    const region = this.configService?.get?.<string>('AWS_REGION') || process.env.AWS_REGION || 'us-east-1';
     return `https://${bucket}.s3.${region}.amazonaws.com/${key}`;
   }
 

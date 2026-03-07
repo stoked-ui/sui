@@ -33,6 +33,8 @@ const pkg = JSON.parse(pkgContent);
 const repo = process.env.REPO_NAME;
 const assetPrefix = repo ? `/${repo}/`: '';
 const basePath = repo ? `/${repo}`: '';
+const isOpenNextBuild = process.env.OPEN_NEXT_BUILD === 'true';
+const useStaticExport = process.env.NODE_ENV === 'production' && !isOpenNextBuild;
 
 export default withDocsInfra({
   experimental: {
@@ -271,79 +273,87 @@ export default withDocsInfra({
       ? `Basic ${Buffer.from(process.env.GH_AUTH).toString('base64')}`
       : '',
   },
-  distDir: 'export',
-  // Next.js provides a `defaultPathMap` argument, we could simplify the logic.
-  // However, we don't in order to prevent any regression in the `findPages()` method.
-  // @ts-ignore
-  exportPathMap: () => {
-    const pages = findPages();
-    const map = {};
+  ...(useStaticExport
+    ? {
+        distDir: 'export',
+        // Next.js provides a `defaultPathMap` argument, we could simplify the logic.
+        // However, we don't in order to prevent any regression in the `findPages()` method.
+        // @ts-ignore
+        exportPathMap: () => {
+          const pages = findPages();
+          /** @type {Record<string, { page: string; query: { userLanguage: string } }>} */
+          const map = {};
 
-    // @ts-ignore
-    function traverse(pages2, userLanguage) {
-      const prefix = userLanguage === 'en' ? '' : `/${userLanguage}`;
-
-      // @ts-ignore
-      pages2.forEach((page) => {
-        // The experiments pages are only meant for experiments, they shouldn't leak to production.
-        if (
-          (page.pathname.startsWith('/experiments/') || page.pathname === '/experiments') &&
-          process.env.DEPLOY_ENV === 'production'
-        ) {
-          return;
-        }
-        // The blog is not translated
-        if (userLanguage !== 'en' && LANGUAGES_IGNORE_PAGES(page.pathname)) {
-          return;
-        }
-        if (!page.children) {
-          // map api-docs to api
-          // i: /api-docs/* > /api/* (old structure)
-          // ii: /*/api-docs/* > /*/api/* (for new structure)
           // @ts-ignore
-          map[`${prefix}${page.pathname.replace(/^(\/[^/]+)?\/api-docs\/(.*)/, '$1/api/$2')}`] = {
-            page: page.pathname,
-            query: {
-              userLanguage,
-            },
-          };
-          return;
-        }
+          function traverse(pages2, userLanguage) {
+            const prefix = userLanguage === 'en' ? '' : `/${userLanguage}`;
 
-        traverse(page.children, userLanguage);
-      });
-    }
+            // @ts-ignore
+            pages2.forEach((page) => {
+              // The experiments pages are only meant for experiments, they shouldn't leak to production.
+              if (
+                (page.pathname.startsWith('/experiments/') || page.pathname === '/experiments') &&
+                process.env.DEPLOY_ENV === 'production'
+              ) {
+                return;
+              }
+              // The blog is not translated
+              if (userLanguage !== 'en' && LANGUAGES_IGNORE_PAGES(page.pathname)) {
+                return;
+              }
+              if (!page.children) {
+                // map api-docs to api
+                // i: /api-docs/* > /api/* (old structure)
+                // ii: /*/api-docs/* > /*/api/* (for new structure)
+                // @ts-ignore
+                map[`${prefix}${page.pathname.replace(/^(\/[^/]+)?\/api-docs\/(.*)/, '$1/api/$2')}`] = {
+                  page: page.pathname,
+                  query: {
+                    userLanguage,
+                  },
+                };
+                return;
+              }
 
-    // We want to speed-up the build of pull requests.
-    // For this, consider only English language on deploy previews, except for crowdin PRs.
-    if (buildOnlyEnglishLocale) {
-      // eslint-disable-next-line no-consolezzzzz
-      console.log('Considering only English for SSR');
-      traverse(pages, 'en');
-    } else {
-      // eslint-disable-next-line no-console
-      console.log('Considering various locales for SSR');
-      LANGUAGES_SSR.forEach((userLanguage) => {
-        traverse(pages, userLanguage);
-      });
-    }
+              traverse(page.children, userLanguage);
+            });
+          }
 
-    return map;
-  },
-  // Used to signal we run pnpm build
-  ...(process.env.NODE_ENV === 'production'
-    ? { trailingSlash: true,
+          // We want to speed-up the build of pull requests.
+          // For this, consider only English language on deploy previews, except for crowdin PRs.
+          if (buildOnlyEnglishLocale) {
+            // eslint-disable-next-line no-consolezzzzz
+            console.log('Considering only English for SSR');
+            traverse(pages, 'en');
+          } else {
+            // eslint-disable-next-line no-console
+            console.log('Considering various locales for SSR');
+            LANGUAGES_SSR.forEach((userLanguage) => {
+              traverse(pages, userLanguage);
+            });
+          }
+
+          return map;
+        },
+        // Used to signal we run pnpm build
+        trailingSlash: true,
         output: 'export',
       }
     : {
-        // rewrites has no effect when run `next export` for production
         rewrites: async () => {
-          return [
+          const rewrites = [
             { source: `/:lang(${LANGUAGES.join('|')})?/:rest*`, destination: '/:rest*' },
-            // Make sure to include the trailing slash if `trailingSlash` option is set
-            { source: '/api/:path((?!auth|clients|users|deliverables).*)/', destination: '/api-docs/:path/' },
-            { source: `/static/x/:rest*`, destination: 'http://0.0.0.0:3001/static/x/:rest*' },
           ];
+
+          // Avoid /api route rewrites when running OpenNext so Next.js API handlers can execute.
+          if (!isOpenNextBuild) {
+            rewrites.push(
+              { source: '/api/:path((?!auth|clients|users|deliverables|products|invoices|licenses|blog|upload|webhooks).*)/', destination: '/api-docs/:path/' },
+              { source: `/static/x/:rest*`, destination: 'http://0.0.0.0:3001/static/x/:rest*' },
+            );
+          }
+
+          return rewrites;
         },
       }),
 });

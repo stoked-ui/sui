@@ -10,6 +10,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { GoogleLogin } from '@react-oauth/google';
 import { useRouter } from 'next/router';
 import BrandingCssVarsProvider from '@stoked-ui/docs';
+import { getApiUrl } from 'docs/src/modules/utils/getApiUrl';
 import Head from 'docs/src/modules/components/Head';
 import AppHeader from 'docs/src/layouts/AppHeader';
 import AppFooter from 'docs/src/layouts/AppFooter';
@@ -26,17 +27,25 @@ interface AuthData {
   };
 }
 
+function resolveRedirectTarget(raw: string | string[] | undefined): string | null {
+  const target = Array.isArray(raw) ? raw[0] : raw;
+  if (!target) {
+    return null;
+  }
+  if (!target.startsWith('/') || target.startsWith('//')) {
+    return null;
+  }
+  if (target.startsWith('/consulting/login')) {
+    return null;
+  }
+  return target;
+}
+
 function LoginForm({ onLogin }: { onLogin: (data: AuthData) => void }) {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
-
-  const getApiUrl = (path: string) => {
-    if (typeof window === 'undefined') return path;
-    if (window.location.hostname === 'localhost') return path;
-    return `https://api.${window.location.host}${path}`;
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -168,24 +177,39 @@ export default function ConsultingLoginPage() {
   const router = useRouter();
   const [auth, setAuth] = React.useState<AuthData | null>(null);
   const [loading, setLoading] = React.useState(true);
+  const redirectTarget = React.useMemo(
+    () => resolveRedirectTarget(router.query.redirect),
+    [router.query.redirect],
+  );
+
+  const defaultRouteForUser = React.useCallback((user: AuthData['user']) => {
+    if (user.role === 'admin') {
+      return '/consulting/clients';
+    }
+    return `/consulting/clients/${user.clientId}`;
+  }, []);
+
+  const postLoginRouteForUser = React.useCallback(
+    (user: AuthData['user']) => redirectTarget || defaultRouteForUser(user),
+    [defaultRouteForUser, redirectTarget],
+  );
 
   React.useEffect(() => {
+    if (!router.isReady) {
+      return;
+    }
     try {
       const stored = localStorage.getItem('auth');
       if (stored) {
         const parsed = JSON.parse(stored) as AuthData;
         setAuth(parsed);
-        // Already logged in — redirect to appropriate page
-        if (parsed.user.role === 'admin') {
-          router.replace('/consulting/clients');
-        } else {
-          router.replace(`/consulting/clients/${parsed.user.clientId}`);
-        }
+        // Already logged in — redirect to the requested route if provided.
+        router.replace(postLoginRouteForUser(parsed.user));
         return;
       }
     } catch { /* ignore */ }
     setLoading(false);
-  }, [router]);
+  }, [postLoginRouteForUser, router, router.isReady]);
 
   const handleLogin = (data: AuthData) => {
     try {
@@ -193,12 +217,7 @@ export default function ConsultingLoginPage() {
       localStorage.setItem('blog_jwt', data.access_token);
     } catch { /* ignore */ }
     setAuth(data);
-    // Redirect after login
-    if (data.user.role === 'admin') {
-      router.push('/consulting/clients');
-    } else {
-      router.push(`/consulting/clients/${data.user.clientId}`);
-    }
+    router.push(postLoginRouteForUser(data.user));
   };
 
   if (loading || auth) {

@@ -15,14 +15,14 @@ export class StripeService {
   private readonly webhookSecret: string;
 
   constructor(private readonly configService: ConfigService) {
-    const secretKey = this.configService.get<string>('STRIPE_SECRET_KEY');
+    const secretKey = this.configService?.get?.<string>('STRIPE_SECRET_KEY') || process.env.STRIPE_SECRET_KEY;
     if (!secretKey) {
       this.logger.warn('STRIPE_SECRET_KEY not configured — Stripe operations will fail');
     }
     this.stripe = new Stripe(secretKey || '', {
       apiVersion: '2024-12-18.acacia' as any,
     });
-    this.webhookSecret = this.configService.get<string>('STRIPE_WEBHOOK_SECRET') || '';
+    this.webhookSecret = this.configService?.get?.<string>('STRIPE_WEBHOOK_SECRET') || process.env.STRIPE_WEBHOOK_SECRET || '';
   }
 
   async createProduct(params: {

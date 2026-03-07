@@ -126,8 +126,8 @@ export class NostrService implements OnModuleInit, OnModuleDestroy {
         `pubkeys: ${this.pubkeys.length}, poll interval: ${this.pollIntervalMs / 60_000} min`,
     );
 
-    // Run the first poll immediately, then schedule subsequent polls.
-    await this.poll();
+    // Run the first poll immediately (non-blocking), then schedule subsequent polls.
+    this.poll().catch(err => this.logger.error('Initial Nostr poll failed', err));
     this.pollTimer = setInterval(() => void this.poll(), this.pollIntervalMs);
   }
 
@@ -152,19 +152,19 @@ export class NostrService implements OnModuleInit, OnModuleDestroy {
 
   private loadConfig(): void {
     this.relays = parseCommaSeparated(
-      this.configService.get<string>(NOSTR_CONFIG.ENV.RELAYS),
+      this.configService?.get?.<string>(NOSTR_CONFIG.ENV.RELAYS) || process.env[NOSTR_CONFIG.ENV.RELAYS],
     );
 
     const npubs = parseCommaSeparated(
-      this.configService.get<string>(NOSTR_CONFIG.ENV.NPUBS),
+      this.configService?.get?.<string>(NOSTR_CONFIG.ENV.NPUBS) || process.env[NOSTR_CONFIG.ENV.NPUBS],
     );
     this.pubkeys = this.decodeNpubs(npubs);
 
-    const intervalStr = this.configService.get<string>(NOSTR_CONFIG.ENV.POLL_INTERVAL);
+    const intervalStr = this.configService?.get?.<string>(NOSTR_CONFIG.ENV.POLL_INTERVAL) || process.env[NOSTR_CONFIG.ENV.POLL_INTERVAL];
     const intervalMinutes = intervalStr ? parseInt(intervalStr, 10) : NOSTR_CONFIG.DEFAULTS.POLL_INTERVAL_MINUTES;
     this.pollIntervalMs = (isNaN(intervalMinutes) ? NOSTR_CONFIG.DEFAULTS.POLL_INTERVAL_MINUTES : intervalMinutes) * 60_000;
 
-    const sitesStr = this.configService.get<string>(NOSTR_CONFIG.ENV.TARGET_SITES);
+    const sitesStr = this.configService?.get?.<string>(NOSTR_CONFIG.ENV.TARGET_SITES) || process.env[NOSTR_CONFIG.ENV.TARGET_SITES];
     this.targetSites = sitesStr
       ? parseCommaSeparated(sitesStr)
       : [...NOSTR_CONFIG.DEFAULTS.TARGET_SITES];

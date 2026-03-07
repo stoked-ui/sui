@@ -1,6 +1,6 @@
 import { MongoClient, Db } from 'mongodb';
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/stoked-consulting';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/stoked-media';
 
 declare global {
   // eslint-disable-next-line no-var

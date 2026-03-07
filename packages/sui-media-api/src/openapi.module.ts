@@ -10,10 +10,7 @@ import { UploadsController } from './uploads/uploads.controller';
 import { UploadsService } from './uploads/uploads.service';
 import { AuthController } from './auth/auth.controller';
 import { AuthService } from './auth/auth.service';
-import { InvoicesController } from './invoices/invoices.controller';
-import { InvoicesService } from './invoices/invoices.service';
 import { AuthGuard } from './media/guards/auth.guard';
-import { ApiKeyGuard } from './invoices/guards/api-key.guard';
 
 /**
  * Creates a stub object whose methods all return undefined.
@@ -40,16 +37,13 @@ function createNoopStub(): any {
     MediaController,
     UploadsController,
     AuthController,
-    InvoicesController,
   ],
   providers: [
     { provide: MediaService, useValue: createNoopStub() },
     { provide: ThumbnailGenerationService, useValue: createNoopStub() },
     { provide: UploadsService, useValue: createNoopStub() },
     { provide: AuthService, useValue: createNoopStub() },
-    { provide: InvoicesService, useValue: createNoopStub() },
     AuthGuard,
-    ApiKeyGuard,
   ],
 })
 export class OpenApiModule {}

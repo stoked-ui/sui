@@ -2,7 +2,7 @@
 title: Introducing Stoked UI
 description: An open-source React component library featuring a File Explorer, Timeline, and Editor with professional media capabilities.
 date: 2026-02-19T00:00:00.000Z
-authors: ['brianstoker']
+authors: ['brian-stoker']
 tags: ['Stoked UI', 'Announcement']
 manualCard: false
 ---

@@ -29,6 +29,7 @@ import EditIcon from '@mui/icons-material/EditOutlined';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import ArrowBackIcon from '@mui/icons-material/ArrowBackOutlined';
 import { useRouter } from 'next/router';
+import { getApiUrl } from 'docs/src/modules/utils/getApiUrl';
 
 interface Feature {
   name: string;
@@ -79,7 +80,7 @@ async function apiFetch(url: string, options: RequestInit = {}) {
     ...(options.headers as Record<string, string> || {}),
   };
   if (token) headers.Authorization = `Bearer ${token}`;
-  const res = await fetch(url, { ...options, headers });
+  const res = await fetch(getApiUrl(url), { ...options, headers });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     throw new Error(body.message || `Request failed with status ${res.status}`);

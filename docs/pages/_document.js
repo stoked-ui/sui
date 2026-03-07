@@ -21,14 +21,23 @@ import { getMetaThemeColor } from '@stoked-ui/docs/branding';
 // It's using .browserslistrc
 let prefixer;
 let cleanCSS;
-if (process.env.NODE_ENV === 'production') {
+const enableServerCssOptimization =
+  process.env.NODE_ENV === 'production' && process.env.OPEN_NEXT_BUILD !== 'true';
+
+if (enableServerCssOptimization) {
   /* eslint-disable global-require */
-  const postcss = require('postcss');
-  const autoprefixer = require('autoprefixer');
   const CleanCSS = require('clean-css');
   /* eslint-enable global-require */
 
-  prefixer = postcss([autoprefixer]);
+  try {
+    const postcss = require('postcss');
+    const autoprefixer = require('autoprefixer');
+    prefixer = postcss([autoprefixer]);
+  } catch (error) {
+    // OpenNext Lambda runtime can occasionally miss optional autoprefixer deps.
+    // Keep SSR alive even if CSS prefixing is unavailable.
+    prefixer = undefined;
+  }
   cleanCSS = new CleanCSS();
 }
 
@@ -320,10 +329,18 @@ MyDocument.getInitialProps = async (ctx) => {
           resolveProps: async (initialProps) => {
             let css = jssSheets.toString();
             // It might be undefined, for example after an error.
-            if (css && process.env.NODE_ENV === 'production') {
-              const result1 = await prefixer.process(css, {from: undefined});
-              css = result1.css;
-              css = cleanCSS.minify(css).styles;
+            if (css && enableServerCssOptimization) {
+              if (prefixer) {
+                try {
+                  const result1 = await prefixer.process(css, {from: undefined});
+                  css = result1.css;
+                } catch (error) {
+                  prefixer = undefined;
+                }
+              }
+              if (cleanCSS) {
+                css = cleanCSS.minify(css).styles;
+              }
             }
 
             return {

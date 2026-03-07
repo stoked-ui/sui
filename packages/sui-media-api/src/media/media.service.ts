@@ -23,7 +23,7 @@ export class MediaService {
     private readonly configService: ConfigService,
   ) {
     // Initialize with some mock data for testing
-    this.seedMockData();
+    // this.seedMockData();
   }
 
   /**
@@ -240,7 +240,7 @@ export class MediaService {
 
         // Delete from S3
         if (fileKey) {
-          const bucket = media.bucket || this.configService.get<string>('AWS_S3_BUCKET', 'stoked-ui-media');
+          const bucket = media.bucket || this.configService?.get?.<string>('AWS_S3_BUCKET') || process.env.AWS_S3_BUCKET || 'stoked-ui-media';
           await this.s3Service.deleteMediaAndThumbnails({
             fileKey,
             thumbnailKeys,

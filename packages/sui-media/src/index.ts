@@ -198,6 +198,12 @@ export type {
   SpriteConfig,
 } from './components/MediaCard';
 
+/**
+ * MediaGallery component for displaying collections of media
+ */
+export { MediaGallery } from './components/MediaGallery';
+export type { MediaGalleryProps, MediaGallerySource } from './components/MediaGallery';
+
 // ============================================================================
 // API Client - Media API Integration
 // ============================================================================
@@ -233,21 +239,6 @@ export * from './api';
 
 /**
  * React hooks for Media API integration
- * Provides hooks for uploading, listing, updating, and deleting media
- * Built on @tanstack/react-query for optimal caching and state management
- * @example
- * import {
- *   useMediaUpload,
- *   useMediaList,
- *   useMediaItem,
- *   useMediaUpdate,
- *   useMediaDelete
- * } from '@stoked-ui/media';
- *
- * function MyComponent() {
- *   const { upload, isUploading, progress } = useMediaUpload();
- *   const { data: mediaList } = useMediaList({ page: 1, limit: 20 });
- *   return <div>...</div>;
- * }
  */
 export * from './hooks';
+

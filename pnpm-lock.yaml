@@ -61,6 +61,9 @@ importers:
       '@googleapis/sheets':
         specifier: ^5.0.5
         version: 5.0.5(encoding@0.1.13)
+      '@mui/lab':
+        specifier: 5.0.0-alpha.170
+        version: 5.0.0-alpha.170(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@emotion/styled@11.8.1(@babel/core@7.29.0)(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@mui/material@5.17.1(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@emotion/styled@11.8.1(@babel/core@7.29.0)(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@netlify/functions':
         specifier: ^2.6.0
         version: 2.8.2
@@ -184,7 +187,7 @@ importers:
         version: 6.21.0(eslint@8.57.1)(typescript@5.4.5)
       babel-loader:
         specifier: ^9.1.3
-        version: 9.2.1(@babel/core@7.29.0)(webpack@5.105.4)
+        version: 9.2.1(@babel/core@7.29.0)(webpack@5.105.4(esbuild@0.27.3))
       babel-plugin-istanbul:
         specifier: ^6.1.1
         version: 6.1.1
@@ -208,7 +211,7 @@ importers:
         version: 5.6.2
       compression-webpack-plugin:
         specifier: ^11.1.0
-        version: 11.1.0(webpack@5.105.4)
+        version: 11.1.0(webpack@5.105.4(esbuild@0.27.3))
       concurrently:
         specifier: ^8.2.2
         version: 8.2.2
@@ -297,14 +300,14 @@ importers:
         specifier: ^14.2.1
         version: 14.2.6
       sst:
-        specifier: 3.9.7
-        version: 3.9.7
+        specifier: 4.2.0
+        version: 4.2.0
       stylelint:
         specifier: ^15.11.0
         version: 15.11.0(typescript@5.4.5)
       terser-webpack-plugin:
         specifier: ^5.3.10
-        version: 5.3.17(webpack@5.105.4)
+        version: 5.3.17(esbuild@0.27.3)(webpack@5.105.4(esbuild@0.27.3))
       tsup:
         specifier: ^8.0.2
         version: 8.5.1(jiti@1.21.7)(postcss@8.5.8)(tsx@4.21.0)(typescript@5.4.5)(yaml@2.8.2)
@@ -319,7 +322,7 @@ importers:
         version: 5.4.5
       webpack:
         specifier: '>=5.104.1'
-        version: 5.105.4
+        version: 5.105.4(esbuild@0.27.3)
       webpack-bundle-analyzer:
         specifier: ^4.10.1
         version: 4.10.2
@@ -400,7 +403,7 @@ importers:
         version: 0.16.2(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(react@18.3.1)
       webpack:
         specifier: '>=5.104.1'
-        version: 5.105.4
+        version: 5.105.4(esbuild@0.27.3)
 
   docs:
     dependencies:
@@ -515,6 +518,9 @@ importers:
       bcryptjs:
         specifier: ^2.4.3
         version: 2.4.3
+      caniuse-lite:
+        specifier: ^1.0.30001776
+        version: 1.0.30001776
       clean-css:
         specifier: ^5.3.3
         version: 5.3.3
@@ -796,7 +802,7 @@ importers:
     devDependencies:
       '@typescript-eslint/parser':
         specifier: ^6.19.1
-        version: 6.21.0(eslint@8.57.1)(typescript@5.7.2)
+        version: 6.21.0(eslint@8.57.1)(typescript@5.4.5)
       eslint:
         specifier: ^8.56.0
         version: 8.57.1
@@ -932,6 +938,8 @@ importers:
         specifier: ^18.19.25
         version: 18.19.130
 
+  packages-internal/stoked-cli: {}
+
   packages-internal/stoked-mcp:
     dependencies:
       '@modelcontextprotocol/sdk':
@@ -961,7 +969,7 @@ importers:
         version: 5.0.10
       ts-jest:
         specifier: ^29.1.2
-        version: 29.4.6(@babel/core@7.29.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.29.0))(jest-util@29.7.0)(jest@29.7.0(@types/node@18.19.130)(babel-plugin-macros@3.1.0))(typescript@5.4.5)
+        version: 29.4.6(@babel/core@7.29.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.29.0))(esbuild@0.27.3)(jest-util@29.7.0)(jest@29.7.0(@types/node@18.19.130)(babel-plugin-macros@3.1.0))(typescript@5.4.5)
       ts-node:
         specifier: ^10.9.2
         version: 10.9.2(@types/node@18.19.130)(typescript@5.4.5)
@@ -1191,7 +1199,7 @@ importers:
         version: 29.7.0
       ts-jest:
         specifier: ^29.1.2
-        version: 29.4.6(@babel/core@7.29.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.29.0))(jest-util@29.7.0)(jest@29.7.0(@types/node@18.19.130)(babel-plugin-macros@3.1.0))(typescript@5.7.2)
+        version: 29.4.6(@babel/core@7.29.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.29.0))(esbuild@0.27.3)(jest-util@29.7.0)(jest@29.7.0(@types/node@18.19.130)(babel-plugin-macros@3.1.0))(typescript@5.7.2)
     publishDirectory: build
 
   packages/sui-common-api:
@@ -1606,6 +1614,21 @@ importers:
 
   packages/sui-media:
     dependencies:
+      '@emotion/react':
+        specifier: ^11.11.4
+        version: 11.14.0(@types/react@18.3.28)(react@18.3.1)
+      '@emotion/styled':
+        specifier: 11.8.1
+        version: 11.8.1(@babel/core@7.29.0)(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1)
+      '@mui/icons-material':
+        specifier: ^5.15.20
+        version: 5.15.21(@mui/material@5.17.1(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@emotion/styled@11.8.1(@babel/core@7.29.0)(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.28)(react@18.3.1)
+      '@mui/lab':
+        specifier: ^5.0.0-alpha.170
+        version: 5.0.0-alpha.177(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@emotion/styled@11.8.1(@babel/core@7.29.0)(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@mui/material@5.17.1(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@emotion/styled@11.8.1(@babel/core@7.29.0)(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@mui/material':
+        specifier: 5.17.1
+        version: 5.17.1(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@emotion/styled@11.8.1(@babel/core@7.29.0)(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@tanstack/react-query':
         specifier: ^5.0.0
         version: 5.90.21(react@18.3.1)
@@ -1618,6 +1641,9 @@ importers:
       react:
         specifier: 18.3.1
         version: 18.3.1
+      react-dom:
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
     devDependencies:
       '@babel/runtime':
         specifier: ^7.23.9
@@ -1657,7 +1683,7 @@ importers:
         version: 29.7.0
       ts-jest:
         specifier: ^29.1.2
-        version: 29.4.6(@babel/core@7.29.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.29.0))(jest-util@29.7.0)(jest@29.7.0(@types/node@18.19.130)(babel-plugin-macros@3.1.0))(typescript@5.4.5)
+        version: 29.4.6(@babel/core@7.29.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.29.0))(esbuild@0.27.3)(jest-util@29.7.0)(jest@29.7.0(@types/node@18.19.130)(babel-plugin-macros@3.1.0))(typescript@5.4.5)
       typescript:
         specifier: 5.4.5
         version: 5.4.5
@@ -1755,7 +1781,7 @@ importers:
     devDependencies:
       '@nestjs/cli':
         specifier: ^10.3.0
-        version: 10.4.9
+        version: 10.4.9(esbuild@0.27.3)
       '@nestjs/schematics':
         specifier: ^10.1.0
         version: 10.2.3(chokidar@3.6.0)(typescript@5.4.5)
@@ -1821,10 +1847,10 @@ importers:
         version: 6.3.4
       ts-jest:
         specifier: ^29.1.2
-        version: 29.4.6(@babel/core@7.29.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.29.0))(jest-util@29.7.0)(jest@29.7.0(@types/node@18.19.130)(babel-plugin-macros@3.1.0))(typescript@5.4.5)
+        version: 29.4.6(@babel/core@7.29.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.29.0))(esbuild@0.27.3)(jest-util@29.7.0)(jest@29.7.0(@types/node@18.19.130)(babel-plugin-macros@3.1.0))(typescript@5.4.5)
       ts-loader:
         specifier: ^9.5.1
-        version: 9.5.4(typescript@5.4.5)(webpack@5.105.4)
+        version: 9.5.4(typescript@5.4.5)(webpack@5.105.4(esbuild@0.27.3))
       ts-node:
         specifier: ^10.9.2
         version: 10.9.2(@types/node@18.19.130)(typescript@5.4.5)
@@ -1989,7 +2015,7 @@ importers:
         version: 11.3.4
       html-webpack-plugin:
         specifier: ^5.6.0
-        version: 5.6.6(webpack@5.105.4)
+        version: 5.6.6(webpack@5.105.4(esbuild@0.27.3))
       lodash:
         specifier: '>=4.17.23'
         version: 4.17.23
@@ -2028,7 +2054,7 @@ importers:
         version: 1.6.28
       webpack:
         specifier: '>=5.104.1'
-        version: 5.105.4
+        version: 5.105.4(esbuild@0.27.3)
       yargs:
         specifier: ^17.7.2
         version: 17.7.2
@@ -3991,6 +4017,24 @@ packages:
     peerDependencies:
       '@emotion/react': ^11.5.0
       '@emotion/styled': 11.8.1
+      '@types/react': ^18.3.1
+      react: 18.3.1
+      react-dom: 18.3.1
+    peerDependenciesMeta:
+      '@emotion/react':
+        optional: true
+      '@emotion/styled':
+        optional: true
+      '@types/react':
+        optional: true
+
+  '@mui/lab@5.0.0-alpha.170':
+    resolution: {integrity: sha512-0bDVECGmrNjd3+bLdcLiwYZ0O4HP5j5WSQm5DV6iA/Z9kr8O6AnvZ1bv9ImQbbX7Gj3pX4o43EKwCutj3EQxQg==}
+    engines: {node: '>=12.0.0'}
+    peerDependencies:
+      '@emotion/react': ^11.5.0
+      '@emotion/styled': 11.8.1
+      '@mui/material': 5.17.1
       '@types/react': ^18.3.1
       react: 18.3.1
       react-dom: 18.3.1
@@ -6227,6 +6271,9 @@ packages:
     resolution: {integrity: sha512-cJmb8xEnVLT+R6fBS5sn/EFJiX7tUnDaPtOPZ1vFbOJtd0fnZn/Ky2XGgsvvoeliWeH7mL3TWSX5zXXGSQV6gQ==}
     engines: {node: '>= 10.0.0'}
     deprecated: The AWS SDK for JavaScript (v2) has reached end-of-support, and no longer receives updates. Please migrate your code to use AWS SDK for JavaScript (v3). More info https://a.co/cUPnyil
+
+  aws4fetch@1.0.18:
+    resolution: {integrity: sha512-3Cf+YaUl07p24MoQ46rFwulAmiyCwH2+1zw1ZyPAX5OtJ34Hh185DwB8y/qRLb6cYYYtSFJ9pthyLc0MD4e8sQ==}
 
   aws4fetch@1.0.20:
     resolution: {integrity: sha512-/djoAN709iY65ETD6LKCtyyEI04XIBP5xVvfmNxsEP0uJB5tyaGBztSryRr4HqMStr9R06PisQE7m9zDTXKu6g==}
@@ -11820,8 +11867,18 @@ packages:
     cpu: [arm64]
     os: [darwin]
 
+  sst-darwin-arm64@4.2.0:
+    resolution: {integrity: sha512-WuJVOIfW7QvDX6swKMNU6Pvj0jp4CcQYz+rwO2eACrHI8k/qcepEXEzGvHR04E6QOxc1VK29wQ9trT/Pt+mYcg==}
+    cpu: [arm64]
+    os: [darwin]
+
   sst-darwin-x64@3.9.7:
     resolution: {integrity: sha512-0dIOw7bUn0DSAqPNTj8fR0ImRouS3wB6hydslSSmCzsndgMNEd0sr4Lxq/ZGc5ZUJmGXUxaUxFGNov2HjKsUWA==}
+    cpu: [x64]
+    os: [darwin]
+
+  sst-darwin-x64@4.2.0:
+    resolution: {integrity: sha512-9Qx4CcjQl2tT4blYXoHm8eqETCfRnUoX7apboZC8oij62cF+KPyaiQ271jJN9/yaYFOIP/Q6bz3kh4sCN7IpfQ==}
     cpu: [x64]
     os: [darwin]
 
@@ -11830,8 +11887,18 @@ packages:
     cpu: [arm64]
     os: [linux]
 
+  sst-linux-arm64@4.2.0:
+    resolution: {integrity: sha512-yR0xW4dtzCFV8A7MDvig3PrnFGHmbcSZSFEHKEUTsLZ80UoxTlVTEtYXs1DsfvQnMZ9WMsALzeciT1Ev06UbBg==}
+    cpu: [arm64]
+    os: [linux]
+
   sst-linux-x64@3.9.7:
     resolution: {integrity: sha512-6jhJGCGm/aZ817bCUYrSU71zazDcFBK+oPkP1YPSgEESCpfvvrRUK7BNQHsZTOeyYPe4wI374BMyqKTwNuim4Q==}
+    cpu: [x64]
+    os: [linux]
+
+  sst-linux-x64@4.2.0:
+    resolution: {integrity: sha512-oAMrxnZnsYslLQvuxbjmsMh3knjYtErLafzw/NS5ydmIx+9YdWqvoAFyM2ACRCF50UT4Jb0LfG1Tf3rDz+whbw==}
     cpu: [x64]
     os: [linux]
 
@@ -11840,8 +11907,32 @@ packages:
     cpu: [x86]
     os: [linux]
 
+  sst-linux-x86@4.2.0:
+    resolution: {integrity: sha512-voTECqQ5P+duWOJvKLB6eG0bx1Kqas5fcW/ZX5IXExLjQzrRNDWRlDy0E4YD8sqLFrgjotDoerzBN0SEpjkYdA==}
+    cpu: [x86]
+    os: [linux]
+
+  sst-win32-arm64@4.2.0:
+    resolution: {integrity: sha512-/6Lh2yldwWvD8D1LZ9yeRkHHbJpHi85IQhDk5wwHDQeb9yPfOi4DQocl9O+9HSgcWityqOYaNVsG07/G9cF/vw==}
+    cpu: [arm64]
+    os: [win32]
+
+  sst-win32-x64@4.2.0:
+    resolution: {integrity: sha512-PldNXb70Rv6tZeYZZpNQ+E4LJ0gi+/D19BDlJ3bDKBvtUmkS3CBjuyNZ+mKETpU2f9R4cJh+G+js6aHhvRD8aQ==}
+    cpu: [x64]
+    os: [win32]
+
+  sst-win32-x86@4.2.0:
+    resolution: {integrity: sha512-h7TzmrNKPnXzFSV2ZOEJ6MarWt7aSMf7Md+To1d8tpc2pSFA7nL+N4J8MylEQ1fJ++d/xa43bEzkzd4mc4K+EA==}
+    cpu: [x86]
+    os: [win32]
+
   sst@3.9.7:
     resolution: {integrity: sha512-j23yu5f8xl1gERIBOA1/HXVYNjaZyO7vAZhhmR6jciRxF6hNWoUHyV7RMqsXaQTzbq6bbd2zs4cP6UrJBaHIzA==}
+    hasBin: true
+
+  sst@4.2.0:
+    resolution: {integrity: sha512-otVbysqfUV8yHzjat7MfTd9N8UMvDMx3dcE8/b0r0HdCH2nVxGL46T0rWU5x6FLl+gV/L5LcfI7H53HCnRcaOA==}
     hasBin: true
 
   stack-utils@2.0.6:
@@ -15836,6 +15927,23 @@ snapshots:
       '@emotion/styled': 11.8.1(@babel/core@7.29.0)(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1)
       '@types/react': 18.3.28
 
+  '@mui/lab@5.0.0-alpha.170(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@emotion/styled@11.8.1(@babel/core@7.29.0)(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@mui/material@5.17.1(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@emotion/styled@11.8.1(@babel/core@7.29.0)(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+    dependencies:
+      '@babel/runtime': 7.28.6
+      '@mui/base': 5.0.0-beta.40(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@mui/material': 5.17.1(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@emotion/styled@11.8.1(@babel/core@7.29.0)(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@mui/system': 5.17.1(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@emotion/styled@11.8.1(@babel/core@7.29.0)(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1)
+      '@mui/types': 7.4.11(@types/react@18.3.28)
+      '@mui/utils': 5.17.1(@types/react@18.3.28)(react@18.3.1)
+      clsx: 2.1.1
+      prop-types: 15.8.1
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    optionalDependencies:
+      '@emotion/react': 11.14.0(@types/react@18.3.28)(react@18.3.1)
+      '@emotion/styled': 11.8.1(@babel/core@7.29.0)(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1)
+      '@types/react': 18.3.28
+
   '@mui/lab@5.0.0-alpha.177(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@emotion/styled@11.8.1(@babel/core@7.29.0)(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@mui/material@5.17.1(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@emotion/styled@11.8.1(@babel/core@7.29.0)(@emotion/react@11.14.0(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react@18.3.1))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@babel/runtime': 7.28.6
@@ -16123,7 +16231,7 @@ snapshots:
       '@emnapi/runtime': 1.8.1
       '@tybys/wasm-util': 0.9.0
 
-  '@nestjs/cli@10.4.9':
+  '@nestjs/cli@10.4.9(esbuild@0.27.3)':
     dependencies:
       '@angular-devkit/core': 17.3.11(chokidar@3.6.0)
       '@angular-devkit/schematics': 17.3.11(chokidar@3.6.0)
@@ -16133,7 +16241,7 @@ snapshots:
       chokidar: 3.6.0
       cli-table3: 0.6.5
       commander: 4.1.1
-      fork-ts-checker-webpack-plugin: 9.0.2(typescript@5.7.2)(webpack@5.105.4)
+      fork-ts-checker-webpack-plugin: 9.0.2(typescript@5.7.2)(webpack@5.105.4(esbuild@0.27.3))
       glob: 13.0.6
       inquirer: 8.2.6
       node-emoji: 1.11.0
@@ -16142,7 +16250,7 @@ snapshots:
       tsconfig-paths: 4.2.0
       tsconfig-paths-webpack-plugin: 4.2.0
       typescript: 5.7.2
-      webpack: 5.105.4
+      webpack: 5.105.4(esbuild@0.27.3)
       webpack-node-externals: 3.0.0
     transitivePeerDependencies:
       - esbuild
@@ -17903,19 +18011,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.7.2)':
-    dependencies:
-      '@typescript-eslint/scope-manager': 6.21.0
-      '@typescript-eslint/types': 6.21.0
-      '@typescript-eslint/typescript-estree': 6.21.0(typescript@5.7.2)
-      '@typescript-eslint/visitor-keys': 6.21.0
-      debug: 4.4.3(supports-color@8.1.1)
-      eslint: 8.57.1
-    optionalDependencies:
-      typescript: 5.7.2
-    transitivePeerDependencies:
-      - supports-color
-
   '@typescript-eslint/scope-manager@6.21.0':
     dependencies:
       '@typescript-eslint/types': 6.21.0
@@ -17947,21 +18042,6 @@ snapshots:
       ts-api-utils: 1.4.3(typescript@5.4.5)
     optionalDependencies:
       typescript: 5.4.5
-    transitivePeerDependencies:
-      - supports-color
-
-  '@typescript-eslint/typescript-estree@6.21.0(typescript@5.7.2)':
-    dependencies:
-      '@typescript-eslint/types': 6.21.0
-      '@typescript-eslint/visitor-keys': 6.21.0
-      debug: 4.4.3(supports-color@8.1.1)
-      globby: 11.1.0
-      is-glob: 4.0.3
-      minimatch: 9.0.3
-      semver: 7.7.4
-      ts-api-utils: 1.4.3(typescript@5.7.2)
-    optionalDependencies:
-      typescript: 5.7.2
     transitivePeerDependencies:
       - supports-color
 
@@ -18476,6 +18556,8 @@ snapshots:
       uuid: 8.0.0
       xml2js: 0.6.2
 
+  aws4fetch@1.0.18: {}
+
   aws4fetch@1.0.20: {}
 
   axe-core@4.11.1: {}
@@ -18505,12 +18587,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  babel-loader@9.2.1(@babel/core@7.29.0)(webpack@5.105.4):
+  babel-loader@9.2.1(@babel/core@7.29.0)(webpack@5.105.4(esbuild@0.27.3)):
     dependencies:
       '@babel/core': 7.29.0
       find-cache-dir: 4.0.0
       schema-utils: 4.3.3
-      webpack: 5.105.4
+      webpack: 5.105.4(esbuild@0.27.3)
 
   babel-plugin-istanbul@6.1.1:
     dependencies:
@@ -19205,11 +19287,11 @@ snapshots:
     dependencies:
       mime-db: 1.54.0
 
-  compression-webpack-plugin@11.1.0(webpack@5.105.4):
+  compression-webpack-plugin@11.1.0(webpack@5.105.4(esbuild@0.27.3)):
     dependencies:
       schema-utils: 4.3.3
       serialize-javascript: 6.0.2
-      webpack: 5.105.4
+      webpack: 5.105.4(esbuild@0.27.3)
 
   compression@1.8.1:
     dependencies:
@@ -20781,7 +20863,7 @@ snapshots:
       cross-spawn: 7.0.6
       signal-exit: 3.0.7
 
-  fork-ts-checker-webpack-plugin@9.0.2(typescript@5.7.2)(webpack@5.105.4):
+  fork-ts-checker-webpack-plugin@9.0.2(typescript@5.7.2)(webpack@5.105.4(esbuild@0.27.3)):
     dependencies:
       '@babel/code-frame': 7.29.0
       chalk: 4.1.2
@@ -20796,7 +20878,7 @@ snapshots:
       semver: 7.7.4
       tapable: 2.3.0
       typescript: 5.7.2
-      webpack: 5.105.4
+      webpack: 5.105.4(esbuild@0.27.3)
 
   form-data@2.5.5:
     dependencies:
@@ -21287,7 +21369,7 @@ snapshots:
       readable-stream: 1.0.34
       through2: 0.4.2
 
-  html-webpack-plugin@5.6.6(webpack@5.105.4):
+  html-webpack-plugin@5.6.6(webpack@5.105.4(esbuild@0.27.3)):
     dependencies:
       '@types/html-minifier-terser': 6.1.0
       html-minifier-terser: 6.1.0
@@ -21295,7 +21377,7 @@ snapshots:
       pretty-error: 4.0.0
       tapable: 2.3.0
     optionalDependencies:
-      webpack: 5.105.4
+      webpack: 5.105.4(esbuild@0.27.3)
 
   htmlparser2@6.1.0:
     dependencies:
@@ -25362,16 +25444,40 @@ snapshots:
   sst-darwin-arm64@3.9.7:
     optional: true
 
+  sst-darwin-arm64@4.2.0:
+    optional: true
+
   sst-darwin-x64@3.9.7:
+    optional: true
+
+  sst-darwin-x64@4.2.0:
     optional: true
 
   sst-linux-arm64@3.9.7:
     optional: true
 
+  sst-linux-arm64@4.2.0:
+    optional: true
+
   sst-linux-x64@3.9.7:
     optional: true
 
+  sst-linux-x64@4.2.0:
+    optional: true
+
   sst-linux-x86@3.9.7:
+    optional: true
+
+  sst-linux-x86@4.2.0:
+    optional: true
+
+  sst-win32-arm64@4.2.0:
+    optional: true
+
+  sst-win32-x64@4.2.0:
+    optional: true
+
+  sst-win32-x86@4.2.0:
     optional: true
 
   sst@3.9.7:
@@ -25385,6 +25491,21 @@ snapshots:
       sst-linux-arm64: 3.9.7
       sst-linux-x64: 3.9.7
       sst-linux-x86: 3.9.7
+
+  sst@4.2.0:
+    dependencies:
+      aws4fetch: 1.0.18
+      jose: 5.2.3
+      openid-client: 5.6.4
+    optionalDependencies:
+      sst-darwin-arm64: 4.2.0
+      sst-darwin-x64: 4.2.0
+      sst-linux-arm64: 4.2.0
+      sst-linux-x64: 4.2.0
+      sst-linux-x86: 4.2.0
+      sst-win32-arm64: 4.2.0
+      sst-win32-x64: 4.2.0
+      sst-win32-x86: 4.2.0
 
   stack-utils@2.0.6:
     dependencies:
@@ -25804,13 +25925,15 @@ snapshots:
 
   temp-dir@1.0.0: {}
 
-  terser-webpack-plugin@5.3.17(webpack@5.105.4):
+  terser-webpack-plugin@5.3.17(esbuild@0.27.3)(webpack@5.105.4(esbuild@0.27.3)):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       jest-worker: 27.5.1
       schema-utils: 4.3.3
       terser: 5.46.0
-      webpack: 5.105.4
+      webpack: 5.105.4(esbuild@0.27.3)
+    optionalDependencies:
+      esbuild: 0.27.3
 
   terser@5.46.0:
     dependencies:
@@ -25947,13 +26070,9 @@ snapshots:
     dependencies:
       typescript: 5.4.5
 
-  ts-api-utils@1.4.3(typescript@5.7.2):
-    dependencies:
-      typescript: 5.7.2
-
   ts-interface-checker@0.1.13: {}
 
-  ts-jest@29.4.6(@babel/core@7.29.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.29.0))(jest-util@29.7.0)(jest@29.7.0(@types/node@18.19.130)(babel-plugin-macros@3.1.0))(typescript@5.4.5):
+  ts-jest@29.4.6(@babel/core@7.29.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.29.0))(esbuild@0.27.3)(jest-util@29.7.0)(jest@29.7.0(@types/node@18.19.130)(babel-plugin-macros@3.1.0))(typescript@5.4.5):
     dependencies:
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
@@ -25971,9 +26090,10 @@ snapshots:
       '@jest/transform': 29.7.0
       '@jest/types': 29.6.3
       babel-jest: 29.7.0(@babel/core@7.29.0)
+      esbuild: 0.27.3
       jest-util: 29.7.0
 
-  ts-jest@29.4.6(@babel/core@7.29.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.29.0))(jest-util@29.7.0)(jest@29.7.0(@types/node@18.19.130)(babel-plugin-macros@3.1.0))(typescript@5.7.2):
+  ts-jest@29.4.6(@babel/core@7.29.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.29.0))(esbuild@0.27.3)(jest-util@29.7.0)(jest@29.7.0(@types/node@18.19.130)(babel-plugin-macros@3.1.0))(typescript@5.7.2):
     dependencies:
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
@@ -25991,9 +26111,10 @@ snapshots:
       '@jest/transform': 29.7.0
       '@jest/types': 29.6.3
       babel-jest: 29.7.0(@babel/core@7.29.0)
+      esbuild: 0.27.3
       jest-util: 29.7.0
 
-  ts-loader@9.5.4(typescript@5.4.5)(webpack@5.105.4):
+  ts-loader@9.5.4(typescript@5.4.5)(webpack@5.105.4(esbuild@0.27.3)):
     dependencies:
       chalk: 4.1.2
       enhanced-resolve: 5.20.0
@@ -26001,7 +26122,7 @@ snapshots:
       semver: 7.7.4
       source-map: 0.7.6
       typescript: 5.4.5
-      webpack: 5.105.4
+      webpack: 5.105.4(esbuild@0.27.3)
 
   ts-node@10.9.2(@types/node@18.19.130)(typescript@5.4.5):
     dependencies:
@@ -26465,7 +26586,7 @@ snapshots:
 
   webpack-sources@3.3.4: {}
 
-  webpack@5.105.4:
+  webpack@5.105.4(esbuild@0.27.3):
     dependencies:
       '@types/eslint-scope': 3.7.7
       '@types/estree': 1.0.8
@@ -26489,7 +26610,7 @@ snapshots:
       neo-async: 2.6.2
       schema-utils: 4.3.3
       tapable: 2.3.0
-      terser-webpack-plugin: 5.3.17(webpack@5.105.4)
+      terser-webpack-plugin: 5.3.17(esbuild@0.27.3)(webpack@5.105.4(esbuild@0.27.3))
       watchpack: 2.5.1
       webpack-sources: 3.3.4
     transitivePeerDependencies:

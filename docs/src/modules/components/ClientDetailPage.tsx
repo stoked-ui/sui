@@ -28,6 +28,7 @@ import DesignServicesIcon from '@mui/icons-material/DesignServicesOutlined';
 import ArrowBackIcon from '@mui/icons-material/ArrowBackOutlined';
 import ReceiptIcon from '@mui/icons-material/ReceiptOutlined';
 import { useRouter } from 'next/router';
+import { getApiUrl } from 'docs/src/modules/utils/getApiUrl';
 import DeliverableForm from './DeliverableForm';
 
 interface Deliverable {
@@ -82,7 +83,7 @@ async function apiFetch(url: string, options: RequestInit = {}) {
     ...(options.headers as Record<string, string> || {}),
   };
   if (token) headers.Authorization = `Bearer ${token}`;
-  const res = await fetch(url, { ...options, headers });
+  const res = await fetch(getApiUrl(url), { ...options, headers });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     throw new Error(body.message || `Request failed with status ${res.status}`);

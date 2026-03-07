@@ -126,10 +126,10 @@ export const authors = {
     avatar: 'https://avatars.githubusercontent.com/u/717550?',
     github: 'brijeshb42',
   },
-  brianstoker: {
+  'brian-stoker': {
     name: 'Brian Stoker',
-    avatar: 'https://avatars.githubusercontent.com/u/4684271',
-    github: 'brianstoker',
+    avatar: 'https://avatars.githubusercontent.com/u/91224556',
+    github: 'brian-stoker',
   },
 };
 

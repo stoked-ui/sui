@@ -9,6 +9,7 @@ import IconButton from '@mui/material/IconButton';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import LoginIcon from '@mui/icons-material/LoginOutlined';
 import { useRouter } from 'next/router';
+import { getApiUrl } from 'docs/src/modules/utils/getApiUrl';
 import ThemeModeToggle from 'docs/src/components/header/ThemeModeToggle';
 import { Link } from '@stoked-ui/docs';
 import { DeferredAppSearch } from 'docs/src/modules/components/AppFrame';
@@ -85,7 +86,7 @@ export default function AppHeader(props: AppHeaderProps) {
   const [managedProducts, setManagedProducts] = React.useState<ManagedProduct[]>([]);
 
   React.useEffect(() => {
-    fetch('/api/products/public')
+    fetch(getApiUrl('/api/products/public'))
       .then((res) => (res.ok ? res.json() : []))
       .then((data) => { if (Array.isArray(data)) setManagedProducts(data); })
       .catch(() => {});

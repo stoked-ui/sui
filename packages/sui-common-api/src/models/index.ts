@@ -8,3 +8,5 @@ export * from './blogPost.model.js';
 export * from './invoice.model.js';
 export * from './license.model.js';
 export * from './product.model.js';
+export * from './client.model.js';
+export * from './user.model.js';

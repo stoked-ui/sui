@@ -28,6 +28,7 @@ import EditIcon from '@mui/icons-material/EditOutlined';
 import AgentIcon from '@mui/icons-material/SupportAgentOutlined';
 import LoginIcon from '@mui/icons-material/LoginOutlined';
 import PhotoIcon from '@mui/icons-material/PhotoCameraOutlined';
+import { getApiUrl } from 'docs/src/modules/utils/getApiUrl';
 
 interface UserRecord {
   _id: string;
@@ -65,7 +66,7 @@ async function apiFetch(url: string, options: RequestInit = {}) {
     ...(options.headers as Record<string, string> || {}),
   };
   if (token) headers.Authorization = `Bearer ${token}`;
-  const res = await fetch(url, { ...options, headers });
+  const res = await fetch(getApiUrl(url), { ...options, headers });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     throw new Error(body.message || `Request failed with status ${res.status}`);

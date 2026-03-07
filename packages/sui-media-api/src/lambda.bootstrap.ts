@@ -56,8 +56,8 @@ async function bootstrap() {
       },
     );
 
-    const apiVersion = API_PATH_PREFIX || '/v1';
-    logger.log('API version: ' + apiVersion);
+    const apiVersion = API_PATH_PREFIX || '/api';
+    logger.log('API prefix: ' + apiVersion);
     app.setGlobalPrefix(apiVersion);
 
     await app.init();
@@ -136,7 +136,7 @@ export const handler: Handler = async (event: EventType, context: Context) => {
             ),
           );
         }
-      }, 19000); // 19 second timeout (1 second before Lambda timeout)
+      }, 50000); // 50 second timeout (10 seconds before Lambda timeout)
 
       try {
         const result = server(event, context, (error, result) => {

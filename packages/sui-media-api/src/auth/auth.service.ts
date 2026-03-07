@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcryptjs';
 
-export type UserRole = 'reader' | 'author' | 'editor' | 'admin';
+export type UserRole = 'admin' | 'client' | 'agent' | 'reader' | 'author' | 'editor';
 
 export interface User {
   id: string;
@@ -45,7 +45,7 @@ export class AuthService {
   private readonly users = new Map<string, User>();
   private userIdCounter = 1;
 
-  // Domains that automatically get the 'author' role
+  // Domains that automatically get the 'admin' role
   private readonly autoDomains: string[];
 
   constructor(
@@ -53,7 +53,7 @@ export class AuthService {
     private readonly configService: ConfigService,
   ) {
     // Allow override via AUTH_AUTO_DOMAINS env var (comma-separated list)
-    const envDomains = this.configService.get<string>('AUTH_AUTO_DOMAINS');
+    const envDomains = this.configService?.get?.<string>('AUTH_AUTO_DOMAINS') || process.env.AUTH_AUTO_DOMAINS;
     if (envDomains) {
       this.autoDomains = envDomains.split(',').map((d) => d.trim().toLowerCase());
     } else {
@@ -63,15 +63,15 @@ export class AuthService {
 
   /**
    * Determine the role for a given email address based on domain.
-   * Emails ending in trusted domains get the 'author' role.
-   * All other emails get the 'reader' role.
+   * Emails ending in trusted domains get the 'admin' role.
+   * All other emails get the 'client' role.
    */
   private determineRole(email: string): UserRole {
     const domain = email.split('@')[1]?.toLowerCase();
     if (domain && this.autoDomains.includes(domain)) {
-      return 'author';
+      return 'admin';
     }
-    return 'reader';
+    return 'client';
   }
 
   /**

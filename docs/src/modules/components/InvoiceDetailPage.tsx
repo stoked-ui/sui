@@ -8,6 +8,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
 import ArrowBackIcon from '@mui/icons-material/ArrowBackOutlined';
 import { useRouter } from 'next/router';
+import { getApiUrl } from 'docs/src/modules/utils/getApiUrl';
 
 interface InvoiceLineItem {
   hours: number;
@@ -54,7 +55,7 @@ async function apiFetch(url: string) {
   const token = getToken();
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   if (token) headers.Authorization = `Bearer ${token}`;
-  const res = await fetch(url, { headers });
+  const res = await fetch(getApiUrl(url), { headers });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     throw new Error(body.message || `Request failed with status ${res.status}`);

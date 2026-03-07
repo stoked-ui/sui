@@ -1,8 +1,14 @@
 import { APIGatewayProxyHandlerV2 } from 'aws-lambda';
 import { OAuth2Client } from 'google-auth-library';
-import { loginWithGooglePayload } from '../lib/auth';
 
 export const handler: APIGatewayProxyHandlerV2 = async (event) => {
+  if (event.requestContext.http.method === 'OPTIONS') {
+    return {
+      statusCode: 204,
+      body: '',
+    };
+  }
+
   if (event.requestContext.http.method !== 'POST') {
     return {
       statusCode: 405,
@@ -40,6 +46,9 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
       };
     }
 
+    // Dynamic import to avoid loading DB client on OPTIONS requests
+    const { loginWithGooglePayload } = await import('../lib/auth');
+    
     const name = payload.name || payload.email.split('@')[0];
     const result = await loginWithGooglePayload(payload.email, name, payload.picture);
     

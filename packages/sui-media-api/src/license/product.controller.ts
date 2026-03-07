@@ -34,6 +34,16 @@ export class ProductController {
     return this.productModel.find().exec();
   }
 
+  @Get('public')
+  @ApiOperation({ summary: 'List public products' })
+  async findPublic(): Promise<ProductDocument[]> {
+    return this.productModel
+      .find({ live: true, productId: { $ne: 'stoked-ui' } })
+      .select('_id productId name description url features icon hideProductFeatures prerelease')
+      .sort({ name: 1 })
+      .exec();
+  }
+
   @Get(':productId')
   @ApiOperation({ summary: 'Get product by ID' })
   async findOne(@Param('productId') productId: string): Promise<ProductDocument> {

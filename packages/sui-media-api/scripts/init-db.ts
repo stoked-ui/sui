@@ -29,9 +29,9 @@ dotenv.config();
 const MONGODB_URI =
   process.env.MONGODB_URI ?? 'mongodb://localhost:27017/stoked-media';
 
-const ADMIN_EMAIL = process.env.AUTH_ADMIN_EMAIL;
+const ADMIN_EMAIL = process.env.AUTH_ADMIN_EMAIL ?? 'b@stokedconsulting.com';
 const ADMIN_PASSWORD = process.env.AUTH_ADMIN_PASSWORD;
-const ADMIN_NAME = process.env.AUTH_ADMIN_NAME ?? 'Admin';
+const ADMIN_NAME = process.env.AUTH_ADMIN_NAME ?? 'Brian';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -212,10 +212,44 @@ async function main() {
   log('Connected.');
 
   await ensureBlogPostCollection(db);
+  await ensureDefaultClients(db);
   await ensureAdminUser(db);
 
   log('Database initialization complete.');
   await mongoose.disconnect();
+}
+
+async function ensureDefaultClients(db: Connection['db']) {
+  if (!db) throw new Error('MongoDB db reference is undefined');
+
+  const collectionName = 'clients';
+  const collections = await db.listCollections({ name: collectionName }).toArray();
+  if (collections.length === 0) {
+    await db.createCollection(collectionName);
+    log(`Created collection: ${collectionName}`);
+  }
+
+  const col = db.collection(collectionName);
+
+  // Ensure unique index on slug
+  await col.createIndex({ slug: 1 }, { unique: true, name: 'client_slug_unique', background: true }).catch(() => {});
+
+  const defaultClient = {
+    name: 'Stoked',
+    slug: 'stoked',
+    contactEmail: 'b@stokedconsulting.com',
+    active: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+
+  const existing = await col.findOne({ slug: 'stoked' });
+  if (!existing) {
+    await col.insertOne(defaultClient);
+    log(`Created default client: ${defaultClient.name}`);
+  } else {
+    log(`Default client already exists: ${defaultClient.name}`);
+  }
 }
 
 main().catch((err) => {

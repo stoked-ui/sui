@@ -23,7 +23,7 @@ export class S3Service {
   private readonly MULTIPART_URL_EXPIRY = 60 * 60; // 1 hour in seconds
 
   constructor(private readonly configService: ConfigService) {
-    const region = this.configService.get<string>('AWS_REGION', 'us-east-1');
+    const region = this.configService?.get?.<string>('AWS_REGION') || process.env.AWS_REGION || 'us-east-1';
     this.s3 = new S3Client({ region });
   }
 

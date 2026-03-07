@@ -27,7 +27,7 @@ export class StripeController {
     private readonly configService: ConfigService,
   ) {
     this.sesClient = new SESClient({ region: 'us-east-1' });
-    this.sesFromEmail = this.configService.get<string>('SES_FROM_EMAIL') || 'noreply@stoked-ui.com';
+    this.sesFromEmail = this.configService?.get?.<string>('SES_FROM_EMAIL') || process.env.SES_FROM_EMAIL || 'noreply@stoked-ui.com';
   }
 
   @Post('stripe')

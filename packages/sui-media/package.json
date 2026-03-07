@@ -2,7 +2,7 @@
   "name": "@stoked-ui/media",
   "author": "Brian Stoker",
   "private": false,
-  "version": "1.0.0",
+  "version": "0.1.0-alpha.5",
   "description": "Comprehensive media management and component library for React with framework-agnostic abstractions, modern file handling APIs, and reactive media UI components",
   "keywords": [
     "react",
@@ -61,9 +61,15 @@
   "peerDependencies": {
     "@stoked-ui/common": "workspace:^",
     "@tanstack/react-query": "^5.0.0",
-    "react": "^18.0.0"
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
   },
   "dependencies": {
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.5",
+    "@mui/icons-material": "^5.15.20",
+    "@mui/lab": "^5.0.0-alpha.170",
+    "@mui/material": "^5.15.20",
     "formdata-node": "^6.0.3",
     "jszip": "^3.10.1",
     "@tanstack/react-query": "^5.0.0"

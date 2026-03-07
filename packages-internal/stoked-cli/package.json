@@ -1,0 +1,9 @@
+{
+  "name": "@stoked-ui/cli",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "cargo build --release && cargo install --path .",
+    "install": "cargo install --path ."
+  }
+}

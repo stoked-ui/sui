@@ -15,6 +15,15 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
 
   try {
     const result = await publishBlogPost(slug);
+
+    // Trigger on-demand ISR revalidation for the post and listing
+    try {
+      await res.revalidate(`/blog/${slug}`);
+      await res.revalidate('/blog');
+    } catch {
+      // Revalidation failure should not block the publish response
+    }
+
     return res.status(200).json(result);
   } catch (error: unknown) {
     return handleBlogApiError(res, error, 'Failed to publish blog post');

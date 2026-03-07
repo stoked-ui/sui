@@ -12,6 +12,7 @@ import Chip from '@mui/material/Chip';
 import ROUTES from 'docs/src/route';
 import { PRODUCTS, CONSULTING, useAllProducts } from 'docs/src/products';
 import { Link } from '@stoked-ui/docs';
+import { getApiUrl } from 'docs/src/modules/utils/getApiUrl';
 import type { AuthUser, ManagedProduct } from 'docs/src/layouts/AppHeader';
 
 const Navigation = styled('nav')(({ theme }) => [
@@ -182,7 +183,7 @@ export default function HeaderNavBar({ auth, managedProducts = [] }: HeaderNavBa
       token = JSON.parse(stored).access_token;
     } catch { /* ignore */ }
     if (!token) return;
-    fetch(`/api/invoices/has-invoices?clientId=${auth.clientId}`, {
+    fetch(getApiUrl(`/api/invoices/has-invoices?clientId=${auth.clientId}`), {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => (res.ok ? res.json() : null))
@@ -208,7 +209,7 @@ export default function HeaderNavBar({ auth, managedProducts = [] }: HeaderNavBa
       token = JSON.parse(stored).access_token;
     } catch { /* ignore */ }
     if (!token) return;
-    fetch('/api/products', { headers: { Authorization: `Bearer ${token}` } })
+    fetch(getApiUrl('/api/products'), { headers: { Authorization: `Bearer ${token}` } })
       .then((res) => (res.ok ? res.json() : []))
       .then((data) => { if (Array.isArray(data)) setAdminProducts(data); })
       .catch(() => {});

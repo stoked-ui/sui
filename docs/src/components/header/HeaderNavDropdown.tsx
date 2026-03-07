@@ -9,6 +9,7 @@ import Typography from '@mui/material/Typography';
 import KeyboardArrowDownRounded from '@mui/icons-material/KeyboardArrowDownRounded';
 import SvgHamburgerMenu from 'docs/src/icons/SvgHamburgerMenu';
 import { Link } from '@stoked-ui/docs';
+import { getApiUrl } from 'docs/src/modules/utils/getApiUrl';
 import ROUTES from 'docs/src/route';
 import type { AuthUser, ManagedProduct } from 'docs/src/layouts/AppHeader';
 
@@ -136,7 +137,7 @@ export default function HeaderNavDropdown({ auth, managedProducts = [] }: Header
       token = JSON.parse(stored).access_token;
     } catch { /* ignore */ }
     if (!token) return;
-    fetch('/api/products', { headers: { Authorization: `Bearer ${token}` } })
+    fetch(getApiUrl('/api/products'), { headers: { Authorization: `Bearer ${token}` } })
       .then((res) => (res.ok ? res.json() : []))
       .then((data) => { if (Array.isArray(data)) setAdminProducts(data); })
       .catch(() => {});
@@ -153,7 +154,7 @@ export default function HeaderNavDropdown({ auth, managedProducts = [] }: Header
       token = JSON.parse(stored).access_token;
     } catch { /* ignore */ }
     if (!token) return;
-    fetch(`/api/invoices/has-invoices?clientId=${auth.clientId}`, {
+    fetch(getApiUrl(`/api/invoices/has-invoices?clientId=${auth.clientId}`), {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => (res.ok ? res.json() : null))

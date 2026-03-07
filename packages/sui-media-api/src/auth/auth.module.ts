@@ -8,16 +8,32 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Module({
   imports: [
+    ConfigModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET', 'dev-secret-change-me'),
-        signOptions: {
-          expiresIn: configService.get<string>('JWT_EXPIRES_IN', '7d'),
-        },
-      }),
+      useFactory: async (configService: ConfigService) => {
+        let secret: string | undefined;
+        try {
+          secret = (globalThis as any).Resource?.JWT_SECRET?.value;
+          if (!secret) {
+            const { Resource } = await import('sst');
+            secret = (Resource as any).JWT_SECRET?.value;
+          }
+        } catch { /* ignore */ }
+
+        if (!secret) {
+          secret = configService?.get?.<string>('JWT_SECRET') || process.env.JWT_SECRET || 'dev-secret-change-me';
+        }
+
+        return {
+          secret,
+          signOptions: {
+            expiresIn: configService?.get?.<string>('JWT_EXPIRES_IN') || process.env.JWT_EXPIRES_IN || '7d',
+          },
+        };
+      },
     }),
   ],
   controllers: [AuthController],

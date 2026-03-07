@@ -1,6 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { SES } from "aws-sdk";
-import { Resource } from "sst";
 import { v4 as uuidv4 } from "uuid";
 import { domains } from "./lib/domains";
 import dbClient from "./lib/mongodb";
@@ -14,22 +13,23 @@ function subscribeResult(result: APIGatewayProxyResult): APIGatewayProxyResult {
 
 export async function subscribe(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
 
-  if (!domains.includes(event.headers.origin.replace('https://', ''))) {
-    console.info('event.headers.origin', event, domains, event.headers.origin.replace('https://',''));
+  const origin = event.headers.origin ?? event.headers.Origin ?? '';
+  if (!domains.includes(origin.replace('https://', ''))) {
+    console.info('event.headers.origin', event, domains, origin.replace('https://',''));
     return subscribeResult({
       statusCode: 403,
       body: JSON.stringify({ message: "Forbidden" }),
     });
   }
 
-  if (event.requestContext.http.method !== "POST") {
+  if (event.httpMethod !== "POST") {
     return subscribeResult({
       statusCode: 405,
       body: JSON.stringify({ message: "Method not allowed" }),
     });
   }
 
-  const { email } = JSON.parse(event.body);
+  const { email } = JSON.parse(event.body || '{}');
   if (!email) {
     return subscribeResult({
       statusCode: 400,
@@ -98,7 +98,6 @@ async function sendVerificationEmail(email: string, verificationLink: string) {
 
 
 export async function verify(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
-  const userPoolId = Resource.Auth.id;
   const { token, email } = event.queryStringParameters || {};
 
   if (!token || !email) {

@@ -37,13 +37,8 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Function"
     }
-    "stoked-uicomStaticSite": {
-      "type": "sst.aws.StaticSite"
-      "url": string
-    }
   }
 }
-/// <reference path="sst-env.d.ts" />
 
 import "sst"
 export {}

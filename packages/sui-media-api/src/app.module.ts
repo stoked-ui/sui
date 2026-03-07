@@ -5,7 +5,6 @@ import { MediaModule } from './media/media.module';
 import { HealthModule } from './health/health.module';
 import { UploadsModule } from './uploads/uploads.module';
 import { AuthModule } from './auth/auth.module';
-import { InvoicesModule } from './invoices/invoices.module';
 import { NostrModule } from './nostr/nostr.module';
 
 @Module({
@@ -19,7 +18,6 @@ import { NostrModule } from './nostr/nostr.module';
     MediaModule,
     HealthModule,
     UploadsModule,
-    InvoicesModule,
     // NostrModule polls Nostr relays for NIP-23 long-form content (background service)
     NostrModule,
   ],

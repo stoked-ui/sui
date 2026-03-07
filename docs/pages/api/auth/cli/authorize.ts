@@ -13,7 +13,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
   }
 
   try {
-    const keyName = typeof name === 'string' && name.length > 0 ? name : 'bstoked CLI';
+    const keyName = typeof name === 'string' && name.length > 0 ? name : 'stoked CLI';
     const { key, info } = await createApiKey(req.user.sub, keyName);
 
     return res.status(200).json({
@@ -24,6 +24,8 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
       user: {
         email: req.user.email,
         name: req.user.name,
+        role: req.user.role,
+        clientId: req.user.clientId,
       },
     });
   } catch (error: unknown) {

@@ -35,7 +35,7 @@ export interface TimelineSlotProps {
 }
 
 export interface TimelineProps
-  extends React.HTMLAttributes<HTMLDivElement> {
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onToggle'> {
   actions?: ITimelineFileAction[],
   children?: React.ReactNode;
   className?: string;

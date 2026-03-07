@@ -33,6 +33,7 @@
 import React, { lazy, ComponentType } from 'react';
 import type { MediaViewerProps } from './MediaViewer/MediaViewer.types';
 import type { MediaCardProps } from './MediaCard/MediaCard.types';
+import type { MediaGalleryProps } from './MediaGallery/MediaGallery.types';
 
 /**
  * Lazy-loaded MediaViewer component
@@ -53,6 +54,15 @@ export const LazyMediaViewer: React.LazyExoticComponent<
 export const LazyMediaCard: React.LazyExoticComponent<
   ComponentType<MediaCardProps>
 > = lazy(() => import('./MediaCard').then((m) => ({ default: m.MediaCard })));
+
+/**
+ * Lazy-loaded MediaGallery component
+ * 
+ * Comprehensive gallery for displaying media collections from various sources.
+ */
+export const LazyMediaGallery: React.LazyExoticComponent<
+  ComponentType<MediaGalleryProps>
+> = lazy(() => import('./MediaGallery').then((m) => ({ default: m.MediaGallery })));
 
 /**
  * Lazy-loaded ThumbnailStrip component

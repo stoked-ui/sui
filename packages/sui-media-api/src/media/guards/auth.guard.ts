@@ -37,8 +37,7 @@ export class AuthGuard implements CanActivate {
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.slice(7);
       try {
-        const secret = this.configService.get<string>('JWT_SECRET', 'dev-secret-change-me');
-        const payload = this.jwtService.verify(token, { secret }) as {
+        const payload = this.jwtService.verify(token) as {
           sub: string;
           email: string;
           role: string;
@@ -51,8 +50,11 @@ export class AuthGuard implements CanActivate {
           name: payload.name,
         };
         return true;
-      } catch {
-        throw new UnauthorizedException('Invalid or expired token');
+      } catch (err: any) {
+        const message = process.env.NODE_ENV !== 'production' 
+          ? `Token verification failed: ${err.message}`
+          : 'Invalid or expired token';
+        throw new UnauthorizedException(message);
       }
     }
 

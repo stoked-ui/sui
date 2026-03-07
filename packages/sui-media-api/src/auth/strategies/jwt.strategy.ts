@@ -15,10 +15,33 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     private readonly authService: AuthService,
     configService: ConfigService,
   ) {
+    // We cannot use await in constructor, so we use a little trick
+    // PassportStrategy calls `validate` after verification.
+    // We can provide a getter or just use process.env as fallback.
+    
+    const getSecret = () => {
+      let secret: string | undefined;
+      // In Lambda, SST sets these up before the handler runs
+      // but they are available via globalThis.Resource in SST v4
+      try {
+        secret = (globalThis as any).Resource?.JWT_SECRET?.value;
+        if (!secret) {
+          secret = (globalThis as any).$SST_LINKS?.JWT_SECRET?.value;
+        }
+      } catch { /* ignore */ }
+
+      if (!secret) {
+        secret = configService?.get?.<string>('JWT_SECRET') || process.env.JWT_SECRET || 'dev-secret-change-me';
+      }
+      return secret;
+    };
+
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: configService.get<string>('JWT_SECRET', 'dev-secret-change-me'),
+      secretOrKeyProvider: (request, rawJwtToken, done) => {
+        done(null, getSecret());
+      },
     });
   }
 

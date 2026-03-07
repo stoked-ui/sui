@@ -15,6 +15,7 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import LinkIcon from '@mui/icons-material/Link';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { getApiUrl } from 'docs/src/modules/utils/getApiUrl';
 
 export interface BlogPostFormData {
   title: string;
@@ -179,7 +180,7 @@ export default function BlogEditorForm({ formData, onChange, isEditing = false, 
         reader.readAsDataURL(file);
       });
 
-      const res = await fetch('/api/upload/blog-image', {
+      const res = await fetch(getApiUrl('/api/upload/blog-image'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

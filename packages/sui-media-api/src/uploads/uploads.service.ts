@@ -230,9 +230,9 @@ export class UploadsService {
     const totalParts = this.calculateTotalParts(dto.totalSize, chunkSize);
     const s3Key = this.generateS3Key(userId, dto.filename);
     const bucket =
-      this.configService.get<string>('NEXT_PUBLIC_VIDEO_BUCKET') || '';
+      this.configService?.get?.<string>('NEXT_PUBLIC_VIDEO_BUCKET') || process.env.NEXT_PUBLIC_VIDEO_BUCKET || '';
     const region =
-      this.configService.get<string>('VIDEO_BUCKET_REGION') || 'us-east-1';
+      this.configService?.get?.<string>('VIDEO_BUCKET_REGION') || process.env.VIDEO_BUCKET_REGION || 'us-east-1';
 
     // Create S3 multipart upload
     const { uploadId } = await this.s3Service.createMultipartUpload({
