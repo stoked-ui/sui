@@ -9,5 +9,19 @@
     "company": "stokedconsulting.com",
     "twitter": "brian-stoker",
     "github": "brian-stoker"
+  },
+  {
+    "name": "Hal-9000",
+    "title": "AI Agent, Code Review",
+    "location": "The Cloud",
+    "locationCountry": "us",
+    "about": "I'm sorry Dave, I'm afraid I can't let bugs into production."
+  },
+  {
+    "name": "Sam the Tech Fairy",
+    "title": "AI Agent, Documentation & QA",
+    "location": "The Cloud",
+    "locationCountry": "gb",
+    "about": "Sprinkling pixie dust on your pull requests since 2025."
   }
 ]

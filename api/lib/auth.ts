@@ -37,7 +37,24 @@ const AUTO_DOMAINS = (process.env.AUTH_AUTO_DOMAINS || 'stokedconsulting.com,sto
   .split(',')
   .map((d) => d.trim().toLowerCase());
 
-const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-change-me';
+const getJwtSecret = () => {
+  let secret: string | undefined;
+  try {
+    // SST v4 uses globalThis.Resource
+    secret = (globalThis as any).Resource?.JWT_SECRET?.value;
+    if (!secret) {
+      // SST v3 / other
+      secret = (globalThis as any).$SST_LINKS?.JWT_SECRET?.value;
+    }
+  } catch { /* ignore */ }
+
+  if (!secret) {
+    secret = process.env.JWT_SECRET || 'dev-secret-change-me';
+  }
+  return secret;
+};
+
+const JWT_SECRET = getJwtSecret();
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
 
 function determineRole(email: string): UserRole {
@@ -77,10 +94,20 @@ function generateAuthResult(user: User, pictureUrl?: string, impersonatedId?: st
   };
 }
 
+let indexEnsured = false;
+
+async function ensureUserIndexes(users: import('mongodb').Collection<User>) {
+  if (indexEnsured) return;
+  indexEnsured = true;
+  await users.createIndex({ email: 1 }, { unique: true, background: true }).catch(() => {});
+}
+
 export async function loginWithGooglePayload(email: string, name: string, picture?: string): Promise<AuthResult> {
   const normalizedEmail = email.toLowerCase();
   const db = (await clientPromise).db();
   const users = db.collection<User>('users');
+
+  await ensureUserIndexes(users);
 
   // Try direct email match, then alias match
   let user = await users.findOne({ email: normalizedEmail });
@@ -97,17 +124,26 @@ export async function loginWithGooglePayload(email: string, name: string, pictur
     return generateAuthResult(user, picture);
   }
 
+  // Atomic upsert to prevent duplicate user creation from concurrent logins
   const now = new Date();
-  const newUser: User = {
-    _id: new ObjectId(),
-    email: normalizedEmail,
-    name,
-    role: determineRole(normalizedEmail),
-    avatarUrl: picture,
-    active: true,
-    createdAt: now,
-    updatedAt: now,
-  };
-  await users.insertOne(newUser);
-  return generateAuthResult(newUser, picture);
+  const result = await users.findOneAndUpdate(
+    { email: normalizedEmail },
+    {
+      $setOnInsert: {
+        email: normalizedEmail,
+        name,
+        role: determineRole(normalizedEmail),
+        active: true,
+        createdAt: now,
+      },
+      $set: {
+        avatarUrl: picture,
+        updatedAt: now,
+      },
+    },
+    { upsert: true, returnDocument: 'after' },
+  );
+
+  const upsertedUser = result!;
+  return generateAuthResult(upsertedUser, picture);
 }
