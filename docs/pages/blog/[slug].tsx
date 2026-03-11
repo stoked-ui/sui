@@ -118,7 +118,7 @@ interface BlogPostPageProps {
 
 export const getStaticPaths: GetStaticPaths = async () => {
   try {
-    const res = await fetch(`${BLOG_API_URL}/blog/public?site=stoked-ui.com`);
+    const res = await fetch(`${BLOG_API_URL}/blog/public`);
     if (res.ok) {
       const json = await res.json();
       const posts: ApiPost[] = json.data || [];

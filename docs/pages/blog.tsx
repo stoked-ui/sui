@@ -35,7 +35,7 @@ export const getStaticProps = async () => {
   let apiPosts: BlogPost[] = [];
   try {
     const apiUrl = (process.env.BLOG_API_URL || process.env.NEXT_PUBLIC_BLOG_API_URL || 'http://localhost:3000/api').replace(/\/$/, '');
-    const res = await fetch(`${apiUrl}/blog/public?site=stoked-ui.com`);
+    const res = await fetch(`${apiUrl}/blog/public`);
     if (res.ok) {
       const json = await res.json();
       apiPosts = (json.data || []).map((post: any) => ({

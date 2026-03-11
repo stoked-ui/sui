@@ -203,13 +203,11 @@ export async function listPublicBlogPosts(query: BlogQuery): Promise<PaginatedBl
   const page = asPositiveInt(query.page, 1);
   const limit = asPositiveInt(query.limit, 20);
   const skip = (page - 1) * limit;
-  const site = query.site ?? 'stoked-ui.com';
-
   const filter: Record<string, unknown> = {
     status: 'published',
     deleted: { $ne: true },
-    targetSites: site,
   };
+  if (query.site) filter.targetSites = query.site;
   if (query.tag) filter.tags = query.tag;
   if (query.author) filter.authors = query.author;
   if (query.search) filter.$text = { $search: query.search };
