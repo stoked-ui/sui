@@ -91,8 +91,9 @@ jobs:
       - run: pnpm --filter @stoked-ui/media-api build
       - name: Deploy
         env:
-          ROOT_DOMAIN: stoked-ui.com,stokedconsulting.com,stokedui.com
+          ROOT_DOMAIN: stoked-ui.com,stokedconsulting.com
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
           STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
         run: |
