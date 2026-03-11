@@ -5,20 +5,23 @@ import { withAuth, AuthenticatedRequest } from 'docs/src/modules/auth/withAuth';
 
 async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
   const { id } = req.query;
-  if (!id || typeof id !== 'string' || !ObjectId.isValid(id)) {
+  if (!id || typeof id !== 'string') {
     return res.status(400).json({ message: 'Invalid client ID' });
   }
 
   const db = await getDb();
   const collection = db.collection('clients');
-  const objectId = new ObjectId(id);
+
+  // Support both ObjectId and slug-based lookup
+  const isOid = ObjectId.isValid(id);
+  const query = isOid ? { _id: new ObjectId(id) } : { slug: id };
 
   if (req.method === 'GET') {
     // Admin can view any client; client-role users can only view their own
-    if (req.user.role === 'client' && req.user.clientId !== id) {
+    if (req.user.role === 'client' && req.user.clientId !== id && req.user.clientSlug !== id) {
       return res.status(403).json({ message: 'Access denied' });
     }
-    const client = await collection.findOne({ _id: objectId });
+    const client = await collection.findOne(query);
     if (!client) {
       return res.status(404).json({ message: 'Client not found' });
     }
@@ -36,7 +39,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
     if (active !== undefined) update.active = active;
 
     const result = await collection.findOneAndUpdate(
-      { _id: objectId },
+      query,
       { $set: update },
       { returnDocument: 'after' },
     );
@@ -50,7 +53,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
     if (req.user.role !== 'admin') {
       return res.status(403).json({ message: 'Admin access required' });
     }
-    const result = await collection.deleteOne({ _id: objectId });
+    const result = await collection.deleteOne(query);
     if (result.deletedCount === 0) {
       return res.status(404).json({ message: 'Client not found' });
     }

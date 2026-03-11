@@ -1,5 +1,5 @@
 use crate::client::{print_value, ApiClient};
-use crate::config::{load_config_for_profile, save_config_for_profile};
+use crate::config::{load_config_for_profile, normalize_base_url, save_config_for_profile};
 use anyhow::{anyhow, bail, Context, Result};
 use rand::distr::Alphanumeric;
 use rand::Rng;
@@ -24,20 +24,35 @@ struct CallbackPayload {
     client_id: Option<String>,
 }
 
-pub async fn login(base_url_override: Option<String>, profile: &str, compact_json: bool) -> Result<()> {
+pub async fn login(
+    base_url_override: Option<String>,
+    profile: &str,
+    compact_json: bool,
+    impersonate: Option<String>,
+) -> Result<()> {
     let mut cfg = load_config_for_profile(profile)?;
-    let base_url = base_url_override
-        .clone()
-        .unwrap_or_else(|| cfg.effective_base_url());
+    let base_url = normalize_base_url(
+        &base_url_override
+            .clone()
+            .unwrap_or_else(|| cfg.effective_base_url()),
+    );
 
     let port = pick_open_port()?;
     let state = random_state(32);
     let name = "stoked CLI";
     let encoded_name: String = byte_serialize(name.as_bytes()).collect();
-    let auth_url = format!(
+    let mut auth_url = format!(
         "{}/cli/auth?port={}&state={}&name={}",
         base_url, port, state, encoded_name
     );
+    if let Some(target_email) = impersonate
+        .as_deref()
+        .map(str::trim)
+        .filter(|value| !value.is_empty())
+    {
+        let encoded_email: String = byte_serialize(target_email.as_bytes()).collect();
+        auth_url.push_str(&format!("&impersonate={}", encoded_email));
+    }
 
     println!("Opening browser for OAuth login...");
     if let Err(err) = open::that(&auth_url) {
@@ -46,22 +61,31 @@ pub async fn login(base_url_override: Option<String>, profile: &str, compact_jso
     }
 
     let expected_state = state.clone();
-    let callback = tokio::task::spawn_blocking(move || {
-        wait_for_callback(
-            port,
-            expected_state,
-            Duration::from_secs(CALLBACK_TIMEOUT_SECS),
-        )
-    })
-    .await
-    .map_err(|e| anyhow!("Callback listener task failed: {}", e))??;
+    let callback_task: tokio::task::JoinHandle<Result<CallbackPayload>> =
+        tokio::task::spawn_blocking(move || {
+            wait_for_callback(
+                port,
+                expected_state,
+                Duration::from_secs(CALLBACK_TIMEOUT_SECS),
+            )
+        });
+
+    let callback = tokio::select! {
+        res = callback_task => {
+            res.map_err(|e| anyhow!("Callback listener task failed: {}", e))??
+        }
+        _ = tokio::signal::ctrl_c() => {
+            println!("\nLogin cancelled by user.");
+            return Ok(());
+        }
+    };
 
     if callback.state != state {
         bail!("OAuth state mismatch. Please retry login.");
     }
 
-    cfg.set_auth(
-        Some(base_url.clone()),
+    cfg.set_auth_for_base_url(
+        &base_url,
         callback.key,
         callback.email.clone(),
         callback.name.clone(),
@@ -84,28 +108,40 @@ pub async fn login(base_url_override: Option<String>, profile: &str, compact_jso
     print_value(&result, compact_json)
 }
 
-pub fn logout(profile: &str, compact_json: bool) -> Result<()> {
+pub fn logout(base_url_override: Option<String>, profile: &str, compact_json: bool) -> Result<()> {
     let mut cfg = load_config_for_profile(profile)?;
-    let had_auth = cfg.has_auth();
-    cfg.clear_auth();
+    let base_url = normalize_base_url(
+        &base_url_override
+            .clone()
+            .unwrap_or_else(|| cfg.effective_base_url()),
+    );
+    let had_auth = cfg.clear_auth_for_base_url(&base_url);
     save_config_for_profile(&cfg, profile)?;
 
     let result = json!({
         "authenticated": false,
         "profile": profile,
+        "base_url": base_url,
         "message": if had_auth { "Logged out" } else { "No active session" }
     });
 
     print_value(&result, compact_json)
 }
 
-pub async fn status(base_url_override: Option<String>, profile: &str, compact_json: bool) -> Result<()> {
+pub async fn status(
+    base_url_override: Option<String>,
+    profile: &str,
+    compact_json: bool,
+) -> Result<()> {
     let cfg = load_config_for_profile(profile)?;
-    let base_url = base_url_override
-        .clone()
-        .unwrap_or_else(|| cfg.effective_base_url());
+    let base_url = normalize_base_url(
+        &base_url_override
+            .clone()
+            .unwrap_or_else(|| cfg.effective_base_url()),
+    );
+    let active_cfg = cfg.active_view(&base_url);
 
-    if !cfg.has_auth() {
+    if !active_cfg.has_auth() {
         let result = json!({
             "authenticated": false,
             "base_url": base_url,
@@ -114,7 +150,7 @@ pub async fn status(base_url_override: Option<String>, profile: &str, compact_js
         return print_value(&result, compact_json);
     }
 
-    let client = ApiClient::new(base_url.clone(), cfg.api_key.clone())?;
+    let client = ApiClient::new(base_url.clone(), active_cfg.api_key.clone())?;
     let verification = client
         .request_json(Method::GET, "/auth/api-keys", &[], None, true)
         .await;
@@ -124,20 +160,20 @@ pub async fn status(base_url_override: Option<String>, profile: &str, compact_js
             "authenticated": true,
             "profile": profile,
             "base_url": base_url,
-            "email": cfg.email,
-            "name": cfg.name,
-            "role": cfg.role,
-            "client_id": cfg.client_id,
+            "email": active_cfg.email,
+            "name": active_cfg.name,
+            "role": active_cfg.role,
+            "client_id": active_cfg.client_id,
             "api_keys_visible": keys.as_array().map(|a| a.len()).unwrap_or(0)
         }),
         Err(err) => json!({
             "authenticated": true,
             "profile": profile,
             "base_url": base_url,
-            "email": cfg.email,
-            "name": cfg.name,
-            "role": cfg.role,
-            "client_id": cfg.client_id,
+            "email": active_cfg.email,
+            "name": active_cfg.name,
+            "role": active_cfg.role,
+            "client_id": active_cfg.client_id,
             "warning": format!("Stored key exists but verification failed: {}", err)
         }),
     };
@@ -145,9 +181,15 @@ pub async fn status(base_url_override: Option<String>, profile: &str, compact_js
     print_value(&result, compact_json)
 }
 
-pub fn token(profile: &str, raw: bool) -> Result<()> {
+pub fn token(base_url_override: Option<String>, profile: &str, raw: bool) -> Result<()> {
     let cfg = load_config_for_profile(profile)?;
-    let key = cfg
+    let base_url = normalize_base_url(
+        &base_url_override
+            .clone()
+            .unwrap_or_else(|| cfg.effective_base_url()),
+    );
+    let active_cfg = cfg.active_view(&base_url);
+    let key = active_cfg
         .api_key
         .as_ref()
         .filter(|k| k.starts_with("sk_"))
@@ -333,7 +375,11 @@ fn wait_for_callback(
 </html>"#;
                 let response = Response::from_string(html)
                     .with_status_code(StatusCode(200))
-                    .with_header("Content-Type: text/html; charset=utf-8".parse::<Header>().unwrap());
+                    .with_header(
+                        "Content-Type: text/html; charset=utf-8"
+                            .parse::<Header>()
+                            .unwrap(),
+                    );
                 let _ = req.respond(response);
 
                 return Ok(CallbackPayload {

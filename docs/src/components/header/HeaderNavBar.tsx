@@ -267,7 +267,7 @@ export default function HeaderNavBar({ auth, managedProducts = [] }: HeaderNavBa
                         <ul>
                           {adminProducts.map((p) => (
                             <Box component="li" role="none" key={p._id} sx={(theme) => ({ p: 1.5, '&:hover': { bgcolor: 'grey.50' }, ...theme.applyDarkStyles({ '&:hover': { bgcolor: 'primaryDark.700' } }) })}>
-                              <Box component={Link} href={`/consulting/products/${p._id}`} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <Box component={Link} href={`/consulting/products/${p.productId}`} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                 <Typography color="text.primary" variant="body2" fontWeight="700">
                                   {p.name}
                                 </Typography>
@@ -291,6 +291,9 @@ export default function HeaderNavBar({ auth, managedProducts = [] }: HeaderNavBa
               </li>
               <li>
                 <Link href="/blog/editor">Blog</Link>
+              </li>
+              <li>
+                <Link href="/consulting/api-docs">API</Link>
               </li>
             </React.Fragment>
           ) : (
@@ -365,7 +368,7 @@ export default function HeaderNavBar({ auth, managedProducts = [] }: HeaderNavBa
                 </li>
               )}
               <li>
-                <Link href={`/consulting/clients/${auth.clientId}`}>Deliverables</Link>
+                <Link href={`/consulting/clients/${auth.clientSlug || auth.clientId}`}>Deliverables</Link>
               </li>
               {hasInvoices && (
                 <li>

@@ -1,7 +1,0 @@
-{
-  "state": "responding",
-  "timestamp": "2026-03-07T14:24:39Z",
-  "session_id": "fc429019-ae94-485d-8ad6-57a3a198cc58",
-  "event": "UserPromptSubmit",
-  "provider": "claude-code"
-}

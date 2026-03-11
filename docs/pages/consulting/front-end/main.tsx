@@ -29,40 +29,36 @@ const ServiceCard = styled(Card)(({ theme }) => ({
 export default function Main() {
   const services = [
     {
-      title: 'React / Next.js Development',
-      description: 'Building high-performance web applications with React and Next.js. Server-side rendering, static generation, and hybrid approaches for optimal user experience and SEO.',
+      title: 'React & Next.js Applications',
+      description: 'Single-page apps, server-rendered marketing sites, and hybrid architectures. Component libraries, design system integration (Material UI, Tailwind, Shadcn), and state management (Redux, Zustand, Context API).',
     },
     {
-      title: 'Angular Applications',
-      description: 'Enterprise-grade Angular applications with robust architecture, lazy loading, and state management. Scalable solutions for complex business requirements.',
+      title: 'Performance Engineering',
+      description: 'Core Web Vitals optimization, lazy loading strategies, bundle analysis, and lighthouse-driven performance tuning. We\'ve taken client sites from 30s load times to sub-second renders.',
     },
     {
-      title: 'TypeScript Migration',
-      description: 'Incremental migration of JavaScript codebases to TypeScript. Improved type safety, better developer experience, and fewer runtime errors across your application.',
+      title: 'Responsive & Accessible Design',
+      description: 'WCAG 2.1 AA compliance, mobile-first responsive layouts, and cross-browser compatibility. Every interface works for every user.',
     },
     {
-      title: 'Component Library Development',
-      description: 'Design system and component library creation with Storybook documentation. Reusable, accessible, and themeable UI components that accelerate development.',
+      title: 'Design-to-Code Pipelines',
+      description: 'Figma-to-React workflows, Storybook-driven component development, and visual regression testing. We bridge the gap between design and engineering.',
     },
     {
-      title: 'Responsive Design',
-      description: 'Mobile-first responsive design using modern CSS techniques, Tailwind CSS, and Material UI. Pixel-perfect implementations that work across all devices and screen sizes.',
-    },
-    {
-      title: 'Performance Optimization',
-      description: 'Core Web Vitals optimization, bundle analysis, code splitting, and rendering performance improvements. Measurable speed gains that improve conversion and user satisfaction.',
+      title: 'Legacy Modernization',
+      description: 'Migrating jQuery/Angular/Backbone apps to React or Next.js without breaking production. Incremental adoption strategies that minimize risk.',
     },
   ];
 
   const technologies = [
-    { name: 'React', detail: 'Component architecture and hooks' },
-    { name: 'Next.js', detail: 'Full-stack React framework' },
-    { name: 'Angular', detail: 'Enterprise application platform' },
-    { name: 'Vue.js', detail: 'Progressive JavaScript framework' },
-    { name: 'TypeScript', detail: 'Type-safe JavaScript at scale' },
-    { name: 'Tailwind CSS', detail: 'Utility-first CSS framework' },
-    { name: 'Material UI', detail: 'React component library' },
-    { name: 'Storybook', detail: 'UI component workshop' },
+    { name: 'React / Next.js', detail: 'Modern app architectures' },
+    { name: 'TypeScript', detail: 'Type-safe frontend development' },
+    { name: 'Tailwind / MUI', detail: 'Utility and component styling' },
+    { name: 'Shadcn/ui', detail: 'Modern accessible components' },
+    { name: 'Vite / Webpack', detail: 'Fast and flexible build tools' },
+    { name: 'Storybook', detail: 'UI development environment' },
+    { name: 'Jest / Playwright', detail: 'Robust unit and E2E testing' },
+    { name: 'Core Web Vitals', detail: 'Performance optimization' },
   ];
 
   return (
@@ -72,13 +68,15 @@ export default function Main() {
         left={
           <Box sx={{ textAlign: { xs: 'center', md: 'left' }, maxWidth: 500 }}>
             <Typography variant="h1" mb={1} color="text.primary">
-              Front End<br />
-              <GradientText>Development</GradientText>
+              Interfaces That<br />
+              <GradientText>Convert.</GradientText>
             </Typography>
             <Typography color="text.secondary" mb={3}>
-              Modern, performant, and accessible user interfaces built with industry-leading
-              frameworks. From single-page applications to complex component libraries, we
-              deliver front end solutions that delight users and scale with your business.
+              With 25+ years building for the web, Brian Stoker has shipped front-end
+              experiences across every era of the browser — from early jQuery and Backbone.js
+              to modern React, Next.js, and beyond. Stoked Consulting delivers pixel-perfect,
+              performant, accessible interfaces that don&apos;t just look great — they drive
+              business results.
             </Typography>
           </Box>
         }

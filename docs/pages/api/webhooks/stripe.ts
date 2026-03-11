@@ -28,7 +28,7 @@ async function readRawBody(req: NextApiRequest): Promise<Buffer> {
   return Buffer.concat(chunks);
 }
 
-async function sendLicenseEmail(toEmail: string, licenseKey: string, productId: string): Promise<void> {
+async function sendLicenseEmail(toEmail: string, licenseKey: string, productId: string, maxActivations: number): Promise<void> {
   try {
     await sesClient.send(
       new SendEmailCommand({
@@ -49,7 +49,8 @@ async function sendLicenseEmail(toEmail: string, licenseKey: string, productId: 
                 '',
                 `To activate, enter this key in the ${productId} application settings.`,
                 '',
-                'This key is valid for one device at a time. You can transfer it by deactivating from your current device first.',
+                `This key can be activated on up to ${maxActivations} devices simultaneously.`,
+                'To transfer it to a new device, deactivate one of your current devices first.',
                 '',
                 'If you have any questions, contact support@stoked-ui.com',
               ].join('\n'),
@@ -94,7 +95,7 @@ async function handleCheckoutCompleted(event: Stripe.Event): Promise<void> {
   });
 
   if (email) {
-    await sendLicenseEmail(email, license.key, productId);
+    await sendLicenseEmail(email, license.key, productId, license.maxActivations || 1);
   }
 }
 

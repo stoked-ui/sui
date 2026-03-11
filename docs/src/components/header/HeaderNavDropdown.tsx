@@ -245,7 +245,7 @@ export default function HeaderNavDropdown({ auth, managedProducts = [] }: Header
                           {adminProducts.map((p) => (
                             <li key={p._id}>
                               <Anchor
-                                href={`/consulting/products/${p._id}`}
+                                href={`/consulting/products/${p.productId}`}
                                 as={Link}
                                 noLinkStyle
                               >
@@ -320,7 +320,7 @@ export default function HeaderNavDropdown({ auth, managedProducts = [] }: Header
                       </li>
                     )}
                     <li>
-                      <Anchor href={`/consulting/clients/${auth.clientId}`} as={Link} noLinkStyle>
+                      <Anchor href={`/consulting/clients/${auth.clientSlug || auth.clientId}`} as={Link} noLinkStyle>
                         Deliverables
                       </Anchor>
                     </li>

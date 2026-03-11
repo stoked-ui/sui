@@ -31,8 +31,8 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
     if (!clientId || !title || !type || !url) {
       return res.status(400).json({ message: 'clientId, title, type, and url are required' });
     }
-    if (!['download', 'link', 'ux'].includes(type)) {
-      return res.status(400).json({ message: 'type must be download, link, or ux' });
+    if (!['download', 'link', 'ux', 'html'].includes(type)) {
+      return res.status(400).json({ message: 'type must be download, link, ux, or html' });
     }
     const now = new Date();
     const doc = {

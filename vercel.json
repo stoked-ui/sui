@@ -1,8 +1,0 @@
-{
-  "github": {
-    "autoJobCancellation": false,
-    "silent": true
-  },
-  "public": true,
-  "trailingSlash": true
-}

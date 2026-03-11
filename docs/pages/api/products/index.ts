@@ -68,6 +68,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
         licenseDurationDays: req.body.licenseDurationDays || 365,
         gracePeriodDays: req.body.gracePeriodDays || 14,
         trialDurationDays: req.body.trialDurationDays || 30,
+        maxActivations: req.body.maxActivations || 3,
         createdAt: now,
         updatedAt: now,
       };

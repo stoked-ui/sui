@@ -159,9 +159,19 @@ export * from './abstractions';
  *   queue={myQueue}
  * />
  */
-export { MediaViewer, MediaViewerHeader, MediaViewerPrimary, NextUpHeader, NowPlayingIndicator } from './components/MediaViewer';
+export {
+  MediaViewer,
+  MediaViewerHeader,
+  MediaViewerPrimary,
+  NextUpHeader,
+  NowPlayingIndicator,
+} from './components/MediaViewer';
 export type { MediaViewerProps, MediaItem, MediaViewerMode } from './components/MediaViewer';
-export type { ResolutionTrack, QualityState, QualityMode } from './components/MediaViewer/MediaViewer.types';
+export type {
+  ResolutionTrack,
+  QualityState,
+  QualityMode,
+} from './components/MediaViewer/MediaViewer.types';
 
 /**
  * MediaViewer custom hooks
@@ -170,7 +180,11 @@ export type { ResolutionTrack, QualityState, QualityMode } from './components/Me
  * import { useMediaViewerState, MediaViewerMode } from '@stoked-ui/media';
  * const { mode, transition } = useMediaViewerState(MediaViewerMode.NORMAL);
  */
-export { useMediaViewerState, useMediaViewerLayout, useAdaptiveBitrate } from './components/MediaViewer/hooks';
+export {
+  useMediaViewerState,
+  useMediaViewerLayout,
+  useAdaptiveBitrate,
+} from './components/MediaViewer/hooks';
 
 /**
  * MediaCard component for displaying media items with interactive controls
@@ -203,6 +217,17 @@ export type {
  */
 export { MediaGallery } from './components/MediaGallery';
 export type { MediaGalleryProps, MediaGallerySource } from './components/MediaGallery';
+
+// ============================================================================
+// WebUserDirectChat - Direct Support Chat Component
+// ============================================================================
+
+export { WebUserDirectChat } from './components/WebUserDirectChat';
+export type {
+  WebUserDirectChatProps,
+  DirectChatProvider,
+  DirectChatFormData,
+} from './components/WebUserDirectChat';
 
 // ============================================================================
 // API Client - Media API Integration
@@ -241,4 +266,3 @@ export * from './api';
  * React hooks for Media API integration
  */
 export * from './hooks';
-

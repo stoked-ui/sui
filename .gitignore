@@ -17,6 +17,8 @@
 /docs/export
 /docs/pages/playground/
 /docs/public/feed/
+/docs/public/static/deliverables/
+/.local_deliverables/
 /examples/**/.cache
 /packages-internal/sui-envinfo/*.tgz
 /test/bundling/fixtures/*/yarn.lock
@@ -58,8 +60,21 @@ claudedocs/
 # Turbo build artifacts
 .turbo/cache/
 .turbo/cookies/
+.turbo/daemon/
 
 # Rust/Cargo build artifacts
 **/target/
 Cargo.lock
-.stokd/sessions/*.telemetry.jsonl
+
+# Stokd metadata is kept, runtime/session artifacts are not
+.stokd-sessions/
+.stokd/.heartbeat-ts
+.stokd/cache/
+.stokd/sessions/
+**/.stokd/.heartbeat-ts
+**/.stokd/cache/
+**/.stokd/sessions/
+
+# Local build/output artifacts
+docs/.open-next/
+docs/.local_deliverables/

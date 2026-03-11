@@ -1,4 +1,5 @@
 use anyhow::{anyhow, bail, Context, Result};
+use reqwest::header::CONTENT_TYPE;
 use reqwest::{Method, StatusCode};
 use serde_json::{json, Value};
 use std::fs;
@@ -77,6 +78,56 @@ impl ApiClient {
         Err(anyhow!("{} (HTTP {})", message, status.as_u16()))
     }
 
+    pub async fn request_bytes(
+        &self,
+        method: Method,
+        path: &str,
+        query: &[(String, String)],
+        body: Vec<u8>,
+        content_type: &str,
+        require_auth: bool,
+    ) -> Result<Value> {
+        if require_auth && self.api_key.is_none() {
+            bail!("Not authenticated. Run `stoked auth login` first.");
+        }
+
+        let url = self.build_url(path);
+        let mut req = self.http.request(method, &url);
+
+        if !query.is_empty() {
+            req = req.query(query);
+        }
+
+        if let Some(key) = &self.api_key {
+            req = req.bearer_auth(key);
+        }
+
+        let response = req
+            .header(CONTENT_TYPE, content_type)
+            .body(body)
+            .send()
+            .await
+            .with_context(|| format!("Request failed: {}", url))?;
+
+        let status = response.status();
+        let text = response
+            .text()
+            .await
+            .context("Failed reading response body")?;
+
+        if status.is_success() {
+            return parse_json_or_text(status, text);
+        }
+
+        let parsed = parse_json_or_text(status, text.clone())?;
+        let message = parsed
+            .get("message")
+            .and_then(|v| v.as_str())
+            .unwrap_or_else(|| status.canonical_reason().unwrap_or("Request failed"));
+
+        Err(anyhow!("{} (HTTP {})", message, status.as_u16()))
+    }
+
     pub fn build_url(&self, path: &str) -> String {
         if path.starts_with("http://") || path.starts_with("https://") {
             return path.to_string();
@@ -88,6 +139,10 @@ impl ApiClient {
         }
         if !normalized.starts_with("/api/") {
             normalized = format!("/api{}", normalized);
+        }
+        // Ensure trailing slash to avoid 308 redirects that strip auth headers
+        if !normalized.ends_with('/') && !normalized.contains('?') {
+            normalized.push('/');
         }
 
         format!("{}{}", self.base_url, normalized)

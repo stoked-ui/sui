@@ -3,7 +3,7 @@ import Fade from "@mui/material/Fade";
 import {Card} from "@mui/material";
 import {alpha} from "@mui/material/styles";
 import {SxProps} from "@mui/system";
-import Timeline from "@stoked-ui/timeline";
+import Timeline, {TimelineProvider} from "@stoked-ui/timeline";
 
 export default function TimelineHero(props: { id: string, sx?: SxProps}) {
   const actions = [
@@ -63,7 +63,9 @@ export default function TimelineHero(props: { id: string, sx?: SxProps}) {
           boxShadow: (theme: any) => `0px 4px 8px ${alpha(theme.palette.grey[200], 0.6)}`,
         }}
       >
-        <Timeline id={props.id} actions={actions as any} sx={{width:'100%'}}/>
+        <TimelineProvider>
+          <Timeline id={props.id} actions={actions as any} sx={{width:'100%'}}/>
+        </TimelineProvider>
       </Card>
     </Fade>
   );

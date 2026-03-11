@@ -20,6 +20,10 @@ function getStripeClient(): Stripe {
   return stripeClient;
 }
 
+export function isStripeConfigured(): boolean {
+  return Boolean(process.env.STRIPE_SECRET_KEY);
+}
+
 export async function createStripeProduct(params: {
   productId: string;
   name: string;
@@ -114,4 +118,69 @@ export function constructStripeWebhookEvent(rawBody: Buffer, signature: string):
     const message = error instanceof Error ? error.message : 'Invalid Stripe webhook signature';
     throw new LicenseStoreError(400, `Webhook signature verification failed: ${message}`);
   }
+}
+
+export async function retrieveStripeCustomer(customerId: string): Promise<Stripe.Customer | null> {
+  const stripe = getStripeClient();
+  const customer = await stripe.customers.retrieve(customerId);
+
+  if (customer.deleted) {
+    return null;
+  }
+
+  return customer as Stripe.Customer;
+}
+
+export async function retrieveStripeSubscription(subscriptionId: string): Promise<Stripe.Subscription> {
+  const stripe = getStripeClient();
+  return stripe.subscriptions.retrieve(subscriptionId);
+}
+
+export async function listStripeSubscriptions(customerId: string): Promise<Stripe.Subscription[]> {
+  const stripe = getStripeClient();
+  const result = await stripe.subscriptions.list({
+    customer: customerId,
+    status: 'all',
+    limit: 100,
+  });
+
+  return result.data;
+}
+
+export async function listStripeInvoices(customerId: string): Promise<Stripe.Invoice[]> {
+  const stripe = getStripeClient();
+  const result = await stripe.invoices.list({
+    customer: customerId,
+    limit: 100,
+  });
+
+  return result.data;
+}
+
+export async function listStripePaymentMethods(customerId: string): Promise<Stripe.PaymentMethod[]> {
+  const stripe = getStripeClient();
+  const result = await stripe.paymentMethods.list({
+    customer: customerId,
+    type: 'card',
+    limit: 100,
+  });
+
+  return result.data;
+}
+
+export async function createStripeBillingPortalSession(params: {
+  customerId: string;
+  returnUrl: string;
+}): Promise<string> {
+  const stripe = getStripeClient();
+  const session = await stripe.billingPortal.sessions.create({
+    customer: params.customerId,
+    return_url: params.returnUrl,
+  });
+
+  if (!session.url) {
+    throw new LicenseStoreError(400, 'Stripe did not return a billing portal URL');
+  }
+
+  return session.url;
 }

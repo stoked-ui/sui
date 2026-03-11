@@ -93,10 +93,10 @@ export default function Hero() {
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
               }),
-            ]}> Editor</Box>
+            ]}> Timeline</Box>
           </Box>
           <Typography color="text.secondary" mb={3}>
-            Stoked UI: Editor. An advanced MUI based component that allows you to quickly and easily make things, that make things.. PR&apos;s welcome!
+            Stoked UI: Timeline. A powerful MUI based timeline component used to construct tools that manipulate things over time or at key frames. PR&apos;s welcome!
           </Typography>
           <GetStartedButtons primaryLabel="Checkout the roadmap to see whats next" primaryUrl="https://github.com/orgs/stoked-ui/projects/1/views/1" />
         </Box>

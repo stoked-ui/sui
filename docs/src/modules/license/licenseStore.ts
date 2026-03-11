@@ -21,37 +21,51 @@ export interface LicenseProduct {
   licenseDurationDays: number;
   gracePeriodDays: number;
   trialDurationDays: number;
+  maxActivations: number;
   purchaseUrl?: string;
 }
+
+export type ActivationRecord = {
+  hardwareId: string;
+  machineName: string | null;
+  activatedAt: Date;
+};
 
 type LicenseDoc = {
   _id?: ObjectId;
   key: string;
   email: string;
   productId: string;
-  hardwareId: string | null;
-  machineName: string | null;
+  hardwareId: string | null; // Legacy single hardware ID
+  machineName: string | null; // Legacy machine name
+  activations?: ActivationRecord[]; // New multiple activations
   status: LicenseStatus;
   activatedAt?: Date;
   expiresAt?: Date;
   gracePeriodDays: number;
-  stripeCustomerId: string;
-  stripeSubscriptionId: string;
+  stripeCustomerId?: string;
+  stripeSubscriptionId?: string;
   deactivationCount: number;
   activationHistory: string[];
   createdAt?: Date;
   updatedAt?: Date;
+  maxActivations?: number;
 };
 
 export interface LicenseResponse {
   key: string;
   email: string;
   productId: string;
+  product: string; // Alias for productId
   status: LicenseStatus;
   activatedAt?: Date;
   expiresAt?: Date;
   gracePeriodDays: number;
   machineName?: string | null;
+  // New fields for CLI/App integration
+  valid: boolean;
+  activations: number;
+  maxActivations: number;
 }
 
 export class LicenseStoreError extends Error {
@@ -63,16 +77,41 @@ export class LicenseStoreError extends Error {
   }
 }
 
+function getActivationsCount(doc: LicenseDoc): number {
+  if (doc.activations && doc.activations.length > 0) {
+    return doc.activations.length;
+  }
+  return doc.hardwareId ? 1 : 0;
+}
+
+function isValid(doc: LicenseDoc): boolean {
+  if (doc.status !== 'active' && doc.status !== 'pending') {
+    return false;
+  }
+  if (doc.expiresAt) {
+    const graceMs = (doc.gracePeriodDays || 0) * 24 * 60 * 60 * 1000;
+    const expiryWithGrace = new Date(doc.expiresAt.getTime() + graceMs);
+    if (new Date() > expiryWithGrace) {
+      return false;
+    }
+  }
+  return true;
+}
+
 function toLicenseResponse(doc: LicenseDoc): LicenseResponse {
   return {
     key: doc.key,
     email: doc.email,
     productId: doc.productId,
+    product: doc.productId,
     status: doc.status,
     activatedAt: doc.activatedAt,
     expiresAt: doc.expiresAt,
     gracePeriodDays: doc.gracePeriodDays,
     machineName: doc.machineName,
+    valid: isValid(doc),
+    activations: getActivationsCount(doc),
+    maxActivations: doc.maxActivations || 1,
   };
 }
 
@@ -91,6 +130,7 @@ function normalizeLicenseProduct(doc: Record<string, unknown>): LicenseProduct {
     licenseDurationDays: Number(doc.licenseDurationDays || 365),
     gracePeriodDays: Number(doc.gracePeriodDays || 14),
     trialDurationDays: Number(doc.trialDurationDays || 30),
+    maxActivations: Number(doc.maxActivations || 3),
     purchaseUrl: typeof doc.purchaseUrl === 'string' ? doc.purchaseUrl : undefined,
   };
 }
@@ -104,6 +144,14 @@ async function findLicenseProduct(productId: string): Promise<LicenseProduct | n
       stripePriceId: { $exists: true, $ne: '' },
     });
 
+    if (doc) {
+      return normalizeLicenseProduct(doc as Record<string, unknown>);
+    }
+  }
+
+  // If not found in primary collections, try finding by productId without stripePriceId check (for internal use)
+  for (const collectionName of LICENSE_PRODUCT_COLLECTIONS) {
+    const doc = await db.collection(collectionName).findOne({ productId });
     if (doc) {
       return normalizeLicenseProduct(doc as Record<string, unknown>);
     }
@@ -130,6 +178,7 @@ export async function listLicenseProducts(): Promise<LicenseProduct[]> {
             licenseDurationDays: 1,
             gracePeriodDays: 1,
             trialDurationDays: 1,
+            maxActivations: 1,
             purchaseUrl: 1,
           },
         },
@@ -203,25 +252,40 @@ export async function activateLicense(input: {
     throw new LicenseStoreError(400, `License is ${license.status}`);
   }
 
-  if (license.status === 'active' && license.hardwareId === input.hardwareId) {
+  const activations = license.activations || [];
+  const existingActivation = activations.find(a => a.hardwareId === input.hardwareId) || 
+    (license.hardwareId === input.hardwareId ? { hardwareId: license.hardwareId, machineName: license.machineName, activatedAt: license.activatedAt || new Date() } : null);
+
+  if (existingActivation) {
     return toLicenseResponse(license);
   }
 
-  if (license.status === 'active' && license.hardwareId !== input.hardwareId) {
-    throw new LicenseStoreError(409, 'License is already activated on a different device. Deactivate first.');
+  const currentCount = getActivationsCount(license);
+  const max = license.maxActivations || 1;
+
+  if (currentCount >= max) {
+    throw new LicenseStoreError(409, `Maximum activations reached (${max}). Deactivate another device first.`);
   }
+
+  const newActivation: ActivationRecord = {
+    hardwareId: input.hardwareId,
+    machineName: input.machineName || null,
+    activatedAt: new Date(),
+  };
 
   await collection.updateOne(
     { key: input.key },
     {
       $set: {
         status: 'active',
+        // Update legacy fields for compatibility
         hardwareId: input.hardwareId,
         machineName: input.machineName || null,
         activatedAt: new Date(),
         updatedAt: new Date(),
       },
       $push: {
+        activations: newActivation,
         activationHistory: input.hardwareId,
       },
     },
@@ -247,8 +311,13 @@ export async function validateLicense(input: {
     throw new LicenseStoreError(404, 'License not found');
   }
 
-  if (license.hardwareId && license.hardwareId !== input.hardwareId) {
-    throw new LicenseStoreError(403, 'Hardware ID mismatch');
+  // Check if this hardware is one of the active ones
+  const activations = license.activations || [];
+  const isHardwareActive = activations.some(a => a.hardwareId === input.hardwareId) || 
+    (license.hardwareId === input.hardwareId);
+
+  if (license.status === 'active' && !isHardwareActive) {
+    throw new LicenseStoreError(403, 'This device is not activated for this license');
   }
 
   let final = license;
@@ -290,32 +359,41 @@ export async function deactivateLicense(input: {
     throw new LicenseStoreError(404, 'License not found');
   }
 
-  if (license.status !== 'active') {
-    throw new LicenseStoreError(400, 'License is not active');
+  const activations = license.activations || [];
+  const isHardwareActive = activations.some(a => a.hardwareId === input.hardwareId) || 
+    (license.hardwareId === input.hardwareId);
+
+  if (!isHardwareActive) {
+    throw new LicenseStoreError(404, 'Activation not found for this device');
   }
 
-  if (license.hardwareId !== input.hardwareId) {
-    throw new LicenseStoreError(403, 'Hardware ID mismatch');
+  if ((license.deactivationCount || 0) >= 10) { // Increased limit for multi-device
+    throw new LicenseStoreError(403, 'Deactivation limit reached (10 per year)');
   }
 
-  if ((license.deactivationCount || 0) >= 3) {
-    throw new LicenseStoreError(403, 'Deactivation limit reached (3 per year)');
-  }
+  const newActivations = activations.filter(a => a.hardwareId !== input.hardwareId);
+  const isLast = newActivations.length === 0;
 
-  await collection.updateOne(
-    { key: input.key },
-    {
-      $set: {
-        hardwareId: null,
-        machineName: null,
-        status: 'pending',
-        updatedAt: new Date(),
-      },
-      $inc: {
-        deactivationCount: 1,
-      },
+  const update: any = {
+    $set: {
+      activations: newActivations,
+      updatedAt: new Date(),
     },
-  );
+    $inc: {
+      deactivationCount: 1,
+    },
+  };
+
+  if (license.hardwareId === input.hardwareId) {
+    update.$set.hardwareId = newActivations.length > 0 ? newActivations[0].hardwareId : null;
+    update.$set.machineName = newActivations.length > 0 ? newActivations[0].machineName : null;
+  }
+
+  if (isLast) {
+    update.$set.status = 'pending';
+  }
+
+  await collection.updateOne({ key: input.key }, update);
 
   return { message: 'License deactivated successfully' };
 }
@@ -323,8 +401,9 @@ export async function deactivateLicense(input: {
 export async function createLicense(params: {
   email: string;
   productId: string;
-  stripeCustomerId: string;
-  stripeSubscriptionId: string;
+  stripeCustomerId?: string;
+  stripeSubscriptionId?: string;
+  maxActivations?: number;
 }): Promise<LicenseDoc> {
   const db = await getDb();
   const collection = db.collection<LicenseDoc>(LICENSES_COLLECTION);
@@ -342,6 +421,7 @@ export async function createLicense(params: {
       productId: params.productId,
       hardwareId: null,
       machineName: null,
+      activations: [],
       status: 'pending',
       activatedAt: undefined,
       expiresAt,
@@ -352,6 +432,7 @@ export async function createLicense(params: {
       activationHistory: [],
       createdAt: new Date(),
       updatedAt: new Date(),
+      maxActivations: params.maxActivations || product.maxActivations || 3,
     };
 
     try {
@@ -397,7 +478,7 @@ export async function renewLicenseBySubscriptionId(subscriptionId: string): Prom
 
   const nextStatus: LicenseStatus =
     license.status === 'expired'
-      ? (license.hardwareId ? 'active' : 'pending')
+      ? (getActivationsCount(license) > 0 ? 'active' : 'pending')
       : license.status;
 
   await collection.updateOne(

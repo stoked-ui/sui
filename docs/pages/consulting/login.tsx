@@ -21,8 +21,9 @@ interface AuthData {
     id: string;
     email: string;
     name: string;
-    role: 'admin' | 'client';
+    role: string;
     clientId?: string;
+    clientSlug?: string;
     avatarUrl?: string;
   };
 }
@@ -182,11 +183,22 @@ export default function ConsultingLoginPage() {
     [router.query.redirect],
   );
 
-  const defaultRouteForUser = React.useCallback((user: AuthData['user']) => {
-    if (user.role === 'admin') {
-      return '/consulting/clients';
+  const defaultRouteForUser = React.useCallback((u: AuthData['user']) => {
+    switch (u.role) {
+      case 'admin':
+        return '/consulting/admin';
+      case 'client':
+        return `/consulting/clients/${u.clientSlug || u.clientId}`;
+      case 'agent':
+        // Agents land where the user they're attached to would land
+        return `/consulting/clients/${u.clientSlug || u.clientId || ''}`;
+      case 'subscriber':
+      case 'stokd member':
+        return '/consulting/customer';
+      case 'totally stoked':
+      default:
+        return '/consulting/groupies';
     }
-    return `/consulting/clients/${user.clientId}`;
   }, []);
 
   const postLoginRouteForUser = React.useCallback(

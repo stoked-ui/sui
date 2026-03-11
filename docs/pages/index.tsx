@@ -17,6 +17,34 @@ import { styled } from '@mui/material/styles';
 const EditorHero = dynamic(() => import('../src/components/showcase/EditorHero'), {ssr: false });
 
 
+
+const MainView: React.ComponentType<{}> = function MainView() {
+  return (
+    <React.Fragment>
+      <EditorHero id={'editor'} sx={{ width: '1080px', mt: '12px' }} />
+      <Box sx={{ maxWidth: 500, mx: 'auto', textAlign: 'center', mt: 6, mb: 2 }}>
+        <Typography
+          component="h2"
+          variant="body2"
+          fontWeight="bold"
+          color="primary.main"
+          sx={{ mb: 1 }}
+        >
+          Rust Video Renderer
+        </Typography>
+        <Typography variant="h2" sx={{ mb: 1 }}>
+          <GradientText>WebAssembly-powered</GradientText> compositing engine built in Rust.
+        </Typography>
+        <Typography color="text.secondary">
+          Hardware-accelerated rendering with zero-copy frame pipelines, real-time blend modes, and layer compositing — all running natively in the browser.
+        </Typography>
+      </Box>
+      <Box sx={{ height: '64px' }}/>
+      <Divider/>
+    </React.Fragment>
+  )
+}
+
 function randomHome(homePages: string[]) {
   return homePages[Math.floor(Math.random()*homePages.length)];
 }
@@ -34,8 +62,8 @@ const StyledHead = styled(Head)(({ theme }) => [
   }),
 ]);
 
-const homeUrl = randomHome(PRODUCTS.pages);
-const RandomHome = dynamic(() => import(`.${homeUrl}main`), { ssr: false });
+const homeUrl = randomHome([...PRODUCTS.pages, 'rusty-editor']);
+const RandomHome = homeUrl === 'rusty-editor' ? MainView : dynamic(() => import(`.${homeUrl}main`), { ssr: false });
 
 export function HomeView({ HomeMain}: { HomeMain: React.ComponentType }){
   const Main: React.ComponentType = HomeMain || RandomHome;
@@ -71,34 +99,6 @@ export function HomeView({ HomeMain}: { HomeMain: React.ComponentType }){
     </main>
     <AppFooter/>
   </BrandingCssVarsProvider>;
-}
-
-let MainView:  React.ComponentType<{}> = function MainView() {
-
-  return (
-    <React.Fragment>
-      <EditorHero id={'editor'} sx={{ width: '1080px', mt: '12px' }} />
-      <Box sx={{ maxWidth: 500, mx: 'auto', textAlign: 'center', mt: 6, mb: 2 }}>
-        <Typography
-          component="h2"
-          variant="body2"
-          fontWeight="bold"
-          color="primary.main"
-          sx={{ mb: 1 }}
-        >
-          Rust Video Renderer
-        </Typography>
-        <Typography variant="h2" sx={{ mb: 1 }}>
-          <GradientText>WebAssembly-powered</GradientText> compositing engine built in Rust.
-        </Typography>
-        <Typography color="text.secondary">
-          Hardware-accelerated rendering with zero-copy frame pipelines, real-time blend modes, and layer compositing — all running natively in the browser.
-        </Typography>
-      </Box>
-      <Box sx={{ height: '64px' }}/>
-      <Divider/>
-    </React.Fragment>
-  )
 }
 export default function Home({ HomeMain }: { HomeMain: React.ComponentType }) {
   const [currentMain, setCurrentMain] = React.useState<React.ComponentType | null>(null);

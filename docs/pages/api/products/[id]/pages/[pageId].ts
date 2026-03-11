@@ -5,7 +5,7 @@ import { withAuth, AuthenticatedRequest } from 'docs/src/modules/auth/withAuth';
 
 async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
   const { id, pageId } = req.query;
-  if (!id || typeof id !== 'string' || !ObjectId.isValid(id)) {
+  if (!id || typeof id !== 'string') {
     return res.status(400).json({ message: 'Invalid product ID' });
   }
   if (!pageId || typeof pageId !== 'string' || !ObjectId.isValid(pageId)) {
@@ -13,11 +13,28 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
   }
 
   const db = await getDb();
+  const productsCollection = db.collection('products');
   const pagesCollection = db.collection('product_pages');
   const pageObjectId = new ObjectId(pageId);
+  let product = null;
+
+  if (ObjectId.isValid(id)) {
+    product = await productsCollection.findOne({ _id: new ObjectId(id) });
+  }
+  if (!product) {
+    product = await productsCollection.findOne({ productId: id });
+  }
+  if (!product) {
+    return res.status(404).json({ message: 'Product not found' });
+  }
+
+  const productKey = product._id.toString();
 
   if (req.method === 'GET') {
-    const page = await pagesCollection.findOne({ _id: pageObjectId, productId: id });
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Admin access required' });
+    }
+    const page = await pagesCollection.findOne({ _id: pageObjectId, productId: productKey });
     if (!page) {
       return res.status(404).json({ message: 'Page not found' });
     }
@@ -37,7 +54,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
     if (published !== undefined) update.published = published;
 
     const result = await pagesCollection.findOneAndUpdate(
-      { _id: pageObjectId, productId: id },
+      { _id: pageObjectId, productId: productKey },
       { $set: update },
       { returnDocument: 'after' },
     );
@@ -51,7 +68,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
     if (req.user.role !== 'admin') {
       return res.status(403).json({ message: 'Admin access required' });
     }
-    const result = await pagesCollection.deleteOne({ _id: pageObjectId, productId: id });
+    const result = await pagesCollection.deleteOne({ _id: pageObjectId, productId: productKey });
     if (result.deletedCount === 0) {
       return res.status(404).json({ message: 'Page not found' });
     }

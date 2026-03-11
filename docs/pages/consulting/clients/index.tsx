@@ -12,7 +12,7 @@ import dynamic from 'next/dynamic';
 const ClientsPage = dynamic(() => import('docs/src/modules/components/ClientsPage'), { ssr: false });
 
 function useAuth() {
-  const [user, setUser] = React.useState<{ name: string; role: 'admin' | 'client'; id: string; clientId?: string } | null>(null);
+  const [user, setUser] = React.useState<{ name: string; role: string; id: string; clientId?: string } | null>(null);
   React.useEffect(() => {
     const stored = localStorage.getItem('auth');
     if (stored) {

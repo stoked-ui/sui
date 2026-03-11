@@ -88,7 +88,7 @@ async function apiFetch(url: string, options: RequestInit = {}) {
   return res.json();
 }
 
-export default function ProductDetailPage({ productId }: { productId: string }) {
+export default function ProductDetailPage({ productSlug }: { productSlug: string }) {
   const router = useRouter();
   const [product, setProduct] = React.useState<ProductData | null>(null);
   const [pages, setPages] = React.useState<DocPage[]>([]);
@@ -115,8 +115,8 @@ export default function ProductDetailPage({ productId }: { productId: string }) 
     try {
       setLoading(true);
       const [productData, pagesData] = await Promise.all([
-        apiFetch(`/api/products/${productId}`),
-        apiFetch(`/api/products/${productId}/pages`),
+        apiFetch(`/api/products/${productSlug}`),
+        apiFetch(`/api/products/${productSlug}/pages`),
       ]);
       setProduct(productData);
       setPages(pagesData);
@@ -125,11 +125,11 @@ export default function ProductDetailPage({ productId }: { productId: string }) 
     } finally {
       setLoading(false);
     }
-  }, [productId]);
+  }, [productSlug]);
 
   React.useEffect(() => {
-    if (productId) fetchData();
-  }, [productId, fetchData]);
+    if (productSlug) fetchData();
+  }, [productSlug, fetchData]);
 
   // --- Feature handlers ---
   const handleSaveFeature = async () => {
@@ -142,7 +142,7 @@ export default function ProductDetailPage({ productId }: { productId: string }) 
       features.push(feature);
     }
     try {
-      await apiFetch(`/api/products/${productId}`, {
+      await apiFetch(`/api/products/${productSlug}`, {
         method: 'PATCH',
         body: JSON.stringify({ features }),
       });
@@ -159,7 +159,7 @@ export default function ProductDetailPage({ productId }: { productId: string }) 
     if (!window.confirm('Remove this feature?')) return;
     const features = product.features.filter((_, i) => i !== index);
     try {
-      await apiFetch(`/api/products/${productId}`, {
+      await apiFetch(`/api/products/${productSlug}`, {
         method: 'PATCH',
         body: JSON.stringify({ features }),
       });
@@ -173,12 +173,12 @@ export default function ProductDetailPage({ productId }: { productId: string }) 
   const handleSavePage = async () => {
     try {
       if (editingPageId) {
-        await apiFetch(`/api/products/${productId}/pages/${editingPageId}`, {
+        await apiFetch(`/api/products/${productSlug}/pages/${editingPageId}`, {
           method: 'PATCH',
           body: JSON.stringify({ title: pageTitle, slug: pageSlug, content: pageContent, order: pageOrder, published: pagePublished }),
         });
       } else {
-        await apiFetch(`/api/products/${productId}/pages`, {
+        await apiFetch(`/api/products/${productSlug}/pages`, {
           method: 'POST',
           body: JSON.stringify({ title: pageTitle, slug: pageSlug, content: pageContent, order: pageOrder }),
         });
@@ -204,7 +204,7 @@ export default function ProductDetailPage({ productId }: { productId: string }) 
   const handleDeletePage = async (pageIdToDelete: string) => {
     if (!window.confirm('Delete this page?')) return;
     try {
-      await apiFetch(`/api/products/${productId}/pages/${pageIdToDelete}`, { method: 'DELETE' });
+      await apiFetch(`/api/products/${productSlug}/pages/${pageIdToDelete}`, { method: 'DELETE' });
       fetchData();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Delete failed');
@@ -213,7 +213,7 @@ export default function ProductDetailPage({ productId }: { productId: string }) 
 
   const handleToggleLive = async (live: boolean) => {
     try {
-      await apiFetch(`/api/products/${productId}`, {
+      await apiFetch(`/api/products/${productSlug}`, {
         method: 'PATCH',
         body: JSON.stringify({ live }),
       });
@@ -225,7 +225,7 @@ export default function ProductDetailPage({ productId }: { productId: string }) 
 
   const handlePrereleaseChange = async (prerelease: string) => {
     try {
-      await apiFetch(`/api/products/${productId}`, {
+      await apiFetch(`/api/products/${productSlug}`, {
         method: 'PATCH',
         body: JSON.stringify({ prerelease }),
       });

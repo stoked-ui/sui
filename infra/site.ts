@@ -1,12 +1,33 @@
 import { DomainInfo } from 'infra/domains';
-import { jwtSecret, mongoDbUri, stripeSecretKey, stripeWebhookSecret } from 'infra/secrets';
+import {
+  jwtSecret,
+  mongoDbUri,
+  stripeSecretKey,
+  stripeWebhookSecret,
+  telegramBotToken,
+  telegramSupportChatId,
+} from 'infra/secrets';
+import { findExistingCert } from 'infra/cert';
 
-
-export const createSite = (domainInfo: DomainInfo) => {
+export const createSite = async (domainInfo: DomainInfo) => {
   const invalidationPaths = process.env.INVALIDATION_PATHS;
   const blogImageBucket = process.env.BLOG_IMAGE_S3_BUCKET ?? 'cdn.stokedconsulting.com';
   const enableDomain = process.env.SITE_ENABLE_DOMAIN !== '0';
-  const certArn = $app.stage === 'production' ? process.env.SITE_CERT_ARN : undefined;
+  const openNextVersion = '3.6.6';
+  const buildCommand = `npx --yes @opennextjs/aws@${openNextVersion} build && pnpm prune-lambda`;
+
+  // Reuse an external ACM cert if one already covers our domains (avoids duplicate
+  // validation CNAME errors). If SST already manages the cert for this stack, keep
+  // it under SST ownership so deploys do not try to delete the active certificate.
+  let certArn: string | undefined;
+  if ($app.stage === 'production') {
+    certArn =
+      process.env.SITE_CERT_ARN ??
+      (await findExistingCert(domainInfo.domains, {
+        appName: $app.name,
+        stage: $app.stage,
+      }));
+  }
 
   let invalidation: any;
   if (invalidationPaths) {
@@ -16,7 +37,11 @@ export const createSite = (domainInfo: DomainInfo) => {
   return new sst.aws.Nextjs(domainInfo.resourceName, {
     path: 'docs',
     // Keep OpenNext pinned to a Next.js 13-compatible release.
-    openNextVersion: '3.6.6',
+    openNextVersion,
+    // OpenNext copies large public media into the server bundle even though those
+    // files are served from the static asset bucket. Prune them after build so
+    // the Lambda package stays under AWS's 250 MB unzipped limit.
+    buildCommand,
     environment: {
       // Used in next.config.mjs to disable static export mode for OpenNext builds.
       OPEN_NEXT_BUILD: 'true',
@@ -24,11 +49,15 @@ export const createSite = (domainInfo: DomainInfo) => {
       JWT_SECRET: jwtSecret.value,
       STRIPE_SECRET_KEY: stripeSecretKey.value,
       STRIPE_WEBHOOK_SECRET: stripeWebhookSecret.value,
-      AUTH_AUTO_DOMAINS: process.env.AUTH_AUTO_DOMAINS ?? 'stokedconsulting.com,stoked-ui.com,brianstoker.com',
+      AUTH_AUTO_DOMAINS:
+        process.env.AUTH_AUTO_DOMAINS ?? 'stokedconsulting.com,stoked-ui.com,brianstoker.com',
       NEXT_PUBLIC_GOOGLE_CLIENT_ID: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? '',
       SES_FROM_EMAIL: process.env.SES_FROM_EMAIL ?? 'noreply@stoked-ui.com',
       BLOG_IMAGE_S3_BUCKET: blogImageBucket,
       BLOG_IMAGE_CDN_URL: process.env.BLOG_IMAGE_CDN_URL ?? 'https://cdn.stokedconsulting.com',
+      TELEGRAM_BOT_TOKEN: telegramBotToken.value,
+      TELEGRAM_SUPPORT_CHAT_ID: telegramSupportChatId.value,
+      TELEGRAM_SUPPORT_THREAD_ID: process.env.TELEGRAM_SUPPORT_THREAD_ID ?? '',
     },
     server: {
       // The docs app has a heavy pages bundle and can exceed the default 20s/1024MB on cold starts.
@@ -36,7 +65,14 @@ export const createSite = (domainInfo: DomainInfo) => {
       memory: '2048 MB',
       runtime: 'nodejs20.x',
     },
-    link: [mongoDbUri, jwtSecret, stripeSecretKey, stripeWebhookSecret],
+    link: [
+      mongoDbUri,
+      jwtSecret,
+      stripeSecretKey,
+      stripeWebhookSecret,
+      telegramBotToken,
+      telegramSupportChatId,
+    ],
     permissions: [
       {
         actions: ['ses:SendEmail'],
@@ -77,7 +113,7 @@ export const createSite = (domainInfo: DomainInfo) => {
               event.request.uri = '/consulting/index.html';
             }
           }
-        `
+        `,
       },
       viewerResponse: {
         injection: `
@@ -87,9 +123,9 @@ export const createSite = (domainInfo: DomainInfo) => {
           event.response.headers['access-control-allow-headers'] = { value: 'Range' };
           event.response.headers['access-control-expose-headers'] = { value: 'Content-Range, Accept-Ranges, Content-Encoding, Content-Length' };
           event.response.headers['cross-origin-opener-policy'] = { value: 'same-origin-allow-popups' };
-        `
-      }
+        `,
+      },
     },
     invalidation,
   });
-}
+};

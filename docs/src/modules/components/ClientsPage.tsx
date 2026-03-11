@@ -197,7 +197,7 @@ export default function ClientsPage() {
                 client={client}
                 deliverableCount={deliverableCounts[client._id] || 0}
                 invoiceCount={invoiceCounts[client._id] || 0}
-                onClick={() => router.push(`/consulting/clients/${client._id}`)}
+                onClick={() => router.push(`/consulting/clients/${client.slug || client._id}`)}
                 onToggleActive={handleToggleActive}
                 onEdit={handleEdit}
                 onDelete={handleDelete}

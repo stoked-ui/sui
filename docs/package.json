@@ -6,6 +6,7 @@
   "license": "MIT",
   "scripts": {
     "build": "rimraf export && cross-env NODE_ENV=production NODE_OPTIONS=\"--trace-warnings\" next build --profile && pnpm build-sw",
+    "prune-lambda": "rimraf .open-next/server-functions/default/docs/public/static/blog .open-next/server-functions/default/docs/public/static/editor .open-next/server-functions/default/docs/public/static/images",
     "build:copy": "mkdir -p ../../stoked-ui-docs && rimraf ../../stoked-ui-docs/* && cp -R ./export/ ../../stoked-ui-docs",
     "build:serve": "pnpm build && pnpm build:copy && pnpm serve",
     "build:fresh": "pnpm build:clean && pnpm build:copy && pnpm serve",

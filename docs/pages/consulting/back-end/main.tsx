@@ -29,40 +29,36 @@ const ServiceCard = styled(Card)(({ theme }) => ({
 export default function Main() {
   const services = [
     {
-      title: 'API Development (REST / GraphQL)',
-      description: 'Design and implementation of robust, well-documented APIs. RESTful services with OpenAPI specifications and GraphQL schemas with efficient resolvers and subscriptions.',
+      title: 'API Design & Development',
+      description: 'RESTful APIs, GraphQL schemas, and gRPC services built for scale. Versioning strategies, rate limiting, authentication (OAuth2, JWT, API keys), and comprehensive documentation with OpenAPI/Swagger.',
     },
     {
-      title: 'Microservice Architecture',
-      description: 'Decomposing monoliths into scalable, independently deployable microservices. Event-driven architecture, service mesh integration, and domain-driven design.',
+      title: 'Database Architecture',
+      description: 'Schema design, query optimization, and migration strategies across PostgreSQL, MongoDB, MySQL, Redis, and DynamoDB. We\'ve tuned queries from minutes to milliseconds.',
     },
     {
-      title: 'Database Design & Optimization',
-      description: 'Schema design, query optimization, and data modeling for relational and NoSQL databases. Migration strategies, indexing, and performance tuning at scale.',
+      title: 'Microservices & Event-Driven',
+      description: 'Service decomposition, message queues (RabbitMQ, Kafka, SQS), event sourcing, and saga patterns. We break monoliths into maintainable, scalable services.',
     },
     {
-      title: 'Authentication & Security',
-      description: 'Implementing OAuth 2.0, JWT, RBAC, and zero-trust architectures. Security audits, penetration testing guidance, and HIPAA/SOC2 compliance.',
+      title: 'Cloud Infrastructure',
+      description: 'AWS, GCP, and Azure deployments. Docker, Kubernetes, Terraform, and CI/CD pipelines. Infrastructure as code from day one.',
     },
     {
-      title: 'Real-time Systems',
-      description: 'WebSocket servers, Server-Sent Events, and pub/sub architectures for live data streaming. Chat systems, notifications, and collaborative editing infrastructure.',
-    },
-    {
-      title: 'Data Pipeline Engineering',
-      description: 'ETL/ELT pipeline design and implementation. Batch and stream processing, data lake architecture, and integration with analytics platforms.',
+      title: 'Real-Time Systems',
+      description: 'WebSocket servers, Server-Sent Events, pub/sub architectures, and live collaboration features. We build systems that respond in real time.',
     },
   ];
 
   const technologies = [
-    { name: 'Node.js', detail: 'High-performance JavaScript runtime' },
-    { name: 'NestJS', detail: 'Progressive Node.js framework' },
-    { name: 'Python', detail: 'Versatile backend language' },
-    { name: 'C# / .NET', detail: 'Enterprise application framework' },
-    { name: 'PostgreSQL', detail: 'Advanced relational database' },
-    { name: 'MongoDB', detail: 'Document-oriented NoSQL database' },
-    { name: 'Redis', detail: 'In-memory data store and cache' },
-    { name: 'RabbitMQ', detail: 'Message broker for async workflows' },
+    { name: 'Node.js / Python', detail: 'Scalable service runtimes' },
+    { name: 'Go', detail: 'High-performance backend' },
+    { name: 'PostgreSQL / MongoDB', detail: 'Modern database solutions' },
+    { name: 'Docker / K8s', detail: 'Container orchestration' },
+    { name: 'AWS Lambda / ECS', detail: 'Cloud native computing' },
+    { name: 'Terraform', detail: 'Infrastructure as code' },
+    { name: 'GraphQL / REST', detail: 'API communication patterns' },
+    { name: 'RabbitMQ / SQS', detail: 'Event & message queuing' },
   ];
 
   return (
@@ -72,13 +68,13 @@ export default function Main() {
         left={
           <Box sx={{ textAlign: { xs: 'center', md: 'left' }, maxWidth: 500 }}>
             <Typography variant="h1" mb={1} color="text.primary">
-              Back End<br />
-              <GradientText>Development</GradientText>
+              Scalable<br />
+              <GradientText>Systems.</GradientText>
             </Typography>
             <Typography color="text.secondary" mb={3}>
-              Scalable, secure, and high-performance server-side systems that power your
-              applications. From API design to database architecture, we build back end
-              infrastructure that handles millions of requests with reliability.
+              Great front-ends need bulletproof back-ends. Brian has architected and built
+              server-side systems handling millions of requests — from RESTful APIs and
+              GraphQL services to real-time WebSocket architectures and event-driven microservices.
             </Typography>
           </Box>
         }

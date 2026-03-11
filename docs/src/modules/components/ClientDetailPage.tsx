@@ -25,6 +25,7 @@ import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import LinkIcon from '@mui/icons-material/LinkOutlined';
 import DownloadIcon from '@mui/icons-material/DownloadOutlined';
 import DesignServicesIcon from '@mui/icons-material/DesignServicesOutlined';
+import HtmlIcon from '@mui/icons-material/HtmlOutlined';
 import ArrowBackIcon from '@mui/icons-material/ArrowBackOutlined';
 import ReceiptIcon from '@mui/icons-material/ReceiptOutlined';
 import { useRouter } from 'next/router';
@@ -34,7 +35,7 @@ import DeliverableForm from './DeliverableForm';
 interface Deliverable {
   _id: string;
   title: string;
-  type: 'download' | 'link' | 'ux';
+  type: 'download' | 'link' | 'ux' | 'html';
   url: string;
   version?: string;
   createdAt: string;
@@ -95,6 +96,7 @@ const typeIcons: Record<string, React.ReactElement> = {
   link: <LinkIcon fontSize="small" />,
   download: <DownloadIcon fontSize="small" />,
   ux: <DesignServicesIcon fontSize="small" />,
+  html: <HtmlIcon fontSize="small" />,
 };
 
 export default function ClientDetailPage({ clientId }: { clientId: string }) {
@@ -315,7 +317,15 @@ export default function ClientDetailPage({ clientId }: { clientId: string }) {
                       }
                       secondary={
                         <Box component="span" sx={{ display: 'block', mt: 0.5 }}>
-                          <a href={d.url} target="_blank" rel="noopener noreferrer">{d.url}</a>
+                          {d.type === 'html' ? (
+                            <Stack direction="row" spacing={1} alignItems="center" component="span">
+                              <a href={`/consulting/deliverables/${d._id}`}>Open in app</a>
+                              <Typography component="span" variant="caption" color="text.secondary">|</Typography>
+                              <a href={d.url} target="_blank" rel="noopener noreferrer">Source URL</a>
+                            </Stack>
+                          ) : (
+                            <a href={d.url} target="_blank" rel="noopener noreferrer">{d.url}</a>
+                          )}
                           <Typography variant="caption" display="block" color="text.secondary">
                             {new Date(d.createdAt).toLocaleDateString()}
                           </Typography>

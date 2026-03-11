@@ -8,7 +8,7 @@ import Stack from '@mui/material/Stack';
 interface DeliverableFormProps {
   initialValues?: {
     title?: string;
-    type?: 'download' | 'link' | 'ux';
+    type?: 'download' | 'link' | 'ux' | 'html';
     url?: string;
     version?: string;
   };
@@ -45,11 +45,12 @@ export default function DeliverableForm({ initialValues, onSubmit, onCancel, sub
           fullWidth
           size="small"
           value={type}
-          onChange={(e) => setType(e.target.value as 'download' | 'link' | 'ux')}
+          onChange={(e) => setType(e.target.value as 'download' | 'link' | 'ux' | 'html')}
         >
           <MenuItem value="link">Link</MenuItem>
           <MenuItem value="download">Download</MenuItem>
           <MenuItem value="ux">UX</MenuItem>
+          <MenuItem value="html">HTML (In-app)</MenuItem>
         </TextField>
         <TextField
           label="URL"

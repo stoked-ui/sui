@@ -29,28 +29,28 @@ const ServiceCard = styled(Card)(({ theme }) => ({
 export default function Main() {
   const services = [
     {
-      title: 'Full Stack Development',
-      description: 'End-to-end application development using modern frameworks like React, Next.js, Angular, and Node.js. Building scalable web applications with TypeScript, Python, and C#.',
+      title: 'Greenfield Product Development',
+      description: 'From concept to production. We architect, build, and deploy complete web applications — database schema to deployment pipeline to pixel-perfect UI. Ideal for startups and new product lines.',
     },
     {
-      title: 'Cloud Infrastructure',
-      description: 'AWS and GCP infrastructure design and implementation using modern IaC tools including Terraform, CDK, and SST. Scalable, secure, and cost-effective cloud solutions.',
+      title: 'Technical Debt Remediation',
+      description: 'Comprehensive codebase audits, refactoring roadmaps, and incremental modernization. We\'ve rescued projects from spaghetti code, scaling bottlenecks, and unmaintainable architectures.',
     },
     {
-      title: 'Legacy System Modernization',
-      description: 'Transform outdated systems into modern, maintainable applications. Experience with enterprise healthcare, financial, and automotive systems.',
+      title: 'Platform & Marketplace Development',
+      description: 'Multi-tenant SaaS platforms, two-sided marketplaces, and complex RBAC systems. Authentication, billing integration (Stripe), admin dashboards, and analytics.',
     },
     {
-      title: 'Data Integration',
-      description: 'Complex data pipeline design and implementation. Merging diverse data sources into unified, actionable insights using SQL, MongoDB, and PostgreSQL.',
+      title: 'DevOps & CI/CD',
+      description: 'Automated testing pipelines, blue-green deployments, feature flags, monitoring (Datadog, Sentry, Grafana), and alerting. We ship with confidence.',
     },
     {
-      title: 'Technical Leadership',
-      description: 'Leading engineering teams on cutting-edge solutions and legacy systems. Building high-performance teams and establishing best practices.',
+      title: 'Full-Stack Modernization',
+      description: 'Migrating legacy monolithic stacks to modern serverless or microservice architectures. End-to-end integration of React/Next.js with robust cloud backends.',
     },
     {
-      title: 'Custom Tool Development',
-      description: 'Building internal tools and CLI applications that streamline engineering workflows and improve team effectiveness.',
+      title: 'Team Augmentation & Leadership',
+      description: 'Embedded senior engineering support. Code reviews, architecture decisions, mentoring junior developers, and establishing engineering best practices.',
     },
   ];
 
@@ -219,13 +219,13 @@ export default function Main() {
             ]}
           >
             <Typography variant="h3" sx={{ mb: 2, fontWeight: 700 }}>
-              Ready to Build Something Great?
+              End-to-End Solutions. Zero Friction.
             </Typography>
             <Typography variant="h6" sx={{ mb: 1, color: 'text.secondary' }}>
-              Let's discuss your project requirements and how we can help bring your vision to life.
+              The most complex problems live at the intersection of front-end and back-end. With deep expertise across the entire stack, we eliminate the communication gaps and architectural misalignments that plague multi-team projects.
             </Typography>
             <Typography variant="body1" sx={{ mt: 4, fontWeight: 600, color: 'primary.main' }}>
-              Building production-ready applications since 2010
+              Building production-ready applications since 1999
             </Typography>
           </Box>
         </Container>

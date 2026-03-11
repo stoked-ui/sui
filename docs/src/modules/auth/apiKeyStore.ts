@@ -66,6 +66,7 @@ export async function createApiKey(
 }
 
 export async function validateApiKey(key: string): Promise<ApiKeyUser | null> {
+  console.log('validateApiKey: checking key starting with:', key.slice(0, 8));
   const db = await getDb();
   const apiKey = await db.collection<ApiKey>('api_keys').findOne({
     key,
@@ -73,8 +74,11 @@ export async function validateApiKey(key: string): Promise<ApiKeyUser | null> {
   });
 
   if (!apiKey) {
+    console.log('validateApiKey: key not found in api_keys collection');
     return null;
   }
+
+  console.log('validateApiKey: key found, userId:', apiKey.userId);
 
   // Update lastUsedAt (fire-and-forget)
   db.collection('api_keys').updateOne(
@@ -89,9 +93,11 @@ export async function validateApiKey(key: string): Promise<ApiKeyUser | null> {
   });
 
   if (!user) {
+    console.log('validateApiKey: associated user not found or inactive');
     return null;
   }
 
+  console.log('validateApiKey: success for user:', user.email);
   return {
     sub: user._id.toString(),
     email: user.email as string,

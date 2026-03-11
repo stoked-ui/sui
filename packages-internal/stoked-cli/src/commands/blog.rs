@@ -98,7 +98,12 @@ pub enum BlogCommand {
     Authors,
 }
 
-pub async fn run_blog(client: &ApiClient, cfg: &StoredConfig, command: BlogCommand, compact_json: bool) -> Result<()> {
+pub async fn run_blog(
+    client: &ApiClient,
+    cfg: &StoredConfig,
+    command: BlogCommand,
+    compact_json: bool,
+) -> Result<()> {
     let value = match command {
         BlogCommand::List {
             page,

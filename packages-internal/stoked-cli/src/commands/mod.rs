@@ -11,7 +11,11 @@ use std::path::PathBuf;
 #[derive(Debug, Subcommand)]
 pub enum AuthCommand {
     /// Open browser OAuth flow and save API key locally
-    Login,
+    Login {
+        /// Log in as another user via the browser flow. `--delegate` is supported as an alias.
+        #[arg(long, alias = "delegate", value_name = "EMAIL")]
+        impersonate: Option<String>,
+    },
     /// Clear local auth session
     Logout,
     /// Show auth session status
@@ -97,7 +101,7 @@ pub enum ClientsCommand {
 pub enum UsersCommand {
     List {
         #[arg(long)]
-        client_id: Option<String>,
+        client: Option<String>,
         #[arg(long)]
         role: Option<String>,
     },
@@ -214,11 +218,11 @@ pub enum LicensesCommand {
 pub enum InvoicesCommand {
     List {
         #[arg(long)]
-        client_id: Option<String>,
+        client: Option<String>,
     },
     Has {
         #[arg(long)]
-        client_id: Option<String>,
+        client: Option<String>,
     },
     Get {
         id: String,
@@ -243,11 +247,17 @@ pub enum InvoicesCommand {
 pub enum DeliverablesCommand {
     List {
         #[arg(long)]
-        client_id: Option<String>,
+        client: Option<String>,
     },
     Create {
         #[command(flatten)]
         body: JsonBodyArgs,
+    },
+    /// Sync a local deliverables directory to the server
+    Upload {
+        /// Optional override for the local deliverables root directory
+        #[arg(long)]
+        dir: Option<PathBuf>,
     },
     Update {
         id: String,
@@ -256,6 +266,7 @@ pub enum DeliverablesCommand {
     },
     Delete {
         id: String,
+        /// Required safety flag for destructive action
         #[arg(long)]
         yes: bool,
     },
@@ -345,14 +356,19 @@ pub async fn run_clients(
 
 pub async fn run_users(
     client: &ApiClient,
+    cfg: &StoredConfig,
     command: UsersCommand,
     compact_json: bool,
 ) -> Result<()> {
     let value = match command {
-        UsersCommand::List { client_id, role } => {
+        UsersCommand::List {
+            client: client_ref,
+            role,
+        } => {
             let mut query = Vec::new();
-            if let Some(v) = client_id {
-                query.push(("clientId".to_string(), v));
+            if let Some(v) = client_ref {
+                let resolved = resolve_client_id(client, cfg, Some(v)).await?;
+                query.push(("clientId".to_string(), resolved));
             }
             if let Some(v) = role {
                 query.push(("role".to_string(), v));
@@ -613,8 +629,8 @@ pub async fn run_invoices(
 ) -> Result<()> {
     let as_items = matches!(&command, InvoicesCommand::List { .. });
     let value = match command {
-        InvoicesCommand::List { client_id } => {
-            let resolved_client_id = resolve_client_id(cfg, client_id)?;
+        InvoicesCommand::List { client: client_ref } => {
+            let resolved_client_id = resolve_client_id(client, cfg, client_ref).await?;
             client
                 .request_json(
                     Method::GET,
@@ -625,8 +641,8 @@ pub async fn run_invoices(
                 )
                 .await?
         }
-        InvoicesCommand::Has { client_id } => {
-            let resolved_client_id = resolve_client_id(cfg, client_id)?;
+        InvoicesCommand::Has { client: client_ref } => {
+            let resolved_client_id = resolve_client_id(client, cfg, client_ref).await?;
             client
                 .request_json(
                     Method::GET,
@@ -735,8 +751,8 @@ pub async fn run_deliverables(
 ) -> Result<()> {
     let as_items = matches!(&command, DeliverablesCommand::List { .. });
     let value = match command {
-        DeliverablesCommand::List { client_id } => {
-            let resolved_client_id = resolve_client_id(cfg, client_id)?;
+        DeliverablesCommand::List { client: client_ref } => {
+            let resolved_client_id = resolve_client_id(client, cfg, client_ref).await?;
             client
                 .request_json(
                     Method::GET,
@@ -753,6 +769,217 @@ pub async fn run_deliverables(
             client
                 .request_json(Method::POST, "/deliverables", &[], Some(payload), true)
                 .await?
+        }
+        DeliverablesCommand::Upload { dir } => {
+            ensure_admin(cfg)?;
+
+            let root_dir = match dir {
+                Some(d) => d.clone(),
+                None => {
+                    if let Some(cfg_dir) = &cfg.deliverables_dir {
+                        let path = PathBuf::from(cfg_dir);
+                        if path.starts_with("~/") {
+                            // Expand tilde
+                            let home = dirs::home_dir().ok_or_else(|| {
+                                anyhow!("Could not determine home directory for ~ expansion")
+                            })?;
+                            home.join(path.strip_prefix("~/").unwrap())
+                        } else {
+                            path
+                        }
+                    } else {
+                        bail!("No deliverables directory specified. Use --dir or configure one via `stoked auth configure --deliverables-dir <path>`");
+                    }
+                }
+            };
+
+            if !root_dir.is_dir() {
+                bail!("'{}' is not a valid directory", root_dir.display());
+            }
+
+            println!("Syncing deliverables from: {}", root_dir.display());
+
+            // 1. Fetch all clients so we can map slug (folder name) to client ID
+            let clients_response = client
+                .request_json(Method::GET, "/clients", &[], None, true)
+                .await?;
+            let clients = clients_response
+                .as_array()
+                .ok_or_else(|| anyhow!("Expected array of clients"))?;
+
+            // 2. Iterate over the root directory (first level = client slugs)
+            for entry in std::fs::read_dir(&root_dir)? {
+                let entry = entry?;
+                if !entry.file_type()?.is_dir() {
+                    continue; // Skip stray files at the root
+                }
+
+                let client_slug = entry.file_name().to_string_lossy().to_string();
+                let client_dir = entry.path();
+
+                // Find matching client
+                let matched_client = clients.iter().find(|c| {
+                    c.get("slug").and_then(|s| s.as_str()) == Some(&client_slug)
+                        || c.get("name")
+                            .and_then(|n| n.as_str())
+                            .map(|n| n.to_lowercase())
+                            == Some(client_slug.to_lowercase())
+                });
+
+                let client_id = match matched_client {
+                    Some(c) => c.get("_id").and_then(|id| id.as_str()).unwrap().to_string(),
+                    None => {
+                        println!(
+                            "⚠️  Skipping folder '{}': No matching client found in database.",
+                            client_slug
+                        );
+                        continue;
+                    }
+                };
+
+                println!(
+                    "\n📦 Processing client: {} (ID: {})",
+                    client_slug, client_id
+                );
+
+                // 3. Iterate over the client directory (second level = bundles/zips)
+                for bundle_entry in std::fs::read_dir(&client_dir)? {
+                    let bundle_entry = bundle_entry?;
+                    let bundle_name = bundle_entry.file_name().to_string_lossy().to_string();
+                    let bundle_path = bundle_entry.path();
+                    let is_dir = bundle_entry.file_type()?.is_dir();
+
+                    let bundle_id = bundle_name
+                        .replace(".zip", "")
+                        .chars()
+                        .map(|c| if c.is_ascii_alphanumeric() { c } else { '-' })
+                        .collect::<String>();
+                    // We generate a clean title from the folder name
+                    let title = bundle_name.replace(".zip", "").replace("-", " ");
+                    let type_val;
+                    let mut index_file = "index.html".to_string();
+
+                    let mut files_to_upload = Vec::new();
+
+                    if is_dir {
+                        // Directory bundle (HTML presentation)
+                        type_val = "html";
+                        let walker = walkdir::WalkDir::new(&bundle_path)
+                            .into_iter()
+                            .filter_map(|e| e.ok());
+                        for file_entry in walker {
+                            if !file_entry.file_type().is_file() {
+                                continue;
+                            }
+                            let full_path = file_entry.path().to_path_buf();
+                            let rel_path = full_path
+                                .strip_prefix(&bundle_path)?
+                                .to_str()
+                                .ok_or_else(|| anyhow!("Invalid path encoding"))?
+                                .to_string();
+                            files_to_upload.push((full_path, rel_path));
+                        }
+                    } else if bundle_name.ends_with(".zip") {
+                        // Single zip file download
+                        type_val = "download";
+                        index_file = bundle_name.clone();
+                        files_to_upload.push((bundle_path.clone(), bundle_name.clone()));
+                    } else {
+                        // Skip stray non-zip files in the client root
+                        continue;
+                    }
+
+                    println!(
+                        "  🚀 Uploading bundle: {} ({} files)",
+                        bundle_name,
+                        files_to_upload.len()
+                    );
+
+                    for (full_path, rel_path) in files_to_upload {
+                        let mut content = std::fs::read(&full_path)?;
+                        let mime = mime_guess::from_path(&full_path)
+                            .first_or_octet_stream()
+                            .to_string();
+
+                        // Inject auto-resize script into HTML files
+                        if mime == "text/html" && type_val == "html" {
+                            if let Ok(html_str) = String::from_utf8(content.clone()) {
+                                let script = r#"
+<script>
+  function sendHeight() {
+    window.parent.postMessage({
+      type: 'setHeight',
+      height: document.documentElement.scrollHeight
+    }, '*');
+  }
+  window.addEventListener('load', sendHeight);
+  window.addEventListener('resize', sendHeight);
+  new ResizeObserver(sendHeight).observe(document.body);
+</script>
+"#;
+                                if let Some(pos) = html_str.find("</body>") {
+                                    let mut new_html = html_str[..pos].to_string();
+                                    new_html.push_str(script);
+                                    new_html.push_str(&html_str[pos..]);
+                                    content = new_html.into_bytes();
+                                }
+                            }
+                        }
+
+                        let query = vec![
+                            ("clientId".to_string(), client_id.clone()),
+                            ("bundleId".to_string(), bundle_id.clone()),
+                            ("filePath".to_string(), rel_path.clone()),
+                        ];
+
+                        print!("    Uploading {}... ", rel_path);
+                        use std::io::Write;
+                        std::io::stdout().flush()?;
+
+                        client
+                            .request_bytes(
+                                Method::POST,
+                                "/deliverables/upload-file",
+                                &query,
+                                content,
+                                &mime,
+                                true,
+                            )
+                            .await?;
+                        println!("Done.");
+                    }
+
+                    // Create the database entry pointing to the bundle proxy
+                    let url = format!(
+                        "/api/deliverables/proxy/{}/{}/{}",
+                        client_id, bundle_id, index_file
+                    );
+
+                    let create_payload = json!({
+                        "clientId": client_id,
+                        "title": title,
+                        "type": type_val,
+                        "url": url,
+                        // Could potentially extract version from folder name
+                        "version": "1.0.0"
+                    });
+
+                    println!("  ✅ Creating database entry for {}", title);
+                    // Use a PATCH or custom upsert here in the future if you want to avoid duplicates.
+                    // For now, it will create a new entry on every sync.
+                    client
+                        .request_json(
+                            Method::POST,
+                            "/deliverables",
+                            &[],
+                            Some(create_payload),
+                            true,
+                        )
+                        .await?;
+                }
+            }
+
+            return print_value(&json!({ "status": "Sync complete" }), compact_json);
         }
         DeliverablesCommand::Update { id, body } => {
             ensure_admin(cfg)?;
@@ -839,9 +1066,40 @@ fn ensure_admin(cfg: &StoredConfig) -> Result<()> {
     )
 }
 
-fn resolve_client_id(cfg: &StoredConfig, requested: Option<String>) -> Result<String> {
+async fn resolve_client_id(
+    client: &ApiClient,
+    cfg: &StoredConfig,
+    requested: Option<String>,
+) -> Result<String> {
     if cfg.is_admin() {
-        return requested.ok_or_else(|| anyhow!("`--client-id` is required for admin users."));
+        let identifier =
+            requested.ok_or_else(|| anyhow!("`--client` is required for admin users."))?;
+
+        // If it's already a valid hex ID (24 chars), assume it's an ID
+        if identifier.len() == 24 && identifier.chars().all(|c| c.is_ascii_hexdigit()) {
+            return Ok(identifier);
+        }
+
+        // Otherwise, fetch all clients and find by name/slug
+        let clients_response = client
+            .request_json(Method::GET, "/clients", &[], None, true)
+            .await?;
+        let clients = clients_response
+            .as_array()
+            .ok_or_else(|| anyhow!("Expected array of clients"))?;
+
+        let matched = clients.iter().find(|c| {
+            c.get("slug").and_then(|s| s.as_str()) == Some(&identifier)
+                || c.get("name")
+                    .and_then(|n| n.as_str())
+                    .map(|n| n.to_lowercase())
+                    == Some(identifier.to_lowercase())
+        });
+
+        return match matched {
+            Some(c) => Ok(c.get("_id").and_then(|id| id.as_str()).unwrap().to_string()),
+            None => bail!("Client '{}' not found", identifier),
+        };
     }
 
     let own_client_id = cfg.client_id.as_ref().ok_or_else(|| {
@@ -849,8 +1107,38 @@ fn resolve_client_id(cfg: &StoredConfig, requested: Option<String>) -> Result<St
     })?;
 
     if let Some(explicit) = requested {
-        if explicit != *own_client_id {
-            bail!("Non-admin users can only access their own client records.");
+        // Even for non-admins, if they provide a name, resolve it to verify it's theirs
+        if explicit.len() == 24 && explicit.chars().all(|c| c.is_ascii_hexdigit()) {
+            if explicit != *own_client_id {
+                bail!("Non-admin users can only access their own client records.");
+            }
+            return Ok(explicit);
+        }
+
+        let clients_response = client
+            .request_json(Method::GET, "/clients", &[], None, true)
+            .await?;
+        let clients = clients_response
+            .as_array()
+            .ok_or_else(|| anyhow!("Expected array of clients"))?;
+
+        let matched = clients.iter().find(|c| {
+            c.get("slug").and_then(|s| s.as_str()) == Some(&explicit)
+                || c.get("name")
+                    .and_then(|n| n.as_str())
+                    .map(|n| n.to_lowercase())
+                    == Some(explicit.to_lowercase())
+        });
+
+        match matched {
+            Some(c) => {
+                let id = c.get("_id").and_then(|id| id.as_str()).unwrap().to_string();
+                if id != *own_client_id {
+                    bail!("Non-admin users can only access their own client records.");
+                }
+                return Ok(id);
+            }
+            None => bail!("Client '{}' not found", explicit),
         }
     }
 

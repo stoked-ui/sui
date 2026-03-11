@@ -2,6 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 /* deno-fmt-ignore-file */
+/* biome-ignore-all lint: auto-generated */
 
 declare module "sst" {
   export interface Resource {
@@ -9,9 +10,29 @@ declare module "sst" {
       "type": "sst.aws.ApiGatewayV2"
       "url": string
     }
+    "BLOG_API_TOKEN": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "GoogleAuth": {
+      "name": string
+      "type": "sst.aws.Function"
+    }
+    "INVOICE_API_KEY": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
+    "JWT_SECRET": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
     "MONGODB_URI": {
       "type": "sst.sst.Secret"
       "value": string
+    }
+    "MediaApi": {
+      "name": string
+      "type": "sst.aws.Function"
     }
     "ROOT_DOMAIN": {
       "type": "sst.sst.Secret"
@@ -37,8 +58,13 @@ declare module "sst" {
       "name": string
       "type": "sst.aws.Function"
     }
+    "stoked-uicomStaticSite": {
+      "type": "sst.aws.Nextjs"
+      "url": string
+    }
   }
 }
+/// <reference path="sst-env.d.ts" />
 
 import "sst"
 export {}

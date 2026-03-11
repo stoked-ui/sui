@@ -348,7 +348,7 @@ export default withDocsInfra({
           // Avoid /api route rewrites when running OpenNext so Next.js API handlers can execute.
           if (!isOpenNextBuild) {
             rewrites.push(
-              { source: '/api/:path((?!auth|clients|users|deliverables|products|invoices|licenses|blog|upload|webhooks).*)/', destination: '/api-docs/:path/' },
+              { source: '/api/:path((?!auth|clients|users|deliverables|products|invoices|licenses|blog|upload|webhooks|openapi).*)/', destination: '/api-docs/:path/' },
               { source: `/static/x/:rest*`, destination: 'http://0.0.0.0:3001/static/x/:rest*' },
             );
           }

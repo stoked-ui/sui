@@ -6,8 +6,8 @@ import { createStripeProduct, createStripePrice } from 'docs/src/modules/license
 
 async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
   const { id } = req.query;
-  if (!id || typeof id !== 'string' || !ObjectId.isValid(id)) {
-    return res.status(400).json({ message: 'Invalid product ID' });
+  if (!id || typeof id !== 'string') {
+    return res.status(400).json({ message: 'Product ID is required' });
   }
 
   if (req.user.role !== 'admin') {
@@ -16,14 +16,20 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
 
   const db = await getDb();
   const collection = db.collection('products');
-  const objectId = new ObjectId(id);
+
+  let existingProduct: any = null;
+  if (ObjectId.isValid(id)) {
+    existingProduct = await collection.findOne({ _id: new ObjectId(id) });
+  }
+  if (!existingProduct) {
+    existingProduct = await collection.findOne({ productId: id });
+  }
 
   if (req.method === 'GET') {
-    const product = await collection.findOne({ _id: objectId });
-    if (!product) {
+    if (!existingProduct) {
       return res.status(404).json({ message: 'Product not found' });
     }
-    return res.status(200).json(product);
+    return res.status(200).json(existingProduct);
   }
 
   if (req.method === 'PATCH') {
@@ -31,10 +37,10 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
       name, fullName, description, icon, url, live, 
       hideProductFeatures, prerelease, features,
       keyPrefix, price, currency, 
-      licenseDurationDays, gracePeriodDays, trialDurationDays
+      licenseDurationDays, gracePeriodDays, trialDurationDays,
+      maxActivations
     } = req.body || {};
 
-    const existingProduct = await collection.findOne({ _id: objectId });
     if (!existingProduct) {
       return res.status(404).json({ message: 'Product not found' });
     }
@@ -53,6 +59,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
     if (licenseDurationDays !== undefined) update.licenseDurationDays = licenseDurationDays;
     if (gracePeriodDays !== undefined) update.gracePeriodDays = gracePeriodDays;
     if (trialDurationDays !== undefined) update.trialDurationDays = trialDurationDays;
+    if (maxActivations !== undefined) update.maxActivations = maxActivations;
 
     // Handle price/currency change
     if ((price !== undefined && price !== existingProduct.price) || 
@@ -90,7 +97,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
     }
 
     const result = await collection.findOneAndUpdate(
-      { _id: objectId },
+      { _id: existingProduct._id },
       { $set: update },
       { returnDocument: 'after' },
     );
@@ -100,9 +107,13 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
 
   if (req.method === 'DELETE') {
     // Cascade delete associated pages first
+    if (!existingProduct) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+    const productId = existingProduct._id.toString();
     const pagesCollection = db.collection('product_pages');
-    await pagesCollection.deleteMany({ productId: id });
-    const result = await collection.deleteOne({ _id: objectId });
+    await pagesCollection.deleteMany({ productId: productId });
+    const result = await collection.deleteOne({ _id: existingProduct._id });
     if (result.deletedCount === 0) {
       return res.status(404).json({ message: 'Product not found' });
     }

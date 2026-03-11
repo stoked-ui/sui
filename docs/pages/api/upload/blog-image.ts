@@ -1,5 +1,6 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
+import type { NextApiResponse } from 'next';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { withAuth, AuthenticatedRequest } from 'docs/src/modules/auth/withAuth';
 
 export const config = {
   api: {
@@ -23,15 +24,9 @@ const BUCKET = process.env.BLOG_IMAGE_S3_BUCKET || 'cdn.stokedconsulting.com';
 const REGION = process.env.AWS_REGION || 'us-east-1';
 const CDN_BASE = process.env.BLOG_IMAGE_CDN_URL || 'https://cdn.stokedconsulting.com';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method not allowed' });
-  }
-
-  // Verify auth token
-  const authHeader = req.headers.authorization;
-  if (!authHeader?.startsWith('Bearer ')) {
-    return res.status(401).json({ message: 'Unauthorized' });
   }
 
   try {
@@ -85,3 +80,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(500).json({ message });
   }
 }
+
+export default withAuth(handler, { roles: ['admin'] });

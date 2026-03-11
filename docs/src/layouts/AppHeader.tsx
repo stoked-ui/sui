@@ -23,8 +23,9 @@ export interface AuthUser {
   id: string;
   email: string;
   name: string;
-  role: 'admin' | 'client';
+  role: string;
   clientId?: string;
+  clientSlug?: string;
   avatarUrl?: string;
 }
 
@@ -88,7 +89,11 @@ export default function AppHeader(props: AppHeaderProps) {
   React.useEffect(() => {
     fetch(getApiUrl('/api/products/public'))
       .then((res) => (res.ok ? res.json() : []))
-      .then((data) => { if (Array.isArray(data)) setManagedProducts(data); })
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setManagedProducts(data);
+        }
+      })
       .catch(() => {});
   }, []);
 
@@ -166,6 +171,9 @@ export default function AppHeader(props: AppHeaderProps) {
               name={authUser.name}
               role={authUser.role}
               avatarUrl={authUser.avatarUrl}
+              onSettings={() => router.push('/consulting/settings')}
+              onLicenses={() => router.push('/consulting/licenses')}
+              onBilling={() => router.push('/consulting/billing')}
               onSignOut={handleLogout}
             />
           ) : (

@@ -21,7 +21,7 @@ export default $config({
 
     const { createSite, createApi, getDomainInfo } = await import('./infra');
     const domainInfo = getDomainInfo(process.env.ROOT_DOMAIN!, $app.stage);
-    const web = createSite(domainInfo);
+    const web = await createSite(domainInfo);
     const api = createApi(domainInfo);
     return {
       site: web.url,

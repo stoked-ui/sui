@@ -1,4 +1,3 @@
-
 type Routes = {
   [key: string]: string;
 };
@@ -43,6 +42,11 @@ const ROUTES: Routes = {
   // Consulting
   home: '/file-explorer/',
   consulting: '/consulting/',
+  consultingAdmin: '/consulting/admin/',
+  consultingClients: '/consulting/clients/',
+  consultingCustomer: '/consulting/customer/',
+  consultingGroupies: '/consulting/groupies/',
+  consultingPartners: '/consulting/partners/',
   consultingFrontEnd: '/consulting/front-end/',
   consultingBackEnd: '/consulting/back-end/',
   consultingDevops: '/consulting/devops/',
@@ -76,7 +80,7 @@ const ROUTES: Routes = {
   showcase: '/material-ui/discover-more/showcase/',
   coreRoadmap: 'https://github.com/orgs/stoked-ui/projects/1',
   vision: '/material-ui/discover-more/vision/',
-  support: '/stoked-ui/docs/support/#professional-support-premium',
+  support: '/stoked-ui/docs/support/#direct-support',
   goldSponsor: '/material-ui/discover-more/backers/#gold-sponsors',
   // Base UI doc pages
   baseDocs: 'https://stokedconsulting.com/base-ui/getting-started/',

@@ -35,6 +35,7 @@ export default function CliAuthPage() {
 
     const port = Number(router.query.port);
     const state = typeof router.query.state === 'string' ? router.query.state : '';
+    const impersonateEmail = typeof router.query.impersonate === 'string' ? router.query.impersonate : '';
     if (!Number.isFinite(port) || port <= 0 || !state) {
       hasStartedRef.current = true;
       setError('Missing CLI callback parameters (port, state). Please retry from the CLI.');
@@ -68,7 +69,7 @@ export default function CliAuthPage() {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ port, state }),
+          body: JSON.stringify({ port, state, impersonateEmail }),
         });
 
         if (!res.ok) {
@@ -81,18 +82,23 @@ export default function CliAuthPage() {
           state: string;
           user: {
             email: string;
+            name?: string;
             role?: string;
             clientId?: string;
           };
         };
 
         setUserEmail(result.user.email);
+        const name = result.user.name;
         const role = result.user.role;
         const clientId = result.user.clientId;
         const callbackUrl = new URL(`http://127.0.0.1:${port}/callback`);
         callbackUrl.searchParams.set('key', result.key);
         callbackUrl.searchParams.set('state', state);
         callbackUrl.searchParams.set('email', result.user.email);
+        if (name) {
+          callbackUrl.searchParams.set('name', name);
+        }
         if (role) {
           callbackUrl.searchParams.set('role', role);
         }

@@ -48,13 +48,13 @@ export default function Hero() {
       left={
         <Box sx={{ textAlign: { xs: 'center', md: 'left' }, maxWidth: 500 }}>
           <Typography variant="h1" mb={1}>
-            <GradientText>Media Selector</GradientText> <br />
-            with drag and drop and much more
+            <GradientText>Media</GradientText> <br />
+            management and playback for React
           </Typography>
           <Typography color="text.secondary" mb={3}>
-            SUI is building an open source web based Video Editor and just released the first component. The File Explorer will play a critical role managing files in the Video Editor. It&apos;s built with <a href={'https://mui.com/material-ui/getting-started/'}>MUI</a> through and through and leverages Atlassian&apos;s new <a href={'https://atlassian.design/components/pragmatic-drag-and-drop/'}>Pragmatic Drag and Drop Library</a>. PR&apos;s welcome.
+            Stoked UI: Media. A comprehensive media management and component library for React. Supports video, audio, images, and lottie animations with built-in playback controls, thumbnails, and metadata extraction. PR&apos;s welcome.
           </Typography>
-          <GetStartedButtons primaryLabel="Checkout the roadmap to see whats next" primaryUrl="/sui/components" />
+          <GetStartedButtons primaryLabel="Checkout the roadmap to see whats next" primaryUrl="/media/docs/roadmap" />
         </Box>
       }
       rightSx={{

@@ -344,7 +344,7 @@ export default function Team() {
             description="Contributing from all corners of the world, SUI is a global, fully-remote team & community."
           />
         </Box>
-        <Grid container spacing={2}>
+        <Grid container spacing={2} sx={{ mb: 4 }}>
           {(teamMembers as Array<Profile>).map((profileJson) => {
             const profile = {
               src: `/static/branding/about/${profileJson.name
@@ -362,7 +362,8 @@ export default function Team() {
         </Grid>
         <Box
           sx={{
-            my: 4,
+            mt: 8,
+            mb: 4,
             display: 'flex',
             flexDirection: 'column',
           }}
@@ -370,13 +371,13 @@ export default function Team() {
         <SectionHeadline
           overline="Team"
           title={
-            <Typography variant="h2" id="muiers">
+            <Typography variant="h2" id="mui-community">
               <GradientText>MUI</GradientText> & Community
             </Typography>
           }
           description=""
         />
-          <Typography variant="body1" id="muiers">
+          <Typography variant="body1" id="mui-community-description">
             Stoked UI is built on top of MUI which is a massive open source project with a huge team. <Link href={'https://mui.com/about/'}>View the MUI Team here</Link>
           </Typography>
         </Box>

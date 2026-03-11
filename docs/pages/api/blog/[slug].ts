@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { verifyToken } from 'docs/src/modules/auth/authStore';
 import { validateApiKey } from 'docs/src/modules/auth/apiKeyStore';
+import type { UserRole } from 'docs/src/modules/auth/authStore';
 import {
   getBlogPostBySlug,
   softDeleteBlogPost,
@@ -11,7 +12,7 @@ import { handleBlogApiError } from 'docs/src/modules/blog/blogApiUtils';
 type AuthUser = {
   sub: string;
   email: string;
-  role: 'admin' | 'client' | 'agent';
+  role: UserRole;
   name: string;
   clientId?: string;
   impersonatedId?: string;
@@ -49,8 +50,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const post = await getBlogPostBySlug(slug) as { status?: string };
       if (post.status !== 'published') {
         const user = await getOptionalAuthUser(req);
-        if (!user) {
-          return res.status(401).json({ message: 'Authentication required to view draft posts' });
+        if (!user || user.role !== 'admin') {
+          return res.status(403).json({ message: 'Admin access required to view draft posts' });
         }
       }
       return res.status(200).json(post);
@@ -59,6 +60,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const user = await getOptionalAuthUser(req);
     if (!user) {
       return res.status(401).json({ message: 'Missing or invalid authorization header' });
+    }
+
+    if (user.role !== 'admin') {
+      return res.status(403).json({ message: 'Admin access required' });
     }
 
     if (req.method === 'PATCH') {

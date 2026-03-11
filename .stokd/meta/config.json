@@ -1,6 +1,6 @@
 {
-  "lastUpdate": 1772737219156,
-  "lastValidate": 1772737219156,
+  "lastUpdate": 1773097819136,
+  "lastValidate": 1773097819136,
   "packages": [
     "packages/sui-common",
     "packages/sui-common-api",
@@ -11,5 +11,6 @@
     "packages/sui-media",
     "packages/sui-media-api",
     "packages/sui-timeline"
-  ]
+  ],
+  "metaVersion": "0.0.1"
 }

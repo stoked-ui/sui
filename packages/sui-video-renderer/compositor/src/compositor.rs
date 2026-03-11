@@ -4,6 +4,8 @@ use image::{Rgba, RgbaImage};
 use imageproc::geometric_transformations::{rotate_about_center, warp, Interpolation, Projection};
 #[cfg(feature = "rayon")]
 use rayon::prelude::*;
+#[cfg(feature = "rayon")]
+use rayon::slice::ParallelSliceMut;
 use std::sync::{Arc, Mutex};
 
 use crate::{
@@ -440,19 +442,19 @@ impl Compositor {
         y: i64,
         blend_mode: BlendMode,
     ) {
-        #[cfg(not(target_arch = "wasm32"))]
+        #[cfg(all(not(target_arch = "wasm32"), feature = "rayon"))]
         {
             self.blend_image_at_parallel(dest, source, x, y, blend_mode);
         }
 
-        #[cfg(target_arch = "wasm32")]
+        #[cfg(any(target_arch = "wasm32", not(feature = "rayon")))]
         {
             self.blend_image_at_sequential(dest, source, x, y, blend_mode);
         }
     }
 
     /// Parallel blending using rayon (native only)
-    #[cfg(not(target_arch = "wasm32"))]
+    #[cfg(all(not(target_arch = "wasm32"), feature = "rayon"))]
     fn blend_image_at_parallel(
         &self,
         dest: &mut RgbaImage,
@@ -514,8 +516,8 @@ impl Compositor {
             });
     }
 
-    /// Sequential blending (WASM or fallback)
-    #[cfg(target_arch = "wasm32")]
+    /// Sequential blending (WASM or fallback when rayon is unavailable)
+    #[cfg(any(target_arch = "wasm32", not(feature = "rayon")))]
     fn blend_image_at_sequential(
         &self,
         dest: &mut RgbaImage,

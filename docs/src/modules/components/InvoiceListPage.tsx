@@ -30,6 +30,7 @@ interface Invoice {
 interface Client {
   _id: string;
   name: string;
+  slug?: string;
 }
 
 function getToken(): string | null {
@@ -123,7 +124,7 @@ export default function InvoiceListPage({ clientId }: { clientId: string }) {
       {isAdmin && (
         <Button
           startIcon={<ArrowBackIcon />}
-          onClick={() => router.push(`/consulting/clients/${clientId}`)}
+          onClick={() => router.push(`/consulting/clients/${client?.slug || clientId}`)}
           sx={{ mb: 2 }}
         >
           Back to Client

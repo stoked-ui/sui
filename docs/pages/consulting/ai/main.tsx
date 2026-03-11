@@ -29,40 +29,40 @@ const ServiceCard = styled(Card)(({ theme }) => ({
 export default function Main() {
   const services = [
     {
-      title: 'LLM Application Development',
-      description: 'Building production-ready applications powered by large language models. Custom chatbots, content generation systems, and intelligent assistants with proper guardrails and evaluation.',
+      title: 'AI-Powered Product Development',
+      description: 'Custom AI features integrated into your existing products. Chatbots, content generation, document processing, semantic search, recommendation engines, and intelligent automation. We build AI features that users actually love.',
     },
     {
-      title: 'ML Pipeline Design',
-      description: 'End-to-end machine learning pipelines from data ingestion to model serving. Feature engineering, model training, versioning, and automated retraining workflows.',
+      title: 'LLM Application Architecture',
+      description: 'RAG (Retrieval-Augmented Generation) pipelines, vector databases (Pinecone, Weaviate, pgvector), prompt engineering, fine-tuning strategies, and multi-model orchestration. We architect LLM systems that are accurate, fast, and cost-effective.',
     },
     {
-      title: 'AI-Powered Automation',
-      description: 'Intelligent workflow automation using AI agents, tool-calling, and multi-step reasoning. Replacing manual processes with AI-driven decision making and execution.',
+      title: 'AI Agent Development',
+      description: 'Autonomous agents that reason, plan, and execute multi-step workflows. Tool use, function calling, memory systems, and human-in-the-loop patterns. Built on Claude, GPT-4, and open-source models.',
     },
     {
-      title: 'Natural Language Processing',
-      description: 'Text classification, entity extraction, sentiment analysis, and semantic search. Custom NLP models fine-tuned for your domain and data.',
+      title: 'AI Infrastructure & MLOps',
+      description: 'Model deployment pipelines, A/B testing frameworks, cost optimization (token usage, caching, model routing), observability (LangSmith, Helicone), and guardrails for safe, reliable AI in production.',
     },
     {
-      title: 'Computer Vision Solutions',
-      description: 'Image classification, object detection, and visual inspection systems. From proof-of-concept to production deployment with real-time inference.',
+      title: 'AI Strategy & Readiness Assessment',
+      description: 'Where can AI create real value in your business? We audit your workflows, data assets, and technical stack to identify high-ROI AI opportunities — then build them.',
     },
     {
-      title: 'AI Strategy Consulting',
-      description: 'Identifying high-impact AI opportunities in your business. ROI analysis, build-vs-buy recommendations, and roadmap development for AI adoption.',
+      title: 'AI Coding Agents & Developer Tools',
+      description: 'We\'re building the future of software development with AI coding agents. Expertise in Claude Code, Cursor, and autonomous development workflows.',
     },
   ];
 
   const technologies = [
-    { name: 'OpenAI', detail: 'GPT models and embeddings' },
-    { name: 'Anthropic Claude', detail: 'Advanced reasoning models' },
-    { name: 'LangChain', detail: 'LLM application framework' },
-    { name: 'PyTorch', detail: 'Deep learning framework' },
-    { name: 'TensorFlow', detail: 'ML platform at scale' },
-    { name: 'Hugging Face', detail: 'Model hub and transformers' },
+    { name: 'Claude (Anthropic)', detail: 'Frontier reasoning models' },
+    { name: 'GPT-4/o1 (OpenAI)', detail: 'Advanced language models' },
+    { name: 'Vercel AI SDK', detail: 'LLM application framework' },
+    { name: 'LangChain / LlamaIndex', detail: 'Agent & RAG frameworks' },
     { name: 'Vector Databases', detail: 'Pinecone, Weaviate, pgvector' },
-    { name: 'RAG Systems', detail: 'Retrieval-augmented generation' },
+    { name: 'Python / FastAPI', detail: 'AI service backend' },
+    { name: 'Prompt Engineering', detail: 'Optimized model performance' },
+    { name: 'Fine-tuning', detail: 'Custom domain expertise' },
   ];
 
   return (
@@ -72,13 +72,18 @@ export default function Main() {
         left={
           <Box sx={{ textAlign: { xs: 'center', md: 'left' }, maxWidth: 500 }}>
             <Typography variant="h1" mb={1} color="text.primary">
-              AI &<br />
-              <GradientText>Machine Learning</GradientText>
+              AI That<br />
+              <GradientText>Ships.</GradientText>
             </Typography>
             <Typography color="text.secondary" mb={3}>
-              Practical AI solutions that deliver measurable business value. From LLM-powered
-              applications to custom ML models, we bridge the gap between cutting-edge research
-              and production-ready systems.
+              The AI revolution isn&apos;t coming — it&apos;s here. But most businesses are drowning
+              in hype and struggling to ship real AI-powered products. With 25+ years of
+              production engineering experience and deep hands-on expertise with frontier
+              AI models, Stoked Consulting bridges the gap between AI research and
+              production-grade AI systems.
+            </Typography>
+            <Typography variant="body1" fontWeight="bold" color="text.primary">
+              We don&apos;t do PowerPoint AI strategy. We build and ship AI products.
             </Typography>
           </Box>
         }
@@ -232,8 +237,11 @@ export default function Main() {
             <Typography variant="h3" sx={{ mb: 2, fontWeight: 700 }}>
               Make AI Work for Your Business
             </Typography>
-            <Typography variant="h6" sx={{ mb: 1, color: 'text.secondary' }}>
-              Let's identify the right AI opportunities and build solutions that deliver real, measurable impact.
+            <Typography variant="h6" sx={{ mb: 2, color: 'text.secondary' }}>
+              Let&apos;s identify the right AI opportunities and build solutions that deliver real, measurable impact.
+            </Typography>
+            <Typography variant="body2" sx={{ mb: 4, color: 'text.secondary', fontStyle: 'italic' }}>
+              Why Stoked Consulting for AI? Brian Stoker combines 25+ years of production engineering with deep, hands-on AI expertise — including building an AI-powered SaaS platform (stokd.cloud) from the ground up. We don&apos;t just prototype. We ship.
             </Typography>
             <Typography variant="body1" sx={{ mt: 4, fontWeight: 600, color: 'primary.main' }}>
               Building intelligent systems with cutting-edge AI
