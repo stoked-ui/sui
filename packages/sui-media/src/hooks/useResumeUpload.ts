@@ -4,7 +4,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useUploadClient } from './MediaApiProvider';
-// import type { ActiveUploadsResponseDto } from '../api/types';
+import type { ActiveUploadsResponseDto } from '../api/types';
 
 /**
  * Hook to fetch active uploads that can be resumed
@@ -36,7 +36,7 @@ import { useUploadClient } from './MediaApiProvider';
 export function useActiveUploads(options?: { enabled?: boolean }) {
   const client = useUploadClient();
 
-  return useQuery({
+  return useQuery<ActiveUploadsResponseDto, Error>({
     queryKey: ['uploads', 'active'],
     queryFn: async ({ signal }) => client.getActiveUploads(signal),
     enabled: options?.enabled ?? true,
