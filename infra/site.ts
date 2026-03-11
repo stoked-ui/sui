@@ -4,8 +4,6 @@ import {
   mongoDbUri,
   stripeSecretKey,
   stripeWebhookSecret,
-  telegramBotToken,
-  telegramSupportChatId,
 } from 'infra/secrets';
 import { findExistingCert } from 'infra/cert';
 
@@ -55,9 +53,6 @@ export const createSite = async (domainInfo: DomainInfo) => {
       SES_FROM_EMAIL: process.env.SES_FROM_EMAIL ?? 'noreply@stoked-ui.com',
       BLOG_IMAGE_S3_BUCKET: blogImageBucket,
       BLOG_IMAGE_CDN_URL: process.env.BLOG_IMAGE_CDN_URL ?? 'https://cdn.stokedconsulting.com',
-      TELEGRAM_BOT_TOKEN: telegramBotToken.value,
-      TELEGRAM_SUPPORT_CHAT_ID: telegramSupportChatId.value,
-      TELEGRAM_SUPPORT_THREAD_ID: process.env.TELEGRAM_SUPPORT_THREAD_ID ?? '',
     },
     server: {
       // The docs app has a heavy pages bundle and can exceed the default 20s/1024MB on cold starts.
@@ -70,8 +65,6 @@ export const createSite = async (domainInfo: DomainInfo) => {
       jwtSecret,
       stripeSecretKey,
       stripeWebhookSecret,
-      telegramBotToken,
-      telegramSupportChatId,
     ],
     permissions: [
       {
