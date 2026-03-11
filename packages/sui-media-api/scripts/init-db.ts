@@ -2,7 +2,7 @@
  * Database Initialization Script
  *
  * Connects to MongoDB and ensures all required collections and indexes are
- * created for the Stoked UI Media API (including the BlogPost collection).
+ * created for the Stoked UI Media API.
  *
  * Also creates a default admin user when AUTH_ADMIN_EMAIL / AUTH_ADMIN_PASSWORD
  * environment variables are provided.
@@ -43,108 +43,6 @@ function log(msg: string) {
 
 function warn(msg: string) {
   console.warn(`[init-db] WARN: ${msg}`);
-}
-
-// ---------------------------------------------------------------------------
-// BlogPost collection + indexes
-// ---------------------------------------------------------------------------
-
-async function ensureBlogPostCollection(db: Connection['db']) {
-  if (!db) throw new Error('MongoDB db reference is undefined');
-
-  const collectionName = 'blogposts';
-
-  // Create collection if it does not exist (createCollection is idempotent
-  // when the collection already exists in modern MongoDB drivers).
-  const collections = await db.listCollections({ name: collectionName }).toArray();
-  if (collections.length === 0) {
-    await db.createCollection(collectionName);
-    log(`Created collection: ${collectionName}`);
-  } else {
-    log(`Collection already exists: ${collectionName}`);
-  }
-
-  const col = db.collection(collectionName);
-
-  // Helper: create an index, handling "already exists with different name" by
-  // dropping the conflicting index first and retrying.
-  async function safeCreateIndex(
-    keys: any,
-    options: any,
-  ) {
-    try {
-      await col.createIndex(keys, options);
-    } catch (err: any) {
-      if (err?.code === 85) {
-        // IndexOptionsConflict — an index on the same keys exists with a
-        // different name. Drop it and retry.
-        const existing = await col.indexes();
-        const keyStr = JSON.stringify(keys);
-        for (const idx of existing) {
-          if (JSON.stringify(idx.key) === keyStr && idx.name !== options.name) {
-            log(`  dropping conflicting index "${idx.name}" for ${options.name}`);
-            await col.dropIndex(idx.name);
-            break;
-          }
-        }
-        await col.createIndex(keys, options);
-      } else {
-        throw err;
-      }
-    }
-    log(`  index: ${options.name}`);
-  }
-
-  // Ensure every index defined in BlogPostSchema is present.
-
-  // 1. Unique index on slug (critical – prevents duplicates)
-  await safeCreateIndex(
-    { slug: 1 },
-    { unique: true, name: 'blogpost_slug_unique', background: true },
-  );
-
-  // 2. Status field index
-  await safeCreateIndex(
-    { status: 1 },
-    { name: 'blogpost_status', background: true },
-  );
-
-  // 3. Compound: status + date (listing by status chronologically)
-  await safeCreateIndex(
-    { status: 1, date: -1 },
-    { name: 'blogpost_status_date', background: true },
-  );
-
-  // 4. Compound: targetSites + status + date (site-specific listing)
-  await safeCreateIndex(
-    { targetSites: 1, status: 1, date: -1 },
-    { name: 'blogpost_targetsites_status_date', background: true },
-  );
-
-  // 5. Sparse index on nostrEventId (only on documents that have the field)
-  await safeCreateIndex(
-    { nostrEventId: 1 },
-    { sparse: true, name: 'blogpost_nostr_event_id', background: true },
-  );
-
-  // 6. Full-text search index on title, description, tags
-  //    NOTE: MongoDB allows only one text index per collection.
-  try {
-    await safeCreateIndex(
-      { title: 'text', description: 'text', tags: 'text' },
-      {
-        weights: { title: 10, tags: 5, description: 1 },
-        name: 'blogpost_text_search',
-        background: true,
-      },
-    );
-  } catch (err: unknown) {
-    // If a conflicting text index already exists, warn but don't abort.
-    const msg = err instanceof Error ? err.message : String(err);
-    warn(`Could not create text index (may already exist with different definition): ${msg}`);
-  }
-
-  log(`BlogPost collection and indexes ready.`);
 }
 
 // ---------------------------------------------------------------------------
@@ -211,7 +109,6 @@ async function main() {
 
   log('Connected.');
 
-  await ensureBlogPostCollection(db);
   await ensureDefaultClients(db);
   await ensureAdminUser(db);
 

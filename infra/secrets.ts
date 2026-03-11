@@ -6,5 +6,3 @@ export const stripeWebhookSecret = new sst.Secret(
   process.env.STRIPE_WEBHOOK_SECRET,
 );
 export const jwtSecret = new sst.Secret('JWT_SECRET');
-export const blogApiToken = new sst.Secret('BLOG_API_TOKEN');
-export const invoiceApiKey = new sst.Secret('INVOICE_API_KEY');

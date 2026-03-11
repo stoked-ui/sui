@@ -1,4 +1,4 @@
-import { mongoDbUri, jwtSecret, blogApiToken, invoiceApiKey, stripeSecretKey, stripeWebhookSecret } from 'infra/secrets'
+import { mongoDbUri, jwtSecret } from 'infra/secrets'
 import { DomainInfo } from 'infra/domains'
 
 export const createApi = (domainInfo: DomainInfo) => {
@@ -12,53 +12,6 @@ export const createApi = (domainInfo: DomainInfo) => {
     domain: {
       name: domainInfo.apiDomain,
       dns: sst.aws.dns({ zone: domainInfo.primaryZoneId }),
-    }
-  });
-
-  // ---------------------------------------------------------------------------
-  // Media API Lambda (NestJS / lambda.ts -> lambda.bootstrap.ts)
-  // Handles media/auth/invoice routes under /v1/*
-  // ---------------------------------------------------------------------------
-
-  const mediaApiFunction = new sst.aws.Function("MediaApi", {
-    // Use an ESM wrapper around the compiled NestJS lambda entry so Lambda can resolve `handler`.
-    handler: "packages/sui-media-api/lambda.entry.handler",
-    runtime: "nodejs20.x",
-    timeout: "60 seconds",
-    memory: "2048 MB",
-    link: [mongoDbUri, jwtSecret, blogApiToken, invoiceApiKey, stripeSecretKey, stripeWebhookSecret],
-    permissions: [{
-      actions: ["ses:SendEmail"],
-      resources: ["arn:aws:ses:us-east-1:883859713095:identity/*"],
-    }],
-    environment: {
-      MONGODB_URI: mongoDbUri.value,
-      JWT_SECRET: jwtSecret.value,
-      STRIPE_SECRET_KEY: stripeSecretKey.value,
-      STRIPE_WEBHOOK_SECRET: stripeWebhookSecret.value,
-      AWS_S3_BUCKET: "stoked-ui-media",
-      NEXT_PUBLIC_VIDEO_BUCKET: "stoked-ui-media",
-      // Core
-      NODE_ENV: "production",
-      API_PATH_PREFIX: "/api",
-
-      // Auth
-      AUTH_AUTO_DOMAINS: process.env.AUTH_AUTO_DOMAINS ?? "stokedconsulting.com,stoked-ui.com,brianstoker.com",
-
-      // Nostr integration
-      NOSTR_RELAYS: process.env.NOSTR_RELAYS ?? "",
-      NOSTR_NPUBS: process.env.NOSTR_NPUBS ?? "",
-      NOSTR_POLL_INTERVAL: process.env.NOSTR_POLL_INTERVAL ?? "15",
-
-      // CORS
-      ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS ?? `https://${domainInfo.domains[0]},https://www.${domainInfo.domains[0]}`,
-
-    },
-    nodejs: {
-      install: ["mongodb", "sharp"],
-      esbuild: {
-        external: ["@nestjs/websockets/socket-module", "@nestjs/microservices/microservices-module", "@nestjs/microservices", "class-transformer/storage"],
-      }
     }
   });
 
@@ -79,9 +32,6 @@ export const createApi = (domainInfo: DomainInfo) => {
       }
     }
   });
-
-  // Route all /v1/* requests to the Media API Lambda
-  api.route("$default", mediaApiFunction.arn);
 
   const emailMsg = JSON.stringify(`{
         Subject: { Data: \`Subscribed to ${domainInfo.domains[0]}\` },

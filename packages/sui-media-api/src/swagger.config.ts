@@ -40,9 +40,7 @@ export function createSwaggerConfig() {
     .addTag('Health', 'Health check endpoints')
     .addTag('Media', 'Media CRUD operations and metadata management')
     .addTag('Uploads', 'Multipart file upload operations')
-    .addTag('Blog', 'Blog post management')
     .addTag('auth', 'Authentication and user management')
-    .addTag('Invoices', 'Invoice management')
     .build();
 }
 
