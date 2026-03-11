@@ -94,6 +94,19 @@ export default function DeliverableViewerPage({ deliverableId }: { deliverableId
     return () => window.removeEventListener('message', handleMessage);
   }, []);
 
+  const token = getToken();
+  // Proxy endpoints require auth — iframes can't send Authorization headers,
+  // so pass the token via query parameter for proxy URLs.
+  const authenticatedUrl = React.useMemo(() => {
+    if (!deliverable || !token) return deliverable?.url ?? '';
+    const url = deliverable.url;
+    if (url.startsWith('/api/')) {
+      const sep = url.includes('?') ? '&' : '?';
+      return `${url}${sep}token=${encodeURIComponent(token)}`;
+    }
+    return url;
+  }, [deliverable, token]);
+
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" py={8}>
@@ -116,10 +129,10 @@ export default function DeliverableViewerPage({ deliverableId }: { deliverableId
     return (
       <Box sx={{ position: 'relative' }}>
         {/* Navigation Overlay (Sticky/Fixed) */}
-        <Box sx={{ 
-          position: 'fixed', 
-          bottom: 24, 
-          left: 24, 
+        <Box sx={{
+          position: 'fixed',
+          bottom: 24,
+          left: 24,
           zIndex: 2000,
           display: 'flex',
           gap: 1
@@ -129,10 +142,10 @@ export default function DeliverableViewerPage({ deliverableId }: { deliverableId
             size="small"
             startIcon={<ArrowBackIcon />}
             onClick={() => router.back()}
-            sx={{ 
-              borderRadius: '20px', 
-              bgcolor: 'rgba(255,255,255,0.9)', 
-              color: 'text.primary', 
+            sx={{
+              borderRadius: '20px',
+              bgcolor: 'rgba(255,255,255,0.9)',
+              color: 'text.primary',
               backdropFilter: 'blur(4px)',
               '&:hover': { bgcolor: '#fff' },
               boxShadow: 3
@@ -145,9 +158,9 @@ export default function DeliverableViewerPage({ deliverableId }: { deliverableId
             size="small"
             endIcon={<OpenInNewIcon />}
             component="a"
-            href={deliverable.url}
+            href={authenticatedUrl}
             target="_blank"
-            sx={{ 
+            sx={{
               borderRadius: '20px',
               bgcolor: 'primary.main',
               boxShadow: 3
@@ -159,7 +172,7 @@ export default function DeliverableViewerPage({ deliverableId }: { deliverableId
 
         <iframe
           ref={iframeRef}
-          src={deliverable.url}
+          src={authenticatedUrl}
           title={deliverable.title}
           style={{
             width: '100%',
@@ -196,7 +209,7 @@ export default function DeliverableViewerPage({ deliverableId }: { deliverableId
           variant="contained"
           endIcon={<OpenInNewIcon />}
           component="a"
-          href={deliverable.url}
+          href={authenticatedUrl}
           target="_blank"
           sx={{ mt: 2 }}
         >

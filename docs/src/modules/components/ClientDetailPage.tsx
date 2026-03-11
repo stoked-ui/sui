@@ -28,6 +28,10 @@ import DesignServicesIcon from '@mui/icons-material/DesignServicesOutlined';
 import HtmlIcon from '@mui/icons-material/HtmlOutlined';
 import ArrowBackIcon from '@mui/icons-material/ArrowBackOutlined';
 import ReceiptIcon from '@mui/icons-material/ReceiptOutlined';
+import MuiLink from '@mui/material/Link';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import HistoryIcon from '@mui/icons-material/HistoryOutlined';
 import { useRouter } from 'next/router';
 import { getApiUrl } from 'docs/src/modules/utils/getApiUrl';
 import DeliverableForm from './DeliverableForm';
@@ -98,6 +102,191 @@ const typeIcons: Record<string, React.ReactElement> = {
   ux: <DesignServicesIcon fontSize="small" />,
   html: <HtmlIcon fontSize="small" />,
 };
+
+function relativeTime(dateStr: string): string {
+  const now = Date.now();
+  const then = new Date(dateStr).getTime();
+  const diff = now - then;
+  const seconds = Math.floor(diff / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+  const weeks = Math.floor(days / 7);
+  const months = Math.floor(days / 30);
+  if (seconds < 60) return 'just now';
+  if (minutes < 60) return `${minutes}m ago`;
+  if (hours < 24) return `${hours}h ago`;
+  if (days < 7) return `${days}d ago`;
+  if (weeks < 5) return `${weeks}w ago`;
+  return `${months}mo ago`;
+}
+
+interface DeliverableGroup {
+  title: string;
+  type: Deliverable['type'];
+  latest: Deliverable;
+  older: Deliverable[];
+}
+
+function groupDeliverables(items: Deliverable[]): DeliverableGroup[] {
+  const map = new Map<string, Deliverable[]>();
+  for (const d of items) {
+    const key = d.title.toLowerCase();
+    if (!map.has(key)) map.set(key, []);
+    map.get(key)!.push(d);
+  }
+  const groups: DeliverableGroup[] = [];
+  for (const [, versions] of map) {
+    // Sort newest first
+    versions.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    groups.push({
+      title: versions[0].title,
+      type: versions[0].type,
+      latest: versions[0],
+      older: versions.slice(1),
+    });
+  }
+  return groups;
+}
+
+function DeliverableRow({ group, index, isAdmin, onEdit, onDelete }: {
+  group: DeliverableGroup;
+  index: number;
+  isAdmin: boolean;
+  onEdit: (d: Deliverable) => void;
+  onDelete: (id: string) => void;
+}) {
+  const [historyAnchor, setHistoryAnchor] = React.useState<null | HTMLElement>(null);
+  const [deleteAnchor, setDeleteAnchor] = React.useState<null | HTMLElement>(null);
+  const d = group.latest;
+  const allVersions = [d, ...group.older];
+  const href = d.type === 'html' ? `/consulting/deliverables/${d._id}` : d.url;
+  const isExternal = d.type !== 'html';
+
+  return (
+    <React.Fragment>
+      {index > 0 && <Divider />}
+      <ListItem>
+        <Box sx={{ mr: 1.5, display: 'flex', alignItems: 'center' }}>
+          {typeIcons[d.type]}
+        </Box>
+        <ListItemText
+          primary={
+            <Stack direction="row" spacing={1} alignItems="center">
+              <MuiLink
+                href={href}
+                {...(isExternal ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                underline="hover"
+                color="text.primary"
+                fontWeight={600}
+              >
+                {d.title}
+              </MuiLink>
+              <Chip label={d.type} size="small" variant="outlined" />
+              {d.version && <Chip label={`v${d.version}`} size="small" />}
+            </Stack>
+          }
+          secondary={
+            <Stack direction="row" spacing={1} alignItems="center" component="span" sx={{ mt: 0.5 }}>
+              <Typography variant="caption" color="text.secondary" component="span">
+                {relativeTime(d.createdAt)}
+              </Typography>
+              {group.older.length > 0 && (
+                <React.Fragment>
+                  <Chip
+                    icon={<HistoryIcon sx={{ fontSize: 14 }} />}
+                    label={`${group.older.length} older`}
+                    size="small"
+                    variant="outlined"
+                    onClick={(e) => setHistoryAnchor(e.currentTarget)}
+                    sx={{ height: 20, cursor: 'pointer', '& .MuiChip-label': { px: 0.5, fontSize: '0.7rem' } }}
+                  />
+                  <Menu
+                    anchorEl={historyAnchor}
+                    open={Boolean(historyAnchor)}
+                    onClose={() => setHistoryAnchor(null)}
+                  >
+                    {group.older.map((old) => (
+                      <MenuItem
+                        key={old._id}
+                        component="a"
+                        href={old.type === 'html' ? `/consulting/deliverables/${old._id}` : old.url}
+                        {...(old.type !== 'html' ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                        onClick={() => setHistoryAnchor(null)}
+                        sx={{ fontSize: '0.85rem' }}
+                      >
+                        <Stack direction="row" spacing={1} alignItems="center">
+                          <span>{old.version ? `v${old.version}` : 'version'}</span>
+                          <Typography variant="caption" color="text.secondary">
+                            {relativeTime(old.createdAt)}
+                          </Typography>
+                        </Stack>
+                      </MenuItem>
+                    ))}
+                  </Menu>
+                </React.Fragment>
+              )}
+            </Stack>
+          }
+        />
+        {isAdmin && (
+          <ListItemSecondaryAction>
+            <IconButton size="small" onClick={() => onEdit(d)}>
+              <EditIcon fontSize="small" />
+            </IconButton>
+            <IconButton
+              size="small"
+              color="error"
+              onClick={(e) => {
+                if (allVersions.length === 1) {
+                  onDelete(d._id);
+                } else {
+                  setDeleteAnchor(e.currentTarget);
+                }
+              }}
+            >
+              <DeleteIcon fontSize="small" />
+            </IconButton>
+            <Menu
+              anchorEl={deleteAnchor}
+              open={Boolean(deleteAnchor)}
+              onClose={() => setDeleteAnchor(null)}
+            >
+              <MenuItem
+                onClick={() => {
+                  setDeleteAnchor(null);
+                  allVersions.forEach((v) => onDelete(v._id));
+                }}
+                sx={{ color: 'error.main', fontWeight: 600, fontSize: '0.85rem' }}
+              >
+                Delete all versions
+              </MenuItem>
+              <Divider />
+              {allVersions.map((v) => (
+                <MenuItem
+                  key={v._id}
+                  onClick={() => {
+                    setDeleteAnchor(null);
+                    onDelete(v._id);
+                  }}
+                  sx={{ fontSize: '0.85rem' }}
+                >
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <DeleteIcon sx={{ fontSize: 16, color: 'error.main' }} />
+                    <span>{v.version ? `v${v.version}` : 'version'}</span>
+                    <Typography variant="caption" color="text.secondary">
+                      {relativeTime(v.createdAt)}
+                    </Typography>
+                  </Stack>
+                </MenuItem>
+              ))}
+            </Menu>
+          </ListItemSecondaryAction>
+        )}
+      </ListItem>
+    </React.Fragment>
+  );
+}
 
 export default function ClientDetailPage({ clientId }: { clientId: string }) {
   const router = useRouter();
@@ -300,50 +489,15 @@ export default function ClientDetailPage({ clientId }: { clientId: string }) {
         ) : (
           <Paper variant="outlined">
             <List disablePadding>
-              {deliverables.map((d, i) => (
-                <React.Fragment key={d._id}>
-                  {i > 0 && <Divider />}
-                  <ListItem>
-                    <Box sx={{ mr: 1.5, display: 'flex', alignItems: 'center' }}>
-                      {typeIcons[d.type]}
-                    </Box>
-                    <ListItemText
-                      primary={
-                        <Stack direction="row" spacing={1} alignItems="center">
-                          <span>{d.title}</span>
-                          <Chip label={d.type} size="small" variant="outlined" />
-                          {d.version && <Chip label={`v${d.version}`} size="small" />}
-                        </Stack>
-                      }
-                      secondary={
-                        <Box component="span" sx={{ display: 'block', mt: 0.5 }}>
-                          {d.type === 'html' ? (
-                            <Stack direction="row" spacing={1} alignItems="center" component="span">
-                              <a href={`/consulting/deliverables/${d._id}`}>Open in app</a>
-                              <Typography component="span" variant="caption" color="text.secondary">|</Typography>
-                              <a href={d.url} target="_blank" rel="noopener noreferrer">Source URL</a>
-                            </Stack>
-                          ) : (
-                            <a href={d.url} target="_blank" rel="noopener noreferrer">{d.url}</a>
-                          )}
-                          <Typography variant="caption" display="block" color="text.secondary">
-                            {new Date(d.createdAt).toLocaleDateString()}
-                          </Typography>
-                        </Box>
-                      }
-                    />
-                    {isAdmin && (
-                      <ListItemSecondaryAction>
-                        <IconButton size="small" onClick={() => setEditingDeliverable(d)}>
-                          <EditIcon fontSize="small" />
-                        </IconButton>
-                        <IconButton size="small" color="error" onClick={() => handleDeleteDeliverable(d._id)}>
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
-                      </ListItemSecondaryAction>
-                    )}
-                  </ListItem>
-                </React.Fragment>
+              {groupDeliverables(deliverables).map((group, i) => (
+                <DeliverableRow
+                  key={group.latest._id}
+                  group={group}
+                  index={i}
+                  isAdmin={isAdmin}
+                  onEdit={setEditingDeliverable}
+                  onDelete={handleDeleteDeliverable}
+                />
               ))}
             </List>
           </Paper>

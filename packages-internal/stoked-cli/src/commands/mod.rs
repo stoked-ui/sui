@@ -905,16 +905,43 @@ pub async fn run_deliverables(
                         if mime == "text/html" && type_val == "html" {
                             if let Ok(html_str) = String::from_utf8(content.clone()) {
                                 let script = r#"
+<style>
+  /* When embedded in an iframe, cap vh-based hero sections to the parent viewport height */
+  :root { --iframe-vh: 100vh; }
+</style>
 <script>
-  function sendHeight() {
-    window.parent.postMessage({
-      type: 'setHeight',
-      height: document.documentElement.scrollHeight
-    }, '*');
-  }
-  window.addEventListener('load', sendHeight);
-  window.addEventListener('resize', sendHeight);
-  new ResizeObserver(sendHeight).observe(document.body);
+  (function() {
+    // If we're in an iframe, override vh-based heights to use the parent viewport
+    if (window.parent !== window) {
+      try {
+        var parentHeight = window.parent.innerHeight;
+        document.documentElement.style.setProperty('--iframe-vh', parentHeight + 'px');
+        // Override any min-height: 100vh on elements to use the parent viewport height
+        var style = document.createElement('style');
+        style.textContent = '* { --vh-fix: ' + (parentHeight * 0.01) + 'px; }' +
+          '[style*="min-height"], section, .hero, [class*="hero"] { max-height: ' + parentHeight + 'px; }';
+        document.head.appendChild(style);
+      } catch(e) {}
+    }
+    function sendHeight() {
+      // Temporarily collapse any 100vh elements to get true content height
+      var overrides = document.createElement('style');
+      overrides.textContent = '* { min-height: unset !important; }';
+      document.head.appendChild(overrides);
+      var height = document.documentElement.scrollHeight;
+      document.head.removeChild(overrides);
+      // Re-add viewport-capped hero height
+      if (window.parent !== window) {
+        try {
+          height = Math.max(height, window.parent.innerHeight);
+        } catch(e) {}
+      }
+      window.parent.postMessage({ type: 'setHeight', height: height }, '*');
+    }
+    window.addEventListener('load', sendHeight);
+    window.addEventListener('resize', sendHeight);
+    new ResizeObserver(sendHeight).observe(document.body);
+  })();
 </script>
 "#;
                                 if let Some(pos) = html_str.find("</body>") {
@@ -955,13 +982,46 @@ pub async fn run_deliverables(
                         client_id, bundle_id, index_file
                     );
 
+                    // Auto-increment version: query existing deliverables for this client
+                    // and find the highest version number for this title
+                    let existing = client
+                        .request_json(
+                            Method::GET,
+                            "/deliverables",
+                            &[("clientId".to_string(), client_id.clone())],
+                            None,
+                            true,
+                        )
+                        .await
+                        .unwrap_or(json!([]));
+                    let title_lower = title.to_lowercase();
+                    let max_version = existing
+                        .as_array()
+                        .map(|arr| {
+                            arr.iter()
+                                .filter(|d| {
+                                    d.get("title")
+                                        .and_then(|t| t.as_str())
+                                        .map(|t| t.to_lowercase() == title_lower)
+                                        .unwrap_or(false)
+                                })
+                                .filter_map(|d| {
+                                    d.get("version")
+                                        .and_then(|v| v.as_str())
+                                        .and_then(|v| v.trim_start_matches('v').parse::<u32>().ok())
+                                })
+                                .max()
+                        })
+                        .flatten()
+                        .unwrap_or(0);
+                    let next_version = format!("{}", max_version + 1);
+
                     let create_payload = json!({
                         "clientId": client_id,
                         "title": title,
                         "type": type_val,
                         "url": url,
-                        // Could potentially extract version from folder name
-                        "version": "1.0.0"
+                        "version": next_version
                     });
 
                     println!("  ✅ Creating database entry for {}", title);
