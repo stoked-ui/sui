@@ -1,9 +1,11 @@
+import { toAbsoluteSitePath } from 'docs/src/modules/utils/siteRouting';
+
 type Routes = {
   [key: string]: string;
 };
 
 const ROUTES: Routes = {
-  stokedUi: '/stoked-ui/',
+  stokedUi: toAbsoluteSitePath('stoked-ui', '/stoked-ui/'),
   fileExplorer: '/stoked-ui/file-explorer/',
 
   media: '/media/',
@@ -41,16 +43,16 @@ const ROUTES: Routes = {
   stokdCloudDocs: '/stokd-cloud/docs/overview/',
   // Consulting
   home: '/file-explorer/',
-  consulting: '/consulting/',
-  consultingAdmin: '/consulting/admin/',
-  consultingClients: '/consulting/clients/',
-  consultingCustomer: '/consulting/customer/',
-  consultingGroupies: '/consulting/groupies/',
-  consultingPartners: '/consulting/partners/',
-  consultingFrontEnd: '/consulting/front-end/',
-  consultingBackEnd: '/consulting/back-end/',
-  consultingDevops: '/consulting/devops/',
-  consultingAi: '/consulting/ai/',
+  consulting: toAbsoluteSitePath('consulting', '/consulting/'),
+  consultingAdmin: toAbsoluteSitePath('consulting', '/consulting/admin/'),
+  consultingClients: toAbsoluteSitePath('consulting', '/consulting/clients/'),
+  consultingCustomer: toAbsoluteSitePath('consulting', '/consulting/customer/'),
+  consultingGroupies: toAbsoluteSitePath('consulting', '/consulting/groupies/'),
+  consultingPartners: toAbsoluteSitePath('consulting', '/consulting/partners/'),
+  consultingFrontEnd: toAbsoluteSitePath('consulting', '/consulting/front-end/'),
+  consultingBackEnd: toAbsoluteSitePath('consulting', '/consulting/back-end/'),
+  consultingDevops: toAbsoluteSitePath('consulting', '/consulting/devops/'),
+  consultingAi: toAbsoluteSitePath('consulting', '/consulting/ai/'),
   // SUI doc pages
   suiCoreDocs: '/sui/',
   suiXDocs: '/sui-x/',
@@ -75,12 +77,12 @@ const ROUTES: Routes = {
   components: '/material-ui/getting-started/supported-components/',
   customization: '/material-ui/customization/how-to-customize/',
   theming: '/material-ui/customization/theming/',
-  documentation: '/stoked-ui/docs/overview/',
+  documentation: toAbsoluteSitePath('stoked-ui', '/stoked-ui/docs/overview/'),
   communityHelp: '/material-ui/getting-started/support/#community-help-free',
   showcase: '/material-ui/discover-more/showcase/',
   coreRoadmap: 'https://github.com/orgs/stoked-ui/projects/1',
   vision: '/material-ui/discover-more/vision/',
-  support: '/stoked-ui/docs/support/#direct-support',
+  support: toAbsoluteSitePath('stoked-ui', '/stoked-ui/docs/support/#direct-support'),
   goldSponsor: '/material-ui/discover-more/backers/#gold-sponsors',
   // Base UI doc pages
   baseDocs: 'https://stokedconsulting.com/base-ui/getting-started/',

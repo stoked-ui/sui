@@ -89,22 +89,124 @@ export const createSite = async (domainInfo: DomainInfo) => {
     edge: {
       viewerRequest: {
         injection: `
-          // Domain-based routing: stokedconsulting.com → /consulting/
+          // Domain-based routing:
+          // - stoked-ui.com/consulting/* => https://stokedconsulting.com/*
+          // - stokedconsulting.com/* => /consulting/* on the same Next.js site
           var host = event.request.headers.host ? event.request.headers.host.value : '';
           var uri = event.request.uri;
+          var querystring = event.request.querystring || {};
 
-          // Check if this is a stokedconsulting.com request
-          var isConsultingDomain = host === 'stokedconsulting.com' || host === 'www.stokedconsulting.com';
+          var isConsultingDomain = host === 'stokedconsulting.com';
+          var isPrimaryDomain = host === 'stoked-ui.com' || host === 'www.stoked-ui.com';
 
-          if (isConsultingDomain) {
-            // Rewrite root path to consulting
-            if (uri === '/' || uri === '') {
-              event.request.uri = '/consulting/';
+          function serializeQuery(params) {
+            var parts = [];
+            for (var key in params) {
+              if (!Object.prototype.hasOwnProperty.call(params, key)) continue;
+              var entry = params[key];
+              if (!entry) continue;
+              if (entry.multiValue && entry.multiValue.length) {
+                for (var i = 0; i < entry.multiValue.length; i += 1) {
+                  var multi = entry.multiValue[i];
+                  parts.push(encodeURIComponent(key) + '=' + encodeURIComponent(multi.value || ''));
+                }
+              } else {
+                parts.push(encodeURIComponent(key) + '=' + encodeURIComponent(entry.value || ''));
+              }
             }
-            // Rewrite /index.html to consulting
-            else if (uri === '/index.html') {
-              event.request.uri = '/consulting/index.html';
+            return parts.length ? ('?' + parts.join('&')) : '';
+          }
+
+          function isSharedPath(pathname) {
+            return pathname === '/favicon.ico'
+              || pathname === '/robots.txt'
+              || pathname === '/sitemap.xml'
+              || pathname === '/manifest.json'
+              || pathname.indexOf('/api/') === 0
+              || pathname.indexOf('/_next/') === 0
+              || pathname.indexOf('/static/') === 0
+              || pathname.indexOf('/images/') === 0;
+          }
+
+          function isConsultingAppPath(pathname) {
+            var normalized = pathname || '/';
+            var firstSegment = normalized.replace(/^\\/+/, '').split('/')[0] || '';
+            var consultingSegments = {
+              '': true,
+              'admin': true,
+              'ai': true,
+              'api-docs': true,
+              'back-end': true,
+              'billing': true,
+              'clients': true,
+              'customer': true,
+              'deliverables': true,
+              'devops': true,
+              'front-end': true,
+              'groupies': true,
+              'home': true,
+              'invoices': true,
+              'licenses': true,
+              'login': true,
+              'partners': true,
+              'products': true,
+              'settings': true,
+              'users': true,
+            };
+            return consultingSegments[firstSegment] === true;
+          }
+
+          if (host === 'www.stokedconsulting.com') {
+            return {
+              statusCode: 308,
+              statusDescription: 'Permanent Redirect',
+              headers: {
+                location: {
+                  value: 'https://stokedconsulting.com' + uri + serializeQuery(querystring),
+                },
+              },
+            };
+          } else if (host === 'www.stoked-ui.com') {
+            return {
+              statusCode: 308,
+              statusDescription: 'Permanent Redirect',
+              headers: {
+                location: {
+                  value: 'https://stoked-ui.com' + uri + serializeQuery(querystring),
+                },
+              },
+            };
+          } else if (isConsultingDomain) {
+            if (!isSharedPath(uri) && isConsultingAppPath(uri)) {
+              if (uri === '/' || uri === '') {
+                event.request.uri = '/consulting/';
+              } else if (uri === '/index.html') {
+                event.request.uri = '/consulting/index.html';
+              } else if (uri.indexOf('/consulting/') !== 0 && uri !== '/consulting') {
+                event.request.uri = '/consulting' + (uri.indexOf('/') === 0 ? uri : '/' + uri);
+              } else if (uri === '/consulting') {
+                event.request.uri = '/consulting/';
+              }
             }
+          } else if (isPrimaryDomain && (uri === '/consulting' || uri.indexOf('/consulting/') === 0)) {
+            var redirectPath = uri === '/consulting' ? '/' : uri.replace(/^\\/consulting/, '') || '/';
+            return {
+              statusCode: 308,
+              statusDescription: 'Permanent Redirect',
+              headers: {
+                location: {
+                  value: 'https://stokedconsulting.com' + redirectPath + serializeQuery(querystring),
+                },
+              },
+            };
+          }
+
+          if (isConsultingDomain && event.request.uri === '/consulting') {
+            event.request.uri = '/consulting/';
+          }
+
+          if (isConsultingDomain && event.request.uri.indexOf('/consulting//') === 0) {
+            event.request.uri = event.request.uri.replace('/consulting//', '/consulting/');
           }
         `,
       },

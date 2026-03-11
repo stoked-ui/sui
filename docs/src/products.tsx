@@ -28,6 +28,7 @@ import GradientText from "./components/typography/GradientText";
 import StokedConsultingShowcase from "./components/home/StokedConsultingShowcase";
 import AdvancedShowcase from "./components/home/AdvancedShowcase";
 import FileExplorerShowcase from './components/home/FileExplorerShowcase';
+import { inferSiteForProductId, PublicSite, toAbsoluteSitePath } from "./modules/utils/siteRouting";
 
 import TimelineShowcase from "./components/home/TimelineShowcase";
 import EditorShowcase from './components/home/EditorShowcase';
@@ -57,6 +58,7 @@ export type TProduct = {
   icon: string;
   features: TFeature[];
   url: string;
+  site?: PublicSite;
   hideProductFeatures?: boolean;
   live?: boolean;
   showcaseType: React.ComponentType;
@@ -80,6 +82,13 @@ type ProductMenuItemProps = {
 
 function getTypeUrl(type: LinkType) {
   return type === 'doc' ? '/docs/' : '/';
+}
+
+function normalizeProductSuffix(type: LinkType, suffix: string) {
+  if (type === 'product' && (!suffix || suffix === 'overview')) {
+    return '';
+  }
+  return suffix;
 }
 
 export class Product {
@@ -255,7 +264,7 @@ export class Product {
               color={context.productId === this.id ? 'primary' : undefined}
               variant={context.productId === this.id ? 'filled' : 'outlined'}
               component={Link}
-              href={feature.route?.('doc') ?? ''}
+              href={feature.route?.('product') ?? ''}
               label={feature.name}
               clickable
               size="small"
@@ -317,10 +326,17 @@ export class Product {
   }
 
   url(type: LinkType, suffix: string = '', productId?: string) {
+    const normalizedSuffix = normalizeProductSuffix(type, suffix);
     if (productId) {
-      return `/${productId}${getTypeUrl(type)}${suffix}`
+      return toAbsoluteSitePath(
+        inferSiteForProductId(productId),
+        `/${productId}${getTypeUrl(type)}${normalizedSuffix}`,
+      );
     }
-    return `${this.data.url}${getTypeUrl(type)}${suffix}`;
+    return toAbsoluteSitePath(
+      this.data.site ?? inferSiteForProductId(this.data.id),
+      `${this.data.url}${getTypeUrl(type)}${normalizedSuffix}`,
+    );
   }
 
   get id() {
@@ -689,6 +705,7 @@ const consultingFrontEndData: TProduct = {
   description: "Modern UI design and development with React, Next.js, Angular, and TypeScript.",
   icon: "product-core",
   url: "/consulting/front-end",
+  site: 'consulting',
   live: true,
   showcaseType: StokedConsultingShowcase,
   features: [],
@@ -702,6 +719,7 @@ const consultingBackEndData: TProduct = {
   description: "Scalable server architecture with Node.js, NestJS, Python, and cloud-native APIs.",
   icon: "product-advanced",
   url: "/consulting/back-end",
+  site: 'consulting',
   live: true,
   showcaseType: StokedConsultingShowcase,
   features: [],
@@ -715,6 +733,7 @@ const consultingDevopsData: TProduct = {
   description: "Cloud infrastructure with AWS, GCP, Terraform, and modern CI/CD pipelines.",
   icon: "product-toolpad",
   url: "/consulting/devops",
+  site: 'consulting',
   live: true,
   showcaseType: StokedConsultingShowcase,
   features: [],
@@ -728,6 +747,7 @@ const consultingAiData: TProduct = {
   description: "AI integration, ML pipelines, and LLM-powered applications for your business.",
   icon: "product-templates",
   url: "/consulting/ai",
+  site: 'consulting',
   live: true,
   showcaseType: StokedConsultingShowcase,
   features: [],
@@ -740,6 +760,7 @@ const stokedUiData: TProduct = {
   description: "Advanced media components",
   icon: "product-designkits",
   url: "/stoked-ui",
+  site: 'stoked-ui',
   showcaseType: StokedConsultingShowcase,
   live: true,
   features: [{
@@ -773,6 +794,7 @@ const fileExplorerData: TProduct = {
   description: "Advanced media components",
   icon: "product-core",
   url: "/file-explorer",
+  site: 'stoked-ui',
   hideProductFeatures: true,
   live: true,
   showcaseType: FileExplorerShowcase,
@@ -834,6 +856,7 @@ const mediaData: TProduct = {
   description: "Comprehensive media management and component library for React",
   icon: "product-advanced",
   url: "/media",
+  site: 'stoked-ui',
   hideProductFeatures: true,
   live: true,
   showcaseType: AdvancedShowcase,
@@ -864,6 +887,7 @@ const commonData: TProduct = {
   description: "Shared utilities, hooks, and components for Stoked UI",
   icon: "product-core",
   url: "/common",
+  site: 'stoked-ui',
   hideProductFeatures: true,
   live: false,
   showcaseType: AdvancedShowcase,
@@ -890,6 +914,7 @@ const mediaApiData: TProduct = {
   description: "Production-ready NestJS API for media management",
   icon: "product-advanced",
   url: "/media-api",
+  site: 'stoked-ui',
   hideProductFeatures: true,
   live: false,
   showcaseType: AdvancedShowcase,
@@ -917,6 +942,7 @@ const mediaSelectorData: TProduct = {
   description: "Deprecated — use @stoked-ui/media instead",
   icon: "product-advanced",
   url: "/media-selector",
+  site: 'stoked-ui',
   hideProductFeatures: true,
   live: false,
   showcaseType: AdvancedShowcase,
@@ -947,6 +973,7 @@ const timelineData: TProduct = {
   description: "Timeline component used to construct tools that manipulate things over time",
   icon: "product-toolpad",
   url: "/timeline",
+  site: 'stoked-ui',
   hideProductFeatures: true,
   live: true,
   showcaseType: TimelineShowcase,
@@ -979,6 +1006,7 @@ const videoEditorData: TProduct = {
   description: "The Editor component is an open source client side video editor.",
   icon: "product-templates",
   url: "/editor",
+  site: 'stoked-ui',
   hideProductFeatures: true,
   live: true,
   showcaseType: EditorShowcase,
@@ -1014,6 +1042,7 @@ const fluxData: TProduct = {
   description: "Make any website your Mac desktop wallpaper",
   icon: "product-toolpad",
   url: "/flux",
+  site: 'consulting',
   hideProductFeatures: true,
   live: true,
   showcaseType: AdvancedShowcase,
@@ -1044,6 +1073,7 @@ const macMixerData: TProduct = {
   description: "macOS audio utility with per-app volume control, auto-pause, and system audio recording",
   icon: "product-advanced",
   url: "/mac-mixer",
+  site: 'consulting',
   hideProductFeatures: true,
   live: true,
   showcaseType: AdvancedShowcase,
@@ -1074,6 +1104,7 @@ const alwaysListeningData: TProduct = {
   description: "Cross-platform voice pipeline tray app with Voice-to-Claude, Dictation, and Combined modes",
   icon: "product-templates",
   url: "/always-listening",
+  site: 'consulting',
   hideProductFeatures: true,
   live: true,
   showcaseType: AdvancedShowcase,
@@ -1104,6 +1135,7 @@ const stokdCloudData: TProduct = {
   description: "AI-powered project orchestration with VSCode extension, NestJS API, and MCP server",
   icon: "product-toolpad",
   url: "/stokd-cloud",
+  site: 'consulting',
   hideProductFeatures: true,
   live: true,
   showcaseType: AdvancedShowcase,
@@ -1158,6 +1190,7 @@ function useAllProducts(): Products {
               description: p.description,
               icon: p.icon || 'product-core',
               url: p.url,
+              site: inferSiteForProductId(p.productId),
               features: p.features || [],
               hideProductFeatures: p.hideProductFeatures,
               live: true,

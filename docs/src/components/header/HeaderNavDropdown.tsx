@@ -11,6 +11,7 @@ import SvgHamburgerMenu from 'docs/src/icons/SvgHamburgerMenu';
 import { Link } from '@stoked-ui/docs';
 import { getApiUrl } from 'docs/src/modules/utils/getApiUrl';
 import ROUTES from 'docs/src/route';
+import { toAbsoluteSitePath } from 'docs/src/modules/utils/siteRouting';
 import type { AuthUser, ManagedProduct } from 'docs/src/layouts/AppHeader';
 
 const Anchor = styled('a')<{ component?: React.ElementType; noLinkStyle?: boolean }>(
@@ -229,7 +230,7 @@ export default function HeaderNavDropdown({ auth, managedProducts = [] }: Header
                         onClick={() => setAdminProductsOpen((bool) => !bool)}
                         sx={{ justifyContent: 'space-between' }}
                       >
-                        <Anchor href="/consulting/products" as={Link} noLinkStyle sx={{ p: 0 }}>
+                        <Anchor href={toAbsoluteSitePath('consulting', '/consulting/products')} as={Link} noLinkStyle sx={{ p: 0 }}>
                           Products
                         </Anchor>
                         <KeyboardArrowDownRounded
@@ -245,7 +246,7 @@ export default function HeaderNavDropdown({ auth, managedProducts = [] }: Header
                           {adminProducts.map((p) => (
                             <li key={p._id}>
                               <Anchor
-                                href={`/consulting/products/${p.productId}`}
+                                href={toAbsoluteSitePath('consulting', `/consulting/products/${p.productId}`)}
                                 as={Link}
                                 noLinkStyle
                               >
@@ -260,12 +261,12 @@ export default function HeaderNavDropdown({ auth, managedProducts = [] }: Header
                       </Collapse>
                     </li>
                     <li>
-                      <Anchor href="/consulting/clients" as={Link} noLinkStyle>
+                      <Anchor href={toAbsoluteSitePath('consulting', '/consulting/clients')} as={Link} noLinkStyle>
                         Clients
                       </Anchor>
                     </li>
                     <li>
-                      <Anchor href="/consulting/users" as={Link} noLinkStyle>
+                      <Anchor href={toAbsoluteSitePath('consulting', '/consulting/users')} as={Link} noLinkStyle>
                         Users
                       </Anchor>
                     </li>
@@ -298,7 +299,7 @@ export default function HeaderNavDropdown({ auth, managedProducts = [] }: Header
                             {managedProducts.map((p) => (
                               <li key={p._id}>
                                 <Anchor
-                                  href={p.url}
+                                  href={toAbsoluteSitePath('consulting', p.url)}
                                   as={Link}
                                   noLinkStyle
                                   sx={{ flexDirection: 'column', alignItems: 'initial' }}
@@ -320,19 +321,19 @@ export default function HeaderNavDropdown({ auth, managedProducts = [] }: Header
                       </li>
                     )}
                     <li>
-                      <Anchor href={`/consulting/clients/${auth.clientSlug || auth.clientId}`} as={Link} noLinkStyle>
+                      <Anchor href={toAbsoluteSitePath('consulting', `/consulting/clients/${auth.clientSlug || auth.clientId}`)} as={Link} noLinkStyle>
                         Deliverables
                       </Anchor>
                     </li>
                     {hasInvoices && (
                       <li>
-                        <Anchor href={`/consulting/invoices?clientId=${auth.clientId}`} as={Link} noLinkStyle>
+                        <Anchor href={toAbsoluteSitePath('consulting', `/consulting/invoices?clientId=${auth.clientId}`)} as={Link} noLinkStyle>
                           Invoices
                         </Anchor>
                       </li>
                     )}
                     <li>
-                      <Anchor href="/consulting/users" as={Link} noLinkStyle>
+                      <Anchor href={toAbsoluteSitePath('consulting', '/consulting/users')} as={Link} noLinkStyle>
                         Users
                       </Anchor>
                     </li>

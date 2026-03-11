@@ -18,6 +18,7 @@ import { UserMenu } from '@stoked-ui/common';
 import SvgSuiLogomark from "docs/src/icons/SvgSuiLogomark";
 import SvgScLogo from "docs/src/icons/SvgScLogo"
 import dynamic from "next/dynamic";
+import { toAbsoluteSitePath } from 'docs/src/modules/utils/siteRouting';
 
 export interface AuthUser {
   id: string;
@@ -171,16 +172,16 @@ export default function AppHeader(props: AppHeaderProps) {
               name={authUser.name}
               role={authUser.role}
               avatarUrl={authUser.avatarUrl}
-              onSettings={() => router.push('/consulting/settings')}
-              onLicenses={() => router.push('/consulting/licenses')}
-              onBilling={() => router.push('/consulting/billing')}
+              onSettings={() => router.push(toAbsoluteSitePath('consulting', '/consulting/settings'))}
+              onLicenses={() => router.push(toAbsoluteSitePath('consulting', '/consulting/licenses'))}
+              onBilling={() => router.push(toAbsoluteSitePath('consulting', '/consulting/billing'))}
               onSignOut={handleLogout}
             />
           ) : (
             <Tooltip title="Login" enterDelay={300}>
               <IconButton
                 component={Link}
-                href="/consulting/login"
+                href={toAbsoluteSitePath('consulting', '/consulting/login')}
                 color="primary"
                 data-ga-event-category="header"
                 data-ga-event-action="login"
