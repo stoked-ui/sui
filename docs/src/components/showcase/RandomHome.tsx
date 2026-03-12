@@ -6,6 +6,6 @@ function randomHome(homePages: string[]) {
 }
 
 const homeUrl = randomHome(PRODUCTS.pages);
-const RandomHome = dynamic(() => import((`.${homeUrl}main`)), { ssr: false });
+const RandomHome = dynamic(() => import(`.${homeUrl}/main`), { ssr: false });
 
 export default RandomHome;

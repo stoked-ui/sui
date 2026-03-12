@@ -34,7 +34,7 @@ const StyledHead = styled(Head)(({ theme }) => [
 ]);
 
 const homeUrl = randomHome(PRODUCTS.pages);
-const RandomHome = dynamic(() => import((`.${homeUrl}main`)), { ssr: false });
+const RandomHome = dynamic(() => import(`.${homeUrl}/main`), { ssr: false });
 
 export function HomeView({ HomeMain}: { HomeMain: React.ComponentType }){
   const Main: React.ComponentType = HomeMain || RandomHome;
@@ -98,4 +98,3 @@ export default function Home({ HomeMain }: { HomeMain: React.ComponentType }) {
 
   return <HomeView HomeMain={ HomeMain || currentMain || MainView } />;
 }
-

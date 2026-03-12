@@ -63,7 +63,8 @@ const StyledHead = styled(Head)(({ theme }) => [
 ]);
 
 const homeUrl = randomHome([...PRODUCTS.pages, 'rusty-editor']);
-const RandomHome = homeUrl === 'rusty-editor' ? MainView : dynamic(() => import(`.${homeUrl}main`), { ssr: false });
+const RandomHome =
+  homeUrl === 'rusty-editor' ? MainView : dynamic(() => import(`.${homeUrl}/main`), { ssr: false });
 
 export function HomeView({ HomeMain}: { HomeMain: React.ComponentType }){
   const Main: React.ComponentType = HomeMain || RandomHome;
@@ -100,20 +101,20 @@ export function HomeView({ HomeMain}: { HomeMain: React.ComponentType }){
     <AppFooter/>
   </BrandingCssVarsProvider>;
 }
+
 export default function Home({ HomeMain }: { HomeMain: React.ComponentType }) {
   const [currentMain, setCurrentMain] = React.useState<React.ComponentType | null>(null);
 
   React.useEffect(() => {
     if (typeof window !== 'undefined') {
-      const host = window.location.hostname;
-      if (['stoked-ui.com', 'stokedconsulting.com'].includes(host)) {
+      // const host = window.location.hostname;
+      // if (['stoked-ui.com', 'stokedconsulting.com'].includes(host)) {
         setCurrentMain(() => RandomHome);
-      } else {
-        setCurrentMain(() => MainView);
-      }
+      // } else {
+      //  setCurrentMain(() => MainView);
+      // }
     }
   }, []);
 
   return <HomeView HomeMain={ HomeMain || currentMain || MainView } />;
 }
-
