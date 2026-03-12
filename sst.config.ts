@@ -17,7 +17,7 @@ export default $config({
   },
   async run() {
     const { verifyEnvVars } = await import("./infra/envVars");
-    verifyEnvVars(['ROOT_DOMAIN', 'MONGODB_URI'], true);
+    verifyEnvVars(['ROOT_DOMAIN'], true);
 
     const { createSite, createApi, getDomainInfo } = await import('./infra');
     const domainInfo = getDomainInfo(process.env.ROOT_DOMAIN!, $app.stage);
