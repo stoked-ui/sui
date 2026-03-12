@@ -1,10 +1,10 @@
 const apiPages = [
   {
-    pathname: '/stoked-ui/docs/media-selector/api/media-selector',
+    pathname: '/products/stoked-ui/docs/media-selector/api/media-selector',
     title: 'FileExplorer',
   },
   {
-    pathname: '/stoked-ui/docs/media-selector/api/media-selector-basic',
+    pathname: '/products/stoked-ui/docs/media-selector/api/media-selector-basic',
     title: 'FileExplorerBasic',
   },
 ];

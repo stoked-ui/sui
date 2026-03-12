@@ -1,18 +1,18 @@
 const apiPages = [
   {
-    pathname: '/file-explorer/api/file',
+    pathname: '/products/file-explorer/api/file',
     title: 'File',
   },
   {
-    pathname: '/file-explorer/api/file-element',
+    pathname: '/products/file-explorer/api/file-element',
     title: 'FileElement',
   },
   {
-    pathname: '/file-explorer/api/file-explorer',
+    pathname: '/products/file-explorer/api/file-explorer',
     title: 'FileExplorer',
   },
   {
-    pathname: '/file-explorer/api/file-explorer-basic',
+    pathname: '/products/file-explorer/api/file-explorer-basic',
     title: 'FileExplorerBasic',
   },
 ];

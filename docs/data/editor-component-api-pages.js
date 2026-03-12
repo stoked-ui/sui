@@ -1,22 +1,22 @@
 const apiPages = [
   {
-    pathname: '/editor/api/editor',
+    pathname: '/products/editor/api/editor',
     title: 'Editor',
   },
   {
-    pathname: '/editor/api/view',
+    pathname: '/products/editor/api/view',
     title: 'EditorView',
   },
   {
-    pathname: '/editor/api/labels',
+    pathname: '/products/editor/api/labels',
     title: 'EditorLabels',
   },
   {
-    pathname: '/editor/api/controls',
+    pathname: '/products/editor/api/controls',
     title: 'EditorControls',
   },
   {
-    pathname: '/editor/api/explorer',
+    pathname: '/products/editor/api/explorer',
     title: 'EditorExplorer',
   },
 ];

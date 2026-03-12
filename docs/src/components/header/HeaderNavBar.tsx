@@ -346,7 +346,7 @@ export default function HeaderNavBar({ auth, managedProducts = [] }: HeaderNavBa
                           <ul>
                             {managedProducts.map((p) => (
                               <Box component="li" role="none" key={p._id} sx={(theme) => ({ p: 1.5, '&:hover': { bgcolor: 'grey.50' }, ...theme.applyDarkStyles({ '&:hover': { bgcolor: 'primaryDark.700' } }) })}>
-                                  <Box component={Link} href={toAbsoluteSitePath('consulting', p.url)} sx={{ display: 'block' }}>
+                                  <Box component={Link} href={toAbsoluteSitePath('consulting', `/consulting/products/${p.productId}`)} sx={{ display: 'block' }}>
                                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                     <Typography color="text.primary" variant="body2" fontWeight="700">
                                       {p.name}

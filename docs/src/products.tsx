@@ -328,14 +328,18 @@ export class Product {
   url(type: LinkType, suffix: string = '', productId?: string) {
     const normalizedSuffix = normalizeProductSuffix(type, suffix);
     if (productId) {
+      const site = inferSiteForProductId(productId);
+      const prefix = site === 'stoked-ui' ? '/products' : '';
       return toAbsoluteSitePath(
-        inferSiteForProductId(productId),
-        `/${productId}${getTypeUrl(type)}${normalizedSuffix}`,
+        site,
+        `${prefix}/${productId}${getTypeUrl(type)}${normalizedSuffix}`,
       );
     }
+    const site = this.data.site ?? inferSiteForProductId(this.data.id);
+    const prefix = site === 'stoked-ui' ? '/products' : '';
     return toAbsoluteSitePath(
-      this.data.site ?? inferSiteForProductId(this.data.id),
-      `${this.data.url}${getTypeUrl(type)}${normalizedSuffix}`,
+      site,
+      `${prefix}${this.data.url}${getTypeUrl(type)}${normalizedSuffix}`,
     );
   }
 

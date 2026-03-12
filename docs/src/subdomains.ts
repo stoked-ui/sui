@@ -22,12 +22,12 @@ export async function handler(event: any) {
 
   // Define subdirectory-to-subdomain mapping
   const subdomains: { [key: string]: string } = {
-    "/editor": "editor",
-    "/editor/": "editor",
-    "/file-explorer": "file-explorer",
-    "/file-explorer/": "file-explorer",
-    "/timeline": "timeline",
-    "/timeline/": "timeline",
+    "/products/editor": "editor",
+    "/products/editor/": "editor",
+    "/products/file-explorer": "file-explorer",
+    "/products/file-explorer/": "file-explorer",
+    "/products/timeline": "timeline",
+    "/products/timeline/": "timeline",
   };
 
   // Check if the request path should be redirected

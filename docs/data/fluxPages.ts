@@ -2,15 +2,15 @@ import type { MuiPage } from '../src/MuiPage';
 
 const fluxPages: MuiPage[] = [
   {
-    pathname: '/flux/docs',
+    pathname: '/products/flux/docs',
     title: 'Flux',
     newFeature: true,
     children: [
-      { pathname: '/flux/docs/overview', title: 'Overview' },
-      { pathname: '/flux/docs/download', title: 'Download' },
-      { pathname: '/flux/docs/websites', title: 'Websites' },
-      { pathname: '/flux/docs/scripting', title: 'Scripting & Automation' },
-      { pathname: '/flux/docs/roadmap' },
+      { pathname: '/products/flux/docs/overview', title: 'Overview' },
+      { pathname: '/products/flux/docs/download', title: 'Download' },
+      { pathname: '/products/flux/docs/websites', title: 'Websites' },
+      { pathname: '/products/flux/docs/scripting', title: 'Scripting & Automation' },
+      { pathname: '/products/flux/docs/roadmap' },
     ],
   },
 ];

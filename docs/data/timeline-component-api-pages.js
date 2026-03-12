@@ -1,6 +1,6 @@
 const apiPages = [
   {
-    pathname: '/timeline/api/timeline',
+    pathname: '/products/timeline/api/timeline',
     title: 'Timeline',
   },
 ];

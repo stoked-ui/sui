@@ -2,14 +2,14 @@ import type { MuiPage } from '../src/MuiPage';
 
 const alwaysListeningPages: MuiPage[] = [
   {
-    pathname: '/always-listening/docs',
+    pathname: '/products/always-listening/docs',
     title: 'Always Listening',
     dev: true,
     children: [
-      { pathname: '/always-listening/docs/overview', title: 'Overview' },
-      { pathname: '/always-listening/docs/voice-modes', title: 'Voice Modes' },
-      { pathname: '/always-listening/docs/preferences', title: 'Preferences' },
-      { pathname: '/always-listening/docs/roadmap' },
+      { pathname: '/products/always-listening/docs/overview', title: 'Overview' },
+      { pathname: '/products/always-listening/docs/voice-modes', title: 'Voice Modes' },
+      { pathname: '/products/always-listening/docs/preferences', title: 'Preferences' },
+      { pathname: '/products/always-listening/docs/roadmap' },
     ],
   },
 ];

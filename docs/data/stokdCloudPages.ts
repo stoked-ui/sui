@@ -2,15 +2,15 @@ import type { MuiPage } from '../src/MuiPage';
 
 const stokdCloudPages: MuiPage[] = [
   {
-    pathname: '/stokd-cloud/docs',
+    pathname: '/products/stokd-cloud/docs',
     title: 'Stokd Cloud',
     dev: true,
     children: [
-      { pathname: '/stokd-cloud/docs/overview', title: 'Overview' },
-      { pathname: '/stokd-cloud/docs/vscode-extension', title: 'VSCode Extension' },
-      { pathname: '/stokd-cloud/docs/state-api', title: 'State API' },
-      { pathname: '/stokd-cloud/docs/review-commands', title: 'Review Commands' },
-      { pathname: '/stokd-cloud/docs/roadmap' },
+      { pathname: '/products/stokd-cloud/docs/overview', title: 'Overview' },
+      { pathname: '/products/stokd-cloud/docs/vscode-extension', title: 'VSCode Extension' },
+      { pathname: '/products/stokd-cloud/docs/state-api', title: 'State API' },
+      { pathname: '/products/stokd-cloud/docs/review-commands', title: 'Review Commands' },
+      { pathname: '/products/stokd-cloud/docs/roadmap' },
     ],
   },
 ];

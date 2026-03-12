@@ -299,7 +299,7 @@ export default function HeaderNavDropdown({ auth, managedProducts = [] }: Header
                             {managedProducts.map((p) => (
                               <li key={p._id}>
                                 <Anchor
-                                  href={toAbsoluteSitePath('consulting', p.url)}
+                                  href={toAbsoluteSitePath('consulting', `/consulting/products/${p.productId}`)}
                                   as={Link}
                                   noLinkStyle
                                   sx={{ flexDirection: 'column', alignItems: 'initial' }}

@@ -5,17 +5,17 @@ type Routes = {
 };
 
 const ROUTES: Routes = {
-  stokedUi: toAbsoluteSitePath('stoked-ui', '/stoked-ui/'),
-  fileExplorer: '/stoked-ui/file-explorer/',
+  stokedUi: toAbsoluteSitePath('stoked-ui', '/products/stoked-ui/'),
+  fileExplorer: '/products/stoked-ui/file-explorer/',
 
-  media: '/media/',
-  mediaDocs: '/media/docs/overview/',
-  common: '/common/',
-  commonDocs: '/common/docs/overview/',
-  mediaApi: '/media-api/',
-  mediaApiDocs: '/media-api/docs/overview/',
-  videoValidator: '/video-validator/',
-  videoValidatorDocs: '/video-validator/docs/overview/',
+  media: '/products/media/',
+  mediaDocs: '/products/media/docs/overview/',
+  common: '/products/common/',
+  commonDocs: '/products/common/docs/overview/',
+  mediaApi: '/products/media-api/',
+  mediaApiDocs: '/products/media-api/docs/overview/',
+  videoValidator: '/products/video-validator/',
+  videoValidatorDocs: '/products/video-validator/docs/overview/',
   suiFileExplorerOverviewDoc: '/material-ui/overview',
   // Marketing pagesHeaderNavBar
   productCore: '/core/',
@@ -30,19 +30,19 @@ const ROUTES: Routes = {
   about: '/about/',
   blog: '/blog/',
   // Flux
-  flux: '/flux/',
-  fluxDocs: '/flux/docs/overview/',
+  flux: '/products/flux/',
+  fluxDocs: '/products/flux/docs/overview/',
   // Mac Mixer
-  macMixer: '/mac-mixer/',
-  macMixerDocs: '/mac-mixer/docs/overview/',
+  macMixer: '/products/mac-mixer/',
+  macMixerDocs: '/products/mac-mixer/docs/overview/',
   // Always Listening
-  alwaysListening: '/always-listening/',
-  alwaysListeningDocs: '/always-listening/docs/overview/',
+  alwaysListening: '/products/always-listening/',
+  alwaysListeningDocs: '/products/always-listening/docs/overview/',
   // Stokd Cloud
-  stokdCloud: '/stokd-cloud/',
-  stokdCloudDocs: '/stokd-cloud/docs/overview/',
+  stokdCloud: '/products/stokd-cloud/',
+  stokdCloudDocs: '/products/stokd-cloud/docs/overview/',
   // Consulting
-  home: '/file-explorer/',
+  home: '/products/file-explorer/',
   consulting: toAbsoluteSitePath('consulting', '/consulting/'),
   consultingAdmin: toAbsoluteSitePath('consulting', '/consulting/admin/'),
   consultingClients: toAbsoluteSitePath('consulting', '/consulting/clients/'),
@@ -77,12 +77,12 @@ const ROUTES: Routes = {
   components: '/material-ui/getting-started/supported-components/',
   customization: '/material-ui/customization/how-to-customize/',
   theming: '/material-ui/customization/theming/',
-  documentation: toAbsoluteSitePath('stoked-ui', '/stoked-ui/docs/overview/'),
+  documentation: toAbsoluteSitePath('stoked-ui', '/products/stoked-ui/docs/overview/'),
   communityHelp: '/material-ui/getting-started/support/#community-help-free',
   showcase: '/material-ui/discover-more/showcase/',
   coreRoadmap: 'https://github.com/orgs/stoked-ui/projects/1',
   vision: '/material-ui/discover-more/vision/',
-  support: toAbsoluteSitePath('stoked-ui', '/stoked-ui/docs/support/#direct-support'),
+  support: toAbsoluteSitePath('stoked-ui', '/products/stoked-ui/docs/support/#direct-support'),
   goldSponsor: '/material-ui/discover-more/backers/#gold-sponsors',
   // Base UI doc pages
   baseDocs: 'https://stokedconsulting.com/base-ui/getting-started/',

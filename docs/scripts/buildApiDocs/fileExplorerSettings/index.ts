@@ -52,7 +52,7 @@ export default apiPages;
     //   entryPointPath: 'src/index.ts',
     // },
   ],
-  getApiPages: () => findApiPages('docs/pages/file-explorer/api'),
+  getApiPages: () => findApiPages('docs/pages/products/file-explorer/api'),
   getComponentInfo,
   translationLanguages: LANGUAGES,
   skipComponent() {
