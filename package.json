@@ -12,7 +12,7 @@
     "preinstall": "npx only-allow pnpm",
     "build:site": "./scripts/buildSite.sh",
     "envVars": "dotenvx",
-    "deploy:prod": "pnpm --filter @stoked-ui/media-api build && cross-env SST_BUILD=true dotenvx --debug run -- sst deploy --stage production",
+    "deploy:prod": "cross-env SST_BUILD=true dotenvx --debug run -- sst deploy --stage production",
     "remove:prod": "cross-env SST_BUILD=true dotenvx --debug run -- sst remove --stage production",
     "refresh:prod": "cross-env SST_BUILD=false dotenvx --debug run -- sst refresh --stage production",
     "repair:prod": "cross-env SST_BUILD=false dotenvx --debug run -- sst set state repair --stage production",

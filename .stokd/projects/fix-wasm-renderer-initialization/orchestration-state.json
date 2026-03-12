@@ -1,0 +1,63 @@
+{
+  "title": "Fix WASM Video Renderer Initialization & Enable Offline Rendering",
+  "slug": "fix-wasm-renderer-initialization",
+  "problem_description": "Get the Rust WASM video renderer loading correctly and rendering in the home page editor. Messaging was already added but the renderer fails to initialize with an init error visible in the console. Need to get offline renderer working which was a primary use case for building the renderer.",
+  "problem_description_word_count": 48,
+  "using_summary": false,
+  "prd_bypass": false,
+  "prd_tier": null,
+  "prd_source_path": null,
+  "created_at": "2026-03-04T00:00:00Z",
+  "one_shot": true,
+  "repo_owner": "stoked-ui",
+  "repo_name": "sui",
+  "project_storage_mode": "github",
+  "project_number": 16,
+  "project_id": "PVT_kwDOClYAc84BQykp",
+  "project_url": "https://github.com/orgs/stoked-ui/projects/16",
+  "pfb_path": null,
+  "pfb_completed": false,
+  "prd_path": "./projects/fix-wasm-renderer-initialization/prd.md",
+  "prd_completed": true,
+  "stages_completed": ["stage-1", "stage-1.5", "stage-3", "stage-3.5", "stage-4", "stage-5"],
+  "master_issues": {
+    "phase-1": { "number": 369, "title": "(Phase 1) - Fix WASM Module Loading - MASTER" },
+    "phase-2": { "number": 370, "title": "(Phase 2) - Fix JSON Serialization Mismatch - MASTER" },
+    "phase-3": { "number": 371, "title": "(Phase 3) - Enable Offline Video Export via WASM - MASTER" }
+  },
+  "work_item_issues": {
+    "1.1": { "number": 372, "title": "Fix Build Script Output Directory" },
+    "1.2": { "number": 373, "title": "Verify WASM Init Sequence in EditorEngine" },
+    "2.1": { "number": 374, "title": "Align CompositorLayer Serialization with Rust WasmLayer" },
+    "2.2": { "number": 375, "title": "Handle Missing Image Cache Gracefully" },
+    "3.1": { "number": 376, "title": "Implement Frame-by-Frame WASM Rendering for Export" },
+    "3.2": { "number": 377, "title": "Wire Export UI into Editor" }
+  },
+  "total_issues_created": 9,
+  "phases": [
+    {
+      "number": 1,
+      "title": "Fix WASM Module Loading",
+      "work_items": [
+        {"number": "1.1", "title": "Fix Build Script Output Directory"},
+        {"number": "1.2", "title": "Verify WASM Init Sequence in EditorEngine"}
+      ]
+    },
+    {
+      "number": 2,
+      "title": "Fix JSON Serialization Mismatch",
+      "work_items": [
+        {"number": "2.1", "title": "Align CompositorLayer Serialization with Rust WasmLayer"},
+        {"number": "2.2", "title": "Handle Missing Image Cache Gracefully"}
+      ]
+    },
+    {
+      "number": 3,
+      "title": "Enable Offline Video Export via WASM",
+      "work_items": [
+        {"number": "3.1", "title": "Implement Frame-by-Frame WASM Rendering for Export"},
+        {"number": "3.2", "title": "Wire Export UI into Editor"}
+      ]
+    }
+  ]
+}

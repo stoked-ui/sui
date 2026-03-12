@@ -3,22 +3,19 @@ name: CI
 on:
   push:
     branches-ignore:
-      # Renovate branches are always Pull Requests.
-      # We don't need to run CI twice (push+pull_request)
       - 'renovate/**'
+      - main
   pull_request:
     paths-ignore:
-      # should sync with ci-check.yml as a workaround to bypass github checks
+      - 'site/**'
       - 'docs/**'
       - 'examples/**'
 
-permissions: 
-  id-token: write
+permissions:
+  contents: read
 
 jobs:
-  # Tests dev-only scripts across all supported dev environments
   test-dev:
-    # l10nbot does not affect dev scripts.
     if: ${{ github.actor != 'l10nbot' }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -26,17 +23,16 @@ jobs:
         os: [macos-latest, windows-latest, ubuntu-latest]
     steps:
       - run: echo "${{ github.actor }}"
-      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      - uses: actions/checkout@v4
         with:
-          # fetch all tags which are required for `pnpm release:changelog`
           fetch-depth: 0
       - name: Set up pnpm
-        uses: pnpm/action-setup@v4 # latest
+        uses: pnpm/action-setup@v4
       - name: Use Node.js 18.x
-        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
+        uses: actions/setup-node@v4
         with:
           node-version: 18
-          cache: 'pnpm' # https://github.com/actions/setup-node/blob/main/docs/advanced-usage.md#caching-packages-dependencies
+          cache: pnpm
       - run: pnpm install
       - run: pnpm build:ci
       - name: Validate OpenAPI spec is up to date
@@ -46,45 +42,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: pnpm validate-declarations
       - name: pnpm release:tag
-        run: |
-          git remote -v
-          pnpm release:tag --dryRun
-      - name: build site
-        run: pnpm docs:typescript:formatted && pnpm -F stokedui-com build:clean
-        if: ${{ matrix.os == 'ubuntu-latest' && (github.head_ref || github.ref_name) == 'main' }}
-  deploy:
-    if: ${{ always() && (github.head_ref || github.ref_name) == 'main' }}
-    needs: test-dev
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-   
-      - uses: actions/setup-node@v3
-        with:
-          node-version: "18"
-   
-      - uses: actions/cache@v4
-        with:
-          path: |
-            .sst
-          key: ${{ runner.os }}-sst
-   
-      - run: "curl -fsSL https://ion.sst.dev/install | bash"
-  
-      - name: Configure AWS credentials (Production)
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::883859713095:role/stoked-ui-prod-github 
-          aws-region: us-east-1
-      - name: Set up pnpm
-        uses: pnpm/action-setup@v4 # latest
-      - run: pnpm i
-      - name: Deploy
-        env:
-          ROOT_DOMAIN: stoked-ui.com,stokedconsulting.com
-          NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
-        run: |
-          sst install
-          sst deploy --stage production --verbose
+        run: pnpm release:tag --dryRun

@@ -30,57 +30,57 @@ describe('AuthService', () => {
   });
 
   describe('register', () => {
-    it('should assign author role to email with trusted domain', async () => {
+    it('should assign admin role to email with trusted domain', async () => {
       const result = await service.register(
         'developer@stokedconsulting.com',
         'password123',
         'Dev User',
       );
 
-      expect(result.user.role).toBe('author');
+      expect(result.user.role).toBe('admin');
       expect(result.user.email).toBe('developer@stokedconsulting.com');
       expect(result.access_token).toBe('mock-jwt-token');
     });
 
-    it('should assign author role to stoked-ui.com domain', async () => {
+    it('should assign admin role to stoked-ui.com domain', async () => {
       const result = await service.register(
         'contributor@stoked-ui.com',
         'password123',
         'Contributor',
       );
 
-      expect(result.user.role).toBe('author');
+      expect(result.user.role).toBe('admin');
     });
 
-    it('should assign author role to brianstoker.com domain', async () => {
+    it('should assign admin role to brianstoker.com domain', async () => {
       const result = await service.register(
         'brian@brianstoker.com',
         'securepass',
         'Brian',
       );
 
-      expect(result.user.role).toBe('author');
+      expect(result.user.role).toBe('admin');
     });
 
-    it('should assign reader role to external email', async () => {
+    it('should assign client role to external email', async () => {
       const result = await service.register(
         'someone@gmail.com',
         'password123',
         'Some Person',
       );
 
-      expect(result.user.role).toBe('reader');
+      expect(result.user.role).toBe('client');
       expect(result.user.email).toBe('someone@gmail.com');
     });
 
-    it('should assign reader role to unknown domain', async () => {
+    it('should assign client role to unknown domain', async () => {
       const result = await service.register(
         'user@example.org',
         'password123',
         'Example User',
       );
 
-      expect(result.user.role).toBe('reader');
+      expect(result.user.role).toBe('client');
     });
 
     it('should throw ConflictException if email already registered', async () => {
@@ -150,7 +150,7 @@ describe('AuthService', () => {
       const user = await service.validateToken({
         sub: '9999',
         email: 'ghost@test.com',
-        role: 'reader',
+        role: 'client',
         name: 'Ghost',
       });
 

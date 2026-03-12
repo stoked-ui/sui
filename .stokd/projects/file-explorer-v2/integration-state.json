@@ -1,0 +1,25 @@
+{
+  "project_number": "file-explorer-v2",
+  "slug": "file-explorer-v2",
+  "merge_only": false,
+  "started_at": "2026-03-03T15:15:00Z",
+  "current_phase": "complete",
+  "phases_completed": ["preflight", "validation", "sync", "integration", "cleanup"],
+  "worktree_path": "/opt/worktrees/stoked-ui/project-file-explorer-v2",
+  "branch": "project/file-explorer-v2",
+  "ahead_of_main": 4,
+  "behind_main": 0,
+  "conflicts_resolved": [],
+  "conflict_log": [],
+  "validation_results": {
+    "all_items_done": true,
+    "builds_passed": true,
+    "tests_passed": true,
+    "declarations_generated": 8,
+    "declarations_failed": 0
+  },
+  "pr_number": 368,
+  "pr_url": "https://github.com/stoked-ui/sui/pull/368",
+  "merge_commit": "6d27b51698bc32b5e70574a63c43885987a89ac6",
+  "completed_at": "2026-03-03T15:18:00Z"
+}
