@@ -62,11 +62,23 @@ else
     echo -e "${YELLOW}wasm-opt not found, skipping optimization (install binaryen for smaller builds)${NC}"
 fi
 
-# Fix package name for workspace resolution
-echo -e "${YELLOW}Fixing package name...${NC}"
+# Fix package metadata for workspace resolution.
+echo -e "${YELLOW}Fixing package metadata...${NC}"
 if [ -f "${OUTPUT_DIR}/package.json" ]; then
-    sed -i '' 's/"name": "wasm-preview"/"name": "@stoked-ui\/video-renderer-wasm"/' "${OUTPUT_DIR}/package.json"
-    echo -e "${GREEN}Package name set to @stoked-ui/video-renderer-wasm${NC}"
+    node - "${OUTPUT_DIR}" <<'EOF'
+const fs = require('fs');
+const path = require('path');
+
+const packageJsonPath = path.resolve(process.argv[1], 'package.json');
+const pkg = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+
+pkg.name = '@stoked-ui/video-renderer-wasm';
+pkg.files = ['wasm_preview_bg.wasm', 'wasm_preview.js', 'wasm_preview_bg.js', 'wasm_preview.d.ts'];
+pkg.sideEffects = ['./wasm_preview.js', './snippets/*'];
+
+fs.writeFileSync(packageJsonPath, `${JSON.stringify(pkg, null, 2)}\n`);
+EOF
+    echo -e "${GREEN}Package metadata updated for @stoked-ui/video-renderer-wasm${NC}"
 fi
 
 # Display build info

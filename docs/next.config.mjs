@@ -117,7 +117,7 @@ export default withDocsInfra({
           // for 3rd party packages with dependencies in this repository
           '@stoked-ui/docs': path.resolve(workspaceRoot, 'packages/sui-docs/src'),
           // WASM package — built from Rust via wasm-pack
-          '@stoked-ui/video-renderer-wasm': path.resolve(workspaceRoot, 'packages/sui-video-renderer/wasm-preview/pkg'),
+          '@stoked-ui/video-renderer-wasm': path.resolve(workspaceRoot, 'packages/sui-video-renderer/pkg'),
          },
         extensions: [
           '.tsx',

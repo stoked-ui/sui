@@ -1,5 +1,5 @@
 {
-  "name": "wasm-preview",
+  "name": "@stoked-ui/video-renderer-wasm",
   "type": "module",
   "collaborators": [
     "Stoked Consulting"
@@ -13,11 +13,13 @@
   "files": [
     "wasm_preview_bg.wasm",
     "wasm_preview.js",
+    "wasm_preview_bg.js",
     "wasm_preview.d.ts"
   ],
   "main": "wasm_preview.js",
   "types": "wasm_preview.d.ts",
   "sideEffects": [
+    "./wasm_preview.js",
     "./snippets/*"
   ]
 }
