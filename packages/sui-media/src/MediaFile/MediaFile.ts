@@ -26,6 +26,24 @@ import { FileSystemFileEntry } from './FileSystem';
 import {saveFileApi, saveFileDeprecated} from "../FileSystemApi";
 // import {IAppFileMeta} from "../App";
 
+const NativeFile = typeof globalThis !== 'undefined' && typeof globalThis.File !== 'undefined'
+  ? globalThis.File
+  : class FileShim extends Blob {
+      readonly name: string;
+
+      readonly lastModified: number;
+
+      readonly webkitRelativePath = '';
+
+      constructor(fileBits: BlobPart[], fileName: string, options: FilePropertyBag = {}) {
+        super(fileBits, options);
+        this.name = fileName;
+        this.lastModified = options.lastModified ?? Date.now();
+      }
+    };
+
+const hasNativeFile = typeof globalThis !== 'undefined' && typeof globalThis.File !== 'undefined';
+
 export interface IAudioMetadata {
   duration: number;
   format: string;
@@ -66,7 +84,7 @@ export interface IAudioWaveImageOptions {
 }
 
 
-export default class MediaFile extends File implements IMediaFile {
+export default class MediaFile extends NativeFile implements IMediaFile {
   readonly created: number;
 
   readonly mediaType: MediaType;
@@ -436,7 +454,7 @@ export default class MediaFile extends File implements IMediaFile {
 
     for (let i = 0; i < obj.length; i += 1) {
       const file = obj[i];
-      if (!(file instanceof File)) {
+      if (!hasNativeFile || !(file instanceof File)) {
         return false;
       }
     }
@@ -1002,4 +1020,3 @@ export default class MediaFile extends File implements IMediaFile {
     })
   }
 }
-

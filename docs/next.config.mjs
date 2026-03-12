@@ -34,7 +34,7 @@ const repo = process.env.REPO_NAME;
 const assetPrefix = repo ? `/${repo}/`: '';
 const basePath = repo ? `/${repo}`: '';
 const isOpenNextBuild = process.env.OPEN_NEXT_BUILD === 'true';
-const useStaticExport = process.env.NODE_ENV === 'production' && !isOpenNextBuild;
+const useStaticExport = process.env.DOCS_STATIC_EXPORT === 'true' && !isOpenNextBuild;
 
 export default withDocsInfra({
   experimental: {

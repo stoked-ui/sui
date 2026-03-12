@@ -10,17 +10,9 @@ declare module "sst" {
       "type": "sst.aws.ApiGatewayV2"
       "url": string
     }
-    "BLOG_API_TOKEN": {
-      "type": "sst.sst.Secret"
-      "value": string
-    }
     "GoogleAuth": {
       "name": string
       "type": "sst.aws.Function"
-    }
-    "INVOICE_API_KEY": {
-      "type": "sst.sst.Secret"
-      "value": string
     }
     "JWT_SECRET": {
       "type": "sst.sst.Secret"
@@ -29,10 +21,6 @@ declare module "sst" {
     "MONGODB_URI": {
       "type": "sst.sst.Secret"
       "value": string
-    }
-    "MediaApi": {
-      "name": string
-      "type": "sst.aws.Function"
     }
     "ROOT_DOMAIN": {
       "type": "sst.sst.Secret"
