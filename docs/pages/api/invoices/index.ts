@@ -9,8 +9,18 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
 
   if (req.method === 'GET') {
     const { clientId } = req.query;
-    if (!clientId || typeof clientId !== 'string' || !ObjectId.isValid(clientId)) {
-      return res.status(400).json({ message: 'clientId query param is required' });
+
+    // Admins can list all invoices (no clientId) or filter by clientId
+    if (!clientId || typeof clientId !== 'string') {
+      if (req.user.role !== 'admin') {
+        return res.status(400).json({ message: 'clientId query param is required' });
+      }
+      const invoices = await collection.find({}).sort({ invoiceDate: -1 }).toArray();
+      return res.status(200).json(invoices);
+    }
+
+    if (!ObjectId.isValid(clientId)) {
+      return res.status(400).json({ message: 'Invalid clientId' });
     }
     // Client-role users can only view their own client's invoices
     if (req.user.role === 'client' && req.user.clientId !== clientId) {

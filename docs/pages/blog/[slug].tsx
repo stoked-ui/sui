@@ -17,7 +17,7 @@ import ROUTES from 'docs/src/route';
 import { Link } from '@stoked-ui/docs';
 import { authors } from 'docs/src/modules/components/TopLayoutBlog';
 
-const BLOG_API_URL = (process.env.BLOG_API_URL || process.env.NEXT_PUBLIC_BLOG_API_URL || 'http://localhost:3000/api').replace(/\/$/, '');
+const BLOG_API_URL = (process.env.BLOG_API_URL || process.env.NEXT_PUBLIC_BLOG_API_URL || 'http://localhost:5199/api').replace(/\/$/, '');
 
 // Replicate the value used by https://medium.com/, a trusted reference.
 const BLOG_MAX_WIDTH = 692;

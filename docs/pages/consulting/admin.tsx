@@ -2,7 +2,6 @@ import * as React from 'react';
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
-import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
 import Divider from '@mui/material/Divider';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -78,34 +77,38 @@ export default function AdminDashboard() {
           <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
             Welcome back, {user.name}.
           </Typography>
-          <Grid container spacing={3}>
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' },
+              gap: 3,
+            }}
+          >
             {navItems.map((item) => (
-              <Grid item xs={12} sm={6} md={4} key={item.href}>
-                <Paper
-                  variant="outlined"
-                  sx={{
-                    p: 3,
-                    height: '100%',
-                    cursor: 'pointer',
-                    transition: 'border-color 0.2s, box-shadow 0.2s',
-                    '&:hover': {
-                      borderColor: 'primary.main',
-                      boxShadow: (theme) => `0 0 0 1px ${theme.palette.primary.main}`,
-                    },
-                  }}
-                  onClick={() => router.push(item.href)}
-                >
-                  <Box display="flex" alignItems="center" gap={1.5} mb={1}>
-                    {item.icon}
-                    <Typography variant="h6" fontWeight="bold">{item.label}</Typography>
-                  </Box>
-                  <Typography variant="body2" color="text.secondary">
-                    {item.description}
-                  </Typography>
-                </Paper>
-              </Grid>
+              <Paper
+                key={item.href}
+                variant="outlined"
+                sx={{
+                  p: 3,
+                  cursor: 'pointer',
+                  transition: 'border-color 0.2s, box-shadow 0.2s',
+                  '&:hover': {
+                    borderColor: 'primary.main',
+                    boxShadow: (theme) => `0 0 0 1px ${theme.palette.primary.main}`,
+                  },
+                }}
+                onClick={() => router.push(item.href)}
+              >
+                <Box display="flex" alignItems="center" gap={1.5} mb={1}>
+                  {item.icon}
+                  <Typography variant="h6" fontWeight="bold">{item.label}</Typography>
+                </Box>
+                <Typography variant="body2" color="text.secondary">
+                  {item.description}
+                </Typography>
+              </Paper>
             ))}
-          </Grid>
+          </Box>
         </Container>
       </main>
       <Section bg="gradient" cozy />

@@ -74,7 +74,7 @@ const statusColors: Record<string, 'default' | 'warning' | 'info' | 'success'> =
   paid: 'success',
 };
 
-export default function InvoiceListPage({ clientId }: { clientId: string }) {
+export default function InvoiceListPage({ clientId }: { clientId?: string }) {
   const router = useRouter();
   const [invoices, setInvoices] = React.useState<Invoice[]>([]);
   const [client, setClient] = React.useState<Client | null>(null);
@@ -93,16 +93,16 @@ export default function InvoiceListPage({ clientId }: { clientId: string }) {
   }, []);
 
   React.useEffect(() => {
-    if (!clientId) return;
     (async () => {
       try {
         setLoading(true);
-        const [invoicesData, clientData] = await Promise.all([
-          apiFetch(`/api/invoices?clientId=${clientId}`),
-          apiFetch(`/api/clients/${clientId}`),
-        ]);
+        const invoiceUrl = clientId ? `/api/invoices?clientId=${clientId}` : '/api/invoices';
+        const invoicesData = await apiFetch(invoiceUrl);
         setInvoices(invoicesData);
-        setClient(clientData);
+        if (clientId) {
+          const clientData = await apiFetch(`/api/clients/${clientId}`);
+          setClient(clientData);
+        }
       } catch (err: unknown) {
         setError(err instanceof Error ? err.message : 'Failed to load invoices');
       } finally {

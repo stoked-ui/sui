@@ -3,7 +3,7 @@ import { Feed } from 'feed';
 import { BlogPost } from 'docs/lib/sourcing';
 import ROUTES from 'docs/src/route';
 
-const BLOG_API_URL = (process.env.BLOG_API_URL || process.env.NEXT_PUBLIC_BLOG_API_URL || 'http://localhost:3000/api').replace(/\/$/, '');
+const BLOG_API_URL = (process.env.BLOG_API_URL || process.env.NEXT_PUBLIC_BLOG_API_URL || 'http://localhost:5199/api').replace(/\/$/, '');
 
 export default async function generateRssFeed(allBlogPosts: Array<BlogPost>) {
   if (process.env.NODE_ENV !== 'production') {
