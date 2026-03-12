@@ -8,14 +8,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   const { key, hardwareId, machineName } = req.body || {};
-  if (!key || !hardwareId) {
-    return res.status(400).json({ message: 'key and hardwareId are required' });
+  if (
+    typeof key !== 'string' ||
+    !key.trim() ||
+    typeof hardwareId !== 'string' ||
+    !hardwareId.trim()
+  ) {
+    return res.status(422).json({ message: 'key and hardwareId are required' });
   }
 
   try {
     const result = await activateLicense({
-      key: String(key),
-      hardwareId: String(hardwareId),
+      key: key.trim(),
+      hardwareId: hardwareId.trim(),
       machineName: typeof machineName === 'string' ? machineName : undefined,
     });
 

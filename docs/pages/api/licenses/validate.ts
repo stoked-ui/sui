@@ -8,12 +8,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   const { key, hardwareId } = req.body || {};
-  if (!key || !hardwareId) {
-    return res.status(400).json({ message: 'key and hardwareId are required' });
+  if (
+    typeof key !== 'string' ||
+    !key.trim() ||
+    typeof hardwareId !== 'string' ||
+    !hardwareId.trim()
+  ) {
+    return res.status(422).json({ message: 'key and hardwareId are required' });
   }
 
   try {
-    const result = await validateLicense({ key: String(key), hardwareId: String(hardwareId) });
+    const result = await validateLicense({ key: key.trim(), hardwareId: hardwareId.trim() });
     return res.status(200).json(result);
   } catch (error: unknown) {
     return handleLicenseApiError(res, error, 'Failed to validate license');

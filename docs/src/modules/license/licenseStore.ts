@@ -1,9 +1,14 @@
 import * as crypto from 'crypto';
-import { ObjectId } from 'mongodb';
+import * as jwt from 'jsonwebtoken';
+import { Collection, ObjectId } from 'mongodb';
 import { getDb } from 'docs/src/modules/db/mongodb';
 
 const LICENSES_COLLECTION = 'licenses';
 const LICENSE_PRODUCT_COLLECTIONS = ['license_products', 'products'];
+const FLUX_PRODUCT_ID = 'flux';
+const DEFAULT_OFFLINE_GRACE_DAYS = 7;
+const MAX_OFFLINE_GRACE_DAYS = 14;
+const ENTITLEMENT_TOKEN_VERSION = '1';
 
 const KEY_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
@@ -29,6 +34,7 @@ export type ActivationRecord = {
   hardwareId: string;
   machineName: string | null;
   activatedAt: Date;
+  lastValidatedAt?: Date;
 };
 
 type LicenseDoc = {
@@ -43,6 +49,7 @@ type LicenseDoc = {
   activatedAt?: Date;
   expiresAt?: Date;
   gracePeriodDays: number;
+  offlineGraceDays?: number;
   stripeCustomerId?: string;
   stripeSubscriptionId?: string;
   deactivationCount: number;
@@ -66,6 +73,8 @@ export interface LicenseResponse {
   valid: boolean;
   activations: number;
   maxActivations: number;
+  entitlementToken?: string;
+  offlineGraceDays: number;
 }
 
 export class LicenseStoreError extends Error {
@@ -89,9 +98,7 @@ function isValid(doc: LicenseDoc): boolean {
     return false;
   }
   if (doc.expiresAt) {
-    const graceMs = (doc.gracePeriodDays || 0) * 24 * 60 * 60 * 1000;
-    const expiryWithGrace = new Date(doc.expiresAt.getTime() + graceMs);
-    if (new Date() > expiryWithGrace) {
+    if (new Date() > doc.expiresAt) {
       return false;
     }
   }
@@ -112,7 +119,173 @@ function toLicenseResponse(doc: LicenseDoc): LicenseResponse {
     valid: isValid(doc),
     activations: getActivationsCount(doc),
     maxActivations: doc.maxActivations || 1,
+    offlineGraceDays: getOfflineGraceDays(doc),
   };
+}
+
+function getOfflineGraceDays(doc: Pick<LicenseDoc, 'offlineGraceDays' | 'gracePeriodDays'>): number {
+  const rawValue = doc.offlineGraceDays ?? doc.gracePeriodDays ?? DEFAULT_OFFLINE_GRACE_DAYS;
+  if (!Number.isFinite(rawValue)) {
+    return DEFAULT_OFFLINE_GRACE_DAYS;
+  }
+
+  return Math.max(0, Math.min(MAX_OFFLINE_GRACE_DAYS, Math.trunc(rawValue)));
+}
+
+function normalizeMachineName(machineName?: string): string | null {
+  if (typeof machineName !== 'string') {
+    return null;
+  }
+
+  const trimmed = machineName.trim();
+  return trimmed ? trimmed : null;
+}
+
+function getLicenseStatusError(doc: LicenseDoc): LicenseStoreError | null {
+  if (doc.productId !== FLUX_PRODUCT_ID) {
+    return new LicenseStoreError(403, `License is not valid for ${FLUX_PRODUCT_ID}`);
+  }
+
+  if (doc.status === 'revoked') {
+    return new LicenseStoreError(403, 'License is revoked');
+  }
+
+  if (doc.status === 'expired') {
+    return new LicenseStoreError(410, 'License is expired');
+  }
+
+  if (doc.expiresAt && new Date() > doc.expiresAt) {
+    return new LicenseStoreError(410, 'License is expired');
+  }
+
+  return null;
+}
+
+function getActivationRecord(doc: LicenseDoc, hardwareId: string): ActivationRecord | null {
+  const activation = (doc.activations || []).find((entry) => entry.hardwareId === hardwareId);
+  if (activation) {
+    return activation;
+  }
+
+  if (doc.hardwareId === hardwareId) {
+    return {
+      hardwareId,
+      machineName: doc.machineName,
+      activatedAt: doc.activatedAt || doc.createdAt || new Date(),
+    };
+  }
+
+  return null;
+}
+
+async function expireLicenseIfNeeded(
+  collection: Collection<LicenseDoc>,
+  doc: LicenseDoc,
+): Promise<LicenseDoc> {
+  if (!doc.expiresAt || doc.status === 'expired' || new Date() <= doc.expiresAt) {
+    return doc;
+  }
+
+  await collection.updateOne(
+    { key: doc.key },
+    {
+      $set: {
+        status: 'expired',
+        updatedAt: new Date(),
+      },
+    },
+  );
+
+  const refreshed = await collection.findOne({ key: doc.key });
+  return refreshed || { ...doc, status: 'expired', updatedAt: new Date() };
+}
+
+function getEntitlementSigner() {
+  const privateKey = process.env.LICENSE_ENTITLEMENT_PRIVATE_KEY?.replace(/\\n/g, '\n');
+  if (privateKey) {
+    return {
+      algorithm: 'RS256' as const,
+      secret: privateKey,
+      keyid: process.env.LICENSE_ENTITLEMENT_KEY_ID || undefined,
+    };
+  }
+
+  const secret =
+    process.env.LICENSE_ENTITLEMENT_SECRET ||
+    process.env.JWT_SECRET ||
+    (process.env.NODE_ENV === 'production' ? null : 'development-license-entitlement-secret');
+
+  if (!secret) {
+    throw new LicenseStoreError(500, 'License entitlement signing is not configured');
+  }
+
+  return {
+    algorithm: 'HS256' as const,
+    secret,
+    keyid: process.env.LICENSE_ENTITLEMENT_KEY_ID || undefined,
+  };
+}
+
+function signEntitlementToken(params: {
+  doc: LicenseDoc;
+  hardwareId: string;
+  validatedAt: Date;
+}): string {
+  const signer = getEntitlementSigner();
+  const maxActivations = params.doc.maxActivations || 1;
+  const offlineGraceDays = getOfflineGraceDays(params.doc);
+  const offlineExpiry = new Date(params.validatedAt);
+  offlineExpiry.setUTCDate(offlineExpiry.getUTCDate() + offlineGraceDays);
+  const jwtExpiresAt = params.doc.expiresAt && params.doc.expiresAt < offlineExpiry ? params.doc.expiresAt : offlineExpiry;
+
+  return jwt.sign(
+    {
+      sub: params.doc._id?.toString() || params.doc.key,
+      productId: params.doc.productId,
+      hardwareId: params.hardwareId,
+      email: params.doc.email,
+      status: params.doc.status,
+      expiresAt: params.doc.expiresAt?.toISOString() || null,
+      validatedAt: params.validatedAt.toISOString(),
+      offlineGraceDays,
+      activations: getActivationsCount(params.doc),
+      maxActivations,
+      jti: crypto.randomUUID(),
+      ver: ENTITLEMENT_TOKEN_VERSION,
+    },
+    signer.secret,
+    {
+      algorithm: signer.algorithm,
+      keyid: signer.keyid,
+      expiresIn: Math.max(1, Math.floor((jwtExpiresAt.getTime() - params.validatedAt.getTime()) / 1000)),
+    },
+  );
+}
+
+async function buildLicenseResponse(
+  doc: LicenseDoc,
+  options: {
+    hardwareId?: string;
+    machineName?: string | null;
+    validatedAt?: Date;
+  } = {},
+): Promise<LicenseResponse> {
+  const product = await findLicenseProduct(doc.productId);
+  const response: LicenseResponse = {
+    ...toLicenseResponse(doc),
+    product: product?.name || doc.productId,
+    machineName: options.machineName ?? getActivationRecord(doc, options.hardwareId || '')?.machineName ?? doc.machineName,
+  };
+
+  if (options.hardwareId && options.validatedAt) {
+    response.entitlementToken = signEntitlementToken({
+      doc,
+      hardwareId: options.hardwareId,
+      validatedAt: options.validatedAt,
+    });
+  }
+
+  return response;
 }
 
 function normalizeLicenseProduct(doc: Record<string, unknown>): LicenseProduct {
@@ -248,20 +421,62 @@ export async function activateLicense(input: {
     throw new LicenseStoreError(404, 'License not found');
   }
 
-  if (license.status === 'expired' || license.status === 'revoked') {
-    throw new LicenseStoreError(400, `License is ${license.status}`);
+  const finalizedLicense = await expireLicenseIfNeeded(collection, license);
+  const statusError = getLicenseStatusError(finalizedLicense);
+  if (statusError) {
+    throw statusError;
   }
 
-  const activations = license.activations || [];
-  const existingActivation = activations.find(a => a.hardwareId === input.hardwareId) || 
-    (license.hardwareId === input.hardwareId ? { hardwareId: license.hardwareId, machineName: license.machineName, activatedAt: license.activatedAt || new Date() } : null);
+  const activations = finalizedLicense.activations || [];
+  const existingActivation = getActivationRecord(finalizedLicense, input.hardwareId);
+  const now = new Date();
+  const machineName = normalizeMachineName(input.machineName);
 
   if (existingActivation) {
-    return toLicenseResponse(license);
+    const nextActivations = activations.length > 0
+      ? activations.map((activation) => (
+        activation.hardwareId === input.hardwareId
+          ? {
+            ...activation,
+            machineName: machineName ?? activation.machineName ?? null,
+            lastValidatedAt: now,
+          }
+          : activation
+      ))
+      : [{
+        ...existingActivation,
+        machineName: machineName ?? existingActivation.machineName ?? null,
+        lastValidatedAt: now,
+      }];
+
+    await collection.updateOne(
+      { key: input.key },
+      {
+        $set: {
+          status: 'active',
+          activations: nextActivations,
+          hardwareId: input.hardwareId,
+          machineName: machineName ?? existingActivation.machineName ?? null,
+          activatedAt: existingActivation.activatedAt,
+          updatedAt: now,
+        },
+      },
+    );
+
+    const updated = await collection.findOne({ key: input.key });
+    if (!updated) {
+      throw new LicenseStoreError(404, 'License not found');
+    }
+
+    return buildLicenseResponse(updated, {
+      hardwareId: input.hardwareId,
+      machineName: machineName ?? existingActivation.machineName ?? null,
+      validatedAt: now,
+    });
   }
 
-  const currentCount = getActivationsCount(license);
-  const max = license.maxActivations || 1;
+  const currentCount = getActivationsCount(finalizedLicense);
+  const max = finalizedLicense.maxActivations || 1;
 
   if (currentCount >= max) {
     throw new LicenseStoreError(409, `Maximum activations reached (${max}). Deactivate another device first.`);
@@ -269,8 +484,9 @@ export async function activateLicense(input: {
 
   const newActivation: ActivationRecord = {
     hardwareId: input.hardwareId,
-    machineName: input.machineName || null,
-    activatedAt: new Date(),
+    machineName,
+    activatedAt: now,
+    lastValidatedAt: now,
   };
 
   await collection.updateOne(
@@ -280,9 +496,9 @@ export async function activateLicense(input: {
         status: 'active',
         // Update legacy fields for compatibility
         hardwareId: input.hardwareId,
-        machineName: input.machineName || null,
-        activatedAt: new Date(),
-        updatedAt: new Date(),
+        machineName,
+        activatedAt: now,
+        updatedAt: now,
       },
       $push: {
         activations: newActivation,
@@ -296,7 +512,11 @@ export async function activateLicense(input: {
     throw new LicenseStoreError(404, 'License not found');
   }
 
-  return toLicenseResponse(updated);
+  return buildLicenseResponse(updated, {
+    hardwareId: input.hardwareId,
+    machineName,
+    validatedAt: now,
+  });
 }
 
 export async function validateLicense(input: {
@@ -311,40 +531,52 @@ export async function validateLicense(input: {
     throw new LicenseStoreError(404, 'License not found');
   }
 
-  // Check if this hardware is one of the active ones
-  const activations = license.activations || [];
-  const isHardwareActive = activations.some(a => a.hardwareId === input.hardwareId) || 
-    (license.hardwareId === input.hardwareId);
+  const finalizedLicense = await expireLicenseIfNeeded(collection, license);
+  const statusError = getLicenseStatusError(finalizedLicense);
+  if (statusError) {
+    throw statusError;
+  }
 
-  if (license.status === 'active' && !isHardwareActive) {
+  const activation = getActivationRecord(finalizedLicense, input.hardwareId);
+  if (!activation) {
     throw new LicenseStoreError(403, 'This device is not activated for this license');
   }
 
-  let final = license;
+  const now = new Date();
+  const nextActivations = (finalizedLicense.activations || []).length > 0
+    ? (finalizedLicense.activations || []).map((entry) => (
+      entry.hardwareId === input.hardwareId
+        ? { ...entry, lastValidatedAt: now }
+        : entry
+    ))
+    : [{
+      ...activation,
+      lastValidatedAt: now,
+    }];
 
-  if (license.expiresAt) {
-    const graceMs = (license.gracePeriodDays || 0) * 24 * 60 * 60 * 1000;
-    const expiryWithGrace = new Date(license.expiresAt.getTime() + graceMs);
+  await collection.updateOne(
+    { key: input.key },
+    {
+      $set: {
+        status: 'active',
+        activations: nextActivations,
+        hardwareId: input.hardwareId,
+        machineName: activation.machineName ?? null,
+        updatedAt: now,
+      },
+    },
+  );
 
-    if (new Date() > expiryWithGrace && license.status !== 'expired') {
-      await collection.updateOne(
-        { key: input.key },
-        {
-          $set: {
-            status: 'expired',
-            updatedAt: new Date(),
-          },
-        },
-      );
-
-      const refreshed = await collection.findOne({ key: input.key });
-      if (refreshed) {
-        final = refreshed;
-      }
-    }
+  const updated = await collection.findOne({ key: input.key });
+  if (!updated) {
+    throw new LicenseStoreError(404, 'License not found');
   }
 
-  return toLicenseResponse(final);
+  return buildLicenseResponse(updated, {
+    hardwareId: input.hardwareId,
+    machineName: activation.machineName ?? null,
+    validatedAt: now,
+  });
 }
 
 export async function deactivateLicense(input: {
@@ -360,15 +592,10 @@ export async function deactivateLicense(input: {
   }
 
   const activations = license.activations || [];
-  const isHardwareActive = activations.some(a => a.hardwareId === input.hardwareId) || 
-    (license.hardwareId === input.hardwareId);
+  const isHardwareActive = Boolean(getActivationRecord(license, input.hardwareId));
 
   if (!isHardwareActive) {
-    throw new LicenseStoreError(404, 'Activation not found for this device');
-  }
-
-  if ((license.deactivationCount || 0) >= 10) { // Increased limit for multi-device
-    throw new LicenseStoreError(403, 'Deactivation limit reached (10 per year)');
+    return { message: 'License deactivated successfully' };
   }
 
   const newActivations = activations.filter(a => a.hardwareId !== input.hardwareId);
@@ -426,6 +653,10 @@ export async function createLicense(params: {
       activatedAt: undefined,
       expiresAt,
       gracePeriodDays: product.gracePeriodDays || 14,
+      offlineGraceDays: Math.max(
+        0,
+        Math.min(MAX_OFFLINE_GRACE_DAYS, product.gracePeriodDays || DEFAULT_OFFLINE_GRACE_DAYS),
+      ),
       stripeCustomerId: params.stripeCustomerId,
       stripeSubscriptionId: params.stripeSubscriptionId,
       deactivationCount: 0,
