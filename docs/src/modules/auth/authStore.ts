@@ -277,3 +277,5 @@ export async function impersonateUser(actorId: string, targetId: string): Promis
 export function verifyToken(token: string): { sub: string; email: string; role: UserRole; name: string; clientId?: string; clientSlug?: string; impersonatedId?: string } {
   return jwt.verify(token, JWT_SECRET) as { sub: string; email: string; role: UserRole; name: string; clientId?: string; clientSlug?: string; impersonatedId?: string };
 }
+
+  
