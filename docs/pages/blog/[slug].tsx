@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { GetStaticPaths, GetStaticProps } from 'next';
+import { GetServerSideProps } from 'next';
 import { styled } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 import Avatar from '@mui/material/Avatar';
@@ -116,28 +116,7 @@ interface BlogPostPageProps {
   post: ApiPost;
 }
 
-export const getStaticPaths: GetStaticPaths = async () => {
-  try {
-    const res = await fetch(`${BLOG_API_URL}/blog/public`);
-    if (res.ok) {
-      const json = await res.json();
-      const posts: ApiPost[] = json.data || [];
-      return {
-        paths: posts.map((post) => ({ params: { slug: post.slug } })),
-        fallback: 'blocking',
-      };
-    }
-  } catch (e) {
-    // API unreachable at build time
-    console.warn('Blog API unreachable during getStaticPaths, returning empty paths');
-  }
-  return {
-    paths: [],
-    fallback: 'blocking',
-  };
-};
-
-export const getStaticProps: GetStaticProps<BlogPostPageProps> = async ({ params }) => {
+export const getServerSideProps: GetServerSideProps<BlogPostPageProps> = async ({ params }) => {
   const slug = params?.slug as string;
   try {
     const res = await fetch(`${BLOG_API_URL}/blog/${slug}`);
@@ -151,7 +130,6 @@ export const getStaticProps: GetStaticProps<BlogPostPageProps> = async ({ params
     }
     return {
       props: { post },
-      revalidate: 60,
     };
   } catch (e) {
     return { notFound: true };

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Box from "@mui/material/Box";
 import Divider from "@mui/material/Divider";
-import Hero from "../../src/components/home/HeroTimeline";
+import Hero from "docs/src/components/home/HeroTimeline";
 
 export default function Main () {
   return (

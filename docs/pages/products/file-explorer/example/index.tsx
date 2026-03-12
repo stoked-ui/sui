@@ -2,7 +2,7 @@ import * as React from "react";
 import { NoSsr } from "@mui/material";
 import {FileBase, FileExplorer} from "@stoked-ui/file-explorer";
 import BrandingCssVarsProvider from "@stoked-ui/docs";
-import {getDynamicFiles} from "../../../src/components/fileExplorer/data";
+import {getDynamicFiles} from "docs/src/components/fileExplorer/data";
 
 function evaluateDuration(item: FileBase) {
   if (!item || !item.mediaType || !['video', 'audio'].includes(item.mediaType)) {

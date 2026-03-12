@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { useTheme } from '@mui/system';
-import AppLayoutDocs from '../../../src/modules/components/AppLayoutDocs';
-import RichMarkdownElement from '../../../src/modules/components/RichMarkdownElement';
+import AppLayoutDocs from 'docs/src/modules/components/AppLayoutDocs';
+import RichMarkdownElement from 'docs/src/modules/components/RichMarkdownElement';
 import { useUserLanguage } from '@stoked-ui/docs/i18n';
-import * as pageProps from '../../../data/stoked-ui/support/support.md?muiMarkdown';
+import * as pageProps from 'docs/data/stoked-ui/support/support.md?muiMarkdown';
 
 export default function Page() {
   const theme = useTheme();

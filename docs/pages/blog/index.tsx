@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { InferGetStaticPropsType } from 'next';
+import { InferGetServerSidePropsType } from 'next';
 import { useRouter } from 'next/router';
 import Avatar from '@mui/material/Avatar';
 import AvatarGroup from '@mui/material/AvatarGroup';
@@ -24,12 +24,11 @@ import BrandingCssVarsProvider from '@stoked-ui/docs';
 import { authors as AUTHORS } from 'docs/src/modules/components/TopLayoutBlog';
 import HeroEnd from 'docs/src/components/home/HeroEnd';
 import { Link } from '@stoked-ui/docs';
-import generateRssFeed from 'docs/scripts/generateRSSFeed';
 import Section from 'docs/src/layouts/Section';
 import SectionHeadline from 'docs/src/components/typography/SectionHeadline';
 import { getAllBlogPosts, BlogPost } from 'docs/lib/sourcing';
 
-export const getStaticProps = async () => {
+export const getServerSideProps = async () => {
   const data = getAllBlogPosts();
 
   let apiPosts: BlogPost[] = [];
@@ -75,13 +74,11 @@ export const getStaticProps = async () => {
     });
   });
 
-  await generateRssFeed(mergedPosts);
   return {
     props: {
       allBlogPosts: mergedPosts,
       tagInfo: mergedTagInfo,
     },
-    revalidate: 60,
   };
 };
 
@@ -221,7 +218,7 @@ function PostPreview(props: BlogPost) {
 
 const PAGE_SIZE = 7;
 
-export default function Blog(props: InferGetStaticPropsType<typeof getStaticProps>) {
+export default function Blog(props: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter();
   const postListRef = React.useRef<HTMLDivElement | null>(null);
   const [page, setPage] = React.useState(0);
