@@ -87,7 +87,6 @@ jobs:
       - name: Set up pnpm
         uses: pnpm/action-setup@v4 # latest
       - run: pnpm i
-      - run: pnpm build:all
       - name: Deploy
         env:
           ROOT_DOMAIN: stoked-ui.com,stokedconsulting.com
