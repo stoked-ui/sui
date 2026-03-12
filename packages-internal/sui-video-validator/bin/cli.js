@@ -5,9 +5,7 @@ import chalk from 'chalk';
 import ora from 'ora';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { VideoValidator } from '../dist/VideoValidator.js';
-import { BatchValidator } from '../dist/BatchValidator.js';
-import { Reporter } from '../dist/Reporter.js';
+import { BatchValidator, Reporter, VideoValidator } from '../build/index.js';
 
 const program = new Command();
 
