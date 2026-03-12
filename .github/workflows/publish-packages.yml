@@ -10,6 +10,8 @@ on:
       - 'pnpm-lock.yaml'
       - 'pnpm-workspace.yaml'
       - 'package.json'
+      - 'release-plan.json'
+      - 'scripts/npmRelease.mjs'
       - 'turbo.json'
       - '.github/workflows/publish-packages.yml'
 
@@ -49,11 +51,30 @@ jobs:
       - name: pnpm release:tag
         run: pnpm release:tag --dryRun
 
-  publish:
+  detect:
     needs: validate
     runs-on: ubuntu-latest
+    outputs:
+      mode: ${{ steps.detect.outputs.mode }}
+      changed_packages: ${{ steps.detect.outputs.changed_packages }}
+      planned_packages: ${{ steps.detect.outputs.planned_packages }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - id: detect
+        run: node scripts/npmRelease.mjs detect --base "${{ github.event.before }}" --head "${{ github.sha }}" --plan release-plan.json
+
+  publish:
+    needs: detect
+    if: ${{ needs.detect.outputs.mode != 'none' }}
+    runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       id-token: write
     steps:
       - uses: actions/checkout@v4
@@ -71,4 +92,19 @@ jobs:
       - name: Build all publishable artifacts
         run: pnpm build:all
       - name: Publish packages to npm
-        run: pnpm publish --recursive --tag latest --no-git-checks --provenance
+        run: >
+          node scripts/npmRelease.mjs publish
+          --mode "${{ needs.detect.outputs.mode }}"
+          --packages '${{ needs.detect.outputs.changed_packages }}'
+          --plan release-plan.json
+          --preid alpha
+          --runNumber "${{ github.run_number }}"
+          --runAttempt "${{ github.run_attempt }}"
+      - name: Commit stable version updates
+        if: ${{ needs.detect.outputs.mode == 'release' }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add release-plan.json packages/**/package.json packages-internal/**/package.json
+          git commit -m "chore: apply release versions [skip ci]"
+          git push
