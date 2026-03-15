@@ -2,11 +2,217 @@ pub mod blog;
 
 use crate::client::{parse_kv_pairs, parse_optional_json_body, print_value, ApiClient};
 use crate::config::StoredConfig;
-use anyhow::{anyhow, bail, Result};
+use anyhow::{anyhow, bail, Context, Result};
 use clap::{Args, Subcommand};
 use reqwest::Method;
 use serde_json::{json, Value};
 use std::path::PathBuf;
+
+const CDN_MULTIPART_THRESHOLD_BYTES: usize = 5 * 1024 * 1024;
+const CDN_URL_BATCH_SIZE: usize = 50;
+
+fn should_use_cdn_multipart_upload(client: &ApiClient, content_len: usize) -> bool {
+    !client.is_localhost() && content_len >= CDN_MULTIPART_THRESHOLD_BYTES
+}
+
+fn build_deliverable_cdn_path(
+    client_slug: &str,
+    bundle_id: &str,
+    rel_path: &str,
+) -> Result<String> {
+    let normalized_client_slug = client_slug.trim().trim_matches('/').to_lowercase();
+    let normalized_bundle_id = bundle_id.trim().trim_matches('/');
+    let normalized_rel_path = rel_path
+        .trim()
+        .replace('\\', "/")
+        .trim_start_matches('/')
+        .to_string();
+
+    if normalized_client_slug.is_empty() {
+        bail!("client slug is invalid");
+    }
+    if normalized_bundle_id.is_empty() {
+        bail!("bundle id is invalid");
+    }
+    if normalized_rel_path.is_empty() || normalized_rel_path.contains("..") {
+        bail!("relative file path is invalid");
+    }
+
+    Ok(format!(
+        "clients/{}/deliverables/{}/{}",
+        normalized_client_slug, normalized_bundle_id, normalized_rel_path
+    ))
+}
+
+fn validate_html_deliverable_bundle(
+    bundle_name: &str,
+    bundle_path: &std::path::Path,
+    files_to_upload: &[(PathBuf, String)],
+    index_file: &str,
+) -> Result<()> {
+    let rel_paths = files_to_upload
+        .iter()
+        .map(|(_, rel_path)| rel_path.as_str())
+        .collect::<Vec<_>>();
+
+    let looks_like_next_bundle = rel_paths.contains(&"index_files/webpack.js")
+        && rel_paths.contains(&"index_files/_buildManifest.js");
+
+    if !looks_like_next_bundle {
+        return Ok(());
+    }
+
+    let index_html = std::fs::read_to_string(bundle_path.join(index_file)).with_context(|| {
+        format!(
+            "Failed reading '{}' while validating bundle '{}'",
+            index_file, bundle_name
+        )
+    })?;
+
+    if index_html.contains("saved from url=")
+        || index_html.contains("chrome-extension://")
+        || index_html.contains("http://localhost:5199")
+    {
+        bail!(
+            "Bundle '{}' looks like a browser-saved localhost page, not a self-contained export. Rebuild the deliverable bundle instead of using Save Page As.",
+            bundle_name
+        );
+    }
+
+    let has_nested_static_assets = rel_paths
+        .iter()
+        .any(|rel_path| rel_path.starts_with("index_files/static/"));
+
+    if !has_nested_static_assets {
+        bail!(
+            "Bundle '{}' includes a Next.js runtime but is missing 'index_files/static/...'. Re-export the full bundle before uploading.",
+            bundle_name
+        );
+    }
+
+    Ok(())
+}
+
+fn json_string_field<'a>(value: &'a Value, field: &str) -> Result<&'a str> {
+    value
+        .get(field)
+        .and_then(|entry| entry.as_str())
+        .ok_or_else(|| anyhow!("Response missing string field '{}'", field))
+}
+
+fn json_u64_field(value: &Value, field: &str) -> Result<u64> {
+    value
+        .get(field)
+        .and_then(|entry| entry.as_u64())
+        .ok_or_else(|| anyhow!("Response missing numeric field '{}'", field))
+}
+
+async fn get_more_cdn_upload_urls(
+    client: &ApiClient,
+    session_id: &str,
+    part_numbers: &[u64],
+) -> Result<Vec<(u64, String)>> {
+    let path = format!("/cdn/upload/{}/urls", session_id);
+    let response = client
+        .request_json(
+            Method::POST,
+            &path,
+            &[],
+            Some(json!({ "partNumbers": part_numbers })),
+            true,
+        )
+        .await?;
+
+    let urls = response
+        .get("presignedUrls")
+        .and_then(|entry| entry.as_array())
+        .ok_or_else(|| anyhow!("Response missing presignedUrls"))?;
+
+    urls.iter()
+        .map(|entry| {
+            Ok((
+                json_u64_field(entry, "partNumber")?,
+                json_string_field(entry, "url")?.to_string(),
+            ))
+        })
+        .collect()
+}
+
+async fn upload_deliverable_via_cdn_multipart(
+    client: &ApiClient,
+    cdn_path: &str,
+    filename: &str,
+    mime: &str,
+    content: Vec<u8>,
+) -> Result<Value> {
+    let initiated = client
+        .request_json(
+            Method::POST,
+            "/cdn/upload/initiate",
+            &[],
+            Some(json!({
+                "path": cdn_path,
+                "filename": filename,
+                "mimeType": mime,
+                "totalSize": content.len(),
+            })),
+            true,
+        )
+        .await?;
+
+    let session_id = json_string_field(&initiated, "sessionId")?.to_string();
+    let total_parts = json_u64_field(&initiated, "totalParts")?;
+    let chunk_size = json_u64_field(&initiated, "chunkSize")? as usize;
+
+    let mut pending_urls = std::collections::BTreeMap::<u64, String>::new();
+    if let Some(urls) = initiated.get("presignedUrls").and_then(|entry| entry.as_array()) {
+        for entry in urls {
+            pending_urls.insert(
+                json_u64_field(entry, "partNumber")?,
+                json_string_field(entry, "url")?.to_string(),
+            );
+        }
+    }
+
+    for part_number in 1..=total_parts {
+        if !pending_urls.contains_key(&part_number) {
+            let end = std::cmp::min(total_parts, part_number + (CDN_URL_BATCH_SIZE as u64) - 1);
+            let needed_part_numbers = (part_number..=end)
+                .filter(|candidate| !pending_urls.contains_key(candidate))
+                .collect::<Vec<_>>();
+            let more_urls = get_more_cdn_upload_urls(client, &session_id, &needed_part_numbers).await?;
+            for (number, url) in more_urls {
+                pending_urls.insert(number, url);
+            }
+        }
+
+        let presigned_url = pending_urls
+            .remove(&part_number)
+            .ok_or_else(|| anyhow!("Missing presigned URL for part {}", part_number))?;
+
+        let start = ((part_number - 1) as usize) * chunk_size;
+        let end = std::cmp::min(start + chunk_size, content.len());
+        let etag = client
+            .put_bytes_to_url(&presigned_url, content[start..end].to_vec(), mime)
+            .await?;
+
+        let mark_part_path = format!("/cdn/upload/{}/part/{}", session_id, part_number);
+        client
+            .request_json(
+                Method::POST,
+                &mark_part_path,
+                &[],
+                Some(json!({ "etag": etag })),
+                true,
+            )
+            .await?;
+    }
+
+    let complete_path = format!("/cdn/upload/{}/complete", session_id);
+    client
+        .request_json(Method::POST, &complete_path, &[], None, true)
+        .await
+}
 
 #[derive(Debug, Subcommand)]
 pub enum AuthCommand {
@@ -802,7 +1008,8 @@ pub async fn run_deliverables(
             // 1. Fetch all clients so we can map slug (folder name) to client ID
             let clients_response = client
                 .request_json(Method::GET, "/clients", &[], None, true)
-                .await?;
+                .await
+                .context("Failed to fetch clients before syncing deliverables")?;
             let clients = clients_response
                 .as_array()
                 .ok_or_else(|| anyhow!("Expected array of clients"))?;
@@ -836,6 +1043,11 @@ pub async fn run_deliverables(
                         continue;
                     }
                 };
+                let client_slug = matched_client
+                    .and_then(|c| c.get("slug"))
+                    .and_then(|slug| slug.as_str())
+                    .unwrap_or(&client_slug)
+                    .to_string();
 
                 println!(
                     "\n📦 Processing client: {} (ID: {})",
@@ -894,67 +1106,37 @@ pub async fn run_deliverables(
                         bundle_name,
                         files_to_upload.len()
                     );
+                    let has_index_file = files_to_upload
+                        .iter()
+                        .any(|(_, rel_path)| rel_path == &index_file);
+                    if !has_index_file {
+                        bail!(
+                            "Bundle '{}' for client '{}' is missing its entry file '{}'",
+                            bundle_name,
+                            client_slug,
+                            index_file
+                        );
+                    }
+                    if is_dir {
+                        validate_html_deliverable_bundle(
+                            &bundle_name,
+                            &bundle_path,
+                            &files_to_upload,
+                            &index_file,
+                        )?;
+                    }
+
+                    let mut uploaded_index_url: Option<String> = None;
 
                     for (full_path, rel_path) in files_to_upload {
-                        let mut content = std::fs::read(&full_path)?;
+                        let content = std::fs::read(&full_path)?;
                         let mime = mime_guess::from_path(&full_path)
                             .first_or_octet_stream()
                             .to_string();
 
-                        // Inject auto-resize script into HTML files
-                        if mime == "text/html" && type_val == "html" {
-                            if let Ok(html_str) = String::from_utf8(content.clone()) {
-                                let script = r#"
-<style>
-  /* When embedded in an iframe, cap vh-based hero sections to the parent viewport height */
-  :root { --iframe-vh: 100vh; }
-</style>
-<script>
-  (function() {
-    // If we're in an iframe, override vh-based heights to use the parent viewport
-    if (window.parent !== window) {
-      try {
-        var parentHeight = window.parent.innerHeight;
-        document.documentElement.style.setProperty('--iframe-vh', parentHeight + 'px');
-        // Override any min-height: 100vh on elements to use the parent viewport height
-        var style = document.createElement('style');
-        style.textContent = '* { --vh-fix: ' + (parentHeight * 0.01) + 'px; }' +
-          '[style*="min-height"], section, .hero, [class*="hero"] { max-height: ' + parentHeight + 'px; }';
-        document.head.appendChild(style);
-      } catch(e) {}
-    }
-    function sendHeight() {
-      // Temporarily collapse any 100vh elements to get true content height
-      var overrides = document.createElement('style');
-      overrides.textContent = '* { min-height: unset !important; }';
-      document.head.appendChild(overrides);
-      var height = document.documentElement.scrollHeight;
-      document.head.removeChild(overrides);
-      // Re-add viewport-capped hero height
-      if (window.parent !== window) {
-        try {
-          height = Math.max(height, window.parent.innerHeight);
-        } catch(e) {}
-      }
-      window.parent.postMessage({ type: 'setHeight', height: height }, '*');
-    }
-    window.addEventListener('load', sendHeight);
-    window.addEventListener('resize', sendHeight);
-    new ResizeObserver(sendHeight).observe(document.body);
-  })();
-</script>
-"#;
-                                if let Some(pos) = html_str.find("</body>") {
-                                    let mut new_html = html_str[..pos].to_string();
-                                    new_html.push_str(script);
-                                    new_html.push_str(&html_str[pos..]);
-                                    content = new_html.into_bytes();
-                                }
-                            }
-                        }
-
                         let query = vec![
                             ("clientId".to_string(), client_id.clone()),
+                            ("clientSlug".to_string(), client_slug.clone()),
                             ("bundleId".to_string(), bundle_id.clone()),
                             ("filePath".to_string(), rel_path.clone()),
                         ];
@@ -963,24 +1145,50 @@ pub async fn run_deliverables(
                         use std::io::Write;
                         std::io::stdout().flush()?;
 
-                        client
-                            .request_bytes(
-                                Method::POST,
-                                "/deliverables/upload-file",
-                                &query,
-                                content,
+                        let upload_response = if should_use_cdn_multipart_upload(&client, content.len()) {
+                            let cdn_path = build_deliverable_cdn_path(&client_slug, &bundle_id, &rel_path)?;
+                            upload_deliverable_via_cdn_multipart(
+                                &client,
+                                &cdn_path,
+                                &rel_path,
                                 &mime,
-                                true,
+                                content,
                             )
-                            .await?;
+                            .await
+                        } else {
+                            client
+                                .request_bytes(
+                                    Method::POST,
+                                    "/deliverables/upload-file",
+                                    &query,
+                                    content,
+                                    &mime,
+                                    true,
+                                )
+                                .await
+                        }
+                        .with_context(|| {
+                            format!(
+                                "Failed uploading deliverable file '{}' for client '{}' bundle '{}'",
+                                rel_path, client_slug, bundle_name
+                            )
+                        })?;
+                        if rel_path == index_file {
+                            uploaded_index_url = upload_response
+                                .get("url")
+                                .and_then(|value| value.as_str())
+                                .map(|value| value.to_string());
+                        }
                         println!("Done.");
                     }
 
-                    // Create the database entry pointing to the bundle proxy
-                    let url = format!(
-                        "/api/deliverables/proxy/{}/{}/{}",
-                        client_id, bundle_id, index_file
-                    );
+                    let url = uploaded_index_url.ok_or_else(|| {
+                        anyhow!(
+                            "Upload for bundle '{}' did not return a URL for '{}'",
+                            bundle_name,
+                            index_file
+                        )
+                    })?;
 
                     // Auto-increment version: query existing deliverables for this client
                     // and find the highest version number for this title
@@ -993,7 +1201,12 @@ pub async fn run_deliverables(
                             true,
                         )
                         .await
-                        .unwrap_or(json!([]));
+                        .with_context(|| {
+                            format!(
+                                "Failed loading existing deliverables for client '{}' before versioning bundle '{}'",
+                                client_slug, bundle_name
+                            )
+                        })?;
                     let title_lower = title.to_lowercase();
                     let max_version = existing
                         .as_array()
@@ -1035,7 +1248,13 @@ pub async fn run_deliverables(
                             Some(create_payload),
                             true,
                         )
-                        .await?;
+                        .await
+                        .with_context(|| {
+                            format!(
+                                "Failed creating deliverable entry for client '{}' bundle '{}'",
+                                client_slug, bundle_name
+                            )
+                        })?;
                 }
             }
 

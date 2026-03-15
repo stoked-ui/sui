@@ -15,7 +15,7 @@ use commands::{
 use crate::client::{print_value, ApiClient};
 use crate::config::{
     list_profiles, load_config_for_profile, normalize_base_url, resolve_profile,
-    save_config_for_profile, StoredConfig,
+    save_config_for_profile, StoredConfig, LOCAL_DEV_BASE_URL,
 };
 
 #[derive(Debug, Parser)]
@@ -108,7 +108,7 @@ async fn main() {
     }
 }
 
-const DEV_BASE_URL: &str = "http://localhost:5199";
+const DEV_BASE_URL: &str = LOCAL_DEV_BASE_URL;
 
 async fn run() -> Result<()> {
     let cli = Cli::parse();
@@ -140,8 +140,11 @@ async fn run() -> Result<()> {
                     &cfg_base_url
                         .clone()
                         .or(base_url.clone())
-                        .unwrap_or_else(|| cfg.effective_base_url()),
+                        .unwrap_or_else(|| cfg.default_base_url()),
                 );
+                if !cli.dev && auth_base_url == DEV_BASE_URL {
+                    bail!("Use `--dev` instead of configuring localhost as the default base URL.");
+                }
                 if let Some(explicit_base_url) = cfg_base_url {
                     cfg.base_url = Some(normalize_base_url(&explicit_base_url));
                 }
@@ -186,6 +189,10 @@ async fn run() -> Result<()> {
                     cfg.deliverables_dir = Some(value.clone());
                 }
                 "base-url" | "base_url" => {
+                    let normalized = normalize_base_url(&value);
+                    if !cli.dev && normalized == DEV_BASE_URL {
+                        bail!("Use `--dev` instead of saving localhost as the default base URL.");
+                    }
                     cfg.base_url = Some(value.clone());
                 }
                 _ => bail!("Unknown setting key: {}", key),
@@ -197,7 +204,7 @@ async fn run() -> Result<()> {
         TopCommand::Get { key } => {
             let cfg = load_config_for_profile(&profile)?;
             let active_base_url =
-                normalize_base_url(&base_url.unwrap_or_else(|| cfg.effective_base_url()));
+                normalize_base_url(&base_url.unwrap_or_else(|| cfg.default_base_url()));
             let active_cfg = cfg.active_view(&active_base_url);
             let value = match key.as_str() {
                 "deliverables-dir" | "deliverables_dir" => active_cfg.deliverables_dir.clone(),
@@ -255,7 +262,7 @@ async fn run() -> Result<()> {
 
 fn build_client(base_override: Option<String>, profile: &str) -> Result<(ApiClient, StoredConfig)> {
     let cfg = load_config_for_profile(profile)?;
-    let base_url = normalize_base_url(&base_override.unwrap_or_else(|| cfg.effective_base_url()));
+    let base_url = normalize_base_url(&base_override.unwrap_or_else(|| cfg.default_base_url()));
     let active_cfg = cfg.active_view(&base_url);
     let client = ApiClient::new(base_url, active_cfg.api_key.clone())?;
     Ok((client, active_cfg))

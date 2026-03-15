@@ -8,6 +8,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 pub const DEFAULT_BASE_URL: &str = "https://stoked-ui.com";
 pub const DEFAULT_PROFILE: &str = "default";
+pub const LOCAL_DEV_BASE_URL: &str = "http://localhost:5199";
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq)]
 pub struct StoredAuthSession {
@@ -49,14 +50,19 @@ pub struct StoredConfig {
 }
 
 impl StoredConfig {
-    pub fn effective_base_url(&self) -> String {
-        std::env::var("STOKED_BASE_URL")
-            .ok()
-            .filter(|v| !v.trim().is_empty())
-            .map(|v| normalize_base_url(&v))
-            .or_else(|| self.base_url.clone())
-            .map(|v| normalize_base_url(&v))
-            .unwrap_or_else(|| DEFAULT_BASE_URL.to_string())
+    pub fn default_base_url(&self) -> String {
+        if let Ok(env_value) = std::env::var("STOKED_BASE_URL") {
+            let trimmed = env_value.trim();
+            if !trimmed.is_empty() {
+                return normalize_base_url(trimmed);
+            }
+        }
+
+        match self.base_url.as_deref().map(normalize_base_url) {
+            Some(value) if value == LOCAL_DEV_BASE_URL => DEFAULT_BASE_URL.to_string(),
+            Some(value) => value,
+            None => DEFAULT_BASE_URL.to_string(),
+        }
     }
 
     pub fn has_auth(&self) -> bool {
@@ -300,7 +306,7 @@ pub fn list_profiles() -> Result<Vec<String>> {
 
 #[cfg(test)]
 mod tests {
-    use super::{normalize_base_url, StoredConfig, DEFAULT_BASE_URL};
+    use super::{normalize_base_url, StoredConfig, DEFAULT_BASE_URL, LOCAL_DEV_BASE_URL};
 
     #[test]
     fn active_view_uses_auth_for_selected_base_url() {
@@ -404,5 +410,15 @@ mod tests {
         assert!(canonical.api_key.is_none());
         assert_eq!(migrated.api_key.as_deref(), Some("sk_prod"));
         assert_eq!(migrated.email.as_deref(), Some("prod@example.com"));
+    }
+
+    #[test]
+    fn default_base_url_ignores_saved_localhost_value() {
+        let cfg = StoredConfig {
+            base_url: Some(format!("{}/", LOCAL_DEV_BASE_URL)),
+            ..StoredConfig::default()
+        };
+
+        assert_eq!(cfg.default_base_url(), DEFAULT_BASE_URL);
     }
 }

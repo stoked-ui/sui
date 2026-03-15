@@ -145,7 +145,13 @@ export const FileLabel = React.forwardRef(function FileExplorer(
     status = {};
   }
   if (!iconProps) {
-    iconProps = { sx: { right: 0, position: 'absolute' } };
+    iconProps = {
+      sx: {
+        alignSelf: 'center',
+        flexShrink: 0,
+        marginLeft: 1,
+      },
+    };
   }
   return (
     <FileLabelRoot
@@ -156,13 +162,13 @@ export const FileLabel = React.forwardRef(function FileExplorer(
       className={className}
       key={id}
       grow={grow}
-      header
+      header={header}
       last={last}
       cell={cell}
       selected={selected}
       ref={ref}
     >
-      <div style={{ width: '100%', display: 'flex' }}>
+      <div style={{ minWidth: 0, flex: 1, display: 'flex' }}>
         {Icon && (
           <Box
             component={Icon}

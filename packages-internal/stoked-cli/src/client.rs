@@ -40,6 +40,7 @@ impl ApiClient {
         }
 
         let url = self.build_url(path);
+        let method_name = method.as_str().to_string();
         let mut req = self.http.request(method, &url);
 
         if !query.is_empty() {
@@ -70,12 +71,20 @@ impl ApiClient {
         }
 
         let parsed = parse_json_or_text(status, text.clone())?;
-        let message = parsed
-            .get("message")
-            .and_then(|v| v.as_str())
-            .unwrap_or_else(|| status.canonical_reason().unwrap_or("Request failed"));
+        let message = extract_error_message(status, &parsed).unwrap_or_else(|| {
+            status
+                .canonical_reason()
+                .unwrap_or("Request failed")
+                .to_string()
+        });
 
-        Err(anyhow!("{} (HTTP {})", message, status.as_u16()))
+        Err(anyhow!(
+            "{} {} failed: {} (HTTP {})",
+            method_name,
+            url,
+            message,
+            status.as_u16()
+        ))
     }
 
     pub async fn request_bytes(
@@ -92,6 +101,7 @@ impl ApiClient {
         }
 
         let url = self.build_url(path);
+        let method_name = method.as_str().to_string();
         let mut req = self.http.request(method, &url);
 
         if !query.is_empty() {
@@ -120,12 +130,20 @@ impl ApiClient {
         }
 
         let parsed = parse_json_or_text(status, text.clone())?;
-        let message = parsed
-            .get("message")
-            .and_then(|v| v.as_str())
-            .unwrap_or_else(|| status.canonical_reason().unwrap_or("Request failed"));
+        let message = extract_error_message(status, &parsed).unwrap_or_else(|| {
+            status
+                .canonical_reason()
+                .unwrap_or("Request failed")
+                .to_string()
+        });
 
-        Err(anyhow!("{} (HTTP {})", message, status.as_u16()))
+        Err(anyhow!(
+            "{} {} failed: {} (HTTP {})",
+            method_name,
+            url,
+            message,
+            status.as_u16()
+        ))
     }
 
     pub fn build_url(&self, path: &str) -> String {
@@ -147,6 +165,49 @@ impl ApiClient {
 
         format!("{}{}", self.base_url, normalized)
     }
+
+    pub fn is_localhost(&self) -> bool {
+        self.base_url.contains("localhost") || self.base_url.contains("127.0.0.1")
+    }
+
+    pub async fn put_bytes_to_url(
+        &self,
+        url: &str,
+        body: Vec<u8>,
+        content_type: &str,
+    ) -> Result<String> {
+        let response = self
+            .http
+            .put(url)
+            .header(CONTENT_TYPE, content_type)
+            .body(body)
+            .send()
+            .await
+            .with_context(|| format!("PUT request failed: {}", url))?;
+
+        let status = response.status();
+        if !status.is_success() {
+            let text = response
+                .text()
+                .await
+                .unwrap_or_else(|_| "Failed reading response body".to_string());
+            return Err(anyhow!(
+                "PUT {} failed: {} (HTTP {})",
+                url,
+                summarize_response_text(&text),
+                status.as_u16()
+            ));
+        }
+
+        let headers = response.headers().clone();
+        let etag = headers
+            .get("etag")
+            .and_then(|value| value.to_str().ok())
+            .or_else(|| headers.get("ETag").and_then(|value| value.to_str().ok()))
+            .map(|value| value.trim_matches('"').to_string());
+
+        etag.ok_or_else(|| anyhow!("PUT {} succeeded but response did not include an ETag", url))
+    }
 }
 
 fn normalize_base_url(raw: &str) -> String {
@@ -167,6 +228,92 @@ fn parse_json_or_text(status: StatusCode, text: String) -> Result<Value> {
         Ok(v) => Ok(v),
         Err(_) => Ok(json!({ "status": status.as_u16(), "text": text })),
     }
+}
+
+fn extract_error_message(status: StatusCode, parsed: &Value) -> Option<String> {
+    let mut parts = Vec::new();
+
+    for key in ["message", "error", "details"] {
+        if let Some(text) = parsed.get(key).and_then(value_to_error_text) {
+            if !parts.contains(&text) {
+                parts.push(text);
+            }
+        }
+    }
+
+    if parts.is_empty() {
+        if let Some(text) = parsed.get("text").and_then(|value| value.as_str()) {
+            parts.push(summarize_response_text(text));
+        }
+    }
+
+    if parts.is_empty() && parsed.get("status").is_some() {
+        parts.push(
+            status
+                .canonical_reason()
+                .unwrap_or("Request failed")
+                .to_string(),
+        );
+    }
+
+    if parts.is_empty() {
+        None
+    } else {
+        Some(parts.join(": "))
+    }
+}
+
+fn value_to_error_text(value: &Value) -> Option<String> {
+    match value {
+        Value::Null => None,
+        Value::Bool(v) => Some(v.to_string()),
+        Value::Number(v) => Some(v.to_string()),
+        Value::String(v) => {
+            let trimmed = v.trim();
+            if trimmed.is_empty() {
+                None
+            } else {
+                Some(trimmed.to_string())
+            }
+        }
+        Value::Array(items) => {
+            let values = items
+                .iter()
+                .filter_map(value_to_error_text)
+                .collect::<Vec<_>>();
+            if values.is_empty() {
+                None
+            } else {
+                Some(values.join(", "))
+            }
+        }
+        Value::Object(_) => {
+            let serialized = serde_json::to_string(value).ok()?;
+            Some(truncate_text(serialized, 240))
+        }
+    }
+}
+
+fn summarize_response_text(text: &str) -> String {
+    let normalized = text.split_whitespace().collect::<Vec<_>>().join(" ");
+    if normalized.starts_with('<') {
+        "Server returned a non-JSON error response".to_string()
+    } else {
+        truncate_text(normalized, 240)
+    }
+}
+
+fn truncate_text(text: String, max_len: usize) -> String {
+    let chars = text.chars().collect::<Vec<_>>();
+    if chars.len() <= max_len {
+        return text;
+    }
+
+    let truncated = chars
+        .into_iter()
+        .take(max_len.saturating_sub(3))
+        .collect::<String>();
+    format!("{}...", truncated)
 }
 
 pub fn parse_kv_pairs(pairs: &[String]) -> Result<Vec<(String, String)>> {
@@ -222,4 +369,35 @@ pub fn print_value(value: &Value, compact: bool) -> Result<()> {
         println!("{}", serde_json::to_string_pretty(value)?);
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn extract_error_message_prefers_structured_fields() {
+        let parsed = json!({
+            "message": "Create deliverable failed",
+            "details": "A deliverable with the same title and version already exists"
+        });
+
+        assert_eq!(
+            extract_error_message(StatusCode::CONFLICT, &parsed).as_deref(),
+            Some("Create deliverable failed: A deliverable with the same title and version already exists")
+        );
+    }
+
+    #[test]
+    fn extract_error_message_summarizes_plain_text_bodies() {
+        let parsed = json!({
+            "status": 500,
+            "text": "<html><body>Internal error</body></html>"
+        });
+
+        assert_eq!(
+            extract_error_message(StatusCode::INTERNAL_SERVER_ERROR, &parsed).as_deref(),
+            Some("Server returned a non-JSON error response")
+        );
+    }
 }

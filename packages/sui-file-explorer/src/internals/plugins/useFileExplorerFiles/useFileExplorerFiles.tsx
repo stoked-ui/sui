@@ -17,21 +17,84 @@ import {DndItemState} from '../useFileExplorerDnd/useFileExplorerDnd.types';
 interface UpdateNodesStateParameters
   extends Pick<
     UseFileExplorerFilesDefaultizedParameters<FileBase>,
-    'items' | 'isItemDisabled' | 'getItemLabel' | 'getItemId'
+    'items' | 'isItemDisabled' | 'getItemLabel'
   > {
-  recalcVisibleIndices: (items: FileBase[], force: boolean, index: number) => void;
+  isItemExpanded?: (id: string) => boolean;
 }
 
 type State = UseFileExplorerFilesState<any>['items'];
 
-let visibleIndexCounter = 0;
+const setVisibleIndex = (
+  itemMetaMap: State['itemMetaMap'],
+  item: FileBase,
+  visibleIndex: number,
+) => {
+  item.visibleIndex = visibleIndex;
+  if (itemMetaMap[item.id]) {
+    itemMetaMap[item.id].visibleIndex = visibleIndex;
+  }
+};
+
+const initializeVisibleIndices = (
+  itemMetaMap: State['itemMetaMap'],
+  items: readonly FileBase[],
+) => {
+  for (let i = 0; i < items.length; i += 1) {
+    const item = items[i];
+
+    if (!item) {
+      continue;
+    }
+
+    setVisibleIndex(itemMetaMap, item, -1);
+
+    if (item.children?.length) {
+      initializeVisibleIndices(itemMetaMap, item.children);
+    }
+  }
+};
+
+const assignVisibleIndices = ({
+  itemMetaMap,
+  items,
+  isItemExpanded,
+  baseIndex = 0,
+}: {
+  itemMetaMap: State['itemMetaMap'];
+  items: readonly FileBase[];
+  isItemExpanded?: (id: string) => boolean;
+  baseIndex?: number;
+}) => {
+  let nextVisibleIndex = baseIndex;
+
+  for (let i = 0; i < items.length; i += 1) {
+    const item = items[i];
+
+    if (!item) {
+      continue;
+    }
+
+    setVisibleIndex(itemMetaMap, item, nextVisibleIndex);
+    nextVisibleIndex += 1;
+
+    if (item.children?.length && (isItemExpanded?.(item.id) ?? item.expanded)) {
+      nextVisibleIndex = assignVisibleIndices({
+        itemMetaMap,
+        items: item.children,
+        isItemExpanded,
+        baseIndex: nextVisibleIndex,
+      });
+    }
+  }
+
+  return nextVisibleIndex;
+};
 
 const updateItemsState = ({
   items,
   isItemDisabled,
   getItemLabel,
-  getItemId,
-  recalcVisibleIndices,
+  isItemExpanded,
 }: UpdateNodesStateParameters): UseFileExplorerFilesState<any>['items'] => {
   const itemMetaMap: State['itemMetaMap'] = {};
   const itemMap: State['itemMap'] = {};
@@ -90,7 +153,7 @@ const updateItemsState = ({
       dndState: 'idle',
       dndContainer: null,
       dndInstruction: null,
-      visibleIndex: item?.visibleIndex ?? (visibleIndexCounter += 1),
+      visibleIndex: -1,
     };
 
     itemMap[id] = item;
@@ -111,7 +174,12 @@ const updateItemsState = ({
   });
 
   if (items?.length) {
-    recalcVisibleIndices([...items], true, 0);
+    initializeVisibleIndices(itemMetaMap, items);
+    assignVisibleIndices({
+      itemMetaMap,
+      items,
+      isItemExpanded,
+    });
   }
 
   return {
@@ -143,38 +211,14 @@ export const useFileExplorerFiles: FileExplorerPlugin<UseFileExplorerFilesSignat
   }
 
   const recalcVisibleIndices  = (items: FileBase[] = getFiles(), force: boolean = false) => {
-    const recalcVisibleIndicesBase = (baseItems: FileBase[], baseIndex: number = 0) => {
-      for (let i = 0; i < baseItems.length; i += 1){
-        const item = baseItems[i];
-        if (item) {
-          item.visibleIndex = baseIndex;
-          baseIndex += 1;
-
-          if (item.children?.length && instance.isItemExpanded(item.id ?? item.id!)) {
-            baseIndex = recalcVisibleIndicesBase(item.children, baseIndex);
-          }
-        }
-      }
-      return baseIndex;
-    }
-    const initializeVisibleIndices  = (initItems: FileBase[]) => {
-      for (let i = 0; i < initItems.length; i += 1){
-        const item = initItems[i];
-        if (item) {
-          if (item) {
-            item.visibleIndex = -1;
-          }
-
-          if (item?.children?.length && instance.isItemExpanded(item.id ?? item.id!)) {
-            initializeVisibleIndices(item.children);
-          }
-        }
-      }
-    }
-    if(state.items.indiciesDirty || force) {
+    if (state.items.indiciesDirty || force) {
       state.items.indiciesDirty = false;
-      initializeVisibleIndices(items);
-      recalcVisibleIndicesBase(items);
+      initializeVisibleIndices(state.items.itemMetaMap, items);
+      assignVisibleIndices({
+        itemMetaMap: state.items.itemMetaMap,
+        items,
+        isItemExpanded: (id) => instance.isItemExpanded(id),
+      });
     }
   }
 
@@ -259,9 +303,8 @@ export const useFileExplorerFiles: FileExplorerPlugin<UseFileExplorerFilesSignat
       const newState = updateItemsState({
         items,
         isItemDisabled: params.isItemDisabled,
-        getItemId: params.getItemId,
         getItemLabel: params.getItemLabel,
-        recalcVisibleIndices,
+        isItemExpanded: (id) => instance.isItemExpanded(id),
       });
 
       Object.values(prevState.items.itemMetaMap).forEach((item) => {
@@ -294,10 +337,14 @@ export const useFileExplorerFiles: FileExplorerPlugin<UseFileExplorerFilesSignat
 
   const getVisibleIndex = (id: string) => {
     const initialIndex = state.items.itemMap[id]?.visibleIndex;
-    if (initialIndex && initialIndex !== -1) {
+    if (initialIndex !== undefined && initialIndex !== -1) {
       return initialIndex;
     }
-    // const label = instance.getItem(id).label;
+
+    if (!state.items.itemMap[id]) {
+      return -1;
+    }
+
     state.items.indiciesDirty = true;
     recalcVisibleIndices();
     return state.items.itemMap[id]?.visibleIndex ?? -1;
@@ -378,9 +425,7 @@ useFileExplorerFiles.getInitialState = (params) => ({
   items: updateItemsState({
     items: params.items,
     isItemDisabled: params.isItemDisabled,
-    getItemId: params.getItemId,
     getItemLabel: params.getItemLabel,
-    recalcVisibleIndices: () => 0,
   }),
 });
 

@@ -34,7 +34,7 @@ pub async fn login(
     let base_url = normalize_base_url(
         &base_url_override
             .clone()
-            .unwrap_or_else(|| cfg.effective_base_url()),
+            .unwrap_or_else(|| cfg.default_base_url()),
     );
 
     let port = pick_open_port()?;
@@ -113,7 +113,7 @@ pub fn logout(base_url_override: Option<String>, profile: &str, compact_json: bo
     let base_url = normalize_base_url(
         &base_url_override
             .clone()
-            .unwrap_or_else(|| cfg.effective_base_url()),
+            .unwrap_or_else(|| cfg.default_base_url()),
     );
     let had_auth = cfg.clear_auth_for_base_url(&base_url);
     save_config_for_profile(&cfg, profile)?;
@@ -137,7 +137,7 @@ pub async fn status(
     let base_url = normalize_base_url(
         &base_url_override
             .clone()
-            .unwrap_or_else(|| cfg.effective_base_url()),
+            .unwrap_or_else(|| cfg.default_base_url()),
     );
     let active_cfg = cfg.active_view(&base_url);
 
@@ -186,7 +186,7 @@ pub fn token(base_url_override: Option<String>, profile: &str, raw: bool) -> Res
     let base_url = normalize_base_url(
         &base_url_override
             .clone()
-            .unwrap_or_else(|| cfg.effective_base_url()),
+            .unwrap_or_else(|| cfg.default_base_url()),
     );
     let active_cfg = cfg.active_view(&base_url);
     let key = active_cfg
