@@ -78,3 +78,4 @@ Cargo.lock
 # Local build/output artifacts
 docs/.open-next/
 docs/.local_deliverables/
+packages-internal/cdn/dist/
