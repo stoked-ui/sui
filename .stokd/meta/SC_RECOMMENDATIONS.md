@@ -1,8 +1,8 @@
 # Stoked UI — Codebase Recommendations
 
-> Generated: 2026-03-03 | Scope: Full monorepo analysis
-> Packages analyzed: `packages/sui-media-api`, `packages-internal/stoked-mcp`, `packages-internal/stoked-cli`, `api/`, `infra/`, `packages/sui-*`, `docs/`, CI/CD, security configs
-> Requested workspace packages: `apps/code-ext`, `apps/menu-bar`, `apps/osx-desktop-widget`, `apps/slack-app`, `packages/api`, `packages/mcp-server`
+> Generated: 2026-03-03 | Updated: 2026-03-14 | Meta version: 0.2.0
+> Scope: Full monorepo analysis — 10 workspace packages, docs, infra, CLI
+> Packages analyzed: `packages/sui-common`, `packages/sui-common-api`, `packages/sui-docs`, `packages/sui-editor`, `packages/sui-file-explorer`, `packages/sui-github`, `packages/sui-media`, `packages/sui-media-api`, `packages/sui-timeline`, `packages/sui-video-renderer`
 
 ---
 
@@ -20,68 +20,72 @@
 
 ## 1. Critical Security Issues
 
-### 1.1 Hardcoded Credentials in `.env` — CRITICAL
+### 1.1 No Rate Limiting on Auth Endpoints — CRITICAL
 
-**File:** `.env` (repository root)
+**Files:** `docs/pages/api/auth/login.ts`, `docs/pages/api/auth/register.ts`, `docs/pages/api/auth/google.ts`
 
-The `.env` file contains production credentials committed to version control:
-- Admin password in plaintext (`AUTH_ADMIN_PASSWORD`)
-- MongoDB connection string with embedded credentials
-- Google OAuth client secret
-- S3/CDN bucket access credentials
+No rate limiting exists on any authentication endpoint across the entire stack. All 12 auth routes under `docs/pages/api/auth/` accept unlimited requests. Brute-force attacks against login, spam registration, and API key validation abuse are unmitigated.
 
-**Action Required:**
-1. **Immediately rotate** all compromised credentials (MongoDB URI, Google OAuth secret, admin password)
-2. Scrub `.env` from git history using `git filter-repo` or BFG Repo-Cleaner
-3. Create `.env.example` at repository root documenting all required variables with placeholder values
-4. Verify `.gitignore` patterns are catching all `.env` variants (currently: `**/.env*` — good)
+**Extends to:** `api/subscribe.ts` (email subscription), `api/sms.ts` (SMS sending), API key validation in `docs/src/modules/auth/apiKeyStore.ts`
 
-### 1.2 Hardcoded AWS Account ID — HIGH
+**Fix:** Add rate limiting middleware to Next.js API routes. Options:
+- `next-rate-limit` or custom middleware using Redis/in-memory store
+- IP-based limits: 5 req/min for login, 3 req/hour for registration
+- For Lambda endpoints (`api/`): use API Gateway throttling in `infra/api.ts`
 
-**File:** `infra/api.ts` — Lines 29, 64, 76
+### 1.2 Wildcard CORS in API Gateway — CRITICAL
 
-AWS account ID `883859713095` is embedded in IAM ARN strings. Should be derived from SST context or environment variables.
+**File:** `infra/api.ts:7-11`
+
+```typescript
+cors: {
+  allowOrigins: ["*"],
+  allowMethods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowHeaders: ["Content-Type", "Authorization"],
+},
+```
+
+Wildcard CORS allows requests from any origin. While individual Lambda handlers (subscribe, sms) have origin validation, the gateway-level wildcard undermines defense-in-depth.
+
+**Fix:** Replace `["*"]` with explicit domain list from `infra/domains.ts`.
+
+### 1.3 Origin Validation Bypass — HIGH
+
+**File:** `api/sms.ts:14-19`
+
+```typescript
+if (!process.env.ROOT_DOMAIN?.includes(event.headers.origin.replace('https://', ''))) {
+```
+
+Uses `.includes()` substring matching — `evil-stoked-ui.com` passes if `ROOT_DOMAIN` contains `stoked-ui.com`. Does not handle missing headers, `http://` scheme, or port numbers.
+
+**File:** `api/subscribe.ts:16-23` — Better implementation using `domains.includes(origin)` against an explicit array, but still string-based with no URL parsing.
+
+**Fix:** Parse origins as URLs and compare hostnames against an explicit allowlist.
+
+### 1.4 Hardcoded AWS Account ID — HIGH
+
+**Files:** `infra/api.ts:47,59`, `infra/site.ts:72`
+
+AWS account ID `883859713095` is embedded in IAM ARN strings in multiple infrastructure files.
 
 ```typescript
 // Current (bad)
 resources: ["arn:aws:ses:us-east-1:883859713095:identity/*"]
 
-// Recommended
-resources: [`arn:aws:ses:${region}:${accountId}:identity/*`]
+// Recommended — derive from SST context
+resources: [`arn:aws:ses:${$app.providers.aws.region}:${aws.getCallerIdentity().accountId}:identity/*`]
 ```
 
-### 1.3 Overly Permissive IAM — HIGH
+### 1.5 Overly Permissive IAM — HIGH
 
-**File:** `infra/api.ts` — Lines 90-92
-
-SMS Lambda has `sns:Publish` on `resources: ["*"]`. This allows publishing to **any** SNS topic in the account.
+**File:** `infra/api.ts` — SMS Lambda has `sns:Publish` on `resources: ["*"]`. Allows publishing to **any** SNS topic in the account.
 
 **Fix:** Restrict to a specific topic ARN or phone-number resource pattern.
 
-### 1.4 Origin Validation Bypass — HIGH
-
-**Files:** `api/sms.ts:7-19`, `api/subscribe.ts:17-23`
-
-Origin validation uses `.includes()` substring matching:
-```typescript
-process.env.ROOT_DOMAIN?.includes(event.headers.origin.replace('https://', ''))
-```
-
-**Problem:** `evil-stoked-ui.com` would pass validation if `ROOT_DOMAIN` contains `stoked-ui.com`. Also does not handle missing headers, `http://` scheme, or port numbers.
-
-**Fix:** Parse origins as URLs and compare hostnames against an explicit allowlist.
-
-### 1.5 Default JWT Secret Fallback — MEDIUM
-
-**File:** `docs/src/modules/auth/authStore.ts:39`
-
-Falls back to `'dev-secret-change-me'` when `JWT_SECRET` env var is missing. If deployed without the env var set, authentication becomes trivially bypassable.
-
-**Fix:** Throw at startup if `JWT_SECRET` is not set in production.
-
 ### 1.6 Malformed IAM ARN Pattern — MEDIUM
 
-**File:** `infra/api.ts:76`
+**File:** `infra/api.ts:59`
 
 ```typescript
 resources: ["arn:aws:ses:us-east-1:883859713095:identity/!*"]
@@ -89,160 +93,127 @@ resources: ["arn:aws:ses:us-east-1:883859713095:identity/!*"]
 
 `!*` is not valid ARN glob syntax. Should be `*`.
 
-### 1.7 In-Memory User Storage in AuthService — HIGH
+### 1.7 In-Memory User Storage in Media API AuthService — HIGH
 
-**File:** `packages/sui-media-api/src/auth/auth.service.ts`
+**File:** `packages/sui-media-api/src/auth/auth.service.ts:34-46`
 
-Users are stored in an in-memory `Map`, not persisted to MongoDB. All user registrations are lost on process restart. This includes password hashes and role assignments.
+Users are stored in an in-memory `Map`, not persisted to MongoDB. All user registrations are lost on process restart. The code includes an explicit comment acknowledging this is temporary.
 
-**Fix:** Implement a `UserSchema` in `@stoked-ui/common-api` and wire it through Mongoose. This is the single biggest blocker for production readiness.
+**Fix:** Implement a `UserSchema` using Mongoose models from `@stoked-ui/common-api` (which already defines `user.model.ts`).
 
-### 1.8 No Rate Limiting on Auth Endpoints — HIGH
-
-**File:** `packages/sui-media-api/src/auth/auth.controller.ts`
-
-`POST /auth/register` and `POST /auth/login` have no rate limiting. Brute-force attacks against the login endpoint or spam registration are unmitigated.
-
-**Fix:** Add `@nestjs/throttler` with a sensible limit (e.g., 5 requests/minute for login, 3/hour for registration).
-
-### 1.9 NEW: API Key Store — Missing `await` on Validation Update — MEDIUM
-
-**File:** `docs/src/modules/auth/apiKeyStore.ts:79-83`
-
-```typescript
-// Update lastUsedAt (fire-and-forget)
-db.collection('api_keys').updateOne(
-  { _id: apiKey._id },
-  { $set: { lastUsedAt: new Date() } },
-);
-```
-
-The `updateOne` promise is neither awaited nor has a `.catch()` handler. In Node.js, unhandled promise rejections can terminate the process.
-
-**Fix:** Add `.catch(err => console.error('Failed to update lastUsedAt', err))` or properly await.
-
-### 1.10 NEW: Impersonation Endpoint Needs Audit Logging — MEDIUM
+### 1.8 Impersonation Endpoint — No Server-Side Audit Log — MEDIUM
 
 **File:** `docs/pages/api/auth/impersonate.ts`
 
-Admin and agent impersonation creates JWTs with `impersonatedId` claims but has no server-side audit log. A compromised admin account could impersonate users with no trace.
+The impersonation implementation has proper role-based access control (admin/agent only, with agent-to-user relationship verification). However, there is no server-side audit log. A compromised admin account could impersonate users with no persistent trace.
 
 **Fix:** Log all impersonation events to MongoDB with timestamp, actor, target, and IP.
 
-### 1.11 NEW: CLI Auth Flow — Token Exposure in URL — MEDIUM
+### 1.9 AUTH_TRANSFER_SECRET Reuses JWT_SECRET — LOW
 
-**File:** `docs/pages/cli/auth.tsx:58-60`
+**File:** `docs/src/modules/auth/session.ts:12`
 
-After successful CLI authorization, the API key is passed back to the CLI callback server via URL parameters:
 ```typescript
-window.location.href = `http://localhost:${port}/callback?key=${key}&state=${state}&email=${user.email}`;
+const AUTH_TRANSFER_SECRET = process.env.AUTH_TRANSFER_SECRET || process.env.JWT_SECRET || 'dev-secret-change-me';
 ```
 
-API keys in URLs are logged by default in browser history and server access logs.
+Cross-origin session transfer and JWT signing share the same secret. Should ideally be separate in production to limit blast radius if one is compromised.
 
-**Fix:** Use `POST` to the callback URL with the key in the body, or use a short-lived exchange token that the CLI server trades for the real key.
+### 1.10 Resolved: JWT Secret Handling — FIXED
+
+**File:** `docs/src/modules/auth/authStore.ts:53-58`
+
+Previously flagged as using a dev fallback without production guard. Now correctly throws at startup if `JWT_SECRET` is missing in production:
+
+```typescript
+const JWT_SECRET = process.env.JWT_SECRET || (() => {
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('JWT_SECRET environment variable is required in production');
+  }
+  return 'dev-secret-change-me';
+})();
+```
+
+### 1.11 Resolved: Cookie Security — CORRECT
+
+**File:** `docs/src/modules/auth/session.ts`
+
+Session cookies properly implement: HttpOnly, SameSite=Lax, Secure flag in production, and time-limited cross-origin transfer tokens (5min TTL with audience validation).
 
 ---
 
 ## 2. Code Quality Improvements
 
-### 2.1 TypeScript Strict Mode Disabled Across UI Packages — HIGH
+### 2.1 TypeScript Strict Mode Disabled Across All Packages — HIGH
 
-All 8 UI packages have `"noImplicitAny": false` in their `tsconfig.json`. Several also disable other strict checks:
+Root `tsconfig.x.json` has `strict: true`, but every package overrides with `noImplicitAny: false`. Some packages have additional relaxations:
 
 | Package | Disabled Checks |
 |---------|----------------|
-| `sui-media-api` | `strict: false`, `strictNullChecks: false`, `strictBindCallApply: false` |
-| `sui-timeline` | `strict: false` (all checks off) |
+| `sui-media-api` | Standalone tsconfig: `noImplicitAny: false`, `strictNullChecks: false` |
+| `sui-file-explorer` | `strict: false` (explicit override) |
 | `sui-common`, `sui-common-api` | `strictPropertyInitialization: false` |
+| All others | `noImplicitAny: false` (overrides root strict) |
 
-**Exception:** `stoked-mcp` has `strict: true` — this should be the standard.
+**Recommendation:** Enable `noImplicitAny: true` incrementally — start with leaf packages (`sui-common`, `sui-github`) and work inward.
 
-**Recommendation:** Enable strict mode incrementally — start with `noImplicitAny: true` in leaf packages (`sui-common`, `sui-github`) and work inward.
+### 2.2 Console.log Statements in Production Code — HIGH
 
-### 2.2 Missing `await` on Database Operations — CRITICAL
+**32 files** across shipped packages contain `console.log` statements:
 
-**File:** `api/subscribe.ts` — Lines 53, 133
+| Package | Files with console.log | Notable |
+|---------|----------------------|---------|
+| `sui-file-explorer` | 3 | DnD plugin, File component |
+| `sui-media` | 6 | MediaFile, MediaCard, hooks, benchmarks |
+| `sui-editor` | 6 | DetailView, WASM, keyboard, audio |
+| `sui-common` | 7 | LocalDb, GrokLoader, SocialLinks, Colors, Types |
+| `sui-timeline` | 3 | Engine, TrackActions, ProviderFunctions |
+| `sui-github` | 2 | GithubEvents, GithubCalendar |
+| `sui-media-api` | 1 | main.ts (disables console.log globally) |
+
+**Exception:** `sui-timeline/src/utils/logger.ts` provides a structured logging wrapper — this is intentional. Benchmark files are also acceptable.
+
+**Fix:** Replace debug `console.log` calls with the structured logger from `sui-timeline` or remove. Add ESLint `no-console` rule enforcement without overrides.
+
+### 2.3 Missing `await` on Database Operations — CRITICAL
+
+**File:** `api/subscribe.ts:53,133`
 
 ```typescript
 collection.updateOne({ email }, { $set: { verificationToken } });  // Missing await!
 ```
 
-Both `updateOne()` calls are fire-and-forget. Verification tokens may not be saved before the verification email is sent, causing race conditions and data integrity issues.
+Both `updateOne()` calls are fire-and-forget. Verification tokens may not be saved before the verification email is sent.
 
-### 2.3 MongoDB Client Type Mismatch — HIGH
+### 2.4 MongoDB Client Type Mismatch — HIGH
 
-**File:** `api/lib/mongodb.ts` — Lines 10-18
+**File:** `api/lib/mongodb.ts:10-18`
 
-```typescript
-let client: MongoClient;
-if (!global._mongoClientPromise) {
-  client = new MongoClient(uri);
-  global._mongoClientPromise = client.connect(); // Returns Promise<MongoClient>
-} else {
-  client = global._mongoClientPromise; // Assigning Promise<MongoClient> to MongoClient!
-}
-```
+The cached `global._mongoClientPromise` is a `Promise<MongoClient>`, but the `else` branch assigns it to a `MongoClient` variable. This causes runtime method-not-found errors.
 
-The cached value is a `Promise<MongoClient>`, but the `else` branch assigns it to a `MongoClient` variable. This will cause runtime method-not-found errors.
-
-### 2.4 Inconsistent Error Response Formats
+### 2.5 Inconsistent Error Response Formats
 
 **Files:** `api/subscribe.ts`, `api/sms.ts`
 
 Some handlers return `{ message: "..." }`, others return `{ error: "..." }`. No standard error envelope.
 
-**Fix:** Create a shared `apiResponse(statusCode, body)` helper with consistent shape:
-```typescript
-{ success: boolean, error?: string, data?: unknown }
-```
+**Fix:** Create a shared `apiResponse(statusCode, body)` helper with consistent shape.
 
-### 2.5 Sensitive Data in CloudWatch Logs — HIGH
+### 2.6 Sensitive Data in CloudWatch Logs — HIGH
 
 **File:** `api/subscribe.ts:18`
 
-```typescript
-console.info('event.headers.origin', event, domains, ...);
-```
-
-The full `event` object (including headers, body, and auth tokens) is logged.
+Full `event` object (including headers, body, and auth tokens) is logged.
 
 **Fix:** Log only non-sensitive fields: `console.info('Origin check failed', { origin: event.headers.origin })`.
 
-### 2.6 Console Statements in Production Packages
-
-Multiple `console.log` calls found in shipped package code:
-
-| File | Line |
-|------|------|
-| `packages/sui-media/src/components/MediaCard/MediaCard.tsx` | 201 |
-| `packages/sui-media/src/App/AppFile/AppFile.ts` | 93 |
-| `packages/sui-media/src/FileSystemApi/FileSystemApi.ts` | 45 |
-| `packages/sui-media/src/components/MediaViewer/index.tsx` | 284 |
-
-**Fix:** Replace with a structured logger or remove. ESLint already restricts `console.log` — enforce the rule without overrides.
-
 ### 2.7 No Input Validation on Lambda API Endpoints
 
-**File:** `api/subscribe.ts:32-38`
+**File:** `api/subscribe.ts:32-38` — Email only checked for existence, not format.
 
-Email is only checked for existence (`if (!email)`), not format. No email regex or library validation.
+**File:** `api/sms.ts:33` — Phone regex `^\+\d{11,15}$` is not accurate for E.164 (should be `^\+[1-9]\d{1,14}$`).
 
-**File:** `api/sms.ts:33`
-
-Phone regex `^\+\d{11,15}$` is not accurate for E.164 (should be `^\+[1-9]\d{1,14}$`).
-
-### 2.8 MCP Server: Unsafe Type Coercion
-
-**File:** `packages-internal/stoked-mcp/src/index.ts:85`
-
-```typescript
-data = { message: response.statusText } as T;  // Unsafe cast when JSON parse fails
-```
-
-Creates an incomplete object disguised as type `T`. Downstream code may access nonexistent properties.
-
-### 2.9 API Route Typo
+### 2.8 API Route Typo
 
 **File:** `infra/api.ts:103`
 
@@ -250,58 +221,43 @@ Creates an incomplete object disguised as type `T`. Downstream code may access n
 api.route("POST /smss", sendSms.arn);  // Should be /sms
 ```
 
-### 2.10 In-Memory Media Store Not Wired to MongoDB
+### 2.9 In-Memory Media Store Not Wired to MongoDB
 
 **File:** `packages/sui-media-api/src/media/media.service.ts`
 
-MediaService uses an in-memory `Map` for CRUD operations despite Mongoose models being imported and `database.module.ts` being configured. The service should use `@InjectModel()` for persistence.
+MediaService uses in-memory `Map` for CRUD despite Mongoose models being imported and `database.module.ts` being configured. Comment states: "Currently uses in-memory storage — will be replaced with database in future phases."
 
-### 2.11 Missing ApiKeyGuard Implementation
+**File:** `packages/sui-media-api/src/uploads/uploads.service.ts` — Same pattern: `private sessions: Map<string, UploadSession> = new Map()`.
+
+### 2.10 Missing ApiKeyGuard Implementation
 
 **File:** `packages/sui-media-api/src/invoices/invoices.controller.ts`
 
-The invoices controller references `ApiKeyGuard` but no implementation file exists. Header-based API key validation is not enforced.
+References `ApiKeyGuard` but no implementation file exists.
 
-### 2.12 NEW: DnD Tree Operations — No Error Boundary
-
-**File:** `packages/sui-file-explorer-v2/src/dnd/DndProvider.tsx`
-
-The DnD provider handles all tree mutations (move, reorder, insert) but has no error boundary. A malformed tree structure (e.g., orphaned node, duplicate IDs) could crash the entire file explorer.
-
-**Fix:** Wrap mutation logic in try/catch and add a React error boundary around the DnD context.
-
-### 2.13 NEW: Dual Auth Path in `withAuth` Needs Consistent Error Codes
+### 2.11 Dual Auth Path in `withAuth` — Inconsistent Error Codes
 
 **File:** `docs/src/modules/auth/withAuth.ts`
 
-The middleware supports both API key (`sk_*` prefix) and JWT authentication but returns generic 401/403 without distinguishing which auth method failed. Clients cannot differentiate between an expired JWT and a revoked API key.
+Supports both API key (`sk_*` prefix) and JWT authentication but returns generic 401/403 without distinguishing which method failed.
 
-**Fix:** Return `WWW-Authenticate` header indicating the accepted schemes and specific error codes (e.g., `token_expired`, `key_revoked`).
+**Fix:** Return `WWW-Authenticate` header indicating accepted schemes and specific error codes (e.g., `token_expired`, `key_revoked`).
 
 ---
 
 ## 3. Architecture Suggestions
 
-### 3.1 MCP Server: Modularize Tool Registration
+### 3.1 Unify API Key Infrastructure
 
-**File:** `packages-internal/stoked-mcp/src/index.ts` (409 lines, 14 tools in one file)
+API key management exists in two places:
+- `docs/src/modules/auth/apiKeyStore.ts` — Docs site API key CRUD (MongoDB-backed, solid implementation with `crypto.randomBytes(32)` entropy and `sk_` prefix)
+- `packages/sui-media-api/src/invoices/invoices.controller.ts` — References `ApiKeyGuard` (not implemented)
 
-All tool registrations live in a single monolithic file. As tools grow (especially with planned VSCode extension integration), this will become unwieldy.
-
-```
-src/
-  index.ts           → server setup + transport
-  tools/
-    blog.ts          → Blog CRUD tools
-    licenses.ts      → License/Stripe tools
-  lib/
-    api-client.ts    → apiRequest(), callApi(), error helpers
-    validators.ts    → Shared Zod schemas
-```
+**Fix:** Extract API key validation into `@stoked-ui/common-api` as a shared module.
 
 ### 3.2 API Handlers: Extract Shared Middleware
 
-`api/subscribe.ts` and `api/sms.ts` duplicate origin validation, CORS headers, error formatting, and JSON parsing. Extract to shared utilities:
+`api/subscribe.ts` and `api/sms.ts` duplicate origin validation, CORS headers, error formatting, and JSON parsing.
 
 ```
 api/lib/
@@ -315,17 +271,17 @@ api/lib/
 
 **File:** `infra/api.ts`
 
-Only `MediaApi` has an explicit timeout (29s). The standalone Lambdas (`subscribe`, `verify`, `sendSms`) use AWS default (3s), which may be too short for MongoDB operations through Atlas.
+Only `MediaApi` has an explicit timeout (29s). Standalone Lambdas use AWS default (3s), which may be too short for MongoDB Atlas operations.
 
 **Fix:** Set explicit timeouts: 10s for subscribe/verify (DB + SES), 5s for SMS.
 
-### 3.4 Missing CORS Response Headers
+### 3.4 Missing CORS Response Headers on Lambda Functions
 
-Lambda functions validate origins but don't return CORS headers (`Access-Control-Allow-Origin`, etc.). Browser requests will fail even from valid origins.
+Lambda functions validate origins but don't always return CORS headers. Browser requests may fail even from valid origins.
 
 ### 3.5 No Request ID Tracing
 
-API handlers have no correlation IDs. When debugging distributed requests across Lambda invocations, there is no way to trace a single user request.
+API handlers have no correlation IDs for distributed request tracing.
 
 **Fix:** Pass through `x-request-id` header or generate one, include in all log entries.
 
@@ -333,45 +289,27 @@ API handlers have no correlation IDs. When debugging distributed requests across
 
 **File:** `sst.config.ts:5`
 
-Only `ROOT_DOMAIN` and `MONGODB_URI` are validated at startup. Other required variables (`JWT_SECRET`, `STRIPE_SECRET_KEY`, etc.) are not checked, leading to silent runtime failures.
+Only `ROOT_DOMAIN` and `MONGODB_URI` validated at startup. Other required variables (`STRIPE_SECRET_KEY`, etc.) are not checked.
 
-**Fix:** Validate all required env vars per-function at deploy time using a Zod schema or similar.
+**Note:** `infra/secrets.ts` properly uses SST Secrets for `MONGODB_URI`, `ROOT_DOMAIN`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, and `JWT_SECRET`. The issue is that Lambda function environment bindings may not reference all required secrets.
 
 ### 3.7 NestJS Media API: Consolidate Storage Backend
 
-The API has two storage patterns running in parallel: in-memory `Map` stores in AuthService and MediaService, and properly configured Mongoose models registered in `database.module.ts`. These should converge on Mongoose for all persistence.
+Three services use parallel in-memory `Map` stores: AuthService, MediaService, and UploadsService. The database module and Mongoose models exist but aren't wired to services.
 
-### 3.8 MCP Server: Add Request Timeout
+### 3.8 Share API Client Types Between CLI and Server
 
-**File:** `packages-internal/stoked-mcp/src/index.ts`
+**Files:** `packages-internal/stoked-cli/src/client.rs`, `docs/src/modules/openapi/docsApiOpenApiSpec.ts`
 
-`fetch()` calls in `apiRequest()` have no timeout. A slow or unresponsive backend will block the MCP server indefinitely.
+The Rust CLI and docs API both have independent API definitions. The docs API already generates OpenAPI specs (`docs/pages/api/openapi.ts` via `getDocsApiOpenApiSpec()`), and the media API has NestJS Swagger (`packages/sui-media-api/docs/openapi.yaml`).
 
-**Fix:**
-```typescript
-const controller = new AbortController();
-const timeout = setTimeout(() => controller.abort(), 30000);
-const response = await fetch(url, { ...init, signal: controller.signal });
-clearTimeout(timeout);
-```
+**Fix:** Generate Rust client from the existing OpenAPI specs via `openapi-generator`.
 
-### 3.9 NEW: Unify API Key Infrastructure
+### 3.9 stoked-mcp Package Appears Empty
 
-API key management is now implemented in two places:
-- `docs/src/modules/auth/apiKeyStore.ts` — docs site API key CRUD (MongoDB-backed)
-- `packages/sui-media-api/src/invoices/invoices.controller.ts` — references `ApiKeyGuard` (not implemented)
+**Directory:** `packages-internal/stoked-mcp/`
 
-**Fix:** Extract API key validation into `@stoked-ui/common-api` as a shared module so both the docs site and NestJS API use the same key format and storage.
-
-### 3.10 NEW: Stoked CLI — Share API Client Types
-
-**Files:** `packages-internal/stoked-cli/src/client.rs`, `packages-internal/stoked-mcp/src/index.ts`
-
-The Rust CLI and TypeScript MCP server both implement API clients against the same backend but share no type definitions. As endpoints evolve, these will diverge.
-
-**Fix:** Generate a shared OpenAPI spec from the NestJS API (`@nestjs/swagger`), then:
-- TypeScript: generate types from OpenAPI
-- Rust: generate client from OpenAPI via `openapi-generator`
+This package contains only build artifacts (`.turbo/`, `dist/`, empty `src/__tests__/`). If the MCP server has been deprecated or relocated, remove the package from the workspace. If planned, scaffold it properly.
 
 ---
 
@@ -379,141 +317,118 @@ The Rust CLI and TypeScript MCP server both implement API clients against the sa
 
 ### 4.1 Test Coverage Gaps
 
-| Package / Area | Test Files | Status |
-|---------------|-----------|--------|
-| `packages/sui-common-api` | 0 | **No tests at all** — NestJS shared models/DTOs |
-| `api/subscribe.ts` | 0 | **No tests** — email subscription handler |
-| `api/sms.ts` | 0 | **No tests** — SMS sending handler |
-| `api/lib/mongodb.ts` | 0 | **No tests** — database connection logic with type bug |
-| `packages-internal/stoked-mcp` | 12 tests | Helpers tested; **no tool invocation tests, no Zod validation tests** |
-| `packages/sui-common` | 1 test file | Minimal — only `platformRegistry.test.ts` |
-| `packages/sui-editor` | 6 test files | TypeScript validation only; no unit tests for EditorEngine logic |
-| `packages/sui-timeline` | 1 test file | Theme augmentation only |
-| `packages/sui-github` | 5 test files | TypeScript validation only |
-| `packages/sui-media` | 8 test files | Best coverage; 80% threshold enforced |
-| `packages/sui-media-api` | 11 spec files + 1 E2E | Good NestJS service coverage, 80% threshold |
-| `docs/src/modules/auth/apiKeyStore.ts` | 0 | **No tests** — new API key management |
-| `docs/pages/api/auth/*` | 0 | **No tests** — new auth API routes |
-| `packages/sui-file-explorer-v2/src/dnd/*` | 0 | **No tests** — new DnD system |
-| `packages-internal/stoked-cli` | 0 | **No tests** — new Rust CLI (needs `#[cfg(test)]` modules) |
+**149 test files** across the monorepo. Coverage by package:
+
+| Package | Test Files | Framework | Status |
+|---------|-----------|-----------|--------|
+| `sui-common` | 3 | Jest | SocialLinks tested; LocalDb, Colors, Types untested |
+| `sui-common-api` | 0 | — | **No tests at all** — 12 model files untested |
+| `sui-docs` | 0 | — | **No tests** |
+| `sui-editor` | 40 | Mocha + Jest | Good: integration, TypeScript, hooks, component tests |
+| `sui-file-explorer` | 20 | Jest | Good: DnD plugin, components, TypeScript specs |
+| `sui-github` | 35 | Mocha | Integration + TypeScript validation |
+| `sui-media` | 11 | Jest | Best coverage: 80% threshold enforced |
+| `sui-media-api` | 9 | Jest (NestJS) | Service specs + 1 E2E; no auth-to-media integration test |
+| `sui-timeline` | 1 | Jest | Theme augmentation only; Engine logic untested |
+| `sui-video-renderer` | 6 | Cargo | Blend accuracy, transform, effects, browser integration |
+| `docs/` | 15 | Mocha | New: cdnStorage, contactUser, invoiceNormalization tests |
+| `api/` | 0 | — | **No tests** — subscribe, sms, mongodb handlers |
+| `packages-internal/stoked-cli` | 0 | — | **No tests** — Rust CLI needs `#[cfg(test)]` modules |
 
 **Priority test additions:**
-1. `docs/src/modules/auth/apiKeyStore.ts` — key generation, validation, revocation, expiry
-2. `packages/sui-file-explorer-v2/src/dnd/treeOps.ts` — pure functions, highly testable
-3. `api/subscribe.ts` — origin validation, email validation, MongoDB operations, SES integration
-4. `api/sms.ts` — phone validation, origin check, SNS integration
-5. `packages/sui-common-api` — full test infrastructure setup
-6. `packages-internal/stoked-mcp` — tool invocation tests, Zod schema edge cases
-7. `packages/sui-media-api` — integration tests for auth-to-media flow (register -> login -> upload -> query)
+1. `api/subscribe.ts` + `api/sms.ts` — origin validation, MongoDB operations, SES/SNS integration
+2. `api/lib/mongodb.ts` — connection type mismatch bug makes this critical
+3. `packages/sui-common-api` — model validation, decorator behavior
+4. `packages/sui-timeline/src/Engine/` — core playback engine logic
+5. `packages-internal/stoked-cli` — command routing, auth flow, profile management
+6. `docs/pages/api/auth/*` — auth endpoint behavior (login, register, impersonation)
+7. `packages/sui-media-api` — integration test: register -> login -> upload -> query
 
 ### 4.2 Missing Documentation
 
 | Item | Status |
 |------|--------|
-| Root `.env.example` | **Missing** — document all required env vars with placeholder values |
+| Root `.env.example` | **Missing** — document all required env vars |
 | `SECURITY.md` | **Missing** — standard security disclosure policy |
-| Lambda API endpoint documentation | **Missing** — no OpenAPI/Swagger spec for `api/` handlers |
-| Architecture diagram | **Missing** — SC_OVERVIEW.md has ASCII art but no formal C4 or similar |
-| `CODEOWNERS` | **Minimal** — only one global owner, no team-based ownership |
-| MCP Server tool usage examples | **Missing** — README lists tools but no example invocations |
-| NestJS API deployment guide | **Exists** in markdown docs but references Docker setup that may be stale |
-| CLI auth flow documentation | **Missing** — new `stoked-cli` has no user-facing docs |
-| API key management documentation | **Missing** — new system undocumented |
+| Architecture diagram | **Missing** — no formal C4 or dependency graph |
+| `CODEOWNERS` | **Minimal** — only one global owner |
+| CLI user documentation | **Missing** — `stoked-cli` has 55KB+ of commands but no user-facing docs |
+| API key management docs | **Missing** — new system undocumented |
+
+**Resolved:** OpenAPI documentation now exists for both APIs:
+- Docs API: `docs/pages/api/openapi.ts` (dynamic generation)
+- Media API: `packages/sui-media-api/docs/openapi.yaml` (with CI validation via `scripts/validate-openapi.ts`)
 
 ### 4.3 Missing ESLint Config
 
-**Package:** `packages/sui-common-api` has no `.eslintrc` file, unlike all other packages.
+**Packages without explicit ESLint config** (inherit from root):
+- `sui-common-api`
+- `sui-docs`
+- `sui-video-renderer`
 
-### 4.4 stoked-mcp: Missing Integration Tests
+### 4.4 Inconsistent ESLint Rules Across Packages
 
-The MCP server test suite (`mcp-server.spec.ts`, 237 lines) covers HTTP helpers and endpoint path mapping but has zero tests for:
-- Actual tool handler execution
-- Zod schema validation (rejection of invalid inputs)
-- Server startup and MCP transport connection
-- End-to-end tool call -> API response flow
+| Rule | sui-common | sui-editor | sui-media | sui-timeline |
+|------|-----------|-----------|----------|-------------|
+| `import/no-cycle` | `off` | `error` | `error` | `off` |
+
+Circular dependency detection should be consistent. Recommend `error` for all packages.
 
 ---
 
 ## 5. Performance Opportunities
 
-### 5.1 MCP Server: No Pagination Limits
-
-**File:** `packages-internal/stoked-mcp/src/index.ts:241-242`
-
-```typescript
-limit: z.number().int().min(1).optional()
-```
-
-No `.max()` constraint. A client could request `limit=1000000`, hammering the backend.
-
-**Fix:** Add `.max(100)` to all pagination parameters.
-
-### 5.2 MCP Server: JSON Pretty-Printing Overhead
-
-**File:** `packages-internal/stoked-mcp/src/index.ts:97`
-
-```typescript
-text: JSON.stringify(data, null, 2)
-```
-
-Pretty-printing with 2-space indentation adds ~30% payload overhead for large responses (e.g., blog post listings with embedded markdown).
-
-**Fix:** Use `JSON.stringify(data)` (compact) for production, keep pretty-print for debugging only.
-
-### 5.3 No Response Caching in MCP Server
-
-Read-only operations (`list_blog_posts`, `list_tags`, `list_authors`, `list_license_products`) hit the backend on every call. Adding a TTL-based in-memory cache (even 60s) for these would reduce backend load significantly during typical Claude conversations.
-
-### 5.4 MongoDB Connection Health
+### 5.1 MongoDB Connection Health
 
 **File:** `api/lib/mongodb.ts`
 
-Connection is cached globally (good), but there are no health checks, connection timeout configuration, or retry logic for transient failures. The type mismatch bug (section 2.3) means the connection may silently fail.
+Connection is cached globally (good), but no health checks, connection timeout configuration, or retry logic. Combined with the type mismatch bug (section 2.4), the connection may silently fail.
 
-### 5.5 Lambda Cold Start Optimization
+### 5.2 Lambda Cold Start Optimization
 
-Standalone Lambda functions (`subscribe.ts`, `sms.ts`) import MongoDB client at module level but don't use connection pooling or provisioned concurrency. For latency-sensitive email verification flows, consider:
-- Provisioned concurrency for the verify function
+Standalone Lambda functions (`subscribe.ts`, `sms.ts`) import MongoDB client at module level but don't use connection pooling or provisioned concurrency. Consider:
+- Provisioned concurrency for latency-sensitive flows
 - Connection keepalive settings for MongoDB
-- `context.callbackWaitsForEmptyEventLoop = false` for faster cold starts
+- `context.callbackWaitsForEmptyEventLoop = false`
 
-### 5.6 NestJS API: Production Console Suppression
+### 5.3 NestJS API: Production Console Suppression
 
-**File:** `packages/sui-media-api/src/app.ts`
+**File:** `packages/sui-media-api/src/main.ts`
 
-```typescript
-if (process.env.NODE_ENV === 'production') {
-  console.log = () => {};
-  console.info = () => {};
-  console.debug = () => {};
-}
-```
+Globally disables `console.log`, `console.info`, `console.debug` in production. This prevents emergency debugging.
 
-Globally disabling console in production is aggressive and prevents emergency debugging. Replace with a structured logger (e.g., `@nestjs/pino`) with configurable log levels.
+**Fix:** Replace with a structured logger (e.g., `@nestjs/pino`) with configurable log levels.
 
-### 5.7 NestJS API: No Database Index Definitions
+### 5.4 NestJS API: Good — Redis Caching Middleware Present
 
-Mongoose schemas define fields but no explicit index definitions for frequently queried fields (tags, author, mediaType, status). MongoDB will do collection scans on these queries.
+**File:** `packages/sui-media-api/src/performance/caching.middleware.ts`
+
+The media API has Redis-based caching with configurable TTL per endpoint type:
+- Metadata: 5-min cache
+- Thumbnails: 30-min cache
+- File lists: 2-min cache
+- Search: 1-min cache
+- Cache invalidation pattern support
+
+This is well-implemented. No action needed.
+
+### 5.5 NestJS API: No Database Index Definitions
+
+Mongoose schemas define fields but no explicit indexes for frequently queried fields (tags, author, mediaType, status).
 
 **Fix:** Add indexes to schemas:
 ```typescript
-@Schema()
-export class Media {
-  @Prop({ index: true })
-  author: string;
-
-  @Prop({ index: true })
-  mediaType: string;
-}
+@Prop({ index: true })
+author: string;
 ```
 
-### 5.8 NEW: DnD Tree Operations — Redundant Tree Traversals
+### 5.6 DnD Tree Operations — Potential Redundant Traversals
 
-**File:** `packages/sui-file-explorer-v2/src/dnd/treeOps.ts`
+**File:** `packages/sui-file-explorer/src/internals/plugins/useFileExplorerDnd/`
 
-`removeItem()` and `insertChild()`/`insertBefore()`/`insertAfter()` each do a full recursive tree traversal. When moving an item, both are called sequentially — two full traversals.
+The DnD plugin handles tree mutations. If `removeItem()` and `insertChild()`/`insertBefore()`/`insertAfter()` each traverse the full tree independently, moving an item requires two full traversals.
 
-**Fix:** Combine into a single `moveItem(tree, sourceId, targetId, position)` that removes and inserts in one pass.
+**Fix:** Combine into a single `moveItem()` that removes and inserts in one pass.
 
 ---
 
@@ -521,7 +436,7 @@ export class Media {
 
 ### 6.1 Add Dependency Audit to CI
 
-No `pnpm audit` step in any CI workflow. Security vulnerabilities in transitive dependencies won't be caught automatically.
+No `pnpm audit` step in CI workflows. Security vulnerabilities in transitive dependencies won't be caught.
 
 **Fix:** Add to `.github/workflows/ci.yml`:
 ```yaml
@@ -529,134 +444,162 @@ No `pnpm audit` step in any CI workflow. Security vulnerabilities in transitive 
   run: pnpm audit --audit-level=high
 ```
 
-### 6.2 Add Pre-Commit Secret Scanning
+### 6.2 Add Pre-Commit Hooks
 
-No git-secrets, detect-secrets, or similar pre-commit hook to prevent accidental credential commits. Given the existing `.env` leak (section 1.1), this is urgent.
+No `.husky/` directory, no pre-commit configuration found. All quality gates rely on CI. Given the sensitive credentials in the project, local pre-commit hooks would catch issues faster.
 
-**Fix:** Install `detect-secrets` or enable GitHub push protection for secret scanning.
+**Fix:** Install `husky` with `lint-staged` for linting/formatting, and `detect-secrets` or GitHub push protection for secret scanning.
 
 ### 6.3 Build Entry Point Inconsistency
 
-Most UI packages have `"main": "src/index.ts"` (pointing to source), while `sui-media-api` correctly uses `"main": "dist/main.js"`. Consumers relying on `main` for the built output will get uncompiled TypeScript.
+Most UI packages have `"main": "src/index.ts"` (source), while `sui-media-api` correctly uses `"main": "dist/main.js"`. Consumers relying on `main` for built output will get uncompiled TypeScript.
 
-### 6.4 Inconsistent npm Scripts
-
-| Script | Expected | Actual (sui-media) |
-|--------|----------|-------------------|
-| `typescript` | `tsc -p tsconfig.json` | `pnpm build` (non-standard) |
-
-Standardize across all packages so `turbo run typescript` behaves consistently.
-
-### 6.5 Docker Production Hardening
+### 6.4 Docker Production Hardening
 
 **File:** `packages/sui-media-api/Dockerfile`
 
-The Docker setup is solid (multi-stage build, non-root user, tini for PID 1, health check). Two improvements:
+Solid multi-stage build (non-root user, tini for PID 1, health check). Two improvements:
 
-1. **Pin base image digest** — `node:18-alpine` should use a digest (`node:18-alpine@sha256:...`) to prevent supply chain drift
-2. **Add `--no-cache` to apk** — `apk add --no-cache ffmpeg` is used (good), but ensure the final stage also runs `rm -rf /var/cache/apk/*`
+1. **Pin base image digest** — `node:18-alpine` should use `@sha256:...` to prevent supply chain drift
+2. **Consider Node.js 20** — workflows already use `nodejs20.x` for Lambda; align Docker
 
-### 6.6 CI Workflow: Missing Concurrency Controls
+### 6.5 Resolved: CI Concurrency Controls — IMPLEMENTED
 
-**File:** `.github/workflows/ci.yml`
+**File:** `.github/workflows/deploy-site.yml`
 
-No `concurrency` group is defined. Pushing multiple commits rapidly can trigger overlapping CI runs that waste resources and potentially deploy conflicting artifacts.
-
-**Fix:**
+Production deploy workflows now have concurrency groups:
 ```yaml
 concurrency:
-  group: ci-${{ github.ref }}
+  group: deploy-site-production
   cancel-in-progress: true
 ```
 
-### 6.7 NEW: Stoked CLI — No CI Build or Release Pipeline
+`publish-packages.yml` also has `concurrency: publish-packages-main`. The main `ci.yml` does not have concurrency controls (low priority since it's non-destructive).
+
+### 6.6 Stoked CLI — No CI Build Pipeline
 
 **Directory:** `packages-internal/stoked-cli/`
 
-The Rust CLI has pre-compiled binaries in `target/release/` but no CI workflow to build, test, or release them. Cross-platform binaries (Linux, macOS-arm64) are not automated.
+The Rust CLI is feature-complete (auth, blog, clients, products, invoices, deliverables commands) but has no CI workflow for build, test, or release.
 
-**Fix:** Add a GitHub Actions workflow:
-```yaml
-- uses: actions-rs/cargo@v1
-  with:
-    command: test
-- uses: actions-rs/cargo@v1
-  with:
-    command: build
-    args: --release
-```
+**Fix:** Add GitHub Actions workflow with `cargo test` and `cargo build --release`. Consider `cross` for cross-compilation.
 
-Consider using `cross` for cross-compilation or GitHub's matrix strategy for multi-platform builds.
+### 6.7 Good: CodeQL and Supply Chain Security Present
+
+**Files:** `.github/workflows/codeql.yml`, `.github/workflows/scorecards.yml`
+
+SAST and OSSF Scorecard workflows are configured. Also: `claude-code-review.yml` for AI-assisted code review.
 
 ---
 
 ## 7. Workspace Package Assessment
 
-### 7.1 `apps/code-ext` (VSCode Extension) — **Does Not Exist** [critical]
+### 7.1 `sui-common` — Shared React Utilities [medium priority]
 
-The `apps/code-ext` directory is not present in the repository. References to a VSCode extension appear in project PRDs and documentation (`docs/data/stokd-cloud/docs/vscode-extension/`), indicating this is planned but not yet scaffolded.
+**Status:** Active, 3 test files
 
-**Recommendations for creation:**
-- Use `@vscode/vsce` for packaging and `yo code` for scaffolding
-- Place WebSocket client code in a shared package if the MCP server will also use it
-- Implement `ExtensionContext.secrets` for credential storage — never use `vscode.workspace.getConfiguration()` for tokens
-- Add `activationEvents` scoping to minimize extension load time
-- Include E2E tests using `@vscode/test-electron`
-- Add a `webpack.config.js` for bundling (VSCode extensions must be single-file for marketplace)
-
-### 7.2 `apps/menu-bar` (Menu Bar App) — **Does Not Exist** [low]
-
-No directory or references found. This is a scaffold-level item.
-
-**Recommendations for creation:**
-- Consider Electron with `menubar` npm package, or Tauri for lighter footprint
-- Share API client code with `stoked-mcp` via a common `@stoked-ui/api-client` package
-- If macOS-only, consider Swift + `NSStatusItem` instead of Electron for native feel
-
-### 7.3 `apps/osx-desktop-widget` (macOS Widget) — **Does Not Exist** [medium]
-
-No `Package.swift`, `.xcodeproj`, or Swift source files found in the repository.
-
-**Recommendations for creation:**
-- Use WidgetKit + SwiftUI (requires Xcode project, not buildable via pnpm/turbo)
-- Create as a standalone Xcode project under `apps/osx-desktop-widget/`
-- Add a `Makefile` or shell script for CI integration (`xcodebuild -scheme Widget -sdk macosx`)
-- Communicate with the NestJS API via `URLSession` — share API schemas via OpenAPI codegen
-- Widget timeline providers should cache aggressively (WidgetKit limits refresh frequency)
-
-### 7.4 `apps/slack-app` (Slack App) — **Does Not Exist** [medium]
-
-No directory or Slack-related configuration found. The monorepo does have Slack Bolt (`@slack/bolt`) as a root dependency.
-
-**Recommendations for creation:**
-- Use Bolt.js (`@slack/bolt`) for event handling (dependency already present)
-- Share authentication and API client code with `stoked-mcp`
-- Implement proper Slack signature verification (`x-slack-signature`) for webhook security
-- Consider Socket Mode for development, HTTP mode for production
-- Add to the existing SST infrastructure as a Lambda function
-
-### 7.5 `packages/api` (NestJS API) — **Maps to `packages/sui-media-api`** [critical]
-
-This package exists at `packages/sui-media-api/` (12,648+ LOC). Fully analyzed above.
+**Components:** SocialLinks (with platform registry), useResize hook, Types utilities, LocalDb (IndexedDB), GrokLoader, Colors, MimeType, ProviderState.
 
 **Top priorities:**
-1. Migrate AuthService from in-memory to MongoDB (section 1.7)
-2. Migrate MediaService from in-memory to MongoDB (section 2.10)
-3. Add rate limiting (section 1.8)
-4. Enable TypeScript strict mode (section 2.1)
-5. Implement the missing `ApiKeyGuard` (section 2.11)
-6. Add database indexes (section 5.7)
+1. Add tests for LocalDb, ProviderState, MimeType (untested core utilities)
+2. Enable `noImplicitAny: true` (leaf package, good starting point)
+3. Remove 7 `console.log` calls from production code
 
-### 7.6 `packages/mcp-server` (MCP Server) — **Maps to `packages-internal/stoked-mcp`** [critical]
+### 7.2 `sui-common-api` — Shared Data Models [high priority]
 
-This package exists at `packages-internal/stoked-mcp/` (409 LOC main, 237 LOC tests). Fully analyzed above.
+**Status:** Active, 0 test files
+
+**Models:** base, video, user, file, image, client, invoice, license, media, product, blogPost, uploadSession (12 model files). Decorators: stdschema, defaultSchemaOptions.
 
 **Top priorities:**
-1. Add request timeout to `apiRequest()` (section 3.8)
-2. Add pagination max limits (section 5.1)
-3. Add tool invocation tests (section 4.4)
-4. Fix unsafe type coercion (section 2.8)
-5. Modularize tool registration as tools grow (section 3.1)
+1. **Add test suite** — model validation, decorator behavior, schema generation
+2. Wire models to NestJS services (AuthService, MediaService use in-memory Maps instead)
+3. Add ESLint config (currently inherits from root only)
+
+### 7.3 `sui-docs` — Documentation Utilities [low priority]
+
+**Status:** Active, 0 test files
+
+**Top priorities:**
+1. Add basic tests for documentation generation utilities
+
+### 7.4 `sui-editor` — Video/Audio Editor [medium priority]
+
+**Status:** Active, 40 test files (best test coverage by file count)
+
+**Key areas:** EditorEngine, DetailView, WASM Preview, keyboard controls, AudioPlayer, AnimationController.
+
+**Top priorities:**
+1. Remove 6 `console.log` calls from production code
+2. Add unit tests for EditorEngine logic (integration tests exist but no focused engine tests)
+3. WASM preview integration is complex — ensure error boundaries exist
+
+### 7.5 `sui-file-explorer` — File Tree Component [medium priority]
+
+**Status:** Active, 20 test files. No v2 package — v2 exists only as planning docs in `.stokd/projects/`.
+
+**Key areas:** DnD plugin (`useFileExplorerDnd`), file validation, export utilities, MUI X DnD adapters.
+
+**Top priorities:**
+1. Remove 3 `console.log` calls from DnD plugin and File component
+2. Add error boundary around DnD operations
+3. `tsconfig.json` has `strict: false` (explicit) — most permissive of all packages
+
+### 7.6 `sui-github` — GitHub Integration [low priority]
+
+**Status:** Active, 35 test files
+
+**Components:** GithubEvents, GithubCalendar.
+
+**Top priorities:**
+1. Remove 2 `console.log` calls
+2. Enable `noImplicitAny: true` (leaf package, low risk)
+
+### 7.7 `sui-media` — Media Components [high priority]
+
+**Status:** Active, 11 test files, **80% coverage threshold enforced** (only package with thresholds)
+
+**Key areas:** MediaCard, MediaViewer, MediaFile, FileSystemApi, hooks (useMediaUpload), abstractions (Auth, Payment, Queue, Router, KeyboardShortcuts).
+
+**Top priorities:**
+1. Remove 6 `console.log` calls from production code
+2. This package is the model for test coverage — extend threshold enforcement to other packages
+
+### 7.8 `sui-media-api` — NestJS Media API [critical priority]
+
+**Status:** Active, 9 test files + 1 E2E
+
+**Architecture:** Well-modularized NestJS with auth, media, uploads, S3, health modules. Has Redis caching middleware, OpenAPI spec generation with CI validation, JWT + RBAC guards.
+
+**Top priorities:**
+1. **Migrate AuthService from in-memory to MongoDB** (section 1.7)
+2. **Migrate MediaService from in-memory to MongoDB** (section 2.9)
+3. **Migrate UploadsService from in-memory to MongoDB**
+4. Implement missing `ApiKeyGuard` (section 2.10)
+5. Add database indexes (section 5.5)
+6. Add integration test: register -> login -> upload -> query
+7. Replace global console suppression with structured logger (section 5.3)
+
+### 7.9 `sui-timeline` — Timeline Engine [medium priority]
+
+**Status:** Active, 1 test file (theme augmentation only)
+
+**Key areas:** Engine (playback control), TimelineLabels, TimelineProvider, structured logger utility.
+
+**Top priorities:**
+1. **Add tests for Engine logic** — core playback engine is untested
+2. Remove 3 `console.log` calls (excluding the structured logger in `utils/logger.ts`)
+3. Promote `logger.ts` as the shared logging solution for all packages
+
+### 7.10 `sui-video-renderer` — Rust/WASM Video Renderer [low priority]
+
+**Status:** Active, 6 Rust test files
+
+**Architecture:** Cargo workspace with compositor, CLI, and wasm-preview modules. WASM output aliased as `@stoked-ui/video-renderer-wasm` in webpack. Has benchmark suite with regression checking.
+
+**Top priorities:**
+1. Add ESLint config for any TypeScript wrapper code
+2. Document WASM build process (currently in CLAUDE.md memory, not in package README)
 
 ---
 
@@ -664,44 +607,39 @@ This package exists at `packages-internal/stoked-mcp/` (409 LOC main, 237 LOC te
 
 | Priority | Issue | Section |
 |----------|-------|---------|
-| **P0 — Immediate** | Rotate compromised `.env` credentials | 1.1 |
-| **P0 — Immediate** | Add `await` to MongoDB operations in `api/subscribe.ts` | 2.2 |
-| **P0 — Immediate** | Fix MongoDB client type mismatch in `api/lib/mongodb.ts` | 2.3 |
-| **P1 — This Sprint** | Fix origin validation bypass | 1.4 |
+| **P0 — Immediate** | Add `await` to MongoDB operations in `api/subscribe.ts` | 2.3 |
+| **P0 — Immediate** | Fix MongoDB client type mismatch in `api/lib/mongodb.ts` | 2.4 |
+| **P0 — Immediate** | Add rate limiting to auth endpoints | 1.1 |
+| **P1 — This Sprint** | Fix wildcard CORS in API Gateway | 1.2 |
+| **P1 — This Sprint** | Fix origin validation bypass in `api/sms.ts` | 1.3 |
 | **P1 — This Sprint** | Migrate AuthService to MongoDB persistence | 1.7 |
-| **P1 — This Sprint** | Add rate limiting to auth endpoints | 1.8 |
-| **P1 — This Sprint** | Remove hardcoded AWS account ID | 1.2 |
-| **P1 — This Sprint** | Restrict SNS IAM permissions | 1.3 |
-| **P1 — This Sprint** | Stop logging sensitive event data | 2.5 |
-| **P1 — This Sprint** | Fix API key store missing `await` | 1.9 |
-| **P1 — This Sprint** | Add tests for Lambda API handlers | 4.1 |
-| **P1 — This Sprint** | Add audit logging for impersonation | 1.10 |
+| **P1 — This Sprint** | Remove hardcoded AWS account ID | 1.4 |
+| **P1 — This Sprint** | Restrict SNS IAM permissions | 1.5 |
+| **P1 — This Sprint** | Stop logging sensitive event data | 2.6 |
+| **P1 — This Sprint** | Fix malformed IAM ARN pattern | 1.6 |
+| **P1 — This Sprint** | Add audit logging for impersonation | 1.8 |
+| **P2 — Next Sprint** | Add tests for Lambda API handlers | 4.1 |
+| **P2 — Next Sprint** | Add tests for `sui-common-api` models | 7.2 |
+| **P2 — Next Sprint** | Add tests for timeline Engine logic | 7.9 |
+| **P2 — Next Sprint** | Migrate MediaService + UploadsService to MongoDB | 2.9 |
 | **P2 — Next Sprint** | Enable TypeScript strict mode incrementally | 2.1 |
-| **P2 — Next Sprint** | Modularize MCP server tools | 3.1 |
-| **P2 — Next Sprint** | Add CORS headers to Lambda functions | 3.4 |
+| **P2 — Next Sprint** | Remove 32 console.log calls from production code | 2.2 |
+| **P2 — Next Sprint** | Add pre-commit hooks (husky + secret scanning) | 6.2 |
 | **P2 — Next Sprint** | Add dependency audit to CI | 6.1 |
+| **P2 — Next Sprint** | Unify API key infrastructure | 3.1 |
 | **P2 — Next Sprint** | Create root `.env.example` | 4.2 |
-| **P2 — Next Sprint** | Migrate MediaService to MongoDB | 2.10 |
-| **P2 — Next Sprint** | Add MCP request timeout | 3.8 |
-| **P2 — Next Sprint** | Add pre-commit secret scanning | 6.2 |
-| **P2 — Next Sprint** | Add MCP tool invocation tests | 4.4 |
-| **P2 — Next Sprint** | Unify API key infrastructure | 3.9 |
-| **P2 — Next Sprint** | Add tests for apiKeyStore and DnD treeOps | 4.1 |
-| **P2 — Next Sprint** | Fix CLI auth token exposure in URL | 1.11 |
-| **P3 — Backlog** | Scaffold `apps/code-ext` VSCode extension | 7.1 |
-| **P3 — Backlog** | Scaffold `apps/slack-app` | 7.4 |
-| **P3 — Backlog** | Add response caching to MCP server | 5.3 |
-| **P3 — Backlog** | Add pagination max limits | 5.1 |
-| **P3 — Backlog** | Standardize error response formats | 2.4 |
+| **P3 — Backlog** | Extract shared Lambda middleware | 3.2 |
+| **P3 — Backlog** | Add CORS headers to Lambda functions | 3.4 |
 | **P3 — Backlog** | Add request ID tracing | 3.5 |
-| **P3 — Backlog** | Lambda cold start optimization | 5.5 |
-| **P3 — Backlog** | Add database indexes | 5.7 |
-| **P3 — Backlog** | Share API types between CLI and MCP server | 3.10 |
-| **P3 — Backlog** | Add DnD error boundary | 2.12 |
-| **P3 — Backlog** | Optimize DnD tree traversals | 5.8 |
-| **P3 — Backlog** | Scaffold `apps/osx-desktop-widget` | 7.3 |
-| **P3 — Backlog** | Add CI pipeline for stoked-cli | 6.7 |
-| **P4 — Future** | Scaffold `apps/menu-bar` | 7.2 |
-| **P4 — Future** | Replace console suppression with structured logging | 5.6 |
-| **P4 — Future** | Pin Docker base image digests | 6.5 |
-| **P4 — Future** | Add CI concurrency controls | 6.6 |
+| **P3 — Backlog** | Share API types between CLI and server via OpenAPI | 3.8 |
+| **P3 — Backlog** | Add database indexes to media API | 5.5 |
+| **P3 — Backlog** | Add DnD error boundary in file-explorer | 7.5 |
+| **P3 — Backlog** | Standardize error response formats | 2.5 |
+| **P3 — Backlog** | Lambda cold start optimization | 5.2 |
+| **P3 — Backlog** | Add CI pipeline for stoked-cli | 6.6 |
+| **P3 — Backlog** | Resolve or remove empty stoked-mcp package | 3.9 |
+| **P3 — Backlog** | Standardize ESLint `import/no-cycle` rule | 4.4 |
+| **P4 — Future** | Replace console suppression with structured logging | 5.3 |
+| **P4 — Future** | Pin Docker base image digests + upgrade to Node 20 | 6.4 |
+| **P4 — Future** | Optimize DnD tree traversals | 5.6 |
+| **P4 — Future** | Promote timeline logger as shared solution | 7.9 |

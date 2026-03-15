@@ -12,5 +12,5 @@
     "packages/sui-media-api",
     "packages/sui-timeline"
   ],
-  "metaVersion": "0.0.1"
+  "metaVersion": "0.2.0"
 }
