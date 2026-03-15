@@ -1202,7 +1202,7 @@ function useAllProducts(): Products {
         const fallbackById = new Map(fallbackEntries.map((product) => [product.id, product]));
         const apiEntries = data.map((product: any) => {
           const fallback = fallbackById.get(product.productId);
-          return {
+          const entry: TProduct = {
             ...fallback,
             id: product.productId,
             name: fallback?.name || product.name,
@@ -1217,7 +1217,9 @@ function useAllProducts(): Products {
             hideProductFeatures: product.hideProductFeatures ?? fallback?.hideProductFeatures ?? false,
             live: true,
             showcaseType: fallback?.showcaseType || AdvancedShowcase,
-          } satisfies TProduct;
+          };
+
+          return entry;
         });
         const orderedIds = [
           ...fallbackEntries.map((product) => product.id),
