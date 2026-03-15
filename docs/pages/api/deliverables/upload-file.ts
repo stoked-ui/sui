@@ -8,6 +8,7 @@ import {
   buildDeliverableCdnUrl,
   DELIVERABLES_CDN_BUCKET,
 } from 'docs/src/modules/deliverables/cdnStorage';
+import { prepareDeliverableHtmlForStorage } from 'docs/src/modules/deliverables/htmlSnapshot';
 import { writeLocalDeliverableFile } from 'docs/src/modules/deliverables/localFiles';
 
 export const config = {
@@ -110,6 +111,10 @@ function slugifyClientName(name: string) {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 }
 
+function isHtmlUpload(filePath: string, contentType: string) {
+  return contentType.includes('text/html') || filePath.toLowerCase().endsWith('.html');
+}
+
 async function resolveClientSlug(clientId: string, providedClientSlug?: string) {
   if (typeof providedClientSlug === 'string' && providedClientSlug.trim()) {
     return providedClientSlug.trim();
@@ -184,13 +189,17 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
     const key = buildDeliverableCdnKey(location);
     const url = buildDeliverableCdnUrl(location);
 
+    const outputBuffer = isHtmlUpload(filePath, contentType)
+      ? Buffer.from(prepareDeliverableHtmlForStorage(buffer.toString('utf8'), url), 'utf8')
+      : buffer;
+
     // Local dev continues to store files outside of public so the docs app can preview them without S3.
     if (process.env.NODE_ENV === 'development') {
       writeLocalDeliverableFile({
         clientId,
         bundleId,
         filePath,
-        content: buffer,
+        content: outputBuffer,
       });
 
       return res.status(200).json({
@@ -207,7 +216,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
     await s3.send(new PutObjectCommand({
       Bucket: DELIVERABLES_CDN_BUCKET,
       Key: key,
-      Body: buffer,
+      Body: outputBuffer,
       ContentType: contentType,
       CacheControl: cacheControl,
     }));

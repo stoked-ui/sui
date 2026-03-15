@@ -52,6 +52,19 @@ async function apiFetch(url: string) {
   return res.json();
 }
 
+function appendTokenParam(url: string, token: string | null) {
+  if (!token) {
+    return url;
+  }
+
+  const separator = url.includes('?') ? '&' : '?';
+  return `${url}${separator}token=${encodeURIComponent(token)}`;
+}
+
+function isHtmlDeliverable(deliverable: Deliverable) {
+  return deliverable.type === 'html' || deliverable.url.endsWith('.html');
+}
+
 export default function DeliverableViewerPage({ deliverableId }: { deliverableId: string }) {
   const router = useRouter();
   const [deliverable, setDeliverable] = React.useState<Deliverable | null>(null);
@@ -83,17 +96,24 @@ export default function DeliverableViewerPage({ deliverableId }: { deliverableId
   }, [deliverableId]);
 
   const token = getToken();
-  // Proxy endpoints require auth — iframes can't send Authorization headers,
-  // so pass the token via query parameter for proxy URLs.
   const authenticatedUrl = React.useMemo(() => {
-    if (!deliverable || !token) {
-      return deliverable?.url ?? '';
+    if (!deliverable) {
+      return '';
     }
+
     const url = deliverable.url;
-    if (url.startsWith('/api/')) {
-      const sep = url.includes('?') ? '&' : '?';
-      return `${url}${sep}token=${encodeURIComponent(token)}`;
+
+    if (isHtmlDeliverable(deliverable) && !url.startsWith('/api/')) {
+      return appendTokenParam(
+        getApiUrl(`/api/deliverables/render?url=${encodeURIComponent(url)}`),
+        token,
+      );
     }
+
+    if (url.startsWith('/api/')) {
+      return appendTokenParam(url, token);
+    }
+
     return url;
   }, [deliverable, token]);
 
@@ -113,7 +133,7 @@ export default function DeliverableViewerPage({ deliverableId }: { deliverableId
     return <Alert severity="error">Deliverable not found</Alert>;
   }
 
-  const isHtml = deliverable.type === 'html' || deliverable.url.endsWith('.html');
+  const isHtml = isHtmlDeliverable(deliverable);
 
   if (isHtml) {
     return (
