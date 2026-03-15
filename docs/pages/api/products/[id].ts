@@ -4,6 +4,45 @@ import { getDb } from 'docs/src/modules/db/mongodb';
 import { withAuth, AuthenticatedRequest } from 'docs/src/modules/auth/withAuth';
 import { createStripeProduct, createStripePrice } from 'docs/src/modules/license/stripeClient';
 
+type SubscriptionInput = {
+  label?: string;
+  price: number;
+  currency: string;
+  interval: 'month' | 'year';
+  stripePriceId?: string;
+};
+
+function toSubscriptionInput(entry: Record<string, unknown>, defaults?: { currency?: unknown; interval?: unknown }): SubscriptionInput {
+  return {
+    label: typeof entry.label === 'string' && entry.label.trim() ? entry.label.trim() : undefined,
+    price: Number(entry.price),
+    currency: String(entry.currency || defaults?.currency || 'usd').toLowerCase(),
+    interval: entry.interval === 'month' || defaults?.interval === 'month' ? 'month' : 'year',
+    stripePriceId: typeof entry.stripePriceId === 'string' ? entry.stripePriceId : undefined,
+  };
+}
+
+function normalizeSubscriptions(input: unknown, existingProduct: any, legacyPrice?: unknown, legacyCurrency?: unknown): SubscriptionInput[] {
+  const rawSubscriptions = Array.isArray(input)
+    ? input
+    : legacyPrice !== undefined || legacyCurrency !== undefined
+      ? [{
+        label: existingProduct?.subscriptions?.[0]?.label,
+        price: legacyPrice !== undefined ? legacyPrice : existingProduct?.price,
+        currency: legacyCurrency !== undefined ? legacyCurrency : existingProduct?.currency,
+        interval: existingProduct?.subscriptions?.[0]?.interval || 'year',
+      }]
+      : [];
+
+  return rawSubscriptions
+    .filter((entry: unknown): entry is Record<string, unknown> => typeof entry === 'object' && entry !== null)
+    .map((entry) => toSubscriptionInput(entry, {
+      currency: existingProduct?.currency,
+      interval: existingProduct?.subscriptions?.[0]?.interval,
+    }))
+    .filter((entry) => Number.isFinite(entry.price) && entry.price > 0 && !!entry.currency);
+}
+
 async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
   const { id } = req.query;
   if (!id || typeof id !== 'string') {
@@ -36,7 +75,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
     const { 
       name, fullName, description, icon, url, live, 
       hideProductFeatures, prerelease, features,
-      keyPrefix, price, currency, 
+      keyPrefix, price, currency, subscriptions,
       licenseDurationDays, gracePeriodDays, trialDurationDays,
       maxActivations
     } = req.body || {};
@@ -61,38 +100,55 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
     if (trialDurationDays !== undefined) update.trialDurationDays = trialDurationDays;
     if (maxActivations !== undefined) update.maxActivations = maxActivations;
 
-    // Handle price/currency change
-    if ((price !== undefined && price !== existingProduct.price) || 
-        (currency !== undefined && currency !== existingProduct.currency)) {
+    const normalizedSubscriptions = normalizeSubscriptions(subscriptions, existingProduct, price, currency);
+
+    if (Array.isArray(subscriptions) && normalizedSubscriptions.length === 0) {
+      return res.status(400).json({ message: 'At least one valid subscription is required' });
+    }
+
+    if (normalizedSubscriptions.length > 0) {
       try {
-        const newPrice = price !== undefined ? price : existingProduct.price;
-        const newCurrency = currency !== undefined ? currency : existingProduct.currency;
-        
         let stripeProductId = existingProduct.stripeProductId;
         if (!stripeProductId) {
-          // Create Stripe Product if it doesn't exist
           const stripeProduct = await createStripeProduct({
             productId: existingProduct.productId,
-            name: existingProduct.name,
-            description: existingProduct.description,
+            name: name !== undefined ? name : existingProduct.name,
+            description: description !== undefined ? description : existingProduct.description,
           });
           stripeProductId = stripeProduct.id;
           update.stripeProductId = stripeProductId;
         }
 
-        const stripePrice = await createStripePrice({
-          productId: existingProduct.productId,
-          stripeProductId: stripeProductId,
-          price: newPrice,
-          currency: newCurrency,
-        });
+        const stripeSubscriptions = await Promise.all(
+          normalizedSubscriptions.map(async (subscription) => {
+            if (subscription.stripePriceId) {
+              return subscription;
+            }
 
-        update.price = newPrice;
-        update.currency = newCurrency;
-        update.stripePriceId = stripePrice.id;
+            const stripePrice = await createStripePrice({
+              productId: existingProduct.productId,
+              stripeProductId,
+              price: subscription.price,
+              currency: subscription.currency,
+              interval: subscription.interval,
+              label: subscription.label,
+            });
+
+            return {
+              ...subscription,
+              stripePriceId: stripePrice.id,
+            };
+          }),
+        );
+
+        const [defaultSubscription] = stripeSubscriptions;
+        update.price = defaultSubscription.price;
+        update.currency = defaultSubscription.currency;
+        update.stripePriceId = defaultSubscription.stripePriceId;
+        update.subscriptions = stripeSubscriptions;
       } catch (error: any) {
-        console.error('Failed to update Stripe price:', error);
-        return res.status(500).json({ message: `Failed to update Stripe price: ${error.message}` });
+        console.error('Failed to update Stripe subscriptions:', error);
+        return res.status(500).json({ message: `Failed to update Stripe subscriptions: ${error.message}` });
       }
     }
 

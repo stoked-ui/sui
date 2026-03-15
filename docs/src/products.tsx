@@ -163,7 +163,7 @@ export class Product {
             <Typography color="text.primary" variant="body2" fontWeight="700">
               {this.name}
             </Typography>
-            <Typography color="text.secondary" variant="body2">
+            <Typography color="text.secondary" variant="body2" sx={{ whiteSpace: 'pre-line' }}>
               {this.description}
             </Typography>
           </Box>
@@ -223,7 +223,7 @@ export class Product {
           <Typography color="text.primary" sx={{ display: "flex", flexDirection: "row"}} variant="body2" fontWeight="700">
             {this.name}
           </Typography>
-          <Typography color="text.secondary" variant="body2">
+          <Typography color="text.secondary" variant="body2" sx={{ whiteSpace: 'pre-line' }}>
             {this.description}
           </Typography>
         </Box>
@@ -1045,7 +1045,7 @@ const fluxData: TProduct = {
   fullName: "Flux",
   description: "Make any website your Mac desktop wallpaper",
   icon: "product-toolpad",
-  url: "/flux",
+  url: "/products/flux",
   site: 'consulting',
   hideProductFeatures: true,
   live: true,
@@ -1136,9 +1136,9 @@ const stokdCloudData: TProduct = {
   id: 'stokd-cloud',
   name: "Stokd Cloud",
   fullName: "Stokd Cloud",
-  description: "AI-powered project orchestration with VSCode extension, NestJS API, and MCP server",
+  description: "AI project orchestration for teams.\nVS Code, state API, and MCP in one loop.",
   icon: "product-toolpad",
-  url: "/stokd-cloud",
+  url: "/products/stokd-cloud",
   site: 'consulting',
   hideProductFeatures: true,
   live: true,
@@ -1166,11 +1166,24 @@ const stokdCloud = new Product(stokdCloudData);
 const PRODUCTS: Products = new Products([fileExplorer, media, timeline, videoEditor]);
 const ALL_PRODUCTS: Products = new Products([sui]);
 const CONSULTING: Products = new Products([consultingFrontEnd, consultingBackEnd, consultingDevops, consultingAi]);
+const PUBLIC_FALLBACK_PRODUCTS: Products = new Products([sui, flux, stokdCloud]);
 const ALL_PACKAGES: Products = new Products([
   fileExplorer, media, common, mediaApi, mediaSelector, timeline, videoEditor, flux,
   macMixer, alwaysListening, stokdCloud,
   consultingFrontEnd, consultingBackEnd, consultingDevops, consultingAi
 ]);
+
+function normalizePublicProductUrl(productId: string, url?: string) {
+  if (typeof url === 'string' && /^https?:\/\//i.test(url.trim())) {
+    return url.trim();
+  }
+
+  if (typeof url === 'string' && url.startsWith('/products/')) {
+    return url;
+  }
+
+  return `/products/${productId}`;
+}
 
 export type MenuProps = {
   linkType: LinkType,
@@ -1178,30 +1191,51 @@ export type MenuProps = {
 };
 
 function useAllProducts(): Products {
-  const [products, setProducts] = React.useState<Products>(ALL_PRODUCTS);
+  const [products, setProducts] = React.useState<Products>(PUBLIC_FALLBACK_PRODUCTS);
 
   React.useEffect(() => {
     fetch(getApiUrl('/api/products/public'))
       .then((res) => (res.ok ? res.json() : []))
       .then((data) => {
         if (!Array.isArray(data) || data.length === 0) return;
-        const apiProducts = data.map(
-          (p: any) =>
-            new Product({
-              id: p.productId,
-              name: p.name,
-              fullName: p.name,
-              description: p.description,
-              icon: p.icon || 'product-core',
-              url: p.url,
-              site: inferSiteForProductId(p.productId),
-              features: p.features || [],
-              hideProductFeatures: p.hideProductFeatures,
-              live: true,
-              showcaseType: AdvancedShowcase,
-            }),
+        const fallbackEntries = PUBLIC_FALLBACK_PRODUCTS.products.map((product) => product.data);
+        const fallbackById = new Map(fallbackEntries.map((product) => [product.id, product]));
+        const apiEntries = data.map((product: any) => {
+          const fallback = fallbackById.get(product.productId);
+          return {
+            ...fallback,
+            id: product.productId,
+            name: fallback?.name || product.name,
+            fullName: fallback?.fullName || product.name,
+            description: fallback?.description || product.description,
+            icon: fallback?.icon || product.icon || 'product-core',
+            url: normalizePublicProductUrl(product.productId, fallback?.url || product.url),
+            site: fallback?.site || inferSiteForProductId(product.productId),
+            features: Array.isArray(product.features) && product.features.length > 0
+              ? product.features
+              : (fallback?.features || []),
+            hideProductFeatures: product.hideProductFeatures ?? fallback?.hideProductFeatures ?? false,
+            live: true,
+            showcaseType: fallback?.showcaseType || AdvancedShowcase,
+          } satisfies TProduct;
+        });
+        const orderedIds = [
+          ...fallbackEntries.map((product) => product.id),
+          ...apiEntries
+            .map((product) => product.id)
+            .filter((productId) => !fallbackById.has(productId)),
+        ];
+        const merged = new Map<string, TProduct>(
+          fallbackEntries.map((product) => [product.id, product]),
         );
-        setProducts(new Products([sui, ...apiProducts]));
+        apiEntries.forEach((product) => {
+          merged.set(product.id, product);
+        });
+        setProducts(new Products(
+          orderedIds
+            .map((productId) => merged.get(productId))
+            .filter((product): product is TProduct => Boolean(product)),
+        ));
       })
       .catch(() => {});
   }, []);

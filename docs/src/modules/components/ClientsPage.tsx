@@ -4,10 +4,15 @@ import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
+import FormControl from '@mui/material/FormControl';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
+import MenuItem from '@mui/material/MenuItem';
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
 import AddIcon from '@mui/icons-material/AddOutlined';
 import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
@@ -15,12 +20,34 @@ import { useRouter } from 'next/router';
 import { getApiUrl } from 'docs/src/modules/utils/getApiUrl';
 import ClientCard from './ClientCard';
 
+type ContactMode = 'existing' | 'new' | 'legacy';
+
+interface ContactUserSummary {
+  _id: string;
+  name: string;
+  email: string;
+  active: boolean;
+  role: string;
+  clientId?: string;
+}
+
 interface Client {
   _id: string;
   name: string;
   slug: string;
   contactEmail: string;
+  contactUserId?: string;
+  contactUser?: ContactUserSummary;
   active: boolean;
+}
+
+interface UserRecord {
+  _id: string;
+  name: string;
+  email: string;
+  role: 'admin' | 'client' | 'agent';
+  active: boolean;
+  clientId?: string;
 }
 
 function getToken(): string | null {
@@ -52,6 +79,7 @@ async function apiFetch(url: string, options: RequestInit = {}) {
 export default function ClientsPage() {
   const router = useRouter();
   const [clients, setClients] = React.useState<Client[]>([]);
+  const [users, setUsers] = React.useState<UserRecord[]>([]);
   const [deliverableCounts, setDeliverableCounts] = React.useState<Record<string, number>>({});
   const [invoiceCounts, setInvoiceCounts] = React.useState<Record<string, number>>({});
   const [loading, setLoading] = React.useState(true);
@@ -59,13 +87,21 @@ export default function ClientsPage() {
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [editingId, setEditingId] = React.useState<string | null>(null);
   const [formName, setFormName] = React.useState('');
-  const [formEmail, setFormEmail] = React.useState('');
+  const [contactMode, setContactMode] = React.useState<ContactMode>('new');
+  const [legacyContactEmail, setLegacyContactEmail] = React.useState('');
+  const [formExistingUserId, setFormExistingUserId] = React.useState('');
+  const [formNewContactName, setFormNewContactName] = React.useState('');
+  const [formNewContactEmail, setFormNewContactEmail] = React.useState('');
 
   const fetchClients = React.useCallback(async () => {
     try {
       setLoading(true);
-      const data = await apiFetch('/api/clients');
+      const [data, usersData] = await Promise.all([
+        apiFetch('/api/clients'),
+        apiFetch('/api/users'),
+      ]);
       setClients(data);
+      setUsers(usersData);
       // Fetch deliverable and invoice counts
       const dCounts: Record<string, number> = {};
       const iCounts: Record<string, number> = {};
@@ -94,27 +130,57 @@ export default function ClientsPage() {
     }
   }, []);
 
+  const assignableUsers = React.useMemo(() => users.filter((user) => {
+    if (user.role !== 'client') {
+      return false;
+    }
+
+    if (!editingId) {
+      return !user.clientId;
+    }
+
+    return !user.clientId || user.clientId === editingId;
+  }), [users, editingId]);
+
+  const resetDialogState = React.useCallback(() => {
+    setDialogOpen(false);
+    setEditingId(null);
+    setFormName('');
+    setContactMode('new');
+    setLegacyContactEmail('');
+    setFormExistingUserId('');
+    setFormNewContactName('');
+    setFormNewContactEmail('');
+  }, []);
+
   React.useEffect(() => {
     fetchClients();
   }, [fetchClients]);
 
   const handleSave = async () => {
     try {
+      const payload: Record<string, unknown> = { name: formName };
+      if (contactMode === 'existing') {
+        payload.contactUserId = formExistingUserId;
+      } else if (contactMode === 'new') {
+        payload.contactUser = {
+          name: formNewContactName,
+          email: formNewContactEmail,
+        };
+      }
+
       if (editingId) {
         await apiFetch(`/api/clients/${editingId}`, {
           method: 'PATCH',
-          body: JSON.stringify({ name: formName, contactEmail: formEmail }),
+          body: JSON.stringify(payload),
         });
       } else {
         await apiFetch('/api/clients', {
           method: 'POST',
-          body: JSON.stringify({ name: formName, contactEmail: formEmail }),
+          body: JSON.stringify(payload),
         });
       }
-      setDialogOpen(false);
-      setEditingId(null);
-      setFormName('');
-      setFormEmail('');
+      resetDialogState();
       fetchClients();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Save failed');
@@ -126,7 +192,11 @@ export default function ClientsPage() {
     if (client) {
       setEditingId(id);
       setFormName(client.name);
-      setFormEmail(client.contactEmail);
+      setLegacyContactEmail(client.contactEmail);
+      setFormExistingUserId(client.contactUserId || '');
+      setFormNewContactName(client.contactUser?.name || '');
+      setFormNewContactEmail(client.contactUser?.email || client.contactEmail || '');
+      setContactMode(client.contactUserId ? 'existing' : client.contactEmail ? 'legacy' : 'new');
       setDialogOpen(true);
     }
   };
@@ -153,6 +223,11 @@ export default function ClientsPage() {
     }
   };
 
+  const isSaveDisabled = !formName
+    || (contactMode === 'existing' && !formExistingUserId)
+    || (contactMode === 'new' && (!formNewContactName || !formNewContactEmail))
+    || (contactMode === 'legacy' && !editingId && !legacyContactEmail);
+
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" py={8}>
@@ -171,7 +246,11 @@ export default function ClientsPage() {
           onClick={() => {
             setEditingId(null);
             setFormName('');
-            setFormEmail('');
+            setContactMode('new');
+            setLegacyContactEmail('');
+            setFormExistingUserId('');
+            setFormNewContactName('');
+            setFormNewContactEmail('');
             setDialogOpen(true);
           }}
         >
@@ -207,7 +286,7 @@ export default function ClientsPage() {
         </Grid>
       )}
 
-      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="sm" fullWidth>
+      <Dialog open={dialogOpen} onClose={resetDialogState} maxWidth="sm" fullWidth>
         <DialogTitle>{editingId ? 'Edit Client' : 'Add Client'}</DialogTitle>
         <DialogContent>
           <TextField
@@ -218,18 +297,81 @@ export default function ClientsPage() {
             value={formName}
             onChange={(e) => setFormName(e.target.value)}
           />
-          <TextField
-            label="Contact Email"
-            fullWidth
-            margin="normal"
-            type="email"
-            value={formEmail}
-            onChange={(e) => setFormEmail(e.target.value)}
-          />
+          <FormControl margin="normal">
+            <RadioGroup
+              value={contactMode}
+              onChange={(e) => setContactMode(e.target.value as ContactMode)}
+            >
+              <FormControlLabel value="existing" control={<Radio />} label="Assign Existing User" />
+              <FormControlLabel value="new" control={<Radio />} label="Create New Contact User" />
+              {editingId && legacyContactEmail && !clients.find((client) => client._id === editingId)?.contactUserId && (
+                <FormControlLabel value="legacy" control={<Radio />} label="Keep Legacy Contact Email" />
+              )}
+            </RadioGroup>
+          </FormControl>
+
+          {contactMode === 'existing' && (
+            <TextField
+              label="Contact User"
+              select
+              fullWidth
+              margin="normal"
+              value={formExistingUserId}
+              onChange={(e) => setFormExistingUserId(e.target.value)}
+              helperText={editingId
+                ? 'Shows unassigned client users and users already assigned to this client.'
+                : 'Only unassigned client users can be attached to a new client.'}
+            >
+              <MenuItem value="" disabled>
+                {assignableUsers.length ? 'Select a contact user' : 'No eligible users available'}
+              </MenuItem>
+              {assignableUsers.map((user) => (
+                <MenuItem key={user._id} value={user._id}>
+                  {user.name} ({user.email})
+                </MenuItem>
+              ))}
+            </TextField>
+          )}
+
+          {contactMode === 'new' && (
+            <React.Fragment>
+              <TextField
+                label="Contact Name"
+                fullWidth
+                margin="normal"
+                value={formNewContactName}
+                onChange={(e) => setFormNewContactName(e.target.value)}
+              />
+              <TextField
+                label="Contact Email"
+                fullWidth
+                margin="normal"
+                type="email"
+                value={formNewContactEmail}
+                onChange={(e) => setFormNewContactEmail(e.target.value)}
+              />
+            </React.Fragment>
+          )}
+
+          {contactMode === 'legacy' && (
+            <Alert severity="info" sx={{ mt: 2 }}>
+              This client still uses a legacy contact email. You can keep it for now or switch to an assigned contact user.
+            </Alert>
+          )}
+
+          {contactMode === 'legacy' && (
+            <TextField
+              label="Legacy Contact Email"
+              fullWidth
+              margin="normal"
+              value={legacyContactEmail}
+              disabled
+            />
+          )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDialogOpen(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleSave} disabled={!formName || !formEmail}>
+          <Button onClick={resetDialogState}>Cancel</Button>
+          <Button variant="contained" onClick={handleSave} disabled={isSaveDisabled}>
             {editingId ? 'Save' : 'Create'}
           </Button>
         </DialogActions>

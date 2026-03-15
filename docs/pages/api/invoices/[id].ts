@@ -2,6 +2,7 @@ import type { NextApiResponse } from 'next';
 import { ObjectId } from 'mongodb';
 import { getDb } from 'docs/src/modules/db/mongodb';
 import { withAuth, AuthenticatedRequest } from 'docs/src/modules/auth/withAuth';
+import { normalizeInvoiceDocument, normalizeInvoiceWeek } from 'docs/src/modules/invoices/invoiceNormalization';
 
 async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
   const { id } = req.query;
@@ -22,7 +23,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
     if (req.user.role === 'client' && req.user.clientId !== String(invoice.clientId)) {
       return res.status(403).json({ message: 'Access denied' });
     }
-    return res.status(200).json(invoice);
+    return res.status(200).json(normalizeInvoiceDocument(invoice));
   }
 
   if (req.method === 'PATCH') {
@@ -34,7 +35,13 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
     if (invoiceDate !== undefined) update.invoiceDate = new Date(invoiceDate);
     if (periodStart !== undefined) update.periodStart = new Date(periodStart);
     if (periodEnd !== undefined) update.periodEnd = new Date(periodEnd);
-    if (weeks !== undefined) update.weeks = weeks;
+    if (weeks !== undefined) {
+      const normalizedWeeks = Array.isArray(weeks) ? weeks.map(normalizeInvoiceWeek) : [];
+      update.weeks = normalizedWeeks;
+      if (totalHours === undefined) {
+        update.totalHours = normalizedWeeks.reduce((sum, week) => sum + week.weekTotalHours, 0);
+      }
+    }
     if (totalHours !== undefined) update.totalHours = totalHours;
     if (status !== undefined) {
       if (!['draft', 'sent', 'paid'].includes(status)) {
@@ -52,7 +59,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
     if (!result) {
       return res.status(404).json({ message: 'Invoice not found' });
     }
-    return res.status(200).json(result);
+    return res.status(200).json(normalizeInvoiceDocument(result));
   }
 
   if (req.method === 'DELETE') {

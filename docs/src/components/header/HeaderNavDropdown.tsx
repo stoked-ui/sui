@@ -11,6 +11,7 @@ import SvgHamburgerMenu from 'docs/src/icons/SvgHamburgerMenu';
 import { Link } from '@stoked-ui/docs';
 import { getApiUrl } from 'docs/src/modules/utils/getApiUrl';
 import ROUTES from 'docs/src/route';
+import { useAllProducts } from 'docs/src/products';
 import { toAbsoluteSitePath } from 'docs/src/modules/utils/siteRouting';
 import type { AuthUser, ManagedProduct } from 'docs/src/layouts/AppHeader';
 
@@ -118,6 +119,7 @@ interface HeaderNavDropdownProps {
 }
 
 export default function HeaderNavDropdown({ auth, managedProducts = [] }: HeaderNavDropdownProps) {
+  const allProducts = useAllProducts();
   const [open, setOpen] = React.useState(false);
   const [productsOpen, setProductsOpen] = React.useState(true);
   const [docsOpen, setDocsOpen] = React.useState(false);
@@ -383,29 +385,20 @@ export default function HeaderNavDropdown({ auth, managedProducts = [] }: Header
                   </Anchor>
                   <Collapse in={productsOpen}>
                     <UList>
-                      {managedProducts.map((item) => (
-                        <li key={item._id}>
+                      {allProducts.live.map((item) => (
+                        <li key={item.id}>
                           <Anchor
-                            href={item.url}
+                            href={item.url('product')}
                             as={Link}
                             noLinkStyle
                             sx={{ flexDirection: 'column', alignItems: 'initial' }}
                           >
-                            <Box
-                              sx={{
-                                display: 'flex',
-                                flexDirection: 'row',
-                                justifyContent: 'space-between',
-                              }}
-                            >
+                            <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
                               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                 {item.name}
-                                {item.prerelease && item.prerelease !== 'none' && (
-                                  <Chip label={item.prerelease.toUpperCase()} size="small" color={item.prerelease === 'alpha' ? 'error' : 'warning'} sx={{ fontWeight: 700, height: 20, '& .MuiChip-label': { px: 0.75, fontSize: '0.625rem' } }} />
-                                )}
                               </Box>
                             </Box>
-                            <Typography variant="body2" color="text.secondary">
+                            <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: 'pre-line' }}>
                               {item.description}
                             </Typography>
                           </Anchor>

@@ -45,14 +45,17 @@ export async function createStripePrice(params: {
   stripeProductId: string;
   price: number;
   currency: string;
+  interval?: 'month' | 'year';
+  label?: string;
 }): Promise<Stripe.Price> {
   const stripe = getStripeClient();
   return stripe.prices.create({
     product: params.stripeProductId,
     unit_amount: Math.round(params.price * 100), // convert to cents
     currency: params.currency.toLowerCase(),
+    nickname: params.label,
     recurring: {
-      interval: 'year',
+      interval: params.interval || 'year',
     },
     metadata: {
       productId: params.productId,
@@ -65,10 +68,14 @@ export async function createCheckoutSession(params: {
   email: string;
   successUrl: string;
   cancelUrl: string;
+  stripePriceId?: string;
 }, product: LicenseProduct): Promise<string> {
   const stripe = getStripeClient();
+  const selectedPriceId = params.stripePriceId
+    || product.subscriptions.find((subscription) => subscription.stripePriceId)?.stripePriceId
+    || product.stripePriceId;
 
-  if (!product.stripePriceId) {
+  if (!selectedPriceId) {
     throw new LicenseStoreError(400, `Product ${params.productId} is not configured for purchase (missing Stripe Price ID)`);
   }
 
@@ -77,7 +84,7 @@ export async function createCheckoutSession(params: {
       mode: 'subscription',
       line_items: [
         {
-          price: product.stripePriceId,
+          price: selectedPriceId,
           quantity: 1,
         },
       ],
@@ -86,6 +93,7 @@ export async function createCheckoutSession(params: {
       cancel_url: params.cancelUrl,
       metadata: {
         productId: params.productId,
+        stripePriceId: selectedPriceId,
       },
     });
 

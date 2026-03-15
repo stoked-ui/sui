@@ -19,6 +19,12 @@ interface ClientCardProps {
     _id: string;
     name: string;
     contactEmail: string;
+    contactUserId?: string;
+    contactUser?: {
+      _id: string;
+      name: string;
+      email: string;
+    };
     active: boolean;
     slug: string;
   };
@@ -31,6 +37,10 @@ interface ClientCardProps {
 }
 
 export default function ClientCard({ client, deliverableCount, invoiceCount, onClick, onToggleActive, onEdit, onDelete }: ClientCardProps) {
+  const contactLabel = client.contactUser?.name
+    ? `${client.contactUser.name} · ${client.contactEmail}`
+    : client.contactEmail;
+
   return (
     <Card
       variant="outlined"
@@ -56,7 +66,7 @@ export default function ClientCard({ client, deliverableCount, invoiceCount, onC
           />
         </Stack>
         <Typography variant="body2" color="text.secondary" gutterBottom>
-          {client.contactEmail}
+          {contactLabel}
         </Typography>
         <Stack direction="row" alignItems="center" spacing={2} mt={1}>
           <Stack direction="row" alignItems="center" spacing={0.5}>

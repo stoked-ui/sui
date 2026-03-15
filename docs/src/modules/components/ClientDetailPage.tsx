@@ -67,6 +67,12 @@ interface Client {
   name: string;
   slug: string;
   contactEmail: string;
+  contactUserId?: string;
+  contactUser?: {
+    _id: string;
+    name: string;
+    email: string;
+  };
   active: boolean;
 }
 
@@ -437,7 +443,11 @@ export default function ClientDetailPage({ clientId }: { clientId: string }) {
         <Stack direction="row" justifyContent="space-between" alignItems="center">
           <Box>
             <Typography variant="h4">{client.name}</Typography>
-            <Typography color="text.secondary">{client.contactEmail}</Typography>
+            <Typography color="text.secondary">
+              {client.contactUser?.name
+                ? `${client.contactUser.name} · ${client.contactEmail}`
+                : client.contactEmail}
+            </Typography>
             <Typography variant="body2" color="text.secondary">Slug: {client.slug}</Typography>
           </Box>
           <Chip
@@ -577,7 +587,14 @@ export default function ClientDetailPage({ clientId }: { clientId: string }) {
                   {i > 0 && <Divider />}
                   <ListItem>
                     <ListItemText
-                      primary={u.name}
+                      primary={(
+                        <Stack direction="row" spacing={1} alignItems="center">
+                          <span>{u.name}</span>
+                          {client.contactUserId === u._id && (
+                            <Chip label="Contact" size="small" color="primary" variant="outlined" />
+                          )}
+                        </Stack>
+                      )}
                       secondary={u.email}
                     />
                     <ListItemSecondaryAction>

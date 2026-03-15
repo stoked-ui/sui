@@ -14,7 +14,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
-  const { productId, email, successUrl, cancelUrl } = req.body || {};
+  const { productId, email, successUrl, cancelUrl, stripePriceId } = req.body || {};
 
   if (!productId || !email || !successUrl || !cancelUrl) {
     return res.status(400).json({ message: 'productId, email, successUrl, and cancelUrl are required' });
@@ -36,6 +36,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         email: String(email),
         successUrl: String(successUrl),
         cancelUrl: String(cancelUrl),
+        stripePriceId: typeof stripePriceId === 'string' ? stripePriceId : undefined,
       },
       product,
     );

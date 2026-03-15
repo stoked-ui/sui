@@ -14,6 +14,14 @@ const KEY_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
 export type LicenseStatus = 'pending' | 'active' | 'expired' | 'revoked';
 
+export interface LicenseSubscriptionPlan {
+  label?: string;
+  price: number;
+  currency: string;
+  interval: 'month' | 'year';
+  stripePriceId?: string;
+}
+
 export interface LicenseProduct {
   _id?: string;
   productId: string;
@@ -23,11 +31,22 @@ export interface LicenseProduct {
   stripePriceId?: string;
   price: number;
   currency: string;
+  subscriptions: LicenseSubscriptionPlan[];
   licenseDurationDays: number;
   gracePeriodDays: number;
   trialDurationDays: number;
   maxActivations: number;
   purchaseUrl?: string;
+}
+
+function toLicenseSubscriptionPlan(entry: Record<string, unknown>, defaults?: { currency?: unknown; interval?: unknown }): LicenseSubscriptionPlan {
+  return {
+    label: typeof entry.label === 'string' && entry.label.trim() ? entry.label : undefined,
+    price: Number(entry.price || 0),
+    currency: String(entry.currency || defaults?.currency || 'usd'),
+    interval: entry.interval === 'month' || defaults?.interval === 'month' ? 'month' : 'year',
+    stripePriceId: typeof entry.stripePriceId === 'string' ? entry.stripePriceId : undefined,
+  };
 }
 
 export type ActivationRecord = {
@@ -289,6 +308,23 @@ async function buildLicenseResponse(
 }
 
 function normalizeLicenseProduct(doc: Record<string, unknown>): LicenseProduct {
+  const subscriptions = Array.isArray(doc.subscriptions)
+    ? doc.subscriptions
+      .filter((entry): entry is Record<string, unknown> => typeof entry === 'object' && entry !== null)
+      .map((entry) => toLicenseSubscriptionPlan(entry))
+      .filter((entry) => Number.isFinite(entry.price) && entry.price > 0 && !!entry.currency)
+    : [];
+
+  if (subscriptions.length === 0 && typeof doc.stripePriceId === 'string' && doc.stripePriceId) {
+    subscriptions.push({
+      label: undefined,
+      price: Number(doc.price || 0),
+      currency: String(doc.currency || 'usd'),
+      interval: 'year',
+      stripePriceId: doc.stripePriceId,
+    });
+  }
+
   return {
     _id: typeof doc._id === 'object' && doc._id !== null && 'toString' in doc._id
       ? (doc._id as { toString: () => string }).toString()
@@ -300,6 +336,7 @@ function normalizeLicenseProduct(doc: Record<string, unknown>): LicenseProduct {
     stripePriceId: typeof doc.stripePriceId === 'string' ? doc.stripePriceId : undefined,
     price: Number(doc.price || 0),
     currency: String(doc.currency || 'usd'),
+    subscriptions,
     licenseDurationDays: Number(doc.licenseDurationDays || 365),
     gracePeriodDays: Number(doc.gracePeriodDays || 14),
     trialDurationDays: Number(doc.trialDurationDays || 30),
@@ -314,7 +351,10 @@ async function findLicenseProduct(productId: string): Promise<LicenseProduct | n
   for (const collectionName of LICENSE_PRODUCT_COLLECTIONS) {
     const doc = await db.collection(collectionName).findOne({
       productId,
-      stripePriceId: { $exists: true, $ne: '' },
+      $or: [
+        { stripePriceId: { $exists: true, $ne: '' } },
+        { 'subscriptions.0': { $exists: true } },
+      ],
     });
 
     if (doc) {
@@ -341,13 +381,21 @@ export async function listLicenseProducts(): Promise<LicenseProduct[]> {
   for (const collectionName of LICENSE_PRODUCT_COLLECTIONS) {
     const docs = await db.collection(collectionName)
       .find(
-        { stripePriceId: { $exists: true, $ne: '' } },
+        {
+          $or: [
+            { stripePriceId: { $exists: true, $ne: '' } },
+            { 'subscriptions.0': { $exists: true } },
+          ],
+        },
         {
           projection: {
             productId: 1,
             name: 1,
             keyPrefix: 1,
             stripePriceId: 1,
+            price: 1,
+            currency: 1,
+            subscriptions: 1,
             licenseDurationDays: 1,
             gracePeriodDays: 1,
             trialDurationDays: 1,

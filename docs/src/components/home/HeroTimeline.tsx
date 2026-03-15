@@ -93,7 +93,7 @@ export default function Hero() {
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
               }),
-            ]}> Timeline</Box>
+            ]}>&nbsp;Timeline</Box>
           </Box>
           <Typography color="text.secondary" mb={3}>
             Stoked UI: Timeline. A powerful MUI based timeline component used to construct tools that manipulate things over time or at key frames. PR&apos;s welcome!

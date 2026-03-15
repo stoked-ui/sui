@@ -45,6 +45,8 @@ const MainView: React.ComponentType<{}> = function MainView() {
   )
 }
 
+const productHomePaths = PRODUCTS.live.map(p => `products/${p.id}`);
+
 function randomHome(homePages: string[]) {
   return homePages[Math.floor(Math.random()*homePages.length)];
 }
@@ -62,9 +64,9 @@ const StyledHead = styled(Head)(({ theme }) => [
   }),
 ]);
 
-const homeUrl = randomHome([...PRODUCTS.pages, 'rusty-editor']);
+const homeChoice = randomHome([...productHomePaths, 'rusty-editor']);
 const RandomHome =
-  homeUrl === 'rusty-editor' ? MainView : dynamic(() => import(`.${homeUrl}/main`), { ssr: false });
+  homeChoice === 'rusty-editor' ? MainView : dynamic(() => import(`./${homeChoice}/main`), { ssr: false });
 
 export function HomeView({ HomeMain}: { HomeMain: React.ComponentType }){
   const Main: React.ComponentType = HomeMain || RandomHome;
@@ -107,12 +109,7 @@ export default function Home({ HomeMain }: { HomeMain: React.ComponentType }) {
 
   React.useEffect(() => {
     if (typeof window !== 'undefined') {
-      // const host = window.location.hostname;
-      // if (['stoked-ui.com', 'stokedconsulting.com'].includes(host)) {
         setCurrentMain(() => RandomHome);
-      // } else {
-      //  setCurrentMain(() => MainView);
-      // }
     }
   }, []);
 

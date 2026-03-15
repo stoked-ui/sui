@@ -27,9 +27,51 @@ interface Product {
   keyPrefix?: string;
   price?: number;
   currency?: string;
+  subscriptions?: SubscriptionPlan[];
   licenseDurationDays?: number;
   gracePeriodDays?: number;
   trialDurationDays?: number;
+}
+
+interface SubscriptionPlan {
+  label?: string;
+  price: number;
+  currency: string;
+  interval: 'month' | 'year';
+  stripePriceId?: string;
+}
+
+function createEmptySubscription(): SubscriptionPlan {
+  return {
+    label: '',
+    price: 0,
+    currency: 'usd',
+    interval: 'year',
+  };
+}
+
+function normalizeSubscriptions(product?: Product): SubscriptionPlan[] {
+  if (product?.subscriptions && product.subscriptions.length > 0) {
+    return product.subscriptions.map((subscription) => ({
+      label: subscription.label || '',
+      price: subscription.price,
+      currency: subscription.currency || 'usd',
+      interval: subscription.interval || 'year',
+      stripePriceId: subscription.stripePriceId,
+    }));
+  }
+
+  if (product?.price !== undefined) {
+    return [{
+      label: '',
+      price: product.price,
+      currency: product.currency || 'usd',
+      interval: 'year',
+      stripePriceId: undefined,
+    }];
+  }
+
+  return [createEmptySubscription()];
 }
 
 function getToken(): string | null {
@@ -71,11 +113,23 @@ export default function ProductsPage() {
   const [formDescription, setFormDescription] = React.useState('');
   const [formUrl, setFormUrl] = React.useState('');
   const [formKeyPrefix, setFormKeyPrefix] = React.useState('');
-  const [formPrice, setFormPrice] = React.useState('');
-  const [formCurrency, setFormCurrency] = React.useState('usd');
+  const [formSubscriptions, setFormSubscriptions] = React.useState<SubscriptionPlan[]>([createEmptySubscription()]);
   const [formLicenseDays, setFormLicenseDays] = React.useState('365');
   const [formGraceDays, setFormGraceDays] = React.useState('14');
   const [formTrialDays, setFormTrialDays] = React.useState('30');
+
+  const resetForm = React.useCallback(() => {
+    setEditingId(null);
+    setFormProductId('');
+    setFormName('');
+    setFormDescription('');
+    setFormUrl('');
+    setFormKeyPrefix('');
+    setFormSubscriptions([createEmptySubscription()]);
+    setFormLicenseDays('365');
+    setFormGraceDays('14');
+    setFormTrialDays('30');
+  }, []);
 
   const fetchProducts = React.useCallback(async () => {
     try {
@@ -107,10 +161,31 @@ export default function ProductsPage() {
 
   const handleSave = async () => {
     try {
+      const subscriptions = formSubscriptions
+        .map((subscription) => ({
+          ...subscription,
+          label: subscription.label?.trim() || undefined,
+          currency: subscription.currency.trim().toLowerCase(),
+        }))
+        .filter((subscription) => Number.isFinite(subscription.price) && subscription.price > 0 && !!subscription.currency);
+
+      if (subscriptions.length === 0) {
+        throw new Error('At least one valid subscription is required');
+      }
+
       if (editingId) {
         await apiFetch(`/api/products/${editingId}`, {
           method: 'PATCH',
-          body: JSON.stringify({ name: formName, description: formDescription, url: formUrl }),
+          body: JSON.stringify({
+            name: formName,
+            description: formDescription,
+            url: formUrl,
+            keyPrefix: formKeyPrefix,
+            subscriptions,
+            licenseDurationDays: Number(formLicenseDays),
+            gracePeriodDays: Number(formGraceDays),
+            trialDurationDays: Number(formTrialDays),
+          }),
         });
       } else {
         await apiFetch('/api/products', {
@@ -121,8 +196,7 @@ export default function ProductsPage() {
             description: formDescription,
             url: formUrl,
             keyPrefix: formKeyPrefix,
-            price: Number(formPrice),
-            currency: formCurrency,
+            subscriptions,
             licenseDurationDays: Number(formLicenseDays),
             gracePeriodDays: Number(formGraceDays),
             trialDurationDays: Number(formTrialDays),
@@ -130,17 +204,7 @@ export default function ProductsPage() {
         });
       }
       setDialogOpen(false);
-      setEditingId(null);
-      setFormProductId('');
-      setFormName('');
-      setFormDescription('');
-      setFormUrl('');
-      setFormKeyPrefix('');
-      setFormPrice('');
-      setFormCurrency('usd');
-      setFormLicenseDays('365');
-      setFormGraceDays('14');
-      setFormTrialDays('30');
+      resetForm();
       fetchProducts();
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Save failed');
@@ -156,8 +220,7 @@ export default function ProductsPage() {
       setFormDescription(product.description);
       setFormUrl(product.url || '');
       setFormKeyPrefix(product.keyPrefix || '');
-      setFormPrice(product.price !== undefined ? String(product.price) : '');
-      setFormCurrency(product.currency || 'usd');
+      setFormSubscriptions(normalizeSubscriptions(product));
       setFormLicenseDays(String(product.licenseDurationDays || 365));
       setFormGraceDays(String(product.gracePeriodDays || 14));
       setFormTrialDays(String(product.trialDurationDays || 30));
@@ -203,17 +266,7 @@ export default function ProductsPage() {
           variant="contained"
           startIcon={<AddIcon />}
           onClick={() => {
-            setEditingId(null);
-            setFormProductId('');
-            setFormName('');
-            setFormDescription('');
-            setFormUrl('');
-            setFormKeyPrefix('');
-            setFormPrice('');
-            setFormCurrency('usd');
-            setFormLicenseDays('365');
-            setFormGraceDays('14');
-            setFormTrialDays('30');
+            resetForm();
             setDialogOpen(true);
           }}
         >
@@ -293,25 +346,82 @@ export default function ProductsPage() {
             onChange={(e) => setFormUrl(e.target.value)}
             helperText='e.g. "/flux"'
           />
-          <Box sx={{ display: 'flex', gap: 2 }}>
-            <TextField
-              label="Price"
-              type="number"
-              margin="normal"
-              value={formPrice}
-              onChange={(e) => setFormPrice(e.target.value)}
-              helperText="Amount in cents (e.g. 4999 = $49.99)"
-              sx={{ flex: 2 }}
-            />
-            <TextField
-              label="Currency"
-              margin="normal"
-              value={formCurrency}
-              onChange={(e) => setFormCurrency(e.target.value.toLowerCase())}
-              helperText="e.g. usd"
-              sx={{ flex: 1 }}
-            />
-          </Box>
+          <Typography variant="subtitle2" sx={{ mt: 2, mb: 1 }}>
+            Subscriptions
+          </Typography>
+          {formSubscriptions.map((subscription, index) => (
+            <Box key={`${index}-${subscription.stripePriceId || 'new'}`} sx={{ display: 'flex', gap: 2, alignItems: 'flex-start', mb: 1.5 }}>
+              <TextField
+                label="Label"
+                margin="normal"
+                value={subscription.label || ''}
+                onChange={(e) => {
+                  const next = [...formSubscriptions];
+                  next[index] = { ...next[index], label: e.target.value };
+                  setFormSubscriptions(next);
+                }}
+                helperText="Optional plan label"
+                sx={{ flex: 2 }}
+              />
+              <TextField
+                label="Price"
+                type="number"
+                margin="normal"
+                value={subscription.price || ''}
+                onChange={(e) => {
+                  const next = [...formSubscriptions];
+                  next[index] = { ...next[index], price: Number(e.target.value) };
+                  setFormSubscriptions(next);
+                }}
+                helperText="Amount in dollars"
+                sx={{ flex: 1.5 }}
+              />
+              <TextField
+                label="Currency"
+                margin="normal"
+                value={subscription.currency}
+                onChange={(e) => {
+                  const next = [...formSubscriptions];
+                  next[index] = { ...next[index], currency: e.target.value.toLowerCase() };
+                  setFormSubscriptions(next);
+                }}
+                helperText="e.g. usd"
+                sx={{ flex: 1 }}
+              />
+              <TextField
+                select
+                SelectProps={{ native: true }}
+                label="Interval"
+                margin="normal"
+                value={subscription.interval}
+                onChange={(e) => {
+                  const next = [...formSubscriptions];
+                  next[index] = { ...next[index], interval: e.target.value as 'month' | 'year' };
+                  setFormSubscriptions(next);
+                }}
+                sx={{ flex: 1 }}
+              >
+                <option value="month">Monthly</option>
+                <option value="year">Yearly</option>
+              </TextField>
+              <Button
+                sx={{ mt: 2 }}
+                color="inherit"
+                disabled={formSubscriptions.length === 1}
+                onClick={() => {
+                  setFormSubscriptions(formSubscriptions.filter((_, subscriptionIndex) => subscriptionIndex !== index));
+                }}
+              >
+                Remove
+              </Button>
+            </Box>
+          ))}
+          <Button
+            onClick={() => setFormSubscriptions([...formSubscriptions, createEmptySubscription()])}
+            sx={{ mt: 0.5 }}
+          >
+            Add Subscription
+          </Button>
           <Typography variant="subtitle2" sx={{ mt: 2, mb: 1 }}>
             Subscription Settings
           </Typography>
@@ -347,7 +457,7 @@ export default function ProductsPage() {
           <Button
             variant="contained"
             onClick={handleSave}
-            disabled={!formName || !formDescription || (!editingId && (!formProductId || !formKeyPrefix || !formPrice))}
+            disabled={!formName || !formDescription || (!editingId && (!formProductId || !formKeyPrefix))}
           >
             {editingId ? 'Save' : 'Create'}
           </Button>
