@@ -11,8 +11,17 @@ export const getDomains = (rootDomain: string, stage: string) => {
   return [`${stage}.${rootDomain}`, `*.${stage}.${rootDomain}`];
 }
 
+export const getPrimaryDomain = (rootDomain: string, stage: string) => getDomains(rootDomain, stage)[0];
+
+function getRootDomainParts(rootDomains: string) {
+  return rootDomains
+    .split(',')
+    .map((domain) => domain.trim())
+    .filter(Boolean);
+}
+
 export const getDomainInfo = (rootDomains: string, stage: string): DomainInfo => {
-  const rootDomainParts = rootDomains.split(',');
+  const rootDomainParts = getRootDomainParts(rootDomains);
   let domains:any = rootDomainParts.map((domain) => getDomains(domain, stage)).flat();
   domains = domains.flat(Infinity);
   const appName = `${domains[0].replace(/\./g, '-')}`;
@@ -30,6 +39,24 @@ export const getDomainInfo = (rootDomains: string, stage: string): DomainInfo =>
   return retVal;
 }
 
+export const getCdnDomainInfo = (rootDomains: string, stage: string): CdnDomainInfo => {
+  const rootDomainParts = getRootDomainParts(rootDomains);
+  const consultingRootDomain = rootDomainParts.find((domain) => domain === 'stokedconsulting.com')
+    ?? rootDomainParts[rootDomainParts.length - 1];
+  const stokedUiRootDomain = rootDomainParts[0] ?? 'stoked-ui.com';
+  const consultingDomain = getPrimaryDomain(consultingRootDomain, stage);
+  const stokedUiDomain = getPrimaryDomain(stokedUiRootDomain, stage);
+  const domain = `cdn.${consultingDomain}`;
+
+  return {
+    resourceName: `${domain.replace(/\./g, '')}StaticSite`,
+    domain,
+    primaryZoneId: ZONE_IDS[consultingRootDomain] ?? '',
+    consultingOrigin: `https://${consultingDomain}`,
+    stokedUiOrigin: `https://${stokedUiDomain}`,
+  };
+}
+
 export interface DomainInfo {
   resourceName: string;
   appName: string;
@@ -37,4 +64,12 @@ export interface DomainInfo {
   dbName: string;
   apiDomain: string;
   primaryZoneId: string;
+}
+
+export interface CdnDomainInfo {
+  resourceName: string;
+  domain: string;
+  primaryZoneId: string;
+  consultingOrigin: string;
+  stokedUiOrigin: string;
 }

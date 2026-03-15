@@ -107,6 +107,11 @@ function forcePageReload(registration) {
   registration.addEventListener('updatefound', listenInstalledStateChange);
 }
 
+async function unregisterServiceWorkers() {
+  const registrations = await navigator.serviceWorker.getRegistrations();
+  await Promise.all(registrations.map((registration) => registration.unregister()));
+}
+
 async function registerServiceWorker() {
   if (
     'serviceWorker' in navigator &&
@@ -115,6 +120,12 @@ async function registerServiceWorker() {
     window.location.host.indexOf('github.io') !== -1
      */
   ) {
+    const response = await fetch('/sw.js', { cache: 'no-store' });
+    if (!response.ok) {
+      await unregisterServiceWorkers();
+      return;
+    }
+
     // register() automatically attempts to refresh the sw.js.
     const registration = await navigator.serviceWorker.register('/sw.js');
     // Force the page reload for users.

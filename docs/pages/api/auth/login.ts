@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { login } from 'docs/src/modules/auth/authStore';
+import { setAuthSession } from 'docs/src/modules/auth/session';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -13,6 +14,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const result = await login(email, password);
+    setAuthSession(res, result);
     return res.status(200).json(result);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Login failed';

@@ -14,6 +14,11 @@ import { getApiUrl } from 'docs/src/modules/utils/getApiUrl';
 import Head from 'docs/src/modules/components/Head';
 import AppHeader from 'docs/src/layouts/AppHeader';
 import AppFooter from 'docs/src/layouts/AppFooter';
+import {
+  STOKED_CONSULTING_CDN_ORIGIN,
+  STOKED_CONSULTING_ORIGIN,
+  STOKED_UI_ORIGIN,
+} from 'docs/src/modules/utils/siteRouting';
 
 interface AuthData {
   access_token: string;
@@ -28,18 +33,83 @@ interface AuthData {
   };
 }
 
+interface SessionResponse {
+  authenticated: boolean;
+  user: AuthData['user'];
+}
+
+function isAllowedAbsoluteRedirect(target: string) {
+  if (/^http:\/\/localhost:\d+/i.test(target)) {
+    return true;
+  }
+
+  try {
+    const url = new URL(target);
+    return url.origin === STOKED_UI_ORIGIN
+      || url.origin === STOKED_CONSULTING_ORIGIN
+      || url.origin === STOKED_CONSULTING_CDN_ORIGIN;
+  } catch {
+    return false;
+  }
+}
+
 function resolveRedirectTarget(raw: string | string[] | undefined): string | null {
   const target = Array.isArray(raw) ? raw[0] : raw;
   if (!target) {
     return null;
   }
-  if (!target.startsWith('/') || target.startsWith('//')) {
+
+  if (target.startsWith('/')) {
+    if (target.startsWith('//') || target.startsWith('/consulting/login')) {
+      return null;
+    }
+    return target;
+  }
+
+  if (!isAllowedAbsoluteRedirect(target)) {
     return null;
   }
-  if (target.startsWith('/consulting/login')) {
+
+  try {
+    const url = new URL(target);
+    if (url.pathname.startsWith('/consulting/login')) {
+      return null;
+    }
+  } catch {
     return null;
   }
+
   return target;
+}
+
+function navigateToTarget(router: ReturnType<typeof useRouter>, target: string) {
+  if (/^https?:\/\//i.test(target)) {
+    window.location.assign(target);
+    return;
+  }
+
+  router.push(target);
+}
+
+function buildPostAuthTarget(target: string) {
+  if (!/^https?:\/\//i.test(target)) {
+    return target;
+  }
+
+  const currentOrigin = window.location.origin;
+  const parsedTarget = new URL(target);
+  if (parsedTarget.origin === currentOrigin) {
+    return target;
+  }
+
+  const transferUrl = new URL('/api/auth/transfer', currentOrigin);
+  transferUrl.searchParams.set('targetOrigin', parsedTarget.origin);
+  transferUrl.searchParams.set('returnTo', target);
+  return transferUrl.toString();
+}
+
+function navigateAfterAuth(router: ReturnType<typeof useRouter>, target: string) {
+  navigateToTarget(router, buildPostAuthTarget(target));
 }
 
 function LoginForm({ onLogin }: { onLogin: (data: AuthData) => void }) {
@@ -56,6 +126,7 @@ function LoginForm({ onLogin }: { onLogin: (data: AuthData) => void }) {
       const res = await fetch(getApiUrl('/api/auth/login'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ email, password }),
       });
       if (!res.ok) {
@@ -83,6 +154,7 @@ function LoginForm({ onLogin }: { onLogin: (data: AuthData) => void }) {
       const res = await fetch(getApiUrl('/api/auth/google'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ token: idToken }),
       });
       if (!res.ok) {
@@ -210,17 +282,27 @@ export default function ConsultingLoginPage() {
     if (!router.isReady) {
       return;
     }
-    try {
-      const stored = localStorage.getItem('auth');
-      if (stored) {
-        const parsed = JSON.parse(stored) as AuthData;
-        setAuth(parsed);
-        // Already logged in — redirect to the requested route if provided.
-        router.replace(postLoginRouteForUser(parsed.user));
-        return;
-      }
-    } catch { /* ignore */ }
-    setLoading(false);
+
+    fetch(getApiUrl('/api/auth/session'), { credentials: 'include' })
+      .then(async (response) => {
+        if (!response.ok) {
+          return null;
+        }
+
+        return response.json() as Promise<SessionResponse>;
+      })
+      .then((session) => {
+        if (session?.authenticated) {
+          setAuth({ access_token: '', user: session.user });
+          navigateAfterAuth(router, postLoginRouteForUser(session.user));
+          return;
+        }
+
+        setLoading(false);
+      })
+      .catch(() => {
+        setLoading(false);
+      });
   }, [postLoginRouteForUser, router, router.isReady]);
 
   const handleLogin = (data: AuthData) => {
@@ -229,7 +311,7 @@ export default function ConsultingLoginPage() {
       localStorage.setItem('blog_jwt', data.access_token);
     } catch { /* ignore */ }
     setAuth(data);
-    router.push(postLoginRouteForUser(data.user));
+    navigateAfterAuth(router, postLoginRouteForUser(data.user));
   };
 
   if (loading || auth) {

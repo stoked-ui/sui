@@ -119,12 +119,19 @@ async function fetchRemote(prefix) {
   url.searchParams.set('prefix', prefix);
   url.searchParams.set('delimiter', '/');
 
-  const response = await fetch(url.toString());
+  const response = await fetch(url.toString(), {
+    credentials: 'include',
+  });
 
   if (!response.ok) {
-    throw new Error(`Contents request failed with ${response.status}`);
+    const contentType = response.headers.get('content-type') || '';
+    const body = contentType.includes('application/json')
+      ? await response.json().catch(() => ({}))
+      : {};
+    const error = new Error(body.message || `Contents request failed with ${response.status}`);
+    error.status = response.status;
+    throw error;
   }
-
   const contentType = response.headers.get('content-type') || '';
 
   if (contentType.includes('application/json')) {
@@ -141,7 +148,21 @@ export async function getContents(rawPrefix) {
     return fromFlatObjects(prefix, mockObjects);
   }
 
-  return fetchRemote(prefix);
+  try {
+    return await fetchRemote(prefix);
+  } catch (error) {
+    const hasStatusCode = typeof error === 'object' && error !== null && 'status' in error;
+    if (
+      typeof window !== 'undefined'
+      && window.location.hostname === 'localhost'
+      && !hasStatusCode
+    ) {
+      console.warn('Falling back to mock CDN contents for local development.', error);
+      return fromFlatObjects(prefix, mockObjects);
+    }
+
+    throw error;
+  }
 }
 
 export function getFileKind(path) {

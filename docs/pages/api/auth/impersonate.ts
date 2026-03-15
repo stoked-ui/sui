@@ -1,6 +1,7 @@
 import type { NextApiResponse } from 'next';
 import { impersonateUser } from 'docs/src/modules/auth/authStore';
 import { withAuth, AuthenticatedRequest } from 'docs/src/modules/auth/withAuth';
+import { setAuthSession } from 'docs/src/modules/auth/session';
 
 async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -14,6 +15,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
 
   try {
     const result = await impersonateUser(req.user.sub, targetId);
+    setAuthSession(res, result);
     return res.status(200).json(result);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Impersonation failed';

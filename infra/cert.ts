@@ -44,7 +44,9 @@ export async function findExistingCert(
       );
 
       // Check if this cert covers every domain we need
-      const coversAll = [...required].every((d) => sans.has(d));
+      const coversAll = [...required].every((d) =>
+        [...sans].some((san) => doesSanCoverDomain(san, d)),
+      );
       if (!coversAll) continue;
 
       // If SST already manages this certificate for the current stack, keep the
@@ -69,6 +71,23 @@ export async function findExistingCert(
   } while (nextToken);
 
   return undefined;
+}
+
+function doesSanCoverDomain(san: string, domain: string) {
+  if (san === domain) {
+    return true;
+  }
+
+  if (!san.startsWith('*.')) {
+    return false;
+  }
+
+  const suffix = san.slice(1);
+  if (!domain.endsWith(suffix)) {
+    return false;
+  }
+
+  return domain.split('.').length === san.split('.').length;
 }
 
 async function isStackManagedCert(

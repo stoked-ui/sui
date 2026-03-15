@@ -2,6 +2,7 @@
 import * as path from 'path';
 import * as url from 'url';
 import * as fs from 'fs';
+import dotenv from 'dotenv';
 // @ts-ignore
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 import { createRequire } from 'module';
@@ -9,6 +10,22 @@ import { findPages } from './src/modules/utils/find.mjs';
 
 const currentDirectory = url.fileURLToPath(new URL('.', import.meta.url));
 const require = createRequire(import.meta.url);
+
+/**
+ * @param {string} envPath
+ */
+function loadWorkspaceEnvFile(envPath) {
+  if (!fs.existsSync(envPath)) {
+    return;
+  }
+
+  const parsed = dotenv.parse(fs.readFileSync(envPath));
+  Object.entries(parsed).forEach(([key, value]) => {
+    if (!process.env[key]) {
+      process.env[key] = value;
+    }
+  });
+}
 
 const withDocsInfra = require('./nextConfigDocsInfra.js');
 const {
@@ -20,6 +37,9 @@ const {
 
 console.log('process.env.DEV_DISPLAY', process.env.DEV_DISPLAY)
 const workspaceRoot = path.join(currentDirectory, '../');
+
+loadWorkspaceEnvFile(path.resolve(workspaceRoot, '.env.local'));
+loadWorkspaceEnvFile(path.resolve(workspaceRoot, '.env'));
 
 const l10nPRInNetlify = /^l10n_/.test(process.env.HEAD || '') && process.env.NETLIFY === 'true';
 const vercelDeploy = Boolean(process.env.VERCEL);

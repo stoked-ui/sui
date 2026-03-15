@@ -41,7 +41,10 @@ async function apiFetch(url: string) {
   if (token) {
     headers.Authorization = `Bearer ${token}`;
   }
-  const res = await fetch(getApiUrl(url), { headers });
+  const res = await fetch(getApiUrl(url), {
+    credentials: 'include',
+    headers,
+  });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     throw new Error(body.message || `Request failed with status ${res.status}`);
@@ -54,8 +57,6 @@ export default function DeliverableViewerPage({ deliverableId }: { deliverableId
   const [deliverable, setDeliverable] = React.useState<Deliverable | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState('');
-  const [iframeHeight, setIframeHeight] = React.useState('100vh');
-  const iframeRef = React.useRef<HTMLIFrameElement>(null);
 
   React.useEffect(() => {
     let active = true;
@@ -81,24 +82,13 @@ export default function DeliverableViewerPage({ deliverableId }: { deliverableId
     };
   }, [deliverableId]);
 
-  // Handle iframe auto-resizing via message from child
-  React.useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      // In production, you'd check event.origin here for security
-      if (event.data && event.data.type === 'setHeight') {
-        setIframeHeight(`${event.data.height}px`);
-      }
-    };
-
-    window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
-  }, []);
-
   const token = getToken();
   // Proxy endpoints require auth — iframes can't send Authorization headers,
   // so pass the token via query parameter for proxy URLs.
   const authenticatedUrl = React.useMemo(() => {
-    if (!deliverable || !token) return deliverable?.url ?? '';
+    if (!deliverable || !token) {
+      return deliverable?.url ?? '';
+    }
     const url = deliverable.url;
     if (url.startsWith('/api/')) {
       const sep = url.includes('?') ? '&' : '?';
@@ -127,7 +117,7 @@ export default function DeliverableViewerPage({ deliverableId }: { deliverableId
 
   if (isHtml) {
     return (
-      <Box sx={{ position: 'relative' }}>
+      <Box sx={{ position: 'relative', display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
         {/* Navigation Overlay (Sticky/Fixed) */}
         <Box sx={{
           position: 'fixed',
@@ -171,15 +161,13 @@ export default function DeliverableViewerPage({ deliverableId }: { deliverableId
         </Box>
 
         <iframe
-          ref={iframeRef}
           src={authenticatedUrl}
           title={deliverable.title}
           style={{
             width: '100%',
-            height: iframeHeight,
+            flex: 1,
             border: 'none',
             display: 'block',
-            overflow: 'hidden',
             backgroundColor: 'transparent'
           }}
           sandbox="allow-same-origin allow-scripts allow-popups allow-forms"

@@ -2,6 +2,12 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { ObjectId } from 'mongodb';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { withAuth, AuthenticatedRequest } from 'docs/src/modules/auth/withAuth';
+import { getDb } from 'docs/src/modules/db/mongodb';
+import {
+  buildDeliverableCdnKey,
+  buildDeliverableCdnUrl,
+  DELIVERABLES_CDN_BUCKET,
+} from 'docs/src/modules/deliverables/cdnStorage';
 import { writeLocalDeliverableFile } from 'docs/src/modules/deliverables/localFiles';
 
 export const config = {
@@ -12,8 +18,6 @@ export const config = {
 };
 
 const REGION = process.env.AWS_REGION || 'us-east-1';
-// This bucket should not be public.
-const BUCKET = process.env.DELIVERABLES_PRIVATE_BUCKET || 'stoked-private-deliverables';
 const MAX_FILE_BYTES = 100 * 1024 * 1024;
 const MAX_REQUEST_BYTES = 150 * 1024 * 1024;
 
@@ -75,6 +79,7 @@ async function parseUploadRequest(req: NextApiRequest) {
   if (normalizedRequestContentType === 'application/json') {
     const body = JSON.parse(rawBody.toString('utf8')) as {
       clientId?: string;
+      clientSlug?: string;
       bundleId?: string;
       filePath?: string;
       contentType?: string;
@@ -83,6 +88,7 @@ async function parseUploadRequest(req: NextApiRequest) {
 
     return {
       clientId: body.clientId,
+      clientSlug: body.clientSlug,
       bundleId: body.bundleId,
       filePath: body.filePath,
       contentType: body.contentType,
@@ -92,6 +98,7 @@ async function parseUploadRequest(req: NextApiRequest) {
 
   return {
     clientId: getSingleValue(req.query.clientId),
+    clientSlug: getSingleValue(req.query.clientSlug),
     bundleId: getSingleValue(req.query.bundleId),
     filePath: getSingleValue(req.query.filePath),
     contentType: normalizedRequestContentType || 'application/octet-stream',
@@ -99,12 +106,30 @@ async function parseUploadRequest(req: NextApiRequest) {
   };
 }
 
-function sanitizePath(rawPath: string) {
-  const normalized = rawPath.replace(/\\/g, '/').replace(/^\/+/, '');
-  if (!normalized || normalized.includes('..')) {
-    throw new Error('Invalid filePath');
+function slugifyClientName(name: string) {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+}
+
+async function resolveClientSlug(clientId: string, providedClientSlug?: string) {
+  if (typeof providedClientSlug === 'string' && providedClientSlug.trim()) {
+    return providedClientSlug.trim();
   }
-  return normalized;
+
+  const db = await getDb();
+  const client = await db.collection('clients').findOne(
+    { _id: new ObjectId(clientId) },
+    { projection: { slug: 1, name: 1 } },
+  ) as { slug?: unknown; name?: unknown } | null;
+
+  if (typeof client?.slug === 'string' && client.slug.trim()) {
+    return client.slug.trim();
+  }
+
+  if (typeof client?.name === 'string' && client.name.trim()) {
+    return slugifyClientName(client.name.trim());
+  }
+
+  return undefined;
 }
 
 async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
@@ -117,7 +142,14 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
   }
 
   try {
-    const { clientId, bundleId, filePath, contentType, buffer } = await parseUploadRequest(req);
+    const {
+      clientId,
+      clientSlug,
+      bundleId,
+      filePath,
+      contentType,
+      buffer,
+    } = await parseUploadRequest(req);
 
     if (!clientId || !ObjectId.isValid(clientId)) {
       return res.status(400).json({ message: 'Valid clientId is required' });
@@ -132,12 +164,6 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
       return res.status(400).json({ message: 'contentType is required' });
     }
 
-    const safePath = sanitizePath(filePath);
-    const safeBundleId = bundleId.replace(/[^a-zA-Z0-9/_-]/g, '-').replace(/^\/+/, '').slice(0, 120);
-    if (!safeBundleId) {
-      return res.status(400).json({ message: 'bundleId is invalid' });
-    }
-
     if (!buffer.length) {
       return res.status(400).json({ message: 'file is empty' });
     }
@@ -145,37 +171,47 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
       return res.status(413).json({ message: 'File too large. Maximum size is 100MB per file.' });
     }
 
-    const key = `deliverables/${clientId}/${safeBundleId}/${safePath}`;
+    const resolvedClientSlug = await resolveClientSlug(clientId, clientSlug);
+    if (!resolvedClientSlug) {
+      return res.status(400).json({ message: 'Unable to resolve clientSlug for clientId' });
+    }
 
-    // Handle local development by saving to a private local path (outside of public)
+    const location = {
+      clientSlug: resolvedClientSlug,
+      bundleName: bundleId,
+      filePath,
+    };
+    const key = buildDeliverableCdnKey(location);
+    const url = buildDeliverableCdnUrl(location);
+
+    // Local dev continues to store files outside of public so the docs app can preview them without S3.
     if (process.env.NODE_ENV === 'development') {
       writeLocalDeliverableFile({
         clientId,
-        bundleId: safeBundleId,
-        filePath: safePath,
+        bundleId,
+        filePath,
         content: buffer,
       });
 
-      // Return the secure proxy URL
-      const url = `/api/deliverables/proxy/${clientId}/${safeBundleId}/${safePath}`;
-      return res.status(200).json({ key, url });
+      return res.status(200).json({
+        key,
+        url: `/api/deliverables/proxy/${clientId}/${bundleId}/${filePath}`,
+      });
     }
 
     const cacheControl = contentType === 'text/html'
       ? 'no-cache'
-      : 'private, max-age=31536000, immutable';
+      : 'public, max-age=31536000, immutable';
 
     const s3 = new S3Client({ region: REGION });
     await s3.send(new PutObjectCommand({
-      Bucket: BUCKET,
+      Bucket: DELIVERABLES_CDN_BUCKET,
       Key: key,
       Body: buffer,
       ContentType: contentType,
       CacheControl: cacheControl,
     }));
 
-    // Secure proxy URL instead of public CDN
-    const url = `/api/deliverables/proxy/${clientId}/${safeBundleId}/${safePath}`;
     return res.status(200).json({ key, url });
   } catch (err: unknown) {
     if (err instanceof PayloadTooLargeError) {

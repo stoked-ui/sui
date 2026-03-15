@@ -2,6 +2,7 @@ export type PublicSite = 'stoked-ui' | 'consulting';
 
 export const STOKED_UI_ORIGIN = 'https://stoked-ui.com';
 export const STOKED_CONSULTING_ORIGIN = 'https://stokedconsulting.com';
+export const STOKED_CONSULTING_CDN_ORIGIN = buildCdnOrigin(STOKED_CONSULTING_ORIGIN);
 
 const STOKED_UI_PRODUCT_IDS = new Set([
   'stoked-ui',
@@ -55,7 +56,13 @@ function shouldUseAbsolutePublicDomains() {
   return hostname === 'stoked-ui.com'
     || hostname === 'www.stoked-ui.com'
     || hostname === 'stokedconsulting.com'
-    || hostname === 'www.stokedconsulting.com';
+    || hostname === 'www.stokedconsulting.com'
+    || hostname === 'cdn.stokedconsulting.com';
+}
+
+export function buildCdnOrigin(origin: string) {
+  const url = new URL(origin);
+  return `${url.protocol}//cdn.${url.host}`;
 }
 
 export function originForSite(site: PublicSite) {

@@ -1,65 +1,133 @@
 import * as React from 'react';
-import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
 import BrandingCssVarsProvider from '@stoked-ui/docs';
 import Head from 'docs/src/modules/components/Head';
-import AppFooter from 'docs/src/layouts/AppFooter';
-import AppHeader from 'docs/src/layouts/AppHeader';
+import DeliverableViewerPage from 'docs/src/modules/components/DeliverableViewerPage';
+import { getApiUrl } from 'docs/src/modules/utils/getApiUrl';
 import { useRouter } from 'next/router';
-import dynamic from 'next/dynamic';
-import { GetStaticPaths, GetStaticProps } from 'next';
 
-const DeliverableViewerPage = dynamic(() => import('docs/src/modules/components/DeliverableViewerPage'), { ssr: false });
+interface ViewerUser {
+  id: string;
+  name: string;
+  role: string;
+  clientId?: string;
+}
 
-export const getStaticPaths: GetStaticPaths = async () => {
-  return {
-    paths: [],
-    fallback: 'blocking',
-  };
-};
+interface SessionResponse {
+  authenticated: boolean;
+  user: ViewerUser;
+}
 
-export const getStaticProps: GetStaticProps = async () => {
-  return {
-    props: {},
-  };
-};
+function readStoredUser(): ViewerUser | null {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
+  const stored = localStorage.getItem('auth');
+  if (!stored) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(stored) as { user?: ViewerUser };
+    return parsed.user || null;
+  } catch {
+    return null;
+  }
+}
 
 function useAuth() {
-  const [user, setUser] = React.useState<{ name: string; role: 'admin' | 'client'; id: string; clientId?: string } | null>(null);
+  const router = useRouter();
+  const [user, setUser] = React.useState<ViewerUser | null>(null);
+  const [checked, setChecked] = React.useState(false);
+
   React.useEffect(() => {
-    const stored = localStorage.getItem('auth');
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        setUser(parsed.user);
-      } catch { /* ignore */ }
+    if (!router.isReady) {
+      return undefined;
     }
-  }, []);
-  return user;
+
+    const storedUser = readStoredUser();
+    if (storedUser) {
+      setUser(storedUser);
+      setChecked(true);
+      return undefined;
+    }
+
+    let active = true;
+
+    (async () => {
+      try {
+        const response = await fetch(getApiUrl('/api/auth/session'), {
+          credentials: 'include',
+        });
+
+        if (!active) {
+          return;
+        }
+
+        if (response.ok) {
+          const session = (await response.json()) as SessionResponse;
+          if (session.authenticated) {
+            setUser(session.user);
+            setChecked(true);
+            return;
+          }
+        }
+      } catch {
+        // Fall through to the login redirect when the session check fails.
+      }
+
+      if (!active) {
+        return;
+      }
+
+      router.replace({
+        pathname: '/consulting/login',
+        query: { redirect: router.asPath },
+      }).catch(() => {});
+    })();
+
+    return () => {
+      active = false;
+    };
+  }, [router]);
+
+  return { user, checked };
 }
 
 export default function DeliverableViewerRoute() {
   const router = useRouter();
   const { id } = router.query;
-  const user = useAuth();
+  const { user, checked } = useAuth();
+  let content: React.ReactNode;
+
+  if (!checked) {
+    content = (
+      <Box display="flex" justifyContent="center" alignItems="center" flex={1}>
+        <CircularProgress />
+      </Box>
+    );
+  } else if (user && typeof id === 'string') {
+    content = <DeliverableViewerPage deliverableId={id} />;
+  } else {
+    content = null;
+  }
 
   return (
     <BrandingCssVarsProvider>
       <Head title="Deliverable Viewer - Stoked Consulting" description="View client deliverables" />
-      <AppHeader />
       <main id="main-content">
-        <Box sx={{ width: '100%' }}>
-          {user && typeof id === 'string' ? (
-            <DeliverableViewerPage deliverableId={id} />
-          ) : (
-            <Container sx={{ py: 8, textAlign: 'center' }}>
-              Please log in to view this deliverable.
-            </Container>
-          )}
+        <Box sx={{
+          width: '100%',
+          height: '100dvh',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+        }}>
+          {content}
         </Box>
       </main>
-      {/* Footer only if not loading an HTML deliverable or showing a login message */}
-      <AppFooter />
     </BrandingCssVarsProvider>
   );
 }

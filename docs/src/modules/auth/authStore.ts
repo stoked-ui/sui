@@ -16,6 +16,7 @@ export interface User {
   agentIds?: ObjectId[];
   aliases?: string[];
   avatarUrl?: string;
+  emailVerifiedAt?: Date;
   active: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -35,6 +36,17 @@ export interface AuthResult {
   };
 }
 
+export interface AuthTokenPayload {
+  sub: string;
+  email: string;
+  role: UserRole;
+  name: string;
+  clientId?: string;
+  clientSlug?: string;
+  avatarUrl?: string;
+  impersonatedId?: string;
+}
+
 const AUTO_DOMAINS = (process.env.AUTH_AUTO_DOMAINS || 'stokedconsulting.com,stoked-ui.com,brianstoker.com')
   .split(',')
   .map((d) => d.trim().toLowerCase());
@@ -50,7 +62,7 @@ const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
 /**
  * Calculates the appropriate user role based on their email and subscription status.
  */
-async function calculateUserRole(email: string): Promise<UserRole> {
+export async function calculateUserRole(email: string): Promise<UserRole> {
   const normalizedEmail = email.toLowerCase();
   
   // 1. Admin Check (Domain based)
@@ -97,6 +109,7 @@ async function resolveClientSlug(clientId?: ObjectId): Promise<string | undefine
 
 async function generateAuthResult(user: User, pictureUrl?: string, impersonatedId?: string): Promise<AuthResult> {
   const clientSlug = await resolveClientSlug(user.clientId);
+  const avatarUrl = pictureUrl || user.avatarUrl || gravatarUrl(user.email);
   const payload = {
     sub: user._id.toString(),
     email: user.email,
@@ -104,6 +117,7 @@ async function generateAuthResult(user: User, pictureUrl?: string, impersonatedI
     name: user.name,
     clientId: user.clientId?.toString(),
     clientSlug,
+    avatarUrl,
     impersonatedId,
   };
   const access_token = jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN as jwt.SignOptions['expiresIn'] });
@@ -116,10 +130,14 @@ async function generateAuthResult(user: User, pictureUrl?: string, impersonatedI
       role: user.role,
       clientId: user.clientId?.toString(),
       clientSlug,
-      avatarUrl: pictureUrl || user.avatarUrl || gravatarUrl(user.email),
+      avatarUrl,
       impersonatedId,
     },
   };
+}
+
+export async function createAuthResultForUser(user: User, pictureUrl?: string, impersonatedId?: string): Promise<AuthResult> {
+  return generateAuthResult(user, pictureUrl, impersonatedId);
 }
 
 export async function findUserByEmail(email: string): Promise<User | null> {
@@ -237,6 +255,7 @@ export async function loginWithGooglePayload(email: string, name: string, pictur
     name,
     role: newRole,
     avatarUrl: picture,
+    emailVerifiedAt: now,
     active: true,
     createdAt: now,
     updatedAt: now,
@@ -274,8 +293,6 @@ export async function impersonateUser(actorId: string, targetId: string): Promis
   return await generateAuthResult(target, target.avatarUrl, actorId);
 }
 
-export function verifyToken(token: string): { sub: string; email: string; role: UserRole; name: string; clientId?: string; clientSlug?: string; impersonatedId?: string } {
-  return jwt.verify(token, JWT_SECRET) as { sub: string; email: string; role: UserRole; name: string; clientId?: string; clientSlug?: string; impersonatedId?: string };
+export function verifyToken(token: string): AuthTokenPayload {
+  return jwt.verify(token, JWT_SECRET) as AuthTokenPayload;
 }
-
-  

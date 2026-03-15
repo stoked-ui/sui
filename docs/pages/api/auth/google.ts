@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { OAuth2Client } from 'google-auth-library';
 import { loginWithGooglePayload } from 'docs/src/modules/auth/authStore';
+import { setAuthSession } from 'docs/src/modules/auth/session';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -28,6 +29,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const name = payload.name || payload.email.split('@')[0];
     const result = await loginWithGooglePayload(payload.email, name, payload.picture);
+    setAuthSession(res, result);
     return res.status(200).json(result);
   } catch {
     return res.status(401).json({ message: 'Invalid Google token' });

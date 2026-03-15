@@ -19,12 +19,21 @@ export default $config({
     const { verifyEnvVars } = await import("./infra/envVars");
     verifyEnvVars(['ROOT_DOMAIN'], true);
 
-    const { createSite, createApi, getDomainInfo } = await import('./infra');
+    const {
+      createSite,
+      createApi,
+      createCdnSite,
+      getDomainInfo,
+      getCdnDomainInfo,
+    } = await import('./infra');
     const domainInfo = getDomainInfo(process.env.ROOT_DOMAIN!, $app.stage);
+    const cdnDomainInfo = getCdnDomainInfo(process.env.ROOT_DOMAIN!, $app.stage);
     const web = await createSite(domainInfo);
+    const cdn = await createCdnSite(cdnDomainInfo);
     const api = createApi(domainInfo);
     return {
       site: web.url,
+      cdn: cdn.url,
       api: api.url,
     };
   }

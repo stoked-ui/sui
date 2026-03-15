@@ -17,8 +17,13 @@ import { useTranslate } from '@stoked-ui/docs/i18n';
 import { UserMenu } from '@stoked-ui/common';
 import SvgSuiLogomark from "docs/src/icons/SvgSuiLogomark";
 import SvgScLogo from "docs/src/icons/SvgScLogo"
-import dynamic from "next/dynamic";
-import { toAbsoluteSitePath } from 'docs/src/modules/utils/siteRouting';
+import HeaderNavBar from 'docs/src/components/header/HeaderNavBar';
+import HeaderNavDropdown from 'docs/src/components/header/HeaderNavDropdown';
+import {
+  STOKED_CONSULTING_ORIGIN,
+  STOKED_UI_ORIGIN,
+  toAbsoluteSitePath,
+} from 'docs/src/modules/utils/siteRouting';
 
 export interface AuthUser {
   id: string;
@@ -71,15 +76,6 @@ interface AppHeaderProps {
   gitHubRepository?: string;
 }
 
-
-const HeaderNavBar = dynamic(() => import('docs/src/components/header/HeaderNavBar'), {
-  ssr: false,
-});
-
-const HeaderNavDropdown = dynamic(() => import('docs/src/components/header/HeaderNavDropdown'), {
-  ssr: false,
-});
-
 export default function AppHeader(props: AppHeaderProps) {
   const { gitHubRepository = 'https://github.com/stoked-ui/sui' } = props;
   const t = useTranslate();
@@ -99,13 +95,38 @@ export default function AppHeader(props: AppHeaderProps) {
   }, []);
 
   React.useEffect(() => {
+    let active = true;
+
     try {
       const stored = localStorage.getItem('auth');
       if (stored) {
         const parsed = JSON.parse(stored) as AuthData;
-        setAuthUser(parsed.user);
+        if (active) {
+          setAuthUser(parsed.user);
+        }
       }
     } catch { /* ignore */ }
+
+    fetch(getApiUrl('/api/auth/session'), { credentials: 'include' })
+      .then(async (response) => {
+        if (!response.ok) {
+          return null;
+        }
+
+        return response.json() as Promise<{ authenticated: boolean; user: AuthUser }>;
+      })
+      .then((session) => {
+        if (!active) {
+          return;
+        }
+
+        setAuthUser(session?.authenticated ? session.user : null);
+      })
+      .catch(() => {
+        if (active) {
+          setAuthUser((current) => current);
+        }
+      });
 
     const handleStorage = (e: StorageEvent) => {
       if (e.key === 'auth') {
@@ -120,15 +141,42 @@ export default function AppHeader(props: AppHeaderProps) {
       }
     };
     window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
+    return () => {
+      active = false;
+      window.removeEventListener('storage', handleStorage);
+    };
   }, []);
 
-  const handleLogout = () => {
+  const buildLogoutUrl = React.useCallback(() => {
+    if (typeof window === 'undefined') {
+      return '/api/auth/logout?returnTo=/';
+    }
+
+    const currentOrigin = window.location.origin;
+    const logoutUrl = new URL('/api/auth/logout', currentOrigin);
+    logoutUrl.searchParams.set('returnTo', `${currentOrigin}/`);
+
+    if (currentOrigin === STOKED_UI_ORIGIN) {
+      logoutUrl.searchParams.set('nextOrigin', STOKED_CONSULTING_ORIGIN);
+    } else if (currentOrigin === STOKED_CONSULTING_ORIGIN) {
+      logoutUrl.searchParams.set('nextOrigin', STOKED_UI_ORIGIN);
+    }
+
+    return logoutUrl.toString();
+  }, []);
+
+  const handleLogout = async () => {
     try {
       localStorage.removeItem('auth');
       localStorage.removeItem('blog_jwt');
     } catch { /* ignore */ }
     setAuthUser(null);
+
+    if (typeof window !== 'undefined') {
+      window.location.assign(buildLogoutUrl());
+      return;
+    }
+
     router.push('/');
   };
 
