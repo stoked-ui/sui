@@ -56,7 +56,7 @@ export const createApi = (domainInfo: DomainInfo) => {
   const verifyFunction = new sst.aws.Function("Verify", {
     handler: "api/subscribe.verify", permissions: [{
       actions: ["ses:SendEmail"],
-      resources: ["arn:aws:ses:us-east-1:883859713095:identity/!*"]
+      resources: ["arn:aws:ses:us-east-1:883859713095:identity/*"]
     }], link: [mongoDbUri],
     environment: {
       ROOT_DOMAIN: domainInfo.domains[0],
@@ -65,7 +65,7 @@ export const createApi = (domainInfo: DomainInfo) => {
     }
   });
 
-  // Add the verify function with SES permissions
+  // Add the SMS function with SNS permissions
   const sendSms = new sst.aws.Function("SendSms", {
     handler: "api/sms.handler",
     permissions: [
@@ -83,7 +83,7 @@ export const createApi = (domainInfo: DomainInfo) => {
 
   api.route("POST /subscribe", subscribeFunction.arn);
   api.route("GET /verify", verifyFunction.arn);
-  api.route("POST /smss", sendSms.arn);
+  api.route("POST /sms", sendSms.arn);
   api.route("ANY /api/auth/google", googleAuthFunction.arn);
 
   return api;

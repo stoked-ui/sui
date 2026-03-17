@@ -24,12 +24,13 @@ export default function CheckoutSuccess() {
   const [copied, setCopied] = React.useState(false);
 
   React.useEffect(() => {
-    if (!productId) return;
+    const id = Array.isArray(productId) ? productId[0] : productId;
+    if (!id) return;
 
     const fetchLicense = async () => {
       try {
         const licenses = await accountApiFetch<AccountLicense[]>('/api/account/licenses');
-        const latest = licenses.find(l => l.productId === productId);
+        const latest = licenses.find(l => l.productId === id);
         if (latest) {
           setLicense(latest);
           setLoading(false);
@@ -54,7 +55,8 @@ export default function CheckoutSuccess() {
     }
   };
 
-  const productDisplayName = license?.productName || (typeof productId === 'string' ? productId.charAt(0).toUpperCase() + productId.slice(1) : 'Flux');
+  const idForDisplay = Array.isArray(productId) ? productId[0] : productId;
+  const productDisplayName = license?.productName || (typeof idForDisplay === 'string' ? idForDisplay.charAt(0).toUpperCase() + idForDisplay.slice(1) : 'Flux');
 
   return (
     <Box sx={{ py: 8, maxWidth: 600, mx: 'auto', textAlign: 'center' }}>
