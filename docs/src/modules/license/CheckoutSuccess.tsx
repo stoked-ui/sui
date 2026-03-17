@@ -18,11 +18,51 @@ import { accountApiFetch } from 'docs/src/modules/account/accountClient';
 
 export default function CheckoutSuccess() {
   const router = useRouter();
-  const { product: productId } = router.query;
+  const { product: productId, session_id: sessionId } = router.query;
   const [loading, setLoading] = React.useState(true);
   const [license, setLicense] = React.useState<AccountLicense | null>(null);
+  const [licenseKey, setLicenseKey] = React.useState<string | null>(null);
   const [copied, setCopied] = React.useState(false);
+  const [appOpened, setAppOpened] = React.useState(false);
+  const activatedRef = React.useRef(false);
 
+  // Try to fetch the license key via the public session_id endpoint (no auth needed)
+  React.useEffect(() => {
+    const sid = Array.isArray(sessionId) ? sessionId[0] : sessionId;
+    if (!sid) return;
+
+    let cancelled = false;
+    let attempts = 0;
+    const maxAttempts = 15; // ~30s of polling
+
+    const fetchBySession = async () => {
+      try {
+        const res = await fetch(`/api/licenses/checkout-complete?session_id=${encodeURIComponent(sid)}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.key && !cancelled) {
+            setLicenseKey(data.key);
+            setLoading(false);
+          }
+          return;
+        }
+      } catch {
+        // ignore, will retry
+      }
+
+      attempts += 1;
+      if (attempts < maxAttempts && !cancelled) {
+        setTimeout(fetchBySession, 2000);
+      } else if (!cancelled) {
+        setLoading(false);
+      }
+    };
+
+    fetchBySession();
+    return () => { cancelled = true; };
+  }, [sessionId]);
+
+  // Fallback: also try authenticated account API
   React.useEffect(() => {
     const id = Array.isArray(productId) ? productId[0] : productId;
     if (!id) return;
@@ -33,28 +73,49 @@ export default function CheckoutSuccess() {
         const latest = licenses.find(l => l.productId === id);
         if (latest) {
           setLicense(latest);
+          if (!licenseKey) {
+            setLicenseKey(latest.key);
+          }
           setLoading(false);
         } else {
-          // If not found yet, retry a few times (webhook might be slow)
           setTimeout(fetchLicense, 2000);
         }
       } catch (err) {
         console.error('Failed to fetch licenses:', err);
-        setLoading(false);
       }
     };
 
     fetchLicense();
-  }, [productId]);
+  }, [productId, licenseKey]);
+
+  // Auto-open the app when we have the key
+  React.useEffect(() => {
+    if (!licenseKey || activatedRef.current) return;
+    activatedRef.current = true;
+
+    const activateUrl = `flux://activate-license?key=${encodeURIComponent(licenseKey)}`;
+    window.location.href = activateUrl;
+    setAppOpened(true);
+  }, [licenseKey]);
 
   const handleCopy = () => {
-    if (license?.key) {
-      navigator.clipboard.writeText(license.key);
+    const key = licenseKey || license?.key;
+    if (key) {
+      navigator.clipboard.writeText(key);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
   };
 
+  const handleOpenApp = () => {
+    const key = licenseKey || license?.key;
+    if (key) {
+      window.location.href = `flux://activate-license?key=${encodeURIComponent(key)}`;
+      setAppOpened(true);
+    }
+  };
+
+  const displayKey = licenseKey || license?.key;
   const idForDisplay = Array.isArray(productId) ? productId[0] : productId;
   const productDisplayName = license?.productName || (typeof idForDisplay === 'string' ? idForDisplay.charAt(0).toUpperCase() + idForDisplay.slice(1) : 'Flux');
 
@@ -79,7 +140,7 @@ export default function CheckoutSuccess() {
               Generating your license key...
             </Typography>
           </Box>
-        ) : license ? (
+        ) : displayKey ? (
           <Stack direction="row" spacing={1} alignItems="center">
             <Typography
               variant="h5"
@@ -93,7 +154,7 @@ export default function CheckoutSuccess() {
                 borderColor: 'divider',
               }}
             >
-              {license.key}
+              {displayKey}
             </Typography>
             <Tooltip title={copied ? "Copied!" : "Copy to clipboard"}>
               <IconButton onClick={handleCopy} color="primary">
@@ -103,18 +164,33 @@ export default function CheckoutSuccess() {
           </Stack>
         ) : (
           <Alert severity="warning">
-            We couldn't retrieve your license key automatically. Please check your email or the Licenses section in your account.
+            We couldn&apos;t retrieve your license key automatically. Please check your email or the Licenses section in your account.
           </Alert>
         )}
-        
+
+        {appOpened && displayKey && (
+          <Alert severity="success" sx={{ mt: 2 }}>
+            Activating your license in Flux...
+          </Alert>
+        )}
+
         <Typography variant="body2" color="text.secondary" sx={{ mt: 3 }}>
-          We've sent a copy of this license key to your email address. It is also saved here in your account for future reference.
+          We&apos;ve sent a copy of this license key to your email address. It is also saved here in your account for future reference.
         </Typography>
       </Paper>
 
       <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="center">
+        {displayKey && (
+          <Button
+            variant="contained"
+            size="large"
+            onClick={handleOpenApp}
+          >
+            Open in {productDisplayName}
+          </Button>
+        )}
         <Button
-          variant="contained"
+          variant="outlined"
           size="large"
           component={Link}
           href={license?.productUrl || (typeof productId === 'string' ? `/products/${productId}` : '/')}

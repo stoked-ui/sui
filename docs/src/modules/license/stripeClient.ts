@@ -128,6 +128,11 @@ export function constructStripeWebhookEvent(rawBody: Buffer, signature: string):
   }
 }
 
+export async function retrieveStripeCheckoutSession(sessionId: string): Promise<Stripe.Checkout.Session> {
+  const stripe = getStripeClient();
+  return stripe.checkout.sessions.retrieve(sessionId);
+}
+
 export async function retrieveStripeCustomer(customerId: string): Promise<Stripe.Customer | null> {
   const stripe = getStripeClient();
   const customer = await stripe.customers.retrieve(customerId);
