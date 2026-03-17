@@ -6,6 +6,7 @@ import Head from 'docs/src/modules/components/Head';
 import DeliverableViewerPage from 'docs/src/modules/components/DeliverableViewerPage';
 import { getApiUrl } from 'docs/src/modules/utils/getApiUrl';
 import { useRouter } from 'next/router';
+import { NoSsr } from '@mui/material';
 
 interface ViewerUser {
   id: string;
@@ -115,19 +116,21 @@ export default function DeliverableViewerRoute() {
   }
 
   return (
-    <BrandingCssVarsProvider>
-      <Head title="Deliverable Viewer - Stoked Consulting" description="View client deliverables" />
-      <main id="main-content">
-        <Box sx={{
-          width: '100%',
-          height: '100dvh',
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden',
-        }}>
-          {content}
-        </Box>
-      </main>
-    </BrandingCssVarsProvider>
+    <NoSsr>
+      <BrandingCssVarsProvider>
+        <Head title="Deliverable Viewer - Stoked Consulting" description="View client deliverables" />
+        <main id="main-content">
+          <Box sx={{
+            width: '100%',
+            height: '100dvh',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+          }}>
+            {content}
+          </Box>
+        </main>
+      </BrandingCssVarsProvider>
+    </NoSsr>
   );
 }

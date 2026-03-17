@@ -103,11 +103,22 @@ export function toConsultingInternalPath(path: string) {
 export function toAbsoluteSitePath(site: PublicSite, path: string) {
   const normalized = normalizePath(path);
   if (/^https?:\/\//i.test(normalized)) return normalized;
+  
+  const isConsulting = site === 'consulting';
+  const internalPath = isConsulting ? toConsultingInternalPath(normalized) : normalized;
+
   if (!shouldUseAbsolutePublicDomains()) {
-    return site === 'consulting' ? toConsultingInternalPath(normalized) : normalized;
+    return internalPath;
   }
-  const publicPath = site === 'consulting' ? toConsultingPublicPath(normalized) : normalized;
-  return `${originForSite(site)}${publicPath}`;
+
+  const publicPath = isConsulting ? toConsultingPublicPath(normalized) : normalized;
+  const siteOrigin = originForSite(site);
+  
+  if (typeof window !== 'undefined' && window.location.origin.toLowerCase() === siteOrigin.toLowerCase()) {
+    return internalPath;
+  }
+
+  return `${siteOrigin}${publicPath}`;
 }
 
 export function isConsultingAppPath(path: string) {

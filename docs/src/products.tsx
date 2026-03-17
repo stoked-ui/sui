@@ -1197,7 +1197,9 @@ function useAllProducts(): Products {
     fetch(getApiUrl('/api/products/public'))
       .then((res) => (res.ok ? res.json() : []))
       .then((data) => {
-        if (!Array.isArray(data) || data.length === 0) return;
+        if (!Array.isArray(data) || data.length === 0) {
+          return;
+        }
         const fallbackEntries = PUBLIC_FALLBACK_PRODUCTS.products.map((product) => product.data);
         const fallbackById = new Map(fallbackEntries.map((product) => [product.id, product]));
         const apiEntries = data.map((product: any) => {

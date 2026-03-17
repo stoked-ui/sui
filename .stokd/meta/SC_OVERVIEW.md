@@ -1,6 +1,6 @@
 # Stoked UI — Codebase Overview
 
-> **Generated:** 2026-03-03 | **Updated:** 2026-03-15 | **Meta version:** 0.2.0
+> **Generated:** 2026-03-03 | **Updated:** 2026-03-16 | **Meta version:** 0.2.0
 > **Repository:** `@stoked-ui/sui` v0.1.0-alpha.5
 > **Root:** `/opt/worktrees/stoked-ui/stoked-ui-main`
 
@@ -202,7 +202,7 @@ Published as `wasm-preview` npm package in `pkg/` directory. Referenced by `@sto
 | **cdn/** | `contents`, `folders`, `delete`, `move`, `export`, `permissions` | S3 CDN browsing and management with role-based access |
 | **cdn/upload/** | `initiate`, `active`, `[sessionId]/{urls,status,complete,abort}`, `[sessionId]/part/[partNumber]` | Multipart upload flow with session tracking |
 | **clients/** | `index`, `[id]` | Client CRUD |
-| **deliverables/** | `index`, `[id]`, `upload-file`, `proxy/[...path]` | Deliverable CRUD with CDN proxy |
+| **deliverables/** | `index`, `[id]`, `render`, `upload-file`, `proxy/[...path]` | Deliverable CRUD with HTML render and CDN proxy |
 | **invoices/** | `index`, `[id]`, `has-invoices` | Invoice CRUD with existence check |
 | **licenses/** | `checkout`, `create`, `activate`, `deactivate`, `validate`, `products` | Full license lifecycle: Stripe checkout, activation, validation |
 | **products/** | `index`, `[id]`, `public`, `[id]/pages/{index,[pageId]}` | Product catalog with public listing and nested pages |
@@ -223,7 +223,9 @@ Published as `wasm-preview` npm package in `pkg/` directory. Referenced by `@sto
 | **cdn** | `cdnAccess.ts`, `cdnMutations.ts`, `cdnUploadStore.ts` | S3 content access with role-based permissions (admin/client/agent/subscriber), multipart upload session management, folder CRUD, `.cdnkeep` directory markers |
 | **clients** | `contactUser.ts` | Contact user creation with password hashing, client-contact association, batch hydration |
 | **invoices** | `invoiceNormalization.ts`, `cdnStorage.ts` | Legacy invoice format normalization, status tracking (draft/sent/paid), CDN-backed storage |
-| **deliverables** | `cdnStorage.ts`, `htmlSnapshot.ts` | CDN-backed deliverable storage, HTML snapshot generation |
+| **deliverables** | `cdnStorage.ts`, `htmlSnapshot.ts` | CDN-backed deliverable storage, HTML snapshot generation, sanitized iframe rendering |
+| **sandbox** | CodeSandbox, StackBlitz, CreateReactApp integrations | Code sandbox environment utilities for documentation demos |
+| **joy** | Theme generation, template utilities | Joy UI integration and theme builder tools |
 | **license** | `licenseStore.ts`, `stripeClient.ts`, `apiUtils` | License lifecycle management, Stripe integration, license API utilities |
 | **products** | `feedbackStore.ts` | Product feedback with email verification (SES), auto-registration, verification code TTL, resend cooldown |
 | **blog** | `blogStore.ts`, `blogApiUtils.ts` | Blog post CRUD, publish/unpublish workflow, author/tag management |
@@ -618,17 +620,22 @@ Critical pinned versions in root `package.json`:
 ## 13. Tracked Packages (`.stokd/meta/config.json`)
 
 ```json
-[
-  "packages/sui-common",
-  "packages/sui-common-api",
-  "packages/sui-docs",
-  "packages/sui-editor",
-  "packages/sui-file-explorer",
-  "packages/sui-github",
-  "packages/sui-media",
-  "packages/sui-media-api",
-  "packages/sui-timeline"
-]
+{
+  "lastUpdate": 1773097819136,
+  "lastValidate": 1773097819136,
+  "metaVersion": "0.2.0",
+  "packages": [
+    "packages/sui-common",
+    "packages/sui-common-api",
+    "packages/sui-docs",
+    "packages/sui-editor",
+    "packages/sui-file-explorer",
+    "packages/sui-github",
+    "packages/sui-media",
+    "packages/sui-media-api",
+    "packages/sui-timeline"
+  ]
+}
 ```
 
 Note: `packages/sui-video-renderer` is a Rust/WASM workspace (Cargo-managed, no `package.json`) and is not tracked in the stokd meta config.

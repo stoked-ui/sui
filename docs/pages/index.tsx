@@ -14,6 +14,9 @@ import AppHeaderBanner from "../src/components/banner/AppHeaderBanner";
 import AppHeader from "../src/layouts/AppHeader";
 import { styled } from '@mui/material/styles';
 
+import { useRouter } from 'next/router';
+import CheckoutSuccess from 'docs/src/modules/license/CheckoutSuccess';
+
 const EditorHero = dynamic(() => import('../src/components/showcase/EditorHero'), {ssr: false });
 
 
@@ -69,7 +72,9 @@ const RandomHome =
   homeChoice === 'rusty-editor' ? MainView : dynamic(() => import(`./${homeChoice}/main`), { ssr: false });
 
 export function HomeView({ HomeMain}: { HomeMain: React.ComponentType }){
-  const Main: React.ComponentType = HomeMain || RandomHome;
+  const router = useRouter();
+  const isCheckoutSuccess = router.query.checkout === 'success';
+  const Main: React.ComponentType = isCheckoutSuccess ? CheckoutSuccess : (HomeMain || RandomHome);
 
   return <BrandingCssVarsProvider>
     <StyledHead
@@ -98,7 +103,7 @@ export function HomeView({ HomeMain}: { HomeMain: React.ComponentType }){
     <AppHeader/>
     <main id="main-content">
      <Main/>
-      {PRODUCTS.previews()}
+      {!isCheckoutSuccess && PRODUCTS.previews()}
     </main>
     <AppFooter/>
   </BrandingCssVarsProvider>;
