@@ -55,7 +55,7 @@ export default function DiamondSponsors() {
           component="img"
           height="32px"
           width="32px"
-          src="/static/logo-no-padding.svg"
+          src="/static/stoked-consulting-logo.svg"
           alt="brian stoker"
           title="B STOKED"
           loading="lazy"
@@ -64,8 +64,6 @@ export default function DiamondSponsors() {
           component="h6"
           color="text.primary"
           variant="body2" sx={{
-            flexDirection: 'column',
-            display: 'flex',
             fontSize: '12px',
             fontWeight: 500,
             textDecoration: 'none',
@@ -73,9 +71,38 @@ export default function DiamondSponsors() {
             marginLeft: '10px',
           }}>
           {/* eslint-disable-next-line stoked-ui/no-hardcoded-labels */}
-          <div>consulting</div>
+          Full Stack Consulting
+        </Typography>
+      </NativeLink>
+      <NativeLink
+        data-ga-event-category="sponsor"
+        data-ga-event-action="docs-premium"
+        data-ga-event-label="stokd-cloud"
+        href="/products/stokd-cloud"
+        rel="noopener"
+        sx={{ textDecoration: 'none', fontDirection: '700'}}
+      >
+        <Box
+          component="img"
+          height="32px"
+          width="32px"
+          src="/static/logo.svg"
+          alt="stokd cloud"
+          title="STOKD CLOUD"
+          loading="lazy"
+        />
+        <Typography
+          component="h6"
+          color="text.primary"
+          variant="body2" sx={{
+            fontSize: '12px',
+            fontWeight: 500,
+            textDecoration: 'none',
+            textTransform: 'uppercase',
+            marginLeft: '10px',
+          }}>
           {/* eslint-disable-next-line stoked-ui/no-hardcoded-labels */}
-          <div>$70 / hr</div>
+          STOKD CLOUD
         </Typography>
       </NativeLink>
       <NativeLink
