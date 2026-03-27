@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Head from 'docs/src/modules/components/Head';
-import BrandingCssVarsProvider from '@stoked-ui/docs';
+import { BrandingCssVarsProvider } from '@stoked-ui/docs';
 import AppHeader from 'docs/src/layouts/AppHeader';
 import AppFooter from 'docs/src/layouts/AppFooter';
 import Box from '@mui/material/Box';

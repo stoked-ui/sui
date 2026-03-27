@@ -9,7 +9,7 @@ import KeyboardArrowRightRounded from '@mui/icons-material/KeyboardArrowRightRou
 import Head from 'docs/src/modules/components/Head';
 import AppHeader from 'docs/src/layouts/AppHeader';
 import AppFooter from 'docs/src/layouts/AppFooter';
-import BrandingCssVarsProvider from '@stoked-ui/docs';
+import { BrandingCssVarsProvider } from '@stoked-ui/docs';
 import Section from 'docs/src/layouts/Section';
 import { pageToTitleI18n } from 'docs/src/modules/utils/helpers';
 import { useTranslate } from '@stoked-ui/docs/i18n';

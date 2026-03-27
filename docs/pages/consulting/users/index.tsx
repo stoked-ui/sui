@@ -3,7 +3,7 @@ import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 import Section from 'docs/src/layouts/Section';
-import BrandingCssVarsProvider from '@stoked-ui/docs';
+import { BrandingCssVarsProvider } from '@stoked-ui/docs';
 import Head from 'docs/src/modules/components/Head';
 import AppFooter from 'docs/src/layouts/AppFooter';
 import AppHeader from 'docs/src/layouts/AppHeader';

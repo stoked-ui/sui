@@ -1097,7 +1097,7 @@ const macMixerData: TProduct = {
   fullName: "Mac Mixer",
   description: "macOS audio utility with per-app volume control, auto-pause, and system audio recording",
   icon: "product-advanced",
-  url: "/mac-mixer",
+  url: "/products/mac-mixer",
   site: 'consulting',
   hideProductFeatures: true,
   live: true,
@@ -1128,7 +1128,7 @@ const alwaysListeningData: TProduct = {
   fullName: "Always Listening",
   description: "Cross-platform voice pipeline tray app with Voice-to-Claude, Dictation, and Combined modes",
   icon: "product-templates",
-  url: "/always-listening",
+  url: "/products/always-listening",
   site: 'consulting',
   hideProductFeatures: true,
   live: true,
@@ -1187,7 +1187,7 @@ const stokdCloud = new Product(stokdCloudData);
 const PRODUCTS: Products = new Products([fileExplorer, media, timeline, videoEditor]);
 const ALL_PRODUCTS: Products = new Products([sui]);
 const CONSULTING: Products = new Products([consultingFrontEnd, consultingBackEnd, consultingDevops, consultingAi]);
-const PUBLIC_FALLBACK_PRODUCTS: Products = new Products([sui, flux, stokdCloud]);
+const PUBLIC_FALLBACK_PRODUCTS: Products = new Products([sui, flux, macMixer, alwaysListening, stokdCloud]);
 const ALL_PACKAGES: Products = new Products([
   fileExplorer, media, common, mediaApi, mediaSelector, timeline, videoEditor, flux,
   macMixer, alwaysListening, stokdCloud,

@@ -11,7 +11,7 @@ import NotificationsActiveIcon from '@mui/icons-material/NotificationsActiveOutl
 import ArticleIcon from '@mui/icons-material/ArticleOutlined';
 import CodeIcon from '@mui/icons-material/CodeOutlined';
 import Section from 'docs/src/layouts/Section';
-import BrandingCssVarsProvider from '@stoked-ui/docs';
+import { BrandingCssVarsProvider } from '@stoked-ui/docs';
 import Head from 'docs/src/modules/components/Head';
 import AppFooter from 'docs/src/layouts/AppFooter';
 import AppHeader from 'docs/src/layouts/AppHeader';

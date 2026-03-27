@@ -47,3 +47,12 @@ export function buildAuthLoginUrl(sourceOrigin, returnTo) {
   url.searchParams.set('returnTo', returnTo);
   return url.toString();
 }
+
+export function buildAuthLogoutUrl(returnTo = '/') {
+  const currentOrigin = typeof window === 'undefined'
+    ? publicBaseUrl
+    : window.location.origin;
+  const url = new URL('/api/auth/logout', currentOrigin);
+  url.searchParams.set('returnTo', new URL(returnTo, currentOrigin).toString());
+  return url.toString();
+}

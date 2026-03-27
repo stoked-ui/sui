@@ -1,7 +1,7 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
-import BrandingCssVarsProvider from '@stoked-ui/docs';
+import { BrandingCssVarsProvider } from '@stoked-ui/docs';
 import Head from 'docs/src/modules/components/Head';
 import DeliverableViewerPage from 'docs/src/modules/components/DeliverableViewerPage';
 import { getApiUrl } from 'docs/src/modules/utils/getApiUrl';

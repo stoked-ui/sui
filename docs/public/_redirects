@@ -36,3 +36,17 @@
 ### SUI File Explorer
 /file-explorer/ /file-explorer/overview 301
 /file-explorer/ / 301
+
+### Consulting product pages
+/products/flux https://stokedconsulting.com/products/flux/ 301
+/products/flux/ https://stokedconsulting.com/products/flux/ 301
+/products/flux/* https://stokedconsulting.com/products/flux/:splat 301
+/products/mac-mixer https://stokedconsulting.com/products/mac-mixer/ 301
+/products/mac-mixer/ https://stokedconsulting.com/products/mac-mixer/ 301
+/products/mac-mixer/* https://stokedconsulting.com/products/mac-mixer/:splat 301
+/products/always-listening https://stokedconsulting.com/products/always-listening/ 301
+/products/always-listening/ https://stokedconsulting.com/products/always-listening/ 301
+/products/always-listening/* https://stokedconsulting.com/products/always-listening/:splat 301
+/products/stokd-cloud https://stokedconsulting.com/products/stokd-cloud/ 301
+/products/stokd-cloud/ https://stokedconsulting.com/products/stokd-cloud/ 301
+/products/stokd-cloud/* https://stokedconsulting.com/products/stokd-cloud/:splat 301

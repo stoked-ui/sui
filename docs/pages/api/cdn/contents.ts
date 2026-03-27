@@ -12,6 +12,17 @@ const DEFAULT_MAX_KEYS = 1000;
 
 const s3 = new S3Client({ region: REGION });
 
+function isCredentialFailure(error: unknown) {
+  const message = error instanceof Error ? error.message.toLowerCase() : '';
+
+  return message.includes('aws sso login')
+    || message.includes('token is expired')
+    || message.includes('expired token')
+    || message.includes('could not load credentials')
+    || message.includes('credential provider')
+    || message.includes('resolved credential object is not valid');
+}
+
 function sanitizePrefix(value: string | string[] | undefined) {
   const raw = Array.isArray(value) ? value[0] : value || '';
 
@@ -99,9 +110,15 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       objects: visibleContents.objects,
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to list CDN contents';
     console.error('CDN contents error:', error);
-    return res.status(500).json({ message });
+    if (isCredentialFailure(error)) {
+      return res.status(503).json({
+        code: 'credentials_unavailable',
+        message: 'CDN contents are temporarily unavailable',
+      });
+    }
+
+    return res.status(500).json({ message: 'Failed to list CDN contents' });
   }
 }
 

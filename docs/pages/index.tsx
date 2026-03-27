@@ -5,7 +5,7 @@ import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
 import GradientText from 'docs/src/components/typography/GradientText';
 import { PRODUCTS } from 'docs/src/products';
-import BrandingCssVarsProvider from '@stoked-ui/docs';
+import { BrandingCssVarsProvider } from '@stoked-ui/docs';
 import dynamic from 'next/dynamic';
 import AppFooter from "../src/layouts/AppFooter";
 import Head from "../src/modules/components/Head";

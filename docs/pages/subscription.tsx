@@ -8,7 +8,7 @@ import { useRouter } from 'next/router';
 import { useSearchParams } from 'next/navigation';
 import AppHeader from '../src/layouts/AppHeader';
 import AppFooter from '../src/layouts/AppFooter';
-import BrandingCssVarsProvider from '@stoked-ui/docs';
+import { BrandingCssVarsProvider } from '@stoked-ui/docs';
 import Section from '../src/layouts/Section';
 
 export default function Components() {

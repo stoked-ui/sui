@@ -50,7 +50,7 @@
   5. Navigate to pricing or contact information
 - **Views:** 2.11 Consulting Service Pages, 2.12 Consulting Home, 1.4 Standalone Product Pages, 10.2 Pricing Page
 - **Products:** Docs site (consulting)
-- **Entry points:** Direct URL `stokedconsulting.com`, consulting nav menu in header
+- **Entry points:** Direct URL `stokedconsulting.com`, consulting nav menu in header, redirected consulting-owned product slugs from `stoked-ui.com/products/*`
 
 ---
 

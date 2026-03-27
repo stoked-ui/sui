@@ -8,7 +8,7 @@ import Divider from '@mui/material/Divider';
 import Chip from '@mui/material/Chip';
 import Box from '@mui/material/Box';
 import Head from 'docs/src/modules/components/Head';
-import BrandingCssVarsProvider from '@stoked-ui/docs';
+import { BrandingCssVarsProvider } from '@stoked-ui/docs';
 import AppHeader from 'docs/src/layouts/AppHeader';
 import AppContainer from 'docs/src/modules/components/AppContainer';
 import AppFooter from 'docs/src/layouts/AppFooter';

@@ -13,7 +13,7 @@ import SettingsIcon from '@mui/icons-material/SettingsOutlined';
 import ArticleIcon from '@mui/icons-material/ArticleOutlined';
 import VpnKeyIcon from '@mui/icons-material/VpnKeyOutlined';
 import Section from 'docs/src/layouts/Section';
-import BrandingCssVarsProvider from '@stoked-ui/docs';
+import { BrandingCssVarsProvider } from '@stoked-ui/docs';
 import Head from 'docs/src/modules/components/Head';
 import AppFooter from 'docs/src/layouts/AppFooter';
 import AppHeader from 'docs/src/layouts/AppHeader';

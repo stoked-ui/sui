@@ -15,6 +15,13 @@ const STOKED_UI_PRODUCT_IDS = new Set([
   'editor',
 ]);
 
+const CONSULTING_PUBLIC_PRODUCT_IDS = new Set([
+  'flux',
+  'mac-mixer',
+  'always-listening',
+  'stokd-cloud',
+]);
+
 const CONSULTING_APP_SEGMENTS = new Set([
   '',
   'admin',
@@ -74,6 +81,10 @@ export function inferSiteForProductId(productId?: string): PublicSite {
     return 'stoked-ui';
   }
   return 'consulting';
+}
+
+export function isConsultingPublicProductId(productId?: string) {
+  return Boolean(productId && CONSULTING_PUBLIC_PRODUCT_IDS.has(productId));
 }
 
 export function toConsultingPublicPath(path: string) {

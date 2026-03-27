@@ -85,12 +85,24 @@ function parseCookies(header: string | undefined) {
 
 export function getRequestOrigin(req: NextApiRequest) {
   const host = req.headers['x-forwarded-host'] || req.headers.host || 'localhost:5199';
+  const normalizedHost = String(host).split(',')[0].trim();
+  const hostname = normalizedHost.replace(/:\d+$/, '');
+
+  if (
+    hostname === 'localhost'
+    || hostname === '127.0.0.1'
+    || hostname === '::1'
+    || hostname === '[::1]'
+  ) {
+    return `http://${normalizedHost}`;
+  }
+
   const protocolHeader = req.headers['x-forwarded-proto'];
   const protocol = Array.isArray(protocolHeader)
     ? protocolHeader[0]
-    : protocolHeader || (String(host).includes('localhost') ? 'http' : 'https');
+    : protocolHeader || (normalizedHost.includes('localhost') ? 'http' : 'https');
 
-  return `${protocol}://${String(host).split(',')[0].trim()}`;
+  return `${protocol}://${normalizedHost}`;
 }
 
 export function readSessionTokenFromRequest(req: NextApiRequest) {

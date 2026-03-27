@@ -3,12 +3,14 @@ import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 import Section from 'docs/src/layouts/Section';
-import BrandingCssVarsProvider from '@stoked-ui/docs';
+import { BrandingCssVarsProvider } from '@stoked-ui/docs';
 import Head from 'docs/src/modules/components/Head';
 import AppFooter from 'docs/src/layouts/AppFooter';
 import AppHeader from 'docs/src/layouts/AppHeader';
 import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
+import PublicProductDetailPage from 'docs/src/modules/components/PublicProductDetailPage';
+import { isConsultingPublicProductId } from 'docs/src/modules/utils/siteRouting';
 
 import { GetStaticPaths, GetStaticProps } from 'next';
 
@@ -43,8 +45,12 @@ function useAuth() {
 
 export default function ProductDetailRoute() {
   const router = useRouter();
-  const productSlug = router.query['product-slug'];
+  const productSlug = typeof router.query['product-slug'] === 'string' ? router.query['product-slug'] : undefined;
   const user = useAuth();
+
+  if (isConsultingPublicProductId(productSlug)) {
+    return <PublicProductDetailPage productSlug={productSlug} />;
+  }
 
   return (
     <BrandingCssVarsProvider>
@@ -52,7 +58,7 @@ export default function ProductDetailRoute() {
       <AppHeader />
       <main id="main-content">
         <Container sx={{ py: 4 }}>
-          {user && typeof productSlug === 'string' ? (
+          {user && productSlug ? (
             <ProductDetailPage productSlug={productSlug} />
           ) : (
             <Box textAlign="center" py={8}>

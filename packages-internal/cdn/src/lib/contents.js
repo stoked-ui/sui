@@ -130,6 +130,7 @@ async function fetchRemote(prefix) {
       : {};
     const error = new Error(body.message || `Contents request failed with ${response.status}`);
     error.status = response.status;
+    error.code = body.code;
     throw error;
   }
   const contentType = response.headers.get('content-type') || '';
@@ -155,7 +156,7 @@ export async function getContents(rawPrefix) {
     if (
       typeof window !== 'undefined'
       && window.location.hostname === 'localhost'
-      && !hasStatusCode
+      && (!hasStatusCode || error.code === 'credentials_unavailable')
     ) {
       console.warn('Falling back to mock CDN contents for local development.', error);
       return fromFlatObjects(prefix, mockObjects);

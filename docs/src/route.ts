@@ -30,17 +30,17 @@ const ROUTES: Routes = {
   about: '/about/',
   blog: '/blog/',
   // Flux
-  flux: '/products/flux/',
-  fluxDocs: '/products/flux/docs/overview/',
+  flux: toAbsoluteSitePath('consulting', '/products/flux/'),
+  fluxDocs: toAbsoluteSitePath('consulting', '/products/flux/docs/overview/'),
   // Mac Mixer
-  macMixer: '/products/mac-mixer/',
-  macMixerDocs: '/products/mac-mixer/docs/overview/',
+  macMixer: toAbsoluteSitePath('consulting', '/products/mac-mixer/'),
+  macMixerDocs: toAbsoluteSitePath('consulting', '/products/mac-mixer/docs/overview/'),
   // Always Listening
-  alwaysListening: '/products/always-listening/',
-  alwaysListeningDocs: '/products/always-listening/docs/overview/',
+  alwaysListening: toAbsoluteSitePath('consulting', '/products/always-listening/'),
+  alwaysListeningDocs: toAbsoluteSitePath('consulting', '/products/always-listening/docs/overview/'),
   // Stokd Cloud
-  stokdCloud: '/products/stokd-cloud/',
-  stokdCloudDocs: '/products/stokd-cloud/docs/overview/',
+  stokdCloud: toAbsoluteSitePath('consulting', '/products/stokd-cloud/'),
+  stokdCloudDocs: toAbsoluteSitePath('consulting', '/products/stokd-cloud/docs/overview/'),
   // Consulting
   home: '/products/file-explorer/',
   consulting: toAbsoluteSitePath('consulting', '/consulting/'),

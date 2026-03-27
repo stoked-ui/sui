@@ -16,8 +16,10 @@ import { buildCrumbs, formatBytes, formatTimestamp, getContents, getFileKind } f
 import {
   authSessionEndpoint,
   buildAuthLoginUrl,
+  buildAuthLogoutUrl,
   cdnName,
   getAuthOrigin,
+  publicBaseUrl,
 } from './config';
 
 function useDirectoryContents(prefix, enabled, reloadToken) {
@@ -171,6 +173,14 @@ function basenameForPath(path) {
   return segments[segments.length - 1] || normalized;
 }
 
+function buildAbsolutePathUrl(path) {
+  const origin = typeof window === 'undefined'
+    ? publicBaseUrl
+    : window.location.origin;
+
+  return new URL(path.replace(/^\//, ''), `${origin.replace(/\/$/, '')}/`).toString();
+}
+
 function initialsForName(name) {
   return (name || '')
     .split(/\s+/)
@@ -178,6 +188,53 @@ function initialsForName(name) {
     .slice(0, 2)
     .map((part) => part[0]?.toUpperCase() || '')
     .join('') || '?';
+}
+
+function isCredentialFailure(error) {
+  const message = error instanceof Error ? error.message.toLowerCase() : '';
+
+  return message.includes('aws sso login')
+    || message.includes('token is expired')
+    || message.includes('expired token')
+    || message.includes('could not load credentials')
+    || message.includes('credential provider')
+    || message.includes('resolved credential object is not valid');
+}
+
+function shouldForceLogout(authStatus, error) {
+  if (authStatus !== 'authenticated' || !error) {
+    return false;
+  }
+
+  if (error.code === 'credentials_unavailable') {
+    return true;
+  }
+
+  if (typeof error.status === 'number' && error.status === 401) {
+    return true;
+  }
+
+  return isCredentialFailure(error);
+}
+
+function describeContentsError(error, authStatus) {
+  if (!error) {
+    return '';
+  }
+
+  if (shouldForceLogout(authStatus, error)) {
+    return 'Your CDN access expired. Sign in again to continue.';
+  }
+
+  if (typeof error.status === 'number' && error.status === 403) {
+    return 'This directory is not available for your account.';
+  }
+
+  if (typeof error.status === 'number' && error.status === 404) {
+    return 'This directory is no longer available.';
+  }
+
+  return 'Directory contents are temporarily unavailable. Refresh to try again.';
 }
 
 function parseUserIds(value) {
@@ -204,18 +261,27 @@ export default function App() {
   const [operationError, setOperationError] = useState('');
   const [uploads, setUploads] = useState([]);
   const [permissionEditor, setPermissionEditor] = useState(null);
+  const [logoutTriggered, setLogoutTriggered] = useState(false);
   const deferredQuery = useDeferredValue(query.trim().toLowerCase());
   const auth = useAuthSession();
   const { status, data, error } = useDirectoryContents(prefix, true, reloadToken);
   const crumbs = buildCrumbs(prefix);
   const authOrigin = getAuthOrigin();
-  const usingLocalAuthSource = authOrigin.includes('localhost');
   const canManage = auth.status === 'authenticated' && auth.user.role === 'admin';
-  const showLoginPanel = auth.status === 'unauthenticated' || auth.status === 'error';
+  const shouldLogout = shouldForceLogout(auth.status, error);
 
   useEffect(() => {
     document.title = prefix ? `${prefix} | ${cdnName}` : cdnName;
   }, [prefix]);
+
+  useEffect(() => {
+    if (!shouldLogout || logoutTriggered || typeof window === 'undefined') {
+      return;
+    }
+
+    setLogoutTriggered(true);
+    window.location.assign(buildAuthLogoutUrl(window.location.href));
+  }, [logoutTriggered, shouldLogout]);
 
   const filtered = !deferredQuery
     ? data
@@ -389,6 +455,14 @@ export default function App() {
     }
   }
 
+  async function handleCopyPath(path) {
+    try {
+      await navigator.clipboard.writeText(buildAbsolutePathUrl(path));
+    } catch {
+      setOperationError('Could not copy the path.');
+    }
+  }
+
   function updatePermissionEditor(changes) {
     setPermissionEditor((current) => (current ? { ...current, ...changes } : current));
   }
@@ -497,108 +571,98 @@ export default function App() {
                 Role-aware access, uploads, moves, and exports in one place.
               </p>
             </div>
-            <div className="hero-stats">
-              <div>
-                <span className="stat-label">Directory</span>
-                <strong>{prefix || 'root'}</strong>
-              </div>
-              <div>
-                <span className="stat-label">Visible items</span>
-                <strong>{fileCount}</strong>
-              </div>
-              <div>
-                <span className="stat-label">Visible size</span>
-                <strong>{formatBytes(totalBytes)}</strong>
-              </div>
-            </div>
-            <div className="hero-session" data-state={auth.status}>
-              {auth.status === 'authenticated' ? (
-                <React.Fragment>
-                  {auth.user.avatarUrl ? (
-                    <img
-                      className="hero-avatar"
-                      src={auth.user.avatarUrl}
-                      alt={auth.user.name}
-                    />
-                  ) : (
-                    <span className="hero-avatar hero-avatar-fallback" aria-hidden="true">
-                      {initialsForName(auth.user.name)}
-                    </span>
-                  )}
-                  <div className="hero-session-copy">
-                    <span className="hero-session-name">{auth.user.name}</span>
-                    <span className="hero-session-role">{auth.user.role}</span>
-                  </div>
-                </React.Fragment>
-              ) : (
-                <div className="hero-session-copy">
-                  <span className="hero-session-name">
-                    {auth.status === 'loading' ? 'Checking session' : 'Public access'}
-                  </span>
-                  <span className="hero-session-role">
-                    {auth.status === 'error' ? 'Session unavailable' : 'Not signed in'}
-                  </span>
+            <div className="hero-sidecar">
+              <label className="search hero-search" aria-label="Filter this directory">
+                <input
+                  type="search"
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  placeholder="Search files and folders"
+                />
+              </label>
+
+              <div className="hero-stats">
+                <div>
+                  <span className="stat-label">Directory</span>
+                  <strong>{prefix || 'root'}</strong>
                 </div>
-              )}
+                <div>
+                  <span className="stat-label">Visible items</span>
+                  <strong>{fileCount}</strong>
+                </div>
+                <div>
+                  <span className="stat-label">Visible size</span>
+                  <strong>{formatBytes(totalBytes)}</strong>
+                </div>
+              </div>
+
+              <details className="hero-session-menu" data-state={auth.status}>
+                <summary className="hero-session">
+                  {auth.status === 'authenticated' ? (
+                    <React.Fragment>
+                      {auth.user.avatarUrl ? (
+                        <img
+                          className="hero-avatar"
+                          src={auth.user.avatarUrl}
+                          alt={auth.user.name}
+                        />
+                      ) : (
+                        <span className="hero-avatar hero-avatar-fallback" aria-hidden="true">
+                          {initialsForName(auth.user.name)}
+                        </span>
+                      )}
+                      <div className="hero-session-copy">
+                        <span className="hero-session-name">{auth.user.name}</span>
+                        <span className="hero-session-role">{auth.user.role}</span>
+                      </div>
+                    </React.Fragment>
+                  ) : (
+                    <div className="hero-session-copy">
+                      <span className="hero-session-name">
+                        {auth.status === 'loading' ? 'Checking session' : 'Public access'}
+                      </span>
+                      <span className="hero-session-role">
+                        {auth.status === 'error' ? 'Session unavailable' : 'Not signed in'}
+                      </span>
+                    </div>
+                  )}
+                  {auth.status !== 'loading' ? <span className="hero-session-caret" aria-hidden="true">+</span> : null}
+                </summary>
+
+                {auth.status === 'loading' ? null : (
+                  <div className="hero-session-dropdown">
+                    {auth.status === 'authenticated' ? (
+                      <a className="hero-session-action" href={buildAuthLogoutUrl(currentUrl)}>
+                        Sign out
+                      </a>
+                    ) : (
+                      <a className="hero-session-action" href={buildAuthLoginUrl(authOrigin, currentUrl)}>
+                        Sign in
+                      </a>
+                    )}
+                  </div>
+                )}
+              </details>
             </div>
           </div>
         </section>
 
-        {auth.status === 'error' ? (
-          <section className="auth-panel">
-            <p className="feedback error">
-              Session lookup failed, but public browsing is still available. {auth.error.message}
-            </p>
-          </section>
-        ) : null}
-
-        {showLoginPanel ? (
-          <section className="auth-panel">
-            <div className="listing-head">
-              <div>
-                <p className="eyebrow">Authentication</p>
-                <h2>{auth.status === 'error' ? 'Session check is unavailable' : 'Public browsing is on'}</h2>
-              </div>
-              <p className="status-chip" data-status={auth.status === 'error' ? 'error' : 'success'}>
-                {auth.status === 'error' ? 'Degraded' : 'Public'}
-              </p>
-            </div>
-            <p className="feedback">
-              {auth.status === 'error'
-                ? 'Public browsing still works, but the session check failed. You can still continue to the login flow for client areas, admin controls, or restricted content.'
-                : usingLocalAuthSource
-                  ? 'Public files can be browsed without signing in. For local development, use the localhost auth flow for client areas, admin controls, or restricted content.'
-                  : 'Public files can be browsed without signing in. Sign in only if you need client areas, admin controls, or path-restricted content.'}
-            </p>
-            <div className="auth-actions">
-              <a
-                className="auth-link"
-                href={buildAuthLoginUrl(authOrigin, currentUrl)}
-              >
-                {auth.status === 'error'
-                  ? (usingLocalAuthSource ? 'Try localhost login' : 'Try login')
-                  : (usingLocalAuthSource ? 'Log in with localhost' : 'Log in')}
-              </a>
-            </div>
-          </section>
-        ) : null}
-
         <React.Fragment>
-        <section className="toolbar">
-          <nav className="crumbs" aria-label="Breadcrumb">
+        {crumbs.length ? (
+          <nav className="pathbar" aria-label="Breadcrumb">
             <button
-              className="crumb root"
+              className="path-link"
               type="button"
               onClick={() => openPrefix('')}
               onDragOver={canManage ? (event) => event.preventDefault() : undefined}
               onDrop={canManage ? (event) => handleDrop(event, '') : undefined}
             >
-              {cdnName}
+              root
             </button>
-            {crumbs.map((crumb) => (
+            {crumbs.map((crumb, index) => (
               <button
                 key={crumb.path}
-                className="crumb"
+                className={`path-link${index === crumbs.length - 1 ? ' current' : ''}`}
                 type="button"
                 onClick={() => openPrefix(crumb.path)}
                 onDragOver={canManage ? (event) => event.preventDefault() : undefined}
@@ -608,24 +672,6 @@ export default function App() {
               </button>
             ))}
           </nav>
-
-          <label className="search">
-            <span>Filter this directory</span>
-            <input
-              type="search"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search files and folders"
-            />
-          </label>
-        </section>
-
-        {canManage ? (
-          <section className="action-bar">
-            <button className="action-button" type="button" onClick={handleCreateFolder}>
-              New folder
-            </button>
-          </section>
         ) : null}
 
         {canManage && permissionEditor ? (
@@ -728,18 +774,6 @@ export default function App() {
           onDragOver={canManage ? (event) => event.preventDefault() : undefined}
           onDrop={canManage ? (event) => handleDrop(event, prefix) : undefined}
         >
-          <div className="listing-head">
-            <div>
-              <p className="eyebrow">Contents</p>
-              <h2>{prefix || 'Bucket root'}</h2>
-            </div>
-            <p className="status-chip" data-status={status}>
-              {status === 'loading' && 'Loading'}
-              {status === 'success' && 'Ready'}
-              {status === 'error' && 'Error'}
-            </p>
-          </div>
-
           {operationError ? <p className="feedback error">{operationError}</p> : null}
 
           {uploads.length ? (
@@ -756,7 +790,9 @@ export default function App() {
             </div>
           ) : null}
 
-          {status === 'error' ? <p className="feedback error">{error.message}</p> : null}
+          {status === 'error' ? (
+            <p className="feedback error">{describeContentsError(error, auth.status)}</p>
+          ) : null}
 
           {status === 'loading' ? <p className="feedback">Loading directory contents...</p> : null}
 
@@ -788,41 +824,67 @@ export default function App() {
                   onDragOver={canManage ? (event) => event.preventDefault() : undefined}
                   onDrop={canManage ? (event) => handleDrop(event, folder.path) : undefined}
                 >
-                  <button
-                    className="folder-open"
-                    type="button"
-                    onClick={() => openPrefix(folder.path)}
-                  >
-                    <span className="folder-icon">[+]</span>
-                    <span className="folder-name">{folder.name}</span>
-                    <span className="folder-path">{folder.path}</span>
-                  </button>
-                  <div className="folder-actions">
-                    <a
-                      className="inline-action"
-                      href={buildExportUrl(folder.path)}
+                  <div className="folder-main">
+                    <button
+                      className="folder-open"
+                      type="button"
+                      onClick={() => openPrefix(folder.path)}
                     >
-                      Export zip
-                    </a>
-                    {canManage ? (
-                      <button
-                        className="inline-action"
-                        type="button"
-                        onClick={() => handlePermissions(folder.path)}
+                      <span className="folder-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24">
+                          <path d="M10 4H4c-1.1 0-2 .9-2 2v3h20V8c0-1.1-.9-2-2-2h-8l-2-2Z" />
+                          <path d="M22 10H2v8c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2v-8Z" />
+                        </svg>
+                      </span>
+                      <span className="folder-name">{basenameForPath(folder.path)}</span>
+                    </button>
+                    <div className="folder-actions">
+                      <a
+                        className="inline-action inline-action-icon"
+                        href={buildExportUrl(folder.path)}
+                        title="Export Zip"
+                        aria-label="Export Zip"
                       >
-                        Restrict
-                      </button>
-                    ) : null}
-                    {canManage ? (
-                      <button
-                        className="inline-action"
-                        type="button"
-                        onClick={() => handleDelete(folder.path)}
-                      >
-                        Delete
-                      </button>
-                    ) : null}
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M12 2C6.49 2 2 6.49 2 12s4.49 10 10 10 10-4.49 10-10S17.51 2 12 2m-1 8V6h2v4h3l-4 4-4-4zm6 7H7v-2h10z" />
+                        </svg>
+                      </a>
+                      {canManage ? (
+                        <button
+                          className="icon-action"
+                          type="button"
+                          title="Restrict"
+                          aria-label="Restrict"
+                          onClick={() => handlePermissions(folder.path)}
+                        >
+                          <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M12 1.75A5.25 5.25 0 0 0 6.75 7v2H5.5A1.75 1.75 0 0 0 3.75 10.75v9.5c0 .97.78 1.75 1.75 1.75h13a1.75 1.75 0 0 0 1.75-1.75v-9.5A1.75 1.75 0 0 0 18.5 9h-1.25V7A5.25 5.25 0 0 0 12 1.75Zm-3.25 7.25V7a3.25 3.25 0 1 1 6.5 0v2h-6.5Zm3.25 3a1.75 1.75 0 0 1 1 3.19v2.06h-2v-2.06A1.75 1.75 0 0 1 12 12Z" />
+                          </svg>
+                        </button>
+                      ) : null}
+                      {canManage ? (
+                        <button
+                          className="icon-action"
+                          type="button"
+                          title="Delete"
+                          aria-label="Delete"
+                          onClick={() => handleDelete(folder.path)}
+                        >
+                          <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M9 3.75h6l.75 1.5h3.5v2h-1v11A2.75 2.75 0 0 1 15.5 21h-7A2.75 2.75 0 0 1 5.75 18.25v-11h-1v-2h3.5L9 3.75Zm-1.25 3.5v11c0 .41.34.75.75.75h7a.75.75 0 0 0 .75-.75v-11h-8.5Zm2.5 2h2v7h-2v-7Zm4 0h2v7h-2v-7Z" />
+                          </svg>
+                        </button>
+                      ) : null}
+                    </div>
                   </div>
+                  <button
+                    className="folder-path"
+                    type="button"
+                    title="Copy full path"
+                    onClick={() => handleCopyPath(folder.path)}
+                  >
+                    {folder.path}
+                  </button>
                 </article>
               ))}
             </div>
@@ -836,7 +898,26 @@ export default function App() {
                     <th>Name</th>
                     <th>Updated</th>
                     <th>Size</th>
-                    <th>Open</th>
+                    <th className="actions-head">
+                      <div className="table-head-actions">
+                        <span>Actions</span>
+                        {canManage ? (
+                          <button
+                            className="icon-action"
+                            type="button"
+                            title="New folder"
+                            aria-label="New folder"
+                            onClick={handleCreateFolder}
+                          >
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                              <path d="M10 4H4c-1.1 0-2 .9-2 2v3h20V8c0-1.1-.9-2-2-2h-8l-2-2Z" />
+                              <path d="M22 10H2v8c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2v-8Z" />
+                              <path d="M12 12.25h-1.25v2.5h-2.5V16h2.5v2.5H12V16h2.5v-1.25H12v-2.5Z" />
+                            </svg>
+                          </button>
+                        ) : null}
+                      </div>
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -873,28 +954,47 @@ export default function App() {
                         </td>
                         <td>{formatTimestamp(object.lastModified)}</td>
                         <td>{formatBytes(object.size)}</td>
-                        <td>
-                          <a href={object.url} target="_blank" rel="noreferrer">
-                            View
-                          </a>
-                          {canManage ? (
-                            <button
-                              className="inline-action"
-                              type="button"
-                              onClick={() => handlePermissions(object.path)}
+                        <td className="actions-cell">
+                          <div className="item-actions">
+                            <a
+                              className="icon-action"
+                              href={object.url}
+                              target="_blank"
+                              rel="noreferrer"
+                              title="View"
+                              aria-label="View"
                             >
-                              Restrict
-                            </button>
-                          ) : null}
-                          {canManage ? (
-                            <button
-                              className="inline-action"
-                              type="button"
-                              onClick={() => handleDelete(object.path)}
-                            >
-                              Delete
-                            </button>
-                          ) : null}
+                              <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M12 5c5.5 0 9.5 4.6 10.8 6.4.27.37.27.83 0 1.2C21.5 14.4 17.5 19 12 19S2.5 14.4 1.2 12.6a1.01 1.01 0 0 1 0-1.2C2.5 9.6 6.5 5 12 5Zm0 2C8 7 4.86 10.1 3.31 12 4.86 13.9 8 17 12 17s7.14-3.1 8.69-5C19.14 10.1 16 7 12 7Zm0 1.75A3.25 3.25 0 1 1 8.75 12 3.25 3.25 0 0 1 12 8.75Zm0 2A1.25 1.25 0 1 0 13.25 12 1.25 1.25 0 0 0 12 10.75Z" />
+                              </svg>
+                            </a>
+                            {canManage ? (
+                              <button
+                                className="icon-action"
+                                type="button"
+                                title="Restrict"
+                                aria-label="Restrict"
+                                onClick={() => handlePermissions(object.path)}
+                              >
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                  <path d="M12 1.75A5.25 5.25 0 0 0 6.75 7v2H5.5A1.75 1.75 0 0 0 3.75 10.75v9.5c0 .97.78 1.75 1.75 1.75h13a1.75 1.75 0 0 0 1.75-1.75v-9.5A1.75 1.75 0 0 0 18.5 9h-1.25V7A5.25 5.25 0 0 0 12 1.75Zm-3.25 7.25V7a3.25 3.25 0 1 1 6.5 0v2h-6.5Zm3.25 3a1.75 1.75 0 0 1 1 3.19v2.06h-2v-2.06A1.75 1.75 0 0 1 12 12Z" />
+                                </svg>
+                              </button>
+                            ) : null}
+                            {canManage ? (
+                              <button
+                                className="icon-action"
+                                type="button"
+                                title="Delete"
+                                aria-label="Delete"
+                                onClick={() => handleDelete(object.path)}
+                              >
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                  <path d="M9 3.75h6l.75 1.5h3.5v2h-1v11A2.75 2.75 0 0 1 15.5 21h-7A2.75 2.75 0 0 1 5.75 18.25v-11h-1v-2h3.5L9 3.75Zm-1.25 3.5v11c0 .41.34.75.75.75h7a.75.75 0 0 0 .75-.75v-11h-8.5Zm2.5 2h2v7h-2v-7Zm4 0h2v7h-2v-7Z" />
+                                </svg>
+                              </button>
+                            ) : null}
+                          </div>
                         </td>
                       </tr>
                     );

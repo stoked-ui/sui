@@ -1,5 +1,5 @@
 import * as React from 'react';
-import BrandingCssVarsProvider from '@stoked-ui/docs';
+import { BrandingCssVarsProvider } from '@stoked-ui/docs';
 import dynamic from "next/dynamic";
 
 const EditorComponent = dynamic(() => import('./EditorComponent'), {ssr: false });

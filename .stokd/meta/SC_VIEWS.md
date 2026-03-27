@@ -64,6 +64,7 @@
 
 - **Products:** Flux, Mac Mixer, Always Listening, Stokd Cloud
 - **Location:** `docs/pages/products/{product-id}/main.tsx` (routed via consulting site)
+- **Notes:** Public-facing marketing product pages on `stokedconsulting.com`; `stoked-ui.com` requests for consulting-owned product slugs redirect here.
 - **Regions:** Same structure as 1.2 — header, hero (`AdvancedShowcase`), feature chips, footer
 - **States:** same as 1.2
 
@@ -171,6 +172,7 @@
 
 - **Products:** Docs site (consulting)
 - **Location:** `docs/pages/consulting/products/index.tsx` → `ProductsPage`, `docs/pages/consulting/products/[product-slug].tsx` → `ProductDetailPage`
+- **Notes:** Internal product slugs still use the private management shell; consulting-owned product slugs render the public product page instead of the login gate.
 - **Regions (list):**
   | Zone | Component |
   |------|-----------|
