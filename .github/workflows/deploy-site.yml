@@ -47,5 +47,14 @@ jobs:
           ROOT_DOMAIN: stoked-ui.com,stokedconsulting.com
           NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
         run: |
+          set -euo pipefail
           sst install
-          sst deploy --stage production --verbose
+          if ! sst deploy --stage production --verbose 2>&1 | tee /tmp/sst-deploy.log; then
+            if grep -q "A concurrent update was detected on the app" /tmp/sst-deploy.log; then
+              echo "Detected stale SST lock. Unlocking and retrying once."
+              sst unlock --stage production
+              sst deploy --stage production --verbose
+            else
+              exit 1
+            fi
+          fi
