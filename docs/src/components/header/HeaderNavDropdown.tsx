@@ -3,10 +3,12 @@ import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Collapse from '@mui/material/Collapse';
 import Chip from '@mui/material/Chip';
+import Tooltip from '@mui/material/Tooltip';
 import { ClickAwayListener } from '@mui/base/ClickAwayListener';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import KeyboardArrowDownRounded from '@mui/icons-material/KeyboardArrowDownRounded';
+import AdminPanelSettingsRounded from '@mui/icons-material/AdminPanelSettingsRounded';
 import SvgHamburgerMenu from 'docs/src/icons/SvgHamburgerMenu';
 import { Link } from '@stoked-ui/docs';
 import { getApiUrl } from 'docs/src/modules/utils/getApiUrl';
@@ -124,27 +126,9 @@ export default function HeaderNavDropdown({ auth, managedProducts = [] }: Header
   const [productsOpen, setProductsOpen] = React.useState(true);
   const [docsOpen, setDocsOpen] = React.useState(false);
   const [consultingOpen, setConsultingOpen] = React.useState(false);
-  const [adminProductsOpen, setAdminProductsOpen] = React.useState(false);
   const hambugerRef = React.useRef<HTMLButtonElement>(null);
 
   const isAdmin = auth?.role === 'admin';
-
-  // Admin: fetch all products (including non-live) for admin mobile dropdown
-  const [adminProducts, setAdminProducts] = React.useState<ManagedProduct[]>([]);
-  React.useEffect(() => {
-    if (!auth || auth.role !== 'admin') return;
-    const stored = localStorage.getItem('auth');
-    if (!stored) return;
-    let token: string | null = null;
-    try {
-      token = JSON.parse(stored).access_token;
-    } catch { /* ignore */ }
-    if (!token) return;
-    fetch(getApiUrl('/api/products'), { headers: { Authorization: `Bearer ${token}` } })
-      .then((res) => (res.ok ? res.json() : []))
-      .then((data) => { if (Array.isArray(data)) setAdminProducts(data); })
-      .catch(() => {});
-  }, [auth]);
 
   // Check if client has invoices (for conditional nav link)
   const [hasInvoices, setHasInvoices] = React.useState(false);
@@ -224,44 +208,96 @@ export default function HeaderNavDropdown({ auth, managedProducts = [] }: Header
             {auth ? (
               // Authenticated mobile nav
               <UList>
-                {isAdmin ? (
-                  <React.Fragment>
-                    <li>
-                      <Anchor
-                        as="button"
-                        onClick={() => setAdminProductsOpen((bool) => !bool)}
-                        sx={{ justifyContent: 'space-between' }}
-                      >
-                        <Anchor href={toAbsoluteSitePath('consulting', '/consulting/products')} as={Link} noLinkStyle sx={{ p: 0 }}>
-                          Products
+                {/* Products — same as non-auth, admin icon for admin */}
+                <li>
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Anchor
+                      as="button"
+                      onClick={() => setProductsOpen((bool) => !bool)}
+                      sx={{ justifyContent: 'space-between', flex: 1 }}
+                    >
+                      Products
+                      <KeyboardArrowDownRounded
+                        color="primary"
+                        sx={{
+                          transition: '0.3s',
+                          transform: productsOpen ? 'rotate(-180deg)' : 'rotate(0)',
+                        }}
+                      />
+                    </Anchor>
+                    {isAdmin && (
+                      <Tooltip title="Products admin">
+                        <Anchor
+                          href={toAbsoluteSitePath('consulting', '/consulting/products')}
+                          as={Link}
+                          noLinkStyle
+                          sx={{ width: 'auto', px: 1 }}
+                        >
+                          <AdminPanelSettingsRounded sx={{ fontSize: 16 }} />
                         </Anchor>
-                        <KeyboardArrowDownRounded
-                          color="primary"
-                          sx={{
-                            transition: '0.3s',
-                            transform: adminProductsOpen ? 'rotate(-180deg)' : 'rotate(0)',
-                          }}
-                        />
-                      </Anchor>
-                      <Collapse in={adminProductsOpen}>
-                        <UList>
-                          {adminProducts.map((p) => (
-                            <li key={p._id}>
-                              <Anchor
-                                href={toAbsoluteSitePath('consulting', `/consulting/products/${p.productId}`)}
-                                as={Link}
-                                noLinkStyle
-                              >
-                                {p.name}
-                                {p.prerelease && p.prerelease !== 'none' && (
-                                  <Chip label={p.prerelease.toUpperCase()} size="small" color={p.prerelease === 'alpha' ? 'error' : 'warning'} sx={{ ml: 1, fontWeight: 700, height: 20, '& .MuiChip-label': { px: 0.75, fontSize: '0.625rem' } }} />
-                                )}
-                              </Anchor>
-                            </li>
-                          ))}
-                        </UList>
-                      </Collapse>
-                    </li>
+                      </Tooltip>
+                    )}
+                  </Box>
+                  <Collapse in={productsOpen}>
+                    <UList>
+                      {allProducts.live.map((item) => (
+                        <li key={item.id}>
+                          <Anchor
+                            href={item.url('product')}
+                            as={Link}
+                            noLinkStyle
+                            sx={{ flexDirection: 'column', alignItems: 'initial' }}
+                          >
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              {item.name}
+                            </Box>
+                            <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: 'pre-line' }}>
+                              {item.description}
+                            </Typography>
+                          </Anchor>
+                        </li>
+                      ))}
+                    </UList>
+                  </Collapse>
+                </li>
+                {/* Consulting — always visible */}
+                <li>
+                  <Anchor
+                    as="button"
+                    onClick={() => setConsultingOpen((bool) => !bool)}
+                    sx={{ justifyContent: 'space-between' }}
+                  >
+                    Consulting
+                    <KeyboardArrowDownRounded
+                      color="primary"
+                      sx={{
+                        transition: '0.3s',
+                        transform: consultingOpen ? 'rotate(-180deg)' : 'rotate(0)',
+                      }}
+                    />
+                  </Anchor>
+                  <Collapse in={consultingOpen}>
+                    <UList>
+                      {CONSULTING_ITEMS.map((item) => (
+                        <li key={item.name}>
+                          <Anchor href={item.href} as={Link} noLinkStyle sx={{ flexDirection: 'column', alignItems: 'initial' }}>
+                            <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+                              {item.name}
+                            </Box>
+                            <Typography variant="body2" color="text.secondary">{item.description}</Typography>
+                          </Anchor>
+                        </li>
+                      ))}
+                    </UList>
+                  </Collapse>
+                </li>
+                {/* About us — always visible */}
+                <li>
+                  <Anchor href={ROUTES.about} as={Link} noLinkStyle>About us</Anchor>
+                </li>
+                {/* Admin-only items */}
+                {isAdmin && (
+                  <React.Fragment>
                     <li>
                       <Anchor href={toAbsoluteSitePath('consulting', '/consulting/clients')} as={Link} noLinkStyle>
                         Clients
@@ -272,56 +308,11 @@ export default function HeaderNavDropdown({ auth, managedProducts = [] }: Header
                         Users
                       </Anchor>
                     </li>
-                    <li>
-                      <Anchor href="/blog/editor" as={Link} noLinkStyle>
-                        Blog
-                      </Anchor>
-                    </li>
                   </React.Fragment>
-                ) : (
+                )}
+                {/* Client-only items */}
+                {!isAdmin && (
                   <React.Fragment>
-                    {managedProducts.length > 0 && (
-                      <li>
-                        <Anchor
-                          as="button"
-                          onClick={() => setProductsOpen((bool) => !bool)}
-                          sx={{ justifyContent: 'space-between' }}
-                        >
-                          Products
-                          <KeyboardArrowDownRounded
-                            color="primary"
-                            sx={{
-                              transition: '0.3s',
-                              transform: productsOpen ? 'rotate(-180deg)' : 'rotate(0)',
-                            }}
-                          />
-                        </Anchor>
-                        <Collapse in={productsOpen}>
-                          <UList>
-                            {managedProducts.map((p) => (
-                              <li key={p._id}>
-                                <Anchor
-                                  href={toAbsoluteSitePath('consulting', `/consulting/products/${p.productId}`)}
-                                  as={Link}
-                                  noLinkStyle
-                                  sx={{ flexDirection: 'column', alignItems: 'initial' }}
-                                >
-                                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                    {p.name}
-                                    {p.prerelease && p.prerelease !== 'none' && (
-                                      <Chip label={p.prerelease.toUpperCase()} size="small" color={p.prerelease === 'alpha' ? 'error' : 'warning'} sx={{ fontWeight: 700, height: 20, '& .MuiChip-label': { px: 0.75, fontSize: '0.625rem' } }} />
-                                    )}
-                                  </Box>
-                                  <Typography variant="body2" color="text.secondary">
-                                    {p.description}
-                                  </Typography>
-                                </Anchor>
-                              </li>
-                            ))}
-                          </UList>
-                        </Collapse>
-                      </li>
-                    )}
                     <li>
                       <Anchor href={toAbsoluteSitePath('consulting', `/consulting/clients/${auth.clientSlug || auth.clientId}`)} as={Link} noLinkStyle>
                         Deliverables
@@ -339,17 +330,77 @@ export default function HeaderNavDropdown({ auth, managedProducts = [] }: Header
                         Users
                       </Anchor>
                     </li>
-                    <li>
-                      <Anchor href={ROUTES.blog} as={Link} noLinkStyle>
-                        Blog
-                      </Anchor>
-                    </li>
                   </React.Fragment>
                 )}
+                {/* Blog — same as non-auth, admin icon for admin */}
                 <li>
-                  <Anchor href={ROUTES.documentation} as={Link} noLinkStyle>
-                    Docs
-                  </Anchor>
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Anchor href={ROUTES.blog} as={Link} noLinkStyle sx={{ flex: 1 }}>
+                      Blog
+                    </Anchor>
+                    {isAdmin && (
+                      <Tooltip title="Blog admin">
+                        <Anchor href="/blog/editor" as={Link} noLinkStyle sx={{ width: 'auto', px: 1 }}>
+                          <AdminPanelSettingsRounded sx={{ fontSize: 16 }} />
+                        </Anchor>
+                      </Tooltip>
+                    )}
+                  </Box>
+                </li>
+                {/* Docs — same dropdown as non-auth, admin icon for admin */}
+                <li>
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Anchor
+                      as="button"
+                      onClick={() => setDocsOpen((bool) => !bool)}
+                      sx={{ justifyContent: 'space-between', flex: 1 }}
+                    >
+                      Docs
+                      <KeyboardArrowDownRounded
+                        color="primary"
+                        sx={{
+                          transition: '0.3s',
+                          transform: docsOpen ? 'rotate(-180deg)' : 'rotate(0)',
+                        }}
+                      />
+                    </Anchor>
+                    {isAdmin && (
+                      <Tooltip title="API docs admin">
+                        <Anchor
+                          href={toAbsoluteSitePath('consulting', '/consulting/api-docs')}
+                          as={Link}
+                          noLinkStyle
+                          sx={{ width: 'auto', px: 1 }}
+                        >
+                          <AdminPanelSettingsRounded sx={{ fontSize: 16 }} />
+                        </Anchor>
+                      </Tooltip>
+                    )}
+                  </Box>
+                  <Collapse in={docsOpen}>
+                    <UList>
+                      {DOCS.map((item) => (
+                        <li key={item.name}>
+                          <Anchor
+                            href={item.href}
+                            as={Link}
+                            noLinkStyle
+                            sx={{ flexDirection: 'column', alignItems: 'initial' }}
+                          >
+                            <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+                              {item.name}
+                              {item.chip ? (
+                                <Chip size="small" label={item.chip} color="primary" variant="outlined" />
+                              ) : null}
+                            </Box>
+                            <Typography variant="body2" color="text.secondary">
+                              {item.description}
+                            </Typography>
+                          </Anchor>
+                        </li>
+                      ))}
+                    </UList>
+                  </Collapse>
                 </li>
               </UList>
             ) : (

@@ -180,7 +180,7 @@ export default function AppHeader(props: AppHeaderProps) {
     router.push('/');
   };
 
-  const isConsultingPage = router.pathname.startsWith('/consulting');
+  const isConsultingPage = router.pathname.startsWith('/consulting') || router.pathname.startsWith('/admin');
 
   return (
     <Header>
@@ -220,6 +220,11 @@ export default function AppHeader(props: AppHeaderProps) {
               name={authUser.name}
               role={authUser.role}
               avatarUrl={authUser.avatarUrl}
+              onDashboard={() => router.push(
+                authUser.role === 'admin'
+                  ? toAbsoluteSitePath('consulting', '/consulting/clients')
+                  : toAbsoluteSitePath('consulting', `/consulting/clients/${authUser.clientSlug || authUser.clientId}`)
+              )}
               onSettings={() => router.push(toAbsoluteSitePath('consulting', '/consulting/settings'))}
               onLicenses={() => router.push(toAbsoluteSitePath('consulting', '/consulting/licenses'))}
               onBilling={() => router.push(toAbsoluteSitePath('consulting', '/consulting/billing'))}

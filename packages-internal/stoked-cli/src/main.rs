@@ -6,6 +6,7 @@ mod config;
 use anyhow::{bail, Result};
 use clap::{Parser, Subcommand};
 use commands::blog::BlogCommand;
+use commands::promo::{run_promo, PromoCommand};
 use commands::{
     run_api, run_auth_keys, run_clients, run_deliverables, run_invoices, run_licenses,
     run_products, run_users, ApiCommand, AuthCommand, ClientsCommand, DeliverablesCommand,
@@ -95,6 +96,11 @@ enum TopCommand {
     Deliverables {
         #[command(subcommand)]
         command: DeliverablesCommand,
+    },
+    /// Stripe promo code management (admin only)
+    Promo {
+        #[command(subcommand)]
+        command: PromoCommand,
     },
     /// Generic API passthrough for any Next.js route
     Api(ApiCommand),
@@ -251,6 +257,11 @@ async fn run() -> Result<()> {
         TopCommand::Deliverables { command } => {
             let (client, cfg) = build_client(base_url, &profile)?;
             run_deliverables(&client, &cfg, command, cli.json).await
+        }
+        TopCommand::Promo { command } => {
+            let (client, cfg) = build_client(base_url, &profile)?;
+            ensure_admin(&cfg, "promo commands")?;
+            run_promo(&client, command, cli.json).await
         }
         TopCommand::Api(command) => {
             let (client, cfg) = build_client(base_url, &profile)?;

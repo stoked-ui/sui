@@ -7,6 +7,8 @@ export interface UserMenuProps {
   role: string;
   /** Avatar image URL; falls back to first letter of name */
   avatarUrl?: string;
+  /** Called when "Dashboard" is clicked */
+  onDashboard?: () => void;
   /** Called when "Settings" is clicked */
   onSettings?: () => void;
   /** Called when "Licenses" is clicked */

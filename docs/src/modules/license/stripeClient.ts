@@ -63,14 +63,21 @@ export async function createStripePrice(params: {
   });
 }
 
+export type CheckoutSessionResult =
+  | { mode: 'hosted'; url: string }
+  | { mode: 'embedded'; clientSecret: string; sessionId: string };
+
 export async function createCheckoutSession(params: {
   productId: string;
   email: string;
-  successUrl: string;
-  cancelUrl: string;
+  successUrl?: string;
+  cancelUrl?: string;
+  returnUrl?: string;
   stripePriceId?: string;
-}, product: LicenseProduct): Promise<string> {
+  uiMode?: 'hosted' | 'embedded';
+}, product: LicenseProduct): Promise<CheckoutSessionResult> {
   const stripe = getStripeClient();
+  const uiMode = params.uiMode ?? 'hosted';
   const selectedPriceId = params.stripePriceId
     || product.subscriptions.find((subscription) => subscription.stripePriceId)?.stripePriceId
     || product.stripePriceId;
@@ -80,17 +87,40 @@ export async function createCheckoutSession(params: {
   }
 
   try {
+    if (uiMode === 'embedded') {
+      if (!params.returnUrl) {
+        throw new LicenseStoreError(400, 'returnUrl is required for embedded checkout');
+      }
+      const session = await stripe.checkout.sessions.create({
+        ui_mode: 'embedded',
+        mode: 'subscription',
+        line_items: [{ price: selectedPriceId, quantity: 1 }],
+        customer_email: params.email,
+        return_url: params.returnUrl,
+        allow_promotion_codes: true,
+        metadata: {
+          productId: params.productId,
+          stripePriceId: selectedPriceId,
+        },
+      } as Parameters<typeof stripe.checkout.sessions.create>[0]);
+
+      if (!session.client_secret) {
+        throw new LicenseStoreError(400, 'Stripe did not return a client secret');
+      }
+      return { mode: 'embedded', clientSecret: session.client_secret, sessionId: session.id };
+    }
+
+    // hosted mode
+    if (!params.successUrl || !params.cancelUrl) {
+      throw new LicenseStoreError(400, 'successUrl and cancelUrl are required for hosted checkout');
+    }
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
-      line_items: [
-        {
-          price: selectedPriceId,
-          quantity: 1,
-        },
-      ],
+      line_items: [{ price: selectedPriceId, quantity: 1 }],
       customer_email: params.email,
       success_url: params.successUrl,
       cancel_url: params.cancelUrl,
+      allow_promotion_codes: true,
       metadata: {
         productId: params.productId,
         stripePriceId: selectedPriceId,
@@ -100,16 +130,98 @@ export async function createCheckoutSession(params: {
     if (!session.url) {
       throw new LicenseStoreError(400, 'Stripe did not return a checkout URL');
     }
-
-    return session.url;
+    return { mode: 'hosted', url: session.url };
   } catch (error: unknown) {
     if (error instanceof LicenseStoreError) {
       throw error;
     }
-
     const message = error instanceof Error ? error.message : 'Stripe checkout request failed';
     throw new LicenseStoreError(400, `Failed to create checkout session: ${message}`);
   }
+}
+
+export async function createStripeCoupon(params: {
+  name: string;
+  type: 'percent' | 'amount' | 'free_months';
+  percentOff?: number;
+  amountOff?: number;
+  freeMonths?: number;
+  currency?: string;
+  duration: 'once' | 'forever' | 'repeating';
+  durationInMonths?: number;
+  maxRedemptions?: number;
+  redeemBy?: number;
+  appliesTo?: { products: string[] };
+}): Promise<Stripe.Coupon> {
+  const stripe = getStripeClient();
+
+  const couponParams: Stripe.CouponCreateParams = {
+    name: params.name,
+    duration: params.type === 'free_months' ? 'repeating' : params.duration,
+  };
+
+  if (params.type === 'percent' && params.percentOff !== undefined) {
+    couponParams.percent_off = params.percentOff;
+  } else if (params.type === 'amount' && params.amountOff !== undefined) {
+    couponParams.amount_off = Math.round(params.amountOff * 100);
+    couponParams.currency = (params.currency ?? 'usd').toLowerCase();
+  } else if (params.type === 'free_months' && params.freeMonths !== undefined) {
+    couponParams.percent_off = 100;
+    couponParams.duration = 'repeating';
+    couponParams.duration_in_months = params.freeMonths;
+  }
+
+  if (params.duration === 'repeating' && params.durationInMonths !== undefined && params.type !== 'free_months') {
+    couponParams.duration_in_months = params.durationInMonths;
+  }
+
+  if (params.maxRedemptions !== undefined) {
+    couponParams.max_redemptions = params.maxRedemptions;
+  }
+  if (params.redeemBy !== undefined) {
+    couponParams.redeem_by = params.redeemBy;
+  }
+  if (params.appliesTo) {
+    couponParams.applies_to = params.appliesTo;
+  }
+
+  return stripe.coupons.create(couponParams);
+}
+
+export async function createStripePromotionCode(params: {
+  couponId: string;
+  code: string;
+  maxRedemptions?: number;
+  expiresAt?: number;
+  firstTimeTransaction?: boolean;
+  minimumAmount?: number;
+  minimumAmountCurrency?: string;
+}): Promise<Stripe.PromotionCode> {
+  const stripe = getStripeClient();
+
+  const promoParams: Stripe.PromotionCodeCreateParams = {
+    coupon: params.couponId,
+    code: params.code,
+  };
+
+  if (params.maxRedemptions !== undefined) {
+    promoParams.max_redemptions = params.maxRedemptions;
+  }
+  if (params.expiresAt !== undefined) {
+    promoParams.expires_at = params.expiresAt;
+  }
+  if (params.firstTimeTransaction !== undefined || params.minimumAmount !== undefined) {
+    promoParams.restrictions = {};
+    if (params.firstTimeTransaction !== undefined) {
+      promoParams.restrictions.first_time_transaction = params.firstTimeTransaction;
+    }
+    if (params.minimumAmount !== undefined) {
+      promoParams.restrictions.minimum_amount = Math.round(params.minimumAmount * 100);
+      promoParams.restrictions.minimum_amount_currency = (params.minimumAmountCurrency ?? 'usd').toLowerCase();
+    }
+  }
+
+  return stripe.promotionCodes.create(promoParams);
 }
 
 export function constructStripeWebhookEvent(rawBody: Buffer, signature: string): Stripe.Event {

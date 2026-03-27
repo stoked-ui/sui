@@ -1,4 +1,5 @@
 pub mod blog;
+pub mod promo;
 
 use crate::client::{parse_kv_pairs, parse_optional_json_body, print_value, ApiClient};
 use crate::config::StoredConfig;

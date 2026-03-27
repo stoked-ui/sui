@@ -17,8 +17,7 @@ import {
   authSessionEndpoint,
   buildAuthLoginUrl,
   cdnName,
-  formatAuthOriginLabel,
-  getAuthOrigins,
+  getAuthOrigin,
 } from './config';
 
 function useDirectoryContents(prefix, enabled, reloadToken) {
@@ -209,9 +208,10 @@ export default function App() {
   const auth = useAuthSession();
   const { status, data, error } = useDirectoryContents(prefix, true, reloadToken);
   const crumbs = buildCrumbs(prefix);
-  const authOrigins = getAuthOrigins();
-  const usingLocalAuthSource = authOrigins.length === 1 && authOrigins[0].includes('localhost');
+  const authOrigin = getAuthOrigin();
+  const usingLocalAuthSource = authOrigin.includes('localhost');
   const canManage = auth.status === 'authenticated' && auth.user.role === 'admin';
+  const showLoginPanel = auth.status === 'unauthenticated' || auth.status === 'error';
 
   useEffect(() => {
     document.title = prefix ? `${prefix} | ${cdnName}` : cdnName;
@@ -552,32 +552,33 @@ export default function App() {
           </section>
         ) : null}
 
-        {auth.status === 'unauthenticated' ? (
+        {showLoginPanel ? (
           <section className="auth-panel">
             <div className="listing-head">
               <div>
                 <p className="eyebrow">Authentication</p>
-                <h2>Public browsing is on</h2>
+                <h2>{auth.status === 'error' ? 'Session check is unavailable' : 'Public browsing is on'}</h2>
               </div>
-              <p className="status-chip" data-status="success">
-                Public
+              <p className="status-chip" data-status={auth.status === 'error' ? 'error' : 'success'}>
+                {auth.status === 'error' ? 'Degraded' : 'Public'}
               </p>
             </div>
             <p className="feedback">
-              {usingLocalAuthSource
-                ? 'Public files can be browsed without signing in. For local development, use the localhost auth flow for client areas, admin controls, or restricted content.'
-                : 'Public files can be browsed without signing in. Sign in only if you need client areas, admin controls, or path-restricted content.'}
+              {auth.status === 'error'
+                ? 'Public browsing still works, but the session check failed. You can still continue to the login flow for client areas, admin controls, or restricted content.'
+                : usingLocalAuthSource
+                  ? 'Public files can be browsed without signing in. For local development, use the localhost auth flow for client areas, admin controls, or restricted content.'
+                  : 'Public files can be browsed without signing in. Sign in only if you need client areas, admin controls, or path-restricted content.'}
             </p>
             <div className="auth-actions">
-              {authOrigins.map((origin) => (
-                <a
-                  key={origin}
-                  className="auth-link"
-                  href={buildAuthLoginUrl(origin, currentUrl)}
-                >
-                  Sign in with {formatAuthOriginLabel(origin)}
-                </a>
-              ))}
+              <a
+                className="auth-link"
+                href={buildAuthLoginUrl(authOrigin, currentUrl)}
+              >
+                {auth.status === 'error'
+                  ? (usingLocalAuthSource ? 'Try localhost login' : 'Try login')
+                  : (usingLocalAuthSource ? 'Log in with localhost' : 'Log in')}
+              </a>
             </div>
           </section>
         ) : null}

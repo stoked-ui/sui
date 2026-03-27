@@ -66,7 +66,7 @@ export default function HeroFlux() {
           overflow: 'hidden',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center',
+          justifyContent: 'start',
           '&& *': {
             fontFamily: ['"IBM Plex Sans"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'].join(
               ',',
@@ -116,9 +116,9 @@ export default function HeroFlux() {
           description="Flux turns your Mac desktop into a dynamic canvas powered by the web."
         />
         <Box sx={{ mt: 4 }}>
-          <Grid container spacing={3} justifyContent="center">
-            {features.map((feature) => (
-              <Grid item xs={12} sm={6} md={4} key={feature.label}>
+          <Grid container spacing={3}>
+            {features.map((feature, index) => (
+              <Grid item xs={12} sm={6} md={index < 3 ? 4 : 6} key={feature.label}>
                 <Box
                   sx={(theme) => ({
                     p: 3,

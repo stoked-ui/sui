@@ -36,6 +36,62 @@ const themeInitialOptions = {
   paletteMode: 'light',
 };
 
+function getStoredPaletteColors() {
+  if (typeof document === 'undefined') {
+    return themeInitialOptions.paletteColors;
+  }
+
+  try {
+    const nextPaletteColors = JSON.parse(getCookie('paletteColors') || 'null');
+    return nextPaletteColors ?? themeInitialOptions.paletteColors;
+  } catch (error) {
+    return themeInitialOptions.paletteColors;
+  }
+}
+
+function getSystemPaletteMode() {
+  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+    return 'light';
+  }
+
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
+function resolvePaletteMode(mode: string | null) {
+  if (mode === 'light' || mode === 'dark') {
+    return mode;
+  }
+
+  if (typeof document !== 'undefined') {
+    const attributeMode = document.documentElement.getAttribute('data-mui-color-scheme');
+    if (attributeMode === 'light' || attributeMode === 'dark') {
+      return attributeMode;
+    }
+  }
+
+  return getSystemPaletteMode();
+}
+
+function getInitialThemeOptions() {
+  if (typeof window === 'undefined') {
+    return themeInitialOptions;
+  }
+
+  let storedMode = 'system';
+
+  try {
+    storedMode = window.localStorage.getItem('mui-mode') || 'system';
+  } catch (error) {
+    storedMode = 'system';
+  }
+
+  return {
+    ...themeInitialOptions,
+    paletteColors: getStoredPaletteColors(),
+    paletteMode: resolvePaletteMode(storedMode),
+  };
+}
+
 export const highDensity = {
   components: {
     MuiButton: {
@@ -171,7 +227,7 @@ export function ThemeProvider(props: any) {
       default:
         throw new Error(`Unrecognized type ${action.type}`);
     }
-  }, themeInitialOptions);
+  }, undefined, getInitialThemeOptions);
 
   const userLanguage = useUserLanguage();
   const { dense, direction, paletteColors, paletteMode, spacing } = themeOptions;
@@ -212,6 +268,8 @@ export function ThemeProvider(props: any) {
       document.body.classList.add('mode-light');
     }
 
+    document.documentElement.setAttribute('data-mui-color-scheme', paletteMode);
+
     const metas = document.querySelectorAll('meta[name="theme-color"]');
     metas.forEach((meta) => {
       meta.setAttribute('content', getMetaThemeColor(paletteMode));
@@ -240,11 +298,6 @@ export function ThemeProvider(props: any) {
       dense ? highDensity : {},
       {
         components: {
-          styleOverrides: {
-            body: {
-              backgroundColor: calculatedMode === 'dark' ? '#333' : '#fff',
-            }
-          },
           MuiCssBaseline: {
             defaultProps: {
               // TODO: Stoked UI v6, makes this the default

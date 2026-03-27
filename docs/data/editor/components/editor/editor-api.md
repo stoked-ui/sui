@@ -16,6 +16,12 @@ packageName: '@stoked-ui/sui-editor'
 import { Editor } from '@stoked-ui/sui-editor';
 ```
 
+## Live reference
+
+Use the prop tables below together with a running editor so you can map each prop group to the surface it affects.
+
+{{"demo": "MinimalEditor.js", "bg": true}}
+
 ## Component name
 
 The `MuiEditor` name can be used for providing default props or style overrides at the theme level.

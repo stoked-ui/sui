@@ -251,7 +251,7 @@ export default function ProductDetailPage({ productSlug }: { productSlug: string
     <Box>
       <Button
         startIcon={<ArrowBackIcon />}
-        onClick={() => router.push('/consulting/products')}
+        onClick={() => router.push('/admin/products')}
         sx={{ mb: 2 }}
       >
         Back to Products

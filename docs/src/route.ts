@@ -7,7 +7,7 @@ type Routes = {
 const ROUTES: Routes = {
   stokedUi: toAbsoluteSitePath('stoked-ui', '/products/stoked-ui/'),
   fileExplorer: '/products/stoked-ui/file-explorer/',
-
+  cdn: 'https://cdn.stokedconsulting.com/',
   media: '/products/media/',
   mediaDocs: '/products/media/docs/overview/',
   common: '/products/common/',

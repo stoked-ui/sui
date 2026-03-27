@@ -116,6 +116,7 @@ function TimelineProvider<
         setInitialized(true);
       } catch (ex) {
         console.error('Error during database initialization:', ex);
+        setInitialized(true);
       }
     };
 

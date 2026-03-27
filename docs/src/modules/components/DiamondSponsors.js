@@ -55,9 +55,9 @@ export default function DiamondSponsors() {
           component="img"
           height="32px"
           width="32px"
-          src="/static/logo-no-padding.svg"
-          alt="brian stoker"
-          title="B STOKED"
+          src="/static/stoked-consulting-logo.svg"
+          alt="stoked consulting"
+          title="Stoked Consulting"
           loading="lazy"
         />
         <Typography
@@ -73,9 +73,7 @@ export default function DiamondSponsors() {
             marginLeft: '10px',
           }}>
           {/* eslint-disable-next-line stoked-ui/no-hardcoded-labels */}
-          <div>consulting</div>
-          {/* eslint-disable-next-line stoked-ui/no-hardcoded-labels */}
-          <div>$70 / hr</div>
+          <div>Full Stack Consulting</div>
         </Typography>
       </NativeLink>
       <NativeLink

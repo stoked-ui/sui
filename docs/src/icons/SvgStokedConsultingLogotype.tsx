@@ -28,8 +28,8 @@ const logoPaths = (
 const textProps = {
   fill: 'currentColor' as const,
   fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif",
-  fontWeight: 800,
-  letterSpacing: 0.5,
+  fontWeight: 900,
+  letterSpacing: 2.5,
 };
 
 export default function SvgStokedConsultingLogotype(props: SvgStokedConsultingLogotypeProps) {
@@ -45,6 +45,7 @@ export default function SvgStokedConsultingLogotype(props: SvgStokedConsultingLo
         (theme) => ({
           flexShrink: 0,
           color: 'common.black',
+          overflow: 'visible',
           ...theme.applyDarkStyles({
             color: '#FFF',
           }),
@@ -54,14 +55,14 @@ export default function SvgStokedConsultingLogotype(props: SvgStokedConsultingLo
       {...rest}
     >
       {/* SC Logo Mark — scaled down to balance with text like the SUI logo */}
-      <g transform="translate(0, 3) scale(0.75)">
-        <g transform="scale(0.17) translate(8, 12)">
+      <g transform="translate(0, 3) scale(1)">
+        <g transform="scale(0.23) translate(8, -35)">
           {logoPaths}
         </g>
       </g>
       {/* STOKED CONSULTING text */}
       {isInline ? (
-        <text x="21" y="24" fontSize={20} {...textProps}>
+        <text x="39" y="28" fontSize={28} {...textProps}>
           STOKED CONSULTING
         </text>
       ) : (

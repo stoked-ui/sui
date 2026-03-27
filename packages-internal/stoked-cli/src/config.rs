@@ -78,12 +78,6 @@ impl StoredConfig {
         active
     }
 
-    pub fn has_auth_for_base_url(&self, base_url: &str) -> bool {
-        self.auth_session_for_base_url(base_url)
-            .map(|session| session.has_auth())
-            .unwrap_or(false)
-    }
-
     pub fn set_auth_for_base_url(
         &mut self,
         base_url: &str,
@@ -337,8 +331,8 @@ mod tests {
         assert_eq!(dev.api_key.as_deref(), Some("sk_dev"));
         assert_eq!(dev.email.as_deref(), Some("dev@example.com"));
         assert_eq!(dev.client_id.as_deref(), Some("client-dev"));
-        assert!(cfg.has_auth_for_base_url(DEFAULT_BASE_URL));
-        assert!(cfg.has_auth_for_base_url("http://localhost:5199/"));
+        assert!(cfg.active_view(DEFAULT_BASE_URL).has_auth());
+        assert!(cfg.active_view("http://localhost:5199/").has_auth());
         assert_eq!(
             cfg.auth_sessions.keys().collect::<Vec<_>>(),
             vec![

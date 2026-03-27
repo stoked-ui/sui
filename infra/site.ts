@@ -1,5 +1,6 @@
 import { DomainInfo } from 'infra/domains';
 import {
+  adminSecret,
   jwtSecret,
   mongoDbUri,
   stripeSecretKey,
@@ -47,6 +48,8 @@ export const createSite = async (domainInfo: DomainInfo) => {
       JWT_SECRET: jwtSecret.value,
       STRIPE_SECRET_KEY: stripeSecretKey.value,
       STRIPE_WEBHOOK_SECRET: stripeWebhookSecret.value,
+      ADMIN_SECRET: adminSecret.value,
+      NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? '',
       AUTH_AUTO_DOMAINS:
         process.env.AUTH_AUTO_DOMAINS ?? 'stokedconsulting.com,stoked-ui.com,brianstoker.com',
       NEXT_PUBLIC_GOOGLE_CLIENT_ID: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? '',
@@ -65,6 +68,7 @@ export const createSite = async (domainInfo: DomainInfo) => {
       jwtSecret,
       stripeSecretKey,
       stripeWebhookSecret,
+      adminSecret,
     ],
     permissions: [
       {
@@ -72,7 +76,17 @@ export const createSite = async (domainInfo: DomainInfo) => {
         resources: ['arn:aws:ses:us-east-1:883859713095:identity/*'],
       },
       {
-        actions: ['s3:PutObject'],
+        actions: ['s3:ListBucket', 's3:ListBucketMultipartUploads'],
+        resources: [`arn:aws:s3:::${blogImageBucket}`],
+      },
+      {
+        actions: [
+          's3:GetObject',
+          's3:PutObject',
+          's3:DeleteObject',
+          's3:AbortMultipartUpload',
+          's3:ListMultipartUploadParts',
+        ],
         resources: [`arn:aws:s3:::${blogImageBucket}/*`],
       },
     ],
@@ -138,6 +152,7 @@ export const createSite = async (domainInfo: DomainInfo) => {
               'api-docs': true,
               'back-end': true,
               'billing': true,
+              'checkout': true,
               'clients': true,
               'customer': true,
               'deliverables': true,

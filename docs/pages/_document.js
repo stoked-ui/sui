@@ -1,8 +1,6 @@
 import * as React from 'react';
-import Script from 'next/script';
 import { documentGetInitialProps } from '@mui/material-nextjs/v13-pagesRouter';
 import {ServerStyleSheets as JSSServerStyleSheets} from '@mui/styles';
-import { useTheme } from '@mui/material/styles';
 import { ServerStyleSheet } from 'styled-components';
 import Document, { Html, Head, Main, NextScript } from 'next/document';
 import GlobalStyles from '@mui/material/GlobalStyles';
@@ -47,9 +45,8 @@ if (enableServerCssOptimization) {
 
 export default function MyDocument(props) {
   const { canonicalAsServer, userLanguage } = props;
-  const theme = useTheme();
   return (
-    <Html lang={userLanguage} data-mui-color-scheme={theme.palette.mode} >
+    <Html lang={userLanguage} suppressHydrationWarning>
       <Head>
         <meta name="algolia-site-verification"  content="5102D7E9170A3450" />
 
@@ -223,6 +220,13 @@ export default function MyDocument(props) {
             __html: `@font-face{font-family:'IBM Plex Sans';src:url(/static/fonts/IBMPlexSans-Regular.woff2) format('woff2'),url(/static/fonts/IBMPlexSans-Regular.woff) format('woff'),url(/static/fonts/IBMPlexSans-Regular.ttf) format('truetype');font-weight:400;font-style:normal;font-display:swap}@font-face{font-family:'IBM Plex Sans';src:url(/static/fonts/IBMPlexSans-Medium.woff2) format('woff2'),url(/static/fonts/IBMPlexSans-Medium.woff) format('woff'),url(/static/fonts/IBMPlexSans-Medium.ttf) format('truetype');font-weight:500;font-style:normal;font-display:swap}@font-face{font-family:'IBM Plex Sans';src:url(/static/fonts/IBMPlexSans-SemiBold.woff2) format('woff2'),url(/static/fonts/IBMPlexSans-SemiBold.woff) format('woff'),url(/static/fonts/IBMPlexSans-SemiBold.ttf) format('truetype');font-weight:600;font-style:normal;font-display:swap}@font-face{font-family:'IBM Plex Sans';src:url(/static/fonts/IBMPlexSans-Bold.woff2) format('woff2'),url(/static/fonts/IBMPlexSans-Bold.woff) format('woff'),url(/static/fonts/IBMPlexSans-Bold.ttf) format('truetype');font-weight:700;font-style:normal;font-display:swap}`,
           }}
         />
+        <style
+          // Keep the first paint aligned with the resolved color scheme before React hydrates.
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{
+            __html: `html{color-scheme:light dark}html,body{background:#fff;color:#000}@media (prefers-color-scheme: dark){html,body{background:hsl(210,14%,7%);color:#fff}[data-mui-color-scheme="light"] body{background:#fff;color:#000}[data-mui-color-scheme="dark"] body{background:hsl(210,14%,7%);color:#fff}}`,
+          }}
+        />
         <GlobalStyles
           styles={{
             '[data-mui-color-scheme="light"] body': {
@@ -239,6 +243,18 @@ export default function MyDocument(props) {
             },
             '.only-dark-mode': {
               display: 'none',
+            },
+            '[data-mui-color-scheme="light"] .only-light-mode': {
+              display: 'block',
+            },
+            '[data-mui-color-scheme="light"] .only-dark-mode': {
+              display: 'none',
+            },
+            '[data-mui-color-scheme="dark"] .only-light-mode': {
+              display: 'none',
+            },
+            '[data-mui-color-scheme="dark"] .only-dark-mode': {
+              display: 'block',
             },
             // Post SSR Hydration
             '.mode-dark .only-light-mode': {
@@ -275,6 +291,7 @@ export default function MyDocument(props) {
 
       </Head>
       <body >
+      {getJoyInitColorSchemeScript({defaultMode: 'system'})}
       {getMuiInitColorSchemeScript({defaultMode: 'system'})}
       <Main/>
       {/*

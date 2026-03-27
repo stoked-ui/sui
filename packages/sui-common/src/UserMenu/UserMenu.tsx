@@ -11,11 +11,12 @@ import SettingsIcon from '@mui/icons-material/SettingsOutlined';
 import KeyIcon from '@mui/icons-material/KeyOutlined';
 import CreditCardIcon from '@mui/icons-material/CreditCardOutlined';
 import LogoutIcon from '@mui/icons-material/LogoutOutlined';
+import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
 import type { UserMenuProps } from './UserMenu.types';
 import { UserMenuButton } from './UserMenu.styles';
 
 export default function UserMenu(props: UserMenuProps) {
-  const { name, role, avatarUrl, onSettings, onLicenses, onBilling, onSignOut, sx } = props;
+  const { name, role, avatarUrl, onDashboard, onSettings, onLicenses, onBilling, onSignOut, sx } = props;
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
@@ -76,6 +77,14 @@ export default function UserMenu(props: UserMenuProps) {
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
         transformOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
+        {onDashboard && (
+          <MenuItem onClick={handleMenuAction(onDashboard)}>
+            <ListItemIcon>
+              <DashboardOutlinedIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Dashboard</ListItemText>
+          </MenuItem>
+        )}
         {onSettings && (
           <MenuItem onClick={handleMenuAction(onSettings)}>
             <ListItemIcon>
@@ -100,7 +109,7 @@ export default function UserMenu(props: UserMenuProps) {
             <ListItemText>Billing</ListItemText>
           </MenuItem>
         )}
-        {(onSettings || onLicenses || onBilling) && <Divider />}
+        {(onDashboard || onSettings || onLicenses || onBilling) && <Divider />}
         <MenuItem onClick={handleSignOut}>
           <ListItemIcon>
             <LogoutIcon fontSize="small" />

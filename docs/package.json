@@ -98,6 +98,8 @@
     "react-simple-code-editor": "^0.13.1",
     "react-swipeable-views": "^0.14.0",
     "react-transition-group": "^4.4.5",
+    "@stripe/react-stripe-js": "^5.6.1",
+    "@stripe/stripe-js": "^8.10.0",
     "stripe": "^17.0.0",
     "sst": "^3.6.19",
     "styled-components": "^6.1.8",

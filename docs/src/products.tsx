@@ -1,5 +1,7 @@
 import * as React from "react";
 import ButtonBase from "@mui/material/ButtonBase";
+import Tooltip from "@mui/material/Tooltip";
+import AdminPanelSettingsRounded from "@mui/icons-material/AdminPanelSettingsRounded";
 import { Cancelable } from "@mui/utils/debounce";
 import { SxProps } from "@mui/system";
 // import { visuallyHidden } from "@mui/utils";
@@ -187,7 +189,7 @@ export class Product {
             },
           }}
         >
-          {showFeatures && this.features.map((feature) => (
+          {showFeatures && this.features.filter(f => f.name).map((feature) => (
             <Chip
               key={feature.name}
               color={currentProductId === this.id ? 'primary' : undefined}
@@ -440,7 +442,8 @@ export type ProductMenuProps =  {
   setSubMenuOpenUndebounce?:  (value: SubMenuType) => () => void,
   setSubMenuOpenDebounced?:  SetSubMenuOpen & Cancelable,
   setSubMenuOpen?: SetSubMenuOpen,
-  handleClickMenu?: (value: SubMenuType) => () => void
+  handleClickMenu?: (value: SubMenuType) => () => void,
+  adminHref?: string,
 } & ProductMenuItemProps;
 
 function titleCase(str: string) {
@@ -491,7 +494,8 @@ function ProductMenu(props: ProductMenuProps) {
       setSubMenuOpenUndebounce,
       setSubMenuOpenDebounced,
       handleClickMenu,
-      products
+      products,
+      adminHref,
     } = props;
 
     if (!type) {
@@ -512,6 +516,23 @@ function ProductMenu(props: ProductMenuProps) {
       >
         {titleCase(type)}
       </ButtonBase>
+      {adminHref && (
+        <Tooltip title={`${titleCase(type)} admin`} placement="bottom">
+          <Link
+            href={adminHref}
+            sx={{
+              display: 'inline-flex !important',
+              alignItems: 'center',
+              padding: '3px !important',
+              ml: 0.25,
+              opacity: 0.45,
+              '&:hover': { opacity: 1 },
+            }}
+          >
+            <AdminPanelSettingsRounded sx={{ fontSize: 14 }} />
+          </Link>
+        </Tooltip>
+      )}
       <Popper
         id={`${type}-popper`}
         key={type}
@@ -1216,7 +1237,7 @@ function useAllProducts(): Products {
             features: Array.isArray(product.features) && product.features.length > 0
               ? product.features
               : (fallback?.features || []),
-            hideProductFeatures: product.hideProductFeatures ?? fallback?.hideProductFeatures ?? false,
+            hideProductFeatures: fallback?.hideProductFeatures ?? product.hideProductFeatures ?? false,
             live: true,
             showcaseType: fallback?.showcaseType || AdvancedShowcase,
           };

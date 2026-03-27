@@ -94,10 +94,12 @@ export function toConsultingInternalPath(path: string) {
   if (normalized === '/consulting' || normalized === '/consulting/') {
     return '/consulting/';
   }
-  if (normalized.indexOf('/consulting/') === 0) {
+  if (normalized.startsWith('/consulting/')) {
     return normalized;
   }
-  return `/consulting${normalized}`;
+  // Paths without /consulting/ prefix are public-facing pages on the consulting site.
+  // All consulting app routes are already passed with /consulting/ at call sites.
+  return normalized;
 }
 
 export function toAbsoluteSitePath(site: PublicSite, path: string) {

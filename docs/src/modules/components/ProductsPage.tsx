@@ -291,7 +291,7 @@ export default function ProductsPage() {
               <ProductCard
                 product={product}
                 pageCount={pageCounts[product._id] || 0}
-                onClick={() => router.push(`/consulting/products/${product.productId}`)}
+                onClick={() => router.push(`/admin/products/${product.productId}`)}
                 onToggleLive={handleToggleLive}
                 onEdit={handleEdit}
                 onDelete={handleDelete}

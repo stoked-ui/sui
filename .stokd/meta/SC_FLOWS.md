@@ -1,6 +1,7 @@
 # Stoked UI — User Flow Classification
 
 > **Generated:** 2026-03-17 | **Updated:** 2026-03-17 | **Meta version:** 0.2.0
+> **Note:** Flows reference view IDs from `SC_VIEWS.md` and package names from `SC_MODULES.md`
 > **Repository:** `@stoked-ui/sui`
 > **Root:** `/opt/worktrees/stoked-ui/stoked-ui-main`
 
@@ -421,19 +422,30 @@
 ### 7.2 License Purchase
 
 - **Actor:** User (any authenticated role)
-- **Goal:** Purchase a software license via Stripe
+- **Goal:** Purchase a software license via Stripe and receive a license key
 - **Steps:**
   1. Browse available license products via pricing page or product catalog
   2. Select product tier → `POST /api/licenses/checkout` creates Stripe checkout session
   3. Redirect to Stripe hosted checkout page
   4. Complete payment on Stripe
-  5. Stripe webhook (`POST /api/webhooks/stripe`) processes payment confirmation
-  6. License created and activated automatically
-  7. User role upgraded if applicable (subscriber, stokd member)
-  8. View active licenses in account settings
-- **Views:** 10.2 Pricing Page, 2.14 Billing, 2.13 Licenses Management
+  5. Stripe redirects to checkout success page (`/products/stoked-ui/docs/checkout-success?product={id}&session_id={sid}`)
+  6. `CheckoutSuccess` component renders with loading spinner ("Generating your license key...")
+  7. Primary path: polls `GET /api/licenses/checkout-complete?session_id={sid}` (no auth needed) — retrieves Stripe session → finds license by `subscriptionId` → returns key
+  8. Fallback path: authenticated poll via `GET /api/account/licenses` finds license by `productId`
+  9. Polling retries up to 15 attempts (2s interval, ~30s total) while webhook processes
+  10. Stripe webhook (`POST /api/webhooks/stripe`) processes payment confirmation → license created and activated
+  11. License key displayed in monospace box with copy-to-clipboard button
+  12. Auto-opens desktop app via `flux://activate-license?key={key}` deep link (if applicable)
+  13. User role upgraded if applicable (subscriber, stokd member)
+  14. Actions available: "Open in {Product}" (deep link), "Go to Docs" (product page), "Manage Licenses" (`/consulting/licenses`)
+- **Views:** 10.2 Pricing Page, Checkout Success (see below), 2.14 Billing, 2.13 Licenses Management
 - **Products:** Docs site (consulting)
 - **Entry points:** Pricing page, product page purchase buttons, URL `/consulting/billing`
+- **Key files:**
+  - `docs/src/modules/license/CheckoutSuccess.tsx` — post-purchase UI with polling and deep link
+  - `docs/pages/api/licenses/checkout-complete.ts` — session-based license key lookup (unauthenticated)
+  - `docs/src/modules/license/stripeClient.ts` — `retrieveStripeCheckoutSession()`, `createCheckoutSession()`
+  - `docs/src/modules/license/licenseStore.ts` — `findLicenseBySubscriptionId()`
 
 ---
 
@@ -673,7 +685,7 @@
 | 6.5 License Mgmt | 2.1, 2.13 |
 | 6.6 Deliverable Mgmt | 2.10, 2.5 |
 | 7.1 Customer Portal | 2.3, 2.10, 2.14, 2.15 |
-| 7.2 License Purchase | 10.2, 2.14, 2.13 |
+| 7.2 License Purchase | 10.2, Checkout Success, 2.14, 2.13 |
 | 8.1 Blog Reading | 3.1, 3.2 |
 | 8.2 Blog Authoring | 3.3, 3.4, 3.5 |
 | 9.1 CDN Browsing | 11.1 |

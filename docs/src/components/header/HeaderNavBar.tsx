@@ -2,13 +2,8 @@
 import * as React from 'react';
 import { styled, alpha } from '@mui/material/styles';
 import { unstable_debounce as debounce } from '@mui/utils';
-import Box from '@mui/material/Box';
-import ButtonBase from '@mui/material/ButtonBase';
-import Popper from '@mui/material/Popper';
-import Fade from '@mui/material/Fade';
-import Paper from '@mui/material/Paper';
-import Typography from '@mui/material/Typography';
-import Chip from '@mui/material/Chip';
+import Tooltip from '@mui/material/Tooltip';
+import AdminPanelSettingsRounded from '@mui/icons-material/AdminPanelSettingsRounded';
 import ROUTES from 'docs/src/route';
 import { PRODUCTS, CONSULTING, useAllProducts } from 'docs/src/products';
 import { Link } from '@stoked-ui/docs';
@@ -86,6 +81,24 @@ export default function HeaderNavBar({ auth, managedProducts = [] }: HeaderNavBa
   const productsMenuRef = React.useRef<HTMLButtonElement>(null);
   const docsMenuRef = React.useRef<HTMLButtonElement>(null);
   const consultingMenuRef = React.useRef<HTMLButtonElement>(null);
+  const isAdmin = auth?.role === 'admin';
+  const adminIcon = (adminHref: string, label: string) => (
+    <Tooltip title={label} placement="bottom">
+      <Link
+        href={adminHref}
+        sx={{
+          display: 'inline-flex !important',
+          alignItems: 'center',
+          padding: '3px !important',
+          ml: 0.25,
+          opacity: 0.45,
+          '&:hover': { opacity: 1 },
+        }}
+      >
+        <AdminPanelSettingsRounded sx={{ fontSize: 14 }} />
+      </Link>
+    </Tooltip>
+  );
   React.useEffect(() => {
     if (typeof subMenuIndex === 'number') {
       document.getElementById(PRODUCT_IDS[subMenuIndex])?.focus();
@@ -194,217 +207,49 @@ export default function HeaderNavBar({ auth, managedProducts = [] }: HeaderNavBa
       .catch(() => {});
   }, [auth]);
 
-  // Admin: fetch all products (including non-live)
-  const [adminProducts, setAdminProducts] = React.useState<ManagedProduct[]>([]);
-  const adminProductsMenuRef = React.useRef<HTMLAnchorElement>(null);
-  const clientProductsMenuRef = React.useRef<HTMLButtonElement>(null);
-  const [adminMenuOpen, setAdminMenuOpen] = React.useState(false);
-  const [clientMenuOpen, setClientMenuOpen] = React.useState(false);
-
-  React.useEffect(() => {
-    if (!auth || auth.role !== 'admin') return;
-    const stored = localStorage.getItem('auth');
-    if (!stored) return;
-    let token: string | null = null;
-    try {
-      token = JSON.parse(stored).access_token;
-    } catch { /* ignore */ }
-    if (!token) return;
-    fetch(getApiUrl('/api/products'), { headers: { Authorization: `Bearer ${token}` } })
-      .then((res) => (res.ok ? res.json() : []))
-      .then((data) => { if (Array.isArray(data)) setAdminProducts(data); })
-      .catch(() => {});
-  }, [auth]);
-
-  // Authenticated nav
-  if (auth) {
-    const isAdmin = auth.role === 'admin';
-    return (
-      <Navigation>
-        <ul ref={navRef}>
-          {isAdmin ? (
-            <React.Fragment>
-              <li
-                onMouseEnter={() => setAdminMenuOpen(true)}
-                onFocus={() => setAdminMenuOpen(true)}
-                onMouseLeave={() => setAdminMenuOpen(false)}
-                onBlur={() => setAdminMenuOpen(false)}
-              >
-                <Link
-                  ref={adminProductsMenuRef}
-                  href={toAbsoluteSitePath('consulting', '/consulting/products')}
-                >
-                  Products
-                </Link>
-                <Popper
-                  open={adminMenuOpen}
-                  anchorEl={adminProductsMenuRef.current}
-                  transition
-                  placement="bottom-start"
-                  style={{ zIndex: 1200, pointerEvents: adminMenuOpen ? undefined : 'none' }}
-                >
-                  {({ TransitionProps }) => (
-                    <Fade {...TransitionProps} timeout={250}>
-                      <Paper
-                        variant="outlined"
-                        sx={(theme) => ({
-                          mt: 1,
-                          minWidth: 220,
-                          overflow: 'hidden',
-                          borderColor: 'grey.200',
-                          bgcolor: 'background.paper',
-                          boxShadow: `0px 4px 16px ${alpha(theme.palette.grey[200], 0.8)}`,
-                          '& ul': { margin: 0, padding: 0, listStyle: 'none' },
-                          '& li:not(:last-of-type)': { borderBottom: '1px solid', borderColor: theme.palette.divider },
-                          '& a': { textDecoration: 'none' },
-                          ...theme.applyDarkStyles({
-                            borderColor: 'primaryDark.700',
-                            bgcolor: 'primaryDark.900',
-                            boxShadow: `0px 4px 16px ${alpha(theme.palette.common.black, 0.8)}`,
-                            '& li:not(:last-of-type)': { borderColor: 'primaryDark.700' },
-                          }),
-                        })}
-                      >
-                        <ul>
-                          {adminProducts.map((p) => (
-                            <Box component="li" role="none" key={p._id} sx={(theme) => ({ p: 1.5, '&:hover': { bgcolor: 'grey.50' }, ...theme.applyDarkStyles({ '&:hover': { bgcolor: 'primaryDark.700' } }) })}>
-                              <Box component={Link} href={toAbsoluteSitePath('consulting', `/consulting/products/${p.productId}`)} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <Typography color="text.primary" variant="body2" fontWeight="700">
-                                  {p.name}
-                                </Typography>
-                                {p.prerelease && p.prerelease !== 'none' && (
-                                  <Chip label={p.prerelease.toUpperCase()} size="small" color={p.prerelease === 'alpha' ? 'error' : 'warning'} sx={{ fontWeight: 700, height: 20, '& .MuiChip-label': { px: 0.75, fontSize: '0.625rem' } }} />
-                                )}
-                              </Box>
-                            </Box>
-                          ))}
-                        </ul>
-                      </Paper>
-                    </Fade>
-                  )}
-                </Popper>
-              </li>
-              <li>
-                <Link href={toAbsoluteSitePath('consulting', '/consulting/clients')}>Clients</Link>
-              </li>
-              <li>
-                <Link href={toAbsoluteSitePath('consulting', '/consulting/users')}>Users</Link>
-              </li>
-              <li>
-                <Link href="/blog/editor">Blog</Link>
-              </li>
-              <li>
-                <Link href="/consulting/api-docs">API</Link>
-              </li>
-            </React.Fragment>
-          ) : (
-            <React.Fragment>
-              {managedProducts.length > 0 && (
-                <li
-                  onMouseEnter={() => setClientMenuOpen(true)}
-                  onFocus={() => setClientMenuOpen(true)}
-                  onMouseLeave={() => setClientMenuOpen(false)}
-                  onBlur={() => setClientMenuOpen(false)}
-                >
-                  <ButtonBase
-                    ref={clientProductsMenuRef}
-                    aria-haspopup
-                    aria-expanded={clientMenuOpen ? 'true' : 'false'}
-                    onClick={() => setClientMenuOpen((v) => !v)}
-                  >
-                    Products
-                  </ButtonBase>
-                  <Popper
-                    open={clientMenuOpen}
-                    anchorEl={clientProductsMenuRef.current}
-                    transition
-                    placement="bottom-start"
-                    style={{ zIndex: 1200, pointerEvents: clientMenuOpen ? undefined : 'none' }}
-                  >
-                    {({ TransitionProps }) => (
-                      <Fade {...TransitionProps} timeout={250}>
-                        <Paper
-                          variant="outlined"
-                          sx={(theme) => ({
-                            mt: 1,
-                            minWidth: 220,
-                            overflow: 'hidden',
-                            borderColor: 'grey.200',
-                            bgcolor: 'background.paper',
-                            boxShadow: `0px 4px 16px ${alpha(theme.palette.grey[200], 0.8)}`,
-                            '& ul': { margin: 0, padding: 0, listStyle: 'none' },
-                            '& li:not(:last-of-type)': { borderBottom: '1px solid', borderColor: theme.palette.divider },
-                            '& a': { textDecoration: 'none' },
-                            ...theme.applyDarkStyles({
-                              borderColor: 'primaryDark.700',
-                              bgcolor: 'primaryDark.900',
-                              boxShadow: `0px 4px 16px ${alpha(theme.palette.common.black, 0.8)}`,
-                              '& li:not(:last-of-type)': { borderColor: 'primaryDark.700' },
-                            }),
-                          })}
-                        >
-                          <ul>
-                            {managedProducts.map((p) => (
-                              <Box component="li" role="none" key={p._id} sx={(theme) => ({ p: 1.5, '&:hover': { bgcolor: 'grey.50' }, ...theme.applyDarkStyles({ '&:hover': { bgcolor: 'primaryDark.700' } }) })}>
-                                  <Box component={Link} href={toAbsoluteSitePath('consulting', `/consulting/products/${p.productId}`)} sx={{ display: 'block' }}>
-                                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                    <Typography color="text.primary" variant="body2" fontWeight="700">
-                                      {p.name}
-                                    </Typography>
-                                    {p.prerelease && p.prerelease !== 'none' && (
-                                      <Chip label={p.prerelease.toUpperCase()} size="small" color={p.prerelease === 'alpha' ? 'error' : 'warning'} sx={{ fontWeight: 700, height: 20, '& .MuiChip-label': { px: 0.75, fontSize: '0.625rem' } }} />
-                                    )}
-                                  </Box>
-                                  <Typography color="text.secondary" variant="caption">
-                                    {p.description}
-                                  </Typography>
-                                </Box>
-                              </Box>
-                            ))}
-                          </ul>
-                        </Paper>
-                      </Fade>
-                    )}
-                  </Popper>
-                </li>
-              )}
-              <li>
-                <Link href={toAbsoluteSitePath('consulting', `/consulting/clients/${auth.clientSlug || auth.clientId}`)}>Deliverables</Link>
-              </li>
-              {hasInvoices && (
-                <li>
-                  <Link href={toAbsoluteSitePath('consulting', `/consulting/invoices?clientId=${auth.clientId}`)}>Invoices</Link>
-                </li>
-              )}
-              <li>
-                <Link href={toAbsoluteSitePath('consulting', '/consulting/users')}>Users</Link>
-              </li>
-              <li>
-                <Link href={ROUTES.blog}>Blog</Link>
-              </li>
-            </React.Fragment>
-          )}
-          <li>
-            <Link href={ROUTES.documentation}>Docs</Link>
-          </li>
-        </ul>
-      </Navigation>
-    );
-  }
-
-  // Unauthenticated nav
   return (
     <Navigation>
       <ul ref={navRef} onKeyDown={handleKeyDown}>
-        {allProducts.menu({ type: 'products', ...menuProps, menuRef: productsMenuRef})}
-        {CONSULTING.menu({ type: 'consulting', ...menuProps, menuRef: consultingMenuRef})}
+        {allProducts.menu({ type: 'products', ...menuProps, menuRef: productsMenuRef, adminHref: isAdmin ? toAbsoluteSitePath('consulting', '/consulting/products') : undefined })}
+        {CONSULTING.menu({ type: 'consulting', ...menuProps, menuRef: consultingMenuRef })}
         <li>
           <Link href={ROUTES.about}>About us</Link>
         </li>
+        {auth && isAdmin && (
+          <React.Fragment>
+            <li>
+              <Link href={toAbsoluteSitePath('consulting', '/consulting/clients')}>Clients</Link>
+            </li>
+            <li>
+              <Link href={toAbsoluteSitePath('consulting', '/consulting/users')}>Users</Link>
+            </li>
+          </React.Fragment>
+        )}
+        {auth && !isAdmin && (
+          <React.Fragment>
+            <li>
+              <Link href={toAbsoluteSitePath('consulting', `/consulting/clients/${auth.clientSlug || auth.clientId}`)}>Deliverables</Link>
+            </li>
+            {hasInvoices && (
+              <li>
+                <Link href={toAbsoluteSitePath('consulting', `/consulting/invoices?clientId=${auth.clientId}`)}>Invoices</Link>
+              </li>
+            )}
+            <li>
+              <Link href={toAbsoluteSitePath('consulting', '/consulting/users')}>Users</Link>
+            </li>
+          </React.Fragment>
+        )}
         <li>
           <Link href={ROUTES.blog}>Blog</Link>
+          {isAdmin && adminIcon('/blog/editor', 'Blog admin')}
         </li>
-        {allProducts.menu({ type: 'docs', ...menuProps, menuRef: docsMenuRef})}
+        {isAdmin && (
+          <li>
+            <Link href={toAbsoluteSitePath('consulting', '/consulting/api-docs')}>API</Link>
+          </li>
+        )}
+        {allProducts.menu({ type: 'docs', ...menuProps, menuRef: docsMenuRef, adminHref: isAdmin ? toAbsoluteSitePath('consulting', '/consulting/api-docs') : undefined })}
       </ul>
     </Navigation>
   );

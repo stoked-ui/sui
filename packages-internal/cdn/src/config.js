@@ -24,28 +24,26 @@ function isLocalHostname(hostname) {
     || hostname === '[::1]';
 }
 
-export function getAuthOrigins() {
+export function getAuthOrigin() {
   if (typeof window === 'undefined') {
-    return [consultingOrigin, stokedUiOrigin];
+    return consultingOrigin;
   }
 
   if (isLocalHostname(window.location.hostname)) {
-    return [localAuthOrigin];
+    return localAuthOrigin;
   }
 
-  return [consultingOrigin, stokedUiOrigin].filter((origin) => origin !== window.location.origin);
-}
-
-export function formatAuthOriginLabel(origin) {
-  if (origin === localAuthOrigin) {
-    return 'localhost';
+  if (window.location.origin === consultingOrigin && window.location.origin !== stokedUiOrigin) {
+    return stokedUiOrigin;
   }
 
-  return new URL(origin).hostname;
+  return consultingOrigin;
 }
 
 export function buildAuthLoginUrl(sourceOrigin, returnTo) {
-  const url = new URL('/consulting/login', sourceOrigin);
-  url.searchParams.set('redirect', returnTo);
+  const targetOrigin = new URL(returnTo, publicBaseUrl).origin;
+  const url = new URL('/api/auth/transfer', sourceOrigin);
+  url.searchParams.set('targetOrigin', targetOrigin);
+  url.searchParams.set('returnTo', returnTo);
   return url.toString();
 }

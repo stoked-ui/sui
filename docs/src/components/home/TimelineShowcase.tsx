@@ -28,13 +28,14 @@ function TimelineEditorDemo({sx}: {sx: SxProps}) {
 
   const id = 'timeline-showcase';
 
-  const loadTimelineFile = async () => {
-    const timelineFile = await createTimelineFile<ITimelineFileProps, TimelineFile>(EditorAudioExampleProps as ITimelineFileProps, TimelineFile, id);
-    setLoadedFile(timelineFile);
+  const loadTimelineFile = () => {
+    const file = new TimelineFile(EditorAudioExampleProps as ITimelineFileProps);
+    setLoadedFile(file);
+    file.preload(id).catch(() => {});
   }
 
   React.useEffect(() => {
-    loadTimelineFile().then(() => {});
+    loadTimelineFile();
   }, []);
 
   return (
