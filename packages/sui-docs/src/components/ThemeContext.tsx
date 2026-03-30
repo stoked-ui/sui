@@ -72,19 +72,8 @@ function resolvePaletteMode(mode: string | null) {
   return getSystemPaletteMode();
 }
 
-function getInitialThemeOptions() {
-  if (typeof window === 'undefined') {
-    return themeInitialOptions;
-  }
-
-  let storedMode = 'system';
-
-  try {
-    storedMode = window.localStorage.getItem('mui-mode') || 'system';
-  } catch (error) {
-    storedMode = 'system';
-  }
-
+function getInitialThemeOptions(initialMode: 'light' | 'dark' | 'system' = 'system') {
+  const storedMode = initialMode === 'light' || initialMode === 'dark' ? initialMode : 'system';
   return {
     ...themeInitialOptions,
     paletteColors: getStoredPaletteColors(),
@@ -171,7 +160,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 export function ThemeProvider(props: any) {
-  const { children } = props;
+  const { children, initialMode } = props;
 
   const [themeOptions, dispatch] = React.useReducer((state: any, action: any) => {
     switch (action.type) {
@@ -227,7 +216,7 @@ export function ThemeProvider(props: any) {
       default:
         throw new Error(`Unrecognized type ${action.type}`);
     }
-  }, undefined, getInitialThemeOptions);
+  }, undefined, () => getInitialThemeOptions(initialMode));
 
   const userLanguage = useUserLanguage();
   const { dense, direction, paletteColors, paletteMode, spacing } = themeOptions;
@@ -274,6 +263,10 @@ export function ThemeProvider(props: any) {
     metas.forEach((meta) => {
       meta.setAttribute('content', getMetaThemeColor(paletteMode));
     });
+  }, [paletteMode]);
+
+  useEnhancedEffect(() => {
+    document.cookie = `mui-mode=${paletteMode};path=/;max-age=31536000;samesite=lax`;
   }, [paletteMode]);
 
   const theme = React.useMemo(() => {
@@ -333,6 +326,7 @@ export function ThemeProvider(props: any) {
 
 ThemeProvider.propTypes = {
   children: PropTypes.node,
+  initialMode: PropTypes.oneOf(['light', 'dark', 'system']),
 } as any;
 
 /**

@@ -18,6 +18,7 @@ import { CodeCopyProvider } from 'docs/src/modules/utils/CodeCopy';
 import { ThemeProvider } from 'docs/src/modules/components/ThemeContext';
 import { CodeVariantProvider } from 'docs/src/modules/utils/codeVariant';
 import { CodeStylingProvider } from 'docs/src/modules/utils/codeStylingSolution';
+import installBrowserConsoleBridge from 'docs/src/modules/utils/consoleBridge';
 import DocsStyledEngineProvider from 'docs/src/modules/utils/StyledEngineProvider';
 import createEmotionCache from 'docs/src/createEmotionCache';
 import findActivePage from 'docs/src/modules/utils/findActivePage';
@@ -27,33 +28,35 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import { DocsProvider as DocsProviderStoked } from '@stoked-ui/docs/DocsProvider';
 import allPages from '../data/pages';
 import fluxPages from '../data/fluxPages';
+import focusCapturePages from '../data/focusCapturePages';
 import macMixerPages from '../data/macMixerPages';
 import alwaysListeningPages from '../data/alwaysListeningPages';
 import stokdCloudPages from '../data/stokdCloudPages';
 import './global.css';
-import "plyr-react/plyr.css"
+import 'plyr-react/plyr.css';
 import '../public/static/components-gallery/base-theme.css';
 import config from '../config';
-import {styled} from "@mui/material/styles";
-import Head from "../src/modules/components/Head";
 
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
 
 let reloadInterval;
 
-const StyledHead = styled(Head)(({ theme }) => [
-  {
-    '& body': {
-      backgroundColor: '#fff',
-    },
-  },
-  theme.applyDarkStyles({
-    '& body': {
-      backgroundColor: 'hsl(210, 14%, 7%)',
-    },
-  }),
-]);
+function getRequestCookie(cookieHeader, name) {
+  if (!cookieHeader) {
+    return undefined;
+  }
+
+  const value = `; ${cookieHeader}`;
+  const parts = value.split(`; ${name}=`);
+
+  if (parts.length === 2) {
+    return parts[1].split(';').shift();
+  }
+
+  return undefined;
+}
+
 // Avoid infinite loop when "Upload on reload" is set in the Chrome sw dev tools.
 function lazyReload() {
   clearInterval(reloadInterval);
@@ -167,17 +170,17 @@ Tip: you can access the documentation \`theme\` object directly in the console.
 }
 
 const productMap = {
-  'common': {
+  common: {
     metadata: 'Stoked UI',
     name: 'Common',
     version: commonPkgJson.version,
   },
-  'github': {
+  github: {
     metadata: 'Stoked UI',
     name: 'Github',
     version: githubPkgJson.version,
   },
-  'media': {
+  media: {
     metadata: 'Stoked UI',
     name: 'Media',
     version: mediaPkgJson.version,
@@ -187,7 +190,7 @@ const productMap = {
     name: 'Media API',
     version: mediaApiPkgJson.version,
   },
-  'editor': {
+  editor: {
     metadata: 'Stoked UI',
     name: 'Editor',
     version: editorPkgJson.version,
@@ -202,7 +205,7 @@ const productMap = {
     name: 'Media Selector',
     version: mediaPkgJson.version,
   },
-  'timeline': {
+  timeline: {
     metadata: 'Stoked UI',
     name: 'Timeline',
     version: timelinePkgJson.version,
@@ -212,9 +215,14 @@ const productMap = {
     name: 'Video Renderer',
     version: null,
   },
-  'flux': {
+  flux: {
     metadata: 'Flux',
     name: 'Flux',
+    version: null,
+  },
+  'focus-capture': {
+    metadata: 'Focus Capture',
+    name: 'Focus Capture',
     version: null,
   },
   'mac-mixer': {
@@ -237,7 +245,7 @@ const productMap = {
     name: 'Stoked UI',
     version: fileExplorerPkgJson.version,
   },
-  'docs': {
+  docs: {
     metadata: 'Docs',
     name: 'Stoked UI',
     version: fileExplorerPkgJson.version,
@@ -256,6 +264,7 @@ function AppWrapper(props) {
   React.useEffect(() => {
     loadDependencies();
     registerServiceWorker().catch(console.error);
+    installBrowserConsoleBridge();
 
     // Remove the server-side injected CSS.
     const jssStyles = document.querySelector('#jss-server-side');
@@ -271,16 +280,14 @@ function AppWrapper(props) {
     return {
       metadata: product.metadata,
       name: product.name,
-      versions: [
-        { text: currentVersion, current: true },
-      ],
-    }
+      versions: [{ text: currentVersion, current: true }],
+    };
   }, [productId]);
-
 
   const pageContextValue = React.useMemo(() => {
     const productPageMap = {
-      'flux': fluxPages,
+      flux: fluxPages,
+      'focus-capture': focusCapturePages,
       'mac-mixer': macMixerPages,
       'always-listening': alwaysListeningPages,
       'stokd-cloud': stokdCloudPages,
@@ -316,7 +323,9 @@ function AppWrapper(props) {
         ))}
         <meta name="mui:productId" content={productId} />
         <meta name="mui:productCategoryId" content={productCategoryId} />
-        {productIdentifier?.metadata ? <title>{`${productIdentifier.metadata} - ${productIdentifier.name}`}</title> : null}
+        {productIdentifier?.metadata ? (
+          <title>{`${productIdentifier.metadata} - ${productIdentifier.name}`}</title>
+        ) : null}
         {router.pathname.startsWith('/consulting') && (
           <link rel="icon" type="image/svg+xml" href="/static/stoked-consulting-logo.svg" />
         )}
@@ -326,33 +335,28 @@ function AppWrapper(props) {
         defaultUserLanguage={pageProps.userLanguage}
         translations={pageProps.translations}
       >
-
-          <CodeCopyProvider>
-            <CodeStylingProvider>
-              <CodeVariantProvider>
-                <PageContext.Provider value={pageContextValue}>
-                  <ThemeProvider>
-                    <DocsStyledEngineProvider cacheLtr={emotionCache} injectFirst>
-                      {children}
-                      {/*
+        <CodeCopyProvider>
+          <CodeStylingProvider>
+            <CodeVariantProvider>
+              <PageContext.Provider value={pageContextValue}>
+                <ThemeProvider initialMode={pageProps.themeMode}>
+                  <DocsStyledEngineProvider cacheLtr={emotionCache} injectFirst>
+                    {children}
+                    {/*
                       <GoogleAnalytics />
                       */}
-                    </DocsStyledEngineProvider>
-                  </ThemeProvider>
-                </PageContext.Provider>
-              </CodeVariantProvider>
-            </CodeStylingProvider>
-          </CodeCopyProvider>
+                  </DocsStyledEngineProvider>
+                </ThemeProvider>
+              </PageContext.Provider>
+            </CodeVariantProvider>
+          </CodeStylingProvider>
+        </CodeCopyProvider>
       </DocsProviderStoked>
     </React.Fragment>
   );
 
   if (googleClientId) {
-    return (
-      <GoogleOAuthProvider clientId={googleClientId}>
-        {content}
-      </GoogleOAuthProvider>
-    );
+    return <GoogleOAuthProvider clientId={googleClientId}>{content}</GoogleOAuthProvider>;
   }
 
   return content;
@@ -382,6 +386,7 @@ MyApp.propTypes = {
 
 MyApp.getInitialProps = async ({ ctx, Component }) => {
   let pageProps = {};
+  const themeMode = getRequestCookie(ctx.req?.headers.cookie, 'mui-mode') || 'system';
 
   const req = require.context('docs/translations', false, /translations.*\.json$/);
   const translations = mapTranslations(req);
@@ -395,6 +400,7 @@ MyApp.getInitialProps = async ({ ctx, Component }) => {
       userLanguage: ctx.query.userLanguage || 'en',
       translations,
       ...pageProps,
+      themeMode,
     },
   };
 };

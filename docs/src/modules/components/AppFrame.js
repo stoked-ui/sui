@@ -91,6 +91,9 @@ export function DeferredAppSearch() {
 const RootDiv = styled('div')(({ theme }) => {
   return {
     display: 'flex',
+    minHeight: '100vh',
+    backgroundColor: theme.palette.background.default,
+    color: theme.palette.text.primary,
     ...theme.applyDarkStyles({
       background: theme.palette.primaryDark[900],
     }),

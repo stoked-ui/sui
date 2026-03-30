@@ -210,13 +210,15 @@ const StyledDrawer = styled(Drawer)(({ theme }) => ({
   },
 }));
 
-const AppNavPaperComponent = styled('div')(() => {
+const AppNavPaperComponent = styled('div')(({ theme }) => {
   return {
     width: 'var(--MuiDocs-navDrawer-width)',
     boxShadow: 'none',
     border: '0 !important', // TODO add a Paper slot
     overflowY: 'unset !important', // TODO add a Paper slot
     boxSizing: 'border-box', // TODO have CssBaseline in the Next.js layout
+    backgroundColor: theme.palette.background.paper,
+    color: theme.palette.text.primary,
   };
 });
 

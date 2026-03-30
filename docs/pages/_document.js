@@ -224,7 +224,7 @@ export default function MyDocument(props) {
           // Keep the first paint aligned with the resolved color scheme before React hydrates.
           // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{
-            __html: `html{color-scheme:light dark}html,body{background:#fff;color:#000}@media (prefers-color-scheme: dark){html,body{background:hsl(210,14%,7%);color:#fff}[data-mui-color-scheme="light"] body{background:#fff;color:#000}[data-mui-color-scheme="dark"] body{background:hsl(210,14%,7%);color:#fff}}`,
+            __html: `html{color-scheme:light dark}html,body{background:#fff;color:#000}[data-mui-color-scheme="light"] body{background:#fff;color:#000}[data-mui-color-scheme="dark"] body{background:hsl(210,14%,7%);color:#fff}@media (prefers-color-scheme: dark){html,body{background:hsl(210,14%,7%);color:#fff}}`,
           }}
         />
         <GlobalStyles
@@ -291,6 +291,25 @@ export default function MyDocument(props) {
 
       </Head>
       <body >
+      <script
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{
+          __html: `
+            (function () {
+              try {
+                var cookieMatch = document.cookie.match(/(?:^|; )mui-mode=([^;]+)/);
+                var mode = cookieMatch ? decodeURIComponent(cookieMatch[1]) : (window.localStorage.getItem('mui-mode') || 'system');
+                var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                var resolvedMode = mode === 'light' || mode === 'dark' ? mode : (prefersDark ? 'dark' : 'light');
+                document.body.classList.remove('mode-light', 'mode-dark');
+                document.body.classList.add(resolvedMode === 'dark' ? 'mode-dark' : 'mode-light');
+              } catch (error) {
+                // Ignore storage or media-query failures and fall back to CSS defaults.
+              }
+            })();
+          `,
+        }}
+      />
       {getJoyInitColorSchemeScript({defaultMode: 'system'})}
       {getMuiInitColorSchemeScript({defaultMode: 'system'})}
       <Main/>
