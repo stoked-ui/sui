@@ -11,8 +11,6 @@ const item = {
   mediaType: 'video',
   file: 'https://cdn.stokedconsulting.com/products/flux/assets/flux-desktop-preview-854x480.mp4',
   url: 'https://cdn.stokedconsulting.com/products/flux/assets/flux-desktop-preview-854x480.mp4',
-  thumbnail: '/static/branding/mui-x/card.png',
-  paidThumbnail: '/static/branding/mui-x/card.png',
   duration: 231,
   price: 250,
   publicity: 'paid',

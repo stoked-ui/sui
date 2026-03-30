@@ -12,7 +12,6 @@ const item = {
   mediaType: 'video',
   file: VIDEO_URL,
   url: VIDEO_URL,
-  thumbnail: '/static/branding/mui-x/card.png',
   duration: 184,
   views: 921,
   publicity: 'public',

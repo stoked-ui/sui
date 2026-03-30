@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { MediaCard } from '../MediaCard';
 import { createMockAuth } from '../../../abstractions/Auth';
 import type { ExtendedMediaItem, MediaCardModeState } from '../MediaCard.types';
@@ -137,5 +137,41 @@ describe('MediaCard', () => {
 
     // In real implementation, would trigger click on play button
     // This is a simplified test structure
+  });
+
+  it('plays video on hover and pauses on leave', async () => {
+    const videoItem: ExtendedMediaItem = {
+      ...mockItem,
+      mediaType: 'video',
+      file: '/videos/test.mp4',
+      url: '/videos/test.mp4',
+    };
+
+    const playSpy = vi.spyOn(HTMLMediaElement.prototype, 'play').mockImplementation(() => Promise.resolve());
+    const pauseSpy = vi.spyOn(HTMLMediaElement.prototype, 'pause').mockImplementation(() => undefined);
+
+    const { container } = render(
+      <MediaCard
+        item={videoItem}
+        modeState={mockModeState}
+        setModeState={mockSetModeState}
+      />
+    );
+
+    const card = container.querySelector('.MuiCard-root');
+    expect(card).toBeTruthy();
+
+    if (!card) {
+      return;
+    }
+
+    fireEvent.mouseEnter(card);
+    expect(playSpy).toHaveBeenCalled();
+
+    fireEvent.mouseLeave(card);
+    expect(pauseSpy).toHaveBeenCalled();
+
+    playSpy.mockRestore();
+    pauseSpy.mockRestore();
   });
 });

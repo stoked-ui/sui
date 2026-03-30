@@ -145,6 +145,7 @@ export const MediaCard: React.FC<MediaCardProps> = ({
 
   // Build media URL
   const mediaUrl = item.file ? `${mediaBaseUrl || ''}${item.file}` : item.url;
+  const canPreviewVideo = item.mediaType === 'video' && isVisible && !requiresPayment;
 
   // Calculate aspect ratio for card (use server metadata if available)
   const aspectRatio = squareMode
@@ -227,6 +228,37 @@ export const MediaCard: React.FC<MediaCardProps> = ({
       setCurrentTime(videoRef.current.currentTime);
     }
   };
+
+  React.useEffect(() => {
+    const video = videoRef.current;
+
+    if (!video || !canPreviewVideo) {
+      return;
+    }
+
+    video.muted = true;
+    video.playsInline = true;
+    video.loop = true;
+
+    if (isHovering) {
+      const playResult = video.play();
+      if (playResult && typeof playResult.catch === 'function') {
+        playResult.catch(() => {
+          // Ignore autoplay rejections so the card still renders normally.
+        });
+      }
+      return;
+    }
+
+    video.pause();
+    if (video.readyState > 0 && video.currentTime > 0) {
+      try {
+        video.currentTime = 0;
+      } catch {
+        // Ignore rewind failures from partially loaded media.
+      }
+    }
+  }, [canPreviewVideo, isHovering, mediaUrl]);
 
   return (
     <Card
@@ -319,6 +351,10 @@ export const MediaCard: React.FC<MediaCardProps> = ({
             ref={videoRef}
             src={mediaUrl}
             poster={thumbnailUrl}
+            muted
+            playsInline
+            loop
+            preload="metadata"
             onTimeUpdate={handleTimeUpdate}
             style={{
               position: 'absolute',

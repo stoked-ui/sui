@@ -11,7 +11,6 @@ const item = {
   mediaType: 'video',
   url: 'https://cdn.stokedconsulting.com/products/flux/assets/flux-desktop-preview-1280x720.mp4',
   file: 'https://cdn.stokedconsulting.com/products/flux/assets/flux-desktop-preview-1280x720.mp4',
-  thumbnail: '/static/branding/mui-x/card.png',
   width: 1280,
   height: 720,
 };
