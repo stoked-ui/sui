@@ -1,4 +1,5 @@
 import fs from 'node:fs/promises';
+import { appendFileSync } from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 
@@ -210,7 +211,7 @@ async function patchManifestVersion(manifestPath, version, versionMap, packagesB
 
 function appendGithubOutput(key, value) {
   if (!process.env.GITHUB_OUTPUT) return;
-  require('node:fs').appendFileSync(process.env.GITHUB_OUTPUT, `${key}=${value}\n`);
+  appendFileSync(process.env.GITHUB_OUTPUT, `${key}=${value}\n`);
 }
 
 async function detect() {
