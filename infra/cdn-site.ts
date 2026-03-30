@@ -18,6 +18,13 @@ export const createCdnSite = async (domainInfo: CdnDomainInfo) => {
     ?? process.env.BLOG_IMAGE_S3_BUCKET
     ?? domainInfo.domain;
   const consultingHost = new URL(domainInfo.consultingOrigin).hostname;
+  const uploadOrigins = [
+    `https://${domainInfo.domain}`,
+    'http://localhost:4173',
+    'http://127.0.0.1:4173',
+    'http://localhost:6160',
+    'http://127.0.0.1:6160',
+  ];
 
   let certArn: string | undefined;
   if ($app.stage === 'production') {
@@ -29,7 +36,7 @@ export const createCdnSite = async (domainInfo: CdnDomainInfo) => {
       }));
   }
 
-  return new sst.aws.StaticSite(domainInfo.resourceName, {
+  const site = new sst.aws.StaticSite(domainInfo.resourceName, {
     path: 'packages-internal/cdn',
     dev: {
       command: 'pnpm dev',
@@ -99,4 +106,23 @@ export const createCdnSite = async (domainInfo: CdnDomainInfo) => {
         }
       : {}),
   });
+
+  // Browser uploads go directly to S3 using presigned multipart URLs, so the
+  // bucket itself must allow preflight and expose ETag for part completion.
+  const bucketCors = new aws.s3.BucketCorsConfiguration(`${domainInfo.resourceName}BucketCors`, {
+    bucket: cdnBucket,
+    corsRules: [
+      {
+        id: 'cdn-browser-uploads',
+        allowedHeaders: ['*'],
+        allowedMethods: ['GET', 'HEAD', 'PUT', 'POST', 'DELETE'],
+        allowedOrigins: uploadOrigins,
+        exposeHeaders: ['ETag'],
+        maxAgeSeconds: 3600,
+      },
+    ],
+  });
+  bucketCors.bucket;
+
+  return site;
 };

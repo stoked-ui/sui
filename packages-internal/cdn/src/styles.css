@@ -276,6 +276,34 @@ a {
   margin: 0;
 }
 
+.path-actions {
+  display: inline-flex;
+  align-items: center;
+}
+
+.pathbar-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(244, 239, 231, 0.82);
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.pathbar-action:hover,
+.pathbar-action:focus-visible {
+  background: rgba(255, 168, 111, 0.18);
+  color: #ffa86f;
+  outline: none;
+}
+
 .hero-session-menu {
   position: relative;
 }
@@ -401,12 +429,54 @@ a {
 
 .upload-item {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
   padding: 12px 14px;
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.04);
+}
+
+.upload-copy {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.upload-copy strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.upload-status {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(244, 239, 231, 0.58);
+}
+
+.upload-status[data-status='complete'] {
+  color: #b3efca;
+}
+
+.upload-status[data-status='error'] {
+  color: #ffb8b8;
+}
+
+.upload-error {
+  color: #ffb8b8;
+  font-size: 0.84rem;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.upload-progress {
+  flex: 0 0 auto;
+  padding-top: 2px;
+  color: rgba(244, 239, 231, 0.82);
+  font-variant-numeric: tabular-nums;
 }
 
 .listing-head {
@@ -487,15 +557,18 @@ a {
 
 .folder-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 320px));
+  justify-content: flex-start;
   gap: 14px;
   margin-top: 22px;
 }
 
 .folder-card {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  width: 100%;
   padding: 14px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 18px;
@@ -504,6 +577,14 @@ a {
     rgba(20, 24, 28, 0.72);
   color: inherit;
   cursor: pointer;
+}
+
+.folder-card:hover,
+.folder-card:focus-visible,
+.folder-card:focus-within {
+  border-color: rgba(255, 168, 111, 0.32);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.22);
+  outline: none;
 }
 
 .folder-main {
@@ -562,16 +643,7 @@ a {
 }
 
 .folder-path {
-  border: 0;
-  padding: 0;
-  background: transparent;
-  text-align: left;
-  cursor: copy;
   word-break: break-all;
-}
-
-.folder-path:hover {
-  color: rgba(244, 239, 231, 0.82);
 }
 
 .folder-actions {

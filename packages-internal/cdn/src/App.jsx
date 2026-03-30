@@ -648,10 +648,9 @@ export default function App() {
         </section>
 
         <React.Fragment>
-        {crumbs.length ? (
           <nav className="pathbar" aria-label="Breadcrumb">
             <button
-              className="path-link"
+              className={`path-link${crumbs.length === 0 ? ' current' : ''}`}
               type="button"
               onClick={() => openPrefix('')}
               onDragOver={canManage ? (event) => event.preventDefault() : undefined}
@@ -671,224 +670,274 @@ export default function App() {
                 {crumb.label}
               </button>
             ))}
-          </nav>
-        ) : null}
-
-        {canManage && permissionEditor ? (
-          <section className="permission-panel">
-            <div className="listing-head">
-              <div>
-                <p className="eyebrow">Permissions</p>
-                <h2>{permissionEditor.path}</h2>
-              </div>
-              <p
-                className="status-chip"
-                data-status={permissionEditor.status === 'error' ? 'error' : 'success'}
-              >
-                {permissionEditor.status === 'loading' && 'Loading'}
-                {permissionEditor.status === 'saving' && 'Saving'}
-                {permissionEditor.status === 'clearing' && 'Clearing'}
-                {permissionEditor.status === 'ready' && (permissionEditor.hasExisting ? 'Restricted' : 'Inherited')}
-                {permissionEditor.status === 'error' && 'Error'}
-              </p>
-            </div>
-
-            <p className="permission-note">
-              {permissionEditor.hasExisting
-                ? 'This path has an explicit visibility override.'
-                : 'No explicit restriction is saved yet. Default role access will apply until you save one.'}
-            </p>
-
-            {permissionEditor.error ? (
-              <p className="feedback error">{permissionEditor.error}</p>
-            ) : null}
-
-            <div className="permission-grid">
-              <div className="permission-field">
-                <span className="permission-label">Visible roles</span>
-                <div className="role-grid">
-                  {permissionRoleOptions.map((role) => (
-                    <label key={role} className="role-option">
-                      <input
-                        type="checkbox"
-                        checked={permissionEditor.viewRoles.includes(role)}
-                        onChange={() => togglePermissionRole(role)}
-                        disabled={permissionEditor.status !== 'ready'}
-                      />
-                      <span>{role}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              <label className="permission-field" htmlFor="permission-user-ids">
-                <span className="permission-label">Visible user IDs</span>
-                <textarea
-                  id="permission-user-ids"
-                  rows={5}
-                  value={permissionEditor.viewUserIdsText}
-                  onChange={(event) => updatePermissionEditor({
-                    viewUserIdsText: event.target.value,
-                    error: '',
-                  })}
-                  placeholder="Comma-separated user IDs"
-                  disabled={permissionEditor.status !== 'ready'}
-                />
-                <span className="item-subtitle">
-                  Use this when a path should be visible to specific accounts only.
-                </span>
-              </label>
-            </div>
-
-            <div className="permission-actions">
-              <button
-                className="action-button"
-                type="button"
-                onClick={handlePermissionSave}
-                disabled={permissionEditor.status !== 'ready'}
-              >
-                Save restriction
-              </button>
-              <button
-                className="secondary-button"
-                type="button"
-                onClick={handlePermissionClear}
-                disabled={permissionEditor.status !== 'ready' || !permissionEditor.hasExisting}
-              >
-                Clear restriction
-              </button>
-              <button
-                className="secondary-button"
-                type="button"
-                onClick={() => setPermissionEditor(null)}
-                disabled={permissionEditor.status === 'saving' || permissionEditor.status === 'clearing'}
-              >
-                Cancel
-              </button>
-            </div>
-          </section>
-        ) : null}
-
-        <section
-          className="listing"
-          onDragOver={canManage ? (event) => event.preventDefault() : undefined}
-          onDrop={canManage ? (event) => handleDrop(event, prefix) : undefined}
-        >
-          {operationError ? <p className="feedback error">{operationError}</p> : null}
-
-          {uploads.length ? (
-            <div className="upload-list">
-              {uploads.map((upload) => (
-                <div key={upload.id} className="upload-item">
-                  <div>
-                    <strong>{upload.name}</strong>
-                    <span className="item-subtitle">{upload.status}</span>
-                  </div>
-                  <span>{upload.progress || 0}%</span>
-                </div>
-              ))}
-            </div>
-          ) : null}
-
-          {status === 'error' ? (
-            <p className="feedback error">{describeContentsError(error, auth.status)}</p>
-          ) : null}
-
-          {status === 'loading' ? <p className="feedback">Loading directory contents...</p> : null}
-
-          {status === 'success' && fileCount === 0 ? (
-            <p className="feedback">{emptyMessage(prefix, deferredQuery)}</p>
-          ) : null}
-
-          {status === 'success' && filtered.folders.length > 0 ? (
-            <div className="folder-grid">
-              {filtered.folders.map((folder) => (
-                <article
-                  key={folder.path}
-                  className="folder-card"
-                  draggable
-                  onDragStart={(event) => {
-                    if (canManage) {
-                      event.dataTransfer.setData('application/x-stoked-path', JSON.stringify({
-                        path: folder.path,
-                      }));
-                    }
-
-                    beginDesktopDownload(event, {
-                      name: `${basenameForPath(folder.path)}.zip`,
-                      url: buildExportUrl(folder.path),
-                      mimeType: 'application/zip',
-                      effectAllowed: canManage ? 'copyMove' : 'copy',
-                    });
-                  }}
-                  onDragOver={canManage ? (event) => event.preventDefault() : undefined}
-                  onDrop={canManage ? (event) => handleDrop(event, folder.path) : undefined}
+            {canManage ? (
+              <span className="path-actions">
+                <button
+                  className="pathbar-action"
+                  type="button"
+                  title="New folder"
+                  aria-label="New folder"
+                  onClick={handleCreateFolder}
                 >
-                  <div className="folder-main">
-                    <button
-                      className="folder-open"
-                      type="button"
-                      onClick={() => openPrefix(folder.path)}
-                    >
-                      <span className="folder-icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24">
-                          <path d="M10 4H4c-1.1 0-2 .9-2 2v3h20V8c0-1.1-.9-2-2-2h-8l-2-2Z" />
-                          <path d="M22 10H2v8c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2v-8Z" />
-                        </svg>
+                  +
+                </button>
+              </span>
+            ) : null}
+          </nav>
+
+          {canManage && permissionEditor ? (
+            <section className="permission-panel">
+              <div className="listing-head">
+                <div>
+                  <p className="eyebrow">Permissions</p>
+                  <h2>{permissionEditor.path}</h2>
+                </div>
+                <p
+                  className="status-chip"
+                  data-status={permissionEditor.status === 'error' ? 'error' : 'success'}
+                >
+                  {permissionEditor.status === 'loading' && 'Loading'}
+                  {permissionEditor.status === 'saving' && 'Saving'}
+                  {permissionEditor.status === 'clearing' && 'Clearing'}
+                  {permissionEditor.status === 'ready' && (permissionEditor.hasExisting ? 'Restricted' : 'Inherited')}
+                  {permissionEditor.status === 'error' && 'Error'}
+                </p>
+              </div>
+
+              <p className="permission-note">
+                {permissionEditor.hasExisting
+                  ? 'This path has an explicit visibility override.'
+                  : 'No explicit restriction is saved yet. Default role access will apply until you save one.'}
+              </p>
+
+              {permissionEditor.error ? (
+                <p className="feedback error">{permissionEditor.error}</p>
+              ) : null}
+
+              <div className="permission-grid">
+                <div className="permission-field">
+                  <span className="permission-label">Visible roles</span>
+                  <div className="role-grid">
+                    {permissionRoleOptions.map((role) => (
+                      <label key={role} className="role-option">
+                        <input
+                          type="checkbox"
+                          checked={permissionEditor.viewRoles.includes(role)}
+                          onChange={() => togglePermissionRole(role)}
+                          disabled={permissionEditor.status !== 'ready'}
+                        />
+                        <span>{role}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <label className="permission-field" htmlFor="permission-user-ids">
+                  <span className="permission-label">Visible user IDs</span>
+                  <textarea
+                    id="permission-user-ids"
+                    rows={5}
+                    value={permissionEditor.viewUserIdsText}
+                    onChange={(event) => updatePermissionEditor({
+                      viewUserIdsText: event.target.value,
+                      error: '',
+                    })}
+                    placeholder="Comma-separated user IDs"
+                    disabled={permissionEditor.status !== 'ready'}
+                  />
+                  <span className="item-subtitle">
+                    Use this when a path should be visible to specific accounts only.
+                  </span>
+                </label>
+              </div>
+
+              <div className="permission-actions">
+                <button
+                  className="action-button"
+                  type="button"
+                  onClick={handlePermissionSave}
+                  disabled={permissionEditor.status !== 'ready'}
+                >
+                  Save restriction
+                </button>
+                <button
+                  className="secondary-button"
+                  type="button"
+                  onClick={handlePermissionClear}
+                  disabled={permissionEditor.status !== 'ready' || !permissionEditor.hasExisting}
+                >
+                  Clear restriction
+                </button>
+                <button
+                  className="secondary-button"
+                  type="button"
+                  onClick={() => setPermissionEditor(null)}
+                  disabled={permissionEditor.status === 'saving' || permissionEditor.status === 'clearing'}
+                >
+                  Cancel
+                </button>
+              </div>
+            </section>
+          ) : null}
+
+          <section
+            className="listing"
+            onDragOver={canManage ? (event) => event.preventDefault() : undefined}
+            onDrop={canManage ? (event) => handleDrop(event, prefix) : undefined}
+          >
+            {operationError ? <p className="feedback error">{operationError}</p> : null}
+
+            {uploads.length ? (
+              <div className="upload-list">
+                {uploads.map((upload) => (
+                  <div key={upload.id} className="upload-item" data-status={upload.status}>
+                    <div className="upload-copy">
+                      <strong>{upload.name}</strong>
+                      <span className="upload-status" data-status={upload.status}>
+                        {upload.status}
                       </span>
-                      <span className="folder-name">{basenameForPath(folder.path)}</span>
-                    </button>
-                    <div className="folder-actions">
-                      <a
-                        className="inline-action inline-action-icon"
-                        href={buildExportUrl(folder.path)}
-                        title="Export Zip"
-                        aria-label="Export Zip"
-                      >
-                        <svg viewBox="0 0 24 24" aria-hidden="true">
-                          <path d="M12 2C6.49 2 2 6.49 2 12s4.49 10 10 10 10-4.49 10-10S17.51 2 12 2m-1 8V6h2v4h3l-4 4-4-4zm6 7H7v-2h10z" />
-                        </svg>
-                      </a>
-                      {canManage ? (
-                        <button
-                          className="icon-action"
-                          type="button"
-                          title="Restrict"
-                          aria-label="Restrict"
-                          onClick={() => handlePermissions(folder.path)}
-                        >
-                          <svg viewBox="0 0 24 24" aria-hidden="true">
-                            <path d="M12 1.75A5.25 5.25 0 0 0 6.75 7v2H5.5A1.75 1.75 0 0 0 3.75 10.75v9.5c0 .97.78 1.75 1.75 1.75h13a1.75 1.75 0 0 0 1.75-1.75v-9.5A1.75 1.75 0 0 0 18.5 9h-1.25V7A5.25 5.25 0 0 0 12 1.75Zm-3.25 7.25V7a3.25 3.25 0 1 1 6.5 0v2h-6.5Zm3.25 3a1.75 1.75 0 0 1 1 3.19v2.06h-2v-2.06A1.75 1.75 0 0 1 12 12Z" />
-                          </svg>
-                        </button>
-                      ) : null}
-                      {canManage ? (
-                        <button
-                          className="icon-action"
-                          type="button"
-                          title="Delete"
-                          aria-label="Delete"
-                          onClick={() => handleDelete(folder.path)}
-                        >
-                          <svg viewBox="0 0 24 24" aria-hidden="true">
-                            <path d="M9 3.75h6l.75 1.5h3.5v2h-1v11A2.75 2.75 0 0 1 15.5 21h-7A2.75 2.75 0 0 1 5.75 18.25v-11h-1v-2h3.5L9 3.75Zm-1.25 3.5v11c0 .41.34.75.75.75h7a.75.75 0 0 0 .75-.75v-11h-8.5Zm2.5 2h2v7h-2v-7Zm4 0h2v7h-2v-7Z" />
-                          </svg>
-                        </button>
+                      {upload.error ? (
+                        <span className="upload-error">{upload.error}</span>
                       ) : null}
                     </div>
+                    <span className="upload-progress">{upload.progress || 0}%</span>
                   </div>
-                  <button
-                    className="folder-path"
-                    type="button"
-                    title="Copy full path"
-                    onClick={() => handleCopyPath(folder.path)}
+                ))}
+              </div>
+            ) : null}
+
+            {status === 'error' ? (
+              <p className="feedback error">{describeContentsError(error, auth.status)}</p>
+            ) : null}
+
+            {status === 'loading' ? <p className="feedback">Loading directory contents...</p> : null}
+
+            {status === 'success' && fileCount === 0 ? (
+              <p className="feedback">{emptyMessage(prefix, deferredQuery)}</p>
+            ) : null}
+
+            {status === 'success' && filtered.folders.length > 0 ? (
+              <div className="folder-grid">
+                {filtered.folders.map((folder) => (
+                  <article
+                    key={folder.path}
+                    className="folder-card"
+                    role="link"
+                    tabIndex={0}
+                    draggable
+                    onClick={() => openPrefix(folder.path)}
+                    onKeyDown={(event) => {
+                      if (event.target !== event.currentTarget) {
+                        return;
+                      }
+
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        openPrefix(folder.path);
+                      }
+                    }}
+                    onDragStart={(event) => {
+                      if (canManage) {
+                        event.dataTransfer.setData('application/x-stoked-path', JSON.stringify({
+                          path: folder.path,
+                        }));
+                      }
+
+                      beginDesktopDownload(event, {
+                        name: `${basenameForPath(folder.path)}.zip`,
+                        url: buildExportUrl(folder.path),
+                        mimeType: 'application/zip',
+                        effectAllowed: canManage ? 'copyMove' : 'copy',
+                      });
+                    }}
+                    onDragOver={canManage ? (event) => event.preventDefault() : undefined}
+                    onDrop={canManage ? (event) => handleDrop(event, folder.path) : undefined}
                   >
-                    {folder.path}
-                  </button>
-                </article>
-              ))}
-            </div>
-          ) : null}
+                    <div className="folder-main">
+                      <button
+                        className="folder-open"
+                        type="button"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          openPrefix(folder.path);
+                        }}
+                      >
+                        <span className="folder-icon" aria-hidden="true">
+                          <svg viewBox="0 0 24 24">
+                            <path d="M10 4H4c-1.1 0-2 .9-2 2v3h20V8c0-1.1-.9-2-2-2h-8l-2-2Z" />
+                            <path d="M22 10H2v8c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2v-8Z" />
+                          </svg>
+                        </span>
+                        <span className="folder-name">{basenameForPath(folder.path)}</span>
+                      </button>
+                      <div className="folder-actions">
+                        <button
+                          className="icon-action"
+                          type="button"
+                          title="Copy path"
+                          aria-label="Copy path"
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            handleCopyPath(folder.path);
+                          }}
+                        >
+                          <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M16 1.75H7.75A2.75 2.75 0 0 0 5 4.5V15h2V4.5c0-.41.34-.75.75-.75H16v-2Z" />
+                            <path d="M10.5 6.75h8A2.75 2.75 0 0 1 21.25 9.5v10A2.75 2.75 0 0 1 18.5 22.25h-8a2.75 2.75 0 0 1-2.75-2.75v-10A2.75 2.75 0 0 1 10.5 6.75Zm0 2a.75.75 0 0 0-.75.75v10c0 .41.34.75.75.75h8a.75.75 0 0 0 .75-.75v-10a.75.75 0 0 0-.75-.75h-8Z" />
+                          </svg>
+                        </button>
+                        <a
+                          className="inline-action inline-action-icon"
+                          href={buildExportUrl(folder.path)}
+                          title="Export Zip"
+                          aria-label="Export Zip"
+                          onClick={(event) => event.stopPropagation()}
+                        >
+                          <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M12 2C6.49 2 2 6.49 2 12s4.49 10 10 10 10-4.49 10-10S17.51 2 12 2m-1 8V6h2v4h3l-4 4-4-4zm6 7H7v-2h10z" />
+                          </svg>
+                        </a>
+                        {canManage ? (
+                          <button
+                            className="icon-action"
+                            type="button"
+                            title="Restrict"
+                            aria-label="Restrict"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              handlePermissions(folder.path);
+                            }}
+                          >
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                              <path d="M12 1.75A5.25 5.25 0 0 0 6.75 7v2H5.5A1.75 1.75 0 0 0 3.75 10.75v9.5c0 .97.78 1.75 1.75 1.75h13a1.75 1.75 0 0 0 1.75-1.75v-9.5A1.75 1.75 0 0 0 18.5 9h-1.25V7A5.25 5.25 0 0 0 12 1.75Zm-3.25 7.25V7a3.25 3.25 0 1 1 6.5 0v2h-6.5Zm3.25 3a1.75 1.75 0 0 1 1 3.19v2.06h-2v-2.06A1.75 1.75 0 0 1 12 12Z" />
+                            </svg>
+                          </button>
+                        ) : null}
+                        {canManage ? (
+                          <button
+                            className="icon-action"
+                            type="button"
+                            title="Delete"
+                            aria-label="Delete"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              handleDelete(folder.path);
+                            }}
+                          >
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                              <path d="M9 3.75h6l.75 1.5h3.5v2h-1v11A2.75 2.75 0 0 1 15.5 21h-7A2.75 2.75 0 0 1 5.75 18.25v-11h-1v-2h3.5L9 3.75Zm-1.25 3.5v11c0 .41.34.75.75.75h7a.75.75 0 0 0 .75-.75v-11h-8.5Zm2.5 2h2v7h-2v-7Zm4 0h2v7h-2v-7Z" />
+                            </svg>
+                          </button>
+                        ) : null}
+                      </div>
+                    </div>
+                    <span className="folder-path">
+                      {folder.path}
+                    </span>
+                  </article>
+                ))}
+              </div>
+            ) : null}
 
           {status === 'success' && filtered.objects.length > 0 ? (
             <div className="table-wrap">
@@ -901,21 +950,6 @@ export default function App() {
                     <th className="actions-head">
                       <div className="table-head-actions">
                         <span>Actions</span>
-                        {canManage ? (
-                          <button
-                            className="icon-action"
-                            type="button"
-                            title="New folder"
-                            aria-label="New folder"
-                            onClick={handleCreateFolder}
-                          >
-                            <svg viewBox="0 0 24 24" aria-hidden="true">
-                              <path d="M10 4H4c-1.1 0-2 .9-2 2v3h20V8c0-1.1-.9-2-2-2h-8l-2-2Z" />
-                              <path d="M22 10H2v8c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2v-8Z" />
-                              <path d="M12 12.25h-1.25v2.5h-2.5V16h2.5v2.5H12V16h2.5v-1.25H12v-2.5Z" />
-                            </svg>
-                          </button>
-                        ) : null}
                       </div>
                     </th>
                   </tr>
