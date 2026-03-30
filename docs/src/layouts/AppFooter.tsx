@@ -141,7 +141,7 @@ export default function AppFooter(props: AppFooterProps) {
             <Link prefetch={false} href={ROUTES.coreRoadmap}>
               Roadmap
             </Link>
-            <Link prefetch={false} href={ROUTES.coreRoadmap}>
+            <Link prefetch={false} href={ROUTES.cdn}>
               Cdn
             </Link>
           </Box>

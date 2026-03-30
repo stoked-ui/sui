@@ -28,9 +28,9 @@ function createLoading(sx: BoxProps['sx']) {
   };
 }
 
-const FileExplorerGrid = dynamic(() => import('../showcase/FileExplorerCard'), {
+const ConsultingDocumentBrowser = dynamic(() => import('../showcase/ConsultingDocumentBrowserCard'), {
   ssr: false,
-  loading: createLoading({ width: '100%', height: 280 }),
+  loading: createLoading({ width: '100%', height: 340 }),
 });
 
 const FileExplorerDnd = dynamic(() => import('../showcase/FileExplorerCard'), {
@@ -78,7 +78,7 @@ export default function Hero() {
         <React.Fragment>
           {isMdUp && (
             <Stack spacing={3} useFlexGap sx={{ '& > .MuiPaper-root': { maxWidth: 'none' } }}>
-              <FileExplorerGrid id={'file-explorer-grid'} grid sx={{ width: '100%' }} />
+              <ConsultingDocumentBrowser id={'consulting-document-browser'} sx={{ width: '100%' }} />
               <FileExplorerDnd
                 id={'file-explorer-dnd'}
                 sx={{

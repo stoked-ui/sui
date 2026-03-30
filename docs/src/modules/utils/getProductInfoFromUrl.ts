@@ -28,7 +28,7 @@ interface MuiProductInfo {
 export default function getProductInfoFromUrl(asPath: string): MuiProductInfo {
   const asPathWithoutLang = pathnameToLanguage(asPath).canonicalAsServer;
   const firstFolder = asPathWithoutLang.replace(/^\/+([^/]+)\/.*/, '$1');
-  const consultingProductMatch = asPathWithoutLang.match(/^\/products\/([^/]+)/);
+  const consultingProductMatch = asPathWithoutLang.match(/^\/(?:consulting\/)?products\/([^/]+)/);
   const consultingProductId = consultingProductMatch?.[1];
   const consultingProductIds = [
     'flux',

@@ -105,6 +105,7 @@ export function HomeView({ HomeMain}: { HomeMain: React.ComponentType }){
      <Main/>
       {!isCheckoutSuccess && PRODUCTS.previews()}
     </main>
+    <Divider />
     <AppFooter/>
   </BrandingCssVarsProvider>;
 }

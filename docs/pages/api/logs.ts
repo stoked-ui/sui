@@ -1,22 +1,27 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-const ALLOWED_LEVELS = new Set(['log', 'info', 'warn', 'error', 'debug']);
+type AllowedLevel = 'log' | 'info' | 'warn' | 'error' | 'debug';
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+const ALLOWED_LEVELS = new Set<AllowedLevel>(['log', 'info', 'warn', 'error', 'debug']);
+
+export default function handler(req: NextApiRequest, res: NextApiResponse): void {
   if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Method not allowed' });
+    res.status(405).json({ message: 'Method not allowed' });
+    return;
   }
 
   const { level, args, href, pathname, timestamp, source } = req.body || {};
 
-  const resolvedLevel = typeof level === 'string' && ALLOWED_LEVELS.has(level) ? level : 'log';
+  const resolvedLevel: AllowedLevel =
+    typeof level === 'string' && ALLOWED_LEVELS.has(level as AllowedLevel)
+      ? (level as AllowedLevel)
+      : 'log';
   const resolvedArgs = Array.isArray(args) ? args : [];
   // eslint-disable-next-line no-console
-  const consoleMethod = console[resolvedLevel as keyof Console] || console.log;
+  const consoleMethod: (...callArgs: unknown[]) => void = console[resolvedLevel].bind(console);
 
   // eslint-disable-next-line no-console
-  consoleMethod.call(
-    console,
+  consoleMethod(
     '[browser-console]',
     {
       source: typeof source === 'string' ? source : 'browser-console',
@@ -27,5 +32,5 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     ...resolvedArgs,
   );
 
-  return res.status(204).end();
+  res.status(204).end();
 }

@@ -89,16 +89,25 @@ export function isConsultingPublicProductId(productId?: string) {
 
 export function normalizePublicProductUrl(productId: string, url?: string) {
   const trimmed = typeof url === 'string' ? url.trim() : '';
+  const defaultPath = isConsultingPublicProductId(productId)
+    ? `/consulting/products/${productId}`
+    : `/products/${productId}`;
 
   if (trimmed && /^https?:\/\//i.test(trimmed)) {
     return trimmed;
   }
 
-  if (trimmed.startsWith('/products/')) {
+  if (trimmed.startsWith('/consulting/products/')) {
     return trimmed;
   }
 
-  return `/products/${productId}`;
+  if (trimmed.startsWith('/products/')) {
+    return isConsultingPublicProductId(productId)
+      ? `/consulting${trimmed}`
+      : trimmed;
+  }
+
+  return defaultPath;
 }
 
 export function toConsultingPublicPath(path: string) {

@@ -30,7 +30,13 @@ import GradientText from "./components/typography/GradientText";
 import StokedConsultingShowcase from "./components/home/StokedConsultingShowcase";
 import AdvancedShowcase from "./components/home/AdvancedShowcase";
 import FileExplorerShowcase from './components/home/FileExplorerShowcase';
-import { inferSiteForProductId, normalizePublicProductUrl, PublicSite, toAbsoluteSitePath } from "./modules/utils/siteRouting";
+import {
+  inferSiteForProductId,
+  isConsultingPublicProductId,
+  normalizePublicProductUrl,
+  PublicSite,
+  toAbsoluteSitePath,
+} from "./modules/utils/siteRouting";
 
 import TimelineShowcase from "./components/home/TimelineShowcase";
 import EditorShowcase from './components/home/EditorShowcase';
@@ -62,6 +68,7 @@ export type TProduct = {
   url: string;
   site?: PublicSite;
   hideProductFeatures?: boolean;
+  prerelease?: 'alpha' | 'beta' | 'none';
   live?: boolean;
   showcaseType: React.ComponentType;
   showcaseContent?: any;
@@ -91,6 +98,18 @@ function normalizeProductSuffix(type: LinkType, suffix: string) {
     return '';
   }
   return suffix;
+}
+
+function resolveProductBasePath(productId: string, site: PublicSite, url: string) {
+  if (site === 'stoked-ui') {
+    return `/products${url}`;
+  }
+
+  if (isConsultingPublicProductId(productId)) {
+    return normalizePublicProductUrl(productId, url);
+  }
+
+  return url;
 }
 
 export class Product {
@@ -331,17 +350,21 @@ export class Product {
     const normalizedSuffix = normalizeProductSuffix(type, suffix);
     if (productId) {
       const site = inferSiteForProductId(productId);
-      const prefix = site === 'stoked-ui' ? '/products' : '';
+      const productPath = resolveProductBasePath(
+        productId,
+        site,
+        site === 'stoked-ui' ? `/${productId}` : `/products/${productId}`,
+      );
       return toAbsoluteSitePath(
         site,
-        `${prefix}/${productId}${getTypeUrl(type)}${normalizedSuffix}`,
+        `${productPath}${getTypeUrl(type)}${normalizedSuffix}`,
       );
     }
     const site = this.data.site ?? inferSiteForProductId(this.data.id);
-    const prefix = site === 'stoked-ui' ? '/products' : '';
+    const productPath = resolveProductBasePath(this.data.id, site, this.data.url);
     return toAbsoluteSitePath(
       site,
-      `${prefix}${this.data.url}${getTypeUrl(type)}${normalizedSuffix}`,
+      `${productPath}${getTypeUrl(type)}${normalizedSuffix}`,
     );
   }
 

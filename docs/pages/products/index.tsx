@@ -58,7 +58,7 @@ export default function ProductsOverview() {
                   >
                     <CardActionArea
                       component={Link}
-                      href={`/products/${product.id}`}
+                      href={product.url('product')}
                       sx={{ height: '100%', alignItems: 'flex-start', display: 'flex', flexDirection: 'column' }}
                     >
                       <CardContent sx={{ flex: 1 }}>

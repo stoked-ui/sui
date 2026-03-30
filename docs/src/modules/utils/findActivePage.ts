@@ -10,7 +10,8 @@ export default function findActivePage(
   const pathname = currentPathname
     .replace('/[docsTab]', '')
     .replace('components-api', '')
-    .replace('hooks-api', '');
+    .replace('hooks-api', '')
+    .replace(/^\/consulting(?=\/products\/)/, '');
 
   const traverse = (parent: MuiPage) => {
     (parent.children || []).forEach((child) => {

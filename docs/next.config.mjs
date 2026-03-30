@@ -362,6 +362,10 @@ export default withDocsInfra({
     : {
         rewrites: async () => {
           const rewrites = [
+            {
+              source: '/consulting/products/:productSlug/docs/:rest*',
+              destination: '/products/:productSlug/docs/:rest*',
+            },
             { source: `/:lang(${LANGUAGES.join('|')})?/:rest*`, destination: '/:rest*' },
           ];
 

@@ -30,20 +30,20 @@ const ROUTES: Routes = {
   about: '/about/',
   blog: '/blog/',
   // Flux
-  flux: toAbsoluteSitePath('consulting', '/products/flux/'),
-  fluxDocs: toAbsoluteSitePath('consulting', '/products/flux/docs/overview/'),
+  flux: toAbsoluteSitePath('consulting', '/consulting/products/flux/'),
+  fluxDocs: toAbsoluteSitePath('consulting', '/consulting/products/flux/docs/overview/'),
   // Focus Capture
-  focusCapture: toAbsoluteSitePath('consulting', '/products/focus-capture/'),
-  focusCaptureDocs: toAbsoluteSitePath('consulting', '/products/focus-capture/docs/overview/'),
+  focusCapture: toAbsoluteSitePath('consulting', '/consulting/products/focus-capture/'),
+  focusCaptureDocs: toAbsoluteSitePath('consulting', '/consulting/products/focus-capture/docs/overview/'),
   // Mac Mixer
-  macMixer: toAbsoluteSitePath('consulting', '/products/mac-mixer/'),
-  macMixerDocs: toAbsoluteSitePath('consulting', '/products/mac-mixer/docs/overview/'),
+  macMixer: toAbsoluteSitePath('consulting', '/consulting/products/mac-mixer/'),
+  macMixerDocs: toAbsoluteSitePath('consulting', '/consulting/products/mac-mixer/docs/overview/'),
   // Always Listening
-  alwaysListening: toAbsoluteSitePath('consulting', '/products/always-listening/'),
-  alwaysListeningDocs: toAbsoluteSitePath('consulting', '/products/always-listening/docs/overview/'),
+  alwaysListening: toAbsoluteSitePath('consulting', '/consulting/products/always-listening/'),
+  alwaysListeningDocs: toAbsoluteSitePath('consulting', '/consulting/products/always-listening/docs/overview/'),
   // Stokd Cloud
-  stokdCloud: toAbsoluteSitePath('consulting', '/products/stokd-cloud/'),
-  stokdCloudDocs: toAbsoluteSitePath('consulting', '/products/stokd-cloud/docs/overview/'),
+  stokdCloud: toAbsoluteSitePath('consulting', '/consulting/products/stokd-cloud/'),
+  stokdCloudDocs: toAbsoluteSitePath('consulting', '/consulting/products/stokd-cloud/docs/overview/'),
   // Consulting
   home: '/products/file-explorer/',
   consulting: toAbsoluteSitePath('consulting', '/consulting/'),

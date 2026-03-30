@@ -252,8 +252,8 @@
 
 - **Products:** Docs site (consulting)
 - **Location:** `docs/pages/consulting/main.tsx`, `docs/pages/consulting/home.tsx`
-- **Regions:** Header, hero, service cards grid, industries, footer
-- **States:** static
+- **Regions:** Header, hero with interactive file-preview demo, service cards grid, industries, footer
+- **States:** static marketing content, responsive hero layout, file-selection preview in hero demo
 
 ### 2.13 Licenses Management
 

@@ -10,7 +10,7 @@ import ShowcaseContainer from 'docs/src/components/home/ShowcaseContainer';
 import HighlightedCode from 'docs/src/modules/components/HighlightedCode';
 import MarkdownElement from 'docs/src/components/markdown/MarkdownElement';
 import {
-  createTimelineFile, EditorAudioExampleProps
+  EditorAudioExampleProps
 } from "../showcase/ExampleShowcaseFiles";
 
 

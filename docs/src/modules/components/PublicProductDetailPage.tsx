@@ -159,7 +159,7 @@ export default function PublicProductDetailPage({ productSlug }: { productSlug?:
                           {i > 0 && <Divider />}
                           <ListItem
                             component={Link}
-                            href={`/products/${productSlug}/${page.slug}`}
+                            href={`${product.url.replace(/\/$/, '')}/docs/${page.slug}/`}
                             sx={{ '&:hover': { bgcolor: 'action.hover' } }}
                           >
                             <ListItemText primary={page.title} />
