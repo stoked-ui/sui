@@ -37,6 +37,15 @@ interface Feature {
   id: string;
 }
 
+interface ProductPromo {
+  headerLabel: string;
+  title: string;
+  subtitle: string;
+  imageUrl?: string;
+  ctaLabel: string;
+  ctaUrl: string;
+}
+
 interface ProductData {
   _id: string;
   productId: string;
@@ -50,6 +59,7 @@ interface ProductData {
   hideProductFeatures: boolean;
   prerelease?: 'alpha' | 'beta' | 'none';
   features: Feature[];
+  promo?: ProductPromo | null;
 }
 
 interface DocPage {
@@ -94,6 +104,15 @@ export default function ProductDetailPage({ productSlug }: { productSlug: string
   const [pages, setPages] = React.useState<DocPage[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState('');
+  const [promoEnabled, setPromoEnabled] = React.useState(false);
+  const [promoDraft, setPromoDraft] = React.useState<ProductPromo>({
+    headerLabel: 'Also from Stoked Consulting',
+    title: '',
+    subtitle: '',
+    imageUrl: '',
+    ctaLabel: 'Learn More',
+    ctaUrl: '',
+  });
 
   // Feature editor state
   const [featureDialogOpen, setFeatureDialogOpen] = React.useState(false);
@@ -110,6 +129,15 @@ export default function ProductDetailPage({ productSlug }: { productSlug: string
   const [pageContent, setPageContent] = React.useState('');
   const [pageOrder, setPageOrder] = React.useState(0);
   const [pagePublished, setPagePublished] = React.useState(true);
+
+  const buildDefaultPromo = React.useCallback((currentProduct: ProductData | null): ProductPromo => ({
+    headerLabel: 'Also from Stoked Consulting',
+    title: currentProduct?.fullName || currentProduct?.name || '',
+    subtitle: currentProduct?.description || '',
+    imageUrl: '',
+    ctaLabel: 'Learn More',
+    ctaUrl: currentProduct?.url?.startsWith('http') ? currentProduct.url : '',
+  }), []);
 
   const fetchData = React.useCallback(async () => {
     try {
@@ -130,6 +158,28 @@ export default function ProductDetailPage({ productSlug }: { productSlug: string
   React.useEffect(() => {
     if (productSlug) fetchData();
   }, [productSlug, fetchData]);
+
+  React.useEffect(() => {
+    if (!product) {
+      return;
+    }
+
+    if (product.promo) {
+      setPromoEnabled(true);
+      setPromoDraft({
+        headerLabel: product.promo.headerLabel || 'Also from Stoked Consulting',
+        title: product.promo.title || '',
+        subtitle: product.promo.subtitle || '',
+        imageUrl: product.promo.imageUrl || '',
+        ctaLabel: product.promo.ctaLabel || 'Learn More',
+        ctaUrl: product.promo.ctaUrl || '',
+      });
+      return;
+    }
+
+    setPromoEnabled(false);
+    setPromoDraft(buildDefaultPromo(product));
+  }, [product, buildDefaultPromo]);
 
   // --- Feature handlers ---
   const handleSaveFeature = async () => {
@@ -235,6 +285,63 @@ export default function ProductDetailPage({ productSlug }: { productSlug: string
     }
   };
 
+  const updatePromoField = <Key extends keyof ProductPromo>(field: Key, value: ProductPromo[Key]) => {
+    setPromoDraft((previous) => ({ ...previous, [field]: value }));
+  };
+
+  const handlePromoToggle = (checked: boolean) => {
+    setPromoEnabled(checked);
+    if (checked && !product?.promo) {
+      setPromoDraft((previous) => {
+        const hasDraftValues = Object.values(previous).some((value) => (value || '').trim());
+        return hasDraftValues ? previous : buildDefaultPromo(product);
+      });
+    }
+  };
+
+  const handleSavePromo = async () => {
+    try {
+      await apiFetch(`/api/products/${productSlug}`, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          promo: promoEnabled ? {
+            headerLabel: promoDraft.headerLabel,
+            title: promoDraft.title,
+            subtitle: promoDraft.subtitle,
+            imageUrl: promoDraft.imageUrl,
+            ctaLabel: promoDraft.ctaLabel,
+            ctaUrl: promoDraft.ctaUrl,
+          } : null,
+        }),
+      });
+      fetchData();
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to save promo');
+    }
+  };
+
+  const handleClearPromo = async () => {
+    if (!window.confirm('Remove this promo from rotation?')) return;
+    try {
+      await apiFetch(`/api/products/${productSlug}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ promo: null }),
+      });
+      setPromoEnabled(false);
+      setPromoDraft(buildDefaultPromo(product));
+      fetchData();
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to clear promo');
+    }
+  };
+
+  const promoIsValid = Boolean(
+    promoDraft.title.trim()
+    && promoDraft.subtitle.trim()
+    && promoDraft.ctaLabel.trim()
+    && promoDraft.ctaUrl.trim(),
+  );
+
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" py={8}>
@@ -309,6 +416,93 @@ export default function ProductDetailPage({ productSlug }: { productSlug: string
               </Select>
             </FormControl>
           </Stack>
+        </Stack>
+      </Paper>
+
+      <Paper variant="outlined" sx={{ p: 3, mb: 3 }}>
+        <Stack
+          direction={{ xs: 'column', md: 'row' }}
+          spacing={2}
+          justifyContent="space-between"
+          alignItems={{ xs: 'flex-start', md: 'center' }}
+        >
+          <Box>
+            <Typography variant="h5">Promo</Typography>
+            <Typography color="text.secondary">
+              Configure the promo returned by /api/promos/{product.productId} when this product is live.
+            </Typography>
+          </Box>
+          <FormControlLabel
+            control={(
+              <Switch
+                checked={promoEnabled}
+                onChange={(event) => handlePromoToggle(event.target.checked)}
+              />
+            )}
+            label={promoEnabled ? 'Enabled' : 'Disabled'}
+          />
+        </Stack>
+
+        {promoEnabled ? (
+          <Stack spacing={2} sx={{ mt: 2 }}>
+            <TextField
+              label="Header Label"
+              value={promoDraft.headerLabel}
+              onChange={(event) => updatePromoField('headerLabel', event.target.value)}
+              helperText='Defaults to "Also from Stoked Consulting" if left blank.'
+              fullWidth
+            />
+            <TextField
+              label="Title"
+              value={promoDraft.title}
+              onChange={(event) => updatePromoField('title', event.target.value)}
+              fullWidth
+            />
+            <TextField
+              label="Subtitle"
+              value={promoDraft.subtitle}
+              onChange={(event) => updatePromoField('subtitle', event.target.value)}
+              multiline
+              rows={2}
+              fullWidth
+            />
+            <TextField
+              label="Image URL"
+              value={promoDraft.imageUrl || ''}
+              onChange={(event) => updatePromoField('imageUrl', event.target.value)}
+              helperText="Optional. Use a fully-qualified HTTPS URL."
+              fullWidth
+            />
+            <Stack direction={{ xs: 'column', md: 'row' }} spacing={2}>
+              <TextField
+                label="CTA Label"
+                value={promoDraft.ctaLabel}
+                onChange={(event) => updatePromoField('ctaLabel', event.target.value)}
+                sx={{ minWidth: { md: 220 } }}
+              />
+              <TextField
+                label="CTA URL"
+                value={promoDraft.ctaUrl}
+                onChange={(event) => updatePromoField('ctaUrl', event.target.value)}
+                helperText="Use a fully-qualified URL."
+                fullWidth
+              />
+            </Stack>
+          </Stack>
+        ) : (
+          <Typography color="text.secondary" sx={{ mt: 2 }}>
+            Disabled products are never eligible, and products without a promo are skipped by the promos API.
+          </Typography>
+        )}
+
+        <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
+          <Button
+            variant="contained"
+            onClick={promoEnabled ? handleSavePromo : handleClearPromo}
+            disabled={promoEnabled ? !promoIsValid : !product.promo}
+          >
+            {promoEnabled ? 'Save Promo' : 'Remove Promo'}
+          </Button>
         </Stack>
       </Paper>
 

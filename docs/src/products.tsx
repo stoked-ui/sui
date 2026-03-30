@@ -30,7 +30,7 @@ import GradientText from "./components/typography/GradientText";
 import StokedConsultingShowcase from "./components/home/StokedConsultingShowcase";
 import AdvancedShowcase from "./components/home/AdvancedShowcase";
 import FileExplorerShowcase from './components/home/FileExplorerShowcase';
-import { inferSiteForProductId, PublicSite, toAbsoluteSitePath } from "./modules/utils/siteRouting";
+import { inferSiteForProductId, normalizePublicProductUrl, PublicSite, toAbsoluteSitePath } from "./modules/utils/siteRouting";
 
 import TimelineShowcase from "./components/home/TimelineShowcase";
 import EditorShowcase from './components/home/EditorShowcase';
@@ -1091,6 +1091,41 @@ const fluxData: TProduct = {
 };
 const flux = new Product(fluxData);
 
+const focusCaptureData: TProduct = {
+  id: 'focus-capture',
+  name: 'Focus Capture',
+  fullName: 'Focus Capture',
+  description: 'OBS capture that follows the active macOS window in real time.',
+  icon: 'product-advanced',
+  url: '/products/focus-capture',
+  site: 'consulting',
+  hideProductFeatures: true,
+  live: true,
+  showcaseType: AdvancedShowcase,
+  features: [{
+    name: 'Overview',
+    description: 'What Focus Capture does and where it fits in an OBS workflow',
+    id: 'overview',
+  }, {
+    name: 'Download',
+    description: 'Installer package and manual plugin bundle downloads',
+    id: 'download',
+  }, {
+    name: 'Installation',
+    description: 'OBS install steps and required macOS permissions',
+    id: 'installation',
+  }, {
+    name: 'Source Settings',
+    description: 'Frame rate, cursor capture, resize, and exclusion controls',
+    id: 'source-settings',
+  }, {
+    name: 'Roadmap',
+    description: 'Current release scope and planned improvements',
+    id: 'roadmap',
+  }],
+};
+const focusCapture = new Product(focusCaptureData);
+
 const macMixerData: TProduct = {
   id: 'mac-mixer',
   name: "Mac Mixer",
@@ -1187,24 +1222,12 @@ const stokdCloud = new Product(stokdCloudData);
 const PRODUCTS: Products = new Products([fileExplorer, media, timeline, videoEditor]);
 const ALL_PRODUCTS: Products = new Products([sui]);
 const CONSULTING: Products = new Products([consultingFrontEnd, consultingBackEnd, consultingDevops, consultingAi]);
-const PUBLIC_FALLBACK_PRODUCTS: Products = new Products([sui, flux, macMixer, alwaysListening, stokdCloud]);
+const PUBLIC_FALLBACK_PRODUCTS: Products = new Products([sui, flux, focusCapture, macMixer, alwaysListening, stokdCloud]);
 const ALL_PACKAGES: Products = new Products([
-  fileExplorer, media, common, mediaApi, mediaSelector, timeline, videoEditor, flux,
+  fileExplorer, media, common, mediaApi, mediaSelector, timeline, videoEditor, flux, focusCapture,
   macMixer, alwaysListening, stokdCloud,
   consultingFrontEnd, consultingBackEnd, consultingDevops, consultingAi
 ]);
-
-function normalizePublicProductUrl(productId: string, url?: string) {
-  if (typeof url === 'string' && /^https?:\/\//i.test(url.trim())) {
-    return url.trim();
-  }
-
-  if (typeof url === 'string' && url.startsWith('/products/')) {
-    return url;
-  }
-
-  return `/products/${productId}`;
-}
 
 export type MenuProps = {
   linkType: LinkType,

@@ -164,7 +164,6 @@ export const createSite = async (domainInfo: DomainInfo) => {
               'licenses': true,
               'login': true,
               'partners': true,
-              'products': true,
               'settings': true,
               'users': true,
             };

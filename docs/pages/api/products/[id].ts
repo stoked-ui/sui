@@ -12,6 +12,15 @@ type SubscriptionInput = {
   stripePriceId?: string;
 };
 
+type ProductPromoInput = {
+  headerLabel: string;
+  title: string;
+  subtitle: string;
+  imageUrl?: string;
+  ctaLabel: string;
+  ctaUrl: string;
+};
+
 function toSubscriptionInput(entry: Record<string, unknown>, defaults?: { currency?: unknown; interval?: unknown }): SubscriptionInput {
   return {
     label: typeof entry.label === 'string' && entry.label.trim() ? entry.label.trim() : undefined,
@@ -41,6 +50,46 @@ function normalizeSubscriptions(input: unknown, existingProduct: any, legacyPric
       interval: existingProduct?.subscriptions?.[0]?.interval,
     }))
     .filter((entry) => Number.isFinite(entry.price) && entry.price > 0 && !!entry.currency);
+}
+
+function readTrimmedString(value: unknown): string {
+  return typeof value === 'string' ? value.trim() : '';
+}
+
+function normalizePromo(input: unknown): ProductPromoInput | null {
+  if (input === undefined || input === null) {
+    return null;
+  }
+
+  if (typeof input !== 'object' || Array.isArray(input)) {
+    throw new Error('promo must be an object or null');
+  }
+
+  const record = input as Record<string, unknown>;
+  const headerLabel = readTrimmedString(record.headerLabel);
+  const title = readTrimmedString(record.title);
+  const subtitle = readTrimmedString(record.subtitle);
+  const imageUrl = readTrimmedString(record.imageUrl);
+  const ctaLabel = readTrimmedString(record.ctaLabel);
+  const ctaUrl = readTrimmedString(record.ctaUrl);
+  const hasAnyPromoValue = [headerLabel, title, subtitle, imageUrl, ctaLabel, ctaUrl].some(Boolean);
+
+  if (!hasAnyPromoValue) {
+    return null;
+  }
+
+  if (!title || !subtitle || !ctaLabel || !ctaUrl) {
+    throw new Error('promo requires title, subtitle, ctaLabel, and ctaUrl');
+  }
+
+  return {
+    headerLabel: headerLabel || 'Also from Stoked Consulting',
+    title,
+    subtitle,
+    ...(imageUrl ? { imageUrl } : {}),
+    ctaLabel,
+    ctaUrl,
+  };
 }
 
 async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
@@ -74,7 +123,7 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
   if (req.method === 'PATCH') {
     const { 
       name, fullName, description, icon, url, live, 
-      hideProductFeatures, prerelease, features,
+      hideProductFeatures, prerelease, features, promo,
       keyPrefix, price, currency, subscriptions,
       licenseDurationDays, gracePeriodDays, trialDurationDays,
       maxActivations
@@ -94,6 +143,13 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
     if (hideProductFeatures !== undefined) update.hideProductFeatures = hideProductFeatures;
     if (prerelease !== undefined) update.prerelease = prerelease;
     if (features !== undefined) update.features = features;
+    if (promo !== undefined) {
+      try {
+        update.promo = normalizePromo(promo);
+      } catch (error: any) {
+        return res.status(400).json({ message: error.message });
+      }
+    }
     if (keyPrefix !== undefined) update.keyPrefix = keyPrefix;
     if (licenseDurationDays !== undefined) update.licenseDurationDays = licenseDurationDays;
     if (gracePeriodDays !== undefined) update.gracePeriodDays = gracePeriodDays;

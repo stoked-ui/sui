@@ -1,9 +1,11 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
 import Chip from '@mui/material/Chip';
-import Stack from '@mui/material/Stack';
+import VolumeOffRounded from '@mui/icons-material/VolumeOffRounded';
+import VolumeUpRounded from '@mui/icons-material/VolumeUpRounded';
 import GradientText from 'docs/src/components/typography/GradientText';
 import SectionHeadline from 'docs/src/components/typography/SectionHeadline';
 import Section from 'docs/src/layouts/Section';
@@ -35,6 +37,17 @@ const features = [
 ];
 
 export default function HeroFlux() {
+  const videoRef = React.useRef<HTMLVideoElement>(null);
+  const [muted, setMuted] = React.useState(true);
+
+  const toggleMute = () => {
+    if (videoRef.current) {
+      const next = !muted;
+      videoRef.current.muted = next;
+      setMuted(next);
+    }
+  };
+
   return (
     <React.Fragment>
       <HeroContainer
@@ -60,13 +73,13 @@ export default function HeroFlux() {
           </Box>
         }
         rightSx={{
-          p: 4,
+          p: 2,
           ml: 2,
-          minWidth: 2000,
+          minWidth: 0,
           overflow: 'hidden',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'start',
+          justifyContent: 'center',
           '&& *': {
             fontFamily: ['"IBM Plex Sans"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'].join(
               ',',
@@ -77,30 +90,56 @@ export default function HeroFlux() {
           <Box
             sx={(theme) => ({
               width: '100%',
-              maxWidth: 600,
-              p: 4,
+              height: '100%',
               borderRadius: 2,
               bgcolor: 'rgba(255, 255, 255, 0.05)',
               backdropFilter: 'blur(8px)',
               border: '1px solid',
               borderColor: 'divider',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
               ...theme.applyDarkStyles({
                 bgcolor: 'rgba(0, 0, 0, 0.2)',
               }),
             })}
           >
-            <Stack spacing={2}>
-              {features.map((feature) => (
-                <Box key={feature.label}>
-                  <Typography variant="body2" fontWeight="bold" color="primary.main">
-                    {feature.label}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {feature.description}
-                  </Typography>
-                </Box>
-              ))}
-            </Stack>
+            <Box sx={{ position: 'relative', width: 525, maxWidth: '100%', lineHeight: 0 }}>
+              <Box
+                ref={videoRef}
+                component="video"
+                src="https://cdn.stokedconsulting.com/products/flux/assets/flux-preview_en.mp4"
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="metadata"
+                sx={{
+                  display: 'block',
+                  width: '100%',
+                  aspectRatio: '16 / 9',
+                  height: 'auto',
+                  objectFit: 'cover',
+                  borderRadius: 2,
+                }}
+              />
+              <IconButton
+                onClick={toggleMute}
+                size="small"
+                aria-label={muted ? 'Unmute video' : 'Mute video'}
+                sx={{
+                  position: 'absolute',
+                  bottom: 8,
+                  right: 8,
+                  bgcolor: 'rgba(0, 0, 0, 0.45)',
+                  color: 'white',
+                  backdropFilter: 'blur(4px)',
+                  '&:hover': { bgcolor: 'rgba(0, 0, 0, 0.65)' },
+                }}
+              >
+                {muted ? <VolumeOffRounded fontSize="small" /> : <VolumeUpRounded fontSize="small" />}
+              </IconButton>
+            </Box>
           </Box>
         }
       />

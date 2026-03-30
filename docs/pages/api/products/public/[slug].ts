@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getDb } from 'docs/src/modules/db/mongodb';
+import { normalizePublicProductUrl } from 'docs/src/modules/utils/siteRouting';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
@@ -45,5 +46,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     .sort({ order: 1 })
     .toArray();
 
-  return res.status(200).json({ product, pages });
+  return res.status(200).json({
+    product: {
+      ...product,
+      url: normalizePublicProductUrl(product.productId, product.url),
+    },
+    pages,
+  });
 }

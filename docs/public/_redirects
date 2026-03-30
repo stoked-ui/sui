@@ -41,6 +41,9 @@
 /products/flux https://stokedconsulting.com/products/flux/ 301
 /products/flux/ https://stokedconsulting.com/products/flux/ 301
 /products/flux/* https://stokedconsulting.com/products/flux/:splat 301
+/products/focus-capture https://stokedconsulting.com/products/focus-capture/ 301
+/products/focus-capture/ https://stokedconsulting.com/products/focus-capture/ 301
+/products/focus-capture/* https://stokedconsulting.com/products/focus-capture/:splat 301
 /products/mac-mixer https://stokedconsulting.com/products/mac-mixer/ 301
 /products/mac-mixer/ https://stokedconsulting.com/products/mac-mixer/ 301
 /products/mac-mixer/* https://stokedconsulting.com/products/mac-mixer/:splat 301

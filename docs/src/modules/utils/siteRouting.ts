@@ -17,6 +17,7 @@ const STOKED_UI_PRODUCT_IDS = new Set([
 
 const CONSULTING_PUBLIC_PRODUCT_IDS = new Set([
   'flux',
+  'focus-capture',
   'mac-mixer',
   'always-listening',
   'stokd-cloud',
@@ -40,7 +41,6 @@ const CONSULTING_APP_SEGMENTS = new Set([
   'licenses',
   'login',
   'partners',
-  'products',
   'settings',
   'users',
 ]);
@@ -85,6 +85,20 @@ export function inferSiteForProductId(productId?: string): PublicSite {
 
 export function isConsultingPublicProductId(productId?: string) {
   return Boolean(productId && CONSULTING_PUBLIC_PRODUCT_IDS.has(productId));
+}
+
+export function normalizePublicProductUrl(productId: string, url?: string) {
+  const trimmed = typeof url === 'string' ? url.trim() : '';
+
+  if (trimmed && /^https?:\/\//i.test(trimmed)) {
+    return trimmed;
+  }
+
+  if (trimmed.startsWith('/products/')) {
+    return trimmed;
+  }
+
+  return `/products/${productId}`;
 }
 
 export function toConsultingPublicPath(path: string) {

@@ -32,6 +32,9 @@ const ROUTES: Routes = {
   // Flux
   flux: toAbsoluteSitePath('consulting', '/products/flux/'),
   fluxDocs: toAbsoluteSitePath('consulting', '/products/flux/docs/overview/'),
+  // Focus Capture
+  focusCapture: toAbsoluteSitePath('consulting', '/products/focus-capture/'),
+  focusCaptureDocs: toAbsoluteSitePath('consulting', '/products/focus-capture/docs/overview/'),
   // Mac Mixer
   macMixer: toAbsoluteSitePath('consulting', '/products/mac-mixer/'),
   macMixerDocs: toAbsoluteSitePath('consulting', '/products/mac-mixer/docs/overview/'),

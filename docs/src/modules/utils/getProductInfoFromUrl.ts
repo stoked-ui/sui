@@ -28,6 +28,15 @@ interface MuiProductInfo {
 export default function getProductInfoFromUrl(asPath: string): MuiProductInfo {
   const asPathWithoutLang = pathnameToLanguage(asPath).canonicalAsServer;
   const firstFolder = asPathWithoutLang.replace(/^\/+([^/]+)\/.*/, '$1');
+  const consultingProductMatch = asPathWithoutLang.match(/^\/products\/([^/]+)/);
+  const consultingProductId = consultingProductMatch?.[1];
+  const consultingProductIds = [
+    'flux',
+    'focus-capture',
+    'mac-mixer',
+    'always-listening',
+    'stokd-cloud',
+  ];
   // When serialized undefined/null are the same, so we encode null as 'null' to be
   // able to differentiate when the value isn't set vs. set to the right null value.
   let productCategoryId = 'null';
@@ -49,6 +58,11 @@ export default function getProductInfoFromUrl(asPath: string): MuiProductInfo {
 
   if (asPathWithoutLang.startsWith('/experiments/docs/')) {
     productId = 'docs-infra';
+  }
+
+  if (consultingProductId && consultingProductIds.includes(consultingProductId)) {
+    productCategoryId = 'core';
+    productId = consultingProductId;
   }
 
   return {
