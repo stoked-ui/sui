@@ -358,7 +358,7 @@ export class Product {
     if (type === 'admin') {
       return toAbsoluteSitePath(
         'consulting',
-        `/admin/products/${productId || this.data.id}${suffix}`,
+        `/consulting/admin/products/${productId || this.data.id}${suffix}`,
       );
     }
     const normalizedSuffix = normalizeProductSuffix(type, suffix);

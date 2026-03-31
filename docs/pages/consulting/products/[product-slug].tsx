@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/router';
 import PublicProductDetailPage from 'docs/src/modules/components/PublicProductDetailPage';
-import { isConsultingPublicProductId } from 'docs/src/modules/utils/siteRouting';
+import { isConsultingPublicProductId, toAbsoluteSitePath } from 'docs/src/modules/utils/siteRouting';
 
 import { GetStaticPaths, GetStaticProps } from 'next';
 
@@ -25,7 +25,7 @@ export default function ProductDetailRoute() {
 
   React.useEffect(() => {
     if (!isPublicProduct && productSlug) {
-      router.replace(`/admin/products/${productSlug}`);
+      router.replace(toAbsoluteSitePath('consulting', `/consulting/admin/products/${productSlug}`));
     }
   }, [isPublicProduct, productSlug, router]);
 

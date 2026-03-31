@@ -102,7 +102,9 @@ export function HomeView({ HomeMain}: { HomeMain: React.ComponentType }){
     <AppHeaderBanner/>
     <AppHeader/>
     <main id="main-content">
-     <Main/>
+      <NoSsr>
+        <Main/>
+      </NoSsr>
       {!isCheckoutSuccess && PRODUCTS.previews()}
     </main>
     <Divider />
@@ -111,13 +113,5 @@ export function HomeView({ HomeMain}: { HomeMain: React.ComponentType }){
 }
 
 export default function Home({ HomeMain }: { HomeMain: React.ComponentType }) {
-  const [currentMain, setCurrentMain] = React.useState<React.ComponentType | null>(null);
-
-  React.useEffect(() => {
-    if (typeof window !== 'undefined') {
-        setCurrentMain(() => RandomHome);
-    }
-  }, []);
-
-  return <HomeView HomeMain={ HomeMain || currentMain || MainView } />;
+  return <HomeView HomeMain={HomeMain || RandomHome} />;
 }

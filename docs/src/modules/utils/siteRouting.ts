@@ -151,7 +151,7 @@ export function toAbsoluteSitePath(site: PublicSite, path: string) {
   const siteOrigin = originForSite(site);
   
   if (typeof window !== 'undefined' && window.location.origin.toLowerCase() === siteOrigin.toLowerCase()) {
-    return internalPath;
+    return publicPath;
   }
 
   return `${siteOrigin}${publicPath}`;
