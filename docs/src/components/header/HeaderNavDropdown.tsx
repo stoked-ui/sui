@@ -228,7 +228,7 @@ export default function HeaderNavDropdown({ auth, managedProducts = [] }: Header
                     {isAdmin && (
                       <Tooltip title="Products admin">
                         <Anchor
-                          href={toAbsoluteSitePath('consulting', '/consulting/products')}
+                          href={toAbsoluteSitePath('consulting', '/admin/products')}
                           as={Link}
                           noLinkStyle
                           sx={{ width: 'auto', px: 1 }}
@@ -243,7 +243,7 @@ export default function HeaderNavDropdown({ auth, managedProducts = [] }: Header
                       {allProducts.live.map((item) => (
                         <li key={item.id}>
                           <Anchor
-                            href={item.url('product')}
+                            href={item.url(isAdmin ? 'admin' : 'product')}
                             as={Link}
                             noLinkStyle
                             sx={{ flexDirection: 'column', alignItems: 'initial' }}

@@ -1,20 +1,9 @@
 import * as React from 'react';
-import Container from '@mui/material/Container';
-import Box from '@mui/material/Box';
-import Divider from '@mui/material/Divider';
-import Section from 'docs/src/layouts/Section';
-import { BrandingCssVarsProvider } from '@stoked-ui/docs';
-import Head from 'docs/src/modules/components/Head';
-import AppFooter from 'docs/src/layouts/AppFooter';
-import AppHeader from 'docs/src/layouts/AppHeader';
 import { useRouter } from 'next/router';
-import dynamic from 'next/dynamic';
 import PublicProductDetailPage from 'docs/src/modules/components/PublicProductDetailPage';
 import { isConsultingPublicProductId } from 'docs/src/modules/utils/siteRouting';
 
 import { GetStaticPaths, GetStaticProps } from 'next';
-
-const ProductDetailPage = dynamic(() => import('docs/src/modules/components/ProductDetailPage'), { ssr: false });
 
 export const getStaticPaths: GetStaticPaths = async () => {
   return {
@@ -29,47 +18,20 @@ export const getStaticProps: GetStaticProps = async () => {
   };
 };
 
-function useAuth() {
-  const [user, setUser] = React.useState<{ name: string; role: 'admin' | 'client'; id: string; clientId?: string } | null>(null);
-  React.useEffect(() => {
-    const stored = localStorage.getItem('auth');
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        setUser(parsed.user);
-      } catch { /* ignore */ }
-    }
-  }, []);
-  return user;
-}
-
 export default function ProductDetailRoute() {
   const router = useRouter();
   const productSlug = typeof router.query['product-slug'] === 'string' ? router.query['product-slug'] : undefined;
-  const user = useAuth();
+  const isPublicProduct = isConsultingPublicProductId(productSlug);
 
-  if (isConsultingPublicProductId(productSlug)) {
+  React.useEffect(() => {
+    if (!isPublicProduct && productSlug) {
+      router.replace(`/admin/products/${productSlug}`);
+    }
+  }, [isPublicProduct, productSlug, router]);
+
+  if (isPublicProduct) {
     return <PublicProductDetailPage productSlug={productSlug} />;
   }
 
-  return (
-    <BrandingCssVarsProvider>
-      <Head title="Product Details - Stoked Consulting" description="View product details and documentation pages" />
-      <AppHeader />
-      <main id="main-content">
-        <Container sx={{ py: 4 }}>
-          {user && productSlug ? (
-            <ProductDetailPage productSlug={productSlug} />
-          ) : (
-            <Box textAlign="center" py={8}>
-              Please log in to view product details.
-            </Box>
-          )}
-        </Container>
-      </main>
-      <Section bg="gradient" cozy />
-      <Divider />
-      <AppFooter />
-    </BrandingCssVarsProvider>
-  );
+  return null;
 }

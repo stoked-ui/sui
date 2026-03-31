@@ -13,7 +13,7 @@ import SettingsIcon from '@mui/icons-material/SettingsOutlined';
 import ArticleIcon from '@mui/icons-material/ArticleOutlined';
 import VpnKeyIcon from '@mui/icons-material/VpnKeyOutlined';
 import Section from 'docs/src/layouts/Section';
-import { BrandingCssVarsProvider } from '@stoked-ui/docs';
+import BrandingCssVarsProvider from '@stoked-ui/docs';
 import Head from 'docs/src/modules/components/Head';
 import AppFooter from 'docs/src/layouts/AppFooter';
 import AppHeader from 'docs/src/layouts/AppHeader';
@@ -36,7 +36,7 @@ function useAuth() {
 
 const navItems = [
   { label: 'Clients', href: '/consulting/clients', icon: <PeopleIcon />, description: 'Manage consulting clients and their deliverables' },
-  { label: 'Products', href: '/consulting/products', icon: <InventoryIcon />, description: 'Manage products, pricing, and pages' },
+  { label: 'Products', href: '/admin/products', icon: <InventoryIcon />, description: 'Manage products, pricing, and pages' },
   { label: 'Users', href: '/consulting/users', icon: <PersonIcon />, description: 'Manage user accounts and roles' },
   { label: 'Invoices', href: '/consulting/invoices', icon: <ReceiptIcon />, description: 'View and manage invoices' },
   { label: 'Licenses', href: '/consulting/licenses', icon: <VpnKeyIcon />, description: 'Manage software licenses' },

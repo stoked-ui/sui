@@ -13,7 +13,7 @@ import DownloadIcon from '@mui/icons-material/DownloadOutlined';
 import SettingsIcon from '@mui/icons-material/SettingsOutlined';
 import ReceiptIcon from '@mui/icons-material/ReceiptOutlined';
 import Section from 'docs/src/layouts/Section';
-import { BrandingCssVarsProvider } from '@stoked-ui/docs';
+import BrandingCssVarsProvider from '@stoked-ui/docs';
 import Head from 'docs/src/modules/components/Head';
 import AppFooter from 'docs/src/layouts/AppFooter';
 import AppHeader from 'docs/src/layouts/AppHeader';
@@ -101,7 +101,7 @@ export default function CustomerPage() {
               <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                 Browse available products and your purchased downloads.
               </Typography>
-              <Button variant="outlined" size="small" onClick={() => router.push('/consulting/products')}>
+              <Button variant="outlined" size="small" onClick={() => router.push('/products')}>
                 View products
               </Button>
             </Paper>
