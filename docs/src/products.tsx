@@ -74,7 +74,7 @@ export type TProduct = {
   showcaseContent?: any;
 }
 
-type LinkType = 'product' | 'doc';
+type LinkType = 'product' | 'doc' | 'admin';
 type SubMenuType = 'products' | 'docs' | 'consulting' | null
 
 export type ProductMenuTitleProps = {
@@ -86,14 +86,21 @@ export type ProductMenuTitleProps = {
 
 type ProductMenuItemProps = {
   currentProductId?: string,
-  sx?: SxProps<Theme>
+  sx?: SxProps<Theme>;
+  linkType?: LinkType;
 };
 
 function getTypeUrl(type: LinkType) {
+  if (type === 'admin') {
+    return '/admin/products/';
+  }
   return type === 'doc' ? '/docs/' : '/';
 }
 
 function normalizeProductSuffix(type: LinkType, suffix: string) {
+  if (type === 'admin') {
+    return '';
+  }
   if (type === 'product' && (!suffix || suffix === 'overview')) {
     return '';
   }
@@ -146,9 +153,10 @@ export class Product {
   }
 
   menuItem(type: SubMenuType, props: ProductMenuItemProps) {
-    const { currentProductId, sx } = props;
+    const { currentProductId, sx, linkType } = props;
+    const resolvedLinkType = linkType ?? (type === 'docs' ? 'doc' : 'product');
     const product = type === 'products';
-    const showFeatures = !(product && this.data.hideProductFeatures);
+    const showFeatures = resolvedLinkType !== 'admin' && !(product && this.data.hideProductFeatures);
     return (
       <Box
         key={this.id}
@@ -168,7 +176,7 @@ export class Product {
       >
         <Box
           component={Link}
-          href={this.url(type === 'docs' ? 'doc' : 'product')}
+          href={this.url(resolvedLinkType)}
           sx={[
             {
               width: '100%',
@@ -347,6 +355,12 @@ export class Product {
   }
 
   url(type: LinkType, suffix: string = '', productId?: string) {
+    if (type === 'admin') {
+      return toAbsoluteSitePath(
+        'consulting',
+        `/admin/products/${productId || this.data.id}${suffix}`,
+      );
+    }
     const normalizedSuffix = normalizeProductSuffix(type, suffix);
     if (productId) {
       const site = inferSiteForProductId(productId);

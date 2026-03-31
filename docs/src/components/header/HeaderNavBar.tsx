@@ -210,7 +210,13 @@ export default function HeaderNavBar({ auth, managedProducts = [] }: HeaderNavBa
   return (
     <Navigation>
       <ul ref={navRef} onKeyDown={handleKeyDown}>
-        {allProducts.menu({ type: 'products', ...menuProps, menuRef: productsMenuRef, adminHref: isAdmin ? toAbsoluteSitePath('consulting', '/consulting/products') : undefined })}
+        {allProducts.menu({
+          type: 'products',
+          ...menuProps,
+          menuRef: productsMenuRef,
+          linkType: isAdmin ? 'admin' : 'product',
+          adminHref: isAdmin ? toAbsoluteSitePath('consulting', '/admin/products') : undefined,
+        })}
         {CONSULTING.menu({ type: 'consulting', ...menuProps, menuRef: consultingMenuRef })}
         <li>
           <Link href={ROUTES.about}>About us</Link>
