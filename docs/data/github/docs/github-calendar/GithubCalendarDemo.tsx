@@ -5,7 +5,7 @@ import { GithubCalendar } from '@stoked-ui/github';
 export default function GithubCalendarDemo() {
   return (
     <Box sx={{ minWidth: 250 }}>
-      <GithubCalendar />
+      <GithubCalendar githubUser="brian-stoker" apiUrl="/api/github/contributions" />
     </Box>
   );
 }

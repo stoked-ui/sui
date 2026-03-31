@@ -1,0 +1,8 @@
+<GithubBranch
+  owner={owner}
+  repo={repo}
+  base={privateBranchSnapshot.baseRef}
+  head={privateBranchSnapshot.headRef}
+  private
+  data={privateBranchSnapshot}
+/>

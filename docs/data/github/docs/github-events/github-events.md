@@ -13,8 +13,16 @@ packageName: '@stoked-ui/github'
 
 ## Api
 
-Api calls are made internally within the component using the public github api. Alternatively you can consume the exported api call handlers and host it behind your own private api and include your github token which will allow you to consume event data from private repos.
+Api calls can be made directly to the public GitHub API, or you can point `apiUrl` at a server-side proxy that reads `GITHUB_TOKEN` on the backend so the browser never receives the token.
 
 ```jsx
 import { GithubEvents } from '@stoked-ui/github/GithubEvents';
+```
+
+```jsx
+<GithubEvents
+  githubUser="brian-stoker"
+  eventsPerPage={15}
+  apiUrl="/api/github/events"
+/>
 ```

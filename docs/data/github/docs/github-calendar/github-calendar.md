@@ -13,8 +13,30 @@ packageName: '@stoked-ui/github'
 
 ## Api
 
-Github calendar uses an api hosted on github.io which scrapes the github profile for user contribution data.
+`GithubCalendar` accepts a `githubUser` and can either:
+
+- use a server-side proxy endpoint via `apiUrl`
+- fall back to the public contributions API for public-only data
+
+### Local proxy example
 
 ```jsx
 import { GithubCalendar } from '@stoked-ui/github/GithubCalendar';
+```
+
+```jsx
+<GithubCalendar githubUser="brian-stoker" apiUrl="/api/github/contributions" />
+```
+
+{{"demo": "./GithubCalendarDemo.js"}}
+
+### External API example
+
+If another domain exposes the same response contract, point `apiUrl` there:
+
+```jsx
+<GithubCalendar
+  githubUser="brian-stoker"
+  apiUrl="https://brianstoker.com/api/github/contributions"
+/>
 ```

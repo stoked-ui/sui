@@ -1,1 +1,1 @@
-<GithubCalendar />
+<GithubCalendar githubUser="brian-stoker" apiUrl="/api/github/contributions" />

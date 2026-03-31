@@ -37,6 +37,8 @@ const pages: MuiPage[] = [
       { pathname: '/github/docs/overview', title: 'Overview' },
       { pathname: '/github/docs/github-calendar', title: ' Calendar' },
       { pathname: '/github/docs/github-events', title: 'Events' },
+      { pathname: '/github/docs/github-commit', title: 'Commit' },
+      { pathname: '/github/docs/github-branch', title: 'Branch' },
       { pathname: `/github/docs/roadmap`, title: 'Roadmap' },
     ],
   },

@@ -32,6 +32,91 @@ export interface CachedData {
   totalCount: number;
 } 
 
+export type GithubDiffLineType = 'addition' | 'deletion' | 'context';
+
+export interface GithubDiffLine {
+  type: GithubDiffLineType;
+  content: string;
+  lineNumber: number;
+}
+
+export type GithubFileChangeType = 'added' | 'modified' | 'deleted';
+
+export interface GithubChangedFile {
+  path: string;
+  type: GithubFileChangeType;
+  additions: number;
+  deletions: number;
+  diff: GithubDiffLine[];
+}
+
+export interface GithubContributor {
+  login: string;
+  name: string;
+  avatarUrl: string;
+  contributions: number;
+}
+
+export interface GithubCommitListItem {
+  id: string;
+  message: string;
+  author: {
+    name: string;
+    login: string;
+    avatar: string;
+  };
+  date: string;
+  hash: string;
+  url: string;
+}
+
+export interface GithubCommitStats {
+  additions: number;
+  deletions: number;
+  changedFiles: number;
+}
+
+export interface GithubContributionDay {
+  date: string;
+  count: number;
+  level: number;
+}
+
+export interface GithubContributionsResponse {
+  total: Record<string, number>;
+  contributions: GithubContributionDay[];
+  countLabel?: string;
+}
+
+export interface GithubCommitData {
+  repo: string;
+  ref: string;
+  shortRef: string;
+  url: string;
+  summary: string;
+  message: string;
+  committedAt: string;
+  contributor: GithubContributor;
+  commits: GithubCommitListItem[];
+  files: GithubChangedFile[];
+  stats: GithubCommitStats;
+}
+
+export interface GithubBranchData {
+  repo: string;
+  baseRef: string;
+  headRef: string;
+  status: string;
+  aheadBy: number;
+  behindBy: number;
+  totalCommits: number;
+  url: string;
+  contributors: GithubContributor[];
+  commits: GithubCommitListItem[];
+  files: GithubChangedFile[];
+  stats: GithubCommitStats;
+}
+
 
 export interface PullRequestDetails {
   title: string;
@@ -95,16 +180,5 @@ export interface PullRequestDetails {
       avatar_url: string;
     };
   }>;
-  files?: Array<{
-    path: string;
-    type: 'added' | 'modified' | 'deleted';
-    additions: number;
-    deletions: number;
-    diff: Array<{
-      type: 'addition' | 'deletion' | 'context';
-      content: string;
-      lineNumber: number;
-    }>;
-  }>;
+  files?: GithubChangedFile[];
 }
-  

@@ -12,10 +12,13 @@
 
 | Area | Source | Why Critical |
 |------|--------|-------------|
+| `getGithubContributions` | `src/apiHandlers/getGithubContributions.ts` | Core contribution-calendar data fetcher — queries GitHub GraphQL, normalizes contribution levels, and builds calendar totals |
+| `getCommitDetails` | `src/apiHandlers/getCommitDetails.ts` | Core single-commit fetcher — normalizes summary, contributor identity, changed files, and compact diffs |
+| `getBranchCompareDetails` | `src/apiHandlers/getBranchCompareDetails.ts` | Core branch-compare fetcher — normalizes compare status, contributors, commits, files, and compact diffs |
 | `getPullRequestDetails` | `src/apiHandlers/getPullRequestDetails.ts` | Core data-fetching logic — parses GitHub API responses, processes diffs, handles rate limits |
-| `processEvents` | `src/GithubEvents/GithubEvents.tsx:433` | Transforms raw `GitHubEvent[]` into `DisplayEventDetails[]` — date formatting, event type routing, error resilience |
-| `parseLinkHeader` | `src/GithubEvents/GithubEvents.tsx:58` | Pagination depends on correct Link header parsing |
-| `githubEventsQuery` | `src/GithubEvents/GithubEvents.tsx:82` | Standalone async function that drives all event fetching — filtering, pagination, error handling |
+| `processEvents` | `src/GithubEvents/GithubEvents.tsx` | Transforms raw `GitHubEvent[]` into `DisplayEventDetails[]` — date formatting, event type routing, error resilience |
+| `githubEventsQuery` | `src/apiHandlers/getGithubEvents.ts` | Standalone async function that drives all event fetching — upstream pagination, filtering, and error handling |
+| `createGithubEventsHandler` | `src/apiHandlers/createGithubEventsHandler.ts` | Server-side proxy seam that keeps `GITHUB_TOKEN` on the backend while returning the component-ready payload |
 | `filterEvents` | `src/GithubEvents/GithubEvents.tsx:554` | Client-side filtering by repo, action, description, date |
 | `getFilteredDate` | `src/GithubEvents/GithubEvents.tsx:591` | Date filter cutoff calculation (today/yesterday/week/month) |
 | `getEventDescription` | `src/GithubEvents/GithubEvents.tsx:577` | Maps event types to human-readable descriptions |
@@ -24,9 +27,12 @@
 ### 1.2 Edge Cases
 
 - **`getPullRequestDetails`:** missing params, rate limit 403, empty patch text, `file.status` mapping (`removed` → `deleted`), no GITHUB_TOKEN env var
+- **`getGithubContributions`:** missing `githubUser`, missing `GITHUB_TOKEN`, invalid `from` / `to` range, GitHub GraphQL user-not-found response, empty week/day payloads, contribution level mapping
+- **`getCommitDetails`:** missing params, public unauthenticated requests, missing `files`, missing `author`, rate limit 403, multi-line commit messages, diff truncation sentinel
+- **`getBranchCompareDetails`:** missing params, compare status variations (`ahead`, `behind`, `diverged`, `identical`), empty commits/files arrays, rate limit 403, contributor aggregation with repeated authors
 - **`processEvents`:** null/undefined events in array, missing `created_at`, missing `payload` sub-fields, unknown event types falling to default branch
-- **`parseLinkHeader`:** null header, malformed header, header with only `next`, header with only `last`, header with both
 - **`githubEventsQuery`:** empty response pages, API errors mid-pagination, all filter combinations, zero results after filtering
+- **`createGithubEventsHandler`:** missing `username`, invalid page/per_page values, server-side token injection, and error-status mapping
 - **`filterEvents`:** combined filters (repo + action + date + description), no matching events, empty filter strings
 - **`getFilteredDate`:** all named filters (`today`, `yesterday`, `week`, `month`), unknown filter string returning `null`
 - **Cache:** stale cache (>8 hours), fresh cache, missing cache key, corrupt localStorage JSON, session-level fetch dedup
@@ -35,6 +41,8 @@
 ### 1.3 Integration Points
 
 - GitHub REST API (`api.github.com/users/{user}/events`, `api.github.com/repos/{owner}/{repo}/pulls/{number}`)
+- GitHub REST API compare/commit endpoints (`api.github.com/repos/{owner}/{repo}/commits/{ref}`, `api.github.com/repos/{owner}/{repo}/compare/{base}...{head}`)
+- GitHub GraphQL API (`api.github.com/graphql`) for contribution calendar data
 - `react-activity-calendar` in `GithubCalendar`
 - `next/dynamic` import for `react-json-view` (SSR avoidance)
 - `localStorage` / `sessionStorage` caching
@@ -368,9 +376,9 @@ describe('getPullRequestDetails')
   it('should return RequestError on network/fetch failure')
 ```
 
-#### 6.2 `parseLinkHeader` — `src/GithubEvents/GithubEvents.tsx:58`
+#### 6.2 `parseLinkHeader` — `src/apiHandlers/getGithubEvents.ts`
 
-> **Note:** This function is not currently exported. Either export it for testing, or test it indirectly through `githubEventsQuery`. Recommendation: extract to a utility file and export.
+> **Note:** This helper now lives alongside `githubEventsQuery`. Keep it covered indirectly through `githubEventsQuery` unless you choose to export it explicitly for unit tests.
 
 ```
 describe('parseLinkHeader')
@@ -426,7 +434,7 @@ describe('processEvents')
   it('should handle event with missing payload sub-fields without crashing')
 ```
 
-#### 6.6 `githubEventsQuery` — `src/GithubEvents/GithubEvents.tsx:82`
+#### 6.6 `githubEventsQuery` — `src/apiHandlers/getGithubEvents.ts`
 
 ```
 describe('githubEventsQuery')
@@ -504,7 +512,6 @@ describe('GithubCalendar')
 Several critical functions are currently closures inside the `GithubEvents` component, making them impossible to unit test in isolation. Before (or alongside) writing tests:
 
 1. **Extract pure functions** to a shared utility file (`src/GithubEvents/utils.ts`):
-   - `parseLinkHeader`
    - `processEvents` (pass timezone as parameter instead of hardcoding)
    - `getFilteredDate`
    - `getEventDescription`
@@ -521,13 +528,10 @@ Several critical functions are currently closures inside the `GithubEvents` comp
 
 3. **Remove `next/dynamic` hard dependency** — replace with a generic lazy-loading pattern or make `react-json-view` an optional peer dependency.
 
-4. **Parameterize the hardcoded username** in `GithubCalendar.tsx:91`:
-   ```ts
-   // Current (hardcoded):
-   fetch('https://github-contributions-api.jogruber.de/v4/brian-stoker?yr=last')
-   // Should accept a prop:
-   fetch(`https://github-contributions-api.jogruber.de/v4/${githubUser}?yr=last`)
-   ```
+4. **Extract and test the contributions proxy seam** in `GithubCalendar`:
+   - Cover `apiUrl` mode with a mocked server response
+   - Cover the public fallback mode when `apiUrl` is omitted
+   - Verify the component never passes an empty dataset to `react-activity-calendar`
 
 ---
 

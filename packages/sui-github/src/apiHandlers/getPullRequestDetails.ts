@@ -37,7 +37,7 @@ export default async function getPullRequestDetails(params:  { owner: string, re
       headers.Authorization = `token ${githubToken}`;
     }
 
-    async function fetchWithRateLimit(url: string) {
+    const fetchWithRateLimit = async (url: string) => {
       const response = await fetch(url, { headers });
       
       const rateLimit = {
@@ -57,7 +57,7 @@ export default async function getPullRequestDetails(params:  { owner: string, re
       }
 
       return { data: await response.json(), rateLimit };
-    }
+    };
 
     // Fetch basic PR information
     const { data: prData } = await fetchWithRateLimit(

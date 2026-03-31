@@ -1,0 +1,694 @@
+{
+  "repo": "stoked-ui/sui",
+  "ref": "5c90b548a6a5af958d7aa31f78a794874c007886",
+  "shortRef": "5c90b54",
+  "url": "https://github.com/stoked-ui/sui/commit/5c90b548a6a5af958d7aa31f78a794874c007886",
+  "summary": "add other tracks to demo video",
+  "message": "add other tracks to demo video",
+  "committedAt": "2024-09-18T18:33:59Z",
+  "contributor": {
+    "login": "brian-stoker",
+    "name": "Brian Stoker",
+    "avatarUrl": "https://avatars.githubusercontent.com/u/91224556?v=4",
+    "contributions": 1
+  },
+  "commits": [
+    {
+      "id": "5c90b548a6a5af958d7aa31f78a794874c007886",
+      "message": "add other tracks to demo video",
+      "author": {
+        "name": "Brian Stoker",
+        "login": "brian-stoker",
+        "avatar": "https://avatars.githubusercontent.com/u/91224556?v=4"
+      },
+      "date": "2024-09-18T18:33:59Z",
+      "hash": "5c90b548a6a5af958d7aa31f78a794874c007886",
+      "url": "https://github.com/stoked-ui/sui/commit/5c90b548a6a5af958d7aa31f78a794874c007886"
+    }
+  ],
+  "files": [
+    {
+      "path": "docs/src/components/showcase/EditorHero.tsx",
+      "type": "modified",
+      "additions": 28,
+      "deletions": 0,
+      "diff": [
+        {
+          "type": "context",
+          "content": "@@ -18,6 +18,34 @@ export const actions = [",
+          "lineNumber": 1
+        },
+        {
+          "type": "context",
+          "content": "     src: '/static/video-editor/stock-loop.mp4',",
+          "lineNumber": 2
+        },
+        {
+          "type": "context",
+          "content": "     layer: 'background',",
+          "lineNumber": 3
+        },
+        {
+          "type": "context",
+          "content": "   },",
+          "lineNumber": 4
+        },
+        {
+          "type": "addition",
+          "content": "+  {",
+          "lineNumber": 5
+        },
+        {
+          "type": "addition",
+          "content": "+    name: 'write stuff',",
+          "lineNumber": 6
+        },
+        {
+          "type": "addition",
+          "content": "+    start: 9.5,",
+          "lineNumber": 7
+        },
+        {
+          "type": "addition",
+          "content": "+    end: 16,",
+          "lineNumber": 8
+        },
+        {
+          "type": "addition",
+          "content": "+    controllerName: 'animation',",
+          "lineNumber": 9
+        },
+        {
+          "type": "addition",
+          "content": "+    src: '/static/timeline/docs/overview/lottie1.json',",
+          "lineNumber": 10
+        },
+        {
+          "type": "addition",
+          "content": "+  },",
+          "lineNumber": 11
+        },
+        {
+          "type": "addition",
+          "content": "+  {",
+          "lineNumber": 12
+        },
+        {
+          "type": "addition",
+          "content": "+    name: 'doing things',",
+          "lineNumber": 13
+        },
+        {
+          "type": "addition",
+          "content": "+    start: 5,",
+          "lineNumber": 14
+        },
+        {
+          "type": "addition",
+          "content": "+    end: 9.5,",
+          "lineNumber": 15
+        },
+        {
+          "type": "addition",
+          "content": "+    controllerName: 'animation',",
+          "lineNumber": 16
+        },
+        {
+          "type": "addition",
+          "content": "+    src: '/static/timeline/docs/overview/lottie2.json',",
+          "lineNumber": 17
+        },
+        {
+          "type": "addition",
+          "content": "+  },",
+          "lineNumber": 18
+        },
+        {
+          "type": "addition",
+          "content": "+  {",
+          "lineNumber": 19
+        },
+        {
+          "type": "addition",
+          "content": "+    name: 'stolen cow',",
+          "lineNumber": 20
+        },
+        {
+          "type": "addition",
+          "content": "+    start: 0,",
+          "lineNumber": 21
+        },
+        {
+          "type": "addition",
+          "content": "+    end: 5,",
+          "lineNumber": 22
+        },
+        {
+          "type": "addition",
+          "content": "+    controllerName: 'animation',",
+          "lineNumber": 23
+        },
+        {
+          "type": "addition",
+          "content": "+    src: '/static/timeline/docs/overview/lottie3.json',",
+          "lineNumber": 24
+        },
+        {
+          "type": "context",
+          "content": "... 11 more diff lines",
+          "lineNumber": 25
+        }
+      ]
+    },
+    {
+      "path": "packages/sui-editor/src/Controllers/VideoController.ts",
+      "type": "modified",
+      "additions": 1,
+      "deletions": 5,
+      "diff": [
+        {
+          "type": "context",
+          "content": "@@ -104,13 +104,9 @@ class VideoControl extends Controller {",
+          "lineNumber": 1
+        },
+        {
+          "type": "context",
+          "content": "     };",
+          "lineNumber": 2
+        },
+        {
+          "type": "context",
+          "content": " ",
+          "lineNumber": 3
+        },
+        {
+          "type": "context",
+          "content": "     action.frameSyncId = item.requestVideoFrameCallback(updateCanvas);",
+          "lineNumber": 4
+        },
+        {
+          "type": "deletion",
+          "content": "-    item.currentTime += 0.0001;",
+          "lineNumber": 5
+        },
+        {
+          "type": "addition",
+          "content": "+    setTimeout(() => {item.currentTime += 0.0001}, 10);",
+          "lineNumber": 6
+        },
+        {
+          "type": "context",
+          "content": "   };",
+          "lineNumber": 7
+        },
+        {
+          "type": "context",
+          "content": " ",
+          "lineNumber": 8
+        },
+        {
+          "type": "deletion",
+          "content": "-  removeCanvasSync(engine: IEngine, item: HTMLVideoElement) {",
+          "lineNumber": 9
+        },
+        {
+          "type": "deletion",
+          "content": "-",
+          "lineNumber": 10
+        },
+        {
+          "type": "deletion",
+          "content": "-  }",
+          "lineNumber": 11
+        },
+        {
+          "type": "deletion",
+          "content": "-",
+          "lineNumber": 12
+        },
+        {
+          "type": "context",
+          "content": " ",
+          "lineNumber": 13
+        },
+        {
+          "type": "context",
+          "content": "   isVideoPlaying(video: HTMLVideoElement) {",
+          "lineNumber": 14
+        },
+        {
+          "type": "context",
+          "content": "     return !!(video.currentTime > 0 && !video.paused && !video.ended && video.readyState > 2);",
+          "lineNumber": 15
+        }
+      ]
+    },
+    {
+      "path": "packages/sui-editor/src/EditorLabels/EditorLabels.tsx",
+      "type": "modified",
+      "additions": 5,
+      "deletions": 3,
+      "diff": [
+        {
+          "type": "context",
+          "content": "@@ -1,5 +1,5 @@",
+          "lineNumber": 1
+        },
+        {
+          "type": "context",
+          "content": " import * as React from 'react';",
+          "lineNumber": 2
+        },
+        {
+          "type": "deletion",
+          "content": "-import {getTrackController, IController, ITimelineTrack} from \"@stoked-ui/timeline\";",
+          "lineNumber": 3
+        },
+        {
+          "type": "addition",
+          "content": "+import {getTrackController, IController, ITimelineTrack, TimelineState} from \"@stoked-ui/timeline\";",
+          "lineNumber": 4
+        },
+        {
+          "type": "context",
+          "content": " import composeClasses from \"@mui/utils/composeClasses\";",
+          "lineNumber": 5
+        },
+        {
+          "type": "context",
+          "content": " import {emphasize, styled, useThemeProps, alpha} from '@mui/material/styles';",
+          "lineNumber": 6
+        },
+        {
+          "type": "context",
+          "content": " import {useSlotProps} from \"@mui/base/utils\";",
+          "lineNumber": 7
+        },
+        {
+          "type": "context",
+          "content": "@@ -165,7 +165,8 @@ const EditorLabel = React.forwardRef(",
+          "lineNumber": 8
+        },
+        {
+          "type": "context",
+          "content": "       tracks: ITimelineTrack[],",
+          "lineNumber": 9
+        },
+        {
+          "type": "context",
+          "content": "       classes: EditorLabelsClasses,",
+          "lineNumber": 10
+        },
+        {
+          "type": "context",
+          "content": "       controller?: IController,",
+          "lineNumber": 11
+        },
+        {
+          "type": "deletion",
+          "content": "-      setTracks: (updatedTracks: ITimelineTrack[]) => void",
+          "lineNumber": 12
+        },
+        {
+          "type": "addition",
+          "content": "+      setTracks: (updatedTracks: ITimelineTrack[]) => void,",
+          "lineNumber": 13
+        },
+        {
+          "type": "addition",
+          "content": "+      timelineState: React.RefObject<TimelineState>",
+          "lineNumber": 14
+        },
+        {
+          "type": "context",
+          "content": "     },",
+          "lineNumber": 15
+        },
+        {
+          "type": "context",
+          "content": "     ref: React.Ref<HTMLDivElement>",
+          "lineNumber": 16
+        },
+        {
+          "type": "context",
+          "content": "   ): React.JSX.Element {",
+          "lineNumber": 17
+        },
+        {
+          "type": "context",
+          "content": "@@ -274,10 +275,11 @@ const EditorLabels = React.forwardRef(",
+          "lineNumber": 18
+        },
+        {
+          "type": "context",
+          "content": "             key={track.id}",
+          "lineNumber": 19
+        },
+        {
+          "type": "context",
+          "content": "             controller={controller}",
+          "lineNumber": 20
+        },
+        {
+          "type": "context",
+          "content": "             setTracks={inProps.setTracks}",
+          "lineNumber": 21
+        },
+        {
+          "type": "addition",
+          "content": "+            timelineState={timelineState}",
+          "lineNumber": 22
+        },
+        {
+          "type": "context",
+          "content": "           />",
+          "lineNumber": 23
+        },
+        {
+          "type": "context",
+          "content": "         })}",
+          "lineNumber": 24
+        },
+        {
+          "type": "context",
+          "content": "... 6 more diff lines",
+          "lineNumber": 25
+        }
+      ]
+    },
+    {
+      "path": "packages/sui-editor/src/Engine/Engine.ts",
+      "type": "modified",
+      "additions": 5,
+      "deletions": 2,
+      "diff": [
+        {
+          "type": "context",
+          "content": "@@ -562,6 +562,7 @@ export default class Engine extends Emitter<EventTypes> implements IEngine {",
+          "lineNumber": 1
+        },
+        {
+          "type": "context",
+          "content": "     this._dealEnter(time);",
+          "lineNumber": 2
+        },
+        {
+          "type": "context",
+          "content": "     this._dealLeave(time);",
+          "lineNumber": 3
+        },
+        {
+          "type": "context",
+          "content": " ",
+          "lineNumber": 4
+        },
+        {
+          "type": "addition",
+          "content": "+    this._renderCtx.reset();",
+          "lineNumber": 5
+        },
+        {
+          "type": "context",
+          "content": "     // this._renderCtx!.clearRect(0, 0, this.renderWidth, this.renderHeight)",
+          "lineNumber": 6
+        },
+        {
+          "type": "context",
+          "content": "     // render",
+          "lineNumber": 7
+        },
+        {
+          "type": "context",
+          "content": "     const renderPass: string[] = [];",
+          "lineNumber": 8
+        },
+        {
+          "type": "context",
+          "content": "@@ -633,10 +634,12 @@ export default class Engine extends Emitter<EventTypes> implements IEngine {",
+          "lineNumber": 9
+        },
+        {
+          "type": "context",
+          "content": "   /** Handle action time leave */",
+          "lineNumber": 10
+        },
+        {
+          "type": "context",
+          "content": "   protected _dealLeave(time: number) {",
+          "lineNumber": 11
+        },
+        {
+          "type": "context",
+          "content": "     this._activeIds.forEach((value, key) => {",
+          "lineNumber": 12
+        },
+        {
+          "type": "addition",
+          "content": "+",
+          "lineNumber": 13
+        },
+        {
+          "type": "context",
+          "content": "       const action = this._actionMap[key];",
+          "lineNumber": 14
+        },
+        {
+          "type": "addition",
+          "content": "+      const track = this._actionTrackMap[action.id];",
+          "lineNumber": 15
+        },
+        {
+          "type": "context",
+          "content": " ",
+          "lineNumber": 16
+        },
+        {
+          "type": "deletion",
+          "content": "-      // Not within the playback area",
+          "lineNumber": 17
+        },
+        {
+          "type": "deletion",
+          "content": "-      if (action.start > time || action.end < time) {",
+          "lineNumber": 18
+        },
+        {
+          "type": "addition",
+          "content": "+      // Not within the playback area or hidden",
+          "lineNumber": 19
+        },
+        {
+          "type": "addition",
+          "content": "+      if (action.start > time || action.end < time || track.hidden) {",
+          "lineNumber": 20
+        },
+        {
+          "type": "context",
+          "content": "         const controller = this._controllers[action.controllerName];",
+          "lineNumber": 21
+        },
+        {
+          "type": "context",
+          "content": " ",
+          "lineNumber": 22
+        },
+        {
+          "type": "context",
+          "content": "         if (controller && controller?.leave) {",
+          "lineNumber": 23
+        }
+      ]
+    },
+    {
+      "path": "packages/sui-timeline/src/TimelineAction/TimelineAction.types.ts",
+      "type": "modified",
+      "additions": 2,
+      "deletions": 0,
+      "diff": [
+        {
+          "type": "context",
+          "content": "@@ -89,6 +89,8 @@ export interface ITimelineAction extends Omit<ITimelineActionInput, 'id' | 'star",
+          "lineNumber": 1
+        },
+        {
+          "type": "context",
+          "content": "   controller: IController;",
+          "lineNumber": 2
+        },
+        {
+          "type": "context",
+          "content": " ",
+          "lineNumber": 3
+        },
+        {
+          "type": "context",
+          "content": "   frameSyncId?: number;",
+          "lineNumber": 4
+        },
+        {
+          "type": "addition",
+          "content": "+",
+          "lineNumber": 5
+        },
+        {
+          "type": "addition",
+          "content": "+  translate?: {x?: number, y?: number};",
+          "lineNumber": 6
+        },
+        {
+          "type": "context",
+          "content": " }",
+          "lineNumber": 7
+        },
+        {
+          "type": "context",
+          "content": " ",
+          "lineNumber": 8
+        },
+        {
+          "type": "context",
+          "content": " export type ITimelineActionLayer = 'background' | 'foreground';",
+          "lineNumber": 9
+        }
+      ]
+    },
+    {
+      "path": "packages/sui-timeline/src/TimelineControl/TimelineControl.tsx",
+      "type": "modified",
+      "additions": 36,
+      "deletions": 37,
+      "diff": [
+        {
+          "type": "context",
+          "content": "@@ -125,7 +125,7 @@ const TimelineControl = React.forwardRef(",
+          "lineNumber": 1
+        },
+        {
+          "type": "context",
+          "content": "       }",
+          "lineNumber": 2
+        },
+        {
+          "type": "context",
+          "content": "       const durr = getDuration();",
+          "lineNumber": 3
+        },
+        {
+          "type": "context",
+          "content": "       setDuration(durr);",
+          "lineNumber": 4
+        },
+        {
+          "type": "deletion",
+          "content": "-      setMinScaleCount(durr + 2);",
+          "lineNumber": 5
+        },
+        {
+          "type": "addition",
+          "content": "+      setMinScaleCount( durr + 2 );",
+          "lineNumber": 6
+        },
+        {
+          "type": "context",
+          "content": " ",
+          "lineNumber": 7
+        },
+        {
+          "type": "context",
+          "content": "     }, [tracks]);",
+          "lineNumber": 8
+        },
+        {
+          "type": "context",
+          "content": " ",
+          "lineNumber": 9
+        },
+        {
+          "type": "context",
+          "content": "@@ -233,42 +233,42 @@ const TimelineControl = React.forwardRef(",
+          "lineNumber": 10
+        },
+        {
+          "type": "context",
+          "content": "     React.useImperativeHandle(",
+          "lineNumber": 11
+        },
+        {
+          "type": "context",
+          "content": "       ref,",
+          "lineNumber": 12
+        },
+        {
+          "type": "context",
+          "content": "       () => ({",
+          "lineNumber": 13
+        },
+        {
+          "type": "deletion",
+          "content": "-          get engine() {",
+          "lineNumber": 14
+        },
+        {
+          "type": "deletion",
+          "content": "-            return engineRef.current;",
+          "lineNumber": 15
+        },
+        {
+          "type": "deletion",
+          "content": "-          },",
+          "lineNumber": 16
+        },
+        {
+          "type": "deletion",
+          "content": "-          get target() {",
+          "lineNumber": 17
+        },
+        {
+          "type": "deletion",
+          "content": "-            return domRef.current;",
+          "lineNumber": 18
+        },
+        {
+          "type": "deletion",
+          "content": "-          },",
+          "lineNumber": 19
+        },
+        {
+          "type": "deletion",
+          "content": "-          get listener() {",
+          "lineNumber": 20
+        },
+        {
+          "type": "deletion",
+          "content": "-            return engineRef.current;",
+          "lineNumber": 21
+        },
+        {
+          "type": "deletion",
+          "content": "-          },",
+          "lineNumber": 22
+        },
+        {
+          "type": "deletion",
+          "content": "-          get isPlaying() {",
+          "lineNumber": 23
+        },
+        {
+          "type": "deletion",
+          "content": "-            return engineRef.current?.isPlaying;",
+          "lineNumber": 24
+        },
+        {
+          "type": "context",
+          "content": "... 71 more diff lines",
+          "lineNumber": 25
+        }
+      ]
+    }
+  ],
+  "stats": {
+    "additions": 77,
+    "deletions": 47,
+    "changedFiles": 6
+  }
+}

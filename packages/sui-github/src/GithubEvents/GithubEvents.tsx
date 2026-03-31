@@ -19,7 +19,6 @@ import { toZonedTime } from 'date-fns-tz';
 import { styled, useTheme } from '@mui/material/styles';
 import Autocomplete from '@mui/material/Autocomplete';
 import Pagination from '@mui/material/Pagination';
-import dynamic from 'next/dynamic';
 import PullRequestEvent from './EventTypes/PullRequest/PullRequestEvent';
 import PushEvent from './EventTypes/PushEvent';
 import DeleteEvent from './EventTypes/DeleteEvent';
@@ -27,17 +26,13 @@ import CreateEvent from './EventTypes/CreateEvent';
 import IssuesEvent from './EventTypes/IssuesEvent';
 import IssueCommentEvent from './EventTypes/IssueCommentEvent';
 import { EventDetails, GitHubEvent, CachedData } from '../types/github';
+import { githubEventsQuery } from '../apiHandlers/getGithubEvents';
+import type { EventsQuery } from '../apiHandlers/getGithubEvents';
 import Chip from '@mui/material/Chip';
 // Extend the EventDetails interface for internal component use
 interface DisplayEventDetails extends EventDetails {
   dateOnly: string;
 }
-
-// Import react-json-view dynamically to avoid SSR issues
-const ReactJson = dynamic(() => import('react-json-view'), {
-  ssr: false,
-  loading: () => <div>Loading JSON viewer...</div>
-});
 
 const MetadataDisplay = styled(Box)(({ theme }) => {
   return {
@@ -55,188 +50,140 @@ const MetadataDisplay = styled(Box)(({ theme }) => {
   };
 });
 
-function parseLinkHeader(header: string | null): { next?: string; last?: string } {
-  if (!header) return {};
-  
-  return header.split(',').reduce((links: { next?: string; last?: string }, part) => {
-    const match = part.match(/<(.+)>;\s*rel="([\w]+)"/);
-    if (match) {
-      const [, url, rel] = match;
-      if (rel === 'next' || rel === 'last') {
-        links[rel] = url;
-      }
-    }
-    return links;
-  }, {});
+export { githubEventsQuery };
+export type { EventsQuery };
+
+const CACHE_PERSIST_LIMITS = [200, 150, 100, 50, 25];
+
+function isStorageQuotaError(error: unknown) {
+  return (
+    error instanceof DOMException &&
+    (error.name === 'QuotaExceededError' || error.name === 'NS_ERROR_DOM_QUOTA_REACHED')
+  );
 }
 
-export type EventsQuery = {
-  page?: number,
-  per_page?: number, // Changed to match GitHub's max per page
-  repo?: string,
-  action?: string,
-  date?: string,
-  description?: string
-}
-
-export async function githubEventsQuery({ query, githubUser, githubToken }: { query: EventsQuery, githubUser: string, githubToken?: string }) {
+function getStorageItem(storage: Storage, key: string) {
   try {
-    const {
-      page = query.page || 1,
-      per_page = query.per_page || 100, // Default to 100 per page to minimize API calls
-      repo,
-      action,
-      date,
-      description
-    } = query;
-    
-      const queryParams = new URLSearchParams({
-        page: String(page),
-        per_page: String(per_page),
-        ...(repo && { repo }),
-        ...(action && { action }),
-        ...(date && { date }),
-        ...(description && { description })
-      });
-
-    // Get GitHub token from environment variables
-    console.log(`Fetching events for user: ${githubUser}, page: ${page}, per_page: ${per_page}`);
-    
-    // Fetch all available pages from GitHub API
-    let allEvents: GitHubEvent[] = [];
-    let hasMore = true;
-    let githubPage = 1;
-    const maxPages = 30; // GitHub's maximum for events endpoint
-    
-    while (hasMore && githubPage <= maxPages) {
-      console.log(`Fetching page ${githubPage}...`);
-      const fetchOptions: any = {
-        headers: {
-          'User-Agent': 'brianstoker.com-website',
-        },
-      };
-      if (githubToken) {
-        fetchOptions.headers.Authorization = `token ${githubToken}`;
-      }
-      const response = await fetch(`https://api.github.com/users/${githubUser}/events?${queryParams}`, fetchOptions);
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`GitHub API error: ${response.status}`, errorText);
-        throw new Error(`GitHub API error: ${response.status} - ${errorText}`);
-      }
-      
-      const data = await response.json();
-      console.log(`Page ${githubPage}: Received ${data.length} events`);
-      
-      if (data.length === 0) {
-        hasMore = false;
-      } else {
-        allEvents = [...allEvents, ...data];
-        console.log(`Total events so far: ${allEvents.length}`);
-        
-        // Check Link header to see if there are more pages
-        const linkHeader = response.headers.get('Link');
-        const links = parseLinkHeader(linkHeader);
-        hasMore = !!links.next; // Simplified logic
-        
-        githubPage++;
-      }
-    }
-
-    console.log(`Final total events: ${allEvents.length}`);
-
-    // Apply filters
-    let filteredEvents = allEvents;
-
-    if (repo) {
-      filteredEvents = filteredEvents.filter(event => event.repo.name === repo);
-    }
-
-    if (action) {
-      filteredEvents = filteredEvents.filter(event => {
-        const eventAction = event.type.replace('Event', '');
-        return eventAction === action;
-      });
-    }
-
-    if (date) {
-      const now = new Date();
-      let cutoffDate: Date;
-
-      switch (date) {
-        case 'today':
-          cutoffDate = new Date(now.setHours(0, 0, 0, 0));
-          break;
-        case 'yesterday':
-          cutoffDate = new Date(now);
-          cutoffDate.setDate(cutoffDate.getDate() - 1);
-          cutoffDate.setHours(0, 0, 0, 0);
-          break;
-        case 'week':
-          cutoffDate = new Date(now);
-          cutoffDate.setDate(cutoffDate.getDate() - 7);
-          cutoffDate.setHours(0, 0, 0, 0);
-          break;
-        case 'month':
-          cutoffDate = new Date(now);
-          cutoffDate.setMonth(cutoffDate.getMonth() - 1);
-          cutoffDate.setHours(0, 0, 0, 0);
-          break;
-        default:
-          cutoffDate = new Date(0);
-      }
-
-      filteredEvents = filteredEvents.filter(event => {
-        const eventDate = new Date(event.created_at);
-        return eventDate >= cutoffDate;
-      });
-    }
-
-    if (description) {
-      filteredEvents = filteredEvents.filter(event => {
-        let eventDescription = '';
-        if (event.type === 'PushEvent' && event.payload.commits?.length) {
-          eventDescription = `Pushed ${event.payload.commits.length} commits`;
-        } else if (event.type === 'PullRequestEvent' && event.payload.pull_request?.title) {
-          eventDescription = event.payload.pull_request.title;
-        } else if (event.type === 'IssuesEvent' && event.payload.issue?.title) {
-          eventDescription = event.payload.issue.title;
-        } else if (event.type === 'IssueCommentEvent' && event.payload.issue?.title) {
-          eventDescription = `Commented on issue: ${event.payload.issue.title}`;
-        }
-        return eventDescription.toLowerCase().includes((description as string).toLowerCase());
-      });
-    }
-
-    // Calculate pagination
-    const pageNum = Number(page);
-    const perPage = Number(per_page);
-    const startIndex = (pageNum - 1) * perPage;
-    const endIndex = startIndex + perPage;
-    const paginatedEvents = filteredEvents.slice(startIndex, endIndex);
-
-    // Extract unique values for filters (only on first page)
-    const repositories = [...new Set(allEvents.map(event => event.repo.name))].sort();
-    const actionTypes = [...new Set(allEvents.map(event => event.type.replace('Event', '')))].sort();
-
-    // Return paginated results with metadata
-    return {
-      events: paginatedEvents,
-      total: filteredEvents.length,
-      repositories,
-      actionTypes,
-      page: pageNum,
-      per_page: perPage,
-      total_pages: Math.ceil(filteredEvents.length / perPage),
-      total_fetched_events: allEvents.length,
-      max_pages_fetched: githubPage - 1
-    };
-
+    return storage.getItem(key);
   } catch (error) {
-    console.error('Error fetching GitHub events:', error);
-    throw new Error(`${ error instanceof Error ? error.message : String(error)}`);
+    console.warn(`Failed to read storage key "${key}"`, error);
+    return null;
   }
+}
+
+function setStorageItem(storage: Storage, key: string, value: string) {
+  try {
+    storage.setItem(key, value);
+    return { ok: true, quotaExceeded: false };
+  } catch (error) {
+    console.warn(`Failed to write storage key "${key}"`, error);
+    return {
+      ok: false,
+      quotaExceeded: isStorageQuotaError(error),
+    };
+  }
+}
+
+function removeStorageItem(storage: Storage, key: string) {
+  try {
+    storage.removeItem(key);
+  } catch (error) {
+    console.warn(`Failed to remove storage key "${key}"`, error);
+  }
+}
+
+function getStorageKeys(storage: Storage) {
+  try {
+    return Object.keys(storage);
+  } catch (error) {
+    console.warn('Failed to enumerate storage keys', error);
+    return [];
+  }
+}
+
+function buildCachePayload(events: GitHubEvent[], limit = events.length): CachedData {
+  const normalizedLimit = Math.max(0, Math.min(events.length, limit));
+  const cachedEvents = normalizedLimit === events.length ? events : events.slice(0, normalizedLimit);
+
+  return {
+    events: cachedEvents,
+    lastFetched: Date.now(),
+    totalCount: cachedEvents.length,
+  };
+}
+
+function persistCachedEvents(cacheKey: string, events: GitHubEvent[]) {
+  const attempts = Array.from(
+    new Set([Math.min(events.length, CACHE_PERSIST_LIMITS[0]), ...CACHE_PERSIST_LIMITS]),
+  ).filter((limit) => limit > 0 && limit <= events.length);
+  let removedExistingCache = false;
+
+  for (const limit of attempts) {
+    const payload = buildCachePayload(events, limit);
+    const result = setStorageItem(localStorage, cacheKey, JSON.stringify(payload));
+
+    if (result.ok) {
+      return payload;
+    }
+
+    if (result.quotaExceeded && !removedExistingCache) {
+      removeStorageItem(localStorage, cacheKey);
+      removedExistingCache = true;
+    }
+  }
+
+  return null;
+}
+
+function updateCachedEventsTimestamp(cacheKey: string, payload: CachedData | null) {
+  if (!payload) {
+    return;
+  }
+
+  const result = setStorageItem(
+    localStorage,
+    cacheKey,
+    JSON.stringify({
+      ...payload,
+      lastFetched: Date.now(),
+    }),
+  );
+
+  if (!result.ok) {
+    console.warn(`Skipping timestamp update for "${cacheKey}"`);
+  }
+}
+
+function JsonFallbackView({ value }: { value: unknown }) {
+  const json = React.useMemo(() => {
+    try {
+      return JSON.stringify(value, null, 2);
+    } catch (error) {
+      return `Failed to serialize event payload: ${
+        error instanceof Error ? error.message : String(error)
+      }`;
+    }
+  }, [value]);
+
+  return (
+    <Box
+      component="pre"
+      sx={{
+        backgroundColor: 'transparent',
+        fontSize: '0.875rem',
+        fontFamily: 'monospace',
+        padding: '8px',
+        borderRadius: '4px',
+        overflow: 'auto',
+        maxHeight: 'calc(100vh - 200px)',
+        margin: 0,
+        whiteSpace: 'pre-wrap',
+        wordBreak: 'break-word',
+      }}
+    >
+      {json}
+    </Box>
+  );
 }
 
 export interface GetEventsParams { 
@@ -267,6 +214,7 @@ async function getEvents({ githubUser, githubToken, apiUrl = undefined, query }:
   });
 
   if (apiUrl) {
+    queryParams.set('username', githubUser);
     const url = apiUrl;
     console.log(`Fetching from custom API URL: ${url}?${queryParams}`);
     const response = await fetch(`${url}?${queryParams}`);
@@ -668,15 +616,17 @@ export default function GithubEvents({ apiUrl, eventsPerPage = 40, hideMetadata 
       if (allEvents.length > 0) {
         // Save all events to cache with user-specific key
         setCachedEvents(allEvents);
-        localStorage.setItem(cacheKey, JSON.stringify({
-          events: allEvents,
-          lastFetched: Date.now(),
-          totalCount: allEvents.length
-        }));
+        const persistedCache = persistCachedEvents(cacheKey, allEvents);
+        if (persistedCache && persistedCache.events.length < allEvents.length) {
+          console.warn(
+            `Persisted a trimmed GitHub events cache for "${cacheKey}" (${persistedCache.events.length}/${allEvents.length} events)`,
+          );
+        }
         
         // Mark that we've fetched this session
-        sessionStorage.setItem(`${cacheKey}_session_fetched`, 'true');
+        setStorageItem(sessionStorage, `${cacheKey}_session_fetched`, 'true');
         fetchedThisSessionRef.current = true;
+        setLastUpdated(format(new Date(), 'MMM d, yyyy h:mm a'));
         
         // Update filter options with all data
         buildFilterOptionsFromEvents(allEvents);
@@ -798,16 +748,17 @@ export default function GithubEvents({ apiUrl, eventsPerPage = 40, hideMetadata 
         updatedEvents.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
         
         // Mark that we've fetched this session
-        sessionStorage.setItem(`${cacheKey}_session_fetched`, 'true');
+        setStorageItem(sessionStorage, `${cacheKey}_session_fetched`, 'true');
         fetchedThisSessionRef.current = true;
         
         // Update cache with new events using user-specific key
         setCachedEvents(updatedEvents);
-        localStorage.setItem(cacheKey, JSON.stringify({
-          events: updatedEvents,
-          lastFetched: Date.now(),
-          totalCount: updatedEvents.length
-        }));
+        const persistedCache = persistCachedEvents(cacheKey, updatedEvents);
+        if (persistedCache && persistedCache.events.length < updatedEvents.length) {
+          console.warn(
+            `Persisted a trimmed GitHub events cache for "${cacheKey}" (${persistedCache.events.length}/${updatedEvents.length} events)`,
+          );
+        }
         
         // Update UI
         buildFilterOptionsFromEvents(updatedEvents);
@@ -826,15 +777,21 @@ export default function GithubEvents({ apiUrl, eventsPerPage = 40, hideMetadata 
         console.log('No new events found');
         
         // Mark that we've fetched this session even if no new events
-        sessionStorage.setItem(`${cacheKey}_session_fetched`, 'true');
+        setStorageItem(sessionStorage, `${cacheKey}_session_fetched`, 'true');
         fetchedThisSessionRef.current = true;
         
         // Just update the last fetched time with user-specific key
-        const currentCache = JSON.parse(localStorage.getItem(cacheKey) || '{}');
-        localStorage.setItem(cacheKey, JSON.stringify({
-          ...currentCache,
-          lastFetched: Date.now()
-        }));
+        const currentCache = getStorageItem(localStorage, cacheKey);
+        let parsedCache: CachedData | null = null;
+        if (currentCache) {
+          try {
+            parsedCache = JSON.parse(currentCache);
+          } catch (parseError) {
+            console.warn(`Failed to parse cached GitHub events for "${cacheKey}"`, parseError);
+            removeStorageItem(localStorage, cacheKey);
+          }
+        }
+        updateCachedEventsTimestamp(cacheKey, parsedCache);
         
         setLastUpdated(format(new Date(), 'MMM d, yyyy h:mm a'));
         
@@ -933,14 +890,14 @@ export default function GithubEvents({ apiUrl, eventsPerPage = 40, hideMetadata 
     
     // Check session storage to see if we've already fetched this session
     const sessionKey = `${cacheKey}_session_fetched`;
-    const fetchedThisSession = sessionStorage.getItem(sessionKey) === 'true';
+    const fetchedThisSession = getStorageItem(sessionStorage, sessionKey) === 'true';
     console.log('Already fetched this session:', fetchedThisSession);
     fetchedThisSessionRef.current = fetchedThisSession;
     
     // Debug all localStorage keys to make sure we're looking at the right one
-    console.log('All localStorage keys:', Object.keys(localStorage));
+    console.log('All localStorage keys:', getStorageKeys(localStorage));
     
-    const cached = localStorage.getItem(cacheKey);
+    const cached = getStorageItem(localStorage, cacheKey);
     console.log(`LocalStorage for "${cacheKey}" exists:`, !!cached);
     
     if (cached) {
@@ -987,7 +944,7 @@ export default function GithubEvents({ apiUrl, eventsPerPage = 40, hideMetadata 
           setTimeout(() => {
             fetchNewEvents();
             // Mark that we've fetched this session
-            sessionStorage.setItem(sessionKey, 'true');
+            setStorageItem(sessionStorage, sessionKey, 'true');
             fetchedThisSessionRef.current = true;
           }, 100);
         } else {
@@ -1008,6 +965,7 @@ export default function GithubEvents({ apiUrl, eventsPerPage = 40, hideMetadata 
         }
       } catch (err) {
         console.error('Failed to parse cached events, fetching new data:', err);
+        removeStorageItem(localStorage, cacheKey);
         fetchAllGitHubEvents();
       }
     } else {
@@ -1409,25 +1367,8 @@ export default function GithubEvents({ apiUrl, eventsPerPage = 40, hideMetadata 
             ) : selectedEvent.actionType === 'IssueCommentEvent' ? (
               <IssueCommentEvent event={selectedEvent} />
             ) : (
-            <ReactJson
-              src={selectedEvent}
-              name={false}
-              theme="monokai"
-              displayDataTypes={false}
-              enableClipboard={false}
-              displayObjectSize={false}
-              collapsed={1}
-              collapseStringsAfterLength={50}
-              style={{
-                backgroundColor: 'transparent',
-                fontSize: '0.875rem',
-                fontFamily: 'monospace',
-                padding: '8px',
-                borderRadius: '4px',
-                overflow: 'auto',
-                maxHeight: 'calc(100vh - 200px)'
-              }}
-            />)}
+              <JsonFallbackView value={selectedEvent} />
+            )}
           </MetadataDisplay>
         )}
       </Box>

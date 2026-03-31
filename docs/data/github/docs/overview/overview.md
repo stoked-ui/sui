@@ -13,10 +13,12 @@ packageName: '@stoked-ui/github'
 
 ## Available components
 
-The Stoked UI Github package exposes two different components:
+The Stoked UI Github package exposes four components:
 
- - GithubCalendar
- - GithubEvents
+ - [GithubCalendar](./github-calendar/)
+ - [GithubEvents](./github-events/)
+ - [GithubCommit](./github-commit/)
+ - [GithubBranch](./github-branch/)
 
 ### Github Calendar
 
@@ -38,3 +40,27 @@ The Github Events component displays and provides access to a given user's recen
 
 
 {{"demo": "../github-events/GithubEventsDemo.js", "bg": "noBorder" }}
+
+### Github Commit
+
+```jsx
+import { GithubCommit } from '@stoked-ui/github/GithubCommit';
+```
+
+The Github Commit component renders a single commit view with the contributor, commit message, changed files, and a minimal diff:
+
+Simple static example:
+
+{{"demo": "../github-commit/GithubCommitDemo.js", "bg": "noBorder" }}
+
+### Github Branch
+
+```jsx
+import { GithubBranch } from '@stoked-ui/github/GithubBranch';
+```
+
+The Github Branch component compares a branch to its base branch and highlights contributors, commits, changed files, and a minimal diff:
+
+Simple static example:
+
+{{"demo": "../github-branch/GithubBranchDemo.js", "bg": "noBorder" }}

@@ -4,21 +4,69 @@ import { ActivityCalendar } from "react-activity-calendar";
 import { useTheme } from '@mui/material/styles';
 import { useResize } from '@stoked-ui/common';
 import { useResizeWindow } from '@stoked-ui/common';
+import { GithubContributionsResponse } from '../types/github';
 
-interface ActivityData {
-   total: Record<string, number>,
-   contributions: { 
-    date: string,
-    count: number,
-    level: number
-   }[],
-   countLabel?: string,
-   blockSize?: number,
-   totalWeeks?: number
-   fx?: 'punch' | 'highlight'
+interface ActivityData extends GithubContributionsResponse {
+  blockSize?: number,
+  totalWeeks?: number
 }
 
-const defaultActivityData = { total: {}, contributions: [], countLabel: 'Loading...' };  
+interface GithubCalendarProps {
+  apiUrl?: string;
+  githubUser: string;
+  windowMode?: boolean;
+  containerMode?: boolean;
+  blockSize?: number;
+  fx?: 'punch' | 'highlight';
+  startImage?: string;
+}
+
+function formatActivityDate(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+}
+
+function createFallbackActivityData(): ActivityData {
+  const year = new Date().getFullYear();
+  const start = new Date(year, 0, 1);
+  const end = new Date(year, 11, 31);
+  const contributions: ActivityData['contributions'] = [];
+
+  for (const date = new Date(start); date <= end; date.setDate(date.getDate() + 1)) {
+    contributions.push({
+      date: formatActivityDate(date),
+      count: 0,
+      level: 0,
+    });
+  }
+
+  return {
+    total: { [String(year)]: 0 },
+    contributions,
+    countLabel: 'Contribution data unavailable',
+    totalWeeks: Math.ceil(contributions.length / 7),
+  };
+}
+
+function buildCountLabel(total: Record<string, number>) {
+  const totalKeys = Object.keys(total).sort();
+  const all = (Object.values(total) as number[]).reduce((acc, curr) => acc + curr, 0);
+
+  if (totalKeys.length === 0) {
+    return `${all} contributions`;
+  }
+
+  return `${all} contributions from ${totalKeys[0]} to ${totalKeys[totalKeys.length - 1]}`;
+}
+
+function buildApiUrl(apiUrl: string, githubUser: string) {
+  const separator = apiUrl.includes('?') ? '&' : '?';
+  return `${apiUrl}${separator}username=${encodeURIComponent(githubUser)}`;
+}
+
 function sleep(duration: number) {
   return new Promise((resolve) => {
     setTimeout(() => {
@@ -26,9 +74,10 @@ function sleep(duration: number) {
     }, duration);
   });
 }
-export default function GithubCalendar({ windowMode = false, containerMode = false, blockSize: inputBlockSize = 12, fx = undefined, startImage = undefined }: { windowMode?: boolean, containerMode?: boolean, blockSize?: number, fx?: 'punch' | 'highlight', startImage?: string }) {
+
+export default function GithubCalendar({ apiUrl, githubUser, windowMode = false, containerMode = false, blockSize: inputBlockSize = 12, fx = undefined, startImage = undefined }: GithubCalendarProps) {
   const [activityTheme, setActivityTheme] = React.useState<'light' | 'dark'>('light');
-  const [activityData, setActivityData] = React.useState<ActivityData>(defaultActivityData);
+  const [activityData, setActivityData] = React.useState<ActivityData>(() => createFallbackActivityData());
   const [activityLoading, setActivityLoading] = React.useState<boolean>(true);
   const [activityHover, setActivityHover] = React.useState<boolean>(false);
   const [activityLabels, setActivityLabels] = React.useState<boolean>(false);
@@ -88,7 +137,15 @@ export default function GithubCalendar({ windowMode = false, containerMode = fal
     setActivityLoading(true);
     
     try {
-      const response = await fetch('https://github-contributions-api.jogruber.de/v4/brian-stoker?yr=last');
+      if (!githubUser) {
+        throw new Error('githubUser is required');
+      }
+
+      const response = await fetch(
+        apiUrl
+          ? buildApiUrl(apiUrl, githubUser)
+          : `https://github-contributions-api.jogruber.de/v4/${encodeURIComponent(githubUser)}?yr=last`
+      );
       
       if (!response.ok) {
         throw new Error(`API error: ${response.status}`);
@@ -104,46 +161,46 @@ export default function GithubCalendar({ windowMode = false, containerMode = fal
         }
         return 0;
       }
-      const earliestDate = data.contributions
-      .filter(item => item.count > 0) // Filter items with count > 0
-      .reduce((earliest, current) => {
-        return !earliest || new Date(current.date) < new Date(earliest.date)
-          ? current
-          : earliest;
-      }, null as { date: string; count: number; level: number } | null);
-
-      
-      const today = new Date();
-      const year = today.getFullYear();
-      const month = String(today.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
-      const day = String(today.getDate()).padStart(2, '0');
-      const formattedDate = `${year}-${month}-${day}`;
-      const contribs = data.contributions.filter(contrib => contrib.date < formattedDate && (!earliestDate || contrib.date >= earliestDate.date));
-      data.contributions = contribs.sort(compare);
+      const contributions = Array.isArray(data.contributions) ? data.contributions : [];
+      const contribs = [...contributions].sort(compare);
+      if (contribs.length === 0) {
+        throw new Error('Contribution API returned no usable activity data');
+      }
       const allJansSet = contribs.map(contrib =>  {
         return contrib.date.slice(2, 7)
       }).filter(yymm => yymm.slice(-2) === '01');
       const allJans = new Set(allJansSet);
       console.log('allJans', [...allJans]);
 
-      const all = (Object.values(data.total) as number[]).reduce((acc, curr) => acc + curr, 0);
-      const totalKeys = Object.keys(data.total);
-      data.countLabel = `${all} contributions from ${totalKeys[0]} to ${totalKeys[totalKeys.length - 1]}`;
-      data.totalWeeks = data.contributions.length / 7
+      const total = data.total && Object.keys(data.total).length > 0
+        ? data.total
+        : contribs.reduce<Record<string, number>>((acc, contribution) => {
+          const year = contribution.date.slice(0, 4);
+          acc[year] = (acc[year] || 0) + contribution.count;
+          return acc;
+        }, {});
+      const countLabel = data.countLabel || buildCountLabel(total);
+      const totalWeeks = Math.ceil(contribs.length / 7);
+      const nextActivityData: ActivityData = {
+        total,
+        contributions: contribs,
+        countLabel,
+        totalWeeks,
+      };
       if (inputBlockSize) {
-        data.blockSize = inputBlockSize;
+        nextActivityData.blockSize = inputBlockSize;
       } else if (windowMode) {
-        data.blockSize = Math.max(10, Math.floor(windowWidth / data.totalWeeks));
+        nextActivityData.blockSize = Math.max(10, Math.floor(windowWidth / totalWeeks));
       } else {
         if (elemSize.width) {
-          data.blockSize = Math.max(10, Math.floor(elemSize.width / data.totalWeeks));
+          nextActivityData.blockSize = Math.max(10, Math.floor(elemSize.width / totalWeeks));
         }
       }
-      setActivityData(data);
+      setActivityData(nextActivityData);
     } catch (err) {
       console.error(`Error fetching activity data: ${err instanceof Error ? err.message : String(err)}`);
       // Use fallback data if API fails
-      setActivityData(defaultActivityData);
+      setActivityData(createFallbackActivityData());
     } finally {
       setActivityLoading(false);
     }
@@ -200,7 +257,7 @@ export default function GithubCalendar({ windowMode = false, containerMode = fal
         }
       }
     }
-  },[]);
+  }, [apiUrl, fx, githubUser]);
 
   const handleResize = () => {
     // Clear all animations first
