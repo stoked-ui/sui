@@ -78,7 +78,7 @@ Arrows show `peerDependencies` / `dependencies` (workspace links).
     ↑
 @stoked-ui/editor          (v0.1.2)  ← peer: common, media, file-explorer, timeline
                                        optional: video-renderer-wasm
-@stoked-ui/github          (v0.0.0-a.0) ← peer: common, media, file-explorer, timeline
+@stoked-ui/github          (v0.1.0) ← peer: common, media, file-explorer, timeline
 
 @stoked-ui/media-api       (v1.0.0)  ← dep: common, common-api (standalone NestJS)
 @stoked-ui/docs            (v0.1.21) ← dev: editor, file-explorer, media, timeline

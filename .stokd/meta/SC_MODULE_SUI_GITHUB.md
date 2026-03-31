@@ -3,7 +3,7 @@
 **Meta version:** 0.2.0
 **Package:** `@stoked-ui/github`
 **Location:** `packages/sui-github/`
-**Package version:** `0.0.0-a.0` (early alpha)
+**Package version:** `0.1.0` (prerelease base)
 
 ---
 

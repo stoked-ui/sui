@@ -333,7 +333,7 @@ it('should include auth header when GITHUB_TOKEN is set', () => {
 
 ## 5. Coverage Targets
 
-Given medium priority and alpha status (`0.0.0-a.0`):
+Given medium priority and prerelease status (`0.1.0` base version):
 
 | Metric | Target | Rationale |
 |--------|--------|-----------|

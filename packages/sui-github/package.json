@@ -1,6 +1,6 @@
 {
   "name": "@stoked-ui/github",
-  "version": "0.0.0-a.0",
+  "version": "0.1.0",
   "description": "Github components for Stoked UI",
   "author": "Brian Stoker",
   "main": "src/index.ts",

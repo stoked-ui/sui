@@ -7,6 +7,7 @@ const rootDir = process.cwd();
 const packageRoots = ['packages', 'packages-internal'];
 const dependencyFields = ['dependencies', 'peerDependencies', 'optionalDependencies'];
 const runtimeDependencyFields = ['dependencies', 'optionalDependencies'];
+const githubApiVersion = '2022-11-28';
 
 function run(command, args, options = {}) {
   return execFileSync(command, args, {
@@ -182,6 +183,54 @@ function validatePlan(packagesByName, plan) {
   }
 }
 
+async function getLastSuccessfulWorkflowHeadSha({ repo, workflow, token, event = 'push' }) {
+  if (!repo || !workflow || !token) {
+    return null;
+  }
+
+  const response = await fetch(
+    `https://api.github.com/repos/${repo}/actions/workflows/${encodeURIComponent(workflow)}/runs?per_page=20&event=${encodeURIComponent(event)}&status=completed`,
+    {
+      headers: {
+        Accept: 'application/vnd.github+json',
+        Authorization: `Bearer ${token}`,
+        'X-GitHub-Api-Version': githubApiVersion,
+      },
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(`GitHub Actions API request failed with ${response.status}`);
+  }
+
+  const payload = await response.json();
+  const workflowRuns = Array.isArray(payload.workflow_runs) ? payload.workflow_runs : [];
+  const lastSuccessfulRun = workflowRuns.find((run) => run?.conclusion === 'success' && run?.head_sha);
+
+  return lastSuccessfulRun?.head_sha ?? null;
+}
+
+async function resolveDetectBase(args) {
+  const fallbackBase = args.base || args.fallbackBase;
+
+  if (!args.repo || !args.workflow || !process.env.GITHUB_TOKEN) {
+    return fallbackBase;
+  }
+
+  try {
+    const lastSuccessfulBase = await getLastSuccessfulWorkflowHeadSha({
+      repo: args.repo,
+      workflow: args.workflow,
+      token: process.env.GITHUB_TOKEN,
+    });
+
+    return lastSuccessfulBase || fallbackBase;
+  } catch (error) {
+    console.warn(`Unable to resolve last successful publish base: ${error.message}`);
+    return fallbackBase;
+  }
+}
+
 async function patchManifestVersion(manifestPath, version, versionMap, packagesByName, { rewriteWorkspaceDeps = true } = {}) {
   const fullPath = path.join(rootDir, manifestPath);
   const manifest = await readJson(fullPath);
@@ -216,7 +265,7 @@ function appendGithubOutput(key, value) {
 
 async function detect() {
   const args = parseArgs(process.argv.slice(3));
-  const base = args.base;
+  const base = await resolveDetectBase(args);
   const head = args.head || 'HEAD';
   const planPath = args.plan || 'release-plan.json';
   const packages = await getPublishablePackages();

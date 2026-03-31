@@ -16,6 +16,7 @@ on:
       - '.github/workflows/publish-packages.yml'
 
 permissions:
+  actions: read
   contents: read
 
 concurrency:
@@ -54,6 +55,9 @@ jobs:
   detect:
     needs: validate
     runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
     outputs:
       mode: ${{ steps.detect.outputs.mode }}
       changed_packages: ${{ steps.detect.outputs.changed_packages }}
@@ -67,7 +71,15 @@ jobs:
         with:
           node-version: 18
       - id: detect
-        run: node scripts/npmRelease.mjs detect --base "${{ github.event.before }}" --head "${{ github.sha }}" --plan release-plan.json
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: >
+          node scripts/npmRelease.mjs detect
+          --fallbackBase "${{ github.event.before }}"
+          --head "${{ github.sha }}"
+          --plan release-plan.json
+          --repo "${{ github.repository }}"
+          --workflow "publish-packages.yml"
 
   publish:
     needs: detect
@@ -82,16 +94,18 @@ jobs:
           fetch-depth: 0
       - name: Set up pnpm
         uses: pnpm/action-setup@v4
-      - name: Use Node.js 18.x
+      - name: Use Node.js 24.x
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 24
           cache: pnpm
           registry-url: https://registry.npmjs.org
       - run: pnpm install
       - name: Build all publishable artifacts
         run: pnpm build:all
       - name: Publish packages to npm
+        env:
+          NODE_AUTH_TOKEN: ''
         run: >
           node scripts/npmRelease.mjs publish
           --mode "${{ needs.detect.outputs.mode }}"
