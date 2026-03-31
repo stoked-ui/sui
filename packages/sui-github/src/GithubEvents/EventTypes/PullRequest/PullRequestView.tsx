@@ -6,6 +6,7 @@ import Typography from '@mui/material/Typography';
 import { styled } from '@mui/material/styles';
 import CommitsList from './CommitsList';
 import FileChanges from './FileChanges';
+import { GithubFileHighlight } from '../../../types/github';
 
 // Custom styled components to match GitHub's UI
 const StyledTabs = styled(Tabs)(({ theme }) => ({
@@ -77,6 +78,7 @@ interface PullRequestViewProps {
     }>;
   }>;
   onCheckout?: (hash?: string) => void;
+  highlights?: GithubFileHighlight[];
 }
 
 export default function PullRequestView({
@@ -85,6 +87,7 @@ export default function PullRequestView({
   commits,
   files,
   onCheckout,
+  highlights,
 }: PullRequestViewProps): React.JSX.Element {
   const [tabValue, setTabValue] = React.useState(0);
 
@@ -125,7 +128,7 @@ export default function PullRequestView({
             </Typography>
           </StatsBox>
         </Box>
-        <FileChanges files={files} />
+        <FileChanges files={files} highlights={highlights} />
       </TabPanel>
     </Box>
   );

@@ -50,6 +50,18 @@ export interface GithubChangedFile {
   diff: GithubDiffLine[];
 }
 
+export interface GithubFileHighlightSingle {
+  file: string;
+  comment?: string;
+}
+
+export interface GithubFileHighlightGroup {
+  files: string[];
+  comment?: string;
+}
+
+export type GithubFileHighlight = GithubFileHighlightSingle | GithubFileHighlightGroup;
+
 export interface GithubContributor {
   login: string;
   name: string;

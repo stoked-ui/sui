@@ -8,7 +8,7 @@ import PullRequestView from '../GithubEvents/EventTypes/PullRequest/PullRequestV
 import getBranchCompareDetails from '../apiHandlers/getBranchCompareDetails';
 import GithubContributorsList from '../components/GithubContributorsList';
 import fetchGithubViewData from '../components/fetchGithubViewData';
-import { GithubBranchData } from '../types/github';
+import { GithubBranchData, GithubFileHighlight } from '../types/github';
 
 export interface GithubBranchProps {
   owner: string;
@@ -18,6 +18,7 @@ export interface GithubBranchProps {
   apiUrl?: string;
   private?: boolean;
   data?: GithubBranchData;
+  highlights?: GithubFileHighlight[];
 }
 
 function getStatusColor(status: string): 'default' | 'success' | 'warning' | 'info' {
@@ -56,6 +57,7 @@ export default function GithubBranch({
   apiUrl,
   private: privateMode = false,
   data,
+  highlights,
 }: GithubBranchProps): React.JSX.Element {
   const [branchData, setBranchData] = React.useState<GithubBranchData | null>(data || null);
   const [loading, setLoading] = React.useState<boolean>(!data && !privateMode);
@@ -164,6 +166,7 @@ export default function GithubBranch({
             number={0}
             commits={branchData.commits}
             files={branchData.files}
+            highlights={highlights}
           />
         </React.Fragment>
       ) : null}

@@ -9,6 +9,7 @@ import FileIcon from '@mui/icons-material/InsertDriveFile';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Chip from '@mui/material/Chip';
+import { GithubFileHighlight } from '../../../types/github';
 
 // const StyledTreeItem = styled(TreeItem)((props) => ({
 //   '& .MuiTreeItem-content': {
@@ -68,6 +69,12 @@ interface FileChange {
 
 interface FileChangesProps {
   files: FileChange[];
+  highlights?: GithubFileHighlight[];
+}
+
+interface HighlightGroup {
+  files: FileChange[];
+  comment?: string;
 }
 
 // interface TreeNode {
@@ -80,7 +87,90 @@ interface FileChangesProps {
 //   children?: TreeNode[];
 // }
 
-export default function FileChanges({ files }: FileChangesProps): React.JSX.Element {
+function isGroupHighlight(highlight: GithubFileHighlight): highlight is Extract<GithubFileHighlight, { files: string[] }> {
+  return 'files' in highlight;
+}
+
+function normalizeHighlights(files: FileChange[], highlights: GithubFileHighlight[] = []) {
+  const fileMap = new Map(files.map((file) => [file.path, file]));
+  const claimedPaths = new Set<string>();
+  const groups: HighlightGroup[] = [];
+
+  highlights.forEach((highlight) => {
+    const paths = isGroupHighlight(highlight) ? highlight.files : [highlight.file];
+    const matchedFiles = paths
+      .map((path) => fileMap.get(path))
+      .filter((file): file is FileChange => Boolean(file))
+      .filter((file) => {
+        if (claimedPaths.has(file.path)) {
+          return false;
+        }
+
+        claimedPaths.add(file.path);
+        return true;
+      });
+
+    if (matchedFiles.length > 0) {
+      groups.push({
+        files: matchedFiles,
+        comment: highlight.comment,
+      });
+    }
+  });
+
+  return {
+    highlightedGroups: groups,
+    remainingFiles: files.filter((file) => !claimedPaths.has(file.path)),
+  };
+}
+
+function renderFileLabel(file: FileChange) {
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+      <Typography variant="body2">{file.path}</Typography>
+      <Typography variant="caption" color="text.secondary">
+        +{file.additions} -{file.deletions}
+      </Typography>
+    </Box>
+  );
+}
+
+function renderFileNode({
+  file,
+  index,
+  getFileIcon,
+}: {
+  file: FileChange;
+  index: number;
+  getFileIcon: (type: FileChange['type']) => React.ReactNode;
+}) {
+  const itemId = `file-${index}-${file.path.replace(/[^a-zA-Z0-9]/g, '-')}`;
+
+  return (
+    <TreeItem
+      key={itemId}
+      itemId={itemId}
+      label={
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          {getFileIcon(file.type)}
+          {renderFileLabel(file)}
+        </Box>
+      }
+    >
+      <Box sx={{ p: '16px' }}>
+        <DiffView>
+          {file.diff.map((line, diffIndex) => (
+            <DiffLine key={`${itemId}-line-${diffIndex}`} type={line.type}>
+              {line.content}
+            </DiffLine>
+          ))}
+        </DiffView>
+      </Box>
+    </TreeItem>
+  );
+}
+
+export default function FileChanges({ files, highlights }: FileChangesProps): React.JSX.Element {
   const [expanded, setExpanded] = React.useState<string[]>([]);
   const [selected, setSelected] = React.useState<string[]>([]);
 
@@ -104,6 +194,11 @@ export default function FileChanges({ files }: FileChangesProps): React.JSX.Elem
         return <FileIcon />;
     }
   };
+
+  const { highlightedGroups, remainingFiles } = React.useMemo(
+    () => normalizeHighlights(files, highlights),
+    [files, highlights],
+  );
 
   // Transform files into tree nodes
   // const items: TreeNode[] = files.map((file, index) => ({
@@ -139,6 +234,66 @@ export default function FileChanges({ files }: FileChangesProps): React.JSX.Elem
 
   return (
     <Box>
+      {highlightedGroups.length > 0 ? (
+        <Box sx={{ mb: 3, p: 2, border: (theme) => `1px solid ${theme.palette.warning.main}`, borderRadius: 2, backgroundColor: 'action.hover' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+            <Chip label="Highlighted files" size="small" color="warning" />
+            <Typography variant="caption" color="text.secondary">
+              Pulled out for focused review
+            </Typography>
+          </Box>
+          {highlightedGroups.map((group, groupIndex) => (
+            <Box
+              key={`highlight-group-${groupIndex}`}
+              sx={{
+                mb: groupIndex === highlightedGroups.length - 1 ? 0 : 2,
+                p: 1.5,
+                borderRadius: 2,
+                border: '1px solid',
+                borderColor: 'divider',
+                backgroundColor: 'background.paper',
+              }}
+            >
+              {group.comment ? (
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+                  {group.comment}
+                </Typography>
+              ) : null}
+              <SimpleTreeView
+                slots={{
+                  collapseIcon: ExpandMoreIcon,
+                  expandIcon: ChevronRightIcon,
+                }}
+                defaultExpandedItems={group.files.map((file, index) => `highlight-${groupIndex}-${index}-${file.path.replace(/[^a-zA-Z0-9]/g, '-')}`)}
+              >
+                {group.files.map((file, index) => (
+                  <TreeItem
+                    key={`highlight-${groupIndex}-${index}-${file.path}`}
+                    itemId={`highlight-${groupIndex}-${index}-${file.path.replace(/[^a-zA-Z0-9]/g, '-')}`}
+                    label={
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        {getFileIcon(file.type)}
+                        {renderFileLabel(file)}
+                      </Box>
+                    }
+                  >
+                    <Box sx={{ p: '16px' }}>
+                      <DiffView>
+                        {file.diff.map((line, diffIndex) => (
+                          <DiffLine key={`highlight-${groupIndex}-${index}-line-${diffIndex}`} type={line.type}>
+                            {line.content}
+                          </DiffLine>
+                        ))}
+                      </DiffView>
+                    </Box>
+                  </TreeItem>
+                ))}
+              </SimpleTreeView>
+            </Box>
+          ))}
+        </Box>
+      ) : null}
+
       <SimpleTreeView
         slots={{
           collapseIcon: ExpandMoreIcon,
@@ -150,34 +305,7 @@ export default function FileChanges({ files }: FileChangesProps): React.JSX.Elem
         onSelectedItemsChange={handleSelect}
         multiSelect
       >
-        {files.map((file, index) => {
-          const itemId = `file-${index}-${file.path.replace(/[^a-zA-Z0-9]/g, '-')}`;
-          return (
-            <TreeItem
-              key={itemId}
-              itemId={itemId}
-              label={
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  {getFileIcon(file.type)}
-                  <Typography variant="body2">{file.path}</Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    +{file.additions} -{file.deletions}
-                  </Typography>
-                </Box>
-              }
-            >
-              <Box sx={{ p: '16px' }}>
-                <DiffView>
-                  {file.diff.map((line, index) => (
-                    <DiffLine key={`${itemId}-line-${index}`} type={line.type}>
-                      {line.content}
-                    </DiffLine>
-                  ))}
-                </DiffView>
-              </Box>
-            </TreeItem>
-          );
-        })}
+        {remainingFiles.map((file, index) => renderFileNode({ file, index, getFileIcon }))}
       </SimpleTreeView>
     </Box>
   );

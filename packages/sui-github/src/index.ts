@@ -1,8 +1,8 @@
-import GithubBranch from './GithubBranch';
-import GithubCalendar from './GithubCalendar';
-import GithubCommit from './GithubCommit';
-import GithubEvents from './GithubEvents';
-import {
+export { default as GithubBranch } from './GithubBranch';
+export { default as GithubCalendar } from './GithubCalendar';
+export { default as GithubCommit } from './GithubCommit';
+export { default as GithubEvents } from './GithubEvents';
+export {
   createGithubBranchHandler,
   createGithubCommitHandler,
   createGithubContributionsHandler,
@@ -14,22 +14,5 @@ import {
   getPullRequestDetails,
   githubEventsQuery,
 } from './apiHandlers';
-
-export {
-  GithubBranch,
-  GithubCalendar,
-  GithubCommit,
-  GithubEvents,
-  createGithubBranchHandler,
-  createGithubCommitHandler,
-  createGithubContributionsHandler,
-  createGithubEventsHandler,
-  getBranchCompareDetails,
-  getCommitDetails,
-  getGithubContributions,
-  getGithubEvents,
-  getPullRequestDetails,
-  githubEventsQuery,
-};
 export type { EventsQuery } from './apiHandlers';
-export type { GithubBranchData, GithubCommitData } from './types/github';
+export type { GithubBranchData, GithubCommitData, GithubFileHighlight } from './types/github';

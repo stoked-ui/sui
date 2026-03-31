@@ -10,7 +10,7 @@ import Button from '@mui/material/Button';
 import CheckoutIcon from '@mui/icons-material/CallMade';
 import { EventDetails } from '../../../types/github';
 import PullRequestView from './PullRequestView';
-import { getPullRequestDetails } from 'packages/sui-github/src/apiHandlers';
+import { getPullRequestDetails } from '../../../apiHandlers';
 
 interface PullRequestEventProps {
   event: EventDetails;
