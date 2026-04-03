@@ -1,6 +1,7 @@
 import * as React from 'react';
 import ReactDOM from 'react-dom';
 import Box from '@mui/material/Box';
+import Container from '@mui/material/Container';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
@@ -12,7 +13,6 @@ import GradientText from 'docs/src/components/typography/GradientText';
 import SectionHeadline from 'docs/src/components/typography/SectionHeadline';
 import Section from 'docs/src/layouts/Section';
 import GetStartedButtons from 'docs/src/components/home/GetStartedButtons';
-import HeroContainer from 'docs/src/layouts/HeroContainer';
 
 const features = [
   {
@@ -238,74 +238,101 @@ export default function HeroFlux() {
 
   return (
     <React.Fragment>
-      <HeroContainer
-        linearGradient
-        left={
-          <Box sx={{ textAlign: { xs: 'center', md: 'left' }, maxWidth: 500 }}>
-            <Typography variant="h1" mb={1}>
-              <GradientText>Flux</GradientText>
-            </Typography>
-            <Typography
-              variant="h2"
-              mb={1}
-              sx={{ fontSize: 'clamp(1.25rem, 0.8rem + 1.2vw, 1.75rem)' }}
-            >
-              Make any website your Mac desktop wallpaper
-            </Typography>
-            <Typography color="text.secondary" mb={3}>
-              Flux is a Mac OSX app that turns any website into a live, interactive desktop
-              wallpaper. Browse the web on your desktop, inject custom CSS and JavaScript, automate
-              with Shortcuts, and enjoy built-in fluid simulations with mouse tracking -- all with
-              full multi-monitor support.
-            </Typography>
-            <GetStartedButtons
-              primaryLabel="Download Flux"
-              primaryUrl="https://cdn.stokedconsulting.com/products/flux/installers/Flux-3.1.0-mac.pkg"
-              primaryUrlTarget="_blank"
-            />
-          </Box>
-        }
-        rightSx={{
-          p: 2,
-          ml: 2,
-          minWidth: 0,
+      <Box
+        sx={(theme) => ({
           overflow: 'hidden',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          '&& *': {
-            fontFamily: ['"IBM Plex Sans"', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'].join(
-              ',',
-            ),
-          },
-        }}
-        right={
+          background: `radial-gradient(circle at top center, ${theme.palette.primary[50]} 0%, ${theme.palette.grey[50]} 55%, ${theme.palette.background.default} 100%)`,
+          ...theme.applyDarkStyles({
+            background: `radial-gradient(circle at top center, rgba(25, 118, 210, 0.18) 0%, ${theme.palette.primaryDark[900]} 55%, ${theme.palette.background.default} 100%)`,
+          }),
+        })}
+      >
+        <Container
+          sx={{
+            pt: { xs: 8, md: 6 },
+            pb: { xs: 6, md: 8 },
+          }}
+        >
           <Box
-            sx={(theme) => ({
-              width: '100%',
-              borderRadius: 2,
-              bgcolor: 'rgba(255, 255, 255, 0.05)',
-              backdropFilter: 'blur(8px)',
-              border: '1px solid',
-              borderColor: 'divider',
-              marginTop: '-250px',
-              ...theme.applyDarkStyles({
-                bgcolor: 'rgba(0, 0, 0, 0.2)',
-              }),
-            })}
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: { xs: 4, md: 6 },
+            }}
           >
-            {/*
-             * Placeholder: stays in-flow so it reserves space in the panel
-             * and gives us the correct getBoundingClientRect() at all times.
-             * The actual video is rendered in the portal above.
-             */}
             <Box
-              ref={placeholderRef}
-              sx={{ width: 525, maxWidth: '100%', aspectRatio: '16 / 9', mx: 'auto' }}
-            />
+              sx={(theme) => ({
+                width: '100%',
+                borderRadius: { xs: 3, md: 4 },
+                px: { xs: 1.25, sm: 1.75, md: 2.5 },
+                py: { xs: 1.25, sm: 1.75, md: 2.5 },
+                bgcolor: 'rgba(255, 255, 255, 0.38)',
+                backdropFilter: 'blur(12px)',
+                border: '1px solid',
+                borderColor: 'divider',
+                boxShadow: '0 24px 80px rgba(15, 23, 42, 0.12)',
+                ...theme.applyDarkStyles({
+                  bgcolor: 'rgba(2, 8, 23, 0.45)',
+                  boxShadow: '0 28px 90px rgba(0, 0, 0, 0.45)',
+                }),
+              })}
+            >
+              <Box
+                sx={{
+                  width: '100%',
+                  maxWidth: { md: 1080, xl: 1160 },
+                  mx: 'auto',
+                  borderRadius: 2,
+                  overflow: 'hidden',
+                  bgcolor: 'common.black',
+                }}
+              >
+                {/*
+                 * Placeholder: stays in-flow so it reserves space in the layout
+                 * and gives us the correct getBoundingClientRect() at all times.
+                 * The actual video is rendered in the portal above.
+                 */}
+                <Box
+                  ref={placeholderRef}
+                  sx={{ width: '100%', aspectRatio: '16 / 9', maxWidth: '100%', mx: 'auto' }}
+                />
+              </Box>
+            </Box>
+
+            <Box
+              sx={{
+                maxWidth: 720,
+                textAlign: { xs: 'center', md: 'left' },
+                mx: { xs: 'auto', md: 0 },
+              }}
+            >
+              <Typography variant="h1" mb={1}>
+                <GradientText>Flux</GradientText>
+              </Typography>
+              <Typography
+                variant="h2"
+                mb={1}
+                sx={{ fontSize: 'clamp(1.25rem, 0.8rem + 1.2vw, 1.75rem)' }}
+              >
+                Make any website your Mac desktop wallpaper
+              </Typography>
+              <Typography color="text.secondary" mb={3}>
+                Flux is a Mac OSX app that turns any website into a live, interactive desktop
+                wallpaper. Browse the web on your desktop, inject custom CSS and JavaScript, automate
+                with Shortcuts, and enjoy built-in fluid simulations with mouse tracking -- all with
+                full multi-monitor support.
+              </Typography>
+              <Box sx={{ display: 'flex', justifyContent: { xs: 'center', md: 'flex-start' } }}>
+                <GetStartedButtons
+                  primaryLabel="Download Flux"
+                  primaryUrl="https://cdn.stokedconsulting.com/products/flux/installers/Flux-3.1.0-mac.pkg"
+                  primaryUrlTarget="_blank"
+                />
+              </Box>
+            </Box>
           </Box>
-        }
-      />
+        </Container>
+      </Box>
 
       {/* Video rendered in portal — completely outside any backdropFilter ancestor */}
       {videoPortal}
