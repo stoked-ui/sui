@@ -23,7 +23,7 @@
 
 1. **File abstraction layer** — browser-native `File`-compatible classes (`MediaFile`, `WebFile`, `AppFile`) that attach metadata, screenshot caches, audio waveforms, unique IDs, and persistence helpers on top of raw browser `File` objects. These classes are the canonical media data model consumed by `sui-editor`, `sui-timeline`, and `sui-file-explorer`.
 
-2. **React UI components** — `MediaViewer` (NORMAL / THEATER / FULLSCREEN FSM), `MediaCard` (thumbnail, progress, payment gate), `MediaGallery` (responsive grid, configurable data source), and `WebUserDirectChat` (support chat widget). All components accept framework-agnostic abstraction props (`IRouter`, `IAuth`, `IPayment`, `IQueue`) so they are usable outside of any specific app framework.
+2. **React UI components** — `MediaViewer` (NORMAL / THEATER / FULLSCREEN FSM), `MediaCard` (thumbnail, progress, payment gate), `MediaGallery` (responsive grid, configurable data source), and `WebUserDirectChat` (Telegram-backed support chat widget with live reply sync). All components accept framework-agnostic abstraction props (`IRouter`, `IAuth`, `IPayment`, `IQueue`) so they are usable outside of any specific app framework.
 
 3. **API client + React hooks** — type-safe `MediaApiClient` and resumable `UploadClient` that talk to the `sui-media-api` NestJS backend, plus a full TanStack Query hook layer (`useMediaList`, `useMediaItem`, `useMediaUpload`, etc.) and a `MediaApiProvider` React context. The `src/server/next-handler.ts` entry provides a Next.js App Router proxy (`createMediaHandler`) that keeps backend credentials server-side.
 
@@ -94,7 +94,7 @@ All defined in `src/abstractions/`:
 | `ThumbnailStrip` | `src/components/MediaCard/ThumbnailStrip.tsx` | Sprite-sheet-based hover preview strip. |
 | `VideoProgressBar` | `src/components/MediaCard/VideoProgressBar.tsx` | Scrubber / progress bar sub-component. |
 | `MediaGallery` | `src/components/MediaGallery/` | Responsive card grid. Source: `data[]`, REST `endpoint`, or S3 config. |
-| `WebUserDirectChat` | `src/components/WebUserDirectChat/` | In-app support chat widget; accepts a `DirectChatProvider` adapter. |
+| `WebUserDirectChat` | `src/components/WebUserDirectChat/` | In-app support chat widget; opens a live Telegram-backed conversation after the intake handshake and continues syncing replies into the widget. |
 
 ### React Hooks
 
@@ -148,7 +148,7 @@ Exported from `src/components/MediaViewer/hooks/`:
 No product doc files were listed as inputs. Based on source analysis, the following docs site contexts use this module:
 
 - **Media product showcase** — `docs/src/components/home/AdvancedShowcase.tsx`, routed at `/products/media/`
-- **Media component documentation** — `docs/data/media/docs/media-viewer/MediaViewerBasic.tsx` and surrounding docs pages
+- **Media component documentation** — `docs/data/media/docs/media-viewer/MediaViewerBasic.tsx`, `docs/data/media/docs/web-user-direct-chat/WebUserDirectChatLive.js`, and surrounding docs pages
 - **Home page showcase** — `docs/src/components/home/` (media listed as one of the four featured products)
 
 ---
@@ -161,7 +161,7 @@ From `SC_VIEWS.md`:
 |---------|-----------|------|
 | 1.1 | Home Page | `MediaCard`/`MediaViewer` embedded in `AdvancedShowcase` inside the `ProductsPreviews` grid |
 | 1.2 | Product Showcase Pages | `/products/media/` showcase uses `AdvancedShowcase` (media components) |
-| 1.3 | Product Documentation Pages | Media component API docs at `docs/data/media/docs/` with embedded `MediaViewer`, `MediaCard`, `MediaGallery` demos |
+| 1.3 | Product Documentation Pages | Media component API docs at `docs/data/media/docs/` with embedded `MediaViewer`, `MediaCard`, `MediaGallery`, and `WebUserDirectChat` demos |
 
 ---
 
@@ -185,7 +185,7 @@ From `SC_VIEWS.md`:
 | `@stoked-ui/editor` | `MediaFile`, `IMediaFile`, `MediaType`, `WebFile`, `AppFile`, `Stage`, `ScreenshotStore` (via `media` property on files) |
 | `@stoked-ui/timeline` | `MediaFile`, `IMediaFile`, `MediaType`, `Controller` types reference `IMediaFile` |
 | `@stoked-ui/file-explorer` | `IMediaFile`, `MediaFile`, drag-drop via `MediaFile.from()` |
-| `docs/` Next.js app | `MediaViewer`, `MediaCard`, `MediaGallery` in demos; `createMediaHandler` in API routes |
+| `docs/` Next.js app | `MediaViewer`, `MediaCard`, `MediaGallery`, and `WebUserDirectChat` in demos; `createMediaHandler` in API routes |
 
 ---
 

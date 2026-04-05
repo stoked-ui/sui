@@ -2,8 +2,6 @@ import * as React from 'react';
 import { Box } from "@mui/material";
 import { ActivityCalendar } from "react-activity-calendar";
 import { useTheme } from '@mui/material/styles';
-import { useResize } from '@stoked-ui/common';
-import { useResizeWindow } from '@stoked-ui/common';
 import { GithubContributionsResponse } from '../types/github';
 
 interface ActivityData extends GithubContributionsResponse {
@@ -19,6 +17,56 @@ interface GithubCalendarProps {
   blockSize?: number;
   fx?: 'punch' | 'highlight';
   startImage?: string;
+}
+
+function useWindowSize() {
+  const [size, setSize] = React.useState<[number, number]>(() => {
+    if (typeof window === 'undefined') {
+      return [0, 0];
+    }
+
+    return [window.innerWidth, window.innerHeight];
+  });
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined') {
+      return undefined;
+    }
+
+    const handleResize = () => {
+      setSize([window.innerWidth, window.innerHeight]);
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize();
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return size;
+}
+
+function useElementSize(elementRef: React.RefObject<HTMLElement | null>) {
+  const [size, setSize] = React.useState<{ width: number | undefined; height: number | undefined }>({
+    width: undefined,
+    height: undefined,
+  });
+
+  React.useEffect(() => {
+    const handleResize = () => {
+      setSize({
+        width: elementRef.current ? elementRef.current.offsetWidth : undefined,
+        height: elementRef.current ? elementRef.current.offsetHeight : undefined,
+      });
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, [elementRef]);
+
+  return size;
 }
 
 function formatActivityDate(date: Date) {
@@ -85,8 +133,8 @@ export default function GithubCalendar({ apiUrl, githubUser, windowMode = false,
   const [labelsTimer, setLabelsTimer] = React.useState<NodeJS.Timeout | null>(null);
   const theme = useTheme();
   const elementRef = React.useRef<HTMLDivElement>(null);
-  const [windowWidth, _] = useResizeWindow();
-  const elemSize= useResize(elementRef);
+  const [windowWidth] = useWindowSize();
+  const elemSize = useElementSize(elementRef);
 
 
   React.useEffect(() => {

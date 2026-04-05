@@ -37,6 +37,8 @@ interface PublicProduct {
   icon: string;
   hideProductFeatures?: boolean;
   prerelease?: 'alpha' | 'beta' | 'none';
+  privacyEnabled?: boolean;
+  termsEnabled?: boolean;
 }
 
 interface PublicPage {
@@ -169,6 +171,29 @@ export default function PublicProductDetailPage({ productSlug }: { productSlug?:
                     </List>
                   </Paper>
                 </div>
+              )}
+
+              {(product.privacyEnabled || product.termsEnabled) && (
+                <Stack direction="row" spacing={2} mt={4}>
+                  {product.privacyEnabled && (
+                    <Link
+                      href={`${product.url.replace(/\/$/, '')}/privacy`}
+                      variant="body2"
+                      color="text.secondary"
+                    >
+                      Privacy Policy
+                    </Link>
+                  )}
+                  {product.termsEnabled && (
+                    <Link
+                      href={`${product.url.replace(/\/$/, '')}/terms`}
+                      variant="body2"
+                      color="text.secondary"
+                    >
+                      Terms &amp; Conditions
+                    </Link>
+                  )}
+                </Stack>
               )}
             </div>
           )}

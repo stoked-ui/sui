@@ -11,25 +11,25 @@ const content = [
   {
     title: 'Installation',
     description: 'Add Stoked UI to your project with a few commands.',
-    link: '/stoked-ui/docs/getting-started/installation/',
+    link: '/products/stoked-ui/docs/installation/',
     icon: <InstallDesktopRoundedIcon color="primary" />,
   },
   {
     title: 'Usage',
     description: 'Learn the basics about the File Explorer components.',
-    link: '/stoked-ui/docs/getting-started/usage/',
+    link: '/products/stoked-ui/docs/usage/',
     icon: <DrawRoundedIcon color="primary" />,
   },
   {
     title: 'Example projects',
     description: 'A collection of boilerplates to jumpstart your next project.',
-    link: '/stoked-ui/docs/getting-started/example-projects/',
+    link: '/products/stoked-ui/docs/example-projects/',
     icon: <PlayCircleFilledWhiteRoundedIcon color="primary" />,
   },
   {
     title: 'Customizing components',
     description: 'Learn about the available customization methods.',
-    link: '/stoked-ui/docs/getting-started/file-explorer-customization/',
+    link: '/products/file-explorer/docs/file-customization/',
     icon: <DesignServicesRoundedIcon color="primary" />,
   },
 ];

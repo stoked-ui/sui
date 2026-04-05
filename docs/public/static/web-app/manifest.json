@@ -2,7 +2,7 @@
   "name": "Stoked UI - Editor",
   "short_name": "Editor",
   "display": "standalone",
-  "start_url": "/editor/pwa/",
+  "start_url": "/products/editor/pwa/",
   "theme_color": "#007FFF",
   "background_color": "#ffffff",
   "icons": [
@@ -14,7 +14,7 @@
   ],
   "file_handlers": {
     "editor-project": {
-      "action": "/open-file",
+      "action": "/products/editor/pwa/",
       "accept": {
         "application/stoked-ui-editor-video-project": [".sue"]
       }

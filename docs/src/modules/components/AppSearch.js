@@ -15,6 +15,7 @@ import DesignServicesRoundedIcon from '@mui/icons-material/DesignServicesRounded
 import CopyrightRoundedIcon from '@mui/icons-material/CopyrightRounded';
 import CollectionsBookmarkRoundedIcon from '@mui/icons-material/CollectionsBookmarkRounded';
 import LibraryBooksRoundedIcon from '@mui/icons-material/LibraryBooksRounded';
+import ForumRoundedIcon from '@mui/icons-material/ForumRounded';
 import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
 import ChecklistRoundedIcon from '@mui/icons-material/ChecklistRounded';
 import DriveFileRenameOutlineRoundedIcon from '@mui/icons-material/DriveFileRenameOutlineRounded';
@@ -118,6 +119,11 @@ function NewStartScreen() {
           name: 'MediaCard',
           href: '/media/docs/media-card/',
           icon: <LibraryBooksRoundedIcon className="DocSearch-NewStartScreenTitleIcon" />,
+        },
+        {
+          name: 'WebUserDirectChat',
+          href: '/media/docs/web-user-direct-chat/',
+          icon: <ForumRoundedIcon className="DocSearch-NewStartScreenTitleIcon" />,
         },
         {
           name: 'Roadmap',

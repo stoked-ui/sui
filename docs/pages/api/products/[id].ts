@@ -3,6 +3,7 @@ import { ObjectId } from 'mongodb';
 import { getDb } from 'docs/src/modules/db/mongodb';
 import { withAuth, AuthenticatedRequest } from 'docs/src/modules/auth/withAuth';
 import { createStripeProduct, createStripePrice } from 'docs/src/modules/license/stripeClient';
+import { sanitizePrivacyPolicyLocalizedContent } from 'docs/src/modules/utils/legalLocalization';
 
 type SubscriptionInput = {
   label?: string;
@@ -92,6 +93,10 @@ function normalizePromo(input: unknown): ProductPromoInput | null {
   };
 }
 
+function hasOwn(record: Record<string, unknown>, key: string) {
+  return Object.prototype.hasOwnProperty.call(record, key);
+}
+
 async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
   const { id } = req.query;
   if (!id || typeof id !== 'string') {
@@ -121,12 +126,12 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
   }
 
   if (req.method === 'PATCH') {
-    const { 
-      name, fullName, description, icon, url, live, 
+    const {
+      name, fullName, description, icon, url, live,
       hideProductFeatures, prerelease, features, promo,
       keyPrefix, price, currency, subscriptions,
       licenseDurationDays, gracePeriodDays, trialDurationDays,
-      maxActivations
+      maxActivations, privacyPolicy, termsAndConditions,
     } = req.body || {};
 
     if (!existingProduct) {
@@ -155,6 +160,40 @@ async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
     if (gracePeriodDays !== undefined) update.gracePeriodDays = gracePeriodDays;
     if (trialDurationDays !== undefined) update.trialDurationDays = trialDurationDays;
     if (maxActivations !== undefined) update.maxActivations = maxActivations;
+    if (privacyPolicy !== undefined) {
+      if (privacyPolicy === null) {
+        update.privacyPolicy = null;
+      } else if (typeof privacyPolicy === 'object' && !Array.isArray(privacyPolicy)) {
+        const privacyPolicyInput = privacyPolicy as Record<string, unknown>;
+        const existing = existingProduct?.privacyPolicy || {};
+        const existingLocalizedContent = sanitizePrivacyPolicyLocalizedContent(existing.localizedContent);
+        let localizedContent = existingLocalizedContent;
+
+        if (hasOwn(privacyPolicyInput, 'localizedContent')) {
+          localizedContent =
+            privacyPolicyInput.localizedContent === null
+              ? {}
+              : sanitizePrivacyPolicyLocalizedContent(privacyPolicyInput.localizedContent);
+        }
+
+        update.privacyPolicy = {
+          enabled: typeof privacyPolicyInput.enabled === 'boolean' ? privacyPolicyInput.enabled : existing.enabled ?? false,
+          content: typeof privacyPolicyInput.content === 'string' ? privacyPolicyInput.content : existing.content ?? '',
+          ...(Object.keys(localizedContent).length > 0 ? { localizedContent } : {}),
+        };
+      }
+    }
+    if (termsAndConditions !== undefined) {
+      if (termsAndConditions === null) {
+        update.termsAndConditions = null;
+      } else if (typeof termsAndConditions === 'object') {
+        const existing = existingProduct?.termsAndConditions || {};
+        update.termsAndConditions = {
+          enabled: typeof termsAndConditions.enabled === 'boolean' ? termsAndConditions.enabled : existing.enabled ?? false,
+          content: typeof termsAndConditions.content === 'string' ? termsAndConditions.content : existing.content ?? '',
+        };
+      }
+    }
 
     const normalizedSubscriptions = normalizeSubscriptions(subscriptions, existingProduct, price, currency);
 

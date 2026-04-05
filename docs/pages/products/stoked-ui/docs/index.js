@@ -1,10 +1,6 @@
 import * as React from 'react';
-import { useRouter } from 'next/navigation';
+import ClientRedirect from 'docs/src/modules/components/ClientRedirect';
 
 export default function Docs() {
-  const router = useRouter();
-  React.useEffect(() => {
-    router.push('./docs/overview');
-  }, []);
-  return null;
+  return <ClientRedirect href="/products/stoked-ui/docs/overview" />;
 }

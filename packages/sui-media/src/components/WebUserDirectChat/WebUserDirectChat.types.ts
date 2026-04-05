@@ -50,6 +50,9 @@ export interface WebUserDirectChatProps {
   /** Callback fired on submission error */
   onError?: (error: string) => void;
 
+  /** Poll interval for provider-backed live chat sync, in milliseconds */
+  pollIntervalMs?: number;
+
   /** Material-UI sx prop for custom styling */
   sx?: SxProps<Theme>;
 }
@@ -59,6 +62,7 @@ export interface DirectChatFormData {
   email: string;
   message: string;
   provider: DirectChatProvider;
+  sessionId?: string;
 }
 
 export type DirectChatStatus = 'idle' | 'collecting' | 'loading' | 'success' | 'error';

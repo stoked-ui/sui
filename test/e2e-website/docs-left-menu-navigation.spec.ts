@@ -13,96 +13,107 @@
  * See test/e2e-website/README.md for troubleshooting.
  */
 import { test, expect } from '@playwright/test';
+import docsPages from '../../docs/data/pages';
 
-/**
- * Pages to test - manually defined to avoid import issues with docs code
- */
-const navigablePages = [
-  // Introduction
+test.describe.configure({ timeout: 30 * 60 * 1000 });
+
+type PageNode = {
+  pathname: string;
+  title?: string;
+  children?: PageNode[];
+};
+
+function flattenLeafPages(nodes: PageNode[], leafPages: string[] = []) {
+  nodes.forEach((node) => {
+    if (Array.isArray(node.children) && node.children.length > 0) {
+      flattenLeafPages(node.children, leafPages);
+      return;
+    }
+
+    leafPages.push(node.pathname);
+  });
+
+  return leafPages;
+}
+
+const navigablePages = flattenLeafPages(docsPages as PageNode[])
+  .filter((pathname) => !pathname.includes('*'));
+
+const legacyRedirectPages = [
   '/stoked-ui/docs/overview',
-  '/stoked-ui/docs/installation',
-  '/stoked-ui/docs/usage',
-  '/stoked-ui/docs/example-projects',
-  '/stoked-ui/docs/faq',
-  '/stoked-ui/docs/support',
-  '/stoked-ui/docs/consulting',
-  '/stoked-ui/docs/vision',
-  '/stoked-ui/docs/roadmap',
-
-  // Media Selector
-  '/media-selector/docs/overview',
-  '/media-selector/docs/file-with-path',
-  '/media-selector/docs/id-generator',
-  '/media-selector/docs/roadmap',
-
-  // File Explorer
   '/file-explorer/docs/overview',
-  '/file-explorer/docs/getting-started',
-  '/file-explorer/docs/file-explorer-basic/items',
-  '/file-explorer/docs/file-explorer-basic/selection',
-  '/file-explorer/docs/file-explorer-basic/expansion',
-  '/file-explorer/docs/file-explorer-basic/customization',
-  '/file-explorer/docs/file-explorer-basic/focus',
-  '/file-explorer/docs/file-explorer/items',
-  '/file-explorer/docs/file-explorer/selection',
-  '/file-explorer/docs/file-explorer/expansion',
-  '/file-explorer/docs/file-explorer/customization',
-  '/file-explorer/docs/file-explorer/focus',
-  '/file-explorer/docs/file-explorer/dragzone',
-  '/file-explorer/docs/file-explorer/drag-and-drop',
-  '/file-explorer/docs/accessibility',
-  '/file-explorer/docs/file-customization',
-  '/file-explorer/docs/roadmap',
-
-  // Timeline
-  '/timeline/docs/overview',
-
-  // Github
-  '/github/docs/overview',
-  '/github/docs/github-calendar',
-  '/github/docs/github-events',
-  '/github/docs/roadmap',
-
-  // Editor
-  '/editor/docs/overview',
-  '/editor/docs/getting-started',
-  '/editor/components/editor',
-  '/editor/docs/labels',
-  '/editor/docs/scale',
-  '/editor/docs/actions',
-  '/editor/docs/customize',
-  '/editor/docs/grid',
-  '/editor/docs/events-callbacks',
-  '/editor/docs/controls',
-  '/editor/docs/drop-add',
-  '/editor/docs/backend-processing',
-  '/editor/docs/roadmap',
+  '/media-selector/docs/id-generator',
+  '/file-explorer/docs/file-customizaton',
+  '/file-explorer/docs/file-explorer/dropzone',
+  '/file-explorer/api/timeline',
+  '/editor/api/editor',
 ];
 
-// Helper function to verify a page loads correctly
+const testBaseUrl = process.env.PLAYWRIGHT_TEST_BASE_URL || 'https://stoked-ui.com';
+
+function toCanonicalPathname(pathname: string) {
+  if (pathname === '/' || pathname.endsWith('/')) {
+    return pathname;
+  }
+
+  return `${pathname}/`;
+}
+
+function toTestUrl(pathname: string) {
+  return new URL(toCanonicalPathname(pathname), testBaseUrl).toString();
+}
+
+function isTransientNavigationError(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error);
+
+  return (
+    message.includes('net::ERR_ABORTED')
+    || message.includes('frame was detached')
+    || message.includes('Target page, context or browser has been closed')
+  );
+}
+
+async function gotoWithRetry(page: any, pathname: string) {
+  const url = toTestUrl(pathname);
+  let lastError: unknown;
+
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    try {
+      await page.goto(url, {
+        waitUntil: 'domcontentloaded',
+        timeout: 180_000,
+      });
+      await page.waitForLoadState('networkidle', { timeout: 180_000 });
+      return;
+    } catch (error) {
+      lastError = error;
+
+      if (attempt === 3 || !isTransientNavigationError(error)) {
+        throw error;
+      }
+
+      await page.waitForTimeout(1000 * attempt);
+    }
+  }
+
+  throw lastError;
+}
+
 async function verifyPageLoads(page: any, pathname: string) {
-  // Navigate to the page
-  await page.goto(pathname);
+  await gotoWithRetry(page, pathname);
 
-  // Wait for the page to load
-  await page.waitForLoadState('networkidle');
-
-  // Verify the page doesn't show 404 content
   const pageContent = await page.textContent('body');
   expect(pageContent, `Page ${pathname} shows 404 content`).not.toContain('Page not found');
   expect(pageContent, `Page ${pathname} shows 404 content`).not.toContain("the page you were looking for wasn't found");
 
-  // Verify the page has main content (not just a skeleton/error)
-  const mainContent = await page.locator('#main-content');
-  await expect(mainContent, `Page ${pathname} missing main content`).toBeVisible();
+  const mainContent = page.locator('#main-content');
+  await expect(mainContent, `Page ${pathname} missing main content`).toBeVisible({ timeout: 15_000 });
 
-  // Verify no generic error messages in the main content
   const mainText = await mainContent.textContent();
   expect(mainText, `Page ${pathname} has no content`).toBeTruthy();
   expect(mainText?.length, `Page ${pathname} has insufficient content`).toBeGreaterThan(100);
 }
 
-// Single test that checks all pages
 test('all left menu navigation pages should load without 404 errors', async ({ page }) => {
   const failedPages: string[] = [];
 
@@ -115,63 +126,56 @@ test('all left menu navigation pages should load without 404 errors', async ({ p
     }
   }
 
-  // Report all failures at the end
   expect(failedPages, `The following pages failed to load: ${failedPages.join(', ')}`).toHaveLength(0);
 });
 
-// Test main menu sections are visible
+test('legacy route aliases should redirect without hitting 404s', async ({ page }) => {
+  const failedPages: string[] = [];
+
+  for (const pathname of legacyRedirectPages) {
+    try {
+      await verifyPageLoads(page, pathname);
+      expect(new URL(page.url()).pathname).not.toBe(pathname);
+    } catch (error) {
+      failedPages.push(pathname);
+      console.error(`Failed redirect ${pathname}:`, error);
+    }
+  }
+
+  expect(failedPages, `The following legacy redirects failed: ${failedPages.join(', ')}`).toHaveLength(0);
+});
+
 test('should have all top-level menu sections', async ({ page }) => {
-  await page.goto('/stoked-ui/docs/overview');
+  await gotoWithRetry(page, '/products/stoked-ui/docs/overview');
+  await page.waitForSelector('nav[aria-label="documentation"]', { timeout: 180_000 });
 
-  // Wait for navigation to load
-  await page.waitForSelector('nav[aria-label="documentation"]', { timeout: 10000 });
-
-  // Check for the main sections from our pages.ts
-  const expectedSections = [
-    'Introduction',
-    'Media Selector',
-    'File Explorer',
-    'Timeline',
-    'Github',
-    'Editor',
-  ];
+  const expectedSections = (docsPages as PageNode[])
+    .map((node) => node.title)
+    .filter((title): title is string => Boolean(title));
 
   for (const section of expectedSections) {
-    const sectionElement = page.locator(`nav[aria-label="documentation"]`).getByText(section, { exact: false });
+    const sectionElement = page.locator('nav[aria-label="documentation"]').getByText(section, { exact: false });
     await expect(sectionElement).toBeVisible();
   }
 });
 
-// Test navigation interaction
 test('should expand and navigate to child pages', async ({ page }) => {
-  await page.goto('/stoked-ui/docs/overview');
+  await gotoWithRetry(page, '/products/stoked-ui/docs/overview');
+  await page.waitForSelector('nav[aria-label="documentation"]', { timeout: 180_000 });
 
-  // Wait for navigation to load
-  await page.waitForSelector('nav[aria-label="documentation"]', { timeout: 10000 });
-
-  // Find and click on File Explorer section (which has children)
   const fileExplorerSection = page.locator('nav[aria-label="documentation"]').getByText('File Explorer', { exact: false });
-
-  // Click to expand if collapsed
-  const isVisible = await fileExplorerSection.isVisible();
-  if (isVisible) {
+  if (await fileExplorerSection.isVisible()) {
     await fileExplorerSection.click();
-    await page.waitForTimeout(500); // Wait for expansion animation
+    await page.waitForTimeout(500);
   }
 
-  // Click on a child page (e.g., "Getting Started")
   const gettingStartedLink = page.locator('nav[aria-label="documentation"]').getByRole('link', { name: /getting started/i });
-
-  // Check if the link exists and is visible
   const linkCount = await gettingStartedLink.count();
   if (linkCount > 0) {
     await gettingStartedLink.click();
-
-    // Verify we navigated to the correct page
     await page.waitForLoadState('networkidle');
-    expect(page.url()).toContain('/file-explorer/docs/getting-started');
+    expect(page.url()).toContain('/products/file-explorer/docs/getting-started');
 
-    // Verify no 404 content
     const pageContent = await page.textContent('body');
     expect(pageContent).not.toContain('Page not found');
   }

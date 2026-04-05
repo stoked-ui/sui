@@ -37,6 +37,10 @@ import {
   PublicSite,
   toAbsoluteSitePath,
 } from "./modules/utils/siteRouting";
+import {
+  buildCanonicalProductPath,
+  buildConsultingAdminProductsPath,
+} from "./modules/utils/siteRouteManifest";
 
 import TimelineShowcase from "./components/home/TimelineShowcase";
 import EditorShowcase from './components/home/EditorShowcase';
@@ -92,7 +96,7 @@ type ProductMenuItemProps = {
 
 function getTypeUrl(type: LinkType) {
   if (type === 'admin') {
-    return '/admin/products/';
+    return '/consulting/admin/products/';
   }
   return type === 'doc' ? '/docs/' : '/';
 }
@@ -109,7 +113,7 @@ function normalizeProductSuffix(type: LinkType, suffix: string) {
 
 function resolveProductBasePath(productId: string, site: PublicSite, url: string) {
   if (site === 'stoked-ui') {
-    return `/products${url}`;
+    return buildCanonicalProductPath(productId);
   }
 
   if (isConsultingPublicProductId(productId)) {
@@ -358,7 +362,7 @@ export class Product {
     if (type === 'admin') {
       return toAbsoluteSitePath(
         'consulting',
-        `/consulting/admin/products/${productId || this.data.id}${suffix}`,
+        `${buildConsultingAdminProductsPath(productId || this.data.id)}${suffix}`,
       );
     }
     const normalizedSuffix = normalizeProductSuffix(type, suffix);
@@ -367,7 +371,7 @@ export class Product {
       const productPath = resolveProductBasePath(
         productId,
         site,
-        site === 'stoked-ui' ? `/${productId}` : `/products/${productId}`,
+        site === 'stoked-ui' ? buildCanonicalProductPath(productId) : `/products/${productId}`,
       );
       return toAbsoluteSitePath(
         site,
@@ -935,6 +939,10 @@ const mediaData: TProduct = {
     description: 'Card component for displaying media items with thumbnails',
     id: 'media-card',
   }, {
+    name: 'WebUserDirectChat',
+    description: 'Conversational support widget for Telegram and WhatsApp relays',
+    id: 'web-user-direct-chat',
+  }, {
     name: 'Roadmap',
     description: 'What\'s next',
     id: 'roadmap',
@@ -1106,7 +1114,7 @@ const fluxData: TProduct = {
   url: "/products/flux",
   site: 'consulting',
   hideProductFeatures: true,
-  live: true,
+  live: false,
   showcaseType: AdvancedShowcase,
   features: [{
     name: 'Overview',
@@ -1137,7 +1145,7 @@ const focusCaptureData: TProduct = {
   url: '/products/focus-capture',
   site: 'consulting',
   hideProductFeatures: true,
-  live: true,
+  live: false,
   showcaseType: AdvancedShowcase,
   features: [{
     name: 'Overview',
@@ -1172,7 +1180,7 @@ const macMixerData: TProduct = {
   url: "/products/mac-mixer",
   site: 'consulting',
   hideProductFeatures: true,
-  live: true,
+  live: false,
   showcaseType: AdvancedShowcase,
   features: [{
     name: 'Overview',
@@ -1203,7 +1211,7 @@ const alwaysListeningData: TProduct = {
   url: "/products/always-listening",
   site: 'consulting',
   hideProductFeatures: true,
-  live: true,
+  live: false,
   showcaseType: AdvancedShowcase,
   features: [{
     name: 'Overview',
@@ -1234,7 +1242,7 @@ const stokdCloudData: TProduct = {
   url: "/products/stokd-cloud",
   site: 'consulting',
   hideProductFeatures: true,
-  live: true,
+  live: false,
   showcaseType: AdvancedShowcase,
   features: [{
     name: 'Overview',
@@ -1259,11 +1267,22 @@ const stokdCloud = new Product(stokdCloudData);
 const PRODUCTS: Products = new Products([fileExplorer, media, timeline, videoEditor]);
 const ALL_PRODUCTS: Products = new Products([sui]);
 const CONSULTING: Products = new Products([consultingFrontEnd, consultingBackEnd, consultingDevops, consultingAi]);
-const PUBLIC_FALLBACK_PRODUCTS: Products = new Products([sui, flux, focusCapture, macMixer, alwaysListening, stokdCloud]);
+// Only stoked-ui shown by default — consulting products come exclusively from the API
+const PUBLIC_FALLBACK_PRODUCTS: Products = new Products([sui]);
 const ALL_PACKAGES: Products = new Products([
   fileExplorer, media, common, mediaApi, mediaSelector, timeline, videoEditor, flux, focusCapture,
   macMixer, alwaysListening, stokdCloud,
   consultingFrontEnd, consultingBackEnd, consultingDevops, consultingAi
+]);
+
+// Enrichment metadata for API-sourced consulting products (showcase types, icons, etc.)
+// Not shown in the nav/footer until the API confirms the product exists.
+const CONSULTING_ENRICHMENT = new Map<string, TProduct>([
+  [flux.id, flux.data],
+  [focusCapture.id, focusCapture.data],
+  [macMixer.id, macMixer.data],
+  [alwaysListening.id, alwaysListening.data],
+  [stokdCloud.id, stokdCloud.data],
 ]);
 
 export type MenuProps = {
@@ -1282,7 +1301,10 @@ function useAllProducts(): Products {
           return;
         }
         const fallbackEntries = PUBLIC_FALLBACK_PRODUCTS.products.map((product) => product.data);
-        const fallbackById = new Map(fallbackEntries.map((product) => [product.id, product]));
+        const fallbackById = new Map<string, TProduct>([
+          ...fallbackEntries.map((p): [string, TProduct] => [p.id, p]),
+          ...CONSULTING_ENRICHMENT,
+        ]);
         const apiEntries = data.map((product: any) => {
           const fallback = fallbackById.get(product.productId);
           const entry: TProduct = {
@@ -1306,13 +1328,9 @@ function useAllProducts(): Products {
         });
         const orderedIds = [
           ...fallbackEntries.map((product) => product.id),
-          ...apiEntries
-            .map((product) => product.id)
-            .filter((productId) => !fallbackById.has(productId)),
+          ...apiEntries.map((product) => product.id).filter((id) => !fallbackEntries.some((p) => p.id === id)),
         ];
-        const merged = new Map<string, TProduct>(
-          fallbackEntries.map((product) => [product.id, product]),
-        );
+        const merged = new Map<string, TProduct>(fallbackEntries.map((product) => [product.id, product]));
         apiEntries.forEach((product) => {
           merged.set(product.id, product);
         });

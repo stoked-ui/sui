@@ -6,14 +6,14 @@ const EditorComponent = dynamic(() => import('./EditorComponent'), {ssr: false }
 
 export default function Index() {
   React.useEffect(() => {
-    const manifest = document.querySelector("link [rel='manifest']") as HTMLLinkElement;
+    const manifest = document.querySelector("link[rel='manifest']") as HTMLLinkElement | null;
     if (manifest) {
-      manifest.href = '/static/manifest.editor.pwa.json'
+      manifest.href = '/static/web-app/manifest.editor.pwa.json';
     }
-  }, [])
+  }, []);
   return (
     <BrandingCssVarsProvider>
       <EditorComponent />
     </BrandingCssVarsProvider>
-  )
+  );
 }

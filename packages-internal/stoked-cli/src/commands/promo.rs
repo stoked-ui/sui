@@ -71,6 +71,12 @@ pub enum PromoCommand {
         #[arg(long, default_value = "20")]
         limit: Option<u32>,
     },
+
+    /// Delete a Stripe promotion code by ID or code string
+    Delete {
+        /// Promotion code ID (e.g. promo_abc123) or the code string (e.g. WELCOME1)
+        id: String,
+    },
 }
 
 pub async fn run_promo(client: &ApiClient, command: PromoCommand, compact_json: bool) -> Result<()> {
@@ -140,6 +146,13 @@ pub async fn run_promo(client: &ApiClient, command: PromoCommand, compact_json: 
             }
             client
                 .request_json(Method::GET, "/api/licenses/promo-codes", &query, None, true)
+                .await?
+        }
+
+        PromoCommand::Delete { id } => {
+            let path = format!("/api/licenses/promo-codes/{}", id);
+            client
+                .request_json(Method::DELETE, &path, &[], None, true)
                 .await?
         }
     };

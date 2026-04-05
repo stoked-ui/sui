@@ -33,9 +33,40 @@
 /r/stoked-ui-figma-* https://mui-store.netlify.app/r/stoked-ui-figma-:splat 200
 /r/joy-ui-figma-* https://mui-store.netlify.app/r/joy-ui-figma-:splat 200
 
-### SUI File Explorer
-/file-explorer/ /file-explorer/overview 301
-/file-explorer/ / 301
+### SUI canonical product redirects
+/stoked-ui /products/stoked-ui 301
+/stoked-ui/docs/getting-started/installation /products/stoked-ui/docs/installation 301
+/stoked-ui/docs/getting-started/usage /products/stoked-ui/docs/usage 301
+/stoked-ui/docs/getting-started/example-projects /products/stoked-ui/docs/example-projects 301
+/stoked-ui/docs/getting-started/file-explorer-customization /products/file-explorer/docs/file-customization 301
+/stoked-ui/docs/media-selector/file-with-path /products/media-selector/docs/file-with-path 301
+/stoked-ui/* /products/stoked-ui/:splat 301
+/file-explorer /products/file-explorer 301
+/file-explorer/api/timeline /products/timeline/api/timeline 301
+/file-explorer/api/timeline-action /products/timeline/api/timeline 301
+/file-explorer/api/timeline-effect /products/timeline/api/timeline 301
+/file-explorer/api/timeline-engine /products/timeline/api/timeline 301
+/file-explorer/api/timeline-row /products/timeline/api/timeline 301
+/file-explorer/docs/file-customizaton /products/file-explorer/docs/file-customization 301
+/file-explorer/docs/file-explorer/dropzone /products/file-explorer/docs/file-explorer/dragzone 301
+/file-explorer/* /products/file-explorer/:splat 301
+/media /products/media 301
+/media/* /products/media/:splat 301
+/common /products/common 301
+/common/* /products/common/:splat 301
+/media-api /products/media-api 301
+/media-api/* /products/media-api/:splat 301
+/media-selector /products/media-selector 301
+/media-selector/docs/id-generator /products/media-selector/docs/usage 301
+/media-selector/* /products/media-selector/:splat 301
+/timeline /products/timeline 301
+/timeline/* /products/timeline/:splat 301
+/editor /products/editor 301
+/editor/api/editor /products/editor/components/editor 301
+/editor/* /products/editor/:splat 301
+/core/api/editor /products/editor/components/editor 301
+/core/api/file-explorer /products/file-explorer/api/file-explorer 301
+/core/api/timeline /products/timeline/api/timeline 301
 
 ### Consulting product pages
 /products/flux https://stokedconsulting.com/products/flux/ 301

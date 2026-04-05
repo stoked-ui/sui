@@ -578,13 +578,15 @@
 ### 11.2 Direct Chat Contact
 
 - **Actor:** Prospective client or user
-- **Goal:** Reach out via messaging platform
+- **Goal:** Reach out via messaging platform and continue the conversation in-app
 - **Steps:**
   1. View `WebUserDirectChat` component
-  2. Select provider: Telegram or WhatsApp
-  3. Enter contact information and message
-  4. Submit → `POST /api/chat/send` delivers message
-  5. Success confirmation displayed
+  2. Enter contact information and message
+  3. Submit → `POST /api/chat/send` creates a chat session and delivers the first Telegram message
+  4. Widget switches into live chat mode and polls `GET /api/chat/session/{sessionId}?after={sequence}`
+  5. Support replies to the forwarded Telegram message
+  6. Poll response returns the Telegram reply and appends it to the widget transcript
+  7. User sends follow-up messages from the widget → `POST /api/chat/send` with `sessionId`
 - **Views:** 9.10 WebUserDirectChat
 - **Products:** `sui-media`
 - **Entry points:** Chat widget on consulting pages

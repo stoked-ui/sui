@@ -13,6 +13,8 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Alert from '@mui/material/Alert';
 import { useRouter } from 'next/router';
 import { getApiUrl } from 'docs/src/modules/utils/getApiUrl';
+import { toAbsoluteSitePath } from 'docs/src/modules/utils/siteRouting';
+import { buildConsultingAdminProductsPath } from 'docs/src/modules/utils/siteRouteManifest';
 import ProductCard from './ProductCard';
 
 interface Product {
@@ -291,7 +293,9 @@ export default function ProductsPage() {
               <ProductCard
                 product={product}
                 pageCount={pageCounts[product._id] || 0}
-                onClick={() => router.push(`/admin/products/${product.productId}`)}
+                onClick={() => router.push(
+                  toAbsoluteSitePath('consulting', buildConsultingAdminProductsPath(product.productId)),
+                )}
                 onToggleLive={handleToggleLive}
                 onEdit={handleEdit}
                 onDelete={handleDelete}

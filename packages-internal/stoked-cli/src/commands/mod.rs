@@ -1056,11 +1056,16 @@ pub async fn run_deliverables(
                 );
 
                 // 3. Iterate over the client directory (second level = bundles/zips)
+                const SKIP_DIRS: &[&str] = &["node_modules", ".git", ".next", ".cache"];
                 for bundle_entry in std::fs::read_dir(&client_dir)? {
                     let bundle_entry = bundle_entry?;
                     let bundle_name = bundle_entry.file_name().to_string_lossy().to_string();
                     let bundle_path = bundle_entry.path();
                     let is_dir = bundle_entry.file_type()?.is_dir();
+
+                    if is_dir && SKIP_DIRS.contains(&bundle_name.as_str()) {
+                        continue;
+                    }
 
                     let bundle_id = bundle_name
                         .replace(".zip", "")
@@ -1077,6 +1082,14 @@ pub async fn run_deliverables(
                     if is_dir {
                         // Directory bundle (HTML presentation)
                         type_val = "html";
+                        let expected_index_path = bundle_path.join(&index_file);
+                        if !expected_index_path.exists() {
+                            println!(
+                                "  ⚠️  Skipping folder '{}': missing entry file '{}'.",
+                                bundle_name, index_file
+                            );
+                            continue;
+                        }
                         let walker = walkdir::WalkDir::new(&bundle_path)
                             .into_iter()
                             .filter_map(|e| e.ok());

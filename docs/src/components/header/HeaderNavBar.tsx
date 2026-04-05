@@ -215,7 +215,7 @@ export default function HeaderNavBar({ auth, managedProducts = [] }: HeaderNavBa
           ...menuProps,
           menuRef: productsMenuRef,
           linkType: isAdmin ? 'admin' : 'product',
-          adminHref: isAdmin ? toAbsoluteSitePath('consulting', '/admin/products') : undefined,
+          adminHref: isAdmin ? toAbsoluteSitePath('consulting', '/consulting/admin/products') : undefined,
         })}
         {CONSULTING.menu({ type: 'consulting', ...menuProps, menuRef: consultingMenuRef })}
         <li>

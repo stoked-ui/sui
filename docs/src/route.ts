@@ -1,19 +1,24 @@
 import { toAbsoluteSitePath } from 'docs/src/modules/utils/siteRouting';
+import {
+  buildCanonicalProductDocsPath,
+  buildCanonicalProductPath,
+  buildConsultingAdminProductsPath,
+} from 'docs/src/modules/utils/siteRouteManifest';
 
 type Routes = {
   [key: string]: string;
 };
 
 const ROUTES: Routes = {
-  stokedUi: toAbsoluteSitePath('stoked-ui', '/products/stoked-ui/'),
-  fileExplorer: '/products/stoked-ui/file-explorer/',
+  stokedUi: toAbsoluteSitePath('stoked-ui', `${buildCanonicalProductPath('stoked-ui')}/`),
+  fileExplorer: toAbsoluteSitePath('stoked-ui', `${buildCanonicalProductPath('file-explorer')}/`),
   cdn: 'https://cdn.stokedconsulting.com/',
-  media: '/products/media/',
-  mediaDocs: '/products/media/docs/overview/',
-  common: '/products/common/',
-  commonDocs: '/products/common/docs/overview/',
-  mediaApi: '/products/media-api/',
-  mediaApiDocs: '/products/media-api/docs/overview/',
+  media: toAbsoluteSitePath('stoked-ui', `${buildCanonicalProductPath('media')}/`),
+  mediaDocs: toAbsoluteSitePath('stoked-ui', `${buildCanonicalProductDocsPath('media')}/`),
+  common: toAbsoluteSitePath('stoked-ui', `${buildCanonicalProductPath('common')}/`),
+  commonDocs: toAbsoluteSitePath('stoked-ui', `${buildCanonicalProductDocsPath('common')}/`),
+  mediaApi: toAbsoluteSitePath('stoked-ui', `${buildCanonicalProductPath('media-api')}/`),
+  mediaApiDocs: toAbsoluteSitePath('stoked-ui', `${buildCanonicalProductDocsPath('media-api')}/`),
   videoValidator: '/products/video-validator/',
   videoValidatorDocs: '/products/video-validator/docs/overview/',
   suiFileExplorerOverviewDoc: '/material-ui/overview',
@@ -48,6 +53,7 @@ const ROUTES: Routes = {
   home: '/products/file-explorer/',
   consulting: toAbsoluteSitePath('consulting', '/consulting/'),
   consultingAdmin: toAbsoluteSitePath('consulting', '/consulting/admin/'),
+  consultingAdminProducts: toAbsoluteSitePath('consulting', `${buildConsultingAdminProductsPath()}/`),
   consultingClients: toAbsoluteSitePath('consulting', '/consulting/clients/'),
   consultingCustomer: toAbsoluteSitePath('consulting', '/consulting/customer/'),
   consultingGroupies: toAbsoluteSitePath('consulting', '/consulting/groupies/'),
@@ -80,13 +86,13 @@ const ROUTES: Routes = {
   components: '/material-ui/getting-started/supported-components/',
   customization: '/material-ui/customization/how-to-customize/',
   theming: '/material-ui/customization/theming/',
-  documentation: toAbsoluteSitePath('stoked-ui', '/products/stoked-ui/docs/overview/'),
+  documentation: toAbsoluteSitePath('stoked-ui', `${buildCanonicalProductDocsPath('stoked-ui')}/`),
   communityHelp: '/material-ui/getting-started/support/#community-help-free',
   showcase: '/material-ui/discover-more/showcase/',
   coreRoadmap: 'https://github.com/orgs/stoked-ui/projects/1',
-  vision: '/material-ui/discover-more/vision/',
-  support: toAbsoluteSitePath('stoked-ui', '/products/stoked-ui/docs/support/#direct-support'),
-  goldSponsor: '/material-ui/discover-more/backers/#gold-sponsors',
+  vision: toAbsoluteSitePath('stoked-ui', `${buildCanonicalProductDocsPath('stoked-ui', 'vision')}/`),
+  support: toAbsoluteSitePath('stoked-ui', `${buildCanonicalProductDocsPath('stoked-ui', 'support')}/#direct-support`),
+  goldSponsor: toAbsoluteSitePath('stoked-ui', `${buildCanonicalProductDocsPath('stoked-ui', 'support')}/#direct-support`),
   // Base UI doc pages
   baseDocs: 'https://stokedconsulting.com/base-ui/getting-started/',
   baseComponents: '/base-ui/all-components/',

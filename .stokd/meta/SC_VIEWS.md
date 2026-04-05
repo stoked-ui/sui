@@ -1,6 +1,6 @@
 # Stoked UI — View Classification
 
-> **Generated:** 2026-03-16 | **Updated:** 2026-03-16 | **Meta version:** 0.2.0
+> **Generated:** 2026-03-16 | **Updated:** 2026-04-03 | **Meta version:** 0.2.0
 > **Repository:** `@stoked-ui/sui`
 > **Root:** `/opt/worktrees/stoked-ui/stoked-ui-main`
 
@@ -64,7 +64,7 @@
 
 - **Products:** Flux, Mac Mixer, Always Listening, Stokd Cloud
 - **Location:** `docs/pages/products/{product-id}/main.tsx` (routed via consulting site)
-- **Notes:** Public-facing marketing product pages on `stokedconsulting.com`; `stoked-ui.com` requests for consulting-owned product slugs redirect here.
+- **Notes:** Public-facing marketing product pages on `stokedconsulting.com`; `stoked-ui.com` requests for consulting-owned product slugs redirect here. Product privacy pages live at `/products/{slug}/privacy` and accept `?l=` locale switches (`en`, `de`, `fr`, `ja`, `zh`, `ko`, `pt-br`, `es`) with English fallback.
 - **Regions:** Same structure as 1.2 — header, hero (`AdvancedShowcase`), feature chips, footer
 - **States:** same as 1.2
 
@@ -182,7 +182,7 @@
 - **Regions (detail):**
   | Zone | Component |
   |------|-----------|
-  | Form | Name, description, icon, features CRUD |
+  | Form | Name, description, icon, features CRUD, privacy policy editor with localized language variants |
   | Pages section | Product page management with nested pages |
   | Pricing tiers | Pricing configuration |
 - **States:** loading, empty, populated, editing, saving, not-found
@@ -850,8 +850,8 @@
 
 - **Products:** `sui-media`
 - **Location:** `packages/sui-media/src/components/WebUserDirectChat/WebUserDirectChat.tsx`
-- **Regions:** Contact form with provider selection (Telegram / WhatsApp)
-- **States:** idle, collecting (user entering data), loading (submitting), success (message sent), error (submission failed)
+- **Regions:** Conversational intake transcript, live message transcript, composer, retry/start-over footer for handshake failures
+- **States:** idle, collecting (user entering data), loading (sending), live (Telegram-backed chat open), complete (one-shot providers), error (submission failed)
 
 ---
 

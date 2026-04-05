@@ -7,6 +7,7 @@ import dotenv from 'dotenv';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 import { createRequire } from 'module';
 import { findPages } from './src/modules/utils/find.mjs';
+import { NEXT_ROUTE_REDIRECTS } from './src/modules/utils/siteRouteManifest.js';
 
 const currentDirectory = url.fileURLToPath(new URL('.', import.meta.url));
 const require = createRequire(import.meta.url);
@@ -64,6 +65,11 @@ export default withDocsInfra({
   },
   assetPrefix,
   basePath,
+  redirects: async () =>
+    NEXT_ROUTE_REDIRECTS.map((redirect) => ({
+      ...redirect,
+      permanent: true,
+    })),
   webpack: (config, options) => {
     const plugins = config.plugins.slice();
     if (process.env.DOCS_STATS_ENABLED) {

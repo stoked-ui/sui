@@ -30,6 +30,14 @@ import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import ArrowBackIcon from '@mui/icons-material/ArrowBackOutlined';
 import { useRouter } from 'next/router';
 import { getApiUrl } from 'docs/src/modules/utils/getApiUrl';
+import { defaultPrivacyPolicy, defaultTermsAndConditions } from 'docs/src/modules/utils/legalBoilerplate';
+import { toAbsoluteSitePath } from 'docs/src/modules/utils/siteRouting';
+import { buildConsultingAdminProductsPath } from 'docs/src/modules/utils/siteRouteManifest';
+import {
+  type PrivacyPolicyLocale,
+  type PrivacyPolicyLocalizedContent,
+  TRANSLATABLE_PRIVACY_POLICY_LOCALES,
+} from 'docs/src/modules/utils/legalLocalization';
 
 interface Feature {
   name: string;
@@ -46,6 +54,12 @@ interface ProductPromo {
   ctaUrl: string;
 }
 
+interface LegalDoc {
+  enabled: boolean;
+  content: string;
+  localizedContent?: PrivacyPolicyLocalizedContent;
+}
+
 interface ProductData {
   _id: string;
   productId: string;
@@ -60,6 +74,8 @@ interface ProductData {
   prerelease?: 'alpha' | 'beta' | 'none';
   features: Feature[];
   promo?: ProductPromo | null;
+  privacyPolicy?: LegalDoc | null;
+  termsAndConditions?: LegalDoc | null;
 }
 
 interface DocPage {
@@ -113,6 +129,13 @@ export default function ProductDetailPage({ productSlug }: { productSlug: string
     ctaLabel: 'Learn More',
     ctaUrl: '',
   });
+
+  // Legal documents state
+  const [privacyEnabled, setPrivacyEnabled] = React.useState(false);
+  const [privacyContent, setPrivacyContent] = React.useState('');
+  const [privacyLocalizedContent, setPrivacyLocalizedContent] = React.useState<PrivacyPolicyLocalizedContent>({});
+  const [termsEnabled, setTermsEnabled] = React.useState(false);
+  const [termsContent, setTermsContent] = React.useState('');
 
   // Feature editor state
   const [featureDialogOpen, setFeatureDialogOpen] = React.useState(false);
@@ -180,6 +203,63 @@ export default function ProductDetailPage({ productSlug }: { productSlug: string
     setPromoEnabled(false);
     setPromoDraft(buildDefaultPromo(product));
   }, [product, buildDefaultPromo]);
+
+  React.useEffect(() => {
+    if (!product) return;
+    setPrivacyEnabled(!!product.privacyPolicy?.enabled);
+    setPrivacyContent(product.privacyPolicy?.content ?? '');
+    setPrivacyLocalizedContent(product.privacyPolicy?.localizedContent ?? {});
+    setTermsEnabled(!!product.termsAndConditions?.enabled);
+    setTermsContent(product.termsAndConditions?.content ?? '');
+  }, [product]);
+
+  // --- Legal handlers ---
+  const handlePrivacyToggle = (checked: boolean) => {
+    setPrivacyEnabled(checked);
+    if (checked && !privacyContent) {
+      setPrivacyContent(defaultPrivacyPolicy(product?.fullName || product?.name || ''));
+    }
+  };
+
+  const handleTermsToggle = (checked: boolean) => {
+    setTermsEnabled(checked);
+    if (checked && !termsContent) {
+      setTermsContent(defaultTermsAndConditions(product?.fullName || product?.name || ''));
+    }
+  };
+
+  const handleSaveLegal = async () => {
+    try {
+      await apiFetch(`/api/products/${productSlug}`, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          privacyPolicy: {
+            enabled: privacyEnabled,
+            content: privacyContent,
+            localizedContent: privacyLocalizedContent,
+          },
+          termsAndConditions: { enabled: termsEnabled, content: termsContent },
+        }),
+      });
+      fetchData();
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to save legal documents');
+    }
+  };
+
+  const handlePrivacyTranslationChange = (locale: PrivacyPolicyLocale, value: string) => {
+    setPrivacyLocalizedContent((previous) => {
+      const next = { ...previous };
+
+      if (value.trim()) {
+        next[locale] = value;
+      } else {
+        delete next[locale];
+      }
+
+      return next;
+    });
+  };
 
   // --- Feature handlers ---
   const handleSaveFeature = async () => {
@@ -354,11 +434,13 @@ export default function ProductDetailPage({ productSlug }: { productSlug: string
     return <Alert severity="error">Product not found</Alert>;
   }
 
+  const privacyPolicyUrl = `${product.url.replace(/\/$/, '')}/privacy`;
+
   return (
     <Box>
       <Button
         startIcon={<ArrowBackIcon />}
-        onClick={() => router.push('/admin/products')}
+        onClick={() => router.push(toAbsoluteSitePath('consulting', buildConsultingAdminProductsPath()))}
         sx={{ mb: 2 }}
       >
         Back to Products
@@ -504,6 +586,168 @@ export default function ProductDetailPage({ productSlug }: { productSlug: string
             {promoEnabled ? 'Save Promo' : 'Remove Promo'}
           </Button>
         </Stack>
+      </Paper>
+
+      {/* Legal Documents Section */}
+      <Paper variant="outlined" sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h5" mb={3}>Legal Documents</Typography>
+
+        {/* Privacy Policy */}
+        <Stack direction="row" justifyContent="space-between" alignItems="flex-start" mb={2}>
+          <Box>
+            <Typography variant="h6">Privacy Policy</Typography>
+            <Typography variant="body2" color="text.secondary">
+              When enabled, published at{' '}
+              <code>{privacyPolicyUrl}</code>
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Localized versions are resolved with query params like{' '}
+              <code>{privacyPolicyUrl}?l=de</code> and fall back to English when a translation is empty.
+            </Typography>
+          </Box>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={privacyEnabled}
+                onChange={(e) => handlePrivacyToggle(e.target.checked)}
+              />
+            }
+            label={privacyEnabled ? 'Enabled' : 'Disabled'}
+          />
+        </Stack>
+        {privacyEnabled && (
+          <Box mb={3}>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
+              <Typography variant="subtitle2">English Content (Markdown)</Typography>
+              <Button
+                size="small"
+                onClick={() => setPrivacyContent(defaultPrivacyPolicy(product.fullName || product.name))}
+              >
+                Use Boilerplate
+              </Button>
+            </Stack>
+            <Box
+              component="textarea"
+              value={privacyContent}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setPrivacyContent(e.target.value)}
+              sx={(theme) => ({
+                width: '100%',
+                minHeight: 240,
+                fontFamily: 'monospace',
+                fontSize: '0.875rem',
+                padding: theme.spacing(1.5),
+                border: `1px solid ${theme.palette.divider}`,
+                backgroundColor: theme.palette.background.paper,
+                color: theme.palette.text.primary,
+                resize: 'vertical',
+                outline: 'none',
+                '&:focus': { borderColor: theme.palette.primary.main },
+              })}
+            />
+          </Box>
+        )}
+
+        {privacyEnabled && (
+          <Stack spacing={2} mb={2}>
+            <Typography variant="subtitle2">
+              Localized Privacy Policies (Optional)
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Configure the languages your app store listing needs. Empty translations use the English content.
+            </Typography>
+            {TRANSLATABLE_PRIVACY_POLICY_LOCALES.map((locale) => (
+              <Box key={locale.code}>
+                <Typography variant="subtitle2" mb={1}>
+                  {locale.label} (<code>?l={locale.queryValue}</code>)
+                </Typography>
+                <Box
+                  component="textarea"
+                  value={privacyLocalizedContent[locale.code] ?? ''}
+                  onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) =>
+                    handlePrivacyTranslationChange(locale.code, event.target.value)}
+                  sx={(theme) => ({
+                    width: '100%',
+                    minHeight: 180,
+                    fontFamily: 'monospace',
+                    fontSize: '0.875rem',
+                    padding: theme.spacing(1.5),
+                    border: `1px solid ${theme.palette.divider}`,
+                    backgroundColor: theme.palette.background.paper,
+                    color: theme.palette.text.primary,
+                    resize: 'vertical',
+                    outline: 'none',
+                    '&:focus': { borderColor: theme.palette.primary.main },
+                  })}
+                />
+              </Box>
+            ))}
+          </Stack>
+        )}
+
+        <Divider sx={{ my: 2 }} />
+
+        {/* Terms & Conditions */}
+        <Stack direction="row" justifyContent="space-between" alignItems="flex-start" mb={2}>
+          <Box>
+            <Typography variant="h6">Terms &amp; Conditions</Typography>
+            <Typography variant="body2" color="text.secondary">
+              When enabled, published at{' '}
+              <code>{product.url.replace(/\/$/, '')}/terms</code>
+            </Typography>
+          </Box>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={termsEnabled}
+                onChange={(e) => handleTermsToggle(e.target.checked)}
+              />
+            }
+            label={termsEnabled ? 'Enabled' : 'Disabled'}
+          />
+        </Stack>
+        {termsEnabled && (
+          <Box mb={2}>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
+              <Typography variant="subtitle2">Content (Markdown)</Typography>
+              <Button
+                size="small"
+                onClick={() => setTermsContent(defaultTermsAndConditions(product.fullName || product.name))}
+              >
+                Use Boilerplate
+              </Button>
+            </Stack>
+            <Box
+              component="textarea"
+              value={termsContent}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setTermsContent(e.target.value)}
+              sx={(theme) => ({
+                width: '100%',
+                minHeight: 240,
+                fontFamily: 'monospace',
+                fontSize: '0.875rem',
+                padding: theme.spacing(1.5),
+                border: `1px solid ${theme.palette.divider}`,
+                backgroundColor: theme.palette.background.paper,
+                color: theme.palette.text.primary,
+                resize: 'vertical',
+                outline: 'none',
+                '&:focus': { borderColor: theme.palette.primary.main },
+              })}
+            />
+          </Box>
+        )}
+
+        <Button
+          variant="contained"
+          onClick={handleSaveLegal}
+          disabled={
+            (privacyEnabled && !privacyContent.trim())
+            || (termsEnabled && !termsContent.trim())
+          }
+          sx={{ mt: 1 }}
+        >
+          Save Legal Documents
+        </Button>
       </Paper>
 
       {/* Features Section */}

@@ -228,7 +228,7 @@ export default function HeaderNavDropdown({ auth, managedProducts = [] }: Header
                     {isAdmin && (
                       <Tooltip title="Products admin">
                         <Anchor
-                          href={toAbsoluteSitePath('consulting', '/admin/products')}
+                          href={toAbsoluteSitePath('consulting', '/consulting/admin/products')}
                           as={Link}
                           noLinkStyle
                           sx={{ width: 'auto', px: 1 }}

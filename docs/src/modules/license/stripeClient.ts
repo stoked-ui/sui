@@ -224,6 +224,40 @@ export async function createStripePromotionCode(params: {
   return stripe.promotionCodes.create(promoParams);
 }
 
+export async function deleteStripePromotionCode(idOrCode: string): Promise<{ deleted: boolean; id: string }> {
+  const stripe = getStripeClient();
+
+  // If it looks like a promo code string (not a Stripe ID), look it up first
+  let promoId = idOrCode;
+  if (!idOrCode.startsWith('promo_')) {
+    const results = await stripe.promotionCodes.list({ code: idOrCode, limit: 1 });
+    if (results.data.length === 0) {
+      throw new LicenseStoreError(404, `Promotion code '${idOrCode}' not found`);
+    }
+    promoId = results.data[0].id;
+  }
+
+  // Stripe doesn't support deleting promotion codes — deactivate instead
+  await stripe.promotionCodes.update(promoId, { active: false });
+  return { deleted: true, id: promoId };
+}
+
+export async function listStripePromotionCodes(params: {
+  productId?: string;
+  limit?: number;
+}): Promise<Stripe.PromotionCode[]> {
+  const stripe = getStripeClient();
+  const listParams: Stripe.PromotionCodeListParams = {
+    limit: params.limit ?? 20,
+    expand: ['data.coupon'],
+  };
+  if (params.productId) {
+    listParams.active = true;
+  }
+  const result = await stripe.promotionCodes.list(listParams);
+  return result.data;
+}
+
 export function constructStripeWebhookEvent(rawBody: Buffer, signature: string): Stripe.Event {
   const stripe = getStripeClient();
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;

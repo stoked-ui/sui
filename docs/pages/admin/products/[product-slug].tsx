@@ -2,12 +2,14 @@ import * as React from 'react';
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
+import CircularProgress from '@mui/material/CircularProgress';
 import Section from 'docs/src/layouts/Section';
 import { BrandingCssVarsProvider } from '@stoked-ui/docs';
 import Head from 'docs/src/modules/components/Head';
 import AppFooter from 'docs/src/layouts/AppFooter';
 import AppHeader from 'docs/src/layouts/AppHeader';
 import { useRouter } from 'next/router';
+import { toAbsoluteSitePath } from 'docs/src/modules/utils/siteRouting';
 import dynamic from 'next/dynamic';
 
 import { GetStaticPaths, GetStaticProps } from 'next';
@@ -29,6 +31,7 @@ export const getStaticProps: GetStaticProps = async () => {
 
 function useAuth() {
   const [user, setUser] = React.useState<{ name: string; role: 'admin' | 'client'; id: string; clientId?: string } | null>(null);
+  const [loading, setLoading] = React.useState(true);
   React.useEffect(() => {
     const stored = localStorage.getItem('auth');
     if (stored) {
@@ -37,14 +40,31 @@ function useAuth() {
         setUser(parsed.user);
       } catch { /* ignore */ }
     }
+    setLoading(false);
   }, []);
-  return user;
+  return { user, loading };
 }
 
 export default function AdminProductDetailRoute() {
   const router = useRouter();
   const productSlug = router.query['product-slug'];
-  const user = useAuth();
+  const { user, loading } = useAuth();
+
+  React.useEffect(() => {
+    if (!loading && (!user || user.role !== 'admin')) {
+      router.replace(toAbsoluteSitePath('consulting', '/consulting/login'));
+    }
+  }, [loading, router, user]);
+
+  if (loading || !user || user.role !== 'admin') {
+    return (
+      <BrandingCssVarsProvider>
+        <Head title="Product Details - Stoked Consulting" description="View and manage product details" />
+        <AppHeader />
+        <Box display="flex" justifyContent="center" py={8}><CircularProgress /></Box>
+      </BrandingCssVarsProvider>
+    );
+  }
 
   return (
     <BrandingCssVarsProvider>
@@ -52,11 +72,11 @@ export default function AdminProductDetailRoute() {
       <AppHeader />
       <main id="main-content">
         <Container sx={{ py: 4 }}>
-          {user && typeof productSlug === 'string' ? (
+          {typeof productSlug === 'string' ? (
             <ProductDetailPage productSlug={productSlug} />
           ) : (
             <Box textAlign="center" py={8}>
-              Please log in to view product details.
+              Product not found.
             </Box>
           )}
         </Container>

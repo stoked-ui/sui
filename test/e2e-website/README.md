@@ -13,22 +13,25 @@ This runs all E2E tests against the production site at https://stoked-ui.com.
 
 ### Against Local Development Server
 
-**Note:** The local dev server uses experimental HTTPS with self-signed certificates. Due to SSL certificate validation issues with Next.js experimental HTTPS feature, we recommend running tests against production or a properly configured HTTPS environment.
+**Note:** The default local docs dev server runs on `http://localhost:5199`. If you use the experimental HTTPS debug server instead, you may hit certificate validation issues.
 
 If you need to test locally:
 
 ```bash
 # Start the docs dev server (in a separate terminal)
-cd docs && pnpm dev
+pnpm docs:dev
 
-# Run tests (may fail due to SSL certificate issues)
-PLAYWRIGHT_TEST_BASE_URL=https://localhost:5199 pnpm test:e2e-website:dev
+# Run tests against the local docs server
+pnpm test:e2e-website:dev
 ```
 
+If you use `pnpm docs:debug` instead of `pnpm docs:dev`, set
+`PLAYWRIGHT_TEST_BASE_URL=https://localhost:5199` and expect possible self-signed certificate issues.
+
 **Known Limitations:**
-- Next.js experimental HTTPS uses self-signed certificates that may not be properly trusted by Playwright
-- Even with `ignoreHTTPSErrors: true` in playwright.config.ts, SSL protocol errors may occur
-- For local testing, consider using a tool like `mkcert` to create trusted local certificates or run tests against production
+- Next.js experimental HTTPS may still trigger SSL protocol errors in Playwright
+- For the most stable local test runs, use `pnpm docs:dev` with `http://localhost:5199`
+- If you need HTTPS locally, consider using a trusted local certificate setup such as `mkcert`
 
 ## Test Files
 

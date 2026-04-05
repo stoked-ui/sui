@@ -1,4 +1,8 @@
 import { pathnameToLanguage } from 'docs/src/modules/utils/helpers';
+import {
+  CONSULTING_PUBLIC_PRODUCT_IDS,
+  STOKED_UI_PRODUCT_IDS,
+} from './siteRouteManifest';
 
 export type MuiProductId =
   | 'null'
@@ -13,7 +17,23 @@ export type MuiProductId =
   | 'x-charts'
   | 'x-tree-view'
   | 'toolpad-studio'
-  | 'toolpad-core';
+  | 'toolpad-core'
+  | 'stoked-ui'
+  | 'file-explorer'
+  | 'media'
+  | 'common'
+  | 'media-api'
+  | 'media-selector'
+  | 'timeline'
+  | 'editor'
+  | 'github'
+  | 'video-renderer'
+  | 'flux'
+  | 'focus-capture'
+  | 'mac-mixer'
+  | 'always-listening'
+  | 'stokd-cloud'
+  | 'versions';
 
 type MuiProductCategoryId = 'toolpad' | 'null' | 'core' | 'x';
 
@@ -28,19 +48,22 @@ interface MuiProductInfo {
 export default function getProductInfoFromUrl(asPath: string): MuiProductInfo {
   const asPathWithoutLang = pathnameToLanguage(asPath).canonicalAsServer;
   const firstFolder = asPathWithoutLang.replace(/^\/+([^/]+)\/.*/, '$1');
-  const consultingProductMatch = asPathWithoutLang.match(/^\/(?:consulting\/)?products\/([^/]+)/);
-  const consultingProductId = consultingProductMatch?.[1];
-  const consultingProductIds = [
-    'flux',
-    'focus-capture',
-    'mac-mixer',
-    'always-listening',
-    'stokd-cloud',
-  ];
+  const productMatch = asPathWithoutLang.match(/^\/(?:consulting\/)?products\/([^/?#]+)/);
+  const productIdFromProductsRoute = productMatch?.[1];
+  const stokedUiProductIds = new Set(STOKED_UI_PRODUCT_IDS);
+  const consultingProductIds = new Set(CONSULTING_PUBLIC_PRODUCT_IDS);
   // When serialized undefined/null are the same, so we encode null as 'null' to be
   // able to differentiate when the value isn't set vs. set to the right null value.
   let productCategoryId = 'null';
   let productId = 'null';
+
+  if (
+    productIdFromProductsRoute
+    && (stokedUiProductIds.has(productIdFromProductsRoute) || consultingProductIds.has(productIdFromProductsRoute))
+  ) {
+    productCategoryId = 'core';
+    productId = productIdFromProductsRoute;
+  }
 
   if (['stoked-ui', 'file-explorer', 'media', 'media-api', 'timeline', 'editor', 'core', 'github', 'common', 'video-renderer', 'video-validator', 'flux', 'versions'].indexOf(firstFolder) !== -1) {
     productCategoryId = 'core';
@@ -60,9 +83,9 @@ export default function getProductInfoFromUrl(asPath: string): MuiProductInfo {
     productId = 'docs-infra';
   }
 
-  if (consultingProductId && consultingProductIds.includes(consultingProductId)) {
+  if (productIdFromProductsRoute && consultingProductIds.has(productIdFromProductsRoute)) {
     productCategoryId = 'core';
-    productId = consultingProductId;
+    productId = productIdFromProductsRoute;
   }
 
   return {

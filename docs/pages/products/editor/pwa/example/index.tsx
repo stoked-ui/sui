@@ -6,11 +6,11 @@ import Head from 'docs/src/modules/components/Head';
 
 export default function Index() {
   React.useEffect(() => {
-    const manifest = document.querySelector("link [rel='manifest']") as HTMLLinkElement;
+    const manifest = document.querySelector("link[rel='manifest']") as HTMLLinkElement | null;
     if (manifest) {
-      manifest.href = ''
+      manifest.href = '/static/web-app/manifest.editor.pwa.example.json';
     }
-  }, [])
+  }, []);
   return (
     <BrandingCssVarsProvider>
       <React.Fragment>
@@ -18,7 +18,7 @@ export default function Index() {
               description="Create videos, on the web, without uploading anything, go!"
               card="/static/social-previews/editor-preview.png"
         >
-          <link rel="manifest" href="/static/manifest.editor.pwa.example.json" key={'manifest'}/>
+          <link rel="manifest" href="/static/web-app/manifest.editor.pwa.example.json" key={'manifest'} />
         </Head>
         <EditorProvider id={'pwa-example'} controllers={Controllers} >
           <Editor
@@ -28,7 +28,7 @@ export default function Index() {
             fileUrl={'/static/editor/stoked-ui-3.suer'}
           />
         </EditorProvider>
-    </React.Fragment>
+      </React.Fragment>
     </BrandingCssVarsProvider>
-  )
+  );
 }

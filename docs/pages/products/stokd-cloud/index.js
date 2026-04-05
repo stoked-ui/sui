@@ -1,7 +1,6 @@
 import * as React from 'react';
-import MarkdownDocs from 'docs/src/modules/components/MarkdownDocs';
-import * as pageProps from 'docs/data/stokd-cloud/docs/overview/overview.md?muiMarkdown';
+import PublicProductDetailPage from 'docs/src/modules/components/PublicProductDetailPage';
 
 export default function Page() {
-  return <MarkdownDocs {...pageProps} />;
+  return <PublicProductDetailPage productSlug="stokd-cloud" />;
 }

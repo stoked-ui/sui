@@ -8,6 +8,32 @@ import { WebUserDirectChat } from '../WebUserDirectChat';
 const mockFetch = jest.fn();
 global.fetch = mockFetch;
 
+function mockTelegramSessionStart() {
+  mockFetch
+    .mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({
+        status: 'sent',
+        sessionId: 'session-1',
+        lastSequence: 1,
+        message: {
+          id: 'message-1',
+          role: 'user',
+          content: 'Need help',
+          sequence: 1,
+        },
+      }),
+    })
+    .mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({
+        sessionId: 'session-1',
+        lastSequence: 1,
+        messages: [],
+      }),
+    });
+}
+
 describe('WebUserDirectChat', () => {
   beforeEach(() => {
     mockFetch.mockReset();
@@ -79,6 +105,16 @@ describe('WebUserDirectChat', () => {
       expect(screen.getByLabelText(/what should we call you/i)).toBeInTheDocument();
       expect(screen.getByText(/Got it. What should we call you/i)).toBeInTheDocument();
     });
+
+    await user.type(screen.getByLabelText(/what should we call you/i), 'Jane');
+    fireEvent.click(screen.getByRole('button', { name: /send/i }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(/If we get disconnected what email should we send our follow up to\?/i),
+      ).toBeInTheDocument();
+      expect(screen.getByLabelText(/where should we reply/i)).toBeInTheDocument();
+    });
   });
 
   it('blocks invalid email addresses in the final step', async () => {
@@ -102,11 +138,13 @@ describe('WebUserDirectChat', () => {
   });
 
   it('submits the collected conversation details and shows success on 200', async () => {
-    mockFetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ status: 'sent' }) });
+    mockTelegramSessionStart();
 
     const onSuccess = jest.fn();
     const user = userEvent.setup();
-    render(<WebUserDirectChat provider="telegram" onSuccess={onSuccess} />);
+    render(
+      <WebUserDirectChat provider="telegram" onSuccess={onSuccess} pollIntervalMs={60_000} />,
+    );
 
     await user.type(screen.getByLabelText(/what do you need help with/i), 'Need help with project');
     fireEvent.click(screen.getByRole('button', { name: /send/i }));
@@ -119,6 +157,8 @@ describe('WebUserDirectChat', () => {
       expect(
         screen.getByText(/We have your message and will follow up shortly/i),
       ).toBeInTheDocument();
+      expect(screen.getByLabelText(/send a message to support/i)).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /start new chat/i })).not.toBeInTheDocument();
     });
 
     expect(mockFetch).toHaveBeenCalledWith('/api/chat/send', {
@@ -160,7 +200,7 @@ describe('WebUserDirectChat', () => {
   });
 
   it('skips asking for name and email when they are prefilled', async () => {
-    mockFetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ status: 'sent' }) });
+    mockTelegramSessionStart();
 
     const user = userEvent.setup();
     render(
@@ -168,6 +208,7 @@ describe('WebUserDirectChat', () => {
         provider="telegram"
         initialName="Jane Doe"
         initialEmail="jane@example.com"
+        pollIntervalMs={60_000}
       />,
     );
 
@@ -189,16 +230,17 @@ describe('WebUserDirectChat', () => {
   });
 
   it('syncs prefilled user details that arrive before the chat starts', async () => {
-    mockFetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve({ status: 'sent' }) });
+    mockTelegramSessionStart();
 
     const user = userEvent.setup();
-    const { rerender } = render(<WebUserDirectChat provider="telegram" />);
+    const { rerender } = render(<WebUserDirectChat provider="telegram" pollIntervalMs={60_000} />);
 
     rerender(
       <WebUserDirectChat
         provider="telegram"
         initialName="Jane Doe"
         initialEmail="jane@example.com"
+        pollIntervalMs={60_000}
       />,
     );
 

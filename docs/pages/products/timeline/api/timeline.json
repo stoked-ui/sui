@@ -11,6 +11,6 @@
   "muiName": "MuiTimeline",
   "filename": "/packages/sui-timeline/src/Timeline/Timeline.tsx",
   "inheritance": null,
-  "demos": "<ul><li><a href=\"/timeline/docs/overview/\">Overview</a></li></ul>",
+  "demos": "<ul><li><a href=\"/products/timeline/docs/overview/\">Overview</a></li></ul>",
   "cssComponent": false
 }

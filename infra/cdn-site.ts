@@ -68,8 +68,18 @@ export const createCdnSite = async (domainInfo: CdnDomainInfo) => {
     edge: {
       viewerRequest: {
         injection: `
+          var uri = event.request.uri || '/';
+
           if (event.request.uri === '/api' || event.request.uri.indexOf('/api/') === 0) {
             setUrlOrigin(${JSON.stringify(consultingHost)});
+            return event.request;
+          }
+
+          var isDirectoryRequest = uri === '/' || uri.slice(-1) === '/';
+          var isFileRequest = /\\.[^/]+$/.test(uri);
+
+          if (isDirectoryRequest && !isFileRequest) {
+            event.request.uri = '/index.html';
             return event.request;
           }
         `,

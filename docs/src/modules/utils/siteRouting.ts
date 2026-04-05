@@ -1,49 +1,18 @@
+import {
+  CONSULTING_APP_SEGMENTS,
+  CONSULTING_PUBLIC_PRODUCT_IDS,
+  STOKED_UI_PRODUCT_IDS,
+} from './siteRouteManifest';
+
 export type PublicSite = 'stoked-ui' | 'consulting';
 
 export const STOKED_UI_ORIGIN = 'https://stoked-ui.com';
 export const STOKED_CONSULTING_ORIGIN = 'https://stokedconsulting.com';
 export const STOKED_CONSULTING_CDN_ORIGIN = buildCdnOrigin(STOKED_CONSULTING_ORIGIN);
 
-const STOKED_UI_PRODUCT_IDS = new Set([
-  'stoked-ui',
-  'file-explorer',
-  'media',
-  'common',
-  'media-api',
-  'media-selector',
-  'timeline',
-  'editor',
-]);
-
-const CONSULTING_PUBLIC_PRODUCT_IDS = new Set([
-  'flux',
-  'focus-capture',
-  'mac-mixer',
-  'always-listening',
-  'stokd-cloud',
-]);
-
-const CONSULTING_APP_SEGMENTS = new Set([
-  '',
-  'admin',
-  'ai',
-  'api-docs',
-  'back-end',
-  'billing',
-  'clients',
-  'customer',
-  'deliverables',
-  'devops',
-  'front-end',
-  'groupies',
-  'home',
-  'invoices',
-  'licenses',
-  'login',
-  'partners',
-  'settings',
-  'users',
-]);
+const stokedUiProductIds = new Set(STOKED_UI_PRODUCT_IDS);
+const consultingPublicProductIds = new Set(CONSULTING_PUBLIC_PRODUCT_IDS);
+const consultingAppSegments = new Set(CONSULTING_APP_SEGMENTS);
 
 function normalizePath(path: string) {
   if (!path) return '/';
@@ -77,37 +46,33 @@ export function originForSite(site: PublicSite) {
 }
 
 export function inferSiteForProductId(productId?: string): PublicSite {
-  if (productId && STOKED_UI_PRODUCT_IDS.has(productId)) {
+  if (productId && stokedUiProductIds.has(productId)) {
     return 'stoked-ui';
   }
   return 'consulting';
 }
 
 export function isConsultingPublicProductId(productId?: string) {
-  return Boolean(productId && CONSULTING_PUBLIC_PRODUCT_IDS.has(productId));
+  return Boolean(productId && consultingPublicProductIds.has(productId));
 }
 
 export function normalizePublicProductUrl(productId: string, url?: string) {
   const trimmed = typeof url === 'string' ? url.trim() : '';
-  const defaultPath = isConsultingPublicProductId(productId)
-    ? `/consulting/products/${productId}`
-    : `/products/${productId}`;
 
   if (trimmed && /^https?:\/\//i.test(trimmed)) {
     return trimmed;
   }
 
+  // Strip internal /consulting prefix — public URL is always /products/...
   if (trimmed.startsWith('/consulting/products/')) {
-    return trimmed;
+    return trimmed.replace(/^\/consulting/, '');
   }
 
   if (trimmed.startsWith('/products/')) {
-    return isConsultingPublicProductId(productId)
-      ? `/consulting${trimmed}`
-      : trimmed;
+    return trimmed;
   }
 
-  return defaultPath;
+  return `/products/${productId}`;
 }
 
 export function toConsultingPublicPath(path: string) {
@@ -160,5 +125,5 @@ export function toAbsoluteSitePath(site: PublicSite, path: string) {
 export function isConsultingAppPath(path: string) {
   const normalized = normalizePath(path);
   const segment = normalized.replace(/^\/+/, '').split('/')[0] || '';
-  return CONSULTING_APP_SEGMENTS.has(segment);
+  return consultingAppSegments.has(segment);
 }

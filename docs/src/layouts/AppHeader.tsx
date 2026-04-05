@@ -24,6 +24,7 @@ import {
   STOKED_UI_ORIGIN,
   toAbsoluteSitePath,
 } from 'docs/src/modules/utils/siteRouting';
+import ROUTES from 'docs/src/route';
 
 export interface AuthUser {
   id: string;
@@ -192,7 +193,12 @@ export default function AppHeader(props: AppHeaderProps) {
         }}
       />
       <Container sx={{ display: 'flex', alignItems: 'center', minHeight: HEIGHT }}>
-        <Box component={Link} href="/" aria-label="Go to homepage" sx={{ lineHeight: 0, mr: 2 }}>
+        <Box
+          component={Link}
+          href={isConsultingPage ? ROUTES.consulting : '/'}
+          aria-label="Go to homepage"
+          sx={{ lineHeight: 0, mr: 2 }}
+        >
           {isConsultingPage ? <SvgScLogo width={30} /> : <SvgSuiLogomark width={30} />}
         </Box>
         <Box sx={{ display: { xs: 'none', md: 'initial' } }}>

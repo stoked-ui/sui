@@ -1,5 +1,5 @@
 import React, { startTransition, useDeferredValue, useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   beginDesktopDownload,
   buildExportUrl,
@@ -173,6 +173,27 @@ function basenameForPath(path) {
   return segments[segments.length - 1] || normalized;
 }
 
+function normalizeDirectoryPrefix(prefix) {
+  return prefix
+    .trim()
+    .replace(/\/+/g, '/')
+    .replace(/^\//, '')
+    .replace(/(.+[^/])$/, '$1/');
+}
+
+function getPrefixFromPathname(pathname) {
+  if (!pathname || pathname === '/') {
+    return '';
+  }
+
+  return normalizeDirectoryPrefix(pathname);
+}
+
+function buildDirectoryPath(prefix) {
+  const normalized = normalizeDirectoryPrefix(prefix);
+  return normalized ? `/${normalized}` : '/';
+}
+
 function buildAbsolutePathUrl(path) {
   const origin = typeof window === 'undefined'
     ? publicBaseUrl
@@ -254,8 +275,10 @@ const permissionRoleOptions = [
 ];
 
 export default function App() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const prefix = searchParams.get('prefix') || '';
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const prefix = searchParams.get('prefix') || getPrefixFromPathname(location.pathname);
   const [query, setQuery] = useState('');
   const [reloadToken, setReloadToken] = useState(0);
   const [operationError, setOperationError] = useState('');
@@ -296,11 +319,10 @@ export default function App() {
   function openPrefix(nextPrefix) {
     setPermissionEditor(null);
     startTransition(() => {
-      if (nextPrefix) {
-        setSearchParams({ prefix: nextPrefix });
-      } else {
-        setSearchParams({});
-      }
+      navigate({
+        pathname: buildDirectoryPath(nextPrefix),
+        search: '',
+      });
     });
   }
 

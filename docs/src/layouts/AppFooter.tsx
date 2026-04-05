@@ -27,7 +27,7 @@ export default function AppFooter(props: AppFooterProps) {
   const { stackOverflowUrl } = props;
   const allProducts = useAllProducts();
   const router = useRouter();
-  const isConsultingPage = router.pathname.startsWith('/consulting');
+  const isConsultingPage = router.pathname.startsWith('/consulting') || router.pathname.startsWith('/admin');
 
   return (
     <Container component="footer">
@@ -54,7 +54,12 @@ export default function AppFooter(props: AppFooterProps) {
         }}
       >
         <div>
-          <Link prefetch={false} href="/" aria-label="Go to homepage" sx={{ mb: 2 }}>
+          <Link
+            prefetch={false}
+            href={isConsultingPage ? ROUTES.consulting : '/'}
+            aria-label="Go to homepage"
+            sx={{ mb: 2 }}
+          >
             {isConsultingPage ? (
               <React.Fragment>
                 <SvgStokedConsultingLogotype
@@ -109,19 +114,19 @@ export default function AppFooter(props: AppFooterProps) {
             <Typography fontWeight="semiBold" variant="body2" sx={{ mb: 0.5 }}>
               Consulting
             </Typography>
-            <Link prefetch={false} href="/consulting/">
+            <Link prefetch={false} href={ROUTES.consulting}>
               Overview
             </Link>
-            <Link prefetch={false} href="/consulting/front-end/">
+            <Link prefetch={false} href={ROUTES.consultingFrontEnd}>
               Front End
             </Link>
-            <Link prefetch={false} href="/consulting/back-end/">
+            <Link prefetch={false} href={ROUTES.consultingBackEnd}>
               Back End
             </Link>
-            <Link prefetch={false} href="/consulting/devops/">
+            <Link prefetch={false} href={ROUTES.consultingDevops}>
               Devops
             </Link>
-            <Link prefetch={false} href="/consulting/ai/">
+            <Link prefetch={false} href={ROUTES.consultingAi}>
               AI
             </Link>
           </Box>

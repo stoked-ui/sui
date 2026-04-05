@@ -22,7 +22,8 @@ const DEFAULT_SUBTITLE = 'Tell us what you need and we will route it to the righ
 const DEFAULT_PROMPTS: DirectChatPrompts = {
   askMessage: 'Hi, what do you need help with today?',
   askName: 'Got it. What should we call you?',
-  askEmail: 'Thanks. What email should we reply to?',
+  askEmail:
+    "Thanks. If we get disconnected what email should we send our follow up to? We'll connect you directly afterwards.",
   success: 'Thanks. We have your message and will follow up shortly.',
   failure: 'We could not send that just now.',
 };
@@ -32,7 +33,7 @@ const DEFAULT_PLACEHOLDERS: DirectChatPlaceholders = {
   email: 'you@example.com',
 };
 
-type ConversationStep = 'message' | 'name' | 'email' | 'review' | 'complete';
+type ConversationStep = 'message' | 'name' | 'email' | 'review' | 'complete' | 'live';
 type ChatMessageTone = 'default' | 'success' | 'error';
 
 interface ChatMessage {
@@ -42,13 +43,33 @@ interface ChatMessage {
   tone: ChatMessageTone;
 }
 
+interface DirectChatApiMessage {
+  id: string;
+  role: 'user' | 'support';
+  content: string;
+  sequence: number;
+}
+
+interface DirectChatSendResponse {
+  sessionId?: string;
+  lastSequence?: number;
+  message?: DirectChatApiMessage;
+}
+
+interface DirectChatSessionResponse {
+  sessionId: string;
+  lastSequence?: number;
+  messages?: DirectChatApiMessage[];
+}
+
 function createChatMessage(
   role: ChatMessage['role'],
   content: string,
   tone: ChatMessageTone = 'default',
+  id?: string,
 ): ChatMessage {
   return {
-    id: `${role}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    id: id ?? `${role}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     role,
     content,
     tone,
@@ -64,6 +85,27 @@ function normalizeEmail(email?: string) {
   return EMAIL_REGEX.test(trimmed) ? trimmed : '';
 }
 
+function buildSessionPollUrl(apiEndpoint: string, sessionId: string, afterSequence: number) {
+  const url = new URL(
+    apiEndpoint,
+    typeof window === 'undefined' ? 'http://localhost' : window.location.origin,
+  );
+  const nextPathname = url.pathname.replace(
+    /\/send\/?$/,
+    `/session/${encodeURIComponent(sessionId)}`,
+  );
+  url.pathname = nextPathname === url.pathname
+    ? `${url.pathname.replace(/\/$/, '')}/session/${encodeURIComponent(sessionId)}`
+    : nextPathname;
+  url.searchParams.set('after', String(afterSequence));
+
+  if (typeof window !== 'undefined' && url.origin === window.location.origin) {
+    return `${url.pathname}${url.search}`;
+  }
+
+  return url.toString();
+}
+
 export function WebUserDirectChat({
   provider,
   apiEndpoint = '/api/chat/send',
@@ -76,6 +118,7 @@ export function WebUserDirectChat({
   placeholders: placeholderOverrides,
   onSuccess,
   onError,
+  pollIntervalMs = 3000,
   sx,
 }: WebUserDirectChatProps) {
   const prompts = React.useMemo(
@@ -96,6 +139,8 @@ export function WebUserDirectChat({
   const normalizedInitialName = React.useMemo(() => normalizeName(initialName), [initialName]);
   const normalizedInitialEmail = React.useMemo(() => normalizeEmail(initialEmail), [initialEmail]);
   const messagesRef = React.useRef<HTMLDivElement | null>(null);
+  const syncedMessageIdsRef = React.useRef<Set<string>>(new Set());
+  const lastSequenceRef = React.useRef(0);
 
   const [messages, setMessages] = React.useState<ChatMessage[]>([
     createChatMessage('assistant', prompts.askMessage),
@@ -108,6 +153,7 @@ export function WebUserDirectChat({
   const [status, setStatus] = React.useState<DirectChatStatus>('idle');
   const [composerError, setComposerError] = React.useState('');
   const [retryPayload, setRetryPayload] = React.useState<DirectChatFormData | null>(null);
+  const [sessionId, setSessionId] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     if (messages.length !== 1 || step !== 'message' || capturedMessage) {
@@ -145,6 +191,26 @@ export function WebUserDirectChat({
     setMessages((currentMessages) => [...currentMessages, message]);
   }, []);
 
+  const appendServerMessages = React.useCallback((incomingMessages: DirectChatApiMessage[]) => {
+    const nextMessages = incomingMessages
+      .filter((message) => !syncedMessageIdsRef.current.has(message.id))
+      .map((message) => {
+        syncedMessageIdsRef.current.add(message.id);
+        return createChatMessage(
+          message.role === 'support' ? 'assistant' : 'user',
+          message.content,
+          'default',
+          message.id,
+        );
+      });
+
+    if (nextMessages.length === 0) {
+      return;
+    }
+
+    setMessages((currentMessages) => [...currentMessages, ...nextMessages]);
+  }, []);
+
   const resetConversation = React.useCallback(() => {
     setMessages([createChatMessage('assistant', prompts.askMessage)]);
     setInputValue('');
@@ -155,6 +221,9 @@ export function WebUserDirectChat({
     setStatus('idle');
     setComposerError('');
     setRetryPayload(null);
+    setSessionId(null);
+    syncedMessageIdsRef.current = new Set();
+    lastSequenceRef.current = 0;
   }, [normalizedInitialEmail, normalizedInitialName, prompts.askMessage]);
 
   const submitConversation = React.useCallback(
@@ -170,17 +239,34 @@ export function WebUserDirectChat({
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         });
+        const data = (await response.json().catch(() => ({}))) as DirectChatSendResponse & {
+          message?: string;
+        };
 
         if (!response.ok) {
-          const data = await response.json().catch(() => ({ message: 'Something went wrong' }));
           throw new Error(data.message || `Request failed (${response.status})`);
         }
 
+        if (data.message?.id) {
+          syncedMessageIdsRef.current.add(data.message.id);
+        }
+        if (typeof data.lastSequence === 'number') {
+          lastSequenceRef.current = data.lastSequence;
+        }
+
         appendMessage(createChatMessage('assistant', prompts.success, 'success'));
-        setStatus('success');
-        setStep('complete');
         setRetryPayload(null);
         onSuccess?.();
+
+        if (provider === 'telegram' && data.sessionId) {
+          setSessionId(data.sessionId);
+          setStatus('idle');
+          setStep('live');
+          return;
+        }
+
+        setStatus('success');
+        setStep('complete');
       } catch (error) {
         const message = error instanceof Error ? error.message : 'Something went wrong';
         appendMessage(
@@ -190,8 +276,123 @@ export function WebUserDirectChat({
         onError?.(message);
       }
     },
-    [apiEndpoint, appendMessage, onError, onSuccess, prompts.failure, prompts.success],
+    [
+      apiEndpoint,
+      appendMessage,
+      onError,
+      onSuccess,
+      prompts.failure,
+      prompts.success,
+      provider,
+    ],
   );
+
+  const sendLiveMessage = React.useCallback(
+    async (message: string) => {
+      if (!sessionId) {
+        return;
+      }
+
+      setStatus('loading');
+
+      try {
+        const response = await fetch(apiEndpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sessionId,
+            name: capturedName,
+            email: capturedEmail,
+            message,
+            provider,
+          }),
+        });
+        const data = (await response.json().catch(() => ({}))) as DirectChatSendResponse & {
+          message?: string;
+        };
+
+        if (!response.ok) {
+          throw new Error(data.message || `Request failed (${response.status})`);
+        }
+
+        if (data.message?.id) {
+          syncedMessageIdsRef.current.add(data.message.id);
+        }
+        if (typeof data.lastSequence === 'number') {
+          lastSequenceRef.current = data.lastSequence;
+        }
+
+        setStatus('idle');
+        onSuccess?.();
+      } catch (error) {
+        const nextError = error instanceof Error ? error.message : 'Something went wrong';
+        appendMessage(
+          createChatMessage('assistant', `${prompts.failure} ${nextError}`.trim(), 'error'),
+        );
+        setStatus('error');
+        onError?.(nextError);
+      }
+    },
+    [
+      apiEndpoint,
+      appendMessage,
+      capturedEmail,
+      capturedName,
+      onError,
+      onSuccess,
+      prompts.failure,
+      provider,
+      sessionId,
+    ],
+  );
+
+  React.useEffect(() => {
+    if (provider !== 'telegram' || step !== 'live' || !sessionId) {
+      return undefined;
+    }
+
+    let active = true;
+
+    const syncConversation = async () => {
+      try {
+        const response = await fetch(
+          buildSessionPollUrl(apiEndpoint, sessionId, lastSequenceRef.current),
+        );
+        const data = (await response.json().catch(() => ({}))) as DirectChatSessionResponse & {
+          message?: string;
+        };
+
+        if (!response.ok) {
+          throw new Error(data.message || `Request failed (${response.status})`);
+        }
+
+        if (!active) {
+          return;
+        }
+
+        if (Array.isArray(data.messages)) {
+          appendServerMessages(data.messages);
+        }
+        if (typeof data.lastSequence === 'number') {
+          lastSequenceRef.current = Math.max(lastSequenceRef.current, data.lastSequence);
+        }
+      } catch (error) {
+        if (process.env.NODE_ENV !== 'production') {
+          console.warn('[WebUserDirectChat] Failed to sync live chat session', error);
+        }
+      }
+    };
+
+    void syncConversation();
+    const intervalId = window.setInterval(() => {
+      void syncConversation();
+    }, pollIntervalMs);
+
+    return () => {
+      active = false;
+      window.clearInterval(intervalId);
+    };
+  }, [apiEndpoint, appendServerMessages, pollIntervalMs, provider, sessionId, step]);
 
   const handleSend = React.useCallback(() => {
     if (status === 'loading' || step === 'review' || step === 'complete') {
@@ -205,7 +406,9 @@ export function WebUserDirectChat({
           ? 'Start by telling us what you need help with.'
           : step === 'name'
             ? 'Tell us your name so we know who we are speaking with.'
-            : 'Please enter a valid email address so we can reply.',
+            : step === 'live'
+              ? 'Type a message so support has something to send.'
+              : 'Please enter a valid email address so we can reply.',
       );
       return;
     }
@@ -218,6 +421,11 @@ export function WebUserDirectChat({
     setComposerError('');
     appendMessage(createChatMessage('user', nextValue));
     setInputValue('');
+
+    if (step === 'live') {
+      void sendLiveMessage(nextValue);
+      return;
+    }
 
     if (step === 'message') {
       setCapturedMessage(nextValue);
@@ -280,6 +488,7 @@ export function WebUserDirectChat({
     prompts.askEmail,
     prompts.askName,
     provider,
+    sendLiveMessage,
     status,
     step,
     submitConversation,
@@ -299,6 +508,21 @@ export function WebUserDirectChat({
   };
 
   const composerConfig = React.useMemo(() => {
+    if (step === 'live') {
+      return {
+        autoComplete: 'off',
+        chip: 'Direct chat',
+        helperText: 'Replies from Telegram appear here. Press Enter to send.',
+        inputMode: 'text' as const,
+        label: 'Send a message to support',
+        maxRows: 5,
+        minRows: 2,
+        multiline: true,
+        placeholder: 'Type your next message',
+        type: 'text' as const,
+      };
+    }
+
     if (step === 'name') {
       return {
         autoComplete: 'name',
@@ -478,7 +702,9 @@ export function WebUserDirectChat({
               })}
             >
               <CircularProgress size={14} />
-              <Typography variant="body2">Sending to support...</Typography>
+              <Typography variant="body2">
+                {step === 'live' ? 'Sending your message...' : 'Sending to support...'}
+              </Typography>
             </Stack>
           </Box>
         )}

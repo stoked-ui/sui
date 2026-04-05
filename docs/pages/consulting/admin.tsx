@@ -18,6 +18,7 @@ import Head from 'docs/src/modules/components/Head';
 import AppFooter from 'docs/src/layouts/AppFooter';
 import AppHeader from 'docs/src/layouts/AppHeader';
 import { useRouter } from 'next/router';
+import { toAbsoluteSitePath } from 'docs/src/modules/utils/siteRouting';
 
 function useAuth() {
   const [user, setUser] = React.useState<{ name: string; role: string; id: string } | null>(null);
@@ -35,14 +36,14 @@ function useAuth() {
 }
 
 const navItems = [
-  { label: 'Clients', href: '/consulting/clients', icon: <PeopleIcon />, description: 'Manage consulting clients and their deliverables' },
-  { label: 'Products', href: '/admin/products', icon: <InventoryIcon />, description: 'Manage products, pricing, and pages' },
-  { label: 'Users', href: '/consulting/users', icon: <PersonIcon />, description: 'Manage user accounts and roles' },
-  { label: 'Invoices', href: '/consulting/invoices', icon: <ReceiptIcon />, description: 'View and manage invoices' },
-  { label: 'Licenses', href: '/consulting/licenses', icon: <VpnKeyIcon />, description: 'Manage software licenses' },
+  { label: 'Clients', href: toAbsoluteSitePath('consulting', '/consulting/clients'), icon: <PeopleIcon />, description: 'Manage consulting clients and their deliverables' },
+  { label: 'Products', href: toAbsoluteSitePath('consulting', '/consulting/admin/products'), icon: <InventoryIcon />, description: 'Manage products, pricing, and pages' },
+  { label: 'Users', href: toAbsoluteSitePath('consulting', '/consulting/users'), icon: <PersonIcon />, description: 'Manage user accounts and roles' },
+  { label: 'Invoices', href: toAbsoluteSitePath('consulting', '/consulting/invoices'), icon: <ReceiptIcon />, description: 'View and manage invoices' },
+  { label: 'Licenses', href: toAbsoluteSitePath('consulting', '/consulting/licenses'), icon: <VpnKeyIcon />, description: 'Manage software licenses' },
   { label: 'Blog', href: '/blog', icon: <ArticleIcon />, description: 'Manage blog posts' },
-  { label: 'API Docs', href: '/consulting/api-docs', icon: <ArticleIcon />, description: 'API documentation and testing' },
-  { label: 'Settings', href: '/consulting/settings', icon: <SettingsIcon />, description: 'Application settings' },
+  { label: 'API Docs', href: toAbsoluteSitePath('consulting', '/consulting/api-docs'), icon: <ArticleIcon />, description: 'API documentation and testing' },
+  { label: 'Settings', href: toAbsoluteSitePath('consulting', '/consulting/settings'), icon: <SettingsIcon />, description: 'Application settings' },
 ];
 
 export default function AdminDashboard() {

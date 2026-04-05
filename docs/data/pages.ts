@@ -51,6 +51,7 @@ const pages: MuiPage[] = [
       { pathname: '/products/media/docs/media-file', title: 'MediaFile' },
       { pathname: '/products/media/docs/media-viewer', title: 'MediaViewer' },
       { pathname: '/products/media/docs/media-card', title: 'MediaCard' },
+      { pathname: '/products/media/docs/web-user-direct-chat', title: 'WebUserDirectChat' },
       { pathname: '/products/media/docs/api-client', title: 'API Client' },
       { pathname: '/products/media/docs/hooks', title: 'Hooks' },
       { pathname: '/products/media/docs/migration', title: 'Migration Guide' },

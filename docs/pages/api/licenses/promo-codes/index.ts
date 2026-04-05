@@ -1,16 +1,29 @@
 import type { NextApiResponse } from 'next';
 import { withAuth, AuthenticatedRequest } from 'docs/src/modules/auth/withAuth';
-import { createStripeCoupon, createStripePromotionCode } from 'docs/src/modules/license/stripeClient';
+import { createStripeCoupon, createStripePromotionCode, listStripePromotionCodes } from 'docs/src/modules/license/stripeClient';
 import { handleLicenseApiError } from 'docs/src/modules/license/licenseApiUtils';
 import { getLicenseProductOrThrow } from 'docs/src/modules/license/licenseStore';
 
 async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
-  if (req.method !== 'POST') {
+  if (req.method !== 'POST' && req.method !== 'GET') {
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
   if (req.user.role !== 'admin') {
     return res.status(403).json({ message: 'Admin access required' });
+  }
+
+  if (req.method === 'GET') {
+    const { productId, limit } = req.query;
+    try {
+      const codes = await listStripePromotionCodes({
+        productId: typeof productId === 'string' ? productId : undefined,
+        limit: typeof limit === 'string' ? parseInt(limit, 10) : undefined,
+      });
+      return res.status(200).json(codes);
+    } catch (error: unknown) {
+      return handleLicenseApiError(res, error, 'Failed to list promo codes');
+    }
   }
 
   const {

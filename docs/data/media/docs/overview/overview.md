@@ -30,6 +30,7 @@ yarn add @stoked-ui/media
 - **MediaFile** — Enhanced file handling with automatic metadata extraction for images, video, and audio
 - **MediaViewer** — Full-screen media viewing component with playback controls and playlists
 - **MediaCard** — Card component for displaying media items with thumbnail strips and progress bars
+- **WebUserDirectChat** — Conversational support widget with Telegram-backed live reply sync after the intake handshake
 - **MediaApiClient** — API client with React hooks built on TanStack Query for communicating with `@stoked-ui/media-api`
 - **WebFile & FileSystemApi** — Modern File System Access API integration for persistent file management
 - **Framework Abstractions** — Pluggable interfaces for routing, authentication, payments, queues, and keyboard shortcuts
@@ -52,6 +53,14 @@ A card component for displaying media items with thumbnail strips and video prog
 import { MediaCard } from '@stoked-ui/media';
 ```
 
+### WebUserDirectChat
+
+A conversational support intake widget for direct messaging workflows with live Telegram follow-up.
+
+```jsx
+import { WebUserDirectChat } from '@stoked-ui/media';
+```
+
 ### MediaFile
 
 Enhanced file class with automatic type detection and metadata extraction.
@@ -64,5 +73,6 @@ import { MediaFile } from '@stoked-ui/media';
 
 - Check the [MediaViewer docs](/media/docs/media-viewer/) for live demos and usage
 - Check the [MediaCard docs](/media/docs/media-card/) for card display options
+- Check the [WebUserDirectChat docs](/media/docs/web-user-direct-chat/) for the live support widget demo
 - Check the [Migration Guide](/media/docs/migration/) to upgrade from `@stoked-ui/media-selector`
 - See the [Roadmap](/media/docs/roadmap/) for upcoming features

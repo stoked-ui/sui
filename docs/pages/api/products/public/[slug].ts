@@ -29,6 +29,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           icon: 1,
           hideProductFeatures: 1,
           prerelease: 1,
+          'privacyPolicy.enabled': 1,
+          'termsAndConditions.enabled': 1,
         },
       },
     );
@@ -50,6 +52,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     product: {
       ...product,
       url: normalizePublicProductUrl(product.productId, product.url),
+      privacyEnabled: !!(product as any).privacyPolicy?.enabled,
+      termsEnabled: !!(product as any).termsAndConditions?.enabled,
+      privacyPolicy: undefined,
+      termsAndConditions: undefined,
     },
     pages,
   });

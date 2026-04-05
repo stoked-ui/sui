@@ -2,105 +2,58 @@ import { expect } from 'chai';
 import getProductInfoFromUrl from './getProductInfoFromUrl';
 
 describe('getProductInfoFromUrl', () => {
-  it('should handle Stoked UI', () => {
-    expect(getProductInfoFromUrl('/material-ui/react-button/')).to.deep.equal({
+  it('handles canonical stoked-ui product routes', () => {
+    expect(getProductInfoFromUrl('/products/stoked-ui/docs/overview/')).to.deep.equal({
       productCategoryId: 'core',
-      productId: 'material-ui',
+      productId: 'stoked-ui',
     });
-    expect(getProductInfoFromUrl('/zh/material-ui/react-button/')).to.deep.equal({
+    expect(getProductInfoFromUrl('/products/file-explorer/docs/overview/')).to.deep.equal({
       productCategoryId: 'core',
-      productId: 'material-ui',
+      productId: 'file-explorer',
     });
-  });
-
-  it('should ignore anchor', () => {
-    expect(
-      getProductInfoFromUrl('/material-ui/react-app-bar/#app-bar-with-responsive-menu'),
-    ).to.deep.equal({
+    expect(getProductInfoFromUrl('/products/editor/components/editor/')).to.deep.equal({
       productCategoryId: 'core',
-      productId: 'material-ui',
+      productId: 'editor',
     });
   });
 
-  it('should handle Base UI', () => {
-    expect(getProductInfoFromUrl('/base-ui/react-button/')).to.deep.equal({
+  it('handles consulting product routes', () => {
+    expect(getProductInfoFromUrl('/products/flux/docs/overview/')).to.deep.equal({
       productCategoryId: 'core',
-      productId: 'base-ui',
+      productId: 'flux',
     });
-  });
-
-  it('should handle Joy UI', () => {
-    expect(getProductInfoFromUrl('/joy-ui/react-button/')).to.deep.equal({
+    expect(getProductInfoFromUrl('/consulting/products/focus-capture/docs/overview/')).to.deep.equal({
       productCategoryId: 'core',
-      productId: 'joy-ui',
+      productId: 'focus-capture',
     });
   });
 
-  it('should handle SUI System', () => {
-    expect(getProductInfoFromUrl('/system/')).to.deep.equal({
+  it('keeps legacy short product routes identifiable', () => {
+    expect(getProductInfoFromUrl('/file-explorer/docs/overview/')).to.deep.equal({
       productCategoryId: 'core',
-      productId: 'system',
+      productId: 'file-explorer',
+    });
+    expect(getProductInfoFromUrl('/github/docs/overview/')).to.deep.equal({
+      productCategoryId: 'core',
+      productId: 'github',
     });
   });
 
-  it('should handle SUI X Data Drid', () => {
-    expect(getProductInfoFromUrl('/x/react-data-grid/components')).to.deep.equal({
-      productCategoryId: 'x',
-      productId: 'x-data-grid',
+  it('removes language prefixes and hashes', () => {
+    expect(getProductInfoFromUrl('/zh/products/timeline/docs/overview/#api')).to.deep.equal({
+      productCategoryId: 'core',
+      productId: 'timeline',
     });
   });
 
-  it('should handle SUI X Date Pickers', () => {
-    expect(getProductInfoFromUrl('/x/react-date-pickers/components')).to.deep.equal({
-      productCategoryId: 'x',
-      productId: 'x-date-pickers',
-    });
-  });
-
-  it('should handle SUI X', () => {
-    expect(getProductInfoFromUrl('/x/migration/migration-data-grid-v5/')).to.deep.equal({
-      productCategoryId: 'x',
-      // Not smart enough to know it's about the data grid.
-      // Now, it's a none goal to be able to handle this. Either change the URL to be
-      // /x/react-data-grid/migration-v5/
-      // or add the productId header to the markdown of this page.
-      productId: 'null',
-    });
-  });
-
-  it('should return x', () => {
-    expect(getProductInfoFromUrl('/x/introduction/')).to.deep.equal({
-      productCategoryId: 'x',
-      productId: 'null',
-    });
-  });
-
-  it('should return uncategorized', () => {
+  it('returns uncategorized for non-product routes', () => {
     expect(getProductInfoFromUrl('/')).to.deep.equal({
       productCategoryId: 'null',
       productId: 'null',
     });
-    expect(getProductInfoFromUrl('/#foo')).to.deep.equal({
+    expect(getProductInfoFromUrl('/products/feedback/')).to.deep.equal({
       productCategoryId: 'null',
       productId: 'null',
-    });
-    expect(getProductInfoFromUrl('/versions')).to.deep.equal({
-      productCategoryId: 'null',
-      productId: 'null',
-    });
-  });
-
-  it('should handle Toolpad Core', () => {
-    expect(getProductInfoFromUrl('/toolpad/getting-started/')).to.deep.equal({
-      productCategoryId: 'toolpad',
-      productId: 'toolpad-core',
-    });
-  });
-
-  it('should handle Toolpad Studio', () => {
-    expect(getProductInfoFromUrl('/toolpad/studio/getting-started/first-app/')).to.deep.equal({
-      productCategoryId: 'toolpad',
-      productId: 'toolpad-studio',
     });
   });
 });

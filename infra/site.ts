@@ -7,8 +7,13 @@ import {
   stripeWebhookSecret,
 } from 'infra/secrets';
 import { findExistingCert } from 'infra/cert';
+import { CONSULTING_APP_SEGMENTS } from '../docs/src/modules/utils/siteRouteManifest';
 
 export const createSite = async (domainInfo: DomainInfo) => {
+  const consultingSegmentsObject = CONSULTING_APP_SEGMENTS.reduce<Record<string, true>>((segments, segment) => {
+    segments[segment] = true;
+    return segments;
+  }, {});
   const invalidationPaths = process.env.INVALIDATION_PATHS;
   const blogImageBucket = process.env.BLOG_IMAGE_S3_BUCKET ?? 'cdn.stokedconsulting.com';
   const enableDomain = process.env.SITE_ENABLE_DOMAIN !== '0';
@@ -145,28 +150,7 @@ export const createSite = async (domainInfo: DomainInfo) => {
           function isConsultingAppPath(pathname) {
             var normalized = pathname || '/';
             var firstSegment = normalized.replace(/^\\/+/, '').split('/')[0] || '';
-            var consultingSegments = {
-              '': true,
-              'admin': true,
-              'ai': true,
-              'api-docs': true,
-              'back-end': true,
-              'billing': true,
-              'checkout': true,
-              'clients': true,
-              'customer': true,
-              'deliverables': true,
-              'devops': true,
-              'front-end': true,
-              'groupies': true,
-              'home': true,
-              'invoices': true,
-              'licenses': true,
-              'login': true,
-              'partners': true,
-              'settings': true,
-              'users': true,
-            };
+            var consultingSegments = ${JSON.stringify(consultingSegmentsObject)};
             return consultingSegments[firstSegment] === true;
           }
 
