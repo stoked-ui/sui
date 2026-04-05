@@ -25,6 +25,7 @@ import {
 
         return {
           uri,
+          appName: 'stoked-ui-media-api',
           retryAttempts: 3,
           retryDelay: 1000,
           connectTimeoutMS: 5000,
