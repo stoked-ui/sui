@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { ListObjectsV2Command, S3Client } from '@aws-sdk/client-s3';
+import * as YAML from 'js-yaml';
 import { filterCdnContents, canSeeCdnEntry, type CdnViewer } from 'docs/src/modules/cdn/cdnAccess';
 import {
   buildCdnObjectUrl,
@@ -99,16 +100,25 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
     const visibleContents = await filterCdnContents(viewer, folders, visibleObjectsWithoutMarkers);
 
-    res.setHeader('Cache-Control', 'private, no-store');
+    const format = typeof req.query.f === 'string' ? req.query.f : null;
 
-    return res.status(200).json({
+    const payload = {
       bucket: BUCKET,
       prefix,
       truncated: result.IsTruncated || false,
       nextContinuationToken: result.NextContinuationToken || null,
       folders: visibleContents.folders,
       objects: visibleContents.objects,
-    });
+    };
+
+    res.setHeader('Cache-Control', 'private, no-store');
+
+    if (format === 'yaml') {
+      res.setHeader('Content-Type', 'application/yaml');
+      return res.status(200).send(YAML.dump(payload));
+    }
+
+    return res.status(200).json(payload);
   } catch (error) {
     console.error('CDN contents error:', error);
     if (isCredentialFailure(error)) {

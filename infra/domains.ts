@@ -73,3 +73,14 @@ export interface CdnDomainInfo {
   consultingOrigin: string;
   stokedUiOrigin: string;
 }
+
+export const getCdnSuiDomainInfo = (rootDomains: string, stage: string): CdnDomainInfo => {
+  const info = getCdnDomainInfo(rootDomains, stage);
+  // cdn.stokedconsulting.com → cdn-sui.stokedconsulting.com
+  const domain = info.domain.replace(/^cdn\./, 'cdn-sui.');
+  return {
+    ...info,
+    resourceName: `${domain.replace(/\./g, '')}StaticSite`,
+    domain,
+  };
+}

@@ -1,4 +1,4 @@
-import React, { startTransition, useDeferredValue, useEffect, useState } from 'react';
+import React, { startTransition, useDeferredValue, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   beginDesktopDownload,
@@ -173,6 +173,12 @@ function basenameForPath(path) {
   return segments[segments.length - 1] || normalized;
 }
 
+function getParentPrefix(path) {
+  const normalized = path.replace(/\/$/, '');
+  const lastSlash = normalized.lastIndexOf('/');
+  return lastSlash === -1 ? '' : normalized.slice(0, lastSlash + 1);
+}
+
 function normalizeDirectoryPrefix(prefix) {
   return prefix
     .trim()
@@ -220,6 +226,49 @@ function isCredentialFailure(error) {
     || message.includes('could not load credentials')
     || message.includes('credential provider')
     || message.includes('resolved credential object is not valid');
+}
+
+function isMediaKind(kind) {
+  return kind === 'image' || kind === 'video';
+}
+
+function isMediaHeavy(objects) {
+  if (!objects.length) return false;
+  const mediaCount = objects.filter((obj) => isMediaKind(getFileKind(obj.path))).length;
+  return mediaCount / objects.length >= 0.9;
+}
+
+function getViewModeKey(prefix) {
+  return `cdn-view-mode-${prefix}`;
+}
+
+function readStoredViewMode(prefix) {
+  try {
+    return localStorage.getItem(getViewModeKey(prefix)) || null;
+  } catch {
+    return null;
+  }
+}
+
+function writeStoredViewMode(prefix, mode) {
+  try {
+    localStorage.setItem(getViewModeKey(prefix), mode);
+  } catch {
+    /* ignore */
+  }
+}
+
+function MediaUploadThumbnail({ file }) {
+  const [src, setSrc] = useState('');
+
+  useEffect(() => {
+    const url = URL.createObjectURL(file);
+    setSrc(url);
+    return () => URL.revokeObjectURL(url);
+  }, [file]);
+
+  if (!src) return null;
+  return <img className="upload-thumbnail" src={src} alt="" aria-hidden="true" />;
 }
 
 function shouldForceLogout(authStatus, error) {
@@ -285,6 +334,12 @@ export default function App() {
   const [uploads, setUploads] = useState([]);
   const [permissionEditor, setPermissionEditor] = useState(null);
   const [logoutTriggered, setLogoutTriggered] = useState(false);
+  const [viewMode, setViewMode] = useState('list');
+  const [renamingPath, setRenamingPath] = useState(null);
+  const [renameValue, setRenameValue] = useState('');
+  const tabBlurRef = useRef(false);
+  const wasEscapedRef = useRef(false);
+  const pendingFolderClicksRef = useRef({});
   const deferredQuery = useDeferredValue(query.trim().toLowerCase());
   const auth = useAuthSession();
   const { status, data, error } = useDirectoryContents(prefix, true, reloadToken);
@@ -306,6 +361,16 @@ export default function App() {
     window.location.assign(buildAuthLogoutUrl(window.location.href));
   }, [logoutTriggered, shouldLogout]);
 
+  useEffect(() => {
+    if (status !== 'success') return;
+    const stored = readStoredViewMode(prefix);
+    if (stored) {
+      setViewMode(stored);
+      return;
+    }
+    setViewMode(isMediaHeavy(data.objects) ? 'gallery' : 'list');
+  }, [status, data, prefix]);
+
   const filtered = !deferredQuery
     ? data
     : {
@@ -313,8 +378,11 @@ export default function App() {
         objects: data.objects.filter((item) => item.name.toLowerCase().includes(deferredQuery)),
       };
 
-  const fileCount = filtered.folders.length + filtered.objects.length;
-  const totalBytes = filtered.objects.reduce((sum, item) => sum + (item.size || 0), 0);
+  // At root the S3 bucket contains SPA shell files (index.html, assets/…) — hide them from the listing
+  const visible = prefix ? filtered : { folders: filtered.folders, objects: [] };
+
+  const fileCount = visible.folders.length + visible.objects.length;
+  const totalBytes = visible.objects.reduce((sum, item) => sum + (item.size || 0), 0);
 
   function openPrefix(nextPrefix) {
     setPermissionEditor(null);
@@ -330,6 +398,12 @@ export default function App() {
 
   function refreshContents() {
     setReloadToken((current) => current + 1);
+  }
+
+  function toggleViewMode() {
+    const next = viewMode === 'gallery' ? 'list' : 'gallery';
+    writeStoredViewMode(prefix, next);
+    setViewMode(next);
   }
 
   function setUploadState(id, nextState) {
@@ -358,6 +432,7 @@ export default function App() {
         name: entry.relativePath,
         progress: 0,
         status: 'uploading',
+        file: entry.file,
       });
 
       try {
@@ -578,6 +653,114 @@ export default function App() {
     const entries = await collectDroppedEntries(event.dataTransfer.items);
     if (entries.length) {
       await uploadEntries(entries, targetPrefix);
+    }
+  }
+
+  const allItemPaths = [
+    ...visible.folders.map((f) => f.path),
+    ...visible.objects.map((o) => o.path),
+  ];
+
+  function handleRenameStart(path, currentName) {
+    setRenamingPath(path);
+    setRenameValue(currentName);
+  }
+
+  async function handleRenameCommit() {
+    if (tabBlurRef.current) {
+      tabBlurRef.current = false;
+      return;
+    }
+    if (wasEscapedRef.current) {
+      wasEscapedRef.current = false;
+      return;
+    }
+    if (!renamingPath) {
+      return;
+    }
+    const path = renamingPath;
+    const trimmed = renameValue.trim();
+    setRenamingPath(null);
+    setRenameValue('');
+    if (!trimmed) {
+      return;
+    }
+    const isDirectory = path.endsWith('/');
+    const parentPrefix = getParentPrefix(path);
+    const newPath = `${parentPrefix}${trimmed}${isDirectory ? '/' : ''}`;
+    if (newPath !== path) {
+      try {
+        await moveRemotePath(path, newPath);
+        refreshContents();
+      } catch (renameError) {
+        setOperationError(renameError.message);
+      }
+    }
+  }
+
+  function handleRenameCancel() {
+    wasEscapedRef.current = true;
+    setRenamingPath(null);
+    setRenameValue('');
+  }
+
+  function handleRenameKeyDown(event) {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      handleRenameCancel();
+      return;
+    }
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      handleRenameCommit();
+      return;
+    }
+    if (event.key === 'Tab') {
+      event.preventDefault();
+      if (!renamingPath) {
+        return;
+      }
+      const currentPath = renamingPath;
+      const currentValue = renameValue.trim();
+      const idx = allItemPaths.indexOf(currentPath);
+      const nextPath = allItemPaths.length > 1
+        ? allItemPaths[(idx + 1) % allItemPaths.length]
+        : null;
+
+      tabBlurRef.current = true;
+
+      if (nextPath) {
+        setRenamingPath(nextPath);
+        setRenameValue(basenameForPath(nextPath));
+      } else {
+        setRenamingPath(null);
+        setRenameValue('');
+      }
+
+      if (currentValue) {
+        const isDirectory = currentPath.endsWith('/');
+        const parentPrefix = getParentPrefix(currentPath);
+        const newPath = `${parentPrefix}${currentValue}${isDirectory ? '/' : ''}`;
+        if (newPath !== currentPath) {
+          moveRemotePath(currentPath, newPath)
+            .then(() => refreshContents())
+            .catch((e) => setOperationError(e.message));
+        }
+      }
+    }
+  }
+
+  function handleFolderNameClick(event, folderPath, folderName) {
+    event.stopPropagation();
+    if (pendingFolderClicksRef.current[folderPath]) {
+      clearTimeout(pendingFolderClicksRef.current[folderPath]);
+      delete pendingFolderClicksRef.current[folderPath];
+      handleRenameStart(folderPath, folderName);
+    } else {
+      pendingFolderClicksRef.current[folderPath] = setTimeout(() => {
+        delete pendingFolderClicksRef.current[folderPath];
+        openPrefix(folderPath);
+      }, 220);
     }
   }
 
@@ -811,20 +994,35 @@ export default function App() {
 
             {uploads.length ? (
               <div className="upload-list">
-                {uploads.map((upload) => (
-                  <div key={upload.id} className="upload-item" data-status={upload.status}>
-                    <div className="upload-copy">
-                      <strong>{upload.name}</strong>
-                      <span className="upload-status" data-status={upload.status}>
-                        {upload.status}
-                      </span>
-                      {upload.error ? (
-                        <span className="upload-error">{upload.error}</span>
+                {uploads.map((upload) => {
+                  const kind = upload.file ? getFileKind(upload.file.name) : 'file';
+                  const isMedia = isMediaKind(kind);
+                  const isImage = isMedia && upload.file && upload.file.type.startsWith('image/');
+
+                  return (
+                    <div key={upload.id} className={`upload-item${isMedia ? ' upload-item-media' : ''}`} data-status={upload.status}>
+                      {isImage ? (
+                        <MediaUploadThumbnail file={upload.file} />
+                      ) : isMedia ? (
+                        <div className="upload-thumbnail upload-thumbnail-video" aria-hidden="true">
+                          <svg viewBox="0 0 24 24">
+                            <path d="M8 6.82v10.36c0 .79.87 1.27 1.54.84l8.14-5.18c.62-.39.62-1.29 0-1.69L9.54 5.98C8.87 5.55 8 6.03 8 6.82z" />
+                          </svg>
+                        </div>
                       ) : null}
+                      <div className="upload-copy">
+                        <strong>{upload.name}</strong>
+                        <span className="upload-status" data-status={upload.status}>
+                          {upload.status}
+                        </span>
+                        {upload.error ? (
+                          <span className="upload-error">{upload.error}</span>
+                        ) : null}
+                      </div>
+                      <span className="upload-progress">{upload.progress || 0}%</span>
                     </div>
-                    <span className="upload-progress">{upload.progress || 0}%</span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : null}
 
@@ -838,22 +1036,22 @@ export default function App() {
               <p className="feedback">{emptyMessage(prefix, deferredQuery)}</p>
             ) : null}
 
-            {status === 'success' && filtered.folders.length > 0 ? (
+            {status === 'success' && visible.folders.length > 0 ? (
               <div className="folder-grid">
-                {filtered.folders.map((folder) => (
+                {visible.folders.map((folder) => (
                   <article
                     key={folder.path}
                     className="folder-card"
                     role="link"
                     tabIndex={0}
                     draggable
-                    onClick={() => openPrefix(folder.path)}
+                    onClick={() => { if (renamingPath !== folder.path) openPrefix(folder.path); }}
                     onKeyDown={(event) => {
                       if (event.target !== event.currentTarget) {
                         return;
                       }
 
-                      if (event.key === 'Enter' || event.key === ' ') {
+                      if (renamingPath !== folder.path && (event.key === 'Enter' || event.key === ' ')) {
                         event.preventDefault();
                         openPrefix(folder.path);
                       }
@@ -881,7 +1079,7 @@ export default function App() {
                         type="button"
                         onClick={(event) => {
                           event.stopPropagation();
-                          openPrefix(folder.path);
+                          if (renamingPath !== folder.path) openPrefix(folder.path);
                         }}
                       >
                         <span className="folder-icon" aria-hidden="true">
@@ -890,7 +1088,27 @@ export default function App() {
                             <path d="M22 10H2v8c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2v-8Z" />
                           </svg>
                         </span>
-                        <span className="folder-name">{basenameForPath(folder.path)}</span>
+                        {canManage && renamingPath === folder.path ? (
+                          <input
+                            className="rename-input"
+                            value={renameValue}
+                            onChange={(e) => setRenameValue(e.target.value)}
+                            onKeyDown={handleRenameKeyDown}
+                            onBlur={handleRenameCommit}
+                            onClick={(e) => e.stopPropagation()}
+                            // eslint-disable-next-line jsx-a11y/no-autofocus
+                            autoFocus
+                          />
+                        ) : (
+                          <span
+                            className="folder-name"
+                            onClick={canManage ? (e) => handleFolderNameClick(e, folder.path, basenameForPath(folder.path)) : undefined}
+                            style={canManage ? { cursor: 'text' } : undefined}
+                            title={canManage ? 'Double-click to rename' : undefined}
+                          >
+                            {basenameForPath(folder.path)}
+                          </span>
+                        )}
                       </button>
                       <div className="folder-actions">
                         <button
@@ -961,28 +1179,45 @@ export default function App() {
               </div>
             ) : null}
 
-          {status === 'success' && filtered.objects.length > 0 ? (
-            <div className="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Updated</th>
-                    <th>Size</th>
-                    <th className="actions-head">
-                      <div className="table-head-actions">
-                        <span>Actions</span>
-                      </div>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filtered.objects.map((object) => {
+          {status === 'success' && visible.objects.length > 0 ? (
+            <React.Fragment>
+              <div className="objects-toolbar">
+                <span className="objects-count">{visible.objects.length} file{visible.objects.length !== 1 ? 's' : ''}</span>
+                <button
+                  className={`view-toggle-btn${viewMode === 'list' ? ' active' : ''}`}
+                  type="button"
+                  title="List view"
+                  aria-label="List view"
+                  aria-pressed={viewMode === 'list'}
+                  onClick={viewMode !== 'list' ? toggleViewMode : undefined}
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z" />
+                  </svg>
+                </button>
+                <button
+                  className={`view-toggle-btn${viewMode === 'gallery' ? ' active' : ''}`}
+                  type="button"
+                  title="Gallery view"
+                  aria-label="Gallery view"
+                  aria-pressed={viewMode === 'gallery'}
+                  onClick={viewMode !== 'gallery' ? toggleViewMode : undefined}
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M11 11H3V3h8v8zm2 0h8V3h-8v8zm-2 2H3v8h8v-8zm2 0v8h8v-8h-8z" />
+                  </svg>
+                </button>
+              </div>
+
+              {viewMode === 'gallery' ? (
+                <div className="media-gallery">
+                  {visible.objects.map((object) => {
                     const kind = getFileKind(object.path);
 
                     return (
-                      <tr
+                      <article
                         key={object.path}
+                        className="media-card"
                         draggable
                         onDragStart={(event) => {
                           if (canManage) {
@@ -997,21 +1232,57 @@ export default function App() {
                           });
                         }}
                       >
-                        <td>
-                          <div className="item-name">
-                            <span className="item-icon" aria-hidden="true">
-                              {iconForKind(kind)}
-                            </span>
-                            <div>
-                              <div className="item-title">{object.name}</div>
-                              <div className="item-subtitle">{object.path}</div>
+                        <a
+                          className="media-card-thumb-link"
+                          href={object.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          tabIndex={-1}
+                        >
+                          {kind === 'image' ? (
+                            <img
+                              className="media-card-thumb"
+                              src={object.url}
+                              alt={object.name}
+                              loading="lazy"
+                            />
+                          ) : (
+                            <div className="media-card-thumb media-card-thumb-placeholder" data-kind={kind}>
+                              {kind === 'video' ? (
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                  <path d="M8 6.82v10.36c0 .79.87 1.27 1.54.84l8.14-5.18c.62-.39.62-1.29 0-1.69L9.54 5.98C8.87 5.55 8 6.03 8 6.82z" />
+                                </svg>
+                              ) : (
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                  <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
+                                </svg>
+                              )}
                             </div>
-                          </div>
-                        </td>
-                        <td>{formatTimestamp(object.lastModified)}</td>
-                        <td>{formatBytes(object.size)}</td>
-                        <td className="actions-cell">
-                          <div className="item-actions">
+                          )}
+                        </a>
+                        <div className="media-card-body">
+                          {canManage && renamingPath === object.path ? (
+                            <input
+                              className="rename-input"
+                              value={renameValue}
+                              onChange={(e) => setRenameValue(e.target.value)}
+                              onKeyDown={handleRenameKeyDown}
+                              onBlur={handleRenameCommit}
+                              // eslint-disable-next-line jsx-a11y/no-autofocus
+                              autoFocus
+                            />
+                          ) : (
+                            <div
+                              className="media-card-name"
+                              title={object.name}
+                              onDoubleClick={canManage ? () => handleRenameStart(object.path, object.name) : undefined}
+                              style={canManage ? { cursor: 'text' } : undefined}
+                            >
+                              {object.name}
+                            </div>
+                          )}
+                          <div className="media-card-meta">{formatBytes(object.size)}</div>
+                          <div className="media-card-actions">
                             <a
                               className="icon-action"
                               href={object.url}
@@ -1051,13 +1322,129 @@ export default function App() {
                               </button>
                             ) : null}
                           </div>
-                        </td>
-                      </tr>
+                        </div>
+                      </article>
                     );
                   })}
-                </tbody>
-              </table>
-            </div>
+                </div>
+              ) : (
+                <div className="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Name</th>
+                        <th>Updated</th>
+                        <th>Size</th>
+                        <th className="actions-head">
+                          <div className="table-head-actions">
+                            <span>Actions</span>
+                          </div>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {visible.objects.map((object) => {
+                        const kind = getFileKind(object.path);
+
+                        return (
+                          <tr
+                            key={object.path}
+                            draggable
+                            onDragStart={(event) => {
+                              if (canManage) {
+                                event.dataTransfer.setData('application/x-stoked-path', JSON.stringify({
+                                  path: object.path,
+                                }));
+                              }
+                              beginDesktopDownload(event, {
+                                name: object.name,
+                                url: object.url,
+                                effectAllowed: canManage ? 'copyMove' : 'copy',
+                              });
+                            }}
+                          >
+                            <td>
+                              <div className="item-name">
+                                <span className="item-icon" aria-hidden="true">
+                                  {iconForKind(kind)}
+                                </span>
+                                <div>
+                                  {canManage && renamingPath === object.path ? (
+                                    <input
+                                      className="rename-input"
+                                      value={renameValue}
+                                      onChange={(e) => setRenameValue(e.target.value)}
+                                      onKeyDown={handleRenameKeyDown}
+                                      onBlur={handleRenameCommit}
+                                      // eslint-disable-next-line jsx-a11y/no-autofocus
+                                      autoFocus
+                                    />
+                                  ) : (
+                                    <div
+                                      className="item-title"
+                                      onDoubleClick={canManage ? () => handleRenameStart(object.path, object.name) : undefined}
+                                      style={canManage ? { cursor: 'text' } : undefined}
+                                      title={canManage ? 'Double-click to rename' : undefined}
+                                    >
+                                      {object.name}
+                                    </div>
+                                  )}
+                                  <div className="item-subtitle">{object.path}</div>
+                                </div>
+                              </div>
+                            </td>
+                            <td>{formatTimestamp(object.lastModified)}</td>
+                            <td>{formatBytes(object.size)}</td>
+                            <td className="actions-cell">
+                              <div className="item-actions">
+                                <a
+                                  className="icon-action"
+                                  href={object.url}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  title="View"
+                                  aria-label="View"
+                                >
+                                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M12 5c5.5 0 9.5 4.6 10.8 6.4.27.37.27.83 0 1.2C21.5 14.4 17.5 19 12 19S2.5 14.4 1.2 12.6a1.01 1.01 0 0 1 0-1.2C2.5 9.6 6.5 5 12 5Zm0 2C8 7 4.86 10.1 3.31 12 4.86 13.9 8 17 12 17s7.14-3.1 8.69-5C19.14 10.1 16 7 12 7Zm0 1.75A3.25 3.25 0 1 1 8.75 12 3.25 3.25 0 0 1 12 8.75Zm0 2A1.25 1.25 0 1 0 13.25 12 1.25 1.25 0 0 0 12 10.75Z" />
+                                  </svg>
+                                </a>
+                                {canManage ? (
+                                  <button
+                                    className="icon-action"
+                                    type="button"
+                                    title="Restrict"
+                                    aria-label="Restrict"
+                                    onClick={() => handlePermissions(object.path)}
+                                  >
+                                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                                      <path d="M12 1.75A5.25 5.25 0 0 0 6.75 7v2H5.5A1.75 1.75 0 0 0 3.75 10.75v9.5c0 .97.78 1.75 1.75 1.75h13a1.75 1.75 0 0 0 1.75-1.75v-9.5A1.75 1.75 0 0 0 18.5 9h-1.25V7A5.25 5.25 0 0 0 12 1.75Zm-3.25 7.25V7a3.25 3.25 0 1 1 6.5 0v2h-6.5Zm3.25 3a1.75 1.75 0 0 1 1 3.19v2.06h-2v-2.06A1.75 1.75 0 0 1 12 12Z" />
+                                    </svg>
+                                  </button>
+                                ) : null}
+                                {canManage ? (
+                                  <button
+                                    className="icon-action"
+                                    type="button"
+                                    title="Delete"
+                                    aria-label="Delete"
+                                    onClick={() => handleDelete(object.path)}
+                                  >
+                                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                                      <path d="M9 3.75h6l.75 1.5h3.5v2h-1v11A2.75 2.75 0 0 1 15.5 21h-7A2.75 2.75 0 0 1 5.75 18.25v-11h-1v-2h3.5L9 3.75Zm-1.25 3.5v11c0 .41.34.75.75.75h7a.75.75 0 0 0 .75-.75v-11h-8.5Zm2.5 2h2v7h-2v-7Zm4 0h2v7h-2v-7Z" />
+                                    </svg>
+                                  </button>
+                                ) : null}
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </React.Fragment>
           ) : null}
         </section>
         </React.Fragment>

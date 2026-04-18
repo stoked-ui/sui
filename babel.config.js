@@ -24,6 +24,7 @@ module.exports = function getBabelConfig(api) {
     '@stoked-ui/github': resolveAliasPath('./packages/sui-github'),
     '@stoked-ui/editor': resolveAliasPath('./packages/sui-editor'),
     '@stoked-ui/docs-markdown': resolveAliasPath('./packages-internal/markdown'),
+    '@stoked-ui/cdn': resolveAliasPath('./packages/sui-cdn/src'),
     '@stoked-ui/docs': resolveAliasPath('./packages/sui-docs/src'),
     '@stoked-ui/docs-utils': resolveAliasPath('./packages-internal/docs-utils/src'),
     docs: resolveAliasPath('./docs'),

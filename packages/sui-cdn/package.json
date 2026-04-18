@@ -1,0 +1,46 @@
+{
+  "name": "@stoked-ui/cdn",
+  "version": "0.1.0-alpha.5",
+  "description": "Embeddable CDN browser component for React apps",
+  "license": "MIT",
+  "keywords": [
+    "cdn",
+    "file-browser",
+    "s3",
+    "react",
+    "typescript"
+  ],
+  "bugs": {
+    "url": "https://github.com/stoked-ui/stoked-ui/issues"
+  },
+  "homepage": "https://github.com/stoked-ui/stoked-ui#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stoked-ui/stoked-ui.git"
+  },
+  "sideEffects": ["*.css"],
+  "publishConfig": {
+    "access": "public",
+    "directory": "build"
+  },
+  "scripts": {
+    "typescript": "tsc -p tsconfig.json",
+    "build": "pnpm build:modern && pnpm build:node && pnpm build:stable && pnpm build:types && pnpm build:copy-files",
+    "build:modern": "node ../../scripts/build.mjs modern",
+    "build:node": "node ../../scripts/build.mjs node",
+    "build:stable": "node ../../scripts/build.mjs stable",
+    "build:copy-files": "node ../../scripts/copyFiles.mjs",
+    "build:types": "node ../../scripts/buildTypes.mjs",
+    "prebuild": "rimraf build tsconfig.build.tsbuildinfo"
+  },
+  "main": "src/index.ts",
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.19.25",
+    "@types/react": "^18.3.1",
+    "typescript": "^5.4.5"
+  }
+}

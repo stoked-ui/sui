@@ -23,17 +23,22 @@ export default $config({
       createSite,
       createApi,
       createCdnSite,
+      createCdnSuiSite,
       getDomainInfo,
       getCdnDomainInfo,
+      getCdnSuiDomainInfo,
     } = await import('./infra');
     const domainInfo = getDomainInfo(process.env.ROOT_DOMAIN!, $app.stage);
     const cdnDomainInfo = getCdnDomainInfo(process.env.ROOT_DOMAIN!, $app.stage);
+    const cdnSuiDomainInfo = getCdnSuiDomainInfo(process.env.ROOT_DOMAIN!, $app.stage);
     const web = await createSite(domainInfo);
     const cdn = await createCdnSite(cdnDomainInfo);
+    const cdnSui = await createCdnSuiSite(cdnSuiDomainInfo);
     const api = createApi(domainInfo);
     return {
       site: web.url,
       cdn: cdn.url,
+      cdnSui: cdnSui.url,
       api: api.url,
     };
   }
