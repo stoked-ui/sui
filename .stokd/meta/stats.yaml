@@ -1,0 +1,8 @@
+lifetime:
+  code:
+    number: 3
+    percent: 100.0
+last30:
+  code:
+    number: 3
+    percent: 100.0

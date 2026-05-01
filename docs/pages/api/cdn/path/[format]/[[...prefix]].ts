@@ -3,9 +3,10 @@ import * as YAML from 'js-yaml';
 import {
   buildCdnViewer,
   getCdnContentsPayload,
+  isCdnContentsFormat,
   isCredentialFailure,
+  normalizeCdnPrefixFromSegments,
   parseCdnContentsMaxKeys,
-  sanitizeCdnPrefix,
 } from 'docs/src/modules/cdn/cdnContents';
 import { readOptionalAuthUser } from 'docs/src/modules/auth/withAuth';
 
@@ -14,11 +15,15 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
+  const format = Array.isArray(req.query.format) ? req.query.format[0] : req.query.format;
+  if (!isCdnContentsFormat(format)) {
+    return res.status(400).json({ message: 'format must be json or yaml' });
+  }
+
   try {
-    const prefix = sanitizeCdnPrefix(req.query.prefix);
+    const prefix = normalizeCdnPrefixFromSegments(req.query.prefix);
     const maxKeys = parseCdnContentsMaxKeys(req.query.maxKeys);
     const user = await readOptionalAuthUser(req);
-    const format = typeof req.query.f === 'string' ? req.query.f : null;
     const payload = await getCdnContentsPayload(buildCdnViewer(user), {
       prefix,
       maxKeys,
@@ -33,7 +38,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
     return res.status(200).json(payload);
   } catch (error) {
-    console.error('CDN contents error:', error);
+    console.error('CDN contents path error:', error);
     if ((error as { status?: number })?.status === 403) {
       return res.status(403).json({ message: 'Access denied' });
     }

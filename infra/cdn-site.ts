@@ -41,21 +41,25 @@ export const createCdnSite = async (domainInfo: CdnDomainInfo) => {
     var rawQs = event.request.querystring || '';
     var fMatch = typeof rawQs === 'string' ? /(?:^|&)f=([^&]*)/.exec(rawQs) : null;
     var f = fMatch ? decodeURIComponent(fMatch[1]) : (rawQs.f ? rawQs.f.value : null);
+    var isApiRequest = uri === '/api' || uri.indexOf('/api/') === 0;
+    var isFileRequest = /\\.[^/]+$/.test(uri);
+    var isDirectoryLikeRequest = uri === '/' || uri.slice(-1) === '/' || !isFileRequest;
 
-    if (f === 'json' || f === 'yaml') {
-      var cdnPrefix = (uri === '/' || uri === '') ? '' : uri.replace(/^\\//, '');
-      event.request.uri = '/api/cdn/contents';
-      event.request.querystring = 'prefix=' + encodeURIComponent(cdnPrefix) + '&f=' + f;
+    // Route public directory listing requests onto a path-based API route so
+    // the edge path never depends on forwarding injected query strings.
+    if (!isApiRequest && (f === 'json' || f === 'yaml') && isDirectoryLikeRequest) {
+      var cdnPrefix = (uri === '/' || uri === '') ? '' : uri.replace(/^\\//, '').replace(/\\/$/, '');
+      event.request.uri = '/api/cdn/path/' + f + (cdnPrefix ? '/' + cdnPrefix : '');
       uri = event.request.uri;
+      isApiRequest = true;
     }
 
-    if (uri === '/api' || uri.indexOf('/api/') === 0) {
+    if (isApiRequest) {
       setUrlOrigin(${JSON.stringify(consultingHost)});
       return event.request;
     }
 
     var isDirectoryRequest = uri === '/' || uri.slice(-1) === '/';
-    var isFileRequest = /\\.[^/]+$/.test(uri);
 
     if (isDirectoryRequest && !isFileRequest) {
       event.request.uri = '/index.html';
@@ -144,7 +148,7 @@ export const createCdnSite = async (domainInfo: CdnDomainInfo) => {
       },
     ],
   });
-  bucketCors.bucket;
+  void bucketCors.bucket;
 
   return site;
 };
@@ -170,21 +174,25 @@ export const createCdnSuiSite = async (domainInfo: CdnDomainInfo) => {
     var rawQs = event.request.querystring || '';
     var fMatch = typeof rawQs === 'string' ? /(?:^|&)f=([^&]*)/.exec(rawQs) : null;
     var f = fMatch ? decodeURIComponent(fMatch[1]) : (rawQs.f ? rawQs.f.value : null);
+    var isApiRequest = uri === '/api' || uri.indexOf('/api/') === 0;
+    var isFileRequest = /\\.[^/]+$/.test(uri);
+    var isDirectoryLikeRequest = uri === '/' || uri.slice(-1) === '/' || !isFileRequest;
 
-    if (f === 'json' || f === 'yaml') {
-      var cdnPrefix = (uri === '/' || uri === '') ? '' : uri.replace(/^\\//, '');
-      event.request.uri = '/api/cdn/contents';
-      event.request.querystring = 'prefix=' + encodeURIComponent(cdnPrefix) + '&f=' + f;
+    // Route public directory listing requests onto a path-based API route so
+    // the edge path never depends on forwarding injected query strings.
+    if (!isApiRequest && (f === 'json' || f === 'yaml') && isDirectoryLikeRequest) {
+      var cdnPrefix = (uri === '/' || uri === '') ? '' : uri.replace(/^\\//, '').replace(/\\/$/, '');
+      event.request.uri = '/api/cdn/path/' + f + (cdnPrefix ? '/' + cdnPrefix : '');
       uri = event.request.uri;
+      isApiRequest = true;
     }
 
-    if (uri === '/api' || uri.indexOf('/api/') === 0) {
+    if (isApiRequest) {
       setUrlOrigin(${JSON.stringify(consultingHost)});
       return event.request;
     }
 
     var isDirectoryRequest = uri === '/' || uri.slice(-1) === '/';
-    var isFileRequest = /\\.[^/]+$/.test(uri);
 
     if (isDirectoryRequest && !isFileRequest) {
       event.request.uri = '/index.html';
