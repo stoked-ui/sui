@@ -1175,7 +1175,7 @@ const macMixerData: TProduct = {
   id: 'mac-mixer',
   name: "Mac Mixer",
   fullName: "Mac Mixer",
-  description: "macOS audio utility with per-app volume control, auto-pause, and system audio recording",
+  description: "Per-application audio routing for macOS with app-level and device-level volume control",
   icon: "product-advanced",
   url: "/products/mac-mixer",
   site: 'consulting',
@@ -1184,19 +1184,27 @@ const macMixerData: TProduct = {
   showcaseType: AdvancedShowcase,
   features: [{
     name: 'Overview',
-    description: 'Features, system requirements, and getting started',
+    description: 'What Mac Mixer does, requirements, and current alpha scope',
     id: 'overview',
   }, {
-    name: 'App Volumes',
-    description: 'Per-application volume control with boost',
+    name: 'Routing and Volumes',
+    description: 'Move apps between output devices and control route levels',
     id: 'app-volumes',
   }, {
-    name: 'Auto-Pause',
-    description: 'Automatically pause music when other audio plays',
-    id: 'auto-pause',
+    name: 'Installation',
+    description: 'HAL plug-in install, first launch, and release-channel notes',
+    id: 'installation',
+  }, {
+    name: 'Configuration',
+    description: 'YAML persistence and the runtime driver sync contract',
+    id: 'configuration',
+  }, {
+    name: 'Licensing',
+    description: 'Trial, direct license, and Mac App Store subscription behavior',
+    id: 'licensing',
   }, {
     name: 'Roadmap',
-    description: 'Current status and future plans',
+    description: 'Alpha scope, release packaging, and planned improvements',
     id: 'roadmap',
   }],
 };

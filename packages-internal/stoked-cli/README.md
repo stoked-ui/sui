@@ -51,6 +51,9 @@ stoked clients list
 stoked users list --role admin
 stoked products list
 stoked products pages list <productId>
+stoked products upload <productId> ./preview.mp4
+stoked products upload <productId> ./preview.mp4 --path assets/videos
+stoked products upload <productId> ./preview.mp4 --path assets/videos/hero.mp4
 stoked deliverables list --client-id <clientId>
 
 # Create/update via JSON payload
@@ -61,6 +64,8 @@ stoked products update <id> --data-file ./product-update.json
 stoked api GET /products/public --no-auth
 stoked api POST /clients --data-json '{"name":"Acme","contactEmail":"ops@acme.com"}'
 ```
+
+`stoked products upload` writes files under `products/<productId>/` in the CDN. The default remote path is `assets`, so `preview.mp4` uploads to `products/<productId>/assets/preview.mp4`. Use `--path` for nested folders or a full remote file path; S3-backed folders are created implicitly by the object key.
 
 ## Config
 

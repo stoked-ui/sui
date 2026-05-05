@@ -7,7 +7,7 @@ use anyhow::{anyhow, bail, Context, Result};
 use clap::{Args, Subcommand};
 use reqwest::Method;
 use serde_json::{json, Value};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 const CDN_MULTIPART_THRESHOLD_BYTES: usize = 5 * 1024 * 1024;
 const CDN_URL_BATCH_SIZE: usize = 50;
@@ -139,7 +139,7 @@ async fn get_more_cdn_upload_urls(
         .collect()
 }
 
-async fn upload_deliverable_via_cdn_multipart(
+async fn upload_via_cdn_multipart(
     client: &ApiClient,
     cdn_path: &str,
     filename: &str,
@@ -166,7 +166,10 @@ async fn upload_deliverable_via_cdn_multipart(
     let chunk_size = json_u64_field(&initiated, "chunkSize")? as usize;
 
     let mut pending_urls = std::collections::BTreeMap::<u64, String>::new();
-    if let Some(urls) = initiated.get("presignedUrls").and_then(|entry| entry.as_array()) {
+    if let Some(urls) = initiated
+        .get("presignedUrls")
+        .and_then(|entry| entry.as_array())
+    {
         for entry in urls {
             pending_urls.insert(
                 json_u64_field(entry, "partNumber")?,
@@ -181,7 +184,8 @@ async fn upload_deliverable_via_cdn_multipart(
             let needed_part_numbers = (part_number..=end)
                 .filter(|candidate| !pending_urls.contains_key(candidate))
                 .collect::<Vec<_>>();
-            let more_urls = get_more_cdn_upload_urls(client, &session_id, &needed_part_numbers).await?;
+            let more_urls =
+                get_more_cdn_upload_urls(client, &session_id, &needed_part_numbers).await?;
             for (number, url) in more_urls {
                 pending_urls.insert(number, url);
             }
@@ -213,6 +217,74 @@ async fn upload_deliverable_via_cdn_multipart(
     client
         .request_json(Method::POST, &complete_path, &[], None, true)
         .await
+}
+
+fn normalize_product_id(raw_product_id: &str) -> Result<String> {
+    let product_id = raw_product_id.trim().trim_matches('/').replace('\\', "/");
+    if product_id.is_empty() || product_id.contains('/') || product_id.contains("..") {
+        bail!("product id is invalid");
+    }
+
+    Ok(product_id)
+}
+
+fn normalize_product_upload_path(raw_path: &str) -> Result<(String, bool)> {
+    let raw_path = raw_path.trim();
+    let is_directory_hint = raw_path.ends_with('/') || raw_path.ends_with('\\');
+    let normalized = raw_path.replace('\\', "/");
+    let segments = normalized
+        .trim_matches('/')
+        .split('/')
+        .filter(|segment| !segment.is_empty())
+        .collect::<Vec<_>>();
+
+    if segments
+        .iter()
+        .any(|segment| *segment == "." || *segment == ".." || segment.contains(".."))
+    {
+        bail!("upload path is invalid");
+    }
+
+    let path = if segments.is_empty() {
+        "assets".to_string()
+    } else {
+        segments.join("/")
+    };
+
+    Ok((path, is_directory_hint))
+}
+
+fn product_upload_path_is_file(path: &str, is_directory_hint: bool, filename: &str) -> bool {
+    if is_directory_hint {
+        return false;
+    }
+
+    let Some(last_segment) = path.rsplit('/').next() else {
+        return false;
+    };
+
+    last_segment == filename || Path::new(last_segment).extension().is_some()
+}
+
+fn build_product_asset_cdn_path(
+    product_id: &str,
+    upload_path: &str,
+    local_file: &Path,
+) -> Result<String> {
+    let product_id = normalize_product_id(product_id)?;
+    let filename = local_file
+        .file_name()
+        .and_then(|value| value.to_str())
+        .ok_or_else(|| anyhow!("file path does not include a valid file name"))?;
+    let (normalized_path, is_directory_hint) = normalize_product_upload_path(upload_path)?;
+    let object_path = if product_upload_path_is_file(&normalized_path, is_directory_hint, filename)
+    {
+        normalized_path
+    } else {
+        format!("{}/{}", normalized_path.trim_end_matches('/'), filename)
+    };
+
+    Ok(format!("products/{}/{}", product_id, object_path))
 }
 
 #[derive(Debug, Subcommand)]
@@ -374,6 +446,16 @@ pub enum ProductsCommand {
         id: String,
         #[command(flatten)]
         body: JsonBodyArgs,
+    },
+    /// Upload a product asset to the CDN
+    Upload {
+        /// Product ID or database ID
+        product_id: String,
+        /// Local file to upload
+        file: PathBuf,
+        /// Remote path inside products/<product-id>/ (defaults to assets)
+        #[arg(long, default_value = "assets")]
+        path: String,
     },
     Delete {
         id: String,
@@ -652,6 +734,11 @@ pub async fn run_products(
                 .request_json(Method::PATCH, &path, &[], Some(payload), true)
                 .await?
         }
+        ProductsCommand::Upload {
+            product_id,
+            file,
+            path,
+        } => run_product_upload(client, &product_id, &file, &path).await?,
         ProductsCommand::Delete { id, yes } => {
             if !yes {
                 bail!("Refusing to delete without --yes");
@@ -665,6 +752,52 @@ pub async fn run_products(
     };
 
     print_value(&value, compact_json)
+}
+
+async fn run_product_upload(
+    client: &ApiClient,
+    product_id: &str,
+    file: &Path,
+    upload_path: &str,
+) -> Result<Value> {
+    if !file.is_file() {
+        bail!("'{}' is not a valid file", file.display());
+    }
+
+    let lookup_product_id = normalize_product_id(product_id)?;
+    let product_lookup_path = format!("/products/{}", lookup_product_id);
+    let product = client
+        .request_json(Method::GET, &product_lookup_path, &[], None, true)
+        .await
+        .with_context(|| format!("Failed loading product '{}'", product_id))?;
+    let resolved_product_id = product
+        .get("productId")
+        .and_then(|value| value.as_str())
+        .unwrap_or(&lookup_product_id);
+
+    let filename = file
+        .file_name()
+        .and_then(|value| value.to_str())
+        .ok_or_else(|| anyhow!("file path does not include a valid file name"))?;
+    let content =
+        std::fs::read(file).with_context(|| format!("Failed reading file '{}'", file.display()))?;
+    if content.is_empty() {
+        bail!("'{}' is empty", file.display());
+    }
+
+    let mime = mime_guess::from_path(file)
+        .first_or_octet_stream()
+        .to_string();
+    let cdn_path = build_product_asset_cdn_path(resolved_product_id, upload_path, file)?;
+    let result = upload_via_cdn_multipart(client, &cdn_path, filename, &mime, content).await?;
+
+    Ok(json!({
+        "productId": resolved_product_id,
+        "path": result.get("path").cloned().unwrap_or_else(|| json!(cdn_path)),
+        "url": result.get("url").cloned().unwrap_or(Value::Null),
+        "filename": filename,
+        "contentType": mime,
+    }))
 }
 
 async fn run_product_pages(client: &ApiClient, command: ProductsPagesCommand) -> Result<Value> {
@@ -1161,7 +1294,7 @@ pub async fn run_deliverables(
 
                         let upload_response = if should_use_cdn_multipart_upload(&client, content.len()) {
                             let cdn_path = build_deliverable_cdn_path(&client_slug, &bundle_id, &rel_path)?;
-                            upload_deliverable_via_cdn_multipart(
+                            upload_via_cdn_multipart(
                                 &client,
                                 &cdn_path,
                                 &rel_path,
@@ -1461,4 +1594,59 @@ fn parse_method(raw: &str) -> Result<Method> {
 fn required_body(body: &JsonBodyArgs) -> Result<Value> {
     parse_optional_json_body(body.data_json.as_ref(), body.data_file.as_ref())?
         .ok_or_else(|| anyhow!("Missing payload. Provide --data-json or --data-file."))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn builds_default_product_asset_path() {
+        let path =
+            build_product_asset_cdn_path("flux", "assets", Path::new("/tmp/preview.mp4")).unwrap();
+
+        assert_eq!(path, "products/flux/assets/preview.mp4");
+    }
+
+    #[test]
+    fn builds_nested_product_asset_folder_path() {
+        let path =
+            build_product_asset_cdn_path("flux", "assets/videos", Path::new("/tmp/preview.mp4"))
+                .unwrap();
+
+        assert_eq!(path, "products/flux/assets/videos/preview.mp4");
+    }
+
+    #[test]
+    fn allows_product_asset_path_to_include_remote_filename() {
+        let path = build_product_asset_cdn_path(
+            "flux",
+            "assets/videos/hero.mp4",
+            Path::new("/tmp/preview.mp4"),
+        )
+        .unwrap();
+
+        assert_eq!(path, "products/flux/assets/videos/hero.mp4");
+    }
+
+    #[test]
+    fn treats_trailing_slash_path_as_directory() {
+        let path =
+            build_product_asset_cdn_path("flux", "assets/v1.0/", Path::new("/tmp/preview.mp4"))
+                .unwrap();
+
+        assert_eq!(path, "products/flux/assets/v1.0/preview.mp4");
+    }
+
+    #[test]
+    fn rejects_invalid_product_asset_paths() {
+        assert!(
+            build_product_asset_cdn_path("flux", "../assets", Path::new("/tmp/preview.mp4"))
+                .is_err()
+        );
+        assert!(
+            build_product_asset_cdn_path("flux/dev", "assets", Path::new("/tmp/preview.mp4"))
+                .is_err()
+        );
+    }
 }

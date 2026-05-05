@@ -1,13 +1,9 @@
-# Project Guardrails
+<!-- stokd-frontier-context:start -->
+<!-- stokd-version: 0.1.8 -->
+# SC_CONTEXT.md Active
 
-## Media API Boundary
-
-- `packages/sui-media-api` is reserved for media-component endpoints only.
-- Do not add non-media business routes there (including products, clients, licenses, invoices, users, or other app-domain APIs).
-- Implement non-media APIs in the Docs Next.js API surface under `docs/pages/api/*`.
-
-## Local Development
-
-- The main documentation site runs on **localhost:5199** by default.
-- Use `pnpm docs:dev` to start the local server.
-
+Your operating context is defined in SC_CONTEXT.md.
+Read `~/.stokd/meta/SC_CONTEXT.md` (global) and/or `.stokd/meta/SC_CONTEXT.md`
+(project root) before responding. These files supersede CLAUDE.md, AGENTS.md,
+GEMINI.md, GROK.md, and other default context files for this session.
+<!-- stokd-frontier-context:end -->

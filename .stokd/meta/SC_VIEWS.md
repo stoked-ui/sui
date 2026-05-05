@@ -48,7 +48,7 @@
 
 ### 1.3 Product Documentation Pages
 
-- **Products:** `sui-file-explorer`, `sui-media`, `sui-timeline`, `sui-editor`, `sui-docs`
+- **Products:** `sui-file-explorer`, `sui-media`, `sui-timeline`, `sui-editor`, `sui-docs`, Mac Mixer, Flux, Always Listening, Stokd Cloud
 - **Location:** `docs/pages/products/{product-id}/docs/*.js`
 - **Regions:**
   | Zone | Component |
@@ -63,10 +63,10 @@
 ### 1.4 Standalone Product Pages (Consulting Site)
 
 - **Products:** Flux, Mac Mixer, Always Listening, Stokd Cloud
-- **Location:** `docs/pages/products/{product-id}/main.tsx` (routed via consulting site)
+- **Location:** `docs/pages/products/{product-id}/main.tsx` for older static product entries; `docs/pages/consulting/products/mac-mixer.tsx` and `docs/src/modules/products/MacMixerProductPage.tsx` for the dedicated Mac Mixer consulting page.
 - **Notes:** Public-facing marketing product pages on `stokedconsulting.com`; `stoked-ui.com` requests for consulting-owned product slugs redirect here. Product privacy pages live at `/products/{slug}/privacy` and accept `?l=` locale switches (`en`, `de`, `fr`, `ja`, `zh`, `ko`, `pt-br`, `es`) with English fallback.
-- **Regions:** Same structure as 1.2 — header, hero (`AdvancedShowcase`), feature chips, footer
-- **States:** same as 1.2
+- **Regions:** Header, product hero, product-specific content bands, documentation links, footer. Mac Mixer includes a static route/volume preview and alpha release status CTA.
+- **States:** static marketing content, responsive hero layout, docs-link navigation
 
 ### 1.5 Editor PWA
 

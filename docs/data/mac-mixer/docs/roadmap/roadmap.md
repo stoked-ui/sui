@@ -3,40 +3,39 @@ productId: mac-mixer
 title: Roadmap
 ---
 
-# Mac Mixer Roadmap
+# Roadmap
 
-<p class="description">Current status and planned features for Mac Mixer.</p>
+<p class="description">Mac Mixer is in private alpha. This roadmap reflects the current product direction for the CoreAudio driver, menu-bar app, and release packaging.</p>
 
-## Current Version (Alpha)
+## Alpha scope
 
-- Per-application volume control with boost
-- Auto-pause music for 8 supported players
-- System audio recording via virtual audio device
-- Menu bar interface
-- Homebrew installation support
-- No-restart installation
+- CoreAudio HAL virtual output device named **Mac Mixer**.
+- Menu-bar routing popover with drag-and-drop app assignment.
+- Per-app volume and per-device master volume.
+- Device rename, hide, and re-enable flows.
+- YAML configuration persistence in Application Support.
+- Runtime route push to the driver through the `mmcf` CoreAudio property.
+- 30-day trial state.
+- Direct-license activation and validation against `stokedconsulting.com`.
+- Mac App Store subscription build path with StoreKit 2.
 
-## Short Term
+## Near term
 
-- **Per-App Audio Output Selection** -- Route individual application audio to different output devices (headphones, speakers, etc.).
-- **Performance Optimizations** -- Reduce CPU usage during audio processing.
-- **Enhanced Clipping Prevention** -- Better handling of volume boost to prevent audio distortion.
+- Signed and notarized direct installer.
+- Public download and checkout flow on stokedconsulting.com.
+- Release-channel QA for direct and Mac App Store builds.
+- More resilient handling for device connect/disconnect events.
+- Better empty, error, and permission states in the menu-bar popover.
+- Expanded E2E coverage for route switching and device quality changes.
 
-## Medium Term
+## Later
 
-- **Multi-Channel Support** -- Support for surround sound and multi-channel audio devices.
-- **Audio Equalizer** -- Per-app EQ controls.
-- **Keyboard Shortcuts** -- Global hotkeys for muting individual apps.
+- More detailed app-helper identity mapping.
+- Keyboard shortcuts for common route and mute actions.
+- Import/export helpers for route profiles.
+- Multi-channel device work after the stereo routing path is stable.
+- Input and recording workflows as a separate future product phase.
 
-## Long Term
+## Not in the current product
 
-- **Apple Silicon Optimization** -- Native ARM64 audio processing pipeline.
-- **App Store Distribution** -- Signed and notarized distribution through the Mac App Store.
-
-## License
-
-Mac Mixer is based on the BackgroundMusic project and is licensed under GPLv2.
-
----
-
-*This roadmap reflects current development priorities and is subject to change.*
+Mac Mixer v2 is focused on per-app output routing. Auto-pausing music players, system-audio recording, audio effects, and analytics are not part of the current release scope.

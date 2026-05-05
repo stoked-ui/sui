@@ -34,6 +34,16 @@ interface ProductConfig {
   managed: boolean;
   hideProductFeatures: boolean;
   prerelease?: 'alpha' | 'beta' | 'none';
+  keyPrefix?: string;
+  price?: number;
+  currency?: string;
+  subscriptions?: Array<{ price: number; currency: string; interval: 'month' | 'year' }>;
+  maxActivations?: number;
+  privacyPolicy?: {
+    enabled: boolean;
+    content: string;
+    localizedContent?: Record<string, string>;
+  };
   features: Array<{ name: string; description: string; id: string }>;
   slugOrder: string[];
 }
@@ -81,20 +91,70 @@ const products: ProductConfig[] = [
     productId: 'mac-mixer',
     name: 'Mac Mixer',
     fullName: 'Mac Mixer',
-    description: 'macOS audio utility with per-app volume control, auto-pause, and system audio recording',
+    description: 'Per-application audio routing for macOS with app-level and device-level volume control',
     icon: 'product-advanced',
     url: '/mac-mixer',
     live: true,
     managed: true,
     hideProductFeatures: true,
     prerelease: 'alpha',
+    keyPrefix: 'MACMIXER',
+    price: 10,
+    currency: 'USD',
+    subscriptions: [{ price: 10, currency: 'USD', interval: 'year' }],
+    maxActivations: 3,
+    privacyPolicy: {
+      enabled: true,
+      content: `# Mac Mixer Privacy Policy
+
+**Last updated: May 4, 2026**
+
+Mac Mixer is a macOS menu-bar utility from Stoked Consulting. This policy explains what information is processed when you use Mac Mixer, buy a direct license, or activate the app.
+
+## Audio and routing data
+
+Mac Mixer processes audio locally on your Mac. Audio content is not uploaded, recorded, analyzed, or transmitted to Stoked Consulting.
+
+Route assignments, device names, enabled devices, and volume settings are stored locally at \`~/Library/Application Support/MacMixer/config.yaml\`. This configuration is not sent to Stoked Consulting by the app.
+
+## License and account data
+
+If you use the direct-license build, Stoked Consulting may process:
+
+- Email address used for checkout and license delivery.
+- License key, product ID, license status, expiration date, and activation count.
+- Hardware identifier used to bind a license activation to a Mac.
+- Machine name when provided by the license activation response.
+
+Payment card details are processed by Stripe. Stoked Consulting does not store full payment card numbers.
+
+If you use the Mac App Store build, purchase and subscription management are handled by Apple through StoreKit.
+
+## Local storage
+
+Mac Mixer stores trial state, license keys, entitlement cache data, and related validation data in Keychain and UserDefaults. Debug logs may be written to \`~/Library/Logs/MacMixer.log\`.
+
+## Network use
+
+Mac Mixer network calls are limited to checkout, license activation, license validation, license deactivation, and optional product-promo content. The app does not include audio analytics.
+
+## Data sharing
+
+Stoked Consulting does not sell personal information. Direct-license billing data is shared with Stripe as needed to process payment. App Store subscription data is handled by Apple under Apple's policies.
+
+## Contact
+
+For privacy requests or questions, contact Stoked Consulting through stokedconsulting.com.`,
+    },
     features: [
-      { name: 'Overview', description: 'Features, system requirements, and getting started', id: 'overview' },
-      { name: 'App Volumes', description: 'Per-application volume control with boost', id: 'app-volumes' },
-      { name: 'Auto-Pause', description: 'Automatically pause music when other audio plays', id: 'auto-pause' },
-      { name: 'Roadmap', description: 'Current status and future plans', id: 'roadmap' },
+      { name: 'Overview', description: 'What Mac Mixer does, requirements, and current alpha scope', id: 'overview' },
+      { name: 'Routing and Volumes', description: 'Move apps between output devices and control route levels', id: 'app-volumes' },
+      { name: 'Installation', description: 'HAL plug-in install, first launch, and release-channel notes', id: 'installation' },
+      { name: 'Configuration', description: 'YAML persistence and the runtime driver sync contract', id: 'configuration' },
+      { name: 'Licensing', description: 'Trial, direct license, and Mac App Store subscription behavior', id: 'licensing' },
+      { name: 'Roadmap', description: 'Alpha scope, release packaging, and planned improvements', id: 'roadmap' },
     ],
-    slugOrder: ['overview', 'app-volumes', 'auto-pause', 'recording', 'download', 'roadmap'],
+    slugOrder: ['overview', 'app-volumes', 'installation', 'configuration', 'licensing', 'roadmap'],
   },
   {
     productId: 'always-listening',
@@ -235,6 +295,18 @@ async function seed() {
         );
         const action = pageResult.upsertedCount > 0 ? 'Created' : 'Updated';
         console.log(`  ${action} page: ${page.title} (/${page.slug})`);
+      }
+
+      if (pages.length > 0) {
+        const activeSlugs = pages.map((page) => page.slug);
+        const staleResult = await db.collection('product_pages').updateMany(
+          { productId: productMongoId, slug: { $nin: activeSlugs }, published: true },
+          { $set: { published: false, updatedAt: now } },
+        );
+
+        if (staleResult.modifiedCount > 0) {
+          console.log(`  Unpublished ${staleResult.modifiedCount} stale page(s).`);
+        }
       }
 
       totalPages += pages.length;

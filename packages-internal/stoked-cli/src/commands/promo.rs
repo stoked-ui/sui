@@ -79,7 +79,11 @@ pub enum PromoCommand {
     },
 }
 
-pub async fn run_promo(client: &ApiClient, command: PromoCommand, compact_json: bool) -> Result<()> {
+pub async fn run_promo(
+    client: &ApiClient,
+    command: PromoCommand,
+    compact_json: bool,
+) -> Result<()> {
     let value: Value = match command {
         PromoCommand::Create {
             name,
@@ -132,7 +136,13 @@ pub async fn run_promo(client: &ApiClient, command: PromoCommand, compact_json: 
             }
 
             client
-                .request_json(Method::POST, "/api/licenses/promo-codes", &[], Some(payload), true)
+                .request_json(
+                    Method::POST,
+                    "/api/licenses/promo-codes",
+                    &[],
+                    Some(payload),
+                    true,
+                )
                 .await?
         }
 
