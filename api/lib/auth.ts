@@ -33,7 +33,7 @@ export interface AuthResult {
   };
 }
 
-const AUTO_DOMAINS = (process.env.AUTH_AUTO_DOMAINS || 'stokedconsulting.com,stoked-ui.com,brianstoker.com')
+const AUTO_DOMAINS = (process.env.AUTH_AUTO_DOMAINS || 'stokd.cloud,sui.stokd.cloud,consulting.stokd.cloud,brianstoker.com')
   .split(',')
   .map((d) => d.trim().toLowerCase());
 

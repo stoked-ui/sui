@@ -1130,7 +1130,7 @@
     "contact": {
       "name": "Brian Stoker",
       "url": "https://github.com/stoked-ui/sui",
-      "email": "brian@stoked-ui.com"
+      "email": "brian@stokd.cloud"
     },
     "license": {
       "name": "MIT",
@@ -1161,7 +1161,7 @@
       "description": "Local development server"
     },
     {
-      "url": "https://api.stoked-ui.com/v1",
+      "url": "https://api.sui.stokd.cloud/v1",
       "description": "Production server"
     }
   ],

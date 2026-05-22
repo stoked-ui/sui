@@ -32,19 +32,19 @@ describe('AuthService', () => {
   describe('register', () => {
     it('should assign admin role to email with trusted domain', async () => {
       const result = await service.register(
-        'developer@stokedconsulting.com',
+        'developer@stokd.cloud',
         'password123',
         'Dev User',
       );
 
       expect(result.user.role).toBe('admin');
-      expect(result.user.email).toBe('developer@stokedconsulting.com');
+      expect(result.user.email).toBe('developer@stokd.cloud');
       expect(result.access_token).toBe('mock-jwt-token');
     });
 
-    it('should assign admin role to stoked-ui.com domain', async () => {
+    it('should assign admin role to sui.stokd.cloud domain', async () => {
       const result = await service.register(
-        'contributor@stoked-ui.com',
+        'contributor@sui.stokd.cloud',
         'password123',
         'Contributor',
       );

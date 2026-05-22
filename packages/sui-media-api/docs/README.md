@@ -13,7 +13,7 @@ This directory contains the API documentation for the Stoked UI Media API.
 The API documentation is available via Swagger UI at:
 
 **Development:** `http://localhost:3001/api/docs`
-**Production:** `https://api.stoked-ui.com/api/docs`
+**Production:** `https://api.sui.stokd.cloud/api/docs`
 
 ## API Endpoints
 
@@ -158,8 +158,8 @@ Rate limiting may be applied to prevent abuse. Check the response headers for ra
 For issues, questions, or contributions:
 
 - GitHub: https://github.com/stoked-ui/sui
-- Email: brian@stoked-ui.com
-- Documentation: https://stoked-ui.com/docs
+- Email: brian@stokd.cloud
+- Documentation: https://sui.stokd.cloud/docs
 
 ## License
 

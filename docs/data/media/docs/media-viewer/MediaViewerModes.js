@@ -9,8 +9,8 @@ const item = {
   id: 'viewer-modes-video',
   title: 'Launch mode comparison',
   mediaType: 'video',
-  url: 'https://cdn.stokedconsulting.com/products/flux/assets/flux-desktop-preview-1280x720.mp4',
-  file: 'https://cdn.stokedconsulting.com/products/flux/assets/flux-desktop-preview-1280x720.mp4',
+  url: 'https://cdn.consulting.stokd.cloud/products/flux/assets/flux-desktop-preview-1280x720.mp4',
+  file: 'https://cdn.consulting.stokd.cloud/products/flux/assets/flux-desktop-preview-1280x720.mp4',
   width: 1280,
   height: 720,
 };

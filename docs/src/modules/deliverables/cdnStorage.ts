@@ -1,5 +1,5 @@
-const DEFAULT_DELIVERABLES_CDN_BUCKET = 'cdn.stokedconsulting.com';
-const DEFAULT_DELIVERABLES_CDN_BASE_URL = 'https://cdn.stokedconsulting.com';
+const DEFAULT_DELIVERABLES_CDN_BUCKET = 'cdn.consulting.stokd.cloud';
+const DEFAULT_DELIVERABLES_CDN_BASE_URL = 'https://cdn.consulting.stokd.cloud';
 
 type DeliverableCdnLocationOptions = {
   clientSlug: string;

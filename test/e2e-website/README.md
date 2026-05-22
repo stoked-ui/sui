@@ -9,7 +9,7 @@ End-to-end tests for the Stoked UI documentation website using Playwright.
 pnpm test:e2e-website
 ```
 
-This runs all E2E tests against the production site at https://stoked-ui.com.
+This runs all E2E tests against the production site at https://sui.stokd.cloud.
 
 ### Against Local Development Server
 
@@ -55,7 +55,7 @@ Covers 48+ pages across all documentation sections:
 ## Configuration
 
 The Playwright configuration is in `playwright.config.ts`:
-- Base URL: `https://stoked-ui.com` (default) or set via `PLAYWRIGHT_TEST_BASE_URL`
+- Base URL: `https://sui.stokd.cloud` (default) or set via `PLAYWRIGHT_TEST_BASE_URL`
 - SSL errors ignored: `ignoreHTTPSErrors: true` for local development
 - Slow test threshold: 60 seconds
 

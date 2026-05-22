@@ -8,10 +8,10 @@ import {
 import { normalizeCdnPath } from './cdnAccess';
 
 export const CDN_BUCKET =
-  process.env.CDN_S3_BUCKET || process.env.BLOG_IMAGE_S3_BUCKET || 'cdn.stokedconsulting.com';
+  process.env.CDN_S3_BUCKET || process.env.BLOG_IMAGE_S3_BUCKET || 'cdn.consulting.stokd.cloud';
 export const CDN_REGION = process.env.AWS_REGION || 'us-east-1';
 export const CDN_PUBLIC_BASE_URL =
-  process.env.CDN_PUBLIC_BASE_URL || process.env.BLOG_IMAGE_CDN_URL || 'https://cdn.stokedconsulting.com';
+  process.env.CDN_PUBLIC_BASE_URL || process.env.BLOG_IMAGE_CDN_URL || 'https://cdn.consulting.stokd.cloud';
 export const DIRECTORY_MARKER_NAME = '.cdnkeep';
 
 const s3 = new S3Client({ region: CDN_REGION });

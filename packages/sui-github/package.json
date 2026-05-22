@@ -8,7 +8,7 @@
   "bugs": {
     "url": "https://github.com/stoked-ui/sui/issues"
   },
-  "homepage": "https://stoked-ui.com/editor",
+  "homepage": "https://sui.stokd.cloud/editor",
   "sideEffects": false,
   "publishConfig": {
     "access": "public",

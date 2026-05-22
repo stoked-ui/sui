@@ -4,17 +4,24 @@
  * Seeds all managed products and their documentation pages into MongoDB.
  *
  * Usage:
- *   npx ts-node --project docs/tsconfig.json docs/scripts/seed-products.ts
+ *   pnpm --filter stokedui-com products:seed
+ *   pnpm --filter stokedui-com products:seed -- --product mac-mixer
+ *   pnpm --filter stokedui-com products:seed -- --product mac-mixer --dry-run
  *
- * Or with tsx:
- *   npx tsx docs/scripts/seed-products.ts
+ * Production:
+ *   sst shell --stage production --target stoked-uicomStaticSite -- pnpm --filter stokedui-com products:seed -- --product mac-mixer
  */
 
 import { MongoClient } from 'mongodb';
 import * as fs from 'fs';
 import * as path from 'path';
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/stoked-consulting';
+const LOCAL_MONGODB_URI = 'mongodb://localhost:27017/stoked-media';
+
+interface SeedOptions {
+  dryRun: boolean;
+  productIds: string[];
+}
 
 interface ProductPage {
   slug: string;
@@ -144,7 +151,7 @@ Stoked Consulting does not sell personal information. Direct-license billing dat
 
 ## Contact
 
-For privacy requests or questions, contact Stoked Consulting through stokedconsulting.com.`,
+For privacy requests or questions, contact Stoked Consulting through consulting.stokd.cloud.`,
     },
     features: [
       { name: 'Overview', description: 'What Mac Mixer does, requirements, and current alpha scope', id: 'overview' },
@@ -196,6 +203,94 @@ For privacy requests or questions, contact Stoked Consulting through stokedconsu
   },
 ];
 
+function printUsage() {
+  console.log(`Usage: pnpm --filter stokedui-com products:seed [options]
+
+Options:
+  --product <id>    Seed one product by productId. Can be repeated.
+  --dry-run         Read seed inputs and print what would be seeded without connecting to MongoDB.
+  --help            Show this help.
+`);
+}
+
+function parseArgs(argv = process.argv.slice(2)): SeedOptions | null {
+  const options: SeedOptions = {
+    dryRun: false,
+    productIds: [],
+  };
+
+  for (let index = 0; index < argv.length; index += 1) {
+    const arg = argv[index];
+
+    if (arg === '--') {
+      continue;
+    }
+
+    if (arg === '--help' || arg === '-h') {
+      printUsage();
+      return null;
+    }
+
+    if (arg === '--dry-run') {
+      options.dryRun = true;
+      continue;
+    }
+
+    if (arg === '--product' || arg === '-p') {
+      const value = argv[index + 1];
+      if (!value || value.startsWith('-')) {
+        throw new Error('--product requires a productId');
+      }
+      options.productIds.push(value);
+      index += 1;
+      continue;
+    }
+
+    if (arg.startsWith('--product=')) {
+      const value = arg.slice('--product='.length);
+      if (!value) {
+        throw new Error('--product requires a productId');
+      }
+      options.productIds.push(value);
+      continue;
+    }
+
+    throw new Error(`Unknown argument: ${arg}`);
+  }
+
+  return options;
+}
+
+function selectProducts(productIds: string[]) {
+  if (productIds.length === 0) {
+    return products;
+  }
+
+  const productMap = new Map(products.map((product): [string, ProductConfig] => [product.productId, product]));
+  const selected = productIds.map((productId) => productMap.get(productId));
+  const missing = productIds.filter((productId) => !productMap.has(productId));
+
+  if (missing.length > 0) {
+    throw new Error(`Unknown productId(s): ${missing.join(', ')}`);
+  }
+
+  return selected.filter((product): product is ProductConfig => Boolean(product));
+}
+
+function resolveMongoUri() {
+  if (process.env.MONGODB_URI) {
+    return process.env.MONGODB_URI;
+  }
+
+  if (process.env.CI || process.env.SST_STAGE === 'production' || process.env.NODE_ENV === 'production') {
+    throw new Error(
+      'MONGODB_URI is required outside local development. Run production seeds through `sst shell --target stoked-uicomStaticSite`.',
+    );
+  }
+
+  return LOCAL_MONGODB_URI;
+}
+
 function parseFrontMatter(raw: string): { title: string; content: string } {
   const fmMatch = raw.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
   if (!fmMatch) {
@@ -242,7 +337,25 @@ function readProductPages(productId: string, slugOrder: string[]): ProductPage[]
 }
 
 async function seed() {
-  const client = new MongoClient(MONGODB_URI);
+  const options = parseArgs();
+  if (!options) {
+    return;
+  }
+
+  const selectedProducts = selectProducts(options.productIds);
+
+  if (options.dryRun) {
+    let totalPages = 0;
+    selectedProducts.forEach((config) => {
+      const pages = readProductPages(config.productId, config.slugOrder);
+      totalPages += pages.length;
+      console.log(`${config.productId}: ${pages.length} page(s), live=${config.live}`);
+    });
+    console.log(`Dry run complete. Selected ${selectedProducts.length} product(s) and ${totalPages} page(s).`);
+    return;
+  }
+
+  const client = new MongoClient(resolveMongoUri());
   try {
     await client.connect();
     const db = client.db();
@@ -257,7 +370,7 @@ async function seed() {
     const now = new Date();
     let totalPages = 0;
 
-    for (const config of products) {
+    for (const config of selectedProducts) {
       const { productId, slugOrder, ...productData } = config;
 
       // Upsert product
@@ -313,7 +426,7 @@ async function seed() {
       console.log(`  Seeded ${pages.length} pages for ${config.name}.\n`);
     }
 
-    console.log(`Done! Seeded ${products.length} products with ${totalPages} total pages.`);
+    console.log(`Done! Seeded ${selectedProducts.length} products with ${totalPages} total pages.`);
   } finally {
     await client.close();
   }

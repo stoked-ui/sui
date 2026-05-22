@@ -1,7 +1,10 @@
 
+const STOKD_CLOUD_ZONE_ID = 'Z0974146XEXJDMNXU573';
+
 const ZONE_IDS: Record<string, string> = {
-  'stoked-ui.com': 'Z007684515CR7EDIISGDG',
-  'stokedconsulting.com': 'Z2CYVWQGVIX8W6',
+  'stokd.cloud': STOKD_CLOUD_ZONE_ID,
+  'sui.stokd.cloud': STOKD_CLOUD_ZONE_ID,
+  'consulting.stokd.cloud': STOKD_CLOUD_ZONE_ID,
 };
 
 export const getDomains = (rootDomain: string, stage: string) => {
@@ -41,9 +44,9 @@ export const getDomainInfo = (rootDomains: string, stage: string): DomainInfo =>
 
 export const getCdnDomainInfo = (rootDomains: string, stage: string): CdnDomainInfo => {
   const rootDomainParts = getRootDomainParts(rootDomains);
-  const consultingRootDomain = rootDomainParts.find((domain) => domain === 'stokedconsulting.com')
+  const consultingRootDomain = rootDomainParts.find((domain) => domain === 'consulting.stokd.cloud')
     ?? rootDomainParts[rootDomainParts.length - 1];
-  const stokedUiRootDomain = rootDomainParts[0] ?? 'stoked-ui.com';
+  const stokedUiRootDomain = rootDomainParts[0] ?? 'sui.stokd.cloud';
   const consultingDomain = getPrimaryDomain(consultingRootDomain, stage);
   const stokedUiDomain = getPrimaryDomain(stokedUiRootDomain, stage);
   const domain = `cdn.${consultingDomain}`;
@@ -76,7 +79,7 @@ export interface CdnDomainInfo {
 
 export const getCdnSuiDomainInfo = (rootDomains: string, stage: string): CdnDomainInfo => {
   const info = getCdnDomainInfo(rootDomains, stage);
-  // cdn.stokedconsulting.com → cdn-sui.stokedconsulting.com
+  // cdn.consulting.stokd.cloud → cdn-sui.consulting.stokd.cloud
   const domain = info.domain.replace(/^cdn\./, 'cdn-sui.');
   return {
     ...info,

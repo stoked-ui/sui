@@ -8,7 +8,7 @@
 **Lines of code:** ~17,500
 **Existing test files:** 10
 **Current coverage threshold:** 80% (branches, functions, lines, statements)
-**Last updated:** 2026-03-03
+**Last updated:** 2026-05-21
 
 The package is a comprehensive media management library with six major domains:
 1. **Core file handling** — `MediaFile`, `WebFile`, `WebFileFactory`, `AppFile`, `AppOutputFile`, `Stage`

@@ -69,18 +69,18 @@
 /core/api/timeline /products/timeline/api/timeline 301
 
 ### Consulting product pages
-/products/flux https://stokedconsulting.com/products/flux/ 301
-/products/flux/ https://stokedconsulting.com/products/flux/ 301
-/products/flux/* https://stokedconsulting.com/products/flux/:splat 301
-/products/focus-capture https://stokedconsulting.com/products/focus-capture/ 301
-/products/focus-capture/ https://stokedconsulting.com/products/focus-capture/ 301
-/products/focus-capture/* https://stokedconsulting.com/products/focus-capture/:splat 301
-/products/mac-mixer https://stokedconsulting.com/products/mac-mixer/ 301
-/products/mac-mixer/ https://stokedconsulting.com/products/mac-mixer/ 301
-/products/mac-mixer/* https://stokedconsulting.com/products/mac-mixer/:splat 301
-/products/always-listening https://stokedconsulting.com/products/always-listening/ 301
-/products/always-listening/ https://stokedconsulting.com/products/always-listening/ 301
-/products/always-listening/* https://stokedconsulting.com/products/always-listening/:splat 301
-/products/stokd-cloud https://stokedconsulting.com/products/stokd-cloud/ 301
-/products/stokd-cloud/ https://stokedconsulting.com/products/stokd-cloud/ 301
-/products/stokd-cloud/* https://stokedconsulting.com/products/stokd-cloud/:splat 301
+/products/flux https://consulting.stokd.cloud/products/flux/ 301
+/products/flux/ https://consulting.stokd.cloud/products/flux/ 301
+/products/flux/* https://consulting.stokd.cloud/products/flux/:splat 301
+/products/focus-capture https://consulting.stokd.cloud/products/focus-capture/ 301
+/products/focus-capture/ https://consulting.stokd.cloud/products/focus-capture/ 301
+/products/focus-capture/* https://consulting.stokd.cloud/products/focus-capture/:splat 301
+/products/mac-mixer https://consulting.stokd.cloud/products/mac-mixer/ 301
+/products/mac-mixer/ https://consulting.stokd.cloud/products/mac-mixer/ 301
+/products/mac-mixer/* https://consulting.stokd.cloud/products/mac-mixer/:splat 301
+/products/always-listening https://consulting.stokd.cloud/products/always-listening/ 301
+/products/always-listening/ https://consulting.stokd.cloud/products/always-listening/ 301
+/products/always-listening/* https://consulting.stokd.cloud/products/always-listening/:splat 301
+/products/stokd-cloud https://consulting.stokd.cloud/products/stokd-cloud/ 301
+/products/stokd-cloud/ https://consulting.stokd.cloud/products/stokd-cloud/ 301
+/products/stokd-cloud/* https://consulting.stokd.cloud/products/stokd-cloud/:splat 301

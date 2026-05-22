@@ -34,7 +34,7 @@ const DEFAULT_FORM_DATA: BlogPostFormData = {
   slug: '',
   tags: [],
   authors: '',
-  targetSites: ['stoked-ui.com'],
+  targetSites: ['sui.stokd.cloud'],
   image: '',
 };
 
@@ -131,7 +131,7 @@ export default function BlogEditor({ initialSlug }: BlogEditorProps) {
           slug: post.slug || initialSlug,
           tags: post.tags || [],
           authors: (post.authors || []).join(', '),
-          targetSites: post.targetSites || ['stoked-ui.com'],
+          targetSites: post.targetSites || ['sui.stokd.cloud'],
           image: post.image || '',
         });
         setBody(post.body || '');

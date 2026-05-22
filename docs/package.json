@@ -24,6 +24,8 @@
     "create-playground": "cpy --cwd=scripts playground.template.tsx ../../pages/playground --rename=index.tsx",
     "typescript": "tsc -p tsconfig.json && tsc -p scripts/tsconfig.json",
     "github:snapshots": "pnpm exec tsx ./scripts/generateGithubSnapshots.ts",
+    "products:seed": "pnpm exec tsx ./scripts/seed-products.ts",
+    "products:seed:mac-mixer": "pnpm products:seed -- --product mac-mixer",
     "typescript:transpile": "echo 'Use `pnpm docs:typescript:formatted'` instead && exit 1",
     "typescript:transpile:dev": "echo 'Use `pnpm docs:typescript'` instead && exit 1",
     "link-check": "node ./scripts/reportBrokenLinks.js",

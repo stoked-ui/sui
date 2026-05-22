@@ -15,11 +15,11 @@ When the trial expires, the app opens the subscription prompt for the active dis
 
 ## Direct license
 
-The direct build uses `stokedconsulting.com` for checkout and license validation:
+The direct build uses `consulting.stokd.cloud` for checkout and license validation:
 
 - Product ID: `mac-mixer`
 - Display price in the app: `$10/year`
-- License API: `https://stokedconsulting.com/api/licenses`
+- License API: `https://consulting.stokd.cloud/api/licenses`
 - Activation URL scheme: `macmixer://activate-license?key=...`
 - Checkout return path: `macmixer://checkout-complete`
 - Offline grace period after a successful validation: 7 days

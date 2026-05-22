@@ -47,6 +47,29 @@ describe('MediaCard', () => {
     expect(screen.getByText('Test Media')).toBeInTheDocument();
   });
 
+  it('displays description and source metadata in the card body', () => {
+    render(
+      <MediaCard
+        item={{
+          ...mockItem,
+          description: 'A concise explanation of the media item.',
+          sourceUrl: 'https://example.com/source-video',
+          sourceLabel: 'Source video',
+        }}
+        modeState={mockModeState}
+        setModeState={mockSetModeState}
+        info
+        appearance="dark"
+      />
+    );
+
+    expect(screen.getByText('A concise explanation of the media item.')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Source video' })).toHaveAttribute(
+      'href',
+      'https://example.com/source-video',
+    );
+  });
+
   it('shows owner controls when user is authenticated and owns the media', () => {
     const mockAuth = createMockAuth({
       id: 'user-123',
@@ -137,6 +160,31 @@ describe('MediaCard', () => {
 
     // In real implementation, would trigger click on play button
     // This is a simplified test structure
+  });
+
+  it('starts inline video playback when clicked', () => {
+    const videoItem: ExtendedMediaItem = {
+      ...mockItem,
+      mediaType: 'video',
+      file: '/videos/test.mp4',
+      url: '/videos/test.mp4',
+    };
+
+    const playSpy = vi.spyOn(HTMLMediaElement.prototype, 'play').mockImplementation(() => Promise.resolve());
+
+    render(
+      <MediaCard
+        item={videoItem}
+        modeState={mockModeState}
+        setModeState={mockSetModeState}
+        inlinePlayback
+      />
+    );
+
+    fireEvent.click(screen.getByTestId('media-card-media'));
+    expect(playSpy).toHaveBeenCalled();
+
+    playSpy.mockRestore();
   });
 
   it('plays video on hover and pauses on leave', async () => {

@@ -1,4 +1,4 @@
-export const STOKED_UI_PRODUCT_IDS = [
+const STOKED_UI_PRODUCT_IDS = [
   'stoked-ui',
   'file-explorer',
   'media',
@@ -9,7 +9,7 @@ export const STOKED_UI_PRODUCT_IDS = [
   'editor',
 ];
 
-export const CONSULTING_PUBLIC_PRODUCT_IDS = [
+const CONSULTING_PUBLIC_PRODUCT_IDS = [
   'flux',
   'focus-capture',
   'mac-mixer',
@@ -17,7 +17,7 @@ export const CONSULTING_PUBLIC_PRODUCT_IDS = [
   'stokd-cloud',
 ];
 
-export const CONSULTING_ROUTE_MANIFEST = [
+const CONSULTING_ROUTE_MANIFEST = [
   { id: 'consulting-home', publicPath: '/', internalPath: '/consulting/', access: 'public' },
   { id: 'consulting-admin', publicPath: '/admin', internalPath: '/consulting/admin', access: 'admin' },
   { id: 'consulting-admin-products', publicPath: '/admin/products', internalPath: '/consulting/admin/products', access: 'admin' },
@@ -50,34 +50,34 @@ function getFirstPathSegment(pathname) {
   return pathname.replace(/^\/+/, '').split('/')[0] || '';
 }
 
-export const CONSULTING_APP_SEGMENTS = Array.from(
+const CONSULTING_APP_SEGMENTS = Array.from(
   new Set(CONSULTING_ROUTE_MANIFEST.map((route) => getFirstPathSegment(route.publicPath))),
 );
 
-export function isStokedUiProductId(productId) {
+function isStokedUiProductId(productId) {
   return STOKED_UI_PRODUCT_IDS.includes(productId);
 }
 
-export function isConsultingPublicProductId(productId) {
+function isConsultingPublicProductId(productId) {
   return CONSULTING_PUBLIC_PRODUCT_IDS.includes(productId);
 }
 
-export function buildCanonicalProductPath(productId) {
+function buildCanonicalProductPath(productId) {
   return `/products/${productId}`;
 }
 
-export function buildCanonicalProductDocsPath(productId, slug = 'overview') {
+function buildCanonicalProductDocsPath(productId, slug = 'overview') {
   return `${buildCanonicalProductPath(productId)}/docs/${slug}`;
 }
 
-export function buildConsultingAdminProductsPath(productId) {
+function buildConsultingAdminProductsPath(productId) {
   const basePath = '/consulting/admin/products';
   return productId ? `${basePath}/${productId}` : basePath;
 }
 
 const legacyProductMatcher = STOKED_UI_PRODUCT_IDS.join('|').replace(/,/g, '|');
 
-export const NEXT_ROUTE_REDIRECTS = [
+const NEXT_ROUTE_REDIRECTS = [
   {
     source: '/stoked-ui/docs/getting-started/installation',
     destination: buildCanonicalProductDocsPath('stoked-ui', 'installation'),
@@ -155,3 +155,14 @@ export const NEXT_ROUTE_REDIRECTS = [
     destination: '/products/:product/:rest*',
   },
 ];
+
+exports.STOKED_UI_PRODUCT_IDS = STOKED_UI_PRODUCT_IDS;
+exports.CONSULTING_PUBLIC_PRODUCT_IDS = CONSULTING_PUBLIC_PRODUCT_IDS;
+exports.CONSULTING_ROUTE_MANIFEST = CONSULTING_ROUTE_MANIFEST;
+exports.CONSULTING_APP_SEGMENTS = CONSULTING_APP_SEGMENTS;
+exports.isStokedUiProductId = isStokedUiProductId;
+exports.isConsultingPublicProductId = isConsultingPublicProductId;
+exports.buildCanonicalProductPath = buildCanonicalProductPath;
+exports.buildCanonicalProductDocsPath = buildCanonicalProductDocsPath;
+exports.buildConsultingAdminProductsPath = buildConsultingAdminProductsPath;
+exports.NEXT_ROUTE_REDIRECTS = NEXT_ROUTE_REDIRECTS;

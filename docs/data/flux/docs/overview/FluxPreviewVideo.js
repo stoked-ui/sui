@@ -17,7 +17,7 @@ export default function FluxPreviewVideo() {
       }}
     >
       <video
-        src="https://cdn.stokedconsulting.com/products/flux/assets/flux-desktop-preview-1920x1080.mp4"
+        src="https://cdn.consulting.stokd.cloud/products/flux/assets/flux-desktop-preview-1920x1080.mp4"
         autoPlay
         muted
         loop

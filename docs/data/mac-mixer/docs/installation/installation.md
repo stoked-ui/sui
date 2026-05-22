@@ -15,14 +15,16 @@ title: Installation
 | Audio devices | Stereo output devices are the current supported path      |
 | Permissions   | Administrator approval for the first HAL plug-in install  |
 
-## Release channels
+## Alpha download
 
-Mac Mixer has two build-time distribution channels:
+Mac Mixer is currently distributed as a signed and notarized direct-download alpha installer.
 
-- **Direct build** - Uses a license key purchased through stokedconsulting.com and validated by the direct license API.
-- **Mac App Store build** - Uses StoreKit 2 products under the Mac Mixer Pro subscription group.
+<a href="https://cdn.consulting.stokd.cloud/products/mac-mixer/releases/alpha/2.0.0-1/MacMixer-2.0.0-1.pkg" style="display:inline-block;padding:12px 24px;background:#1976d2;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;font-size:16px;margin:16px 12px 16px 0">Download Mac Mixer Alpha</a>
 
-Public installer links are not published yet. They will be added here after release signing, notarization, and packaging are complete.
+- Installer: [MacMixer-2.0.0-1.pkg](https://cdn.consulting.stokd.cloud/products/mac-mixer/releases/alpha/2.0.0-1/MacMixer-2.0.0-1.pkg)
+- Release manifest: [MacMixer-2.0.0-1.json](https://cdn.consulting.stokd.cloud/products/mac-mixer/releases/alpha/2.0.0-1/MacMixer-2.0.0-1.json)
+
+The direct alpha uses a license key purchased through consulting.stokd.cloud and validated by the direct license API. It installs a system-wide CoreAudio HAL plug-in and requires administrator approval.
 
 ## First launch
 

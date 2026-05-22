@@ -10,7 +10,7 @@ function Copyright() {
   return (
     <React.Fragment>
       {'© '}
-      <Link color="inherit" href="https://stokedconsulting.com/">
+      <Link color="inherit" href="https://consulting.stokd.cloud/">
         Your Website
       </Link>{' '}
       {new Date().getFullYear()}
@@ -59,7 +59,7 @@ export default function AppFooter() {
               sx={{ height: 120 }}
             >
               <Grid item sx={{ display: 'flex' }}>
-                <Box component="a" href="https://stokedconsulting.com/" sx={iconStyle}>
+                <Box component="a" href="https://consulting.stokd.cloud/" sx={iconStyle}>
                   <img
                     src="/static/themes/onepirate/appFooterFacebook.png"
                     alt="Facebook"

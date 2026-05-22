@@ -46,14 +46,14 @@ const inHouseAds = [
   },
   {
     name: 'templates',
-    link: 'https://stokedconsulting.com/store/?utm_source=docs&utm_medium=referral&utm_campaign=in-house-templates',
+    link: 'https://consulting.stokd.cloud/store/?utm_source=docs&utm_medium=referral&utm_campaign=in-house-templates',
     img: '/static/ads-in-house/themes-2.jpg',
     description:
       '<b>Premium Templates</b>. Start your project with the best templates for admins, dashboards, and more.',
   },
   {
     name: 'themes',
-    link: 'https://stokedconsulting.com/store/?utm_source=docs&utm_medium=referral&utm_campaign=in-house-themes',
+    link: 'https://consulting.stokd.cloud/store/?utm_source=docs&utm_medium=referral&utm_campaign=in-house-themes',
     img: '/static/ads-in-house/themes.png',
     description:
       '<b>Premium Themes</b>. Kickstart your application development with a ready-made theme.',
@@ -67,7 +67,7 @@ const inHouseAds = [
   },
   {
     name: 'figma',
-    link: 'https://stokedconsulting.com/store/items/figma-react/?utm_source=docs&utm_medium=referral&utm_campaign=in-house-figma',
+    link: 'https://consulting.stokd.cloud/store/items/figma-react/?utm_source=docs&utm_medium=referral&utm_campaign=in-house-figma',
     img: '/static/ads-in-house/figma.png',
     description:
       '<b>For Figma</b>. A large UI kit with over 600 handcrafted Material UI, SUI X, Joy UI components 🎨.',

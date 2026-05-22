@@ -341,10 +341,10 @@ export default function TopLayoutBlog(props) {
               publisher: {
                 '@type': 'Organization',
                 name: 'SUI blog',
-                url: 'https://stokedconsulting.com/blog/',
+                url: 'https://consulting.stokd.cloud/blog/',
                 logo: {
                   '@type': 'ImageObject',
-                  url: 'https://stokedconsulting.com/static/icons/512x512.png',
+                  url: 'https://consulting.stokd.cloud/static/icons/512x512.png',
                 },
               },
               author: {
@@ -359,7 +359,7 @@ export default function TopLayoutBlog(props) {
                 sameAs: [`https://github.com/${authors[headers.authors[0]].github}`],
               },
               headline: finalTitle,
-              url: `https://stoked-ui.com${canonicalAsServer}`,
+              url: `https://sui.stokd.cloud${canonicalAsServer}`,
               datePublished: headers.date,
               dateModified: headers.date,
               image: {
@@ -372,7 +372,7 @@ export default function TopLayoutBlog(props) {
               description,
               mainEntityOfPage: {
                 '@type': 'WebPage',
-                '@id': 'https://stokedconsulting.com/blog/',
+                '@id': 'https://consulting.stokd.cloud/blog/',
               },
             }),
           }}

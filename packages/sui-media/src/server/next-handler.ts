@@ -16,7 +16,7 @@ export interface MediaHandlerConfig {
   privateKey: string;
 
   /**
-   * The base URL of your backend sui-media-api (e.g., https://api.stoked-ui.com).
+   * The base URL of your backend sui-media-api (e.g., https://api.sui.stokd.cloud).
    * Defaults to the production Stoked UI Media API.
    */
   sourceApiUrl?: string;
@@ -44,7 +44,7 @@ export interface MediaHandlerConfig {
 export function createMediaHandler(config: MediaHandlerConfig) {
   const {
     privateKey,
-    sourceApiUrl = 'https://api.stoked-ui.com',
+    sourceApiUrl = 'https://api.sui.stokd.cloud',
     localPath = '/api/sui-media',
   } = config;
 

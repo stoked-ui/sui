@@ -100,7 +100,7 @@ pnpm --filter @stoked-ui/timeline docs:build
 
 ## Related Docs
 
-- Product docs: `https://stoked-ui.com/products/timeline/docs`
+- Product docs: `https://sui.stokd.cloud/products/timeline/docs`
 - Editor integration: `@stoked-ui/editor`
 - Source: `packages/sui-timeline/src`
 

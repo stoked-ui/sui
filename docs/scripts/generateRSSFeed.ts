@@ -9,13 +9,13 @@ export default async function generateRssFeed(allBlogPosts: Array<BlogPost>) {
   if (process.env.NODE_ENV !== 'production') {
     return;
   }
-  const siteUrl = 'https://stoked-ui.com';
+  const siteUrl = 'https://sui.stokd.cloud';
 
   // Fetch additional posts from the Blog API public endpoint.
   // If the API is unreachable at build time, fall back to markdown-only posts.
   let apiPosts: Array<BlogPost> = [];
   try {
-    const res = await fetch(`${BLOG_API_URL}/blog/public?site=stoked-ui.com&limit=100`);
+    const res = await fetch(`${BLOG_API_URL}/blog/public?site=sui.stokd.cloud&limit=100`);
     if (res.ok) {
       const json = await res.json();
       apiPosts = (json.data || []).map((post: any) => ({

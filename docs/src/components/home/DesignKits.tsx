@@ -76,11 +76,11 @@ const DesignToolLink = React.forwardRef<
       href={
         {
           figma:
-            'https://stokedconsulting.com/store/items/figma-react/?utm_source=marketing&utm_medium=referral&utm_campaign=home-products',
+            'https://consulting.stokd.cloud/store/items/figma-react/?utm_source=marketing&utm_medium=referral&utm_campaign=home-products',
           sketch:
-            'https://stokedconsulting.com/store/items/sketch-react/?utm_source=marketing&utm_medium=referral&utm_campaign=home-products',
+            'https://consulting.stokd.cloud/store/items/sketch-react/?utm_source=marketing&utm_medium=referral&utm_campaign=home-products',
           adobexd:
-            'https://stokedconsulting.com/store/items/adobe-xd-react/?utm_source=marketing&utm_medium=referral&utm_campaign=home-products',
+            'https://consulting.stokd.cloud/store/items/adobe-xd-react/?utm_source=marketing&utm_medium=referral&utm_campaign=home-products',
         }[brand]
       }
       target="_blank"

@@ -42,7 +42,7 @@ stoked auth logout
 
 ```bash
 # Public routes
-stoked blog public --site stoked-ui.com --limit 10
+stoked blog public --site sui.stokd.cloud --limit 10
 stoked licenses products
 stoked products public
 

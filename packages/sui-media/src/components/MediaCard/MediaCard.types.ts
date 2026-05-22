@@ -160,6 +160,12 @@ export interface ExtendedMediaItem {
   recordingSessionId?: string;
   /** Featured users (co-stars) in this video/stream recording */
   featuredUsers?: string[];
+
+  /** Optional canonical/source URL shown in the card metadata area */
+  sourceUrl?: string;
+
+  /** Optional human-readable source label shown instead of the raw source URL */
+  sourceLabel?: string;
 }
 
 /**
@@ -256,8 +262,17 @@ export interface MediaCardProps {
   /** Material-UI sx prop for custom styling */
   sx?: SxProps<Theme>;
 
+  /** Material-UI sx prop for the content area */
+  contentSx?: SxProps<Theme>;
+
+  /** Visual treatment for host surfaces that are not using a matching MUI theme */
+  appearance?: 'default' | 'dark';
+
   /** Grid view mode - force 1:1 aspect ratio */
   squareMode?: boolean;
+
+  /** Allow videos to play directly inside the card on click */
+  inlinePlayback?: boolean;
 
   // Callback handlers
   /** Callback when view/play is clicked */

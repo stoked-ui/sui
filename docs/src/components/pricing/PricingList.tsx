@@ -55,12 +55,12 @@ const Plan = React.forwardRef<
               community: '/material-ui/getting-started/usage/',
               pro:
                 licensingModel === 'annual'
-                  ? 'https://stokedconsulting.com/store/items/mui-x-pro/'
-                  : 'https://stokedconsulting.com/store/items/mui-x-pro-perpetual/',
+                  ? 'https://consulting.stokd.cloud/store/items/mui-x-pro/'
+                  : 'https://consulting.stokd.cloud/store/items/mui-x-pro-perpetual/',
               premium:
                 licensingModel === 'annual'
-                  ? 'https://stokedconsulting.com/store/items/mui-x-premium/'
-                  : 'https://stokedconsulting.com/store/items/mui-x-premium-perpetual/',
+                  ? 'https://consulting.stokd.cloud/store/items/mui-x-premium/'
+                  : 'https://consulting.stokd.cloud/store/items/mui-x-premium-perpetual/',
             }[plan]
           }
           endIcon={<KeyboardArrowRightRounded />}

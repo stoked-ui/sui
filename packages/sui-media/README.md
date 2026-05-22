@@ -98,7 +98,7 @@ pnpm --filter @stoked-ui/media dev
 
 ## Related Docs
 
-- Product docs: `https://stoked-ui.com/products/media/docs`
+- Product docs: `https://sui.stokd.cloud/products/media/docs`
 - Backend package: `@stoked-ui/media-api`
 - Source: `packages/sui-media/src`
 

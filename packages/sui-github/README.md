@@ -69,7 +69,7 @@ pnpm --filter @stoked-ui/github dev
 
 ## Related Docs
 
-- Product docs: `https://stoked-ui.com/github/docs`
+- Product docs: `https://sui.stokd.cloud/github/docs`
 - Source: `packages/sui-github/src`
 
 ## License

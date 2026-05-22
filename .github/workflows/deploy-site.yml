@@ -36,7 +36,7 @@ jobs:
       - name: Configure AWS credentials (Production)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::883859713095:role/stoked-ui-prod-github
+          role-to-assume: arn:aws:iam::167217327520:role/stoked-ui-prod-github
           aws-region: us-east-1
 
       - name: Install dependencies
@@ -44,7 +44,7 @@ jobs:
 
       - name: Deploy production site
         env:
-          ROOT_DOMAIN: stoked-ui.com,stokedconsulting.com
+          ROOT_DOMAIN: sui.stokd.cloud,consulting.stokd.cloud
           NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
         run: |
           set -euo pipefail
@@ -58,3 +58,11 @@ jobs:
               exit 1
             fi
           fi
+
+      - name: Seed production product data
+        env:
+          ROOT_DOMAIN: sui.stokd.cloud,consulting.stokd.cloud
+          NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
+        run: |
+          set -euo pipefail
+          sst shell --stage production --target suistokdcloudStaticSite -- pnpm --filter stokedui-com products:seed:mac-mixer

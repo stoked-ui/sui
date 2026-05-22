@@ -20,7 +20,7 @@ function LatestVersions() {
               <Link
                 variant="body2"
                 rel="nofollow"
-                href="https://stoked-ui.com/docs"
+                href="https://sui.stokd.cloud/docs"
               >
                 Documentation
               </Link>
@@ -42,7 +42,7 @@ function LatestVersions() {
               <Link
                 variant="body2"
                 rel="nofollow"
-                href="https://next.stoked-ui.com/docs"
+                href="https://next.sui.stokd.cloud/docs"
               >
                 Documentation
               </Link>

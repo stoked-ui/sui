@@ -2,552 +2,526 @@
 
 **Package:** `@stoked-ui/media-api`
 **Priority:** Medium
-**Stack:** NestJS 10.3 / TypeScript 5.4 / Jest 29 / Mongoose 8 / AWS SDK v3
-**Generated:** 2026-03-03
+**Stack:** NestJS 10.3 / TypeScript 5.4 / Jest 29 / ts-jest 29 / Mongoose 8 / AWS SDK v3 / Sharp / fluent-ffmpeg / Stripe / Passport-JWT
+**Generated:** 2026-05-21
+
+This document describes the testing strategy for the `packages/sui-media-api` NestJS application — a media-component API providing CRUD, multipart uploads to S3, metadata extraction, and thumbnail/sprite generation. Per the package guardrails (`AGENTS.md`, `CLAUDE.md`), this API is reserved for media-component endpoints; non-media business routes belong in `docs/pages/api/*`.
 
 ---
 
 ## 1. Current Test Inventory
 
-### Existing Unit Tests (10 files, ~3,100 lines)
+### Unit Tests (8 files in `src/`)
 
-| File | Lines | Tests | Depth |
-|------|-------|-------|-------|
-| `src/s3/s3.service.spec.ts` | 685 | ~25 | **Excellent** — full S3 operation coverage with mocked AWS SDK |
-| `src/uploads/uploads.service.spec.ts` | 762 | ~22 | **Excellent** — initiate, status, parts, complete, abort, sync, presigned URLs |
-| `src/blog/blog.service.spec.ts` | 516 | ~12 | **Good** — create, findBySlug, publish, findAll, findPublic, softDelete |
-| `src/nostr/nostr.service.spec.ts` | 507 | ~16 | **Excellent** — config parsing, event parsing, import, poll, lifecycle |
-| `src/uploads/uploads.controller.spec.ts` | 338 | ~10 | **Good** — controller delegation verified for all endpoints |
-| `src/auth/auth.service.spec.ts` | 160 | ~12 | **Good** — register, login, validateToken, domain-based role assignment |
-| `src/media/thumbnail-generation.service.spec.ts` | 96 | ~5 | **Moderate** — VTT generation, S3 URL building; skips FFmpeg paths |
-| `src/media/metadata/metadata-extraction.service.spec.ts` | 80 | ~4 | **Moderate** — validateTools, MIME routing, unsupported type rejection |
-| `src/media/media.service.spec.ts` | 50 | 2 | **Shallow** — only `isDefined` + `getInfo()` |
-| `src/health/health.controller.spec.ts` | 26 | 2 | Complete for scope |
+| File | Source LOC | Depth |
+|------|-----------|-------|
+| `src/s3/s3.service.spec.ts` | covers `s3.service.ts` (586 LOC) | **Excellent** — full S3 + presigned URL coverage with mocked AWS SDK |
+| `src/uploads/uploads.service.spec.ts` | covers `uploads.service.ts` (704 LOC) | **Excellent** — initiate/status/parts/complete/abort/sync flows |
+| `src/uploads/uploads.controller.spec.ts` | covers `uploads.controller.ts` (352 LOC) | **Good** — controller delegation |
+| `src/auth/auth.service.spec.ts` | covers `auth.service.ts` (178 LOC) | **Good** — register/login/validateToken, domain auto-role |
+| `src/media/thumbnail-generation.service.spec.ts` | covers `thumbnail-generation.service.ts` (488 LOC) | **Moderate** — VTT + S3 URL building; FFmpeg-bound paths skipped |
+| `src/media/metadata/metadata-extraction.service.spec.ts` | covers `metadata-extraction.service.ts` (238 LOC) | **Moderate** — tool validation + MIME routing |
+| `src/media/media.service.spec.ts` | covers `media.service.ts` (472 LOC) | **Shallow** — only `isDefined` and `getInfo()` (~50 LOC of test) |
+| `src/health/health.controller.spec.ts` | covers `health.controller.ts` (33 LOC) | Complete for scope |
 
-### Existing E2E Tests (1 file)
+### E2E Tests (1 file)
 
-| File | Lines | Tests | Depth |
-|------|-------|-------|-------|
-| `test/uploads-e2e.spec.ts` | 346 | ~16 | **Excellent** — complete upload, resume, abort, active list, duplicate, errors |
+| File | Description |
+|------|-------------|
+| `test/uploads-e2e.spec.ts` | Multipart upload happy paths + resume/abort/duplicate/error cases |
 
-### Gap Summary
+### Configuration
 
-**No tests at all:**
-- `src/license/license.service.ts` (203 lines — activation, validation, key generation, deactivation limits)
-- `src/license/stripe.service.ts` (87 lines — checkout sessions, webhook verification, subscription retrieval)
-- `src/invoices/invoices.service.ts` (75 lines — CRUD with Mongoose)
-- `src/media/media.controller.ts` (597 lines — REST endpoints, auth integration)
-- `src/auth/auth.controller.ts` — login/register endpoints
-- `src/blog/blog.controller.ts` — blog REST endpoints
-- `src/license/license.controller.ts` — license endpoints
-- `src/license/stripe.controller.ts` — Stripe webhook endpoints
-- `src/invoices/invoices.controller.ts` — invoice endpoints
-- `src/media/guards/auth.guard.ts` (77 lines — JWT + x-user-id fallback)
-- `src/auth/guards/roles.guard.ts` (57 lines — role hierarchy enforcement)
-- `src/invoices/guards/api-key.guard.ts` (33 lines — API key validation)
-- `src/performance/caching.middleware.ts` — HTTP caching
+- Unit Jest config inline in `package.json` → `rootDir: src`, `testRegex: .*\.spec\.ts$`, `testEnvironment: node`, ts-jest with `diagnostics: false`
+- E2E Jest config in `test/jest-e2e.json` → `testRegex: .e2e-spec.ts$` (note: current `test/uploads-e2e.spec.ts` uses `.spec.ts` not `.e2e-spec.ts`, so it actually runs under the unit config)
+- Scripts: `pnpm test`, `pnpm test:cov`, `pnpm test:ci`, `pnpm test:e2e`, `pnpm test:watch`, `pnpm test:debug`
+
+### Gap Summary — files with **zero tests**
+
+**Controllers / HTTP surface:**
+- `src/media/media.controller.ts` (596 LOC) — REST CRUD, query/search, soft+hard delete, restore, metadata extract
+- `src/auth/auth.controller.ts` (83 LOC) — register/login endpoints
+
+**Guards / strategies:**
+- `src/media/guards/auth.guard.ts` (79 LOC) — JWT Bearer + `x-user-id`/`?userId` dev fallback
+- `src/auth/guards/jwt-auth.guard.ts` (15 LOC)
+- `src/auth/guards/roles.guard.ts` (57 LOC) — role hierarchy (`reader < author < editor < admin`)
+- `src/auth/strategies/jwt.strategy.ts` (59 LOC)
+
+**Media support services:**
+- `src/media/metadata/video-processing.service.ts` (356 LOC) — FFprobe parsing, codec normalization, framerate fractions
+
+**Performance layer:**
+- `src/performance/caching.middleware.ts` (262 LOC)
+- `src/performance/metadata-extraction.optimization.ts` (380 LOC)
+
+**Infrastructure / bootstrap (low test ROI but listed for completeness):**
+- `src/lambda.bootstrap.ts`, `src/main.ts`, `src/app.ts`, `src/openapi.module.ts`, `src/swagger.config.ts`
+
+**Empty / scaffold-only directories** (no implementation yet — defer tests):
+- `src/blog/` — only an empty `dto/` folder
+- `src/clients/`
+- `src/users/`
+
+**DTO validation:** none of the `class-validator`-decorated DTOs (`media/dto/*`, `uploads/dto/*`) are tested.
 
 **Shallow tests needing rewrite:**
-- `src/media/media.service.spec.ts` — all CRUD, filtering, search, pagination, soft/hard delete untested
-
-**No E2E tests** for media CRUD, auth flow, blog endpoints, invoice endpoints, license/stripe endpoints
-
-**No DTO validation tests** for any module
+- `src/media/media.service.spec.ts` — 472 LOC of CRUD/filter/search/pagination/soft-hard delete/restore/extract logic untested
 
 ---
 
 ## 2. Framework & Tooling
 
-### Already Configured (keep as-is)
-- **Jest 29.7** with **ts-jest 29.1** — unit test runner
-- **@nestjs/testing** — NestJS test module factory
-- **supertest 6.3** — HTTP E2E assertions
-- `jest.config` in `package.json`: `rootDir: src`, `testRegex: .*\.spec\.ts$`, `testEnvironment: node`
-- `test/jest-e2e.json`: `testRegex: .e2e-spec.ts$`, root `test/`
-- Scripts: `pnpm test`, `pnpm test:cov`, `pnpm test:ci`, `pnpm test:e2e`, `pnpm test:watch`
+### Already configured (keep)
 
-### Recommended Additions
+- **Jest 29.7** + **ts-jest 29.1** — unit runner
+- **@nestjs/testing 10.3** — `Test.createTestingModule({ providers: [...] })`
+- **supertest 6.3** — HTTP E2E
+- Coverage via `pnpm test:cov` → output to `../coverage` (sibling of `src/`)
+
+### Recommended additions (only when needed)
 
 | Tool | Purpose | Install |
 |------|---------|---------|
-| `mongodb-memory-server` | In-process MongoDB for integration/E2E tests without Docker | `pnpm add -D mongodb-memory-server` |
-| `@golevelup/ts-jest` | `createMock<T>()` for auto-mocking NestJS providers | `pnpm add -D @golevelup/ts-jest` |
+| `mongodb-memory-server` | Bootstrapping `AppModule` for E2E without a real Mongo (the `DatabaseModule` initializes Mongoose) | `pnpm add -D mongodb-memory-server` |
+| `@golevelup/ts-jest` | `createMock<T>()` to avoid hand-rolling provider mocks for large interfaces | `pnpm add -D @golevelup/ts-jest` |
 
-No other tools needed — the existing stack is well-suited.
+No other additions are required — the established stack is sufficient.
+
+### Fix to existing config
+
+The E2E config (`test/jest-e2e.json`) expects `*.e2e-spec.ts`, but the current E2E lives at `test/uploads-e2e.spec.ts` (single dash). Either rename to `uploads.e2e-spec.ts` or change the config's `testRegex` to `.*-e2e\\.spec\\.ts$`. New E2E files should follow whichever convention is chosen.
 
 ---
 
-## 3. Test File Organization
+## 3. Test File Organization & Naming
 
-### Naming Conventions (already established)
 ```
-src/<module>/<name>.spec.ts          # Unit tests (co-located with source)
-test/<name>-e2e.spec.ts              # E2E tests (separate directory)
-test/<name>.integration.spec.ts      # Integration tests (proposed, for MongoDB-backed services)
+src/<module>/<name>.spec.ts                  # Unit — co-located, established
+src/<module>/<sub>/<name>.spec.ts            # Unit — sub-services
+test/<feature>.e2e-spec.ts                   # E2E — separate dir (after config fix)
 ```
 
-### Proposed New Test Files
-```
-# P0 — Security, money, data integrity
-src/license/license.service.spec.ts          # NEW — HIGH PRIORITY
-src/media/guards/auth.guard.spec.ts          # NEW — HIGH PRIORITY
-src/auth/guards/roles.guard.spec.ts          # NEW — HIGH PRIORITY
-src/media/media.service.spec.ts              # REWRITE — HIGH PRIORITY
+### Proposed new test files (priority-ordered)
 
-# P1 — Functionality, reliability
-src/license/stripe.service.spec.ts           # NEW — MEDIUM PRIORITY
-src/invoices/invoices.service.spec.ts        # NEW — MEDIUM PRIORITY
-src/media/media.controller.spec.ts           # NEW — MEDIUM PRIORITY
-test/media-e2e.spec.ts                       # NEW — MEDIUM PRIORITY
+```
+# P0 — Security & data integrity
+src/media/guards/auth.guard.spec.ts          # NEW
+src/auth/guards/roles.guard.spec.ts          # NEW
+src/media/media.service.spec.ts              # REWRITE (currently shallow)
+
+# P1 — Functionality / reliability
+src/media/media.controller.spec.ts           # NEW
+src/auth/auth.controller.spec.ts             # NEW
+src/auth/strategies/jwt.strategy.spec.ts     # NEW
+src/auth/guards/jwt-auth.guard.spec.ts       # NEW
+src/media/metadata/video-processing.service.spec.ts  # NEW
+test/media.e2e-spec.ts                       # NEW
 
 # P2 — Completeness
-src/invoices/guards/api-key.guard.spec.ts    # NEW — LOW PRIORITY
-src/auth/auth.controller.spec.ts             # NEW — LOW PRIORITY
-src/blog/blog.controller.spec.ts             # NEW — LOW PRIORITY
-test/auth-e2e.spec.ts                        # NEW — LOW PRIORITY
-test/license-e2e.spec.ts                     # NEW — LOW PRIORITY (needs Stripe mock)
+src/performance/caching.middleware.spec.ts            # NEW
+src/performance/metadata-extraction.optimization.spec.ts  # NEW
+src/media/dto/*.spec.ts (DTO validation)              # NEW
+test/auth.e2e-spec.ts                                 # NEW
 ```
 
 ---
 
-## 4. Mock/Stub Strategy
+## 4. Mock / Stub Strategy
 
-### External Dependencies
+### External dependencies
 
-| Dependency | Mock Approach | Example |
-|------------|---------------|---------|
-| **AWS S3 SDK** | `jest.mock('@aws-sdk/client-s3')` — already done in `s3.service.spec.ts`; reuse pattern | Mock `S3Client.send()` |
-| **Stripe** | `jest.mock('stripe')` — mock `checkout.sessions.create`, `webhooks.constructEvent`, `subscriptions.retrieve`, `customers.retrieve` | Return mock session objects |
-| **Mongoose Models** | Manual mock objects with chainable query builders — established in `blog.service.spec.ts`, `nostr.service.spec.ts` | `{ findOne: jest.fn().mockReturnThis(), exec: jest.fn() }` |
-| **FFmpeg/FFprobe** | Mock `child_process.spawn` or mock `VideoProcessingService` at injection level — done in `metadata-extraction.service.spec.ts` | Inject mock service |
-| **Sharp** | Mock at module level: `jest.mock('sharp')` returning chainable resize/toBuffer | `jest.fn(() => ({ resize: jest.fn().mockReturnThis(), jpeg: jest.fn().mockReturnThis(), toBuffer: jest.fn() }))` |
-| **nostr-tools** | Already fully mocked via `jest.mock('nostr-tools/pool')` and `jest.mock('nostr-tools/nip19')` | See `nostr.service.spec.ts` |
-| **bcryptjs** | Let real impl run (fast enough for unit tests) or mock for speed | Real is fine |
+| Dependency | Approach | Reference / pattern |
+|-----------|---------|---------------------|
+| **AWS S3 SDK (`@aws-sdk/client-s3`)** | Already mocked end-to-end in `s3.service.spec.ts` — reuse pattern for any new test that hits S3 | Mock `S3Client.send()`, return canned `Bucket`/`Key`/`ETag` |
+| **`@aws-sdk/s3-request-presigner`** | `jest.mock('@aws-sdk/s3-request-presigner', () => ({ getSignedUrl: jest.fn() }))` | Already used for presigned URL tests |
+| **Mongoose (when needed)** | Hand-rolled mock of model methods (`findOne`, `find`, `create`, `countDocuments`) returning `{ exec: jest.fn() }` for chainable queries | Standard NestJS pattern — `getModelToken('Name')` |
+| **fluent-ffmpeg / FFprobe** | Inject mock `VideoProcessingService` at the NestJS DI level rather than mocking `child_process` (cleaner, established in `metadata-extraction.service.spec.ts`) | `provide: VideoProcessingService, useValue: { extract: jest.fn() }` |
+| **Sharp** | `jest.mock('sharp', () => jest.fn(() => ({ resize: jest.fn().mockReturnThis(), jpeg: jest.fn().mockReturnThis(), toBuffer: jest.fn().mockResolvedValue(Buffer.from('')) })))` | Apply in any test that touches image processing |
+| **Stripe** | `jest.mock('stripe')` — mock `checkout.sessions.create`, `webhooks.constructEvent`, `subscriptions.retrieve` (currently no Stripe-using service has tests; defer until used) | n/a |
+| **`@nestjs/jwt` JwtService** | Real `JwtService` is fine for unit tests — fast and exercises actual signing logic | Use real `JwtModule.register({ secret: 'test' })` |
+| **bcryptjs** | Use real implementation; fast enough for unit tests | n/a |
+| **ConfigService** | `{ get: jest.fn((key, defaultValue) => defaultValue) }` for permissive defaults; override per-key when behavior matters (e.g., `JWT_SECRET`, `INVOICE_API_KEY`) | Established in every existing spec |
 
-### Internal Service Mocks
-
-NestJS `Test.createTestingModule` with `useValue` mocks — the established pattern across all existing tests:
+### NestJS DI mock pattern (canonical)
 
 ```typescript
-const module: TestingModule = await Test.createTestingModule({
+const module = await Test.createTestingModule({
   providers: [
     ServiceUnderTest,
     { provide: DependencyService, useValue: { method: jest.fn() } },
     { provide: ConfigService, useValue: { get: jest.fn((k, d) => d) } },
   ],
 }).compile();
+const service = module.get(ServiceUnderTest);
 ```
 
-### Guard Testing Pattern
-
-Guards need an `ExecutionContext` mock:
+### Guard mock pattern
 
 ```typescript
-const mockRequest = { headers: {}, query: {}, user: undefined };
+const mockRequest: any = { headers: {}, query: {}, user: undefined };
 const mockContext = {
-  switchToHttp: () => ({
-    getRequest: () => mockRequest,
-  }),
+  switchToHttp: () => ({ getRequest: () => mockRequest }),
   getHandler: () => jest.fn(),
   getClass: () => jest.fn(),
 } as unknown as ExecutionContext;
 ```
 
-### Mongoose Model Mock Pattern (for LicenseService, InvoicesService)
+### Controller test pattern
 
-```typescript
-const mockLicenseModel = {
-  findOne: jest.fn(),
-  create: jest.fn(),
-  find: jest.fn(),
-  countDocuments: jest.fn(),
-};
-// For chainable queries:
-mockLicenseModel.findOne.mockReturnValue({
-  exec: jest.fn().mockResolvedValue(mockLicenseDoc),
-});
-```
+Inject the controller with a mocked service via `Test.createTestingModule`. Apply guards using `overrideGuard(...).useValue({ canActivate: () => true })` so unit tests focus on routing/delegation without simulating auth. Guard behavior is covered separately in guard specs.
 
 ---
 
 ## 5. Coverage Targets
 
-For **medium priority**, target practical coverage on critical paths rather than line-count chasing.
+Medium priority — focus on critical paths over total line count.
 
-| Metric | Target | Rationale |
-|--------|--------|-----------|
-| **Statement** | 70% | Medium priority — focus on business logic |
-| **Branch** | 65% | Cover error paths and authorization branches |
-| **Function** | 75% | All public service methods should have at least one test |
-| **Line** | 70% | Consistent with statement target |
+| Metric | Target |
+|--------|--------|
+| Statement | 70% |
+| Branch | 65% |
+| Function | 75% |
+| Line | 70% |
 
-### Per-Module Targets
+### Per-module targets
 
-| Module | Current Est. | Target | Notes |
-|--------|-------------|--------|-------|
-| `auth/` | ~80% | 85% | Already well-tested; add guard tests |
-| `media/` | ~15% | 70% | **Biggest gap** — rewrite service spec, add controller spec |
-| `uploads/` | ~90% | 90% | Maintain — already excellent |
-| `s3/` | ~95% | 95% | Maintain — already excellent |
-| `blog/` | ~75% | 80% | Add controller spec |
-| `nostr/` | ~90% | 90% | Maintain — already excellent |
-| `license/` | 0% | 75% | **New** — critical business logic (money, activation) |
-| `invoices/` | 0% | 65% | **New** — simpler CRUD |
+| Module | Current (est.) | Target | Notes |
+|--------|---------------|--------|-------|
+| `s3/` | ~95% | 95% | Maintain |
+| `uploads/` | ~90% | 90% | Maintain |
+| `auth/` (services) | ~75% | 80% | Add controller + guard + strategy specs |
+| `media/` service | ~10% | 75% | **Biggest gap** — rewrite spec |
+| `media/` controller | 0% | 70% | New spec |
+| `media/` guards | 0% | 90% | Security-critical |
+| `media/metadata/` | ~50% | 70% | Add `video-processing.service` |
 | `health/` | ~100% | 100% | Maintain |
+| `performance/` | 0% | 60% | Caching + optimization helpers |
 
-Run coverage: `pnpm test:cov`
+Run: `pnpm test:cov` (output: `<package>/coverage/`).
 
 ---
 
 ## 6. Critical Paths to Test
 
-### P0 — Implement First (security, money, data integrity)
+### P0 — Implement first (auth, ownership, core data flow)
 
-#### 6.1 LicenseService (`src/license/license.service.ts`, 203 lines)
+#### 6.1 AuthGuard — `src/media/guards/auth.guard.ts`
 
-The license system handles paid software activation. Bugs here mean revenue loss or unauthorized access.
-
-```
-license.service.spec.ts
-├── generateKey(prefix)
-│   ├── returns key matching format: PREFIX-XXXX-XXXX-XXXX
-│   ├── uses only characters from KEY_ALPHABET (ABCDEFGHJKLMNPQRSTUVWXYZ23456789, no 0/O/1/I)
-│   └── generates unique keys across 100 calls (no collisions)
-├── activate(dto)
-│   ├── activates a pending license → status='active', hardwareId set, activatedAt set
-│   ├── idempotent — same hardwareId on active license returns unchanged response
-│   ├── throws ConflictException for different hardwareId on active license
-│   ├── throws BadRequestException for expired license
-│   ├── throws BadRequestException for revoked license
-│   ├── throws NotFoundException for unknown key
-│   └── pushes hardwareId to activationHistory array
-├── validate(dto)
-│   ├── returns license for matching key + hardwareId
-│   ├── throws ForbiddenException for hardwareId mismatch
-│   ├── marks license as expired when past expiresAt + gracePeriodDays
-│   ├── does NOT expire license within grace period window
-│   └── throws NotFoundException for unknown key
-├── deactivate(dto)
-│   ├── deactivates active license → status='pending', hardwareId=null, machineName=null
-│   ├── increments deactivationCount
-│   ├── throws ForbiddenException when deactivationCount >= 3
-│   ├── throws ForbiddenException for hardwareId mismatch
-│   ├── throws BadRequestException for non-active license
-│   └── throws NotFoundException for unknown key
-├── createLicense(email, productId, customerId, subscriptionId)
-│   ├── creates license with correct expiration = now + product.licenseDurationDays
-│   ├── retries on key collision (MongoDB E11000) up to 3 times
-│   ├── throws NotFoundException for unknown productId
-│   └── throws BadRequestException after 3 failed key generation attempts
-└── renewLicense(stripeSubscriptionId)
-    ├── extends expiresAt by product.licenseDurationDays from now
-    ├── reactivates expired license with existing hardwareId → status='active'
-    ├── sets to pending if expired license has no hardwareId
-    └── silently returns if no license found for subscription
-```
-
-**Estimated: 18 tests**
-
-#### 6.2 AuthGuard (`src/media/guards/auth.guard.ts`, 77 lines)
-
-Authentication bypass = full API compromise.
+Authentication bypass = full media-API compromise.
 
 ```
 auth.guard.spec.ts
-├── JWT Bearer token
-│   ├── allows request with valid JWT; sets request.user = { id, email, role, name }
-│   ├── throws UnauthorizedException for expired/invalid token
-│   ├── throws UnauthorizedException for malformed Authorization header
-│   └── uses JWT_SECRET from ConfigService (falls back to 'dev-secret-change-me')
-├── x-user-id fallback (dev mode, NODE_ENV !== 'production')
-│   ├── allows request with x-user-id header; sets request.user = { id }
-│   ├── allows request with ?userId query param
-│   ├── rejects x-user-id header when NODE_ENV === 'production'
-│   └── rejects ?userId query param when NODE_ENV === 'production'
-└── no auth
-    └── throws UnauthorizedException('Authentication required')
+├── JWT Bearer
+│   ├── valid token → request.user = { id: payload.sub, email, role, name }, returns true
+│   ├── expired/invalid token → UnauthorizedException
+│   └── malformed `Authorization` header (no `Bearer ` prefix) → falls through to fallback path
+├── x-user-id fallback (NODE_ENV !== 'production')
+│   ├── `x-user-id` header → request.user = { id: <header> }, returns true
+│   ├── `?userId` query param → request.user = { id: <query> }, returns true
+│   └── header takes precedence over query param
+├── Production hardening (NODE_ENV === 'production')
+│   ├── `x-user-id` header is ignored
+│   └── `?userId` query is ignored
+└── No credentials → UnauthorizedException('Authentication required')
 ```
 
-**Estimated: 8 tests**
+**Est. 8 tests**
 
-#### 6.3 RolesGuard (`src/auth/guards/roles.guard.ts`, 57 lines)
+#### 6.2 RolesGuard — `src/auth/guards/roles.guard.ts`
 
 ```
 roles.guard.spec.ts
-├── allows access when no @Roles() decorator is present
-├── role hierarchy: admin > editor > author > reader
-│   ├── allows admin to access author-required routes
-│   ├── allows editor to access author-required routes
-│   ├── allows author to access author-required routes
-│   ├── denies reader access to author-required routes
-│   └── allows admin to access admin-required routes
-├── denies access when user has no role property
-└── denies access when request has no user
+├── No @Roles() decorator → returns true (Reflector returns undefined/[])
+├── Hierarchy `reader < author < editor < admin`
+│   ├── admin allowed for required=['author']
+│   ├── editor allowed for required=['author']
+│   ├── author allowed for required=['author']
+│   ├── reader denied for required=['author']
+│   └── reader allowed for required=['reader']
+├── request.user missing → returns false
+└── request.user.role missing → returns false
 ```
 
-**Estimated: 8 tests**
+Note: The auth service defines additional roles (`client`, `agent`) that are **not** in `ROLE_HIERARCHY` — `getRoleLevel` returns `-1` for them. Add a regression test asserting these roles are denied access to any role-gated route.
 
-#### 6.4 MediaService CRUD (`src/media/media.service.ts`, 472 lines) — REWRITE
+**Est. 9 tests**
 
-The current spec only has `isDefined` and `getInfo()`. All business logic is untested.
+#### 6.3 MediaService — `src/media/media.service.ts` (REWRITE)
+
+The current spec only checks `getInfo()` and `isDefined`. Rewrite to cover the 472-LOC service.
 
 ```
 media.service.spec.ts (rewrite)
 ├── create(dto)
-│   ├── creates media entity with generated ID ('media_N')
-│   ├── returns MediaResponseDto with all fields
-│   └── persists to internal store
+│   ├── generates id `media_N` (incrementing counter)
+│   ├── persists to internal Map
+│   ├── sets createdAt/updatedAt
+│   └── returns MediaResponseDto
 ├── findAll(query)
-│   ├── returns paginated results with correct total/limit/offset
-│   ├── filters by mediaType ('video', 'image')
-│   ├── filters by uploadedBy (author)
-│   ├── filters by publicity ('public', 'private', 'paid')
-│   ├── filters by rating
-│   ├── filters by date range (dateFrom, dateTo)
-│   ├── filters by tags (comma-separated, case-insensitive match)
-│   ├── searches across title, description, file, tags
-│   ├── sorts ascending and descending by sortBy field
-│   └── excludes soft-deleted items by default (includeDeleted=false)
+│   ├── default pagination (limit 20, offset 0)
+│   ├── filters: mediaType, mime, uploadedBy, publicity, rating, mediaClass, uploadSessionId
+│   ├── filters: dateFrom, dateTo (inclusive bounds)
+│   ├── filters: tags (comma-separated, case-insensitive)
+│   ├── search: matches across title, description, file/filename, tags
+│   ├── sorting: ascending and descending by sortBy field
+│   ├── excludes deleted=true unless includeDeleted=true
+│   └── returns total count, limit, offset alongside items
 ├── findOne(id)
-│   ├── returns media by ID
-│   ├── increments view count on each call
-│   ├── throws NotFoundException for missing ID
-│   └── throws NotFoundException for soft-deleted media
+│   ├── returns media + increments view count
+│   ├── unknown id → NotFoundException
+│   └── soft-deleted (deleted=true) → NotFoundException
 ├── update(id, dto, userId)
-│   ├── updates allowed fields and sets updatedAt
-│   ├── throws NotFoundException for missing ID
-│   └── throws ForbiddenException when userId !== media.author
+│   ├── updates allowed fields, refreshes updatedAt
+│   ├── unknown id → NotFoundException
+│   └── userId !== media.author → ForbiddenException
 ├── remove(id, userId, softDelete)
-│   ├── soft delete: marks deleted=true, sets deletedAt
-│   ├── hard delete: calls S3Service.deleteMediaAndThumbnails, removes from store
-│   ├── hard delete: extracts keys from thumbnail + paidThumbnail URLs
-│   ├── throws NotFoundException for missing ID
-│   └── throws ForbiddenException when userId !== media.author
+│   ├── soft delete: sets deleted=true, deletedAt; record stays in store
+│   ├── hard delete: calls S3Service to remove file + thumbnails (using extracted keys)
+│   ├── hard delete: removes from internal store
+│   ├── unknown id → NotFoundException
+│   └── non-owner → ForbiddenException
 ├── restore(id, userId)
-│   ├── restores soft-deleted media (deleted=false, deletedAt=undefined)
-│   ├── returns unchanged media if not deleted
-│   ├── throws NotFoundException for missing ID
-│   └── throws ForbiddenException when userId !== media.author
+│   ├── clears deleted=true / deletedAt
+│   ├── no-op when not deleted
+│   ├── unknown id → NotFoundException
+│   └── non-owner → ForbiddenException
 ├── extractMetadata(id)
-│   ├── calls MetadataExtractionService with file URL and MIME type
-│   ├── updates media entity with video metadata fields (codec, container, bitrate, etc.)
-│   ├── updates media entity with audio metadata fields
-│   ├── updates media entity with image metadata fields
-│   ├── tracks extraction failure in metadataProcessingFailures array
-│   └── increments attemptCount on repeated failures
+│   ├── delegates to MetadataExtractionService with file URL + MIME
+│   ├── merges video/audio/image metadata onto entity
+│   ├── records failures in metadataProcessingFailures
+│   └── increments attemptCount on repeated failures (does not duplicate entries)
 └── getInfo()
-    ├── returns name, version, description
-    └── returns mediaCount matching store size
+    ├── returns name/version/description
+    └── reflects current store size
 ```
 
-**Estimated: 22 tests**
+**Est. 22 tests**
 
-### P1 — Implement Second (functionality, reliability)
+### P1 — Implement second (HTTP surface, integration)
 
-#### 6.5 StripeService (`src/license/stripe.service.ts`, 87 lines)
-
-```
-stripe.service.spec.ts
-├── createCheckoutSession(dto, product)
-│   ├── creates Stripe session with correct line items (product.stripePriceId) and metadata
-│   ├── returns session URL
-│   ├── throws BadRequestException when Stripe returns no URL
-│   └── throws BadRequestException on Stripe API error
-├── constructWebhookEvent(rawBody, signature)
-│   ├── returns parsed Stripe.Event for valid signature
-│   └── throws BadRequestException for invalid signature
-├── getSubscription(subscriptionId)
-│   └── retrieves subscription by ID from Stripe
-└── getCustomerEmail(customerId)
-    ├── returns email for active customer
-    └── throws BadRequestException for deleted customer
-```
-
-**Estimated: 7 tests**
-
-#### 6.6 InvoicesService (`src/invoices/invoices.service.ts`, 75 lines)
-
-```
-invoices.service.spec.ts
-├── create(dto)
-│   ├── creates invoice document with correct fields
-│   └── returns InvoiceResponseDto
-├── findAll(query)
-│   ├── paginates with default page=1, limit=20
-│   ├── filters by customer
-│   ├── filters by configId
-│   └── returns total count
-└── findOne(id)
-    ├── returns invoice by ID
-    └── throws NotFoundException for missing ID
-```
-
-**Estimated: 7 tests**
-
-#### 6.7 MediaController (`src/media/media.controller.ts`, 597 lines)
+#### 6.4 MediaController — `src/media/media.controller.ts`
 
 ```
 media.controller.spec.ts
-├── GET /api/info — delegates to service.getInfo(), no auth required
-├── GET / — delegates to findAll with query params, applies pagination
-├── GET /:id — delegates to findOne, increments views
-├── POST / — delegates to create, extracts userId from request.user
-├── PATCH /:id — delegates to update with userId
-├── DELETE /:id — soft delete by default
-├── DELETE /:id?hard=true — passes softDelete=false
-├── POST /:id/restore — delegates to restore
-└── POST /:id/extract-metadata — delegates to extractMetadata
+├── GET /media/api/info → delegates to service.getInfo() (no AuthGuard)
+├── GET /media → delegates to findAll, forwards query params, AuthGuard applied
+├── GET /media/:id → delegates to findOne (which increments views)
+├── POST /media → delegates to create, picks userId from request.user (via @UserId)
+├── PATCH /media/:id → delegates to update with userId from token
+├── DELETE /media/:id → soft delete by default
+├── DELETE /media/:id?hard=true → softDelete=false
+├── POST /media/:id/restore → delegates to restore
+└── POST /media/:id/extract-metadata → delegates to extractMetadata
 ```
 
-**Estimated: 9 tests**
+Use `overrideGuard(AuthGuard).useValue({ canActivate: () => true })` and inject a fake `request.user` via `useValue` on a custom param decorator helper (or test the param resolver separately).
 
-#### 6.8 E2E: Media CRUD (`test/media-e2e.spec.ts`)
+**Est. 9 tests**
 
-```
-media-e2e.spec.ts
-├── GET /media/api/info — returns 200 with API metadata (no auth)
-├── POST /media — creates media with x-user-id header (dev mode)
-├── GET /media — lists media with pagination defaults
-├── GET /media?mediaType=video — filters by type
-├── GET /media?search=sunset — searches across fields
-├── GET /media/:id — returns single media, view count incremented
-├── PATCH /media/:id — updates media (owner only)
-├── DELETE /media/:id — soft deletes media
-├── POST /media/:id/restore — restores soft-deleted media
-├── DELETE /media/:id?hard=true — hard deletes (verifies S3 cleanup called)
-└── Authorization
-    ├── rejects unauthenticated requests on protected routes
-    └── rejects update/delete from non-owner (403)
-```
-
-**Estimated: 12 tests**
-
-### P2 — Implement Third (completeness)
-
-#### 6.9 ApiKeyGuard (`src/invoices/guards/api-key.guard.ts`, 33 lines)
+#### 6.5 AuthController — `src/auth/auth.controller.ts`
 
 ```
-api-key.guard.spec.ts
-├── allows request with valid x-api-key header matching INVOICE_API_KEY
-├── throws UnauthorizedException when x-api-key header is missing
-├── throws UnauthorizedException when INVOICE_API_KEY is not configured
-└── throws UnauthorizedException when x-api-key doesn't match
+auth.controller.spec.ts
+├── POST /auth/register → delegates to service.register(dto)
+├── POST /auth/login → delegates to service.login(dto)
+├── duplicate email → 409 (ConflictException from service)
+├── invalid credentials → 401 (UnauthorizedException from service)
+└── trusted-domain auto-role propagation surfaces in response
 ```
 
-**Estimated: 4 tests**
+**Est. 5 tests**
 
-#### 6.10 AuthController E2E (`test/auth-e2e.spec.ts`)
-
-```
-auth-e2e.spec.ts
-├── POST /auth/register — creates user, returns JWT + user
-├── POST /auth/register — rejects duplicate email (409)
-├── POST /auth/register — assigns 'author' role to trusted domains
-├── POST /auth/login — returns JWT for valid credentials
-├── POST /auth/login — rejects invalid password (401)
-├── POST /auth/login — rejects non-existent email (401)
-└── GET /auth/me — returns current user from JWT (if endpoint exists)
-```
-
-**Estimated: 6 tests**
-
-#### 6.11 BlogController (`src/blog/blog.controller.spec.ts`)
+#### 6.6 JwtStrategy — `src/auth/strategies/jwt.strategy.ts`
 
 ```
-blog.controller.spec.ts
-├── Delegates all CRUD operations to BlogService
-├── Applies correct guards (JwtAuthGuard, RolesGuard)
-├── Public endpoints (findPublic) don't require auth
-└── Publish/unpublish require author+ role
+jwt.strategy.spec.ts
+├── validate(payload) returns { id: payload.sub, email, role, name }
+├── uses JWT_SECRET from ConfigService
+└── falls back to default secret in dev when JWT_SECRET unset (verify exact fallback string)
 ```
 
-**Estimated: 6 tests**
+**Est. 3 tests**
 
-#### 6.12 DTO Validation Tests
+#### 6.7 JwtAuthGuard — `src/auth/guards/jwt-auth.guard.ts`
 
-Validate that `class-validator` decorators reject invalid input. Can be tested by instantiating DTOs and running `validate()` from `class-validator`:
+Thin wrapper around Passport's AuthGuard('jwt'). Test only that it extends correctly and rejects requests without `request.user` set.
+
+**Est. 2 tests**
+
+#### 6.8 VideoProcessingService — `src/media/metadata/video-processing.service.ts`
+
+The high-value paths here are pure parsing helpers — testable without spawning ffprobe.
 
 ```
-├── CreateMediaDto — rejects missing author, missing file, invalid mediaType enum
-├── ActivateLicenseDto — rejects missing key, missing hardwareId
-├── ValidateLicenseDto — rejects missing key
-├── InitiateUploadDto — rejects missing filename, missing mimeType, non-positive totalSize
-├── CreateBlogPostDto — rejects missing title, missing body
-└── CreateInvoiceDto — rejects missing customer
+video-processing.service.spec.ts
+├── Codec normalization (h264/avc, h265/hevc, vp8/vp9, av1) — verify mapping table
+├── Framerate fraction parsing
+│   ├── "30000/1001" → 29.97 (rounded)
+│   ├── "30/1" → 30
+│   └── "0/0" or invalid → 0 or fallback
+├── Container detection from format_name
+├── Pixel format / color space passthrough
+└── Audio metadata: channel layout, sample rate, bitrate
 ```
 
-**Estimated: 12 tests**
+Mock the `ffprobe` invocation at the lowest level (the wrapper around fluent-ffmpeg) and feed canned ffprobe JSON to exercise the parsers. **Do not** require a real ffprobe binary in tests.
+
+**Est. 8 tests**
+
+#### 6.9 E2E — Media CRUD (`test/media.e2e-spec.ts`)
+
+```
+media.e2e-spec.ts
+├── GET /media/api/info → 200, no auth
+├── POST /media (with x-user-id in dev mode) → 201
+├── GET /media → 200 with default pagination
+├── GET /media?mediaType=video&search=sunset → filters & search
+├── GET /media/:id → returns media; second call shows incremented views
+├── PATCH /media/:id → 200 for owner; 403 for non-owner
+├── DELETE /media/:id → soft delete; record still findable with includeDeleted=true
+├── POST /media/:id/restore → 200
+├── DELETE /media/:id?hard=true → S3 cleanup invoked (mock S3Service)
+└── Unauthenticated request to GET /media → 401
+```
+
+Bootstrap via `Test.createTestingModule({ imports: [AppModule] })` with `DatabaseModule` overridden to use `mongodb-memory-server` (or skip Mongoose-bound modules entirely if media still uses the in-memory Map).
+
+**Est. 10 tests**
+
+### P2 — Implement third (completeness)
+
+#### 6.10 Caching middleware — `src/performance/caching.middleware.ts`
+
+```
+caching.middleware.spec.ts
+├── GET request, cache miss → calls next(), captures response, stores entry
+├── GET request, cache hit → short-circuits with cached body + headers
+├── Non-GET request → bypasses cache, calls next()
+├── Cache key derivation matches expected pattern (path + query + auth scope)
+├── TTL expiration → treated as miss
+└── Cache invalidation on configured triggers
+```
+
+**Est. 6 tests**
+
+#### 6.11 Metadata-extraction optimization — `src/performance/metadata-extraction.optimization.ts`
+
+Likely contains memoization, batching, or worker-pool helpers. Tests should cover the public surface only.
+
+**Est. ~6 tests**
+
+#### 6.12 DTO validation tests
+
+Use `class-validator` directly:
+
+```typescript
+import { plainToInstance } from 'class-transformer';
+import { validate } from 'class-validator';
+
+const dto = plainToInstance(CreateMediaDto, { /* fixture */ });
+const errors = await validate(dto);
+expect(errors).toHaveLength(0); // or assert specific failures
+```
+
+```
+├── CreateMediaDto — required fields, enum validation (mediaType, publicity, rating)
+├── UpdateMediaDto — all fields optional, but enums still validated
+├── QueryMediaDto — numeric coercion (limit/offset), date strings, comma-list parsing
+├── GenerateThumbnailDto / GenerateSpriteSheetDto — positive integers, ratio bounds
+├── ExtractMetadataDto — required URL + MIME
+└── InitiateUploadDto — filename present, mimeType present, totalSize > 0
+```
+
+**Est. ~12 tests**
+
+#### 6.13 E2E — Auth (`test/auth.e2e-spec.ts`)
+
+```
+auth.e2e-spec.ts
+├── POST /auth/register → 201, returns access_token + user
+├── POST /auth/register duplicate email → 409
+├── POST /auth/register from trusted domain → role='author'
+├── POST /auth/login valid → 200 with token
+├── POST /auth/login wrong password → 401
+└── POST /auth/login unknown email → 401
+```
+
+**Est. 6 tests**
 
 ---
 
 ## 7. Test Execution
 
 ```bash
-# Unit tests
-pnpm test                                      # All unit tests
-pnpm test -- --testPathPattern=license         # Single module
-pnpm test:watch                                # Watch mode during development
-pnpm test:cov                                  # Coverage report
+# Unit
+pnpm test                                   # All unit specs
+pnpm test -- --testPathPattern=media        # Single area
+pnpm test:watch                             # Watch mode
+pnpm test:cov                               # Coverage report
 
-# E2E tests (requires NestJS app bootstrap)
+# E2E (after fixing testRegex or renaming spec files)
 pnpm test:e2e
 
-# CI pipeline
-pnpm test:ci                                   # --ci --maxWorkers=2 --coverage
+# CI
+pnpm test:ci                                # --ci --maxWorkers=2 --coverage
 ```
 
-### CI Configuration Notes
+### CI notes
 
-- Unit tests require no external services (all mocked)
-- E2E tests bootstrap the NestJS app via `AppModule`, which triggers `DatabaseModule` (MongoDB). For CI without MongoDB, either:
-  - Install `mongodb-memory-server` and override `MONGODB_URI` in test setup
-  - Create a `TestAppModule` that replaces `DatabaseModule` with in-memory providers
-- The current in-memory storage pattern (Map-based) for `MediaService` and `UploadsService` means unit tests work without MongoDB
-- Services using Mongoose (`BlogService`, `LicenseService`, `InvoicesService`, `NostrService`) require mocked models in unit tests
+- Unit tests must remain hermetic — no S3, no Mongo, no ffprobe binary.
+- E2E tests bootstrap `AppModule`, which pulls in `DatabaseModule` (Mongoose). For CI without Mongo, use `mongodb-memory-server` and override `MONGO_URI` in test setup, or build a `TestAppModule` that swaps `DatabaseModule` with no-op providers.
+- `MediaService` and `AuthService` currently use in-memory `Map` storage — exercise full CRUD without a database in unit tests.
+- `UploadsService` uses S3 — always mock `@aws-sdk/client-s3` and `@aws-sdk/s3-request-presigner`.
 
 ---
 
 ## 8. Implementation Order
 
-| Phase | Files | Est. Tests | Priority |
-|-------|-------|------------|----------|
-| 1 | `license.service.spec.ts` | 18 | P0 |
-| 2 | `auth.guard.spec.ts`, `roles.guard.spec.ts` | 16 | P0 |
-| 3 | `media.service.spec.ts` (rewrite) | 22 | P0 |
-| 4 | `stripe.service.spec.ts` | 7 | P1 |
-| 5 | `invoices.service.spec.ts` | 7 | P1 |
-| 6 | `media.controller.spec.ts` | 9 | P1 |
-| 7 | `test/media-e2e.spec.ts` | 12 | P1 |
-| 8 | `api-key.guard.spec.ts` | 4 | P2 |
-| 9 | `test/auth-e2e.spec.ts` | 6 | P2 |
-| 10 | `blog.controller.spec.ts` | 6 | P2 |
-| 11 | DTO validation tests | 12 | P2 |
+| Phase | File | Est. tests | Priority |
+|------|------|------------|----------|
+| 1 | `src/media/guards/auth.guard.spec.ts` | 8 | P0 |
+| 2 | `src/auth/guards/roles.guard.spec.ts` | 9 | P0 |
+| 3 | `src/media/media.service.spec.ts` (rewrite) | 22 | P0 |
+| 4 | `src/media/media.controller.spec.ts` | 9 | P1 |
+| 5 | `src/auth/auth.controller.spec.ts` | 5 | P1 |
+| 6 | `src/auth/strategies/jwt.strategy.spec.ts` | 3 | P1 |
+| 7 | `src/auth/guards/jwt-auth.guard.spec.ts` | 2 | P1 |
+| 8 | `src/media/metadata/video-processing.service.spec.ts` | 8 | P1 |
+| 9 | `test/media.e2e-spec.ts` | 10 | P1 |
+| 10 | `src/performance/caching.middleware.spec.ts` | 6 | P2 |
+| 11 | `src/performance/metadata-extraction.optimization.spec.ts` | ~6 | P2 |
+| 12 | DTO validation specs | ~12 | P2 |
+| 13 | `test/auth.e2e-spec.ts` | 6 | P2 |
 
-**Total new tests: ~119** across 11 new/rewritten files.
+**Estimated total new/rewritten tests: ~106**, across 13 files.
 
 ---
 
-## 9. Edge Cases & Complex Logic Requiring Special Attention
+## 9. Edge Cases & High-Risk Logic
 
-These are areas where bugs are most likely and testing provides the highest ROI:
+Highest-ROI bugs cluster around these locations:
 
-| Area | File | Why It's Tricky |
-|------|------|----------------|
-| License key generation | `license.service.ts:36-56` | Bit manipulation (5 bits per char from 8-byte buffer), collision retry |
-| Grace period expiration | `license.service.ts:107-115` | Date arithmetic with `gracePeriodDays * 24 * 60 * 60 * 1000` |
-| Deactivation limit | `license.service.ts:130` | `deactivationCount >= 3` boundary condition |
-| S3 URL parsing | `s3.service.ts:265-302` | CloudFront vs virtual-hosted vs path-style URL formats |
-| Multipart upload sync | `uploads.service.ts:638-703` | Reconciling in-memory state with S3 ListParts, detecting expired uploads |
-| ETag quote stripping | `uploads.service.ts:449` | S3 returns ETags with quotes (`"abc"`), code strips them |
-| Part size calculation | `uploads.service.ts:147-164` | Last part may be smaller than `chunkSize` |
-| Media query filtering | `media.service.ts:52-155` | Complex filter chain (type, mime, author, publicity, rating, tags, date range, search) |
-| Soft vs hard delete | `media.service.ts:204-260` | S3 cleanup on hard delete, thumbnail key extraction from URLs |
-| Metadata failure tracking | `media.service.ts:354-384` | Incrementing `attemptCount` on existing failure vs creating new failure entry |
-| Framerate fraction parsing | `video-processing.service.ts:311-325` | `"30000/1001"` → `29.97` |
-| Codec normalization | `video-processing.service.ts:268-288` | Multiple aliases (h264/avc, h265/hevc) |
-| VTT coordinate mapping | `thumbnail-generation.service.ts:415-448` | Frame index → row/col → x,y pixel coordinates |
-| Sprite interval auto-calc | `thumbnail-generation.service.ts:206-215` | Different intervals based on duration brackets |
-| Blog slug uniqueness | `blog.service.ts` | Auto-generated from title, collision handling |
-| Nostr event dedup | `nostr.service.ts` | Slug collision resolved by appending event ID |
-| Auth guard env branching | `auth.guard.ts:60-73` | `process.env.NODE_ENV !== 'production'` check for x-user-id fallback |
-| Role hierarchy comparison | `roles.guard.ts:12-14` | `ROLE_HIERARCHY.indexOf()` for level comparison |
+| Area | File | Why it's tricky |
+|------|------|-----------------|
+| `x-user-id` / `?userId` dev fallback | `src/media/guards/auth.guard.ts:62-75` | Branch on `process.env.NODE_ENV !== 'production'` — easy to misconfigure; production hardening must be regression-tested |
+| Role hierarchy lookup | `src/auth/guards/roles.guard.ts:10-14,52` | `indexOf()` returns `-1` for unlisted roles (`client`, `agent` exist in `UserRole` but not in `ROLE_HIERARCHY`) — can silently grant or deny |
+| Auto-role domain matching | `src/auth/auth.service.ts:49-62` | Comma-split env override + lowercasing; subdomain matching nuances |
+| JWT secret fallback | `src/auth/strategies/jwt.strategy.ts`, `src/media/guards/auth.guard.ts` | Default `dev-secret-change-me` in dev — must never apply in production |
+| Media query filter chain | `src/media/media.service.ts` | Cumulative filters (type, mime, author, publicity, rating, tags, date range, search) — easy to short-circuit incorrectly |
+| Soft vs hard delete | `src/media/media.service.ts` (`remove`) | Hard delete must call S3Service with keys extracted from thumbnail/paidThumbnail URLs; soft delete must NOT touch S3 |
+| Metadata failure tracking | `src/media/media.service.ts` (`extractMetadata`) | Increment `attemptCount` on existing failure entry vs creating new entry — duplication bug risk |
+| ETag quote handling | `src/uploads/uploads.service.ts` | S3 returns ETags wrapped in quotes — code strips them; covered today, keep covered |
+| Multipart resume / sync | `src/uploads/uploads.service.ts` | Reconciles in-memory state with S3 `ListParts`; expired upload detection |
+| Last-part size | `src/uploads/uploads.service.ts` | Final part is smaller than `chunkSize` — common off-by-one source |
+| S3 URL parsing | `src/s3/s3.service.ts` | CloudFront vs virtual-hosted vs path-style URL formats |
+| Framerate fraction parsing | `src/media/metadata/video-processing.service.ts` | `"30000/1001"` → 29.97; degenerate `"0/0"` |
+| Codec normalization | `src/media/metadata/video-processing.service.ts` | h264/avc, h265/hevc, vp8/vp9, av1 aliases |
+| VTT thumbnail mapping | `src/media/thumbnail-generation.service.ts` | Frame index → row/col → x,y — already tested, keep tested |
+| Sprite-interval auto-calc | `src/media/thumbnail-generation.service.ts` | Different intervals per duration bracket |
+
+---
+
+## 10. Boundary Reminder
+
+Per `AGENTS.md` and `CLAUDE.md` for this package: `sui-media-api` is for **media-component endpoints only**. New non-media business routes (products, clients, licenses, invoices, users beyond media-auth) must be implemented in `docs/pages/api/*` and tested there — do not expand this package's test suite to cover them.

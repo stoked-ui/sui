@@ -22,7 +22,7 @@ describe('deliverables cdnStorage', () => {
     });
 
     expect(url).to.equal(
-      'https://cdn.stokedconsulting.com/clients/xferall-consulting/deliverables/xferall-platform-engineering-2026-q1/index.html',
+      'https://cdn.consulting.stokd.cloud/clients/xferall-consulting/deliverables/xferall-platform-engineering-2026-q1/index.html',
     );
   });
 });

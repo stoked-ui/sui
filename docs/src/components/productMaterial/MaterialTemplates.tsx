@@ -35,7 +35,7 @@ export const TEMPLATES = {
         light: '/static/branding/store-templates/template-4light.jpg',
         dark: '/static/branding/store-templates/template-4dark.jpg',
       },
-      href: 'https://stokedconsulting.com/store/items/devias-kit-pro/',
+      href: 'https://consulting.stokd.cloud/store/items/devias-kit-pro/',
     },
     {
       name: 'Minimal - Client & Admin Dashboard',
@@ -43,7 +43,7 @@ export const TEMPLATES = {
         light: '/static/branding/store-templates/template-1light.jpg',
         dark: '/static/branding/store-templates/template-1dark.jpg',
       },
-      href: 'https://stokedconsulting.com/store/items/minimal-dashboard/',
+      href: 'https://consulting.stokd.cloud/store/items/minimal-dashboard/',
     },
     {
       name: 'Berry - React Material Admin Dashboard Template',
@@ -51,7 +51,7 @@ export const TEMPLATES = {
         light: '/static/branding/store-templates/template-5light.jpg',
         dark: '/static/branding/store-templates/template-5dark.jpg',
       },
-      href: 'https://stokedconsulting.com/store/items/berry-react-material-admin/',
+      href: 'https://consulting.stokd.cloud/store/items/berry-react-material-admin/',
     },
     {
       name: 'Mira Pro - React Material Admin Dashboard',
@@ -59,7 +59,7 @@ export const TEMPLATES = {
         light: '/static/branding/store-templates/template-3light.jpg',
         dark: '/static/branding/store-templates/template-3dark.jpg',
       },
-      href: 'https://stokedconsulting.com/store/items/mira-pro-react-material-admin-dashboard/',
+      href: 'https://consulting.stokd.cloud/store/items/mira-pro-react-material-admin-dashboard/',
     },
   ],
   [DEMOS[1]]: [
@@ -69,7 +69,7 @@ export const TEMPLATES = {
         light: '/static/branding/store-templates/template-2light.jpg',
         dark: '/static/branding/store-templates/template-2dark.jpg',
       },
-      href: 'https://stokedconsulting.com/store/items/the-front-landing-page/',
+      href: 'https://consulting.stokd.cloud/store/items/the-front-landing-page/',
     },
     {
       name: 'Webbee - Multipurpose landing page UI Kit',
@@ -77,7 +77,7 @@ export const TEMPLATES = {
         light: '/static/branding/store-templates/template-6light.jpg',
         dark: '/static/branding/store-templates/template-6dark.jpg',
       },
-      href: 'https://stokedconsulting.com/store/items/webbee-landing-page/',
+      href: 'https://consulting.stokd.cloud/store/items/webbee-landing-page/',
     },
   ],
   [DEMOS[2]]: [
@@ -87,7 +87,7 @@ export const TEMPLATES = {
         light: '/static/branding/store-templates/template-bazar-light.jpg',
         dark: '/static/branding/store-templates/template-bazar-dark.jpg',
       },
-      href: 'https://stokedconsulting.com/store/items/bazar-pro-react-ecommerce-template/',
+      href: 'https://consulting.stokd.cloud/store/items/bazar-pro-react-ecommerce-template/',
     },
   ],
 };
@@ -159,7 +159,7 @@ export default function MaterialTemplates() {
         ))}
         <More
           component={Link}
-          href="https://stokedconsulting.com/store/?utm_source=marketing&utm_medium=referral&utm_campaign=material-templates-cta2#populars"
+          href="https://consulting.stokd.cloud/store/?utm_source=marketing&utm_medium=referral&utm_campaign=material-templates-cta2#populars"
           noLinkStyle
         />
       </Group>

@@ -6,8 +6,8 @@ import {
 
 export type PublicSite = 'stoked-ui' | 'consulting';
 
-export const STOKED_UI_ORIGIN = 'https://stoked-ui.com';
-export const STOKED_CONSULTING_ORIGIN = 'https://stokedconsulting.com';
+export const STOKED_UI_ORIGIN = 'https://sui.stokd.cloud';
+export const STOKED_CONSULTING_ORIGIN = 'https://consulting.stokd.cloud';
 export const STOKED_CONSULTING_CDN_ORIGIN = buildCdnOrigin(STOKED_CONSULTING_ORIGIN);
 
 const stokedUiProductIds = new Set(STOKED_UI_PRODUCT_IDS);
@@ -24,16 +24,16 @@ function getRuntimeHostname() {
   if (typeof window !== 'undefined') {
     return window.location.hostname.toLowerCase();
   }
-  return process.env.NODE_ENV === 'production' ? 'stoked-ui.com' : 'localhost';
+  return process.env.NODE_ENV === 'production' ? 'sui.stokd.cloud' : 'localhost';
 }
 
 function shouldUseAbsolutePublicDomains() {
   const hostname = getRuntimeHostname();
-  return hostname === 'stoked-ui.com'
-    || hostname === 'www.stoked-ui.com'
-    || hostname === 'stokedconsulting.com'
-    || hostname === 'www.stokedconsulting.com'
-    || hostname === 'cdn.stokedconsulting.com';
+  return hostname === 'sui.stokd.cloud'
+    || hostname === 'www.sui.stokd.cloud'
+    || hostname === 'consulting.stokd.cloud'
+    || hostname === 'www.consulting.stokd.cloud'
+    || hostname === 'cdn.consulting.stokd.cloud';
 }
 
 export function buildCdnOrigin(origin: string) {

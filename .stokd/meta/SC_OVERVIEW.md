@@ -1,673 +1,281 @@
 # Stoked UI — Codebase Overview
 
-> **Generated:** 2026-03-03 | **Updated:** 2026-03-27 | **Meta version:** 0.2.0
-> **Repository:** `@stoked-ui/sui` v0.1.0-alpha.5
+> **Generated:** 2026-05-21 (upgraded 0.3.0 → 0.4.0) | **Meta version:** 0.4.0
+> **Repository:** `@stoked-ui/sui` v0.1.0-alpha.5 (private monorepo root)
 > **Root:** `/opt/worktrees/stoked-ui/stoked-ui-main`
+> **Package manager:** pnpm 10.5.1 (enforced via `preinstall: npx only-allow pnpm`)
+> **Workspace packages tracked in meta v0.4.0:** 11 — `sui-cdn`, `sui-common`, `sui-common-api`, `sui-docs`, `sui-editor`, `sui-file-explorer`, `sui-github`, `sui-media`, `sui-media-api`, `sui-timeline`, `sui-video-renderer`
 
 ---
 
 ## 1. Repository Purpose
 
-Stoked UI is a **full-stack product platform** combining a React component library, NestJS backend APIs, a documentation/consulting site, CDN asset management, and deployment infrastructure — all managed as a pnpm monorepo. It produces two integrated product lines:
+Stoked UI is a pnpm / Turborepo / Lerna monorepo that produces a media-centric React component suite (timeline editor, file explorer, video editor, GitHub widgets, CDN/file browser), a NestJS media API, a Next.js 14 documentation + marketing + admin site, a Rust→WASM video renderer, and the SST (AWS) infrastructure that deploys it all to `sui.stokd.cloud` / `consulting.stokd.cloud`.
 
-1. **@stoked-ui/\* npm packages** — A suite of media-centric React components built on MUI v5: file explorer, timeline animation editor, video editor, media viewer, and GitHub integration widgets. Published to npm under `@stoked-ui/*`.
+The repo ships three product surfaces:
 
-2. **stokd-cloud** — An autonomous AI project orchestration platform (separate workspace at `/opt/dev/stoked-projects-project-97/`) that uses Claude Agent SDK to manage GitHub Projects with a VSCode extension, NestJS state tracking API, MCP server, and native macOS widget.
+1. **`@stoked-ui/*` npm packages** — Reusable React libraries built on MUI v5, published to npm under the `@stoked-ui` scope.
+2. **`stokedui-com` (`docs/`)** — Next.js 14 documentation + marketing + admin app (port **5199**) that consumes the packages and hosts non-media business APIs at `docs/pages/api/*`.
+3. **AWS deployment via SST v4** — CloudFront sites, API Gateway v2 + Lambda surface, CDN buckets, ACM certs, and supporting Lambdas in `api/`. Entry: `sst.config.ts` → `infra/index.ts`.
 
-The two workspaces share a developer ecosystem but are independently built and deployed.
-
-**Domains served:** `stoked-ui.com`, `stokedconsulting.com`
-
----
-
-## 2. Architecture
-
-```
-┌──────────────────────────────────────────────────────────────────────────┐
-│                    stoked-ui-main (this repo)                           │
-│  pnpm workspaces · Turborepo · NX · Lerna (versioning)                  │
-├──────────────────────────────────────────────────────────────────────────┤
-│                                                                          │
-│  ┌──────────────── Public Packages (@stoked-ui/*) ────────────────────┐  │
-│  │                                                                     │  │
-│  │  common ──► media ──► file-explorer ──► timeline ──► editor         │  │
-│  │    │                                      │                         │  │
-│  │    └──► common-api                        └──► github               │  │
-│  │              │                                                      │  │
-│  │         media-api (NestJS)           docs (shared components)       │  │
-│  │                                                                     │  │
-│  │         video-renderer (Rust/WASM)                                  │  │
-│  └─────────────────────────────────────────────────────────────────────┘  │
-│                                                                          │
-│  ┌──── Internal Packages ─────────┐  ┌──── Infrastructure ─────────┐    │
-│  │  stoked-cli (Rust CLI)         │  │  SST v4 (AWS)               │    │
-│  │  cdn (Vite admin app)          │  │  ├─ StaticSite (CloudFront) │    │
-│  │  docs-utils, api-docs-builder  │  │  ├─ CdnSite (CloudFront+S3)│    │
-│  │  proptypes, markdown           │  │  ├─ ApiGatewayV2            │    │
-│  │  test-utils, eslint-plugin     │  │  ├─ Lambda (Google Auth)    │    │
-│  │  video-validator, envinfo      │  │  └─ Lambda (subscribe/sms)  │    │
-│  │  react-docgen-types            │  └──────────────────────────────┘    │
-│  └────────────────────────────────┘                                      │
-│                                                                          │
-│  ┌──── Docs Site ─────────────────────────────────────────────────────┐  │
-│  │  Next.js 13 (stokedui-com) · Static export → docs/export          │  │
-│  │  API Routes: auth, blog, licenses, invoices, clients, cdn, logs    │  │
-│  │  Modules: auth (session/transfer), cdn, clients, invoices          │  │
-│  │  Dev: localhost:5199                                               │  │
-│  └────────────────────────────────────────────────────────────────────┘  │
-└──────────────────────────────────────────────────────────────────────────┘
-```
+A native Rust crate (`packages/sui-video-renderer`) compiles to WASM and is consumed by `@stoked-ui/editor` for in-browser video preview/rendering.
 
 ---
 
-## 3. Package Dependency Graph
-
-### 3.1 Published Packages
-
-Arrows show `peerDependencies` / `dependencies` (workspace links).
+## 2. Top-Level Layout
 
 ```
-@stoked-ui/common          (v0.1.2)  ← foundation layer, no @stoked-ui deps
-    ↑
-@stoked-ui/common-api      (v0.1.0)  ← peer: common (server-side DTOs/decorators)
-@stoked-ui/media           (v0.1.0-alpha.5)  ← peer: common
-    ↑
-@stoked-ui/file-explorer   (v0.1.2)  ← peer: common, media
-    ↑
-@stoked-ui/timeline        (v0.1.3)  ← peer: common, media, file-explorer
-    ↑
-@stoked-ui/editor          (v0.1.2)  ← peer: common, media, file-explorer, timeline
-                                       optional: video-renderer-wasm
-@stoked-ui/github          (v0.1.0) ← peer: common, media, file-explorer, timeline
-
-@stoked-ui/media-api       (v1.0.0)  ← dep: common, common-api (standalone NestJS)
-@stoked-ui/docs            (v0.1.21) ← dev: editor, file-explorer, media, timeline
+stoked-ui-main/
+├── packages/                    Public @stoked-ui/* workspace packages
+│   ├── sui-cdn/                 Embeddable CDN/S3 file browser component
+│   ├── sui-common/              Shared client utilities (LocalDb, Mime, FetchBackoff, hooks)
+│   ├── sui-common-api/          Shared server utilities (NestJS, Mongoose models, DTOs, decorators)
+│   ├── sui-docs/                Documentation building blocks (Demo, CodeSandbox, MDX helpers)
+│   ├── sui-editor/              Video/animation editor (uses file-explorer + timeline + media)
+│   ├── sui-file-explorer/       File explorer + drag-and-drop (forked from @mui/x-tree-view)
+│   ├── sui-github/              GitHub calendar / events / commits / branch components
+│   ├── sui-media/               Framework-agnostic media abstractions, players, hooks, FileSystemApi
+│   ├── sui-media-api/           NestJS API (media CRUD, metadata, thumbnails, S3, Mongo, Lambda)
+│   ├── sui-timeline/            Animation/scrubber timeline engine + UI
+│   ├── sui-video-renderer/      Rust workspace (compositor + wasm-preview + cli) → WASM
+│   ├── stoked-ui-project-1/     Project sandbox
+│   └── zero-runtime/            Pigment CSS zero-runtime CSS-in-JS experiment
+│
+├── packages-internal/           Private workspace packages
+│   ├── stoked-cli/, stoked-mcp/                   Rust CLI + MCP server tooling
+│   ├── api-docs-builder/, docs-utils/, markdown/  Documentation pipeline
+│   ├── proptypes/, react-docgen-types/            Docgen support
+│   ├── eslint-plugin-stoked-ui/                   House lint rules
+│   ├── test-utils/                                Internal test harness
+│   ├── sui-envinfo/, sui-video-validator/         Diagnostic / validation
+│   ├── cdn/, cdn-sui/                             Vite CDN admin apps
+│   ├── feedback/, IndexAutogen/, rsc-builder/, netlify-plugin-cache-docs/, markdownlint-rule-mui/
+│
+├── docs/                        Next.js 14 site (`stokedui-com`, port 5199)
+│   ├── pages/api/**             Business / domain endpoints (non-media)
+│   ├── src/, scripts/, data/, translations/, public/, work-items/
+│
+├── api/                         Standalone Lambda handler entrypoints
+│   ├── auth/, lib/, promos.ts, sms.ts, subscribe.ts
+│
+├── infra/                       SST stack definitions
+│   ├── api.ts, cdn-site.ts, cert.ts, domains.ts, envVars.ts, secrets.ts, site.ts, index.ts
+│
+├── benchmark/                   Browser benchmarks (workspace package)
+├── test/                        Karma / Playwright / e2e harness + fixtures
+├── scripts/                     Build, release, codegen, sizing scripts
+├── netlify/                     Netlify functions
+├── examples/                    Standalone consumer examples
+├── sst.config.ts                SST entrypoint
+├── turbo.json                   Turborepo task graph
+├── lerna.json                   Independent versioning configuration
+├── pnpm-workspace.yaml          Workspace globs + onlyBuiltDependencies allowlist
+├── nx.json                      NX cache config (used by zero-runtime targets)
+└── .stokd/meta/                 Stokd context files (this directory)
 ```
 
-### 3.2 Internal Packages
-
-```
-@stoked-ui/docs-utils               (leaf — no workspace deps)
-    └──► @stoked-ui/proptypes       (dep: docs-utils)
-    └──► @stoked-ui/internal-api-docs-builder  (dep: docs-utils, docs-markdown)
-
-@stoked-ui/docs-markdown             (leaf)
-@stoked-ui/internal-test-utils       (leaf)
-eslint-plugin-stoked-ui              (leaf)
-@stoked-ui/internal-cdn              (leaf — Vite React app, no workspace deps)
-@types/react-docgen                  (leaf — type definitions for react-docgen)
-stoked-cli                           (leaf — Rust binary, no workspace deps)
-```
-
-### 3.3 Build Order (Turborepo `^build`)
-
-1. `@stoked-ui/common`
-2. `@stoked-ui/common-api`, `@stoked-ui/media` (parallel)
-3. `@stoked-ui/file-explorer`
-4. `@stoked-ui/timeline`
-5. `@stoked-ui/editor`, `@stoked-ui/github` (parallel)
-6. `@stoked-ui/docs`
-7. `@stoked-ui/media-api` (independent NestJS build)
-8. `stokedui-com` (Next.js docs site — depends on all packages)
+`pnpm-workspace.yaml` includes: `benchmark`, `packages/*`, `packages-internal/*`, `docs`, `api`, `infra`, `test`.
 
 ---
 
-## 4. Package Details
+## 3. Architecture & Package Dependency Graph
 
-### 4.1 Core UI Packages
+The public packages form a layered graph (arrow = "depends on"):
 
-| Package           | Path                         | Description                                                                                                                                                                                                                                            | Entry Point     |
-| ----------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------- |
-| **common**        | `packages/sui-common`        | Utilities: `LocalDb`, `GrokLoader`, `Colors`, `FetchBackoff`, `MimeType`, `ProviderState`, `SocialLinks`, `UserMenu`, hooks (`useResize`). Deps: `@tempfix/idb`, `framer-motion`                                                                       | `src/index.tsx` |
-| **media**         | `packages/sui-media`         | Media management: `MediaFile`, `WebFile`, `App`, `Stage`, `WebFileFactory`, `MediaViewer`, `MediaCard`, `ThumbnailStrip`, FileSystemApi, zip, React Query hooks, abstractions (`IRouter`, `IAuth`, `IPayment`). Deps: `@tanstack/react-query`, `jszip` | `src/index.ts`  |
-| **file-explorer** | `packages/sui-file-explorer` | File tree: `FileExplorer`, `FileExplorerBasic`, `FileExplorerTabs`, `FileElement`, `useFile` hook, DnD via `@atlaskit/pragmatic-drag-and-drop`, built on `@mui/x-tree-view`                                                                            | `src/index.ts`  |
-| **timeline**      | `packages/sui-timeline`      | Animation timeline: `Timeline`, `Engine`, `Controller`, `TimelineCursor`, `TimelineLabels`, `TimelinePlayer`, `TimelineTrack`, `TimelineProvider`, interaction via `interactjs`, virtualized rendering                                                 | `src/index.ts`  |
-| **editor**        | `packages/sui-editor`        | Video/project editor: `Editor`, `EditorFile`, `EditorEngine`, `Controllers`, `EditorView`, `EditorProvider`, `EditorAction`, `EditorTrack`, forms via `react-hook-form` + `yup`. Optional WASM renderer                                                | `src/index.ts`  |
-| **github**        | `packages/sui-github`        | GitHub widgets: `GithubCalendar` heatmap, `GithubEvents` feed, event type renderers, API handlers, `date-fns`/`date-fns-tz`                                                                                                                            | `src/index.ts`  |
-| **docs**          | `packages/sui-docs`          | Documentation components: `BrandingCssVarsProvider`, `Demo`, `DemoEditor`, `HighlightedCode`, `MarkdownElement`, `DocsProvider`, `InfoCard`, `Link`, `NProgressBar`, 30+ subpath exports                                                               | `src/index.js`  |
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│                           docs (stokedui-com)                        │
+│  Next.js 14 · port 5199 · pages/api/* business endpoints · MUI v5    │
+└──────────────────────────────────────────────────────────────────────┘
+            │                │                │                │
+            ▼                ▼                ▼                ▼
+       sui-editor      sui-timeline     sui-file-explorer   sui-github
+            │                │                │                │
+            ├────────────────┼────────────────┤                │
+            ▼                ▼                ▼                ▼
+                          sui-media  ◄── sui-cdn (peer)
+                              │
+                              ▼
+                         sui-common  ◄────── sui-docs (uses media/timeline/editor/file-explorer)
+                              │
+                              ▼
+                       sui-common-api ──► sui-media-api (NestJS)
+                                                │
+                                                ▼
+                                       MongoDB · S3 · Sharp · ffmpeg
+                                       Lambda (via @codegenie/serverless-express)
 
-### 4.2 API Packages
+       sui-video-renderer (Rust workspace)
+         compositor + wasm-preview + cli
+                │  wasm-pack build
+                ▼
+         packages/sui-video-renderer/pkg
+                │  (optionalDependency, file:)
+                ▼
+           sui-editor  →  WasmPreview module
+```
 
-| Package        | Path                      | Description                                                                                                           | Entry Point                                              |
-| -------------- | ------------------------- | --------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
-| **common-api** | `packages/sui-common-api` | Shared NestJS utilities: decorators (`src/decorators/`), DTOs (`src/dtos/`), Mongoose schemas (`src/models/`)         | `src/index.ts`                                           |
-| **media-api**  | `packages/sui-media-api`  | Full NestJS API: Media CRUD, Auth (JWT/Passport), Uploads (S3), Invoices, License (Stripe), Blog, Nostr relay, Health | `src/main.ts` (HTTP), `src/lambda.bootstrap.ts` (Lambda) |
+Edges verified from each `package.json`:
 
-**media-api Modules:**
+- **`@stoked-ui/common`** (`packages/sui-common`) — Foundation. No internal deps. Exports `LocalDb`, `Mime`, `FetchBackoff`, `UserMenu`, `useResize`, etc.
+- **`@stoked-ui/common-api`** (`packages/sui-common-api`) — Depends on `@stoked-ui/common`. NestJS + Mongoose decorators/DTOs/models. Source under `src/{decorators,dtos,models}`.
+- **`@stoked-ui/media`** (`packages/sui-media`) — Depends on `@stoked-ui/common`. `MediaFile`, `WebFile`, `FileSystemApi`, `Stage`, players, hooks. The `MediaCard` component (analyzed entry point) lives at `packages/sui-media/src/components/MediaCard/`.
+- **`@stoked-ui/cdn`** (`packages/sui-cdn`) — No `@stoked-ui` deps; peer-depends on React. `CdnApi`, `CdnBrowser`.
+- **`@stoked-ui/file-explorer`** (`packages/sui-file-explorer`) — Peer-depends on `@stoked-ui/common` and `@stoked-ui/media`. Forked from `@mui/x-tree-view` with `@atlaskit/pragmatic-drag-and-drop`.
+- **`@stoked-ui/timeline`** (`packages/sui-timeline`) — Peer-depends on `@stoked-ui/common`, `@stoked-ui/file-explorer`, `@stoked-ui/media`. Exports `Engine`, `Controller`, `TimelineProvider`, `TimelineTrack`, `TimelinePlayer`.
+- **`@stoked-ui/editor`** (`packages/sui-editor`) — Peer-depends on `@stoked-ui/common`, `@stoked-ui/file-explorer`, `@stoked-ui/media`, `@stoked-ui/timeline`. **Optional** `@stoked-ui/video-renderer-wasm` via `file:../sui-video-renderer/pkg`. Exports `Editor`, `EditorEngine`, `EditorProvider`, `WasmPreview`, `EditorFile`, `Controllers`.
+- **`@stoked-ui/github`** (`packages/sui-github`) — Depends on `@stoked-ui/common`. `GithubCalendar`, `GithubEvents`, `GithubBranch`, `GithubCommit`.
+- **`@stoked-ui/docs`** (`packages/sui-docs`) — Depends on `@stoked-ui/editor`, `@stoked-ui/file-explorer`, `@stoked-ui/media`, `@stoked-ui/timeline`. Exports declared via subpath `exports` map (e.g., `./Demo`, `./CodeSandbox`) rather than a single barrel.
+- **`@stoked-ui/media-api`** (`packages/sui-media-api`) — Depends on `@stoked-ui/common`, `@stoked-ui/common-api`. NestJS app with Mongo, S3, Sharp, fluent-ffmpeg, Stripe, JWT/Passport, Swagger. Deploys via `@codegenie/serverless-express` (`src/{app.module.ts, main.ts, lambda.ts}`).
+- **`sui-video-renderer`** — Rust Cargo workspace (`packages/sui-video-renderer/Cargo.toml` → `compositor`, `wasm-preview`, `cli`). Built with `cargo build --release` or `wasm-pack build` for the editor consumer.
 
-- `MediaModule` — CRUD, thumbnails (Sharp), metadata extraction, video processing (FFmpeg)
-- `AuthModule` — JWT authentication, user management (bcryptjs)
-- `LicenseModule` + `StripeModule` — License keys, Stripe checkout payments
-- `UploadsModule` — S3 file uploads
-- `InvoicesModule` — Invoice management with API key auth
-- `NostrModule` — NIP-23 long-form content polling
-- `BlogModule` — Blog post CRUD with publish workflow
-- `DatabaseModule` — MongoDB/Mongoose connection
-- `HealthModule` — Health check endpoint
-- `S3Module` — AWS S3 client
+### Critical boundary rule (from `.stokd/meta/SC_CONTEXT.md` and `CLAUDE.md`)
 
-### 4.3 Rust/WASM Package
-
-| Package            | Path                          | Description                                                          |
-| ------------------ | ----------------------------- | -------------------------------------------------------------------- |
-| **video-renderer** | `packages/sui-video-renderer` | High-performance video composition engine in Rust with WASM bindings |
-
-**Workspace members:** `compositor/` (core engine), `wasm-preview/` (browser bindings), `cli/` (command-line tool), `benchmark/`
-
-**WASM Exports:** `PreviewRenderer` class with `render_frame()`, `render_frame_at_time()`, `cache_image()`, canvas rendering. Uses `image`, `imageproc`, `fast_image_resize`, `resvg`, `wasm-bindgen`, `web-sys`.
-
-Published as `wasm-preview` npm package in `pkg/` directory. Referenced by `@stoked-ui/editor` as `@stoked-ui/video-renderer-wasm: file:../sui-video-renderer/pkg`.
-
-### 4.4 Internal Packages (`packages-internal/`)
-
-| Package                       | Path                                          | Build         | Purpose                                                                                                                      |
-| ----------------------------- | --------------------------------------------- | ------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| **stoked-cli**                | `packages-internal/stoked-cli`                | `cargo build` | Rust CLI for Stoked Next.js APIs — auth, file operations, directory traversal. Deps: `clap`, `tokio`, `reqwest`, `tiny_http` |
-| **cdn**                       | `packages-internal/cdn`                       | Vite          | CDN admin app — S3 content browsing, file upload (multipart), permissions, drag-and-drop, role-based access                  |
-| **docs-utils**                | `packages-internal/docs-utils`                | `tsc`         | Documentation build utilities                                                                                                |
-| **api-docs-builder**          | `packages-internal/api-docs-builder`          | `tsc`         | API reference doc generation (react-docgen, Babel AST, remark)                                                               |
-| **proptypes**                 | `packages-internal/proptypes`                 | `tsc`         | TypeScript → PropTypes code generation                                                                                       |
-| **markdown**                  | `packages-internal/markdown`                  | pre-built     | Markdown parser (marked, prismjs), webpack loader                                                                            |
-| **eslint-plugin**             | `packages-internal/eslint-plugin-stoked-ui`   | none          | Custom ESLint rules                                                                                                          |
-| **video-validator**           | `packages-internal/sui-video-validator`       | `tsup`        | Frame comparison validation CLI (pixelmatch, Sharp, FFmpeg)                                                                  |
-| **test-utils**                | `packages-internal/test-utils`                | `tsc`         | Test adapters: enzyme, @testing-library, mocha, karma, playwright                                                            |
-| **envinfo**                   | `packages-internal/sui-envinfo`               | custom        | CLI for environment info reporting                                                                                           |
-| **feedback**                  | `packages-internal/feedback`                  | claudia       | Serverless Lambda for page ratings/comments                                                                                  |
-| **react-docgen-types**        | `packages-internal/react-docgen-types`        | none          | Type definitions for react-docgen (`@types/react-docgen`)                                                                    |
-| **rsc-builder**               | `packages-internal/rsc-builder`               | none          | React Server Components builder utility                                                                                      |
-| **netlify-plugin-cache-docs** | `packages-internal/netlify-plugin-cache-docs` | none          | Netlify build plugin for docs caching                                                                                        |
-| **stoked-mcp**                | `packages-internal/stoked-mcp`                | SST           | MCP server (early development — `src/__tests__/` only)                                                                       |
-| **markdownlint-rule-mui**     | `packages-internal/markdownlint-rule-mui`     | none          | Custom markdownlint rules: duplicate-h1, straight-quotes, table-alignment, terminal-language, git-diff                       |
+> **`sui-media-api` is reserved for media-component endpoints only.** Business/domain routes (products, clients, licenses, invoices, users, non-media auth) belong in `docs/pages/api/*`. The existing route folders confirm this: `docs/pages/api/{account, auth, blog, cdn, chat, clients, deliverables, github, invoices, licenses, products, upload, users, webhooks}` plus `logs.ts`, `openapi.ts`.
 
 ---
 
-## 5. Documentation & Consulting Site (`docs/`)
+## 4. Key Technologies
 
-**Package:** `stokedui-com` (v0.1.0-alpha.5, private)
-
-- **Tech:** Next.js 13.5.1 (Pages Router, static export to `docs/export/`)
-- **Dev:** `pnpm docs:dev` → `localhost:5199`
-- **Build output:** `docs/export/` (static site, served via CloudFront)
-- **Service worker:** `docs/public/sw.js` — auto-skip-waiting for app updates
-- **Key deps:** AWS SDK, Emotion, MUI v5 (full suite), `@docsearch/react`, `@react-oauth/google`, MongoDB, Stripe, `archiver`, markdown-to-jsx, SST
-- **Workspace deps:** common, docs, editor, file-explorer, media, timeline, github, docs-markdown
-
-### 5.1 API Routes (`docs/pages/api/`)
-
-| Route Group            | Endpoints                                                                                         | Purpose                                                                  |
-| ---------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| **auth/**              | `login`, `register`, `google`, `impersonate`, `session`, `exchange`, `transfer`, `logout`         | Authentication with session cookies, cross-origin transfer, Google OAuth |
-| **auth/cli/**          | `authorize`                                                                                       | CLI-based authentication flow                                            |
-| **auth/api-keys/**     | `index`, `[id]`                                                                                   | API key CRUD for programmatic access                                     |
-| **account/**           | `billing`, `billing/portal`, `licenses`, `settings`                                               | Account management, Stripe billing portal                                |
-| **cdn/**               | `contents`, `folders`, `delete`, `move`, `export`, `permissions`                                  | S3 CDN browsing and management with role-based access                    |
-| **cdn/upload/**        | `initiate`, `active`, `[sessionId]/{urls,status,complete,abort}`, `[sessionId]/part/[partNumber]` | Multipart upload flow with session tracking                              |
-| **clients/**           | `index`, `[id]`                                                                                   | Client CRUD                                                              |
-| **deliverables/**      | `index`, `[id]`, `render`, `upload-file`, `proxy/[...path]`                                       | Deliverable CRUD with HTML render and CDN proxy                          |
-| **invoices/**          | `index`, `[id]`, `has-invoices`                                                                   | Invoice CRUD with existence check                                        |
-| **licenses/**          | `checkout`, `create`, `activate`, `deactivate`, `validate`, `products`                            | Full license lifecycle: Stripe checkout, activation, validation          |
-| **products/**          | `index`, `[id]`, `public`, `[id]/pages/{index,[pageId]}`                                          | Product catalog with public listing and nested pages                     |
-| **products/feedback/** | `index`, `register`, `verify`                                                                     | Product feedback with email verification (SES), user auto-registration   |
-| **blog/**              | `index`, `public`, `[slug]`, `[slug]/{publish,unpublish}`, `authors`, `tags`, `revalidate`        | Blog CRUD with publish workflow, author/tag management                   |
-| **users/**             | `index`, `[id]`                                                                                   | User management                                                          |
-| **webhooks/**          | `stripe`                                                                                          | Stripe webhook handler                                                   |
-| **chat/**              | `send`                                                                                            | Chat message endpoint                                                    |
-| **upload/**            | `blog-image`                                                                                      | Blog image upload                                                        |
-| **logs**               | `logs`                                                                                            | Browser console forwarding endpoint for Next.js dev logs                 |
-| **openapi**            | `openapi`                                                                                         | OpenAPI spec generation                                                  |
-
-### 5.2 Backend Modules (`docs/src/modules/`)
-
-| Module           | Key Files                                                     | Purpose                                                                                                                                                       |
-| ---------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **auth**         | `authStore.ts`, `withAuth.ts`, `session.ts`, `apiKeyStore.ts` | JWT auth, HTTP-only cookie sessions (`stoked_auth`), cross-origin session transfer (5-min JWTs), origin whitelisting, API key management                      |
-| **db**           | MongoDB connectivity                                          | Shared database connection module                                                                                                                             |
-| **cdn**          | `cdnAccess.ts`, `cdnMutations.ts`, `cdnUploadStore.ts`        | S3 content access with role-based permissions (admin/client/agent/subscriber), multipart upload session management, folder CRUD, `.cdnkeep` directory markers |
-| **clients**      | `contactUser.ts`                                              | Contact user creation with password hashing, client-contact association, batch hydration                                                                      |
-| **invoices**     | `invoiceNormalization.ts`, `cdnStorage.ts`                    | Legacy invoice format normalization, status tracking (draft/sent/paid), CDN-backed storage                                                                    |
-| **deliverables** | `cdnStorage.ts`, `htmlSnapshot.ts`                            | CDN-backed deliverable storage, HTML snapshot generation, sanitized iframe rendering                                                                          |
-| **sandbox**      | CodeSandbox, StackBlitz, CreateReactApp integrations          | Code sandbox environment utilities for documentation demos                                                                                                    |
-| **joy**          | Theme generation, template utilities                          | Joy UI integration and theme builder tools                                                                                                                    |
-| **license**      | `licenseStore.ts`, `stripeClient.ts`, `apiUtils`              | License lifecycle management, Stripe integration, license API utilities                                                                                       |
-| **products**     | `feedbackStore.ts`                                            | Product feedback with email verification (SES), auto-registration, verification code TTL, resend cooldown                                                     |
-| **blog**         | `blogStore.ts`, `blogApiUtils.ts`                             | Blog post CRUD, publish/unpublish workflow, author/tag management                                                                                             |
-| **account**      | Account pages & settings                                      | Account management, billing portal integration                                                                                                                |
-| **openapi**      | OpenAPI spec generation                                       | Auto-generated API documentation                                                                                                                              |
-| **utils**        | `getApiUrl.ts`, `siteRouting.ts`                              | API URL construction, site routing helpers                                                                                                                    |
-| **components**   | 90+ component files                                           | Page layouts, theme builders, client detail views, product pages                                                                                              |
+| Area | Stack |
+|------|-------|
+| Language | TypeScript 5.4, Rust 2021, JavaScript |
+| UI | React 18.3.1 (pinned via `pnpm.overrides`), MUI v5 pinned to `@mui/material` 5.17.1 / `@mui/system` 5.17.1 / `@mui/utils` 5.17.1 / `@mui/base` 5.0.0-beta.40, Emotion 11 (`@emotion/styled` 11.8.1 pinned) |
+| Docs app | Next.js 14, `@mui/material-nextjs`, MDX, `@docsearch/react`, `react-spring`, Tailwind (`docs/tailwind.config.js`) |
+| Build | Turborepo 2.7, NX 20.5 (Pigment/zero-runtime targets), Lerna 8 (versioning only), Babel 7 (custom `babel.config.js`), tsup 8, custom `scripts/build.mjs` (modern/node/stable targets + types + copy) |
+| Backend | NestJS 10, Mongoose 8 / MongoDB 6.12, Express 5, Passport JWT, class-validator, Swagger |
+| Media processing | Sharp 0.34, fluent-ffmpeg, AWS SDK v3 (S3 / SES / SNS / ACM) |
+| Native | Rust workspace: `image`, `imageproc`, `fast_image_resize`, `resvg`, `tokio`, `rayon`, `wasm-bindgen`, `wasm-bindgen-futures`, `web-sys` |
+| Testing | Mocha + Karma (browser), Playwright (`test:e2e-website` against port 5199), Jest (per-package, NestJS), nyc coverage, Argos visual regressions |
+| Lint / Format | ESLint (airbnb + house plugin `eslint-plugin-stoked-ui`), Prettier 3, Stylelint, markdownlint-cli2, Vale |
+| Infra | SST v4 on AWS (`stokd-cloud` profile, us-east-1), CloudFront StaticSite + CdnSite, API Gateway v2, Lambda, SNS, Stripe |
+| Identity | `@react-oauth/google`, `google-auth-library`, JWT, bcryptjs |
+| Release | dotenvx, `lerna version --no-private`, `pnpm publish --recursive`, Verdaccio for dry runs |
 
 ---
 
-## 6. Key Technologies
+## 5. Build System & Workflow
 
-### Frontend
+### Workspace tooling
+- **pnpm 10.5.1** workspaces; the `preinstall` script blocks non-pnpm via `only-allow`. `onlyBuiltDependencies` in `pnpm-workspace.yaml` whitelists native builds (`@nestjs/core`, `aws-sdk`, `core-js`, `esbuild`, `mongodb-memory-server`, `msgpackr-extract`, `nx`, `puppeteer`, `sharp`).
+- **Turborepo** orchestrates `dev`, `dev:prepare`, `build`, `test`, `lint`, `typescript` (`turbo.json`):
+  - `build` depends on `^build`, caches `dist/**`, `build/**`, `.next/**` (excluding `.next/cache/**`).
+  - `dev:prepare` is cached and depends on `^dev:prepare` so upstream packages publish `build/modern` + types before downstream `dev` watchers start.
+  - `dev` is `persistent: true`, `cache: false`.
+  - `typescript` depends on `^build`.
+- **Lerna** is configured for version bumps only (`independent` mode, `npmClient: pnpm`).
+- **NX** is reserved for the Pigment CSS / zero-runtime targets (`pnpm watch:zero`, `pnpm build:zero`).
 
-- **React 18.3.1** — pinned across all packages
-- **Material UI v5** (`@mui/material` 5.17.1) — component foundation
-- **MUI X Tree View** (`@mui/x-tree-view` 7.22.2) — base for file explorer
-- **Emotion** — CSS-in-JS (`@emotion/styled` 11.8.1)
-- **Framer Motion 12.4.10** — animations (common package)
-- **InteractJS 1.10.11** — drag/resize interactions (timeline)
-- **Atlaskit Pragmatic DnD** — drag-and-drop (file explorer)
-- **React Query** (`@tanstack/react-query` 5.x) — server state management (media)
-- **react-hook-form** + **yup** — form handling (editor)
-- **Next.js 13.5** — documentation site (Pages Router, static export)
-- **Vite** — CDN admin app bundling
+### Per-package build pipeline
+Most `@stoked-ui/*` packages share these scripts (verified in `packages/sui-editor/package.json:30-40`):
 
-### Backend
+```
+pnpm build = build:modern → build:node → build:stable → build:types → build:copy-files
+```
 
-- **NestJS 10** — API framework (media-api)
-- **MongoDB/Mongoose 8** — database
-- **Passport + JWT** — authentication (media-api)
-- **HTTP-only cookie sessions** — authentication (docs site)
-- **Cross-origin session transfer** — 5-minute JWT transfer tokens between origins
-- **API key authentication** — programmatic access for CLI and integrations
-- **Stripe** — payment/licensing/billing portal
-- **AWS S3** — file storage + CDN asset hosting
-- **AWS SES** — email, **AWS SNS** — SMS
-- **FFmpeg** (`fluent-ffmpeg`) — video processing
-- **Sharp** — image processing/thumbnails
-- **Nostr** (`nostr-tools`) — decentralized content integration
-- **archiver** — zip archive creation for CDN export
+Each step shells out to root scripts:
+- `scripts/build.mjs <target>` — Babel transpile per target (`modern`, `node`, `stable`).
+- `scripts/buildTypes.mjs` — emits `.d.ts` files.
+- `scripts/copyFiles.mjs` — stages `package.json` + assets into `build/`.
 
-### Infrastructure
+`dev:prepare` typically runs `build:modern` + `build:types` so workspace consumers see fresh `build/modern/index.js` and `index.d.ts` before `dev` watches kick in.
 
-- **SST v4** (Ion/Pulumi) — AWS IaC (`sst` 4.2.0)
-- **AWS Lambda** (Node.js 20.x) — serverless compute
-- **API Gateway V2** — HTTP API routing
-- **CloudFront + S3** — static site hosting with edge functions (docs site + CDN site)
-- **ACM** — certificate management with SAN validation (`infra/cert.ts`)
-- **Route 53** — DNS (zones for stoked-ui.com, stokedconsulting.com)
+### Top-level scripts (`package.json`)
+- `pnpm dev` — kills stale dev services, runs `turbo run dev:prepare`, then `turbo run dev --parallel --concurrency 15`.
+- `pnpm docs:dev` — Next.js dev server on **port 5199** (`docs/package.json`). Always 5199, never 3000.
+- `pnpm build` — Turbo build of everything except `stokedui-com`.
+- `pnpm build:all` — full Turbo build then `pnpm docs:build`.
+- `pnpm build:wasm` — runs `packages/sui-video-renderer/scripts/build-wasm.sh`.
+- `pnpm video-renderer:build` — `cargo build --release`.
+- `pnpm video-renderer:build-wasm` — `wasm-pack build --target web --out-dir ../pkg`.
+- `pnpm test` — `node scripts/test.mjs` (orchestrator over unit/karma/e2e).
+- `pnpm test:e2e-website:dev` — Playwright against `http://localhost:5199`.
+- `pnpm release` = `build:all` → `release:version` → `deploy:prod`.
+- `pnpm deploy:prod` — `dotenvx run -- sst deploy --stage production` (uses AWS profile `stokd-cloud`).
+- `pnpm clean` / `pnpm clean:build` — wipe build artifacts and lockfiles.
+- Package shortcuts: `pnpm common`, `pnpm common-api`, `pnpm editor`, `pnpm file-explorer`, `pnpm github`, `pnpm media`, `pnpm media-api`, `pnpm timeline`, `pnpm docs`, `pnpm cli`.
 
-### Build & Dev
-
-- **pnpm 10.5.1** — package manager (enforced via `preinstall`)
-- **Turborepo 2.7.4** — primary build orchestration with caching
-- **NX 20.5.0** — supplementary task runner / caching metadata
-- **Lerna 8.2.1** — version management (independent mode)
-- **TypeScript 5.4.5** — strict mode, `experimentalDecorators`, path aliases
-- **Babel 7.26.x** — multi-target transpilation (modern/node/stable)
-- **tsup** — bundling (video-validator)
-- **Webpack 5** — bundling (media-api lambda, e2e tests)
-
-### Testing
-
-- **Mocha** — unit/integration tests (stoked-ui packages)
-- **Jest** — unit tests (NestJS packages, `mongodb-memory-server`)
-- **Playwright** — e2e tests
-- **Karma** — browser tests
-- **NYC/Istanbul** — code coverage
-- **Argos CI** — visual regression
-
-### Rust/WASM
-
-- **Rust** (edition 2021) — video renderer core + stoked-cli
-- **wasm-bindgen** + **wasm-pack** — WASM compilation
-- **web-sys** — browser API bindings
-- **rayon** — parallel processing, **tokio** — async runtime
-- **clap** — CLI argument parsing (stoked-cli)
+### Turbo dev caveats
+- `dev:prepare` is what unblocks live editing — without it, downstream packages won't pick up upstream type/source updates.
+- A package's `dev:prepare` is required even if you only intend to edit that package, because Turbo walks `^dev:prepare` for ancestors.
+- `next.config.mjs` changes require a dev-server restart (not HMR).
 
 ---
 
-## 7. Development Workflow
+## 6. Entry Points & Critical Paths
 
-### Setup
+### Application entry points
 
-```bash
-pnpm install          # Install all workspace dependencies (enforced pnpm)
-pnpm build            # Build all packages (Turbo-orchestrated, topological order)
-```
+| Surface | Entry | Notes |
+|---------|-------|-------|
+| Docs / marketing site | `docs/pages/_app.js`, `docs/pages/_document.js` | Next.js 14, port 5199. Service worker via `docs/scripts/buildServiceWorker.js` (`build-sw`). |
+| Business APIs | `docs/pages/api/**` | All non-media domain endpoints per the boundary rule. |
+| Media API (server) | `packages/sui-media-api/src/main.ts` → `Server.start()` from `app.ts` | NestJS bootstrap; silences `console.log` in prod. |
+| Media API (Lambda) | `packages/sui-media-api/src/lambda.ts` + `lambda.bootstrap.ts` | `@codegenie/serverless-express` adapter. |
+| Root Lambda handlers | `api/auth/*`, `api/subscribe.ts`, `api/sms.ts`, `api/promos.ts` | Wired into SST via `infra/api.ts`. |
+| Editor component | `packages/sui-editor/src/index.ts` (`Editor` default; named `EditorEngine`, `EditorProvider`, `WasmPreview`, `EditorFile`, `Controllers`) | |
+| Timeline component | `packages/sui-timeline/src/index.ts` (`Engine`, `Controller`, `TimelineProvider`, `TimelinePlayer`) | |
+| File explorer | `packages/sui-file-explorer/src/index.ts` (`FileExplorer`, `FileExplorerBasic`, `FileDropzone`) | |
+| Media core | `packages/sui-media/src/index.ts` (`MediaFile`, `WebFile`, `FileSystemApi`, `Stage`, hooks, performance, server) | |
+| WASM video renderer | `packages/sui-video-renderer/wasm-preview/` (cdylib + rlib via `wasm-bindgen`); shared logic in `compositor/`; native CLI in `cli/` | Output → `packages/sui-video-renderer/pkg/`, consumed by editor as `@stoked-ui/video-renderer-wasm`. |
+| Infra deploy | `sst.config.ts` → `infra/index.ts` → `createSite`, `createApi`, `createCdnSite`, `createCdnSuiSite` | Returns `{ site, cdn, cdnSui, api }` URLs. |
 
-### Development
+### Critical runtime paths
 
-```bash
-pnpm dev              # Kill stale services → dev:prepare → dev (parallel, concurrency 15)
-pnpm docs:dev         # Docs site only at http://localhost:5199
-pnpm docs:debug       # Docs with DEV_DISPLAY=1 + experimental HTTPS
-```
+- **Editor video pipeline:** `EditorFile` → `EditorEngine` (`packages/sui-editor/src/EditorEngine`) drives timeline state via `@stoked-ui/timeline` `Engine`, renders frames through `WasmPreview` (dynamic import of `@stoked-ui/video-renderer-wasm`; auto-detects bundler vs web target). EditorEngine requires the WASM build present at `packages/sui-video-renderer/pkg`; the webpack alias is configured in `docs/next.config.mjs` and depends on `experiments.asyncWebAssembly: true`.
+- **Media metadata path:** `sui-media`'s `extractVideoMetadata` writes into a `ScreenshotStore`; consumers persist to IndexedDB via `sui-common/LocalDb`. The empty-store guard (`count > 0`) prevents the previous block on first generation.
+- **MediaCard render path** (analyzed directory): `packages/sui-media/src/components/MediaCard/MediaCard.tsx` consumes `MediaCard.types.ts` and is exercised by `__tests__/MediaCard.test.tsx`. `file.media` uses a `createSettings` Proxy — properties set via `Object.assign` don't always propagate through React state updates; detail views use DOM `<video>` element fallbacks for duration/width/height.
+- **Business API request flow:** browser → `docs/pages/api/<domain>/...` → MongoDB (`mongodb` 6.12). Stripe + Google OAuth integrate at this layer.
+- **Media API request flow:** client → `sui-media-api` NestJS controllers → Mongoose models → S3 / Sharp / ffmpeg. Same codebase runs locally (Nest CLI) and serverless (Lambda adapter).
+- **Deployment path:** `pnpm deploy:prod` → `sst deploy --stage production` → `infra/{site,cdn-site,api,cert,domains,secrets}.ts` provisions CloudFront, API Gateway v2, Lambdas, and certs.
 
-### Build System
-
-The build pipeline is orchestrated by **Turbo** with topological `^build` dependency resolution:
-
-| Build Type                         | Packages                                                                                           | Output                                                                                                 |
-| ---------------------------------- | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| Custom Babel (`scripts/build.mjs`) | All `sui-*` UI packages (common, media, file-explorer, timeline, editor, github, docs, common-api) | `build/modern/` (ESM), `build/node/` (CJS), `build/stable/` (ES6) + types via `scripts/buildTypes.mjs` |
-| NestJS CLI + webpack               | `sui-media-api`                                                                                    | `dist/` (server), `dist-lambda/` (Lambda bundle)                                                       |
-| Vite                               | `packages-internal/cdn`                                                                            | `dist/` (static site)                                                                                  |
-| Plain `tsc`                        | `docs-utils`, `proptypes`, `test-utils`                                                            | `build/` or `dist/`                                                                                    |
-| `tsup` (CJS + ESM + dts)           | `video-validator`                                                                                  | `dist/`                                                                                                |
-| Cargo + wasm-pack                  | `sui-video-renderer`                                                                               | `pkg/` (WASM + JS + types)                                                                             |
-| Cargo                              | `stoked-cli`                                                                                       | binary: `stoked`                                                                                       |
-| Next.js static export              | `stokedui-com` (docs)                                                                              | `docs/export/`                                                                                         |
-| None / pre-built                   | `docs-markdown`, `eslint-plugin`, `rsc-builder`                                                    | committed JS                                                                                           |
-
-### Building
-
-```bash
-pnpm build            # Turbo build (cached, excludes docs site)
-pnpm build:all        # Build packages + docs site
-pnpm build:clean      # Force rebuild (no cache)
-pnpm build:fresh      # Clean → install → build
-pnpm build:ci         # Force rebuild, concurrency 8
-```
-
-### Testing
-
-```bash
-pnpm test             # Run all tests via scripts/test.mjs
-pnpm test:unit        # Mocha: 'packages/**/*.test.{js,ts,tsx}'
-pnpm test:e2e         # Webpack build → serve → Mocha
-pnpm test:e2e-website # Playwright
-pnpm test:karma       # Karma (browser tests)
-pnpm test:coverage    # NYC + Mocha coverage report
-pnpm typescript       # Type-check all packages (turbo run typescript)
-```
-
-### Code Quality
-
-```bash
-pnpm eslint           # Lint (Airbnb config + eslint-plugin-stoked-ui)
-pnpm prettier         # Format (pretty-quick on changed files)
-pnpm stylelint        # CSS-in-JS linting (docs only)
-pnpm markdownlint     # Markdown linting
-pnpm docs:api         # Regenerate API documentation
-pnpm proptypes        # Regenerate PropTypes from TypeScript
-```
-
-### Release Process
-
-```bash
-pnpm release          # build:all → lerna version (independent) → deploy:prod
-pnpm release:publish  # pnpm publish --recursive --tag latest
-pnpm release:changelog # Generate changelog from GitHub commits
-pnpm release:tag      # Git tagging
-```
-
-### Deployment
-
-```bash
-pnpm deploy:prod      # dotenvx → sst deploy --stage production
-pnpm deploy           # SST deploy (default stage, requires ROOT_DOMAIN env)
-pnpm docs:deploy      # Deploy docs site
-```
+### Dependency pin / override notes (`package.json:267-291`)
+MUI is pinned tree-wide (`@mui/material` 5.17.1, `@mui/system` 5.17.1, `@mui/utils` 5.17.1, `@mui/base` 5.0.0-beta.40). React is pinned to 18.3.1. Security overrides: `tar` ≥7.5.7, `axios` ≥1.13.5, `multer` ≥2.0.2, `glob` ≥10.5.0, `webpack` ≥5.104.1, `lodash` ≥4.17.23, `qs` ≥6.14.1, `js-yaml` ≥4.1.1, `fast-xml-parser` ≥5.3.4, `diff` ≥5.2.2, `micromatch` ≥4.0.8. `@babel/plugin-transform-destructuring` is overridden to `@minh.nguyen/plugin-transform-destructuring`. `@interactjs/*` pinned to 1.10.11.
 
 ---
 
-## 8. Infrastructure (SST v4 / AWS)
+## 7. Patterns & Conventions
 
-**App:** `stoked-ui`, AWS `us-east-1`, profile `stoked` (local) / default (CI)
-**Config:** `sst.config.ts` → imports `infra/` (index, api, site, cdn-site, domains, cert, envVars)
-
-**Mandatory env vars:** `ROOT_DOMAIN` (exits if missing)
-
-**SST Secrets** (`infra/secrets.ts`)**:** `MONGODB_URI`, `ROOT_DOMAIN`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `JWT_SECRET`
-
-**Resources:**
-
-| Resource           | Type                   | Details                                                                                                                                                                                     |
-| ------------------ | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| StaticSite (docs)  | S3 + CloudFront        | Serves `docs/export`. Edge functions: URL rewrites for stokedconsulting.com, CORS headers for media. Cache: 1yr immutable assets, no-cache HTML.                                            |
-| CdnSite            | S3 + CloudFront        | Serves `packages-internal/cdn/dist`. Asset bucket configured to not purge on deploy. Edge functions: API routing to consulting origin, CORS/media headers. Domain: `cdn.{consultingDomain}` |
-| Google Auth Lambda | `ANY /api/auth/google` | `api/auth/google.handler` — Google OAuth authentication. Linked: `MONGODB_URI`, `JWT_SECRET`. Env: `NEXT_PUBLIC_GOOGLE_CLIENT_ID`, `AUTH_AUTO_DOMAINS`                                      |
-| Subscribe Lambda   | `POST /subscribe`      | `api/subscribe.subscribe` — email subscription with UUID verification token. SES send permission.                                                                                           |
-| Verify Lambda      | `GET /verify`          | `api/subscribe.verify` — email verification. SES send permission.                                                                                                                           |
-| SMS Lambda         | `POST /smss`           | `api/sms.handler` — SNS SMS (E.164 format validation)                                                                                                                                       |
-
-**Certificate Management:** `infra/cert.ts` — ACM certificate lookup with SAN validation, prevents overwriting SST-managed certificates, supports wildcard domain matching.
-
-**Domains:**
-
-- `stoked-ui.com` (Route53 zone `Z007684515CR7EDIISGDG`)
-- `stokedconsulting.com` (Route53 zone `Z2CYVWQGVIX8W6`)
-- API subdomain: `api.{primaryDomain}`
-- CDN subdomain: `cdn.{consultingDomain}`
+- **Source-first imports:** packages set `main: src/index.ts` so workspace consumers import sources directly during dev; production publishes from `build/` (set via `publishConfig.directory`).
+- **Subpath exports:** `sui-docs` uses an `exports` map per component (`./Demo`, `./CodeSandbox`, …) rather than a single barrel.
+- **Peer-driven graph:** higher-level packages declare other `@stoked-ui/*` libs as **peer** dependencies (see `sui-editor`, `sui-timeline`, `sui-file-explorer`) so consumers control versions; their own `dependencies` stay lean.
+- **Optional WASM:** `sui-editor` lists `@stoked-ui/video-renderer-wasm` as an `optionalDependency` with a `file:` path, allowing the editor to ship without the Rust artifact when not needed.
+- **Boundary enforcement:** business APIs in docs, media APIs in `sui-media-api` — see `.stokd/meta/SC_CONTEXT.md` and `CLAUDE.md`.
+- **Three Babel build targets per package:** `modern`, `node`, `stable` (legacy browsers). Output lands in `build/modern`, `build/node`, `build/`.
+- **Lambda dual-bundle:** `sui-media-api` has both `dev`/`start` (Nest CLI) and a `lambda.ts` adapter — the same codebase runs locally and serverless.
+- **AWS profile discipline:** all personal infra uses `--profile stokd-cloud`. The default AWS profile is a customer production account and must not be used for SUI work.
 
 ---
 
-## 9. CDN Asset Management System
+## 8. Where to Start (for new contributors)
 
-A dedicated system for managing client deliverables and assets on S3, consisting of three layers:
-
-### 9.1 CDN Admin App (`packages-internal/cdn/`)
-
-Vite + React SPA for browsing and managing S3 content:
-
-- Directory browsing with breadcrumb navigation
-- File search/filtering with deferred state
-- Multipart file upload with progress tracking and resumption
-- Delete, move, and export (zip download) operations
-- Role-based access control (admin/client/agent/subscriber)
-- Drag-and-drop support for files and folders
-- Session authentication via docs site auth cookies
-
-### 9.2 CDN API Routes (`docs/pages/api/cdn/`)
-
-Next.js API routes providing the CDN backend:
-
-- `contents` — List S3 objects/folders with role-aware filtering
-- `folders` — Create directories (admin-only)
-- `delete` — Remove files/folders (admin-only)
-- `move` — Rename/move operations (admin-only)
-- `export` — Download files or zip entire directories with role-aware access
-- `permissions` — CRUD for role-based and user-specific access rules (MongoDB-backed)
-- `upload/` — Full multipart upload flow: `initiate` → presigned URLs → `part` tracking → `complete`/`abort`
-
-### 9.3 CDN Core Modules (`docs/src/modules/cdn/`)
-
-- **`cdnAccess.ts`** — Permission model: `CdnViewer` (sub, role, clientSlug), path-based permission matching, client-scoped folder access (`clients/{clientSlug}/`)
-- **`cdnMutations.ts`** — S3 operations: folder creation (`.cdnkeep` markers), recursive deletion (batched >1000 objects), move/copy with directory recursion
-- **`cdnUploadStore.ts`** — MongoDB `cdnUploadSessions` collection: session lifecycle, presigned URL generation (1-hour expiry), part tracking (pending/uploading/completed/failed), 7-day session expiration, S3 reconciliation
+1. Read `.stokd/meta/SC_CONTEXT.md`, project `CLAUDE.md`, and `AGENTS.md` for guardrails (media-API boundary, port 5199, AWS profile rules).
+2. `pnpm i` (pnpm 10.5.1+ required).
+3. `pnpm dev` for the full watch graph, or `pnpm docs:dev` for just the Next.js site on port 5199.
+4. For editor work, build WASM first: `pnpm video-renderer:build-wasm` (or `pnpm build:wasm`).
+5. Touch the relevant package's `src/`; Turbo's `dev:prepare` chain feeds the docs app. `next.config.mjs` changes require a dev-server restart, not HMR.
+6. Before committing: `pnpm eslint`, `pnpm typescript`, `pnpm test:unit` (or scoped: `pnpm editor`, `pnpm media`, `pnpm timeline`, etc.).
 
 ---
 
-## 10. Entry Points & Critical Paths
+## 9. Cross-References
 
-### Package Entry Points
-
-| Package                    | Entry                                      | Build Output                              |
-| -------------------------- | ------------------------------------------ | ----------------------------------------- |
-| `@stoked-ui/common`        | `packages/sui-common/src/index.tsx`        | `build/`, `build/modern/`, `build/node/`  |
-| `@stoked-ui/common-api`    | `packages/sui-common-api/src/index.ts`     | `build/`, `build/modern/`, `build/node/`  |
-| `@stoked-ui/media`         | `packages/sui-media/src/index.ts`          | `build/`, `build/modern/`, `build/node/`  |
-| `@stoked-ui/file-explorer` | `packages/sui-file-explorer/src/index.ts`  | `build/`, `build/modern/`, `build/node/`  |
-| `@stoked-ui/timeline`      | `packages/sui-timeline/src/index.ts`       | `build/`, `build/modern/`, `build/node/`  |
-| `@stoked-ui/editor`        | `packages/sui-editor/src/index.ts`         | `build/`, `build/modern/`, `build/node/`  |
-| `@stoked-ui/github`        | `packages/sui-github/src/index.ts`         | `build/`, `build/modern/`, `build/node/`  |
-| `@stoked-ui/docs`          | `packages/sui-docs/src/index.js`           | `build/` (legacy bundle primary)          |
-| `@stoked-ui/media-api`     | `packages/sui-media-api/src/main.ts`       | `dist/` (NestJS), `dist-lambda/` (Lambda) |
-| CDN admin                  | `packages-internal/cdn/src/App.jsx`        | `dist/` (Vite static)                     |
-| Stoked CLI                 | `packages-internal/stoked-cli/src/main.rs` | binary: `stoked`                          |
-| Docs site                  | `docs/pages/_app.js`                       | `docs/export/` (static)                   |
-
-### User-Facing Entry Points
-
-| Entry Point | Path/URL                                      | Purpose                                            |
-| ----------- | --------------------------------------------- | -------------------------------------------------- |
-| Docs site   | `stoked-ui.com` / `pnpm docs:dev` (port 5199) | Product showcase, documentation, consulting portal |
-| CDN admin   | `cdn.stokedconsulting.com`                    | Client asset management                            |
-| API Gateway | `api.stoked-ui.com/*`                         | Auth, subscribe, verify, SMS endpoints             |
-| Subscribe   | `api.stoked-ui.com/subscribe`                 | Email subscription                                 |
-
-### Infrastructure Critical Files
-
-| File                     | Purpose                                                                                                            |
-| ------------------------ | ------------------------------------------------------------------------------------------------------------------ |
-| `sst.config.ts`          | SST app definition — imports `infra/`, deploys site + cdn + api                                                    |
-| `infra/index.ts`         | Re-exports from `./site`, `./domains`, `./api`, `./cdn-site`                                                       |
-| `infra/secrets.ts`       | SST secret declarations (`MONGODB_URI`, `ROOT_DOMAIN`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `JWT_SECRET`) |
-| `infra/api.ts`           | API Gateway + Lambda definitions (Google Auth, Subscribe, Verify, SMS)                                             |
-| `infra/site.ts`          | Static site (CloudFront) with edge functions                                                                       |
-| `infra/cdn-site.ts`      | CDN static site (CloudFront + S3 asset bucket) with edge functions                                                 |
-| `infra/cert.ts`          | ACM certificate lookup and SAN validation                                                                          |
-| `infra/domains.ts`       | Domain routing + Route53 zone IDs + CDN domain config                                                              |
-| `infra/envVars.ts`       | Environment variable verification                                                                                  |
-| `infra/sst-globals.d.ts` | SST platform type declarations                                                                                     |
-
-### Build System Critical Files
-
-| File                                  | Purpose                                                          |
-| ------------------------------------- | ---------------------------------------------------------------- |
-| `package.json`                        | Root workspace config, all scripts                               |
-| `pnpm-workspace.yaml`                 | Workspace package declarations                                   |
-| `turbo.json`                          | Turbo task pipeline (build, dev, test, lint, typescript)         |
-| `nx.json`                             | Nx target defaults (copy-license, build, dev, watch)             |
-| `lerna.json`                          | Independent versioning config (pnpm client)                      |
-| `tsconfig.json`                       | Root TypeScript config with path aliases                         |
-| `babel.config.js`                     | Root Babel config                                                |
-| `scripts/build.mjs`                   | Multi-target Babel build pipeline                                |
-| `scripts/buildTypes.mjs`              | TypeScript declaration generator                                 |
-| `scripts/buildSite.sh`                | Full docs site build orchestration                               |
-| `scripts/copyFiles.mjs`               | Post-build asset copying                                         |
-| `scripts/importConsultingInvoices.ts` | Bulk invoice import CLI (`--clientId`, `--dir`, `--dry-run`)     |
-| `docs/next.config.mjs`                | Next.js config (static export, webpack aliases, markdown loader) |
+- Module table: `.stokd/meta/SC_MODULES.md`
+- Per-package modules: `.stokd/meta/packages/<pkg>/SC_MODULE.md` — directories present under `.stokd/meta/packages/`: `sui-cdn`, `sui-common`, `sui-common-api`, `sui-docs`, `sui-editor`, `sui-file-explorer`, `sui-github`, `sui-media`, `sui-media-api`, `sui-timeline`, `sui-video-renderer` (legacy top-level `SC_MODULE_SUI_*.md` stubs have been removed in the 0.4.0 migration)
+- Views inventory: `.stokd/meta/SC_VIEWS.md`
+- Flows / data paths: `.stokd/meta/SC_FLOWS.md`
+- Test inventory: `.stokd/meta/SC_TEST.md` (and per-package `SC_TEST.md` under `.stokd/meta/packages/`)
+- Product card: `.stokd/meta/SC_PRODUCT_STOKED_UI_SUI.md`
+- Guardrails: `.stokd/meta/SC_CONTEXT.md`, `CLAUDE.md`, `AGENTS.md`
+- Recommendations log: `.stokd/meta/SC_RECOMMENDATIONS.md`
+- Meta tracking config: `.stokd/meta/config.json` (note: config currently lists 9 packages; `sui-cdn` and `sui-video-renderer` have `SC_MODULE.md` directories present but are not yet listed in `config.json.packages` — should be added in next config update)
 
 ---
 
-## 11. Workspace Configuration
+## 10. Changes vs. Meta v0.3.0
 
-### pnpm Workspace (`pnpm-workspace.yaml`)
-
-```yaml
-packages:
-  - benchmark
-  - packages/*
-  - packages-internal/*
-  - docs
-  - api
-  - infra
-  - test
-onlyBuiltDependencies:
-  - '@nestjs/core'
-  - aws-sdk
-  - core-js
-  - esbuild
-  - mongodb-memory-server
-  - msgpackr-extract
-  - nx
-  - puppeteer
-  - sharp
-```
-
-### TypeScript Path Aliases (`tsconfig.json`)
-
-```
-@stoked-ui/docs               → packages/sui-docs/src
-@stoked-ui/docs-utils         → packages-internal/docs-utils/src
-@stoked-ui/docs-markdown      → packages/sui-internal-markdown/src
-@stoked-ui/file-explorer      → packages/sui-file-explorer/src
-@stoked-ui/media              → packages/sui-media
-@stoked-ui/timeline           → packages/sui-timeline
-@stoked-ui/editor             → packages/sui-editor
-@stoked-ui/github             → packages/sui-github
-@stoked-ui/internal-test-utils → packages-internal/test-utils
-@stoked-ui/video-renderer-wasm → packages/sui-editor/src/WasmPreview/wasm-module.d.ts
-```
-
-Note: `@stoked-ui/common` and `@stoked-ui/common-api` are resolved via standard node_modules, not tsconfig paths.
-
-### Key Environment Variables
-
-- `ROOT_DOMAIN` — Primary domain (stoked-ui.com, stokedconsulting.com) — **mandatory**
-- `MONGODB_URI` — MongoDB connection string (SST secret) — **mandatory**
-- `JWT_SECRET` — Authentication token signing (SST secret)
-- `BLOG_API_TOKEN` — Blog API authentication (SST secret)
-- `INVOICE_API_KEY` — Invoice API key (SST secret)
-- `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` — Stripe integration
-- `AUTH_AUTO_DOMAINS` — Auto-approved auth domains
-- `NOSTR_RELAYS` / `NOSTR_NPUBS` — Nostr integration config
-- `VITE_CDN_NAME` / `VITE_CDN_PUBLIC_BASE_URL` — CDN site identity and S3 base URL
-- `VITE_STOKED_CONSULTING_ORIGIN` / `VITE_STOKED_UI_ORIGIN` — Cross-origin URLs for CDN
-- `VITE_LOCAL_AUTH_ORIGIN` — Auth origin for local CDN dev (default: `http://localhost:5199`)
-
----
-
-## 12. Patterns & Conventions
-
-### Package Structure
-
-Each published `@stoked-ui/*` package follows a standard layout:
-
-```
-packages/sui-{name}/
-├── src/
-│   ├── index.ts              # Public API barrel exports
-│   ├── {ComponentName}/
-│   │   ├── {ComponentName}.tsx
-│   │   ├── {ComponentName}.types.ts
-│   │   └── index.ts
-│   └── internals/            # Non-exported internals
-├── build/                    # Babel output (modern/, node/, stable/)
-├── package.json
-└── tsconfig.build.json
-```
-
-### Peer Dependency Pattern
-
-All published UI packages use **peer dependencies** for workspace packages and MUI. Consumers must install: `@emotion/react`, `@emotion/styled`, `@mui/material`, `@mui/system`, `@mui/icons-material`, `react` (18.3.1), `react-dom`.
-
-### MUI v5 Foundation
-
-Components extend MUI v5 patterns: `styled()`, `useTheme()`, `sx` prop, theme customization. File explorer wraps `@mui/x-tree-view`.
-
-### State Management
-
-React Context + Provider pattern throughout: `EditorProvider`, `DocsProvider`, `TimelineProvider`. No external state library (Redux, Zustand) in stoked-ui packages.
-
-### Authentication Pattern
-
-Two auth systems coexist:
-
-- **media-api**: JWT + Passport (NestJS) for API authentication
-- **docs site**: HTTP-only cookie sessions (`stoked_auth`) with cross-origin transfer via short-lived JWTs. Session transfer flow: origin A → `transfer` endpoint → 5-min JWT → target origin's `exchange` endpoint → set cookie. Cascading logout across origins. API key auth for programmatic/CLI access.
-
-**User Roles** (docs site): `admin`, `client`, `agent`, `totally stoked` (default), `subscriber`, `stokd member`. Roles auto-assigned: admin for `AUTO_DOMAINS` (stokedconsulting.com, stoked-ui.com, brianstoker.com), stokd member if active `stokd-membership` license, subscriber if any active license.
-
-### NestJS Convention
-
-Standard NestJS modular architecture: Mongoose schemas as models, DTOs with `class-validator`, Swagger auto-generation, JWT + Passport auth, Lambda deployment via `@codegenie/serverless-express`.
-
-### CDN Access Control
-
-Role-based permission model: admins have full access, clients are scoped to `clients/{clientSlug}/` directories, custom permissions stored in MongoDB with path-based matching and inheritance.
-
-### Naming
-
-- **npm scope:** `@stoked-ui/<name>`
-- **Directory:** `packages/sui-<name>`
-- **Build output:** `build/` (Babel packages), `dist/` (API packages, tsc/tsup/Vite)
-
-### Resolution Overrides
-
-Critical pinned versions in root `package.json`:
-
-- React: `18.3.1` (exact)
-- MUI: `5.17.1` (pnpm overrides)
-- `@emotion/styled`: `11.8.1`
-- `@interactjs/*`: `1.10.11`
-- `webpack`: `>=5.104.1`
-
----
-
-## 13. Tracked Packages (`.stokd/meta/config.json`)
-
-```json
-{
-  "lastUpdate": 1773097819136,
-  "lastValidate": 1773097819136,
-  "metaVersion": "0.2.0",
-  "packages": [
-    "packages/sui-common",
-    "packages/sui-common-api",
-    "packages/sui-docs",
-    "packages/sui-editor",
-    "packages/sui-file-explorer",
-    "packages/sui-github",
-    "packages/sui-media",
-    "packages/sui-media-api",
-    "packages/sui-timeline"
-  ]
-}
-```
-
-Note: `packages/sui-video-renderer` is a Rust/WASM workspace (Cargo-managed, no `package.json`) and is not tracked in the stokd meta config.
+- Bumped meta version 0.3.0 → 0.4.0.
+- Removed dead reference to legacy `.stokd/meta/SC_MODULE_SUI_*.md` files (now deleted; see `git status`). Per-package module docs now live under `.stokd/meta/packages/<pkg>/SC_MODULE.md`.
+- Added `sui-cdn` and `sui-video-renderer` to the tracked meta packages list and flagged the `config.json` drift.
+- Header restructured to surface the package roster prominently rather than a single analyzed sub-directory.
+- All architectural, dependency-graph, technology, build-system, entry-point, pattern, and onboarding content was verified against current `package.json`, `pnpm-workspace.yaml`, `turbo.json`, `sst.config.ts`, and per-package manifests; preserved unchanged where accurate.

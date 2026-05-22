@@ -85,7 +85,10 @@ export const MediaCard: React.FC<MediaCardProps> = ({
   globalSelectionMode = false,
   isSelected = false,
   sx,
+  contentSx,
+  appearance = 'default',
   squareMode = false,
+  inlinePlayback = false,
   onViewClick,
   onEditClick,
   onDeleteClick,
@@ -108,7 +111,10 @@ export const MediaCard: React.FC<MediaCardProps> = ({
 }) => {
   const [currentTime, setCurrentTime] = React.useState(0);
   const [isHovering, setIsHovering] = React.useState(false);
+  const [isInlinePlaying, setIsInlinePlaying] = React.useState(false);
+  const [isHoverPreviewSuppressed, setIsHoverPreviewSuppressed] = React.useState(false);
   const videoRef = React.useRef<HTMLVideoElement>(null);
+  const isDarkAppearance = appearance === 'dark';
 
   // Hybrid metadata extraction (client + server)
   const metadata = useHybridMetadata(
@@ -146,6 +152,8 @@ export const MediaCard: React.FC<MediaCardProps> = ({
   // Build media URL
   const mediaUrl = item.file ? `${mediaBaseUrl || ''}${item.file}` : item.url;
   const canPreviewVideo = item.mediaType === 'video' && isVisible && !requiresPayment;
+  const mediaTitle = item.title || 'Untitled';
+  const mediaActionLabel = `${isInlinePlaying ? 'Pause' : 'Play'} ${mediaTitle}`;
 
   // Calculate aspect ratio for card (use server metadata if available)
   const aspectRatio = squareMode
@@ -185,6 +193,83 @@ export const MediaCard: React.FC<MediaCardProps> = ({
       // Navigate to media viewer
       router.navigate(`/media/${item._id}`);
     }
+  };
+
+  const stopHoverPreview = React.useCallback((rewind = true) => {
+    const video = videoRef.current;
+    if (!video) {
+      return;
+    }
+
+    video.pause();
+    if (rewind && video.readyState > 0 && video.currentTime > 0) {
+      try {
+        video.currentTime = 0;
+      } catch {
+        // Ignore rewind failures from partially loaded media.
+      }
+    }
+  }, []);
+
+  const playVideo = React.useCallback((muted: boolean) => {
+    const video = videoRef.current;
+    if (!video) {
+      return;
+    }
+
+    video.muted = muted;
+    video.playsInline = true;
+    video.loop = muted;
+    video.controls = !muted;
+
+    const playResult = video.play();
+    if (playResult && typeof playResult.catch === 'function') {
+      playResult.catch(() => {
+        // Ignore autoplay rejections so the card still renders normally.
+      });
+    }
+  }, []);
+
+  const activateMedia = (event?: React.SyntheticEvent) => {
+    if (globalSelectionMode) {
+      return;
+    }
+
+    event?.stopPropagation();
+
+    if (item.mediaType === 'video' && inlinePlayback && canPreviewVideo) {
+      const video = videoRef.current;
+      if (!video) {
+        return;
+      }
+
+      if (isInlinePlaying && !video.paused) {
+        stopHoverPreview(false);
+        setIsInlinePlaying(false);
+        setIsHoverPreviewSuppressed(true);
+        return;
+      }
+
+      setIsInlinePlaying(true);
+      setIsHoverPreviewSuppressed(false);
+      playVideo(false);
+      return;
+    }
+
+    handleViewClick();
+  };
+
+  const handleMediaClick = (event: React.MouseEvent) => {
+    activateMedia(event);
+  };
+
+  const handleMediaKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key !== 'Enter' && event.key !== ' ') {
+      return;
+    }
+
+    event.preventDefault();
+    activateMedia(event);
   };
 
   // Handle purchase flow
@@ -236,41 +321,58 @@ export const MediaCard: React.FC<MediaCardProps> = ({
       return;
     }
 
-    video.muted = true;
-    video.playsInline = true;
-    video.loop = true;
-
-    if (isHovering) {
-      const playResult = video.play();
-      if (playResult && typeof playResult.catch === 'function') {
-        playResult.catch(() => {
-          // Ignore autoplay rejections so the card still renders normally.
-        });
-      }
+    if (isInlinePlaying) {
+      video.loop = false;
+      video.controls = true;
       return;
     }
 
-    video.pause();
-    if (video.readyState > 0 && video.currentTime > 0) {
-      try {
-        video.currentTime = 0;
-      } catch {
-        // Ignore rewind failures from partially loaded media.
-      }
+    if (isHovering && !isHoverPreviewSuppressed) {
+      playVideo(true);
+      return;
     }
-  }, [canPreviewVideo, isHovering, mediaUrl]);
+
+    stopHoverPreview();
+  }, [
+    canPreviewVideo,
+    isHovering,
+    isHoverPreviewSuppressed,
+    isInlinePlaying,
+    mediaUrl,
+    playVideo,
+    stopHoverPreview,
+  ]);
+
+  React.useEffect(() => {
+    setIsInlinePlaying(false);
+    setIsHoverPreviewSuppressed(false);
+  }, [mediaUrl]);
 
   return (
     <Card
       className={className}
-      sx={{
-        position: 'relative',
-        width: '100%',
-        cursor: globalSelectionMode ? 'pointer' : 'default',
-        ...sx,
-      }}
+      sx={[
+        {
+          position: 'relative',
+          width: '100%',
+          cursor: globalSelectionMode ? 'pointer' : 'default',
+          overflow: 'hidden',
+        },
+        isDarkAppearance
+          ? {
+              color: '#f8fafc',
+              backgroundColor: 'rgba(15, 23, 42, 0.94)',
+              border: '1px solid rgba(148, 163, 184, 0.22)',
+              boxShadow: '0 24px 80px rgba(0, 0, 0, 0.32)',
+            }
+          : {},
+        ...(Array.isArray(sx) ? sx : sx ? [sx] : []),
+      ]}
       onMouseEnter={() => setIsHovering(true)}
-      onMouseLeave={() => setIsHovering(false)}
+      onMouseLeave={() => {
+        setIsHovering(false);
+        setIsHoverPreviewSuppressed(false);
+      }}
       onClick={globalSelectionMode ? handleSelectionToggle : undefined}
     >
       {/* Selection checkbox (in selection mode) */}
@@ -289,6 +391,12 @@ export const MediaCard: React.FC<MediaCardProps> = ({
 
       {/* Media display area */}
       <Box
+        data-testid="media-card-media"
+        role={globalSelectionMode ? undefined : 'button'}
+        aria-label={globalSelectionMode ? undefined : mediaActionLabel}
+        tabIndex={globalSelectionMode ? undefined : 0}
+        onClick={handleMediaClick}
+        onKeyDown={handleMediaKeyDown}
         sx={{
           position: 'relative',
           width: '100%',
@@ -334,7 +442,10 @@ export const MediaCard: React.FC<MediaCardProps> = ({
                 <Button
                   color="inherit"
                   size="small"
-                  onClick={serverThumbnail.retry}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    serverThumbnail.retry();
+                  }}
                   startIcon={<RefreshIcon />}
                 >
                   Retry
@@ -353,9 +464,11 @@ export const MediaCard: React.FC<MediaCardProps> = ({
             poster={thumbnailUrl}
             muted
             playsInline
-            loop
+            loop={!isInlinePlaying}
+            controls={isInlinePlaying}
             preload="metadata"
             onTimeUpdate={handleTimeUpdate}
+            onEnded={() => setIsInlinePlaying(false)}
             style={{
               position: 'absolute',
               top: 0,
@@ -416,7 +529,8 @@ export const MediaCard: React.FC<MediaCardProps> = ({
           >
             {/* Top left: Play button */}
             <IconButton
-              onClick={handleViewClick}
+              aria-label={mediaActionLabel}
+              onClick={handleMediaClick}
               sx={{
                 color: '#fff',
                 backgroundColor: 'rgba(0,0,0,0.5)',
@@ -431,7 +545,10 @@ export const MediaCard: React.FC<MediaCardProps> = ({
               <Box sx={{ display: 'flex', gap: 0.5 }}>
                 {onEditClick && (
                   <IconButton
-                    onClick={() => onEditClick(item)}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onEditClick(item);
+                    }}
                     sx={{
                       color: '#fff',
                       backgroundColor: 'rgba(0,0,0,0.5)',
@@ -443,7 +560,10 @@ export const MediaCard: React.FC<MediaCardProps> = ({
                 )}
                 {onTogglePublic && (
                   <IconButton
-                    onClick={() => onTogglePublic(item)}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onTogglePublic(item);
+                    }}
                     sx={{
                       color: '#fff',
                       backgroundColor: 'rgba(0,0,0,0.5)',
@@ -455,7 +575,10 @@ export const MediaCard: React.FC<MediaCardProps> = ({
                 )}
                 {onDeleteClick && (
                   <IconButton
-                    onClick={() => onDeleteClick(item)}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onDeleteClick(item);
+                    }}
                     sx={{
                       color: '#fff',
                       backgroundColor: 'rgba(0,0,0,0.5)',
@@ -493,12 +616,52 @@ export const MediaCard: React.FC<MediaCardProps> = ({
 
       {/* Card content (title, info) */}
       {info && (
-        <CardContent>
-          <Typography variant="body2" noWrap>
-            {item.title || 'Untitled'}
+        <CardContent
+          sx={[
+            {
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 0.75,
+              px: 2,
+              py: 1.75,
+              '&:last-child': { pb: 1.75 },
+            },
+            isDarkAppearance
+              ? {
+                  backgroundColor: 'rgba(15, 23, 42, 0.98)',
+                }
+              : {},
+            ...(Array.isArray(contentSx) ? contentSx : contentSx ? [contentSx] : []),
+          ]}
+        >
+          <Typography
+            variant="body2"
+            sx={{
+              color: isDarkAppearance ? '#f8fafc' : undefined,
+              fontWeight: 600,
+              lineHeight: 1.35,
+            }}
+          >
+            {mediaTitle}
           </Typography>
+          {item.description && (
+            <Typography
+              variant="body2"
+              sx={{
+                color: isDarkAppearance ? 'rgba(226, 232, 240, 0.78)' : 'text.secondary',
+                lineHeight: 1.45,
+              }}
+            >
+              {item.description}
+            </Typography>
+          )}
           {item.mediaType === 'video' && (metadata.duration ?? item.duration) && (
-            <Typography variant="caption" color="text.secondary">
+            <Typography
+              variant="caption"
+              sx={{
+                color: isDarkAppearance ? 'rgba(226, 232, 240, 0.68)' : 'text.secondary',
+              }}
+            >
               {formatDuration(metadata.duration ?? item.duration!)}
               {metadata.source === 'server' && (
                 <Typography
@@ -513,12 +676,39 @@ export const MediaCard: React.FC<MediaCardProps> = ({
             </Typography>
           )}
           {item.views !== undefined && (
-            <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>
+            <Typography
+              variant="caption"
+              sx={{
+                color: isDarkAppearance ? 'rgba(226, 232, 240, 0.68)' : 'text.secondary',
+              }}
+            >
               {item.views} views
             </Typography>
           )}
+          {item.sourceUrl && (
+            <Typography
+              component="a"
+              href={item.sourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              variant="caption"
+              sx={{
+                color: isDarkAppearance ? '#38bdf8' : 'primary.main',
+                textDecoration: 'none',
+                overflowWrap: 'anywhere',
+                '&:hover': { textDecoration: 'underline' },
+              }}
+            >
+              {item.sourceLabel || item.sourceUrl}
+            </Typography>
+          )}
           {metadata.isLoading && (
-            <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>
+            <Typography
+              variant="caption"
+              sx={{
+                color: isDarkAppearance ? 'rgba(226, 232, 240, 0.68)' : 'text.secondary',
+              }}
+            >
               (loading metadata...)
             </Typography>
           )}

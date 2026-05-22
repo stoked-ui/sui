@@ -126,7 +126,7 @@ export async function createBlogPost(input: BlogPostInput) {
     authors: normalizeStringArray(input.authors),
     targetSites: normalizeStringArray(input.targetSites).length > 0
       ? normalizeStringArray(input.targetSites)
-      : ['stoked-ui.com'],
+      : ['sui.stokd.cloud'],
     image: input.image || undefined,
     date: parseDateOrNow(input.date),
     status: 'draft' as BlogStatus,
@@ -257,7 +257,7 @@ export async function updateBlogPost(slug: string, updates: BlogPostUpdate) {
   if (updates.authors !== undefined) updateDoc.authors = normalizeStringArray(updates.authors);
   if (updates.targetSites !== undefined) {
     const targetSites = normalizeStringArray(updates.targetSites);
-    updateDoc.targetSites = targetSites.length > 0 ? targetSites : ['stoked-ui.com'];
+    updateDoc.targetSites = targetSites.length > 0 ? targetSites : ['sui.stokd.cloud'];
   }
   if (updates.image !== undefined) updateDoc.image = updates.image || undefined;
   if (updates.date !== undefined) updateDoc.date = parseDateOrNow(updates.date);

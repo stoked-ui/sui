@@ -16,7 +16,7 @@ import { isValidEmail } from 'docs/src/modules/license/licenseApiUtils';
 const PRODUCT_FEEDBACK_VERIFICATION_TTL_MS = 15 * 60 * 1000;
 const PRODUCT_FEEDBACK_RESEND_COOLDOWN_MS = 60 * 1000;
 const sesClient = new SESClient({ region: process.env.AWS_REGION || 'us-east-1' });
-const sesFromEmail = process.env.SES_FROM_EMAIL || 'noreply@stoked-ui.com';
+const sesFromEmail = process.env.SES_FROM_EMAIL || 'noreply@stokd.cloud';
 
 type ProductFeedbackVerificationDoc = {
   _id: ObjectId;

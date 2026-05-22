@@ -29,7 +29,7 @@ dotenv.config();
 const MONGODB_URI =
   process.env.MONGODB_URI ?? 'mongodb://localhost:27017/stoked-media';
 
-const ADMIN_EMAIL = process.env.AUTH_ADMIN_EMAIL ?? 'b@stokedconsulting.com';
+const ADMIN_EMAIL = process.env.AUTH_ADMIN_EMAIL ?? 'b@stokd.cloud';
 const ADMIN_PASSWORD = process.env.AUTH_ADMIN_PASSWORD;
 const ADMIN_NAME = process.env.AUTH_ADMIN_NAME ?? 'Brian';
 
@@ -134,7 +134,7 @@ async function ensureDefaultClients(db: Connection['db']) {
   const defaultClient = {
     name: 'Stoked',
     slug: 'stoked',
-    contactEmail: 'b@stokedconsulting.com',
+    contactEmail: 'b@stokd.cloud',
     active: true,
     createdAt: new Date(),
     updatedAt: new Date(),

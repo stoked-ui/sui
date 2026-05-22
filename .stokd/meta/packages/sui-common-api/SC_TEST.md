@@ -2,8 +2,10 @@
 
 **Package:** `packages/sui-common-api`
 **Priority:** Medium
-**Current Coverage:** 0% (no tests exist)
-**Target Coverage:** 70% statement, 65% branch
+**Current Coverage:** 0% — no committed tests, no `jest` config, no `test` script in `package.json`
+**Target Coverage:** 70% statements / 65% branches / 80% functions / 70% lines
+
+> **Backend-only.** This package depends on `@nestjs/mongoose`, `@nestjs/swagger`, `class-validator`, and `mongoose`. Test environment is **Node**, never `jsdom`. See `.axioms.md` → `AX-MOD-SUICOMMONAPI-002`.
 
 ---
 
@@ -12,94 +14,92 @@
 ### 1.1 Critical Paths (P0)
 
 | Area | Why Critical | Source |
-|------|-------------|--------|
-| `swapId` transform | Every model's `toJSON`/`toObject` flows through this — a bug here corrupts all API responses | `src/decorators/defaultSchemaOptions.ts:1-27` |
-| `BaseModelSchema` instance methods | `like`, `dislike`, `view`, `delete`, `updateScore` are the core engagement logic shared across all content models (Media, BlogPost, Image, Video) | `src/models/base.model.ts:49-106` |
-| `StdSchema` decorator | Ensures every model gets timestamps, virtuals, and the `swapId` transform via `TypeMetadataStorage` | `src/decorators/stdschema.decorator.ts:18-29` |
-| DTO validation | `InitiateUploadDto` guards the upload entry point — bad validation = corrupted uploads or S3 abuse | `src/dtos/upload.dto.ts:19-68` |
-| `UploadSession` virtuals | `progress`, `completedPartsCount`, `uploadedBytes` drive the upload resume UI | `src/models/uploadSession.model.ts:160-180` |
-| Model inheritance chain | `BaseModel` -> `File` -> `Media`/`Image`/`Video`/`BlogPost` — methods must propagate correctly | Multiple files |
+|------|--------------|--------|
+| `swapId` transform | Every model's `toJSON`/`toObject` flows through this — a bug here corrupts every API response shape. Documented as wire-format contract in `AX-MOD-SUICOMMONAPI-003`. | `src/decorators/defaultSchemaOptions.ts:1-27` |
+| `StdSchema` decorator + `mergeOptions` | Registers schema metadata via the version-sensitive deep import `@nestjs/mongoose/dist/storages/type-metadata.storage.js`. Cited in `AX-MOD-SUICOMMONAPI-007`. | `src/decorators/stdschema.decorator.ts:18-29` |
+| `BaseModelSchema` instance methods | `like`, `dislike`, `view`, `delete`, `updateScore`, `addToSet`, `removeFromArray` are engagement primitives shared by all content models. Multiple known bugs. | `src/models/base.model.ts:49-106` |
+| `InitiateUploadDto` validation | Guards the multipart upload entry point. Validation rules are multi-client wire contract per `AX-MOD-SUICOMMONAPI-005`. | `src/dtos/upload.dto.ts:19-68` |
+| `UploadSession` virtuals | `progress`, `completedPartsCount`, `uploadedBytes` drive the resumable-upload UI. Only count `status === "completed"`. | `src/models/uploadSession.model.ts:160-180` |
+| Model inheritance chain | `BaseModel` → `File` → `Media`/`Image`/`Video`/`BlogPost`. Methods are manually copied (`MediaSchema.methods = BaseModelSchema.methods` at `media.model.ts:95`) — easy to miss. | Multiple files |
+| Production index declarations | Performance contract per `AX-MOD-SUICOMMONAPI-006`: 8 indexes on `MediaSchema`, TTL on `UploadSessionSchema.expiresAt`, etc. | `media.model.ts`, `uploadSession.model.ts`, `license.model.ts`, `blogPost.model.ts` |
 
-### 1.2 Known Bugs to Verify
+### 1.2 Known Bugs (write failing tests first; fix after)
 
-| Bug | Location | Issue |
-|-----|----------|-------|
-| `updateScore` uses `.length` on Number fields | `base.model.ts:103-104` | `this.views.length` and `this.uniqueViews.length` are `undefined` — `views`/`uniqueViews` are `@Prop({ type: Number })`, not arrays. Score will be `NaN`. |
-| `updateScore` uses `likes` for dislike score | `base.model.ts:102` | `const dislikeScore = this.likes.length * 0.7` should be `this.dislikes.length * 0.7` |
-| `Image.dislike` corrupts data | `image.model.ts:68` | `this.dislikes = Array.from(userId)` splits a string into characters (`"abc"` -> `["a","b","c"]`) instead of using `Array.from(dislikeSet)` |
-| `Image.like` writes to wrong field | `image.model.ts:76` | `this.dislikes = Array.from(userId)` should be `this.likes = Array.from(likeSet)`; `markModified("likeSet")` should be `markModified("likes")` |
-| `Image.like`/`dislike` different signature | `image.model.ts:65,73` | These take `(cb, userId)` callback-first signature vs `BaseModel` methods that take `(userId, save)` — inconsistent API that will break callers |
-| `view()` schema inconsistency | `base.model.ts:82-89` | `uniqueViews` is `@Prop({ type: Number })` but `view()` calls `this.addToSet("uniqueViews", userId)` treating it as an array. Will throw at runtime. |
+| # | Location | Issue |
+|---|----------|-------|
+| 1 | `base.model.ts:102` | `dislikeScore = this.likes.length * 0.7` — should reference `this.dislikes.length`. |
+| 2 | `base.model.ts:103-104` | `this.views.length` and `this.uniqueViews.length` are `undefined`: both fields are `@Prop({ type: Number })`, not arrays. Result: `score = NaN`. |
+| 3 | `base.model.ts:82-89` | `view()` calls `this.addToSet("uniqueViews", userId)` on a Number field. Throws at runtime once a number is constructed via `new Set(<number>)`. |
+| 4 | `image.model.ts:68` | `this.dislikes = Array.from(userId)` splits a string into characters (`"abc"` → `["a","b","c"]`). Should be `Array.from(dislikeSet)`. |
+| 5 | `image.model.ts:76` | `this.dislikes = Array.from(userId)` in `like()` writes to the wrong field; `markModified("likeSet")` references a non-existent path. Should write `this.likes = Array.from(likeSet)` and `markModified("likes")`. |
+| 6 | `image.model.ts:65,73` | `Image.like/dislike` use callback-first signature `(cb, userId)` vs `BaseModel`'s `(userId, save)`. Polymorphism break for any caller treating an `Image` as `BaseModel`. |
 
 ### 1.3 Edge Cases
 
-**`swapId` transform:**
-- `null`, `undefined`, primitive values as input
+**`swapId`:**
+- `null`, `undefined`, primitive (string/number/boolean) inputs pass through untouched
 - Deeply nested objects (3+ levels)
-- Objects where `id` already exists (should not overwrite)
-- Documents with only `_id` and no other fields
-- Mixed arrays containing objects and primitives
-- `_id` that is an ObjectId instance (needs `.toString()`)
-- Empty object `{}`
-- Array at the top level
+- Already has `id` (must not overwrite)
+- `_id` is a `mongoose.Types.ObjectId` instance (needs `.toString()`)
+- Object with only `_id` and no other fields
+- Mixed arrays of objects + primitives
+- Empty `{}`, empty `[]`
+- Top-level array
 
-**DTO validation:**
-- `InitiateUploadDto.totalSize = 0` and negative values
-- `InitiateUploadDto.chunkSize` at exact 5MB minimum and 100MB maximum boundaries
-- `InitiateUploadDto.mimeType` rejects non-video/image types (`application/pdf`, `text/plain`, `audio/mp3`)
-- `InitiateUploadDto.mimeType` rejects uppercase (`Video/MP4`)
-- `InitiateUploadDto.mimeType` accepts edge cases (`image/svg+xml`, `video/x-matroska`)
-- `GetMoreUrlsDto.partNumbers` with 0 items (below ArrayMinSize(1))
-- `GetMoreUrlsDto.partNumbers` with 51 items (above ArrayMaxSize(50))
-- `PartCompletionDto.etag` with empty string
+**`InitiateUploadDto` validation:**
+- `totalSize = 0` and negative — rejected by `@Min(1)`
+- `chunkSize` at exact boundaries: `5242880` (5 MiB, S3 minimum) and `104857600` (100 MiB)
+- `chunkSize = 5242879` and `104857601` — rejected
+- `mimeType` accepts: `video/mp4`, `video/webm`, `video/quicktime`, `video/x-matroska`, `image/png`, `image/svg+xml`, `image/webp`
+- `mimeType` rejects: `application/pdf`, `audio/mp3`, `text/plain`, `Video/MP4` (uppercase), `video/` (no subtype)
+- `GetMoreUrlsDto.partNumbers`: 0 items (below `ArrayMinSize(1)`), 51 items (above `ArrayMaxSize(50)`)
+- `PartCompletionDto.etag`: empty string rejected
 
-**UploadSession virtuals:**
-- `progress` when `totalParts = 0` (division by zero guard — currently returns 0, correct)
-- `progress` rounding behavior at non-integer percentages
-- `uploadedBytes` with mixed completed/failed/pending parts
-- `completedPartsCount` ignoring parts with status `failed`, `pending`, `uploading`
+**`UploadSession` virtuals:**
+- `progress` returns `0` when `totalParts === 0` (division-by-zero guard at `uploadSession.model.ts:161`)
+- `progress` rounds to nearest integer (`Math.round`)
+- `completedPartsCount` and `uploadedBytes` ignore `pending`, `uploading`, `failed` parts
 
-**Model defaults:**
-- `License.gracePeriodDays` defaults to 14
-- `Product.licenseDurationDays` defaults to 365
-- `BlogPost.status` defaults to `'draft'`
-- `BlogPost.targetSites` defaults to `['stoked-ui.com']`
-- `Media.embedVisibility` defaults to `'private'`
-- `File.rating` defaults to `'nc17'`
-- `BaseModel.publicity` defaults to `'private'`
+**Schema defaults to verify:**
+- `BaseModel.publicity` → `'private'`
+- `File.rating` → `'nc17'`
+- `Media.embedVisibility` → `'private'`
+- `Media.hasPlaybackIssues` → `false`
+- `UploadSession.status` → `'pending'`
+- `UploadSession.region` → `'us-east-1'`
+- `Image.type` → `'image'`
 
-**`mergeOptions` in `StdSchema`:**
-- Empty options `{}`
-- Undefined options
-- Options that override default keys (e.g., `timestamps: false`)
-- Multiple decorated classes don't share references (cloneDeep correctness)
+**`StdSchema` / `mergeOptions`:**
+- Empty `{}` and `undefined` options
+- Custom options override defaults (e.g., `timestamps: false`)
+- `cloneDeep` prevents mutation leaking across calls — call `StdSchema()` twice and verify `DefaultSchemaOptions` is unmodified
 
 ### 1.4 Integration Points
 
-- Schema metadata registration via `TypeMetadataStorage.addSchemaMetadata()` in `StdSchema`
-- `SchemaFactory.createForClass()` output for each model — ensures `@Prop` decorators produce correct Mongoose schema paths
-- `BaseModelSchema.methods` manually copied to `MediaSchema` (`media.model.ts:95`) and `BlogPostSchema` (`blogPost.model.ts:55`)
-- Index definitions on `MediaSchema` (8 indexes), `BlogPostSchema` (5 indexes), `LicenseSchema` (5 indexes), `UploadSessionSchema` (3 indexes), `InvoiceSchema` (2 indexes), `ProductSchema` (1 index)
-- Re-exports from `@stoked-ui/common` in `src/index.ts` (PublicityType, EmbedVisibilityType utilities)
-- `ModelDefinition` feature objects (`FileFeature`, `MediaFeature`, etc.) used for NestJS module registration
+- `TypeMetadataStorage.addSchemaMetadata()` registration in `StdSchema`
+- `SchemaFactory.createForClass()` output for each model produces correct paths
+- Method-copy patterns: `MediaSchema.methods = BaseModelSchema.methods` (`media.model.ts:95`), same idiom in `blogPost.model.ts`
+- Index declarations on `MediaSchema` (8), `UploadSessionSchema` (3 incl. TTL), `LicenseSchema` (5), `BlogPostSchema` (text + compounds)
+- Re-exports from `@stoked-ui/common` in `src/index.ts:9-22` (PUBLICITY/EmbedVisibility helpers)
+- `*Feature: ModelDefinition` objects used by `MongooseModule.forFeature([...])` in consumers (today: `sui-media-api`)
 
 ---
 
-## 2. Test Framework and Tooling
+## 2. Test Framework & Tooling
 
-### Framework: Jest + ts-jest
+### Framework: Jest + `ts-jest` + `mongodb-memory-server`
 
-Rationale: The monorepo already uses Jest across `sui-common` (jest.config.js with ts-jest), `sui-media` (jest.config.js with coverage thresholds), and `sui-media-api` (Jest with `@nestjs/testing`). Consistency matters more than marginal tooling gains. The `sui-media-api` package provides the closest testing pattern for this backend package.
+Rationale: the monorepo already uses Jest across `sui-common`, `sui-media`, and `sui-media-api`. The `sui-media-api` package is the closest analog — same NestJS/Mongoose stack — so its setup is the reference.
 
-### Required devDependencies
+### devDependencies to add
 
 ```jsonc
-// Add to package.json devDependencies:
 {
   "jest": "^29.0.0",
   "ts-jest": "^29.0.0",
   "@types/jest": "^29.0.0",
-  "mongodb-memory-server": "^9.0.0"  // In-memory MongoDB for schema/model tests
+  "mongodb-memory-server": "^9.0.0",
+  "reflect-metadata": "^0.2.0"
 }
 ```
 
@@ -108,7 +108,7 @@ Rationale: The monorepo already uses Jest across `sui-common` (jest.config.js wi
 ```js
 module.exports = {
   preset: 'ts-jest',
-  testEnvironment: 'node',  // NOT jsdom — this is server-side NestJS code
+  testEnvironment: 'node',
   roots: ['<rootDir>/src'],
   testMatch: [
     '**/__tests__/**/*.+(ts|js)',
@@ -128,12 +128,13 @@ module.exports = {
     }],
   },
   moduleFileExtensions: ['ts', 'js', 'json'],
-  // Remap .js extensions in imports to .ts source files
+  // Source uses `.js` extensions on relative imports — strip them so ts-jest
+  // resolves the matching `.ts` file.
   moduleNameMapper: {
     '^(.*)\\.js$': '$1',
   },
+  setupFiles: ['reflect-metadata'],
   testPathIgnorePatterns: ['/node_modules/', '/build/', '/dist/'],
-  // Transform bson/mongodb/mongoose (ESM) through ts-jest
   transformIgnorePatterns: [
     'node_modules/(?!(bson|mongodb|mongoose|@nestjs/mongoose)/)',
   ],
@@ -152,54 +153,51 @@ module.exports = {
 }
 ```
 
+> Adding a `test` script satisfies the acceptance check declared in `AX-MOD-SUICOMMONAPI-008`: `pnpm --filter @stoked-ui/common-api test`.
+
 ---
 
 ## 3. Test File Organization
 
 ```
 src/
+├── __tests__/
+│   └── index.test.ts                      # Public-API export verification
 ├── decorators/
 │   ├── __tests__/
-│   │   ├── swapId.test.ts              # Pure function tests (no DB)
-│   │   └── stdschema.decorator.test.ts # Decorator + metadata spy
-│   ├── defaultSchemaOptions.ts
-│   ├── stdschema.decorator.ts
-│   └── index.ts
+│   │   ├── swapId.test.ts                 # Pure function — no DB
+│   │   └── stdschema.decorator.test.ts    # Metadata spy
+│   └── ...
 ├── dtos/
 │   ├── __tests__/
-│   │   └── upload.dto.test.ts          # class-validator validation
-│   ├── upload.dto.ts
-│   └── index.ts
-├── models/
-│   ├── __tests__/
-│   │   ├── setup.ts                    # mongodb-memory-server lifecycle
-│   │   ├── base.model.test.ts          # Schema methods + updateScore bugs
-│   │   ├── uploadSession.model.test.ts # Virtuals + indexes
-│   │   ├── media.model.test.ts         # Inheritance + method copying + indexes
-│   │   ├── image.model.test.ts         # like/dislike bugs + mediaType virtual
-│   │   ├── video.model.test.ts         # mediaType virtual + fields
-│   │   ├── blogPost.model.test.ts      # Status defaults + slug uniqueness
-│   │   ├── license.model.test.ts       # Status enum + unique key
-│   │   ├── product.model.test.ts       # Duration defaults + unique productId
-│   │   ├── invoice.model.test.ts       # Nested subdocs (InvoiceWeek/InvoiceTask)
-│   │   └── file.model.test.ts          # BaseModel extension + rating default
-│   ├── base.model.ts
-│   ├── file.model.ts
-│   ├── ...
-│   └── index.ts
-└── __tests__/
-    └── index.test.ts                   # Export verification (all public API)
+│   │   └── upload.dto.test.ts             # class-validator validate()
+│   └── ...
+└── models/
+    ├── __tests__/
+    │   ├── setup.ts                       # mongodb-memory-server lifecycle
+    │   ├── base.model.test.ts
+    │   ├── file.model.test.ts
+    │   ├── image.model.test.ts
+    │   ├── video.model.test.ts
+    │   ├── media.model.test.ts
+    │   ├── uploadSession.model.test.ts
+    │   ├── blogPost.model.test.ts
+    │   ├── license.model.test.ts
+    │   ├── product.model.test.ts
+    │   ├── invoice.model.test.ts
+    │   └── user.model.test.ts
+    └── ...
 ```
 
-**Convention:** `__tests__/` subdirectory co-located with source modules. Filenames match `<source>.test.ts`. Matches the pattern used in `sui-media/src/abstractions/__tests__/` and `sui-common/src/SocialLinks/__tests__/`.
+**Convention:** co-located `__tests__/` directories; file names mirror the source (`base.model.ts` → `base.model.test.ts`). Mirrors the pattern in `sui-media/src/abstractions/__tests__/` and `sui-common/src/SocialLinks/__tests__/`.
 
 ---
 
 ## 4. Mock / Stub Strategy
 
-### 4.1 Mongoose — Use `mongodb-memory-server`
+### 4.1 Mongoose — in-memory MongoDB
 
-For model tests that need real schema behavior (methods, virtuals, indexes), use an in-memory MongoDB instance. This validates actual Mongoose behavior without external dependencies.
+Real schema behavior (methods, virtuals, indexes, defaults, required) is the contract. Use `mongodb-memory-server`, not Mongoose mocks.
 
 ```ts
 // src/models/__tests__/setup.ts
@@ -226,53 +224,46 @@ afterEach(async () => {
 });
 ```
 
-Reference this setup in `jest.config.js` via `setupFilesAfterSetup` for model test files, or import it directly in each model test file via a Jest `beforeAll`/`afterAll` pattern.
+### 4.2 NestJS metadata — spy on `TypeMetadataStorage`
 
-### 4.2 NestJS Metadata — Spy on `TypeMetadataStorage`
-
-For `StdSchema` decorator tests, spy on `TypeMetadataStorage.addSchemaMetadata` rather than instantiating a full NestJS module:
+`StdSchema` is a pure metadata-registration function. No NestJS container required.
 
 ```ts
-import { TypeMetadataStorage } from '@nestjs/mongoose/dist/storages/type-metadata.storage';
+import { TypeMetadataStorage } from '@nestjs/mongoose/dist/storages/type-metadata.storage.js';
 
 const spy = jest.spyOn(TypeMetadataStorage, 'addSchemaMetadata');
 ```
 
-This is sufficient because `StdSchema` is a pure metadata registration function — it doesn't need a running NestJS container.
-
-### 4.3 `class-validator` — Use `validate()` Directly
-
-For DTO tests, instantiate DTO classes and call `validate()` from `class-validator`. No HTTP layer, no NestJS pipes needed:
+### 4.3 `class-validator` — call `validate()` directly
 
 ```ts
 import { validate } from 'class-validator';
-import { InitiateUploadDto } from '../upload.dto';
+import { InitiateUploadDto } from '../upload.dto.js';
 
 const dto = Object.assign(new InitiateUploadDto(), {
   filename: 'test.mp4',
   mimeType: 'video/mp4',
   totalSize: 10485760,
 });
-const errors = await validate(dto);
-expect(errors).toHaveLength(0);
+expect(await validate(dto)).toHaveLength(0);
 ```
 
-### 4.4 Mongoose Document Methods — Create Real Models
+No HTTP layer, no `ValidationPipe`, no NestJS app context.
 
-For `BaseModelSchema.methods` tests, register the schema with `mongoose.model()` in the in-memory DB and create actual documents. This lets us test `save()`, `markModified()`, and method chaining:
+### 4.4 Schema methods — register a throwaway model
 
 ```ts
 import mongoose from 'mongoose';
-import { BaseModel, BaseModelSchema } from '../base.model';
+import { BaseModelSchema } from '../base.model.js';
 
-const TestModel = mongoose.model('TestBaseModel', BaseModelSchema);
+const TestModel = mongoose.model('TestBase', BaseModelSchema);
 const doc = new TestModel({ likes: [], dislikes: [], views: 0, uniqueViews: 0, score: 0 });
 await doc.save();
 ```
 
-### 4.5 `@stoked-ui/common` — No Mocking
+### 4.5 `@stoked-ui/common` — no mocks
 
-The peer dependency re-exports are pure functions and constants (`isAdminOnlyPublicity`, `PUBLICITY_TYPES`, etc.). Test them as pass-through verifications — no mocking needed.
+Re-exported helpers (`isAdminOnlyPublicity`, `PUBLICITY_TYPES`, etc.) are pure constants/functions. Treat them as real dependencies; verify only that they re-export through `src/index.ts`.
 
 ---
 
@@ -280,30 +271,30 @@ The peer dependency re-exports are pure functions and constants (`isAdminOnlyPub
 
 | Metric | Target | Rationale |
 |--------|--------|-----------|
-| Statements | 70% | Medium-priority package with mostly declarative model definitions |
-| Branches | 65% | Key branch coverage in `swapId`, `updateScore`, DTO validators |
-| Functions | 80% | Every exported function and schema method should be exercised |
-| Lines | 70% | Consistent with statement target |
+| Statements | 70% | Medium-priority package; majority is declarative `@Prop` definitions. |
+| Branches | 65% | Concentrated in `swapId`, `updateScore`, and DTO validators. |
+| Functions | 80% | Every exported function and schema method exercised. |
+| Lines | 70% | Tracks statements. |
 
 **Per-module breakdown:**
 
 | Module | Target | Notes |
 |--------|--------|-------|
-| `decorators/defaultSchemaOptions.ts` | 95%+ | Small file, critical `swapId` function with branching logic |
-| `decorators/stdschema.decorator.ts` | 90%+ | Small file, pure logic, `mergeOptions` + cloneDeep |
-| `dtos/upload.dto.ts` | 85%+ | Validation boundary — every rule must be exercised |
-| `models/base.model.ts` methods | 90%+ | Shared business logic with known bugs |
-| `models/uploadSession.model.ts` virtuals | 90%+ | User-facing calculations |
-| `models/image.model.ts` methods | 90%+ | Known bugs in like/dislike |
-| `models/*.model.ts` class definitions | 50% | Largely declarative `@Prop` schemas; test schema creation succeeds, verify key defaults and indexes |
+| `decorators/defaultSchemaOptions.ts` | 95% | Small file, branching `swapId`. |
+| `decorators/stdschema.decorator.ts` | 90% | `mergeOptions` + `cloneDeep` invariants. |
+| `dtos/upload.dto.ts` | 85% | Every validation rule exercised. |
+| `models/base.model.ts` methods | 90% | Known bugs — high regression value. |
+| `models/uploadSession.model.ts` virtuals | 90% | User-facing calculations. |
+| `models/image.model.ts` methods | 90% | Known bugs. |
+| Other `*.model.ts` | 50% | Declarative; verify schema creates, defaults, key indexes. |
 
 ---
 
 ## 6. Test Cases to Implement First
 
-Ordered by risk/value. Implement in this sequence.
+Ordered by risk/value. Phase 1 is fast and the highest signal per millisecond.
 
-### Phase 1: Pure Logic (no DB, fast, highest value)
+### Phase 1 — Pure logic (no DB)
 
 #### `src/decorators/__tests__/swapId.test.ts`
 
@@ -311,209 +302,133 @@ Ordered by risk/value. Implement in this sequence.
 describe('swapId')
   ✓ converts _id to string id on a flat object
   ✓ removes __v from output
-  ✓ removes _id from output after conversion
-  ✓ does not overwrite existing id field
-  ✓ handles nested objects with _id recursively
-  ✓ handles arrays of documents (maps each element)
+  ✓ removes _id after conversion
+  ✓ does not overwrite an existing id
+  ✓ converts nested objects with _id recursively (3+ levels)
+  ✓ maps arrays of documents
   ✓ handles mixed arrays (objects + primitives)
-  ✓ returns null unchanged
-  ✓ returns undefined unchanged
-  ✓ returns primitive string unchanged
-  ✓ returns primitive number unchanged
+  ✓ returns null / undefined unchanged
+  ✓ returns primitive string / number unchanged
   ✓ handles empty object {}
-  ✓ handles object with only _id (no other fields)
-  ✓ converts _id that is an ObjectId instance via .toString()
-  ✓ handles deeply nested objects (3+ levels)
+  ✓ converts an ObjectId instance via .toString()
 ```
 
 #### `src/decorators/__tests__/stdschema.decorator.test.ts`
 
 ```
 describe('StdSchema')
-  ✓ registers schema metadata with TypeMetadataStorage
-  ✓ applies DefaultSchemaOptions (timestamps: true, virtuals: true)
-  ✓ applies swapId transform in toObject and toJSON
-  ✓ merges custom options over defaults
-  ✓ custom options override default values (e.g., timestamps: false)
-  ✓ does not mutate DefaultSchemaOptions across multiple calls (cloneDeep)
-  ✓ handles empty options {}
-  ✓ handles undefined options (no argument)
-
-describe('DefaultSchemaOptions')
-  ✓ has timestamps: true
-  ✓ has virtuals: true
-  ✓ has toObject.transform set to swapId
-  ✓ has toJSON.transform set to swapId
+  ✓ registers schema metadata via TypeMetadataStorage.addSchemaMetadata
+  ✓ default options include timestamps: true and virtuals: true
+  ✓ default options install swapId on toObject and toJSON
+  ✓ custom options override defaults (e.g., timestamps: false)
+  ✓ accepts undefined options
+  ✓ accepts empty options {}
+  ✓ does not mutate DefaultSchemaOptions across calls (cloneDeep)
 ```
 
 #### `src/dtos/__tests__/upload.dto.test.ts`
 
 ```
 describe('InitiateUploadDto')
-  describe('valid inputs')
-    ✓ accepts valid video upload (video/mp4, 10MB, required fields)
-    ✓ accepts valid image upload (image/png)
-    ✓ accepts video/webm, video/quicktime, video/x-matroska
-    ✓ accepts image/svg+xml, image/webp
-    ✓ accepts optional hash string
-    ✓ accepts optional chunkSize within bounds
-    ✓ accepts chunkSize at exact minimum (5MB = 5242880)
-    ✓ accepts chunkSize at exact maximum (100MB = 104857600)
-
-  describe('filename validation')
-    ✓ rejects empty filename
-    ✓ rejects missing filename
-
-  describe('mimeType validation')
-    ✓ rejects empty mimeType
-    ✓ rejects invalid mimeType (application/pdf)
-    ✓ rejects audio mimeType (audio/mp3)
-    ✓ rejects text mimeType (text/plain)
-    ✓ rejects uppercase mimeType (Video/MP4)
-    ✓ rejects mimeType without subtype (video/)
-
-  describe('totalSize validation')
-    ✓ rejects totalSize = 0
-    ✓ rejects negative totalSize
-    ✓ rejects non-numeric totalSize
-
-  describe('chunkSize validation')
-    ✓ rejects chunkSize below minimum (4999999 bytes)
-    ✓ rejects chunkSize above maximum (104857601 bytes)
+  describe('valid')
+    ✓ video/mp4 + 10MB
+    ✓ image/png
+    ✓ video/webm, video/quicktime, video/x-matroska
+    ✓ image/svg+xml, image/webp
+    ✓ optional hash + chunkSize within bounds
+    ✓ chunkSize at exact 5MB minimum
+    ✓ chunkSize at exact 100MB maximum
+  describe('filename')
+    ✓ rejects empty / missing
+  describe('mimeType')
+    ✓ rejects application/pdf, audio/mp3, text/plain
+    ✓ rejects uppercase Video/MP4
+    ✓ rejects video/ (missing subtype)
+  describe('totalSize')
+    ✓ rejects 0 / negative / non-numeric
+  describe('chunkSize')
+    ✓ rejects 5242879 (below minimum)
+    ✓ rejects 104857601 (above maximum)
 
 describe('GetMoreUrlsDto')
-  ✓ accepts valid array of 1 part number
-  ✓ accepts valid array of 50 part numbers
-  ✓ rejects empty array (below ArrayMinSize(1))
-  ✓ rejects array with 51 items (above ArrayMaxSize(50))
-  ✓ rejects array with non-number values
+  ✓ accepts 1 item / 50 items
+  ✓ rejects 0 items (ArrayMinSize)
+  ✓ rejects 51 items (ArrayMaxSize)
+  ✓ rejects non-numeric entries
 
 describe('PartCompletionDto')
-  ✓ accepts valid etag string
-  ✓ accepts etag with quotes ('"abc123"')
+  ✓ accepts ETag with surrounding quotes
   ✓ rejects empty etag
-  ✓ rejects missing etag
 ```
 
-### Phase 2: Schema Methods (requires mongodb-memory-server)
+### Phase 2 — Schema methods (mongodb-memory-server)
 
 #### `src/models/__tests__/base.model.test.ts`
 
 ```
-describe('BaseModelSchema methods')
+describe('BaseModelSchema.methods')
   describe('addToSet')
-    ✓ adds a value to an empty array field
-    ✓ deduplicates when adding existing value
-    ✓ marks the path as modified
-
+    ✓ adds value to empty array
+    ✓ deduplicates existing value
+    ✓ marks path modified
   describe('removeFromArray')
-    ✓ removes an existing value
-    ✓ no-op when value not present (does not mark modified)
-    ✓ preserves other values in array
-
-  describe('like')
-    ✓ adds userId to likes array
-    ✓ removes userId from dislikes if present
+    ✓ removes existing value
+    ✓ no-op when absent (does not markModified)
+  describe('like / dislike')
+    ✓ adds to target array; removes from opposite
     ✓ calls updateScore
-    ✓ calls save when save=true (default)
-    ✓ does not call save when save=false
-
-  describe('dislike')
-    ✓ adds userId to dislikes array
-    ✓ removes userId from likes if present
-    ✓ calls updateScore
-    ✓ calls save when save=true (default)
-    ✓ does not call save when save=false
-
+    ✓ respects save=false (no save() invocation)
   describe('view')
-    ✓ increments views count by 1
-    ✓ BUG: calls addToSet("uniqueViews", userId) but uniqueViews is Number, not array
-    ✓ calls updateScore
-    ✓ calls save when save=true
-
+    ✓ increments views by 1
+    ✓ BUG-3: addToSet("uniqueViews", userId) on Number field
   describe('delete')
-    ✓ sets deleted=true
-    ✓ sets deletedAt to approximately now
-    ✓ sets publicity to 'deleted'
-    ✓ calls save when save=true
-    ✓ does not call save when save=false
-
+    ✓ sets deleted=true, deletedAt≈now, publicity='deleted'
   describe('updateScore')
-    ✓ BUG: this.views.length is undefined (Number has no .length) — score becomes NaN
-    ✓ BUG: this.uniqueViews.length is undefined (Number has no .length)
-    ✓ BUG: uses this.likes.length for dislikeScore instead of this.dislikes.length
-    ✓ correct formula once bugs are fixed: (likes.length*1.6) + (dislikes.length*0.7) + (views*0.1) + (uniqueViews*-0.8)
+    ✓ BUG-1: dislikeScore uses this.likes.length
+    ✓ BUG-2: this.views.length and this.uniqueViews.length are undefined → score NaN
+    ✓ expected formula after fix: 1.6·likes + 0.7·dislikes + 0.1·views − 0.8·uniqueViews
 
 describe('BaseModel schema')
   ✓ publicity defaults to 'private'
-  ✓ publicity enum accepts: public, private, paid, deleted
-  ✓ publicity rejects invalid values
+  ✓ publicity enum: public | private | paid | deleted
 ```
 
 #### `src/models/__tests__/uploadSession.model.test.ts`
 
 ```
-describe('UploadSession')
-  describe('progress virtual')
-    ✓ returns 0 when totalParts is 0 (division by zero guard)
-    ✓ returns 0 when no parts are completed
-    ✓ returns 50 when 5 of 10 parts are completed
-    ✓ returns 100 when all parts are completed
-    ✓ rounds to nearest integer (e.g., 1/3 = 33 not 33.33)
-    ✓ ignores parts with status "pending", "uploading", "failed"
-
-  describe('completedPartsCount virtual')
-    ✓ returns 0 for empty parts array
-    ✓ returns 0 when all parts are pending
-    ✓ counts only parts with status "completed"
-    ✓ ignores parts with status "failed"
-
-  describe('uploadedBytes virtual')
-    ✓ returns 0 for empty parts array
+describe('UploadSession virtuals')
+  describe('progress')
+    ✓ returns 0 when totalParts === 0
+    ✓ counts only status === 'completed'
+    ✓ rounds (1/3 → 33)
+  describe('completedPartsCount')
+    ✓ counts only completed parts
+  describe('uploadedBytes')
     ✓ sums sizes of completed parts only
-    ✓ ignores sizes of failed/pending parts
 
-  describe('schema defaults')
-    ✓ status defaults to "pending"
-    ✓ region defaults to "us-east-1"
-
-  describe('schema indexes')
-    ✓ has TTL index on expiresAt with expireAfterSeconds: 0
-    ✓ has compound index on userId+status+expiresAt
-    ✓ has compound index on hash+status
-
-  describe('required fields')
-    ✓ rejects document without userId
-    ✓ rejects document without uploadId
-    ✓ rejects document without s3Key
-    ✓ rejects document without bucket
-    ✓ rejects document without filename
-    ✓ rejects document without mimeType
-    ✓ rejects document without totalSize
-    ✓ rejects document without chunkSize
-    ✓ rejects document without totalParts
-    ✓ rejects document without expiresAt
+describe('UploadSession schema')
+  ✓ status defaults to 'pending'
+  ✓ region defaults to 'us-east-1'
+  ✓ rejects missing userId / uploadId / s3Key / bucket / filename / mimeType / totalSize / chunkSize / totalParts / expiresAt
+  describe('indexes')
+    ✓ TTL on expiresAt with expireAfterSeconds: 0
+    ✓ compound (userId, status, expiresAt)
+    ✓ compound (hash, status)
 ```
 
-### Phase 3: Model Schemas (validate creation, indexes, inheritance)
+### Phase 3 — Model schemas (creation, defaults, inheritance, indexes)
 
 #### `src/models/__tests__/image.model.test.ts`
 
 ```
 describe('ImageSchema')
-  ✓ creates a valid Image document
-  ✓ inherits fields from File and BaseModel
-  ✓ type defaults to "image"
-  ✓ mediaType virtual returns "image"
-
-  describe('dislike method - KNOWN BUGS')
-    ✓ BUG: Array.from(userId) splits string into characters instead of using dislikeSet
-    ✓ BUG: callback-first signature (cb, userId) differs from BaseModel (userId, save)
-
-  describe('like method - KNOWN BUGS')
-    ✓ BUG: assigns to this.dislikes instead of this.likes
-    ✓ BUG: markModified("likeSet") should be markModified("likes")
-    ✓ BUG: callback-first signature (cb, userId) differs from BaseModel (userId, save)
+  ✓ creates a valid Image, inheriting File + BaseModel fields
+  ✓ type defaults to 'image'
+  ✓ mediaType virtual returns 'image'
+  describe('KNOWN BUGS')
+    ✓ BUG-4: dislike() assigns Array.from(userId) — splits string into characters
+    ✓ BUG-5: like() writes to this.dislikes; markModified('likeSet') hits no path
+    ✓ BUG-6: like/dislike signature is (cb, userId), not (userId, save)
 ```
 
 #### `src/models/__tests__/video.model.test.ts`
@@ -521,194 +436,157 @@ describe('ImageSchema')
 ```
 describe('VideoSchema')
   ✓ creates a valid Video document
-  ✓ inherits fields from File and BaseModel
-  ✓ type defaults to "video"
-  ✓ mediaType virtual returns "video"
-  ✓ thumbnailGenerationFailed defaults to false
-  ✓ isStreamRecording defaults to false
-  ✓ scrubberGenerated defaults to false
-  ✓ scrubberGenerationFailed defaults to false
-  ✓ container enum accepts: mp4, mov, webm, mkv
-  ✓ moovAtomPosition enum accepts: start, end
+  ✓ type defaults to 'video', mediaType virtual returns 'video'
+  ✓ thumbnailGenerationFailed / isStreamRecording / scrubberGenerated / scrubberGenerationFailed default false
+  ✓ container enum: mp4 | mov | webm | mkv
+  ✓ moovAtomPosition enum: start | end
 ```
 
 #### `src/models/__tests__/media.model.test.ts`
 
 ```
 describe('MediaSchema')
-  ✓ creates a valid Media document
-  ✓ inherits fields from File and BaseModel
-  ✓ copies BaseModelSchema methods (like, dislike, view, delete, updateScore)
-  ✓ embedVisibility defaults to "private"
-  ✓ embedVisibility enum accepts: public, authenticated, private
+  ✓ creates a valid Media document, inherits File + BaseModel
+  ✓ methods copied from BaseModelSchema (like/dislike/view/delete/updateScore are functions)
+  ✓ embedVisibility defaults to 'private'; enum public | authenticated | private
   ✓ hasPlaybackIssues defaults to false
-
-  describe('indexes')
-    ✓ has text search index with weights (title:10, tags:5, description:1)
-    ✓ has compound index media_views_date
-    ✓ has compound index media_author_date
-    ✓ has compound index media_type_date
-    ✓ has compound index media_price_date
-    ✓ has compound index media_publicity_date
-    ✓ has compound index media_score_date
-    ✓ has sparse index on duration
+  describe('indexes (8)')
+    ✓ media_text_search (title:10, tags:5, description:1)
+    ✓ media_views_date
+    ✓ media_author_date
+    ✓ media_type_date
+    ✓ media_price_date
+    ✓ media_publicity_date
+    ✓ media_score_date
+    ✓ media_duration (sparse)
 ```
 
 #### `src/models/__tests__/blogPost.model.test.ts`
 
 ```
 describe('BlogPostSchema')
-  ✓ creates a valid BlogPost document
-  ✓ inherits fields from File and BaseModel
-  ✓ copies BaseModelSchema methods
-  ✓ status defaults to "draft"
-  ✓ status enum accepts: draft, published, archived
-  ✓ source defaults to "native"
-  ✓ source enum accepts: native, nostr, import
-  ✓ targetSites defaults to ['stoked-ui.com']
-  ✓ slug is required
-  ✓ body is required
-  ✓ enforces unique slug constraint
-  ✓ has text search index with correct weights
-  ✓ has compound index blogpost_status_date
-  ✓ has sparse index on nostrEventId
+  ✓ inherits File + BaseModel, copies BaseModelSchema methods
+  ✓ status defaults to 'draft'; enum draft | published | archived
+  ✓ source defaults to 'native'; enum native | nostr | import
+  ✓ targetSites defaults to ['sui.stokd.cloud']
+  ✓ slug + body required, slug uniqueness enforced
+  ✓ text-search index + compound (status, date) + sparse(nostrEventId)
 ```
 
 #### `src/models/__tests__/license.model.test.ts`
 
 ```
 describe('LicenseSchema')
-  ✓ creates a valid License document
-  ✓ status defaults to "pending"
-  ✓ status enum accepts: pending, active, expired, revoked
+  ✓ status defaults to 'pending'; enum pending | active | expired | revoked
   ✓ gracePeriodDays defaults to 14
   ✓ deactivationCount defaults to 0
-  ✓ enforces unique key constraint
-  ✓ has compound index on email+productId
-  ✓ has sparse index on hardwareId
-  ✓ has index on stripeSubscriptionId
-  ✓ has compound index on status+expiresAt
+  ✓ unique key constraint
+  ✓ indexes: (email, productId), sparse(hardwareId), stripeSubscriptionId, (status, expiresAt)
 ```
 
 #### `src/models/__tests__/product.model.test.ts`
 
 ```
 describe('ProductSchema')
-  ✓ creates a valid Product document
   ✓ licenseDurationDays defaults to 365
   ✓ gracePeriodDays defaults to 14
   ✓ trialDurationDays defaults to 30
-  ✓ enforces unique productId constraint
+  ✓ unique productId
 ```
 
 #### `src/models/__tests__/invoice.model.test.ts`
 
 ```
 describe('InvoiceSchema')
-  ✓ creates a valid Invoice document with nested weeks and tasks
-  ✓ weeks defaults to empty array
-  ✓ configId is required
-  ✓ customer is required
-  ✓ totalHours is required
-  ✓ has compound index invoice_customer_date
-  ✓ has compound index invoice_config_date
+  ✓ creates Invoice with nested weeks/tasks subdocs
+  ✓ weeks defaults to []
+  ✓ configId / customer / totalHours required
+  ✓ compound indexes invoice_customer_date, invoice_config_date
 ```
 
 #### `src/models/__tests__/file.model.test.ts`
 
 ```
 describe('FileSchema')
-  ✓ creates a valid File document extending BaseModel
-  ✓ rating defaults to "nc17"
-  ✓ rating enum accepts: ga, nc17
-  ✓ inherits all BaseModel fields (likes, dislikes, publicity, etc.)
+  ✓ extends BaseModel — all base fields present
+  ✓ rating defaults to 'nc17'; enum ga | nc17
+  ✓ bucket field is indexed
 ```
 
-### Phase 4: Export Verification
+### Phase 4 — Public API surface
 
 #### `src/__tests__/index.test.ts`
 
 ```
-describe('package exports')
-  describe('models')
-    ✓ exports BaseModel class and BaseModelSchema
-    ✓ exports File class, FileSchema, FileFeature
-    ✓ exports Image class, ImageSchema, ImageFeature
-    ✓ exports Video class, VideoSchema, VideoFeature
-    ✓ exports Media class, MediaSchema, MediaFeature, MediaDocument type
-    ✓ exports UploadSession class, UploadSessionSchema, UploadSessionFeature
-    ✓ exports BlogPost class, BlogPostSchema, BlogPostFeature
-    ✓ exports License class, LicenseSchema, LicenseFeature
-    ✓ exports Product class, ProductSchema, ProductFeature
-    ✓ exports Invoice class, InvoiceSchema, InvoiceFeature
+describe('models barrel')
+  ✓ exports {Base|File|Image|Video|Media|UploadSession|BlogPost|License|Product|Invoice|Client|User}Model classes
+  ✓ exports corresponding *Schema and *Feature (ModelDefinition) objects
+  ✓ exports MediaDocument / FileDocument / UploadSessionDocument types
 
-  describe('DTOs')
-    ✓ exports InitiateUploadDto
-    ✓ exports GetMoreUrlsDto
-    ✓ exports PartCompletionDto
-    ✓ exports PresignedUrlDto
-    ✓ exports InitiateUploadResponseDto
-    ✓ exports UploadStatusResponseDto
-    ✓ exports PartCompletionResponseDto
-    ✓ exports CompleteUploadResponseDto
-    ✓ exports ActiveUploadDto
-    ✓ exports ActiveUploadsResponseDto
+describe('DTO barrel')
+  ✓ exports {Initiate|GetMoreUrls|PartCompletion} request DTOs
+  ✓ exports {Presigned|InitiateUploadResponse|UploadStatus|PartCompletionResponse|CompleteUpload|ActiveUpload|ActiveUploads}* response DTOs
 
-  describe('decorators')
-    ✓ exports StdSchema function
-    ✓ exports DefaultSchemaOptions object
-    ✓ exports swapId function
+describe('decorators barrel')
+  ✓ exports StdSchema, DefaultSchemaOptions, swapId
 
-  describe('@stoked-ui/common re-exports')
-    ✓ exports PUBLICITY_TYPES constant
-    ✓ exports ADMIN_ONLY_PUBLICITY_TYPES
-    ✓ exports ALL_FILTER_PUBLICITY_TYPES
-    ✓ exports isAdminOnlyPublicity function
-    ✓ exports isIncludedInAllFilter function
-    ✓ exports DEFAULT_EMBED_VISIBILITY
-    ✓ exports PUBLIC_EMBED_VISIBILITY_TYPES
-    ✓ exports AUTHENTICATED_EMBED_VISIBILITY_TYPES
-    ✓ exports isPublicEmbedVisibility function
-    ✓ exports isAuthenticatedEmbedVisibility function
+describe('@stoked-ui/common re-exports')
+  ✓ exports PUBLICITY_TYPES, ADMIN_ONLY_PUBLICITY_TYPES, ALL_FILTER_PUBLICITY_TYPES
+  ✓ exports isAdminOnlyPublicity, isIncludedInAllFilter
+  ✓ exports DEFAULT_EMBED_VISIBILITY, PUBLIC_EMBED_VISIBILITY_TYPES, AUTHENTICATED_EMBED_VISIBILITY_TYPES
+  ✓ exports isPublicEmbedVisibility, isAuthenticatedEmbedVisibility
 ```
 
 ---
 
 ## 7. Implementation Notes
 
-### Decorator Metadata Caveat
+### Decorator metadata
 
-Tests for models using `@StdSchema` and `@Prop` rely on `reflect-metadata` and experimental decorators. The `jest.config.js` must enable `experimentalDecorators: true` and `emitDecoratorMetadata: true` in the ts-jest tsconfig. Add `import 'reflect-metadata'` at the top of test setup if decorator metadata isn't resolving.
+Tests for `@StdSchema`/`@Prop` rely on `reflect-metadata` and TypeScript's `experimentalDecorators` + `emitDecoratorMetadata`. The `jest.config.js` above enables both in the ts-jest tsconfig override and loads `reflect-metadata` via `setupFiles`. If a metadata lookup returns `undefined` in a test, the most likely cause is that `setupFiles` did not run before the imported decorator.
 
-### `.js` Extension in Imports
+### `.js` extensions in relative imports
 
-Source files use `.js` extensions in relative imports (e.g., `from "./file.model.js"`). The `moduleNameMapper` rule `'^(.*)\\.js$': '$1'` in `jest.config.js` strips these so ts-jest resolves to `.ts` files.
+Source files use `.js` in relative imports (`from "./file.model.js"`) for ESM compatibility. The `moduleNameMapper` rule `'^(.*)\\.js$': '$1'` rewrites those at resolve time so ts-jest finds the `.ts` source. Test files should mirror the convention — write `from '../base.model.js'`.
 
-### ESM Dependency Transformation
+### ESM transformation
 
-`mongoose`, `bson`, `mongodb`, and `@nestjs/mongoose` ship as ESM. The `transformIgnorePatterns` in `jest.config.js` must allow these to be transformed by ts-jest. This matches the pattern from `sui-media/jest.config.js` which also excludes these from ignore.
+`mongoose`, `bson`, `mongodb`, and `@nestjs/mongoose` ship as ESM. The `transformIgnorePatterns` allow ts-jest to transform them. Matches `sui-media/jest.config.js`.
 
-### `view()` Method Schema Inconsistency
+### `view()` schema mismatch (bug 3)
 
-`BaseModel` declares `uniqueViews` as `@Prop({ type: Number })`, but `view()` calls `this.addToSet("uniqueViews", userId)` which treats it as an array. Tests should document this — it will throw at runtime when `Set` constructor receives a number.
+`BaseModel.uniqueViews` is `@Prop({ type: Number })` but `view()` calls `addToSet("uniqueViews", userId)` which does `new Set(this.uniqueViews)` on a Number. `new Set(<number>)` throws (`TypeError: number is not iterable`). The test that exercises `view()` against a real Mongoose document will throw — capture the throw, document the bug, fix it (most likely by changing the schema to `[{ type: ObjectId, ref: "UserRef" }]`).
 
-### `Image` Method Signature Mismatch
+### `Image` method polymorphism (bug 6)
 
-`BaseModelSchema.methods.like/dislike` use signature `(userId: string, save = true)` while `ImageSchema.methods.like/dislike` use `(cb: () => void, userId: string)`. This is a polymorphism bug — callers using the BaseModel interface will pass wrong arguments. Tests should document this.
+`BaseModelSchema.methods.like/dislike` use `(userId, save = true)`. `ImageSchema.methods.like/dislike` use `(cb, userId)`. Code that holds a `BaseModel` reference will pass a `userId` string where a callback is expected. Tests should assert the current (broken) shape, then a fix should align the signature.
 
-### Bug Fix Priority
+### Bug-fix execution order
 
-When implementing tests, write failing tests first for the known bugs. These tests serve as regression anchors. Fix the bugs after tests are in place:
+Write failing tests first; fix in this order so each fix is independently reviewable:
 
-1. **`base.model.ts:102`** — `dislikeScore` should use `this.dislikes.length` not `this.likes.length`
-2. **`base.model.ts:103-104`** — `views` and `uniqueViews` score terms should use the number directly, not `.length`
-3. **`base.model.ts:82-89`** — `view()` calls `addToSet` on Number field `uniqueViews` — needs schema change or method fix
-4. **`image.model.ts:68`** — `Array.from(dislikeSet)` not `Array.from(userId)`
-5. **`image.model.ts:76`** — Assign to `this.likes`, use `Array.from(likeSet)`, `markModified("likes")`
-6. **`image.model.ts:65,73`** — Align method signatures with `BaseModel` convention `(userId, save)`
+1. `base.model.ts:102` — `dislikeScore` should reference `this.dislikes.length`.
+2. `base.model.ts:103-104` — drop `.length`, use the Number directly.
+3. `base.model.ts:82-89` — fix the `view()` / `uniqueViews` type mismatch (schema change or method change).
+4. `image.model.ts:68` — `Array.from(dislikeSet)`.
+5. `image.model.ts:76` — write `this.likes = Array.from(likeSet)`, `markModified("likes")`.
+6. `image.model.ts:65,73` — align signature to `(userId, save)`.
 
-### Test Execution Order
+### Estimated test count
 
-Phase 1 tests (pure logic) should run first and fast — they need no DB and provide the most signal per millisecond. Phase 2-3 tests (mongodb-memory-server) are slower due to DB setup/teardown but validate real Mongoose behavior. Phase 4 (exports) is a safety net that catches missing re-exports or broken barrel files.
+≈ 135 cases across 14 files. Phase 1 (~50 cases) should run in well under a second; Phases 2–3 take longer due to `mongodb-memory-server` startup.
 
-Estimated test count: **~135 test cases** across 14 test files.
+---
+
+## 8. Acceptance Checks (per `.axioms.md` AX-MOD-SUICOMMONAPI-008)
+
+After tests are added, the following must pass before any merge that touches this package:
+
+```sh
+pnpm --filter @stoked-ui/common-api typescript
+pnpm --filter @stoked-ui/common-api test
+pnpm --filter @stoked-ui/common-api build
+pnpm --filter @stoked-ui/media-api typescript   # downstream consumer
+```
+
+Any new failing test added under `src/**/__tests__/` blocks merge — same rule as existing tests.

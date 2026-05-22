@@ -9,13 +9,16 @@ import {
 import { findExistingCert } from 'infra/cert';
 import { CONSULTING_APP_SEGMENTS } from '../docs/src/modules/utils/siteRouteManifest';
 
+const STOKD_CLOUD_ACCOUNT_ID = '167217327520';
+const DEFAULT_AUTH_AUTO_DOMAINS = 'stokd.cloud,sui.stokd.cloud,consulting.stokd.cloud,brianstoker.com';
+
 export const createSite = async (domainInfo: DomainInfo) => {
   const consultingSegmentsObject = CONSULTING_APP_SEGMENTS.reduce<Record<string, true>>((segments, segment) => {
     segments[segment] = true;
     return segments;
   }, {});
   const invalidationPaths = process.env.INVALIDATION_PATHS;
-  const blogImageBucket = process.env.BLOG_IMAGE_S3_BUCKET ?? 'cdn.stokedconsulting.com';
+  const blogImageBucket = process.env.BLOG_IMAGE_S3_BUCKET ?? 'cdn.consulting.stokd.cloud';
   const enableDomain = process.env.SITE_ENABLE_DOMAIN !== '0';
   const openNextVersion = '3.6.6';
   const buildCommand = `npx --yes @opennextjs/aws@${openNextVersion} build && pnpm prune-lambda`;
@@ -56,11 +59,11 @@ export const createSite = async (domainInfo: DomainInfo) => {
       ADMIN_SECRET: adminSecret.value,
       NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? '',
       AUTH_AUTO_DOMAINS:
-        process.env.AUTH_AUTO_DOMAINS ?? 'stokedconsulting.com,stoked-ui.com,brianstoker.com',
+        process.env.AUTH_AUTO_DOMAINS ?? DEFAULT_AUTH_AUTO_DOMAINS,
       NEXT_PUBLIC_GOOGLE_CLIENT_ID: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? '',
-      SES_FROM_EMAIL: process.env.SES_FROM_EMAIL ?? 'noreply@stoked-ui.com',
+      SES_FROM_EMAIL: process.env.SES_FROM_EMAIL ?? 'noreply@stokd.cloud',
       BLOG_IMAGE_S3_BUCKET: blogImageBucket,
-      BLOG_IMAGE_CDN_URL: process.env.BLOG_IMAGE_CDN_URL ?? 'https://cdn.stokedconsulting.com',
+      BLOG_IMAGE_CDN_URL: process.env.BLOG_IMAGE_CDN_URL ?? 'https://cdn.consulting.stokd.cloud',
     },
     server: {
       // The docs app has a heavy pages bundle and can exceed the default 20s/1024MB on cold starts.
@@ -78,7 +81,7 @@ export const createSite = async (domainInfo: DomainInfo) => {
     permissions: [
       {
         actions: ['ses:SendEmail'],
-        resources: ['arn:aws:ses:us-east-1:883859713095:identity/*'],
+        resources: [`arn:aws:ses:us-east-1:${STOKD_CLOUD_ACCOUNT_ID}:identity/*`],
       },
       {
         actions: ['s3:ListBucket', 's3:ListBucketMultipartUploads'],
@@ -101,7 +104,7 @@ export const createSite = async (domainInfo: DomainInfo) => {
             name: domainInfo.domains[0],
             aliases: domainInfo.domains.slice(1),
             ...(certArn ? { cert: certArn } : {}),
-            dns: sst.aws.dns({} as any),
+            dns: sst.aws.dns({ zone: domainInfo.primaryZoneId }),
           },
         }
       : {}),
@@ -109,14 +112,14 @@ export const createSite = async (domainInfo: DomainInfo) => {
       viewerRequest: {
         injection: `
           // Domain-based routing:
-          // - stoked-ui.com/consulting/* => https://stokedconsulting.com/*
-          // - stokedconsulting.com/* => /consulting/* on the same Next.js site
+          // - sui.stokd.cloud/consulting/* => https://consulting.stokd.cloud/*
+          // - consulting.stokd.cloud/* => /consulting/* on the same Next.js site
           var host = event.request.headers.host ? event.request.headers.host.value : '';
           var uri = event.request.uri;
           var querystring = event.request.querystring || {};
 
-          var isConsultingDomain = host === 'stokedconsulting.com';
-          var isPrimaryDomain = host === 'stoked-ui.com' || host === 'www.stoked-ui.com';
+          var isConsultingDomain = host === 'consulting.stokd.cloud';
+          var isPrimaryDomain = host === 'sui.stokd.cloud' || host === 'www.sui.stokd.cloud';
 
           function serializeQuery(params) {
             var parts = [];
@@ -154,23 +157,23 @@ export const createSite = async (domainInfo: DomainInfo) => {
             return consultingSegments[firstSegment] === true;
           }
 
-          if (host === 'www.stokedconsulting.com') {
+          if (host === 'www.consulting.stokd.cloud') {
             return {
               statusCode: 308,
               statusDescription: 'Permanent Redirect',
               headers: {
                 location: {
-                  value: 'https://stokedconsulting.com' + uri + serializeQuery(querystring),
+                  value: 'https://consulting.stokd.cloud' + uri + serializeQuery(querystring),
                 },
               },
             };
-          } else if (host === 'www.stoked-ui.com') {
+          } else if (host === 'www.sui.stokd.cloud') {
             return {
               statusCode: 308,
               statusDescription: 'Permanent Redirect',
               headers: {
                 location: {
-                  value: 'https://stoked-ui.com' + uri + serializeQuery(querystring),
+                  value: 'https://sui.stokd.cloud' + uri + serializeQuery(querystring),
                 },
               },
             };
@@ -193,7 +196,7 @@ export const createSite = async (domainInfo: DomainInfo) => {
               statusDescription: 'Permanent Redirect',
               headers: {
                 location: {
-                  value: 'https://stokedconsulting.com' + redirectPath + serializeQuery(querystring),
+                  value: 'https://consulting.stokd.cloud' + redirectPath + serializeQuery(querystring),
                 },
               },
             };

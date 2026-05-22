@@ -166,7 +166,7 @@ export default function AppFooter(props: AppFooterProps) {
             <Link prefetch={false} href={ROUTES.privacyPolicy}>
               Privacy policy
             </Link>
-            <Link prefetch={false} target="_blank" rel="noopener" href="mailto:b@stokedconsulting.com">
+            <Link prefetch={false} target="_blank" rel="noopener" href="mailto:b@stokd.cloud">
               Contact us
             </Link>
           </Box>

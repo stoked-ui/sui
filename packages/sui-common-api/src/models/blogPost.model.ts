@@ -26,7 +26,7 @@ export class BlogPost extends File {
   })
   status: BlogPostStatus;
 
-  @Prop({ type: [String], default: ['stoked-ui.com'] })
+  @Prop({ type: [String], default: ['sui.stokd.cloud'] })
   targetSites: string[];
 
   @Prop({ type: String, required: false, sparse: true })

@@ -548,13 +548,13 @@ export default function AppLayoutDocsFooter(props) {
           spacing={{ xs: 3, sm: 1 }}
         >
           <Stack direction="row" alignItems="center" spacing={1.2} useFlexGap sx={{ flexGrow: 1 }}>
-            <Link href="https://stokedconsulting.com/" aria-label="Go to homepage">
+            <Link href="https://consulting.stokd.cloud/" aria-label="Go to homepage">
               <SvgSuiLogotype height={24} width={104} />
             </Link>
             <Typography color="grey.500" fontSize={13} sx={{ opacity: '70%' }}>
               &bull;
             </Typography>
-            <Link href="https://stokedconsulting.com/blog/" target="_blank" rel="noopener">
+            <Link href="https://consulting.stokd.cloud/blog/" target="_blank" rel="noopener">
               <FooterLink>
                 Blog <ArrowOutwardRoundedIcon sx={{ fontSize: 14 }} />
               </FooterLink>

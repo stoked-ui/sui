@@ -5,7 +5,7 @@ import { InfoCard } from '@stoked-ui/docs/InfoCard';
 const content = [
   {
     title: 'Stoked UI for Figma',
-    link: 'https://stokedconsulting.com/store/items/figma-react/?utm_source=docs&utm_medium=referral&utm_campaign=installation-figma',
+    link: 'https://consulting.stokd.cloud/store/items/figma-react/?utm_source=docs&utm_medium=referral&utm_campaign=installation-figma',
     svg: (
       <img
         src={`/static/branding/design-kits/figma-logo.svg`}
@@ -18,7 +18,7 @@ const content = [
   },
   {
     title: 'Stoked UI for Sketch',
-    link: 'https://stokedconsulting.com/store/items/sketch-react/?utm_source=docs&utm_medium=referral&utm_campaign=installation-sketch',
+    link: 'https://consulting.stokd.cloud/store/items/sketch-react/?utm_source=docs&utm_medium=referral&utm_campaign=installation-sketch',
     svg: (
       <img
         src={`/static/branding/design-kits/sketch-logo.svg`}
@@ -31,7 +31,7 @@ const content = [
   },
   {
     title: 'Stoked UI for Adobe XD',
-    link: 'https://stokedconsulting.com/store/items/adobe-xd-react/?utm_source=docs&utm_medium=referral&utm_campaign=installation-adobe-xd',
+    link: 'https://consulting.stokd.cloud/store/items/adobe-xd-react/?utm_source=docs&utm_medium=referral&utm_campaign=installation-adobe-xd',
     svg: (
       <img
         src={`/static/branding/design-kits/adobexd-logo.svg`}

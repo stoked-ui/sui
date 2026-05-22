@@ -7,8 +7,8 @@ export function handler(event: any) {
   const host = (request.headers.host.value || '').toLowerCase().replace(/:\d+$/, '');
 
   const shouldRedirectToConsulting = (
-    host === 'stoked-ui.com'
-    || host === 'www.stoked-ui.com'
+    host === 'sui.stokd.cloud'
+    || host === 'www.sui.stokd.cloud'
   ) && isConsultingPublicProductId(uri.replace(/^\/products\/([^/]+).*$/, '$1'));
 
   if (shouldRedirectToConsulting) {
@@ -17,7 +17,7 @@ export function handler(event: any) {
       statusDescription: 'Moved Permanently',
       headers: {
         location: {
-          value: `https://stokedconsulting.com${uri}`,
+          value: `https://consulting.stokd.cloud${uri}`,
         },
       },
     };

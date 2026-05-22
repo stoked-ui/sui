@@ -20,9 +20,9 @@ const EXT_MAP: Record<string, string> = {
   'image/svg+xml': 'svg',
 };
 
-const BUCKET = process.env.BLOG_IMAGE_S3_BUCKET || 'cdn.stokedconsulting.com';
+const BUCKET = process.env.BLOG_IMAGE_S3_BUCKET || 'cdn.consulting.stokd.cloud';
 const REGION = process.env.AWS_REGION || 'us-east-1';
-const CDN_BASE = process.env.BLOG_IMAGE_CDN_URL || 'https://cdn.stokedconsulting.com';
+const CDN_BASE = process.env.BLOG_IMAGE_CDN_URL || 'https://cdn.consulting.stokd.cloud';
 
 async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {

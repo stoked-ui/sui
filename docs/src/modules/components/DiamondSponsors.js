@@ -73,7 +73,7 @@ export default function DiamondSponsors() {
             marginLeft: '10px',
           }}>
           {/* eslint-disable-next-line stoked-ui/no-hardcoded-labels */}
-          <div>Full Stack Consulting</div>
+          <div>AI Consulting</div>
         </Typography>
       </NativeLink>
       <NativeLink

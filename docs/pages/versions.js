@@ -50,7 +50,7 @@ export const getStaticProps = async () => {
           versions.push({
             version,
             // Replace dot with dashes for Netlify branch subdomains
-            url: `https://${version.replace(/\./g, '-')}.stoked-ui.com`,
+            url: `https://${version.replace(/\./g, '-')}.sui.stokd.cloud`,
           });
         }
       });
@@ -60,12 +60,12 @@ export const getStaticProps = async () => {
     versions.push(
       {
         version: `v${process.env.LIB_VERSION}`,
-        url: 'https://stoked-ui.com',
+        url: 'https://sui.stokd.cloud',
       });
     // Legacy documentation.
     versions.push({
       version: 'v0',
-      url: 'https://v0.stoked-ui.com',
+      url: 'https://v0.sui.stokd.cloud',
     });
     versions.sort((a, b) => formatVersion(b.version).localeCompare(formatVersion(a.version)));
     if (
@@ -74,7 +74,7 @@ export const getStaticProps = async () => {
     ) {
       versions.unshift({
         version: `v${Number(versions[0].version[1]) + 1} pre-release`,
-        url: 'https://next.stoked-ui.com',
+        url: 'https://next.sui.stokd.cloud',
       });
     }
 

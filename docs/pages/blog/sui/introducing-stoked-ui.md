@@ -54,4 +54,4 @@ export default function App() {
 }
 ```
 
-Full documentation, live demos, and API references are available at [stokedconsulting.com](https://stokedconsulting.com). The source code is hosted on GitHub and contributions are very welcome — whether that's reporting bugs, proposing features, or submitting pull requests. We are excited to build this library in the open and look forward to growing a community around it. Stay tuned for upcoming announcements on new components, integrations, and the roadmap for Stoked UI v2.
+Full documentation, live demos, and API references are available at [consulting.stokd.cloud](https://consulting.stokd.cloud). The source code is hosted on GitHub and contributions are very welcome — whether that's reporting bugs, proposing features, or submitting pull requests. We are excited to build this library in the open and look forward to growing a community around it. Stay tuned for upcoming announcements on new components, integrations, and the roadmap for Stoked UI v2.

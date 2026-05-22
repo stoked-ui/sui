@@ -16,13 +16,13 @@ title: Roadmap
 - YAML configuration persistence in Application Support.
 - Runtime route push to the driver through the `mmcf` CoreAudio property.
 - 30-day trial state.
-- Direct-license activation and validation against `stokedconsulting.com`.
+- Direct-license activation and validation against `consulting.stokd.cloud`.
 - Mac App Store subscription build path with StoreKit 2.
 
 ## Near term
 
 - Signed and notarized direct installer.
-- Public download and checkout flow on stokedconsulting.com.
+- Public download and checkout flow on consulting.stokd.cloud.
 - Release-channel QA for direct and Mac App Store builds.
 - More resilient handling for device connect/disconnect events.
 - Better empty, error, and permission states in the menu-bar popover.

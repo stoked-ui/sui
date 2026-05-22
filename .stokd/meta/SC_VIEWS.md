@@ -1,967 +1,767 @@
 # Stoked UI — View Classification
 
-> **Generated:** 2026-03-16 | **Updated:** 2026-04-03 | **Meta version:** 0.2.0
+> **Generated:** 2026-05-21 (upgrade 0.3.0 → 0.4.0) | **Meta version:** 0.4.0
 > **Repository:** `@stoked-ui/sui`
 > **Root:** `/opt/worktrees/stoked-ui/stoked-ui-main`
 
+A "view" here = a top-level rendered surface a user can directly perceive — a Next.js page, a panel/dialog rendered by a workspace package, a marketing showcase block, a CLI terminal output, or an embedded Vite app screen.
+
+All views below reference the single product doc in this repo:
+**Products:** `SC_PRODUCT_STOKED_UI_SUI.md` — `@stoked-ui/sui` (covers all `packages/*` and the `docs/` Next.js site).
+
+The view inventory is grouped by surface:
+
+1. Docs site — public marketing pages
+2. Docs site — product showcase pages
+3. Docs site — product documentation (MDX) shell
+4. Docs site — consulting portal (auth-required)
+5. Docs site — admin / data-management views
+6. Docs site — account / self-service views
+7. Docs site — checkout & API-docs surfaces
+8. Embedded showcase / hero components
+9. Editor package views (`@stoked-ui/editor`)
+10. Timeline package views (`@stoked-ui/timeline`)
+11. File-explorer package views (`@stoked-ui/file-explorer`)
+12. Media package views (`@stoked-ui/media`)
+13. CDN package view (`@stoked-ui/cdn`)
+14. GitHub package views (`@stoked-ui/github`)
+15. Docs package primitives (`@stoked-ui/docs`)
+16. Common-package shared chrome (`@stoked-ui/common`)
+17. Internal Vite apps (`packages-internal/cdn`, `packages-internal/cdn-sui`)
+18. CLI / terminal output (`packages/sui-video-renderer/cli`)
+19. NestJS API documentation surface (`sui-media-api`)
+20. Standalone product surfaces (Mac Mixer, Focus Capture, Media Selector, Always Listening, Stokd Cloud, Common)
+21. Consulting service-line pages (AI, Back-End, Front-End, DevOps)
+22. Video Renderer docs site
+
 ---
 
-## 1. Docs Site — Public Pages
+## 1. Docs Site — Public Marketing Pages
+
+All routes resolve from `docs/pages/`. Shared chrome: `AppHeader` (`docs/src/layouts/AppHeader.tsx`), optional `AppHeaderBanner`, `AppFooter`. Theming via `BrandingCssVarsProvider` (`packages/sui-docs/src/BrandingCssVarsProvider`).
 
 ### 1.1 Home Page
 
-- **Products:** All (landing page showcases live products)
-- **Location:** `docs/pages/index.tsx`, `docs/src/components/home/`
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Location:** `docs/pages/index.tsx`, `docs/src/components/home/HomeView.tsx`, `docs/src/components/home/RandomHome.tsx`
 - **Regions:**
   | Zone | Component |
   |------|-----------|
-  | Banner | `AppHeaderBanner` — announcement/notification strip |
-  | Header | `AppHeader` — logo, product switcher, theme toggle, search, auth menu |
-  | Hero | `EditorHero` (dynamic import, SSR disabled) — random product home showcase |
-  | Products Preview | `ProductsPreviews` — grid with `ProductsSwitcher` (left) + live `Showcase` component (right) |
-  | Newsletter | `NewsletterToast` (NoSsr) — subscription prompt |
-  | Footer | `AppFooter` — links, copyright |
-- **States:** initial-load (random showcase selected), product-switched (user picks different product), mobile-swipe (SwipeableViews on small screens)
+  | Banner | `AppHeaderBanner` |
+  | Header | `AppHeader` (logo, product menu, search, theme toggle, auth menu) |
+  | Hero | `RandomHome` (dynamic, SSR-disabled — picks one of: `HeroEditor`, `HeroTimeline`, `HeroFileExplorer`, `HeroFlux`, `HeroStokedUi`, `HeroFocusCapture`, `HeroMediaSelector`, `HeroCore`, `HeroMain`/`HeroEnd`, rusty-editor demo) |
+  | Newsletter | `NewsletterToast` (NoSsr) |
+  | Footer | `AppFooter` |
+- **States:** initial-load (random hero selection), checkout-success (`?checkout=success` query), product-switched, mobile-swipe (`SwipeableViews`)
 
-### 1.2 Product Showcase Pages
+### 1.2 Products Index
 
-- **Products:** `sui-file-explorer`, `sui-media`, `sui-timeline`, `sui-editor`
-- **Location:** `docs/pages/products/{product-id}/main.tsx`
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Location:** `docs/pages/products/index.tsx`
+- **Regions:** AppHeader · grid of product cards (Stoked UI, Editor, Timeline, FileExplorer, Flux, Media, Media API, GitHub, Common, Mac Mixer, Focus Capture, Media Selector, Always Listening, Stokd Cloud) · AppFooter
+- **States:** loaded, alpha/beta prerelease badge per card
+
+### 1.3 Public Product Detail (Marketing)
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md (per-product view)
+- **Location:** `docs/pages/products/[product-slug].tsx`, `docs/src/modules/components/PublicProductDetailPage.tsx`
+- **Regions:** AppHeader · product hero · features list · documentation page list · CTA · AppFooter
+- **States:** loading, loaded, not-found, error
+
+### 1.4 Pricing
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Location:** `docs/pages/pricing.tsx`, `docs/src/components/pricing/*` (`HeroPricing`, `PricingTable`, `PricingList`, `LicensingModelProvider`, `PricingWhatToExpect`, `PricingFAQ`)
+- **Regions:** Banner · Header · Hero · `PricingTable` (desktop) **or** `PricingList` (mobile/tablet) · "What to expect" block · FAQ accordion · Testimonials · Footer
+- **States:** desktop vs mobile responsive split, licensing model toggle (community/commercial), accordion expanded/collapsed
+
+### 1.5 Material UI / Base UI / Design Kits / Templates
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Location:** `docs/pages/material-ui.tsx`, `docs/pages/base-ui.tsx`, `docs/pages/design-kits.tsx`, `docs/pages/templates.tsx`; section components in `docs/src/components/{productMaterial,productBaseUI,productDesignKit,productTemplate}/`
+- **Regions:** Hero · Reference logos · Components/Values block · Customization/Theming block · Demo block · FAQ/Testimonials · End CTA
+- **States:** scrollable static showcase
+
+### 1.6 Components Index
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Location:** `docs/pages/components.tsx` (consumes `materialPages` data)
+- **Regions:** Header · category-grouped grid of component links · Footer
+- **States:** static (loaded)
+
+### 1.7 About / Careers / Feedback / Subscription Confirm
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Location:** `docs/pages/about.tsx`, `docs/pages/careers.tsx`, `docs/pages/products/feedback.tsx`, `docs/pages/subscription.tsx`
+- **Regions:** AppHeader · hero/value/team/role-accordion or feedback form · Footer
+- **States:**
+  - About/Careers: static, accordion expanded/collapsed (careers)
+  - Feedback: unauthenticated (signup form), authenticated (rating + textarea), email-verification-pending (code input), submitted/success, error
+  - Subscription confirm (`/subscription?code=&email=`): code 200 verified, 201 already-verified, 401 invalid token, 402 system error, 404 email-not-found, 500 error, no-code (instructions)
+
+### 1.8 Blog Index & Post
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Location:** `docs/pages/blog/index.tsx`, `docs/pages/blog/[slug].tsx`, `docs/src/modules/components/BlogPostList.tsx`
+- **Regions:**
+  - Index: AppHeader · `BlogPostList` (post cards with avatars, tags, date) · pagination · Footer
+  - Post: AppHeader · `BlogContainer` (title, authors, MDX body, divider, back) · Footer
+- **States:** loading, loaded, tag-filtered, paginated, empty (index); loading, loaded, not-found (post)
+
+### 1.9 Legal — Privacy / Terms
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Location:** `docs/pages/legal/privacy.tsx`, `docs/pages/legal/terms.tsx`, `docs/src/modules/components/PublicLegalPage.tsx`
+- **Regions:** Header · Back link · static legal copy · Footer
+- **States:** static (always loaded)
+
+### 1.10 404
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Location:** `docs/pages/404.tsx`, `NotFoundHero` component
+- **Regions:** Banner · Header · `NotFoundHero` · Footer
+- **States:** error (only state)
+
+### 1.11 CLI Auth Callback
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Location:** `docs/pages/cli/auth.tsx`
+- **Regions:** AppHeader · status card · Footer
+- **States:** checking (validating token), authorizing (issuing API key), success (CLI authorized, shows email), error (missing params or auth failed)
+
+---
+
+## 2. Docs Site — Product Showcase Pages
+
+Each product owns a `/products/<slug>/` route that renders a near-fullscreen "Hero" component embedding a live demo of the package.
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md (one showcase per package surface)
+- **Location pattern:** `docs/pages/products/<slug>/main.tsx`, hero in `docs/src/components/showcase/Hero<Name>.tsx`
+
+| Product | Route | Hero Component | File |
+|---------|-------|----------------|------|
+| Stoked UI | `/products/stoked-ui/` | `HeroStokedUi` | `docs/src/components/home/HeroStokedUi.tsx` |
+| Editor | `/products/editor/` | `HeroEditor` | `docs/src/components/home/HeroEditor.tsx` |
+| Timeline | `/products/timeline/` | `HeroTimeline` | `docs/src/components/home/HeroTimeline.tsx` |
+| File Explorer | `/products/file-explorer/` | `HeroFileExplorer` | `docs/src/components/home/HeroFileExplorer.tsx` |
+| Flux | `/products/flux/` | `HeroFlux` | `docs/src/components/home/HeroFlux.tsx` |
+| Media | `/products/media/` | `AdvancedShowcase` / hero | `docs/src/components/home/AdvancedShowcase.tsx` |
+| GitHub | `/github/` | `HeroGithub` | `docs/src/components/home/HeroGithub.tsx` |
+| Focus Capture | `/products/focus-capture/` | `HeroFocusCapture` | `docs/src/components/home/HeroFocusCapture.tsx` |
+| Media Selector | `/products/media-selector/` | `HeroMediaSelector` | `docs/src/components/home/HeroMediaSelector.tsx` |
+| Common | `/products/common/` | `HeroCore` | `docs/src/components/home/HeroCore.tsx` |
+
+- **Regions:** AppHeader · Hero (live package demo) · feature `Chip` row · divider · AppFooter
+- **States:** in-view (intersection observer mounts demo), out-of-view (placeholder box), interactive (user driving the embedded demo)
+
+---
+
+## 3. Docs Site — Product Documentation Shell (MDX)
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md (per-package docs trees)
+- **Location:** Per-product `docs/pages/<product>/docs/**/*.tsx` plus shared layout `docs/src/modules/components/AppLayoutDocs.tsx`, sidebar `docs/src/modules/components/AppNavDrawer.tsx`, table-of-contents `docs/src/modules/components/AppTableOfContents.tsx`, MDX renderer `MarkdownDocs` (`docs/src/modules/components/MarkdownDocs.js`)
 - **Regions:**
   | Zone | Component |
   |------|-----------|
   | Header | `AppHeader` |
-  | Hero | Product-specific showcase (see table below) |
-  | Feature chips | `Product.features` rendered as `Chip` links |
+  | Sidebar | `AppNavDrawer` (collapsible nav tree) |
+  | Main | `MarkdownDocs` rendering MDX → MDX `Demo` blocks · `<HighlightedCode>` · `<CodeSandbox>` |
+  | TOC | `AppTableOfContents` (sticky right rail) |
   | Footer | `AppFooter` |
-- **States:** in-view (intersection observer triggers showcase render), out-of-view (placeholder box)
+- **States:** loading, loaded, sidebar-collapsed (mobile drawer), section in-view (TOC active item highlights), demo-expanded/collapsed, code-copied, theme light/dark
 
-**Individual showcases:**
-
-| Product | Route | Showcase Component | Location |
-|---------|-------|--------------------|----------|
-| Stoked UI | `/products/stoked-ui/` | `StokedConsultingShowcase` | `docs/src/components/home/StokedConsultingShowcase.tsx` |
-| File Explorer | `/products/file-explorer/` | `FileExplorerShowcase` | `docs/src/components/home/FileExplorerShowcase.tsx` |
-| Media | `/products/media/` | `AdvancedShowcase` | `docs/src/components/home/AdvancedShowcase.tsx` |
-| Timeline | `/products/timeline/` | `TimelineShowcase` | `docs/src/components/home/TimelineShowcase.tsx` |
-| Editor | `/products/editor/` | `EditorShowcase` | `docs/src/components/home/EditorShowcase.tsx` |
-
-### 1.3 Product Documentation Pages
-
-- **Products:** `sui-file-explorer`, `sui-media`, `sui-timeline`, `sui-editor`, `sui-docs`, Mac Mixer, Flux, Always Listening, Stokd Cloud
-- **Location:** `docs/pages/products/{product-id}/docs/*.js`
-- **Regions:**
-  | Zone | Component |
-  |------|-----------|
-  | Header | `AppHeader` with product context |
-  | Sidebar | Auto-generated docs navigation |
-  | Main content | Markdown + embedded demos (`Demo`, `DemoEditor`, `ReactRunner`) |
-  | API tables | `ApiPage` components (properties, slots, classes) |
-  | Footer | `AppFooter` |
-- **States:** loading (markdown parse), demo-expanded (code visible), demo-collapsed (preview only), code-variant-toggled (TS/JS), styling-solution-toggled (Emotion/Tailwind/CSS)
-
-### 1.4 Standalone Product Pages (Consulting Site)
-
-- **Products:** Flux, Mac Mixer, Always Listening, Stokd Cloud
-- **Location:** `docs/pages/products/{product-id}/main.tsx` for older static product entries; `docs/pages/consulting/products/mac-mixer.tsx` and `docs/src/modules/products/MacMixerProductPage.tsx` for the dedicated Mac Mixer consulting page.
-- **Notes:** Public-facing marketing product pages on `stokedconsulting.com`; `stoked-ui.com` requests for consulting-owned product slugs redirect here. Product privacy pages live at `/products/{slug}/privacy` and accept `?l=` locale switches (`en`, `de`, `fr`, `ja`, `zh`, `ko`, `pt-br`, `es`) with English fallback.
-- **Regions:** Header, product hero, product-specific content bands, documentation links, footer. Mac Mixer includes a static route/volume preview and alpha release status CTA.
-- **States:** static marketing content, responsive hero layout, docs-link navigation
-
-### 1.5 Editor PWA
-
-- **Products:** `sui-editor`
-- **Location:** `docs/pages/products/editor/pwa/index.tsx`, `docs/pages/products/editor/pwa/example/index.tsx`
-- **Route:** `/products/editor/pwa`, `/products/editor/pwa/example`
-- **Regions:**
-  | Zone | Component |
-  |------|-----------|
-  | Full viewport | `EditorComponent` (dynamic import, SSR disabled) — standalone editor embedded as PWA |
-- **States:** loading (NoSsr hydration), loaded (full editor)
-
-### 1.6 File Explorer Standalone Example
-
-- **Products:** `sui-file-explorer`
-- **Location:** `docs/pages/products/file-explorer/example/index.tsx`
-- **Route:** `/products/file-explorer/example`
-- **Regions:** Standalone file explorer instance
-- **States:** loaded
-
-### 1.7 404 Page
-
-- **Products:** All
-- **Location:** `docs/pages/404.tsx`
-- **Regions:**
-  | Zone | Component |
-  |------|-----------|
-  | Header | `AppHeaderBanner` + `AppHeader` |
-  | Content | `NotFoundHero` — error message with navigation |
-  | Footer | `AppFooter` |
-- **States:** static (single error state)
-
-### 1.8 About Page
-
-- **Products:** All
-- **Location:** `docs/pages/about.tsx`
-- **Regions:** Header, about content (team, mission), footer
-- **States:** static
+Examples of trees: `docs/pages/products/editor/docs/`, `docs/pages/products/timeline/docs/`, `docs/pages/products/file-explorer/docs/`, `docs/pages/products/media/docs/`, `docs/pages/products/media-api/docs/`, `docs/pages/products/common/docs/`, `docs/pages/products/mac-mixer/docs/`, `docs/pages/products/focus-capture/docs/`, `docs/pages/products/media-selector/docs/`, `docs/pages/products/stokd-cloud/docs/`, `docs/pages/products/always-listening/docs/`, `docs/pages/video-renderer/docs/`, `docs/pages/github/docs/`.
 
 ---
 
-## 2. Docs Site — Consulting Admin Portal
+## 4. Docs Site — Consulting Portal
 
-### 2.1 Admin Dashboard
+The consulting portal is auth-gated. Token stored under localStorage `auth`. Unauthenticated visits redirect to `/consulting/login` (with `?redirect=` capture).
 
-- **Products:** Docs site (consulting)
-- **Location:** `docs/pages/consulting/admin.tsx`
-- **Regions:**
-  | Zone | Component |
-  |------|-----------|
-  | Header | `AppHeader` (consulting variant) |
-  | Title | Welcome message with user name |
-  | Card grid | 8 navigation `Paper` cards with icons: Clients, Products, Users, Invoices, Licenses, Blog, API Docs, Settings |
-  | Footer | `AppFooter` |
-- **States:** loading (auth check), auth-redirect (unauthenticated → login), authenticated (dashboard visible)
+### 4.1 Consulting Login
 
-### 2.2 Login Page
-
-- **Products:** Docs site (consulting)
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
 - **Location:** `docs/pages/consulting/login.tsx`
-- **Regions:**
-  | Zone | Component |
-  |------|-----------|
-  | Form | Email + password inputs, submit button |
-  | Error | Inline error message on failed auth |
-- **States:** idle, submitting, error, success (redirect to admin)
+- **Regions:** `BrandingCssVarsProvider` · AppHeader · Email/password form (`TextField` × 2 + submit) · "or" divider · `GoogleLogin` button (when `NEXT_PUBLIC_GOOGLE_CLIENT_ID` set)
+- **States:** session-check loading, unauthenticated (form), submitting, error (Alert: invalid credentials, Google failure), authenticated (role-based redirect → admin/customer/client portal)
 
-### 2.3 Customer Portal
+### 4.2 Consulting Home
 
-- **Products:** Docs site (consulting)
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Location:** `docs/pages/consulting/home.tsx`, `docs/pages/consulting/main.tsx`
+- **Regions:** Banner · Header · random product hero (home) **or** `HeroConsulting` + service cards + industry cards (main) · Footer
+- **States:** initial-load, randomized hero
+
+### 4.3 Customer Dashboard
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
 - **Location:** `docs/pages/consulting/customer.tsx`
-- **Regions:** Customer-specific dashboard with deliverables and account info
+- **Regions:** Header · "Welcome, {name}" + role chip · stack of 4 `Paper` cards (Licenses, Products, Billing, Settings) · Footer
+- **States:** auth-loading (`CircularProgress`), unauthenticated (redirect), authenticated, role-specific badge
+
+### 4.4 Groupies / Newsletter Confirm
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Location:** `docs/pages/consulting/groupies.tsx`
+- **Regions:** Header · welcome card · Blog/Stoked-UI/Premium tile cards · Footer
 - **States:** loading, authenticated, unauthenticated (redirect)
 
-### 2.4 Clients List
+### 4.5 Partner Portal Stub
 
-- **Products:** Docs site (consulting)
-- **Location:** `docs/pages/consulting/clients/index.tsx` → `ClientsPage` (dynamic, SSR disabled)
-- **Regions:**
-  | Zone | Component |
-  |------|-----------|
-  | Header | `AppHeader` |
-  | Toolbar | Add new client button, search/filter |
-  | Client cards | `ClientCard` grid — name, contact info, deliverable/invoice counts |
-  | Create dialog | Modal with contact mode selection (existing/new/legacy) and form fields |
-  | Footer | `AppFooter` |
-- **States:** loading, empty (no clients), populated, filtered, dialog-open (create/edit)
-
-### 2.5 Client Detail
-
-- **Products:** Docs site (consulting)
-- **Location:** `docs/pages/consulting/clients/[client-slug].tsx` → `ClientDetailPage`
-- **Regions:**
-  | Zone | Component |
-  |------|-----------|
-  | Profile header | Client name, contact info, logo |
-  | Deliverables table | List of deliverables with type, version, date |
-  | Invoices section | Client-specific invoices |
-  | Edit button | Opens edit form |
-- **States:** loading, populated, editing, not-found
-
-### 2.6 Products Management
-
-- **Products:** Docs site (consulting)
-- **Location:** `docs/pages/consulting/products/index.tsx` → `ProductsPage`, `docs/pages/consulting/products/[product-slug].tsx` → `ProductDetailPage`
-- **Notes:** Internal product slugs still use the private management shell; consulting-owned product slugs render the public product page instead of the login gate.
-- **Regions (list):**
-  | Zone | Component |
-  |------|-----------|
-  | Product table | Name, description, pricing, features, actions |
-  | Add button | Create new product |
-  | Create/edit dialog | Product form with validation |
-- **Regions (detail):**
-  | Zone | Component |
-  |------|-----------|
-  | Form | Name, description, icon, features CRUD, privacy policy editor with localized language variants |
-  | Pages section | Product page management with nested pages |
-  | Pricing tiers | Pricing configuration |
-- **States:** loading, empty, populated, editing, saving, not-found
-
-### 2.7 Users Management
-
-- **Products:** Docs site (consulting)
-- **Location:** `docs/pages/consulting/users/index.tsx` → `UsersPage`
-- **Regions:**
-  | Zone | Component |
-  |------|-----------|
-  | User list | Email, role, status columns with role filtering |
-  | Create form | New user creation dialog with role/permission assignment |
-- **States:** loading, empty, populated, creating
-
-### 2.8 Invoices List
-
-- **Products:** Docs site (consulting)
-- **Location:** `docs/pages/consulting/invoices/index.tsx` → `InvoiceListPage`
-- **Regions:**
-  | Zone | Component |
-  |------|-----------|
-  | Filter bar | Status, date range filters |
-  | Invoice table | Amount, date, status, client columns with pagination |
-  | Actions | Download, print buttons |
-- **States:** loading, empty, populated, filtered, paginated
-
-### 2.9 Invoice Detail
-
-- **Products:** Docs site (consulting)
-- **Location:** `docs/pages/consulting/invoices/[id].tsx` → `InvoiceDetailPage`
-- **Regions:**
-  | Zone | Component |
-  |------|-----------|
-  | Invoice preview | PDF/HTML render of invoice |
-  | Line items | Invoice line items with totals |
-  | Actions | Download, print, send to client |
-  | Status | Payment status indicator |
-- **States:** loading, rendered, sending, not-found
-
-### 2.10 Deliverable Viewer
-
-- **Products:** Docs site (consulting)
-- **Location:** `docs/pages/consulting/deliverables/[id].tsx` → `DeliverableViewerPage`
-- **Regions:**
-  | Zone | Component |
-  |------|-----------|
-  | Full-screen iframe | HTML deliverable render (sanitized, 100dvh) |
-  | Loading overlay | `CircularProgress` spinner |
-- **States:** loading (auth check + fetching), auth-redirect (unauthenticated → login), html-render (full iframe), error (null/empty deliverable)
-
-### 2.11 Consulting Service Pages
-
-- **Products:** Docs site (consulting)
-- **Location:** `docs/pages/consulting/{front-end,back-end,devops,ai}/main.tsx`
-- **Regions:**
-  | Zone | Component |
-  |------|-----------|
-  | Header | `AppHeader` |
-  | Hero | `HeroConsulting` (service-specific variant) |
-  | Services grid | 6 styled `ServiceCard` components with hover effects |
-  | Industries section | Industry focus areas |
-  | Footer | `AppFooter` |
-- **States:** static (no dynamic state)
-
-### 2.12 Consulting Home
-
-- **Products:** Docs site (consulting)
-- **Location:** `docs/pages/consulting/main.tsx`, `docs/pages/consulting/home.tsx`
-- **Regions:** Header, hero with interactive file-preview demo, service cards grid, industries, footer
-- **States:** static marketing content, responsive hero layout, file-selection preview in hero demo
-
-### 2.13 Licenses Management
-
-- **Products:** Docs site (consulting)
-- **Location:** `docs/pages/consulting/licenses.tsx`
-- **Regions:** License management list/table with actions
-- **States:** loading, populated, error
-
-### 2.14 Billing
-
-- **Products:** Docs site (consulting)
-- **Location:** `docs/pages/consulting/billing.tsx`
-- **Regions:** Billing information, payment methods
-- **States:** loading, populated, error
-
-### 2.15 Settings
-
-- **Products:** Docs site (consulting)
-- **Location:** `docs/pages/consulting/settings.tsx`
-- **Regions:** Settings forms with toggles and inputs
-- **States:** loading, editing, saving, error, success
-
-### 2.16 API Docs
-
-- **Products:** Docs site (consulting)
-- **Location:** `docs/pages/consulting/api-docs.tsx`
-- **Regions:** OpenAPI/Swagger documentation viewer
-- **States:** loading, rendered
-
-### 2.17 Groupies
-
-- **Products:** Docs site (consulting)
-- **Location:** `docs/pages/consulting/groupies.tsx`
-- **Regions:** Group management interface
-- **States:** loaded
-
-### 2.18 Partners
-
-- **Products:** Docs site (consulting)
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
 - **Location:** `docs/pages/consulting/partners/[partnerName].tsx`
-- **Regions:** Partner-specific information and offerings
-- **States:** loading, loaded, not-found
+- **Regions:** Header · partner-name heading · "coming soon" copy · Footer
+- **States:** loading, coming-soon (only state)
 
 ---
 
-## 3. Docs Site — Blog
+## 5. Docs Site — Admin Views (data management)
 
-### 3.1 Blog Home
+All require admin role; check from localStorage `auth` and redirect to `/consulting/login` otherwise. List/detail components are dynamically imported (SSR off) from `docs/src/modules/components/`.
 
-- **Products:** `sui-docs`
-- **Location:** `docs/pages/blog/index.tsx`
+### 5.1 Admin Dashboard
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Location:** `docs/pages/consulting/admin.tsx`
+- **Regions:** Header · Container with 8 nav cards (Clients, Products, Users, Invoices, Licenses, Blog, API Docs, Settings) · Footer
+- **States:** auth-loading, authenticated-admin, unauthorized (redirect)
+
+### 5.2 Products Admin (List + Detail)
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Location:**
+  - List: `docs/pages/admin/products/index.tsx` → `docs/src/modules/components/ProductsPage.tsx`
+  - Detail: `docs/pages/admin/products/[product-slug].tsx` → `docs/src/modules/components/ProductDetailPage.tsx`
+- **Regions:** Header · Container · `ProductsPage` (toolbar + product cards/table + create dialog) **or** `ProductDetailPage` (form: id/name/fullName/description/icon/url/live/managed/hideProductFeatures/prerelease/features/promo/privacyPolicy/termsAndConditions) · Footer
+- **States:** loading, loaded, empty, create-dialog-open, edit-mode, saving, validation-error, save-success, delete-confirm
+
+### 5.3 Clients Admin (List + Detail)
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Location:**
+  - List: `docs/pages/consulting/clients/index.tsx` → `docs/src/modules/components/ClientsPage.tsx`
+  - Detail: `docs/pages/consulting/clients/[client-slug].tsx` → `docs/src/modules/components/ClientDetailPage.tsx`
 - **Regions:**
-  | Zone | Component |
-  |------|-----------|
-  | Header | `AppHeader` |
-  | Post list | Blog post cards with title, excerpt, date, author |
-  | Footer | `AppFooter` |
-- **States:** loading, empty, populated
+  - List: client cards (name/slug/contactEmail/active/deliverable+invoice counts) · create/edit dialog (formName, contactMode existing|new|legacy, contact fields)
+  - Detail: header (title, slug chip, active toggle) · Deliverables list (type, url, version, addedAt; add/edit/delete + delete confirm dialog) · Invoices summary (date, period, totalHours, status chip → detail link) · Client users list (name, email, role, active, delete)
+- **States:** loading, error, list populated, list empty, create/edit dialog open, saving, saved, delete-confirm-open, no-deliverables, no-invoices, no-users
 
-### 3.2 Blog Post
+### 5.4 Users Admin
 
-- **Products:** `sui-docs`
-- **Location:** `docs/pages/blog/[slug].tsx`
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Location:** `docs/pages/consulting/users/index.tsx` → `docs/src/modules/components/UsersPage.tsx`
+- **Regions:** Header · Container with users table (name, email, role admin/client/agent, active, aliases, agentIds, avatarUrl, createdAt, edit/delete actions) · add/edit dialog · Footer
+- **States:** loading, loaded, empty, create-mode, edit-mode, saving, error
+
+### 5.5 Invoices Admin (List + Detail)
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Location:**
+  - List: `docs/pages/consulting/invoices/index.tsx` → `docs/src/modules/components/InvoiceListPage.tsx`
+  - Detail: `docs/pages/consulting/invoices/[id].tsx` → `docs/src/modules/components/InvoiceDetailPage.tsx`
 - **Regions:**
-  | Zone | Component |
-  |------|-----------|
-  | Header | `AppHeader` |
-  | Back button | Navigation back to blog index |
-  | Post title + metadata | Title, date, reading time |
-  | Authors section | `AuthorsContainer` — author avatars and names |
-  | Post content | Markdown-rendered body (`markdown-body` class) |
-  | Tags | `Chip` components for post tags |
-  | Footer | `HeroEnd` (related posts), `AppFooter` |
-- **States:** loading, rendered, not-found
+  - List: invoice rows (clientId, invoiceDate, period, totalHours, status chip draft|sent|paid); optional `?clientId=` filter
+  - Detail: header (back · status chip) · invoice meta (client, period, totalHours, notes) · weekly breakdown (lineItems = hours + description, weekTotalHours)
+- **States:** loading, error, populated, empty, filter-active, status-chip variant per row
 
-### 3.3 Blog Editor — Post List
+### 5.6 Deliverable Viewer
 
-- **Products:** `sui-docs`
-- **Location:** `docs/pages/blog/editor.tsx`
-- **Regions:**
-  | Zone | Component |
-  |------|-----------|
-  | Header | `AppHeader` |
-  | Post list | `BlogPostList` (dynamic, SSR disabled) — posts with edit/delete actions |
-  | Footer | `AppFooter` |
-- **States:** loading, empty, populated
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Location:** `docs/pages/consulting/deliverables/[id].tsx` → `docs/src/modules/components/DeliverableViewerPage.tsx`
+- **Regions:** Full-height (`100dvh`) flex container · viewer surface (loads deliverable by id; types: download/link/ux/html)
+- **States:** auth-not-checked (spinner), authenticated (viewer), unauthenticated (redirect with `?redirect=`), invalid-id (null render)
 
-### 3.4 Blog Editor — New Post
+### 5.7 Blog Admin (List + Editor)
 
-- **Products:** `sui-docs`
-- **Location:** `docs/pages/blog/editor/new.tsx`
-- **Regions:**
-  | Zone | Component |
-  |------|-----------|
-  | Editor form | `BlogEditorForm` — title, slug, tags, author, publish status |
-  | Content editor | `BlogMarkdownEditor` — markdown editing |
-- **States:** editing, submitting, error, success
-
-### 3.5 Blog Editor — Edit Post
-
-- **Products:** `sui-docs`
-- **Location:** `docs/pages/blog/editor/[slug].tsx`
-- **Regions:** Same as 3.4, pre-populated with existing post data
-- **States:** loading, editing, submitting, error, success
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Location:** `docs/pages/blog/editor.tsx`, `docs/pages/blog/editor/new.tsx`, `docs/pages/blog/editor/[slug].tsx`
+- **Regions:** AppHeader · `BlogPostList` (admin variant) · `BlogEditorForm` (title/slug/tags/author/publishDate/content) · `BlogMarkdownEditor`
+- **States:** loading, list populated, list empty, create-mode, edit-mode, saving, publishing/unpublishing, delete-confirm, error
 
 ---
 
-## 4. Editor Composite View
+## 6. Docs Site — Account / Self-Service Views
 
-### 4.1 Editor (Full Application)
+Auth-required user-facing views (not admin-only).
 
-- **Products:** `sui-editor`
+### 6.1 Account Settings
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Location:** `docs/pages/consulting/settings.tsx` → `docs/src/modules/account/SettingsPage.tsx`
+- **Regions:** Header · form (id read-only, email read-only, name, avatarUrl, notification preferences checkboxes: ownedProductUpdates, otherProductUpdates) · Save button (`SaveIcon`) · alerts · Footer
+- **States:** loading, loaded, dirty, saving, saved, error
+- **Endpoint:** `PATCH /api/account/settings`
+
+### 6.2 Billing
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Location:** `docs/pages/consulting/billing.tsx` → `docs/src/modules/account/BillingPage.tsx`
+- **Regions:**
+  | Zone | Content |
+  |------|---------|
+  | Summary | customerId, billingEmail, activeSubscriptions, amountDue |
+  | Invoices Due | table — id/number/status/desc/due/amount/PDF link |
+  | Payment History | similar table keyed on paidAt |
+  | Payment Methods | card list — brand, last4, exp, isDefault |
+  | Actions | "Open billing portal" → Stripe customer portal |
+- **States:** loading, loaded, error, no-invoices, no-payment-methods, opening-portal
+- **Endpoints:** `GET /api/account/billing`, `POST /api/account/billing/portal`
+
+### 6.3 Licenses
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Location:** `docs/pages/consulting/licenses.tsx` → `docs/src/modules/account/LicensesPage.tsx`
+- **Regions:** Header · license tiers · usage indicators · renewal · Footer
+- **States:** loading, loaded, error
+
+---
+
+## 7. Docs Site — Checkout & API Docs
+
+### 7.1 Stripe Embedded Checkout
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Location:** `docs/pages/consulting/checkout.tsx` → `StripeEmbeddedCheckout`, `CheckoutSuccess`
+- **Regions:** `BrandingCssVarsProvider` · AppHeader · Section · Stripe iframe **or** `CheckoutSuccess` panel · AppFooter
+- **States:**
+  - missing-params (`product`/`email`) → error message
+  - checkout active (Stripe iframe; `returnUrl=/consulting/checkout?product=…&session_id={CHECKOUT_SESSION_ID}`)
+  - success (`?session_id=…` present → `CheckoutSuccess` confirmation, order recap, next steps)
+  - error
+
+### 7.2 Swagger UI (Docs Business API)
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Location:** `docs/pages/consulting/api-docs.tsx`; spec from `docs/pages/api/openapi.ts`
+- **Regions:** Header · Container · `<div id="swagger-ui">` (Swagger UI Bundle from `unpkg.com/swagger-ui-dist@5.11.0`, BaseLayout, scheme container hidden) · Footer
+- **States:** loading (CircularProgress while CSS+JS load), authorized-admin (rendered with Bearer token interceptor), unauthorized (redirect to login), error
+- **Notes:** Bearer token from localStorage `auth`; `requestInterceptor` injects `Authorization: Bearer <token>` into every try-it call.
+
+---
+
+## 8. Embedded Showcase / Hero Components
+
+These are not standalone pages but reusable view-blocks reused on the home page, product pages, and inside MDX docs.
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Location:** `docs/src/components/home/`, `docs/src/components/showcase/`
+- **Notable views:**
+  - `EditorShowcase` (`docs/src/components/home/EditorShowcase.tsx`) — embedded `Editor` with preset file
+  - `EditorBackendProcessingDemo` — `Editor` driving server-side processing
+  - `FileExplorerShowcase` / `FileExplorerCard` — embedded `FileExplorer`
+  - `TimelineShowcase` / `ThemeTimeline` — embedded `Timeline`
+  - `AdvancedShowcase` — Media demo
+  - `StokedConsultingShowcase` — agency reel
+  - `VideoProcessingProgress` — render-job status panel
+  - `ProductsPreviews` + `ProductsSwitcher` — left rail picker + right `Showcase`
+- **Regions:** title block · live demo container · supporting copy / CTAs
+- **States:** in-view/out-of-view (intersection observer), interactive (demo running), placeholder (pre-mount)
+
+---
+
+## 9. Editor Package Views — `@stoked-ui/editor`
+
+`packages/sui-editor/src/`. Top-level export `Editor`; engine + provider in `EditorEngine.ts`, `EditorProvider.tsx`. WASM preview swapped in via `WasmPreview` (dynamic import of `@stoked-ui/video-renderer-wasm`).
+
+### 9.1 Editor (Root)
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
 - **Location:** `packages/sui-editor/src/Editor/Editor.tsx`
 - **Regions:**
-  | Zone | Grid Area | Component | Description |
-  |------|-----------|-----------|-------------|
-  | Preview | `viewer` | `EditorView` | 16:9 canvas with WASM/canvas renderer, screener video element, shadow DOM stage |
-  | Controls | `controls` | `EditorControls` | Transport bar: play/pause/record/rewind/FF, volume, time display, rate selector, view toggle |
-  | Timeline | `timeline` | `Timeline` (from `sui-timeline`) | Track editing area (height: 37px + 36px per track) |
-  | File tabs | `explorer-tabs` | `EditorFileTabs` | Collapsible drawer with Projects + Track Files tabs |
-  | Detail modal | overlay | `DetailModal` | Centered card dialog for editing project/track/action properties |
-  | Context menu | overlay | `ContextMenu` | Right-click popup (View Detail, Blend Mode, Fit select) |
-  | Loader | overlay | `Loader` | Loading spinner + loop video during initialization |
-- **States:**
-  - Engine: `LOADING`, `READY`, `PLAYING`, `PAUSED`, `RECORDING`
-  - View mode: `TIMELINE_VIEW` (timeline visible), `FILE_VIEW` (file explorer visible)
-  - Detail: `CLOSED`, `OPEN_PROJECT`, `OPEN_TRACK`, `OPEN_ACTION`, `OPEN_SETTINGS`
-  - Fullscreen: `flags.fullscreen` — maximized view
-  - File: loaded (file present), unloaded (empty state)
+  | Zone | Component |
+  |------|-----------|
+  | viewer | `EditorView` |
+  | controls | `EditorControls` |
+  | timeline | `Timeline` (from `@stoked-ui/timeline`) |
+  | explorer-tabs | `EditorFileTabs` |
+  | detail (overlay) | `DetailView` |
+- **States:** loading, ready, fullscreen, detail-mode, file-view, minimal, record, no-labels, no-track-controls, no-snap-controls
 
-### 4.2 Editor Preview (EditorView)
+### 9.2 EditorView (Stage)
 
-- **Products:** `sui-editor`
 - **Location:** `packages/sui-editor/src/EditorView/EditorView.tsx`
-- **Regions:**
-  | Zone | Component |
-  |------|-----------|
-  | Canvas | `Renderer` — HTML canvas for WASM frame rendering |
-  | Video element | `Screener` — hidden video for screen capture/screener mode |
-  | Shadow stage | `Stage` — hidden shadow DOM for compositing |
-  | Hover actions | `EditorViewActions` — floating action buttons (clear, save, open, settings) that fade in on mouse-over |
-  | Loader overlay | `Loader` — spinning indicator with loop video background |
-- **States:** idle (no content), loading (`engine.isLoading`), rendering (frames active), recording (capture active), preview (settings disabled, loop video shown)
+- **Regions:** `renderer` Canvas · `screener` `<video>` · shadow-DOM `stage` · hover-revealed `viewControls` overlay
+- **States:** idle, hover (controls visible), playing, paused, previewing, error
 
-### 4.3 Editor View Actions
+### 9.3 EditorControls
 
-- **Products:** `sui-editor`
-- **Location:** `packages/sui-editor/src/EditorView/EditorViewActions.tsx`
-- **Regions:**
-  | Zone | Component |
-  |------|-----------|
-  | Bottom-left | Clear button (ClearIcon) — discard current file |
-  | Bottom-right | Save button (SaveIcon, conditional: file dirty or videoTrack active), Open button (OpenIcon), Settings button (SettingsIcon) |
-- **States:** visible (mouse hover), hidden (no hover or detailMode), zoom-fade animation
-
-### 4.4 Editor Controls Bar
-
-- **Products:** `sui-editor`
 - **Location:** `packages/sui-editor/src/EditorControls/EditorControls.tsx`
-- **Regions:**
-  | Zone | Component |
-  |------|-----------|
-  | Transport | `Controls` — skip-start, rewind, play/stop toggle, fast-forward, skip-end, record (canvas mode only) |
-  | View toggle | `ViewToggle` — switch between timeline and file explorer views |
-  | Volume | `Volume` — audio volume slider |
-  | Time display | `TimeRoot` — digital time (MM:SS.FF) |
-  | Rate control | `RateControlRoot` — playback rate dropdown (-10x to +10x, hides on <616px containers) |
-- **States:** playing, paused, recording, disabled (`settings.disabled`), responsive (wraps below 581px)
+- **Regions:** play/pause/stop · rate dropdown · time display/input · `Volume` · `ViewGroup`/`ViewButton` mode toggle · version selector
+- **States:** playing, paused, recording, disabled, loading
 
-### 4.5 Detail Modal
+### 9.4 DetailView (Inspector Modal)
 
-- **Products:** `sui-editor`
 - **Location:** `packages/sui-editor/src/DetailView/DetailView.tsx`
-- **Regions:**
-  | Zone | Component |
-  |------|-----------|
-  | Breadcrumbs | `DetailBreadcrumbs` — navigation path (project → track → action) |
-  | Close button | `Fab` in top-right corner |
-  | Form body | `DetailCombined` routes to one of four sub-panels (see below) |
-  | Actions | Save / cancel buttons (when `editMode` active) |
-- **Sub-panels:**
-  | Panel | Condition | Fields |
-  |-------|-----------|--------|
-  | `DetailProject` | `selectedType === 'project'` | Name, created date, last modified, description, canvas dimensions, background color (color picker), edit toggle |
-  | `DetailTrack` | `selectedType === 'track'` | Track name, blend mode select, hidden/locked/muted checkboxes, video preview (`FileDetailView`), edit toggle |
-  | `DetailAction` | `selectedType === 'action'` | Action name, start/end/duration, position (X,Y), scale (X,Y), opacity, rotation, volume, blend mode with live preview |
-  | `DetailSettings` | `selectedType === 'settings'` | Raw settings JSON dump, flags JSON dump, components JSON dump |
-- **States:** closed (`flags.detailOpen` false), open (one panel active), editing (`editMode` true), read-only, form-dirty
+- **Sub-views:**
+  - `DetailCombined` — merged inspector
+  - `DetailAction` — action props (`ControlledText`, `ControlledCoordinates`, `ControlledCheckbox`, `ControlledColor`, `ControlledCss`, `ControlledVolumeSpan`, `BlendModeSelect`)
+  - `DetailTrack` — track props (name, type, volume, opacity, lock/mute/solo)
+  - `DetailProject` — file metadata (name, description, author, version, duration, created, backgroundColor)
+  - `DetailSettings` — editor preferences
+  - `DetailBreadcrumbs` — selection navigator
+- **States:** open/closed, selected-type (action|track|project|settings), editing, dirty, saving, validation-error
 
-### 4.6 Editor File Tabs
+### 9.5 EditorFileTabs (Asset Browser)
 
-- **Products:** `sui-editor`, `sui-file-explorer`
 - **Location:** `packages/sui-editor/src/EditorFileTabs/EditorFileTabs.tsx`
-- **Regions:**
-  | Zone | Component |
-  |------|-----------|
-  | Tab bar | MUI Tabs — "Projects" and "Track Files" tabs |
-  | Projects panel | Lists saved projects from LocalDb with version/type columns, double-click to load |
-  | Track Files panel | Lists media files used in current project tracks with type column, double-click to preview |
-- **States:** visible (not detail mode, file loaded), hidden (detail mode or loading), tab-selected (projects/files), project-selected (current file highlighted)
+- **Regions:** tab strip · embedded `FileExplorer` · `FileDropzone` · file toolbar
+- **States:** active-tab, loading, empty, drag-over, expanded, collapsed
 
-### 4.7 Editor Loader
+### 9.6 EditorScreener (Version Selector)
 
-- **Products:** `sui-editor`
-- **Location:** `packages/sui-editor/src/Editor/Loader.tsx`
-- **Regions:**
-  | Zone | Component |
-  |------|-----------|
-  | Background | `LoopVideo` — stock-loop.mp4 video with fade animation |
-  | Spinner | `LoaderCircle` — dual-circle animation (primary + secondary color, 1s interval) |
-- **States:** loading (`EngineState.LOADING`), preview (`settings.disabled`, shows loop video only), hidden (detail mode)
-
-### 4.8 Editor Screener
-
-- **Products:** `sui-editor`
 - **Location:** `packages/sui-editor/src/EditorScreener/EditorScreener.tsx`
-- **Regions:** Version dropdown select (FormControl + Select)
-- **States:** visible (versions exist), hidden (no versions)
-
-### 4.9 WASM Preview Demo
-
-- **Products:** `sui-video-renderer`
-- **Location:** `packages/sui-editor/src/WasmPreview/WasmPreviewDemo.tsx`
-- **Regions:**
-  | Zone | Component |
-  |------|-----------|
-  | Canvas | Rendering surface for WASM compositor |
-  | Layer controls | Add/remove layers, opacity slider, visibility toggle per layer |
-  | Actions | Benchmark button, clear canvas button |
-  | Metrics | Performance metrics display |
-- **States:** idle, rendering, benchmarking, error
-- **Note:** Standalone demo component, not integrated into main editor
+- **Regions:** version dropdown · current-version label
+- **States:** loading, versioned, unversioned
 
 ---
 
-## 5. Timeline View
+## 10. Timeline Package Views — `@stoked-ui/timeline`
 
-### 5.1 Timeline (Standalone)
+`packages/sui-timeline/src/`.
 
-- **Products:** `sui-timeline`, `sui-editor`
+### 10.1 Timeline (Root)
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
 - **Location:** `packages/sui-timeline/src/Timeline/Timeline.tsx`
-- **Regions:**
-  | Zone | Position | Component |
-  |------|----------|-----------|
-  | Labels panel | Left (275px or hidden) | `TimelineLabels` — per-track `TimelineLabel` (icon, name, `TimelineTrackActions` mute/lock toggles), `SnapControls` in header |
-  | Time ruler | Top (37px) | `TimelineTime` — tick marks with scale subdivisions, interactive scrub, zoom controls (top-right) |
-  | Track area | Center (flex) | `TimelineTrackArea` — virtualized grid of `TimelineTrack` rows containing `TimelineAction` clips |
-  | Playhead | Overlay (z-300) | `TimelineCursor` — draggable SVG triangle + vertical line |
-  | Floating labels | Overlay (when no labels) | Absolute-positioned track names (z-200, shows on hover) |
-  | Drag lines | Overlay | `TimelineTrackAreaDragLines` — alignment guides during drag |
-  | Add track | Bottom | `AddTrackButton` — append new tracks |
-  | Keyboard | Non-visual | `KeyDownControls` — Ctrl+Z undo, Ctrl+Y redo |
-- **States:**
-  - **Loading:** `engine.isLoading` — hides labels and track area
-  - **Track states:** visible, hidden, selected (height/opacity change), hovered (label display), locked (disables action drag/resize), muted (reduces opacity), disabled (detail mode + unselected), dim
-  - **Action/clip states:** selected (border highlight, resize handles visible), being-dragged, snapped (grid/edge), looping (repeating gradient), flexible (resize enabled), movable (drag enabled)
-  - **Layout modes:** expanded (full labels panel), collapsed (`TimelineTrackAreaCollapsed` — merged single track), no-labels (floating labels instead), detail-mode (selected track grows, others shrink)
-  - **Snap modes:** grid-snap-on, edge-snap-on, drag-line-on
-  - **Zoom:** zoomed-in, zoomed-out (controlled by `ZoomControls` hold-to-repeat buttons)
-  - **Playback:** playing (disables all editing), paused, cursor-scrubbing
+- **Regions:** `TimelineLabels` (track list rail) · `TimelineControls` (transport) · `TimelineTrackArea` (scrollable grid) · `TimelineCursor` (playhead overlay) · `TimelineTime` (ruler) · empty-state notice
+- **States:** loaded, empty, playing, paused, drag-active, edit-mode, multi-selected
 
-### 5.2 Timeline Collapsed View
+### 10.2 TimelinePlayer
 
-- **Products:** `sui-timeline`
-- **Location:** `packages/sui-timeline/src/TimelineTrackArea/TimelineTrackAreaCollapsed.tsx`
-- **Regions:** Single merged track visualization using `TimelineFile.collapsedTrack()` to composite all actions
-- **States:** collapsed (all tracks merged), drag-line (alignment guides visible)
-
-### 5.3 Timeline Action (Clip)
-
-- **Products:** `sui-timeline`
-- **Location:** `packages/sui-timeline/src/TimelineAction/TimelineAction.tsx`
-- **Regions:**
-  | Zone | Component |
-  |------|-----------|
-  | Body | Colored background with striped pattern (looping actions) or gradient endpoint marker |
-  | Screenshots | `ImageList` of frame thumbnails from media file |
-  | Lock badges | `Zoom` badges showing lock icon when track locked |
-  | Left handle | `LeftStretch` resize affordance (10px, left edge) |
-  | Right handle | `RightStretch` resize affordance (10px, right edge) |
-- **States:** selected (border increase, handles visible), hovered (label opacity), disabled, dim, locked (drag/resize disabled), looping (repeating gradient), playing (interaction disabled)
-
-### 5.4 Timeline Player
-
-- **Products:** `sui-timeline`
 - **Location:** `packages/sui-timeline/src/TimelinePlayer/TimelinePlayer.tsx`
-- **Regions:**
-  | Zone | Component |
-  |------|-----------|
-  | Skip start | SkipPreviousIcon button |
-  | Play/Pause | PlayArrowIcon / PauseIcon toggle |
-  | Skip end | SkipNextIcon button |
-  | Time display | Formatted MM:SS.MS |
-  | Speed control | Select dropdown (0.2x, 0.5x, 1.0x, 1.5x, 2.0x) |
-- **States:** playing (pause icon), paused (play icon), auto-scroll (scroll-to-cursor during playback)
+- **Regions:** play/pause/stop · skip prev/next · rate (0.2×–2.0×) · MM:SS time display · track navigator
+- **States:** playing, paused, seeking, loading
+
+### 10.3 TimelineLabels (Track Rail)
+
+- **Location:** `packages/sui-timeline/src/TimelineLabels/`
+- **Regions:** `TimelineLabel` rows · `TimelineTrackActions` (mute/solo/delete/rename) · `SnapControls` · `AddTrackButton`
+- **States:** selected, locked, muted, solo, hovered, drag-source
+
+### 10.4 TimelineTrackArea
+
+- **Location:** `packages/sui-timeline/src/TimelineTrackArea/`
+- **Regions:** `TimelineTrack` rows · `TimelineTrackAreaDragLines` · collapsed view variant
+- **States:** expanded, collapsed, drag-active, drop-zone
+
+### 10.5 TimelineTrack & TimelineAction
+
+- **Location:** `packages/sui-timeline/src/TimelineTrack/TimelineTrack.tsx`, `TimelineAction/TimelineAction.tsx`
+- **Regions:** label · action blocks (start/duration/preview) · DnD surface
+- **States (track):** selected, locked, muted, dragging, resizing, empty
+- **States (action):** selected, playing, hovered, dragging, resizing, error
+
+### 10.6 TimelineCursor / TimelineTime / TimelineScrollResizer
+
+- **Location:** `packages/sui-timeline/src/TimelineCursor/`, `TimelineTime/`, `TimelineScrollResizer/`
+- **Regions:** vertical playhead line / tick header / horizontal+vertical resize handles
+- **States:** playing/paused/seekable, zoomed scale, dragging/idle
 
 ---
 
-## 6. File Explorer Views
+## 11. File-Explorer Package Views — `@stoked-ui/file-explorer`
 
-### 6.1 FileExplorer (Full)
+`packages/sui-file-explorer/src/`.
 
-- **Products:** `sui-file-explorer`, `sui-editor`
-- **Location:** `packages/sui-file-explorer/src/FileExplorer/FileExplorer.tsx`
-- **Regions:**
-  | Zone | Component |
-  |------|-----------|
-  | Tree view | `<ul>` hierarchy — `File` items as `<li>` with icons, labels, checkboxes |
-  | Grid headers | `FileExplorerGridHeaders` — column headers (name, size, lastModified) when `grid={true}` |
-  | Grid columns | `FileExplorerGridColumns` — metadata columns per file item |
-  | Dropzone | `FileDropzone` — "drag and drop files here" overlay when `dropzone={true}` |
-- **View Modes:**
-  - **Tree mode** (default): Hierarchical with indentation (`itemChildrenIndentation`, default 12px), collapsible folders
-  - **Grid mode** (`grid={true}`): Multi-column table layout with headers, alternating row classes (`.Mui-odd`/`.Mui-even`)
-- **States:** tree-mode, grid-mode, expanded (folder open), collapsed (folder closed), selected (single/multi via `checkboxSelection`/`multiSelect`), focused, disabled, dnd-idle, dnd-dragging, dnd-preview, dnd-parent-of-instruction, drop-target-active
+### 11.1 FileExplorer / FileExplorerBasic
 
-### 6.2 FileExplorerBasic
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Location:** `packages/sui-file-explorer/src/FileExplorer/FileExplorer.tsx`, `FileExplorerBasic/FileExplorerBasic.tsx`
+- **Regions:** tree list (`ul.MuiFileExplorer-root`) · optional grid headers · selection checkbox column
+- **States:** expanded, collapsed, multi-select, drag-active, drop-zone, filtered, virtualized
 
-- **Products:** `sui-file-explorer`
-- **Location:** `packages/sui-file-explorer/src/FileExplorerBasic/FileExplorerBasic.tsx`
-- **Regions:**
-  | Zone | Component |
-  |------|-----------|
-  | Tree view | Simplified `<ul>` hierarchy with `FileElement` items (JSX children-based, not items array) |
-- **States:** expanded, collapsed, selected, focused
+### 11.2 File / FileElement (Tree Item)
 
-### 6.3 FileExplorerTabs
+- **Location:** `packages/sui-file-explorer/src/File/`, `FileElement/`
+- **Regions:** `FileLabel` · `FileIconContainer` · `FileExtras` (context menu/actions) · selection checkbox
+- **States:** expanded/collapsed, selected, focused, disabled, locked, hovered, drag-source, drop-target
 
-- **Products:** `sui-file-explorer`, `sui-editor`
+### 11.3 FileDropzone
+
+- **Location:** `packages/sui-file-explorer/src/FileDropzone/FileDropzone.tsx`
+- **Regions:** drop target with drag-over highlight
+- **States:** idle, drag-over, uploading, success, error
+
+### 11.4 FileExplorerTabs
+
 - **Location:** `packages/sui-file-explorer/src/FileExplorerTabs/FileExplorerTabs.tsx`
-- **Regions:**
-  | Zone | Component |
-  |------|-----------|
-  | Tab bar | MUI `TabList` — tab buttons for each file group |
-  | Tab panels | `ExplorerPanel` — `FileExplorer` instance per tab |
-- **Variants:** `standard` (static tabs), `drawer` (collapsible bottom panel, 49px mini → 300px full)
-- **States:** tab-selected, drawer-open, drawer-collapsed, empty-tab (no TabPanel shown)
+- **Regions:** tabs (Files/Assets/Exports/...) · active tab content (`FileExplorer` or `FileDropzone`)
+- **States:** active-tab, loading, empty
 
-### 6.4 File Item
+### 11.5 Grid View Plugin
 
-- **Products:** `sui-file-explorer`
-- **Location:** `packages/sui-file-explorer/src/File/File.tsx`
-- **Regions:**
-  | Zone | Component |
-  |------|-----------|
-  | Drop indicator | `DropIndicator` — drag-drop guidance |
-  | Checkbox | `FileCheckbox` — selection checkbox (when `checkboxSelection` enabled) |
-  | Label | `FileLabel` — `FileIconContainer` (maps mediaType to icon: folder, image, video, audio, pdf, doc, lottie, project, trash) + text |
-  | Grid columns | `FileExplorerGridColumns` (grid mode only) |
-  | Children | `TransitionComponent` (Collapse) — nested file items |
-- **States:** expanded, selected, focused, disabled, grid/list mode, odd/even row alternation
-
-### 6.5 FileElement (Tree Item)
-
-- **Products:** `sui-file-explorer`
-- **Location:** `packages/sui-file-explorer/src/FileElement/FileElement.tsx`
-- **Regions:**
-  | Zone | Component |
-  |------|-----------|
-  | Expansion icon | Toggle arrow (visible when expandable + has children) |
-  | Content | `FileElementContent` — expansion icon + label + end icon |
-  | Children group | `FileElementGroup` (MUI Collapse animation) |
-- **States:** expanded, selected, focused, disabled
-- **Accessibility:** `role="treeitem"`, `aria-expanded`, `aria-selected`, `aria-disabled`
+- **Location:** `packages/sui-file-explorer/src/internals/plugins/useFileExplorerGrid/`
+- **Regions:** `FileExplorerGridHeaders`, `FileExplorerGridColumns`, `FileExplorerGridHeaderCell`
+- **States:** sorted, filtered, resizable, sortable, default
 
 ---
 
-## 7. Media Views
+## 12. Media Package Views — `@stoked-ui/media`
 
-### 7.1 MediaViewer
+`packages/sui-media/src/components/`.
 
-- **Products:** `sui-media`
+### 12.1 MediaViewer
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
 - **Location:** `packages/sui-media/src/components/MediaViewer/index.tsx`
-- **Regions:**
-  | Zone | Component |
-  |------|-----------|
-  | Header | `MediaViewerHeader` — title/metadata bar (`VideoTitleBar` for video, `MediaInfo` for images), close button, theater exit button |
-  | Primary display | `MediaViewerPrimary` — video or image renderer with prev/next navigation buttons, skeleton loader, quality selector overlay |
-  | Next up queue | `NextUpHeader` — preview cards (only in NORMAL mode when `enableQueue` true) |
-  | Quality selector | `QualitySelector` — gear icon overlay for adaptive bitrate (480p, 720p, 1080p, 4K, auto) |
-  | Now playing | `NowPlayingIndicator` — current playback status |
-- **View Modes (FSM):**
-  | Mode | Dimensions | Behavior |
-  |------|-----------|----------|
-  | `NORMAL` (0) | 90vw max, rounded corners | Preview cards visible, embedded feel |
-  | `THEATER` (1) | 100vw, 95vh | No preview cards, maximized viewport |
-  | `FULLSCREEN` (2) | 100vw, 100vh | Browser fullscreen API |
-- **State Transitions:** `CYCLE` (cycles through), `ENTER_THEATER`, `ENTER_FULLSCREEN`, `EXIT_TO_NORMAL`, `EXIT_FULLSCREEN`, `RESET`
-- **States:** loading (`CircularProgress` + "Loading media from server..."), error (`Alert` with message), content (header + primary + queue), quality-switching (spinner during switch)
-- **Keyboard Shortcuts:** ArrowLeft/Right (prev/next), Escape (exit to normal), `f` (cycle fullscreen), `q` (cycle quality)
-- **Controls Visibility:** Mouse move/enter shows controls (3s timeout), double-click cycles fullscreen
+- **Regions:** `ViewerDialog` · `MediaViewerHeader` (title/close/queue) · `MediaContainer` · `MediaViewerPrimary` (`<video>`/`<img>`) · `NextUpHeader` · `QualitySelector` · `NowPlayingIndicator`
+- **States:** open/closed, fullscreen, theater-mode, normal, loading, playing, paused, error
 
-### 7.2 MediaGallery
+### 12.2 MediaCard
 
-- **Products:** `sui-media`
-- **Location:** `packages/sui-media/src/components/MediaGallery/MediaGallery.tsx`
-- **Regions:**
-  | Zone | Component |
-  |------|-----------|
-  | Grid | `Masonry` layout — responsive columns (`xs:1, sm:2, md:3, lg:4`), customizable gap |
-  | Cards | `MediaCard` instances per item |
-  | Integrated viewer | `MediaViewer` dialog — opens on card click, navigates between gallery items |
-- **Data Sources:** Direct array (`source.data`), REST endpoint (`source.endpoint`), S3 bucket proxy (`source.s3Bucket`)
-- **Mode States:**
-  | Mode | Behavior |
-  |------|----------|
-  | `view` | Normal browsing, click opens viewer |
-  | `select` | Selection mode with checkboxes, multi-select |
-- **States:** loading (`CircularProgress`), error (`Alert`), populated (masonry grid), viewer-open (full-screen viewer dialog)
-
-### 7.3 MediaCard
-
-- **Products:** `sui-media`
 - **Location:** `packages/sui-media/src/components/MediaCard/MediaCard.tsx`
-- **Regions:**
-  | Zone | Component |
-  |------|-----------|
-  | Thumbnail | `CardMedia` — image or video frame preview |
-  | Progress bar | `VideoProgressBar` — playback progress overlay (videos only) |
-  | Thumbnail strip | `ThumbnailStrip` — horizontal sprite-sheet frame strip on hover |
-  | Metadata | Title, duration overlay, publicity badge (Public/Private/Paid), view count |
-  | Selection checkbox | Top-left overlay (when `globalSelectionMode` active) |
-  | Hover controls | Play, Edit, Delete, Toggle Public, Toggle Adult Content buttons (on hover, owner-only for edit/delete) |
-- **Display Modes:** `otherContent`, `myContent`, `featured`, `squareMode` (1:1 aspect), `minimalMode` (reduced controls)
-- **States:** idle, hovered (thumbnail strip + controls visible), selected (in selection mode), playing (progress bar active), requires-payment (payment flow on click for non-owners)
+- **Regions:** poster/thumbnail · `VideoProgressBar` · `ThumbnailStrip` (hover preview frames) · title/metadata · action buttons (play/edit/delete/public-private toggle) · selection checkbox
+- **States:** hovered, selected, loading, error, play-on-hover, editing, locked
 
-### 7.4 VideoProgressBar
+### 12.3 MediaGallery
 
-- **Products:** `sui-media`
-- **Location:** `packages/sui-media/src/components/MediaCard/VideoProgressBar.tsx`
-- **Regions:**
-  | Zone | Component |
-  |------|-----------|
-  | Fill bar | Red progress fill (3px, 6px on hover) |
-  | Hover zone | Invisible 100px hit area for thumbnail triggering |
-  | Scrubber | Circle handle at fill end (visible on hover/drag, scale 1.2 when dragging) |
-  | Time tooltip | MM:SS or HH:MM:SS positioned above bar (when no sprite sheet) |
-  | Thumbnail strip | `ThumbnailStrip` — sprite preview on hover (when `spriteUrl && spriteConfig` provided) |
-- **States:** idle, hover (time tooltip visible), dragging (scrubber active, document-level listeners), seeking (click to position)
+- **Location:** `packages/sui-media/src/components/MediaGallery/MediaGallery.tsx`
+- **Regions:** masonry grid of `MediaCard` · integrated `MediaViewer` overlay · loader · error alert
+- **States:** loading, success, error, empty, item-selected, filtering
 
----
+### 12.4 WebUserDirectChat
 
-## 8. GitHub Views
-
-### 8.1 GitHub Contribution Calendar
-
-- **Products:** `sui-github`
-- **Location:** `packages/sui-github/src/GithubCalendar/GithubCalendar.tsx`
-- **Regions:**
-  | Zone | Component |
-  |------|-----------|
-  | Calendar heatmap | 7-column grid of color-coded contribution blocks (`ActivityCalendar` from `react-activity-calendar`) |
-  | Labels | Day/month labels on hover |
-- **States:** loading (fetching from API), rendered, hover (labels visible), animated (punch/highlight effects with random delay), responsive (windowMode vs containerMode block sizing), light/dark theme variants
-
-### 8.2 GitHub Events Feed
-
-- **Products:** `sui-github`
-- **Location:** `packages/sui-github/src/GithubEvents/GithubEvents.tsx`
-- **Regions:**
-  | Zone | Component |
-  |------|-----------|
-  | Search/filter bar | Repo select, date range selector, event type filter |
-  | Events list | Event cards by type (see table below) |
-  | Pagination | Page controls |
-  | Timezone display | Current timezone indicator |
-- **Event Type Renderers** (in `packages/sui-github/src/GithubEvents/EventTypes/`):
-  | Type | Component |
-  |------|-----------|
-  | PullRequestEvent | `PullRequestEvent.tsx` — PR summary with commit list and file changes |
-  | PushEvent | `PushEvent.tsx` |
-  | IssuesEvent | `IssuesEvent.tsx` |
-  | IssueCommentEvent | `IssueCommentEvent.tsx` |
-  | CreateEvent | `CreateEvent.tsx` |
-  | DeleteEvent | `DeleteEvent.tsx` |
-  | ForkEvent | `ForkEvent.tsx` |
-  | ProjectsV2Event | `ProjectsV2Event.tsx` |
-  | ProjectsV2ItemEvent | `ProjectsV2ItemEvent.tsx` |
-  | ProjectsV2ColumnEvent | `ProjectsV2ColumnEvent.tsx` |
-  | ProjectsV2FieldEvent | `ProjectsV2FieldEvent.tsx` |
-- **States:** loading, error, empty, populated, filtered, paginated
-
-### 8.3 Pull Request Detail
-
-- **Products:** `sui-github`
-- **Location:** `packages/sui-github/src/GithubEvents/EventTypes/PullRequest/PullRequestView.tsx`
-- **Regions:**
-  | Zone | Component |
-  |------|-----------|
-  | PR header | Title, number, status |
-  | Commits tab | `CommitsList` — list of commits in the PR |
-  | File changes tab | `FileChanges` — diff viewer for changed files |
-- **States:** commits-tab-active, file-changes-tab-active
-
----
-
-## 9. Shared UI Components (Cross-Cutting Views)
-
-### 9.1 App Header
-
-- **Products:** All docs site pages
-- **Location:** `docs/src/layouts/AppHeader.tsx`
-- **Regions:**
-  | Zone | Component |
-  |------|-----------|
-  | Banner | `AppHeaderBanner` — dismissible announcement strip |
-  | Logo | Stoked UI / Stoked Consulting branding |
-  | Nav menu | Product menu, Docs menu, Consulting menu (`ProductMenu` with `Popper` dropdowns) |
-  | Search | `DeferredAppSearch` |
-  | Theme toggle | Light/dark mode button |
-  | User menu | `UserMenu` — avatar, settings, sign out |
-- **States:** menu-open (popper visible with fade transition), menu-closed, mobile (hamburger), desktop (full nav), sticky (fixed position)
-
-### 9.2 User Menu
-
-- **Products:** `sui-common`
-- **Location:** `packages/sui-common/src/UserMenu/UserMenu.tsx`
-- **Regions:**
-  | Zone | Component |
-  |------|-----------|
-  | Avatar trigger | Initials avatar button with name/role label |
-  | Dropdown menu | Popup with Settings, Licenses, Billing, Sign Out items |
-- **States:** closed, open (menu anchored to avatar), hover
-
-### 9.3 Social Links
-
-- **Products:** `sui-common`
-- **Location:** `packages/sui-common/src/SocialLinks/SocialLinks.tsx`
-- **Regions:**
-  | Zone | Component |
-  |------|-----------|
-  | Link fields | `SocialLinkField` per platform (Instagram, X, YouTube, etc.) — icon + label + text input with prefix adornment |
-- **States:** controlled, uncontrolled, disabled, readOnly
-
-### 9.4 Demo Viewer (Documentation)
-
-- **Products:** `sui-docs`
-- **Location:** `packages/sui-docs/src/components/Demo.tsx`, `DemoEditor.tsx`, `DemoSandbox.tsx`, `DemoToolbar.tsx`
-- **Regions:**
-  | Zone | Component |
-  |------|-----------|
-  | Preview | `ReactRunner` or `DemoSandbox` (iframe with Joy UI / standard MUI theme) — live component render |
-  | Toolbar | `DemoToolbar` — styling solution dropdown, language toggle (JS/TS), visibility controls, edit buttons (StackBlitz, CodeSandbox, Copy), reset, more menu |
-  | Code editor | `DemoEditor` — editable Prism-highlighted code block with scroll container and keyboard hint overlay |
-  | Error display | `DemoEditorError` — positioned overlay alert on render failure |
-- **States:** preview-only (code hidden), code-visible, editing (live code changes), error (render failure), variant-toggled (TS/JS), styling-toggled, iframe-loaded/not-loaded, RTL-direction
-
-### 9.5 Code Viewers
-
-- **Products:** `sui-docs`
-- **Location:** `packages/sui-docs/src/components/HighlightedCode.tsx`, `HighlightedCodeWithTabs.tsx`, `DemoCodeViewer/index.tsx`
-- **Regions:**
-  | Zone | Component |
-  |------|-----------|
-  | Code block | Prism syntax-highlighted content with copy button |
-  | Tab bar | `HighlightedCodeWithTabs` — multiple language/variant tabs with underline indicator, persistent selection via localStorage |
-  | Tab panels | Code block per tab |
-- **States:** copied (button feedback), tab-selected
-
-### 9.6 Markdown Renderer
-
-- **Products:** `sui-docs`
-- **Location:** `packages/sui-docs/src/components/MarkdownElement.tsx`, `RichMarkdownElement.tsx`
-- **Regions:** Renders HTML from markdown — headings, code blocks, tables, blockquotes, lists, callouts, links, keyboard hints
-- **RichMarkdownElement routing:** Routes markdown sections to `MarkdownElement`, `HighlightedCodeWithTabs`, custom components, or `Demo`
-- **States:** rendered (static content)
-
-### 9.7 GrokLoader
-
-- **Products:** `sui-common`
-- **Location:** `packages/sui-common/src/GrokLoader/GrokLoader.tsx`
-- **Regions:** Single animated region — 3 dots in triangle formation using framer-motion
-- **States:** animating (continuous — radius, rotation, scale keyframes)
-
-### 9.8 VideoDb Viewer
-
-- **Products:** `sui-common`
-- **Location:** `packages/sui-common/src/LocalDb/VideoDb.tsx`
-- **Regions:**
-  | Zone | Component |
-  |------|-----------|
-  | Loading | `GrokLoader` spinner |
-  | Video list | Video name + `<video>` player elements from IndexedDB |
-- **States:** loading (IndexedDB fetch), loaded (video list rendered), error
-
-### 9.9 InfoCard
-
-- **Products:** `sui-docs`
-- **Location:** `packages/sui-docs/src/InfoCard/InfoCard.tsx`
-- **Regions:** Icon with glow effect, title, description, optional page link
-- **States:** dense layout, default layout
-
-### 9.10 WebUserDirectChat
-
-- **Products:** `sui-media`
 - **Location:** `packages/sui-media/src/components/WebUserDirectChat/WebUserDirectChat.tsx`
-- **Regions:** Conversational intake transcript, live message transcript, composer, retry/start-over footer for handshake failures
-- **States:** idle, collecting (user entering data), loading (sending), live (Telegram-backed chat open), complete (one-shot providers), error (submission failed)
+- **Regions:** message list · composer · status bar
+- **States:** connected, disconnected, typing, message-received
+
+### 12.5 Stage / Players
+
+- **Location:** `packages/sui-media/src/Stage/`, `packages/sui-media/src/players/`
+- **Regions:** `Stage` shadow-DOM canvas · video/audio `<video>`/`<audio>` players
+- **States:** ready, playing, paused, buffering, ended, error
 
 ---
 
-## 10. Docs Site — Secondary Pages
+## 13. CDN Package View — `@stoked-ui/cdn`
 
-### 10.1 Premium Theme Pages
+### 13.1 CdnBrowser
 
-- **Products:** `sui-docs`
-- **Location:** `docs/pages/premium-themes/onepirate/`, `docs/pages/premium-themes/paperbase/`
-- **Regions:** Full standalone theme demonstrations (sign-in, sign-up, forgot-password, privacy, terms, dashboard)
-- **States:** per-page form states (idle, submitting, error, success)
-
-### 10.2 Pricing Page
-
-- **Products:** Docs site
-- **Location:** `docs/pages/pricing.tsx`
-- **Regions:** Header, pricing grid, footer
-- **States:** static
-
-### 10.3 CLI Auth Page
-
-- **Products:** Docs site
-- **Location:** `docs/pages/cli/auth.tsx`
-- **Regions:** CLI authentication documentation/instructions
-- **States:** static
-
-### 10.4 Feedback Page
-
-- **Products:** All products
-- **Location:** `docs/pages/products/feedback.tsx`
-- **Regions:** Feedback form (product selector, message input, submit)
-- **States:** idle, submitting, submitted, error
-
-### 10.5 GitHub Integration Pages
-
-- **Products:** `sui-github`
-- **Location:** `docs/pages/github/main.tsx`, `docs/pages/github/docs/*.js`
-- **Regions:** Header, hero, docs content (calendar, events, roadmap, overview)
-- **States:** standard doc page states
-
-### 10.6 Video Renderer Docs
-
-- **Products:** `sui-video-renderer`
-- **Location:** `docs/pages/video-renderer/docs/*.js`
-- **Regions:** Standard documentation layout with WASM-specific content
-- **States:** standard doc page states
-
-### 10.7 Experiment Pages
-
-- **Products:** `sui-docs`
-- **Location:** `docs/pages/experiments/base/` (components-gallery, listbox, menu, popup, tabs, use-host-element-name), `docs/pages/experiments/website/branding-theme-test.tsx`
-- **Regions:** Isolated component testing/preview environments
-- **States:** loaded (component test state)
-
-### 10.8 Components Gallery
-
-- **Products:** Docs site
-- **Location:** `docs/pages/components.tsx`
-- **Regions:** Component showcase and gallery
-- **States:** loaded
-
-### 10.9 Subscription Page
-
-- **Products:** Docs site
-- **Location:** `docs/pages/subscription.tsx`
-- **Regions:** Subscription options and management
-- **States:** loaded
-
-### 10.10 Templates / Design Kits
-
-- **Products:** Docs site
-- **Location:** `docs/pages/templates.tsx`, `docs/pages/design-kits.tsx`
-- **Regions:** Template/design-kit gallery
-- **States:** loaded
-
----
-
-## 11. CDN Admin App
-
-### 11.1 CDN File Browser
-
-- **Products:** CDN admin (internal)
-- **Location:** `packages-internal/cdn/src/App.jsx`
-- **URL:** `cdn.stokedconsulting.com`
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Location:** `packages/sui-cdn/src/CdnBrowser/CdnBrowser.tsx`
 - **Regions:**
-  | Zone | Component |
-  |------|-----------|
-  | Breadcrumb navigation | Current directory path |
-  | Search/filter bar | File search with deferred state |
-  | File list | Directory browsing with file metadata |
-  | Upload zone | Multipart file upload with progress tracking and resumption |
-  | Actions toolbar | Delete, move, export (zip download) operations |
-- **States:** browsing (directory listing), searching (filtered results), uploading (progress tracking), authenticated (session from docs site), role-restricted (admin/client/agent/subscriber visibility)
+  | Zone | Content |
+  |------|---------|
+  | Hero | title, search, auth status, stats |
+  | Pathbar | breadcrumb directory navigation |
+  | View toggle | list / gallery mode |
+  | Listing | folder cards · file gallery thumbnails · file table (name/date/size/actions) |
+  | Permission editor | role/user restriction panel |
+  | Upload list | active upload queue |
+  | Feedback | error / empty messaging |
+- **States:**
+  - Directory: loading, success, error, empty
+  - Auth: authenticated, unauthenticated, loading, error
+  - Upload: per-item uploading, complete, error
+  - Rename: active-rename-path
+  - Permissions: editor-open, loading, saving, clearing, ready
+  - View: list-mode, gallery-mode
+  - Drag: drag-active, drop-target
 
 ---
 
-## View Count Summary
+## 14. GitHub Package Views — `@stoked-ui/github`
 
-| Category | View Count |
-|----------|-----------|
-| Public product pages | 10 |
-| Product documentation pages | ~20 |
-| Consulting admin views | 18 |
-| Blog views | 5 |
-| Editor composite views | 9 |
-| Timeline views | 4 |
-| File explorer views | 5 |
-| Media views | 4 |
-| GitHub views | 3 |
-| Shared cross-cutting views | 10 |
-| Secondary/misc pages | 10 |
-| CDN admin views | 1 |
-| **Total distinct views** | **~99** |
+### 14.1 GithubEvents
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Location:** `packages/sui-github/src/GithubEvents/GithubEvents.tsx`
+- **Regions:** event-type filter · date range picker · repo autocomplete · event list/table · pagination · sticky `MetadataDisplay` sidebar
+- **Event types rendered:** `PushEvent`, `PullRequestEvent`, `IssuesEvent`, `IssueCommentEvent`, `CreateEvent`, `DeleteEvent`, `ForksEvent`, `ProjectsV2Event`, …
+- **States:** loading, success, error, cached, selected-event, filter-applied, empty
+
+### 14.2 GithubCalendar
+
+- **Location:** `packages/sui-github/src/GithubCalendar/GithubCalendar.tsx`
+- **Regions:** activity heatmap (year × week × day) via `react-activity-calendar`
+- **States:** loading, success, error, hovered-cell; responsive (`windowMode`/`containerMode`)
+
+### 14.3 GithubBranch
+
+- **Location:** `packages/sui-github/src/GithubBranch/GithubBranch.tsx`
+- **Regions:** status badge (ahead/behind/diverged/identical) · `GithubContributorsList` · `FileChanges` · embedded `PullRequestView`
+- **States:** loading, success, error, private-mode
+
+### 14.4 GithubCommit
+
+- **Location:** `packages/sui-github/src/GithubCommit/GithubCommit.tsx`
+- **Regions:** commit hash · message · author · timestamp · file changes
+- **States:** loading, success, error
+
+### 14.5 PullRequestView
+
+- **Location:** `packages/sui-github/src/GithubEvents/EventTypes/PullRequest/PullRequestView.tsx`
+- **Regions:** PR header (title, state, merge status) · `CommitsList` · `FileChanges` · review state
+- **States:** open, draft, merged, closed, loading, error
+
+---
+
+## 15. Docs Package Primitives — `@stoked-ui/docs`
+
+`packages/sui-docs/src/components/`. Reusable view-level primitives consumed by `docs/`.
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md (used wherever MDX/doc surfaces appear)
+- **Notable views and states:**
+  | Component | Location | Regions | States |
+  |-----------|----------|---------|--------|
+  | `Demo` | `Demo.tsx` | example container | rendering, error |
+  | `DemoEditor` | `DemoEditor.tsx` | `SimpleCodeEditor` + `CodeCopyButton` + `MarkdownElement` | editing, focus, copy-success |
+  | `DemoSandbox` | `DemoSandbox.tsx` | iframe (CodeSandbox or StackBlitz) | loading, ready, error |
+  | `CodeSandbox` | `CodeSandbox.tsx` | sandbox iframe | loading, ready, error |
+  | `StackBlitz` | `StackBlitz.tsx` | StackBlitz iframe | loading, ready, error |
+  | `DemoToolbar` | `DemoToolbar.tsx` | edit/sandbox/copy/share buttons | loading, ready, success, error |
+  | `DemoCodeViewer` | `DemoCodeViewer/index.tsx` | code block | collapsed, expanded, copied |
+  | `HighlightedCode` / `HighlightedCodeWithTabs` | `HighlightedCode*.tsx` | syntax-highlighted block, tabs | loaded, error, active-tab |
+  | `MarkdownElement` / `RichMarkdownElement` | `MarkdownElement*.tsx` | rendered MDX | loading, success, error |
+  | `BrandingCssVarsProvider` / `BrandingProvider` / `DocsProvider` | `BrandingCssVarsProvider/`, `branding/`, `DocsProvider/` | theme injection | light/dark/auto |
+
+---
+
+## 16. Common Package Shared Chrome — `@stoked-ui/common`
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Notable views:**
+  | Component | Location | Regions | States |
+  |-----------|----------|---------|--------|
+  | `UserMenu` | `packages/sui-common/src/UserMenu/UserMenu.tsx` | avatar trigger · dropdown (Dashboard/Settings/Licenses/Billing/Sign-Out) | open, closed, hovered, role-conditioned items |
+  | `GrokLoader` | `packages/sui-common/src/GrokLoader/` | spinner | loading, loaded |
+  | `SocialLinks` / `SocialLinkField` | `packages/sui-common/src/SocialLinks/` | link list / link editor | viewing, editing |
+
+---
+
+## 17. Internal Vite Apps
+
+### 17.1 Internal CDN Browser (legacy app)
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md (operations tool)
+- **Location:** `packages-internal/cdn/src/main.jsx`, `packages-internal/cdn/src/App.jsx`
+- **Regions:** Header (auth status, logout) · breadcrumbs · folder grid · object list (kind icons V/D/A/I/?/F + `formatBytes`/`formatTimestamp`) · upload dialog · permission panel
+- **States:** loading, unauthenticated (login form, optional Google OAuth), authenticated, error, idle/uploading/error per upload, rename-active
+- **Endpoints:** `/api/cdn/contents`, `/api/cdn/delete`, `/api/cdn/move`, `/api/cdn/export`, `/api/cdn/folders`, `/api/cdn/permissions`, `/api/cdn/upload/*`
+
+### 17.2 CDN Sui Wrapper
+
+- **Location:** `packages-internal/cdn-sui/src/main.jsx`, `packages-internal/cdn-sui/src/App.jsx`
+- **Regions:** thin wrapper rendering `CdnBrowser` from `@stoked-ui/cdn` with `apiBaseUrl="/api/cdn"`, auth endpoints, prefix state
+- **States:** delegates to `CdnBrowser` (see §13.1)
+
+---
+
+## 18. CLI / Terminal Output — `packages/sui-video-renderer/cli`
+
+CLI binary `video-render` (Rust). Source: `packages/sui-video-renderer/cli/src/main.rs`.
+
+### 18.1 `render` Subcommand
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Invocation:** `video-render render --input project.sue --output video.mp4 [--quality --resolution --format --codec --fps --threads --progress]`
+- **Output regions (text mode, via `indicatif`):**
+  - Startup log: "Starting render job", "Input: …", "Output: …", "Output resolution: WxH", "FPS: …", "Using N worker threads"
+  - "Setting up compositor with N tracks"
+  - "Rendering M frames (D.DDs duration)"
+  - Progress bar with rolling 10-frame FPS average
+  - Completion + elapsed time
+- **Output regions (json mode):** per-frame JSON progress events
+- **States:** running (progress incrementing), paused/blocked (no progress), completed, error (anyhow error: invalid resolution format, dimensions ≤ 0, IO error, codec error)
+
+### 18.2 `info` Subcommand
+
+- **Invocation:** `video-render info --input project.sue`
+- **Output regions:** `project.print_info()` — width/height/fps/track count and other project metadata
+- **States:** success, parse-error
+
+---
+
+## 19. NestJS Media API Documentation Surface — `@stoked-ui/media-api`
+
+### 19.1 Swagger UI (Media API)
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Location:** route `/v1/api/docs` mounted by `setupSwaggerUI(app)` in `packages/sui-media-api/src/app.ts:86`; config in `packages/sui-media-api/src/swagger.config.ts`
+- **Regions:** Swagger top-bar (hidden via `customCss`) · API metadata (Title "Stoked UI Media API", description, version, contact, license MIT, servers `localhost:3001/v1` + `api.sui.stokd.cloud/v1`) · Bearer-JWT auth widget · tag groups (`Health`, `Media`, `Uploads`, `auth`) · operation list (try-it-out)
+- **States:** unauthorized, authorized (JWT entered), operation-expanded, request-loading, response-rendered, error
+
+### 19.2 OpenAPI Spec Endpoint (Docs Business API)
+
+- **Location:** `docs/pages/api/openapi.ts`
+- **Output:** JSON spec built by `getDocsApiOpenApiSpec()`; consumed by §7.2 Swagger UI
+- **States:** 200 (success), 500 (generation error); auth via `withAuth` middleware
+
+---
+
+## 20. Standalone Product Surfaces
+
+These are product pages with custom (non-`PublicProductDetailPage`) layouts. They live alongside the standard `/products/<slug>/` showcase routes but render bespoke marketing/landing content.
+
+### 20.1 Mac Mixer Product Page
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Location:** `docs/pages/products/mac-mixer/index.tsx` → `docs/src/modules/products/MacMixerProductPage.tsx`
+- **Regions:** `BrandingCssVarsProvider` · `AppHeaderBanner` · `AppHeader` · hero (title + alpha download CTA → `https://cdn.consulting.stokd.cloud/products/mac-mixer/releases/alpha/<v>/MacMixer-<v>.pkg`) · feature grid (route mapping cards: Zoom→AirPods, etc.) · device routing diagram (`Paper` cards with `Chip` route entries) · marketing copy sections (volume control, hotkeys, security, audio quality) · `NewsletterToast` · `AppFooter`
+- **States:** static (always loaded), hover (card transform), download CTA enabled/disabled
+
+### 20.2 Focus Capture / Media Selector / Always Listening / Stokd Cloud / Common
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Location:** `docs/pages/products/<slug>/index.js` + `docs/pages/products/<slug>/main.tsx` (where present)
+- **Slugs:** `focus-capture`, `media-selector`, `always-listening`, `stokd-cloud`, `common`
+- **Regions:** AppHeader · `HeroContainer` · `Section` blocks with feature cards · `Divider` · AppFooter
+- **States:** static (loaded), alpha-prerelease badge where applicable
+- **Notes:** `media-selector` retains a legacy `main.bac.tsx` backup alongside the live `main.tsx`. `always-listening` and `stokd-cloud` currently render docs trees only (no `main.tsx`).
+
+---
+
+## 21. Consulting Service-Line Pages
+
+Service-offering landing pages, one per practice area. Linked from `/consulting/main.tsx` industry/service cards.
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Location:** `docs/pages/consulting/<service>/index.js` + `docs/pages/consulting/<service>/main.tsx`
+- **Services:** `ai`, `back-end`, `front-end`, `devops`
+- **Regions:** AppHeader · `HeroContainer` (gradient title via `GradientText`) · `Section` · `Grid` of `ServiceCard` items (icon · service title · `CardContent` description) · `Divider` · AppFooter
+- **States:** static, hovered (card lift + title color shift to `#3399ff`)
+
+---
+
+## 22. Video Renderer Docs Site
+
+Standalone docs tree for the Rust → WASM video renderer outside the per-product showcase tree.
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Location:** `docs/pages/video-renderer/docs/`
+- **Pages:** `index.js`, `overview.js`, `quick-start.js`, `api-reference.js`, `rust-backend.js`, `wasm-frontend.js`, `nodejs-integration.js`
+- **Regions:** AppHeader · `AppNavDrawer` (renderer-scoped tree) · `MarkdownDocs` body · `AppTableOfContents` · AppFooter
+- **States:** loading, loaded, sidebar-collapsed (mobile), section in-view (TOC active), code-copied, theme light/dark
+
+---
+
+## 23. Company / Contact
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Location:** `docs/pages/company/contact.js` → `TopLayoutCareers` shell consuming `docs/src/pages/company/contact/contact.md`
+- **Regions:** AppHeader · MDX body (contact form / address copy) · AppFooter
+- **States:** static (loaded)
+
+---
+
+## Cross-Cutting State Vocabulary
+
+Common state names recur across views and are normalized as:
+
+- **lifecycle:** loading, ready, success, error, empty
+- **interaction:** idle, hovered, focused, selected, multi-selected, disabled
+- **edit:** viewing, editing, dirty, saving, saved, validation-error, delete-confirm
+- **media/transport:** playing, paused, buffering, seeking, ended, recording
+- **layout:** expanded, collapsed, drag-active, drop-zone, drag-source, drop-target, fullscreen, modal-open
+- **auth/session:** auth-loading, authenticated, unauthenticated, unauthorized, role-admin/-client/-subscriber/-agent
+
+---
+
+## Cross-References
+
+- Module inventory: `.stokd/meta/packages/*/SC_MODULE.md`
+- Codebase overview: `.stokd/meta/SC_OVERVIEW.md`
+- Flow / data-path inventory: `.stokd/meta/SC_FLOWS.md`
+- Test inventory: `.stokd/meta/SC_TEST.md`
+- Product doc: `.stokd/meta/products/SC_PRODUCT_STOKED_UI_SUI.md`
+- Guardrails: `.stokd/meta/SC_CONTEXT.md`, `CLAUDE.md`, `AGENTS.md`

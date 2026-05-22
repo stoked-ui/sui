@@ -3,7 +3,7 @@ import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
 import { MediaCard } from '@stoked-ui/media';
 
-const VIDEO_URL = 'https://cdn.stokedconsulting.com/products/flux/assets/flux-desktop-preview-1920x1080.mp4';
+const VIDEO_URL = 'https://cdn.consulting.stokd.cloud/products/flux/assets/flux-desktop-preview-1920x1080.mp4';
 
 const item = {
   _id: 'media-card-basic',

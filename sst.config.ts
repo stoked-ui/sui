@@ -10,7 +10,7 @@ export default $config({
           region: 'us-east-1',
           profile: process.env.GITHUB_ACTIONS
             ? undefined
-            : 'stoked'
+            : 'stokd-cloud'
         }
       }
     };

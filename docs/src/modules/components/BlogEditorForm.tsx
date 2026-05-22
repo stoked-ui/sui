@@ -103,7 +103,7 @@ const ALL_TAGS = [
   'Editor',
 ];
 
-const TARGET_SITES = ['stoked-ui.com', 'brianstoker.com'];
+const TARGET_SITES = ['sui.stokd.cloud', 'brianstoker.com'];
 
 function slugify(text: string): string {
   return text

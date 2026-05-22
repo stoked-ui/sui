@@ -43,7 +43,7 @@ export async function handler() {
     console.log(`No matching certificate found. Creating a new one for domains: ${domainNames.join(", ")}`);
 
     const requestCertificateCommand = new RequestCertificateCommand({
-      DomainName: domainNames[0],  // Primary domain (e.g., www.stoked-ui.com)
+      DomainName: domainNames[0],  // Primary domain (e.g., www.sui.stokd.cloud)
       SubjectAlternativeNames: domainNames,  // Add other domains as SANs
       ValidationMethod: "DNS",  // Use DNS validation
     });

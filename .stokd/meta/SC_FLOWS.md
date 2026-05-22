@@ -1,698 +1,720 @@
 # Stoked UI — User Flow Classification
 
-> **Generated:** 2026-03-17 | **Updated:** 2026-03-17 | **Meta version:** 0.2.0
-> **Note:** Flows reference view IDs from `SC_VIEWS.md` and package names from `SC_MODULES.md`
+> **Generated:** 2026-05-21 (upgrade 0.3.0 → 0.4.0) | **Meta version:** 0.4.0
 > **Repository:** `@stoked-ui/sui`
 > **Root:** `/opt/worktrees/stoked-ui/stoked-ui-main`
 
----
+A "flow" here = an end-to-end user journey that crosses one or more views (`SC_VIEWS.md`) and one or more product surfaces (`SC_PRODUCT_STOKED_UI_SUI.md`). Flows are derived from Next.js page routes (`docs/pages/**`), API routes (`docs/pages/api/**` + `packages/sui-media-api/src/**`), Lambda handlers (`api/**`), package components (`packages/*/src/**`), and the Rust CLI (`packages/sui-video-renderer/cli/src/main.rs`).
 
-## 1. Product Discovery & Marketing Flows
+All flows reference the single product doc in this repo:
+**Products:** `SC_PRODUCT_STOKED_UI_SUI.md` — `@stoked-ui/sui`.
 
-### 1.1 Product Showcase Browsing
+Flows are grouped by domain:
 
-- **Actor:** Visitor (unauthenticated)
-- **Goal:** Discover Stoked UI component library capabilities
-- **Steps:**
-  1. Land on home page — random product showcase auto-selected
-  2. Switch between products via `ProductsSwitcher` in the preview grid
-  3. Interact with live embedded component demos (FileExplorer, Timeline, Editor, Media)
-  4. Click product feature chips to navigate to documentation
-  5. Navigate to individual product showcase pages for deeper demos
-- **Views:** 1.1 Home Page, 1.2 Product Showcase Pages
-- **Products:** `sui-file-explorer`, `sui-media`, `sui-timeline`, `sui-editor`, `sui-docs`
-- **Entry points:** Direct URL `stoked-ui.com`, search engine landing
-
-### 1.2 Documentation Browsing
-
-- **Actor:** Developer
-- **Goal:** Learn component APIs, integration patterns, and usage examples
-- **Steps:**
-  1. Navigate to product docs via header nav or product showcase feature chips
-  2. Browse sidebar navigation for topics (getting started, API reference, demos)
-  3. Interact with live `Demo` components — toggle code visibility, switch TS/JS, change styling solution
-  4. Edit demo code inline via `DemoEditor` with live preview
-  5. Open demos in external sandboxes (StackBlitz, CodeSandbox) for deeper experimentation
-  6. Reference `ApiPage` tables for props, slots, and CSS classes
-- **Views:** 1.3 Product Documentation Pages, 9.4 Demo Viewer, 9.5 Code Viewers, 9.6 Markdown Renderer
-- **Products:** `sui-file-explorer`, `sui-media`, `sui-timeline`, `sui-editor`, `sui-docs`, `sui-github`, `sui-video-renderer`
-- **Entry points:** Header nav "Docs" menu, product showcase feature chip links, direct URL `/products/{product-id}/docs/*`
-
-### 1.3 Consulting Service Discovery
-
-- **Actor:** Prospective client (unauthenticated)
-- **Goal:** Evaluate Stoked Consulting service offerings
-- **Steps:**
-  1. Land on consulting home — random service page displayed
-  2. Browse service-specific pages (Front End, Back End, DevOps, AI)
-  3. View service cards with hover details for each specialization
-  4. Review standalone product pages (Flux, Mac Mixer, Always Listening, Stokd Cloud)
-  5. Navigate to pricing or contact information
-- **Views:** 2.11 Consulting Service Pages, 2.12 Consulting Home, 1.4 Standalone Product Pages, 10.2 Pricing Page
-- **Products:** Docs site (consulting)
-- **Entry points:** Direct URL `stokedconsulting.com`, consulting nav menu in header, redirected consulting-owned product slugs from `stoked-ui.com/products/*`
+1. Marketing & content discovery
+2. Account & authentication
+3. Commerce & licensing
+4. Editor & timeline (component product flows)
+5. File explorer & media flows
+6. CDN admin
+7. Consulting / business operations (admin)
+8. Blog publishing
+9. Customer feedback
+10. GitHub widgets / activity
+11. Developer & contributor flows
+12. CLI / native tooling
+13. Webhooks & system events
 
 ---
 
-## 2. Authentication Flows
+## 1. Marketing & Content Discovery
 
-### 2.1 Web Login
+### 1.1 Visit Home & Pick a Product
 
-- **Actor:** Registered user (admin, client, agent, subscriber)
-- **Goal:** Authenticate to access protected portal areas
+- **Actor:** Anonymous visitor
+- **Goal:** Land on the marketing site, sample one of the live component demos, navigate to a product
+- **Entry points:** Direct URL (`/`), referral, search engine, Discord/social link
 - **Steps:**
-  1. Navigate to login page or get redirected from a protected route
-  2. Enter email + password, or click Google OAuth button
-  3. For email: `POST /api/auth/login` → server sets `stoked_auth` HTTP-only cookie
-  4. For Google: `POST /api/auth/google` → Lambda validates token → sets cookie
-  5. Redirect to appropriate portal based on role (admin → admin dashboard, client → customer portal)
-  6. Cross-origin session transfer: if navigating between `stoked-ui.com` and `stokedconsulting.com`, a 5-minute JWT transfer token syncs the session via `/api/auth/transfer` → `/api/auth/exchange`
-- **Views:** 2.2 Login Page, 2.1 Admin Dashboard (post-login redirect), 2.3 Customer Portal (post-login redirect)
-- **Products:** Docs site (consulting)
-- **Entry points:** URL `/consulting/login`, redirect from any authenticated route, cross-origin navigation
+  1. Browser hits `docs/pages/index.tsx`.
+  2. Site-wide chrome (header/banner/footer) renders via §1.1 *Home Page* of `SC_VIEWS.md`.
+  3. `RandomHome` (`docs/src/components/home/RandomHome.tsx`) randomly mounts one of `HeroEditor` / `HeroTimeline` / `HeroFileExplorer` / `HeroFlux` / `HeroStokedUi` / rusty-editor demo (intersection-observer gated).
+  4. User clicks a product card (or product menu) → routes to a §2 showcase or §3 docs MDX shell.
+  5. Optional: `NewsletterToast` opens; user submits email → `POST api/subscribe` (Lambda `api/subscribe.ts`).
+- **Views:** §1.1 Home, §2 Product Showcase pages (`HeroEditor`, `HeroTimeline`, `HeroFileExplorer`, `HeroFlux`, `HeroStokedUi`, `HeroGithub`), §8 Embedded Showcase / Hero Components
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
 
-### 2.2 CLI Authentication
+### 1.2 Browse Public Product Detail
 
-- **Actor:** Developer using `stoked` CLI tool
-- **Goal:** Obtain API key for programmatic access to Stoked APIs
+- **Actor:** Anonymous visitor
+- **Goal:** Read marketing detail for a single product (Editor / Timeline / FileExplorer / Media / GitHub / Flux)
+- **Entry points:** `/products`, `/products/[slug]` link, header product menu
 - **Steps:**
-  1. Run CLI auth command — CLI starts local HTTP server on ephemeral port
-  2. CLI opens browser to `/cli/auth?port={port}&state={state}`
-  3. User authenticates in browser (if not already logged in, redirected to login)
-  4. Browser sends authorization callback to CLI's local server
-  5. CLI receives API key via `POST /api/auth/cli/authorize`
-  6. CLI stores API key locally for subsequent requests
-- **Views:** 10.3 CLI Auth Page, 2.2 Login Page (if not authenticated)
-- **Products:** Docs site (consulting), `stoked-cli` (internal)
-- **Entry points:** CLI command `stoked auth`
+  1. `docs/pages/products/index.tsx` renders the product index card grid.
+  2. User clicks a product → `docs/pages/products/[product-slug].tsx` resolves the slug and calls `GET /api/products/public/[slug]` (`docs/pages/api/products/public/[slug].ts`).
+  3. `PublicProductDetailPage` renders hero + features + doc list + CTA.
+  4. CTA either deep-links into §3 product MDX docs, the §2 hero showcase, or §3.1 Pricing.
+- **Views:** §1.2 Products Index, §1.3 Public Product Detail, §2 Showcase
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
 
-### 2.3 User Registration
+### 1.3 Read Product Documentation
 
-- **Actor:** New user (invited or self-registering)
-- **Goal:** Create an account on the platform
+- **Actor:** Developer / evaluator
+- **Goal:** Read MDX docs for a `@stoked-ui/*` package, run live `Demo` examples, copy code
+- **Entry points:** `/timeline/docs/...`, `/editor/docs/...`, `/file-explorer/docs/...`, `/media/docs/...`, `/github/docs/...`
 - **Steps:**
-  1. Navigate to registration endpoint or be invited by admin
-  2. Provide email, password, and profile information
-  3. `POST /api/auth/register` creates account
-  4. Role auto-assigned: admin for `AUTH_AUTO_DOMAINS` emails, otherwise `totally stoked` (default)
-  5. Redirected to appropriate portal
-- **Views:** 2.2 Login Page (registration form variant)
-- **Products:** Docs site (consulting)
-- **Entry points:** Registration link, admin invitation
+  1. Per-product docs route (e.g., `docs/pages/timeline/docs/getting-started/installation.tsx`) renders `AppLayoutDocs`.
+  2. `AppNavDrawer` lists sibling pages; `AppTableOfContents` mirrors headings.
+  3. `MarkdownDocs` (`docs/src/modules/components/MarkdownDocs.js`) hydrates MDX with `<Demo>`, `<HighlightedCode>`, `<CodeSandbox>` / `<StackBlitz>`.
+  4. User toggles light/dark, copies a code block (`CodeCopyButton`), opens a sandbox, or launches a CodeSandbox/StackBlitz.
+- **Views:** §3 Product Documentation Shell, §15 Docs Package Primitives (`Demo`, `DemoEditor`, `DemoSandbox`, `CodeSandbox`, `StackBlitz`, `HighlightedCode`, `MarkdownElement`)
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+
+### 1.4 Read Blog Index → Post
+
+- **Actor:** Anonymous visitor
+- **Goal:** Discover and read a blog post
+- **Entry points:** `/blog`, header link, post share URL
+- **Steps:**
+  1. `docs/pages/blog/index.tsx` calls `GET /api/blog/public` (`docs/pages/api/blog/public.ts`) for published-only posts.
+  2. `BlogPostList` renders cards (avatar, tags, date); user filters by tag (client-side) or paginates.
+  3. User clicks → `docs/pages/blog/[slug].tsx` calls `GET /api/blog/public?slug=...` (or static-prop fetch); `BlogContainer` renders title + authors + MDX body.
+- **Views:** §1.8 Blog Index & Post
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+
+### 1.5 Subscribe to Newsletter / Confirm Subscription
+
+- **Actor:** Anonymous visitor → confirmed subscriber
+- **Goal:** Opt in to the mailing list and confirm via emailed link
+- **Entry points:** `NewsletterToast`, `/subscription?code=&email=`
+- **Steps:**
+  1. User submits email → `POST /api/subscribe` (Lambda handler `api/subscribe.ts`) writes pending record + sends SES confirmation.
+  2. Email link opens `docs/pages/subscription.tsx?code=...&email=...`; client calls confirmation endpoint (in `api/subscribe.ts`).
+  3. Page renders state per HTTP code (200 verified / 201 already / 401 invalid / 402 system / 404 missing / 500 / no-code instructions).
+- **Views:** §1.7 About / Careers / Feedback / Subscription Confirm
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
 
 ---
 
-## 3. Video Editing Flows
+## 2. Account & Authentication
 
-### 3.1 Project Creation
+### 2.1 Email + Password Sign-Up & Sign-In
 
-- **Actor:** Editor user
-- **Goal:** Create a new video editing project with media tracks
+- **Actor:** Visitor → authenticated user
+- **Goal:** Create an account or sign in to access the consulting portal / admin / settings
+- **Entry points:** `/consulting/login`, redirect from any auth-gated page, "Sign in" CTA in `AppHeader`/`UserMenu`
 - **Steps:**
-  1. Open Editor component (via PWA or embedded instance)
-  2. Editor initializes: `EngineState.LOADING` → Loader displayed with loop video
-  3. Add media files via "Add Files" button → `MediaFile.openDialog()` opens file picker
-  4. Selected files processed: `extractMetadata()` extracts duration, dimensions, thumbnails
-  5. `getTracksFromMediaFiles()` converts files to `EditorTrack` objects with controllers
-  6. Tracks dispatched via `SET_TRACKS` action → Timeline renders with populated tracks
-  7. Engine transitions: `LOADING` → `READY` → canvas renders first frame
-  8. Project auto-saved to IndexedDB via `LocalDb`
-- **Views:** 4.1 Editor (Full Application), 4.2 Editor Preview, 4.7 Editor Loader, 4.6 Editor File Tabs, 5.1 Timeline
-- **Products:** `sui-editor`, `sui-timeline`, `sui-media`, `sui-file-explorer`
-- **Entry points:** URL `/products/editor/pwa`, Editor component mount in any host app
+  1. `docs/pages/consulting/login.tsx` renders the form (or registration sub-form) and reads any `?redirect=` capture.
+  2. Submit hits `POST /api/auth/login` (`docs/pages/api/auth/login.ts`) or `POST /api/auth/register` (`docs/pages/api/auth/register.ts`); server validates against Mongo, signs a JWT.
+  3. Client persists token to `localStorage["auth"]` and re-runs `GET /api/auth/session` (`docs/pages/api/auth/session.ts`) to hydrate role.
+  4. Role-based redirect: admin → `/consulting/admin`, client/customer → `/consulting/customer`, default → `/consulting/home` (or `?redirect=` value).
+- **Views:** §4.1 Consulting Login, §4.2 Consulting Home, §4.3 Customer Dashboard, §5.1 Admin Dashboard, §16 `UserMenu`
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
 
-### 3.2 Timeline Editing
+### 2.2 Google OAuth Sign-In
 
-- **Actor:** Editor user
-- **Goal:** Arrange, trim, and position media clips on the timeline
+- **Actor:** Visitor → authenticated user
+- **Goal:** Sign in with Google (no password)
+- **Entry points:** `GoogleLogin` button on `/consulting/login`, internal CDN app (`packages-internal/cdn`)
 - **Steps:**
-  1. View tracks in timeline — each track is a horizontal lane with action clips
-  2. **Move clip:** Drag action left/right → `onActionMoving` callback → new start/end times calculated → `UPDATE_ACTION` dispatched
-  3. **Trim clip:** Drag left/right edge of action → `onActionResizing` → action duration updated
-  4. **Select clip:** Click action → `SELECT_ACTION` dispatched → border highlight + resize handles visible
-  5. **Reorder tracks:** Drag track labels to reorder stacking (z-order affects canvas compositing)
-  6. **Toggle snap:** Enable grid-snap or edge-snap via `SnapControls` for precise alignment
-  7. **Zoom timeline:** Use `ZoomControls` (hold-to-repeat) to adjust time scale
-  8. **Scrub playhead:** Click timeline ruler or drag `TimelineCursor` to navigate to specific time
-  9. **Undo/Redo:** Ctrl+Z / Ctrl+Y via `KeyDownControls`
-  10. Engine re-renders canvas after each edit when `autoReRender` enabled
-- **Views:** 5.1 Timeline, 5.3 Timeline Action (Clip), 5.4 Timeline Player, 4.1 Editor
-- **Products:** `sui-timeline`, `sui-editor`
-- **Entry points:** Timeline region within Editor component
+  1. User clicks Google button (rendered when `NEXT_PUBLIC_GOOGLE_CLIENT_ID` is present).
+  2. `@react-oauth/google` returns an ID token → client posts to `POST /api/auth/google` (`docs/pages/api/auth/google.ts`) which verifies with `google-auth-library`, upserts the user in Mongo, returns a JWT (Lambda equivalent at `api/auth/google.ts`).
+  3. Token saved to localStorage; flow joins §2.1 step 3.
+- **Views:** §4.1 Consulting Login, §17.1 Internal CDN Browser
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
 
-### 3.3 Detail Editing (Track/Action Properties)
-
-- **Actor:** Editor user
-- **Goal:** Fine-tune individual track or action properties
-- **Steps:**
-  1. Click track label → `SELECT_TRACK` + `DETAIL_OPEN` dispatched → DetailModal opens
-  2. Navigate breadcrumbs: project → track → action
-  3. **Project properties:** Edit name, description, canvas dimensions, background color (color picker)
-  4. **Track properties:** Edit blend mode (select), toggle hidden/locked/muted, view video preview
-  5. **Action properties:** Edit start/end/duration, position (X,Y), scale (X,Y), opacity, rotation, volume with live preview
-  6. Right-click action on timeline → context menu with "View Detail", "Blend Mode", "Fit" options
-  7. **Screener mode:** In detail view, engine switches to `PlaybackMode.TRACK_FILE` — plays single track's media in video element with playback controls
-  8. Close detail view → `DISPLAY_CANVAS` → returns to full canvas composite
-- **Views:** 4.5 Detail Modal, 4.3 Editor View Actions, 4.4 Editor Controls Bar, 5.1 Timeline
-- **Products:** `sui-editor`, `sui-timeline`
-- **Entry points:** Click track label, right-click action context menu, Editor View hover actions
-
-### 3.4 Playback & Preview
-
-- **Actor:** Editor user
-- **Goal:** Preview the composed video project in real-time
-- **Steps:**
-  1. Click play button in transport controls → `Engine.play()` called
-  2. Engine state → `PLAYING` → `requestAnimationFrame` loop starts
-  3. Each frame: active actions determined from `_activeIds` BTree
-  4. Controllers render: `VideoController` draws video frames, `AudioController` manages audio, `ImageController` displays static images
-  5. `CompositorController` stacks layers by z-index, applies blend modes, renders to canvas
-  6. Playhead cursor updates position via `setTimeByTick` event
-  7. Timeline auto-scrolls to follow cursor during playback
-  8. User adjusts playback rate via rate dropdown (-10x to +10x)
-  9. Click pause → engine stops tick loop, last frame held on canvas
-  10. Optional WASM renderer: `PreviewRenderer.render_frame()` for complex scenes
-- **Views:** 4.2 Editor Preview, 4.4 Editor Controls Bar, 5.1 Timeline, 5.4 Timeline Player
-- **Products:** `sui-editor`, `sui-timeline`, `sui-video-renderer`
-- **Entry points:** Play button in Editor Controls or Timeline Player
-
-### 3.5 Video Export / Recording
-
-- **Actor:** Editor user
-- **Goal:** Render the project to a downloadable video file
-- **Steps:**
-  1. Click record button in Editor Controls (canvas mode only)
-  2. Engine state → `RECORDING`
-  3. `MediaRecorder` initialized with canvas stream
-  4. Timeline plays end-to-end — each frame captured from canvas
-  5. On playback end: `MediaRecorder.stop()` → `VIDEO_CREATED` dispatched
-  6. Video added to `state.settings.videos` and saved to IndexedDB
-  7. Video accessible via `EditorScreener` version dropdown
-  8. User can download or switch `PlaybackMode.MEDIA` to view exported video
-- **Views:** 4.1 Editor, 4.2 Editor Preview, 4.4 Editor Controls Bar, 4.8 Editor Screener
-- **Products:** `sui-editor`, `sui-video-renderer`
-- **Entry points:** Record button in Editor Controls
-
-### 3.6 Project File Management
-
-- **Actor:** Editor user
-- **Goal:** Browse, load, and manage saved projects and track files
-- **Steps:**
-  1. Toggle file explorer drawer via `ViewToggle` in Editor Controls
-  2. **Projects tab:** Browse saved projects from IndexedDB — name, version, type columns
-  3. Double-click project to load → `SET_FILE` action → timeline repopulated
-  4. **Track Files tab:** Browse media files in current project — name, type columns
-  5. Double-click track file to preview in detail screener
-  6. Save current project via hover save button in `EditorViewActions`
-  7. Clear project via hover clear button → discard current file
-  8. Open new file via hover open button
-- **Views:** 4.6 Editor File Tabs, 4.3 Editor View Actions, 6.1 FileExplorer
-- **Products:** `sui-editor`, `sui-file-explorer`, `sui-common` (LocalDb)
-- **Entry points:** View toggle in Editor Controls, hover actions on Editor Preview
-
----
-
-## 4. File Explorer Flows
-
-### 4.1 File Tree Navigation
-
-- **Actor:** Application user (via any host component embedding FileExplorer)
-- **Goal:** Browse and select files in a hierarchical tree
-- **Steps:**
-  1. View file tree — folders and files with media-type icons
-  2. Click folder icon or content to expand/collapse (`toggleItemExpansion`)
-  3. Click file to select → `handleSelection()` → `SELECT_ITEM` dispatched
-  4. Multi-select: Shift+Click for range, Ctrl+Click to toggle individual
-  5. Keyboard navigation: Arrow keys for focus, Enter for select, Home/End for first/last
-  6. Optional grid mode: view metadata columns (size, lastModified) alongside tree
-  7. Optional checkbox mode: toggle checkboxes for batch selection
-- **Views:** 6.1 FileExplorer (Full), 6.4 File Item, 6.2 FileExplorerBasic
-- **Products:** `sui-file-explorer`
-- **Entry points:** FileExplorer component mount, standalone example at `/products/file-explorer/example`
-
-### 4.2 Drag-and-Drop File Management
-
-- **Actor:** Application user
-- **Goal:** Reorder files or import new files via drag-and-drop
-- **Steps:**
-  1. **Internal DnD:** Drag file within explorer → reorder via `updateState({type: 'instruction'})` → post-move flash animation
-  2. **External DnD:** Drag file from desktop → `dropTargetForExternal()` detects `containsFiles()` → validates MIME types against `dndFileTypes`
-  3. Accepted files: `createChildren(files, targetId)` → `onAddFiles` callback fired with `FileBase[]`
-  4. Rejected files: `getRejectionReason()` returns error
-  5. **Trash DnD:** Drop on trash zone (when `dndTrash` enabled) → `removeItem(id)` called
-  6. Drop indicators guide user to valid drop positions
-- **Views:** 6.1 FileExplorer (Full), 6.4 File Item
-- **Products:** `sui-file-explorer`
-- **Entry points:** Drag interaction within FileExplorer component
-
----
-
-## 5. Media Flows
-
-### 5.1 Media Browsing & Viewing
+### 2.3 Sign Out
 
 - **Actor:** Authenticated user
-- **Goal:** Browse media gallery, view individual items in full viewer
+- **Goal:** Clear session
+- **Entry points:** `UserMenu` → "Sign out", session expiry
 - **Steps:**
-  1. Browse media in `MediaGallery` masonry grid — responsive columns adapt to screen size
-  2. Hover over `MediaCard` → thumbnail strip preview, playback controls appear
-  3. Click card → `MediaViewer` dialog opens in NORMAL mode (90vw, rounded corners)
-  4. Navigate between items using prev/next buttons or ArrowLeft/ArrowRight keys
-  5. Cycle view modes: `f` key → NORMAL → THEATER (100vw, 95vh) → FULLSCREEN (browser API)
-  6. For video: playback with `VideoProgressBar` scrubbing, time tooltip, thumbnail sprite preview on hover
-  7. Switch quality: `q` key or gear icon → `QualitySelector` (480p, 720p, 1080p, 4K, auto)
-  8. Escape → exit to NORMAL mode
-- **Views:** 7.2 MediaGallery, 7.3 MediaCard, 7.1 MediaViewer, 7.4 VideoProgressBar
-- **Products:** `sui-media`
-- **Entry points:** MediaGallery component mount, direct media URL
+  1. Client calls `POST /api/auth/logout` (`docs/pages/api/auth/logout.ts`) to invalidate server-side state.
+  2. Client clears `localStorage["auth"]`, redirects to `/consulting/login`.
+- **Views:** §16 `UserMenu`, §4.1 Consulting Login
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
 
-### 5.2 Media Upload (Resumable Multipart)
+### 2.4 Authorize CLI / External Tool via API Key
 
-- **Actor:** Authenticated user (admin or content creator)
-- **Goal:** Upload media files to the platform with progress tracking and resume support
+- **Actor:** Authenticated user (via browser) on behalf of a CLI / SDK
+- **Goal:** Pair a CLI process with an account, exchange for a long-lived API key
+- **Entry points:** CLI prints a URL → user opens `/cli/auth?token=...`
 - **Steps:**
-  1. Initiate upload: `POST /api/cdn/upload/initiate` with filename, MIME type, total size, optional SHA-256 hash
-  2. Server returns `sessionId`, `uploadId`, first batch of presigned S3 URLs (chunk size: 10 MB default)
-  3. Client uploads parts directly to S3 via presigned URLs
-  4. Each completed part: `POST /api/cdn/upload/{sessionId}/part/{partNumber}` registers ETag with backend
-  5. Monitor progress: `GET /api/cdn/upload/{sessionId}/status` → progress %, pending parts, fresh presigned URLs
-  6. If interrupted: resume by checking status and uploading remaining pending parts
-  7. Finalize: `POST /api/cdn/upload/{sessionId}/complete` → creates media document → returns `mediaId`
-  8. Hash-based deduplication prevents re-uploading identical files
-  9. Sessions expire after 7 days if incomplete
-- **Views:** 11.1 CDN File Browser (upload zone), 7.2 MediaGallery (post-upload)
-- **Products:** `sui-media`, `sui-media-api`, `sui-common-api`
-- **Entry points:** Upload button in CDN admin, API call from any integrated client
+  1. CLI requests a transient pairing token from `POST /api/auth/cli/authorize` (`docs/pages/api/auth/cli/authorize.ts`).
+  2. CLI opens the browser to `docs/pages/cli/auth.tsx?token=...`; page validates the token (calls `/api/auth/cli/authorize` for status, then `POST /api/auth/exchange` (`docs/pages/api/auth/exchange.ts`) to mint an API key).
+  3. Page transitions through *checking → authorizing → success* and shows the user's email; CLI polls until token is consumed.
+  4. CLI persists the API key locally; server records it via `docs/pages/api/auth/api-keys/index.ts`.
+- **Views:** §1.11 CLI Auth Callback
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
 
-### 5.3 Media CRUD via API
+### 2.5 Manage API Keys
 
-- **Actor:** Authenticated user or API consumer
-- **Goal:** Create, read, update, or delete media records
+- **Actor:** Authenticated user
+- **Goal:** List, create, revoke API keys for CLI / SDK integrations
+- **Entry points:** Account settings or admin panel (consumes `/api/auth/api-keys`)
 - **Steps:**
-  1. **List:** `GET /media` with query params (mediaType, tags, search, dateFrom/dateTo, pagination)
-  2. **Read:** `GET /media/:id` — returns media metadata, increments view count
-  3. **Create:** `POST /media` — create media record (after upload completes)
-  4. **Update:** `PATCH /media/:id` — update title, description, tags, publicity, rating
-  5. **Delete:** `DELETE /media/:id` — remove media record and associated S3 objects
-- **Views:** 7.2 MediaGallery, 7.3 MediaCard, 7.1 MediaViewer
-- **Products:** `sui-media-api`, `sui-media`
-- **Entry points:** REST API calls, MediaGallery hover controls (edit/delete buttons)
+  1. `GET /api/auth/api-keys` (`docs/pages/api/auth/api-keys/index.ts`) lists keys.
+  2. `POST /api/auth/api-keys` issues a new key (shown once).
+  3. `DELETE /api/auth/api-keys/[id]` (`docs/pages/api/auth/api-keys/[id].ts`) revokes a key.
+- **Views:** §6.1 Account Settings (key list region)
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+
+### 2.6 Admin Impersonation
+
+- **Actor:** Admin user
+- **Goal:** Temporarily act as another user for support/debugging
+- **Entry points:** Admin user list "Impersonate" action
+- **Steps:**
+  1. Admin clicks impersonate on a row in `UsersPage`.
+  2. `POST /api/auth/impersonate` (`docs/pages/api/auth/impersonate.ts`) returns a scoped token tied to the admin's session.
+  3. `localStorage["auth"]` swaps to the scoped token; chrome shows an "impersonating" indicator (where wired).
+  4. Restoring uses `POST /api/auth/transfer` (`docs/pages/api/auth/transfer.ts`) to swap back.
+- **Views:** §5.4 Users Admin, §16 `UserMenu`
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+
+### 2.7 Update Account Settings
+
+- **Actor:** Authenticated user
+- **Goal:** Change name / avatar / notification preferences
+- **Entry points:** `UserMenu` → "Settings" → `/consulting/settings`
+- **Steps:**
+  1. `docs/pages/consulting/settings.tsx` mounts `SettingsPage`; initial `GET /api/auth/session` provides the user record.
+  2. User edits the form; submit calls `PATCH /api/account/settings` (`docs/pages/api/account/settings.ts`).
+  3. Success alert renders; form returns to clean state.
+- **Views:** §6.1 Account Settings
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
 
 ---
 
-## 6. Consulting Admin Flows
+## 3. Commerce & Licensing
 
-### 6.1 Client Management
+### 3.1 View Pricing & Start Checkout
 
-- **Actor:** Admin
-- **Goal:** Create, view, and manage consulting clients
+- **Actor:** Anonymous visitor or authenticated user
+- **Goal:** Compare licensing tiers, start checkout for a product
+- **Entry points:** `/pricing`, "Buy" CTA on product detail
 - **Steps:**
-  1. Navigate to Admin Dashboard → click "Clients" card
-  2. View client list — `ClientCard` grid with name, contact info, deliverable/invoice counts
-  3. Search and filter clients
-  4. Click "Add Client" → create dialog opens with contact mode selection (existing user, new contact, legacy import)
-  5. Fill form: name, email, phone, company details
-  6. Submit → `POST /api/clients/` creates client record
-  7. Click client card → navigate to client detail page
-  8. View client profile: deliverables table, invoices section, edit capabilities
-  9. Edit client: `PUT /api/clients/{id}` updates record
-- **Views:** 2.1 Admin Dashboard, 2.4 Clients List, 2.5 Client Detail
-- **Products:** Docs site (consulting)
-- **Entry points:** Admin Dashboard "Clients" card, URL `/consulting/clients`
+  1. `docs/pages/pricing.tsx` renders `HeroPricing`, `PricingTable`/`PricingList`, `PricingFAQ`.
+  2. User toggles community/commercial via `LicensingModelProvider`.
+  3. CTA hits `POST /api/licenses/checkout` (`docs/pages/api/licenses/checkout.ts`) which calls Stripe to create a checkout session (returning client secret for embedded checkout).
+  4. Browser routes to `/consulting/checkout?product=...&email=...&session=...` (§7.1).
+- **Views:** §1.4 Pricing, §7.1 Stripe Embedded Checkout
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
 
-### 6.2 Invoice Management
+### 3.2 Complete Stripe Embedded Checkout
 
-- **Actor:** Admin
-- **Goal:** Create, track, and manage client invoices
+- **Actor:** Authenticated or guest checkout user
+- **Goal:** Pay for a license via Stripe; receive activation
+- **Entry points:** `/consulting/checkout?product=&email=`
 - **Steps:**
-  1. Navigate to Admin Dashboard → click "Invoices" card
-  2. View invoice list with status, date range, and client filters
-  3. Browse paginated table: amount, date, status, client columns
-  4. Click invoice row → navigate to invoice detail
-  5. View invoice preview (PDF/HTML render), line items, totals, payment status
-  6. Actions: download, print, send to client
-  7. Create new invoice → `POST /api/invoices/` with line items and client association
-  8. Legacy invoices normalized via `invoiceNormalization.ts` (draft/sent/paid status tracking)
-- **Views:** 2.1 Admin Dashboard, 2.8 Invoices List, 2.9 Invoice Detail
-- **Products:** Docs site (consulting)
-- **Entry points:** Admin Dashboard "Invoices" card, URL `/consulting/invoices`
+  1. `docs/pages/consulting/checkout.tsx` validates query params; missing → error state.
+  2. Stripe `EmbeddedCheckout` mounts using the client secret from §3.1.
+  3. On success, Stripe redirects to `?session_id=...`; page calls `POST /api/licenses/checkout-complete` (`docs/pages/api/licenses/checkout-complete.ts`) to finalize the license (creates `License` doc, links promo if any).
+  4. Stripe webhook `POST /api/webhooks/stripe` (`docs/pages/api/webhooks/stripe.ts`) fires asynchronously to reconcile invoice / subscription state.
+  5. `CheckoutSuccess` panel renders order recap and next steps; user redirected to `/?checkout=success` or `/consulting/licenses`.
+- **Views:** §7.1 Stripe Embedded Checkout, §1.1 Home (checkout-success state), §6.3 Licenses
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
 
-### 6.3 Product & Service Management
+### 3.3 Activate / Deactivate / Validate License
 
-- **Actor:** Admin
-- **Goal:** Manage product catalog, pages, and pricing
+- **Actor:** Customer (CLI, build tool, or in-app)
+- **Goal:** Activate a license on a machine/seat, validate at runtime, deactivate when done
+- **Entry points:** SDK init, dashboard buttons, `@stoked-ui/cdn` loader
 - **Steps:**
-  1. Navigate to Admin Dashboard → click "Products" card
-  2. View product table: name, description, pricing, features, actions
-  3. Click "Add Product" → create dialog with validation
-  4. Click product row → navigate to product detail
-  5. Edit product: name, description, icon, features CRUD
-  6. Manage product pages: create nested pages with content
-  7. Configure pricing tiers
-  8. Public products visible via `GET /api/products/public`
-- **Views:** 2.1 Admin Dashboard, 2.6 Products Management
-- **Products:** Docs site (consulting)
-- **Entry points:** Admin Dashboard "Products" card, URL `/consulting/products`
+  1. Activation: `POST /api/licenses/activate` (`docs/pages/api/licenses/activate.ts`) records seat.
+  2. Validation: `POST /api/licenses/validate` (`docs/pages/api/licenses/validate.ts`) returns valid/invalid + entitlements.
+  3. Deactivation: `POST /api/licenses/deactivate` (`docs/pages/api/licenses/deactivate.ts`) frees the seat.
+  4. Admin can mint manually via `POST /api/licenses/create` (`docs/pages/api/licenses/create.ts`).
+- **Views:** §6.3 Licenses (customer), §5.1/§5.2 Admin views (admin path)
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
 
-### 6.4 User Management
+### 3.4 View Licenses & Billing (Self-Service)
 
-- **Actor:** Admin
-- **Goal:** Create and manage user accounts and roles
+- **Actor:** Authenticated user
+- **Goal:** See active licenses, invoices, payment methods; open Stripe customer portal
+- **Entry points:** `UserMenu` → "Licenses" / "Billing"; `/consulting/licenses`, `/consulting/billing`
 - **Steps:**
-  1. Navigate to Admin Dashboard → click "Users" card
-  2. View user list: email, role, status columns with role filtering
-  3. Create new user: dialog with email, password, role/permission assignment
-  4. Impersonate user (admin-only): `POST /api/auth/impersonate` for troubleshooting
-  5. Manage API keys for users: list/create/delete via `/api/auth/api-keys/`
-- **Views:** 2.1 Admin Dashboard, 2.7 Users Management
-- **Products:** Docs site (consulting)
-- **Entry points:** Admin Dashboard "Users" card, URL `/consulting/users`
+  1. `LicensesPage` calls `GET /api/account/licenses` (`docs/pages/api/account/licenses.ts`).
+  2. `BillingPage` calls `GET /api/account/billing` (`docs/pages/api/account/billing.ts`) for invoices/methods.
+  3. "Open billing portal" button calls `POST /api/account/billing/portal` (`docs/pages/api/account/billing/portal.ts`); response URL opens Stripe customer portal in new tab.
+- **Views:** §6.2 Billing, §6.3 Licenses, §16 `UserMenu`
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
 
-### 6.5 License Management
+### 3.5 Apply / Manage Promo Codes
 
-- **Actor:** Admin
-- **Goal:** Create, activate, and manage software licenses
+- **Actor:** Admin or customer (during checkout)
+- **Goal:** Issue or redeem a promo code
+- **Entry points:** Admin promo-codes admin (consumes `/api/licenses/promo-codes`), Stripe checkout coupon field
 - **Steps:**
-  1. Navigate to Admin Dashboard → click "Licenses" card
-  2. View license list with status and product association
-  3. Create license: `POST /api/licenses/create` linked to product and user
-  4. Activate license: `POST /api/licenses/activate` with license key
-  5. Validate license: `POST /api/licenses/validate` checks status and expiry
-  6. Deactivate license: `POST /api/licenses/deactivate`
-  7. License products available via `GET /api/licenses/products`
-  8. Role auto-upgrade: `stokd member` if active `stokd-membership` license, `subscriber` if any active license
-- **Views:** 2.1 Admin Dashboard, 2.13 Licenses Management
-- **Products:** Docs site (consulting)
-- **Entry points:** Admin Dashboard "Licenses" card, URL `/consulting/licenses`
-
-### 6.6 Deliverable Management
-
-- **Actor:** Admin
-- **Goal:** Upload and manage client deliverables (HTML reports, documents)
-- **Steps:**
-  1. Create deliverable: `POST /api/deliverables/` with client association
-  2. Upload deliverable file: `POST /api/deliverables/upload-file` → stored on CDN
-  3. Render deliverable HTML: `POST /api/deliverables/render` generates sanitized HTML snapshot
-  4. View deliverable: navigate to `/consulting/deliverables/{id}` → full-screen sanitized iframe
-  5. Proxy deliverable resources: `GET /api/deliverables/proxy/[...path]` serves embedded assets
-  6. Share deliverable link with client — authenticated access required
-- **Views:** 2.10 Deliverable Viewer, 2.5 Client Detail (deliverables table)
-- **Products:** Docs site (consulting)
-- **Entry points:** Client detail deliverables section, direct URL `/consulting/deliverables/{id}`
+  1. Admin: `GET/POST /api/licenses/promo-codes` (`docs/pages/api/licenses/promo-codes/index.ts`), `PATCH/DELETE /api/licenses/promo-codes/[id]` (`docs/pages/api/licenses/promo-codes/[id].ts`).
+  2. Customer redemption flows through Stripe, then `checkout-complete.ts` records redemption against the license.
+  3. Standalone Lambda `api/promos.ts` handles legacy promo entry points.
+- **Views:** §5.1 Admin Dashboard, §7.1 Stripe Embedded Checkout
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
 
 ---
 
-## 7. Customer Portal Flows
+## 4. Editor & Timeline (Component Product Flows)
 
-### 7.1 Customer Self-Service
+### 4.1 Edit a Project in the Stoked UI Editor
 
-- **Actor:** Client user
-- **Goal:** View deliverables, invoices, and account information
+- **Actor:** End user of an app embedding `@stoked-ui/editor` (and the docs `EditorShowcase`)
+- **Goal:** Compose tracks, scrub timeline, preview frames, set per-action props, save the project
+- **Entry points:** `/products/editor/main` showcase, `EditorShowcase` on home, any host app importing `Editor`
 - **Steps:**
-  1. Log in via `/consulting/login`
-  2. Arrive at customer portal dashboard
-  3. View assigned deliverables — click to open full-screen viewer
-  4. View invoices and payment history
-  5. Navigate to billing portal → `GET /api/account/billing/portal` redirects to Stripe billing portal
-  6. Manage account settings via `/consulting/settings`
-- **Views:** 2.3 Customer Portal, 2.10 Deliverable Viewer, 2.14 Billing, 2.15 Settings
-- **Products:** Docs site (consulting)
-- **Entry points:** URL `/consulting/customer`, post-login redirect for client role users
+  1. Host mounts `Editor` (`packages/sui-editor/src/Editor/Editor.tsx`); `EditorProvider` constructs `EditorEngine`, lazy-imports `@stoked-ui/video-renderer-wasm`.
+  2. `EditorView` renders the canvas + shadow-DOM stage; `EditorControls` exposes transport.
+  3. User drags media into `EditorFileTabs` (`FileDropzone`); `Timeline` shows tracks.
+  4. User selects a track/action → `DetailView` opens; sub-views (`DetailAction`, `DetailTrack`, `DetailProject`, `DetailSettings`) edit props using `Controlled*` form primitives.
+  5. User scrubs / plays; `EditorEngine` drives `WasmPreview` to render frames into the canvas.
+  6. Save: `EditorEngine` serializes the project (`.sue`) and persists to `LocalDb` (IndexedDB) via `@stoked-ui/common`. Memory note: detail views fall back to DOM `<video>` for duration/width/height because `file.media` proxy doesn't always propagate through React state.
+- **Views:** §9 Editor Package views (9.1–9.6), §10 Timeline (root, player, labels, track area), §11 File Explorer (FileDropzone, FileExplorerTabs)
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
 
-### 7.2 License Purchase
+### 4.2 Record a Capture in the Editor
 
-- **Actor:** User (any authenticated role)
-- **Goal:** Purchase a software license via Stripe and receive a license key
+- **Actor:** Editor user
+- **Goal:** Record screen / webcam / audio into a track using `MediaRecorder`
+- **Entry points:** `EditorControls` "Record" mode button
 - **Steps:**
-  1. Browse available license products via pricing page or product catalog
-  2. Select product tier → `POST /api/licenses/checkout` creates Stripe checkout session
-  3. Redirect to Stripe hosted checkout page
-  4. Complete payment on Stripe
-  5. Stripe redirects to checkout success page (`/products/stoked-ui/docs/checkout-success?product={id}&session_id={sid}`)
-  6. `CheckoutSuccess` component renders with loading spinner ("Generating your license key...")
-  7. Primary path: polls `GET /api/licenses/checkout-complete?session_id={sid}` (no auth needed) — retrieves Stripe session → finds license by `subscriptionId` → returns key
-  8. Fallback path: authenticated poll via `GET /api/account/licenses` finds license by `productId`
-  9. Polling retries up to 15 attempts (2s interval, ~30s total) while webhook processes
-  10. Stripe webhook (`POST /api/webhooks/stripe`) processes payment confirmation → license created and activated
-  11. License key displayed in monospace box with copy-to-clipboard button
-  12. Auto-opens desktop app via `flux://activate-license?key={key}` deep link (if applicable)
-  13. User role upgraded if applicable (subscriber, stokd member)
-  14. Actions available: "Open in {Product}" (deep link), "Go to Docs" (product page), "Manage Licenses" (`/consulting/licenses`)
-- **Views:** 10.2 Pricing Page, Checkout Success (see below), 2.14 Billing, 2.13 Licenses Management
-- **Products:** Docs site (consulting)
-- **Entry points:** Pricing page, product page purchase buttons, URL `/consulting/billing`
-- **Key files:**
-  - `docs/src/modules/license/CheckoutSuccess.tsx` — post-purchase UI with polling and deep link
-  - `docs/pages/api/licenses/checkout-complete.ts` — session-based license key lookup (unauthenticated)
-  - `docs/src/modules/license/stripeClient.ts` — `retrieveStripeCheckoutSession()`, `createCheckoutSession()`
-  - `docs/src/modules/license/licenseStore.ts` — `findLicenseBySubscriptionId()`
+  1. User toggles record mode in `EditorControls` (`record` state).
+  2. `EditorEngine` requests media streams; multiple sources are routed through a single `AudioContext` destination (memory note: shared mix avoids per-source duplication).
+  3. Recorded blob is written to a new `MediaFile` and inserted into the timeline as a new action.
+  4. Stop → engine returns to `paused` state; new track persisted via `LocalDb`.
+- **Views:** §9.1 Editor (record state), §9.3 EditorControls, §10.1 Timeline
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+
+### 4.3 Render & Save Versions
+
+- **Actor:** Editor user
+- **Goal:** Save snapshot versions of a project; switch between them
+- **Entry points:** `EditorScreener` version dropdown, `IDB.saveVideo`
+- **Steps:**
+  1. User selects "save version" → `EditorEngine` writes a new entry to `LocalDb`'s versions store. Memory note: the version entry is created if missing.
+  2. `EditorScreener` lists versions; selection swaps the current `EditorFile`.
+  3. Optional: Render to MP4 via WASM (in-browser) or upload to media API for server render (§5.x).
+- **Views:** §9.6 EditorScreener, §9.1 Editor
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+
+### 4.4 Drive a Standalone Timeline
+
+- **Actor:** End user of an app embedding `@stoked-ui/timeline`
+- **Goal:** Scrub, zoom, edit tracks/actions in a timeline outside the editor
+- **Entry points:** `/products/timeline/main`, `TimelineShowcase`, MDX `<Demo>` blocks in timeline docs
+- **Steps:**
+  1. Host mounts `Timeline` (`packages/sui-timeline/src/Timeline/Timeline.tsx`) with a `TimelineProvider`.
+  2. User interacts with `TimelineLabels` (mute/solo/lock), `TimelineTrackArea` (drag/resize actions), `TimelineCursor` (scrub), `TimelineScrollResizer` (zoom).
+  3. `TimelinePlayer` controls transport (rate, skip, time display).
+- **Views:** §10 Timeline Package views (10.1–10.6)
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
 
 ---
 
-## 8. Blog Flows
+## 5. File Explorer & Media Flows
 
-### 8.1 Blog Reading
+### 5.1 Browse / Manipulate Files in `FileExplorer`
 
-- **Actor:** Visitor (unauthenticated)
-- **Goal:** Read blog posts
+- **Actor:** End user
+- **Goal:** Navigate a file tree, multi-select, drag-and-drop
+- **Entry points:** Hosted `FileExplorer`, `FileExplorerShowcase`, MDX demos, `EditorFileTabs`
 - **Steps:**
-  1. Navigate to blog index → view post cards with title, excerpt, date, author
-  2. Click post card → navigate to individual post page
-  3. Read rendered markdown content with author attribution and tags
-  4. Browse related posts via `HeroEnd` section at page bottom
-  5. Filter by tag via tag `Chip` components
-- **Views:** 3.1 Blog Home, 3.2 Blog Post
-- **Products:** `sui-docs`
-- **Entry points:** Header nav, URL `/blog`, direct post URL `/blog/{slug}`
+  1. Host mounts `FileExplorer`/`FileExplorerBasic` with a tree data source.
+  2. User expands/collapses nodes, multi-selects, drags items (uses `@atlaskit/pragmatic-drag-and-drop`).
+  3. Optional grid view via `useFileExplorerGrid` plugin (sortable headers).
+  4. `FileDropzone` accepts external file drops.
+- **Views:** §11 File Explorer Package views (11.1–11.5)
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
 
-### 8.2 Blog Authoring & Publishing
+### 5.2 Watch / Browse Media in `MediaGallery` + `MediaViewer`
+
+- **Actor:** End user of media-driven host app
+- **Goal:** Browse a gallery of media, open the viewer, play
+- **Entry points:** `/products/media/main`, `AdvancedShowcase`, host-app gallery surface
+- **Steps:**
+  1. Host mounts `MediaGallery` (`packages/sui-media/src/components/MediaGallery/MediaGallery.tsx`) with media collection.
+  2. User clicks a `MediaCard`; `MediaViewer` opens.
+  3. `MediaViewer` mounts `Stage` + appropriate `players/<video|audio>` element; `QualitySelector` / `NextUpHeader` handle adjacency.
+  4. Close → returns to gallery.
+- **Views:** §12 Media Package views (12.1–12.5)
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+
+### 5.3 Upload Media to Server (Media API)
+
+- **Actor:** Authenticated user (host app)
+- **Goal:** Upload a media file, receive metadata + thumbnails
+- **Entry points:** Host upload UI calling `@stoked-ui/media-api`
+- **Steps:**
+  1. Client requests an upload session via NestJS `uploads` controller (`packages/sui-media-api/src/uploads`).
+  2. Client streams parts to S3 (multipart) using returned presigned URLs.
+  3. On completion, NestJS `media` controllers run Sharp + fluent-ffmpeg metadata extraction and persist to Mongo.
+  4. Response includes media id, thumbnail URLs, dimensions.
+  5. Locally hosted: API runs via `pnpm --filter @stoked-ui/media-api dev`. In production: Lambda via `lambda.ts`.
+- **Views:** §19.1 Swagger UI (Media API) for inspection; consumer UIs are host-defined
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+
+### 5.4 Extract Video Metadata Locally
+
+- **Actor:** Editor / host using `@stoked-ui/media`
+- **Goal:** Compute width / height / duration / thumbnails entirely client-side
+- **Entry points:** `extractVideoMetadata` invocation in `EditorEngine`/host
+- **Steps:**
+  1. `extractVideoMetadata` (`packages/sui-media/src/...`) creates a `ScreenshotStore` (IndexedDB).
+  2. Frames captured via `<video>` + canvas; persisted with `LocalDb`.
+  3. Memory note: store guards on `count > 0` to avoid blocking on empty store.
+- **Views:** §9 Editor (uses metadata), §12 Media Stage
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+
+---
+
+## 6. CDN Admin
+
+### 6.1 Browse / Upload via `CdnBrowser`
+
+- **Actor:** Authenticated user (admin or operator)
+- **Goal:** Manage S3-backed CDN buckets — browse, upload, rename, delete, set permissions, export listings
+- **Entry points:** Internal Vite app `/cdn` (`packages-internal/cdn`), `cdn-sui` wrapper, embedded `CdnBrowser`
+- **Steps:**
+  1. App mounts `CdnBrowser` (`packages/sui-cdn/src/CdnBrowser/CdnBrowser.tsx`).
+  2. Auth check via `GET /api/auth/session` (Google login if missing).
+  3. Listing: `GET /api/cdn/contents?prefix=...` (`docs/pages/api/cdn/contents.ts`); folders via `GET /api/cdn/folders` (`docs/pages/api/cdn/folders.ts`); user toggles list/gallery view.
+  4. Upload: `POST /api/cdn/upload/initiate` (`docs/pages/api/cdn/upload/initiate.ts`) → `GET /api/cdn/upload/[sessionId]/urls` (`docs/pages/api/cdn/upload/[sessionId]/urls.ts`) → client `PUT`s parts to S3 → `POST /api/cdn/upload/[sessionId]/complete` (`docs/pages/api/cdn/upload/[sessionId]/complete.ts`). Active sessions visible via `/api/cdn/upload/active.ts`.
+  5. Move/rename: `POST /api/cdn/move` (`docs/pages/api/cdn/move.ts`).
+  6. Delete: `POST /api/cdn/delete` (`docs/pages/api/cdn/delete.ts`).
+  7. Permissions: `GET/POST /api/cdn/permissions` (`docs/pages/api/cdn/permissions.ts`).
+  8. Export listing: `GET /api/cdn/export` (`docs/pages/api/cdn/export.ts`).
+  9. Public path resolution at runtime via `/api/cdn/path/[format]/[[...prefix]].ts`.
+- **Views:** §13 CDN Package View (`CdnBrowser`), §17.1 Internal CDN Browser, §17.2 CDN Sui Wrapper
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+
+### 6.2 Resume / Abort Multipart Upload
+
+- **Actor:** Operator
+- **Goal:** Resume a partially uploaded file or abort it
+- **Entry points:** `CdnBrowser` upload list (active sessions)
+- **Steps:**
+  1. `GET /api/cdn/upload/[sessionId]/status` (`docs/pages/api/cdn/upload/[sessionId]/status.ts`) returns part progress.
+  2. Client uploads missing `PUT /api/cdn/upload/[sessionId]/part/[partNumber]` (`docs/pages/api/cdn/upload/[sessionId]/part/[partNumber].ts`).
+  3. Or `POST /api/cdn/upload/[sessionId]/abort` (`docs/pages/api/cdn/upload/[sessionId]/abort.ts`) cancels.
+- **Views:** §13 CdnBrowser (Upload list region), §17.1 Internal CDN Browser
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+
+---
+
+## 7. Consulting / Business Operations (Admin)
+
+### 7.1 Manage Products (Admin)
+
+- **Actor:** Admin
+- **Goal:** Create / edit product records, page lists, public privacy/terms
+- **Entry points:** `/admin/products`, `/admin/products/[product-slug]`
+- **Steps:**
+  1. List: `ProductsPage` calls `GET /api/products` (`docs/pages/api/products/index.ts`).
+  2. Create: dialog → `POST /api/products`.
+  3. Detail: `ProductDetailPage` reads `GET /api/products/[id]` (`docs/pages/api/products/[id].ts`); pages list `GET/POST /api/products/[id]/pages` (`docs/pages/api/products/[id]/pages/index.ts`); per-page `PATCH/DELETE /api/products/[id]/pages/[pageId]`.
+  4. Save → `PUT /api/products/[id]`.
+  5. Public copy: `GET /api/products/public/[slug]/privacy` & `/terms` for marketing site rendering.
+- **Views:** §5.2 Products Admin, §1.3 Public Product Detail
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+
+### 7.2 Manage Clients & Deliverables
+
+- **Actor:** Admin
+- **Goal:** Maintain consulting-client records, attach deliverables, link invoices and client users
+- **Entry points:** `/consulting/clients`, `/consulting/clients/[client-slug]`
+- **Steps:**
+  1. List: `ClientsPage` → `GET /api/clients` (`docs/pages/api/clients/index.ts`).
+  2. Create / edit: dialog → `POST/PUT /api/clients/[id]` (`docs/pages/api/clients/[id].ts`).
+  3. Detail: `ClientDetailPage` shows deliverables (`GET/POST/PATCH/DELETE /api/deliverables/...`), invoices summary (`GET /api/invoices?clientId=...`), client users (under `/api/users`).
+  4. Add deliverable: `POST /api/deliverables` (`docs/pages/api/deliverables/index.ts`); upload files via `POST /api/deliverables/upload-file` (`docs/pages/api/deliverables/upload-file.ts`).
+  5. Render UX/HTML deliverable: `POST /api/deliverables/render` (`docs/pages/api/deliverables/render.ts`).
+- **Views:** §5.3 Clients Admin
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+
+### 7.3 Open / Share Deliverable
+
+- **Actor:** Client (with token) or admin
+- **Goal:** Open a deliverable (download / link / ux / html)
+- **Entry points:** `/consulting/deliverables/[id]`
+- **Steps:**
+  1. `DeliverableViewerPage` validates session; unauthenticated → redirect with `?redirect=`.
+  2. `GET /api/deliverables/[id]` (`docs/pages/api/deliverables/[id].ts`) returns metadata + signed-content URL.
+  3. UX/HTML deliverables proxy through `/api/deliverables/proxy/[...path]` (`docs/pages/api/deliverables/proxy/[...path].ts`) to keep auth/permissions enforced.
+- **Views:** §5.6 Deliverable Viewer
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+
+### 7.4 Manage Users (Admin)
+
+- **Actor:** Admin
+- **Goal:** Create / edit / deactivate users, change roles, manage agents/aliases
+- **Entry points:** `/consulting/users`
+- **Steps:**
+  1. `UsersPage` → `GET /api/users` (`docs/pages/api/users/index.ts`).
+  2. Edit / create dialog → `POST/PUT /api/users/[id]` (`docs/pages/api/users/[id].ts`).
+  3. Delete via `DELETE /api/users/[id]`.
+- **Views:** §5.4 Users Admin
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+
+### 7.5 Invoicing
+
+- **Actor:** Admin
+- **Goal:** Browse / draft / send / mark-paid invoices
+- **Entry points:** `/consulting/invoices`, `/consulting/invoices/[id]`
+- **Steps:**
+  1. List: `InvoiceListPage` → `GET /api/invoices` (`docs/pages/api/invoices/index.ts`); filterable by `?clientId=`.
+  2. `GET /api/invoices/has-invoices` (`docs/pages/api/invoices/has-invoices.ts`) gates client-side state.
+  3. Detail: `InvoiceDetailPage` → `GET /api/invoices/[id]` (`docs/pages/api/invoices/[id].ts`); status transitions (draft → sent → paid) via `PUT /api/invoices/[id]`.
+- **Views:** §5.5 Invoices Admin
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+
+### 7.6 Customer Dashboard / Groupies / Partner Portal
+
+- **Actor:** Customer / subscriber / partner
+- **Goal:** Self-service home for non-admin authenticated users
+- **Entry points:** `/consulting/home`, `/consulting/customer`, `/consulting/groupies`, `/consulting/partners/[partnerName]`
+- **Steps:**
+  1. `auth.session` decides the destination after login.
+  2. Customer dashboard cards link to §3.4 Licenses / Billing, §6.1 Settings, §7.x products.
+  3. Partner-portal currently renders a "coming soon" stub.
+- **Views:** §4.2 Consulting Home, §4.3 Customer Dashboard, §4.4 Groupies, §4.5 Partner Portal
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+
+### 7.7 Browse Docs Business API (Swagger)
+
+- **Actor:** Admin / engineer
+- **Goal:** Explore + try docs business APIs
+- **Entry points:** `/consulting/api-docs`
+- **Steps:**
+  1. Page loads Swagger UI Bundle from `unpkg.com/swagger-ui-dist@5.11.0`.
+  2. Spec fetched from `GET /api/openapi` (`docs/pages/api/openapi.ts`); generated by `getDocsApiOpenApiSpec()`.
+  3. Bearer token from `localStorage["auth"]` injected via `requestInterceptor` for try-it calls.
+- **Views:** §7.2 Swagger UI (Docs Business API)
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+
+---
+
+## 8. Blog Publishing
+
+### 8.1 Author / Publish Blog Post
 
 - **Actor:** Admin / blog author
-- **Goal:** Create, edit, and publish blog posts
+- **Goal:** Draft, edit, publish, unpublish, and revalidate a blog post
+- **Entry points:** `/blog/editor`, `/blog/editor/new`, `/blog/editor/[slug]`
 - **Steps:**
-  1. Navigate to blog editor → view post list with edit/delete actions
-  2. Click "New Post" → editor form opens
-  3. Fill metadata: title, slug, tags, author, featured image
-  4. Write content in `BlogMarkdownEditor` (markdown editing)
-  5. Upload blog images: `POST /api/upload/blog-image`
-  6. Save draft → `POST /api/blog/{slug}`
-  7. Preview rendered output
-  8. Publish: `POST /api/blog/{slug}/publish` → post becomes publicly accessible
-  9. Unpublish: `POST /api/blog/{slug}/unpublish` → post hidden from public
-  10. Revalidate cache: `POST /api/blog/revalidate` to clear stale pages
-- **Views:** 3.3 Blog Editor — Post List, 3.4 Blog Editor — New Post, 3.5 Blog Editor — Edit Post
-- **Products:** `sui-docs`
-- **Entry points:** URL `/blog/editor`, URL `/blog/editor/new`, URL `/blog/editor/{slug}`
+  1. List: `BlogPostList` (admin variant) → `GET /api/blog` (`docs/pages/api/blog/index.ts`); tags/authors via `/api/blog/tags.ts`, `/api/blog/authors.ts`.
+  2. New / edit: `BlogEditorForm` + `BlogMarkdownEditor` save via `POST /api/blog` or `PUT /api/blog/[slug]` (`docs/pages/api/blog/[slug].ts`).
+  3. Image upload: `POST /api/upload/blog-image` (`docs/pages/api/upload/blog-image.ts`).
+  4. Publish: `POST /api/blog/[slug]/publish` (`docs/pages/api/blog/[slug]/publish.ts`); unpublish via sibling `unpublish.ts`.
+  5. Trigger ISR refresh: `POST /api/blog/revalidate` (`docs/pages/api/blog/revalidate.ts`).
+- **Views:** §5.7 Blog Admin, §1.8 Blog Index & Post
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
 
 ---
 
-## 9. CDN Asset Management Flows
+## 9. Customer Feedback
 
-### 9.1 CDN Browsing & File Operations
+### 9.1 Submit Product Feedback
 
-- **Actor:** Admin, client (scoped), agent
-- **Goal:** Browse, organize, and manage files on the S3-backed CDN
+- **Actor:** Authenticated user (or anonymous after email verification)
+- **Goal:** Send rating + free-form feedback for a product
+- **Entry points:** `/products/feedback`
 - **Steps:**
-  1. Navigate to CDN admin app at `cdn.stokedconsulting.com`
-  2. Authenticate via docs site session cookie (cross-origin transfer)
-  3. Browse directory structure via breadcrumb navigation
-  4. Search/filter files using deferred search input
-  5. **Create folder:** Admin clicks create folder → `POST /api/cdn/folders` → `.cdnkeep` marker placed
-  6. **Upload files:** Drag-drop or click upload → multipart upload with progress (see Flow 5.2)
-  7. **Move/rename:** Select files → `POST /api/cdn/move` (admin-only)
-  8. **Delete:** Select files → `POST /api/cdn/delete` → recursive deletion for folders (batched >1000 objects)
-  9. **Export:** Select files/folders → `POST /api/cdn/export` → zip download (archiver)
-  10. Access scoping: clients see only `clients/{clientSlug}/` directories; admins see everything
-- **Views:** 11.1 CDN File Browser
-- **Products:** CDN admin (`packages-internal/cdn`), Docs site (consulting) API routes
-- **Entry points:** URL `cdn.stokedconsulting.com`, admin dashboard link
+  1. Anonymous: user submits email → `POST /api/products/feedback/register` (`docs/pages/api/products/feedback/register.ts`) → SES verification email.
+  2. User opens link → `POST /api/products/feedback/verify` (`docs/pages/api/products/feedback/verify.ts`) consumes token.
+  3. Authenticated form: rating + textarea → `POST /api/products/feedback` (`docs/pages/api/products/feedback/index.ts`); page transitions to *submitted* state.
+- **Views:** §1.7 About / Careers / Feedback / Subscription Confirm
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
 
-### 9.2 CDN Permission Management
+### 9.2 Chat / Direct Messaging
 
-- **Actor:** Admin
-- **Goal:** Configure role-based and user-specific access rules for CDN paths
+- **Actor:** Authenticated user
+- **Goal:** Send a direct chat message tied to a session
+- **Entry points:** Embedded `WebUserDirectChat` (`@stoked-ui/media`)
 - **Steps:**
-  1. Navigate to CDN permissions management
-  2. View current permission rules (MongoDB-backed `CdnViewer` records)
-  3. Create permission: specify user/role, path pattern, access level
-  4. Permissions use path-based matching with inheritance — a permission on `/clients/acme/` grants access to all descendants
-  5. Test permission: verify user access via `GET /api/cdn/permissions`
-- **Views:** 11.1 CDN File Browser (permissions panel)
-- **Products:** CDN admin, Docs site (consulting)
-- **Entry points:** CDN admin permissions section
+  1. Client opens / creates session via `GET/POST /api/chat/session/[sessionId]` (`docs/pages/api/chat/session/[sessionId].ts`).
+  2. Send: `POST /api/chat/send` (`docs/pages/api/chat/send.ts`); composer state transitions through *typing → sent*.
+- **Views:** §12.4 WebUserDirectChat
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
 
 ---
 
-## 10. GitHub Integration Flows
+## 10. GitHub Widgets / Activity
 
-### 10.1 Contribution Activity Review
+### 10.1 Render Repo Activity (Calendar / Branch / Commits / Events)
 
-- **Actor:** Visitor or developer
-- **Goal:** View GitHub contribution history as a heatmap calendar
+- **Actor:** Visitor on the GitHub showcase, or host app embedding the components
+- **Goal:** Show contribution heatmap, branch status, commits, events for a repo
+- **Entry points:** `/github`, MDX docs in `docs/pages/github/docs/**`
 - **Steps:**
-  1. View `GithubCalendar` component on product page or docs
-  2. Calendar auto-fetches contribution data from `github-contributions-api.jogruber.de`
-  3. Heatmap renders with color-coded contribution blocks, responsive scaling
-  4. Hover over day → label appears with contribution count and date
-  5. Auto-scroll to most recent activity on mount
-- **Views:** 8.1 GitHub Contribution Calendar
-- **Products:** `sui-github`
-- **Entry points:** GitHub product page `/github/main`, embedded in other pages
-
-### 10.2 GitHub Events Feed
-
-- **Actor:** Developer or project reviewer
-- **Goal:** Browse and filter GitHub activity (PRs, pushes, issues, comments)
-- **Steps:**
-  1. View `GithubEvents` component
-  2. Filter by: repository (autocomplete select), date range, event type, description text
-  3. Browse paginated events list with type-specific renderers
-  4. Click pull request event → expand to see `PullRequestView` with commits and file diffs
-  5. View push events with commit summaries
-  6. Rate-limit aware: displays API reset times when quota exceeded
-- **Views:** 8.2 GitHub Events Feed, 8.3 Pull Request Detail
-- **Products:** `sui-github`
-- **Entry points:** GitHub docs pages `/github/docs/*`, embedded component
+  1. `GithubCalendar` calls `GET /api/github/contributions` (`docs/pages/api/github/contributions.ts`).
+  2. `GithubEvents` calls `GET /api/github/events` (`docs/pages/api/github/events.ts`); filter / paginate / select event.
+  3. `GithubBranch` calls `GET /api/github/branch` (`docs/pages/api/github/branch.ts`); `PullRequestView` renders for PR events.
+  4. `GithubCommit` calls `GET /api/github/commit` (`docs/pages/api/github/commit.ts`).
+- **Views:** §14 GitHub Package views (14.1–14.5)
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
 
 ---
 
-## 11. Feedback & Communication Flows
+## 11. Developer & Contributor Flows
 
-### 11.1 Product Feedback Submission
+### 11.1 Bootstrap Local Dev Environment
 
-- **Actor:** Any user (authenticated or anonymous)
-- **Goal:** Submit feedback on a specific product
+- **Actor:** Contributor
+- **Goal:** Run the docs site + watch packages
+- **Entry points:** Terminal in repo root
 - **Steps:**
-  1. Navigate to feedback page or find inline feedback widget
-  2. Select product from dropdown
-  3. Enter feedback message
-  4. Submit → `POST /api/products/feedback/register`
-  5. If anonymous: email verification flow triggered via SES
-  6. Verify email: `POST /api/products/feedback/verify` with verification code (TTL-limited)
-  7. User auto-registered if new email
-  8. Feedback stored and associated with product
-- **Views:** 10.4 Feedback Page
-- **Products:** All products
-- **Entry points:** URL `/products/feedback`, inline feedback widgets
+  1. `pnpm i` (pnpm 10.5.1+ enforced via `preinstall`).
+  2. `pnpm video-renderer:build-wasm` (or `pnpm build:wasm`) to generate `packages/sui-video-renderer/pkg/`.
+  3. `pnpm dev` for the Turbo watch graph, or `pnpm docs:dev` for just the Next.js site (port 5199).
+  4. Visit `http://localhost:5199`.
+- **Views:** §3 Product Documentation Shell, §1.1 Home, all hero showcases
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
 
-### 11.2 Direct Chat Contact
+### 11.2 Build & Publish Packages
 
-- **Actor:** Prospective client or user
-- **Goal:** Reach out via messaging platform and continue the conversation in-app
+- **Actor:** Maintainer
+- **Goal:** Cut a release of `@stoked-ui/*` packages
+- **Entry points:** Terminal in repo root
 - **Steps:**
-  1. View `WebUserDirectChat` component
-  2. Enter contact information and message
-  3. Submit → `POST /api/chat/send` creates a chat session and delivers the first Telegram message
-  4. Widget switches into live chat mode and polls `GET /api/chat/session/{sessionId}?after={sequence}`
-  5. Support replies to the forwarded Telegram message
-  6. Poll response returns the Telegram reply and appends it to the widget transcript
-  7. User sends follow-up messages from the widget → `POST /api/chat/send` with `sessionId`
-- **Views:** 9.10 WebUserDirectChat
-- **Products:** `sui-media`
-- **Entry points:** Chat widget on consulting pages
+  1. `pnpm build:all` builds packages and the docs app.
+  2. `pnpm release:version` bumps versions via Lerna independent mode (npmClient pnpm).
+  3. `pnpm publish --recursive` publishes (root `release` script chains `build:all` → `release:version` → `deploy:prod`).
+  4. Verdaccio dry-runs available for testing.
+- **Views:** Terminal output (no UI)
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+
+### 11.3 Deploy to AWS via SST
+
+- **Actor:** Maintainer
+- **Goal:** Deploy docs site, CDN, API Gateway + Lambda to `sui.stokd.cloud` / `consulting.stokd.cloud`
+- **Entry points:** Terminal in repo root
+- **Steps:**
+  1. `pnpm deploy:prod` runs `dotenvx run -- sst deploy --stage production` against AWS profile `stokd-cloud` (NOT default — global rule).
+  2. `sst.config.ts` → `infra/index.ts` provisions: `createSite`, `createCdnSite`, `createCdnSuiSite`, `createApi` (CloudFront, API Gateway v2, Lambdas, certs).
+  3. Lambda handlers `api/auth/google.ts`, `api/subscribe.ts`, `api/sms.ts`, `api/promos.ts` are bundled into the API Gateway.
+  4. Media API Lambda: `packages/sui-media-api/src/lambda.ts` packages `@codegenie/serverless-express`.
+- **Views:** Terminal output, post-deploy site (§1.1 Home in production)
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+
+### 11.4 Run Tests
+
+- **Actor:** Contributor
+- **Goal:** Validate changes
+- **Entry points:** Terminal
+- **Steps:**
+  1. Unit: `pnpm test` (`scripts/test.mjs` orchestrator) or scoped scripts (`pnpm editor`, `pnpm timeline`, `pnpm media`, …).
+  2. Browser (Karma + Mocha): per-package `karma.conf.js`.
+  3. e2e: `pnpm test:e2e-website:dev` (Playwright vs `http://localhost:5199`).
+  4. Lint: `pnpm eslint`, `pnpm typescript`.
+- **Views:** Terminal output (Mocha/Karma/Playwright reporters)
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
 
 ---
 
-## 12. Developer Flows
+## 12. CLI / Native Tooling
 
-### 12.1 Local Development
+### 12.1 Render `.sue` Project from CLI
 
-- **Actor:** Developer (contributor)
-- **Goal:** Set up and run the development environment
+- **Actor:** Operator with a `.sue` project file
+- **Goal:** Render to MP4 via the native Rust CLI
+- **Entry points:** `video-render render --input project.sue --output video.mp4 [options]`
 - **Steps:**
-  1. Clone repository
-  2. `pnpm install` — install all workspace dependencies
-  3. `pnpm build` — Turbo-orchestrated topological build (common → media → file-explorer → timeline → editor)
-  4. `pnpm docs:dev` — start docs site at `localhost:5199`
-  5. Edit package source → Babel rebuild via `scripts/build.mjs` → Next.js HMR picks up changes
-  6. For `next.config.mjs` changes: restart dev server (not HMR)
-  7. `pnpm test:unit` — Mocha tests for packages
-  8. `pnpm eslint` — lint check
-  9. `pnpm typescript` — type-check all packages
-- **Views:** N/A (terminal-based)
-- **Products:** All packages
-- **Entry points:** Terminal, `pnpm` commands
+  1. CLI parses args (clap) in `packages/sui-video-renderer/cli/src/main.rs`.
+  2. `Project::load` parses the `.sue` file (`packages/sui-video-renderer/cli/src/project.rs`).
+  3. `RenderCommand` (`packages/sui-video-renderer/cli/src/render.rs`) builds compositor with N tracks, computes M frames over D seconds, distributes work across worker threads.
+  4. `encoder.rs` + `ffmpeg.rs` write the encoded video; `audio.rs` mixes audio tracks.
+  5. Progress: `indicatif` bar (text mode) or per-frame JSON events (json mode).
+  6. Exit status 0 on success; anyhow error on resolution/codec/IO failure.
+- **Views:** §18.1 `render` Subcommand
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
 
-### 12.2 API Documentation & Testing
+### 12.2 Inspect Project Metadata from CLI
 
-- **Actor:** Admin / developer
-- **Goal:** Explore and test the platform's API endpoints
+- **Actor:** Operator
+- **Goal:** Print width / height / fps / track count
+- **Entry points:** `video-render info --input project.sue`
 - **Steps:**
-  1. Navigate to Admin Dashboard → click "API Docs" card
-  2. View OpenAPI/Swagger documentation generated from `GET /api/openapi`
-  3. Browse endpoints by category (auth, media, clients, invoices, licenses, etc.)
-  4. Test endpoints interactively via Swagger UI
-  5. View request/response schemas, authentication requirements, and parameter descriptions
-- **Views:** 2.16 API Docs
-- **Products:** Docs site (consulting)
-- **Entry points:** Admin Dashboard "API Docs" card, URL `/consulting/api-docs`
+  1. `Project::load` parses file.
+  2. `project.print_info()` writes summary to stdout.
+- **Views:** §18.2 `info` Subcommand
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+
+### 12.3 Try Media API in Swagger
+
+- **Actor:** Engineer / integrator
+- **Goal:** Explore Media API endpoints and exercise them with a JWT
+- **Entry points:** `GET /v1/api/docs` (NestJS, port 3001 locally / `api.sui.stokd.cloud/v1`)
+- **Steps:**
+  1. `setupSwaggerUI(app)` mounts Swagger UI (`packages/sui-media-api/src/app.ts:86`, `packages/sui-media-api/src/swagger.config.ts`).
+  2. User pastes a Bearer JWT into the auth widget.
+  3. Try-it sends a request through tag groups: `Health`, `Media`, `Uploads`, `auth`.
+- **Views:** §19.1 Swagger UI (Media API)
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
 
 ---
 
-## Flow Dependency Graph
+## 13. Webhooks & System Events
 
-```
-                    ┌─────────────────┐
-                    │  2.1 Web Login   │
-                    └────────┬────────┘
-                             │ authenticates
-              ┌──────────────┼──────────────┐
-              ▼              ▼              ▼
-     ┌────────────┐  ┌────────────┐  ┌────────────┐
-     │ 6.x Admin  │  │ 7.x Cust.  │  │ 9.x CDN    │
-     │   Flows    │  │  Portal    │  │  Mgmt      │
-     └────────────┘  └────────────┘  └────────────┘
+### 13.1 Stripe Webhook → License Reconciliation
 
-     ┌─────────────────────────────────────────────┐
-     │              3.x Video Editing               │
-     │  3.1 Create → 3.2 Timeline → 3.3 Detail    │
-     │       │            │              │          │
-     │       ▼            ▼              ▼          │
-     │  3.6 File     3.4 Playback   3.5 Export     │
-     │  Management                                  │
-     └─────────────────────────────────────────────┘
+- **Actor:** Stripe (system)
+- **Goal:** Sync subscription / invoice / payment state into Mongo
+- **Entry points:** `POST /api/webhooks/stripe` (`docs/pages/api/webhooks/stripe.ts`)
+- **Steps:**
+  1. Stripe POSTs signed event; handler verifies signature.
+  2. Switches on event type (`checkout.session.completed`, `customer.subscription.*`, `invoice.*`) and updates License/Invoice records.
+  3. Writes to logs via `/api/logs` (`docs/pages/api/logs.ts`) where applicable.
+- **Views:** None (server-only); admin views (§5.5 Invoices Admin) reflect the resulting state
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
 
-     ┌─────────────────────────────────────────────┐
-     │               5.x Media Flows                │
-     │  5.2 Upload → 5.3 CRUD → 5.1 Browse/View   │
-     └─────────────────────────────────────────────┘
-```
+### 13.2 SES Subscribe-Confirm Email
+
+- **Actor:** SES (system) + user
+- **Goal:** Verify email addresses (newsletter, feedback registration)
+- **Entry points:** Lambda `api/subscribe.ts`; `docs/pages/api/products/feedback/register.ts`
+- **Steps:**
+  1. Service writes pending record + sends SES email with code link.
+  2. User opens link; client posts to confirm endpoint; record marked verified.
+- **Views:** §1.7 Subscription Confirm, §1.7 Feedback (verification states)
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+
+### 13.3 SMS Notifications (Lambda)
+
+- **Actor:** Internal trigger (e.g., admin tool)
+- **Goal:** Send SMS via SNS
+- **Entry points:** Lambda `api/sms.ts`
+- **Steps:**
+  1. Caller invokes Lambda with phone + message payload.
+  2. Lambda publishes to SNS via AWS SDK.
+- **Views:** None (server-only)
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+
+### 13.4 Centralized Logging Endpoint
+
+- **Actor:** Server / client error reporter
+- **Goal:** Capture structured logs server-side
+- **Entry points:** `POST /api/logs` (`docs/pages/api/logs.ts`)
+- **Steps:**
+  1. Caller posts structured event; route forwards to logging sink (Mongo / external).
+- **Views:** None
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
 
 ---
 
-## Flow-to-View Matrix
+## Cross-Cutting Notes
 
-| Flow | Primary Views |
-|------|--------------|
-| 1.1 Product Discovery | 1.1, 1.2 |
-| 1.2 Documentation | 1.3, 9.4, 9.5, 9.6 |
-| 1.3 Consulting Discovery | 2.11, 2.12, 1.4 |
-| 2.1 Web Login | 2.2, 2.1, 2.3 |
-| 2.2 CLI Auth | 10.3, 2.2 |
-| 3.1 Project Creation | 4.1, 4.2, 4.7, 4.6, 5.1 |
-| 3.2 Timeline Editing | 5.1, 5.3, 5.4, 4.1 |
-| 3.3 Detail Editing | 4.5, 4.3, 4.4 |
-| 3.4 Playback | 4.2, 4.4, 5.1, 5.4 |
-| 3.5 Video Export | 4.1, 4.2, 4.4, 4.8 |
-| 3.6 Project Files | 4.6, 4.3, 6.1 |
-| 4.1 File Navigation | 6.1, 6.4, 6.2 |
-| 4.2 Drag-and-Drop | 6.1, 6.4 |
-| 5.1 Media Browsing | 7.2, 7.3, 7.1, 7.4 |
-| 5.2 Media Upload | 11.1, 7.2 |
-| 5.3 Media CRUD | 7.2, 7.3, 7.1 |
-| 6.1 Client Mgmt | 2.1, 2.4, 2.5 |
-| 6.2 Invoice Mgmt | 2.1, 2.8, 2.9 |
-| 6.3 Product Mgmt | 2.1, 2.6 |
-| 6.4 User Mgmt | 2.1, 2.7 |
-| 6.5 License Mgmt | 2.1, 2.13 |
-| 6.6 Deliverable Mgmt | 2.10, 2.5 |
-| 7.1 Customer Portal | 2.3, 2.10, 2.14, 2.15 |
-| 7.2 License Purchase | 10.2, Checkout Success, 2.14, 2.13 |
-| 8.1 Blog Reading | 3.1, 3.2 |
-| 8.2 Blog Authoring | 3.3, 3.4, 3.5 |
-| 9.1 CDN Browsing | 11.1 |
-| 10.1 GitHub Calendar | 8.1 |
-| 10.2 GitHub Events | 8.2, 8.3 |
-| 11.1 Feedback | 10.4 |
-| 11.2 Chat Contact | 9.10 |
-| 12.2 API Docs | 2.16 |
+- **Auth model:** Token in `localStorage["auth"]`. Auth-gated pages call `/api/auth/session` on mount; missing/invalid → redirect to `/consulting/login` with `?redirect=` capture. Bearer tokens are also injected into Swagger UI try-it (`/consulting/api-docs`) and into Media API Swagger separately.
+- **Boundary rule:** All non-media business APIs live under `docs/pages/api/**`. `packages/sui-media-api` is reserved for media-component endpoints (see `SC_CONTEXT.md` and `CLAUDE.md`).
+- **Local dev port:** 5199 for the Next.js docs app; 3001 for the Media API. Never 3000.
+- **WASM dependency:** `EditorEngine` dynamically imports `@stoked-ui/video-renderer-wasm` (file dep on `packages/sui-video-renderer/pkg`); `next.config.mjs` enables `experiments.asyncWebAssembly` and aliases the package. Editor flow §4.x will fall back gracefully if the WASM build is missing.
+- **CDN flow duality:** Same `CdnBrowser` runs in `packages-internal/cdn-sui` (workspace) and embedded inside the docs admin via `apiBaseUrl="/api/cdn"`.
+
+---
+
+## Cross-References
+
+- View inventory: `.stokd/meta/SC_VIEWS.md`
+- Per-package module docs: `.stokd/meta/packages/<package>/SC_MODULE.md` (one per workspace package: `sui-cdn`, `sui-common`, `sui-common-api`, `sui-docs`, `sui-editor`, `sui-file-explorer`, `sui-github`, `sui-media`, `sui-media-api`, `sui-timeline`, `sui-video-renderer`)
+- Codebase overview: `.stokd/meta/SC_OVERVIEW.md`
+- Test inventory: `.stokd/meta/SC_TEST.md` (root) + `.stokd/meta/packages/<package>/SC_TEST.md`
+- Product doc: `.stokd/meta/SC_PRODUCT_STOKED_UI_SUI.md`
+- Recommendations: `.stokd/meta/SC_RECOMMENDATIONS.md`
+- Guardrails: `.stokd/meta/SC_CONTEXT.md`, `CLAUDE.md`, `AGENTS.md`

@@ -4,7 +4,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { MediaViewer } from '@stoked-ui/media';
 
-const VIDEO_URL = 'https://cdn.stokedconsulting.com/products/flux/assets/flux-desktop-preview-1920x1080.mp4';
+const VIDEO_URL = 'https://cdn.consulting.stokd.cloud/products/flux/assets/flux-desktop-preview-1920x1080.mp4';
 
 const mediaItems = [
   {

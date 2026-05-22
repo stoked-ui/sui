@@ -12,7 +12,7 @@ type Routes = {
 const ROUTES: Routes = {
   stokedUi: toAbsoluteSitePath('stoked-ui', `${buildCanonicalProductPath('stoked-ui')}/`),
   fileExplorer: toAbsoluteSitePath('stoked-ui', `${buildCanonicalProductPath('file-explorer')}/`),
-  cdn: 'https://cdn.stokedconsulting.com/',
+  cdn: 'https://cdn.consulting.stokd.cloud/',
   media: toAbsoluteSitePath('stoked-ui', `${buildCanonicalProductPath('media')}/`),
   mediaDocs: toAbsoluteSitePath('stoked-ui', `${buildCanonicalProductDocsPath('media')}/`),
   common: toAbsoluteSitePath('stoked-ui', `${buildCanonicalProductPath('common')}/`),
@@ -80,7 +80,7 @@ const ROUTES: Routes = {
   suiXEditor: '/sui-x/editor/',
   suiXMediaProvider: '/sui-x/media-provider/',
   // Stoked UI doc pages
-  materialDocs: 'https://stokedconsulting.com/material-ui/getting-started/',
+  materialDocs: 'https://consulting.stokd.cloud/material-ui/getting-started/',
   materialIcons: '/material-ui/material-icons/',
   freeTemplates: '/material-ui/getting-started/templates/',
   components: '/material-ui/getting-started/supported-components/',
@@ -94,15 +94,15 @@ const ROUTES: Routes = {
   support: toAbsoluteSitePath('stoked-ui', `${buildCanonicalProductDocsPath('stoked-ui', 'support')}/#direct-support`),
   goldSponsor: toAbsoluteSitePath('stoked-ui', `${buildCanonicalProductDocsPath('stoked-ui', 'support')}/#direct-support`),
   // Base UI doc pages
-  baseDocs: 'https://stokedconsulting.com/base-ui/getting-started/',
+  baseDocs: 'https://consulting.stokd.cloud/base-ui/getting-started/',
   baseComponents: '/base-ui/all-components/',
   baseQuickstart: '/base-ui/getting-started/quickstart/',
   // Joy UI doc pages
   joyDocs: '/joy-ui/getting-started/',
   // System pages
-  systemDocs: 'https://stokedconsulting.com/system/getting-started/',
+  systemDocs: 'https://consulting.stokd.cloud/system/getting-started/',
   // X general pages
-  xIntro: 'https://stokedconsulting.com/x/introduction/',
+  xIntro: 'https://consulting.stokd.cloud/x/introduction/',
   xRoadmap: 'https://github.com/mui/mui-x/projects/1',
   xLicensing: '/x/introduction/licensing/',
   // Data Grid doc pages
@@ -123,7 +123,7 @@ const ROUTES: Routes = {
   rssFeed: '/feed/blog/rss.xml',
   handbook: 'https://mui-org.notion.site/Handbook-f086d47e10794d5e839aef9dc67f324b',
   privacyPolicy: '/legal/privacy/',
-  store: 'https://stokedconsulting.com/store/',
+  store: 'https://consulting.stokd.cloud/store/',
 };
 
 export default ROUTES;

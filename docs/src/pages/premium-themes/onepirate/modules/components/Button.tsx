@@ -22,7 +22,7 @@ const ButtonRoot = styled(MuiButton)(({ theme, size }) => ({
   }),
 }));
 
-// See https://stokedconsulting.com/guides/typescript/#usage-of-component-prop for why the types uses `C`.
+// See https://consulting.stokd.cloud/guides/typescript/#usage-of-component-prop for why the types uses `C`.
 function Button<C extends React.ElementType>(
   props: ButtonProps<C, { component?: C }>,
 ) {

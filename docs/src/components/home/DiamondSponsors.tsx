@@ -85,8 +85,8 @@ export default function DiamondSponsors() {
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
                   To join us, contact us at{' '}
-                  <Link href="mailto:sales@stokedconsulting.com" target="_blank" rel="noopener">
-                    sales@stokedconsulting.com
+                  <Link href="mailto:sales@stokd.cloud" target="_blank" rel="noopener">
+                    sales@stokd.cloud
                   </Link>{' '}
                   for pre-approval.
                 </Typography>

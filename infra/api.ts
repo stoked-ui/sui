@@ -1,6 +1,9 @@
 import { mongoDbUri, jwtSecret } from 'infra/secrets'
 import { DomainInfo } from 'infra/domains'
 
+const STOKD_CLOUD_ACCOUNT_ID = '167217327520';
+const DEFAULT_AUTH_AUTO_DOMAINS = 'stokd.cloud,sui.stokd.cloud,consulting.stokd.cloud,brianstoker.com';
+
 export const createApi = (domainInfo: DomainInfo) => {
 
   const api = new sst.aws.ApiGatewayV2("Api", {
@@ -23,7 +26,7 @@ export const createApi = (domainInfo: DomainInfo) => {
       MONGODB_URI: mongoDbUri.value,
       JWT_SECRET: jwtSecret.value,
       NEXT_PUBLIC_GOOGLE_CLIENT_ID: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? "",
-      AUTH_AUTO_DOMAINS: process.env.AUTH_AUTO_DOMAINS ?? "stokedconsulting.com,stoked-ui.com,brianstoker.com",
+      AUTH_AUTO_DOMAINS: process.env.AUTH_AUTO_DOMAINS ?? DEFAULT_AUTH_AUTO_DOMAINS,
     },
     nodejs: {
       install: ["mongodb"],
@@ -44,7 +47,7 @@ export const createApi = (domainInfo: DomainInfo) => {
   // Add the subscribe function with SES permissions
   const subscribeFunction = new sst.aws.Function("Subscribe", {
     handler: "api/subscribe.subscribe", permissions: [{
-      actions: ["ses:SendEmail"], resources: ["arn:aws:ses:us-east-1:883859713095:identity/*"]
+      actions: ["ses:SendEmail"], resources: [`arn:aws:ses:us-east-1:${STOKD_CLOUD_ACCOUNT_ID}:identity/*`]
     }], link: [mongoDbUri], environment: {
       ROOT_DOMAIN: domainInfo.domains[0],
       DB_NAME: domainInfo.dbName,
@@ -56,7 +59,7 @@ export const createApi = (domainInfo: DomainInfo) => {
   const verifyFunction = new sst.aws.Function("Verify", {
     handler: "api/subscribe.verify", permissions: [{
       actions: ["ses:SendEmail"],
-      resources: ["arn:aws:ses:us-east-1:883859713095:identity/*"]
+      resources: [`arn:aws:ses:us-east-1:${STOKD_CLOUD_ACCOUNT_ID}:identity/*`]
     }], link: [mongoDbUri],
     environment: {
       ROOT_DOMAIN: domainInfo.domains[0],

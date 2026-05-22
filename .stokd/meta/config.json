@@ -1,6 +1,7 @@
 {
-  "lastUpdate": 1773097819136,
+  "lastUpdate": 1779401476759,
   "lastValidate": 1773097819136,
+  "metaVersion": "0.4.0",
   "packages": [
     "packages/sui-common",
     "packages/sui-common-api",
@@ -12,5 +13,21 @@
     "packages/sui-media-api",
     "packages/sui-timeline"
   ],
-  "metaVersion": "0.2.0"
+  "products": [
+    {
+      "description": "@stoked-ui/sui repository",
+      "name": "@stoked-ui/sui",
+      "packages": [
+        "packages/sui-common",
+        "packages/sui-common-api",
+        "packages/sui-docs",
+        "packages/sui-editor",
+        "packages/sui-file-explorer",
+        "packages/sui-github",
+        "packages/sui-media",
+        "packages/sui-media-api",
+        "packages/sui-timeline"
+      ]
+    }
+  ]
 }

@@ -1,714 +1,269 @@
 # Testing Strategy: @stoked-ui/common
 
-**Package**: `packages/sui-common`
-**Priority**: Medium
-**Version**: 0.1.2
-**Date**: 2026-03-03
+> **Generated:** 2026-05-21 | **Meta version:** 0.3.1
+> **Package:** `packages/sui-common` (`@stoked-ui/common` v0.1.2)
+> **Priority:** Medium
+> **Source entry:** `packages/sui-common/src/index.tsx`
+
+`@stoked-ui/common` is the foundation layer for every other Stoked UI package, so a regression here cascades into `sui-editor`, `sui-timeline`, `sui-file-explorer`, `sui-media`, `sui-github`, and the docs site. Test investment should reflect that blast radius even though the package itself is small.
 
 ---
 
 ## 1. Current State
 
-### Existing Infrastructure
-- **Framework**: Jest 29.7 + ts-jest 29.1, jsdom environment
-- **Config**: `packages/sui-common/jest.config.js`
-- **Setup**: `src/__tests__/setup.ts` — imports `@testing-library/jest-dom`
-- **React testing**: `@testing-library/react` 16.x
-- **CSS mocking**: `identity-obj-proxy`
-- **Scripts**: `pnpm test`, `pnpm test:watch`, `pnpm test:coverage`
-
-### Existing Tests (3 files, SocialLinks only)
-
-| File | Cases | Module |
-|------|-------|--------|
-| `src/SocialLinks/__tests__/platformRegistry.test.ts` | ~10 | Registry data integrity, `getPlatformByKey` lookup |
-| `src/SocialLinks/__tests__/SocialLinks.test.tsx` | ~12 | Controlled/uncontrolled, rendering, disabled/readOnly |
-| `src/SocialLinks/__tests__/SocialLinkField.test.tsx` | ~8 | Per-platform rendering, prefix adornments, onChange |
-
-**All other modules (12 of 14 top-level) have zero tests.**
-
-### Test Patterns Established
-- Co-located `__tests__/` directories alongside source
-- `ThemeProvider` + `createTheme()` wrapper for MUI component tests
-- `jest.fn()` for callback mocking
-- `data-testid` attributes for component queries
-- `it.each` for parameterized tests across platform registry
-
----
-
-## 2. Module Inventory & Test Priority
-
-| Module | Type | Lines | External Deps | Test Priority |
-|---|---|---|---|---|
-| `FetchBackoff/FetchBackoff.ts` | Pure async logic | 56 | `global.fetch` | **P0** |
-| `ProviderState/ProviderState.ts` | Pure logic + closures | 136 | None | **P0** |
-| `ProviderState/Settings.ts` | Pure logic (Proxy) | 48 | None | **P0** |
-| `Colors/colors.ts` | Pure math | 61 | `@mui/material/styles` color fns | **P0** |
-| `Types/SortedList` (in Types.ts) | Data structure | 101 | None | **P0** |
-| `Types/mergeWith.ts` | Array prototype extension | 38 | None | **P0** |
-| `Ids/namedId/namedId.ts` | Pure logic | 37 | None | **P1** |
-| `Ids/useIncId/useIncId.ts` | React hook | 62 | React | **P1** |
-| `MimeType/IMimeType.ts` | Registry + utility | 103 | None | **P1** |
-| `MimeType/StokedUiMime.ts` | Singleton factory | 34 | IMimeType | **P1** |
-| `interfaces/publicity.ts` | Constants + guards | 54 | None | **P2** |
-| `interfaces/embed-visibility.ts` | Constants + guards | 42 | None | **P2** |
-| `UserMenu/UserMenu.tsx` | React component | 79 | MUI | **P2** |
-| `useResize/useResize.tsx` | React hook | 31 | DOM/window | **P2** |
-| `useResizeWindow/useResizeWindow.tsx` | React hook | 29 | DOM/window | **P2** |
-| `LocalDb/LocalDb.ts` | IndexedDB class | 546 | `@tempfix/idb` | **P3** |
-| `LocalDb/VideoDb.tsx` | React + IDB | 104 | IDB + React | **P3** |
-| `GrokLoader/GrokLoader.tsx` | Animated component | 140 | framer-motion | **P3** |
-| `MimeType/MimeType.ts` | Static data map | 1206 | None | **P3** (spot-check) |
-| `Types/Types.ts:setProperty` | Utility function | 16 | None | **P2** |
-
----
-
-## 3. Test File Organization
-
-```
-src/
-├── __tests__/
-│   ├── setup.ts                            # (existing) global setup
-│   └── utils.tsx                           # NEW: shared renderWithTheme helper
-├── Colors/
-│   └── __tests__/
-│       └── colors.test.ts
-├── FetchBackoff/
-│   └── __tests__/
-│       └── FetchBackoff.test.ts
-├── ProviderState/
-│   └── __tests__/
-│       ├── ProviderState.test.ts
-│       └── Settings.test.ts
-├── Types/
-│   └── __tests__/
-│       ├── SortedList.test.ts
-│       └── mergeWith.test.ts
-├── Ids/
-│   ├── namedId/
-│   │   └── __tests__/
-│   │       └── namedId.test.ts
-│   └── useIncId/
-│       └── __tests__/
-│           └── useIncId.test.tsx
-├── MimeType/
-│   └── __tests__/
-│       ├── IMimeType.test.ts
-│       ├── StokedUiMime.test.ts
-│       └── MimeType.test.ts
-├── interfaces/
-│   └── __tests__/
-│       ├── publicity.test.ts
-│       └── embed-visibility.test.ts
-├── SocialLinks/
-│   └── __tests__/                          # (existing — 3 files, complete)
-├── UserMenu/
-│   └── __tests__/
-│       └── UserMenu.test.tsx
-├── useResize/
-│   └── __tests__/
-│       └── useResize.test.tsx
-├── useResizeWindow/
-│   └── __tests__/
-│       └── useResizeWindow.test.tsx
-└── LocalDb/
-    └── __tests__/
-        └── LocalDb.test.ts
-```
-
-**Naming**: `<ModuleName>.test.ts` for pure logic, `.test.tsx` for React components/hooks.
-
----
-
-## 4. P0 Tests — Implement First
-
-### 4.1 FetchBackoff — `src/FetchBackoff/__tests__/FetchBackoff.test.ts`
-
-**Source**: `src/FetchBackoff/FetchBackoff.ts` — async function with exponential retry logic.
-
-**What to test:**
-```
-describe('FetchBackoff')
-  ✓ returns response immediately on successful first fetch
-  ✓ retries on network error and succeeds on subsequent attempt
-  ✓ retries up to max retries then throws "Fetch failed after maximum retries."
-  ✓ retries on non-OK response when retryCondition returns true
-  ✓ does not retry when retryCondition returns false for error
-  ✓ applies exponential backoff delay (500ms → 1000ms → 2000ms with defaults)
-  ✓ custom retryCondition stops retrying early (e.g., only retry on 503)
-  ✓ default options: 3 retries, factor 2, 500ms initial delay
-  ✓ passes through fetch input and init options unchanged
-  ✓ retries=0 attempts once then throws on failure
-  ✓ custom backoffFactor changes delay progression
-  ✓ custom initialDelay starts at specified value
-```
-
-**Mock strategy:**
-```typescript
-const mockFetch = jest.fn();
-global.fetch = mockFetch;
-jest.useFakeTimers();
-
-beforeEach(() => {
-  mockFetch.mockReset();
-  jest.clearAllTimers();
-});
-```
-
-**Key edge case**: The while loop exits after `retries + 1` total attempts (attempt 0 through `retries`). After the loop, it throws. Verify this boundary precisely — `retries: 3` means 4 total calls to `fetch` (initial + 3 retries).
-
-**Timing verification**: Use `jest.advanceTimersByTime()` to verify backoff progression without real delays. After each failed attempt, advance by `initialDelay * backoffFactor^attempt`.
-
-### 4.2 ProviderState — `src/ProviderState/__tests__/ProviderState.test.ts`
-
-**Source**: `src/ProviderState/ProviderState.ts` — `createProviderState()` factory returning flag management object.
-
-**What to test:**
-```
-describe('createProviderState')
-  describe('initialization')
-    ✓ initializes flags from FlagData[] with default values
-    ✓ flags without defaultValue default to false
-    ✓ flagConfigs are stored alongside flags
-    ✓ settings proxy is initialized from input
-
-  describe('toggleFlags')
-    ✓ toggles a single flag from false to true
-    ✓ toggles a single flag from true to false
-    ✓ toggles multiple flags at once (array input)
-    ✓ fires checkTriggers with new value after toggle
-
-  describe('enableFlags')
-    ✓ sets single flag to true
-    ✓ sets multiple flags to true
-    ✓ enabling already-true flag stays true
-
-  describe('disableFlags')
-    ✓ sets single flag to false
-    ✓ sets multiple flags to false
-
-  describe('removeFlags')
-    ✓ deletes flag and its config
-    ✓ throws Error for nonexistent flag
-
-  describe('createFlags')
-    ✓ adds new flags at runtime with defaults
-
-  describe('checkTriggers — removeTriggers')
-    ✓ disables linked flags when flag is enabled (value=true)
-    ✓ string trigger disables single flag
-    ✓ array trigger disables multiple flags
-    ✓ object trigger sets settings values
-
-  describe('checkTriggers — addTriggers')
-    ✓ enables linked flags when flag is enabled (value=true)
-    ✓ object trigger sets settings values
-
-  describe('trigger cascading')
-    ✓ flag A's addTrigger enables flag B, B's removeTrigger disables C
-    ✓ no triggers fire when flag is disabled (value=false)
-```
-
-**Critical bug to document**: `checkTriggers` lines 111-112 and 125-126 reference the closure variable `settings` directly (the raw input object), NOT `this.settings` (the Proxy). Object triggers bypass the Settings proxy. Tests should verify both code paths and document this behavior.
-
-### 4.3 Settings — `src/ProviderState/__tests__/Settings.test.ts`
-
-**Source**: `src/ProviderState/Settings.ts` — `createSettings()` returns a Proxy with dot-path access.
-
-**What to test:**
-```
-describe('createSettings')
-  ✓ returns object with initial data accessible
-  ✓ simple get: settings['key'] returns value
-  ✓ simple set: settings['key'] = value stores it
-  ✓ dot-path get: settings['user.name'] resolves nested object
-  ✓ dot-path get: missing intermediate returns undefined (not throw)
-  ✓ dot-path set: settings['user.preferences.theme'] = 'light' creates path
-  ✓ dot-path set: creates intermediate objects when missing
-  ✓ deep nesting: settings['a.b.c.d.e'] resolves 5 levels
-  ✓ overwrite nested value preserves sibling keys
-  ✓ non-dot key acts like normal object property
-  ✓ empty initial data works
-```
-
-### 4.4 Colors — `src/Colors/__tests__/colors.test.ts`
-
-**Source**: `src/Colors/colors.ts` — `compositeColors()` and internal `parseColorWithAlpha()`.
-
-**What to test:**
-```
-describe('compositeColors')
-  ✓ blends hex base with rgba overlay (alpha < 1)
-  ✓ hex + hex (no alpha) returns overlay as hex
-  ✓ hex + rgba alpha=0 returns base color
-  ✓ hex + rgba alpha=1 returns overlay color
-  ✓ known value: compositeColors('#3498db', 'rgba(255, 255, 255, 0.53)') matches expected
-  ✓ rgb input format works (pass-through)
-  ✓ hsl input format works (via hslToRgb)
-  ✓ throws 'Unsupported color format' for invalid input (e.g., 'notacolor')
-  ✓ output is always a hex string
-```
-
-**Mock strategy**: Import `hexToRgb`, `hslToRgb`, `rgbToHex` from `@mui/material/styles`. If import fails in test environment, mock:
-```typescript
-jest.mock('@mui/material/styles', () => ({
-  hexToRgb: jest.fn((hex: string) => {
-    // Minimal hex-to-rgb implementation for testing
-    const r = parseInt(hex.slice(1, 3), 16);
-    const g = parseInt(hex.slice(3, 5), 16);
-    const b = parseInt(hex.slice(5, 7), 16);
-    return `rgb(${r}, ${g}, ${b})`;
-  }),
-  hslToRgb: jest.fn((hsl: string) => 'rgb(128, 128, 128)'),
-  rgbToHex: jest.fn((rgb: string) => {
-    const m = rgb.match(/(\d+),\s*(\d+),\s*(\d+)/);
-    if (!m) return '#000000';
-    return '#' + [m[1], m[2], m[3]].map(n =>
-      parseInt(n).toString(16).padStart(2, '0')
-    ).join('');
-  }),
-}));
-```
-
-### 4.5 SortedList — `src/Types/__tests__/SortedList.test.ts`
-
-**Source**: `src/Types/Types.ts` — `SortedList<T>` class extending `Array<T>` with binary insert.
-
-**What to test:**
-```
-describe('SortedList')
-  describe('constructor')
-    ✓ sorts initial items with provided comparator
-    ✓ empty initialization works
-
-  describe('push')
-    ✓ inserts single item in sorted position
-    ✓ inserts multiple items maintaining sort
-    ✓ returns new length
-    ✓ undefined items are skipped
-
-  describe('unshift')
-    ✓ inserts in sorted position (NOT at start)
-    ✓ returns new length
-
-  describe('splice')
-    ✓ removes elements and re-sorts after insertion
-    ✓ insertion-only splice maintains sort
-
-  describe('concat')
-    ✓ returns new SortedList with all items sorted
-    ✓ original list is unchanged
-
-  describe('sort')
-    ✓ ignores external comparator, uses internal
-    ✓ re-sorts with internal comparator
-
-  describe('blocked methods')
-    ✓ reverse() throws Error
-    ✓ copyWithin() throws Error
-
-  describe('toArray')
-    ✓ returns plain Array copy
-
-  describe('custom comparator')
-    ✓ objects sorted by property value
-    ✓ descending numeric sort
-```
-
-### 4.6 mergeWith — `src/Types/__tests__/mergeWith.test.ts`
-
-**Source**: `src/Types/mergeWith.ts` — extends `Array.prototype.mergeWith`.
-
-**What to test:**
-```
-describe('Array.prototype.mergeWith')
-  ✓ merges two arrays by string key, second array wins on collision
-  ✓ no overlap: produces union of both arrays
-  ✓ empty first array: returns second array items
-  ✓ empty second array: returns first array items
-  ✓ both empty: returns empty array
-  ✓ filters null/undefined from first array
-  ✓ non-array otherArray: returns first array filtered of falsy
-  ✓ preserves Map iteration order (first array items first, then new from second)
-  ✓ works with numeric merge keys
-```
-
-**Critical note**: This modifies `Array.prototype` globally on import. Import the module once at the top of the test file. Be aware this affects all arrays in the test worker.
-
----
-
-## 5. P1 Tests
-
-### 5.1 namedId — `src/Ids/namedId/__tests__/namedId.test.ts`
-
-**Source**: `src/Ids/namedId/namedId.ts` — ID generator with random hex suffix.
-
-```
-describe('namedId')
-  ✓ no args: returns 'id-<7 hex chars>'
-  ✓ string arg: namedId('myname') returns 'myname-<7 hex chars>'
-  ✓ object with id: uses provided id
-  ✓ object with length: controls hex portion length
-  ✓ object with prefix: 'pre-id-<hex>'
-  ✓ object with suffix: 'id-suf-<hex>'
-  ✓ prefix + suffix: 'pre-id-suf-<hex>'
-  ✓ each call returns unique output (10 calls, all different)
-
-describe('randomBytes')
-  ✓ returns hex string of specified length
-  ✓ length=0 returns empty string
-  ✓ only contains hex characters [0-9a-f]
-```
-
-### 5.2 useIncId — `src/Ids/useIncId/__tests__/useIncId.test.tsx`
-
-**Source**: `src/Ids/useIncId/useIncId.ts` — deterministic auto-incrementing ID hook.
-
-Use `renderHook` from `@testing-library/react`:
-
-```
-describe('useIncId')
-  ✓ string arg: returns function generating 'myid-000', 'myid-001', ...
-  ✓ object arg with prefix: 'p-x-000'
-  ✓ custom length: zero-padded to specified length
-  ✓ .by(step) skips counter by step amount
-  ✓ counter persists across calls within same component lifecycle
-  ✓ default length is 3
-```
-
-### 5.3 IMimeType — `src/MimeType/__tests__/IMimeType.test.ts`
-
-**Source**: `src/MimeType/IMimeType.ts` — `MimeRegistry` static class + `getExtension()`.
-
-```
-describe('MimeRegistry')
-  ✓ create() registers in exts, names, subtypes, and types maps
-  ✓ created IMimeType has correct type getter ('application/sui-editor')
-  ✓ created IMimeType has correct subType, name, ext, description, embedded
-  ✓ accept getter returns { fullType: ext } shape
-  ✓ typeObj getter returns { type: fullType }
-  ✓ multiple creates don't overwrite each other (different exts)
-
-describe('getExtension')
-  ✓ 'https://example.com/file.mp4' returns '.mp4'
-  ✓ 'https://example.com/file' returns ''
-  ✓ handles query strings: 'https://example.com/file.mp4?v=1' returns '.mp4'
-  ✓ handles paths with dots: 'https://a.b.com/dir.name/file.txt' returns '.txt'
-```
-
-### 5.4 StokedUiMime — `src/MimeType/__tests__/StokedUiMime.test.ts`
-
-**Source**: `src/MimeType/StokedUiMime.ts` — singleton extending `MimeRegistry`.
-
-```
-describe('SUIMime')
-  ✓ getInstance() returns same instance on repeated calls
-  ✓ after getInstance(), standard types registered (png, mp4, mp3 in MimeRegistry)
-  ✓ make() creates mime type with 'stoked-ui' application prefix
-  ✓ make() result is findable in MimeRegistry.exts
-```
-
-**Note**: `MimeRegistry` uses static state. Tests should be aware of pollution from `SUIMime.getInstance()` registering standard types. Run these tests after IMimeType tests or use `beforeAll` to reset.
-
----
-
-## 6. P2 Tests
-
-### 6.1 interfaces/publicity — `src/interfaces/__tests__/publicity.test.ts`
-
-```
-describe('publicity')
-  ✓ PUBLICITY_TYPES has public, private, paid, deleted
-  ✓ isAdminOnlyPublicity('deleted') returns true
-  ✓ isAdminOnlyPublicity('public' | 'private' | 'paid') returns false
-  ✓ isIncludedInAllFilter('public' | 'private' | 'paid') returns true
-  ✓ isIncludedInAllFilter('deleted') returns false
-  ✓ ADMIN_ONLY_PUBLICITY_TYPES is ['deleted']
-  ✓ ALL_FILTER_PUBLICITY_TYPES is ['public', 'private', 'paid']
-```
-
-### 6.2 interfaces/embed-visibility — `src/interfaces/__tests__/embed-visibility.test.ts`
-
-```
-describe('embed-visibility')
-  ✓ DEFAULT_EMBED_VISIBILITY is 'private'
-  ✓ isPublicEmbedVisibility('public') returns true
-  ✓ isPublicEmbedVisibility('authenticated' | 'private') returns false
-  ✓ isAuthenticatedEmbedVisibility('public' | 'authenticated') returns true
-  ✓ isAuthenticatedEmbedVisibility('private') returns false
-```
-
-### 6.3 UserMenu — `src/UserMenu/__tests__/UserMenu.test.tsx`
-
-**Source**: `src/UserMenu/UserMenu.tsx` — MUI Avatar + Menu dropdown.
-
-```
-describe('UserMenu')
-  ✓ renders avatar with first letter of name (no avatarUrl)
-  ✓ renders avatar image when avatarUrl provided
-  ✓ displays name and role
-  ✓ click opens dropdown menu
-  ✓ "Sign Out" menu item calls onSignOut
-  ✓ menu closes after clicking Sign Out
-  ✓ aria attributes are correct (aria-controls, aria-haspopup, aria-expanded)
-```
-
-Wrap with `renderWithTheme` (see section 8.1).
-
-### 6.4 setProperty — `src/Types/__tests__/setProperty.test.ts`
-
-**Source**: `src/Types/Types.ts:setProperty()` — `Object.defineProperty` wrapper.
-
-```
-describe('setProperty')
-  ✓ defines non-writable, non-configurable, enumerable property
-  ✓ property value is accessible
-  ✓ property is not writable (assignment in strict mode would throw)
-```
-
-### 6.5 Hooks
-
-**useResize** — `src/useResize/__tests__/useResize.test.tsx`:
-```
-describe('useResize')
-  ✓ returns element dimensions when ref has current
-  ✓ returns window dimensions when ref is null
-  ✓ updates on window resize event
-  ✓ cleans up resize listener on unmount
-```
-
-**useResizeWindow** — `src/useResizeWindow/__tests__/useResizeWindow.test.tsx`:
-```
-describe('useResizeWindow')
-  ✓ returns [innerWidth, innerHeight]
-  ✓ updates on window resize event
-  ✓ returns [0, 0] when window is undefined (SSR)
-```
-
-**Known issue**: `useResizeWindow` calls `useState` conditionally after an early return (`if (typeof window === 'undefined') return [0, 0]`). This violates React's rules of hooks. Document in test comments but don't fix (out of scope for testing strategy).
-
----
-
-## 7. P3 Tests (Deferred)
-
-### 7.1 LocalDb — `src/LocalDb/__tests__/LocalDb.test.ts`
-
-**Source**: `src/LocalDb/LocalDb.ts` — 546 lines, static class wrapping IndexedDB via `@tempfix/idb`.
-
-Requires adding `fake-indexeddb` as devDependency (`pnpm add -D fake-indexeddb`).
-
-**What to test when ready:**
-```
-describe('LocalDb')
-  ✓ init() creates stores, sets initialized=true
-  ✓ init() with disabled=true skips IDB, sets initialized=true
-  ✓ init() is idempotent (second call is no-op)
-  ✓ saveFile() stores version 1 correctly
-  ✓ saveFile() appends version 2 to existing project
-  ✓ loadByName() retrieves latest version when version=-1
-  ✓ loadByName() retrieves specific version
-  ✓ loadByName() returns null for unknown name
-  ✓ loadByUrl() retrieves by indexed URL
-  ✓ loadByUrl() returns null for unknown URL
-  ✓ getVersions() returns sorted version list
-  ✓ getKeys() returns all stored keys
-  ✓ saveVideo() appends video to project version
-
-describe('createFolder')   # Pure function, can test immediately (P1)
-  ✓ creates folder with name, type='folder', mediaType='folder'
-  ✓ includes children array
-  ✓ uses namedId when no id option provided
-  ✓ uses provided id option
-  ✓ includes created timestamp
-```
-
-**Note**: `createFolder` is a pure function exported from `LocalDb.ts` (line 117). It can and should be tested immediately in Phase 1 — no IDB dependency.
-
-### 7.2 GrokLoader — `src/GrokLoader/__tests__/GrokLoader.test.tsx`
-
-Animated component — minimal test value. Mock framer-motion:
-
-```typescript
-jest.mock('framer-motion', () => {
-  const React = require('react');
-  return {
-    motion: { div: React.forwardRef((props: any, ref: any) => <div ref={ref} {...props} />) },
-    useAnimationControls: () => ({ start: jest.fn(), stop: jest.fn() }),
-    useMotionValue: (init: number) => ({ get: () => init, set: jest.fn() }),
-    useTransform: (_: any, fn: (v: number) => number) => fn(0),
-    animate: () => ({ stop: jest.fn() }),
-  };
-});
-```
-
-```
-describe('GrokLoader')
-  ✓ renders without crashing
-```
-
----
-
-## 8. Mock/Stub Strategy Summary
-
-| Dependency | Strategy | Used By |
-|---|---|---|
-| `global.fetch` | `jest.fn()` — mock responses/errors | FetchBackoff |
-| `setTimeout` / timers | `jest.useFakeTimers()` | FetchBackoff |
-| `@mui/material/styles` (color fns) | Use real imports; mock only if import fails | Colors |
-| `@mui/material` components | `ThemeProvider` + `createTheme()` wrapper | UserMenu, SocialLinks, GrokLoader |
-| `@tempfix/idb` / IndexedDB | `fake-indexeddb` package (add as devDep) | LocalDb |
-| `window` dimensions | `Object.defineProperty(window, 'innerWidth', ...)` | useResize, useResizeWindow |
-| `framer-motion` | `jest.mock('framer-motion')` with stub components | GrokLoader |
-| React hooks | `renderHook` from `@testing-library/react` | useIncId, useResize, useResizeWindow |
-| `console.error/info` | `jest.spyOn(console, 'error').mockImplementation()` | FetchBackoff, LocalDb |
-
----
-
-## 9. Coverage Targets
-
-Medium priority → aim for **70% global**, with higher targets for critical modules.
-
-### Global Thresholds
-
-| Metric | Target |
+| Item | Status |
 |---|---|
-| Statements | 70% |
-| Branches | 65% |
-| Functions | 80% |
-| Lines | 70% |
+| Test runner | Jest 29 (`packages/sui-common/jest.config.js`) — `ts-jest` preset, jsdom env |
+| Setup file | `src/__tests__/setup.ts` — imports `@testing-library/jest-dom` only |
+| RTL | `@testing-library/react` 16.3.2 |
+| Existing test files | 3 — all under `src/SocialLinks/__tests__/` |
+| Coverage script | `pnpm --filter @stoked-ui/common test:coverage` (defined, not enforced) |
+| CI gating | None — package has no test step in the root workflow |
 
-### Per-Module Targets
+Existing tests:
 
-| Module | Target | Rationale |
+- `src/SocialLinks/__tests__/platformRegistry.test.ts` — registry shape, `getPlatformByKey`, `ALL_PLATFORM_KEYS`
+- `src/SocialLinks/__tests__/SocialLinks.test.tsx` — RTL render of all 13 fields, filtering, invalid keys
+- `src/SocialLinks/__tests__/SocialLinkField.test.tsx`
+
+**Everything else in the package is currently untested.** That includes `LocalDb` (557 LOC, IndexedDB-backed), `FetchBackoff`, `mergeWith` (an `Array.prototype` extension), `createSettings` / `createProviderState`, `namedId` / `useIncId`, `compositeColors`, and `MimeRegistry`.
+
+---
+
+## 2. What Should Be Tested
+
+### Tier 1 — Critical, ship-blocking (write first)
+
+These modules are imported by multiple consumer packages and a regression silently corrupts their state.
+
+| Module | File | Why it matters |
 |---|---|---|
-| FetchBackoff | 90% | Critical network resilience, all paths reachable |
-| ProviderState + Settings | 85% | Core state management used across packages |
-| Colors | 85% | Pure math, easy to cover |
-| Types (SortedList, mergeWith) | 90% | Pure data structures, straightforward |
-| Ids (namedId, useIncId) | 80% | ID generation used across all packages |
-| MimeType (IMimeType, StokedUiMime) | 75% | Registry logic |
-| MimeType (MimeType.ts map) | 5% | 1206-line static map — spot-check only |
-| interfaces (publicity, embed-visibility) | 100% | Trivial functions, full coverage trivial |
-| SocialLinks | 90% | Already well-tested |
-| UserMenu | 70% | UI component |
-| useResize / useResizeWindow | 60% | Simple hooks, SSR edge case |
-| LocalDb / VideoDb | 50% | Complex IDB mocking, deferred |
-| GrokLoader | 10% | Smoke test only |
+| `FetchBackoff` | `src/FetchBackoff/FetchBackoff.ts` | Network retry primitive. Wrong backoff math = thundering herd or premature give-up. Loop drops responses when `retryCondition` is true but the response was OK, so behavior under custom predicates needs locking down. |
+| `createProviderState` | `src/ProviderState/ProviderState.ts` | Drives flag/setting state across packages. Trigger semantics (`addTriggers`/`removeTriggers`) accept string, array, and object forms with different effects. |
+| `createSettings` | `src/ProviderState/Settings.ts` | Proxy-based dotted-path getter/setter. Known footgun (see `~/.claude/projects/-opt-dev-stoked-ui/memory/MEMORY.md`): values set via `Object.assign` don't propagate. Lock in current behavior so future "fixes" don't silently break editor consumers. |
+| `LocalDb` | `src/LocalDb/LocalDb.ts` | IndexedDB persistence for editor/media. Memory notes call out two prior incidents here (missing version entry on `saveVideo`; empty `ScreenshotStore` blocked generation). Both need regression coverage. |
+| `namedId` / `useIncId` | `src/Ids/namedId/namedId.ts`, `src/Ids/useIncId/useIncId.ts` | Used for React keys and IDB record IDs. `useIncId` must be deterministic across renders for hydration. |
+| `mergeWith` | `src/Types/mergeWith.ts` | Extends `Array.prototype` globally — side-effecting import. Wrong key-merge logic silently drops data. |
+
+### Tier 2 — Important utilities
+
+| Module | File | Why |
+|---|---|---|
+| `compositeColors` | `src/Colors/colors.ts` | Throws on unsupported formats, alpha-compositing math, depends on `@mui/material/styles` helpers. |
+| `MimeRegistry` / `getExtension` | `src/MimeType/IMimeType.ts` | Module-level static maps mutated by `create()` — test isolation matters. |
+| `ExtensionMimeTypeMap` | `src/MimeType/MimeType.ts` | 1209 lines of static data — sanity tests, not exhaustive. |
+| `StokedUiMime` | `src/MimeType/StokedUiMime.ts` | Wraps `MimeRegistry.create` for SUI-specific MIME types. |
+
+### Tier 3 — React components / hooks
+
+| Module | File | Coverage goal |
+|---|---|---|
+| `useResize` | `src/useResize/useResize.tsx` | Hook contract; mock `ResizeObserver`. |
+| `useResizeWindow` | `src/useResizeWindow/useResizeWindow.tsx` | Window resize event wiring + cleanup. |
+| `UserMenu` | `src/UserMenu/UserMenu.tsx` | Render + interaction smoke tests. |
+| `GrokLoader` | `src/GrokLoader/GrokLoader.tsx` | Render snapshot only. |
+| `SocialLinks` family | already covered | Fill any gap in `SocialLinkField.test.tsx`. |
+
+### Out of scope
+
+- The static `ExtensionMimeTypeMap` data table (~1100 entries) — spot-check, do not enumerate.
+- Pure type-only re-exports under `src/interfaces/`.
+- Build outputs in `build/` and the generated `*.js`/`*.js.map` siblings of `*.ts` sources.
 
 ---
 
-## 10. Jest Configuration Updates
+## 3. Tooling
 
-Add to `jest.config.js`:
+The current toolchain is correct for this package. Do not introduce additional runners.
 
-```javascript
-module.exports = {
-  // ... existing config ...
-  testPathIgnorePatterns: [
-    '/node_modules/', '/build/', '/dist/',
-    '/src/__tests__/setup.ts',
-    '/src/__tests__/utils.tsx',
-  ],
-  collectCoverageFrom: [
-    'src/**/*.{ts,tsx}',
-    '!src/**/*.d.ts',
-    '!src/**/index.{ts,tsx}',
-    '!src/**/*.types.{ts,tsx}',
-    '!src/**/*.styles.{ts,tsx}',
-    '!src/MimeType/MimeType.ts',  // 1206-line static data map
-    '!src/idb.types.d.ts',
-  ],
-  coverageThreshold: {
-    global: {
-      branches: 65,
-      functions: 80,
-      lines: 70,
-      statements: 70,
-    },
-  },
-};
+- **Runner:** Jest 29 with `ts-jest` (`jest.config.js`).
+- **DOM:** `jsdom` (`testEnvironment: 'jsdom'`).
+- **Assertions:** `@testing-library/jest-dom` (loaded via `src/__tests__/setup.ts`).
+- **React:** `@testing-library/react` for components and `renderHook` for hooks.
+- **Mocks:** Jest built-ins (`jest.fn`, `jest.useFakeTimers`, `jest.spyOn`).
+- **CSS modules:** already mapped to `identity-obj-proxy`.
+
+### Add (one-time)
+
+- `fake-indexeddb` — required to test `LocalDb` in jsdom, which has no IndexedDB. Add as devDependency and import in `src/__tests__/setup.ts` (`import 'fake-indexeddb/auto';`). Reset between tests with `indexedDB = new IDBFactory()` or by deleting the test DB in `afterEach`.
+- Wire `pnpm --filter @stoked-ui/common test` into the root CI workflow (currently unreferenced).
+
+---
+
+## 4. File Organization & Naming
+
+Follow the precedent already set by `SocialLinks`: tests co-located in a `__tests__/` directory inside the module.
+
+```
+src/<Module>/
+  <Module>.ts(x)
+  __tests__/
+    <Module>.test.ts(x)
 ```
 
+- Keep `src/__tests__/setup.ts` as the only top-level test file (jest-dom + fake-indexeddb registration).
+- One `describe` per module, nested `describe` per public function.
+- Test names in the form `it('returns X when Y')` — match existing style in `platformRegistry.test.ts`.
+- Use `*.test.ts` for plain TS, `*.test.tsx` only when JSX is needed.
+
 ---
 
-## 11. Shared Test Utilities
+## 5. Mock / Stub Strategy
 
-Create `src/__tests__/utils.tsx`:
+| Dependency | Strategy |
+|---|---|
+| `fetch` (FetchBackoff) | `global.fetch = jest.fn()` per test; reset in `afterEach`. Use `jest.useFakeTimers()` + `jest.advanceTimersByTimeAsync` to skip the backoff delay. |
+| `IndexedDB` (`LocalDb`, `VideoDb`) | `fake-indexeddb` global polyfill. Do **not** mock `@tempfix/idb` — exercise the real wrapper against the fake DB. Delete the DB in `afterEach` to keep tests isolated. |
+| `ResizeObserver` (`useResize`) | Polyfill in setup: `class RO { observe(){} unobserve(){} disconnect(){} }; global.ResizeObserver = RO;`. Capture the callback by spying on the constructor. |
+| `window` resize events | jsdom supports `window.dispatchEvent(new Event('resize'))` directly. |
+| `MUI ThemeProvider` (components) | Wrap in `<ThemeProvider theme={createTheme()}>` per existing `SocialLinks.test.tsx` pattern. Extract a shared `renderWithTheme` helper if a third component needs it. |
+| `MUI icon imports` (`@mui/icons-material/*`) | None needed — they render as inline SVG in jsdom. |
+| `MimeRegistry` static state | Reset between tests by clearing the four private maps via reflection, or structure tests so each one creates unique extensions. |
+| `console.error` (FetchBackoff) | `jest.spyOn(console, 'error').mockImplementation(() => {})` to keep output clean. |
+| `Math.random` (`namedId`) | Spy or seed when asserting exact output; otherwise assert format with regex. |
 
-```typescript
-import * as React from 'react';
-import { render, RenderOptions } from '@testing-library/react';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+Side-effect import warning: `src/Types/mergeWith.ts` mutates `Array.prototype`. Tests for it must `import '../mergeWith'` (or rely on the index re-export) and assert the prototype is patched. Do not `delete Array.prototype.mergeWith` afterward — other tests in the suite depend on it being installed.
 
-const theme = createTheme();
+---
 
-export function renderWithTheme(ui: React.ReactElement, options?: RenderOptions) {
-  return render(
-    <ThemeProvider theme={theme}>{ui}</ThemeProvider>,
-    options,
-  );
+## 6. Coverage Targets (Medium priority)
+
+Enforce via `jest.config.js` `coverageThreshold` once the Tier 1 tests land:
+
+```js
+coverageThreshold: {
+  global:                  { lines: 60, statements: 60, branches: 50, functions: 60 },
+  './src/FetchBackoff/':   { lines: 90, branches: 85 },
+  './src/ProviderState/':  { lines: 85, branches: 75 },
+  './src/Ids/':            { lines: 90, branches: 80 },
+  './src/Types/':          { lines: 85, branches: 80 },
+  './src/LocalDb/':        { lines: 70, branches: 60 },
+  './src/Colors/':         { lines: 90, branches: 85 },
 }
-
-export { screen, fireEvent, waitFor, within } from '@testing-library/react';
 ```
 
-Update `src/__tests__/setup.ts`:
+Rationale: utilities are deterministic and cheap to cover thoroughly; `LocalDb` interacts with IndexedDB so 70% is realistic. Components are excluded from per-directory thresholds — render-smoke coverage is enough.
 
-```typescript
+Exclude from coverage: `src/**/index.ts(x)` re-exports, `src/interfaces/`, `src/__tests__/`, all `*.js` build siblings.
+
+---
+
+## 7. Concrete Test Cases — Implement First
+
+The order below is the recommended implementation order. Each item lists the file to create and the cases that must pass.
+
+### Sprint 1 — Pure utilities (no DOM, fastest to write)
+
+**`src/FetchBackoff/__tests__/FetchBackoff.test.ts`**
+- returns response on first success (no retry)
+- retries up to `retries` (default 3) when `response.ok === false`
+- doubles delay each attempt with default `backoffFactor: 2` (assert via `setTimeout` spy)
+- respects custom `initialDelay` and `backoffFactor`
+- throws `"Fetch failed after maximum retries."` after exhausting retries
+- uses custom `retryCondition` to short-circuit the retry loop
+- swallows fetch rejections per `retryCondition`, logs once on final failure
+- does not retry when `retryCondition` returns `false` for an error
+
+**`src/Ids/namedId/__tests__/namedId.test.ts`**
+- default call returns string matching `/^id-[0-9a-f]{1,7}$/`
+- string arg becomes the id segment: `namedId('foo')` → `/^foo-/`
+- object arg respects `prefix`, `id`, `suffix`, `length`
+- `randomBytes(n)` returns an `n`-character lowercase hex string
+- two consecutive calls produce different IDs (collision smoke test, 1000 iterations)
+
+**`src/Ids/useIncId/__tests__/useIncId.test.ts`** (uses `renderHook`)
+- counter starts at 0, increments by 1 per call
+- pads to configured `length` with leading zeros (`length: 3` → `001`)
+- `prefix` is concatenated correctly (`${prefix}-${id}-${padded}`)
+- `.by(n)` jumps the counter by `n`
+- counter persists across re-renders, resets on unmount
+
+**`src/Types/__tests__/mergeWith.test.ts`**
+- merges two arrays by key, second array overwrites first
+- filters out falsy entries from both arrays
+- returns instance unchanged when `otherArray` is not an array
+- empty arrays return an empty array
+- side-effect: `Array.prototype.mergeWith` is defined after import
+
+**`src/Colors/__tests__/colors.test.ts`**
+- alpha === 1 returns the overlay color verbatim
+- alpha === 0 returns the base color verbatim
+- alpha === 0.5 produces a midpoint blend
+- accepts `#hex`, `rgb()`, `rgba()`, `hsl()` as base
+- throws `"Unsupported color format"` on unknown input
+- throws `"Invalid RGB color format"` on malformed RGB
+
+### Sprint 2 — State containers
+
+**`src/ProviderState/__tests__/Settings.test.ts`**
+- top-level get/set works like a normal object
+- dotted-path get traverses nested objects (`settings['user.name']`)
+- dotted-path set creates intermediate objects
+- get returns `undefined` for missing intermediate keys (no throw)
+- regression: document the `Object.assign` propagation gap from `MEMORY.md` with a skipped test or comment so future work doesn't silently regress
+
+**`src/ProviderState/__tests__/ProviderState.test.ts`**
+- `createFlags` seeds `flags` from `defaultValue`
+- `enableFlags` / `disableFlags` accept a string or `string[]`
+- `toggleFlags` flips the current value
+- `removeFlags` throws on an unknown flag name
+- `addTriggers` with a string array enables those flags transitively
+- `removeTriggers` with a string array disables those flags
+- object trigger writes into the captured `settings` closure (note: this writes to the *constructor argument*, not `this.settings` — assert the actual behavior)
+
+### Sprint 3 — IndexedDB-backed persistence
+
+Add `fake-indexeddb` and update `src/__tests__/setup.ts`:
+
+```ts
 import '@testing-library/jest-dom';
-
-// Suppress console.info in tests (LocalDb, ProviderState emit many logs)
-jest.spyOn(console, 'info').mockImplementation(() => {});
+import 'fake-indexeddb/auto';
 ```
 
----
+**`src/LocalDb/__tests__/LocalDb.test.ts`**
+- `getRecordVersions` produces ascending versions for an `IDBProjectFile` with multiple version entries
+- save → load round-trip: write a `FileSaveRequest`, read back via `FileLoadRequestByName`, blob bytes match
+- save with missing `versions` entry creates the version (regression for the issue noted in `MEMORY.md`)
+- load by URL resolves the same record as load by name
+- `disabled: true` short-circuits all writes/reads without throwing
+- `getVideos` returns videos for a project; empty store returns `[]` (regression for the empty-`ScreenshotStore` count check)
+- `createFolder` produces a folder `IDBFile` with a generated id
 
-## 12. Implementation Order
-
-| Phase | Files to Create | Est. Cases | Effort |
-|---|---|---|---|
-| **1 — Pure Logic (P0)** | `FetchBackoff.test.ts`, `Settings.test.ts`, `ProviderState.test.ts`, `colors.test.ts`, `SortedList.test.ts`, `mergeWith.test.ts` | ~65 | 1 day |
-| **2 — IDs & MimeType (P1)** | `namedId.test.ts`, `useIncId.test.tsx`, `IMimeType.test.ts`, `StokedUiMime.test.ts` | ~30 | 0.5 day |
-| **3 — Interfaces & UI (P2)** | `publicity.test.ts`, `embed-visibility.test.ts`, `UserMenu.test.tsx`, `useResize.test.tsx`, `useResizeWindow.test.tsx` | ~25 | 0.5 day |
-| **4 — IndexedDB (P3)** | `LocalDb.test.ts`, `GrokLoader.test.tsx` | ~15 | 1 day |
-
-**Total**: ~135 new test cases across 15 new test files.
-
----
-
-## 13. Key Risks & Known Issues
-
-1. **`mergeWith` modifies `Array.prototype` globally** — importing the module adds `.mergeWith` to all arrays in the Jest worker. Tests in the same worker may be affected. Consider running these tests in a separate file (Jest runs each file in its own worker by default, so this is safe with the co-located `__tests__/mergeWith.test.ts` approach).
-
-2. **`ProviderState.checkTriggers` closure bug** — Lines 111-112 and 125-126 in `ProviderState.ts` reference the `settings` parameter from the `createProviderState` closure directly, not `this.settings`. Object-type triggers modify the raw input object, bypassing the Settings Proxy. Tests should document this and verify both code paths.
-
-3. **`LocalDb` static state pollution** — `LocalDb.stores`, `LocalDb.initialized`, `LocalDb.version` are static properties that persist across tests. Every test must reset: `LocalDb.initialized = false; LocalDb.stores = {};`.
-
-4. **`useResizeWindow` violates rules of hooks** — `useState` is called after a conditional early return on SSR (`typeof window === 'undefined'`). This is a runtime bug on SSR, but harmless in jsdom tests where `window` is always defined.
-
-5. **`FetchBackoff` silent error swallowing** — When `retryCondition(null, error)` returns `false` (line 35), the function calls `console.error` but does not throw or return, falling through to the retry loop. After max retries, it throws regardless. Test that errors with `retryCondition: () => false` still eventually throw after loop exhaustion.
-
-6. **`MimeRegistry` static state** — `MimeRegistry.create()` permanently adds entries to static maps (`_exts`, `_names`, `_subtypes`, `_types`). Tests registering MIME types will affect subsequent tests. Use unique test-only extensions/names to avoid collisions.
-
-7. **No `fake-indexeddb` devDependency** — Must be added before Phase 4 LocalDb tests: `pnpm add -D fake-indexeddb`.
-
----
-
-## 14. Running Tests
-
-```bash
-# Run all package tests
-cd packages/sui-common && pnpm test
-
-# Run with coverage
-cd packages/sui-common && pnpm test:coverage
-
-# Run specific module
-cd packages/sui-common && pnpm test -- --testPathPattern=FetchBackoff
-
-# Run in watch mode during development
-cd packages/sui-common && pnpm test:watch
-
-# Via turbo from monorepo root
-turbo run test --filter=@stoked-ui/common
+Reset state between tests:
+```ts
+afterEach(async () => {
+  await new Promise((r) => {
+    const req = indexedDB.deleteDatabase('<dbName>');
+    req.onsuccess = r;
+    req.onerror = r;
+  });
+});
 ```
+
+### Sprint 4 — MIME + components
+
+**`src/MimeType/__tests__/MimeRegistry.test.ts`**
+- `create(app, name, ext, desc)` registers in all four maps (`exts`, `names`, `subtypes`, `types`)
+- `accept` returns `{ [fullType]: ext }`
+- `getExtension('https://x/y.png')` → `.png`; no extension → `''`
+
+**`src/MimeType/__tests__/MimeType.test.ts`**
+- `ExtensionMimeTypeMap` returns expected types for `mp4`, `png`, `pdf`, `json`, `zip` (spot check, not exhaustive)
+- map size is non-zero (sanity)
+
+**`src/useResize/__tests__/useResize.test.tsx`** / **`src/useResizeWindow/__tests__/useResizeWindow.test.tsx`** (use `renderHook`)
+- Mock `ResizeObserver` in setup, then assert the hook subscribes on mount and disconnects on unmount.
+- Trigger a resize and assert the returned dimensions update.
+
+**`src/UserMenu/__tests__/UserMenu.test.tsx`**
+- Renders with required props, opens menu on click, fires the documented callbacks.
+
+---
+
+## 8. Risks & Notes
+
+- **`createSettings` Proxy is load-bearing across packages** — `MEMORY.md` calls out a specific footgun used by the editor (`file.media` properties set via `Object.assign` don't propagate through React state updates). Tests must lock in current behavior, not "ideal" behavior, until that gap is addressed deliberately.
+- **`mergeWith` mutates `Array.prototype`.** Adding it to a Jest setup means every test runs with the patched prototype; that matches production. Do not isolate it.
+- **`MimeRegistry` keeps module-level state.** Tests that call `create()` will leak across files unless reset. Prefer unique extensions per test (e.g. `.test-${Date.now()}`) to dodge the issue without reflecting into private fields.
+- **`process.env.FLAG_DEBUGGING`** is read by `enableFlags` / `disableFlags`. Either leave it unset or `delete process.env.FLAG_DEBUGGING` in setup so console output stays quiet.
+- **No CI test step exists** for this package today. Adding the tests is half the work; wiring `pnpm --filter @stoked-ui/common test` (and eventually `test:coverage`) into the root pipeline is the other half. Without that, regressions still ship.

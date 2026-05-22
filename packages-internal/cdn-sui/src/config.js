@@ -1,14 +1,14 @@
 export const cdnName = import.meta.env.VITE_CDN_NAME || 'Stoked CDN';
 export const publicBaseUrl =
-  import.meta.env.VITE_CDN_PUBLIC_BASE_URL || 'https://cdn-sui.stokedconsulting.com';
+  import.meta.env.VITE_CDN_PUBLIC_BASE_URL || 'https://cdn-sui.consulting.stokd.cloud';
 export const authSessionEndpoint =
   import.meta.env.VITE_CDN_AUTH_SESSION_URL || '/api/auth/session';
 const localAuthOrigin =
   import.meta.env.VITE_LOCAL_AUTH_ORIGIN || 'http://localhost:5199';
 
-const stokedUiOrigin = import.meta.env.VITE_STOKED_UI_ORIGIN || 'https://stoked-ui.com';
+const stokedUiOrigin = import.meta.env.VITE_STOKED_UI_ORIGIN || 'https://sui.stokd.cloud';
 const consultingOrigin =
-  import.meta.env.VITE_STOKED_CONSULTING_ORIGIN || 'https://stokedconsulting.com';
+  import.meta.env.VITE_STOKED_CONSULTING_ORIGIN || 'https://consulting.stokd.cloud';
 
 function isLocalHostname(hostname) {
   return hostname === 'localhost'

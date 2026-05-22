@@ -154,21 +154,21 @@ export default function BlogPostPage({ post }: BlogPostPageProps) {
     publisher: {
       '@type': 'Organization',
       name: 'SUI blog',
-      url: 'https://stokedconsulting.com/blog/',
+      url: 'https://consulting.stokd.cloud/blog/',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://stokedconsulting.com/static/icons/512x512.png',
+        url: 'https://consulting.stokd.cloud/static/icons/512x512.png',
       },
     },
     headline: finalTitle,
-    url: `https://stoked-ui.com/blog/${post.slug}/`,
+    url: `https://sui.stokd.cloud/blog/${post.slug}/`,
     datePublished: post.date,
     dateModified: post.date,
     keywords: (post.tags || []).join(', '),
     description,
     mainEntityOfPage: {
       '@type': 'WebPage',
-      '@id': 'https://stokedconsulting.com/blog/',
+      '@id': 'https://consulting.stokd.cloud/blog/',
     },
   } as Record<string, unknown>;
 
@@ -189,7 +189,7 @@ export default function BlogPostPage({ post }: BlogPostPageProps) {
       };
       jsonLd.image = {
         '@type': 'ImageObject',
-        url: post.image || `https://stokedconsulting.com/static/social-previews/blog-preview.jpg`,
+        url: post.image || `https://consulting.stokd.cloud/static/social-previews/blog-preview.jpg`,
         width: 1280,
         height: 640,
       };

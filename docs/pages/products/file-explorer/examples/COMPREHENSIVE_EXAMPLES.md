@@ -1043,7 +1043,7 @@ These examples demonstrate:
 10. **Accessibility**: Full a11y support
 
 For more examples, visit:
-- [FileExplorer Documentation](https://stoked-ui.com/file-explorer/docs)
+- [FileExplorer Documentation](https://sui.stokd.cloud/file-explorer/docs)
 - [API Reference](../api/file-explorer.json)
 - [Migration Guide](../../data/migration/migration-file-explorer-mui-x/migration-file-explorer-mui-x.md)
 

@@ -48,12 +48,12 @@ const Anchor = styled('a')({
 });
 
 const linkMapping = {
-  minimal: 'https://stokedconsulting.com/store/items/minimal-dashboard/',
-  theFront: 'https://stokedconsulting.com/store/items/the-front-landing-page/',
-  miro: 'https://stokedconsulting.com/store/items/mira-pro-react-material-admin-dashboard/',
-  devias: 'https://stokedconsulting.com/store/items/devias-kit-pro/',
-  berry: 'https://stokedconsulting.com/store/items/berry-react-material-admin/',
-  webbee: 'https://stokedconsulting.com/store/items/webbee-landing-page/',
+  minimal: 'https://consulting.stokd.cloud/store/items/minimal-dashboard/',
+  theFront: 'https://consulting.stokd.cloud/store/items/the-front-landing-page/',
+  miro: 'https://consulting.stokd.cloud/store/items/mira-pro-react-material-admin-dashboard/',
+  devias: 'https://consulting.stokd.cloud/store/items/devias-kit-pro/',
+  berry: 'https://consulting.stokd.cloud/store/items/berry-react-material-admin/',
+  webbee: 'https://consulting.stokd.cloud/store/items/webbee-landing-page/',
 };
 const brands = Object.keys(linkMapping) as Array<keyof typeof linkMapping>;
 

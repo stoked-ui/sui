@@ -82,7 +82,7 @@ pnpm --filter @stoked-ui/file-explorer dev
 
 ## Related Docs
 
-- Product docs: `https://stoked-ui.com/products/file-explorer/docs`
+- Product docs: `https://sui.stokd.cloud/products/file-explorer/docs`
 - Source: `packages/sui-file-explorer/src`
 
 ## License

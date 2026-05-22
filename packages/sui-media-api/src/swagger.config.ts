@@ -21,11 +21,11 @@ export function createSwaggerConfig() {
     .setContact(
       'Brian Stoker',
       'https://github.com/stoked-ui/sui',
-      'brian@stoked-ui.com',
+      'brian@stokd.cloud',
     )
     .setLicense('MIT', 'https://opensource.org/licenses/MIT')
     .addServer('http://localhost:3001/v1', 'Local development server')
-    .addServer('https://api.stoked-ui.com/v1', 'Production server')
+    .addServer('https://api.sui.stokd.cloud/v1', 'Production server')
     .addBearerAuth(
       {
         type: 'http',
@@ -58,7 +58,7 @@ export function setupSwaggerUI(app: INestApplication): void {
   const document = createSwaggerDocument(app);
   SwaggerModule.setup('api/docs', app, document, {
     customSiteTitle: 'Stoked UI Media API Documentation',
-    customfavIcon: 'https://stoked-ui.com/favicon.ico',
+    customfavIcon: 'https://sui.stokd.cloud/favicon.ico',
     customCss: '.swagger-ui .topbar { display: none }',
   });
 }

@@ -82,7 +82,7 @@ pnpm --filter @stoked-ui/editor dev
 
 ## Related Docs
 
-- Product docs: `https://stoked-ui.com/products/editor/docs`
+- Product docs: `https://sui.stokd.cloud/products/editor/docs`
 - WASM renderer package: `@stoked-ui/video-renderer-wasm`
 - Source: `packages/sui-editor/src`
 

@@ -49,7 +49,7 @@ const legacyRedirectPages = [
   '/editor/api/editor',
 ];
 
-const testBaseUrl = process.env.PLAYWRIGHT_TEST_BASE_URL || 'https://stoked-ui.com';
+const testBaseUrl = process.env.PLAYWRIGHT_TEST_BASE_URL || 'https://sui.stokd.cloud';
 
 function toCanonicalPathname(pathname: string) {
   if (pathname === '/' || pathname.endsWith('/')) {

@@ -52,9 +52,9 @@ export function HomeView({ HomeMain}: { HomeMain: React.ComponentType }){
             '@context': 'https://schema.org',
             '@type': 'Organization',
             name: 'Stoked Consulting',
-            url: 'https://stokedconsulting.com',
-            logo: 'https://stokedconsulting.com/static/logo.png',
-            sameAs: ['https://stokedconsulting.com'],
+            url: 'https://consulting.stokd.cloud',
+            logo: 'https://consulting.stokd.cloud/static/logo.png',
+            sameAs: ['https://consulting.stokd.cloud'],
           }),
         }}
       />
@@ -88,7 +88,7 @@ export default function Home({ HomeMain }: { HomeMain: React.ComponentType }) {
   React.useEffect(() => {
     if (typeof window !== 'undefined') {
       const host = window.location.hostname;
-      if (['stoked-ui.com', 'stokedconsulting.com'].includes(host)) {
+      if (['sui.stokd.cloud', 'consulting.stokd.cloud'].includes(host)) {
         setCurrentMain(() => RandomHome);
       } else {
         setCurrentMain(() => MainView);

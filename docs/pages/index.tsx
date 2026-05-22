@@ -89,9 +89,9 @@ export function HomeView({ HomeMain}: { HomeMain: React.ComponentType }){
             '@context': 'https://schema.org',
             '@type': 'Organization',
             name: 'Stoked UI',
-            url: 'https://stoked-ui.com',
-            logo: 'https://stoked-ui.com/static/logo.png',
-            sameAs: ['https://stokedconsulting.com'],
+            url: 'https://sui.stokd.cloud',
+            logo: 'https://sui.stokd.cloud/static/logo.png',
+            sameAs: ['https://consulting.stokd.cloud'],
           }),
         }}
       />

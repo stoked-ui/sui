@@ -106,11 +106,11 @@ function NoTracksNotice({ tracks }: { tracks: any }) {
  *
  * Demos:
  *
- * - [Timeline](https://timeline.stoked-ui.com/docs/)
+ * - [Timeline](https://timeline.sui.stokd.cloud/docs/)
  *
  * API:
  *
- * - [Timeline](https://timeline.stoked-ui.com/api/)
+ * - [Timeline](https://timeline.sui.stokd.cloud/api/)
  */
 const Timeline = React.forwardRef(function Timeline(
   inPropsId: TimelineProps & TimelineControlProps,

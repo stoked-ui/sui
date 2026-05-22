@@ -124,9 +124,9 @@ export default function MyDocument(props) {
         {/* SEO */}
         <link
           rel="canonical"
-          href={`https://stoked-ui.com${canonicalAsServer}`}
+          href={`https://sui.stokd.cloud${canonicalAsServer}`}
         />
-        <link rel="alternate" href={`https://stokedconsulting.com${canonicalAsServer}`} hrefLang="x-default"/>
+        <link rel="alternate" href={`https://consulting.stokd.cloud${canonicalAsServer}`} hrefLang="x-default"/>
         {/*
           Preconnect allows the browser to setup early connections before an HTTP request
           is actually sent to the server.

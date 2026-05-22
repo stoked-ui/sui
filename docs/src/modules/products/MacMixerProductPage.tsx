@@ -27,6 +27,9 @@ import AppFooter from 'docs/src/layouts/AppFooter';
 import AppHeader from 'docs/src/layouts/AppHeader';
 import Head from 'docs/src/modules/components/Head';
 
+const alphaInstallerUrl =
+  'https://cdn.consulting.stokd.cloud/products/mac-mixer/releases/alpha/2.0.0-1/MacMixer-2.0.0-1.pkg';
+
 const routes = [
   {
     app: 'Zoom',
@@ -329,22 +332,22 @@ export default function MacMixerProductPage() {
               <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} sx={{ pt: 1, maxWidth: { xs: 360, sm: 'none' } }}>
                 <Button
                   component={Link}
-                  href="/products/mac-mixer/docs/overview/"
+                  href={alphaInstallerUrl}
                   variant="contained"
                   size="large"
-                  startIcon={<MenuBookRoundedIcon />}
+                  startIcon={<DownloadRoundedIcon />}
                 >
-                  Read the docs
+                  Download alpha
                 </Button>
                 <Button
                   component={Link}
                   href="/products/mac-mixer/docs/installation/"
                   variant="outlined"
                   size="large"
-                  startIcon={<DownloadRoundedIcon />}
+                  startIcon={<MenuBookRoundedIcon />}
                   sx={{ color: '#fff', borderColor: 'rgba(255,255,255,0.42)' }}
                 >
-                  Installation status
+                  Install instructions
                 </Button>
               </Stack>
             </Stack>
@@ -386,7 +389,7 @@ export default function MacMixerProductPage() {
                     ['Virtual device', 'Mac Mixer becomes the default output so app audio can be captured and separated.'],
                     ['Eight output routes', 'The current driver exposes eight loopback buses for simultaneous physical output destinations.'],
                     ['YAML persistence', 'Routes, custom device names, enabled outputs, and volume settings are stored in Application Support.'],
-                    ['Licensing ready', 'The app supports a direct Stripe license path and a Mac App Store subscription build.'],
+                    ['Licensing ready', 'The direct alpha supports a Stripe license path and local trial state.'],
                   ].map(([title, description]) => (
                     <Grid item xs={12} sm={6} key={title}>
                       <Box sx={{ borderTop: '2px solid', borderColor: 'primary.main', pt: 2 }}>
@@ -473,16 +476,16 @@ export default function MacMixerProductPage() {
                   </Typography>
                 </Stack>
                 <Typography color="text.secondary">
-                  The current build is focused on per-app output routing, volume control, device management, and the license flow. Public installer links will be added after signing and release packaging are complete.
+                  The current build is focused on per-app output routing, volume control, device management, and the direct license flow. The alpha installer is signed, notarized, and ready for Stripe/direct-license testers.
                 </Typography>
               </div>
               <Button
                 component={Link}
-                href="/products/mac-mixer/docs/roadmap/"
+                href={alphaInstallerUrl}
                 variant="contained"
-                startIcon={<RouteRoundedIcon />}
+                startIcon={<DownloadRoundedIcon />}
               >
-                View roadmap
+                Download installer
               </Button>
             </Paper>
           </Container>

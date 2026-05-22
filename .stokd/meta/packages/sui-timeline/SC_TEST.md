@@ -1,903 +1,246 @@
-# SC_TEST — @stoked-ui/timeline Testing Strategy
+# Testing Strategy: `@stoked-ui/timeline`
 
-**Package:** `@stoked-ui/timeline`
-**Priority:** Medium
-**Current Coverage:** Near zero (1 spec file: `themeAugmentation.spec.ts` — type check only)
-**LOC (src):** ~4,500 across 100+ files
-**Internal Deps:** `@stoked-ui/common`, `@stoked-ui/media`, `@stoked-ui/file-explorer`
+> **Generated:** 2026-05-21 | **Meta version:** 0.4.0
+> **Package:** `packages/sui-timeline` (`@stoked-ui/timeline` v0.1.3)
+> **Priority:** Medium
+> **Source entry:** `packages/sui-timeline/src/index.ts`
 
----
+`@stoked-ui/timeline` is a hybrid package: a **headless playback engine** (`Engine`, `Controller`, `TimelineFile`, pure pixel/time math) plus a **DOM/interactjs/react-virtualized UI surface** (`Timeline`, `TimelineTrack`, `TimelineCursor`, `TimelineProvider`). The two halves have very different testability profiles and must be tested with different strategies. The headless half is high-leverage and easy to unit-test today; the UI half requires JSDOM stubs for `requestAnimationFrame`, `interactjs`, `react-virtualized`'s `AutoSizer`, and Howler.
 
-## 1. Test Framework & Tooling
-
-### Framework: Jest + ts-jest (matching monorepo convention)
-
-The monorepo uses Jest in `sui-media` (with a vitest shim for imports). Adopt the same stack.
-
-**Required devDependencies:**
-```
-@testing-library/jest-dom
-@testing-library/react
-@types/jest
-jest
-ts-jest
-identity-obj-proxy
-```
-
-**`jest.config.js`** — Based on `packages/sui-media/jest.config.js`:
-```js
-module.exports = {
-  preset: 'ts-jest',
-  testEnvironment: 'jsdom',
-  roots: ['<rootDir>/src'],
-  testMatch: [
-    '**/__tests__/**/*.test.+(ts|tsx|js)',
-    '**/?(*.)+(spec|test).+(ts|tsx|js)',
-  ],
-  transform: {
-    '^.+\\.(ts|tsx)$': ['ts-jest', {
-      tsconfig: {
-        jsx: 'react',
-        esModuleInterop: true,
-        allowSyntheticDefaultImports: true,
-        module: 'commonjs',
-        moduleResolution: 'node',
-      },
-    }],
-  },
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
-  moduleNameMapper: {
-    '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
-    '^@/(.*)$': '<rootDir>/src/$1',
-  },
-  setupFilesAfterSetup: ['<rootDir>/src/__tests__/setup.ts'],
-  collectCoverageFrom: [
-    'src/**/*.{ts,tsx}',
-    '!src/**/*.d.ts',
-    '!src/**/*.stories.tsx',
-    '!src/**/index.ts',
-    '!src/**/*.types.ts',
-  ],
-  coverageDirectory: 'coverage',
-  coverageReporters: ['text', 'lcov', 'html'],
-  testPathIgnorePatterns: ['/node_modules/', '/build/', '/dist/'],
-  transformIgnorePatterns: [
-    'node_modules/(?!(sorted-btree)/)',
-  ],
-};
-```
-
-**`package.json` script additions:**
-```json
-{
-  "scripts": {
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
-  }
-}
-```
+This package is consumed by `@stoked-ui/editor`, `docs/`, and any external timeline integrator. A regression in `Engine.tick`, `setTime`, or `_dealEnter`/`_dealLeave` silently corrupts the editor playhead, so engine tests should be ship-blocking.
 
 ---
 
-## 2. Test File Organization
+## 1. Current State
+
+| Item | Status |
+|---|---|
+| Test runner | Mocha 10 (root `.mocharc.js`) — Babel + JSDOM |
+| Setup | `@stoked-ui/internal-test-utils/setupBabel`, `@stoked-ui/internal-test-utils/setupJSDOM` |
+| Assertions | `chai` + `sinon` (per repo convention; see `sui-editor`, `sui-file-explorer`) |
+| Per-package script | None — `package.json` has no `test` entry. Runs from root via `pnpm test` / `pnpm test:coverage`. |
+| Karma / browser tests | Repo-level config exists (`test/karma.conf.js`) but no timeline specs feed it. |
+| CI gating | None for this package specifically; rolls into the umbrella `test:repo:no-docs` turbo task. |
+
+### Existing test files
+
+- `src/themeAugmentation/themeAugmentation.spec.ts` — Type-only spec (validates that `MuiTimeline` / `MuiTimelineAction` augment the MUI theme). Verified by `tsc`, not Mocha. **This is the only existing test in the package.**
+
+### Critical gap
+
+There is effectively zero runtime test coverage for ~4,500 LOC across 100+ files. The most consequential class — `Engine` (`src/Engine/Engine.ts`, 665 LOC) — is completely untested despite owning the RAF loop, state machine, action lifecycle, and event emission that every consumer depends on.
+
+> **Note on framework choice:** an earlier version of this file recommended Jest + ts-jest. That recommendation is rescinded. The monorepo's canonical runner is Mocha (root `.mocharc.js`, used by `sui-editor`, `sui-file-explorer`, `sui-common-api`). `sui-media` is an outlier on Jest. **New timeline tests should target Mocha + chai + sinon** for consistency with the closest consumers (`sui-editor`) and to leverage the existing `@stoked-ui/internal-test-utils` setup.
+
+---
+
+## 2. What Should Be Tested
+
+### Tier 1 — Critical, ship-blocking (write first)
+
+#### 2.1 `Engine` headless playback logic — `src/Engine/Engine.ts`
+
+This is the highest-leverage target in the package. Every method below is pure or easily isolated with a stub controller, and a regression breaks every editor.
+
+- **State machine** (`get isLoading`, `isReady`, `isPlaying`, `isPaused`)
+  - Constructor throws on missing `params.controllers` (line 78).
+  - `setTracks` transitions `LOADING → READY` (line 197) and is idempotent on subsequent calls.
+  - `pause()` only acts when `isPlaying` (line 401); `play()` calls `run()` and forces `_playRate = 1`.
+  - `run()` returns `false` when already playing or when `toTime <= currentTime` (line 349).
+- **Time math**
+  - `setTime(time)` updates `_currentTime`, resets `_next = 0`, fires `beforeSetTime` (cancelable) and `afterSetTime`.
+  - `setTime(time, true)` (tick path) fires `setTimeByTick`, **not** `afterSetTime`, and skips the `beforeSetTime` veto.
+  - `get duration` returns `media.duration` in `TRACK_FILE`/`MEDIA` modes, else `canvasDuration`.
+  - `canvasDuration` returns the max `action.end` across `_actionMap`.
+- **Play rate**
+  - `setPlayRate` is vetoed when `beforeSetPlayRate` returns `false` (line 208).
+  - `rewind(delta)` clamps to negative range, `fastForward(delta)` clamps to positive range (lines 315–331).
+- **Action lifecycle** (`_dealEnter`, `_dealLeave`, `_dealClear`, `tickAction`)
+  - `_dealEnter`: actions with `disabled: true` are skipped; entry stops at first `action.start > time` (sorted iteration, line 601); `track.dim` actions are not entered.
+  - `_dealLeave`: actions outside `[start, end]` window have `controller.leave` invoked and are removed from `_activeIds`.
+  - `_dealClear`: drains the BTree and calls `controller.leave` on every active action; resets `_next = 0`.
+  - `tickAction` is a no-op while `isLoading`.
+- **Event emission**
+  - `Emitter.on` / `off` / `trigger` (`src/Engine/emitter.ts`): `on` throws on unknown event; `trigger` returns `false` if **any** handler returns `false`; `off` with no handler clears all listeners.
+  - All 11 events in `Events` (`src/Engine/events.ts`) fire with the documented `{ engine, … }` payload.
+- **`_tick` integration** (the loop)
+  - With faked `requestAnimationFrame`, an `Engine` driven through `run({ toTime })` advances `_currentTime` and stops at `toTime`.
+  - `autoEnd` triggers `ended` once `_next >= _actionSortIds.length && _activeIds.length === 0`.
+  - Reverse playback (`_playRate < 0`) ends when `initialTime < 0`.
+
+#### 2.2 `Controller` base class — `src/Controller/Controller.ts`
+
+- `Controller.getActionTime`: with no `action.duration`, returns `trimStart || 0`; with duration, returns `(time - start + trimStart) % duration` (looping).
+- `Controller.getVol(volumePart)` destructures `[volume, start?, end?]`.
+- `Controller.getVolumeUpdate`:
+  - returns `undefined` when `volumeIndex === -2`.
+  - returns reset `{ volume: 1.0, volumeIndex: -1 }` when the active window has ended (line 113–116 in Controller.ts).
+  - returns the matching window when `volumeIndex === -1`.
+- `isValid(engine, track)` returns `!track.dim`.
+
+#### 2.3 Pixel/time utilities — `src/utils/deal_data.ts`
+
+Pure functions, no mocks needed. These underpin every rendered position in the UI; a regression here misaligns every action block on screen.
+
+- `parserTimeToPixel(time, { startLeft, scale, scaleWidth })`
+- `parserPixelToTime(...)` — round-trips with `parserTimeToPixel` to within float precision.
+- `parserTransformToTime({ left, width }, …)` returns `{ start, end }`.
+- `parserTimeToTransform({ start, end }, …)` returns `{ left, width }`.
+- `getScaleCountByRows(tracks, { scale })` — handles empty tracks (returns 2 = `0 + ADD_SCALE_COUNT`), tracks with empty `actions`, and single-action max.
+- `getScaleCountByPixel(data, { startLeft, scaleWidth, scaleCount })` — never returns less than `scaleCount`.
+- `parserActionsToPositions(actions, …)` returns interleaved `[start_px, end_px, …]`.
+
+### Tier 2 — High value, write next
+
+#### 2.4 `TimelineFile` model — `src/TimelineFile/TimelineFile.ts`
+
+- Constructor without `props.tracks` yields `_tracks = []` (line 78–80).
+- `actionInitializer` assigns `volumeIndex = -2` when `action.volume` is missing, `-1` when present.
+- Missing `action.id` is filled via `namedId('action')`; missing `track.id` via `namedId('track')`.
+- Controller resolution priority: explicit `track.controller` → `track.controllerName` → `track.file.mediaType` (lines 91–96).
+- `mediaFiles` getter returns the `file` from each track in order.
+- Command pattern: `RemoveActionCommand`, `RemoveTrackCommand` in `src/TimelineFile/Commands/` should round-trip (`execute` then `undo` returns identical state).
+
+#### 2.5 `AudioController` — `src/Controller/AudioController.ts`
+
+Howler is the heavy external dep here. Stub `Howl` at the module boundary (sinon `replace` on the import, or a `__mocks__/howler.ts` mapped via Babel config).
+
+- `preload`: creates a `Howl` with `track.file.url`, sets `action.duration` from the (stubbed) `onload`.
+- `start`: calls `item.rate`, `item.seek`, and `item.play` only when `engine.isPlaying`; registers `afterSetTime` + `afterSetPlayRate` listeners on the engine.
+- `stop`: removes both listeners and calls `item.stop` + `item.mute`.
+- `update`: applies `getVolumeUpdate` results to `item.volume` and writes back `action.volumeIndex`.
+- `getActionStyle`: returns `null` when `action.backgroundImage` is missing; otherwise computes `backgroundPosition` / `backgroundSize` from `scaleWidth / scale` and `trimStart` / `duration`.
+
+#### 2.6 `TimelineProvider` reducer — `src/TimelineProvider/TimelineProvider.tsx`
+
+The reducer is the source of truth for selected project/track/action, settings, and the command/undo stacks. Test in isolation with `@testing-library/react`'s `renderHook` + the provider, using a fixture `TimelineFile`.
+
+- Initial state matches `TimelineProviderProps.defaultState`.
+- `SET_FILE` action replaces the file and resets selection.
+- `SELECT_ACTION` / `SELECT_TRACK` / `SELECT_PROJECT` mutually clear.
+- `EXECUTE_COMMAND` pushes onto the undo stack and clears the redo stack.
+- `UNDO` / `REDO` round-trip a `RemoveActionCommand` to identical file state.
+
+### Tier 3 — Defer (manual / Karma)
+
+These paths require a real browser or substantial JSDOM scaffolding. Manual smoke on `localhost:5199` until Karma is wired up for this package.
+
+- `Timeline.tsx` full render — `react-virtualized` + `AutoSizer` need DOM measurement; covered indirectly via `sui-editor` integration.
+- `TimelineTrack.tsx` drag/drop and resize via `interactjs` (`Interactable/`).
+- `useAutoScroll` (`src/TimelineTrack/useAutoScroll.ts`) — RAF + scroll measurement.
+- `TimelineCursor` drag-scrub interaction.
+- `StokedUiTimelineApp` mime registration (`src/Timeline/StokedUiTimelineApp.ts`) — exercised by docs build.
+
+---
+
+## 3. Test File Organization
+
+Follow the repo's `__tests__/` convention (used in `sui-media`, `sui-common`, `sui-file-explorer`). Co-locate tests next to the code they exercise so a refactor moves them together.
 
 ```
-src/
-├── __tests__/
-│   ├── setup.ts                                 # Jest setup (DOM mocks, RAF mock)
-│   └── fixtures/
-│       ├── actions.ts                           # ITimelineAction factory
-│       ├── tracks.ts                            # ITimelineTrack factory
-│       ├── controllers.ts                       # Mock IController implementations
-│       └── engine.ts                            # Engine factory with defaults
-│
+packages/sui-timeline/src/
 ├── Engine/
+│   ├── Engine.ts
+│   ├── emitter.ts
+│   ├── events.ts
 │   └── __tests__/
-│       ├── Engine.state.test.ts                 # State machine transitions
-│       ├── Engine.timing.test.ts                # Time calculations, tick logic
-│       ├── Engine.actions.test.ts               # Action enter/leave/update lifecycle
-│       ├── Engine.events.test.ts                # Event emission & handler wiring
-│       └── emitter.test.ts                      # Emitter on/off/trigger/bind
-│
-├── utils/
-│   └── __tests__/
-│       └── deal_data.test.ts                    # Pure function conversions
-│
+│       ├── Engine.state.test.ts          # state machine, isReady/isPlaying/isPaused
+│       ├── Engine.time.test.ts           # setTime, duration, canvasDuration, playRate
+│       ├── Engine.lifecycle.test.ts      # _dealEnter, _dealLeave, _dealClear, tickAction
+│       ├── Engine.tick.test.ts           # RAF loop with sinon.useFakeTimers
+│       └── emitter.test.ts               # on/off/trigger/exist/bind/offAll
 ├── Controller/
 │   └── __tests__/
-│       ├── Controller.test.ts                   # Base class behavior
-│       └── Controller.volume.test.ts            # getVolumeUpdate, getVol, getActionTime
-│
+│       ├── Controller.test.ts            # getActionTime, getVol, getVolumeUpdate, isValid
+│       └── AudioController.test.ts       # preload/start/stop/update with stubbed Howl
 ├── TimelineFile/
 │   └── __tests__/
-│       ├── TimelineFile.test.ts                 # Static methods & constructor logic
-│       └── Commands/
-│           ├── RemoveActionCommand.test.ts       # Execute & undo
-│           └── RemoveTrackCommand.test.ts        # Execute & undo
-│
+│       ├── TimelineFile.test.ts          # construction, actionInitializer, controller resolution
+│       └── Commands.test.ts              # RemoveAction/RemoveTrack execute+undo round-trip
 ├── TimelineProvider/
 │   └── __tests__/
-│       └── TimelineProviderFunctions.test.ts    # setCursor, fitScaleData, height calcs, dim logic
-│
-└── themeAugmentation/
-    └── themeAugmentation.spec.ts                # (existing) Type checks
+│       └── TimelineProvider.test.tsx     # reducer + hook smoke via renderHook
+├── utils/
+│   └── __tests__/
+│       └── deal_data.test.ts             # pure pixel/time math
+└── test/
+    └── fixtures/
+        ├── actions.ts                    # buildAction({ start, end, ... }): ITimelineAction
+        ├── tracks.ts                     # buildTrack({ actions, controller }): ITimelineTrack
+        ├── controllers.ts                # createStubController() with sinon spies on enter/leave/update
+        └── engine.ts                     # createEngine({ tracks }) — factory with default controllers
 ```
 
-**Naming convention:** `<Module>.test.ts` for unit tests, `<Module>.integration.test.ts` for integration tests. Colocated in `__tests__/` directories beside the source.
+**Naming:** match the existing `.test.ts` / `.test.tsx` convention used in `sui-editor` and `sui-media`. Reserve `.spec.ts` for type-only checks (matching `themeAugmentation.spec.ts`).
 
 ---
 
-## 3. What to Test — Critical Paths
-
-### Tier 1: Critical (implement first)
-
-Pure logic modules with zero React dependency — easiest to test, highest value.
-
-#### 3.1 Time/Pixel Conversion Utilities (`src/utils/deal_data.ts`)
-
-Pure functions — simplest and most deterministic tests. These underpin all rendering math.
-
-| Test Case | Description |
-|-----------|-------------|
-| **parserTimeToPixel: time=0** | Returns `startLeft` (default 7) |
-| **parserTimeToPixel: time=scale** | Returns `startLeft + scaleWidth` |
-| **parserTimeToPixel: fractional** | `time=0.5, scale=1, scaleWidth=100` → `57` |
-| **parserPixelToTime** | Inverse of `parserTimeToPixel` |
-| **Roundtrip** | `parserPixelToTime(parserTimeToPixel(t, p), p) === t` for any `t` |
-| **parserTransformToTime** | Converts `{left, width}` to `{start, end}` |
-| **parserTimeToTransform** | Converts `{start, end}` to `{left, width}` |
-| **Transform roundtrip** | Bidirectional consistency |
-| **getScaleCountByRows** | Returns `ceil(maxEnd / scale) + 2` |
-| **getScaleCountByRows: empty tracks** | Returns `2` for empty or no tracks |
-| **getScaleCountByPixel** | Returns `max(ceil((data - startLeft) / scaleWidth) + ADD_SCALE_COUNT, scaleCount)` |
-| **parserActionsToPositions** | Returns flat array of alternating start/end pixel positions |
-
-```typescript
-// Example: deal_data.test.ts
-import {
-  parserTimeToPixel, parserPixelToTime,
-  parserTransformToTime, parserTimeToTransform,
-  getScaleCountByRows, parserActionsToPositions,
-} from '../deal_data';
-
-const params = { startLeft: 7, scale: 1, scaleWidth: 100 };
-
-describe('parserTimeToPixel', () => {
-  it('converts time 0 to startLeft', () => {
-    expect(parserTimeToPixel(0, params)).toBe(7);
-  });
-
-  it('converts time=scale to startLeft+scaleWidth', () => {
-    expect(parserTimeToPixel(1, params)).toBe(107);
-  });
-
-  it('handles fractional times', () => {
-    expect(parserTimeToPixel(0.5, params)).toBe(57);
-  });
-});
-
-describe('roundtrip', () => {
-  it.each([0, 0.5, 1, 2.5, 10])('time %s survives roundtrip', (time) => {
-    const pixel = parserTimeToPixel(time, params);
-    expect(parserPixelToTime(pixel, params)).toBeCloseTo(time);
-  });
-});
-```
-
-#### 3.2 Emitter (`src/Engine/emitter.ts`)
-
-Event system used by the entire engine — 64 LOC, must be reliable.
-
-| Test Case | Description |
-|-----------|-------------|
-| **on / trigger** | Registered handler receives correct payload |
-| **on: multiple handlers** | All handlers fire in registration order |
-| **trigger: returns false** | Returns `false` if any handler returns `false` |
-| **trigger: returns true** | Returns `true` when all handlers return truthy/void |
-| **off: specific handler** | Removes only the specified handler |
-| **off: no handler arg** | Clears all handlers for the event |
-| **offAll** | Clears all handlers for all events |
-| **on: unknown event** | Throws `'The event X does not exist'` |
-| **trigger: unknown event** | Throws `'The event X cannot be triggered'` |
-| **bind** | Creates a new event name |
-| **bind: duplicate** | Throws `'The event X is already bound'` |
-| **exist** | Returns `true` for registered events, `false` otherwise |
-| **on: array of names** | Registers handler for multiple events at once |
-
-#### 3.3 Engine State Machine (`src/Engine/Engine.ts`)
-
-The engine is the central piece of the package — 666 LOC managing playback state, action lifecycle, and timing.
-
-| Test Case | Description |
-|-----------|-------------|
-| **Constructor: no controllers** | Throws `'Error: No controllers set!'` |
-| **Constructor: with controllers** | Initializes with `LOADING` state |
-| **setTracks: LOADING→READY** | Transitions state to `READY` |
-| **setTracks: already READY** | Stays `READY`, re-processes data |
-| **play: READY→PLAYING** | Returns `true`, state becomes `PLAYING` |
-| **play: while PLAYING** | Returns `false`, state unchanged |
-| **play: PAUSED→PLAYING** | Returns `true` on resume |
-| **pause: PLAYING→PAUSED** | State becomes `PAUSED` |
-| **pause: not playing** | Cancels RAF but doesn't change state |
-| **setTime: manual** | Fires `beforeSetTime` + `afterSetTime`, updates `_currentTime` |
-| **setTime: tick** | Fires `setTimeByTick` only (not before/after) |
-| **setTime: blocked** | Returns `false` when `beforeSetTime` handler returns `false` |
-| **setPlayRate** | Updates rate, fires `beforeSetPlayRate` + `afterSetPlayRate` |
-| **setPlayRate: blocked** | Returns `false` when handler returns `false` |
-| **duration: CANVAS mode** | Returns max action `end` across all actions |
-| **duration: TRACK_FILE mode** | Returns `media.duration` |
-| **canvasDuration: no actions** | Returns `0` |
-| **isPlaying/isPaused/isReady/isLoading** | Correct for each state |
-| **rewind** | Sets negative play rate, calls `run()` |
-| **rewind: at boundary** | Does not decrease below `-10` |
-| **fastForward** | Sets >1 play rate, calls `run()` |
-| **fastForward: at boundary** | Does not increase above `10` |
-| **getAction** | Returns `{ action, track }` for valid ID |
-| **getSelectedActions** | Returns only actions with `selected === true` |
-| **setScrollLeft** | Triggers `setScrollLeft` event |
-| **reRender: while playing** | Returns early (no-op) |
-| **reRender: while paused** | Calls `tickAction` |
-
-```typescript
-// Example: Engine.state.test.ts
-import Engine from '../Engine';
-import { Events } from '../events';
-import { EngineState } from '../Engine.types';
-
-const mockController = {
-  id: 'test', logging: false, color: '#fff', colorSecondary: '#000',
-  start: jest.fn(), stop: jest.fn(),
-  enter: jest.fn(), leave: jest.fn(),
-  update: jest.fn(), preload: jest.fn(),
-  getItem: jest.fn(),
-};
-
-describe('Engine state machine', () => {
-  let engine: Engine;
-
-  beforeEach(() => {
-    jest.clearAllMocks();
-    engine = new Engine({ controllers: { test: mockController } });
-  });
-
-  it('starts in LOADING state', () => {
-    expect(engine.state).toBe(EngineState.LOADING);
-  });
-
-  it('throws without controllers', () => {
-    expect(() => new Engine({} as any)).toThrow('No controllers set');
-  });
-
-  it('transitions to READY on setTracks', () => {
-    engine.setTracks([{
-      id: 't1', name: 'Track 1', controller: mockController,
-      actions: [{ id: 'a1', name: 'Act 1', start: 0, end: 5 }],
-    }] as any);
-    expect(engine.state).toBe(EngineState.READY);
-  });
-});
-```
-
-#### 3.4 Command Pattern (`src/TimelineFile/Commands/`)
-
-##### RemoveActionCommand (`RemoveActionCommand.ts`)
-
-| Test Case | Description |
-|-----------|-------------|
-| **execute** | Removes action from track's actions array |
-| **execute: stores state** | `removedAction` and `removedActionIndex` preserved |
-| **execute: missing ID** | Does not throw, logs warning |
-| **undo** | Restores action at original index |
-| **undo: without execute** | Logs warning, no crash |
-| **execute→undo roundtrip** | Track actions identical before/after |
-| **multi-track: correct track** | Only removes from the track containing the action |
-
-##### RemoveTrackCommand (`RemoveTrackCommand.ts`)
-
-| Test Case | Description |
-|-----------|-------------|
-| **execute** | Removes track from `timelineFile.tracks` |
-| **execute: stores index** | `removedTrackIndex` stored correctly |
-| **execute: missing ID** | Does not throw |
-| **undo** | Restores track at original index |
-| **roundtrip** | `tracks` array identical after execute → undo |
-
-**Known Bug:** In `RemoveActionCommand.execute()`, `this.trackIndex = index` stores the *action* index within a track, not the *track* index across tracks. If the target action is in the second track, `undo()` will splice into the wrong track. Tests must exercise multi-track scenarios to catch this.
-
-```typescript
-// Example: RemoveActionCommand.test.ts
-import { RemoveActionCommand } from '../RemoveActionCommand';
-
-describe('RemoveActionCommand', () => {
-  const makeFile = () => ({
-    tracks: [
-      {
-        id: 't1', name: 'Track 1',
-        actions: [
-          { id: 'a1', name: 'Action 1', start: 0, end: 2 },
-          { id: 'a2', name: 'Action 2', start: 3, end: 5 },
-        ],
-      },
-      {
-        id: 't2', name: 'Track 2',
-        actions: [{ id: 'a3', name: 'Action 3', start: 0, end: 4 }],
-      },
-    ],
-  });
-
-  it('removes the action by ID', () => {
-    const file = makeFile();
-    const cmd = new RemoveActionCommand(file as any, 'a1');
-    cmd.execute();
-    expect(file.tracks[0].actions).toHaveLength(1);
-    expect(file.tracks[0].actions[0].id).toBe('a2');
-  });
-
-  it('restores the action on undo at original index', () => {
-    const file = makeFile();
-    const cmd = new RemoveActionCommand(file as any, 'a1');
-    cmd.execute();
-    cmd.undo();
-    expect(file.tracks[0].actions).toHaveLength(2);
-    expect(file.tracks[0].actions[0].id).toBe('a1');
-  });
-
-  it('does not crash when action ID does not exist', () => {
-    const file = makeFile();
-    const cmd = new RemoveActionCommand(file as any, 'nonexistent');
-    expect(() => cmd.execute()).not.toThrow();
-  });
-});
-```
-
-### Tier 2: High Priority
-
-#### 3.5 Controller Static Methods (`src/Controller/Controller.ts`)
-
-| Test Case | Description |
-|-----------|-------------|
-| **getVol** | Parses tuple `[volume, start?, end?]` → `{ volume, start, end }` |
-| **getVol: only volume** | Returns `{ volume: 0.8, start: undefined, end: undefined }` |
-| **getActionTime: no duration** | Returns `trimStart` or `0` |
-| **getActionTime: with duration** | Returns `(time - start + trimStart) % duration` |
-| **getActionTime: wrapping** | Correctly wraps via modulo for looping clips |
-| **getVolumeUpdate: volumeIndex=-2** | Returns `undefined` (no volume data) |
-| **getVolumeUpdate: active section expired** | Returns `{ volume: 1.0, volumeIndex: -1 }` |
-| **getVolumeUpdate: finds new section** | Returns matching `{ volume, volumeIndex }` |
-| **getVolumeUpdate: no match** | Returns `undefined` |
-| **getVolumeUpdate: volumeIndex=-1 with overlapping ranges** | Returns first matching section |
-
-```typescript
-// Example: Controller.volume.test.ts
-import Controller from '../Controller';
-
-describe('Controller.getVol', () => {
-  it('parses full volume tuple', () => {
-    expect(Controller.getVol([0.5, 2, 8])).toEqual({ volume: 0.5, start: 2, end: 8 });
-  });
-
-  it('handles volume-only tuple', () => {
-    expect(Controller.getVol([0.8])).toEqual({ volume: 0.8, start: undefined, end: undefined });
-  });
-});
-
-describe('Controller.getActionTime', () => {
-  it('returns trimStart when no duration', () => {
-    const params = { action: { trimStart: 1.5, duration: undefined, start: 0 }, time: 5 } as any;
-    expect(Controller.getActionTime(params)).toBe(1.5);
-  });
-
-  it('computes modular time with duration', () => {
-    const params = { action: { start: 2, trimStart: 0, duration: 3 }, time: 7 } as any;
-    // (7 - 2 + 0) % 3 = 5 % 3 = 2
-    expect(Controller.getActionTime(params)).toBe(2);
-  });
-});
-
-describe('Controller.getVolumeUpdate', () => {
-  it('returns undefined for volumeIndex -2', () => {
-    const params = { action: { volumeIndex: -2, volume: [[0.5, 0, 10]] } } as any;
-    expect(Controller.getVolumeUpdate(params, 5)).toBeUndefined();
-  });
-
-  it('detects when current volume section has expired', () => {
-    const params = { action: { volumeIndex: 0, volume: [[0.5, 0, 3]] } } as any;
-    const result = Controller.getVolumeUpdate(params, 5);
-    expect(result).toEqual({ volume: 1.0, volumeIndex: -1 });
-  });
-});
-```
-
-#### 3.6 Engine Action Lifecycle (`src/Engine/Engine.ts`: `_dealEnter`, `_dealLeave`, `_dealData`, `_dealClear`)
-
-| Test Case | Description |
-|-----------|-------------|
-| **_dealData: sorts by start** | Actions sorted ascending by `start` time |
-| **_dealData: builds actionMap** | All actions indexed by ID |
-| **_dealData: builds actionTrackMap** | Each action ID maps to its parent track |
-| **_dealData: multi-track** | Handles multiple tracks with interleaved action times |
-| **_dealEnter: at time=0** | Enters actions with `start <= 0 < end` |
-| **_dealEnter: skips disabled** | `action.disabled === true` actions not entered |
-| **_dealEnter: skips dimmed tracks** | Actions on `track.dim === true` tracks not entered |
-| **_dealEnter: calls controller.enter** | Controller `enter()` called with `{action, track, time, engine}` |
-| **_dealLeave: time past end** | Removes actions where `action.end < time` |
-| **_dealLeave: time before start** | Removes actions where `action.start > time` |
-| **_dealLeave: calls controller.leave** | Controller `leave()` called on exit |
-| **_dealClear** | Empties all active IDs, calls `leave` on each, resets `_next` |
-
-#### 3.7 TimelineProviderFunctions (`src/TimelineProvider/TimelineProviderFunctions.ts`)
-
-These are exported utility functions used throughout the UI. Testing them in isolation (with mock state) is high-value.
-
-| Test Case | Description |
-|-----------|-------------|
-| **getHeightScaleData** | Computes `shrinkScale`, `growScale`, `growContainerScale`, `growUnselectedScale` from state |
-| **getTrackHeight: no detailMode** | Returns `settings.trackHeight` |
-| **getTrackHeight: detailMode, selected** | Returns `scaleData.growScale` |
-| **getTrackHeight: detailMode, unselected** | Returns `scaleData.growUnselectedScale` |
-| **getActionHeight: no detailMode, selected** | Returns `settings.trackHeight` |
-| **getActionHeight: no detailMode, unselected** | Returns `scaleData.shrinkScale` |
-| **getActionHeight: detailMode, selected** | Returns `scaleData.growScale` |
-| **refreshActionState: disabled action** | Sets `dim = true` |
-| **refreshActionState: detailMode, different action selected** | Sets `dim = true` |
-| **refreshActionState: detailMode, same action selected** | Sets `dim = false` |
-| **refreshActionState: detailMode, same track selected, no action selected** | Sets `dim = false` |
-| **refreshTrackState: detailMode, different track selected** | Sets `dim = true` |
-| **refreshTrackState: detailMode, same track selected** | Sets `dim = false` |
-| **refreshTrackState: no detailMode** | Sets `dim = false` regardless |
-| **setScaleCount** | Clamps value between `minScaleCount` and `maxScaleCount` |
-
-```typescript
-// Example: TimelineProviderFunctions.test.ts
-import { getHeightScaleData, getTrackHeight, refreshActionState, refreshTrackState } from '../TimelineProviderFunctions';
-
-describe('getTrackHeight', () => {
-  const mockState = (detailMode: boolean, selectedTrackId?: string) => ({
-    flags: { detailMode },
-    selectedTrack: selectedTrackId ? { id: selectedTrackId } : null,
-    settings: {
-      trackHeight: 36,
-      shrinkScalar: 0.3,
-      growScalar: 0.5,
-      getHeightScaleData: (s: any) => getHeightScaleData(s),
-    },
-    file: { tracks: [{ id: 't1' }, { id: 't2' }, { id: 't3' }] },
-  });
-
-  it('returns trackHeight when not in detailMode', () => {
-    const state = mockState(false) as any;
-    expect(getTrackHeight({ id: 't1' } as any, state)).toBe(36);
-  });
-
-  it('returns growScale for selected track in detailMode', () => {
-    const state = mockState(true, 't1') as any;
-    const height = getTrackHeight({ id: 't1' } as any, state);
-    expect(height).toBeGreaterThan(36);
-  });
-
-  it('returns growUnselectedScale for unselected track in detailMode', () => {
-    const state = mockState(true, 't1') as any;
-    const height = getTrackHeight({ id: 't2' } as any, state);
-    expect(height).toBeLessThan(36);
-  });
-});
-
-describe('refreshActionState (dim logic)', () => {
-  it('dims a disabled action', () => {
-    const action = { id: 'a1', disabled: true } as any;
-    const track = { id: 't1', dim: false } as any;
-    const state = { flags: { detailMode: false }, selectedTrack: null, selectedAction: null } as any;
-    refreshActionState(action, track, state);
-    expect(action.dim).toBe(true);
-  });
-
-  it('dims action on a dimmed track', () => {
-    const action = { id: 'a1', disabled: false } as any;
-    const track = { id: 't1', dim: true } as any;
-    const state = { flags: { detailMode: false }, selectedTrack: null, selectedAction: null } as any;
-    refreshActionState(action, track, state);
-    expect(action.dim).toBe(true);
-  });
-
-  it('does not dim action outside detailMode', () => {
-    const action = { id: 'a1', disabled: false } as any;
-    const track = { id: 't1', dim: false } as any;
-    const state = { flags: { detailMode: false }, selectedTrack: null, selectedAction: null } as any;
-    refreshActionState(action, track, state);
-    expect(action.dim).toBe(false);
-  });
-});
-```
-
-#### 3.8 TimelineFile Static Methods (`src/TimelineFile/TimelineFile.ts`)
-
-| Test Case | Description |
-|-----------|-------------|
-| **getName: explicit name** | Returns `props.name` |
-| **getName: from tracks** | Returns first track's name when no explicit name |
-| **getName: fallback** | Returns `'new video'` when no name or tracks |
-| **newTrack** | Returns array with single track `{ id: 'newTrack', ... }` |
-| **getTrackColor: muted** | Returns composite of controller color + red overlay |
-| **getTrackColor: unmuted with controller** | Returns alpha'd controller color |
-| **getTrackColor: no controller** | Returns `'#00000011'` |
-| **collapsedTrack: empty** | Returns `{ actionTrackMap: {}, track: { id: 'collapsedTrack', actions: [] } }` |
-| **collapsedTrack: flattens** | All actions from all tracks merged into single actions array |
-| **collapsedTrack: actionTrackMap** | Each action ID maps to its original track |
-| **tracks setter: filters newTrack** | Setting tracks filters out `id === 'newTrack'` |
-| **data getter** | Returns serializable data with `controllerName` and `fileId` instead of object refs |
-
-### Tier 3: Medium Priority
-
-#### 3.9 Engine Tick Logic (`src/Engine/Engine.ts`: `_tick`)
-
-Requires mocking `requestAnimationFrame`. Use a manual RAF mock.
-
-| Test Case | Description |
-|-----------|-------------|
-| **_tick: advances time** | `time` increases by `(now - prev) / 1000 * playRate` |
-| **_tick: 2x playRate** | Time advances at double speed |
-| **_tick: negative playRate** | Time decreases (rewind) |
-| **_tick: auto-end** | Calls `_end()` when all actions complete and `_activeIds` empty |
-| **_tick: toTime limit** | Stops at `toTime` boundary |
-| **_tick: clamps delta to 1000ms** | `Math.min(1000, now - this._prev)` caps single frame |
-| **_tick: exits on PAUSED** | No further RAF scheduled |
-| **_tick: exits on LOADING** | Returns immediately |
-| **_tick: forwards past canvasDuration** | Triggers `_end()` |
-| **_tick: rewind past time=0** | Triggers `_end()` |
-
-```typescript
-// RAF mock for setup.ts
-let rafId = 0;
-const rafCallbacks = new Map<number, FrameRequestCallback>();
-global.requestAnimationFrame = jest.fn((cb: FrameRequestCallback) => {
-  rafId += 1;
-  rafCallbacks.set(rafId, cb);
-  return rafId;
-});
-global.cancelAnimationFrame = jest.fn((id: number) => {
-  rafCallbacks.delete(id);
-});
-
-// Helper to advance one frame
-export function advanceFrame(time: number) {
-  const entries = [...rafCallbacks.entries()];
-  rafCallbacks.clear();
-  entries.forEach(([, cb]) => cb(time));
-}
-```
-
-#### 3.10 Engine Integration Tests
-
-Full play-through scenarios combining multiple subsystems.
-
-| Test Case | Description |
-|-----------|-------------|
-| **Full playback cycle** | `setTracks` → `play` → tick frames → auto-end → `ended` event |
-| **Pause and resume** | `play` → frames → `pause` → `play` → frames → end |
-| **Seek during pause** | `setTime` while paused updates position correctly |
-| **Speed change during play** | `setPlayRate` mid-playback changes advancement rate |
-| **Multi-track lifecycle** | Multiple tracks with overlapping actions trigger correct enter/leave calls |
-| **Controller callbacks called in order** | `enter` → `update` (n times) → `leave` for each action |
-
----
-
-## 4. Mock/Stub Strategy
-
-### 4.1 Mock Controllers
-
-```typescript
-// src/__tests__/fixtures/controllers.ts
-export function createMockController(overrides = {}) {
-  return {
-    id: 'mock',
-    name: 'Mock Controller',
-    color: '#666',
-    colorSecondary: '#999',
-    logging: false,
-    start: jest.fn(),
-    stop: jest.fn(),
-    enter: jest.fn(),
-    leave: jest.fn(),
-    update: jest.fn(),
-    preload: jest.fn().mockResolvedValue({}),
-    getItem: jest.fn(),
-    isValid: jest.fn().mockReturnValue(true),
-    destroy: jest.fn(),
-    getActionStyle: jest.fn().mockReturnValue(null),
-    ...overrides,
-  };
-}
-```
-
-### 4.2 Mock Actions & Tracks
-
-```typescript
-// src/__tests__/fixtures/actions.ts
-import { ITimelineAction } from '../../TimelineAction/TimelineAction.types';
-
-let actionCounter = 0;
-export function createAction(overrides: Partial<ITimelineAction> = {}): ITimelineAction {
-  actionCounter += 1;
-  return {
-    id: `action-${actionCounter}`,
-    name: `Action ${actionCounter}`,
-    start: 0,
-    end: 5,
-    selected: false,
-    disabled: false,
-    volumeIndex: -2,
-    ...overrides,
-  } as ITimelineAction;
-}
-
-// Reset counter between tests
-export function resetActionCounter() { actionCounter = 0; }
-
-// src/__tests__/fixtures/tracks.ts
-import { ITimelineTrack } from '../../TimelineTrack/TimelineTrack.types';
-import { createAction } from './actions';
-import { createMockController } from './controllers';
-
-let trackCounter = 0;
-export function createTrack(overrides: Partial<ITimelineTrack> = {}): ITimelineTrack {
-  trackCounter += 1;
-  return {
-    id: `track-${trackCounter}`,
-    name: `Track ${trackCounter}`,
-    actions: [createAction()],
-    controller: createMockController(),
-    dim: false,
-    muted: false,
-    locked: false,
-    ...overrides,
-  } as unknown as ITimelineTrack;
-}
-
-export function resetTrackCounter() { trackCounter = 0; }
-```
-
-### 4.3 Mock Engine Factory
-
-```typescript
-// src/__tests__/fixtures/engine.ts
-import Engine from '../../Engine/Engine';
-import { Events } from '../../Engine/events';
-import { createMockController } from './controllers';
-import { createTrack } from './tracks';
-
-export function createEngine(options: { trackCount?: number; actions?: any[] } = {}) {
-  const controller = createMockController();
-  const engine = new Engine({
-    controllers: { mock: controller },
-    events: new Events(),
-  });
-
-  const tracks = Array.from({ length: options.trackCount ?? 1 }, (_, i) =>
-    createTrack({
-      controller,
-      actions: options.actions ?? [{ id: `a${i}`, name: `Act ${i}`, start: i, end: i + 3 }],
-    })
-  );
-  engine.setTracks(tracks as any);
-
-  return { engine, controller, tracks };
-}
-```
-
-### 4.4 Browser API Mocks (`src/__tests__/setup.ts`)
-
-```typescript
-import '@testing-library/jest-dom';
-
-// Mock requestAnimationFrame
-let rafId = 0;
-const rafCallbacks = new Map<number, FrameRequestCallback>();
-global.requestAnimationFrame = jest.fn((cb: FrameRequestCallback) => {
-  rafId += 1;
-  rafCallbacks.set(rafId, cb);
-  return rafId;
-});
-global.cancelAnimationFrame = jest.fn((id: number) => {
-  rafCallbacks.delete(id);
-});
-
-// Mock matchMedia
-Object.defineProperty(window, 'matchMedia', {
-  writable: true,
-  value: jest.fn().mockImplementation((query: string) => ({
-    matches: false, media: query, onchange: null,
-    addListener: jest.fn(), removeListener: jest.fn(),
-    addEventListener: jest.fn(), removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
-  })),
-});
-
-// Mock ResizeObserver
-global.ResizeObserver = class {
-  disconnect() {}
-  observe() {}
-  unobserve() {}
-} as any;
-
-// Mock HTMLMediaElement
-window.HTMLMediaElement.prototype.load = () => {};
-window.HTMLMediaElement.prototype.play = () => Promise.resolve();
-window.HTMLMediaElement.prototype.pause = () => {};
-```
-
-### 4.5 External Dependency Mock Strategy
-
-| Dependency | Mock Strategy |
-|-----------|---------------|
-| `sorted-btree` | **Use real library** — pure JS, fast, deterministic |
-| `interactjs` | Mock for component tests; not needed for Engine/util tests |
-| `react-virtualized` | Mock `ScrollSync`, `Grid` for TrackArea tests |
-| `react-device-detect` | Mock `isMobile` flag |
-| `@stoked-ui/media` | Mock `MediaFile`, `AppFile`, `WebFile`, `ScreenshotQueue`, `Command` |
-| `@stoked-ui/common` | Mock `namedId()` → predictable IDs; `compositeColors()` → identity |
-| `@mui/material/styles` | Mock `alpha()` for `getTrackColor` tests |
+## 4. Mock & Stub Strategy
+
+| External dep | Strategy |
+|---|---|
+| `requestAnimationFrame` / `cancelAnimationFrame` | `sinon.useFakeTimers({ toFake: ['requestAnimationFrame', 'cancelAnimationFrame'] })`. Drive `_tick` via `clock.tick(ms)`. |
+| `howler` (`Howl`) in `AudioController` | Stub at module boundary. Either `sinon.replace(howlerModule, 'Howl', fakeHowl)` or a Babel module-name-mapper to a fake in `test/__mocks__/howler.ts`. The fake exposes `seek`, `rate`, `play`, `stop`, `mute`, `volume`, `duration` as `sinon.spy()`s. |
+| `interactjs` (`@interactjs/*`) in `Interactable` | Not needed for Tier 1/2. When testing `Interactable`, stub the default `interact` export to a no-op chainable; the wrapper at `src/Interactable/` is thin enough that asserting the call surface is sufficient. |
+| `react-virtualized` `AutoSizer` | Not exercised in Tier 1/2. When unavoidable, wrap the component under test in a parent that forwards explicit `width`/`height` props, bypassing `AutoSizer`. |
+| `@stoked-ui/media` (`MediaFile`, `AppFile`, `ScreenshotQueue`) | Use real implementations — these are workspace deps with their own tests. For `TimelineFile` tests, build `MediaFile` instances from `Blob` fixtures rather than fetching URLs. |
+| `@mui/material/styles` `alpha`, `compositeColors` | Use real implementations; both are pure. |
+| `HTMLMediaElement` (Engine's `media`) | Hand-rolled stub: `{ play: spy, pause: spy, currentTime: 0, duration: 30, style: {} }`. Do not rely on JSDOM's `<video>` — it does not implement playback. |
+| `console.info` noise (Engine logs lines 350, 508, 513, 520, 523; AudioController logs) | Wrap the Engine under test with `engine.logging = false` (the default), and silence stray `console.info` calls in `tick`/`_end` with `sinon.stub(console, 'info')` in `beforeEach`, restored in `afterEach`. |
+
+**Fixture builders, not literals.** Every test that constructs an `ITimelineAction` or `ITimelineTrack` should use `buildAction({ start: 0, end: 5 })` / `buildTrack({ actions: [...] })` from `test/fixtures/`. The action shape has 15+ optional fields; literals scattered across files become a maintenance tax the first time the type changes.
+
+**Stub controller.** Every Engine test should use a `createStubController()` that records `enter`/`leave`/`update`/`start`/`stop` calls as sinon spies. Do not pull in `AudioController` for Engine tests — keep Engine tests offline-friendly and independent of Howler.
 
 ---
 
 ## 5. Coverage Targets
 
-For a **medium priority** package with complex state logic:
+Priority is **Medium**, but the engine is load-bearing. Tier the targets:
 
-| Metric | Target |
-|--------|--------|
-| **Statements** | 60% |
-| **Branches** | 55% |
-| **Functions** | 65% |
-| **Lines** | 60% |
+| Module | Target line coverage | Rationale |
+|---|---|---|
+| `src/Engine/**` | **80 %** | Headless, easy to test, regressions are silent and consumer-visible. |
+| `src/Controller/Controller.ts` + `Controllers.ts` | **90 %** | Tiny surface, all pure static helpers — should be near-total. |
+| `src/Controller/AudioController.ts` | **70 %** | Stubbed Howler lets us cover preload/start/stop/update; full integration is manual. |
+| `src/utils/deal_data.ts` | **95 %** | Pure math, no excuses. |
+| `src/TimelineFile/**` | **70 %** | Construction logic and command pattern are testable; URL loading is integration territory. |
+| `src/TimelineProvider/**` | **60 %** | Reducer + hook coverage; rendered provider tree is partial. |
+| `src/Timeline/**`, `src/TimelineTrack/**`, `src/TimelineCursor/**`, `src/Interactable/**`, `src/TimelineLabels/**`, `src/TimelinePlayer/**`, `src/TimelineScrollResizer/**`, `src/TimelineTrackArea/**` | **30 %** smoke renders only | DOM-heavy, virtualized, interactjs-bound — defer to Karma / manual. |
+| `src/**/*.types.ts`, `src/**/*.types.d.ts`, `src/**/index.ts`, `src/themeAugmentation/**` | **excluded** | Types and barrels. |
 
-### Per-module breakdown:
-
-| Module | Target | Rationale |
-|--------|--------|-----------|
-| `Engine/Engine.ts` | 75% | Core playback logic, high bug risk, 666 LOC |
-| `Engine/emitter.ts` | 90% | Small (64 LOC), pure, fully coverable |
-| `utils/deal_data.ts` | 95% | Pure functions, rendering accuracy depends on them |
-| `Controller/Controller.ts` | 70% | Static methods critical; abstract methods excluded |
-| `TimelineFile/Commands/*` | 85% | Small, self-contained command pattern |
-| `TimelineProvider/TimelineProviderFunctions.ts` | 70% | Pure functions extractable from React context |
-| `TimelineFile/TimelineFile.ts` | 50% | Static methods testable; constructor needs heavy mocking |
-| `TimelineProvider/` (reducer) | 40% | Reducer logic testable; React integration harder |
-| UI components (`Timeline/`, `TimelineTrack/`, etc.) | 20% | Defer to integration/E2E tests |
+**Aggregate package target: 55 % lines / 50 % branches.** Treat the Engine and `deal_data` thresholds as ratcheted minimums in any future CI gate; treat the UI numbers as informational until a browser harness exists.
 
 ---
 
-## 6. Implementation Plan — Ordered by Priority
+## 6. Order of Implementation (first PRs)
 
-### Phase 1: Infrastructure + Pure Logic (implement first)
+The point of ordering is to get the highest-confidence headless tests landed before touching the DOM-heavy surface. Each row is a single PR.
 
-1. **Create `jest.config.js`** — Copy from `sui-media`, adjust `transformIgnorePatterns` for `sorted-btree`
-2. **Create `src/__tests__/setup.ts`** — RAF mock, browser API mocks
-3. **Create test fixtures** — `controllers.ts`, `actions.ts`, `tracks.ts`, `engine.ts`
-4. **`src/utils/__tests__/deal_data.test.ts`** — 12 test cases (pure functions, immediate wins)
-5. **`src/Engine/__tests__/emitter.test.ts`** — 13 test cases (pure event system)
+| # | PR | Files added | Why first |
+|---|---|---|---|
+| 1 | **Fixture harness** | `test/fixtures/{actions,tracks,controllers,engine}.ts` | Every later test depends on these factories; landing them alone is risk-free. |
+| 2 | **`deal_data` pure math** | `src/utils/__tests__/deal_data.test.ts` | Zero mocks, immediate coverage, validates the round-trip property `parserPixelToTime(parserTimeToPixel(t)) ≈ t`. |
+| 3 | **`Emitter` + `Events`** | `src/Engine/__tests__/emitter.test.ts` | Foundation for every Engine event assertion. |
+| 4 | **`Controller` static helpers** | `src/Controller/__tests__/Controller.test.ts` | Pure functions; covers volume-curve logic which is otherwise impossible to verify by reading. |
+| 5 | **`Engine` state + time** | `src/Engine/__tests__/Engine.state.test.ts`, `Engine.time.test.ts` | Locks down `setTime`, `setPlayRate`, state machine, and event emission before touching the RAF loop. |
+| 6 | **`Engine` lifecycle** | `src/Engine/__tests__/Engine.lifecycle.test.ts` | `_dealEnter` / `_dealLeave` / `_dealClear` with stub controllers — the most complex correctness contract in the package. |
+| 7 | **`Engine` tick loop** | `src/Engine/__tests__/Engine.tick.test.ts` | Uses `sinon.useFakeTimers` to drive `_tick`; depends on (5) and (6) being green. |
+| 8 | **`TimelineFile`** | `src/TimelineFile/__tests__/TimelineFile.test.ts` | Construction, `actionInitializer`, controller resolution priority. |
+| 9 | **`Commands`** | `src/TimelineFile/__tests__/Commands.test.ts` | `execute` / `undo` round-trip for `RemoveActionCommand` and `RemoveTrackCommand`. |
+| 10 | **`AudioController` with stubbed Howler** | `src/Controller/__tests__/AudioController.test.ts` | First test that mocks an external module — cleanest to land after the engine baseline is green. |
+| 11 | **`TimelineProvider` reducer** | `src/TimelineProvider/__tests__/TimelineProvider.test.tsx` | First React test; verifies selection / undo-redo state machine. |
 
-### Phase 2: Engine Core
-
-6. **`src/Engine/__tests__/Engine.state.test.ts`** — State transitions (27 cases)
-7. **`src/Engine/__tests__/Engine.actions.test.ts`** — `_dealEnter`, `_dealLeave`, `_dealClear`, `_dealData` (12 cases)
-8. **`src/Engine/__tests__/Engine.events.test.ts`** — Event emission during play/pause/setTime
-
-### Phase 3: Commands, Controllers & Provider Functions
-
-9. **`src/TimelineFile/__tests__/Commands/RemoveActionCommand.test.ts`** — 7 cases
-10. **`src/TimelineFile/__tests__/Commands/RemoveTrackCommand.test.ts`** — 5 cases
-11. **`src/Controller/__tests__/Controller.volume.test.ts`** — 10 cases
-12. **`src/TimelineProvider/__tests__/TimelineProviderFunctions.test.ts`** — 15 cases
-13. **`src/TimelineFile/__tests__/TimelineFile.test.ts`** — Static methods (12 cases)
-
-### Phase 4: Timing & Integration
-
-14. **`src/Engine/__tests__/Engine.timing.test.ts`** — `_tick` with mocked RAF (10 cases)
-15. **`src/Engine/__tests__/Engine.integration.test.ts`** — Full playback scenarios (6 cases)
-
-### Phase 5 (future): React Components
-
-16. **`src/Timeline/__tests__/Timeline.test.tsx`** — Render, basic interactions
-17. **`src/TimelineTrack/__tests__/TimelineTrack.test.tsx`** — Track rendering
-18. **`src/Interactable/__tests__/Interactable.test.tsx`** — Drag/resize callbacks
+**After PR 11**, the package will have ~50–55 % line coverage concentrated on the load-bearing logic. UI rendering (Timeline, TimelineTrack, Interactable, scroll/resize) becomes a separate workstream contingent on Karma being wired up for `sui-timeline` and is explicitly out of scope for the initial push.
 
 ---
 
-## 7. Edge Cases to Cover
+## 7. Acceptance Checks
 
-### Engine
-- Play with zero-duration actions (`start === end`)
-- Overlapping actions on the same track
-- Empty tracks (no actions)
-- `setTracks([])` — empty array
-- Calling `play()` before `setTracks()` (while `LOADING`)
-- `_tick` with very large delta (> 1000ms cap)
-- Negative play rates hitting `time < 0`
-- `rewind` at speed boundary (`playRate` already at `-10`)
-- `fastForward` at speed boundary (`playRate` already at `10`)
-- `run()` with `toTime <= currentTime` (returns false immediately)
+Any change to this file or to the test scaffolding must satisfy:
 
-### Utilities
-- `parserTimeToPixel` with `scale = 0` (division by zero → Infinity)
-- `parserPixelToTime` with `scaleWidth = 0` (division by zero)
-- `getScaleCountByRows` with null/undefined tracks
-- Negative time values
-- Very large time values (floating point precision)
-
-### Commands
-- Execute command twice without undo
-- Undo without prior execute
-- Remove action from multi-action track (verify other actions untouched)
-- Remove action when action ID doesn't exist in any track
-- **Multi-track undo correctness** — `RemoveActionCommand` has a bug where `trackIndex` stores action index not track index
-
-### Controller
-- `getVolumeUpdate` with empty volume array
-- `getVolumeUpdate` with undefined volume sections
-- `getActionTime` with zero duration (modulo by zero → NaN)
-- `getActionTime` with undefined `trimStart` (fallback to 0)
-
-### TimelineProviderFunctions
-- `getHeightScaleData` with only 1 track (division by zero risk in `shrinkScalar / (length - 1)`)
-- `refreshActionState` with null `selectedTrack` and `selectedAction`
-- `setScaleCount` clamping at both boundaries
-
----
-
-## 8. Key Files Reference
-
-| File | LOC | Test Priority | Testable Without DOM |
-|------|-----|---------------|---------------------|
-| `src/Engine/Engine.ts` | 666 | Critical | Yes (with RAF mock) |
-| `src/Engine/emitter.ts` | 64 | Critical | Yes |
-| `src/Engine/events.ts` | 89 | N/A (types + constructor) | N/A |
-| `src/utils/deal_data.ts` | 119 | Critical | Yes |
-| `src/Controller/Controller.ts` | 116 | High | Yes (static methods) |
-| `src/TimelineFile/Commands/RemoveActionCommand.ts` | 49 | High | Yes |
-| `src/TimelineFile/Commands/RemoveTrackCommand.ts` | 41 | High | Yes |
-| `src/TimelineProvider/TimelineProviderFunctions.ts` | 251 | High | Partially (pure functions) |
-| `src/TimelineFile/TimelineFile.ts` | 373 | Medium | Partially |
-| `src/interface/const.ts` | 35 | N/A (constants) | N/A |
-| `src/Timeline/Timeline.tsx` | ~400 | Low (UI) | No |
-| `src/TimelineTrack/TimelineTrack.tsx` | ~300 | Low (UI) | No |
-| `src/TimelineTrackArea/TimelineTrackArea.tsx` | ~300 | Low (UI) | No |
-
----
-
-## 9. Bugs to Validate via Tests
-
-Based on code review, these patterns are worth specifically targeting:
-
-1. **`RemoveActionCommand.trackIndex` bug** (`src/TimelineFile/Commands/RemoveActionCommand.ts:28`) — `this.trackIndex = index` stores the *action's index within its track*, not the *track's index* in the tracks array. In `undo()`, it uses `this.timelineFile.tracks[this.trackIndex!]` which will splice into the wrong track for multi-track files.
-
-2. **`_dealLeave` BTree iteration order** (`src/Engine/Engine.ts:622`) — The callback signature `(key, value)` may have reversed parameter order compared to `BTree.forEach((value, key) => ...)`. The code uses `key` as the action ID but BTree's `forEach` passes `(value, key)`. Test with multiple active actions to verify correct behavior.
-
-3. **`_dealEnter` duplicate prevention** (`src/Engine/Engine.ts:606`) — Uses `active.indexOf(actionId)` on a snapshot array. If `_dealLeave` runs after `_dealEnter` in the same `tickAction()` call, and an action is re-entered, the snapshot won't reflect the removal.
-
-4. **Engine `_tick` clamp** (`src/Engine/Engine.ts:469`) — `Math.min(1000, now - this._prev)` clamps at 1 second, but negative deltas (if clock goes backwards) produce `Math.min(1000, negative)` which is negative, causing time to jump backwards unexpectedly.
-
-5. **`setTime` in MEDIA mode** (`src/Engine/Engine.ts:290`) — Accesses `this.playbackCurrentTimespans[0]` without checking if the array is non-empty. If timespans are empty, this will throw a TypeError.
-
-6. **`getHeightScaleData` division by zero** (`src/TimelineProvider/TimelineProviderFunctions.ts:150`) — When `file?.tracks?.length ?? 2` resolves to `1`, the formula `shrinkScalar / (1 - 1)` divides by zero. The `?? 2` fallback only activates when tracks is null/undefined, not when length is 1.
-
----
-
-## 10. Running Tests
-
-```bash
-# Run all tests
-cd packages/sui-timeline && pnpm test
-
-# Run with coverage
-pnpm test:coverage
-
-# Run specific test file
-pnpm test -- --testPathPattern="Engine.state"
-
-# Run in watch mode
-pnpm test:watch
-
-# Run a single describe block
-pnpm test -- --testPathPattern="deal_data" --testNamePattern="roundtrip"
-```
+- `pnpm --filter @stoked-ui/timeline tsc -p tsconfig.json` exits 0 (types still compile, including `themeAugmentation.spec.ts`).
+- `pnpm test --grep "@stoked-ui/timeline"` from the repo root runs the new specs through Mocha + JSDOM.
+- No test imports `Howl` directly from `howler` — all audio paths go through a stub or `test/__mocks__/howler.ts`.
+- No test relies on real `requestAnimationFrame` timing — every tick-driven test uses `sinon.useFakeTimers`.
+- New `__tests__/` directories sit next to the code under test; no orphaned `test/` siblings outside `test/fixtures/`.

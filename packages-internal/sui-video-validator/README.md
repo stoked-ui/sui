@@ -414,4 +414,4 @@ Contributions welcome! Please read CONTRIBUTING.md for guidelines.
 ## Support
 
 - Issues: https://github.com/stoked-ui/sui/issues
-- Documentation: https://stoked-ui.com/video-validator
+- Documentation: https://sui.stokd.cloud/video-validator

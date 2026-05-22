@@ -16,7 +16,7 @@ export const config = {
 };
 
 const sesClient = new SESClient({ region: process.env.AWS_REGION || 'us-east-1' });
-const sesFromEmail = process.env.SES_FROM_EMAIL || 'noreply@stoked-ui.com';
+const sesFromEmail = process.env.SES_FROM_EMAIL || 'noreply@stokd.cloud';
 
 async function readRawBody(req: NextApiRequest): Promise<Buffer> {
   const chunks: Buffer[] = [];
@@ -52,7 +52,7 @@ async function sendLicenseEmail(toEmail: string, licenseKey: string, productId: 
                 `This key can be activated on up to ${maxActivations} devices simultaneously.`,
                 'To transfer it to a new device, deactivate one of your current devices first.',
                 '',
-                'If you have any questions, contact support@stoked-ui.com',
+                'If you have any questions, contact support@stokd.cloud',
               ].join('\n'),
             },
           },

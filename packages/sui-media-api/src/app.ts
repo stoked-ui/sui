@@ -29,8 +29,9 @@ export class Server {
       process.env.SST_STAGE !== 'prod';
 
     // Parse allowed origins from environment variable (comma-separated list).
-    // Default includes localhost for development, stoked-ui.com, and brianstoker.com.
-    const defaultOrigins = 'http://localhost:3000,https://stoked-ui.com,https://brianstoker.com';
+    // Default includes local docs/dev origins, the production sites, and brianstoker.com.
+    const defaultOrigins =
+      'http://localhost:5199,http://localhost:3000,https://sui.stokd.cloud,https://consulting.stokd.cloud,https://brianstoker.com';
     const allowedOriginsEnv = process.env.ALLOWED_ORIGINS ?? defaultOrigins;
     const allowedOrigins = new Set(
       allowedOriginsEnv

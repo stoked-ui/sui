@@ -156,7 +156,7 @@ export const createCdnSite = async (domainInfo: CdnDomainInfo) => {
 export const createCdnSuiSite = async (domainInfo: CdnDomainInfo) => {
   const enableDomain = process.env.CDN_ENABLE_DOMAIN !== '0';
   // cdn-sui browses the same CDN content but serves its own SPA from a separate bucket
-  const cdnPublicBaseUrl = process.env.CDN_PUBLIC_BASE_URL ?? 'https://cdn.stokedconsulting.com';
+  const cdnPublicBaseUrl = process.env.CDN_PUBLIC_BASE_URL ?? 'https://cdn.consulting.stokd.cloud';
   const consultingHost = new URL(domainInfo.consultingOrigin).hostname;
 
   let certArn: string | undefined;

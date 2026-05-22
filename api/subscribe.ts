@@ -83,7 +83,7 @@ export async function subscribe(event: APIGatewayProxyEvent): Promise<APIGateway
 async function sendVerificationEmail(email: string, verificationLink: string) {
   await ses
     .sendEmail({
-      Source: "no-reply@stoked-ui.com", // Change this to your verified domain
+      Source: "no-reply@stokd.cloud", // Change this to your verified domain
       Destination: { ToAddresses: [email] },
       Message: {
         Subject: { Data: "Verify Your Email" },

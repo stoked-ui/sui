@@ -1200,7 +1200,7 @@ const macMixerData: TProduct = {
     id: 'configuration',
   }, {
     name: 'Licensing',
-    description: 'Trial, direct license, and Mac App Store subscription behavior',
+    description: 'Trial and direct license behavior',
     id: 'licensing',
   }, {
     name: 'Roadmap',

@@ -639,8 +639,8 @@ function TypeSafeExample() {
 
 ### Getting Help
 
-- **Documentation:** [https://stoked-ui.com/file-explorer/docs](https://stoked-ui.com/file-explorer/docs)
-- **API Reference:** [https://stoked-ui.com/file-explorer/api](https://stoked-ui.com/file-explorer/api)
+- **Documentation:** [https://sui.stokd.cloud/file-explorer/docs](https://sui.stokd.cloud/file-explorer/docs)
+- **API Reference:** [https://sui.stokd.cloud/file-explorer/api](https://sui.stokd.cloud/file-explorer/api)
 - **GitHub Issues:** [https://github.com/stoked-ui/stoked-ui/issues](https://github.com/stoked-ui/stoked-ui/issues)
 - **Discord Community:** [Join our Discord](https://discord.gg/stoked-ui)
 
