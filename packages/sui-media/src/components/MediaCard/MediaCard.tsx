@@ -142,6 +142,10 @@ export const MediaCard: React.FC<MediaCardProps> = ({
   // Check if media requires payment
   const requiresPayment = item.publicity === 'paid' && item.price && item.price > 0;
 
+  // Build media URL
+  const mediaUrl = item.file ? `${mediaBaseUrl || ''}${item.file}` : item.url;
+  const canPreviewVideo = item.mediaType === 'video' && isVisible && !requiresPayment;
+
   // Build thumbnail URL (prefer server thumbnail from API)
   const thumbnailUrl = serverThumbnail.thumbnailUrl
     ? serverThumbnail.thumbnailUrl
@@ -179,10 +183,6 @@ export const MediaCard: React.FC<MediaCardProps> = ({
       video.addEventListener('loadedmetadata', extractFrame, { once: true });
     }
   }, [canPreviewVideo, thumbnailUrl, generatedPoster]);
-
-  // Build media URL
-  const mediaUrl = item.file ? `${mediaBaseUrl || ''}${item.file}` : item.url;
-  const canPreviewVideo = item.mediaType === 'video' && isVisible && !requiresPayment;
   const mediaTitle = item.title || 'Untitled';
   const mediaActionLabel = `${isInlinePlaying ? 'Pause' : 'Play'} ${mediaTitle}`;
 
