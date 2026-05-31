@@ -45,10 +45,10 @@ Audio content is processed locally on the Mac. The product does not upload or an
 
 Mac Mixer is available as a signed and notarized direct-download alpha. The current build is focused on the core routing path: virtual output capture, drag-and-drop route assignment, app volume, device master volume, device naming, configuration persistence, trial state, and license activation.
 
-<a href="https://cdn.consulting.stokd.cloud/products/mac-mixer/releases/alpha/2.0.0-1/MacMixer-2.0.0-1.pkg" style="display:inline-block;padding:12px 24px;background:#1976d2;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;font-size:16px;margin:16px 12px 16px 0">Download Mac Mixer Alpha</a>
+<a href="https://cdn.stokd.cloud/products/mac-mixer/releases/alpha/2.0.0-1/MacMixer-2.0.0-1.pkg" style="display:inline-block;padding:12px 24px;background:#1976d2;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;font-size:16px;margin:16px 12px 16px 0">Download Mac Mixer Alpha</a>
 
-- Installer: [MacMixer-2.0.0-1.pkg](https://cdn.consulting.stokd.cloud/products/mac-mixer/releases/alpha/2.0.0-1/MacMixer-2.0.0-1.pkg)
-- Release manifest: [MacMixer-2.0.0-1.json](https://cdn.consulting.stokd.cloud/products/mac-mixer/releases/alpha/2.0.0-1/MacMixer-2.0.0-1.json)
+- Installer: [MacMixer-2.0.0-1.pkg](https://cdn.stokd.cloud/products/mac-mixer/releases/alpha/2.0.0-1/MacMixer-2.0.0-1.pkg)
+- Release manifest: [MacMixer-2.0.0-1.json](https://cdn.stokd.cloud/products/mac-mixer/releases/alpha/2.0.0-1/MacMixer-2.0.0-1.json)
 
 ## Next steps
 

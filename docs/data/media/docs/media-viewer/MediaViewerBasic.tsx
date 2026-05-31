@@ -3,7 +3,7 @@ import { Button } from '@mui/material';
 import { MediaViewer } from '@stoked-ui/media';
 import type { MediaItem } from '@stoked-ui/media';
 
-const VIDEO_URL = 'https://cdn.consulting.stokd.cloud/products/flux/assets/flux-desktop-preview-3840x2160.mp4';
+const VIDEO_URL = 'https://cdn.stokd.cloud/products/flux/assets/flux-desktop-preview-3840x2160.mp4';
 
 /**
  * Demo media item with multiple resolution tracks.
@@ -20,10 +20,10 @@ const demoItem: MediaItem = {
   width: 1920,
   height: 1080,
   tracks: [
-        { url: 'https://cdn.consulting.stokd.cloud/products/flux/assets/flux-desktop-preview-854x480.mp4', width: 854, height: 480, bitrate: 1500000, label: '480p' },
-    { url: 'https://cdn.consulting.stokd.cloud/products/flux/assets/flux-desktop-preview-1280x720.mp4', width: 1280, height: 720, bitrate: 3000000, label: '720p' },
-    { url: 'https://cdn.consulting.stokd.cloud/products/flux/assets/flux-desktop-preview-1920x1080.mp4', width: 1920, height: 1080, bitrate: 6000000, label: '1080p' },
-    { url: 'https://cdn.consulting.stokd.cloud/products/flux/assets/flux-desktop-preview-3840x2160.mp4', width: 3840, height: 2160, bitrate: 12000000, label: '4K' },
+        { url: 'https://cdn.stokd.cloud/products/flux/assets/flux-desktop-preview-854x480.mp4', width: 854, height: 480, bitrate: 1500000, label: '480p' },
+    { url: 'https://cdn.stokd.cloud/products/flux/assets/flux-desktop-preview-1280x720.mp4', width: 1280, height: 720, bitrate: 3000000, label: '720p' },
+    { url: 'https://cdn.stokd.cloud/products/flux/assets/flux-desktop-preview-1920x1080.mp4', width: 1920, height: 1080, bitrate: 6000000, label: '1080p' },
+    { url: 'https://cdn.stokd.cloud/products/flux/assets/flux-desktop-preview-3840x2160.mp4', width: 3840, height: 2160, bitrate: 12000000, label: '4K' },
   ],
 };
 

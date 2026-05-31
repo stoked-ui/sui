@@ -12,7 +12,7 @@ type Routes = {
 const ROUTES: Routes = {
   stokedUi: toAbsoluteSitePath('stoked-ui', `${buildCanonicalProductPath('stoked-ui')}/`),
   fileExplorer: toAbsoluteSitePath('stoked-ui', `${buildCanonicalProductPath('file-explorer')}/`),
-  cdn: 'https://cdn.consulting.stokd.cloud/',
+  cdn: 'https://cdn.stokd.cloud/',
   media: toAbsoluteSitePath('stoked-ui', `${buildCanonicalProductPath('media')}/`),
   mediaDocs: toAbsoluteSitePath('stoked-ui', `${buildCanonicalProductDocsPath('media')}/`),
   common: toAbsoluteSitePath('stoked-ui', `${buildCanonicalProductPath('common')}/`),
@@ -60,6 +60,7 @@ const ROUTES: Routes = {
   consultingPartners: toAbsoluteSitePath('consulting', '/consulting/partners/'),
   consultingFrontEnd: toAbsoluteSitePath('consulting', '/consulting/front-end/'),
   consultingBackEnd: toAbsoluteSitePath('consulting', '/consulting/back-end/'),
+  consultingFullStack: toAbsoluteSitePath('consulting', '/consulting/full-stack/'),
   consultingDevops: toAbsoluteSitePath('consulting', '/consulting/devops/'),
   consultingAi: toAbsoluteSitePath('consulting', '/consulting/ai/'),
   // SUI doc pages

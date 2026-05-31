@@ -1,6 +1,6 @@
 import type { NextApiResponse } from 'next';
 import { withAuth, type AuthenticatedRequest } from 'docs/src/modules/auth/withAuth';
-import { DELIVERABLES_CDN_BASE_URL } from 'docs/src/modules/deliverables/cdnStorage';
+import { isAllowedDeliverableOrigin } from 'docs/src/modules/deliverables/allowedOrigins';
 import { prepareDeliverableHtmlForProxy } from 'docs/src/modules/deliverables/htmlSnapshot';
 
 function getSingleValue(value: string | string[] | undefined) {
@@ -8,20 +8,6 @@ function getSingleValue(value: string | string[] | undefined) {
     return value[0];
   }
   return value;
-}
-
-function isLocalDevOrigin(origin: string) {
-  return /^https?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?$/i.test(origin);
-}
-
-function isAllowedDeliverableOrigin(origin: string) {
-  const configuredOrigin = new URL(DELIVERABLES_CDN_BASE_URL).origin;
-
-  if (origin === configuredOrigin) {
-    return true;
-  }
-
-  return process.env.NODE_ENV !== 'production' && isLocalDevOrigin(origin);
 }
 
 async function handler(req: AuthenticatedRequest, res: NextApiResponse) {

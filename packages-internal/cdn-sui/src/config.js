@@ -1,6 +1,6 @@
 export const cdnName = import.meta.env.VITE_CDN_NAME || 'Stoked CDN';
 export const publicBaseUrl =
-  import.meta.env.VITE_CDN_PUBLIC_BASE_URL || 'https://cdn-sui.consulting.stokd.cloud';
+  import.meta.env.VITE_CDN_PUBLIC_BASE_URL || 'https://cdn-sui.stokd.cloud';
 export const authSessionEndpoint =
   import.meta.env.VITE_CDN_AUTH_SESSION_URL || '/api/auth/session';
 const localAuthOrigin =

@@ -70,6 +70,11 @@ const CONSULTING_ITEMS: Array<{ name: string; description: string; href: string 
     href: ROUTES.consultingBackEnd,
   },
   {
+    name: 'Full Stack',
+    description: 'End-to-end product builds across UI, APIs, data, and deploy.',
+    href: ROUTES.consultingFullStack,
+  },
+  {
     name: 'Devops',
     description: 'AWS, GCP, Terraform, and CI/CD pipelines.',
     href: ROUTES.consultingDevops,

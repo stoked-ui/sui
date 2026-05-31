@@ -28,7 +28,7 @@ import AppHeader from 'docs/src/layouts/AppHeader';
 import Head from 'docs/src/modules/components/Head';
 
 const alphaInstallerUrl =
-  'https://cdn.consulting.stokd.cloud/products/mac-mixer/releases/alpha/2.0.0-1/MacMixer-2.0.0-1.pkg';
+  'https://cdn.stokd.cloud/products/mac-mixer/releases/alpha/2.0.0-1/MacMixer-2.0.0-1.pkg';
 
 const routes = [
   {

@@ -8,7 +8,7 @@ export type PublicSite = 'stoked-ui' | 'consulting';
 
 export const STOKED_UI_ORIGIN = 'https://sui.stokd.cloud';
 export const STOKED_CONSULTING_ORIGIN = 'https://consulting.stokd.cloud';
-export const STOKED_CONSULTING_CDN_ORIGIN = buildCdnOrigin(STOKED_CONSULTING_ORIGIN);
+export const STOKED_CONSULTING_CDN_ORIGIN = 'https://cdn.stokd.cloud';
 
 const stokedUiProductIds = new Set(STOKED_UI_PRODUCT_IDS);
 const consultingPublicProductIds = new Set(CONSULTING_PUBLIC_PRODUCT_IDS);
@@ -33,12 +33,12 @@ function shouldUseAbsolutePublicDomains() {
     || hostname === 'www.sui.stokd.cloud'
     || hostname === 'consulting.stokd.cloud'
     || hostname === 'www.consulting.stokd.cloud'
-    || hostname === 'cdn.consulting.stokd.cloud';
+    || hostname === 'cdn.stokd.cloud';
 }
 
 export function buildCdnOrigin(origin: string) {
   const url = new URL(origin);
-  return `${url.protocol}//cdn.${url.host}`;
+  return `${url.protocol}//cdn.stokd.cloud`;
 }
 
 export function originForSite(site: PublicSite) {

@@ -3,7 +3,7 @@
 **Package:** `@stoked-ui/sui` (Monorepo Root — workspace-wide)
 **Priority:** Critical
 **Stack:** pnpm 10.5.1 / TypeScript 5.4 / React 18 / NestJS 10 / Turbo / Mocha + Jest + Playwright
-**Date:** 2026-05-21
+**Date:** 2026-05-28 (re-verified; inventory, framework assignments, tool versions, and CI gap unchanged since 2026-05-21)
 
 ---
 
@@ -25,7 +25,7 @@ Cargo (`cargo test --workspace`) covers `packages/sui-video-renderer` (Rust) —
 
 ### 1.2 Test File Inventory (counted live, not estimated)
 
-Counts measured 2026-05-21 across `packages/` (excluding `node_modules`, `dist`, `build`).
+Counts re-verified 2026-05-28 across `packages/` (excluding `node_modules`, `dist`, `build`). A naive `find` for `*.spec.*` also matches `test/typescript/**` compile-only suites (27 each in `sui-editor` / `sui-github`); the runtime-spec column below intentionally excludes those.
 
 | Package | `*.test.*` | `*.spec.*` (runtime) | Framework | Notes |
 |---------|-----------:|---------------------:|-----------|-------|
@@ -55,7 +55,7 @@ Workspace total: **~65 runtime JS/TS test files** across `packages/` (53 `*.test
 
 ### 1.4 CI Pipeline (current, verified)
 
-GitHub Actions in `.github/workflows/` (live as of 2026-05-21): `ci.yml`, `ci-check.yml`, `claude-code-review.yml`, `claude.yml`, `codeql.yml`, `deploy-site.yml`, `publish-packages.yml`, `scorecards.yml`, `vale-action.yml`. **No `test-coverage.yml` or equivalent — Phase 0 below remains open.**
+GitHub Actions in `.github/workflows/` (live as of 2026-05-28): `ci.yml`, `ci-check.yml`, `claude-code-review.yml`, `claude.yml`, `codeql.yml`, `deploy-site.yml`, `publish-packages.yml`, `scorecards.yml`, `vale-action.yml`. **No `test-coverage.yml` or equivalent — Phase 0 below remains open.**
 
 `ci.yml` runs on push/PR (skipping `docs/**`/`examples/**`), executes `pnpm install` + `pnpm build:ci` + `pnpm --filter @stoked-ui/media-api openapi:validate` + `pnpm release:changelog` across macOS/Windows/Ubuntu — **but does NOT currently run unit, Jest, Mocha, or Playwright suites in CI.** `ci-check.yml` is a no-op required-check workaround for docs-only PRs.
 

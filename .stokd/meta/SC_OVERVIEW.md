@@ -1,6 +1,6 @@
 # Stoked UI — Codebase Overview
 
-> **Generated:** 2026-05-21 (upgraded 0.3.0 → 0.4.0) | **Meta version:** 0.4.0
+> **Generated:** 2026-05-21 (upgraded 0.3.0 → 0.4.0) · **Refreshed:** 2026-05-28 | **Meta version:** 0.4.0
 > **Repository:** `@stoked-ui/sui` v0.1.0-alpha.5 (private monorepo root)
 > **Root:** `/opt/worktrees/stoked-ui/stoked-ui-main`
 > **Package manager:** pnpm 10.5.1 (enforced via `preinstall: npx only-allow pnpm`)
@@ -10,12 +10,12 @@
 
 ## 1. Repository Purpose
 
-Stoked UI is a pnpm / Turborepo / Lerna monorepo that produces a media-centric React component suite (timeline editor, file explorer, video editor, GitHub widgets, CDN/file browser), a NestJS media API, a Next.js 14 documentation + marketing + admin site, a Rust→WASM video renderer, and the SST (AWS) infrastructure that deploys it all to `sui.stokd.cloud` / `consulting.stokd.cloud`.
+Stoked UI is a pnpm / Turborepo / Lerna monorepo that produces a media-centric React component suite (timeline editor, file explorer, video editor, GitHub widgets, CDN/file browser), a NestJS media API, a Next.js 13.5 documentation + marketing + admin site, a Rust→WASM video renderer, and the SST (AWS) infrastructure that deploys it all to `sui.stokd.cloud` / `consulting.stokd.cloud`.
 
 The repo ships three product surfaces:
 
 1. **`@stoked-ui/*` npm packages** — Reusable React libraries built on MUI v5, published to npm under the `@stoked-ui` scope.
-2. **`stokedui-com` (`docs/`)** — Next.js 14 documentation + marketing + admin app (port **5199**) that consumes the packages and hosts non-media business APIs at `docs/pages/api/*`.
+2. **`stokedui-com` (`docs/`)** — Next.js 13.5 (Pages Router; `next@^13.5.1`, installed 13.5.11) documentation + marketing + admin app (port **5199**) that consumes the packages and hosts non-media business APIs at `docs/pages/api/*`. This surface also hosts the consulting site (`docs/pages/consulting/**`, e.g. `ai/`, `front-end/`, `back-end/`, `devops/`, `full-stack/`) and the audit-bot lead-capture endpoints (`docs/pages/api/audit/{turn.ts, save-lead.ts}`).
 3. **AWS deployment via SST v4** — CloudFront sites, API Gateway v2 + Lambda surface, CDN buckets, ACM certs, and supporting Lambdas in `api/`. Entry: `sst.config.ts` → `infra/index.ts`.
 
 A native Rust crate (`packages/sui-video-renderer`) compiles to WASM and is consumed by `@stoked-ui/editor` for in-browser video preview/rendering.
@@ -131,7 +131,7 @@ Edges verified from each `package.json`:
 
 ### Critical boundary rule (from `.stokd/meta/SC_CONTEXT.md` and `CLAUDE.md`)
 
-> **`sui-media-api` is reserved for media-component endpoints only.** Business/domain routes (products, clients, licenses, invoices, users, non-media auth) belong in `docs/pages/api/*`. The existing route folders confirm this: `docs/pages/api/{account, auth, blog, cdn, chat, clients, deliverables, github, invoices, licenses, products, upload, users, webhooks}` plus `logs.ts`, `openapi.ts`.
+> **`sui-media-api` is reserved for media-component endpoints only.** Business/domain routes (products, clients, licenses, invoices, users, non-media auth) belong in `docs/pages/api/*`. The existing route folders confirm this: `docs/pages/api/{account, audit, auth, blog, cdn, chat, clients, deliverables, github, invoices, licenses, products, upload, users, webhooks}` plus `logs.ts`, `openapi.ts`. The `audit/` routes (`turn.ts`, `save-lead.ts`) are the consulting-site lead-capture/chat surface, backed by `docs/src/modules/auditBot/{conversationRunner, playbooks, auditStore}`.
 
 ---
 
@@ -141,7 +141,7 @@ Edges verified from each `package.json`:
 |------|-------|
 | Language | TypeScript 5.4, Rust 2021, JavaScript |
 | UI | React 18.3.1 (pinned via `pnpm.overrides`), MUI v5 pinned to `@mui/material` 5.17.1 / `@mui/system` 5.17.1 / `@mui/utils` 5.17.1 / `@mui/base` 5.0.0-beta.40, Emotion 11 (`@emotion/styled` 11.8.1 pinned) |
-| Docs app | Next.js 14, `@mui/material-nextjs`, MDX, `@docsearch/react`, `react-spring`, Tailwind (`docs/tailwind.config.js`) |
+| Docs app | Next.js 13.5 (Pages Router; `next@^13.5.1`), `@mui/material-nextjs` ^5.16.6, MDX, `@docsearch/react`, `react-spring`, Tailwind (`docs/tailwind.config.js`) |
 | Build | Turborepo 2.7, NX 20.5 (Pigment/zero-runtime targets), Lerna 8 (versioning only), Babel 7 (custom `babel.config.js`), tsup 8, custom `scripts/build.mjs` (modern/node/stable targets + types + copy) |
 | Backend | NestJS 10, Mongoose 8 / MongoDB 6.12, Express 5, Passport JWT, class-validator, Swagger |
 | Media processing | Sharp 0.34, fluent-ffmpeg, AWS SDK v3 (S3 / SES / SNS / ACM) |
@@ -208,8 +208,9 @@ Each step shells out to root scripts:
 
 | Surface | Entry | Notes |
 |---------|-------|-------|
-| Docs / marketing site | `docs/pages/_app.js`, `docs/pages/_document.js` | Next.js 14, port 5199. Service worker via `docs/scripts/buildServiceWorker.js` (`build-sw`). |
+| Docs / marketing / consulting site | `docs/pages/_app.js`, `docs/pages/_document.js` | Next.js 13.5 Pages Router, port 5199. Service worker via `docs/scripts/buildServiceWorker.js` (`build-sw`). `dev` runs `github:snapshots` then `next dev -p 5199`. |
 | Business APIs | `docs/pages/api/**` | All non-media domain endpoints per the boundary rule. |
+| Audit bot (consulting) | `docs/pages/api/audit/{turn.ts, save-lead.ts}` → `docs/src/modules/auditBot/*` | Playbook-driven lead-capture chat for `consulting.stokd.cloud`. |
 | Media API (server) | `packages/sui-media-api/src/main.ts` → `Server.start()` from `app.ts` | NestJS bootstrap; silences `console.log` in prod. |
 | Media API (Lambda) | `packages/sui-media-api/src/lambda.ts` + `lambda.bootstrap.ts` | `@codegenie/serverless-express` adapter. |
 | Root Lambda handlers | `api/auth/*`, `api/subscribe.ts`, `api/sms.ts`, `api/promos.ts` | Wired into SST via `infra/api.ts`. |
@@ -268,11 +269,19 @@ MUI is pinned tree-wide (`@mui/material` 5.17.1, `@mui/system` 5.17.1, `@mui/uti
 - Product card: `.stokd/meta/SC_PRODUCT_STOKED_UI_SUI.md`
 - Guardrails: `.stokd/meta/SC_CONTEXT.md`, `CLAUDE.md`, `AGENTS.md`
 - Recommendations log: `.stokd/meta/SC_RECOMMENDATIONS.md`
-- Meta tracking config: `.stokd/meta/config.json` (note: config currently lists 9 packages; `sui-cdn` and `sui-video-renderer` have `SC_MODULE.md` directories present but are not yet listed in `config.json.packages` — should be added in next config update)
+- Meta tracking config: `.stokd/meta/config.json` (now lists all 11 tracked packages; the 2026-05-28 refresh added `sui-cdn` and `sui-video-renderer`, resolving the prior drift between `config.json.packages` and the `.stokd/meta/packages/<pkg>/` directories)
 
 ---
 
-## 10. Changes vs. Meta v0.3.0
+## 10. Changes in 2026-05-28 Refresh (meta v0.4.0)
+
+- **Corrected the docs-app framework version:** prior copies said "Next.js 14" throughout; the manifest is `next@^13.5.1` and the installed version is **13.5.11** (Pages Router). Updated §1, §4, §6 accordingly.
+- **Recorded the audit-bot / consulting surface:** new `docs/pages/api/audit/{turn.ts, save-lead.ts}` endpoints (backed by `docs/src/modules/auditBot/{conversationRunner, playbooks, auditStore}`) and the expanded `docs/pages/consulting/**` verticals (ai, front-end, back-end, devops, full-stack). Added to §1, §3 boundary list, and §6 entry-point table.
+- **Resolved the `config.json` drift the 0.4.0 doc flagged:** `sui-cdn` and `sui-video-renderer` are now listed in both `config.json.packages` and the product roster, matching the existing `.stokd/meta/packages/<pkg>/` directories (11 packages tracked).
+- Verified WASM artifact presence: `packages/sui-video-renderer/pkg/` and `wasm-preview/pkg/` both contain `wasm_preview*` output; editor `optionalDependency` `@stoked-ui/video-renderer-wasm` → `file:../sui-video-renderer/pkg` is intact.
+- All other architectural, dependency-graph, build-system, and pattern content re-verified against `package.json`, `docs/package.json`, `pnpm-workspace.yaml`, and per-package manifests; preserved where accurate.
+
+## 11. Changes vs. Meta v0.3.0
 
 - Bumped meta version 0.3.0 → 0.4.0.
 - Removed dead reference to legacy `.stokd/meta/SC_MODULE_SUI_*.md` files (now deleted; see `git status`). Per-package module docs now live under `.stokd/meta/packages/<pkg>/SC_MODULE.md`.

@@ -1,11 +1,11 @@
 # Internal CDN
 
-This package is a rebuilt source version of the currently deployed `cdn.consulting.stokd.cloud` app. The deployed site exposed AWS credentials in client-side JavaScript; this package removes that pattern and expects one of these safer data sources instead:
+This package is a rebuilt source version of the currently deployed `cdn.stokd.cloud` app. The deployed site exposed AWS credentials in client-side JavaScript; this package removes that pattern and expects one of these safer data sources instead:
 
 - `VITE_CDN_CONTENTS_URL` pointing to a JSON or S3-XML listing endpoint
 - local mock data for UI iteration
 
-The asset URLs still point at `https://cdn.consulting.stokd.cloud`, so existing references to bucket-hosted files remain valid.
+The asset URLs still point at `https://cdn.stokd.cloud`, so existing references to bucket-hosted files remain valid.
 
 ## Local development
 
@@ -18,7 +18,7 @@ Create `packages-internal/cdn/.env.local` if you want to point at a real listing
 
 ```bash
 VITE_CDN_NAME=Stoked CDN
-VITE_CDN_PUBLIC_BASE_URL=https://cdn.consulting.stokd.cloud
+VITE_CDN_PUBLIC_BASE_URL=https://cdn.stokd.cloud
 VITE_CDN_CONTENTS_URL=http://localhost:5199/api/cdn/contents/
 ```
 
@@ -37,7 +37,7 @@ JSON:
       "path": "main.js",
       "size": 673308,
       "lastModified": "2024-05-07T00:58:49.000Z",
-      "url": "https://cdn.consulting.stokd.cloud/main.js"
+      "url": "https://cdn.stokd.cloud/main.js"
     }
   ]
 }

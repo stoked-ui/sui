@@ -201,7 +201,7 @@ export default function HeroFlux() {
             <Box
               ref={videoRef}
               component="video"
-              src="https://cdn.consulting.stokd.cloud/products/flux/assets/flux-preview_en.mp4"
+              src="https://cdn.stokd.cloud/products/flux/assets/flux-preview_en.mp4"
               autoPlay
               muted
               loop
@@ -325,7 +325,7 @@ export default function HeroFlux() {
               <Box sx={{ display: 'flex', justifyContent: { xs: 'center', md: 'flex-start' } }}>
                 <GetStartedButtons
                   primaryLabel="Download Flux"
-                  primaryUrl="https://cdn.consulting.stokd.cloud/products/flux/installers/Flux-3.1.0-mac.pkg"
+                  primaryUrl="https://cdn.stokd.cloud/products/flux/installers/Flux-3.1.0-mac.pkg"
                   primaryUrlTarget="_blank"
                 />
               </Box>

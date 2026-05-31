@@ -16,7 +16,7 @@ title: Download Flux
 | **Architecture** | Universal (Apple Silicon & Intel) |
 | **Requires** | macOS 15 Sequoia or later |
 
-<a href="https://cdn.consulting.stokd.cloud/products/flux/installers/Flux-3.1.0-mac.pkg" style="display:inline-block;padding:12px 24px;background:#1976d2;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;font-size:16px;margin:16px 0">Download Flux</a>
+<a href="https://cdn.stokd.cloud/products/flux/installers/Flux-3.1.0-mac.pkg" style="display:inline-block;padding:12px 24px;background:#1976d2;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;font-size:16px;margin:16px 0">Download Flux</a>
 
 ## Installation
 

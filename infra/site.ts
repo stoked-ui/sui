@@ -18,7 +18,7 @@ export const createSite = async (domainInfo: DomainInfo) => {
     return segments;
   }, {});
   const invalidationPaths = process.env.INVALIDATION_PATHS;
-  const blogImageBucket = process.env.BLOG_IMAGE_S3_BUCKET ?? 'cdn.consulting.stokd.cloud';
+  const blogImageBucket = process.env.BLOG_IMAGE_S3_BUCKET ?? 'cdn.stokd.cloud';
   const enableDomain = process.env.SITE_ENABLE_DOMAIN !== '0';
   const openNextVersion = '3.6.6';
   const buildCommand = `npx --yes @opennextjs/aws@${openNextVersion} build && pnpm prune-lambda`;
@@ -63,7 +63,7 @@ export const createSite = async (domainInfo: DomainInfo) => {
       NEXT_PUBLIC_GOOGLE_CLIENT_ID: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? '',
       SES_FROM_EMAIL: process.env.SES_FROM_EMAIL ?? 'noreply@stokd.cloud',
       BLOG_IMAGE_S3_BUCKET: blogImageBucket,
-      BLOG_IMAGE_CDN_URL: process.env.BLOG_IMAGE_CDN_URL ?? 'https://cdn.consulting.stokd.cloud',
+      BLOG_IMAGE_CDN_URL: process.env.BLOG_IMAGE_CDN_URL ?? 'https://cdn.stokd.cloud',
     },
     server: {
       // The docs app has a heavy pages bundle and can exceed the default 20s/1024MB on cold starts.

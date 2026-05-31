@@ -59,12 +59,6 @@ export const createCdnSite = async (domainInfo: CdnDomainInfo) => {
       return event.request;
     }
 
-    var isDirectoryRequest = uri === '/' || uri.slice(-1) === '/';
-
-    if (isDirectoryRequest && !isFileRequest) {
-      event.request.uri = '/index.html';
-      return event.request;
-    }
   `;
 
   const site = new sst.aws.StaticSite(domainInfo.resourceName, {
@@ -156,7 +150,7 @@ export const createCdnSite = async (domainInfo: CdnDomainInfo) => {
 export const createCdnSuiSite = async (domainInfo: CdnDomainInfo) => {
   const enableDomain = process.env.CDN_ENABLE_DOMAIN !== '0';
   // cdn-sui browses the same CDN content but serves its own SPA from a separate bucket
-  const cdnPublicBaseUrl = process.env.CDN_PUBLIC_BASE_URL ?? 'https://cdn.consulting.stokd.cloud';
+  const cdnPublicBaseUrl = process.env.CDN_PUBLIC_BASE_URL ?? 'https://cdn.stokd.cloud';
   const consultingHost = new URL(domainInfo.consultingOrigin).hostname;
 
   let certArn: string | undefined;
@@ -192,12 +186,6 @@ export const createCdnSuiSite = async (domainInfo: CdnDomainInfo) => {
       return event.request;
     }
 
-    var isDirectoryRequest = uri === '/' || uri.slice(-1) === '/';
-
-    if (isDirectoryRequest && !isFileRequest) {
-      event.request.uri = '/index.html';
-      return event.request;
-    }
   `;
 
   return new sst.aws.StaticSite(domainInfo.resourceName, {

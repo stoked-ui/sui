@@ -33,7 +33,7 @@ const ConsultingDocumentBrowser = dynamic(() => import('../showcase/ConsultingDo
   loading: createLoading({ width: '100%', height: 340 }),
 });
 
-const FileExplorerDnd = dynamic(() => import('../showcase/FileExplorerCard'), {
+const MediaCardGrid = dynamic(() => import('../showcase/MediaCardGridCard'), {
   ssr: false,
   loading: createLoading({ width: 360, height: 280 }),
 });
@@ -79,16 +79,7 @@ export default function Hero() {
           {isMdUp && (
             <Stack spacing={3} useFlexGap sx={{ '& > .MuiPaper-root': { maxWidth: 'none' } }}>
               <ConsultingDocumentBrowser id={'consulting-document-browser'} sx={{ width: '100%' }} />
-              <FileExplorerDnd
-                id={'file-explorer-dnd'}
-                sx={{
-                  width: 360,
-                  '& .MuiFile-content': {
-                    marginBottom: '2px',
-                    marginTop: '2px',
-                  }
-                }}
-              />
+              <MediaCardGrid id={'media-card-grid'} sx={{ width: 360 }} />
             </Stack>
           )}
         </React.Fragment>

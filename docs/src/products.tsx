@@ -593,7 +593,8 @@ function ProductMenu(props: ProductMenuProps) {
               variant="outlined"
               sx={(theme) => ({
                 mt: 1,
-                minWidth: 498,
+                minWidth: 320,
+                maxWidth: 360,
                 overflow: 'hidden',
                 borderColor: 'grey.200',
                 bgcolor: 'background.paper',
@@ -791,6 +792,20 @@ const consultingBackEndData: TProduct = {
   features: [],
 };
 const consultingBackEnd = new Product(consultingBackEndData);
+
+const consultingFullStackData: TProduct = {
+  id: 'consulting-full-stack',
+  name: "Full Stack",
+  fullName: "Full Stack Consulting",
+  description: "End-to-end product builds — UI, APIs, data, and deploy — by one tight team.",
+  icon: "product-designkits",
+  url: "/consulting/full-stack",
+  site: 'consulting',
+  live: true,
+  showcaseType: StokedConsultingShowcase,
+  features: [],
+};
+const consultingFullStack = new Product(consultingFullStackData);
 
 const consultingDevopsData: TProduct = {
   id: 'consulting-devops',
@@ -1274,13 +1289,13 @@ const stokdCloud = new Product(stokdCloudData);
 
 const PRODUCTS: Products = new Products([fileExplorer, media, timeline, videoEditor]);
 const ALL_PRODUCTS: Products = new Products([sui]);
-const CONSULTING: Products = new Products([consultingFrontEnd, consultingBackEnd, consultingDevops, consultingAi]);
+const CONSULTING: Products = new Products([consultingFrontEnd, consultingBackEnd, consultingFullStack, consultingDevops, consultingAi]);
 // Only stoked-ui shown by default — consulting products come exclusively from the API
 const PUBLIC_FALLBACK_PRODUCTS: Products = new Products([sui]);
 const ALL_PACKAGES: Products = new Products([
   fileExplorer, media, common, mediaApi, mediaSelector, timeline, videoEditor, flux, focusCapture,
   macMixer, alwaysListening, stokdCloud,
-  consultingFrontEnd, consultingBackEnd, consultingDevops, consultingAi
+  consultingFrontEnd, consultingBackEnd, consultingFullStack, consultingDevops, consultingAi
 ]);
 
 // Enrichment metadata for API-sourced consulting products (showcase types, icons, etc.)

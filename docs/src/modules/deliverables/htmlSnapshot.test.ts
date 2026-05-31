@@ -64,9 +64,9 @@ describe('deliverables htmlSnapshot', () => {
       </html>
     `;
 
-    const output = injectBaseHrefIntoHtml(html, 'https://cdn.consulting.stokd.cloud/clients/xferall/deliverables/q1/index.html');
+    const output = injectBaseHrefIntoHtml(html, 'https://cdn.stokd.cloud/clients/xferall/deliverables/q1/index.html');
 
-    expect(output).to.contain('<base href="https://cdn.consulting.stokd.cloud/clients/xferall/deliverables/q1/">');
+    expect(output).to.contain('<base href="https://cdn.stokd.cloud/clients/xferall/deliverables/q1/">');
   });
 
   it('sanitizes saved Next snapshots for proxy rendering while preserving assets', () => {
@@ -88,11 +88,11 @@ describe('deliverables htmlSnapshot', () => {
 
     const output = prepareDeliverableHtmlForProxy(
       html,
-      'https://cdn.consulting.stokd.cloud/clients/xferall/deliverables/q1/index.html',
+      'https://cdn.stokd.cloud/clients/xferall/deliverables/q1/index.html',
     );
 
     expect(output).to.contain('Snapshot content');
-    expect(output).to.contain('<base href="https://cdn.consulting.stokd.cloud/clients/xferall/deliverables/q1/">');
+    expect(output).to.contain('<base href="https://cdn.stokd.cloud/clients/xferall/deliverables/q1/">');
     expect(output).not.to.contain('<script');
     expect(output).to.contain('./index_files/app.css');
   });
@@ -111,11 +111,11 @@ describe('deliverables htmlSnapshot', () => {
 
     const output = prepareDeliverableHtmlForStorage(
       html,
-      'https://cdn.consulting.stokd.cloud/clients/xferall/deliverables/q1/index.html',
+      'https://cdn.stokd.cloud/clients/xferall/deliverables/q1/index.html',
     );
 
     expect(output).to.contain('Stored snapshot');
-    expect(output).to.contain('<base href="https://cdn.consulting.stokd.cloud/clients/xferall/deliverables/q1/">');
+    expect(output).to.contain('<base href="https://cdn.stokd.cloud/clients/xferall/deliverables/q1/">');
     expect(output).not.to.contain('<script');
   });
 });

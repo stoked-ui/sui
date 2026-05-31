@@ -11,7 +11,10 @@ export const getDomains = (rootDomain: string, stage: string) => {
   if (stage === 'production') {
     return [rootDomain, `www.${rootDomain}`];
   }
-  return [`${stage}.${rootDomain}`, `*.${stage}.${rootDomain}`];
+  const [service, ...baseParts] = rootDomain.split('.');
+  const base = baseParts.join('.');
+  const staged = base ? `${service}.${stage}.${base}` : `${stage}.${rootDomain}`;
+  return [staged, `*.${staged}`];
 }
 
 export const getPrimaryDomain = (rootDomain: string, stage: string) => getDomains(rootDomain, stage)[0];
@@ -47,14 +50,16 @@ export const getCdnDomainInfo = (rootDomains: string, stage: string): CdnDomainI
   const consultingRootDomain = rootDomainParts.find((domain) => domain === 'consulting.stokd.cloud')
     ?? rootDomainParts[rootDomainParts.length - 1];
   const stokedUiRootDomain = rootDomainParts[0] ?? 'sui.stokd.cloud';
+  const cdnRootDomain = rootDomainParts.find((domain) => domain === 'stokd.cloud') ?? 'stokd.cloud';
   const consultingDomain = getPrimaryDomain(consultingRootDomain, stage);
   const stokedUiDomain = getPrimaryDomain(stokedUiRootDomain, stage);
-  const domain = `cdn.${consultingDomain}`;
+  const cdnBaseDomain = getPrimaryDomain(cdnRootDomain, stage);
+  const domain = `cdn.${cdnBaseDomain}`;
 
   return {
     resourceName: `${domain.replace(/\./g, '')}StaticSite`,
     domain,
-    primaryZoneId: ZONE_IDS[consultingRootDomain] ?? '',
+    primaryZoneId: ZONE_IDS[cdnRootDomain] ?? '',
     consultingOrigin: `https://${consultingDomain}`,
     stokedUiOrigin: `https://${stokedUiDomain}`,
   };
@@ -79,7 +84,7 @@ export interface CdnDomainInfo {
 
 export const getCdnSuiDomainInfo = (rootDomains: string, stage: string): CdnDomainInfo => {
   const info = getCdnDomainInfo(rootDomains, stage);
-  // cdn.consulting.stokd.cloud → cdn-sui.consulting.stokd.cloud
+  // cdn.stokd.cloud -> cdn-sui.stokd.cloud
   const domain = info.domain.replace(/^cdn\./, 'cdn-sui.');
   return {
     ...info,
