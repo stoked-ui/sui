@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import archiver from 'archiver';
 import {
   canSeeCdnEntry,
   canViewCdnPath,
@@ -13,8 +14,6 @@ import {
   listAllKeys,
 } from 'docs/src/modules/cdn/cdnMutations';
 import { readOptionalAuthUser } from 'docs/src/modules/auth/withAuth';
-
-const archiver = require('archiver');
 
 export const config = {
   api: {
