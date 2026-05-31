@@ -113,7 +113,9 @@ export const MediaCard: React.FC<MediaCardProps> = ({
   const [isHovering, setIsHovering] = React.useState(false);
   const [isInlinePlaying, setIsInlinePlaying] = React.useState(false);
   const [isHoverPreviewSuppressed, setIsHoverPreviewSuppressed] = React.useState(false);
+  const [generatedPoster, setGeneratedPoster] = React.useState<string>();
   const videoRef = React.useRef<HTMLVideoElement>(null);
+  const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const isDarkAppearance = appearance === 'dark';
 
   // Hybrid metadata extraction (client + server)
@@ -151,7 +153,35 @@ export const MediaCard: React.FC<MediaCardProps> = ({
       ? `${thumbnailBaseUrl || ''}${item.thumbnail}`
       : item.paidThumbnail
         ? `${thumbnailBaseUrl || ''}${item.paidThumbnail}`
-        : undefined;
+        : generatedPoster;
+
+  // Auto-extract first frame from video as thumbnail fallback
+  const extractVideoFrame = React.useCallback(() => {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    if (!video || !canvas || !canPreviewVideo || thumbnailUrl || generatedPoster) {
+      return;
+    }
+
+    const extractFrame = () => {
+      try {
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        canvas.width = video.videoWidth || video.clientWidth;
+        canvas.height = video.videoHeight || video.clientHeight;
+        ctx.drawImage(video, 0, 0);
+        setGeneratedPoster(canvas.toDataURL());
+      } catch (err) {
+        // Silently ignore CORS/canvas errors
+      }
+    };
+
+    if (video.readyState >= 2) {
+      extractFrame();
+    } else {
+      video.addEventListener('loadedmetadata', extractFrame, { once: true });
+    }
+  }, [canPreviewVideo, thumbnailUrl, generatedPoster]);
   const mediaTitle = item.title || 'Untitled';
   const mediaActionLabel = `${isInlinePlaying ? 'Pause' : 'Play'} ${mediaTitle}`;
 
@@ -343,6 +373,10 @@ export const MediaCard: React.FC<MediaCardProps> = ({
     stopHoverPreview,
   ]);
 
+  React.useEffect(() => {
+    extractVideoFrame();
+  }, [extractVideoFrame]);
+
 
   React.useEffect(() => {
     setIsInlinePlaying(false);
@@ -457,6 +491,11 @@ export const MediaCard: React.FC<MediaCardProps> = ({
             </Alert>
           </Box>
         )}
+
+        <canvas
+          ref={canvasRef}
+          style={{ display: 'none' }}
+        />
 
         {item.mediaType === 'video' && isVisible && !requiresPayment ? (
           <video
