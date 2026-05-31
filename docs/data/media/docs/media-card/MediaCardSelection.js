@@ -5,7 +5,7 @@ import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 import { MediaCard } from '@stoked-ui/media';
 
-const VIDEO_URL = 'https://cdn.stokd.cloud/products/flux/assets/flux-desktop-preview-1280x720.mp4';
+const VIDEO_URL = 'https://commondatastorage.googleapis.com/gtv-videos-library/sample/ForBiggerBlazes.mp4';
 
 const items = [
   {
