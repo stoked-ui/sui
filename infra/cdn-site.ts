@@ -7,9 +7,11 @@ const API_PROXY_ORIGIN_REQUEST_POLICY_ID = 'b689b0a8-53d0-40ab-baf2-68738e2966ac
 const MEDIA_RESPONSE_HEADERS_INJECTION = `
   event.response.headers['access-control-allow-origin'] = { value: '*' };
   event.response.headers['access-control-allow-methods'] = { value: 'GET, HEAD, OPTIONS' };
-  event.response.headers['access-control-allow-headers'] = { value: 'Range' };
+  event.response.headers['access-control-allow-headers'] = { value: 'Range, Content-Type, Authorization' };
   event.response.headers['access-control-expose-headers'] = { value: 'Content-Range, Accept-Ranges, Content-Encoding, Content-Length' };
   event.response.headers['cross-origin-opener-policy'] = { value: 'same-origin-allow-popups' };
+  // Ensure browsers revalidate CORS when Origin changes
+  event.response.headers['vary'] = { value: 'Origin, Access-Control-Request-Headers, Access-Control-Request-Method' };
 `;
 
 export const createCdnSite = async (domainInfo: CdnDomainInfo) => {
@@ -44,6 +46,27 @@ export const createCdnSite = async (domainInfo: CdnDomainInfo) => {
     var isApiRequest = uri === '/api' || uri.indexOf('/api/') === 0;
     var isFileRequest = /\\.[^/]+$/.test(uri);
     var isDirectoryLikeRequest = uri === '/' || uri.slice(-1) === '/' || !isFileRequest;
+
+    // Handle CORS preflight for media/video playback (Range requests from cross-origin MediaCards)
+    // Must return immediately so browsers can fetch video/audio with crossOrigin="anonymous"
+    var method = (event.request.method || 'GET').toUpperCase();
+    if (method === 'OPTIONS') {
+      var origin = event.request.headers.origin ? event.request.headers.origin.value : '*';
+      var reqHeaders = event.request.headers['access-control-request-headers'];
+      var reqMethod = event.request.headers['access-control-request-method'];
+      return {
+        statusCode: 204,
+        statusDescription: 'No Content',
+        headers: {
+          'access-control-allow-origin': { value: '*' },
+          'access-control-allow-methods': { value: 'GET, HEAD, OPTIONS' },
+          'access-control-allow-headers': { value: reqHeaders ? reqHeaders.value : 'Range, Content-Type, Authorization' },
+          'access-control-expose-headers': { value: 'Content-Range, Accept-Ranges, Content-Encoding, Content-Length' },
+          'access-control-max-age': { value: '86400' },
+          'vary': { value: 'Origin, Access-Control-Request-Headers, Access-Control-Request-Method' },
+        },
+      };
+    }
 
     // Route public directory listing requests onto a path-based API route so
     // the edge path never depends on forwarding injected query strings.
@@ -129,6 +152,8 @@ export const createCdnSite = async (domainInfo: CdnDomainInfo) => {
 
   // Browser uploads go directly to S3 using presigned multipart URLs, so the
   // bucket itself must allow preflight and expose ETag for part completion.
+  // We ALSO allow public media playback (video/audio in MediaCards) from any origin
+  // with Range header support so cross-origin hover-to-play previews work.
   const bucketCors = new aws.s3.BucketCorsConfiguration(`${domainInfo.resourceName}BucketCors`, {
     bucket: cdnBucket,
     corsRules: [
@@ -139,6 +164,14 @@ export const createCdnSite = async (domainInfo: CdnDomainInfo) => {
         allowedOrigins: uploadOrigins,
         exposeHeaders: ['ETag'],
         maxAgeSeconds: 3600,
+      },
+      {
+        id: 'cdn-public-media-playback',
+        allowedHeaders: ['Range', 'Content-Type', 'Authorization'],
+        allowedMethods: ['GET', 'HEAD'],
+        allowedOrigins: ['*'],
+        exposeHeaders: ['Content-Range', 'Accept-Ranges', 'Content-Encoding', 'Content-Length', 'ETag'],
+        maxAgeSeconds: 86400,
       },
     ],
   });
@@ -171,6 +204,27 @@ export const createCdnSuiSite = async (domainInfo: CdnDomainInfo) => {
     var isApiRequest = uri === '/api' || uri.indexOf('/api/') === 0;
     var isFileRequest = /\\.[^/]+$/.test(uri);
     var isDirectoryLikeRequest = uri === '/' || uri.slice(-1) === '/' || !isFileRequest;
+
+    // Handle CORS preflight for media/video playback (Range requests from cross-origin MediaCards)
+    // Must return immediately so browsers can fetch video/audio with crossOrigin="anonymous"
+    var method = (event.request.method || 'GET').toUpperCase();
+    if (method === 'OPTIONS') {
+      var origin = event.request.headers.origin ? event.request.headers.origin.value : '*';
+      var reqHeaders = event.request.headers['access-control-request-headers'];
+      var reqMethod = event.request.headers['access-control-request-method'];
+      return {
+        statusCode: 204,
+        statusDescription: 'No Content',
+        headers: {
+          'access-control-allow-origin': { value: '*' },
+          'access-control-allow-methods': { value: 'GET, HEAD, OPTIONS' },
+          'access-control-allow-headers': { value: reqHeaders ? reqHeaders.value : 'Range, Content-Type, Authorization' },
+          'access-control-expose-headers': { value: 'Content-Range, Accept-Ranges, Content-Encoding, Content-Length' },
+          'access-control-max-age': { value: '86400' },
+          'vary': { value: 'Origin, Access-Control-Request-Headers, Access-Control-Request-Method' },
+        },
+      };
+    }
 
     // Route public directory listing requests onto a path-based API route so
     // the edge path never depends on forwarding injected query strings.

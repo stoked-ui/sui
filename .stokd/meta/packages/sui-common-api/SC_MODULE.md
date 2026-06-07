@@ -1,11 +1,12 @@
 # Module: @stoked-ui/common-api
 
-> **Generated:** 2026-05-05 (refreshed 2026-05-21 for v0.4.0) | **Meta version:** 0.4.0 (prev: 0.3.0)
+> **Generated:** 2026-05-05 (refreshed 2026-06-06 for v0.4.0; prev refresh 2026-05-21) | **Meta version:** 0.4.0
 > **Package location:** `packages/sui-common-api`
 > **NPM name:** `@stoked-ui/common-api` (v0.1.0)
 > **Source entry:** `packages/sui-common-api/src/index.ts`
 > **Build artifacts:** `packages/sui-common-api/build/` (modern + node + stable + types)
-> **Axioms:** `packages/sui-common-api/.axioms.md`
+> **Axioms:** `packages/sui-common-api/.axioms.md` (8 active: AX-MOD-SUICOMMONAPI-001…008)
+> **Last code change:** 2026-05-22 (verified at this refresh — source matches this document)
 
 ---
 
@@ -90,9 +91,10 @@ This module renders no DOM and exposes no React components. It **materially shap
 
 | View (SC_VIEWS.md ref) | How this module shapes it |
 |---|---|
-| §19.1 Swagger UI (Media API) — `/v1/api/docs` | Every DTO in `src/dtos/upload.dto.ts` carries `@ApiProperty` decorators that surface as fields, examples, and validation hints in the Swagger operation pages for `Media` and `Uploads` tag groups. |
-| §7.2 Docs Site `/consulting/api-docs` (Swagger UI for Docs Business API) | Indirectly — admin views fetch domain entities (`Client`, `User`, `Invoice`, `License`, `Product`, `BlogPost`) whose canonical schema lives here. |
-| §5.x Admin / data-management views (`/consulting/clients`, `/users`, `/invoices`, `/licenses`, `/products`, blog admin) | The fields listed in each admin form/table mirror the `@Prop` declarations on the corresponding model class (e.g., `User.role` enum, `License.status`, `Product.licenseDurationDays`, `BlogPost.status/source/targetSites`, `Invoice.weeks/tasks`). |
+| §19.1 Swagger UI (Media API) — `/v1/api/docs` | Every DTO in `src/dtos/upload.dto.ts` carries `@ApiProperty` decorators that surface as fields, examples, and validation hints in the Swagger operation pages for the `Media` and `Uploads` tag groups. |
+| §7.2 Swagger UI (Docs Business API) — `/consulting/api-docs` | Indirectly — admin/business endpoints fetch domain entities (`Client`, `User`, `Invoice`, `License`, `Product`, `BlogPost`) whose canonical schema lives here. |
+| §5.2 Products Admin, §5.3 Clients Admin, §5.4 Users Admin, §5.5 Invoices Admin, §5.7 Blog Admin | The fields in each admin form/table mirror the `@Prop` declarations on the corresponding model class — e.g., `License.status`, `Product.licenseDurationDays`, `BlogPost.status/source/targetSites`, `Invoice.weeks/tasks`, `Client.slug` (unique). Note `User.role` is a TypeScript union only (no DB-level `enum`); the admin UI is the field's only effective constraint. (The §5.1 Admin Dashboard's nav cards — Clients/Products/Users/Invoices/Licenses/Blog/API Docs — front these entities.) |
+| §6.3 Licenses (Account / Self-Service) | License lookup / activation status views are backed by `LicenseSchema` and its 5 indexes (`license_key_unique`, `license_email_product`, sparse `license_hardware`, `license_subscription`, `license_status_expiry`). |
 | Any media list/detail view that paginates, sorts, or full-text-searches Media (showcase pages, account pages, embed surfaces) | Backed by the eight indexes declared on `MediaSchema` (text search with `title:10/tags:5/description:1`, plus compound indexes by views/author/type/price/publicity/score and a sparse index on duration). |
 | Resumable upload UI (initiate / progress / resume) | Driven by `InitiateUploadDto` validation and the `UploadSession` virtuals `progress`, `completedPartsCount`, `uploadedBytes`. |
 
@@ -116,10 +118,15 @@ This module owns no chrome of its own.
 
 ### Downstream (consumers)
 
-In-tree consumers (verified via `grep '@stoked-ui/common-api'`, excluding `build/` and lockfiles):
+In-tree consumers (verified via `grep '@stoked-ui/common-api'`, excluding `build/`, `.open-next/`, and lockfiles):
 
-- `packages/sui-media-api/src/database/database.module.ts` — registers `VideoFeature`, `ImageFeature`, `FileFeature`, `UploadSessionFeature` with `MongooseModule.forFeature(...)`. Other features (`MediaFeature`, `BlogPostFeature`, `LicenseFeature`, `ProductFeature`, `InvoiceFeature`, `ClientFeature`, `UserFeature`) are referenced by ongoing PRDs in `.stokd/projects/` for future registration.
-- `packages/sui-media-api` controllers (transitively) consume the upload DTOs and Mongoose models for upload, media, and license endpoints.
+- `packages/sui-media-api/src/database/database.module.ts` — the **only** runtime import. Registers exactly four features — `VideoFeature`, `ImageFeature`, `FileFeature`, `UploadSessionFeature` — with `MongooseModule.forFeature(...)`. The remaining exported features (`MediaFeature`, `BlogPostFeature`, `LicenseFeature`, `ProductFeature`, `InvoiceFeature`, `ClientFeature`, `UserFeature`) are exported but **not yet registered** by any in-tree service; they are referenced by ongoing PRDs in `.stokd/projects/` for future registration.
+- `packages/sui-media-api/package.json` declares the `workspace:*` dependency; its controllers (transitively) consume the upload DTOs and Mongoose models for upload, media, and license endpoints.
+- `docs/.open-next/server-functions/.../package.json` (build output) re-declares the same dependency — a packaging artifact, not a source consumer.
+
+### Parallel browser-side contract (must stay in sync)
+
+`packages/sui-common/src/interfaces/upload-types.ts` ships **plain TypeScript interfaces** named identically to this package's DTOs (`InitiateUploadDto`, etc.) for client-side use without NestJS decorators — its own header points readers here for the decorated/validated versions. The two definitions are a single wire contract split across the browser/server boundary: any change to `InitiateUploadDto` field names/optionality in `upload.dto.ts` must be mirrored in `upload-types.ts`, and vice versa. The validation *rules* (regex, min/max) live only on the server side here.
 
 There are no external/published consumers other than what `pnpm-lock.yaml` records — this is a workspace utility package today.
 
@@ -153,8 +160,10 @@ There are no external/published consumers other than what `pnpm-lock.yaml` recor
 | `src/models/product.model.ts` | Stripe product catalog. `productId` (unique), `keyPrefix`, Stripe IDs, pricing/currency, `licenseDurationDays` (365), `gracePeriodDays` (14), `trialDurationDays` (30). |
 | `src/models/invoice.model.ts` | Consulting invoice with nested `InvoiceWeek`/`InvoiceTask` subdocs. Indexes on `(customer, generatedAt)` and `(configId, generatedAt)`. |
 | `src/models/client.model.ts` | Consulting client record (name/slug/contactEmail/active). Slug is unique. |
-| `src/models/user.model.ts` | App user (email-unique, role `'admin'|'client'|'agent'`, `clientId`, `agentIds`, `aliases`, `avatarUrl`, `active`). Backs admin user-management views. |
+| `src/models/user.model.ts` | App user (email-unique, `role` typed `UserRole = 'admin'\|'client'\|'agent'`, `clientId` ref `Client`, `agentIds` ref `User`, `aliases`, `avatarUrl`, `active`, optional `passwordHash`). Backs admin user-management views. **Note:** `role` carries the TS union but **no Mongoose `enum`** — only `default: 'client'` is enforced at the DB layer; invalid roles are not rejected by the schema. |
 | `src/dtos/upload.dto.ts` (301 lines) | Multipart upload wire format, request and response. Every field carries Swagger metadata (description, example, min/max). Validation rules: filename non-empty, mimeType matches `^(video\|image)/...$`, totalSize ≥ 1, optional chunkSize within 5 MiB–100 MiB (S3 minimum), `partNumbers` array 1–50 long. |
+
+> **Internal import-extension inconsistency (cosmetic, build-safe):** the original models (`base`, `file`, `image`, `video`, `media`, `uploadSession`, plus `client`, `user`) use explicit `.js` extensions on relative imports; the newer domain models (`blogPost`, `invoice`, `license`, `product`) use **extensionless** relative imports. The Babel build pipeline tolerates both, and the public barrel (`models/index.ts`) re-exports every model with `.js`. Prefer `.js` for new files to match the majority and the barrel — this is style, not contract.
 
 ---
 
@@ -166,7 +175,7 @@ When this module changes, the following typically need validation:
 
 - **Build** — `pnpm --filter @stoked-ui/common-api build` (modern + node + stable + types). `sui-media-api` and any future API consumer use the built artifacts.
 - **Type check** — `pnpm --filter @stoked-ui/common-api typescript`.
-- **Tests** — `pnpm --filter @stoked-ui/common-api test`. **Today there are no tests** (0% coverage); see `.stokd/meta/packages/sui-common-api/SC_TEST.md` for the planned ~135 cases across 14 files.
+- **Tests** — **there is no `test` script in `package.json` and no committed test files yet** (0% coverage), so `pnpm --filter @stoked-ui/common-api test` currently *errors* (missing script) rather than running zero tests. The AX-MOD-SUICOMMONAPI-008 acceptance check (`pnpm … test`) therefore cannot pass until both a `test` script and at least one suite land. See `.stokd/meta/packages/sui-common-api/SC_TEST.md` for the planned ~135 cases across 14 files; per the global TDD axiom, any code-touching task here must add the `test` script + a failing test first.
 - **Downstream typescript / build** — at minimum `pnpm --filter @stoked-ui/media-api typescript`. A class-name change ripples to every `@InjectModel(<Class>.name)` call and Mongoose ref string.
 
 ### Risk-specific checklists

@@ -30,3 +30,13 @@ declare namespace sst {
 
 declare const $dev: boolean;
 declare const $app: { name: string; stage: string; removal: string; providers: any; protect: boolean };
+
+// Raw Pulumi AWS provider (used for low-level resources like BucketCorsConfiguration)
+declare namespace aws {
+  namespace s3 {
+    class BucketCorsConfiguration {
+      constructor(name: string, args: any);
+      readonly bucket: any;
+    }
+  }
+}

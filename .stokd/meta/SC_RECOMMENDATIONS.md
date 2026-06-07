@@ -1,13 +1,20 @@
 # Stoked UI — Recommendations
 
-> **Generated:** 2026-05-05 (fresh) | **Updated:** 2026-05-21 (0.3.0 → 0.4.0) · **Refreshed:** 2026-05-28 (timed)
+> **Generated:** 2026-05-05 (fresh) | **Updated:** 2026-05-21 (0.3.0 → 0.4.0) · **Refreshed:** 2026-05-28, **2026-06-06** (timed)
 > **Meta version:** 0.4.0
 > **Repository:** `@stoked-ui/sui` v0.1.0-alpha.5
 > **Root:** `/opt/worktrees/stoked-ui/stoked-ui-main`
 
 This document captures actionable recommendations across code quality, architecture, testing, security, and performance, derived from a read of the monorepo (manifests, build config, CI workflows, source layout, and the existing `.stokd/meta/*` documents). Items are grouped by category and tagged **P0 / P1 / P2** by recommended urgency.
 
-**2026-05-28 refresh changes:** Corrected stale testing/CI claims — `sui-media-api` now ships ~9 Jest specs (`auth.service`, `s3.service`, `uploads.service`, `uploads.controller`, `media.service`, `metadata-extraction.service`, `thumbnail-generation.service`, `health.controller`, plus `test/uploads-e2e.spec.ts`), so the "minimal coverage" claim in §3.3 was revised. The referenced `.github/workflows/test-coverage.yml` no longer exists; CI is now `ci.yml` + `ci-check.yml` (`test-dev` matrix across macOS/Windows/Ubuntu) plus new `codeql.yml` and `scorecards.yml`. Added §4.7 and §3.5 covering the audit-bot / consulting lead-gen surface (`docs/src/modules/auditBot/`), which is now substantial and untested.
+**2026-06-06 refresh changes:**
+
+- **§2.1** — Refreshed the commit sample. The top of `main` now uses informal conventional prefixes (`restore:`, `refactor:`, `fix:`), but the `shove ×4` / `derp` commits still sit a few commits back in history. Still **no `.husky/` and no `commitlint.config.*`** — the enforcement gap stands and the P0 holds.
+- **§2.2** — Corrected: the `@minh.nguyen/plugin-transform-destructuring` fork lives in the **`resolutions`** block (33 keys, still present), **not** in `pnpm.overrides` (22 keys, none referencing it). Because pnpm ignores `resolutions`, that fork override is almost certainly *not applied at all* — which strengthens the "delete `resolutions`" recommendation and means the Babel fork is either dead weight or relying on a transitive default.
+- **§3.1 / §3.3** — `packages/sui-media` now ships a real Jest suite (`MediaCard.utils.test.ts`, `MediaViewer/*`, `abstractions/{Auth,Router,Queue,Payment,KeyboardShortcuts}.test.ts`, `integration-backward-compatibility.test.ts`). The "sui-media untested" framing is retired; `MediaFile.fromUrl()` retry/backoff still appears uncovered.
+- **§3.5 / §4.7** — The audit-bot is **no longer untested**: `docs/src/modules/auditBot/tools.test.ts` (11 specs) covers the new `urlSafety.ts` SSRF guard for the `fetch_company_site` tool and the tool surface. Remaining gaps narrowed to `conversationRunner`, `save-lead`, `llmClient`, and (still-absent) rate limiting on `api/audit/turn.ts`.
+- **§8.1** — `@stoked-ui/media` has dropped to `0.1.0-alpha.5` (aligned with the root); only `@stoked-ui/media-api` remains `1.0.0`. The version-spread concern is partially resolved.
+- **CI inventory** — Now **9 workflows**: `ci.yml`, `ci-check.yml`, `codeql.yml`, `scorecards.yml`, `vale-action.yml`, `deploy-site.yml`, `publish-packages.yml`, `claude.yml`, `claude-code-review.yml`. Referenced where relevant.
 
 ---
 
@@ -17,7 +24,7 @@ This document captures actionable recommendations across code quality, architect
 
 The "media-API endpoints only" boundary (`AX-REPO-MEDIA-API-BOUNDARY`) is documented in `CLAUDE.md`, `AGENTS.md`, `.stokd/meta/SC_CONTEXT.md`, and `.stokd/meta/SC_AXIOMS.md`, but nothing structural prevents a NestJS contributor from adding `products`, `clients`, `licenses`, `invoices`, or non-media `users` controllers to `packages/sui-media-api/src/`.
 
-Concrete inspection (`packages/sui-media-api/src/`): `auth/`, `blog/`, `clients/`, `users/`, `media/`, `uploads/`, `s3/`, `health/`, `performance/`, `database/`. The `blog/`, `clients/`, and non-media `users/` modules are borderline cases that the rule says belong in `docs/pages/api/*`. Either:
+Current `packages/sui-media-api/src/` modules (verified this refresh): `auth/`, `blog/`, `clients/`, `users/`, `media/`, `uploads/`, `s3/`, `health/`, `performance/`, `database/`. The `blog/`, `clients/`, and non-media `users/` modules are the borderline cases that the rule says belong in `docs/pages/api/*`. Either:
 
 - Migrate non-media modules out of `sui-media-api` into `docs/pages/api/<domain>/*`, or
 - Update `SC_CONTEXT.md` / `SC_AXIOMS.md` to reflect the actual scope (media + identity + content) and define which submodules are sanctioned exceptions.
@@ -31,7 +38,7 @@ Then enforce structurally:
 
 ### 1.2 [P1] Decide between Turbo and NX — running both is a tax
 
-`turbo.json` orchestrates `dev`, `build`, `test`, `lint`, `typescript`. `nx.json` exists solely for the `zero-runtime` (Pigment CSS) workspace via `pnpm watch:zero` / `pnpm build:zero`. Lerna is also present (versioning only).
+`turbo.json` orchestrates `dev`, `build`, `test`, `lint`, `typescript`. `nx.json` exists solely for the `zero-runtime` (Pigment CSS) workspace via `pnpm watch:zero` / `pnpm build:zero`. `lerna.json` is also present (versioning only). All three were re-confirmed present this refresh.
 
 Three task runners is two too many:
 
@@ -57,33 +64,36 @@ Action: publish the `pkg/` output as `@stoked-ui/video-renderer-wasm` to npm (or
 
 ## 2. Code Quality
 
-### 2.1 [P0] Commit hygiene on `main`
+### 2.1 [P0] Commit hygiene and branch protection on `main`
 
-Recent commits on `main` (still live as of this refresh):
+The most recent commits adopt conventional prefixes informally, but the regression they were correcting is still right behind them in history:
 
 ```
+6145267e70 restore: auto-extract first frame from videos for thumbnails
+a1a92da872 refactor: simplify MediaCard to use video poster attribute directly
+f0015cada9 fix: use CORS-friendly video URLs for media card examples
+e54d836bef fix: add missing archiver dependency for CDN zip export
+...
 41c62c9bfe shove
 03ffcd2088 shove
 9ec7c38537 shove
 23e87134f2 derp
-bfe0b2f4fb chore: tag mongo clients for atlas attribution
-2243bdeca1 shove
 ```
 
-This is hostile to bisection, blame, and reviewers. There is **no `.husky/` directory and no `commitlint.config.*`** in the repo today. Recommend:
+The `shove ×4` / `derp` block is hostile to bisection, blame, and reviewers, and there is still **no `.husky/` directory and no `commitlint.config.*`** in the repo (verified this refresh) — the recent good subjects are convention, not enforcement. Direct pushes to `main` continue. Recommend:
 
 - Add `.husky/commit-msg` + `commitlint` and a CI lint job; adopt conventional-commits.
 - Branch protection: require PRs into `main` (no direct pushes), require a squash-merge with a meaningful title.
 - Add `commitlint.config.js` at the root and wire it into `ci.yml`.
 
-### 2.2 [P1] Reconcile dependency pin / override sprawl
+### 2.2 [P1] Reconcile dependency pin / override sprawl — the `resolutions` block is dead weight
 
-`package.json` carries a `pnpm.overrides` block (22 keys) pinning MUI 5.17.1, React 18.3.1, and security minimums for `tar`, `axios`, `multer`, `qs`, `glob`, `webpack`, `lodash`, `js-yaml`, `fast-xml-parser`, `diff`, `micromatch`. A separate **`resolutions` block still exists** and duplicates several constraints.
+`package.json` carries a `pnpm.overrides` block (**22 keys**) pinning MUI 5.17.1, React 18.3.1, and security minimums for `tar`, `axios`, `multer`, `qs`, `glob`, `webpack`, `lodash`, `js-yaml`, `fast-xml-parser`, `diff`, `micromatch`. A **separate `resolutions` block (33 keys) still exists** and duplicates several Babel/React/MUI constraints.
 
-Issues:
+Issues (corrected this refresh):
 
 - `resolutions` is yarn-style and **ignored by pnpm** (`preinstall: only-allow pnpm` rules out yarn) — dead weight. Delete it.
-- The `@babel/plugin-transform-destructuring` → `@minh.nguyen/plugin-transform-destructuring` override pins to a personal-namespace fork. Document the exact reason and pin a specific version, or remove (supply-chain risk; see §4.6).
+- The `@babel/plugin-transform-destructuring` → `npm:@minh.nguyen/plugin-transform-destructuring@^7.5.2` fork lives **only in `resolutions`**, *not* in `pnpm.overrides`. Since pnpm ignores `resolutions`, this fork override is almost certainly **not being applied** — the install is resolving stock `@babel/plugin-transform-destructuring` (or a transitive pin) instead. Either promote the fork into `pnpm.overrides` with an exact version *and document why* (supply-chain risk; see §4.6), or confirm it is no longer needed and drop it with the dead `resolutions` block.
 - Align dev/dependency declarations with the actual override so the silent winner isn't confusing.
 
 These pins are now binding invariants (`AX-REPO-MUI-REACT-PINS`); any audit must keep MUI 5.17.1 / React 18.3.1 intact unless the upgrade is run as a governed project.
@@ -114,9 +124,9 @@ The root `package.json` exposes 90+ scripts, many of them thin workspace aliases
 
 ### 3.1 [P0] Wire all packages into the CI test matrix
 
-CI today is `ci.yml` + `ci-check.yml` with a `test-dev` job across macOS/Windows/Ubuntu (the old `test-coverage.yml` is gone). The biggest immediate wins:
+CI today is `ci.yml` + `ci-check.yml` with a `test-dev` job across macOS/Windows/Ubuntu (the old `test-coverage.yml` is gone). Real Jest suites now exist in at least `sui-media-api` (§3.3) and `sui-media` (§3.3) — but there is still no aggregate `test:jest` Turbo target surfacing their coverage in CI. The biggest immediate wins:
 
-- Add a `test:jest` / `test:jest:ci` Turbo target so CI runs all packages' Jest suites in parallel. `sui-media-api` already has a real suite (see §3.3) — surface its coverage in CI.
+- Add a `test:jest` / `test:jest:ci` Turbo target so CI runs all packages' Jest suites in parallel.
 - Add Jest configs to `sui-timeline`, `sui-editor`, `sui-common-api`, `sui-github`, `sui-docs` using the canonical template in `SC_TEST.md` §6.2.
 - Set realistic coverage thresholds per package — start at the current measured number + 5%, not 80% on day one, to avoid blocking PRs.
 
@@ -131,29 +141,34 @@ The repo runs Mocha + Karma + Jest + Playwright + `nyc`. Non-controversial split
 
 Document the split in `SC_TEST.md` §3.1 and label each package's test scripts so a contributor instantly knows the runner.
 
-### 3.3 [P1 — REVISED] Critical-path coverage: media-API is now covered; client paths still thin
+### 3.3 [P1 — REVISED] Critical-path coverage: media-API + sui-media are now covered; revenue paths still thin
 
-**Corrected:** `packages/sui-media-api` ships Jest specs for `auth.service`, `s3.service`, `uploads.service`, `uploads.controller`, `media.service`, `media/metadata/metadata-extraction.service`, `media/thumbnail-generation.service`, `health.controller`, plus `test/uploads-e2e.spec.ts`. The earlier "uploads.service has minimal coverage" claim is no longer accurate — keep those green and wire them into CI (§3.1).
+**Server (covered):** `packages/sui-media-api` ships Jest specs for `auth.service`, `s3.service`, `uploads.service`, `uploads.controller`, `media.service`, `media/metadata/metadata-extraction.service`, `media/thumbnail-generation.service`, `health.controller`, plus `test/uploads-e2e.spec.ts`. Keep these green and wire them into CI (§3.1).
+
+**Client media (now covered):** `packages/sui-media` ships `components/MediaCard/__tests__/MediaCard.utils.test.ts`, `components/MediaViewer/__tests__/{MediaViewer.test.tsx, hooks.test.ts}`, `components/WebUserDirectChat/__tests__/*`, `abstractions/__tests__/{Auth,Router,Queue,Payment,KeyboardShortcuts}.test.ts`, and `__tests__/integration-backward-compatibility.test.ts`. The earlier "sui-media untested" framing is retired.
 
 Still-thin, high-value targets:
 
-- **`packages/sui-media/src/MediaFile/MediaFile.ts`** (~1000 lines) — `fromUrl()` retry/backoff behavior. Exactly the regression class the `extractVideoMetadata` `count > 0` guard fixed; no test guards it today.
-- **License store (revenue-critical):** `docs/src/modules/license/licenseStore.ts`, `licenseApiUtils.ts`, `stripeClient.ts` — **no `*.test.*` files exist** under `docs/src/modules/license/`. Cover `activate` / `validate` / `deactivate` and the Stripe webhook reconciliation path (`AX-REPO-STRIPE-LICENSE-COMMERCE`).
+- **`packages/sui-media/src/MediaFile/MediaFile.ts`** (~1000 lines) — `fromUrl()` retry/backoff behavior. Exactly the regression class the `extractVideoMetadata` `count > 0` guard fixed; no dedicated test guards `fromUrl()` today even though sibling abstractions are now covered.
+- **Poster/first-frame extraction** — the active `media-pairing-poster-detection` work (recent commits `6145267e70`, `a1a92da872`, `76a8732750`) auto-extracts a video first frame for CORS-friendly posters across `MediaCard` and the `sui-cdn` `CdnBrowser`. `MediaCard.utils.test.ts` exists; confirm it exercises the pairing/poster-selection logic (per the project's Phase-01 "pure-logic" acceptance), and add a `CdnBrowser` gallery-collapse test (Phase-02).
+- **License store (revenue-critical):** `docs/src/modules/license/{licenseStore.ts, licenseApiUtils.ts, stripeClient.ts}` — **still no `*.test.*` files exist** under `docs/src/modules/license/`. Cover `activate` / `validate` / `deactivate` and the Stripe webhook reconciliation path (`AX-REPO-STRIPE-LICENSE-COMMERCE`).
 - **Auth role determination:** `docs/src/modules/auth/` `determineRole` (auto-admin for `@*.stokd.cloud` emails) — needs domain-matching regression tests (§4.3).
 
 ### 3.4 [P2] Visual regression (Argos) integration is partially wired
 
 `pnpm test:argos` exists but there is no documented set of stories/screenshots feeding it. If Argos is being paid for, document which routes/components are captured and add an Argos CI step.
 
-### 3.5 [P1 — NEW] The audit-bot / consulting lead-gen surface has zero tests
+### 3.5 [P1 — REVISED] Audit-bot SSRF guard is now tested; the runner / persistence / LLM paths are not
 
-`docs/src/modules/auditBot/` is now a substantial subsystem — `conversationRunner.ts`, `playbooks/` (`ai-readiness`, `cloud-cost`, `security`), `channels/` (`linkedin`, `voice`, `web`), `llmClient.ts`, `tools.ts`, `deliverables.ts`, `auditStore.ts`, `notifyTelegram.ts`, `types.ts` — wired to public endpoints `docs/pages/api/audit/{turn.ts, save-lead.ts}`. **No `*.test.*` files exist anywhere under `auditBot/`.**
+`docs/src/modules/auditBot/` is a substantial subsystem — `conversationRunner.ts`, `playbooks/` (`ai-readiness`, `cloud-cost`, `security`), `channels/` (`linkedin`, `voice`, `web`), `llmClient.ts`, `tools.ts`, `urlSafety.ts`, `deliverables.ts`, `auditStore.ts`, `notifyTelegram.ts`, `types.ts` — wired to public endpoints `docs/pages/api/audit/{turn.ts, save-lead.ts}`.
 
-This is a revenue/lead-capture path; a silent regression loses leads. First targets:
+**Progress:** `auditBot/tools.test.ts` (11 specs) now covers the new `urlSafety.ts` SSRF guard (loopback / cloud-metadata / RFC-1918 / IPv6-loopback / non-http schemes / embedded-credential rejection) and the tool surface (unknown-tool error path, removed `email_report` tool no longer advertised). The "zero tests" framing is retired.
 
-- `conversationRunner` playbook state transitions (per-playbook happy path + early-exit).
-- `save-lead` persistence + dedupe (and the Telegram notify side-effect, mocked).
-- `llmClient` base-URL / model resolution from env (`AUDIT_BOT_BASE_URL`, `AUDIT_BOT_MODEL`, `AUDIT_BOT_API_KEY`) with a mocked OpenAI-compatible transport — these tests double as documentation of the LM Studio / Qwen contract.
+Still uncovered on this revenue/lead-capture path (a silent regression loses leads):
+
+- **`conversationRunner` playbook state transitions** — per-playbook happy path + early-exit; nothing tests these yet.
+- **`save-lead` persistence + dedupe** — and the Telegram notify side-effect (`notifyTelegram.ts`), mocked.
+- **`llmClient` base-URL / model resolution** from env (`AUDIT_BOT_BASE_URL`, `AUDIT_BOT_MODEL`, `AUDIT_BOT_API_KEY`) with a mocked OpenAI-compatible transport — these tests double as documentation of the LM Studio / Qwen contract.
 
 ---
 
@@ -163,14 +178,15 @@ This is a revenue/lead-capture path; a silent regression loses leads. First targ
 
 `deploy:prod` pins `AWS_PROFILE=stokd-cloud AWS_DEFAULT_PROFILE=stokd-cloud` (codified as `AX-REPO-AWS-PROFILE-STOKED`). The default AWS profile is a customer production account. Keep these explicit; additionally:
 
-- In `infra/index.ts`, add a bootstrap guard that refuses to deploy if `AWS_PROFILE` is unset or `default`.
+- In `infra/index.ts`, add a bootstrap guard that refuses to deploy if `AWS_PROFILE` is unset or `default`. Note there is now a dedicated `deploy-site.yml` workflow — make sure the guard runs there too, not only in the local script.
 - This is documented in `SC_CONTEXT.md` / `SC_AXIOMS.md` so contributors and agents see it without reading a private global file.
 
 ### 4.2 [P0→P1] Secrets scanning in CI
 
-Good news this refresh: `.env*` files **are** gitignored (`**/.env*`, `**/.env` in `.gitignore`), and `scorecards.yml` + `codeql.yml` workflows now exist. Remaining gap:
+Good news (re-confirmed): `.env*` files **are** gitignored (`**/.env*`, `**/.env` in `.gitignore`), and `scorecards.yml` + `codeql.yml` workflows are present. Remaining gap:
 
-- Add `gitleaks` (or `trufflehog`) as a dedicated CI job so accidental credential commits are blocked at PR time — CodeQL/Scorecards do not catch hard-coded secrets reliably.
+- Add `gitleaks` (or `trufflehog`) as a dedicated CI job so accidental credential commits are blocked at PR time — **still absent** (no workflow references `gitleaks`/`trufflehog`). CodeQL/Scorecards do not catch hard-coded secrets reliably.
+- The new `publish-packages.yml` and `deploy-site.yml` workflows touch npm/AWS credentials — verify they read from GitHub OIDC / encrypted secrets, never inline.
 - Confirm `infra/secrets.ts` / `infra/envVars.ts` reference SSM Parameter Store / Secrets Manager, not literals.
 
 ### 4.3 [P1] JWT and auth surfaces deserve a focused audit
@@ -196,16 +212,17 @@ The docs app embeds CodeSandbox/StackBlitz iframes. Verify `docs/next.config.mjs
 
 - Enable Dependabot or Renovate (weekly batch) instead of manual override bumps.
 - Run `pnpm audit --prod --audit-level=high` in CI; fail on high/critical.
-- The `@minh.nguyen/plugin-transform-destructuring` personal-fork override is a supply-chain risk — document the exact reason and pin an exact version (§2.2).
+- Resolve the `@minh.nguyen/plugin-transform-destructuring` personal-fork situation (§2.2): it currently sits in the pnpm-ignored `resolutions` block, so it is both a supply-chain question *and* a likely no-op. Decide explicitly — adopt it in `pnpm.overrides` with a pinned exact version and a documented reason, or remove it.
 
-### 4.7 [P1 — NEW] Lead/PII handling and outbound notifications in the audit bot
+### 4.7 [P1 — REVISED] Lead/PII handling and outbound notifications in the audit bot
 
-The audit bot ingests untrusted user input on a public `web` channel and persists leads (`save-lead.ts` → `auditStore.ts`) and notifies via Telegram (`notifyTelegram.ts`). Concerns:
+The audit bot ingests untrusted user input on a public `web` channel and persists leads (`save-lead.ts` → `auditStore.ts`) and notifies via Telegram (`notifyTelegram.ts`). Status:
 
-- **Prompt injection / untrusted content:** `conversationRunner` feeds user text to an LLM and to `tools.ts`. Treat all channel input as data, never instructions; ensure tool invocation cannot be steered by the visitor (per global guardrails).
+- **SSRF (mitigated):** the `fetch_company_site` tool now routes visitor-supplied URLs through `auditBot/urlSafety.ts`, which rejects loopback, cloud-metadata (`169.254.169.254`), RFC-1918/CGNAT/link-local, IPv6 ULA/loopback, non-http(s) schemes, and embedded credentials — and is unit-tested (`tools.test.ts`). Keep these green; ensure the **post-DNS-resolution** address is also re-checked in `tools.ts` (the helper is intentionally network-free), so a public hostname that resolves to a private IP is still blocked.
+- **Prompt injection / untrusted content:** `conversationRunner` feeds user text to an LLM and to `tools.ts`. Treat all channel input as data, never instructions; ensure tool invocation cannot be steered by the visitor (per global guardrails). No test guards this yet (§3.5).
 - **Lead data is PII** and is business-domain data — it must persist in MongoDB (`AX-REPO-MONGODB-BUSINESS-DATA`), not in any browser store, and `save-lead` should validate/sanitize before write.
 - **Outbound secrets:** the Telegram bot token and `AUDIT_BOT_API_KEY` must come from env/Secrets Manager and never be logged or echoed into a chat transcript.
-- **Rate limiting:** `docs/pages/api/audit/turn.ts` is an unauthenticated public endpoint that proxies an LLM — add per-IP rate limiting and a max-tokens guard to prevent cost-amplification abuse.
+- **Rate limiting (still missing):** `docs/pages/api/audit/turn.ts` (111 lines) is an unauthenticated public endpoint that proxies an LLM and has **no rate-limit/throttle reference**. Add per-IP rate limiting and a max-tokens guard to prevent cost-amplification abuse.
 
 ---
 
@@ -264,7 +281,7 @@ All 11 packages have both files. The old top-level `SC_MODULE_SUI_*.md` files ar
 
 ### 6.2 [P1] Per-package READMEs are missing or thin
 
-`packages/sui-common/`, `packages/sui-cdn/`, `packages/sui-github/` lack a one-page README covering: what the package does/doesn't do, public exports (per the single-barrel contract `AX-REPO-PACKAGE-BARREL`), peer-dep contract + example consumer code, and a link to its `SC_MODULES.md` row. The docs site serves end-users; npm browsers see only `README.md`.
+`packages/sui-cdn/README.md` now exists (added with the CDN zip-export work). Remaining gaps: `packages/sui-common/` and `packages/sui-github/` lack a one-page README covering: what the package does/doesn't do, public exports (per the single-barrel contract `AX-REPO-PACKAGE-BARREL`), peer-dep contract + example consumer code, and a link to its `SC_MODULES.md` row. The docs site serves end-users; npm browsers see only `README.md`.
 
 ### 6.3 [P2] CONTRIBUTING.md should reference port 5199 and the WASM build
 
@@ -288,22 +305,23 @@ A `pnpm setup` / `bin/bootstrap` that: verifies pnpm 10.5.1+, Node, Rust toolcha
 
 ### 7.3 [P2] CI feedback loop
 
-`.github/workflows/{ci.yml, ci-check.yml}` are the gating jobs (cross-OS `test-dev`). Recommend:
+`.github/workflows/{ci.yml, ci-check.yml}` are the gating jobs (cross-OS `test-dev`); `claude.yml` and `claude-code-review.yml` add agent-assisted review. Recommend:
 
 - Split lint + typecheck + unit + e2e into parallel jobs and enable Turbo remote cache (`TURBO_TOKEN`) for near-instant repeat builds.
 - Add a `concurrency:` group keyed on PR ref so duplicate runs auto-cancel.
+- The `claude-code-review.yml` workflow is review-only — do not let it substitute for the unit/e2e gates above; keep both.
 
 ---
 
 ## 8. Release & Operations
 
-### 8.1 [P1] Versioning split: alpha root, stable packages
+### 8.1 [P1 — UPDATED] Versioning split is converging but still mixed
 
-`@stoked-ui/sui` is `0.1.0-alpha.5` (root, private) while `@stoked-ui/media` / `@stoked-ui/media-api` are `1.0.0` and `@stoked-ui/timeline` is `0.1.3`. Independent versioning is fine, but the spread signals confidence inconsistently. Decide whether media packages are genuinely 1.x-stable; if not, drop to 0.x before downstream consumers pin to 1. Document the stability promise per package in each README and `SC_MODULES.md`.
+Current versions: `@stoked-ui/sui` `0.1.0-alpha.5` (root, private), `@stoked-ui/media` **`0.1.0-alpha.5`** (dropped from 1.0.0 — now aligned with the root), `@stoked-ui/editor` `0.1.2`, `@stoked-ui/timeline` `0.1.3`, while `@stoked-ui/media-api` is still **`1.0.0`**. The media package realigning to 0.x is the right move; `media-api` at 1.0.0 alone now looks anomalous. Decide whether `media-api` is genuinely 1.x-stable; if not, drop it to 0.x before downstream consumers pin to 1. Document the stability promise per package in each README and `SC_MODULES.md`.
 
 ### 8.2 [P2] SST stage isolation
 
-`pnpm deploy:prod` deploys to `--stage production`. Confirm a `staging` stage and a documented `pnpm deploy:stage staging` pre-prod gate exists; today only `deploy:local` and `deploy:prod` are clear.
+`pnpm deploy:prod` deploys to `--stage production` (and there is now a `deploy-site.yml` workflow). Confirm a `staging` stage and a documented `pnpm deploy:stage staging` pre-prod gate exists; today only `deploy:local` and `deploy:prod` are clear. Also clean up the vestigial `sst@^3.6.19` pin in `docs/package.json` (root deploys with SST v4.2.0; the v3 docs pin does not drive deploys — see `SC_OVERVIEW.md` §4).
 
 ---
 
@@ -311,13 +329,13 @@ A `pnpm setup` / `bin/bootstrap` that: verifies pnpm 10.5.1+, Node, Rust toolcha
 
 Ordered by ROI:
 
-1. Add `commitlint` + `.husky/commit-msg` + branch protection on `main` (P0, §2.1) — last six subjects are `shove ×4`, `derp`, one real `chore:`. Still live.
-2. Add `gitleaks` to CI alongside the now-present CodeQL/Scorecards (P0→P1, §4.2).
-3. Wire `sui-media-api`'s existing Jest suite into a CI coverage gate, then add Jest configs to `sui-timeline`/`sui-editor`/`sui-common-api`/`sui-github`/`sui-docs` (P0/P1, §3.1, §3.3).
-4. Write the first audit-bot tests (`conversationRunner`, `save-lead`, `llmClient`) and add rate-limiting to `api/audit/turn.ts` (P1, §3.5, §4.7).
-5. Delete the dead `resolutions` block and document/pin the `@minh.nguyen` Babel fork (P1, §2.2).
+1. Add `commitlint` + `.husky/commit-msg` + branch protection on `main` (P0, §2.1) — `shove ×4` / `derp` still in recent history; still no husky/commitlint.
+2. Add `gitleaks` to CI alongside the present CodeQL/Scorecards (P0→P1, §4.2) — still absent.
+3. Add a `test:jest` Turbo coverage gate surfacing the existing `sui-media-api` and `sui-media` suites, then add Jest configs to `sui-timeline`/`sui-editor`/`sui-common-api`/`sui-github`/`sui-docs` (P0/P1, §3.1, §3.3).
+4. Write the next audit-bot tests (`conversationRunner`, `save-lead`, `llmClient`) — the SSRF guard is already tested — and add rate-limiting to `api/audit/turn.ts` (P1, §3.5, §4.7).
+5. Delete the dead `resolutions` block and resolve the pnpm-ignored `@minh.nguyen` Babel fork (adopt-and-pin in `pnpm.overrides`, or remove) (P1, §2.2, §4.6).
 6. Resolve the `@stoked-ui/video-renderer-wasm` publication strategy or label editor monorepo-only; fix the WASM size-gate filename to `wasm_preview_bg.wasm` (P1, §1.4, §5.1).
-7. Add a bootstrap AWS-profile guard in `infra/index.ts` (P0, §4.1).
+7. Add a bootstrap AWS-profile guard in `infra/index.ts` and the `deploy-site.yml` workflow (P0, §4.1).
 8. Add license-store tests (`activate`/`validate`/`deactivate` + webhook path) (P1, §3.3, §4.4).
 
 ---
@@ -332,4 +350,5 @@ Ordered by ROI:
 - Test plan (aggregate): `.stokd/meta/SC_TEST.md`
 - Views and screens: `.stokd/meta/SC_VIEWS.md`
 - User flows: `.stokd/meta/SC_FLOWS.md`
+- Active governed project: `.stokd/projects/media-pairing-poster-detection/` (PRD + 5 phase plans)
 - Guardrails: `.stokd/meta/SC_CONTEXT.md`, `CLAUDE.md`, `AGENTS.md`

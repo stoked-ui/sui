@@ -1,6 +1,6 @@
 # Module: @stoked-ui/docs
 
-> **Generated:** 2026-05-05 (fresh) | **Updated:** 2026-05-21 (upgrade 0.3.0 → 0.4.0) | **Meta version:** 0.4.0
+> **Generated:** 2026-05-05 (fresh) | **Updated:** 2026-06-06 (timed refresh; verified exports, Next.js coupling, `DocsConfig` shape, consumer counts) | **Meta version:** 0.4.0
 > **Package location:** `packages/sui-docs`
 > **NPM name:** `@stoked-ui/docs` (v0.1.21)
 > **Source entry:** `packages/sui-docs/src/index.ts` (declared in `package.json#main` as `./src/index.js`; resolved as `.ts` via the build pipeline / TS path mapping)
@@ -77,7 +77,7 @@ There are **no NestJS controllers, no CLI commands, and no runtime daemons** —
 
 This module is consumed by the single product documented in this repo:
 
-- **SC_PRODUCT_STOKED_UI_SUI.md** — `@stoked-ui/sui`. Every public-facing surface in the `docs/` Next.js site uses `@stoked-ui/docs` for theming, MDX rendering, demos, and i18n. No other published `@stoked-ui/*` package depends on it (it is `devDependency`-only inside other packages); only the docs app imports it as a runtime dependency. A grep across `docs/src/**/*.{ts,tsx,js}` shows ~111 files importing from `@stoked-ui/docs` or its subpaths.
+- **SC_PRODUCT_STOKED_UI_SUI.md** — `@stoked-ui/sui`. Every public-facing surface in the `docs/` Next.js site uses `@stoked-ui/docs` for theming, MDX rendering, demos, and i18n. No other published `@stoked-ui/*` package depends on it (it is `devDependency`-only inside other packages); only the docs app imports it as a runtime dependency. A grep for `from '@stoked-ui/docs'` (and its subpaths) shows **111 files** under `docs/src/**` and **46 files** under `docs/pages/**` (157 total) importing the package.
 
 ---
 
@@ -114,7 +114,7 @@ This module **materially shapes** every view documented in `SC_VIEWS.md` §1 (pu
 
 | Dependency | Where used | Contract |
 |---|---|---|
-| `next` (^13.5.1 \|\| ^14, peer) | `BrandingCssVarsProvider`, `Link`, `codeVariant`, `codeStylingSolution`, `MarkdownElement` | `useRouter`, `next/link`, `router.events`. Components are **Next.js-coupled** and not directly usable in non-Next consumers. |
+| `next` (^13.5.1 \|\| ^14, peer) | `BrandingCssVarsProvider.tsx`, `BrandingCssVarsProvider/MarkdownLinks.js`, `Link.tsx`, `components/DemoToolbar.tsx`, `components/CodeCopy.tsx` (these are the only files that actually `import … from 'next/router'` / `'next/link'`) | `useRouter`, `next/link`, `Router` route events. These components are **Next.js-coupled** and not directly usable in non-Next consumers. Note: `codeVariant.tsx` / `codeStylingSolution.tsx` / `MarkdownElement.tsx` read `window.location.hash` directly and do **not** import `next/router`. |
 | `react` 18.3.1 (peer) | All hooks/components | Hooks API; SSR-safe wrappers (e.g. `useNoSsrCodeVariant`) provided where needed. |
 | `@mui/material`, `@mui/material/styles`, `@mui/icons-material`, `@mui/system`, `@mui/base` (peer) | `BrandingCssVarsProvider` (`Experimental_CssVarsProvider`, `extendTheme`), `MarkdownElement`, `InfoCard`, `Link`, `DemoToolbar`, etc. | Theme/CSS-vars contract — every consumer is wrapped in the docs theme. |
 | `@mui/utils` (peer transitively) | `BrandingCssVarsProvider` (`deepmerge`), `i18n` (`deepmerge`) | Pure utilities. |
@@ -136,7 +136,7 @@ This module **materially shapes** every view documented in `SC_VIEWS.md` §1 (pu
 
 1. **Top-level barrel + subpath exports** — both must continue to resolve. The flat per-component publish layout (e.g. `@stoked-ui/docs/Demo`) is contractual; the `build:copy-files` step in `package.json` is what creates them, and removing entries breaks subpath imports in `docs/`.
 2. **`BrandingCssVarsProvider` is the canonical theme provider** — `cssVarPrefix: 'muidocs'` is referenced by inline CSS in `docs/` and `MarkdownElement` (`var(--muidocs-palette-*)`). Renaming the prefix is a site-wide visual break.
-3. **`DocsProvider` config shape** — `LANGUAGES`, `LANGUAGES_SSR`, `LANGUAGES_IN_PROGRESS`, `LANGUAGES_IGNORE_PAGES(pathname)` are read by `Link`, `pathnameToLanguage`, and the docs site's `_app`. Adding required fields is a breaking change.
+3. **`DocsProvider` config shape** — `DocsConfig` has exactly four fields: `LANGUAGES: string[]`, `LANGUAGES_SSR: string[]`, `LANGUAGES_IN_PROGRESS: string[]`, `LANGUAGES_IGNORE_PAGES(pathname): boolean` (verified in `DocsProvider.tsx` lines 4–9 — there is **no** `productIdentifier` field on `DocsConfig`; the docs app keeps `productIdentifier` in its own `_app.js` config, separately). These are read by `Link`, `pathnameToLanguage`, and the docs site's `_app`. Adding required fields is a breaking change.
 4. **`useDocsConfig` throws outside `DocsProvider`** — consumers (notably `Link`) rely on this. Tests in `SC_TEST.md` §1.5 enforce it.
 5. **`CodeVariantProvider` / `CodeStylingProvider` precedence** — initial value comes from URL hash, then cookie, then default (`'TS'` / `'SUI System'`). Changing precedence flips the demo language for everyone.
 6. **`SandboxDependencies` `window.muiDocConfig` hook surface** — the site can override `csbIncludePeerDependencies`, `csbGetVersions`, `postProcessImport`. Removing or renaming any hook breaks `docs/` integration with experimental dependency overrides.
@@ -150,7 +150,7 @@ This module **materially shapes** every view documented in `SC_VIEWS.md` §1 (pu
 
 | File | Lines | Why it matters |
 |---|---|---|
-| `src/index.ts` | 13 | Barrel — every public export flows here. |
+| `src/index.ts` | 12 | Barrel — every public export flows here. |
 | `src/components/index.ts` | 35 | Components barrel — adding/removing here flips package surface. |
 | `src/components/MarkdownElement.tsx` | 824 | Massive CSS-in-JS skin for every MDX element. Drives prose, code-block, table, callout, anchor styles. |
 | `src/components/DemoToolbar.tsx` | 748 | Demo toolbar: edit/copy/sandbox/share/codestyling/codevariant pickers, GA ads, MUI menus. |
@@ -178,13 +178,13 @@ This module **materially shapes** every view documented in `SC_VIEWS.md` §1 (pu
 | `src/components/useLazyCSS.tsx` | 17 | `fg-loadcss` wrapper for icon-font lazy loading. |
 | `src/components/stylingSolutionMapping.ts` | 9 | Static map from `CODE_STYLING` constant → URL hash slug. |
 | `src/components/constants.js` | — | `CODE_VARIANTS`, `CODE_STYLING`, `LANGUAGES_LABEL`, `GA_ADS_DISPLAY_RATIO`. |
-| `src/utils.tsx` | 145 | `useClipboardCopy`, `pathnameToLanguage`, `pageToTitle`, `pageToTitleI18n`, `getCookie`. |
+| `src/utils.tsx` | 144 | `useClipboardCopy`, `pathnameToLanguage`, `pageToTitle`, `pageToTitleI18n`, `getCookie`. |
 | `src/i18n/i18n.tsx` | ~140 | `UserLanguageProvider`, `TranslationsProvider` (deepmerge), `useUserLanguage`, `useSetUserLanguage`, `useTranslate` (dot-path lookup, English fallback, missing-key warn), `mapTranslations`. |
 | `src/branding/brandingTheme.ts` | ~1290 | All design tokens + themed components. `getDesignTokens(mode)`, `getThemedComponents()`, `brandingLightTheme`, `brandingDarkTheme`, color scales (`blue`, `blueDark`, `grey`, `error`, `success`, `warning`). |
 | `src/branding/BrandingProvider.tsx` | 21 | Legacy nested theme switch (light/dark) for in-page islands. |
-| `src/BrandingCssVarsProvider/BrandingCssVarsProvider.tsx` | 108 | Canonical theme + `NextNProgressBar` + `CssBaseline` + `SkipLink` + `MarkdownLinks`; hard-codes `cssVarPrefix: 'muidocs'`. |
+| `src/BrandingCssVarsProvider/BrandingCssVarsProvider.tsx` | 107 | Canonical theme + `NextNProgressBar` + `CssBaseline` + `SkipLink` + `MarkdownLinks`; hard-codes `cssVarPrefix: 'muidocs'` (line 66) and imports `useRouter` from `next/router`. |
 | `src/BrandingCssVarsProvider/SkipLink.tsx`, `MarkdownLinks.tsx` | — | A11y skip link + anchor copy-on-hover. |
-| `src/DocsProvider/DocsProvider.tsx` | 44 | `DocsConfigContext` + composition with `UserLanguageProvider`. |
+| `src/DocsProvider/DocsProvider.tsx` | 43 | `DocsConfigContext` + composition with `UserLanguageProvider`; `useDocsConfig` throws outside a provider (lines 35–42). |
 | `src/InfoCard/InfoCard.tsx` | — | `InfoCard` + `GlowingIconContainer`. |
 | `src/Link/Link.tsx` | ~140 | `NextLinkComposed` + branded `Link` component; consumes `useUserLanguage` + `useDocsConfig` to prefix language. |
 | `src/NProgressBar/NProgressBar.js` (default export of package) | — | Standalone nprogress styles + initialization. |
@@ -202,7 +202,7 @@ When this module changes, the following typically need validation:
 ### Always validate
 
 - **Build** — `pnpm --filter @stoked-ui/docs build` (legacy + node + stable + types + copy-files + `postbuild` → `copyTranslations.sh`). The flat per-component layout under `build/` and the package root is what `@stoked-ui/docs/<Component>` subpaths resolve to.
-- **Type check** — `pnpm --filter @stoked-ui/docs typescript` (and propagate to `docs/` since it imports `@stoked-ui/docs` types extensively).
+- **Type check** — `npx tsc --noEmit -p packages/sui-docs/tsconfig.json` (project-isolated; `sui-docs` has **no** standalone `typescript` package script, so `pnpm --filter @stoked-ui/docs typescript` errors with "None of the selected packages has a typescript script"). `build:types` (`tsc -b tsconfig.build.json`) also type-checks but pulls in the editor/file-explorer/timeline/media project references. Propagate to `docs/` too, since it imports `@stoked-ui/docs` types extensively.
 - **Tests** — `pnpm --filter @stoked-ui/docs test`. Today the script is `exit 0`; see `.stokd/meta/packages/sui-docs/SC_TEST.md` for the recommended Jest plan (Phases 1–4, ~77 tests targeting 70% coverage).
 - **Docs site smoke test** — `pnpm docs:dev` (port **5199**). Render the home, a marketing page, an MDX docs page, a demo with sandbox launchers, and a page in a non-default language to exercise the i18n path.
 
@@ -210,7 +210,7 @@ When this module changes, the following typically need validation:
 
 | Change | What to validate |
 |---|---|
-| Edit `src/index.ts` or `src/components/index.ts` | Every page in `docs/` imports something here — run `pnpm docs:typecheck` (or `pnpm tsc --noEmit` in `docs/`) and `pnpm docs:dev` to catch missing-export errors. Also confirm `package.json#exports` and the corresponding `build:copy-files` entries are still in sync. |
+| Edit `src/index.ts` or `src/components/index.ts` | Every page in `docs/` imports something here — run `pnpm --filter stokedui-com typescript` (the docs app's `tsc` check) and `pnpm docs:dev` to catch missing-export errors. Also confirm `package.json#exports` and the corresponding `build:copy-files` entries are still in sync. |
 | Add a new component | (1) add the file under `src/components/`; (2) export from `src/components/index.ts`; (3) add a top-level subpath in `package.json#exports`; (4) extend `build:copy-files` to ship the flat directory; (5) verify in `docs/` after a fresh build. |
 | Edit `BrandingCssVarsProvider` or theme tokens | The whole docs site re-themes. Check both light and dark, with `system` color scheme. Verify `NextNProgressBar`, `SkipLink`, `MarkdownLinks` still mount. `cssVarPrefix: 'muidocs'` must remain stable or every `var(--muidocs-...)` reference in MDX/CSS breaks. |
 | Edit `MarkdownElement` styles | Visual regression risk on every MDX page. Cross-check headings, code blocks, callouts, tables, image captions, link hover anchors in `docs/pages/{stoked-ui,editor,timeline,file-explorer,media,github}/docs/**`. |

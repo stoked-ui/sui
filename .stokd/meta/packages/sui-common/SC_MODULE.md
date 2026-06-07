@@ -1,6 +1,6 @@
 # Module: @stoked-ui/common
 
-> **Generated:** 2026-05-05 · **Last upgraded:** 2026-05-21 · **Meta version:** 0.4.0 (prev 0.3.0)
+> **Generated:** 2026-05-05 · **Last upgraded:** 2026-05-21 · **Last refreshed:** 2026-06-06 (timed) · **Meta version:** 0.4.0
 > **Package location:** `packages/sui-common`
 > **NPM name:** `@stoked-ui/common` (v0.1.2)
 > **Source entry:** `packages/sui-common/src/index.tsx`
@@ -57,6 +57,10 @@ export * from './UserMenu';          // UserMenu component + types
 | Resize hooks | `useResize`, `useResizeWindow` | `src/useResize/useResize.tsx`, `src/useResizeWindow/useResizeWindow.tsx` |
 
 There are **no NestJS controllers, no CLI commands, and no providers/contexts**. The package is library code only.
+
+### Present but not yet exported
+
+- `src/Dialog/Dialog.types.ts` — type-only module declaring `ConfirmOptions`, `PromptOptions`, `ConfirmDialogProps`, `PromptDialogProps`, `ConfirmFn`, `PromptFn`, and `DialogContextValue` for a future shared confirm/prompt dialog context. As of 2026-06-06 it is **not re-exported from `src/index.tsx`** and has no in-repo consumers (only self-references). It is staged surface, not yet part of the public contract — wiring it into `index.tsx` is a governed contract change (AX-MOD-SUICOMMON-001).
 
 ---
 
@@ -122,7 +126,7 @@ In-tree consumers verified by `import` statements (excluding `build/` artifacts)
 3. **`createProviderState` flag/trigger model**: Editor and Timeline providers depend on `enableFlags`/`disableFlags`/`toggleFlags` and the `addTriggers`/`removeTriggers` cascade.
 4. **`LocalDb` static state**: callers depend on `LocalDb.init()` being idempotent and on `LocalDb.disabled` short-circuiting all I/O. Persistent in-memory state is intentional.
 5. **`MimeRegistry` static maps**: `MimeRegistry.exts`, `.names`, `.subtypes`, `.types` are global registries. `SUIMime.getInstance()` lazily seeds standard types (png/mp4/mp3) once.
-6. **`Array.prototype.mergeWith`** is installed as a global side effect when any code imports `Types/mergeWith.ts`. Removing or renaming it is a breaking change for every consumer that uses `arr.mergeWith(...)`.
+6. **`Array.prototype.mergeWith`** is installed as a global side effect when any code imports `Types/mergeWith.ts`. As of 2026-06-06 there are **no `.mergeWith(...)` call sites in `src`** across the monorepo, but the prototype patch still ships on import, so removing or renaming it remains a breaking change for any external/runtime consumer that relies on it. Treat it as a published global contract, not dead code.
 7. **Client-safe interfaces**: files in `src/interfaces/` must remain free of NestJS, Node, or React dependencies because `sui-common-api` re-exports them.
 
 ---
@@ -132,13 +136,13 @@ In-tree consumers verified by `import` statements (excluding `build/` artifacts)
 | File | Lines | Why it matters |
 |---|---|---|
 | `src/index.tsx` | ~25 | The public surface contract. Adding/removing here changes the package's API. |
-| `src/ProviderState/ProviderState.ts` | 136 | `createProviderState()` factory — flag state + trigger cascade used by Editor/Timeline providers. Contains the well-known `checkTriggers` closure quirk: object-shaped triggers write to the raw `settings` parameter, bypassing the `createSettings` Proxy. |
+| `src/ProviderState/ProviderState.ts` | 153 | `createProviderState()` factory — flag state + trigger cascade used by Editor/Timeline providers. Contains the well-known `checkTriggers` closure quirk: object-shaped triggers write to the raw `settings` parameter (lines 110-112, 125-126), bypassing the `createSettings` Proxy. `removeFlags` throws `Flag "<name>" does not exist.` for unknown flags. |
 | `src/ProviderState/Settings.ts` | 48 | `createSettings()` Proxy — dot-path get/set with autovivified intermediate objects. Behavior is depended on by `EditorFile`/`media.metadata`. |
-| `src/LocalDb/LocalDb.ts` | 546 | Static `LocalDb` class wrapping IndexedDB via `@tempfix/idb`. Owns project save/load, version history, and per-project video appendage. Browser-only — must be guarded under SSR. |
+| `src/LocalDb/LocalDb.ts` | 557 | Static `LocalDb` class wrapping IndexedDB via `@tempfix/idb`. Owns project save/load, version history, and per-project video appendage. Browser-only — must be guarded under SSR. |
 | `src/LocalDb/VideoDb.tsx` | 104 | React hook layer over `LocalDb` for video records. Used by editor screenshot/recording flows. |
 | `src/MimeType/IMimeType.ts` | 103 | `MimeRegistry` static class + `IMimeType` shape + `getExtension(url)` URL-parsing helper. |
-| `src/MimeType/StokedUiMime.ts` | 34 | `SUIMime` singleton seeding standard MIME types and providing `make(application, ext, description, embedded)`. |
-| `src/MimeType/MimeType.ts` | 1206 | Static MIME data map (extension → metadata). Treated as data; not unit-tested beyond spot checks. |
+| `src/MimeType/StokedUiMime.ts` | 45 | `SUIMime` singleton seeding standard MIME types and providing `make(application, ext, description, embedded)`. |
+| `src/MimeType/MimeType.ts` | 1209 | Static MIME data map (extension → metadata). Treated as data; not unit-tested beyond spot checks. |
 | `src/FetchBackoff/FetchBackoff.ts` | 56 | Exponential-backoff fetch wrapper. Defaults: 3 retries, factor 2, 500 ms initial delay. Used for resilient API calls. |
 | `src/Colors/colors.ts` | 61 | `compositeColors(base, overlay)` — alpha compositing via MUI color helpers. |
 | `src/Types/Types.ts` | 101 | `SortedList<T>` (binary-insert sorted Array subclass), `setProperty` (defineProperty wrapper), constructor type aliases. |
@@ -146,13 +150,14 @@ In-tree consumers verified by `import` statements (excluding `build/` artifacts)
 | `src/Ids/namedId/namedId.ts` | 37 | `namedId(props?)` returns `prefix-id-suffix-<hex>`. Used everywhere for stable React keys / DOM IDs. |
 | `src/Ids/useIncId/useIncId.ts` | 62 | Deterministic auto-incrementing ID hook for SSR-safe rendering. |
 | `src/UserMenu/UserMenu.tsx` | 122 | MUI Avatar + dropdown shared chrome. Each menu item is opt-in via prop. |
-| `src/SocialLinks/SocialLinks.tsx`, `SocialLinkField.tsx`, `platformRegistry.ts` | ~ | Controlled/uncontrolled list/editor for social platform URLs. |
+| `src/SocialLinks/SocialLinks.tsx` (95), `SocialLinkField.tsx` (51), `platformRegistry.ts` (123) | ~269 | Controlled/uncontrolled list/editor for social platform URLs. The only test-covered surface in the package: 52 Jest cases across `__tests__/SocialLinks.test.tsx` (14), `SocialLinkField.test.tsx` (18), `platformRegistry.test.ts` (20) — `it.each` parameterization expands the case count well beyond the literal `it()` blocks. |
 | `src/GrokLoader/GrokLoader.tsx` | 140 | Framer-motion animated loader. |
 | `src/useResize/useResize.tsx` | 31 | Element-or-window dimensions hook. |
 | `src/useResizeWindow/useResizeWindow.tsx` | 29 | Window-only dimensions hook. **Known bug:** calls `useState` after a conditional early return — violates rules of hooks under SSR. |
 | `src/interfaces/publicity.ts` | 54 | `PUBLICITY_TYPES`, admin-only and "all filter" subsets, type guards. Re-exported by API packages. |
 | `src/interfaces/embed-visibility.ts` | 42 | Embed-visibility constants and guards. |
-| `src/interfaces/upload-types.ts` | — | Shared upload DTO types. |
+| `src/interfaces/upload-types.ts` | 201 | Shared upload DTO types/constants (NestJS-free, React-free). Re-exported by `sui-common-api`/`sui-media-api`. |
+| `src/Dialog/Dialog.types.ts` | 43 | Type-only confirm/prompt dialog contract. **Not exported** from `index.tsx` yet — staged surface (see §2). |
 
 ---
 
@@ -164,7 +169,7 @@ When this module changes, the following typically need validation:
 
 - **Build** — `pnpm --filter @stoked-ui/common build` (modern + node + stable + types). Other packages consume the built `build/` directory in production.
 - **Type check** — `pnpm --filter @stoked-ui/common typescript`.
-- **Tests** — `pnpm --filter @stoked-ui/common test`. See `.stokd/meta/packages/sui-common/SC_TEST.md` for the full test plan; today only `SocialLinks` has tests.
+- **Tests** — `pnpm --filter @stoked-ui/common test` (Jest, jsdom). See `.stokd/meta/packages/sui-common/SC_TEST.md` for the full test plan; today the only covered surface is `SocialLinks` (52 cases / 3 suites, last run 2026-06-06: all green). The rest of the package — `ProviderState`, `LocalDb`, `MimeType`, `FetchBackoff`, `Types`, `Ids`, the hooks — has no unit coverage, so changes there rely on downstream typecheck + manual smoke.
 - **Downstream typescript** — every consumer in §5 transitively imports types here. A signature change ripples to `sui-editor`, `sui-timeline`, `sui-file-explorer`, `sui-media`, `sui-common-api`, `sui-media-api`, and the `docs/` site.
 
 ### Risk-specific checklists

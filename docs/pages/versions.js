@@ -22,18 +22,30 @@ function formatVersion(version) {
 }
 
 async function getBranches() {
-  const result = await fetch('https://api.github.com/repos/stoked-ui/sui/branches', {
-    headers: {
-      Authorization: process.env.GH_AUTH,
-    },
-  });
-  const text = await result.text();
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000); // 8s timeout so one slow GitHub call never bricks a deploy
 
-  if (result.status !== 200) {
-    throw new Error(text);
+  try {
+    const result = await fetch('https://api.github.com/repos/stoked-ui/sui/branches', {
+      headers: {
+        Authorization: process.env.GH_AUTH,
+      },
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+
+    if (result.status !== 200) {
+      console.warn(`[versions] GitHub branches fetch failed with ${result.status}, falling back`);
+      return [];
+    }
+
+    const text = await result.text();
+    return JSON.parse(text);
+  } catch (err) {
+    clearTimeout(timeout);
+    console.warn('[versions] GitHub branches fetch error (non-fatal):', err.message || err);
+    return []; // graceful fallback so production builds never hang on this
   }
-
-  return JSON.parse(text);
 }
 
 export const getStaticProps = async () => {

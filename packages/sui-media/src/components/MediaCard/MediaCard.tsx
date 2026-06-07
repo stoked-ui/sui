@@ -179,7 +179,7 @@ export const MediaCard: React.FC<MediaCardProps> = ({
     if (video.readyState >= 2) {
       extractFrame();
     } else {
-      video.addEventListener('loadedmetadata', extractFrame, { once: true });
+      video.addEventListener('loadeddata', extractFrame, { once: true });
     }
   }, [canPreviewVideo, thumbnailUrl, generatedPoster]);
   const mediaTitle = item.title || 'Untitled';
@@ -502,11 +502,12 @@ export const MediaCard: React.FC<MediaCardProps> = ({
             ref={videoRef}
             src={mediaUrl}
             poster={thumbnailUrl}
+            crossOrigin="anonymous"
             muted
             playsInline
             loop={!isInlinePlaying}
             controls={isInlinePlaying}
-            preload="metadata"
+            preload="auto"
             onTimeUpdate={handleTimeUpdate}
             onEnded={() => setIsInlinePlaying(false)}
             style={{

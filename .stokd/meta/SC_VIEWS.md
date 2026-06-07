@@ -1,6 +1,6 @@
 # Stoked UI — View Classification
 
-> **Generated:** 2026-05-21 (upgrade 0.3.0 → 0.4.0) | **Meta version:** 0.4.0
+> **Generated:** 2026-05-21 (upgrade 0.3.0 → 0.4.0) | **Refreshed:** 2026-06-06 | **Meta version:** 0.4.0
 > **Repository:** `@stoked-ui/sui`
 > **Root:** `/opt/worktrees/stoked-ui/stoked-ui-main`
 
@@ -33,6 +33,8 @@ The view inventory is grouped by surface:
 20. Standalone product surfaces (Mac Mixer, Focus Capture, Media Selector, Always Listening, Stokd Cloud, Common)
 21. Consulting service-line pages (AI, Back-End, Front-End, DevOps)
 22. Video Renderer docs site
+23. Company / Contact
+24. Consulting Audit Bot — AI/cloud/security audit chat widget (`docs/src/modules/auditBot`)
 
 ---
 
@@ -43,13 +45,13 @@ All routes resolve from `docs/pages/`. Shared chrome: `AppHeader` (`docs/src/lay
 ### 1.1 Home Page
 
 - **Products:** SC_PRODUCT_STOKED_UI_SUI.md
-- **Location:** `docs/pages/index.tsx`, `docs/src/components/home/HomeView.tsx`, `docs/src/components/home/RandomHome.tsx`
+- **Location:** `docs/pages/index.tsx` (builds the random hero inline via `dynamic(() => import('./<homeChoice>/main'))`), `docs/src/components/showcase/RandomHome.tsx`, `docs/src/components/showcase/EditorHero.tsx`
 - **Regions:**
   | Zone | Component |
   |------|-----------|
   | Banner | `AppHeaderBanner` |
   | Header | `AppHeader` (logo, product menu, search, theme toggle, auth menu) |
-  | Hero | `RandomHome` (dynamic, SSR-disabled — picks one of: `HeroEditor`, `HeroTimeline`, `HeroFileExplorer`, `HeroFlux`, `HeroStokedUi`, `HeroFocusCapture`, `HeroMediaSelector`, `HeroCore`, `HeroMain`/`HeroEnd`, rusty-editor demo) |
+  | Hero | random hero (dynamic, SSR-disabled — picks one of the per-product `main` pages: `HeroEditor`, `HeroTimeline`, `HeroFileExplorer`, `HeroFlux`, `HeroStokedUi`, `HeroFocusCapture`, `HeroMediaSelector`, `HeroCore`, `HeroMain`/`HeroEnd`, or the `rusty-editor` `MainView` demo) |
   | Newsletter | `NewsletterToast` (NoSsr) |
   | Footer | `AppFooter` |
 - **States:** initial-load (random hero selection), checkout-success (`?checkout=success` query), product-switched, mobile-swipe (`SwipeableViews`)
@@ -718,8 +720,9 @@ Service-offering landing pages, one per practice area. Linked from `/consulting/
 - **Products:** SC_PRODUCT_STOKED_UI_SUI.md
 - **Location:** `docs/pages/consulting/<service>/index.js` + `docs/pages/consulting/<service>/main.tsx`
 - **Services:** `ai`, `back-end`, `front-end`, `devops`
-- **Regions:** AppHeader · `HeroContainer` (gradient title via `GradientText`) · `Section` · `Grid` of `ServiceCard` items (icon · service title · `CardContent` description) · `Divider` · AppFooter
+- **Regions:** AppHeader · `HeroContainer` (gradient title via `GradientText`) · `ConsultingProofStrip` · `Section` blocks (stats grid, "how we work" steps, opportunity grid) · `Grid` of `ServiceCard` items (icon · service title · `CardContent` description) · `Divider` · AppFooter
 - **States:** static, hovered (card lift + title color shift to `#3399ff`)
+- **Notes:** The `ai` page (`docs/pages/consulting/ai/main.tsx`) additionally embeds the **Consulting Audit Bot** — the hero's right rail renders `AuditBotTrigger` (`variant="hero"`) and the hero CTA / trigger opens the `AuditBot` dialog with `playbook="ai-readiness"` (see §24). `calendlyUrl` comes from `NEXT_PUBLIC_CALENDLY_URL`.
 
 ---
 
@@ -741,6 +744,50 @@ Standalone docs tree for the Rust → WASM video renderer outside the per-produc
 - **Location:** `docs/pages/company/contact.js` → `TopLayoutCareers` shell consuming `docs/src/pages/company/contact/contact.md`
 - **Regions:** AppHeader · MDX body (contact form / address copy) · AppFooter
 - **States:** static (loaded)
+
+---
+
+## 24. Consulting Audit Bot — `docs/src/modules/auditBot`
+
+An interactive lead-generation chat surface on the consulting site (`consulting.stokd.cloud`). A visitor talks to an LLM-backed agent that runs a fixed-length audit "playbook" and produces a structured 1-page report, then optionally captures the lead's email for follow-up. The web channel lives under `docs/src/modules/auditBot/channels/web/components/`; conversation orchestration (`conversationRunner.ts`, `llmClient.ts`, `tools.ts`, `playbooks/`) runs server-side behind the audit API routes. Three playbooks are defined in `docs/src/modules/auditBot/playbooks/index.ts`: `ai-readiness` (~5 min), `cloud-cost` (~6 min), `security` (~6 min). Currently only the `ai-readiness` playbook is mounted in the UI (on the `/consulting/ai` page, §21).
+
+### 24.1 Audit Bot Trigger
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Location:** `docs/src/modules/auditBot/channels/web/components/AuditBotTrigger.tsx`
+- **Regions (by `variant`):**
+  | Variant | Regions |
+  |---------|---------|
+  | `hero` | bordered card with green "live" status dot · title ("Stoked AI Readiness Audit", "5 min · Free") · two mocked assistant chat bubbles (preview of opening message) · full-width "Start your audit" CTA · "No signup. Brian sees the report too." caption |
+  | `card` | `AutoAwesomeIcon` + "Free AI Readiness Audit" heading · body copy · "Start the audit" button; hover lift (`translateY(-2px)`, `borderColor #3399ff`) |
+  | `inline` | single "Start your free AI audit" contained button |
+- **States:** idle, hovered (card/hero lift), keyboard-focusable (`role="button"`, Enter/Space activates `card` variant); calls `onOpen()` to mount the dialog
+
+### 24.2 Audit Bot Dialog (Chat)
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Location:** `docs/src/modules/auditBot/channels/web/components/AuditBot.tsx`
+- **Regions:**
+  | Zone | Component / content |
+  |------|---------------------|
+  | Dialog shell | MUI `Dialog` (`maxWidth="md"`, full-width, `85vh` on desktop / full-height on mobile) |
+  | Header | green status dot · "Stoked {playbook label}" · "~N min · Free · Brian sees the report" caption · `CloseIcon` |
+  | Busy bar | `LinearProgress` (2px) while a turn is in flight |
+  | Message list | scrolling `DialogContent` of chat bubbles — user (`#3399ff`/white, right-aligned) vs assistant (`grey.100` / `primaryDark.700`, left-aligned); auto-scrolls to bottom |
+  | Report card | inline `AuditReportView` (§24.3) rendered under the assistant bubble that carries a `report` payload |
+  | Email capture | bordered panel ("Want Brian to follow up?") with name + email `TextField`s, "Send the follow-up" button, and optional "Book a 30-min call" button (when `calendlyUrl` set) |
+  | Confirmation | post-submit panel ("Got it — your report is on its way…" / "Brian sees this on his phone…") |
+  | Composer | multiline `TextField` (Enter to send, Shift+Enter newline) + `SendIcon` `IconButton`; hidden once the conversation is `finished` |
+- **States:** seeded-opening (one assistant opener per playbook), idle, busy/sending (composer + send disabled, progress bar), reply-received, report-ready (`reportReady` → email capture shown), turn-error (apologetic assistant message + falls through to email capture), email-submitting (`savingLead`), lead-saved (`savedLead`; `emailedReport` toggles confirmation copy), finished (composer removed), closed/reset (state cleared on close)
+- **Data flow:** `POST /api/audit/turn` (`docs/pages/api/audit/turn.ts`) per message → `{ sessionId, reply, report?, finished }`; `POST /api/audit/save-lead` (`docs/pages/api/audit/save-lead.ts`) on email capture → `{ ok, emailedReport }`. Lead persistence + report email via `auditStore.ts` / `auditMailer.ts`; optional `notifyTelegram.ts`.
+
+### 24.3 Audit Report View
+
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Location:** `docs/src/modules/auditBot/channels/web/components/AuditReportView.tsx`
+- **Regions:** company + one-liner header · playbook-specific summary chips (`MiniChip`) · `SectionLabel`-delimited blocks · ranked `OpportunityCard` list (`#rank`, title, effort/cost/savings chips, body, optional caveat) · "Brian would start with" · "Honest caveat" · "Next step"
+- **Variants (by `report.playbook`):** `ai-readiness` (readiness band + top opportunities with hours-saved chips), `cloud-cost` (cloud/spend/savings chips + monthly-savings cards), `security` (posture/compliance chips + severity-ranked findings)
+- **States:** rendered (one of three report shapes); purely presentational — no internal loading/error state (errors surface in the parent dialog)
 
 ---
 

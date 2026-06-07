@@ -927,6 +927,42 @@ th {
   fill: currentColor;
 }
 
+/* Hover-to-play video thumb in CDN gallery */
+.media-card-thumb-video {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  overflow: hidden;
+}
+
+.media-card-thumb-video video {
+  display: block;
+}
+
+.media-card-thumb-video-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.25), rgba(0,0,0,0.45));
+  color: rgba(255, 255, 255, 0.9);
+  pointer-events: none;
+  transition: opacity 120ms ease;
+}
+
+.media-card-thumb-video:hover .media-card-thumb-video-overlay {
+  opacity: 0;
+}
+
+.media-card-thumb-video-overlay svg {
+  width: 36px;
+  height: 36px;
+  fill: currentColor;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.6));
+}
+
 .media-card-body {
   padding: 10px 12px;
   display: flex;

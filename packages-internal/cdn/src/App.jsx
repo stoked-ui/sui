@@ -271,6 +271,76 @@ function MediaUploadThumbnail({ file }) {
   return <img className="upload-thumbnail" src={src} alt="" aria-hidden="true" />;
 }
 
+// Hover-to-play video thumbnail for CDN gallery.
+// Plays muted/looped on mouse enter so users can preview videos without leaving the grid.
+function MediaCardThumb({ url, kind, name }) {
+  const videoRef = useRef(null);
+  const [isHovering, setIsHovering] = useState(false);
+
+  const handleMouseEnter = () => {
+    setIsHovering(true);
+    const v = videoRef.current;
+    if (v) {
+      v.muted = true;
+      v.loop = true;
+      v.playsInline = true;
+      const p = v.play();
+      if (p && typeof p.catch === 'function') p.catch(() => {});
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovering(false);
+    const v = videoRef.current;
+    if (v) {
+      v.pause();
+      try { v.currentTime = 0; } catch {}
+    }
+  };
+
+  if (kind === 'video') {
+    return (
+      <div
+        className="media-card-thumb media-card-thumb-video"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        <video
+          ref={videoRef}
+          src={url}
+          poster={undefined}
+          muted
+          playsInline
+          preload="metadata"
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            display: 'block',
+            background: '#000',
+          }}
+        />
+        {!isHovering && (
+          <div className="media-card-thumb-video-overlay" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M8 6.82v10.36c0 .79.87 1.27 1.54.84l8.14-5.18c.62-.39.62-1.29 0-1.69L9.54 5.98C8.87 5.55 8 6.03 8 6.82z" />
+            </svg>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <img
+      className="media-card-thumb"
+      src={url}
+      alt={name}
+      loading="lazy"
+    />
+  );
+}
+
 function shouldForceLogout(authStatus, error) {
   if (authStatus !== 'authenticated' || !error) {
     return false;
@@ -1239,26 +1309,7 @@ export default function App() {
                           rel="noreferrer"
                           tabIndex={-1}
                         >
-                          {kind === 'image' ? (
-                            <img
-                              className="media-card-thumb"
-                              src={object.url}
-                              alt={object.name}
-                              loading="lazy"
-                            />
-                          ) : (
-                            <div className="media-card-thumb media-card-thumb-placeholder" data-kind={kind}>
-                              {kind === 'video' ? (
-                                <svg viewBox="0 0 24 24" aria-hidden="true">
-                                  <path d="M8 6.82v10.36c0 .79.87 1.27 1.54.84l8.14-5.18c.62-.39.62-1.29 0-1.69L9.54 5.98C8.87 5.55 8 6.03 8 6.82z" />
-                                </svg>
-                              ) : (
-                                <svg viewBox="0 0 24 24" aria-hidden="true">
-                                  <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
-                                </svg>
-                              )}
-                            </div>
-                          )}
+                          <MediaCardThumb url={object.url} kind={kind} name={object.name} />
                         </a>
                         <div className="media-card-body">
                           {canManage && renamingPath === object.path ? (

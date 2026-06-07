@@ -51,7 +51,7 @@ export const mockObjects: MockObject[] = [
     lastModified: '2026-02-22T01:08:29.000Z',
   },
   {
-    path: 'products/flux/assets/flux-desktop-preview-1920x1080.mp4',
+    path: 'products/flux/assets/flux-preview_en.mp4',
     size: 28242140,
     lastModified: '2026-02-22T01:08:29.000Z',
   },

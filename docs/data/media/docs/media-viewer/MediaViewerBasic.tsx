@@ -22,7 +22,7 @@ const demoItem: MediaItem = {
   tracks: [
         { url: 'https://cdn.stokd.cloud/products/flux/assets/flux-desktop-preview-854x480.mp4', width: 854, height: 480, bitrate: 1500000, label: '480p' },
     { url: 'https://cdn.stokd.cloud/products/flux/assets/flux-desktop-preview-1280x720.mp4', width: 1280, height: 720, bitrate: 3000000, label: '720p' },
-    { url: 'https://cdn.stokd.cloud/products/flux/assets/flux-desktop-preview-1920x1080.mp4', width: 1920, height: 1080, bitrate: 6000000, label: '1080p' },
+    { url: 'https://cdn.stokd.cloud/products/flux/assets/flux-preview_en.mp4', width: 1920, height: 1080, bitrate: 6000000, label: '1080p' },
     { url: 'https://cdn.stokd.cloud/products/flux/assets/flux-desktop-preview-3840x2160.mp4', width: 3840, height: 2160, bitrate: 12000000, label: '4K' },
   ],
 };

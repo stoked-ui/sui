@@ -888,7 +888,7 @@
   background: rgba(255, 255, 255, 0.04);
 }
 
-.suiCdnBrowser .media-card-thumb {
+.suiCdnBrowser .media-card-thumb-link video.media-card-thumb {
   display: block;
   width: 100%;
   height: 100%;

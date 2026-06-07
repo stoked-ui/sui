@@ -1,14 +1,14 @@
 lifetime:
   claude:
-    number: 144
-    percent: 85.71
+    number: 169
+    percent: 87.56
   code:
     number: 24
-    percent: 14.29
+    percent: 12.44
 last30:
   claude:
-    number: 144
-    percent: 85.71
+    number: 143
+    percent: 89.38
   code:
-    number: 24
-    percent: 14.29
+    number: 17
+    percent: 10.63

@@ -1,6 +1,7 @@
 # SC_MODULE — sui-github
 
 **Meta version:** 0.4.0
+**Last refreshed:** 2026-06-06 (timed refresh)
 **Module name:** `@stoked-ui/github`
 **Package location:** `packages/sui-github/`
 **Package version:** `0.1.0-alpha.11.3`
@@ -14,7 +15,7 @@
 Provides React UI components and server-safe helpers for surfacing GitHub activity in Stoked UI applications. Four primary responsibilities:
 
 1. **Contribution calendar** — renders a year-scoped GitHub contribution heatmap for any user. Supports either a server-side proxy (GraphQL via mounted handler) or a public, token-free fallback to `github-contributions-api.jogruber.de`. Includes `punch` / `highlight` SVG hover effects and responsive block sizing.
-2. **Events browser** — fetches, caches, filters, paginates, and renders GitHub public events (push, pull request, issues, comments, create, delete, fork, Projects v2). Includes a master/detail layout with a tabbed pull-request detail view (commits + file diffs).
+2. **Events browser** — fetches, caches, filters, paginates, and renders GitHub public events with a master/detail layout. The events list classifies every event type (`event.type.replace('Event','')`), but the detail panel only has dedicated renderers for **Push, PullRequest, Issues, IssueComment, Create, Delete**; any other type (including Fork and Projects v2) falls through to a raw `JsonFallbackView` (`JSON.stringify` in a `<pre>`). The PR renderer includes a tabbed detail view (commits + file diffs).
 3. **Commit detail view** — renders a single commit's contributor card, message, file changes, aggregate stats, and compact diff. Supports direct fetch, proxy fetch, or a snapshot payload (private-repo display).
 4. **Branch comparison view** — renders a base↔head compare with status badge, contributors, commit list, file changes, aggregate stats, and compact diff. Same direct/proxy/snapshot triad as `GithubCommit`.
 
@@ -58,15 +59,17 @@ All exports are surfaced from `src/index.ts`.
 
 `EventsQuery`, `GithubBranchData`, `GithubCommitData`, `GithubFileHighlight` (re-exported from `src/types/github.ts`).
 
+> The barrel re-exports the handler/helper set through `src/apiHandlers/index.ts`. Both `src/index.ts` and `src/apiHandlers/index.ts` are the publishable contract — verify the two stay in sync.
+
 ### Internal helpers (not exported but contracts to know)
 
-`src/apiHandlers/githubApi.ts` — shared REST utilities: `fetchGithubResource`, `parseGithubDiff`, `normalizeGithubFile`, `normalizeGithubCommit`, `buildGithubContributors`, `summarizeGithubStats`, `getGithubMessageSummary`, `getGithubShortRef`, plus `GITHUB_TOKEN` header handling and rate-limit detection.
+`src/apiHandlers/githubApi.ts` — shared REST utilities: `fetchGithubResource`, `parseGithubDiff`, `normalizeGithubFile`, `normalizeGithubCommit`, `buildGithubContributors`, `summarizeGithubStats`, `getGithubMessageSummary`, `getGithubShortRef`, plus `GITHUB_TOKEN` header handling, the `DEFAULT_DIFF_LINE_LIMIT = 24` diff cap, and rate-limit detection.
 
 ---
 
 ## Products
 
-- **`SC_PRODUCT_STOKED_UI_SUI.md`** — `@stoked-ui/sui` umbrella product. The docs site registers a `github` product (`productId: github`) whose MDX lives under `docs/data/github/docs/{overview,github-calendar,github-events,github-commit,github-branch}/*.md` and whose demos (`GithubCalendarDemo`, `GithubEventsDemo`, `GithubCommitDemo`, `GithubBranchDemo`) import directly from `@stoked-ui/github`.
+- **`SC_PRODUCT_STOKED_UI_SUI.md`** — `@stoked-ui/sui` umbrella product. The docs site registers a `github` product (`productId: github`) whose MDX lives under `docs/data/github/docs/{overview,github-calendar,github-events,github-commit,github-branch,roadmap}/*.md` and whose demos (`GithubCalendarDemo`, `GithubEventsDemo`, `GithubCommitDemo` + `GithubCommitApiDemo` / `GithubCommitRuntimeDemo`, `GithubBranchDemo`) import directly from `@stoked-ui/github`.
 
 ---
 
@@ -74,13 +77,13 @@ All exports are surfaced from `src/index.ts`.
 
 From `.stokd/meta/SC_VIEWS.md` § 14 — "GitHub Package Views":
 
-- **14.1 GithubEvents** — master/detail events browser with filter toolbar, event list, and contextual detail panel (PR diff, push commits, issue details). Detail panel hides below 813 px.
+- **14.1 GithubEvents** — master/detail events browser with an event-type filter, date-range picker, repo autocomplete, event list/table, pagination, and a sticky `MetadataDisplay` sidebar (PR diff, push commits, issue details; raw `JsonFallbackView` for unhandled types).
 - **14.2 GithubCalendar** — full-year contribution heatmap rendered via `react-activity-calendar`.
 - **14.3 GithubBranch** — branch compare with status badge (ahead/behind/diverged/identical), `GithubContributorsList`, `FileChanges`, and embedded `PullRequestView`.
 - **14.4 GithubCommit** — single-commit summary with contributor card, file changes, and compact diff view.
 - **14.5 PullRequestView** — tabbed PR detail (Commits / Files changed) used inside `GithubEvents` and embedded in `GithubBranch`.
 
-Also materially shapes the marketing showcase row at `/github/` (`HeroGithub` in `docs/src/components/showcase/HeroGithub.tsx` — listed in SC_VIEWS § 2).
+Also materially shapes the marketing showcase row at `/github/` (`HeroGithub` in `docs/src/components/home/HeroGithub.tsx` — listed in SC_VIEWS § 2 view table).
 
 ---
 
@@ -91,12 +94,13 @@ Also materially shapes the marketing showcase row at `/github/` (`HeroGithub` in
 | Dependency | Role |
 |---|---|
 | `react-activity-calendar` ^2.7.10 | SVG heatmap rendering in `GithubCalendar` |
-| `@octokit/request-error` ^6.1.8, `@octokit/types` ^14.0.0 | Error and response typing for GitHub API |
+| `@octokit/request-error` ^6.1.8, `@octokit/types` ^14.0.0 | Error and response typing for GitHub API; `RequestError` returned (not thrown) by `getPullRequestDetails` |
 | `date-fns` ^3.0.0, `date-fns-tz` ^3.2.0 | Date formatting and `America/Chicago` TZ handling in events |
-| `react-json-view` ^1.21.3 | Raw event payload viewer (dynamically imported, SSR-disabled) |
-| `react-hook-form` + `@hookform/resolvers` + `yup` | Form handling inside event detail forms |
-| `@stoked-ui/common` (workspace) | `useResize`, `useResizeWindow` hooks for `GithubCalendar` sizing |
-| MUI (`@mui/base`, `@mui/system`, `@mui/material`, `@mui/icons-material`) | Theming, layout primitives, contributor avatars/chips |
+| `react-hook-form` + `@hookform/resolvers` + `@hookform/error-message` + `yup` | Form handling inside event detail forms |
+| `react-router-dom` ^6.21.3, `lodash` ^4.17.23 | Declared deps used by view components/utilities |
+| `@stoked-ui/common` (workspace `0.1.3-a.0`) | `useResize`, `useResizeWindow` hooks for `GithubCalendar` sizing |
+| MUI (`@mui/base`, `@mui/system`, `@mui/utils`; peers `@mui/material`, `@mui/icons-material`) | Theming, layout primitives, contributor avatars/chips |
+| `react-json-view` ^1.21.3 | **Declared dependency but no longer imported by `src/`.** The raw-payload view is now the in-package `JsonFallbackView` (`GithubEvents.tsx`), so this dep is currently dead weight and a candidate for removal. |
 
 ### External API contracts
 
@@ -111,7 +115,16 @@ Also materially shapes the marketing showcase row at `/github/` (`HeroGithub` in
 
 ### Downstream / proxy seam
 
-`GithubCalendar`, `GithubEvents`, `GithubCommit`, `GithubBranch`, and `PullRequestEvent` all accept an `apiUrl` prop. This is the contract a host app implements (typically a Next.js route under `docs/pages/api/*`) to keep `GITHUB_TOKEN` off the wire. The handler factories are the canonical implementation — query string shapes (`username`, `from`, `to`, `page`, `per_page`, `repo`, `action`, `date`, `description`, `owner`, `repo`, `ref`, `base`, `head`) must stay aligned between component and handler.
+`GithubCalendar`, `GithubEvents`, `GithubCommit`, `GithubBranch`, and `PullRequestEvent` all accept an `apiUrl` prop. This is the contract a host app implements (typically a Next.js route under `docs/pages/api/github/*`) to keep `GITHUB_TOKEN` off the wire. The handler factories are the canonical implementation — query string shapes (`username`, `from`, `to`, `page`, `per_page`, `repo`, `action`, `date`, `description`, `owner`, `repo`, `ref`, `base`, `head`) must stay aligned between component and handler.
+
+The docs app wires all four factories one-to-one:
+
+| Route | Factory |
+|---|---|
+| `docs/pages/api/github/contributions.ts` | `createGithubContributionsHandler()` |
+| `docs/pages/api/github/events.ts` | `createGithubEventsHandler()` |
+| `docs/pages/api/github/commit.ts` | `createGithubCommitHandler()` |
+| `docs/pages/api/github/branch.ts` | `createGithubBranchHandler()` |
 
 ### Workspace integration
 
@@ -124,17 +137,19 @@ Consumed by the docs app at `docs/data/github/docs/**` (demos and MDX) and surfa
 | File | Why it matters |
 |---|---|
 | `src/index.ts` | Single barrel — components + handler factories + server helpers + types |
-| `src/GithubCalendar/GithubCalendar.tsx` (464 LOC) | Calendar component; payload normalization, responsive block sizing, SVG `punch`/`highlight` animation that mutates `react-activity-calendar` DOM directly |
-| `src/GithubEvents/GithubEvents.tsx` (1,377 LOC) | Core events pipeline: cache (localStorage `github_events_<username>`, 8h TTL; sessionStorage de-dup), filters, pagination, master/detail rendering, dispatcher to `EventTypes/*` |
-| `src/GithubEvents/EventTypes/PullRequest/` | PR row + `PullRequestView` (tabbed) + `FileChanges` (`@mui/x-tree-view` diff viewer) — full PR detail surface |
-| `src/GithubEvents/EventTypes/{Push,Issues,IssueComment,Create,Delete,Fork,ProjectsV2*}Event.tsx` | Per-event-type renderers; new event types must add a `case` here and in `processEvents` |
-| `src/GithubCommit/GithubCommit.tsx` | Commit detail; routes between direct fetch / `apiUrl` proxy / snapshot `data` |
-| `src/GithubBranch/GithubBranch.tsx` | Branch compare; same direct/proxy/snapshot routing |
-| `src/apiHandlers/githubApi.ts` | Shared REST plumbing: token headers, rate-limit detection (`x-ratelimit-remaining`), diff parsing (24-line cap), file/commit normalization, contributor aggregation, stat summarization |
+| `src/apiHandlers/index.ts` | Re-export hub for the handler/helper set the barrel forwards |
+| `src/GithubCalendar/GithubCalendar.tsx` (~464 LOC) | Calendar component; payload normalization, responsive block sizing, SVG `punch`/`highlight` animation that mutates `react-activity-calendar` DOM directly |
+| `src/GithubEvents/GithubEvents.tsx` (~1,377 LOC) | Core events pipeline: quota-aware localStorage cache (key `github_events_<username>`, 8h TTL, `CACHE_PERSIST_LIMITS = [200,150,100,50,25]` truncation, `get/set/removeStorageItem` wrappers; sessionStorage de-dup), filters, pagination, master/detail rendering, `processEvents` switch + detail-panel renderer dispatch, `JsonFallbackView` for unhandled types |
+| `src/GithubEvents/EventTypes/PullRequest/` | PR row (`PullRequestEvent`) + `PullRequestView` (tabbed) + `CommitsList` + `FileChanges` (`@mui/x-tree-view` diff viewer) — full PR detail surface |
+| `src/GithubEvents/EventTypes/{Push,Issues,IssueComment,Create,Delete}Event.tsx` | Per-event-type renderers currently wired into the detail panel |
+| `src/GithubEvents/EventTypes/{Fork,ProjectsV2,ProjectsV2Column,ProjectsV2Field,ProjectsV2Item}Event.tsx` | Renderer files that **exist but are not imported/wired** anywhere in `src/` — these types currently render via `JsonFallbackView` until wired |
+| `src/GithubCommit/GithubCommit.tsx` (~171 LOC) | Commit detail; routes between direct fetch / `apiUrl` proxy / snapshot `data` |
+| `src/GithubBranch/GithubBranch.tsx` (~175 LOC) | Branch compare; same direct/proxy/snapshot routing |
+| `src/apiHandlers/githubApi.ts` (~226 LOC) | Shared REST plumbing: token headers, rate-limit detection (`x-ratelimit-remaining`), diff parsing (`DEFAULT_DIFF_LINE_LIMIT = 24`), file/commit normalization, contributor aggregation, stat summarization |
 | `src/apiHandlers/getGithubContributions.ts` | GraphQL contribution fetch + week/day → calendar payload normalization |
-| `src/apiHandlers/getGithubEvents.ts` | Paginates upstream events (up to 10 × 100), applies repo/action/date/description filters, derives facet lists |
+| `src/apiHandlers/getGithubEvents.ts` | Paginates upstream events (up to 30 pages), applies repo/action/date/description filters, derives facet lists; exports `githubEventsQuery` + `EventsQuery` |
 | `src/apiHandlers/getPullRequestDetails.ts` | One-call PR fetch (metadata + commits + parsed file diffs); used both client and server side |
-| `src/apiHandlers/create*Handler.ts` | Thin route adapters (request validation, token resolution, error → status mapping: 400/404/500/502, cache headers) |
+| `src/apiHandlers/create*Handler.ts` | Thin route adapters (method gate, request validation, token resolution, error → status mapping: 400/404/405/500/502, cache headers) |
 | `src/components/GithubContributorsList.tsx` | Shared contributor-card list used by both commit and branch views |
 | `src/components/fetchGithubViewData.ts` | Shared client fetcher used by `GithubCommit` / `GithubBranch` for `apiUrl`-mode loads |
 | `src/types/github.ts` | Canonical types: `EventDetails`, `GitHubEvent`, `CachedData`, `GithubChangedFile`, `GithubContributor`, `GithubCommitData`, `GithubBranchData`, `GithubContributionsResponse`, `PullRequestDetails`, etc. |
@@ -152,10 +167,11 @@ Consumed by the docs app at `docs/data/github/docs/**` (demos and MDX) and surfa
 
 ### Events (`GithubEvents` / `getGithubEvents` / `createGithubEventsHandler`)
 
-- `localStorage` cache key is `github_events_<username>` with no version field — any change to `CachedData` shape requires a key bump or invalidation, or existing user caches will fail to parse.
-- Adding a new GitHub event type requires a new `case` in `processEvents` **and** a matching renderer under `src/GithubEvents/EventTypes/`.
+- `localStorage` cache key is `github_events_<username>` with no version field — any change to `CachedData` shape requires a key bump or invalidation, or existing user caches will fail to parse. Writes are quota-aware: `persistCachedEvents` retries against `CACHE_PERSIST_LIMITS` and drops the key on `QuotaExceededError`.
+- Adding a new GitHub event type that needs a rich detail view requires **two** dispatch updates: a `case` in `processEvents` (for list metadata/description/link) **and** a renderer arm in the detail-panel ternary near `GithubEvents.tsx:1355`, plus a matching file under `src/GithubEvents/EventTypes/`. Unhandled types degrade to `JsonFallbackView` rather than crashing.
+- `Fork` and the `ProjectsV2*` renderers exist as files but are not wired — wiring them is purely additive (import + ternary arm).
 - Client-side `filterEvents` and server-side filter logic in `githubEventsQuery` must stay in lockstep when an `apiUrl` is used.
-- First load can fan out to 10 × 100 = 1,000 unauthenticated calls — expect rapid rate-limit exhaustion without a token-backed proxy.
+- First load can fan out to up to 30 × 100 = 3,000 events worth of unauthenticated calls — expect rapid rate-limit exhaustion without a token-backed proxy.
 
 ### Commit / Branch (`GithubCommit`, `GithubBranch`, related fetchers)
 
@@ -166,8 +182,8 @@ Consumed by the docs app at `docs/data/github/docs/**` (demos and MDX) and surfa
 ### Pull request details (`getPullRequestDetails`)
 
 - Called from both browser (via `PullRequestEvent`) and server contexts; return shape changes hit both paths.
-- `PullRequestEvent.tsx` historically imported via an absolute monorepo path rather than the package alias — verify the import path before moving the file.
-- Reads `process.env.GITHUB_TOKEN` directly; in browser contexts without `apiUrl`, calls run unauthenticated.
+- `PullRequestEvent.tsx` imports `getPullRequestDetails` via the in-package relative path `../../../apiHandlers` (not an absolute monorepo path or the package alias) — keep imports relative within the package.
+- Reads `process.env.GITHUB_TOKEN` directly inside the helper; in browser contexts without `apiUrl`, calls run unauthenticated.
 
 ### Types (`src/types/github.ts`)
 
@@ -177,13 +193,19 @@ Consumed by the docs app at `docs/data/github/docs/**` (demos and MDX) and surfa
 
 ### SSR / build
 
-- `react-json-view` is dynamically imported with `next/dynamic` and `ssr: false`; removing the guard causes hydration errors.
+- The raw-payload viewer is the in-package `JsonFallbackView` (`<pre>` + `JSON.stringify`) and is SSR-safe; `react-json-view` is no longer imported. If an SSR-unsafe dependency is reintroduced, it must be loaded via `next/dynamic` with `ssr: false` (see AX-MOD-GITHUB-007).
 - Components rely on MUI theme context — consumers without an MUI `ThemeProvider` see degraded styling.
 
 ### Validation checklist when this module changes
 
 - Build the package: `pnpm --filter @stoked-ui/github build`.
 - Type check: `pnpm --filter @stoked-ui/github typescript`.
-- Smoke the four demo pages under `docs/data/github/docs/**` against a live or proxied data source.
+- Smoke the demo pages under `docs/data/github/docs/**` against a live or proxied data source (docs site on port 5199).
 - If touching the cache or filters, manually clear `localStorage.github_events_*` to retest cold load.
 - If touching SVG `fx`, re-test on resize and after navigating away/back to verify listeners rebind.
+
+---
+
+## Testing Posture
+
+Current coverage is **0%** of this package's source — files under `test/` are MUI scaffolding boilerplate (Dialog/Menu/Select/Table) that exercise none of `src/`. The pure helpers in `src/apiHandlers/githubApi.ts` and the server fetchers/handlers are the highest-ROI test targets. See `.stokd/meta/packages/sui-github/SC_TEST.md` for the full strategy, fixtures, and prioritized cases.

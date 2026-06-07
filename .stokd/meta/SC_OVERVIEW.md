@@ -1,10 +1,11 @@
 # Stoked UI — Codebase Overview
 
-> **Generated:** 2026-05-21 (upgraded 0.3.0 → 0.4.0) · **Refreshed:** 2026-05-28 | **Meta version:** 0.4.0
+> **Generated:** 2026-05-21 (upgraded 0.3.0 → 0.4.0) · **Refreshed:** 2026-06-06 (prior: 2026-05-28) | **Meta version:** 0.4.0
 > **Repository:** `@stoked-ui/sui` v0.1.0-alpha.5 (private monorepo root)
 > **Root:** `/opt/worktrees/stoked-ui/stoked-ui-main`
 > **Package manager:** pnpm 10.5.1 (enforced via `preinstall: npx only-allow pnpm`)
 > **Workspace packages tracked in meta v0.4.0:** 11 — `sui-cdn`, `sui-common`, `sui-common-api`, `sui-docs`, `sui-editor`, `sui-file-explorer`, `sui-github`, `sui-media`, `sui-media-api`, `sui-timeline`, `sui-video-renderer`
+> **Docs app framework (installed):** Next.js **13.5.11** (manifest `next@^13.5.1`, Pages Router) · port **5199**
 
 ---
 
@@ -51,7 +52,7 @@ stoked-ui-main/
 │   ├── cdn/, cdn-sui/                             Vite CDN admin apps
 │   ├── feedback/, IndexAutogen/, rsc-builder/, netlify-plugin-cache-docs/, markdownlint-rule-mui/
 │
-├── docs/                        Next.js 14 site (`stokedui-com`, port 5199)
+├── docs/                        Next.js 13.5 site (`stokedui-com`, port 5199)
 │   ├── pages/api/**             Business / domain endpoints (non-media)
 │   ├── src/, scripts/, data/, translations/, public/, work-items/
 │
@@ -61,6 +62,7 @@ stoked-ui-main/
 ├── infra/                       SST stack definitions
 │   ├── api.ts, cdn-site.ts, cert.ts, domains.ts, envVars.ts, secrets.ts, site.ts, index.ts
 │
+├── projects/                    Stokd project orchestration artifacts (state.mjs, build-state.mjs, orchestrate.workflow.js, prd.md)
 ├── benchmark/                   Browser benchmarks (workspace package)
 ├── test/                        Karma / Playwright / e2e harness + fixtures
 ├── scripts/                     Build, release, codegen, sizing scripts
@@ -71,7 +73,9 @@ stoked-ui-main/
 ├── lerna.json                   Independent versioning configuration
 ├── pnpm-workspace.yaml          Workspace globs + onlyBuiltDependencies allowlist
 ├── nx.json                      NX cache config (used by zero-runtime targets)
-└── .stokd/meta/                 Stokd context files (this directory)
+└── .stokd/                      Stokd governance + context
+    ├── meta/                    Context files (this directory): SC_OVERVIEW, SC_AXIOMS, SC_MODULES, …
+    └── projects/<slug>/         Per-project PRDs + phase plans (governed task/project workflow)
 ```
 
 `pnpm-workspace.yaml` includes: `benchmark`, `packages/*`, `packages-internal/*`, `docs`, `api`, `infra`, `test`.
@@ -85,7 +89,7 @@ The public packages form a layered graph (arrow = "depends on"):
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
 │                           docs (stokedui-com)                        │
-│  Next.js 14 · port 5199 · pages/api/* business endpoints · MUI v5    │
+│  Next.js 13.5 · port 5199 · pages/api/* business endpoints · MUI v5 │
 └──────────────────────────────────────────────────────────────────────┘
             │                │                │                │
             ▼                ▼                ▼                ▼
@@ -148,7 +152,7 @@ Edges verified from each `package.json`:
 | Native | Rust workspace: `image`, `imageproc`, `fast_image_resize`, `resvg`, `tokio`, `rayon`, `wasm-bindgen`, `wasm-bindgen-futures`, `web-sys` |
 | Testing | Mocha + Karma (browser), Playwright (`test:e2e-website` against port 5199), Jest (per-package, NestJS), nyc coverage, Argos visual regressions |
 | Lint / Format | ESLint (airbnb + house plugin `eslint-plugin-stoked-ui`), Prettier 3, Stylelint, markdownlint-cli2, Vale |
-| Infra | SST v4 on AWS (`stokd-cloud` profile, us-east-1), CloudFront StaticSite + CdnSite, API Gateway v2, Lambda, SNS, Stripe |
+| Infra | SST **v4.2.0** at the root (drives `sst.config.ts` → `infra/*`, installed 4.2.0) on AWS (`stokd-cloud` profile, us-east-1), CloudFront StaticSite + CdnSite, API Gateway v2, Lambda, SNS, Stripe. NB: `docs/package.json` still lists `sst@^3.6.19` as a dependency — a vestigial v3 pin that does not drive deploys (root v4 is authoritative); flagged for cleanup. |
 | Identity | `@react-oauth/google`, `google-auth-library`, JWT, bcryptjs |
 | Release | dotenvx, `lerna version --no-private`, `pnpm publish --recursive`, Verdaccio for dry runs |
 
@@ -225,7 +229,7 @@ Each step shells out to root scripts:
 
 - **Editor video pipeline:** `EditorFile` → `EditorEngine` (`packages/sui-editor/src/EditorEngine`) drives timeline state via `@stoked-ui/timeline` `Engine`, renders frames through `WasmPreview` (dynamic import of `@stoked-ui/video-renderer-wasm`; auto-detects bundler vs web target). EditorEngine requires the WASM build present at `packages/sui-video-renderer/pkg`; the webpack alias is configured in `docs/next.config.mjs` and depends on `experiments.asyncWebAssembly: true`.
 - **Media metadata path:** `sui-media`'s `extractVideoMetadata` writes into a `ScreenshotStore`; consumers persist to IndexedDB via `sui-common/LocalDb`. The empty-store guard (`count > 0`) prevents the previous block on first generation.
-- **MediaCard render path** (analyzed directory): `packages/sui-media/src/components/MediaCard/MediaCard.tsx` consumes `MediaCard.types.ts` and is exercised by `__tests__/MediaCard.test.tsx`. `file.media` uses a `createSettings` Proxy — properties set via `Object.assign` don't always propagate through React state updates; detail views use DOM `<video>` element fallbacks for duration/width/height.
+- **MediaCard render path** (analyzed directory): `packages/sui-media/src/components/MediaCard/MediaCard.tsx` consumes `MediaCard.types.ts` and is exercised by `__tests__/MediaCard.test.tsx`. `file.media` uses a `createSettings` Proxy — properties set via `Object.assign` don't always propagate through React state updates; detail views use DOM `<video>` element fallbacks for duration/width/height. **Active work (2026-06):** the `media-pairing-poster-detection` project (PRD at `.stokd/projects/media-pairing-poster-detection/prd.md`, 5 phases) pairs video+image objects sharing a basename, uses the image as the video card's poster, collapses the redundant image card in the `sui-cdn` `CdnBrowser` gallery, and exposes the image's actions via a thumbnail FAB/menu. Recent commits (`6145267e70`, `a1a92da872`, `76a8732750`) auto-extract a first-frame thumbnail for CORS-friendly video posters across `MediaCard` and CDN videos.
 - **Business API request flow:** browser → `docs/pages/api/<domain>/...` → MongoDB (`mongodb` 6.12). Stripe + Google OAuth integrate at this layer.
 - **Media API request flow:** client → `sui-media-api` NestJS controllers → Mongoose models → S3 / Sharp / ffmpeg. Same codebase runs locally (Nest CLI) and serverless (Lambda adapter).
 - **Deployment path:** `pnpm deploy:prod` → `sst deploy --stage production` → `infra/{site,cdn-site,api,cert,domains,secrets}.ts` provisions CloudFront, API Gateway v2, Lambdas, and certs.
@@ -267,13 +271,25 @@ MUI is pinned tree-wide (`@mui/material` 5.17.1, `@mui/system` 5.17.1, `@mui/uti
 - Flows / data paths: `.stokd/meta/SC_FLOWS.md`
 - Test inventory: `.stokd/meta/SC_TEST.md` (and per-package `SC_TEST.md` under `.stokd/meta/packages/`)
 - Product card: `.stokd/meta/SC_PRODUCT_STOKED_UI_SUI.md`
+- Axioms: `.stokd/meta/SC_AXIOMS.md` (repo-wide `AX-REPO-*` invariants), per-package `.axioms.md`, legacy `~/.stokd/SC_AXIOMS.md`
 - Guardrails: `.stokd/meta/SC_CONTEXT.md`, `CLAUDE.md`, `AGENTS.md`
 - Recommendations log: `.stokd/meta/SC_RECOMMENDATIONS.md`
-- Meta tracking config: `.stokd/meta/config.json` (now lists all 11 tracked packages; the 2026-05-28 refresh added `sui-cdn` and `sui-video-renderer`, resolving the prior drift between `config.json.packages` and the `.stokd/meta/packages/<pkg>/` directories)
+- Governed project PRDs / phase plans: `.stokd/projects/<slug>/` (e.g. `media-pairing-poster-detection/{prd.md, phases/*}`); orchestration runtime state in top-level `projects/<slug>/`
+- Package READMEs: each `packages/sui-*/README.md` (e.g. the new `packages/sui-cdn/README.md`)
+- Meta tracking config: `.stokd/meta/config.json` (lists all 11 tracked packages; the 2026-05-28 refresh added `sui-cdn` and `sui-video-renderer`, resolving the prior drift between `config.json.packages` and the `.stokd/meta/packages/<pkg>/` directories)
 
 ---
 
-## 10. Changes in 2026-05-28 Refresh (meta v0.4.0)
+## 10. Changes in 2026-06-06 Refresh (meta v0.4.0)
+
+- **Fixed two stale "Next.js 14" references** left in §2 (top-level layout) and §3 (dependency-graph diagram) — the docs app is Next.js **13.5.11** (manifest `next@^13.5.1`). The 2026-05-28 refresh corrected §1/§4/§6 but missed these; now consistent. Added the installed framework version to the header.
+- **Documented the Stokd governed-project structure** now present in the tree: `.stokd/projects/<slug>/` (PRDs + phase plans) and the top-level `projects/<slug>/` orchestration artifacts (`state.mjs`, `build-state.mjs`, `orchestrate.workflow.js`, `prd.md`). Added to §2 layout and §9 cross-references.
+- **Recorded the active `media-pairing-poster-detection` project** (PRD dated 2026-05-31, 5 phases) and tied it to the analyzed MediaCard critical path in §6; recent commits (`6145267e70`, `a1a92da872`, `f0015cada9`, `76a8732750`, `b09fc2ff16`) implement video first-frame/poster thumbnails across `MediaCard` and the `sui-cdn` `CdnBrowser`. The `e54d836bef` commit added the `archiver` dependency for CDN zip export (now in `docs/package.json`).
+- **Flagged an SST version divergence:** the root drives deploys with SST **v4.2.0** (installed, `sst.config.ts` → `infra/*`), while `docs/package.json` still pins `sst@^3.6.19` as a vestigial dependency that does not drive deploys. Noted in §4 for cleanup.
+- **Verified WASM artifacts present** in both `packages/sui-video-renderer/pkg/` and `wasm-preview/pkg/` (`wasm_preview*` outputs); editor `optionalDependency` `@stoked-ui/video-renderer-wasm` → `file:../sui-video-renderer/pkg` intact (editor v0.1.2, media-api v1.0.0).
+- Re-verified the dependency graph, build pipeline, scripts, `pnpm-workspace.yaml`, `turbo.json`, and `config.json` against current manifests; preserved where accurate. Added an axioms cross-reference to §9.
+
+## 11. Changes in 2026-05-28 Refresh (meta v0.4.0)
 
 - **Corrected the docs-app framework version:** prior copies said "Next.js 14" throughout; the manifest is `next@^13.5.1` and the installed version is **13.5.11** (Pages Router). Updated §1, §4, §6 accordingly.
 - **Recorded the audit-bot / consulting surface:** new `docs/pages/api/audit/{turn.ts, save-lead.ts}` endpoints (backed by `docs/src/modules/auditBot/{conversationRunner, playbooks, auditStore}`) and the expanded `docs/pages/consulting/**` verticals (ai, front-end, back-end, devops, full-stack). Added to §1, §3 boundary list, and §6 entry-point table.
@@ -281,7 +297,7 @@ MUI is pinned tree-wide (`@mui/material` 5.17.1, `@mui/system` 5.17.1, `@mui/uti
 - Verified WASM artifact presence: `packages/sui-video-renderer/pkg/` and `wasm-preview/pkg/` both contain `wasm_preview*` output; editor `optionalDependency` `@stoked-ui/video-renderer-wasm` → `file:../sui-video-renderer/pkg` is intact.
 - All other architectural, dependency-graph, build-system, and pattern content re-verified against `package.json`, `docs/package.json`, `pnpm-workspace.yaml`, and per-package manifests; preserved where accurate.
 
-## 11. Changes vs. Meta v0.3.0
+## 12. Changes vs. Meta v0.3.0
 
 - Bumped meta version 0.3.0 → 0.4.0.
 - Removed dead reference to legacy `.stokd/meta/SC_MODULE_SUI_*.md` files (now deleted; see `git status`). Per-package module docs now live under `.stokd/meta/packages/<pkg>/SC_MODULE.md`.

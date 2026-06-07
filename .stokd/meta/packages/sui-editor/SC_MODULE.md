@@ -1,6 +1,6 @@
 # Module: @stoked-ui/editor
 
-> **Generated:** 2026-05-21 (upgraded 0.3.0 → 0.4.0) | **Meta version:** 0.4.0
+> **Generated:** 2026-05-21 (upgraded 0.3.0 → 0.4.0) | **Timed refresh:** 2026-06-06 | **Meta version:** 0.4.0
 > **Package location:** `packages/sui-editor`
 > **NPM name:** `@stoked-ui/editor` (v0.1.2)
 > **Source entry:** `packages/sui-editor/src/index.ts`
@@ -48,28 +48,40 @@ export const EditorVideoExampleProps: IEditorFileProps;
 export { EditorExample };
 ```
 
-### Public surface by category
+### (A) Barrel-reachable public exports — the publishable contract
+
+Importable as `import { X } from '@stoked-ui/editor'`. Reached through `src/index.ts` and the sub-barrels it pulls in (`Editor/index.ts`, `EditorProvider/index.ts`, `EditorView/index.ts`, `EditorControls/index.ts`, `Controllers/index.ts`, `EditorFile/index.ts`, `EditorTrack/index.ts`, `EditorAction/index.ts`, `models/index.ts`, `hooks/index.ts`). This is the set covered by axiom `AX-MOD-SUI-EDITOR-001`.
 
 | Surface | Exports | Source |
 |---|---|---|
-| Top-level component | `Editor` (default), `EditorProps`, `EditorSlots`, `EditorSlotProps`, `EditorApiRef`, `getEditorUtilityClass`, `editorClasses` | `src/Editor/Editor.tsx`, `Editor.types.ts`, `editorClasses.ts` |
-| Provider / context | `EditorProvider`, `useEditorContext`, `EditorState`, `EditorReducer`, `EditorStateAction`, `getActionSelectionData`, `refreshActionState`, `refreshTrackState` | `src/EditorProvider/EditorProvider.tsx`, `EditorContext.tsx`, `EditorState.ts`, `EditorProvider.types.ts` |
-| Engine | `EditorEngine` (default), `IEditorEngine`, `EditorEngineState`, `EngineStateEx`, `EditorEngineOptions`, `WasmRendererConfig`, `DrawData`, `ViewMode`, `EditorEvents`, `EditorEventTypes` | `src/EditorEngine/EditorEngine.ts`, `EditorEngine.types.ts`, `events.ts` |
-| Stage / viewer | `EditorView`, `EditorViewProps`, `EditorViewActions`, `getEditorViewUtilityClass` | `src/EditorView/EditorView.tsx`, `EditorView.types.ts`, `EditorViewActions.tsx` |
+| Top-level component | `Editor` (default + named), `EditorProps`, `EditorSlots`, `EditorSlotProps`, `EditorApiRef`, `getEditorUtilityClass`, `editorClasses` | `src/Editor/Editor.tsx`, `Editor.types.ts`, `editorClasses.ts` (via `Editor/index.ts`) |
+| Provider / context | `EditorProvider` (default), `useEditorContext` | `src/EditorProvider/EditorProvider.tsx`, `EditorContext.tsx` (via `EditorProvider/index.ts`) |
+| Engine (class only) | `EditorEngine` (class) — **companion types are not on the root barrel; see (B)** | `src/EditorEngine/EditorEngine.ts` |
+| Stage / viewer | `EditorView` (default), `EditorViewActions`, `EditorViewProps`, `getEditorViewUtilityClass`, `editorViewClasses` | `src/EditorView/EditorView.tsx`, `EditorView.types.ts`, `EditorViewActions.tsx` |
 | Transport controls | `EditorControls`, `EditorControlsProps`, `Volume`, `editorControlsClasses` | `src/EditorControls/EditorControls.tsx`, `Volume.tsx` |
-| File model | `EditorFile` (class + default export), `IEditorFile`, `IEditorFileProps`, `IEditorFileData`, `IEditorTrackData`, `SUVideoFile`, `editorFileCache`, `createEditorFile`, `EditorVideoExampleProps`, `EditorExample` | `src/EditorFile/EditorFile.ts`, `EditorFile.example.tsx` |
+| File model | `EditorFile` (class + default), `IEditorFile`, `IEditorFileProps`, `IEditorFileData`, `IEditorTrackData`, `SUVideoFile`, `editorFileCache`, plus `createEditorFile`, `EditorVideoExampleProps`, `EditorExample` (the last three declared directly in `src/index.ts`) | `src/EditorFile/EditorFile.ts`, `EditorFile.example.tsx`, `src/index.ts` |
 | Tracks | `IEditorTrack`, `IEditorFileTrack`, `getTracksFromMediaFiles`, `EditorTrackActions` | `src/EditorTrack/EditorTrack.ts`, `EditorTrackActions.tsx` |
 | Actions | `IEditorAction`, `IEditorFileAction`, `BlendMode`, `Fit` | `src/EditorAction/EditorAction.ts` |
-| Controllers (timeline `IController` map) | `Controllers` (default), `AudioController`, `VideoController`, `ImageController`, `WebController`, `CompositorController`, `AnimationController`, `EditorControllerParams`, `EditorPreloadParams` | `src/Controllers/Controllers.ts` and siblings |
-| Detail view | `DetailModal` / `DetailView` (root), sub-views (`DetailCombined`, `DetailAction`, `DetailTrack`, `DetailProject`, `DetailSettings`, `DetailBreadcrumbs`), controlled inputs (`ControlledText`, `ControlledColor`, `ControlledCss`, `ControlledCheckbox`, `ControlledCoordinates`, `ControlledSelect`, `ControlledVolumeSpan`, `BlendModeSelect`, `DesSelect`, `StokedSelect`), `getEditorDetail`, `detailViewClasses` | `src/DetailView/*` |
-| File explorer integration | `EditorFileTabs` | `src/EditorFileTabs/EditorFileTabs.tsx` |
-| Screener (fullscreen `<video>` overlay) | `EditorScreener`, `EditorScreenerProps` | `src/EditorScreener/EditorScreener.tsx` |
+| Controllers (timeline `IController` map) | `Controllers` (default map = `{ audio, video, image, compositor }`), `AudioController`, `VideoController`, `ImageController`, `CompositorController` | `src/Controllers/Controllers.ts`, `Controllers/index.ts` |
+| Editor app singleton | `StokedUiEditorApp` (registers `.sue` / `.suvid` / `.sua` mime types) | `src/Editor/StokedUiEditorApp.ts` (via `Editor/index.ts`) |
 | Hooks | `useEditorApiRef` | `src/hooks/useEditorApiRef.tsx` |
-| WASM preview integration | `WasmPreviewDemo`, `useWasmRenderer`, `actionMapper`, `WasmTransform`, `LayerType`, `BlendMode`, `CompositorLayer`, `LayerTransform`, `RenderMetrics` | `src/WasmPreview/*` |
-| Editor app singleton | `StokedUiEditorApp` (registers `.sue` / `.suvid` / `.sua` mime types) | `src/Editor/StokedUiEditorApp.ts` |
-| Plugins (internal but composed by `Editor`) | `useEditorMetadata`, `useEditorKeyboard`, `VIDEO_EDITOR_PLUGINS`, `EditorPluginSignatures` | `src/Editor/Editor.plugins.ts`, `src/internals/plugins/*` |
 | Misc models | `models/items.ts` re-exports | `src/models/index.ts` |
-| Theme augmentation | MUI `MuiEditor` / `MuiEditorView` / `MuiEditorControls` / `MuiDetailView` slot/class augmentation | `src/themeAugmentation/*` |
+
+### (B) Internal surface — composed by `Editor`, **not** reachable from the package barrel
+
+These modules exist and run at runtime, but the root `src/index.ts` does **not** re-export them, so they are not part of the public contract — a consumer would need a deep import to reach them, which `AX-REPO-PACKAGE-BARREL` forbids across workspace boundaries. Document them, but do **not** treat them as the API. (This is the single biggest correction this refresh made versus the prior version, which listed all of these as public.)
+
+| Internal surface | Symbols | Source | Why not public |
+|---|---|---|---|
+| Engine companion types | `IEditorEngine`, `EditorEngineState`, `EngineStateEx`, `EditorEngineOptions`, `WasmRendererConfig`, `DrawData`, `ViewMode`, `EditorEvents`, `EditorEventTypes` | `src/EditorEngine/EditorEngine.types.ts`, `events.ts` | `EditorEngine/index.ts` exports them, but root `index.ts` does `import EditorEngine from './EditorEngine'; export { EditorEngine }` — only the default class propagates, there is no `export * from './EditorEngine'` |
+| State helpers | `EditorState`, `EditorReducer`, `EditorStateAction`, `getActionSelectionData`, `refreshActionState`, `refreshTrackState` | `src/EditorProvider/EditorState.ts`, `EditorProvider.types.ts` | `EditorProvider/index.ts` re-exports only `EditorProvider` (default) + `useEditorContext` |
+| Detail view (inspector) | `DetailView` root, sub-views (`DetailCombined`, `DetailAction`, `DetailTrack`, `DetailProject`, `DetailSettings`, `DetailBreadcrumbs`), controlled inputs (`ControlledText/Color/Css/Checkbox/Coordinates/Select/VolumeSpan`, `BlendModeSelect`, `DesSelect`, `StokedSelect`), `getEditorDetail`, `detailViewClasses` | `src/DetailView/*` | No barrel entry; mounted by `Editor` and wired through provider `initialSettings.getDetail = getEditorDetail` |
+| Screener overlay | `EditorScreener`, `EditorScreenerProps` | `src/EditorScreener/EditorScreener.tsx` | No barrel entry |
+| Asset tabs | `EditorFileTabs` | `src/EditorFileTabs/EditorFileTabs.tsx` | No barrel entry |
+| WASM preview | `WasmPreviewDemo`, `useWasmRenderer`, `actionMapper`, `LayerType`, `BlendMode`, `CompositorLayer`, `LayerTransform`, `RenderMetrics` | `src/WasmPreview/*` | No barrel entry; lazy-loaded by `EditorEngine` |
+| Disabled controllers | `WebController`, `AnimationController` | `src/Controllers/WebController.ts`, `AnimationController.ts` | Commented out of both the `Controllers.ts` map and `Controllers/index.ts` — not exported, not dispatched |
+| Plugins | `useEditorMetadata`, `useEditorKeyboard`, `VIDEO_EDITOR_PLUGINS`, `EditorPluginSignatures` | `src/Editor/Editor.plugins.ts`, `src/internals/plugins/*` | Internal; composed by `Editor` via `useEditor` |
+| Theme augmentation | MUI `MuiEditor` / `MuiEditorView` / `MuiEditorControls` / `MuiDetailView` slot/class augmentation | `src/themeAugmentation/*` | Module-augmentation side-effect, not a named runtime export |
 
 The package is **library-only**: no NestJS controllers, no CLI commands, no Next.js routes. Runtime entry is the `<Editor />` React component (root), the `<EditorProvider />` context, and the `EditorEngine` class for headless or detached use.
 
@@ -188,9 +200,9 @@ This module also **materially shapes** every showcase / docs view that embeds th
 - **`src/Controllers/VideoController.ts`** — `Controller<HTMLVideoElement>`. Caches per-track `HTMLVideoElement`, screenshot map, frame-sync cache; drives `getDrawData` for canvas blits.
 - **`src/Controllers/AudioController.ts`** — Routes audio through shared `AudioContext` so multiple tracks mix into the recorder (see project memory).
 - **`src/Controllers/ImageController.ts`** — Canvas drawing for static image tracks.
-- **`src/Controllers/WebController.ts`** — Renders web/HTML tracks into the shadow-DOM stage.
+- **`src/Controllers/WebController.ts`** — Renders web/HTML tracks into the shadow-DOM stage. **Not currently registered** in the `Controllers.ts` map (the `web` key is absent), so `web` action types are not dispatched today.
 - **`src/Controllers/CompositorController.ts`** — Bridges to the WASM compositor when WASM mode is active.
-- **`src/Controllers/AnimationController.ts`** — (currently disabled in `Controllers.ts`).
+- **`src/Controllers/AnimationController.ts`** — (currently disabled — commented out of `Controllers.ts` and `Controllers/index.ts`).
 - **`src/Controllers/EditorControllerParams.ts`** — `EditorControllerParams`, `EditorPreloadParams` shared by all controllers.
 
 ### Detail view (inspector)

@@ -1,10 +1,10 @@
 # Stoked UI — User Flow Classification
 
-> **Generated:** 2026-05-21 (upgrade 0.3.0 → 0.4.0) | **Meta version:** 0.4.0
+> **Generated:** 2026-05-21 (upgrade 0.3.0 → 0.4.0) | **Refreshed:** 2026-06-06 | **Meta version:** 0.4.0
 > **Repository:** `@stoked-ui/sui`
 > **Root:** `/opt/worktrees/stoked-ui/stoked-ui-main`
 
-A "flow" here = an end-to-end user journey that crosses one or more views (`SC_VIEWS.md`) and one or more product surfaces (`SC_PRODUCT_STOKED_UI_SUI.md`). Flows are derived from Next.js page routes (`docs/pages/**`), API routes (`docs/pages/api/**` + `packages/sui-media-api/src/**`), Lambda handlers (`api/**`), package components (`packages/*/src/**`), and the Rust CLI (`packages/sui-video-renderer/cli/src/main.rs`).
+A "flow" here = an end-to-end user journey that crosses one or more views (`SC_VIEWS.md`) and one or more product surfaces (`SC_PRODUCT_STOKED_UI_SUI.md`). Flows are derived from Next.js page routes (`docs/pages/**`), API routes (`docs/pages/api/**` + `packages/sui-media-api/src/**`), Lambda handlers (`api/**`), docs modules (`docs/src/modules/**`, e.g. `auditBot`), package components (`packages/*/src/**`), and the Rust CLI (`packages/sui-video-renderer/cli/src/main.rs`).
 
 All flows reference the single product doc in this repo:
 **Products:** `SC_PRODUCT_STOKED_UI_SUI.md` — `@stoked-ui/sui`.
@@ -19,7 +19,7 @@ Flows are grouped by domain:
 6. CDN admin
 7. Consulting / business operations (admin)
 8. Blog publishing
-9. Customer feedback
+9. Customer feedback & lead capture (incl. consulting audit bot)
 10. GitHub widgets / activity
 11. Developer & contributor flows
 12. CLI / native tooling
@@ -55,6 +55,7 @@ Flows are grouped by domain:
   4. CTA either deep-links into §3 product MDX docs, the §2 hero showcase, or §3.1 Pricing.
 - **Views:** §1.2 Products Index, §1.3 Public Product Detail, §2 Showcase
 - **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Note:** Some products use a bespoke marketing page instead of the generic `PublicProductDetailPage`: **Stokd Cloud** renders `StokdCloudProductPage` → `StokdCloudPitch` (`docs/src/modules/products/StokdCloudProductPage.tsx`, `StokdCloudPitch.tsx`, copy in `stokdCloudContent.ts`) at both `/products/stokd-cloud` (`docs/pages/products/stokd-cloud/index.js`) and `/consulting/products/stokd-cloud` (`docs/pages/consulting/products/stokd-cloud.tsx`); **Mac Mixer** uses `MacMixerProductPage` (SC_VIEWS §20). These pages skip the `GET /api/products/public/[slug]` fetch and render static module content.
 
 ### 1.3 Read Product Documentation
 
@@ -509,7 +510,7 @@ Flows are grouped by domain:
 
 ---
 
-## 9. Customer Feedback
+## 9. Customer Feedback & Lead Capture
 
 ### 9.1 Submit Product Feedback
 
@@ -533,6 +534,23 @@ Flows are grouped by domain:
   2. Send: `POST /api/chat/send` (`docs/pages/api/chat/send.ts`); composer state transitions through *typing → sent*.
 - **Views:** §12.4 WebUserDirectChat
 - **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+
+### 9.3 Run a Consulting Audit Bot Conversation (Lead Generation)
+
+- **Actor:** Anonymous visitor / prospect on the consulting site
+- **Goal:** Get a free, LLM-driven, structured 1-page audit (AI readiness) and optionally hand over contact info so Brian follows up
+- **Entry points:** `AuditBotTrigger` on `/consulting/ai` (`docs/pages/consulting/ai/main.tsx`) — `hero` / `card` / `inline` variants open the `AuditBot` dialog with `playbook="ai-readiness"`
+- **Steps:**
+  1. Visitor opens the dialog via `AuditBotTrigger` (`docs/src/modules/auditBot/channels/web/components/AuditBotTrigger.tsx`); `AuditBot` (`.../AuditBot.tsx`) seeds a per-playbook opening assistant message.
+  2. Each visitor message POSTs `{ sessionId, playbook, history, message }` to `POST /api/audit/turn` (`docs/pages/api/audit/turn.ts`).
+  3. Server `runTurn` (`docs/src/modules/auditBot/conversationRunner.ts`) calls the LM Studio / Qwen endpoint (`llmClient.ts`, model `AUDIT_MODEL`) with the playbook system prompt (`playbooks/server.ts`) and `AUDIT_TOOLS` (`tools.ts`), looping over tool calls server-side so the UI only sees clean assistant text.
+  4. Tool `fetch_company_site` scrapes the visitor's company URL — SSRF-guarded via `urlSafety.ts` (blocks private/reserved IPs, validates redirects hop-by-hop) — to ground the audit.
+  5. Tool `generate_report` emits the structured `AuditReport`; server stamps `playbook` and returns it in the turn response; UI renders it inline via `AuditReportView` (§24.3).
+  6. Tool `save_lead` marks the conversation `finished`; server extracts lead fields (`leadFields.ts`), persists the lead/transcript/report via `auditStore.ts` (Mongo, best-effort), then runs the §13.5 notify + report-email side effects.
+  7. Visitor may instead (or also) submit name/email — and optionally "Book a 30-min call" (Calendly) — in the email-capture panel → `POST /api/audit/save-lead` (`docs/pages/api/audit/save-lead.ts`); response `{ ok, emailedReport }` toggles the confirmation copy.
+- **Views:** §24.1 Audit Bot Trigger, §24.2 Audit Bot Dialog, §24.3 Audit Report View; hosted on §21 Consulting Service-Line Pages (`/consulting/ai`)
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+- **Note:** Three playbooks are defined in `docs/src/modules/auditBot/playbooks/index.ts` (`ai-readiness` ~5 min, `cloud-cost` ~6 min, `security` ~6 min); only `ai-readiness` is mounted in the UI today. The persistence/notify/email steps are best-effort — a Mongo/SES/Telegram blip must not fail the turn.
 
 ---
 
@@ -697,6 +715,18 @@ Flows are grouped by domain:
 - **Views:** None
 - **Products:** SC_PRODUCT_STOKED_UI_SUI.md
 
+### 13.5 Audit Lead Notification & Report Email
+
+- **Actor:** Server (triggered by completion of an audit-bot conversation — §9.3)
+- **Goal:** Notify Brian of a completed audit and email the 1-page report to the lead
+- **Entry points:** `save_lead` tool fired inside `POST /api/audit/turn`; or `POST /api/audit/save-lead`
+- **Steps:**
+  1. Lead fields + report persisted to Mongo via `auditStore.ts` (`updateLeadFields`, `saveReport`).
+  2. `notifyAuditCompletion` (`docs/src/modules/auditBot/notifyTelegram.ts`) pushes a Telegram message to Brian (with request origin).
+  3. If the lead has both an email and a generated report, `sendAuditReportEmail` (`docs/src/modules/auditBot/auditMailer.ts`) emails the report via SES; `tryMarkReportEmailed` guarantees a single send (idempotent guard).
+- **Views:** None (server-only); §24.2 Audit Bot Dialog / §24.3 Audit Report View reflect the resulting confirmation state in-dialog
+- **Products:** SC_PRODUCT_STOKED_UI_SUI.md
+
 ---
 
 ## Cross-Cutting Notes
@@ -706,6 +736,8 @@ Flows are grouped by domain:
 - **Local dev port:** 5199 for the Next.js docs app; 3001 for the Media API. Never 3000.
 - **WASM dependency:** `EditorEngine` dynamically imports `@stoked-ui/video-renderer-wasm` (file dep on `packages/sui-video-renderer/pkg`); `next.config.mjs` enables `experiments.asyncWebAssembly` and aliases the package. Editor flow §4.x will fall back gracefully if the WASM build is missing.
 - **CDN flow duality:** Same `CdnBrowser` runs in `packages-internal/cdn-sui` (workspace) and embedded inside the docs admin via `apiBaseUrl="/api/cdn"`.
+- **Audit bot model:** The §9.3 / §13.5 audit bot is unauthenticated (no `localStorage["auth"]`); it runs against a local LM Studio / Qwen OpenAI-compatible endpoint (`AUDIT_MODEL` / base URL via env), with tool execution looped server-side in `conversationRunner.ts`. Mongo persistence, SES report email, and Telegram notification are all best-effort and never block a chat turn.
+- **Planned — media pairing & poster auto-detection (NOT yet implemented):** A governed project (`.stokd/projects/media-pairing-poster-detection/prd.md`) plans to let the CDN gallery (§6.1) and `MediaCard`/`MediaGallery` (§5.2) collapse video+image basename pairs, use the image as the video's poster, and expose the image's standalone actions via a thumbnail FAB menu. As of this refresh the implementation does **not** exist — there is no `pairMedia` util and no `posterUrl`/`pairedImage`/`posterObject` props in `packages/sui-cdn` or `packages/sui-media`; the live poster path in `MediaCard.tsx` is still server-thumbnail → first-frame canvas extraction. Treat this as planned work, not a current flow.
 
 ---
 

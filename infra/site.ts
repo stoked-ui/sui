@@ -52,6 +52,8 @@ export const createSite = async (domainInfo: DomainInfo) => {
     environment: {
       // Used in next.config.mjs to disable static export mode for OpenNext builds.
       OPEN_NEXT_BUILD: 'true',
+      // Prevent Next.js telemetry from creating network connections / potential hangs during deploys
+      NEXT_TELEMETRY_DISABLED: '1',
       MONGODB_URI: mongoDbUri.value,
       JWT_SECRET: jwtSecret.value,
       STRIPE_SECRET_KEY: stripeSecretKey.value,
@@ -111,6 +113,25 @@ export const createSite = async (domainInfo: DomainInfo) => {
     edge: {
       viewerRequest: {
         injection: `
+          // Handle CORS preflight for media/video playback (Range requests from cross-origin MediaCards, etc.)
+          // This must run before domain routing so preflight is answered for all paths including media.
+          var method = (event.request.method || 'GET').toUpperCase();
+          if (method === 'OPTIONS') {
+            var reqHeaders = event.request.headers['access-control-request-headers'];
+            return {
+              statusCode: 204,
+              statusDescription: 'No Content',
+              headers: {
+                'access-control-allow-origin': { value: '*' },
+                'access-control-allow-methods': { value: 'GET, HEAD, OPTIONS' },
+                'access-control-allow-headers': { value: reqHeaders ? reqHeaders.value : 'Range, Content-Type, Authorization' },
+                'access-control-expose-headers': { value: 'Content-Range, Accept-Ranges, Content-Encoding, Content-Length' },
+                'access-control-max-age': { value: '86400' },
+                'vary': { value: 'Origin, Access-Control-Request-Headers, Access-Control-Request-Method' },
+              },
+            };
+          }
+
           // Domain-based routing:
           // - sui.stokd.cloud/consulting/* => https://consulting.stokd.cloud/*
           // - consulting.stokd.cloud/* => /consulting/* on the same Next.js site
@@ -216,9 +237,10 @@ export const createSite = async (domainInfo: DomainInfo) => {
           // Keep permissive CORS headers for media playback and downloads.
           event.response.headers['access-control-allow-origin'] = { value: '*' }; // Allow all origins
           event.response.headers['access-control-allow-methods'] = { value: 'GET, HEAD, OPTIONS' };
-          event.response.headers['access-control-allow-headers'] = { value: 'Range' };
+          event.response.headers['access-control-allow-headers'] = { value: 'Range, Content-Type, Authorization' };
           event.response.headers['access-control-expose-headers'] = { value: 'Content-Range, Accept-Ranges, Content-Encoding, Content-Length' };
           event.response.headers['cross-origin-opener-policy'] = { value: 'same-origin-allow-popups' };
+          event.response.headers['vary'] = { value: 'Origin, Access-Control-Request-Headers, Access-Control-Request-Method' };
         `,
       },
     },

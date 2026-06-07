@@ -1,6 +1,6 @@
 # Module: @stoked-ui/file-explorer
 
-> **Generated:** 2026-05-21 (upgrade 0.3.0 → 0.4.0) | **Meta version:** 0.4.0
+> **Generated:** 2026-05-21 (upgrade 0.3.0 → 0.4.0) · **Refreshed:** 2026-06-06 (timed refresh — verified against source) | **Meta version:** 0.4.0
 > **Package location:** `packages/sui-file-explorer`
 > **NPM name:** `@stoked-ui/file-explorer` (v0.1.2)
 > **Source entry:** `packages/sui-file-explorer/src/index.ts`
@@ -103,7 +103,7 @@ There is no other product doc; the module participates in only this one.
 Internal consumers (non-publishable) include:
 - `packages/sui-editor/src/EditorFileTabs/EditorFileTabs.tsx` — embeds `FileExplorerTabs`, `FileBase`, and `ExplorerPanelProps` to drive the editor asset rail.
 - `docs/src/components/home/FileExplorerShowcase.tsx`, `docs/src/components/showcase/FileListCard.tsx`, `FolderTreeView.tsx`, `ConsultingDocumentBrowserCard.tsx`.
-- `docs/data/file-explorer/docs/file-explorer/**` — every customization, dropzone, expansion, focus, items, and selection demo.
+- `docs/data/file-explorer/docs/file-explorer/**` and `docs/data/file-explorer/docs/file-explorer-basic/**` — every customization, dropzone, drag-and-drop, expansion, focus, items, and selection demo.
 - `docs/pages/blog/sui/stoked-ui-file-explorer.md`, `introducing-stoked-ui.md`, `stoked-ui-timeline-editor.md` — marketing posts.
 
 ---
@@ -148,8 +148,8 @@ This module also **materially shapes** these views authored elsewhere:
 
 | Consumer | Usage |
 |---|---|
-| `packages/sui-editor` | `EditorFileTabs` imports `FileExplorerTabs`, `FileBase`, `FileExplorerTabsProps`, `ExplorerPanelProps` to render the editor asset rail. `Editor.types.ts` re-exports types. |
-| `docs/data/file-explorer/docs/**` | Every documented demo (selection, expansion, focus, items, dropzone, customization). |
+| `packages/sui-editor` | `EditorFileTabs` (`src/EditorFileTabs/EditorFileTabs.tsx`) imports `FileExplorerTabs`, `FileBase`, `FileExplorerTabsProps`, `ExplorerPanelProps` to render the editor asset rail. `Editor/Editor.types.ts` imports `FileExplorerProps` / `FileExplorerTabsProps`. The editor's `useEditorMetadata` / `useEditorKeyboard` plugin tests additionally reach into `@stoked-ui/file-explorer/internals` (a deep import across the workspace boundary — see repo-global AX-REPO-PACKAGE-BARREL); the `internals` barrel is therefore a de-facto contract for editor tests, not just the package's own runtime. |
+| `docs/data/file-explorer/docs/**` | Every documented demo (selection, expansion, focus, items, dropzone, drag-and-drop, customization) across both `file-explorer/` and `file-explorer-basic/` sub-trees. |
 | `docs/src/components/home/FileExplorerShowcase.tsx` | Homepage showcase. |
 | `docs/src/components/showcase/{FolderTreeView,FileListCard,ConsultingDocumentBrowserCard}.tsx` | Embedded showcase cards. |
 | `docs/pages/products/file-explorer/example/index.tsx` | `/products/file-explorer/` demo route. |
@@ -190,16 +190,16 @@ This module also **materially shapes** these views authored elsewhere:
 | `src/internals/plugins/useFileExplorerIcons/` | Slot precedence for expand/collapse/end/item icons. |
 | `src/internals/plugins/useFileExplorerGrid/` | Adds `FileExplorerGridHeaders`, columns, header cells, sorting/resizing. |
 | `src/internals/plugins/useFileExplorerJSXItems/` | Alternative JSX-children-based item declaration (used when `items` prop is not provided). |
-| `src/internals/plugins/useFileExplorerDnd/useFileExplorerDnd.tsx` (~400 lines) | The DnD plugin: registers Atlassian Pragmatic adapters (`draggable`, `dropTargetForElements`, `monitorForElements`, external adapters), tracks drop-target hitboxes, fires post-move flashes. |
+| `src/internals/plugins/useFileExplorerDnd/useFileExplorerDnd.tsx` (~800 lines) | The DnD plugin: registers Atlassian Pragmatic adapters (`draggable`, `dropTargetForElements`, `monitorForElements`, external adapters), tracks drop-target hitboxes, fires post-move flashes. |
 | `src/internals/plugins/useFileExplorerDnd/FileExplorerDndContext.ts` | DnD reducer (`fileListStateReducer`) + context value. Drives all DnD state transitions (`instruction`, `create-children`, `modal-move`, `external-drop`, `toggle-expand`). |
-| `src/internals/plugins/useFileExplorerDnd/fileValidation.ts` (~250 lines, security-critical) | `isDangerousExtension`, `isAllowedMimeType`, `isAcceptableFileSize`, `validateFile`, `validateFiles`, `getRejectionReason`. The gate between OS drops and consumer code. |
+| `src/internals/plugins/useFileExplorerDnd/fileValidation.ts` (249 lines, security-critical) | `isDangerousExtension`, `isAllowedMimeType`, `isAcceptableFileSize`, `validateFile`, `validateFiles`, `getRejectionReason` (+ `FileValidationResult` / `FileValidationBatchResult` types). The gate between OS drops and consumer code. |
 | `src/internals/plugins/useFileExplorerDnd/fileExportUtils.ts` | Blob creation, download URL generation, file export helpers. |
 | `src/internals/plugins/useFileExplorerDnd/muiXDndAdapters.ts` | Adapter shims that bridge Pragmatic DnD events to the MUI-X tree's data model (`ItemPositionChangeParams`). |
 | `src/internals/utils/EventManager.ts` | Pub/sub used by plugins for cross-cutting events (priority + ordered). |
 | `src/internals/utils/transformFilesToTreeItems.ts` | Converts a flat `File[]` (from `<input type=file>` or DataTransfer) into a `FileBaseInput` tree. |
 | `src/internals/utils/publishFileExplorerEvent.ts`, `fileExplorer.ts`, `warning.ts`, `cleanupTracking/` | Event dispatch, helpers, dev warnings, listener cleanup tracking. |
 | `src/internals/zero-styled/` | The package's `styled` / `useThemeProps` indirection so the build can swap zero-runtime for emotion. |
-| `src/featureFlags/FeatureFlagConfig.ts` (244 lines) | `FeatureFlag` enum, environment configs, dependency graph (`FEATURE_FLAG_DEPENDENCIES`), persistence key, validation predicates, percentage rollouts (`shouldShowFeature` + `hashUserId`). |
+| `src/featureFlags/FeatureFlagConfig.ts` (243 lines) | `FeatureFlag` enum, environment configs, dependency graph (`FEATURE_FLAG_DEPENDENCIES`), persistence key, validation predicates, percentage rollouts (`shouldShowFeature` + `hashUserId`). |
 | `src/featureFlags/FeatureFlagContext.tsx` | React provider, `useFeatureFlag`, `useFeatureFlags`, runtime updates, localStorage persistence, emergency disable. |
 | `src/hooks/useFileExplorerApiRef.tsx` | Public hook for parent apps to obtain a typed ref to the `FileExplorerPublicAPI`. |
 | `src/hooks/useFileUtils/` | `useFileUtils` — interactions object (`handleExpansion`, `handleSelection`, status accessors). |

@@ -1,0 +1,244 @@
+#!/usr/bin/env node
+// Builds the on-disk stokd orchestration-state for the Media Pairing project
+// with the faithful 5-phase / itemized work-item tree from the PRD.
+// Schema mirrors the current CLI (phase_number, item_number, etc.) and adds an
+// explicit `status` field on each phase and work item so the escalation
+// orchestrator can mark them `completed` as it progresses.
+import fs from 'node:fs';
+import path from 'node:path';
+
+const SLUG = 'media-pairing-poster-detection';
+const PROJECT_ID = 'f8ed04a6-8a0d-4b2c-b66e-e1a62658963c';
+const ROOT = process.cwd();
+const SRC_PRD = path.join(ROOT, 'projects', SLUG, 'prd.md');
+const DIR = path.join(ROOT, '.stokd', 'projects', SLUG);
+const PHASES_DIR = path.join(DIR, 'phases');
+
+const now = new Date().toISOString();
+
+const phases = [
+  {
+    phase_number: 1,
+    title: 'Pairing Foundation (pure logic)',
+    status: 'pending',
+    purpose:
+      'Establish a single, well-tested, framework-agnostic pairing function before any UI consumes it.',
+    work_items: [
+      {
+        item_number: 1,
+        title: 'Pairing utility (pairMedia)',
+        status: 'pending',
+        dependencies: [],
+        implementation_details:
+          'New util packages/sui-cdn/src/utils/pairMedia.ts reusing getFileKind. O(n) basename grouping (strip dir prefix + final extension, lowercase). A group is a pair only with exactly one video + >=1 image; poster = first image by name sort. Handle: unpaired image, multi-image, multi-video ambiguity, case-insensitivity, cross-directory, empty input.',
+        acceptance_criteria:
+          'AC-1.1.a..g structural (pairing, case-insensitive, multi-image, multi-video, cross-dir, order); AC-1.1.h tsc exits 0; AC-1.1.i pairMedia unit suite passes.',
+        verification_commands: [
+          'pnpm --filter @stoked-ui/cdn typescript',
+          'pnpm test:unit:no-docs -- --grep pairMedia',
+        ],
+      },
+      {
+        item_number: 2,
+        title: 'Count/size reconciliation helper',
+        status: 'pending',
+        dependencies: [1],
+        implementation_details:
+          'Pure helper over pairMedia output returning visibleCount, collapsedCount, totalBytes (default: bytes of all objects). Pairing-off path equals pre-feature totals.',
+        acceptance_criteria:
+          'AC-1.2.a visibleCount=3/collapsedCount=3 on fixture; AC-1.2.b totalBytes rule; AC-1.2.c pairing-off => 6/0.',
+        verification_commands: ['pnpm test:unit:no-docs -- --grep pairMedia'],
+      },
+    ],
+  },
+  {
+    phase_number: 2,
+    title: 'CDN Gallery Integration',
+    status: 'pending',
+    purpose: 'Apply pairing to the CdnBrowser gallery (the screenshot surface).',
+    work_items: [
+      {
+        item_number: 1,
+        title: 'Collapse paired images in gallery + apply poster',
+        status: 'pending',
+        dependencies: ['1.1', '1.2'],
+        implementation_details:
+          'Run pairMedia over gallery objects in CdnBrowser.tsx; render one card per surviving primary; pass posterUrl into GalleryCard => <video poster> + resting still. Toolbar/hero counts use Phase 1 counters. Collapse toggle (default ON in gallery). Poster 404 => first-frame fallback.',
+        acceptance_criteria:
+          'AC-2.1.a 3 cards/0 png; AC-2.1.b poster set; AC-2.1.c toolbar "3 files"; AC-2.1.d unpaired image renders; AC-2.1.e toggle-off => 6 cards.',
+        verification_commands: [
+          'pnpm --filter @stoked-ui/cdn typescript',
+          'pnpm test:unit:no-docs -- --grep "CdnBrowser|pairMedia"',
+          'pnpm eslint',
+        ],
+      },
+      {
+        item_number: 2,
+        title: 'Mock data + dev fixture',
+        status: 'pending',
+        dependencies: ['2.1'],
+        implementation_details:
+          'Add golden-streams/normal-guy/train .mp4+.png pairs under a samples/ prefix to mockContents (sui-cdn and packages-internal/cdn) so the feature is demonstrable.',
+        acceptance_criteria:
+          'AC-2.2.a mock has 3 pairs; AC-2.2.b gallery shows 3 collapsed cards.',
+        verification_commands: [
+          'pnpm --filter @stoked-ui/cdn typescript',
+          'pnpm test:unit:no-docs -- --grep CdnBrowser',
+        ],
+      },
+    ],
+  },
+  {
+    phase_number: 3,
+    title: 'Thumbnail Affordance (FAB + action menu)',
+    status: 'pending',
+    purpose: 'Preserve the collapsed image’s standalone actions via a thumbnail FAB + menu.',
+    work_items: [
+      {
+        item_number: 1,
+        title: 'Thumbnail FAB on paired cards',
+        status: 'pending',
+        dependencies: ['2.1'],
+        implementation_details:
+          'Render a floating action button on a card ONLY when a paired poster exists. Plain button/SVG (no MUI in sui-cdn). Corner placement, hover/focus visible, keyboard reachable, aria-haspopup="menu"/aria-expanded.',
+        acceptance_criteria:
+          'AC-3.1.a one FAB on paired card; AC-3.1.b none on unpaired; AC-3.1.c FAB focusable + aria-haspopup.',
+        verification_commands: [
+          'pnpm --filter @stoked-ui/cdn typescript',
+          'pnpm test:unit:no-docs -- --grep CdnBrowser',
+        ],
+      },
+      {
+        item_number: 2,
+        title: 'Thumbnail action menu',
+        status: 'pending',
+        dependencies: ['3.1'],
+        implementation_details:
+          'FAB opens a menu acting on the POSTER object path: View thumbnail, Copy path (always); Permissions, Delete (admin/canManage). Delegate to existing handlers with poster path, never the video path. After poster delete + refresh, video falls back to first-frame and FAB disappears. Close on Escape/outside-click/blur.',
+        acceptance_criteria:
+          'AC-3.2.a admin items; AC-3.2.b non-admin only View+Copy; AC-3.2.c delete uses poster path; AC-3.2.d permissions uses poster path; AC-3.2.e post-delete fallback; AC-3.2.f closes on Escape/outside.',
+        verification_commands: [
+          'pnpm --filter @stoked-ui/cdn typescript',
+          'pnpm test:unit:no-docs -- --grep CdnBrowser',
+          'pnpm eslint',
+        ],
+      },
+    ],
+  },
+  {
+    phase_number: 4,
+    title: 'MediaCard Component Integration',
+    status: 'pending',
+    purpose: 'Bring pairing-poster + thumbnail affordance to @stoked-ui/media MediaCard.',
+    work_items: [
+      {
+        item_number: 1,
+        title: 'Poster precedence + pairing-aware item',
+        status: 'pending',
+        dependencies: ['1.1', '3.2'],
+        implementation_details:
+          'MediaCard.tsx thumbnailUrl precedence: serverThumbnail > item.thumbnail/paidThumbnail > pairedImage poster > generatedPoster(first-frame) > none. Skip extractVideoFrame when paired poster exists. Support caller-paired and self-contained (pairedImage prop) shapes.',
+        acceptance_criteria:
+          'AC-4.1.a pairedImage used + no first-frame; AC-4.1.b server thumbnail still wins; AC-4.1.c no pair/no server => first-frame still runs.',
+        verification_commands: [
+          'pnpm --filter @stoked-ui/media typescript',
+          'pnpm --filter @stoked-ui/media test',
+        ],
+      },
+      {
+        item_number: 2,
+        title: 'Thumbnail affordance in MediaCard',
+        status: 'pending',
+        dependencies: ['4.1'],
+        implementation_details:
+          'When pairedImage present, render thumbnail FAB whose menu mirrors Phase 3 (View, owner Edit/Permissions, Delete) wired to onPosterView/onPosterDelete/onPosterPermissions. Owner gating via existing isOwner. Labels/order match the CDN menu.',
+        acceptance_criteria:
+          'AC-4.2.a FAB iff pairedImage; AC-4.2.b handlers fire with poster identity; AC-4.2.c owner-only items hidden for non-owner.',
+        verification_commands: [
+          'pnpm --filter @stoked-ui/media typescript',
+          'pnpm --filter @stoked-ui/media test',
+          'pnpm eslint',
+        ],
+      },
+    ],
+  },
+  {
+    phase_number: 5,
+    title: 'Docs Examples & Documentation',
+    status: 'pending',
+    purpose: 'Demonstrate and document the shipped behavior in the docs site.',
+    work_items: [
+      {
+        item_number: 1,
+        title: 'Docs demo for pairing + thumbnail affordance',
+        status: 'pending',
+        dependencies: ['2.1', '4.2'],
+        implementation_details:
+          'New demo docs/data/media/docs/media-card/MediaCardPairedPoster.{js,tsx} referenced from media-card.md, with a pairing on/off toggle and the FAB menu. Update media-card.md to document pairing rules, poster precedence, and menu actions.',
+        acceptance_criteria:
+          'AC-5.1.a demo renders paired card + working FAB/menu; AC-5.1.b md documents rules; AC-5.1.c .js and .tsx variants consistent.',
+        verification_commands: ['pnpm eslint', 'pnpm --filter @stoked-ui/media typescript'],
+      },
+    ],
+  },
+];
+
+fs.mkdirSync(PHASES_DIR, { recursive: true });
+
+const state = {
+  slug: SLUG,
+  title: 'Media Pairing & Poster Auto-Detection',
+  status: 'active',
+  created_at: now,
+  storage_mode: 'database',
+  error_message: null,
+  progress_log: [`[${now}] Project state authored from PRD with 5 phases / 9 work items.`],
+  review_mode: 'complete',
+  workspace_root: ROOT,
+  project_id: PROJECT_ID,
+  phases,
+};
+
+fs.writeFileSync(
+  path.join(DIR, 'orchestration-state.json'),
+  `${JSON.stringify(state, null, 2)}\n`,
+);
+
+// Copy PRD in
+fs.copyFileSync(SRC_PRD, path.join(DIR, 'prd.md'));
+
+// Per-phase review files + bundle
+const lines = [];
+for (const p of phases) {
+  const body = [
+    `# Phase ${p.phase_number}: ${p.title}`,
+    '',
+    `**Purpose:** ${p.purpose}`,
+    '',
+    ...p.work_items.flatMap((w) => [
+      `## ${p.phase_number}.${w.item_number} ${w.title}`,
+      '',
+      `- **Status:** ${w.status}`,
+      `- **Dependencies:** ${w.dependencies.length ? w.dependencies.join(', ') : 'none'}`,
+      `- **Implementation:** ${w.implementation_details}`,
+      `- **Acceptance:** ${w.acceptance_criteria}`,
+      `- **Verify:**`,
+      ...w.verification_commands.map((c) => `  - \`${c}\``),
+      '',
+    ]),
+  ].join('\n');
+  fs.writeFileSync(
+    path.join(PHASES_DIR, `phase-0${p.phase_number}-${p.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}.md`),
+    `${body}\n`,
+  );
+  lines.push(body);
+}
+fs.writeFileSync(path.join(PHASES_DIR, 'ALL_PHASES.md'), `${lines.join('\n---\n\n')}\n`);
+fs.writeFileSync(
+  path.join(PHASES_DIR, 'README.md'),
+  `# Review materials\n\nPhases for ${state.title}. See ALL_PHASES.md for the bundle and orchestration-state.json for machine state.\n`,
+);
+
+console.log('Wrote orchestration-state.json with', phases.length, 'phases,',
+  phases.reduce((n, p) => n + p.work_items.length, 0), 'work items.');
+console.log('Dir:', DIR);

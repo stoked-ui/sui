@@ -232,6 +232,168 @@ function useAuthSession(authEndpoint: string | undefined): AuthState {
 
 // ─── sub-components ──────────────────────────────────────────────────────────
 
+interface GalleryCardProps {
+  object: { path: string; url: string; name: string; size: number };
+  canManage: boolean;
+  renamingPath: string | null;
+  renameValue: string;
+  onDragStart: (event: React.DragEvent) => void;
+  onRenameStart: (path: string, name: string) => void;
+  onRenameChange: (value: string) => void;
+  onRenameCommit: () => void;
+  onRenameKeyDown: (event: React.KeyboardEvent<HTMLInputElement>) => void;
+  onDelete: (path: string) => void;
+  onPermissions: (path: string) => void;
+}
+
+function GalleryCard({
+  object,
+  canManage,
+  renamingPath,
+  renameValue,
+  onDragStart,
+  onRenameStart,
+  onRenameChange,
+  onRenameCommit,
+  onRenameKeyDown,
+  onDelete,
+  onPermissions,
+}: GalleryCardProps) {
+  const kind = getFileKind(object.path);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isHovering, setIsHovering] = useState(false);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (isHovering) {
+      video.play().catch(() => {});
+    } else {
+      video.pause();
+      if (video.readyState > 0) {
+        try { video.currentTime = 0.1; } catch { /* ignore */ }
+      }
+    }
+  }, [isHovering]);
+
+  function handleLoadedMetadata() {
+    const video = videoRef.current;
+    if (video) {
+      try { video.currentTime = 0.1; } catch { /* ignore */ }
+    }
+  }
+
+  return (
+    <article
+      className="media-card"
+      draggable
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
+      onDragStart={onDragStart}
+    >
+      <a
+        className="media-card-thumb-link"
+        href={object.url}
+        target="_blank"
+        rel="noreferrer"
+        tabIndex={-1}
+      >
+        {kind === 'image' ? (
+          <img
+            className="media-card-thumb"
+            src={object.url}
+            alt={object.name}
+            loading="lazy"
+          />
+        ) : kind === 'video' ? (
+          <video
+            ref={videoRef}
+            src={object.url}
+            className="media-card-thumb"
+            muted
+            playsInline
+            loop
+            preload="metadata"
+            onLoadedMetadata={handleLoadedMetadata}
+          />
+        ) : (
+          <div
+            className="media-card-thumb media-card-thumb-placeholder"
+            data-kind={kind}
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
+            </svg>
+          </div>
+        )}
+      </a>
+      <div className="media-card-body">
+        {canManage && renamingPath === object.path ? (
+          <input
+            className="rename-input"
+            value={renameValue}
+            onChange={(e) => onRenameChange(e.target.value)}
+            onKeyDown={onRenameKeyDown}
+            onBlur={onRenameCommit}
+            // eslint-disable-next-line jsx-a11y/no-autofocus
+            autoFocus
+          />
+        ) : (
+          <div
+            className="media-card-name"
+            title={object.name}
+            onDoubleClick={canManage ? () => onRenameStart(object.path, object.name) : undefined}
+            style={canManage ? { cursor: 'text' } : undefined}
+          >
+            {object.name}
+          </div>
+        )}
+        <div className="media-card-meta">{formatBytes(object.size)}</div>
+        <div className="media-card-actions">
+          <a
+            className="icon-action"
+            href={object.url}
+            target="_blank"
+            rel="noreferrer"
+            title="View"
+            aria-label="View"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 5c5.5 0 9.5 4.6 10.8 6.4.27.37.27.83 0 1.2C21.5 14.4 17.5 19 12 19S2.5 14.4 1.2 12.6a1.01 1.01 0 0 1 0-1.2C2.5 9.6 6.5 5 12 5Zm0 2C8 7 4.86 10.1 3.31 12 4.86 13.9 8 17 12 17s7.14-3.1 8.69-5C19.14 10.1 16 7 12 7Zm0 1.75A3.25 3.25 0 1 1 8.75 12 3.25 3.25 0 0 1 12 8.75Zm0 2A1.25 1.25 0 1 0 13.25 12 1.25 1.25 0 0 0 12 10.75Z" />
+            </svg>
+          </a>
+          {canManage ? (
+            <button
+              className="icon-action"
+              type="button"
+              title="Restrict"
+              aria-label="Restrict"
+              onClick={() => onPermissions(object.path)}
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 1.75A5.25 5.25 0 0 0 6.75 7v2H5.5A1.75 1.75 0 0 0 3.75 10.75v9.5c0 .97.78 1.75 1.75 1.75h13a1.75 1.75 0 0 0 1.75-1.75v-9.5A1.75 1.75 0 0 0 18.5 9h-1.25V7A5.25 5.25 0 0 0 12 1.75Zm-3.25 7.25V7a3.25 3.25 0 1 1 6.5 0v2h-6.5Zm3.25 3a1.75 1.75 0 0 1 1 3.19v2.06h-2v-2.06A1.75 1.75 0 0 1 12 12Z" />
+              </svg>
+            </button>
+          ) : null}
+          {canManage ? (
+            <button
+              className="icon-action"
+              type="button"
+              title="Delete"
+              aria-label="Delete"
+              onClick={() => onDelete(object.path)}
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M9 3.75h6l.75 1.5h3.5v2h-1v11A2.75 2.75 0 0 1 15.5 21h-7A2.75 2.75 0 0 1 5.75 18.25v-11h-1v-2h3.5L9 3.75Zm-1.25 3.5v11c0 .41.34.75.75.75h7a.75.75 0 0 0 .75-.75v-11h-8.5Zm2.5 2h2v7h-2v-7Zm4 0h2v7h-2v-7Z" />
+              </svg>
+            </button>
+          ) : null}
+        </div>
+      </div>
+    </article>
+  );
+}
+
 function MediaUploadThumbnail({ file }: { file: File }) {
   const [src, setSrc] = useState('');
 
@@ -1124,123 +1286,33 @@ export function CdnBrowser(props: CdnBrowserProps) {
 
                 {viewMode === 'gallery' ? (
                   <div className="media-gallery">
-                    {visible.objects.map((object) => {
-                      const kind = getFileKind(object.path);
-                      return (
-                        <article
-                          key={object.path}
-                          className="media-card"
-                          draggable
-                          onDragStart={(event) => {
-                            if (canManage) {
-                              event.dataTransfer.setData('application/x-stoked-path', JSON.stringify({
-                                path: object.path,
-                              }));
-                            }
-                            beginDesktopDownload(event, {
-                              name: object.name,
-                              url: object.url,
-                              effectAllowed: canManage ? 'copyMove' : 'copy',
-                            });
-                          }}
-                        >
-                          <a
-                            className="media-card-thumb-link"
-                            href={object.url}
-                            target="_blank"
-                            rel="noreferrer"
-                            tabIndex={-1}
-                          >
-                            {kind === 'image' ? (
-                              <img
-                                className="media-card-thumb"
-                                src={object.url}
-                                alt={object.name}
-                                loading="lazy"
-                              />
-                            ) : (
-                              <div
-                                className="media-card-thumb media-card-thumb-placeholder"
-                                data-kind={kind}
-                              >
-                                {kind === 'video' ? (
-                                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                                    <path d="M8 6.82v10.36c0 .79.87 1.27 1.54.84l8.14-5.18c.62-.39.62-1.29 0-1.69L9.54 5.98C8.87 5.55 8 6.03 8 6.82z" />
-                                  </svg>
-                                ) : (
-                                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                                    <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" />
-                                  </svg>
-                                )}
-                              </div>
-                            )}
-                          </a>
-                          <div className="media-card-body">
-                            {canManage && renamingPath === object.path ? (
-                              <input
-                                className="rename-input"
-                                value={renameValue}
-                                onChange={(e) => setRenameValue(e.target.value)}
-                                onKeyDown={handleRenameKeyDown}
-                                onBlur={handleRenameCommit}
-                                // eslint-disable-next-line jsx-a11y/no-autofocus
-                                autoFocus
-                              />
-                            ) : (
-                              <div
-                                className="media-card-name"
-                                title={object.name}
-                                onDoubleClick={canManage ? () => handleRenameStart(object.path, object.name) : undefined}
-                                style={canManage ? { cursor: 'text' } : undefined}
-                              >
-                                {object.name}
-                              </div>
-                            )}
-                            <div className="media-card-meta">{formatBytes(object.size)}</div>
-                            <div className="media-card-actions">
-                              <a
-                                className="icon-action"
-                                href={object.url}
-                                target="_blank"
-                                rel="noreferrer"
-                                title="View"
-                                aria-label="View"
-                              >
-                                <svg viewBox="0 0 24 24" aria-hidden="true">
-                                  <path d="M12 5c5.5 0 9.5 4.6 10.8 6.4.27.37.27.83 0 1.2C21.5 14.4 17.5 19 12 19S2.5 14.4 1.2 12.6a1.01 1.01 0 0 1 0-1.2C2.5 9.6 6.5 5 12 5Zm0 2C8 7 4.86 10.1 3.31 12 4.86 13.9 8 17 12 17s7.14-3.1 8.69-5C19.14 10.1 16 7 12 7Zm0 1.75A3.25 3.25 0 1 1 8.75 12 3.25 3.25 0 0 1 12 8.75Zm0 2A1.25 1.25 0 1 0 13.25 12 1.25 1.25 0 0 0 12 10.75Z" />
-                                </svg>
-                              </a>
-                              {canManage ? (
-                                <button
-                                  className="icon-action"
-                                  type="button"
-                                  title="Restrict"
-                                  aria-label="Restrict"
-                                  onClick={() => handlePermissions(object.path)}
-                                >
-                                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                                    <path d="M12 1.75A5.25 5.25 0 0 0 6.75 7v2H5.5A1.75 1.75 0 0 0 3.75 10.75v9.5c0 .97.78 1.75 1.75 1.75h13a1.75 1.75 0 0 0 1.75-1.75v-9.5A1.75 1.75 0 0 0 18.5 9h-1.25V7A5.25 5.25 0 0 0 12 1.75Zm-3.25 7.25V7a3.25 3.25 0 1 1 6.5 0v2h-6.5Zm3.25 3a1.75 1.75 0 0 1 1 3.19v2.06h-2v-2.06A1.75 1.75 0 0 1 12 12Z" />
-                                  </svg>
-                                </button>
-                              ) : null}
-                              {canManage ? (
-                                <button
-                                  className="icon-action"
-                                  type="button"
-                                  title="Delete"
-                                  aria-label="Delete"
-                                  onClick={() => handleDelete(object.path)}
-                                >
-                                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                                    <path d="M9 3.75h6l.75 1.5h3.5v2h-1v11A2.75 2.75 0 0 1 15.5 21h-7A2.75 2.75 0 0 1 5.75 18.25v-11h-1v-2h3.5L9 3.75Zm-1.25 3.5v11c0 .41.34.75.75.75h7a.75.75 0 0 0 .75-.75v-11h-8.5Zm2.5 2h2v7h-2v-7Zm4 0h2v7h-2v-7Z" />
-                                  </svg>
-                                </button>
-                              ) : null}
-                            </div>
-                          </div>
-                        </article>
-                      );
-                    })}
+                    {visible.objects.map((object) => (
+                      <GalleryCard
+                        key={object.path}
+                        object={object}
+                        canManage={canManage}
+                        renamingPath={renamingPath}
+                        renameValue={renameValue}
+                        onDragStart={(event) => {
+                          if (canManage) {
+                            event.dataTransfer.setData('application/x-stoked-path', JSON.stringify({
+                              path: object.path,
+                            }));
+                          }
+                          beginDesktopDownload(event, {
+                            name: object.name,
+                            url: object.url,
+                            effectAllowed: canManage ? 'copyMove' : 'copy',
+                          });
+                        }}
+                        onRenameStart={handleRenameStart}
+                        onRenameChange={setRenameValue}
+                        onRenameCommit={handleRenameCommit}
+                        onRenameKeyDown={handleRenameKeyDown}
+                        onDelete={handleDelete}
+                        onPermissions={handlePermissions}
+                      />
+                    ))}
                   </div>
                 ) : (
                   <div className="table-wrap">
