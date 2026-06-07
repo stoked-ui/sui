@@ -61,7 +61,14 @@ export default withDocsInfra({
   experimental: {
     workerThreads: true,
     cpus: 3,
-    esmExternals: 'loose'
+    esmExternals: 'loose',
+    // The audit bot reads playbook system prompts off disk at runtime
+    // (docs/src/modules/auditBot/playbooks/*/system.md). fs.readFileSync paths
+    // aren't statically traceable, so include them in the Lambda bundle
+    // explicitly or the deployed /api/audit/turn 500s with ENOENT.
+    outputFileTracingIncludes: {
+      '/api/audit/turn': ['./src/modules/auditBot/playbooks/**/*.md'],
+    },
   },
   assetPrefix,
   basePath,
