@@ -1,10 +1,13 @@
 import { DomainInfo } from 'infra/domains';
 import {
   adminSecret,
+  auditBotApiKey,
   jwtSecret,
   mongoDbUri,
   stripeSecretKey,
   stripeWebhookSecret,
+  telegramBotToken,
+  telegramSupportChatId,
 } from 'infra/secrets';
 import { findExistingCert } from 'infra/cert';
 import { CONSULTING_APP_SEGMENTS } from '../docs/src/modules/utils/siteRouteManifest';
@@ -66,6 +69,16 @@ export const createSite = async (domainInfo: DomainInfo) => {
       SES_FROM_EMAIL: process.env.SES_FROM_EMAIL ?? 'noreply@stokd.cloud',
       BLOG_IMAGE_S3_BUCKET: blogImageBucket,
       BLOG_IMAGE_CDN_URL: process.env.BLOG_IMAGE_CDN_URL ?? 'https://cdn.stokd.cloud',
+      // Audit bot inference — Bedrock's OpenAI-compatible endpoint. The local
+      // LM Studio default in llmClient.ts is unreachable from Lambda.
+      AUDIT_BOT_BASE_URL:
+        process.env.AUDIT_BOT_BASE_URL ??
+        'https://bedrock-runtime.us-east-1.amazonaws.com/openai/v1',
+      AUDIT_BOT_MODEL: process.env.AUDIT_BOT_MODEL ?? 'openai.gpt-oss-120b-1:0',
+      AUDIT_BOT_API_KEY: auditBotApiKey.value,
+      // Audit bot lead notifications (Telegram pings).
+      TELEGRAM_BOT_TOKEN: telegramBotToken.value,
+      TELEGRAM_SUPPORT_CHAT_ID: telegramSupportChatId.value,
     },
     server: {
       // The docs app has a heavy pages bundle and can exceed the default 20s/1024MB on cold starts.
@@ -79,6 +92,9 @@ export const createSite = async (domainInfo: DomainInfo) => {
       stripeSecretKey,
       stripeWebhookSecret,
       adminSecret,
+      auditBotApiKey,
+      telegramBotToken,
+      telegramSupportChatId,
     ],
     permissions: [
       {

@@ -4,3 +4,6 @@ export const stripeSecretKey = new sst.Secret('STRIPE_SECRET_KEY');
 export const stripeWebhookSecret = new sst.Secret('STRIPE_WEBHOOK_SECRET');
 export const jwtSecret = new sst.Secret('JWT_SECRET');
 export const adminSecret = new sst.Secret('ADMIN_SECRET');
+export const auditBotApiKey = new sst.Secret('AUDIT_BOT_API_KEY');
+export const telegramBotToken = new sst.Secret('TELEGRAM_BOT_TOKEN');
+export const telegramSupportChatId = new sst.Secret('TELEGRAM_SUPPORT_CHAT_ID');

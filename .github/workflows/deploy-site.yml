@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -46,6 +47,7 @@ jobs:
         env:
           ROOT_DOMAIN: sui.stokd.cloud,consulting.stokd.cloud
           NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
         run: |
           set -euo pipefail
           sst install
@@ -62,7 +64,9 @@ jobs:
       - name: Seed production product data
         env:
           ROOT_DOMAIN: sui.stokd.cloud,consulting.stokd.cloud
-          NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
+          # seed-products.ts reads MONGODB_URI directly; sst shell does not
+          # inject linked secrets as raw env vars, so pass it explicitly.
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
         run: |
           set -euo pipefail
-          sst shell --stage production --target suistokdcloudStaticSite -- pnpm --filter stokedui-com products:seed:mac-mixer
+          pnpm --filter stokedui-com products:seed:mac-mixer

@@ -33,5 +33,22 @@ export const AUDIT_MODEL = process.env.AUDIT_BOT_MODEL || 'qwen3-vl-32b-instruct
 
 export const MAX_TOOL_ITERATIONS = 6;
 
+/**
+ * Some OpenAI-compatible backends (notably Bedrock's /openai/v1 endpoint
+ * serving gpt-oss models) inline the model's chain-of-thought into the
+ * message content as <reasoning>...</reasoning> blocks instead of using a
+ * separate reasoning field. Visitors must never see that — strip every
+ * block, including an unterminated one from a truncated response.
+ */
+export function stripReasoning(text: string | null | undefined): string {
+  if (!text) {
+    return '';
+  }
+  return text
+    .replace(/<reasoning>[\s\S]*?<\/reasoning>/g, '')
+    .replace(/<reasoning>[\s\S]*$/g, '')
+    .trim();
+}
+
 export { PLAYBOOKS, isPlaybookId } from './playbooks';
 export type { PlaybookId, PlaybookConfig } from './playbooks';

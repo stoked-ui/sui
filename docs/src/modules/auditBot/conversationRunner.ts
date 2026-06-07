@@ -1,5 +1,5 @@
 import type OpenAI from 'openai';
-import { getLlmClient, AUDIT_MODEL, MAX_TOOL_ITERATIONS } from './llmClient';
+import { getLlmClient, AUDIT_MODEL, MAX_TOOL_ITERATIONS, stripReasoning } from './llmClient';
 import { getPlaybookSystemPrompt } from './playbooks/server';
 import type { PlaybookId } from './playbooks';
 import { AUDIT_TOOLS, executeTool, type ToolName } from './tools';
@@ -103,7 +103,7 @@ export async function runTurn(input: RunTurnInput): Promise<RunTurnResult> {
 
     const message = choice.message;
     const toolCalls: ToolCall[] | undefined = message.tool_calls;
-    const assistantText = (message.content || '').trim();
+    const assistantText = stripReasoning(message.content);
     if (assistantText) {
       lastReply = assistantText;
     }
