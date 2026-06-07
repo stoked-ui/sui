@@ -148,3 +148,20 @@ The free audit framing is the core. Variants if your initial sends get a "what s
 Set up a simple sheet (Notion, Airtable, Google Sheets, or just a `outreach.csv`) with: name, channel, sent date, replied (y/n), action (audit booked / intro made / passed / no response). Review weekly. After 30 messages, look at the response rate — if it's under 20%, the templates aren't landing; iterate the first sentence.
 
 A 1-in-5 response rate is healthy. A 1-in-10 audit-booked rate from responses is healthy. So 30 messages → ~6 replies → 1-2 audits booked. Repeat next week.
+
+---
+
+## Addendum (2026-06-06, post adversarial review)
+
+**Naming discipline — there are three tiers; don't blur them:**
+1. **5-minute bot audit** (consulting.stokd.cloud/ai) — self-serve, emails a 1-page report. The forwardable low-friction entry.
+2. **60-minute human audit** (the "3 free this month" offer above) — Brian-led, 1-page written deliverable. Scarce by design; always say "3 this month."
+3. **$2.5k one-week paid diagnostic** — the real engagement entry point: maps the client's actual invoice/document flow, written plan with their numbers, useful whoever builds.
+
+**The missing line — use with your highest-fit warm contacts** (people who can route a *buyer*, not a curiosity-clicker). Add after the free-audit paragraph:
+
+> And if someone's past the "curious" stage — they know the back office is bleeding and want a plan — the real entry point is a one-week paid diagnostic ($2.5k): I map their actual document flow and they get a written plan with their own numbers in it, useful whether or not they ever hire me again.
+
+Why this matters: the strategy gates everything on proving people will *pay*
+(§8 — outbound → paid-diagnostic ≥2/100). A warm network that only forwards
+the free audit produces zero evidence on that gate.

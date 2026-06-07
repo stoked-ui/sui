@@ -47,6 +47,7 @@ export default function AuditBot({ open, onClose, playbook, calendlyUrl }: Audit
   const [nameDraft, setNameDraft] = React.useState('');
   const [savingLead, setSavingLead] = React.useState(false);
   const [savedLead, setSavedLead] = React.useState(false);
+  const [emailedReport, setEmailedReport] = React.useState(false);
   const scrollRef = React.useRef<HTMLDivElement>(null);
 
   // Seed the opening message exactly once when the dialog opens fresh.
@@ -73,6 +74,7 @@ export default function AuditBot({ open, onClose, playbook, calendlyUrl }: Audit
     setNameDraft('');
     setSavingLead(false);
     setSavedLead(false);
+    setEmailedReport(false);
   }
 
   async function send() {
@@ -142,7 +144,7 @@ export default function AuditBot({ open, onClose, playbook, calendlyUrl }: Audit
     }
     setSavingLead(true);
     try {
-      await fetch('/api/audit/save-lead', {
+      const res = await fetch('/api/audit/save-lead', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -152,6 +154,8 @@ export default function AuditBot({ open, onClose, playbook, calendlyUrl }: Audit
           bookedCall,
         }),
       });
+      const data: { ok?: boolean; emailedReport?: boolean } = await res.json().catch(() => ({}));
+      setEmailedReport(Boolean(data.emailedReport));
       setSavedLead(true);
     } catch (err) {
       console.error('save-lead failed', err);
@@ -327,7 +331,9 @@ export default function AuditBot({ open, onClose, playbook, calendlyUrl }: Audit
             ]}
           >
             <Typography sx={{ fontWeight: 600 }}>
-              Got it. Brian sees this on his phone — he&apos;ll get back to you within a business day.
+              {emailedReport
+                ? 'Got it — your report is on its way to your inbox. Brian sees this on his phone too; he’ll get back to you within a business day.'
+                : 'Got it. Brian sees this on his phone — he’ll get back to you within a business day.'}
             </Typography>
           </Box>
         ) : null}

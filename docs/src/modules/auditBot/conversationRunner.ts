@@ -3,6 +3,7 @@ import { getLlmClient, AUDIT_MODEL, MAX_TOOL_ITERATIONS } from './llmClient';
 import { getPlaybookSystemPrompt } from './playbooks/server';
 import type { PlaybookId } from './playbooks';
 import { AUDIT_TOOLS, executeTool, type ToolName } from './tools';
+import { validateReportShape } from './reportValidation';
 import type { AuditReport } from './types';
 
 export interface ClientChatMessage {
@@ -26,6 +27,12 @@ export interface RunTurnResult {
   report?: AuditReport;
   /** True if the model signaled it called save_lead this turn — UI should treat as terminal. */
   finished: boolean;
+  /**
+   * Raw args the model passed to save_lead (untrusted — the API layer
+   * sanitizes via extractLeadFields before persisting). Without this, an email
+   * the visitor types into the chat would be discarded.
+   */
+  leadFieldArgs?: Record<string, unknown>;
   inputTokens?: number;
   outputTokens?: number;
 }
@@ -64,6 +71,7 @@ export async function runTurn(input: RunTurnInput): Promise<RunTurnResult> {
 
   let report: AuditReport | undefined;
   let finished = false;
+  let leadFieldArgs: Record<string, unknown> | undefined;
   let inputTokens = 0;
   let outputTokens = 0;
   let lastReply = '';
@@ -114,6 +122,7 @@ export async function runTurn(input: RunTurnInput): Promise<RunTurnResult> {
         reply: lastReply,
         report,
         finished,
+        leadFieldArgs,
         inputTokens,
         outputTokens,
       };
@@ -128,6 +137,22 @@ export async function runTurn(input: RunTurnInput): Promise<RunTurnResult> {
       const args = safeParseJson(call.function.arguments || '{}');
 
       if (name === 'generate_report') {
+        // The payload is untrusted model output — a malformed shape would
+        // crash the chat UI and the report email far from here. Feed the
+        // error back so the model retries with the schema from its prompt.
+        const validation = validateReportShape(input.playbook, args);
+        if (!validation.ok) {
+          const result: ToolMessage = {
+            role: 'tool',
+            tool_call_id: call.id,
+            content: JSON.stringify({
+              ok: false,
+              error: `${validation.error}. Re-call generate_report following the JSON schema in your instructions exactly.`,
+            }),
+          };
+          messages.push(result);
+          continue;
+        }
         report = {
           ...(args as Record<string, unknown>),
           playbook: input.playbook,
@@ -141,18 +166,9 @@ export async function runTurn(input: RunTurnInput): Promise<RunTurnResult> {
         continue;
       }
 
-      if (name === 'email_report') {
-        const result: ToolMessage = {
-          role: 'tool',
-          tool_call_id: call.id,
-          content: JSON.stringify({ ok: true, queued: true }),
-        };
-        messages.push(result);
-        continue;
-      }
-
       if (name === 'save_lead') {
         finished = true;
+        leadFieldArgs = args;
         const result: ToolMessage = {
           role: 'tool',
           tool_call_id: call.id,
@@ -181,6 +197,7 @@ export async function runTurn(input: RunTurnInput): Promise<RunTurnResult> {
         reply: lastReply,
         report,
         finished,
+        leadFieldArgs,
         inputTokens,
         outputTokens,
       };
@@ -191,6 +208,7 @@ export async function runTurn(input: RunTurnInput): Promise<RunTurnResult> {
     reply: lastReply || "Sorry — I hit my limit on that turn. Could you say that again?",
     report,
     finished,
+    leadFieldArgs,
     inputTokens,
     outputTokens,
   };

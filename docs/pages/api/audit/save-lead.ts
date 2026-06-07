@@ -1,6 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { updateLeadFields, getLead } from 'docs/src/modules/auditBot/auditStore';
+import {
+  updateLeadFields,
+  getLead,
+  tryMarkReportEmailed,
+  unmarkReportEmailed,
+} from 'docs/src/modules/auditBot/auditStore';
 import { notifyAuditCompletion } from 'docs/src/modules/auditBot/notifyTelegram';
+import { sendAuditReportEmail } from 'docs/src/modules/auditBot/auditMailer';
 
 interface SaveLeadBody {
   sessionId?: string;
@@ -39,13 +45,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     const lead = await getLead(body.sessionId);
+    let emailedReport = false;
     if (lead) {
+      // Both are best-effort: a notification/mail hiccup must not fail the save.
       await notifyAuditCompletion({
         lead,
         origin: req.headers.origin?.toString() || req.headers.referer?.toString(),
       });
+      if (lead.email && lead.report && (await tryMarkReportEmailed(body.sessionId))) {
+        emailedReport = await sendAuditReportEmail(lead);
+        if (!emailedReport) {
+          // Release the claim so a retry (or the other capture path) can send it.
+          await unmarkReportEmailed(body.sessionId);
+        }
+      }
     }
-    return res.status(200).json({ ok: true });
+    return res.status(200).json({ ok: true, emailedReport });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'save-lead failed';
     console.error('audit/save-lead failed', err);

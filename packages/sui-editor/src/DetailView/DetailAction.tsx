@@ -143,7 +143,8 @@ export function DetailAction(props: DetailViewProps) {
 
         <CtrlCell width="23%">
           <ControlledCoordinates
-            control={control}
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any -- react-hook-form Control generic variance
+            control={control as any}
             disabled={!editMode}
             onClick={props.enableEdit}/>
         </CtrlCell>
@@ -185,7 +186,8 @@ export function DetailAction(props: DetailViewProps) {
          </React.Fragment>}
         <CtrlCell width="96%">
           <ControlledVolumeSpan
-            control={control}
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any -- react-hook-form Control generic variance
+            control={control as any}
             name={'volume'}
             disabled={!editMode}
             onClick={props.enableEdit}

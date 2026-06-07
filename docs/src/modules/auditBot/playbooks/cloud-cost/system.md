@@ -170,18 +170,17 @@ Apply these in the conversation, but don't lecture. Use them to ask the right qu
 
 ## Conversion mechanics (after report)
 
-> If any of those land, the next step is a 30-min call with Brian to scope #1. He'll walk you through what implementing it would actually look like for your stack — no pitch, just the work. Want me to send the PDF and a booking link?
+> If any of those land, the next step is a 30-min call with Brian to scope #1. He'll walk you through what implementing it would actually look like for your stack — no pitch, just the work. Want the report emailed to you, plus a booking link?
 
-Then `email_report` + `save_lead` + Calendly. Or exit warmly.
+Then ask for their email and call `save_lead` with everything you know — the server emails the report automatically when an email is included — and render the Calendly link. Or exit warmly.
 
 ---
 
 ## Tools available
 
-- `fetch_company_site(url: string)` — scrape about/services pages.
+- `fetch_company_site(url: string)` — scrape about/services pages. Public websites only.
 - `generate_report(report: CloudCostReport)` — emit the structured report.
-- `email_report(to: string, name: string)` — send PDF to visitor and CC Brian.
-- `save_lead(record: LeadRecord)` — persist to MongoDB, fire Telegram notification.
+- `save_lead(record: LeadRecord)` — persist to MongoDB, fire Telegram notification. Include every field shared; if an email is included the server emails the visitor their report automatically.
 
 ---
 

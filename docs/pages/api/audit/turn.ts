@@ -6,7 +6,15 @@ import {
   appendMessage,
   saveReport,
   newSessionId,
+  updateLeadFields,
+  tryMarkReportEmailed,
+  unmarkReportEmailed,
+  tryMarkChatNotified,
+  getLead,
 } from 'docs/src/modules/auditBot/auditStore';
+import { extractLeadFields } from 'docs/src/modules/auditBot/leadFields';
+import { notifyAuditCompletion } from 'docs/src/modules/auditBot/notifyTelegram';
+import { sendAuditReportEmail } from 'docs/src/modules/auditBot/auditMailer';
 
 interface TurnRequestBody {
   sessionId?: string;
@@ -94,6 +102,36 @@ export default async function handler(
         await appendMessage(sessionId, playbook as PlaybookId, 'assistant', result.reply);
       } catch (err) {
         console.error('auditStore append (assistant) failed', err);
+      }
+    }
+
+    // The model ended the conversation via save_lead — persist whatever
+    // structured fields the visitor shared in chat, then notify + email the
+    // report. Best-effort: a Mongo/SES/Telegram blip must not fail the turn.
+    if (result.finished) {
+      try {
+        const fields = extractLeadFields(result.leadFieldArgs);
+        if (Object.keys(fields).length > 0) {
+          await updateLeadFields(sessionId, fields);
+        }
+        const lead = await getLead(sessionId);
+        if (lead) {
+          if (await tryMarkChatNotified(sessionId)) {
+            await notifyAuditCompletion({
+              lead,
+              origin: req.headers.origin?.toString() || req.headers.referer?.toString(),
+            });
+          }
+          if (lead.email && lead.report && (await tryMarkReportEmailed(sessionId))) {
+            const sent = await sendAuditReportEmail(lead);
+            if (!sent) {
+              // Release the claim so the form path can retry after a SES blip.
+              await unmarkReportEmailed(sessionId);
+            }
+          }
+        }
+      } catch (err) {
+        console.error('audit/turn lead finalization failed', err);
       }
     }
 

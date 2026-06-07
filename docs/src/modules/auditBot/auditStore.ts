@@ -125,6 +125,52 @@ export async function updateLeadFields(
   await leads.updateOne({ sessionId }, { $set: set });
 }
 
+/**
+ * Atomically claim the right to send the report email for this session.
+ * Returns true exactly once per lead — the chat path (model calls save_lead
+ * with an email) and the form path (visitor submits the capture box) can both
+ * fire, and the visitor should not get the report twice.
+ */
+export async function tryMarkReportEmailed(sessionId: string): Promise<boolean> {
+  const db = await getDb();
+  const leads = db.collection<AuditLeadDoc>(AUDIT_LEADS_COLLECTION);
+  const result = await leads.findOneAndUpdate(
+    { sessionId, reportEmailedAt: { $exists: false } },
+    { $set: { reportEmailedAt: nowIso(), updatedAt: nowIso() } },
+  );
+  return result !== null;
+}
+
+/**
+ * Release the email claim after a failed send so a later attempt (e.g. the
+ * form path after a chat-path SES blip) can retry. Without this, a transient
+ * mail failure would permanently burn the one-shot flag and the lead would
+ * silently never receive their report.
+ */
+export async function unmarkReportEmailed(sessionId: string): Promise<void> {
+  const db = await getDb();
+  const leads = db.collection<AuditLeadDoc>(AUDIT_LEADS_COLLECTION);
+  await leads.updateOne(
+    { sessionId },
+    { $unset: { reportEmailedAt: '' }, $set: { updatedAt: nowIso() } },
+  );
+}
+
+/**
+ * Claim the one-shot chat-completion Telegram ping. The model may call
+ * save_lead on more than one turn; Brian should get one ping from the chat
+ * path. (The form path notifies unconditionally — it carries new contact info.)
+ */
+export async function tryMarkChatNotified(sessionId: string): Promise<boolean> {
+  const db = await getDb();
+  const leads = db.collection<AuditLeadDoc>(AUDIT_LEADS_COLLECTION);
+  const result = await leads.findOneAndUpdate(
+    { sessionId, chatNotifiedAt: { $exists: false } },
+    { $set: { chatNotifiedAt: nowIso(), updatedAt: nowIso() } },
+  );
+  return result !== null;
+}
+
 export async function getLead(
   sessionId: string,
 ): Promise<AuditLeadRecord | null> {

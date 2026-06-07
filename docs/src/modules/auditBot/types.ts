@@ -141,6 +141,10 @@ export interface AuditLeadRecord {
   bookedCall: boolean;
   /** Set when this lead has been promoted to a real client and the report is now in deliverables. */
   promotedClientId?: string;
+  /** Set once the report email has been sent — dedupes across the chat and form capture paths. */
+  reportEmailedAt?: string;
+  /** Set once the chat path has fired its completion Telegram ping (the model may finish more than once). */
+  chatNotifiedAt?: string;
   createdAt: string;
   updatedAt: string;
 }

@@ -135,6 +135,14 @@ The cross-package wire types and enums exported by `@stoked-ui/media` (notably `
 - `grep -rnE "from\s+['\"]@stoked-ui/media['\"]" packages | grep -E "MediaType|IMediaFile|MediaFile|Command"` enumerates every peer consumer touched by the change.
 - manual: PR description lists every peer package updated and states why any omitted package is unaffected.
 
+## AX-AUDIT-BOT-URL-SAFETY: Visitor-Supplied URL Fetches Pass The urlSafety Guards
+Every server-side fetch of a visitor-supplied URL in the audit bot MUST pass the guards in `docs/src/modules/auditBot/urlSafety.ts`: http/https only, no embedded credentials, hostname not in the blocked set (localhost / `.local` / `.internal` / metadata), every IP being dialed classified public by `isPrivateOrReservedIp` (enforced at connect time via the undici Agent `lookup` hook in `docs/src/modules/auditBot/tools.ts`, which closes the DNS-rebinding TOCTOU), redirects re-validated hop-by-hop (never `redirect: 'follow'`), bounded by a request timeout and a streamed response-size cap.
+
+### Acceptance Checks
+- `NODE_ENV=test npx mocha docs/src/modules/auditBot/urlSafety.test.ts docs/src/modules/auditBot/tools.test.ts` exits 0.
+- `grep -n "redirect: 'follow'" docs/src/modules/auditBot/tools.ts` returns no hits.
+- manual: any new visitor-URL-fetching code path under `docs/src/modules/auditBot/**` imports `urlSafety` (and dials through the SSRF-safe agent) rather than re-implementing checks.
+
 ---
 
 ## Candidates (Not Yet Promoted)

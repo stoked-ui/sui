@@ -1,5 +1,13 @@
+import { lookup } from 'dns';
+import { Agent, fetch as undiciFetch } from 'undici';
 import type OpenAI from 'openai';
 import type { PlaybookId } from './playbooks';
+import {
+  normalizeUrl,
+  isBlockedHostname,
+  isPrivateOrReservedIp,
+  UnsafeUrlError,
+} from './urlSafety';
 
 type ToolDefinition = OpenAI.Chat.Completions.ChatCompletionTool;
 
@@ -40,22 +48,11 @@ const GENERATE_REPORT: ToolDefinition = {
   },
 };
 
-const EMAIL_REPORT: ToolDefinition = {
-  type: 'function',
-  function: {
-    name: 'email_report',
-    description:
-      "Send the generated PDF report to the visitor's email and CC Brian. Only call after generate_report has been called and the visitor has provided an email address. Returns { sent: true } on success.",
-    parameters: {
-      type: 'object',
-      properties: {
-        to: { type: 'string', description: 'Visitor email.' },
-        name: { type: 'string', description: 'Visitor name if known.' },
-      },
-      required: ['to'],
-    },
-  },
-};
+// NOTE: there used to be an `email_report` tool here. It was removed because it
+// was a dead stub — it told the model a PDF had been emailed when nothing was
+// sent. Report emailing now actually happens server-side in
+// /api/audit/save-lead (see auditMailer.ts) when the visitor submits an email,
+// which is more reliable than hoping the model remembers to call a tool.
 
 const SAVE_LEAD: ToolDefinition = {
   type: 'function',
@@ -81,14 +78,12 @@ const SAVE_LEAD: ToolDefinition = {
 export const AUDIT_TOOLS: ToolDefinition[] = [
   FETCH_COMPANY_SITE,
   GENERATE_REPORT,
-  EMAIL_REPORT,
   SAVE_LEAD,
 ];
 
 export type ToolName =
   | 'fetch_company_site'
   | 'generate_report'
-  | 'email_report'
   | 'save_lead';
 
 export interface ToolExecutionContext {
@@ -103,32 +98,164 @@ export interface ToolExecutionResult {
 }
 
 const MAX_SCRAPED_CHARS = 12_000;
+const FETCH_TIMEOUT_MS = 6_000;
+const MAX_REDIRECT_HOPS = 3;
+const MAX_RESPONSE_BYTES = 2_000_000; // 2MB of HTML is plenty for an about page
+
+/**
+ * Reject the destination before any socket is opened. Visitor-supplied URLs
+ * are an SSRF vector — without this, a visitor could point the bot at cloud
+ * metadata (169.254.169.254), loopback services, or internal RFC-1918 hosts.
+ * This is the cheap structural pre-check; the binding enforcement lives in the
+ * ssrfSafeAgent lookup hook below, which validates the exact IP being dialed
+ * (closing the DNS-rebinding TOCTOU a resolve-then-fetch check would leave).
+ */
+function assertSafeUrlShape(url: URL): void {
+  const hostname = url.hostname.replace(/^\[|\]$/g, ''); // strip IPv6 brackets
+  if (isBlockedHostname(hostname)) {
+    throw new UnsafeUrlError('that hostname is blocked for safety');
+  }
+  // IP literal — classify directly (no DNS involved, so no rebinding risk).
+  if (/^[\d.]+$/.test(hostname) || hostname.includes(':')) {
+    if (isPrivateOrReservedIp(hostname)) {
+      throw new UnsafeUrlError('destination is a non-public address (blocked)');
+    }
+  }
+}
+
+/**
+ * undici Agent whose DNS hook validates every resolved address at connect
+ * time — the IP that passes the check IS the IP that gets dialed, so a
+ * malicious DNS server can't pass validation with a public A record and then
+ * serve a private one to the actual connection (DNS rebinding).
+ */
+const ssrfSafeAgent = new Agent({
+  connect: {
+    lookup(hostname, options, callback) {
+      lookup(hostname, { ...options, all: true, verbatim: true }, (err, addresses) => {
+        if (err) {
+          callback(err, '', 4);
+          return;
+        }
+        const list = Array.isArray(addresses) ? addresses : [];
+        if (list.length === 0) {
+          callback(new UnsafeUrlError('hostname did not resolve'), '', 4);
+          return;
+        }
+        const unsafe = list.find((a) => isPrivateOrReservedIp(a.address));
+        if (unsafe) {
+          callback(new UnsafeUrlError('destination resolves to a non-public address (blocked)'), '', 4);
+          return;
+        }
+        if (options.all) {
+          callback(null, list as never);
+        } else {
+          callback(null, list[0].address, list[0].family);
+        }
+      });
+    },
+  },
+  headersTimeout: FETCH_TIMEOUT_MS,
+  bodyTimeout: FETCH_TIMEOUT_MS,
+});
+
+/** Minimal structural fetch type so tests can inject a stub. */
+export type FetchLike = (url: string) => Promise<{
+  status: number;
+  ok: boolean;
+  headers: { get(name: string): string | null };
+  body: ReadableStream<Uint8Array> | null;
+}>;
+
+const defaultFetch: FetchLike = (url: string) =>
+  undiciFetch(url, {
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (StokedAuditBot/1.0)',
+      Accept: 'text/html,application/xhtml+xml',
+    },
+    redirect: 'manual',
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+    dispatcher: ssrfSafeAgent,
+  }) as unknown as ReturnType<FetchLike>;
+
+/**
+ * Fetch with redirects validated hop-by-hop. `redirect: 'follow'` would let a
+ * public site 302 the bot into a private address, so each Location target is
+ * re-checked before it is followed. Exported for tests (inject `fetchImpl`).
+ */
+export async function fetchPublic(
+  startUrl: URL,
+  fetchImpl: FetchLike = defaultFetch,
+): Promise<Awaited<ReturnType<FetchLike>>> {
+  let current = startUrl;
+  for (let hop = 0; hop <= MAX_REDIRECT_HOPS; hop += 1) {
+    assertSafeUrlShape(current);
+    // eslint-disable-next-line no-await-in-loop
+    const response = await fetchImpl(current.href);
+    if (response.status >= 300 && response.status < 400) {
+      const location = response.headers.get('location');
+      if (!location || hop === MAX_REDIRECT_HOPS) {
+        throw new UnsafeUrlError('too many redirects');
+      }
+      const next = new URL(location, current);
+      if (next.protocol !== 'http:' && next.protocol !== 'https:') {
+        throw new UnsafeUrlError('redirect to a non-http(s) URL is not allowed');
+      }
+      current = next;
+      continue;
+    }
+    return response;
+  }
+  throw new UnsafeUrlError('too many redirects');
+}
+
+/**
+ * Read the body with a hard byte cap and wall-clock deadline enforced DURING
+ * the read — content-length is server-supplied and can lie, and a trickling
+ * body would otherwise hold the function open indefinitely.
+ */
+async function readBodyCapped(
+  body: ReadableStream<Uint8Array> | null,
+  maxBytes: number,
+  deadlineMs: number,
+): Promise<string> {
+  if (!body) {
+    return '';
+  }
+  const reader = body.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  const deadline = Date.now() + deadlineMs;
+  for (;;) {
+    if (Date.now() > deadline) {
+      await reader.cancel().catch(() => {});
+      break;
+    }
+    // eslint-disable-next-line no-await-in-loop
+    const { done, value } = await reader.read();
+    if (done) {
+      break;
+    }
+    total += value.byteLength;
+    chunks.push(value);
+    if (total >= maxBytes) {
+      await reader.cancel().catch(() => {});
+      break;
+    }
+  }
+  return Buffer.concat(chunks).toString('utf8');
+}
 
 async function executeFetchCompanySite(input: { url: string }): Promise<ToolExecutionResult> {
   try {
-    const raw = (input.url || '').trim();
-    if (!raw) {
-      return { ok: false, error: 'url is required' };
-    }
-    const url = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
-    const parsed = new URL(url);
-    if (!/^https?:$/i.test(parsed.protocol)) {
-      return { ok: false, error: 'only http/https URLs are supported' };
-    }
-
-    const response = await fetch(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (StokedAuditBot/1.0)',
-        Accept: 'text/html,application/xhtml+xml',
-      },
-      redirect: 'follow',
-    });
+    const parsed = normalizeUrl(input.url || '');
+    const response = await fetchPublic(parsed);
 
     if (!response.ok) {
       return { ok: false, error: `site returned ${response.status}` };
     }
 
-    const html = await response.text();
+    const html = await readBodyCapped(response.body, MAX_RESPONSE_BYTES, FETCH_TIMEOUT_MS * 2);
     const text = html
       .replace(/<script[\s\S]*?<\/script>/gi, ' ')
       .replace(/<style[\s\S]*?<\/style>/gi, ' ')
@@ -142,7 +269,7 @@ async function executeFetchCompanySite(input: { url: string }): Promise<ToolExec
     return {
       ok: true,
       data: {
-        url,
+        url: parsed.href,
         title,
         text: text.slice(0, MAX_SCRAPED_CHARS),
         truncated: text.length > MAX_SCRAPED_CHARS,
@@ -155,8 +282,8 @@ async function executeFetchCompanySite(input: { url: string }): Promise<ToolExec
 }
 
 /**
- * Execute a tool call server-side. `generate_report`, `email_report`, and `save_lead`
- * are recognized as "caller-handled" — the conversation runner / API layer surfaces
+ * Execute a tool call server-side. `generate_report` and `save_lead` are
+ * recognized as "caller-handled" — the conversation runner / API layer surfaces
  * those upstream rather than executing them here because they need session context.
  */
 export async function executeTool(
@@ -168,7 +295,6 @@ export async function executeTool(
     case 'fetch_company_site':
       return executeFetchCompanySite(input as { url: string });
     case 'generate_report':
-    case 'email_report':
     case 'save_lead':
       return { ok: true, data: { handled_by: 'caller', input } };
     default:
