@@ -143,13 +143,13 @@ function q(p){var r=[];for(var k in p){if(!Object.prototype.hasOwnProperty.call(
 function rd(loc){return{statusCode:308,statusDescription:'Permanent Redirect',headers:{location:{value:loc}}};}
 function shared(p){return p==='/favicon.ico'||p==='/robots.txt'||p==='/sitemap.xml'||p==='/manifest.json'||p.indexOf('/api/')===0||p.indexOf('/_next/')===0||p.indexOf('/static/')===0||p.indexOf('/images/')===0;}
 var SEGS=${JSON.stringify(CONSULTING_APP_SEGMENTS)};
-function capp(p){var f=(p||'/').replace(/^\/+/,'').split('/')[0]||'';return SEGS.indexOf(f)>=0;}
+function capp(p){var f=(p||'/').replace(/^\\/+/,'').split('/')[0]||'';return SEGS.indexOf(f)>=0;}
 var isC=host==='consulting.stokd.cloud';
 var isP=host==='sui.stokd.cloud'||host==='www.sui.stokd.cloud';
 if(host==='www.consulting.stokd.cloud'){return rd('https://consulting.stokd.cloud'+uri+q(qs));}
 else if(host==='www.sui.stokd.cloud'){return rd('https://sui.stokd.cloud'+uri+q(qs));}
 else if(isC){if(!shared(uri)&&capp(uri)){if(uri==='/'||uri===''){event.request.uri='/consulting/';}else if(uri==='/index.html'){event.request.uri='/consulting/index.html';}else if(uri.indexOf('/consulting/')!==0&&uri!=='/consulting'){event.request.uri='/consulting'+(uri.indexOf('/')===0?uri:'/'+uri);}else if(uri==='/consulting'){event.request.uri='/consulting/';}}}
-else if(isP&&(uri==='/consulting'||uri.indexOf('/consulting/')===0)){return rd('https://consulting.stokd.cloud'+(uri==='/consulting'?'/':(uri.replace(/^\/consulting/,'')||'/'))+q(qs));}
+else if(isP&&(uri==='/consulting'||uri.indexOf('/consulting/')===0)){return rd('https://consulting.stokd.cloud'+(uri==='/consulting'?'/':(uri.replace(/^\\/consulting/,'')||'/'))+q(qs));}
 if(isC&&event.request.uri==='/consulting'){event.request.uri='/consulting/';}
 if(isC&&event.request.uri.indexOf('/consulting//')===0){event.request.uri=event.request.uri.replace('/consulting//','/consulting/');}
         `,
