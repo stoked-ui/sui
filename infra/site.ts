@@ -16,10 +16,6 @@ const STOKD_CLOUD_ACCOUNT_ID = '167217327520';
 const DEFAULT_AUTH_AUTO_DOMAINS = 'stokd.cloud,sui.stokd.cloud,consulting.stokd.cloud,brianstoker.com';
 
 export const createSite = async (domainInfo: DomainInfo) => {
-  const consultingSegmentsObject = CONSULTING_APP_SEGMENTS.reduce<Record<string, true>>((segments, segment) => {
-    segments[segment] = true;
-    return segments;
-  }, {});
   const invalidationPaths = process.env.INVALIDATION_PATHS;
   const blogImageBucket = process.env.BLOG_IMAGE_S3_BUCKET ?? 'cdn.stokd.cloud';
   const enableDomain = process.env.SITE_ENABLE_DOMAIN !== '0';
@@ -128,124 +124,34 @@ export const createSite = async (domainInfo: DomainInfo) => {
       : {}),
     edge: {
       viewerRequest: {
+        // NOTE: CloudFront Functions have a 10,240-byte limit shared with
+        // SST's own generated routing code (~5.2KB). Keep this injection
+        // minified — no comments/indentation inside the template string.
+        // Behavior:
+        //   1. Answer CORS preflight (OPTIONS) for media/video Range requests.
+        //   2. www.* -> apex 308 redirects for both domains.
+        //   3. consulting.stokd.cloud/* -> internal /consulting/* rewrite
+        //      (only for consulting app segments, never shared paths).
+        //   4. sui.stokd.cloud/consulting/* -> consulting.stokd.cloud 308.
         injection: `
-          // Handle CORS preflight for media/video playback (Range requests from cross-origin MediaCards, etc.)
-          // This must run before domain routing so preflight is answered for all paths including media.
-          var method = (event.request.method || 'GET').toUpperCase();
-          if (method === 'OPTIONS') {
-            var reqHeaders = event.request.headers['access-control-request-headers'];
-            return {
-              statusCode: 204,
-              statusDescription: 'No Content',
-              headers: {
-                'access-control-allow-origin': { value: '*' },
-                'access-control-allow-methods': { value: 'GET, HEAD, OPTIONS' },
-                'access-control-allow-headers': { value: reqHeaders ? reqHeaders.value : 'Range, Content-Type, Authorization' },
-                'access-control-expose-headers': { value: 'Content-Range, Accept-Ranges, Content-Encoding, Content-Length' },
-                'access-control-max-age': { value: '86400' },
-                'vary': { value: 'Origin, Access-Control-Request-Headers, Access-Control-Request-Method' },
-              },
-            };
-          }
-
-          // Domain-based routing:
-          // - sui.stokd.cloud/consulting/* => https://consulting.stokd.cloud/*
-          // - consulting.stokd.cloud/* => /consulting/* on the same Next.js site
-          var host = event.request.headers.host ? event.request.headers.host.value : '';
-          var uri = event.request.uri;
-          var querystring = event.request.querystring || {};
-
-          var isConsultingDomain = host === 'consulting.stokd.cloud';
-          var isPrimaryDomain = host === 'sui.stokd.cloud' || host === 'www.sui.stokd.cloud';
-
-          function serializeQuery(params) {
-            var parts = [];
-            for (var key in params) {
-              if (!Object.prototype.hasOwnProperty.call(params, key)) continue;
-              var entry = params[key];
-              if (!entry) continue;
-              if (entry.multiValue && entry.multiValue.length) {
-                for (var i = 0; i < entry.multiValue.length; i += 1) {
-                  var multi = entry.multiValue[i];
-                  parts.push(encodeURIComponent(key) + '=' + encodeURIComponent(multi.value || ''));
-                }
-              } else {
-                parts.push(encodeURIComponent(key) + '=' + encodeURIComponent(entry.value || ''));
-              }
-            }
-            return parts.length ? ('?' + parts.join('&')) : '';
-          }
-
-          function isSharedPath(pathname) {
-            return pathname === '/favicon.ico'
-              || pathname === '/robots.txt'
-              || pathname === '/sitemap.xml'
-              || pathname === '/manifest.json'
-              || pathname.indexOf('/api/') === 0
-              || pathname.indexOf('/_next/') === 0
-              || pathname.indexOf('/static/') === 0
-              || pathname.indexOf('/images/') === 0;
-          }
-
-          function isConsultingAppPath(pathname) {
-            var normalized = pathname || '/';
-            var firstSegment = normalized.replace(/^\\/+/, '').split('/')[0] || '';
-            var consultingSegments = ${JSON.stringify(consultingSegmentsObject)};
-            return consultingSegments[firstSegment] === true;
-          }
-
-          if (host === 'www.consulting.stokd.cloud') {
-            return {
-              statusCode: 308,
-              statusDescription: 'Permanent Redirect',
-              headers: {
-                location: {
-                  value: 'https://consulting.stokd.cloud' + uri + serializeQuery(querystring),
-                },
-              },
-            };
-          } else if (host === 'www.sui.stokd.cloud') {
-            return {
-              statusCode: 308,
-              statusDescription: 'Permanent Redirect',
-              headers: {
-                location: {
-                  value: 'https://sui.stokd.cloud' + uri + serializeQuery(querystring),
-                },
-              },
-            };
-          } else if (isConsultingDomain) {
-            if (!isSharedPath(uri) && isConsultingAppPath(uri)) {
-              if (uri === '/' || uri === '') {
-                event.request.uri = '/consulting/';
-              } else if (uri === '/index.html') {
-                event.request.uri = '/consulting/index.html';
-              } else if (uri.indexOf('/consulting/') !== 0 && uri !== '/consulting') {
-                event.request.uri = '/consulting' + (uri.indexOf('/') === 0 ? uri : '/' + uri);
-              } else if (uri === '/consulting') {
-                event.request.uri = '/consulting/';
-              }
-            }
-          } else if (isPrimaryDomain && (uri === '/consulting' || uri.indexOf('/consulting/') === 0)) {
-            var redirectPath = uri === '/consulting' ? '/' : uri.replace(/^\\/consulting/, '') || '/';
-            return {
-              statusCode: 308,
-              statusDescription: 'Permanent Redirect',
-              headers: {
-                location: {
-                  value: 'https://consulting.stokd.cloud' + redirectPath + serializeQuery(querystring),
-                },
-              },
-            };
-          }
-
-          if (isConsultingDomain && event.request.uri === '/consulting') {
-            event.request.uri = '/consulting/';
-          }
-
-          if (isConsultingDomain && event.request.uri.indexOf('/consulting//') === 0) {
-            event.request.uri = event.request.uri.replace('/consulting//', '/consulting/');
-          }
+var m=(event.request.method||'GET').toUpperCase();
+if(m==='OPTIONS'){var rh=event.request.headers['access-control-request-headers'];return{statusCode:204,statusDescription:'No Content',headers:{'access-control-allow-origin':{value:'*'},'access-control-allow-methods':{value:'GET, HEAD, OPTIONS'},'access-control-allow-headers':{value:rh?rh.value:'Range, Content-Type, Authorization'},'access-control-expose-headers':{value:'Content-Range, Accept-Ranges, Content-Encoding, Content-Length'},'access-control-max-age':{value:'86400'},'vary':{value:'Origin, Access-Control-Request-Headers, Access-Control-Request-Method'}}};}
+var host=event.request.headers.host?event.request.headers.host.value:'';
+var uri=event.request.uri;
+var qs=event.request.querystring||{};
+function q(p){var r=[];for(var k in p){if(!Object.prototype.hasOwnProperty.call(p,k))continue;var e=p[k];if(!e)continue;if(e.multiValue&&e.multiValue.length){for(var i=0;i<e.multiValue.length;i++){r.push(encodeURIComponent(k)+'='+encodeURIComponent(e.multiValue[i].value||''));}}else{r.push(encodeURIComponent(k)+'='+encodeURIComponent(e.value||''));}}return r.length?('?'+r.join('&')):'';}
+function rd(loc){return{statusCode:308,statusDescription:'Permanent Redirect',headers:{location:{value:loc}}};}
+function shared(p){return p==='/favicon.ico'||p==='/robots.txt'||p==='/sitemap.xml'||p==='/manifest.json'||p.indexOf('/api/')===0||p.indexOf('/_next/')===0||p.indexOf('/static/')===0||p.indexOf('/images/')===0;}
+var SEGS=${JSON.stringify(CONSULTING_APP_SEGMENTS)};
+function capp(p){var f=(p||'/').replace(/^\/+/,'').split('/')[0]||'';return SEGS.indexOf(f)>=0;}
+var isC=host==='consulting.stokd.cloud';
+var isP=host==='sui.stokd.cloud'||host==='www.sui.stokd.cloud';
+if(host==='www.consulting.stokd.cloud'){return rd('https://consulting.stokd.cloud'+uri+q(qs));}
+else if(host==='www.sui.stokd.cloud'){return rd('https://sui.stokd.cloud'+uri+q(qs));}
+else if(isC){if(!shared(uri)&&capp(uri)){if(uri==='/'||uri===''){event.request.uri='/consulting/';}else if(uri==='/index.html'){event.request.uri='/consulting/index.html';}else if(uri.indexOf('/consulting/')!==0&&uri!=='/consulting'){event.request.uri='/consulting'+(uri.indexOf('/')===0?uri:'/'+uri);}else if(uri==='/consulting'){event.request.uri='/consulting/';}}}
+else if(isP&&(uri==='/consulting'||uri.indexOf('/consulting/')===0)){return rd('https://consulting.stokd.cloud'+(uri==='/consulting'?'/':(uri.replace(/^\/consulting/,'')||'/'))+q(qs));}
+if(isC&&event.request.uri==='/consulting'){event.request.uri='/consulting/';}
+if(isC&&event.request.uri.indexOf('/consulting//')===0){event.request.uri=event.request.uri.replace('/consulting//','/consulting/');}
         `,
       },
       viewerResponse: {
